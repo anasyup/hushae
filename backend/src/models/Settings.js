@@ -12,6 +12,8 @@ const settingsSchema = new mongoose.Schema({
     ctaWomen: { type: String, default: 'Shop Women' },
     ctaMen: { type: String, default: 'Shop Men' },
     image: { type: String, default: '' },
+    fullScreen: { type: Boolean, default: false },   // international-style full-viewport hero
+    align: { type: String, default: 'left' },        // 'left' | 'center'
   },
   trustBadges: [{
     title: String,

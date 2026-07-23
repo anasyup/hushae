@@ -42,6 +42,34 @@ export default function Home() {
   return (
     <div>
       {/* HERO */}
+      {hero.fullScreen ? (
+        <section className="relative flex min-h-[100svh] items-end overflow-hidden">
+          <Img src={hero.image || 'https://images.unsplash.com/photo-1519744792095-2f2205e87b6f?auto=format&fit=crop&w=1600&q=80'}
+            alt="VÉLOURA editorial" className="absolute inset-0 h-full w-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-t from-obsidian/85 via-obsidian/30 to-obsidian/10" />
+          <motion.div initial={{ opacity: 0, y: 26 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}
+            className={`relative z-10 mx-auto w-full max-w-7xl px-4 pb-20 md:px-8 md:pb-24 ${hero.align === 'center' ? 'text-center' : ''}`}>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-alabaster/80">Premium innerwear · Made in Pakistan</p>
+            <h1 className="mt-4 whitespace-pre-line font-display text-4xl leading-[1.08] text-alabaster md:text-7xl lg:text-8xl">
+              {hero.title || 'Second Skin,\nFirst Choice.'}
+            </h1>
+            <p className={`mt-5 max-w-xl text-[15px] leading-relaxed text-alabaster/80 ${hero.align === 'center' ? 'mx-auto' : ''}`}>
+              {hero.subtitle || 'Underwear engineered in breathable, cloud-soft fabrics.'}
+            </p>
+            <div className={`mt-8 flex flex-wrap gap-4 ${hero.align === 'center' ? 'justify-center' : ''}`}>
+              <Link to="/women" className="inline-flex items-center justify-center gap-2 rounded-full bg-alabaster px-7 py-3.5 text-[13px] font-semibold uppercase tracking-widest text-obsidian transition hover:bg-alabaster/90 active:scale-[0.99]">
+                {hero.ctaWomen || 'Shop Women'} <ArrowRight size={15} />
+              </Link>
+              <Link to="/men" className="inline-flex items-center justify-center gap-2 rounded-full border border-alabaster/50 px-7 py-3.5 text-[13px] font-semibold uppercase tracking-widest text-alabaster transition hover:bg-alabaster hover:text-obsidian active:scale-[0.99]">
+                {hero.ctaMen || 'Shop Men'}
+              </Link>
+            </div>
+            <div className={`mt-10 flex items-center gap-6 text-[11px] uppercase tracking-widest text-alabaster/60 ${hero.align === 'center' ? 'justify-center' : ''}`}>
+              <span>3 tiers — Economy to Signature</span><span className="h-3 w-px bg-alabaster/30" /><span>100+ styles</span>
+            </div>
+          </motion.div>
+        </section>
+      ) : (
       <section className="mx-auto max-w-7xl px-4 pt-8 md:px-8 md:pt-14">
         <div className="grid items-center gap-10 md:grid-cols-2">
           <motion.div initial={{ opacity: 0, y: 26 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
@@ -72,6 +100,7 @@ export default function Home() {
           </motion.div>
         </div>
       </section>
+      )}
 
       <div className="mt-14"><TrustBadges /></div>
 

@@ -41,6 +41,22 @@ export default function Content() {
                 <div><label className="label">Button 2 (Men)</label><input className="input" value={hero.ctaMen || ''} onChange={(e) => setHero('ctaMen', e.target.value)} /></div>
               </div>
               <div><label className="label">Hero image URL (optional)</label><input className="input" placeholder="https://…" value={hero.image || ''} onChange={(e) => setHero('image', e.target.value)} /></div>
+              <div className="grid gap-4 rounded-2xl border border-line bg-satin/20 p-4 sm:grid-cols-2">
+                <label className="flex cursor-pointer items-start gap-3 text-sm">
+                  <input type="checkbox" className="mt-0.5 h-4 w-4 accent-obsidian" checked={!!hero.fullScreen} onChange={(e) => setHero('fullScreen', e.target.checked)} />
+                  <span>
+                    <span className="block font-medium">Full-screen hero</span>
+                    <span className="mt-0.5 block text-xs text-ash">Banner poori screen bhar jayega — badi international websites jaise</span>
+                  </span>
+                </label>
+                <div>
+                  <label className="label">Text position</label>
+                  <select className="input" value={hero.align || 'left'} onChange={(e) => setHero('align', e.target.value)} disabled={!hero.fullScreen}>
+                    <option value="left">Left — bottom</option>
+                    <option value="center">Center</option>
+                  </select>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -70,6 +86,22 @@ export default function Content() {
                 <span className="font-semibold underline underline-offset-2">{offer.ctaEn}</span>
               </div>
             )}
+            {hero.fullScreen ? (
+              <div className="relative h-72 overflow-hidden">
+                {hero.image
+                  ? <img src={hero.image} alt="hero" className="absolute inset-0 h-full w-full object-cover" onError={(e) => { e.target.style.display = 'none'; }} />
+                  : <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1519744792095-2f2205e87b6f?auto=format&fit=crop&w=1600&q=80)' }} />}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-black/5" />
+                <div className={`absolute inset-x-0 bottom-0 p-6 ${hero.align === 'center' ? 'text-center' : ''}`}>
+                  <p className="whitespace-pre-line font-display text-2xl leading-tight text-white">{hero.title}</p>
+                  <p className={`mt-1.5 max-w-md text-[11px] leading-relaxed text-white/70 ${hero.align === 'center' ? 'mx-auto' : ''}`}>{hero.subtitle}</p>
+                  <div className={`mt-3 flex gap-2 ${hero.align === 'center' ? 'justify-center' : ''}`}>
+                    <span className="rounded-full bg-white px-3 py-1.5 text-[10px] font-semibold uppercase tracking-widest text-black">{hero.ctaWomen}</span>
+                    <span className="rounded-full border border-white/50 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-widest text-white">{hero.ctaMen}</span>
+                  </div>
+                </div>
+              </div>
+            ) : (
             <div className="grid items-center gap-5 p-6 sm:grid-cols-2">
               <div>
                 <p className="whitespace-pre-line font-display text-2xl leading-tight">{hero.title}</p>
@@ -83,6 +115,7 @@ export default function Content() {
                 ? <img src={hero.image} alt="hero" className="h-44 w-full rounded-2xl object-cover" onError={(e) => { e.target.style.display = 'none'; }} />
                 : <div className="flex h-44 items-center justify-center rounded-2xl bg-satin text-xs text-ash">Default hero image</div>}
             </div>
+            )}
           </div>
           <p className="text-xs leading-relaxed text-ash">Preview sirf andaaze ke liye hai — Save karne ke baad asli website par foran apply ho jata hai.</p>
         </div>
