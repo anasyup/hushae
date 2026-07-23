@@ -87,7 +87,8 @@ export default function LiveView() {
 
         {/* Sessions by location */}
         <div className="card p-6 lg:col-span-2">
-          <p className="mb-4 flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-ash"><MapPin size={14} /> Sessions by location — today</p>
+          <p className="mb-1 flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-ash"><MapPin size={14} /> Sessions by location — today</p>
+          <p className="mb-4 text-[11px] leading-relaxed text-ash">Shehar visitor ke network (IP) se milta hai — VPN ya mobile network (Jazz/Telenor) ki wajah se qareebi shehar bhi dikh sakta hai. Ye GPS nahi, approximate area hai.</p>
           {d.byLocation.length === 0
             ? <p className="text-sm text-ash">No visits yet today — jab visitors aayenge to unke shehar yahan dikhenge.</p>
             : (

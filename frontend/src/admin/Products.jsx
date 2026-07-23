@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Pencil, Plus, Search, Trash2 } from 'lucide-react';
+import { Pencil, Search, Trash2 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import { pkr } from '../lib/format';
@@ -26,7 +26,12 @@ export default function Products() {
     });
     api(`/products/admin/list?${sp}`, { token: auth.token }).then((d) => setList(d.products)).catch(() => setList([]));
   };
-  useEffect(load, [f.category, f.gender, f.tier, f.stock, f.status, searchParams]); // eslint-disable-line
+  useEffect(load, [f.category, f.gender, f.tier, f.stock, f.status]); // eslint-disable-line
+  // Sidebar deep-links (?status=draft / ?active=0) sync into the filter
+  useEffect(() => {
+    const s = searchParams.get('active') === '0' ? 'disabled' : (searchParams.get('status') || '');
+    setF((x) => (x.status === s ? x : { ...x, status: s }));
+  }, [searchParams]);
 
   const enable = async (p) => {
     try { await api(`/products/${p._id}`, { method: 'PUT', token: auth.token, body: { isActive: true } }); toast('Product enabled — live in store'); load(); }
@@ -41,7 +46,7 @@ export default function Products() {
   useEffect(() => { api('/categories?all=1').then((d) => setCats(d.categories)).catch(() => {}); }, []);
 
   const disable = async (p) => {
-    try { await api(`/products/${p._id}`, { method: 'DELETE', token: auth.token }); toast('Product disabled'); load(); }
+    try { await api(`/products/${p._id}`, { method: 'DELETE', token: auth.token }); toast('Product marked inactive'); load(); }
     catch (ex) { toast(ex.message); }
   };
 
@@ -52,8 +57,10 @@ export default function Products() {
     </select>
   );
 
+  const title = f.status === 'draft' ? 'Drafts' : f.status === 'disabled' ? 'Inactive' : f.status === 'active' ? 'Active Products' : 'All Products';
+
   return (
-    <AdminLayout title="Products">
+    <AdminLayout title={title}>
       <div className="mb-5 flex flex-wrap items-center gap-3">
         <form onSubmit={(e) => { e.preventDefault(); load(); }} className="relative">
           <Search size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-ash" />
@@ -63,8 +70,7 @@ export default function Products() {
         {sel('category', 'All categories', cats.map((c) => ({ value: c.slug, label: `${c.name} (${c.gender[0].toUpperCase()})` })))}
         {sel('tier', 'All tiers', ['Economy', 'Standard', 'Premium'])}
         {sel('stock', 'Any stock', [{ value: 'low', label: 'Low (≤5)' }, { value: 'out', label: 'Out of stock' }])}
-        {sel('status', 'All status', [{ value: 'active', label: 'Active (live)' }, { value: 'draft', label: 'Drafts' }, { value: 'disabled', label: 'Inactive (disabled)' }])}
-        <Link to="/admin/products/new" className="btn-primary !px-5 !py-2.5 !text-[11px]"><Plus size={14} /> Add Product</Link>
+        {sel('status', 'All status', [{ value: 'active', label: 'Active (live)' }, { value: 'draft', label: 'Drafts' }, { value: 'disabled', label: 'Inactive' }])}
       </div>
 
       <div className="card overflow-x-auto">
@@ -72,7 +78,7 @@ export default function Products() {
           <thead><tr className="border-b border-line bg-satin/30">{['Product', 'SKU', 'Tier', 'Price', 'Stock', 'Flags', ''].map((h) => <th key={h} className="table-head">{h}</th>)}</tr></thead>
           <tbody>
             {(list || []).map((p) => (
-              <tr key={p._id} className={`border-b border-line/60 transition hover:bg-satin/20 ${!p.isActive ? 'opacity-45' : ''}`}>
+              <tr key={p._id} className="border-b border-line/60 transition hover:bg-satin/20">
                 <td className="table-cell">
                   <div className="flex items-center gap-3">
                     <Img src={p.images[0]?.url} alt="" className="h-12 w-9 rounded-lg object-cover" />
@@ -87,14 +93,14 @@ export default function Products() {
                   {p.status === 'draft' && <span className="mr-1.5 rounded-full bg-amber-100 px-2 py-0.5 text-amber-800 ring-1 ring-amber-300">Draft</span>}
                   {p.isFeatured && <span className="mr-1.5 text-sagedeep">Featured</span>}
                   {p.isBestSeller && <span>Best</span>}
-                  {!p.isActive && <span className="text-red-700">Disabled</span>}
+                  {!p.isActive && <span className="text-red-700">Inactive</span>}
                 </td>
                 <td className="table-cell">
                   <div className="flex items-center gap-2">
                     <Link to={`/admin/products/${p._id}`} className="rounded-full border border-line p-2 text-ash transition hover:border-obsidian hover:text-obsidian" aria-label="Edit"><Pencil size={13} /></Link>
                     {p.isActive
-                      ? <button onClick={() => disable(p)} className="rounded-full border border-line px-3 py-2 text-[10px] font-bold uppercase text-ash transition hover:border-amber-400 hover:text-amber-700">Disable</button>
-                      : <button onClick={() => enable(p)} className="rounded-full border border-sagedeep/40 px-3 py-2 text-[10px] font-bold uppercase text-sagedeep transition hover:bg-sage/20">Enable</button>}
+                      ? <button onClick={() => disable(p)} className="rounded-full border border-line px-3 py-2 text-[10px] font-bold uppercase text-ash transition hover:border-amber-400 hover:text-amber-700">Inactive</button>
+                      : <button onClick={() => enable(p)} className="rounded-full border border-sagedeep/40 px-3 py-2 text-[10px] font-bold uppercase text-sagedeep transition hover:bg-sage/20">Active</button>}
                     <button onClick={() => remove(p)} className="rounded-full border border-line p-2 text-ash transition hover:border-red-300 hover:bg-red-50 hover:text-red-700" aria-label="Delete permanently" title="Delete permanently"><Trash2 size={13} /></button>
                   </div>
                 </td>

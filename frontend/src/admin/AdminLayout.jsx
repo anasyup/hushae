@@ -8,14 +8,12 @@ import { useApp } from '../store/AppContext';
 
 const MAIN = [
   { to: '/admin', label: 'Home', icon: Home, end: true },
-  { to: '/admin/live', label: 'Live View', icon: Activity },
   { to: '/admin/orders', label: 'Orders', icon: ShoppingBag },
   { to: '/admin/customers', label: 'Customers', icon: Users },
   { to: '/admin/growth', label: 'Growth', icon: TrendingUp },
   { to: '/admin/discounts', label: 'Discounts', icon: BadgePercent },
   { to: '/admin/content', label: 'Content', icon: FileText },
   { to: '/admin/markets', label: 'Markets', icon: Globe },
-  { to: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
 ];
 
 // Manage Products dropdown children — label + link + small icon
@@ -23,8 +21,14 @@ const PRODUCT_LINKS = [
   { to: '/admin/products', label: 'All products', icon: Package, end: true },
   { to: '/admin/products/new', label: 'Add product', icon: PackagePlus },
   { to: '/admin/products?status=draft', label: 'Drafts', icon: FolderOpen },
-  { to: '/admin/products?active=0', label: 'Inactive (disabled)', icon: PackageX },
+  { to: '/admin/products?active=0', label: 'Inactive', icon: PackageX },
   { to: '/admin/categories', label: 'Categories', icon: Plus },
+];
+
+// Analytics dropdown children
+const ANALYTICS_LINKS = [
+  { to: '/admin/analytics', label: 'Overview', icon: BarChart3, end: true },
+  { to: '/admin/live', label: 'Live View', icon: Activity },
 ];
 
 const linkCls = ({ isActive }) =>
@@ -75,6 +79,15 @@ function SidebarContent({ onNavigate }) {
             {to === '/admin/orders' && (
               <Section title="Manage Products">
                 {PRODUCT_LINKS.map(({ to: cto, label: clabel, icon: CIcon }) => (
+                  <NavLink key={clabel} to={cto} className={childCls(cto)} onClick={onNavigate}>
+                    <CIcon size={14} strokeWidth={1.8} /> {clabel}
+                  </NavLink>
+                ))}
+              </Section>
+            )}
+            {to === '/admin/markets' && (
+              <Section title="Analytics">
+                {ANALYTICS_LINKS.map(({ to: cto, label: clabel, icon: CIcon }) => (
                   <NavLink key={clabel} to={cto} className={childCls(cto)} onClick={onNavigate}>
                     <CIcon size={14} strokeWidth={1.8} /> {clabel}
                   </NavLink>

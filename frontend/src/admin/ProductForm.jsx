@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Plus, Save, Trash2 } from 'lucide-react';
+import { ArrowLeft, FileEdit, Plus, Save, Trash2 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import AdminLayout from './AdminLayout';
@@ -51,7 +51,7 @@ export default function ProductForm() {
   const set = (k, v) => setF((x) => ({ ...x, [k]: v }));
   const catOpts = cats.filter((c) => c.gender === f.gender);
 
-  const save = async (e) => {
+  const save = async (e, forceStatus) => {
     e.preventDefault();
     const images = f.images.filter(Boolean).map((url, i) => ({ url, alt: `${f.name} — view ${i + 1}` }));
     if (images.length < 4) { toast('Add at least 4 images (tiles par + dabayen)'); return; }
@@ -63,7 +63,7 @@ export default function ProductForm() {
       sizes: f.sizesText.split(',').map((s) => s.trim()).filter(Boolean),
       colors: f.colors.filter((c) => c.name && c.hex),
       fabric: f.fabric, badges: f.badges, care: f.careText.split('\n').map((s) => s.trim()).filter(Boolean),
-      isFeatured: f.isFeatured, isBestSeller: f.isBestSeller, isActive: f.isActive, status: f.status || 'active',
+      isFeatured: f.isFeatured, isBestSeller: f.isBestSeller, isActive: f.isActive, status: forceStatus || f.status || 'active',
       category: cat?._id || f.category || undefined, categorySlug: f.categorySlug || cat?.slug, bundleSlug: f.bundleSlug,
     };
     if (!body.category) { toast('Choose a category'); return; }
@@ -182,6 +182,7 @@ export default function ProductForm() {
             </div>
           </div>
           <button disabled={busy} className="btn-primary w-full"><Save size={15} /> {busy ? 'Saving…' : isNew ? 'Create product' : 'Save changes'}</button>
+          <button type="button" disabled={busy} onClick={(e) => save(e, 'draft')} className="btn-outline w-full !py-2.5 !text-[11px]" title="Store mein show nahi hoga — Drafts mein save hoga"><FileEdit size={13} /> Save as draft</button>
         </div>
       </form>
     </AdminLayout>

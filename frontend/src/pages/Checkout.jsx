@@ -303,7 +303,7 @@ export default function Checkout() {
               <div>
                 <label className="label">Postal code *</label>
                 <input className={`input ${(errs.postalCode || (postalLive && !postalLive.ok)) ? '!border-red-400 !ring-red-50' : ''}`}
-                  value={f.postalCode} inputMode="numeric" maxLength={5} placeholder={postalHint || '54000'}
+                  value={f.postalCode} inputMode="numeric" maxLength={5} placeholder="5-digit code"
                   onChange={(e) => set('postalCode', e.target.value.replace(/\D/g, '').slice(0, 5))} />
                 {/* priority: form error > live verification error > verified tick */}
                 {errs.postalCode ? (

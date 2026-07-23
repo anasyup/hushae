@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Banknote, MapPin, Package, Printer, ReceiptText, Trash2, User } from 'lucide-react';
+import { ArrowLeft, Banknote, MapPin, Minus, Package, Pencil, Plus, Printer, ReceiptText, Save, Trash2, User, X } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import { fmtDate, fmtDateTime, pkr } from '../lib/format';
@@ -29,6 +29,53 @@ export default function OrderDetail() {
     if (!window.confirm(`Delete order ${o.orderNumber} permanently?\n\nYe record hamesha ke liye delete ho jayega.`)) return;
     try { await api(`/orders/admin/${id}`, { method: 'DELETE', token: auth.token }); toast('Order deleted'); nav('/admin/orders'); }
     catch (ex) { toast(ex.message); }
+  };
+
+  /* ---- items editing (upgrade order before shipping) ---- */
+  const editable = ['Pending', 'Confirmed', 'Processing', 'Ready to Ship'].includes(o.status);
+  const [editing, setEditing] = useState(false);
+  const [editItems, setEditItems] = useState([]);
+  const [pq, setPq] = useState('');
+  const [pRes, setPRes] = useState([]);
+
+  const startEdit = async () => {
+    const ids = o.items.map((i) => i.product).filter(Boolean);
+    let map = {};
+    if (ids.length) {
+      try { const d = await api(`/products/admin/list?ids=${ids.join(',')}`, { token: auth.token }); map = Object.fromEntries(d.products.map((p) => [String(p._id), p])); } catch {}
+    }
+    setEditItems(o.items.map((i) => {
+      const p = map[String(i.product)] || {};
+      return {
+        product: String(i.product), name: i.name, image: i.image, price: i.price, quantity: i.quantity, size: i.size, color: i.color,
+        sizes: p.sizes?.length ? p.sizes : [i.size].filter(Boolean), colors: p.colors?.length ? p.colors : (i.color ? [{ name: i.color }] : []),
+      };
+    }));
+    setPq(''); setPRes([]);
+    setEditing(true);
+  };
+  const updLine = (i, k, v) => setEditItems((a) => a.map((it, j) => (j === i ? { ...it, [k]: v } : it)));
+  const stepQty = (i, d) => setEditItems((a) => a.map((it, j) => (j === i ? { ...it, quantity: Math.min(10, Math.max(1, it.quantity + d)) } : it)));
+  const delLine = (i) => setEditItems((a) => a.filter((_, j) => j !== i));
+  const searchPicker = async (q) => {
+    setPq(q);
+    if (q.trim().length < 2) { setPRes([]); return; }
+    try { const d = await api(`/products/admin/list?q=${encodeURIComponent(q.trim())}`, { token: auth.token }); setPRes(d.products.filter((p) => p.isActive && p.status !== 'draft').slice(0, 6)); } catch { setPRes([]); }
+  };
+  const addPicked = (p) => {
+    setEditItems((a) => [...a, { product: String(p._id), name: p.name, image: p.images[0]?.url || '', price: p.price, quantity: 1, size: p.sizes[0] || '', color: p.colors[0]?.name || '', sizes: p.sizes || [], colors: p.colors || [] }]);
+    setPq(''); setPRes([]);
+  };
+  const editSub = editItems.reduce((s, it) => s + it.price * it.quantity, 0);
+  const editTotal = Math.max(0, editSub - (o.discount || 0)) + (o.shippingCharge || 0);
+  const saveItems = async () => {
+    if (!editItems.length) { toast('Order must have at least one item'); return; }
+    try {
+      await api(`/orders/admin/${id}/items`, { method: 'PATCH', token: auth.token, body: { items: editItems.map((it) => ({ product: it.product, size: it.size, color: it.color, quantity: it.quantity })) } });
+      toast('Order updated — bill recalculated');
+      setEditing(false);
+      await load();
+    } catch (ex) { toast(ex.message); }
   };
 
   if (!o) return <AdminLayout title="Order"><div className="skeleton h-96 w-full" /></AdminLayout>;
@@ -76,11 +123,14 @@ export default function OrderDetail() {
         {/* LEFT: items + timeline */}
         <div className="space-y-6 lg:col-span-2">
           <div className="card overflow-hidden">
-            <div className="border-b border-line bg-satin/30 px-6 py-4">
+            <div className="flex items-center justify-between border-b border-line bg-satin/30 px-6 py-4">
               <p className="text-[11px] font-bold uppercase tracking-widest text-ash">Ordered items</p>
+              {editable && !editing && (
+                <button onClick={startEdit} className="inline-flex items-center gap-1.5 rounded-full border border-line bg-alabaster px-3.5 py-1.5 text-[11px] font-bold text-obsidian transition hover:border-obsidian"><Pencil size={12} /> Edit items</button>
+              )}
             </div>
             <div className="divide-y divide-line/60 px-6">
-              {o.items.map((it, i) => (
+              {!editing && o.items.map((it, i) => (
                 <div key={i} className="flex items-center gap-4 py-4">
                   {it.slug
                     ? <Link to={`/product/${it.slug}`} target="_blank" title="Open in store"><Img src={it.image} alt="" className="h-16 w-12 rounded-xl border border-line object-cover" /></Link>
@@ -96,12 +146,69 @@ export default function OrderDetail() {
                   <p className="text-sm font-bold">{pkr(it.lineTotal)}</p>
                 </div>
               ))}
+
+              {editing && editItems.map((it, i) => (
+                <div key={i} className="flex items-center gap-4 py-4">
+                  <Img src={it.image} alt="" className="h-16 w-12 rounded-xl border border-line object-cover" />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-semibold leading-snug">{it.name}</p>
+                    <div className="mt-1.5 flex flex-wrap gap-1.5">
+                      {it.sizes.length > 0 && (
+                        <select value={it.size} onChange={(e) => updLine(i, 'size', e.target.value)} className="input !w-auto !px-2.5 !py-1 !text-[11px]">
+                          {it.sizes.map((s) => <option key={s} value={s}>{s}</option>)}
+                        </select>
+                      )}
+                      {it.colors.length > 0 && (
+                        <select value={it.color} onChange={(e) => updLine(i, 'color', e.target.value)} className="input !w-auto !px-2.5 !py-1 !text-[11px]">
+                          {it.colors.map((c) => <option key={c.name} value={c.name}>{c.name}</option>)}
+                        </select>
+                      )}
+                    </div>
+                    <div className="mt-2 flex items-center gap-2">
+                      <button type="button" onClick={() => stepQty(i, -1)} className="grid h-6 w-6 place-items-center rounded-full border border-line transition hover:border-obsidian"><Minus size={11} /></button>
+                      <b className="w-5 text-center text-xs">{it.quantity}</b>
+                      <button type="button" onClick={() => stepQty(i, 1)} className="grid h-6 w-6 place-items-center rounded-full border border-line transition hover:border-obsidian"><Plus size={11} /></button>
+                      <span className="ml-1 text-[11px] text-ash">× {pkr(it.price)}</span>
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-end gap-2">
+                    <p className="text-sm font-bold">{pkr(it.price * it.quantity)}</p>
+                    <button type="button" onClick={() => delLine(i)} className="rounded-full p-1.5 text-ash transition hover:bg-red-50 hover:text-red-700" title="Remove item"><X size={14} /></button>
+                  </div>
+                </div>
+              ))}
+
+              {editing && (
+                <div className="relative py-4">
+                  <p className="mb-2 text-[11px] font-bold uppercase tracking-widest text-ash">Add a product to this order</p>
+                  <input value={pq} onChange={(e) => searchPicker(e.target.value)} placeholder="Search by name or SKU…" className="input !py-2.5 text-sm" />
+                  {pRes.length > 0 && (
+                    <div className="absolute inset-x-0 top-[84px] z-20 overflow-hidden rounded-xl border border-line bg-alabaster shadow-card">
+                      {pRes.map((p) => (
+                        <button type="button" key={p._id} onClick={() => addPicked(p)} className="flex w-full items-center gap-3 px-3 py-2.5 text-left transition hover:bg-satin/50">
+                          <Img src={p.images[0]?.url} alt="" className="h-9 w-7 rounded-md object-cover" />
+                          <span className="flex-1 truncate text-xs font-medium">{p.name}</span>
+                          <span className="font-mono text-[10px] text-ash">{p.sku}</span>
+                          <span className="text-xs font-bold">{pkr(p.price)}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
             <div className="space-y-1.5 border-t border-line bg-satin/20 px-6 py-5 text-sm">
-              <p className="flex justify-between"><span className="text-ash">Subtotal</span><span>{pkr(o.subtotal)}</span></p>
+              <p className="flex justify-between"><span className="text-ash">Subtotal</span><span>{pkr(editing ? editSub : o.subtotal)}</span></p>
               {!!o.discount && <p className="flex justify-between font-medium text-sagedeep"><span>Discount {o.couponCode ? `(${o.couponCode})` : ''}</span><span>− {pkr(o.discount)}</span></p>}
               <p className="flex justify-between"><span className="text-ash">Shipping</span><span>{o.shippingCharge === 0 ? 'Free' : pkr(o.shippingCharge)}</span></p>
-              <p className="flex justify-between pt-1 font-display text-xl"><span>Total</span><span>{pkr(o.total)}</span></p>
+              <p className="flex justify-between pt-1 font-display text-xl"><span>Total</span><span>{pkr(editing ? editTotal : o.total)}</span></p>
+              {editing && (
+                <div className="flex items-center gap-3 !pt-4">
+                  <button onClick={saveItems} className="btn-primary !px-5 !py-2.5 !text-[11px]"><Save size={13} /> Update order</button>
+                  <button onClick={() => setEditing(false)} className="btn-outline !px-5 !py-2.5 !text-[11px]">Cancel</button>
+                  <span className="text-[11px] text-ash">Stock & bill dono apne aap recalculate honge</span>
+                </div>
+              )}
             </div>
           </div>
 

@@ -178,4 +178,50 @@ router.delete('/admin/:id', protect, adminOnly, asyncHandler(async (req, res) =>
   res.json({ message: 'Order deleted' });
 }));
 
+// Edit order items (admin) — add/remove products, change qty/size/color; bill + stock recalculate
+router.patch('/admin/:id/items', protect, adminOnly, asyncHandler(async (req, res) => {
+  const order = await Order.findById(req.params.id);
+  if (!order) return res.status(404).json({ message: 'Order not found' });
+  if (!['Pending', 'Confirmed', 'Processing', 'Ready to Ship'].includes(order.status)) {
+    return res.status(400).json({ message: `Items can no longer be edited — order is ${order.status}` });
+  }
+  const incoming = Array.isArray(req.body?.items) ? req.body.items : [];
+  if (!incoming.length) return res.status(400).json({ message: 'Order must have at least one item' });
+
+  // Rebuild line items with live DB prices
+  const newItems = [];
+  for (const it of incoming) {
+    const qty = Math.max(1, Math.min(parseInt(it.quantity || '1', 10), 10));
+    const p = await Product.findById(it.product);
+    if (!p || !p.isActive || p.status === 'draft') return res.status(400).json({ message: 'A selected product is no longer available' });
+    if (it.size && p.sizes.length && !p.sizes.includes(it.size)) return res.status(400).json({ message: `Invalid size for ${p.name}` });
+    newItems.push({
+      product: p._id, name: p.name, slug: p.slug, image: p.images[0]?.url || '',
+      size: it.size || p.sizes[0] || '', color: it.color || p.colors[0]?.name || '',
+      price: p.price, quantity: qty, lineTotal: p.price * qty,
+    });
+  }
+
+  // Net stock delta per product (+diff means we need that much more stock)
+  const oldQty = {}; order.items.forEach((i) => { const k = String(i.product); oldQty[k] = (oldQty[k] || 0) + i.quantity; });
+  const newQty = {}; newItems.forEach((i) => { const k = String(i.product); newQty[k] = (newQty[k] || 0) + i.quantity; });
+  const touched = [];
+  for (const pid of new Set([...Object.keys(oldQty), ...Object.keys(newQty)])) {
+    const diff = (newQty[pid] || 0) - (oldQty[pid] || 0);
+    if (!diff) continue;
+    const p = await Product.findOneAndUpdate({ _id: pid, stock: { $gte: diff } }, { $inc: { stock: -diff } }, { new: true });
+    if (!p) { // rollback and report
+      for (const t of touched) await Product.findByIdAndUpdate(t.pid, { $inc: { stock: t.diff } });
+      return res.status(409).json({ message: 'Not enough stock for the added quantity' });
+    }
+    touched.push({ pid, diff });
+  }
+
+  order.items = newItems;
+  order.subtotal = newItems.reduce((a, i) => a + i.lineTotal, 0);
+  order.total = Math.max(0, order.subtotal - (order.discount || 0)) + (order.shippingCharge || 0);
+  await order.save();
+  res.json({ order });
+}));
+
 module.exports = router;
