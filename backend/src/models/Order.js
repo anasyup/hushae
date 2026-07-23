@@ -1,0 +1,51 @@
+const mongoose = require('mongoose');
+
+const ORDER_STATUSES = ['Pending', 'Confirmed', 'Processing', 'Ready to Ship', 'Shipped', 'Out for Delivery', 'Delivered', 'Cancelled', 'Refunded'];
+const PAYMENT_STATUSES = ['Pending', 'Paid', 'Failed', 'Refunded'];
+const PAYMENT_METHODS = ['COD', 'JazzCash', 'EasyPaisa', 'Bank Transfer'];
+
+const itemSchema = new mongoose.Schema({
+  product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
+  name: String,
+  slug: String,
+  image: String,
+  size: String,
+  color: String,
+  price: Number,
+  quantity: Number,
+  lineTotal: Number,
+}, { _id: false });
+
+const orderSchema = new mongoose.Schema({
+  orderNumber: { type: String, required: true, unique: true },
+  customer: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+  customerInfo: {
+    name: { type: String, required: true },
+    email: { type: String, default: '' },
+    phone: { type: String, required: true },
+    address: { type: String, required: true },
+    city: { type: String, required: true },
+    province: { type: String, required: true },
+    postalCode: { type: String, default: '' },
+    notes: { type: String, default: '' },
+  },
+  items: { type: [itemSchema], required: true },
+  subtotal: { type: Number, required: true },
+  shippingCharge: { type: Number, default: 0 },
+  discount: { type: Number, default: 0 },
+  total: { type: Number, required: true },
+  paymentMethod: { type: String, enum: PAYMENT_METHODS, required: true },
+  paymentStatus: { type: String, enum: PAYMENT_STATUSES, default: 'Pending' },
+  transactionId: { type: String, default: '' },
+  status: { type: String, enum: ORDER_STATUSES, default: 'Pending' },
+  statusHistory: [{
+    status: String,
+    at: { type: Date, default: Date.now },
+    _id: false,
+  }],
+  discreetPackaging: { type: Boolean, default: true },
+}, { timestamps: true });
+
+orderSchema.statics.STATUSES = ORDER_STATUSES;
+
+module.exports = mongoose.model('Order', orderSchema);

@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html { @apply scroll-smooth; }
+  body { @apply bg-alabaster text-obsidian font-sans antialiased; }
+  ::selection { @apply bg-satin text-obsidian; }
+  input[type='number']::-webkit-inner-spin-button { -webkit-appearance: none; }
+}
+
+@layer components {
+  .input {
+    @apply w-full rounded-xl border border-line bg-white/70 px-4 py-3 text-sm text-obsidian placeholder:text-ash/60
+      outline-none transition focus:border-obsidian/40 focus:bg-white focus:ring-2 focus:ring-obsidian/5;
+  }
+  .label { @apply mb-1.5 block text-[11px] font-semibold uppercase tracking-widest text-ash; }
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-obsidian px-7 py-3.5 text-[13px] font-semibold uppercase tracking-widest text-alabaster transition
+      hover:bg-obsidian/85 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-40;
+  }
+  .btn-outline {
+    @apply inline-flex items-center justify-center gap-2 rounded-full border border-obsidian/25 px-7 py-3.5 text-[13px] font-semibold uppercase tracking-widest text-obsidian transition
+      hover:border-obsidian hover:bg-obsidian hover:text-alabaster active:scale-[0.99];
+  }
+  .card { @apply rounded-3xl border border-line bg-white/60; }
+  .pill { @apply inline-flex items-center gap-1 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-wider; }
+  .skeleton {
+    @apply relative overflow-hidden rounded-2xl bg-satin/70;
+    background-image: linear-gradient(90deg, rgba(230, 220, 210, 0) 0, rgba(251, 249, 246, 0.75) 50%, rgba(230, 220, 210, 0) 100%);
+    background-size: 400px 100%;
+    background-repeat: no-repeat;
+    animation: shimmer 1.6s linear infinite;
+  }
+  .table-head { @apply px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-ash; }
+  .table-cell { @apply px-4 py-3.5 text-sm; }
+  .badge-sage { @apply pill bg-sage/20 text-sagedeep; }
+}
+
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+.clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+.gallery-zoom img { transition: transform 0.7s cubic-bezier(0.2, 0.6, 0.2, 1); }
+.gallery-zoom:hover img { transform: scale(1.08); }
+
+@media print {
+  body * { visibility: hidden !important; }
+  #invoice, #invoice * { visibility: visible !important; }
+  #invoice { position: absolute; inset: 0; background: white; }
+}
