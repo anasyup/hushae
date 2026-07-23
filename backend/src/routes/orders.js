@@ -12,6 +12,15 @@ const router = express.Router();
 const digits = (s) => String(s || '').replace(/\D/g, '');
 const phoneTail = (s) => digits(s).slice(-10); // forgiving match: 0300... / +92300...
 
+// Normalize to 03XXXXXXXXX (accepts 03xx / +923xx / 923xx / 3xx formats); null if not a Pakistani mobile
+const normalizePhone = (v) => {
+  let p = digits(v);
+  if (p.startsWith('0092')) p = `0${p.slice(4)}`;
+  else if (p.startsWith('92') && p.length === 12) p = `0${p.slice(2)}`;
+  else if (p.length === 10 && p.startsWith('3')) p = `0${p}`;
+  return /^03\d{9}$/.test(p) ? p : null;
+};
+
 // ---- Place order (guest or logged-in) ----
 router.post('/', optionalAuth, asyncHandler(async (req, res) => {
   const { customerInfo = {}, items = [], paymentMethod, transactionId = '', discountCode = '', discreetPackaging = true } = req.body || {};
@@ -22,7 +31,10 @@ router.post('/', optionalAuth, asyncHandler(async (req, res) => {
       return res.status(400).json({ message: `Please provide ${f}` });
     }
   }
-  if (digits(customerInfo.phone).length < 10) return res.status(400).json({ message: 'Please provide a valid phone number' });
+  const phoneNorm = normalizePhone(customerInfo.phone);
+  if (!phoneNorm) {
+    return res.status(400).json({ message: 'Invalid phone number — enter a Pakistani mobile number (03XX-XXXXXXX)' });
+  }
 
   // Postal code: province/city ke hisaab se verify (delivery isi par depend karti hai)
   const pc = postalCheck(customerInfo.postalCode, customerInfo.province.trim(), customerInfo.city.trim());
@@ -33,10 +45,10 @@ router.post('/', optionalAuth, asyncHandler(async (req, res) => {
   if (customerInfo.location && customerInfo.location.lat != null && customerInfo.location.lng != null) {
     const lat = Number(customerInfo.location.lat); const lng = Number(customerInfo.location.lng);
     if (!Number.isFinite(lat) || !Number.isFinite(lng) || Math.abs(lat) > 90 || Math.abs(lng) > 180) {
-      return res.status(400).json({ message: 'Map location sahi nahi hai' });
+      return res.status(400).json({ message: 'The map location is invalid' });
     }
     if (lat < 23.4 || lat > 37.2 || lng < 60.4 || lng > 78) {
-      return res.status(400).json({ message: 'Ye location Pakistan mein nahi hai' });
+      return res.status(400).json({ message: 'That location is outside Pakistan' });
     }
     location = { lat, lng, mapsLink: `https://www.google.com/maps?q=${lat},${lng}` };
   }
@@ -97,7 +109,7 @@ router.post('/', optionalAuth, asyncHandler(async (req, res) => {
     customer: req.user ? req.user._id : null,
     customerInfo: {
       name: customerInfo.name.trim(), email: (customerInfo.email || '').trim(),
-      phone: customerInfo.phone.trim(), address: customerInfo.address.trim(),
+      phone: phoneNorm, address: customerInfo.address.trim(),
       city: customerInfo.city.trim(), province: customerInfo.province.trim(),
       postalCode: customerInfo.postalCode.trim(), notes: (customerInfo.notes || '').trim(),
       location,

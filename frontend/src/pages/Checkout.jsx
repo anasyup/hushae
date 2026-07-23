@@ -17,6 +17,16 @@ const PM = [
   { id: 'Bank Transfer', icon: Landmark, title: 'Bank Transfer', note: 'Transfer then enter reference' },
 ];
 
+// Normalize Pakistani mobile to 03XXXXXXXXX (accepts 03xx / +923xx / 923xx / 3xx); null if invalid
+function normalizePhone(v) {
+  const d = String(v || '').replace(/\D/g, '');
+  let p = d;
+  if (p.startsWith('0092')) p = `0${p.slice(4)}`;
+  else if (p.startsWith('92') && p.length === 12) p = `0${p.slice(2)}`;
+  else if (p.length === 10 && p.startsWith('3')) p = `0${p}`;
+  return /^03\d{9}$/.test(p) ? p : null;
+}
+
 // Module-level field (component identity stays stable while typing — no focus loss)
 function Field({ k, label, f, errs, set, ...props }) {
   return (
@@ -104,6 +114,22 @@ export default function Checkout() {
       .catch(() => {});
   }, [f.city]);
 
+  // Live postal verification against province + city (backend is the source of truth)
+  const [postalLive, setPostalLive] = useState(null); // { ok, message?, suggestion? }
+  useEffect(() => {
+    setPostalLive(null);
+    const code = f.postalCode;
+    if (!/^\d{5}$/.test(code) || !f.province) return undefined;
+    const city = f.city === '__other' ? '' : f.city;
+    let alive = true;
+    const id = setTimeout(() => {
+      api('/locations/postal-check', { method: 'POST', body: { postalCode: code, province: f.province, city } })
+        .then((r) => { if (alive) setPostalLive(r); })
+        .catch(() => {});
+    }, 300);
+    return () => { alive = false; clearTimeout(id); };
+  }, [f.postalCode, f.province, f.city]);
+
   // Pin location (Google Maps)
   const [loc, setLoc] = useState(null); // { lat, lng, mapsLink }
   const [locLink, setLocLink] = useState('');
@@ -114,18 +140,18 @@ export default function Checkout() {
 
   const useCurrentLocation = () => {
     if (!navigator.geolocation) {
-      setLocMsg({ type: 'err', text: 'Aapka browser location support nahi karta — neeche Google Maps ka link paste karein' });
+      setLocMsg({ type: 'err', text: 'Your browser does not support location — paste a Google Maps link below instead' });
       return;
     }
     setLocBusy(true); setLocMsg({ type: '', text: '' });
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const lat = +pos.coords.latitude.toFixed(6); const lng = +pos.coords.longitude.toFixed(6);
-        if (!inPK(lat, lng)) { setLocMsg({ type: 'err', text: 'Location Pakistan se bahar lag rahi hai — pin sahi karein' }); }
-        else { setLoc({ lat, lng, mapsLink: `https://www.google.com/maps?q=${lat},${lng}` }); setLocMsg({ type: 'ok', text: 'Location lag gayi ✓' }); }
+        if (!inPK(lat, lng)) { setLocMsg({ type: 'err', text: 'That location looks outside Pakistan — please check the pin' }); }
+        else { setLoc({ lat, lng, mapsLink: `https://www.google.com/maps?q=${lat},${lng}` }); setLocMsg({ type: 'ok', text: 'Location added ✓' }); }
         setLocBusy(false);
       },
-      () => { setLocBusy(false); setLocMsg({ type: 'err', text: 'Browser ne location access nahi di — Google Maps ka link paste karein' }); },
+      () => { setLocBusy(false); setLocMsg({ type: 'err', text: 'Location access was denied — paste a Google Maps link instead' }); },
       { enableHighAccuracy: true, timeout: 12000 },
     );
   };
@@ -135,7 +161,7 @@ export default function Checkout() {
     setLocBusy(true); setLocMsg({ type: '', text: '' });
     try {
       const r = await api('/geo/resolve', { method: 'POST', body: { url: locLink.trim() } });
-      setLoc(r); setLocMsg({ type: 'ok', text: 'Location mil gayi ✓ map par check karein' });
+      setLoc(r); setLocMsg({ type: 'ok', text: 'Location found ✓ please confirm it on the map' });
     } catch (ex) { setLocMsg({ type: 'err', text: ex.message }); }
     setLocBusy(false);
   };
@@ -156,11 +182,13 @@ export default function Checkout() {
     setTopErr('');
     const e2 = {};
     if (f.name.trim().length < 3) e2.name = 'Your full name';
-    if (f.phone.replace(/\D/g, '').length < 10) e2.phone = 'A valid phone (03xx-xxxxxxx)';
+    const phoneNorm = normalizePhone(f.phone);
+    if (!phoneNorm) e2.phone = 'Invalid number — enter a Pakistani mobile (03XX-XXXXXXX)';
     if (f.address.trim().length < 6) e2.address = 'Complete street address';
     const cityVal = f.city === '__other' ? f.customCity.trim() : f.city;
-    if (!cityVal) e2.city = 'City select karein';
-    if (!/^\d{5}$/.test(f.postalCode)) e2.postalCode = `Postal code 5 digit ka hona chahiye${postalHint ? ` (e.g. ${postalHint})` : ''}`;
+    if (!cityVal) e2.city = 'Please select your city';
+    if (!/^\d{5}$/.test(f.postalCode)) e2.postalCode = `Incorrect — postal code must be 5 digits${postalHint ? ` (${f.city && f.city !== '__other' ? `${f.city}: ${postalHint}` : 'e.g. 54000'})` : ''}`;
+    else if (postalLive && postalLive.ok === false) e2.postalCode = postalLive.message;
     if (f.email && !/^\S+@\S+\.\S+$/.test(f.email)) e2.email = 'Valid email (or leave empty)';
     setErrs(e2);
     if (Object.keys(e2).length) return;
@@ -171,7 +199,7 @@ export default function Checkout() {
         method: 'POST',
         token: auth?.token,
         body: {
-          customerInfo: { ...f, city: cityVal, customCity: undefined, location: loc },
+          customerInfo: { ...f, phone: phoneNorm, city: cityVal, customCity: undefined, location: loc },
           items: cart.map((l) => ({ product: l.id, size: l.size, color: l.color, quantity: l.qty })),
           paymentMethod: method, transactionId: txn, discountCode: applied?.code || '', discreetPackaging: discreet,
         },
@@ -203,7 +231,19 @@ export default function Checkout() {
             <p className="mb-6 text-[11px] font-bold uppercase tracking-widest text-ash">Delivery details</p>
             <div className="grid gap-5 md:grid-cols-2">
               <Field k="name" label="Full name *" placeholder="e.g. Ayesha Khan" f={f} errs={errs} set={set} />
-              <Field k="phone" label="Phone *" placeholder="03xx xxxxxxx" inputMode="tel" f={f} errs={errs} set={set} />
+              <div>
+                <label className="label">Mobile number *</label>
+                <input className={`input ${errs.phone ? '!border-red-400 !ring-red-50' : ''}`}
+                  value={f.phone} inputMode="tel" placeholder="03XX-XXXXXXX"
+                  onChange={(e) => set('phone', e.target.value)} />
+                {errs.phone ? (
+                  <p className="mt-1 text-xs text-red-700">{errs.phone}</p>
+                ) : (normalizePhone(f.phone) ? (
+                  <p className="mt-1 text-[11px] font-semibold text-emerald-700">✓ Valid mobile number — {normalizePhone(f.phone)}</p>
+                ) : (f.phone.replace(/\D/g, '').length > 4 && (
+                  <p className="mt-1 text-[11px] text-ash">Pakistani mobile only: 03XX-XXXXXXX</p>
+                )))}
+              </div>
               <Field k="email" label="Email (optional)" placeholder="you@example.com" type="email" f={f} errs={errs} set={set} />
               <div>
                 <label className="label">Province *</label>
@@ -217,20 +257,20 @@ export default function Checkout() {
               {/* Pin location — rider ke liye */}
               <div className="md:col-span-2 rounded-2xl border border-line bg-satin/40 p-4">
                 <p className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-ash">
-                  <MapPin size={14} /> Pin location <span className="normal-case tracking-normal text-ash/80">(optional — rider aasani se pohnch sake)</span>
+                  <MapPin size={14} /> Pin location <span className="normal-case tracking-normal text-ash/80">(optional — helps the rider find you)</span>
                 </p>
                 {!loc ? (
                   <div className="mt-3 grid gap-3 lg:grid-cols-[auto_1fr]">
                     <button type="button" onClick={useCurrentLocation} disabled={locBusy}
                       className="btn-outline flex items-center justify-center gap-2 !px-4 !py-2.5 text-xs disabled:opacity-50">
-                      <Crosshair size={14} /> {locBusy ? 'Location le raha hai…' : 'Meri current location'}
+                      <Crosshair size={14} /> {locBusy ? 'Getting location…' : 'Use my current location'}
                     </button>
                     <div className="flex gap-2">
                       <input className="input flex-1 !py-2.5 text-xs" value={locLink}
                         onChange={(e) => { setLocLink(e.target.value); setLocMsg({ type: '', text: '' }); }}
-                        placeholder='Ya Google Maps ka "Share" link paste karein' />
+                        placeholder='Or paste a Google Maps "Share" link' />
                       <button type="button" onClick={resolveLink} disabled={locBusy || !locLink.trim()}
-                        className="btn-primary !px-4 !py-2.5 text-xs disabled:opacity-50">{locBusy ? '…' : 'Lagayein'}</button>
+                        className="btn-primary !px-4 !py-2.5 text-xs disabled:opacity-50">{locBusy ? '…' : 'Locate'}</button>
                     </div>
                   </div>
                 ) : (
@@ -239,7 +279,7 @@ export default function Checkout() {
                       src={`https://maps.google.com/maps?q=${loc.lat},${loc.lng}&z=16&output=embed`}
                       className="h-44 w-full rounded-xl border border-line" />
                     <div className="mt-2 flex items-center justify-between text-xs">
-                      <span className="font-medium text-ash">📍 {loc.lat}, {loc.lng} — map par confirm karein</span>
+                      <span className="font-medium text-ash">📍 {loc.lat}, {loc.lng} — please confirm on the map</span>
                       <button type="button" className="font-semibold text-red-700 underline underline-offset-2"
                         onClick={() => { setLoc(null); setLocMsg({ type: '', text: '' }); }}>Remove</button>
                     </div>
@@ -253,36 +293,47 @@ export default function Checkout() {
                   <div className="space-y-1.5">
                     <input className={`input ${errs.city ? '!border-red-400 !ring-red-50' : ''}`} autoFocus
                       value={f.customCity} onChange={(e) => { setF((x) => ({ ...x, customCity: e.target.value })); setErrs((er) => ({ ...er, city: '' })); }}
-                      placeholder="Apna shehar likhein" />
+                      placeholder="Type your city name" />
                     <button type="button" className="text-[11px] font-semibold text-obsidian underline underline-offset-2"
-                      onClick={() => setF((x) => ({ ...x, city: '', customCity: '' }))}>← List se chunein</button>
+                      onClick={() => setF((x) => ({ ...x, city: '', customCity: '' }))}>← Choose from list</button>
                   </div>
                 ) : (
                   <select className={`input ${errs.city ? '!border-red-400 !ring-red-50' : ''}`} value={f.city}
                     disabled={citiesLoading}
                     onChange={(e) => { setF((x) => ({ ...x, city: e.target.value })); setErrs((er) => ({ ...er, city: '' })); }}>
-                    <option value="">{citiesLoading ? 'Cities load ho rahi hain…' : 'City select karein'}</option>
+                    <option value="">{citiesLoading ? 'Loading cities…' : 'Select your city'}</option>
                     {cities.map((c) => <option key={c} value={c}>{c}</option>)}
-                    <option value="__other">Mera shehar list mein nahi hai</option>
+                    <option value="__other">My city is not listed</option>
                   </select>
                 )}
                 {errs.city && <p className="mt-1 text-xs text-red-700">{errs.city}</p>}
               </div>
               <div>
                 <label className="label">Postal code *</label>
-                <input className={`input ${errs.postalCode ? '!border-red-400 !ring-red-50' : ''}`}
+                <input className={`input ${(errs.postalCode || (postalLive && !postalLive.ok)) ? '!border-red-400 !ring-red-50' : ''}`}
                   value={f.postalCode} inputMode="numeric" maxLength={5} placeholder={postalHint || '54000'}
                   onChange={(e) => set('postalCode', e.target.value.replace(/\D/g, '').slice(0, 5))} />
-                {errs.postalCode && <p className="mt-1 text-xs text-red-700">{errs.postalCode}</p>}
-                {!errs.postalCode && postalHint && f.postalCode !== postalHint && (
+                {/* priority: form error > live verification error > city hint chip > verified tick */}
+                {errs.postalCode ? (
+                  <p className="mt-1 text-xs text-red-700">{errs.postalCode}</p>
+                ) : postalLive && !postalLive.ok ? (
+                  <div className="mt-1 space-y-1.5">
+                    <p className="text-xs font-medium text-red-700">❌ {postalLive.message}</p>
+                    {postalLive.suggestion && (
+                      <button type="button" onClick={() => set('postalCode', postalLive.suggestion)}
+                        className="inline-flex items-center gap-1 rounded-full bg-red-50 px-2.5 py-1 text-[11px] font-bold text-red-800 ring-1 ring-red-200 transition hover:bg-red-100">
+                        Use {postalLive.suggestion}
+                      </button>
+                    )}
+                  </div>
+                ) : postalLive?.ok && postalHint && f.postalCode === postalHint ? (
+                  <p className="mt-1.5 text-[11px] font-semibold text-emerald-700">✓ Correct for {f.city}</p>
+                ) : postalHint && f.postalCode !== postalHint ? (
                   <button type="button" onClick={() => set('postalCode', postalHint)}
                     className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-obsidian/[0.06] px-2.5 py-1 text-[11px] font-semibold text-obsidian transition hover:bg-obsidian/10">
-                    ✨ {f.city}: {postalHint} — tap karke bhar dein
+                    ✨ {f.city}: {postalHint} — tap to fill
                   </button>
-                )}
-                {!errs.postalCode && postalHint && f.postalCode === postalHint && (
-                  <p className="mt-1.5 text-[11px] font-semibold text-emerald-700">✓ City ke mutabiq sahi hai</p>
-                )}
+                ) : null}
               </div>
               <div className="md:col-span-2">
                 <label className="label">Order notes (optional)</label>

@@ -34,7 +34,7 @@ function validatePK(lat, lng) {
 router.post('/resolve', async (req, res) => {
   const { url = '' } = req.body || {};
   const input = String(url).trim();
-  if (!input) return res.status(400).json({ message: 'Google Maps link paste karein' });
+  if (!input) return res.status(400).json({ message: 'Please paste a Google Maps link first' });
 
   let found = extractLatLng(input);
 
@@ -49,15 +49,15 @@ router.post('/resolve', async (req, res) => {
         found = extractLatLng(html.slice(0, 600000));
       }
     } catch (e) {
-      return res.status(400).json({ message: 'Link open nahi hua — location pin karke share link dobara copy karein' });
+      return res.status(400).json({ message: 'Could not open that link — drop a pin in Google Maps, tap Share, and paste the link again' });
     }
   }
 
   if (!found) {
-    return res.status(400).json({ message: 'Is link se location nahi mili — Google Maps mein pin karke "Share" → link copy karke paste karein' });
+    return res.status(400).json({ message: 'No location found in that link — drop a pin in Google Maps, tap "Share", and paste the link here' });
   }
   if (!validatePK(found.lat, found.lng)) {
-    return res.status(400).json({ message: 'Ye location Pakistan mein nahi lagti — pin sahi jagah lagayen' });
+    return res.status(400).json({ message: 'That location looks outside Pakistan — please check the pin' });
   }
   res.json({
     lat: +found.lat.toFixed(6),

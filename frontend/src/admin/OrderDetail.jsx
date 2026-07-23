@@ -52,7 +52,7 @@ export default function OrderDetail() {
               <a href={c.location.mapsLink || `https://www.google.com/maps?q=${c.location.lat},${c.location.lng}`}
                 target="_blank" rel="noreferrer"
                 className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-800 ring-1 ring-emerald-200 transition hover:bg-emerald-100">
-                📍 Pin location — Google Maps pe kholein
+                📍 Pin location — open in Google Maps
               </a>
             )}
             {c.notes && <p className="mt-3 rounded-xl bg-satin/40 p-3 text-xs text-ash">"{c.notes}"</p>}

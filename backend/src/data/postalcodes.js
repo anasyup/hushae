@@ -63,19 +63,28 @@ const PROVINCE_BANDS = [
 function postalCheck(code, province, city) {
   const c = String(code || '').trim();
   if (!/^\d{5}$/.test(c)) {
-    return { ok: false, message: 'Postal code 5 digit ka hona chahiye (e.g. 54000)' };
+    return { ok: false, message: 'Incorrect postal code — it must be exactly 5 digits (e.g. 54000)' };
   }
   const n = parseInt(c, 10);
   const band = PROVINCE_BANDS.find((b) => n >= b.min && n <= b.max);
   if (band && band.provinces.length === 1 && band.provinces[0] !== province) {
-    return { ok: false, message: `Ye postal code ${band.provinces[0]} ka hai — province ya code sahi karein` };
+    return { ok: false, message: `Incorrect — ${c} is a ${band.provinces[0]} postal code. Fix the province or the code` };
   }
   const strict = STRICT_PREFIX[city];
   if (strict && !strict.prefixes.some((p) => c.startsWith(p))) {
     return {
       ok: false,
-      message: `${city} ka postal code ${strict.prefixes.join(' ya ')} se shuru hota hai (e.g. ${strict.example})`,
+      message: `Incorrect postal code — ${city}'s code starts with ${strict.prefixes.join(' or ')} (e.g. ${strict.example})`,
       suggestion: strict.example,
+    };
+  }
+  // Known city: typed code must belong to the same regional family (first two digits)
+  const hint = CITY_POSTAL[city];
+  if (!strict && hint && c.slice(0, 2) !== hint.slice(0, 2)) {
+    return {
+      ok: false,
+      message: `Incorrect postal code — ${city}'s postal code is ${hint}`,
+      suggestion: hint,
     };
   }
   return { ok: true };
