@@ -26,12 +26,12 @@ export default function AdminLogin() {
         <p className="text-center font-display text-xl tracking-widest2">V É L O U R A</p>
         <p className="mt-1 text-center text-[10px] uppercase tracking-widest text-ash">Admin Console — staff only</p>
         <form onSubmit={submit} className="mt-8 space-y-4">
-          <div><label className="label">Email</label><input className="input" type="email" required value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} placeholder="admin@veloura.pk" /></div>
-          <div><label className="label">Password</label><input className="input" type="password" required value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} placeholder="••••••••" /></div>
+          <div><label className="label">Username</label><input className="input" type="text" required autoComplete="username" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} placeholder="underadmin" /></div>
+          <div><label className="label">Password</label><input className="input" type="password" required autoComplete="current-password" value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} placeholder="••••••••" /></div>
           {err && <p className="rounded-xl bg-red-50 px-4 py-3 text-xs text-red-800">{err}</p>}
           <button disabled={busy} className="btn-primary w-full"><Lock size={14} /> {busy ? 'Verifying…' : 'Sign In'}</button>
         </form>
-        <p className="mt-5 text-center text-[11px] leading-relaxed text-ash">Default dev login is set in backend .env<br />(ADMIN_EMAIL / ADMIN_PASSWORD)</p>
+        <p className="mt-5 text-center text-[11px] leading-relaxed text-ash">VÉLOURA staff login</p>
       </div>
     </div>
   );

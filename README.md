@@ -56,7 +56,7 @@ npm run dev        → Storefront on http://localhost:5173
 ## Logins & testing
 
 **Admin console** → http://localhost:5173/admin
-- Email: `admin@veloura.pk` · Password: `VelouraAdmin@123` (from `backend/.env` — change before launch)
+- Username: `underadmin` · Password: `Muhammad1` (from `backend/.env` — change before launch)
 
 **Try the full flow**
 1. Shop → open a product → add to cart → checkout as **guest**
@@ -77,7 +77,7 @@ npm run dev        → Storefront on http://localhost:5173
 | `PORT` | `4000` | API port |
 | `MONGODB_URI` | *(empty)* | Empty → embedded dev DB. Atlas string for real DB (below) |
 | `JWT_SECRET` | dev value | **Change for production** |
-| `ADMIN_EMAIL` / `ADMIN_PASSWORD` | `admin@veloura.pk` / `VelouraAdmin@123` | Seed creates this admin |
+| `ADMIN_EMAIL` / `ADMIN_PASSWORD` | `underadmin` / `Muhammad1` | Seed creates this admin |
 
 `frontend/.env`: `VITE_API_URL=http://localhost:4000` (in local dev the Vite proxy also works)
 
