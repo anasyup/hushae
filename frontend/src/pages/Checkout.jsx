@@ -6,7 +6,7 @@ import { api } from '../api/client';
 import { pkr } from '../lib/format';
 import Img from '../components/Img';
 import Tx from '../components/Tx';
-import { normalizePhone } from '../lib/validators';
+import { normalizePhone, phoneTypingError } from '../lib/validators';
 
 // Fallback if the locations API is unreachable
 const PROVINCES_FALLBACK = ['Punjab', 'Sindh', 'Khyber Pakhtunkhwa', 'Balochistan', 'Gilgit-Baltistan', 'Azad Kashmir', 'Islamabad (ICT)'];
@@ -225,14 +225,14 @@ export default function Checkout() {
               <Field k="name" label="Full name *" placeholder="e.g. Ayesha Khan" f={f} errs={errs} set={set} />
               <div>
                 <label className="label">Mobile number *</label>
-                <input className={`input ${errs.phone ? '!border-red-400 !ring-red-50' : ''}`}
+                <input className={`input ${(errs.phone || phoneTypingError(f.phone)) ? '!border-red-400 !ring-red-50' : ''}`}
                   value={f.phone} inputMode="tel" placeholder="03XX-XXXXXXX"
                   onChange={(e) => set('phone', e.target.value)} />
                 {errs.phone ? (
                   <p className="mt-1 text-xs text-red-700">{errs.phone}</p>
                 ) : (normalizePhone(f.phone) ? (
                   <p className="mt-1 text-[11px] font-semibold text-emerald-700">✓ Valid mobile number — {normalizePhone(f.phone)}</p>
-                ) : (f.phone.replace(/\D/g, '').length > 4 && (
+                ) : (phoneTypingError(f.phone) && (
                   <p className="mt-1 text-[11px] font-medium text-red-700">Incorrect number</p>
                 )))}
               </div>

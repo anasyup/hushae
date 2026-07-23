@@ -4,7 +4,7 @@ import { ChevronRight, Lock, LogOut, Mail, User as UserIcon } from 'lucide-react
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import { fmtDate, pkr } from '../lib/format';
-import { normalizePhone, validEmail } from '../lib/validators';
+import { normalizePhone, validEmail, phoneTypingError } from '../lib/validators';
 
 function AuthCard() {
   const { login, register, toast } = useApp();
@@ -18,6 +18,13 @@ function AuthCard() {
 
   const phoneOK = normalizePhone(f.phone);
   const emailOK = validEmail(f.email);
+  // Only flag email once it looks fully typed (dot after @ + chars after the dot) — no premature errors
+  const emailTypedWrong = (() => {
+    const em = f.email.trim();
+    const at = em.indexOf('@');
+    const dot = em.lastIndexOf('.');
+    return dot > at && dot < em.length - 2 && !validEmail(em);
+  })();
 
   const submit = async (e) => {
     e.preventDefault();
@@ -59,21 +66,20 @@ function AuthCard() {
             </div>
             <div>
               <label className="label">Phone</label>
-              <input className={`input ${ring(ferrs.phone || (f.phone && !phoneOK && f.phone.replace(/\D/g, '').length > 4))}`}
+              <input className={`input ${ring(ferrs.phone || phoneTypingError(f.phone))}`}
                 value={f.phone} inputMode="tel" onChange={(e) => set('phone', e.target.value)} placeholder="03XX-XXXXXXX" />
               {ferrs.phone ? <p className="mt-1 text-[11px] text-red-700">{ferrs.phone}</p>
                 : phoneOK ? <p className="mt-1 text-[11px] font-semibold text-emerald-700">✓ Valid mobile number</p>
-                : f.phone.replace(/\D/g, '').length > 4 ? <p className="mt-1 text-[11px] font-medium text-red-700">Incorrect number</p> : null}
+                : phoneTypingError(f.phone) ? <p className="mt-1 text-[11px] font-medium text-red-700">Incorrect number</p> : null}
             </div>
           </>
         )}
         <div>
           <label className="label">Email</label>
-          <input className={`input ${ring(ferrs.email || (mode === 'register' && f.email.includes('@') && !emailOK))}`}
+          <input className={`input ${ring(ferrs.email || (mode === 'register' && emailTypedWrong))}`}
             type="email" required value={f.email} onChange={(e) => set('email', e.target.value)} placeholder="you@example.com" />
           {ferrs.email ? <p className="mt-1 text-[11px] text-red-700">{ferrs.email}</p>
-            : mode === 'register' && f.email.includes('@') && !emailOK && <p className="mt-1 text-[11px] font-medium text-red-700">Incorrect email address</p>}
-          {mode === 'register' && emailOK && <p className="mt-1 text-[11px] font-semibold text-emerald-700">✓ Looks good</p>}
+            : mode === 'register' && emailTypedWrong && <p className="mt-1 text-[11px] font-medium text-red-700">Incorrect email address</p>}
         </div>
         <div>
           <label className="label">Password</label>
