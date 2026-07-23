@@ -4,9 +4,12 @@ const jwt = require('jsonwebtoken');
 const OtpCode = require('../models/OtpCode');
 const { asyncHandler } = require('../utils/helpers');
 const { normalizePhone } = require('../utils/validators');
-const { sendOtpCode } = require('../utils/sms');
+const { sendOtpCode, isConfigured } = require('../utils/sms');
 
 const router = express.Router();
+
+// Public: is phone verification active? (auto-on once WhatsApp/SMS keys are added on Vercel)
+router.get('/status', (req, res) => res.json({ enabled: isConfigured() }));
 
 const CODE_TTL_MS = 5 * 60 * 1000; // code valid 5 minutes
 const PHONE_TOKEN_TTL = '15m'; // verified-phone token valid 15 minutes (enough to finish registering)
@@ -18,6 +21,7 @@ const hash = (code) => crypto.createHash('sha256').update(String(code)).digest('
 
 // POST /api/otp/send { phone }
 router.post('/send', asyncHandler(async (req, res) => {
+  if (!isConfigured()) return res.status(403).json({ message: 'Phone verification is not enabled' });
   const phone = normalizePhone(req.body?.phone);
   if (!phone) return res.status(400).json({ message: 'Incorrect number' });
 
@@ -47,9 +51,7 @@ router.post('/send', asyncHandler(async (req, res) => {
   await doc.save();
 
   const via = await sendOtpCode(phone, code);
-  if (via) return res.json({ sent: true, demo: false, via }); // "whatsapp" | "sms"
-  // Demo mode (no provider connected yet): code returned so the flow can be tested
-  res.json({ sent: true, demo: true, demoCode: code, via: 'demo' });
+  return res.json({ sent: true, via }); // "whatsapp" | "sms"
 }));
 
 // POST /api/otp/verify { phone, code }

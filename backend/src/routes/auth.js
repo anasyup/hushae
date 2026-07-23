@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const { protect, signToken } = require('../middleware/auth');
 const { asyncHandler } = require('../utils/helpers');
 const { normalizePhone, validEmail, verifyEmailDomain } = require('../utils/validators');
+const { isConfigured: isOtpConfigured } = require('../utils/sms');
 
 const router = express.Router();
 
@@ -26,14 +27,16 @@ router.post('/register', asyncHandler(async (req, res) => {
   const phoneNorm = normalizePhone(phone);
   if (!phoneNorm) return res.status(400).json({ field: 'phone', message: 'Incorrect number — enter a Pakistani mobile (03XX-XXXXXXX)' });
 
-  // Phone must be verified by SMS code first
-  let verifiedPhone = null;
-  try {
-    const payload = jwt.verify(String(phoneToken || ''), process.env.JWT_SECRET);
-    if (payload?.phv === 1 && payload?.phone === phoneNorm) verifiedPhone = payload.phone;
-  } catch (e) { /* invalid token */ }
-  if (!verifiedPhone) {
-    return res.status(400).json({ field: 'phone', message: 'Verify your phone number first — tap "Send code" and enter the SMS code' });
+  // Phone SMS/OTP verification is enforced only once a provider (WhatsApp/SMS) is connected
+  if (isOtpConfigured()) {
+    let verifiedPhone = null;
+    try {
+      const payload = jwt.verify(String(phoneToken || ''), process.env.JWT_SECRET);
+      if (payload?.phv === 1 && payload?.phone === phoneNorm) verifiedPhone = payload.phone;
+    } catch (e) { /* invalid token */ }
+    if (!verifiedPhone) {
+      return res.status(400).json({ field: 'phone', message: 'Verify your phone number first — tap "Send code" and enter the SMS code' });
+    }
   }
 
   // Anti-scam: one account per email

@@ -15,7 +15,9 @@ function AuthCard() {
   const [err, setErr] = useState('');
   const [busy, setBusy] = useState(false);
 
-  // Phone verification (SMS code) state
+  // Phone verification (SMS/WhatsApp code) — only active once a provider is connected on the server
+  const [otpEnabled, setOtpEnabled] = useState(false);
+  useEffect(() => { api('/otp/status').then((r) => setOtpEnabled(!!r?.enabled)).catch(() => {}); }, []);
   const blank = { sent: false, demo: false, demoCode: '', via: '', code: '', sending: false, verifying: false, verified: false, phoneToken: '', resendIn: 0, error: '' };
   const [otp, setOtp] = useState(blank);
   const resetOtp = () => setOtp(blank);
@@ -72,7 +74,7 @@ function AuthCard() {
       if (f.password.length < 6) fe.password = 'Minimum 6 characters';
       else if (!/[a-zA-Z]/.test(f.password)) fe.password = 'Add at least one letter — not only numbers';
       if (Object.keys(fe).length) { setFerrs(fe); return; }
-      if (!otp.verified) { setFerrs({ phone: 'Tap "Send code" and verify your number first' }); return; }
+      if (otpEnabled && !otp.verified) { setFerrs({ phone: 'Tap "Send code" and verify your number first' }); return; }
     }
     setBusy(true);
     try {
@@ -107,7 +109,7 @@ function AuthCard() {
               <div className="flex gap-2">
                 <input className={`input flex-1 ${ring(ferrs.phone || phoneTypingError(f.phone))}`}
                   value={f.phone} inputMode="tel" onChange={(e) => set('phone', e.target.value)} placeholder="03XX-XXXXXXX" />
-                {!otp.verified && (
+                {otpEnabled && !otp.verified && (
                   <button type="button" onClick={sendCode} disabled={!phoneOK || otp.sending || otp.resendIn > 0}
                     className="btn-outline shrink-0 !px-3 !py-2 text-[11px] font-bold disabled:opacity-40">
                     {otp.sending ? 'Sending…' : otp.resendIn > 0 ? `${otp.resendIn}s` : otp.sent ? 'Resend' : 'Send code'}
@@ -118,7 +120,7 @@ function AuthCard() {
                 : phoneTypingError(f.phone) ? <p className="mt-1 text-[11px] font-medium text-red-700">Incorrect number</p> : null}
 
               {/* SMS code entry */}
-              {otp.sent && !otp.verified && (
+              {otpEnabled && otp.sent && !otp.verified && (
                 <div className="mt-3 rounded-xl border border-line bg-satin/40 p-3">
                   <div className="flex gap-2">
                     <input className="input flex-1 text-center !tracking-[0.4em] font-bold" value={otp.code} inputMode="numeric" maxLength={6}
@@ -139,7 +141,7 @@ function AuthCard() {
                   </p>
                 </div>
               )}
-              {otp.verified && <p className="mt-1 text-[11px] font-semibold text-emerald-700">✓ Number verified</p>}
+              {otpEnabled && otp.verified && <p className="mt-1 text-[11px] font-semibold text-emerald-700">✓ Number verified</p>}
               {otp.error && <p className="mt-1 text-[11px] font-medium text-red-700">{otp.error}</p>}
             </div>
           </>
@@ -158,8 +160,8 @@ function AuthCard() {
             : passAllDigits && <p className="mt-1 text-[11px] font-medium text-red-700">Add at least one letter — not only numbers</p>}
         </div>
         {err && <p className="rounded-xl bg-red-50 px-4 py-3 text-xs text-red-800">{err}</p>}
-        <button disabled={busy || (mode === 'register' && !otp.verified)} className="btn-primary w-full disabled:opacity-40">
-          <Lock size={14} /> {busy ? 'One moment…' : mode === 'login' ? 'Sign In' : otp.verified ? 'Create Account' : 'Verify number to continue'}
+        <button disabled={busy || (mode === 'register' && otpEnabled && !otp.verified)} className="btn-primary w-full disabled:opacity-40">
+          <Lock size={14} /> {busy ? 'One moment…' : mode === 'login' ? 'Sign In' : (!otpEnabled || otp.verified) ? 'Create Account' : 'Verify number to continue'}
         </button>
       </form>
       <p className="mt-4 text-center text-xs leading-relaxed text-ash">Accounts are optional — guest checkout always works.</p>
