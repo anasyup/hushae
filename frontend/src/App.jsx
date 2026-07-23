@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { Component, useEffect } from 'react';
 import { Route, Routes, useLocation, useParams } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -57,6 +57,27 @@ function Tracker() {
   return null;
 }
 
+// Global shield: kisi bhi page ka JS error ab poori site ko blank nahi karega
+class ErrorBoundary extends Component {
+  constructor(props) { super(props); this.state = { crashed: false }; }
+  static getDerivedStateFromError() { return { crashed: true }; }
+  componentDidCatch(e, info) { console.error('UI crash:', e, info); }
+  render() {
+    if (this.state.crashed) {
+      return (
+        <div className="grid min-h-screen place-items-center bg-alabaster px-6">
+          <div className="card w-full max-w-sm rounded-[2rem] p-8 text-center shadow-soft">
+            <p className="font-display text-xl tracking-widest2">V É L O U R A</p>
+            <p className="mt-3 text-sm leading-relaxed text-ash">Something went wrong on this page. Ek dafa reload kar dein — theek ho jayega. Agar phir na chale to support ko batayein.</p>
+            <button onClick={() => window.location.reload()} className="btn-primary mt-5 w-full">Reload page</button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 export default function App() {
   const { pathname } = useLocation();
   const isAdmin = pathname.startsWith('/admin');
@@ -67,6 +88,7 @@ export default function App() {
       <Tracker />
       {!isAdmin && <Header />}
       <main className="flex-1">
+        <ErrorBoundary key={pathname}>
         <StoreLock>
         <Routes>
           <Route path="/" element={<Home />} />
@@ -107,6 +129,7 @@ export default function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
         </StoreLock>
+        </ErrorBoundary>
       </main>
       {!isAdmin && <Footer />}
       {!isAdmin && <CartDrawer />}

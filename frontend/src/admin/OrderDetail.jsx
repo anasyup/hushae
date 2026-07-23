@@ -35,7 +35,6 @@ export default function OrderDetail() {
   };
 
   /* ---- items editing (upgrade order before shipping) ---- */
-  const editable = ['Pending', 'Confirmed', 'Processing', 'Ready to Ship'].includes(o.status);
   const [editing, setEditing] = useState(false);
   const [editItems, setEditItems] = useState([]);
   const [pq, setPq] = useState('');
@@ -69,8 +68,6 @@ export default function OrderDetail() {
     setEditItems((a) => [...a, { product: String(p._id), name: p.name, image: p.images[0]?.url || '', price: p.price, quantity: 1, size: p.sizes[0] || '', color: p.colors[0]?.name || '', sizes: p.sizes || [], colors: p.colors || [] }]);
     setPq(''); setPRes([]);
   };
-  const editSub = editItems.reduce((s, it) => s + it.price * it.quantity, 0);
-  const editTotal = Math.max(0, editSub - (o.discount || 0)) + (o.shippingCharge || 0);
   const saveItems = async () => {
     if (!editItems.length) { toast('Order must have at least one item'); return; }
     try {
@@ -92,6 +89,9 @@ export default function OrderDetail() {
   if (!o) return <AdminLayout title="Order"><div className="skeleton h-96 w-full" /></AdminLayout>;
   const c = o.customerInfo;
   const pcs = o.items.reduce((a, it) => a + (it.quantity || 1), 0);
+  const editable = ['Pending', 'Confirmed', 'Processing', 'Ready to Ship'].includes(o.status);
+  const editSub = editItems.reduce((s, it) => s + it.price * it.quantity, 0);
+  const editTotal = Math.max(0, editSub - (o.discount || 0)) + (o.shippingCharge || 0);
 
   const summary = [
     [User, 'Customer', c.name, c.city],
