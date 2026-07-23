@@ -108,14 +108,18 @@ const DevIcon = { mobile: Smartphone, tablet: Tablet, desktop: Monitor };
 /* ---------- main page ---------- */
 
 export default function Analytics() {
-  const { auth } = useApp();
+  const { auth, logout } = useApp();
   const [range, setRange] = useState('30d');
   const [a, setA] = useState(null);
+  const [err, setErr] = useState('');
+  const [tick, setTick] = useState(0);
 
   useEffect(() => {
-    setA(null);
-    api(`/analytics/overview?range=${range}`, { token: auth.token }).then(setA).catch(() => {});
-  }, [auth, range]);
+    setA(null); setErr('');
+    api(`/analytics/overview?range=${range}`, { token: auth.token })
+      .then(setA)
+      .catch((e) => { if (e?.status === 401) { logout(); return; } setErr('Analytics load nahi hui — dobara try karein.'); });
+  }, [auth, range, tick]); // eslint-disable-line
 
   const head = (
     <div className="mb-5 flex flex-wrap items-center gap-3">
@@ -126,7 +130,14 @@ export default function Analytics() {
     </div>
   );
 
-  if (!a) return <AdminLayout title="Analytics">{head}<div className="skeleton h-64 w-full" /></AdminLayout>;
+  if (!a) return (
+    <AdminLayout title="Analytics">
+      {head}
+      {err
+        ? <div className="card mx-auto max-w-md p-10 text-center"><p className="text-sm text-red-700">{err}</p><button onClick={() => setTick((t) => t + 1)} className="btn-outline mt-5 !px-5 !py-2 !text-[11px]">Try again</button></div>
+        : <div className="skeleton h-64 w-full" />}
+    </AdminLayout>
+  );
 
   const delta = (v, p) => {
     if (!a.prev) return null;

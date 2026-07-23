@@ -11,11 +11,18 @@ const statusPill = (s) =>
   s === 'Delivered' ? 'bg-sage/25 text-sagedeep' : s === 'Cancelled' || s === 'Refunded' ? 'bg-red-100 text-red-800' : 'bg-satin text-obsidian';
 
 export default function Dashboard() {
-  const { auth } = useApp();
+  const { auth, logout } = useApp();
   const [d, setD] = useState(null);
+  const [err, setErr] = useState('');
 
-  useEffect(() => { api('/admin/dashboard', { token: auth.token }).then(setD).catch(() => {}); }, [auth]);
+  const load = () => api('/admin/dashboard', { token: auth.token })
+    .then(setD)
+    .catch((e) => { if (e?.status === 401) { logout(); return; } setErr('Dashboard load nahi hua — dobara try karein.'); });
+  useEffect(() => { load(); }, [auth]); // eslint-disable-line
 
+  if (err) return (
+    <AdminLayout title="Dashboard"><div className="card mx-auto max-w-md p-10 text-center"><p className="text-sm text-red-700">{err}</p><button onClick={() => { setErr(''); load(); }} className="btn-outline mt-5 !px-5 !py-2 !text-[11px]">Try again</button></div></AdminLayout>
+  );
   if (!d) return <AdminLayout title="Dashboard"><div className="skeleton h-64 w-full" /></AdminLayout>;
 
   const cards = [

@@ -40,9 +40,10 @@ function Section({ title, icon: SIcon, children, defaultOpen = true }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
     <div className="mt-3">
-      <button onClick={() => setOpen(!open)} className="flex w-full items-center justify-between px-3 py-1 text-[13px] font-medium text-neutral-500 transition hover:text-neutral-800">
-        <span>{title}</span>
-        <ChevronRight size={14} className={`transition-transform ${open ? 'rotate-90' : ''}`} />
+      <button onClick={() => setOpen(!open)} className="flex w-full items-center gap-2 rounded-lg px-3 py-[7px] text-[13px] font-medium text-neutral-500 transition hover:bg-white/70 hover:text-neutral-800">
+        <ChevronRight size={13} className={`shrink-0 transition-transform ${open ? 'rotate-90' : ''}`} />
+        {SIcon && <SIcon size={16} strokeWidth={1.8} />}
+        <span className="flex-1 text-left">{title}</span>
       </button>
       {open && <div className="mt-0.5 space-y-0.5">{children}</div>}
     </div>
@@ -77,7 +78,7 @@ function SidebarContent({ onNavigate }) {
               )}
             </NavLink>
             {to === '/admin/orders' && (
-              <Section title="Manage Products">
+              <Section title="Manage Products" icon={Package}>
                 {PRODUCT_LINKS.map(({ to: cto, label: clabel, icon: CIcon }) => (
                   <NavLink key={clabel} to={cto} className={childCls(cto)} onClick={onNavigate}>
                     <CIcon size={14} strokeWidth={1.8} /> {clabel}
@@ -86,7 +87,7 @@ function SidebarContent({ onNavigate }) {
               </Section>
             )}
             {to === '/admin/markets' && (
-              <Section title="Analytics">
+              <Section title="Analytics" icon={BarChart3}>
                 {ANALYTICS_LINKS.map(({ to: cto, label: clabel, icon: CIcon }) => (
                   <NavLink key={clabel} to={cto} className={childCls(cto)} onClick={onNavigate}>
                     <CIcon size={14} strokeWidth={1.8} /> {clabel}
@@ -97,13 +98,13 @@ function SidebarContent({ onNavigate }) {
           </Fragment>
         ))}
 
-        <Section title="Sales channels">
+        <Section title="Sales channels" icon={Store}>
           <NavLink to="/admin/store" className={linkCls} onClick={onNavigate}>
             <Store size={17} strokeWidth={1.8} /> Online Store
           </NavLink>
         </Section>
 
-        <Section title="Apps">
+        <Section title="Apps" icon={Plus}>
           <NavLink to="/admin/apps" className={linkCls} onClick={onNavigate}>
             <Plus size={17} strokeWidth={1.8} /> Integrations
           </NavLink>

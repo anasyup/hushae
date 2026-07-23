@@ -16,8 +16,9 @@ export const statusPill = (s) =>
     : 'bg-satin text-obsidian';
 
 export default function Orders() {
-  const { auth, toast } = useApp();
+  const { auth, toast, logout } = useApp();
   const [orders, setOrders] = useState(null);
+  const [err, setErr] = useState('');
   const [q, setQ] = useState('');
   const [searchParams, setSearchParams] = useSearchParams();
   const status = searchParams.get('status') || '';
@@ -27,7 +28,9 @@ export default function Orders() {
     const sp = new URLSearchParams();
     if (q) sp.set('q', q);
     if (status) sp.set('status', status);
-    api(`/orders/admin?${sp}`, { token: auth.token }).then((d) => setOrders(d.orders)).catch(() => setOrders([]));
+    api(`/orders/admin?${sp}`, { token: auth.token })
+      .then((d) => { setOrders(d.orders); setErr(''); })
+      .catch((e) => { if (e?.status === 401) { logout(); return; } setErr('Orders load nahi hue — dobara try karein.'); setOrders([]); });
   };
   useEffect(load, [status]); // eslint-disable-line
 
@@ -107,8 +110,9 @@ export default function Orders() {
             ))}
           </tbody>
         </table>
-        {orders?.length === 0 && <p className="py-14 text-center text-sm text-ash">No orders match.</p>}
-        {orders === null && <div className="p-6"><div className="skeleton h-40 w-full" /></div>}
+        {orders?.length === 0 && !err && <p className="py-14 text-center text-sm text-ash">No orders match.</p>}
+        {err && <div className="py-14 text-center"><p className="text-sm text-red-700">{err}</p><button onClick={load} className="btn-outline mt-4 !px-5 !py-2 !text-[11px]">Try again</button></div>}
+        {orders === null && !err && <div className="p-6"><div className="skeleton h-40 w-full" /></div>}
       </div>
     </AdminLayout>
   );

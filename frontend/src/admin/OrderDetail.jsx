@@ -13,11 +13,14 @@ const PAY = ['Pending', 'Paid', 'Failed', 'Refunded'];
 
 export default function OrderDetail() {
   const { id } = useParams();
-  const { auth, toast } = useApp();
+  const { auth, toast, logout } = useApp();
   const nav = useNavigate();
   const [o, setO] = useState(null);
+  const [err, setErr] = useState('');
 
-  const load = () => api(`/orders/admin/${id}`, { token: auth.token }).then((d) => setO(d.order)).catch(() => {});
+  const load = () => api(`/orders/admin/${id}`, { token: auth.token })
+    .then((d) => setO(d.order))
+    .catch((e) => { if (e?.status === 401) { logout(); return; } setErr('Order load nahi hua — internet check kar ke dobara try karein.'); });
   useEffect(() => { load(); }, [id]); // eslint-disable-line
 
   const patch = async (path, body, msg) => {
@@ -78,6 +81,14 @@ export default function OrderDetail() {
     } catch (ex) { toast(ex.message); }
   };
 
+  if (err) return (
+    <AdminLayout title="Order">
+      <div className="card mx-auto max-w-md p-10 text-center">
+        <p className="text-sm text-red-700">{err}</p>
+        <button onClick={() => { setErr(''); load(); }} className="btn-outline mt-5 !px-5 !py-2 !text-[11px]">Try again</button>
+      </div>
+    </AdminLayout>
+  );
   if (!o) return <AdminLayout title="Order"><div className="skeleton h-96 w-full" /></AdminLayout>;
   const c = o.customerInfo;
   const pcs = o.items.reduce((a, it) => a + (it.quantity || 1), 0);
