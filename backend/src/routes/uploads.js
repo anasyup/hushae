@@ -34,17 +34,6 @@ router.post('/chunk/start', protect, adminOnly, asyncHandler(async (req, res) =>
   res.json({ session, maxChunk: MAX_CHUNK, maxTotal: MAX_TOTAL });
 }));
 
-router.post('/chunk/:session/:idx', protect, adminOnly, asyncHandler(async (req, res) => {
-  const session = req.params.session.replace(/[^a-f0-9]/gi, '');
-  const idx = parseInt(req.params.idx, 10);
-  if (!session || !(idx >= 0 && idx < 200)) return res.status(400).json({ message: 'Bad chunk' });
-  if (!b64ok(req.body && req.body.dataBase64)) return res.status(400).json({ message: 'Bad chunk data' });
-  const data = Buffer.from(req.body.dataBase64, 'base64');
-  if (!data.length || data.length > MAX_CHUNK * 1.1) return res.status(400).json({ message: 'Bad chunk size' });
-  await UploadChunk.create({ session, idx, data });
-  res.json({ ok: true });
-}));
-
 router.post('/chunk/:session/finish', protect, adminOnly, asyncHandler(async (req, res) => {
   const session = req.params.session.replace(/[^a-f0-9]/gi, '');
   const mime = String((req.body && req.body.mime) || 'video/mp4');
@@ -57,6 +46,17 @@ router.post('/chunk/:session/finish', protect, adminOnly, asyncHandler(async (re
   }
   const up = await Upload.create({ mime, chunked: true, session, size });
   res.status(201).json({ url: `/api/uploads/${up._id}`, id: up._id });
+}));
+
+router.post('/chunk/:session/:idx', protect, adminOnly, asyncHandler(async (req, res) => {
+  const session = req.params.session.replace(/[^a-f0-9]/gi, '');
+  const idx = parseInt(req.params.idx, 10);
+  if (!session || !(idx >= 0 && idx < 200)) return res.status(400).json({ message: 'Bad chunk' });
+  if (!b64ok(req.body && req.body.dataBase64)) return res.status(400).json({ message: 'Bad chunk data' });
+  const data = Buffer.from(req.body.dataBase64, 'base64');
+  if (!data.length || data.length > MAX_CHUNK * 1.1) return res.status(400).json({ message: 'Bad chunk size' });
+  await UploadChunk.create({ session, idx, data });
+  res.json({ ok: true });
 }));
 
 // ---- Delete (cascades to chunks) ----
