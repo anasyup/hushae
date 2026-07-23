@@ -3,8 +3,10 @@ const express = require('express');
 const cors = require('cors');
 
 const app = express();
+app.set('trust proxy', 1); // Vercel/CF proxy — real client IPs (needed for rate limits)
 app.use(cors({ origin: true }));
 app.use(express.json({ limit: '10mb' }));
+app.use(require('./middleware/sanitize')); // NoSQL-injection block
 
 app.get('/api/health', (req, res) => res.json({ ok: true, name: 'VÉLOURA API' }));
 

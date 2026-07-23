@@ -7,14 +7,18 @@ const { protect, optionalAuth, adminOnly } = require('../middleware/auth');
 const { asyncHandler, orderNumber, evaluateDiscount } = require('../utils/helpers');
 const { postalCheck } = require('../data/postalcodes');
 const { normalizePhone } = require('../utils/validators');
+const rateLimit = require('../middleware/rateLimit');
 
 const router = express.Router();
+
+// Order-spam wall: a real customer never needs more than a few attempts
+const placeOrderLimit = rateLimit({ windowMs: 10 * 60 * 1000, max: 8, key: 'place-order', message: 'Too many order attempts — please wait a few minutes and try again' });
 
 const digits = (s) => String(s || '').replace(/\D/g, '');
 const phoneTail = (s) => digits(s).slice(-10); // forgiving match: 0300... / +92300...
 
 // ---- Place order (guest or logged-in) ----
-router.post('/', optionalAuth, asyncHandler(async (req, res) => {
+router.post('/', placeOrderLimit, optionalAuth, asyncHandler(async (req, res) => {
   const { customerInfo = {}, items = [], paymentMethod, transactionId = '', discountCode = '', discreetPackaging = true } = req.body || {};
 
   const required = ['name', 'phone', 'address', 'city', 'province', 'postalCode'];

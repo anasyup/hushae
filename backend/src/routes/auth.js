@@ -4,15 +4,20 @@ const { protect, signToken } = require('../middleware/auth');
 const { asyncHandler } = require('../utils/helpers');
 const { normalizePhone, validEmail, verifyEmailDomain } = require('../utils/validators');
 const { isConfigured: isOtpConfigured } = require('../utils/sms');
+const rateLimit = require('../middleware/rateLimit');
 
 const router = express.Router();
+
+// Brute-force walls
+const loginLimit = rateLimit({ windowMs: 10 * 60 * 1000, max: 12, key: 'login', message: 'Too many sign-in attempts — try again in a few minutes' });
+const registerLimit = rateLimit({ windowMs: 60 * 60 * 1000, max: 8, key: 'register', message: 'Too many accounts created from your connection — try later' });
 
 const publicUser = (u) => ({
   id: u._id, name: u.name, email: u.email, phone: u.phone, role: u.role,
   addresses: u.addresses, createdAt: u.createdAt,
 });
 
-router.post('/register', asyncHandler(async (req, res) => {
+router.post('/register', registerLimit, asyncHandler(async (req, res) => {
   const { name, email, password, phone, phoneToken } = req.body || {};
   const cleanName = String(name || '').trim();
   const cleanEmail = String(email || '').trim().toLowerCase();
@@ -51,7 +56,7 @@ router.post('/register', asyncHandler(async (req, res) => {
   res.status(201).json({ token: signToken(user), user: publicUser(user) });
 }));
 
-router.post('/login', asyncHandler(async (req, res) => {
+router.post('/login', loginLimit, asyncHandler(async (req, res) => {
   const { email, password } = req.body || {};
   if (!email || !password) return res.status(400).json({ message: 'Email and password are required' });
   const user = await require('../models/User').findOne({ email: String(email).toLowerCase() }).select('+password');
