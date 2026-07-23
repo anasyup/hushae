@@ -52,11 +52,43 @@ async function uploadToCloudinary(file, media) {
   return d.secure_url;
 }
 
+// Videos / big files — uploaded in 3MB slices so free hosting limits never hit
+async function uploadChunked(file, token, mime, onProgress) {
+  const start = await fetch('/api/uploads/chunk/start', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ mime }),
+  }).then((r) => r.json());
+  if (!start.session) throw new Error(start.message || 'Upload start nahi hui');
+  if (file.size > start.maxTotal) throw new Error('File 45MB se bari hai — choti clip (10–30 sec) try karein ya YouTube link lagayen');
+
+  const CHUNK = start.maxChunk;
+  const total = Math.ceil(file.size / CHUNK);
+  for (let i = 0; i < total; i += 1) {
+    const slice = file.slice(i * CHUNK, (i + 1) * CHUNK);
+    const dataBase64 = await blobToBase64(slice);
+    const r = await fetch(`/api/uploads/chunk/${start.session}/${i}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ dataBase64 }),
+    }).then((x) => x.json());
+    if (!r.ok) throw new Error(r.message || `Part ${i + 1} upload nahi hua`);
+    onProgress?.(Math.round(((i + 1) / total) * 100));
+  }
+  const fin = await fetch(`/api/uploads/chunk/${start.session}/finish`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ mime }),
+  }).then((x) => x.json());
+  if (!fin.url) throw new Error(fin.message || 'Upload complete nahi hui');
+  return fin.url;
+}
+
 // Returns a usable URL for the file. Throws with a user-friendly message on failure.
-export async function smartUpload(file, { media = {}, token } = {}) {
+export async function smartUpload(file, { media = {}, token, onProgress } = {}) {
   const isImage = (file.type || '').startsWith('image/');
   const hasCloudinary = !!(media.cloudName && media.uploadPreset);
   if (hasCloudinary) return uploadToCloudinary(file, media);          // best path when connected
-  if (isImage) return uploadToDb(file, token);                        // zero-setup path
-  throw new Error('Video upload ke liye Apps → Media Library mein Cloudinary connect karein, ya YouTube/MP4 link paste karein');
+  if (isImage) return uploadToDb(file, token);                        // zero-setup images
+  return uploadChunked(file, token, file.type || 'video/mp4', onProgress); // zero-setup video
 }

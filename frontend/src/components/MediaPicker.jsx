@@ -8,15 +8,16 @@ export default function MediaPicker({ value = '', onChange, onAdd, multiple = fa
   const { settings, auth, toast } = useApp();
   const media = settings?.media || {};
   const [busy, setBusy] = useState(false);
+  const [pct, setPct] = useState(null);
   const inputRef = useRef(null);
 
   const upload = async (files) => {
     if (!files.length) return;
-    setBusy(true);
+    setBusy(true); setPct(null);
     let n = 0;
     try {
       for (const file of files) {
-        const url = await smartUpload(file, { media, token: auth?.token });
+        const url = await smartUpload(file, { media, token: auth?.token, onProgress: setPct });
         if (onAdd) onAdd(url);
         else onChange?.(url);
         n += 1;
@@ -25,7 +26,7 @@ export default function MediaPicker({ value = '', onChange, onAdd, multiple = fa
     } catch (ex) {
       toast(ex.message || 'Upload nahi hui');
     }
-    setBusy(false);
+    setBusy(false); setPct(null);
     if (inputRef.current) inputRef.current.value = '';
   };
 
@@ -37,7 +38,7 @@ export default function MediaPicker({ value = '', onChange, onAdd, multiple = fa
         <input ref={inputRef} type="file" accept={acceptStr} multiple={multiple} className="hidden" onChange={(e) => upload([...e.target.files])} />
         <button type="button" onClick={() => inputRef.current?.click()} disabled={busy}
           className="btn-outline shrink-0 whitespace-nowrap">
-          {busy ? <Loader2 size={14} className="animate-spin" /> : <ImagePlus size={14} />} {busy ? 'Upload ho raha hai…' : buttonText}
+          {busy ? <Loader2 size={14} className="animate-spin" /> : <ImagePlus size={14} />} {busy ? (pct !== null ? `Upload ${pct}%…` : 'Upload ho raha hai…') : buttonText}
         </button>
         {!hideUrl && (
           <span className="relative flex-1">
