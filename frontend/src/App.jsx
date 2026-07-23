@@ -27,6 +27,7 @@ import ProductForm from './admin/ProductForm';
 import Categories from './admin/Categories';
 import Customers from './admin/Customers';
 import SettingsAdmin from './admin/Settings';
+import AdminPlaceholder from './admin/AdminPlaceholder';
 
 function ScrollToTop() {
   const { pathname, search } = useLocation();
@@ -70,6 +71,12 @@ export default function App() {
           <Route path="/admin/categories" element={<Categories />} />
           <Route path="/admin/customers" element={<Customers />} />
           <Route path="/admin/settings" element={<SettingsAdmin />} />
+          <Route path="/admin/growth" element={<AdminPlaceholder page="growth" />} />
+          <Route path="/admin/discounts" element={<AdminPlaceholder page="discounts" />} />
+          <Route path="/admin/content" element={<AdminPlaceholder page="content" />} />
+          <Route path="/admin/markets" element={<AdminPlaceholder page="markets" />} />
+          <Route path="/admin/analytics" element={<AdminPlaceholder page="analytics" />} />
+          <Route path="/admin/apps" element={<AdminPlaceholder page="apps" />} />
 
           <Route path="*" element={<NotFound />} />
         </Routes>
