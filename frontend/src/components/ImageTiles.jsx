@@ -1,13 +1,13 @@
 import { useRef, useState } from 'react';
 import { Link2, Loader2, Plus, X } from 'lucide-react';
 import { useApp } from '../store/AppContext';
+import { smartUpload } from '../lib/upload';
 import Img from './Img';
 
 // Visual image picker — preview tiles + dashed add-tile, drag to reorder, click cross to delete
 export default function ImageTiles({ images, onChange, min = 4 }) {
-  const { settings, toast } = useApp();
+  const { settings, auth, toast } = useApp();
   const media = settings?.media || {};
-  const ready = !!(media.cloudName && media.uploadPreset);
   const [busy, setBusy] = useState(0);
   const [showLink, setShowLink] = useState(false);
   const [link, setLink] = useState('');
@@ -17,19 +17,12 @@ export default function ImageTiles({ images, onChange, min = 4 }) {
   const addUrls = (arr) => onChange([...images, ...arr.filter((u) => u && !images.includes(u))]);
 
   const upload = async (files) => {
-    if (!ready) { toast('Pehle Apps page par Media Library connect karein'); return; }
     if (!files.length) return;
     setBusy(files.length);
     const done = [];
     for (const file of files) {
       try {
-        const fd = new FormData();
-        fd.append('file', file);
-        fd.append('upload_preset', media.uploadPreset);
-        const r = await fetch(`https://api.cloudinary.com/v1_1/${media.cloudName}/auto/upload`, { method: 'POST', body: fd });
-        const d = await r.json();
-        if (d.secure_url) done.push(d.secure_url);
-        else throw new Error(d.error?.message || 'Upload failed');
+        done.push(await smartUpload(file, { media, token: auth?.token }));
       } catch (ex) { toast(ex.message || 'Ek file upload nahi hui'); }
       setBusy((n) => n - 1);
     }
@@ -76,7 +69,7 @@ export default function ImageTiles({ images, onChange, min = 4 }) {
             <Loader2 size={18} className="animate-spin text-ash" />
           </div>
         )}
-        <button type="button" onClick={() => (ready ? fileRef.current?.click() : toast('Pehle Apps page par Media Library connect karein'))}
+        <button type="button" onClick={() => fileRef.current?.click()}
           className="flex h-28 w-[5.5rem] flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-line text-ash transition hover:border-obsidian hover:text-obsidian">
           <Plus size={22} />
           <span className="text-[10px] font-medium leading-tight">PC se<br />upload</span>

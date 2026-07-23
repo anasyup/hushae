@@ -92,7 +92,7 @@ export default function Apps() {
             <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-obsidian text-alabaster"><HardDrive size={20} /></span>
             <div>
               <h2 className="font-display text-lg">Media Library — PC se Image & Video Upload</h2>
-              <p className="mt-0.5 text-xs text-ash">Ye connect karne ke baad Products, Hero banner aur baqi jagah PC se direct file upload ho jayegi (Shopify jaisa).</p>
+              <p className="mt-0.5 text-xs text-ash"><b className="text-obsidian">Images bina setup ke bhi upload hoti hain</b> (database mein save hoti hain). Ye optional connection sirf <b className="text-obsidian">videos aur bari files</b> ke liye hai.</p>
             </div>
             {media.cloudName && media.uploadPreset && <span className="ml-auto rounded-full bg-sage/25 px-3 py-1 text-[11px] font-semibold text-sagedeep">Connected</span>}
           </div>

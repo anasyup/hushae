@@ -4,7 +4,7 @@ const cors = require('cors');
 
 const app = express();
 app.use(cors({ origin: true }));
-app.use(express.json({ limit: '1mb' }));
+app.use(express.json({ limit: '10mb' }));
 
 app.get('/api/health', (req, res) => res.json({ ok: true, name: 'VÉLOURA API' }));
 
@@ -16,6 +16,9 @@ app.use('/api/admin', require('./routes/admin'));
 app.use('/api/settings', require('./routes/settings'));
 app.use('/api/discounts', require('./routes/discounts'));
 app.use('/api/subscribers', require('./routes/subscribers'));
+const uploadsRoute = require('./routes/uploads');
+app.get('/api/uploads/:id', uploadsRoute.publicGet); // public image serving
+app.use('/api/uploads', uploadsRoute);
 app.use('/api/wishlist', require('./routes/wishlist'));
 app.use('/api/customer', require('./routes/customer'));
 

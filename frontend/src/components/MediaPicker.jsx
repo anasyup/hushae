@@ -1,33 +1,29 @@
 import { useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { ImagePlus, Link2, Loader2 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
+import { smartUpload } from '../lib/upload';
 
-// Upload button + URL input — uploads go straight from browser to the store's media library (Cloudinary)
+// Upload button + URL input — + click opens the PC file dialog immediately
 export default function MediaPicker({ value = '', onChange, onAdd, multiple = false, accept = 'image', hideUrl = false, buttonText = 'PC se upload' }) {
-  const { settings, toast } = useApp();
+  const { settings, auth, toast } = useApp();
   const media = settings?.media || {};
-  const ready = !!(media.cloudName && media.uploadPreset);
   const [busy, setBusy] = useState(false);
   const inputRef = useRef(null);
 
   const upload = async (files) => {
-    if (!ready || !files.length) { if (!ready) toast('Pehle Apps page par Media Library connect karein'); return; }
+    if (!files.length) return;
     setBusy(true);
+    let n = 0;
     try {
       for (const file of files) {
-        const fd = new FormData();
-        fd.append('file', file);
-        fd.append('upload_preset', media.uploadPreset);
-        const r = await fetch(`https://api.cloudinary.com/v1_1/${media.cloudName}/auto/upload`, { method: 'POST', body: fd });
-        const d = await r.json();
-        if (!d.secure_url) throw new Error(d.error?.message || 'Upload failed');
-        if (onAdd) onAdd(d.secure_url);
-        else onChange?.(d.secure_url);
+        const url = await smartUpload(file, { media, token: auth?.token });
+        if (onAdd) onAdd(url);
+        else onChange?.(url);
+        n += 1;
       }
-      toast(files.length > 1 ? `${files.length} files upload ho gayein` : 'Upload ho gaya');
+      if (n) toast(n > 1 ? `${n} files upload ho gayein` : 'Upload ho gaya');
     } catch (ex) {
-      toast(ex.message || 'Upload failed — Apps page par Media Library settings check karein');
+      toast(ex.message || 'Upload nahi hui');
     }
     setBusy(false);
     if (inputRef.current) inputRef.current.value = '';
@@ -39,8 +35,8 @@ export default function MediaPicker({ value = '', onChange, onAdd, multiple = fa
     <div>
       <div className="flex gap-2">
         <input ref={inputRef} type="file" accept={acceptStr} multiple={multiple} className="hidden" onChange={(e) => upload([...e.target.files])} />
-        <button type="button" onClick={() => inputRef.current?.click()} disabled={busy || !ready}
-          className="btn-outline shrink-0 whitespace-nowrap" title={ready ? '' : 'Pehle Apps → Media Library connect karein'}>
+        <button type="button" onClick={() => inputRef.current?.click()} disabled={busy}
+          className="btn-outline shrink-0 whitespace-nowrap">
           {busy ? <Loader2 size={14} className="animate-spin" /> : <ImagePlus size={14} />} {busy ? 'Upload ho raha hai…' : buttonText}
         </button>
         {!hideUrl && (
@@ -50,11 +46,6 @@ export default function MediaPicker({ value = '', onChange, onAdd, multiple = fa
           </span>
         )}
       </div>
-      {!ready && (
-        <p className="mt-1.5 text-[11px] leading-relaxed text-ash">
-          PC se upload abhi off hai — <Link className="font-semibold underline" to="/admin/apps">Apps → Media Library</Link> mein Cloudinary connect karein (5 minute, free).
-        </p>
-      )}
       {accept === 'image' && !hideUrl && value ? (
         <img src={value} alt="" className="mt-2 h-20 w-20 rounded-xl border border-line object-cover" onError={(e) => { e.target.style.display = 'none'; }} />
       ) : null}
