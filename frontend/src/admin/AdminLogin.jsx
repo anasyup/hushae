@@ -29,8 +29,8 @@ export default function AdminLogin() {
         <p className="text-center font-display text-xl tracking-widest2">V É L O U R A</p>
         <p className="mt-1 text-center text-[10px] uppercase tracking-widest text-ash">Admin Console — staff only</p>
         <form onSubmit={submit} className="mt-8 space-y-4" autoComplete="off">
-          <div><label className="label">Username</label><input className="input" type="text" required autoComplete="off" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} placeholder="underadmin" /></div>
-          <div><label className="label">Password</label><input className="input" type="password" required autoComplete="new-password" value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} placeholder="••••••••" /></div>
+          <div><label className="label">Username</label><input className="input" type="text" required autoComplete="off" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} /></div>
+          <div><label className="label">Password</label><input className="input" type="password" required autoComplete="new-password" value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} /></div>
           {err && <p className="rounded-xl bg-red-50 px-4 py-3 text-xs text-red-800">{err}</p>}
           <button disabled={busy} className="btn-primary w-full"><Lock size={14} /> {busy ? 'Verifying…' : 'Sign In'}</button>
         </form>
