@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { NavLink, Navigate, useLocation } from 'react-router-dom';
+import { Link, NavLink, Navigate, useLocation } from 'react-router-dom';
 import {
   BadgePercent, BarChart3, ChevronRight, FileText, FolderTree, Globe, Home, LayoutGrid,
   LogOut, Menu, Package, Plus, Settings as SettingsIcon, ShoppingBag, Store, TrendingUp, Users, X,
@@ -41,7 +41,9 @@ function SidebarContent({ onNavigate }) {
   return (
     <div className="flex h-full flex-col bg-[#ebebeb]">
       <div className="px-4 pb-2 pt-5">
-        <p className="font-display tracking-widest2 text-[15px] text-neutral-900">V É L O U R A</p>
+        <NavLink to="/admin" onClick={onNavigate} title="Go to Dashboard" className="block w-fit cursor-pointer rounded-lg transition hover:opacity-70">
+          <p className="font-display tracking-widest2 text-[15px] text-neutral-900">V É L O U R A</p>
+        </NavLink>
       </div>
 
       <nav className="flex-1 space-y-0.5 overflow-y-auto px-2.5 pb-3">
@@ -114,7 +116,7 @@ export default function AdminLayout({ children, title }) {
         {/* Mobile topbar */}
         <div className="sticky top-0 z-30 flex items-center gap-3 border-b border-black/5 bg-[#ebebeb] px-4 py-3 md:hidden">
           <button onClick={() => setDrawer(true)} className="rounded-lg p-1.5 text-neutral-700 hover:bg-white/70"><Menu size={20} /></button>
-          <p className="font-display tracking-widest2 text-sm text-neutral-900">V É L O U R A</p>
+          <Link to="/admin" className="font-display tracking-widest2 text-sm text-neutral-900">V É L O U R A</Link>
         </div>
         <main className="flex-1 p-4 md:p-8">
           <h1 className="font-display text-3xl">{title}</h1>

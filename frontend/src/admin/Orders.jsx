@@ -5,6 +5,7 @@ import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import { fmtDate, pkr } from '../lib/format';
 import AdminLayout from './AdminLayout';
+import Img from '../components/Img';
 
 const STATUSES = ['Pending', 'Confirmed', 'Processing', 'Ready to Ship', 'Shipped', 'Out for Delivery', 'Delivered', 'Cancelled', 'Refunded'];
 
@@ -54,11 +55,25 @@ export default function Orders() {
 
       <div className="card overflow-x-auto">
         <table className="w-full min-w-[900px]">
-          <thead><tr className="border-b border-line bg-satin/30">{['Order', 'Customer', 'City', 'Date', 'Total', 'Payment', 'Status'].map((h) => <th key={h} className="table-head">{h}</th>)}</tr></thead>
+          <thead><tr className="border-b border-line bg-satin/30">{['#', 'Order', 'Customer', 'City', 'Date', 'Total', 'Payment', 'Status'].map((h) => <th key={h} className="table-head">{h}</th>)}</tr></thead>
           <tbody>
-            {(orders || []).map((o) => (
+            {(orders || []).map((o, i) => (
               <tr key={o._id} className="border-b border-line/60 transition hover:bg-satin/20">
-                <td className="table-cell"><Link to={`/admin/orders/${o._id}`} className="font-mono text-xs font-semibold hover:underline">{o.orderNumber}</Link>{o.discreetPackaging && <p className="mt-0.5 text-[10px] uppercase tracking-wider text-sagedeep">Discreet</p>}</td>
+                <td className="table-cell w-10 text-xs font-bold text-ash">{i + 1}</td>
+                <td className="table-cell">
+                  <Link to={`/admin/orders/${o._id}`} className="group flex items-start gap-2.5">
+                    <span className="relative mt-0.5 shrink-0">
+                      <Img src={o.items?.[0]?.image} alt="" className="h-11 w-9 rounded-lg border border-line object-cover" />
+                      {o.items?.length > 1 && <span className="absolute -bottom-1.5 -right-1.5 grid h-4 min-w-4 place-items-center rounded-full bg-obsidian px-0.5 text-[9px] font-bold text-alabaster">+{o.items.length - 1}</span>}
+                    </span>
+                    <span className="pt-0.5">
+                      <span className="block font-mono text-xs font-semibold leading-tight group-hover:underline">{o.orderNumber}</span>
+                      <span className="mt-1 block text-[10px] uppercase tracking-wider text-ash">
+                        {o.items?.length || 0} item{(o.items?.length || 0) === 1 ? '' : 's'}{o.discreetPackaging && <span className="text-sagedeep"> · Discreet</span>}
+                      </span>
+                    </span>
+                  </Link>
+                </td>
                 <td className="table-cell">
                   <Link to={`/admin/orders/${o._id}`} className="block hover:underline">
                     <p className="text-[13px] font-semibold leading-tight">{o.customerInfo.name}</p>
