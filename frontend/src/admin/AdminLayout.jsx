@@ -91,7 +91,8 @@ export default function AdminLayout({ children, title }) {
   const loc = useLocation();
   const [drawer, setDrawer] = useState(false);
   if (!auth) return <Navigate to="/admin/login" state={{ from: loc.pathname }} replace />;
-  if (auth.user.role !== 'admin') return <Navigate to="/account" replace />;
+  // Logged in as a customer but opened /admin → send to admin sign-in (not /account)
+  if (auth.user.role !== 'admin') return <Navigate to="/admin/login" replace />;
 
   return (
     <div className="flex min-h-screen bg-alabaster">

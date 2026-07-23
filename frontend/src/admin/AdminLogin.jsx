@@ -1,14 +1,17 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { Lock } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 
 export default function AdminLogin() {
-  const { login } = useApp();
+  const { auth, login } = useApp();
   const nav = useNavigate();
   const [f, setF] = useState({ email: '', password: '' });
   const [err, setErr] = useState('');
   const [busy, setBusy] = useState(false);
+
+  // Already signed in as admin → straight to the console
+  if (auth && auth.user.role === 'admin') return <Navigate to="/admin" replace />;
 
   const submit = async (e) => {
     e.preventDefault();
