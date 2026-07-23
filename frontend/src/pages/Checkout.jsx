@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { BadgePercent, Banknote, CreditCard, Landmark, Lock, PackageCheck, Smartphone, X } from 'lucide-react';
+import { BadgePercent, Banknote, CreditCard, Crosshair, Landmark, Lock, MapPin, PackageCheck, Smartphone, X } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import { pkr } from '../lib/format';
@@ -94,6 +94,52 @@ export default function Checkout() {
     return () => { alive = false; };
   }, [f.province]);
 
+  // City ka postal code hint (e.g. Lahore → 54000)
+  const [postalHint, setPostalHint] = useState('');
+  useEffect(() => {
+    setPostalHint('');
+    if (!f.city || f.city === '__other') return;
+    api(`/locations/postal-hint/${encodeURIComponent(f.city)}`)
+      .then((r) => { if (r?.code) setPostalHint(r.code); })
+      .catch(() => {});
+  }, [f.city]);
+
+  // Pin location (Google Maps)
+  const [loc, setLoc] = useState(null); // { lat, lng, mapsLink }
+  const [locLink, setLocLink] = useState('');
+  const [locBusy, setLocBusy] = useState(false);
+  const [locMsg, setLocMsg] = useState({ type: '', text: '' });
+
+  const inPK = (lat, lng) => lat >= 23.4 && lat <= 37.2 && lng >= 60.4 && lng <= 78;
+
+  const useCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      setLocMsg({ type: 'err', text: 'Aapka browser location support nahi karta — neeche Google Maps ka link paste karein' });
+      return;
+    }
+    setLocBusy(true); setLocMsg({ type: '', text: '' });
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const lat = +pos.coords.latitude.toFixed(6); const lng = +pos.coords.longitude.toFixed(6);
+        if (!inPK(lat, lng)) { setLocMsg({ type: 'err', text: 'Location Pakistan se bahar lag rahi hai — pin sahi karein' }); }
+        else { setLoc({ lat, lng, mapsLink: `https://www.google.com/maps?q=${lat},${lng}` }); setLocMsg({ type: 'ok', text: 'Location lag gayi ✓' }); }
+        setLocBusy(false);
+      },
+      () => { setLocBusy(false); setLocMsg({ type: 'err', text: 'Browser ne location access nahi di — Google Maps ka link paste karein' }); },
+      { enableHighAccuracy: true, timeout: 12000 },
+    );
+  };
+
+  const resolveLink = async () => {
+    if (!locLink.trim() || locBusy) return;
+    setLocBusy(true); setLocMsg({ type: '', text: '' });
+    try {
+      const r = await api('/geo/resolve', { method: 'POST', body: { url: locLink.trim() } });
+      setLoc(r); setLocMsg({ type: 'ok', text: 'Location mil gayi ✓ map par check karein' });
+    } catch (ex) { setLocMsg({ type: 'err', text: ex.message }); }
+    setLocBusy(false);
+  };
+
   if (cart.length === 0) {
     return (
       <div className="mx-auto max-w-7xl px-4 py-24 text-center">
@@ -114,6 +160,7 @@ export default function Checkout() {
     if (f.address.trim().length < 6) e2.address = 'Complete street address';
     const cityVal = f.city === '__other' ? f.customCity.trim() : f.city;
     if (!cityVal) e2.city = 'City select karein';
+    if (!/^\d{5}$/.test(f.postalCode)) e2.postalCode = `Postal code 5 digit ka hona chahiye${postalHint ? ` (e.g. ${postalHint})` : ''}`;
     if (f.email && !/^\S+@\S+\.\S+$/.test(f.email)) e2.email = 'Valid email (or leave empty)';
     setErrs(e2);
     if (Object.keys(e2).length) return;
@@ -124,7 +171,7 @@ export default function Checkout() {
         method: 'POST',
         token: auth?.token,
         body: {
-          customerInfo: { ...f, city: cityVal, customCity: undefined },
+          customerInfo: { ...f, city: cityVal, customCity: undefined, location: loc },
           items: cart.map((l) => ({ product: l.id, size: l.size, color: l.color, quantity: l.qty })),
           paymentMethod: method, transactionId: txn, discountCode: applied?.code || '', discreetPackaging: discreet,
         },
@@ -132,7 +179,9 @@ export default function Checkout() {
       clearCart();
       nav(`/order/${order.orderNumber}`, { state: { order }, replace: true });
     } catch (ex) {
-      setTopErr(ex.message || 'Could not place order — please try again');
+      const msg = ex.message || 'Could not place order — please try again';
+      if (/postal|code|province/i.test(msg)) setErrs((er) => ({ ...er, postalCode: msg }));
+      setTopErr(msg);
       setBusy(false);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -164,6 +213,40 @@ export default function Checkout() {
                 </select>
               </div>
               <div className="md:col-span-2"><Field k="address" label="Street address *" placeholder="House, street, area" f={f} errs={errs} set={set} /></div>
+
+              {/* Pin location — rider ke liye */}
+              <div className="md:col-span-2 rounded-2xl border border-line bg-satin/40 p-4">
+                <p className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-ash">
+                  <MapPin size={14} /> Pin location <span className="normal-case tracking-normal text-ash/80">(optional — rider aasani se pohnch sake)</span>
+                </p>
+                {!loc ? (
+                  <div className="mt-3 grid gap-3 lg:grid-cols-[auto_1fr]">
+                    <button type="button" onClick={useCurrentLocation} disabled={locBusy}
+                      className="btn-outline flex items-center justify-center gap-2 !px-4 !py-2.5 text-xs disabled:opacity-50">
+                      <Crosshair size={14} /> {locBusy ? 'Location le raha hai…' : 'Meri current location'}
+                    </button>
+                    <div className="flex gap-2">
+                      <input className="input flex-1 !py-2.5 text-xs" value={locLink}
+                        onChange={(e) => { setLocLink(e.target.value); setLocMsg({ type: '', text: '' }); }}
+                        placeholder='Ya Google Maps ka "Share" link paste karein' />
+                      <button type="button" onClick={resolveLink} disabled={locBusy || !locLink.trim()}
+                        className="btn-primary !px-4 !py-2.5 text-xs disabled:opacity-50">{locBusy ? '…' : 'Lagayein'}</button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="mt-3">
+                    <iframe title="Delivery location" loading="lazy"
+                      src={`https://maps.google.com/maps?q=${loc.lat},${loc.lng}&z=16&output=embed`}
+                      className="h-44 w-full rounded-xl border border-line" />
+                    <div className="mt-2 flex items-center justify-between text-xs">
+                      <span className="font-medium text-ash">📍 {loc.lat}, {loc.lng} — map par confirm karein</span>
+                      <button type="button" className="font-semibold text-red-700 underline underline-offset-2"
+                        onClick={() => { setLoc(null); setLocMsg({ type: '', text: '' }); }}>Remove</button>
+                    </div>
+                  </div>
+                )}
+                {locMsg.text && <p className={`mt-2 text-xs font-medium ${locMsg.type === 'err' ? 'text-red-700' : 'text-emerald-700'}`}>{locMsg.text}</p>}
+              </div>
               <div>
                 <label className="label">City *</label>
                 {f.city === '__other' ? (
@@ -185,7 +268,22 @@ export default function Checkout() {
                 )}
                 {errs.city && <p className="mt-1 text-xs text-red-700">{errs.city}</p>}
               </div>
-              <Field k="postalCode" label="Postal code (optional)" placeholder="54000" inputMode="numeric" f={f} errs={errs} set={set} />
+              <div>
+                <label className="label">Postal code *</label>
+                <input className={`input ${errs.postalCode ? '!border-red-400 !ring-red-50' : ''}`}
+                  value={f.postalCode} inputMode="numeric" maxLength={5} placeholder={postalHint || '54000'}
+                  onChange={(e) => set('postalCode', e.target.value.replace(/\D/g, '').slice(0, 5))} />
+                {errs.postalCode && <p className="mt-1 text-xs text-red-700">{errs.postalCode}</p>}
+                {!errs.postalCode && postalHint && f.postalCode !== postalHint && (
+                  <button type="button" onClick={() => set('postalCode', postalHint)}
+                    className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-obsidian/[0.06] px-2.5 py-1 text-[11px] font-semibold text-obsidian transition hover:bg-obsidian/10">
+                    ✨ {f.city}: {postalHint} — tap karke bhar dein
+                  </button>
+                )}
+                {!errs.postalCode && postalHint && f.postalCode === postalHint && (
+                  <p className="mt-1.5 text-[11px] font-semibold text-emerald-700">✓ City ke mutabiq sahi hai</p>
+                )}
+              </div>
               <div className="md:col-span-2">
                 <label className="label">Order notes (optional)</label>
                 <textarea className="input min-h-20 resize-none" value={f.notes} onChange={(e) => set('notes', e.target.value)} placeholder="Rider instructions, landmarks…" />

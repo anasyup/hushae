@@ -28,6 +28,12 @@ const orderSchema = new mongoose.Schema({
     province: { type: String, required: true },
     postalCode: { type: String, default: '' },
     notes: { type: String, default: '' },
+    location: {
+      lat: { type: Number, default: null },
+      lng: { type: Number, default: null },
+      mapsLink: { type: String, default: '' },
+      _id: false,
+    },
   },
   items: { type: [itemSchema], required: true },
   subtotal: { type: Number, required: true },

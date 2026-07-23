@@ -48,6 +48,13 @@ export default function OrderDetail() {
             <p className="mt-1 text-sm text-ash">{c.phone}</p>
             {c.email && <p className="text-sm text-ash">{c.email}</p>}
             <p className="mt-4 text-sm leading-relaxed">{c.address}<br />{c.city}, {c.province}{c.postalCode ? ` ${c.postalCode}` : ''}</p>
+            {c.location?.lat != null && c.location?.lng != null && (
+              <a href={c.location.mapsLink || `https://www.google.com/maps?q=${c.location.lat},${c.location.lng}`}
+                target="_blank" rel="noreferrer"
+                className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-800 ring-1 ring-emerald-200 transition hover:bg-emerald-100">
+                📍 Pin location — Google Maps pe kholein
+              </a>
+            )}
             {c.notes && <p className="mt-3 rounded-xl bg-satin/40 p-3 text-xs text-ash">"{c.notes}"</p>}
             <div className="mt-4 space-y-1.5 text-xs">
               <p className="flex justify-between"><span className="text-ash">Payment</span><b>{o.paymentMethod} · {o.paymentStatus}</b></p>

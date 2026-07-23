@@ -5,6 +5,7 @@ const Settings = require('../models/Settings');
 const Discount = require('../models/Discount');
 const { protect, optionalAuth, adminOnly } = require('../middleware/auth');
 const { asyncHandler, orderNumber, evaluateDiscount } = require('../utils/helpers');
+const { postalCheck } = require('../data/postalcodes');
 
 const router = express.Router();
 
@@ -15,13 +16,30 @@ const phoneTail = (s) => digits(s).slice(-10); // forgiving match: 0300... / +92
 router.post('/', optionalAuth, asyncHandler(async (req, res) => {
   const { customerInfo = {}, items = [], paymentMethod, transactionId = '', discountCode = '', discreetPackaging = true } = req.body || {};
 
-  const required = ['name', 'phone', 'address', 'city', 'province'];
+  const required = ['name', 'phone', 'address', 'city', 'province', 'postalCode'];
   for (const f of required) {
     if (!customerInfo[f] || !String(customerInfo[f]).trim()) {
       return res.status(400).json({ message: `Please provide ${f}` });
     }
   }
   if (digits(customerInfo.phone).length < 10) return res.status(400).json({ message: 'Please provide a valid phone number' });
+
+  // Postal code: province/city ke hisaab se verify (delivery isi par depend karti hai)
+  const pc = postalCheck(customerInfo.postalCode, customerInfo.province.trim(), customerInfo.city.trim());
+  if (!pc.ok) return res.status(400).json({ message: pc.message, suggestion: pc.suggestion || '' });
+
+  // Pin location (optional) — agar hai to Pakistan ke andar honi chahiye
+  let location = { lat: null, lng: null, mapsLink: '' };
+  if (customerInfo.location && customerInfo.location.lat != null && customerInfo.location.lng != null) {
+    const lat = Number(customerInfo.location.lat); const lng = Number(customerInfo.location.lng);
+    if (!Number.isFinite(lat) || !Number.isFinite(lng) || Math.abs(lat) > 90 || Math.abs(lng) > 180) {
+      return res.status(400).json({ message: 'Map location sahi nahi hai' });
+    }
+    if (lat < 23.4 || lat > 37.2 || lng < 60.4 || lng > 78) {
+      return res.status(400).json({ message: 'Ye location Pakistan mein nahi hai' });
+    }
+    location = { lat, lng, mapsLink: `https://www.google.com/maps?q=${lat},${lng}` };
+  }
   if (!Array.isArray(items) || items.length === 0) return res.status(400).json({ message: 'Your cart is empty' });
   if (!['COD', 'JazzCash', 'EasyPaisa', 'Bank Transfer'].includes(paymentMethod)) {
     return res.status(400).json({ message: 'Please choose a payment method' });
@@ -81,7 +99,8 @@ router.post('/', optionalAuth, asyncHandler(async (req, res) => {
       name: customerInfo.name.trim(), email: (customerInfo.email || '').trim(),
       phone: customerInfo.phone.trim(), address: customerInfo.address.trim(),
       city: customerInfo.city.trim(), province: customerInfo.province.trim(),
-      postalCode: (customerInfo.postalCode || '').trim(), notes: (customerInfo.notes || '').trim(),
+      postalCode: customerInfo.postalCode.trim(), notes: (customerInfo.notes || '').trim(),
+      location,
     },
     items: lineItems, subtotal, shippingCharge, discount: discountAmount, couponCode: appliedCode, total,
     paymentMethod, paymentStatus: 'Pending', transactionId: transactionId.trim(),
