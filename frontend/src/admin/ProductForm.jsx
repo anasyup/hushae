@@ -5,6 +5,7 @@ import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import AdminLayout from './AdminLayout';
 import Img from '../components/Img';
+import MediaPicker from '../components/MediaPicker';
 
 const BADGE_POOL = ['Breathable', 'Cooling', 'Seamless', 'Sweat Control', 'Support', 'Quick Dry', '4-Way Stretch', 'Tag-Free', 'Silk-Touch', 'Value Pack'];
 const EMPTY = {
@@ -88,8 +89,9 @@ export default function ProductForm() {
           </div>
 
           <div className="card p-6">
-            <label className="label">Image URLs — minimum 4, one per line *</label>
-            <textarea className="input min-h-32 font-mono text-xs" required value={f.imagesText} onChange={(e) => set('imagesText', e.target.value)} placeholder="https://images.unsplash.com/…" />
+            <label className="label">Product images — minimum 4, one per line *</label>
+            <MediaPicker multiple hideUrl accept="image" onAdd={(url) => set('imagesText', (f.imagesText.trim() ? `${f.imagesText.trim()}\n` : '') + url)} buttonText="PC se images upload (ek se zyada)" />
+            <textarea className="input mt-3 min-h-32 font-mono text-xs" required value={f.imagesText} onChange={(e) => set('imagesText', e.target.value)} placeholder="https://images.unsplash.com/…" />
             <div className="mt-3 flex gap-2 overflow-x-auto">
               {f.imagesText.split('\n').filter(Boolean).slice(0, 6).map((u, i) => <Img key={i} src={u.trim()} alt="" className="h-16 w-12 shrink-0 rounded-lg object-cover" />)}
             </div>

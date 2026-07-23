@@ -24,6 +24,12 @@
       hover:border-obsidian hover:bg-obsidian hover:text-alabaster active:scale-[0.99];
   }
   .card { @apply rounded-3xl border border-line bg-white/60; }
+
+@layer utilities {
+  .animate-marquee { animation: marquee 30s linear infinite; }
+  .animate-marquee:hover { animation-play-state: paused; }
+}
+@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
   .pill { @apply inline-flex items-center gap-1 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-wider; }
   .skeleton {
     @apply relative overflow-hidden rounded-2xl bg-satin/70;

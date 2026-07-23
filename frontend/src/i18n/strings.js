@@ -61,4 +61,10 @@ export const STR = {
   cookieMarketingTxt: { en: 'Offers and product suggestions matching your taste.', ur: 'آپ کی پسند کے مطابق آفرز اور تجاویز۔' },
   alwaysOn: { en: 'Always on', ur: 'ہمیشہ فعال' },
   back: { en: 'Back', ur: 'واپس' },
+  promoThanks: { en: 'You are in — welcome!', ur: 'شاباش! آپ لسٹ میں شامل ہو گئے' },
+  promoCodeHint: { en: 'Use this code at checkout:', ur: 'چیک آؤٹ پر یہ کوڈ لگائیں:' },
+  promoThanksSub: { en: 'You will be the first to know what drops next.', ur: 'نئی آمد کی خبر سب سے پہلے آپ کو ملے گی۔' },
+  promoContinue: { en: 'Continue shopping', ur: 'خریداری جاری رکھیں' },
+  promoNoThanks: { en: 'No thanks, maybe later', ur: 'نہیں، شکریہ — بعد میں' },
+  promoHasCode: { en: 'A special discount code is waiting inside', ur: 'اندر آپ کے لیے خاص ڈسکاؤنٹ کوڈ موجود ہے' },
 };

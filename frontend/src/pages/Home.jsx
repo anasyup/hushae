@@ -6,6 +6,7 @@ import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import { snap } from '../lib/format';
 import Img from '../components/Img';
+import Marquee from '../components/Marquee';
 import TrustBadges from '../components/TrustBadges';
 import ProductRow from '../components/ProductRow';
 import { ProductGridSkeleton } from '../components/Skeletons';
@@ -44,8 +45,13 @@ export default function Home() {
       {/* HERO */}
       {hero.fullScreen ? (
         <section className="relative flex min-h-[100svh] items-end overflow-hidden">
+          {hero.video ? (
+            <video src={hero.video} poster={hero.image || undefined} autoPlay muted loop playsInline
+              className="absolute inset-0 h-full w-full object-cover" />
+          ) : (
           <Img src={hero.image || 'https://images.unsplash.com/photo-1519744792095-2f2205e87b6f?auto=format&fit=crop&w=1600&q=80'}
             alt="VÉLOURA editorial" className="absolute inset-0 h-full w-full object-cover" />
+          )}
           <div className="absolute inset-0 bg-gradient-to-t from-obsidian/85 via-obsidian/30 to-obsidian/10" />
           <motion.div initial={{ opacity: 0, y: 26 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}
             className={`relative z-10 mx-auto w-full max-w-7xl px-4 pb-20 md:px-8 md:pb-24 ${hero.align === 'center' ? 'text-center' : ''}`}>
@@ -101,6 +107,8 @@ export default function Home() {
         </div>
       </section>
       )}
+
+      <Marquee />
 
       <div className="mt-14"><TrustBadges /></div>
 

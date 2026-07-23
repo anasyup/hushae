@@ -12,8 +12,30 @@ const settingsSchema = new mongoose.Schema({
     ctaWomen: { type: String, default: 'Shop Women' },
     ctaMen: { type: String, default: 'Shop Men' },
     image: { type: String, default: '' },
+    video: { type: String, default: '' },            // optional MP4 for full-screen hero
     fullScreen: { type: Boolean, default: false },   // international-style full-viewport hero
     align: { type: String, default: 'left' },        // 'left' | 'center'
+  },
+  // Media library (Cloudinary) — enables PC file uploads across admin
+  media: {
+    cloudName: { type: String, default: '' },
+    uploadPreset: { type: String, default: '' },
+  },
+  // Scrolling marquee strip under the hero
+  marquee: {
+    enabled: { type: Boolean, default: true },
+    items: {
+      type: [String],
+      default: ['COD available — nationwide', 'Free shipping over PKR 4,999', '14-day easy exchange', 'Discreet packaging — always', 'Made in Pakistan', '3-tier quality system'],
+    },
+  },
+  // Timed newsletter popup with optional coupon reveal
+  promoPopup: {
+    enabled: { type: Boolean, default: true },
+    delaySec: { type: Number, default: 18 },
+    title: { type: String, default: 'Join the VÉLOURA inner circle' },
+    text: { type: String, default: 'First access to drops, private sales and member-only offers. No spam — ever.' },
+    couponCode: { type: String, default: '' },
   },
   trustBadges: [{
     title: String,

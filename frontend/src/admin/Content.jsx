@@ -3,6 +3,9 @@ import { ArrowRight, Megaphone } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import AdminLayout from './AdminLayout';
+import MediaPicker from '../components/MediaPicker';
+
+const MQ_FALLBACK = ['COD available — nationwide', 'Free shipping over PKR 4,999', '14-day easy exchange', 'Discreet packaging — always', 'Made in Pakistan', '3-tier quality system'];
 
 export default function Content() {
   const { auth, toast } = useApp();
@@ -16,14 +19,22 @@ export default function Content() {
   const hero = s.hero || {};
   const offer = s.offerBar || {};
   const cookie = s.cookiePopup || { enabled: true, title: '', text: '' };
+  const marquee = s.marquee || { enabled: true, items: MQ_FALLBACK };
+  const promo = s.promoPopup || { enabled: true, delaySec: 18, title: '', text: '', couponCode: '' };
   const setHero = (k, v) => setS({ ...s, hero: { ...hero, [k]: v } });
   const setOffer = (k, v) => setS({ ...s, offerBar: { ...offer, [k]: v } });
   const setCookie = (k, v) => setS({ ...s, cookiePopup: { ...cookie, [k]: v } });
+  const setMq = (k, v) => setS({ ...s, marquee: { ...marquee, [k]: v } });
+  const setPromo = (k, v) => setS({ ...s, promoPopup: { ...promo, [k]: v } });
 
   const save = async () => {
     setBusy(true);
     try {
-      await api('/settings', { method: 'PUT', token: auth.token, body: { hero: s.hero, offerBar: s.offerBar, cookiePopup: s.cookiePopup } });
+      await api('/settings', { method: 'PUT', token: auth.token, body: {
+        hero: s.hero, offerBar: s.offerBar, cookiePopup: s.cookiePopup,
+        marquee: { ...marquee, items: (marquee.items || []).map((x) => String(x).trim()).filter(Boolean) },
+        promoPopup: { ...promo, delaySec: Math.max(5, Number(promo.delaySec) || 18), couponCode: (promo.couponCode || '').trim().toUpperCase() },
+      } });
       toast('Content saved — live par show ho raha hai');
     } catch (ex) { toast(ex.message || 'Could not save'); }
     setBusy(false);
@@ -33,8 +44,9 @@ export default function Content() {
     <AdminLayout title="Content">
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="space-y-6">
+          {/* HERO */}
           <div className="card p-6">
-            <h2 className="font-display text-lg">Homepage Hero</h2>
+            <h2 className="font-display text-lg">Homepage Hero (Banner)</h2>
             <div className="mt-4 space-y-4">
               <div><label className="label">Title</label><textarea className="input min-h-16" value={hero.title || ''} onChange={(e) => setHero('title', e.target.value)} /></div>
               <div><label className="label">Subtitle</label><textarea className="input min-h-20" value={hero.subtitle || ''} onChange={(e) => setHero('subtitle', e.target.value)} /></div>
@@ -42,7 +54,15 @@ export default function Content() {
                 <div><label className="label">Button 1 (Women)</label><input className="input" value={hero.ctaWomen || ''} onChange={(e) => setHero('ctaWomen', e.target.value)} /></div>
                 <div><label className="label">Button 2 (Men)</label><input className="input" value={hero.ctaMen || ''} onChange={(e) => setHero('ctaMen', e.target.value)} /></div>
               </div>
-              <div><label className="label">Hero image URL (optional)</label><input className="input" placeholder="https://…" value={hero.image || ''} onChange={(e) => setHero('image', e.target.value)} /></div>
+              <div>
+                <label className="label">Banner image</label>
+                <MediaPicker value={hero.image || ''} onChange={(v) => setHero('image', v)} accept="image" />
+              </div>
+              <div>
+                <label className="label">Banner video (optional — MP4)</label>
+                <MediaPicker value={hero.video || ''} onChange={(v) => setHero('video', v)} accept="video" buttonText="Video upload" />
+                <p className="mt-1 text-[11px] text-ash">Video dogey to full-screen hero mein image ki jagah chalti hui video dikhegi. Khali chhoro to image hi rahega.</p>
+              </div>
               <div className="grid gap-4 rounded-2xl border border-line bg-satin/20 p-4 sm:grid-cols-2">
                 <label className="flex cursor-pointer items-start gap-3 text-sm">
                   <input type="checkbox" className="mt-0.5 h-4 w-4 accent-obsidian" checked={!!hero.fullScreen} onChange={(e) => setHero('fullScreen', e.target.checked)} />
@@ -62,6 +82,7 @@ export default function Content() {
             </div>
           </div>
 
+          {/* ANNOUNCEMENT */}
           <div className="card p-6">
             <h2 className="font-display text-lg">Announcement Bar (top strip)</h2>
             <label className="mt-3 flex cursor-pointer items-center gap-2 text-sm">
@@ -75,6 +96,37 @@ export default function Content() {
             </div>
           </div>
 
+          {/* MARQUEE */}
+          <div className="card p-6">
+            <h2 className="font-display text-lg">Scrolling Marquee Strip</h2>
+            <p className="mt-1 text-xs text-ash">Hero ke neeche chalti hui pati (international fashion sites jaise).</p>
+            <label className="mt-4 flex cursor-pointer items-center gap-2 text-sm">
+              <input type="checkbox" className="h-4 w-4 accent-obsidian" checked={marquee.enabled !== false} onChange={(e) => setMq('enabled', e.target.checked)} /> Marquee on hai
+            </label>
+            <div className={`mt-4 ${marquee.enabled !== false ? '' : 'pointer-events-none opacity-40'}`}>
+              <label className="label">Items — har line mein ek</label>
+              <textarea className="input min-h-28" value={(marquee.items || []).join('\n')}
+                onChange={(e) => setMq('items', e.target.value.split('\n'))} placeholder={'COD available — nationwide\nFree shipping over PKR 4,999'} />
+            </div>
+          </div>
+
+          {/* PROMO POPUP */}
+          <div className="card p-6">
+            <h2 className="font-display text-lg">Newsletter Popup (coupon ke saath)</h2>
+            <p className="mt-1 text-xs text-ash">Visitor ko thori der baad ek dafa dikhta hai — email le kar coupon code dikhata hai.</p>
+            <label className="mt-4 flex cursor-pointer items-center gap-2 text-sm">
+              <input type="checkbox" className="h-4 w-4 accent-obsidian" checked={promo.enabled !== false} onChange={(e) => setPromo('enabled', e.target.checked)} /> Popup on hai
+            </label>
+            <div className={`mt-4 grid gap-4 sm:grid-cols-2 ${promo.enabled !== false ? '' : 'pointer-events-none opacity-40'}`}>
+              <div><label className="label">Kitne second baad dikhe</label><input className="input" type="number" min="5" value={promo.delaySec} onChange={(e) => setPromo('delaySec', e.target.value)} /></div>
+              <div><label className="label">Reward coupon code</label><input className="input uppercase" placeholder="WELCOME10" value={promo.couponCode || ''} onChange={(e) => setPromo('couponCode', e.target.value)} /></div>
+              <div className="sm:col-span-2"><label className="label">Title</label><input className="input" placeholder="Join the VÉLOURA inner circle" value={promo.title || ''} onChange={(e) => setPromo('title', e.target.value)} /></div>
+              <div className="sm:col-span-2"><label className="label">Text</label><textarea className="input min-h-16" value={promo.text || ''} onChange={(e) => setPromo('text', e.target.value)} /></div>
+            </div>
+            <p className="mt-3 rounded-xl bg-satin/60 px-4 py-2.5 text-[11px] leading-relaxed text-ash">⚠️ Coupon code wo likho jo <b>Discounts page</b> par pehle banaya ho — warna checkout par code accept nahi hoga.</p>
+          </div>
+
+          {/* COOKIES */}
           <div className="card p-6">
             <h2 className="font-display text-lg">Cookie Consent Popup</h2>
             <p className="mt-1 text-xs text-ash">Naye visitors ko ek dafa ye clean popup dikhta hai — Accept / Refuse / Manage options ke saath.</p>
@@ -86,6 +138,7 @@ export default function Content() {
               <div><label className="label">Popup text</label><textarea className="input min-h-20" value={cookie.text || ''} onChange={(e) => setCookie('text', e.target.value)} /></div>
             </div>
           </div>
+
           <button onClick={save} disabled={busy} className="btn-primary w-full lg:w-auto">{busy ? 'Saving…' : 'Save All Changes'}</button>
         </div>
 
@@ -102,9 +155,13 @@ export default function Content() {
             )}
             {hero.fullScreen ? (
               <div className="relative h-72 overflow-hidden">
-                {hero.image
-                  ? <img src={hero.image} alt="hero" className="absolute inset-0 h-full w-full object-cover" onError={(e) => { e.target.style.display = 'none'; }} />
-                  : <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1519744792095-2f2205e87b6f?auto=format&fit=crop&w=1600&q=80)' }} />}
+                {hero.video ? (
+                  <video src={hero.video} poster={hero.image || undefined} muted loop autoPlay playsInline className="absolute inset-0 h-full w-full object-cover" />
+                ) : hero.image ? (
+                  <img src={hero.image} alt="hero" className="absolute inset-0 h-full w-full object-cover" onError={(e) => { e.target.style.display = 'none'; }} />
+                ) : (
+                  <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1519744792095-2f2205e87b6f?auto=format&fit=crop&w=1600&q=80)' }} />
+                )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-black/5" />
                 <div className={`absolute inset-x-0 bottom-0 p-6 ${hero.align === 'center' ? 'text-center' : ''}`}>
                   <p className="whitespace-pre-line font-display text-2xl leading-tight text-white">{hero.title}</p>
@@ -116,19 +173,26 @@ export default function Content() {
                 </div>
               </div>
             ) : (
-            <div className="grid items-center gap-5 p-6 sm:grid-cols-2">
-              <div>
-                <p className="whitespace-pre-line font-display text-2xl leading-tight">{hero.title}</p>
-                <p className="mt-2 text-xs leading-relaxed text-ash">{hero.subtitle}</p>
-                <div className="mt-4 flex gap-2">
-                  <span className="btn-primary !px-3 !py-2 text-[11px]">{hero.ctaWomen} <ArrowRight size={11} /></span>
-                  <span className="btn-outline !px-3 !py-2 text-[11px]">{hero.ctaMen}</span>
+              <div className="grid items-center gap-5 p-6 sm:grid-cols-2">
+                <div>
+                  <p className="whitespace-pre-line font-display text-2xl leading-tight">{hero.title}</p>
+                  <p className="mt-2 text-xs leading-relaxed text-ash">{hero.subtitle}</p>
+                  <div className="mt-4 flex gap-2">
+                    <span className="btn-primary !px-3 !py-2 text-[11px]">{hero.ctaWomen} <ArrowRight size={11} /></span>
+                    <span className="btn-outline !px-3 !py-2 text-[11px]">{hero.ctaMen}</span>
+                  </div>
                 </div>
+                {hero.image
+                  ? <img src={hero.image} alt="hero" className="h-44 w-full rounded-2xl object-cover" onError={(e) => { e.target.style.display = 'none'; }} />
+                  : <div className="flex h-44 items-center justify-center rounded-2xl bg-satin text-xs text-ash">Default hero image</div>}
               </div>
-              {hero.image
-                ? <img src={hero.image} alt="hero" className="h-44 w-full rounded-2xl object-cover" onError={(e) => { e.target.style.display = 'none'; }} />
-                : <div className="flex h-44 items-center justify-center rounded-2xl bg-satin text-xs text-ash">Default hero image</div>}
-            </div>
+            )}
+            {marquee.enabled !== false && (marquee.items || []).filter(Boolean).length > 0 && (
+              <div className="overflow-hidden bg-obsidian py-2 text-alabaster">
+                <p className="whitespace-nowrap text-center text-[10px] font-medium uppercase tracking-widest opacity-90">
+                  {(marquee.items || []).filter(Boolean).join('   ✦   ')}
+                </p>
+              </div>
             )}
           </div>
           <p className="text-xs leading-relaxed text-ash">Preview sirf andaaze ke liye hai — Save karne ke baad asli website par foran apply ho jata hai.</p>
