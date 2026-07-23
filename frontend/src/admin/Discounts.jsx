@@ -7,6 +7,13 @@ import AdminLayout from './AdminLayout';
 
 const EMPTY = { code: '', type: 'percent', value: '', minSubtotal: '', maxUses: '', active: true, expiresAt: '' };
 
+// Module-level wrapper (stable identity — inputs keep focus while typing)
+function Field({ label, children }) {
+  return (
+    <div><label className="label">{label}</label>{children}</div>
+  );
+}
+
 export default function Discounts() {
   const { auth } = useApp();
   const [list, setList] = useState(null);
@@ -39,10 +46,6 @@ export default function Discounts() {
 
   const toggle = async (d) => { try { await api(`/discounts/${d._id}`, { method: 'PUT', token: auth.token, body: { active: !d.active } }); load(); } catch {} };
   const remove = async (d) => { if (!window.confirm(`Delete code ${d.code}?`)) return; try { await api(`/discounts/${d._id}`, { method: 'DELETE', token: auth.token }); load(); } catch {} };
-
-  const Field = ({ label, children }) => (
-    <div><label className="label">{label}</label>{children}</div>
-  );
 
   return (
     <AdminLayout title="Discounts">

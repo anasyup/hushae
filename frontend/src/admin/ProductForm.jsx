@@ -13,6 +13,15 @@ const EMPTY = {
   colors: [{ name: 'Black', hex: '#1A1A1A' }], badges: [], careText: '', isFeatured: false, isBestSeller: false, isActive: true, bundleSlug: '',
 };
 
+// Module-level checkbox (stable identity)
+function Check({ k, label, f, set }) {
+  return (
+    <label className="flex cursor-pointer items-center gap-2 text-sm">
+      <input type="checkbox" checked={f[k]} onChange={(e) => set(k, e.target.checked)} className="h-4 w-4 accent-[#0D0D0D]" />{label}
+    </label>
+  );
+}
+
 export default function ProductForm() {
   const { id } = useParams();
   const isNew = id === 'new';
@@ -65,12 +74,6 @@ export default function ProductForm() {
       nav('/admin/products');
     } catch (ex) { toast(ex.message); setBusy(false); }
   };
-
-  const Check = ({ k, label }) => (
-    <label className="flex cursor-pointer items-center gap-2 text-sm">
-      <input type="checkbox" checked={f[k]} onChange={(e) => set(k, e.target.checked)} className="h-4 w-4 accent-[#0D0D0D]" />{label}
-    </label>
-  );
 
   return (
     <AdminLayout title={isNew ? 'Add Product' : 'Edit Product'}>
@@ -161,9 +164,9 @@ export default function ProductForm() {
               </select>
             </div>
             <div className="space-y-2.5 border-t border-line pt-4">
-              <Check k="isFeatured" label="Featured (Signature edit)" />
-              <Check k="isBestSeller" label="Best seller" />
-              <Check k="isActive" label="Active (visible in store)" />
+              <Check k="isFeatured" label="Featured (Signature edit)" f={f} set={set} />
+              <Check k="isBestSeller" label="Best seller" f={f} set={set} />
+              <Check k="isActive" label="Active (visible in store)" f={f} set={set} />
             </div>
           </div>
           <button disabled={busy} className="btn-primary w-full"><Save size={15} /> {busy ? 'Saving…' : isNew ? 'Create product' : 'Save changes'}</button>

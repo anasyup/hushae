@@ -16,6 +16,17 @@ const PM = [
   { id: 'Bank Transfer', icon: Landmark, title: 'Bank Transfer', note: 'Transfer then enter reference' },
 ];
 
+// Module-level field (component identity stays stable while typing — no focus loss)
+function Field({ k, label, f, errs, set, ...props }) {
+  return (
+    <div>
+      <label className="label">{label}</label>
+      <input className={`input ${errs[k] ? '!border-red-400 !ring-red-50' : ''}`} value={f[k]} onChange={(e) => set(k, e.target.value)} {...props} />
+      {errs[k] && <p className="mt-1 text-xs text-red-700">{errs[k]}</p>}
+    </div>
+  );
+}
+
 export default function Checkout() {
   const { cart, cartSubtotal, settings, clearCart, auth, t } = useApp();
   const nav = useNavigate();
@@ -99,14 +110,6 @@ export default function Checkout() {
     }
   };
 
-  const Field = ({ k, label, ...props }) => (
-    <div>
-      <label className="label">{label}</label>
-      <input className={`input ${errs[k] ? '!border-red-400 !ring-red-50' : ''}`} value={f[k]} onChange={(e) => set(k, e.target.value)} {...props} />
-      {errs[k] && <p className="mt-1 text-xs text-red-700">{errs[k]}</p>}
-    </div>
-  );
-
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 md:px-8">
       <h1 className="font-display text-4xl"><Tx k="checkout" /></h1>
@@ -122,18 +125,18 @@ export default function Checkout() {
           <section className="card p-6 md:p-8">
             <p className="mb-6 text-[11px] font-bold uppercase tracking-widest text-ash">Delivery details</p>
             <div className="grid gap-5 md:grid-cols-2">
-              <Field k="name" label="Full name *" placeholder="e.g. Ayesha Khan" />
-              <Field k="phone" label="Phone *" placeholder="03xx xxxxxxx" inputMode="tel" />
-              <Field k="email" label="Email (optional)" placeholder="you@example.com" type="email" />
+              <Field k="name" label="Full name *" placeholder="e.g. Ayesha Khan" f={f} errs={errs} set={set} />
+              <Field k="phone" label="Phone *" placeholder="03xx xxxxxxx" inputMode="tel" f={f} errs={errs} set={set} />
+              <Field k="email" label="Email (optional)" placeholder="you@example.com" type="email" f={f} errs={errs} set={set} />
               <div>
                 <label className="label">Province *</label>
                 <select className="input" value={f.province} onChange={(e) => set('province', e.target.value)}>
                   {PROVINCES.map((p) => <option key={p}>{p}</option>)}
                 </select>
               </div>
-              <div className="md:col-span-2"><Field k="address" label="Street address *" placeholder="House, street, area" /></div>
-              <Field k="city" label="City *" placeholder="e.g. Lahore" />
-              <Field k="postalCode" label="Postal code (optional)" placeholder="54000" inputMode="numeric" />
+              <div className="md:col-span-2"><Field k="address" label="Street address *" placeholder="House, street, area" f={f} errs={errs} set={set} /></div>
+              <Field k="city" label="City *" placeholder="e.g. Lahore" f={f} errs={errs} set={set} />
+              <Field k="postalCode" label="Postal code (optional)" placeholder="54000" inputMode="numeric" f={f} errs={errs} set={set} />
               <div className="md:col-span-2">
                 <label className="label">Order notes (optional)</label>
                 <textarea className="input min-h-20 resize-none" value={f.notes} onChange={(e) => set('notes', e.target.value)} placeholder="Rider instructions, landmarks…" />
