@@ -35,6 +35,7 @@ import Analytics from './admin/Analytics';
 import Apps from './admin/Apps';
 import WhatsAppFloat from './components/WhatsAppFloat';
 import StoreLock from './components/StoreLock';
+import CookieConsent from './components/CookieConsent';
 import OnlineStore from './admin/OnlineStore';
 
 function ScrollToTop() {
@@ -95,6 +96,7 @@ export default function App() {
       {!isAdmin && <Footer />}
       {!isAdmin && <CartDrawer />}
       {!isAdmin && <WhatsAppFloat />}
+      {!isAdmin && <CookieConsent />}
       <Toasts />
     </div>
   );

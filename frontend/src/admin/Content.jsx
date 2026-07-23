@@ -15,13 +15,15 @@ export default function Content() {
 
   const hero = s.hero || {};
   const offer = s.offerBar || {};
+  const cookie = s.cookiePopup || { enabled: true, title: '', text: '' };
   const setHero = (k, v) => setS({ ...s, hero: { ...hero, [k]: v } });
   const setOffer = (k, v) => setS({ ...s, offerBar: { ...offer, [k]: v } });
+  const setCookie = (k, v) => setS({ ...s, cookiePopup: { ...cookie, [k]: v } });
 
   const save = async () => {
     setBusy(true);
     try {
-      await api('/settings', { method: 'PUT', token: auth.token, body: { hero: s.hero, offerBar: s.offerBar } });
+      await api('/settings', { method: 'PUT', token: auth.token, body: { hero: s.hero, offerBar: s.offerBar, cookiePopup: s.cookiePopup } });
       toast('Content saved — live par show ho raha hai');
     } catch (ex) { toast(ex.message || 'Could not save'); }
     setBusy(false);
@@ -70,6 +72,18 @@ export default function Content() {
               <div><label className="label">Message (Urdu)</label><input className="input" dir="rtl" value={offer.messageUr || ''} onChange={(e) => setOffer('messageUr', e.target.value)} /></div>
               <div><label className="label">Button text (EN)</label><input className="input" value={offer.ctaEn || ''} onChange={(e) => setOffer('ctaEn', e.target.value)} /></div>
               <div><label className="label">Link</label><input className="input" placeholder="/sale" value={offer.link || ''} onChange={(e) => setOffer('link', e.target.value)} /></div>
+            </div>
+          </div>
+
+          <div className="card p-6">
+            <h2 className="font-display text-lg">Cookie Consent Popup</h2>
+            <p className="mt-1 text-xs text-ash">Naye visitors ko ek dafa ye clean popup dikhta hai — Accept / Refuse / Manage options ke saath.</p>
+            <label className="mt-4 flex cursor-pointer items-center gap-2 text-sm">
+              <input type="checkbox" className="h-4 w-4 accent-obsidian" checked={cookie.enabled !== false} onChange={(e) => setCookie('enabled', e.target.checked)} /> Cookie popup on hai
+            </label>
+            <div className={`mt-4 grid gap-4 ${cookie.enabled !== false ? '' : 'pointer-events-none opacity-40'}`}>
+              <div><label className="label">Popup title</label><input className="input" value={cookie.title || ''} onChange={(e) => setCookie('title', e.target.value)} /></div>
+              <div><label className="label">Popup text</label><textarea className="input min-h-20" value={cookie.text || ''} onChange={(e) => setCookie('text', e.target.value)} /></div>
             </div>
           </div>
           <button onClick={save} disabled={busy} className="btn-primary w-full lg:w-auto">{busy ? 'Saving…' : 'Save All Changes'}</button>

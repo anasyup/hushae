@@ -38,6 +38,12 @@ const settingsSchema = new mongoose.Schema({
     bank: { type: Boolean, default: true },
     bankDetails: { type: String, default: 'Bank: Meezan Bank\nTitle: Veloura (Pvt) Ltd\nIBAN: PK00 MEZN 0000 0000 0000 0000' },
   },
+  // Cookie consent popup shown to first-time visitors
+  cookiePopup: {
+    enabled: { type: Boolean, default: true },
+    title: { type: String, default: 'Cookies on VÉLOURA' },
+    text: { type: String, default: 'We use cookies to keep you signed in and remember your bag. With your permission, we also use a few cookies to understand traffic and improve the store. Your data is never sold — promise.' },
+  },
   theme: {
     accent: { type: String, default: '#0D0D0D' },
   },
