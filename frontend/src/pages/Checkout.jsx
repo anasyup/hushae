@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { BadgePercent, Banknote, CreditCard, Landmark, Lock, PackageCheck, Smartphone, X } from 'lucide-react';
 import { useApp } from '../store/AppContext';
@@ -7,7 +7,8 @@ import { pkr } from '../lib/format';
 import Img from '../components/Img';
 import Tx from '../components/Tx';
 
-const PROVINCES = ['Punjab', 'Sindh', 'Khyber Pakhtunkhwa', 'Balochistan', 'Gilgit-Baltistan', 'Azad Kashmir', 'Islamabad (ICT)'];
+// Fallback if the locations API is unreachable
+const PROVINCES_FALLBACK = ['Punjab', 'Sindh', 'Khyber Pakhtunkhwa', 'Balochistan', 'Gilgit-Baltistan', 'Azad Kashmir', 'Islamabad (ICT)'];
 
 const PM = [
   { id: 'COD', icon: Banknote, title: 'Cash on Delivery', note: 'Pay at your doorstep' },
@@ -58,7 +59,7 @@ export default function Checkout() {
   const addr = auth?.user?.addresses?.[0] || {};
   const [f, setF] = useState({
     name: auth?.user?.name || addr.name || '', phone: auth?.user?.phone || addr.phone || '', email: auth?.user?.email || '',
-    address: addr.address || '', city: addr.city || '', province: addr.province || 'Punjab', postalCode: '', notes: '',
+    address: addr.address || '', city: addr.city || '', customCity: '', province: addr.province || 'Punjab', postalCode: '', notes: '',
   });
   const [method, setMethod] = useState('COD');
   const [txn, setTxn] = useState('');
@@ -66,6 +67,32 @@ export default function Checkout() {
   const [errs, setErrs] = useState({});
   const [busy, setBusy] = useState(false);
   const [topErr, setTopErr] = useState('');
+
+  // Provinces + cities from the backend API
+  const [provinces, setProvinces] = useState(PROVINCES_FALLBACK);
+  const [cities, setCities] = useState([]);
+  const [citiesLoading, setCitiesLoading] = useState(false);
+
+  useEffect(() => {
+    api('/locations').then((r) => { if (r?.provinces?.length) setProvinces(r.provinces); }).catch(() => {});
+  }, []);
+
+  // Jab province badle → us province ke cities API se lao
+  useEffect(() => {
+    if (!f.province) { setCities([]); return; }
+    let alive = true;
+    setCitiesLoading(true);
+    api(`/locations/${encodeURIComponent(f.province)}/cities`)
+      .then((r) => {
+        if (!alive) return;
+        const list = r?.cities || [];
+        setCities(list);
+        setF((x) => (x.city && x.city !== '__other' && !list.includes(x.city) ? { ...x, city: '' } : x));
+      })
+      .catch(() => { if (alive) setCities([]); })
+      .finally(() => { if (alive) setCitiesLoading(false); });
+    return () => { alive = false; };
+  }, [f.province]);
 
   if (cart.length === 0) {
     return (
@@ -85,7 +112,8 @@ export default function Checkout() {
     if (f.name.trim().length < 3) e2.name = 'Your full name';
     if (f.phone.replace(/\D/g, '').length < 10) e2.phone = 'A valid phone (03xx-xxxxxxx)';
     if (f.address.trim().length < 6) e2.address = 'Complete street address';
-    if (!f.city.trim()) e2.city = 'City';
+    const cityVal = f.city === '__other' ? f.customCity.trim() : f.city;
+    if (!cityVal) e2.city = 'City select karein';
     if (f.email && !/^\S+@\S+\.\S+$/.test(f.email)) e2.email = 'Valid email (or leave empty)';
     setErrs(e2);
     if (Object.keys(e2).length) return;
@@ -96,7 +124,7 @@ export default function Checkout() {
         method: 'POST',
         token: auth?.token,
         body: {
-          customerInfo: f,
+          customerInfo: { ...f, city: cityVal, customCity: undefined },
           items: cart.map((l) => ({ product: l.id, size: l.size, color: l.color, quantity: l.qty })),
           paymentMethod: method, transactionId: txn, discountCode: applied?.code || '', discreetPackaging: discreet,
         },
@@ -130,12 +158,33 @@ export default function Checkout() {
               <Field k="email" label="Email (optional)" placeholder="you@example.com" type="email" f={f} errs={errs} set={set} />
               <div>
                 <label className="label">Province *</label>
-                <select className="input" value={f.province} onChange={(e) => set('province', e.target.value)}>
-                  {PROVINCES.map((p) => <option key={p}>{p}</option>)}
+                <select className="input" value={f.province}
+                  onChange={(e) => setF((x) => ({ ...x, province: e.target.value, city: '', customCity: '' }))}>
+                  {provinces.map((p) => <option key={p}>{p}</option>)}
                 </select>
               </div>
               <div className="md:col-span-2"><Field k="address" label="Street address *" placeholder="House, street, area" f={f} errs={errs} set={set} /></div>
-              <Field k="city" label="City *" placeholder="e.g. Lahore" f={f} errs={errs} set={set} />
+              <div>
+                <label className="label">City *</label>
+                {f.city === '__other' ? (
+                  <div className="space-y-1.5">
+                    <input className={`input ${errs.city ? '!border-red-400 !ring-red-50' : ''}`} autoFocus
+                      value={f.customCity} onChange={(e) => { setF((x) => ({ ...x, customCity: e.target.value })); setErrs((er) => ({ ...er, city: '' })); }}
+                      placeholder="Apna shehar likhein" />
+                    <button type="button" className="text-[11px] font-semibold text-obsidian underline underline-offset-2"
+                      onClick={() => setF((x) => ({ ...x, city: '', customCity: '' }))}>← List se chunein</button>
+                  </div>
+                ) : (
+                  <select className={`input ${errs.city ? '!border-red-400 !ring-red-50' : ''}`} value={f.city}
+                    disabled={citiesLoading}
+                    onChange={(e) => { setF((x) => ({ ...x, city: e.target.value })); setErrs((er) => ({ ...er, city: '' })); }}>
+                    <option value="">{citiesLoading ? 'Cities load ho rahi hain…' : 'City select karein'}</option>
+                    {cities.map((c) => <option key={c} value={c}>{c}</option>)}
+                    <option value="__other">Mera shehar list mein nahi hai</option>
+                  </select>
+                )}
+                {errs.city && <p className="mt-1 text-xs text-red-700">{errs.city}</p>}
+              </div>
               <Field k="postalCode" label="Postal code (optional)" placeholder="54000" inputMode="numeric" f={f} errs={errs} set={set} />
               <div className="md:col-span-2">
                 <label className="label">Order notes (optional)</label>
