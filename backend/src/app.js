@@ -21,6 +21,8 @@ app.use('/api/subscribers', require('./routes/subscribers'));
 app.use('/api/locations', require('./routes/locations'));
 app.use('/api/geo', require('./routes/geo'));
 app.use('/api/otp', require('./routes/otp'));
+app.use('/api/track', require('./routes/track'));
+app.use('/api/analytics', require('./routes/analytics'));
 const uploadsRoute = require('./routes/uploads');
 app.get('/api/uploads/:id', uploadsRoute.publicGet); // public image serving
 app.use('/api/uploads', uploadsRoute);

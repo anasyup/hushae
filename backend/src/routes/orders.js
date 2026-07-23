@@ -171,4 +171,11 @@ router.patch('/admin/:id/payment', protect, adminOnly, asyncHandler(async (req, 
   res.json({ order });
 }));
 
+// Permanently delete an order record (admin only — test/junk orders)
+router.delete('/admin/:id', protect, adminOnly, asyncHandler(async (req, res) => {
+  const order = await Order.findByIdAndDelete(req.params.id);
+  if (!order) return res.status(404).json({ message: 'Order not found' });
+  res.json({ message: 'Order deleted' });
+}));
+
 module.exports = router;

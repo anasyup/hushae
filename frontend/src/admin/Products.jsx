@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Pencil, Plus, Search } from 'lucide-react';
+import { Link, useSearchParams } from 'react-router-dom';
+import { Pencil, Plus, Search, Trash2 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import { pkr } from '../lib/format';
@@ -11,14 +11,33 @@ export default function Products() {
   const { auth, toast } = useApp();
   const [list, setList] = useState(null);
   const [cats, setCats] = useState([]);
-  const [f, setF] = useState({ q: '', category: '', gender: '', tier: '', stock: '', status: '' });
+  const [searchParams] = useSearchParams();
+  const [f, setF] = useState({
+    q: '', category: '', gender: '', tier: '', stock: '',
+    status: searchParams.get('active') === '0' ? 'disabled' : (searchParams.get('status') || ''),
+  });
 
   const load = () => {
     const sp = new URLSearchParams();
-    Object.entries(f).forEach(([k, v]) => v && sp.set(k, v));
+    Object.entries(f).forEach(([k, v]) => {
+      if (!v) return;
+      if (k === 'status' && v === 'disabled') sp.set('active', '0');
+      else sp.set(k, v);
+    });
     api(`/products/admin/list?${sp}`, { token: auth.token }).then((d) => setList(d.products)).catch(() => setList([]));
   };
-  useEffect(load, [f.category, f.gender, f.tier, f.stock, f.status]); // eslint-disable-line
+  useEffect(load, [f.category, f.gender, f.tier, f.stock, f.status, searchParams]); // eslint-disable-line
+
+  const enable = async (p) => {
+    try { await api(`/products/${p._id}`, { method: 'PUT', token: auth.token, body: { isActive: true } }); toast('Product enabled — live in store'); load(); }
+    catch (ex) { toast(ex.message); }
+  };
+
+  const remove = async (p) => {
+    if (!window.confirm(`PERMANENTLY delete "${p.name}"?\n\nYe listing hamesha ke liye delete ho jayegi — wapas nahi aayegi.`)) return;
+    try { await api(`/products/${p._id}/permanent`, { method: 'DELETE', token: auth.token }); toast('Product deleted'); load(); }
+    catch (ex) { toast(ex.message); }
+  };
   useEffect(() => { api('/categories?all=1').then((d) => setCats(d.categories)).catch(() => {}); }, []);
 
   const disable = async (p) => {
@@ -44,7 +63,7 @@ export default function Products() {
         {sel('category', 'All categories', cats.map((c) => ({ value: c.slug, label: `${c.name} (${c.gender[0].toUpperCase()})` })))}
         {sel('tier', 'All tiers', ['Economy', 'Standard', 'Premium'])}
         {sel('stock', 'Any stock', [{ value: 'low', label: 'Low (≤5)' }, { value: 'out', label: 'Out of stock' }])}
-        {sel('status', 'All status', [{ value: 'active', label: 'Active (live)' }, { value: 'draft', label: 'Drafts' }])}
+        {sel('status', 'All status', [{ value: 'active', label: 'Active (live)' }, { value: 'draft', label: 'Drafts' }, { value: 'disabled', label: 'Inactive (disabled)' }])}
         <Link to="/admin/products/new" className="btn-primary !px-5 !py-2.5 !text-[11px]"><Plus size={14} /> Add Product</Link>
       </div>
 
@@ -71,9 +90,12 @@ export default function Products() {
                   {!p.isActive && <span className="text-red-700">Disabled</span>}
                 </td>
                 <td className="table-cell">
-                  <div className="flex gap-2">
+                  <div className="flex items-center gap-2">
                     <Link to={`/admin/products/${p._id}`} className="rounded-full border border-line p-2 text-ash transition hover:border-obsidian hover:text-obsidian" aria-label="Edit"><Pencil size={13} /></Link>
-                    {p.isActive && <button onClick={() => disable(p)} className="rounded-full border border-line px-3 py-2 text-[10px] font-bold uppercase text-ash transition hover:border-red-300 hover:text-red-700">Disable</button>}
+                    {p.isActive
+                      ? <button onClick={() => disable(p)} className="rounded-full border border-line px-3 py-2 text-[10px] font-bold uppercase text-ash transition hover:border-amber-400 hover:text-amber-700">Disable</button>
+                      : <button onClick={() => enable(p)} className="rounded-full border border-sagedeep/40 px-3 py-2 text-[10px] font-bold uppercase text-sagedeep transition hover:bg-sage/20">Enable</button>}
+                    <button onClick={() => remove(p)} className="rounded-full border border-line p-2 text-ash transition hover:border-red-300 hover:bg-red-50 hover:text-red-700" aria-label="Delete permanently" title="Delete permanently"><Trash2 size={13} /></button>
                   </div>
                 </td>
               </tr>

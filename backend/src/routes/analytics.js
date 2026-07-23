@@ -1,0 +1,139 @@
+const express = require('express');
+const Order = require('../models/Order');
+const Product = require('../models/Product');
+const User = require('../models/User');
+const Subscriber = require('../models/Subscriber');
+const PageView = require('../models/PageView');
+const { protect, adminOnly } = require('../middleware/auth');
+const { asyncHandler } = require('../utils/helpers');
+
+const router = express.Router();
+router.use(protect, adminOnly);
+
+const RANGES = { today: 1, '7d': 7, '30d': 30, '90d': 90 };
+const DAY = 24 * 60 * 60 * 1000;
+const VALID = { Cancelled: 1, Refunded: 1 };
+
+router.get('/overview', asyncHandler(async (req, res) => {
+  const rangeKey = req.query.range === 'all' ? 'all' : (RANGES[req.query.range] ? req.query.range : '30d');
+  const days = RANGES[rangeKey] || 0;
+  const now = Date.now();
+  const start = days ? new Date(now - days * DAY) : new Date(0);
+  const prevStart = days ? new Date(now - 2 * days * DAY) : null;
+
+  const matchRange = { status: { $nin: ['Cancelled', 'Refunded'] }, createdAt: { $gte: start } };
+  const pvMatch = { createdAt: { $gte: start } };
+
+  const [orders, prevAgg, sessSessions, sessSeries, sessDevice, cartSids, coSids, landing, refs, products, newRegisters, subscribers, locAgg] = await Promise.all([
+    Order.find(matchRange).select('items total paymentMethod status customerInfo.phone customerInfo.email customerInfo.city createdAt').lean(),
+    days ? Order.aggregate([
+      { $match: { status: { $nin: ['Cancelled', 'Refunded'] }, createdAt: { $gte: prevStart, $lt: start } } },
+      { $group: { _id: null, revenue: { $sum: '$total' }, orders: { $sum: 1 } } },
+    ]) : Promise.resolve([]),
+    PageView.distinct('sid', pvMatch),
+    PageView.aggregate([
+      { $match: pvMatch },
+      { $group: { _id: { d: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } }, sid: '$sid' } } },
+      { $group: { _id: '$_id.d', sessions: { $sum: 1 } } },
+    ]),
+    PageView.aggregate([{ $match: pvMatch }, { $group: { _id: '$device', sids: { $addToSet: '$sid' } } }, { $project: { sessions: { $size: '$sids' } } }]),
+    PageView.distinct('sid', { ...pvMatch, event: 'cart' }),
+    PageView.distinct('sid', { ...pvMatch, event: 'checkout' }),
+    PageView.aggregate([{ $match: { ...pvMatch, event: 'pageview' } }, { $group: { _id: '$path', n: { $sum: 1 } } }, { $sort: { n: -1 } }, { $limit: 8 }]),
+    PageView.aggregate([{ $match: { ...pvMatch, referrer: { $ne: '' } } }, { $group: { _id: '$referrer', n: { $sum: 1 } } }, { $sort: { n: -1 } }, { $limit: 8 }]),
+    Product.find().select('slug categorySlug').lean(),
+    User.countDocuments({ role: 'customer', ...(days ? { createdAt: { $gte: start } } : {}) }),
+    Subscriber.countDocuments({}),
+    PageView.aggregate([
+      { $match: { ...pvMatch, city: { $ne: '' } } },
+      { $group: { _id: '$city', sids: { $addToSet: '$sid' } } },
+      { $project: { sessions: { $size: '$sids' } } },
+      { $sort: { sessions: -1 } },
+      { $limit: 8 },
+    ]),
+  ]);
+
+  // ---- KPIs
+  const revenue = orders.reduce((a, o) => a + o.total, 0);
+  const itemsSold = orders.reduce((a, o) => a + o.items.reduce((x, i) => x + (i.quantity || 1), 0), 0);
+  const aov = orders.length ? Math.round(revenue / orders.length) : 0;
+  const prev = prevAgg[0] || { revenue: 0, orders: 0 };
+
+  // ---- Daily series (sales + sessions on shared dates)
+  const seriesMap = {};
+  if (days) {
+    for (let i = days - 1; i >= 0; i--) {
+      const d = new Date(now - i * DAY).toISOString().slice(0, 10);
+      seriesMap[d] = { date: d, revenue: 0, orders: 0, sessions: 0 };
+    }
+  }
+  for (const o of orders) {
+    const d = new Date(o.createdAt).toISOString().slice(0, 10);
+    if (!seriesMap[d]) seriesMap[d] = { date: d, revenue: 0, orders: 0, sessions: 0 };
+    seriesMap[d].revenue += o.total; seriesMap[d].orders += 1;
+  }
+  for (const s of sessSeries) {
+    if (!seriesMap[s._id]) seriesMap[s._id] = { date: s._id, revenue: 0, orders: 0, sessions: 0 };
+    seriesMap[s._id].sessions = s.sessions;
+  }
+  const series = Object.values(seriesMap).sort((a, b) => a.date.localeCompare(b.date));
+
+  // ---- Breakdowns
+  const slugCat = Object.fromEntries(products.map((p) => [p.slug, p.categorySlug]));
+  const prodMap = {}, catMap = {}, statusMap = {}, payMap = {}, cityMap = {};
+  const phoneCount = new Map();
+  for (const o of orders) {
+    statusMap[o.status] = (statusMap[o.status] || 0) + 1;
+    payMap[o.paymentMethod] = (payMap[o.paymentMethod] || 0) + o.total;
+    const city = o.customerInfo?.city || '—';
+    cityMap[city] = (cityMap[city] || 0) + 1;
+    const key = o.customerInfo?.phone || o.customerInfo?.email || '';
+    if (key) phoneCount.set(key, (phoneCount.get(key) || 0) + 1);
+    for (const it of o.items) {
+      const p = prodMap[it.name] || (prodMap[it.name] = { name: it.name, qty: 0, revenue: 0 });
+      p.qty += it.quantity || 1; p.revenue += it.lineTotal || 0;
+      const cat = slugCat[it.slug] || 'other';
+      catMap[cat] = (catMap[cat] || 0) + (it.lineTotal || 0);
+    }
+  }
+
+  // New vs returning buyers (in range)
+  const keys = [...phoneCount.keys()];
+  let returning = 0;
+  if (days && keys.length) {
+    const earlierPhones = await Order.distinct('customerInfo.phone', { createdAt: { $lt: start }, 'customerInfo.phone': { $in: keys } });
+    const earlierEmails = await Order.distinct('customerInfo.email', { createdAt: { $lt: start }, 'customerInfo.email': { $in: keys } });
+    const earlier = new Set([...earlierPhones, ...earlierEmails].filter(Boolean));
+    returning = keys.filter((k) => earlier.has(k)).length;
+  } else {
+    returning = keys.filter((k) => phoneCount.get(k) > 1).length;
+  }
+
+  const sessions = sessSessions.length;
+  res.json({
+    range: rangeKey,
+    kpis: {
+      revenue, orders: orders.length, aov, itemsSold,
+      sessions, carts: cartSids.length, checkouts: coSids.length,
+      conversion: sessions ? +((orders.length / sessions) * 100).toFixed(1) : 0,
+      newRegisters, subscribers,
+    },
+    prev: days ? { revenue: prev.revenue, orders: prev.orders } : null,
+    series,
+    topProducts: Object.values(prodMap).sort((a, b) => b.revenue - a.revenue).slice(0, 10),
+    byCategory: Object.entries(catMap).map(([cat, v]) => ({ cat, revenue: v })).sort((a, b) => b.revenue - a.revenue),
+    byStatus: Object.entries(statusMap).map(([status, count]) => ({ status, count })).sort((a, b) => b.count - a.count),
+    byPayment: Object.entries(payMap).map(([method, v]) => ({ method, revenue: v })),
+    orderCities: Object.entries(cityMap).map(([city, count]) => ({ city, orders: count })).sort((a, b) => b.orders - a.orders).slice(0, 8),
+    customerSplit: { fresh: keys.length - returning, returning },
+    traffic: {
+      sessionsSeries: series.map((s) => ({ date: s.date, sessions: s.sessions })),
+      byDevice: sessDevice.map((d) => ({ device: d._id, sessions: d.sessions })),
+      landing: landing.map((l) => ({ path: l._id, views: l.n })),
+      refs: refs.map((r) => ({ ref: r._id, views: r.n })),
+      visitCities: locAgg.map((l) => ({ city: l._id, sessions: l.sessions })),
+    },
+  });
+}));
+
+module.exports = router;

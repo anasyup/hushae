@@ -1,21 +1,30 @@
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import { Link, NavLink, Navigate, useLocation } from 'react-router-dom';
 import {
-  BadgePercent, BarChart3, ChevronRight, FileText, FolderTree, Globe, Home, LayoutGrid,
-  LogOut, Menu, Package, Plus, Settings as SettingsIcon, ShoppingBag, Store, TrendingUp, Users, X,
+  Activity, BadgePercent, BarChart3, ChevronRight, FileText, FolderOpen, Globe, Home,
+  LogOut, Menu, Package, PackagePlus, PackageX, Plus, Settings as SettingsIcon, ShoppingBag, Store, TrendingUp, Users, X,
 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 
 const MAIN = [
   { to: '/admin', label: 'Home', icon: Home, end: true },
+  { to: '/admin/live', label: 'Live View', icon: Activity },
   { to: '/admin/orders', label: 'Orders', icon: ShoppingBag },
-  { to: '/admin/products', label: 'Products', icon: Package },
   { to: '/admin/customers', label: 'Customers', icon: Users },
   { to: '/admin/growth', label: 'Growth', icon: TrendingUp },
   { to: '/admin/discounts', label: 'Discounts', icon: BadgePercent },
   { to: '/admin/content', label: 'Content', icon: FileText },
   { to: '/admin/markets', label: 'Markets', icon: Globe },
   { to: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
+];
+
+// Manage Products dropdown children — label + link + small icon
+const PRODUCT_LINKS = [
+  { to: '/admin/products', label: 'All products', icon: Package, end: true },
+  { to: '/admin/products/new', label: 'Add product', icon: PackagePlus },
+  { to: '/admin/products?status=draft', label: 'Drafts', icon: FolderOpen },
+  { to: '/admin/products?active=0', label: 'Inactive (disabled)', icon: PackageX },
+  { to: '/admin/categories', label: 'Categories', icon: Plus },
 ];
 
 const linkCls = ({ isActive }) =>
@@ -38,6 +47,12 @@ function Section({ title, icon: SIcon, children, defaultOpen = true }) {
 
 function SidebarContent({ onNavigate }) {
   const { logout } = useApp();
+  const loc = useLocation();
+  const childCls = (to) => {
+    const [p, qs] = to.split('?');
+    const active = loc.pathname === p && (qs ? loc.search.includes(qs) : !loc.search);
+    return `ml-[26px] flex items-center gap-2.5 rounded-lg px-3 py-[7px] text-[13px] font-medium transition ${active ? 'bg-white text-neutral-900 shadow-sm' : 'text-neutral-500 hover:bg-white/70 hover:text-neutral-800'}`;
+  };
   return (
     <div className="flex h-full flex-col bg-[#ebebeb]">
       <div className="px-4 pb-2 pt-5">
@@ -48,19 +63,26 @@ function SidebarContent({ onNavigate }) {
 
       <nav className="flex-1 space-y-0.5 overflow-y-auto px-2.5 pb-3">
         {MAIN.map(({ to, label, icon, end }) => (
-          <NavLink key={to} to={to} end={end} className={linkCls} onClick={onNavigate}>
-            {({ isActive }) => (
-              <>
-                {(() => { const Icon = icon; return <Icon size={17} strokeWidth={isActive ? 2.1 : 1.8} />; })()}
-                {label}
-              </>
+          <Fragment key={to}>
+            <NavLink to={to} end={end} className={linkCls} onClick={onNavigate}>
+              {({ isActive }) => (
+                <>
+                  {(() => { const Icon = icon; return <Icon size={17} strokeWidth={isActive ? 2.1 : 1.8} />; })()}
+                  {label}
+                </>
+              )}
+            </NavLink>
+            {to === '/admin/orders' && (
+              <Section title="Manage Products">
+                {PRODUCT_LINKS.map(({ to: cto, label: clabel, icon: CIcon }) => (
+                  <NavLink key={clabel} to={cto} className={childCls(cto)} onClick={onNavigate}>
+                    <CIcon size={14} strokeWidth={1.8} /> {clabel}
+                  </NavLink>
+                ))}
+              </Section>
             )}
-          </NavLink>
+          </Fragment>
         ))}
-        {/* Categories nested under Products */}
-        <NavLink to="/admin/categories" className={linkCls} onClick={onNavigate}>
-          <span className="ml-[26px] flex items-center gap-2.5"><FolderTree size={15} strokeWidth={1.8} /> Categories</span>
-        </NavLink>
 
         <Section title="Sales channels">
           <NavLink to="/admin/store" className={linkCls} onClick={onNavigate}>

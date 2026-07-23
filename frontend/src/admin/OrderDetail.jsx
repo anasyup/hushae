@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
-import { ArrowLeft, Banknote, MapPin, Package, Printer, ReceiptText, User } from 'lucide-react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { ArrowLeft, Banknote, MapPin, Package, Printer, ReceiptText, Trash2, User } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import { fmtDate, fmtDateTime, pkr } from '../lib/format';
@@ -14,6 +14,7 @@ const PAY = ['Pending', 'Paid', 'Failed', 'Refunded'];
 export default function OrderDetail() {
   const { id } = useParams();
   const { auth, toast } = useApp();
+  const nav = useNavigate();
   const [o, setO] = useState(null);
 
   const load = () => api(`/orders/admin/${id}`, { token: auth.token }).then((d) => setO(d.order)).catch(() => {});
@@ -21,6 +22,12 @@ export default function OrderDetail() {
 
   const patch = async (path, body, msg) => {
     try { await api(`/orders/admin/${id}${path}`, { method: 'PATCH', token: auth.token, body }); await load(); toast(msg); }
+    catch (ex) { toast(ex.message); }
+  };
+
+  const remove = async () => {
+    if (!window.confirm(`Delete order ${o.orderNumber} permanently?\n\nYe record hamesha ke liye delete ho jayega.`)) return;
+    try { await api(`/orders/admin/${id}`, { method: 'DELETE', token: auth.token }); toast('Order deleted'); nav('/admin/orders'); }
     catch (ex) { toast(ex.message); }
   };
 
@@ -47,6 +54,7 @@ export default function OrderDetail() {
           {PAY.map((s) => <option key={s}>{s}</option>)}
         </select>
         <button onClick={() => window.print()} className="btn-outline !px-4 !py-2 !text-[11px]"><Printer size={13} /> Print invoice</button>
+        <button onClick={remove} className="btn-outline !border-red-300 !px-4 !py-2 !text-[11px] !text-red-700 hover:!bg-red-50"><Trash2 size={13} /> Delete order</button>
         <span className="text-xs text-ash">{fmtDateTime(o.createdAt)}</span>
       </div>
 

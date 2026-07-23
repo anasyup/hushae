@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Search } from 'lucide-react';
+import { Search, Trash2 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import { fmtDate, pkr } from '../lib/format';
@@ -39,6 +39,12 @@ export default function Orders() {
     } catch (ex) { toast(ex.message); }
   };
 
+  const remove = async (o) => {
+    if (!window.confirm(`Delete order ${o.orderNumber} permanently?\n\nYe record hamesha ke liye delete ho jayega.`)) return;
+    try { await api(`/orders/admin/${o._id}`, { method: 'DELETE', token: auth.token }); toast('Order deleted'); load(); }
+    catch (ex) { toast(ex.message); }
+  };
+
   return (
     <AdminLayout title="Orders">
       <div className="mb-5 flex flex-wrap items-center gap-3">
@@ -55,7 +61,7 @@ export default function Orders() {
 
       <div className="card overflow-x-auto">
         <table className="w-full min-w-[900px]">
-          <thead><tr className="border-b border-line bg-satin/30">{['#', 'Order', 'Customer', 'City', 'Date', 'Total', 'Payment', 'Status'].map((h) => <th key={h} className="table-head">{h}</th>)}</tr></thead>
+          <thead><tr className="border-b border-line bg-satin/30">{['#', 'Order', 'Customer', 'City', 'Date', 'Total', 'Payment', 'Status', ''].map((h) => <th key={h} className="table-head">{h}</th>)}</tr></thead>
           <tbody>
             {(orders || []).map((o, i) => (
               <tr key={o._id} className="border-b border-line/60 transition hover:bg-satin/20">
@@ -93,6 +99,9 @@ export default function Orders() {
                     className={`pill cursor-pointer border-0 outline-none ${statusPill(o.status)}`}>
                     {STATUSES.map((s) => <option key={s}>{s}</option>)}
                   </select>
+                </td>
+                <td className="table-cell">
+                  <button onClick={() => remove(o)} className="rounded-full border border-line p-2 text-ash transition hover:border-red-300 hover:bg-red-50 hover:text-red-700" aria-label="Delete order" title="Delete order"><Trash2 size={13} /></button>
                 </td>
               </tr>
             ))}

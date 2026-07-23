@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import { api } from '../api/client';
 import { STR } from '../i18n/strings';
 import { snap } from '../lib/format';
+import { track } from '../lib/track';
 
 const Ctx = createContext(null);
 export const useApp = () => useContext(Ctx);
@@ -74,6 +75,7 @@ export function AppProvider({ children }) {
     const s = snap(product);
     const sizeUse = size || s.sizes[0] || '';
     const colorUse = color || s.colors[0]?.name || '';
+    track('cart'); // live-view funnel: added to cart
     setCart((c) => {
       const i = c.findIndex((l) => l.id === s.id && l.size === sizeUse && l.color === colorUse);
       if (i >= 0) { const n = [...c]; n[i] = { ...n[i], qty: Math.min(n[i].qty + quantity, 10) }; return n; }

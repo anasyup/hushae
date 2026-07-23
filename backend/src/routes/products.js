@@ -17,6 +17,8 @@ function buildQuery(req, { adminView = false } = {}) {
   if (!adminView) { q.isActive = true; q.status = { $ne: 'draft' }; }
   else if (req.query.status === 'draft') q.status = 'draft';
   else if (req.query.status === 'active') q.status = { $ne: 'draft' };
+  if (adminView && req.query.active === '0') q.isActive = false;
+  if (adminView && req.query.active === '1') q.isActive = true;
   const { gender, category, tier, size, color, badge, minPrice, maxPrice, q: search, ids } = req.query;
   if (gender) q.gender = gender;
   if (category) q.categorySlug = category;
@@ -94,6 +96,13 @@ router.delete('/:id', protect, adminOnly, asyncHandler(async (req, res) => {
   const product = await Product.findByIdAndUpdate(req.params.id, { isActive: false }, { new: true });
   if (!product) return res.status(404).json({ message: 'Product not found' });
   res.json({ product, message: 'Product disabled' });
+}));
+
+// Hard delete — permanently removes the listing (admin only)
+router.delete('/:id/permanent', protect, adminOnly, asyncHandler(async (req, res) => {
+  const product = await Product.findByIdAndDelete(req.params.id);
+  if (!product) return res.status(404).json({ message: 'Product not found' });
+  res.json({ message: 'Product permanently deleted' });
 }));
 
 module.exports = router;

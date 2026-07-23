@@ -20,6 +20,7 @@ import NotFound from './pages/NotFound';
 
 import AdminLogin from './admin/AdminLogin';
 import Dashboard from './admin/Dashboard';
+import LiveView from './admin/LiveView';
 import Orders from './admin/Orders';
 import OrderDetail from './admin/OrderDetail';
 import Products from './admin/Products';
@@ -38,10 +39,21 @@ import StoreLock from './components/StoreLock';
 import CookieConsent from './components/CookieConsent';
 import PromoPopup from './components/PromoPopup';
 import OnlineStore from './admin/OnlineStore';
+import { track } from './lib/track';
 
 function ScrollToTop() {
   const { pathname, search } = useLocation();
   useEffect(() => { window.scrollTo(0, 0); }, [pathname, search]);
+  return null;
+}
+
+// Anonymous storefront visit tracking (skips admin pages)
+function Tracker() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    if (pathname.startsWith('/admin')) return;
+    track(pathname === '/checkout' ? 'checkout' : 'pageview', pathname);
+  }, [pathname]);
   return null;
 }
 
@@ -52,6 +64,7 @@ export default function App() {
   return (
     <div className="flex min-h-screen flex-col">
       <ScrollToTop />
+      <Tracker />
       {!isAdmin && <Header />}
       <main className="flex-1">
         <StoreLock>
@@ -75,6 +88,7 @@ export default function App() {
 
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin" element={<Dashboard />} />
+          <Route path="/admin/live" element={<LiveView />} />
           <Route path="/admin/orders" element={<Orders />} />
           <Route path="/admin/orders/:id" element={<OrderDetail />} />
           <Route path="/admin/products" element={<Products />} />
