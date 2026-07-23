@@ -174,7 +174,8 @@ function PremiumInvoice({ o }) {
           <div>
             <p className="inv-label">Billed to</p>
             <p className="inv-strong">{c.name}</p>
-            <p>{c.phone}{c.email ? `  ·  ${c.email}` : ''}</p>
+            <p>{c.phone}</p>
+            {c.email && <p>{c.email}</p>}
             <p>{c.address}</p>
             <p>{c.city}, {c.province}{c.postalCode ? ` — ${c.postalCode}` : ''}</p>
           </div>

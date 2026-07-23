@@ -59,7 +59,18 @@ export default function Dashboard() {
               <tbody>
                 {d.recentOrders.map((o) => (
                   <tr key={o._id} className="border-b border-line/60 hover:bg-satin/30">
-                    <td className="table-cell font-mono text-xs"><Link to={`/admin/orders/${o._id}`} className="hover:underline">{o.orderNumber}</Link><p className="text-[10px] text-ash">{fmtDate(o.createdAt)}</p></td>
+                    <td className="table-cell">
+                      <Link to={`/admin/orders/${o._id}`} className="group flex items-start gap-2.5">
+                        <span className="relative mt-0.5 shrink-0">
+                          <Img src={o.items?.[0]?.image} alt="" className="h-11 w-9 rounded-lg border border-line object-cover" />
+                          {o.items?.length > 1 && <span className="absolute -bottom-1.5 -right-1.5 grid h-4 min-w-4 place-items-center rounded-full bg-obsidian px-0.5 text-[9px] font-bold text-alabaster">+{o.items.length - 1}</span>}
+                        </span>
+                        <span className="pt-0.5">
+                          <span className="block font-mono text-xs font-semibold leading-tight group-hover:underline">{o.orderNumber}</span>
+                          <span className="mt-1 block text-[10px] text-ash">{fmtDate(o.createdAt)}</span>
+                        </span>
+                      </Link>
+                    </td>
                     <td className="table-cell">{o.customerInfo?.name}<p className="text-[10px] text-ash">{o.customerInfo?.city}</p></td>
                     <td className="table-cell font-semibold">{pkr(o.total)}</td>
                     <td className="table-cell"><span className={`pill ${statusPill(o.status)}`}>{o.status}</span></td>

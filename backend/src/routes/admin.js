@@ -21,7 +21,7 @@ router.get('/dashboard', asyncHandler(async (req, res) => {
       .select('name slug sku stock tier images'),
     User.countDocuments({ role: 'customer' }),
     Order.find().sort({ createdAt: -1 }).limit(6)
-      .select('orderNumber customerInfo.name customerInfo.city total status paymentMethod createdAt'),
+      .select('orderNumber customerInfo.name customerInfo.city total status paymentMethod createdAt items.image items.quantity'),
     Order.aggregate([
       { $match: { status: { $nin: ['Cancelled', 'Refunded'] } } },
       { $unwind: '$items' },
