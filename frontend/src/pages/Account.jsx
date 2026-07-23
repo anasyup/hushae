@@ -14,10 +14,27 @@ function AuthCard() {
   const [ferrs, setFerrs] = useState({});
   const [err, setErr] = useState('');
   const [busy, setBusy] = useState(false);
-  const set = (k, v) => { setF((x) => ({ ...x, [k]: v })); setFerrs((x) => ({ ...x, [k]: '' })); };
+
+  // Phone verification (SMS code) state
+  const blank = { sent: false, demo: false, demoCode: '', code: '', sending: false, verifying: false, verified: false, phoneToken: '', resendIn: 0, error: '' };
+  const [otp, setOtp] = useState(blank);
+  const resetOtp = () => setOtp(blank);
+
+  const set = (k, v) => {
+    setF((x) => ({ ...x, [k]: v }));
+    setFerrs((x) => ({ ...x, [k]: '' }));
+    if (k === 'phone') resetOtp(); // number changed → must verify the new one
+  };
+
+  useEffect(() => {
+    if (otp.resendIn <= 0) return undefined;
+    const t = setInterval(() => setOtp((o) => ({ ...o, resendIn: Math.max(0, o.resendIn - 1) })), 1000);
+    return () => clearInterval(t);
+  }, [otp.resendIn]);
 
   const phoneOK = normalizePhone(f.phone);
   const emailOK = validEmail(f.email);
+  const passAllDigits = f.password.length > 0 && !/[a-zA-Z]/.test(f.password);
   // Only flag email once it looks fully typed (dot after @ + chars after the dot) — no premature errors
   const emailTypedWrong = (() => {
     const em = f.email.trim();
@@ -26,20 +43,41 @@ function AuthCard() {
     return dot > at && dot < em.length - 2 && !validEmail(em);
   })();
 
+  const sendCode = async () => {
+    if (!phoneOK || otp.sending || otp.resendIn > 0) return;
+    setOtp((o) => ({ ...o, sending: true, error: '' }));
+    try {
+      const r = await api('/otp/send', { method: 'POST', body: { phone: phoneOK } });
+      setOtp((o) => ({ ...o, sending: false, sent: true, demo: !!r.demo, demoCode: r.demoCode || '', code: '', resendIn: 60 }));
+    } catch (ex) { setOtp((o) => ({ ...o, sending: false, error: ex.message })); }
+  };
+
+  const verifyCode = async () => {
+    if (otp.code.length !== 6 || otp.verifying) return;
+    setOtp((o) => ({ ...o, verifying: true, error: '' }));
+    try {
+      const r = await api('/otp/verify', { method: 'POST', body: { phone: phoneOK, code: otp.code } });
+      setOtp((o) => ({ ...o, verifying: false, verified: true, phoneToken: r.phoneToken, error: '' }));
+    } catch (ex) { setOtp((o) => ({ ...o, verifying: false, error: ex.message })); }
+  };
+
   const submit = async (e) => {
     e.preventDefault();
     setErr('');
     if (mode === 'register') {
       const fe = {};
       if (f.name.trim().length < 3) fe.name = 'Enter your full name';
-      if (!phoneOK) fe.phone = 'Incorrect number — Pakistani mobile required (03XX-XXXXXXX)';
+      if (!phoneOK) fe.phone = 'Incorrect number';
       if (!emailOK) fe.email = 'Incorrect email address';
       if (f.password.length < 6) fe.password = 'Minimum 6 characters';
+      else if (!/[a-zA-Z]/.test(f.password)) fe.password = 'Add at least one letter — not only numbers';
       if (Object.keys(fe).length) { setFerrs(fe); return; }
+      if (!otp.verified) { setFerrs({ phone: 'Tap "Send code" and verify your number first' }); return; }
     }
     setBusy(true);
     try {
-      const d = mode === 'login' ? await login(f.email, f.password) : await register(f);
+      const payload = { ...f, phone: phoneOK, phoneToken: otp.phoneToken };
+      const d = mode === 'login' ? await login(f.email, f.password) : await register(payload);
       if (d.user.role === 'admin') nav('/admin');
       toast(mode === 'login' ? 'Welcome back' : 'Account created');
     } catch (ex) { setErr(ex.message); }
@@ -52,7 +90,7 @@ function AuthCard() {
     <div className="mx-auto mt-10 max-w-md rounded-[2rem] border border-line bg-white/70 p-8 shadow-card">
       <div className="mb-6 grid grid-cols-2 rounded-full bg-satin/60 p-1">
         {[['login', 'Sign In'], ['register', 'Register']].map(([m, l]) => (
-          <button key={m} onClick={() => { setMode(m); setErr(''); setFerrs({}); }}
+          <button key={m} onClick={() => { setMode(m); setErr(''); setFerrs({}); resetOtp(); }}
             className={`rounded-full py-2.5 text-[12px] font-bold uppercase tracking-widest transition ${mode === m ? 'bg-obsidian text-alabaster' : 'text-ash'}`}>{l}</button>
         ))}
       </div>
@@ -61,16 +99,46 @@ function AuthCard() {
           <>
             <div>
               <label className="label">Full name</label>
-              <input className={`input ${ring(ferrs.name)}`} value={f.name} onChange={(e) => set('name', e.target.value)} placeholder="Ayesha Khan" />
+              <input className={`input ${ring(ferrs.name)}`} value={f.name} onChange={(e) => set('name', e.target.value)} placeholder="Enter name" />
               {ferrs.name && <p className="mt-1 text-[11px] text-red-700">{ferrs.name}</p>}
             </div>
             <div>
               <label className="label">Phone</label>
-              <input className={`input ${ring(ferrs.phone || phoneTypingError(f.phone))}`}
-                value={f.phone} inputMode="tel" onChange={(e) => set('phone', e.target.value)} placeholder="03XX-XXXXXXX" />
+              <div className="flex gap-2">
+                <input className={`input flex-1 ${ring(ferrs.phone || phoneTypingError(f.phone))}`}
+                  value={f.phone} inputMode="tel" onChange={(e) => set('phone', e.target.value)} placeholder="03XX-XXXXXXX" />
+                {!otp.verified && (
+                  <button type="button" onClick={sendCode} disabled={!phoneOK || otp.sending || otp.resendIn > 0}
+                    className="btn-outline shrink-0 !px-3 !py-2 text-[11px] font-bold disabled:opacity-40">
+                    {otp.sending ? 'Sending…' : otp.resendIn > 0 ? `${otp.resendIn}s` : otp.sent ? 'Resend' : 'Send code'}
+                  </button>
+                )}
+              </div>
               {ferrs.phone ? <p className="mt-1 text-[11px] text-red-700">{ferrs.phone}</p>
-                : phoneOK ? <p className="mt-1 text-[11px] font-semibold text-emerald-700">✓ Valid mobile number</p>
                 : phoneTypingError(f.phone) ? <p className="mt-1 text-[11px] font-medium text-red-700">Incorrect number</p> : null}
+
+              {/* SMS code entry */}
+              {otp.sent && !otp.verified && (
+                <div className="mt-3 rounded-xl border border-line bg-satin/40 p-3">
+                  <div className="flex gap-2">
+                    <input className="input flex-1 text-center !tracking-[0.4em] font-bold" value={otp.code} inputMode="numeric" maxLength={6}
+                      onChange={(e) => setOtp((o) => ({ ...o, code: e.target.value.replace(/\D/g, '').slice(0, 6), error: '' }))}
+                      placeholder="6-digit code" />
+                    <button type="button" onClick={verifyCode} disabled={otp.code.length !== 6 || otp.verifying}
+                      className="btn-primary shrink-0 !px-4 !py-2 text-[11px] disabled:opacity-40">
+                      {otp.verifying ? 'Checking…' : 'Verify'}
+                    </button>
+                  </div>
+                  {otp.demo && otp.demoCode && (
+                    <p className="mt-2 rounded-lg bg-amber-50 px-3 py-2 text-[11px] font-bold text-amber-800 ring-1 ring-amber-200">
+                      Demo mode (SMS not connected yet) — your code: <span className="tracking-[0.2em]">{otp.demoCode}</span>
+                    </p>
+                  )}
+                  <p className="mt-2 text-[10px] text-ash">Code sent to {phoneOK} · valid for 5 minutes</p>
+                </div>
+              )}
+              {otp.verified && <p className="mt-1 text-[11px] font-semibold text-emerald-700">✓ Number verified</p>}
+              {otp.error && <p className="mt-1 text-[11px] font-medium text-red-700">{otp.error}</p>}
             </div>
           </>
         )}
@@ -83,11 +151,14 @@ function AuthCard() {
         </div>
         <div>
           <label className="label">Password</label>
-          <input className={`input ${ring(ferrs.password)}`} type="password" required minLength={6} value={f.password} onChange={(e) => set('password', e.target.value)} placeholder="Minimum 6 characters" />
-          {ferrs.password && <p className="mt-1 text-[11px] text-red-700">{ferrs.password}</p>}
+          <input className={`input ${ring(ferrs.password || passAllDigits)}`} type="password" required minLength={6} value={f.password} onChange={(e) => set('password', e.target.value)} placeholder="Minimum 6 characters, include a letter" />
+          {ferrs.password ? <p className="mt-1 text-[11px] text-red-700">{ferrs.password}</p>
+            : passAllDigits && <p className="mt-1 text-[11px] font-medium text-red-700">Add at least one letter — not only numbers</p>}
         </div>
         {err && <p className="rounded-xl bg-red-50 px-4 py-3 text-xs text-red-800">{err}</p>}
-        <button disabled={busy} className="btn-primary w-full"><Lock size={14} /> {busy ? 'One moment…' : mode === 'login' ? 'Sign In' : 'Create Account'}</button>
+        <button disabled={busy || (mode === 'register' && !otp.verified)} className="btn-primary w-full disabled:opacity-40">
+          <Lock size={14} /> {busy ? 'One moment…' : mode === 'login' ? 'Sign In' : otp.verified ? 'Create Account' : 'Verify number to continue'}
+        </button>
       </form>
       <p className="mt-4 text-center text-xs leading-relaxed text-ash">Accounts are optional — guest checkout always works.</p>
     </div>
