@@ -22,6 +22,7 @@ const productSchema = new mongoose.Schema({
   compareAtPrice: { type: Number, default: null },
   stock: { type: Number, required: true, min: 0, default: 0 },
   images: { type: [imageSchema], validate: v => v.length >= 1 },
+  video: { type: String, default: '' }, // optional product video (MP4 URL or YouTube link)
   shortDescription: { type: String, default: '' },
   description: { type: String, default: '' },
   sizes: [{ type: String }],

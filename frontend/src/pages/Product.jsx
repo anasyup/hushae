@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ChevronDown, ChevronRight, Heart, Minus, Plus, RotateCcw, Ruler, ShieldCheck, Star, Truck } from 'lucide-react';
+import { ChevronDown, ChevronRight, Heart, Minus, Play, Plus, RotateCcw, Ruler, ShieldCheck, Star, Truck } from 'lucide-react';
 import { api } from '../api/client';
 import { useApp } from '../store/AppContext';
 import { pkr, snap } from '../lib/format';
@@ -65,6 +65,12 @@ export default function Product() {
   const isBra = p.categorySlug === 'bras';
   const needsSize = p.sizes.length > 0;
 
+  // Gallery media = images + optional video at the end
+  const ytId = (u) => (String(u || '').match(/(?:youtube\.com\/(?:watch\?v=|shorts\/)|youtu\.be\/)([\w-]{6,})/) || [])[1];
+  const media = [...p.images.map((im) => ({ t: 'img', url: im.url, alt: im.alt })), ...(p.video ? [{ t: 'video', url: p.video, alt: `${p.name} video` }] : [])];
+  const active = media[imgIdx] || media[0];
+  const activeYt = active?.t === 'video' ? ytId(active.url) : null;
+
   const tryAdd = (then) => {
     if (needsSize && !size) { setSizeErr(true); return; }
     addToCart(p, { size, color, quantity: qty });
@@ -86,15 +92,31 @@ export default function Product() {
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="lg:sticky lg:top-24 lg:self-start">
           <div className="grid gap-3 sm:grid-cols-[76px_1fr]">
             <div className="order-2 flex gap-2.5 overflow-x-auto sm:order-1 sm:flex-col">
-              {p.images.map((im, i) => (
-                <button key={i} onClick={() => setImgIdx(i)}
+              {media.map((m, i) => (
+                <button key={i} onClick={() => setImgIdx(i)} aria-label={m.t === 'video' ? 'Play video' : `View ${i + 1}`}
                   className={`shrink-0 overflow-hidden rounded-xl border-2 transition ${i === imgIdx ? 'border-obsidian' : 'border-transparent opacity-70 hover:opacity-100'}`}>
-                  <Img src={im.url} alt={im.alt} className="h-20 w-16 object-cover" />
+                  {m.t === 'img' ? (
+                    <Img src={m.url} alt={m.alt} className="h-20 w-16 object-cover" />
+                  ) : (
+                    <span className="relative flex h-20 w-16 items-center justify-center bg-obsidian text-alabaster">
+                      {ytId(m.url)
+                        ? <img src={`https://img.youtube.com/vi/${ytId(m.url)}/hqdefault.jpg`} alt="" className="absolute inset-0 h-full w-full object-cover opacity-70" />
+                        : null}
+                      <Play size={18} fill="currentColor" className="relative" />
+                    </span>
+                  )}
                 </button>
               ))}
             </div>
             <div className="gallery-zoom order-1 overflow-hidden rounded-[2rem] bg-satin/40 sm:order-2">
-              <Img src={p.images[imgIdx]?.url} alt={p.images[imgIdx]?.alt || p.name} className="aspect-[4/5] w-full object-cover" />
+              {!active || active.t === 'img' ? (
+                <Img src={active?.url} alt={active?.alt || p.name} className="aspect-[4/5] w-full object-cover" />
+              ) : activeYt ? (
+                <iframe src={`https://www.youtube.com/embed/${activeYt}?rel=0`} title="Product video"
+                  className="aspect-[4/5] w-full bg-obsidian" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
+              ) : (
+                <video src={active.url} className="aspect-[4/5] w-full bg-obsidian object-cover" controls autoPlay muted loop playsInline />
+              )}
             </div>
           </div>
         </motion.div>

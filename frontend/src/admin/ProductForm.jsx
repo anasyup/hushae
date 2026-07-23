@@ -4,13 +4,13 @@ import { ArrowLeft, Plus, Save, Trash2 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import AdminLayout from './AdminLayout';
-import Img from '../components/Img';
 import MediaPicker from '../components/MediaPicker';
+import ImageTiles from '../components/ImageTiles';
 
 const BADGE_POOL = ['Breathable', 'Cooling', 'Seamless', 'Sweat Control', 'Support', 'Quick Dry', '4-Way Stretch', 'Tag-Free', 'Silk-Touch', 'Value Pack'];
 const EMPTY = {
   name: '', sku: '', gender: 'women', categorySlug: '', category: '', tier: 'Standard', price: '', compareAtPrice: '',
-  stock: 25, imagesText: '', shortDescription: '', description: '', sizesText: '', fabric: '',
+  stock: 25, images: [], video: '', shortDescription: '', description: '', sizesText: '', fabric: '',
   colors: [{ name: 'Black', hex: '#1A1A1A' }], badges: [], careText: '', isFeatured: false, isBestSeller: false, isActive: true, bundleSlug: '',
 };
 
@@ -41,7 +41,7 @@ export default function ProductForm() {
         if (!p) throw new Error();
         setF({
           ...EMPTY, ...p, price: String(p.price), compareAtPrice: p.compareAtPrice || '',
-          imagesText: p.images.map((i) => i.url).join('\n'),
+          images: p.images.map((i) => i.url), video: p.video || '',
           sizesText: p.sizes.join(', '), careText: p.care.join('\n'),
         });
       })
@@ -53,13 +53,13 @@ export default function ProductForm() {
 
   const save = async (e) => {
     e.preventDefault();
-    const images = f.imagesText.split('\n').map((u) => u.trim()).filter(Boolean).map((url, i) => ({ url, alt: `${f.name} — view ${i + 1}` }));
-    if (images.length < 4) { toast('Add at least 4 image URLs (one per line)'); return; }
+    const images = f.images.filter(Boolean).map((url, i) => ({ url, alt: `${f.name} — view ${i + 1}` }));
+    if (images.length < 4) { toast('Add at least 4 images (tiles par + dabayen)'); return; }
     const cat = cats.find((c) => c.slug === f.categorySlug);
     const body = {
       name: f.name, sku: f.sku || `VL-${Date.now().toString(36).toUpperCase()}`, gender: f.gender,
       tier: f.tier, price: Number(f.price), compareAtPrice: f.compareAtPrice ? Number(f.compareAtPrice) : null,
-      stock: Number(f.stock) || 0, images, shortDescription: f.shortDescription, description: f.description,
+      stock: Number(f.stock) || 0, images, video: (f.video || '').trim(), shortDescription: f.shortDescription, description: f.description,
       sizes: f.sizesText.split(',').map((s) => s.trim()).filter(Boolean),
       colors: f.colors.filter((c) => c.name && c.hex),
       fabric: f.fabric, badges: f.badges, care: f.careText.split('\n').map((s) => s.trim()).filter(Boolean),
@@ -89,12 +89,14 @@ export default function ProductForm() {
           </div>
 
           <div className="card p-6">
-            <label className="label">Product images — minimum 4, one per line *</label>
-            <MediaPicker multiple hideUrl accept="image" onAdd={(url) => set('imagesText', (f.imagesText.trim() ? `${f.imagesText.trim()}\n` : '') + url)} buttonText="PC se images upload (ek se zyada)" />
-            <textarea className="input mt-3 min-h-32 font-mono text-xs" required value={f.imagesText} onChange={(e) => set('imagesText', e.target.value)} placeholder="https://images.unsplash.com/…" />
-            <div className="mt-3 flex gap-2 overflow-x-auto">
-              {f.imagesText.split('\n').filter(Boolean).slice(0, 6).map((u, i) => <Img key={i} src={u.trim()} alt="" className="h-16 w-12 shrink-0 rounded-lg object-cover" />)}
-            </div>
+            <label className="label">Product images * (minimum 4)</label>
+            <ImageTiles images={f.images} onChange={(arr) => set('images', arr)} />
+          </div>
+
+          <div className="card p-6">
+            <label className="label">Product video (optional)</label>
+            <MediaPicker value={f.video} onChange={(v) => set('video', v)} accept="video" buttonText="Video upload (MP4)" />
+            <p className="mt-1.5 text-[11px] leading-relaxed text-ash">MP4 ya YouTube link dono chalenge — product page ki gallery mein video dikhega. Choti clip (10–30 second) best hoti hai.</p>
           </div>
 
           <div className="card grid gap-5 p-6 md:grid-cols-2">

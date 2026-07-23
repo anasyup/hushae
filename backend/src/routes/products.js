@@ -76,7 +76,7 @@ router.put('/:id', protect, adminOnly, asyncHandler(async (req, res) => {
   if (!product) return res.status(404).json({ message: 'Product not found' });
   const b = req.body || {};
   const fields = ['name', 'sku', 'gender', 'category', 'categorySlug', 'tier', 'price', 'compareAtPrice',
-    'stock', 'images', 'shortDescription', 'description', 'sizes', 'colors', 'fabric', 'badges',
+    'stock', 'images', 'video', 'shortDescription', 'description', 'sizes', 'colors', 'fabric', 'badges',
     'care', 'isFeatured', 'isBestSeller', 'isActive', 'ratingAvg', 'ratingCount', 'bundleSlug'];
   fields.forEach((f) => { if (b[f] !== undefined) product[f] = b[f]; });
   if (b.slug) product.slug = slugify(b.slug);
