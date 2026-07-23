@@ -19,27 +19,31 @@ export default function Dashboard() {
   if (!d) return <AdminLayout title="Dashboard"><div className="skeleton h-64 w-full" /></AdminLayout>;
 
   const cards = [
-    [Gauge, 'Total Orders', d.stats.totalOrders],
-    [Clock, 'Pending', d.stats.pending],
-    [ShoppingBag, 'Processing', d.stats.processing],
-    [Package, 'Ready to Ship', d.stats.readyToShip],
-    [Truck, 'Delivered', d.stats.delivered],
-    [Banknote, 'Revenue', pkr(d.stats.revenue)],
-    [Package, 'Products', d.stats.totalProducts],
-    [Users, 'Customers', d.stats.totalCustomers],
+    [Gauge, 'Total Orders', d.stats.totalOrders, '/admin/orders'],
+    [Clock, 'Pending', d.stats.pending, '/admin/orders?status=Pending'],
+    [ShoppingBag, 'Processing', d.stats.processing, '/admin/orders?status=Processing'],
+    [Package, 'Ready to Ship', d.stats.readyToShip, '/admin/orders?status=Ready%20to%20Ship'],
+    [Truck, 'Delivered', d.stats.delivered, '/admin/orders?status=Delivered'],
+    [Banknote, 'Revenue', pkr(d.stats.revenue), '/admin/analytics'],
+    [Package, 'Products', d.stats.totalProducts, '/admin/products'],
+    [Users, 'Customers', d.stats.totalCustomers, '/admin/customers'],
   ];
 
   return (
     <AdminLayout title="Dashboard">
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        {cards.map(([Icon, label, value]) => (
-          <div key={label} className="card p-5">
+        {cards.map(([Icon, label, value, to]) => (
+          <Link key={label} to={to} title={`Open ${label}`}
+            className="card group cursor-pointer p-5 transition hover:-translate-y-0.5 hover:border-obsidian/30 hover:shadow-card">
             <div className="flex items-center justify-between">
-              <p className="text-[11px] font-bold uppercase tracking-wider text-ash">{label}</p>
+              <p className="text-[11px] font-bold uppercase tracking-wider text-ash transition group-hover:text-obsidian">{label}</p>
               <Icon size={16} className="text-sagedeep" />
             </div>
-            <p className="mt-2 font-display text-2xl">{value}</p>
-          </div>
+            <div className="mt-2 flex items-end justify-between">
+              <p className="font-display text-2xl">{value}</p>
+              <span className="mb-1 text-[10px] font-bold uppercase tracking-wider text-ash/0 transition group-hover:text-sagedeep">Open →</span>
+            </div>
+          </Link>
         ))}
       </div>
 

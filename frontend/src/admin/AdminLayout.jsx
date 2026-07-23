@@ -42,7 +42,6 @@ function SidebarContent({ onNavigate }) {
     <div className="flex h-full flex-col bg-[#ebebeb]">
       <div className="px-4 pb-2 pt-5">
         <p className="font-display tracking-widest2 text-[15px] text-neutral-900">V É L O U R A</p>
-        <p className="mt-0.5 text-[10px] uppercase tracking-widest text-neutral-400">Admin Console</p>
       </div>
 
       <nav className="flex-1 space-y-0.5 overflow-y-auto px-2.5 pb-3">
@@ -115,7 +114,7 @@ export default function AdminLayout({ children, title }) {
         {/* Mobile topbar */}
         <div className="sticky top-0 z-30 flex items-center gap-3 border-b border-black/5 bg-[#ebebeb] px-4 py-3 md:hidden">
           <button onClick={() => setDrawer(true)} className="rounded-lg p-1.5 text-neutral-700 hover:bg-white/70"><Menu size={20} /></button>
-          <p className="font-display tracking-widest2 text-sm text-neutral-900">VÉLOURA ADMIN</p>
+          <p className="font-display tracking-widest2 text-sm text-neutral-900">V É L O U R A</p>
         </div>
         <main className="flex-1 p-4 md:p-8">
           <h1 className="font-display text-3xl">{title}</h1>

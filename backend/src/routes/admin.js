@@ -16,8 +16,8 @@ router.get('/dashboard', asyncHandler(async (req, res) => {
       { $match: { status: { $nin: ['Cancelled', 'Refunded'] } } },
       { $group: { _id: null, total: { $sum: '$total' } } },
     ]),
-    Product.countDocuments({ isActive: true }),
-    Product.find({ isActive: true, stock: { $lte: 5 } }).sort({ stock: 1 }).limit(10)
+    Product.countDocuments({ isActive: true, status: { $ne: 'draft' } }),
+    Product.find({ isActive: true, status: { $ne: 'draft' }, stock: { $lte: 5 } }).sort({ stock: 1 }).limit(10)
       .select('name slug sku stock tier images'),
     User.countDocuments({ role: 'customer' }),
     Order.find().sort({ createdAt: -1 }).limit(6)

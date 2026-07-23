@@ -6,7 +6,7 @@ const router = express.Router();
 router.use(protect);
 
 const populated = (user) =>
-  user.populate({ path: 'wishlist', match: { isActive: true } });
+  user.populate({ path: 'wishlist', match: { isActive: true, status: { $ne: 'draft' } } });
 
 router.get('/', asyncHandler(async (req, res) => {
   await populated(req.user);

@@ -60,7 +60,7 @@ router.post('/', placeOrderLimit, optionalAuth, asyncHandler(async (req, res) =>
   for (const it of items) {
     const qty = Math.max(1, Math.min(parseInt(it.quantity || '1', 10), 10));
     const product = await Product.findOneAndUpdate(
-      { _id: it.product, isActive: true, stock: { $gte: qty } },
+      { _id: it.product, isActive: true, status: { $ne: 'draft' }, stock: { $gte: qty } },
       { $inc: { stock: -qty } },
       { new: true }
     );

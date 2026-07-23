@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Search } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
@@ -18,7 +18,9 @@ export default function Orders() {
   const { auth, toast } = useApp();
   const [orders, setOrders] = useState(null);
   const [q, setQ] = useState('');
-  const [status, setStatus] = useState('');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const status = searchParams.get('status') || '';
+  const setStatus = (s) => { const p = new URLSearchParams(searchParams); if (s) p.set('status', s); else p.delete('status'); setSearchParams(p, { replace: true }); };
 
   const load = () => {
     const sp = new URLSearchParams();
@@ -57,8 +59,14 @@ export default function Orders() {
             {(orders || []).map((o) => (
               <tr key={o._id} className="border-b border-line/60 transition hover:bg-satin/20">
                 <td className="table-cell"><Link to={`/admin/orders/${o._id}`} className="font-mono text-xs font-semibold hover:underline">{o.orderNumber}</Link>{o.discreetPackaging && <p className="mt-0.5 text-[10px] uppercase tracking-wider text-sagedeep">Discreet</p>}</td>
-                <td className="table-cell">{o.customerInfo.name}<p className="text-[11px] text-ash">{o.customerInfo.phone}</p></td>
-                <td className="table-cell text-ash">{o.customerInfo.city}</td>
+                <td className="table-cell">
+                  <Link to={`/admin/orders/${o._id}`} className="block hover:underline">
+                    <p className="text-[13px] font-semibold leading-tight">{o.customerInfo.name}</p>
+                    <p className="mt-0.5 font-mono text-[11px] text-ash">{o.customerInfo.phone}</p>
+                    {o.customerInfo.email && <p className="mt-0.5 max-w-44 truncate text-[10px] text-ash">{o.customerInfo.email}</p>}
+                  </Link>
+                </td>
+                <td className="table-cell"><p className="text-[13px]">{o.customerInfo.city}</p><p className="text-[10px] text-ash">{o.customerInfo.province}{o.customerInfo.postalCode ? ` · ${o.customerInfo.postalCode}` : ''}</p></td>
                 <td className="table-cell text-ash">{fmtDate(o.createdAt)}</td>
                 <td className="table-cell font-semibold">{pkr(o.total)}</td>
                 <td className="table-cell">

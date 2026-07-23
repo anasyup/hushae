@@ -11,7 +11,7 @@ const BADGE_POOL = ['Breathable', 'Cooling', 'Seamless', 'Sweat Control', 'Suppo
 const EMPTY = {
   name: '', sku: '', gender: 'women', categorySlug: '', category: '', tier: 'Standard', price: '', compareAtPrice: '',
   stock: 25, images: [], video: '', shortDescription: '', description: '', sizesText: '', fabric: '',
-  colors: [{ name: 'Black', hex: '#1A1A1A' }], badges: [], careText: '', isFeatured: false, isBestSeller: false, isActive: true, bundleSlug: '',
+  colors: [{ name: 'Black', hex: '#1A1A1A' }], badges: [], careText: '', isFeatured: false, isBestSeller: false, isActive: true, status: 'active', bundleSlug: '',
 };
 
 // Module-level checkbox (stable identity)
@@ -63,7 +63,7 @@ export default function ProductForm() {
       sizes: f.sizesText.split(',').map((s) => s.trim()).filter(Boolean),
       colors: f.colors.filter((c) => c.name && c.hex),
       fabric: f.fabric, badges: f.badges, care: f.careText.split('\n').map((s) => s.trim()).filter(Boolean),
-      isFeatured: f.isFeatured, isBestSeller: f.isBestSeller, isActive: f.isActive,
+      isFeatured: f.isFeatured, isBestSeller: f.isBestSeller, isActive: f.isActive, status: f.status || 'active',
       category: cat?._id || f.category || undefined, categorySlug: f.categorySlug || cat?.slug, bundleSlug: f.bundleSlug,
     };
     if (!body.category) { toast('Choose a category'); return; }
@@ -159,6 +159,14 @@ export default function ProductForm() {
             <div className="grid grid-cols-2 gap-3">
               <div><label className="label">Stock</label><input className="input" type="number" min="0" value={f.stock} onChange={(e) => set('stock', e.target.value)} /></div>
               <div><label className="label">SKU</label><input className="input" value={f.sku} onChange={(e) => set('sku', e.target.value)} placeholder="Auto" /></div>
+            </div>
+            <div>
+              <label className="label">Status</label>
+              <select className="input" value={f.status || 'active'} onChange={(e) => set('status', e.target.value)}>
+                <option value="active">Active — live in store</option>
+                <option value="draft">Draft — hidden, work in progress</option>
+              </select>
+              {f.status === 'draft' && <p className="mt-1.5 rounded-lg bg-amber-50 px-3 py-2 text-[11px] leading-relaxed text-amber-800 ring-1 ring-amber-200">Draft products store mein nazar nahi aate aur order nahi ho sakte — jab ready ho to Active karein.</p>}
             </div>
             <div>
               <label className="label">Bundle suggestion (category slug)</label>

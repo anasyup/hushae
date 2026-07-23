@@ -14,7 +14,9 @@ const SORTS = {
 
 function buildQuery(req, { adminView = false } = {}) {
   const q = {};
-  if (!adminView) q.isActive = true;
+  if (!adminView) { q.isActive = true; q.status = { $ne: 'draft' }; }
+  else if (req.query.status === 'draft') q.status = 'draft';
+  else if (req.query.status === 'active') q.status = { $ne: 'draft' };
   const { gender, category, tier, size, color, badge, minPrice, maxPrice, q: search, ids } = req.query;
   if (gender) q.gender = gender;
   if (category) q.categorySlug = category;
@@ -31,7 +33,10 @@ function buildQuery(req, { adminView = false } = {}) {
     if (maxPrice) q.price.$lte = Number(maxPrice);
   }
   if (ids) q._id = { $in: String(ids).split(',') };
-  if (search) q.name = new RegExp(String(search).trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+  if (search) {
+    const rx = new RegExp(String(search).trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+    q.$or = [{ name: rx }, { sku: rx }, { categorySlug: rx }]; // search by name, SKU or category
+  }
   if (req.query.stock === 'low') q.stock = { $lte: 5 };
   if (req.query.stock === 'out') q.stock = 0;
   return q;
@@ -53,7 +58,7 @@ router.get('/', asyncHandler(async (req, res) => {
 }));
 
 router.get('/:slug', asyncHandler(async (req, res) => {
-  const product = await Product.findOne({ slug: req.params.slug, isActive: true });
+  const product = await Product.findOne({ slug: req.params.slug, isActive: true, status: { $ne: 'draft' } });
   if (!product) return res.status(404).json({ message: 'Product not found' });
   res.json({ product });
 }));
@@ -77,7 +82,7 @@ router.put('/:id', protect, adminOnly, asyncHandler(async (req, res) => {
   const b = req.body || {};
   const fields = ['name', 'sku', 'gender', 'category', 'categorySlug', 'tier', 'price', 'compareAtPrice',
     'stock', 'images', 'video', 'shortDescription', 'description', 'sizes', 'colors', 'fabric', 'badges',
-    'care', 'isFeatured', 'isBestSeller', 'isActive', 'ratingAvg', 'ratingCount', 'bundleSlug'];
+    'care', 'isFeatured', 'isBestSeller', 'isActive', 'status', 'ratingAvg', 'ratingCount', 'bundleSlug'];
   fields.forEach((f) => { if (b[f] !== undefined) product[f] = b[f]; });
   if (b.slug) product.slug = slugify(b.slug);
   await product.save();

@@ -35,6 +35,7 @@ const productSchema = new mongoose.Schema({
   isFeatured: { type: Boolean, default: false },
   isBestSeller: { type: Boolean, default: false },
   isActive: { type: Boolean, default: true },
+  status: { type: String, enum: ['active', 'draft'], default: 'active' }, // draft = hidden from store, work in progress
 }, { timestamps: true });
 
 productSchema.index({ name: 'text', shortDescription: 'text' });

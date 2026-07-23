@@ -51,8 +51,41 @@
 .gallery-zoom img { transition: transform 0.7s cubic-bezier(0.2, 0.6, 0.2, 1); }
 .gallery-zoom:hover img { transform: scale(1.08); }
 
+/* ===== Premium printable invoice (original VÉLOURA design) ===== */
+.invoice-sheet { display: none; }
 @media print {
   body * { visibility: hidden !important; }
   #invoice, #invoice * { visibility: visible !important; }
-  #invoice { position: absolute; inset: 0; background: white; }
+  #invoice { position: absolute !important; top: 0 !important; left: 0 !important; width: 100% !important; background: #fff !important; }
+  .invoice-sheet { display: block !important; }
 }
+.invoice-sheet { font-family: Georgia, 'Times New Roman', 'Playfair Display', serif; color: #141414; }
+.inv-page { max-width: 780px; margin: 0 auto; padding: 44px 34px; }
+.inv-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; }
+.inv-brand { font-size: 30px; letter-spacing: 0.28em; }
+.inv-tag { margin-top: 6px; font-size: 11px; letter-spacing: 0.12em; color: #6b6b6b; font-style: italic; }
+.inv-title { font-size: 34px; font-weight: 700; letter-spacing: 0.08em; text-align: right; }
+.inv-meta { display: flex; justify-content: flex-end; gap: 8px; font-size: 12px; margin-top: 4px; }
+.inv-meta span { color: #6b6b6b; }
+.inv-rule { border: 0; border-top: 2px solid #141414; margin: 22px 0 26px; }
+.inv-bill { display: flex; justify-content: space-between; gap: 32px; font-size: 13px; line-height: 1.75; margin-bottom: 28px; }
+.inv-bill-right { text-align: right; }
+.inv-label { font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: #6b6b6b; margin-bottom: 6px; }
+.inv-strong { font-weight: 700; font-size: 15px; }
+.inv-table-wrap { position: relative; }
+.inv-watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-14deg); font-size: 70px; letter-spacing: 0.3em; color: rgba(20, 20, 20, 0.05); white-space: nowrap; pointer-events: none; }
+.inv-table { width: 100%; border-collapse: collapse; position: relative; }
+.inv-table th { text-align: left; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: #6b6b6b; padding: 8px 6px; border-bottom: 2px solid #141414; }
+.inv-table td { padding: 12px 6px; border-bottom: 1px solid #e3e3e3; font-size: 13px; vertical-align: middle; }
+.inv-table th.r, .inv-table td.r { text-align: right; }
+.inv-item { display: flex; align-items: center; gap: 12px; }
+.inv-item img { width: 44px; height: 56px; object-fit: cover; border: 1px solid #e3e3e3; }
+.inv-item-name { font-weight: 700; }
+.inv-item-sub { font-size: 11px; color: #6b6b6b; margin-top: 2px; }
+.inv-totals-wrap { display: flex; justify-content: flex-end; margin-top: 22px; }
+.inv-totals { width: 270px; font-size: 13px; }
+.inv-totals p { display: flex; justify-content: space-between; padding: 5px 0; }
+.inv-grand { border-top: 2px solid #141414; margin-top: 8px; padding-top: 12px !important; font-size: 19px; font-weight: 700; }
+.inv-footer { margin-top: 48px; text-align: center; }
+.inv-thanks { font-size: 16px; font-style: italic; }
+.inv-foot { font-size: 11px; color: #6b6b6b; margin-top: 6px; letter-spacing: 0.06em; }
