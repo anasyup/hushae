@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Save } from 'lucide-react';
+import { Moon, Save, Sun } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import AdminLayout from './AdminLayout';
+import { getAdminTheme, setAdminTheme } from '../lib/adminTheme';
 
 const Toggle = ({ label, checked, onChange }) => (
   <label className="flex cursor-pointer items-center justify-between rounded-2xl border border-line px-4 py-3.5 text-sm">
@@ -17,6 +18,7 @@ export default function SettingsAdmin() {
   const { auth, toast } = useApp();
   const [s, setS] = useState(null);
   const [busy, setBusy] = useState(false);
+  const [theme, setTheme] = useState(getAdminTheme());
 
   useEffect(() => { api('/settings').then((d) => setS(d.settings)).catch(() => {}); }, []);
   if (!s) return <AdminLayout title="Store Settings"><div className="skeleton h-96 w-full" /></AdminLayout>;
@@ -44,6 +46,19 @@ export default function SettingsAdmin() {
 
   return (
     <AdminLayout title="Store Settings">
+      {/* Appearance — admin panel theme (this device only) */}
+      <div className="card mb-6 p-6">
+        <p className="mb-2 text-[11px] font-bold uppercase tracking-widest text-ash">Appearance — admin panel</p>
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <p className="max-w-md text-sm text-ash">Admin panel ka theme — white ya black. Sirf aapke is device par apply hota hai, store par koi asar nahi.</p>
+          <button
+            onClick={() => { const t = theme === 'dark' ? 'light' : 'dark'; setTheme(t); setAdminTheme(t); toast(t === 'dark' ? 'Dark mode ON 🌙' : 'Light mode ON ☀️'); }}
+            className={`flex items-center gap-2.5 rounded-full px-5 py-2.5 text-xs font-bold uppercase tracking-wider transition ${theme === 'dark' ? 'bg-obsidian/85 text-alabaster ring-1 ring-alabaster/20' : 'bg-obsidian text-alabaster'}`}>
+            {theme === 'dark' ? <Moon size={14} /> : <Sun size={14} />} {theme === 'dark' ? 'Dark — ON' : 'Light — ON'}
+          </button>
+        </div>
+      </div>
+
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="card space-y-5 p-6">
           <p className="text-[11px] font-bold uppercase tracking-widest text-ash">Store</p>

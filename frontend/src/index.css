@@ -46,6 +46,43 @@
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
+/* ================= Admin dark mode (Settings → Appearance) ================= */
+.dark-admin { color-scheme: dark; }
+.dark-admin .bg-alabaster { background-color: #0F0F11 !important; }
+.dark-admin .text-obsidian { color: #ECEAE6 !important; }
+.dark-admin .text-ash { color: #9C968F !important; }
+.dark-admin .text-sagedeep { color: #9EBB9B !important; }
+.dark-admin .font-display { color: #F1EFEC; }
+.dark-admin .card { background-color: #19191C !important; border-color: #2A2A2E !important; }
+.dark-admin .input { background-color: #141416 !important; border-color: #34353B !important; color: #ECEAE6 !important; }
+.dark-admin .input:focus { background-color: #17171A !important; border-color: #6E7A6A !important; }
+.dark-admin select.input option { background-color: #141416; color: #ECEAE6; }
+.dark-admin .border-line { border-color: #2A2A2E !important; }
+.dark-admin .border-line\/60 { border-color: rgba(255,255,255,.09) !important; }
+.dark-admin .divide-line\/60 > * + * { border-color: rgba(255,255,255,.09) !important; }
+.dark-admin .bg-satin { background-color: #232326 !important; }
+.dark-admin .bg-satin\/20 { background-color: rgba(255,255,255,.05) !important; }
+.dark-admin .bg-satin\/30 { background-color: rgba(255,255,255,.07) !important; }
+.dark-admin .bg-satin\/40 { background-color: rgba(255,255,255,.09) !important; }
+.dark-admin .bg-satin\/50 { background-color: rgba(255,255,255,.11) !important; }
+.dark-admin .bg-satin\/70 { background-color: rgba(255,255,255,.13) !important; }
+.dark-admin .bg-white { background-color: #26262A !important; }
+.dark-admin .bg-\[\#ebebeb\] { background-color: #131315 !important; }
+.dark-admin .text-neutral-900 { color: #F1EFEC !important; }
+.dark-admin .text-neutral-700 { color: #CAC4BE !important; }
+.dark-admin .text-neutral-500 { color: #A6A09A !important; }
+.dark-admin .text-neutral-400 { color: #8B857F !important; }
+.dark-admin .hover\:bg-white\/70:hover { background-color: rgba(255,255,255,.08) !important; }
+.dark-admin .hover\:bg-satin\/20:hover { background-color: rgba(255,255,255,.06) !important; }
+.dark-admin .hover\:bg-satin\/30:hover { background-color: rgba(255,255,255,.09) !important; }
+.dark-admin .hover\:bg-satin\/40:hover, .dark-admin .hover\:bg-satin\/50:hover { background-color: rgba(255,255,255,.12) !important; }
+.dark-admin .bg-sage\/20, .dark-admin .bg-sage\/25 { background-color: rgba(120,140,115,.16) !important; }
+.dark-admin .skeleton { background-color: #1E1E21 !important; background-image: linear-gradient(90deg, rgba(40,40,44,0) 0, rgba(70,70,78,.55) 50%, rgba(40,40,44,0) 100%) !important; }
+.dark-admin .shadow-card, .dark-admin .shadow-soft { box-shadow: 0 14px 36px -18px rgba(0,0,0,.7) !important; }
+.dark-admin .btn-outline { border-color: rgba(255,255,255,.22) !important; color: #ECEAE6 !important; }
+.dark-admin .btn-outline:hover { background-color: #ECEAE6 !important; color: #141416 !important; border-color: #ECEAE6 !important; }
+.dark-admin input[type='color'] { background-color: #141416 !important; }
+
 .clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
 .gallery-zoom img { transition: transform 0.7s cubic-bezier(0.2, 0.6, 0.2, 1); }

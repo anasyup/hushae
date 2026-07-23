@@ -1,10 +1,11 @@
-import { Fragment, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { Link, NavLink, Navigate, useLocation } from 'react-router-dom';
 import {
   Activity, BadgePercent, BarChart3, FileText, FolderOpen, Globe, Home,
   LogOut, Menu, Package, PackagePlus, PackageX, Plus, Settings as SettingsIcon, ShoppingBag, Store, TrendingUp, Users, X,
 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
+import { applyAdminTheme, clearAdminTheme } from '../lib/adminTheme';
 
 const MAIN = [
   { to: '/admin', label: 'Home', icon: Home, end: true },
@@ -39,8 +40,8 @@ const linkCls = ({ isActive }) =>
 function Section({ title, icon: SIcon, children }) {
   return (
     <div className="mt-4">
-      <p className="flex items-center gap-2 px-3 pb-1.5 text-[10px] font-bold uppercase tracking-widest text-neutral-400">
-        {SIcon && <SIcon size={13} strokeWidth={1.8} />}
+      <p className="flex items-center gap-2 px-3 pb-1.5 text-[10px] font-bold uppercase tracking-widest text-sagedeep">
+        {SIcon && <SIcon size={13} strokeWidth={2} />}
         {title}
       </p>
       <div className="space-y-0.5">{children}</div>
@@ -60,7 +61,7 @@ function SidebarContent({ onNavigate }) {
     <div className="flex h-full flex-col bg-[#ebebeb]">
       <div className="px-4 pb-2 pt-5">
         <NavLink to="/admin" onClick={onNavigate} title="Go to Dashboard" className="block w-fit cursor-pointer rounded-lg transition hover:opacity-70">
-          <p className="font-display tracking-widest2 text-[15px] text-neutral-900">V É L O U R A</p>
+          <p className="font-display text-[17px] font-bold tracking-widest text-neutral-900">VÉLOURA</p>
         </NavLink>
       </div>
 
@@ -101,15 +102,12 @@ function SidebarContent({ onNavigate }) {
             <Store size={17} strokeWidth={1.8} /> Online Store
           </NavLink>
         </Section>
-
-        <Section title="Apps" icon={Plus}>
-          <NavLink to="/admin/apps" className={linkCls} onClick={onNavigate}>
-            <Plus size={17} strokeWidth={1.8} /> Integrations
-          </NavLink>
-        </Section>
       </nav>
 
       <div className="space-y-0.5 border-t border-black/5 px-2.5 py-3">
+        <NavLink to="/admin/apps" className={linkCls} onClick={onNavigate}>
+          <Plus size={17} strokeWidth={1.8} /> Integrations
+        </NavLink>
         <NavLink to="/admin/settings" className={linkCls} onClick={onNavigate}>
           <SettingsIcon size={17} strokeWidth={1.8} /> Settings
         </NavLink>
@@ -125,6 +123,10 @@ export default function AdminLayout({ children, title }) {
   const { auth } = useApp();
   const loc = useLocation();
   const [drawer, setDrawer] = useState(false);
+
+  // dark-admin class sirf admin pages par — storefront par kabhi nahi
+  useEffect(() => { applyAdminTheme(); return () => clearAdminTheme(); }, []);
+
   if (!auth) return <Navigate to="/admin/login" state={{ from: loc.pathname }} replace />;
   // Logged in as a customer but opened /admin → send to admin sign-in (not /account)
   if (auth.user.role !== 'admin') return <Navigate to="/admin/login" replace />;
@@ -150,7 +152,7 @@ export default function AdminLayout({ children, title }) {
         {/* Mobile topbar */}
         <div className="sticky top-0 z-30 flex items-center gap-3 border-b border-black/5 bg-[#ebebeb] px-4 py-3 md:hidden">
           <button onClick={() => setDrawer(true)} className="rounded-lg p-1.5 text-neutral-700 hover:bg-white/70"><Menu size={20} /></button>
-          <Link to="/admin" className="font-display tracking-widest2 text-sm text-neutral-900">V É L O U R A</Link>
+          <Link to="/admin" className="font-display text-base font-bold tracking-widest text-neutral-900">VÉLOURA</Link>
         </div>
         <main className="flex-1 p-4 md:p-8">
           <h1 className="font-display text-3xl">{title}</h1>
