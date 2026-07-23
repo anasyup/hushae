@@ -55,7 +55,7 @@ function SidebarContent({ onNavigate }) {
   const childCls = (to) => {
     const [p, qs] = to.split('?');
     const active = loc.pathname === p && (qs ? loc.search.includes(qs) : !loc.search);
-    return `ml-[26px] flex items-center gap-2.5 rounded-lg px-3 py-[7px] text-[13px] font-medium transition ${active ? 'bg-white text-neutral-900 shadow-sm' : 'text-neutral-500 hover:bg-white/70 hover:text-neutral-800'}`;
+    return `flex items-center gap-2.5 rounded-lg px-3 py-[7px] text-[13px] font-medium transition ${active ? 'bg-white text-neutral-900 shadow-sm' : 'text-neutral-500 hover:bg-white/70 hover:text-neutral-800'}`;
   };
   return (
     <div className="flex h-full flex-col bg-[#ebebeb]">
@@ -80,7 +80,7 @@ function SidebarContent({ onNavigate }) {
               <Section title="Manage Products" icon={Package}>
                 {PRODUCT_LINKS.map(({ to: cto, label: clabel, icon: CIcon }) => (
                   <NavLink key={clabel} to={cto} className={childCls(cto)} onClick={onNavigate}>
-                    <CIcon size={14} strokeWidth={1.8} /> {clabel}
+                    <CIcon size={17} strokeWidth={1.8} /> {clabel}
                   </NavLink>
                 ))}
               </Section>
@@ -89,7 +89,7 @@ function SidebarContent({ onNavigate }) {
               <Section title="Analytics" icon={BarChart3}>
                 {ANALYTICS_LINKS.map(({ to: cto, label: clabel, icon: CIcon }) => (
                   <NavLink key={clabel} to={cto} className={childCls(cto)} onClick={onNavigate}>
-                    <CIcon size={14} strokeWidth={1.8} /> {clabel}
+                    <CIcon size={17} strokeWidth={1.8} /> {clabel}
                   </NavLink>
                 ))}
               </Section>
