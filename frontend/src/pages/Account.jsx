@@ -16,7 +16,7 @@ function AuthCard() {
   const [busy, setBusy] = useState(false);
 
   // Phone verification (SMS code) state
-  const blank = { sent: false, demo: false, demoCode: '', code: '', sending: false, verifying: false, verified: false, phoneToken: '', resendIn: 0, error: '' };
+  const blank = { sent: false, demo: false, demoCode: '', via: '', code: '', sending: false, verifying: false, verified: false, phoneToken: '', resendIn: 0, error: '' };
   const [otp, setOtp] = useState(blank);
   const resetOtp = () => setOtp(blank);
 
@@ -48,7 +48,7 @@ function AuthCard() {
     setOtp((o) => ({ ...o, sending: true, error: '' }));
     try {
       const r = await api('/otp/send', { method: 'POST', body: { phone: phoneOK } });
-      setOtp((o) => ({ ...o, sending: false, sent: true, demo: !!r.demo, demoCode: r.demoCode || '', code: '', resendIn: 60 }));
+      setOtp((o) => ({ ...o, sending: false, sent: true, demo: !!r.demo, demoCode: r.demoCode || '', via: r.via || '', code: '', resendIn: 60 }));
     } catch (ex) { setOtp((o) => ({ ...o, sending: false, error: ex.message })); }
   };
 
@@ -134,7 +134,9 @@ function AuthCard() {
                       Demo mode (SMS not connected yet) — your code: <span className="tracking-[0.2em]">{otp.demoCode}</span>
                     </p>
                   )}
-                  <p className="mt-2 text-[10px] text-ash">Code sent to {phoneOK} · valid for 5 minutes</p>
+                  <p className="mt-2 text-[10px] text-ash">
+                    {otp.demo ? 'Demo code (SMS not connected yet)' : otp.via === 'whatsapp' ? `Code sent to your WhatsApp (${phoneOK})` : `Code sent by SMS to ${phoneOK}`} · valid for 5 minutes
+                  </p>
                 </div>
               )}
               {otp.verified && <p className="mt-1 text-[11px] font-semibold text-emerald-700">✓ Number verified</p>}

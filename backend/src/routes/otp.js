@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const OtpCode = require('../models/OtpCode');
 const { asyncHandler } = require('../utils/helpers');
 const { normalizePhone } = require('../utils/validators');
-const { sendSms, isConfigured } = require('../utils/sms');
+const { sendOtpCode } = require('../utils/sms');
 
 const router = express.Router();
 
@@ -46,13 +46,10 @@ router.post('/send', asyncHandler(async (req, res) => {
   doc.lastSentAt = new Date(now);
   await doc.save();
 
-  if (isConfigured()) {
-    const e164 = `+92${phone.slice(1)}`;
-    await sendSms(e164, `Your VELOURA verification code is ${code}. It expires in 5 minutes.`);
-    return res.json({ sent: true, demo: false });
-  }
-  // Demo mode (no SMS provider connected yet): code returned so the flow can be tested
-  res.json({ sent: true, demo: true, demoCode: code });
+  const via = await sendOtpCode(phone, code);
+  if (via) return res.json({ sent: true, demo: false, via }); // "whatsapp" | "sms"
+  // Demo mode (no provider connected yet): code returned so the flow can be tested
+  res.json({ sent: true, demo: true, demoCode: code, via: 'demo' });
 }));
 
 // POST /api/otp/verify { phone, code }
