@@ -14,6 +14,8 @@ app.use('/api/products', require('./routes/products'));
 app.use('/api/orders', require('./routes/orders'));
 app.use('/api/admin', require('./routes/admin'));
 app.use('/api/settings', require('./routes/settings'));
+app.use('/api/discounts', require('./routes/discounts'));
+app.use('/api/subscribers', require('./routes/subscribers'));
 app.use('/api/wishlist', require('./routes/wishlist'));
 app.use('/api/customer', require('./routes/customer'));
 

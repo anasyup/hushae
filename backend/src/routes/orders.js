@@ -2,8 +2,9 @@ const express = require('express');
 const Order = require('../models/Order');
 const Product = require('../models/Product');
 const Settings = require('../models/Settings');
+const Discount = require('../models/Discount');
 const { protect, optionalAuth, adminOnly } = require('../middleware/auth');
-const { asyncHandler, orderNumber } = require('../utils/helpers');
+const { asyncHandler, orderNumber, evaluateDiscount } = require('../utils/helpers');
 
 const router = express.Router();
 
@@ -12,7 +13,7 @@ const phoneTail = (s) => digits(s).slice(-10); // forgiving match: 0300... / +92
 
 // ---- Place order (guest or logged-in) ----
 router.post('/', optionalAuth, asyncHandler(async (req, res) => {
-  const { customerInfo = {}, items = [], paymentMethod, transactionId = '', discreetPackaging = true } = req.body || {};
+  const { customerInfo = {}, items = [], paymentMethod, transactionId = '', discountCode = '', discreetPackaging = true } = req.body || {};
 
   const required = ['name', 'phone', 'address', 'city', 'province'];
   for (const f of required) {
@@ -54,8 +55,24 @@ router.post('/', optionalAuth, asyncHandler(async (req, res) => {
   }
 
   const subtotal = lineItems.reduce((s, li) => s + li.lineTotal, 0);
+
+  // Coupon (validated server-side; on failure restore stock and stop)
+  let discountAmount = 0;
+  let appliedCode = '';
+  if (discountCode && String(discountCode).trim()) {
+    const d = await Discount.findOne({ code: String(discountCode).trim().toUpperCase() });
+    const r = evaluateDiscount(d, subtotal);
+    if (!r.ok) {
+      for (const li of lineItems) await Product.findByIdAndUpdate(li.product, { $inc: { stock: li.quantity } });
+      return res.status(400).json({ message: r.message });
+    }
+    discountAmount = r.amount;
+    appliedCode = d.code;
+    await Discount.findByIdAndUpdate(d._id, { $inc: { usedCount: 1 } });
+  }
+
   const shippingCharge = subtotal >= settings.freeShippingThreshold ? 0 : settings.shippingFlatRate;
-  const total = subtotal + shippingCharge;
+  const total = Math.max(0, subtotal - discountAmount) + shippingCharge;
 
   const order = await Order.create({
     orderNumber: orderNumber(),
@@ -66,7 +83,7 @@ router.post('/', optionalAuth, asyncHandler(async (req, res) => {
       city: customerInfo.city.trim(), province: customerInfo.province.trim(),
       postalCode: (customerInfo.postalCode || '').trim(), notes: (customerInfo.notes || '').trim(),
     },
-    items: lineItems, subtotal, shippingCharge, discount: 0, total,
+    items: lineItems, subtotal, shippingCharge, discount: discountAmount, couponCode: appliedCode, total,
     paymentMethod, paymentStatus: 'Pending', transactionId: transactionId.trim(),
     status: 'Pending', statusHistory: [{ status: 'Pending' }],
     discreetPackaging: !!discreetPackaging,

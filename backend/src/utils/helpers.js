@@ -13,4 +13,17 @@ const orderNumber = () => {
   return `VL-${ymd}-${rand}`;
 };
 
-module.exports = { asyncHandler, slugify, orderNumber };
+// Check a discount doc against a subtotal; returns { ok, amount } or { ok:false, message }
+const evaluateDiscount = (discount, subtotal) => {
+  if (!discount || !discount.active) return { ok: false, message: 'This code is not valid' };
+  if (discount.expiresAt && new Date(discount.expiresAt) < new Date()) return { ok: false, message: 'This code has expired' };
+  if (discount.maxUses > 0 && discount.usedCount >= discount.maxUses) return { ok: false, message: 'This code has reached its usage limit' };
+  if (subtotal < discount.minSubtotal) return { ok: false, message: `This code needs a minimum order of PKR ${discount.minSubtotal.toLocaleString()}` };
+  const amount = discount.type === 'percent'
+    ? Math.round((subtotal * discount.value) / 100)
+    : Math.min(discount.value, subtotal);
+  if (amount <= 0) return { ok: false, message: 'This code is not valid' };
+  return { ok: true, amount };
+};
+
+module.exports = { asyncHandler, slugify, orderNumber, evaluateDiscount };

@@ -27,7 +27,13 @@ import ProductForm from './admin/ProductForm';
 import Categories from './admin/Categories';
 import Customers from './admin/Customers';
 import SettingsAdmin from './admin/Settings';
-import AdminPlaceholder from './admin/AdminPlaceholder';
+import Growth from './admin/Growth';
+import Discounts from './admin/Discounts';
+import Content from './admin/Content';
+import Markets from './admin/Markets';
+import Analytics from './admin/Analytics';
+import Apps from './admin/Apps';
+import WhatsAppFloat from './components/WhatsAppFloat';
 
 function ScrollToTop() {
   const { pathname, search } = useLocation();
@@ -71,18 +77,19 @@ export default function App() {
           <Route path="/admin/categories" element={<Categories />} />
           <Route path="/admin/customers" element={<Customers />} />
           <Route path="/admin/settings" element={<SettingsAdmin />} />
-          <Route path="/admin/growth" element={<AdminPlaceholder page="growth" />} />
-          <Route path="/admin/discounts" element={<AdminPlaceholder page="discounts" />} />
-          <Route path="/admin/content" element={<AdminPlaceholder page="content" />} />
-          <Route path="/admin/markets" element={<AdminPlaceholder page="markets" />} />
-          <Route path="/admin/analytics" element={<AdminPlaceholder page="analytics" />} />
-          <Route path="/admin/apps" element={<AdminPlaceholder page="apps" />} />
+          <Route path="/admin/growth" element={<Growth />} />
+          <Route path="/admin/discounts" element={<Discounts />} />
+          <Route path="/admin/content" element={<Content />} />
+          <Route path="/admin/markets" element={<Markets />} />
+          <Route path="/admin/analytics" element={<Analytics />} />
+          <Route path="/admin/apps" element={<Apps />} />
 
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
       {!isAdmin && <Footer />}
       {!isAdmin && <CartDrawer />}
+      {!isAdmin && <WhatsAppFloat />}
       <Toasts />
     </div>
   );

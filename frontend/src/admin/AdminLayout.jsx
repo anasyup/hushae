@@ -69,7 +69,7 @@ function SidebarContent({ onNavigate }) {
 
         <Section title="Apps">
           <NavLink to="/admin/apps" className={linkCls} onClick={onNavigate}>
-            <Plus size={17} strokeWidth={1.8} /> Add
+            <Plus size={17} strokeWidth={1.8} /> Integrations
           </NavLink>
         </Section>
       </nav>

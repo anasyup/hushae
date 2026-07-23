@@ -60,6 +60,7 @@ export default function OrderConfirm() {
               </div>
             ))}
           </div>
+          {!!order.discount && <div className="mt-4 flex justify-between border-t border-line pt-3 text-sm font-medium text-sagedeep"><span>Discount {order.couponCode ? `(${order.couponCode})` : ''}</span><span>− {pkr(order.discount)}</span></div>}
           <div className="mt-4 flex justify-between border-t border-line pt-3 text-sm"><span className="text-ash">Shipping</span><span>{order.shippingCharge === 0 ? 'Free' : pkr(order.shippingCharge)}</span></div>
         </div>
       )}

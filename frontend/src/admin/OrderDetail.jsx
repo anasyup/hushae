@@ -72,6 +72,7 @@ export default function OrderDetail() {
             </div>
             <div className="mt-5 space-y-1.5 border-t border-line pt-4 text-sm">
               <p className="flex justify-between"><span className="text-ash">Subtotal</span><span>{pkr(o.subtotal)}</span></p>
+              {!!o.discount && <p className="flex justify-between font-medium text-sagedeep"><span>Discount {o.couponCode ? `(${o.couponCode})` : ''}</span><span>− {pkr(o.discount)}</span></p>}
               <p className="flex justify-between"><span className="text-ash">Shipping</span><span>{o.shippingCharge === 0 ? 'Free' : pkr(o.shippingCharge)}</span></p>
               <p className="flex justify-between pt-1 font-display text-xl"><span>Total</span><span>{pkr(o.total)}</span></p>
             </div>

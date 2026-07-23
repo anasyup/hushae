@@ -39,6 +39,18 @@ const settingsSchema = new mongoose.Schema({
   theme: {
     accent: { type: String, default: '#0D0D0D' },
   },
+  integrations: {
+    whatsapp: {
+      enabled: { type: Boolean, default: false },
+      number: { type: String, default: '' },
+      message: { type: String, default: 'Hi! I have a question about VÉLOURA.' },
+    },
+    social: {
+      instagram: { type: String, default: '' },
+      facebook: { type: String, default: '' },
+      tiktok: { type: String, default: '' },
+    },
+  },
 }, { timestamps: true });
 
 module.exports = mongoose.model('Settings', settingsSchema);

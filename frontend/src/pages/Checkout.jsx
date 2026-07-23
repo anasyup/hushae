@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Banknote, CreditCard, Landmark, Lock, PackageCheck, Smartphone } from 'lucide-react';
+import { BadgePercent, Banknote, CreditCard, Landmark, Lock, PackageCheck, Smartphone, X } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import { pkr } from '../lib/format';
@@ -17,11 +17,29 @@ const PM = [
 ];
 
 export default function Checkout() {
-  const { cart, cartSubtotal, settings, clearCart, auth } = useApp();
+  const { cart, cartSubtotal, settings, clearCart, auth, t } = useApp();
   const nav = useNavigate();
   const flat = settings?.shippingFlatRate ?? 350;
   const threshold = settings?.freeShippingThreshold ?? 4999;
   const shipping = cartSubtotal >= threshold ? 0 : flat;
+
+  // Promo code
+  const [code, setCode] = useState('');
+  const [applied, setApplied] = useState(null); // { code, discount }
+  const [codeErr, setCodeErr] = useState('');
+  const [applying, setApplying] = useState(false);
+  const discountAmt = applied?.discount || 0;
+  const grandTotal = Math.max(0, cartSubtotal - discountAmt) + shipping;
+
+  const applyCode = async () => {
+    if (!code.trim() || applying) return;
+    setApplying(true); setCodeErr('');
+    try {
+      const r = await api('/discounts/validate', { method: 'POST', body: { code: code.trim(), subtotal: cartSubtotal } });
+      setApplied(r); setCodeErr('');
+    } catch (ex) { setApplied(null); setCodeErr(ex.message || 'Invalid code'); }
+    setApplying(false);
+  };
   const pmCfg = settings?.paymentMethods || { cod: true, jazzcash: true, easypaisa: true, bank: true };
   const enabled = PM.filter((m) =>
     (m.id === 'COD' && pmCfg.cod) || (m.id === 'JazzCash' && pmCfg.jazzcash) || (m.id === 'EasyPaisa' && pmCfg.easypaisa) || (m.id === 'Bank Transfer' && pmCfg.bank));
@@ -69,7 +87,7 @@ export default function Checkout() {
         body: {
           customerInfo: f,
           items: cart.map((l) => ({ product: l.id, size: l.size, color: l.color, quantity: l.qty })),
-          paymentMethod: method, transactionId: txn, discreetPackaging: discreet,
+          paymentMethod: method, transactionId: txn, discountCode: applied?.code || '', discreetPackaging: discreet,
         },
       });
       clearCart();
@@ -177,10 +195,29 @@ export default function Checkout() {
                 </div>
               ))}
             </div>
+            {/* Promo code */}
+            <div className="mt-5 border-t border-line pt-4">
+              {applied ? (
+                <div className="flex items-center justify-between rounded-xl bg-sage/20 px-3 py-2.5">
+                  <span className="flex items-center gap-2 text-sm font-semibold text-sagedeep"><BadgePercent size={15} /> {applied.code}</span>
+                  <button type="button" onClick={() => { setApplied(null); setCode(''); }} className="flex items-center gap-1 text-xs text-sagedeep hover:underline"><X size={12} /> <Tx k="remove" /></button>
+                </div>
+              ) : (
+                <div>
+                  <div className="flex gap-2">
+                    <input className="input flex-1 uppercase" placeholder={t('promoPlaceholder')} value={code}
+                      onChange={(e) => setCode(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); applyCode(); } }} />
+                    <button type="button" onClick={applyCode} disabled={applying || !code.trim()} className="btn-outline whitespace-nowrap">{applying ? '…' : <Tx k="apply" />}</button>
+                  </div>
+                  {codeErr && <p className="mt-1.5 text-xs text-red-700">{codeErr}</p>}
+                </div>
+              )}
+            </div>
             <div className="mt-5 space-y-2.5 border-t border-line pt-4 text-sm">
               <div className="flex justify-between"><span className="text-ash"><Tx k="subtotal" /></span><span>{pkr(cartSubtotal)}</span></div>
+              {discountAmt > 0 && <div className="flex justify-between font-medium text-sagedeep"><span><Tx k="discount" /> ({applied.code})</span><span>− {pkr(discountAmt)}</span></div>}
               <div className="flex justify-between"><span className="text-ash"><Tx k="shipping" /></span><span className={shipping === 0 ? 'text-sagedeep' : ''}>{shipping === 0 ? 'Free' : pkr(shipping)}</span></div>
-              <div className="flex justify-between border-t border-line pt-3"><b>Total</b><span className="font-display text-2xl">{pkr(cartSubtotal + shipping)}</span></div>
+              <div className="flex justify-between border-t border-line pt-3"><b>Total</b><span className="font-display text-2xl">{pkr(grandTotal)}</span></div>
             </div>
             <button disabled={busy} className="btn-primary mt-5 w-full">
               {busy ? 'Placing order…' : <><Lock size={14} /> <Tx k="placeOrder" /></>}
