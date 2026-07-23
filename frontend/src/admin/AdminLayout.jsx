@@ -1,7 +1,7 @@
 import { Fragment, useState } from 'react';
 import { Link, NavLink, Navigate, useLocation } from 'react-router-dom';
 import {
-  Activity, BadgePercent, BarChart3, ChevronRight, FileText, FolderOpen, Globe, Home,
+  Activity, BadgePercent, BarChart3, FileText, FolderOpen, Globe, Home,
   LogOut, Menu, Package, PackagePlus, PackageX, Plus, Settings as SettingsIcon, ShoppingBag, Store, TrendingUp, Users, X,
 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
@@ -36,16 +36,14 @@ const linkCls = ({ isActive }) =>
     isActive ? 'bg-white text-neutral-900 shadow-sm' : 'text-neutral-500 hover:bg-white/70 hover:text-neutral-800'
   }`;
 
-function Section({ title, icon: SIcon, children, defaultOpen = true }) {
-  const [open, setOpen] = useState(defaultOpen);
+function Section({ title, icon: SIcon, children }) {
   return (
-    <div className="mt-3">
-      <button onClick={() => setOpen(!open)} className="flex w-full items-center gap-2 rounded-lg px-3 py-[7px] text-[13px] font-medium text-neutral-500 transition hover:bg-white/70 hover:text-neutral-800">
-        <ChevronRight size={13} className={`shrink-0 transition-transform ${open ? 'rotate-90' : ''}`} />
-        {SIcon && <SIcon size={16} strokeWidth={1.8} />}
-        <span className="flex-1 text-left">{title}</span>
-      </button>
-      {open && <div className="mt-0.5 space-y-0.5">{children}</div>}
+    <div className="mt-4">
+      <p className="flex items-center gap-2 px-3 pb-1.5 text-[10px] font-bold uppercase tracking-widest text-neutral-400">
+        {SIcon && <SIcon size={13} strokeWidth={1.8} />}
+        {title}
+      </p>
+      <div className="space-y-0.5">{children}</div>
     </div>
   );
 }
