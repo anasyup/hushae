@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, NavLink, Navigate, useLocation } from 'react-router-dom';
+import { NavLink, Navigate, useLocation } from 'react-router-dom';
 import {
   BadgePercent, BarChart3, ChevronRight, FileText, FolderTree, Globe, Home, LayoutGrid,
   LogOut, Menu, Package, Plus, Settings as SettingsIcon, ShoppingBag, Store, TrendingUp, Users, X,
@@ -62,9 +62,9 @@ function SidebarContent({ onNavigate }) {
         </NavLink>
 
         <Section title="Sales channels">
-          <Link to="/" onClick={onNavigate} className="flex items-center gap-2.5 rounded-lg px-3 py-[7px] text-[13px] font-medium text-neutral-500 transition hover:bg-white/70 hover:text-neutral-800">
+          <NavLink to="/admin/store" className={linkCls} onClick={onNavigate}>
             <Store size={17} strokeWidth={1.8} /> Online Store
-          </Link>
+          </NavLink>
         </Section>
 
         <Section title="Apps">

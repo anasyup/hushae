@@ -34,6 +34,8 @@ import Markets from './admin/Markets';
 import Analytics from './admin/Analytics';
 import Apps from './admin/Apps';
 import WhatsAppFloat from './components/WhatsAppFloat';
+import StoreLock from './components/StoreLock';
+import OnlineStore from './admin/OnlineStore';
 
 function ScrollToTop() {
   const { pathname, search } = useLocation();
@@ -50,6 +52,7 @@ export default function App() {
       <ScrollToTop />
       {!isAdmin && <Header />}
       <main className="flex-1">
+        <StoreLock>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/shop" element={<Shop preset={{ key: 'all' }} />} />
@@ -77,6 +80,7 @@ export default function App() {
           <Route path="/admin/categories" element={<Categories />} />
           <Route path="/admin/customers" element={<Customers />} />
           <Route path="/admin/settings" element={<SettingsAdmin />} />
+          <Route path="/admin/store" element={<OnlineStore />} />
           <Route path="/admin/growth" element={<Growth />} />
           <Route path="/admin/discounts" element={<Discounts />} />
           <Route path="/admin/content" element={<Content />} />
@@ -86,6 +90,7 @@ export default function App() {
 
           <Route path="*" element={<NotFound />} />
         </Routes>
+        </StoreLock>
       </main>
       {!isAdmin && <Footer />}
       {!isAdmin && <CartDrawer />}

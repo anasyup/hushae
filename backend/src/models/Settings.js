@@ -39,6 +39,13 @@ const settingsSchema = new mongoose.Schema({
   theme: {
     accent: { type: String, default: '#0D0D0D' },
   },
+  // Storefront password gate (like Shopify's password page) — empty password = lock can't be enabled
+  storefrontLock: {
+    enabled: { type: Boolean, default: false },
+    password: { type: String, default: '' },
+    heading: { type: String, default: 'VÉLOURA is opening soon' },
+    message: { type: String, default: 'Hum jald launch kar rahay hain. Enter password to preview the store.' },
+  },
   integrations: {
     whatsapp: {
       enabled: { type: Boolean, default: false },

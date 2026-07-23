@@ -45,4 +45,7 @@ export const STR = {
   newsOk: { en: 'Subscribed — welcome to the list!', ur: 'سبسکرائب ہو گیا — خوش آمدید!' },
   newsDup: { en: 'This email is already subscribed.', ur: 'یہ ای میل پہلے سے سبسکرائب ہے۔' },
   newsErr: { en: 'Please check the email address and try again.', ur: 'ای میل ایڈریس چیک کر کے دوبارہ کوشش کریں۔' },
+  lockPlaceholder: { en: 'Store password', ur: 'اسٹور کا پاس ورڈ' },
+  lockEnter: { en: 'Enter', ur: 'داخل ہوں' },
+  lockWrong: { en: 'Wrong password — try again', ur: 'غلط پاس ورڈ — دوبارہ کوشش کریں' },
 };
