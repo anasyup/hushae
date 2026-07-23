@@ -6,6 +6,7 @@ import { api } from '../api/client';
 import { pkr } from '../lib/format';
 import Img from '../components/Img';
 import Tx from '../components/Tx';
+import { normalizePhone } from '../lib/validators';
 
 // Fallback if the locations API is unreachable
 const PROVINCES_FALLBACK = ['Punjab', 'Sindh', 'Khyber Pakhtunkhwa', 'Balochistan', 'Gilgit-Baltistan', 'Azad Kashmir', 'Islamabad (ICT)'];
@@ -16,16 +17,6 @@ const PM = [
   { id: 'EasyPaisa', icon: Smartphone, title: 'EasyPaisa', note: 'Send to 0345-VELAURA then enter txn ID' },
   { id: 'Bank Transfer', icon: Landmark, title: 'Bank Transfer', note: 'Transfer then enter reference' },
 ];
-
-// Normalize Pakistani mobile to 03XXXXXXXXX (accepts 03xx / +923xx / 923xx / 3xx); null if invalid
-function normalizePhone(v) {
-  const d = String(v || '').replace(/\D/g, '');
-  let p = d;
-  if (p.startsWith('0092')) p = `0${p.slice(4)}`;
-  else if (p.startsWith('92') && p.length === 12) p = `0${p.slice(2)}`;
-  else if (p.length === 10 && p.startsWith('3')) p = `0${p}`;
-  return /^03\d{9}$/.test(p) ? p : null;
-}
 
 // Module-level field (component identity stays stable while typing — no focus loss)
 function Field({ k, label, f, errs, set, ...props }) {
@@ -183,12 +174,12 @@ export default function Checkout() {
     const e2 = {};
     if (f.name.trim().length < 3) e2.name = 'Your full name';
     const phoneNorm = normalizePhone(f.phone);
-    if (!phoneNorm) e2.phone = 'Invalid number — enter a Pakistani mobile (03XX-XXXXXXX)';
+    if (!phoneNorm) e2.phone = 'Incorrect number';
     if (f.address.trim().length < 6) e2.address = 'Complete street address';
     const cityVal = f.city === '__other' ? f.customCity.trim() : f.city;
     if (!cityVal) e2.city = 'Please select your city';
-    if (!/^\d{5}$/.test(f.postalCode)) e2.postalCode = `Incorrect — postal code must be 5 digits${postalHint ? ` (${f.city && f.city !== '__other' ? `${f.city}: ${postalHint}` : 'e.g. 54000'})` : ''}`;
-    else if (postalLive && postalLive.ok === false) e2.postalCode = postalLive.message;
+    if (!/^\d{5}$/.test(f.postalCode)) e2.postalCode = 'Incorrect postal code';
+    else if (postalLive && postalLive.ok === false) e2.postalCode = 'Incorrect postal code';
     if (f.email && !/^\S+@\S+\.\S+$/.test(f.email)) e2.email = 'Valid email (or leave empty)';
     setErrs(e2);
     if (Object.keys(e2).length) return;
@@ -208,7 +199,8 @@ export default function Checkout() {
       nav(`/order/${order.orderNumber}`, { state: { order }, replace: true });
     } catch (ex) {
       const msg = ex.message || 'Could not place order — please try again';
-      if (/postal|code|province/i.test(msg)) setErrs((er) => ({ ...er, postalCode: msg }));
+      if (/postal/i.test(msg)) setErrs((er) => ({ ...er, postalCode: 'Incorrect postal code' }));
+      if (/phone|mobile/i.test(msg)) setErrs((er) => ({ ...er, phone: 'Incorrect number' }));
       setTopErr(msg);
       setBusy(false);
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -241,7 +233,7 @@ export default function Checkout() {
                 ) : (normalizePhone(f.phone) ? (
                   <p className="mt-1 text-[11px] font-semibold text-emerald-700">✓ Valid mobile number — {normalizePhone(f.phone)}</p>
                 ) : (f.phone.replace(/\D/g, '').length > 4 && (
-                  <p className="mt-1 text-[11px] text-ash">Pakistani mobile only: 03XX-XXXXXXX</p>
+                  <p className="mt-1 text-[11px] font-medium text-red-700">Incorrect number</p>
                 )))}
               </div>
               <Field k="email" label="Email (optional)" placeholder="you@example.com" type="email" f={f} errs={errs} set={set} />
@@ -313,26 +305,13 @@ export default function Checkout() {
                 <input className={`input ${(errs.postalCode || (postalLive && !postalLive.ok)) ? '!border-red-400 !ring-red-50' : ''}`}
                   value={f.postalCode} inputMode="numeric" maxLength={5} placeholder={postalHint || '54000'}
                   onChange={(e) => set('postalCode', e.target.value.replace(/\D/g, '').slice(0, 5))} />
-                {/* priority: form error > live verification error > city hint chip > verified tick */}
+                {/* priority: form error > live verification error > verified tick */}
                 {errs.postalCode ? (
                   <p className="mt-1 text-xs text-red-700">{errs.postalCode}</p>
                 ) : postalLive && !postalLive.ok ? (
-                  <div className="mt-1 space-y-1.5">
-                    <p className="text-xs font-medium text-red-700">❌ {postalLive.message}</p>
-                    {postalLive.suggestion && (
-                      <button type="button" onClick={() => set('postalCode', postalLive.suggestion)}
-                        className="inline-flex items-center gap-1 rounded-full bg-red-50 px-2.5 py-1 text-[11px] font-bold text-red-800 ring-1 ring-red-200 transition hover:bg-red-100">
-                        Use {postalLive.suggestion}
-                      </button>
-                    )}
-                  </div>
+                  <p className="mt-1 text-xs font-medium text-red-700">❌ Incorrect postal code</p>
                 ) : postalLive?.ok && postalHint && f.postalCode === postalHint ? (
                   <p className="mt-1.5 text-[11px] font-semibold text-emerald-700">✓ Correct for {f.city}</p>
-                ) : postalHint && f.postalCode !== postalHint ? (
-                  <button type="button" onClick={() => set('postalCode', postalHint)}
-                    className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-obsidian/[0.06] px-2.5 py-1 text-[11px] font-semibold text-obsidian transition hover:bg-obsidian/10">
-                    ✨ {f.city}: {postalHint} — tap to fill
-                  </button>
                 ) : null}
               </div>
               <div className="md:col-span-2">

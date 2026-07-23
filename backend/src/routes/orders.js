@@ -6,20 +6,12 @@ const Discount = require('../models/Discount');
 const { protect, optionalAuth, adminOnly } = require('../middleware/auth');
 const { asyncHandler, orderNumber, evaluateDiscount } = require('../utils/helpers');
 const { postalCheck } = require('../data/postalcodes');
+const { normalizePhone } = require('../utils/validators');
 
 const router = express.Router();
 
 const digits = (s) => String(s || '').replace(/\D/g, '');
 const phoneTail = (s) => digits(s).slice(-10); // forgiving match: 0300... / +92300...
-
-// Normalize to 03XXXXXXXXX (accepts 03xx / +923xx / 923xx / 3xx formats); null if not a Pakistani mobile
-const normalizePhone = (v) => {
-  let p = digits(v);
-  if (p.startsWith('0092')) p = `0${p.slice(4)}`;
-  else if (p.startsWith('92') && p.length === 12) p = `0${p.slice(2)}`;
-  else if (p.length === 10 && p.startsWith('3')) p = `0${p}`;
-  return /^03\d{9}$/.test(p) ? p : null;
-};
 
 // ---- Place order (guest or logged-in) ----
 router.post('/', optionalAuth, asyncHandler(async (req, res) => {

@@ -1,6 +1,7 @@
 const express = require('express');
 const { protect, signToken } = require('../middleware/auth');
 const { asyncHandler } = require('../utils/helpers');
+const { normalizePhone, validEmail, verifyEmailDomain } = require('../utils/validators');
 
 const router = express.Router();
 
@@ -11,11 +12,23 @@ const publicUser = (u) => ({
 
 router.post('/register', asyncHandler(async (req, res) => {
   const { name, email, password, phone } = req.body || {};
-  if (!name || !email || !password) return res.status(400).json({ message: 'Name, email and password are required' });
-  if (String(password).length < 6) return res.status(400).json({ message: 'Password must be at least 6 characters' });
-  const exists = await require('../models/User').findOne({ email: String(email).toLowerCase() });
-  if (exists) return res.status(409).json({ message: 'An account with this email already exists' });
-  const user = await require('../models/User').create({ name, email, password, phone: phone || '' });
+  const cleanName = String(name || '').trim();
+  const cleanEmail = String(email || '').trim().toLowerCase();
+
+  if (cleanName.length < 3) return res.status(400).json({ field: 'name', message: 'Please enter your full name' });
+  if (!validEmail(cleanEmail)) return res.status(400).json({ field: 'email', message: 'Incorrect email address' });
+  const domainOk = await verifyEmailDomain(cleanEmail);
+  if (!domainOk) return res.status(400).json({ field: 'email', message: "This email address doesn't exist — use a real email" });
+  if (String(password).length < 6) return res.status(400).json({ field: 'password', message: 'Password must be at least 6 characters' });
+
+  const phoneNorm = normalizePhone(phone);
+  if (!phoneNorm) return res.status(400).json({ field: 'phone', message: 'Incorrect number — enter a Pakistani mobile (03XX-XXXXXXX)' });
+
+  // Anti-scam: one account per email
+  const exists = await require('../models/User').findOne({ email: cleanEmail });
+  if (exists) return res.status(409).json({ field: 'email', message: 'This email is already registered — sign in instead' });
+
+  const user = await require('../models/User').create({ name: cleanName, email: cleanEmail, password, phone: phoneNorm });
   res.status(201).json({ token: signToken(user), user: publicUser(user) });
 }));
 

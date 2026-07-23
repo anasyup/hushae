@@ -4,19 +4,33 @@ import { ChevronRight, Lock, LogOut, Mail, User as UserIcon } from 'lucide-react
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import { fmtDate, pkr } from '../lib/format';
+import { normalizePhone, validEmail } from '../lib/validators';
 
 function AuthCard() {
   const { login, register, toast } = useApp();
   const nav = useNavigate();
   const [mode, setMode] = useState('login');
   const [f, setF] = useState({ name: '', email: '', password: '', phone: '' });
+  const [ferrs, setFerrs] = useState({});
   const [err, setErr] = useState('');
   const [busy, setBusy] = useState(false);
-  const set = (k, v) => setF((x) => ({ ...x, [k]: v }));
+  const set = (k, v) => { setF((x) => ({ ...x, [k]: v })); setFerrs((x) => ({ ...x, [k]: '' })); };
+
+  const phoneOK = normalizePhone(f.phone);
+  const emailOK = validEmail(f.email);
 
   const submit = async (e) => {
     e.preventDefault();
-    setErr(''); setBusy(true);
+    setErr('');
+    if (mode === 'register') {
+      const fe = {};
+      if (f.name.trim().length < 3) fe.name = 'Enter your full name';
+      if (!phoneOK) fe.phone = 'Incorrect number — Pakistani mobile required (03XX-XXXXXXX)';
+      if (!emailOK) fe.email = 'Incorrect email address';
+      if (f.password.length < 6) fe.password = 'Minimum 6 characters';
+      if (Object.keys(fe).length) { setFerrs(fe); return; }
+    }
+    setBusy(true);
     try {
       const d = mode === 'login' ? await login(f.email, f.password) : await register(f);
       if (d.user.role === 'admin') nav('/admin');
@@ -25,23 +39,47 @@ function AuthCard() {
     setBusy(false);
   };
 
+  const ring = (bad) => (bad ? '!border-red-400 !ring-red-50' : '');
+
   return (
     <div className="mx-auto mt-10 max-w-md rounded-[2rem] border border-line bg-white/70 p-8 shadow-card">
       <div className="mb-6 grid grid-cols-2 rounded-full bg-satin/60 p-1">
         {[['login', 'Sign In'], ['register', 'Register']].map(([m, l]) => (
-          <button key={m} onClick={() => { setMode(m); setErr(''); }}
+          <button key={m} onClick={() => { setMode(m); setErr(''); setFerrs({}); }}
             className={`rounded-full py-2.5 text-[12px] font-bold uppercase tracking-widest transition ${mode === m ? 'bg-obsidian text-alabaster' : 'text-ash'}`}>{l}</button>
         ))}
       </div>
       <form onSubmit={submit} className="space-y-4">
         {mode === 'register' && (
           <>
-            <div><label className="label">Full name</label><input className="input" required value={f.name} onChange={(e) => set('name', e.target.value)} placeholder="Ayesha Khan" /></div>
-            <div><label className="label">Phone</label><input className="input" value={f.phone} onChange={(e) => set('phone', e.target.value)} placeholder="03xx xxxxxxx" /></div>
+            <div>
+              <label className="label">Full name</label>
+              <input className={`input ${ring(ferrs.name)}`} value={f.name} onChange={(e) => set('name', e.target.value)} placeholder="Ayesha Khan" />
+              {ferrs.name && <p className="mt-1 text-[11px] text-red-700">{ferrs.name}</p>}
+            </div>
+            <div>
+              <label className="label">Phone</label>
+              <input className={`input ${ring(ferrs.phone || (f.phone && !phoneOK && f.phone.replace(/\D/g, '').length > 4))}`}
+                value={f.phone} inputMode="tel" onChange={(e) => set('phone', e.target.value)} placeholder="03XX-XXXXXXX" />
+              {ferrs.phone ? <p className="mt-1 text-[11px] text-red-700">{ferrs.phone}</p>
+                : phoneOK ? <p className="mt-1 text-[11px] font-semibold text-emerald-700">✓ Valid mobile number</p>
+                : f.phone.replace(/\D/g, '').length > 4 ? <p className="mt-1 text-[11px] font-medium text-red-700">Incorrect number</p> : null}
+            </div>
           </>
         )}
-        <div><label className="label">Email</label><input className="input" type="email" required value={f.email} onChange={(e) => set('email', e.target.value)} placeholder="you@example.com" /></div>
-        <div><label className="label">Password</label><input className="input" type="password" required minLength={6} value={f.password} onChange={(e) => set('password', e.target.value)} placeholder="Minimum 6 characters" /></div>
+        <div>
+          <label className="label">Email</label>
+          <input className={`input ${ring(ferrs.email || (mode === 'register' && f.email.includes('@') && !emailOK))}`}
+            type="email" required value={f.email} onChange={(e) => set('email', e.target.value)} placeholder="you@example.com" />
+          {ferrs.email ? <p className="mt-1 text-[11px] text-red-700">{ferrs.email}</p>
+            : mode === 'register' && f.email.includes('@') && !emailOK && <p className="mt-1 text-[11px] font-medium text-red-700">Incorrect email address</p>}
+          {mode === 'register' && emailOK && <p className="mt-1 text-[11px] font-semibold text-emerald-700">✓ Looks good</p>}
+        </div>
+        <div>
+          <label className="label">Password</label>
+          <input className={`input ${ring(ferrs.password)}`} type="password" required minLength={6} value={f.password} onChange={(e) => set('password', e.target.value)} placeholder="Minimum 6 characters" />
+          {ferrs.password && <p className="mt-1 text-[11px] text-red-700">{ferrs.password}</p>}
+        </div>
         {err && <p className="rounded-xl bg-red-50 px-4 py-3 text-xs text-red-800">{err}</p>}
         <button disabled={busy} className="btn-primary w-full"><Lock size={14} /> {busy ? 'One moment…' : mode === 'login' ? 'Sign In' : 'Create Account'}</button>
       </form>
