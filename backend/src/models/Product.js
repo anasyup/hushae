@@ -8,6 +8,7 @@ const imageSchema = new mongoose.Schema({
 const colorSchema = new mongoose.Schema({
   name: { type: String, required: true },
   hex: { type: String, required: true },
+  image: { type: String, default: '' }, // optional per-color photo URL
 }, { _id: false });
 
 const productSchema = new mongoose.Schema({

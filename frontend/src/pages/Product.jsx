@@ -77,6 +77,16 @@ export default function Product() {
     if (then) nav('/checkout');
   };
 
+  // Color select → jump gallery to that color's photo (if the color has one)
+  const pickColor = (name) => {
+    setColor(name);
+    const c = p.colors.find((x) => x.name === name);
+    if (c?.image) {
+      const idx = p.images.findIndex((im) => im.url === c.image);
+      if (idx >= 0) setImgIdx(idx);
+    }
+  };
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 md:px-8">
       {/* Breadcrumb */}
@@ -159,7 +169,7 @@ export default function Product() {
               <p className="label"><Tx k="color" /> — <span className="text-obsidian">{color}</span></p>
               <div className="flex gap-3">
                 {p.colors.map((c) => (
-                  <button key={c.name} onClick={() => setColor(c.name)} title={c.name}
+                  <button key={c.name} onClick={() => pickColor(c.name)} title={c.name}
                     className={`h-9 w-9 rounded-full border transition ${color === c.name ? 'ring-2 ring-obsidian ring-offset-2 ring-offset-alabaster' : 'border-line'}`}
                     style={{ backgroundColor: c.hex }} />
                 ))}
