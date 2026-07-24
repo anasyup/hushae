@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { isVideoFile } from '../lib/media';
 
 const FALLBACK =
   'data:image/svg+xml;utf8,' +
@@ -9,6 +10,13 @@ const FALLBACK =
 export default function Img({ src, alt = '', className = '', ...rest }) {
   const [loaded, setLoaded] = useState(false);
   const [err, setErr] = useState(false);
+  // Video sources render as a silent auto-playing preview (listing cards, tiles, thumbs)
+  if (!err && isVideoFile(src)) {
+    return (
+      <video src={src} muted loop autoPlay playsInline preload="metadata"
+        onError={() => setErr(true)} className={className} />
+    );
+  }
   return (
     <img
       src={err ? FALLBACK : src}

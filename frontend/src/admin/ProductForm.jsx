@@ -4,7 +4,6 @@ import { ArrowLeft, FileEdit, Plus, Save, Trash2 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import AdminLayout from './AdminLayout';
-import MediaPicker from '../components/MediaPicker';
 import ImageTiles from '../components/ImageTiles';
 
 const BADGE_POOL = ['Breathable', 'Cooling', 'Seamless', 'Sweat Control', 'Support', 'Quick Dry', '4-Way Stretch', 'Tag-Free', 'Silk-Touch', 'Value Pack'];
@@ -39,9 +38,11 @@ export default function ProductForm() {
       .then((d) => {
         const p = d.products[0];
         if (!p) throw new Error();
+        const imgs = p.images.map((i) => i.url);
+        if (p.video && !imgs.includes(p.video)) imgs.push(p.video); // legacy video field → media tile
         setF({
           ...EMPTY, ...p, price: String(p.price), compareAtPrice: p.compareAtPrice || '',
-          images: p.images.map((i) => i.url), video: p.video || '',
+          images: imgs, video: '',
           sizesText: p.sizes.join(', '), careText: p.care.join('\n'),
         });
       })
@@ -59,7 +60,7 @@ export default function ProductForm() {
     const body = {
       name: f.name, sku: f.sku || `VL-${Date.now().toString(36).toUpperCase()}`, gender: f.gender,
       tier: f.tier, price: Number(f.price), compareAtPrice: f.compareAtPrice ? Number(f.compareAtPrice) : null,
-      stock: Number(f.stock) || 0, images, video: (f.video || '').trim(), shortDescription: f.shortDescription, description: f.description,
+      stock: Number(f.stock) || 0, images, video: '', shortDescription: f.shortDescription, description: f.description,
       sizes: f.sizesText.split(',').map((s) => s.trim()).filter(Boolean),
       colors: f.colors.filter((c) => c.name && c.hex),
       fabric: f.fabric, badges: f.badges, care: f.careText.split('\n').map((s) => s.trim()).filter(Boolean),
@@ -89,15 +90,10 @@ export default function ProductForm() {
           </div>
 
           <div className="card p-6">
-            <label className="label">Product images * (minimum 4)</label>
+            <label className="label">Product media * (minimum 4 — photos + videos)</label>
             <ImageTiles images={f.images} onChange={(arr) => set('images', arr)} />
           </div>
 
-          <div className="card p-6">
-            <label className="label">Product video (optional)</label>
-            <MediaPicker value={f.video} onChange={(v) => set('video', v)} accept="video" buttonText="Video upload (MP4)" />
-            <p className="mt-1.5 text-[11px] leading-relaxed text-ash">MP4 ya YouTube link dono chalenge — product page ki gallery mein video dikhega. Choti clip (10–30 second) best hoti hai.</p>
-          </div>
 
           <div className="card grid gap-5 p-6 md:grid-cols-2">
             <div><label className="label">Sizes (comma separated)</label><input className="input" value={f.sizesText} onChange={(e) => set('sizesText', e.target.value)} placeholder="S, M, L, XL" /></div>

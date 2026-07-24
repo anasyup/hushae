@@ -5,6 +5,7 @@ import { ChevronDown, ChevronRight, Heart, Minus, Play, Plus, RotateCcw, Ruler, 
 import { api } from '../api/client';
 import { useApp } from '../store/AppContext';
 import { pkr, snap } from '../lib/format';
+import { isVideo, ytId } from '../lib/media';
 import Img from '../components/Img';
 import ProductRow from '../components/ProductRow';
 import SizeGuideModal from '../components/SizeGuideModal';
@@ -65,9 +66,10 @@ export default function Product() {
   const isBra = p.categorySlug === 'bras';
   const needsSize = p.sizes.length > 0;
 
-  // Gallery media = images + optional video at the end
-  const ytId = (u) => (String(u || '').match(/(?:youtube\.com\/(?:watch\?v=|shorts\/)|youtu\.be\/)([\w-]{6,})/) || [])[1];
-  const media = [...p.images.map((im) => ({ t: 'img', url: im.url, alt: im.alt })), ...(p.video ? [{ t: 'video', url: p.video, alt: `${p.name} video` }] : [])];
+  // Gallery media = images array in admin-chosen order (photo + video tiles mixed);
+  // legacy `video` field appended only if not already inside images
+  const imgs = p.images.map((im) => ({ t: isVideo(im.url) ? 'video' : 'img', url: im.url, alt: im.alt }));
+  const media = p.video && !imgs.some((m) => m.url === p.video) ? [...imgs, { t: 'video', url: p.video, alt: `${p.name} video` }] : imgs;
   const active = media[imgIdx] || media[0];
   const activeYt = active?.t === 'video' ? ytId(active.url) : null;
 
