@@ -30,11 +30,11 @@ export default function ImageTiles({ images, onChange, min = 4 }) {
     if (fileRef.current) fileRef.current.value = '';
   };
 
+  // Drag tile A onto tile B → ONLY those two swap places (no stack shifting).
   const move = (from, to) => {
     if (from === null || from === to) return;
     const next = [...images];
-    const [m] = next.splice(from, 1);
-    next.splice(to, 0, m);
+    [next[from], next[to]] = [next[to], next[from]];
     onChange(next);
   };
 
@@ -64,7 +64,7 @@ export default function ImageTiles({ images, onChange, min = 4 }) {
             onDrop={(e) => { e.preventDefault(); move(drag, i); setDrag(null); }}
             onDragEnd={() => setDrag(null)}
             className={`group relative h-28 w-[5.5rem] cursor-grab overflow-hidden rounded-xl border-2 bg-satin/40 transition ${i === 0 ? 'border-obsidian' : 'border-line'} ${drag === i ? 'opacity-40' : ''}`}
-            title={i === 0 ? 'Main photo' : 'Click = Main banao · Drag = order badlo'}>
+            title={i === 0 ? 'Main photo' : 'Click = Main banao · Drag = do tiles swap hongi'}>
             <Img src={url} alt="" onClick={() => setMain(i)}
               className={`h-full w-full object-cover ${i === 0 ? '' : 'cursor-pointer'}`} />
             {i === 0 && <span className="absolute left-1 top-1 rounded-md bg-obsidian px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-alabaster">Main</span>}
@@ -107,7 +107,7 @@ export default function ImageTiles({ images, onChange, min = 4 }) {
       )}
 
       <p className="mt-2.5 text-[11px] leading-relaxed text-ash">
-        Minimum {min} images · pehli tile <b className="text-obsidian">Main photo</b> hai · kisi tile par <b className="text-obsidian">click</b> karo = wo Main ban jayegi (baqi tiles apni jagah rahengi) · <b className="text-obsidian">drag</b> = order badlo · cross (✕) se delete.
+        Minimum {min} images · pehli tile <b className="text-obsidian">Main photo</b> hai · kisi tile par <b className="text-obsidian">click</b> karo = wo Main ban jayegi (baqi apni jagah rahengi) · <b className="text-obsidian">drag</b> karke kisi tile par chhodo = sirf wo <b className="text-obsidian">do tiles swap</b> hongi · cross (✕) se delete.
       </p>
     </div>
   );
