@@ -38,6 +38,15 @@ export default function ImageTiles({ images, onChange, min = 4 }) {
     onChange(next);
   };
 
+  // Click a tile → it becomes Main (position 0). Only the two tiles swap places —
+  // everything else stays exactly where it was (no stack shifting).
+  const setMain = (i) => {
+    if (i === 0) return;
+    const next = [...images];
+    [next[0], next[i]] = [next[i], next[0]];
+    onChange(next);
+  };
+
   const addLink = () => {
     const u = link.trim();
     if (!u) return;
@@ -55,9 +64,15 @@ export default function ImageTiles({ images, onChange, min = 4 }) {
             onDrop={(e) => { e.preventDefault(); move(drag, i); setDrag(null); }}
             onDragEnd={() => setDrag(null)}
             className={`group relative h-28 w-[5.5rem] cursor-grab overflow-hidden rounded-xl border-2 bg-satin/40 transition ${i === 0 ? 'border-obsidian' : 'border-line'} ${drag === i ? 'opacity-40' : ''}`}
-            title="Drag to reorder">
-            <Img src={url} alt="" className="h-full w-full object-cover" />
+            title={i === 0 ? 'Main photo' : 'Click = Main banao · Drag = order badlo'}>
+            <Img src={url} alt="" onClick={() => setMain(i)}
+              className={`h-full w-full object-cover ${i === 0 ? '' : 'cursor-pointer'}`} />
             {i === 0 && <span className="absolute left-1 top-1 rounded-md bg-obsidian px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-alabaster">Main</span>}
+            {i !== 0 && (
+              <span className="pointer-events-none absolute inset-x-1 bottom-1 rounded-md bg-obsidian/80 py-0.5 text-center text-[9px] font-bold uppercase tracking-wider text-alabaster opacity-0 transition group-hover:opacity-100">
+                Set Main
+              </span>
+            )}
             <button type="button" aria-label="Remove" onClick={() => onChange(images.filter((_, x) => x !== i))}
               className="absolute right-0 top-0 flex h-6 w-6 items-center justify-center rounded-bl-lg bg-obsidian/85 text-alabaster opacity-0 transition hover:bg-red-700 group-hover:opacity-100">
               <X size={12} />
@@ -92,7 +107,7 @@ export default function ImageTiles({ images, onChange, min = 4 }) {
       )}
 
       <p className="mt-2.5 text-[11px] leading-relaxed text-ash">
-        Minimum {min} images · pehli tile <b className="text-obsidian">Main photo</b> hai · tiles pakar kar <b className="text-obsidian">drag</b> karo aur order badlo · cross (✕) se delete.
+        Minimum {min} images · pehli tile <b className="text-obsidian">Main photo</b> hai · kisi tile par <b className="text-obsidian">click</b> karo = wo Main ban jayegi (baqi tiles apni jagah rahengi) · <b className="text-obsidian">drag</b> = order badlo · cross (✕) se delete.
       </p>
     </div>
   );
