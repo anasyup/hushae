@@ -117,7 +117,7 @@ export default function Cart() {
       <motion.div
         key={`${l.id}-${l.size}-${l.color}`}
         layout initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-        className={`card relative flex gap-5 p-4 ${isOOS || isSizeGone ? 'border-red-200 bg-red-50/40' : isLow ? 'border-amber-200 bg-amber-50/40' : ''}`}
+        className={`card relative flex flex-col gap-4 p-3 sm:flex-row sm:gap-5 sm:p-4 ${isOOS || isSizeGone ? 'border-red-200 bg-red-50/40' : isLow ? 'border-amber-200 bg-amber-50/40' : ''}`}
       >
         {/* Status ribbon */}
         {(isOOS || isSizeGone || isLow) && (
@@ -133,7 +133,7 @@ export default function Cart() {
         )}
 
         <Link to={`/product/${l.slug}`} className={isOOS ? 'opacity-60' : ''}>
-          <Img src={l.image} alt={l.name} className="h-32 w-24 rounded-2xl object-cover" />
+          <Img src={l.image} alt={l.name} className="h-24 w-full rounded-2xl object-cover sm:h-32 sm:w-24" />
         </Link>
 
         <div className="flex flex-1 flex-col py-1">

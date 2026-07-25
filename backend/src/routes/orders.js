@@ -139,6 +139,15 @@ router.post('/', placeOrderLimit, optionalAuth, asyncHandler(async (req, res) =>
     discreetPackaging: !!discreetPackaging,
   });
 
+  // Fire-and-forget emails: customer confirmation + admin new-order alert.
+  // Never blocks the checkout response — errors are swallowed inside mailer.
+  try {
+    const mailer = require('../utils/mailer');
+    const adminEmail = settings.contactEmail || process.env.ADMIN_ALERT_EMAIL || process.env.SMTP_USER;
+    mailer.sendOrderConfirmation(order).catch(() => {});
+    mailer.sendNewOrderAlert(order, { adminEmail }).catch(() => {});
+  } catch { /* mailer errors must never fail an order */ }
+
   res.status(201).json({ order });
 }));
 
@@ -178,9 +187,18 @@ router.patch('/admin/:id/status', protect, adminOnly, asyncHandler(async (req, r
   if (!Order.STATUSES.includes(status)) return res.status(400).json({ message: 'Invalid status' });
   const order = await Order.findById(req.params.id);
   if (!order) return res.status(404).json({ message: 'Order not found' });
+  const prevStatus = order.status;
   order.status = status;
   order.statusHistory.push({ status, note: String(note).slice(0, 200) });
   await order.save();
+
+  // Fire-and-forget status-update email to customer for meaningful transitions
+  if (prevStatus !== status) {
+    try {
+      const mailer = require('../utils/mailer');
+      mailer.sendStatusUpdate(order).catch(() => {});
+    } catch { /* noop */ }
+  }
   res.json({ order });
 }));
 
@@ -191,17 +209,22 @@ router.patch('/admin/:id/payment', protect, adminOnly, asyncHandler(async (req, 
   }
   const order = await Order.findById(req.params.id);
   if (!order) return res.status(404).json({ message: 'Order not found' });
+  const prevStatus = order.status;
   order.paymentStatus = paymentStatus;
 
-  // AUTO-CONFIRM RULE:
-  // When admin marks the payment as Paid and the order is still Pending,
-  // automatically move it to "Confirmed" so it lands in the "To Pack" bucket.
-  // COD orders stay Pending until admin confirms by call (separate endpoint).
+  // AUTO-CONFIRM RULE (existing)
   if (paymentStatus === 'Paid' && order.status === 'Pending' && order.paymentMethod !== 'COD') {
     order.status = 'Confirmed';
     order.statusHistory.push({ status: 'Confirmed', note: 'Auto-confirmed on payment received' });
   }
   await order.save();
+
+  if (prevStatus !== order.status) {
+    try {
+      const mailer = require('../utils/mailer');
+      mailer.sendStatusUpdate(order).catch(() => {});
+    } catch { /* noop */ }
+  }
   res.json({ order });
 }));
 
@@ -211,12 +234,20 @@ router.patch('/admin/:id/verify-cod', protect, adminOnly, asyncHandler(async (re
   const order = await Order.findById(req.params.id);
   if (!order) return res.status(404).json({ message: 'Order not found' });
   if (order.paymentMethod !== 'COD') return res.status(400).json({ message: 'This is not a COD order' });
+  const prevStatus = order.status;
   order.verifiedByCall = true;
   if (order.status === 'Pending') {
     order.status = 'Confirmed';
     order.statusHistory.push({ status: 'Confirmed', note: note ? `COD verified by call: ${note}` : 'COD verified by call' });
   }
   await order.save();
+
+  if (prevStatus !== order.status) {
+    try {
+      const mailer = require('../utils/mailer');
+      mailer.sendStatusUpdate(order).catch(() => {});
+    } catch { /* noop */ }
+  }
   res.json({ order });
 }));
 

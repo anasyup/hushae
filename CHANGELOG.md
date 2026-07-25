@@ -23,6 +23,8 @@ Format:
 
 ## Changes
 
+- **2026-07-25** — Order emails (customer confirmation, admin new-order alert, status updates) via nodemailer SMTP. Configurable from Admin → Integrations (Gmail/any provider) with a Send test email button. Mobile responsive fixes for Cart line items and Checkout header.
+
 - **2026-07-25** — Removed Drafts summary card from Inventory page and Drafts link from Catalog sidebar (per user request). Grid changes from 5 columns to 4.
 
 - **2026-07-25** — Bulk product edit + Finance/Business-Advisor page. Backend: PATCH /api/products/bulk (up to 500 ids, whitelisted fields, supports set stock/price/cost/tier/status/featured/best-seller, stockDelta ±, priceChangePct ±) + PATCH /api/products/:id/stock for inline delta or set. Frontend: Products page adds an Edit N selected button that opens a BulkEditModal with 9 action tiles (set stock, adjust stock ±, set price, set cost, adjust prices %, set tier, set status, toggle featured, toggle best-seller). New /admin/finance page (Business Advisor): range picker (7/30/90/YTD), 6 headline KPIs (Revenue / Net profit / Gross profit / AOV / Total expenses / Cancels+refunds), stacked area chart (revenue vs COGS by day), expense donut with per-line % breakdown, payment-method donut, auto-generated advisor insights (low-margin warning, ads-share warning, cancellation warning, AOV nudge, packing-cost hint, cost-price setup tip), and CSV export of every order in the range with computed COGS + profit column.

@@ -24,4 +24,13 @@ router.put('/', protect, adminOnly, asyncHandler(async (req, res) => {
   res.json({ settings: s });
 }));
 
+// Test-email endpoint — admin can verify SMTP config works
+router.post('/test-email', protect, adminOnly, asyncHandler(async (req, res) => {
+  const to = (req.body?.to || '').trim();
+  if (!to) return res.status(400).json({ ok: false, reason: 'Recipient email required' });
+  const mailer = require('../utils/mailer');
+  const result = await mailer.sendTest(to);
+  res.json(result);
+}));
+
 module.exports = router;

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Facebook, HardDrive, Instagram, LineChart, MessageCircle, Music2 } from 'lucide-react';
+import { Facebook, HardDrive, Instagram, LineChart, Mail, MessageCircle, Music2 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import AdminLayout from './AdminLayout';
@@ -8,6 +8,7 @@ const DEFAULTS = {
   whatsapp: { enabled: false, number: '', message: 'Hi! I have a question about VÉLOURA.' },
   social: { instagram: '', facebook: '', tiktok: '' },
   analytics: { gaId: '', gtmId: '', metaPixelId: '', tiktokPixelId: '' },
+  email: { host: '', port: 587, secure: false, user: '', pass: '', from: '', adminAlert: '' },
 };
 
 export default function Apps() {
@@ -23,23 +24,35 @@ export default function Apps() {
   const wa = { ...DEFAULTS.whatsapp, ...(integ.whatsapp || {}) };
   const social = { ...DEFAULTS.social, ...(integ.social || {}) };
   const analytics = { ...DEFAULTS.analytics, ...(integ.analytics || {}) };
+  const email = { ...DEFAULTS.email, ...(integ.email || {}) };
   const media = s.media || { cloudName: '', uploadPreset: '' };
   const setI = (patch) => setS({ ...s, integrations: { ...integ, ...patch } });
   const setWa = (k, v) => setI({ whatsapp: { ...wa, [k]: v } });
   const setSocial = (k, v) => setI({ social: { ...social, [k]: v } });
   const setAn = (k, v) => setI({ analytics: { ...analytics, [k]: v } });
+  const setEmail = (k, v) => setI({ email: { ...email, [k]: v } });
   const setMedia = (k, v) => setS({ ...s, media: { ...media, [k]: v } });
 
   const save = async () => {
     setBusy(true);
     try {
       await api('/settings', { method: 'PUT', token: auth.token, body: {
-        integrations: { whatsapp: wa, social, analytics },
+        integrations: { whatsapp: wa, social, analytics, email },
         media: { cloudName: media.cloudName.trim(), uploadPreset: media.uploadPreset.trim() },
       } });
       toast('Apps saved — applied to the website immediately');
     } catch (ex) { toast(ex.message || 'Could not save'); }
     setBusy(false);
+  };
+
+  const testEmail = async () => {
+    const to = email.adminAlert || email.user;
+    if (!to) return toast('Save your email settings first, then click Test');
+    try {
+      await api('/settings', { method: 'PUT', token: auth.token, body: { integrations: { email } } });
+      const res = await api('/settings/test-email', { method: 'POST', token: auth.token, body: { to } });
+      toast(res.ok ? `Test sent to ${to}` : (res.reason || 'Test failed'));
+    } catch (ex) { toast(ex.message || 'Test failed'); }
   };
 
   return (
@@ -115,6 +128,66 @@ export default function Apps() {
               <label className="label">Upload Preset</label>
               <input className="input" placeholder="e.g. veloura_uploads" value={media.uploadPreset} onChange={(e) => setMedia('uploadPreset', e.target.value)} />
             </div>
+          </div>
+        </div>
+
+        {/* EMAIL / SMTP — Order confirmation & admin alerts */}
+        <div className="card p-6 lg:col-span-2">
+          <div className="flex items-start gap-3">
+            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-obsidian text-alabaster"><Mail size={20} /></span>
+            <div>
+              <h2 className="font-display text-lg">Email — Order confirmations & Admin alerts</h2>
+              <p className="mt-0.5 text-xs text-ash">
+                Connect any SMTP provider. Customers get order confirmation & status emails automatically; you get a new-order alert.
+              </p>
+            </div>
+            {(email.host && email.user) && (
+              <span className="ml-auto rounded-full bg-sage/25 px-3 py-1 text-[11px] font-semibold text-sagedeep">Connected</span>
+            )}
+          </div>
+
+          <div className="mt-4 grid gap-4 md:grid-cols-2">
+            <div>
+              <label className="label">SMTP host</label>
+              <input className="input font-mono text-xs" placeholder="smtp.gmail.com" value={email.host} onChange={(e) => setEmail('host', e.target.value)} />
+            </div>
+            <div>
+              <label className="label">Port</label>
+              <input className="input" type="number" placeholder="587" value={email.port} onChange={(e) => setEmail('port', Number(e.target.value) || 587)} />
+              <label className="mt-2 flex items-center gap-2 text-[11px] text-ash">
+                <input type="checkbox" checked={!!email.secure} onChange={(e) => setEmail('secure', e.target.checked)} className="h-3.5 w-3.5 accent-obsidian" />
+                Use SSL (usually only for port 465)
+              </label>
+            </div>
+            <div>
+              <label className="label">Username</label>
+              <input className="input" placeholder="you@yourstore.com" value={email.user} onChange={(e) => setEmail('user', e.target.value)} />
+            </div>
+            <div>
+              <label className="label">Password / App password</label>
+              <input className="input font-mono text-xs" type="password" placeholder="•••••••••••" value={email.pass} onChange={(e) => setEmail('pass', e.target.value)} />
+            </div>
+            <div>
+              <label className="label">"From" address</label>
+              <input className="input" placeholder='"VÉLOURA" &lt;no-reply@veloura.pk&gt;' value={email.from} onChange={(e) => setEmail('from', e.target.value)} />
+              <p className="mt-1.5 text-[11px] text-ash">Leave blank to use your username.</p>
+            </div>
+            <div>
+              <label className="label">Admin alert address</label>
+              <input className="input" placeholder="you@yourstore.com" value={email.adminAlert} onChange={(e) => setEmail('adminAlert', e.target.value)} />
+              <p className="mt-1.5 text-[11px] text-ash">Where new-order alerts go. Defaults to Username if empty.</p>
+            </div>
+          </div>
+
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            <button type="button" onClick={testEmail} className="inline-flex items-center gap-1.5 rounded-full border border-neutral-300 bg-white px-4 py-2 text-[11px] font-semibold text-neutral-700 transition hover:bg-neutral-100">
+              Send test email
+            </button>
+            <span className="text-[11px] text-ash">Save your changes first, then send a test.</span>
+          </div>
+
+          <div className="mt-4 rounded-2xl border border-line bg-satin/30 p-3 text-[11px] leading-relaxed text-ash">
+            <b className="text-obsidian">Gmail tip:</b> Turn on 2-Step Verification in Google Account, then create an "App password" — use that as the SMTP password. Host = <code>smtp.gmail.com</code>, port = <code>587</code>, SSL = off.
           </div>
         </div>
 

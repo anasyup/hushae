@@ -257,8 +257,10 @@ export default function Checkout() {
   const submit = validateAndReview;
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-10 md:px-8">
-      <h1 className="font-display text-4xl"><Tx k="checkout" /></h1>
+    <div className="mx-auto max-w-7xl px-4 py-8 md:py-10 md:px-8">
+      <div className="flex items-end justify-between gap-4">
+        <h1 className="font-display text-2xl sm:text-3xl md:text-4xl">Checkout</h1>
+      </div>
       <p className="mt-2 text-sm text-ash">
         {auth ? `Ordering as ${auth.user.name}` : <>Guest checkout — no account needed. <Link to="/account" className="font-semibold text-obsidian underline">Sign in</Link> for faster checkout.</>}
       </p>

@@ -107,12 +107,21 @@ const settingsSchema = new mongoose.Schema({
       facebook: { type: String, default: '' },
       tiktok: { type: String, default: '' },
     },
-    // Analytics — scripts inject only when cookie consent for analytics is given
+    // SMTP email config — read by utils/mailer.js at send time
+    email: {
+      host:   { type: String, default: '' },  // e.g. smtp.gmail.com
+      port:   { type: Number, default: 587 },
+      secure: { type: Boolean, default: false }, // true for 465
+      user:   { type: String, default: '' },  // SMTP username
+      pass:   { type: String, default: '' },  // app password
+      from:   { type: String, default: '' },  // "Veloura <no-reply@veloura.pk>"
+      adminAlert: { type: String, default: '' }, // where new-order alerts go
+    },
     analytics: {
-      gaId: { type: String, default: '' },           // Google Analytics 4 (e.g. G-XXXXXXXXXX)
-      gtmId: { type: String, default: '' },          // Google Tag Manager (optional, e.g. GTM-XXXXXXX)
-      metaPixelId: { type: String, default: '' },    // Meta/Facebook Pixel (numeric ID)
-      tiktokPixelId: { type: String, default: '' },  // TikTok Pixel (optional)
+      gaId: { type: String, default: '' },
+      gtmId: { type: String, default: '' },
+      metaPixelId: { type: String, default: '' },
+      tiktokPixelId: { type: String, default: '' },
     },
   },
   // Public FAQ page — admin-editable via Content page
