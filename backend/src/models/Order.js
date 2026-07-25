@@ -48,8 +48,17 @@ const orderSchema = new mongoose.Schema({
   statusHistory: [{
     status: String,
     at: { type: Date, default: Date.now },
+    note: { type: String, default: '' },
     _id: false,
   }],
+  // COD phone-verification flag — set when admin clicks "Confirm by Call"
+  verifiedByCall: { type: Boolean, default: false },
+  // Courier / tracking info — filled during "Ready to Ship" or "Shipped" stage
+  courierName: { type: String, default: '' },
+  trackingNumber: { type: String, default: '' },
+  trackingUrl: { type: String, default: '' },
+  // Free-form admin notes (internal only, not shown to customer)
+  adminNotes: { type: String, default: '' },
   discreetPackaging: { type: Boolean, default: true },
 }, { timestamps: true });
 

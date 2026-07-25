@@ -23,6 +23,8 @@ Format:
 
 ## Changes
 
+- **2026-07-25** — Orders page: complete workflow-driven redesign. 6 stage tiles (All/New/To Ship/In Transit/Delivered/Issues). New splits COD-Verify vs Awaiting-Payment. To Ship splits To Pack/To Arrange/To Handover. Each order shows a compact card with contextual action buttons per stage (Call, WhatsApp, Confirm by Call, Mark Paid, Print Invoice, Save Tracking, Mark Shipped/Delivered). Auto-confirm rule: marking payment Paid moves online orders straight to To Pack. New backend endpoints: /verify-cod, /tracking, /notes. Printable A4 invoice at /admin/orders/:id/invoice.
+
 - **2026-07-25** — Admin: sidebar groups now collapsible dropdowns (Sales, Catalog, Storefront, Insights). Orders page redesigned Shopee/Lazada-style: All / Unpaid / To Ship (with To Pack, To Arrange Shipment, To Handover sub-tabs) / Shipping / Delivered / Failed Delivery / Cancellation / Return or Refund — with live counts and clear stage indicators.
 
 - **2026-07-25** — Massive UX cleanup: removed Roman-Urdu, refined premium palette, cleaner hero editor, removed language toggle, added Remove button on media pickers, showButtons toggle for hero CTAs, mobile-image field removed

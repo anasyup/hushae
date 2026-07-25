@@ -24,6 +24,7 @@ import Dashboard from './admin/Dashboard';
 import LiveView from './admin/LiveView';
 import Orders from './admin/Orders';
 import OrderDetail from './admin/OrderDetail';
+import OrderInvoice from './admin/OrderInvoice';
 import Products from './admin/Products';
 import ProductForm from './admin/ProductForm';
 import Categories from './admin/Categories';
@@ -116,6 +117,7 @@ export default function App() {
           <Route path="/admin/live" element={<LiveView />} />
           <Route path="/admin/orders" element={<Orders />} />
           <Route path="/admin/orders/:id" element={<OrderDetail />} />
+          <Route path="/admin/orders/:id/invoice" element={<OrderInvoice />} />
           <Route path="/admin/products" element={<Products />} />
           <Route path="/admin/products/:id" element={<ProductForm />} />
           <Route path="/admin/categories" element={<Categories />} />

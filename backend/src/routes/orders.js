@@ -151,12 +151,12 @@ router.get('/admin/:id', protect, adminOnly, asyncHandler(async (req, res) => {
 }));
 
 router.patch('/admin/:id/status', protect, adminOnly, asyncHandler(async (req, res) => {
-  const { status } = req.body || {};
+  const { status, note = '' } = req.body || {};
   if (!Order.STATUSES.includes(status)) return res.status(400).json({ message: 'Invalid status' });
   const order = await Order.findById(req.params.id);
   if (!order) return res.status(404).json({ message: 'Order not found' });
   order.status = status;
-  order.statusHistory.push({ status });
+  order.statusHistory.push({ status, note: String(note).slice(0, 200) });
   await order.save();
   res.json({ order });
 }));
@@ -166,7 +166,61 @@ router.patch('/admin/:id/payment', protect, adminOnly, asyncHandler(async (req, 
   if (!['Pending', 'Paid', 'Failed', 'Refunded'].includes(paymentStatus)) {
     return res.status(400).json({ message: 'Invalid payment status' });
   }
-  const order = await Order.findByIdAndUpdate(req.params.id, { paymentStatus }, { new: true });
+  const order = await Order.findById(req.params.id);
+  if (!order) return res.status(404).json({ message: 'Order not found' });
+  order.paymentStatus = paymentStatus;
+
+  // AUTO-CONFIRM RULE:
+  // When admin marks the payment as Paid and the order is still Pending,
+  // automatically move it to "Confirmed" so it lands in the "To Pack" bucket.
+  // COD orders stay Pending until admin confirms by call (separate endpoint).
+  if (paymentStatus === 'Paid' && order.status === 'Pending' && order.paymentMethod !== 'COD') {
+    order.status = 'Confirmed';
+    order.statusHistory.push({ status: 'Confirmed', note: 'Auto-confirmed on payment received' });
+  }
+  await order.save();
+  res.json({ order });
+}));
+
+// Confirm a COD order after phone verification — moves Pending -> Confirmed
+router.patch('/admin/:id/verify-cod', protect, adminOnly, asyncHandler(async (req, res) => {
+  const { note = '' } = req.body || {};
+  const order = await Order.findById(req.params.id);
+  if (!order) return res.status(404).json({ message: 'Order not found' });
+  if (order.paymentMethod !== 'COD') return res.status(400).json({ message: 'This is not a COD order' });
+  order.verifiedByCall = true;
+  if (order.status === 'Pending') {
+    order.status = 'Confirmed';
+    order.statusHistory.push({ status: 'Confirmed', note: note ? `COD verified by call: ${note}` : 'COD verified by call' });
+  }
+  await order.save();
+  res.json({ order });
+}));
+
+// Update courier + tracking info (used at "Ready to Ship" / "Shipped" stages)
+router.patch('/admin/:id/tracking', protect, adminOnly, asyncHandler(async (req, res) => {
+  const { courierName = '', trackingNumber = '', trackingUrl = '' } = req.body || {};
+  const order = await Order.findByIdAndUpdate(
+    req.params.id,
+    {
+      courierName: String(courierName).trim().slice(0, 60),
+      trackingNumber: String(trackingNumber).trim().slice(0, 80),
+      trackingUrl: String(trackingUrl).trim().slice(0, 300),
+    },
+    { new: true }
+  );
+  if (!order) return res.status(404).json({ message: 'Order not found' });
+  res.json({ order });
+}));
+
+// Update free-form admin notes
+router.patch('/admin/:id/notes', protect, adminOnly, asyncHandler(async (req, res) => {
+  const { adminNotes = '' } = req.body || {};
+  const order = await Order.findByIdAndUpdate(
+    req.params.id,
+    { adminNotes: String(adminNotes).slice(0, 2000) },
+    { new: true }
+  );
   if (!order) return res.status(404).json({ message: 'Order not found' });
   res.json({ order });
 }));
