@@ -118,7 +118,7 @@ export default function Analytics() {
     setA(null); setErr('');
     api(`/analytics/overview?range=${range}`, { token: auth.token })
       .then(setA)
-      .catch((e) => { if (e?.status === 401) { logout(); return; } setErr('Analytics load nahi hui — dobara try karein.'); });
+      .catch((e) => { if (e?.status === 401) { logout(); return; } setErr('Failed to load analytics — please try again.'); });
   }, [auth, range, tick]); // eslint-disable-line
 
   const head = (

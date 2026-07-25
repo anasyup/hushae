@@ -14,7 +14,7 @@ const Wordmark = () => (
 );
 
 export default function Header() {
-  const { cartCount, wishlist, auth, setDrawerOpen, lang, setLang, settings } = useApp();
+  const { cartCount, wishlist, auth, setDrawerOpen, settings } = useApp();
   const [cats, setCats] = useState([]);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -73,10 +73,6 @@ export default function Header() {
           </nav>
 
           <div className="flex items-center gap-1.5 md:gap-3">
-            <button onClick={() => setLang(lang === 'en' ? 'ur' : 'en')}
-              className={`rounded-full px-2.5 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-ash transition hover:text-obsidian ${lang === 'ur' ? 'font-urdu !text-sm' : ''}`}>
-              {lang === 'en' ? 'اردو' : 'EN'}
-            </button>
             <button onClick={() => setSearchOpen((s) => !s)} aria-label="Search" className="rounded-full p-2 text-obsidian transition hover:bg-satin/60"><Search size={19} /></button>
             <Link to="/wishlist" aria-label="Wishlist" className="relative rounded-full p-2 text-obsidian transition hover:bg-satin/60">
               <Heart size={19} />

@@ -14,7 +14,7 @@ const LS = {
 
 export function AppProvider({ children }) {
   const [settings, setSettings] = useState(null);
-  const [lang, setLang] = useState(() => LS.get('veloura.lang', 'en'));
+  const [lang, setLang] = useState('en');
   const [auth, setAuth] = useState(() => LS.get('veloura.auth', null));
   const [cart, setCart] = useState(() => LS.get('veloura.cart', []));
   const [guestWish, setGuestWish] = useState(() => LS.get('veloura.wish', []));

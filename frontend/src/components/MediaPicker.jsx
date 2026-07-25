@@ -1,10 +1,11 @@
 import { useRef, useState } from 'react';
-import { ImagePlus, Link2, Loader2 } from 'lucide-react';
+import { ImagePlus, Link2, Loader2, X } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { smartUpload } from '../lib/upload';
 
-// Upload button + URL input — + click opens the PC file dialog immediately
-export default function MediaPicker({ value = '', onChange, onAdd, multiple = false, accept = 'image', hideUrl = false, buttonText = 'PC se upload' }) {
+// Upload button + URL input — click opens PC file dialog immediately
+// Now with a "clear/delete" button that appears when a value exists.
+export default function MediaPicker({ value = '', onChange, onAdd, multiple = false, accept = 'image', hideUrl = false, buttonText = 'Upload from PC' }) {
   const { settings, auth, toast } = useApp();
   const media = settings?.media || {};
   const [busy, setBusy] = useState(false);
@@ -22,11 +23,16 @@ export default function MediaPicker({ value = '', onChange, onAdd, multiple = fa
         else onChange?.(url);
         n += 1;
       }
-      if (n) toast(n > 1 ? `${n} files upload ho gayein` : 'Upload ho gaya');
+      if (n) toast(n > 1 ? `${n} files uploaded` : 'Upload complete');
     } catch (ex) {
-      toast(ex.message || 'Upload nahi hui');
+      toast(ex.message || 'Upload failed');
     }
     setBusy(false); setPct(null);
+    if (inputRef.current) inputRef.current.value = '';
+  };
+
+  const clear = () => {
+    onChange?.('');
     if (inputRef.current) inputRef.current.value = '';
   };
 
@@ -38,20 +44,33 @@ export default function MediaPicker({ value = '', onChange, onAdd, multiple = fa
         <input ref={inputRef} type="file" accept={acceptStr} multiple={multiple} className="hidden" onChange={(e) => upload([...e.target.files])} />
         <button type="button" onClick={() => inputRef.current?.click()} disabled={busy}
           className="btn-outline shrink-0 whitespace-nowrap">
-          {busy ? <Loader2 size={14} className="animate-spin" /> : <ImagePlus size={14} />} {busy ? (pct !== null ? `Upload ${pct}%…` : 'Upload ho raha hai…') : buttonText}
+          {busy ? <Loader2 size={14} className="animate-spin" /> : <ImagePlus size={14} />} {busy ? (pct !== null ? `Uploading ${pct}%…` : 'Uploading…') : buttonText}
         </button>
         {!hideUrl && (
           <span className="relative flex-1">
             <Link2 size={13} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ash" />
-            <input className="input !pl-9" placeholder="ya link paste karein…" value={value} onChange={(e) => onChange?.(e.target.value)} />
+            <input className="input !pl-9" placeholder="or paste a link…" value={value} onChange={(e) => onChange?.(e.target.value)} />
           </span>
         )}
       </div>
-      {accept === 'image' && value ? (
-        <img src={value} alt="" className="mt-2 h-20 w-20 rounded-xl border border-line object-cover" onError={(e) => { e.target.style.display = 'none'; }} />
-      ) : null}
-      {accept === 'video' && value ? (
-        <video src={value} className="mt-2 h-24 rounded-xl border border-line object-cover" muted loop autoPlay playsInline />
+
+      {/* Preview + delete button */}
+      {value ? (
+        <div className="mt-3 flex items-center gap-3">
+          {accept === 'image' ? (
+            <img src={value} alt="" className="h-20 w-20 rounded-xl border border-line object-cover" onError={(e) => { e.target.style.display = 'none'; }} />
+          ) : accept === 'video' ? (
+            <video src={value} className="h-20 w-32 rounded-xl border border-line object-cover" muted loop autoPlay playsInline />
+          ) : null}
+          <button
+            type="button"
+            onClick={clear}
+            className="inline-flex items-center gap-1.5 rounded-full border border-red-200 bg-red-50 px-3 py-1.5 text-[11px] font-semibold text-red-600 transition hover:bg-red-100 hover:border-red-300"
+            title="Remove this file"
+          >
+            <X size={12} /> Remove
+          </button>
+        </div>
       ) : null}
     </div>
   );

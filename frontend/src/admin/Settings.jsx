@@ -95,7 +95,7 @@ export default function SettingsAdmin() {
           </div>
           <div><label className="label">Button link</label><input className="input font-mono text-xs" value={s.offerBar?.link || ''} onChange={(e) => setOffer('link', e.target.value)} placeholder="/sale" /></div>
           <p className="text-[11px] leading-relaxed text-ash">
-            Tip: kisi bhi product ko sale pe lane ke liye Products → Edit mein <b>Compare-at price</b> set karein — wo /sale page pe discount % ke saath nazar ayega.
+            Tip: to put any product on sale Products → Edit <b>Compare-at price</b> set — it will appear on the /sale page with the discount %.
           </p>
         </div>
 
@@ -259,7 +259,7 @@ function ChangePasswordCard() {
       </div>
 
       <p className="text-[11px] leading-relaxed text-ash">
-        Kam se kam 8 characters, letters aur numbers zaroori. Change hone ke baad doosri devices se logout ho jayenge.
+        Kam se kam 8 characters, letters and numbers required. You will be logged out from other devices after change.
       </p>
 
       <button

@@ -25,7 +25,7 @@ export default function OnlineStore() {
   const setLock = (k, v) => setS((x) => ({ ...x, storefrontLock: { ...lock, [k]: v } }));
 
   const saveLock = async () => {
-    if (lock.enabled && !lock.password.trim()) { toast('Pehle password set karein, phir lock on karein'); return; }
+    if (lock.enabled && !lock.password.trim()) { toast('Pehle password set, phir lock on karein'); return; }
     setBusy(true);
     try {
       await api('/settings', { method: 'PUT', token: auth.token, body: { storefrontLock: { ...lock, password: lock.password.trim() } } });

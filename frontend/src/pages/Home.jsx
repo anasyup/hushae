@@ -225,9 +225,9 @@ function HeroFullScreen({ hero }) {
   }, [menuOpen]);
 
   const posterOrImage = hero.poster || hero.image || undefined;
-  const desktopImage = hero.image || '/images/hero/veloura-hero.jpg';
-  const mobileImage = hero.mobileImage || desktopImage;
+  const heroImage = hero.image || '/images/hero/veloura-hero.jpg';
   const badges = Array.isArray(hero.badges) ? hero.badges.filter(Boolean) : [];
+  const showButtons = hero.showButtons !== false;
 
   return (
     <section className="relative flex min-h-[100svh] items-end overflow-hidden bg-obsidian">
@@ -241,10 +241,7 @@ function HeroFullScreen({ hero }) {
           aria-hidden="true"
         />
       ) : (
-        <picture className="absolute inset-0 h-full w-full">
-          <source media="(max-width: 767px)" srcSet={mobileImage} />
-          <img src={desktopImage} alt="VÉLOURA editorial" className="h-full w-full object-cover" />
-        </picture>
+        <img src={heroImage} alt="VÉLOURA editorial" className="absolute inset-0 h-full w-full object-cover" />
       )}
 
       {/* Adjustable dark overlay for text contrast */}
@@ -267,7 +264,7 @@ function HeroFullScreen({ hero }) {
         )}
 
         <div className={`mt-8 flex flex-wrap items-center gap-4 ${hero.align === 'center' ? 'justify-center' : ''}`}>
-          {hero.ctaStyle === 'dropdown' ? (
+          {showButtons && (hero.ctaStyle === 'dropdown' ? (
             <div className="relative" ref={menuRef}>
               <button
                 type="button"
@@ -313,7 +310,7 @@ function HeroFullScreen({ hero }) {
                 {hero.ctaMen || 'Shop Men'}
               </Link>
             </>
-          )}
+          ))}
         </div>
 
         {badges.length > 0 && (

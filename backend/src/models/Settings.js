@@ -11,17 +11,18 @@ const settingsSchema = new mongoose.Schema({
     subtitle: { type: String, default: 'Underwear engineered in breathable, cloud-soft fabrics — designed in Pakistan, finished to an international standard.' },
     // Eyebrow (small text above the title)
     eyebrow: { type: String, default: 'Premium innerwear · Made in Pakistan' },
-    ctaWomen: { type: String, default: 'Shop Women' },
+    ctaWomen: { type: String, default: 'Shop Now' },
     ctaMen: { type: String, default: 'Shop Men' },
     image: { type: String, default: '/images/hero/veloura-hero.jpg' },   // desktop banner image
-    mobileImage: { type: String, default: '' },      // optional separate image for mobile (< 768px)
     video: { type: String, default: '' },            // optional MP4 for full-screen hero
     poster: { type: String, default: '' },           // poster image shown while video loads
     fullScreen: { type: Boolean, default: true },    // international-style full-viewport hero (default ON now)
     align: { type: String, default: 'left' },        // 'left' | 'center'
-    overlayOpacity: { type: Number, default: 55 },   // 0-100 — dark overlay strength for text readability
-    // Blaire-style CTA: a single "Shop" button that opens a dropdown menu
-    ctaStyle: { type: String, default: 'buttons', enum: ['buttons', 'dropdown'] },
+    overlayOpacity: { type: Number, default: 40 },   // 0-100 — dark overlay strength for text readability
+    // Master switch: show CTA buttons or hide them completely
+    showButtons: { type: Boolean, default: true },
+    // Dropdown-style CTA: a single "Shop" button that opens a menu
+    ctaStyle: { type: String, default: 'dropdown', enum: ['buttons', 'dropdown'] },
     shopMenu: {
       type: [{ label: String, href: String, _id: false }],
       default: [
@@ -32,11 +33,8 @@ const settingsSchema = new mongoose.Schema({
         { label: 'Sale',         href: '/sale' },
       ],
     },
-    // Optional small badges shown under CTA (e.g. "COD nationwide · Free ship over PKR 4,999")
-    badges: {
-      type: [String],
-      default: ['3 tiers — Economy to Signature', '100+ styles', 'Discreet packaging always'],
-    },
+    // Optional small badges shown under CTA
+    badges: { type: [String], default: [] },
   },
   // Media library (Cloudinary) — enables PC file uploads across admin
   media: {

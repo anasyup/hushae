@@ -23,6 +23,8 @@ Format:
 
 ## Changes
 
+- **2026-07-25** — Massive UX cleanup: removed Roman-Urdu, refined premium palette, cleaner hero editor, removed language toggle, added Remove button on media pickers, showButtons toggle for hero CTAs, mobile-image field removed
+
 - **2026-07-25** — Admin sidebar redesign: clean Shopify-style grouped sections (Sales, Catalog, Storefront, Insights), collapsible Products menu, quick search bar, cleaner spacing & hover states
 
 - **2026-07-25** — Hero image pickers: URL paste option removed — sirf PC upload rahega (per user request)
