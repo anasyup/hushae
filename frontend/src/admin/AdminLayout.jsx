@@ -55,12 +55,13 @@ const NAV_GROUPS = [
   {
     label: 'Insights',
     icon: BarChart3,
-    match: ['/admin/analytics', '/admin/insights', '/admin/live', '/admin/growth'],
+    match: ['/admin/analytics', '/admin/insights', '/admin/finance', '/admin/live', '/admin/growth'],
     children: [
-      { to: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
+      { to: '/admin/finance',   label: 'Finance',       icon: CreditCard },
+      { to: '/admin/analytics', label: 'Analytics',     icon: BarChart3 },
       { to: '/admin/insights',  label: 'Deep insights', icon: TrendingUp },
-      { to: '/admin/live',      label: 'Live view',    icon: Activity },
-      { to: '/admin/growth',    label: 'Growth',       icon: TrendingUp },
+      { to: '/admin/live',      label: 'Live view',     icon: Activity },
+      { to: '/admin/growth',    label: 'Growth',        icon: TrendingUp },
     ],
   },
   {

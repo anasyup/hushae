@@ -39,6 +39,7 @@ import Markets from './admin/Markets';
 import Analytics from './admin/Analytics';
 import Apps from './admin/Apps';
 import Insights from './admin/Insights';
+import Finance from './admin/Finance';
 import WhatsAppFloat from './components/WhatsAppFloat';
 import StoreLock from './components/StoreLock';
 import CookieConsent from './components/CookieConsent';
@@ -140,6 +141,7 @@ export default function App() {
           <Route path="/admin/markets" element={<Markets />} />
           <Route path="/admin/analytics" element={<Analytics />} />
           <Route path="/admin/insights" element={<Insights />} />
+          <Route path="/admin/finance" element={<Finance />} />
           <Route path="/admin/apps" element={<Apps />} />
 
           <Route path="*" element={<NotFound />} />

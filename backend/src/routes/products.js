@@ -136,6 +136,100 @@ router.post('/', protect, adminOnly, asyncHandler(async (req, res) => {
   res.status(201).json({ product });
 }));
 
+/* Bulk update — apply the same patch to many products in one call.
+ * Body: { ids: [id1, id2, ...], patch: { field: value, ... } }
+ * Whitelisted fields: price, compareAtPrice, costPrice, stock, tier, isActive,
+ *                     isFeatured, isBestSeller, status, stockDelta (add/subtract)
+ * Returns: { updated: N, modifiedIds: [...] }
+ */
+router.patch('/bulk', protect, adminOnly, asyncHandler(async (req, res) => {
+  const { ids = [], patch = {} } = req.body || {};
+  if (!Array.isArray(ids) || ids.length === 0) {
+    return res.status(400).json({ message: 'Select at least one product' });
+  }
+  if (ids.length > 500) {
+    return res.status(400).json({ message: 'Too many products in one batch (max 500)' });
+  }
+
+  const setDoc = {};
+  const incDoc = {};
+
+  // Direct numeric fields
+  ['price', 'compareAtPrice', 'costPrice', 'stock'].forEach((f) => {
+    if (patch[f] !== undefined && patch[f] !== null && patch[f] !== '') {
+      const n = Number(patch[f]);
+      if (!Number.isFinite(n) || n < 0) {
+        // skip invalid instead of failing the whole batch
+        return;
+      }
+      setDoc[f] = n;
+    }
+  });
+
+  // Stock delta (relative change, e.g. +50 or -10)
+  if (patch.stockDelta !== undefined && patch.stockDelta !== null && patch.stockDelta !== '') {
+    const n = Number(patch.stockDelta);
+    if (Number.isFinite(n) && n !== 0) incDoc.stock = n;
+  }
+
+  // Enums / strings
+  if (patch.tier && ['Economy', 'Standard', 'Premium'].includes(patch.tier)) {
+    setDoc.tier = patch.tier;
+  }
+  if (patch.status && ['active', 'draft'].includes(patch.status)) {
+    setDoc.status = patch.status;
+  }
+
+  // Booleans
+  ['isActive', 'isFeatured', 'isBestSeller'].forEach((f) => {
+    if (typeof patch[f] === 'boolean') setDoc[f] = patch[f];
+  });
+
+  // Category-margin update: apply a percentage change to price (e.g. +10% for all)
+  if (patch.priceChangePct !== undefined && patch.priceChangePct !== null && patch.priceChangePct !== '') {
+    const pct = Number(patch.priceChangePct);
+    if (Number.isFinite(pct) && pct !== 0) {
+      const factor = 1 + (pct / 100);
+      const products = await Product.find({ _id: { $in: ids } }).select('_id price');
+      for (const p of products) {
+        const newPrice = Math.round(p.price * factor);
+        await Product.updateOne({ _id: p._id }, { $set: { price: Math.max(1, newPrice) } });
+      }
+    }
+  }
+
+  const ops = {};
+  if (Object.keys(setDoc).length) ops.$set = setDoc;
+  if (Object.keys(incDoc).length) ops.$inc = incDoc;
+
+  if (!Object.keys(ops).length) {
+    return res.status(400).json({ message: 'Nothing to update' });
+  }
+
+  const result = await Product.updateMany({ _id: { $in: ids } }, ops);
+  res.json({ updated: result.modifiedCount, matched: result.matchedCount });
+}));
+
+// Quick stock adjust — set or delta on a single product (used by inline row editor)
+router.patch('/:id/stock', protect, adminOnly, asyncHandler(async (req, res) => {
+  const { stock, delta } = req.body || {};
+  const update = {};
+  if (stock !== undefined) {
+    const n = Number(stock);
+    if (!Number.isFinite(n) || n < 0) return res.status(400).json({ message: 'Invalid stock value' });
+    update.$set = { stock: n };
+  } else if (delta !== undefined) {
+    const n = Number(delta);
+    if (!Number.isFinite(n) || n === 0) return res.status(400).json({ message: 'Invalid delta' });
+    update.$inc = { stock: n };
+  } else {
+    return res.status(400).json({ message: 'Provide stock or delta' });
+  }
+  const p = await Product.findOneAndUpdate({ _id: req.params.id }, update, { new: true }).select('_id stock name');
+  if (!p) return res.status(404).json({ message: 'Product not found' });
+  res.json({ product: p });
+}));
+
 router.put('/:id', protect, adminOnly, asyncHandler(async (req, res) => {
   const product = await Product.findById(req.params.id);
   if (!product) return res.status(404).json({ message: 'Product not found' });

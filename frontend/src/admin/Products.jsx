@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import {
-  AlertCircle, Archive, ArrowUpDown, CheckCircle2, ChevronDown, Copy, Eye, EyeOff,
-  Filter, Grid, LayoutGrid, List, Package, Pencil, Plus, Search, Star, Trash2, TrendingUp,
+  AlertCircle, Archive, ArrowUpDown, CheckCircle2, ChevronDown, Copy, DollarSign, Eye, EyeOff,
+  Filter, Grid, LayoutGrid, List, Minus, Package, Pencil, Plus, Save, Search, Star, Trash2, TrendingUp, X,
 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
@@ -23,6 +23,7 @@ export default function Products() {
   const [cats, setCats] = useState([]);
   const [view, setView] = useState('list'); // 'list' | 'grid'
   const [selected, setSelected] = useState(new Set());
+  const [bulkOpen, setBulkOpen] = useState(false);
   const [searchParams] = useSearchParams();
   const [f, setF] = useState({
     q: '', category: '', gender: '', tier: '', stock: '',
@@ -140,15 +141,39 @@ export default function Products() {
 
         <div className="flex items-center gap-2">
           {selected.size > 0 && (
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-3 py-1.5 text-[11px] font-semibold text-white">
-              {selected.size} selected
-            </span>
+            <button
+              onClick={() => setBulkOpen(true)}
+              className="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-3 py-1.5 text-[11px] font-semibold text-white transition hover:bg-neutral-800"
+              title="Bulk edit selected products"
+            >
+              <Pencil size={11} /> Edit {selected.size} selected
+            </button>
           )}
           <Link to="/admin/products/new" className="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-4 py-2 text-[12px] font-semibold text-white transition hover:bg-neutral-800">
             <Plus size={13} /> Add product
           </Link>
         </div>
       </div>
+
+      {/* ============ BULK EDIT MODAL ============ */}
+      {bulkOpen && (
+        <BulkEditModal
+          count={selected.size}
+          onClose={() => setBulkOpen(false)}
+          onApply={async (patch) => {
+            try {
+              const res = await api('/products/bulk', {
+                method: 'PATCH', token: auth.token,
+                body: { ids: [...selected], patch },
+              });
+              toast(`Updated ${res.updated} product${res.updated === 1 ? '' : 's'}`);
+              setBulkOpen(false);
+              setSelected(new Set());
+              load();
+            } catch (ex) { toast(ex.message || 'Bulk update failed'); }
+          }}
+        />
+      )}
 
       {/* ============ SUMMARY CARDS ============ */}
       <div className="mb-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
@@ -437,6 +462,183 @@ function EmptyState({ onClear, hasFilters }) {
         <Link to="/admin/products/new" className="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-4 py-2 text-[11px] font-semibold text-white hover:bg-neutral-800">
           <Plus size={12} /> Add product
         </Link>
+      </div>
+    </div>
+  );
+}
+
+/* ============================================================================
+ * BulkEditModal — apply the same change to many products in one action.
+ * Actions supported:
+ *   - Set stock to N
+ *   - Adjust stock by ±N
+ *   - Set price / cost / compare-at
+ *   - Adjust prices by ±N% (raise/lower entire selection)
+ *   - Change tier
+ *   - Toggle Featured / Best-seller / Active
+ *   - Change status (active / draft)
+ * User picks ONE action per apply — keeps the API call clean and predictable.
+ * ========================================================================== */
+function BulkEditModal({ count, onClose, onApply }) {
+  const [action, setAction] = useState('setStock');
+  const [numValue, setNumValue] = useState('');
+  const [tier, setTier] = useState('Standard');
+  const [bool, setBool] = useState(true);
+  const [status, setStatus] = useState('active');
+  const [busy, setBusy] = useState(false);
+
+  const actions = [
+    { key: 'setStock',       label: 'Set stock',                icon: Package,   hint: 'Overwrites current stock with the value below.' },
+    { key: 'stockDelta',     label: 'Adjust stock by',          icon: TrendingUp,hint: 'Adds or subtracts. e.g. +50 to restock, −10 to reduce.' },
+    { key: 'setPrice',       label: 'Set price (PKR)',          icon: DollarSign,hint: 'Overwrites current price.' },
+    { key: 'setCost',        label: 'Set cost/wholesale',       icon: DollarSign,hint: 'Overwrites current cost price (used for profit calc).' },
+    { key: 'priceChangePct', label: 'Adjust prices by %',       icon: TrendingUp,hint: 'Applies a % change to each product. e.g. +10 raises all prices by 10%.' },
+    { key: 'setTier',        label: 'Change tier',              icon: Star,      hint: 'Overwrites tier (Economy / Standard / Premium).' },
+    { key: 'setStatus',      label: 'Change status',            icon: Eye,       hint: 'Move to draft (hidden) or active (live).' },
+    { key: 'toggleFeatured', label: 'Featured on/off',          icon: Star,      hint: 'Mark or unmark as Featured across the selection.' },
+    { key: 'toggleBest',     label: 'Best-seller on/off',       icon: TrendingUp,hint: 'Mark or unmark as Best-seller.' },
+  ];
+
+  const active = actions.find((a) => a.key === action);
+  const needsNum = ['setStock', 'stockDelta', 'setPrice', 'setCost', 'priceChangePct'].includes(action);
+
+  const apply = async () => {
+    const patch = {};
+    if (action === 'setStock')       patch.stock = numValue;
+    if (action === 'stockDelta')     patch.stockDelta = numValue;
+    if (action === 'setPrice')       patch.price = numValue;
+    if (action === 'setCost')        patch.costPrice = numValue;
+    if (action === 'priceChangePct') patch.priceChangePct = numValue;
+    if (action === 'setTier')        patch.tier = tier;
+    if (action === 'setStatus')      patch.status = status;
+    if (action === 'toggleFeatured') patch.isFeatured = bool;
+    if (action === 'toggleBest')     patch.isBestSeller = bool;
+
+    if (needsNum && (numValue === '' || numValue === null)) return;
+    setBusy(true);
+    try { await onApply(patch); } finally { setBusy(false); }
+  };
+
+  return (
+    <div className="fixed inset-0 z-[70] flex items-end justify-center bg-obsidian/60 px-4 py-6 backdrop-blur-sm sm:items-center" onClick={onClose}>
+      <div className="w-full max-w-lg overflow-hidden rounded-3xl bg-white shadow-2xl" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between border-b border-neutral-200 px-6 py-4">
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-500">Bulk edit</p>
+            <h2 className="mt-0.5 font-display text-xl text-neutral-900">Update {count} product{count === 1 ? '' : 's'}</h2>
+          </div>
+          <button onClick={onClose} disabled={busy} className="rounded-full p-2 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-900 disabled:opacity-40" aria-label="Close">
+            <X size={18} />
+          </button>
+        </div>
+
+        <div className="max-h-[70vh] overflow-y-auto px-6 py-5">
+          {/* Action grid */}
+          <p className="mb-3 text-[10px] font-bold uppercase tracking-widest text-neutral-500">What do you want to do?</p>
+          <div className="grid grid-cols-2 gap-2">
+            {actions.map((a) => {
+              const A = a.icon;
+              return (
+                <button
+                  key={a.key}
+                  onClick={() => setAction(a.key)}
+                  className={`flex items-center gap-2 rounded-xl border px-3 py-2.5 text-left text-[12px] transition ${
+                    action === a.key
+                      ? 'border-neutral-900 bg-neutral-900 text-white'
+                      : 'border-neutral-200 bg-white text-neutral-700 hover:border-neutral-400'
+                  }`}
+                >
+                  <A size={14} strokeWidth={action === a.key ? 2.2 : 1.8} />
+                  <span className="font-semibold">{a.label}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Input area */}
+          <div className="mt-5 rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+            <p className="mb-3 text-[11px] leading-relaxed text-neutral-600">{active?.hint}</p>
+
+            {needsNum && (
+              <div className="flex items-center gap-3">
+                {action === 'stockDelta' && (
+                  <div className="flex items-center gap-1">
+                    <button onClick={() => setNumValue(numValue.startsWith('-') ? numValue.slice(1) : `-${numValue}`)} className="rounded-lg border border-neutral-200 bg-white p-2 text-neutral-600 hover:bg-neutral-100" title="Flip sign">
+                      <Minus size={13} />
+                    </button>
+                  </div>
+                )}
+                <input
+                  type="number"
+                  value={numValue}
+                  onChange={(e) => setNumValue(e.target.value)}
+                  className="input flex-1 !text-lg !font-semibold"
+                  placeholder={
+                    action === 'setStock' ? '50'
+                    : action === 'stockDelta' ? '+50 or -10'
+                    : action === 'setPrice' ? '1800'
+                    : action === 'setCost' ? '900'
+                    : action === 'priceChangePct' ? '+10 (raises 10%)'
+                    : ''
+                  }
+                  autoFocus
+                />
+                {action === 'priceChangePct' && <span className="text-neutral-500">%</span>}
+                {(action === 'setPrice' || action === 'setCost') && <span className="text-neutral-500">PKR</span>}
+              </div>
+            )}
+
+            {action === 'setTier' && (
+              <div className="grid grid-cols-3 gap-2">
+                {['Economy', 'Standard', 'Premium'].map((t) => (
+                  <button
+                    key={t}
+                    onClick={() => setTier(t)}
+                    className={`rounded-xl border px-3 py-2 text-[12px] font-semibold transition ${tier === t ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-200 bg-white text-neutral-700 hover:border-neutral-400'}`}
+                  >{t}</button>
+                ))}
+              </div>
+            )}
+
+            {action === 'setStatus' && (
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  { v: 'active', label: 'Active (live)', tone: 'text-emerald-700' },
+                  { v: 'draft',  label: 'Draft (hidden)', tone: 'text-amber-700' },
+                ].map((o) => (
+                  <button
+                    key={o.v}
+                    onClick={() => setStatus(o.v)}
+                    className={`rounded-xl border px-3 py-2 text-[12px] font-semibold transition ${status === o.v ? 'border-neutral-900 bg-neutral-900 text-white' : `border-neutral-200 bg-white ${o.tone} hover:border-neutral-400`}`}
+                  >{o.label}</button>
+                ))}
+              </div>
+            )}
+
+            {(action === 'toggleFeatured' || action === 'toggleBest') && (
+              <div className="grid grid-cols-2 gap-2">
+                <button onClick={() => setBool(true)}  className={`rounded-xl border px-3 py-2 text-[12px] font-semibold transition ${bool  ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-200 bg-white text-neutral-700 hover:border-neutral-400'}`}>Turn ON</button>
+                <button onClick={() => setBool(false)} className={`rounded-xl border px-3 py-2 text-[12px] font-semibold transition ${!bool ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-200 bg-white text-neutral-700 hover:border-neutral-400'}`}>Turn OFF</button>
+              </div>
+            )}
+          </div>
+
+          <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-3 text-[11px] leading-relaxed text-amber-800">
+            ⚠️ This will apply to <b>{count} product{count === 1 ? '' : 's'}</b> at once and cannot be undone.
+            Make sure the correct rows are selected before confirming.
+          </div>
+        </div>
+
+        <div className="grid grid-cols-[auto_1fr] gap-3 border-t border-neutral-200 bg-neutral-50 px-6 py-4">
+          <button onClick={onClose} disabled={busy} className="rounded-full border border-neutral-300 bg-white px-5 py-3 text-[12px] font-semibold text-neutral-700 hover:bg-neutral-100 disabled:opacity-40">Cancel</button>
+          <button
+            onClick={apply}
+            disabled={busy || (needsNum && (numValue === '' || numValue === null))}
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-neutral-900 px-6 py-3 text-[12px] font-semibold uppercase tracking-widest text-white transition hover:bg-neutral-800 disabled:opacity-50"
+          >
+            <Save size={13} /> {busy ? 'Applying…' : `Apply to ${count} product${count === 1 ? '' : 's'}`}
+          </button>
+        </div>
       </div>
     </div>
   );
