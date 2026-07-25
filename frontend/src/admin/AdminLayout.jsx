@@ -1,7 +1,7 @@
 import { Fragment, useEffect, useMemo, useState } from 'react';
 import { Link, NavLink, Navigate, useLocation } from 'react-router-dom';
 import {
-  Activity, BadgePercent, BarChart3, ChevronDown, CreditCard, FileText, FolderOpen, Globe, Home,
+  Activity, BadgePercent, BarChart3, Bell, ChevronDown, CreditCard, FileText, FolderOpen, Globe, Home,
   LayoutTemplate, LogOut, Menu, Package, PackagePlus, PackageX,
   Search, Settings as SettingsIcon, ShieldCheck, ShoppingBag, Store, Tags, TrendingUp, Truck, Users, X, Zap,
 } from 'lucide-react';
@@ -289,12 +289,110 @@ export default function AdminLayout({ children, title }) {
           <button onClick={() => setDrawer(true)} className="rounded-lg p-1.5 text-neutral-700 hover:bg-white/70"><Menu size={20} /></button>
           <Link to="/admin" className="font-display text-base font-bold tracking-widest text-neutral-900">VÉLOURA</Link>
         </div>
+
+        {/* Desktop topbar — breadcrumb, quick actions, notifications */}
+        <TopBar title={title} auth={auth} />
+
         <main className="flex-1 p-4 md:p-8">
-          <h1 className="font-display text-3xl">{title}</h1>
-          <div className="mt-6">{children}</div>
+          {title && <h1 className="mb-6 font-display text-[28px] font-semibold leading-tight text-neutral-900 md:hidden">{title}</h1>}
+          <div>{children}</div>
         </main>
       </div>
     </div>
+  );
+}
+
+/* ==========================================================================
+ * TOPBAR — sticky header with breadcrumb, quick actions, avatar
+ * ======================================================================== */
+function TopBar({ title, auth }) {
+  const loc = useLocation();
+  const [notifOpen, setNotifOpen] = useState(false);
+
+  const crumbs = (() => {
+    const parts = loc.pathname.split('/').filter(Boolean); // ['admin', ...]
+    const out = [{ label: 'Home', to: '/admin' }];
+    if (parts.length > 1) {
+      let running = '/admin';
+      for (const p of parts.slice(1)) {
+        running += `/${p}`;
+        const label = p.replace(/-/g, ' ').replace(/^./, (c) => c.toUpperCase());
+        out.push({ label, to: running });
+      }
+    }
+    return out;
+  })();
+
+  const initials = (auth?.user?.name || 'A').split(' ').map((s) => s[0]).slice(0, 2).join('').toUpperCase();
+
+  return (
+    <header className="sticky top-0 z-20 hidden border-b border-neutral-200 bg-white/85 px-8 py-3 backdrop-blur md:block">
+      <div className="flex items-center justify-between gap-6">
+        {/* Breadcrumb */}
+        <div className="min-w-0 flex-1">
+          <h1 className="truncate font-display text-[22px] font-semibold leading-tight text-neutral-900">
+            {title || crumbs[crumbs.length - 1]?.label}
+          </h1>
+          <nav className="mt-0.5 flex items-center gap-1.5 text-[11px] text-neutral-500">
+            {crumbs.map((c, i) => (
+              <span key={c.to} className="inline-flex items-center gap-1.5">
+                {i > 0 && <span className="text-neutral-300">/</span>}
+                {i === crumbs.length - 1 ? (
+                  <span className="font-medium text-neutral-700">{c.label}</span>
+                ) : (
+                  <Link to={c.to} className="hover:text-neutral-900">{c.label}</Link>
+                )}
+              </span>
+            ))}
+          </nav>
+        </div>
+
+        {/* Right side actions */}
+        <div className="flex items-center gap-2">
+          <span className="hidden items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-[11px] font-semibold text-neutral-600 lg:inline-flex">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+            Store online
+          </span>
+
+          <Link
+            to="/"
+            target="_blank"
+            className="hidden items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-[11px] font-semibold text-neutral-600 transition hover:border-neutral-400 hover:text-neutral-900 md:inline-flex"
+            title="Open storefront in a new tab"
+          >
+            <Globe size={12} /> View store
+          </Link>
+
+          {/* Notifications */}
+          <div className="relative">
+            <button
+              onClick={() => setNotifOpen((v) => !v)}
+              className="relative rounded-full border border-neutral-200 bg-white p-2 text-neutral-600 transition hover:border-neutral-400 hover:text-neutral-900"
+              aria-label="Notifications"
+            >
+              <Bell size={15} />
+              <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-red-500" />
+            </button>
+            {notifOpen && (
+              <div className="absolute right-0 top-full z-30 mt-2 w-72 overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-xl">
+                <div className="border-b border-neutral-100 px-4 py-3">
+                  <p className="text-[11px] font-bold uppercase tracking-widest text-neutral-500">Notifications</p>
+                </div>
+                <div className="p-3 text-center">
+                  <p className="py-6 text-[12px] text-neutral-400">You&apos;re all caught up.</p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Avatar */}
+          <div className="ml-1 flex items-center gap-2 rounded-full border border-neutral-200 bg-white p-1 pl-1 pr-3">
+            <span className="grid h-7 w-7 place-items-center rounded-full bg-neutral-900 text-[11px] font-bold text-white">{initials}</span>
+            <span className="text-[11px] font-semibold text-neutral-800">{auth?.user?.name?.split(' ')[0] || 'Admin'}</span>
+          </div>
+        </div>
+      </div>
+    </header>
   );
 }
 

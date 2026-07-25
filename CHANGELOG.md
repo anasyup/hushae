@@ -23,6 +23,8 @@ Format:
 
 ## Changes
 
+- **2026-07-25** — Premium admin dashboard redesign inspired by top themes but original: KPI cards with sparklines + 30-day trend %, order-pipeline strip with segmented bar, 14-day revenue/orders area chart with toggle, status donut with center total, today-hourly bar chart with peak highlight, best-sellers ranked list, recent-orders card list, low-stock + top-customers side panels, sticky topbar with breadcrumb + store-online indicator + View Store + notifications + avatar. New backend fields: kpis (revenue/orders/customers/aov each with value + prev + change%), 14-day chart series, 24-hour hourly series, top customers by spend. Recharts library installed for interactive charts.
+
 - **2026-07-25** — Settings hub redesign + admin polish. Dashboard number font fixed (tabular sans, no more Roman-numeral look). Sidebar: Catalog renames Products to Inventory; Settings is now its own group with focused sub-pages (Store details, Payments, Shipping, Integrations moved here, Security, Legal). New Settings hub page with cards + quick search + snapshot sidebar. Each sub-page loads its own focused slice with a floating Save bar.
 
 - **2026-07-25** — Orders page: complete workflow-driven redesign. 6 stage tiles (All/New/To Ship/In Transit/Delivered/Issues). New splits COD-Verify vs Awaiting-Payment. To Ship splits To Pack/To Arrange/To Handover. Each order shows a compact card with contextual action buttons per stage (Call, WhatsApp, Confirm by Call, Mark Paid, Print Invoice, Save Tracking, Mark Shipped/Delivered). Auto-confirm rule: marking payment Paid moves online orders straight to To Pack. New backend endpoints: /verify-cod, /tracking, /notes. Printable A4 invoice at /admin/orders/:id/invoice.
