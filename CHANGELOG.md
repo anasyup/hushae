@@ -23,6 +23,21 @@ Format:
 
 ## Changes
 
+- **2026-07-25** — Phase 1: Full-screen hero banner + Blaire-style dropdown CTA + admin controls
+  - Home: New `HeroFullScreen` component — Blaire-inspired premium full-viewport hero
+  - Video support with poster fallback, autoplay + muted + loop + playsInline (iOS-safe)
+  - Separate desktop + mobile image support via `<picture>`
+  - Adjustable dark overlay opacity (0-90%) for text readability
+  - 2 CTA styles: "2 Buttons" (Women/Men) or "Dropdown Menu" (single Shop button, Blaire-style)
+  - Editable dropdown menu items (label + href) from admin
+  - Editable eyebrow text + trust badges under hero
+  - Settings model: hero.{eyebrow, mobileImage, poster, overlayOpacity, ctaStyle, shopMenu[], badges[]}
+  - Admin Content page: complete hero editor rewrite with CTA style toggle, mobile image, poster, overlay slider, menu editor, badges editor
+  - AI-generated default hero image at /images/hero/veloura-hero.jpg (editorial style, VOGUE-quality)
+  - DB updated: hero.ctaStyle='dropdown', new fields populated with defaults
+
+
+
 - **2026-07-25** — WhatsApp Help Center + FAQ page + Analytics/Pixels + SEO pack
   - Backend: new `/robots.txt` and `/sitemap.xml` endpoints (dynamic — pulls all active products + categories from DB)
   - Backend: `vercel.json` rewrites so SEO files route to Express (not the SPA)

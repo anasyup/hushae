@@ -62,28 +62,98 @@ export default function Content() {
           {/* HERO */}
           <div className="card p-6">
             <h2 className="font-display text-lg">Homepage Hero (Banner)</h2>
+            <p className="mt-1 text-xs text-ash">Yeh main banner hai jo har visitor pehli baar dekhta hai. Video ho ya image — donon options hain.</p>
             <div className="mt-4 space-y-4">
-              <div><label className="label">Title</label><textarea className="input min-h-16" value={hero.title || ''} onChange={(e) => setHero('title', e.target.value)} /></div>
+              <div><label className="label">Eyebrow (small text upar)</label><input className="input" value={hero.eyebrow || ''} onChange={(e) => setHero('eyebrow', e.target.value)} placeholder="Premium innerwear · Made in Pakistan" /></div>
+              <div><label className="label">Title (main heading)</label><textarea className="input min-h-16" value={hero.title || ''} onChange={(e) => setHero('title', e.target.value)} placeholder={'Second Skin,\nFirst Choice.'} /><p className="mt-1 text-[11px] text-ash">Enter dabao naye line ke liye</p></div>
               <div><label className="label">Subtitle</label><textarea className="input min-h-20" value={hero.subtitle || ''} onChange={(e) => setHero('subtitle', e.target.value)} /></div>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div><label className="label">Button 1 (Women)</label><input className="input" value={hero.ctaWomen || ''} onChange={(e) => setHero('ctaWomen', e.target.value)} /></div>
-                <div><label className="label">Button 2 (Men)</label><input className="input" value={hero.ctaMen || ''} onChange={(e) => setHero('ctaMen', e.target.value)} /></div>
+
+              {/* CTA STYLE toggle */}
+              <div className="rounded-2xl border border-line bg-satin/20 p-4">
+                <label className="label">Button style</label>
+                <div className="mt-2 grid grid-cols-2 gap-2">
+                  <button type="button" onClick={() => setHero('ctaStyle', 'buttons')}
+                    className={`rounded-xl border px-3 py-2.5 text-left text-xs transition ${hero.ctaStyle !== 'dropdown' ? 'border-obsidian bg-obsidian text-alabaster' : 'border-line bg-white hover:bg-satin/50'}`}>
+                    <span className="block font-semibold">2 Buttons</span>
+                    <span className={`mt-0.5 block text-[10px] ${hero.ctaStyle !== 'dropdown' ? 'text-alabaster/70' : 'text-ash'}`}>Women + Men (classic)</span>
+                  </button>
+                  <button type="button" onClick={() => setHero('ctaStyle', 'dropdown')}
+                    className={`rounded-xl border px-3 py-2.5 text-left text-xs transition ${hero.ctaStyle === 'dropdown' ? 'border-obsidian bg-obsidian text-alabaster' : 'border-line bg-white hover:bg-satin/50'}`}>
+                    <span className="block font-semibold">Dropdown Menu</span>
+                    <span className={`mt-0.5 block text-[10px] ${hero.ctaStyle === 'dropdown' ? 'text-alabaster/70' : 'text-ash'}`}>1 Shop button — Blaire style</span>
+                  </button>
+                </div>
               </div>
+
+              {hero.ctaStyle === 'dropdown' ? (
+                <>
+                  <div><label className="label">Shop button text</label><input className="input" value={hero.ctaWomen || ''} onChange={(e) => setHero('ctaWomen', e.target.value)} placeholder="Shop Now" /></div>
+                  <div className="rounded-2xl border border-line bg-satin/20 p-4">
+                    <label className="label">Dropdown menu items</label>
+                    <p className="mt-1 text-[11px] text-ash">Har line: <b>Label | /link</b> (misal: <code>Women | /women</code>)</p>
+                    <textarea className="input mt-2 min-h-32 font-mono text-[12px]"
+                      value={(hero.shopMenu || []).map((it) => `${it.label || ''} | ${it.href || ''}`).join('\n')}
+                      onChange={(e) => {
+                        const items = e.target.value.split('\n').map((line) => {
+                          const [label, href] = line.split('|').map((x) => (x || '').trim());
+                          return { label: label || '', href: href || '/shop' };
+                        }).filter((it) => it.label);
+                        setHero('shopMenu', items);
+                      }}
+                      placeholder={'New Arrivals | /new\nWomen | /women\nMen | /men\nSale | /sale'} />
+                  </div>
+                </>
+              ) : (
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div><label className="label">Button 1 (Women)</label><input className="input" value={hero.ctaWomen || ''} onChange={(e) => setHero('ctaWomen', e.target.value)} /></div>
+                  <div><label className="label">Button 2 (Men)</label><input className="input" value={hero.ctaMen || ''} onChange={(e) => setHero('ctaMen', e.target.value)} /></div>
+                </div>
+              )}
+
               <div>
-                <label className="label">Banner image</label>
+                <label className="label">Banner image — desktop</label>
                 <MediaPicker value={hero.image || ''} onChange={(v) => setHero('image', v)} accept="image" />
+                <p className="mt-1 text-[11px] text-ash">Recommended: 1920 × 1080 (16:9) high quality JPG/WebP</p>
               </div>
               <div>
-                <label className="label">Banner video (optional — MP4)</label>
-                <MediaPicker value={hero.video || ''} onChange={(v) => setHero('video', v)} accept="video" buttonText="Video upload" />
-                <p className="mt-1 text-[11px] text-ash">Video dogey to full-screen hero mein image ki jagah chalti hui video dikhegi. Khali chhoro to image hi rahega.</p>
+                <label className="label">Banner image — mobile (optional)</label>
+                <MediaPicker value={hero.mobileImage || ''} onChange={(v) => setHero('mobileImage', v)} accept="image" />
+                <p className="mt-1 text-[11px] text-ash">Portrait image mobile ke liye (optional). Khali chhoro to desktop image hi use hoga.</p>
               </div>
+              <div>
+                <label className="label">Banner video (optional — MP4/WebM)</label>
+                <MediaPicker value={hero.video || ''} onChange={(v) => setHero('video', v)} accept="video" buttonText="Video upload" />
+                <p className="mt-1 text-[11px] text-ash">Video dogey to image ki jagah chalti hui video dikhegi. Muted autoplay + loop (best practice).</p>
+              </div>
+              <div>
+                <label className="label">Video poster (fallback image while video loads)</label>
+                <MediaPicker value={hero.poster || ''} onChange={(v) => setHero('poster', v)} accept="image" />
+                <p className="mt-1 text-[11px] text-ash">Sirf video mode mein use hota hai. Khali chhoro to banner image hi poster banega.</p>
+              </div>
+
+              <div>
+                <label className="label">Dark overlay ({hero.overlayOpacity ?? 55}%)</label>
+                <input type="range" min="0" max="90" step="5"
+                  value={hero.overlayOpacity ?? 55}
+                  onChange={(e) => setHero('overlayOpacity', Number(e.target.value))}
+                  className="w-full accent-obsidian" />
+                <p className="mt-1 text-[11px] text-ash">Zyada = text saaf padha jayega, kam = image bright dikhegi</p>
+              </div>
+
+              <div>
+                <label className="label">Trust badges — hero ke neechay (har line par ek)</label>
+                <textarea className="input min-h-20"
+                  value={(hero.badges || []).join('\n')}
+                  onChange={(e) => setHero('badges', e.target.value.split('\n').map((x) => x.trim()).filter(Boolean))}
+                  placeholder={'3 tiers — Economy to Signature\n100+ styles\nDiscreet packaging always'} />
+              </div>
+
               <div className="grid gap-4 rounded-2xl border border-line bg-satin/20 p-4 sm:grid-cols-2">
                 <label className="flex cursor-pointer items-start gap-3 text-sm">
                   <input type="checkbox" className="mt-0.5 h-4 w-4 accent-obsidian" checked={!!hero.fullScreen} onChange={(e) => setHero('fullScreen', e.target.checked)} />
                   <span>
                     <span className="block font-medium">Full-screen hero</span>
-                    <span className="mt-0.5 block text-xs text-ash">Banner poori screen bhar jayega — badi international websites jaise</span>
+                    <span className="mt-0.5 block text-xs text-ash">Banner poori screen bhar jayega — Blaire/international style</span>
                   </span>
                 </label>
                 <div>
