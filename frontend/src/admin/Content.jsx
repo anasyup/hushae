@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ArrowRight, Megaphone } from 'lucide-react';
+import { ArrowRight, ArrowUp, ArrowDown, HelpCircle, Megaphone, Plus, Trash2 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import AdminLayout from './AdminLayout';
@@ -27,6 +27,20 @@ export default function Content() {
   const setMq = (k, v) => setS({ ...s, marquee: { ...marquee, [k]: v } });
   const setPromo = (k, v) => setS({ ...s, promoPopup: { ...promo, [k]: v } });
 
+  // FAQ state
+  const faq = s.faq || { enabled: true, heading: 'Frequently Asked Questions', subheading: '', items: [] };
+  const setFaq = (k, v) => setS({ ...s, faq: { ...faq, [k]: v } });
+  const setFaqItem = (i, k, v) => setFaq('items', (faq.items || []).map((x, j) => j === i ? { ...x, [k]: v } : x));
+  const addFaqItem = () => setFaq('items', [...(faq.items || []), { question: '', answer: '' }]);
+  const delFaqItem = (i) => setFaq('items', (faq.items || []).filter((_, j) => j !== i));
+  const moveFaq = (i, dir) => {
+    const arr = [...(faq.items || [])];
+    const j = i + dir;
+    if (j < 0 || j >= arr.length) return;
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+    setFaq('items', arr);
+  };
+
   const save = async () => {
     setBusy(true);
     try {
@@ -34,6 +48,7 @@ export default function Content() {
         hero: s.hero, offerBar: s.offerBar, cookiePopup: s.cookiePopup,
         marquee: { ...marquee, items: (marquee.items || []).map((x) => String(x).trim()).filter(Boolean) },
         promoPopup: { ...promo, delaySec: Math.max(5, Number(promo.delaySec) || 18), couponCode: (promo.couponCode || '').trim().toUpperCase() },
+        faq: { ...faq, items: (faq.items || []).map((it) => ({ question: String(it.question || '').trim(), answer: String(it.answer || '').trim() })).filter((it) => it.question && it.answer) },
       } });
       toast('Content saved — live par show ho raha hai');
     } catch (ex) { toast(ex.message || 'Could not save'); }
@@ -197,6 +212,54 @@ export default function Content() {
           </div>
           <p className="text-xs leading-relaxed text-ash">Preview sirf andaaze ke liye hai — Save karne ke baad asli website par foran apply ho jata hai.</p>
         </div>
+      </div>
+
+      {/* FAQ MANAGER — full width */}
+      <div className="mt-6 card p-6">
+        <div className="flex items-start gap-3">
+          <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-obsidian text-alabaster"><HelpCircle size={20} /></span>
+          <div className="flex-1">
+            <h2 className="font-display text-lg">FAQ Page — Public /faq</h2>
+            <p className="mt-0.5 text-xs text-ash">Customers ke common sawaal (shipping, sizing, returns wagera). Ye Google mein rich snippets ke roop mein bhi dikhta hai (SEO benefit).</p>
+          </div>
+          <label className="relative inline-flex cursor-pointer items-center">
+            <input type="checkbox" className="peer sr-only" checked={faq.enabled !== false} onChange={(e) => setFaq('enabled', e.target.checked)} />
+            <span className="h-6 w-11 rounded-full bg-satin transition peer-checked:bg-obsidian after:absolute after:left-1 after:top-1 after:h-4 after:w-4 after:rounded-full after:bg-white after:transition peer-checked:after:translate-x-5" />
+          </label>
+        </div>
+
+        <div className="mt-4 grid gap-4 md:grid-cols-2">
+          <div>
+            <label className="label">Page heading</label>
+            <input className="input" value={faq.heading || ''} onChange={(e) => setFaq('heading', e.target.value)} placeholder="Frequently Asked Questions" />
+          </div>
+          <div>
+            <label className="label">Sub-heading (optional)</label>
+            <input className="input" value={faq.subheading || ''} onChange={(e) => setFaq('subheading', e.target.value)} placeholder="Sizing, shipping, returns…" />
+          </div>
+        </div>
+
+        <div className="mt-5 space-y-3">
+          {(faq.items || []).map((it, i) => (
+            <div key={i} className="rounded-2xl border border-line bg-alabaster/40 p-4">
+              <div className="mb-2 flex items-center justify-between">
+                <p className="text-[11px] font-bold uppercase tracking-widest text-ash">FAQ #{i + 1}</p>
+                <div className="flex items-center gap-1">
+                  <button type="button" onClick={() => moveFaq(i, -1)} disabled={i === 0} className="rounded-full p-1.5 text-ash hover:bg-satin hover:text-obsidian disabled:opacity-30" aria-label="Move up"><ArrowUp size={14} /></button>
+                  <button type="button" onClick={() => moveFaq(i, +1)} disabled={i === (faq.items || []).length - 1} className="rounded-full p-1.5 text-ash hover:bg-satin hover:text-obsidian disabled:opacity-30" aria-label="Move down"><ArrowDown size={14} /></button>
+                  <button type="button" onClick={() => delFaqItem(i)} className="rounded-full p-1.5 text-red-600 hover:bg-red-50" aria-label="Delete FAQ"><Trash2 size={14} /></button>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <input className="input" placeholder="Question — e.g. Sahi size kaisay chunun?" value={it.question || ''} onChange={(e) => setFaqItem(i, 'question', e.target.value)} />
+                <textarea className="input min-h-20" placeholder="Answer — jaisa customer ko dikhega. Line-break bhi supported hai." value={it.answer || ''} onChange={(e) => setFaqItem(i, 'answer', e.target.value)} />
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <button type="button" onClick={addFaqItem} className="btn-outline mt-4"><Plus size={14} /> Add FAQ</button>
+        <p className="mt-3 text-[11px] text-ash">Kam se kam 5-8 FAQ recommend hain — Google FAQ schema ke liye. Empty question/answer save par apne aap remove ho jate hain.</p>
       </div>
     </AdminLayout>
   );

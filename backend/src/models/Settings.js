@@ -87,6 +87,34 @@ const settingsSchema = new mongoose.Schema({
       facebook: { type: String, default: '' },
       tiktok: { type: String, default: '' },
     },
+    // Analytics — scripts inject only when cookie consent for analytics is given
+    analytics: {
+      gaId: { type: String, default: '' },           // Google Analytics 4 (e.g. G-XXXXXXXXXX)
+      gtmId: { type: String, default: '' },          // Google Tag Manager (optional, e.g. GTM-XXXXXXX)
+      metaPixelId: { type: String, default: '' },    // Meta/Facebook Pixel (numeric ID)
+      tiktokPixelId: { type: String, default: '' },  // TikTok Pixel (optional)
+    },
+  },
+  // Public FAQ page — admin-editable via Content page
+  faq: {
+    enabled: { type: Boolean, default: true },
+    heading: { type: String, default: 'Frequently Asked Questions' },
+    subheading: { type: String, default: 'Common sawalaat — sizing, shipping, returns aur zyada.' },
+    items: {
+      type: [{ question: String, answer: String, _id: false }],
+      default: [
+        { question: 'Sahi size kaisay chunun?', answer: 'Har product page par size guide mojood hai — apnay bust/waist/hip inches ke hisaab se choose karein. Confused hain? /fit-finder try karein ya WhatsApp par contact karein.' },
+        { question: 'Shipping mein kitna time lagta hai?', answer: 'Karachi/Lahore/Islamabad: 2-3 din. Baaki Pakistan: 3-5 kaam ke din. Order confirm hone ke baad tracking number SMS/email par milta hai.' },
+        { question: 'Cash on Delivery available hai?', answer: 'Jee haan — poore Pakistan mein COD available hai. Order place karte waqt "Cash on Delivery" select karein.' },
+        { question: 'Shipping kitni hai? Free kab hoti hai?', answer: 'Flat rate PKR 350. PKR 4,999 se upar ke order par shipping bilkul FREE.' },
+        { question: 'Discreet packaging hoti hai?', answer: 'Bilkul. Har order plain, unbranded packaging mein aata hai — bahar kuch nahi likha hota. Aap ki privacy hamari zimmedari hai.' },
+        { question: 'Return / exchange kaisay karoon?', answer: '14 din ke andar unused / unworn product exchange kar sakte hain. Hygiene ki wajah se innerwear ki wapsi sirf defective items par hoti hai. Contact karein: /track ya WhatsApp.' },
+        { question: 'Fabric quality kya hai?', answer: 'Har product 3-tier quality system se pass hota hai — cotton, modal, aur cooling mesh premium sources se. Fabric details har product page par listed hain.' },
+        { question: 'Payment methods kya kya available hain?', answer: 'Abhi Cash on Delivery (COD) available hai. JazzCash, EasyPaisa, Bank Transfer aur online cards jaldi add ho rahay hain.' },
+        { question: 'Order kaisay track karoon?', answer: 'Order confirm hone par aap ko unique order number milta hai (VL-YYYYMMDD-XXXXXX). /track page par jaa kar order number + phone se live status dekhein.' },
+        { question: 'Kya aap international ship karte hain?', answer: 'Abhi sirf Pakistan ke andar deliver karte hain. Middle East aur international shipping jaldi shuru hogi.' },
+      ],
+    },
   },
 }, { timestamps: true });
 

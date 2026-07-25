@@ -23,6 +23,27 @@ Format:
 
 ## Changes
 
+- **2026-07-25** — WhatsApp Help Center + FAQ page + Analytics/Pixels + SEO pack
+  - Backend: new `/robots.txt` and `/sitemap.xml` endpoints (dynamic — pulls all active products + categories from DB)
+  - Backend: `vercel.json` rewrites so SEO files route to Express (not the SPA)
+  - Backend: `Settings` model — new `integrations.analytics` (gaId, gtmId, metaPixelId, tiktokPixelId) + new `faq` (enabled, heading, subheading, items[])
+  - Backend: `settings` PUT accepts `faq` field
+  - Frontend: `<Seo>` component — updates title/description/canonical/OG/Twitter meta + injects JSON-LD structured data (no react-helmet dependency needed)
+  - Frontend: `<AnalyticsInjector>` — loads GA4/GTM/Meta Pixel/TikTok Pixel ONLY after cookie consent (privacy-safe)
+  - Frontend: `CookieConsent` now dispatches `veloura:consent` event so Analytics can react
+  - Frontend: Home page — Seo with Organization + WebSite JSON-LD schema
+  - Frontend: Product page — Seo with per-product Product JSON-LD schema (name, price, image, SKU, availability, brand)
+  - Frontend: Shop page — dynamic per-gender/tab title + meta description
+  - Frontend: New public `/faq` page — with FAQPage JSON-LD schema for Google rich results
+  - Frontend: Footer — FAQ link added
+  - Admin: Apps → new "Analytics & Tracking Pixels" card (GA4, GTM, Meta Pixel, TikTok Pixel with helper links)
+  - Admin: Apps → "WhatsApp Chat Button" renamed to "WhatsApp Help Center" (per user request)
+  - Admin: Content → new "FAQ Page" manager — full CRUD with reorder up/down + enable toggle + preview
+  - Seed: 10 default FAQ items (Urdu-friendly) pre-populated
+  - Files: `backend/src/models/Settings.js`, `backend/src/routes/seo.js`, `backend/src/app.js`, `backend/src/routes/settings.js`, `vercel.json`, `frontend/src/components/{Seo,Analytics,CookieConsent,Footer}.jsx`, `frontend/src/App.jsx`, `frontend/src/pages/{Home,Shop,Product,Faq}.jsx`, `frontend/src/admin/{Apps,Content}.jsx`
+
+---
+
 - **2026-07-25** — Admin password change feature + strong password
   - Backend: naya endpoint `POST /api/auth/change-password` (auth required)
     - Requires current password (bcrypt verified)

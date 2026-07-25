@@ -10,6 +10,10 @@ app.use(require('./middleware/sanitize')); // NoSQL-injection block
 
 app.get('/api/health', (req, res) => res.json({ ok: true, name: 'VÉLOURA API' }));
 
+// SEO endpoints — served at ROOT (not /api/*) so search engines find them
+// Vercel rewrites /robots.txt and /sitemap.xml to this Express app.
+app.use('/', require('./routes/seo'));
+
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/categories', require('./routes/categories'));
 app.use('/api/products', require('./routes/products'));

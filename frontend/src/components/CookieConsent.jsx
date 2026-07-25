@@ -6,8 +6,11 @@ import Tx from './Tx';
 
 const KEY = 'veloura.consent';
 
-const setStored = (analytics, marketing) =>
+const setStored = (analytics, marketing) => {
   localStorage.setItem(KEY, JSON.stringify({ essential: true, analytics, marketing, ts: Date.now() }));
+  // Notify Analytics.jsx to load/unload tracking scripts based on new consent
+  try { window.dispatchEvent(new Event('veloura:consent')); } catch { /* noop */ }
+};
 
 export default function CookieConsent() {
   const { settings } = useApp();

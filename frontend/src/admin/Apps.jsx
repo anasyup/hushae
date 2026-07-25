@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Facebook, HardDrive, Instagram, MessageCircle, Music2 } from 'lucide-react';
+import { Facebook, HardDrive, Instagram, LineChart, MessageCircle, Music2 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import AdminLayout from './AdminLayout';
@@ -7,6 +7,7 @@ import AdminLayout from './AdminLayout';
 const DEFAULTS = {
   whatsapp: { enabled: false, number: '', message: 'Hi! I have a question about VÉLOURA.' },
   social: { instagram: '', facebook: '', tiktok: '' },
+  analytics: { gaId: '', gtmId: '', metaPixelId: '', tiktokPixelId: '' },
 };
 
 export default function Apps() {
@@ -21,17 +22,19 @@ export default function Apps() {
   const integ = s.integrations || {};
   const wa = { ...DEFAULTS.whatsapp, ...(integ.whatsapp || {}) };
   const social = { ...DEFAULTS.social, ...(integ.social || {}) };
+  const analytics = { ...DEFAULTS.analytics, ...(integ.analytics || {}) };
   const media = s.media || { cloudName: '', uploadPreset: '' };
   const setI = (patch) => setS({ ...s, integrations: { ...integ, ...patch } });
   const setWa = (k, v) => setI({ whatsapp: { ...wa, [k]: v } });
   const setSocial = (k, v) => setI({ social: { ...social, [k]: v } });
+  const setAn = (k, v) => setI({ analytics: { ...analytics, [k]: v } });
   const setMedia = (k, v) => setS({ ...s, media: { ...media, [k]: v } });
 
   const save = async () => {
     setBusy(true);
     try {
       await api('/settings', { method: 'PUT', token: auth.token, body: {
-        integrations: { whatsapp: wa, social },
+        integrations: { whatsapp: wa, social, analytics },
         media: { cloudName: media.cloudName.trim(), uploadPreset: media.uploadPreset.trim() },
       } });
       toast('Apps saved — website par foran apply ho gaya');
@@ -47,8 +50,8 @@ export default function Apps() {
             <div className="flex items-center gap-3">
               <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#25D366] text-white"><MessageCircle size={20} /></span>
               <div>
-                <h2 className="font-display text-lg">WhatsApp Chat Button</h2>
-                <p className="text-xs text-ash">Website par floating green button — customers seedha aapko WhatsApp karein ge.</p>
+                <h2 className="font-display text-lg">WhatsApp Help Center — Chat Button</h2>
+                <p className="text-xs text-ash">Website par floating green button — customers seedha aap ko WhatsApp par contact karein ge. Support, orders, sizing — sab yahin.</p>
               </div>
             </div>
             <label className="relative inline-flex cursor-pointer items-center">
@@ -112,6 +115,53 @@ export default function Apps() {
               <label className="label">Upload Preset</label>
               <input className="input" placeholder="e.g. veloura_uploads" value={media.uploadPreset} onChange={(e) => setMedia('uploadPreset', e.target.value)} />
             </div>
+          </div>
+        </div>
+
+        {/* ANALYTICS & PIXELS — GA4, GTM, Meta Pixel, TikTok Pixel */}
+        <div className="card p-6 lg:col-span-2">
+          <div className="flex items-start gap-3">
+            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-obsidian text-alabaster"><LineChart size={20} /></span>
+            <div>
+              <h2 className="font-display text-lg">Analytics & Tracking Pixels</h2>
+              <p className="mt-0.5 text-xs text-ash">
+                Google Analytics + Meta/TikTok Pixel connect karein. <b className="text-obsidian">Cookie consent</b> ke baad hi scripts load hoti hain (privacy-safe).
+              </p>
+            </div>
+            {(analytics.gaId || analytics.metaPixelId) && (
+              <span className="ml-auto rounded-full bg-sage/25 px-3 py-1 text-[11px] font-semibold text-sagedeep">Connected</span>
+            )}
+          </div>
+
+          <div className="mt-4 grid gap-4 md:grid-cols-2">
+            <div>
+              <label className="label">Google Analytics 4 ID</label>
+              <input className="input font-mono text-xs" placeholder="G-XXXXXXXXXX" value={analytics.gaId} onChange={(e) => setAn('gaId', e.target.value)} />
+              <p className="mt-1.5 text-[11px] text-ash">
+                <a href="https://analytics.google.com" target="_blank" rel="noreferrer" className="underline hover:text-obsidian">analytics.google.com</a> → Property banayein → Data streams → Measurement ID copy karein
+              </p>
+            </div>
+            <div>
+              <label className="label">Google Tag Manager ID (optional)</label>
+              <input className="input font-mono text-xs" placeholder="GTM-XXXXXXX" value={analytics.gtmId} onChange={(e) => setAn('gtmId', e.target.value)} />
+              <p className="mt-1.5 text-[11px] text-ash">Advanced users — sirf tab bharen agar GTM istemal kar rahe hain</p>
+            </div>
+            <div>
+              <label className="label">Meta (Facebook) Pixel ID</label>
+              <input className="input font-mono text-xs" placeholder="1234567890123456" value={analytics.metaPixelId} onChange={(e) => setAn('metaPixelId', e.target.value)} />
+              <p className="mt-1.5 text-[11px] text-ash">
+                <a href="https://business.facebook.com/events_manager" target="_blank" rel="noreferrer" className="underline hover:text-obsidian">Meta Events Manager</a> → Data source → Pixel ID copy karein
+              </p>
+            </div>
+            <div>
+              <label className="label">TikTok Pixel ID (optional)</label>
+              <input className="input font-mono text-xs" placeholder="CXXXXXXXXXXXXXXXXXXX" value={analytics.tiktokPixelId} onChange={(e) => setAn('tiktokPixelId', e.target.value)} />
+              <p className="mt-1.5 text-[11px] text-ash">TikTok Ads Manager → Assets → Events → Web events → Pixel ID</p>
+            </div>
+          </div>
+
+          <div className="mt-4 rounded-2xl border border-line bg-satin/30 p-3 text-[11px] leading-relaxed text-ash">
+            <b className="text-obsidian">Privacy note:</b> Ye scripts sirf tabhi load hongi jab customer cookie consent mein "Analytics" (GA/GTM) ya "Marketing" (Meta/TikTok Pixel) allow karega. Empty chhorne se koi script nahi loadegi.
           </div>
         </div>
       </div>

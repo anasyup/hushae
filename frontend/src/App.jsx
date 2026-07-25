@@ -16,6 +16,7 @@ import FitFinder from './pages/FitFinder';
 import Wishlist from './pages/Wishlist';
 import Account from './pages/Account';
 import Sale from './pages/Sale';
+import Faq from './pages/Faq';
 import NotFound from './pages/NotFound';
 
 import AdminLogin from './admin/AdminLogin';
@@ -40,6 +41,7 @@ import CookieConsent from './components/CookieConsent';
 import PromoPopup from './components/PromoPopup';
 import OnlineStore from './admin/OnlineStore';
 import { track } from './lib/track';
+import AnalyticsInjector from './components/Analytics';
 
 function ScrollToTop() {
   const { pathname, search } = useLocation();
@@ -107,6 +109,7 @@ export default function App() {
           <Route path="/fit-finder" element={<FitFinder />} />
           <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/account" element={<Account />} />
+          <Route path="/faq" element={<Faq />} />
 
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin" element={<Dashboard />} />
@@ -136,6 +139,7 @@ export default function App() {
       {!isAdmin && <WhatsAppFloat />}
       {!isAdmin && <CookieConsent />}
       {!isAdmin && <PromoPopup />}
+      <AnalyticsInjector />
       <Toasts />
     </div>
   );

@@ -4,6 +4,7 @@ import { ChevronDown, SlidersHorizontal, X } from 'lucide-react';
 import { api } from '../api/client';
 import ProductCard from '../components/ProductCard';
 import { ProductGridSkeleton } from '../components/Skeletons';
+import Seo from '../components/Seo';
 
 const SIZES = ['S', 'M', 'L', 'XL', 'XXL'];
 const TIERS = ['Economy', 'Standard', 'Premium'];
@@ -133,6 +134,11 @@ export default function Shop({ preset = {} }) {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 md:px-8">
+      <Seo
+        title={`${meta[0]}${gender ? ' — ' + gender.charAt(0).toUpperCase() + gender.slice(1) : ''}`}
+        description={meta[1] || 'Shop premium innerwear — bras, briefs, shapewear aur zyada. Made in Pakistan.'}
+        canonical={typeof window !== 'undefined' ? window.location.pathname : '/shop'}
+      />
       {/* Header */}
       <div className="mb-8">
         <p className="text-[11px] font-bold uppercase tracking-widest text-sagedeep">VÉLOURA — {gender || 'all'}</p>

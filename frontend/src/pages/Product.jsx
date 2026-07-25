@@ -11,6 +11,7 @@ import ProductRow from '../components/ProductRow';
 import SizeGuideModal from '../components/SizeGuideModal';
 import { PageSkeleton } from '../components/Skeletons';
 import Tx from '../components/Tx';
+import Seo, { productJsonLd } from '../components/Seo';
 
 function Accordion({ title, children, defaultOpen = false }) {
   const [open, setOpen] = useState(defaultOpen);
@@ -91,6 +92,14 @@ export default function Product() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 md:px-8">
+      <Seo
+        title={p.name}
+        description={p.shortDescription || p.description?.slice(0, 160) || `${p.name} — premium innerwear from VÉLOURA. PKR ${p.price}. ${p.stock > 0 ? 'In stock' : 'Out of stock'}. COD available.`}
+        image={p.images?.[0]?.url}
+        canonical={`/product/${p.slug}`}
+        jsonLd={productJsonLd(p, typeof window !== 'undefined' ? window.location.origin : '')}
+        jsonLdId="product"
+      />
       {/* Breadcrumb */}
       <nav className="mb-6 flex items-center gap-1.5 text-xs text-ash">
         <Link to="/" className="hover:text-obsidian">Home</Link><ChevronRight size={12} />

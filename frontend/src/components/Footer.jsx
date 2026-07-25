@@ -73,6 +73,7 @@ export default function Footer() {
           <div className="mt-4 space-y-2.5 text-sm">
             <Link className="block text-obsidian/80 hover:text-obsidian" to="/track">Track Order</Link>
             <Link className="block text-obsidian/80 hover:text-obsidian" to="/fit-finder">Fit Finder</Link>
+            <Link className="block text-obsidian/80 hover:text-obsidian" to="/faq">FAQ</Link>
             <Link className="block text-obsidian/80 hover:text-obsidian" to="/account">My Account</Link>
             <Link className="block text-obsidian/80 hover:text-obsidian" to="/wishlist">Wishlist</Link>
           </div>

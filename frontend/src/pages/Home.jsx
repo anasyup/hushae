@@ -10,6 +10,7 @@ import Marquee from '../components/Marquee';
 import TrustBadges from '../components/TrustBadges';
 import ProductRow from '../components/ProductRow';
 import { ProductGridSkeleton } from '../components/Skeletons';
+import Seo, { organizationJsonLd } from '../components/Seo';
 
 const FABRIC_TECH = [
   { icon: Wind, title: 'Breathable', text: 'Open-cell knits that let skin breathe through Pakistani summers.' },
@@ -42,6 +43,13 @@ export default function Home() {
 
   return (
     <div>
+      <Seo
+        title={null}
+        description="Premium innerwear brand in Pakistan — bras, briefs, shapewear, robes aur zyada. COD nationwide, free shipping over PKR 4,999, discreet packaging always."
+        canonical="/"
+        jsonLd={organizationJsonLd(typeof window !== 'undefined' ? window.location.origin : '')}
+        jsonLdId="home-org"
+      />
       {/* HERO */}
       {hero.fullScreen ? (
         <section className="relative flex min-h-[100svh] items-end overflow-hidden">
