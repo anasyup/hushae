@@ -47,7 +47,7 @@ export default function Dashboard() {
               <Icon size={16} className="text-sagedeep" />
             </div>
             <div className="mt-2 flex items-end justify-between">
-              <p className="font-display text-2xl">{value}</p>
+              <p className="font-sans text-3xl font-semibold tabular-nums tracking-tight text-neutral-900">{value}</p>
               <span className="mb-1 text-[10px] font-bold uppercase tracking-wider text-ash/0 transition group-hover:text-sagedeep">Open →</span>
             </div>
           </Link>

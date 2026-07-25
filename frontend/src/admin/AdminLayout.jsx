@@ -1,9 +1,9 @@
 import { Fragment, useEffect, useMemo, useState } from 'react';
 import { Link, NavLink, Navigate, useLocation } from 'react-router-dom';
 import {
-  Activity, BadgePercent, BarChart3, ChevronDown, FolderOpen, Globe, Home,
+  Activity, BadgePercent, BarChart3, ChevronDown, CreditCard, FileText, FolderOpen, Globe, Home,
   LayoutTemplate, LogOut, Menu, Package, PackagePlus, PackageX,
-  Search, Settings as SettingsIcon, ShoppingBag, Store, Tags, TrendingUp, Users, X, Zap,
+  Search, Settings as SettingsIcon, ShieldCheck, ShoppingBag, Store, Tags, TrendingUp, Truck, Users, X, Zap,
 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { applyAdminTheme, clearAdminTheme } from '../lib/adminTheme';
@@ -35,10 +35,10 @@ const NAV_GROUPS = [
     icon: Package,
     match: ['/admin/products', '/admin/categories'],
     children: [
-      { to: '/admin/products',              label: 'All products', icon: Package, exact: true },
+      { to: '/admin/products',              label: 'Inventory',    icon: Package, exact: true },
       { to: '/admin/products/new',          label: 'Add product',  icon: PackagePlus },
       { to: '/admin/products?status=draft', label: 'Drafts',       icon: FolderOpen },
-      { to: '/admin/products?active=0',     label: 'Inactive',     icon: PackageX },
+      { to: '/admin/products?active=0',     label: 'Archived',     icon: PackageX },
       { to: '/admin/categories',            label: 'Categories',   icon: Tags },
     ],
   },
@@ -62,12 +62,23 @@ const NAV_GROUPS = [
       { to: '/admin/growth',    label: 'Growth',    icon: TrendingUp },
     ],
   },
+  {
+    label: 'Settings',
+    icon: SettingsIcon,
+    match: ['/admin/settings', '/admin/apps'],
+    children: [
+      { to: '/admin/settings',              label: 'Overview',       icon: SettingsIcon, exact: true },
+      { to: '/admin/settings/store',        label: 'Store details',  icon: Store },
+      { to: '/admin/settings/payments',     label: 'Payments',       icon: CreditCard },
+      { to: '/admin/settings/shipping',     label: 'Shipping',       icon: Truck },
+      { to: '/admin/apps',                  label: 'Integrations',   icon: Zap },
+      { to: '/admin/settings/security',     label: 'Security',       icon: ShieldCheck },
+      { to: '/admin/settings/legal',        label: 'Legal & Policy', icon: FileText },
+    ],
+  },
 ];
 
-const BOTTOM = [
-  { to: '/admin/apps',     label: 'Integrations', icon: Zap },
-  { to: '/admin/settings', label: 'Settings',     icon: SettingsIcon },
-];
+const BOTTOM = [];
 
 /* ------------------------------------------------------------------ */
 
@@ -232,21 +243,11 @@ function SidebarContent({ onNavigate }) {
         ))}
       </nav>
 
-      {/* Bottom pinned */}
-      <div className="space-y-0.5 border-t border-black/5 px-2.5 py-3">
-        {BOTTOM.map(({ to, label, icon: Icon }) => (
-          <NavLink key={to} to={to} className={linkCls} onClick={onNavigate}>
-            {({ isActive }) => (
-              <>
-                <Icon size={17} strokeWidth={isActive ? 2.1 : 1.8} />
-                {label}
-              </>
-            )}
-          </NavLink>
-        ))}
+      {/* Bottom: Sign Out only (Settings + Integrations moved into main nav) */}
+      <div className="border-t border-black/5 px-2.5 py-3">
         <button
           onClick={logout}
-          className="mt-1 flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] font-medium text-neutral-500 transition hover:bg-white/60 hover:text-red-600"
+          className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] font-medium text-neutral-500 transition hover:bg-white/60 hover:text-red-600"
         >
           <LogOut size={17} strokeWidth={1.8} /> Sign Out
         </button>

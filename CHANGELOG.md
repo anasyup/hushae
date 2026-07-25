@@ -23,6 +23,8 @@ Format:
 
 ## Changes
 
+- **2026-07-25** — Settings hub redesign + admin polish. Dashboard number font fixed (tabular sans, no more Roman-numeral look). Sidebar: Catalog renames Products to Inventory; Settings is now its own group with focused sub-pages (Store details, Payments, Shipping, Integrations moved here, Security, Legal). New Settings hub page with cards + quick search + snapshot sidebar. Each sub-page loads its own focused slice with a floating Save bar.
+
 - **2026-07-25** — Orders page: complete workflow-driven redesign. 6 stage tiles (All/New/To Ship/In Transit/Delivered/Issues). New splits COD-Verify vs Awaiting-Payment. To Ship splits To Pack/To Arrange/To Handover. Each order shows a compact card with contextual action buttons per stage (Call, WhatsApp, Confirm by Call, Mark Paid, Print Invoice, Save Tracking, Mark Shipped/Delivered). Auto-confirm rule: marking payment Paid moves online orders straight to To Pack. New backend endpoints: /verify-cod, /tracking, /notes. Printable A4 invoice at /admin/orders/:id/invoice.
 
 - **2026-07-25** — Admin: sidebar groups now collapsible dropdowns (Sales, Catalog, Storefront, Insights). Orders page redesigned Shopee/Lazada-style: All / Unpaid / To Ship (with To Pack, To Arrange Shipment, To Handover sub-tabs) / Shipping / Delivered / Failed Delivery / Cancellation / Return or Refund — with live counts and clear stage indicators.

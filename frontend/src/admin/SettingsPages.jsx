@@ -1,0 +1,427 @@
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import {
+  ArrowLeft, Ban, Building2, ChevronRight, CreditCard, Eye, EyeOff, FileText,
+  Landmark, Lock, MapPin, Moon, Package, Palette, Phone, Save, ShieldCheck,
+  Smartphone, Sparkles, Store, Sun, Truck,
+} from 'lucide-react';
+import { useApp } from '../store/AppContext';
+import { api } from '../api/client';
+import AdminLayout from './AdminLayout';
+import { getAdminTheme, setAdminTheme as applyAdminThemeFn } from '../lib/adminTheme';
+
+/* ============================================================================
+ * SETTINGS SUB-PAGES — one file, one export per screen.
+ * Each page loads /settings, edits a slice, and PUTs back.
+ * ========================================================================== */
+
+/* --- shared helpers --- */
+function BackToSettings() {
+  return (
+    <Link to="/admin/settings" className="mb-4 inline-flex items-center gap-1.5 text-[12px] font-semibold text-neutral-500 transition hover:text-neutral-900">
+      <ArrowLeft size={13} /> Settings
+    </Link>
+  );
+}
+
+function PageIntro({ icon: Icon, title, description }) {
+  return (
+    <div className="mb-6 flex items-start gap-4 border-b border-neutral-200 pb-6">
+      <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-neutral-900 text-white">
+        <Icon size={20} strokeWidth={1.8} />
+      </span>
+      <div>
+        <h2 className="font-display text-2xl leading-tight text-neutral-900">{title}</h2>
+        <p className="mt-1 text-[13px] leading-relaxed text-neutral-500">{description}</p>
+      </div>
+    </div>
+  );
+}
+
+function Section({ title, description, children }) {
+  return (
+    <section className="rounded-2xl border border-neutral-200 bg-white p-6">
+      <div className="mb-5">
+        <p className="text-[11px] font-bold uppercase tracking-widest text-neutral-500">{title}</p>
+        {description && <p className="mt-1 text-[12px] leading-relaxed text-neutral-500">{description}</p>}
+      </div>
+      {children}
+    </section>
+  );
+}
+
+function SaveBar({ dirty, busy, onSave, onReset }) {
+  if (!dirty) return null;
+  return (
+    <div className="sticky bottom-4 z-30 mt-6 flex items-center justify-between gap-4 rounded-2xl border border-neutral-900 bg-neutral-900 px-4 py-3 text-white shadow-xl">
+      <p className="text-[13px] font-medium">Unsaved changes</p>
+      <div className="flex items-center gap-2">
+        <button onClick={onReset} className="rounded-lg border border-white/20 px-3 py-1.5 text-[12px] font-semibold text-white/80 transition hover:bg-white/10">Discard</button>
+        <button onClick={onSave} disabled={busy} className="inline-flex items-center gap-1.5 rounded-lg bg-white px-4 py-1.5 text-[12px] font-semibold text-neutral-900 transition hover:bg-neutral-100 disabled:opacity-60">
+          <Save size={12} /> {busy ? 'Saving…' : 'Save changes'}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function Toggle({ label, description, checked, onChange }) {
+  return (
+    <label className="flex cursor-pointer items-start justify-between gap-4 rounded-xl border border-neutral-200 bg-white px-4 py-3 transition hover:border-neutral-300">
+      <div className="min-w-0">
+        <p className="text-[13px] font-medium text-neutral-900">{label}</p>
+        {description && <p className="mt-0.5 text-[11px] text-neutral-500">{description}</p>}
+      </div>
+      <span onClick={(e) => { e.preventDefault(); onChange(!checked); }} className={`relative mt-1 h-5 w-9 shrink-0 rounded-full transition ${checked ? 'bg-neutral-900' : 'bg-neutral-300'}`}>
+        <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-all ${checked ? 'left-[18px]' : 'left-0.5'}`} />
+      </span>
+    </label>
+  );
+}
+
+/* --- hook: load settings, track dirty, save --- */
+function useSettingsSlice() {
+  const { auth, toast } = useApp();
+  const [s, setS] = useState(null);
+  const [original, setOriginal] = useState(null);
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    api('/settings').then((d) => { setS(d.settings); setOriginal(JSON.stringify(d.settings)); }).catch(() => toast('Could not load settings'));
+  }, []); // eslint-disable-line
+
+  const dirty = s && original && JSON.stringify(s) !== original;
+  const reset = () => { if (original) setS(JSON.parse(original)); };
+
+  const save = async (fieldsToSend) => {
+    setBusy(true);
+    try {
+      const body = {};
+      for (const f of fieldsToSend) if (s[f] !== undefined) body[f] = s[f];
+      await api('/settings', { method: 'PUT', token: auth.token, body });
+      setOriginal(JSON.stringify(s));
+      toast('Saved');
+    } catch (ex) { toast(ex.message || 'Save failed'); }
+    setBusy(false);
+  };
+
+  return { s, setS, dirty, reset, save, busy, auth, toast };
+}
+
+/* ==========================================================================
+ * STORE DETAILS
+ * ======================================================================== */
+export function SettingsStore() {
+  const { s, setS, dirty, reset, save, busy } = useSettingsSlice();
+  if (!s) return <AdminLayout title="Store details"><div className="skeleton h-96 w-full" /></AdminLayout>;
+
+  const set = (k, v) => setS({ ...s, [k]: v });
+  const setBadge = (i, k, v) => setS({ ...s, trustBadges: (s.trustBadges || []).map((b, j) => j === i ? { ...b, [k]: v } : b) });
+
+  return (
+    <AdminLayout title="Store details">
+      <BackToSettings />
+      <PageIntro icon={Store} title="Store details" description="Your public identity — the name, tagline, and contact info that customers see across the site and emails." />
+
+      <div className="space-y-5">
+        <Section title="Identity" description="These appear in the header, footer, and every automated email.">
+          <div className="grid gap-4 md:grid-cols-2">
+            <div><label className="label">Store name</label><input className="input" value={s.storeName || ''} onChange={(e) => set('storeName', e.target.value)} /></div>
+            <div><label className="label">Tagline</label><input className="input" value={s.tagline || ''} onChange={(e) => set('tagline', e.target.value)} /></div>
+          </div>
+        </Section>
+
+        <Section title="Contact" description="Shown in the footer, order confirmations, and used by customers to reach you.">
+          <div className="grid gap-4 md:grid-cols-2">
+            <div><label className="label">Contact email</label><input className="input" type="email" value={s.contactEmail || ''} onChange={(e) => set('contactEmail', e.target.value)} placeholder="care@yourstore.com" /></div>
+            <div><label className="label">Contact phone</label><input className="input" value={s.contactPhone || ''} onChange={(e) => set('contactPhone', e.target.value)} placeholder="+92 300 1234567" /></div>
+          </div>
+        </Section>
+
+        <Section title="Trust badges" description="Short credibility statements shown below the hero (delivery, quality, packaging).">
+          <div className="space-y-3">
+            {(s.trustBadges || []).map((b, i) => (
+              <div key={i} className="grid gap-2 md:grid-cols-[220px_1fr]">
+                <input className="input !py-2 !text-[12px] font-semibold" value={b.title || ''} onChange={(e) => setBadge(i, 'title', e.target.value)} placeholder="Badge title" />
+                <input className="input !py-2 !text-[12px]" value={b.text || ''} onChange={(e) => setBadge(i, 'text', e.target.value)} placeholder="Short supporting text" />
+              </div>
+            ))}
+          </div>
+        </Section>
+      </div>
+
+      <SaveBar dirty={dirty} busy={busy} onSave={() => save(['storeName', 'tagline', 'contactEmail', 'contactPhone', 'trustBadges'])} onReset={reset} />
+    </AdminLayout>
+  );
+}
+
+/* ==========================================================================
+ * PAYMENTS
+ * ======================================================================== */
+export function SettingsPayments() {
+  const { s, setS, dirty, reset, save, busy } = useSettingsSlice();
+  if (!s) return <AdminLayout title="Payments"><div className="skeleton h-96 w-full" /></AdminLayout>;
+
+  const pm = s.paymentMethods || {};
+  const setPM = (k, v) => setS({ ...s, paymentMethods: { ...pm, [k]: v } });
+
+  return (
+    <AdminLayout title="Payments">
+      <BackToSettings />
+      <PageIntro icon={CreditCard} title="Payments" description="Enable payment methods and add your account details. Customers see only the methods you enable." />
+
+      <div className="space-y-5">
+        <Section title="Cash on Delivery" description="Standard for Pakistan — customer pays cash to the courier at delivery.">
+          <Toggle
+            label="Enable Cash on Delivery"
+            description="Recommended — 60–70% of Pakistani e-commerce is COD."
+            checked={!!pm.cod}
+            onChange={(v) => setPM('cod', v)}
+          />
+        </Section>
+
+        <Section title="Mobile wallets" description="Customer transfers money to your account, then enters the transaction ID at checkout.">
+          <div className="space-y-3">
+            <Toggle
+              label="JazzCash"
+              description="Enable this to accept JazzCash mobile transfers."
+              checked={!!pm.jazzcash}
+              onChange={(v) => setPM('jazzcash', v)}
+            />
+            {pm.jazzcash && (
+              <div className="ml-4 grid gap-3 rounded-xl border border-neutral-200 bg-neutral-50 p-4 md:grid-cols-2">
+                <div><label className="label">JazzCash number</label><input className="input font-mono" value={pm.jazzcashNumber || ''} onChange={(e) => setPM('jazzcashNumber', e.target.value)} placeholder="0300 1234567" /></div>
+                <div><label className="label">Account title</label><input className="input" value={pm.jazzcashTitle || ''} onChange={(e) => setPM('jazzcashTitle', e.target.value)} placeholder="Your Name" /></div>
+              </div>
+            )}
+
+            <Toggle
+              label="EasyPaisa"
+              description="Enable this to accept EasyPaisa mobile transfers."
+              checked={!!pm.easypaisa}
+              onChange={(v) => setPM('easypaisa', v)}
+            />
+            {pm.easypaisa && (
+              <div className="ml-4 grid gap-3 rounded-xl border border-neutral-200 bg-neutral-50 p-4 md:grid-cols-2">
+                <div><label className="label">EasyPaisa number</label><input className="input font-mono" value={pm.easypaisaNumber || ''} onChange={(e) => setPM('easypaisaNumber', e.target.value)} placeholder="0345 1234567" /></div>
+                <div><label className="label">Account title</label><input className="input" value={pm.easypaisaTitle || ''} onChange={(e) => setPM('easypaisaTitle', e.target.value)} placeholder="Your Name" /></div>
+              </div>
+            )}
+          </div>
+        </Section>
+
+        <Section title="Bank transfer" description="For customers who prefer a direct bank transfer.">
+          <Toggle
+            label="Enable Bank Transfer"
+            checked={!!pm.bank}
+            onChange={(v) => setPM('bank', v)}
+          />
+          {pm.bank && (
+            <div className="mt-3 rounded-xl border border-neutral-200 bg-neutral-50 p-4">
+              <label className="label">Bank details (shown to customers at checkout)</label>
+              <textarea className="input min-h-28 font-mono text-[12px]" value={pm.bankDetails || ''} onChange={(e) => setPM('bankDetails', e.target.value)} placeholder={'Bank: Meezan Bank\nTitle: Your Business Name\nIBAN: PK00 MEZN 0000 0000 0000 0000'} />
+              <p className="mt-2 text-[11px] text-neutral-500">Multi-line supported. Include bank name, account title, and IBAN.</p>
+            </div>
+          )}
+        </Section>
+
+        <Section title="Online cards (coming soon)" description="Visa / Mastercard via SafePay, PayFast or JazzCash Merchant API. Requires business registration and STRN.">
+          <div className="flex items-center gap-3 rounded-xl border border-dashed border-neutral-300 bg-neutral-50 p-4">
+            <span className="grid h-10 w-10 place-items-center rounded-xl bg-white text-neutral-400">
+              <CreditCard size={16} />
+            </span>
+            <div>
+              <p className="text-[13px] font-semibold text-neutral-700">Card & wallet gateway</p>
+              <p className="text-[11px] text-neutral-500">Available once your business registration is complete — ask support to enable.</p>
+            </div>
+          </div>
+        </Section>
+      </div>
+
+      <SaveBar dirty={dirty} busy={busy} onSave={() => save(['paymentMethods'])} onReset={reset} />
+    </AdminLayout>
+  );
+}
+
+/* ==========================================================================
+ * SHIPPING
+ * ======================================================================== */
+export function SettingsShipping() {
+  const { s, setS, dirty, reset, save, busy } = useSettingsSlice();
+  if (!s) return <AdminLayout title="Shipping"><div className="skeleton h-96 w-full" /></AdminLayout>;
+
+  const set = (k, v) => setS({ ...s, [k]: v });
+
+  return (
+    <AdminLayout title="Shipping & Delivery">
+      <BackToSettings />
+      <PageIntro icon={Truck} title="Shipping & Delivery" description="Set your delivery rates and the threshold at which shipping becomes free. All figures in PKR." />
+
+      <div className="space-y-5">
+        <Section title="Rates" description="Flat rate applies to every order below the free-shipping threshold.">
+          <div className="grid gap-4 md:grid-cols-2">
+            <div>
+              <label className="label">Flat rate (PKR)</label>
+              <input className="input" type="number" min="0" value={s.shippingFlatRate ?? 350} onChange={(e) => set('shippingFlatRate', Number(e.target.value))} />
+              <p className="mt-1.5 text-[11px] text-neutral-500">Standard for Pakistan: PKR 200–400 nationwide.</p>
+            </div>
+            <div>
+              <label className="label">Free shipping over (PKR)</label>
+              <input className="input" type="number" min="0" value={s.freeShippingThreshold ?? 4999} onChange={(e) => set('freeShippingThreshold', Number(e.target.value))} />
+              <p className="mt-1.5 text-[11px] text-neutral-500">Encourages larger baskets. Set to 0 to disable.</p>
+            </div>
+          </div>
+        </Section>
+
+        <Section title="Live preview" description="This is exactly what customers see at checkout.">
+          <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
+            <div className="flex items-center justify-between text-[13px]">
+              <span className="text-neutral-500">Shipping</span>
+              <span className="font-semibold">Flat PKR {(s.shippingFlatRate ?? 350).toLocaleString()}</span>
+            </div>
+            <div className="mt-2 flex items-center justify-between text-[13px]">
+              <span className="text-neutral-500">Free over</span>
+              <span className="font-semibold">PKR {(s.freeShippingThreshold ?? 4999).toLocaleString()}</span>
+            </div>
+          </div>
+        </Section>
+      </div>
+
+      <SaveBar dirty={dirty} busy={busy} onSave={() => save(['shippingFlatRate', 'freeShippingThreshold'])} onReset={reset} />
+    </AdminLayout>
+  );
+}
+
+/* ==========================================================================
+ * SECURITY (password + admin theme)
+ * ======================================================================== */
+export function SettingsSecurity() {
+  const { auth, setAuth, toast } = useApp();
+  const [theme, setTheme] = useState(getAdminTheme());
+  const [current, setCurrent] = useState('');
+  const [next, setNext] = useState('');
+  const [confirm, setConfirm] = useState('');
+  const [show, setShow] = useState({ c: false, n: false, x: false });
+  const [busy, setBusy] = useState(false);
+
+  const strength = (() => {
+    if (!next) return { label: '', color: 'transparent', pct: 0 };
+    let score = 0;
+    if (next.length >= 8) score++;
+    if (next.length >= 12) score++;
+    if (/[A-Z]/.test(next) && /[a-z]/.test(next)) score++;
+    if (/[0-9]/.test(next)) score++;
+    if (/[^A-Za-z0-9]/.test(next)) score++;
+    const map = [
+      { label: 'Very weak', color: '#dc2626', pct: 20 },
+      { label: 'Weak',      color: '#ea580c', pct: 40 },
+      { label: 'Fair',      color: '#ca8a04', pct: 60 },
+      { label: 'Good',      color: '#65a30d', pct: 80 },
+      { label: 'Strong',    color: '#16a34a', pct: 100 },
+    ];
+    return map[Math.min(score, 4)] || map[0];
+  })();
+
+  const submit = async (e) => {
+    e.preventDefault();
+    if (!current || !next) return toast('Fill both current and new password');
+    if (next.length < 8) return toast('New password must be at least 8 characters');
+    if (!/[a-zA-Z]/.test(next) || !/[0-9]/.test(next)) return toast('Include letters and numbers');
+    if (next !== confirm) return toast('Passwords do not match');
+    if (next === current) return toast('New password must be different');
+    setBusy(true);
+    try {
+      const res = await api('/auth/change-password', { method: 'POST', token: auth.token, body: { currentPassword: current, newPassword: next } });
+      if (res?.token && setAuth) setAuth({ token: res.token, user: res.user });
+      toast('Password changed');
+      setCurrent(''); setNext(''); setConfirm('');
+    } catch (ex) { toast(ex?.message || 'Failed'); }
+    setBusy(false);
+  };
+
+  const eyeBtn = (which) => (
+    <button type="button" onClick={() => setShow((s) => ({ ...s, [which]: !s[which] }))} className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-full p-1.5 text-neutral-400 hover:text-neutral-900" aria-label="Toggle visibility">
+      {show[which] ? <EyeOff size={15} /> : <Eye size={15} />}
+    </button>
+  );
+
+  return (
+    <AdminLayout title="Security & Access">
+      <BackToSettings />
+      <PageIntro icon={ShieldCheck} title="Security & Access" description="Protect your store — change your admin password and choose how the admin panel looks on this device." />
+
+      <div className="space-y-5">
+        <Section title="Change password" description="A strong password uses at least 12 characters with upper- and lower-case letters, numbers, and a symbol.">
+          <form onSubmit={submit} className="space-y-4">
+            <div className="relative">
+              <label className="label">Current password</label>
+              <input className="input pr-10" type={show.c ? 'text' : 'password'} value={current} onChange={(e) => setCurrent(e.target.value)} autoComplete="current-password" />
+              {eyeBtn('c')}
+            </div>
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="relative">
+                <label className="label">New password</label>
+                <input className="input pr-10" type={show.n ? 'text' : 'password'} value={next} onChange={(e) => setNext(e.target.value)} autoComplete="new-password" placeholder="Min 8 characters, letters + numbers" />
+                {eyeBtn('n')}
+                {next && (
+                  <div className="mt-2">
+                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-neutral-200">
+                      <div className="h-full transition-all" style={{ width: `${strength.pct}%`, background: strength.color }} />
+                    </div>
+                    <p className="mt-1 text-[10px] font-semibold uppercase tracking-wider" style={{ color: strength.color }}>{strength.label}</p>
+                  </div>
+                )}
+              </div>
+              <div className="relative">
+                <label className="label">Confirm new password</label>
+                <input className="input pr-10" type={show.x ? 'text' : 'password'} value={confirm} onChange={(e) => setConfirm(e.target.value)} autoComplete="new-password" />
+                {eyeBtn('x')}
+                {confirm && next && confirm !== next && <p className="mt-1 text-[11px] font-semibold text-red-600">Passwords do not match</p>}
+              </div>
+            </div>
+            <p className="text-[11px] text-neutral-500">After changing, you will be signed out from other devices.</p>
+            <button type="submit" disabled={busy || !current || !next || next !== confirm} className="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-6 py-2.5 text-[12px] font-semibold text-white transition hover:bg-neutral-800 disabled:opacity-40">
+              <Lock size={13} /> {busy ? 'Updating…' : 'Update password'}
+            </button>
+          </form>
+        </Section>
+
+        <Section title="Appearance" description="Choose how the admin panel looks on this device only — the storefront is not affected.">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <p className="max-w-md text-[12px] text-neutral-500">Dark mode is easier on the eyes for long sessions; light mode is best in daylight.</p>
+            <button
+              onClick={() => { const t = theme === 'dark' ? 'light' : 'dark'; setTheme(t); applyAdminThemeFn(t); toast(t === 'dark' ? 'Dark mode on' : 'Light mode on'); }}
+              className="inline-flex items-center gap-2 rounded-full bg-neutral-900 px-5 py-2.5 text-[12px] font-semibold uppercase tracking-wider text-white transition hover:bg-neutral-800"
+            >
+              {theme === 'dark' ? <Moon size={14} /> : <Sun size={14} />}
+              {theme === 'dark' ? 'Dark — on' : 'Light — on'}
+            </button>
+          </div>
+        </Section>
+      </div>
+    </AdminLayout>
+  );
+}
+
+/* ==========================================================================
+ * LEGAL & POLICIES (placeholder)
+ * ======================================================================== */
+export function SettingsLegal() {
+  return (
+    <AdminLayout title="Legal & Policies">
+      <BackToSettings />
+      <PageIntro icon={FileText} title="Legal & Policies" description="Terms of service, privacy policy, refund policy, and cookie consent text — coming in a future update." />
+
+      <div className="rounded-2xl border border-dashed border-neutral-300 bg-white p-10 text-center">
+        <span className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-neutral-100 text-neutral-500">
+          <Sparkles size={20} />
+        </span>
+        <p className="mt-4 text-[14px] font-semibold text-neutral-900">Coming soon</p>
+        <p className="mx-auto mt-1 max-w-md text-[12px] leading-relaxed text-neutral-500">
+          A dedicated editor for your Terms of Service, Privacy Policy, Refund Policy, and Cookie
+          Consent text — with autosave and public pages published automatically.
+        </p>
+      </div>
+    </AdminLayout>
+  );
+}

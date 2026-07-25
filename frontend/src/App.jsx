@@ -30,6 +30,8 @@ import ProductForm from './admin/ProductForm';
 import Categories from './admin/Categories';
 import Customers from './admin/Customers';
 import SettingsAdmin from './admin/Settings';
+import SettingsHub from './admin/SettingsHub';
+import { SettingsStore, SettingsPayments, SettingsShipping, SettingsSecurity, SettingsLegal } from './admin/SettingsPages';
 import Growth from './admin/Growth';
 import Discounts from './admin/Discounts';
 import Content from './admin/Content';
@@ -122,7 +124,13 @@ export default function App() {
           <Route path="/admin/products/:id" element={<ProductForm />} />
           <Route path="/admin/categories" element={<Categories />} />
           <Route path="/admin/customers" element={<Customers />} />
-          <Route path="/admin/settings" element={<SettingsAdmin />} />
+          <Route path="/admin/settings" element={<SettingsHub />} />
+          <Route path="/admin/settings/store" element={<SettingsStore />} />
+          <Route path="/admin/settings/payments" element={<SettingsPayments />} />
+          <Route path="/admin/settings/shipping" element={<SettingsShipping />} />
+          <Route path="/admin/settings/security" element={<SettingsSecurity />} />
+          <Route path="/admin/settings/legal" element={<SettingsLegal />} />
+          <Route path="/admin/settings/advanced" element={<SettingsAdmin />} />
           <Route path="/admin/store" element={<OnlineStore />} />
           <Route path="/admin/growth" element={<Growth />} />
           <Route path="/admin/discounts" element={<Discounts />} />
