@@ -39,15 +39,39 @@ router.get('/dashboard', asyncHandler(async (req, res) => {
       { $sort: { qty: -1 } },
       { $limit: 5 },
     ]),
-    // Current 30-day window totals
+    // Current 30-day window totals — includes profit (revenue - cost of goods)
     Order.aggregate([
       { $match: { createdAt: { $gte: start30 }, status: { $nin: ['Cancelled', 'Refunded'] } } },
-      { $group: { _id: null, revenue: { $sum: '$total' }, orders: { $sum: 1 } } },
+      { $unwind: '$items' },
+      { $group: {
+        _id: '$_id',
+        total: { $first: '$total' },
+        productRev: { $sum: '$items.lineTotal' },
+        productCost: { $sum: { $multiply: [{ $ifNull: ['$items.costPrice', 0] }, '$items.quantity'] } },
+      } },
+      { $group: {
+        _id: null,
+        revenue: { $sum: '$total' },
+        productRev: { $sum: '$productRev' },
+        cost: { $sum: '$productCost' },
+        orders: { $sum: 1 },
+      } },
     ]),
     // Previous 30-day window (for trend %)
     Order.aggregate([
       { $match: { createdAt: { $gte: prev60, $lt: start30 }, status: { $nin: ['Cancelled', 'Refunded'] } } },
-      { $group: { _id: null, revenue: { $sum: '$total' }, orders: { $sum: 1 } } },
+      { $unwind: '$items' },
+      { $group: {
+        _id: '$_id',
+        total: { $first: '$total' },
+        productCost: { $sum: { $multiply: [{ $ifNull: ['$items.costPrice', 0] }, '$items.quantity'] } },
+      } },
+      { $group: {
+        _id: null,
+        revenue: { $sum: '$total' },
+        cost: { $sum: '$productCost' },
+        orders: { $sum: 1 },
+      } },
     ]),
     // Daily series for 14-day chart
     Order.aggregate([
@@ -77,8 +101,10 @@ router.get('/dashboard', asyncHandler(async (req, res) => {
 
   const byStatus = Object.fromEntries(statusAgg.map((s) => [s._id, s.count]));
   const totalOrders = statusAgg.reduce((n, s) => n + s.count, 0);
-  const cur = currentWindow[0] || { revenue: 0, orders: 0 };
-  const prev = previousWindow[0] || { revenue: 0, orders: 0 };
+  const cur = currentWindow[0] || { revenue: 0, cost: 0, orders: 0 };
+  const prev = previousWindow[0] || { revenue: 0, cost: 0, orders: 0 };
+  const curProfit = (cur.revenue || 0) - (cur.cost || 0);
+  const prevProfit = (prev.revenue || 0) - (prev.cost || 0);
 
   const pctChange = (a, b) => {
     if (!b) return a > 0 ? 100 : 0;
@@ -130,6 +156,11 @@ router.get('/dashboard', asyncHandler(async (req, res) => {
                         cur.orders ? cur.revenue / cur.orders : 0,
                         prev.orders ? prev.revenue / prev.orders : 0
                       ) },
+      profit:       { value: curProfit,     prev: prevProfit,     change: pctChange(curProfit, prevProfit) },
+      cost:         { value: cur.cost || 0, prev: prev.cost || 0, change: pctChange(cur.cost, prev.cost) },
+      margin:       { value: cur.revenue > 0 ? Math.round((curProfit / cur.revenue) * 1000) / 10 : 0,
+                      prev:  prev.revenue > 0 ? Math.round((prevProfit / prev.revenue) * 1000) / 10 : 0,
+                      change: 0 },
     },
     chart,       // 14 days [{ date, label, orders, revenue }]
     hourly,      // 24 hours today

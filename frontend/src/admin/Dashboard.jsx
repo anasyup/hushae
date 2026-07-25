@@ -86,6 +86,39 @@ function KpiCard({ icon: Icon, label, value, change, sparkData, accent = '#11111
 }
 
 /* ==========================================================================
+ * PROFIT TILE — used in the P&L row
+ * ======================================================================== */
+function ProfitTile({ icon: Icon, label, value, change, tone = 'neutral', format = 'money', hint }) {
+  const toneMap = {
+    green:   { bg: 'bg-emerald-50', text: 'text-emerald-700', ring: 'ring-emerald-100' },
+    amber:   { bg: 'bg-amber-50',   text: 'text-amber-700',   ring: 'ring-amber-100' },
+    red:     { bg: 'bg-red-50',     text: 'text-red-700',     ring: 'ring-red-100' },
+    neutral: { bg: 'bg-neutral-100',text: 'text-neutral-700', ring: 'ring-neutral-100' },
+  };
+  const t = toneMap[tone];
+  const display = format === 'money' ? pkr(value) : format === 'percent' ? `${value}%` : value.toLocaleString();
+  return (
+    <div className={`rounded-xl border border-neutral-200 bg-white p-4 ring-1 ${t.ring}`}>
+      <div className="flex items-center justify-between">
+        <span className={`grid h-8 w-8 place-items-center rounded-lg ${t.bg} ${t.text}`}>
+          <Icon size={13} strokeWidth={2} />
+        </span>
+        {typeof change === 'number' && change !== 0 && (
+          <span className={`text-[10px] font-bold ${change > 0 ? 'text-emerald-700' : 'text-red-700'}`}>
+            {change > 0 ? '▲' : '▼'} {Math.abs(change).toFixed(1)}%
+          </span>
+        )}
+      </div>
+      <p className="mt-3 text-[10px] font-bold uppercase tracking-widest text-neutral-500">{label}</p>
+      <p className={`mt-0.5 font-sans text-[22px] font-semibold leading-none tabular-nums tracking-tight ${t.text}`}>
+        {display}
+      </p>
+      {hint && <p className="mt-1.5 text-[10px] text-neutral-500">{hint}</p>}
+    </div>
+  );
+}
+
+/* ==========================================================================
  * PIPELINE STRIP — order-flow visualization
  * ======================================================================== */
 function PipelineStrip({ stats }) {
@@ -384,6 +417,50 @@ export default function Dashboard() {
         <KpiCard icon={Users}            label="New Customers"   value={d.kpis.customers.value} change={d.kpis.customers.change} sparkData={sparkCustomers} accent="#7c3aed" />
         <KpiCard icon={TrendingUp}       label="Avg Order Value" value={d.kpis.aov.value}       change={d.kpis.aov.change}       sparkData={sparkAov}       accent="#dc2626" format="money" />
       </div>
+
+      {/* --- Profit row: profit, cost, margin (only shown if any cost is set) --- */}
+      {d.kpis.profit && (d.kpis.profit.value !== 0 || d.kpis.cost.value !== 0) && (
+        <div className="mt-6 rounded-2xl border border-neutral-200 bg-white p-6">
+          <div className="mb-5 flex items-center justify-between">
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-widest text-neutral-500">Profit &amp; loss</p>
+              <p className="mt-1 text-[12px] text-neutral-500">Last 30 days · based on cost prices set on each product</p>
+            </div>
+            <Link to="/admin/products" className="text-[11px] font-semibold text-neutral-500 hover:text-neutral-900">Manage costs →</Link>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-3">
+            <ProfitTile
+              label="Gross profit"
+              value={d.kpis.profit.value}
+              change={d.kpis.profit.change}
+              tone={d.kpis.profit.value >= 0 ? 'green' : 'red'}
+              format="money"
+              icon={TrendingUp}
+            />
+            <ProfitTile
+              label="Cost of goods"
+              value={d.kpis.cost.value}
+              tone="neutral"
+              format="money"
+              icon={Package}
+              hint="What you paid for products sold"
+            />
+            <ProfitTile
+              label="Profit margin"
+              value={d.kpis.margin.value}
+              tone={d.kpis.margin.value >= 40 ? 'green' : d.kpis.margin.value >= 20 ? 'amber' : 'red'}
+              format="percent"
+              icon={CircleDollarSign}
+              hint="Profit as a % of revenue"
+            />
+          </div>
+          {d.kpis.cost.value === 0 && (
+            <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-3 text-[11px] leading-relaxed text-amber-800">
+              💡 <b>Tip:</b> Set the <b>Cost / Wholesale price</b> field on each product (in Products → Edit) so we can calculate accurate profit here.
+            </div>
+          )}
+        </div>
+      )}
 
       {/* --- Pipeline strip --- */}
       <div className="mt-6">

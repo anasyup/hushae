@@ -8,15 +8,31 @@ import Img from './Img';
 export default function ProductCard({ product: p, compact = false }) {
   const { inWishlist, toggleWish, addToCart } = useApp();
   const [sizePick, setSizePick] = useState(false);
+  const [hover, setHover] = useState(false);
   const wished = inWishlist(p);
-  const img = p.images?.[0]?.url || p.image;
+  const images = (p.images || []).filter((im) => im && (im.url || typeof im === 'string'));
+  const primary = images[0]?.url || images[0] || p.image;
+  const secondary = images[1]?.url || images[1] || null;
   const sizes = p.sizes || [];
 
   return (
-    <div className="group relative">
+    <div className="group relative" onMouseEnter={() => setHover(true)} onMouseLeave={() => { setHover(false); setSizePick(false); }}>
       <div className="relative overflow-hidden rounded-2xl bg-satin/50">
-        <Link to={`/product/${p.slug}`} aria-label={p.name}>
-          <Img src={img} alt={p.name} className={`w-full object-cover transition duration-700 group-hover:scale-[1.05] ${compact ? 'aspect-[3/4]' : 'aspect-[4/5]'}`} />
+        <Link to={`/product/${p.slug}`} aria-label={p.name} className="block">
+          {/* Primary image */}
+          <Img
+            src={primary}
+            alt={p.name}
+            className={`w-full object-cover transition-opacity duration-500 ${compact ? 'aspect-[3/4]' : 'aspect-[4/5]'} ${secondary && hover ? 'opacity-0' : 'opacity-100'}`}
+          />
+          {/* Secondary image — cross-fades in on hover (desktop) */}
+          {secondary && (
+            <Img
+              src={secondary}
+              alt={p.name}
+              className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ${hover ? 'opacity-100 scale-[1.02]' : 'opacity-0'}`}
+            />
+          )}
         </Link>
 
         {p.compareAtPrice && <span className="pill absolute left-3 top-3 bg-sage/85 text-obsidian">Save {Math.round((1 - p.price / p.compareAtPrice) * 100)}%</span>}

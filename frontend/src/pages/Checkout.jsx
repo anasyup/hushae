@@ -58,16 +58,43 @@ export default function Checkout() {
     (m.id === 'COD' && pmCfg.cod) || (m.id === 'JazzCash' && pmCfg.jazzcash) || (m.id === 'EasyPaisa' && pmCfg.easypaisa) || (m.id === 'Bank Transfer' && pmCfg.bank));
 
   const addr = auth?.user?.addresses?.[0] || {};
+
+  // Restore any in-progress checkout form from localStorage so a customer who
+  // refreshes or navigates away doesn't lose everything they typed. Cleared
+  // once the order is successfully placed.
+  const CHECKOUT_KEY = 'veloura.checkoutDraft';
+  const loadDraft = () => {
+    try { return JSON.parse(localStorage.getItem(CHECKOUT_KEY) || 'null'); } catch { return null; }
+  };
+  const draft = loadDraft();
+
   const [f, setF] = useState({
-    name: auth?.user?.name || addr.name || '', phone: auth?.user?.phone || addr.phone || '', email: auth?.user?.email || '',
-    address: addr.address || '', city: addr.city || '', customCity: '', province: addr.province || 'Punjab', postalCode: '', notes: '',
+    name: draft?.name ?? (auth?.user?.name || addr.name || ''),
+    phone: draft?.phone ?? (auth?.user?.phone || addr.phone || ''),
+    email: draft?.email ?? (auth?.user?.email || ''),
+    address: draft?.address ?? (addr.address || ''),
+    city: draft?.city ?? (addr.city || ''),
+    customCity: draft?.customCity ?? '',
+    province: draft?.province ?? (addr.province || 'Punjab'),
+    postalCode: draft?.postalCode ?? '',
+    notes: draft?.notes ?? '',
   });
-  const [method, setMethod] = useState('COD');
-  const [txn, setTxn] = useState('');
-  const [discreet, setDiscreet] = useState(true);
+  const [method, setMethod] = useState(draft?.method || 'COD');
+  const [txn, setTxn] = useState(draft?.txn || '');
+  const [discreet, setDiscreet] = useState(draft?.discreet !== false);
+
+  // Auto-persist form state on every change (debounce keystrokes lightly)
+  useEffect(() => {
+    const t = setTimeout(() => {
+      try { localStorage.setItem(CHECKOUT_KEY, JSON.stringify({ ...f, method, txn, discreet })); } catch {}
+    }, 300);
+    return () => clearTimeout(t);
+  }, [f, method, txn, discreet]);
+
   const [errs, setErrs] = useState({});
   const [busy, setBusy] = useState(false);
   const [topErr, setTopErr] = useState('');
+  const [reviewOpen, setReviewOpen] = useState(false);
 
   // Provinces + cities from the backend API
   const [provinces, setProvinces] = useState(PROVINCES_FALLBACK);
@@ -168,7 +195,8 @@ export default function Checkout() {
 
   const set = (k, v) => { setF((x) => ({ ...x, [k]: v })); setErrs((e) => ({ ...e, [k]: '' })); };
 
-  const submit = async (e) => {
+  // Validate and open the "Review order" modal (customer's last chance to edit)
+  const validateAndReview = (e) => {
     e.preventDefault();
     setTopErr('');
     const e2 = {};
@@ -182,8 +210,17 @@ export default function Checkout() {
     else if (postalLive && postalLive.ok === false) e2.postalCode = 'Incorrect postal code';
     if (f.email && !/^\S+@\S+\.\S+$/.test(f.email)) e2.email = 'Valid email (or leave empty)';
     setErrs(e2);
-    if (Object.keys(e2).length) return;
+    if (Object.keys(e2).length) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+    setReviewOpen(true);
+  };
 
+  // Actually place the order — called from the Review modal's "Confirm" button
+  const placeOrder = async () => {
+    const phoneNorm = normalizePhone(f.phone);
+    const cityVal = f.city === '__other' ? f.customCity.trim() : f.city;
     setBusy(true);
     try {
       const { order } = await api('/orders', {
@@ -195,10 +232,19 @@ export default function Checkout() {
           paymentMethod: method, transactionId: txn, discountCode: applied?.code || '', discreetPackaging: discreet,
         },
       });
+      try { localStorage.removeItem(CHECKOUT_KEY); } catch {}
       clearCart();
       nav(`/order/${order.orderNumber}`, { state: { order }, replace: true });
     } catch (ex) {
       const msg = ex.message || 'Could not place order — please try again';
+      const raw = ex.raw || {};
+      setReviewOpen(false);
+      if (raw.reason === 'out-of-stock' || raw.reason === 'unavailable' || raw.reason === 'size-unavailable') {
+        setTopErr(msg + ' Please review your bag and remove the unavailable item.');
+        setBusy(false);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
       if (/postal/i.test(msg)) setErrs((er) => ({ ...er, postalCode: 'Incorrect postal code' }));
       if (/phone|mobile/i.test(msg)) setErrs((er) => ({ ...er, phone: 'Incorrect number' }));
       setTopErr(msg);
@@ -206,6 +252,9 @@ export default function Checkout() {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
+
+  // Legacy alias — old code paths call submit; keep it working
+  const submit = validateAndReview;
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 md:px-8">
@@ -400,12 +449,118 @@ export default function Checkout() {
               <div className="flex justify-between border-t border-line pt-3"><b>Total</b><span className="font-display text-2xl">{pkr(grandTotal)}</span></div>
             </div>
             <button disabled={busy} className="btn-primary mt-5 w-full">
-              {busy ? 'Placing order…' : <><Lock size={14} /> <Tx k="placeOrder" /></>}
+              {busy ? 'Placing order…' : <><Lock size={14} /> Review order</>}
             </button>
-            <p className="mt-3 text-center text-[11px] text-ash">By ordering you agree to our 14-day exchange policy.</p>
+            <p className="mt-3 text-center text-[11px] text-ash">You&apos;ll see one final summary before we place the order.</p>
           </div>
         </aside>
       </form>
+
+      {/* ============ REVIEW ORDER MODAL ============ */}
+      {/* Last-minute confirmation — customer can still tap "Edit" to change anything */}
+      {reviewOpen && (
+        <div className="fixed inset-0 z-[70] flex items-end justify-center bg-obsidian/60 px-4 py-6 backdrop-blur-sm sm:items-center" onClick={() => !busy && setReviewOpen(false)}>
+          <div
+            className="w-full max-w-2xl overflow-hidden rounded-3xl bg-white shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-neutral-200 px-6 py-4">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-500">Final review</p>
+                <h2 className="mt-0.5 font-display text-xl text-neutral-900">Confirm your order</h2>
+              </div>
+              <button onClick={() => setReviewOpen(false)} disabled={busy} className="rounded-full p-2 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-900 disabled:opacity-40" aria-label="Close">
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="max-h-[70vh] overflow-y-auto px-6 py-5">
+              {/* Delivery */}
+              <div className="mb-4 rounded-2xl border border-neutral-200 p-4">
+                <div className="mb-2 flex items-center justify-between">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-500">Delivery to</p>
+                  <button type="button" onClick={() => setReviewOpen(false)} className="text-[11px] font-semibold text-neutral-500 hover:text-neutral-900">Edit</button>
+                </div>
+                <p className="text-[13px] font-semibold text-neutral-900">{f.name}</p>
+                <p className="mt-0.5 text-[12px] text-neutral-500">{f.phone}{f.email ? ` · ${f.email}` : ''}</p>
+                <p className="mt-2 text-[12px] text-neutral-700">{f.address}</p>
+                <p className="text-[12px] text-neutral-500">
+                  {(f.city === '__other' ? f.customCity : f.city)}, {f.province} — {f.postalCode}
+                </p>
+                {f.notes && <p className="mt-2 text-[11px] italic text-neutral-500">Note: {f.notes}</p>}
+              </div>
+
+              {/* Items */}
+              <div className="mb-4 rounded-2xl border border-neutral-200 p-4">
+                <div className="mb-3 flex items-center justify-between">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-500">Items ({cart.reduce((n, l) => n + l.qty, 0)})</p>
+                  <Link to="/cart" className="text-[11px] font-semibold text-neutral-500 hover:text-neutral-900">Edit bag</Link>
+                </div>
+                <div className="space-y-2.5">
+                  {cart.map((l, i) => (
+                    <div key={`${l.id}-${l.size}-${l.color}-${i}`} className="flex items-center gap-3">
+                      <Img src={l.image} alt="" className="h-12 w-9 shrink-0 rounded-md border border-neutral-200 object-cover" />
+                      <div className="min-w-0 flex-1">
+                        <p className="line-clamp-1 text-[12.5px] font-medium text-neutral-900">{l.name}</p>
+                        <p className="text-[11px] text-neutral-500">{l.size}{l.color ? ` · ${l.color}` : ''} · Qty {l.qty}</p>
+                      </div>
+                      <p className="font-sans text-[12.5px] font-semibold tabular-nums text-neutral-900">{pkr(l.price * l.qty)}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Payment */}
+              <div className="mb-4 rounded-2xl border border-neutral-200 p-4">
+                <div className="mb-2 flex items-center justify-between">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-500">Payment</p>
+                  <button type="button" onClick={() => setReviewOpen(false)} className="text-[11px] font-semibold text-neutral-500 hover:text-neutral-900">Edit</button>
+                </div>
+                <p className="text-[13px] font-semibold text-neutral-900">{method}</p>
+                {txn && <p className="mt-0.5 text-[11px] text-neutral-500">Txn ID: <span className="font-mono">{txn}</span></p>}
+                {discreet && <p className="mt-1.5 inline-flex items-center gap-1.5 rounded-full bg-neutral-100 px-2.5 py-1 text-[11px] font-semibold text-neutral-700">📦 Discreet packaging</p>}
+              </div>
+
+              {/* Totals */}
+              <div className="rounded-2xl bg-neutral-50 p-4">
+                <div className="space-y-2 text-[13px]">
+                  <div className="flex justify-between"><span className="text-neutral-500">Subtotal</span><span className="tabular-nums">{pkr(cartSubtotal)}</span></div>
+                  {discountAmt > 0 && <div className="flex justify-between text-emerald-700"><span>Discount {applied?.code && `(${applied.code})`}</span><span className="tabular-nums">− {pkr(discountAmt)}</span></div>}
+                  <div className="flex justify-between"><span className="text-neutral-500">Shipping</span><span className={`tabular-nums ${shipping === 0 ? 'text-emerald-700 font-semibold' : ''}`}>{shipping === 0 ? 'Free' : pkr(shipping)}</span></div>
+                  <div className="mt-2 flex items-end justify-between border-t border-neutral-200 pt-3">
+                    <span className="text-[15px] font-bold text-neutral-900">Total</span>
+                    <span className="font-sans text-[24px] font-semibold tabular-nums leading-none text-neutral-900">{pkr(grandTotal)}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer actions */}
+            <div className="grid grid-cols-[auto_1fr] gap-3 border-t border-neutral-200 bg-neutral-50 px-6 py-4">
+              <button
+                type="button"
+                onClick={() => setReviewOpen(false)}
+                disabled={busy}
+                className="rounded-full border border-neutral-300 bg-white px-5 py-3 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-100 disabled:opacity-40"
+              >
+                Edit details
+              </button>
+              <button
+                type="button"
+                onClick={placeOrder}
+                disabled={busy}
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-neutral-900 px-6 py-3 text-[12px] font-semibold uppercase tracking-widest text-white transition hover:bg-neutral-800 disabled:opacity-50"
+              >
+                {busy ? 'Placing order…' : (<><Lock size={13} /> Confirm & place order · {pkr(grandTotal)}</>)}
+              </button>
+            </div>
+            <p className="border-t border-neutral-200 px-6 py-3 text-center text-[10.5px] text-neutral-500">
+              By confirming you agree to our 14-day exchange policy.
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

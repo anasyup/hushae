@@ -8,7 +8,7 @@ import ImageTiles from '../components/ImageTiles';
 
 const BADGE_POOL = ['Breathable', 'Cooling', 'Seamless', 'Sweat Control', 'Support', 'Quick Dry', '4-Way Stretch', 'Tag-Free', 'Silk-Touch', 'Value Pack'];
 const EMPTY = {
-  name: '', sku: '', gender: 'women', categorySlug: '', category: '', tier: 'Standard', price: '', compareAtPrice: '',
+  name: '', sku: '', gender: 'women', categorySlug: '', category: '', tier: 'Standard', price: '', compareAtPrice: '', costPrice: '',
   stock: 25, images: [], video: '', shortDescription: '', description: '', sizesText: '', fabric: '',
   colors: [{ name: 'Black', hex: '#1A1A1A' }], badges: [], careText: '', isFeatured: false, isBestSeller: false, isActive: true, status: 'active', bundleSlug: '',
 };
@@ -41,7 +41,7 @@ export default function ProductForm() {
         const imgs = p.images.map((i) => i.url);
         if (p.video && !imgs.includes(p.video)) imgs.push(p.video); // legacy video field → media tile
         setF({
-          ...EMPTY, ...p, price: String(p.price), compareAtPrice: p.compareAtPrice || '',
+          ...EMPTY, ...p, price: String(p.price), compareAtPrice: p.compareAtPrice || '', costPrice: p.costPrice || '',
           images: imgs, video: '',
           sizesText: p.sizes.join(', '), careText: p.care.join('\n'),
         });
@@ -60,6 +60,7 @@ export default function ProductForm() {
     const body = {
       name: f.name, sku: f.sku || `VL-${Date.now().toString(36).toUpperCase()}`, gender: f.gender,
       tier: f.tier, price: Number(f.price), compareAtPrice: f.compareAtPrice ? Number(f.compareAtPrice) : null,
+      costPrice: f.costPrice ? Number(f.costPrice) : 0,
       stock: Number(f.stock) || 0, images, video: '', shortDescription: f.shortDescription, description: f.description,
       sizes: f.sizesText.split(',').map((s) => s.trim()).filter(Boolean),
       colors: f.colors.filter((c) => c.name && c.hex),
@@ -151,6 +152,38 @@ export default function ProductForm() {
             <div className="grid grid-cols-2 gap-3">
               <div><label className="label">Price (PKR) *</label><input className="input" type="number" required min="0" value={f.price} onChange={(e) => set('price', e.target.value)} /></div>
               <div><label className="label">Compare-at</label><input className="input" type="number" min="0" value={f.compareAtPrice} onChange={(e) => set('compareAtPrice', e.target.value)} placeholder="Optional" /></div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="label flex items-center justify-between">
+                  <span>Cost / Wholesale (PKR)</span>
+                  <span className="text-[10px] font-normal normal-case tracking-normal text-neutral-400">Internal only</span>
+                </label>
+                <input className="input" type="number" min="0" value={f.costPrice} onChange={(e) => set('costPrice', e.target.value)} placeholder="e.g. 800" />
+                <p className="mt-1 text-[10px] text-neutral-500">Cost per unit — never shown to customers. Used for profit tracking.</p>
+              </div>
+              <div>
+                <label className="label">Profit margin</label>
+                <div className="input flex items-center gap-2 !bg-neutral-50">
+                  {(() => {
+                    const price = Number(f.price) || 0;
+                    const cost = Number(f.costPrice) || 0;
+                    const profit = price - cost;
+                    const margin = price > 0 ? (profit / price) * 100 : 0;
+                    if (!price) return <span className="text-neutral-400 text-[13px]">Enter price + cost</span>;
+                    if (!cost) return <span className="text-amber-600 text-[13px] font-semibold">Set cost to see profit</span>;
+                    return (
+                      <>
+                        <span className={`text-[15px] font-bold tabular-nums ${profit >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>PKR {profit.toLocaleString('en-PK')}</span>
+                        <span className={`ml-auto rounded-full px-2 py-0.5 text-[10px] font-bold ${margin >= 40 ? 'bg-emerald-100 text-emerald-800' : margin >= 20 ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-800'}`}>
+                          {margin.toFixed(1)}%
+                        </span>
+                      </>
+                    );
+                  })()}
+                </div>
+                <p className="mt-1 text-[10px] text-neutral-500">Per-unit profit and margin percentage.</p>
+              </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div><label className="label">Stock</label><input className="input" type="number" min="0" value={f.stock} onChange={(e) => set('stock', e.target.value)} /></div>

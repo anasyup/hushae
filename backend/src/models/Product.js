@@ -21,6 +21,9 @@ const productSchema = new mongoose.Schema({
   tier: { type: String, enum: ['Economy', 'Standard', 'Premium'], required: true },
   price: { type: Number, required: true, min: 0 },
   compareAtPrice: { type: Number, default: null },
+  // Cost / wholesale price per unit — used for profit calculation.
+  // Never shown to customers. Only visible to admin.
+  costPrice: { type: Number, default: 0, min: 0 },
   stock: { type: Number, required: true, min: 0, default: 0 },
   images: { type: [imageSchema], validate: v => v.length >= 1 },
   video: { type: String, default: '' }, // optional product video (MP4 URL or YouTube link)

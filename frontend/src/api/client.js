@@ -13,6 +13,7 @@ export async function api(path, { method = 'GET', body, token } = {}) {
   if (!res.ok) {
     const err = new Error(data.message || `Request failed (${res.status})`);
     err.status = res.status;
+    err.raw = data; // full server payload so callers can inspect fields like reason, productId, itemName
     throw err;
   }
   return data;

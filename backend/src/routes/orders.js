@@ -65,18 +65,41 @@ router.post('/', placeOrderLimit, optionalAuth, asyncHandler(async (req, res) =>
       { new: true }
     );
     if (!product) {
-      return res.status(409).json({ message: 'Sorry, an item in your cart is out of stock or no longer available' });
+      // Fetch the product to give a specific error message
+      const original = await Product.findById(it.product).select('name stock isActive status');
+      const itemName = original?.name || it.name || 'an item';
+      if (!original || !original.isActive || original.status === 'draft') {
+        return res.status(409).json({
+          message: `"${itemName}" is no longer available.`,
+          productId: it.product,
+          reason: 'unavailable',
+          itemName,
+        });
+      }
+      return res.status(409).json({
+        message: `"${itemName}" is out of stock (only ${original.stock} left, you have ${qty} in your cart).`,
+        productId: it.product,
+        reason: 'out-of-stock',
+        itemName,
+        available: original.stock,
+      });
     }
     if (it.size && product.sizes.length && !product.sizes.includes(it.size)) {
-      // restore stock then reject
       await Product.findByIdAndUpdate(product._id, { $inc: { stock: qty } });
-      return res.status(400).json({ message: `Invalid size selected for ${product.name}` });
+      return res.status(400).json({
+        message: `Size "${it.size}" is no longer available for "${product.name}".`,
+        productId: product._id,
+        reason: 'size-unavailable',
+        itemName: product.name,
+      });
     }
     lineItems.push({
       product: product._id, name: product.name, slug: product.slug,
       image: product.images[0]?.url || '', size: it.size || product.sizes[0] || '',
       color: it.color || product.colors[0]?.name || '',
-      price: product.price, quantity: qty, lineTotal: product.price * qty,
+      price: product.price,
+      costPrice: product.costPrice || 0, // snapshot cost for profit tracking
+      quantity: qty, lineTotal: product.price * qty,
     });
   }
 

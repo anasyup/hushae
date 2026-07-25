@@ -12,6 +12,8 @@ const itemSchema = new mongoose.Schema({
   size: String,
   color: String,
   price: Number,
+  // Snapshot of cost at time of order — protects historical profit from later cost edits
+  costPrice: { type: Number, default: 0 },
   quantity: Number,
   lineTotal: Number,
 }, { _id: false });
