@@ -23,6 +23,8 @@ Format:
 
 ## Changes
 
+- **2026-07-25** — Admin sidebar redesign: clean Shopify-style grouped sections (Sales, Catalog, Storefront, Insights), collapsible Products menu, quick search bar, cleaner spacing & hover states
+
 - **2026-07-25** — Hero image pickers: URL paste option removed — sirf PC upload rahega (per user request)
 
 - **2026-07-25** — Phase 1: Full-screen hero banner + Blaire-style dropdown CTA + admin controls
