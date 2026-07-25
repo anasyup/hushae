@@ -37,6 +37,7 @@ const NAV_GROUPS = [
     children: [
       { to: '/admin/products',              label: 'Inventory',    icon: Package, exact: true },
       { to: '/admin/products/new',          label: 'Add product',  icon: PackagePlus },
+      { to: '/admin/products?status=draft', label: 'Drafts',       icon: FolderOpen },
       { to: '/admin/products?active=0',     label: 'Archived',     icon: PackageX },
       { to: '/admin/categories',            label: 'Categories',   icon: Tags },
     ],
