@@ -21,6 +21,26 @@ Format:
 
 ---
 
+## Changes
+
+- **2026-07-25** — Admin password change feature + strong password
+  - Backend: naya endpoint `POST /api/auth/change-password` (auth required)
+    - Requires current password (bcrypt verified)
+    - Min 8 chars, letters + numbers required
+    - Rate-limited (8 attempts / 15 min)
+    - Rotates JWT token on success (other-device sessions expire)
+  - Frontend: Admin → Settings page mein "Change Password" card
+    - Show/hide toggle on each password field
+    - Live password strength meter (Very weak → Strong)
+    - Confirm-password mismatch warning
+    - Auto-updates auth store with rotated token
+  - Store: `setAuth` exposed via `useApp()` for token rotation
+  - Database: admin `underadmin` ka password strong password se replace kiya
+  - Vercel env: `ADMIN_PASSWORD` variable updated to match
+  - Files: `backend/src/routes/auth.js`, `frontend/src/admin/Settings.jsx`, `frontend/src/store/AppContext.jsx`
+
+---
+
 ## Baseline
 
 - **2026-07-25** — Repo cloned into workspace at `/home/user/veloura`

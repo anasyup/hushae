@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Moon, Save, Sun } from 'lucide-react';
+import { Moon, Save, Sun, Lock, Eye, EyeOff } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import AdminLayout from './AdminLayout';
@@ -125,7 +125,150 @@ export default function SettingsAdmin() {
         </div>
       </div>
 
+      <ChangePasswordCard />
+
       <button onClick={save} disabled={busy} className="btn-primary mt-8"><Save size={15} /> {busy ? 'Saving…' : 'Save all settings'}</button>
     </AdminLayout>
+  );
+}
+
+/* ------------------------------------------------------------------ *
+ * Change Password — admin can change own password from Settings.
+ * Uses POST /api/auth/change-password. Requires current password.
+ * On success: token rotates, so we update the auth store.
+ * ------------------------------------------------------------------ */
+function ChangePasswordCard() {
+  const { auth, setAuth, toast } = useApp();
+  const [current, setCurrent] = useState('');
+  const [next, setNext] = useState('');
+  const [confirm, setConfirm] = useState('');
+  const [show, setShow] = useState({ c: false, n: false, x: false });
+  const [busy, setBusy] = useState(false);
+
+  const strength = (() => {
+    if (!next) return { label: '', color: 'transparent', pct: 0 };
+    let score = 0;
+    if (next.length >= 8) score++;
+    if (next.length >= 12) score++;
+    if (/[A-Z]/.test(next) && /[a-z]/.test(next)) score++;
+    if (/[0-9]/.test(next)) score++;
+    if (/[^A-Za-z0-9]/.test(next)) score++;
+    const map = [
+      { label: 'Very weak', color: '#dc2626', pct: 20 },
+      { label: 'Weak', color: '#ea580c', pct: 40 },
+      { label: 'Fair', color: '#ca8a04', pct: 60 },
+      { label: 'Good', color: '#65a30d', pct: 80 },
+      { label: 'Strong', color: '#16a34a', pct: 100 },
+    ];
+    return map[Math.min(score, 4)] || map[0];
+  })();
+
+  const submit = async (e) => {
+    e.preventDefault();
+    if (!current || !next) return toast('Fill both current and new password');
+    if (next.length < 8) return toast('New password must be at least 8 characters');
+    if (!/[a-zA-Z]/.test(next) || !/[0-9]/.test(next)) return toast('New password must include letters and numbers');
+    if (next !== confirm) return toast('New password and confirm password do not match');
+    if (next === current) return toast('New password must be different');
+
+    setBusy(true);
+    try {
+      const res = await api('/auth/change-password', {
+        method: 'POST',
+        token: auth.token,
+        body: { currentPassword: current, newPassword: next },
+      });
+      // Rotate token in the app store so subsequent calls use the new one
+      if (res?.token && setAuth) {
+        setAuth({ token: res.token, user: res.user });
+      }
+      toast('Password changed successfully');
+      setCurrent(''); setNext(''); setConfirm('');
+    } catch (ex) {
+      toast(ex?.message || 'Could not change password');
+    }
+    setBusy(false);
+  };
+
+  const eyeBtn = (which) => (
+    <button
+      type="button"
+      onClick={() => setShow((s) => ({ ...s, [which]: !s[which] }))}
+      className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-full p-1.5 text-ash hover:text-ink"
+      aria-label="Toggle visibility"
+    >
+      {show[which] ? <EyeOff size={15} /> : <Eye size={15} />}
+    </button>
+  );
+
+  return (
+    <form onSubmit={submit} className="card mt-6 space-y-5 p-6">
+      <div className="flex items-center gap-2">
+        <Lock size={16} className="text-sagedeep" />
+        <p className="text-[11px] font-bold uppercase tracking-widest text-ash">Change password</p>
+      </div>
+
+      <div className="relative">
+        <label className="label">Current password</label>
+        <input
+          className="input pr-10"
+          type={show.c ? 'text' : 'password'}
+          value={current}
+          onChange={(e) => setCurrent(e.target.value)}
+          autoComplete="current-password"
+        />
+        {eyeBtn('c')}
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2">
+        <div className="relative">
+          <label className="label">New password</label>
+          <input
+            className="input pr-10"
+            type={show.n ? 'text' : 'password'}
+            value={next}
+            onChange={(e) => setNext(e.target.value)}
+            autoComplete="new-password"
+            placeholder="Min 8 chars, letters + numbers"
+          />
+          {eyeBtn('n')}
+          {next && (
+            <div className="mt-2">
+              <div className="h-1.5 w-full overflow-hidden rounded-full bg-line">
+                <div className="h-full transition-all" style={{ width: `${strength.pct}%`, background: strength.color }} />
+              </div>
+              <p className="mt-1 text-[10px] font-semibold uppercase tracking-wider" style={{ color: strength.color }}>{strength.label}</p>
+            </div>
+          )}
+        </div>
+
+        <div className="relative">
+          <label className="label">Confirm new password</label>
+          <input
+            className="input pr-10"
+            type={show.x ? 'text' : 'password'}
+            value={confirm}
+            onChange={(e) => setConfirm(e.target.value)}
+            autoComplete="new-password"
+          />
+          {eyeBtn('x')}
+          {confirm && next && confirm !== next && (
+            <p className="mt-1 text-[11px] font-semibold text-red-600">Passwords do not match</p>
+          )}
+        </div>
+      </div>
+
+      <p className="text-[11px] leading-relaxed text-ash">
+        Kam se kam 8 characters, letters aur numbers zaroori. Change hone ke baad doosri devices se logout ho jayenge.
+      </p>
+
+      <button
+        type="submit"
+        disabled={busy || !current || !next || next !== confirm}
+        className="btn-primary"
+      >
+        <Lock size={15} /> {busy ? 'Updating…' : 'Update password'}
+      </button>
+    </form>
   );
 }

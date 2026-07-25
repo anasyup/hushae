@@ -115,7 +115,7 @@ export function AppProvider({ children }) {
 
   const value = useMemo(() => ({
     settings, lang, setLang, t,
-    auth, login, register, logout,
+    auth, setAuth, login, register, logout,
     cart, addToCart, updateQty, removeLine, clearCart, cartCount, cartSubtotal,
     wishlist, inWishlist, toggleWish,
     recent, pushRecent,

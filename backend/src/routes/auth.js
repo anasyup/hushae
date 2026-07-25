@@ -71,4 +71,38 @@ router.get('/me', protect, asyncHandler(async (req, res) => {
   res.json({ user: publicUser(req.user) });
 }));
 
+// Change password — signed-in user only (customer or admin).
+// Requires current password to prevent hijacked-token abuse.
+const changePwLimit = rateLimit({ windowMs: 15 * 60 * 1000, max: 8, key: 'chgpw', message: 'Too many password change attempts — try again later' });
+router.post('/change-password', protect, changePwLimit, asyncHandler(async (req, res) => {
+  const { currentPassword, newPassword } = req.body || {};
+  if (!currentPassword || !newPassword) {
+    return res.status(400).json({ message: 'Current and new password are required' });
+  }
+  const newPw = String(newPassword);
+  if (newPw.length < 8) {
+    return res.status(400).json({ field: 'newPassword', message: 'New password must be at least 8 characters' });
+  }
+  if (!/[a-zA-Z]/.test(newPw) || !/[0-9]/.test(newPw)) {
+    return res.status(400).json({ field: 'newPassword', message: 'New password must include letters and numbers' });
+  }
+  if (currentPassword === newPassword) {
+    return res.status(400).json({ field: 'newPassword', message: 'New password must be different from the current one' });
+  }
+
+  // Reload user with password field (protect middleware excludes it)
+  const User = require('../models/User');
+  const user = await User.findById(req.user._id).select('+password');
+  if (!user) return res.status(404).json({ message: 'User not found' });
+
+  const ok = await user.comparePassword(String(currentPassword));
+  if (!ok) return res.status(401).json({ field: 'currentPassword', message: 'Current password is incorrect' });
+
+  user.password = newPw; // pre-save hook re-hashes
+  await user.save();
+
+  // Rotate token so old sessions on other devices stop working
+  res.json({ message: 'Password changed successfully', token: signToken(user), user: publicUser(user) });
+}));
+
 module.exports = router;
