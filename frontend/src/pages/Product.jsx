@@ -94,7 +94,7 @@ export default function Product() {
   };
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 md:px-8">
+    <div className="mx-auto max-w-7xl px-4 py-6 md:py-8 md:px-8">
       <Seo
         title={p.name}
         description={p.shortDescription || p.description?.slice(0, 160) || `${p.name} — premium innerwear from VÉLOURA. PKR ${p.price}. ${p.stock > 0 ? 'In stock' : 'Out of stock'}. COD available.`}

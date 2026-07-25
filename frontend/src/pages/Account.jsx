@@ -187,8 +187,8 @@ export default function Account() {
 
   if (!auth) {
     return (
-      <div className="mx-auto max-w-7xl px-4 py-14 text-center md:px-8">
-        <h1 className="font-display text-4xl">Your account</h1>
+      <div className="mx-auto max-w-7xl px-4 py-10 md:py-14 text-center md:px-8">
+        <h1 className="font-display text-3xl sm:text-4xl">Your account</h1>
         <p className="mt-2 text-sm text-ash">Sign in for order history, saved addresses and faster checkout.</p>
         <AuthCard />
       </div>

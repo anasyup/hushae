@@ -133,16 +133,16 @@ export default function Shop({ preset = {} }) {
   );
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-10 md:px-8">
+    <div className="mx-auto max-w-7xl px-4 py-8 md:py-10 md:px-8">
       <Seo
         title={`${meta[0]}${gender ? ' — ' + gender.charAt(0).toUpperCase() + gender.slice(1) : ''}`}
         description={meta[1] || 'Shop premium innerwear — bras, briefs, shapewear aur zyada. Made in Pakistan.'}
         canonical={typeof window !== 'undefined' ? window.location.pathname : '/shop'}
       />
       {/* Header */}
-      <div className="mb-8">
+      <div className="mb-6 md:mb-8">
         <p className="text-[11px] font-bold uppercase tracking-widest text-sagedeep">VÉLOURA — {gender || 'all'}</p>
-        <h1 className="mt-2 font-display text-4xl md:text-5xl">{meta[0]}</h1>
+        <h1 className="mt-2 font-display text-3xl sm:text-4xl md:text-5xl">{meta[0]}</h1>
         <p className="mt-3 max-w-xl text-sm leading-relaxed text-ash">{meta[1]}</p>
       </div>
 
