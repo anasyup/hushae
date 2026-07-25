@@ -1,16 +1,28 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Pencil, Search, Trash2 } from 'lucide-react';
+import {
+  AlertCircle, Archive, ArrowUpDown, CheckCircle2, ChevronDown, Copy, Eye, EyeOff,
+  Filter, Grid, LayoutGrid, List, Package, Pencil, Plus, Search, Star, Trash2, TrendingUp,
+} from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import { pkr } from '../lib/format';
 import AdminLayout from './AdminLayout';
 import Img from '../components/Img';
 
+/* ============================================================================
+ * Products admin — premium redesign.
+ * Two view modes: List (dense table) and Grid (visual cards).
+ * Header shows summary counters (Live / Draft / Archived / Out of stock).
+ * Filter chips instead of raw selects.
+ * ========================================================================== */
+
 export default function Products() {
   const { auth, toast } = useApp();
   const [list, setList] = useState(null);
   const [cats, setCats] = useState([]);
+  const [view, setView] = useState('list'); // 'list' | 'grid'
+  const [selected, setSelected] = useState(new Set());
   const [searchParams] = useSearchParams();
   const [f, setF] = useState({
     q: '', category: '', gender: '', tier: '', stock: '',
@@ -24,93 +36,397 @@ export default function Products() {
       if (k === 'status' && v === 'disabled') sp.set('active', '0');
       else sp.set(k, v);
     });
-    api(`/products/admin/list?${sp}`, { token: auth.token }).then((d) => setList(d.products)).catch(() => setList([]));
+    api(`/products/admin/list?${sp}`, { token: auth.token })
+      .then((d) => { setList(d.products); setSelected(new Set()); })
+      .catch(() => setList([]));
   };
   useEffect(load, [f.category, f.gender, f.tier, f.stock, f.status]); // eslint-disable-line
-  // Sidebar deep-links (?status=draft / ?active=0) sync into the filter
   useEffect(() => {
     const s = searchParams.get('active') === '0' ? 'disabled' : (searchParams.get('status') || '');
     setF((x) => (x.status === s ? x : { ...x, status: s }));
   }, [searchParams]);
 
+  useEffect(() => { api('/categories?all=1').then((d) => setCats(d.categories)).catch(() => {}); }, []);
+
+  // Text search runs client-side so it's instant (results already loaded)
+  const filtered = useMemo(() => {
+    if (!Array.isArray(list)) return [];
+    if (!f.q.trim()) return list;
+    const q = f.q.trim().toLowerCase();
+    return list.filter((p) =>
+      p.name?.toLowerCase().includes(q) ||
+      p.sku?.toLowerCase().includes(q) ||
+      p.categorySlug?.toLowerCase().includes(q)
+    );
+  }, [list, f.q]);
+
+  // Summary counters from the loaded list
+  const summary = useMemo(() => {
+    if (!Array.isArray(list)) return { total: 0, live: 0, draft: 0, archived: 0, oos: 0, low: 0 };
+    let live = 0, draft = 0, archived = 0, oos = 0, low = 0;
+    for (const p of list) {
+      if (p.status === 'draft') draft++;
+      else if (!p.isActive) archived++;
+      else live++;
+      if (p.stock === 0) oos++;
+      else if (p.stock <= 5) low++;
+    }
+    return { total: list.length, live, draft, archived, oos, low };
+  }, [list]);
+
   const enable = async (p) => {
-    try { await api(`/products/${p._id}`, { method: 'PUT', token: auth.token, body: { isActive: true } }); toast('Product enabled — live in store'); load(); }
+    try { await api(`/products/${p._id}`, { method: 'PUT', token: auth.token, body: { isActive: true } }); toast(`"${p.name}" is now live`); load(); }
     catch (ex) { toast(ex.message); }
   };
-
+  const disable = async (p) => {
+    try { await api(`/products/${p._id}`, { method: 'DELETE', token: auth.token }); toast(`"${p.name}" archived`); load(); }
+    catch (ex) { toast(ex.message); }
+  };
   const remove = async (p) => {
-    if (!window.confirm(`PERMANENTLY delete "${p.name}"?\n\nYe listing hamesha ke liye delete ho jayegi — wapas nahi aayegi.`)) return;
+    if (!window.confirm(`Permanently delete "${p.name}"?\n\nThis cannot be undone.`)) return;
     try { await api(`/products/${p._id}/permanent`, { method: 'DELETE', token: auth.token }); toast('Product deleted'); load(); }
     catch (ex) { toast(ex.message); }
   };
-  useEffect(() => { api('/categories?all=1').then((d) => setCats(d.categories)).catch(() => {}); }, []);
 
-  const disable = async (p) => {
-    try { await api(`/products/${p._id}`, { method: 'DELETE', token: auth.token }); toast('Product marked inactive'); load(); }
-    catch (ex) { toast(ex.message); }
+  const toggleSel = (id) => {
+    setSelected((s) => {
+      const n = new Set(s);
+      if (n.has(id)) n.delete(id); else n.add(id);
+      return n;
+    });
+  };
+  const toggleSelAll = () => {
+    setSelected((s) => s.size === filtered.length ? new Set() : new Set(filtered.map((p) => p._id)));
   };
 
-  const sel = (k, label, opts) => (
-    <select value={f[k]} onChange={(e) => setF({ ...f, [k]: e.target.value })} className="input !w-40">
-      <option value="">{label}</option>
-      {opts.map((o) => <option key={o.value ?? o} value={o.value ?? o}>{o.label ?? o}</option>)}
-    </select>
-  );
+  const clearFilters = () => setF({ q: '', category: '', gender: '', tier: '', stock: '', status: '' });
+  const hasFilters = f.q || f.category || f.gender || f.tier || f.stock || f.status;
 
-  const title = f.status === 'draft' ? 'Drafts' : f.status === 'disabled' ? 'Inactive' : f.status === 'active' ? 'Active Products' : 'All Products';
+  const title = f.status === 'draft' ? 'Drafts'
+    : f.status === 'disabled' ? 'Archived products'
+    : f.status === 'active' ? 'Live products'
+    : 'Inventory';
 
   return (
     <AdminLayout title={title}>
-      <div className="mb-5 flex flex-wrap items-center gap-3">
-        <form onSubmit={(e) => { e.preventDefault(); load(); }} className="relative">
-          <Search size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-ash" />
-          <input value={f.q} onChange={(e) => setF({ ...f, q: e.target.value })} placeholder="Search name or SKU…" className="input !w-64 !pl-10" />
-        </form>
-        {sel('gender', 'All genders', ['women', 'men'])}
-        {sel('category', 'All categories', cats.map((c) => ({ value: c.slug, label: `${c.name} (${c.gender[0].toUpperCase()})` })))}
-        {sel('tier', 'All tiers', ['Economy', 'Standard', 'Premium'])}
-        {sel('stock', 'Any stock', [{ value: 'low', label: 'Low (≤5)' }, { value: 'out', label: 'Out of stock' }])}
-        {sel('status', 'All status', [{ value: 'active', label: 'Active (live)' }, { value: 'draft', label: 'Drafts' }, { value: 'disabled', label: 'Inactive' }])}
+      {/* ============ TOP TOOLBAR ============ */}
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Global search */}
+          <div className="relative">
+            <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400" />
+            <input
+              value={f.q}
+              onChange={(e) => setF({ ...f, q: e.target.value })}
+              placeholder="Search name, SKU, category…"
+              className="input !w-72 !py-2.5 !pl-9 !text-[13px]"
+            />
+          </div>
+
+          {/* View toggle */}
+          <div className="flex items-center gap-1 rounded-full border border-neutral-200 bg-white p-1">
+            <button
+              onClick={() => setView('list')}
+              className={`rounded-full px-2.5 py-1.5 text-neutral-500 transition ${view === 'list' ? 'bg-neutral-900 text-white' : 'hover:text-neutral-900'}`}
+              title="List view"
+            ><List size={13} /></button>
+            <button
+              onClick={() => setView('grid')}
+              className={`rounded-full px-2.5 py-1.5 text-neutral-500 transition ${view === 'grid' ? 'bg-neutral-900 text-white' : 'hover:text-neutral-900'}`}
+              title="Grid view"
+            ><LayoutGrid size={13} /></button>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          {selected.size > 0 && (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-3 py-1.5 text-[11px] font-semibold text-white">
+              {selected.size} selected
+            </span>
+          )}
+          <Link to="/admin/products/new" className="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-4 py-2 text-[12px] font-semibold text-white transition hover:bg-neutral-800">
+            <Plus size={13} /> Add product
+          </Link>
+        </div>
       </div>
 
-      <div className="card overflow-x-auto">
-        <table className="w-full min-w-[880px]">
-          <thead><tr className="border-b border-line bg-satin/30">{['Product', 'SKU', 'Tier', 'Price', 'Stock', 'Flags', ''].map((h) => <th key={h} className="table-head">{h}</th>)}</tr></thead>
-          <tbody>
-            {(list || []).map((p) => (
-              <tr key={p._id} className="border-b border-line/60 transition hover:bg-satin/20">
-                <td className="table-cell">
-                  <div className="flex items-center gap-3">
-                    <Img src={p.images[0]?.url} alt="" className="h-12 w-9 rounded-lg object-cover" />
-                    <div><p className="max-w-56 clamp-2 text-[13px] font-medium leading-snug">{p.name}</p><p className="text-[10px] uppercase tracking-wider text-ash">{p.gender} · {p.categorySlug}</p></div>
-                  </div>
-                </td>
-                <td className="table-cell font-mono text-xs text-ash">{p.sku}</td>
-                <td className="table-cell"><span className={`pill ${p.tier === 'Premium' ? 'bg-obsidian text-alabaster' : p.tier === 'Standard' ? 'bg-satin text-obsidian' : 'bg-sage/25 text-sagedeep'}`}>{p.tier}</span></td>
-                <td className="table-cell font-semibold">{pkr(p.price)}{p.compareAtPrice && <span className="ml-1 text-[11px] font-normal text-ash line-through">{pkr(p.compareAtPrice)}</span>}</td>
-                <td className="table-cell"><span className={`pill ${p.stock === 0 ? 'bg-red-100 text-red-800' : p.stock <= 5 ? 'bg-red-50 text-red-700' : 'bg-sage/20 text-sagedeep'}`}>{p.stock}</span></td>
-                <td className="table-cell text-[10px] font-bold uppercase tracking-wider text-ash">
-                  {p.status === 'draft' && <span className="mr-1.5 rounded-full bg-amber-100 px-2 py-0.5 text-amber-800 ring-1 ring-amber-300">Draft</span>}
-                  {p.isFeatured && <span className="mr-1.5 text-sagedeep">Featured</span>}
-                  {p.isBestSeller && <span>Best</span>}
-                  {!p.isActive && <span className="text-red-700">Inactive</span>}
-                </td>
-                <td className="table-cell">
-                  <div className="flex items-center gap-2">
-                    <Link to={`/admin/products/${p._id}`} className="rounded-full border border-line p-2 text-ash transition hover:border-obsidian hover:text-obsidian" aria-label="Edit"><Pencil size={13} /></Link>
-                    {p.isActive
-                      ? <button onClick={() => disable(p)} className="rounded-full border border-line px-3 py-2 text-[10px] font-bold uppercase text-ash transition hover:border-amber-400 hover:text-amber-700">Inactive</button>
-                      : <button onClick={() => enable(p)} className="rounded-full border border-sagedeep/40 px-3 py-2 text-[10px] font-bold uppercase text-sagedeep transition hover:bg-sage/20">Active</button>}
-                    <button onClick={() => remove(p)} className="rounded-full border border-line p-2 text-ash transition hover:border-red-300 hover:bg-red-50 hover:text-red-700" aria-label="Delete permanently" title="Delete permanently"><Trash2 size={13} /></button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        {list === null && <div className="p-6"><div className="skeleton h-40 w-full" /></div>}
-        {list?.length === 0 && <p className="py-14 text-center text-sm text-ash">No products match.</p>}
+      {/* ============ SUMMARY CARDS ============ */}
+      <div className="mb-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+        <SummaryCard icon={Package}       label="Total"         value={summary.total}    tone="neutral" onClick={() => setF({ ...f, status: '' })} active={!f.status} />
+        <SummaryCard icon={CheckCircle2}  label="Live"          value={summary.live}     tone="green"   onClick={() => setF({ ...f, status: 'active' })} active={f.status === 'active'} />
+        <SummaryCard icon={EyeOff}        label="Drafts"        value={summary.draft}    tone="amber"   onClick={() => setF({ ...f, status: 'draft' })}  active={f.status === 'draft'} />
+        <SummaryCard icon={Archive}       label="Archived"      value={summary.archived} tone="neutral" onClick={() => setF({ ...f, status: 'disabled' })} active={f.status === 'disabled'} />
+        <SummaryCard icon={AlertCircle}   label="Out of stock"  value={summary.oos}      tone="red"     onClick={() => setF({ ...f, stock: 'out' })}     active={f.stock === 'out'} sub={`${summary.low} low`} />
       </div>
+
+      {/* ============ FILTER CHIPS ============ */}
+      <div className="mb-5 flex flex-wrap items-center gap-2">
+        <span className="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-widest text-neutral-500">
+          <Filter size={12} /> Filter
+        </span>
+
+        <ChipSelect label="Gender" value={f.gender} onChange={(v) => setF({ ...f, gender: v })} options={[{ value: 'women', label: 'Women' }, { value: 'men', label: 'Men' }]} />
+        <ChipSelect label="Category" value={f.category} onChange={(v) => setF({ ...f, category: v })} options={cats.map((c) => ({ value: c.slug, label: `${c.name} (${c.gender[0].toUpperCase()})` }))} />
+        <ChipSelect label="Tier" value={f.tier} onChange={(v) => setF({ ...f, tier: v })} options={[{ value: 'Economy', label: 'Economy' }, { value: 'Standard', label: 'Standard' }, { value: 'Premium', label: 'Premium' }]} />
+        <ChipSelect label="Stock" value={f.stock} onChange={(v) => setF({ ...f, stock: v })} options={[{ value: 'low', label: 'Low (≤5)' }, { value: 'out', label: 'Out of stock' }]} />
+
+        {hasFilters && (
+          <button onClick={clearFilters} className="ml-1 text-[11px] font-semibold text-neutral-500 hover:text-neutral-900">
+            Clear all
+          </button>
+        )}
+      </div>
+
+      {/* ============ CONTENT ============ */}
+      {list === null ? (
+        <div className="skeleton h-64" />
+      ) : filtered.length === 0 ? (
+        <EmptyState onClear={clearFilters} hasFilters={hasFilters} />
+      ) : view === 'grid' ? (
+        <GridView products={filtered} onEnable={enable} onDisable={disable} onRemove={remove} />
+      ) : (
+        <ListView
+          products={filtered}
+          selected={selected}
+          onToggleSel={toggleSel}
+          onToggleAll={toggleSelAll}
+          onEnable={enable}
+          onDisable={disable}
+          onRemove={remove}
+        />
+      )}
+
+      {list !== null && (
+        <p className="mt-4 text-center text-[11px] text-neutral-400">
+          Showing <b className="text-neutral-700">{filtered.length}</b> of {list.length} products
+        </p>
+      )}
     </AdminLayout>
+  );
+}
+
+/* ============================================================================
+ * Sub-components
+ * ========================================================================== */
+
+function SummaryCard({ icon: Icon, label, value, tone, sub, onClick, active }) {
+  const toneMap = {
+    neutral: { text: 'text-neutral-700', bg: 'bg-neutral-100', ring: 'ring-neutral-200' },
+    green:   { text: 'text-emerald-700', bg: 'bg-emerald-50',  ring: 'ring-emerald-200' },
+    amber:   { text: 'text-amber-700',   bg: 'bg-amber-50',    ring: 'ring-amber-200' },
+    red:     { text: 'text-red-700',     bg: 'bg-red-50',      ring: 'ring-red-200' },
+  };
+  const t = toneMap[tone] || toneMap.neutral;
+  return (
+    <button
+      onClick={onClick}
+      className={`group relative overflow-hidden rounded-2xl border bg-white p-4 text-left transition hover:-translate-y-0.5 hover:shadow-sm ${active ? 'border-neutral-900 ring-2 ring-neutral-900/10' : 'border-neutral-200'}`}
+    >
+      <div className="flex items-center justify-between">
+        <span className={`grid h-9 w-9 place-items-center rounded-xl ${t.bg} ${t.text}`}>
+          <Icon size={15} />
+        </span>
+        {sub && <span className={`text-[10px] font-semibold ${t.text}`}>{sub}</span>}
+      </div>
+      <p className="mt-3 text-[10px] font-bold uppercase tracking-widest text-neutral-500">{label}</p>
+      <p className={`mt-0.5 font-sans text-2xl font-semibold tabular-nums leading-none tracking-tight ${active ? 'text-neutral-900' : 'text-neutral-800'}`}>
+        {value.toLocaleString()}
+      </p>
+    </button>
+  );
+}
+
+function ChipSelect({ label, value, options, onChange }) {
+  const [open, setOpen] = useState(false);
+  const selected = options.find((o) => o.value === value);
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        onBlur={() => setTimeout(() => setOpen(false), 150)}
+        className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[12px] font-semibold transition ${
+          selected
+            ? 'border-neutral-900 bg-neutral-900 text-white'
+            : 'border-neutral-200 bg-white text-neutral-700 hover:border-neutral-400'
+        }`}
+      >
+        {label}{selected && `: ${selected.label}`}
+        <ChevronDown size={11} className={`transition-transform ${open ? 'rotate-180' : ''}`} />
+      </button>
+      {open && (
+        <div className="absolute left-0 top-full z-20 mt-1 max-h-64 min-w-40 overflow-y-auto rounded-xl border border-neutral-200 bg-white shadow-lg">
+          <button onClick={() => { onChange(''); setOpen(false); }} className={`block w-full px-3 py-2 text-left text-[12px] transition ${!value ? 'bg-neutral-100 font-semibold' : 'hover:bg-neutral-50'}`}>
+            All
+          </button>
+          {options.map((o) => (
+            <button
+              key={o.value}
+              onClick={() => { onChange(o.value); setOpen(false); }}
+              className={`block w-full px-3 py-2 text-left text-[12px] transition ${value === o.value ? 'bg-neutral-100 font-semibold' : 'hover:bg-neutral-50'}`}
+            >
+              {o.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function StockPill({ n }) {
+  if (n === 0) return <span className="inline-flex items-center gap-1 rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-bold text-red-800">● Out</span>;
+  if (n <= 5)  return <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-800">● {n} left</span>;
+  return <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700">● {n}</span>;
+}
+
+function StatusChip({ p }) {
+  if (p.status === 'draft') return <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-800">Draft</span>;
+  if (!p.isActive) return <span className="inline-flex items-center rounded-full bg-neutral-200 px-2 py-0.5 text-[10px] font-bold text-neutral-700">Archived</span>;
+  return <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700">● Live</span>;
+}
+
+function ListView({ products, selected, onToggleSel, onToggleAll, onEnable, onDisable, onRemove }) {
+  const allSelected = products.length > 0 && selected.size === products.length;
+  return (
+    <div className="overflow-x-auto rounded-2xl border border-neutral-200 bg-white">
+      <table className="w-full min-w-[900px]">
+        <thead>
+          <tr className="border-b border-neutral-200 bg-neutral-50/60">
+            <th className="w-10 px-4 py-3 text-left">
+              <input type="checkbox" checked={allSelected} onChange={onToggleAll} className="h-4 w-4 rounded accent-neutral-900" />
+            </th>
+            <th className="table-head">Product</th>
+            <th className="table-head">SKU</th>
+            <th className="table-head">Tier</th>
+            <th className="table-head">Price</th>
+            <th className="table-head">Stock</th>
+            <th className="table-head">Status</th>
+            <th className="table-head" />
+          </tr>
+        </thead>
+        <tbody>
+          {products.map((p) => (
+            <tr key={p._id} className="border-b border-neutral-100 transition hover:bg-neutral-50/70">
+              <td className="px-4 py-3">
+                <input type="checkbox" checked={selected.has(p._id)} onChange={() => onToggleSel(p._id)} className="h-4 w-4 rounded accent-neutral-900" />
+              </td>
+              <td className="table-cell">
+                <Link to={`/admin/products/${p._id}`} className="group flex items-center gap-3">
+                  <Img src={p.images[0]?.url} alt="" className="h-12 w-9 shrink-0 rounded-lg border border-neutral-200 object-cover" />
+                  <div className="min-w-0">
+                    <p className="line-clamp-2 max-w-64 text-[13px] font-medium text-neutral-900 group-hover:underline">{p.name}</p>
+                    <div className="mt-1 flex items-center gap-2 text-[10px] uppercase tracking-wider text-neutral-500">
+                      <span>{p.gender}</span> · <span>{p.categorySlug}</span>
+                      {p.isFeatured && <span className="inline-flex items-center gap-0.5 text-amber-600"><Star size={9} fill="currentColor" /> Featured</span>}
+                      {p.isBestSeller && <span className="inline-flex items-center gap-0.5 text-purple-600"><TrendingUp size={9} /> Best</span>}
+                    </div>
+                  </div>
+                </Link>
+              </td>
+              <td className="table-cell font-mono text-xs text-neutral-500">{p.sku}</td>
+              <td className="table-cell">
+                <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold ${p.tier === 'Premium' ? 'bg-neutral-900 text-white' : p.tier === 'Standard' ? 'bg-neutral-100 text-neutral-700' : 'bg-emerald-50 text-emerald-700'}`}>
+                  {p.tier}
+                </span>
+              </td>
+              <td className="table-cell">
+                <p className="font-semibold text-neutral-900">{pkr(p.price)}</p>
+                {p.compareAtPrice && <p className="text-[11px] text-neutral-400 line-through">{pkr(p.compareAtPrice)}</p>}
+              </td>
+              <td className="table-cell"><StockPill n={p.stock} /></td>
+              <td className="table-cell"><StatusChip p={p} /></td>
+              <td className="table-cell">
+                <div className="flex items-center justify-end gap-1">
+                  <Link to={`/admin/products/${p._id}`} className="rounded-lg p-2 text-neutral-500 transition hover:bg-neutral-100 hover:text-neutral-900" aria-label="Edit">
+                    <Pencil size={13} />
+                  </Link>
+                  {p.isActive ? (
+                    <button onClick={() => onDisable(p)} className="rounded-lg p-2 text-neutral-500 transition hover:bg-amber-50 hover:text-amber-700" aria-label="Archive" title="Archive">
+                      <Archive size={13} />
+                    </button>
+                  ) : (
+                    <button onClick={() => onEnable(p)} className="rounded-lg p-2 text-emerald-600 transition hover:bg-emerald-50" aria-label="Restore" title="Restore">
+                      <Eye size={13} />
+                    </button>
+                  )}
+                  <button onClick={() => onRemove(p)} className="rounded-lg p-2 text-neutral-500 transition hover:bg-red-50 hover:text-red-700" aria-label="Delete" title="Delete permanently">
+                    <Trash2 size={13} />
+                  </button>
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function GridView({ products, onEnable, onDisable, onRemove }) {
+  return (
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      {products.map((p) => (
+        <div key={p._id} className="group relative overflow-hidden rounded-2xl border border-neutral-200 bg-white transition hover:-translate-y-0.5 hover:shadow-md">
+          <Link to={`/admin/products/${p._id}`} className="block">
+            <div className="relative aspect-[3/4] overflow-hidden bg-neutral-50">
+              <Img src={p.images[0]?.url} alt="" className="h-full w-full object-cover transition group-hover:scale-105" />
+              <div className="absolute left-2 top-2 flex flex-col gap-1">
+                <StatusChip p={p} />
+                {p.stock === 0 && <span className="rounded-full bg-red-600 px-2 py-0.5 text-[10px] font-bold text-white">SOLD OUT</span>}
+              </div>
+              {(p.isFeatured || p.isBestSeller) && (
+                <div className="absolute right-2 top-2 flex gap-1">
+                  {p.isFeatured && <span className="grid h-6 w-6 place-items-center rounded-full bg-amber-500 text-white" title="Featured"><Star size={11} fill="currentColor" /></span>}
+                  {p.isBestSeller && <span className="grid h-6 w-6 place-items-center rounded-full bg-purple-600 text-white" title="Best seller"><TrendingUp size={11} /></span>}
+                </div>
+              )}
+            </div>
+          </Link>
+          <div className="p-3">
+            <Link to={`/admin/products/${p._id}`}>
+              <p className="line-clamp-2 text-[12.5px] font-medium leading-snug text-neutral-900 hover:underline">{p.name}</p>
+            </Link>
+            <div className="mt-1 flex items-center justify-between text-[11px] text-neutral-500">
+              <span className="font-mono">{p.sku}</span>
+              <StockPill n={p.stock} />
+            </div>
+            <div className="mt-2 flex items-center justify-between">
+              <p className="text-[14px] font-semibold text-neutral-900">{pkr(p.price)}</p>
+              <div className="flex items-center gap-1">
+                <Link to={`/admin/products/${p._id}`} className="rounded-lg p-1.5 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900"><Pencil size={12} /></Link>
+                {p.isActive ? (
+                  <button onClick={() => onDisable(p)} className="rounded-lg p-1.5 text-neutral-500 hover:bg-amber-50 hover:text-amber-700"><Archive size={12} /></button>
+                ) : (
+                  <button onClick={() => onEnable(p)} className="rounded-lg p-1.5 text-emerald-600 hover:bg-emerald-50"><Eye size={12} /></button>
+                )}
+                <button onClick={() => onRemove(p)} className="rounded-lg p-1.5 text-neutral-500 hover:bg-red-50 hover:text-red-700"><Trash2 size={12} /></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function EmptyState({ onClear, hasFilters }) {
+  return (
+    <div className="grid place-items-center rounded-2xl border border-dashed border-neutral-200 bg-white py-20 text-center">
+      <span className="grid h-14 w-14 place-items-center rounded-2xl bg-neutral-100 text-neutral-500">
+        <Package size={22} />
+      </span>
+      <p className="mt-4 text-sm font-medium text-neutral-700">No products match</p>
+      <p className="mt-1 max-w-xs text-[11px] text-neutral-500">
+        {hasFilters ? 'Try clearing the filters, or add a new product.' : 'You have no products yet — add your first one.'}
+      </p>
+      <div className="mt-5 flex items-center gap-2">
+        {hasFilters && (
+          <button onClick={onClear} className="rounded-full border border-neutral-200 bg-white px-4 py-2 text-[11px] font-semibold text-neutral-700 hover:bg-neutral-50">Clear filters</button>
+        )}
+        <Link to="/admin/products/new" className="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-4 py-2 text-[11px] font-semibold text-white hover:bg-neutral-800">
+          <Plus size={12} /> Add product
+        </Link>
+      </div>
+    </div>
   );
 }
