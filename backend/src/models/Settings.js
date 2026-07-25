@@ -136,6 +136,14 @@ const settingsSchema = new mongoose.Schema({
       ],
     },
   },
+  // Operating costs — used by Dashboard P&L to calculate true profit
+  operatingCosts: {
+    packingPerOrder:  { type: Number, default: 0 },    // PKR per shipped order (packaging materials)
+    shippingSubsidy:  { type: Number, default: 0 },    // avg PKR the store absorbs per order (courier vs charged)
+    monthlyMarketing: { type: Number, default: 0 },    // PKR/month spent on ads (Meta, Google, TikTok)
+    monthlySeo:       { type: Number, default: 0 },    // PKR/month spent on SEO / content
+    monthlyOther:     { type: Number, default: 0 },    // PKR/month other fixed costs (hosting, tools)
+  },
 }, { timestamps: true });
 
 module.exports = mongoose.model('Settings', settingsSchema);

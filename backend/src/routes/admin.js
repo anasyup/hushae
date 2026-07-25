@@ -27,7 +27,7 @@ router.get('/dashboard', asyncHandler(async (req, res) => {
       { $group: { _id: null, total: { $sum: '$total' } } },
     ]),
     Product.countDocuments({ isActive: true, status: { $ne: 'draft' } }),
-    Product.find({ isActive: true, status: { $ne: 'draft' }, stock: { $lte: 5 } }).sort({ stock: 1 }).limit(10)
+    Product.find({ isActive: true, status: { $ne: 'draft' }, stock: { $lte: 10 } }).sort({ stock: 1 }).limit(10)
       .select('name slug sku stock tier images'),
     User.countDocuments({ role: 'customer' }),
     Order.find().sort({ createdAt: -1 }).limit(6)
@@ -169,6 +169,92 @@ router.get('/dashboard', asyncHandler(async (req, res) => {
     recentOrders,
     bestSellers: bestAgg.map((b) => ({ name: b._id, qty: b.qty, revenue: b.revenue, image: b.image })),
     topCustomers: topCustomers.map((c) => ({ name: c.name || 'Guest', phone: c._id, city: c.city, spent: c.spent, orders: c.orders })),
+  });
+}));
+
+// ---- Insights: deep business metrics — hourly, cities, profit ranking, cohort ----
+router.get('/insights', asyncHandler(async (req, res) => {
+  const days = Math.min(180, Math.max(7, parseInt(req.query.days || '90', 10)));
+  const since = new Date(Date.now() - days * 86400000);
+
+  const [hourAgg, cityAgg, profitByProduct, repeatAgg, cohortAgg] = await Promise.all([
+    // Best selling hours (last N days, all orders including cancelled to see traffic patterns)
+    Order.aggregate([
+      { $match: { createdAt: { $gte: since } } },
+      { $group: { _id: { $hour: '$createdAt' }, orders: { $sum: 1 }, revenue: { $sum: { $cond: [{ $in: ['$status', ['Cancelled', 'Refunded']] }, 0, '$total'] } } } },
+      { $sort: { _id: 1 } },
+    ]),
+    // Top cities by revenue
+    Order.aggregate([
+      { $match: { createdAt: { $gte: since }, status: { $nin: ['Cancelled', 'Refunded'] } } },
+      { $group: { _id: '$customerInfo.city', orders: { $sum: 1 }, revenue: { $sum: '$total' }, province: { $first: '$customerInfo.province' } } },
+      { $sort: { revenue: -1 } },
+      { $limit: 12 },
+    ]),
+    // Profit ranking by product (revenue - cost) — top 10
+    Order.aggregate([
+      { $match: { createdAt: { $gte: since }, status: { $nin: ['Cancelled', 'Refunded'] } } },
+      { $unwind: '$items' },
+      { $group: {
+        _id: '$items.product',
+        name: { $first: '$items.name' },
+        image: { $first: '$items.image' },
+        unitsSold: { $sum: '$items.quantity' },
+        revenue: { $sum: '$items.lineTotal' },
+        cost: { $sum: { $multiply: [{ $ifNull: ['$items.costPrice', 0] }, '$items.quantity'] } },
+      } },
+      { $addFields: { profit: { $subtract: ['$revenue', '$cost'] } } },
+      { $sort: { profit: -1 } },
+      { $limit: 10 },
+    ]),
+    // Repeat purchase rate — customers with 2+ orders / total customers with orders
+    Order.aggregate([
+      { $match: { status: { $nin: ['Cancelled', 'Refunded'] } } },
+      { $group: { _id: '$customerInfo.phone', count: { $sum: 1 } } },
+      { $group: { _id: null,
+        total: { $sum: 1 },
+        repeat: { $sum: { $cond: [{ $gte: ['$count', 2] }, 1, 0] } },
+      } },
+    ]),
+    // Simple cohort — customers grouped by their FIRST order month + their total orders
+    Order.aggregate([
+      { $match: { status: { $nin: ['Cancelled', 'Refunded'] } } },
+      { $sort: { createdAt: 1 } },
+      { $group: {
+        _id: '$customerInfo.phone',
+        firstOrder: { $first: '$createdAt' },
+        totalOrders: { $sum: 1 },
+        totalSpent: { $sum: '$total' },
+      } },
+      { $group: {
+        _id: { $dateToString: { format: '%Y-%m', date: '$firstOrder' } },
+        newCustomers: { $sum: 1 },
+        repeatCustomers: { $sum: { $cond: [{ $gte: ['$totalOrders', 2] }, 1, 0] } },
+        totalSpent: { $sum: '$totalSpent' },
+      } },
+      { $sort: { _id: 1 } },
+      { $limit: 12 },
+    ]),
+  ]);
+
+  // Fill 24-hour array (may have gaps)
+  const hourMap = Object.fromEntries(hourAgg.map((h) => [h._id, h]));
+  const hourly = [];
+  for (let h = 0; h < 24; h += 1) hourly.push({ hour: h, orders: hourMap[h]?.orders || 0, revenue: hourMap[h]?.revenue || 0 });
+
+  const rep = repeatAgg[0] || { total: 0, repeat: 0 };
+
+  res.json({
+    days,
+    hourly,
+    topCities: cityAgg,
+    topProfit: profitByProduct,
+    repeat: {
+      total: rep.total,
+      repeat: rep.repeat,
+      rate: rep.total ? Math.round((rep.repeat / rep.total) * 1000) / 10 : 0,
+    },
+    cohort: cohortAgg,
   });
 }));
 

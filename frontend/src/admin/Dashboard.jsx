@@ -553,7 +553,7 @@ export default function Dashboard() {
           <div className="rounded-2xl border border-neutral-200 bg-white p-6">
             <div className="mb-3 flex items-center justify-between">
               <p className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-neutral-500">
-                <AlertTriangle size={13} className="text-red-500" /> Low stock (≤ 5)
+                <AlertTriangle size={13} className="text-red-500" /> Low stock (≤ 10)
               </p>
               <Link to="/admin/products" className="text-[11px] font-semibold text-neutral-500 hover:text-neutral-900">Manage</Link>
             </div>

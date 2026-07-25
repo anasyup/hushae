@@ -38,9 +38,10 @@ export default function Product() {
   const [sizeErr, setSizeErr] = useState(false);
   const [guideOpen, setGuideOpen] = useState(false);
   const [bundle, setBundle] = useState([]);
+  const [related, setRelated] = useState([]);
 
   useEffect(() => {
-    setP(null); setErr(false); setImgIdx(0); setSize(''); setQty(1); setBundle([]);
+    setP(null); setErr(false); setImgIdx(0); setSize(''); setQty(1); setBundle([]); setRelated([]);
     api(`/products/${slug}`)
       .then((d) => {
         setP(d.product);
@@ -50,6 +51,8 @@ export default function Product() {
         if (bslug) api(`/products?category=${bslug}&limit=3&sort=popular`).then((x) => setBundle(x.products)).catch(() => {});
       })
       .catch(() => setErr(true));
+    // Load related products (same category / gender+tier) — separate call so it's cached differently
+    api(`/products/${slug}/related`).then((d) => setRelated(d.products || [])).catch(() => setRelated([]));
   }, [slug]); // eslint-disable-line
 
   if (err) {
@@ -259,6 +262,13 @@ export default function Product() {
       {bundle.length > 0 && (
         <div className="mt-24">
           <ProductRow eyebrow="Complete the set" title="Pairs perfectly with" products={bundle.map(snap)} />
+        </div>
+      )}
+
+      {/* Related products — same category / gender+tier */}
+      {related.length > 0 && (
+        <div className="mt-24">
+          <ProductRow eyebrow="You may also like" title="Related pieces" products={related.map(snap)} />
         </div>
       )}
 

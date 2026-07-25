@@ -251,14 +251,16 @@ export function SettingsShipping() {
   if (!s) return <AdminLayout title="Shipping"><div className="skeleton h-96 w-full" /></AdminLayout>;
 
   const set = (k, v) => setS({ ...s, [k]: v });
+  const oc = s.operatingCosts || {};
+  const setOC = (k, v) => setS({ ...s, operatingCosts: { ...oc, [k]: Number(v) || 0 } });
 
   return (
-    <AdminLayout title="Shipping & Delivery">
+    <AdminLayout title="Shipping & Operating Costs">
       <BackToSettings />
-      <PageIntro icon={Truck} title="Shipping & Delivery" description="Set your delivery rates and the threshold at which shipping becomes free. All figures in PKR." />
+      <PageIntro icon={Truck} title="Shipping & Operating Costs" description="Set delivery rates and the true costs of running your store — used by the Dashboard to compute real profit." />
 
       <div className="space-y-5">
-        <Section title="Rates" description="Flat rate applies to every order below the free-shipping threshold.">
+        <Section title="Shipping rates" description="Flat rate applies to every order below the free-shipping threshold.">
           <div className="grid gap-4 md:grid-cols-2">
             <div>
               <label className="label">Flat rate (PKR)</label>
@@ -269,6 +271,41 @@ export function SettingsShipping() {
               <label className="label">Free shipping over (PKR)</label>
               <input className="input" type="number" min="0" value={s.freeShippingThreshold ?? 4999} onChange={(e) => set('freeShippingThreshold', Number(e.target.value))} />
               <p className="mt-1.5 text-[11px] text-neutral-500">Encourages larger baskets. Set to 0 to disable.</p>
+            </div>
+          </div>
+        </Section>
+
+        <Section title="Per-order operating costs" description="These are subtracted from your gross profit — set them for accurate P&L.">
+          <div className="grid gap-4 md:grid-cols-2">
+            <div>
+              <label className="label">Packing materials (PKR / order)</label>
+              <input className="input" type="number" min="0" value={oc.packingPerOrder || 0} onChange={(e) => setOC('packingPerOrder', e.target.value)} placeholder="e.g. 40" />
+              <p className="mt-1.5 text-[11px] text-neutral-500">Boxes, tape, tissue paper, thank-you cards.</p>
+            </div>
+            <div>
+              <label className="label">Courier subsidy (PKR / order)</label>
+              <input className="input" type="number" min="0" value={oc.shippingSubsidy || 0} onChange={(e) => setOC('shippingSubsidy', e.target.value)} placeholder="e.g. 50" />
+              <p className="mt-1.5 text-[11px] text-neutral-500">Difference between what courier charges you and what you charged the customer.</p>
+            </div>
+          </div>
+        </Section>
+
+        <Section title="Monthly marketing & fixed costs" description="Fixed costs you pay every month — divided across all monthly orders in the P&L view.">
+          <div className="grid gap-4 md:grid-cols-3">
+            <div>
+              <label className="label">Ads (PKR / month)</label>
+              <input className="input" type="number" min="0" value={oc.monthlyMarketing || 0} onChange={(e) => setOC('monthlyMarketing', e.target.value)} placeholder="e.g. 25000" />
+              <p className="mt-1.5 text-[11px] text-neutral-500">Meta, Google, TikTok spend.</p>
+            </div>
+            <div>
+              <label className="label">SEO / Content (PKR / month)</label>
+              <input className="input" type="number" min="0" value={oc.monthlySeo || 0} onChange={(e) => setOC('monthlySeo', e.target.value)} placeholder="e.g. 10000" />
+              <p className="mt-1.5 text-[11px] text-neutral-500">Blog writing, agency retainer, backlinks.</p>
+            </div>
+            <div>
+              <label className="label">Other fixed (PKR / month)</label>
+              <input className="input" type="number" min="0" value={oc.monthlyOther || 0} onChange={(e) => setOC('monthlyOther', e.target.value)} placeholder="e.g. 5000" />
+              <p className="mt-1.5 text-[11px] text-neutral-500">Hosting, tools, subscriptions.</p>
             </div>
           </div>
         </Section>
@@ -287,7 +324,7 @@ export function SettingsShipping() {
         </Section>
       </div>
 
-      <SaveBar dirty={dirty} busy={busy} onSave={() => save(['shippingFlatRate', 'freeShippingThreshold'])} onReset={reset} />
+      <SaveBar dirty={dirty} busy={busy} onSave={() => save(['shippingFlatRate', 'freeShippingThreshold', 'operatingCosts'])} onReset={reset} />
     </AdminLayout>
   );
 }

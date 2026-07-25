@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import {
   AlertCircle, Archive, ArrowUpDown, CheckCircle2, ChevronDown, Copy, Eye, EyeOff,
@@ -238,12 +238,23 @@ function SummaryCard({ icon: Icon, label, value, tone, sub, onClick, active }) {
 
 function ChipSelect({ label, value, options, onChange }) {
   const [open, setOpen] = useState(false);
+  const ref = useRef(null);
   const selected = options.find((o) => o.value === value);
+
+  // Close on outside click / Esc
+  useEffect(() => {
+    if (!open) return;
+    const onDoc = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    const onEsc = (e) => { if (e.key === 'Escape') setOpen(false); };
+    document.addEventListener('mousedown', onDoc);
+    document.addEventListener('keydown', onEsc);
+    return () => { document.removeEventListener('mousedown', onDoc); document.removeEventListener('keydown', onEsc); };
+  }, [open]);
+
   return (
-    <div className="relative">
+    <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen((v) => !v)}
-        onBlur={() => setTimeout(() => setOpen(false), 150)}
         className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[12px] font-semibold transition ${
           selected
             ? 'border-neutral-900 bg-neutral-900 text-white'

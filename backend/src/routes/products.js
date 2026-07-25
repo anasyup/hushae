@@ -98,6 +98,25 @@ router.get('/', asyncHandler(async (req, res) => {
   res.json({ products });
 }));
 
+// Related products — same category, exclude the current product, prefer in-stock
+router.get('/:slug/related', asyncHandler(async (req, res) => {
+  const p = await Product.findOne({ slug: req.params.slug, isActive: true, status: { $ne: 'draft' } });
+  if (!p) return res.json({ products: [] });
+  const products = await Product.find({
+    _id: { $ne: p._id },
+    isActive: true,
+    status: { $ne: 'draft' },
+    $or: [
+      { categorySlug: p.categorySlug, gender: p.gender },
+      { gender: p.gender, tier: p.tier },
+    ],
+  })
+    .sort({ stock: -1, isBestSeller: -1, ratingAvg: -1 })
+    .limit(8)
+    .select('name slug price compareAtPrice stock images gender categorySlug tier ratingAvg sizes colors');
+  res.json({ products });
+}));
+
 router.get('/:slug', asyncHandler(async (req, res) => {
   const product = await Product.findOne({ slug: req.params.slug, isActive: true, status: { $ne: 'draft' } });
   if (!product) return res.status(404).json({ message: 'Product not found' });
