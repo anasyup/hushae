@@ -112,22 +112,22 @@ export default function Content() {
 
               <div>
                 <label className="label">Banner image — desktop</label>
-                <MediaPicker value={hero.image || ''} onChange={(v) => setHero('image', v)} accept="image" />
+                <MediaPicker value={hero.image || ''} onChange={(v) => setHero('image', v)} accept="image" hideUrl />
                 <p className="mt-1 text-[11px] text-ash">Recommended: 1920 × 1080 (16:9) high quality JPG/WebP</p>
               </div>
               <div>
                 <label className="label">Banner image — mobile (optional)</label>
-                <MediaPicker value={hero.mobileImage || ''} onChange={(v) => setHero('mobileImage', v)} accept="image" />
+                <MediaPicker value={hero.mobileImage || ''} onChange={(v) => setHero('mobileImage', v)} accept="image" hideUrl />
                 <p className="mt-1 text-[11px] text-ash">Portrait image mobile ke liye (optional). Khali chhoro to desktop image hi use hoga.</p>
               </div>
               <div>
                 <label className="label">Banner video (optional — MP4/WebM)</label>
-                <MediaPicker value={hero.video || ''} onChange={(v) => setHero('video', v)} accept="video" buttonText="Video upload" />
+                <MediaPicker value={hero.video || ''} onChange={(v) => setHero('video', v)} accept="video" buttonText="Video upload" hideUrl />
                 <p className="mt-1 text-[11px] text-ash">Video dogey to image ki jagah chalti hui video dikhegi. Muted autoplay + loop (best practice).</p>
               </div>
               <div>
                 <label className="label">Video poster (fallback image while video loads)</label>
-                <MediaPicker value={hero.poster || ''} onChange={(v) => setHero('poster', v)} accept="image" />
+                <MediaPicker value={hero.poster || ''} onChange={(v) => setHero('poster', v)} accept="image" hideUrl />
                 <p className="mt-1 text-[11px] text-ash">Sirf video mode mein use hota hai. Khali chhoro to banner image hi poster banega.</p>
               </div>
 

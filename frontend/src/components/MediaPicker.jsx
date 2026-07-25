@@ -47,7 +47,7 @@ export default function MediaPicker({ value = '', onChange, onAdd, multiple = fa
           </span>
         )}
       </div>
-      {accept === 'image' && !hideUrl && value ? (
+      {accept === 'image' && value ? (
         <img src={value} alt="" className="mt-2 h-20 w-20 rounded-xl border border-line object-cover" onError={(e) => { e.target.style.display = 'none'; }} />
       ) : null}
       {accept === 'video' && value ? (
