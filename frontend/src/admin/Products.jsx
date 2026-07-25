@@ -176,10 +176,9 @@ export default function Products() {
       )}
 
       {/* ============ SUMMARY CARDS ============ */}
-      <div className="mb-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="mb-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <SummaryCard icon={Package}       label="Total"         value={summary.total}    tone="neutral" onClick={() => setF({ ...f, status: '' })} active={!f.status} />
         <SummaryCard icon={CheckCircle2}  label="Live"          value={summary.live}     tone="green"   onClick={() => setF({ ...f, status: 'active' })} active={f.status === 'active'} />
-        <SummaryCard icon={EyeOff}        label="Drafts"        value={summary.draft}    tone="amber"   onClick={() => setF({ ...f, status: 'draft' })}  active={f.status === 'draft'} />
         <SummaryCard icon={Archive}       label="Archived"      value={summary.archived} tone="neutral" onClick={() => setF({ ...f, status: 'disabled' })} active={f.status === 'disabled'} />
         <SummaryCard icon={AlertCircle}   label="Out of stock"  value={summary.oos}      tone="red"     onClick={() => setF({ ...f, stock: 'out' })}     active={f.stock === 'out'} sub={`${summary.low} low`} />
       </div>
