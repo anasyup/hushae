@@ -9,49 +9,59 @@ import { useApp } from '../store/AppContext';
 import { applyAdminTheme, clearAdminTheme } from '../lib/adminTheme';
 
 /* ------------------------------------------------------------------ *
- * Sidebar structure — organized like Shopify:
- * Each group has a small header + related items only.
- * Groups: MAIN → SALES → CATALOG → STOREFRONT → INSIGHTS → CHANNELS
+ * Sidebar structure — Shopify-style with collapsible groups.
+ * Each group is a dropdown (except Dashboard which is a single item).
+ * Groups: Dashboard | Sales | Catalog | Storefront | Insights
  * Bottom (pinned): Integrations, Settings, Sign Out
  * ------------------------------------------------------------------ */
 
-const NAV = [
-  // Group 1: MAIN
-  { header: null, items: [
-    { to: '/admin', label: 'Dashboard', icon: Home, end: true },
-  ]},
+const NAV_TOP = [
+  { to: '/admin', label: 'Dashboard', icon: Home, end: true },
+];
 
-  // Group 2: SALES — orders + customers + discounts
-  { header: 'Sales', items: [
-    { to: '/admin/orders',    label: 'Orders',    icon: ShoppingBag },
-    { to: '/admin/customers', label: 'Customers', icon: Users },
-    { to: '/admin/discounts', label: 'Discounts', icon: BadgePercent },
-  ]},
-
-  // Group 3: CATALOG — products with dropdown + categories
-  { header: 'Catalog', items: [
-    { label: 'Products', icon: Package, expandable: true, children: [
-      { to: '/admin/products',              label: 'All products', icon: Package, end: true, exactQuery: true },
+const NAV_GROUPS = [
+  {
+    label: 'Sales',
+    icon: ShoppingBag,
+    match: ['/admin/orders', '/admin/customers', '/admin/discounts'],
+    children: [
+      { to: '/admin/orders',    label: 'Orders',    icon: ShoppingBag },
+      { to: '/admin/customers', label: 'Customers', icon: Users },
+      { to: '/admin/discounts', label: 'Discounts', icon: BadgePercent },
+    ],
+  },
+  {
+    label: 'Catalog',
+    icon: Package,
+    match: ['/admin/products', '/admin/categories'],
+    children: [
+      { to: '/admin/products',              label: 'All products', icon: Package, exact: true },
       { to: '/admin/products/new',          label: 'Add product',  icon: PackagePlus },
       { to: '/admin/products?status=draft', label: 'Drafts',       icon: FolderOpen },
       { to: '/admin/products?active=0',     label: 'Inactive',     icon: PackageX },
-    ]},
-    { to: '/admin/categories', label: 'Categories', icon: Tags },
-  ]},
-
-  // Group 4: STOREFRONT — everything the customer sees
-  { header: 'Storefront', items: [
-    { to: '/admin/store',   label: 'Online Store', icon: Store },
-    { to: '/admin/content', label: 'Content',      icon: LayoutTemplate },
-    { to: '/admin/markets', label: 'Markets',      icon: Globe },
-  ]},
-
-  // Group 5: INSIGHTS — data
-  { header: 'Insights', items: [
-    { to: '/admin/analytics', label: 'Analytics', icon: BarChart3, end: true },
-    { to: '/admin/live',      label: 'Live View', icon: Activity },
-    { to: '/admin/growth',    label: 'Growth',    icon: TrendingUp },
-  ]},
+      { to: '/admin/categories',            label: 'Categories',   icon: Tags },
+    ],
+  },
+  {
+    label: 'Storefront',
+    icon: Store,
+    match: ['/admin/store', '/admin/content', '/admin/markets'],
+    children: [
+      { to: '/admin/store',   label: 'Online Store', icon: Store },
+      { to: '/admin/content', label: 'Content',      icon: LayoutTemplate },
+      { to: '/admin/markets', label: 'Markets',      icon: Globe },
+    ],
+  },
+  {
+    label: 'Insights',
+    icon: BarChart3,
+    match: ['/admin/analytics', '/admin/live', '/admin/growth'],
+    children: [
+      { to: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
+      { to: '/admin/live',      label: 'Live View', icon: Activity },
+      { to: '/admin/growth',    label: 'Growth',    icon: TrendingUp },
+    ],
+  },
 ];
 
 const BOTTOM = [
@@ -75,45 +85,52 @@ const childLinkCls = (active) =>
       : 'text-neutral-500 hover:bg-white/60 hover:text-neutral-800'
   }`;
 
-function GroupHeader({ children }) {
-  return (
-    <p className="mb-1 mt-4 px-3 text-[10px] font-bold uppercase tracking-[0.14em] text-neutral-400">
-      {children}
-    </p>
-  );
+// Check if a link matches the current URL considering query params
+function isChildRouteActive(loc, to, exact = false) {
+  const [p, qs] = to.split('?');
+  if (loc.pathname !== p) return false;
+  if (qs) return loc.search.replace('?', '') === qs;
+  if (exact) return !loc.search;
+  return !loc.search;
 }
 
-function ExpandableItem({ item, isChildActive, onNavigate }) {
-  const [open, setOpen] = useState(isChildActive);
+function GroupDropdown({ group, onNavigate, defaultOpen }) {
   const loc = useLocation();
+  const [open, setOpen] = useState(defaultOpen);
+  const Icon = group.icon;
 
-  // Auto-open when child becomes active (e.g. after navigation)
-  useEffect(() => { if (isChildActive) setOpen(true); }, [isChildActive]);
+  const isChildActive = group.children.some((c) => isChildRouteActive(loc, c.to, c.exact));
 
-  const Icon = item.icon;
+  // Auto-open when a child becomes active
+  useEffect(() => {
+    if (isChildActive) setOpen(true);
+  }, [isChildActive]);
 
   return (
     <div>
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] font-medium transition ${
-          isChildActive ? 'text-neutral-900' : 'text-neutral-600 hover:bg-white/60 hover:text-neutral-900'
-        }`}
         aria-expanded={open}
+        className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] font-medium transition ${
+          isChildActive
+            ? 'text-neutral-900'
+            : 'text-neutral-600 hover:bg-white/60 hover:text-neutral-900'
+        }`}
       >
         <Icon size={17} strokeWidth={isChildActive ? 2.1 : 1.8} />
-        <span className="flex-1 text-left">{item.label}</span>
-        <ChevronDown size={14} className={`transition-transform ${open ? 'rotate-180' : ''} text-neutral-400`} />
+        <span className="flex-1 text-left">{group.label}</span>
+        <ChevronDown size={14} className={`text-neutral-400 transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
+
       {open && (
         <div className="mt-0.5 space-y-0.5">
-          {item.children.map((c) => {
-            const [p, qs] = c.to.split('?');
-            const active = loc.pathname === p && (qs ? loc.search.replace('?', '') === qs : !loc.search);
+          {group.children.map((c) => {
+            const active = isChildRouteActive(loc, c.to, c.exact);
+            const ChildIcon = c.icon;
             return (
               <NavLink key={c.to} to={c.to} onClick={onNavigate} className={() => childLinkCls(active)}>
-                <c.icon size={14} strokeWidth={1.8} className="opacity-70" />
+                <ChildIcon size={14} strokeWidth={1.8} className="opacity-70" />
                 {c.label}
               </NavLink>
             );
@@ -129,13 +146,13 @@ function SidebarContent({ onNavigate }) {
   const loc = useLocation();
   const [query, setQuery] = useState('');
 
-  // Flatten all searchable items
+  // Flatten searchable items
   const searchable = useMemo(() => {
     const list = [];
-    NAV.forEach((g) => g.items.forEach((it) => {
-      if (it.to) list.push({ to: it.to, label: it.label, icon: it.icon });
-      if (it.children) it.children.forEach((c) => list.push({ to: c.to, label: `${it.label} · ${c.label}`, icon: c.icon }));
-    }));
+    NAV_TOP.forEach((it) => list.push({ to: it.to, label: it.label, icon: it.icon }));
+    NAV_GROUPS.forEach((g) => g.children.forEach((c) =>
+      list.push({ to: c.to, label: `${g.label} · ${c.label}`, icon: c.icon })
+    ));
     BOTTOM.forEach((it) => list.push(it));
     return list;
   }, []);
@@ -144,10 +161,13 @@ function SidebarContent({ onNavigate }) {
     ? searchable.filter((it) => it.label.toLowerCase().includes(query.trim().toLowerCase())).slice(0, 8)
     : [];
 
-  const isChildActive = (children) => children?.some((c) => {
-    const [p, qs] = c.to.split('?');
-    return loc.pathname === p && (qs ? loc.search.replace('?', '') === qs : !loc.search);
-  });
+  // Decide which group opens by default: the one whose pathname matches
+  const activeGroupLabel = useMemo(() => {
+    for (const g of NAV_GROUPS) {
+      if (g.match.some((m) => loc.pathname.startsWith(m))) return g.label;
+    }
+    return null;
+  }, [loc.pathname]);
 
   return (
     <div className="flex h-full flex-col bg-[#ebebeb]">
@@ -185,39 +205,34 @@ function SidebarContent({ onNavigate }) {
         )}
       </div>
 
-      {/* Navigation groups */}
+      {/* Navigation */}
       <nav className="flex-1 space-y-0.5 overflow-y-auto px-2.5 pb-3">
-        {NAV.map((group, gi) => (
-          <Fragment key={gi}>
-            {group.header && <GroupHeader>{group.header}</GroupHeader>}
-            {group.items.map((it) => {
-              if (it.expandable) {
-                return (
-                  <ExpandableItem
-                    key={it.label}
-                    item={it}
-                    isChildActive={isChildActive(it.children)}
-                    onNavigate={onNavigate}
-                  />
-                );
-              }
-              const Icon = it.icon;
-              return (
-                <NavLink key={it.to} to={it.to} end={it.end} className={linkCls} onClick={onNavigate}>
-                  {({ isActive }) => (
-                    <>
-                      <Icon size={17} strokeWidth={isActive ? 2.1 : 1.8} />
-                      {it.label}
-                    </>
-                  )}
-                </NavLink>
-              );
-            })}
-          </Fragment>
+        {/* Top single items (Dashboard) */}
+        {NAV_TOP.map(({ to, label, icon: Icon, end }) => (
+          <NavLink key={to} to={to} end={end} className={linkCls} onClick={onNavigate}>
+            {({ isActive }) => (
+              <>
+                <Icon size={17} strokeWidth={isActive ? 2.1 : 1.8} />
+                {label}
+              </>
+            )}
+          </NavLink>
+        ))}
+
+        <div className="mt-2" />
+
+        {/* Collapsible groups */}
+        {NAV_GROUPS.map((g) => (
+          <GroupDropdown
+            key={g.label}
+            group={g}
+            onNavigate={onNavigate}
+            defaultOpen={activeGroupLabel === g.label}
+          />
         ))}
       </nav>
 
-      {/* Bottom pinned area */}
+      {/* Bottom pinned */}
       <div className="space-y-0.5 border-t border-black/5 px-2.5 py-3">
         {BOTTOM.map(({ to, label, icon: Icon }) => (
           <NavLink key={to} to={to} className={linkCls} onClick={onNavigate}>
@@ -281,3 +296,6 @@ export default function AdminLayout({ children, title }) {
     </div>
   );
 }
+
+// Re-export Fragment to keep import list stable if used elsewhere
+export { Fragment };

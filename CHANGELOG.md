@@ -23,6 +23,8 @@ Format:
 
 ## Changes
 
+- **2026-07-25** — Admin: sidebar groups now collapsible dropdowns (Sales, Catalog, Storefront, Insights). Orders page redesigned Shopee/Lazada-style: All / Unpaid / To Ship (with To Pack, To Arrange Shipment, To Handover sub-tabs) / Shipping / Delivered / Failed Delivery / Cancellation / Return or Refund — with live counts and clear stage indicators.
+
 - **2026-07-25** — Massive UX cleanup: removed Roman-Urdu, refined premium palette, cleaner hero editor, removed language toggle, added Remove button on media pickers, showButtons toggle for hero CTAs, mobile-image field removed
 
 - **2026-07-25** — Admin sidebar redesign: clean Shopify-style grouped sections (Sales, Catalog, Storefront, Insights), collapsible Products menu, quick search bar, cleaner spacing & hover states
