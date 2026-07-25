@@ -283,12 +283,65 @@ async function sendStatusUpdate(order, storeInfo = {}) {
   });
 }
 
+/* Abandoned cart recovery email */
+async function sendAbandonedCartRecovery(cart) {
+  if (!cart?.email) return { skipped: true, reason: 'no email' };
+  const rowsHtml = (cart.items || []).map((i) => `
+    <tr>
+      <td style="padding:12px 8px;border-bottom:1px solid #f1eee8;">
+        <div style="font-weight:600;font-size:13px;">${esc(i.name)}</div>
+        <div style="font-size:11px;color:#7a736d;margin-top:2px;">${esc(i.color || '')}${i.size ? ' · ' + esc(i.size) : ''} · Qty ${i.quantity}</div>
+      </td>
+      <td style="padding:12px 8px;border-bottom:1px solid #f1eee8;text-align:right;font-weight:600;font-size:13px;">
+        ${pkr((i.price || 0) * (i.quantity || 1))}
+      </td>
+    </tr>`).join('');
+
+  const body = `
+    <p style="font-size:16px;margin:0 0 8px;">Hi ${esc(cart.name || 'there')},</p>
+    <p style="font-size:14px;line-height:1.7;color:#333;margin:0 0 20px;">
+      You left something behind in your bag. Here's <b>10% off</b> to complete your order — just for you.
+    </p>
+
+    <div style="background:#111;color:#fff;text-align:center;padding:18px;border-radius:12px;margin-bottom:24px;">
+      <div style="font-size:10px;letter-spacing:0.2em;color:#c9bfb4;text-transform:uppercase;">Your code</div>
+      <div style="font-family:monospace;font-size:24px;font-weight:700;letter-spacing:0.14em;margin-top:6px;">COMEBACK10</div>
+      <div style="font-size:11px;color:#c9bfb4;margin-top:6px;">Applied automatically at checkout · valid for 48 hours</div>
+    </div>
+
+    <table style="width:100%;border-collapse:collapse;margin-bottom:16px;">
+      <thead><tr>
+        <th style="text-align:left;padding:8px 8px 12px;font-size:10px;letter-spacing:0.2em;color:#7a736d;text-transform:uppercase;border-bottom:1px solid #111;">Still waiting for you</th>
+        <th style="text-align:right;padding:8px 8px 12px;font-size:10px;letter-spacing:0.2em;color:#7a736d;text-transform:uppercase;border-bottom:1px solid #111;">Total</th>
+      </tr></thead>
+      <tbody>${rowsHtml}</tbody>
+    </table>
+
+    <div style="text-align:center;margin-top:28px;">
+      <a href="https://veloura-73q1.vercel.app/cart"
+         style="display:inline-block;background:#111;color:#fff;padding:14px 32px;border-radius:99px;text-decoration:none;font-size:12px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;">
+        Return to your bag
+      </a>
+    </div>
+
+    <p style="text-align:center;margin-top:20px;font-size:11px;color:#7a736d;line-height:1.6;">
+      Items in your bag are not reserved. Popular styles sell out quickly.<br>
+      Discreet, unmarked packaging on every order.
+    </p>
+  `;
+  return sendMail({
+    to: cart.email,
+    subject: `Your bag is waiting — 10% off inside`,
+    html: baseLayout({ title: 'Your bag is waiting', body }),
+  });
+}
+
 module.exports = {
   sendMail,
   sendOrderConfirmation,
   sendNewOrderAlert,
   sendStatusUpdate,
-  // For an admin "test email" button
+  sendAbandonedCartRecovery,
   async sendTest(to) {
     return sendMail({
       to,

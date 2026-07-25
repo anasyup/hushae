@@ -111,11 +111,11 @@ export default function Product() {
         <span className="clamp-2 max-w-[180px] text-obsidian">{p.name}</span>
       </nav>
 
-      <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
+      <div className="grid gap-8 lg:grid-cols-2 lg:gap-16">
         {/* Gallery */}
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="lg:sticky lg:top-24 lg:self-start">
           <div className="grid gap-3 sm:grid-cols-[76px_1fr]">
-            <div className="order-2 flex gap-2.5 overflow-x-auto sm:order-1 sm:flex-col">
+            <div className="order-2 -mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:order-1 sm:mx-0 sm:flex-col sm:overflow-visible sm:px-0">
               {media.map((m, i) => (
                 <button key={i} onClick={() => setImgIdx(i)} aria-label={m.t === 'video' ? 'Play video' : `View ${i + 1}`}
                   className={`shrink-0 overflow-hidden rounded-xl border-2 transition ${i === imgIdx ? 'border-obsidian' : 'border-transparent opacity-70 hover:opacity-100'}`}>

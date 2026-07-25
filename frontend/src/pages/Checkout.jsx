@@ -193,6 +193,24 @@ export default function Checkout() {
     );
   }
 
+  // Track abandoned cart when a customer types their email
+  // (debounced so we don't hammer the server on every keystroke)
+  useEffect(() => {
+    if (!f.email || !/^\S+@\S+\.\S+$/.test(f.email) || cart.length === 0) return;
+    const t = setTimeout(() => {
+      api('/abandoned-cart/track', {
+        method: 'POST',
+        body: {
+          email: f.email,
+          name: f.name || '',
+          phone: f.phone || '',
+          items: cart.map((l) => ({ product: l.id, size: l.size, color: l.color, quantity: l.qty })),
+        },
+      }).catch(() => {});
+    }, 2000);
+    return () => clearTimeout(t);
+  }, [f.email, f.name, f.phone, cart.length]);
+
   const set = (k, v) => { setF((x) => ({ ...x, [k]: v })); setErrs((e) => ({ ...e, [k]: '' })); };
 
   // Validate and open the "Review order" modal (customer's last chance to edit)

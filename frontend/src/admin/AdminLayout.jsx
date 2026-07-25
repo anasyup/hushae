@@ -23,11 +23,12 @@ const NAV_GROUPS = [
   {
     label: 'Sales',
     icon: ShoppingBag,
-    match: ['/admin/orders', '/admin/customers', '/admin/discounts'],
+    match: ['/admin/orders', '/admin/customers', '/admin/discounts', '/admin/abandoned-carts'],
     children: [
-      { to: '/admin/orders',    label: 'Orders',    icon: ShoppingBag },
-      { to: '/admin/customers', label: 'Customers', icon: Users },
-      { to: '/admin/discounts', label: 'Discounts', icon: BadgePercent },
+      { to: '/admin/orders',           label: 'Orders',           icon: ShoppingBag },
+      { to: '/admin/customers',        label: 'Customers',        icon: Users },
+      { to: '/admin/discounts',        label: 'Discounts',        icon: BadgePercent },
+      { to: '/admin/abandoned-carts',  label: 'Abandoned carts',  icon: ShoppingBag },
     ],
   },
   {
@@ -67,7 +68,7 @@ const NAV_GROUPS = [
   {
     label: 'Settings',
     icon: SettingsIcon,
-    match: ['/admin/settings', '/admin/apps'],
+    match: ['/admin/settings', '/admin/apps', '/admin/backup'],
     children: [
       { to: '/admin/settings',              label: 'Overview',       icon: SettingsIcon, exact: true },
       { to: '/admin/settings/store',        label: 'Store details',  icon: Store },
@@ -75,6 +76,7 @@ const NAV_GROUPS = [
       { to: '/admin/settings/shipping',     label: 'Shipping',       icon: Truck },
       { to: '/admin/apps',                  label: 'Integrations',   icon: Zap },
       { to: '/admin/settings/security',     label: 'Security',       icon: ShieldCheck },
+      { to: '/admin/backup',                label: 'Backup & restore', icon: FileText },
       { to: '/admin/settings/legal',        label: 'Legal & Policy', icon: FileText },
     ],
   },

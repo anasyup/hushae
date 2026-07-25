@@ -23,6 +23,8 @@ Format:
 
 ## Changes
 
+- **2026-07-25** — 4-in-1 batch: mobile audit v2, backup/restore, abandoned cart recovery, homepage beautification. Product page gallery thumbnails scroll properly on mobile. New AbandonedCart model + tracking endpoint + recovery email with COMEBACK10 code. Admin: Abandoned Carts page (list, one-click send, auto-send >24h) and Backup page (JSON download/restore + safety-layer explainer). Homepage adds Testimonials section (3 reviews with 4.9 stars) and a Trust bar (Discreet / Nationwide / Free ship / 14-day exchange).
+
 - **2026-07-25** — Order emails (customer confirmation, admin new-order alert, status updates) via nodemailer SMTP. Configurable from Admin → Integrations (Gmail/any provider) with a Send test email button. Mobile responsive fixes for Cart line items and Checkout header.
 
 - **2026-07-25** — Removed Drafts summary card from Inventory page and Drafts link from Catalog sidebar (per user request). Grid changes from 5 columns to 4.

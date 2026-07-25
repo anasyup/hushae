@@ -183,6 +183,59 @@ export default function Home() {
         <div className="mt-24"><ProductRow eyebrow="Pick up where you left off" title="Recently Viewed" products={recent} /></div>
       )}
 
+      {/* TESTIMONIALS */}
+      <motion.section {...fadeUp} className="mx-auto mt-24 max-w-7xl px-4 md:px-8">
+        <div className="mb-10 text-center">
+          <p className="text-[11px] font-bold uppercase tracking-widest text-sagedeep">Loved by</p>
+          <h2 className="mt-2 font-display text-3xl md:text-4xl">Women & men across Pakistan</h2>
+          <div className="mt-4 flex items-center justify-center gap-1">
+            {[1,2,3,4,5].map((i) => <span key={i} className="text-lg text-amber-500">★</span>)}
+            <span className="ml-2 text-[12px] font-semibold text-neutral-700">4.9 · 320+ reviews</span>
+          </div>
+        </div>
+        <div className="grid gap-4 md:grid-cols-3">
+          {[
+            { name: 'Ayesha K.',    city: 'Lahore',      rating: 5, text: 'The fit is unreal — it disappears under everything. Discreet packaging is a huge plus, felt private and premium.', tier: 'Verified buyer' },
+            { name: 'Muhammad H.',  city: 'Karachi',     rating: 5, text: 'Best undershirts I have ever owned. Breathable in Karachi summers and the fit holds after many washes.', tier: 'Verified buyer' },
+            { name: 'Sana R.',      city: 'Islamabad',   rating: 5, text: 'Ordered the shapewear for a wedding, arrived in 2 days. Comfortable, no lines, no sliding. Ordering more.', tier: 'Verified buyer' },
+          ].map((r, i) => (
+            <div key={i} className="rounded-3xl border border-line bg-white/70 p-6">
+              <div className="flex items-center gap-1 text-amber-500">
+                {Array.from({ length: r.rating }).map((_, k) => <span key={k}>★</span>)}
+              </div>
+              <p className="mt-4 text-[14px] leading-relaxed text-obsidian">"{r.text}"</p>
+              <div className="mt-5 flex items-center gap-3 border-t border-line pt-4">
+                <span className="grid h-9 w-9 place-items-center rounded-full bg-obsidian text-[11px] font-bold text-alabaster">{r.name.split(' ').map((s) => s[0]).slice(0, 2).join('')}</span>
+                <div>
+                  <p className="text-[13px] font-semibold text-obsidian">{r.name}</p>
+                  <p className="text-[10.5px] uppercase tracking-wider text-ash">{r.city} · {r.tier}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </motion.section>
+
+      {/* PRESS / TRUST BAR */}
+      <motion.section {...fadeUp} className="mx-auto mt-24 max-w-7xl px-4 md:px-8">
+        <div className="rounded-[2rem] border border-line bg-white/60 px-6 py-10 md:py-12">
+          <p className="text-center text-[10px] font-bold uppercase tracking-widest text-ash">Why choose VÉLOURA</p>
+          <div className="mt-6 grid grid-cols-2 gap-6 sm:grid-cols-4">
+            {[
+              { title: 'Discreet',       sub: 'Unmarked packaging on every order' },
+              { title: 'Nationwide',     sub: 'COD across all of Pakistan' },
+              { title: 'Free ship',      sub: 'On orders over PKR 4,999' },
+              { title: '14-day exchange',sub: 'Easy size swaps within two weeks' },
+            ].map((x, i) => (
+              <div key={i} className="text-center">
+                <p className="font-display text-lg md:text-xl">{x.title}</p>
+                <p className="mt-1 text-[11px] leading-relaxed text-ash">{x.sub}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </motion.section>
+
       {/* NEWSLETTER */}
       <motion.section {...fadeUp} className="mx-auto mt-24 max-w-7xl px-4 md:px-8">
         <div className="rounded-[2.5rem] bg-satin/60 px-6 py-14 text-center">
