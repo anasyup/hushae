@@ -34,7 +34,7 @@ const statusPill = (s) =>
 /* ==========================================================================
  * KPI CARD — trend badge (▲ +12%) coloured by direction
  * ======================================================================== */
-function KpiCard({ icon: Icon, label, value, change, sparkData, accent = '#111111', format = 'number' }) {
+function KpiCard({ icon: Icon, label, value, change, sparkData, accent = '#111111', format = 'number', to }) {
   const positive = change > 0;
   const negative = change < 0;
   const changeText = Math.abs(change).toFixed(1) + '%';
@@ -44,8 +44,8 @@ function KpiCard({ icon: Icon, label, value, change, sparkData, accent = '#11111
       ? (value >= 1000 ? (value / 1000).toFixed(1) + 'k' : value)
       : value.toLocaleString();
 
-  return (
-    <div className="relative overflow-hidden rounded-2xl border border-neutral-200 bg-white p-5 transition hover:-translate-y-0.5 hover:shadow-md">
+  const inner = (
+    <>
       <div className="flex items-center justify-between">
         <span className="grid h-10 w-10 place-items-center rounded-xl" style={{ background: `${accent}10`, color: accent }}>
           <Icon size={17} strokeWidth={1.9} />
@@ -60,12 +60,10 @@ function KpiCard({ icon: Icon, label, value, change, sparkData, accent = '#11111
         )}
       </div>
       <p className="mt-4 text-[11px] font-bold uppercase tracking-widest text-neutral-500">{label}</p>
-      <p className="mt-1 font-sans text-[26px] font-semibold tabular-nums leading-none tracking-tight text-neutral-900">
+      <p className="mt-1 font-sans text-[22px] font-semibold tabular-nums leading-none tracking-tight text-neutral-900 sm:text-[26px]">
         {display}
       </p>
       <p className="mt-1 text-[11px] text-neutral-400">vs. previous 30 days</p>
-
-      {/* Sparkline */}
       {sparkData && sparkData.length > 0 && (
         <div className="mt-3 h-10">
           <ResponsiveContainer width="100%" height="100%">
@@ -81,8 +79,10 @@ function KpiCard({ icon: Icon, label, value, change, sparkData, accent = '#11111
           </ResponsiveContainer>
         </div>
       )}
-    </div>
+    </>
   );
+  const cls = `relative overflow-hidden rounded-2xl border border-neutral-200 bg-white p-5 transition hover:-translate-y-0.5 hover:shadow-md ${to ? 'cursor-pointer' : ''}`;
+  return to ? <Link to={to} className={cls}>{inner}</Link> : <div className={cls}>{inner}</div>;
 }
 
 /* ==========================================================================
@@ -412,10 +412,10 @@ export default function Dashboard() {
 
       {/* --- KPI cards (30-day) with sparklines + trend --- */}
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <KpiCard icon={CircleDollarSign} label="Revenue (30d)"   value={d.kpis.revenue.value}   change={d.kpis.revenue.change}   sparkData={sparkRevenue}   accent="#059669" format="money" />
-        <KpiCard icon={ShoppingBag}      label="Orders (30d)"    value={d.kpis.orders.value}    change={d.kpis.orders.change}    sparkData={sparkOrders}    accent="#2563eb" />
-        <KpiCard icon={Users}            label="New Customers"   value={d.kpis.customers.value} change={d.kpis.customers.change} sparkData={sparkCustomers} accent="#7c3aed" />
-        <KpiCard icon={TrendingUp}       label="Avg Order Value" value={d.kpis.aov.value}       change={d.kpis.aov.change}       sparkData={sparkAov}       accent="#dc2626" format="money" />
+        <KpiCard icon={CircleDollarSign} label="Revenue (30d)"   value={d.kpis.revenue.value}   change={d.kpis.revenue.change}   sparkData={sparkRevenue}   accent="#059669" format="money" to="/admin/analytics" />
+        <KpiCard icon={ShoppingBag}      label="Orders (30d)"    value={d.kpis.orders.value}    change={d.kpis.orders.change}    sparkData={sparkOrders}    accent="#2563eb" to="/admin/orders" />
+        <KpiCard icon={Users}            label="New Customers"   value={d.kpis.customers.value} change={d.kpis.customers.change} sparkData={sparkCustomers} accent="#7c3aed" to="/admin/customers" />
+        <KpiCard icon={TrendingUp}       label="Avg Order Value" value={d.kpis.aov.value}       change={d.kpis.aov.change}       sparkData={sparkAov}       accent="#dc2626" format="money" to="/admin/analytics" />
       </div>
 
       {/* --- Profit row: profit, cost, margin (only shown if any cost is set) --- */}

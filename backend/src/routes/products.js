@@ -44,6 +44,45 @@ function buildQuery(req, { adminView = false } = {}) {
   return q;
 }
 
+// Trending products — computed from recent order frequency (last 30 days)
+// Returns [{ _id, name, slug, price, image, stock, orderCount, unitsSold, revenue }]
+router.get('/trending', asyncHandler(async (req, res) => {
+  const days = Math.min(90, Math.max(1, parseInt(req.query.days || '30', 10)));
+  const limit = Math.min(20, Math.max(1, parseInt(req.query.limit || '8', 10)));
+  const since = new Date(Date.now() - days * 86400000);
+
+  const Order = require('../models/Order');
+  const rows = await Order.aggregate([
+    { $match: { createdAt: { $gte: since }, status: { $nin: ['Cancelled', 'Refunded'] } } },
+    { $unwind: '$items' },
+    { $group: {
+      _id: '$items.product',
+      orderCount: { $addToSet: '$_id' },
+      unitsSold: { $sum: '$items.quantity' },
+      revenue: { $sum: '$items.lineTotal' },
+    } },
+    { $addFields: { orderCount: { $size: '$orderCount' } } },
+    { $sort: { unitsSold: -1, orderCount: -1 } },
+    { $limit: limit },
+  ]);
+
+  // Attach product info
+  const ids = rows.map((r) => r._id).filter(Boolean);
+  const products = await Product.find({ _id: { $in: ids }, isActive: true, status: { $ne: 'draft' } })
+    .select('name slug price compareAtPrice stock images gender categorySlug tier ratingAvg sizes colors');
+  const map = new Map(products.map((p) => [String(p._id), p.toObject()]));
+
+  const out = rows
+    .map((r) => {
+      const p = map.get(String(r._id));
+      if (!p) return null;
+      return { ...p, orderCount: r.orderCount, unitsSold: r.unitsSold, revenue: r.revenue };
+    })
+    .filter(Boolean);
+
+  res.json({ products: out, days });
+}));
+
 // Admin list (must be before /:slug)
 router.get('/admin/list', protect, adminOnly, asyncHandler(async (req, res) => {
   const q = buildQuery(req, { adminView: true });

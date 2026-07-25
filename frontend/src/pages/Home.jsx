@@ -27,6 +27,7 @@ export default function Home() {
   const [cats, setCats] = useState([]);
   const [best, setBest] = useState(null);
   const [signature, setSignature] = useState(null);
+  const [trending, setTrending] = useState(null);
   const s = settings || {};
   const hero = s.hero || {};
   const [nl, setNl] = useState('');
@@ -36,6 +37,7 @@ export default function Home() {
     api('/categories').then((d) => setCats(d.categories)).catch(() => {});
     api('/products?bestSeller=true&limit=10').then((d) => setBest(d.products)).catch(() => setBest([]));
     api('/products?featured=true&limit=10').then((d) => setSignature(d.products)).catch(() => setSignature([]));
+    api('/products/trending?limit=8').then((d) => setTrending(d.products || [])).catch(() => setTrending([]));
   }, []);
 
   const wCats = cats.filter((c) => c.gender === 'women');
@@ -125,6 +127,18 @@ export default function Home() {
           ? <div className="mx-auto max-w-7xl px-4 md:px-8"><ProductGridSkeleton count={4} /></div>
           : <motion.div {...fadeUp}><ProductRow eyebrow="Loved across Pakistan" title="Best Sellers" products={best.map(snap)} note="Restocked weekly" /></motion.div>}
       </div>
+
+      {/* TRENDING — most-ordered products in the last 30 days */}
+      {Array.isArray(trending) && trending.length > 0 && (
+        <motion.div {...fadeUp} className="mt-24">
+          <ProductRow
+            eyebrow="Flying off the shelves"
+            title="Trending Now"
+            products={trending.map(snap)}
+            note={`Top ${trending.length} by recent orders`}
+          />
+        </motion.div>
+      )}
 
       {/* FIT FINDER CTA */}
       <motion.section {...fadeUp} className="mx-auto mt-24 max-w-7xl px-4 md:px-8">

@@ -42,6 +42,7 @@ import WhatsAppFloat from './components/WhatsAppFloat';
 import StoreLock from './components/StoreLock';
 import CookieConsent from './components/CookieConsent';
 import PromoPopup from './components/PromoPopup';
+import MobileNav from './components/MobileNav';
 import OnlineStore from './admin/OnlineStore';
 import { track } from './lib/track';
 import AnalyticsInjector from './components/Analytics';
@@ -149,6 +150,7 @@ export default function App() {
       {!isAdmin && <WhatsAppFloat />}
       {!isAdmin && <CookieConsent />}
       {!isAdmin && <PromoPopup />}
+      {!isAdmin && <MobileNav />}
       <AnalyticsInjector />
       <Toasts />
     </div>
