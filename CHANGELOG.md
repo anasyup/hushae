@@ -23,6 +23,8 @@ Format:
 
 ## Changes
 
+- **2026-07-25** — Product tags + Collections (curated product groupings). Products now have a tags array (freeform, lowercased). New Collection model with manual product picking + smart rules (tags/category/tier/gender/on-sale). Admin: /admin/collections page with grid + full editor modal (image, description, smart rules with tag autocomplete, product picker, homepage toggle). Public: /collection/:slug with hero banner + product grid. Backend: /api/collections public + admin routes, /api/products supports ?tag=x,y filter. ProductForm has a tag pill editor.
+
 - **2026-07-25** — Products pagination (50 per page) + dedicated Payments admin page + real payment gateway scaffolding (JazzCash HPP with HMAC signing, SafePay for Visa/Mastercard). Payments page has 4 KPI cards, 4 tabs (Overview, Transactions, Payment Methods, Refunds), 30-day area chart, method mix ranking, CSV export.
 
 - **2026-07-25** — 4-in-1 batch: mobile audit v2, backup/restore, abandoned cart recovery, homepage beautification. Product page gallery thumbnails scroll properly on mobile. New AbandonedCart model + tracking endpoint + recovery email with COMEBACK10 code. Admin: Abandoned Carts page (list, one-click send, auto-send >24h) and Backup page (JSON download/restore + safety-layer explainer). Homepage adds Testimonials section (3 reviews with 4.9 stars) and a Trust bar (Discreet / Nationwide / Free ship / 14-day exchange).

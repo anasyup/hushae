@@ -35,13 +35,14 @@ const NAV_GROUPS = [
   {
     label: 'Catalog',
     icon: Package,
-    match: ['/admin/products', '/admin/categories'],
+    match: ['/admin/products', '/admin/categories', '/admin/collections'],
     children: [
       { to: '/admin/products',              label: 'Inventory',    icon: Package, exact: true },
       { to: '/admin/products/new',          label: 'Add product',  icon: PackagePlus },
       { to: '/admin/products?status=draft', label: 'Drafts',       icon: FolderOpen },
       { to: '/admin/products?active=0',     label: 'Archived',     icon: PackageX },
       { to: '/admin/categories',            label: 'Categories',   icon: Tags },
+      { to: '/admin/collections',           label: 'Collections',  icon: Tags },
     ],
   },
   {

@@ -19,13 +19,18 @@ function buildQuery(req, { adminView = false } = {}) {
   else if (req.query.status === 'active') q.status = { $ne: 'draft' };
   if (adminView && req.query.active === '0') q.isActive = false;
   if (adminView && req.query.active === '1') q.isActive = true;
-  const { gender, category, tier, size, color, badge, minPrice, maxPrice, q: search, ids } = req.query;
+  const { gender, category, tier, size, color, badge, tag, minPrice, maxPrice, q: search, ids } = req.query;
   if (gender) q.gender = gender;
   if (category) q.categorySlug = category;
   if (tier) q.tier = tier;
   if (size) q.sizes = size;
   if (color) q['colors.name'] = new RegExp(`^${color}$`, 'i');
   if (badge) q.badges = badge;
+  if (tag) {
+    // Support comma-separated tags: ?tag=wedding,summer -> any-of match
+    const tags = String(tag).split(',').map((t) => t.trim().toLowerCase()).filter(Boolean);
+    if (tags.length) q.tags = { $in: tags };
+  }
   if (req.query.featured === 'true') q.isFeatured = true;
   if (req.query.bestSeller === 'true') q.isBestSeller = true;
   if (req.query.sale === 'true') q.compareAtPrice = { $ne: null };
@@ -235,7 +240,7 @@ router.put('/:id', protect, adminOnly, asyncHandler(async (req, res) => {
   if (!product) return res.status(404).json({ message: 'Product not found' });
   const b = req.body || {};
   const fields = ['name', 'sku', 'gender', 'category', 'categorySlug', 'tier', 'price', 'compareAtPrice',
-    'stock', 'images', 'video', 'shortDescription', 'description', 'sizes', 'colors', 'fabric', 'badges',
+    'costPrice', 'stock', 'images', 'video', 'shortDescription', 'description', 'sizes', 'colors', 'fabric', 'badges', 'tags',
     'care', 'isFeatured', 'isBestSeller', 'isActive', 'status', 'ratingAvg', 'ratingCount', 'bundleSlug'];
   fields.forEach((f) => { if (b[f] !== undefined) product[f] = b[f]; });
   if (b.slug) product.slug = slugify(b.slug);

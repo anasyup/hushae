@@ -10,7 +10,7 @@ const BADGE_POOL = ['Breathable', 'Cooling', 'Seamless', 'Sweat Control', 'Suppo
 const EMPTY = {
   name: '', sku: '', gender: 'women', categorySlug: '', category: '', tier: 'Standard', price: '', compareAtPrice: '', costPrice: '',
   stock: 25, images: [], video: '', shortDescription: '', description: '', sizesText: '', fabric: '',
-  colors: [{ name: 'Black', hex: '#1A1A1A' }], badges: [], careText: '', isFeatured: false, isBestSeller: false, isActive: true, status: 'active', bundleSlug: '',
+  colors: [{ name: 'Black', hex: '#1A1A1A' }], badges: [], tags: [], careText: '', isFeatured: false, isBestSeller: false, isActive: true, status: 'active', bundleSlug: '',
 };
 
 // Module-level checkbox (stable identity)
@@ -64,7 +64,8 @@ export default function ProductForm() {
       stock: Number(f.stock) || 0, images, video: '', shortDescription: f.shortDescription, description: f.description,
       sizes: f.sizesText.split(',').map((s) => s.trim()).filter(Boolean),
       colors: f.colors.filter((c) => c.name && c.hex),
-      fabric: f.fabric, badges: f.badges, care: f.careText.split('\n').map((s) => s.trim()).filter(Boolean),
+      fabric: f.fabric, badges: f.badges, tags: (f.tags || []).map((t) => String(t).toLowerCase().trim()).filter(Boolean),
+      care: f.careText.split('\n').map((s) => s.trim()).filter(Boolean),
       isFeatured: f.isFeatured, isBestSeller: f.isBestSeller, isActive: f.isActive, status: forceStatus || f.status || 'active',
       category: cat?._id || f.category || undefined, categorySlug: f.categorySlug || cat?.slug, bundleSlug: f.bundleSlug,
     };
@@ -99,6 +100,44 @@ export default function ProductForm() {
           <div className="card grid gap-5 p-6 md:grid-cols-2">
             <div><label className="label">Sizes (comma separated)</label><input className="input" value={f.sizesText} onChange={(e) => set('sizesText', e.target.value)} placeholder="S, M, L, XL" /></div>
             <div><label className="label">Fabric</label><input className="input" value={f.fabric} onChange={(e) => set('fabric', e.target.value)} placeholder="92% combed cotton, 8% elastane" /></div>
+
+            {/* Tags — free-form, used for filtering + smart collections */}
+            <div>
+              <label className="label">Tags</label>
+              <div className="rounded-2xl border border-line bg-white/70 p-2.5">
+                <div className="flex flex-wrap gap-1.5">
+                  {(f.tags || []).map((t, i) => (
+                    <span key={t + i} className="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 pl-3 pr-1 py-1 text-[11px] font-semibold text-white">
+                      {t}
+                      <button
+                        type="button"
+                        onClick={() => set('tags', (f.tags || []).filter((_, j) => j !== i))}
+                        className="grid h-4 w-4 place-items-center rounded-full bg-white/20 text-white hover:bg-white/30"
+                        aria-label={`Remove ${t}`}
+                      >×</button>
+                    </span>
+                  ))}
+                  <input
+                    className="min-w-32 flex-1 bg-transparent px-2 py-1 text-xs outline-none placeholder:text-ash/60"
+                    placeholder="Add tag and press Enter (e.g. wedding, summer, bridal)"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ',') {
+                        e.preventDefault();
+                        const v = e.currentTarget.value.trim().toLowerCase();
+                        if (v && !(f.tags || []).includes(v)) {
+                          set('tags', [...(f.tags || []), v]);
+                        }
+                        e.currentTarget.value = '';
+                      } else if (e.key === 'Backspace' && !e.currentTarget.value && (f.tags || []).length) {
+                        set('tags', (f.tags || []).slice(0, -1));
+                      }
+                    }}
+                  />
+                </div>
+              </div>
+              <p className="mt-1 text-[11px] text-ash">Used for filters and smart collections. Examples: <code>wedding</code>, <code>summer</code>, <code>bridal</code>, <code>gift</code>.</p>
+            </div>
+
             <div className="md:col-span-2"><label className="label">Care instructions (one per line)</label><textarea className="input min-h-20" value={f.careText} onChange={(e) => set('careText', e.target.value)} /></div>
           </div>
 

@@ -33,6 +33,8 @@ const productSchema = new mongoose.Schema({
   colors: [colorSchema],
   fabric: { type: String, default: '' },
   badges: [{ type: String }],
+  // Freeform tags for filtering + curation (lowercased for search)
+  tags: [{ type: String, lowercase: true, trim: true }],
   care: [{ type: String }],
   ratingAvg: { type: Number, default: 4.5 },
   ratingCount: { type: Number, default: 0 },
