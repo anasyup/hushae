@@ -1,36 +1,67 @@
 import { Link } from 'react-router-dom';
 import { Heart } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useApp } from '../store/AppContext';
 import { pkr } from '../lib/format';
 import Img from './Img';
 
+/*
+ * ProductCard — the visual for one product tile in Shop / Home rows.
+ * IMPORTANT: hover-swap of the second image runs ONLY on real pointer-fine
+ * devices (desktop with a mouse). Touch devices show the primary image
+ * only, so nothing "auto-changes" while the customer scrolls.
+ */
 export default function ProductCard({ product: p, compact = false }) {
   const { inWishlist, toggleWish, addToCart } = useApp();
   const [sizePick, setSizePick] = useState(false);
   const [hover, setHover] = useState(false);
+  const [canHover, setCanHover] = useState(false); // true only on mice / trackpads
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return;
+    const mq = window.matchMedia('(hover: hover) and (pointer: fine)');
+    const update = () => setCanHover(mq.matches);
+    update();
+    if (mq.addEventListener) mq.addEventListener('change', update);
+    else mq.addListener(update);
+    return () => {
+      if (mq.removeEventListener) mq.removeEventListener('change', update);
+      else mq.removeListener(update);
+    };
+  }, []);
+
   const wished = inWishlist(p);
   const images = (p.images || []).filter((im) => im && (im.url || typeof im === 'string'));
   const primary = images[0]?.url || images[0] || p.image;
   const secondary = images[1]?.url || images[1] || null;
   const sizes = p.sizes || [];
 
+  // Only mouse devices flip images. On touch, `showSecondary` stays false.
+  const showSecondary = canHover && hover && !!secondary;
+
+  const mouseHandlers = canHover
+    ? {
+        onMouseEnter: () => setHover(true),
+        onMouseLeave: () => { setHover(false); setSizePick(false); },
+      }
+    : {};
+
   return (
-    <div className="group relative" onMouseEnter={() => setHover(true)} onMouseLeave={() => { setHover(false); setSizePick(false); }}>
+    <div className="group relative" {...mouseHandlers}>
       <div className="relative overflow-hidden rounded-2xl bg-satin/50">
         <Link to={`/product/${p.slug}`} aria-label={p.name} className="block">
-          {/* Primary image */}
+          {/* Primary image — always visible unless a real hover swap is happening */}
           <Img
             src={primary}
             alt={p.name}
-            className={`w-full object-cover transition-opacity duration-500 ${compact ? 'aspect-[3/4]' : 'aspect-[4/5]'} ${secondary && hover ? 'opacity-0' : 'opacity-100'}`}
+            className={`w-full object-cover transition-opacity duration-500 ${compact ? 'aspect-[3/4]' : 'aspect-[4/5]'} ${showSecondary ? 'opacity-0' : 'opacity-100'}`}
           />
-          {/* Secondary image — cross-fades in on hover (desktop) */}
-          {secondary && (
+          {/* Secondary image — only mounted on hover-capable devices */}
+          {canHover && secondary && (
             <Img
               src={secondary}
               alt={p.name}
-              className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ${hover ? 'opacity-100 scale-[1.02]' : 'opacity-0'}`}
+              className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ${showSecondary ? 'opacity-100' : 'opacity-0'}`}
             />
           )}
         </Link>
@@ -74,7 +105,6 @@ export default function ProductCard({ product: p, compact = false }) {
         <div className="mt-1 flex items-center gap-2">
           <span className="text-sm font-semibold">{pkr(p.price)}</span>
           {p.compareAtPrice && <span className="text-xs text-ash line-through">{pkr(p.compareAtPrice)}</span>}
-          {p.tier === 'Premium' && <span className="badge-sage !text-[9px]">Signature</span>}
         </div>
       </div>
     </div>

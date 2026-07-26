@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { applyAdminTheme, clearAdminTheme } from '../lib/adminTheme';
+import ProfitCalculator from './ProfitCalculator';
 
 /* ------------------------------------------------------------------ *
  * Sidebar structure — Shopify-style with collapsible groups.
@@ -304,6 +305,9 @@ export default function AdminLayout({ children, title }) {
           <div>{children}</div>
         </main>
       </div>
+
+      {/* Floating profit calculator — available on every admin page */}
+      <ProfitCalculator />
     </div>
   );
 }

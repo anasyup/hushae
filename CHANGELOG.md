@@ -23,6 +23,8 @@ Format:
 
 ## Changes
 
+- **2026-07-25** — ProductCard hover-swap now runs only on hover-capable devices (matchMedia "(hover: hover) and (pointer: fine)"). On touch phones and tablets the primary image stays put — no auto-flip while scrolling. New floating Profit Calculator on every admin page (bottom-right) — live inputs for sale price/cost/qty + per-order costs + ads + tax; outputs net profit, margins, per-unit profit, break-even qty, and ROAS. State persists in localStorage.
+
 - **2026-07-25** — Product tags + Collections (curated product groupings). Products now have a tags array (freeform, lowercased). New Collection model with manual product picking + smart rules (tags/category/tier/gender/on-sale). Admin: /admin/collections page with grid + full editor modal (image, description, smart rules with tag autocomplete, product picker, homepage toggle). Public: /collection/:slug with hero banner + product grid. Backend: /api/collections public + admin routes, /api/products supports ?tag=x,y filter. ProductForm has a tag pill editor.
 
 - **2026-07-25** — Products pagination (50 per page) + dedicated Payments admin page + real payment gateway scaffolding (JazzCash HPP with HMAC signing, SafePay for Visa/Mastercard). Payments page has 4 KPI cards, 4 tabs (Overview, Transactions, Payment Methods, Refunds), 30-day area chart, method mix ranking, CSV export.
