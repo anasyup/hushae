@@ -23,9 +23,10 @@ const NAV_GROUPS = [
   {
     label: 'Sales',
     icon: ShoppingBag,
-    match: ['/admin/orders', '/admin/customers', '/admin/discounts', '/admin/abandoned-carts'],
+    match: ['/admin/orders', '/admin/customers', '/admin/discounts', '/admin/abandoned-carts', '/admin/payments'],
     children: [
       { to: '/admin/orders',           label: 'Orders',           icon: ShoppingBag },
+      { to: '/admin/payments',         label: 'Payments',         icon: CreditCard },
       { to: '/admin/customers',        label: 'Customers',        icon: Users },
       { to: '/admin/discounts',        label: 'Discounts',        icon: BadgePercent },
       { to: '/admin/abandoned-carts',  label: 'Abandoned carts',  icon: ShoppingBag },

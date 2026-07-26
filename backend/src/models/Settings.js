@@ -109,13 +109,27 @@ const settingsSchema = new mongoose.Schema({
     },
     // SMTP email config — read by utils/mailer.js at send time
     email: {
-      host:   { type: String, default: '' },  // e.g. smtp.gmail.com
+      host:   { type: String, default: '' },
       port:   { type: Number, default: 587 },
-      secure: { type: Boolean, default: false }, // true for 465
-      user:   { type: String, default: '' },  // SMTP username
-      pass:   { type: String, default: '' },  // app password
-      from:   { type: String, default: '' },  // "Veloura <no-reply@veloura.pk>"
-      adminAlert: { type: String, default: '' }, // where new-order alerts go
+      secure: { type: Boolean, default: false },
+      user:   { type: String, default: '' },
+      pass:   { type: String, default: '' },
+      from:   { type: String, default: '' },
+      adminAlert: { type: String, default: '' },
+    },
+    // Real payment gateway credentials (JazzCash + SafePay for Visa/Mastercard)
+    payments: {
+      jazzcash: {
+        merchantId:    { type: String, default: '' },
+        password:      { type: String, default: '' },
+        integritySalt: { type: String, default: '' },
+        sandbox:       { type: Boolean, default: true },
+      },
+      safepay: {
+        apiKey:  { type: String, default: '' },
+        secret:  { type: String, default: '' },
+        sandbox: { type: Boolean, default: true },
+      },
     },
     analytics: {
       gaId: { type: String, default: '' },

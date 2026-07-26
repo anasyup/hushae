@@ -42,6 +42,7 @@ import Insights from './admin/Insights';
 import Finance from './admin/Finance';
 import AbandonedCarts from './admin/AbandonedCarts';
 import Backup from './admin/Backup';
+import Payments from './admin/Payments';
 import WhatsAppFloat from './components/WhatsAppFloat';
 import StoreLock from './components/StoreLock';
 import CookieConsent from './components/CookieConsent';
@@ -146,6 +147,7 @@ export default function App() {
           <Route path="/admin/finance" element={<Finance />} />
           <Route path="/admin/abandoned-carts" element={<AbandonedCarts />} />
           <Route path="/admin/backup" element={<Backup />} />
+          <Route path="/admin/payments" element={<Payments />} />
           <Route path="/admin/apps" element={<Apps />} />
 
           <Route path="*" element={<NotFound />} />

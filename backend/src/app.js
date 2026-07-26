@@ -34,6 +34,7 @@ app.use('/api/wishlist', require('./routes/wishlist'));
 app.use('/api/customer', require('./routes/customer'));
 app.use('/api/abandoned-cart', require('./routes/abandonedCart'));
 app.use('/api/backup', require('./routes/backup'));
+app.use('/api/payments', require('./routes/payments'));
 
 app.use('/api', (req, res) => res.status(404).json({ message: 'Not found' }));
 

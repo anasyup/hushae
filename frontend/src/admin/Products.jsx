@@ -61,6 +61,16 @@ export default function Products() {
     );
   }, [list, f.q]);
 
+  // Pagination — 50 per page, resets whenever filters/search change
+  const PER_PAGE = 50;
+  const [page, setPage] = useState(1);
+  useEffect(() => { setPage(1); }, [f.q, f.gender, f.category, f.tier, f.stock, f.status, view]);
+  const pageCount = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
+  const paged = useMemo(() => {
+    const start = (page - 1) * PER_PAGE;
+    return filtered.slice(start, start + PER_PAGE);
+  }, [filtered, page]);
+
   // Summary counters from the loaded list
   const summary = useMemo(() => {
     if (!Array.isArray(list)) return { total: 0, live: 0, draft: 0, archived: 0, oos: 0, low: 0 };
@@ -207,10 +217,10 @@ export default function Products() {
       ) : filtered.length === 0 ? (
         <EmptyState onClear={clearFilters} hasFilters={hasFilters} />
       ) : view === 'grid' ? (
-        <GridView products={filtered} onEnable={enable} onDisable={disable} onRemove={remove} />
+        <GridView products={paged} onEnable={enable} onDisable={disable} onRemove={remove} />
       ) : (
         <ListView
-          products={filtered}
+          products={paged}
           selected={selected}
           onToggleSel={toggleSel}
           onToggleAll={toggleSelAll}
@@ -220,10 +230,38 @@ export default function Products() {
         />
       )}
 
-      {list !== null && (
-        <p className="mt-4 text-center text-[11px] text-neutral-400">
-          Showing <b className="text-neutral-700">{filtered.length}</b> of {list.length} products
-        </p>
+      {/* ============ PAGINATION ============ */}
+      {filtered.length > 0 && (
+        <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-neutral-200 bg-white px-4 py-3">
+          <p className="text-[11px] text-neutral-500">
+            Showing <b className="text-neutral-900">{Math.min((page - 1) * PER_PAGE + 1, filtered.length)}</b>–<b className="text-neutral-900">{Math.min(page * PER_PAGE, filtered.length)}</b> of <b className="text-neutral-900">{filtered.length}</b>
+          </p>
+          {pageCount > 1 && (
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1}
+                className="rounded-lg border border-neutral-200 bg-white px-3 py-1.5 text-[11px] font-semibold text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-40"
+              >Prev</button>
+              {pageNumbers(page, pageCount).map((n, i) => n === '…' ? (
+                <span key={`d${i}`} className="px-2 text-[11px] text-neutral-400">…</span>
+              ) : (
+                <button
+                  key={n}
+                  onClick={() => setPage(n)}
+                  className={`min-w-8 rounded-lg px-2.5 py-1.5 text-[11px] font-semibold transition ${
+                    n === page ? 'bg-neutral-900 text-white' : 'border border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-50'
+                  }`}
+                >{n}</button>
+              ))}
+              <button
+                onClick={() => setPage((p) => Math.min(pageCount, p + 1))}
+                disabled={page === pageCount}
+                className="rounded-lg border border-neutral-200 bg-white px-3 py-1.5 text-[11px] font-semibold text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-40"
+              >Next</button>
+            </div>
+          )}
+        </div>
       )}
     </AdminLayout>
   );
@@ -442,6 +480,18 @@ function GridView({ products, onEnable, onDisable, onRemove }) {
       ))}
     </div>
   );
+}
+
+/* Compact page-number list with ellipses:
+ * page=5, total=20 -> [1, '…', 4, 5, 6, '…', 20] */
+function pageNumbers(page, total) {
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+  const out = [1];
+  if (page > 3) out.push('…');
+  for (let n = Math.max(2, page - 1); n <= Math.min(total - 1, page + 1); n += 1) out.push(n);
+  if (page < total - 2) out.push('…');
+  out.push(total);
+  return out;
 }
 
 function EmptyState({ onClear, hasFilters }) {
