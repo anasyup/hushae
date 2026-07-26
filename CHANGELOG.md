@@ -23,6 +23,8 @@ Format:
 
 ## Changes
 
+- **2026-07-25** — Username change added to Security & Access page. POST /api/auth/change-username validates current password, enforces uniqueness across users, and rotates the JWT so all other devices are signed out immediately. UI card sits above the password card, shows the current username, and asks for the current password as confirmation.
+
 - **2026-07-25** — ProductCard hover-swap now runs only on hover-capable devices (matchMedia "(hover: hover) and (pointer: fine)"). On touch phones and tablets the primary image stays put — no auto-flip while scrolling. New floating Profit Calculator on every admin page (bottom-right) — live inputs for sale price/cost/qty + per-order costs + ads + tax; outputs net profit, margins, per-unit profit, break-even qty, and ROAS. State persists in localStorage.
 
 - **2026-07-25** — Product tags + Collections (curated product groupings). Products now have a tags array (freeform, lowercased). New Collection model with manual product picking + smart rules (tags/category/tier/gender/on-sale). Admin: /admin/collections page with grid + full editor modal (image, description, smart rules with tag autocomplete, product picker, homepage toggle). Public: /collection/:slug with hero banner + product grid. Backend: /api/collections public + admin routes, /api/products supports ?tag=x,y filter. ProductForm has a tag pill editor.

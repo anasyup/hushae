@@ -335,11 +335,19 @@ export function SettingsShipping() {
 export function SettingsSecurity() {
   const { auth, setAuth, toast } = useApp();
   const [theme, setTheme] = useState(getAdminTheme());
+
+  // Password change state
   const [current, setCurrent] = useState('');
   const [next, setNext] = useState('');
   const [confirm, setConfirm] = useState('');
   const [show, setShow] = useState({ c: false, n: false, x: false });
   const [busy, setBusy] = useState(false);
+
+  // Username change state (separate form)
+  const [uCurrent, setUCurrent] = useState('');
+  const [uNew, setUNew] = useState('');
+  const [uShow, setUShow] = useState(false);
+  const [uBusy, setUBusy] = useState(false);
 
   const strength = (() => {
     if (!next) return { label: '', color: 'transparent', pct: 0 };
@@ -370,10 +378,24 @@ export function SettingsSecurity() {
     try {
       const res = await api('/auth/change-password', { method: 'POST', token: auth.token, body: { currentPassword: current, newPassword: next } });
       if (res?.token && setAuth) setAuth({ token: res.token, user: res.user });
-      toast('Password changed');
+      toast('Password changed — other devices signed out');
       setCurrent(''); setNext(''); setConfirm('');
     } catch (ex) { toast(ex?.message || 'Failed'); }
     setBusy(false);
+  };
+
+  const submitUsername = async (e) => {
+    e.preventDefault();
+    if (!uCurrent || !uNew) return toast('Enter current password and new username');
+    if (uNew.trim().toLowerCase() === (auth?.user?.email || '').toLowerCase()) return toast('That is already your current username');
+    setUBusy(true);
+    try {
+      const res = await api('/auth/change-username', { method: 'POST', token: auth.token, body: { currentPassword: uCurrent, newUsername: uNew.trim() } });
+      if (res?.token && setAuth) setAuth({ token: res.token, user: res.user });
+      toast('Username changed — other devices signed out');
+      setUCurrent(''); setUNew('');
+    } catch (ex) { toast(ex?.message || 'Failed'); }
+    setUBusy(false);
   };
 
   const eyeBtn = (which) => (
@@ -388,6 +410,49 @@ export function SettingsSecurity() {
       <PageIntro icon={ShieldCheck} title="Security & Access" description="Protect your store — change your admin password and choose how the admin panel looks on this device." />
 
       <div className="space-y-5">
+        <Section title="Change username" description="Your login identifier. Any signed-in device will be signed out after you change it.">
+          <form onSubmit={submitUsername} className="space-y-4">
+            <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-3 text-[12px] text-neutral-600">
+              <span className="font-semibold text-neutral-500">Current username: </span>
+              <span className="font-mono text-neutral-900">{auth?.user?.email || '—'}</span>
+            </div>
+            <div className="grid gap-4 md:grid-cols-2">
+              <div>
+                <label className="label">New username</label>
+                <input
+                  className="input"
+                  value={uNew}
+                  onChange={(e) => setUNew(e.target.value)}
+                  placeholder="e.g. veloura_admin or you@veloura.pk"
+                  autoComplete="off"
+                />
+                <p className="mt-1.5 text-[11px] text-neutral-500">Letters, numbers, dot, underscore or dash. Or use a valid email.</p>
+              </div>
+              <div className="relative">
+                <label className="label">Confirm with current password</label>
+                <input
+                  className="input pr-10"
+                  type={uShow ? 'text' : 'password'}
+                  value={uCurrent}
+                  onChange={(e) => setUCurrent(e.target.value)}
+                  autoComplete="current-password"
+                />
+                <button type="button" onClick={() => setUShow((v) => !v)} className="absolute right-2.5 top-[42px] rounded-full p-1.5 text-neutral-400 hover:text-neutral-900" aria-label="Toggle visibility">
+                  {uShow ? <EyeOff size={15} /> : <Eye size={15} />}
+                </button>
+              </div>
+            </div>
+            <p className="text-[11px] text-neutral-500">After changing, you will be signed out from every other browser and device.</p>
+            <button
+              type="submit"
+              disabled={uBusy || !uCurrent || !uNew || uNew.trim().toLowerCase() === (auth?.user?.email || '').toLowerCase()}
+              className="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-6 py-2.5 text-[12px] font-semibold text-white transition hover:bg-neutral-800 disabled:opacity-40"
+            >
+              <Lock size={13} /> {uBusy ? 'Updating…' : 'Update username'}
+            </button>
+          </form>
+        </Section>
+
         <Section title="Change password" description="A strong password uses at least 12 characters with upper- and lower-case letters, numbers, and a symbol.">
           <form onSubmit={submit} className="space-y-4">
             <div className="relative">

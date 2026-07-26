@@ -105,4 +105,43 @@ router.post('/change-password', protect, changePwLimit, asyncHandler(async (req,
   res.json({ message: 'Password changed successfully', token: signToken(user), user: publicUser(user) });
 }));
 
+// Change username / login email — requires current password to prevent hijack.
+// Rotates the JWT so any other device using the old token is immediately
+// signed out. Enforces uniqueness across the users collection.
+router.post('/change-username', protect, changePwLimit, asyncHandler(async (req, res) => {
+  const { currentPassword, newUsername } = req.body || {};
+  const clean = String(newUsername || '').trim().toLowerCase();
+
+  if (!currentPassword) return res.status(400).json({ message: 'Current password is required' });
+  if (!clean) return res.status(400).json({ field: 'newUsername', message: 'New username is required' });
+  if (clean.length < 4) return res.status(400).json({ field: 'newUsername', message: 'Username must be at least 4 characters' });
+  if (clean.length > 40) return res.status(400).json({ field: 'newUsername', message: 'Username is too long' });
+  // Allow either a simple handle (letters/numbers/._-) or a valid email
+  const handleOk = /^[a-z0-9._-]+$/.test(clean);
+  const emailOk  = /^\S+@\S+\.\S+$/.test(clean);
+  if (!handleOk && !emailOk) {
+    return res.status(400).json({ field: 'newUsername', message: 'Use letters, numbers, dot, underscore or dash (or a valid email)' });
+  }
+
+  const User = require('../models/User');
+  const user = await User.findById(req.user._id).select('+password');
+  if (!user) return res.status(404).json({ message: 'User not found' });
+  if (clean === (user.email || '').toLowerCase()) {
+    return res.status(400).json({ field: 'newUsername', message: 'That is already your current username' });
+  }
+
+  const ok = await user.comparePassword(String(currentPassword));
+  if (!ok) return res.status(401).json({ field: 'currentPassword', message: 'Current password is incorrect' });
+
+  // Uniqueness check — another user might already use this identifier
+  const clash = await User.findOne({ email: clean, _id: { $ne: user._id } });
+  if (clash) return res.status(409).json({ field: 'newUsername', message: 'This username is already taken' });
+
+  user.email = clean;
+  await user.save();
+
+  // Rotate JWT so old sessions (other devices / browsers) stop working
+  res.json({ message: 'Username changed successfully', token: signToken(user), user: publicUser(user) });
+}));
+
 module.exports = router;
