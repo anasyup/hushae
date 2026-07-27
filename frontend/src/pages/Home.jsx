@@ -106,6 +106,20 @@ export default function Home() {
       {/* Block 1 — Half/Half split hero — Women (left) + Men (right), CK "Classic Calvins" style */}
       <SignatureSplitHero />
 
+      {/* Premium, perfected — Signature product row directly under the split hero */}
+      {signature && signature.length > 0 && (
+        <div className="mt-14 md:mt-20">
+          <motion.div {...fadeUp}>
+            <ProductRow
+              eyebrow="The Signature Edit"
+              title="Premium, perfected"
+              products={signature.map(snap)}
+              note="Silk-touch finishes · limited restock"
+            />
+          </motion.div>
+        </div>
+      )}
+
       {/* Block 2 — Women highlight (image right, copy left, warm) */}
       <EditorialBlock
         eyebrow="For her"
@@ -206,10 +220,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* SIGNATURE */}
-      <div className="mt-24">
-        {signature && <motion.div {...fadeUp}><ProductRow eyebrow="The Signature Edit" title="Premium, perfected" products={signature.map(snap)} note="Silk-touch finishes" /></motion.div>}
-      </div>
+      {/* Signature row moved up to sit under the split hero */}
 
       {/* Recently Viewed removed per user request */}
 
