@@ -7,6 +7,7 @@ import { useApp } from '../store/AppContext';
 import { pkr, snap } from '../lib/format';
 import { isVideo, ytId } from '../lib/media';
 import Img from '../components/Img';
+import ProductImageZoom from '../components/ProductImageZoom';
 import ProductRow from '../components/ProductRow';
 import SizeGuideModal from '../components/SizeGuideModal';
 import { PageSkeleton } from '../components/Skeletons';
@@ -132,14 +133,18 @@ export default function Product() {
                 </button>
               ))}
             </div>
-            <div className="gallery-zoom order-1 overflow-hidden rounded-[2rem] bg-satin/40 sm:order-2">
+            <div className="order-1 sm:order-2">
               {!active || active.t === 'img' ? (
-                <Img src={active?.url} alt={active?.alt || p.name} className="aspect-[4/5] w-full object-cover" />
+                <ProductImageZoom src={active?.url} alt={active?.alt || p.name} />
               ) : activeYt ? (
-                <iframe src={`https://www.youtube.com/embed/${activeYt}?rel=0`} title="Product video"
-                  className="aspect-[4/5] w-full bg-obsidian" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
+                <div className="overflow-hidden rounded-[2rem] bg-obsidian">
+                  <iframe src={`https://www.youtube.com/embed/${activeYt}?rel=0`} title="Product video"
+                    className="aspect-[4/5] w-full" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
+                </div>
               ) : (
-                <video src={active.url} className="aspect-[4/5] w-full bg-obsidian object-cover" controls autoPlay muted loop playsInline />
+                <div className="overflow-hidden rounded-[2rem] bg-obsidian">
+                  <video src={active.url} className="aspect-[4/5] w-full object-cover" controls autoPlay muted loop playsInline />
+                </div>
               )}
             </div>
           </div>

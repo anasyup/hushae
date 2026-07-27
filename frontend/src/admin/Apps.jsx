@@ -114,9 +114,9 @@ export default function Apps() {
           </div>
           <ol className="mt-4 list-decimal space-y-1.5 rounded-2xl border border-line bg-satin/30 p-4 pl-9 text-xs leading-relaxed text-ash">
             <li><b className="text-obsidian">cloudinary.com</b> and create a free account (email + password — completely free)</li>
-            <li>On the Dashboard you will find <b className="text-obsidian">Cloud Name</b> — copy it</li>
+            <li>On the Dashboard you will find <b className="text-obsidian">Cloud Name</b> —Copy it</li>
             <li>⚙️ Settings → <b className="text-obsidian">Upload</b> → Upload presets → <b className="text-obsidian">Add upload preset</b></li>
-            <li><b className="text-obsidian">Signing Mode: Unsigned</b> select karein → Save — preset ka naam copy it</li>
+            <li><b className="text-obsidian">Signing Mode: Unsigned</b> — Save the preset andCopy its name</li>
             <li>Paste both fields below and click Save — done!</li>
           </ol>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
@@ -198,7 +198,7 @@ export default function Apps() {
             <div>
               <h2 className="font-sans text-lg">Analytics & Tracking Pixels</h2>
               <p className="mt-0.5 text-xs text-ash">
-                Connect Google Analytics + Meta/TikTok Pixel. <b className="text-obsidian">Cookie consent</b> ke baad hi scripts are loaded (privacy-safe).
+                Connect Google Analytics + Meta/TikTok Pixel. <b className="text-obsidian">Cookie consent</b> is granted before any scripts load (privacy-safe).
               </p>
             </div>
             {(analytics.gaId || analytics.metaPixelId) && (
@@ -211,7 +211,7 @@ export default function Apps() {
               <label className="label">Google Analytics 4 ID</label>
               <input className="input font-mono text-xs" placeholder="G-XXXXXXXXXX" value={analytics.gaId} onChange={(e) => setAn('gaId', e.target.value)} />
               <p className="mt-1.5 text-[11px] text-ash">
-                <a href="https://analytics.google.com" target="_blank" rel="noreferrer" className="underline hover:text-obsidian">analytics.google.com</a> → Property banayein → Data streams → Measurement ID copy it
+                <a href="https://analytics.google.com" target="_blank" rel="noreferrer" className="underline hover:text-obsidian">analytics.google.com</a> → Property banayein → Data streams → Measurement IDCopy it
               </p>
             </div>
             <div>
@@ -223,7 +223,7 @@ export default function Apps() {
               <label className="label">Meta (Facebook) Pixel ID</label>
               <input className="input font-mono text-xs" placeholder="1234567890123456" value={analytics.metaPixelId} onChange={(e) => setAn('metaPixelId', e.target.value)} />
               <p className="mt-1.5 text-[11px] text-ash">
-                <a href="https://business.facebook.com/events_manager" target="_blank" rel="noreferrer" className="underline hover:text-obsidian">Meta Events Manager</a> → Data source → Pixel ID copy it
+                <a href="https://business.facebook.com/events_manager" target="_blank" rel="noreferrer" className="underline hover:text-obsidian">Meta Events Manager</a> → Data source → Pixel IDCopy it
               </p>
             </div>
             <div>
@@ -234,7 +234,7 @@ export default function Apps() {
           </div>
 
           <div className="mt-4 rounded-2xl border border-line bg-satin/30 p-3 text-[11px] leading-relaxed text-ash">
-            <b className="text-obsidian">Privacy note:</b> These scripts only load once the customer allows "Analytics" (GA/GTM) ya "Marketing" (Meta/TikTok Pixel) in the cookie consent. Leaving fields empty disables tracking.
+            <b className="text-obsidian">Privacy note:</b> These scripts only load once the customer allows "Analytics" (GA/GTM)  or "Marketing" (Meta/TikTok Pixel) in the cookie consent. Leaving fields empty disables tracking.
           </div>
         </div>
       </div>

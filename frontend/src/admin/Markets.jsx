@@ -42,7 +42,7 @@ export default function Markets() {
           </div>
           <p className="mt-4 flex items-start gap-2 text-sm leading-relaxed text-ash">
             <Globe size={15} className="mt-0.5 shrink-0" />
-            International markets (UAE, UK, USA) aur multiple currencies ka option jald add hoga. Abhi aapki store Pakistan mein poori tarah live hai.
+            International markets (UAE, UK, USA) and multiple currencies are coming soon. Your store is currently fully live for Pakistan.
           </p>
         </div>
 

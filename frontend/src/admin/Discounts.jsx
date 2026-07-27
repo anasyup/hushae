@@ -50,7 +50,7 @@ export default function Discounts() {
   return (
     <AdminLayout title="Discounts">
       <div className="mb-5 flex items-center justify-between">
-        <p className="text-sm text-ash">Coupon codes jo customers checkout par laga kar discount le saktay hain.</p>
+        <p className="text-sm text-ash">Coupon codes customers can enter at checkout to get a discount.</p>
         <button onClick={openNew} className="btn-primary"><Plus size={15} /> New Code</button>
       </div>
 
@@ -74,7 +74,7 @@ export default function Discounts() {
             <Field label="Expiry date — optional"><input className="input" type="date" value={form.expiresAt} onChange={(e) => set('expiresAt', e.target.value)} /></Field>
           </div>
           <label className="mt-4 flex cursor-pointer items-center gap-2 text-sm">
-            <input type="checkbox" checked={form.active} onChange={(e) => set('active', e.target.checked)} className="h-4 w-4 accent-obsidian" /> Code active hai (customers use kar saktay hain)
+            <input type="checkbox" checked={form.active} onChange={(e) => set('active', e.target.checked)} className="h-4 w-4 accent-obsidian" /> Code is active (customers can use it)
           </label>
           {err && <p className="mt-3 rounded-xl bg-red-50 px-4 py-2 text-sm text-red-700">{err}</p>}
           <div className="mt-5 flex gap-3">
@@ -88,7 +88,7 @@ export default function Discounts() {
         {!list ? <div className="skeleton m-6 h-40" /> : list.length === 0 ? (
           <div className="p-14 text-center">
             <BadgePercent size={36} className="mx-auto text-ash" />
-            <p className="mt-3 text-sm text-ash">Abhi koi discount code nahi — pehla code banayen, jaise WELCOME10.</p>
+            <p className="mt-3 text-sm text-ash">No discount codes yet — create your first one, e.g. WELCOME10.</p>
           </div>
         ) : (
           <table className="w-full min-w-[860px]">

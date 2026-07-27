@@ -32,8 +32,8 @@ export default function Growth() {
         <div className="card p-5 md:col-span-2">
           <h2 className="font-sans text-lg">Newsletter list</h2>
           <p className="mt-1.5 text-sm leading-relaxed text-ash">
-            Website ke footer mein jo log apna email dete hain wo yahan show hota hai. In emails ko copy kar ke
-            apni sale announcements aur naye coupon codes bhejein — ye aapki sab se sasti marketing hai.
+            Emails collected from the footer newsletter form appear here. Copy the list and
+            send your own sale announcements and coupon codes — the cheapest marketing you have.
           </p>
           <button onClick={copyAll} disabled={!subs || !subs.length} className="btn-outline mt-4"><Copy size={14} /> {copied ? 'Copied!' : 'Copy All Emails'}</button>
         </div>

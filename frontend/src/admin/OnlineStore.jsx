@@ -29,7 +29,7 @@ export default function OnlineStore() {
     setBusy(true);
     try {
       await api('/settings', { method: 'PUT', token: auth.token, body: { storefrontLock: { ...lock, password: lock.password.trim() } } });
-      toast(lock.enabled ? 'Store lock ON — visitors ko password chahiye hoga' : 'Store lock OFF — store public hai');
+      toast(lock.enabled ? 'Store lock is ON — visitors will need a password' : 'Store lock is OFF — the store is public');
     } catch (ex) { toast(ex.message || 'Could not save'); }
     setBusy(false);
   };
@@ -47,7 +47,7 @@ export default function OnlineStore() {
   const ACTIONS = [
     ['Edit Theme', 'Hero, images aur text', Palette, '/admin/content'],
     ['Announcement Bar', 'Top strip on/off aur message', Megaphone, '/admin/content'],
-    ['Coupons', 'Discount codes banayen', BadgePercent, '/admin/discounts'],
+    ['Coupons', 'Create discount codes', BadgePercent, '/admin/discounts'],
     ['Shipping & COD', 'Rates aur free-shipping limit', Truck, '/admin/markets'],
     ['WhatsApp & Social', 'Chat button aur links', MessageCircle, '/admin/apps'],
     ['Analytics', 'Sales charts dekhein', BarChart3, '/admin/analytics'],

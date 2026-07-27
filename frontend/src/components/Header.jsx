@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Heart, Menu, Search, ShoppingBag, User, X } from 'lucide-react';
 import { useApp } from '../store/AppContext';
@@ -14,17 +14,36 @@ export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [q, setQ] = useState('');
+  const [scrolled, setScrolled] = useState(false);
   const nav = useNavigate();
+  const loc = useLocation();
   const searchRef = useRef(null);
+
+  // On the homepage the hero is edge-to-edge full-screen video/image.
+  // We overlay the header on top of it (transparent), and only fill it in
+  // once the user starts scrolling past the fold.
+  const isHome = loc.pathname === '/';
+  const heroOverlay = isHome && !scrolled;
 
   useEffect(() => { api('/categories').then((d) => setCats(d.categories)).catch(() => {}); }, []);
   useEffect(() => { if (searchOpen) searchRef.current?.focus(); }, [searchOpen]);
+  useEffect(() => {
+    if (!isHome) { setScrolled(true); return; }
+    const onScroll = () => setScrolled(window.scrollY > 60);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [isHome]);
 
   const wCats = cats.filter((c) => c.gender === 'women');
   const mCats = cats.filter((c) => c.gender === 'men');
 
   const linkCls = ({ isActive }) =>
-    `relative text-[12px] font-semibold uppercase tracking-widest transition hover:text-obsidian ${isActive ? 'text-obsidian' : 'text-ash'}`;
+    `relative text-[12px] font-semibold uppercase tracking-widest transition ${
+      heroOverlay
+        ? (isActive ? 'text-alabaster' : 'text-alabaster/80 hover:text-alabaster')
+        : (isActive ? 'text-obsidian' : 'text-ash hover:text-obsidian')
+    }`;
 
   const submitSearch = (e) => {
     e.preventDefault();
@@ -50,37 +69,40 @@ export default function Header() {
 
   return (
     <>
-      <OfferBar />
+      {!heroOverlay && <OfferBar />}
 
-      <header className="sticky top-0 z-40 border-b border-line bg-alabaster/95 backdrop-blur-md">
+      <header className={`z-40 transition-colors duration-300 ${
+        heroOverlay
+          ? 'fixed inset-x-0 top-0 border-b border-transparent bg-transparent text-alabaster'
+          : 'sticky top-0 border-b border-line bg-alabaster/95 text-obsidian backdrop-blur-md'
+      }`}>
         <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-2 px-3 md:h-16 md:gap-4 md:px-8">
-          <button className="rounded-full p-1.5 -ml-1.5 md:hidden" onClick={() => setMobileOpen(true)} aria-label="Menu"><Menu size={22} /></button>
-          <Wordmark />
+          <button className={`rounded-full p-1.5 -ml-1.5 md:hidden ${heroOverlay ? 'text-alabaster' : ''}`} onClick={() => setMobileOpen(true)} aria-label="Menu"><Menu size={22} /></button>
+          <Wordmark forceColor={heroOverlay ? 'alabaster' : undefined} />
 
           <nav className="hidden items-center gap-7 md:flex">
             <Drop label={<Tx k="women" />} to="/women" items={wCats} />
             <Drop label={<Tx k="men" />} to="/men" items={mCats} />
             <NavLink to="/new" className={linkCls}><Tx k="newArrivals" /></NavLink>
             <NavLink to="/best" className={linkCls}><Tx k="bestSellers" /></NavLink>
-            <NavLink to="/sale" className={({ isActive }) => `${linkCls({ isActive })} !text-sagedeep`}><Tx k="sale" /></NavLink>
+            <NavLink to="/sale" className={({ isActive }) => `${linkCls({ isActive })} ${heroOverlay ? '' : '!text-sagedeep'}`}><Tx k="sale" /></NavLink>
             <NavLink to="/fit-finder" className={linkCls}><Tx k="fitFinder" /></NavLink>
             <NavLink to="/track" className={linkCls}><Tx k="trackOrder" /></NavLink>
           </nav>
 
-          <div className="flex items-center gap-0.5 md:gap-3">
-            <button onClick={() => setSearchOpen((s) => !s)} aria-label="Search" className="rounded-full p-2 text-obsidian transition hover:bg-satin/60"><Search size={19} /></button>
-            {/* Wishlist + Account hidden on mobile — they live in MobileNav bottom bar */}
-            <Link to="/wishlist" aria-label="Wishlist" className="relative hidden rounded-full p-2 text-obsidian transition hover:bg-satin/60 md:inline-flex">
+          <div className={`flex items-center gap-0.5 md:gap-3 ${heroOverlay ? 'text-alabaster' : 'text-obsidian'}`}>
+            <button onClick={() => setSearchOpen((s) => !s)} aria-label="Search" className={`rounded-full p-2 transition ${heroOverlay ? 'hover:bg-white/10' : 'hover:bg-satin/60'}`}><Search size={19} /></button>
+            <Link to="/wishlist" aria-label="Wishlist" className={`relative hidden rounded-full p-2 transition md:inline-flex ${heroOverlay ? 'hover:bg-white/10' : 'hover:bg-satin/60'}`}>
               <Heart size={19} />
               {wishlist.length > 0 && <span className="absolute -right-0.5 -top-0.5 grid h-4 w-4 place-items-center rounded-full bg-sage text-[9px] font-bold text-obsidian">{wishlist.length}</span>}
             </Link>
-            <Link to="/account" aria-label="Account" className="relative hidden rounded-full p-2 text-obsidian transition hover:bg-satin/60 md:inline-flex">
+            <Link to="/account" aria-label="Account" className={`relative hidden rounded-full p-2 transition md:inline-flex ${heroOverlay ? 'hover:bg-white/10' : 'hover:bg-satin/60'}`}>
               <User size={19} />
               {auth && <span className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full bg-sage" />}
             </Link>
-            <button onClick={() => setDrawerOpen(true)} aria-label="Cart" className="relative rounded-full p-2 text-obsidian transition hover:bg-satin/60">
+            <button onClick={() => setDrawerOpen(true)} aria-label="Cart" className={`relative rounded-full p-2 transition ${heroOverlay ? 'hover:bg-white/10' : 'hover:bg-satin/60'}`}>
               <ShoppingBag size={19} />
-              {cartCount > 0 && <span className="absolute -right-0.5 -top-0.5 grid h-4 w-4 place-items-center rounded-full bg-obsidian text-[9px] font-bold text-alabaster">{cartCount}</span>}
+              {cartCount > 0 && <span className={`absolute -right-0.5 -top-0.5 grid h-4 w-4 place-items-center rounded-full text-[9px] font-bold ${heroOverlay ? 'bg-alabaster text-obsidian' : 'bg-obsidian text-alabaster'}`}>{cartCount}</span>}
             </button>
           </div>
         </div>

@@ -7,6 +7,7 @@ import { api } from '../api/client';
 import { snap } from '../lib/format';
 import Img from '../components/Img';
 import Marquee from '../components/Marquee';
+import FeaturedMarquee from '../components/FeaturedMarquee';
 import TrustBadges from '../components/TrustBadges';
 import ProductRow from '../components/ProductRow';
 import { ProductGridSkeleton } from '../components/Skeletons';
@@ -47,7 +48,7 @@ export default function Home() {
     <div>
       <Seo
         title={null}
-        description="Premium innerwear brand in Pakistan — bras, briefs, shapewear, robes aur zyada. COD nationwide, free shipping over PKR 4,999, discreet packaging always."
+        description="Premium innerwear brand in Pakistan — bras, briefs, shapewear, robes and more. COD nationwide, free shipping over PKR 4,999, discreet packaging always."
         canonical="/"
         jsonLd={organizationJsonLd(typeof window !== 'undefined' ? window.location.origin : '')}
         jsonLdId="home-org"
@@ -87,6 +88,12 @@ export default function Home() {
         </div>
       </section>
       )}
+
+      {/* Featured products — dark auto-sliding strip right after the hero */}
+      <FeaturedMarquee
+        products={(signature && signature.length ? signature : best) || []}
+        title="Signature Pieces"
+      />
 
       <Marquee />
 

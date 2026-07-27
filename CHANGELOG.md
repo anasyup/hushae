@@ -23,6 +23,28 @@ Format:
 
 ## Changes
 
+- **2026-07-27** — 🎬 **Full-screen home hero + English-only + product zoom + featured marquee**.
+
+  **Homepage / hero**:
+  - Header is now a **transparent overlay** on top of the full-screen video/image while at the top of the homepage — no white bar cutting through the hero. It fades to the solid alabaster background as soon as the user scrolls past 60px, and it stays solid on every non-home page.
+  - OfferBar hidden during the hero-overlay state so the video truly runs edge-to-edge (from the browser top to `100svh`).
+  - Wordmark supports `forceColor="alabaster"` so it stays legible on the dark hero.
+  - Nav links, icons and the cart badge invert colours during the overlay state.
+  - New **`FeaturedMarquee`** component: a dark strip just below the hero that auto-scrolls the store's Signature / best-selling product tiles (image + name + price). Pauses on hover. Seamless loop (list duplicated + CSS keyframe animating -50%). Edge gradients hint at motion. Speed scales with product count.
+
+  **Product page zoom (per user request)**:
+  - New **`ProductImageZoom`** component replaces the old CSS hover-scale gallery.
+  - **Desktop:** cursor-follow magnifier — the tile turns into a 2.5× lens that tracks the mouse position over the full-resolution image. Hint chip "Hover to zoom" fades in.
+  - **Mobile / touch:** tap opens a full-screen lightbox with native pinch-zoom (`touch-action: pinch-zoom`), close button + backdrop tap-to-dismiss + Esc key. Body scroll locked while open.
+
+  **English-only across the entire site (Roman-Urdu removed)**:
+  - `i18n/strings.js` reduced to English-only entries (no more `ur` keys). `Tx` component simplified — no more font-urdu conditional class.
+  - `Toasts.jsx` and `OfferBar.jsx` no longer read/apply `lang === 'ur'`.
+  - Admin `Settings.jsx` offer-bar editor: Urdu message + Urdu button fields removed. Only the English message/CTA remain.
+  - Roman-Urdu strings scrubbed from: `App.jsx` (crash boundary + top comment), `ImageTiles.jsx`, `lib/upload.js` (all upload error messages), `admin/Analytics.jsx`, `admin/Apps.jsx`, `admin/Content.jsx` (promo popup + cookie + FAQ hints), `admin/Discounts.jsx`, `admin/Growth.jsx`, `admin/Markets.jsx`, `admin/OnlineStore.jsx`, `pages/Home.jsx` + `pages/Shop.jsx` SEO descriptions.
+
+  Frontend build clean (Vite 5.4). Nothing else regressed.
+
 - **2026-07-27** — 🎨 **Mobile responsive polish + Admin font overhaul**. Storefront: shared `Wordmark` component replaces every "V É L O U R A" (letter-spaced across 7 files) with a clean "HUSHAE" — mobile no longer wraps on tiny widths, tracking scales from 0.18em → 0.32em on desktop. Header: mobile height reduced (h-14), icon crowding removed (Wishlist + Account hidden on mobile since MobileNav bottom bar has them), tighter gap. OfferBar: single-line mobile message with truncate, smaller padding + separate short/long copies for mobile vs desktop. Hero full-screen H1: mobile size bumped 44px → readable heading (was too small in screenshot), padding tightened.
 
   Admin panel: **complete font rebrand — Cormorant Garamond serif removed everywhere**, replaced with Inter sans across all 19 admin pages via `.admin-shell` root scope + CSS override. Cards get rounded-16, cleaner white background (#fff on #F4F6F8 shell — Shopify feel), tighter letter-spacing, softer shadows. Buttons standardized to 10px radius. All 44+ `font-display` instances inside `admin/*.jsx` replaced with `font-sans`.

@@ -220,9 +220,9 @@ export default function Content() {
           {/* PROMO POPUP */}
           <div className="card p-6">
             <h2 className="font-sans text-lg">Newsletter Popup (coupon ke saath)</h2>
-            <p className="mt-1 text-xs text-ash">Visitor ko thori der baad ek dafa dikhta hai — email le kar coupon code dikhata hai.</p>
+            <p className="mt-1 text-xs text-ash">Shown to visitors once after a short delay — captures their email in exchange for a coupon code.</p>
             <label className="mt-4 flex cursor-pointer items-center gap-2 text-sm">
-              <input type="checkbox" className="h-4 w-4 accent-obsidian" checked={promo.enabled !== false} onChange={(e) => setPromo('enabled', e.target.checked)} /> Popup on hai
+              <input type="checkbox" className="h-4 w-4 accent-obsidian" checked={promo.enabled !== false} onChange={(e) => setPromo('enabled', e.target.checked)} /> Popup enabled
             </label>
             <div className={`mt-4 grid gap-4 sm:grid-cols-2 ${promo.enabled !== false ? '' : 'pointer-events-none opacity-40'}`}>
               <div><label className="label">Kitne second baad dikhe</label><input className="input" type="number" min="5" value={promo.delaySec} onChange={(e) => setPromo('delaySec', e.target.value)} /></div>
@@ -230,15 +230,15 @@ export default function Content() {
               <div className="sm:col-span-2"><label className="label">Title</label><input className="input" placeholder="Join the HUSHAE inner circle" value={promo.title || ''} onChange={(e) => setPromo('title', e.target.value)} /></div>
               <div className="sm:col-span-2"><label className="label">Text</label><textarea className="input min-h-16" value={promo.text || ''} onChange={(e) => setPromo('text', e.target.value)} /></div>
             </div>
-            <p className="mt-3 rounded-xl bg-satin/60 px-4 py-2.5 text-[11px] leading-relaxed text-ash">⚠️ Coupon code wo likho jo <b>Discounts page</b> par pehle banaya ho — warna checkout par code accept nahi hoga.</p>
+            <p className="mt-3 rounded-xl bg-satin/60 px-4 py-2.5 text-[11px] leading-relaxed text-ash">⚠️ Use a coupon code that already exists on your <b>Discounts page</b> — otherwise checkout will reject it.</p>
           </div>
 
           {/* COOKIES */}
           <div className="card p-6">
             <h2 className="font-sans text-lg">Cookie Consent Popup</h2>
-            <p className="mt-1 text-xs text-ash">Naye visitors ko ek dafa ye clean popup dikhta hai — Accept / Refuse / Manage options ke saath.</p>
+            <p className="mt-1 text-xs text-ash">Shown once to new visitors — Accept / Refuse / Manage options included.</p>
             <label className="mt-4 flex cursor-pointer items-center gap-2 text-sm">
-              <input type="checkbox" className="h-4 w-4 accent-obsidian" checked={cookie.enabled !== false} onChange={(e) => setCookie('enabled', e.target.checked)} /> Cookie popup on hai
+              <input type="checkbox" className="h-4 w-4 accent-obsidian" checked={cookie.enabled !== false} onChange={(e) => setCookie('enabled', e.target.checked)} /> Cookie popup enabled
             </label>
             <div className={`mt-4 grid gap-4 ${cookie.enabled !== false ? '' : 'pointer-events-none opacity-40'}`}>
               <div><label className="label">Popup title</label><input className="input" value={cookie.title || ''} onChange={(e) => setCookie('title', e.target.value)} /></div>
@@ -351,7 +351,7 @@ export default function Content() {
         </div>
 
         <button type="button" onClick={addFaqItem} className="btn-outline mt-4"><Plus size={14} /> Add FAQ</button>
-        <p className="mt-3 text-[11px] text-ash">Kam se kam 5-8 FAQ recommended — for Google FAQ schema. Empty question/answer are automatically removed on save.</p>
+        <p className="mt-3 text-[11px] text-ash">5–8 FAQs recommended — for Google FAQ schema. Empty question/answer are automatically removed on save.</p>
       </div>
     </AdminLayout>
   );

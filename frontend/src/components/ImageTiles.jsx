@@ -26,7 +26,7 @@ export default function ImageTiles({ images, onChange, min = 4 }) {
     for (const file of files) {
       try {
         done.push(await smartUpload(file, { media, token: auth?.token }));
-      } catch (ex) { toast(ex.message || 'Ek file upload nahi hui'); }
+      } catch (ex) { toast(ex.message || 'One file failed to upload'); }
       setBusy((n) => n - 1);
     }
     if (done.length) addUrls(done);

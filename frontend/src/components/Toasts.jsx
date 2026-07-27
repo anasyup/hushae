@@ -3,7 +3,7 @@ import { Check } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 
 export default function Toasts() {
-  const { toasts, lang } = useApp();
+  const { toasts } = useApp();
   return (
     <div className="pointer-events-none fixed bottom-6 left-1/2 z-[90] -translate-x-1/2 space-y-2">
       <AnimatePresence>
@@ -18,7 +18,7 @@ export default function Toasts() {
             <span className="grid h-5 w-5 place-items-center rounded-full bg-sage/30">
               <Check size={12} strokeWidth={3} />
             </span>
-            <span className={lang === 'ur' ? 'font-urdu' : ''}>{t.message}</span>
+            <span>{t.message}</span>
           </motion.div>
         ))}
       </AnimatePresence>

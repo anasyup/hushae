@@ -136,7 +136,7 @@ export default function Shop({ preset = {} }) {
     <div className="mx-auto max-w-7xl px-4 py-8 md:py-10 md:px-8">
       <Seo
         title={`${meta[0]}${gender ? ' — ' + gender.charAt(0).toUpperCase() + gender.slice(1) : ''}`}
-        description={meta[1] || 'Shop premium innerwear — bras, briefs, shapewear aur zyada. Made in Pakistan.'}
+        description={meta[1] || 'Shop premium innerwear — bras, briefs, shapewear and more. Made in Pakistan.'}
         canonical={typeof window !== 'undefined' ? window.location.pathname : '/shop'}
       />
       {/* Header */}

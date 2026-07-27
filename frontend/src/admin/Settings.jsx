@@ -87,15 +87,11 @@ export default function SettingsAdmin() {
             <span className="rounded-full bg-sage/20 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-sagedeep">Shows above header</span>
           </div>
           <Toggle label="Offer bar enabled" checked={!!s.offerBar?.enabled} onChange={(v) => setOffer('enabled', v)} />
-          <div><label className="label">Message (English)</label><input className="input" value={s.offerBar?.messageEn || ''} onChange={(e) => setOffer('messageEn', e.target.value)} placeholder="Season Sale — up to 40% off · while stock lasts" /></div>
-          <div><label className="label">Message (اردو)</label><input className="input font-urdu" value={s.offerBar?.messageUr || ''} onChange={(e) => setOffer('messageUr', e.target.value)} placeholder="سیزن سیل — ۴۰٪ تک رعایت" /></div>
-          <div className="grid grid-cols-2 gap-4">
-            <div><label className="label">Button (English)</label><input className="input" value={s.offerBar?.ctaEn || ''} onChange={(e) => setOffer('ctaEn', e.target.value)} placeholder="Shop the Sale" /></div>
-            <div><label className="label">Button (اردو)</label><input className="input font-urdu" value={s.offerBar?.ctaUr || ''} onChange={(e) => setOffer('ctaUr', e.target.value)} placeholder="سیل دیکھیں" /></div>
-          </div>
+          <div><label className="label">Message</label><input className="input" value={s.offerBar?.messageEn || ''} onChange={(e) => setOffer('messageEn', e.target.value)} placeholder="Season Sale — up to 40% off · while stock lasts" /></div>
+          <div><label className="label">Button label</label><input className="input" value={s.offerBar?.ctaEn || ''} onChange={(e) => setOffer('ctaEn', e.target.value)} placeholder="Shop the Sale" /></div>
           <div><label className="label">Button link</label><input className="input font-mono text-xs" value={s.offerBar?.link || ''} onChange={(e) => setOffer('link', e.target.value)} placeholder="/sale" /></div>
           <p className="text-[11px] leading-relaxed text-ash">
-            Tip: to put any product on sale Products → Edit <b>Compare-at price</b> set — it will appear on the /sale page with the discount %.
+            Tip: to put any product on sale, open Products → Edit and set a <b>Compare-at price</b>. It will appear on the /sale page with the discount %.
           </p>
         </div>
 

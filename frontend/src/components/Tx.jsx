@@ -1,7 +1,8 @@
+// Backward-compatible label component. Site is English-only now, but we keep the
+// component so we don't have to touch every callsite.
 import { useApp } from '../store/AppContext';
 
-// Translated label — applies the Urdu face automatically.
 export default function Tx({ k, className = '' }) {
-  const { t, lang } = useApp();
-  return <span className={`${lang === 'ur' ? 'font-urdu' : ''} ${className}`}>{t(k)}</span>;
+  const { t } = useApp();
+  return <span className={className}>{t(k)}</span>;
 }

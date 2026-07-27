@@ -241,7 +241,7 @@ export default function Analytics() {
               <HBars rows={a.traffic.landing.map((l) => ({ label: l.path, value: l.views }))} />
             </Block>
             <Block title="Visitors source (referrers)">
-              <HBars rows={a.traffic.refs.map((r) => ({ label: r.ref.replace(/^https?:\/\//, '').slice(0, 38), value: r.views }))} empty="Abhi sab direct traffic hai — links share honge to sources yahan dikhenge" />
+              <HBars rows={a.traffic.refs.map((r) => ({ label: r.ref.replace(/^https?:\/\//, '').slice(0, 38), value: r.views }))} empty="All traffic is direct so far — once links are shared, sources will appear here" />
             </Block>
           </div>
         </Group>
