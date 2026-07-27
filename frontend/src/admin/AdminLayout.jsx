@@ -53,6 +53,7 @@ const NAV_GROUPS = [
     children: [
       { to: '/admin/store',   label: 'Online Store', icon: Store },
       { to: '/admin/content', label: 'Content',      icon: LayoutTemplate },
+      { to: '/admin/faq',     label: 'FAQ',          icon: FileText },
       { to: '/admin/markets', label: 'Markets',      icon: Globe },
     ],
   },

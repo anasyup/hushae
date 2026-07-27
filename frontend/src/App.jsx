@@ -47,6 +47,10 @@ import Backup from './admin/Backup';
 import Payments from './admin/Payments';
 import Collections from './admin/Collections';
 import Reviews from './admin/Reviews';
+<<<<<<< ours
+=======
+import AdminFaq from './admin/Faq';
+>>>>>>> theirs
 import WhatsAppFloat from './components/WhatsAppFloat';
 import StoreLock from './components/StoreLock';
 import CookieConsent from './components/CookieConsent';
@@ -156,6 +160,10 @@ export default function App() {
           <Route path="/admin/finance" element={<Finance />} />
           <Route path="/admin/abandoned-carts" element={<AbandonedCarts />} />
           <Route path="/admin/reviews" element={<Reviews />} />
+<<<<<<< ours
+=======
+          <Route path="/admin/faq" element={<AdminFaq />} />
+>>>>>>> theirs
           <Route path="/admin/backup" element={<Backup />} />
           <Route path="/admin/payments" element={<Payments />} />
           <Route path="/admin/collections" element={<Collections />} />

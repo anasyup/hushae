@@ -395,52 +395,16 @@ export default function Content() {
         </div>
       </div>
 
-      {/* FAQ MANAGER — full width */}
+      {/* FAQ manager moved to its own dedicated page: /admin/faq */}
       <div className="mt-6 card p-6">
         <div className="flex items-start gap-3">
-          <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-obsidian text-alabaster"><HelpCircle size={20} /></span>
+          <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-neutral-100 text-neutral-700"><HelpCircle size={20} /></span>
           <div className="flex-1">
-            <h2 className="font-sans text-lg">FAQ Page — Public /faq</h2>
-            <p className="mt-0.5 text-xs text-ash">Customers ke common sawaal (shipping, sizing, returns wagera). Also shown as rich snippets in Google search (SEO benefit).</p>
+            <h2 className="font-sans text-lg">FAQ Page</h2>
+            <p className="mt-0.5 text-xs text-ash">The FAQ editor now lives on its own page for a calmer, less crowded experience.</p>
           </div>
-          <label className="relative inline-flex cursor-pointer items-center">
-            <input type="checkbox" className="peer sr-only" checked={faq.enabled !== false} onChange={(e) => setFaq('enabled', e.target.checked)} />
-            <span className="h-6 w-11 rounded-full bg-satin transition peer-checked:bg-obsidian after:absolute after:left-1 after:top-1 after:h-4 after:w-4 after:rounded-full after:bg-white after:transition peer-checked:after:translate-x-5" />
-          </label>
+          <a href="/admin/faq" className="btn-outline text-xs">Manage FAQ →</a>
         </div>
-
-        <div className="mt-4 grid gap-4 md:grid-cols-2">
-          <div>
-            <label className="label">Page heading</label>
-            <input className="input" value={faq.heading || ''} onChange={(e) => setFaq('heading', e.target.value)} placeholder="Frequently Asked Questions" />
-          </div>
-          <div>
-            <label className="label">Sub-heading (optional)</label>
-            <input className="input" value={faq.subheading || ''} onChange={(e) => setFaq('subheading', e.target.value)} placeholder="Sizing, shipping, returns…" />
-          </div>
-        </div>
-
-        <div className="mt-5 space-y-3">
-          {(faq.items || []).map((it, i) => (
-            <div key={i} className="rounded-2xl border border-line bg-alabaster/40 p-4">
-              <div className="mb-2 flex items-center justify-between">
-                <p className="text-[11px] font-bold uppercase tracking-widest text-ash">FAQ #{i + 1}</p>
-                <div className="flex items-center gap-1">
-                  <button type="button" onClick={() => moveFaq(i, -1)} disabled={i === 0} className="rounded-full p-1.5 text-ash hover:bg-satin hover:text-obsidian disabled:opacity-30" aria-label="Move up"><ArrowUp size={14} /></button>
-                  <button type="button" onClick={() => moveFaq(i, +1)} disabled={i === (faq.items || []).length - 1} className="rounded-full p-1.5 text-ash hover:bg-satin hover:text-obsidian disabled:opacity-30" aria-label="Move down"><ArrowDown size={14} /></button>
-                  <button type="button" onClick={() => delFaqItem(i)} className="rounded-full p-1.5 text-red-600 hover:bg-red-50" aria-label="Delete FAQ"><Trash2 size={14} /></button>
-                </div>
-              </div>
-              <div className="space-y-2">
-                <input className="input" placeholder="Question — e.g. Sahi size kaisay chunun?" value={it.question || ''} onChange={(e) => setFaqItem(i, 'question', e.target.value)} />
-                <textarea className="input min-h-20" placeholder="Answer — as the customer will see it. Line breaks are supported." value={it.answer || ''} onChange={(e) => setFaqItem(i, 'answer', e.target.value)} />
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <button type="button" onClick={addFaqItem} className="btn-outline mt-4"><Plus size={14} /> Add FAQ</button>
-        <p className="mt-3 text-[11px] text-ash">5–8 FAQs recommended — for Google FAQ schema. Empty question/answer are automatically removed on save.</p>
       </div>
     </AdminLayout>
   );
