@@ -36,6 +36,29 @@ const settingsSchema = new mongoose.Schema({
     // Optional small badges shown under CTA
     badges: { type: [String], default: [] },
   },
+  // Signature Split Hero — Women (left) + Men (right) editorial block on the home page.
+  // Fully admin-editable: images, video, headline, colours, CTA text/links, or disable entirely.
+  signatureSplit: {
+    enabled:        { type: Boolean, default: true },
+    eyebrow:        { type: String,  default: 'The Signature Edit' },
+    title:          { type: String,  default: 'Premium,\nperfected.' },
+    subtitle:       { type: String,  default: 'Silk-touch fabrics. Bonded seamless edges. Discreet packaging always. The HUSHAE house edit, made for the pieces you\'ll reach for daily.' },
+    textColor:      { type: String,  default: '#F7F5F1' },
+    textShadow:     { type: Boolean, default: true },
+    titleFont:      { type: String,  default: 'display' },   // 'display' | 'sans'
+    // Left half — Women
+    leftImage:      { type: String,  default: '/images/products/gemini/bra-blush-lace.png' },
+    leftVideo:      { type: String,  default: '' },          // optional MP4 (autoplay muted loop)
+    leftCtaLabel:   { type: String,  default: 'Shop Women' },
+    leftCtaHref:    { type: String,  default: '/women' },
+    // Right half — Men
+    rightImage:     { type: String,  default: '/images/products/gemini/boxer-white-premium.png' },
+    rightVideo:     { type: String,  default: '' },
+    rightCtaLabel:  { type: String,  default: 'Shop Men' },
+    rightCtaHref:   { type: String,  default: '/men' },
+    // Overlay strength (0-100)
+    overlayOpacity: { type: Number,  default: 25 },
+  },
   // Media library (Cloudinary) — enables PC file uploads across admin
   media: {
     cloudName: { type: String, default: '' },

@@ -17,6 +17,8 @@ export default function Content() {
   if (!s) return <AdminLayout title="Content"><div className="skeleton h-64 w-full" /></AdminLayout>;
 
   const hero = s.hero || {};
+  const split = s.signatureSplit || {};
+  const setSplit = (k, v) => setS({ ...s, signatureSplit: { ...split, [k]: v } });
   const offer = s.offerBar || {};
   const cookie = s.cookiePopup || { enabled: true, title: '', text: '' };
   const marquee = s.marquee || { enabled: true, items: MQ_FALLBACK };
@@ -46,6 +48,7 @@ export default function Content() {
     try {
       await api('/settings', { method: 'PUT', token: auth.token, body: {
         hero: s.hero, offerBar: s.offerBar, cookiePopup: s.cookiePopup,
+        signatureSplit: s.signatureSplit,
         marquee: { ...marquee, items: (marquee.items || []).map((x) => String(x).trim()).filter(Boolean) },
         promoPopup: { ...promo, delaySec: Math.max(5, Number(promo.delaySec) || 18), couponCode: (promo.couponCode || '').trim().toUpperCase() },
         faq: { ...faq, items: (faq.items || []).map((it) => ({ question: String(it.question || '').trim(), answer: String(it.answer || '').trim() })).filter((it) => it.question && it.answer) },
@@ -185,6 +188,92 @@ export default function Content() {
                     <span className="mt-0.5 block text-xs text-ash">Banner fills the entire viewport — premium international look</span>
                   </span>
                 </label>
+              </div>
+            </div>
+          </div>
+
+          {/* SIGNATURE SPLIT HERO — half/half Women + Men editorial block */}
+          <div className="card p-6">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h2 className="font-sans text-lg">Signature Split Hero (Women × Men)</h2>
+                <p className="mt-1 text-xs text-ash">Half-half CK-style editorial block below the video hero. Change images, videos, text, colours, or turn the whole section off.</p>
+              </div>
+              <label className="inline-flex cursor-pointer items-center gap-2">
+                <input type="checkbox" className="peer sr-only" checked={split.enabled !== false} onChange={(e) => setSplit('enabled', e.target.checked)} />
+                <div className="relative h-6 w-11 rounded-full bg-satin transition peer-checked:bg-sage after:absolute after:left-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:bg-white after:transition peer-checked:after:translate-x-5" />
+              </label>
+            </div>
+
+            <div className={`mt-6 space-y-6 ${split.enabled === false ? 'pointer-events-none opacity-40' : ''}`}>
+              {/* Text */}
+              <div className="grid gap-3 md:grid-cols-2">
+                <div><label className="label">Eyebrow (small caps)</label><input className="input" value={split.eyebrow || ''} onChange={(e) => setSplit('eyebrow', e.target.value)} placeholder="The Signature Edit" /></div>
+                <div><label className="label">Title (Enter for new line)</label><textarea className="input min-h-16" value={split.title || ''} onChange={(e) => setSplit('title', e.target.value)} placeholder={'Premium,\nperfected.'} /></div>
+                <div className="md:col-span-2"><label className="label">Subtitle</label><textarea className="input min-h-16" value={split.subtitle || ''} onChange={(e) => setSplit('subtitle', e.target.value)} /></div>
+              </div>
+
+              {/* Styling */}
+              <div className="grid gap-3 md:grid-cols-4">
+                <div>
+                  <label className="label">Text colour</label>
+                  <div className="flex items-center gap-2">
+                    <input type="color" className="h-10 w-14 cursor-pointer rounded-lg border border-line" value={split.textColor || '#F7F5F1'} onChange={(e) => setSplit('textColor', e.target.value)} />
+                    <input className="input font-mono text-xs" value={split.textColor || '#F7F5F1'} onChange={(e) => setSplit('textColor', e.target.value)} />
+                  </div>
+                </div>
+                <div>
+                  <label className="label">Title font</label>
+                  <select className="input" value={split.titleFont || 'display'} onChange={(e) => setSplit('titleFont', e.target.value)}>
+                    <option value="display">Cormorant Garamond (serif)</option>
+                    <option value="sans">Inter (sans-serif)</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="label">Text shadow</label>
+                  <label className="mt-2 inline-flex cursor-pointer items-center gap-2 text-sm">
+                    <input type="checkbox" className="h-4 w-4 accent-obsidian" checked={split.textShadow !== false} onChange={(e) => setSplit('textShadow', e.target.checked)} />
+                    Soft glow behind text
+                  </label>
+                </div>
+                <div>
+                  <label className="label">Overlay strength ({split.overlayOpacity ?? 25}%)</label>
+                  <input type="range" min={0} max={80} value={split.overlayOpacity ?? 25} onChange={(e) => setSplit('overlayOpacity', Number(e.target.value))} className="w-full accent-obsidian" />
+                </div>
+              </div>
+
+              {/* Left half */}
+              <div className="rounded-2xl border border-line bg-cream/40 p-4">
+                <p className="text-[11px] font-bold uppercase tracking-widest text-ash">Left half — Women</p>
+                <div className="mt-3 grid gap-3 md:grid-cols-2">
+                  <div>
+                    <label className="label">Image</label>
+                    <MediaPicker value={split.leftImage || ''} onChange={(v) => setSplit('leftImage', v)} accept="image" hideUrl />
+                  </div>
+                  <div>
+                    <label className="label">Video (optional — plays instead of image)</label>
+                    <MediaPicker value={split.leftVideo || ''} onChange={(v) => setSplit('leftVideo', v)} accept="video" buttonText="Upload video" hideUrl />
+                  </div>
+                  <div><label className="label">CTA button label</label><input className="input" value={split.leftCtaLabel || ''} onChange={(e) => setSplit('leftCtaLabel', e.target.value)} placeholder="Shop Women" /></div>
+                  <div><label className="label">CTA link</label><input className="input font-mono text-xs" value={split.leftCtaHref || ''} onChange={(e) => setSplit('leftCtaHref', e.target.value)} placeholder="/women" /></div>
+                </div>
+              </div>
+
+              {/* Right half */}
+              <div className="rounded-2xl border border-line bg-cream/40 p-4">
+                <p className="text-[11px] font-bold uppercase tracking-widest text-ash">Right half — Men</p>
+                <div className="mt-3 grid gap-3 md:grid-cols-2">
+                  <div>
+                    <label className="label">Image</label>
+                    <MediaPicker value={split.rightImage || ''} onChange={(v) => setSplit('rightImage', v)} accept="image" hideUrl />
+                  </div>
+                  <div>
+                    <label className="label">Video (optional — plays instead of image)</label>
+                    <MediaPicker value={split.rightVideo || ''} onChange={(v) => setSplit('rightVideo', v)} accept="video" buttonText="Upload video" hideUrl />
+                  </div>
+                  <div><label className="label">CTA button label</label><input className="input" value={split.rightCtaLabel || ''} onChange={(e) => setSplit('rightCtaLabel', e.target.value)} placeholder="Shop Men" /></div>
+                  <div><label className="label">CTA link</label><input className="input font-mono text-xs" value={split.rightCtaHref || ''} onChange={(e) => setSplit('rightCtaHref', e.target.value)} placeholder="/men" /></div>
+                </div>
               </div>
             </div>
           </div>
