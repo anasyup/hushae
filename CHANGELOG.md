@@ -23,6 +23,27 @@ Format:
 
 ## Changes
 
+- **2026-07-27** — 🎯 **Real root cause of "purani listing / purana password" — FIXED**.
+
+  User reported that a fresh ZIP downloaded from GitHub, run locally, still shows the old products and still logs in with the old admin credentials. Investigating the freshly-extracted archive revealed the actual cause was not in the app code at all — it was in the **local dev bootstrap scripts and example env file** that were shipped with the repo:
+
+  - `start-dev.bat` printed literally `Admin login: admin@veloura.pk / VelouraAdmin@123` (matches user's screenshot exactly). The script also copied `.env.example` → `.env` on first run.
+  - `backend/.env.example` contained hardcoded `ADMIN_EMAIL=admin@veloura.pk`, `ADMIN_PASSWORD=VelouraAdmin@123`, and `JWT_SECRET=veloura-dev-secret-change-me-in-production` — so when the local run auto-copied that to `.env`, the local backend seeded a **new** admin user with those exact credentials into whichever database it connected to. On a fresh embedded MongoDB it was creating a brand-new admin every startup with those old-brand values.
+  - The `.env.example` did not mention that these are local-only demo credentials and had zero warning that leaving them in place would let anyone log in.
+
+  Fixes:
+  - **`start-dev.bat`** — every "VELOURA/Veloura" mention replaced with HUSHAE. Removed the hardcoded credentials line. Now says the admin creds come from `backend/.env` and that for cloud data, the actual password lives in Atlas.
+  - **`start-dev.sh`** — same rebrand.
+  - **`backend/.env.example`** — placeholder values only: `ADMIN_EMAIL=admin@hushae.pk`, `ADMIN_PASSWORD=change-me`, `JWT_SECRET=change-me-to-a-long-random-string`. Comments explain that these apply only when the DB is empty AND `SEED_ON_START=true`. Added an explicit `SEED_ON_START=false` line.
+  - **Atlas — migrated database** from `veloura` → `hushae`. Copied every collection (users, categories, settings — 12 in total). The old `veloura` database still exists as backup for now; the app will only touch `hushae` going forward.
+  - **Vercel env `MONGODB_URI`** — updated to point at `.../hushae?...`.
+  - **Vercel env `ADMIN_EMAIL`** — updated `underadmin` → `admin@hushae.pk`.
+  - **Atlas admin user email** — updated `underadmin` → `admin@hushae.pk`. Display name stays `Hushae Admin`. Password unchanged (`quaPaj@AE9sFWqghtjH2`).
+  - **Atlas — fully cleaned**: 0 products, 0 orders, 0 abandoned carts, 0 pageviews, 0 uploads. 10 categories kept (brand-neutral: Bras / Boxers / etc.). 1 admin user. 1 settings row.
+  - **GitHub repo rename to `hushae`** attempted via API but our fine-grained PAT lacks Administration scope. User needs to rename manually: Settings → Rename repository → `hushae`. GitHub then auto-redirects the old URL indefinitely, so nothing else breaks.
+
+  Result: downloading a fresh ZIP now, `start-dev.bat` no longer prints the old credentials; `.env.example` no longer contains them; the seed loop can no longer resurrect the demo catalog (opt-in via `SEED_ON_START` from the previous change); admin auth points at the fresh 20-char password stored in Atlas.
+
 - **2026-07-27** — 🔒 **Database cleanup + auth hardening + seed lockdown**.
 
   User's report: after downloading the ZIP and running the code locally, the site still showed the old seed catalog and still accepted the old admin credentials. Root cause: (a) MongoDB Atlas held the demo seed data — the same DB is used by Vercel and any local instance, so the "purani" listings weren't in the code, they were in the shared cloud DB; (b) `backend/src/server.js` auto-ran `seedIfEmpty()` on every boot, and the old seed logic would `deleteMany` and re-insert 100 demo products if the DB count didn't match; (c) `backend/src/config.js` had a hardcoded fallback `ADMIN_PASSWORD='Muhammad1'`, so a local run without env vars silently accepted the weak password even after the real one was rotated.

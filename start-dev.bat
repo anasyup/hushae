@@ -1,9 +1,9 @@
 @echo off
 REM ==============================================================
-REM  VELOURA — one-click local start (Windows)
+REM  HUSHAE — one-click local start (Windows)
 REM  Double-click this file. Two windows will open:
-REM    1) Veloura API  (backend, port 4000)
-REM    2) Veloura Web  (storefront, port 5173)
+REM    1) HUSHAE API  (backend, port 4000)
+REM    2) HUSHAE Web  (storefront, port 5173)
 REM  Then open http://localhost:5173 in your browser.
 REM ==============================================================
 cd /d %~dp0
@@ -20,20 +20,24 @@ if not exist node_modules call npm install --no-audit --no-fund
 if not exist .env copy .env.example .env >nul
 cd ..
 
-echo [3/3] Starting VELOURA...
+echo [3/3] Starting HUSHAE...
 echo.
-echo   NOTE: The very first start downloads an embedded MongoDB (~90 MB, one time only).
-echo   After that, startup takes just a few seconds.
+echo   NOTE: If MONGODB_URI is empty in backend/.env, an embedded local
+echo         MongoDB will download the first time (~90 MB, one time only).
+echo         For your live cloud data, set MONGODB_URI in backend/.env.
 echo.
-start "Veloura API - keep open" cmd /k "cd backend && npm run dev"
+start "HUSHAE API - keep open" cmd /k "cd backend && npm run dev"
 timeout /t 6 /nobreak >nul
-start "Veloura Web - keep open" cmd /k "cd frontend && npm run dev"
+start "HUSHAE Web - keep open" cmd /k "cd frontend && npm run dev"
 
 echo.
 echo   Storefront:  http://localhost:5173
 echo   Admin panel: http://localhost:5173/admin
 echo   API health:  http://localhost:4000/api/health
 echo.
-echo   Admin login: admin@veloura.pk / VelouraAdmin@123
+echo   Admin credentials are read from backend/.env (ADMIN_EMAIL, ADMIN_PASSWORD).
+echo   Live cloud data uses the admin already stored in MongoDB Atlas — the
+echo   password is the one that was set through the admin panel, NOT the value
+echo   in .env.example.
 echo.
 pause
