@@ -45,7 +45,7 @@ export default function OnlineStore() {
       : <span className="flex items-center gap-1.5 rounded-full bg-red-100 px-3 py-1 text-[11px] font-semibold text-red-800"><span className="h-1.5 w-1.5 rounded-full bg-red-600" /> Offline</span>;
 
   const ACTIONS = [
-    ['Edit Theme', 'Hero, images aur text', Palette, '/admin/content'],
+    ['Edit Theme', 'Sections, images, text, colours', Palette, '/admin/theme'],
     ['Announcement Bar', 'Top strip on/off aur message', Megaphone, '/admin/content'],
     ['Coupons', 'Create discount codes', BadgePercent, '/admin/discounts'],
     ['Shipping & COD', 'Rates aur free-shipping limit', Truck, '/admin/markets'],
@@ -96,7 +96,7 @@ export default function OnlineStore() {
             <span className="rounded-full bg-sage/25 px-3 py-1 text-[11px] font-semibold text-sagedeep">Live</span>
           </div>
           <div className="mt-5 flex flex-wrap gap-2">
-            <Link to="/admin/content" className="btn-primary"><Pencil size={14} /> Edit theme</Link>
+            <Link to="/admin/theme" className="btn-primary"><Pencil size={14} /> Edit theme</Link>
             <a href="/" target="_blank" rel="noreferrer" className="btn-outline"><ExternalLink size={13} /> View store</a>
           </div>
         </div>

@@ -50,6 +50,7 @@ import Reviews from './admin/Reviews';
 
 
 import AdminFaq from './admin/Faq';
+import ThemeEditor from './admin/ThemeEditor';
 
 import WhatsAppFloat from './components/WhatsAppFloat';
 import StoreLock from './components/StoreLock';
@@ -163,6 +164,8 @@ export default function App() {
 
 
           <Route path="/admin/faq" element={<AdminFaq />} />
+
+          <Route path="/admin/theme" element={<ThemeEditor />} />
 
           <Route path="/admin/backup" element={<Backup />} />
           <Route path="/admin/payments" element={<Payments />} />
