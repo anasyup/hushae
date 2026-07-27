@@ -423,7 +423,7 @@ export function SettingsSecurity() {
                   className="input"
                   value={uNew}
                   onChange={(e) => setUNew(e.target.value)}
-                  placeholder="e.g. veloura_admin or you@veloura.pk"
+                  placeholder="e.g. hushae_admin or you@hushae.pk"
                   autoComplete="off"
                 />
                 <p className="mt-1.5 text-[11px] text-neutral-500">Letters, numbers, dot, underscore or dash. Or use a valid email.</p>

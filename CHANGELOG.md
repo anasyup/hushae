@@ -1,4 +1,4 @@
-# Veloura — Changelog
+# Hushae — Changelog
 
 Yeh file har change ka record hai jo Arena assistant ke saath ki gayi hai.
 Sab se naya change sab se upar hota hai.
@@ -17,11 +17,13 @@ Format:
 - **Expires:** ~2026-08-24 (30 days)
 - **Renewal reminder:** Start warning user from 2026-08-20
 - **Renew at:** https://github.com/settings/personal-access-tokens
-- **Scope:** Fine-grained, `veloura` repo only, Contents: Read+Write
+- **Scope:** Fine-grained, `hushae` repo only, Contents: Read+Write
 
 ---
 
 ## Changes
+
+- **2026-07-27** — 🎉 **BRAND RENAME: VÉLOURA → HUSHAE**. Full codebase rebrand across frontend + backend + build config: page titles, SEO defaults, JSON-LD schemas, admin sidebar & topbar, order emails (mailer.js), OrderInvoice, printable receipts, seed catalog copy, package.json names, config JWT default, Settings model defaults (storeName, contactEmail, bank details, cookie/store-lock/promo/whatsapp copy), SMS OTP text, JazzCash description, favicon SVG placeholder text, and localStorage keys migrated (`veloura.*` → `hushae.*`). Vercel deployment URL preserved (still `veloura-73q1.vercel.app` until custom domain `hushae.pk` / `hushae.com` is attached). MongoDB database path `/veloura` preserved to keep existing data intact — no data migration needed. Rationale: `.com` was taken for VELOURA; user picked HUSHAE (hush = discreet, `-ae` luxury suffix — matches "discreet packaging is our signature" brand DNA). `hushae.com` + `hushae.pk` both verified available via RDAP. Frontend build passes clean (vite 5.4).
 
 - **2026-07-25** — Username change added to Security & Access page. POST /api/auth/change-username validates current password, enforces uniqueness across users, and rotates the JWT so all other devices are signed out immediately. UI card sits above the password card, shows the current username, and asks for the current password as confirmation.
 
@@ -71,7 +73,7 @@ Format:
   - Editable eyebrow text + trust badges under hero
   - Settings model: hero.{eyebrow, mobileImage, poster, overlayOpacity, ctaStyle, shopMenu[], badges[]}
   - Admin Content page: complete hero editor rewrite with CTA style toggle, mobile image, poster, overlay slider, menu editor, badges editor
-  - AI-generated default hero image at /images/hero/veloura-hero.jpg (editorial style, VOGUE-quality)
+  - AI-generated default hero image at /images/hero/hushae-hero.jpg (editorial style, VOGUE-quality)
   - DB updated: hero.ctaStyle='dropdown', new fields populated with defaults
 
 
@@ -83,7 +85,7 @@ Format:
   - Backend: `settings` PUT accepts `faq` field
   - Frontend: `<Seo>` component — updates title/description/canonical/OG/Twitter meta + injects JSON-LD structured data (no react-helmet dependency needed)
   - Frontend: `<AnalyticsInjector>` — loads GA4/GTM/Meta Pixel/TikTok Pixel ONLY after cookie consent (privacy-safe)
-  - Frontend: `CookieConsent` now dispatches `veloura:consent` event so Analytics can react
+  - Frontend: `CookieConsent` now dispatches `hushae:consent` event so Analytics can react
   - Frontend: Home page — Seo with Organization + WebSite JSON-LD schema
   - Frontend: Product page — Seo with per-product Product JSON-LD schema (name, price, image, SKU, availability, brand)
   - Frontend: Shop page — dynamic per-gender/tab title + meta description
@@ -117,7 +119,7 @@ Format:
 
 ## Baseline
 
-- **2026-07-25** — Repo cloned into workspace at `/home/user/veloura`
+- **2026-07-25** — Repo cloned into workspace at `/home/user/hushae`
   - Starting point: commit `d47b108` (Video media tiles)
   - Auto-push to GitHub enabled via fine-grained PAT
   - First test commit: `3d779c9` (add CHANGELOG.md)

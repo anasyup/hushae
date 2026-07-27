@@ -12,24 +12,42 @@ const LS = {
   set(k, v) { localStorage.setItem(k, JSON.stringify(v)); },
 };
 
+// One-time migration: rename any old veloura.* localStorage keys to hushae.*
+// (safe rebrand — copies value then removes old key, only if new key not already set)
+try {
+  if (typeof localStorage !== 'undefined' && !localStorage.getItem('hushae.migrated')) {
+    const keys = ['auth', 'cart', 'wish', 'recent', 'lang', 'consent', 'promo', 'lockpw', 'checkoutDraft', 'newsletter', 'calc'];
+    for (const k of keys) {
+      const oldKey = `veloura.${k}`;
+      const newKey = `hushae.${k}`;
+      const oldVal = localStorage.getItem(oldKey);
+      if (oldVal !== null && localStorage.getItem(newKey) === null) {
+        localStorage.setItem(newKey, oldVal);
+      }
+      if (oldVal !== null) localStorage.removeItem(oldKey);
+    }
+    localStorage.setItem('hushae.migrated', '1');
+  }
+} catch { /* noop */ }
+
 export function AppProvider({ children }) {
   const [settings, setSettings] = useState(null);
   const [lang, setLang] = useState('en');
-  const [auth, setAuth] = useState(() => LS.get('veloura.auth', null));
-  const [cart, setCart] = useState(() => LS.get('veloura.cart', []));
-  const [guestWish, setGuestWish] = useState(() => LS.get('veloura.wish', []));
+  const [auth, setAuth] = useState(() => LS.get('hushae.auth', null));
+  const [cart, setCart] = useState(() => LS.get('hushae.cart', []));
+  const [guestWish, setGuestWish] = useState(() => LS.get('hushae.wish', []));
   const [serverWish, setServerWish] = useState([]);
-  const [recent, setRecent] = useState(() => LS.get('veloura.recent', []));
+  const [recent, setRecent] = useState(() => LS.get('hushae.recent', []));
   const [toasts, setToasts] = useState([]);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const t = useCallback((k) => STR[k]?.[lang] || STR[k]?.en || k, [lang]);
 
-  useEffect(() => { LS.set('veloura.lang', lang); document.documentElement.lang = lang; }, [lang]);
-  useEffect(() => { LS.set('veloura.cart', cart); }, [cart]);
-  useEffect(() => { LS.set('veloura.wish', guestWish); }, [guestWish]);
-  useEffect(() => { LS.set('veloura.recent', recent); }, [recent]);
-  useEffect(() => { LS.set('veloura.auth', auth); }, [auth]);
+  useEffect(() => { LS.set('hushae.lang', lang); document.documentElement.lang = lang; }, [lang]);
+  useEffect(() => { LS.set('hushae.cart', cart); }, [cart]);
+  useEffect(() => { LS.set('hushae.wish', guestWish); }, [guestWish]);
+  useEffect(() => { LS.set('hushae.recent', recent); }, [recent]);
+  useEffect(() => { LS.set('hushae.auth', auth); }, [auth]);
 
   useEffect(() => { api('/settings').then((d) => setSettings(d.settings)).catch(() => {}); }, []);
 
@@ -49,7 +67,7 @@ export function AppProvider({ children }) {
     const d = await api('/auth/login', { method: 'POST', body: { email, password } });
     setAuth(d);
     // merge guest wishlist into account
-    const guest = LS.get('veloura.wish', []);
+    const guest = LS.get('hushae.wish', []);
     for (const p of guest) { try { await api(`/wishlist/${p.id}`, { method: 'POST', token: d.token }); } catch { /* noop */ } }
     setGuestWish([]);
     await refreshWish(d.token);
@@ -59,7 +77,7 @@ export function AppProvider({ children }) {
   const register = useCallback(async (payload) => {
     const d = await api('/auth/register', { method: 'POST', body: payload });
     setAuth(d);
-    const guest = LS.get('veloura.wish', []);
+    const guest = LS.get('hushae.wish', []);
     for (const p of guest) { try { await api(`/wishlist/${p.id}`, { method: 'POST', token: d.token }); } catch { /* noop */ } }
     setGuestWish([]);
     await refreshWish(d.token);

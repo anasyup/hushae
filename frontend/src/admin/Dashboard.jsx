@@ -394,7 +394,7 @@ export default function Dashboard() {
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="font-display text-2xl text-neutral-900">{greeting}, {auth?.user?.name?.split(' ')[0] || 'Admin'}</p>
-          <p className="mt-1 text-[13px] text-neutral-500">Here's what's happening at VÉLOURA today.</p>
+          <p className="mt-1 text-[13px] text-neutral-500">Here's what's happening at HUSHAE today.</p>
         </div>
         <div className="flex items-center gap-2">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-neutral-100 px-3 py-1.5 text-[11px] font-semibold text-neutral-600">

@@ -277,7 +277,7 @@ export default function OrderDetail() {
   );
 }
 
-/* ===== Premium printable invoice — original VÉLOURA design (screen-hidden, print-only) ===== */
+/* ===== Premium printable invoice — original HUSHAE design (screen-hidden, print-only) ===== */
 function PremiumInvoice({ o }) {
   const c = o.customerInfo;
   return (
@@ -350,11 +350,11 @@ function PremiumInvoice({ o }) {
         </section>
 
         <footer className="inv-footer">
-          <p className="inv-thanks">Thank you for shopping with VÉLOURA.</p>
+          <p className="inv-thanks">Thank you for shopping with HUSHAE.</p>
           <p className="inv-foot">{o.paymentMethod === 'COD' && o.paymentStatus !== 'Paid'
             ? 'Payment due on delivery — please keep the total amount ready.'
             : 'Payment received with thanks.'}</p>
-          <p className="inv-foot">veloura-jade.vercel.app  ·  {o.orderNumber}</p>
+          <p className="inv-foot">hushae-jade.vercel.app  ·  {o.orderNumber}</p>
         </footer>
       </div>
     </div>

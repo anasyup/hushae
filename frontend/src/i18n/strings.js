@@ -38,7 +38,7 @@ export const STR = {
   apply: { en: 'Apply', ur: 'لگائیں' },
   remove: { en: 'Remove', ur: 'ہٹائیں' },
   discount: { en: 'Discount', ur: 'رعایت' },
-  newsTitle: { en: 'Join the VÉLOURA list', ur: 'VÉLOURA لسٹ میں شامل ہوں' },
+  newsTitle: { en: 'Join the HUSHAE list', ur: 'HUSHAE لسٹ میں شامل ہوں' },
   newsText: { en: 'Early access to drops, private sales and fit tips — straight to your inbox.', ur: 'نئی آمد، خصوصی سیل اور فٹ ٹپس — سب سے پہلے آپ کے ان باکس میں۔' },
   newsPlaceholder: { en: 'Your email address', ur: 'آپ کا ای میل ایڈریس' },
   subscribe: { en: 'Subscribe', ur: 'سبسکرائب' },

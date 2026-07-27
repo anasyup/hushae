@@ -8,7 +8,7 @@ app.use(cors({ origin: true }));
 app.use(express.json({ limit: '10mb' }));
 app.use(require('./middleware/sanitize')); // NoSQL-injection block
 
-app.get('/api/health', (req, res) => res.json({ ok: true, name: 'VÉLOURA API' }));
+app.get('/api/health', (req, res) => res.json({ ok: true, name: 'HUSHAE API' }));
 
 // SEO endpoints — served at ROOT (not /api/*) so search engines find them
 // Vercel rewrites /robots.txt and /sitemap.xml to this Express app.

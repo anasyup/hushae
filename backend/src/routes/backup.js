@@ -53,7 +53,7 @@ router.get('/download', asyncHandler(async (req, res) => {
 
   const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
-  res.setHeader('Content-Disposition', `attachment; filename="veloura-backup-${stamp}.json"`);
+  res.setHeader('Content-Disposition', `attachment; filename="hushae-backup-${stamp}.json"`);
   res.send(JSON.stringify(backup, null, 2));
 }));
 

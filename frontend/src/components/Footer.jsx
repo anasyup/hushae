@@ -81,7 +81,7 @@ export default function Footer() {
         <div>
           <p className="text-[11px] font-bold uppercase tracking-widest text-ash">Contact</p>
           <div className="mt-4 space-y-2.5 text-sm text-obsidian/80">
-            <p className="flex items-center gap-2"><Mail size={14} className="text-ash" /> {s.contactEmail || 'care@veloura.pk'}</p>
+            <p className="flex items-center gap-2"><Mail size={14} className="text-ash" /> {s.contactEmail || 'care@hushae.pk'}</p>
             <p className="flex items-center gap-2"><Phone size={14} className="text-ash" /> {s.contactPhone || '+92 300 0000000'}</p>
             <p className="flex items-center gap-2"><MapPin size={14} className="text-ash" /> Pakistan — nationwide delivery</p>
           </div>
@@ -89,7 +89,7 @@ export default function Footer() {
         </div>
       </div>
       <div className="border-t border-line/70 py-5 text-center text-[11px] uppercase tracking-widest text-ash">
-        © {new Date().getFullYear()} VÉLOURA · All rights reserved · Discreet always
+        © {new Date().getFullYear()} HUSHAE · All rights reserved · Discreet always
       </div>
     </footer>
   );

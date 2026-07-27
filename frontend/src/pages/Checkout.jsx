@@ -62,7 +62,7 @@ export default function Checkout() {
   // Restore any in-progress checkout form from localStorage so a customer who
   // refreshes or navigates away doesn't lose everything they typed. Cleared
   // once the order is successfully placed.
-  const CHECKOUT_KEY = 'veloura.checkoutDraft';
+  const CHECKOUT_KEY = 'hushae.checkoutDraft';
   const loadDraft = () => {
     try { return JSON.parse(localStorage.getItem(CHECKOUT_KEY) || 'null'); } catch { return null; }
   };

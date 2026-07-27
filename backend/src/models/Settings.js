@@ -2,9 +2,9 @@ const mongoose = require('mongoose');
 
 const settingsSchema = new mongoose.Schema({
   key: { type: String, default: 'store', unique: true },
-  storeName: { type: String, default: 'VÉLOURA' },
+  storeName: { type: String, default: 'HUSHAE' },
   tagline: { type: String, default: 'Second Skin, First Choice.' },
-  contactEmail: { type: String, default: 'care@veloura.pk' },
+  contactEmail: { type: String, default: 'care@hushae.pk' },
   contactPhone: { type: String, default: '+92 300 0000000' },
   hero: {
     title: { type: String, default: 'Second Skin,\nFirst Choice.' },
@@ -13,7 +13,7 @@ const settingsSchema = new mongoose.Schema({
     eyebrow: { type: String, default: 'Premium innerwear · Made in Pakistan' },
     ctaWomen: { type: String, default: 'Shop Now' },
     ctaMen: { type: String, default: 'Shop Men' },
-    image: { type: String, default: '/images/hero/veloura-hero.jpg' },   // desktop banner image
+    image: { type: String, default: '/images/hero/hushae-hero.jpg' },   // desktop banner image
     video: { type: String, default: '' },            // optional MP4 for full-screen hero
     poster: { type: String, default: '' },           // poster image shown while video loads
     fullScreen: { type: Boolean, default: true },    // international-style full-viewport hero (default ON now)
@@ -53,7 +53,7 @@ const settingsSchema = new mongoose.Schema({
   promoPopup: {
     enabled: { type: Boolean, default: true },
     delaySec: { type: Number, default: 18 },
-    title: { type: String, default: 'Join the VÉLOURA inner circle' },
+    title: { type: String, default: 'Join the HUSHAE inner circle' },
     text: { type: String, default: 'First access to drops, private sales and member-only offers. No spam — ever.' },
     couponCode: { type: String, default: '' },
   },
@@ -78,12 +78,12 @@ const settingsSchema = new mongoose.Schema({
     jazzcash: { type: Boolean, default: true },
     easypaisa: { type: Boolean, default: true },
     bank: { type: Boolean, default: true },
-    bankDetails: { type: String, default: 'Bank: Meezan Bank\nTitle: Veloura (Pvt) Ltd\nIBAN: PK00 MEZN 0000 0000 0000 0000' },
+    bankDetails: { type: String, default: 'Bank: Meezan Bank\nTitle: Hushae (Pvt) Ltd\nIBAN: PK00 MEZN 0000 0000 0000 0000' },
   },
   // Cookie consent popup shown to first-time visitors
   cookiePopup: {
     enabled: { type: Boolean, default: true },
-    title: { type: String, default: 'Cookies on VÉLOURA' },
+    title: { type: String, default: 'Cookies on HUSHAE' },
     text: { type: String, default: 'We use cookies to keep you signed in and remember your bag. With your permission, we also use a few cookies to understand traffic and improve the store. Your data is never sold — promise.' },
   },
   theme: {
@@ -93,14 +93,14 @@ const settingsSchema = new mongoose.Schema({
   storefrontLock: {
     enabled: { type: Boolean, default: false },
     password: { type: String, default: '' },
-    heading: { type: String, default: 'VÉLOURA is opening soon' },
+    heading: { type: String, default: 'HUSHAE is opening soon' },
     message: { type: String, default: 'Hum jald launch kar rahay hain. Enter password to preview the store.' },
   },
   integrations: {
     whatsapp: {
       enabled: { type: Boolean, default: false },
       number: { type: String, default: '' },
-      message: { type: String, default: 'Hi! I have a question about VÉLOURA.' },
+      message: { type: String, default: 'Hi! I have a question about HUSHAE.' },
     },
     social: {
       instagram: { type: String, default: '' },

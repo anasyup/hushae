@@ -55,7 +55,7 @@ export default function OrderInvoice() {
       {/* Header */}
       <div className="flex items-start justify-between border-b-2 border-neutral-900 pb-6">
         <div>
-          <p className="font-display text-3xl font-bold tracking-widest">VÉLOURA</p>
+          <p className="font-display text-3xl font-bold tracking-widest">HUSHAE</p>
           <p className="mt-1 text-[11px] uppercase tracking-widest text-neutral-500">Premium innerwear · Made in Pakistan</p>
         </div>
         <div className="text-right">
@@ -138,7 +138,7 @@ export default function OrderInvoice() {
 
       {/* Footer */}
       <div className="mt-16 border-t border-neutral-200 pt-6 text-center">
-        <p className="text-[11px] text-neutral-500">Thank you for shopping with VÉLOURA</p>
+        <p className="text-[11px] text-neutral-500">Thank you for shopping with HUSHAE</p>
         <p className="mt-1 text-[10px] text-neutral-400">Questions? Contact us via /track on our website.</p>
       </div>
     </div>

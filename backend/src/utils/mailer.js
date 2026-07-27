@@ -90,7 +90,7 @@ function baseLayout({ title, body }) {
 <body style="margin:0;padding:0;background:#f7f5f1;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#111;">
   <div style="max-width:600px;margin:0 auto;padding:24px;">
     <div style="text-align:center;padding:24px 0;border-bottom:2px solid #111;">
-      <div style="font-family:'Cormorant Garamond',Georgia,serif;font-size:28px;font-weight:600;letter-spacing:0.32em;">VÉLOURA</div>
+      <div style="font-family:'Cormorant Garamond',Georgia,serif;font-size:28px;font-weight:600;letter-spacing:0.32em;">HUSHAE</div>
       <div style="font-size:10px;letter-spacing:0.24em;color:#7a736d;margin-top:4px;text-transform:uppercase;">Premium innerwear · Made in Pakistan</div>
     </div>
     <div style="background:#fff;padding:32px 24px;border:1px solid #e4ded4;border-top:none;">
@@ -247,7 +247,7 @@ async function sendStatusUpdate(order, storeInfo = {}) {
     Confirmed: { title: 'Your order is confirmed', text: 'We\'ve confirmed your order and are getting it ready for shipping.' },
     Shipped:   { title: 'Your order has shipped', text: 'Your parcel is now on its way. It usually reaches within 2–5 working days.' },
     'Out for Delivery': { title: 'Out for delivery today', text: 'Your parcel is with the courier for delivery today — please keep your phone handy.' },
-    Delivered: { title: 'Delivered — thank you', text: 'We hope you love your VÉLOURA pieces. Please share how they fit — we would be honored to hear from you.' },
+    Delivered: { title: 'Delivered — thank you', text: 'We hope you love your HUSHAE pieces. Please share how they fit — we would be honored to hear from you.' },
     Cancelled: { title: 'Your order was cancelled', text: 'Your order has been cancelled. If this was unexpected, please reply to this email.' },
   };
   const info = NICE[order.status];
@@ -345,7 +345,7 @@ module.exports = {
   async sendTest(to) {
     return sendMail({
       to,
-      subject: 'VÉLOURA — test email',
+      subject: 'HUSHAE — test email',
       html: baseLayout({ title: 'Test', body: '<p style="font-size:14px;">Your email settings are working correctly! 🎉</p>' }),
     });
   },

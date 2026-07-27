@@ -191,7 +191,7 @@ export default function Finance() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `veloura-finance-${rangeMeta.key}-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.download = `hushae-finance-${rangeMeta.key}-${new Date().toISOString().slice(0, 10)}.csv`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);

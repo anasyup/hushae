@@ -5,12 +5,12 @@ const config = require('../backend/src/config');
 const app = require('../backend/src/app');
 
 // Reuse one connection across warm invocations (serverless best practice).
-let cached = global.__VELOURA_DB;
+let cached = global.__HUSHAE_DB;
 async function db() {
   if (cached) return cached;
   if (!config.mongoUri) throw new Error('MONGODB_URI environment variable is not set');
   cached = mongoose.connect(config.mongoUri, { serverSelectionTimeoutMS: 10000 });
-  global.__VELOURA_DB = cached;
+  global.__HUSHAE_DB = cached;
   return cached;
 }
 

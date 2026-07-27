@@ -9,7 +9,7 @@
 import { useEffect } from 'react';
 import { useApp } from '../store/AppContext';
 
-const CONSENT_KEY = 'veloura.consent';
+const CONSENT_KEY = 'hushae.consent';
 
 function readConsent() {
   try {
@@ -105,10 +105,10 @@ export default function Analytics() {
     const onStorage = (e) => { if (e.key === CONSENT_KEY) apply(); };
     const onCustom = () => apply();
     window.addEventListener('storage', onStorage);
-    window.addEventListener('veloura:consent', onCustom);
+    window.addEventListener('hushae:consent', onCustom);
     return () => {
       window.removeEventListener('storage', onStorage);
-      window.removeEventListener('veloura:consent', onCustom);
+      window.removeEventListener('hushae:consent', onCustom);
     };
   }, [cfg.gaId, cfg.gtmId, cfg.metaPixelId, cfg.tiktokPixelId]);
 

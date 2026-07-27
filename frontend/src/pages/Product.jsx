@@ -97,7 +97,7 @@ export default function Product() {
     <div className="mx-auto max-w-7xl px-4 py-6 md:py-8 md:px-8">
       <Seo
         title={p.name}
-        description={p.shortDescription || p.description?.slice(0, 160) || `${p.name} — premium innerwear from VÉLOURA. PKR ${p.price}. ${p.stock > 0 ? 'In stock' : 'Out of stock'}. COD available.`}
+        description={p.shortDescription || p.description?.slice(0, 160) || `${p.name} — premium innerwear from HUSHAE. PKR ${p.price}. ${p.stock > 0 ? 'In stock' : 'Out of stock'}. COD available.`}
         image={p.images?.[0]?.url}
         canonical={`/product/${p.slug}`}
         jsonLd={productJsonLd(p, typeof window !== 'undefined' ? window.location.origin : '')}
@@ -243,7 +243,7 @@ export default function Product() {
             </Accordion>
             <Accordion title="Fabric & Feel">
               <p className="font-medium text-obsidian">{p.fabric}</p>
-              <p className="mt-2">Every VÉLOURA fabric is wash-tested for 40 cycles before it enters the edit — softness in, softness out.</p>
+              <p className="mt-2">Every HUSHAE fabric is wash-tested for 40 cycles before it enters the edit — softness in, softness out.</p>
             </Accordion>
             <Accordion title="Care Instructions">
               <ul className="list-disc space-y-1.5 pl-5">{p.care.map((c) => <li key={c}>{c}</li>)}</ul>

@@ -37,7 +37,7 @@ export default function Backup() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `veloura-backup-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')}.json`;
+      a.download = `hushae-backup-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')}.json`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);

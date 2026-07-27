@@ -227,7 +227,7 @@ export default function Content() {
             <div className={`mt-4 grid gap-4 sm:grid-cols-2 ${promo.enabled !== false ? '' : 'pointer-events-none opacity-40'}`}>
               <div><label className="label">Kitne second baad dikhe</label><input className="input" type="number" min="5" value={promo.delaySec} onChange={(e) => setPromo('delaySec', e.target.value)} /></div>
               <div><label className="label">Reward coupon code</label><input className="input uppercase" placeholder="WELCOME10" value={promo.couponCode || ''} onChange={(e) => setPromo('couponCode', e.target.value)} /></div>
-              <div className="sm:col-span-2"><label className="label">Title</label><input className="input" placeholder="Join the VÉLOURA inner circle" value={promo.title || ''} onChange={(e) => setPromo('title', e.target.value)} /></div>
+              <div className="sm:col-span-2"><label className="label">Title</label><input className="input" placeholder="Join the HUSHAE inner circle" value={promo.title || ''} onChange={(e) => setPromo('title', e.target.value)} /></div>
               <div className="sm:col-span-2"><label className="label">Text</label><textarea className="input min-h-16" value={promo.text || ''} onChange={(e) => setPromo('text', e.target.value)} /></div>
             </div>
             <p className="mt-3 rounded-xl bg-satin/60 px-4 py-2.5 text-[11px] leading-relaxed text-ash">⚠️ Coupon code wo likho jo <b>Discounts page</b> par pehle banaya ho — warna checkout par code accept nahi hoga.</p>

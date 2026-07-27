@@ -8,7 +8,7 @@ export default function StoreLock({ children }) {
   const { settings, t } = useApp();
   const loc = useLocation();
   const [pw, setPw] = useState('');
-  const [entered, setEntered] = useState(localStorage.getItem('veloura.lockpw') || '');
+  const [entered, setEntered] = useState(localStorage.getItem('hushae.lockpw') || '');
   const [wrong, setWrong] = useState(false);
 
   const lock = settings?.storefrontLock;
@@ -21,7 +21,7 @@ export default function StoreLock({ children }) {
   const submit = (e) => {
     e.preventDefault();
     if (pw === lock.password) {
-      localStorage.setItem('veloura.lockpw', pw);
+      localStorage.setItem('hushae.lockpw', pw);
       setEntered(pw);
       setWrong(false);
     } else {
@@ -51,7 +51,7 @@ export default function StoreLock({ children }) {
           </div>
           {wrong && <p className="mt-3 text-center text-xs text-red-300"><Tx k="lockWrong" /></p>}
         </form>
-        <p className="absolute bottom-6 text-[10px] uppercase tracking-widest text-alabaster/30">VÉLOURA · Pakistan</p>
+        <p className="absolute bottom-6 text-[10px] uppercase tracking-widest text-alabaster/30">HUSHAE · Pakistan</p>
       </div>
     </>
   );

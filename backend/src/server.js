@@ -9,7 +9,7 @@ async function resolveMongoUri() {
   console.log('[db] first run downloads ~90 MB once; afterwards it starts in seconds.');
   const { MongoMemoryServer } = require('mongodb-memory-server');
   const mem = await MongoMemoryServer.create({
-    instance: { dbName: 'veloura', storageEngine: 'wiredTiger' },
+    instance: { dbName: 'hushae', storageEngine: 'wiredTiger' },
     binary: { version: '7.0.14' },
   });
   const uri = mem.getUri();
@@ -28,7 +28,7 @@ async function resolveMongoUri() {
   const app = require('./app');
   app.listen(config.port, () => {
     console.log('');
-    console.log('  VÉLOURA API is running');
+    console.log('  HUSHAE API is running');
     console.log(`  → API:     http://localhost:${config.port}/api`);
     console.log(`  → Health:  http://localhost:${config.port}/api/health`);
     console.log('');

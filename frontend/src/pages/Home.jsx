@@ -78,7 +78,7 @@ export default function Home() {
           <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.8 }} className="relative">
             <div className="absolute -inset-4 -z-10 rounded-[2.5rem] bg-satin/70" />
             <Img src={hero.image || 'https://images.unsplash.com/photo-1519744792095-2f2205e87b6f?auto=format&fit=crop&w=1600&q=80'}
-              alt="VÉLOURA editorial" className="aspect-[4/5] w-full rounded-[2.5rem] object-cover md:aspect-[5/6]" />
+              alt="HUSHAE editorial" className="aspect-[4/5] w-full rounded-[2.5rem] object-cover md:aspect-[5/6]" />
             <div className="absolute bottom-5 left-5 rounded-2xl bg-alabaster/90 px-5 py-4 shadow-card backdrop-blur">
               <p className="text-[10px] font-bold uppercase tracking-widest text-sagedeep">The Silk Eclipse Edit</p>
               <p className="mt-1 text-sm font-medium">Featherweight layers, zero-dig fits</p>
@@ -148,7 +148,7 @@ export default function Home() {
           <span className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-alabaster/10"><Ruler size={22} /></span>
           <h2 className="mt-6 font-display text-3xl md:text-4xl">Never guess your size again</h2>
           <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-alabaster/70">
-            Answer four quick questions and our Fit Finder recommends your true VÉLOURA size — for him and for her.
+            Answer four quick questions and our Fit Finder recommends your true HUSHAE size — for him and for her.
           </p>
           <Link to="/fit-finder" className="mt-8 inline-flex items-center gap-2 rounded-full bg-alabaster px-8 py-3.5 text-[13px] font-semibold uppercase tracking-widest text-obsidian transition hover:bg-white">
             Start Fit Finder <ArrowRight size={15} />
@@ -219,7 +219,7 @@ export default function Home() {
       {/* PRESS / TRUST BAR */}
       <motion.section {...fadeUp} className="mx-auto mt-24 max-w-7xl px-4 md:px-8">
         <div className="rounded-[2rem] border border-line bg-white/60 px-6 py-10 md:py-12">
-          <p className="text-center text-[10px] font-bold uppercase tracking-widest text-ash">Why choose VÉLOURA</p>
+          <p className="text-center text-[10px] font-bold uppercase tracking-widest text-ash">Why choose HUSHAE</p>
           <div className="mt-6 grid grid-cols-2 gap-6 sm:grid-cols-4">
             {[
               { title: 'Discreet',       sub: 'Unmarked packaging on every order' },
@@ -246,7 +246,7 @@ export default function Home() {
               Welcome in. Your first edit arrives soon.
             </p>
           ) : (
-            <form onSubmit={(e) => { e.preventDefault(); if (nl.includes('@')) { localStorage.setItem('veloura.newsletter', nl); setNlDone(true); } }}
+            <form onSubmit={(e) => { e.preventDefault(); if (nl.includes('@')) { localStorage.setItem('hushae.newsletter', nl); setNlDone(true); } }}
               className="mx-auto mt-6 flex max-w-md gap-2 rounded-full border border-line bg-white/70 p-1.5">
               <input type="email" required value={nl} onChange={(e) => setNl(e.target.value)} placeholder="Your email address"
                 className="w-full bg-transparent px-4 text-sm outline-none placeholder:text-ash/60" />
@@ -292,7 +292,7 @@ function HeroFullScreen({ hero }) {
   }, [menuOpen]);
 
   const posterOrImage = hero.poster || hero.image || undefined;
-  const heroImage = hero.image || '/images/hero/veloura-hero.jpg';
+  const heroImage = hero.image || '/images/hero/hushae-hero.jpg';
   const badges = Array.isArray(hero.badges) ? hero.badges.filter(Boolean) : [];
   const showButtons = hero.showButtons !== false;
 
@@ -308,7 +308,7 @@ function HeroFullScreen({ hero }) {
           aria-hidden="true"
         />
       ) : (
-        <img src={heroImage} alt="VÉLOURA editorial" className="absolute inset-0 h-full w-full object-cover" />
+        <img src={heroImage} alt="HUSHAE editorial" className="absolute inset-0 h-full w-full object-cover" />
       )}
 
       {/* Adjustable dark overlay for text contrast */}

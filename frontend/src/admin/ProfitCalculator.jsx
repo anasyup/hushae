@@ -13,7 +13,7 @@ import { pkr } from '../lib/format';
  *               profit per unit, ROAS if ads > 0.
  */
 
-const LS_KEY = 'veloura.calc';
+const LS_KEY = 'hushae.calc';
 
 const EMPTY = {
   price: '', cost: '', qty: '1',

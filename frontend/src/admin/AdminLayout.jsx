@@ -192,7 +192,7 @@ function SidebarContent({ onNavigate }) {
       {/* Brand */}
       <div className="px-4 pb-3 pt-5">
         <NavLink to="/admin" onClick={onNavigate} className="block w-fit rounded-lg transition hover:opacity-70">
-          <p className="font-display text-[17px] font-bold tracking-widest text-neutral-900">VÉLOURA</p>
+          <p className="font-display text-[17px] font-bold tracking-widest text-neutral-900">HUSHAE</p>
           <p className="mt-0.5 text-[10px] font-medium uppercase tracking-widest text-neutral-400">Admin console</p>
         </NavLink>
       </div>
@@ -294,7 +294,7 @@ export default function AdminLayout({ children, title }) {
         {/* Mobile topbar */}
         <div className="sticky top-0 z-30 flex items-center gap-3 border-b border-black/5 bg-[#ebebeb] px-4 py-3 md:hidden">
           <button onClick={() => setDrawer(true)} className="rounded-lg p-1.5 text-neutral-700 hover:bg-white/70"><Menu size={20} /></button>
-          <Link to="/admin" className="font-display text-base font-bold tracking-widest text-neutral-900">VÉLOURA</Link>
+          <Link to="/admin" className="font-display text-base font-bold tracking-widest text-neutral-900">HUSHAE</Link>
         </div>
 
         {/* Desktop topbar — breadcrumb, quick actions, notifications */}

@@ -43,7 +43,7 @@ const jazzcash = {
       pp_TxnCurrency: 'PKR',
       pp_TxnDateTime: yyyymmddhhmmss,
       pp_BillReference: order.orderNumber,
-      pp_Description: `Veloura order ${order.orderNumber}`,
+      pp_Description: `Hushae order ${order.orderNumber}`,
       pp_TxnExpiryDateTime: expiryStr,
       pp_ReturnURL: cfg.returnUrl || '',
       pp_SecureHash: '',

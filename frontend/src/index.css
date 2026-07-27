@@ -88,7 +88,7 @@
 .gallery-zoom img { transition: transform 0.7s cubic-bezier(0.2, 0.6, 0.2, 1); }
 .gallery-zoom:hover img { transform: scale(1.08); }
 
-/* ===== Premium printable invoice (original VÉLOURA design) ===== */
+/* ===== Premium printable invoice (original HUSHAE design) ===== */
 .invoice-sheet { display: none; }
 @media print {
   body * { visibility: hidden !important; }

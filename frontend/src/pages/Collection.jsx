@@ -46,7 +46,7 @@ export default function Collection() {
     <div>
       <Seo
         title={c.name}
-        description={c.description || `Shop the ${c.name} collection at VÉLOURA — curated pieces for every moment.`}
+        description={c.description || `Shop the ${c.name} collection at HUSHAE — curated pieces for every moment.`}
         image={c.image}
         canonical={`/collection/${c.slug}`}
       />

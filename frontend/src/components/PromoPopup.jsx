@@ -5,7 +5,7 @@ import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import Tx from './Tx';
 
-const KEY = 'veloura.promo';
+const KEY = 'hushae.promo';
 const SNOOZE_DAYS = 30;
 
 export default function PromoPopup() {
@@ -76,7 +76,7 @@ export default function PromoPopup() {
         ) : (
           <>
             <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-obsidian text-alabaster"><Gift size={17} /></span>
-            <p className="mt-3 font-display text-lg leading-snug">{cfg?.title || 'Join the VÉLOURA inner circle'}</p>
+            <p className="mt-3 font-display text-lg leading-snug">{cfg?.title || 'Join the HUSHAE inner circle'}</p>
             <p className="mt-1.5 text-xs leading-relaxed text-ash">{cfg?.text || 'First access to drops, private sales and member-only offers. No spam — ever.'}</p>
             {cfg?.couponCode && <p className="mt-2 text-[11px] font-semibold text-sagedeep">🎁 {t('promoHasCode')}</p>}
             <form onSubmit={subscribe} className="mt-4 flex gap-2">

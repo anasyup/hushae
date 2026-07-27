@@ -4,12 +4,12 @@ import { Cookie, ShieldCheck } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import Tx from './Tx';
 
-const KEY = 'veloura.consent';
+const KEY = 'hushae.consent';
 
 const setStored = (analytics, marketing) => {
   localStorage.setItem(KEY, JSON.stringify({ essential: true, analytics, marketing, ts: Date.now() }));
   // Notify Analytics.jsx to load/unload tracking scripts based on new consent
-  try { window.dispatchEvent(new Event('veloura:consent')); } catch { /* noop */ }
+  try { window.dispatchEvent(new Event('hushae:consent')); } catch { /* noop */ }
 };
 
 export default function CookieConsent() {
@@ -49,7 +49,7 @@ export default function CookieConsent() {
           className="w-full max-w-lg rounded-[1.8rem] border border-line bg-alabaster p-7 shadow-card md:p-9">
           <div className="flex items-center gap-3">
             <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-obsidian text-alabaster"><Cookie size={18} /></span>
-            <p className="font-display text-lg tracking-widest2 uppercase">{cfg?.title || 'Cookies on VÉLOURA'}</p>
+            <p className="font-display text-lg tracking-widest2 uppercase">{cfg?.title || 'Cookies on HUSHAE'}</p>
           </div>
           <p className="mt-4 text-[13px] leading-relaxed text-ash">
             {cfg?.text || 'We use cookies to keep you signed in and remember your bag. With your permission, we also use a few cookies to understand traffic and improve the store.'}

@@ -5,7 +5,7 @@ import { api } from '../api/client';
 import AdminLayout from './AdminLayout';
 
 const DEFAULTS = {
-  whatsapp: { enabled: false, number: '', message: 'Hi! I have a question about VÉLOURA.' },
+  whatsapp: { enabled: false, number: '', message: 'Hi! I have a question about HUSHAE.' },
   social: { instagram: '', facebook: '', tiktok: '' },
   analytics: { gaId: '', gtmId: '', metaPixelId: '', tiktokPixelId: '' },
   email: { host: '', port: 587, secure: false, user: '', pass: '', from: '', adminAlert: '' },
@@ -91,15 +91,15 @@ export default function Apps() {
           <div className="mt-5 space-y-4">
             <div>
               <label className="label flex items-center gap-1.5"><Instagram size={13} /> Instagram URL</label>
-              <input className="input" placeholder="https://instagram.com/veloura.pk" value={social.instagram} onChange={(e) => setSocial('instagram', e.target.value)} />
+              <input className="input" placeholder="https://instagram.com/hushae.pk" value={social.instagram} onChange={(e) => setSocial('instagram', e.target.value)} />
             </div>
             <div>
               <label className="label flex items-center gap-1.5"><Facebook size={13} /> Facebook URL</label>
-              <input className="input" placeholder="https://facebook.com/veloura.pk" value={social.facebook} onChange={(e) => setSocial('facebook', e.target.value)} />
+              <input className="input" placeholder="https://facebook.com/hushae.pk" value={social.facebook} onChange={(e) => setSocial('facebook', e.target.value)} />
             </div>
             <div>
               <label className="label flex items-center gap-1.5"><Music2 size={13} /> TikTok URL</label>
-              <input className="input" placeholder="https://tiktok.com/@veloura.pk" value={social.tiktok} onChange={(e) => setSocial('tiktok', e.target.value)} />
+              <input className="input" placeholder="https://tiktok.com/@hushae.pk" value={social.tiktok} onChange={(e) => setSocial('tiktok', e.target.value)} />
             </div>
           </div>
         </div>
@@ -126,7 +126,7 @@ export default function Apps() {
             </div>
             <div>
               <label className="label">Upload Preset</label>
-              <input className="input" placeholder="e.g. veloura_uploads" value={media.uploadPreset} onChange={(e) => setMedia('uploadPreset', e.target.value)} />
+              <input className="input" placeholder="e.g. hushae_uploads" value={media.uploadPreset} onChange={(e) => setMedia('uploadPreset', e.target.value)} />
             </div>
           </div>
         </div>
@@ -169,7 +169,7 @@ export default function Apps() {
             </div>
             <div>
               <label className="label">"From" address</label>
-              <input className="input" placeholder='"VÉLOURA" &lt;no-reply@veloura.pk&gt;' value={email.from} onChange={(e) => setEmail('from', e.target.value)} />
+              <input className="input" placeholder='"HUSHAE" &lt;no-reply@hushae.pk&gt;' value={email.from} onChange={(e) => setEmail('from', e.target.value)} />
               <p className="mt-1.5 text-[11px] text-ash">Leave blank to use your username.</p>
             </div>
             <div>

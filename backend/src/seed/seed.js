@@ -26,7 +26,7 @@ async function seedIfEmpty(log = console.log) {
 
   // Admin user
   await User.create({
-    name: 'Veloura Admin', email: config.adminEmail, password: config.adminPassword, role: 'admin',
+    name: 'Hushae Admin', email: config.adminEmail, password: config.adminPassword, role: 'admin',
   });
   log(`[seed] admin created: ${config.adminEmail}`);
 

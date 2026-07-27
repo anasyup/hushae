@@ -4,8 +4,8 @@
 //   <Seo title="..." description="..." image="..." canonical="/shop" jsonLd={{...}} />
 import { useEffect } from 'react';
 
-const SITE_NAME = 'VÉLOURA';
-const DEFAULT_TITLE = 'VÉLOURA — Second Skin, First Choice.';
+const SITE_NAME = 'HUSHAE';
+const DEFAULT_TITLE = 'HUSHAE — Second Skin, First Choice.';
 const DEFAULT_DESC = 'Premium innerwear for men and women. Made in Pakistan, finished to an international standard. Discreet packaging, COD nationwide.';
 const DEFAULT_IMAGE = '/favicon.svg';
 

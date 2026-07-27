@@ -16,7 +16,7 @@ React storefront + admin console · Express REST API · MongoDB Atlas-ready.
 | Catalog | 10 categories · **100 products** (women 50 / men 50) · 4 images each · tiers · fabric tech badges |
 
 ```
-veloura/
+hushae/
 ├── backend/     Express API, models, seed (admin + settings + 10 categories + 100 products)
 ├── frontend/    Customer site + admin dashboard + i18n (EN/اردو) + cart/wishlist/recently-viewed
 ├── start-dev.bat   ← Windows: double-click to run everything
@@ -38,14 +38,14 @@ veloura/
 ### Manual start (two terminals)
 
 ```bat
-cd veloura\backend
+cd hushae\backend
 copy .env.example .env
 npm install
 npm run dev        → API on http://localhost:4000
 ```
 
 ```bat
-cd veloura\frontend
+cd hushae\frontend
 copy .env.example .env
 npm install
 npm run dev        → Storefront on http://localhost:5173
@@ -86,7 +86,7 @@ npm run dev        → Storefront on http://localhost:5173
 1. Create a free cluster at https://cloud.mongodb.com
 2. Database user + Network Access (allow your IP / 0.0.0.0/0 for servers)
 3. Copy the connection string into `backend/.env`:
-   `MONGODB_URI=mongodb+srv://<user>:<pass>@cluster0.xxxx.mongodb.net/veloura`
+   `MONGODB_URI=mongodb+srv://<user>:<pass>@cluster0.xxxx.mongodb.net/hushae`
 4. Seed it once: `cd backend && npm run seed`
 5. `npm run dev` — same code, real database.
 

@@ -25,7 +25,7 @@ const TITLES = {
   new: ['New Arrivals', 'Fresh from the studio — the latest additions to the edit.'],
   best: ['Best Sellers', 'The pieces Pakistan keeps reordering.'],
   sale: ['Sale', 'Quiet luxury, gentler prices — while stock lasts.'],
-  all: ['Shop All', 'The complete VÉLOURA edit for men and women.'],
+  all: ['Shop All', 'The complete HUSHAE edit for men and women.'],
 };
 
 export default function Shop({ preset = {} }) {
@@ -141,7 +141,7 @@ export default function Shop({ preset = {} }) {
       />
       {/* Header */}
       <div className="mb-6 md:mb-8">
-        <p className="text-[11px] font-bold uppercase tracking-widest text-sagedeep">VÉLOURA — {gender || 'all'}</p>
+        <p className="text-[11px] font-bold uppercase tracking-widest text-sagedeep">HUSHAE — {gender || 'all'}</p>
         <h1 className="mt-2 font-display text-3xl sm:text-4xl md:text-5xl">{meta[0]}</h1>
         <p className="mt-3 max-w-xl text-sm leading-relaxed text-ash">{meta[1]}</p>
       </div>

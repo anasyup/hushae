@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------------
-// VÉLOURA seed catalog: 10 categories x 10 products (100 SKUs)
+// HUSHAE seed catalog: 10 categories x 10 products (100 SKUs)
 // Names / tiers / prices are fixed as specified; copy, fabric, sizing, imagery
 // are composed here so every product reads individually.
 // Imagery: verified Unsplash fashion/fabric/lifestyle photography (temporary
@@ -220,7 +220,7 @@ function buildCatalog() {
         c.blurb,
         `${name} is finished in ${fabric.split('—')[0].trim()}, with ${badges.join(' and ').toLowerCase()} performance built into the yarn rather than sprayed on top.`,
         TIER_LINE[tier],
-        'Pair it with the rest of the VÉLOURA edit for a drawer that finally makes sense.',
+        'Pair it with the rest of the HUSHAE edit for a drawer that finally makes sense.',
       ].join(' ');
 
       products.push({

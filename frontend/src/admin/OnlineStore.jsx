@@ -89,7 +89,7 @@ export default function OnlineStore() {
             <div className="flex items-center gap-3">
               <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-obsidian text-alabaster"><Store size={20} /></span>
               <div>
-                <p className="font-display text-lg">VÉLOURA Signature</p>
+                <p className="font-display text-lg">HUSHAE Signature</p>
                 <p className="text-xs text-ash">Current theme · v1.0 · Active</p>
               </div>
             </div>
@@ -117,8 +117,8 @@ export default function OnlineStore() {
             </label>
           </div>
           <div className={`mt-4 grid gap-3 sm:grid-cols-2 ${lock.enabled ? '' : 'pointer-events-none opacity-40'}`}>
-            <div className="sm:col-span-2"><label className="label">Password</label><input className="input" value={lock.password} onChange={(e) => setLock('password', e.target.value)} placeholder="e.g. veloura-2026" /></div>
-            <div><label className="label">Heading (lock screen)</label><input className="input" value={lock.heading || ''} onChange={(e) => setLock('heading', e.target.value)} placeholder="VÉLOURA is opening soon" /></div>
+            <div className="sm:col-span-2"><label className="label">Password</label><input className="input" value={lock.password} onChange={(e) => setLock('password', e.target.value)} placeholder="e.g. hushae-2026" /></div>
+            <div><label className="label">Heading (lock screen)</label><input className="input" value={lock.heading || ''} onChange={(e) => setLock('heading', e.target.value)} placeholder="HUSHAE is opening soon" /></div>
             <div><label className="label">Message</label><input className="input" value={lock.message || ''} onChange={(e) => setLock('message', e.target.value)} /></div>
           </div>
           <div className="mt-4 flex items-center gap-3">

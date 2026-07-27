@@ -190,7 +190,7 @@ function OrderCard({ order: o, onAction, actionsBusyId }) {
                 <a href={`tel:${o.customerInfo.phone}`} className="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-1.5 text-[11px] font-semibold text-amber-900 shadow-sm ring-1 ring-amber-300 hover:bg-amber-100">
                   <Phone size={12} /> Call {o.customerInfo.phone}
                 </a>
-                <a href={`https://wa.me/${(o.customerInfo.phone || '').replace(/\D/g, '').replace(/^0/, '92')}?text=${encodeURIComponent(`Hi! This is VÉLOURA regarding your order ${o.orderNumber}. Can we confirm the delivery details?`)}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-1.5 text-[11px] font-semibold text-green-800 shadow-sm ring-1 ring-green-300 hover:bg-green-50">
+                <a href={`https://wa.me/${(o.customerInfo.phone || '').replace(/\D/g, '').replace(/^0/, '92')}?text=${encodeURIComponent(`Hi! This is HUSHAE regarding your order ${o.orderNumber}. Can we confirm the delivery details?`)}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-1.5 text-[11px] font-semibold text-green-800 shadow-sm ring-1 ring-green-300 hover:bg-green-50">
                   <MessageCircle size={12} /> WhatsApp
                 </a>
                 <button disabled={busy} onClick={() => onAction('verify-cod', o)} className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-[11px] font-semibold text-white shadow-sm hover:bg-emerald-700 disabled:opacity-50">

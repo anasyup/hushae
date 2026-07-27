@@ -76,7 +76,7 @@ async function sendOtpCode(phone03, code) {
     return 'whatsapp';
   }
   if (p === 'sms') {
-    await sendSms(`+${e164Digits}`, `Your VELOURA verification code is ${code}. It expires in 5 minutes.`);
+    await sendSms(`+${e164Digits}`, `Your HUSHAE verification code is ${code}. It expires in 5 minutes.`);
     return 'sms';
   }
   return null;
