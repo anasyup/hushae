@@ -2,7 +2,7 @@ import { Fragment, useEffect, useMemo, useState } from 'react';
 import { Link, NavLink, Navigate, useLocation } from 'react-router-dom';
 import {
   Activity, BadgePercent, BarChart3, Bell, ChevronDown, CreditCard, FileText, FolderOpen, Globe, Home,
-  LayoutTemplate, LogOut, Menu, Package, PackagePlus, PackageX,
+  LayoutTemplate, LogOut, Menu, MessageSquare, Package, PackagePlus, PackageX,
   Search, Settings as SettingsIcon, ShieldCheck, ShoppingBag, Store, Tags, TrendingUp, Truck, Users, X, Zap,
 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
@@ -36,14 +36,14 @@ const NAV_GROUPS = [
   {
     label: 'Catalog',
     icon: Package,
-    match: ['/admin/products', '/admin/categories', '/admin/collections'],
+    match: ['/admin/products', '/admin/categories', '/admin/collections', '/admin/reviews'],
     children: [
       { to: '/admin/products',              label: 'Inventory',    icon: Package, exact: true },
       { to: '/admin/products/new',          label: 'Add product',  icon: PackagePlus },
-      { to: '/admin/products?status=draft', label: 'Drafts',       icon: FolderOpen },
       { to: '/admin/products?active=0',     label: 'Archived',     icon: PackageX },
       { to: '/admin/categories',            label: 'Categories',   icon: Tags },
       { to: '/admin/collections',           label: 'Collections',  icon: Tags },
+      { to: '/admin/reviews',               label: 'Reviews',      icon: MessageSquare },
     ],
   },
   {

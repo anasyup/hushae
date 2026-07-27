@@ -10,6 +10,10 @@ app.use(require('./middleware/sanitize')); // NoSQL-injection block
 
 app.get('/api/health', (req, res) => res.json({ ok: true, name: 'HUSHAE API' }));
 
+// Kick off the daily in-DB auto-backup daemon.
+// Safe to call multiple times — internal flag prevents duplicate intervals.
+try { require('./utils/autoBackup').startAutoBackup(); } catch { /* noop */ }
+
 // SEO endpoints — served at ROOT (not /api/*) so search engines find them
 // Vercel rewrites /robots.txt and /sitemap.xml to this Express app.
 app.use('/', require('./routes/seo'));
@@ -36,6 +40,7 @@ app.use('/api/abandoned-cart', require('./routes/abandonedCart'));
 app.use('/api/backup', require('./routes/backup'));
 app.use('/api/payments', require('./routes/payments'));
 app.use('/api/collections', require('./routes/collections'));
+app.use('/api/reviews', require('./routes/reviews'));
 
 app.use('/api', (req, res) => res.status(404).json({ message: 'Not found' }));
 

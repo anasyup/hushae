@@ -79,6 +79,15 @@ export default function Footer() {
           </div>
         </div>
         <div>
+          <p className="text-[11px] font-bold uppercase tracking-widest text-ash">Policies</p>
+          <div className="mt-4 space-y-2.5 text-sm">
+            <Link className="block text-obsidian/80 hover:text-obsidian" to="/privacy">Privacy Policy</Link>
+            <Link className="block text-obsidian/80 hover:text-obsidian" to="/terms">Terms of Service</Link>
+            <Link className="block text-obsidian/80 hover:text-obsidian" to="/returns">Returns &amp; Exchanges</Link>
+            <Link className="block text-obsidian/80 hover:text-obsidian" to="/shipping-policy">Shipping Policy</Link>
+          </div>
+        </div>
+        <div>
           <p className="text-[11px] font-bold uppercase tracking-widest text-ash">Contact</p>
           <div className="mt-4 space-y-2.5 text-sm text-obsidian/80">
             <p className="flex items-center gap-2"><Mail size={14} className="text-ash" /> {s.contactEmail || 'care@hushae.pk'}</p>

@@ -130,4 +130,57 @@ router.post('/restore', asyncHandler(async (req, res) => {
   res.json({ ok: true, results });
 }));
 
+/* Snapshots — list + restore in-DB scheduled snapshots taken every 24h.
+ * These are stored in the `snapshots` collection by utils/autoBackup.js and
+ * let the admin roll back to any of the last 14 daily states from the UI. */
+router.get('/snapshots', asyncHandler(async (req, res) => {
+  const db = require('mongoose').connection.db;
+  const rows = await db.collection('snapshots')
+    .find({}, { projection: { data: 0 } })    // exclude heavy blob
+    .sort({ createdAt: -1 })
+    .limit(14)
+    .toArray();
+  res.json({ snapshots: rows });
+}));
+
+router.post('/snapshots/take', asyncHandler(async (req, res) => {
+  const { takeSnapshot } = require('../utils/autoBackup');
+  const snap = await takeSnapshot(req.body?.reason || 'manual');
+  res.json({ ok: true, sizes: snap.sizes, createdAt: snap.createdAt });
+}));
+
+router.post('/snapshots/:id/restore', asyncHandler(async (req, res) => {
+  const db = require('mongoose').connection.db;
+  const { ObjectId } = require('mongodb');
+  const snap = await db.collection('snapshots').findOne({ _id: new ObjectId(req.params.id) });
+  if (!snap) return res.status(404).json({ message: 'Snapshot not found' });
+
+  // Take one more "pre-restore" snapshot for safety before overwriting
+  try {
+    const { takeSnapshot } = require('../utils/autoBackup');
+    await takeSnapshot('pre-restore');
+  } catch { /* noop */ }
+
+  const results = {};
+  for (const [col, docs] of Object.entries(snap.data || {})) {
+    if (col === 'users') continue; // never overwrite auth
+    try {
+      // Clear then re-insert (safer than upsert for arrays with deleted rows)
+      await db.collection(col).deleteMany({});
+      if (docs && docs.length) await db.collection(col).insertMany(docs);
+      results[col] = docs?.length || 0;
+    } catch (e) {
+      results[col] = 'error: ' + e.message;
+    }
+  }
+  res.json({ ok: true, restoredFrom: snap.createdAt, results });
+}));
+
+router.delete('/snapshots/:id', asyncHandler(async (req, res) => {
+  const db = require('mongoose').connection.db;
+  const { ObjectId } = require('mongodb');
+  await db.collection('snapshots').deleteOne({ _id: new ObjectId(req.params.id) });
+  res.json({ ok: true });
+}));
+
 module.exports = router;

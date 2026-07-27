@@ -148,6 +148,12 @@ router.post('/', placeOrderLimit, optionalAuth, asyncHandler(async (req, res) =>
     mailer.sendNewOrderAlert(order, { adminEmail }).catch(() => {});
   } catch { /* mailer errors must never fail an order */ }
 
+  // Fire-and-forget WhatsApp alert (uses wa.me link or webhook — never blocks)
+  try {
+    const { notifyNewOrder } = require('../utils/whatsapp');
+    notifyNewOrder(order, { settings });
+  } catch { /* ignore */ }
+
   res.status(201).json({ order });
 }));
 
@@ -197,6 +203,17 @@ router.patch('/admin/:id/status', protect, adminOnly, asyncHandler(async (req, r
     try {
       const mailer = require('../utils/mailer');
       mailer.sendStatusUpdate(order).catch(() => {});
+    } catch { /* noop */ }
+  }
+
+  // Loyalty auto-reward: when an order flips to Delivered, count the
+  // customer's total delivered orders and mint a coupon if threshold hit.
+  if (status === 'Delivered' && prevStatus !== 'Delivered') {
+    try {
+      const { tryReward } = require('../utils/loyalty');
+      const Settings = require('../models/Settings');
+      const settings = await Settings.findOne({});
+      tryReward(order, { settings });
     } catch { /* noop */ }
   }
   res.json({ order });

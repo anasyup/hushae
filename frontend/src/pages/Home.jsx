@@ -8,7 +8,9 @@ import { snap } from '../lib/format';
 import Img from '../components/Img';
 import Marquee from '../components/Marquee';
 import FeaturedMarquee from '../components/FeaturedMarquee';
+import FeaturedCollections from '../components/FeaturedCollections';
 import EditorialBlock from '../components/EditorialBlock';
+import SignatureSplitHero from '../components/SignatureSplitHero';
 import TrustBadges from '../components/TrustBadges';
 import ProductRow from '../components/ProductRow';
 import { ProductGridSkeleton } from '../components/Skeletons';
@@ -101,19 +103,8 @@ export default function Home() {
           Inspired by CK/Skims/Everlane but original discreet-luxury voice
           ═══════════════════════════════════════════════════════════ */}
 
-      {/* Block 1 — Signature edit, split image left, copy right */}
-      <EditorialBlock
-        eyebrow="The Signature Edit"
-        title={"Second skin,\nnothing more."}
-        subtitle="Pakistan's discreet innerwear house. Cloud-soft fabrics, bonded seamless edges — engineered to disappear the moment you dress."
-        image="/images/hero/editorial-signature.jpg"
-        ctas={[
-          { label: 'Shop Women', to: '/women' },
-          { label: 'Shop Men', to: '/men' },
-        ]}
-        imageSide="left"
-        tall
-      />
+      {/* Block 1 — Half/Half split hero — Women (left) + Men (right), CK "Classic Calvins" style */}
+      <SignatureSplitHero />
 
       {/* Block 2 — Women highlight (image right, copy left, warm) */}
       <EditorialBlock
@@ -156,36 +147,12 @@ export default function Home() {
 
       <Marquee />
 
+      {/* Featured collections — pulls collections flagged featuredOnHome by admin */}
+      <FeaturedCollections />
+
       <div className="mt-14"><TrustBadges /></div>
 
-      {/* CATEGORIES */}
-      <section className="mx-auto mt-24 max-w-7xl px-4 md:px-8">
-        <motion.div {...fadeUp} className="mb-8 text-center">
-          <p className="text-[11px] font-bold uppercase tracking-widest text-sagedeep">Shop by category</p>
-          <h2 className="mt-2 font-display text-3xl md:text-4xl">Find your layer</h2>
-        </motion.div>
-        {[['Women', '/women', wCats], ['Men', '/men', mCats]].map(([g, to, list], gi) => (
-          <div key={g} className={gi ? 'mt-12' : ''}>
-            <div className="mb-5 flex items-center justify-between">
-              <h3 className="font-display text-xl">{g}</h3>
-              <Link to={to} className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-widest text-ash transition hover:text-obsidian">
-                View all {g} <ArrowRight size={13} />
-              </Link>
-            </div>
-            <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
-              {list.map((c, i) => (
-                <motion.div key={c.slug} {...fadeUp} transition={{ delay: i * 0.05 }}>
-                  <Link to={`/category/${c.slug}`} className="group relative block overflow-hidden rounded-3xl">
-                    <Img src={c.image} alt={c.name} className="aspect-[4/5] w-full object-cover transition duration-700 group-hover:scale-105" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-obsidian/55 via-obsidian/5 to-transparent" />
-                    <p className="absolute bottom-4 left-4 right-4 text-sm font-semibold tracking-wide text-alabaster">{c.name}</p>
-                  </Link>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        ))}
-      </section>
+      {/* CATEGORIES section removed per user — replaced by Featured Collections + editorial blocks */}
 
       {/* BEST SELLERS */}
       <div className="mt-24">
@@ -244,10 +211,7 @@ export default function Home() {
         {signature && <motion.div {...fadeUp}><ProductRow eyebrow="The Signature Edit" title="Premium, perfected" products={signature.map(snap)} note="Silk-touch finishes" /></motion.div>}
       </div>
 
-      {/* RECENTLY VIEWED */}
-      {recent.length > 0 && (
-        <div className="mt-24"><ProductRow eyebrow="Pick up where you left off" title="Recently Viewed" products={recent} /></div>
-      )}
+      {/* Recently Viewed removed per user request */}
 
       {/* TESTIMONIALS */}
       <motion.section {...fadeUp} className="mx-auto mt-24 max-w-7xl px-4 md:px-8">

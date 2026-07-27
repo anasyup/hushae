@@ -18,6 +18,7 @@ import Account from './pages/Account';
 import Sale from './pages/Sale';
 import Faq from './pages/Faq';
 import Collection from './pages/Collection';
+import Legal from './pages/Legal';
 import NotFound from './pages/NotFound';
 
 import AdminLogin from './admin/AdminLogin';
@@ -45,6 +46,7 @@ import AbandonedCarts from './admin/AbandonedCarts';
 import Backup from './admin/Backup';
 import Payments from './admin/Payments';
 import Collections from './admin/Collections';
+import Reviews from './admin/Reviews';
 import WhatsAppFloat from './components/WhatsAppFloat';
 import StoreLock from './components/StoreLock';
 import CookieConsent from './components/CookieConsent';
@@ -121,6 +123,10 @@ export default function App() {
           <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/account" element={<Account />} />
           <Route path="/faq" element={<Faq />} />
+          <Route path="/privacy" element={<Legal kind="privacy" />} />
+          <Route path="/terms" element={<Legal kind="terms" />} />
+          <Route path="/returns" element={<Legal kind="returns" />} />
+          <Route path="/shipping-policy" element={<Legal kind="shipping" />} />
           <Route path="/collection/:slug" element={<Collection />} />
 
           <Route path="/admin/login" element={<AdminLogin />} />
@@ -149,6 +155,7 @@ export default function App() {
           <Route path="/admin/insights" element={<Insights />} />
           <Route path="/admin/finance" element={<Finance />} />
           <Route path="/admin/abandoned-carts" element={<AbandonedCarts />} />
+          <Route path="/admin/reviews" element={<Reviews />} />
           <Route path="/admin/backup" element={<Backup />} />
           <Route path="/admin/payments" element={<Payments />} />
           <Route path="/admin/collections" element={<Collections />} />

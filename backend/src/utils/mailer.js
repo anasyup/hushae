@@ -336,12 +336,36 @@ async function sendAbandonedCartRecovery(cart) {
   });
 }
 
+async function sendLoyaltyReward(order, discount) {
+  const c = order.customerInfo || {};
+  if (!c.email) return { ok: false, reason: 'no-email' };
+  const body = `
+    <p style="margin:0 0 14px;font-size:16px;">Dear ${esc(c.name?.split(' ')[0] || 'friend')},</p>
+    <p style="margin:0 0 18px;font-size:15px;line-height:1.55;">You're part of the HUSHAE inner circle now. As a small thank you for coming back, here's a code just for you.</p>
+    <div style="text-align:center;margin:26px 0;padding:24px;border:1px dashed #C9BFB4;background:#F7F5F1;border-radius:14px;">
+      <p style="margin:0;font-size:11px;letter-spacing:.24em;color:#7A736D;text-transform:uppercase;">Your reward</p>
+      <p style="margin:8px 0 0;font-family:'Cormorant Garamond',Georgia,serif;font-size:34px;letter-spacing:.16em;">${esc(discount.code)}</p>
+      <p style="margin:10px 0 0;font-size:13px;color:#7A736D;">${discount.percent || discount.value}% off your next order</p>
+      <p style="margin:6px 0 0;font-size:11px;color:#9C948C;">Valid until ${new Date(discount.expiresAt).toLocaleDateString('en-PK')}</p>
+    </div>
+    <p style="margin:0 0 12px;font-size:13px;color:#7A736D;line-height:1.55;">
+      Just paste this code at checkout to redeem. It's yours to use once, at your leisure.
+    </p>
+  `;
+  return sendMail({
+    to: c.email,
+    subject: `A little thank-you inside — ${discount.percent || discount.value}% off, on us`,
+    html: baseLayout({ title: 'Thank you for coming back', body }),
+  });
+}
+
 module.exports = {
   sendMail,
   sendOrderConfirmation,
   sendNewOrderAlert,
   sendStatusUpdate,
   sendAbandonedCartRecovery,
+  sendLoyaltyReward,
   async sendTest(to) {
     return sendMail({
       to,

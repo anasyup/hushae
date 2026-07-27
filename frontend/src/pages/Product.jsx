@@ -9,6 +9,7 @@ import { isVideo, ytId } from '../lib/media';
 import Img from '../components/Img';
 import ProductImageZoom from '../components/ProductImageZoom';
 import ProductRow from '../components/ProductRow';
+import ProductReviews from '../components/ProductReviews';
 import SizeGuideModal from '../components/SizeGuideModal';
 import { PageSkeleton } from '../components/Skeletons';
 import Tx from '../components/Tx';
@@ -276,6 +277,9 @@ export default function Product() {
           <ProductRow eyebrow="You may also like" title="Related pieces" products={related.map(snap)} />
         </div>
       )}
+
+      {/* Customer reviews */}
+      <ProductReviews product={p} />
 
       {/* Recently viewed */}
       {recent.filter((r) => r.slug !== p.slug).length > 0 && (

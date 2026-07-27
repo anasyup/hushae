@@ -101,6 +101,8 @@ const settingsSchema = new mongoose.Schema({
       enabled: { type: Boolean, default: false },
       number: { type: String, default: '' },
       message: { type: String, default: 'Hi! I have a question about HUSHAE.' },
+      adminAlertNumber: { type: String, default: '' }, // your WhatsApp — receives new-order alerts
+      webhookUrl: { type: String, default: '' },       // optional: bridge to Business API (Make/n8n)
     },
     social: {
       instagram: { type: String, default: '' },
@@ -136,6 +138,12 @@ const settingsSchema = new mongoose.Schema({
       gtmId: { type: String, default: '' },
       metaPixelId: { type: String, default: '' },
       tiktokPixelId: { type: String, default: '' },
+    },
+    loyalty: {
+      enabled: { type: Boolean, default: true },
+      threshold: { type: Number, default: 2 },        // orders required
+      discountPercent: { type: Number, default: 10 },
+      validDays: { type: Number, default: 60 },
     },
   },
   // Public FAQ page — admin-editable via Content page
