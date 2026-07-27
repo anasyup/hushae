@@ -8,6 +8,7 @@ import { snap } from '../lib/format';
 import Img from '../components/Img';
 import Marquee from '../components/Marquee';
 import FeaturedMarquee from '../components/FeaturedMarquee';
+import EditorialBlock from '../components/EditorialBlock';
 import TrustBadges from '../components/TrustBadges';
 import ProductRow from '../components/ProductRow';
 import { ProductGridSkeleton } from '../components/Skeletons';
@@ -93,6 +94,64 @@ export default function Home() {
       <FeaturedMarquee
         products={(signature && signature.length ? signature : best) || []}
         title="Signature Pieces"
+      />
+
+      {/* ═══════════════════════════════════════════════════════════
+          EDITORIAL BLOCKS — HUSHAE magazine-style storefront
+          Inspired by CK/Skims/Everlane but original discreet-luxury voice
+          ═══════════════════════════════════════════════════════════ */}
+
+      {/* Block 1 — Signature edit, split image left, copy right */}
+      <EditorialBlock
+        eyebrow="The Signature Edit"
+        title={"Second skin,\nnothing more."}
+        subtitle="Pakistan's discreet innerwear house. Cloud-soft fabrics, bonded seamless edges — engineered to disappear the moment you dress."
+        image="/images/hero/editorial-signature.jpg"
+        ctas={[
+          { label: 'Shop Women', to: '/women' },
+          { label: 'Shop Men', to: '/men' },
+        ]}
+        imageSide="left"
+        tall
+      />
+
+      {/* Block 2 — Women highlight (image right, copy left, warm) */}
+      <EditorialBlock
+        eyebrow="For her"
+        title={"Quiet, considered,\nyours."}
+        subtitle="Bras that vanish under a slip dress. Briefs cut for real bodies. Lounge sets you'll live in."
+        image="/images/products/cat-bras-hero.jpg"
+        ctas={[
+          { label: 'Shop the Edit', to: '/women' },
+          { label: 'View Bras', to: '/category/bras' },
+        ]}
+        imageSide="right"
+      />
+
+      {/* Block 3 — Men highlight (image left, copy right) */}
+      <EditorialBlock
+        eyebrow="For him"
+        title={"Everyday essentials,\nrefined."}
+        subtitle="Modal-cotton briefs, contoured trunks and thermal layers — engineered for the daily rotation."
+        image="/images/products/cat-briefs-hero.jpg"
+        ctas={[
+          { label: 'Shop the Edit', to: '/men' },
+          { label: 'View Briefs', to: '/category/briefs' },
+        ]}
+        imageSide="left"
+      />
+
+      {/* Block 4 — Full-bleed overlay hero for a category push */}
+      <EditorialBlock
+        eyebrow="Discreet always"
+        title={"Delivered in plain,\nunmarked parcels."}
+        subtitle="Every order ships in a signature HUSHAE parcel with zero product references on the outside. Because what you wear beneath is only ever your business."
+        image="/images/products/cat-sleepwear-hero.jpg"
+        ctas={[
+          { label: 'Shop All', to: '/shop' },
+        ]}
+        overlay
+        tall
       />
 
       <Marquee />
