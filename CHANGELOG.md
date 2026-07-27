@@ -23,6 +23,12 @@ Format:
 
 ## Changes
 
+- **2026-07-27** — 🗑️ **Deleted duplicate Vercel `veloura` project + README rebrand**. User's screenshot showed a *second* Vercel project called `veloura` (id `prj_G2VwenWQOSxytnhF4Z2c6WHHn6jj`, alias `veloura-jade.vercel.app`) that we never realised existed — it was the original deployment from 4 days ago, sitting in the same team, and it's the one that was still showing the old VELOURA storefront + old admin. Called `DELETE /v9/projects/{id}` — got HTTP 204. Only the correct `hushae` project (id `prj_O4OBnPgwXtY4tCs5hPvxunlUVUyU`, aliases `hushae.vercel.app` + `veloura-73q1.vercel.app`) now remains.
+
+  Also fully rewrote `README.md` — the old README still had `# V É L O U R A` as the title and printed `Username: underadmin · Password: Muhammad1` as documented default credentials. New README uses HUSHAE branding, points at `https://hushae.vercel.app`, no hardcoded credentials anywhere (references env vars + admin panel), documents `SEED_ON_START=true` opt-in flow, and adds a proper deployment section.
+
+  GitHub repo rename **completed by user** — repo is now `github.com/anasyup/hushae`. Updated git remote to the new URL.
+
 - **2026-07-27** — 🎯 **Real root cause of "purani listing / purana password" — FIXED**.
 
   User reported that a fresh ZIP downloaded from GitHub, run locally, still shows the old products and still logs in with the old admin credentials. Investigating the freshly-extracted archive revealed the actual cause was not in the app code at all — it was in the **local dev bootstrap scripts and example env file** that were shipped with the repo:
