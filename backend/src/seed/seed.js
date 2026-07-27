@@ -14,15 +14,25 @@ const DEFAULT_TRUST = [
 ];
 
 async function seedIfEmpty(log = console.log) {
-  const userCount = await User.estimatedDocumentCount();
-  const productCount = await Product.estimatedDocumentCount();
-  if (productCount >= 100 && userCount >= 1) {
-    log('[seed] database already seeded — skipping');
+  // Auto-seed is OPT-IN via env var. Prevents accidentally re-populating
+  // production or your local DB with the demo catalog after you have
+  // cleaned it or added your real products.
+  if (String(process.env.SEED_ON_START || '').toLowerCase() !== 'true') {
+    log('[seed] SEED_ON_START not set to "true" — skipping seed');
     return false;
   }
 
-  log('[seed] seeding database...');
-  await Promise.all([User.deleteMany({}), Category.deleteMany({}), Product.deleteMany({}), Settings.deleteMany({})]);
+  const userCount = await User.estimatedDocumentCount();
+  const productCount = await Product.estimatedDocumentCount();
+  // Only seed if BOTH the users AND products collections are completely empty.
+  // If a user or product already exists we assume the store is set up.
+  if (userCount > 0 || productCount > 0) {
+    log(`[seed] existing data (users=${userCount}, products=${productCount}) — skipping seed`);
+    return false;
+  }
+
+  log('[seed] seeding database (first-time setup)...');
+  // Do NOT deleteMany — we just verified everything is empty above.
 
   // Admin user
   await User.create({

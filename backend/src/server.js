@@ -32,7 +32,7 @@ async function resolveMongoUri() {
     console.log(`  → API:     http://localhost:${config.port}/api`);
     console.log(`  → Health:  http://localhost:${config.port}/api/health`);
     console.log('');
-    console.log(`  Admin login → ${config.adminEmail} / ${config.adminPassword}`);
+    console.log(`  Admin login → ${config.adminEmail} / (password set via ADMIN_PASSWORD env var)`);
     console.log('');
   });
 })().catch((e) => {

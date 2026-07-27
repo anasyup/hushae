@@ -23,6 +23,19 @@ Format:
 
 ## Changes
 
+- **2026-07-27** — 🔒 **Database cleanup + auth hardening + seed lockdown**.
+
+  User's report: after downloading the ZIP and running the code locally, the site still showed the old seed catalog and still accepted the old admin credentials. Root cause: (a) MongoDB Atlas held the demo seed data — the same DB is used by Vercel and any local instance, so the "purani" listings weren't in the code, they were in the shared cloud DB; (b) `backend/src/server.js` auto-ran `seedIfEmpty()` on every boot, and the old seed logic would `deleteMany` and re-insert 100 demo products if the DB count didn't match; (c) `backend/src/config.js` had a hardcoded fallback `ADMIN_PASSWORD='Muhammad1'`, so a local run without env vars silently accepted the weak password even after the real one was rotated.
+
+  Fixes applied:
+  - **Atlas cleanup** (via Mongoose script): deleted the 100 demo seed products by exact slug list from `buildCatalog()`. Kept the 2 products the user created ("scdsfrgerggg" and the SEO test). Deleted the 4 non-admin test customer accounts. Reset admin password to a fresh 20-char strong random string. Renamed admin display-name `Veloura Admin` → `Hushae Admin`. Rotated `tokenRotatedAt` so any existing session in a browser is signed out.
+  - **`backend/src/config.js`** — removed every hardcoded fallback for `MONGODB_URI`, `JWT_SECRET`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`. They must now come from environment variables; missing values yield empty strings so the app fails fast instead of silently accepting `Muhammad1`.
+  - **`backend/src/seed/seed.js`** — auto-seed is now opt-in: it only runs when `SEED_ON_START=true` is set in the env AND both users + products collections are completely empty. Removed the destructive `deleteMany` calls. This means a fresh `npm run dev` on a laptop will connect to Atlas, see existing data, and touch nothing.
+  - **`backend/src/server.js`** — no longer prints the admin password to the terminal at startup (was leaking to console logs).
+  - **Vercel env `ADMIN_PASSWORD`** — updated to the new 20-char password via API (v10/projects/{id}/env).
+
+  Post-change state (Atlas): products=2, users=1 (admin), categories=10, orders=13, uploads=18 — settings + previous orders preserved. The next time the user logs in they must use the new password (delivered separately in chat).
+
 - **2026-07-27** — 🌐 **Vercel project renamed to `hushae` + new URL live**. Renamed the Vercel project from `veloura-73q1` → `hushae` via API (PATCH v9/projects). Also claimed the shorter alias **`hushae.vercel.app`** (was free) and pointed it at the same project — verified HTTPS 200 live. The old URL `veloura-73q1.vercel.app` still works as a legacy alias so any existing links / bookmarks don't break. Updated backend `utils/mailer.js` (5 order-email templates) and `routes/seo.js` (sitemap host fallback) to emit the new domain. `hushae.pk` / `hushae.com` custom domains still pending user's registrar purchase — will attach when ready.
 
 - **2026-07-27** — 🎬 **Full-screen home hero + English-only + product zoom + featured marquee**.
