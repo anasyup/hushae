@@ -306,7 +306,7 @@ export default function Finance() {
         <div className="mb-4 flex items-center justify-between">
           <div>
             <p className="text-[11px] font-bold uppercase tracking-widest text-neutral-400">Business advisor</p>
-            <h3 className="mt-1 font-display text-xl">Recommendations for your store</h3>
+            <h3 className="mt-1 font-sans text-xl">Recommendations for your store</h3>
           </div>
           <Target size={22} className="text-neutral-400" />
         </div>

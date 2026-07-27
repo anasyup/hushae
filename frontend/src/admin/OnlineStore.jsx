@@ -89,7 +89,7 @@ export default function OnlineStore() {
             <div className="flex items-center gap-3">
               <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-obsidian text-alabaster"><Store size={20} /></span>
               <div>
-                <p className="font-display text-lg">HUSHAE Signature</p>
+                <p className="font-sans text-lg">HUSHAE Signature</p>
                 <p className="text-xs text-ash">Current theme · v1.0 · Active</p>
               </div>
             </div>
@@ -107,7 +107,7 @@ export default function OnlineStore() {
             <div className="flex items-center gap-3">
               <span className={`flex h-11 w-11 items-center justify-center rounded-xl ${lock.enabled ? 'bg-[#9a5b13] text-white' : 'bg-satin text-ash'}`}><Lock size={18} /></span>
               <div>
-                <p className="font-display text-lg">Password Protection</p>
+                <p className="font-sans text-lg">Password Protection</p>
                 <p className="text-xs text-ash">{lock.enabled ? 'Store abhi sirf password se khulta hai' : 'Store sab ke liye open hai'}</p>
               </div>
             </div>
@@ -129,7 +129,7 @@ export default function OnlineStore() {
       </div>
 
       {/* Customize */}
-      <h2 className="mt-8 font-display text-lg">Customize</h2>
+      <h2 className="mt-8 font-sans text-lg">Customize</h2>
       <div className="mt-3 grid grid-cols-2 gap-3 md:grid-cols-3">
         {ACTIONS.map(([label, desc, Icon, to]) => (
           <Link key={label} to={to} className="card group p-4 transition hover:border-obsidian/30 hover:shadow-soft">

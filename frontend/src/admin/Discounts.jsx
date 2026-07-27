@@ -57,7 +57,7 @@ export default function Discounts() {
       {showForm && (
         <form onSubmit={save} className="card mb-6 p-6">
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="font-display text-lg">{editing ? `Edit ${form.code}` : 'New Discount Code'}</h2>
+            <h2 className="font-sans text-lg">{editing ? `Edit ${form.code}` : 'New Discount Code'}</h2>
             <button type="button" onClick={() => setShowForm(false)} className="rounded-lg p-1.5 text-ash hover:bg-satin"><X size={16} /></button>
           </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

@@ -63,7 +63,7 @@ export default function Apps() {
             <div className="flex items-center gap-3">
               <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#25D366] text-white"><MessageCircle size={20} /></span>
               <div>
-                <h2 className="font-display text-lg">WhatsApp Help Center — Chat Button</h2>
+                <h2 className="font-sans text-lg">WhatsApp Help Center — Chat Button</h2>
                 <p className="text-xs text-ash">Floating green button on your website — customers can contact you directly on WhatsApp. Support, orders, sizing — all here.</p>
               </div>
             </div>
@@ -86,7 +86,7 @@ export default function Apps() {
         </div>
 
         <div className="card p-6">
-          <h2 className="font-display text-lg">Social Links</h2>
+          <h2 className="font-sans text-lg">Social Links</h2>
           <p className="mt-1 text-xs text-ash">These links appear as icons in the footer. Leave empty to hide the icon.</p>
           <div className="mt-5 space-y-4">
             <div>
@@ -107,7 +107,7 @@ export default function Apps() {
           <div className="flex items-start gap-3">
             <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-obsidian text-alabaster"><HardDrive size={20} /></span>
             <div>
-              <h2 className="font-display text-lg">Media Library — PC se Image & Video Upload</h2>
+              <h2 className="font-sans text-lg">Media Library — PC se Image & Video Upload</h2>
               <p className="mt-0.5 text-xs text-ash"><b className="text-obsidian">Images upload without any setup</b> (they save into the database). This optional connection is only for <b className="text-obsidian">videos and large files</b> .</p>
             </div>
             {media.cloudName && media.uploadPreset && <span className="ml-auto rounded-full bg-sage/25 px-3 py-1 text-[11px] font-semibold text-sagedeep">Connected</span>}
@@ -136,7 +136,7 @@ export default function Apps() {
           <div className="flex items-start gap-3">
             <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-obsidian text-alabaster"><Mail size={20} /></span>
             <div>
-              <h2 className="font-display text-lg">Email — Order confirmations & Admin alerts</h2>
+              <h2 className="font-sans text-lg">Email — Order confirmations & Admin alerts</h2>
               <p className="mt-0.5 text-xs text-ash">
                 Connect any SMTP provider. Customers get order confirmation & status emails automatically; you get a new-order alert.
               </p>
@@ -196,7 +196,7 @@ export default function Apps() {
           <div className="flex items-start gap-3">
             <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-obsidian text-alabaster"><LineChart size={20} /></span>
             <div>
-              <h2 className="font-display text-lg">Analytics & Tracking Pixels</h2>
+              <h2 className="font-sans text-lg">Analytics & Tracking Pixels</h2>
               <p className="mt-0.5 text-xs text-ash">
                 Connect Google Analytics + Meta/TikTok Pixel. <b className="text-obsidian">Cookie consent</b> ke baad hi scripts are loaded (privacy-safe).
               </p>

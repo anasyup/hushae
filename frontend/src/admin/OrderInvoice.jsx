@@ -55,7 +55,7 @@ export default function OrderInvoice() {
       {/* Header */}
       <div className="flex items-start justify-between border-b-2 border-neutral-900 pb-6">
         <div>
-          <p className="font-display text-3xl font-bold tracking-widest">HUSHAE</p>
+          <p className="font-sans text-3xl font-bold tracking-widest">HUSHAE</p>
           <p className="mt-1 text-[11px] uppercase tracking-widest text-neutral-500">Premium innerwear · Made in Pakistan</p>
         </div>
         <div className="text-right">

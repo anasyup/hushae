@@ -26,7 +26,7 @@ export default function AdminLogin() {
   return (
     <div className="grid min-h-screen place-items-center bg-obsidian px-4">
       <div className="w-full max-w-sm rounded-[2rem] bg-alabaster p-8 shadow-soft">
-        <p className="text-center font-display text-xl tracking-widest2">V É L O U R A</p>
+        <p className="text-center font-sans text-xl tracking-widest2">HUSHAE</p>
         <p className="mt-1 text-center text-[10px] uppercase tracking-widest text-ash">Private access — staff only</p>
         <form onSubmit={submit} className="mt-8 space-y-4" autoComplete="off">
           <div><label className="label">Username</label><input className="input" type="text" required autoComplete="off" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} /></div>

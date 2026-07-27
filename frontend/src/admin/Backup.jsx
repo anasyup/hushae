@@ -124,7 +124,7 @@ export default function Backup() {
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="max-w-md">
             <p className="text-[11px] font-bold uppercase tracking-widest text-neutral-500">Download full snapshot</p>
-            <h3 className="mt-1 font-display text-xl text-neutral-900">Save your store to a JSON file</h3>
+            <h3 className="mt-1 font-sans text-xl text-neutral-900">Save your store to a JSON file</h3>
             <p className="mt-2 text-[13px] leading-relaxed text-neutral-600">
               One click gives you a single JSON file with everything —
               settings, categories, products, orders, subscribers, and discounts.
@@ -147,7 +147,7 @@ export default function Backup() {
           <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-red-100 text-red-700"><AlertTriangle size={16} /></span>
           <div>
             <p className="text-[11px] font-bold uppercase tracking-widest text-red-700">Danger zone — restore</p>
-            <h3 className="mt-1 font-display text-xl text-neutral-900">Restore from a snapshot</h3>
+            <h3 className="mt-1 font-sans text-xl text-neutral-900">Restore from a snapshot</h3>
             <p className="mt-2 max-w-lg text-[13px] leading-relaxed text-neutral-700">
               Uploading a JSON backup will <b>replace</b> existing records with the same ID.
               User accounts are not restored (passwords were stripped). Only use this if you

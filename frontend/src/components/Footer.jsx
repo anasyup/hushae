@@ -47,7 +47,7 @@ export default function Footer() {
       </div>
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 md:grid-cols-4 md:px-8">
         <div>
-          <p className="font-display text-lg tracking-widest2 text-obsidian">V É L O U R A</p>
+          <p className="font-display text-lg tracking-widest2 text-obsidian">HUSHAE</p>
           <p className="mt-3 text-sm leading-relaxed text-ash">{s.tagline || 'Second Skin, First Choice.'}</p>
           {(social.instagram || social.facebook || social.tiktok) && (
             <div className="mt-4 flex gap-2">

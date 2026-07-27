@@ -317,11 +317,11 @@ function HeroFullScreen({ hero }) {
 
       {/* Content */}
       <motion.div initial={{ opacity: 0, y: 26 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}
-        className={`relative z-10 mx-auto w-full max-w-7xl px-4 pb-20 md:px-8 md:pb-24 ${align}`}>
+        className={`relative z-10 mx-auto w-full max-w-7xl px-5 pb-14 md:px-8 md:pb-24 ${align}`}>
         {hero.eyebrow && (
-          <p className="text-[11px] font-bold uppercase tracking-widest text-alabaster/80">{hero.eyebrow}</p>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-alabaster/80 sm:text-[11px]">{hero.eyebrow}</p>
         )}
-        <h1 className="mt-4 whitespace-pre-line font-display text-4xl leading-[1.08] text-alabaster md:text-7xl lg:text-8xl">
+        <h1 className="mt-3 whitespace-pre-line font-display text-[44px] leading-[1.02] text-alabaster sm:text-5xl md:text-7xl lg:text-8xl">
           {hero.title || 'Second Skin,\nFirst Choice.'}
         </h1>
         {hero.subtitle && (

@@ -6,12 +6,7 @@ import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import Tx from './Tx';
 import OfferBar from './OfferBar';
-
-const Wordmark = () => (
-  <Link to="/" className="select-none font-display text-xl md:text-2xl tracking-widest2 text-obsidian">
-    V É L O U R A
-  </Link>
-);
+import Wordmark from './Wordmark';
 
 export default function Header() {
   const { cartCount, wishlist, auth, setDrawerOpen, settings } = useApp();
@@ -57,9 +52,9 @@ export default function Header() {
     <>
       <OfferBar />
 
-      <header className="sticky top-0 z-40 border-b border-line bg-alabaster/90 backdrop-blur-md">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 md:px-8">
-          <button className="md:hidden" onClick={() => setMobileOpen(true)} aria-label="Menu"><Menu size={20} /></button>
+      <header className="sticky top-0 z-40 border-b border-line bg-alabaster/95 backdrop-blur-md">
+        <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-2 px-3 md:h-16 md:gap-4 md:px-8">
+          <button className="rounded-full p-1.5 -ml-1.5 md:hidden" onClick={() => setMobileOpen(true)} aria-label="Menu"><Menu size={22} /></button>
           <Wordmark />
 
           <nav className="hidden items-center gap-7 md:flex">
@@ -72,13 +67,14 @@ export default function Header() {
             <NavLink to="/track" className={linkCls}><Tx k="trackOrder" /></NavLink>
           </nav>
 
-          <div className="flex items-center gap-1.5 md:gap-3">
+          <div className="flex items-center gap-0.5 md:gap-3">
             <button onClick={() => setSearchOpen((s) => !s)} aria-label="Search" className="rounded-full p-2 text-obsidian transition hover:bg-satin/60"><Search size={19} /></button>
-            <Link to="/wishlist" aria-label="Wishlist" className="relative rounded-full p-2 text-obsidian transition hover:bg-satin/60">
+            {/* Wishlist + Account hidden on mobile — they live in MobileNav bottom bar */}
+            <Link to="/wishlist" aria-label="Wishlist" className="relative hidden rounded-full p-2 text-obsidian transition hover:bg-satin/60 md:inline-flex">
               <Heart size={19} />
               {wishlist.length > 0 && <span className="absolute -right-0.5 -top-0.5 grid h-4 w-4 place-items-center rounded-full bg-sage text-[9px] font-bold text-obsidian">{wishlist.length}</span>}
             </Link>
-            <Link to="/account" aria-label="Account" className="relative rounded-full p-2 text-obsidian transition hover:bg-satin/60">
+            <Link to="/account" aria-label="Account" className="relative hidden rounded-full p-2 text-obsidian transition hover:bg-satin/60 md:inline-flex">
               <User size={19} />
               {auth && <span className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full bg-sage" />}
             </Link>

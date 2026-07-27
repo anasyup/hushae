@@ -212,7 +212,7 @@ export default function OrderDetail() {
               <p className="flex justify-between"><span className="text-ash">Subtotal</span><span>{pkr(editing ? editSub : o.subtotal)}</span></p>
               {!!o.discount && <p className="flex justify-between font-medium text-sagedeep"><span>Discount {o.couponCode ? `(${o.couponCode})` : ''}</span><span>− {pkr(o.discount)}</span></p>}
               <p className="flex justify-between"><span className="text-ash">Shipping</span><span>{o.shippingCharge === 0 ? 'Free' : pkr(o.shippingCharge)}</span></p>
-              <p className="flex justify-between pt-1 font-display text-xl"><span>Total</span><span>{pkr(editing ? editTotal : o.total)}</span></p>
+              <p className="flex justify-between pt-1 font-sans text-xl"><span>Total</span><span>{pkr(editing ? editTotal : o.total)}</span></p>
               {editing && (
                 <div className="flex items-center gap-3 !pt-4">
                   <button onClick={saveItems} className="btn-primary !px-5 !py-2.5 !text-[11px]"><Save size={13} /> Update order</button>
@@ -285,7 +285,7 @@ function PremiumInvoice({ o }) {
       <div className="inv-page">
         <header className="inv-header">
           <div>
-            <p className="inv-brand">V É L O U R A</p>
+            <p className="inv-brand">HUSHAE</p>
             <p className="inv-tag">Second Skin, First Choice.</p>
           </div>
           <div className="inv-title-block">
@@ -314,7 +314,7 @@ function PremiumInvoice({ o }) {
         </section>
 
         <div className="inv-table-wrap">
-          <span className="inv-watermark">V É L O U R A</span>
+          <span className="inv-watermark">HUSHAE</span>
           <table className="inv-table">
             <thead>
               <tr><th>Description</th><th>Price</th><th>Qty</th><th className="r">Total</th></tr>

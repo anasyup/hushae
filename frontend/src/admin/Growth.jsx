@@ -26,11 +26,11 @@ export default function Growth() {
       <div className="grid gap-4 md:grid-cols-3">
         <div className="card p-5">
           <Users size={18} className="text-ash" />
-          <p className="mt-3 font-display text-3xl">{subs ? subs.length : '—'}</p>
+          <p className="mt-3 font-sans text-3xl">{subs ? subs.length : '—'}</p>
           <p className="mt-0.5 text-[10px] uppercase tracking-wider text-ash">Email Subscribers</p>
         </div>
         <div className="card p-5 md:col-span-2">
-          <h2 className="font-display text-lg">Newsletter list</h2>
+          <h2 className="font-sans text-lg">Newsletter list</h2>
           <p className="mt-1.5 text-sm leading-relaxed text-ash">
             Website ke footer mein jo log apna email dete hain wo yahan show hota hai. In emails ko copy kar ke
             apni sale announcements aur naye coupon codes bhejein — ye aapki sab se sasti marketing hai.

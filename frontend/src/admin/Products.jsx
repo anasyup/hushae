@@ -574,7 +574,7 @@ function BulkEditModal({ count, onClose, onApply }) {
         <div className="flex items-center justify-between border-b border-neutral-200 px-6 py-4">
           <div>
             <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-500">Bulk edit</p>
-            <h2 className="mt-0.5 font-display text-xl text-neutral-900">Update {count} product{count === 1 ? '' : 's'}</h2>
+            <h2 className="mt-0.5 font-sans text-xl text-neutral-900">Update {count} product{count === 1 ? '' : 's'}</h2>
           </div>
           <button onClick={onClose} disabled={busy} className="rounded-full p-2 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-900 disabled:opacity-40" aria-label="Close">
             <X size={18} />

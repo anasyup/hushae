@@ -69,7 +69,7 @@ export default function Categories() {
         {editing && (
           <div className="card h-fit p-6 lg:sticky lg:top-8">
             <div className="mb-5 flex items-center justify-between">
-              <p className="font-display text-lg">{editing._id ? 'Edit category' : 'New category'}</p>
+              <p className="font-sans text-lg">{editing._id ? 'Edit category' : 'New category'}</p>
               <button onClick={() => setEditing(null)} aria-label="Close" className="rounded-full p-1.5 hover:bg-satin/60"><X size={17} /></button>
             </div>
             <div className="space-y-4">

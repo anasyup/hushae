@@ -46,6 +46,49 @@
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
+/* ================= Admin — Shopify-like clean look ================= */
+/* Root wrap that AdminLayout adds so we can scope admin-only tweaks */
+.admin-shell {
+  font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  font-feature-settings: "cv02","cv03","cv04","cv11";
+  -webkit-font-smoothing: antialiased;
+}
+.admin-shell h1, .admin-shell h2, .admin-shell h3, .admin-shell h4 {
+  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif !important;
+  letter-spacing: -0.01em;
+  color: #0f172a;
+}
+.admin-shell .font-display { /* legacy — force Inter inside admin */
+  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif !important;
+  letter-spacing: -0.005em;
+}
+.admin-shell button, .admin-shell input, .admin-shell select, .admin-shell textarea {
+  font-family: inherit;
+}
+.admin-shell .card {
+  border-radius: 16px;
+  background-color: #ffffff !important;
+  border-color: #E5E7EB !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+.admin-shell .input {
+  border-radius: 10px;
+  background-color: #ffffff !important;
+}
+.admin-shell .btn-primary {
+  border-radius: 10px;
+  background-color: #0f172a;
+  padding: 10px 18px;
+  font-size: 12.5px;
+  letter-spacing: 0.02em;
+}
+.admin-shell .btn-outline {
+  border-radius: 10px;
+  padding: 10px 18px;
+  font-size: 12.5px;
+  letter-spacing: 0.02em;
+}
+
 /* ================= Admin dark mode (Settings → Appearance) ================= */
 .dark-admin { color-scheme: dark; }
 .dark-admin .bg-alabaster { background-color: #0F0F11 !important; }

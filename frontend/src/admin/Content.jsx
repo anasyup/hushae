@@ -64,7 +64,7 @@ export default function Content() {
             <div className="mb-5 flex items-start gap-3">
               <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-obsidian text-alabaster"><LayoutTemplate size={20} /></span>
               <div>
-                <h2 className="font-display text-lg">Homepage Hero (Banner)</h2>
+                <h2 className="font-sans text-lg">Homepage Hero (Banner)</h2>
                 <p className="mt-0.5 text-xs text-ash">The full-screen banner every visitor sees first. Video or image — both supported.</p>
               </div>
             </div>
@@ -191,7 +191,7 @@ export default function Content() {
 
           {/* ANNOUNCEMENT */}
           <div className="card p-6">
-            <h2 className="font-display text-lg">Announcement Bar (top strip)</h2>
+            <h2 className="font-sans text-lg">Announcement Bar (top strip)</h2>
             <label className="mt-3 flex cursor-pointer items-center gap-2 text-sm">
               <input type="checkbox" className="h-4 w-4 accent-obsidian" checked={!!offer.enabled} onChange={(e) => setOffer('enabled', e.target.checked)} /> Announcement bar enabled
             </label>
@@ -205,7 +205,7 @@ export default function Content() {
 
           {/* MARQUEE */}
           <div className="card p-6">
-            <h2 className="font-display text-lg">Scrolling Marquee Strip</h2>
+            <h2 className="font-sans text-lg">Scrolling Marquee Strip</h2>
             <p className="mt-1 text-xs text-ash">A scrolling strip below the hero (like international fashion sites).</p>
             <label className="mt-4 flex cursor-pointer items-center gap-2 text-sm">
               <input type="checkbox" className="h-4 w-4 accent-obsidian" checked={marquee.enabled !== false} onChange={(e) => setMq('enabled', e.target.checked)} /> Marquee enabled
@@ -219,7 +219,7 @@ export default function Content() {
 
           {/* PROMO POPUP */}
           <div className="card p-6">
-            <h2 className="font-display text-lg">Newsletter Popup (coupon ke saath)</h2>
+            <h2 className="font-sans text-lg">Newsletter Popup (coupon ke saath)</h2>
             <p className="mt-1 text-xs text-ash">Visitor ko thori der baad ek dafa dikhta hai — email le kar coupon code dikhata hai.</p>
             <label className="mt-4 flex cursor-pointer items-center gap-2 text-sm">
               <input type="checkbox" className="h-4 w-4 accent-obsidian" checked={promo.enabled !== false} onChange={(e) => setPromo('enabled', e.target.checked)} /> Popup on hai
@@ -235,7 +235,7 @@ export default function Content() {
 
           {/* COOKIES */}
           <div className="card p-6">
-            <h2 className="font-display text-lg">Cookie Consent Popup</h2>
+            <h2 className="font-sans text-lg">Cookie Consent Popup</h2>
             <p className="mt-1 text-xs text-ash">Naye visitors ko ek dafa ye clean popup dikhta hai — Accept / Refuse / Manage options ke saath.</p>
             <label className="mt-4 flex cursor-pointer items-center gap-2 text-sm">
               <input type="checkbox" className="h-4 w-4 accent-obsidian" checked={cookie.enabled !== false} onChange={(e) => setCookie('enabled', e.target.checked)} /> Cookie popup on hai
@@ -271,7 +271,7 @@ export default function Content() {
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-black/5" />
                 <div className={`absolute inset-x-0 bottom-0 p-6 ${hero.align === 'center' ? 'text-center' : ''}`}>
-                  <p className="whitespace-pre-line font-display text-2xl leading-tight text-white">{hero.title}</p>
+                  <p className="whitespace-pre-line font-sans text-2xl leading-tight text-white">{hero.title}</p>
                   <p className={`mt-1.5 max-w-md text-[11px] leading-relaxed text-white/70 ${hero.align === 'center' ? 'mx-auto' : ''}`}>{hero.subtitle}</p>
                   <div className={`mt-3 flex gap-2 ${hero.align === 'center' ? 'justify-center' : ''}`}>
                     <span className="rounded-full bg-white px-3 py-1.5 text-[10px] font-semibold uppercase tracking-widest text-black">{hero.ctaWomen}</span>
@@ -282,7 +282,7 @@ export default function Content() {
             ) : (
               <div className="grid items-center gap-5 p-6 sm:grid-cols-2">
                 <div>
-                  <p className="whitespace-pre-line font-display text-2xl leading-tight">{hero.title}</p>
+                  <p className="whitespace-pre-line font-sans text-2xl leading-tight">{hero.title}</p>
                   <p className="mt-2 text-xs leading-relaxed text-ash">{hero.subtitle}</p>
                   <div className="mt-4 flex gap-2">
                     <span className="btn-primary !px-3 !py-2 text-[11px]">{hero.ctaWomen} <ArrowRight size={11} /></span>
@@ -311,7 +311,7 @@ export default function Content() {
         <div className="flex items-start gap-3">
           <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-obsidian text-alabaster"><HelpCircle size={20} /></span>
           <div className="flex-1">
-            <h2 className="font-display text-lg">FAQ Page — Public /faq</h2>
+            <h2 className="font-sans text-lg">FAQ Page — Public /faq</h2>
             <p className="mt-0.5 text-xs text-ash">Customers ke common sawaal (shipping, sizing, returns wagera). Also shown as rich snippets in Google search (SEO benefit).</p>
           </div>
           <label className="relative inline-flex cursor-pointer items-center">

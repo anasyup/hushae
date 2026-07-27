@@ -65,7 +65,7 @@ export default function LiveView() {
               <p className="text-[11px] font-bold uppercase tracking-wider text-ash">{label}</p>
               <Icon size={16} className={hot ? 'text-emerald-700' : 'text-sagedeep'} />
             </div>
-            <p className={`mt-2 font-display ${hot ? 'text-4xl' : 'text-2xl'}`}>{v}</p>
+            <p className={`mt-2 font-sans ${hot ? 'text-4xl' : 'text-2xl'}`}>{v}</p>
           </div>
         ))}
       </div>
@@ -78,7 +78,7 @@ export default function LiveView() {
             {[[ShoppingCart, 'Active carts', d.today.carts], [CreditCard, 'Reached checkout', d.today.checkouts], [Users, 'Purchased', d.today.orders]].map(([Icon, l, v]) => (
               <div key={l} className="px-2">
                 <Icon size={16} className="mx-auto text-sagedeep" />
-                <p className="mt-2 font-display text-2xl">{v}</p>
+                <p className="mt-2 font-sans text-2xl">{v}</p>
                 <p className="mt-1 text-[10px] uppercase tracking-wider text-ash">{l}</p>
               </div>
             ))}

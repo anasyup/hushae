@@ -192,7 +192,7 @@ function SidebarContent({ onNavigate }) {
       {/* Brand */}
       <div className="px-4 pb-3 pt-5">
         <NavLink to="/admin" onClick={onNavigate} className="block w-fit rounded-lg transition hover:opacity-70">
-          <p className="font-display text-[17px] font-bold tracking-widest text-neutral-900">HUSHAE</p>
+          <p className="font-sans text-[17px] font-bold tracking-widest text-neutral-900">HUSHAE</p>
           <p className="mt-0.5 text-[10px] font-medium uppercase tracking-widest text-neutral-400">Admin console</p>
         </NavLink>
       </div>
@@ -274,7 +274,7 @@ export default function AdminLayout({ children, title }) {
   if (auth.user.role !== 'admin') return <Navigate to="/admin/login" replace />;
 
   return (
-    <div className="flex min-h-screen bg-alabaster">
+    <div className="admin-shell flex min-h-screen bg-[#F4F6F8]">
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-60 md:block">
         <SidebarContent />
       </aside>
@@ -294,14 +294,14 @@ export default function AdminLayout({ children, title }) {
         {/* Mobile topbar */}
         <div className="sticky top-0 z-30 flex items-center gap-3 border-b border-black/5 bg-[#ebebeb] px-4 py-3 md:hidden">
           <button onClick={() => setDrawer(true)} className="rounded-lg p-1.5 text-neutral-700 hover:bg-white/70"><Menu size={20} /></button>
-          <Link to="/admin" className="font-display text-base font-bold tracking-widest text-neutral-900">HUSHAE</Link>
+          <Link to="/admin" className="font-sans text-base font-bold tracking-widest text-neutral-900">HUSHAE</Link>
         </div>
 
         {/* Desktop topbar — breadcrumb, quick actions, notifications */}
         <TopBar title={title} auth={auth} />
 
         <main className="flex-1 p-4 md:p-8">
-          {title && <h1 className="mb-6 font-display text-[28px] font-semibold leading-tight text-neutral-900 md:hidden">{title}</h1>}
+          {title && <h1 className="mb-6 font-sans text-[28px] font-semibold leading-tight text-neutral-900 md:hidden">{title}</h1>}
           <div>{children}</div>
         </main>
       </div>
@@ -340,7 +340,7 @@ function TopBar({ title, auth }) {
       <div className="flex items-center justify-between gap-6">
         {/* Breadcrumb */}
         <div className="min-w-0 flex-1">
-          <h1 className="truncate font-display text-[22px] font-semibold leading-tight text-neutral-900">
+          <h1 className="truncate font-sans text-[22px] font-semibold leading-tight text-neutral-900">
             {title || crumbs[crumbs.length - 1]?.label}
           </h1>
           <nav className="mt-0.5 flex items-center gap-1.5 text-[11px] text-neutral-500">

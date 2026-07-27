@@ -31,7 +31,7 @@ function PageIntro({ icon: Icon, title, description }) {
         <Icon size={20} strokeWidth={1.8} />
       </span>
       <div>
-        <h2 className="font-display text-2xl leading-tight text-neutral-900">{title}</h2>
+        <h2 className="font-sans text-2xl leading-tight text-neutral-900">{title}</h2>
         <p className="mt-1 text-[13px] leading-relaxed text-neutral-500">{description}</p>
       </div>
     </div>

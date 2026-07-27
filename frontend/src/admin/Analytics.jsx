@@ -171,7 +171,7 @@ export default function Analytics() {
         {kpis.map(([Icon, label, v, d]) => (
           <div key={label} className="card p-4">
             <Icon size={16} className="text-ash" />
-            <p className="mt-3 font-display text-xl">{v}<Delta d={d} /></p>
+            <p className="mt-3 font-sans text-xl">{v}<Delta d={d} /></p>
             <p className="mt-0.5 text-[10px] uppercase tracking-wider text-ash">{label}</p>
           </div>
         ))}
@@ -209,12 +209,12 @@ export default function Analytics() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="rounded-2xl bg-satin/50 p-5 text-center">
                   <UserPlus size={16} className="mx-auto text-sagedeep" />
-                  <p className="mt-2 font-display text-3xl">{a.customerSplit.fresh}</p>
+                  <p className="mt-2 font-sans text-3xl">{a.customerSplit.fresh}</p>
                   <p className="text-[10px] uppercase tracking-wider text-ash">First-time buyers</p>
                 </div>
                 <div className="rounded-2xl bg-satin/50 p-5 text-center">
                   <Repeat size={16} className="mx-auto text-sagedeep" />
-                  <p className="mt-2 font-display text-3xl">{a.customerSplit.returning}</p>
+                  <p className="mt-2 font-sans text-3xl">{a.customerSplit.returning}</p>
                   <p className="text-[10px] uppercase tracking-wider text-ash">Returning buyers</p>
                 </div>
               </div>

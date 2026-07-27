@@ -31,9 +31,9 @@ export default function Markets() {
     <AdminLayout title="Markets">
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="card p-6">
-          <h2 className="font-display text-lg">Your Markets</h2>
+          <h2 className="font-sans text-lg">Your Markets</h2>
           <div className="mt-4 flex items-center gap-4 rounded-2xl border border-line bg-satin/30 p-4">
-            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-obsidian font-display text-sm text-alabaster">PK</span>
+            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-obsidian font-sans text-sm text-alabaster">PK</span>
             <div className="flex-1">
               <p className="font-medium">Pakistan</p>
               <p className="text-xs text-ash">Primary market · Pakistani Rupee (PKR ₨) · Nationwide delivery</p>
@@ -47,7 +47,7 @@ export default function Markets() {
         </div>
 
         <div className="card p-6">
-          <h2 className="font-display text-lg">Shipping & Payment</h2>
+          <h2 className="font-sans text-lg">Shipping & Payment</h2>
           <p className="mt-1 text-xs text-ash">Ye settings checkout par foran apply hoti hain.</p>
           <div className="mt-5 grid gap-4 sm:grid-cols-2">
             <div>

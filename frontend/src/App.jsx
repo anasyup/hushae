@@ -80,7 +80,7 @@ class ErrorBoundary extends Component {
       return (
         <div className="grid min-h-screen place-items-center bg-alabaster px-6">
           <div className="card w-full max-w-sm rounded-[2rem] p-8 text-center shadow-soft">
-            <p className="font-display text-xl tracking-widest2">V É L O U R A</p>
+            <p className="font-display text-xl tracking-widest2">HUSHAE</p>
             <p className="mt-3 text-sm leading-relaxed text-ash">Something went wrong on this page. Ek dafa reload kar dein — theek ho jayega. Agar phir na chale to support ko batayein.</p>
             <button onClick={() => window.location.reload()} className="btn-primary mt-5 w-full">Reload page</button>
           </div>

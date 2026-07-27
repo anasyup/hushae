@@ -393,7 +393,7 @@ export default function Dashboard() {
       {/* --- Greeting + refresh row --- */}
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="font-display text-2xl text-neutral-900">{greeting}, {auth?.user?.name?.split(' ')[0] || 'Admin'}</p>
+          <p className="font-sans text-2xl text-neutral-900">{greeting}, {auth?.user?.name?.split(' ')[0] || 'Admin'}</p>
           <p className="mt-1 text-[13px] text-neutral-500">Here's what's happening at HUSHAE today.</p>
         </div>
         <div className="flex items-center gap-2">
