@@ -23,6 +23,8 @@ Format:
 
 ## Changes
 
+- **2026-07-27** — 🌐 **Vercel project renamed to `hushae` + new URL live**. Renamed the Vercel project from `veloura-73q1` → `hushae` via API (PATCH v9/projects). Also claimed the shorter alias **`hushae.vercel.app`** (was free) and pointed it at the same project — verified HTTPS 200 live. The old URL `veloura-73q1.vercel.app` still works as a legacy alias so any existing links / bookmarks don't break. Updated backend `utils/mailer.js` (5 order-email templates) and `routes/seo.js` (sitemap host fallback) to emit the new domain. `hushae.pk` / `hushae.com` custom domains still pending user's registrar purchase — will attach when ready.
+
 - **2026-07-27** — 🎬 **Full-screen home hero + English-only + product zoom + featured marquee**.
 
   **Homepage / hero**:

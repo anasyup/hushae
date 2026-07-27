@@ -98,7 +98,7 @@ function baseLayout({ title, body }) {
     </div>
     <div style="text-align:center;padding:20px;color:#7a736d;font-size:11px;line-height:1.6;">
       Discreet packaging on every order · 14-day easy exchange<br>
-      Need help? Reply to this email or visit <a href="https://veloura-73q1.vercel.app/track" style="color:#111;">Track your order</a>
+      Need help? Reply to this email or visit <a href="https://hushae.vercel.app/track" style="color:#111;">Track your order</a>
     </div>
   </div>
 </body></html>`;
@@ -175,7 +175,7 @@ async function sendOrderConfirmation(order, storeInfo = {}) {
     </div>
 
     <div style="text-align:center;margin-top:32px;">
-      <a href="https://veloura-73q1.vercel.app/track?orderNumber=${esc(order.orderNumber)}&phone=${esc(c.phone)}"
+      <a href="https://hushae.vercel.app/track?orderNumber=${esc(order.orderNumber)}&phone=${esc(c.phone)}"
          style="display:inline-block;background:#111;color:#fff;padding:12px 28px;border-radius:99px;text-decoration:none;font-size:12px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;">
         Track your order
       </a>
@@ -226,7 +226,7 @@ async function sendNewOrderAlert(order, storeInfo = {}) {
     </div>` : ''}
 
     <div style="text-align:center;margin-top:24px;">
-      <a href="https://veloura-73q1.vercel.app/admin/orders/${order._id}"
+      <a href="https://hushae.vercel.app/admin/orders/${order._id}"
          style="display:inline-block;background:#111;color:#fff;padding:12px 28px;border-radius:99px;text-decoration:none;font-size:12px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;">
         Open in admin
       </a>
@@ -269,7 +269,7 @@ async function sendStatusUpdate(order, storeInfo = {}) {
     </div>
 
     <div style="text-align:center;margin-top:24px;">
-      <a href="https://veloura-73q1.vercel.app/track?orderNumber=${esc(order.orderNumber)}&phone=${esc(c.phone)}"
+      <a href="https://hushae.vercel.app/track?orderNumber=${esc(order.orderNumber)}&phone=${esc(c.phone)}"
          style="display:inline-block;background:#111;color:#fff;padding:12px 28px;border-radius:99px;text-decoration:none;font-size:12px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;">
         Track your order
       </a>
@@ -318,7 +318,7 @@ async function sendAbandonedCartRecovery(cart) {
     </table>
 
     <div style="text-align:center;margin-top:28px;">
-      <a href="https://veloura-73q1.vercel.app/cart"
+      <a href="https://hushae.vercel.app/cart"
          style="display:inline-block;background:#111;color:#fff;padding:14px 32px;border-radius:99px;text-decoration:none;font-size:12px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;">
         Return to your bag
       </a>

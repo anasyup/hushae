@@ -14,7 +14,7 @@ function baseUrl(req) {
   const env = process.env.PUBLIC_SITE_URL;
   if (env) return env.replace(/\/$/, '');
   const proto = (req.headers['x-forwarded-proto'] || 'https').split(',')[0].trim();
-  const host = (req.headers['x-forwarded-host'] || req.headers.host || 'veloura-73q1.vercel.app').split(',')[0].trim();
+  const host = (req.headers['x-forwarded-host'] || req.headers.host || 'hushae.vercel.app').split(',')[0].trim();
   return `${proto}://${host}`;
 }
 
