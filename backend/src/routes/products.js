@@ -39,7 +39,18 @@ function buildQuery(req, { adminView = false } = {}) {
     if (minPrice) q.price.$gte = Number(minPrice);
     if (maxPrice) q.price.$lte = Number(maxPrice);
   }
-  if (ids) q._id = { $in: String(ids).split(',') };
+  if (ids) {
+    // The theme editor stores hand-picked products by slug (stable, readable);
+    // other callers pass ObjectIds. Accept either, in one query.
+    const list = String(ids).split(',').map((x) => x.trim()).filter(Boolean);
+    const objectIds = list.filter((x) => /^[0-9a-fA-F]{24}$/.test(x));
+    const slugs = list.filter((x) => !/^[0-9a-fA-F]{24}$/.test(x));
+    const or = [];
+    if (objectIds.length) or.push({ _id: { $in: objectIds } });
+    if (slugs.length) or.push({ slug: { $in: slugs } });
+    if (or.length === 1) Object.assign(q, or[0]);
+    else if (or.length > 1) q.$and = [...(q.$and || []), { $or: or }];
+  }
   if (search) {
     const rx = new RegExp(String(search).trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
     q.$or = [{ name: rx }, { sku: rx }, { categorySlug: rx }]; // search by name, SKU or category
@@ -100,6 +111,20 @@ router.get('/', asyncHandler(async (req, res) => {
   const products = await Product.find(q)
     .sort(SORTS[req.query.sort] || SORTS.popular)
     .limit(Math.min(parseInt(req.query.limit || '100', 10), 200));
+
+  // Hand-picked lists must come back in the exact order the merchant arranged
+  // them in the theme editor, so honour the ?ids= sequence instead of the sort.
+  if (req.query.ids) {
+    const order = String(req.query.ids).split(',').map((s) => s.trim());
+    const rank = new Map(order.map((id, i) => [id, i]));
+    const rankOf = (p) => {
+      if (rank.has(String(p._id))) return rank.get(String(p._id));
+      if (rank.has(p.slug)) return rank.get(p.slug);
+      return Infinity;
+    };
+    products.sort((a, b) => rankOf(a) - rankOf(b));
+  }
+
   res.json({ products });
 }));
 

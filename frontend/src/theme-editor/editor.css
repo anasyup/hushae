@@ -94,3 +94,10 @@ textarea.te-input { height: auto; padding: 12px 14px; }
   letter-spacing: .04em;
   color: #616161;
 }
+
+/* ── On-canvas chrome (inside the preview iframe) ─────────────────────── */
+.te-overlay { font-family: Inter, system-ui, sans-serif; }
+/* Never let the storefront's own styles bleed into the toolbar */
+.te-overlay * { box-sizing: border-box; }
+/* Section being dragged fades out so the drop indicator reads clearly */
+.te-drag-source { opacity: .35; }

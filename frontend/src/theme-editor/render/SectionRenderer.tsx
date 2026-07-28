@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import type { BlockNode, SectionNode } from '../core/types';
 import { BlockRenderer, Icon } from './BlockRenderer';
 import { useRenderCtx } from './RenderContext';
+import { resolveIcon } from '../ui/iconRegistry';
 import {
   alignClass, animationProps, bool, buttonStyle, containerClass, num,
   RATIO, sectionStyle, str, visibilityClass,
@@ -334,26 +335,77 @@ function MenuBlock({ block, categories }: { block: BlockNode; categories: any[] 
       {items.map((it) => {
         const cfg = it.settings;
         const drop = str(cfg.dropdown);
-        const subs = drop === 'children'
-          ? (it.blocks || []).filter((c) => !c.hidden).map((c) => ({ name: str(c.settings.label), slug: str(c.settings.href) }))
-          : drop ? categories.filter((c) => c.gender === drop).map((c) => ({ name: c.name, slug: `/category/${c.slug}` })) : [];
+        const kids = (it.blocks || []).filter((c) => !c.hidden);
+        const isMega = drop === 'mega';
+        const simple = drop === 'children'
+          ? kids.filter((c) => c.type === 'menu_item').map((c) => ({ name: str(c.settings.label), slug: str(c.settings.href) }))
+          : (drop === 'women' || drop === 'men')
+            ? categories.filter((c) => c.gender === drop).map((c) => ({ name: c.name, slug: `/category/${c.slug}` }))
+            : [];
+        const LinkIcon = str(cfg.icon) ? resolveIcon(str(cfg.icon)) : null;
         return (
-          <span key={it.id} className="group relative"
+          <span key={it.id} className="group static md:relative"
             data-node-id={editable ? it.id : undefined}
             onClick={editable ? (e) => { e.stopPropagation(); onSelect?.(it.id); } : undefined}>
             <a href={str(cfg.href, '#')} onClick={(e) => e.preventDefault()}
-              className={`${bool(s.uppercase, true) ? 'uppercase' : ''} font-semibold tracking-widest transition hover:opacity-70`}
+              className={`inline-flex items-center gap-1.5 ${bool(s.uppercase, true) ? 'uppercase' : ''} font-semibold tracking-widest transition hover:opacity-70`}
               style={{ fontSize: num(s.size, 12), color: cfg.highlight ? 'var(--t-accent)' : undefined }}>
+              {LinkIcon ? <LinkIcon size={13} /> : null}
               {str(cfg.label)}
             </a>
-            {subs.length > 0 && (
+
+            {/* Simple dropdown */}
+            {!isMega && simple.length > 0 && (
               <span className="invisible absolute left-1/2 top-full z-40 -translate-x-1/2 pt-4 opacity-0 transition group-hover:visible group-hover:opacity-100">
                 <span className="block w-52 rounded-2xl border p-2 shadow-lg"
                   style={{ background: 'var(--t-surface)', borderColor: 'var(--t-border)' }}>
-                  {subs.map((c, i) => (
+                  {simple.map((c, i) => (
                     <a key={i} href={c.slug} onClick={(e) => e.preventDefault()}
                       className="block rounded-xl px-4 py-2.5 text-sm hover:opacity-70">{c.name}</a>
                   ))}
+                </span>
+              </span>
+            )}
+
+            {/* Mega menu — merchant-built columns plus an optional promo card */}
+            {isMega && kids.length > 0 && (
+              <span className="invisible absolute inset-x-0 top-full z-40 pt-4 opacity-0 transition group-hover:visible group-hover:opacity-100">
+                <span className="mx-auto block w-full max-w-[var(--t-page-width)] rounded-2xl border p-6 shadow-xl"
+                  style={{ background: 'var(--t-surface)', borderColor: 'var(--t-border)' }}>
+                  <span className="te-grid" style={{ '--cols': num(cfg.megaColumns, 4), '--mcols': 2, gap: 24 } as CSSProperties}>
+                    {kids.map((col) => {
+                      if (col.type === 'menu_promo') {
+                        const pc = col.settings;
+                        return (
+                          <a key={col.id} href={str(pc.href, '#')} onClick={(e) => e.preventDefault()}
+                            data-node-id={editable ? col.id : undefined}
+                            className="block overflow-hidden rounded-xl" style={{ background: 'var(--t-muted)' }}>
+                            <img src={str(pc.image) || heroPlaceholder} alt="" className="h-28 w-full object-cover" />
+                            <span className="block p-3">
+                              <span className="block text-sm font-semibold">{str(pc.title)}</span>
+                              <span className="mt-0.5 block text-xs" style={{ color: 'var(--t-text-muted)' }}>{str(pc.text)}</span>
+                              <span className="mt-2 inline-block text-[11px] font-bold uppercase tracking-widest underline underline-offset-4">
+                                {str(pc.ctaLabel, 'Shop now')}
+                              </span>
+                            </span>
+                          </a>
+                        );
+                      }
+                      const links = (col.blocks || []).filter((l) => !l.hidden);
+                      return (
+                        <span key={col.id} className="block" data-node-id={editable ? col.id : undefined}>
+                          <a href={str(col.settings.titleHref, '#')} onClick={(e) => e.preventDefault()}
+                            className="mb-2 block text-[11px] font-bold uppercase tracking-widest" style={{ color: 'var(--t-text-muted)' }}>
+                            {str(col.settings.title)}
+                          </a>
+                          {links.map((l) => (
+                            <a key={l.id} href={str(l.settings.href, '#')} onClick={(e) => e.preventDefault()}
+                              className="block py-1.5 text-sm transition hover:opacity-70">{str(l.settings.label)}</a>
+                          ))}
+                        </span>
+                      );
+                    })}
+                  </span>
                 </span>
               </span>
             )}
@@ -386,10 +438,16 @@ const HEIGHTS: Record<string, string> = { screen: '100svh', lg: '78vh', md: '58v
 const POS: Record<string, string> = {
   'top-left': 'items-start justify-start text-left',
   'top-center': 'items-start justify-center text-center',
+  'top-right': 'items-start justify-end text-right',
+  'center-left': 'items-center justify-start text-left',
   center: 'items-center justify-center text-center',
+  'center-right': 'items-center justify-end text-right',
   'bottom-left': 'items-end justify-start text-left',
   'bottom-center': 'items-end justify-center text-center',
   'bottom-right': 'items-end justify-end text-right',
+};
+const OBJECT_POS: Record<string, string> = {
+  top: 'center top', bottom: 'center bottom', left: 'left center', right: 'right center', center: 'center',
 };
 
 function HeroSection({ section }: { section: SectionNode }) {
@@ -484,15 +542,26 @@ function Slideshow({ section }: { section: SectionNode }) {
   const cur = slides[Math.min(i, slides.length - 1)];
   const cfg = cur.settings;
   const height = HEIGHTS[str(s.height, 'lg')] || '78vh';
+  const objectFit = str(cfg.fit, 'cover') as CSSProperties['objectFit'];
+  const objectPosition = OBJECT_POS[str(cfg.focal, 'center')] || 'center';
+  const mobileSrc = str(cfg.mobileImage);
   return (
     <div className="relative overflow-hidden" style={{ minHeight: height }}>
-      {str(cfg.video)
-        ? <video src={str(cfg.video)} autoPlay muted loop playsInline className="absolute inset-0 h-full w-full object-cover" />
-        : <img src={str(cfg.image) || heroPlaceholder} alt="" className="absolute inset-0 h-full w-full object-cover" />}
-      <div className="absolute inset-0" style={{ background: `rgba(13,13,13,${num(cfg.overlay, 30) / 100})` }} />
+      {str(cfg.video) ? (
+        <video src={str(cfg.video)} poster={str(cfg.poster) || undefined} autoPlay muted loop playsInline
+          className="absolute inset-0 h-full w-full" style={{ objectFit, objectPosition }} />
+      ) : mobileSrc ? (
+        <picture>
+          <source media="(max-width: 767px)" srcSet={mobileSrc} />
+          <img src={str(cfg.image) || heroPlaceholder} alt="" className="absolute inset-0 h-full w-full" style={{ objectFit, objectPosition }} />
+        </picture>
+      ) : (
+        <img src={str(cfg.image) || heroPlaceholder} alt="" className="absolute inset-0 h-full w-full" style={{ objectFit, objectPosition }} />
+      )}
+      <div className="absolute inset-0" style={{ background: hexA(str(cfg.overlayColor, '#0D0D0D'), num(cfg.overlay, 30) / 100) }} />
       <div className={`relative z-10 flex ${POS[str(cfg.position, 'bottom-left')] || POS['bottom-left']} ${containerClass('page')}`}
-        style={{ minHeight: height, paddingBlock: 56, color: '#F7F5F1' }}>
-        <div className="flex flex-col gap-4">
+        style={{ minHeight: height, paddingBlock: 56, color: str(cfg.textColor, '#F7F5F1') }}>
+        <div className="flex flex-col gap-4" style={{ maxWidth: num(cfg.contentWidth, 640) }}>
           {(cur.blocks || []).map((b) => <BlockRenderer key={b.id} block={b} />)}
         </div>
       </div>

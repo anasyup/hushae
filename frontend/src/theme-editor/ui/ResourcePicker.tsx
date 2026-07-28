@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Check, Plus, Search, X } from 'lucide-react';
+import { Check, GripVertical, Plus, Search, X } from 'lucide-react';
 import type { Field, SettingValue } from '../core/types';
 import { api } from '../../api/client';
 
@@ -28,6 +28,7 @@ export function ResourcePicker({ field, value, onChange }: { field: Field; value
   const [open, setOpen] = useState(false);
   const [rows, setRows] = useState<Row[] | null>(null);
   const [q, setQ] = useState('');
+  const [drag, setDrag] = useState<number | null>(null);
 
   useEffect(() => {
     if (!open || rows) return;
@@ -69,18 +70,49 @@ export function ResourcePicker({ field, value, onChange }: { field: Field; value
 
   return (
     <div>
-      {selected.length > 0 && (
+      {selected.length > 0 && (multi ? (
+        // Hand-picked lists are order-sensitive — drag to arrange, the
+        // storefront renders them in exactly this sequence.
+        <div className="mb-2 space-y-1">
+          {selected.map((id, i) => (
+            <div
+              key={id}
+              draggable
+              onDragStart={() => setDrag(i)}
+              onDragEnd={() => setDrag(null)}
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={(e) => {
+                e.preventDefault();
+                if (drag === null || drag === i) return;
+                const next = [...selected];
+                const [item] = next.splice(drag, 1);
+                next.splice(i, 0, item);
+                onChange(next);
+                setDrag(null);
+              }}
+              className={`flex items-center gap-1.5 rounded-md border border-neutral-200 bg-white px-1.5 py-1 ${drag === i ? 'opacity-40' : ''}`}
+            >
+              <GripVertical size={11} className="shrink-0 cursor-grab text-neutral-300 active:cursor-grabbing" />
+              <span className="w-4 shrink-0 text-center text-[10px] font-semibold text-neutral-400">{i + 1}</span>
+              <span className="min-w-0 flex-1 truncate text-xs">{labelFor(id)}</span>
+              <button onClick={() => toggle(id)} className="shrink-0 text-neutral-400 hover:text-red-600">
+                <X size={11} />
+              </button>
+            </div>
+          ))}
+        </div>
+      ) : (
         <div className="mb-2 flex flex-wrap gap-1.5">
           {selected.map((id) => (
             <span key={id} className="inline-flex items-center gap-1 rounded-md bg-neutral-100 px-2 py-1 text-xs">
               {labelFor(id)}
-              <button onClick={() => (multi ? toggle(id) : onChange(''))} className="text-neutral-400 hover:text-neutral-900">
+              <button onClick={() => onChange('')} className="text-neutral-400 hover:text-neutral-900">
                 <X size={11} />
               </button>
             </span>
           ))}
         </div>
-      )}
+      ))}
 
       <button type="button" onClick={() => setOpen((o) => !o)}
         className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-neutral-300 py-2 text-xs font-semibold text-neutral-600 transition hover:border-neutral-400 hover:text-neutral-900">

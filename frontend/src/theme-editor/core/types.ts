@@ -221,4 +221,12 @@ export type EditorToPreview =
 export type PreviewToEditor =
   | { source: 'hushae-preview'; type: 'ready' }
   | { source: 'hushae-preview'; type: 'select'; id: string }
-  | { source: 'hushae-preview'; type: 'hover'; id: string | null };
+  | { source: 'hushae-preview'; type: 'hover'; id: string | null }
+  /** Merchant dragged a node onto another one directly in the preview. */
+  | { source: 'hushae-preview'; type: 'move'; id: string; targetId: string; edge: 'before' | 'after' | 'inside' }
+  /** Inline text edit committed in the preview. */
+  | { source: 'hushae-preview'; type: 'edit-text'; id: string; key: string; value: string }
+  /** Toolbar actions fired from the on-canvas chrome. */
+  | { source: 'hushae-preview'; type: 'nudge'; id: string; delta: number }
+  | { source: 'hushae-preview'; type: 'duplicate'; id: string }
+  | { source: 'hushae-preview'; type: 'delete'; id: string };

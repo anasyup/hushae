@@ -269,15 +269,31 @@ B({
   accepts: ['heading', 'text', 'eyebrow', 'button', 'button_row'],
   preset: [{ type: 'heading' }, { type: 'button' }],
   settings: [
-    { type: 'image_picker', id: 'image', label: 'Image' },
-    { type: 'video_picker', id: 'video', label: 'Video (optional)' },
-    { type: 'range', id: 'overlay', label: 'Overlay', min: 0, max: 90, step: 5, unit: '%', default: 30 },
+    headerField('Media'),
+    { type: 'image_picker', id: 'image', label: 'Image (desktop)' },
+    { type: 'image_picker', id: 'mobileImage', label: 'Image (mobile)', info: 'Optional — falls back to the desktop image.' },
+    { type: 'video_picker', id: 'video', label: 'Video', info: 'Plays muted and looped, overrides the image.' },
+    { type: 'image_picker', id: 'poster', label: 'Video poster', visibleIf: (s) => !!s.video },
+    { type: 'select', id: 'fit', label: 'Media fit', default: 'cover',
+      options: [{ value: 'cover', label: 'Crop to fill' }, { value: 'contain', label: 'Fit inside' }] },
+    { type: 'select', id: 'focal', label: 'Focal point', default: 'center',
+      options: [
+        { value: 'top', label: 'Top' }, { value: 'center', label: 'Centre' }, { value: 'bottom', label: 'Bottom' },
+        { value: 'left', label: 'Left' }, { value: 'right', label: 'Right' },
+      ] },
+    headerField('Overlay'),
+    { type: 'range', id: 'overlay', label: 'Overlay strength', min: 0, max: 90, step: 5, unit: '%', default: 30 },
+    { type: 'color', id: 'overlayColor', label: 'Overlay colour', default: '#0D0D0D' },
+    headerField('Content'),
     { type: 'select', id: 'position', label: 'Content position', default: 'bottom-left',
       options: [
-        { value: 'top-left', label: 'Top left' }, { value: 'top-center', label: 'Top center' },
-        { value: 'center', label: 'Center' }, { value: 'bottom-left', label: 'Bottom left' },
-        { value: 'bottom-center', label: 'Bottom center' },
+        { value: 'top-left', label: 'Top left' }, { value: 'top-center', label: 'Top centre' }, { value: 'top-right', label: 'Top right' },
+        { value: 'center-left', label: 'Middle left' }, { value: 'center', label: 'Centre' }, { value: 'center-right', label: 'Middle right' },
+        { value: 'bottom-left', label: 'Bottom left' }, { value: 'bottom-center', label: 'Bottom centre' }, { value: 'bottom-right', label: 'Bottom right' },
       ] },
+    { type: 'range', id: 'contentWidth', label: 'Content max width', min: 260, max: 1100, step: 20, unit: 'px', default: 640 },
+    { type: 'color', id: 'textColor', label: 'Text colour', default: '#F7F5F1' },
+    { type: 'url', id: 'href', label: 'Make whole slide clickable', placeholder: '/collection' },
   ],
 });
 
@@ -328,18 +344,44 @@ B({
 
 B({
   type: 'menu_item', name: 'Menu link', icon: 'Link',
-  accepts: ['menu_item'],
+  accepts: ['menu_item', 'menu_column', 'menu_promo'],
   settings: [
     { type: 'text', id: 'label', label: 'Label', default: 'Link' },
     { type: 'url', id: 'href', label: 'Link', default: '/' },
-    { type: 'select', id: 'dropdown', label: 'Dropdown source', default: '',
+    { type: 'select', id: 'dropdown', label: 'Dropdown', default: '',
       options: [
         { value: '', label: 'None' },
-        { value: 'women', label: 'Women categories' },
-        { value: 'men', label: 'Men categories' },
-        { value: 'children', label: 'Child links (mega menu)' },
+        { value: 'women', label: 'Auto — Women categories' },
+        { value: 'men', label: 'Auto — Men categories' },
+        { value: 'children', label: 'Simple list (child links)' },
+        { value: 'mega', label: 'Mega menu (columns + promo)' },
       ] },
+    { type: 'range', id: 'megaColumns', label: 'Mega menu columns', min: 2, max: 5, step: 1, default: 4,
+      visibleIf: (s) => s.dropdown === 'mega' },
     { type: 'checkbox', id: 'highlight', label: 'Accent colour', default: false },
+    { type: 'icon_picker', id: 'icon', label: 'Icon (optional)', default: '' },
+    { type: 'checkbox', id: 'newTab', label: 'Open in new tab', default: false },
+  ],
+});
+
+B({
+  type: 'menu_column', name: 'Mega menu column', icon: 'List',
+  accepts: ['menu_item'],
+  preset: [{ type: 'menu_item' }],
+  settings: [
+    { type: 'text', id: 'title', label: 'Column title', default: 'Shop' },
+    { type: 'url', id: 'titleHref', label: 'Title link (optional)' },
+  ],
+});
+
+B({
+  type: 'menu_promo', name: 'Mega menu promo', icon: 'ImageIcon',
+  settings: [
+    { type: 'image_picker', id: 'image', label: 'Image' },
+    { type: 'text', id: 'title', label: 'Title', default: 'New season' },
+    { type: 'text', id: 'text', label: 'Text', default: 'Discover the latest edit' },
+    { type: 'text', id: 'ctaLabel', label: 'Button label', default: 'Shop now' },
+    { type: 'url', id: 'href', label: 'Link', default: '/new' },
   ],
 });
 

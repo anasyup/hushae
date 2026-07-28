@@ -23,7 +23,16 @@ router.get('/', asyncHandler(async (req, res) => {
   const versions = await ThemeVersion.find({ key: 'main' })
     .sort({ createdAt: -1 }).limit(MAX_VERSIONS)
     .select('label createdAt doc theme');
-  res.json({ theme: { doc: doc || null, settings: settings || {} }, versions, publishedAt: t.publishedAt });
+
+  // The editor also needs the autosaved draft so unsaved work survives a
+  // refresh; the storefront ignores these fields.
+  res.json({
+    theme: { doc: doc || null, settings: settings || {} },
+    draft: t.draft || null,
+    draftSettings: t.draftSettings || null,
+    versions,
+    publishedAt: t.publishedAt,
+  });
 }));
 
 /**

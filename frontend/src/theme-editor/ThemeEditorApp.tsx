@@ -10,6 +10,7 @@ import Inspector from './ui/Inspector';
 import PreviewFrame from './ui/PreviewFrame';
 import { AddBlockPanel, AddSectionPanel } from './ui/AddPanel';
 import VersionHistory from './ui/VersionHistory';
+import ActivateBanner from './ui/ActivateBanner';
 import type { ThemeVersion } from './core/types';
 import { api } from '../api/client';
 import { invalidateThemeDoc } from './useThemeDoc';
@@ -41,9 +42,13 @@ export default function ThemeEditorApp() {
     api('/theme')
       .then((d: any) => {
         if (!alive) return;
-        const loaded = d?.theme?.doc?.body?.length ? d.theme.doc : buildDefaultDoc();
-        const t = { ...themeDefaults(), ...(d?.theme?.settings || {}) };
-        hydrate(loaded, t, d?.versions || []);
+        const published = d?.theme?.doc;
+        const isLive = !!(published && Array.isArray(published.body) && published.body.length);
+        // Prefer the draft so autosaved work is never lost between sessions.
+        const draft = d?.draft && Array.isArray(d.draft.body) && d.draft.body.length ? d.draft : null;
+        const loaded = draft || (isLive ? published : buildDefaultDoc());
+        const t = { ...themeDefaults(), ...(d?.draftSettings || d?.theme?.settings || {}) };
+        hydrate(loaded, t, d?.versions || [], isLive);
       })
       .catch(() => { if (alive) hydrate(buildDefaultDoc(), themeDefaults(), []); });
     return () => { alive = false; };
@@ -71,6 +76,7 @@ export default function ThemeEditorApp() {
       savedRef.current = { doc: state.doc, theme: state.theme };
       markSaved(state.doc, state.theme);
       if (res?.versions) setVersions(res.versions);
+      if (publish) useEditor.getState().setLiveThemed(true);
       if (publish) {
         invalidateThemeDoc();   // storefront picks up the new document on next load
         toast?.('Theme published — live on the website');
@@ -128,6 +134,7 @@ export default function ThemeEditorApp() {
   return (
     <div className="te-shell fixed inset-0 z-50 flex flex-col bg-neutral-100">
       <Topbar onPublish={() => save(true)} />
+      <ActivateBanner onActivate={() => save(true)} />
 
       <div className="flex flex-1 overflow-hidden">
         {/* LEFT */}

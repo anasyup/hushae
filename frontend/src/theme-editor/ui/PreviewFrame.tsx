@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useEditor } from '../core/store';
+import { findNode } from '../core/docUtils';
 import type { EditorToPreview, PreviewToEditor } from '../core/types';
 
 /* ============================================================================
@@ -32,6 +33,23 @@ export default function PreviewFrame() {
       if (d.type === 'ready') setReady(true);
       if (d.type === 'select') select(d.id || null);
       if (d.type === 'hover') hover(d.id);
+      // On-canvas editing — the preview asks, the store mutates.
+      if (d.type === 'move') {
+        const st = useEditor.getState();
+        const t = findNode(st.doc, d.targetId);
+        if (!t) return;
+        if (d.edge === 'inside') {
+          const kids = (t.node as any).blocks || [];
+          st.dropNode(d.id, d.targetId, kids.length);
+          st.toggleExpanded(d.targetId, true);
+        } else {
+          const parent = t.isSection ? t.group : (t.ancestors.at(-1)?.id ?? t.section.id);
+          st.dropNode(d.id, parent, d.edge === 'after' ? t.index + 1 : t.index);
+        }
+      }
+      if (d.type === 'nudge') useEditor.getState().move(d.id, d.delta);
+      if (d.type === 'duplicate') useEditor.getState().duplicate(d.id);
+      if (d.type === 'delete') useEditor.getState().remove(d.id);
     };
     window.addEventListener('message', onMsg);
     return () => window.removeEventListener('message', onMsg);

@@ -39,6 +39,8 @@ export interface EditorState {
   // status
   loading: boolean;
   saving: boolean;
+  /** True once a document is published and the storefront renders it. */
+  liveThemed: boolean;
   dirty: boolean;
   lastSavedAt: number | null;
   autosave: boolean;
@@ -49,7 +51,8 @@ export interface EditorState {
   future: HistoryEntry[];
 
   // ── actions ───────────────────────────────────────────────────────────────
-  hydrate: (doc: PageDocument, theme: SettingsBag, versions?: ThemeVersion[]) => void;
+  hydrate: (doc: PageDocument, theme: SettingsBag, versions?: ThemeVersion[], liveThemed?: boolean) => void;
+  setLiveThemed: (v: boolean) => void;
   commit: (label: string, mutate: (doc: PageDocument) => PageDocument) => void;
   setTheme: (patch: SettingsBag, label?: string) => void;
 
@@ -107,6 +110,7 @@ export const useEditor = create<EditorState>((set, get) => ({
 
   loading: true,
   saving: false,
+  liveThemed: false,
   dirty: false,
   lastSavedAt: null,
   autosave: true,
@@ -115,7 +119,7 @@ export const useEditor = create<EditorState>((set, get) => ({
   past: [],
   future: [],
 
-  hydrate: (doc, theme, versions = []) =>
+  hydrate: (doc, theme, versions = [], liveThemed = false) =>
     set({
       doc,
       theme,
@@ -126,7 +130,10 @@ export const useEditor = create<EditorState>((set, get) => ({
       past: [],
       future: [],
       versions,
+      liveThemed,
     }),
+
+  setLiveThemed: (liveThemed) => set({ liveThemed }),
 
   commit: (label, mutate) => {
     const { doc, theme, past } = get();
