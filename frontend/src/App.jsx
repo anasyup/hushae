@@ -57,6 +57,8 @@ import ThemeEditor from './admin/ThemeEditor';
 const ThemeEditorApp = lazy(() => import('./theme-editor/ThemeEditorApp'));
 const PreviewApp = lazy(() => import('./theme-editor/ui/PreviewApp'));
 const ThemedHome = lazy(() => import('./theme-editor/ThemedHome'));
+const OrdersDesk = lazy(() => import('./admin/orders/OrdersDesk'));
+const OrderPrintDoc = lazy(() => import('./admin/orders/OrderPrintDoc'));
 const EditorFallback = () => (
   <div className="grid h-screen place-items-center text-sm text-neutral-400">Loading editor…</div>
 );
@@ -156,9 +158,11 @@ export default function App() {
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin" element={<Dashboard />} />
           <Route path="/admin/live" element={<LiveView />} />
-          <Route path="/admin/orders" element={<Orders />} />
+          <Route path="/admin/orders" element={<Suspense fallback={<EditorFallback />}><OrdersDesk /></Suspense>} />
+          <Route path="/admin/orders-legacy" element={<Orders />} />
           <Route path="/admin/orders/:id" element={<OrderDetail />} />
           <Route path="/admin/orders/:id/invoice" element={<OrderInvoice />} />
+          <Route path="/admin/orders/:id/print/:doc" element={<Suspense fallback={<EditorFallback />}><OrderPrintDoc /></Suspense>} />
           <Route path="/admin/products" element={<Products />} />
           <Route path="/admin/products/:id" element={<ProductForm />} />
           <Route path="/admin/categories" element={<Categories />} />
