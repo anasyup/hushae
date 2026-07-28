@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const ORDER_STATUSES = ['Pending', 'Confirmed', 'Processing', 'Ready to Ship', 'Shipped', 'Out for Delivery', 'Delivered', 'Cancelled', 'Refunded'];
 const PAYMENT_STATUSES = ['Pending', 'Paid', 'Failed', 'Refunded'];
-const PAYMENT_METHODS = ['COD', 'JazzCash', 'EasyPaisa', 'Bank Transfer'];
+const PAYMENT_METHODS = ['COD', 'JazzCash', 'EasyPaisa', 'Bank Transfer', 'Visa'];
 
 const itemSchema = new mongoose.Schema({
   product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
@@ -62,7 +62,70 @@ const orderSchema = new mongoose.Schema({
   // Free-form admin notes (internal only, not shown to customer)
   adminNotes: { type: String, default: '' },
   discreetPackaging: { type: Boolean, default: true },
-}, { timestamps: true });
+
+  // ==========================================================================
+  // Fulfilment pipeline (v2). `status` above stays the coarse, backward
+  // compatible value; `stage` is the detailed step the warehouse works in.
+  // Existing orders are migrated lazily by utils/orderFlow.stageFromLegacy().
+  // ==========================================================================
+  stage: { type: String, default: '', index: true },
+  stageUpdatedAt: { type: Date, default: null },
+  /** { 'To Pack': Date, 'Shipped': Date, ... } — when each stage was reached. */
+  stageTimestamps: { type: mongoose.Schema.Types.Mixed, default: {} },
+
+  // --- Payment verification -------------------------------------------------
+  /** Pending -> Verified -> Confirmed (mirrors the latest OrderPayment row). */
+  paymentState: {
+    type: String,
+    enum: ['Pending', 'Verified', 'Confirmed', 'Failed', 'Expired', 'Refunded'],
+    default: 'Pending',
+    index: true,
+  },
+  paymentVerifiedAt: { type: Date, default: null },
+  paymentVerifiedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+  /** COD holds expire after 48h so stale orders surface instead of rotting. */
+  paymentExpiresAt: { type: Date, default: null, index: true },
+
+  // --- Print state (cached from OrderPrint so lists need no join) -----------
+  printStatus: {
+    invoice:      { printed: { type: Boolean, default: false }, at: { type: Date, default: null }, count: { type: Number, default: 0 } },
+    packing_slip: { printed: { type: Boolean, default: false }, at: { type: Date, default: null }, count: { type: Number, default: 0 } },
+    pick_list:    { printed: { type: Boolean, default: false }, at: { type: Date, default: null }, count: { type: Number, default: 0 } },
+  },
+
+  // --- Customer service (cached summary; detail lives in OrderIssue) --------
+  customerService: {
+    hasIssue: { type: Boolean, default: false, index: true },
+    issueType: { type: String, default: '' },
+    refundStatus: { type: String, default: 'No Issue' },
+    returnStatus: { type: String, default: 'Not Required' },
+    cancellationStatus: { type: String, default: 'No Cancellation' },
+    openIssues: { type: Number, default: 0 },
+  },
+
+  /** Structured internal notes — the legacy free-text `adminNotes` still works. */
+  internalNotes: {
+    type: [{
+      _id: false,
+      body: String,
+      authorId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+      authorName: { type: String, default: '' },
+      at: { type: Date, default: Date.now },
+    }],
+    default: [],
+  },
+
+  /** Set when an order was created or actioned as part of a bulk run. */
+  isBulkOrder: { type: Boolean, default: false },
+  lastBulkBatchId: { type: String, default: '' },
+}, { timestamps: true, minimize: false });
+
+// Indexes that back the new filter/sort surface
+orderSchema.index({ createdAt: -1 });
+orderSchema.index({ stage: 1, createdAt: -1 });
+orderSchema.index({ paymentMethod: 1, paymentState: 1 });
+orderSchema.index({ 'customerInfo.city': 1 });
+orderSchema.index({ total: 1 });
 
 orderSchema.statics.STATUSES = ORDER_STATUSES;
 
