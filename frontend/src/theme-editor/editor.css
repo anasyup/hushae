@@ -101,3 +101,10 @@ textarea.te-input { height: auto; padding: 12px 14px; }
 .te-overlay * { box-sizing: border-box; }
 /* Section being dragged fades out so the drop indicator reads clearly */
 .te-drag-source { opacity: .35; }
+
+/* Editorial media: settle from a slight zoom once it scrolls into view */
+@keyframes te-zoom-settle { from { transform: scale(1.05); } to { transform: scale(1); } }
+.te-zoom-in { animation: te-zoom-settle 1.1s ease-out both; }
+
+/* Auto-scrolling product strip */
+.te-marquee-wrap.te-pausable:hover > div { animation-play-state: paused; }

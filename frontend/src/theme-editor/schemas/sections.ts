@@ -430,6 +430,108 @@ S({
   settings: [note('Liquid is rendered server-side on the live storefront.'), ...layoutFields(), ...advancedFields()],
 });
 
+
+// ── Parity sections: everything the original coded home page rendered ──────
+S({
+  type: 'featured_marquee', name: 'Auto-scrolling product strip', icon: 'Zap', category: 'Products',
+  description: 'Dark band of product tiles that scrolls on its own. Pauses on hover.',
+  settings: [
+    headerField('Source'), ...PRODUCT_SOURCE,
+    headerField('Header'),
+    { type: 'text', id: 'eyebrow', label: 'Eyebrow', default: 'Featured' },
+    { type: 'text', id: 'heading', label: 'Heading', default: 'Signature Pieces' },
+    { type: 'checkbox', id: 'showViewAll', label: 'Show "View all"', default: true },
+    { type: 'text', id: 'viewAllLabel', label: 'View-all label', default: 'View all', visibleIf: (s: any) => s.showViewAll !== false },
+    { type: 'url', id: 'viewAllHref', label: 'View-all link', default: '/best', visibleIf: (s: any) => s.showViewAll !== false },
+    headerField('Strip'),
+    { type: 'range', id: 'count', label: 'Products shown', min: 4, max: 24, step: 1, default: 10 },
+    { type: 'range', id: 'speed', label: 'Scroll duration', min: 15, max: 120, step: 5, unit: 's', default: 45 },
+    { type: 'segment', id: 'direction', label: 'Direction', default: 'left',
+      options: [{ value: 'left', label: '←' }, { value: 'right', label: '→' }] },
+    { type: 'checkbox', id: 'pauseOnHover', label: 'Pause on hover', default: true },
+    { type: 'range', id: 'tileWidth', label: 'Tile width', min: 120, max: 360, step: 10, unit: 'px', default: 200 },
+    { type: 'checkbox', id: 'showPrice', label: 'Show price', default: true },
+    ...layoutFields({ padTop: 48, padBottom: 56 }),
+    ...advancedFields(),
+  ],
+});
+
+S({
+  type: 'editorial', name: 'Editorial block', icon: 'Newspaper', category: 'Content',
+  description: 'Large image beside a headline, or a full-bleed image with text over it.',
+  preset: [
+    { type: 'eyebrow', settings: { text: 'For her' } },
+    { type: 'heading', settings: { text: 'Quiet, considered,\nyours.', size: 44 } },
+    { type: 'text', settings: { text: 'Pieces cut for real bodies and real days.' } },
+    { type: 'button_row' },
+  ],
+  settings: [
+    headerField('Media'),
+    { type: 'image_picker', id: 'image', label: 'Image' },
+    { type: 'video_picker', id: 'video', label: 'Video (optional)' },
+    { type: 'segment', id: 'imageSide', label: 'Layout', default: 'left',
+      options: [
+        { value: 'left', label: 'Image left' },
+        { value: 'right', label: 'Image right' },
+        { value: 'overlay', label: 'Text over image' },
+      ] },
+    { type: 'select', id: 'ratio', label: 'Image ratio', default: '4/5',
+      options: [
+        { value: '4/5', label: 'Portrait 4:5' }, { value: '3/4', label: 'Portrait 3:4' },
+        { value: '1/1', label: 'Square' }, { value: '16/9', label: 'Landscape' },
+      ], visibleIf: (s: any) => s.imageSide !== 'overlay' },
+    { type: 'range', id: 'overlay', label: 'Overlay strength', min: 0, max: 90, step: 5, unit: '%', default: 45,
+      visibleIf: (s: any) => s.imageSide === 'overlay' },
+    { type: 'range', id: 'minHeight', label: 'Min height', min: 240, max: 900, step: 20, unit: 'px', default: 520,
+      visibleIf: (s: any) => s.imageSide === 'overlay' },
+    { type: 'checkbox', id: 'zoomOnScroll', label: 'Subtle zoom on scroll', default: true },
+    headerField('Content'),
+    alignment('align', 'Text alignment', 'left'),
+    ...layoutFields({ padTop: 0, padBottom: 0 }),
+    ...advancedFields(),
+  ],
+});
+
+S({
+  type: 'featured_collections', name: 'Collection tiles', icon: 'Library', category: 'Products',
+  description: 'Tiles for collections you have flagged as featured in the admin.',
+  preset: [{ type: 'section_header' }],
+  settings: [
+    { type: 'segment', id: 'mode', label: 'Collections', default: 'featured',
+      options: [{ value: 'featured', label: 'Flagged featured' }, { value: 'pick', label: 'Hand-picked' }] },
+    { type: 'collection_list', id: 'collections', label: 'Collections', visibleIf: (s: any) => s.mode === 'pick' },
+    { type: 'range', id: 'count', label: 'Maximum shown', min: 2, max: 12, step: 1, default: 4 },
+    { type: 'range', id: 'columns', label: 'Columns', min: 2, max: 6, step: 1, default: 4 },
+    { type: 'select', id: 'ratio', label: 'Image ratio', default: '4/5',
+      options: [{ value: '1/1', label: 'Square' }, { value: '4/5', label: 'Portrait' }, { value: '16/9', label: 'Landscape' }] },
+    { type: 'checkbox', id: 'overlayTitle', label: 'Title over image', default: true },
+    { type: 'checkbox', id: 'showCount', label: 'Show product count', default: false },
+    ...layoutFields(),
+    ...advancedFields(),
+  ],
+});
+
+S({
+  type: 'cta_banner', name: 'Call-to-action banner', icon: 'Sparkles', category: 'Content',
+  description: 'Rounded dark panel with an icon, headline and button.',
+  preset: [
+    { type: 'icon', settings: { name: 'Ruler', size: 24 } },
+    { type: 'heading', settings: { text: 'Never guess your size again', size: 34, align: 'center' } },
+    { type: 'text', settings: { text: 'Answer four quick questions and our Fit Finder recommends your true size.', align: 'center' } },
+    { type: 'button', settings: { label: 'Try the Fit Finder', href: '/fit-finder' } },
+  ],
+  settings: [
+    { type: 'color_background', id: 'panelBg', label: 'Panel background', default: '#0D0D0D' },
+    { type: 'color', id: 'panelText', label: 'Panel text colour', default: '#F7F5F1' },
+    { type: 'range', id: 'panelRadius', label: 'Panel radius', min: 0, max: 64, step: 2, unit: 'px', default: 40 },
+    { type: 'range', id: 'panelPadding', label: 'Panel padding', min: 16, max: 120, step: 4, unit: 'px', default: 56 },
+    { type: 'checkbox', id: 'glow', label: 'Soft corner glow', default: true },
+    alignment('align', 'Alignment', 'center'),
+    ...layoutFields({ padTop: 56, padBottom: 56 }),
+    ...advancedFields(),
+  ],
+});
+
 // ══ FOOTER GROUP ════════════════════════════════════════════════════════════
 S({
   type: 'footer', name: 'Footer', icon: 'PanelBottom',

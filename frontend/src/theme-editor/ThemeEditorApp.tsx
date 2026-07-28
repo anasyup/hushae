@@ -39,14 +39,14 @@ export default function ThemeEditorApp() {
   // ── Load ────────────────────────────────────────────────────────────────
   useEffect(() => {
     let alive = true;
-    api('/theme')
+    api('/theme?seed=1')
       .then((d: any) => {
         if (!alive) return;
         const published = d?.theme?.doc;
         const isLive = !!(published && Array.isArray(published.body) && published.body.length);
         // Prefer the draft so autosaved work is never lost between sessions.
         const draft = d?.draft && Array.isArray(d.draft.body) && d.draft.body.length ? d.draft : null;
-        const loaded = draft || (isLive ? published : buildDefaultDoc());
+        const loaded = draft || (isLive ? published : buildDefaultDoc(d?.storeSettings || {}));
         const t = { ...themeDefaults(), ...(d?.draftSettings || d?.theme?.settings || {}) };
         hydrate(loaded, t, d?.versions || [], isLive);
       })

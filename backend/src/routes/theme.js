@@ -26,10 +26,19 @@ router.get('/', asyncHandler(async (req, res) => {
 
   // The editor also needs the autosaved draft so unsaved work survives a
   // refresh; the storefront ignores these fields.
+  // The editor seeds a brand-new document from the store's existing settings so
+  // activating it reproduces the current storefront exactly.
+  let storeSettings = null;
+  if (!doc && req.query.seed === '1') {
+    const Settings = require('../models/Settings');
+    storeSettings = await Settings.findOne({ key: 'store' }).lean();
+  }
+
   res.json({
     theme: { doc: doc || null, settings: settings || {} },
     draft: t.draft || null,
     draftSettings: t.draftSettings || null,
+    storeSettings,
     versions,
     publishedAt: t.publishedAt,
   });

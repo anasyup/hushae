@@ -5,6 +5,7 @@ import type { BlockNode, SectionNode } from '../core/types';
 import { BlockRenderer, Icon } from './BlockRenderer';
 import { useRenderCtx } from './RenderContext';
 import { resolveIcon } from '../ui/iconRegistry';
+import { api as apiFetch } from '../../api/client';
 import {
   alignClass, animationProps, bool, buttonStyle, containerClass, num,
   RATIO, sectionStyle, str, visibilityClass,
@@ -86,6 +87,10 @@ function SectionBody({ section }: { section: SectionNode }) {
     // ══ PRODUCTS ════════════════════════════════════════════════════════════
     case 'featured_collection':
     case 'product_grid': return <ProductSection section={section} />;
+    case 'featured_marquee': return <FeaturedMarqueeSection section={section} />;
+    case 'featured_collections': return <FeaturedCollectionsSection section={section} />;
+    case 'editorial': return <EditorialSection section={section} />;
+    case 'cta_banner': return <CtaBanner section={section} />;
     case 'featured_product': return <FeaturedProduct section={section} />;
     case 'collection_list': return <CollectionList section={section} />;
 
@@ -915,6 +920,187 @@ function FooterSection({ section }: { section: SectionNode }) {
         {str(s.bottomText) || `© ${year} ${data.settings.storeName || 'HUSHAE'} · All rights reserved`}
       </div>
     </footer>
+  );
+}
+
+
+/* ── Parity sections ───────────────────────────────────────────────────── */
+
+function FeaturedMarqueeSection({ section }: { section: SectionNode }) {
+  const s = section.settings;
+  const { getProducts, requestProducts } = useRenderCtx();
+  const query = useMemo(() => buildQuery({ ...s, count: num(s.count, 10) }), [s.source, s.count, s.sort, s.gender, s.collection, s.products]);
+  useEffect(() => { requestProducts(query, query); }, [query, requestProducts]);
+  const products = getProducts(query) || [];
+  const list = products.filter((p: any) => p?.images?.length);
+  if (!list.length) return null;
+
+  const doubled = [...list, ...list];
+  const tile = num(s.tileWidth, 200);
+
+  return (
+    <>
+      <div className={containerClass(s.width)}>
+        <div className="mb-7 flex items-end justify-between gap-4">
+          <div>
+            {str(s.eyebrow) && <p className="text-[10px] font-bold uppercase tracking-widest opacity-60">{str(s.eyebrow)}</p>}
+            {str(s.heading) && <h2 className="mt-1 text-2xl md:text-3xl" style={{ fontFamily: 'var(--t-font-heading)' }}>{str(s.heading)}</h2>}
+          </div>
+          {bool(s.showViewAll, true) && (
+            <a href={str(s.viewAllHref, '/best')} onClick={(e) => e.preventDefault()}
+              className="hidden shrink-0 text-[11px] font-semibold uppercase tracking-widest opacity-70 hover:opacity-100 md:inline-block">
+              {str(s.viewAllLabel, 'View all')} →
+            </a>
+          )}
+        </div>
+      </div>
+      <div className={`te-marquee-wrap group overflow-hidden ${bool(s.pauseOnHover, true) ? 'te-pausable' : ''}`}>
+        <div className="flex w-max"
+          style={{
+            animation: `te-marquee ${num(s.speed, 45)}s linear infinite`,
+            animationDirection: str(s.direction) === 'right' ? 'reverse' : 'normal',
+          }}>
+          {doubled.map((p: any, i: number) => {
+            const img = p.images?.[0]?.url || p.images?.[0];
+            return (
+              <a key={`${p._id}-${i}`} href={`/product/${p.slug}`} onClick={(e) => e.preventDefault()}
+                className="mr-4 shrink-0" style={{ width: tile }}>
+                <span className="block overflow-hidden rounded-[var(--t-card-radius)]" style={{ background: 'rgba(255,255,255,.06)' }}>
+                  <img src={img} alt={p.name} loading="lazy" className="w-full object-cover transition-transform duration-500 hover:scale-105"
+                    style={{ aspectRatio: '4 / 5' }} />
+                </span>
+                <span className="mt-2 block truncate text-[12.5px] font-medium">{p.name}</span>
+                {bool(s.showPrice, true) && (
+                  <span className="block text-[12px] opacity-70">PKR {Number(p.price || 0).toLocaleString('en-PK')}</span>
+                )}
+              </a>
+            );
+          })}
+        </div>
+      </div>
+    </>
+  );
+}
+
+function FeaturedCollectionsSection({ section }: { section: SectionNode }) {
+  const s = section.settings;
+  const { data } = useRenderCtx();
+  const [featured, setFeatured] = useState<any[] | null>(null);
+
+  useEffect(() => {
+    if (str(s.mode, 'featured') !== 'featured') return;
+    let alive = true;
+    apiFetch('/collections?featured=true')
+      .then((d: any) => { if (alive) setFeatured(d.collections || []); })
+      .catch(() => { if (alive) setFeatured([]); });
+    return () => { alive = false; };
+  }, [s.mode]);
+
+  const picked = Array.isArray(s.collections) ? (s.collections as string[]) : [];
+  const source = str(s.mode, 'featured') === 'pick'
+    ? data.categories.filter((c: any) => picked.includes(c.slug))
+        .sort((a: any, b: any) => picked.indexOf(a.slug) - picked.indexOf(b.slug))
+    : (featured || []);
+  const list = source.slice(0, num(s.count, 4));
+
+  if (str(s.mode, 'featured') === 'featured' && featured === null) return null;
+  if (!list.length) {
+    return <div className={containerClass(s.width)}><Empty label="No featured collections yet — flag some in Admin › Collections" /></div>;
+  }
+
+  return (
+    <div className={containerClass(s.width)}>
+      {kids(section, 'section_header').map((b) => <BlockRenderer key={b.id} block={b} />)}
+      <div className="te-grid" style={{ '--cols': num(s.columns, 4), '--mcols': 2, gap: 16 } as CSSProperties}>
+        {list.map((c: any) => (
+          <a key={c.slug || c._id} href={`/collection/${c.slug}`} onClick={(e) => e.preventDefault()}
+            className="group relative block overflow-hidden rounded-[var(--t-card-radius)]">
+            <img src={c.image || c.heroImage || heroPlaceholder} alt={c.name || c.title}
+              className="w-full object-cover transition-transform duration-500 group-hover:scale-105"
+              style={{ aspectRatio: RATIO[str(s.ratio, '4/5')] }} />
+            {bool(s.overlayTitle, true) ? (
+              <>
+                <span className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(13,13,13,.65), transparent 62%)' }} />
+                <span className="absolute bottom-4 left-4 right-4">
+                  <span className="block text-lg" style={{ color: '#F7F5F1', fontFamily: 'var(--t-font-heading)' }}>{c.name || c.title}</span>
+                  {bool(s.showCount) && c.productCount != null && (
+                    <span className="block text-[11px]" style={{ color: 'rgba(247,245,241,.75)' }}>{c.productCount} products</span>
+                  )}
+                </span>
+              </>
+            ) : (
+              <span className="mt-2 block text-sm font-medium">{c.name || c.title}</span>
+            )}
+          </a>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function EditorialSection({ section }: { section: SectionNode }) {
+  const s = section.settings;
+  const side = str(s.imageSide, 'left');
+  const content = (
+    <div className={`flex flex-col justify-center gap-4 ${alignClass(s.align, 'items')} ${alignClass(s.align)}`}>
+      {(section.blocks || []).map((b) => <BlockRenderer key={b.id} block={b} />)}
+    </div>
+  );
+
+  if (side === 'overlay') {
+    return (
+      <div className="relative flex items-end overflow-hidden" style={{ minHeight: num(s.minHeight, 520) }}>
+        {str(s.video)
+          ? <video src={str(s.video)} autoPlay muted loop playsInline className="absolute inset-0 h-full w-full object-cover" />
+          : <img src={str(s.image) || heroPlaceholder} alt=""
+              className={`absolute inset-0 h-full w-full object-cover ${bool(s.zoomOnScroll, true) ? 'te-zoom-in' : ''}`} />}
+        <div className="absolute inset-0" style={{ background: `linear-gradient(to top, rgba(13,13,13,${num(s.overlay, 45) / 100}), rgba(13,13,13,.08))` }} />
+        <div className={`relative z-10 w-full py-14 ${containerClass(s.width)}`} style={{ color: '#F7F5F1' }}>{content}</div>
+      </div>
+    );
+  }
+
+  const media = str(s.video) ? (
+    <video src={str(s.video)} autoPlay muted loop playsInline className="h-full w-full object-cover"
+      style={{ aspectRatio: RATIO[str(s.ratio, '4/5')] }} />
+  ) : (
+    <img src={str(s.image) || heroPlaceholder} alt=""
+      className={`h-full w-full object-cover ${bool(s.zoomOnScroll, true) ? 'te-zoom-in' : ''}`}
+      style={{ aspectRatio: RATIO[str(s.ratio, '4/5')] }} />
+  );
+
+  return (
+    <div className="grid items-stretch md:grid-cols-2">
+      <div className={`overflow-hidden ${side === 'right' ? 'md:order-2' : ''}`}>{media}</div>
+      <div className="px-6 py-12 md:px-14 md:py-20">{content}</div>
+    </div>
+  );
+}
+
+function CtaBanner({ section }: { section: SectionNode }) {
+  const s = section.settings;
+  return (
+    <div className={containerClass(s.width)}>
+      <div className="relative overflow-hidden"
+        style={{
+          background: str(s.panelBg, '#0D0D0D'),
+          color: str(s.panelText, '#F7F5F1'),
+          borderRadius: num(s.panelRadius, 40),
+          padding: num(s.panelPadding, 56),
+        }}>
+        {bool(s.glow, true) && (
+          <>
+            <span className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full blur-3xl"
+              style={{ background: 'var(--t-accent)', opacity: 0.18 }} />
+            <span className="pointer-events-none absolute -bottom-24 -right-24 h-72 w-72 rounded-full blur-3xl"
+              style={{ background: 'var(--t-muted)', opacity: 0.12 }} />
+          </>
+        )}
+        <div className={`relative flex flex-col gap-4 ${alignClass(s.align, 'items')} ${alignClass(s.align)}`}>
+          {(section.blocks || []).map((b) => <BlockRenderer key={b.id} block={b} />)}
+        </div>
+      </div>
+    </div>
   );
 }
 
