@@ -91,7 +91,7 @@ export default function ProductListSection({ cfg }) {
 
   if (products === null) {
     return (
-      <section style={sectionStyle}>
+      <section data-section={cfg.id} style={sectionStyle}>
         <div className={wrap}><ProductGridSkeleton count={Math.min(4, clamp(cfg.productCount, 2, 24))} /></div>
       </section>
     );
@@ -115,11 +115,11 @@ export default function ProductListSection({ cfg }) {
     : align === 'right' ? 'items-end text-right' : 'items-start text-left';
 
   return (
-    <section style={sectionStyle}>
+    <section data-section={cfg.id} style={sectionStyle}>
       <div className={wrap}>
         {/* ── Header ───────────────────────────────────────────────────── */}
         {(cfg.heading || cfg.eyebrow || cfg.showViewAll || cfg.note) && (
-          <div className={`mb-6 flex flex-wrap items-end gap-3 ${align === 'center' ? 'justify-center' : 'justify-between'}`}>
+          <div data-section={`${cfg.id}.header`} className={`mb-6 flex flex-wrap items-end gap-3 ${align === 'center' ? 'justify-center' : 'justify-between'}`}>
             <div className={`flex flex-col ${headerAlignCls}`}>
               {cfg.eyebrow && <p className="text-[11px] font-bold uppercase tracking-widest text-sagedeep">{cfg.eyebrow}</p>}
               {cfg.heading && <h2 className="mt-1 font-display text-2xl md:text-3xl">{cfg.heading}</h2>}

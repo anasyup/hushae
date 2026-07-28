@@ -38,6 +38,19 @@ export default function Header() {
   const wCats = cats.filter((c) => c.gender === 'women');
   const mCats = cats.filter((c) => c.gender === 'men');
 
+  // Header config — every block below is admin-editable from /admin/theme
+  const hdr = settings?.header || {};
+  const menu = Array.isArray(hdr.menu) && hdr.menu.length ? hdr.menu : [
+    { label: 'Women', href: '/women', dropdown: 'women' },
+    { label: 'Men', href: '/men', dropdown: 'men' },
+    { label: 'New Arrivals', href: '/new' },
+    { label: 'Best Sellers', href: '/best' },
+    { label: 'Sale', href: '/sale', highlight: true },
+    { label: 'Fit Finder', href: '/fit-finder' },
+    { label: 'Track Order', href: '/track' },
+  ];
+  const dropItems = (kind) => (kind === 'women' ? wCats : kind === 'men' ? mCats : []);
+
   const linkCls = ({ isActive }) =>
     `relative text-[12px] font-semibold uppercase tracking-widest transition ${
       heroOverlay
@@ -78,32 +91,43 @@ export default function Header() {
       }`}>
         <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-2 px-3 md:h-16 md:gap-4 md:px-8">
           <button className={`rounded-full p-1.5 -ml-1.5 md:hidden ${heroOverlay ? 'text-alabaster' : ''}`} onClick={() => setMobileOpen(true)} aria-label="Menu"><Menu size={22} /></button>
-          <Wordmark forceColor={heroOverlay ? 'alabaster' : undefined} />
+          <span data-section="header.logo"><Wordmark forceColor={heroOverlay ? 'alabaster' : undefined} /></span>
 
-          <nav className="hidden items-center gap-7 md:flex">
-            <Drop label={<Tx k="women" />} to="/women" items={wCats} />
-            <Drop label={<Tx k="men" />} to="/men" items={mCats} />
-            <NavLink to="/new" className={linkCls}><Tx k="newArrivals" /></NavLink>
-            <NavLink to="/best" className={linkCls}><Tx k="bestSellers" /></NavLink>
-            <NavLink to="/sale" className={({ isActive }) => `${linkCls({ isActive })} ${heroOverlay ? '' : '!text-sagedeep'}`}><Tx k="sale" /></NavLink>
-            <NavLink to="/fit-finder" className={linkCls}><Tx k="fitFinder" /></NavLink>
-            <NavLink to="/track" className={linkCls}><Tx k="trackOrder" /></NavLink>
+          <nav data-section="header.menu" className="hidden items-center gap-7 md:flex">
+            {menu.filter((m) => m && m.label).map((m, i) => (
+              m.dropdown ? (
+                <Drop key={i} label={m.label} to={m.href || '/'} items={dropItems(m.dropdown)} />
+              ) : (
+                <NavLink key={i} to={m.href || '/'}
+                  className={({ isActive }) => `${linkCls({ isActive })} ${m.highlight && !heroOverlay ? '!text-sagedeep' : ''}`}>
+                  {m.label}
+                </NavLink>
+              )
+            ))}
           </nav>
 
-          <div className={`flex items-center gap-0.5 md:gap-3 ${heroOverlay ? 'text-alabaster' : 'text-obsidian'}`}>
-            <button onClick={() => setSearchOpen((s) => !s)} aria-label="Search" className={`rounded-full p-2 transition ${heroOverlay ? 'hover:bg-white/10' : 'hover:bg-satin/60'}`}><Search size={19} /></button>
-            <Link to="/wishlist" aria-label="Wishlist" className={`relative hidden rounded-full p-2 transition md:inline-flex ${heroOverlay ? 'hover:bg-white/10' : 'hover:bg-satin/60'}`}>
-              <Heart size={19} />
-              {wishlist.length > 0 && <span className="absolute -right-0.5 -top-0.5 grid h-4 w-4 place-items-center rounded-full bg-sage text-[9px] font-bold text-obsidian">{wishlist.length}</span>}
-            </Link>
-            <Link to="/account" aria-label="Account" className={`relative hidden rounded-full p-2 transition md:inline-flex ${heroOverlay ? 'hover:bg-white/10' : 'hover:bg-satin/60'}`}>
-              <User size={19} />
-              {auth && <span className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full bg-sage" />}
-            </Link>
-            <button onClick={() => setDrawerOpen(true)} aria-label="Cart" className={`relative rounded-full p-2 transition ${heroOverlay ? 'hover:bg-white/10' : 'hover:bg-satin/60'}`}>
-              <ShoppingBag size={19} />
-              {cartCount > 0 && <span className={`absolute -right-0.5 -top-0.5 grid h-4 w-4 place-items-center rounded-full text-[9px] font-bold ${heroOverlay ? 'bg-alabaster text-obsidian' : 'bg-obsidian text-alabaster'}`}>{cartCount}</span>}
-            </button>
+          <div data-section="header.icons" className={`flex items-center gap-0.5 md:gap-3 ${heroOverlay ? 'text-alabaster' : 'text-obsidian'}`}>
+            {hdr.showSearch !== false && (
+              <button onClick={() => setSearchOpen((s) => !s)} aria-label="Search" className={`rounded-full p-2 transition ${heroOverlay ? 'hover:bg-white/10' : 'hover:bg-satin/60'}`}><Search size={19} /></button>
+            )}
+            {hdr.showWishlist !== false && (
+              <Link to="/wishlist" aria-label="Wishlist" className={`relative hidden rounded-full p-2 transition md:inline-flex ${heroOverlay ? 'hover:bg-white/10' : 'hover:bg-satin/60'}`}>
+                <Heart size={19} />
+                {wishlist.length > 0 && <span className="absolute -right-0.5 -top-0.5 grid h-4 w-4 place-items-center rounded-full bg-sage text-[9px] font-bold text-obsidian">{wishlist.length}</span>}
+              </Link>
+            )}
+            {hdr.showAccount !== false && (
+              <Link to="/account" aria-label="Account" className={`relative hidden rounded-full p-2 transition md:inline-flex ${heroOverlay ? 'hover:bg-white/10' : 'hover:bg-satin/60'}`}>
+                <User size={19} />
+                {auth && <span className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full bg-sage" />}
+              </Link>
+            )}
+            {hdr.showCart !== false && (
+              <button onClick={() => setDrawerOpen(true)} aria-label="Cart" className={`relative rounded-full p-2 transition ${heroOverlay ? 'hover:bg-white/10' : 'hover:bg-satin/60'}`}>
+                <ShoppingBag size={19} />
+                {cartCount > 0 && <span className={`absolute -right-0.5 -top-0.5 grid h-4 w-4 place-items-center rounded-full text-[9px] font-bold ${heroOverlay ? 'bg-alabaster text-obsidian' : 'bg-obsidian text-alabaster'}`}>{cartCount}</span>}
+              </button>
+            )}
           </div>
         </div>
 
@@ -133,9 +157,9 @@ export default function Header() {
                 <button onClick={() => setMobileOpen(false)} aria-label="Close"><X size={20} /></button>
               </div>
               <div className="space-y-1">
-                {[['/', 'home'], ['/new', 'newArrivals'], ['/best', 'bestSellers'], ['/sale', 'sale'], ['/fit-finder', 'fitFinder'], ['/track', 'trackOrder']].map(([to, k]) => (
+                {[['/', 'Home'], ...menu.filter((m) => m && m.label && !m.dropdown).map((m) => [m.href || '/', m.label])].map(([to, k]) => (
                   <Link key={to} to={to} onClick={() => setMobileOpen(false)} className="block rounded-xl px-3 py-2.5 text-sm font-semibold uppercase tracking-widest text-obsidian hover:bg-satin/50">
-                    <Tx k={k} />
+                    {k}
                   </Link>
                 ))}
               </div>

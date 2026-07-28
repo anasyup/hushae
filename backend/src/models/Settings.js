@@ -6,6 +6,83 @@ const settingsSchema = new mongoose.Schema({
   tagline: { type: String, default: 'Second Skin, First Choice.' },
   contactEmail: { type: String, default: 'care@hushae.pk' },
   contactPhone: { type: String, default: '+92 300 0000000' },
+  // ==========================================================================
+  // HEADER — logo block + fully editable main menu
+  // ==========================================================================
+  header: {
+    // Logo block
+    logoType:      { type: String,  default: 'text' },   // text | image
+    logoImage:     { type: String,  default: '' },
+    logoWidth:     { type: Number,  default: 130 },      // px, image logo only
+    logoText:      { type: String,  default: '' },       // blank → falls back to storeName
+    logoBoxed:     { type: Boolean, default: true },     // outlined box around the wordmark
+    logoTracking:  { type: Number,  default: 32 },       // letter-spacing ×100 (0.32em)
+    // Main menu — merchant-managed links, each may hold a dropdown
+    menu: {
+      type: [{
+        _id: false,
+        label: { type: String, default: '' },
+        href:  { type: String, default: '/' },
+        // '' = plain link · 'women'/'men' = auto category dropdown
+        dropdown: { type: String, default: '' },
+        highlight: { type: Boolean, default: false },    // renders in accent colour (e.g. Sale)
+      }],
+      default: [
+        { label: 'Women',        href: '/women',      dropdown: 'women', highlight: false },
+        { label: 'Men',          href: '/men',        dropdown: 'men',   highlight: false },
+        { label: 'New Arrivals', href: '/new',        dropdown: '',      highlight: false },
+        { label: 'Best Sellers', href: '/best',       dropdown: '',      highlight: false },
+        { label: 'Sale',         href: '/sale',       dropdown: '',      highlight: true },
+        { label: 'Fit Finder',   href: '/fit-finder', dropdown: '',      highlight: false },
+        { label: 'Track Order',  href: '/track',      dropdown: '',      highlight: false },
+      ],
+    },
+    // Icon row
+    showSearch:   { type: Boolean, default: true },
+    showWishlist: { type: Boolean, default: true },
+    showAccount:  { type: Boolean, default: true },
+    showCart:     { type: Boolean, default: true },
+    sticky:       { type: Boolean, default: true },
+  },
+  // ==========================================================================
+  // FOOTER — every column and the bottom bar are editable
+  // ==========================================================================
+  footer: {
+    showNewsletter: { type: Boolean, default: true },
+    newsletterTitle:{ type: String,  default: 'Join the inner circle' },
+    newsletterText: { type: String,  default: 'Early access to new drops, fit guides and private offers.' },
+    aboutText:      { type: String,  default: '' },      // blank → falls back to tagline
+    tagline:        { type: String,  default: 'Made in Pakistan · Worn worldwide soon' },
+    showSocial:     { type: Boolean, default: true },
+    columns: {
+      type: [{
+        _id: false,
+        title: { type: String, default: '' },
+        links: { type: [{ _id: false, label: String, href: String }], default: [] },
+      }],
+      default: [
+        { title: 'Shop', links: [
+          { label: 'Women', href: '/women' }, { label: 'Men', href: '/men' },
+          { label: 'New Arrivals', href: '/new' }, { label: 'Best Sellers', href: '/best' },
+          { label: 'Sale', href: '/sale' },
+        ] },
+        { title: 'Help', links: [
+          { label: 'Track Order', href: '/track' }, { label: 'Fit Finder', href: '/fit-finder' },
+          { label: 'FAQ', href: '/faq' }, { label: 'My Account', href: '/account' },
+          { label: 'Wishlist', href: '/wishlist' },
+        ] },
+        { title: 'Policies', links: [
+          { label: 'Privacy Policy', href: '/privacy' }, { label: 'Terms of Service', href: '/terms' },
+          { label: 'Returns & Exchanges', href: '/returns' }, { label: 'Shipping Policy', href: '/shipping-policy' },
+        ] },
+      ],
+    },
+    showContact:   { type: Boolean, default: true },
+    contactTitle:  { type: String,  default: 'Contact' },
+    contactNote:   { type: String,  default: 'Pakistan — nationwide delivery' },
+    paymentNote:   { type: String,  default: 'COD · JazzCash · EasyPaisa · Bank Transfer' },
+    bottomText:    { type: String,  default: '' },       // blank → auto "© YEAR HUSHAE · …"
+  },
   hero: {
     title: { type: String, default: 'Second Skin,\nFirst Choice.' },
     subtitle: { type: String, default: 'Underwear engineered in breathable, cloud-soft fabrics — designed in Pakistan, finished to an international standard.' },

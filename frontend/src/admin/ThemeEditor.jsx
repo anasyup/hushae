@@ -1,13 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  ArrowLeft, ChevronDown, ChevronRight, Copy, Eye, EyeOff, GripVertical, Home, Layers,
-  Layout, Megaphone, Monitor, Plus, Redo2, Save, Settings2, ShoppingBag, Smartphone,
-  Sparkles, Star, Tag, Trash2, Undo2, X, Zap,
+  ArrowLeft, ArrowUp, ArrowDown, ChevronDown, ChevronRight, Copy, CreditCard, Eye, EyeOff,
+  GripVertical, Home, Image as ImageIcon, Layers, Layout, Link2, List, Mail, Megaphone,
+  Monitor, MousePointerClick, Plus, Redo2, Save, Settings2, ShoppingBag, Smartphone,
+  Sparkles, Star, Tag, Text as TextIcon, Trash2, Type, Undo2, X, Zap,
 } from 'lucide-react';
 import { api } from '../api/client';
 import { useApp } from '../store/AppContext';
 import MediaPicker from '../components/MediaPicker';
+import { pushPreview, pushSelect, PREVIEW_READY } from '../lib/livePreview';
 
 /* ============================================================================
  * HUSHAE Theme Editor — Shopify-style
@@ -27,11 +29,22 @@ import MediaPicker from '../components/MediaPicker';
 // ── Fixed sections ──────────────────────────────────────────────────────────
 const SECTION_TREE = {
   Header: [
-    { id: 'offerBar', label: 'Announcement bar', icon: Megaphone, path: 'offerBar' },
-    { id: 'header',   label: 'Header',           icon: Layout,    path: 'header' },
+    { id: 'offerBar', label: 'Announcement bar', icon: Megaphone, path: 'offerBar',
+      blocks: [{ id: 'offerBar', label: 'Announcement', icon: TextIcon }] },
+    { id: 'header', label: 'Header', icon: Layout, path: 'header',
+      blocks: [
+        { id: 'header.logo',  label: 'Logo',      icon: ImageIcon },
+        { id: 'header.menu',  label: 'Main menu', icon: List },
+        { id: 'header.icons', label: 'Icons',     icon: MousePointerClick },
+      ] },
   ],
   Template: [
-    { id: 'hero',           label: 'Hero (video/image)',   icon: Sparkles, path: 'hero' },
+    { id: 'hero', label: 'Hero', icon: Sparkles, path: 'hero',
+      blocks: [
+        { id: 'hero.media',   label: 'Media',    icon: ImageIcon },
+        { id: 'hero.heading', label: 'Heading',  icon: Type },
+        { id: 'hero.button',  label: 'Button',   icon: MousePointerClick },
+      ] },
     { id: 'signatureSplit', label: 'Signature split hero', icon: Layers,   path: 'signatureSplit' },
     { id: 'marquee',        label: 'Scrolling text strip', icon: Zap,      path: 'marquee' },
     { id: 'trustBadges',    label: 'Trust badges',         icon: Star,     path: 'trustBadges' },
@@ -39,7 +52,14 @@ const SECTION_TREE = {
   ],
   Footer: [
     { id: 'cookiePopup', label: 'Cookie consent', icon: Settings2, path: 'cookiePopup' },
-    { id: 'footer',      label: 'Footer',         icon: Layout,    path: 'footer' },
+    { id: 'footer', label: 'Footer', icon: Layout, path: 'footer',
+      blocks: [
+        { id: 'footer.newsletter', label: 'Newsletter',   icon: Mail },
+        { id: 'footer.about',      label: 'About column', icon: TextIcon },
+        { id: 'footer.columns',    label: 'Link columns', icon: List },
+        { id: 'footer.contact',    label: 'Contact',      icon: CreditCard },
+        { id: 'footer.bottom',     label: 'Bottom bar',   icon: TextIcon },
+      ] },
   ],
 };
 
@@ -50,24 +70,51 @@ const FIELD_SCHEMA = {
     { key: 'ctaEn',     label: 'Button label', type: 'text', default: 'Shop the Sale' },
     { key: 'link',      label: 'Button link',  type: 'text', default: '/sale' },
   ],
-  header: [
-    { key: 'storeName',    label: 'Store name (wordmark)', type: 'text', default: 'HUSHAE', persistedPath: 'storeName' },
+
+  // ── HEADER blocks ─────────────────────────────────────────────────────────
+  'header.logo': [
+    { key: 'logoType',  label: 'Logo type', type: 'segment', default: 'text', options: [['text', 'Text'], ['image', 'Image']], persistedPath: 'header.logoType' },
+    { key: 'logoImage', label: 'Logo image', type: 'media', accept: 'image', persistedPath: 'header.logoImage', showIf: (s) => s?.header?.logoType === 'image' },
+    { key: 'logoWidth', label: 'Logo width', type: 'range', min: 40, max: 320, default: 130, unit: 'px', persistedPath: 'header.logoWidth', showIf: (s) => s?.header?.logoType === 'image' },
+    { key: 'storeName', label: 'Store name', type: 'text', default: 'HUSHAE', persistedPath: 'storeName', showIf: (s) => s?.header?.logoType !== 'image' },
+    { key: 'logoText',  label: 'Override logo text (optional)', type: 'text', persistedPath: 'header.logoText', showIf: (s) => s?.header?.logoType !== 'image' },
+    { key: 'logoBoxed', label: 'Outlined box', type: 'toggle', default: true, persistedPath: 'header.logoBoxed', showIf: (s) => s?.header?.logoType !== 'image' },
+    { key: 'logoTracking', label: 'Letter spacing', type: 'range', min: 0, max: 60, default: 32, unit: '', persistedPath: 'header.logoTracking', showIf: (s) => s?.header?.logoType !== 'image' },
+  ],
+  'header.menu': [
+    { key: 'menu', label: 'Menu links', type: 'menu', persistedPath: 'header.menu' },
+  ],
+  'header.icons': [
+    { key: 'showSearch',   label: 'Search icon',   type: 'toggle', default: true, persistedPath: 'header.showSearch' },
+    { key: 'showWishlist', label: 'Wishlist icon', type: 'toggle', default: true, persistedPath: 'header.showWishlist' },
+    { key: 'showAccount',  label: 'Account icon',  type: 'toggle', default: true, persistedPath: 'header.showAccount' },
+    { key: 'showCart',     label: 'Cart icon',     type: 'toggle', default: true, persistedPath: 'header.showCart' },
     { key: 'contactPhone', label: 'Contact phone', type: 'text', persistedPath: 'contactPhone' },
     { key: 'contactEmail', label: 'Contact email', type: 'text', persistedPath: 'contactEmail' },
   ],
-  hero: [
-    { key: 'fullScreen',     label: 'Full-screen banner', type: 'toggle', default: true },
-    { key: 'eyebrow',        label: 'Eyebrow (small caps)', type: 'text' },
-    { key: 'title',          label: 'Title (Enter = new line)', type: 'textarea' },
-    { key: 'subtitle',       label: 'Subtitle', type: 'textarea' },
-    { key: 'image',          label: 'Background image', type: 'media', accept: 'image' },
-    { key: 'video',          label: 'Background video (optional)', type: 'media', accept: 'video' },
-    { key: 'overlayOpacity', label: 'Overlay strength', type: 'range', min: 0, max: 90, default: 40 },
-    { key: 'align',          label: 'Text alignment', type: 'select', options: [['left', 'Left'], ['center', 'Center']], default: 'left' },
-    { key: 'showButtons',    label: 'Show CTA buttons', type: 'toggle', default: true },
-    { key: 'ctaWomen',       label: 'Button 1 label', type: 'text', default: 'Shop Women' },
-    { key: 'ctaMen',         label: 'Button 2 label', type: 'text', default: 'Shop Men' },
+
+  // ── HERO blocks ───────────────────────────────────────────────────────────
+  'hero.media': [
+    { key: 'fullScreen',     label: 'Full-screen banner', type: 'toggle', default: true, persistedPath: 'hero.fullScreen' },
+    { key: 'image',          label: 'Background image', type: 'media', accept: 'image', persistedPath: 'hero.image' },
+    { key: 'video',          label: 'Background video (optional)', type: 'media', accept: 'video', persistedPath: 'hero.video' },
+    { key: 'overlayOpacity', label: 'Overlay strength', type: 'range', min: 0, max: 90, default: 40, unit: '%', persistedPath: 'hero.overlayOpacity' },
   ],
+  'hero.heading': [
+    { key: 'eyebrow',  label: 'Eyebrow (small caps)', type: 'text', persistedPath: 'hero.eyebrow' },
+    { key: 'title',    label: 'Heading (Enter = new line)', type: 'textarea', persistedPath: 'hero.title' },
+    { key: 'subtitle', label: 'Subtitle', type: 'textarea', persistedPath: 'hero.subtitle' },
+    { key: 'align',    label: 'Text alignment', type: 'segment', default: 'left', options: [['left', 'Left'], ['center', 'Center']], persistedPath: 'hero.align' },
+    { key: 'badges',   label: 'Trust line (one per line)', type: 'lines', persistedPath: 'hero.badges' },
+  ],
+  'hero.button': [
+    { key: 'showButtons', label: 'Show buttons', type: 'toggle', default: true, persistedPath: 'hero.showButtons' },
+    { key: 'ctaStyle',    label: 'Button style', type: 'segment', default: 'buttons', options: [['buttons', '2 buttons'], ['dropdown', 'Dropdown']], persistedPath: 'hero.ctaStyle' },
+    { key: 'ctaWomen',    label: 'Button 1 label', type: 'text', default: 'Shop Women', persistedPath: 'hero.ctaWomen' },
+    { key: 'ctaMen',      label: 'Button 2 label', type: 'text', default: 'Shop Men', persistedPath: 'hero.ctaMen', showIf: (s) => s?.hero?.ctaStyle !== 'dropdown' },
+    { key: 'shopMenu',    label: 'Dropdown links', type: 'menu', persistedPath: 'hero.shopMenu', showIf: (s) => s?.hero?.ctaStyle === 'dropdown' },
+  ],
+
   signatureSplit: [
     { key: 'enabled',        label: 'Show section',       type: 'toggle', default: true },
     { key: 'eyebrow',        label: 'Eyebrow',            type: 'text' },
@@ -76,7 +123,7 @@ const FIELD_SCHEMA = {
     { key: 'textColor',      label: 'Text colour',        type: 'color', default: '#F7F5F1' },
     { key: 'titleFont',      label: 'Title font',         type: 'select', options: [['display', 'Serif (Cormorant)'], ['sans', 'Sans (Inter)']], default: 'display' },
     { key: 'textShadow',     label: 'Text soft glow',     type: 'toggle', default: true },
-    { key: 'overlayOpacity', label: 'Image overlay',      type: 'range', min: 0, max: 80, default: 25 },
+    { key: 'overlayOpacity', label: 'Image overlay',      type: 'range', min: 0, max: 80, default: 25, unit: '%' },
     { key: 'leftImage',      label: 'Left image (Women)', type: 'media', accept: 'image' },
     { key: 'leftVideo',      label: 'Left video (optional)', type: 'media', accept: 'video' },
     { key: 'leftCtaLabel',   label: 'Left button label',  type: 'text', default: 'Shop Women' },
@@ -105,8 +152,32 @@ const FIELD_SCHEMA = {
     { key: 'title',   label: 'Title',   type: 'text' },
     { key: 'text',    label: 'Message', type: 'textarea' },
   ],
-  footer: [
-    { key: '_note', label: 'Footer links (Help / Policies) are auto-linked to /faq /privacy /terms /returns. Contact info comes from the Header section above.', type: 'note' },
+
+  // ── FOOTER blocks ─────────────────────────────────────────────────────────
+  'footer.newsletter': [
+    { key: 'showNewsletter',  label: 'Show newsletter', type: 'toggle', default: true, persistedPath: 'footer.showNewsletter' },
+    { key: 'newsletterTitle', label: 'Title',   type: 'text', persistedPath: 'footer.newsletterTitle' },
+    { key: 'newsletterText',  label: 'Message', type: 'textarea', persistedPath: 'footer.newsletterText' },
+  ],
+  'footer.about': [
+    { key: 'storeName', label: 'Store name', type: 'text', persistedPath: 'storeName' },
+    { key: 'aboutText', label: 'About text', type: 'textarea', persistedPath: 'footer.aboutText' },
+    { key: 'tagline',   label: 'Small tagline', type: 'text', persistedPath: 'footer.tagline' },
+    { key: 'showSocial',label: 'Show social icons', type: 'toggle', default: true, persistedPath: 'footer.showSocial' },
+  ],
+  'footer.columns': [
+    { key: 'columns', label: 'Link columns', type: 'columns', persistedPath: 'footer.columns' },
+  ],
+  'footer.contact': [
+    { key: 'showContact',  label: 'Show contact column', type: 'toggle', default: true, persistedPath: 'footer.showContact' },
+    { key: 'contactTitle', label: 'Column title', type: 'text', persistedPath: 'footer.contactTitle' },
+    { key: 'contactEmail', label: 'Email', type: 'text', persistedPath: 'contactEmail' },
+    { key: 'contactPhone', label: 'Phone', type: 'text', persistedPath: 'contactPhone' },
+    { key: 'contactNote',  label: 'Note under contact', type: 'text', persistedPath: 'footer.contactNote' },
+    { key: 'paymentNote',  label: 'Payment line', type: 'text', persistedPath: 'footer.paymentNote' },
+  ],
+  'footer.bottom': [
+    { key: 'bottomText', label: 'Bottom bar text (blank = auto ©)', type: 'text', persistedPath: 'footer.bottomText' },
   ],
 };
 
@@ -200,6 +271,8 @@ export default function ThemeEditor() {
   const [device, setDevice] = useState('desktop');
   const [openGroups, setOpenGroups] = useState({ Header: true, Template: true, Footer: true });
   const [dragId, setDragId] = useState(null);
+  const [openSections, setOpenSections] = useState({ header: true, hero: true, footer: true });
+  const [previewReady, setPreviewReady] = useState(false);
   const iframeRef = useRef(null);
 
   useEffect(() => {
@@ -212,6 +285,25 @@ export default function ThemeEditor() {
   }, []); // eslint-disable-line
 
   const dirty = useMemo(() => JSON.stringify(settings) !== JSON.stringify(initial), [settings, initial]);
+
+  // ── Live preview ────────────────────────────────────────────────────────
+  // The iframe tells us when it is mounted, then every settings change is
+  // posted straight into it — no save, no reload, instant repaint.
+  useEffect(() => {
+    const onMsg = (e) => { if (e.data?.type === PREVIEW_READY) setPreviewReady(true); };
+    window.addEventListener('message', onMsg);
+    return () => window.removeEventListener('message', onMsg);
+  }, []);
+
+  useEffect(() => {
+    if (!previewReady || !settings) return;
+    pushPreview(iframeRef.current, settings);
+  }, [settings, previewReady]);
+
+  // Selecting a block scrolls the preview to it and flashes an outline
+  const selectAndScroll = (domId) => {
+    if (domId) pushSelect(iframeRef.current, domId);
+  };
 
   const pushHistory = (prev) => { setHistory((h) => [...h.slice(-30), prev]); setFuture([]); };
   const undo = () => {
@@ -269,7 +361,8 @@ export default function ThemeEditor() {
     try {
       const body = {};
       ['storeName', 'contactEmail', 'contactPhone', 'hero', 'signatureSplit', 'offerBar',
-        'marquee', 'promoPopup', 'cookiePopup', 'trustBadges', 'productSections'].forEach((k) => {
+        'marquee', 'promoPopup', 'cookiePopup', 'trustBadges', 'productSections',
+        'header', 'footer'].forEach((k) => {
         if (settings[k] !== undefined) body[k] = settings[k];
       });
       await api('/settings', { method: 'PUT', token: auth.token, body });
@@ -347,14 +440,53 @@ export default function ThemeEditor() {
                 <div className="pb-2">
                   {items.map((it) => {
                     const Icon = it.icon;
+                    const hasBlocks = Array.isArray(it.blocks) && it.blocks.length > 0;
+                    const expanded = openSections[it.id] !== false;
                     const active = activeSection?.id === it.id;
                     return (
-                      <button key={it.id}
-                        onClick={() => { setActivePs(null); setActiveSection({ group, ...it }); }}
-                        className={`group flex w-full items-center gap-3 px-4 py-2.5 text-left transition ${active ? 'bg-neutral-100 text-neutral-900' : 'text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900'}`}>
-                        <Icon size={15} className={active ? 'text-neutral-900' : 'text-neutral-500'} />
-                        <span className="text-sm">{it.label}</span>
-                      </button>
+                      <div key={it.id}>
+                        <div className={`group flex w-full items-center transition ${active ? 'bg-neutral-100' : 'hover:bg-neutral-50'}`}>
+                          {hasBlocks ? (
+                            <button onClick={() => setOpenSections((o) => ({ ...o, [it.id]: !expanded }))}
+                              className="grid h-9 w-6 shrink-0 place-items-center text-neutral-400 hover:text-neutral-900" aria-label="Toggle blocks">
+                              {expanded ? <ChevronDown size={13} /> : <ChevronRight size={13} />}
+                            </button>
+                          ) : <span className="w-6 shrink-0" />}
+                          <button
+                            onClick={() => {
+                              setActivePs(null);
+                              if (hasBlocks) {
+                                setOpenSections((o) => ({ ...o, [it.id]: true }));
+                                setActiveSection({ group, ...it.blocks[0], parent: it.label });
+                                selectAndScroll(it.blocks[0].id);
+                              } else {
+                                setActiveSection({ group, ...it });
+                                selectAndScroll(it.id);
+                              }
+                            }}
+                            className={`flex flex-1 items-center gap-2.5 py-2.5 pr-4 text-left ${active ? 'text-neutral-900' : 'text-neutral-700 hover:text-neutral-900'}`}>
+                            <Icon size={15} className={active ? 'text-neutral-900' : 'text-neutral-500'} />
+                            <span className="text-sm font-medium">{it.label}</span>
+                          </button>
+                        </div>
+
+                        {hasBlocks && expanded && (
+                          <div className="pb-1">
+                            {it.blocks.map((b) => {
+                              const BIcon = b.icon;
+                              const bActive = activeSection?.id === b.id;
+                              return (
+                                <button key={b.id}
+                                  onClick={() => { setActivePs(null); setActiveSection({ group, ...b, parent: it.label }); selectAndScroll(b.id); }}
+                                  className={`flex w-full items-center gap-2.5 py-2 pl-12 pr-4 text-left transition ${bActive ? 'bg-neutral-100 text-neutral-900' : 'text-neutral-500 hover:bg-neutral-50 hover:text-neutral-900'}`}>
+                                  <BIcon size={13} className={bActive ? 'text-neutral-900' : 'text-neutral-400'} />
+                                  <span className="text-[13px]">{b.label}</span>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
                     );
                   })}
 
@@ -426,9 +558,9 @@ export default function ThemeEditor() {
         {/* ── RIGHT: fixed-section editor ── */}
         {activeSection && activeDef && (
           <aside className="w-96 shrink-0 overflow-y-auto border-l border-neutral-200 bg-white">
-            <PanelHeader label={activeSection.label} onClose={() => setActiveSection(null)} />
+            <PanelHeader label={activeSection.label} sub={activeSection.parent} onClose={() => setActiveSection(null)} />
             <div className="space-y-4 p-4">
-              {activeDef.map((f) => (
+              {activeDef.filter((f) => !f.showIf || f.showIf(settings)).map((f) => (
                 <FieldControl key={f.key} field={f}
                   value={fixedValue(settings, activeSection, f)}
                   onChange={(v) => { const p = sectionPath(activeSection, f); if (p) updateField(p, v); }} />
@@ -474,11 +606,11 @@ export default function ThemeEditor() {
 }
 
 // ── small pieces ────────────────────────────────────────────────────────────
-function PanelHeader({ label, onClose, actions }) {
+function PanelHeader({ label, sub, onClose, actions }) {
   return (
     <div className="sticky top-0 z-10 flex items-start justify-between gap-2 border-b border-neutral-100 bg-white p-4">
       <div className="min-w-0">
-        <p className="text-[11px] font-bold uppercase tracking-widest text-neutral-500">Editing</p>
+        <p className="text-[11px] font-bold uppercase tracking-widest text-neutral-500">{sub ? `${sub} ›` : 'Editing'}</p>
         <p className="mt-0.5 truncate font-sans text-base font-semibold text-neutral-900">{label}</p>
       </div>
       <div className="flex shrink-0 items-center gap-1">
@@ -493,6 +625,7 @@ function PanelHeader({ label, onClose, actions }) {
 function sectionPath(section, field) {
   if (field.persistedPath) return field.persistedPath;
   if (field.key.startsWith('_')) return null;
+  if (!section.path) return null;   // block entries always use persistedPath
   return `${section.path}.${field.key}`;
 }
 
@@ -581,8 +714,115 @@ function FieldControl({ field, value, onChange }) {
       )}
 
       {field.type === 'media' && <MediaPicker value={v || ''} onChange={onChange} accept={field.accept} hideUrl />}
+
+      {field.type === 'menu' && <MenuEditor items={Array.isArray(v) ? v : []} onChange={onChange} />}
+
+      {field.type === 'columns' && <ColumnsEditor cols={Array.isArray(v) ? v : []} onChange={onChange} />}
     </div>
   );
 }
 
 const clampNum = (val, lo, hi) => Math.max(lo, Math.min(hi, Number(val) || lo));
+
+/* ── Menu editor — label + link rows, reorderable, with optional dropdown ─── */
+function MenuEditor({ items, onChange }) {
+  const set = (i, k, val) => onChange(items.map((x, j) => (j === i ? { ...x, [k]: val } : x)));
+  const move = (i, d) => {
+    const t = i + d;
+    if (t < 0 || t >= items.length) return;
+    const next = [...items];
+    [next[i], next[t]] = [next[t], next[i]];
+    onChange(next);
+  };
+  return (
+    <div className="space-y-2">
+      {items.map((it, i) => (
+        <div key={i} className="rounded-lg border border-neutral-200 p-2.5">
+          <div className="flex items-center gap-1.5">
+            <input className="input !py-1.5 flex-1 text-sm" placeholder="Label"
+              value={it.label || ''} onChange={(e) => set(i, 'label', e.target.value)} />
+            <button onClick={() => move(i, -1)} disabled={i === 0} title="Move up"
+              className="grid h-7 w-7 shrink-0 place-items-center rounded text-neutral-400 hover:bg-neutral-100 hover:text-neutral-900 disabled:opacity-25"><ArrowUp size={12} /></button>
+            <button onClick={() => move(i, 1)} disabled={i === items.length - 1} title="Move down"
+              className="grid h-7 w-7 shrink-0 place-items-center rounded text-neutral-400 hover:bg-neutral-100 hover:text-neutral-900 disabled:opacity-25"><ArrowDown size={12} /></button>
+            <button onClick={() => onChange(items.filter((_, j) => j !== i))} title="Remove"
+              className="grid h-7 w-7 shrink-0 place-items-center rounded text-neutral-400 hover:bg-red-50 hover:text-red-600"><Trash2 size={12} /></button>
+          </div>
+          <div className="mt-1.5 flex items-center gap-1.5">
+            <Link2 size={12} className="shrink-0 text-neutral-400" />
+            <input className="input !py-1.5 flex-1 font-mono text-xs" placeholder="/link"
+              value={it.href || ''} onChange={(e) => set(i, 'href', e.target.value)} />
+          </div>
+          {'dropdown' in it || it.dropdown !== undefined ? (
+            <div className="mt-1.5 flex items-center gap-2">
+              <select className="input !py-1.5 flex-1 text-xs" value={it.dropdown || ''}
+                onChange={(e) => set(i, 'dropdown', e.target.value)}>
+                <option value="">No dropdown</option>
+                <option value="women">Women categories</option>
+                <option value="men">Men categories</option>
+              </select>
+              <label className="flex shrink-0 items-center gap-1.5 text-xs text-neutral-600">
+                <input type="checkbox" checked={!!it.highlight} onChange={(e) => set(i, 'highlight', e.target.checked)} />
+                Accent
+              </label>
+            </div>
+          ) : null}
+        </div>
+      ))}
+      <button onClick={() => onChange([...items, { label: 'New link', href: '/', dropdown: '', highlight: false }])}
+        className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-neutral-300 py-2 text-xs font-semibold text-neutral-600 hover:border-neutral-400 hover:text-neutral-900">
+        <Plus size={13} /> Add link
+      </button>
+    </div>
+  );
+}
+
+/* ── Footer columns editor — a title plus its own list of links ───────────── */
+function ColumnsEditor({ cols, onChange }) {
+  const setCol = (i, patch) => onChange(cols.map((c, j) => (j === i ? { ...c, ...patch } : c)));
+  const moveCol = (i, d) => {
+    const t = i + d;
+    if (t < 0 || t >= cols.length) return;
+    const next = [...cols];
+    [next[i], next[t]] = [next[t], next[i]];
+    onChange(next);
+  };
+  return (
+    <div className="space-y-3">
+      {cols.map((col, i) => (
+        <div key={i} className="rounded-lg border border-neutral-200 p-3">
+          <div className="flex items-center gap-1.5">
+            <input className="input !py-1.5 flex-1 text-sm font-semibold" placeholder="Column title"
+              value={col.title || ''} onChange={(e) => setCol(i, { title: e.target.value })} />
+            <button onClick={() => moveCol(i, -1)} disabled={i === 0} title="Move left"
+              className="grid h-7 w-7 shrink-0 place-items-center rounded text-neutral-400 hover:bg-neutral-100 disabled:opacity-25"><ArrowUp size={12} /></button>
+            <button onClick={() => moveCol(i, 1)} disabled={i === cols.length - 1} title="Move right"
+              className="grid h-7 w-7 shrink-0 place-items-center rounded text-neutral-400 hover:bg-neutral-100 disabled:opacity-25"><ArrowDown size={12} /></button>
+            <button onClick={() => onChange(cols.filter((_, j) => j !== i))} title="Remove column"
+              className="grid h-7 w-7 shrink-0 place-items-center rounded text-neutral-400 hover:bg-red-50 hover:text-red-600"><Trash2 size={12} /></button>
+          </div>
+          <div className="mt-2 space-y-1.5 border-l-2 border-neutral-100 pl-2.5">
+            {(col.links || []).map((l, j) => (
+              <div key={j} className="flex items-center gap-1.5">
+                <input className="input !py-1 flex-1 text-xs" placeholder="Label" value={l.label || ''}
+                  onChange={(e) => setCol(i, { links: col.links.map((x, k) => (k === j ? { ...x, label: e.target.value } : x)) })} />
+                <input className="input !py-1 flex-1 font-mono text-[11px]" placeholder="/link" value={l.href || ''}
+                  onChange={(e) => setCol(i, { links: col.links.map((x, k) => (k === j ? { ...x, href: e.target.value } : x)) })} />
+                <button onClick={() => setCol(i, { links: col.links.filter((_, k) => k !== j) })}
+                  className="grid h-6 w-6 shrink-0 place-items-center rounded text-neutral-400 hover:bg-red-50 hover:text-red-600"><X size={11} /></button>
+              </div>
+            ))}
+            <button onClick={() => setCol(i, { links: [...(col.links || []), { label: 'New link', href: '/' }] })}
+              className="flex items-center gap-1 text-[11px] font-semibold text-neutral-500 hover:text-neutral-900">
+              <Plus size={11} /> Add link
+            </button>
+          </div>
+        </div>
+      ))}
+      <button onClick={() => onChange([...cols, { title: 'New column', links: [] }])}
+        className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-neutral-300 py-2 text-xs font-semibold text-neutral-600 hover:border-neutral-400 hover:text-neutral-900">
+        <Plus size={13} /> Add column
+      </button>
+    </div>
+  );
+}

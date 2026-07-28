@@ -349,7 +349,7 @@ function HeroFullScreen({ hero }) {
   const showButtons = hero.showButtons !== false;
 
   return (
-    <section className="relative flex min-h-[100svh] items-end overflow-hidden bg-obsidian">
+    <section data-section="hero" className="relative flex min-h-[100svh] items-end overflow-hidden bg-obsidian">
       {/* Media layer */}
       {hero.video ? (
         <video
@@ -373,7 +373,7 @@ function HeroFullScreen({ hero }) {
         {hero.eyebrow && (
           <p className="text-[10px] font-bold uppercase tracking-widest text-alabaster/80 sm:text-[11px]">{hero.eyebrow}</p>
         )}
-        <h1 className="mt-3 whitespace-pre-line font-display text-[44px] leading-[1.02] text-alabaster sm:text-5xl md:text-7xl lg:text-8xl">
+        <h1 data-section="hero.heading" className="mt-3 whitespace-pre-line font-display text-[44px] leading-[1.02] text-alabaster sm:text-5xl md:text-7xl lg:text-8xl">
           {hero.title || 'Second Skin,\nFirst Choice.'}
         </h1>
         {hero.subtitle && (
@@ -382,7 +382,7 @@ function HeroFullScreen({ hero }) {
           </p>
         )}
 
-        <div className={`mt-8 flex flex-wrap items-center gap-4 ${hero.align === 'center' ? 'justify-center' : ''}`}>
+        <div data-section="hero.button" className={`mt-8 flex flex-wrap items-center gap-4 ${hero.align === 'center' ? 'justify-center' : ''}`}>
           {showButtons && (hero.ctaStyle === 'dropdown' ? (
             <div className="relative" ref={menuRef}>
               <button

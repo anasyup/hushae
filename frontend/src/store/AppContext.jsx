@@ -3,6 +3,7 @@ import { api } from '../api/client';
 import { STR } from '../i18n/strings';
 import { snap } from '../lib/format';
 import { track } from '../lib/track';
+import { isPreview, announceReady, PREVIEW_MSG, PREVIEW_SELECT } from '../lib/livePreview';
 
 const Ctx = createContext(null);
 export const useApp = () => useContext(Ctx);
@@ -50,6 +51,30 @@ export function AppProvider({ children }) {
   useEffect(() => { LS.set('hushae.auth', auth); }, [auth]);
 
   useEffect(() => { api('/settings').then((d) => setSettings(d.settings)).catch(() => {}); }, []);
+
+  // ── Theme Editor live preview ───────────────────────────────────────────
+  // When this app runs inside the editor's iframe (?preview=1) it accepts
+  // in-memory settings pushed on every keystroke, so edits render instantly
+  // without saving. Outside the iframe this listener never activates.
+  useEffect(() => {
+    if (!isPreview()) return undefined;
+    const onMessage = (e) => {
+      const d = e.data;
+      if (!d || typeof d !== 'object') return;
+      if (d.type === PREVIEW_MSG && d.settings) setSettings(d.settings);
+      if (d.type === PREVIEW_SELECT && d.sectionId) {
+        const el = document.querySelector(`[data-section="${d.sectionId}"]`);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          el.classList.add('ps-flash');
+          setTimeout(() => el.classList.remove('ps-flash'), 1200);
+        }
+      }
+    };
+    window.addEventListener('message', onMessage);
+    announceReady();
+    return () => window.removeEventListener('message', onMessage);
+  }, []);
 
   const toast = useCallback((message) => {
     const id = Date.now() + Math.random();
