@@ -190,6 +190,52 @@ const settingsSchema = new mongoose.Schema({
       ],
     },
   },
+  // ==========================================================================
+  // Product-list sections on the home page — Shopify-style, fully admin-driven.
+  // Each entry renders one <ProductListSection>. The admin can add, remove,
+  // reorder and configure them from the Theme Editor without any code change.
+  // ==========================================================================
+  productSections: {
+    type: [{
+      _id: false,
+      id:            { type: String, required: true },   // stable key, e.g. 'ps_1723...'
+      enabled:       { type: Boolean, default: true },
+      // --- Source -----------------------------------------------------------
+      // featured | bestSeller | sale | newest | trending | category | manual
+      source:        { type: String,  default: 'featured' },
+      categorySlug:  { type: String,  default: '' },      // when source === 'category'
+      gender:        { type: String,  default: '' },      // '' | women | men — extra filter
+      productIds:    { type: [String], default: [] },     // when source === 'manual'
+      sort:          { type: String,  default: 'newest' },// newest|popular|price-asc|price-desc
+      // --- Header -----------------------------------------------------------
+      eyebrow:       { type: String,  default: '' },
+      heading:       { type: String,  default: 'Featured collection' },
+      note:          { type: String,  default: '' },      // small right-aligned text
+      showViewAll:   { type: Boolean, default: true },
+      viewAllLabel:  { type: String,  default: 'View all' },
+      viewAllHref:   { type: String,  default: '/shop' },
+      headingAlign:  { type: String,  default: 'left' },  // left|center|right
+      // --- Layout -----------------------------------------------------------
+      layout:        { type: String,  default: 'grid' },  // grid | carousel
+      carouselOnMobile: { type: Boolean, default: false },
+      productCount:  { type: Number,  default: 8 },       // 2..24
+      columns:       { type: Number,  default: 4 },       // 2..6 (desktop)
+      mobileColumns: { type: Number,  default: 2 },       // 1..2
+      gapX:          { type: Number,  default: 8 },       // px
+      gapY:          { type: Number,  default: 24 },      // px
+      width:         { type: String,  default: 'page' },  // page | full
+      paddingTop:    { type: Number,  default: 48 },      // px
+      paddingBottom: { type: Number,  default: 48 },      // px
+      background:    { type: String,  default: '' },      // '' = transparent, else hex
+      // --- Product card ------------------------------------------------------
+      showPrice:     { type: Boolean, default: true },
+      showSaleBadge: { type: Boolean, default: true },
+      showQuickAdd:  { type: Boolean, default: true },
+      showWishlist:  { type: Boolean, default: true },
+      imageRatio:    { type: String,  default: 'portrait' }, // portrait|square|tall
+    }],
+    default: [],
+  },
   // Operating costs — used by Dashboard P&L to calculate true profit
   operatingCosts: {
     packingPerOrder:  { type: Number, default: 0 },    // PKR per shipped order (packaging materials)

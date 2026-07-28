@@ -10,7 +10,17 @@ import Img from './Img';
  * The primary image is shown at all times. Image-swapping on hover was
  * removed at user request — no auto-flip on any device, ever.
  */
-export default function ProductCard({ product: p, compact = false }) {
+export default function ProductCard({
+  product: p,
+  compact = false,
+  // Theme-Editor driven overrides (settings.productSections). Defaults keep
+  // every existing caller behaving exactly as before.
+  ratio = null,
+  showPrice = true,
+  showSaleBadge = true,
+  showQuickAdd = true,
+  showWishlist = true,
+}) {
   const { inWishlist, toggleWish, addToCart } = useApp();
   const [sizePick, setSizePick] = useState(false);
 
@@ -18,6 +28,7 @@ export default function ProductCard({ product: p, compact = false }) {
   const images = (p.images || []).filter((im) => im && (im.url || typeof im === 'string'));
   const primary = images[0]?.url || images[0] || p.image;
   const sizes = p.sizes || [];
+  const ratioCls = ratio || (compact ? 'aspect-[3/4]' : 'aspect-[4/5]');
 
   return (
     <div className="group relative" onMouseLeave={() => setSizePick(false)}>
@@ -27,19 +38,21 @@ export default function ProductCard({ product: p, compact = false }) {
           <Img
             src={primary}
             alt={p.name}
-            className={`w-full object-cover ${compact ? 'aspect-[3/4]' : 'aspect-[4/5]'}`}
+            className={`w-full object-cover ${ratioCls}`}
           />
         </Link>
 
-        {p.compareAtPrice && <span className="pill absolute left-3 top-3 bg-sage/85 text-obsidian">Save {Math.round((1 - p.price / p.compareAtPrice) * 100)}%</span>}
+        {showSaleBadge && p.compareAtPrice && <span className="pill absolute left-3 top-3 bg-sage/85 text-obsidian">Save {Math.round((1 - p.price / p.compareAtPrice) * 100)}%</span>}
         {p.stock === 0 && <span className="pill absolute left-3 top-3 bg-obsidian/80 text-alabaster">Sold out</span>}
 
-        <button onClick={() => toggleWish(p)} aria-label="Wishlist"
-          className={`absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full bg-alabaster/90 shadow-card transition hover:scale-105 ${wished ? 'text-obsidian' : 'text-ash'}`}>
-          <Heart size={16} fill={wished ? 'currentColor' : 'none'} />
-        </button>
+        {showWishlist && (
+          <button onClick={() => toggleWish(p)} aria-label="Wishlist"
+            className={`absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full bg-alabaster/90 shadow-card transition hover:scale-105 ${wished ? 'text-obsidian' : 'text-ash'}`}>
+            <Heart size={16} fill={wished ? 'currentColor' : 'none'} />
+          </button>
+        )}
 
-        {p.stock > 0 && (
+        {showQuickAdd && p.stock > 0 && (
           <div className={`absolute inset-x-3 bottom-3 transition-all duration-300 ${sizePick ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100'}`}>
             {sizePick ? (
               <div className="rounded-2xl bg-alabaster/95 p-2.5 shadow-soft backdrop-blur">
@@ -67,10 +80,12 @@ export default function ProductCard({ product: p, compact = false }) {
         <div className="flex items-start justify-between gap-2">
           <Link to={`/product/${p.slug}`} className="clamp-2 text-sm font-medium leading-snug text-obsidian hover:underline">{p.name}</Link>
         </div>
-        <div className="mt-1 flex items-center gap-2">
-          <span className="text-sm font-semibold">{pkr(p.price)}</span>
-          {p.compareAtPrice && <span className="text-xs text-ash line-through">{pkr(p.compareAtPrice)}</span>}
-        </div>
+        {showPrice && (
+          <div className="mt-1 flex items-center gap-2">
+            <span className="text-sm font-semibold">{pkr(p.price)}</span>
+            {p.compareAtPrice && <span className="text-xs text-ash line-through">{pkr(p.compareAtPrice)}</span>}
+          </div>
+        )}
       </div>
     </div>
   );

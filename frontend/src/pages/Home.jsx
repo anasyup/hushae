@@ -13,6 +13,7 @@ import EditorialBlock from '../components/EditorialBlock';
 import SignatureSplitHero from '../components/SignatureSplitHero';
 import TrustBadges from '../components/TrustBadges';
 import ProductRow from '../components/ProductRow';
+import { AnimatedProductListSection } from '../components/ProductListSection';
 import { ProductGridSkeleton } from '../components/Skeletons';
 import Seo, { organizationJsonLd } from '../components/Seo';
 
@@ -160,6 +161,16 @@ export default function Home() {
       />
 
       <Marquee />
+
+      {/* ══════════════════════════════════════════════════════════════════
+          ADMIN-BUILT PRODUCT SECTIONS
+          Everything here is created and configured from the Theme Editor
+          (/admin/theme → Template → Product sections). Add, remove, reorder
+          and restyle rows without touching code.
+          ══════════════════════════════════════════════════════════════════ */}
+      {(s.productSections || []).map((ps) => (
+        <AnimatedProductListSection key={ps.id} cfg={ps} />
+      ))}
 
       {/* Featured collections — pulls collections flagged featuredOnHome by admin */}
       <FeaturedCollections />

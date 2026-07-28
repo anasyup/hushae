@@ -169,3 +169,22 @@
 .inv-footer { margin-top: 48px; text-align: center; }
 .inv-thanks { font-size: 16px; font-style: italic; }
 .inv-foot { font-size: 11px; color: #6b6b6b; margin-top: 6px; letter-spacing: 0.06em; }
+
+/* ==========================================================================
+   Admin-configurable product sections (settings.productSections)
+   Column counts come from CSS custom properties so the merchant can pick any
+   value in the Theme Editor — Tailwind can't generate these classes at build
+   time because the numbers are only known at runtime.
+   ========================================================================== */
+.ps-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--ps-mcols, 2), minmax(0, 1fr));
+}
+@media (min-width: 768px) {
+  .ps-grid { grid-template-columns: repeat(var(--ps-cols, 4), minmax(0, 1fr)); }
+}
+/* Carousel slide width tracks the desktop column count */
+.ps-slide { width: 68%; }
+@media (min-width: 768px) {
+  .ps-slide { width: calc((100% - (var(--ps-cols, 4) - 1) * var(--ps-gap, 8px)) / var(--ps-cols, 4)); }
+}
