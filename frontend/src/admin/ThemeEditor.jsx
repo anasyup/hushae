@@ -48,7 +48,7 @@ const FIELD_SCHEMA = {
   offerBar: [
     { key: 'enabled',   label: 'Show announcement bar', type: 'toggle', default: true },
     { key: 'messageEn', label: 'Message',   type: 'text',   default: 'Season Sale — up to 40% off · while stock lasts' },
-    { key: 'ctaEn',     label: 'Button label', type: 'text', default: 'Shop the sale' },
+    { key: 'ctaEn',     label: 'Button label', type: 'text', default: 'Shop the Sale' },
     { key: 'link',      label: 'Button link', type: 'text',  default: '/sale' },
   ],
   header: [
@@ -100,14 +100,14 @@ const FIELD_SCHEMA = {
   promoPopup: [
     { key: 'enabled',    label: 'Show popup',    type: 'toggle', default: true },
     { key: 'title',      label: 'Title',         type: 'text',   default: 'Join the HUSHAE inner circle' },
-    { key: 'subtitle',   label: 'Subtitle',      type: 'text' },
+    { key: 'text',       label: 'Message',       type: 'textarea' },
     { key: 'couponCode', label: 'Reward coupon', type: 'text',   default: 'WELCOME10' },
     { key: 'delaySec',   label: 'Show after (seconds)', type: 'number', default: 18 },
   ],
   cookiePopup: [
     { key: 'enabled', label: 'Show cookie banner', type: 'toggle', default: true },
     { key: 'title',   label: 'Title',   type: 'text' },
-    { key: 'body',    label: 'Message', type: 'textarea' },
+    { key: 'text',    label: 'Message', type: 'textarea' },
   ],
   footer: [
     { key: '_note', label: 'Footer links (Help / Policies) are auto-linked to /faq /privacy /terms /returns. Contact info comes from Header section above.', type: 'note' },
