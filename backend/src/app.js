@@ -41,6 +41,7 @@ app.use('/api/backup', require('./routes/backup'));
 app.use('/api/payments', require('./routes/payments'));
 app.use('/api/collections', require('./routes/collections'));
 app.use('/api/reviews', require('./routes/reviews'));
+app.use('/api/theme', require('./routes/theme'));
 
 app.use('/api', (req, res) => res.status(404).json({ message: 'Not found' }));
 

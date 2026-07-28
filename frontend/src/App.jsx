@@ -1,6 +1,7 @@
-import { Component, useEffect } from 'react';
+import {Component, useEffect, lazy, Suspense} from 'react';
 import { Route, Routes, useLocation, useParams } from 'react-router-dom';
 import Header from './components/Header';
+import { useThemeDoc } from './theme-editor/useThemeDoc';
 import Footer from './components/Footer';
 import CartDrawer from './components/CartDrawer';
 import Toasts from './components/Toasts';
@@ -52,6 +53,14 @@ import Reviews from './admin/Reviews';
 import AdminFaq from './admin/Faq';
 import ThemeEditor from './admin/ThemeEditor';
 
+// The visual editor and its preview are heavy and admin-only — load on demand.
+const ThemeEditorApp = lazy(() => import('./theme-editor/ThemeEditorApp'));
+const PreviewApp = lazy(() => import('./theme-editor/ui/PreviewApp'));
+const ThemedHome = lazy(() => import('./theme-editor/ThemedHome'));
+const EditorFallback = () => (
+  <div className="grid h-screen place-items-center text-sm text-neutral-400">Loading editor…</div>
+);
+
 import WhatsAppFloat from './components/WhatsAppFloat';
 import StoreLock from './components/StoreLock';
 import CookieConsent from './components/CookieConsent';
@@ -101,17 +110,27 @@ class ErrorBoundary extends Component {
 export default function App() {
   const { pathname } = useLocation();
   const isAdmin = pathname.startsWith('/admin');
+  const { themed } = useThemeDoc();
+  // A published theme document renders its own header and footer on the home
+  // page, so the legacy chrome is suppressed there to avoid duplicates.
+  const themedHome = themed && pathname === '/';
+
+  // Theme-editor preview iframe renders bare — no storefront chrome, no
+  // StoreLock, no analytics. It receives its document over postMessage.
+  if (pathname === '/__theme-preview') {
+    return <Suspense fallback={<EditorFallback />}><PreviewApp /></Suspense>;
+  }
 
   return (
     <div className="flex min-h-screen flex-col">
       <ScrollToTop />
       <Tracker />
-      {!isAdmin && <Header />}
+      {!isAdmin && !themedHome && <Header />}
       <main className="flex-1">
         <ErrorBoundary key={pathname}>
         <StoreLock>
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<Suspense fallback={<div style={{ minHeight: '60vh' }} />}><ThemedHome fallback={Home} /></Suspense>} />
           <Route path="/shop" element={<Shop preset={{ key: 'all' }} />} />
           <Route path="/women" element={<Shop preset={{ key: 'women', gender: 'women' }} />} />
           <Route path="/men" element={<Shop preset={{ key: 'men', gender: 'men' }} />} />
@@ -165,7 +184,8 @@ export default function App() {
 
           <Route path="/admin/faq" element={<AdminFaq />} />
 
-          <Route path="/admin/theme" element={<ThemeEditor />} />
+          <Route path="/admin/theme" element={<Suspense fallback={<EditorFallback />}><ThemeEditorApp /></Suspense>} />
+          <Route path="/admin/theme-legacy" element={<ThemeEditor />} />
 
           <Route path="/admin/backup" element={<Backup />} />
           <Route path="/admin/payments" element={<Payments />} />
@@ -177,7 +197,7 @@ export default function App() {
         </StoreLock>
         </ErrorBoundary>
       </main>
-      {!isAdmin && <Footer />}
+      {!isAdmin && !themedHome && <Footer />}
       {!isAdmin && <CartDrawer />}
       {!isAdmin && <WhatsAppFloat />}
       {!isAdmin && <CookieConsent />}
