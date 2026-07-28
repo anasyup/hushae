@@ -502,6 +502,70 @@ router.get('/export/csv', protect, adminOnly, asyncHandler(async (req, res) => {
   res.send('\uFEFF' + lines.join('\n'));   // BOM so Excel reads UTF-8
 }));
 
+
+/* ── BATCH PRINT DATA ─────────────────────────────────────────────────────
+ * One call returns everything needed to lay out N documents in a single print
+ * window. Used by "select all → Print", so the merchant gets one browser
+ * dialog rather than one tab per order.
+ * ------------------------------------------------------------------------ */
+router.get('/print/batch', protect, adminOnly, asyncHandler(async (req, res) => {
+  const docType = String(req.query.doc || 'packing_slip').replace(/-/g, '_');
+  if (!['invoice', 'packing_slip', 'pick_list'].includes(docType)) {
+    return res.status(400).json({ message: 'Invalid document type' });
+  }
+
+  // Either an explicit id list, or every order matching the current filters.
+  let orders;
+  if (req.query.ids) {
+    const ids = String(req.query.ids).split(',').map((x) => x.trim()).filter(isId);
+    if (!ids.length) return res.status(400).json({ message: 'No valid order ids' });
+    if (ids.length > 500) return res.status(400).json({ message: 'Print at most 500 orders at once' });
+    const rows = await Order.find({ _id: { $in: ids } }).lean();
+    const rank = new Map(ids.map((id, i) => [id, i]));
+    orders = rows.sort((a, b) => (rank.get(String(a._id)) ?? 0) - (rank.get(String(b._id)) ?? 0));
+  } else {
+    orders = await Order.find(buildFilter(req.query)).sort(SORTS[req.query.sort] || SORTS.oldest).limit(500).lean();
+  }
+
+  const settings = await require('../models/Settings').findOne({ key: 'store' }).lean();
+
+  res.json({
+    docType,
+    count: orders.length,
+    store: {
+      name: settings?.storeName || 'HUSHAE',
+      tagline: settings?.tagline || '',
+      phone: settings?.contactPhone || '',
+      email: settings?.contactEmail || '',
+    },
+    orders: orders.map((o) => ({
+      ...withStage(o),
+      // Pre-computed so the print view stays dumb and fast
+      itemCount: (o.items || []).reduce((a, i) => a + (i.quantity || 0), 0),
+      lineCount: (o.items || []).length,
+      paymentLabel: (o.paymentState === 'Confirmed' || o.paymentStatus === 'Paid')
+        ? 'PAID'
+        : (o.paymentMethod === 'COD' ? 'COD' : o.paymentMethod.toUpperCase()),
+    })),
+  });
+}));
+
+/* ── SPEC ALIASES ─────────────────────────────────────────────────────────
+ * Thin wrappers so the documented endpoint names resolve. They delegate to the
+ * same handlers as /bulk so behaviour can never drift between the two.
+ * ------------------------------------------------------------------------ */
+router.post('/bulk-update-status', protect, adminOnly, bulkLimit, (req, res, next) => {
+  req.body = { action: 'stage', ids: req.body?.ids || [], payload: { stage: req.body?.stage, note: req.body?.note } };
+  req.url = '/bulk';
+  router.handle(req, res, next);
+});
+
+router.post('/mark-paid', protect, adminOnly, bulkLimit, (req, res, next) => {
+  req.body = { action: 'mark-paid', ids: req.body?.ids || [], payload: {} };
+  req.url = '/bulk';
+  router.handle(req, res, next);
+});
+
 /* ── ANALYTICS ────────────────────────────────────────────────────────────── */
 router.get('/analytics/summary', protect, adminOnly, asyncHandler(async (req, res) => {
   const days = clampInt(req.query.days, 1, 365, 30);

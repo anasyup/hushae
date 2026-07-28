@@ -9,7 +9,7 @@ import { PRINT_DOCS, STAGES } from './orderConstants';
  * Destructive actions route through a confirmation modal.
  * ========================================================================== */
 
-export default function BulkBar({ selected, total, onClear, onSelectAll, onBulk, onExport }) {
+export default function BulkBar({ selected, total, onClear, onSelectAll, onBulk, onExport, onPrint, canAdvance = true }) {
   const [busy, setBusy] = useState('');
   const [confirm, setConfirm] = useState(null);   // { action, title, body, danger, payload }
   const [stageOpen, setStageOpen] = useState(false);
@@ -42,7 +42,9 @@ export default function BulkBar({ selected, total, onClear, onSelectAll, onBulk,
         </button>
         <span className="mx-1 h-5 w-px bg-white/20" />
 
-        <button disabled={!!busy} onClick={() => run('approve')} className={`${btn} bg-white text-neutral-900 hover:bg-neutral-100`}>
+        <button disabled={!!busy || !canAdvance} onClick={() => run('approve')}
+          title={canAdvance ? 'Move every selected order one stage forward' : 'Nothing in this selection can move forward'}
+          className={`${btn} bg-white text-neutral-900 hover:bg-neutral-100`}>
           {busy === 'approve' ? <Loader2 size={13} className="animate-spin" /> : <CheckCheck size={13} />} Advance stage
         </button>
 
@@ -88,9 +90,13 @@ export default function BulkBar({ selected, total, onClear, onSelectAll, onBulk,
           {printOpen && (
             <div className="absolute left-0 top-9 z-40 w-52 rounded-lg border border-neutral-200 bg-white py-1 text-neutral-800 shadow-xl">
               {PRINT_DOCS.map((d) => (
-                <button key={d.key} onClick={() => run('print', { docType: d.key })}
-                  className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-[13px] hover:bg-neutral-100">
-                  <d.icon size={13} className="text-neutral-500" /> {d.label}
+                <button key={d.key} onClick={() => { setPrintOpen(false); onPrint(d.key); }}
+                  className="flex w-full items-start gap-2 px-3 py-1.5 text-left hover:bg-neutral-100">
+                  <d.icon size={13} className="mt-0.5 shrink-0 text-neutral-500" />
+                  <span>
+                    <span className="block text-[13px]">{d.label}</span>
+                    <span className="block text-[10.5px] text-neutral-400">{d.hint}</span>
+                  </span>
                 </button>
               ))}
             </div>

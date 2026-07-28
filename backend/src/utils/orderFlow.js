@@ -11,23 +11,24 @@ const OrderNotification = require('../models/OrderNotification');
 
 /** Ordered pipeline. `legacy` maps each stage onto the original status enum. */
 const STAGES = [
-  { key: 'New',              label: 'New',                legacy: 'Pending',          group: 'new' },
-  { key: 'To Pack',          label: 'To Pack',            legacy: 'Confirmed',        group: 'to-ship' },
-  { key: 'To Arrange',       label: 'To Arrange Shipment', legacy: 'Processing',      group: 'to-ship' },
-  { key: 'To Handover',      label: 'To Handover',        legacy: 'Ready to Ship',    group: 'to-ship' },
-  { key: 'Picked',           label: 'Picked',             legacy: 'Processing',       group: 'to-ship' },
-  { key: 'Packed',           label: 'Packed',             legacy: 'Ready to Ship',    group: 'to-ship' },
-  { key: 'Manifested',       label: 'Manifested',         legacy: 'Ready to Ship',    group: 'to-ship' },
-  { key: 'Shipped',          label: 'Shipped',            legacy: 'Shipped',          group: 'shipping' },
-  { key: 'In Transit',       label: 'In Transit',         legacy: 'Shipped',          group: 'shipping' },
-  { key: 'Out for Delivery', label: 'Out for Delivery',   legacy: 'Out for Delivery', group: 'shipping' },
-  { key: 'Delivered',        label: 'Delivered',          legacy: 'Delivered',        group: 'done' },
-  { key: 'Completed',        label: 'Completed',          legacy: 'Delivered',        group: 'done' },
+  // group === the tab the order appears under on the order desk
+  { key: 'New',              label: 'New',                 legacy: 'Pending',          group: 'new' },
+  { key: 'To Pack',          label: 'To Pack',             legacy: 'Confirmed',        group: 'processing' },
+  { key: 'To Arrange',       label: 'To Arrange Shipment', legacy: 'Processing',       group: 'processing' },
+  { key: 'Picked',           label: 'Picked',              legacy: 'Processing',       group: 'processing' },
+  { key: 'Packed',           label: 'Packed',              legacy: 'Ready to Ship',    group: 'to-ship' },
+  { key: 'Manifested',       label: 'Manifested',          legacy: 'Ready to Ship',    group: 'to-ship' },
+  { key: 'To Handover',      label: 'To Handover',         legacy: 'Ready to Ship',    group: 'to-ship' },
+  { key: 'Shipped',          label: 'Shipped',             legacy: 'Shipped',          group: 'shipped' },
+  { key: 'In Transit',       label: 'In Transit',          legacy: 'Shipped',          group: 'shipped' },
+  { key: 'Out for Delivery', label: 'Out for Delivery',    legacy: 'Out for Delivery', group: 'shipped' },
+  { key: 'Delivered',        label: 'Delivered',           legacy: 'Delivered',        group: 'delivered' },
+  { key: 'Completed',        label: 'Completed',           legacy: 'Delivered',        group: 'delivered' },
   // Terminal exits — reachable from almost anywhere.
-  { key: 'Cancelled',        label: 'Cancelled',          legacy: 'Cancelled',        group: 'issues', terminal: true },
-  { key: 'Refunded',         label: 'Refunded',           legacy: 'Refunded',         group: 'issues', terminal: true },
-  { key: 'Returned',         label: 'Returned',           legacy: 'Refunded',         group: 'issues', terminal: true },
-  { key: 'Failed Delivery',  label: 'Failed Delivery',    legacy: 'Out for Delivery', group: 'issues' },
+  { key: 'Cancelled',        label: 'Cancelled',           legacy: 'Cancelled',        group: 'issues', terminal: true },
+  { key: 'Refunded',         label: 'Refunded',            legacy: 'Refunded',         group: 'issues', terminal: true },
+  { key: 'Returned',         label: 'Returned',            legacy: 'Refunded',         group: 'issues', terminal: true },
+  { key: 'Failed Delivery',  label: 'Failed Delivery',     legacy: 'Out for Delivery', group: 'issues' },
 ];
 
 const STAGE_KEYS = STAGES.map((s) => s.key);
