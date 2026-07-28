@@ -13,6 +13,7 @@ import OrderFilters from './OrderFilters';
 import BulkBar from './BulkBar';
 import OrderRow from './OrderRow';
 import OrderAnalytics from './OrderAnalytics';
+import PrintPreview from './PrintPreview';
 
 /* ============================================================================
  * Order desk — the enhanced /admin/orders screen.
@@ -37,25 +38,45 @@ export default function OrdersDesk() {
   const [showAnalytics, setShowAnalytics] = useState(false);
   const [showNotes, setShowNotes] = useState(false);
   const [serviceFor, setServiceFor] = useState(null);
+  const [printJob, setPrintJob] = useState(null);      // { docType, ids }
+  const [selectAllMatching, setSelectAllMatching] = useState(false);
 
   const orders = data.orders || [];
   const ids = useMemo(() => orders.map((o) => o._id), [orders]);
 
-  // Drop selections that scrolled out of the current result set
+  // Selection clears when the tab changes, but survives filter and sort tweaks.
   useEffect(() => {
-    setSelected((s) => s.filter((id) => ids.includes(id)));
-  }, [ids]);
+    setSelected([]);
+    setSelectAllMatching(false);
+  }, [filters.group]);
 
   const toggle = useCallback((id) =>
     setSelected((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id])), []);
   const allOnPage = orders.length > 0 && selected.length === orders.length;
 
-  // Print opens the printable view and records the event
-  const handlePrint = useCallback(async (order, docType) => {
-    try { await recordPrint(order._id, docType); } catch { /* the window still opens */ }
-    if (docType === 'invoice') window.open(`/admin/orders/${order._id}/invoice`, '_blank', 'noopener');
-    else window.open(`/admin/orders/${order._id}/print/${docType}`, '_blank', 'noopener');
-  }, [recordPrint]);
+  // Both single-order and bulk printing go through one preview, so the
+  // merchant always gets a single browser print dialog.
+  const handlePrint = useCallback((order, docType) => {
+    setPrintJob({ docType, ids: [order._id] });
+  }, []);
+
+  const handleBulkPrint = useCallback((docType) => {
+    setPrintJob({ docType, ids: selectAllMatching ? null : selected });
+  }, [selected, selectAllMatching]);
+
+  // Record the print once the dialog has been opened.
+  const afterPrint = useCallback((printedIds) => {
+    if (!printedIds?.length) return;
+    bulk('print', printedIds.slice(0, 200), { docType: printJob?.docType || 'invoice' }).catch(() => {});
+  }, [bulk, printJob]);
+
+  // Advance is pointless when nothing selected can move forward.
+  const canAdvance = useMemo(() => {
+    const chosen = orders.filter((o) => selected.includes(o._id));
+    if (!chosen.length) return true;                 // select-all-matching case
+    return chosen.some((o) => (o.allowedNext || []).some(
+      (n) => !['Cancelled', 'Refunded', 'Returned', 'Failed Delivery'].includes(n)));
+  }, [orders, selected]);
 
   const group = filters.group || 'all';
 
@@ -153,10 +174,20 @@ export default function OrdersDesk() {
 
         <BulkBar
           selected={selected} total={data.total}
-          onClear={() => setSelected([])}
-          onSelectAll={() => setSelected(ids)}
+          onClear={() => { setSelected([]); setSelectAllMatching(false); }}
+          onSelectAll={() => { setSelected(ids); setSelectAllMatching(true); }}
           onBulk={bulk} onExport={exportCsv}
+          onPrint={handleBulkPrint} canAdvance={canAdvance}
         />
+
+        {selectAllMatching && data.total > orders.length && (
+          <p className="rounded-lg bg-amber-50 px-3 py-2 text-[12.5px] text-amber-800">
+            All <strong>{data.total}</strong> matching orders are targeted — actions apply beyond this page.
+            <button onClick={() => setSelectAllMatching(false)} className="ml-2 font-semibold underline">
+              Limit to this page
+            </button>
+          </p>
+        )}
 
         {/* ── Select-all row ─────────────────────────────────────────────── */}
         {orders.length > 0 && (
@@ -226,6 +257,17 @@ export default function OrdersDesk() {
           </div>
         )}
       </div>
+
+      {printJob && (
+        <PrintPreview
+          docType={printJob.docType}
+          ids={printJob.ids}
+          filters={printJob.ids ? null : filters}
+          token={auth?.token}
+          onClose={() => setPrintJob(null)}
+          onPrinted={afterPrint}
+        />
+      )}
 
       {serviceFor && (
         <IssueModal order={serviceFor} token={auth?.token} toast={toast}

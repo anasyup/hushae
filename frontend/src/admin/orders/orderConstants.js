@@ -10,17 +10,17 @@ import {
 
 export const STAGES = [
   { key: 'New',              label: 'New',                 group: 'new',      icon: Clock,         tone: 'red' },
-  { key: 'To Pack',          label: 'To Pack',             group: 'to-ship',  icon: Box,           tone: 'amber' },
-  { key: 'To Arrange',       label: 'To Arrange Shipment', group: 'to-ship',  icon: Send,          tone: 'amber' },
-  { key: 'To Handover',      label: 'To Handover',         group: 'to-ship',  icon: PackageCheck,  tone: 'amber' },
-  { key: 'Picked',           label: 'Picked',              group: 'to-ship',  icon: PackageSearch, tone: 'amber' },
-  { key: 'Packed',           label: 'Packed',              group: 'to-ship',  icon: Package,       tone: 'amber' },
-  { key: 'Manifested',       label: 'Manifested',          group: 'to-ship',  icon: ClipboardList, tone: 'amber' },
-  { key: 'Shipped',          label: 'Shipped',             group: 'shipping', icon: Truck,         tone: 'blue' },
-  { key: 'In Transit',       label: 'In Transit',          group: 'shipping', icon: Truck,         tone: 'blue' },
-  { key: 'Out for Delivery', label: 'Out for Delivery',    group: 'shipping', icon: Truck,         tone: 'blue' },
-  { key: 'Delivered',        label: 'Delivered',           group: 'done',     icon: CheckCircle2,  tone: 'green' },
-  { key: 'Completed',        label: 'Completed',           group: 'done',     icon: CheckCircle2,  tone: 'green' },
+  { key: 'To Pack',          label: 'To Pack',             group: 'processing', icon: Box,           tone: 'purple' },
+  { key: 'To Arrange',       label: 'To Arrange Shipment', group: 'processing', icon: Send,          tone: 'purple' },
+  { key: 'Picked',           label: 'Picked',              group: 'processing', icon: PackageSearch, tone: 'purple' },
+  { key: 'Packed',           label: 'Packed',              group: 'to-ship',    icon: Package,       tone: 'amber' },
+  { key: 'Manifested',       label: 'Manifested',          group: 'to-ship',    icon: ClipboardList, tone: 'amber' },
+  { key: 'To Handover',      label: 'To Handover',         group: 'to-ship',    icon: PackageCheck,  tone: 'amber' },
+  { key: 'Shipped',          label: 'Shipped',             group: 'shipped',    icon: Truck,         tone: 'blue' },
+  { key: 'In Transit',       label: 'In Transit',          group: 'shipped',    icon: Truck,         tone: 'blue' },
+  { key: 'Out for Delivery', label: 'Out for Delivery',    group: 'shipped',    icon: Truck,         tone: 'blue' },
+  { key: 'Delivered',        label: 'Delivered',           group: 'delivered',  icon: CheckCircle2,  tone: 'green' },
+  { key: 'Completed',        label: 'Completed',           group: 'delivered',  icon: CheckCircle2,  tone: 'green' },
   { key: 'Cancelled',        label: 'Cancelled',           group: 'issues',   icon: Ban,           tone: 'red' },
   { key: 'Refunded',         label: 'Refunded',            group: 'issues',   icon: RotateCcw,     tone: 'orange' },
   { key: 'Returned',         label: 'Returned',            group: 'issues',   icon: RotateCcw,     tone: 'orange' },
@@ -30,12 +30,13 @@ export const STAGES = [
 export const STAGE_MAP = Object.fromEntries(STAGES.map((s) => [s.key, s]));
 
 export const GROUPS = [
-  { key: 'all',      label: 'All orders', icon: Layers },
-  { key: 'new',      label: 'New',        icon: Clock,         hint: 'Fresh orders awaiting confirmation' },
-  { key: 'to-ship',  label: 'To Ship',    icon: Box,           hint: 'Pick, pack, manifest, hand over' },
-  { key: 'shipping', label: 'In Transit', icon: Truck,         hint: 'On the way to the customer' },
-  { key: 'done',     label: 'Delivered',  icon: CheckCircle2 },
-  { key: 'issues',   label: 'Issues',     icon: AlertTriangle, hint: 'Cancellations, refunds, failed delivery' },
+  { key: 'all',        label: 'All Orders', icon: Layers,        hint: 'Every order, whatever its stage' },
+  { key: 'new',        label: 'New',        icon: Clock,         hint: 'Just received — awaiting admin check' },
+  { key: 'processing', label: 'Processing', icon: PackageSearch, hint: 'Checked by admin — ready for the warehouse' },
+  { key: 'to-ship',    label: 'To Ship',    icon: Box,           hint: 'Packed and waiting for the courier' },
+  { key: 'shipped',    label: 'Shipped',    icon: Truck,         hint: 'Handed to the courier, in transit' },
+  { key: 'delivered',  label: 'Delivered',  icon: CheckCircle2,  hint: 'Reached the customer' },
+  { key: 'issues',     label: 'Issues',     icon: AlertTriangle, hint: 'Failed delivery, cancellations, refunds, returns' },
 ];
 
 /** Silk Eclipse tones — muted surfaces, confident text. */
