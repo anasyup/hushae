@@ -49,7 +49,9 @@ export default function Wordmark({ size = 'md', variant = 'link', className = ''
   // ── Text wordmark ─────────────────────────────────────────────────────────
   const text = h.logoText || settings?.storeName || 'HUSHAE';
   const tracking = Math.max(0, Math.min(60, Number(h.logoTracking ?? 32))) / 100;
-  const boxed = h.logoBoxed !== false;
+  // Until the settings land the wordmark renders plain. Defaulting the box to
+  // ON here made it flash an outline for ~400ms on every cold load.
+  const boxed = settings ? h.logoBoxed !== false : false;
 
   // The wordmark is also the home link, so it needs a comfortable tap height
   // even when it is plain text — 44px matches the rest of the header controls.
