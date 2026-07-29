@@ -43,18 +43,24 @@ export default function CookieConsent() {
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-[90] flex items-end justify-center bg-obsidian/15 p-4 backdrop-blur-[2px] sm:items-center">
+      <div className={`fixed inset-x-0 bottom-0 z-[90] flex justify-center p-3 sm:inset-0 sm:items-center sm:p-4 ${
+        manage ? 'bg-obsidian/25 backdrop-blur-[2px]' : 'sm:bg-obsidian/15 sm:backdrop-blur-[2px]'
+      }`}>
         <motion.div
           initial={{ opacity: 0, y: 24, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ duration: 0.35 }}
-          className="w-full max-w-lg rounded-[1.8rem] border border-line bg-alabaster p-7 shadow-card md:p-9">
-          <div className="flex items-center gap-3">
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-obsidian text-alabaster"><Cookie size={18} /></span>
-            <p className="font-display text-lg tracking-widest2 uppercase">{cfg?.title || 'Cookies on HUSHAE'}</p>
+          className="mb-[calc(env(safe-area-inset-bottom)+72px)] max-h-[70vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-line bg-alabaster p-4 shadow-card sm:mb-0 sm:max-h-none sm:rounded-[1.8rem] sm:p-7 md:p-9">
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-obsidian text-alabaster sm:h-10 sm:w-10 sm:rounded-xl"><Cookie size={16} /></span>
+            <p className="font-display text-[15px] uppercase tracking-widest2 sm:text-lg">{cfg?.title || 'Cookies on HUSHAE'}</p>
           </div>
-          <p className="mt-4 text-[13px] leading-relaxed text-ash">
+          {/* Short line on phones, the full explanation once there is room. */}
+          <p className="mt-2 text-[12.5px] leading-relaxed text-ash sm:mt-4 sm:hidden">
+            We use cookies to remember your bag and improve the store.
+          </p>
+          <p className="mt-4 hidden text-[13px] leading-relaxed text-ash sm:block">
             {cfg?.text || 'We use cookies to keep you signed in and remember your bag. With your permission, we also use a few cookies to understand traffic and improve the store.'}
           </p>
-          <p className="mt-3 flex items-center gap-1.5 text-[11px] font-medium text-sagedeep"><ShieldCheck size={13} /> <Tx k="cookiePromise" /></p>
+          <p className="mt-2 flex items-center gap-1.5 text-[11px] font-medium text-sagedeep sm:mt-3"><ShieldCheck size={13} /> <Tx k="cookiePromise" /></p>
 
           {manage && (
             <div className="mt-4 space-y-2.5">
@@ -64,7 +70,7 @@ export default function CookieConsent() {
             </div>
           )}
 
-          <div className="mt-6 grid gap-2 sm:grid-cols-3">
+          <div className="mt-4 grid gap-2 sm:mt-6 sm:grid-cols-3 [&_button]:min-h-[44px]">
             {manage ? (
               <>
                 <button onClick={() => setManage(false)} className="btn-outline order-2 sm:order-1"><Tx k="back" /></button>

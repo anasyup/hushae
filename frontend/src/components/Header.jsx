@@ -89,11 +89,21 @@ export default function Header() {
           ? 'fixed inset-x-0 top-0 border-b border-transparent bg-transparent text-alabaster'
           : 'sticky top-0 border-b border-line bg-alabaster/95 text-obsidian backdrop-blur-md'
       }`}>
-        <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-2 px-3 md:h-16 md:gap-4 md:px-8">
-          <button className={`rounded-full p-1.5 -ml-1.5 md:hidden ${heroOverlay ? 'text-alabaster' : ''}`} onClick={() => setMobileOpen(true)} aria-label="Menu"><Menu size={22} /></button>
-          <span data-section="header.logo"><Wordmark forceColor={heroOverlay ? 'alabaster' : undefined} /></span>
+        <div className="mx-auto flex h-14 max-w-7xl items-center gap-2 px-3 md:h-16 md:gap-4 md:px-8">
+          {/* Mobile: equal-width side groups keep the wordmark optically centred. */}
+          <div className="flex flex-1 items-center justify-start md:flex-none">
+            <button
+              className={`-ml-2 grid h-11 w-11 place-items-center rounded-full transition md:hidden ${heroOverlay ? 'text-alabaster hover:bg-white/10' : 'hover:bg-satin/60'}`}
+              onClick={() => setMobileOpen(true)} aria-label="Open menu">
+              <Menu size={22} />
+            </button>
+          </div>
 
-          <nav data-section="header.menu" className="hidden items-center gap-7 md:flex">
+          <span data-section="header.logo" className="shrink-0">
+            <Wordmark forceColor={heroOverlay ? 'alabaster' : undefined} />
+          </span>
+
+          <nav data-section="header.menu" className="hidden items-center gap-7 md:ml-8 md:flex">
             {menu.filter((m) => m && m.label).map((m, i) => (
               m.dropdown ? (
                 <Drop key={i} label={m.label} to={m.href || '/'} items={dropItems(m.dropdown)} />
@@ -106,26 +116,33 @@ export default function Header() {
             ))}
           </nav>
 
-          <div data-section="header.icons" className={`flex items-center gap-0.5 md:gap-3 ${heroOverlay ? 'text-alabaster' : 'text-obsidian'}`}>
+          <div data-section="header.icons"
+            className={`flex flex-1 items-center justify-end gap-0.5 md:flex-none md:gap-1 ${heroOverlay ? 'text-alabaster' : 'text-obsidian'}`}>
             {hdr.showSearch !== false && (
-              <button onClick={() => setSearchOpen((s) => !s)} aria-label="Search" className={`rounded-full p-2 transition ${heroOverlay ? 'hover:bg-white/10' : 'hover:bg-satin/60'}`}><Search size={19} /></button>
+              <button onClick={() => setSearchOpen((s) => !s)} aria-label="Search"
+                className={`grid h-11 w-11 place-items-center rounded-full transition ${heroOverlay ? 'hover:bg-white/10' : 'hover:bg-satin/60'}`}>
+                <Search size={20} />
+              </button>
             )}
             {hdr.showWishlist !== false && (
-              <Link to="/wishlist" aria-label="Wishlist" className={`relative hidden rounded-full p-2 transition md:inline-flex ${heroOverlay ? 'hover:bg-white/10' : 'hover:bg-satin/60'}`}>
-                <Heart size={19} />
-                {wishlist.length > 0 && <span className="absolute -right-0.5 -top-0.5 grid h-4 w-4 place-items-center rounded-full bg-sage text-[9px] font-bold text-obsidian">{wishlist.length}</span>}
+              <Link to="/wishlist" aria-label="Wishlist"
+                className={`relative hidden h-11 w-11 place-items-center rounded-full transition md:grid ${heroOverlay ? 'hover:bg-white/10' : 'hover:bg-satin/60'}`}>
+                <Heart size={20} />
+                {wishlist.length > 0 && <span className="absolute right-1 top-1 grid h-4 w-4 place-items-center rounded-full bg-sage text-[9px] font-bold text-obsidian">{wishlist.length}</span>}
               </Link>
             )}
             {hdr.showAccount !== false && (
-              <Link to="/account" aria-label="Account" className={`relative hidden rounded-full p-2 transition md:inline-flex ${heroOverlay ? 'hover:bg-white/10' : 'hover:bg-satin/60'}`}>
-                <User size={19} />
-                {auth && <span className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full bg-sage" />}
+              <Link to="/account" aria-label="Account"
+                className={`relative hidden h-11 w-11 place-items-center rounded-full transition md:grid ${heroOverlay ? 'hover:bg-white/10' : 'hover:bg-satin/60'}`}>
+                <User size={20} />
+                {auth && <span className="absolute right-2.5 top-2.5 h-1.5 w-1.5 rounded-full bg-sage" />}
               </Link>
             )}
             {hdr.showCart !== false && (
-              <button onClick={() => setDrawerOpen(true)} aria-label="Cart" className={`relative rounded-full p-2 transition ${heroOverlay ? 'hover:bg-white/10' : 'hover:bg-satin/60'}`}>
-                <ShoppingBag size={19} />
-                {cartCount > 0 && <span className={`absolute -right-0.5 -top-0.5 grid h-4 w-4 place-items-center rounded-full text-[9px] font-bold ${heroOverlay ? 'bg-alabaster text-obsidian' : 'bg-obsidian text-alabaster'}`}>{cartCount}</span>}
+              <button onClick={() => setDrawerOpen(true)} aria-label="Cart"
+                className={`relative -mr-2 grid h-11 w-11 place-items-center rounded-full transition md:mr-0 ${heroOverlay ? 'hover:bg-white/10' : 'hover:bg-satin/60'}`}>
+                <ShoppingBag size={20} />
+                {cartCount > 0 && <span className={`absolute right-1 top-1 grid h-4 w-4 place-items-center rounded-full text-[9px] font-bold ${heroOverlay ? 'bg-alabaster text-obsidian' : 'bg-obsidian text-alabaster'}`}>{cartCount}</span>}
               </button>
             )}
           </div>

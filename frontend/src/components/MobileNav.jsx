@@ -14,7 +14,7 @@ export default function MobileNav() {
   if (loc.pathname.startsWith('/admin')) return null;
 
   const cls = ({ isActive }) =>
-    `flex flex-1 flex-col items-center justify-center gap-0.5 py-1.5 text-[9.5px] font-semibold uppercase tracking-wider transition ${
+    `flex min-h-[52px] flex-1 flex-col items-center justify-center gap-0.5 py-1.5 text-[9.5px] font-semibold uppercase tracking-wider transition ${
       isActive ? 'text-obsidian' : 'text-ash'
     }`;
 
@@ -65,7 +65,7 @@ export default function MobileNav() {
           <button
             type="button"
             onClick={() => setDrawerOpen(true)}
-            className="flex flex-1 flex-col items-center justify-center gap-0.5 py-1.5 text-[9.5px] font-semibold uppercase tracking-wider text-ash transition"
+            className="flex min-h-[52px] flex-1 flex-col items-center justify-center gap-0.5 py-1.5 text-[9.5px] font-semibold uppercase tracking-wider text-ash transition"
             aria-label="Open cart"
           >
             <span className="relative">

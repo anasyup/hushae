@@ -47,7 +47,7 @@ export default function ProductCard({
 
         {showWishlist && (
           <button onClick={() => toggleWish(p)} aria-label="Wishlist"
-            className={`absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full bg-alabaster/90 shadow-card transition hover:scale-105 ${wished ? 'text-obsidian' : 'text-ash'}`}>
+            className={`absolute right-2 top-2 grid h-11 w-11 place-items-center rounded-full bg-alabaster/90 shadow-card transition hover:scale-105 md:right-3 md:top-3 md:h-9 md:w-9 ${wished ? 'text-obsidian' : 'text-ash'}`}>
             <Heart size={16} fill={wished ? 'currentColor' : 'none'} />
           </button>
         )}
