@@ -36,11 +36,17 @@ export function sizeFor(order, docType = 'packing_slip') {
 export function paginate(orders, docType = 'packing_slip') {
   const sized = orders.map((o) => ({ order: o, size: sizeFor(o, docType) }));
 
+  // Place the big slips first, then backfill the gaps with quarters. Sequential
+  // packing would strand a half-page slip at the bottom of a sheet and push a
+  // quarter onto a new one; ordering by size keeps every sheet full.
+  const order = { full: 0, half: 1, quarter: 2 };
+  const queue = [...sized].sort((a, b) => order[a.size] - order[b.size]);
+
   const pages = [];
   let page = [];
   let used = 0;
 
-  for (const slip of sized) {
+  for (const slip of queue) {
     const cost = CELLS[slip.size];
     if (used + cost > CELLS_PER_PAGE) {
       pages.push({ slips: page });

@@ -13,7 +13,7 @@ import OrderFilters from './OrderFilters';
 import BulkBar from './BulkBar';
 import OrderRow from './OrderRow';
 import OrderAnalytics from './OrderAnalytics';
-import PrintPreview from './PrintPreview';
+import { writeErrorWindow, writeLoadingWindow, writePrintWindow } from './printDocument';
 
 /* ============================================================================
  * Order desk — the enhanced /admin/orders screen.
@@ -38,7 +38,6 @@ export default function OrdersDesk() {
   const [showAnalytics, setShowAnalytics] = useState(false);
   const [showNotes, setShowNotes] = useState(false);
   const [serviceFor, setServiceFor] = useState(null);
-  const [printJob, setPrintJob] = useState(null);      // { docType, ids }
   const [selectAllMatching, setSelectAllMatching] = useState(false);
 
   const orders = data.orders || [];
@@ -54,21 +53,48 @@ export default function OrdersDesk() {
     setSelected((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id])), []);
   const allOnPage = orders.length > 0 && selected.length === orders.length;
 
-  // Both single-order and bulk printing go through one preview, so the
-  // merchant always gets a single browser print dialog.
-  const handlePrint = useCallback((order, docType) => {
-    setPrintJob({ docType, ids: [order._id] });
-  }, []);
+  /**
+   * Print in a separate tab so the dashboard is never interrupted and the
+   * merchant can reprint from that tab as often as they like.
+   *
+   * The window is opened synchronously inside the click handler — opening it
+   * after the await would trip the popup blocker.
+   */
+  const openPrintTab = useCallback(async (docType, orderIds) => {
+    const win = window.open('', '_blank');
+    if (!win) {
+      toast?.('Allow pop-ups for this site to print');
+      return;
+    }
+    writeLoadingWindow(win, 'Preparing documents…');
 
-  const handleBulkPrint = useCallback((docType) => {
-    setPrintJob({ docType, ids: selectAllMatching ? null : selected });
-  }, [selected, selectAllMatching]);
+    try {
+      const qs = new URLSearchParams({ doc: docType });
+      if (orderIds?.length) qs.set('ids', orderIds.join(','));
+      else Object.entries(filters).forEach(([k, v]) => { if (v) qs.set(k, v); });
 
-  // Record the print once the dialog has been opened.
-  const afterPrint = useCallback((printedIds) => {
-    if (!printedIds?.length) return;
-    bulk('print', printedIds.slice(0, 200), { docType: printJob?.docType || 'invoice' }).catch(() => {});
-  }, [bulk, printJob]);
+      const payload = await api(`/orders/manage/print/batch?${qs}`, { token: auth?.token });
+      if (!payload.orders?.length) {
+        writeErrorWindow(win, 'There were no orders to print.');
+        return;
+      }
+      writePrintWindow(win, payload);
+
+      // Record the print run without blocking the tab.
+      const printedIds = payload.orders.map((o) => o._id).slice(0, 200);
+      bulk('print', printedIds, { docType }).catch(() => {});
+    } catch (e) {
+      writeErrorWindow(win, e.message || 'Could not load the documents.');
+      toast?.(e.message || 'Print failed');
+    }
+  }, [auth?.token, filters, bulk, toast]);
+
+  const handlePrint = useCallback((order, docType) => openPrintTab(docType, [order._id]), [openPrintTab]);
+
+  const handleBulkPrint = useCallback(
+    (docType) => openPrintTab(docType, selectAllMatching ? null : selected),
+    [openPrintTab, selected, selectAllMatching],
+  );
 
   // Advance is pointless when nothing selected can move forward.
   const canAdvance = useMemo(() => {
@@ -257,17 +283,6 @@ export default function OrdersDesk() {
           </div>
         )}
       </div>
-
-      {printJob && (
-        <PrintPreview
-          docType={printJob.docType}
-          ids={printJob.ids}
-          filters={printJob.ids ? null : filters}
-          token={auth?.token}
-          onClose={() => setPrintJob(null)}
-          onPrinted={afterPrint}
-        />
-      )}
 
       {serviceFor && (
         <IssueModal order={serviceFor} token={auth?.token} toast={toast}
