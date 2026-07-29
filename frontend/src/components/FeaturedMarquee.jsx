@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Img from './Img';
 import { pkr } from '../lib/format';
 
@@ -133,7 +132,7 @@ export default function FeaturedMarquee({ products, title = 'HUSHAE — Signatur
     drag.current.moved = 0;
   };
 
-  /** Arrow buttons and keyboard step by roughly one card. */
+  /** Keyboard arrows step by roughly one card — the strip's only keyboard route. */
   const step = (dir) => {
     const el = trackRef.current;
     if (!el) return;
@@ -154,27 +153,12 @@ export default function FeaturedMarquee({ products, title = 'HUSHAE — Signatur
           <p className="text-[10px] font-bold uppercase tracking-widest text-alabaster/60">Featured</p>
           <h2 className="mt-1 font-display text-2xl text-alabaster md:text-3xl">{title}</h2>
         </div>
-        <div className="flex shrink-0 items-center gap-2">
-          {/* Arrows are a desktop affordance; touch users just swipe. */}
-          <button
-            type="button" onClick={() => step(-1)} aria-label="Previous products"
-            className="hidden h-11 w-11 place-items-center rounded-full border border-alabaster/25 text-alabaster/70 transition hover:border-alabaster/60 hover:text-alabaster md:grid"
-          >
-            <ChevronLeft size={17} />
-          </button>
-          <button
-            type="button" onClick={() => step(1)} aria-label="Next products"
-            className="hidden h-11 w-11 place-items-center rounded-full border border-alabaster/25 text-alabaster/70 transition hover:border-alabaster/60 hover:text-alabaster md:grid"
-          >
-            <ChevronRight size={17} />
-          </button>
-          <Link
-            to="/best"
-            className="ml-1 hidden text-[11px] font-semibold uppercase tracking-widest text-alabaster/70 hover:text-alabaster md:inline-block"
-          >
-            View all →
-          </Link>
-        </div>
+        <Link
+          to="/best"
+          className="hidden shrink-0 text-[11px] font-semibold uppercase tracking-widest text-alabaster/70 hover:text-alabaster md:inline-block"
+        >
+          View all →
+        </Link>
       </div>
 
       <div
