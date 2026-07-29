@@ -14,7 +14,8 @@ import { useApp } from '../../store/AppContext';
 const BASE = '/orders/manage';
 
 export const DEFAULTS = {
-  group: 'all', stage: '', paymentMethod: 'all', paymentState: 'all',
+  // Opens on New so the first thing an admin sees is what needs attention.
+  group: 'new', stage: '', paymentMethod: 'all', paymentState: 'all',
   q: '', from: '', to: '', minTotal: '', maxTotal: '', city: 'all',
   printed: '', hasIssue: '', sort: 'oldest', page: '1', limit: '50',
 };

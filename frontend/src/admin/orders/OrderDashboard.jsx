@@ -20,7 +20,7 @@ const SLICE = ['#0D0D0D', '#7C8B72', '#B4453C', '#2C4A7C', '#C8A96A', '#6B6B6B']
 const RANGES = [{ d: 7, label: '7d' }, { d: 30, label: '30d' }, { d: 90, label: '90d' }];
 const REFRESH_MS = 30000;
 
-export default function OrderDashboard({ token, onPipelineClick }) {
+export default function OrderDashboard({ token, onPipelineClick, onCustomerClick }) {
   const [days, setDays] = useState(30);
   const [data, setData] = useState(null);
   const [err, setErr] = useState('');
@@ -86,6 +86,48 @@ export default function OrderDashboard({ token, onPipelineClick }) {
         <Kpi label="Avg order" value={pkr(k.aov)} />
         <Kpi label="Payments verified" value={`${k.paymentVerifiedRate}%`} tone={k.paymentVerifiedRate >= 70 ? 'good' : 'warn'} />
         <Kpi label="Issues" value={`${k.issueRate}%`} tone={k.issueRate <= 5 ? 'good' : 'bad'} />
+      </div>
+
+      {/* Quick stats — the three numbers the desk quotes most often. */}
+      <div className="flex flex-wrap items-center gap-x-5 gap-y-2 rounded-lg bg-neutral-50 px-3 py-2.5 text-[12px]">
+        <span className="flex items-center gap-1.5">
+          <span className="font-semibold uppercase tracking-wider text-neutral-500">Payments</span>
+          {['Pending', 'Verified', 'Confirmed'].map((st) => {
+            const n = data.paymentBreakdown?.[st] || 0;
+            const tone = st === 'Pending' ? 'bg-amber-100 text-amber-800'
+              : st === 'Verified' ? 'bg-blue-100 text-blue-700' : 'bg-emerald-100 text-emerald-700';
+            return (
+              <span key={st} className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${tone}`}>
+                {st} {n}
+              </span>
+            );
+          })}
+        </span>
+
+        <span className="hidden h-4 w-px bg-neutral-200 sm:block" />
+
+        <span className="flex items-center gap-1.5">
+          <span className="font-semibold uppercase tracking-wider text-neutral-500">Methods</span>
+          {Object.entries(data.byMethod).map(([m, n]) => (
+            <span key={m} className="rounded-full bg-white px-2 py-0.5 text-[11px] font-medium text-neutral-700 ring-1 ring-neutral-200">
+              {m} {n}
+            </span>
+          ))}
+        </span>
+
+        <span className="hidden h-4 w-px bg-neutral-200 sm:block" />
+
+        <span className="text-neutral-600">
+          <span className="font-semibold uppercase tracking-wider text-neutral-500">Success</span>{' '}
+          <span className="font-semibold text-neutral-900">{k.paymentVerifiedRate}%</span>
+        </span>
+
+        <span className="text-neutral-600">
+          <span className="font-semibold uppercase tracking-wider text-neutral-500">Avg to ship</span>{' '}
+          <span className="font-semibold text-neutral-900">
+            {data.avgShipHours ? (data.avgShipHours < 1 ? `${Math.round(data.avgShipHours * 60)}m` : `${data.avgShipHours}h`) : '—'}
+          </span>
+        </span>
       </div>
 
       {/* Pipeline — clicking a stage filters the list below */}
@@ -165,7 +207,34 @@ export default function OrderDashboard({ token, onPipelineClick }) {
       </div>
 
       {/* Tables */}
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <Panel title="Top customers">
+          {(data.topCustomers || []).length === 0 ? <Empty /> : (
+            <ul className="space-y-1">
+              {data.topCustomers.map((c) => (
+                <li key={c.phone}>
+                  <button
+                    onClick={() => onCustomerClick?.(c.phone)}
+                    className="flex w-full items-center gap-2 rounded-md px-1 py-1 text-left transition hover:bg-neutral-50"
+                  >
+                    <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-neutral-900 text-[10px] font-bold text-white">
+                      {(c.name || '?').split(' ').map((w) => w[0]).slice(0, 2).join('').toUpperCase()}
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-[12.5px] text-neutral-800">{c.name}</span>
+                      <span className="block text-[10.5px] text-neutral-400">
+                        {c.orders} order{c.orders === 1 ? '' : 's'}
+                        {c.orders >= 3 && <span className="ml-1 font-semibold text-amber-600">· repeat</span>}
+                      </span>
+                    </span>
+                    <span className="shrink-0 text-[11.5px] font-semibold tabular-nums">{pkr(c.spent)}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Panel>
+
         <Panel title="Top products">
           {data.topProducts.length === 0 ? <Empty /> : (
             <ul className="space-y-1.5">

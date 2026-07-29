@@ -10,7 +10,8 @@ const { protect, adminOnly } = require('../middleware/auth');
 const { asyncHandler } = require('../utils/helpers');
 const rateLimit = require('../middleware/rateLimit');
 const flow = require('../utils/orderFlow');
-const { scoreOrder } = require('../utils/orderQuality');
+const Product = require('../models/Product');
+const { scoreOrder, enrichItems } = require('../utils/orderQuality');
 
 const router = express.Router();
 
@@ -158,8 +159,16 @@ router.get('/', protect, adminOnly, asyncHandler(async (req, res) => {
     Order.countDocuments(filter),
   ]);
 
+  // Warehouse hints for the whole page in a single query — resolving stock per
+  // order would be an N+1 against a collection we already know the ids for.
+  const productIds = [...new Set(rows.flatMap((o) => (o.items || []).map((i) => String(i.product)).filter(Boolean)))];
+  const products = productIds.length
+    ? await Product.find({ _id: { $in: productIds } }).select('sku stock categorySlug').lean()
+    : [];
+  const stockMap = new Map(products.map((p) => [String(p._id), p]));
+
   res.json({
-    orders: rows.map(withStage),
+    orders: rows.map((o) => ({ ...withStage(o), items: enrichItems(o, stockMap) })),
     page, limit, total, pages: Math.ceil(total / limit) || 1,
   });
 }));
@@ -201,6 +210,10 @@ router.get('/:id', protect, adminOnly, asyncHandler(async (req, res) => {
   if (!isId(req.params.id)) return res.status(400).json({ message: 'Invalid order id' });
   const order = await Order.findById(req.params.id).lean();
   if (!order) return res.status(404).json({ message: 'Order not found' });
+
+  const pIds = (order.items || []).map((i) => i.product).filter(Boolean);
+  const prods = pIds.length ? await Product.find({ _id: { $in: pIds } }).select('sku stock categorySlug').lean() : [];
+  order.items = enrichItems(order, new Map(prods.map((p) => [String(p._id), p])));
 
   const [timeline, payments, issues, prints] = await Promise.all([
     OrderTimeline.find({ order: order._id }).sort({ createdAt: 1 }).lean(),

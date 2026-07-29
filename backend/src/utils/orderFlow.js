@@ -53,8 +53,9 @@ function allowedNext(from) {
   if (i === -1) return [...FORWARD, ...EXITS];
 
   const next = new Set();
-  // Any forward stage within the same or the next group, so a warehouse can
-  // skip Picked/Packed when they pack straight into a manifest.
+  // Any forward stage within the same block, plus the first stage of the next
+  // one. A warehouse that packs straight into a manifest should not have to
+  // click through Picked and Packed to get there.
   for (let j = i + 1; j < FORWARD.length; j += 1) {
     const cand = STAGE_MAP.get(FORWARD[j]);
     const sameBlock = cand.group === stage.group;
@@ -62,6 +63,15 @@ function allowedNext(from) {
     if (sameBlock || isNextStep) next.add(FORWARD[j]);
     else break;
   }
+
+  // The Set-stage menu offers eight plain choices — New, To Pack, To Ship,
+  // Shipped, Delivered and the three exits. Every one of those must be
+  // reachable from anywhere forward of it, otherwise picking "Shipped" on a
+  // To Pack order would be rejected for skipping Packed and Manifested.
+  const MENU_TARGETS = ['New', 'To Pack', 'Packed', 'Shipped', 'Delivered'];
+  const rank = (k) => FORWARD.indexOf(k);
+  MENU_TARGETS.forEach((t) => { if (rank(t) > i) next.add(t); });
+
   if (i > 0) next.add(FORWARD[i - 1]);           // one step back for corrections
   EXITS.forEach((e) => next.add(e));
   return [...next];

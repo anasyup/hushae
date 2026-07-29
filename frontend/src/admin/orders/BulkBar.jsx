@@ -4,7 +4,7 @@ import {
   Printer, Wallet, X, Zap,
 } from 'lucide-react';
 import { api } from '../../api/client';
-import { PRINT_DOCS, STAGES } from './orderConstants';
+import { PRINT_DOCS, SET_STAGE_CHOICES } from './orderConstants';
 
 /* ============================================================================
  * Bulk action bar — appears only when rows are selected.
@@ -60,16 +60,19 @@ export default function BulkBar({ selected, total, onClear, onSelectAll, onBulk,
             Set stage <ChevronDown size={12} />
           </button>
           {stageOpen && (
-            <div className="absolute left-0 top-9 z-40 max-h-72 w-56 overflow-y-auto rounded-lg border border-neutral-200 bg-white py-1 text-neutral-800 shadow-xl">
-              {STAGES.map((s) => (
+            <div className="absolute left-0 top-9 z-40 max-h-80 w-60 overflow-y-auto rounded-lg border border-neutral-200 bg-white py-1 text-neutral-800 shadow-xl">
+              {SET_STAGE_CHOICES.map((s) => (
                 <button key={s.key}
                   onClick={() => setConfirm({
                     action: 'stage', payload: { stage: s.key },
                     title: `Move ${count} order${count === 1 ? '' : 's'} to “${s.label}”?`,
-                    body: 'Orders that cannot legally make this jump will be skipped and reported.',
+                    body: `${s.hint}. Orders that cannot legally make this jump are skipped and reported back.`,
                   })}
-                  className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-[13px] hover:bg-neutral-100">
-                  <s.icon size={13} className="text-neutral-500" /> {s.label}
+                  className="flex w-full items-start gap-2 px-3 py-2 text-left hover:bg-neutral-100">
+                  <span className="min-w-0">
+                    <span className="block text-[13px]">{s.label}</span>
+                    <span className="block text-[10.5px] text-neutral-400">{s.hint}</span>
+                  </span>
                 </button>
               ))}
             </div>
