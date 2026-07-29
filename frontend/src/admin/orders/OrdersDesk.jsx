@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
-  AlertCircle, Bell, ChevronLeft, ChevronRight, Inbox, Keyboard, LayoutDashboard,
+  AlertCircle, Bell, ChevronLeft, ChevronRight, Inbox, Keyboard,
   Loader2, RefreshCcw, TrendingUp, X,
 } from 'lucide-react';
 import AdminLayout from '../AdminLayout';
@@ -13,8 +13,6 @@ import { GROUPS, ISSUE_TYPES, REFUND_STATES, STAGE_MAP } from './orderConstants'
 import OrderFilters from './OrderFilters';
 import BulkBar from './BulkBar';
 import OrderRow from './OrderRow';
-import OrderAnalytics from './OrderAnalytics';
-import OrderDashboard from './OrderDashboard';
 import QuickFilters from './QuickFilters';
 import CustomerPanel from './CustomerPanel';
 import { writeErrorWindow, writeLoadingWindow, writePrintWindow } from './printDocument';
@@ -39,11 +37,9 @@ export default function OrdersDesk() {
   } = desk;
 
   const [selected, setSelected] = useState([]);
-  const [showAnalytics, setShowAnalytics] = useState(false);
   const [showNotes, setShowNotes] = useState(false);
   const [serviceFor, setServiceFor] = useState(null);
   const [selectAllMatching, setSelectAllMatching] = useState(false);
-  const [showDashboard, setShowDashboard] = useState(true);
   const [customerPhone, setCustomerPhone] = useState(null);
   const [showShortcuts, setShowShortcuts] = useState(false);
 
@@ -154,19 +150,12 @@ export default function OrdersDesk() {
           </div>
 
           <div className="flex items-center gap-2">
-            <button onClick={() => setShowDashboard((v) => !v)}
-              className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium transition ${
-                showDashboard ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-300 bg-white text-neutral-700 hover:border-neutral-400'
-              }`}>
-              <LayoutDashboard size={14} /> Dashboard
-            </button>
-
-            <button onClick={() => setShowAnalytics((v) => !v)}
-              className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium transition ${
-                showAnalytics ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-300 bg-white text-neutral-700 hover:border-neutral-400'
-              }`}>
+            <Link
+              to="/admin/dashboard"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm font-medium text-neutral-700 transition hover:border-neutral-400"
+            >
               <TrendingUp size={14} /> Analytics
-            </button>
+            </Link>
 
             <div className="relative">
               <button onClick={() => { setShowNotes((v) => !v); if (!showNotes) notes.markRead(); }}
@@ -211,16 +200,6 @@ export default function OrdersDesk() {
             </button>
           </div>
         </div>
-
-        {showDashboard && (
-          <OrderDashboard
-            token={auth?.token}
-            onPipelineClick={(g) => setFilter({ group: g, preset: '' })}
-            onCustomerClick={setCustomerPhone}
-          />
-        )}
-
-        {showAnalytics && <OrderAnalytics token={auth?.token} />}
 
         {/* ── Stage tabs ─────────────────────────────────────────────────── */}
         <div className="flex gap-1.5 overflow-x-auto pb-1">

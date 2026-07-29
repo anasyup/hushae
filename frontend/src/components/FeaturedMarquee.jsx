@@ -20,12 +20,17 @@ export default function FeaturedMarquee({ products, title = 'HUSHAE — Signatur
   const list = Array.isArray(products) ? products.filter((p) => p && p.images && p.images.length) : [];
 
   const trackRef = useRef(null);
+  // Paused only by real interaction: a drag in progress, or keyboard focus.
+  // Hover deliberately does not pause — see the note on the wrapper below.
   const [paused, setPaused] = useState(false);
   const [dragging, setDragging] = useState(false);
+  const [hovering, setHovering] = useState(false);
 
   // Mutable drag state — kept in a ref so pointer moves never re-render.
   const drag = useRef({ active: false, startX: 0, startScroll: 0, moved: 0 });
   const reduceMotion = useRef(false);
+  // Mirrored into a ref so the rAF loop reads it without re-subscribing.
+  const hoverRef = useRef(false);
 
   // Three copies: the middle one is what the visitor sees, the outer two give
   // room to scroll before we wrap.
@@ -35,6 +40,8 @@ export default function FeaturedMarquee({ products, title = 'HUSHAE — Signatur
   useEffect(() => {
     reduceMotion.current = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
   }, []);
+
+  useEffect(() => { hoverRef.current = hovering; }, [hovering]);
 
   // Start in the middle copy so there is headroom on both sides.
   useEffect(() => {
@@ -83,7 +90,10 @@ export default function FeaturedMarquee({ products, title = 'HUSHAE — Signatur
         || reduceMotion.current || smoothing.current;
 
       if (!stop && w > 0) {
-        owed += (w / (duration * 1000)) * dt;
+        // Ease off under the pointer instead of freezing: the visitor can read
+        // a card without it sliding away, and the strip still looks alive.
+        const rate = hoverRef.current ? 0.25 : 1;
+        owed += (w / (duration * 1000)) * dt * rate;
         const whole = Math.trunc(owed);
         if (whole >= 1) {
           owed -= whole;
@@ -163,8 +173,8 @@ export default function FeaturedMarquee({ products, title = 'HUSHAE — Signatur
 
       <div
         className="group relative"
-        onMouseEnter={() => setPaused(true)}
-        onMouseLeave={() => { setPaused(false); endDrag(); }}
+        onMouseEnter={() => setHovering(true)}
+        onMouseLeave={() => { setHovering(false); endDrag(); }}
       >
         <div
           ref={trackRef}

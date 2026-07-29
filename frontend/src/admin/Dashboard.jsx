@@ -342,12 +342,22 @@ export default function Dashboard() {
   const [d, setD] = useState(null);
   const [err, setErr] = useState('');
   const [refreshing, setRefreshing] = useState(false);
+  const [insights, setInsights] = useState(null);   // order-desk metrics
+  const [lastSync, setLastSync] = useState(null);
 
   const load = async (silent = false) => {
     if (!silent) setRefreshing(true);
     try {
-      const data = await api('/admin/dashboard', { token: auth.token });
-      setD(data); setErr('');
+      // Two sources: the long-standing admin summary, plus the order-desk
+      // insights that used to sit on the Orders page.
+      const [data, ins] = await Promise.all([
+        api('/admin/dashboard', { token: auth.token }),
+        api('/orders/insights/dashboard?days=30', { token: auth.token }).catch(() => null),
+      ]);
+      setD(data);
+      if (ins) setInsights(ins);
+      setLastSync(new Date());
+      setErr('');
     } catch (e) {
       if (e?.status === 401) { logout(); return; }
       setErr('Failed to load dashboard.');
@@ -356,6 +366,14 @@ export default function Dashboard() {
   };
 
   useEffect(() => { load(); }, [auth]); // eslint-disable-line
+
+  // Keep the numbers current without anyone reaching for refresh. Silent, so
+  // the page never flashes a spinner while someone is reading it.
+  useEffect(() => {
+    if (!auth?.token) return undefined;
+    const t = setInterval(() => load(true), 30000);
+    return () => clearInterval(t);
+  }, [auth]); // eslint-disable-line
 
   if (err) return (
     <AdminLayout title="Dashboard">
@@ -397,6 +415,10 @@ export default function Dashboard() {
           <p className="mt-1 text-[13px] text-neutral-500">Here's what's happening at HUSHAE today.</p>
         </div>
         <div className="flex items-center gap-2">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1.5 text-[11px] font-semibold text-emerald-700 ring-1 ring-emerald-200">
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
+            Live{lastSync ? ` · ${lastSync.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : ''}
+          </span>
           <span className="inline-flex items-center gap-1.5 rounded-full bg-neutral-100 px-3 py-1.5 text-[11px] font-semibold text-neutral-600">
             <Calendar size={12} /> {new Date().toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long' })}
           </span>
@@ -466,6 +488,66 @@ export default function Dashboard() {
       <div className="mt-6">
         <PipelineStrip stats={d.stats} />
       </div>
+
+
+      {/* --- Order-desk insights (moved off the Orders page) --- */}
+      {insights && (
+        <div className="mt-6 grid gap-4 lg:grid-cols-2">
+          {/* Payment health */}
+          <div className="rounded-2xl border border-neutral-200 bg-white p-4">
+            <p className="text-[11px] font-bold uppercase tracking-widest text-neutral-500">Payment health</p>
+            <div className="mt-3 flex flex-wrap gap-1.5">
+              {['Pending', 'Verified', 'Confirmed'].map((st) => {
+                const n = insights.paymentBreakdown?.[st] || 0;
+                const tone = st === 'Pending' ? 'bg-amber-50 text-amber-800 ring-amber-200'
+                  : st === 'Verified' ? 'bg-blue-50 text-blue-700 ring-blue-200'
+                    : 'bg-emerald-50 text-emerald-700 ring-emerald-200';
+                return (
+                  <span key={st} className={`rounded-full px-2.5 py-1 text-[11.5px] font-semibold ring-1 ${tone}`}>
+                    {st} {n}
+                  </span>
+                );
+              })}
+            </div>
+            <div className="mt-3 space-y-1.5 border-t border-neutral-100 pt-3 text-[12.5px]">
+              <p className="flex justify-between">
+                <span className="text-neutral-500">Verification rate</span>
+                <span className="font-semibold">{insights.kpis.paymentVerifiedRate}%</span>
+              </p>
+              <p className="flex justify-between">
+                <span className="text-neutral-500">Average time to ship</span>
+                <span className="font-semibold">
+                  {insights.avgShipHours
+                    ? (insights.avgShipHours < 1 ? `${Math.round(insights.avgShipHours * 60)}m` : `${insights.avgShipHours}h`)
+                    : '—'}
+                </span>
+              </p>
+              <p className="flex justify-between">
+                <span className="text-neutral-500">Issue rate</span>
+                <span className={`font-semibold ${insights.kpis.issueRate > 5 ? 'text-red-600' : ''}`}>
+                  {insights.kpis.issueRate}%
+                </span>
+              </p>
+            </div>
+          </div>
+
+          {/* Peak hours */}
+          <div className="rounded-2xl border border-neutral-200 bg-white p-4">
+            <p className="text-[11px] font-bold uppercase tracking-widest text-neutral-500">Peak order hours</p>
+            <ResponsiveContainer width="100%" height={148}>
+              <BarChart data={insights.hourly} margin={{ top: 12, right: 4, left: -22, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#EFECE7" vertical={false} />
+                <XAxis dataKey="hour" tickFormatter={(h) => `${h}h`} tick={{ fontSize: 10, fill: '#9A9A9A' }}
+                  axisLine={false} tickLine={false} interval={3} />
+                <YAxis tick={{ fontSize: 10, fill: '#9A9A9A' }} axisLine={false} tickLine={false} allowDecimals={false} />
+                <Tooltip labelFormatter={(h) => `${h}:00 – ${h}:59`}
+                  contentStyle={{ borderRadius: 10, border: '1px solid #E4E0DA', fontSize: 12 }} />
+                <Bar dataKey="orders" fill="#7C8B72" radius={[3, 3, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
 
       {/* --- Chart + Donut row --- */}
       <div className="mt-6 grid gap-6 lg:grid-cols-3">
