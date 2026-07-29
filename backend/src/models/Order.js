@@ -115,6 +115,16 @@ const orderSchema = new mongoose.Schema({
     default: [],
   },
 
+  // --- Warehouse workflow ---------------------------------------------------
+  /** '' | 'passed' | 'review' — set by the bulk quality-check action. */
+  qcStatus: { type: String, default: '' },
+  qcAt: { type: Date, default: null },
+  qcBy: { type: String, default: '' },
+  /** '' | 'rush' | 'hold' — merchant-set, separate from the derived priority. */
+  priorityFlag: { type: String, default: '', index: true },
+  /** Free-text owner: a packer, a courier desk, whoever. */
+  assignedTo: { type: String, default: '' },
+
   /** Set when an order was created or actioned as part of a bulk run. */
   isBulkOrder: { type: Boolean, default: false },
   lastBulkBatchId: { type: String, default: '' },

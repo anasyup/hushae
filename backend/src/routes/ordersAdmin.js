@@ -10,6 +10,7 @@ const { protect, adminOnly } = require('../middleware/auth');
 const { asyncHandler } = require('../utils/helpers');
 const rateLimit = require('../middleware/rateLimit');
 const flow = require('../utils/orderFlow');
+const { scoreOrder } = require('../utils/orderQuality');
 
 const router = express.Router();
 
@@ -35,7 +36,14 @@ const clampInt = (v, lo, hi, fb) => {
 /** Ensure every order carries a detailed stage before it leaves the API. */
 function withStage(o) {
   const stage = o.stage && flow.STAGE_MAP.has(o.stage) ? o.stage : flow.stageFromLegacy(o);
-  return { ...o, stage, stageGroup: flow.groupFor(stage), allowedNext: flow.allowedNext(stage) };
+  // Quality is derived on read so it always reflects the order's current state.
+  return {
+    ...o,
+    stage,
+    stageGroup: flow.groupFor(stage),
+    allowedNext: flow.allowedNext(stage),
+    quality: scoreOrder({ ...o, stage }),
+  };
 }
 
 // ── Filter builder shared by the list, the export and the counts ───────────
@@ -81,6 +89,36 @@ function buildFilter(q) {
   if (q.city && q.city !== 'all') {
     const cities = String(q.city).split(',').map((s) => s.trim()).filter(Boolean);
     if (cities.length) f['customerInfo.city'] = { $in: cities.map((c) => new RegExp(`^${esc(c)}$`, 'i')) };
+  }
+  // Quick-filter presets — one click for the views the desk uses all day.
+  if (q.preset) {
+    const dayAgo = new Date(Date.now() - 24 * 3600 * 1000);
+    switch (q.preset) {
+      case 'needs-attention':
+        f.$and = [...(f.$and || []), {
+          $or: [
+            { paymentState: { $in: ['Pending', 'Expired', 'Failed'] } },
+            { paymentState: { $in: [null, ''] }, paymentStatus: 'Pending' },
+          ],
+        }, { status: { $nin: ['Cancelled', 'Refunded', 'Delivered'] } }];
+        break;
+      case 'high-value':
+        f.total = { ...(f.total || {}), $gte: 50000 };
+        break;
+      case 'problem':
+        f['customerService.hasIssue'] = true;
+        break;
+      case 'ready-to-ship':
+        f.$and = [...(f.$and || []), { stage: { $in: ['Packed', 'Manifested', 'To Handover'] } },
+          { $or: [{ paymentState: { $in: ['Verified', 'Confirmed'] } }, { paymentStatus: 'Paid' }, { paymentMethod: 'COD' }] }];
+        break;
+      case 'delayed':
+        f.$and = [...(f.$and || []), {
+          $or: [{ stageUpdatedAt: { $lte: dayAgo } }, { stageUpdatedAt: null, createdAt: { $lte: dayAgo } }],
+        }, { status: { $nin: ['Delivered', 'Cancelled', 'Refunded'] } }];
+        break;
+      default: break;
+    }
   }
   if (q.printed === 'yes') f['printStatus.invoice.printed'] = true;
   if (q.printed === 'no') f['printStatus.invoice.printed'] = { $ne: true };
@@ -447,6 +485,46 @@ router.post('/bulk', protect, adminOnly, bulkLimit, asyncHandler(async (req, res
         });
         results.ok.push({ id: order._id, orderNumber: order.orderNumber });
 
+      } else if (action === 'note') {
+        const body = String(payload.note || '').trim();
+        if (!body) { results.failed.push({ id: order._id, orderNumber: order.orderNumber, reason: 'Empty note' }); continue; }
+        order.internalNotes.push({
+          body: body.slice(0, 2000),
+          authorId: req.user._id,
+          authorName: req.user.name || req.user.email || '',
+        });
+        order.lastBulkBatchId = batchId;
+        await order.save();
+        results.ok.push({ id: order._id, orderNumber: order.orderNumber });
+
+      } else if (action === 'qc') {
+        // Quality check is recorded as a structured note plus a flag, so it
+        // shows in the timeline and can be filtered on later.
+        const passed = payload.result !== 'fail';
+        order.qcStatus = passed ? 'passed' : 'review';
+        order.qcAt = new Date();
+        order.qcBy = req.user.name || req.user.email || '';
+        order.internalNotes.push({
+          body: `QC ${passed ? 'passed' : 'needs review'}${payload.note ? ` — ${String(payload.note).slice(0, 300)}` : ''}`,
+          authorId: req.user._id,
+          authorName: req.user.name || req.user.email || '',
+        });
+        order.lastBulkBatchId = batchId;
+        await order.save();
+        results.ok.push({ id: order._id, orderNumber: order.orderNumber });
+
+      } else if (action === 'priority') {
+        order.priorityFlag = payload.flag === 'clear' ? '' : String(payload.flag || 'rush').slice(0, 20);
+        order.lastBulkBatchId = batchId;
+        await order.save();
+        results.ok.push({ id: order._id, orderNumber: order.orderNumber });
+
+      } else if (action === 'assign') {
+        order.assignedTo = String(payload.assignee || '').slice(0, 80);
+        order.lastBulkBatchId = batchId;
+        await order.save();
+        results.ok.push({ id: order._id, orderNumber: order.orderNumber });
+
       } else {
         return res.status(400).json({ message: `Unknown bulk action "${action}"` });
       }
@@ -502,6 +580,42 @@ router.get('/export/csv', protect, adminOnly, asyncHandler(async (req, res) => {
   res.send('\uFEFF' + lines.join('\n'));   // BOM so Excel reads UTF-8
 }));
 
+
+
+/* ── WHATSAPP MESSAGE LINKS ───────────────────────────────────────────────
+ * Returns a ready-to-open wa.me link per order with the template filled in.
+ * The merchant clicks through, so no gateway credentials or send quota are
+ * involved and the message always comes from their own number.
+ * ------------------------------------------------------------------------ */
+router.post('/bulk/whatsapp', protect, adminOnly, bulkLimit, asyncHandler(async (req, res) => {
+  const ids = (req.body?.ids || []).filter(isId);
+  if (!ids.length) return res.status(400).json({ message: 'No orders selected' });
+  if (ids.length > 50) return res.status(400).json({ message: 'Send to at most 50 customers at a time' });
+
+  const template = String(req.body?.template || 'Hi {name}, your order {id} is {status}.').slice(0, 600);
+  const orders = await Order.find({ _id: { $in: ids } })
+    .select('orderNumber customerInfo stage status total').lean();
+
+  const links = orders.map((o) => {
+    const stage = o.stage || flow.stageFromLegacy(o);
+    const body = template
+      .replace(/\{name\}/g, o.customerInfo?.name || 'there')
+      .replace(/\{id\}/g, o.orderNumber)
+      .replace(/\{status\}/g, flow.STAGE_MAP.get(stage)?.label || stage)
+      .replace(/\{total\}/g, `PKR ${Number(o.total || 0).toLocaleString('en-PK')}`)
+      .replace(/\{link\}/g, `https://hushae.vercel.app/track?order=${encodeURIComponent(o.orderNumber)}`);
+    const phone = String(o.customerInfo?.phone || '').replace(/\D/g, '').replace(/^0/, '92');
+    return {
+      id: o._id,
+      orderNumber: o.orderNumber,
+      name: o.customerInfo?.name || '',
+      url: `https://wa.me/${phone}?text=${encodeURIComponent(body)}`,
+      preview: body,
+    };
+  });
+
+  res.json({ links, count: links.length });
+}));
 
 /* ── BATCH PRINT DATA ─────────────────────────────────────────────────────
  * One call returns everything needed to lay out N documents in a single print

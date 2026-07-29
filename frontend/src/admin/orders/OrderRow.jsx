@@ -6,13 +6,14 @@ import {
 } from 'lucide-react';
 import { fmtDate, pkr } from '../../lib/format';
 import { paymentTone, PRINT_DOCS, stageTone, STAGE_MAP } from './orderConstants';
+import QualityBadge from './QualityBadge';
 
 /* ============================================================================
  * One order row. Compact by default, expands to show items and quick actions.
  * ========================================================================== */
 
 export default function OrderRow({
-  order: o, selected, onSelect, busy, onStage, onVerify, onPrint, onOpenService,
+  order: o, selected, onSelect, busy, onStage, onVerify, onPrint, onOpenService, onOpenCustomer,
 }) {
   const [open, setOpen] = useState(false);
   const [menu, setMenu] = useState(false);
@@ -60,6 +61,14 @@ export default function OrderRow({
                 <Printer size={10} /> Printed
               </span>
             )}
+            <QualityBadge quality={o.quality} compact />
+
+            {o.priorityFlag === 'rush' && (
+              <span className="rounded-full bg-neutral-900 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">Rush</span>
+            )}
+            {o.qcStatus === 'passed' && (
+              <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[10.5px] font-semibold text-emerald-700 ring-1 ring-emerald-200">QC ✓</span>
+            )}
             {o.customerService?.hasIssue && (
               <span className="inline-flex items-center gap-1 rounded-full bg-red-50 px-2 py-0.5 text-[10.5px] font-bold text-red-700 ring-1 ring-red-200">
                 <AlertTriangle size={10} /> {o.customerService.issueType || 'Issue'}
@@ -69,7 +78,12 @@ export default function OrderRow({
 
           {/* Line 2 — customer */}
           <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[12.5px] text-neutral-600">
-            <span className="font-medium text-neutral-800">{o.customerInfo?.name}</span>
+            <button
+              onClick={(e) => { e.stopPropagation(); onOpenCustomer?.(o.customerInfo?.phone); }}
+              title="Open customer history"
+              className="font-medium text-neutral-800 underline decoration-neutral-300 underline-offset-2 hover:decoration-neutral-900">
+              {o.customerInfo?.name}
+            </button>
             <span className="inline-flex items-center gap-1"><Phone size={11} />{o.customerInfo?.phone}</span>
             <span className="inline-flex items-center gap-1"><MapPin size={11} />{o.customerInfo?.city}</span>
             <span className="text-neutral-400">{fmtDate(o.createdAt)}</span>
