@@ -281,7 +281,7 @@ function HeaderSection({ section }: { section: SectionNode }) {
         color: str(s.textColor) || 'var(--t-text)',
         borderColor: 'var(--t-border)',
       }}>
-      <div className={`${containerClass('page')} flex items-center gap-4`} style={{ minHeight: num(s.height, 64) }}>
+      <div className={`${containerClass(str(s.width, 'full'))} relative flex items-center gap-4`} style={{ minHeight: num(s.height, 80) }}>
         {layout === 'menu-left' ? (
           <><div className="flex-1">{Menu}</div>{Logo}<div className="flex flex-1 justify-end">{IconRow}</div></>
         ) : layout === 'logo-center' ? (
@@ -292,7 +292,11 @@ function HeaderSection({ section }: { section: SectionNode }) {
             {Menu}
           </div>
         ) : (
-          <>{Logo}<div className="hidden flex-1 justify-center md:flex">{Menu}</div><div className="ml-auto">{IconRow}</div></>
+          <>
+            {Logo}
+            <div className="absolute left-1/2 hidden -translate-x-1/2 md:block">{Menu}</div>
+            <div className="ml-auto">{IconRow}</div>
+          </>
         )}
       </div>
     </header>

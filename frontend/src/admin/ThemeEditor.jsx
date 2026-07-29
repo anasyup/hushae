@@ -33,6 +33,7 @@ const SECTION_TREE = {
       blocks: [{ id: 'offerBar', label: 'Announcement', icon: TextIcon }] },
     { id: 'header', label: 'Header', icon: Layout, path: 'header',
       blocks: [
+        { id: 'header.bar',   label: 'Bar layout', icon: Layout },
         { id: 'header.logo',  label: 'Logo',      icon: ImageIcon },
         { id: 'header.menu',  label: 'Main menu', icon: List },
         { id: 'header.icons', label: 'Icons',     icon: MousePointerClick },
@@ -72,16 +73,30 @@ const FIELD_SCHEMA = {
   ],
 
   // ── HEADER blocks ─────────────────────────────────────────────────────────
+  'header.bar': [
+    { key: '_note', label: 'Controls the whole top bar — how wide it runs, how tall it is and where the menu sits.', type: 'note' },
+    { key: 'width',  label: 'Bar width', type: 'segment', default: 'full',
+      options: [['full', 'Edge to edge'], ['boxed', 'Boxed']], persistedPath: 'header.width' },
+    { key: 'height', label: 'Bar height (desktop)', type: 'range', min: 56, max: 120, default: 80, unit: 'px', persistedPath: 'header.height' },
+    { key: 'menuAlign', label: 'Menu position', type: 'segment', default: 'center',
+      options: [['center', 'Centre'], ['left', 'Next to logo']], persistedPath: 'header.menuAlign' },
+    { key: 'border', label: 'Hairline under bar', type: 'toggle', default: true, persistedPath: 'header.border' },
+  ],
   'header.logo': [
     { key: 'logoType',  label: 'Logo type', type: 'segment', default: 'text', options: [['text', 'Text'], ['image', 'Image']], persistedPath: 'header.logoType' },
     { key: 'logoImage', label: 'Logo image', type: 'media', accept: 'image', persistedPath: 'header.logoImage', showIf: (s) => s?.header?.logoType === 'image' },
     { key: 'logoWidth', label: 'Logo width', type: 'range', min: 40, max: 320, default: 130, unit: 'px', persistedPath: 'header.logoWidth', showIf: (s) => s?.header?.logoType === 'image' },
     { key: 'storeName', label: 'Store name', type: 'text', default: 'HUSHAE', persistedPath: 'storeName', showIf: (s) => s?.header?.logoType !== 'image' },
     { key: 'logoText',  label: 'Override logo text (optional)', type: 'text', persistedPath: 'header.logoText', showIf: (s) => s?.header?.logoType !== 'image' },
+    { key: 'logoFont', label: 'Logo font', type: 'segment', default: 'display', options: [['display', 'Serif'], ['sans', 'Sans']], persistedPath: 'header.logoFont', showIf: (s) => s?.header?.logoType !== 'image' },
+    { key: 'logoSize', label: 'Logo size', type: 'range', min: 12, max: 48, default: 26, unit: 'px', persistedPath: 'header.logoSize', showIf: (s) => s?.header?.logoType !== 'image' },
     { key: 'logoBoxed', label: 'Outlined box', type: 'toggle', default: true, persistedPath: 'header.logoBoxed', showIf: (s) => s?.header?.logoType !== 'image' },
     { key: 'logoTracking', label: 'Letter spacing', type: 'range', min: 0, max: 60, default: 32, unit: '', persistedPath: 'header.logoTracking', showIf: (s) => s?.header?.logoType !== 'image' },
   ],
   'header.menu': [
+    { key: 'navSize', label: 'Link size', type: 'range', min: 10, max: 18, default: 13, unit: 'px', persistedPath: 'header.navSize' },
+    { key: 'navGap', label: 'Space between links', type: 'range', min: 12, max: 64, default: 34, unit: 'px', persistedPath: 'header.navGap' },
+    { key: 'navUppercase', label: 'UPPERCASE links', type: 'toggle', default: false, persistedPath: 'header.navUppercase' },
     { key: 'menu', label: 'Menu links', type: 'menu', persistedPath: 'header.menu' },
   ],
   'header.icons': [

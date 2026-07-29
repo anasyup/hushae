@@ -17,6 +17,16 @@ const settingsSchema = new mongoose.Schema({
     logoText:      { type: String,  default: '' },       // blank → falls back to storeName
     logoBoxed:     { type: Boolean, default: true },     // outlined box around the wordmark
     logoTracking:  { type: Number,  default: 32 },       // letter-spacing ×100 (0.32em)
+    logoSize:      { type: Number,  default: 26 },       // px on desktop (text logo)
+    logoFont:      { type: String,  default: 'display' },// display (serif) | sans
+    // Bar layout — edge-to-edge editorial bar by default (Calvin Klein style)
+    width:         { type: String,  default: 'full' },   // full | boxed
+    height:        { type: Number,  default: 80 },       // px on desktop
+    border:        { type: Boolean, default: true },     // hairline under the bar once scrolled
+    menuAlign:     { type: String,  default: 'center' }, // center | left
+    navSize:       { type: Number,  default: 13 },       // px
+    navGap:        { type: Number,  default: 34 },       // px between links
+    navUppercase:  { type: Boolean, default: false },    // false → sentence case
     // Main menu — merchant-managed links, each may hold a dropdown
     menu: {
       type: [{

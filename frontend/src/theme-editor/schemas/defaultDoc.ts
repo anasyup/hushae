@@ -18,6 +18,7 @@ const pick = <T,>(value: T | undefined | null | '', fallback: T): T =>
 export function buildDefaultDoc(settings: SettingsBag = {}): PageDocument {
   const s = settings as Record<string, any>;
   const hero = s.hero || {};
+  const h = s.header || {};
   const split = s.signatureSplit || {};
   const offer = s.offerBar || {};
   const marqueeItems: string[] = Array.isArray(s.marquee?.items) && s.marquee.items.length
@@ -44,22 +45,41 @@ export function buildDefaultDoc(settings: SettingsBag = {}): PageDocument {
   });
 
   const header = createSection('header', {
-    settings: { layout: 'logo-left', sticky: true, transparentOnHero: true, height: 64, border: true },
+    settings: { layout: 'logo-left', width: 'full', sticky: true, transparentOnHero: true, height: 80, border: true },
     blocks: [
-      createBlock('logo', { settings: { kind: 'text', text: pick(s.storeName, 'HUSHAE'), boxed: true, tracking: 32, size: 20 } }),
-      createBlock('menu', {
-        settings: { gap: 28, size: 12, uppercase: true },
-        blocks: [
-          createBlock('menu_item', { settings: { label: 'Women', href: '/women', dropdown: 'women' } }),
-          createBlock('menu_item', { settings: { label: 'Men', href: '/men', dropdown: 'men' } }),
-          createBlock('menu_item', { settings: { label: 'New Arrivals', href: '/new' } }),
-          createBlock('menu_item', { settings: { label: 'Best Sellers', href: '/best' } }),
-          createBlock('menu_item', { settings: { label: 'Sale', href: '/sale', highlight: true } }),
-          createBlock('menu_item', { settings: { label: 'Fit Finder', href: '/fit-finder' } }),
-          createBlock('menu_item', { settings: { label: 'Track Order', href: '/track' } }),
-        ],
+      createBlock('logo', {
+        settings: {
+          kind: 'text', text: pick(s.storeName, 'HUSHAE'),
+          boxed: h.logoBoxed !== false, tracking: Number(h.logoTracking ?? 32), size: Number(h.logoSize ?? 26),
+        },
       }),
-      createBlock('header_icons', { settings: { search: true, wishlist: true, account: true, cart: true } }),
+      createBlock('menu', {
+        settings: { gap: Number(h.navGap ?? 34), size: Number(h.navSize ?? 13), uppercase: h.navUppercase === true },
+        blocks: (Array.isArray(h.menu) && h.menu.length
+          ? h.menu
+          : [
+            { label: 'Women', href: '/women', dropdown: 'women' },
+            { label: 'Men', href: '/men', dropdown: 'men' },
+            { label: 'New Arrivals', href: '/new' },
+            { label: 'Best Sellers', href: '/best' },
+            { label: 'Sale', href: '/sale', highlight: true },
+            { label: 'Fit Finder', href: '/fit-finder' },
+            { label: 'Track Order', href: '/track' },
+          ]
+        ).filter((m: any) => m && m.label).map((m: any) => createBlock('menu_item', {
+          settings: {
+            label: String(m.label), href: String(m.href || '/'),
+            ...(m.dropdown ? { dropdown: String(m.dropdown) } : {}),
+            ...(m.highlight ? { highlight: true } : {}),
+          },
+        })),
+      }),
+      createBlock('header_icons', {
+        settings: {
+          search: h.showSearch !== false, wishlist: h.showWishlist !== false,
+          account: h.showAccount !== false, cart: h.showCart !== false,
+        },
+      }),
     ],
   });
 

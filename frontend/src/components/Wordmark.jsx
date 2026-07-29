@@ -10,6 +10,8 @@ import { useApp } from '../store/AppContext';
  * settings.header.logoText   overrides settings.storeName (text mode)
  * settings.header.logoBoxed  draw the outlined box around the wordmark
  * settings.header.logoTracking  letter-spacing ×100 (32 → 0.32em)
+ * settings.header.logoSize   font size in px on desktop (mobile scales down)
+ * settings.header.logoFont   'display' (serif) | 'sans'
  *
  * Props keep the old API so every existing call site still works:
  *  - size    'sm' | 'md' | 'lg'
@@ -24,6 +26,11 @@ export default function Wordmark({ size = 'md', variant = 'link', className = ''
       : 'text-lg md:text-xl';
 
   const colorCls = forceColor === 'alabaster' ? 'text-alabaster' : 'text-obsidian';
+
+  // Admin-set pixel size overrides the preset scale (mobile keeps 88% of it).
+  const px = Number.isFinite(Number(h.logoSize)) ? Number(h.logoSize) : 26;
+  const hasPx = size === 'md' && px >= 12 && px <= 48;
+  const fontCls = h.logoFont === 'sans' ? 'font-sans' : 'font-display';
 
   // ── Image logo ────────────────────────────────────────────────────────────
   if (h.logoType === 'image' && h.logoImage) {
@@ -46,10 +53,13 @@ export default function Wordmark({ size = 'md', variant = 'link', className = ''
 
   // The wordmark is also the home link, so it needs a comfortable tap height
   // even when it is plain text — 44px matches the rest of the header controls.
-  const base = `inline-flex min-h-[44px] select-none items-center font-display font-semibold ${colorCls} ${sizeCls} ${className} ${
+  const base = `inline-flex min-h-[44px] select-none items-center ${fontCls} font-semibold leading-none ${colorCls} ${hasPx ? '' : sizeCls} ${className} ${
     boxed ? 'border px-3 py-1.5 ' + (forceColor === 'alabaster' ? 'border-alabaster/70' : 'border-obsidian/70') : ''
   }`;
-  const style = { letterSpacing: `${tracking}em` };
+  const style = {
+    letterSpacing: `${tracking}em`,
+    ...(hasPx ? { fontSize: `clamp(${Math.round(px * 0.82)}px, 4.4vw, ${px}px)` } : {}),
+  };
 
   if (variant === 'plain') return <span className={base} style={style}>{text}</span>;
   return (
