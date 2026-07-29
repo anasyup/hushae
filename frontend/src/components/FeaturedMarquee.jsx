@@ -45,10 +45,17 @@ export default function FeaturedMarquee({ products, title = 'HUSHAE — Signatur
     return () => cancelAnimationFrame(id);
   }, [list.length]);
 
-  /** Keep scrollLeft inside the middle copy, wrapping without a visible jump. */
+  /**
+   * Keep scrollLeft inside the middle copy.
+   *
+   * Only touches scrollLeft when a boundary is genuinely crossed: assigning it
+   * on every scroll event would cancel the browser's smooth-scroll animation
+   * and stall the drift, since both report as scroll events too.
+   */
+  const smoothing = useRef(false);
   const wrap = useCallback(() => {
     const el = trackRef.current;
-    if (!el) return;
+    if (!el || smoothing.current) return;
     const w = copyWidth();
     if (w <= 0) return;
     if (el.scrollLeft < w * 0.5) el.scrollLeft += w;
@@ -64,15 +71,28 @@ export default function FeaturedMarquee({ products, title = 'HUSHAE — Signatur
     const duration = Math.max(20, Math.min(120, Math.round((list.length * speed) / 6)));
     let raf = 0;
     let last = performance.now();
+    // scrollLeft is rounded to whole pixels, so a ~0.9px-per-frame nudge would
+    // be discarded every time and the strip would never move. Accumulate the
+    // fractional distance here and only write once a whole pixel is owed.
+    let owed = 0;
 
     const tick = (now) => {
-      const dt = now - last;
+      const dt = Math.min(now - last, 100);          // ignore tab-switch gaps
       last = now;
       const w = copyWidth();
-      const stop = paused || drag.current.active || document.hidden || reduceMotion.current;
+      const stop = paused || drag.current.active || document.hidden
+        || reduceMotion.current || smoothing.current;
+
       if (!stop && w > 0) {
-        el.scrollLeft += (w / (duration * 1000)) * dt;
-        wrap();
+        owed += (w / (duration * 1000)) * dt;
+        const whole = Math.trunc(owed);
+        if (whole >= 1) {
+          owed -= whole;
+          el.scrollLeft += whole;
+          wrap();
+        }
+      } else {
+        owed = 0;                                    // don't lurch after a pause
       }
       raf = requestAnimationFrame(tick);
     };
@@ -119,7 +139,10 @@ export default function FeaturedMarquee({ products, title = 'HUSHAE — Signatur
     if (!el) return;
     const card = el.querySelector('[data-card]');
     const by = card ? card.getBoundingClientRect().width + 24 : el.clientWidth * 0.8;
+    smoothing.current = true;
     el.scrollBy({ left: dir * by, behavior: 'smooth' });
+    // Re-enable wrapping once the animation has had time to settle.
+    window.setTimeout(() => { smoothing.current = false; wrap(); }, 600);
   };
 
   if (!list.length) return null;
