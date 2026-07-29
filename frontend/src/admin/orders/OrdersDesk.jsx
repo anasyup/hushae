@@ -151,7 +151,7 @@ export default function OrdersDesk() {
 
           <div className="flex items-center gap-2">
             <Link
-              to="/admin/dashboard"
+              to="/admin"
               className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm font-medium text-neutral-700 transition hover:border-neutral-400"
             >
               <TrendingUp size={14} /> Analytics
