@@ -330,7 +330,31 @@ const settingsSchema = new mongoose.Schema({
     monthlyMarketing: { type: Number, default: 0 },    // PKR/month spent on ads (Meta, Google, TikTok)
     monthlySeo:       { type: Number, default: 0 },    // PKR/month spent on SEO / content
     monthlyOther:     { type: Number, default: 0 },    // PKR/month other fixed costs (hosting, tools)
+    // --- Per-order economics (used by Finance → Order profitability) --------
+    defaultCourierCost: { type: Number, default: 0 },  // PKR the courier bills you per parcel
+    courierByCity: {                                   // overrides the default for named cities
+      type: [{ _id: false, city: String, cost: Number }],
+      default: [],
+    },
+    returnCourierMultiplier: { type: Number, default: 2 }, // a return bills both legs
+    paymentFees: {                                     // % of order value kept by the gateway
+      cod:       { type: Number, default: 0 },
+      jazzcash:  { type: Number, default: 2 },
+      easypaisa: { type: Number, default: 2 },
+      bank:      { type: Number, default: 0 },
+      card:      { type: Number, default: 2.75 },
+    },
+    // Monthly budgets — shown against actual spend on the Finance page
+    budgets: {
+      ads:   { type: Number, default: 0 },
+      seo:   { type: Number, default: 0 },
+      other: { type: Number, default: 0 },
+    },
   },
+  /** Revenue target for the current month — drives the dashboard goal tracker. */
+  monthlyRevenueGoal: { type: Number, default: 0 },
+  /** Orders below this net margin are flagged amber on the profitability table. */
+  marginThresholdPercent: { type: Number, default: 15 },
 }, { timestamps: true });
 
 module.exports = mongoose.model('Settings', settingsSchema);

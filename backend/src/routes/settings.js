@@ -17,11 +17,27 @@ router.put('/', protect, adminOnly, asyncHandler(async (req, res) => {
   const b = req.body || {};
   const s = await getSettings();
   ['storeName', 'tagline', 'contactEmail', 'contactPhone', 'hero', 'trustBadges',
-    'shippingFlatRate', 'freeShippingThreshold', 'paymentMethods', 'theme', 'offerBar', 'integrations', 'storefrontLock', 'cookiePopup', 'media', 'marquee', 'promoPopup', 'faq', 'operatingCosts', 'signatureSplit', 'productSections', 'header', 'footer'].forEach((f) => {
+    'shippingFlatRate', 'freeShippingThreshold', 'paymentMethods', 'theme', 'offerBar', 'integrations', 'storefrontLock', 'cookiePopup', 'media', 'marquee', 'promoPopup', 'faq', 'operatingCosts', 'signatureSplit', 'productSections', 'header', 'footer',
+    'monthlyRevenueGoal', 'marginThresholdPercent'].forEach((f) => {
     if (b[f] !== undefined) s[f] = b[f];
   });
   await s.save();
   res.json({ settings: s });
+}));
+
+/** Focused endpoint for the goal / threshold widgets — avoids a full settings PUT. */
+router.post('/goals', protect, adminOnly, asyncHandler(async (req, res) => {
+  const s = await getSettings();
+  const { monthlyRevenueGoal, marginThresholdPercent } = req.body || {};
+  if (monthlyRevenueGoal !== undefined) s.monthlyRevenueGoal = Math.max(0, Number(monthlyRevenueGoal) || 0);
+  if (marginThresholdPercent !== undefined) {
+    s.marginThresholdPercent = Math.min(100, Math.max(0, Number(marginThresholdPercent) || 0));
+  }
+  await s.save();
+  res.json({
+    monthlyRevenueGoal: s.monthlyRevenueGoal,
+    marginThresholdPercent: s.marginThresholdPercent,
+  });
 }));
 
 // Test-email endpoint — admin can verify SMTP config works

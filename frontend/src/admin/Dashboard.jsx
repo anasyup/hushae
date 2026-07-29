@@ -2,8 +2,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Activity, AlertTriangle, ArrowDownRight, ArrowUpRight, Banknote, Box, Calendar,
-  ChevronRight, CircleDollarSign, Package, RefreshCw, ShoppingBag, Sparkles,
-  Truck, TrendingUp, Users, Zap,
+  ChevronRight, CircleDollarSign, Download, Moon, Package, RefreshCw, ShoppingBag,
+  Sparkles, Sun, Truck, TrendingUp, Users, Zap,
 } from 'lucide-react';
 import {
   Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, Legend, Line, LineChart,
@@ -12,8 +12,19 @@ import {
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import { fmtDate, pkr } from '../lib/format';
+import { getAdminTheme, setAdminTheme } from '../lib/adminTheme';
 import AdminLayout from './AdminLayout';
 import Img from '../components/Img';
+import AlertsBar from './dashboard/AlertsBar';
+import GoalTracker from './dashboard/GoalTracker';
+import InsightsCard from './dashboard/InsightsCard';
+import { exportDashboardSummary } from './dashboard/exportSummary';
+
+const COMPARE_MODES = [
+  { key: 'prev', label: 'vs previous 30 days' },
+  { key: 'last-month', label: 'vs same period last month' },
+  { key: 'last-year', label: 'vs same period last year' },
+];
 
 /* ============================================================================
  * PREMIUM DASHBOARD — original design inspired by (not copied from) top
@@ -34,7 +45,7 @@ const statusPill = (s) =>
 /* ==========================================================================
  * KPI CARD — trend badge (▲ +12%) coloured by direction
  * ======================================================================== */
-function KpiCard({ icon: Icon, label, value, change, sparkData, accent = '#111111', format = 'number', to }) {
+function KpiCard({ icon: Icon, label, value, change, sparkData, accent = '#111111', format = 'number', to, compareLabel = 'vs. previous 30 days' }) {
   const positive = change > 0;
   const negative = change < 0;
   const changeText = Math.abs(change).toFixed(1) + '%';
@@ -63,7 +74,7 @@ function KpiCard({ icon: Icon, label, value, change, sparkData, accent = '#11111
       <p className="mt-1 font-sans text-[22px] font-semibold tabular-nums leading-none tracking-tight text-neutral-900 sm:text-[26px]">
         {display}
       </p>
-      <p className="mt-1 text-[11px] text-neutral-400">vs. previous 30 days</p>
+      <p className="mt-1 text-[11px] text-neutral-400">{compareLabel}</p>
       {sparkData && sparkData.length > 0 && (
         <div className="mt-3 h-10">
           <ResponsiveContainer width="100%" height="100%">
@@ -119,6 +130,63 @@ function ProfitTile({ icon: Icon, label, value, change, tone = 'neutral', format
 }
 
 /* ==========================================================================
+ * LOW-STOCK ROW — inline restock so the fix takes one click, not a page load
+ * ======================================================================== */
+function StockRow({ product: p, onSaved }) {
+  const { auth, toast } = useApp();
+  const [editing, setEditing] = useState(false);
+  const [value, setValue] = useState(String(p.stock));
+  const [busy, setBusy] = useState(false);
+
+  const save = async () => {
+    const n = Number(value);
+    if (!Number.isFinite(n) || n < 0) { toast('Enter a valid quantity'); return; }
+    setBusy(true);
+    try {
+      await api(`/products/${p._id}/stock`, { method: 'PATCH', token: auth.token, body: { stock: n } });
+      toast(`${p.name} → ${n} in stock`);
+      setEditing(false);
+      onSaved?.();
+    } catch { toast('Could not update stock'); }
+    setBusy(false);
+  };
+
+  if (editing) {
+    return (
+      <div className="flex items-center gap-2 rounded-lg bg-neutral-50 p-1.5">
+        <Img src={p.images?.[0]?.url} alt="" className="h-10 w-8 shrink-0 rounded-md border border-neutral-200 object-cover" />
+        <input
+          type="number" min="0" autoFocus value={value}
+          onChange={(e) => setValue(e.target.value)}
+          onKeyDown={(e) => { if (e.key === 'Enter') save(); if (e.key === 'Escape') setEditing(false); }}
+          className="w-full min-w-0 rounded-md border border-neutral-300 px-2 py-1.5 text-[12px] tabular-nums outline-none focus:border-neutral-900"
+        />
+        <button onClick={save} disabled={busy}
+          className="shrink-0 rounded-md bg-neutral-900 px-2.5 py-1.5 text-[11px] font-semibold text-white disabled:opacity-50">Save</button>
+        <button onClick={() => setEditing(false)}
+          className="shrink-0 rounded-md px-1.5 py-1.5 text-[11px] font-semibold text-neutral-500 hover:text-neutral-900">Cancel</button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="group flex items-center gap-3 rounded-lg p-1.5 transition hover:bg-neutral-50">
+      <Link to={`/admin/products/${p._id}`} className="flex min-w-0 flex-1 items-center gap-3">
+        <Img src={p.images?.[0]?.url} alt="" className="h-10 w-8 shrink-0 rounded-md border border-neutral-200 object-cover" />
+        <span className="line-clamp-2 flex-1 text-[12px] font-medium text-neutral-800">{p.name}</span>
+      </Link>
+      <button
+        onClick={() => { setValue(String(p.stock)); setEditing(true); }}
+        title="Update stock"
+        className={`pill shrink-0 transition hover:ring-2 hover:ring-neutral-300 ${p.stock === 0 ? 'bg-red-100 text-red-800' : 'bg-red-50 text-red-700'}`}
+      >
+        {p.stock} ✎
+      </button>
+    </div>
+  );
+}
+
+/* ==========================================================================
  * PIPELINE STRIP — order-flow visualization
  * ======================================================================== */
 function PipelineStrip({ stats }) {
@@ -160,6 +228,21 @@ function PipelineStrip({ stats }) {
           </Link>
         ))}
       </div>
+
+      {/* The one stage that always needs a human — surfaced as an action, not a count */}
+      {stats.pending > 0 && (
+        <Link
+          to="/admin/orders?stage=new"
+          className="mt-3 flex items-center justify-between gap-3 rounded-xl border border-amber-200 bg-amber-50 px-3.5 py-2.5 transition hover:border-amber-300 hover:bg-amber-100"
+        >
+          <span className="min-w-0 text-[12px] font-medium text-amber-900">
+            <b className="tabular-nums">{stats.pending}</b> new order{stats.pending === 1 ? '' : 's'} waiting to be confirmed
+          </span>
+          <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-amber-900 px-3 py-1 text-[11px] font-semibold text-white">
+            Review now <ChevronRight size={11} />
+          </span>
+        </Link>
+      )}
     </div>
   );
 }
@@ -344,18 +427,31 @@ export default function Dashboard() {
   const [refreshing, setRefreshing] = useState(false);
   const [insights, setInsights] = useState(null);   // order-desk metrics
   const [lastSync, setLastSync] = useState(null);
+  const [alerts, setAlerts] = useState(null);
+  const [smart, setSmart] = useState(null);
+  const [goal, setGoal] = useState(null);
+  const [compareMode, setCompareMode] = useState('prev');
+  const [compare, setCompare] = useState(null);
+  const [dark, setDark] = useState(() => getAdminTheme() === 'dark');
 
   const load = async (silent = false) => {
     if (!silent) setRefreshing(true);
     try {
-      // Two sources: the long-standing admin summary, plus the order-desk
-      // insights that used to sit on the Orders page.
-      const [data, ins] = await Promise.all([
+      // The long-standing admin summary, the order-desk insights that used to
+      // sit on the Orders page, and the newer signal endpoints. Each optional
+      // call degrades to null so one failure never blanks the page.
+      const [data, ins, al, sm, gl] = await Promise.all([
         api('/admin/dashboard', { token: auth.token }),
         api('/orders/insights/dashboard?days=30', { token: auth.token }).catch(() => null),
+        api('/dashboard/alerts', { token: auth.token }).catch(() => null),
+        api('/dashboard/insights', { token: auth.token }).catch(() => null),
+        api('/dashboard/goal', { token: auth.token }).catch(() => null),
       ]);
       setD(data);
       if (ins) setInsights(ins);
+      setAlerts(al?.alerts || []);
+      setSmart(sm?.insights || []);
+      if (gl) setGoal(gl);
       setLastSync(new Date());
       setErr('');
     } catch (e) {
@@ -366,6 +462,20 @@ export default function Dashboard() {
   };
 
   useEffect(() => { load(); }, [auth]); // eslint-disable-line
+
+  // Comparison baseline is fetched on its own so switching the dropdown does
+  // not re-pull the whole dashboard.
+  useEffect(() => {
+    if (!auth?.token) return;
+    api(`/dashboard/compare?mode=${compareMode}&days=30`, { token: auth.token })
+      .then(setCompare).catch(() => setCompare(null));
+  }, [auth?.token, compareMode]); // eslint-disable-line
+
+  const toggleDark = () => {
+    const next = dark ? 'light' : 'dark';
+    setAdminTheme(next);
+    setDark(!dark);
+  };
 
   // Keep the numbers current without anyone reaching for refresh. Silent, so
   // the page never flashes a spinner while someone is reading it.
@@ -405,6 +515,17 @@ export default function Dashboard() {
     return 'Good evening';
   })();
 
+  // The comparison dropdown swaps the baseline behind the KPI trend badges.
+  // Falls back to the dashboard's own previous-30-day figure when a chosen
+  // baseline has no data (e.g. "last year" on a store opened this year).
+  const cmpLabel = compare?.hasBaseline
+    ? compare.label
+    : compare && !compare.hasBaseline
+      ? `${compare.label} — no data`
+      : 'vs. previous 30 days';
+  const cmpChange = (key, fallback) =>
+    (compare?.hasBaseline ? compare.change[key] ?? fallback : fallback);
+
   return (
     <AdminLayout title="Dashboard">
 
@@ -414,30 +535,71 @@ export default function Dashboard() {
           <p className="font-sans text-2xl text-neutral-900">{greeting}, {auth?.user?.name?.split(' ')[0] || 'Admin'}</p>
           <p className="mt-1 text-[13px] text-neutral-500">Here's what's happening at HUSHAE today.</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1.5 text-[11px] font-semibold text-emerald-700 ring-1 ring-emerald-200">
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
             Live{lastSync ? ` · ${lastSync.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : ''}
           </span>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-neutral-100 px-3 py-1.5 text-[11px] font-semibold text-neutral-600">
+          <span className="hidden items-center gap-1.5 rounded-full bg-neutral-100 px-3 py-1.5 text-[11px] font-semibold text-neutral-600 sm:inline-flex">
             <Calendar size={12} /> {new Date().toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long' })}
           </span>
           <button
             onClick={() => load()}
             disabled={refreshing}
-            className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-[11px] font-semibold text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-50"
+            className="inline-flex min-h-[34px] items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-[11px] font-semibold text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-50"
           >
             <RefreshCw size={12} className={refreshing ? 'animate-spin' : ''} /> Refresh
+          </button>
+          <button
+            onClick={() => exportDashboardSummary({
+              d, goal, alerts, insights: smart,
+              storeName: 'HUSHAE',
+              compareLabel: compare?.label || '',
+            })}
+            className="inline-flex min-h-[34px] items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-[11px] font-semibold text-neutral-700 transition hover:bg-neutral-50"
+          >
+            <Download size={12} /> Export summary
+          </button>
+          <button
+            onClick={toggleDark}
+            title={dark ? 'Switch to light mode' : 'Switch to dark mode'}
+            aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}
+            className="grid h-[34px] w-[34px] place-items-center rounded-full border border-neutral-200 bg-white text-neutral-700 transition hover:bg-neutral-50"
+          >
+            {dark ? <Sun size={13} /> : <Moon size={13} />}
           </button>
         </div>
       </div>
 
+      {/* --- What needs attention today --- */}
+      <AlertsBar alerts={alerts} />
+
+      {/* --- Comparison period selector --- */}
+      <div className="mb-3 flex items-center justify-end">
+        <label className="flex items-center gap-2 text-[11px] font-semibold text-neutral-500">
+          <span className="hidden sm:inline">Compare</span>
+          <select
+            value={compareMode}
+            onChange={(e) => setCompareMode(e.target.value)}
+            className="min-h-[34px] rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-[11px] font-semibold text-neutral-700 outline-none transition hover:bg-neutral-50 focus:border-neutral-900"
+          >
+            {COMPARE_MODES.map((m) => <option key={m.key} value={m.key}>{m.label}</option>)}
+          </select>
+        </label>
+      </div>
+
       {/* --- KPI cards (30-day) with sparklines + trend --- */}
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <KpiCard icon={CircleDollarSign} label="Revenue (30d)"   value={d.kpis.revenue.value}   change={d.kpis.revenue.change}   sparkData={sparkRevenue}   accent="#059669" format="money" to="/admin/analytics" />
-        <KpiCard icon={ShoppingBag}      label="Orders (30d)"    value={d.kpis.orders.value}    change={d.kpis.orders.change}    sparkData={sparkOrders}    accent="#2563eb" to="/admin/orders" />
-        <KpiCard icon={Users}            label="New Customers"   value={d.kpis.customers.value} change={d.kpis.customers.change} sparkData={sparkCustomers} accent="#7c3aed" to="/admin/customers" />
-        <KpiCard icon={TrendingUp}       label="Avg Order Value" value={d.kpis.aov.value}       change={d.kpis.aov.change}       sparkData={sparkAov}       accent="#dc2626" format="money" to="/admin/analytics" />
+        <KpiCard icon={CircleDollarSign} label="Revenue (30d)"   value={d.kpis.revenue.value}   change={cmpChange('revenue', d.kpis.revenue.change)} sparkData={sparkRevenue}   accent="#059669" format="money" to="/admin/analytics" compareLabel={cmpLabel} />
+        <KpiCard icon={ShoppingBag}      label="Orders (30d)"    value={d.kpis.orders.value}    change={cmpChange('orders', d.kpis.orders.change)}   sparkData={sparkOrders}    accent="#2563eb" to="/admin/orders" compareLabel={cmpLabel} />
+        <KpiCard icon={Users}            label="New Customers"   value={d.kpis.customers.value} change={d.kpis.customers.change} sparkData={sparkCustomers} accent="#7c3aed" to="/admin/customers" compareLabel="new in the last 30 days" />
+        <KpiCard icon={TrendingUp}       label="Avg Order Value" value={d.kpis.aov.value}       change={cmpChange('aov', d.kpis.aov.change)}         sparkData={sparkAov}       accent="#dc2626" format="money" to="/admin/analytics" compareLabel={cmpLabel} />
+      </div>
+
+      {/* --- Goal tracker + smart insight --- */}
+      <div className="mt-6 grid gap-4 lg:grid-cols-2">
+        <GoalTracker goal={goal} onSaved={() => load(true)} />
+        <InsightsCard insights={smart} />
       </div>
 
       {/* --- Profit row: profit, cost, margin (only shown if any cost is set) --- */}
@@ -642,13 +804,9 @@ export default function Dashboard() {
             {d.lowStock.length === 0 ? (
               <p className="py-6 text-center text-sm text-neutral-400">All stocked up.</p>
             ) : (
-              <div className="space-y-2">
+              <div className="space-y-1">
                 {d.lowStock.slice(0, 5).map((p) => (
-                  <Link to={`/admin/products/${p._id}`} key={p._id} className="flex items-center gap-3 rounded-lg p-1.5 transition hover:bg-neutral-50">
-                    <Img src={p.images[0]?.url} alt="" className="h-10 w-8 rounded-md border border-neutral-200 object-cover" />
-                    <span className="line-clamp-2 flex-1 text-[12px] font-medium text-neutral-800">{p.name}</span>
-                    <span className={`pill ${p.stock === 0 ? 'bg-red-100 text-red-800' : 'bg-red-50 text-red-700'}`}>{p.stock}</span>
-                  </Link>
+                  <StockRow key={p._id} product={p} onSaved={() => load(true)} />
                 ))}
               </div>
             )}

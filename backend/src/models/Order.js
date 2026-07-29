@@ -128,6 +128,13 @@ const orderSchema = new mongoose.Schema({
   /** Set when an order was created or actioned as part of a bulk run. */
   isBulkOrder: { type: Boolean, default: false },
   lastBulkBatchId: { type: String, default: '' },
+
+  // --- Per-order economics --------------------------------------------------
+  // null = "use the Settings default". Filling any of these in overrides the
+  // estimate for that order only; utils/orderEconomics.js resolves the fallback.
+  courierCost:       { type: Number, default: null },
+  paymentGatewayFee: { type: Number, default: null },
+  packagingCost:     { type: Number, default: null },
 }, { timestamps: true, minimize: false });
 
 // Indexes that back the new filter/sort surface

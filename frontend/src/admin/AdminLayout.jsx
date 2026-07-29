@@ -1,13 +1,14 @@
 import { Fragment, useEffect, useMemo, useState } from 'react';
 import { Link, NavLink, Navigate, useLocation } from 'react-router-dom';
 import {
-  Activity, BadgePercent, BarChart3, Bell, ChevronDown, CreditCard, FileText, FolderOpen, Globe, Home,
+  Activity, BadgePercent, BarChart3, ChevronDown, CreditCard, FileText, FolderOpen, Globe, Home,
   LayoutTemplate, LogOut, Menu, MessageSquare, Package, PackagePlus, PackageX,
   Search, Settings as SettingsIcon, ShieldCheck, ShoppingBag, Store, Tags, TrendingUp, Truck, Users, X, Zap,
 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { applyAdminTheme, clearAdminTheme } from '../lib/adminTheme';
 import ProfitCalculator from './ProfitCalculator';
+import NotificationBell from './dashboard/NotificationBell';
 
 /* ------------------------------------------------------------------ *
  * Sidebar structure — Shopify-style with collapsible groups.
@@ -291,7 +292,10 @@ export default function AdminLayout({ children, title }) {
         </div>
       )}
 
-      <div className="flex min-h-screen flex-1 flex-col md:pl-60">
+      {/* min-w-0 is load-bearing: a flex child defaults to min-width:auto, so any
+          wide table inside stretched the whole admin shell past the viewport
+          instead of scrolling within its own container. */}
+      <div className="flex min-h-screen min-w-0 flex-1 flex-col md:pl-60">
         {/* Mobile topbar */}
         <div className="sticky top-0 z-30 flex items-center gap-3 border-b border-black/5 bg-[#ebebeb] px-4 py-3 md:hidden">
           <button onClick={() => setDrawer(true)} className="rounded-lg p-1.5 text-neutral-700 hover:bg-white/70"><Menu size={20} /></button>
@@ -301,9 +305,9 @@ export default function AdminLayout({ children, title }) {
         {/* Desktop topbar — breadcrumb, quick actions, notifications */}
         <TopBar title={title} auth={auth} />
 
-        <main className="flex-1 p-4 md:p-8">
+        <main className="min-w-0 flex-1 p-4 md:p-8">
           {title && <h1 className="mb-6 font-sans text-[28px] font-semibold leading-tight text-neutral-900 md:hidden">{title}</h1>}
-          <div>{children}</div>
+          <div className="min-w-0">{children}</div>
         </main>
       </div>
 
@@ -318,7 +322,6 @@ export default function AdminLayout({ children, title }) {
  * ======================================================================== */
 function TopBar({ title, auth }) {
   const loc = useLocation();
-  const [notifOpen, setNotifOpen] = useState(false);
 
   const crumbs = (() => {
     const parts = loc.pathname.split('/').filter(Boolean); // ['admin', ...]
@@ -375,26 +378,7 @@ function TopBar({ title, auth }) {
           </Link>
 
           {/* Notifications */}
-          <div className="relative">
-            <button
-              onClick={() => setNotifOpen((v) => !v)}
-              className="relative rounded-full border border-neutral-200 bg-white p-2 text-neutral-600 transition hover:border-neutral-400 hover:text-neutral-900"
-              aria-label="Notifications"
-            >
-              <Bell size={15} />
-              <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-red-500" />
-            </button>
-            {notifOpen && (
-              <div className="absolute right-0 top-full z-30 mt-2 w-72 overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-xl">
-                <div className="border-b border-neutral-100 px-4 py-3">
-                  <p className="text-[11px] font-bold uppercase tracking-widest text-neutral-500">Notifications</p>
-                </div>
-                <div className="p-3 text-center">
-                  <p className="py-6 text-[12px] text-neutral-400">You&apos;re all caught up.</p>
-                </div>
-              </div>
-            )}
-          </div>
+          <NotificationBell />
 
           {/* Avatar */}
           <div className="ml-1 flex items-center gap-2 rounded-full border border-neutral-200 bg-white p-1 pl-1 pr-3">

@@ -13,6 +13,9 @@ import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import { pkr } from '../lib/format';
 import AdminLayout from './AdminLayout';
+import OrderProfitability from './finance/OrderProfitability';
+import { BreakEven, CodExposure, ProfitByCustomer, ProfitByProduct } from './finance/ProfitTables';
+import { exportPnlReport } from './finance/exportPnl';
 
 /* ============================================================================
  * FINANCE — Business Advisor page.
@@ -105,6 +108,29 @@ export default function Finance() {
     const refunded = inRange.filter((o) => o.status === 'Refunded').reduce((n, o) => n + (o.total || 0), 0);
     const cancelled = inRange.filter((o) => o.status === 'Cancelled').length;
 
+    // Real loss on failed orders. A cancellation before dispatch costs nothing;
+    // once the parcel is with the courier that money is gone, and a return
+    // bills both legs. Reporting these as "PKR 0" understated the damage.
+    const oc0 = settings?.operatingCosts || {};
+    const courierRate = Number(oc0.defaultCourierCost) || Number(oc0.shippingSubsidy) || 0;
+    const packRate = Number(oc0.packingPerOrder) || 0;
+    const returnMult = Number(oc0.returnCourierMultiplier) > 0 ? Number(oc0.returnCourierMultiplier) : 2;
+    const SHIPPED = new Set(['Shipped', 'In Transit', 'Out for Delivery', 'Delivered', 'Completed', 'Failed Delivery', 'Returned']);
+    const failed = inRange.filter((o) => ['Cancelled', 'Refunded'].includes(o.status));
+    let lostBeforeShip = 0, lostAfterShip = 0, lostBeforeCost = 0, lostAfterCost = 0;
+    for (const o of failed) {
+      const ts = o.stageTimestamps || {};
+      const wasShipped = SHIPPED.has(o.stage)
+        || Boolean(ts.Shipped || ts['In Transit'] || ts['Out for Delivery'] || ts.Delivered);
+      if (wasShipped) {
+        lostAfterShip += 1;
+        lostAfterCost += packRate + courierRate * (o.status === 'Refunded' ? returnMult : 1);
+      } else {
+        lostBeforeShip += 1;
+      }
+    }
+    const failedLoss = lostBeforeCost + lostAfterCost;
+
     // Operating costs from settings
     const oc = settings?.operatingCosts || {};
     const packingTotal = (oc.packingPerOrder || 0) * orderCount;
@@ -148,10 +174,69 @@ export default function Finance() {
     if (orderCount === 0 && cancelled > 0) insights.push({ tone: 'warn', text: 'All orders in this range were cancelled — check if payment methods or product quality is causing drop-off.' });
     if (packingTotal > revenue * 0.05 && packingTotal > 0) insights.push({ tone: 'neutral', text: `Packing costs are ${((packingTotal / revenue) * 100).toFixed(1)}% of revenue — buying materials in bulk usually saves 20-30%.` });
 
+    // --- Extra advisor rules ------------------------------------------------
+    // Failure rate trend: this half of the range vs the previous half.
+    const mid = new Date(sinceDate.getTime() + (now - sinceDate) / 2);
+    const failRate = (list) => {
+      const all = list.length;
+      if (!all) return null;
+      return list.filter((o) => ['Cancelled', 'Refunded'].includes(o.status)).length / all;
+    };
+    const recentFail = failRate(inRange.filter((o) => new Date(o.createdAt) >= mid));
+    const priorFail = failRate(inRange.filter((o) => new Date(o.createdAt) < mid));
+    if (recentFail !== null && priorFail !== null && priorFail > 0 && recentFail > priorFail * 1.25) {
+      insights.push({
+        tone: 'warn',
+        text: `COD cancellations and returns are trending up — ${(recentFail * 100).toFixed(0)}% recently vs ${(priorFail * 100).toFixed(0)}% earlier in this range. A confirmation call before dispatch is the cheapest fix.`,
+      });
+    }
+
+    // Specific low-margin product, named — more actionable than a global figure.
+    const perProduct = new Map();
+    for (const o of active) {
+      for (const it of o.items || []) {
+        const key = it.name || 'Unknown';
+        const cur = perProduct.get(key) || { rev: 0, cost: 0, units: 0 };
+        const q = Number(it.quantity) || 0;
+        cur.rev += Number(it.lineTotal) || 0;
+        cur.cost += (Number(it.costPrice) || 0) * q;
+        cur.units += q;
+        perProduct.set(key, cur);
+      }
+    }
+    const worst = [...perProduct.entries()]
+      .filter(([, v]) => v.rev > 0 && v.units >= 2)
+      .map(([name, v]) => ({ name, units: v.units, margin: ((v.rev - v.cost) / v.rev) * 100 }))
+      .sort((a, b) => a.margin - b.margin)[0];
+    if (worst && worst.margin < 25) {
+      insights.push({
+        tone: 'warn',
+        text: `${worst.name} sells well (${worst.units} units) but only returns a ${worst.margin.toFixed(0)}% margin. Re-price it or renegotiate the unit cost.`,
+      });
+    }
+
+    // Courier cost per order drifting up.
+    const courierPerOrder = orderCount > 0 ? shipSubsidy / orderCount : 0;
+    if (courierPerOrder > 0 && aov > 0 && courierPerOrder / aov > 0.12) {
+      insights.push({
+        tone: 'warn',
+        text: `Courier costs eat ${((courierPerOrder / aov) * 100).toFixed(0)}% of an average order. Negotiating a volume rate, or nudging basket size up, recovers this directly.`,
+      });
+    }
+
+    // Real money lost on failed orders.
+    if (lostAfterCost > 0) {
+      insights.push({
+        tone: 'warn',
+        text: `${lostAfterShip} order${lostAfterShip === 1 ? '' : 's'} failed after dispatch, costing ${pkr(lostAfterCost)} in courier and packaging you cannot recover.`,
+      });
+    }
+
     return {
       revenue, cogs, packingTotal, shipSubsidy, adsTotal, seoTotal, otherTotal, totalExpense,
       grossProfit, netProfit, margin, grossMargin, aov, orderCount, itemCount,
       refunded, cancelled,
+      lostBeforeShip, lostAfterShip, lostAfterCost, failedLoss,
       paymentMix, daily, insights,
     };
   }, [orders, settings, range, sinceDate, rangeDays, now]);
@@ -233,6 +318,12 @@ export default function Finance() {
           <button onClick={load} disabled={busy} className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-[11px] font-semibold text-neutral-700 hover:bg-neutral-50 disabled:opacity-50">
             <RefreshCw size={12} className={busy ? 'animate-spin' : ''} /> Refresh
           </button>
+          <button
+            onClick={() => exportPnlReport({ summary, rangeLabel: rangeMeta.label, sinceDate, until: now })}
+            className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-[11px] font-semibold text-neutral-700 transition hover:bg-neutral-50"
+          >
+            <FileText size={12} /> P&amp;L report
+          </button>
           <button onClick={exportCsv} className="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-3 py-1.5 text-[11px] font-semibold text-white transition hover:bg-neutral-800">
             <Download size={12} /> Export CSV
           </button>
@@ -253,7 +344,14 @@ export default function Finance() {
         <BigKpi icon={Coins} label="Gross profit" value={pkr(summary.grossProfit)} sub={`${summary.grossMargin.toFixed(1)}% gross margin`} accent="#2563eb" />
         <BigKpi icon={Wallet} label="Avg. order value" value={pkr(summary.aov)} sub={`${summary.itemCount} items sold`} accent="#7c3aed" />
         <BigKpi icon={ShoppingBag} label="Total expenses" value={pkr(summary.totalExpense)} sub="COGS + costs + ads" accent="#d97706" />
-        <BigKpi icon={AlertTriangle} label="Cancelled + refunds" value={`${summary.cancelled} · ${pkr(summary.refunded)}`} sub="Lost or reversed orders" accent="#dc2626" />
+        <BigKpi
+          icon={AlertTriangle}
+          label="Cancelled + returns"
+          value={summary.lostAfterCost > 0 ? `−${pkr(summary.lostAfterCost)}` : pkr(0)}
+          sub={`${summary.lostBeforeShip} before shipping (no cost) · ${summary.lostAfterShip} after shipping`}
+          accent="#dc2626"
+          highlight={summary.lostAfterCost > 0}
+        />
       </div>
 
       {/* --- Cash-flow chart --- */}
@@ -299,6 +397,20 @@ export default function Finance() {
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
         <ExpenseDonut summary={summary} />
         <PaymentDonut mix={summary.paymentMix} />
+      </div>
+
+      {/* --- Order-level profitability (the flagship view) --- */}
+      <OrderProfitability days={rangeDays} />
+
+      {/* --- Margin views + risk widgets --- */}
+      <div className="mt-6 grid gap-6 lg:grid-cols-2">
+        <ProfitByProduct days={rangeDays} />
+        <ProfitByCustomer days={rangeDays} />
+      </div>
+
+      <div className="mt-6 grid gap-6 lg:grid-cols-2">
+        <CodExposure />
+        <BreakEven days={rangeDays} />
       </div>
 
       {/* --- Business advisor insights --- */}
