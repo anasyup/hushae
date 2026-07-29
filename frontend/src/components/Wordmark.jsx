@@ -44,8 +44,10 @@ export default function Wordmark({ size = 'md', variant = 'link', className = ''
   const tracking = Math.max(0, Math.min(60, Number(h.logoTracking ?? 32))) / 100;
   const boxed = h.logoBoxed !== false;
 
-  const base = `select-none font-display font-semibold ${colorCls} ${sizeCls} ${className} ${
-    boxed ? 'inline-flex items-center border px-3 py-1.5 ' + (forceColor === 'alabaster' ? 'border-alabaster/70' : 'border-obsidian/70') : ''
+  // The wordmark is also the home link, so it needs a comfortable tap height
+  // even when it is plain text — 44px matches the rest of the header controls.
+  const base = `inline-flex min-h-[44px] select-none items-center font-display font-semibold ${colorCls} ${sizeCls} ${className} ${
+    boxed ? 'border px-3 py-1.5 ' + (forceColor === 'alabaster' ? 'border-alabaster/70' : 'border-obsidian/70') : ''
   }`;
   const style = { letterSpacing: `${tracking}em` };
 
