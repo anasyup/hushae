@@ -30,6 +30,20 @@ const dateFmt = (d) => {
   } catch { return ''; }
 };
 
+
+/** Compact tracking block for invoices: order number plus a short URL the
+ *  customer can type. A real QR encoder can slot in here later without
+ *  touching the layout. */
+function trackBlock(o) {
+  const url = `hushae.vercel.app/track`;
+  return `
+    <div class="track">
+      <div class="track-lbl">Track your order</div>
+      <div class="track-url">${esc(url)}</div>
+      <div class="track-code">${esc(o.orderNumber)}</div>
+    </div>`;
+}
+
 /* ── One document ───────────────────────────────────────────────────────── */
 function slipHtml(o, docType, store) {
   const c = o.customerInfo || {};
@@ -102,9 +116,10 @@ function slipHtml(o, docType, store) {
 
     ${totals}
     ${note}
+    ${isInvoice ? trackBlock(o) : ''}
 
     <div class="foot">
-      <span>${o.discreetPackaging ? 'Discreet packaging' : ''}</span>
+      <span>${isInvoice ? 'Thank you for shopping with us' : (o.discreetPackaging ? 'Discreet packaging' : '')}</span>
       <span>${esc(store?.phone || '')}</span>
     </div>
   </div>`;
@@ -209,6 +224,11 @@ export function buildPrintHtml({ orders, docType, store }) {
   .footline strong { font-size:11pt; font-variant-numeric:tabular-nums; }
 
   .note { margin:4px 0 0; padding:3px 4px; border:1px solid #999; font-size:7.5pt; }
+  .track { margin-top:4px; padding:3px 5px; border:1px dashed #666; display:flex;
+    align-items:baseline; gap:6px; }
+  .track-lbl { font-size:6.5pt; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); }
+  .track-url { font-size:8pt; font-weight:600; }
+  .track-code { margin-left:auto; font-family:ui-monospace,Menlo,monospace; font-size:8pt; font-weight:700; }
   .foot { margin-top:auto; padding-top:3px; display:flex;
     justify-content:space-between; font-size:6.5pt; color:var(--muted); }
 

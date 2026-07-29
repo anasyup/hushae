@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  AlertCircle, Bell, ChevronLeft, ChevronRight, Inbox, Loader2, RefreshCcw, TrendingUp, X,
+  AlertCircle, Bell, ChevronLeft, ChevronRight, Inbox, Keyboard, LayoutDashboard,
+  Loader2, RefreshCcw, TrendingUp, X,
 } from 'lucide-react';
 import AdminLayout from '../AdminLayout';
 import { pkr } from '../../lib/format';
@@ -13,6 +14,9 @@ import OrderFilters from './OrderFilters';
 import BulkBar from './BulkBar';
 import OrderRow from './OrderRow';
 import OrderAnalytics from './OrderAnalytics';
+import OrderDashboard from './OrderDashboard';
+import QuickFilters from './QuickFilters';
+import CustomerPanel from './CustomerPanel';
 import { writeErrorWindow, writeLoadingWindow, writePrintWindow } from './printDocument';
 
 /* ============================================================================
@@ -39,6 +43,9 @@ export default function OrdersDesk() {
   const [showNotes, setShowNotes] = useState(false);
   const [serviceFor, setServiceFor] = useState(null);
   const [selectAllMatching, setSelectAllMatching] = useState(false);
+  const [showDashboard, setShowDashboard] = useState(true);
+  const [customerPhone, setCustomerPhone] = useState(null);
+  const [showShortcuts, setShowShortcuts] = useState(false);
 
   const orders = data.orders || [];
   const ids = useMemo(() => orders.map((o) => o._id), [orders]);
@@ -106,6 +113,33 @@ export default function OrdersDesk() {
 
   const group = filters.group || 'all';
 
+  // Keyboard shortcuts — the desk is a high-volume screen, so the common
+  // actions are one key away. Ignored while typing in a field.
+  useEffect(() => {
+    const onKey = (e) => {
+      const el = e.target;
+      const typing = el?.tagName === 'INPUT' || el?.tagName === 'TEXTAREA'
+        || el?.tagName === 'SELECT' || el?.isContentEditable;
+
+      if (e.key === '/' && !typing) {
+        e.preventDefault();
+        document.querySelector('[data-order-search]')?.focus();
+        return;
+      }
+      if (e.key === 'Escape') { setSelected([]); setSelectAllMatching(false); setShowShortcuts(false); return; }
+      if (typing || e.metaKey || e.ctrlKey || e.altKey) return;
+      if (e.key === '?') { setShowShortcuts((v) => !v); return; }
+      if (!selected.length) return;
+
+      const k = e.key.toLowerCase();
+      if (k === 'p') { e.preventDefault(); handleBulkPrint('packing_slip'); }
+      if (k === 'a') { e.preventDefault(); bulk('approve', selected).then(() => setSelected([])); }
+      if (k === 'm') { e.preventDefault(); bulk('mark-paid', selected).then(() => setSelected([])); }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [selected, bulk, handleBulkPrint]);
+
   return (
     <AdminLayout title="Orders">
       <div className="space-y-4">
@@ -120,6 +154,13 @@ export default function OrdersDesk() {
           </div>
 
           <div className="flex items-center gap-2">
+            <button onClick={() => setShowDashboard((v) => !v)}
+              className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium transition ${
+                showDashboard ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-300 bg-white text-neutral-700 hover:border-neutral-400'
+              }`}>
+              <LayoutDashboard size={14} /> Dashboard
+            </button>
+
             <button onClick={() => setShowAnalytics((v) => !v)}
               className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium transition ${
                 showAnalytics ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-300 bg-white text-neutral-700 hover:border-neutral-400'
@@ -171,6 +212,13 @@ export default function OrdersDesk() {
           </div>
         </div>
 
+        {showDashboard && (
+          <OrderDashboard
+            token={auth?.token}
+            onPipelineClick={(g) => setFilter({ group: g, preset: '' })}
+          />
+        )}
+
         {showAnalytics && <OrderAnalytics token={auth?.token} />}
 
         {/* ── Stage tabs ─────────────────────────────────────────────────── */}
@@ -193,9 +241,15 @@ export default function OrdersDesk() {
           })}
         </div>
 
+        <QuickFilters
+          filters={filters} setFilter={setFilter} token={auth?.token}
+          currentQuery={window.location.search.replace(/^\?/, '')} toast={toast}
+        />
+
         <OrderFilters
           filters={filters} setFilter={setFilter} resetFilters={resetFilters}
           activeFilterCount={activeFilterCount} facets={facets} onExport={exportCsv}
+          token={auth?.token}
         />
 
         <BulkBar
@@ -204,6 +258,7 @@ export default function OrdersDesk() {
           onSelectAll={() => { setSelected(ids); setSelectAllMatching(true); }}
           onBulk={bulk} onExport={exportCsv}
           onPrint={handleBulkPrint} canAdvance={canAdvance}
+          token={auth?.token} toast={toast}
         />
 
         {selectAllMatching && data.total > orders.length && (
@@ -262,6 +317,7 @@ export default function OrdersDesk() {
               busy={busyIds.has(o._id)}
               onStage={setStage} onVerify={verifyPayment}
               onPrint={handlePrint} onOpenService={setServiceFor}
+              onOpenCustomer={setCustomerPhone}
             />
           ))}
         </div>
@@ -283,6 +339,31 @@ export default function OrdersDesk() {
           </div>
         )}
       </div>
+
+      {customerPhone && (
+        <CustomerPanel phone={customerPhone} token={auth?.token} onClose={() => setCustomerPhone(null)} />
+      )}
+
+      {showShortcuts && (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-black/40 p-4" onClick={() => setShowShortcuts(false)}>
+          <div className="w-full max-w-sm rounded-xl bg-white p-5 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between">
+              <p className="inline-flex items-center gap-2 text-[15px] font-semibold"><Keyboard size={15} /> Shortcuts</p>
+              <button onClick={() => setShowShortcuts(false)} className="text-neutral-400 hover:text-neutral-900"><X size={15} /></button>
+            </div>
+            <dl className="mt-3 space-y-1.5">
+              {[['/', 'Focus search'], ['P', 'Print packing slips'], ['A', 'Advance stage'],
+                ['M', 'Mark paid'], ['Esc', 'Clear selection'], ['?', 'This panel']].map(([k, v]) => (
+                <div key={k} className="flex items-center justify-between text-[12.5px]">
+                  <dt className="text-neutral-600">{v}</dt>
+                  <dd><kbd className="rounded border border-neutral-300 bg-neutral-50 px-1.5 py-0.5 font-mono text-[11px]">{k}</kbd></dd>
+                </div>
+              ))}
+            </dl>
+            <p className="mt-3 text-[11.5px] text-neutral-400">Action keys apply to the current selection.</p>
+          </div>
+        </div>
+      )}
 
       {serviceFor && (
         <IssueModal order={serviceFor} token={auth?.token} toast={toast}

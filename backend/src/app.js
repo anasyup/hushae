@@ -22,6 +22,7 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/categories', require('./routes/categories'));
 app.use('/api/products', require('./routes/products'));
 // Order management v2 — mounted BEFORE the legacy router so /manage wins
+app.use('/api/orders/insights', require('./routes/ordersInsights'));
 app.use('/api/orders/manage', require('./routes/ordersAdmin'));
 app.use('/api/orders', require('./routes/orders'));
 app.use('/api/admin', require('./routes/admin'));

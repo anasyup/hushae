@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { api } from '../../api/client';
 import { Calendar, ChevronDown, Filter, MapPin, RotateCcw, Search, SlidersHorizontal, X } from 'lucide-react';
 import {
   PAYMENT_METHODS, PAYMENT_STATES, SORT_OPTIONS, STAGES,
@@ -12,38 +13,110 @@ import {
 const field = 'w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm outline-none transition focus:border-neutral-900 focus:ring-2 focus:ring-neutral-900/10';
 const label = 'mb-1 block text-[11px] font-semibold uppercase tracking-wider text-neutral-500';
 
-export default function OrderFilters({ filters, setFilter, resetFilters, activeFilterCount, facets, onExport }) {
+export default function OrderFilters({ filters, setFilter, resetFilters, activeFilterCount, facets, onExport, token }) {
   const [open, setOpen] = useState(false);
   const [term, setTerm] = useState(filters.q || '');
+  const [suggestions, setSuggestions] = useState([]);
+  const [suggestOpen, setSuggestOpen] = useState(false);
+  const [recent, setRecent] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('hushae.orderSearches') || '[]'); } catch { return []; }
+  });
   const debounce = useRef(null);
+  const suggestRef = useRef(null);
 
   // Keep the box in step when the URL changes underneath us (back button).
   useEffect(() => { setTerm(filters.q || ''); }, [filters.q]);
 
+  // Close the suggestion list on an outside click.
+  useEffect(() => {
+    if (!suggestOpen) return undefined;
+    const h = (e) => { if (suggestRef.current && !suggestRef.current.contains(e.target)) setSuggestOpen(false); };
+    document.addEventListener('mousedown', h);
+    return () => document.removeEventListener('mousedown', h);
+  }, [suggestOpen]);
+
+  const remember = (value) => {
+    if (!value) return;
+    const next = [value, ...recent.filter((r) => r !== value)].slice(0, 6);
+    setRecent(next);
+    try { localStorage.setItem('hushae.orderSearches', JSON.stringify(next)); } catch { /* private mode */ }
+  };
+
   const onSearch = (v) => {
     setTerm(v);
+    setSuggestOpen(true);
     clearTimeout(debounce.current);
-    debounce.current = setTimeout(() => setFilter({ q: v.trim() }), 300);
+    debounce.current = setTimeout(() => {
+      setFilter({ q: v.trim() });
+      if (v.trim().length >= 2 && token) {
+        api(`/orders/insights/suggest?q=${encodeURIComponent(v.trim())}`, { token })
+          .then((d) => setSuggestions(d.suggestions || []))
+          .catch(() => setSuggestions([]));
+      } else {
+        setSuggestions([]);
+      }
+    }, 250);
+  };
+
+  const applySuggestion = (value) => {
+    setTerm(value);
+    setFilter({ q: value });
+    remember(value);
+    setSuggestOpen(false);
   };
 
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap items-center gap-2">
         {/* Search */}
-        <div className="relative min-w-[240px] flex-1">
+        <div ref={suggestRef} className="relative min-w-[240px] flex-1">
           <Search size={15} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
           <input
+            data-order-search
             value={term}
             onChange={(e) => onSearch(e.target.value)}
-            placeholder="Search order #, customer, phone, tracking…"
+            onFocus={() => setSuggestOpen(true)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') { remember(term.trim()); setSuggestOpen(false); }
+              if (e.key === 'Escape') setSuggestOpen(false);
+            }}
+            placeholder="Search order #, customer, phone, city…  ( / )"
             aria-label="Search orders"
+            autoComplete="off"
             className={`${field} pl-9 pr-8`}
           />
           {term && (
-            <button onClick={() => onSearch('')} aria-label="Clear search"
+            <button onClick={() => { onSearch(''); setSuggestions([]); }} aria-label="Clear search"
               className="absolute right-2.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-900">
               <X size={14} />
             </button>
+          )}
+
+          {suggestOpen && (suggestions.length > 0 || (!term && recent.length > 0)) && (
+            <div className="absolute left-0 right-0 top-11 z-40 overflow-hidden rounded-lg border border-neutral-200 bg-white py-1 shadow-xl">
+              {suggestions.length > 0 ? suggestions.map((sg) => (
+                <button key={`${sg.type}-${sg.value}`} onClick={() => applySuggestion(sg.value)}
+                  className="flex w-full items-center gap-2 px-3 py-1.5 text-left hover:bg-neutral-50">
+                  <span className="w-14 shrink-0 text-[10px] font-bold uppercase tracking-wide text-neutral-400">{sg.type}</span>
+                  <span className="min-w-0 flex-1 truncate text-[12.5px] text-neutral-800">{sg.value}</span>
+                  {sg.hint && <span className="shrink-0 text-[11px] text-neutral-400">{sg.hint}</span>}
+                </button>
+              )) : (
+                <>
+                  <p className="flex items-center justify-between px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-neutral-400">
+                    Recent
+                    <button onClick={() => { setRecent([]); localStorage.removeItem('hushae.orderSearches'); }}
+                      className="font-medium normal-case tracking-normal hover:text-neutral-900">Clear</button>
+                  </p>
+                  {recent.map((r) => (
+                    <button key={r} onClick={() => applySuggestion(r)}
+                      className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-[12.5px] text-neutral-700 hover:bg-neutral-50">
+                      <Search size={11} className="text-neutral-300" /> {r}
+                    </button>
+                  ))}
+                </>
+              )}
+            </div>
           )}
         </div>
 
