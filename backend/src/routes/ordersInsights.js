@@ -94,6 +94,30 @@ router.get('/dashboard', protect, adminOnly, asyncHandler(async (req, res) => {
   const scores = orders.map((o) => scoreOrder(o).score);
   const qualityMix = [1, 2, 3, 4, 5].map((n) => ({ score: n, count: scores.filter((s) => s === n).length }));
 
+  // Payment states, counted the same way the desk filters them so the card and
+  // the tab strip can never disagree.
+  const paymentBreakdown = orders.reduce((acc, o) => {
+    const st = o.paymentState || (o.paymentStatus === 'Paid' ? 'Confirmed' : 'Pending');
+    acc[st] = (acc[st] || 0) + 1;
+    return acc;
+  }, {});
+
+  // Top customers by lifetime spend, keyed on the phone tail like Customer 360.
+  const custMap = new Map();
+  for (const o of live) {
+    const key = String(o.customerInfo?.phone || '').replace(/\D/g, '').slice(-10);
+    if (!key) continue;
+    const cur = custMap.get(key) || {
+      phone: o.customerInfo.phone, name: o.customerInfo?.name || 'Customer',
+      orders: 0, spent: 0, lastAt: o.createdAt,
+    };
+    cur.orders += 1;
+    cur.spent += o.total || 0;
+    if (new Date(o.createdAt) > new Date(cur.lastAt)) cur.lastAt = o.createdAt;
+    custMap.set(key, cur);
+  }
+  const topCustomers = [...custMap.values()].sort((a, b) => b.spent - a.spent).slice(0, 6);
+
   const verified = orders.filter((o) => ['Verified', 'Confirmed'].includes(o.paymentState) || o.paymentStatus === 'Paid').length;
   const cancelled = orders.filter((o) => ['Cancelled', 'Refunded'].includes(o.status)).length;
   const withIssue = orders.filter((o) => o.customerService?.hasIssue).length;
@@ -113,8 +137,17 @@ router.get('/dashboard', protect, adminOnly, asyncHandler(async (req, res) => {
     return acc;
   }, {});
 
+  const shipped = orders.filter((o) => o.stageTimestamps?.Shipped);
+  const avgShipHours = shipped.length
+    ? Math.round((shipped.reduce((a, o) =>
+      a + (new Date(o.stageTimestamps.Shipped) - new Date(o.createdAt)) / 3600000, 0) / shipped.length) * 10) / 10
+    : 0;
+
   res.json({
     generatedAt: new Date().toISOString(),
+    paymentBreakdown,
+    topCustomers,
+    avgShipHours,
     kpis: {
       today: { orders: after(startOfDay).length, revenue: sum(after(startOfDay)) },
       week: { orders: after(weekAgo).length, revenue: sum(after(weekAgo)) },

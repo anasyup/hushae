@@ -52,6 +52,25 @@ export const TONE = {
 
 export const stageTone = (stage) => TONE[STAGE_MAP[stage]?.tone || 'neutral'];
 
+
+/**
+ * The eight choices offered in the Set-stage dropdown.
+ *
+ * The pipeline still has its finer steps (Picked, Packed, Manifested…) and the
+ * timeline keeps recording them, but a merchant only ever needs to *choose*
+ * between these. Each entry names the pipeline stage it maps onto.
+ */
+export const SET_STAGE_CHOICES = [
+  { key: 'New',       label: 'New',       hint: 'Back to the top of the queue' },
+  { key: 'To Pack',   label: 'To Pack',   hint: 'Checked, ready for the warehouse' },
+  { key: 'Packed',    label: 'To Ship',   hint: 'Packed and waiting for the courier' },
+  { key: 'Shipped',   label: 'Shipped',   hint: 'Handed to the courier' },
+  { key: 'Delivered', label: 'Delivered', hint: 'Reached the customer' },
+  { key: 'Cancelled', label: 'Cancelled', hint: 'Order will not be fulfilled' },
+  { key: 'Returned',  label: 'Return',    hint: 'Customer sent it back' },
+  { key: 'Refunded',  label: 'Refund',    hint: 'Money returned' },
+];
+
 export const PAYMENT_METHODS = ['COD', 'JazzCash', 'EasyPaisa', 'Bank Transfer', 'Visa'];
 
 export const PAYMENT_STATES = [

@@ -8,6 +8,13 @@ import { fmtDate, pkr } from '../../lib/format';
 import { paymentTone, PRINT_DOCS, stageTone, STAGE_MAP } from './orderConstants';
 import QualityBadge from './QualityBadge';
 
+/** Stock states that deserve a warning colour in the warehouse strip. */
+const STOCK_TONE = {
+  out_of_stock: 'text-red-600',
+  insufficient: 'text-red-600',
+  low_stock: 'text-amber-600',
+};
+
 /* ============================================================================
  * One order row. Compact by default, expands to show items and quick actions.
  * ========================================================================== */
@@ -26,6 +33,9 @@ export default function OrderRow({
   const next = (o.allowedNext || []).find((s) => !['Cancelled', 'Refunded', 'Returned', 'Failed Delivery'].includes(s));
   const invoicePrinted = o.printStatus?.invoice?.printed;
   const itemCount = (o.items || []).reduce((a, i) => a + (i.quantity || 0), 0);
+  // Distinct bins the picker has to visit, and whether any line is short.
+  const bins = [...new Set((o.items || []).map((i) => i.warehouseLocation).filter(Boolean))];
+  const atRisk = (o.items || []).some((i) => ['out_of_stock', 'insufficient', 'low_stock'].includes(i.stockStatus));
 
   const copyRef = () => { navigator.clipboard?.writeText(o.orderNumber); };
 
@@ -93,7 +103,17 @@ export default function OrderRow({
         {/* Right — money + actions */}
         <div className="flex shrink-0 flex-col items-end gap-1.5">
           <p className="text-[15px] font-semibold tabular-nums text-neutral-900">{pkr(o.total)}</p>
-          <p className="text-[11px] text-neutral-400">{itemCount} item{itemCount === 1 ? '' : 's'}</p>
+          <p className="text-[11px] text-neutral-400">
+            {itemCount} item{itemCount === 1 ? '' : 's'}
+            {bins.length > 0 && (
+              <>
+                {' · '}
+                <span className={atRisk ? 'font-semibold text-amber-600' : ''}>
+                  {bins.slice(0, 3).join(', ')}{bins.length > 3 ? ` +${bins.length - 3}` : ''}
+                </span>
+              </>
+            )}
+          </p>
 
           <div className="mt-0.5 flex items-center gap-1">
             {next && (
@@ -164,15 +184,38 @@ export default function OrderRow({
       {open && (
         <div className="border-t border-neutral-100 bg-neutral-50/60 px-3 py-2.5">
           <div className="space-y-1.5">
-            {(o.items || []).map((it, i) => (
-              <div key={i} className="flex items-center gap-2.5 text-[12.5px]">
-                {it.image ? <img src={it.image} alt="" className="h-9 w-9 rounded object-cover" /> : <span className="h-9 w-9 rounded bg-neutral-200" />}
-                <span className="min-w-0 flex-1 truncate text-neutral-800">{it.name}</span>
-                <span className="text-neutral-500">{[it.size, it.color].filter(Boolean).join(' · ')}</span>
-                <span className="w-10 text-right tabular-nums text-neutral-500">×{it.quantity}</span>
-                <span className="w-24 text-right tabular-nums font-medium">{pkr(it.lineTotal)}</span>
-              </div>
-            ))}
+            {(o.items || [])
+              // Pick priority first: anything short or low gets pulled before it vanishes.
+              .slice().sort((a, b) => (a.pickPriority || 3) - (b.pickPriority || 3))
+              .map((it, i) => (
+                <div key={i} className="flex items-center gap-2.5 text-[12.5px]">
+                  {it.image ? <img src={it.image} alt="" className="h-9 w-9 rounded object-cover" /> : <span className="h-9 w-9 rounded bg-neutral-200" />}
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-neutral-800">{it.name}</span>
+                    {(it.warehouseLocation || it.sku) && (
+                      <span className="mt-0.5 flex items-center gap-1.5 text-[10.5px] text-neutral-400">
+                        {it.warehouseLocation && (
+                          <span className="inline-flex items-center gap-1 rounded bg-neutral-200/70 px-1.5 py-0.5 font-mono font-semibold text-neutral-600">
+                            <MapPin size={9} /> {it.warehouseLocation}
+                          </span>
+                        )}
+                        {it.sku && <span className="font-mono">{it.sku}</span>}
+                        {it.stockStatus && it.stockStatus !== 'in_stock' && (
+                          <span className={`inline-flex items-center gap-0.5 font-semibold ${STOCK_TONE[it.stockStatus] || ''}`}>
+                            <AlertTriangle size={9} />
+                            {it.stockStatus === 'out_of_stock' ? 'Out of stock'
+                              : it.stockStatus === 'insufficient' ? `Only ${it.stockAvailable} left`
+                                : `Low — ${it.stockAvailable} left`}
+                          </span>
+                        )}
+                      </span>
+                    )}
+                  </span>
+                  <span className="hidden text-neutral-500 sm:inline">{[it.size, it.color].filter(Boolean).join(' · ')}</span>
+                  <span className="w-10 text-right tabular-nums text-neutral-500">×{it.quantity}</span>
+                  <span className="w-24 text-right tabular-nums font-medium">{pkr(it.lineTotal)}</span>
+                </div>
+              ))}
           </div>
           <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1 border-t border-neutral-200 pt-2 text-[11.5px] text-neutral-500">
             <span>Address: <span className="text-neutral-800">{o.customerInfo?.address}</span></span>

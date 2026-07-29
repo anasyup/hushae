@@ -216,6 +216,7 @@ export default function OrdersDesk() {
           <OrderDashboard
             token={auth?.token}
             onPipelineClick={(g) => setFilter({ group: g, preset: '' })}
+            onCustomerClick={setCustomerPhone}
           />
         )}
 
