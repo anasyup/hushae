@@ -66,7 +66,7 @@ export default function MobileNav() {
             type="button"
             onClick={() => setDrawerOpen(true)}
             className="flex min-h-[52px] flex-1 flex-col items-center justify-center gap-0.5 py-1.5 text-[9.5px] font-semibold uppercase tracking-wider text-ash transition"
-            aria-label="Open cart"
+            aria-label="Bag — open cart"
           >
             <span className="relative">
               <ShoppingBag size={19} strokeWidth={1.7} />

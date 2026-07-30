@@ -242,7 +242,7 @@ export default function FeaturedMarquee({ products, title = 'HUSHAE — Signatur
       </div>
 
       {/* Mobile hint — shown once, then it just gets in the way. */}
-      <p className="mt-4 text-center text-[10px] uppercase tracking-widest text-alabaster/35 md:hidden">
+      <p className="mt-4 text-center text-[10px] uppercase tracking-widest text-alabaster/70 md:hidden">
         Swipe to browse
       </p>
     </section>

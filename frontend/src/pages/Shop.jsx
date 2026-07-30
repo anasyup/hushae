@@ -155,7 +155,7 @@ export default function Shop({ preset = {} }) {
           {products ? `${products.length} pieces` : 'Loading…'}
         </p>
         <div className="relative">
-          <select value={sort} onChange={(e) => setParam('sort', e.target.value)}
+          <select value={sort} aria-label="Sort products" onChange={(e) => setParam('sort', e.target.value)}
             className="appearance-none rounded-full border border-line bg-white/70 py-2 pl-4 pr-9 text-xs font-semibold outline-none transition hover:border-obsidian/40">
             {SORTS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
           </select>
