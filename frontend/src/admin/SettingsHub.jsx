@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import {
   ArrowUpRight, Bell, ChevronRight, CreditCard, FileText, Globe, Info,
   KeyRound, LayoutTemplate, MapPin, Package, Palette, Search, ShieldCheck,
-  ShoppingBag, Store, Truck, Users, Zap,
+  ShoppingBag, Sparkles, Store, Truck, Users, Zap,
 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import AdminLayout from './AdminLayout';
@@ -61,6 +61,13 @@ const CARDS = [
     title: 'Customer Accounts',
     desc: 'Registration, password rules, email verification, profile photos, saved addresses and what customers can do.',
     tags: ['account', 'customer', 'register', 'login', 'password', 'reset', 'verification', 'avatar', 'address', 'session'],
+  },
+  {
+    to: '/admin/settings/experience',
+    icon: Sparkles,
+    title: 'Customer Experience',
+    desc: 'Wishlist, recently viewed and product comparison — limits, sharing and where each one appears.',
+    tags: ['wishlist', 'heart', 'saved', 'recently viewed', 'compare', 'comparison', 'experience'],
   },
   {
     to: '/admin/apps',

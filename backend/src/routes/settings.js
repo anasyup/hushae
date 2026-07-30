@@ -17,7 +17,7 @@ router.put('/', protect, adminOnly, asyncHandler(async (req, res) => {
   const b = req.body || {};
   const s = await getSettings();
   ['storeName', 'tagline', 'contactEmail', 'contactPhone', 'hero', 'trustBadges',
-    'shippingFlatRate', 'freeShippingThreshold', 'cart', 'checkout', 'account', 'paymentMethods', 'theme', 'offerBar', 'integrations', 'storefrontLock', 'cookiePopup', 'media', 'marquee', 'promoPopup', 'faq', 'operatingCosts', 'signatureSplit', 'productSections', 'header', 'footer',
+    'shippingFlatRate', 'freeShippingThreshold', 'cart', 'checkout', 'account', 'customerExperience', 'paymentMethods', 'theme', 'offerBar', 'integrations', 'storefrontLock', 'cookiePopup', 'media', 'marquee', 'promoPopup', 'faq', 'operatingCosts', 'signatureSplit', 'productSections', 'header', 'footer',
     'monthlyRevenueGoal', 'marginThresholdPercent'].forEach((f) => {
     if (b[f] !== undefined) s[f] = b[f];
   });

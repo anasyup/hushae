@@ -208,14 +208,45 @@ export function AppProvider({ children }) {
   // ---------- wishlist ----------
   const wishlist = auth?.token ? serverWish : guestWish;
   const inWishlist = useCallback((p) => wishlist.some((w) => w.id === (p.id || p._id)), [wishlist]);
+  /* Returns { ok, message } so a caller can surface a real reason — the cap is
+     enforced on the server too, and swallowing that error would leave the
+     heart looking broken with no explanation. */
   const toggleWish = useCallback(async (product) => {
     const s = snap(product);
+    const max = settings?.customerExperience?.wishlist?.maxItems ?? 50;
+
     if (auth?.token) {
       const exists = serverWish.some((w) => w.id === s.id);
-      await api(`/wishlist/${s.id}`, { method: exists ? 'DELETE' : 'POST', token: auth.token }).catch(() => {});
+      if (!exists && serverWish.length >= max) {
+        return { ok: false, message: `Your wishlist is full (${max} items). Remove something first.` };
+      }
+      try {
+        await api(`/wishlist/${s.id}`, { method: exists ? 'DELETE' : 'POST', token: auth.token });
+        await refreshWish(auth.token);
+        return { ok: true, added: !exists };
+      } catch (e) {
+        return { ok: false, message: e.message || 'Could not update your wishlist' };
+      }
+    }
+
+    const exists = guestWish.some((x) => x.id === s.id);
+    if (!exists && guestWish.length >= max) {
+      return { ok: false, message: `Your wishlist is full (${max} items). Remove something first.` };
+    }
+    setGuestWish((w) => (exists ? w.filter((x) => x.id !== s.id) : [...w, s]));
+    return { ok: true, added: !exists };
+  }, [auth, serverWish, guestWish, refreshWish, settings]);
+
+  /* Clear everything. Server wishlist is cleared item by item because the API
+     has no bulk delete; the local list is one assignment. */
+  const clearWish = useCallback(async () => {
+    if (auth?.token) {
+      for (const w of serverWish) {
+        await api(`/wishlist/${w.id}`, { method: 'DELETE', token: auth.token }).catch(() => {});
+      }
       await refreshWish(auth.token);
     } else {
-      setGuestWish((w) => (w.some((x) => x.id === s.id) ? w.filter((x) => x.id !== s.id) : [...w, s]));
+      setGuestWish([]);
     }
   }, [auth, serverWish, refreshWish]);
 
@@ -230,12 +261,12 @@ export function AppProvider({ children }) {
     auth, setAuth, login, register, logout, patchUser,
     cart, addToCart, updateQty, removeLine, restoreLine, clearCart, cartCount, cartSubtotal,
     saved, saveForLater, moveToBag, removeSaved,
-    wishlist, inWishlist, toggleWish,
+    wishlist, inWishlist, toggleWish, clearWish,
     recent, pushRecent,
     toast, toasts, drawerOpen, setDrawerOpen,
   }), [settings, lang, t, auth, login, register, logout, patchUser, cart, addToCart, updateQty, removeLine, restoreLine, clearCart,
     cartCount, cartSubtotal, saved, saveForLater, moveToBag, removeSaved,
-    wishlist, inWishlist, toggleWish, recent, pushRecent, toast, toasts, drawerOpen]);
+    wishlist, inWishlist, toggleWish, clearWish, recent, pushRecent, toast, toasts, drawerOpen]);
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

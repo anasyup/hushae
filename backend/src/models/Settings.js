@@ -175,6 +175,38 @@ const settingsSchema = new mongoose.Schema({
   shippingFlatRate: { type: Number, default: 350 },
   freeShippingThreshold: { type: Number, default: 4999 },
   // ==========================================================================
+  // CUSTOMER EXPERIENCE — wishlist, recently viewed and product compare.
+  // Three small features that all live on the product card, so they share one
+  // settings block and one API read.
+  // ==========================================================================
+  customerExperience: {
+    wishlist: {
+      enabled:      { type: Boolean, default: true },
+      allowGuest:   { type: Boolean, default: true },
+      maxItems:     { type: Number,  default: 50 },
+      allowShare:   { type: Boolean, default: true },
+      allowMoveToCart: { type: Boolean, default: true },
+      allowClearAll:   { type: Boolean, default: true },
+      title:        { type: String,  default: 'Wishlist' },
+      emptyText:    { type: String,  default: 'Tap the heart on any piece to keep it here for later.' },
+    },
+    recentlyViewed: {
+      enabled:      { type: Boolean, default: true },
+      maxItems:     { type: Number,  default: 12 },
+      expiryDays:   { type: Number,  default: 30 },
+      showOnHome:   { type: Boolean, default: true },
+      showOnProduct:{ type: Boolean, default: true },
+      title:        { type: String,  default: 'Recently viewed' },
+    },
+    compare: {
+      enabled:      { type: Boolean, default: true },
+      maxItems:     { type: Number,  default: 4 },
+      showOnCard:   { type: Boolean, default: true },
+      highlightDifferences: { type: Boolean, default: true },
+      title:        { type: String,  default: 'Compare' },
+    },
+  },
+  // ==========================================================================
   // CUSTOMER ACCOUNTS — who may register, what the account area shows, and
   // the password policy. The storefront reads ONLY from here, so a merchant
   // can tighten or relax the whole account system without a deploy.
