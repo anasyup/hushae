@@ -102,12 +102,17 @@ export default function Account() {
             <button type="button" onClick={() => window.location.reload()} className="btn-primary mt-6">Try again</button>
           </div>
         ) : (
+          /* The skeleton must reserve roughly what the real page occupies.
+             A short skeleton let the footer paint high and then get pushed
+             618px down when the account rendered — measured 0.1515 CLS at
+             768px. These heights mirror the welcome card, the section rail
+             (a row on mobile, a column from lg) and the overview panel. */
           <div role="status" aria-live="polite">
             <span className="sr-only">Loading your account…</span>
-            <div className="skeleton h-28 w-full rounded-panel" />
+            <div className="skeleton h-[108px] w-full rounded-panel sm:h-[124px] lg:h-[134px]" />
             <div className="mt-6 grid gap-6 lg:grid-cols-[220px_minmax(0,1fr)]">
-              <div className="skeleton h-56 w-full rounded-card" />
-              <div className="skeleton h-96 w-full rounded-card" />
+              <div className="skeleton h-[44px] w-full rounded-full lg:h-[228px] lg:rounded-card" />
+              <div className="skeleton h-[330px] w-full rounded-card sm:h-[130px] lg:h-[256px]" />
             </div>
           </div>
         )}
@@ -150,7 +155,11 @@ export default function Account() {
         {/* ---------------- nav ----------------
             Mobile: a scrollable rail. Desktop: a sidebar. Same buttons, so
             there is only one set of state and one focus order. */}
-        <nav aria-label="Account sections" className="lg:sticky lg:top-24 lg:self-start">
+        {/* min-w-0 is what stops the scrollable rail from widening the page.
+            A grid child defaults to min-width:auto, so the rail's full content
+            width leaked into the layout and pushed the document 203px wider
+            than the viewport on a phone — measured. */}
+        <nav aria-label="Account sections" className="min-w-0 lg:sticky lg:top-24 lg:self-start">
           <ul className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 pb-1 lg:mx-0 lg:flex-col lg:overflow-visible lg:px-0">
             {SECTIONS.map(({ id, label, icon: Icon }) => (
               <li key={id} className="shrink-0 lg:w-full">
