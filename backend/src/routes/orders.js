@@ -19,7 +19,7 @@ const phoneTail = (s) => digits(s).slice(-10); // forgiving match: 0300... / +92
 
 // ---- Place order (guest or logged-in) ----
 router.post('/', placeOrderLimit, optionalAuth, asyncHandler(async (req, res) => {
-  const { customerInfo = {}, items = [], paymentMethod, transactionId = '', discountCode = '', discreetPackaging = true } = req.body || {};
+  const { customerInfo = {}, items = [], paymentMethod, transactionId = '', discountCode = '', discreetPackaging = true, shippingMethod = 'standard' } = req.body || {};
 
   const required = ['name', 'phone', 'address', 'city', 'province', 'postalCode'];
   for (const f of required) {
@@ -120,8 +120,33 @@ router.post('/', placeOrderLimit, optionalAuth, asyncHandler(async (req, res) =>
     await Discount.findByIdAndUpdate(d._id, { $inc: { usedCount: 1 } });
   }
 
-  const shippingCharge = subtotal >= settings.freeShippingThreshold ? 0 : settings.shippingFlatRate;
-  const total = Math.max(0, subtotal - discountAmount) + shippingCharge;
+  /* --------------------------------------------------------------------
+   * Money. The SERVER is authoritative — the client sends what the customer
+   * chose, never what they should be charged.
+   *
+   * Order of operations must match the storefront's useCartPricing exactly:
+   *   discount applies to goods only, free shipping is judged AFTER discount,
+   *   tax is a percentage of the discounted goods total.
+   * A mismatch here is a live money bug: before this, the client added tax
+   * and the server did not, so switching tax on would have quoted a total
+   * the server never charged.
+   * ------------------------------------------------------------------ */
+  const afterDiscount = Math.max(0, subtotal - discountAmount);
+
+  // Chosen shipping method, validated against the merchant's own list.
+  const shipMethods = (settings.checkout && settings.checkout.shippingMethods) || [];
+  const chosenShip = shipMethods.find((m) => m.id === shippingMethod && m.enabled);
+  const baseShipping = afterDiscount >= settings.freeShippingThreshold ? 0 : settings.shippingFlatRate;
+  // A method's own rate replaces the flat rate; free-shipping still wins when
+  // the method allows it (Express deliberately does not).
+  const shippingCharge = chosenShip
+    ? (chosenShip.freeEligible !== false && baseShipping === 0 ? 0 : Number(chosenShip.rate) || 0)
+    : baseShipping;
+
+  const taxPercent = Number(settings.cart && settings.cart.taxPercent) || 0;
+  const tax = taxPercent > 0 ? Math.round((afterDiscount * taxPercent) / 100) : 0;
+
+  const total = afterDiscount + shippingCharge + tax;
 
   const order = await Order.create({
     orderNumber: orderNumber(),
@@ -133,7 +158,8 @@ router.post('/', placeOrderLimit, optionalAuth, asyncHandler(async (req, res) =>
       postalCode: customerInfo.postalCode.trim(), notes: (customerInfo.notes || '').trim(),
       location,
     },
-    items: lineItems, subtotal, shippingCharge, discount: discountAmount, couponCode: appliedCode, total,
+    items: lineItems, subtotal, shippingCharge, discount: discountAmount, couponCode: appliedCode,
+    tax, taxPercent, shippingMethod: chosenShip ? chosenShip.id : 'standard', total,
     paymentMethod, paymentStatus: 'Pending', transactionId: transactionId.trim(),
     status: 'Pending', statusHistory: [{ status: 'Pending' }],
     discreetPackaging: !!discreetPackaging,
@@ -344,7 +370,14 @@ router.patch('/admin/:id/items', protect, adminOnly, asyncHandler(async (req, re
 
   order.items = newItems;
   order.subtotal = newItems.reduce((a, i) => a + i.lineTotal, 0);
-  order.total = Math.max(0, order.subtotal - (order.discount || 0)) + (order.shippingCharge || 0);
+  // Recompute tax from the rate SNAPSHOTTED on the order, not from current
+  // settings — editing an old order must not silently re-tax it at today's rate.
+  {
+    const after = Math.max(0, order.subtotal - (order.discount || 0));
+    const rate = Number(order.taxPercent) || 0;
+    order.tax = rate > 0 ? Math.round((after * rate) / 100) : 0;
+    order.total = after + (order.shippingCharge || 0) + order.tax;
+  }
   await order.save();
   res.json({ order });
 }));

@@ -49,6 +49,13 @@ const CARDS = [
     tags: ['cart', 'bag', 'basket', 'coupon', 'promo', 'trust', 'free shipping', 'checkout', 'undo', 'recommendations'],
   },
   {
+    to: '/admin/settings/checkout',
+    icon: CreditCard,
+    title: 'Checkout',
+    desc: 'Payment methods, delivery options, checkout wording, trust badges, terms and the thank-you page.',
+    tags: ['checkout', 'payment', 'cod', 'jazzcash', 'easypaisa', 'stripe', 'paypal', 'apple pay', 'google pay', 'delivery', 'express', 'pickup', 'terms', 'thank you', 'order success'],
+  },
+  {
     to: '/admin/apps',
     icon: Zap,
     title: 'Apps & Integrations',

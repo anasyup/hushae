@@ -1,72 +1,56 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { BadgePercent, Banknote, CreditCard, Crosshair, Landmark, Lock, MapPin, PackageCheck, Smartphone, X } from 'lucide-react';
+import { AlertCircle, Crosshair, MapPin, PackageCheck, Truck, User } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import { pkr } from '../lib/format';
-import Img from '../components/Img';
-import Tx from '../components/Tx';
+import { cartConfig } from '../lib/cartConfig';
+import { checkoutConfig, enabledPayments, enabledShipping, methodWindow, shippingCostFor } from '../lib/checkoutConfig';
 import { normalizePhone, phoneTypingError } from '../lib/validators';
+import { useCartPricing } from './cart/useCartPricing';
+import FloatField, { FloatSelect } from './checkout/FloatField';
+import MethodPicker from './checkout/MethodPicker';
+import CheckoutSummary from './checkout/CheckoutSummary';
+import ReviewDialog from './checkout/ReviewDialog';
+import StickyPlaceOrder from './checkout/StickyPlaceOrder';
 
-// Fallback if the locations API is unreachable
 const PROVINCES_FALLBACK = ['Punjab', 'Sindh', 'Khyber Pakhtunkhwa', 'Balochistan', 'Gilgit-Baltistan', 'Azad Kashmir', 'Islamabad (ICT)'];
+const DRAFT_KEY = 'hushae.checkoutDraft';
 
-const PM = [
-  { id: 'COD', icon: Banknote, title: 'Cash on Delivery', note: 'Pay at your doorstep' },
-  { id: 'JazzCash', icon: Smartphone, title: 'JazzCash', note: 'Send to 0300-VELAURA then enter txn ID' },
-  { id: 'EasyPaisa', icon: Smartphone, title: 'EasyPaisa', note: 'Send to 0345-VELAURA then enter txn ID' },
-  { id: 'Bank Transfer', icon: Landmark, title: 'Bank Transfer', note: 'Transfer then enter reference' },
-];
-
-// Module-level field (component identity stays stable while typing — no focus loss)
-function Field({ k, label, f, errs, set, ...props }) {
-  return (
-    <div>
-      <label className="label">{label}</label>
-      <input className={`input ${errs[k] ? '!border-red-400 !ring-red-50' : ''}`} value={f[k]} onChange={(e) => set(k, e.target.value)} {...props} />
-      {errs[k] && <p className="mt-1 text-xs text-red-700">{errs[k]}</p>}
-    </div>
-  );
-}
-
+/* ============================================================================
+ * CHECKOUT
+ *
+ * Configuration
+ *   Wording, payment methods, shipping methods, trust badges, terms and the
+ *   success screen all come from settings.checkout via checkoutConfig().
+ *   Admin → Settings → Checkout rewrites this page without a deploy.
+ *
+ * Money
+ *   Priced by useCartPricing — the same engine as the bag and the drawer.
+ *   The chosen shipping method's rate is layered on top through
+ *   shippingCostFor(), which mirrors the server's formula exactly. The server
+ *   still recomputes everything; the client never sends a total.
+ *
+ * Accessibility
+ *   Every field is a FloatField: real <label for>, autocomplete, aria-invalid
+ *   and aria-describedby. On a failed submit focus moves to the first bad
+ *   field and the error count is announced.
+ * ========================================================================== */
 export default function Checkout() {
-  const { cart, cartSubtotal, settings, clearCart, auth, t } = useApp();
+  const { cart, settings, clearCart, auth, toast } = useApp();
   const nav = useNavigate();
-  const flat = settings?.shippingFlatRate ?? 350;
-  const threshold = settings?.freeShippingThreshold ?? 4999;
-  const shipping = cartSubtotal >= threshold ? 0 : flat;
 
-  // Promo code
-  const [code, setCode] = useState('');
-  const [applied, setApplied] = useState(null); // { code, discount }
-  const [codeErr, setCodeErr] = useState('');
-  const [applying, setApplying] = useState(false);
-  const discountAmt = applied?.discount || 0;
-  const grandTotal = Math.max(0, cartSubtotal - discountAmt) + shipping;
+  const cfg = useMemo(() => checkoutConfig(settings), [settings]);
+  const cartCfg = useMemo(() => cartConfig(settings), [settings]);
 
-  const applyCode = async () => {
-    if (!code.trim() || applying) return;
-    setApplying(true); setCodeErr('');
-    try {
-      const r = await api('/discounts/validate', { method: 'POST', body: { code: code.trim(), subtotal: cartSubtotal } });
-      setApplied(r); setCodeErr('');
-    } catch (ex) { setApplied(null); setCodeErr(ex.message || 'Invalid code'); }
-    setApplying(false);
-  };
-  const pmCfg = settings?.paymentMethods || { cod: true, jazzcash: true, easypaisa: true, bank: true };
-  const enabled = PM.filter((m) =>
-    (m.id === 'COD' && pmCfg.cod) || (m.id === 'JazzCash' && pmCfg.jazzcash) || (m.id === 'EasyPaisa' && pmCfg.easypaisa) || (m.id === 'Bank Transfer' && pmCfg.bank));
+  const payments = useMemo(() => enabledPayments(cfg), [cfg]);
+  const shipOptions = useMemo(() => enabledShipping(cfg), [cfg]);
 
+  /* ---------------- draft restore ---------------- */
+  const draft = useMemo(() => {
+    try { return JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null'); } catch { return null; }
+  }, []);
   const addr = auth?.user?.addresses?.[0] || {};
-
-  // Restore any in-progress checkout form from localStorage so a customer who
-  // refreshes or navigates away doesn't lose everything they typed. Cleared
-  // once the order is successfully placed.
-  const CHECKOUT_KEY = 'hushae.checkoutDraft';
-  const loadDraft = () => {
-    try { return JSON.parse(localStorage.getItem(CHECKOUT_KEY) || 'null'); } catch { return null; }
-  };
-  const draft = loadDraft();
 
   const [f, setF] = useState({
     name: draft?.name ?? (auth?.user?.name || addr.name || ''),
@@ -79,35 +63,76 @@ export default function Checkout() {
     postalCode: draft?.postalCode ?? '',
     notes: draft?.notes ?? '',
   });
-  const [method, setMethod] = useState(draft?.method || 'COD');
+  const [method, setMethod] = useState(draft?.method || '');
+  const [ship, setShip] = useState(draft?.ship || '');
   const [txn, setTxn] = useState(draft?.txn || '');
   const [discreet, setDiscreet] = useState(draft?.discreet !== false);
-
-  // Auto-persist form state on every change (debounce keystrokes lightly)
-  useEffect(() => {
-    const t = setTimeout(() => {
-      try { localStorage.setItem(CHECKOUT_KEY, JSON.stringify({ ...f, method, txn, discreet })); } catch {}
-    }, 300);
-    return () => clearTimeout(t);
-  }, [f, method, txn, discreet]);
+  const [terms, setTerms] = useState(false);
+  const [newsletter, setNewsletter] = useState(draft?.newsletter ?? false);
+  const [applied, setApplied] = useState(null);
 
   const [errs, setErrs] = useState({});
   const [busy, setBusy] = useState(false);
   const [topErr, setTopErr] = useState('');
   const [reviewOpen, setReviewOpen] = useState(false);
+  const submitRef = useRef(null);
+  const formRef = useRef(null);
 
-  // Provinces + cities from the backend API
+  /* Default the pickers to the merchant's first enabled option. Runs when the
+     registry arrives, and only while nothing is chosen — never overrides the
+     customer or a restored draft. */
+  useEffect(() => {
+    if (!method && payments.length) {
+      const ok = payments.find((m) => m.id === draft?.method && !m.comingSoon);
+      setMethod((ok || payments.find((m) => !m.comingSoon) || payments[0]).id);
+    }
+  }, [payments, method, draft]);
+
+  useEffect(() => {
+    if (!ship && shipOptions.length) {
+      const ok = shipOptions.find((m) => m.id === draft?.ship);
+      setShip((ok || shipOptions[0]).id);
+    }
+  }, [shipOptions, ship, draft]);
+
+  const payMethod = payments.find((m) => m.id === method) || null;
+  const shipMethod = shipOptions.find((m) => m.id === ship) || null;
+
+  /* ---------------- pricing: ONE engine ---------------- */
+  // Checkout has no stock map of its own — the bag already blocks sold-out
+  // lines from reaching here, and the server re-verifies on submit.
+  const lines = useMemo(() => cart.map((line, index) => ({ line, index, status: 'ok', available: null })), [cart]);
+  const base = useCartPricing(lines, settings, cartCfg, applied);
+
+  // Layer the chosen shipping method over the base rate, mirroring the server.
+  const pricing = useMemo(() => {
+    const shipping = shipMethod ? shippingCostFor(shipMethod, base) : base.shipping;
+    if (shipping === base.shipping) return base;
+    const delta = shipping - base.shipping;
+    return { ...base, shipping, total: base.total + delta };
+  }, [base, shipMethod]);
+
+  /* ---------------- draft persistence ---------------- */
+  useEffect(() => {
+    const t = setTimeout(() => {
+      try { localStorage.setItem(DRAFT_KEY, JSON.stringify({ ...f, method, ship, txn, discreet, newsletter })); } catch { /* quota */ }
+    }, 300);
+    return () => clearTimeout(t);
+  }, [f, method, ship, txn, discreet, newsletter]);
+
+  /* ---------------- locations ---------------- */
   const [provinces, setProvinces] = useState(PROVINCES_FALLBACK);
   const [cities, setCities] = useState([]);
   const [citiesLoading, setCitiesLoading] = useState(false);
+  const [postalHint, setPostalHint] = useState('');
+  const [postalLive, setPostalLive] = useState(null);
 
   useEffect(() => {
     api('/locations').then((r) => { if (r?.provinces?.length) setProvinces(r.provinces); }).catch(() => {});
   }, []);
 
-  // Jab province badle → us province ke cities API se lao
   useEffect(() => {
-    if (!f.province) { setCities([]); return; }
+    if (!f.province) { setCities([]); return undefined; }
     let alive = true;
     setCitiesLoading(true);
     api(`/locations/${encodeURIComponent(f.province)}/cities`)
@@ -122,8 +147,6 @@ export default function Checkout() {
     return () => { alive = false; };
   }, [f.province]);
 
-  // City ka postal code hint (e.g. Lahore → 54000)
-  const [postalHint, setPostalHint] = useState('');
   useEffect(() => {
     setPostalHint('');
     if (!f.city || f.city === '__other') return;
@@ -132,41 +155,38 @@ export default function Checkout() {
       .catch(() => {});
   }, [f.city]);
 
-  // Live postal verification against province + city (backend is the source of truth)
-  const [postalLive, setPostalLive] = useState(null); // { ok, message?, suggestion? }
   useEffect(() => {
     setPostalLive(null);
-    const code = f.postalCode;
-    if (!/^\d{5}$/.test(code) || !f.province) return undefined;
-    const city = f.city === '__other' ? '' : f.city;
+    if (!/^\d{5}$/.test(f.postalCode) || !f.province) return undefined;
     let alive = true;
     const id = setTimeout(() => {
-      api('/locations/postal-check', { method: 'POST', body: { postalCode: code, province: f.province, city } })
-        .then((r) => { if (alive) setPostalLive(r); })
-        .catch(() => {});
+      api('/locations/postal-check', {
+        method: 'POST',
+        body: { postalCode: f.postalCode, province: f.province, city: f.city === '__other' ? '' : f.city },
+      }).then((r) => { if (alive) setPostalLive(r); }).catch(() => {});
     }, 300);
     return () => { alive = false; clearTimeout(id); };
   }, [f.postalCode, f.province, f.city]);
 
-  // Pin location (Google Maps)
-  const [loc, setLoc] = useState(null); // { lat, lng, mapsLink }
+  /* ---------------- pin location ---------------- */
+  const [loc, setLoc] = useState(null);
   const [locLink, setLocLink] = useState('');
   const [locBusy, setLocBusy] = useState(false);
   const [locMsg, setLocMsg] = useState({ type: '', text: '' });
-
   const inPK = (lat, lng) => lat >= 23.4 && lat <= 37.2 && lng >= 60.4 && lng <= 78;
 
   const useCurrentLocation = () => {
     if (!navigator.geolocation) {
-      setLocMsg({ type: 'err', text: 'Your browser does not support location — paste a Google Maps link below instead' });
+      setLocMsg({ type: 'err', text: 'Your browser cannot share a location — paste a Google Maps link instead' });
       return;
     }
     setLocBusy(true); setLocMsg({ type: '', text: '' });
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        const lat = +pos.coords.latitude.toFixed(6); const lng = +pos.coords.longitude.toFixed(6);
-        if (!inPK(lat, lng)) { setLocMsg({ type: 'err', text: 'That location looks outside Pakistan — please check the pin' }); }
-        else { setLoc({ lat, lng, mapsLink: `https://www.google.com/maps?q=${lat},${lng}` }); setLocMsg({ type: 'ok', text: 'Location added ✓' }); }
+        const lat = +pos.coords.latitude.toFixed(6);
+        const lng = +pos.coords.longitude.toFixed(6);
+        if (!inPK(lat, lng)) setLocMsg({ type: 'err', text: 'That pin looks outside Pakistan — please check it' });
+        else { setLoc({ lat, lng, mapsLink: `https://www.google.com/maps?q=${lat},${lng}` }); setLocMsg({ type: 'ok', text: 'Location added' }); }
         setLocBusy(false);
       },
       () => { setLocBusy(false); setLocMsg({ type: 'err', text: 'Location access was denied — paste a Google Maps link instead' }); },
@@ -179,408 +199,471 @@ export default function Checkout() {
     setLocBusy(true); setLocMsg({ type: '', text: '' });
     try {
       const r = await api('/geo/resolve', { method: 'POST', body: { url: locLink.trim() } });
-      setLoc(r); setLocMsg({ type: 'ok', text: 'Location found ✓ please confirm it on the map' });
+      setLoc(r); setLocMsg({ type: 'ok', text: 'Location found — please confirm it on the map' });
     } catch (ex) { setLocMsg({ type: 'err', text: ex.message }); }
     setLocBusy(false);
   };
 
-  if (cart.length === 0) {
-    return (
-      <div className="mx-auto max-w-7xl px-4 py-24 text-center">
-        <p className="font-display text-3xl">Nothing to check out yet</p>
-        <Link to="/shop" className="btn-primary mt-8">Back to Shop</Link>
-      </div>
-    );
-  }
-
-  // Track abandoned cart when a customer types their email
-  // (debounced so we don't hammer the server on every keystroke)
+  /* ---------------- abandoned cart ---------------- */
   useEffect(() => {
-    if (!f.email || !/^\S+@\S+\.\S+$/.test(f.email) || cart.length === 0) return;
+    if (!f.email || !/^\S+@\S+\.\S+$/.test(f.email) || cart.length === 0) return undefined;
     const t = setTimeout(() => {
       api('/abandoned-cart/track', {
         method: 'POST',
         body: {
-          email: f.email,
-          name: f.name || '',
-          phone: f.phone || '',
+          email: f.email, name: f.name || '', phone: f.phone || '',
           items: cart.map((l) => ({ product: l.id, size: l.size, color: l.color, quantity: l.qty })),
         },
       }).catch(() => {});
     }, 2000);
     return () => clearTimeout(t);
-  }, [f.email, f.name, f.phone, cart.length]);
+  }, [f.email, f.name, f.phone, cart.length]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const set = (k, v) => { setF((x) => ({ ...x, [k]: v })); setErrs((e) => ({ ...e, [k]: '' })); };
+  const set = useCallback((k, v) => {
+    setF((x) => ({ ...x, [k]: v }));
+    setErrs((e) => (e[k] ? { ...e, [k]: '' } : e));
+  }, []);
 
-  // Validate and open the "Review order" modal (customer's last chance to edit)
-  const validateAndReview = (e) => {
-    e.preventDefault();
+  const cityLabel = f.city === '__other' ? f.customCity.trim() : f.city;
+
+  /* ---------------- validation ---------------- */
+  const validate = () => {
+    const e = {};
+    if (f.name.trim().length < 3) e.name = 'Please enter your full name';
+    if (!normalizePhone(f.phone)) e.phone = 'Enter a valid Pakistani mobile, e.g. 0300 1234567';
+    if (f.address.trim().length < 6) e.address = 'Please enter your full street address';
+    if (!cityLabel) e.city = 'Please choose your city';
+    if (!/^\d{5}$/.test(f.postalCode)) e.postalCode = 'Postal code must be 5 digits';
+    else if (postalLive && postalLive.ok === false) e.postalCode = 'That postal code does not match your city';
+    if (f.email && !/^\S+@\S+\.\S+$/.test(f.email)) e.email = 'Enter a valid email, or leave it empty';
+    if (!method) e.method = 'Please choose how you want to pay';
+    if (cfg.termsRequired && !terms) e.terms = 'Please accept the terms to continue';
+    return e;
+  };
+
+  const openReview = () => {
     setTopErr('');
-    const e2 = {};
-    if (f.name.trim().length < 3) e2.name = 'Your full name';
-    const phoneNorm = normalizePhone(f.phone);
-    if (!phoneNorm) e2.phone = 'Incorrect number';
-    if (f.address.trim().length < 6) e2.address = 'Complete street address';
-    const cityVal = f.city === '__other' ? f.customCity.trim() : f.city;
-    if (!cityVal) e2.city = 'Please select your city';
-    if (!/^\d{5}$/.test(f.postalCode)) e2.postalCode = 'Incorrect postal code';
-    else if (postalLive && postalLive.ok === false) e2.postalCode = 'Incorrect postal code';
-    if (f.email && !/^\S+@\S+\.\S+$/.test(f.email)) e2.email = 'Valid email (or leave empty)';
-    setErrs(e2);
-    if (Object.keys(e2).length) {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+    const e = validate();
+    setErrs(e);
+    const keys = Object.keys(e);
+    if (keys.length) {
+      /* Move focus to the first invalid control. The old form left focus on
+         the submit button and scrolled to the top, so a keyboard or screen
+         reader user was given no idea what had failed. */
+      requestAnimationFrame(() => {
+        const el = formRef.current?.querySelector('[aria-invalid="true"]');
+        if (el) { el.focus(); el.scrollIntoView({ block: 'center', behavior: 'smooth' }); }
+      });
+      setTopErr(`${keys.length} ${keys.length === 1 ? 'detail needs' : 'details need'} your attention before we can continue.`);
       return;
     }
     setReviewOpen(true);
   };
 
-  // Actually place the order — called from the Review modal's "Confirm" button
+  /* ---------------- place order ---------------- */
   const placeOrder = async () => {
-    const phoneNorm = normalizePhone(f.phone);
-    const cityVal = f.city === '__other' ? f.customCity.trim() : f.city;
-    setBusy(true);
+    setBusy(true); setTopErr('');
     try {
       const { order } = await api('/orders', {
         method: 'POST',
         token: auth?.token,
         body: {
-          customerInfo: { ...f, phone: phoneNorm, city: cityVal, customCity: undefined, location: loc },
+          customerInfo: { ...f, phone: normalizePhone(f.phone), city: cityLabel, customCity: undefined, location: loc },
           items: cart.map((l) => ({ product: l.id, size: l.size, color: l.color, quantity: l.qty })),
-          paymentMethod: method, transactionId: txn, discountCode: applied?.code || '', discreetPackaging: discreet,
+          paymentMethod: method,
+          shippingMethod: ship || 'standard',
+          transactionId: txn,
+          discountCode: applied?.code || '',
+          discreetPackaging: discreet,
         },
       });
-      try { localStorage.removeItem(CHECKOUT_KEY); } catch {}
+
+      if (newsletter && f.email) {
+        api('/subscribers', { method: 'POST', body: { email: f.email } }).catch(() => {});
+      }
+      try { localStorage.removeItem(DRAFT_KEY); } catch { /* noop */ }
       clearCart();
       nav(`/order/${order.orderNumber}`, { state: { order }, replace: true });
     } catch (ex) {
-      const msg = ex.message || 'Could not place order — please try again';
+      const msg = ex.message || 'We could not place your order. Please try again.';
       const raw = ex.raw || {};
-      setReviewOpen(false);
-      if (raw.reason === 'out-of-stock' || raw.reason === 'unavailable' || raw.reason === 'size-unavailable') {
-        setTopErr(msg + ' Please review your bag and remove the unavailable item.');
-        setBusy(false);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        return;
-      }
-      if (/postal/i.test(msg)) setErrs((er) => ({ ...er, postalCode: 'Incorrect postal code' }));
-      if (/phone|mobile/i.test(msg)) setErrs((er) => ({ ...er, phone: 'Incorrect number' }));
-      setTopErr(msg);
       setBusy(false);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      setReviewOpen(false);
+
+      // Map server-side failures back onto the field that caused them so the
+      // customer is taken to the problem instead of reading a generic banner.
+      const fieldErrs = {};
+      if (/postal/i.test(msg)) fieldErrs.postalCode = 'That postal code does not match your city';
+      if (/phone|mobile/i.test(msg)) fieldErrs.phone = 'Enter a valid Pakistani mobile number';
+      if (Object.keys(fieldErrs).length) {
+        setErrs((e) => ({ ...e, ...fieldErrs }));
+        requestAnimationFrame(() => formRef.current?.querySelector('[aria-invalid="true"]')?.focus());
+      }
+
+      if (['out-of-stock', 'unavailable', 'size-unavailable'].includes(raw.reason)) {
+        setTopErr(`${msg} Please open your bag and remove the item that is no longer available.`);
+      } else if (/coupon|discount|code/i.test(msg)) {
+        setApplied(null);
+        setTopErr(`${msg} Your promo code has been removed — the total above is what you will pay.`);
+      } else {
+        setTopErr(msg);
+      }
+      toast('Order not placed');
     }
   };
 
-  // Legacy alias — old code paths call submit; keep it working
-  const submit = validateAndReview;
+  /* ---------------- empty ---------------- */
+  if (cart.length === 0) {
+    return (
+      <div className="container-page py-sect-y text-center md:py-sect-y-lg">
+        <h1 className="font-display text-h2">Nothing to check out yet</h1>
+        <p className="mt-3 text-body text-ash">Your bag is empty — add a piece and come back.</p>
+        <Link to={cartCfg.continueHref} className="btn-primary mt-8">{cartCfg.continueLabel}</Link>
+      </div>
+    );
+  }
+
+  const phoneOk = normalizePhone(f.phone);
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 md:py-10 md:px-8">
-      <div className="flex items-end justify-between gap-4">
-        <h1 className="font-display text-2xl sm:text-3xl md:text-4xl">Checkout</h1>
-      </div>
-      <p className="mt-2 text-sm text-ash">
-        {auth ? `Ordering as ${auth.user.name}` : <>Guest checkout — no account needed. <Link to="/account" className="font-semibold text-obsidian underline">Sign in</Link> for faster checkout.</>}
-      </p>
+    <div className="container-page py-8 md:py-12">
+      <header className="border-b border-line pb-6">
+        <Link to="/cart" className="inline-flex min-h-[44px] items-center gap-1.5 text-body-sm text-ash underline-offset-4 transition hover:text-obsidian hover:underline">
+          ← Back to bag
+        </Link>
+        <h1 className="mt-2 font-display text-h1">{cfg.title}</h1>
+        <p className="mt-2 text-body-sm text-ash">{cfg.subtitle}</p>
+        {!auth && cfg.guestCheckout && (
+          <p className="mt-3 inline-flex flex-wrap items-center gap-1.5 text-body-sm text-ash">
+            <User size={13} aria-hidden="true" />
+            Checking out as a guest.
+            <Link to="/account" className="font-medium text-obsidian underline underline-offset-4">Sign in</Link>
+            for faster checkout and order history.
+          </p>
+        )}
+        {auth && <p className="mt-3 text-body-sm text-ash">Ordering as <span className="font-medium text-ink">{auth.user.name}</span></p>}
+      </header>
 
-      {topErr && <div className="mt-6 rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-800">{topErr}</div>}
+      {topErr && (
+        <p role="alert" className="mt-6 flex items-start gap-2.5 rounded-control border border-red-200 bg-red-50 px-4 py-3.5 text-body-sm text-red-800">
+          <AlertCircle size={16} className="mt-0.5 shrink-0" aria-hidden="true" />
+          {topErr}
+        </p>
+      )}
 
-      <form onSubmit={submit} className="mt-10 grid gap-10 lg:grid-cols-[1fr_380px]">
-        <div className="space-y-8">
-          {/* Contact + address */}
-          <section className="card p-6 md:p-8">
-            <p className="mb-6 text-[11px] font-bold uppercase tracking-widest text-ash">Delivery details</p>
-            <div className="grid gap-5 md:grid-cols-2">
-              <Field k="name" label="Full name *" placeholder="e.g. Ayesha Khan" f={f} errs={errs} set={set} />
-              <div>
-                <label className="label">Mobile number *</label>
-                <input className={`input ${(errs.phone || phoneTypingError(f.phone)) ? '!border-red-400 !ring-red-50' : ''}`}
-                  value={f.phone} inputMode="tel" placeholder="03XX-XXXXXXX"
-                  onChange={(e) => set('phone', e.target.value)} />
-                {errs.phone ? (
-                  <p className="mt-1 text-xs text-red-700">{errs.phone}</p>
-                ) : (normalizePhone(f.phone) ? (
-                  <p className="mt-1 text-[11px] font-semibold text-emerald-700">✓ Valid mobile number — {normalizePhone(f.phone)}</p>
-                ) : (phoneTypingError(f.phone) && (
-                  <p className="mt-1 text-[11px] font-medium text-red-700">Incorrect number</p>
-                )))}
+      <div className="mt-8 grid items-start gap-x-12 gap-y-10 lg:grid-cols-[minmax(0,1fr)_400px]">
+        {/* ================= LEFT ================= */}
+        <form
+          ref={formRef}
+          onSubmit={(e) => { e.preventDefault(); openReview(); }}
+          className="space-y-8"
+          noValidate
+        >
+          {/* ---- Contact ---- */}
+          <section aria-labelledby="sec-contact">
+            <h2 id="sec-contact" className="text-label uppercase tracking-widest text-ash">Contact</h2>
+            <div className="mt-4 grid gap-4 sm:grid-cols-2">
+              <FloatField
+                label="Full name" required autoComplete="name"
+                value={f.name} onChange={(v) => set('name', v)} error={errs.name}
+              />
+              <FloatField
+                label="Mobile number" required autoComplete="tel" inputMode="tel"
+                value={f.phone} onChange={(v) => set('phone', v)}
+                error={errs.phone || (!errs.phone && phoneTypingError(f.phone) ? 'That does not look like a Pakistani mobile' : '')}
+                valid={phoneOk ? `Valid — ${phoneOk}` : ''}
+              />
+              <div className="sm:col-span-2">
+                <FloatField
+                  label="Email (optional)" type="email" autoComplete="email" inputMode="email"
+                  value={f.email} onChange={(v) => set('email', v)} error={errs.email}
+                  hint="For your order confirmation and tracking updates."
+                />
               </div>
-              <Field k="email" label="Email (optional)" placeholder="you@example.com" type="email" f={f} errs={errs} set={set} />
-              <div>
-                <label className="label">Province *</label>
-                <select className="input" value={f.province}
-                  onChange={(e) => setF((x) => ({ ...x, province: e.target.value, city: '', customCity: '' }))}>
-                  {provinces.map((p) => <option key={p}>{p}</option>)}
-                </select>
-              </div>
-              <div className="md:col-span-2"><Field k="address" label="Street address *" placeholder="House, street, area" f={f} errs={errs} set={set} /></div>
+            </div>
+          </section>
 
-              {/* Pin location — rider ke liye */}
-              <div className="md:col-span-2 rounded-2xl border border-line bg-satin/40 p-4">
-                <p className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-ash">
-                  <MapPin size={14} /> Pin location <span className="normal-case tracking-normal text-ash/80">(optional — helps the rider find you)</span>
-                </p>
+          {/* ---- Address ---- */}
+          <section aria-labelledby="sec-address">
+            <h2 id="sec-address" className="text-label uppercase tracking-widest text-ash">Shipping address</h2>
+            <div className="mt-4 grid gap-4 sm:grid-cols-2">
+              <div className="sm:col-span-2">
+                <FloatField
+                  label="Street address" required autoComplete="street-address"
+                  value={f.address} onChange={(v) => set('address', v)} error={errs.address}
+                  hint="House or flat number, street, area."
+                />
+              </div>
+
+              <FloatSelect
+                label="Province" required value={f.province}
+                onChange={(v) => setF((x) => ({ ...x, province: v, city: '', customCity: '' }))}
+              >
+                {provinces.map((p) => <option key={p} value={p}>{p}</option>)}
+              </FloatSelect>
+
+              {f.city === '__other' ? (
+                <div>
+                  <FloatField
+                    label="City" required value={f.customCity}
+                    onChange={(v) => { setF((x) => ({ ...x, customCity: v })); setErrs((e) => ({ ...e, city: '' })); }}
+                    error={errs.city}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setF((x) => ({ ...x, city: '', customCity: '' }))}
+                    className="mt-1.5 min-h-[44px] text-caption font-semibold text-obsidian underline underline-offset-4"
+                  >
+                    ← Choose from the list
+                  </button>
+                </div>
+              ) : (
+                <FloatSelect
+                  label="City" required value={f.city} disabled={citiesLoading} error={errs.city}
+                  onChange={(v) => { setF((x) => ({ ...x, city: v })); setErrs((e) => ({ ...e, city: '' })); }}
+                >
+                  <option value="">{citiesLoading ? 'Loading cities…' : 'Select your city'}</option>
+                  {cities.map((c) => <option key={c} value={c}>{c}</option>)}
+                  <option value="__other">My city is not listed</option>
+                </FloatSelect>
+              )}
+
+              <FloatField
+                label="Postal code" required autoComplete="postal-code" inputMode="numeric" maxLength={5}
+                value={f.postalCode}
+                onChange={(v) => set('postalCode', v.replace(/\D/g, '').slice(0, 5))}
+                error={errs.postalCode || (postalLive && postalLive.ok === false ? 'That postal code does not match your city' : '')}
+                valid={postalLive?.ok && postalHint && f.postalCode === postalHint ? `Correct for ${f.city}` : ''}
+                hint={!f.postalCode && postalHint ? `${f.city} is usually ${postalHint}` : ''}
+              />
+            </div>
+
+            {/* ---- Pin location ---- */}
+            {cfg.showPinLocation && (
+              <div className="mt-4 rounded-card border border-line bg-cream/40 p-4">
+                <h3 className="flex flex-wrap items-center gap-2 text-label uppercase tracking-widest text-ash">
+                  <MapPin size={13} aria-hidden="true" /> Pin location
+                  <span className="font-normal normal-case tracking-normal">(optional — helps the rider find you)</span>
+                </h3>
                 {!loc ? (
                   <div className="mt-3 grid gap-3 lg:grid-cols-[auto_1fr]">
-                    <button type="button" onClick={useCurrentLocation} disabled={locBusy}
-                      className="btn-outline flex items-center justify-center gap-2 !px-4 !py-2.5 text-xs disabled:opacity-50">
-                      <Crosshair size={14} /> {locBusy ? 'Getting location…' : 'Use my current location'}
+                    <button
+                      type="button" onClick={useCurrentLocation} disabled={locBusy}
+                      className="btn btn-sm gap-2 border border-stone bg-white text-graphite hover:bg-satin/60 disabled:opacity-50"
+                    >
+                      <Crosshair size={14} aria-hidden="true" /> {locBusy ? 'Getting location…' : 'Use my location'}
                     </button>
                     <div className="flex gap-2">
-                      <input className="input flex-1 !py-2.5 text-xs" value={locLink}
+                      <label className="sr-only" htmlFor="maps-link">Google Maps share link</label>
+                      <input
+                        id="maps-link" className="input input-sm min-h-[44px] flex-1" value={locLink}
                         onChange={(e) => { setLocLink(e.target.value); setLocMsg({ type: '', text: '' }); }}
-                        placeholder='Or paste a Google Maps "Share" link' />
-                      <button type="button" onClick={resolveLink} disabled={locBusy || !locLink.trim()}
-                        className="btn-primary !px-4 !py-2.5 text-xs disabled:opacity-50">{locBusy ? '…' : 'Locate'}</button>
+                        placeholder="Or paste a Google Maps link"
+                      />
+                      <button
+                        type="button" onClick={resolveLink} disabled={locBusy || !locLink.trim()}
+                        className="btn btn-sm shrink-0 bg-obsidian text-alabaster disabled:opacity-40"
+                      >
+                        Locate
+                      </button>
                     </div>
                   </div>
                 ) : (
                   <div className="mt-3">
-                    <iframe title="Delivery location" loading="lazy"
+                    <iframe
+                      title="Your delivery location" loading="lazy"
                       src={`https://maps.google.com/maps?q=${loc.lat},${loc.lng}&z=16&output=embed`}
-                      className="h-44 w-full rounded-xl border border-line" />
-                    <div className="mt-2 flex items-center justify-between text-xs">
-                      <span className="font-medium text-ash">📍 {loc.lat}, {loc.lng} — please confirm on the map</span>
-                      <button type="button" className="font-semibold text-red-700 underline underline-offset-2"
-                        onClick={() => { setLoc(null); setLocMsg({ type: '', text: '' }); }}>Remove</button>
+                      className="h-44 w-full rounded-control border border-line"
+                    />
+                    <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
+                      <span className="text-caption text-ash">{loc.lat}, {loc.lng} — please confirm on the map</span>
+                      <button
+                        type="button" onClick={() => { setLoc(null); setLocMsg({ type: '', text: '' }); }}
+                        className="min-h-[44px] text-caption font-semibold text-red-700 underline underline-offset-4"
+                      >
+                        Remove pin
+                      </button>
                     </div>
                   </div>
                 )}
-                {locMsg.text && <p className={`mt-2 text-xs font-medium ${locMsg.type === 'err' ? 'text-red-700' : 'text-emerald-700'}`}>{locMsg.text}</p>}
-              </div>
-              <div>
-                <label className="label">City *</label>
-                {f.city === '__other' ? (
-                  <div className="space-y-1.5">
-                    <input className={`input ${errs.city ? '!border-red-400 !ring-red-50' : ''}`} autoFocus
-                      value={f.customCity} onChange={(e) => { setF((x) => ({ ...x, customCity: e.target.value })); setErrs((er) => ({ ...er, city: '' })); }}
-                      placeholder="Type your city name" />
-                    <button type="button" className="text-[11px] font-semibold text-obsidian underline underline-offset-2"
-                      onClick={() => setF((x) => ({ ...x, city: '', customCity: '' }))}>← Choose from list</button>
-                  </div>
-                ) : (
-                  <select className={`input ${errs.city ? '!border-red-400 !ring-red-50' : ''}`} value={f.city}
-                    disabled={citiesLoading}
-                    onChange={(e) => { setF((x) => ({ ...x, city: e.target.value })); setErrs((er) => ({ ...er, city: '' })); }}>
-                    <option value="">{citiesLoading ? 'Loading cities…' : 'Select your city'}</option>
-                    {cities.map((c) => <option key={c} value={c}>{c}</option>)}
-                    <option value="__other">My city is not listed</option>
-                  </select>
+                {locMsg.text && (
+                  <p role="status" className={`mt-2 text-caption font-medium ${locMsg.type === 'err' ? 'text-red-700' : 'text-sagedark'}`}>
+                    {locMsg.text}
+                  </p>
                 )}
-                {errs.city && <p className="mt-1 text-xs text-red-700">{errs.city}</p>}
               </div>
-              <div>
-                <label className="label">Postal code *</label>
-                <input className={`input ${(errs.postalCode || (postalLive && !postalLive.ok)) ? '!border-red-400 !ring-red-50' : ''}`}
-                  value={f.postalCode} inputMode="numeric" maxLength={5} placeholder="5-digit code"
-                  onChange={(e) => set('postalCode', e.target.value.replace(/\D/g, '').slice(0, 5))} />
-                {/* priority: form error > live verification error > verified tick */}
-                {errs.postalCode ? (
-                  <p className="mt-1 text-xs text-red-700">{errs.postalCode}</p>
-                ) : postalLive && !postalLive.ok ? (
-                  <p className="mt-1 text-xs font-medium text-red-700">❌ Incorrect postal code</p>
-                ) : postalLive?.ok && postalHint && f.postalCode === postalHint ? (
-                  <p className="mt-1.5 text-[11px] font-semibold text-emerald-700">✓ Correct for {f.city}</p>
-                ) : null}
-              </div>
-              <div className="md:col-span-2">
-                <label className="label">Order notes (optional)</label>
-                <textarea className="input min-h-20 resize-none" value={f.notes} onChange={(e) => set('notes', e.target.value)} placeholder="Rider instructions, landmarks…" />
-              </div>
-            </div>
+            )}
           </section>
 
-          {/* Payment */}
-          <section className="card p-6 md:p-8">
-            <p className="mb-6 text-[11px] font-bold uppercase tracking-widest text-ash"><Tx k="payment" /></p>
-            <div className="grid gap-3 md:grid-cols-2">
-              {enabled.map(({ id, icon: Icon, title, note }) => (
-                <button type="button" key={id} onClick={() => setMethod(id)}
-                  className={`rounded-2xl border p-4 text-left transition ${method === id ? 'border-obsidian bg-obsidian/[0.04] ring-1 ring-obsidian' : 'border-line hover:border-obsidian/40'}`}>
-                  <span className="flex items-center gap-3">
-                    <span className={`grid h-9 w-9 place-items-center rounded-full ${method === id ? 'bg-obsidian text-alabaster' : 'bg-satin/70 text-obsidian'}`}><Icon size={16} /></span>
-                    <span><b className="block text-sm">{title}</b><span className="text-xs text-ash">{note}</span></span>
-                  </span>
-                </button>
-              ))}
+          {/* ---- Delivery method ---- */}
+          {shipOptions.length > 0 && (
+            <section aria-labelledby="sec-ship">
+              <h2 id="sec-ship" className="text-label uppercase tracking-widest text-ash">Delivery</h2>
+              <div className="mt-4">
+                <MethodPicker
+                  name="shipping" legend="Choose a delivery method"
+                  options={shipOptions} value={ship} onChange={setShip}
+                  renderMeta={(m) => (
+                    <span className="mt-1 flex items-center gap-1.5 text-caption text-ash">
+                      <Truck size={11} aria-hidden="true" />
+                      {methodWindow(m)}
+                      <span className="font-medium text-ink">
+                        · {shippingCostFor(m, base) === 0 ? 'Free' : pkr(shippingCostFor(m, base))}
+                      </span>
+                    </span>
+                  )}
+                />
+              </div>
+            </section>
+          )}
+
+          {/* ---- Payment ---- */}
+          <section aria-labelledby="sec-pay">
+            <h2 id="sec-pay" className="text-label uppercase tracking-widest text-ash">Payment</h2>
+            {errs.method && (
+              <p role="alert" className="mt-2 flex items-center gap-1.5 text-caption text-red-700">
+                <AlertCircle size={12} aria-hidden="true" /> {errs.method}
+              </p>
+            )}
+            <div className="mt-4">
+              {payments.length === 0 ? (
+                <p className="rounded-control border border-amber-200 bg-amber-50 px-4 py-3 text-body-sm text-amber-900">
+                  No payment method is switched on. Please contact us to place your order.
+                </p>
+              ) : (
+                <MethodPicker
+                  name="payment" legend="Choose how to pay"
+                  options={payments} value={method} onChange={(v) => { setMethod(v); setErrs((e) => ({ ...e, method: '' })); }}
+                />
+              )}
             </div>
 
-            {method !== 'COD' && (
-              <div className="mt-5 rounded-2xl bg-satin/40 p-5">
-                {method === 'Bank Transfer' && <pre className="whitespace-pre-wrap font-sans text-xs leading-relaxed text-ash">{pmCfg.bankDetails}</pre>}
-                <label className="label mt-2">Transaction ID / reference (optional)</label>
-                <input className="input" value={txn} onChange={(e) => setTxn(e.target.value)} placeholder="e.g. 0392XXXXX or bank reference" />
-                <p className="mt-2 text-xs text-ash">Payment stays <b>Pending</b> until our team verifies it — then your order ships.</p>
+            {/* Instructions + reference for the selected method */}
+            {payMethod?.needsTxn && (
+              <div className="mt-4 rounded-card bg-cream/50 p-4">
+                {(payMethod.instructions || (payMethod.id === 'Bank Transfer' && settings?.paymentMethods?.bankDetails)) && (
+                  <p className="mb-3 whitespace-pre-wrap text-caption leading-relaxed text-ash">
+                    {payMethod.instructions || settings?.paymentMethods?.bankDetails}
+                  </p>
+                )}
+                <FloatField
+                  label="Transaction ID / reference (optional)"
+                  value={txn} onChange={setTxn}
+                  hint="Your payment stays pending until our team verifies it — then your order ships."
+                />
               </div>
             )}
 
-            <label className="mt-6 flex cursor-pointer items-start gap-3 rounded-2xl border border-line p-4">
-              <input type="checkbox" checked={discreet} onChange={(e) => setDiscreet(e.target.checked)} className="mt-1 h-4 w-4 accent-[#0D0D0D]" />
+            <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-card border border-line p-4 transition hover:border-obsidian/30">
+              <input
+                type="checkbox" checked={discreet} onChange={(e) => setDiscreet(e.target.checked)}
+                className="mt-1 h-[18px] w-[18px] shrink-0 accent-[#111111]"
+              />
               <span className="flex items-start gap-3">
-                <PackageCheck size={18} className="mt-0.5 shrink-0 text-obsidian" />
-                <span><b className="block text-sm">Discreet packaging</b>
-                  <span className="text-xs leading-relaxed text-ash">Plain, unmarked parcel. No brand name, no product details on the outside. Recommended — and it is on us.</span></span>
+                <PackageCheck size={18} className="mt-0.5 shrink-0 text-graphite" aria-hidden="true" />
+                <span>
+                  <span className="block text-body-sm font-medium">Discreet packaging</span>
+                  <span className="mt-0.5 block text-caption leading-relaxed text-ash">
+                    A plain, unmarked parcel — no brand name or product details on the outside. Always free.
+                  </span>
+                </span>
               </span>
             </label>
           </section>
-        </div>
 
-        {/* Summary */}
-        <aside className="lg:sticky lg:top-24 lg:self-start">
-          <div className="card p-6">
-            <p className="text-[11px] font-bold uppercase tracking-widest text-ash">Your order</p>
-            <div className="mt-5 max-h-72 space-y-4 overflow-y-auto pr-1">
-              {cart.map((l) => (
-                <div key={`${l.id}-${l.size}`} className="flex items-center gap-3">
-                  <div className="relative shrink-0">
-                    <Img src={l.image} alt="" className="h-14 w-11 rounded-lg object-cover" />
-                    <span className="absolute -right-1.5 -top-1.5 grid h-4.5 min-w-4.5 place-items-center rounded-full bg-obsidian px-1 text-[9px] font-bold text-alabaster" style={{ height: 18, minWidth: 18 }}>{l.qty}</span>
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="clamp-2 text-xs font-medium leading-snug">{l.name}</p>
-                    <p className="text-[11px] text-ash">{l.size}{l.color ? ` · ${l.color}` : ''}</p>
-                  </div>
-                  <p className="text-xs font-semibold">{pkr(l.price * l.qty)}</p>
-                </div>
-              ))}
-            </div>
-            {/* Promo code */}
-            <div className="mt-5 border-t border-line pt-4">
-              {applied ? (
-                <div className="flex items-center justify-between rounded-xl bg-sage/20 px-3 py-2.5">
-                  <span className="flex items-center gap-2 text-sm font-semibold text-sagedeep"><BadgePercent size={15} /> {applied.code}</span>
-                  <button type="button" onClick={() => { setApplied(null); setCode(''); }} className="flex items-center gap-1 text-xs text-sagedeep hover:underline"><X size={12} /> <Tx k="remove" /></button>
-                </div>
-              ) : (
+          {/* ---- Notes + consent ---- */}
+          <section aria-labelledby="sec-extra">
+            <h2 id="sec-extra" className="sr-only">Order notes and consent</h2>
+            <div className="space-y-4">
+              {cfg.showOrderNotes && (
+                <FloatField
+                  as="textarea" label={cfg.orderNotesLabel} hint={cfg.orderNotesHint}
+                  value={f.notes} onChange={(v) => set('notes', v)}
+                />
+              )}
+
+              {cfg.showNewsletter && (
+                <label className="flex cursor-pointer items-start gap-3">
+                  <input
+                    type="checkbox" checked={newsletter} onChange={(e) => setNewsletter(e.target.checked)}
+                    className="mt-0.5 h-[18px] w-[18px] shrink-0 accent-[#111111]"
+                  />
+                  <span className="text-body-sm text-ash">{cfg.newsletterText}</span>
+                </label>
+              )}
+
+              {cfg.termsRequired && (
                 <div>
-                  <div className="flex gap-2">
-                    <input className="input flex-1 uppercase" placeholder={t('promoPlaceholder')} value={code}
-                      onChange={(e) => setCode(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); applyCode(); } }} />
-                    <button type="button" onClick={applyCode} disabled={applying || !code.trim()} className="btn-outline whitespace-nowrap">{applying ? '…' : <Tx k="apply" />}</button>
-                  </div>
-                  {codeErr && <p className="mt-1.5 text-xs text-red-700">{codeErr}</p>}
+                  <label className="flex cursor-pointer items-start gap-3">
+                    <input
+                      type="checkbox" checked={terms}
+                      onChange={(e) => { setTerms(e.target.checked); setErrs((x) => ({ ...x, terms: '' })); }}
+                      aria-invalid={errs.terms ? 'true' : undefined}
+                      aria-describedby={errs.terms ? 'terms-err' : undefined}
+                      className="mt-0.5 h-[18px] w-[18px] shrink-0 accent-[#111111]"
+                    />
+                    <span className="text-body-sm text-ash">{cfg.termsText}</span>
+                  </label>
+                  {errs.terms && (
+                    <p id="terms-err" role="alert" className="mt-1.5 flex items-center gap-1.5 text-caption text-red-700">
+                      <AlertCircle size={12} aria-hidden="true" /> {errs.terms}
+                    </p>
+                  )}
                 </div>
               )}
             </div>
-            <div className="mt-5 space-y-2.5 border-t border-line pt-4 text-sm">
-              <div className="flex justify-between"><span className="text-ash"><Tx k="subtotal" /></span><span>{pkr(cartSubtotal)}</span></div>
-              {discountAmt > 0 && <div className="flex justify-between font-medium text-sagedeep"><span><Tx k="discount" /> ({applied.code})</span><span>− {pkr(discountAmt)}</span></div>}
-              <div className="flex justify-between"><span className="text-ash"><Tx k="shipping" /></span><span className={shipping === 0 ? 'text-sagedeep' : ''}>{shipping === 0 ? 'Free' : pkr(shipping)}</span></div>
-              <div className="flex justify-between border-t border-line pt-3"><b>Total</b><span className="font-display text-2xl">{pkr(grandTotal)}</span></div>
-            </div>
-            <button disabled={busy} className="btn-primary mt-5 w-full">
-              {busy ? 'Placing order…' : <><Lock size={14} /> Review order</>}
-            </button>
-            <p className="mt-3 text-center text-[11px] text-ash">You&apos;ll see one final summary before we place the order.</p>
-          </div>
+          </section>
+
+          {/* Native submit so Enter works anywhere in the form. */}
+          <button type="submit" className="sr-only">Review order</button>
+        </form>
+
+        {/* ================= RIGHT ================= */}
+        <aside className="lg:sticky lg:top-24" aria-label="Order summary">
+          <CheckoutSummary
+            cart={cart}
+            pricing={pricing}
+            cartCfg={cartCfg}
+            checkoutCfg={cfg}
+            applied={applied}
+            onApply={setApplied}
+            onRemoveCoupon={() => setApplied(null)}
+            submitRef={submitRef}
+            onSubmit={openReview}
+            busy={busy}
+            disabled={payments.length === 0}
+          />
         </aside>
-      </form>
+      </div>
 
-      {/* ============ REVIEW ORDER MODAL ============ */}
-      {/* Last-minute confirmation — customer can still tap "Edit" to change anything */}
-      {reviewOpen && (
-        <div className="fixed inset-0 z-[70] flex items-end justify-center bg-obsidian/60 px-4 py-6 backdrop-blur-sm sm:items-center" onClick={() => !busy && setReviewOpen(false)}>
-          <div
-            className="w-full max-w-2xl overflow-hidden rounded-3xl bg-white shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Header */}
-            <div className="flex items-center justify-between border-b border-neutral-200 px-6 py-4">
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-500">Final review</p>
-                <h2 className="mt-0.5 font-display text-xl text-neutral-900">Confirm your order</h2>
-              </div>
-              <button onClick={() => setReviewOpen(false)} disabled={busy} className="rounded-full p-2 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-900 disabled:opacity-40" aria-label="Close">
-                <X size={18} />
-              </button>
-            </div>
+      <StickyPlaceOrder
+        watchRef={submitRef}
+        total={pricing.total}
+        label="Review"
+        onClick={openReview}
+        busy={busy}
+        disabled={payments.length === 0}
+      />
 
-            <div className="max-h-[70vh] overflow-y-auto px-6 py-5">
-              {/* Delivery */}
-              <div className="mb-4 rounded-2xl border border-neutral-200 p-4">
-                <div className="mb-2 flex items-center justify-between">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-500">Delivery to</p>
-                  <button type="button" onClick={() => setReviewOpen(false)} className="text-[11px] font-semibold text-neutral-500 hover:text-neutral-900">Edit</button>
-                </div>
-                <p className="text-[13px] font-semibold text-neutral-900">{f.name}</p>
-                <p className="mt-0.5 text-[12px] text-neutral-500">{f.phone}{f.email ? ` · ${f.email}` : ''}</p>
-                <p className="mt-2 text-[12px] text-neutral-700">{f.address}</p>
-                <p className="text-[12px] text-neutral-500">
-                  {(f.city === '__other' ? f.customCity : f.city)}, {f.province} — {f.postalCode}
-                </p>
-                {f.notes && <p className="mt-2 text-[11px] italic text-neutral-500">Note: {f.notes}</p>}
-              </div>
+      <ReviewDialog
+        open={reviewOpen}
+        onClose={() => setReviewOpen(false)}
+        onConfirm={placeOrder}
+        busy={busy}
+        error={topErr}
+        form={f}
+        cityLabel={cityLabel}
+        method={payMethod?.label || method}
+        shipMethod={shipMethod}
+        txn={txn}
+        discreet={discreet}
+        cart={cart}
+        pricing={pricing}
+        cfg={cartCfg}
+      />
 
-              {/* Items */}
-              <div className="mb-4 rounded-2xl border border-neutral-200 p-4">
-                <div className="mb-3 flex items-center justify-between">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-500">Items ({cart.reduce((n, l) => n + l.qty, 0)})</p>
-                  <Link to="/cart" className="text-[11px] font-semibold text-neutral-500 hover:text-neutral-900">Edit bag</Link>
-                </div>
-                <div className="space-y-2.5">
-                  {cart.map((l, i) => (
-                    <div key={`${l.id}-${l.size}-${l.color}-${i}`} className="flex items-center gap-3">
-                      <Img src={l.image} alt="" className="h-12 w-9 shrink-0 rounded-md border border-neutral-200 object-cover" />
-                      <div className="min-w-0 flex-1">
-                        <p className="line-clamp-1 text-[12.5px] font-medium text-neutral-900">{l.name}</p>
-                        <p className="text-[11px] text-neutral-500">{l.size}{l.color ? ` · ${l.color}` : ''} · Qty {l.qty}</p>
-                      </div>
-                      <p className="font-sans text-[12.5px] font-semibold tabular-nums text-neutral-900">{pkr(l.price * l.qty)}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Payment */}
-              <div className="mb-4 rounded-2xl border border-neutral-200 p-4">
-                <div className="mb-2 flex items-center justify-between">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-500">Payment</p>
-                  <button type="button" onClick={() => setReviewOpen(false)} className="text-[11px] font-semibold text-neutral-500 hover:text-neutral-900">Edit</button>
-                </div>
-                <p className="text-[13px] font-semibold text-neutral-900">{method}</p>
-                {txn && <p className="mt-0.5 text-[11px] text-neutral-500">Txn ID: <span className="font-mono">{txn}</span></p>}
-                {discreet && <p className="mt-1.5 inline-flex items-center gap-1.5 rounded-full bg-neutral-100 px-2.5 py-1 text-[11px] font-semibold text-neutral-700">📦 Discreet packaging</p>}
-              </div>
-
-              {/* Totals */}
-              <div className="rounded-2xl bg-neutral-50 p-4">
-                <div className="space-y-2 text-[13px]">
-                  <div className="flex justify-between"><span className="text-neutral-500">Subtotal</span><span className="tabular-nums">{pkr(cartSubtotal)}</span></div>
-                  {discountAmt > 0 && <div className="flex justify-between text-emerald-700"><span>Discount {applied?.code && `(${applied.code})`}</span><span className="tabular-nums">− {pkr(discountAmt)}</span></div>}
-                  <div className="flex justify-between"><span className="text-neutral-500">Shipping</span><span className={`tabular-nums ${shipping === 0 ? 'text-emerald-700 font-semibold' : ''}`}>{shipping === 0 ? 'Free' : pkr(shipping)}</span></div>
-                  <div className="mt-2 flex items-end justify-between border-t border-neutral-200 pt-3">
-                    <span className="text-[15px] font-bold text-neutral-900">Total</span>
-                    <span className="font-sans text-[24px] font-semibold tabular-nums leading-none text-neutral-900">{pkr(grandTotal)}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Footer actions */}
-            <div className="grid grid-cols-[auto_1fr] gap-3 border-t border-neutral-200 bg-neutral-50 px-6 py-4">
-              <button
-                type="button"
-                onClick={() => setReviewOpen(false)}
-                disabled={busy}
-                className="rounded-full border border-neutral-300 bg-white px-5 py-3 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-100 disabled:opacity-40"
-              >
-                Edit details
-              </button>
-              <button
-                type="button"
-                onClick={placeOrder}
-                disabled={busy}
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-neutral-900 px-6 py-3 text-[12px] font-semibold uppercase tracking-widest text-white transition hover:bg-neutral-800 disabled:opacity-50"
-              >
-                {busy ? 'Placing order…' : (<><Lock size={13} /> Confirm & place order · {pkr(grandTotal)}</>)}
-              </button>
-            </div>
-            <p className="border-t border-neutral-200 px-6 py-3 text-center text-[10.5px] text-neutral-500">
-              By confirming you agree to our 14-day exchange policy.
-            </p>
-          </div>
-        </div>
-      )}
+      {/* Clearance for the sticky bar so it never covers the last field. */}
+      <div className="h-24 md:hidden" aria-hidden="true" />
     </div>
   );
 }

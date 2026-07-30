@@ -175,6 +175,94 @@ const settingsSchema = new mongoose.Schema({
   shippingFlatRate: { type: Number, default: 350 },
   freeShippingThreshold: { type: Number, default: 4999 },
   // ==========================================================================
+  // CHECKOUT — wording, the payment method registry, the shipping method
+  // registry, and every legal/marketing toggle on the way to Order Success.
+  //
+  // Payment and shipping methods are ARRAYS, not booleans, so the merchant can
+  // add a provider later without a schema change. `paymentMethods` above stays
+  // for backwards compatibility (Checkout falls back to it when this list is
+  // empty) — nothing that already works is allowed to break.
+  // ==========================================================================
+  checkout: {
+    title:        { type: String, default: 'Checkout' },
+    subtitle:     { type: String, default: 'Secure checkout · discreet, unmarked packaging on every order' },
+    // -- Who may check out ------------------------------------------------
+    guestCheckout:   { type: Boolean, default: true },
+    accountRequired: { type: Boolean, default: false },
+    rememberCustomer:{ type: Boolean, default: true },
+    // -- Sections ----------------------------------------------------------
+    showOrderNotes:  { type: Boolean, default: true },
+    orderNotesLabel: { type: String,  default: 'Order notes (optional)' },
+    orderNotesHint:  { type: String,  default: 'Rider instructions, landmarks…' },
+    showBillingAddress: { type: Boolean, default: true },
+    showPinLocation: { type: Boolean, default: true },
+    // -- Legal / marketing -------------------------------------------------
+    termsRequired:   { type: Boolean, default: false },
+    termsText:       { type: String,  default: 'I agree to the Terms of Service and Returns Policy' },
+    privacyText:     { type: String,  default: 'Your details are used only to deliver this order. We never sell your data.' },
+    showNewsletter:  { type: Boolean, default: true },
+    newsletterText:  { type: String,  default: 'Email me about new drops and private offers' },
+    // -- Trust -------------------------------------------------------------
+    showTrust:       { type: Boolean, default: true },
+    trust: {
+      type: [{ _id: false, icon: { type: String, default: 'ShieldCheck' }, label: { type: String, default: '' } }],
+      default: [
+        { icon: 'Lock',        label: 'Secure, encrypted checkout' },
+        { icon: 'RefreshCw',   label: 'Easy 7-day exchanges' },
+        { icon: 'Package',     label: 'Discreet, unmarked parcel' },
+        { icon: 'Headphones',  label: 'WhatsApp support, 7 days a week' },
+      ],
+    },
+    // -- Payment registry ---------------------------------------------------
+    paymentList: {
+      type: [{
+        _id: false,
+        id:      { type: String, default: '' },       // must match Order.paymentMethod enum
+        label:   { type: String, default: '' },
+        note:    { type: String, default: '' },
+        icon:    { type: String, default: 'CreditCard' },
+        enabled: { type: Boolean, default: false },
+        needsTxn:{ type: Boolean, default: false },   // show the reference field
+        instructions: { type: String, default: '' },  // shown when selected
+        comingSoon:   { type: Boolean, default: false },
+      }],
+      default: [
+        { id: 'COD',           label: 'Cash on Delivery', note: 'Pay the rider at your door', icon: 'Banknote',   enabled: true,  needsTxn: false, instructions: '', comingSoon: false },
+        { id: 'JazzCash',      label: 'JazzCash',         note: 'Send, then enter the transaction ID', icon: 'Smartphone', enabled: true, needsTxn: true, instructions: '', comingSoon: false },
+        { id: 'EasyPaisa',     label: 'EasyPaisa',        note: 'Send, then enter the transaction ID', icon: 'Smartphone', enabled: true, needsTxn: true, instructions: '', comingSoon: false },
+        { id: 'Bank Transfer', label: 'Bank Transfer',    note: 'Transfer, then enter the reference',  icon: 'Landmark',   enabled: true, needsTxn: true, instructions: '', comingSoon: false },
+      ],
+    },
+    // -- Shipping registry --------------------------------------------------
+    shippingMethods: {
+      type: [{
+        _id: false,
+        id:      { type: String, default: '' },
+        label:   { type: String, default: '' },
+        note:    { type: String, default: '' },
+        rate:    { type: Number, default: 0 },        // 0 = use the global flat rate
+        minDays: { type: Number, default: 2 },
+        maxDays: { type: Number, default: 5 },
+        enabled: { type: Boolean, default: false },
+        freeEligible: { type: Boolean, default: true }, // may the free-shipping threshold zero this?
+      }],
+      default: [
+        { id: 'standard', label: 'Standard delivery', note: 'Nationwide courier',        rate: 0,   minDays: 2, maxDays: 5, enabled: true,  freeEligible: true },
+        { id: 'express',  label: 'Express delivery',  note: 'Next working day in major cities', rate: 600, minDays: 1, maxDays: 2, enabled: false, freeEligible: false },
+        { id: 'pickup',   label: 'Store pickup',      note: 'Collect from our outlet',   rate: 0,   minDays: 1, maxDays: 2, enabled: false, freeEligible: true },
+        { id: 'local',    label: 'Local delivery',    note: 'Same-day inside the city',  rate: 250, minDays: 0, maxDays: 1, enabled: false, freeEligible: false },
+      ],
+    },
+    // -- Order success ------------------------------------------------------
+    successTitle:    { type: String,  default: 'Thank you — your order is confirmed' },
+    successText:     { type: String,  default: 'We are preparing your parcel now. Keep your order number safe — you will need it to track delivery.' },
+    successNote:     { type: String,  default: '' },
+    showSuccessRecommend: { type: Boolean, default: false },
+    showSuccessShare:     { type: Boolean, default: false },
+    successShareText:     { type: String,  default: 'I just ordered from HUSHAE' },
+    animations:      { type: Boolean, default: true },
+  },
+  // ==========================================================================
   // CART / SHOPPING BAG — every string, toggle and number the bag renders.
   // The bag reads ONLY from here, so a merchant can restyle the whole
   // experience without a developer. Money rules (flat rate / free-shipping

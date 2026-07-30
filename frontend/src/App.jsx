@@ -54,6 +54,7 @@ const PreviewApp = lazy(() => import('./theme-editor/ui/PreviewApp'));
 const ThemedHome = lazy(() => import('./theme-editor/ThemedHome'));
 // Admin-only screen: lazy so the bag settings form never ships to shoppers.
 const SettingsCart = lazy(() => import('./admin/SettingsCart'));
+const SettingsCheckout = lazy(() => import('./admin/SettingsCheckout'));
 const Dashboard = lazy(() => import('./admin/Dashboard'));
 const Analytics = lazy(() => import('./admin/Analytics'));
 const Insights = lazy(() => import('./admin/Insights'));
@@ -177,6 +178,7 @@ export default function App() {
           <Route path="/admin/settings/payments" element={<SettingsPayments />} />
           <Route path="/admin/settings/shipping" element={<SettingsShipping />} />
           <Route path="/admin/settings/cart" element={<Suspense fallback={<EditorFallback />}><SettingsCart /></Suspense>} />
+          <Route path="/admin/settings/checkout" element={<Suspense fallback={<EditorFallback />}><SettingsCheckout /></Suspense>} />
           <Route path="/admin/settings/security" element={<SettingsSecurity />} />
           <Route path="/admin/settings/legal" element={<SettingsLegal />} />
           <Route path="/admin/settings/advanced" element={<SettingsAdmin />} />

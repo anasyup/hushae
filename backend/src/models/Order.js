@@ -42,6 +42,13 @@ const orderSchema = new mongoose.Schema({
   shippingCharge: { type: Number, default: 0 },
   discount: { type: Number, default: 0 },
   couponCode: { type: String, default: '' },
+  // Tax charged on this order. Snapshotted as an amount AND a rate so a later
+  // change to settings.cart.taxPercent can never rewrite the history of an
+  // order that has already been placed. 0 on every pre-existing order, which
+  // is exactly what they were charged.
+  tax: { type: Number, default: 0 },
+  taxPercent: { type: Number, default: 0 },
+  shippingMethod: { type: String, default: 'standard' },
   total: { type: Number, required: true },
   paymentMethod: { type: String, enum: PAYMENT_METHODS, required: true },
   paymentStatus: { type: String, enum: PAYMENT_STATUSES, default: 'Pending' },
