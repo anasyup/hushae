@@ -6,7 +6,6 @@ const { normalizePhone, validEmail, verifyEmailDomain } = require('../utils/vali
 const { isConfigured: isOtpConfigured } = require('../utils/sms');
 const crypto = require('crypto');
 const { getAccountPolicy, canSendEmail, checkPassword } = require('../utils/accountPolicy');
-const { sendMail } = require('../utils/mailer');
 const rateLimit = require('../middleware/rateLimit');
 
 const router = express.Router();
@@ -32,6 +31,20 @@ const signFor = (user, remember, policy) => {
 };
 
 const hashToken = (t) => crypto.createHash('sha256').update(String(t)).digest('hex');
+
+/* The mailer pulls in nodemailer, which is optional at runtime. Every other
+   route in this codebase requires it INSIDE the handler for exactly this
+   reason — a top-level require took the whole API down with a 500 when the
+   package was missing from package.json. Keep it lazy. */
+const mailerSend = async (opts) => {
+  try {
+    const { sendMail } = require('../utils/mailer');
+    return await sendMail(opts);
+  } catch (e) {
+    console.error('[auth] mailer unavailable:', e.message);
+    return { skipped: true, reason: 'mailer unavailable' };
+  }
+};
 
 router.post('/register', registerLimit, asyncHandler(async (req, res) => {
   const { name, email, password, phone, phoneToken } = req.body || {};
@@ -164,7 +177,7 @@ router.post('/forgot-password', forgotLimit, asyncHandler(async (req, res) => {
 
     const base = (process.env.PUBLIC_URL || req.headers.origin || 'https://hushae.vercel.app').replace(/\/$/, '');
     const link = `${base}/reset-password?token=${raw}&email=${encodeURIComponent(user.email)}`;
-    await sendMail({
+    await mailerSend({
       to: user.email,
       subject: 'Reset your HUSHAE password',
       text: `Open this link to choose a new password (valid for 1 hour):\n\n${link}\n\nIf you did not ask for this, you can ignore this email.`,
@@ -227,7 +240,7 @@ router.post('/send-verification', protect, verifyLimit, asyncHandler(async (req,
 
   const base = (process.env.PUBLIC_URL || req.headers.origin || 'https://hushae.vercel.app').replace(/\/$/, '');
   const link = `${base}/verify-email?token=${raw}&email=${encodeURIComponent(user.email)}`;
-  await sendMail({
+  await mailerSend({
     to: user.email,
     subject: 'Confirm your HUSHAE email',
     text: `Confirm your email address (valid for 24 hours):\n\n${link}`,
