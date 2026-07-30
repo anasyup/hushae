@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ChevronRight, LayoutGrid, LogOut, MapPin, Package, ShieldCheck, User as UserIcon } from 'lucide-react';
+import { Bell, ChevronRight, Heart, LayoutGrid, LogOut, MapPin, Package, ShieldCheck, User as UserIcon } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import { fmtDate, pkr } from '../lib/format';
@@ -9,6 +9,9 @@ import AuthCard from './account/AuthCard';
 import ProfilePanel from './account/ProfilePanel';
 import AddressPanel from './account/AddressPanel';
 import SecurityPanel from './account/SecurityPanel';
+import SavedPanel from './account/SavedPanel';
+import SessionsPanel from './account/SessionsPanel';
+import NotificationsPanel from './account/NotificationsPanel';
 
 /* ============================================================================
  * CUSTOMER ACCOUNT
@@ -24,11 +27,16 @@ import SecurityPanel from './account/SecurityPanel';
  * promise emails that never arrive.
  * ========================================================================== */
 
-const SECTIONS = [
+/* `when` lets the merchant hide a whole section from
+   Admin -> Settings -> Customer Accounts without a deploy. Sections with no
+   `when` are always present. */
+const ALL_SECTIONS = [
   { id: 'overview', label: 'Overview', icon: LayoutGrid },
   { id: 'orders', label: 'Orders', icon: Package },
+  { id: 'saved', label: 'Saved', icon: Heart, when: (c) => c.showWishlist || c.showRecentlyViewed },
   { id: 'profile', label: 'Profile', icon: UserIcon },
   { id: 'addresses', label: 'Addresses', icon: MapPin },
+  { id: 'notifications', label: 'Notifications', icon: Bell, when: (c) => c.showNotifications },
   { id: 'security', label: 'Security', icon: ShieldCheck },
 ];
 
@@ -39,6 +47,7 @@ export default function Account() {
   const [policy, setPolicy] = useState(null);
   const cfg = useMemo(() => accountConfig(settings, policy), [settings, policy]);
 
+  const SECTIONS = useMemo(() => ALL_SECTIONS.filter((s) => !s.when || s.when(cfg)), [cfg]);
   const [section, setSection] = useState('overview');
   const [orders, setOrders] = useState(null);
   const [user, setUser] = useState(null);
@@ -254,12 +263,11 @@ export default function Account() {
                 <ul className="space-y-3">
                   {orders.map((o) => (
                     <li key={o._id}>
-                      {/* The phone is no longer passed in the URL — the track
-                          page accepts an order number on its own for a signed-in
-                          customer, and a phone number in a link leaks into
-                          browser history and any shared screenshot. */}
+                      {/* Goes to the private order page, not the public
+                          tracker. The old link also carried the customer's
+                          phone number in the query string. */}
                       <Link
-                        to={`/track?orderNumber=${encodeURIComponent(o.orderNumber)}`}
+                        to={`/account/orders/${encodeURIComponent(o.orderNumber)}`}
                         className="card group flex flex-wrap items-center gap-3 p-4 transition hover:border-obsidian/30 sm:gap-4 sm:p-5"
                       >
                         <div className="min-w-0 flex-1">
@@ -279,9 +287,16 @@ export default function Account() {
             </section>
           )}
 
+          {section === 'saved' && <SavedPanel cfg={cfg} />}
+          {section === 'notifications' && <NotificationsPanel user={user} onUpdated={onUpdated} />}
           {section === 'profile' && <ProfilePanel cfg={cfg} user={user} onUpdated={onUpdated} />}
           {section === 'addresses' && <AddressPanel cfg={cfg} user={user} onUpdated={onUpdated} />}
-          {section === 'security' && <SecurityPanel cfg={cfg} user={user} onUpdated={onUpdated} />}
+          {section === 'security' && (
+            <div className="space-y-6">
+              <SecurityPanel cfg={cfg} user={user} onUpdated={onUpdated} />
+              {cfg.showSessions && <SessionsPanel />}
+            </div>
+          )}
         </div>
       </div>
     </div>

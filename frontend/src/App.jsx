@@ -18,6 +18,7 @@ import Wishlist from './pages/Wishlist';
 import Account from './pages/Account';
 import ResetPassword from './pages/account/ResetPassword';
 import VerifyEmail from './pages/account/VerifyEmail';
+import MyOrderDetail from './pages/account/OrderDetail';
 import Sale from './pages/Sale';
 import Faq from './pages/Faq';
 import Collection from './pages/Collection';
@@ -159,6 +160,7 @@ export default function App() {
           <Route path="/account" element={<Account />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/verify-email" element={<VerifyEmail />} />
+          <Route path="/account/orders/:key" element={<MyOrderDetail />} />
           <Route path="/faq" element={<Faq />} />
           <Route path="/privacy" element={<Legal kind="privacy" />} />
           <Route path="/terms" element={<Legal kind="terms" />} />
