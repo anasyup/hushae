@@ -49,11 +49,32 @@ router.post('/', placeOrderLimit, optionalAuth, asyncHandler(async (req, res) =>
     location = { lat, lng, mapsLink: `https://www.google.com/maps?q=${lat},${lng}` };
   }
   if (!Array.isArray(items) || items.length === 0) return res.status(400).json({ message: 'Your cart is empty' });
-  if (!['COD', 'JazzCash', 'EasyPaisa', 'Bank Transfer'].includes(paymentMethod)) {
-    return res.status(400).json({ message: 'Please choose a payment method' });
-  }
 
   const settings = (await Settings.findOne({ key: 'store' })) || (await Settings.create({ key: 'store' }));
+
+  /* Payment method must be one the merchant has actually switched ON.
+     Reading the registry instead of a hardcoded list means adding a provider
+     in the admin panel does not require a code change here — and a method the
+     merchant disabled cannot be ordered through a crafted request. Falls back
+     to the legacy booleans for stores that have not migrated yet. */
+  {
+    const list = (settings.checkout && settings.checkout.paymentList) || [];
+    const migrated = !!(settings.checkout && settings.checkout.checkoutMigrated);
+    const legacy = settings.paymentMethods || {};
+    const legacyMap = { COD: 'cod', JazzCash: 'jazzcash', EasyPaisa: 'easypaisa', 'Bank Transfer': 'bank' };
+    const allowed = list.length
+      ? list.filter((m) => {
+        if (m.comingSoon) return false;
+        if (!migrated && legacyMap[m.id] !== undefined && legacy[legacyMap[m.id]] !== undefined) {
+          return !!legacy[legacyMap[m.id]];
+        }
+        return !!m.enabled;
+      }).map((m) => m.id)
+      : Object.keys(legacyMap).filter((k) => legacy[legacyMap[k]]);
+    if (!allowed.includes(paymentMethod)) {
+      return res.status(400).json({ message: 'That payment method is not available. Please choose another.' });
+    }
+  }
 
   // Validate + price from DB, decrement stock atomically per line
   const lineItems = [];

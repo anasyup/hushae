@@ -184,6 +184,11 @@ const settingsSchema = new mongoose.Schema({
   // empty) — nothing that already works is allowed to break.
   // ==========================================================================
   checkout: {
+    // Set to true the first time a human saves the new Checkout admin page.
+    // Until then the legacy settings.paymentMethods booleans are the
+    // merchant's real intent and override the paymentList defaults, because
+    // Mongoose writes those defaults automatically on the next save.
+    checkoutMigrated: { type: Boolean, default: false },
     title:        { type: String, default: 'Checkout' },
     subtitle:     { type: String, default: 'Secure checkout · discreet, unmarked packaging on every order' },
     // -- Who may check out ------------------------------------------------

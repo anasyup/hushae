@@ -85,8 +85,12 @@ export default function SettingsCheckout() {
   const save = async () => {
     setBusy(true);
     try {
-      await api('/settings', { method: 'PUT', token: auth.token, body: { checkout: s.checkout } });
-      setOriginal(JSON.stringify(s));
+      // Stamp the migration flag: from now on this list is the merchant's
+      // own, and the legacy paymentMethods booleans stop overriding it.
+      const payload = { ...s.checkout, checkoutMigrated: true };
+      await api('/settings', { method: 'PUT', token: auth.token, body: { checkout: payload } });
+      setS((x) => ({ ...x, checkout: payload }));
+      setOriginal(JSON.stringify({ ...s, checkout: { ...s.checkout, checkoutMigrated: true } }));
       toast('Checkout saved');
     } catch (ex) { toast(ex.message || 'Save failed'); }
     setBusy(false);

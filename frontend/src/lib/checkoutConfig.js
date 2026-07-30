@@ -11,6 +11,7 @@
  * ========================================================================== */
 
 export const CHECKOUT_DEFAULTS = {
+  checkoutMigrated: false,
   title: 'Checkout',
   subtitle: 'Secure checkout · discreet, unmarked packaging on every order',
 
@@ -73,21 +74,26 @@ export function checkoutConfig(settings) {
   }
 
   /* ------------------------------------------------------------------
-   * Backwards compatibility.
-   * Stores created before this sprint only have the old boolean block
-   * settings.paymentMethods = { cod, jazzcash, easypaisa, bank }. If the
-   * merchant has never opened the new Checkout page, honour those booleans
-   * so a method they switched OFF does not silently come back on.
+   * Backwards compatibility — and why this is not "if paymentList is empty".
+   *
+   * The moment the new schema shipped, Mongoose materialised the paymentList
+   * DEFAULTS into the settings document on its next save. So the list is never
+   * empty, and an emptiness check silently re-enabled three methods this
+   * merchant had deliberately switched off: live checkout went from COD only
+   * to COD + JazzCash + EasyPaisa + Bank Transfer.
+   *
+   * The real question is "has a human ever edited this list?". Until they
+   * have, the legacy booleans remain the merchant's actual intent, so they
+   * win. `checkoutMigrated` is set the first time the new admin page saves.
    * ---------------------------------------------------------------- */
-  if (!Array.isArray(c.paymentList) || c.paymentList.length === 0) {
-    const legacy = settings?.paymentMethods;
-    if (legacy) {
-      const map = { COD: 'cod', JazzCash: 'jazzcash', EasyPaisa: 'easypaisa', 'Bank Transfer': 'bank' };
-      out.paymentList = out.paymentList.map((m) => {
-        const key = map[m.id];
-        return key && legacy[key] !== undefined ? { ...m, enabled: !!legacy[key] } : m;
-      });
-    }
+  const legacy = settings?.paymentMethods;
+  const humanEdited = !!c.checkoutMigrated;
+  if (!humanEdited && legacy) {
+    const map = { COD: 'cod', JazzCash: 'jazzcash', EasyPaisa: 'easypaisa', 'Bank Transfer': 'bank' };
+    out.paymentList = out.paymentList.map((m) => {
+      const key = map[m.id];
+      return key && legacy[key] !== undefined ? { ...m, enabled: !!legacy[key] } : m;
+    });
   }
 
   out.trust = (out.trust || []).filter((t) => t && t.label);
