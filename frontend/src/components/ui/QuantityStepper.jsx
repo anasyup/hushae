@@ -17,7 +17,9 @@ export default function QuantityStepper({
 }) {
   const dec = () => onChange(Math.max(min, value - 1));
   const inc = () => onChange(Math.min(max, value + 1));
-  const btn = size === 'sm' ? 'h-9 w-9' : 'h-10 w-10';
+  // 44px is the WCAG 2.5.5 minimum; the sm variant is only used inside
+  // dense cart rows where the row itself is the target.
+  const btn = size === 'sm' ? 'h-9 w-9' : 'h-11 w-11';
 
   return (
     <div className="qty" role="group" aria-label={label}>

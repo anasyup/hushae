@@ -141,8 +141,9 @@
   .badge-best     { @apply pill bg-clay text-obsidian; }
   .badge-soldout  { @apply pill bg-obsidian/80 text-alabaster; }
   .badge-neutral  { @apply pill bg-satin text-ink; }
-  /* sagedeep on a 20% sage wash measures 4.78:1 — above the AA floor. */
-  .badge-sage     { @apply pill bg-sage/25 text-sagedeep; }
+  /* Measured 4.26:1 with text-sagedeep once the wash sits on a white card,
+     which is under the AA floor. sagedark clears it at 5.4:1. */
+  .badge-sage     { @apply pill bg-sage/25 text-sagedark; }
 
   /* ── Feedback ─────────────────────────────────────────────────────────── */
   .alert         { @apply flex items-start gap-2.5 rounded-control px-4 py-3 text-body-sm; }

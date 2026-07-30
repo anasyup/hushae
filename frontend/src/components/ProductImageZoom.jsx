@@ -8,7 +8,7 @@ import Img from './Img';
  * Mobile / touch: tap the image to open a full-screen lightbox with pinch/native zoom.
  * `src` and `alt` are the same as an <Img>.
  */
-export default function ProductImageZoom({ src, alt = '' }) {
+export default function ProductImageZoom({ src, alt = '', eager = false }) {
   const wrapRef = useRef(null);
   const [pos, setPos] = useState({ x: 50, y: 50 });
   const [zooming, setZooming] = useState(false);
@@ -40,14 +40,23 @@ export default function ProductImageZoom({ src, alt = '' }) {
         onMouseMove={handleMove}
         onClick={() => setFull(true)}
         role="button"
-        aria-label="Zoom product image"
+        /* The visible hint reads "Tap to zoom" / "Hover to zoom", so the
+           accessible name has to contain that text or axe reports
+           label-content-name-mismatch. Leading with the verb satisfies both
+           the shopper and WCAG 2.5.3. */
+        aria-label={`Zoom — tap to zoom ${alt || 'product image'}`}
         tabIndex={0}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setFull(true); } }}
       >
         {/* base image */}
+        {/* The first gallery frame is the LCP candidate on a PDP; Img defaults
+            to loading="lazy", which delayed it. `eager` opts that one out. */}
         <Img
           src={src}
           alt={alt}
-          className={`h-full w-full object-cover transition-opacity duration-200 ${zooming ? 'opacity-0 md:opacity-0' : 'opacity-100'}`}
+          loading={eager ? 'eager' : 'lazy'}
+          fetchpriority={eager ? 'high' : undefined}
+          className={`h-full w-full object-cover transition-opacity duration-fast ${zooming ? 'opacity-0 md:opacity-0' : 'opacity-100'}`}
         />
 
         {/* zoomed image — desktop only (>=768px) */}
@@ -64,10 +73,13 @@ export default function ProductImageZoom({ src, alt = '' }) {
         />
 
         {/* Hint chip (bottom-right) */}
-        <div className="pointer-events-none absolute bottom-3 right-3 inline-flex items-center gap-1.5 rounded-full bg-obsidian/70 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-alabaster opacity-0 backdrop-blur transition-opacity duration-200 group-hover:opacity-100 md:group-hover:opacity-100">
+        {/* Decorative hints. They are inside a role="button", so leaving them
+            in the accessibility tree made the visible text disagree with the
+            aria-label — WCAG 2.5.3, flagged as label-content-name-mismatch. */}
+        <div aria-hidden="true" className="pointer-events-none absolute bottom-3 right-3 hidden items-center gap-1.5 rounded-full bg-obsidian/70 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-alabaster opacity-0 backdrop-blur transition-opacity duration-fast group-hover:opacity-100 md:inline-flex">
           <ZoomIn size={12} /> Hover to zoom
         </div>
-        <div className="pointer-events-none absolute bottom-3 right-3 inline-flex items-center gap-1.5 rounded-full bg-obsidian/70 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-alabaster backdrop-blur md:hidden">
+        <div aria-hidden="true" className="pointer-events-none absolute bottom-3 right-3 inline-flex items-center gap-1.5 rounded-full bg-obsidian/70 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-alabaster backdrop-blur md:hidden">
           <ZoomIn size={12} /> Tap to zoom
         </div>
       </div>
@@ -78,6 +90,7 @@ export default function ProductImageZoom({ src, alt = '' }) {
           className="fixed inset-0 z-[80] flex items-center justify-center bg-obsidian/95 p-3 backdrop-blur-sm"
           onClick={() => setFull(false)}
           role="dialog"
+          aria-modal="true"
           aria-label="Product image"
         >
           <button

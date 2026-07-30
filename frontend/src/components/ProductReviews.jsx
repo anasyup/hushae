@@ -67,8 +67,8 @@ export default function ProductReviews({ product }) {
 
           <div className="mb-6 flex items-center gap-3 text-xs">
             <span className="text-ash">Sort by:</span>
-            <button onClick={() => setSort('recent')} className={`rounded-full px-3 py-1 ${sort === 'recent' ? 'bg-obsidian text-alabaster' : 'bg-satin text-ash'}`}>Most recent</button>
-            <button onClick={() => setSort('helpful')} className={`rounded-full px-3 py-1 ${sort === 'helpful' ? 'bg-obsidian text-alabaster' : 'bg-satin text-ash'}`}>Most helpful</button>
+            <button onClick={() => setSort('recent')} className={`rounded-full px-3 py-1 ${sort === 'recent' ? 'bg-obsidian text-alabaster' : 'bg-satin text-ink'}`}>Most recent</button>
+            <button onClick={() => setSort('helpful')} className={`rounded-full px-3 py-1 ${sort === 'helpful' ? 'bg-obsidian text-alabaster' : 'bg-satin text-ink'}`}>Most helpful</button>
           </div>
 
           <div className="space-y-6">

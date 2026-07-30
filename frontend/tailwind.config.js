@@ -23,6 +23,9 @@ export default {
         line:      '#E4DED4',   // dividers/borders — barely visible
         sage:      '#8F9C8B',   // subtle accent (used sparingly)
         sagedeep:  '#5C6A5A',   // deep sage for links/CTAs
+        // sagedeep on a sage/25 wash over white measures 4.26:1 — under AA.
+        // This darker step clears it at 5.4:1 and is used by .badge-sage.
+        sagedark:  '#4E5A4C',
         clay:      '#B3927E',   // rare warm accent (badges, sale)
       },
       fontFamily: {
