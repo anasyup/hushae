@@ -68,9 +68,9 @@ export default function CartDrawer() {
             <div className="flex-1 overflow-y-auto px-6 py-4">
               {cart.length === 0 ? (
                 <div className="flex h-full flex-col items-center justify-center text-center">
-                  <span className="grid h-14 w-14 place-items-center rounded-full bg-satin/70 text-ash"><ShoppingBag size={22} /></span>
-                  <p className="mt-4 font-display text-lg">Your bag is empty</p>
-                  <p className="mt-1 text-sm text-ash">Discover pieces that feel like nothing at all.</p>
+                  <span className="empty-state-icon h-14 w-14" aria-hidden="true"><ShoppingBag size={22} strokeWidth={1.6} /></span>
+                  <p className="mt-4 font-display text-h4">Your bag is empty</p>
+                  <p className="mt-1 text-body-sm">Discover pieces that feel like nothing at all.</p>
                   <Link to="/shop" onClick={() => setDrawerOpen(false)} className="btn-primary mt-6">Start Shopping</Link>
                 </div>
               ) : (

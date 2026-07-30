@@ -96,10 +96,10 @@ class ErrorBoundary extends Component {
   render() {
     if (this.state.crashed) {
       return (
-        <div className="grid min-h-screen place-items-center bg-alabaster px-6">
-          <div className="card w-full max-w-sm rounded-[2rem] p-8 text-center shadow-soft">
-            <p className="font-display text-xl tracking-widest2">HUSHAE</p>
-            <p className="mt-3 text-sm leading-relaxed text-ash">Something went wrong on this page. Please reload — it should recover. If the problem continues, contact our support team.</p>
+        <div className="grid min-h-screen place-items-center bg-alabaster px-6" role="alert">
+          <div className="panel w-full max-w-sm p-8 text-center">
+            <p className="font-display text-h4 tracking-widest2">HUSHAE</p>
+            <p className="mt-3 text-body-sm leading-relaxed">Something went wrong on this page. Please reload — it should recover. If the problem continues, contact our support team.</p>
             <button onClick={() => window.location.reload()} className="btn-primary mt-5 w-full">Reload page</button>
           </div>
         </div>
@@ -127,8 +127,11 @@ export default function App() {
     <div className="flex min-h-screen flex-col">
       <ScrollToTop />
       <Tracker />
+      {!isAdmin && (
+        <a href="#main-content" className="skip-link">Skip to content</a>
+      )}
       {!isAdmin && !themedHome && <Header />}
-      <main className="flex-1">
+      <main id="main-content" tabIndex={-1} className="min-w-0 flex-1">
         <ErrorBoundary key={pathname}>
         <StoreLock>
         <Routes>

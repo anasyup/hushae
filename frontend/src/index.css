@@ -2,46 +2,185 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================================================
+ * HUSHAE design system — Silk Eclipse
+ *
+ * Tokens live in tailwind.config.js (type scale, spacing, radii, shadows,
+ * durations). This file turns them into the handful of component classes the
+ * storefront actually composes with. Anything used more than twice belongs
+ * here rather than being re-typed as utilities on each call site.
+ * ========================================================================== */
+
 @layer base {
   html { @apply scroll-smooth; }
   body { @apply bg-alabaster text-obsidian font-sans antialiased; }
   ::selection { @apply bg-satin text-obsidian; }
   input[type='number']::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+  /* Keyboard users get a visible ring everywhere; pointer users never see it.
+     Before this, the storefront had no focus styling at all. */
+  :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    @apply outline-none ring-2 ring-obsidian ring-offset-2 ring-offset-alabaster;
+    border-radius: 0.375rem;
+  }
+  /* On dark surfaces the ring inverts so it stays visible. */
+  .on-dark :where(a, button, [tabindex]):focus-visible {
+    @apply ring-alabaster ring-offset-obsidian;
+  }
+
+  /* Respect the OS "reduce motion" setting — required for WCAG 2.3.3. */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  /* Skip link — first tab stop on every page. */
+  .skip-link {
+    @apply sr-only;
+  }
+  .skip-link:focus-visible {
+    @apply not-sr-only fixed left-4 top-4 z-[100] rounded-control bg-obsidian px-4 py-2.5 text-btn-sm font-semibold uppercase text-alabaster;
+  }
 }
 
 @layer components {
-  .input {
-    @apply w-full rounded-xl border border-line bg-white/70 px-4 py-3 text-sm text-obsidian placeholder:text-ash/60
-      outline-none transition focus:border-obsidian/40 focus:bg-white focus:ring-2 focus:ring-obsidian/5;
-  }
-  .label { @apply mb-1.5 block text-[11px] font-semibold uppercase tracking-widest text-ash; }
-  .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-full bg-obsidian px-7 py-3.5 text-[13px] font-semibold uppercase tracking-widest text-alabaster transition
-      hover:bg-obsidian/85 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-40;
-  }
-  .btn-outline {
-    @apply inline-flex items-center justify-center gap-2 rounded-full border border-obsidian/25 px-7 py-3.5 text-[13px] font-semibold uppercase tracking-widest text-obsidian transition
-      hover:border-obsidian hover:bg-obsidian hover:text-alabaster active:scale-[0.99];
-  }
-  .card { @apply rounded-3xl border border-line bg-white/60; }
 
-@layer utilities {
-  .animate-marquee { animation: marquee 30s linear infinite; }
-  .animate-marquee:hover { animation-play-state: paused; }
-}
-@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-  .pill { @apply inline-flex items-center gap-1 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-wider; }
+  /* ── Typography ───────────────────────────────────────────────────────── */
+  .h1 { @apply font-display text-h1 font-normal text-obsidian; }
+  .h2 { @apply font-display text-h2 font-normal text-obsidian; }
+  .h3 { @apply font-display text-h3 font-normal text-obsidian; }
+  .h4 { @apply font-sans text-h4 font-semibold text-obsidian; }
+  .h5 { @apply font-sans text-h5 font-semibold text-obsidian; }
+  .h6 { @apply font-sans text-h6 font-semibold uppercase tracking-wider text-obsidian; }
+  .display-1 { @apply font-display text-display-1 font-normal; }
+  .display-2 { @apply font-display text-display-2 font-normal; }
+  .body-lg { @apply text-body-lg text-ink; }
+  .body    { @apply text-body text-ink; }
+  .body-sm { @apply text-body-sm text-ash; }
+  .caption { @apply text-caption text-ash; }
+  .eyebrow { @apply text-label font-semibold uppercase text-ash; }
+
+  /* ── Layout ───────────────────────────────────────────────────────────── */
+  .container-page { @apply mx-auto w-full max-w-7xl px-4 md:px-8; }
+  .section-y      { @apply py-sect-y md:py-sect-y-lg; }
+
+  /* ── Buttons ──────────────────────────────────────────────────────────── */
+  /* Shared skeleton — every variant inherits size, focus and disabled rules,
+     so a new variant cannot drift out of step. */
+  .btn {
+    @apply inline-flex select-none items-center justify-center gap-2 rounded-full
+      text-btn font-semibold uppercase transition-colors duration-base ease-standard
+      active:scale-[0.99] disabled:pointer-events-none disabled:opacity-40;
+    padding: 0.875rem 1.75rem;
+  }
+  .btn-sm { @apply text-btn-sm; padding: 0.625rem 1.125rem; }
+  .btn-lg { padding: 1.0625rem 2.25rem; }
+
+  .btn-primary   { @apply btn bg-obsidian text-alabaster hover:bg-graphite; }
+  .btn-secondary { @apply btn bg-satin text-obsidian hover:bg-stone; }
+  .btn-outline   { @apply btn border border-obsidian/25 text-obsidian hover:border-obsidian hover:bg-obsidian hover:text-alabaster; }
+  .btn-ghost     { @apply btn text-obsidian hover:bg-satin/60; }
+  .btn-danger    { @apply btn bg-red-600 text-white hover:bg-red-700; }
+
+  /* Icon-only. 44px keeps it at the WCAG 2.5.5 minimum target size. */
+  .btn-icon {
+    @apply grid h-11 w-11 shrink-0 place-items-center rounded-full text-obsidian
+      transition-colors duration-base ease-standard hover:bg-satin/60
+      disabled:pointer-events-none disabled:opacity-40;
+  }
+  .btn-icon-sm { @apply btn-icon h-9 w-9; }
+
+  /* ── Form controls ────────────────────────────────────────────────────── */
+  .input {
+    @apply w-full rounded-control border border-line bg-white/70 px-4 py-3 text-body text-obsidian
+      placeholder:text-ash/60 transition-colors duration-base
+      focus:border-obsidian/40 focus:bg-white
+      disabled:cursor-not-allowed disabled:bg-satin/40 disabled:text-ash;
+  }
+  .input-sm { @apply rounded-control px-3 py-2 text-body-sm; }
+  .input-error { @apply border-red-400 focus:border-red-500; }
+  .textarea { @apply input resize-y leading-relaxed; min-height: 6.5rem; }
+  .select   { @apply input cursor-pointer pr-9 appearance-none; }
+  .label { @apply mb-1.5 block text-label font-semibold uppercase text-ash; }
+  .field-hint  { @apply mt-1.5 text-caption text-ash; }
+  .field-error { @apply mt-1.5 flex items-center gap-1.5 text-caption font-medium text-red-600; }
+
+  /* Search field — the leading icon is positioned by the wrapper. */
+  .search-wrap { @apply relative; }
+  .search-wrap .input { @apply pl-10; }
+  .search-wrap > svg:first-child {
+    @apply pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-ash;
+  }
+
+  /* Quantity stepper */
+  .qty {
+    @apply inline-flex items-center rounded-full border border-line bg-white;
+  }
+  .qty button {
+    @apply grid h-10 w-10 place-items-center rounded-full text-obsidian
+      transition-colors duration-fast hover:bg-satin/60
+      disabled:pointer-events-none disabled:text-ash/40;
+  }
+  .qty output { @apply min-w-8 text-center text-body font-semibold tabular-nums; }
+
+  /* ── Surfaces ─────────────────────────────────────────────────────────── */
+  .card         { @apply rounded-card border border-line bg-white/60; }
+  .card-product { @apply group relative overflow-hidden rounded-card bg-cream; }
+  .card-content { @apply rounded-card border border-line bg-white p-5 shadow-e-1 md:p-6; }
+  .panel        { @apply rounded-panel border border-line bg-alabaster shadow-e-3; }
+
+  /* ── Badges ───────────────────────────────────────────────────────────── */
+  .pill { @apply inline-flex items-center gap-1 rounded-full px-3 py-1 text-label font-semibold uppercase tracking-wider; }
+  .badge-sale     { @apply pill bg-sage/85 text-obsidian; }
+  .badge-new      { @apply pill bg-obsidian text-alabaster; }
+  /* Obsidian on clay measures 6.59:1; white on the same clay is only 2.87:1. */
+  .badge-best     { @apply pill bg-clay text-obsidian; }
+  .badge-soldout  { @apply pill bg-obsidian/80 text-alabaster; }
+  .badge-neutral  { @apply pill bg-satin text-ink; }
+  /* sagedeep on a 20% sage wash measures 4.78:1 — above the AA floor. */
+  .badge-sage     { @apply pill bg-sage/25 text-sagedeep; }
+
+  /* ── Feedback ─────────────────────────────────────────────────────────── */
+  .alert         { @apply flex items-start gap-2.5 rounded-control px-4 py-3 text-body-sm; }
+  .alert-error   { @apply alert bg-red-50 text-red-800; }
+  .alert-success { @apply alert bg-sage/15 text-sagedeep; }
+  .alert-info    { @apply alert bg-satin/60 text-ink; }
+
+  /* ── Loading ──────────────────────────────────────────────────────────── */
   .skeleton {
-    @apply relative overflow-hidden rounded-2xl bg-satin/70;
+    @apply relative overflow-hidden rounded-card bg-satin/70;
     background-image: linear-gradient(90deg, rgba(230, 220, 210, 0) 0, rgba(251, 249, 246, 0.75) 50%, rgba(230, 220, 210, 0) 100%);
     background-size: 400px 100%;
     background-repeat: no-repeat;
     animation: shimmer 1.6s linear infinite;
   }
-  .table-head { @apply px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-ash; }
-  .table-cell { @apply px-4 py-3.5 text-sm; }
-  .badge-sage { @apply pill bg-sage/20 text-sagedeep; }
+  .spinner {
+    @apply inline-block animate-spin rounded-full border-2 border-current border-t-transparent;
+    width: 1rem; height: 1rem;
+  }
+  .spinner-lg { @apply spinner; width: 1.75rem; height: 1.75rem; border-width: 2.5px; }
+
+  /* ── Empty state ──────────────────────────────────────────────────────── */
+  .empty-state      { @apply mx-auto grid max-w-sm place-items-center py-14 text-center md:py-20; }
+  .empty-state-icon { @apply grid h-16 w-16 place-items-center rounded-full bg-satin/70 text-ash; }
+
+  /* ── Tables (admin) ───────────────────────────────────────────────────── */
+  .table-head { @apply px-4 py-3 text-left text-label font-semibold uppercase text-ash; }
+  .table-cell { @apply px-4 py-3.5 text-body-sm; }
 }
+
+@layer utilities {
+  .animate-marquee { animation: marquee 30s linear infinite; }
+  .animate-marquee:hover { animation-play-state: paused; }
+  /* Cheap containment hint for long product grids. */
+  .content-auto { content-visibility: auto; contain-intrinsic-size: 480px; }
+}
+
+@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }

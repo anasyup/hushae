@@ -88,13 +88,15 @@ export default function Cart() {
   /* -------------- Empty state -------------- */
   if (cart.length === 0) {
     return (
-      <div className="mx-auto max-w-7xl px-4 py-24 text-center md:px-8">
-        <span className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-satin/70 text-ash"><ShoppingBag size={24} /></span>
-        <h1 className="mt-6 font-display text-3xl">Your bag is empty</h1>
-        <p className="mx-auto mt-2 max-w-sm text-sm text-ash">Beautiful foundations are waiting. Start with our best sellers.</p>
-        <div className="mt-8 flex justify-center gap-3">
-          <Link to="/women" className="btn-primary">Shop Women</Link>
-          <Link to="/men" className="btn-outline">Shop Men</Link>
+      <div className="container-page py-sect-y md:py-sect-y-lg">
+        <div className="empty-state">
+          <span className="empty-state-icon" aria-hidden="true"><ShoppingBag size={24} strokeWidth={1.6} /></span>
+          <h1 className="mt-6 font-display text-h2">Your bag is empty</h1>
+          <p className="mt-2 text-body-sm">Beautiful foundations are waiting. Start with our best sellers.</p>
+          <div className="mt-8 flex flex-wrap justify-center gap-3">
+            <Link to="/women" className="btn-primary">Shop Women</Link>
+            <Link to="/men" className="btn-outline">Shop Men</Link>
+          </div>
         </div>
       </div>
     );
