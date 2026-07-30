@@ -13,6 +13,13 @@ const LS = {
   set(k, v) { localStorage.setItem(k, JSON.stringify(v)); },
 };
 
+/**
+ * Stable identity for a bag line: the same product in a different size or
+ * colour is a different line. Used instead of the array index so reordering
+ * the rendered rows can never make a Remove hit the wrong row.
+ */
+export const lineKey = (l) => `${l.id}::${l.size || ''}::${l.color || ''}`;
+
 // One-time migration: rename any old veloura.* localStorage keys to hushae.*
 // (safe rebrand — copies value then removes old key, only if new key not already set)
 try {
@@ -39,6 +46,7 @@ export function AppProvider({ children }) {
   const [guestWish, setGuestWish] = useState(() => LS.get('hushae.wish', []));
   const [serverWish, setServerWish] = useState([]);
   const [recent, setRecent] = useState(() => LS.get('hushae.recent', []));
+  const [saved, setSaved] = useState(() => LS.get('hushae.saved', []));
   const [toasts, setToasts] = useState([]);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -48,6 +56,7 @@ export function AppProvider({ children }) {
   useEffect(() => { LS.set('hushae.cart', cart); }, [cart]);
   useEffect(() => { LS.set('hushae.wish', guestWish); }, [guestWish]);
   useEffect(() => { LS.set('hushae.recent', recent); }, [recent]);
+  useEffect(() => { LS.set('hushae.saved', saved); }, [saved]);
   useEffect(() => { LS.set('hushae.auth', auth); }, [auth]);
 
   useEffect(() => { api('/settings').then((d) => setSettings(d.settings)).catch(() => {}); }, []);
@@ -127,11 +136,54 @@ export function AppProvider({ children }) {
     toast(STR.addedToBag[lang] || 'Added to your bag');
   }, [toast, lang]);
 
-  const updateQty = useCallback((key, qty) => {
-    setCart((c) => c.map((l, i) => (i === key ? { ...l, qty: Math.max(1, Math.min(qty, 10)) } : l)));
-  }, []);
-  const removeLine = useCallback((key) => setCart((c) => c.filter((_, i) => i !== key)), []);
+  /* --------------------------------------------------------------------
+   * Line addressing.
+   * Lines used to be addressed by array index, which breaks the moment the
+   * bag renders them in any order other than storage order (the bag floats
+   * out-of-stock rows to the top). lineKey() is a stable identity built from
+   * the product + the chosen variant, so a remove always hits the row the
+   * customer actually clicked. Index is still accepted for back-compat with
+   * the drawer and any older caller.
+   * ------------------------------------------------------------------ */
+  const cartMax = settings?.cart?.maxQty ?? 10;
+
+  const updateQty = useCallback((key, qty, max) => {
+    const cap = Number(max) || cartMax;
+    setCart((c) => c.map((l, i) => (
+      (typeof key === 'number' ? i === key : lineKey(l) === key)
+        ? { ...l, qty: Math.max(1, Math.min(qty, cap)) }
+        : l)));
+  }, [cartMax]);
+
+  const removeLine = useCallback((key) => setCart((c) => c.filter((l, i) => (
+    typeof key === 'number' ? i !== key : lineKey(l) !== key))), []);
+
+  /** Put a removed line back exactly where it was — powers Undo. */
+  const restoreLine = useCallback((line, at) => setCart((c) => {
+    if (c.some((l) => lineKey(l) === lineKey(line))) return c;
+    const n = [...c];
+    n.splice(Math.max(0, Math.min(at ?? n.length, n.length)), 0, line);
+    return n;
+  }), []);
+
   const clearCart = useCallback(() => setCart([]), []);
+
+  /* ---------- save for later ---------- */
+  const saveForLater = useCallback((line) => {
+    setCart((c) => c.filter((l) => lineKey(l) !== lineKey(line)));
+    setSaved((s) => (s.some((l) => lineKey(l) === lineKey(line)) ? s : [{ ...line }, ...s]));
+  }, []);
+
+  const moveToBag = useCallback((line) => {
+    setSaved((s) => s.filter((l) => lineKey(l) !== lineKey(line)));
+    setCart((c) => {
+      const i = c.findIndex((l) => lineKey(l) === lineKey(line));
+      if (i >= 0) { const n = [...c]; n[i] = { ...n[i], qty: n[i].qty + (line.qty || 1) }; return n; }
+      return [...c, { ...line }];
+    });
+  }, []);
+
+  const removeSaved = useCallback((line) => setSaved((s) => s.filter((l) => lineKey(l) !== lineKey(line))), []);
 
   const cartCount = cart.reduce((n, l) => n + l.qty, 0);
   const cartSubtotal = cart.reduce((n, l) => n + l.price * l.qty, 0);
@@ -159,12 +211,14 @@ export function AppProvider({ children }) {
   const value = useMemo(() => ({
     settings, lang, setLang, t,
     auth, setAuth, login, register, logout,
-    cart, addToCart, updateQty, removeLine, clearCart, cartCount, cartSubtotal,
+    cart, addToCart, updateQty, removeLine, restoreLine, clearCart, cartCount, cartSubtotal,
+    saved, saveForLater, moveToBag, removeSaved,
     wishlist, inWishlist, toggleWish,
     recent, pushRecent,
     toast, toasts, drawerOpen, setDrawerOpen,
-  }), [settings, lang, t, auth, login, register, logout, cart, addToCart, updateQty, removeLine, clearCart,
-    cartCount, cartSubtotal, wishlist, inWishlist, toggleWish, recent, pushRecent, toast, toasts, drawerOpen]);
+  }), [settings, lang, t, auth, login, register, logout, cart, addToCart, updateQty, removeLine, restoreLine, clearCart,
+    cartCount, cartSubtotal, saved, saveForLater, moveToBag, removeSaved,
+    wishlist, inWishlist, toggleWish, recent, pushRecent, toast, toasts, drawerOpen]);
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

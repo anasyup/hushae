@@ -18,7 +18,11 @@ export default function Legal({ kind = 'privacy' }) {
         {doc.sections.map((s, i) => (
           <section key={i} className="mb-10">
             <h2 className="mb-3 font-display text-2xl">{s.h}</h2>
-            {s.p.map((para, j) => <p key={j} className="mb-3 text-ash">{para}</p>)}
+            {/* A section may be list-only (Returns → "How to start a return"),
+                in which case `p` is absent. Guarding here rather than adding an
+                empty array to the data keeps the copy honest. This crashed the
+                whole /returns route in production. */}
+            {(s.p || []).map((para, j) => <p key={j} className="mb-3 text-ash">{para}</p>)}
             {s.list && (
               <ul className="mt-2 list-disc pl-6 text-ash">
                 {s.list.map((li, k) => <li key={k} className="mb-1.5">{li}</li>)}

@@ -174,6 +174,56 @@ const settingsSchema = new mongoose.Schema({
   }],
   shippingFlatRate: { type: Number, default: 350 },
   freeShippingThreshold: { type: Number, default: 4999 },
+  // ==========================================================================
+  // CART / SHOPPING BAG — every string, toggle and number the bag renders.
+  // The bag reads ONLY from here, so a merchant can restyle the whole
+  // experience without a developer. Money rules (flat rate / free-shipping
+  // threshold) deliberately stay above so cart and checkout can never disagree.
+  // ==========================================================================
+  cart: {
+    // -- Wording --------------------------------------------------------
+    title:            { type: String, default: 'Shopping Bag' },
+    emptyTitle:       { type: String, default: 'Your bag is empty' },
+    emptyText:        { type: String, default: 'Beautiful foundations are waiting. Start with the pieces everyone is reaching for.' },
+    continueLabel:    { type: String, default: 'Continue shopping' },
+    continueHref:     { type: String, default: '/women' },
+    checkoutLabel:    { type: String, default: 'Proceed to checkout' },
+    // -- Delivery promise ------------------------------------------------
+    showDelivery:     { type: Boolean, default: true },
+    deliveryMinDays:  { type: Number,  default: 2 },
+    deliveryMaxDays:  { type: Number,  default: 5 },
+    deliveryNote:     { type: String,  default: 'Discreet, unmarked packaging on every order' },
+    // -- Free-shipping progress -----------------------------------------
+    showProgress:     { type: Boolean, default: true },
+    progressAway:     { type: String,  default: 'You are {amount} away from free shipping' },
+    progressDone:     { type: String,  default: 'Free shipping unlocked' },
+    confetti:         { type: Boolean, default: true },
+    // -- Behaviour --------------------------------------------------------
+    couponEnabled:    { type: Boolean, default: true },
+    saveForLater:     { type: Boolean, default: true },
+    undoSeconds:      { type: Number,  default: 5 },
+    maxQty:           { type: Number,  default: 10 },
+    recommendEnabled: { type: Boolean, default: true },
+    recommendTitle:   { type: String,  default: 'Complete the set' },
+    recommendStrategy:{ type: String,  default: 'auto', enum: ['auto', 'category', 'recent', 'bestsellers'] },
+    // -- Express payment placeholders -----------------------------------
+    applePay:         { type: Boolean, default: false },
+    googlePay:        { type: Boolean, default: false },
+    // -- Tax (0 = prices already include tax; nothing is shown) ----------
+    taxPercent:       { type: Number,  default: 0 },
+    taxLabel:         { type: String,  default: 'Estimated tax' },
+    // -- Trust row --------------------------------------------------------
+    showTrust:        { type: Boolean, default: true },
+    trust: {
+      type: [{ _id: false, icon: { type: String, default: 'ShieldCheck' }, label: { type: String, default: '' } }],
+      default: [
+        { icon: 'ShieldCheck', label: 'Secure checkout' },
+        { icon: 'RefreshCw',   label: 'Easy 7-day returns' },
+        { icon: 'BadgeCheck',  label: '100% original products' },
+        { icon: 'Lock',        label: 'Encrypted payment' },
+      ],
+    },
+  },
   // Admin-controlled offer strip shown at the very top of every page
   offerBar: {
     enabled: { type: Boolean, default: true },
@@ -350,6 +400,16 @@ const settingsSchema = new mongoose.Schema({
       seo:   { type: Number, default: 0 },
       other: { type: Number, default: 0 },
     },
+  },
+  /**
+   * Live admin share link. `linkId` is embedded in every token the link mints,
+   * so clearing it revokes them all at once. Only one link is active at a time.
+   */
+  adminShare: {
+    linkId:    { type: String, default: '' },
+    createdAt: { type: Date,   default: null },
+    expiresAt: { type: Date,   default: null },
+    label:     { type: String, default: '' },
   },
   /** Revenue target for the current month — drives the dashboard goal tracker. */
   monthlyRevenueGoal: { type: Number, default: 0 },

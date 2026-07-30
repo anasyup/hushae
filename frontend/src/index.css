@@ -71,13 +71,16 @@
   /* ── Buttons ──────────────────────────────────────────────────────────── */
   /* Shared skeleton — every variant inherits size, focus and disabled rules,
      so a new variant cannot drift out of step. */
+  /* min-height, not extra padding: buttons already taller than 44px are
+     untouched, so this cannot move any existing layout. Measured on the bag —
+     .btn rendered 41px and .btn-sm 31px, both under WCAG 2.5.5. */
   .btn {
-    @apply inline-flex select-none items-center justify-center gap-2 rounded-full
-      text-btn font-semibold uppercase transition-colors duration-base ease-standard
-      active:scale-[0.99] disabled:pointer-events-none disabled:opacity-40;
+    @apply inline-flex min-h-[44px] select-none items-center justify-center gap-2
+      rounded-full text-btn font-semibold uppercase transition-colors duration-base
+      ease-standard active:scale-[0.99] disabled:pointer-events-none disabled:opacity-40;
     padding: 0.875rem 1.75rem;
   }
-  .btn-sm { @apply text-btn-sm; padding: 0.625rem 1.125rem; }
+  .btn-sm { @apply min-h-[44px] text-btn-sm; padding: 0.625rem 1.125rem; }
   .btn-lg { padding: 1.0625rem 2.25rem; }
 
   .btn-primary   { @apply btn bg-obsidian text-alabaster hover:bg-graphite; }
@@ -120,8 +123,11 @@
   .qty {
     @apply inline-flex items-center rounded-full border border-line bg-white;
   }
+  /* 44px is the WCAG 2.5.5 minimum. The size class the component passes wins
+     over this base, so the base must already be compliant — an h-10 base
+     silently capped every "sm" stepper at 40px on mobile. */
   .qty button {
-    @apply grid h-10 w-10 place-items-center rounded-full text-obsidian
+    @apply grid h-11 w-11 place-items-center rounded-full text-obsidian
       transition-colors duration-fast hover:bg-satin/60
       disabled:pointer-events-none disabled:text-ash/40;
   }
@@ -215,6 +221,43 @@
 @media (prefers-reduced-motion: reduce) {
   .hero-rise { animation: none; opacity: 1; transform: none; }
   .hero-cue  { animation: none; opacity: 0.5; }
+}
+
+/* ── Shopping bag ───────────────────────────────────────────────────────────
+ * Removing a row collapses its height instead of snapping the page shut.
+ * grid-template-rows 1fr → 0fr is the only way to animate an "auto" height
+ * without measuring the child in JS, and it stays on one element so the rest
+ * of the list is never re-laid out mid-animation.                            */
+@keyframes bagCollapse {
+  from { grid-template-rows: 1fr; opacity: 1; }
+  to   { grid-template-rows: 0fr; opacity: 0; }
+}
+
+/* Undo countdown — a hairline draining left to right. Transform only, so the
+ * five-second timer costs zero re-renders and zero layout.                   */
+@keyframes undoTick {
+  from { transform: scaleX(1); }
+  to   { transform: scaleX(0); }
+}
+
+/* Free-shipping celebration. Purely decorative, always aria-hidden, and it
+ * never runs when the visitor has asked for reduced motion.                  */
+@keyframes confettiFall {
+  0%   { opacity: 0; transform: translate3d(0, -6px, 0) rotate(0deg); }
+  15%  { opacity: 1; }
+  100% { opacity: 0; transform: translate3d(0, 54px, 0) rotate(var(--r, 60deg)); }
+}
+.confetti-bit {
+  position: absolute;
+  top: 0;
+  width: 5px;
+  height: 9px;
+  border-radius: 1px;
+  animation: confettiFall 1.15s cubic-bezier(0.33, 0.9, 0.6, 1) forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .confetti-bit { display: none; }
 }
 
 .no-scrollbar::-webkit-scrollbar { display: none; }

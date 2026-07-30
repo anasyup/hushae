@@ -171,7 +171,7 @@ function ProductCard({
                 /* Hidden from the tab order until the card is hovered or
                    focused — otherwise focus lands on an invisible button. */
                 tabIndex={-1}
-                className="w-full rounded-full bg-obsidian/92 py-2.5 text-btn-sm font-semibold uppercase text-alabaster backdrop-blur transition-colors duration-base hover:bg-obsidian group-hover:pointer-events-auto group-focus-within:pointer-events-auto md:pointer-events-none"
+                className="min-h-[44px] w-full rounded-full bg-obsidian/92 py-2.5 text-btn-sm font-semibold uppercase text-alabaster backdrop-blur transition-colors duration-base hover:bg-obsidian group-hover:pointer-events-auto group-focus-within:pointer-events-auto md:pointer-events-none"
               >
                 Quick add
               </button>

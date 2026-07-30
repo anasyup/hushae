@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import {
   ArrowUpRight, Bell, ChevronRight, CreditCard, FileText, Globe, Info,
   KeyRound, LayoutTemplate, MapPin, Package, Palette, Search, ShieldCheck,
-  Store, Truck, Zap,
+  ShoppingBag, Store, Truck, Zap,
 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import AdminLayout from './AdminLayout';
@@ -40,6 +40,13 @@ const CARDS = [
     title: 'Shipping & Delivery',
     desc: 'Flat rate, free-shipping threshold, courier defaults, and delivery time expectations.',
     tags: ['shipping', 'delivery', 'courier', 'rates', 'free'],
+  },
+  {
+    to: '/admin/settings/cart',
+    icon: ShoppingBag,
+    title: 'Shopping Bag',
+    desc: 'Cart wording, free-shipping bar, trust badges, promo codes, save for later, delivery promise and recommendations.',
+    tags: ['cart', 'bag', 'basket', 'coupon', 'promo', 'trust', 'free shipping', 'checkout', 'undo', 'recommendations'],
   },
   {
     to: '/admin/apps',
