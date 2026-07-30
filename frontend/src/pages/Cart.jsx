@@ -12,7 +12,7 @@ import OrderSummary from './cart/OrderSummary';
 import StickyCheckoutBar from './cart/StickyCheckoutBar';
 import UndoBar from './cart/UndoBar';
 import EmptyBag from './cart/EmptyBag';
-import TrustRow from './cart/TrustRow';
+
 import { useCartPricing } from './cart/useCartPricing';
 
 /* ============================================================================
@@ -286,9 +286,6 @@ export default function Cart() {
             </section>
           )}
 
-          {cfg.showTrust && (
-            <TrustRow items={cfg.trust} className="mt-8 sm:grid-cols-4 lg:hidden" />
-          )}
         </section>
 
         {/* ---------------- Summary ---------------- */}
