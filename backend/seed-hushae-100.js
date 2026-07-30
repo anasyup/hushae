@@ -4,7 +4,20 @@
  * Every product in a category has a different lead image rotation
  */
 const m = require('mongoose');
-const URI = 'mongodb+srv://velourauser:velourauser1@cluster0.7lcpatb.mongodb.net/hushae?retryWrites=true&w=majority&appName=Cluster0';
+/* One-off catalogue seeding script — NOT part of the running site.
+ *
+ * The connection string used to be hardcoded here, which meant the database
+ * password sat in the repository and in every commit of its history. It now
+ * comes from the environment like everywhere else in this codebase.
+ *
+ * Run with:  MONGODB_URI="mongodb+srv://..." node backend/seed-hushae-100.js
+ */
+require('dotenv').config();
+const URI = process.env.MONGODB_URI;
+if (!URI) {
+  console.error('MONGODB_URI is not set. Refusing to run — pass it in the environment.');
+  process.exit(1);
+}
 
 // New Gemini/AI images — all cream background flat-lay
 const G = {
