@@ -97,8 +97,8 @@ export function AppProvider({ children }) {
     try { const d = await api('/wishlist', { token }); setServerWish(d.products.map(snap)); } catch { /* noop */ }
   }, []);
 
-  const login = useCallback(async (email, password) => {
-    const d = await api('/auth/login', { method: 'POST', body: { email, password } });
+  const login = useCallback(async (email, password, remember = false) => {
+    const d = await api('/auth/login', { method: 'POST', body: { email, password, remember } });
     setAuth(d);
     // merge guest wishlist into account
     const guest = LS.get('hushae.wish', []);
@@ -119,6 +119,23 @@ export function AppProvider({ children }) {
   }, [refreshWish]);
 
   const logout = useCallback(() => { setAuth(null); setServerWish([]); }, []);
+
+  /* Replace the cached user after a profile/address/avatar change, keeping the
+     existing token. Without this the header avatar and the greeting keep
+     showing stale data until a full reload. */
+  const patchUser = useCallback((user) => {
+    setAuth((a) => (a ? { ...a, user: { ...a.user, ...user } } : a));
+  }, []);
+
+  /* A token can expire while the tab is open (sessions are 2 days by default,
+     30 with "remember me"). Verify once on mount and sign out cleanly rather
+     than letting every request fail with a 401. */
+  useEffect(() => {
+    if (!auth?.token) return;
+    api('/auth/me', { token: auth.token })
+      .then((d) => { if (d?.user) patchUser(d.user); })
+      .catch((e) => { if (e?.status === 401) { setAuth(null); setServerWish([]); } });
+  }, []); // eslint-disable-line
 
   useEffect(() => { if (auth?.token) refreshWish(auth.token); }, []); // eslint-disable-line
 
@@ -210,13 +227,13 @@ export function AppProvider({ children }) {
 
   const value = useMemo(() => ({
     settings, lang, setLang, t,
-    auth, setAuth, login, register, logout,
+    auth, setAuth, login, register, logout, patchUser,
     cart, addToCart, updateQty, removeLine, restoreLine, clearCart, cartCount, cartSubtotal,
     saved, saveForLater, moveToBag, removeSaved,
     wishlist, inWishlist, toggleWish,
     recent, pushRecent,
     toast, toasts, drawerOpen, setDrawerOpen,
-  }), [settings, lang, t, auth, login, register, logout, cart, addToCart, updateQty, removeLine, restoreLine, clearCart,
+  }), [settings, lang, t, auth, login, register, logout, patchUser, cart, addToCart, updateQty, removeLine, restoreLine, clearCart,
     cartCount, cartSubtotal, saved, saveForLater, moveToBag, removeSaved,
     wishlist, inWishlist, toggleWish, recent, pushRecent, toast, toasts, drawerOpen]);
 

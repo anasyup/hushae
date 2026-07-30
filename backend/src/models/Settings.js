@@ -175,6 +175,46 @@ const settingsSchema = new mongoose.Schema({
   shippingFlatRate: { type: Number, default: 350 },
   freeShippingThreshold: { type: Number, default: 4999 },
   // ==========================================================================
+  // CUSTOMER ACCOUNTS — who may register, what the account area shows, and
+  // the password policy. The storefront reads ONLY from here, so a merchant
+  // can tighten or relax the whole account system without a deploy.
+  // ==========================================================================
+  account: {
+    // -- Access ------------------------------------------------------------
+    registrationEnabled: { type: Boolean, default: true },
+    // Master switch for anything that needs to SEND AN EMAIL. Off until an
+    // SMTP/provider is connected — otherwise "reset link sent" would be a lie.
+    emailFeatures:       { type: Boolean, default: false },
+    emailVerifyRequired: { type: Boolean, default: false },
+    // -- Password policy (enforced on BOTH sides; the server is authoritative)
+    passwordMinLength:   { type: Number,  default: 8 },
+    passwordRequireLetter:{ type: Boolean, default: true },
+    passwordRequireNumber:{ type: Boolean, default: false },
+    passwordRequireSymbol:{ type: Boolean, default: false },
+    // -- Session -----------------------------------------------------------
+    rememberMeDays:      { type: Number,  default: 30 },
+    sessionDays:         { type: Number,  default: 2 },
+    // -- Profile -----------------------------------------------------------
+    avatarEnabled:       { type: Boolean, default: true },
+    phoneRequired:       { type: Boolean, default: true },
+    maxAddresses:        { type: Number,  default: 5 },
+    allowDeleteAccount:  { type: Boolean, default: true },
+    // -- Account area features (Part 2 reads these too) --------------------
+    showWishlist:        { type: Boolean, default: true },
+    showRecentlyViewed:  { type: Boolean, default: true },
+    showSessions:        { type: Boolean, default: true },
+    showNotifications:   { type: Boolean, default: true },
+    allowReorder:        { type: Boolean, default: true },
+    allowCancelRequest:  { type: Boolean, default: true },
+    allowReturnRequest:  { type: Boolean, default: true },
+    allowInvoice:        { type: Boolean, default: true },
+    // -- Wording -----------------------------------------------------------
+    signInTitle:         { type: String,  default: 'Your account' },
+    signInSubtitle:      { type: String,  default: 'Sign in for order history, saved addresses and faster checkout.' },
+    welcomeGreeting:     { type: String,  default: 'Welcome back' },
+    guestNote:           { type: String,  default: 'Accounts are optional — guest checkout always works.' },
+  },
+  // ==========================================================================
   // CHECKOUT — wording, the payment method registry, the shipping method
   // registry, and every legal/marketing toggle on the way to Order Success.
   //

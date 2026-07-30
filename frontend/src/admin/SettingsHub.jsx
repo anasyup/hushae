@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import {
   ArrowUpRight, Bell, ChevronRight, CreditCard, FileText, Globe, Info,
   KeyRound, LayoutTemplate, MapPin, Package, Palette, Search, ShieldCheck,
-  ShoppingBag, Store, Truck, Zap,
+  ShoppingBag, Store, Truck, Users, Zap,
 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import AdminLayout from './AdminLayout';
@@ -54,6 +54,13 @@ const CARDS = [
     title: 'Checkout',
     desc: 'Payment methods, delivery options, checkout wording, trust badges, terms and the thank-you page.',
     tags: ['checkout', 'payment', 'cod', 'jazzcash', 'easypaisa', 'stripe', 'paypal', 'apple pay', 'google pay', 'delivery', 'express', 'pickup', 'terms', 'thank you', 'order success'],
+  },
+  {
+    to: '/admin/settings/accounts',
+    icon: Users,
+    title: 'Customer Accounts',
+    desc: 'Registration, password rules, email verification, profile photos, saved addresses and what customers can do.',
+    tags: ['account', 'customer', 'register', 'login', 'password', 'reset', 'verification', 'avatar', 'address', 'session'],
   },
   {
     to: '/admin/apps',
