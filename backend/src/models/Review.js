@@ -11,10 +11,22 @@ const reviewSchema = new mongoose.Schema({
   title:        { type: String, default: '', maxlength: 120 },
   body:         { type: String, required: true, maxlength: 2000 },
   images:       [{ url: String }],
+  // Media is images-only by merchant choice; the field exists so video can be
+  // switched on later without a migration.
+  videos:       [{ url: String }],
   verified:     { type: Boolean, default: false }, // true if linked to a real order
   status:       { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending', index: true },
   helpful:      { type: Number, default: 0 },
+  /* Who found it helpful. Storing the voters — not just a counter — is what
+     stops one person inflating a review by holding down the button. Guests are
+     keyed by a hashed IP, signed-in shoppers by their user id. */
+  helpfulBy:    { type: [String], default: [], select: false },
+  reports:      { type: Number, default: 0 },
+  reportedBy:   { type: [String], default: [], select: false },
   adminReply:   { type: String, default: '' },
+  adminReplyAt: { type: Date, default: null },
+  featured:     { type: Boolean, default: false, index: true },
+  pinned:       { type: Boolean, default: false },
 }, { timestamps: true });
 
 reviewSchema.index({ product: 1, status: 1, createdAt: -1 });

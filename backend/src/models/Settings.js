@@ -175,6 +175,57 @@ const settingsSchema = new mongoose.Schema({
   shippingFlatRate: { type: Number, default: 350 },
   freeShippingThreshold: { type: Number, default: 4999 },
   // ==========================================================================
+  // REVIEWS, RATINGS & Q&A
+  // ==========================================================================
+  reviews: {
+    // -- General ----------------------------------------------------------
+    enabled:            { type: Boolean, default: true },
+    showRatings:        { type: Boolean, default: true },
+    title:              { type: String,  default: 'Reviews' },
+    emptyText:          { type: String,  default: 'No reviews yet — be the first to share your fit.' },
+    // -- Who may write -----------------------------------------------------
+    // Merchant chose verified-only: the writer must supply an order number and
+    // phone that genuinely match a delivered order containing this product.
+    allowGuest:         { type: Boolean, default: false },
+    verifiedRequired:   { type: Boolean, default: true },
+    // -- Moderation --------------------------------------------------------
+    autoApprove:        { type: Boolean, default: false },
+    allowEdit:          { type: Boolean, default: true },
+    editWindowHours:    { type: Number,  default: 24 },
+    allowReport:        { type: Boolean, default: true },
+    allowHelpful:       { type: Boolean, default: true },
+    allowMerchantReply: { type: Boolean, default: true },
+    // -- Content rules -----------------------------------------------------
+    minLength:          { type: Number,  default: 20 },
+    maxLength:          { type: Number,  default: 2000 },
+    minRating:          { type: Number,  default: 1 },
+    requireTitle:       { type: Boolean, default: false },
+    // -- Media -------------------------------------------------------------
+    enablePhotos:       { type: Boolean, default: true },
+    maxPhotos:          { type: Number,  default: 5 },
+    photoMaxMb:         { type: Number,  default: 2 },
+    // Videos are built but OFF: each one would live in the same database as
+    // the catalogue, and the 7.5 MB hero video already dominates the payload.
+    enableVideos:       { type: Boolean, default: false },
+    maxVideos:          { type: Number,  default: 1 },
+    videoMaxMb:         { type: Number,  default: 20 },
+    showMediaGallery:   { type: Boolean, default: true },
+    // -- Display -----------------------------------------------------------
+    showDistribution:   { type: Boolean, default: true },
+    showFeatured:       { type: Boolean, default: true },
+    allowSharing:       { type: Boolean, default: true },
+    perPage:            { type: Number,  default: 8 },
+    // -- Questions & answers ----------------------------------------------
+    enableQA:           { type: Boolean, default: true },
+    qaAutoApprove:      { type: Boolean, default: false },
+    qaAllowGuest:       { type: Boolean, default: true },
+    qaTitle:            { type: String,  default: 'Questions & answers' },
+    qaEmptyText:        { type: String,  default: 'No questions yet — ask us anything about fit or fabric.' },
+    // -- Notifications -----------------------------------------------------
+    notifyOnNewReview:  { type: Boolean, default: true },
+    notifyOnNewQuestion:{ type: Boolean, default: true },
+  },
+  // ==========================================================================
   // CUSTOMER EXPERIENCE — wishlist, recently viewed and product compare.
   // Three small features that all live on the product card, so they share one
   // settings block and one API read.
