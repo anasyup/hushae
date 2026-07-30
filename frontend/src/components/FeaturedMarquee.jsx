@@ -154,7 +154,20 @@ export default function FeaturedMarquee({ products, title = 'HUSHAE — Signatur
     window.setTimeout(() => { smoothing.current = false; wrap(); }, 600);
   };
 
-  if (!list.length) return null;
+  // Reserve the strip's box while the products are still in flight. Returning
+  // null used to collapse the section to zero height and then expand it to
+  // ~620px when the API answered, which pushed everything below it down —
+  // measured as a 0.2933 layout shift on the home page, the largest on the
+  // site. The placeholder matches the real height so nothing moves.
+  if (!list.length) {
+    return (
+      <section
+        aria-hidden="true"
+        className="relative overflow-hidden bg-obsidian py-10 md:py-14"
+        style={{ minHeight: 'clamp(420px, 52vw, 620px)' }}
+      />
+    );
+  }
 
   return (
     <section className="relative overflow-hidden bg-obsidian py-10 md:py-14">

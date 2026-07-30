@@ -1,7 +1,7 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, ChevronDown, Droplets, Layers, Ruler, ShieldCheck, Snowflake, Wind } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { ArrowRight, Droplets, Layers, Ruler, ShieldCheck, Snowflake, Wind } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import { snap } from '../lib/format';
@@ -16,6 +16,7 @@ import ProductRow from '../components/ProductRow';
 import { AnimatedProductListSection } from '../components/ProductListSection';
 import { ProductGridSkeleton } from '../components/Skeletons';
 import Seo, { organizationJsonLd } from '../components/Seo';
+import HeroFullScreen from '../components/hero/HeroFullScreen';
 
 const FABRIC_TECH = [
   { icon: Wind, title: 'Breathable', text: 'Open-cell knits that let skin breathe through Pakistani summers.' },
@@ -308,141 +309,5 @@ export default function Home() {
         </div>
       </motion.section>
     </div>
-  );
-}
-
-/* ============================================================================
- * HeroFullScreen — Blaire-inspired full-viewport hero
- * Features:
- *   - Video with poster fallback (autoplay/muted/loop/playsInline for iOS)
- *   - Separate mobile image (< 768px) if configured
- *   - Adjustable dark overlay opacity for text readability
- *   - "buttons" mode: 2 CTA buttons (Women / Men) — classic
- *   - "dropdown" mode: single "Shop" button that opens a menu — like Blaire
- *   - Eyebrow, title, subtitle, badges — all admin-editable
- * ========================================================================== */
-function HeroFullScreen({ hero }) {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const menuRef = useRef(null);
-  const align = hero.align === 'center' ? 'text-center' : '';
-  const overlay = Math.max(0, Math.min(100, Number(hero.overlayOpacity ?? 55))) / 100;
-  const shopMenu = Array.isArray(hero.shopMenu) && hero.shopMenu.length ? hero.shopMenu : [
-    { label: 'New Arrivals', href: '/new' },
-    { label: 'Women', href: '/women' },
-    { label: 'Men', href: '/men' },
-    { label: 'Sale', href: '/sale' },
-  ];
-
-  // Close dropdown on outside click / Esc
-  useEffect(() => {
-    if (!menuOpen) return;
-    const onClick = (e) => { if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false); };
-    const onEsc = (e) => { if (e.key === 'Escape') setMenuOpen(false); };
-    document.addEventListener('mousedown', onClick);
-    document.addEventListener('keydown', onEsc);
-    return () => { document.removeEventListener('mousedown', onClick); document.removeEventListener('keydown', onEsc); };
-  }, [menuOpen]);
-
-  const posterOrImage = hero.poster || hero.image || undefined;
-  const heroImage = hero.image || '/images/hero/hushae-hero.jpg';
-  const badges = Array.isArray(hero.badges) ? hero.badges.filter(Boolean) : [];
-  const showButtons = hero.showButtons !== false;
-
-  return (
-    <section data-section="hero" className="relative flex min-h-[100svh] items-end overflow-hidden bg-obsidian">
-      {/* Media layer */}
-      {hero.video ? (
-        <video
-          src={hero.video}
-          poster={posterOrImage}
-          autoPlay muted loop playsInline preload="metadata"
-          className="absolute inset-0 h-full w-full object-cover"
-          aria-hidden="true"
-        />
-      ) : (
-        <img src={heroImage} alt="HUSHAE editorial" className="absolute inset-0 h-full w-full object-cover" />
-      )}
-
-      {/* Adjustable dark overlay for text contrast */}
-      <div className="absolute inset-0" aria-hidden="true"
-        style={{ background: `linear-gradient(to top, rgba(13,13,13,${Math.min(0.95, overlay + 0.25)}) 0%, rgba(13,13,13,${overlay}) 45%, rgba(13,13,13,${Math.max(0, overlay - 0.35)}) 100%)` }} />
-
-      {/* Content */}
-      <motion.div initial={{ opacity: 0, y: 26 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}
-        className={`relative z-10 mx-auto w-full max-w-7xl px-5 pb-14 md:px-8 md:pb-24 ${align}`}>
-        {hero.eyebrow && (
-          <p className="text-[10px] font-bold uppercase tracking-widest text-alabaster/80 sm:text-[11px]">{hero.eyebrow}</p>
-        )}
-        <h1 data-section="hero.heading" className="mt-3 whitespace-pre-line font-display text-[44px] leading-[1.02] text-alabaster sm:text-5xl md:text-7xl lg:text-8xl">
-          {hero.title || 'Second Skin,\nFirst Choice.'}
-        </h1>
-        {hero.subtitle && (
-          <p className={`mt-5 max-w-xl text-[15px] leading-relaxed text-alabaster/85 ${hero.align === 'center' ? 'mx-auto' : ''}`}>
-            {hero.subtitle}
-          </p>
-        )}
-
-        <div data-section="hero.button" className={`mt-8 flex flex-wrap items-center gap-4 ${hero.align === 'center' ? 'justify-center' : ''}`}>
-          {showButtons && (hero.ctaStyle === 'dropdown' ? (
-            <div className="relative" ref={menuRef}>
-              <button
-                type="button"
-                onClick={() => setMenuOpen((v) => !v)}
-                aria-haspopup="menu"
-                aria-expanded={menuOpen}
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-alabaster px-8 py-4 text-[13px] font-semibold uppercase tracking-widest text-obsidian transition hover:bg-alabaster/90 active:scale-[0.99]"
-              >
-                {hero.ctaWomen || 'Shop Now'}
-                <ChevronDown size={16} className={`transition-transform ${menuOpen ? 'rotate-180' : ''}`} />
-              </button>
-              <AnimatePresence>
-                {menuOpen && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -8, scale: 0.98 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: -6, scale: 0.98 }}
-                    transition={{ duration: 0.15 }}
-                    role="menu"
-                    className="absolute left-0 top-full z-20 mt-2 w-56 overflow-hidden rounded-2xl border border-alabaster/20 bg-alabaster shadow-2xl"
-                  >
-                    {shopMenu.map((it, i) => (
-                      <Link
-                        key={i}
-                        to={it.href || '/shop'}
-                        role="menuitem"
-                        onClick={() => setMenuOpen(false)}
-                        className="block px-5 py-3 text-[13px] font-medium text-obsidian transition hover:bg-satin"
-                      >
-                        {it.label}
-                      </Link>
-                    ))}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          ) : (
-            <>
-              <Link to="/women" className="inline-flex items-center justify-center gap-2 rounded-full bg-alabaster px-7 py-3.5 text-[13px] font-semibold uppercase tracking-widest text-obsidian transition hover:bg-alabaster/90 active:scale-[0.99]">
-                {hero.ctaWomen || 'Shop Women'} <ArrowRight size={15} />
-              </Link>
-              <Link to="/men" className="inline-flex items-center justify-center gap-2 rounded-full border border-alabaster/50 px-7 py-3.5 text-[13px] font-semibold uppercase tracking-widest text-alabaster transition hover:bg-alabaster hover:text-obsidian active:scale-[0.99]">
-                {hero.ctaMen || 'Shop Men'}
-              </Link>
-            </>
-          ))}
-        </div>
-
-        {badges.length > 0 && (
-          <div className={`mt-10 flex flex-wrap items-center gap-x-6 gap-y-2 text-[11px] uppercase tracking-widest text-alabaster/60 ${hero.align === 'center' ? 'justify-center' : ''}`}>
-            {badges.map((b, i) => (
-              <span key={i} className="flex items-center gap-6">
-                {b}
-                {i < badges.length - 1 && <span className="h-3 w-px bg-alabaster/30" />}
-              </span>
-            ))}
-          </div>
-        )}
-      </motion.div>
-    </section>
   );
 }

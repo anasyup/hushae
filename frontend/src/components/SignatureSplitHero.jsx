@@ -48,15 +48,18 @@ export default function SignatureSplitHero() {
       {video ? (
         <video
           src={video}
-          autoPlay muted loop playsInline preload="metadata"
-          className="aspect-[3/4] w-full object-cover transition-transform duration-700 md:aspect-[4/5] group-hover:scale-[1.02]"
+          autoPlay muted loop playsInline preload="none"
+          aria-hidden="true"
+          className="aspect-[3/4] w-full object-cover transition-transform duration-media md:aspect-[4/5] group-hover:scale-[1.02]"
         />
       ) : (
         <motion.img
           src={image}
           alt={alt}
+          loading="lazy"
+          decoding="async"
           initial={{ scale: 1.05 }} whileInView={{ scale: 1 }} viewport={{ once: true }} transition={{ duration: 1 }}
-          className="aspect-[3/4] w-full object-cover transition-transform duration-700 md:aspect-[4/5] group-hover:scale-[1.02]"
+          className="aspect-[3/4] w-full object-cover transition-transform duration-media md:aspect-[4/5] group-hover:scale-[1.02]"
         />
       )}
     </>

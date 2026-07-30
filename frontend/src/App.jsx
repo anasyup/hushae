@@ -23,7 +23,6 @@ import Legal from './pages/Legal';
 import NotFound from './pages/NotFound';
 
 import AdminLogin from './admin/AdminLogin';
-import Dashboard from './admin/Dashboard';
 import LiveView from './admin/LiveView';
 import Orders from './admin/Orders';
 import OrderDetail from './admin/OrderDetail';
@@ -39,13 +38,9 @@ import Growth from './admin/Growth';
 import Discounts from './admin/Discounts';
 import Content from './admin/Content';
 import Markets from './admin/Markets';
-import Analytics from './admin/Analytics';
 import Apps from './admin/Apps';
-import Insights from './admin/Insights';
-import Finance from './admin/Finance';
 import AbandonedCarts from './admin/AbandonedCarts';
 import Backup from './admin/Backup';
-import Payments from './admin/Payments';
 import Collections from './admin/Collections';
 import Reviews from './admin/Reviews';
 
@@ -57,6 +52,11 @@ import ThemeEditor from './admin/ThemeEditor';
 const ThemeEditorApp = lazy(() => import('./theme-editor/ThemeEditorApp'));
 const PreviewApp = lazy(() => import('./theme-editor/ui/PreviewApp'));
 const ThemedHome = lazy(() => import('./theme-editor/ThemedHome'));
+const Dashboard = lazy(() => import('./admin/Dashboard'));
+const Analytics = lazy(() => import('./admin/Analytics'));
+const Insights = lazy(() => import('./admin/Insights'));
+const Finance = lazy(() => import('./admin/Finance'));
+const Payments = lazy(() => import('./admin/Payments'));
 const OrdersDesk = lazy(() => import('./admin/orders/OrdersDesk'));
 const OrderPrintDoc = lazy(() => import('./admin/orders/OrderPrintDoc'));
 const EditorFallback = () => (
@@ -135,7 +135,7 @@ export default function App() {
         <ErrorBoundary key={pathname}>
         <StoreLock>
         <Routes>
-          <Route path="/" element={<Suspense fallback={<div style={{ minHeight: '60vh' }} />}><ThemedHome fallback={Home} /></Suspense>} />
+          <Route path="/" element={<Suspense fallback={<div aria-hidden="true" className="min-h-[100svh] w-full bg-obsidian" />}><ThemedHome fallback={Home} /></Suspense>} />
           <Route path="/shop" element={<Shop preset={{ key: 'all' }} />} />
           <Route path="/women" element={<Shop preset={{ key: 'women', gender: 'women' }} />} />
           <Route path="/men" element={<Shop preset={{ key: 'men', gender: 'men' }} />} />
@@ -159,7 +159,7 @@ export default function App() {
           <Route path="/collection/:slug" element={<Collection />} />
 
           <Route path="/admin/login" element={<AdminLogin />} />
-          <Route path="/admin" element={<Dashboard />} />
+          <Route path="/admin" element={<Suspense fallback={<EditorFallback />}><Dashboard /></Suspense>} />
           <Route path="/admin/live" element={<LiveView />} />
           <Route path="/admin/orders" element={<Suspense fallback={<EditorFallback />}><OrdersDesk /></Suspense>} />
           <Route path="/admin/orders-legacy" element={<Orders />} />
@@ -182,9 +182,9 @@ export default function App() {
           <Route path="/admin/discounts" element={<Discounts />} />
           <Route path="/admin/content" element={<Content />} />
           <Route path="/admin/markets" element={<Markets />} />
-          <Route path="/admin/analytics" element={<Analytics />} />
-          <Route path="/admin/insights" element={<Insights />} />
-          <Route path="/admin/finance" element={<Finance />} />
+          <Route path="/admin/analytics" element={<Suspense fallback={<EditorFallback />}><Analytics /></Suspense>} />
+          <Route path="/admin/insights" element={<Suspense fallback={<EditorFallback />}><Insights /></Suspense>} />
+          <Route path="/admin/finance" element={<Suspense fallback={<EditorFallback />}><Finance /></Suspense>} />
           <Route path="/admin/abandoned-carts" element={<AbandonedCarts />} />
           <Route path="/admin/reviews" element={<Reviews />} />
 
@@ -195,7 +195,7 @@ export default function App() {
           <Route path="/admin/theme-legacy" element={<ThemeEditor />} />
 
           <Route path="/admin/backup" element={<Backup />} />
-          <Route path="/admin/payments" element={<Payments />} />
+          <Route path="/admin/payments" element={<Suspense fallback={<EditorFallback />}><Payments /></Suspense>} />
           <Route path="/admin/collections" element={<Collections />} />
           <Route path="/admin/apps" element={<Apps />} />
 
