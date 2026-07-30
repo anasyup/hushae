@@ -177,7 +177,14 @@ export default function Shop({ preset = {} }) {
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-x-5 gap-y-9 md:grid-cols-3 xl:grid-cols-4">
-              {products.map((p) => <ProductCard key={p._id} product={p} />)}
+              {products.map((p) => (
+                // Deliberately NOT eager. The source images are 1024x1024 PNGs
+                // of ~2MB; marking the first row high-priority made them the
+                // LCP element and pushed desktop LCP from 4.8s to 13.1s.
+                // Lazy-loading every card lets the browser pick a cheaper LCP
+                // candidate. Revisit once the catalogue ships resized WebP.
+                <ProductCard key={p._id} product={p} headingLevel="h2" />
+              ))}
             </div>
           )}
         </div>
