@@ -53,6 +53,25 @@ const userSchema = new mongoose.Schema({
     marketingSms: { type: Boolean, default: false },
   },
 
+  /* ---- Active sessions ----
+     JWTs are stateless, so "sign out my other devices" is impossible without
+     a server-side record. Each issued token carries a `jti`; this list is the
+     set of jtis that are still allowed. Revoking = removing the entry, which
+     the protect middleware then rejects. Without this the feature would be a
+     button that quietly does nothing. */
+  sessions: {
+    type: [{
+      _id: false,
+      jti: { type: String, required: true },
+      device: { type: String, default: 'Unknown device' },
+      browser: { type: String, default: '' },
+      ipHint: { type: String, default: '' },      // first two octets only
+      createdAt: { type: Date, default: Date.now },
+      lastSeen: { type: Date, default: Date.now },
+    }],
+    default: [],
+  },
+
   // Soft delete. A hard delete would orphan every order this customer placed,
   // and those orders are the merchant's financial records.
   deletedAt: { type: Date, default: null },

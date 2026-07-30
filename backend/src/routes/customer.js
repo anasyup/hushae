@@ -1,5 +1,8 @@
 const express = require('express');
+const crypto = require('crypto');
 const Order = require('../models/Order');
+const Product = require('../models/Product');
+const OrderIssue = require('../models/OrderIssue');
 const Upload = require('../models/Upload');
 const { protect } = require('../middleware/auth');
 const { asyncHandler } = require('../utils/helpers');
@@ -229,5 +232,219 @@ router.post('/delete-account', asyncHandler(async (req, res) => {
 
   res.json({ ok: true, message: 'Your account has been closed. Your past orders remain with the store for its records.' });
 }));
+
+
+/* ===========================================================================
+ * ORDERS — detail, invoice, reorder, cancel, return
+ *
+ * All of these are gated on settings.account switches that shipped in Part 1,
+ * so the merchant can withdraw any of them without a deploy.
+ *
+ * Cancellations and returns are written into the EXISTING OrderIssue model —
+ * the same records the admin order desk already reads. Giving customer
+ * requests their own table would have left the merchant with two inboxes.
+ * ========================================================================= */
+
+/** Find an order that genuinely belongs to the caller. Accepts either the
+ *  Mongo id or the human order number, because the account list links by
+ *  number and a deep link may carry either. */
+async function findOwnOrder(req, key) {
+  const or = [{ orderNumber: String(key) }];
+  if (/^[a-f0-9]{24}$/i.test(String(key))) or.push({ _id: key });
+  return Order.findOne({ $or: or, customer: req.user._id });
+}
+
+router.get('/orders/:key', asyncHandler(async (req, res) => {
+  const order = await findOwnOrder(req, req.params.key);
+  if (!order) return res.status(404).json({ message: 'We could not find that order on your account' });
+
+  // Any open cancellation/return the customer already raised, so the UI can
+  // show its state instead of offering the button again.
+  const issue = await OrderIssue.findOne({ order: order._id }).sort({ createdAt: -1 }).lean();
+  res.json({
+    order,
+    request: issue ? {
+      id: issue._id,
+      cancellationStatus: issue.cancellationStatus,
+      returnStatus: issue.returnStatus,
+      refundStatus: issue.refundStatus,
+      status: issue.status,
+      createdAt: issue.createdAt,
+    } : null,
+  });
+}));
+
+/* Invoice — plain JSON. The storefront renders and prints it, so no PDF
+   library ships to shoppers. The merchant's own print view is unchanged. */
+router.get('/orders/:key/invoice', asyncHandler(async (req, res) => {
+  const policy = await getAccountPolicy();
+  if (!policy.allowInvoice) return res.status(403).json({ message: 'Invoices are not available from here' });
+
+  const order = await findOwnOrder(req, req.params.key);
+  if (!order) return res.status(404).json({ message: 'We could not find that order on your account' });
+
+  const Settings = require('../models/Settings');
+  const st = await Settings.findOne({ key: 'store' }).lean();
+  res.json({
+    invoice: {
+      orderNumber: order.orderNumber,
+      placedAt: order.createdAt,
+      status: order.status,
+      paymentMethod: order.paymentMethod,
+      paymentStatus: order.paymentStatus,
+      customer: order.customerInfo,
+      items: order.items,
+      subtotal: order.subtotal,
+      discount: order.discount,
+      couponCode: order.couponCode,
+      shippingCharge: order.shippingCharge,
+      tax: order.tax || 0,
+      total: order.total,
+      store: {
+        name: st?.storeName || 'HUSHAE',
+        email: st?.contactEmail || '',
+        phone: st?.contactPhone || '',
+      },
+    },
+  });
+}));
+
+/* Reorder — returns lines the storefront can add to the live cart.
+   Prices come from the CURRENT product, never the historical line, or an old
+   order would let someone re-buy at a stale price. Sold-out and deleted
+   products are reported instead of silently dropped. */
+router.post('/orders/:key/reorder', asyncHandler(async (req, res) => {
+  const policy = await getAccountPolicy();
+  if (!policy.allowReorder) return res.status(403).json({ message: 'Reordering is switched off' });
+
+  const order = await findOwnOrder(req, req.params.key);
+  if (!order) return res.status(404).json({ message: 'We could not find that order on your account' });
+
+  const lines = [];
+  const unavailable = [];
+  for (const it of order.items) {
+    const p = await Product.findById(it.product);
+    if (!p || p.isActive === false) { unavailable.push({ name: it.name, reason: 'no longer sold' }); continue; }
+    if ((p.stock ?? 0) <= 0) { unavailable.push({ name: p.name, reason: 'out of stock' }); continue; }
+    const sizeOk = !it.size || !(p.sizes || []).length || p.sizes.includes(it.size);
+    lines.push({
+      id: String(p._id),
+      slug: p.slug,
+      name: p.name,
+      price: p.price,                       // today's price, not the old one
+      image: (p.images || [])[0]?.url || '',
+      size: sizeOk ? it.size : ((p.sizes || [])[0] || ''),
+      color: it.color || ((p.colors || [])[0]?.name || ''),
+      qty: Math.min(it.quantity, p.stock),
+      sizeChanged: !sizeOk,
+      priceChanged: p.price !== it.price,
+    });
+  }
+  res.json({ lines, unavailable });
+}));
+
+/* Cancel request.
+   Only offered before the parcel leaves. After dispatch the honest action is
+   a return, so the server refuses rather than letting the UI promise it. */
+const CANCELLABLE = ['Pending', 'Confirmed', 'Processing', 'Ready to Ship'];
+
+router.post('/orders/:key/cancel', asyncHandler(async (req, res) => {
+  const policy = await getAccountPolicy();
+  if (!policy.allowCancelRequest) return res.status(403).json({ message: 'Cancellation requests are switched off' });
+
+  const order = await findOwnOrder(req, req.params.key);
+  if (!order) return res.status(404).json({ message: 'We could not find that order on your account' });
+
+  if (order.status === 'Cancelled') return res.status(400).json({ message: 'This order is already cancelled' });
+  if (!CANCELLABLE.includes(order.status)) {
+    return res.status(400).json({ message: 'This order has already left our warehouse. Please request a return instead.' });
+  }
+
+  const existing = await OrderIssue.findOne({ order: order._id, cancellationStatus: { $in: ['Requested', 'Approved'] } });
+  if (existing) return res.status(400).json({ message: 'You have already asked us to cancel this order — we are on it.' });
+
+  const reason = String(req.body?.reason || '').trim().slice(0, 500);
+  const issue = await OrderIssue.create({
+    order: order._id,
+    orderNumber: order.orderNumber,
+    issueType: 'Other',
+    description: reason || 'Customer requested cancellation from their account',
+    cancellationStatus: 'Requested',
+    cancellationReason: reason,
+    status: 'Open',
+    openedBy: req.user._id,
+    openedByName: req.user.name,
+    messages: [{ kind: 'inbound', channel: 'internal', body: reason || 'Please cancel this order.', authorId: req.user._id, authorName: req.user.name }],
+  });
+  res.status(201).json({ ok: true, requestId: issue._id, message: 'We have received your cancellation request. Our team will confirm shortly.' });
+}));
+
+/* Return request — only makes sense once the parcel has actually arrived. */
+router.post('/orders/:key/return', asyncHandler(async (req, res) => {
+  const policy = await getAccountPolicy();
+  if (!policy.allowReturnRequest) return res.status(403).json({ message: 'Return requests are switched off' });
+
+  const order = await findOwnOrder(req, req.params.key);
+  if (!order) return res.status(404).json({ message: 'We could not find that order on your account' });
+  if (order.status !== 'Delivered') {
+    return res.status(400).json({ message: 'Returns can be requested once your order has been delivered.' });
+  }
+
+  const existing = await OrderIssue.findOne({ order: order._id, returnStatus: { $in: ['Requested', 'Approved', 'Returned'] } });
+  if (existing) return res.status(400).json({ message: 'A return is already in progress for this order.' });
+
+  const ALLOWED = ['Wrong Item', 'Damaged', 'Missing', 'Quality Issue', 'Other'];
+  const issueType = ALLOWED.includes(req.body?.issueType) ? req.body.issueType : 'Other';
+  const reason = String(req.body?.reason || '').trim().slice(0, 500);
+  if (reason.length < 5) return res.status(400).json({ field: 'reason', message: 'Please tell us briefly what went wrong' });
+
+  const issue = await OrderIssue.create({
+    order: order._id,
+    orderNumber: order.orderNumber,
+    issueType,
+    description: reason,
+    returnStatus: 'Requested',
+    status: 'Open',
+    openedBy: req.user._id,
+    openedByName: req.user.name,
+    messages: [{ kind: 'inbound', channel: 'internal', body: reason, authorId: req.user._id, authorName: req.user.name }],
+  });
+  res.status(201).json({ ok: true, requestId: issue._id, message: 'Your return request is with our team. We will be in touch.' });
+}));
+
+/* ===========================================================================
+ * SESSIONS / DEVICES
+ * ========================================================================= */
+router.get('/sessions', asyncHandler(async (req, res) => {
+  const policy = await getAccountPolicy();
+  if (!policy.showSessions) return res.status(403).json({ message: 'Not available' });
+  const list = (req.user.sessions || [])
+    .map((s) => ({
+      jti: s.jti, device: s.device, browser: s.browser, ipHint: s.ipHint,
+      createdAt: s.createdAt, lastSeen: s.lastSeen,
+      current: s.jti === req.jti,
+    }))
+    .sort((a, b) => new Date(b.lastSeen) - new Date(a.lastSeen));
+  res.json({ sessions: list, currentKnown: !!req.jti });
+}));
+
+router.delete('/sessions/:jti', asyncHandler(async (req, res) => {
+  req.user.sessions = (req.user.sessions || []).filter((s) => s.jti !== req.params.jti);
+  await req.user.save();
+  res.json({ ok: true });
+}));
+
+/** Sign out every device except this one. Keeping the current jti is what
+ *  stops the customer logging themselves out by tidying up. */
+router.post('/sessions/revoke-others', asyncHandler(async (req, res) => {
+  if (!req.jti) {
+    return res.status(400).json({ message: 'Please sign in again on this device first, then try.' });
+  }
+  const before = (req.user.sessions || []).length;
+  req.user.sessions = (req.user.sessions || []).filter((s) => s.jti === req.jti);
+  await req.user.save();
+  res.json({ ok: true, revoked: Math.max(0, before - req.user.sessions.length) });
+}));
+
 
 module.exports = router;

@@ -17,6 +17,38 @@ const protect = async (req, res, next) => {
     const payload = jwt.verify(token, process.env.JWT_SECRET);
     const user = await User.findById(payload.id);
     if (!user || !user.isActive) return res.status(401).json({ message: 'Account not found' });
+
+    // Share-link tokens carry the id of the link that minted them. Revoking
+    // the link clears that id, which kills every token issued from it at once
+    // — without touching the owner's own session.
+    if (payload.share) {
+      const Settings = require('../models/Settings');
+      const s = await Settings.findOne({ key: 'store' }).select('adminShare').lean();
+      const live = s?.adminShare?.linkId === payload.share
+        && s.adminShare.expiresAt && new Date(s.adminShare.expiresAt) > new Date();
+      if (!live) return res.status(401).json({ message: 'This share link has been turned off' });
+      req.isShare = true;
+    }
+
+    /* Session revocation.
+       A token that carries a `jti` is only valid while that jti is still in
+       the user's session list. This is what makes "sign out my other devices"
+       real — without it the button would clear a list and change nothing.
+
+       Tokens minted before this shipped have no jti; they stay valid so
+       nobody is signed out by the deploy itself. */
+    if (payload.jti) {
+      const live = (user.sessions || []).some((x) => x.jti === payload.jti);
+      if (!live) return res.status(401).json({ message: 'This device was signed out' });
+      // Touch lastSeen at most once a minute — this runs on every request.
+      const s = user.sessions.find((x) => x.jti === payload.jti);
+      if (s && Date.now() - new Date(s.lastSeen).getTime() > 60000) {
+        s.lastSeen = new Date();
+        user.save().catch(() => {});
+      }
+      req.jti = payload.jti;
+    }
+
     req.user = user;
     next();
   } catch (e) {

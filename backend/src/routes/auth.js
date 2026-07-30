@@ -30,6 +30,46 @@ const signFor = (user, remember, policy) => {
   return jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: `${days}d` });
 };
 
+/* Read a human device label out of the User-Agent. Deliberately coarse — the
+   point is "is this the phone I signed in on last week?", not fingerprinting.
+   Only the first two IP octets are kept, enough to say "same network". */
+function describeDevice(req) {
+  const ua = String(req.headers['user-agent'] || '');
+  const device = /iPhone/i.test(ua) ? 'iPhone'
+    : /iPad/i.test(ua) ? 'iPad'
+    : /Android/i.test(ua) ? 'Android phone'
+    : /Macintosh/i.test(ua) ? 'Mac'
+    : /Windows/i.test(ua) ? 'Windows PC'
+    : /Linux/i.test(ua) ? 'Linux computer'
+    : 'Unknown device';
+  const browser = /Edg\//i.test(ua) ? 'Edge'
+    : /OPR\//i.test(ua) ? 'Opera'
+    : /Chrome\//i.test(ua) ? 'Chrome'
+    : /Safari\//i.test(ua) ? 'Safari'
+    : /Firefox\//i.test(ua) ? 'Firefox'
+    : '';
+  const ip = String(req.headers['x-forwarded-for'] || req.ip || '').split(',')[0].trim();
+  const ipHint = ip.includes('.') ? ip.split('.').slice(0, 2).join('.') + '.x.x' : '';
+  return { device, browser, ipHint };
+}
+
+/* Issue a token AND record the session it belongs to, so the customer can see
+   and revoke it later. Capped at 10 so a bot cannot grow the document forever;
+   the oldest entry is dropped first. */
+async function issueSession(user, remember, policy, req) {
+  const days = remember ? (Number(policy.rememberMeDays) || 30) : (Number(policy.sessionDays) || 2);
+  const jti = crypto.randomBytes(12).toString('hex');
+  const token = jwt.sign(
+    { id: user._id, role: user.role, jti },
+    process.env.JWT_SECRET,
+    { expiresIn: `${days}d` },
+  );
+  const info = describeDevice(req);
+  user.sessions = [...(user.sessions || []), { jti, ...info, createdAt: new Date(), lastSeen: new Date() }].slice(-10);
+  await user.save();
+  return token;
+}
+
 const hashToken = (t) => crypto.createHash('sha256').update(String(t)).digest('hex');
 
 /* The mailer pulls in nodemailer, which is optional at runtime. Every other
@@ -95,7 +135,8 @@ router.post('/register', registerLimit, asyncHandler(async (req, res) => {
     // Verification only means anything once mail can actually be sent.
     emailVerified: !policy.emailVerifyRequired,
   });
-  res.status(201).json({ token: signFor(user, !!req.body?.remember, policy), user: publicUser(user) });
+  const token = await issueSession(user, !!req.body?.remember, policy, req);
+  res.status(201).json({ token, user: publicUser(user) });
 }));
 
 router.post('/login', loginLimit, asyncHandler(async (req, res) => {
@@ -108,7 +149,8 @@ router.post('/login', loginLimit, asyncHandler(async (req, res) => {
   if (!user.isActive) return res.status(403).json({ message: 'This account has been disabled' });
   if (user.deletedAt) return res.status(403).json({ message: 'This account has been closed' });
   const policy = await getAccountPolicy();
-  res.json({ token: signFor(user, !!req.body?.remember, policy), user: publicUser(user) });
+  const token = await issueSession(user, !!req.body?.remember, policy, req);
+  res.json({ token, user: publicUser(user) });
 }));
 
 router.get('/me', protect, asyncHandler(async (req, res) => {
