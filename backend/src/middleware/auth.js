@@ -1,9 +1,12 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
+// 90 days. The merchant signs in once and the admin console then opens
+// straight from a bookmark for a quarter — the password is still the only way
+// in, it is simply not asked for again on a device that already proved itself.
 const signToken = (user) =>
   jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRES || '7d',
+    expiresIn: process.env.JWT_EXPIRES || '90d',
   });
 
 const protect = async (req, res, next) => {

@@ -44,7 +44,7 @@ Format:
   - **Atlas — migrated database** from `veloura` → `hushae`. Copied every collection (users, categories, settings — 12 in total). The old `veloura` database still exists as backup for now; the app will only touch `hushae` going forward.
   - **Vercel env `MONGODB_URI`** — updated to point at `.../hushae?...`.
   - **Vercel env `ADMIN_EMAIL`** — updated `underadmin` → `admin@hushae.pk`.
-  - **Atlas admin user email** — updated `underadmin` → `admin@hushae.pk`. Display name stays `Hushae Admin`. Password unchanged (`quaPaj@AE9sFWqghtjH2`).
+  - **Atlas admin user email** — updated `underadmin` → `admin@hushae.pk`. Display name stays `Hushae Admin`. Password unchanged (value redacted — credentials never belong in the repo).
   - **Atlas — fully cleaned**: 0 products, 0 orders, 0 abandoned carts, 0 pageviews, 0 uploads. 10 categories kept (brand-neutral: Bras / Boxers / etc.). 1 admin user. 1 settings row.
   - **GitHub repo rename to `hushae`** attempted via API but our fine-grained PAT lacks Administration scope. User needs to rename manually: Settings → Rename repository → `hushae`. GitHub then auto-redirects the old URL indefinitely, so nothing else breaks.
 
