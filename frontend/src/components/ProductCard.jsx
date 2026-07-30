@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Heart } from 'lucide-react';
+import { Check, Heart, Scale } from 'lucide-react';
 import { memo, useMemo, useState } from 'react';
 import { useApp } from '../store/AppContext';
 import { pkr } from '../lib/format';
@@ -50,11 +50,15 @@ function ProductCard({
   // be an h2 or the document skips a level — Lighthouse flags heading-order.
   headingLevel = 'h3',
 }) {
-  const { inWishlist, toggleWish, addToCart } = useApp();
+  const { inWishlist, toggleWish, addToCart, inCompare, toggleCompare, settings, toast } = useApp();
   const [sizePick, setSizePick] = useState(false);
   const [failed, setFailed] = useState(false);
 
   const wished = inWishlist(p);
+  const compared = inCompare(p);
+  const cxc = settings?.customerExperience?.compare;
+  // Both flags must hold: the feature on, and the card placement on.
+  const cmpOn = cxc ? (cxc.enabled !== false && cxc.showOnCard !== false) : false;
   const sizes = p.sizes || [];
   const ratioCls = ratio || (compact ? 'aspect-[3/4]' : 'aspect-[4/5]');
 
@@ -124,10 +128,28 @@ function ProductCard({
           </span>
         )}
 
+        {/* Compare sits under the heart, same column, same 44px target.
+            Hidden entirely when the merchant switches it off. */}
+        {cmpOn && (
+          <button
+            type="button"
+            onClick={async () => { const r = await toggleCompare(p); if (r && r.ok === false) toast(r.message); }}
+            aria-pressed={compared}
+            aria-label={`${compared ? 'Remove' : 'Add'} ${p.name} ${compared ? 'from' : 'to'} compare`}
+            className={`absolute right-2 top-[3.4rem] grid h-11 w-11 place-items-center rounded-full bg-alabaster/85 backdrop-blur-sm transition-[transform,background-color,opacity] duration-base ease-standard hover:scale-105 hover:bg-alabaster md:right-2.5 md:top-[3rem] md:h-9 md:w-9 md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100 ${
+              compared ? 'text-obsidian md:!opacity-100' : 'text-ash'
+            }`}
+          >
+            {compared
+              ? <Check size={15} strokeWidth={2.2} aria-hidden="true" />
+              : <Scale size={15} strokeWidth={1.8} aria-hidden="true" />}
+          </button>
+        )}
+
         {showWishlist && (
           <button
             type="button"
-            onClick={() => toggleWish(p)}
+            onClick={async () => { const r = await toggleWish(p); if (r && r.ok === false) toast(r.message); }}
             aria-pressed={wished}
             aria-label={`${wished ? 'Remove' : 'Save'} ${p.name} ${wished ? 'from' : 'to'} wishlist`}
             className={`absolute right-2 top-2 grid h-11 w-11 place-items-center rounded-full bg-alabaster/85 backdrop-blur-sm transition-[transform,background-color,opacity] duration-base ease-standard hover:scale-105 hover:bg-alabaster md:right-2.5 md:top-2.5 md:h-9 md:w-9 md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100 ${

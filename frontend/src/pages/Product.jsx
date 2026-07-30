@@ -26,6 +26,7 @@ export default function Product() {
   const { slug } = useParams();
   const nav = useNavigate();
   const { addToCart, inWishlist, toggleWish, pushRecent, recent, settings } = useApp();
+  const rvCfg = settings?.customerExperience?.recentlyViewed || {};
 
   const [p, setP] = useState(null);
   const [err, setErr] = useState(false);
@@ -383,9 +384,10 @@ export default function Product() {
         <ProductReviews product={p} />
       </div>
 
-      {recent.filter((r) => r.slug !== p.slug).length > 0 && (
+      {rvCfg.enabled !== false && rvCfg.showOnProduct !== false
+        && recent.filter((r) => r.slug !== p.slug).length > 0 && (
         <div className="mt-20 pb-4 md:mt-24">
-          <ProductRow eyebrow="Your history" title="Recently viewed" products={recent.filter((r) => r.slug !== p.slug).slice(0, 8)} />
+          <ProductRow eyebrow="Your history" title={rvCfg.title || 'Recently viewed'} products={recent.filter((r) => r.slug !== p.slug).slice(0, 8)} />
         </div>
       )}
 

@@ -24,7 +24,7 @@ export const lineKey = (l) => `${l.id}::${l.size || ''}::${l.color || ''}`;
 // (safe rebrand — copies value then removes old key, only if new key not already set)
 try {
   if (typeof localStorage !== 'undefined' && !localStorage.getItem('hushae.migrated')) {
-    const keys = ['auth', 'cart', 'wish', 'recent', 'lang', 'consent', 'promo', 'lockpw', 'checkoutDraft', 'newsletter', 'calc'];
+    const keys = ['auth', 'cart', 'wish', 'recent', 'compare', 'lang', 'consent', 'promo', 'lockpw', 'checkoutDraft', 'newsletter', 'calc'];
     for (const k of keys) {
       const oldKey = `veloura.${k}`;
       const newKey = `hushae.${k}`;
@@ -47,6 +47,7 @@ export function AppProvider({ children }) {
   const [serverWish, setServerWish] = useState([]);
   const [recent, setRecent] = useState(() => LS.get('hushae.recent', []));
   const [saved, setSaved] = useState(() => LS.get('hushae.saved', []));
+  const [compare, setCompare] = useState(() => LS.get('hushae.compare', []));
   const [toasts, setToasts] = useState([]);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -57,6 +58,7 @@ export function AppProvider({ children }) {
   useEffect(() => { LS.set('hushae.wish', guestWish); }, [guestWish]);
   useEffect(() => { LS.set('hushae.recent', recent); }, [recent]);
   useEffect(() => { LS.set('hushae.saved', saved); }, [saved]);
+  useEffect(() => { LS.set('hushae.compare', compare); }, [compare]);
   useEffect(() => { LS.set('hushae.auth', auth); }, [auth]);
 
   useEffect(() => { api('/settings').then((d) => setSettings(d.settings)).catch(() => {}); }, []);
@@ -251,10 +253,54 @@ export function AppProvider({ children }) {
   }, [auth, serverWish, refreshWish]);
 
   // ---------- recently viewed ----------
+  /* ---------- compare ----------
+     Kept on the device, not the account: comparing is a decision people make
+     in one sitting, and a list that follows you across devices is noise.
+     Returns { ok, message } so a full tray explains itself instead of the
+     button silently doing nothing. */
+  const inCompare = useCallback((p) => compare.some((x) => x.id === (p.id || p._id)), [compare]);
+
+  const toggleCompare = useCallback((product) => {
+    const s = snap(product);
+    const cfg = settings?.customerExperience?.compare;
+    if (cfg?.enabled === false) return { ok: false, message: 'Compare is unavailable' };
+    const max = Number(cfg?.maxItems) || 4;
+    const exists = compare.some((x) => x.id === s.id);
+    if (!exists && compare.length >= max) {
+      return { ok: false, message: `You can compare up to ${max} pieces. Remove one first.` };
+    }
+    setCompare((c) => (exists ? c.filter((x) => x.id !== s.id) : [...c, s]));
+    return { ok: true, added: !exists };
+  }, [compare, settings]);
+
+  const removeCompare = useCallback((id) => setCompare((c) => c.filter((x) => x.id !== id)), []);
+  const clearCompare = useCallback(() => setCompare([]), []);
+
+  /* Recently viewed.
+     The limit and the expiry window are the merchant's, not a hardcoded 10.
+     Each entry carries the time it was viewed so anything older than
+     expiryDays can be dropped on read — a list that never forgets stops being
+     "recently" viewed and starts being a stale archive. */
   const pushRecent = useCallback((product) => {
     const s = snap(product);
-    setRecent((r) => [s, ...r.filter((x) => x.id !== s.id)].slice(0, 10));
-  }, []);
+    const rv = settings?.customerExperience?.recentlyViewed;
+    if (rv?.enabled === false) return;
+    const max = Number(rv?.maxItems) || 12;
+    setRecent((r) => [{ ...s, at: Date.now() }, ...r.filter((x) => x.id !== s.id)].slice(0, max));
+  }, [settings]);
+
+  /* Expired entries are filtered here rather than mutated in storage, so a
+     visitor who returns after the window simply sees an empty row instead of
+     the app rewriting localStorage on every render. Older entries saved before
+     this shipped have no `at` and are kept. */
+  const recentLive = useMemo(() => {
+    const rv = settings?.customerExperience?.recentlyViewed;
+    if (rv?.enabled === false) return [];
+    const days = Number(rv?.expiryDays) || 30;
+    const cutoff = Date.now() - days * 86400000;
+    const max = Number(rv?.maxItems) || 12;
+    return recent.filter((x) => !x.at || x.at >= cutoff).slice(0, max);
+  }, [recent, settings]);
 
   const value = useMemo(() => ({
     settings, lang, setLang, t,
@@ -262,11 +308,12 @@ export function AppProvider({ children }) {
     cart, addToCart, updateQty, removeLine, restoreLine, clearCart, cartCount, cartSubtotal,
     saved, saveForLater, moveToBag, removeSaved,
     wishlist, inWishlist, toggleWish, clearWish,
-    recent, pushRecent,
+    recent: recentLive, recentRaw: recent, pushRecent,
+    compare, inCompare, toggleCompare, removeCompare, clearCompare,
     toast, toasts, drawerOpen, setDrawerOpen,
   }), [settings, lang, t, auth, login, register, logout, patchUser, cart, addToCart, updateQty, removeLine, restoreLine, clearCart,
     cartCount, cartSubtotal, saved, saveForLater, moveToBag, removeSaved,
-    wishlist, inWishlist, toggleWish, clearWish, recent, pushRecent, toast, toasts, drawerOpen]);
+    wishlist, inWishlist, toggleWish, clearWish, recentLive, recent, pushRecent, compare, inCompare, toggleCompare, removeCompare, clearCompare, toast, toasts, drawerOpen]);
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

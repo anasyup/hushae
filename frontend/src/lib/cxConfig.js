@@ -27,7 +27,7 @@ export const CX_DEFAULTS = {
     enabled: true,
     maxItems: 12,
     expiryDays: 30,
-    showOnHome: true,
+    showOnHome: false,   // merchant removed this row on purpose; opt-in only
     showOnProduct: true,
     title: 'Recently viewed',
   },

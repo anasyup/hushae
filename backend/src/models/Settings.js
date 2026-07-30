@@ -194,7 +194,10 @@ const settingsSchema = new mongoose.Schema({
       enabled:      { type: Boolean, default: true },
       maxItems:     { type: Number,  default: 12 },
       expiryDays:   { type: Number,  default: 30 },
-      showOnHome:   { type: Boolean, default: true },
+      // Default OFF: the merchant explicitly had this row removed from the
+      // home page in an earlier sprint. The switch exists so it can come back
+      // without a deploy, but shipping it on would undo their decision.
+      showOnHome:   { type: Boolean, default: false },
       showOnProduct:{ type: Boolean, default: true },
       title:        { type: String,  default: 'Recently viewed' },
     },

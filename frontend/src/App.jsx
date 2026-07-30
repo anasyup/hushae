@@ -4,6 +4,7 @@ import Header from './components/Header';
 import { useThemeDoc } from './theme-editor/useThemeDoc';
 import Footer from './components/Footer';
 import CartDrawer from './components/CartDrawer';
+import CompareTray from './components/CompareTray';
 import Toasts from './components/Toasts';
 
 import Home from './pages/Home';
@@ -15,6 +16,7 @@ import OrderConfirm from './pages/OrderConfirm';
 import Track from './pages/Track';
 import FitFinder from './pages/FitFinder';
 import Wishlist from './pages/Wishlist';
+import Compare from './pages/Compare';
 import Account from './pages/Account';
 import ResetPassword from './pages/account/ResetPassword';
 import VerifyEmail from './pages/account/VerifyEmail';
@@ -158,6 +160,7 @@ export default function App() {
           <Route path="/track" element={<Track />} />
           <Route path="/fit-finder" element={<FitFinder />} />
           <Route path="/wishlist" element={<Wishlist />} />
+          <Route path="/compare" element={<Compare />} />
           <Route path="/account" element={<Account />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/verify-email" element={<VerifyEmail />} />
@@ -221,6 +224,7 @@ export default function App() {
       </main>
       {!isAdmin && !themedHome && <Footer />}
       {!isAdmin && <CartDrawer />}
+      {!isAdmin && <CompareTray />}
       {!isAdmin && <WhatsAppFloat />}
       {!isAdmin && <CookieConsent />}
       {!isAdmin && <PromoPopup />}

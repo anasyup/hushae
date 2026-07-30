@@ -234,7 +234,18 @@ export default function Home() {
 
       {/* Signature row moved up to sit under the split hero */}
 
-      {/* Recently Viewed removed per user request */}
+      {/* Recently viewed — OFF by default because the merchant had this row
+          removed from the home page in an earlier sprint. It returns only when
+          they switch it on in Admin → Settings → Customer Experience. */}
+      {(() => {
+        const rv = settings?.customerExperience?.recentlyViewed;
+        if (!rv?.enabled || !rv?.showOnHome || recent.length === 0) return null;
+        return (
+          <div className="mt-sect-y">
+            <ProductRow eyebrow="Your history" title={rv.title || 'Recently viewed'} products={recent.slice(0, 8)} />
+          </div>
+        );
+      })()}
 
       {/* TESTIMONIALS */}
       <motion.section {...fadeUp} className="mx-auto mt-24 max-w-7xl px-4 md:px-8">
