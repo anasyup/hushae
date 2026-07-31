@@ -26,6 +26,7 @@ router.put('/', protect, adminOnly, asyncHandler(async (req, res) => {
      a database round-trip on every query. Drop it here so the merchant sees
      their own change take effect immediately rather than up to 8s later. */
   try { require('../utils/searchEngine').invalidateSettingsCache(); } catch { /* optional */ }
+  try { require('../utils/promotionEngine').invalidateCache(); } catch { /* optional */ }
   res.json({ settings: s });
 }));
 

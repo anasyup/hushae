@@ -340,6 +340,99 @@ const settingsSchema = new mongoose.Schema({
   // products have a black colourway, and a single typo ("coton") returned 0.
   // Every value a shopper's search depends on now lives here.
   // ==========================================================================
+  // ==========================================================================
+  // MARKETING & PROMOTIONS
+  //
+  // Measured before this block existed:
+  //   · 101 of 101 products carry a compareAtPrice — every item is already
+  //     marked down, median 22%
+  //   · a coupon stacks on that with no cap, then loyalty points (50% cap),
+  //     then store credit and gift cards, both uncapped
+  //   · no stacking guard existed anywhere in the codebase
+  // A PKR 1,550 item could therefore reach checkout at PKR 540 without anyone
+  // deciding that. maxTotalDiscountPercent below is the floor that was missing.
+  //
+  // Everything ships OFF. Turning the block on changes nothing until the
+  // merchant also creates a promotion.
+  // ==========================================================================
+  marketing: {
+    enabled: { type: Boolean, default: false },
+
+    // ---- The safety net --------------------------------------------------
+    // Cap on the SUM of every promotion on one order, as a percentage of the
+    // goods subtotal. Coupons, points and credit have their own separate
+    // limits; this bounds what the promotion engine can give away.
+    maxTotalDiscountPercent: { type: Number, default: 40 },
+    // Refuse to sell a line below this margin over cost. 0 = not enforced.
+    minMarginPercent: { type: Number, default: 0 },
+    allowWithCoupon: { type: Boolean, default: true },
+    // Two promotions on the SAME line. Off means one discount per line.
+    allowStacking:   { type: Boolean, default: false },
+
+    // ---- Flash sales -----------------------------------------------------
+    flash: {
+      enabled:           { type: Boolean, default: false },
+      showCountdown:     { type: Boolean, default: true },
+      countdownLabel:    { type: String,  default: 'Ends in' },
+      urgencyMinutes:    { type: Number,  default: 60 },
+      showStockLeft:     { type: Boolean, default: true },
+      lowStockThreshold: { type: Number,  default: 5 },
+    },
+
+    // ---- Automatic product badges ---------------------------------------
+    badges: {
+      enabled:      { type: Boolean, default: false },
+      newDays:      { type: Number,  default: 21 },
+      showNew:      { type: Boolean, default: true },
+      showSale:     { type: Boolean, default: true },
+      // Without a floor the Sale badge appears on all 101 products and stops
+      // meaning anything. 25% puts it on the genuinely sharp cuts only.
+      minSalePercent: { type: Number, default: 25 },
+      showTrending: { type: Boolean, default: true },
+      trendingDays: { type: Number,  default: 7 },
+      trendingMinOrders: { type: Number, default: 3 },
+      showBestSeller:    { type: Boolean, default: true },
+      showLimitedStock:  { type: Boolean, default: true },
+      limitedStockThreshold: { type: Number, default: 5 },
+      maxPerCard:   { type: Number,  default: 2 },
+    },
+
+    // ---- Cart upsells ----------------------------------------------------
+    upsell: {
+      enabled:       { type: Boolean, default: false },
+      title:         { type: String,  default: 'Add to your order' },
+      count:         { type: Number,  default: 4 },
+      // Suggest only what costs less than the basket average; an upsell
+      // dearer than the bag reads as a hard sell.
+      maxPriceRatio: { type: Number,  default: 0.8 },
+      source:        { type: String,  default: 'auto', enum: ['auto', 'manual', 'bought-together'] },
+      manualProductIds: { type: [String], default: [] },
+    },
+    crossSell: {
+      enabled:       { type: Boolean, default: false },
+      title:         { type: String,  default: 'Goes well with' },
+      count:         { type: Number,  default: 4 },
+      onProductPage: { type: Boolean, default: true },
+      onCart:        { type: Boolean, default: true },
+    },
+    boughtTogether: {
+      enabled:     { type: Boolean, default: false },
+      title:       { type: String,  default: 'Frequently bought together' },
+      count:       { type: Number,  default: 3 },
+      windowDays:  { type: Number,  default: 180 },
+      minCoOccur:  { type: Number,  default: 2 },
+      bundleDiscountPercent: { type: Number, default: 0 },
+    },
+
+    // ---- Scheduling ------------------------------------------------------
+    schedule: {
+      timezone:       { type: String,  default: 'Asia/Karachi' },
+      // Serverless has no dependable cron, so a promotion's window is judged
+      // every time it is read. This flag lets the admin screen say so.
+      evaluateOnRead: { type: Boolean, default: true },
+    },
+  },
+
   search: {
     enabled:        { type: Boolean, default: true },
     placeholder:    { type: String,  default: 'Search bras, trunks, vests…' },

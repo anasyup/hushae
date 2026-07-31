@@ -85,6 +85,11 @@ router.post('/', placeOrderLimit, optionalAuth, asyncHandler(async (req, res) =>
 
   // Validate + price from DB, decrement stock atomically per line
   const lineItems = [];
+  /* The full product docs, kept as they are loaded. The promotion engine needs
+     category, tier, tags and badges to decide what a rule applies to, and
+     re-reading the same products a second time would double the queries on
+     the hottest path in the app. */
+  const productMap = new Map();
   for (const it of items) {
     const qty = Math.max(1, Math.min(parseInt(it.quantity || '1', 10), 10));
     const product = await Product.findOneAndUpdate(
@@ -121,6 +126,7 @@ router.post('/', placeOrderLimit, optionalAuth, asyncHandler(async (req, res) =>
         itemName: product.name,
       });
     }
+    productMap.set(String(product._id), product.toObject ? product.toObject() : product);
     lineItems.push({
       product: product._id, name: product.name, slug: product.slug,
       image: product.images[0]?.url || '', size: it.size || product.sizes[0] || '',
@@ -161,18 +167,93 @@ router.post('/', placeOrderLimit, optionalAuth, asyncHandler(async (req, res) =>
    * ------------------------------------------------------------------ */
   const afterDiscount = Math.max(0, subtotal - discountAmount);
 
+  /* --------------------------------------------------------------------
+   * AUTOMATIC PROMOTIONS
+   *
+   * Sits between the coupon and the tax on purpose:
+   *   · after the coupon, so the coupon keeps the behaviour it always had
+   *   · before tax and shipping, because a promotion discounts GOODS, and
+   *     tax has always been charged on the discounted goods total
+   *
+   * The whole block is wrapped: settings.marketing ships disabled, and if the
+   * engine throws for any reason the order proceeds at the price it would
+   * have had before this sprint. A promotion failing must never cost a sale.
+   *
+   * Nothing is recorded here. Usage is written after the order row exists,
+   * the same discipline the loyalty debits follow.
+   * ------------------------------------------------------------------ */
+  let promoTotal = 0;
+  let promoApplied = [];
+  let promoFreeShipping = false;
+  try {
+    const PE = require('../utils/promotionEngine');
+    const mcfg = await PE.marketingConfig();
+    if (mcfg.enabled) {
+      // Products were already loaded above for stock and pricing; reuse them
+      // rather than issuing a second read.
+      const promoLines = lineItems.map((li) => ({
+        key: `${li.product}:${li.size || ''}:${li.color || ''}`,
+        productId: li.product,
+        price: li.price,
+        qty: li.quantity,
+        product: productMap.get(String(li.product)) || null,
+      })).filter((l) => l.product);
+
+      // orderCount is counted from real orders, never trusted from the
+      // request — otherwise "first order only" is a free-for-all.
+      const Order = require('../models/Order');
+      const priorOrders = await Order.countDocuments({
+        'customerInfo.phone': { $regex: `${String(phoneNorm).replace(/\D/g, '').slice(-9)}$` },
+        status: { $nin: ['Cancelled'] },
+      });
+
+      const r = await PE.evaluateCart({
+        lines: promoLines,
+        ctx: {
+          phone: phoneNorm,
+          city: customerInfo.city,
+          paymentMethod,
+          orderCount: priorOrders,
+          hasCoupon: !!appliedCode,
+        },
+      });
+
+      /* Per-customer caps are checked here rather than inside evaluateCart:
+         the engine is pure and synchronous over its inputs, and this needs a
+         query per promotion. Filtering after keeps the engine testable. */
+      if (r.discounts.length) {
+        const Promotion = require('../models/Promotion');
+        const kept = [];
+        for (const d of r.discounts) {
+          const promo = await Promotion.findById(d.id).lean().catch(() => null);
+          if (promo && await PE.overPerCustomerLimit(promo, phoneNorm)) continue;
+          kept.push(d);
+        }
+        promoApplied = kept;
+        promoTotal = Math.min(kept.reduce((s, d) => s + (d.amount || 0), 0), afterDiscount);
+        promoFreeShipping = kept.some((d) => d.freeShipping);
+      }
+    }
+  } catch (e) {
+    console.error('promotion evaluation skipped:', e.message);
+  }
+
+  const afterPromotions = Math.max(0, afterDiscount - promoTotal);
+
   // Chosen shipping method, validated against the merchant's own list.
   const shipMethods = (settings.checkout && settings.checkout.shippingMethods) || [];
   const chosenShip = shipMethods.find((m) => m.id === shippingMethod && m.enabled);
-  const baseShipping = afterDiscount >= settings.freeShippingThreshold ? 0 : settings.shippingFlatRate;
+  const baseShipping = (promoFreeShipping || afterPromotions >= settings.freeShippingThreshold)
+    ? 0 : settings.shippingFlatRate;
   // A method's own rate replaces the flat rate; free-shipping still wins when
   // the method allows it (Express deliberately does not).
   const shippingCharge = chosenShip
     ? (chosenShip.freeEligible !== false && baseShipping === 0 ? 0 : Number(chosenShip.rate) || 0)
     : baseShipping;
 
+
   const taxPercent = Number(settings.cart && settings.cart.taxPercent) || 0;
-  const tax = taxPercent > 0 ? Math.round((afterDiscount * taxPercent) / 100) : 0;
+  const tax = taxPercent > 0 ? Math.round((afterPromotions * taxPercent) / 100) : 0;
 
   /* --------------------------------------------------------------------
    * REWARDS APPLIED AT CHECKOUT
@@ -209,7 +290,7 @@ router.post('/', placeOrderLimit, optionalAuth, asyncHandler(async (req, res) =>
 
     if (wantPoints || wantCredit || wantCard) {
       // Payable before rewards: goods after coupon, plus shipping and tax.
-      let payable = afterDiscount + shippingCharge + tax;
+      let payable = afterPromotions + shippingCharge + tax;
 
       if (wantPoints || wantCredit) {
         loyaltyAcc = await LE.getAccount({ phone: phoneNorm, email: customerInfo.email, name: customerInfo.name, user: req.user ? req.user._id : null }, lcfg);
@@ -218,7 +299,7 @@ router.post('/', placeOrderLimit, optionalAuth, asyncHandler(async (req, res) =>
       if (loyaltyAcc && !loyaltyAcc.blocked) {
         if (wantPoints > 0 && lcfg.redeem.enabled) {
           // maxRedeemable applies the minimum, the step and the % cap.
-          const q = LE.maxRedeemable(loyaltyAcc.pointsBalance, afterDiscount, lcfg);
+          const q = LE.maxRedeemable(loyaltyAcc.pointsBalance, afterPromotions, lcfg);
           const step = Number(lcfg.redeem.step) || 1;
           // Honour the customer's smaller request, snapped to the step.
           let use = Math.min(wantPoints, q.points);
@@ -260,7 +341,7 @@ router.post('/', placeOrderLimit, optionalAuth, asyncHandler(async (req, res) =>
   }
 
   const rewardsTotal = pointsDiscount + creditToUse + giftCardToUse;
-  const total = Math.max(0, afterDiscount + shippingCharge + tax - rewardsTotal);
+  const total = Math.max(0, afterPromotions + shippingCharge + tax - rewardsTotal);
 
   const order = await Order.create({
     orderNumber: orderNumber(),
@@ -274,6 +355,9 @@ router.post('/', placeOrderLimit, optionalAuth, asyncHandler(async (req, res) =>
     },
     items: lineItems, subtotal, shippingCharge, discount: discountAmount, couponCode: appliedCode,
     tax, taxPercent, shippingMethod: chosenShip ? chosenShip.id : 'standard', total,
+    promotionDiscount: promoTotal,
+    promotions: promoApplied.map((d) => ({ promotion: d.id, name: d.name, type: d.type, amount: d.amount })),
+    promotionFreeShipping: promoFreeShipping,
     pointsRedeemed: pointsToSpend,
     pointsDiscount,
     creditUsed: creditToUse,
@@ -295,6 +379,19 @@ router.post('/', placeOrderLimit, optionalAuth, asyncHandler(async (req, res) =>
    * A failure here is logged and swallowed. An order that is placed but whose
    * points were not deducted is a small accounting problem the merchant can
    * see in the ledger; an order that vanishes at the last step is a lost sale. */
+  /* Promotion usage is recorded only now that the order exists. Counting a
+     promotion against its budget for an order that then failed would quietly
+     burn the merchant's allowance. Each write carries an idempotency key so a
+     retry cannot count twice. */
+  if (promoApplied.length) {
+    try {
+      await require('../utils/promotionEngine')
+        .recordUsage({ discounts: promoApplied, order, phone: phoneNorm });
+    } catch (e) {
+      console.error('promotion usage record failed for', order.orderNumber, e.message);
+    }
+  }
+
   if (rewardsTotal > 0) {
     try {
       if (pointsToSpend > 0) {

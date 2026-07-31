@@ -59,6 +59,24 @@ const orderSchema = new mongoose.Schema({
    * They are recorded separately from `discount` on purpose: a coupon is
    * marketing spend, points are a liability being settled, and store credit
    * is money already owed. Merging them makes the accounts unreadable. */
+  /* Automatic promotions applied to this order. Snapshotted as an amount plus
+     the rules that produced it: the promotion may be edited or deleted later,
+     and what THIS order was charged must not change with it. Kept apart from
+     `discount` (a coupon) for the same reason points and credit are — three
+     different things on the merchant's books. */
+  promotionDiscount: { type: Number, default: 0 },
+  promotions: {
+    type: [{
+      _id: false,
+      promotion: { type: mongoose.Schema.Types.ObjectId, ref: 'Promotion' },
+      name:   { type: String, default: '' },
+      type:   { type: String, default: '' },
+      amount: { type: Number, default: 0 },
+    }],
+    default: [],
+  },
+  promotionFreeShipping: { type: Boolean, default: false },
+
   pointsRedeemed:     { type: Number, default: 0 },   // points spent
   pointsDiscount:     { type: Number, default: 0 },   // PKR they were worth
   creditUsed:         { type: Number, default: 0 },   // PKR of store credit
