@@ -61,6 +61,10 @@ export default function Product() {
   const [guideOpen, setGuideOpen] = useState(false);
   const [bundle, setBundle] = useState([]);
   const [related, setRelated] = useState([]);
+  /* null = not answered yet. The header must not print a review count the
+     reviews section cannot back up, so it waits for the real total rather
+     than trusting product.ratingCount (see the header comment). */
+  const [reviewTotal, setReviewTotal] = useState(null);
 
   const ctaRef = useRef(null);   // the real Add/Buy row — what the sticky bar shadows
   const sizeRef = useRef(null);
@@ -68,6 +72,7 @@ export default function Product() {
   useEffect(() => {
     setP(null); setErr(false); setImgIdx(0); setSize(''); setQty(1);
     setSizeErr(false); setAdded(false); setBundle([]); setRelated([]);
+    setReviewTotal(null);
     api(`/products/${slug}`)
       .then((d) => {
         setP(d.product);
@@ -75,6 +80,13 @@ export default function Product() {
         pushRecent(d.product);
         const bslug = d.product.bundleSlug || '';
         if (bslug) api(`/products?category=${bslug}&limit=3&sort=popular`).then((x) => setBundle(x.products)).catch(() => {});
+        /* limit=1 — this asks only for the count, not the page of reviews the
+           reviews section fetches for itself further down. Chained off the
+           product because the id is not known before it resolves. On failure
+           the header simply shows no rating, which is the honest default. */
+        api(`/reviews/product/${d.product._id}?limit=1`)
+          .then((r) => setReviewTotal(Number(r?.total) || 0))
+          .catch(() => setReviewTotal(0));
       })
       .catch(() => setErr(true));
     api(`/products/${slug}/related`).then((d) => setRelated(d.products || [])).catch(() => setRelated([]));
@@ -115,6 +127,12 @@ export default function Product() {
   const lowStock = !soldOut && p.stock <= 5;
 
   const tierLabel = p.tier === 'Premium' ? 'Signature' : p.tier;
+
+  /* Only what the reviews section can actually render. While the count is in
+     flight this is 0, so the header never flashes a number and then withdraws
+     it — the block is simply absent until the truth arrives, which also keeps
+     the layout stable (the SKU line holds the row height either way). */
+  const reviewsShown = reviewTotal ?? 0;
 
   /* MEASURED: 40 of 101 products list their own tier again inside `badges`,
      so the header read "SIGNATURE" and then the badge row underneath read
@@ -181,17 +199,33 @@ export default function Product() {
 
           <h1 className="mt-4 font-display text-h1 leading-tight">{p.name}</h1>
 
+          {/* MEASURED: this header advertised "4.7 · 70 reviews" while the
+              reviews section 2,000px below rendered "No reviews yet". 100 of
+              101 products carry a ratingCount (4,326 claimed reviews in total)
+              and GET /api/reviews/product/:id returns total: 0 for every one
+              of them — the counts are seed data, no review document exists.
+
+              A shop that advertises reviews it cannot show reads as fake, and
+              it is the one thing on a product page a shopper is most likely to
+              check. `reviewsShown` is the count the reviews section will
+              actually be able to display, so the two can no longer disagree.
+              Nothing is deleted: if the merchant approves real reviews the
+              count reappears by itself. */}
           <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-body-sm">
-            <span className="inline-flex items-center gap-1 text-obsidian">
-              <Star size={14} fill="currentColor" aria-hidden="true" />
-              <b>{p.ratingAvg.toFixed(1)}</b>
-              <span className="sr-only">out of 5</span>
-            </span>
-            <span aria-hidden="true" className="text-ash">·</span>
-            <a href="#reviews" className="text-ash underline-offset-4 hover:text-obsidian hover:underline">
-              {p.ratingCount} review{p.ratingCount === 1 ? '' : 's'}
-            </a>
-            <span aria-hidden="true" className="text-ash">·</span>
+            {reviewsShown > 0 ? (
+              <>
+                <span className="inline-flex items-center gap-1 text-obsidian">
+                  <Star size={14} fill="currentColor" aria-hidden="true" />
+                  <b>{p.ratingAvg.toFixed(1)}</b>
+                  <span className="sr-only">out of 5</span>
+                </span>
+                <span aria-hidden="true" className="text-ash">·</span>
+                <a href="#reviews" className="text-ash underline-offset-4 hover:text-obsidian hover:underline">
+                  {reviewsShown} review{reviewsShown === 1 ? '' : 's'}
+                </a>
+                <span aria-hidden="true" className="text-ash">·</span>
+              </>
+            ) : null}
             <span className="text-ash">SKU {p.sku}</span>
           </div>
 
@@ -442,6 +476,7 @@ export default function Product() {
         needsSize={needsSize}
         onAdd={() => tryAdd(false)}
         disabled={soldOut}
+        thumb={p.images?.[0]?.url}
       />
 
       <SizeGuideModal open={guideOpen} onClose={() => setGuideOpen(false)} gender={p.gender} isBra={isBra} />

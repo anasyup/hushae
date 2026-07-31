@@ -63,9 +63,9 @@ export default function ProductGallery({ media, index, onIndex, productName }) {
 
   const active = media[index] || media[0];
 
-  const Frame = ({ m, eager }) => {
+  const Frame = ({ m, eager, ratioClass }) => {
     if (!m || m.t === 'img') {
-      return <ProductImageZoom src={m?.url} alt={m?.alt || productName} eager={eager} />;
+      return <ProductImageZoom src={m?.url} alt={m?.alt || productName} eager={eager} ratioClass={ratioClass} />;
     }
     const yt = ytId(m.url);
     return yt ? (
@@ -131,14 +131,14 @@ export default function ProductGallery({ media, index, onIndex, productName }) {
       </div>
 
       {/* ── Tablet and up: rail + single frame ─────────────────────────── */}
-      <div className="hidden gap-3 sm:grid sm:grid-cols-[76px_1fr]">
+      <div className="hidden gap-3 sm:grid sm:grid-cols-[76px_1fr] lg:gap-4">
         <div
           ref={railRef}
           role="tablist"
           aria-orientation="vertical"
           aria-label={`${productName} images`}
           onKeyDown={onRailKey}
-          className="flex flex-col gap-2"
+          className="flex flex-col gap-2 lg:gap-3"
         >
           {media.map((m, i) => (
             <button
@@ -156,10 +156,12 @@ export default function ProductGallery({ media, index, onIndex, productName }) {
               {m.t === 'img' ? (
                 /* 64 CSS px wide = 128 device px. Without an explicit sizes it
                    inherited SIZES.card and pulled the 800px variant for each
-                   postage stamp — measured 4 x 800px files to draw 4 thumbs. */
-                <Img src={m.url} alt="" sizes={SIZES.railThumb} className="h-20 w-16 object-cover" />
+                   postage stamp — measured 4 x 800px files to draw 4 thumbs.
+                   4/5 matches the main frame so the rail reads as the same
+                   garment, not a set of differently-cropped stamps. */
+                <Img src={m.url} alt="" sizes={SIZES.railThumb} className="aspect-[4/5] h-auto w-16 object-cover lg:w-[68px]" />
               ) : (
-                <span className="relative flex h-20 w-16 items-center justify-center bg-obsidian text-alabaster">
+                <span className="relative flex aspect-[4/5] h-auto w-16 items-center justify-center bg-obsidian text-alabaster lg:w-[68px]">
                   {ytId(m.url) && (
                     <img
                       src={`https://img.youtube.com/vi/${ytId(m.url)}/hqdefault.jpg`}
@@ -174,8 +176,12 @@ export default function ProductGallery({ media, index, onIndex, productName }) {
           ))}
         </div>
 
+        {/* 4/5 up to lg, then 3/4 of the panel's own height on large screens.
+            Expressed as an aspect so the box is still reserved before the
+            image decodes — a min-height would have reintroduced the layout
+            shift the 4/5 lock was added to fix. */}
         <div role="tabpanel" aria-live="polite">
-          <Frame m={active} eager />
+          <Frame m={active} eager ratioClass="aspect-[4/5] lg:aspect-[3/4]" />
         </div>
       </div>
     </div>

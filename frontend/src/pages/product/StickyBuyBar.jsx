@@ -2,17 +2,29 @@ import { useEffect, useRef, useState } from 'react';
 import { pkr } from '../../lib/format';
 
 /* ============================================================================
- * Mobile add-to-bag bar.
+ * Add-to-bag bar.
  *
  * Measured on an iPhone 13: the Add to bag button sat 1263px down a 664px
  * viewport — the shopper had to scroll roughly two screens past the price
  * before they could buy. This docks the action once the real button leaves
  * view, and gets out of the way when it is on screen.
  *
- * It reserves nothing in the layout (fixed, and it fades rather than
+ * PHASE 2C2 — it now runs on desktop too. MEASURED at 1440x900: scrolled to
+ * y=2200 (reviews, recommendations, Q&A — the part of the page where a shopper
+ * is deciding) there were ZERO fixed elements and Add to cart was off-screen,
+ * so the only way to buy was to scroll back up roughly two screens. The bar
+ * was `lg:hidden`, which was correct when it was a phone-only patch and wrong
+ * once the page grew to 3,325px on desktop.
+ *
+ * The desktop treatment is deliberately not the phone one stretched wide: it
+ * carries the product thumbnail and the chosen size, is right-weighted to the
+ * action, and sits on a hairline rather than a shadow — a quiet dock, not a
+ * banner.
+ *
+ * It reserves nothing in the layout (fixed, and it slides rather than
  * expanding), so it cannot contribute layout shift.
  * ========================================================================== */
-export default function StickyBuyBar({ product, watchRef, size, needsSize, onAdd, disabled }) {
+export default function StickyBuyBar({ product, watchRef, size, needsSize, onAdd, disabled, thumb }) {
   const [show, setShow] = useState(false);
   const barRef = useRef(null);
 
@@ -77,18 +89,40 @@ export default function StickyBuyBar({ product, watchRef, size, needsSize, onAdd
       /* MobileNav is a 53px bar already docked at bottom-0 with z-40. Sitting
          at the same offset hid this one completely — measured. This stacks
          directly above it and takes a higher layer so the shadow reads. */
-      className={`fixed inset-x-0 bottom-[53px] z-[41] border-y border-line bg-alabaster/95 shadow-e-3 backdrop-blur-xl transition-transform duration-base ease-standard md:bottom-0 lg:hidden ${
+      className={`fixed inset-x-0 bottom-[53px] z-[41] border-y border-line bg-alabaster/95 shadow-e-3 backdrop-blur-xl transition-transform duration-base ease-standard motion-reduce:transition-none md:bottom-0 lg:border-y-0 lg:border-t lg:bg-alabaster/90 lg:shadow-none ${
         show ? 'translate-y-0' : 'pointer-events-none translate-y-[150%]'
       }`}
       style={{ paddingBottom: '0.75rem' }}
     >
-      <div className="flex items-center gap-3 px-4 pt-3">
+      <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 pt-3 md:px-8 lg:gap-6">
+        {/* Desktop earns the thumbnail: at 1440px the bar is 1,280px of empty
+            alabaster otherwise, and the shopper may be four screens away from
+            the gallery. Hidden below lg where the space genuinely is not
+            there. */}
+        {thumb && (
+          <img
+            src={thumb}
+            alt=""
+            aria-hidden="true"
+            width="44"
+            height="55"
+            className="hidden h-14 w-11 shrink-0 rounded-control object-cover lg:block"
+          />
+        )}
+
         <div className="min-w-0 flex-1">
-          <p className="truncate text-caption text-ash">{product.name}</p>
+          <p className="truncate text-caption text-ash lg:text-body-sm lg:text-ink">{product.name}</p>
           <p className="flex items-baseline gap-2">
-            <span className="text-body font-semibold tabular-nums text-obsidian">{pkr(product.price)}</span>
+            <span className="text-body font-semibold tabular-nums text-obsidian lg:font-display lg:text-h5 lg:font-normal">{pkr(product.price)}</span>
             {onSale && (
               <span className="text-caption tabular-nums text-ash line-through">{pkr(product.compareAtPrice)}</span>
+            )}
+            {/* The chosen size, so a shopper deep in the reviews can confirm
+                what they are about to buy without scrolling back. */}
+            {size && (
+              <span className="hidden text-caption uppercase tracking-widest text-ash lg:inline">
+                <span className="sr-only">Selected size </span>· {size}
+              </span>
             )}
           </p>
         </div>
@@ -97,7 +131,7 @@ export default function StickyBuyBar({ product, watchRef, size, needsSize, onAdd
           type="button"
           onClick={onAdd}
           disabled={disabled}
-          className="btn btn-primary min-h-[46px] shrink-0 disabled:opacity-40"
+          className="btn btn-primary min-h-[46px] shrink-0 disabled:opacity-40 lg:min-w-[210px]"
         >
           {disabled ? 'Sold out' : needsSize && !size ? 'Select a size' : 'Add to bag'}
         </button>

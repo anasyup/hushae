@@ -9,7 +9,7 @@ import { SIZES } from '../lib/responsiveImage';
  * Mobile / touch: tap the image to open a full-screen lightbox with pinch/native zoom.
  * `src` and `alt` are the same as an <Img>.
  */
-export default function ProductImageZoom({ src, alt = '', eager = false }) {
+export default function ProductImageZoom({ src, alt = '', eager = false, ratioClass = 'aspect-[4/5]' }) {
   const wrapRef = useRef(null);
   const [pos, setPos] = useState({ x: 50, y: 50 });
   const [zooming, setZooming] = useState(false);
@@ -39,7 +39,14 @@ export default function ProductImageZoom({ src, alt = '', eager = false }) {
     <>
       <div
         ref={wrapRef}
-        className="group relative aspect-[4/5] w-full overflow-hidden rounded-[2rem] bg-satin/40 select-none"
+        /* ratioClass, not a hard-coded aspect: MEASURED at 1440px the 4/5 frame
+           is 605px tall against a 1,142px purchase panel, leaving 537px of
+           empty alabaster beside the accordions — the garment stops being
+           looked at exactly where the shopper is still reading about it. A
+           taller portrait crop on large screens is how a fashion house uses
+           that column. Phones keep 4/5, where the frame already fills the
+           width and a taller crop would push the price below the fold. */
+        className={`group relative ${ratioClass} w-full overflow-hidden rounded-[2rem] bg-satin/40 select-none`}
         onMouseEnter={() => { setArmed(true); setZooming(true); }}
         onMouseLeave={() => setZooming(false)}
         onMouseMove={handleMove}

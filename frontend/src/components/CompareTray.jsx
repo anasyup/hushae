@@ -58,12 +58,17 @@ export default function CompareTray() {
        * measured height on --buy-bar-h and the tray stacks on top of whatever
        * that turns out to be. Falls back to 72px when the variable is absent
        * (any page without a buy bar), and MobileNav's 53px is added below md
-       * where that nav exists. Above lg the buy bar unmounts and bottom-6 is
-       * correct again. */
+       * where that nav exists.
+       *
+       * Phase 2C2: the buy bar is no longer lg:hidden — it now docks on
+       * desktop as well, so the old `lg:bottom-6` escape hatch would have put
+       * the tray straight back on top of it. The calc() runs at every width;
+       * --buy-bar-h is removed on unmount, so non-product pages still fall
+       * back cleanly. */
       style={onProduct ? { '--nav-h': '53px' } : undefined}
       className={`fixed inset-x-0 z-[41] px-3 transition-transform duration-base ease-standard motion-reduce:transition-none md:px-6 ${
         onProduct
-          ? 'bottom-[calc(var(--nav-h,53px)+var(--buy-bar-h,72px)+8px)] md:bottom-[calc(var(--buy-bar-h,72px)+8px)] lg:bottom-6'
+          ? 'bottom-[calc(var(--nav-h,53px)+var(--buy-bar-h,72px)+8px)] md:bottom-[calc(var(--buy-bar-h,72px)+8px)]'
           : 'bottom-[53px] md:bottom-6'
       } ${hidden ? 'pointer-events-none translate-y-[130%]' : 'translate-y-0'}`}
       aria-hidden={hidden}
