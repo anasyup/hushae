@@ -119,10 +119,46 @@ const DISCOVERY_DEFAULTS = {
 const GROUPS = ['fields', 'weights', 'fuzzy', 'suggest', 'history', 'trending', 'noResults', 'analytics', 'voice'];
 const D_GROUPS = ['similar', 'boughtTogether', 'popular', 'personalized', 'assistant'];
 
+/* ---------------------------------------------------------------------------
+ * SETTINGS CACHE
+ *
+ * MEASURED: /api/search/config, which does nothing but read settings, averaged
+ * 599ms — the same as a full search. So the cost was never the scoring, it was
+ * the database round-trip, and every search paid it twice (searchConfig plus
+ * discoveryConfig are two separate findOne calls).
+ *
+ * The settings document is ~19 KB and changes only when the merchant presses
+ * Save. Holding it for a few seconds removes one to two round-trips from every
+ * search and suggestion without any risk of serving badly stale config: the
+ * worst case is a merchant seeing their own change take effect a moment late,
+ * and invalidate() is called from the settings route the instant they save.
+ *
+ * Deliberately in-process and tiny. A shared cache (Redis) would be a second
+ * service to run and fail; this is one variable.
+ * ------------------------------------------------------------------------- */
+const CACHE_MS = 8000;
+let _cache = { at: 0, doc: null };
+
+async function rawSettings() {
+  const now = Date.now();
+  if (_cache.doc && now - _cache.at < CACHE_MS) return _cache.doc;
+  const Settings = require('../models/Settings');
+  // .lean() is intentional: this is a read for config resolution, and the
+  // resolvers below supply every default. See the parity guard — the schema
+  // defaults are NOT materialised on a lean read.
+  const doc = await Settings.findOne({ key: 'store' }).lean();
+  _cache = { at: now, doc: doc || {} };
+  return _cache.doc;
+}
+
+/** Called by the settings route so a merchant's save is visible immediately. */
+function invalidateSettingsCache() {
+  _cache = { at: 0, doc: null };
+}
+
 async function searchConfig() {
   try {
-    const Settings = require('../models/Settings');
-    const st = await Settings.findOne({ key: 'store' }).lean();
+    const st = await rawSettings();
     const saved = (st && st.search) || {};
     const out = { ...DEFAULTS, ...saved };
     for (const g of GROUPS) out[g] = { ...DEFAULTS[g], ...(saved[g] || {}) };
@@ -137,8 +173,7 @@ async function searchConfig() {
 
 async function discoveryConfig() {
   try {
-    const Settings = require('../models/Settings');
-    const st = await Settings.findOne({ key: 'store' }).lean();
+    const st = await rawSettings();
     const saved = (st && st.discovery) || {};
     const out = { ...DISCOVERY_DEFAULTS, ...saved };
     for (const g of D_GROUPS) out[g] = { ...DISCOVERY_DEFAULTS[g], ...(saved[g] || {}) };
@@ -460,7 +495,7 @@ async function similarProducts(product, dcfg, limit) {
 }
 
 module.exports = {
-  DEFAULTS, DISCOVERY_DEFAULTS, searchConfig, discoveryConfig,
+  DEFAULTS, DISCOVERY_DEFAULTS, searchConfig, discoveryConfig, invalidateSettingsCache,
   norm, escapeRx, editDistance, tokenize, expand,
   haystack, scoreTerm, scoreProduct, narrowQuery, runSearch, similarProducts,
 };

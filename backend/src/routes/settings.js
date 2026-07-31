@@ -22,6 +22,10 @@ router.put('/', protect, adminOnly, asyncHandler(async (req, res) => {
     if (b[f] !== undefined) s[f] = b[f];
   });
   await s.save();
+  /* The search engine holds the settings document for a few seconds to avoid
+     a database round-trip on every query. Drop it here so the merchant sees
+     their own change take effect immediately rather than up to 8s later. */
+  try { require('../utils/searchEngine').invalidateSettingsCache(); } catch { /* optional */ }
   res.json({ settings: s });
 }));
 
