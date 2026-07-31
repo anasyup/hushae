@@ -49,6 +49,8 @@ app.use('/api/collections', require('./routes/collections'));
 app.use('/api/reviews', require('./routes/reviews'));
 app.use('/api/questions', require('./routes/questions'));
 app.use('/api/loyalty', require('./routes/loyalty'));
+app.use('/api/search', require('./routes/search'));
+app.use('/api/discovery', require('./routes/discovery'));
 app.use('/api/theme', require('./routes/theme'));
 
 app.use('/api', (req, res) => res.status(404).json({ message: 'Not found' }));

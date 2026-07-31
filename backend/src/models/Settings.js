@@ -332,6 +332,240 @@ const settingsSchema = new mongoose.Schema({
   // ==========================================================================
   // REVIEWS, RATINGS & Q&A
   // ==========================================================================
+  // ==========================================================================
+  // SEARCH, DISCOVERY & RECOMMENDATIONS
+  //
+  // Measured before this block existed: search matched only name, sku and
+  // categorySlug with a plain regex. "black" returned 0 results even though 49
+  // products have a black colourway, and a single typo ("coton") returned 0.
+  // Every value a shopper's search depends on now lives here.
+  // ==========================================================================
+  search: {
+    enabled:        { type: Boolean, default: true },
+    placeholder:    { type: String,  default: 'Search bras, trunks, vests…' },
+    minChars:       { type: Number,  default: 2 },
+    debounceMs:     { type: Number,  default: 220 },
+    perPage:        { type: Number,  default: 24 },
+
+    // ---- Which fields are searched, and how much each one counts ---------
+    // A name match must outrank a description match, or searching "cotton"
+    // buries the product actually called Cotton Brief under everything whose
+    // description mentions cotton.
+    fields: {
+      name:        { type: Boolean, default: true },
+      sku:         { type: Boolean, default: true },
+      category:    { type: Boolean, default: true },
+      tags:        { type: Boolean, default: true },
+      colors:      { type: Boolean, default: true },
+      sizes:       { type: Boolean, default: false },
+      fabric:      { type: Boolean, default: true },
+      badges:      { type: Boolean, default: true },
+      description: { type: Boolean, default: true },
+    },
+    weights: {
+      name:        { type: Number, default: 100 },
+      sku:         { type: Number, default: 90 },
+      category:    { type: Number, default: 40 },
+      tags:        { type: Number, default: 35 },
+      colors:      { type: Number, default: 30 },
+      sizes:       { type: Number, default: 20 },
+      fabric:      { type: Number, default: 25 },
+      badges:      { type: Number, default: 20 },
+      description: { type: Number, default: 10 },
+      exactBonus:  { type: Number, default: 60 },   // whole-word hit
+      prefixBonus: { type: Number, default: 30 },   // term starts the field
+      inStockBonus:{ type: Number, default: 15 },
+      featuredBonus:{ type: Number, default: 10 },
+      ratingWeight:{ type: Number, default: 4 },    // × ratingAvg
+    },
+
+    // ---- Typo tolerance --------------------------------------------------
+    // Only applied when a strict search finds nothing: running fuzzy on every
+    // query makes "bra" match "bran" and dilutes good results.
+    fuzzy: {
+      enabled:     { type: Boolean, default: true },
+      minTermLen:  { type: Number,  default: 4 },   // never fuzzy "bra"
+      maxDistance: { type: Number,  default: 2 },   // Levenshtein
+      penalty:     { type: Number,  default: 25 },  // score docked per edit
+    },
+
+    // ---- Suggestions -----------------------------------------------------
+    suggest: {
+      enabled:        { type: Boolean, default: true },
+      maxProducts:    { type: Number,  default: 6 },
+      maxCategories:  { type: Number,  default: 4 },
+      maxTerms:       { type: Number,  default: 4 },
+      showImages:     { type: Boolean, default: true },
+      showPrices:     { type: Boolean, default: true },
+      highlightMatch: { type: Boolean, default: true },
+    },
+
+    // ---- History & trending ---------------------------------------------
+    history: {
+      enabled:  { type: Boolean, default: true },
+      maxItems: { type: Number,  default: 8 },
+    },
+    trending: {
+      enabled:    { type: Boolean, default: true },
+      windowDays: { type: Number,  default: 14 },
+      maxItems:   { type: Number,  default: 6 },
+      minCount:   { type: Number,  default: 2 },    // below this it is noise
+      manual:     { type: [String], default: [] },  // merchant-pinned terms
+    },
+
+    // ---- Merchant-managed vocabulary ------------------------------------
+    // Two-way by default: "panty" finds "brief" and the reverse.
+    synonyms: {
+      type: [{
+        _id: false,
+        from: { type: String, default: '' },
+        to:   { type: String, default: '' },
+        both: { type: Boolean, default: true },
+      }],
+      default: [
+        { from: 'panty', to: 'brief', both: true },
+        { from: 'panties', to: 'brief', both: true },
+        { from: 'underwear', to: 'brief', both: true },
+        { from: 'boxer', to: 'trunk', both: true },
+        { from: 'banyan', to: 'vest', both: true },
+        { from: 'baniyan', to: 'vest', both: true },
+        { from: 'sando', to: 'vest', both: true },
+        { from: 'nighty', to: 'nightdress', both: true },
+        { from: 'night suit', to: 'pyjama', both: true },
+        { from: 'pajama', to: 'pyjama', both: true },
+        { from: 'brassiere', to: 'bra', both: true },
+        { from: 'shalwar', to: 'lounge', both: false },
+      ],
+    },
+    stopWords: {
+      type: [String],
+      default: ['the', 'a', 'an', 'for', 'and', 'or', 'of', 'with', 'in', 'on', 'to', 'my', 'me', 'ka', 'ki', 'ke', 'wala', 'wali'],
+    },
+    // Terms the merchant never wants to serve results for.
+    blockedTerms: { type: [String], default: [] },
+
+    // ---- Zero-result recovery -------------------------------------------
+    noResults: {
+      showSuggestions: { type: Boolean, default: true },
+      showTrending:    { type: Boolean, default: true },
+      showPopular:     { type: Boolean, default: true },
+      message:         { type: String,  default: 'No matches for that. Try one of these instead.' },
+    },
+
+    // ---- Analytics -------------------------------------------------------
+    analytics: {
+      enabled:     { type: Boolean, default: true },
+      logQueries:  { type: Boolean, default: true },
+      logClicks:   { type: Boolean, default: true },
+      retainDays:  { type: Number,  default: 180 },
+      minLogLen:   { type: Number,  default: 2 },
+    },
+
+    // ---- Voice: architecture only, off until the merchant enables it -----
+    voice: {
+      enabled: { type: Boolean, default: false },
+      lang:    { type: String,  default: 'en-PK' },
+    },
+  },
+
+  // ==========================================================================
+  // DISCOVERY — recommendations and the shopping assistant
+  // ==========================================================================
+  discovery: {
+    enabled: { type: Boolean, default: true },
+
+    similar: {
+      enabled:      { type: Boolean, default: true },
+      title:        { type: String,  default: 'You may also like' },
+      count:        { type: Number,  default: 8 },
+      sameCategory: { type: Number,  default: 50 },   // scoring weights
+      sameGender:   { type: Number,  default: 30 },
+      sameTier:     { type: Number,  default: 15 },
+      sharedTag:    { type: Number,  default: 10 },
+      sharedColor:  { type: Number,  default: 8 },
+      priceBandPct: { type: Number,  default: 35 },   // ± band counted as close
+      priceBonus:   { type: Number,  default: 12 },
+    },
+    boughtTogether: {
+      enabled: { type: Boolean, default: true },
+      title:   { type: String,  default: 'Often bought together' },
+      count:   { type: Number,  default: 4 },
+      windowDays: { type: Number, default: 180 },
+      minCoOccur: { type: Number, default: 2 },
+    },
+    popular: {
+      enabled:    { type: Boolean, default: true },
+      title:      { type: String,  default: 'Popular right now' },
+      count:      { type: Number,  default: 8 },
+      windowDays: { type: Number,  default: 30 },
+    },
+    personalized: {
+      enabled: { type: Boolean, default: true },
+      title:   { type: String,  default: 'Picked for you' },
+      count:   { type: Number,  default: 8 },
+      useRecentlyViewed: { type: Boolean, default: true },
+      useOrderHistory:   { type: Boolean, default: true },
+    },
+
+    // ---- Shopping assistant ---------------------------------------------
+    // Rule-based and server-side. No third-party AI service is called, so no
+    // customer data leaves the store and there is no per-query cost.
+    assistant: {
+      enabled:     { type: Boolean, default: true },
+      title:       { type: String,  default: 'Shopping assistant' },
+      intro:       { type: String,  default: 'Tell me what you need and I will find it.' },
+      buttonLabel: { type: String,  default: 'Help me choose' },
+      showOnShop:  { type: Boolean, default: true },
+      showOnHome:  { type: Boolean, default: false },
+      maxResults:  { type: Number,  default: 6 },
+      // The opening chips. Each is a ready-made query the assistant answers.
+      prompts: {
+        type: [{
+          _id: false,
+          id:    { type: String, default: '' },
+          label: { type: String, default: '' },
+          query: { type: String, default: '' },
+        }],
+        default: [
+          { id: 'budget', label: 'Under PKR 1,500', query: 'budget under 1500' },
+          { id: 'gift',   label: 'A gift',          query: 'gift' },
+          { id: 'summer', label: 'For summer',      query: 'summer breathable' },
+          { id: 'daily',  label: 'Everyday basics', query: 'everyday cotton basics' },
+          { id: 'bridal', label: 'Bridal / wedding', query: 'bridal wedding' },
+        ],
+      },
+      // Occasion → tags/terms the assistant expands to. Fully editable.
+      occasions: {
+        type: [{
+          _id: false,
+          id:     { type: String, default: '' },
+          label:  { type: String, default: '' },
+          terms:  { type: [String], default: [] },
+          gender: { type: String, default: '' },
+        }],
+        default: [
+          { id: 'summer',  label: 'Summer',        terms: ['cooling', 'breathable', 'cotton', 'mesh'], gender: '' },
+          { id: 'winter',  label: 'Winter',        terms: ['thermal', 'warm', 'full sleeve'], gender: '' },
+          { id: 'bridal',  label: 'Bridal',        terms: ['premium', 'silk-touch', 'lace', 'shapewear'], gender: 'women' },
+          { id: 'sports',  label: 'Sports & gym',  terms: ['sports', 'quick dry', 'sweat control', 'active'], gender: '' },
+          { id: 'office',  label: 'Office',        terms: ['seamless', 'smooth', 'no-show'], gender: '' },
+          { id: 'sleep',   label: 'Sleep & lounge', terms: ['sleepwear', 'loungewear', 'soft'], gender: '' },
+          { id: 'gift',    label: 'Gifting',       terms: ['gift', 'premium', 'set', 'pack'], gender: '' },
+        ],
+      },
+      // Budget bands offered as chips. PKR.
+      budgets: {
+        type: [{ _id: false, id: String, label: String, min: Number, max: Number }],
+        default: [
+          { id: 'b1', label: 'Under 1,000', min: 0, max: 1000 },
+          { id: 'b2', label: '1,000 – 2,000', min: 1000, max: 2000 },
+          { id: 'b3', label: '2,000 – 4,000', min: 2000, max: 4000 },
+          { id: 'b4', label: '4,000+', min: 4000, max: 0 },
+        ],
+      },
+    },
+  },
+
   reviews: {
     // -- General ----------------------------------------------------------
     enabled:            { type: Boolean, default: true },
