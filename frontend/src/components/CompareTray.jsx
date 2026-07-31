@@ -64,13 +64,22 @@ export default function CompareTray() {
        * desktop as well, so the old `lg:bottom-6` escape hatch would have put
        * the tray straight back on top of it. The calc() runs at every width;
        * --buy-bar-h is removed on unmount, so non-product pages still fall
-       * back cleanly. */
+       * back cleanly.
+       *
+       * `invisible` when hidden, and it is load-bearing. translate-y-[130%] is
+       * 130% of the tray's OWN 66px height = 85.8px, which was enough to clear
+       * the old bottom-[53px] but NOT the new bottom-[125px+]: a screenshot
+       * caught the empty tray still painted across the buy bar, measured 60px
+       * of overlap at 390 and 66px at 1440 with compare empty. My own clash
+       * probe missed it because it filtered on pointer-events:none — the tray
+       * was untouchable but perfectly visible. visibility:hidden is animatable
+       * (it flips at the end of the transition), so the slide is preserved. */
       style={onProduct ? { '--nav-h': '53px' } : undefined}
       className={`fixed inset-x-0 z-[41] px-3 transition-transform duration-base ease-standard motion-reduce:transition-none md:px-6 ${
         onProduct
           ? 'bottom-[calc(var(--nav-h,53px)+var(--buy-bar-h,72px)+8px)] md:bottom-[calc(var(--buy-bar-h,72px)+8px)]'
           : 'bottom-[53px] md:bottom-6'
-      } ${hidden ? 'pointer-events-none translate-y-[130%]' : 'translate-y-0'}`}
+      } ${hidden ? 'pointer-events-none invisible translate-y-[130%]' : 'visible translate-y-0'}`}
       aria-hidden={hidden}
       inert={hidden ? '' : undefined}
     >
