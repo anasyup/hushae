@@ -42,7 +42,30 @@ const DEFAULTS = {
   suggest: { enabled: true, maxProducts: 6, maxCategories: 4, maxTerms: 4, showImages: true, showPrices: true, highlightMatch: true },
   history: { enabled: true, maxItems: 8 },
   trending: { enabled: true, windowDays: 14, maxItems: 6, minCount: 2, manual: [] },
-  synonyms: [],
+  /* MEASURED BUG: these were left empty while the Mongoose schema seeded 12
+     synonyms. settings.search has never been SAVED, so .lean() reads a raw
+     document with no `search` key and the engine falls back to DEFAULTS —
+     where the table was empty. Live proof: q=panty returned 1 fuzzy match
+     instead of the whole brief category, while stopWords worked fine because
+     DEFAULTS happened to carry them.
+
+     Same class of failure as gotcha 45/53 (schema defaults are materialised on
+     the next save, not on read) and the same contract every other resolver in
+     this codebase follows: DEFAULTS must be byte-identical to the schema. */
+  synonyms: [
+    { from: 'panty', to: 'brief', both: true },
+    { from: 'panties', to: 'brief', both: true },
+    { from: 'underwear', to: 'brief', both: true },
+    { from: 'boxer', to: 'trunk', both: true },
+    { from: 'banyan', to: 'vest', both: true },
+    { from: 'baniyan', to: 'vest', both: true },
+    { from: 'sando', to: 'vest', both: true },
+    { from: 'nighty', to: 'nightdress', both: true },
+    { from: 'night suit', to: 'pyjama', both: true },
+    { from: 'pajama', to: 'pyjama', both: true },
+    { from: 'brassiere', to: 'bra', both: true },
+    { from: 'shalwar', to: 'lounge', both: false },
+  ],
   stopWords: ['the', 'a', 'an', 'for', 'and', 'or', 'of', 'with', 'in', 'on', 'to', 'my', 'me', 'ka', 'ki', 'ke', 'wala', 'wali'],
   blockedTerms: [],
   noResults: { showSuggestions: true, showTrending: true, showPopular: true, message: 'No matches for that. Try one of these instead.' },
@@ -56,7 +79,41 @@ const DISCOVERY_DEFAULTS = {
   boughtTogether: { enabled: true, title: 'Often bought together', count: 4, windowDays: 180, minCoOccur: 2 },
   popular: { enabled: true, title: 'Popular right now', count: 8, windowDays: 30 },
   personalized: { enabled: true, title: 'Picked for you', count: 8, useRecentlyViewed: true, useOrderHistory: true },
-  assistant: { enabled: true, title: 'Shopping assistant', intro: '', buttonLabel: 'Help me choose', showOnShop: true, showOnHome: false, maxResults: 6, prompts: [], occasions: [], budgets: [] },
+  /* Same contract as search.synonyms above: byte-identical to the Mongoose
+     schema. Empty prompt/occasion/budget lists here would leave the assistant
+     unable to read "for summer" or "under 2000" until the merchant happened
+     to press Save on the settings page. */
+  assistant: {
+    enabled: true,
+    title: 'Shopping assistant',
+    intro: 'Tell me what you need and I will find it.',
+    buttonLabel: 'Help me choose',
+    showOnShop: true,
+    showOnHome: false,
+    maxResults: 6,
+    prompts: [
+      { id: 'budget', label: 'Under PKR 1,500', query: 'budget under 1500' },
+      { id: 'gift', label: 'A gift', query: 'gift' },
+      { id: 'summer', label: 'For summer', query: 'summer breathable' },
+      { id: 'daily', label: 'Everyday basics', query: 'everyday cotton basics' },
+      { id: 'bridal', label: 'Bridal / wedding', query: 'bridal wedding' },
+    ],
+    occasions: [
+      { id: 'summer', label: 'Summer', terms: ['cooling', 'breathable', 'cotton', 'mesh'], gender: '' },
+      { id: 'winter', label: 'Winter', terms: ['thermal', 'warm', 'full sleeve'], gender: '' },
+      { id: 'bridal', label: 'Bridal', terms: ['premium', 'silk-touch', 'lace', 'shapewear'], gender: 'women' },
+      { id: 'sports', label: 'Sports & gym', terms: ['sports', 'quick dry', 'sweat control', 'active'], gender: '' },
+      { id: 'office', label: 'Office', terms: ['seamless', 'smooth', 'no-show'], gender: '' },
+      { id: 'sleep', label: 'Sleep & lounge', terms: ['sleepwear', 'loungewear', 'soft'], gender: '' },
+      { id: 'gift', label: 'Gifting', terms: ['gift', 'premium', 'set', 'pack'], gender: '' },
+    ],
+    budgets: [
+      { id: 'b1', label: 'Under 1,000', min: 0, max: 1000 },
+      { id: 'b2', label: '1,000 – 2,000', min: 1000, max: 2000 },
+      { id: 'b3', label: '2,000 – 4,000', min: 2000, max: 4000 },
+      { id: 'b4', label: '4,000+', min: 4000, max: 0 },
+    ],
+  },
 };
 
 const GROUPS = ['fields', 'weights', 'fuzzy', 'suggest', 'history', 'trending', 'noResults', 'analytics', 'voice'];
