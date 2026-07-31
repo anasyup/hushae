@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useApp } from '../store/AppContext';
+import { SIZES, pictureSources } from '../lib/responsiveImage';
 
 /**
  * SignatureSplitHero — fully admin-editable half/half hero.
@@ -53,14 +54,24 @@ export default function SignatureSplitHero() {
           className="aspect-[3/4] w-full object-cover transition-transform duration-media md:aspect-[4/5] group-hover:scale-[1.02]"
         />
       ) : (
-        <motion.img
-          src={image}
-          alt={alt}
-          loading="lazy"
-          decoding="async"
-          initial={{ scale: 1.05 }} whileInView={{ scale: 1 }} viewport={{ once: true }} transition={{ duration: 1 }}
-          className="aspect-[3/4] w-full object-cover transition-transform duration-media md:aspect-[4/5] group-hover:scale-[1.02]"
-        />
+        /* MEASURED: these two are the heaviest files on the site —
+           hero-women-bra.png 2,316 KB and hero-men-boxer.png 1,995 KB. As
+           800px AVIF they are 58 KB and 46 KB. <picture> keeps the identical
+           motion.img, its animation and every layout class. */
+        <picture className="contents">
+          {pictureSources(image).map((so) => (
+            <source key={so.type} type={so.type} srcSet={so.srcSet} sizes="50vw" />
+          ))}
+          <motion.img
+            src={image}
+            alt={alt}
+            sizes="50vw"
+            loading="lazy"
+            decoding="async"
+            initial={{ scale: 1.05 }} whileInView={{ scale: 1 }} viewport={{ once: true }} transition={{ duration: 1 }}
+            className="aspect-[3/4] w-full object-cover transition-transform duration-media md:aspect-[4/5] group-hover:scale-[1.02]"
+          />
+        </picture>
       )}
     </>
   );

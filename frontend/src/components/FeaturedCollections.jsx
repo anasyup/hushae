@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import { api } from '../api/client';
+import { SIZES, pictureSources } from '../lib/responsiveImage';
 
 /**
  * FeaturedCollections — homepage tile grid that pulls collections
@@ -45,11 +46,19 @@ export default function FeaturedCollections() {
           >
             <Link to={`/collection/${c.slug}`} className="group relative block overflow-hidden rounded-3xl bg-cream">
               {c.image ? (
-                <img
-                  src={c.image}
-                  alt={c.name}
-                  className="aspect-[4/5] w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                />
+                <picture className="contents">
+                  {pictureSources(c.image).map((so) => (
+                    <source key={so.type} type={so.type} srcSet={so.srcSet} sizes={SIZES.card} />
+                  ))}
+                  <img
+                    src={c.image}
+                    alt={c.name}
+                    sizes={SIZES.card}
+                    loading="lazy"
+                    decoding="async"
+                    className="aspect-[4/5] w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
+                </picture>
               ) : (
                 <div className="aspect-[4/5] w-full bg-gradient-to-br from-satin to-cream" />
               )}
