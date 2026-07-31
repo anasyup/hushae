@@ -357,9 +357,32 @@ router.get('/admin', protect, adminOnly, asyncHandler(async (req, res) => {
 router.patch('/admin/:id', protect, adminOnly, asyncHandler(async (req, res) => {
   const r = await Review.findById(req.params.id);
   if (!r) return res.status(404).json({ message: 'Review not found' });
+  const prevStatus = r.status;          // captured before the change
   if (req.body.status) r.status = req.body.status;
   if (typeof req.body.adminReply === 'string') r.adminReply = req.body.adminReply.slice(0, 500);
   await r.save();
+  /* Points for a review, paid when it is APPROVED — not when written.
+     Paying on submission would reward spam that never goes live. */
+  try {
+    if (req.body.status === 'approved' && prevStatus !== 'approved') {
+      const E = require('../utils/loyaltyEngine');
+      const cfg = await E.loyaltyConfig();
+      if (cfg.enabled && cfg.earn?.reviewEnabled && cfg.earn.reviewPoints > 0) {
+        const Order = require('../models/Order');
+        const ord = r.order ? await Order.findById(r.order).select('customerInfo').lean() : null;
+        const phone = ord?.customerInfo?.phone;
+        if (phone) {
+          await E.award({
+            phone, email: r.customerEmail, name: r.customerName,
+            amount: cfg.earn.reviewPoints, reason: 'review',
+            note: 'Thank you for your review',
+            idempotencyKey: `review:${r._id}`,
+          });
+        }
+      }
+    }
+  } catch (e) { console.error('[loyalty] review award failed:', e.message); }
+
   await recalcProduct(r.product);
   res.json({ review: r });
 }));

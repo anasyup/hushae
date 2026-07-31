@@ -175,6 +175,161 @@ const settingsSchema = new mongoose.Schema({
   shippingFlatRate: { type: Number, default: 350 },
   freeShippingThreshold: { type: Number, default: 4999 },
   // ==========================================================================
+  // LOYALTY, REWARDS & RETENTION
+  //
+  // One block, many modules. Each module has its own `enabled` flag so the
+  // merchant can run points without tiers, or tiers without referrals, etc.
+  // Nothing in the storefront reads a hardcoded number — every value a
+  // customer can see or earn is here.
+  // ==========================================================================
+  loyalty: {
+    enabled:        { type: Boolean, default: false },   // OFF until the merchant sets it up
+    programName:    { type: String,  default: 'HUSHAE Circle' },
+    pointsName:     { type: String,  default: 'points' },
+    pointsNameOne:  { type: String,  default: 'point' },
+
+    // ---- Earning --------------------------------------------------------
+    earn: {
+      // Points per PKR spent. 0.01 = 1 point per PKR 100.
+      perCurrency:      { type: Number,  default: 0.01 },
+      roundingMode:     { type: String,  default: 'floor', enum: ['floor', 'round', 'ceil'] },
+      // Which order state actually pays out. 'Delivered' is the honest choice:
+      // paying on 'Pending' means paying for orders that get cancelled.
+      awardOnStatus:    { type: String,  default: 'Delivered' },
+      earnOnDiscounted: { type: Boolean, default: true },
+      earnOnShipping:   { type: Boolean, default: false },
+
+      signupPoints:     { type: Number,  default: 100 },
+      signupEnabled:    { type: Boolean, default: true },
+      firstOrderPoints: { type: Number,  default: 200 },
+      firstOrderEnabled:{ type: Boolean, default: true },
+      reviewPoints:     { type: Number,  default: 50 },
+      reviewEnabled:    { type: Boolean, default: true },
+      newsletterPoints: { type: Number,  default: 25 },
+      newsletterEnabled:{ type: Boolean, default: true },
+      profilePoints:    { type: Number,  default: 25 },
+      profileEnabled:   { type: Boolean, default: true },
+      birthdayPoints:   { type: Number,  default: 250 },
+      birthdayEnabled:  { type: Boolean, default: true },
+    },
+
+    // ---- Redemption -----------------------------------------------------
+    redeem: {
+      enabled:        { type: Boolean, default: true },
+      // What one point is worth in PKR at checkout.
+      pointValue:     { type: Number,  default: 1 },
+      minPoints:      { type: Number,  default: 200 },
+      // Cap redemption so a basket can never go to zero on points alone.
+      maxPercentOfOrder: { type: Number, default: 50 },
+      step:           { type: Number,  default: 50 },
+    },
+
+    // ---- Expiry ---------------------------------------------------------
+    expiry: {
+      enabled:    { type: Boolean, default: true },
+      months:     { type: Number,  default: 12 },
+      warnDays:   { type: Number,  default: 30 },
+    },
+
+    // ---- Tiers ----------------------------------------------------------
+    tiers: {
+      enabled:     { type: Boolean, default: true },
+      // Rolling window the qualifying spend is measured over. 0 = lifetime.
+      windowMonths:{ type: Number,  default: 12 },
+      levels: {
+        type: [{
+          _id: false,
+          id:        { type: String, default: '' },
+          name:      { type: String, default: '' },
+          minSpend:  { type: Number, default: 0 },
+          multiplier:{ type: Number, default: 1 },      // points multiplier
+          freeShipping: { type: Boolean, default: false },
+          discountPercent: { type: Number, default: 0 },
+          colour:    { type: String, default: '#C9BFB4' },
+          perks:     { type: [String], default: [] },
+        }],
+        default: [
+          { id: 'bronze',   name: 'Bronze',   minSpend: 0,      multiplier: 1,   freeShipping: false, discountPercent: 0, colour: '#B3927E', perks: ['Earn points on every order'] },
+          { id: 'silver',   name: 'Silver',   minSpend: 15000,  multiplier: 1.25, freeShipping: false, discountPercent: 0, colour: '#C9BFB4', perks: ['1.25× points', 'Early access to drops'] },
+          { id: 'gold',     name: 'Gold',     minSpend: 40000,  multiplier: 1.5, freeShipping: true,  discountPercent: 5, colour: '#C8A96A', perks: ['1.5× points', 'Free delivery', '5% member discount'] },
+          { id: 'platinum', name: 'Platinum', minSpend: 90000,  multiplier: 1.75, freeShipping: true, discountPercent: 8, colour: '#8F9C8B', perks: ['1.75× points', 'Free delivery', '8% member discount', 'Priority support'] },
+          { id: 'diamond',  name: 'Diamond',  minSpend: 180000, multiplier: 2,   freeShipping: true,  discountPercent: 12, colour: '#5C6A5A', perks: ['2× points', 'Free delivery', '12% member discount', 'Private previews'] },
+        ],
+      },
+    },
+
+    // ---- Referrals ------------------------------------------------------
+    referral: {
+      enabled:        { type: Boolean, default: true },
+      referrerPoints: { type: Number,  default: 300 },
+      refereePoints:  { type: Number,  default: 150 },
+      // Referrer is paid only once the friend's order reaches this state,
+      // otherwise a self-referral ring can mint points from cancelled orders.
+      payOnStatus:    { type: String,  default: 'Delivered' },
+      minOrderValue:  { type: Number,  default: 1500 },
+      maxPerMonth:    { type: Number,  default: 10 },
+      codePrefix:     { type: String,  default: 'HUS' },
+    },
+
+    // ---- Store credit & wallet -----------------------------------------
+    credit: {
+      enabled:      { type: Boolean, default: true },
+      allowAtCheckout: { type: Boolean, default: true },
+    },
+
+    // ---- Gift cards -----------------------------------------------------
+    giftCards: {
+      enabled:      { type: Boolean, default: true },
+      minAmount:    { type: Number,  default: 500 },
+      maxAmount:    { type: Number,  default: 50000 },
+      expiryMonths: { type: Number,  default: 12 },
+      codePrefix:   { type: String,  default: 'HUSGC' },
+    },
+
+    // ---- Achievements ---------------------------------------------------
+    achievements: {
+      enabled: { type: Boolean, default: true },
+      list: {
+        type: [{
+          _id: false,
+          id:     { type: String, default: '' },
+          name:   { type: String, default: '' },
+          note:   { type: String, default: '' },
+          icon:   { type: String, default: 'Award' },
+          metric: { type: String, default: 'orders', enum: ['orders', 'spend', 'reviews', 'referrals', 'points'] },
+          target: { type: Number, default: 1 },
+          points: { type: Number, default: 0 },
+        }],
+        default: [
+          { id: 'first-buy',  name: 'First order',    note: 'Placed your first HUSHAE order',   icon: 'ShoppingBag', metric: 'orders',    target: 1,  points: 0 },
+          { id: 'regular',    name: 'Regular',        note: 'Five orders in',                   icon: 'Repeat',      metric: 'orders',    target: 5,  points: 100 },
+          { id: 'reviewer',   name: 'Reviewer',       note: 'Wrote three reviews',              icon: 'Star',        metric: 'reviews',   target: 3,  points: 75 },
+          { id: 'connector',  name: 'Connector',      note: 'Referred three friends',           icon: 'Users',       metric: 'referrals', target: 3,  points: 150 },
+        ],
+      },
+    },
+
+    // ---- Abuse prevention -----------------------------------------------
+    limits: {
+      maxPointsPerOrder: { type: Number, default: 5000 },
+      maxPointsPerDay:   { type: Number, default: 10000 },
+      // Guard against a script hammering an earn endpoint.
+      minSecondsBetweenEarns: { type: Number, default: 2 },
+      blockSelfReferral: { type: Boolean, default: true },
+    },
+
+    // ---- Notifications ---------------------------------------------------
+    notify: {
+      onEarn:     { type: Boolean, default: true },
+      onTierUp:   { type: Boolean, default: true },
+      onExpiring: { type: Boolean, default: true },
+    },
+
+    // ---- Wording ---------------------------------------------------------
+    dashboardTitle: { type: String, default: 'Rewards' },
+    joinText:       { type: String, default: 'Earn points on everything you buy, and turn them into money off.' },
+  },
+  // ==========================================================================
   // REVIEWS, RATINGS & Q&A
   // ==========================================================================
   reviews: {

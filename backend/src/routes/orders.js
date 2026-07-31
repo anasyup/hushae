@@ -253,15 +253,97 @@ router.patch('/admin/:id/status', protect, adminOnly, asyncHandler(async (req, r
     } catch { /* noop */ }
   }
 
-  // Loyalty auto-reward: when an order flips to Delivered, count the
-  // customer's total delivered orders and mint a coupon if threshold hit.
-  if (status === 'Delivered' && prevStatus !== 'Delivered') {
+  /* ------------------------------------------------------------------
+   * Loyalty. Fires once, on the transition INTO the merchant's chosen
+   * award status (Delivered by default). Paying earlier would pay for
+   * orders that get cancelled.
+   *
+   * Everything below is best-effort: a loyalty failure must never stop a
+   * merchant from marking an order delivered. Awards are idempotent, so a
+   * status set twice — or a retried request — cannot pay twice.
+   * ---------------------------------------------------------------- */
+  if (status !== prevStatus) {
     try {
-      const { tryReward } = require('../utils/loyalty');
       const Settings = require('../models/Settings');
       const settings = await Settings.findOne({});
-      tryReward(order, { settings });
-    } catch { /* noop */ }
+      const E = require('../utils/loyaltyEngine');
+      const cfg = await E.loyaltyConfig();
+
+      const awardStatus = cfg.earn?.awardOnStatus || 'Delivered';
+
+      if (cfg.enabled && status === awardStatus && prevStatus !== awardStatus) {
+        const info = order.customerInfo || {};
+        const acc = await E.getAccount({ phone: info.phone, email: info.email, name: info.name }, cfg);
+
+        if (acc) {
+          // Tier first — the multiplier for THIS order is the tier the
+          // customer already holds, not the one this order pushes them into.
+          const spendBefore = await E.spendForTier(acc.phone, cfg);
+          const tierNow = E.resolveTier(spendBefore, cfg).current;
+          const multiplier = (cfg.tiers?.enabled && tierNow?.multiplier) || 1;
+
+          const pts = E.pointsForOrder(order, cfg, multiplier);
+          if (pts > 0) {
+            await E.award({
+              phone: info.phone, email: info.email, name: info.name,
+              amount: pts, reason: 'purchase',
+              note: `Order ${order.orderNumber}${multiplier !== 1 ? ` · ${multiplier}× ${tierNow.name}` : ''}`,
+              order: order._id, orderNumber: order.orderNumber,
+              idempotencyKey: `purchase:${order._id}`,
+            });
+          }
+
+          // First-order bonus, once in a lifetime.
+          if (cfg.earn?.firstOrderEnabled && !acc.claimed?.firstOrder && cfg.earn.firstOrderPoints > 0) {
+            const r = await E.award({
+              phone: info.phone, amount: cfg.earn.firstOrderPoints, reason: 'first-order',
+              note: 'Welcome bonus on your first order',
+              order: order._id, orderNumber: order.orderNumber,
+              idempotencyKey: `first-order:${acc._id}`,
+            });
+            if (r.ok) await require('../models/LoyaltyAccount').findByIdAndUpdate(acc._id, { $set: { 'claimed.firstOrder': true } });
+          }
+
+          // Referral payout — held until the friend's order actually lands,
+          // otherwise a ring of cancelled orders mints points.
+          if (cfg.referral?.enabled && acc.referredBy && status === (cfg.referral.payOnStatus || 'Delivered')) {
+            const LoyaltyAccount = require('../models/LoyaltyAccount');
+            const referrer = await LoyaltyAccount.findOne({ referralCode: acc.referredBy });
+            const bigEnough = (Number(order.total) || 0) >= (Number(cfg.referral.minOrderValue) || 0);
+            const notSelf = referrer && String(referrer._id) !== String(acc._id);
+
+            if (referrer && bigEnough && notSelf) {
+              const paid = await E.award({
+                phone: referrer.phone, amount: cfg.referral.referrerPoints, reason: 'referral',
+                note: `${acc.name || 'A friend'} placed their first order`,
+                order: order._id, orderNumber: order.orderNumber,
+                idempotencyKey: `referral:${acc._id}`,
+              });
+              if (paid.ok) await LoyaltyAccount.findByIdAndUpdate(referrer._id, { $inc: { referralCount: 1 } });
+
+              await E.award({
+                phone: acc.phone, amount: cfg.referral.refereePoints, reason: 'referred',
+                note: 'Thanks for joining through a friend',
+                order: order._id, orderNumber: order.orderNumber,
+                idempotencyKey: `referred:${acc._id}`,
+              });
+            }
+          }
+
+          // Re-read the tier AFTER this order counts.
+          await E.syncTier(acc, cfg);
+        }
+      }
+
+      // The original coupon rule still runs. It is now one earn rule among
+      // several rather than the whole programme.
+      if (status === 'Delivered' && prevStatus !== 'Delivered') {
+        const { tryReward } = require('../utils/loyalty');
+        tryReward(order, { settings });
+      }
+    } catch (e) {
+      console.error('[loyalty] award failed:', e.message);
+    }
   }
   res.json({ order });
 }));

@@ -135,6 +135,40 @@ router.post('/register', registerLimit, asyncHandler(async (req, res) => {
     // Verification only means anything once mail can actually be sent.
     emailVerified: !policy.emailVerifyRequired,
   });
+  /* Loyalty: welcome points, and record who referred them.
+     Best-effort — a loyalty failure must never block a registration. */
+  try {
+    const E = require('../utils/loyaltyEngine');
+    const cfg = await E.loyaltyConfig();
+    if (cfg.enabled && phoneNorm) {
+      const acc = await E.getAccount({ phone: phoneNorm, email: cleanEmail, name: cleanName, user: user._id }, cfg);
+      if (acc) {
+        const ref = String(req.body?.referralCode || '').trim().toUpperCase();
+        if (cfg.referral?.enabled && ref && !acc.referredBy) {
+          const LoyaltyAccount = require('../models/LoyaltyAccount');
+          const referrer = await LoyaltyAccount.findOne({ referralCode: ref });
+          // Self-referral is the first thing anyone tries.
+          const selfRef = referrer && (String(referrer._id) === String(acc._id) || referrer.phone === acc.phone);
+          if (referrer && !(cfg.limits?.blockSelfReferral && selfRef)) {
+            acc.referredBy = ref;
+            await acc.save();
+          }
+        }
+        if (cfg.earn?.signupEnabled && cfg.earn.signupPoints > 0 && !acc.claimed?.signup) {
+          const r = await E.award({
+            phone: phoneNorm, email: cleanEmail, name: cleanName,
+            amount: cfg.earn.signupPoints, reason: 'signup', note: 'Welcome to the programme',
+            idempotencyKey: `signup:${acc._id}`,
+          });
+          if (r.ok) {
+            const LoyaltyAccount = require('../models/LoyaltyAccount');
+            await LoyaltyAccount.findByIdAndUpdate(acc._id, { $set: { 'claimed.signup': true } });
+          }
+        }
+      }
+    }
+  } catch (e) { console.error('[loyalty] signup award failed:', e.message); }
+
   const token = await issueSession(user, !!req.body?.remember, policy, req);
   res.status(201).json({ token, user: publicUser(user) });
 }));
