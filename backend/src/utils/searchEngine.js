@@ -428,10 +428,18 @@ async function runSearch({ query, filters = {}, cfg, limit = 24, skip = 0 }) {
     .map((p) => { const r = scoreProduct(p, expanded, cfg, false); return r ? { p, ...r } : null; })
     .filter(Boolean);
 
+  /* Fuzzy is a SECOND pass and only when the strict one found nothing.
+     Running it always would make "bra" match "bran".
+
+     MEASURED: this path cost ~570ms against ~190ms for a normal search,
+     partly because it re-fetched the catalogue. The narrowed set is a strict
+     subset of the full set, so when the pre-filter already returned
+     everything there is nothing new to fetch — reuse what is in memory. */
   let usedFuzzy = false;
   if (!scored.length && cfg.fuzzy?.enabled) {
-    docs = await Product.find(base).select(SELECT).lean();
-    scored = docs
+    const total = await Product.countDocuments(base);
+    const pool = docs.length >= total ? docs : await Product.find(base).select(SELECT).lean();
+    scored = pool
       .map((p) => { const r = scoreProduct(p, expanded, cfg, true); return r ? { p, ...r } : null; })
       .filter(Boolean);
     usedFuzzy = scored.length > 0;
