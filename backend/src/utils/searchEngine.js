@@ -460,21 +460,21 @@ async function runSearch({ query, filters = {}, cfg, limit = 24, skip = 0 }) {
      plus one tiny fetch instead of hauling the entire catalogue. */
   let usedFuzzy = false;
   if (!scored.length && cfg.fuzzy?.enabled) {
-    const LIGHT = 'name sku categorySlug tags colors.name sizes fabric badges shortDescription';
-    const light = await Product.find(base).select(LIGHT).lean();
-    const hits = light
-      .map((p) => { const r = scoreProduct(p, expanded, cfg, true); return r ? { id: p._id, ...r } : null; })
-      .filter(Boolean);
+    /* A light scan followed by a re-read of the matching ids sounded cheaper
+       and measured at 1346ms — WORSE than fetching everything (699ms), while
+       returning only 28 KB against 154 KB. So it was never payload.
+       Timing the scoring pass settled it: a fuzzy scan of 101 products costs
+       3.8ms. Not CPU either.
 
-    if (hits.length) {
-      const byId = new Map(hits.map((h) => [String(h.id), h]));
-      const full = await Product.find({ _id: { $in: hits.map((h) => h.id) } }).select(SELECT).lean();
-      scored = full.map((p) => {
-        const h = byId.get(String(p._id));
-        return { p, score: h.score, fuzzy: h.fuzzy, synonym: h.synonym };
-      });
-      usedFuzzy = true;
-    }
+       It was the two SEQUENTIAL round-trips. At ~350ms each from this region,
+       two trips cost more than one fat one, whatever the byte count. One
+       fetch it is — this path only runs when the shopper has already typed
+       something with no exact match, and a single trip is the floor. */
+    const pool = await Product.find(base).select(SELECT).lean();
+    scored = pool
+      .map((p) => { const r = scoreProduct(p, expanded, cfg, true); return r ? { p, ...r } : null; })
+      .filter(Boolean);
+    usedFuzzy = scored.length > 0;
   }
 
   scored.sort((a, b) => b.score - a.score
