@@ -233,7 +233,7 @@ export default function FeaturedMarquee({ products, title = 'HUSHAE — Signatur
                   className="pointer-events-none h-full w-full object-cover transition-transform duration-700 group-hover/card:scale-[1.05]"
                 />
                 {p.compareAtPrice && p.compareAtPrice > p.price && (
-                  <span className="absolute left-3 top-3 rounded-full bg-clay px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-alabaster">
+                  <span className="absolute left-3 top-3 rounded-full bg-clay px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-obsidian">
                     Sale
                   </span>
                 )}
