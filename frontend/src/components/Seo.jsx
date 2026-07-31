@@ -37,7 +37,17 @@ function upsertJsonLd(id, obj) {
   const s = document.createElement('script');
   s.type = 'application/ld+json';
   s.setAttribute('data-seo', id);
-  s.textContent = JSON.stringify(obj);
+  /* MEASURED, Sprint 2L P3: escaping must happen AT SERIALISATION. A first
+     attempt escaped "<" and then JSON.parse'd the result to hand back an
+     object — which reverses the escape, because \u003c IS "<" once parsed. The
+     only place the substitution survives is the final string.
+
+     textContent alone is already safe: the HTML tokeniser never re-parses a
+     text node, verified in a real browser (a "</script><img>" payload injected
+     nothing). This is defence in depth for any future consumer that copies
+     this string into markup, and it keeps the raw sequence out of the DOM so a
+     naive innerHTML read downstream cannot break out either. */
+  s.textContent = JSON.stringify(obj).replace(/</g, '\\u003c');
   document.head.appendChild(s);
 }
 

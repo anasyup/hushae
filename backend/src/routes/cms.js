@@ -447,6 +447,101 @@ router.post('/slug', asyncHandler(async (req, res) => {
   res.json({ slug });
 }));
 
+/**
+ * BROKEN LINK CHECK.
+ *
+ * A merchant links "size guide" in the footer, later renames the page, and the
+ * footer link now 404s. The rename leaves a 301 so the link still WORKS, but a
+ * link that only works via a redirect is a link that will break the day someone
+ * tidies the redirect table. This reports both cases separately.
+ *
+ * Checks internal targets only. Pinging external URLs from a serverless
+ * function would be slow, flaky and occasionally look like abuse.
+ */
+router.get('/links/check', asyncHandler(async (req, res) => {
+  const cfg = await E.cmsConfig();
+  const [pages, redirects] = await Promise.all([
+    CmsPage.find({}).select('title slug status publishAt unpublishAt showInFooter showInHeader navLabel seo').lean(),
+    Redirect.find({ active: true }).select('from to').lean(),
+  ]);
+
+  const now = new Date();
+  const liveSlugs = new Set();
+  for (const p of pages) {
+    if (p.status === 'draft' || p.status === 'archived') continue;
+    if (p.publishAt && now < new Date(p.publishAt)) continue;
+    if (p.unpublishAt && now > new Date(p.unpublishAt)) continue;
+    liveSlugs.add(p.slug);
+  }
+
+  // Routes the app itself owns. Reserved slugs plus the real storefront paths.
+  const APP_ROUTES = new Set([
+    '', 'shop', 'women', 'men', 'new', 'best', 'sale', 'cart', 'checkout', 'track',
+    'fit-finder', 'wishlist', 'search', 'rewards', 'compare', 'account', 'faq',
+    'privacy', 'terms', 'returns', 'shipping-policy', 'reset-password', 'verify-email',
+    ...(cfg.slug?.reserved || []),
+  ]);
+  const redirectFrom = new Map(redirects.map((r) => [r.from, r.to]));
+
+  const classify = (href) => {
+    const raw = String(href || '').trim();
+    if (!raw) return { state: 'empty' };
+    if (/^(https?:)?\/\//i.test(raw) || /^(mailto|tel):/i.test(raw)) return { state: 'external' };
+    const path = raw.split('?')[0].split('#')[0].replace(/^\/+|\/+$/g, '').toLowerCase();
+    if (!path) return { state: 'ok' };                       // "/" is home
+    const first = path.split('/')[0];
+    if (APP_ROUTES.has(first)) return { state: 'ok' };       // a real app route
+    if (liveSlugs.has(path)) return { state: 'ok' };         // a live CMS page
+    if (redirectFrom.has(path)) return { state: 'redirected', to: redirectFrom.get(path) };
+    // A page that exists but is not live is a different problem from a typo.
+    const exists = pages.find((p) => p.slug === path);
+    if (exists) return { state: 'not-live', status: exists.status };
+    return { state: 'broken' };
+  };
+
+  const findings = [];
+
+  // 1. Footer/header columns configured in settings.
+  try {
+    const Settings = require('../models/Settings');
+    const st = (await Settings.findOne({ key: 'store' }).lean()) || {};
+    for (const [i, col] of ((st.footer?.columns) || []).entries()) {
+      for (const l of col.links || []) {
+        const r = classify(l?.href);
+        if (['broken', 'redirected', 'not-live', 'empty'].includes(r.state)) {
+          findings.push({ where: `Footer column ${i + 1}`, label: l?.label || '(no label)', href: l?.href || '', ...r });
+        }
+      }
+    }
+  } catch (e) { console.error('link check: settings failed:', e.message); }
+
+  // 2. Canonical URLs pointing at addresses that do not exist.
+  for (const p of pages) {
+    const c = p.seo?.canonical;
+    if (!c) continue;
+    const r = classify(c);
+    if (['broken', 'not-live'].includes(r.state)) {
+      findings.push({ where: `Page "${p.title}" canonical`, label: p.title, href: c, ...r });
+    }
+  }
+
+  // 3. Redirects that point somewhere that does not exist — the note on the old
+  //    door sends people to another empty room.
+  for (const r0 of redirects) {
+    const r = classify(r0.to);
+    if (['broken', 'not-live'].includes(r.state)) {
+      findings.push({ where: `Redirect from /${r0.from}`, label: r0.from, href: r0.to, ...r });
+    }
+  }
+
+  res.json({
+    checked: { pages: pages.length, redirects: redirects.length },
+    livePages: liveSlugs.size,
+    findings,
+    ok: findings.filter((f) => f.state === 'broken').length === 0,
+  });
+}));
+
 /* ---------------------------------------------------------------------------
  * REDIRECTS
  * ------------------------------------------------------------------------- */

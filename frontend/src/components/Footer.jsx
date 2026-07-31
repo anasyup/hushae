@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { CreditCard, Facebook, Instagram, Mail, MapPin, Music2, Phone, Send } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
+import { useCmsNav } from '../lib/useCmsNav';
 import Tx from './Tx';
 
 export default function Footer() {
@@ -11,7 +12,31 @@ export default function Footer() {
   const social = s.integrations?.social || {};
   // Footer config — every block below is admin-editable from /admin/theme
   const f = s.footer || {};
-  const cols = Array.isArray(f.columns) && f.columns.length ? f.columns : [];
+  const baseCols = Array.isArray(f.columns) && f.columns.length ? f.columns : [];
+
+  /* CMS pages that the merchant ticked "show in the footer".
+     APPENDED to a column, never replacing one — the existing footer design and
+     its merchant-managed columns from /admin/theme are preserved exactly. A
+     CMS page joins the last column if there is one, otherwise it makes its own
+     so the grid still fills. Failing to load the menu renders nothing, never a
+     broken column. */
+  const cmsNav = useCmsNav();
+  const cols = useMemo(() => {
+    const links = (cmsNav.footer || []).map((p) => ({ label: p.label, href: `/${p.slug}` }));
+    if (!links.length) return baseCols;
+
+    const existing = new Set(
+      baseCols.flatMap((c) => (c.links || []).map((l) => String(l?.href || '').replace(/\/+$/, ''))),
+    );
+    // A page already linked by hand must not appear twice.
+    const fresh = links.filter((l) => !existing.has(l.href));
+    if (!fresh.length) return baseCols;
+
+    if (!baseCols.length) return [{ title: f.cmsColumnTitle || 'More', links: fresh }];
+    const out = baseCols.map((c) => ({ ...c, links: [...(c.links || [])] }));
+    out[out.length - 1].links.push(...fresh);
+    return out;
+  }, [baseCols, cmsNav, f.cmsColumnTitle]);
   const [email, setEmail] = useState('');
   const [state, setState] = useState(null); // null | 'ok' | 'already' | 'err' | 'busy'
 

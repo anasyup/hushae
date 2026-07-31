@@ -6,6 +6,7 @@ const express = require('express');
 const Product = require('../models/Product');
 const Category = require('../models/Category');
 const Settings = require('../models/Settings');
+const CmsPage = require('../models/CmsPage');
 
 const router = express.Router();
 
@@ -55,6 +56,7 @@ router.get('/sitemap.xml', async (req, res) => {
       { loc: '/best', priority: '0.7', changefreq: 'weekly' },
       { loc: '/sale', priority: '0.8', changefreq: 'daily' },
       { loc: '/fit-finder', priority: '0.6', changefreq: 'monthly' },
+      // /faq may also exist as a CMS page; the de-duplication below keeps one.
       { loc: '/faq', priority: '0.7', changefreq: 'monthly' },
       { loc: '/track', priority: '0.4', changefreq: 'yearly' },
     ];
@@ -73,6 +75,31 @@ router.get('/sitemap.xml', async (req, res) => {
 
     for (const p of staticPages) lines.push(urlXml(p.loc, now, p.priority, p.changefreq));
 
+    /* CMS PAGES.
+       Only what is genuinely live right now: liveState() applies the same
+       draft / scheduled / expired rules the public route does, so a page
+       scheduled for Friday cannot be advertised to Google on Tuesday. Pages
+       marked noIndex are excluded — telling a crawler about a page and then
+       telling it not to index that page is a contradiction Search Console
+       reports as an error. */
+    try {
+      const cmsPages = await CmsPage.find({ status: { $in: ['published', 'scheduled'] } })
+        .select('slug updatedAt status publishAt unpublishAt seo type').lean();
+      const now = new Date();
+      for (const p of cmsPages) {
+        if (p.status === 'draft' || p.status === 'archived') continue;
+        if (p.publishAt && now < new Date(p.publishAt)) continue;
+        if (p.unpublishAt && now > new Date(p.unpublishAt)) continue;
+        if (p.seo?.noIndex) continue;
+        const priority = p.type === 'legal' ? '0.3' : '0.6';
+        const freq = p.type === 'legal' ? 'yearly' : 'monthly';
+        lines.push(urlXml(`/${p.slug}`, (p.updatedAt || new Date()).toISOString?.() || now, priority, freq));
+      }
+    } catch (e) {
+      // A sitemap missing the CMS pages is degraded; a 500 is broken.
+      console.error('sitemap: cms pages failed:', e.message);
+    }
+
     for (const c of categories) {
       lines.push(urlXml(`/category/${c.slug}`, (c.updatedAt || new Date()).toISOString?.() || now, '0.8', 'weekly'));
     }
@@ -80,11 +107,25 @@ router.get('/sitemap.xml', async (req, res) => {
       lines.push(urlXml(`/product/${p.slug}`, (p.updatedAt || new Date()).toISOString?.() || now, '0.7', 'weekly'));
     }
 
-    lines.push('</urlset>');
+    /* De-duplicate. A legal page migrated into the CMS keeps its original
+       address, so /privacy could otherwise be listed twice — once as a static
+       entry and once as a CMS page. Duplicate <loc> values are a Search
+       Console warning. First entry wins, which is the higher-priority static
+       one. */
+    const seen = new Set();
+    const deduped = lines.filter((l) => {
+      const m = l.match(/<loc>([^<]+)<\/loc>/);
+      if (!m) return true;
+      if (seen.has(m[1])) return false;
+      seen.add(m[1]);
+      return true;
+    });
+    deduped.push('</urlset>');
+    const finalLines = deduped;
 
     res.set('Content-Type', 'application/xml; charset=utf-8');
     res.set('Cache-Control', 'public, max-age=1800');
-    res.send(lines.join('\n'));
+    res.send(finalLines.join('\n'));
   } catch (e) {
     res.status(500).type('text/plain').send('Sitemap generation error: ' + e.message);
   }

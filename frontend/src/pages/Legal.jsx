@@ -13,7 +13,7 @@ export default function Legal({ kind = 'privacy' }) {
       <p className="text-[11px] font-bold uppercase tracking-widest text-sagedeep">HUSHAE · Legal</p>
       <h1 className="mt-3 font-display text-4xl leading-tight md:text-5xl">{doc.title}</h1>
       <p className="mt-4 text-sm text-ash">{doc.subtitle}</p>
-      <p className="mt-1 text-xs text-ash/70">Last updated: 27 July 2026</p>
+      <p className="mt-1 text-xs text-ash">Last updated: 27 July 2026</p>
       <div className="prose prose-neutral mt-10 max-w-none text-[15px] leading-relaxed">
         {doc.sections.map((s, i) => (
           <section key={i} className="mb-10">
