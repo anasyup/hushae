@@ -222,7 +222,7 @@ export default function Cms() {
                   <button type="button" disabled={busy} onClick={() => bulk('publish')} className="min-h-[44px] rounded-lg border border-neutral-300 px-3 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-50">Publish</button>
                   <button type="button" disabled={busy} onClick={() => bulk('unpublish')} className="min-h-[44px] rounded-lg border border-neutral-300 px-3 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-50">Hide</button>
                   <button type="button" disabled={busy} onClick={() => bulk('archive')} className="min-h-[44px] rounded-lg border border-neutral-300 px-3 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-50">Archive</button>
-                  <button type="button" disabled={busy} onClick={() => bulk('delete')} className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-red-200 px-3 text-[12px] font-semibold text-red-600 transition hover:bg-red-50 disabled:opacity-50">
+                  <button type="button" disabled={busy} onClick={() => bulk('delete')} className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-red-200 px-3 text-[12px] font-semibold text-red-700 transition hover:bg-red-50 disabled:opacity-50">
                     <Trash2 size={13} aria-hidden="true" /> Delete
                   </button>
                 </div>

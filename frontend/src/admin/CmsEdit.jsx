@@ -10,6 +10,8 @@ import { CMS_DEFAULTS, checkSlugLocal, previewTitle, resolveCms } from '../lib/c
 import SeoPanel from './cms/SeoPanel';
 import SocialPanel from './cms/SocialPanel';
 import StructuredDataPanel from './cms/StructuredDataPanel';
+import VersionPanel from './cms/VersionPanel';
+import SectionBuilder from './cms/SectionBuilder';
 
 /* ============================================================================
  * PAGE EDITOR — create and edit one CMS page.
@@ -48,6 +50,7 @@ export default function CmsEdit() {
   const [scheduleAt, setScheduleAt] = useState(null);
   // Raised by StructuredDataPanel while its JSON does not parse. Never stored.
   const [sdInvalid, setSdInvalid] = useState(false);
+  const [versions, setVersions] = useState([]);
   // The merchant typed a slug by hand — stop deriving it from the title, or
   // every keystroke in the title box silently overwrites their choice.
   const slugTouched = useRef(!isNew);
@@ -72,6 +75,7 @@ export default function CmsEdit() {
         setP(merged);
         setOriginal(JSON.stringify(merged));
         setState(d.page.state || { live: false, reason: 'draft' });
+        setVersions(d.versions || []);
       })
       .catch(() => toast('Could not open that page'));
   }, [id, isNew, auth?.token, toast]);
@@ -338,6 +342,11 @@ export default function CmsEdit() {
             </div>
           </Section>
 
+          {/* Blocks are optional. A returns policy is prose; a campaign page is
+              layout. Both shapes are valid and the storefront renders whichever
+              is present. */}
+          <SectionBuilder doc={p.draft || p.doc} onChange={(next) => set(p.draft || !p.doc ? 'draft' : 'doc', next)} />
+
           <Accordion title="Short summary" subtitle="Used in search results and when the link is shared">
             <div>
               <label className="label" htmlFor="cms-excerpt">Summary</label>
@@ -458,10 +467,23 @@ export default function CmsEdit() {
 
           <StructuredDataPanel page={p} cfg={cfg} onChangeSeo={setSeo} />
 
+          {!isNew && (
+            <VersionPanel
+              pageId={id}
+              versions={versions}
+              onRestored={(fresh) => {
+                const merged = hydratePage(fresh);
+                setP(merged);
+                setOriginal(JSON.stringify(merged));
+                setState(fresh.state || state);
+              }}
+            />
+          )}
+
           {!isNew && !p.locked && (
             <button
               type="button" onClick={remove}
-              className="inline-flex min-h-[44px] w-full items-center justify-center gap-1.5 rounded-lg border border-red-200 px-4 text-[12px] font-semibold text-red-600 transition hover:bg-red-50"
+              className="inline-flex min-h-[44px] w-full items-center justify-center gap-1.5 rounded-lg border border-red-200 px-4 text-[12px] font-semibold text-red-700 transition hover:bg-red-50"
             >
               <Trash2 size={13} aria-hidden="true" /> Delete this page
             </button>

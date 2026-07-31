@@ -208,7 +208,7 @@ export default function CmsRedirects() {
                   </div>
                   <button
                     type="button" onClick={() => remove(r)}
-                    className="grid h-11 w-11 shrink-0 place-items-center rounded-lg border border-red-200 text-red-600 transition hover:bg-red-50"
+                    className="grid h-11 w-11 shrink-0 place-items-center rounded-lg border border-red-200 text-red-700 transition hover:bg-red-50"
                   >
                     <Trash2 size={14} aria-hidden="true" />
                     <span className="sr-only">Delete the note for /{r.from}</span>
@@ -256,7 +256,7 @@ export default function CmsRedirects() {
                     <td className="px-4 py-3 text-right">
                       <button
                         type="button" onClick={() => remove(r)}
-                        className="inline-grid h-11 w-11 place-items-center rounded-lg border border-red-200 text-red-600 transition hover:bg-red-50"
+                        className="inline-grid h-11 w-11 place-items-center rounded-lg border border-red-200 text-red-700 transition hover:bg-red-50"
                       >
                         <Trash2 size={14} aria-hidden="true" />
                         <span className="sr-only">Delete the note for /{r.from}</span>

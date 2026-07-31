@@ -194,6 +194,57 @@ router.get('/pages/:id', asyncHandler(async (req, res) => {
   res.json({ page: { ...p.toObject(), state: p.liveState() }, versions });
 }));
 
+/**
+ * One version, with its CONTENT.
+ *
+ * MEASURED GAP, Sprint 2L P2B: /pages/:id returns the version LIST but selects
+ * only 'label createdBy createdAt' — deliberately, so opening a page does not
+ * drag 30 section trees over the wire. That makes the list cheap and makes a
+ * diff impossible: there was no way to read what a version actually contained.
+ *
+ * Fetched one at a time, on demand, when the merchant opens a comparison.
+ */
+router.get('/pages/:id/versions/:versionId', asyncHandler(async (req, res) => {
+  const v = await CmsVersion.findById(req.params.versionId);
+  if (!v) return res.status(404).json({ message: 'Version not found' });
+  // A version id is guessable; check it belongs to the page being asked about
+  // rather than trusting the URL to be consistent with itself.
+  if (String(v.page) !== String(req.params.id)) {
+    return res.status(404).json({ message: 'Version not found' });
+  }
+  res.json({ version: v });
+}));
+
+/**
+ * Compare two versions, or a version against what is live now.
+ *
+ * The DIFF IS COMPUTED ON THE SERVER. Shipping both documents to the browser
+ * to diff them there would mean sending up to 1 MB of section trees so the
+ * merchant can read "the heading changed" — and would put the same comparison
+ * logic in two places the first time anything else needs it.
+ *
+ * `to` may be a version id or the literal string "current".
+ */
+router.get('/pages/:id/diff', asyncHandler(async (req, res) => {
+  const page = await CmsPage.findById(req.params.id);
+  if (!page) return res.status(404).json({ message: 'Not found' });
+
+  const loadSide = async (ref, label) => {
+    if (!ref || ref === 'current') {
+      return { label: label || 'Now live', doc: page.doc, body: page.body, seo: page.seo, at: page.updatedAt };
+    }
+    const v = await CmsVersion.findById(ref);
+    if (!v || String(v.page) !== String(page._id)) return null;
+    return { label: v.label, doc: v.doc, body: v.body, seo: v.seo, at: v.createdAt, by: v.createdBy };
+  };
+
+  const from = await loadSide(req.query.from, 'Earlier');
+  const to = await loadSide(req.query.to, 'Now live');
+  if (!from || !to) return res.status(404).json({ message: 'Version not found' });
+
+  res.json({ from, to, changes: E.diffContent(from, to) });
+}));
+
 router.post('/pages', writeLimit, asyncHandler(async (req, res) => {
   const cfg = await E.cmsConfig();
   const body = req.body || {};

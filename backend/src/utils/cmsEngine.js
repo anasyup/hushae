@@ -181,18 +181,66 @@ function validateDoc(doc) {
     return { ok: false, message: `Page content is too large (${Math.round(bytes / 1024)} KB, limit ${MAX_DOC_BYTES / 1024} KB)` };
   }
 
-  const sections = doc.sections;
-  if (sections !== undefined) {
-    if (!Array.isArray(sections)) return { ok: false, message: 'Page sections must be a list' };
-    if (sections.length > MAX_SECTIONS) {
-      return { ok: false, message: `Too many sections (${sections.length}, limit ${MAX_SECTIONS})` };
-    }
-    for (const s of sections) {
+  /* TWO DOCUMENT SHAPES REACH THIS FUNCTION.
+   *
+   *   { sections: [...] }                        the CMS's own flat shape
+   *   { template, header[], body[], footer[] }   the Theme editor's shape,
+   *                                              which the section builder
+   *                                              produces because it reuses
+   *                                              theme-editor/core/registry.ts
+   *
+   * MEASURED BUG, Sprint 2L P2B: this only ever read `doc.sections`, so every
+   * theme-shaped document skipped section validation entirely — a section with
+   * no `type` (which crashes the renderer) and 61 sections in one group both
+   * came back { ok: true }. The byte, depth and circular guards still fired,
+   * which is why it looked like validation was working.
+   *
+   * Collect the sections from whichever shape arrived, then apply one set of
+   * rules to all of them. */
+  const groups = [];
+  if (doc.sections !== undefined) {
+    if (!Array.isArray(doc.sections)) return { ok: false, message: 'Page sections must be a list' };
+    groups.push(['sections', doc.sections]);
+  }
+  for (const g of ['header', 'body', 'footer']) {
+    if (doc[g] === undefined) continue;
+    if (!Array.isArray(doc[g])) return { ok: false, message: `Page ${g} must be a list` };
+    groups.push([g, doc[g]]);
+  }
+
+  /* The limit is on the PAGE, not per group: 60 header + 60 body + 60 footer
+     is 180 sections however it is counted. */
+  const total = groups.reduce((n, [, list]) => n + list.length, 0);
+  if (total > MAX_SECTIONS) {
+    return { ok: false, message: `Too many sections (${total}, limit ${MAX_SECTIONS})` };
+  }
+
+  const countBlocks = (list) => (Array.isArray(list) ? list.length : 0);
+  for (const [group, list] of groups) {
+    for (const s of list) {
       if (!s || typeof s !== 'object') return { ok: false, message: 'A section is malformed' };
       if (!s.type || typeof s.type !== 'string') return { ok: false, message: 'Every section needs a type' };
-      if (Array.isArray(s.blocks) && s.blocks.length > MAX_BLOCKS_PER_SECTION) {
+      if (countBlocks(s.blocks) > MAX_BLOCKS_PER_SECTION) {
         return { ok: false, message: `Section "${s.type}" has too many blocks (limit ${MAX_BLOCKS_PER_SECTION})` };
       }
+      /* Nested blocks carry the same requirement — a child with no type is the
+         same crash one level down. Bounded by MAX_DEPTH below. */
+      const walk = (blocks, depth) => {
+        if (depth > MAX_DEPTH || !Array.isArray(blocks)) return null;
+        for (const bnode of blocks) {
+          if (!bnode || typeof bnode !== 'object') return 'A block is malformed';
+          if (!bnode.type || typeof bnode.type !== 'string') return 'Every block needs a type';
+          if (countBlocks(bnode.blocks) > MAX_BLOCKS_PER_SECTION) {
+            return `A block in "${s.type}" has too many children (limit ${MAX_BLOCKS_PER_SECTION})`;
+          }
+          const deeper = walk(bnode.blocks, depth + 1);
+          if (deeper) return deeper;
+        }
+        return null;
+      };
+      const blockProblem = walk(s.blocks, 0);
+      if (blockProblem) return { ok: false, message: blockProblem };
+      void group;
     }
   }
 
@@ -268,6 +316,119 @@ function resolveSeo(page, cfg, storeSettings = {}) {
 }
 
 /* ---------------------------------------------------------------------------
+ * DIFF
+ *
+ * WHAT A MERCHANT NEEDS FROM A COMPARISON
+ *   Not a character-level patch. "The heading changed" and "you deleted the
+ *   product row" are the two questions actually being asked, and a red/green
+ *   character diff of a JSON tree answers neither.
+ *
+ * So this reports CHANGES AS EVENTS, at the level a person edits at:
+ *   section added / removed / moved / edited
+ *   the writing changed (with a line count)
+ *   an SEO field changed (with both values)
+ *
+ * Computed here rather than in the browser so the same answer is available to
+ * anything else that needs it, and so a 1 MB pair of section trees is never
+ * shipped to a phone just to render "1 section removed".
+ * ------------------------------------------------------------------------- */
+
+/** Pull sections out of either document shape, tagged with their group. */
+function flattenSections(doc) {
+  if (!doc || typeof doc !== 'object') return [];
+  const out = [];
+  if (Array.isArray(doc.sections)) doc.sections.forEach((s, i) => out.push({ ...s, __group: 'sections', __i: i }));
+  for (const g of ['header', 'body', 'footer']) {
+    if (Array.isArray(doc[g])) doc[g].forEach((s, i) => out.push({ ...s, __group: g, __i: i }));
+  }
+  return out;
+}
+
+const stable = (v) => { try { return JSON.stringify(v); } catch { return ''; } };
+
+/** Human label for a section, best effort from its settings. */
+function sectionLabel(s) {
+  if (!s) return 'section';
+  const t = sectionByType(s.type);
+  const named = s.name || s.settings?.heading || s.settings?.title || s.settings?.text;
+  const base = t?.label || s.type || 'Section';
+  return named ? `${base} — "${String(named).slice(0, 40)}"` : base;
+}
+
+function diffContent(from, to) {
+  const changes = [];
+
+  /* ---- sections, matched by id where possible ---- */
+  const a = flattenSections(from.doc);
+  const b = flattenSections(to.doc);
+  const byId = (list) => new Map(list.filter((s) => s.id).map((s) => [s.id, s]));
+  const aMap = byId(a);
+  const bMap = byId(b);
+
+  for (const s of a) {
+    if (!s.id) continue;
+    if (!bMap.has(s.id)) changes.push({ kind: 'section-removed', label: sectionLabel(s), type: s.type });
+  }
+  for (const s of b) {
+    if (!s.id) continue;
+    const before = aMap.get(s.id);
+    if (!before) { changes.push({ kind: 'section-added', label: sectionLabel(s), type: s.type }); continue; }
+    if (before.__group !== s.__group || before.__i !== s.__i) {
+      changes.push({ kind: 'section-moved', label: sectionLabel(s), type: s.type, from: before.__i + 1, to: s.__i + 1 });
+    }
+    if (stable({ ...before, __group: 0, __i: 0 }) !== stable({ ...s, __group: 0, __i: 0 })) {
+      const hiddenChanged = !!before.hidden !== !!s.hidden;
+      changes.push({
+        kind: hiddenChanged ? (s.hidden ? 'section-hidden' : 'section-shown') : 'section-edited',
+        label: sectionLabel(s), type: s.type,
+      });
+    }
+  }
+
+  /* Documents with no ids at all (hand-written JSON) still deserve an answer. */
+  if (!a.some((s) => s.id) && !b.some((s) => s.id) && a.length !== b.length) {
+    changes.push({ kind: 'section-count', from: a.length, to: b.length });
+  }
+
+  /* ---- the writing ---- */
+  const ab = String(from.body || '');
+  const bb = String(to.body || '');
+  if (ab !== bb) {
+    const lines = (t) => t.split('\n').filter((l) => l.trim()).length;
+    changes.push({
+      kind: 'body-changed',
+      fromChars: ab.length, toChars: bb.length,
+      fromLines: lines(ab), toLines: lines(bb),
+    });
+  }
+
+  /* ---- SEO, field by field, because "SEO changed" is not actionable ---- */
+  const SEO_LABELS = {
+    title: 'Search title', description: 'Search description', canonical: 'Main address',
+    noIndex: 'Hidden from Google', noFollow: 'Links not followed',
+    ogTitle: 'Sharing title', ogDescription: 'Sharing description', ogImage: 'Sharing picture',
+    ogType: 'Sharing kind', twitterCard: 'Twitter card', keywords: 'Keywords',
+    structuredData: 'Extra information for Google',
+  };
+  const as = from.seo || {};
+  const bs = to.seo || {};
+  for (const [k, label] of Object.entries(SEO_LABELS)) {
+    const av = as[k]; const bv = bs[k];
+    if (stable(av ?? null) === stable(bv ?? null)) continue;
+    const show = (v) => {
+      if (v === undefined || v === null || v === '') return '(empty)';
+      if (typeof v === 'boolean') return v ? 'yes' : 'no';
+      if (Array.isArray(v)) return v.join(', ') || '(empty)';
+      if (typeof v === 'object') return '(a block of data)';
+      return String(v).slice(0, 80);
+    };
+    changes.push({ kind: 'seo-changed', field: k, label, from: show(av), to: show(bv) });
+  }
+
+  return changes;
+}
+
+/* ---------------------------------------------------------------------------
  * SECTION REGISTRY (server side)
  *
  * The client registry in frontend/src/theme-editor/core/registry.ts is the
@@ -298,5 +459,6 @@ module.exports = {
   slugify, checkSlug, uniqueSlug,
   validateDoc, validateStructuredData, resolveSeo,
   SECTION_TYPES, sectionByType,
+  diffContent, flattenSections,
   MAX_SECTIONS, MAX_BLOCKS_PER_SECTION, MAX_DOC_BYTES,
 };
