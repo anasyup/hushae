@@ -11,6 +11,7 @@ import { isVideo } from '../lib/media';
 import QuantityStepper from '../components/ui/QuantityStepper';
 import ProductRow from '../components/ProductRow';
 import ProductReviews from '../components/ProductReviews';
+import ProductQA from '../components/reviews/ProductQA';
 import SizeGuideModal from '../components/SizeGuideModal';
 import { ProductSkeleton } from '../components/Skeletons';
 import Tx from '../components/Tx';
@@ -382,6 +383,7 @@ export default function Product() {
 
       <div id="reviews" className="scroll-mt-28">
         <ProductReviews product={p} />
+        <ProductQA product={p} />
       </div>
 
       {rvCfg.enabled !== false && rvCfg.showOnProduct !== false

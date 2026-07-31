@@ -63,6 +63,7 @@ const SettingsCheckout = lazy(() => import('./admin/SettingsCheckout'));
 const SettingsAccounts = lazy(() => import('./admin/SettingsAccounts'));
 const SettingsCX = lazy(() => import('./admin/SettingsCX'));
 const SettingsReviews = lazy(() => import('./admin/SettingsReviews'));
+const AdminQuestions = lazy(() => import('./admin/Questions'));
 const Dashboard = lazy(() => import('./admin/Dashboard'));
 const Analytics = lazy(() => import('./admin/Analytics'));
 const Insights = lazy(() => import('./admin/Insights'));
@@ -207,6 +208,7 @@ export default function App() {
           <Route path="/admin/finance" element={<Suspense fallback={<EditorFallback />}><Finance /></Suspense>} />
           <Route path="/admin/abandoned-carts" element={<AbandonedCarts />} />
           <Route path="/admin/reviews" element={<Reviews />} />
+          <Route path="/admin/questions" element={<Suspense fallback={<EditorFallback />}><AdminQuestions /></Suspense>} />
 
 
           <Route path="/admin/faq" element={<AdminFaq />} />

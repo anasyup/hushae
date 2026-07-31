@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Star, Check, X, MessageSquare, Trash2, ExternalLink } from 'lucide-react';
+import { Star, Check, X, MessageSquare, Trash2, ExternalLink, Pin, Sparkles } from 'lucide-react';
 import { api } from '../api/client';
 import { useApp } from '../store/AppContext';
 
@@ -17,11 +17,37 @@ export default function Reviews() {
   const [busy, setBusy] = useState(null);
   const [replying, setReplying] = useState(null);
   const [reply, setReply] = useState('');
+  const [selected, setSelected] = useState([]);
 
   const load = () => {
     api(`/reviews/admin?status=${tab}`, { token: auth?.token })
-      .then((d) => { setRows(d.reviews || []); setCounts(d.counts || {}); })
+      .then((d) => { setRows(d.reviews || []); setCounts(d.counts || {}); setSelected([]); })
       .catch(() => setRows([]));
+  };
+
+  /* Bulk actions. The tick boxes are cleared on every reload so a stale
+     selection can never be applied to a list that has moved on. */
+  const toggleOne = (id) => setSelected((s2) => (s2.includes(id) ? s2.filter((x) => x !== id) : [...s2, id]));
+  const allChecked = rows.length > 0 && selected.length === rows.length;
+  const toggleAll = () => setSelected(allChecked ? [] : rows.map((r) => r._id));
+
+  const bulk = async (action) => {
+    if (!selected.length) return;
+    if (action === 'delete' && !confirm(`Delete ${selected.length} review(s) permanently?`)) return;
+    setBusy('bulk');
+    try {
+      const r = await api('/reviews/admin/bulk', { method: 'POST', body: { ids: selected, action }, token: auth.token });
+      toast(`${r.affected} review${r.affected === 1 ? '' : 's'} updated`);
+      load();
+    } catch (e) { toast(e.message || 'Failed'); } finally { setBusy(null); }
+  };
+
+  const flag = async (id, field, value) => {
+    setBusy(id);
+    try {
+      await api('/reviews/admin/bulk', { method: 'POST', body: { ids: [id], action: value ? field : `un${field}` }, token: auth.token });
+      load();
+    } catch (e) { toast(e.message || 'Failed'); } finally { setBusy(null); }
   };
   useEffect(() => { if (auth?.token) load(); /* eslint-disable-next-line */ }, [tab, auth?.token]);
 
@@ -85,11 +111,39 @@ export default function Reviews() {
         </div>
       ) : (
         <div className="space-y-4">
+          {/* Bulk bar. Appears only with a selection so it never competes
+              with the list for attention. */}
+          <div className="flex flex-wrap items-center gap-2 rounded-xl border border-neutral-200 bg-white px-4 py-2.5">
+            <label className="flex cursor-pointer items-center gap-2 text-[12px] font-medium text-neutral-700">
+              <input type="checkbox" checked={allChecked} onChange={toggleAll} className="h-4 w-4 accent-neutral-900" />
+              Select all ({rows.length})
+            </label>
+            {selected.length > 0 && (
+              <>
+                <span className="text-[12px] text-neutral-500">· {selected.length} selected</span>
+                <div className="ml-auto flex flex-wrap gap-1.5">
+                  {tab !== 'approved' && <button onClick={() => bulk('approve')} disabled={busy==='bulk'} className="rounded-lg bg-neutral-900 px-3 py-1.5 text-[11.5px] font-semibold text-white disabled:opacity-50">Approve</button>}
+                  {tab !== 'rejected' && <button onClick={() => bulk('reject')} disabled={busy==='bulk'} className="rounded-lg border border-neutral-300 px-3 py-1.5 text-[11.5px] font-semibold text-neutral-700 disabled:opacity-50">Reject</button>}
+                  <button onClick={() => bulk('feature')} disabled={busy==='bulk'} className="rounded-lg border border-neutral-300 px-3 py-1.5 text-[11.5px] font-semibold text-neutral-700 disabled:opacity-50">Feature</button>
+                  <button onClick={() => bulk('pin')} disabled={busy==='bulk'} className="rounded-lg border border-neutral-300 px-3 py-1.5 text-[11.5px] font-semibold text-neutral-700 disabled:opacity-50">Pin</button>
+                  <button onClick={() => bulk('verify')} disabled={busy==='bulk'} className="rounded-lg border border-neutral-300 px-3 py-1.5 text-[11.5px] font-semibold text-neutral-700 disabled:opacity-50">Mark verified</button>
+                  <button onClick={() => bulk('delete')} disabled={busy==='bulk'} className="rounded-lg border border-red-200 px-3 py-1.5 text-[11.5px] font-semibold text-red-600 disabled:opacity-50">Delete</button>
+                </div>
+              </>
+            )}
+          </div>
+
           {rows.map(r => (
             <div key={r._id} className="card p-5">
               <div className="flex flex-col justify-between gap-3 md:flex-row">
+                <div className="flex flex-1 gap-3">
+                  <input
+                    type="checkbox" checked={selected.includes(r._id)} onChange={() => toggleOne(r._id)}
+                    aria-label={`Select review by ${r.customerName}`}
+                    className="mt-1 h-4 w-4 shrink-0 accent-neutral-900"
+                  />
                 <div className="flex-1">
-                  <div className="flex items-center gap-3">
+                  <div className="flex flex-wrap items-center gap-2">
                     <div className="flex items-center gap-0.5">
                       {[1,2,3,4,5].map(n => (
                         <Star key={n} size={14} className={n <= r.rating ? 'fill-amber-500 text-amber-500' : 'text-neutral-200'} />
@@ -98,6 +152,9 @@ export default function Reviews() {
                     <p className="text-sm font-semibold text-neutral-900">{r.customerName}</p>
                     {r.verified && <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">Verified</span>}
                     <p className="text-xs text-neutral-500">{new Date(r.createdAt).toLocaleDateString('en-PK')}</p>
+                    {r.featured && <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-700">Featured</span>}
+                    {r.pinned && <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-semibold text-blue-700">Pinned</span>}
+                    {r.reports > 0 && <span className="rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-semibold text-red-700">{r.reports} report{r.reports===1?'':'s'}</span>}
                   </div>
                   {r.title && <p className="mt-2 font-semibold text-neutral-900">{r.title}</p>}
                   <p className="mt-1 text-sm text-neutral-700">{r.body}</p>
@@ -112,6 +169,7 @@ export default function Reviews() {
                       {r.product.name} <ExternalLink size={11} />
                     </Link>
                   )}
+                </div>
                 </div>
                 <div className="flex flex-wrap items-start gap-2">
                   {tab !== 'approved' && (

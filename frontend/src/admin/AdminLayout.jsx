@@ -37,7 +37,7 @@ const NAV_GROUPS = [
   {
     label: 'Catalog',
     icon: Package,
-    match: ['/admin/products', '/admin/categories', '/admin/collections', '/admin/reviews'],
+    match: ['/admin/products', '/admin/categories', '/admin/collections', '/admin/reviews', '/admin/questions'],
     children: [
       { to: '/admin/products',              label: 'Inventory',    icon: Package, exact: true },
       { to: '/admin/products/new',          label: 'Add product',  icon: PackagePlus },
@@ -45,6 +45,7 @@ const NAV_GROUPS = [
       { to: '/admin/categories',            label: 'Categories',   icon: Tags },
       { to: '/admin/collections',           label: 'Collections',  icon: Tags },
       { to: '/admin/reviews',               label: 'Reviews',      icon: MessageSquare },
+      { to: '/admin/questions',             label: 'Questions',    icon: MessageSquare },
     ],
   },
   {
