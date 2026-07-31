@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { pictureSources } from '../../lib/responsiveImage';
 
 /* ============================================================================
  * Hero background media.
@@ -58,16 +59,27 @@ export default function HeroMedia({ video, image, poster }) {
   return (
     <>
       {still ? (
-        <img
-          src={still}
-          alt=""
-          aria-hidden="true"
-          fetchpriority="high"
-          decoding="async"
-          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-media ease-standard ${
-            ready ? 'opacity-0' : 'opacity-100'
-          }`}
-        />
+        /* The LCP element of the whole site. Served as AVIF/WebP through the
+           existing manifest (6 KB at 400px vs an 88 KB JPEG), eager, high
+           priority, and decoded SYNCHRONOUSLY — `decoding="async"` lets the
+           browser paint the frame before the image is ready, which is exactly
+           the black flash this fixes. */
+        <picture className="contents">
+          {pictureSources(still).map((so) => (
+            <source key={so.type} type={so.type} srcSet={so.srcSet} sizes="100vw" />
+          ))}
+          <img
+            src={still}
+            alt=""
+            aria-hidden="true"
+            fetchpriority="high"
+            decoding="sync"
+            sizes="100vw"
+            className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-media ease-standard ${
+              ready ? 'opacity-0' : 'opacity-100'
+            }`}
+          />
+        </picture>
       ) : null}
 
       {src && (

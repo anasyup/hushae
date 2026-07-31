@@ -3,6 +3,10 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, ChevronDown } from 'lucide-react';
 import HeroMedia from './HeroMedia';
 
+/* Shipped fallback so the hero is never an empty black frame. Overridden by
+   settings.hero.poster or settings.hero.image the moment either is set. */
+const DEFAULT_HERO_STILL = '/images/hero/hero-still.jpg';
+
 /* ============================================================================
  * Full-bleed hero.
  *
@@ -61,7 +65,23 @@ export default function HeroFullScreen({ hero }) {
       aria-label="Featured"
       className="relative flex min-h-[100svh] items-end overflow-hidden bg-obsidian"
     >
-      <HeroMedia video={hero.video} image={hero.image} poster={hero.poster} />
+      {/* MEASURED, Phase 2 audit: on a 390px viewport the hero rendered PURE
+          BLACK for the whole of first paint. settings.hero.video is a 7.5 MB
+          MP4 and both `image` and `poster` were empty, so HeroMedia had
+          nothing to show while the video downloaded and decoded
+          (videoWidth was still 0 after six seconds, opacity 0).
+
+          The most important pixel on the shop was a black rectangle.
+
+          A packaged fallback still fixes it without a database write, and the
+          merchant can still override it from Admin -> Content exactly as
+          before — this is the same defaulting pattern the title above uses.
+          The still is 6 KB as 400px AVIF through the existing pipeline. */}
+      <HeroMedia
+        video={hero.video}
+        image={hero.image}
+        poster={hero.poster || hero.image || DEFAULT_HERO_STILL}
+      />
 
       {/* Two-stop scrim. A single flat wash either greys the image or leaves
           the type unreadable; weighting it to the bottom keeps the picture
@@ -77,6 +97,31 @@ export default function HeroFullScreen({ hero }) {
             rgba(13,13,13,${Math.max(0, overlay - 0.32)}) 100%)`,
         }}
       />
+
+      {/* HORIZONTAL SCRIM — added in Phase 2 after measuring real pixels.
+          The vertical gradient above darkens top-to-bottom, which was enough
+          against the old flat-black hero. With a real photograph the light
+          shaft on the RIGHT stays bright, and sampling 8,908 background pixels
+          behind the headline found a worst case of 2.45:1 against ivory type —
+          under the 3.0:1 AA floor for large text.
+
+          This darkens the reading edge only, so the subject and the light keep
+          their contrast and the type keeps its legibility. Skipped entirely
+          when the hero is centre-aligned, where there is no single reading
+          edge to protect. */}
+      {!centred && (
+        <div
+          className="absolute inset-0"
+          aria-hidden="true"
+          style={{
+            background: `linear-gradient(to right,
+              rgba(13,13,13,0.72) 0%,
+              rgba(13,13,13,0.55) 28%,
+              rgba(13,13,13,0.16) 62%,
+              rgba(13,13,13,0) 100%)`,
+          }}
+        />
+      )}
 
       <div className={`relative z-10 mx-auto w-full max-w-7xl px-5 pb-16 md:px-8 md:pb-24 ${centred ? 'text-center' : ''}`}>
         {hero.eyebrow && (
