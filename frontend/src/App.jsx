@@ -59,9 +59,15 @@ import ThemeEditor from './admin/ThemeEditor';
 const ThemeEditorApp = lazy(() => import('./theme-editor/ThemeEditorApp'));
 const PreviewApp = lazy(() => import('./theme-editor/ui/PreviewApp'));
 const ThemedHome = lazy(() => import('./theme-editor/ThemedHome'));
-/* CMS storefront page. lazy() so the section renderer (56.8 kB raw) only
-   downloads for a shopper who actually opens a CMS page. */
-const CmsPage = lazy(() => import('./pages/CmsPage'));
+/* CMS storefront page — EAGER, deliberately.
+   MEASURED: as a lazy() route it is mounted by the /:cmsSlug catch-all, so EVERY
+   unknown URL waited a chunk round trip before it could paint its 404. That
+   showed as 0.6844 CLS against 0.0066 on the previous deployment. The component
+   itself is 5.8 kB raw / 2.6 kB gzip; the heavy part is PageRenderer (56.9 kB),
+   which stays lazy inside it and only loads for a page that actually has
+   sections. So the cost is ~2.6 kB gzip on the shopper bundle and the benefit
+   is that 404s and legal pages paint on frame one. */
+import CmsPage from './pages/CmsPage';
 // Admin-only screen: lazy so the bag settings form never ships to shoppers.
 const SettingsCart = lazy(() => import('./admin/SettingsCart'));
 const SettingsCheckout = lazy(() => import('./admin/SettingsCheckout'));
@@ -93,11 +99,6 @@ const OrderPrintDoc = lazy(() => import('./admin/orders/OrderPrintDoc'));
 /* Storefront suspense placeholder. EditorFallback is a full-height grey admin
    screen and would flash over the shop chrome. This reserves a reading column
    instead, which is what keeps CLS at zero on a CMS route. */
-/* The lazy() chunk boundary for CmsPage. Deliberately EMPTY: any reserved box
-   here is a guess at a height nobody knows yet, and both guesses measured as a
-   0.4+ layout shift. See the HoldSpace comment in pages/CmsPage.jsx. */
-const PageFallback = () => null;
-
 const EditorFallback = () => (
   <div className="grid h-screen place-items-center text-sm text-neutral-400">Loading editor…</div>
 );
@@ -199,16 +200,16 @@ export default function App() {
           {/* FAQ — a CMS page at /faq wins if the merchant makes one; otherwise
               the existing settings-driven page with its FAQPage schema stays.
               Same reversible pattern as the legal routes. */}
-          <Route path="/faq" element={<Suspense fallback={<PageFallback />}><CmsPage slug="faq" fallback={Faq} /></Suspense>} />
+          <Route path="/faq" element={<CmsPage slug="faq" fallback={Faq} />} />
           {/* LEGAL PAGES — address unchanged, content from the CMS.
               `fallback` renders the original hardcoded copy until the merchant
               creates the page, so the migration is reversible and /privacy is
               never blank. Deleting Legal.jsx before real pages exist would be
               the breaking change this avoids. */}
-          <Route path="/privacy" element={<Suspense fallback={<PageFallback />}><CmsPage slug="privacy" fallback={() => <Legal kind="privacy" />} /></Suspense>} />
-          <Route path="/terms" element={<Suspense fallback={<PageFallback />}><CmsPage slug="terms" fallback={() => <Legal kind="terms" />} /></Suspense>} />
-          <Route path="/returns" element={<Suspense fallback={<PageFallback />}><CmsPage slug="returns" fallback={() => <Legal kind="returns" />} /></Suspense>} />
-          <Route path="/shipping-policy" element={<Suspense fallback={<PageFallback />}><CmsPage slug="shipping-policy" fallback={() => <Legal kind="shipping" />} /></Suspense>} />
+          <Route path="/privacy" element={<CmsPage slug="privacy" fallback={() => <Legal kind="privacy" />} />} />
+          <Route path="/terms" element={<CmsPage slug="terms" fallback={() => <Legal kind="terms" />} />} />
+          <Route path="/returns" element={<CmsPage slug="returns" fallback={() => <Legal kind="returns" />} />} />
+          <Route path="/shipping-policy" element={<CmsPage slug="shipping-policy" fallback={() => <Legal kind="shipping" />} />} />
           <Route path="/collection/:slug" element={<Collection />} />
 
           <Route path="/admin/login" element={<AdminLogin />} />
@@ -285,7 +286,7 @@ export default function App() {
               a merchant cannot create a page that shadows the shop.
               A single segment only: /:cmsSlug does not match /a/b, which keeps
               product and category URLs out of reach.                        */}
-          <Route path="/:cmsSlug" element={<Suspense fallback={<PageFallback />}><CmsPage /></Suspense>} />
+          <Route path="/:cmsSlug" element={<CmsPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         </StoreLock>

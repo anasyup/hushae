@@ -33,39 +33,31 @@ import { useThemeDoc } from '../theme-editor/useThemeDoc';
 const PageRenderer = lazy(() => import('../theme-editor/render/PageRenderer'));
 
 /**
- * MEASURED THREE TIMES — this placeholder is the whole CLS story of Part 3.
+ * MEASURED FOUR TIMES — this placeholder is the entire CLS story of Part 3.
  *
- *   70svh of skeleton   -> a SHORT campaign page shrank on arrival and the
- *                          footer jumped UP 560px. CLS 0.5416.
- *   280px of skeleton   -> a LONG policy page grew 280 -> 1424px on arrival and
- *                          the footer was pushed DOWN 1144px. CLS 0.4238.
+ *   70svh skeleton  -> a SHORT page shrank on arrival, footer jumped UP 560px.
+ *                      CLS 0.5416.
+ *   280px skeleton  -> a LONG page grew on arrival, footer pushed DOWN 1144px.
+ *                      CLS 0.4238.
+ *   nothing at all  -> WORSE, and on a page that has no CMS content: /nope-404
+ *                      now routes through here, painted an empty document for
+ *                      ~400ms, then inserted the whole 404 page at once.
+ *                      CLS 0.6844 against 0.0066 on the previous deployment.
+ *                      Bisected by removing only the catch-all: 0.0066.
  *
- * There is no single reserved height that fits both, because the height is not
- * knowable until the content is. Reserving ANY fixed box is therefore wrong.
+ * The mistake in all three was treating "waiting" as a state that needs its own
+ * visual. It does not. What every one of these routes HAS is a component that
+ * renders a complete, correct page synchronously:
  *
- * What is knowable: /privacy, /terms, /returns, /shipping-policy and /faq all
- * have a fallback component that renders the FULL page synchronously. For those
- * routes the correct placeholder is not a skeleton at all — it is the fallback
- * itself. The shopper sees real, correct content immediately, and if the CMS
- * later returns a page the swap happens between two full-height documents.
+ *   /privacy /terms /returns /shipping-policy /faq  -> their fallback
+ *   any unknown slug                                -> NotFound
  *
- * For a genuinely unknown slug there is no fallback, and nothing useful can be
- * painted before the answer arrives — so paint NOTHING and let the page appear.
- * A zero-height placeholder cannot shift anything, because the footer simply
- * starts high and moves down once, which is a normal load, not a reflow of
- * already-painted content.
+ * So render THAT immediately, on the first frame, and let the CMS answer swap
+ * it out only if a real page comes back. Nothing is reserved, nothing is
+ * guessed, and the common case — a slug that is not a CMS page — never shifts
+ * at all because the 404 was already there.
  */
-const HoldSpace = ({ minimal }) => (
-  <div aria-hidden="true" className={minimal ? '' : 'mx-auto max-w-3xl px-4 py-16 md:px-8 md:py-24'}>
-    {!minimal && (
-      <>
-        <div className="skeleton h-4 w-28" />
-        <div className="skeleton mt-4 h-10 w-3/4" />
-        <div className="skeleton mt-4 h-4 w-1/2" />
-      </>
-    )}
-  </div>
-);
+const Waiting = ({ Fallback }) => (Fallback ? <Fallback /> : <NotFound />);
 
 /** A section tree is only worth rendering if it actually has sections. */
 const hasSections = (doc) => {
@@ -118,10 +110,9 @@ export default function CmsPage({ slug: fixedSlug, fallback: Fallback }) {
     }
   }, [status, preview]);
 
-  /* A route with a fallback paints the real fallback while the CMS answers, so
-     the shopper never sees a skeleton and the document is full height from the
-     first frame. A route without one paints nothing — see HoldSpace above. */
-  if (status === 'loading') return Fallback ? <Fallback /> : <HoldSpace minimal />;
+  /* Paint the final-looking page on frame one. See the Waiting comment above:
+     every other option measured as a 0.4+ layout shift. */
+  if (status === 'loading') return <Waiting Fallback={Fallback} />;
 
   /* MOVED. The server already collapsed any chain, so this is a single hop.
      `replace` keeps the browser Back button pointing at wherever the shopper
@@ -158,7 +149,7 @@ export default function CmsPage({ slug: fixedSlug, fallback: Fallback }) {
       )}
 
       {sectioned ? (
-        <Suspense fallback={<HoldSpace minimal />}>
+        <Suspense fallback={<Waiting Fallback={Fallback} />}>
           <PageRenderer doc={normalise(page.doc)} theme={theme || {}} />
         </Suspense>
       ) : (
