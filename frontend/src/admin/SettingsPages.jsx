@@ -87,7 +87,7 @@ function useSettingsSlice() {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    api('/settings').then((d) => { setS(d.settings); setOriginal(JSON.stringify(d.settings)); }).catch(() => toast('Could not load settings'));
+    api('/settings/admin', { token: auth.token }).then((d) => { setS(d.settings); setOriginal(JSON.stringify(d.settings)); }).catch(() => toast('Could not load settings'));
   }, []); // eslint-disable-line
 
   const dirty = s && original && JSON.stringify(s) !== original;

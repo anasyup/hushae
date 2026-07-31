@@ -75,7 +75,15 @@ app.use((err, req, res, next) => {
     return res.status(400).json({ message: msg || 'Invalid data' });
   }
   if (err.code === 11000) return res.status(409).json({ message: 'Duplicate record — please check unique fields' });
-  res.status(err.status || 500).json({ message: err.message || 'Something went wrong' });
+  /* MEASURED, Sprint 2M audit: posting {"password":{"$ne":"x"}} to /auth/login
+     returned "Illegal arguments: object, string" — a bcrypt internal, echoed
+     straight to the caller. Error messages the code CHOSE (a 4xx we threw on
+     purpose) are useful and stay. An unexpected 500 is a library or database
+     message and tells an attacker about the stack; it is replaced with a
+     generic line and the real one is logged above for us. */
+  const status = err.status || 500;
+  const safe = status < 500 && err.message ? err.message : 'Something went wrong on our side — please try again';
+  res.status(status).json({ message: safe });
 });
 
 module.exports = app;

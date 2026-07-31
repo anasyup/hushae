@@ -17,7 +17,7 @@ export default function Apps() {
   const [s, setS] = useState(null);
   const [busy, setBusy] = useState(false);
 
-  useEffect(() => { api('/settings').then((d) => setS(d.settings)).catch(() => toast('Could not load settings')); }, []); // eslint-disable-line
+  useEffect(() => { api('/settings/admin', { token: auth.token }).then((d) => setS(d.settings)).catch(() => toast('Could not load settings')); }, []); // eslint-disable-line
 
   if (!s) return <AdminLayout title="Apps"><div className="skeleton h-64 w-full" /></AdminLayout>;
 

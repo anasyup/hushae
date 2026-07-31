@@ -17,7 +17,7 @@ export default function OnlineStore() {
   const storeUrl = window.location.origin;
 
   useEffect(() => {
-    api('/settings').then((d) => setS(d.settings)).catch(() => {});
+    api('/settings/admin', { token: auth.token }).then((d) => setS(d.settings)).catch(() => {});
     api('/health').then(() => setLive(true)).catch(() => setLive(false));
   }, []);
 

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { ArrowRight, Lock } from 'lucide-react';
 import { useApp } from '../store/AppContext';
+import { api } from '../api/client';
 import Tx from './Tx';
 
 export default function StoreLock({ children }) {
@@ -11,27 +12,50 @@ export default function StoreLock({ children }) {
   const [entered, setEntered] = useState(localStorage.getItem('hushae.lockpw') || '');
   const [wrong, setWrong] = useState(false);
 
+  /* MEASURED, Sprint 2M security audit. This component used to compare the
+     typed password against settings.storefrontLock.password IN THE BROWSER,
+     and that value was served by the PUBLIC /api/settings. The gate was
+     therefore decorative: anyone could read the password out of the API and
+     walk straight in.
+
+     The password is now redacted server-side, so the client is given only
+     `hasPassword` and the comparison happens at POST /api/settings/unlock,
+     which is rate limited to 10 attempts per 10 minutes per IP. */
   const lock = settings?.storefrontLock;
   const isAdmin = loc.pathname.startsWith('/admin');
-  // No gate: admin pages, feature off, or no password set
-  if (isAdmin || !lock?.enabled || !lock.password) return children;
-  // Already unlocked with the CURRENT password (changing password re-locks everyone)
-  if (entered === lock.password) return children;
+  const [busy, setBusy] = useState(false);
 
-  const submit = (e) => {
+  // No gate: admin pages, feature off, or no password configured.
+  if (isAdmin || !lock?.enabled || !lock.hasPassword) return children;
+  if (entered === 'ok') return children;
+
+  const submit = async (e) => {
     e.preventDefault();
-    if (pw === lock.password) {
-      localStorage.setItem('hushae.lockpw', pw);
-      setEntered(pw);
-      setWrong(false);
-    } else {
+    if (busy) return;
+    setBusy(true);
+    try {
+      const r = await api('/settings/unlock', { method: 'POST', body: { password: pw } });
+      if (r.ok) {
+        /* Store a flag, not the password. The old code kept the real password
+           in localStorage, which survived long after the gate was lifted. */
+        localStorage.setItem('hushae.lockpw', 'ok');
+        setEntered('ok');
+        setWrong(false);
+      } else {
+        setWrong(true);
+      }
+    } catch {
       setWrong(true);
+    } finally {
+      setBusy(false);
     }
   };
 
   return (
+    /* `children` is NOT rendered behind the overlay any more. It used to be,
+       which meant the entire shop was in the DOM and readable with dev tools
+       or a screen reader while the gate was still up. */
     <>
-      {children}
       <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-obsidian px-4 text-alabaster">
         <p className="font-display text-xl tracking-widest2">HUSHAE</p>
         <h1 className="mt-6 text-center font-display text-2xl md:text-3xl">{lock.heading || 'Opening soon'}</h1>
