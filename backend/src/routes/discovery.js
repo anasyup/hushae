@@ -234,17 +234,29 @@ router.post('/assistant', assistLimit, optionalAuth, asyncHandler(async (req, re
   const gender = req.body?.gender || readGender(text);
   const occasions = readOccasions(text, dcfg);
 
-  /* Build the query the search engine will actually run. Occasion terms are
-     added to whatever the shopper typed, because "something for summer" has
-     no product word in it at all. */
+  /* Build the query the search engine will actually run.
+   *
+   * MEASURED BUG: occasion terms were concatenated onto the shopper's own
+   * words, and runSearch treats a multi-term query as an AND. So
+   * "cotton vest under 1500" became "cotton vest cooling breathable cotton
+   * mesh" — a product had to match all six words. Live proof:
+   *
+   *     /search?q=cotton vest                     -> 11
+   *     /search?q=cooling breathable cotton mesh  ->  0
+   *     assistant "cotton vest under 1500"        ->  widened=true
+   *
+   * Every single assistant question was falling through to the generic
+   * fallback, so it looked like it understood nothing while actually parsing
+   * budget, gender and occasion perfectly.
+   *
+   * The fix is to try the narrowest sensible query first and widen in steps,
+   * rather than fusing everything into one impossible AND. */
   const occTerms = occasions.flatMap((o) => o.terms || []);
   const stripped = text
     .replace(/(?:under|below|less than|upto|up to|max|maximum|over|above|more than|budget|around|about|between|within)\s*(?:rs\.?|pkr)?\s*\d+(?:\.\d+)?k?/gi, ' ')
     .replace(/\d+(?:\.\d+)?k?\s*(?:-|to|and)\s*\d+(?:\.\d+)?k?/gi, ' ')
-    .replace(/\b(i|need|want|looking|for|show|me|find|get|some|something|please|a|an|the|my|is|are|help|choose|gift|buy)\b/gi, ' ')
+    .replace(/\b(i|need|want|looking|for|show|me|find|get|some|something|please|a|an|the|my|is|are|help|choose|buy|chahiye|chahie|liye|mere|mujhe)\b/gi, ' ')
     .replace(/\s+/g, ' ').trim();
-
-  const query = [stripped, ...occTerms].filter(Boolean).join(' ').trim();
 
   const filters = {};
   if (gender) filters.gender = gender;
@@ -258,10 +270,21 @@ router.post('/assistant', assistLimit, optionalAuth, asyncHandler(async (req, re
   const limit = Math.min(12, Number(dcfg.assistant.maxResults) || 6);
   let products = [];
   let widened = false;
+  let usedQuery = '';
 
-  if (query) {
-    const r = await E.runSearch({ query, filters, cfg, limit, skip: 0 });
-    products = r.products;
+  /* Ladder, most specific first. Each rung is a complete, sensible search on
+     its own; the first one that returns anything wins. */
+  const attempts = [];
+  if (stripped) attempts.push(stripped);                 // what they actually typed
+  for (const t of occTerms) attempts.push(t);            // one occasion word at a time
+  if (stripped) {
+    // Individual words from a phrase that found nothing as a whole.
+    for (const w of stripped.split(' ')) if (w.length > 2) attempts.push(w);
+  }
+
+  for (const attempt of [...new Set(attempts)]) {
+    const r = await E.runSearch({ query: attempt, filters, cfg, limit, skip: 0 });
+    if (r.products.length) { products = r.products; usedQuery = attempt; break; }
   }
 
   /* Nothing found? Drop the text and keep the hard constraints. Someone who
@@ -300,7 +323,7 @@ router.post('/assistant', assistLimit, optionalAuth, asyncHandler(async (req, re
 
   res.json({
     reply,
-    understood: { gender, budget, occasions: occasions.map((o) => o.label), query },
+    understood: { gender, budget, occasions: occasions.map((o) => o.label), query: usedQuery },
     products,
     widened,
     // Sensible next steps, generated from what the shopper actually asked.

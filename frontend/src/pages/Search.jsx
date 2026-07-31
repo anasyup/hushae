@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { SlidersHorizontal, Search as SearchIcon, X } from 'lucide-react';
+import { SlidersHorizontal, Search as SearchIcon, Sparkles, X } from 'lucide-react';
 import { api } from '../api/client';
 import { useApp } from '../store/AppContext';
 import { searchConfig, pushHistory, sessionId, highlight } from '../lib/searchConfig';
 import ProductCard from '../components/ProductCard';
 import EmptyState from '../components/ui/EmptyState';
 import SearchFilters from '../components/search/SearchFilters';
+import ShoppingAssistant from '../components/search/ShoppingAssistant';
 
 /* ============================================================================
  * SEARCH RESULTS
@@ -50,6 +51,7 @@ export default function Search() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [facets, setFacets] = useState(null);
+  const [assistOpen, setAssistOpen] = useState(false);
 
   const seq = useRef(0);
   const page = Math.max(1, parseInt(params.get('page') || '1', 10));
@@ -196,6 +198,17 @@ export default function Search() {
           )}
         </button>
 
+        {cfg.assistant?.enabled && cfg.assistant?.showOnShop && (
+          <button
+            type="button"
+            onClick={() => setAssistOpen(true)}
+            className="btn btn-sm inline-flex items-center gap-2 border border-stone bg-white text-graphite hover:bg-satin/60"
+          >
+            <Sparkles size={14} aria-hidden="true" />
+            {cfg.assistant.buttonLabel || 'Help me choose'}
+          </button>
+        )}
+
         <div className="ml-auto flex items-center gap-2">
           <label htmlFor="search-sort" className="sr-only">Sort results</label>
           <select
@@ -326,6 +339,8 @@ export default function Search() {
           )}
         </div>
       </div>
+
+      <ShoppingAssistant cfg={cfg} open={assistOpen} onClose={() => setAssistOpen(false)} />
 
       {/* ---------------- filters, mobile sheet ---------------- */}
       {sheetOpen && (
