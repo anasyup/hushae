@@ -2,7 +2,7 @@ import { Fragment, useEffect, useMemo, useState } from 'react';
 import { Link, NavLink, Navigate, useLocation } from 'react-router-dom';
 import {
   Activity, BadgePercent, BarChart3, ChevronDown, CreditCard, FileText, FolderOpen, Globe, Home,
-  LayoutTemplate, LogOut, Menu, MessageSquare, Package, PackagePlus, PackageX,
+  LayoutTemplate, LogOut, Megaphone, Menu, MessageSquare, Package, PackagePlus, PackageX,
   Search, Settings as SettingsIcon, ShieldCheck, ShoppingBag, Sparkles, Store, Tags, TrendingUp, Truck, Users, X, Zap,
 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
@@ -25,13 +25,14 @@ const NAV_GROUPS = [
   {
     label: 'Sales',
     icon: ShoppingBag,
-    match: ['/admin/orders', '/admin/customers', '/admin/discounts', '/admin/abandoned-carts', '/admin/payments', '/admin/loyalty'],
+    match: ['/admin/orders', '/admin/customers', '/admin/discounts', '/admin/abandoned-carts', '/admin/payments', '/admin/loyalty', '/admin/promotions', '/admin/bundles', '/admin/flash-sales'],
     children: [
       { to: '/admin/orders',           label: 'Orders',           icon: ShoppingBag },
       { to: '/admin/payments',         label: 'Payments',         icon: CreditCard },
       { to: '/admin/customers',        label: 'Customers',        icon: Users },
       { to: '/admin/discounts',        label: 'Discounts',        icon: BadgePercent },
       { to: '/admin/loyalty',          label: 'Loyalty',          icon: Sparkles },
+      { to: '/admin/promotions',       label: 'Promotions',       icon: Megaphone },
       { to: '/admin/abandoned-carts',  label: 'Abandoned carts',  icon: ShoppingBag },
     ],
   },
@@ -63,12 +64,13 @@ const NAV_GROUPS = [
   {
     label: 'Insights',
     icon: BarChart3,
-    match: ['/admin/analytics', '/admin/insights', '/admin/finance', '/admin/live', '/admin/growth', '/admin/search-analytics'],
+    match: ['/admin/analytics', '/admin/insights', '/admin/finance', '/admin/live', '/admin/growth', '/admin/search-analytics', '/admin/marketing/analytics'],
     children: [
       { to: '/admin/finance',   label: 'Finance',       icon: CreditCard },
       { to: '/admin/analytics', label: 'Analytics',     icon: BarChart3 },
       { to: '/admin/insights',  label: 'Deep insights', icon: TrendingUp },
       { to: '/admin/search-analytics', label: 'Search analytics', icon: Search },
+      { to: '/admin/marketing/analytics', label: 'Promo analytics', icon: Megaphone },
       { to: '/admin/live',      label: 'Live view',     icon: Activity },
       { to: '/admin/growth',    label: 'Growth',        icon: TrendingUp },
     ],
@@ -76,7 +78,7 @@ const NAV_GROUPS = [
   {
     label: 'Settings',
     icon: SettingsIcon,
-    match: ['/admin/settings', '/admin/apps', '/admin/backup'],
+    match: ['/admin/settings', '/admin/apps', '/admin/backup', '/admin/marketing/settings'],
     children: [
       { to: '/admin/settings',              label: 'Overview',       icon: SettingsIcon, exact: true },
       { to: '/admin/settings/store',        label: 'Store details',  icon: Store },
@@ -84,6 +86,7 @@ const NAV_GROUPS = [
       { to: '/admin/settings/shipping',     label: 'Shipping',       icon: Truck },
       { to: '/admin/settings/loyalty',      label: 'Loyalty rules',  icon: Sparkles },
       { to: '/admin/settings/search',       label: 'Search rules',   icon: Search },
+      { to: '/admin/marketing/settings',    label: 'Marketing rules', icon: Megaphone },
       { to: '/admin/apps',                  label: 'Integrations',   icon: Zap },
       { to: '/admin/settings/security',     label: 'Security',       icon: ShieldCheck },
       { to: '/admin/backup',                label: 'Backup & restore', icon: FileText },

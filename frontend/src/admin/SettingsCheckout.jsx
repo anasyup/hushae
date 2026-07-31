@@ -4,6 +4,7 @@ import { ArrowLeft, CreditCard, Save, Trash2 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import AdminLayout from './AdminLayout';
+import { Toggle } from './ui/Controls';
 import { CHECKOUT_DEFAULTS } from '../lib/checkoutConfig';
 import { TRUST_ICON_NAMES } from '../pages/cart/TrustRow';
 import { METHOD_ICON_NAMES } from '../pages/checkout/MethodPicker';
@@ -31,23 +32,6 @@ function Section({ title, description, children }) {
   );
 }
 
-function Toggle({ label, description, checked, onChange }) {
-  return (
-    <label className="flex cursor-pointer items-start justify-between gap-4 rounded-xl border border-neutral-200 bg-white px-4 py-3 transition hover:border-neutral-300">
-      <div className="min-w-0">
-        <p className="text-[13px] font-medium text-neutral-900">{label}</p>
-        {description && <p className="mt-0.5 text-[11px] text-neutral-500">{description}</p>}
-      </div>
-      <button
-        type="button" role="switch" aria-checked={!!checked} aria-label={label}
-        onClick={() => onChange(!checked)}
-        className={`relative mt-1 h-5 w-9 shrink-0 rounded-full transition ${checked ? 'bg-neutral-900' : 'bg-neutral-300'}`}
-      >
-        <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-all ${checked ? 'left-[18px]' : 'left-0.5'}`} />
-      </button>
-    </label>
-  );
-}
 
 function Text({ label, hint, value, onChange, ...rest }) {
   return (
@@ -132,9 +116,14 @@ export default function SettingsCheckout() {
                   <button
                     type="button" role="switch" aria-checked={!!m.enabled} aria-label={`Enable ${m.label || m.id}`}
                     onClick={() => setRow('paymentList', i, 'enabled', !m.enabled)}
-                    className={`relative h-5 w-9 shrink-0 rounded-full transition ${m.enabled ? 'bg-neutral-900' : 'bg-neutral-300'}`}
+                    /* MEASURED: these pills are 36x20 and, unlike the <Toggle>
+                       rows, have no <label> wrapper to enlarge the hit area —
+                       8 of the 18 switches on this page were 20px tall. The
+                       padding keeps the pill looking identical while making
+                       the actual target 44px. */
+                    className={`relative -my-3 box-content h-5 w-9 shrink-0 rounded-full bg-clip-content py-3 transition ${m.enabled ? 'bg-neutral-900' : 'bg-neutral-300'}`}
                   >
-                    <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-all ${m.enabled ? 'left-[18px]' : 'left-0.5'}`} />
+                    <span className={`absolute top-3.5 h-4 w-4 rounded-full bg-white shadow transition-all ${m.enabled ? 'left-[18px]' : 'left-0.5'}`} />
                   </button>
                   <input
                     className="input flex-1 min-w-[140px]" value={m.label} placeholder="Shown to customers"
@@ -208,9 +197,14 @@ export default function SettingsCheckout() {
                   <button
                     type="button" role="switch" aria-checked={!!m.enabled} aria-label={`Enable ${m.label || m.id}`}
                     onClick={() => setRow('shippingMethods', i, 'enabled', !m.enabled)}
-                    className={`relative h-5 w-9 shrink-0 rounded-full transition ${m.enabled ? 'bg-neutral-900' : 'bg-neutral-300'}`}
+                    /* MEASURED: these pills are 36x20 and, unlike the <Toggle>
+                       rows, have no <label> wrapper to enlarge the hit area —
+                       8 of the 18 switches on this page were 20px tall. The
+                       padding keeps the pill looking identical while making
+                       the actual target 44px. */
+                    className={`relative -my-3 box-content h-5 w-9 shrink-0 rounded-full bg-clip-content py-3 transition ${m.enabled ? 'bg-neutral-900' : 'bg-neutral-300'}`}
                   >
-                    <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-all ${m.enabled ? 'left-[18px]' : 'left-0.5'}`} />
+                    <span className={`absolute top-3.5 h-4 w-4 rounded-full bg-white shadow transition-all ${m.enabled ? 'left-[18px]' : 'left-0.5'}`} />
                   </button>
                   <input
                     className="input min-w-[140px] flex-1" value={m.label}

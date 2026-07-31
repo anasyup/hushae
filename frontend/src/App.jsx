@@ -68,6 +68,11 @@ const SettingsReviews = lazy(() => import('./admin/SettingsReviews'));
 const SettingsLoyalty = lazy(() => import('./admin/SettingsLoyalty'));
 const SettingsSearch = lazy(() => import('./admin/SettingsSearch'));
 const SearchAnalytics = lazy(() => import('./admin/SearchAnalytics'));
+/* Marketing screens: lazy so none of this reaches a shopper's bundle. */
+const Promotions = lazy(() => import('./admin/Promotions'));
+const PromotionEdit = lazy(() => import('./admin/PromotionEdit'));
+const MarketingSettings = lazy(() => import('./admin/MarketingSettings'));
+const MarketingAnalytics = lazy(() => import('./admin/MarketingAnalytics'));
 const AdminLoyalty = lazy(() => import('./admin/Loyalty'));
 const AdminQuestions = lazy(() => import('./admin/Questions'));
 const Dashboard = lazy(() => import('./admin/Dashboard'));
@@ -207,6 +212,16 @@ export default function App() {
           <Route path="/admin/loyalty" element={<Suspense fallback={<EditorFallback />}><AdminLoyalty /></Suspense>} />
           <Route path="/admin/settings/search" element={<Suspense fallback={<EditorFallback />}><SettingsSearch /></Suspense>} />
           <Route path="/admin/search-analytics" element={<Suspense fallback={<EditorFallback />}><SearchAnalytics /></Suspense>} />
+          <Route path="/admin/promotions" element={<Suspense fallback={<EditorFallback />}><Promotions /></Suspense>} />
+          {/* /new must be declared BEFORE /:id or "new" is read as an id. */}
+          <Route path="/admin/promotions/new" element={<Suspense fallback={<EditorFallback />}><PromotionEdit /></Suspense>} />
+          <Route path="/admin/promotions/:id" element={<Suspense fallback={<EditorFallback />}><PromotionEdit /></Suspense>} />
+          {/* Bundles and flash sales are the same list, pre-filtered by type —
+              a separate screen for each would be three copies of one table. */}
+          <Route path="/admin/bundles" element={<Suspense fallback={<EditorFallback />}><Promotions /></Suspense>} />
+          <Route path="/admin/flash-sales" element={<Suspense fallback={<EditorFallback />}><Promotions /></Suspense>} />
+          <Route path="/admin/marketing/settings" element={<Suspense fallback={<EditorFallback />}><MarketingSettings /></Suspense>} />
+          <Route path="/admin/marketing/analytics" element={<Suspense fallback={<EditorFallback />}><MarketingAnalytics /></Suspense>} />
           <Route path="/admin/settings/security" element={<SettingsSecurity />} />
           <Route path="/admin/settings/legal" element={<SettingsLegal />} />
           <Route path="/admin/settings/advanced" element={<SettingsAdmin />} />

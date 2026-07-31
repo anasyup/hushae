@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import {
   ArrowUpRight, Bell, ChevronRight, CreditCard, FileText, Globe, Info,
   KeyRound, LayoutTemplate, MapPin, Package, Palette, Search, ShieldCheck,
-  ShoppingBag, Sparkles, Star, Store, Truck, Users, Zap,
+  Megaphone, ShoppingBag, Sparkles, Star, Store, Truck, Users, Zap,
 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import AdminLayout from './AdminLayout';
@@ -89,6 +89,13 @@ const CARDS = [
     title: 'Search & Discovery',
     desc: 'What customers can search, typo tolerance, synonyms, suggestions and the shopping assistant.',
     tags: ['search', 'find', 'synonym', 'typo', 'suggest', 'autocomplete', 'filter', 'discovery', 'assistant', 'recommend'],
+  },
+  {
+    to: '/admin/marketing/settings',
+    icon: Megaphone,
+    title: 'Marketing & Promotions',
+    desc: 'Your discount ceiling, how promotions combine, flash sales, automatic badges and basket suggestions.',
+    tags: ['marketing', 'promotion', 'discount', 'sale', 'flash', 'bundle', 'badge', 'upsell', 'cross sell', 'offer', 'deal'],
   },
   {
     to: '/admin/apps',
