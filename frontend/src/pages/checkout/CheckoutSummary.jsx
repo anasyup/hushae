@@ -5,6 +5,7 @@ import Img from '../../components/Img';
 import CouponBox from '../cart/CouponBox';
 import TrustRow from '../cart/TrustRow';
 import Spinner from '../../components/ui/Spinner';
+import PromoSummary from '../../components/marketing/PromoSummary';
 
 /* ============================================================================
  * Checkout order summary.
@@ -16,7 +17,7 @@ import Spinner from '../../components/ui/Spinner';
  * ========================================================================== */
 export default function CheckoutSummary({
   cart, pricing, cartCfg, checkoutCfg, applied, onApply, onRemoveCoupon,
-  submitRef, onSubmit, busy, disabled, rewardsSlot,
+  submitRef, onSubmit, busy, disabled, rewardsSlot, promoQuote = null,
 }) {
   return (
     <div className="card-content">
@@ -50,6 +51,16 @@ export default function CheckoutSummary({
         <div className="mt-5 border-t border-line pt-5">
           <CouponBox subtotal={pricing.subtotal} applied={applied} onApply={onApply} onRemove={onRemoveCoupon} />
         </div>
+      )}
+
+      {/* Automatic promotions, priced by the server. */}
+      {promoQuote && (promoQuote.discounts?.length > 0 || promoQuote.rejected?.length > 0) && (
+        <PromoSummary
+          discounts={promoQuote.discounts}
+          rejected={promoQuote.rejected}
+          capped={promoQuote.capped}
+          className="mt-5 border-t border-line pt-5"
+        />
       )}
 
       {/* Points, store credit and gift cards. Rendered by the parent so the

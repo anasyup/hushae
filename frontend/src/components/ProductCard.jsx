@@ -49,6 +49,11 @@ function ProductCard({
   // h2 (home rows) an h3 is correct; on a bare grid under the page h1 it must
   // be an h2 or the document skips a level — Lighthouse flags heading-order.
   headingLevel = 'h3',
+  /* Marketing (Sprint 2K). Both default to nothing, so a card rendered by any
+     existing caller behaves exactly as it did before this sprint. */
+  marketingBadges = null,    // computed server-side, from /promotions/badges
+  promos = null,             // live promotions whose scope covers this product
+  maxBadges = 2,             // merchant's marketing.badges.maxPerCard
 }) {
   const { inWishlist, toggleWish, addToCart, inCompare, toggleCompare, settings, toast } = useApp();
   const [sizePick, setSizePick] = useState(false);
@@ -73,14 +78,37 @@ function ProductCard({
   const isNew = p.createdAt ? Date.now() - new Date(p.createdAt).getTime() < 21 * DAY : false;
   const limited = !soldOut && p.stock > 0 && p.stock <= 5;
 
-  // One badge in the corner. Stacking three of them turned a product photo
-  // into a sticker sheet; priority order is what the shopper needs first.
-  const badge = soldOut ? { variant: 'soldout', label: 'Sold out' }
-    : (showSaleBadge && off >= 1) ? { variant: 'sale', label: `${off}% off` }
-      : isNew ? { variant: 'new', label: 'New' }
-        : limited ? { variant: 'neutral', label: `Only ${p.stock} left` }
-          : p.isBestSeller ? { variant: 'best', label: 'Bestseller' }
-            : null;
+  /* Badges.
+   *
+   * When the merchant has marketing switched on, the SERVER decides which
+   * badges a product earns — it is the only side that can count recent orders
+   * for "Trending", and the only side that knows the minSalePercent floor.
+   * Measured: 101 of 101 products carry a compareAtPrice, so without that
+   * floor a Sale badge prints on every card and means nothing.
+   *
+   * With marketing off, the original hardcoded rule runs exactly as before, so
+   * every existing call site is untouched. Sold out always wins: a badge
+   * advertising a discount on something unbuyable is worse than no badge. */
+  const serverBadges = (marketingBadges || []).slice(0, Math.max(1, maxBadges));
+  const promoBadges = (promos || [])
+    .filter((x) => x.badge?.text)
+    .map((x) => ({ id: `p-${x.id}`, label: x.badge.text, tone: x.type === 'flash' ? 'sale' : 'sage' }));
+
+  const TONE_TO_VARIANT = { sale: 'sale', new: 'new', accent: 'best', urgent: 'neutral', sage: 'sage' };
+  const fromServer = [...promoBadges, ...serverBadges]
+    .slice(0, Math.max(1, maxBadges))
+    .map((b) => ({ variant: TONE_TO_VARIANT[b.tone] || 'neutral', label: b.label, key: b.id }));
+
+  const legacyBadge = (showSaleBadge && off >= 1) ? { variant: 'sale', label: `${off}% off` }
+    : isNew ? { variant: 'new', label: 'New' }
+      : limited ? { variant: 'neutral', label: `Only ${p.stock} left` }
+        : p.isBestSeller ? { variant: 'best', label: 'Bestseller' }
+          : null;
+
+  const badges = soldOut
+    ? [{ variant: 'soldout', label: 'Sold out', key: 'sold' }]
+    : fromServer.length ? fromServer
+      : legacyBadge ? [{ ...legacyBadge, key: 'legacy' }] : [];
 
   const quickAddOpen = showQuickAdd && !soldOut && sizes.length > 0;
   const Heading = headingLevel;
@@ -122,9 +150,11 @@ function ProductCard({
           )}
         </Link>
 
-        {badge && (
-          <span className="pointer-events-none absolute left-3 top-3">
-            <Badge variant={badge.variant}>{badge.label}</Badge>
+        {/* Absolutely positioned over the image, so swapping a legacy badge for
+            a server one when /promotions/badges resolves cannot shift layout. */}
+        {badges.length > 0 && (
+          <span className="pointer-events-none absolute left-3 top-3 flex max-w-[calc(100%-1.5rem)] flex-wrap gap-1">
+            {badges.map((b) => <Badge key={b.key} variant={b.variant}>{b.label}</Badge>)}
           </span>
         )}
 

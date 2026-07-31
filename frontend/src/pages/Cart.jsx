@@ -9,6 +9,7 @@ import Img from '../components/Img';
 import ProductRow from '../components/ProductRow';
 import CartLine from './cart/CartLine';
 import OrderSummary from './cart/OrderSummary';
+import usePromoQuote from '../lib/usePromoQuote';
 import StickyCheckoutBar from './cart/StickyCheckoutBar';
 import UndoBar from './cart/UndoBar';
 import EmptyBag from './cart/EmptyBag';
@@ -140,6 +141,10 @@ export default function Cart() {
 
   const blocked = lines.some((x) => BLOCKING.has(x.status));
   const pricing = useCartPricing(lines, settings, cfg, applied);
+  /* Display only. useCartPricing remains the single source of bag money; this
+     just tells the shopper which automatic offers the SERVER says apply. The
+     order route recomputes all of it when the order is placed. */
+  const promoQuote = usePromoQuote(cart, { hasCoupon: !!applied });
   const delivery = useMemo(() => deliveryWindow(cfg), [cfg.deliveryMinDays, cfg.deliveryMaxDays]); // eslint-disable-line react-hooks/exhaustive-deps
 
   /* Sold-out rows float to the top: they are the only thing blocking checkout. */
@@ -292,6 +297,7 @@ export default function Cart() {
         <aside className="lg:sticky lg:top-24" aria-label="Order summary">
           <OrderSummary
             pricing={pricing}
+            promoQuote={promoQuote}
             cfg={cfg}
             applied={applied}
             onApply={setApplied}

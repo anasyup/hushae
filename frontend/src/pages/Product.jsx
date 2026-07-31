@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, lazy, Suspense } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
   AlertCircle, Banknote, CheckCircle2, ChevronRight, CreditCard, Heart,
@@ -18,6 +18,11 @@ import Tx from '../components/Tx';
 import Seo, { productJsonLd } from '../components/Seo';
 import ProductGallery from './product/ProductGallery';
 import StickyBuyBar from './product/StickyBuyBar';
+
+/* Product-page only, and it drags Countdown along with it. Lazy so the shop
+   grid and the home page never download either. */
+const ProductPromoPanel = lazy(() => import('../components/marketing/ProductPromoPanel'));
+
 import Accordion from './product/Accordion';
 
 /* Light swatches need a dark tick, everything else a light one. */
@@ -326,6 +331,16 @@ export default function Product() {
                 <Icon size={14} className="text-ash" aria-hidden="true" />{label}
               </span>
             ))}
+          </div>
+
+          {/* Offers on this piece: flash banner, countdown, bundle wording and
+              frequently-bought-together. Renders nothing when no promotion
+              covers the product, so the page is unchanged for a catalogue with
+              no promotions attached. */}
+          <div className="mt-6">
+            <Suspense fallback={null}>
+              <ProductPromoPanel product={p} />
+            </Suspense>
           </div>
 
           <div className="mt-8">

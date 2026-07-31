@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { AlertCircle, Lock } from 'lucide-react';
 import { pkr } from '../../lib/format';
+import PromoSummary from '../../components/marketing/PromoSummary';
 import CouponBox from './CouponBox';
 import FreeShipProgress from './FreeShipProgress';
 import TrustRow from './TrustRow';
@@ -15,7 +16,7 @@ import TrustRow from './TrustRow';
  * The totals block is wrapped in aria-live="polite" so a screen reader hears
  * the new total after a quantity change instead of silently re-rendering.
  * ========================================================================== */
-export default function OrderSummary({ pricing, cfg, applied, onApply, onRemoveCoupon, blocked, ctaRef }) {
+export default function OrderSummary({ pricing, cfg, applied, onApply, onRemoveCoupon, blocked, ctaRef, promoQuote = null }) {
   const { subtotal, discount, shipping, tax, total, savings, count, threshold, freeShip } = pricing;
 
   return (
@@ -35,6 +36,17 @@ export default function OrderSummary({ pricing, cfg, applied, onApply, onRemoveC
       )}
 
       {/* Totals. Live region: the numbers change under the customer's hands. */}
+      {/* Automatic offers, straight from the server's own calculation. Sits
+          above the totals because it explains them. */}
+      {promoQuote && (promoQuote.discounts?.length > 0 || promoQuote.rejected?.length > 0) && (
+        <PromoSummary
+          discounts={promoQuote.discounts}
+          rejected={promoQuote.rejected}
+          capped={promoQuote.capped}
+          className="mt-5"
+        />
+      )}
+
       <dl className="mt-6 space-y-3 border-t border-line pt-5 text-body-sm" aria-live="polite">
         <div className="flex justify-between gap-4">
           <dt className="text-ash">Subtotal ({count} {count === 1 ? 'item' : 'items'})</dt>

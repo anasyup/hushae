@@ -5,6 +5,7 @@ import { api } from '../api/client';
 import { useApp } from '../store/AppContext';
 import { searchConfig, pushHistory, sessionId, highlight } from '../lib/searchConfig';
 import ProductCard from '../components/ProductCard';
+import { usePromotions, useProductBadges, promosForProduct } from '../lib/usePromotions';
 import EmptyState from '../components/ui/EmptyState';
 import SearchFilters from '../components/search/SearchFilters';
 import ShoppingAssistant from '../components/search/ShoppingAssistant';
@@ -38,6 +39,7 @@ const SORTS = [
 const MULTI = ['category', 'tier', 'size', 'color', 'badge', 'tag'];
 
 export default function Search() {
+  const promo = usePromotions();
   const [params, setParams] = useSearchParams();
   const { settings } = useApp();
   const q = params.get('q') || '';
@@ -107,6 +109,7 @@ export default function Search() {
   }, [data, loadingMore, pages.length, queryString]);
 
   const products = useMemo(() => pages.flat(), [pages]);
+  const badgeMap = useProductBadges(products);
 
   /* Facet writes push a history entry so Back undoes one filter; the sort
      replaces, because re-ordering the same results is not a new place. */
@@ -315,7 +318,13 @@ export default function Search() {
               <div className="grid grid-cols-2 gap-x-2 gap-y-6 md:grid-cols-3 xl:grid-cols-4">
                 {products.map((p, i) => (
                   <div key={`${p._id}-${i}`} onClick={() => onCardClick(p, i)}>
-                    <ProductCard product={p} headingLevel="h2" />
+                    <ProductCard
+                      product={p}
+                      headingLevel="h2"
+                      marketingBadges={badgeMap[p.slug]}
+                      promos={promosForProduct(promo.scope, promo.promotions, p)}
+                      maxBadges={promo.badges?.maxPerCard || 2}
+                    />
                   </div>
                 ))}
               </div>

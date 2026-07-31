@@ -1,6 +1,7 @@
 const express = require('express');
 const { asyncHandler } = require('../utils/helpers');
-const { protect, adminOnly } = require('../middleware/auth');
+const rateLimit = require('../middleware/rateLimit');
+const { protect, adminOnly, optionalAuth } = require('../middleware/auth');
 const Promotion = require('../models/Promotion');
 const PromotionUse = require('../models/PromotionUse');
 const Product = require('../models/Product');
@@ -36,7 +37,175 @@ router.get('/active', asyncHandler(async (req, res) => {
       showInCart: p.showInCart !== false,
     }));
 
-  res.json({ enabled: true, promotions: live, flash: cfg.flash, badges: { enabled: cfg.badges.enabled } });
+  /* The storefront needs the badge RULES, not just a flag: it renders badges
+     on cards it already has in memory, and re-fetching every product through
+     a server that computes badges would be a request per grid. The rules are
+     presentation-only — thresholds and toggles, nothing about eligibility or
+     budgets — so publishing them leaks nothing. */
+  res.json({
+    enabled: true,
+    promotions: live,
+    flash: cfg.flash,
+    badges: cfg.badges,
+    scope: {
+      // Which product ids each card-visible promotion covers, so a card can
+      // show "Bundle offer" without asking the server per product. Capped:
+      // an "everything" promotion sends a flag, not 101 ids.
+      byPromotion: live.filter((p) => p.showOnCard).map((p) => {
+        const src = rows.find((r) => String(r._id) === p.id);
+        const sc = src?.scope || {};
+        return {
+          id: p.id,
+          mode: sc.mode || 'all',
+          productIds: (sc.productIds || []).slice(0, 300).map(String),
+          categorySlugs: sc.categorySlugs || [],
+          tags: sc.tags || [],
+          gender: sc.gender || '',
+          tiers: sc.tiers || [],
+        };
+      }),
+    },
+  });
+}));
+
+/* ---------------------------------------------------------------------------
+ * BADGES for a set of products.
+ *
+ * computeBadges() shipped in Part 1 and nothing ever called it — measured:
+ * one definition, one export, zero call sites. The storefront could not reach
+ * it, so "Trending" was unreachable by design.
+ *
+ * Trending needs recent order counts, which only the server can know, so this
+ * is a POST with the slugs currently on screen rather than a rule the client
+ * evaluates. One request per grid, not per card.
+ * ------------------------------------------------------------------------- */
+router.post('/badges', asyncHandler(async (req, res) => {
+  const cfg = await E.marketingConfig();
+  if (!cfg.enabled || !cfg.badges?.enabled) return res.json({ enabled: false, badges: {} });
+
+  const slugs = Array.isArray(req.body?.slugs) ? req.body.slugs.slice(0, 60).map(String) : [];
+  if (!slugs.length) return res.json({ enabled: true, badges: {} });
+
+  const products = await Product.find({ slug: { $in: slugs } })
+    .select('slug price compareAtPrice stock isBestSeller isFeatured createdAt').lean();
+
+  /* Recent order counts drive the Trending badge. One aggregate for the whole
+     grid; doing it per product would be sixty queries for one screen. */
+  let recent = new Map();
+  if (cfg.badges.showTrending) {
+    try {
+      const Order = require('../models/Order');
+      const since = new Date(Date.now() - (Number(cfg.badges.trendingDays) || 7) * 86400000);
+      const rows2 = await Order.aggregate([
+        { $match: { createdAt: { $gte: since }, status: { $nin: ['Cancelled', 'Refunded'] } } },
+        { $unwind: '$items' },
+        { $group: { _id: '$items.product', n: { $sum: 1 } } },
+      ]);
+      const ids = products.map((p) => String(p._id));
+      recent = new Map(rows2.filter((r) => ids.includes(String(r._id))).map((r) => [String(r._id), r.n]));
+    } catch { /* trending is a nicety; never fail the grid for it */ }
+  }
+
+  const out = {};
+  for (const p of products) {
+    const list = E.computeBadges(p, cfg, { recentOrders: recent.get(String(p._id)) || 0 });
+    if (list.length) out[p.slug] = list;
+  }
+  res.json({ enabled: true, badges: out });
+}));
+
+/* ---------------------------------------------------------------------------
+ * CART QUOTE — public, read-only, and the only way the storefront learns what
+ * a promotion is worth.
+ *
+ * The client sends WHICH products and how many. It never sends a price: every
+ * amount comes from the product documents the server loads and the promotion
+ * rules the server reads. Same discipline as the loyalty quote in Sprint 2I —
+ * a request may ask, it may not assert.
+ *
+ * Writes nothing. Usage is recorded by the order route once an order exists.
+ * ------------------------------------------------------------------------- */
+const quoteLimit = rateLimit({ windowMs: 60 * 1000, max: 90, key: 'promo-quote', message: 'One moment — try again shortly' });
+
+router.post('/quote', quoteLimit, optionalAuth, asyncHandler(async (req, res) => {
+  const cfg = await E.marketingConfig();
+  if (!cfg.enabled) return res.json({ enabled: false, discounts: [], total: 0, rejected: [] });
+
+  const items = Array.isArray(req.body?.items) ? req.body.items.slice(0, 50) : [];
+  if (!items.length) return res.json({ enabled: true, discounts: [], total: 0, rejected: [] });
+
+  const ids = items.map((i) => i.product).filter((x) => /^[0-9a-fA-F]{24}$/.test(String(x)));
+  if (!ids.length) return res.json({ enabled: true, discounts: [], total: 0, rejected: [] });
+
+  const products = await Product.find({ _id: { $in: ids }, isActive: true, status: { $ne: 'draft' } }).lean();
+  const byId = new Map(products.map((p) => [String(p._id), p]));
+
+  const lines = [];
+  for (const it of items) {
+    const prod = byId.get(String(it.product));
+    if (!prod) continue;
+    lines.push({
+      key: `${prod._id}:${it.size || ''}:${it.color || ''}`,
+      productId: prod._id,
+      price: prod.price,                              // server price, always
+      qty: Math.max(1, Math.min(20, parseInt(it.quantity, 10) || 1)),
+      product: prod,
+    });
+  }
+  if (!lines.length) return res.json({ enabled: true, discounts: [], total: 0, rejected: [] });
+
+  /* first-order eligibility is counted from real orders, never trusted from
+     the request — otherwise "first order only" is a free-for-all. */
+  let orderCount = 0;
+  const phone = req.user?.phone || String(req.body?.phone || '');
+  const key = String(phone).replace(/\D/g, '').slice(-9);
+  if (key) {
+    try {
+      const Order = require('../models/Order');
+      orderCount = await Order.countDocuments({
+        'customerInfo.phone': { $regex: `${key}$` },
+        status: { $nin: ['Cancelled'] },
+      });
+    } catch { /* an eligibility read must not fail the basket */ }
+  }
+
+  const r = await E.evaluateCart({
+    lines,
+    ctx: {
+      phone, orderCount,
+      city: String(req.body?.city || ''),
+      paymentMethod: String(req.body?.paymentMethod || ''),
+      hasCoupon: !!req.body?.hasCoupon,
+    },
+  });
+
+  /* Only near-misses are published. Telling a shopper a promotion exists for
+     other people, or for another city, is confusing and slightly insulting —
+     "spend PKR 400 more" is useful, "you have ordered before" is not. */
+  const SHOW = new Set(['below-minimum', 'too-few-items']);
+  const nudges = [];
+  for (const rej of r.rejected || []) {
+    if (!SHOW.has(rej.rejectedFor)) continue;
+    const promo = await Promotion.findById(rej.id).select('name publicLabel eligibility').lean().catch(() => null);
+    if (!promo) continue;
+    nudges.push({
+      id: rej.id,
+      name: promo.publicLabel || promo.name,
+      rejectedFor: rej.rejectedFor,
+      need: rej.rejectedFor === 'below-minimum'
+        ? promo.eligibility?.minCartTotal || 0
+        : promo.eligibility?.minCartItems || 0,
+    });
+  }
+
+  res.json({
+    enabled: true,
+    discounts: (r.discounts || []).filter((d) => d.showInCart !== false),
+    total: r.total,
+    capped: r.capped,
+    freeShipping: r.freeShipping,
+    rejected: nudges,
+  });
 }));
 
 /* ---------------------------------------------------------------------------

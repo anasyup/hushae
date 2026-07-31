@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { ChevronDown, SearchX, SlidersHorizontal } from 'lucide-react';
 import { api } from '../api/client';
 import ProductCard from '../components/ProductCard';
+import { usePromotions, useProductBadges, promosForProduct } from '../lib/usePromotions';
 import { ProductGridSkeleton } from '../components/Skeletons';
 import EmptyState from '../components/ui/EmptyState';
 import Seo from '../components/Seo';
@@ -27,6 +28,9 @@ const TITLES = {
 };
 
 export default function Shop({ preset = {} }) {
+  /* Marketing badges. One request for the whole grid, not one per card, and
+     both hooks no-op when the merchant has marketing switched off. */
+  const promo = usePromotions();
   const f = useShopFilters(preset);
   const [cats, setCats] = useState([]);
   const [products, setProducts] = useState(null);
@@ -57,6 +61,9 @@ export default function Shop({ preset = {} }) {
   // Facets the API cannot express (second and later values in a multi-select,
   // availability) are applied here so the count and the grid always agree.
   const visible = useMemo(() => applyClientFacets(products, f), [products, f]);
+  // Keyed on the rendered set, so a filter change re-asks for exactly the
+  // cards on screen rather than the whole unfiltered fetch.
+  const badgeMap = useProductBadges(visible);
 
   const activeCat = cats.find((c) => c.slug === f.category);
   const meta = activeCat
@@ -166,7 +173,14 @@ export default function Shop({ preset = {} }) {
                 // Deliberately NOT eager. The source images are 1024x1024 PNGs
                 // of ~2MB; marking the first row high-priority made them the
                 // LCP element and pushed desktop LCP from 4.8s to 13.1s.
-                <ProductCard key={p._id} product={p} headingLevel="h2" />
+                <ProductCard
+                  key={p._id}
+                  product={p}
+                  headingLevel="h2"
+                  marketingBadges={badgeMap[p.slug]}
+                  promos={promosForProduct(promo.scope, promo.promotions, p)}
+                  maxBadges={promo.badges?.maxPerCard || 2}
+                />
               ))}
             </div>
           )}

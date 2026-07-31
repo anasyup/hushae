@@ -12,6 +12,7 @@ import FloatField, { FloatSelect } from './checkout/FloatField';
 import MethodPicker from './checkout/MethodPicker';
 import CheckoutSummary from './checkout/CheckoutSummary';
 import RewardsBox from './checkout/RewardsBox';
+import usePromoQuote from '../lib/usePromoQuote';
 import ReviewDialog from './checkout/ReviewDialog';
 import StickyPlaceOrder from './checkout/StickyPlaceOrder';
 
@@ -75,6 +76,15 @@ export default function Checkout() {
      server and re-computed by the server when the order is placed. */
   const [rewards, setRewards] = useState({ points: 0, useCredit: false, giftCardCode: '' });
   const [quote, setQuote] = useState(null);
+  /* Automatic promotions, priced by the server. Display only — the order route
+     recomputes every one of them before charging anything. */
+  /* cityLabel is derived further down the component; reading it here would be
+     a temporal dead zone crash. The city only narrows city-restricted
+     promotions, so it is read straight from form state instead. */
+  const promoQuote = usePromoQuote(cart, {
+    hasCoupon: !!applied,
+    city: f.city === '__other' ? (f.customCity || '').trim() : f.city,
+  });
 
   const [errs, setErrs] = useState({});
   const [busy, setBusy] = useState(false);
@@ -689,6 +699,7 @@ export default function Checkout() {
             onSubmit={openReview}
             busy={busy}
             disabled={payments.length === 0}
+            promoQuote={promoQuote}
             rewardsSlot={auth?.token ? (
               <RewardsBox
                 token={auth.token}
