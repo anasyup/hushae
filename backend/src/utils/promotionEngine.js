@@ -401,9 +401,15 @@ function resolveConflicts(candidates, cfg) {
  * writes anything; the caller records usage after the order exists, the same
  * way loyalty debits balances only once the order row is safe.
  */
-async function evaluateCart({ lines = [], ctx = {}, at = new Date(), promotions = null }) {
+async function evaluateCart({ lines = [], ctx = {}, at = new Date(), promotions = null, force = false }) {
   const cfg = await marketingConfig();
-  if (!cfg.enabled) return { enabled: false, discounts: [], total: 0, rejected: [] };
+  /* `force` exists for the admin preview only.
+     A merchant sets promotions up BEFORE switching the programme on — that is
+     the point of a preview. Without this they would have to enable marketing
+     on a live store just to see what a rule does. The storefront never passes
+     force, so shoppers still see nothing until the merchant is ready, and
+     preview writes nothing either way. */
+  if (!cfg.enabled && !force) return { enabled: false, discounts: [], total: 0, rejected: [] };
 
   const Promotion = require('../models/Promotion');
   const all = promotions || await Promotion.find({ enabled: true }).lean();
@@ -516,6 +522,7 @@ async function evaluateCart({ lines = [], ctx = {}, at = new Date(), promotions 
 
   return {
     enabled: true,
+    programmeLive: !!cfg.enabled,
     discounts: applied.filter((c) => c.amount > 0 || c.freeShipping),
     total,
     subtotal,

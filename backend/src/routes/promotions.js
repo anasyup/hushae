@@ -236,6 +236,9 @@ router.post('/preview', asyncHandler(async (req, res) => {
     },
     at: req.body?.at ? new Date(req.body.at) : new Date(),
     promotions,
+    // Admin-only, writes nothing: let the merchant test rules before the
+    // programme is switched on.
+    force: true,
   });
 
   const subtotal = lines.reduce((s, l) => s + l.price * l.qty, 0);
