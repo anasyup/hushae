@@ -69,22 +69,100 @@ router.get('/me', protect, asyncHandler(async (req, res) => {
     expiringSoon = Math.max(0, rows[0]?.total || 0);
   }
 
+  /* Badges are evaluated AND granted here. The dashboard is the one place a
+     customer reliably visits, so it is the natural moment to settle anything
+     they have already earned — rather than a nightly job that may not run. */
+  let achievements = { list: [], unlocked: [] };
+  try {
+    achievements = await E.evaluateAchievements(acc, cfg, { grant: true });
+  } catch { /* a badge must never break the dashboard */ }
+
+  // Re-read only if granting changed something, so the balance shown is current.
+  const fresh = achievements.unlocked.length
+    ? await LoyaltyAccount.findById(acc._id)
+    : acc;
+
   res.json({
     enabled: true,
+    programName: cfg.programName,
+    pointsName: cfg.pointsName,
+    pointsNameOne: cfg.pointsNameOne,
+    dashboardTitle: cfg.dashboardTitle,
+    joinText: cfg.joinText,
     account: {
-      points: acc.pointsBalance,
-      credit: acc.creditBalance,
-      lifetimeEarned: acc.pointsEarned,
-      referralCode: acc.referralCode,
-      referralCount: acc.referralCount,
-      badges: acc.badges,
-      birthday: acc.birthday,
-      claimed: acc.claimed,
+      points: fresh.pointsBalance,
+      credit: fresh.creditBalance,
+      lifetimeEarned: fresh.pointsEarned,
+      lifetimeRedeemed: fresh.pointsRedeemed,
+      referralCode: fresh.referralCode,
+      referralCount: fresh.referralCount,
+      badges: fresh.badges,
+      birthday: fresh.birthday,
+      claimed: fresh.claimed,
+      blocked: fresh.blocked,
     },
     tier: { ...tier, spend },
+    achievements: achievements.list,
+    justUnlocked: achievements.unlocked,
+    stats: achievements.stats || null,
     expiringSoon,
     pointValue: cfg.redeem.pointValue,
-    creditValue: acc.creditBalance,
+    redeem: cfg.redeem,
+    referral: cfg.referral.enabled
+      ? { enabled: true, referrerPoints: cfg.referral.referrerPoints, refereePoints: cfg.referral.refereePoints, minOrderValue: cfg.referral.minOrderValue }
+      : { enabled: false },
+    giftCards: { enabled: cfg.giftCards.enabled },
+    credit: cfg.credit,
+    expiry: cfg.expiry,
+    earn: {
+      perCurrency: cfg.earn.perCurrency,
+      signupPoints: cfg.earn.signupEnabled ? cfg.earn.signupPoints : 0,
+      firstOrderPoints: cfg.earn.firstOrderEnabled ? cfg.earn.firstOrderPoints : 0,
+      reviewPoints: cfg.earn.reviewEnabled ? cfg.earn.reviewPoints : 0,
+      birthdayPoints: cfg.earn.birthdayEnabled ? cfg.earn.birthdayPoints : 0,
+      newsletterPoints: cfg.earn.newsletterEnabled ? cfg.earn.newsletterPoints : 0,
+      profilePoints: cfg.earn.profileEnabled ? cfg.earn.profilePoints : 0,
+    },
+    tiers: cfg.tiers.enabled ? cfg.tiers : { enabled: false, levels: [] },
+  });
+}));
+
+/* ---------------------------------------------------------------------------
+ * REFERRAL — my own dashboard
+ * Shows who I brought in and what I was paid, without leaking their details.
+ * ------------------------------------------------------------------------- */
+router.get('/me/referrals', protect, asyncHandler(async (req, res) => {
+  const cfg = await E.loyaltyConfig();
+  if (!cfg.enabled || !cfg.referral.enabled) return res.json({ enabled: false });
+
+  const acc = await E.getAccount({ phone: req.user.phone, user: req.user._id }, cfg);
+  if (!acc) return res.json({ enabled: true, needsPhone: true });
+
+  const [joined, payouts] = await Promise.all([
+    LoyaltyAccount.find({ referredBy: acc.referralCode })
+      .select('name createdAt').sort({ createdAt: -1 }).limit(50).lean(),
+    LoyaltyLedger.find({ account: acc._id, reason: 'referral' })
+      .select('amount note createdAt').sort({ createdAt: -1 }).limit(50).lean(),
+  ]);
+
+  const paidTotal = payouts.reduce((s, r) => s + (r.amount || 0), 0);
+
+  res.json({
+    enabled: true,
+    code: acc.referralCode,
+    referrerPoints: cfg.referral.referrerPoints,
+    refereePoints: cfg.referral.refereePoints,
+    minOrderValue: cfg.referral.minOrderValue,
+    payOnStatus: cfg.referral.payOnStatus,
+    joinedCount: joined.length,
+    paidCount: payouts.length,
+    paidTotal,
+    // First name only. My friend's identity is not mine to publish.
+    joined: joined.map((j) => ({
+      name: (j.name || '').split(' ')[0] || 'A friend',
+      at: j.createdAt,
+    })),
+    payouts,
   });
 }));
 
@@ -344,6 +422,15 @@ router.get('/admin/export', protect, adminOnly, asyncHandler(async (req, res) =>
   res.setHeader('Content-Type', 'text/csv; charset=utf-8');
   res.setHeader('Content-Disposition', 'attachment; filename="loyalty-ledger.csv"');
   res.send(`${head}\n${body}`);
+}));
+
+/* Run the expiry sweep by hand.
+   A serverless app has no reliable long-running cron, and /loyalty/me only
+   settles the customer looking at it. This gives the merchant a button, and
+   the response says plainly what it did. */
+router.post('/admin/expire', protect, adminOnly, asyncHandler(async (req, res) => {
+  const r = await E.expireDuePoints({ limit: 1000 });
+  res.json(r);
 }));
 
 /* Dry-run backfill: what WOULD historical orders be worth? Writes nothing.

@@ -49,6 +49,26 @@ const orderSchema = new mongoose.Schema({
   tax: { type: Number, default: 0 },
   taxPercent: { type: Number, default: 0 },
   shippingMethod: { type: String, default: 'standard' },
+
+  /* ---- Rewards applied at checkout -------------------------------------
+   * Snapshotted as amounts, not as "the customer had X points". What was
+   * taken off THIS order must survive any later change to the point value,
+   * exactly like tax above. Every one of these is computed by the server
+   * from the ledger; the client can ask to redeem, never state a value.
+   *
+   * They are recorded separately from `discount` on purpose: a coupon is
+   * marketing spend, points are a liability being settled, and store credit
+   * is money already owed. Merging them makes the accounts unreadable. */
+  pointsRedeemed:     { type: Number, default: 0 },   // points spent
+  pointsDiscount:     { type: Number, default: 0 },   // PKR they were worth
+  creditUsed:         { type: Number, default: 0 },   // PKR of store credit
+  giftCardUsed:       { type: Number, default: 0 },   // PKR of gift card
+  giftCardLast4:      { type: String, default: '' },
+  giftCard:           { type: mongoose.Schema.Types.ObjectId, ref: 'GiftCard', default: null },
+  /* Set once the rewards have actually been debited, so a retry or a replayed
+     webhook can never charge the same balances twice. */
+  rewardsSettled:     { type: Boolean, default: false },
+
   total: { type: Number, required: true },
   paymentMethod: { type: String, enum: PAYMENT_METHODS, required: true },
   paymentStatus: { type: String, enum: PAYMENT_STATUSES, default: 'Pending' },

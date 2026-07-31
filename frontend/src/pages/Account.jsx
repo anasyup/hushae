@@ -54,6 +54,12 @@ export default function Account() {
   const [loadErr, setLoadErr] = useState('');
   const headingRef = useRef(null);
 
+  /* Loyalty standing, for the overview tile. `null` while in flight, and the
+     tile renders a dash rather than a zero — showing "0 points" to someone who
+     has 2,450 for half a second is worse than showing nothing. */
+  const [loyalty, setLoyalty] = useState(null);
+  const loyaltyOn = loyalty?.enabled === true;
+
   /* The server's real capabilities. Fetched once, for signed-out and
      signed-in alike, because the sign-in form needs it too. */
   useEffect(() => {
@@ -74,6 +80,11 @@ export default function Account() {
     api('/customer/orders', { token: auth.token })
       .then((d) => { if (alive) setOrders(d.orders || []); })
       .catch(() => { if (alive) setOrders([]); });
+    // Returns { enabled:false } when the merchant has the programme switched
+    // off, which is why the tile keys on enabled rather than on the response.
+    api('/loyalty/me', { token: auth.token })
+      .then((d) => { if (alive) setLoyalty(d); })
+      .catch(() => { if (alive) setLoyalty({ enabled: false }); });
     return () => { alive = false; };
   }, [auth?.token]);
 
@@ -207,11 +218,26 @@ export default function Account() {
                   <p className="mt-2 font-display text-h3">{(user.addresses || []).length}</p>
                   <p className="mt-1 text-caption text-ash">Manage saved addresses</p>
                 </button>
-                <Link to="/wishlist" className="card-content block transition hover:border-obsidian/30">
-                  <p className="text-label uppercase tracking-widest text-ash">Wishlist</p>
-                  <p className="mt-2 font-display text-h3">♡</p>
-                  <p className="mt-1 text-caption text-ash">Pieces you saved</p>
-                </Link>
+                {/* Rewards replaces the Wishlist tile when the programme is
+                    running — the wishlist already has its own section in the
+                    rail above, so the tile was a duplicate entry point. */}
+                {loyaltyOn ? (
+                  <Link to="/rewards" className="card-content block transition hover:border-obsidian/30">
+                    <p className="text-label uppercase tracking-widest text-ash">Rewards</p>
+                    <p className="mt-2 font-display text-h3 tabular-nums">
+                      {loyalty === null ? '—' : Number(loyalty.account?.points || 0).toLocaleString('en-PK')}
+                    </p>
+                    <p className="mt-1 text-caption text-ash">
+                      {loyalty?.tier?.current?.name ? `${loyalty.tier.current.name} member` : 'Points and tiers'}
+                    </p>
+                  </Link>
+                ) : (
+                  <Link to="/wishlist" className="card-content block transition hover:border-obsidian/30">
+                    <p className="text-label uppercase tracking-widest text-ash">Wishlist</p>
+                    <p className="mt-2 font-display text-h3">♡</p>
+                    <p className="mt-1 text-caption text-ash">Pieces you saved</p>
+                  </Link>
+                )}
               </div>
 
               {defaultAddr && (

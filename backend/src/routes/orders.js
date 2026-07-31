@@ -19,7 +19,14 @@ const phoneTail = (s) => digits(s).slice(-10); // forgiving match: 0300... / +92
 
 // ---- Place order (guest or logged-in) ----
 router.post('/', placeOrderLimit, optionalAuth, asyncHandler(async (req, res) => {
-  const { customerInfo = {}, items = [], paymentMethod, transactionId = '', discountCode = '', discreetPackaging = true, shippingMethod = 'standard' } = req.body || {};
+  const {
+    customerInfo = {}, items = [], paymentMethod, transactionId = '', discountCode = '',
+    discreetPackaging = true, shippingMethod = 'standard',
+    /* Rewards. The client states INTENT only — how many points to spend, and
+       whether to apply credit or a card. It never sends a rupee value; every
+       amount below is computed from the server's own ledger. */
+    redeemPoints = 0, useCredit = false, giftCardCode = '',
+  } = req.body || {};
 
   const required = ['name', 'phone', 'address', 'city', 'province', 'postalCode'];
   for (const f of required) {
@@ -167,7 +174,93 @@ router.post('/', placeOrderLimit, optionalAuth, asyncHandler(async (req, res) =>
   const taxPercent = Number(settings.cart && settings.cart.taxPercent) || 0;
   const tax = taxPercent > 0 ? Math.round((afterDiscount * taxPercent) / 100) : 0;
 
-  const total = afterDiscount + shippingCharge + tax;
+  /* --------------------------------------------------------------------
+   * REWARDS APPLIED AT CHECKOUT
+   *
+   * Three rules, all enforced here and nowhere else:
+   *
+   *  1. THE CLIENT NEVER SETS A VALUE. It may ask to spend 500 points; what
+   *     those points are worth is read from settings, and whether the
+   *     customer HAS them is read from the ledger.
+   *  2. NOTHING IS DEBITED YET. Amounts are calculated, then the balances are
+   *     actually taken after the order row exists — so a failed order cannot
+   *     eat someone's points.
+   *  3. THE ORDER CAN NEVER GO BELOW ZERO. Each reward is capped by what is
+   *     still payable at that point in the sequence.
+   *
+   * Order of application: points (capped by the merchant's percentage), then
+   * store credit, then gift card. Points first because they are the most
+   * restricted; credit and cards can cover anything that is left.
+   * ------------------------------------------------------------------ */
+  const LE = require('../utils/loyaltyEngine');
+  const lcfg = await LE.loyaltyConfig();
+
+  let pointsToSpend = 0;
+  let pointsDiscount = 0;
+  let creditToUse = 0;
+  let giftCardToUse = 0;
+  let giftCardDoc = null;
+  let loyaltyAcc = null;
+
+  if (lcfg.enabled) {
+    const wantPoints = Math.max(0, Math.floor(Number(redeemPoints) || 0));
+    const wantCredit = !!useCredit;
+    const wantCard = String(giftCardCode || '').trim();
+
+    if (wantPoints || wantCredit || wantCard) {
+      // Payable before rewards: goods after coupon, plus shipping and tax.
+      let payable = afterDiscount + shippingCharge + tax;
+
+      if (wantPoints || wantCredit) {
+        loyaltyAcc = await LE.getAccount({ phone: phoneNorm, email: customerInfo.email, name: customerInfo.name, user: req.user ? req.user._id : null }, lcfg);
+      }
+
+      if (loyaltyAcc && !loyaltyAcc.blocked) {
+        if (wantPoints > 0 && lcfg.redeem.enabled) {
+          // maxRedeemable applies the minimum, the step and the % cap.
+          const q = LE.maxRedeemable(loyaltyAcc.pointsBalance, afterDiscount, lcfg);
+          const step = Number(lcfg.redeem.step) || 1;
+          // Honour the customer's smaller request, snapped to the step.
+          let use = Math.min(wantPoints, q.points);
+          use = Math.floor(use / step) * step;
+          if (use >= (Number(lcfg.redeem.minPoints) || 0) && use > 0) {
+            const value = Math.min(use * (Number(lcfg.redeem.pointValue) || 1), payable);
+            pointsToSpend = use;
+            pointsDiscount = value;
+            payable -= value;
+          }
+        }
+
+        if (wantCredit && lcfg.credit.enabled && lcfg.credit.allowAtCheckout && payable > 0) {
+          creditToUse = Math.min(loyaltyAcc.creditBalance, payable);
+          payable -= creditToUse;
+        }
+      }
+
+      if (wantCard && lcfg.giftCards.enabled && payable > 0) {
+        const crypto = require('crypto');
+        const GiftCard = require('../models/GiftCard');
+        const hash = crypto.createHash('sha256').update(wantCard.trim().toUpperCase()).digest('hex');
+        const card = await GiftCard.findOne({ codeHash: hash });
+        const usable = card && card.active && card.balance > 0
+          && (!card.expiresAt || card.expiresAt >= new Date());
+        if (usable) {
+          giftCardDoc = card;
+          giftCardToUse = Math.min(card.balance, payable);
+          payable -= giftCardToUse;
+        } else if (wantCard) {
+          // An invalid card is worth saying out loud — silently ignoring it
+          // means the customer is charged more than the screen promised.
+          for (const li of lineItems) await Product.findByIdAndUpdate(li.product, { $inc: { stock: li.quantity } });
+          if (appliedCode) await Discount.findOneAndUpdate({ code: appliedCode }, { $inc: { usedCount: -1 } });
+          return res.status(400).json({ field: 'giftCardCode', message: 'That gift card is not valid or has no balance left' });
+        }
+      }
+    }
+  }
+
+  const rewardsTotal = pointsDiscount + creditToUse + giftCardToUse;
+  const total = Math.max(0, afterDiscount + shippingCharge + tax - rewardsTotal);
 
   const order = await Order.create({
     orderNumber: orderNumber(),
@@ -181,10 +274,61 @@ router.post('/', placeOrderLimit, optionalAuth, asyncHandler(async (req, res) =>
     },
     items: lineItems, subtotal, shippingCharge, discount: discountAmount, couponCode: appliedCode,
     tax, taxPercent, shippingMethod: chosenShip ? chosenShip.id : 'standard', total,
+    pointsRedeemed: pointsToSpend,
+    pointsDiscount,
+    creditUsed: creditToUse,
+    giftCardUsed: giftCardToUse,
+    giftCardLast4: giftCardDoc ? giftCardDoc.last4 : '',
+    giftCard: giftCardDoc ? giftCardDoc._id : null,
     paymentMethod, paymentStatus: 'Pending', transactionId: transactionId.trim(),
     status: 'Pending', statusHistory: [{ status: 'Pending' }],
     discreetPackaging: !!discreetPackaging,
   });
+
+  /* Debit the balances only now that the order exists.
+   *
+   * Doing this AFTER the write is the whole point: if the order had failed,
+   * the customer's points would already be gone with nothing to show for it.
+   * Each debit carries an idempotency key built from the order id, so a retry
+   * of this request cannot take the same points twice.
+   *
+   * A failure here is logged and swallowed. An order that is placed but whose
+   * points were not deducted is a small accounting problem the merchant can
+   * see in the ledger; an order that vanishes at the last step is a lost sale. */
+  if (rewardsTotal > 0) {
+    try {
+      if (pointsToSpend > 0) {
+        await LE.award({
+          phone: phoneNorm, kind: 'points', amount: -pointsToSpend,
+          reason: 'redeem', note: `Spent on ${order.orderNumber}`,
+          order: order._id, orderNumber: order.orderNumber,
+          idempotencyKey: `redeem:${order._id}`,
+        });
+      }
+      if (creditToUse > 0) {
+        await LE.award({
+          phone: phoneNorm, kind: 'credit', amount: -creditToUse,
+          reason: 'redeem', note: `Applied to ${order.orderNumber}`,
+          order: order._id, orderNumber: order.orderNumber,
+          idempotencyKey: `credit:${order._id}`,
+        });
+      }
+      if (giftCardDoc && giftCardToUse > 0) {
+        // $inc, not a read-modify-write: two orders redeeming the same card at
+        // the same moment must not both see the original balance.
+        await require('../models/GiftCard').updateOne(
+          { _id: giftCardDoc._id, balance: { $gte: giftCardToUse } },
+          {
+            $inc: { balance: -giftCardToUse },
+            $push: { redemptions: { amount: giftCardToUse, order: order._id, orderNumber: order.orderNumber, at: new Date() } },
+          },
+        );
+      }
+      await Order.updateOne({ _id: order._id }, { $set: { rewardsSettled: true } });
+    } catch (e) {
+      console.error('Rewards settlement failed for', order.orderNumber, e.message);
+    }
+  }
 
   // Fire-and-forget emails: customer confirmation + admin new-order alert.
   // Never blocks the checkout response — errors are swallowed inside mailer.

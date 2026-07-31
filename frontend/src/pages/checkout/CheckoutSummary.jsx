@@ -16,7 +16,7 @@ import Spinner from '../../components/ui/Spinner';
  * ========================================================================== */
 export default function CheckoutSummary({
   cart, pricing, cartCfg, checkoutCfg, applied, onApply, onRemoveCoupon,
-  submitRef, onSubmit, busy, disabled,
+  submitRef, onSubmit, busy, disabled, rewardsSlot,
 }) {
   return (
     <div className="card-content">
@@ -52,6 +52,10 @@ export default function CheckoutSummary({
         </div>
       )}
 
+      {/* Points, store credit and gift cards. Rendered by the parent so the
+          quote it depends on lives next to the pricing that consumes it. */}
+      {rewardsSlot}
+
       {/* Live region: the total changes when a coupon or shipping method changes. */}
       <dl className="mt-5 space-y-3 border-t border-line pt-5 text-body-sm" aria-live="polite">
         <div className="flex justify-between gap-4">
@@ -74,6 +78,27 @@ export default function CheckoutSummary({
           <div className="flex justify-between gap-4">
             <dt className="text-ash">{cartCfg.taxLabel}</dt>
             <dd className="font-medium tabular-nums">{pkr(pricing.tax)}</dd>
+          </div>
+        )}
+        {/* Each reward is its own line. Rolling them into "discount" would
+            hide what is a coupon, what is settled points and what is store
+            credit — three different things on the merchant's books. */}
+        {pricing.pointsValue > 0 && (
+          <div className="flex justify-between gap-4 text-sagedark">
+            <dt>Points applied</dt>
+            <dd className="font-medium tabular-nums">− {pkr(pricing.pointsValue)}</dd>
+          </div>
+        )}
+        {pricing.creditValue > 0 && (
+          <div className="flex justify-between gap-4 text-sagedark">
+            <dt>Store credit</dt>
+            <dd className="font-medium tabular-nums">− {pkr(pricing.creditValue)}</dd>
+          </div>
+        )}
+        {pricing.cardValue > 0 && (
+          <div className="flex justify-between gap-4 text-sagedark">
+            <dt>Gift card</dt>
+            <dd className="font-medium tabular-nums">− {pkr(pricing.cardValue)}</dd>
           </div>
         )}
         <div className="flex items-baseline justify-between gap-4 border-t border-line pt-4">

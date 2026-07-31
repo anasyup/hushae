@@ -16,6 +16,7 @@ import OrderConfirm from './pages/OrderConfirm';
 import Track from './pages/Track';
 import FitFinder from './pages/FitFinder';
 import Wishlist from './pages/Wishlist';
+import Rewards from './pages/Rewards';
 import Compare from './pages/Compare';
 import Account from './pages/Account';
 import ResetPassword from './pages/account/ResetPassword';
@@ -164,6 +165,7 @@ export default function App() {
           <Route path="/track" element={<Track />} />
           <Route path="/fit-finder" element={<FitFinder />} />
           <Route path="/wishlist" element={<Wishlist />} />
+          <Route path="/rewards" element={<Rewards />} />
           <Route path="/compare" element={<Compare />} />
           <Route path="/account" element={<Account />} />
           <Route path="/reset-password" element={<ResetPassword />} />

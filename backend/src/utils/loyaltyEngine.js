@@ -294,7 +294,152 @@ function maxRedeemable(pointsBalance, orderSubtotal, cfg) {
   return { points: usable, value: usable * pointValue, pointValue, step, minPoints };
 }
 
+/* ---------------------------------------------------------------------------
+ * ACHIEVEMENTS
+ *
+ * settings.loyalty.achievements shipped in Part 1 with four badges configured,
+ * but nothing ever evaluated them — a setting the merchant can edit that
+ * changes nothing is worse than no setting at all. This is the evaluator.
+ *
+ * The counts come from the SERVER's own collections, never from a request.
+ * A badge can only be unlocked once: the id is added to account.badges and
+ * the bonus is awarded under an idempotency key built from that id.
+ * ------------------------------------------------------------------------- */
+
+/** Real progress for one customer, measured against the live collections. */
+async function achievementStats(account, cfg) {
+  const Order = require('../models/Order');
+  const Review = require('../models/Review');
+  const key = account.phone;
+
+  const [orderAgg, reviews] = await Promise.all([
+    Order.aggregate([
+      { $match: { 'customerInfo.phone': { $regex: `${key}$` }, status: { $nin: ['Cancelled'] } } },
+      { $group: { _id: null, n: { $sum: 1 }, spend: { $sum: '$total' } } },
+    ]),
+    // Reviews carry no phone, so they are counted by the account behind them.
+    account.user
+      ? Review.countDocuments({ user: account.user, status: 'approved' })
+      : Promise.resolve(0),
+  ]);
+
+  return {
+    orders: orderAgg[0]?.n || 0,
+    spend: orderAgg[0]?.spend || 0,
+    reviews,
+    referrals: account.referralCount || 0,
+    points: account.pointsEarned || 0,
+  };
+}
+
+/**
+ * Evaluate every configured badge for one account.
+ *
+ * Returns the full list with progress so the dashboard can show "2 of 5
+ * orders" rather than a locked padlock with no explanation — a badge you
+ * cannot see the distance to is not motivating, it is decoration.
+ *
+ * `award: false` makes this a pure read, which is what the dashboard uses.
+ */
+async function evaluateAchievements(account, cfg, { grant = false } = {}) {
+  if (!cfg.achievements?.enabled) return { list: [], unlocked: [] };
+  const list = (cfg.achievements.list || []).filter((a) => a && a.id);
+  if (!list.length) return { list: [], unlocked: [] };
+
+  const stats = await achievementStats(account, cfg);
+  const have = new Set(account.badges || []);
+  const out = [];
+  const newlyUnlocked = [];
+
+  for (const a of list) {
+    const current = Number(stats[a.metric] || 0);
+    const target = Math.max(1, Number(a.target) || 1);
+    const earned = current >= target;
+    out.push({
+      id: a.id,
+      name: a.name,
+      note: a.note,
+      icon: a.icon,
+      metric: a.metric,
+      target,
+      current: Math.min(current, target),
+      progress: Math.min(100, Math.round((current / target) * 100)),
+      earned,
+      alreadyHeld: have.has(a.id),
+      points: Number(a.points) || 0,
+    });
+    if (earned && !have.has(a.id)) newlyUnlocked.push(a);
+  }
+
+  if (grant && newlyUnlocked.length) {
+    for (const a of newlyUnlocked) {
+      // Record the badge first. If the points award then fails for any reason
+      // the customer still keeps the badge, which is the honest failure mode.
+      await LoyaltyAccount.findByIdAndUpdate(account._id, { $addToSet: { badges: a.id } });
+      if (Number(a.points) > 0) {
+        await award({
+          phone: account.phone,
+          kind: 'points',
+          amount: Number(a.points),
+          reason: 'achievement',
+          note: a.name,
+          idempotencyKey: `badge:${account.phone}:${a.id}`,
+          skipLimits: true,
+        });
+      }
+    }
+  }
+
+  return { list: out, unlocked: newlyUnlocked.map((a) => a.id), stats };
+}
+
+/* ---------------------------------------------------------------------------
+ * EXPIRY
+ *
+ * Points carry an expiresAt. Nothing enforced it, so "points expire after 12
+ * months" was a promise on a settings page and nothing more.
+ *
+ * Rather than deleting rows — which would destroy the audit trail — an expiry
+ * writes a NEGATIVE ledger row through the same award() doorway and marks the
+ * original consumed. The statement then reads honestly: earned, then expired.
+ * ------------------------------------------------------------------------- */
+async function expireDuePoints({ limit = 500 } = {}) {
+  const cfg = await loyaltyConfig();
+  if (!cfg.enabled || !cfg.expiry?.enabled) return { skipped: true, reason: 'off' };
+
+  const due = await LoyaltyLedger.find({
+    kind: 'points',
+    amount: { $gt: 0 },
+    expired: { $ne: true },
+    expiresAt: { $ne: null, $lte: new Date() },
+  }).limit(limit).lean();
+
+  let expiredPoints = 0;
+  let rows = 0;
+
+  for (const row of due) {
+    const remaining = Math.max(0, (row.amount || 0) - (row.consumed || 0));
+    // Mark it first so a crash mid-loop cannot expire the same row twice.
+    await LoyaltyLedger.updateOne({ _id: row._id }, { $set: { expired: true } });
+    if (remaining <= 0) continue;
+
+    const r = await award({
+      phone: row.phone,
+      kind: 'points',
+      amount: -remaining,
+      reason: 'expiry',
+      note: `Points from ${new Date(row.createdAt).toISOString().slice(0, 10)} expired`,
+      idempotencyKey: `expire:${row._id}`,
+      actor: 'system',
+    });
+    if (r.ok) { expiredPoints += remaining; rows += 1; }
+  }
+
+  return { rows, expiredPoints, considered: due.length };
+}
+
 module.exports = {
   DEFAULTS, loyaltyConfig, phoneKey, getAccount, award, recalc,
   pointsForOrder, resolveTier, spendForTier, syncTier, maxRedeemable, makeReferralCode,
+  achievementStats, evaluateAchievements, expireDuePoints,
 };

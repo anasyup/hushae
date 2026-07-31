@@ -11,6 +11,7 @@ import { useCartPricing } from './cart/useCartPricing';
 import FloatField, { FloatSelect } from './checkout/FloatField';
 import MethodPicker from './checkout/MethodPicker';
 import CheckoutSummary from './checkout/CheckoutSummary';
+import RewardsBox from './checkout/RewardsBox';
 import ReviewDialog from './checkout/ReviewDialog';
 import StickyPlaceOrder from './checkout/StickyPlaceOrder';
 
@@ -70,6 +71,10 @@ export default function Checkout() {
   const [terms, setTerms] = useState(false);
   const [newsletter, setNewsletter] = useState(draft?.newsletter ?? false);
   const [applied, setApplied] = useState(null);
+  /* Rewards INTENT, never amounts. What these are worth is quoted by the
+     server and re-computed by the server when the order is placed. */
+  const [rewards, setRewards] = useState({ points: 0, useCredit: false, giftCardCode: '' });
+  const [quote, setQuote] = useState(null);
 
   const [errs, setErrs] = useState({});
   const [busy, setBusy] = useState(false);
@@ -105,12 +110,56 @@ export default function Checkout() {
   const base = useCartPricing(lines, settings, cartCfg, applied);
 
   // Layer the chosen shipping method over the base rate, mirroring the server.
-  const pricing = useMemo(() => {
+  const withShipping = useMemo(() => {
     const shipping = shipMethod ? shippingCostFor(shipMethod, base) : base.shipping;
     if (shipping === base.shipping) return base;
     const delta = shipping - base.shipping;
     return { ...base, shipping, total: base.total + delta };
   }, [base, shipMethod]);
+
+  /* Rewards are layered ON TOP of useCartPricing rather than inside it.
+   *
+   * That hook is shared by the bag, the drawer and this page, and rewards only
+   * exist at checkout — folding them in would make the bag quote a total that
+   * depends on who is signed in. The order of application mirrors the server
+   * exactly: points, then credit, then gift card, each capped by what is left.
+   *
+   * These figures are a PREVIEW. The server recomputes all three from its own
+   * ledger when the order is placed; if they ever disagree, the server wins
+   * and the customer is charged the server's number. */
+  const pricing = useMemo(() => {
+    const p = withShipping;
+    if (!quote || !quote.enabled) return { ...p, rewardsTotal: 0 };
+
+    let payable = p.total;
+    const pointsValue = Math.min(
+      Math.floor(rewards.points * (Number(quote.pointValue) || 1)),
+      payable,
+    );
+    payable -= pointsValue;
+
+    const creditValue = rewards.useCredit ? Math.min(quote.creditUsable || 0, payable) : 0;
+    payable -= creditValue;
+
+    // The card's balance is known from the check call; the server caps it again.
+    const cardValue = rewards.giftCardCode && quote.cardBalance
+      ? Math.min(quote.cardBalance, payable)
+      : 0;
+    payable -= cardValue;
+
+    const rewardsTotal = pointsValue + creditValue + cardValue;
+    if (!rewardsTotal) return { ...p, rewardsTotal: 0 };
+
+    return {
+      ...p,
+      pointsValue,
+      creditValue,
+      cardValue,
+      rewardsTotal,
+      total: Math.max(0, p.total - rewardsTotal),
+      savings: p.savings + rewardsTotal,
+    };
+  }, [withShipping, quote, rewards]);
 
   /* ---------------- draft persistence ---------------- */
   useEffect(() => {
@@ -275,6 +324,10 @@ export default function Checkout() {
           transactionId: txn,
           discountCode: applied?.code || '',
           discreetPackaging: discreet,
+          /* Intent only. The server reads its own ledger for the values. */
+          redeemPoints: rewards.points || 0,
+          useCredit: !!rewards.useCredit,
+          giftCardCode: rewards.giftCardCode || '',
         },
       });
 
@@ -302,6 +355,10 @@ export default function Checkout() {
 
       if (['out-of-stock', 'unavailable', 'size-unavailable'].includes(raw.reason)) {
         setTopErr(`${msg} Please open your bag and remove the item that is no longer available.`);
+      } else if (raw.field === 'giftCardCode' || /gift card/i.test(msg)) {
+        // Drop the card rather than leaving a dead code attached to the order.
+        setRewards((r) => ({ ...r, giftCardCode: '' }));
+        setTopErr(`${msg} The card has been removed — the total above is what you will pay.`);
       } else if (/coupon|discount|code/i.test(msg)) {
         setApplied(null);
         setTopErr(`${msg} Your promo code has been removed — the total above is what you will pay.`);
@@ -632,6 +689,16 @@ export default function Checkout() {
             onSubmit={openReview}
             busy={busy}
             disabled={payments.length === 0}
+            rewardsSlot={auth?.token ? (
+              <RewardsBox
+                token={auth.token}
+                subtotal={base.subtotal}
+                value={rewards}
+                onChange={setRewards}
+                onQuote={setQuote}
+                disabled={busy}
+              />
+            ) : null}
           />
         </aside>
       </div>
