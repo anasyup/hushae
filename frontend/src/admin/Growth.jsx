@@ -10,8 +10,17 @@ export default function Growth() {
   const [subs, setSubs] = useState(null);
   const [copied, setCopied] = useState(false);
 
-  const load = () => api('/admin/subscribers', { token: auth.token }).then((d) => setSubs(d.subscribers)).catch(() => setSubs([]));
-  useEffect(load, [auth]);
+  const load = () => api('/admin/subscribers', { token: auth.token })
+    .then((d) => setSubs(d.subscribers))
+    .catch(() => setSubs([]));
+
+  /* Same latent crash as /admin/discounts had: passing `load` straight to
+     useEffect makes React treat the returned Promise as the cleanup function
+     and call it on the next run — "TypeError: n is not a function", which
+     blanks the page. The arrow body drops the return value, and keying on
+     auth.token (a string) stops the effect re-running whenever an unrelated
+     field on the user object is refreshed. */
+  useEffect(() => { load(); }, [auth?.token]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const copyAll = async () => {
     try {
