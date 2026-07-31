@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import {
   ArrowUpRight, Bell, ChevronRight, CreditCard, FileText, Globe, Info,
   KeyRound, LayoutTemplate, MapPin, Package, Palette, Search, ShieldCheck,
-  ShoppingBag, Sparkles, Store, Truck, Users, Zap,
+  ShoppingBag, Sparkles, Star, Store, Truck, Users, Zap,
 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import AdminLayout from './AdminLayout';
@@ -68,6 +68,13 @@ const CARDS = [
     title: 'Customer Experience',
     desc: 'Wishlist, recently viewed and product comparison — limits, sharing and where each one appears.',
     tags: ['wishlist', 'heart', 'saved', 'recently viewed', 'compare', 'comparison', 'experience'],
+  },
+  {
+    to: '/admin/settings/reviews',
+    icon: Star,
+    title: 'Reviews & Questions',
+    desc: 'Who can review, moderation, photo limits, the star breakdown and product questions.',
+    tags: ['review', 'rating', 'stars', 'moderation', 'question', 'qa', 'feedback', 'verified'],
   },
   {
     to: '/admin/apps',

@@ -1,277 +1,363 @@
-import { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Star, ThumbsUp, CheckCircle2, X } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { CheckCircle2, Flag, Image as ImageIcon, ThumbsUp } from 'lucide-react';
 import { api } from '../api/client';
+import { useApp } from '../store/AppContext';
+import { reviewsConfig, reviewDate } from '../lib/reviewsConfig';
+import Stars from './reviews/Stars';
+import MediaLightbox from './reviews/MediaLightbox';
+import ReviewForm from './reviews/ReviewForm';
+import Spinner from './ui/Spinner';
 
-/**
- * ProductReviews — public-facing block for the product page.
- * Shows the current rating distribution + approved reviews +
- * a "Write a review" trigger opening a modal form.
- */
+/* ============================================================================
+ * PRODUCT REVIEWS
+ *
+ * Measured before this rewrite: 2 sort chips, 0 star filters, no media
+ * gallery, no report, no pagination — the list simply fetched 30 and stopped.
+ *
+ * Everything here is driven by settings.reviews, so the merchant can withdraw
+ * helpful votes, reporting, photos, the distribution graph or the whole
+ * feature from Admin → Settings → Reviews without a deploy.
+ *
+ * Filters and sorting are SERVER-side. Filtering 30 pre-fetched rows in the
+ * browser would silently lie once a product has more than 30 reviews.
+ * ========================================================================== */
+
+const SORTS = [
+  ['recent', 'Most recent'],
+  ['helpful', 'Most helpful'],
+  ['highest', 'Highest rated'],
+  ['lowest', 'Lowest rated'],
+  ['oldest', 'Oldest'],
+];
+
 export default function ProductReviews({ product }) {
+  const { settings } = useApp();
+  const cfg = useMemo(() => reviewsConfig(settings), [settings]);
+
   const [data, setData] = useState(null);
-  const [showForm, setShowForm] = useState(false);
+  const [rows, setRows] = useState([]);
+  const [page, setPage] = useState(1);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [sort, setSort] = useState('recent');
+  const [star, setStar] = useState(0);          // 0 = all
+  const [verifiedOnly, setVerifiedOnly] = useState(false);
+  const [mediaOnly, setMediaOnly] = useState(false);
+  const [showForm, setShowForm] = useState(false);
+  const [media, setMedia] = useState([]);
+  const [lightbox, setLightbox] = useState(null);
+  const listRef = useRef(null);
 
+  const pid = product?._id;
+
+  const query = useCallback((p) => {
+    const q = new URLSearchParams({ sort, page: String(p), limit: String(cfg.perPage) });
+    if (star) q.set('rating', String(star));
+    if (verifiedOnly) q.set('verified', '1');
+    if (mediaOnly) q.set('media', '1');
+    return q.toString();
+  }, [sort, star, verifiedOnly, mediaOnly, cfg.perPage]);
+
+  /* Filter/sort change → page 1. The previous rows stay on screen while the
+     new set loads (dimmed via aria-busy) rather than collapsing to nothing —
+     the same rule the shop grid learned in Sprint 2C.3. */
   useEffect(() => {
-    if (!product?._id) return;
-    api(`/reviews/product/${product._id}?sort=${sort}&limit=30`)
-      .then(setData)
-      .catch(() => setData({ reviews: [], distribution: {}, total: 0, avg: 0 }));
-  }, [product?._id, sort]);
+    if (!pid || !cfg.enabled) return undefined;
+    let alive = true;
+    setPage(1);
+    api(`/reviews/product/${pid}?${query(1)}`)
+      .then((d) => { if (alive) { setData(d); setRows(d.reviews || []); } })
+      .catch(() => { if (alive) { setData({ reviews: [], distribution: {}, total: 0, avg: 0, matching: 0 }); setRows([]); } });
+    return () => { alive = false; };
+  }, [pid, query, cfg.enabled]);
 
-  if (!product?._id) return null;
+  /* The photo strip is its own request and only when the merchant allows it. */
+  useEffect(() => {
+    if (!pid || !cfg.enabled || !cfg.showMediaGallery || !cfg.enablePhotos) return undefined;
+    let alive = true;
+    api(`/reviews/product/${pid}/media`)
+      .then((d) => { if (alive) setMedia(d.media || []); })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, [pid, cfg.enabled, cfg.showMediaGallery, cfg.enablePhotos]);
 
-  const avg = data?.avg || product.ratingAvg || 0;
-  const total = data?.total || product.ratingCount || 0;
+  const loadMore = async () => {
+    setLoadingMore(true);
+    try {
+      const next = page + 1;
+      const d = await api(`/reviews/product/${pid}?${query(next)}`);
+      setRows((r) => [...r, ...(d.reviews || [])]);
+      setData(d);
+      setPage(next);
+    } catch { /* the button stays, the shopper can retry */ }
+    setLoadingMore(false);
+  };
+
+  const onPosted = () => {
+    setShowForm(false);
+    api(`/reviews/product/${pid}?${query(1)}`).then((d) => { setData(d); setRows(d.reviews || []); }).catch(() => {});
+  };
+
+  if (!pid || !cfg.enabled) return null;
+
+  const avg = data?.avg ?? product.ratingAvg ?? 0;
+  const total = data?.total ?? product.ratingCount ?? 0;
   const dist = data?.distribution || {};
-  const maxBar = Math.max(1, ...[5, 4, 3, 2, 1].map(k => dist[k] || 0));
+  const matching = data?.matching ?? rows.length;
+  const filtered = star || verifiedOnly || mediaOnly;
+  const maxBar = Math.max(1, ...[5, 4, 3, 2, 1].map((k) => dist[k] || 0));
+
+  const clearFilters = () => { setStar(0); setVerifiedOnly(false); setMediaOnly(false); };
 
   return (
-    <section className="mx-auto mt-16 max-w-5xl px-4 md:px-8">
-      <div className="mb-10 flex flex-col items-start justify-between gap-6 border-t border-line pt-10 md:flex-row md:items-center">
+    <section className="container-page mt-16 border-t border-line pt-10" aria-labelledby="rv-h">
+      <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
         <div>
-          <p className="text-[11px] font-bold uppercase tracking-widest text-sagedeep">Customer reviews</p>
-          <h2 className="mt-2 font-display text-3xl md:text-4xl">What people are saying</h2>
+          <p className="text-label uppercase tracking-widest text-sagedeep">Customer reviews</p>
+          <h2 id="rv-h" className="mt-1.5 font-display text-h2">{cfg.title}</h2>
         </div>
-        <button onClick={() => setShowForm(true)} className="btn-outline">Write a review</button>
+        <button type="button" onClick={() => setShowForm(true)} className="btn-outline">Write a review</button>
       </div>
 
       {total > 0 ? (
         <>
-          <div className="mb-10 grid gap-8 md:grid-cols-[240px_1fr]">
-            {/* Aggregate */}
+          {/* ---- summary ---- */}
+          <div className="mt-8 grid gap-8 md:grid-cols-[220px_1fr]">
             <div className="text-center md:text-left">
-              <p className="font-display text-6xl">{avg.toFixed(1)}</p>
-              <Stars value={avg} size={20} className="mt-2 justify-center md:justify-start" />
-              <p className="mt-2 text-xs text-ash">{total} verified review{total === 1 ? '' : 's'}</p>
+              <p className="font-display text-display-2 leading-none">{avg.toFixed(1)}</p>
+              <Stars value={avg} size={18} className="mt-2 justify-center md:justify-start" />
+              <p className="mt-2 text-body-sm text-ash">
+                {total} review{total === 1 ? '' : 's'}
+                {data?.verifiedCount ? ` · ${data.verifiedCount} verified` : ''}
+              </p>
             </div>
-            {/* Distribution bars */}
-            <div className="space-y-1.5">
-              {[5, 4, 3, 2, 1].map(k => {
-                const cnt = dist[k] || 0;
-                const pct = total ? (cnt / maxBar) * 100 : 0;
-                return (
-                  <div key={k} className="flex items-center gap-3 text-xs text-ash">
-                    <span className="w-4">{k}</span>
-                    <Star size={12} className="fill-sagedeep text-sagedeep" />
-                    <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-line">
-                      <div className="h-full bg-sagedeep" style={{ width: `${pct}%` }} />
-                    </div>
-                    <span className="w-6 text-right tabular-nums">{cnt}</span>
-                  </div>
-                );
-              })}
-            </div>
+
+            {cfg.showDistribution && (
+              <div className="space-y-1.5">
+                {[5, 4, 3, 2, 1].map((k) => {
+                  const cnt = dist[k] || 0;
+                  const pct = (cnt / maxBar) * 100;
+                  const active = star === k;
+                  return (
+                    <button
+                      key={k}
+                      type="button"
+                      onClick={() => setStar(active ? 0 : k)}
+                      aria-pressed={active}
+                      aria-label={`${cnt} ${k} star review${cnt === 1 ? '' : 's'}${active ? ', filter active' : ''}`}
+                      className={`flex min-h-[44px] w-full items-center gap-3 rounded-control px-2 text-caption transition ${
+                        active ? 'bg-obsidian/[0.05]' : 'hover:bg-satin/50'
+                      }`}
+                    >
+                      <span className="w-8 shrink-0 text-left text-ash">{k} ★</span>
+                      <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-line">
+                        <span className="block h-full rounded-full bg-sagedeep" style={{ width: `${pct}%` }} />
+                      </span>
+                      <span className="w-8 shrink-0 text-right tabular-nums text-ash">{cnt}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
-          <div className="mb-6 flex items-center gap-3 text-xs">
-            <span className="text-ash">Sort by:</span>
-            <button onClick={() => setSort('recent')} className={`rounded-full px-3 py-1 ${sort === 'recent' ? 'bg-obsidian text-alabaster' : 'bg-satin text-ink'}`}>Most recent</button>
-            <button onClick={() => setSort('helpful')} className={`rounded-full px-3 py-1 ${sort === 'helpful' ? 'bg-obsidian text-alabaster' : 'bg-satin text-ink'}`}>Most helpful</button>
+          {/* ---- customer photos ---- */}
+          {cfg.showMediaGallery && media.length > 0 && (
+            <div className="mt-8">
+              <h3 className="flex items-center gap-2 text-label uppercase tracking-widest text-ash">
+                <ImageIcon size={13} aria-hidden="true" /> Customer photos ({media.length})
+              </h3>
+              <ul className="no-scrollbar mt-3 flex gap-2 overflow-x-auto pb-1">
+                {media.map((m, i) => (
+                  <li key={`${m.reviewId}-${i}`} className="shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => setLightbox(i)}
+                      aria-label={`Open photo ${i + 1} of ${media.length} from ${m.by || 'a customer'}`}
+                      className="block h-20 w-20 overflow-hidden rounded-control border border-line bg-cream"
+                    >
+                      <img src={m.url} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover" />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* ---- controls ---- */}
+          <div className="mt-8 flex flex-wrap items-center gap-2 border-t border-line pt-6">
+            <label className="sr-only" htmlFor="rv-sort">Sort reviews</label>
+            <select
+              id="rv-sort" value={sort} onChange={(e) => setSort(e.target.value)}
+              className="input input-sm min-h-[44px] w-auto"
+            >
+              {SORTS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+            </select>
+
+            <button
+              type="button" onClick={() => setVerifiedOnly((v) => !v)} aria-pressed={verifiedOnly}
+              className={`btn btn-sm gap-1.5 border ${verifiedOnly ? 'border-obsidian bg-obsidian text-alabaster' : 'border-stone bg-white text-graphite'}`}
+            >
+              <CheckCircle2 size={13} aria-hidden="true" /> Verified only
+            </button>
+
+            {cfg.enablePhotos && (
+              <button
+                type="button" onClick={() => setMediaOnly((v) => !v)} aria-pressed={mediaOnly}
+                className={`btn btn-sm gap-1.5 border ${mediaOnly ? 'border-obsidian bg-obsidian text-alabaster' : 'border-stone bg-white text-graphite'}`}
+              >
+                <ImageIcon size={13} aria-hidden="true" /> With photos
+              </button>
+            )}
+
+            {filtered && (
+              <button
+                type="button" onClick={clearFilters}
+                className="min-h-[44px] px-2 text-caption font-semibold text-ash underline-offset-4 hover:text-obsidian hover:underline"
+              >
+                Clear filters
+              </button>
+            )}
           </div>
 
-          <div className="space-y-6">
-            {(data?.reviews || []).map(r => (
-              <ReviewCard key={r._id} review={r} />
+          <p className="mt-3 text-caption text-ash" role="status" aria-live="polite">
+            {filtered ? `${matching} of ${total} reviews match` : `Showing ${rows.length} of ${total}`}
+          </p>
+
+          {/* ---- list ---- */}
+          <ul ref={listRef} className="mt-4 divide-y divide-line border-t border-line" aria-busy={data === null}>
+            {rows.map((r) => (
+              <ReviewRow key={r._id} review={r} cfg={cfg} onOpenPhoto={(url) => {
+                const i = media.findIndex((m) => m.url === url);
+                setLightbox(i >= 0 ? i : 0);
+              }} />
             ))}
-          </div>
+          </ul>
+
+          {rows.length === 0 && data && (
+            <p className="py-10 text-center text-body-sm text-ash">
+              No reviews match those filters.{' '}
+              <button type="button" onClick={clearFilters} className="font-medium text-obsidian underline underline-offset-4">Clear them</button>
+            </p>
+          )}
+
+          {data?.hasMore && (
+            <div className="mt-6 text-center">
+              <button type="button" onClick={loadMore} disabled={loadingMore} className="btn-outline gap-2 disabled:opacity-50">
+                {loadingMore ? <><Spinner label="Loading" /> Loading…</> : `Show more reviews (${matching - rows.length} left)`}
+              </button>
+            </div>
+          )}
         </>
       ) : (
-        <div className="rounded-3xl border border-line bg-cream/40 py-16 text-center">
-          <p className="font-display text-2xl">No reviews yet</p>
-          <p className="mt-2 text-sm text-ash">Be the first to share your experience.</p>
-          <button onClick={() => setShowForm(true)} className="btn-primary mt-6">Write the first review</button>
-        </div>
+        <p className="py-12 text-center text-body text-ash">{cfg.emptyText}</p>
       )}
 
-      <AnimatePresence>
-        {showForm && (
-          <ReviewForm
-            product={product}
-            onClose={() => setShowForm(false)}
-            onSubmitted={() => { setShowForm(false); }}
-          />
-        )}
-      </AnimatePresence>
+      {showForm && (
+        <ReviewForm product={product} cfg={cfg} onClose={() => setShowForm(false)} onPosted={onPosted} />
+      )}
+
+      <MediaLightbox media={media} index={lightbox} onClose={() => setLightbox(null)} onIndex={setLightbox} />
     </section>
   );
 }
 
-function ReviewCard({ review }) {
+/* ---------------------------------------------------------------------------
+ * One review.
+ * ------------------------------------------------------------------------- */
+function ReviewRow({ review, cfg, onOpenPhoto }) {
   const [helpful, setHelpful] = useState(review.helpful || 0);
   const [voted, setVoted] = useState(false);
+  const [reported, setReported] = useState(false);
+  const [busy, setBusy] = useState(false);
 
   const vote = async () => {
-    if (voted) return;
-    setVoted(true); setHelpful(h => h + 1);
-    try { await api(`/reviews/${review._id}/helpful`, { method: 'POST' }); } catch { /* noop */ }
-  };
-
-  return (
-    <article className="rounded-2xl border border-line bg-white/60 p-5">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <div className="flex items-center gap-2">
-            <p className="text-sm font-semibold">{review.customerName}</p>
-            {review.verified && (
-              <span className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-sagedeep">
-                <CheckCircle2 size={11} /> Verified buyer
-              </span>
-            )}
-          </div>
-          <Stars value={review.rating} size={13} className="mt-1" />
-        </div>
-        <p className="text-[11px] text-ash">{new Date(review.createdAt).toLocaleDateString('en-PK', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
-      </div>
-      {review.title && <p className="mt-3 font-display text-lg">{review.title}</p>}
-      <p className="mt-2 text-sm leading-relaxed text-ash">{review.body}</p>
-      {review.adminReply && (
-        <div className="mt-4 rounded-xl bg-sage/10 p-4">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-sagedeep">HUSHAE responded</p>
-          <p className="mt-1.5 text-sm text-obsidian">{review.adminReply}</p>
-        </div>
-      )}
-      <button onClick={vote} className={`mt-4 inline-flex items-center gap-1.5 text-xs ${voted ? 'text-sagedeep' : 'text-ash hover:text-obsidian'}`}>
-        <ThumbsUp size={13} /> Helpful ({helpful})
-      </button>
-    </article>
-  );
-}
-
-export function Stars({ value = 0, size = 14, className = '' }) {
-  return (
-    <div className={`inline-flex items-center gap-0.5 ${className}`}>
-      {[1, 2, 3, 4, 5].map(n => (
-        <Star
-          key={n}
-          size={size}
-          className={n <= Math.round(value) ? 'fill-sagedeep text-sagedeep' : 'text-line'}
-        />
-      ))}
-    </div>
-  );
-}
-
-function ReviewForm({ product, onClose, onSubmitted }) {
-  const [rating, setRating] = useState(5);
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [title, setTitle] = useState('');
-  const [body, setBody] = useState('');
-  const [orderNumber, setOrderNumber] = useState('');
-  const [phone, setPhone] = useState('');
-  const [busy, setBusy] = useState(false);
-  const [thankyou, setThankyou] = useState(false);
-
-  const submit = async (e) => {
-    e.preventDefault();
     if (busy) return;
-    if (!body.trim() || !name.trim()) return;
     setBusy(true);
     try {
-      await api('/reviews', {
-        method: 'POST',
-        body: {
-          productId: product._id,
-          rating,
-          title: title.trim(),
-          body: body.trim(),
-          customerName: name.trim(),
-          customerEmail: email.trim(),
-          orderNumber: orderNumber.trim(),
-          phone: phone.trim(),
-        },
-      });
-      setThankyou(true);
-      setTimeout(() => { onSubmitted?.(); }, 1400);
-    } catch (err) {
-      alert(err.message || 'Could not submit review');
-    } finally {
-      setBusy(false);
-    }
+      // The server owns the count — one vote per person, and it returns the
+      // real total, so an optimistic guess can never drift from the truth.
+      const r = await api(`/reviews/${review._id}/helpful`, { method: 'POST' });
+      if (typeof r.helpful === 'number') setHelpful(r.helpful);
+      setVoted(!!r.voted);
+    } catch { /* silent — the count simply does not move */ }
+    setBusy(false);
+  };
+
+  const report = async () => {
+    if (reported) return;
+    try {
+      await api(`/reviews/${review._id}/report`, { method: 'POST' });
+      setReported(true);
+    } catch { /* noop */ }
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[70] flex items-center justify-center bg-obsidian/50 p-4 backdrop-blur-sm"
-      onClick={onClose}
-    >
-      <motion.div
-        initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}
-        onClick={(e) => e.stopPropagation()}
-        className="relative w-full max-w-lg rounded-3xl bg-alabaster p-6 md:p-8 shadow-soft"
-      >
-        <button onClick={onClose} aria-label="Close" className="absolute right-4 top-4 rounded-full p-1.5 text-ash hover:bg-satin"><X size={18} /></button>
-        {thankyou ? (
-          <div className="py-8 text-center">
-            <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-sage/20"><CheckCircle2 size={26} className="text-sagedeep" /></div>
-            <p className="mt-4 font-display text-2xl">Thank you</p>
-            <p className="mt-2 text-sm text-ash">Your review is under moderation — it'll appear here soon.</p>
-          </div>
-        ) : (
-          <form onSubmit={submit}>
-            <p className="text-[11px] font-bold uppercase tracking-widest text-sagedeep">Review</p>
-            <h3 className="mt-1 font-display text-2xl">{product.name}</h3>
-
-            <div className="mt-6">
-              <label className="label">Your rating</label>
-              <div className="flex items-center gap-2">
-                {[1, 2, 3, 4, 5].map(n => (
-                  <button
-                    key={n}
-                    type="button"
-                    onClick={() => setRating(n)}
-                    className="p-0.5"
-                    aria-label={`Rate ${n} stars`}
-                  >
-                    <Star size={26} className={n <= rating ? 'fill-sagedeep text-sagedeep' : 'text-line'} />
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="mt-4 grid gap-3 md:grid-cols-2">
-              <div>
-                <label className="label">Name *</label>
-                <input required className="input" value={name} onChange={(e) => setName(e.target.value)} placeholder="Ayesha K." />
-              </div>
-              <div>
-                <label className="label">Email (kept private)</label>
-                <input type="email" className="input" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" />
-              </div>
-            </div>
-
-            <div className="mt-3">
-              <label className="label">Title (optional)</label>
-              <input className="input" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Softest bra I've owned" />
-            </div>
-
-            <div className="mt-3">
-              <label className="label">Your review *</label>
-              <textarea required rows={5} className="input" value={body} onChange={(e) => setBody(e.target.value)} placeholder="Tell us how it fits, the fabric, sizing, delivery experience…" />
-            </div>
-
-            <div className="mt-4 grid gap-3 rounded-2xl bg-cream/50 p-4 md:grid-cols-2">
-              <p className="col-span-full text-[10px] font-bold uppercase tracking-widest text-ash">Verify your purchase (optional)</p>
-              <div>
-                <label className="label">Order number</label>
-                <input className="input" value={orderNumber} onChange={(e) => setOrderNumber(e.target.value)} placeholder="VL-YYYYMMDD-XXXXXX" />
-              </div>
-              <div>
-                <label className="label">Phone used on order</label>
-                <input className="input" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="03XX XXXXXXX" />
-              </div>
-              <p className="col-span-full text-[11px] text-ash">Reviews with a matching order get a "Verified buyer" badge.</p>
-            </div>
-
-            <button type="submit" disabled={busy} className="btn-primary mt-6 w-full">
-              {busy ? 'Submitting…' : 'Submit review'}
-            </button>
-          </form>
+    <li className="py-6">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
+        <Stars value={review.rating} size={14} />
+        {review.verified && (
+          <span className="inline-flex items-center gap-1 rounded-full bg-sage/25 px-2 py-0.5 text-caption font-semibold text-sagedark">
+            <CheckCircle2 size={10} aria-hidden="true" /> Verified purchase
+          </span>
         )}
-      </motion.div>
-    </motion.div>
+        {review.featured && (
+          <span className="rounded-full bg-clay/20 px-2 py-0.5 text-caption font-semibold text-graphite">Featured</span>
+        )}
+      </div>
+
+      {review.title && <h3 className="mt-2 text-body font-medium">{review.title}</h3>}
+      <p className="mt-1.5 whitespace-pre-line text-body-sm leading-relaxed">{review.body}</p>
+
+      {(review.images || []).length > 0 && (
+        <ul className="mt-3 flex flex-wrap gap-2">
+          {review.images.map((img, i) => (
+            <li key={i}>
+              <button
+                type="button"
+                onClick={() => onOpenPhoto(img.url)}
+                aria-label={`Open photo ${i + 1} from ${review.customerName}`}
+                className="block h-16 w-16 overflow-hidden rounded-control border border-line bg-cream"
+              >
+                <img src={img.url} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover" />
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <p className="mt-2.5 text-caption text-ash">
+        {review.customerName} · {reviewDate(review.createdAt)}
+      </p>
+
+      {cfg.allowMerchantReply && review.adminReply && (
+        <div className="mt-3 rounded-card border-l-2 border-sagedeep bg-cream/50 px-4 py-3">
+          <p className="text-caption font-semibold uppercase tracking-wider text-sagedark">HUSHAE replied</p>
+          <p className="mt-1 text-body-sm leading-relaxed">{review.adminReply}</p>
+        </div>
+      )}
+
+      <div className="mt-3 flex flex-wrap items-center gap-1">
+        {cfg.allowHelpful && (
+          <button
+            type="button" onClick={vote} disabled={busy} aria-pressed={voted}
+            className={`inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-3 text-caption transition ${
+              voted ? 'bg-obsidian/[0.06] font-semibold text-obsidian' : 'text-ash hover:text-obsidian'
+            }`}
+          >
+            <ThumbsUp size={13} aria-hidden="true" />
+            Helpful{helpful > 0 ? ` (${helpful})` : ''}
+          </button>
+        )}
+        {cfg.allowReport && (
+          <button
+            type="button" onClick={report} disabled={reported}
+            className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-3 text-caption text-ash transition hover:text-obsidian disabled:opacity-60"
+          >
+            <Flag size={12} aria-hidden="true" />
+            {reported ? 'Reported' : 'Report'}
+          </button>
+        )}
+      </div>
+    </li>
   );
 }

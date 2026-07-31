@@ -116,6 +116,35 @@ router.get('/product/:productId/media', asyncHandler(async (req, res) => {
  * POST /api/reviews
  * body: { productId, rating, title, body, customerName, customerEmail, images, orderNumber, phone }
  * ============================================================ */
+/* Review photo upload — a narrow door for shoppers.
+   The shared /uploads route is admin-only, so this mirrors the customer
+   avatar endpoint: images only, merchant-set size cap, rate limited. */
+const rateLimit = require('../middleware/rateLimit');
+const photoLimit = rateLimit({ windowMs: 60 * 60 * 1000, max: 25, key: 'rvphoto', message: 'Too many uploads — try again later' });
+
+router.post('/photo', photoLimit, asyncHandler(async (req, res) => {
+  const policy = await reviewPolicy();
+  if (!policy.enabled || !policy.enablePhotos) {
+    return res.status(403).json({ message: 'Photo uploads are switched off' });
+  }
+  const { mime, dataBase64 } = req.body || {};
+  if (!['image/jpeg', 'image/png', 'image/webp'].includes(mime)) {
+    return res.status(400).json({ message: 'Please choose a JPG, PNG or WebP image' });
+  }
+  if (typeof dataBase64 !== 'string' || !/^[A-Za-z0-9+/=\s]+$/.test(dataBase64)) {
+    return res.status(400).json({ message: 'That file could not be read' });
+  }
+  const data = Buffer.from(dataBase64, 'base64');
+  const maxMb = Number(policy.photoMaxMb) || 2;
+  if (!data.length) return res.status(400).json({ message: 'That file is empty' });
+  if (data.length > maxMb * 1024 * 1024) {
+    return res.status(400).json({ message: `Please choose an image under ${maxMb} MB` });
+  }
+  const Upload = require('../models/Upload');
+  const up = await Upload.create({ mime, data, size: data.length });
+  res.status(201).json({ url: `/api/uploads/${up._id}`, id: up._id });
+}));
+
 router.post('/', optionalAuth, asyncHandler(async (req, res) => {
   const policy = await reviewPolicy();
   if (!policy.enabled) return res.status(403).json({ message: 'Reviews are currently closed' });
