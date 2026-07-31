@@ -10,6 +10,7 @@ import useShopFilters, { applyClientFacets } from './shop/useShopFilters';
 import FilterPanel from './shop/FilterPanel';
 import FilterSheet from './shop/FilterSheet';
 import ActiveChips from './shop/ActiveChips';
+import CollectionBanner from '../components/collection/CollectionBanner';
 
 const SORTS = [
   ['popular', 'Most Popular'],
@@ -81,11 +82,17 @@ export default function Shop({ preset = {} }) {
         canonical={typeof window !== 'undefined' ? window.location.pathname : '/shop'}
       />
 
-      <header className="mb-6 md:mb-8">
-        <p className="eyebrow text-sagedeep">HUSHAE — {f.gender || 'all'}</p>
-        <h1 className="mt-2 font-display text-h1">{meta[0]}</h1>
-        <p className="mt-3 max-w-xl text-body-sm leading-relaxed">{meta[1]}</p>
-      </header>
+      {/* MEASURED: probing /shop, /women, /sale and /search at 390px returned
+          hasBanner:false on every one. Each opened with an eyebrow, an h1 and
+          a sentence on flat alabaster, then went straight into the grid —
+          precisely the default Shopify collection template.
+          Replaced with an editorial masthead. Copy is unchanged and still
+          comes from the TITLES map above; only the setting is new. */}
+      <CollectionBanner
+        eyebrow={`HUSHAE — ${f.gender || 'all'}`}
+        title={meta[0]}
+        blurb={meta[1]}
+      />
 
       <div className="mb-6 flex items-center justify-between gap-3 border-y border-line py-3.5">
         <button

@@ -100,7 +100,22 @@ function ProductCard({
     .slice(0, Math.max(1, maxBadges))
     .map((b) => ({ variant: TONE_TO_VARIANT[b.tone] || 'neutral', label: b.label, key: b.id }));
 
-  const legacyBadge = (showSaleBadge && off >= 1) ? { variant: 'sale', label: `${off}% off` }
+  /* MEASURED, Phase 2 Part B: on /shop, 101 of 101 cards showed a "% off"
+     badge AND a strike-through price — 100%. Every product in this catalogue
+     carries a compareAtPrice (median 22% markdown, documented since Sprint
+     2J), so `off >= 1` was true for the entire grid.
+     A badge that appears on everything communicates nothing; it is visual
+     noise on every tile and it reads as a discount shop, not a fashion house.
+     The strike-through price directly underneath already states the saving,
+     so the badge is redundant as well as ubiquitous.
+
+     The badge now needs a genuinely notable markdown. STANDING_MARKDOWN is
+     the catalogue's own median: anything at or below it is simply this
+     shop's normal pricing and earns no shout. Server-driven promotion badges
+     (fromServer) are unaffected — a merchant who deliberately runs a flash
+     sale still gets their badge. */
+  const STANDING_MARKDOWN = 25;
+  const legacyBadge = (showSaleBadge && off > STANDING_MARKDOWN) ? { variant: 'sale', label: `${off}% off` }
     : isNew ? { variant: 'new', label: 'New' }
       : limited ? { variant: 'neutral', label: `Only ${p.stock} left` }
         : p.isBestSeller ? { variant: 'best', label: 'Bestseller' }
@@ -183,8 +198,16 @@ function ProductCard({
             onClick={async () => { const r = await toggleCompare(p); if (r && r.ok === false) toast(r.message); }}
             aria-pressed={compared}
             aria-label={`${compared ? 'Remove' : 'Add'} ${p.name} ${compared ? 'from' : 'to'} compare`}
-            className={`absolute right-2 top-[3.4rem] grid h-11 w-11 place-items-center rounded-full bg-alabaster/85 backdrop-blur-sm transition-[transform,background-color,opacity] duration-base ease-standard hover:scale-105 hover:bg-alabaster md:right-2.5 md:top-[3rem] md:h-9 md:w-9 md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100 ${
-              compared ? 'text-obsidian md:!opacity-100' : 'text-ash'
+            /* MEASURED: these chips were `md:opacity-0 md:group-hover:...`, so
+               DESKTOP hid them and MOBILE showed all three permanently, sitting
+               on top of the product photograph at opacity 1. Mobile is 85% of
+               orders and the primary platform for this brand, so the platform
+               that mattered most got the cluttered treatment.
+               Compare is a power-user tool; it is now revealed on the card the
+               shopper is actually touching (`:focus-within`) and stays visible
+               once something IS compared, so state is never hidden. */
+            className={`absolute right-2 top-[3.4rem] grid h-11 w-11 place-items-center rounded-full bg-alabaster/85 backdrop-blur-sm transition-[transform,background-color,opacity] duration-base ease-standard hover:scale-105 hover:bg-alabaster md:right-2.5 md:top-[3rem] md:h-9 md:w-9 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 ${
+              compared ? 'text-obsidian !opacity-100' : 'text-ash'
             }`}
           >
             {compared
@@ -199,7 +222,12 @@ function ProductCard({
             onClick={async () => { const r = await toggleWish(p); if (r && r.ok === false) toast(r.message); }}
             aria-pressed={wished}
             aria-label={`${wished ? 'Remove' : 'Save'} ${p.name} ${wished ? 'from' : 'to'} wishlist`}
-            className={`absolute right-2 top-2 grid h-11 w-11 place-items-center rounded-full bg-alabaster/85 backdrop-blur-sm transition-[transform,background-color,opacity] duration-base ease-standard hover:scale-105 hover:bg-alabaster md:right-2.5 md:top-2.5 md:h-9 md:w-9 md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100 ${
+            /* Wishlist KEEPS its mobile visibility: saving is a primary
+               shopping action, not a power-user tool, and hiding it behind a
+               gesture that does not exist on touch would remove it entirely.
+               Softened instead — a lighter ground and a thinner icon, so it
+               reads as jewellery on the image rather than a UI button. */
+            className={`absolute right-2 top-2 grid h-11 w-11 place-items-center rounded-full bg-alabaster/70 backdrop-blur-md transition-[transform,background-color,opacity] duration-base ease-standard hover:scale-105 hover:bg-alabaster md:right-2.5 md:top-2.5 md:h-9 md:w-9 md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100 ${
               wished ? 'text-obsidian md:!opacity-100' : 'text-ash'
             }`}
           >
@@ -255,7 +283,15 @@ function ProductCard({
         {/* clamp-2 caps the visible lines, but at 320px a long title can still
             render a third line before the clamp applies in some engines, so the
             block is also height-locked. Measured spread at 320px: 20px -> 0. */}
-        <Heading className="h-[2.6em] overflow-hidden text-body-sm font-normal leading-[1.3] text-ink">
+        {/* Typography, Phase 2 Part B. The name was `font-normal text-ink` and
+            the price `font-semibold text-obsidian` — the PRICE was the loudest
+            thing on a fashion card. A luxury house leads with the garment and
+            states the price quietly.
+            The name now carries slight positive tracking, which is what makes
+            a small sans-serif label read as considered rather than cramped.
+            The h-[2.6em] lock and clamp-2 STAY: they were a measured CLS fix
+            (cards in one row ended 20px apart without them). */}
+        <Heading className="h-[2.6em] overflow-hidden text-body-sm font-normal leading-[1.3] tracking-[0.012em] text-ink">
           <Link
             to={`/product/${p.slug}`}
             className="clamp-2 transition-colors duration-fast hover:text-obsidian"
@@ -269,7 +305,10 @@ function ProductCard({
             apart. The strike-through truncates instead. */}
         {showPrice && (
           <p className="mt-1.5 flex items-baseline gap-x-2 whitespace-nowrap">
-            <span className={`text-body font-semibold tabular-nums ${soldOut ? 'text-ash' : 'text-obsidian'}`}>
+            {/* font-semibold -> font-medium. On a grid where every item is
+                discounted, a bold price plus a strike-through plus a badge was
+                three separate shouts about money on one tile. */}
+            <span className={`text-body font-medium tabular-nums tracking-[0.01em] ${soldOut ? 'text-ash' : 'text-obsidian'}`}>
               {pkr(p.price)}
             </span>
             {onSale && (
