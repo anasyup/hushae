@@ -7,6 +7,9 @@ import AdminLayout from './AdminLayout';
 import { Accordion, DateTime, Num, Section, Select, Text, Toggle } from './ui/Controls';
 import { EMPTY_PAGE, PAGE_TYPES, STATE_LABEL, STATE_STYLE, hydratePage, typeOf } from './cms/pageTypes';
 import { CMS_DEFAULTS, checkSlugLocal, previewTitle, resolveCms } from '../lib/cmsConfig';
+import SeoPanel from './cms/SeoPanel';
+import SocialPanel from './cms/SocialPanel';
+import StructuredDataPanel from './cms/StructuredDataPanel';
 
 /* ============================================================================
  * PAGE EDITOR — create and edit one CMS page.
@@ -43,6 +46,8 @@ export default function CmsEdit() {
   const [busy, setBusy] = useState(false);
   const [errs, setErrs] = useState([]);
   const [scheduleAt, setScheduleAt] = useState(null);
+  // Raised by StructuredDataPanel while its JSON does not parse. Never stored.
+  const [sdInvalid, setSdInvalid] = useState(false);
   // The merchant typed a slug by hand — stop deriving it from the title, or
   // every keystroke in the title box silently overwrites their choice.
   const slugTouched = useRef(!isNew);
@@ -95,6 +100,14 @@ export default function CmsEdit() {
   const t = typeOf(p.type);
   const set = (k, v) => setP({ ...p, [k]: v });
 
+  /* SEO fields live one level down. `__sdInvalid` is a UI-only flag raised by
+     the structured-data editor while its text does not parse; it is stripped
+     before every request in `payload()` below so it can never be persisted. */
+  const setSeo = (k, v) => {
+    if (k === '__sdInvalid') { setSdInvalid(v); return; }
+    setP((prev) => ({ ...prev, seo: { ...prev.seo, [k]: v } }));
+  };
+
   const setTitle = (v) => {
     // Deriving the address from the title is a convenience, not a rule — the
     // moment the merchant edits the address themselves, stop touching it.
@@ -106,9 +119,22 @@ export default function CmsEdit() {
     }
   };
 
+  /* Everything sent to the API goes through here. UI-only keys are stripped in
+     ONE place rather than at each call site — a second save path that forgot
+     the strip is exactly how a junk field ends up in the database. */
+  const payload = () => {
+    const { seo = {}, state, versions, ...rest } = p;
+    const cleanSeo = Object.fromEntries(Object.entries(seo).filter(([k]) => !k.startsWith('__')));
+    return { ...rest, seo: cleanSeo };
+  };
+
   /* Mirrors the server's validation so the problem shows up before a round
      trip. The server still validates — this is a courtesy, not a boundary. */
   const problems = [];
+  if (sdInvalid) problems.push('The extra information for Google is not valid JSON.');
+  if (p.seo?.canonical && !/^(https?:\/\/|\/)/.test(p.seo.canonical)) {
+    problems.push('The main address must start with a slash or https://');
+  }
   if (!String(p.title || '').trim()) problems.push('Give the page a name.');
   if (p.slug && !slugCheck.ok) problems.push(slugCheck.message);
   if (p.publishAt && p.unpublishAt && new Date(p.unpublishAt) <= new Date(p.publishAt)) {
@@ -123,11 +149,11 @@ export default function CmsEdit() {
     setBusy(true); setErrs([]);
     try {
       if (isNew) {
-        const r = await api('/cms/pages', { method: 'POST', token: auth.token, body: p });
+        const r = await api('/cms/pages', { method: 'POST', token: auth.token, body: payload() });
         toast('Saved as a draft — nobody can see it yet');
         nav(`/admin/cms/${r.page._id}`, { replace: true });
       } else {
-        const r = await api(`/cms/pages/${id}`, { method: 'PUT', token: auth.token, body: p });
+        const r = await api(`/cms/pages/${id}`, { method: 'PUT', token: auth.token, body: payload() });
         const merged = hydratePage(r.page);
         setP(merged);
         setOriginal(JSON.stringify(merged));
@@ -426,18 +452,11 @@ export default function CmsEdit() {
             </div>
           </Accordion>
 
-          <Accordion title="How it looks in Google" subtitle="A preview, not a setting">
-            <div className="rounded-lg border border-neutral-200 bg-white p-3">
-              <p className="truncate text-[13px] text-[#1a0dab]">{previewTitle(p.seo?.title || p.title, cfg) || 'Page name'}</p>
-              <p className="mt-0.5 truncate text-[11px] text-[#006621]">hushae.pk/{p.slug || '…'}</p>
-              <p className="mt-1 line-clamp-2 text-[11px] leading-relaxed text-neutral-600">
-                {p.seo?.description || p.excerpt || 'Add a short summary above and it will show here.'}
-              </p>
-            </div>
-            <p className="mt-2 text-[11px] leading-relaxed text-neutral-600">
-              Full search and sharing controls arrive in the next update.
-            </p>
-          </Accordion>
+          <SeoPanel page={p} cfg={cfg} onChange={set} onChangeSeo={setSeo} />
+
+          <SocialPanel page={p} cfg={cfg} onChangeSeo={setSeo} />
+
+          <StructuredDataPanel page={p} cfg={cfg} onChangeSeo={setSeo} />
 
           {!isNew && !p.locked && (
             <button

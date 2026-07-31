@@ -1,11 +1,17 @@
-import { useRef, useState } from 'react';
+import { useId, useRef, useState } from 'react';
 import { ImagePlus, Link2, Loader2, X } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { smartUpload } from '../lib/upload';
 
 // Upload button + URL input — click opens PC file dialog immediately
 // Now with a "clear/delete" button that appears when a value exists.
-export default function MediaPicker({ value = '', onChange, onAdd, multiple = false, accept = 'image', hideUrl = false, buttonText = 'Upload from PC' }) {
+export default function MediaPicker({ value = '', onChange, onAdd, multiple = false, accept = 'image', hideUrl = false, buttonText = 'Upload from PC', label = 'Or paste a picture link' }) {
+  /* MEASURED, Sprint 2L P2B: the URL box was a bare <input> with only a
+     placeholder. A placeholder is not a label — it disappears the moment you
+     type and screen readers announce "edit text, blank". LIVE /admin/content
+     reported 15 unlabelled inputs on commit 31dc133, so this is pre-existing
+     and fixing it here repairs Collections, Content and ThemeEditor too. */
+  const urlId = useId();
   const { settings, auth, toast } = useApp();
   const media = settings?.media || {};
   const [busy, setBusy] = useState(false);
@@ -49,7 +55,8 @@ export default function MediaPicker({ value = '', onChange, onAdd, multiple = fa
         {!hideUrl && (
           <span className="relative flex-1">
             <Link2 size={13} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ash" />
-            <input className="input !pl-9" placeholder="or paste a link…" value={value} onChange={(e) => onChange?.(e.target.value)} />
+            <label className="sr-only" htmlFor={urlId}>{label}</label>
+            <input id={urlId} className="input !pl-9" placeholder="or paste a link…" value={value} onChange={(e) => onChange?.(e.target.value)} />
           </span>
         )}
       </div>
