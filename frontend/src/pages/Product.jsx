@@ -28,6 +28,22 @@ import Accordion from './product/Accordion';
 /* Light swatches need a dark tick, everything else a light one. */
 const LIGHT_HEX = new Set(['#FFFFFF', '#FFF', '#F7F5F1', '#EFEAE3', '#E3C9B3', '#E8C7C8', '#E4DDD3']);
 
+/* Phase 2C — the same standing-markdown rule ProductCard adopted in Part B,
+ * applied here because the product page had been missed.
+ *
+ * MEASURED against the live catalogue: 101 of 101 products carry a
+ * compareAtPrice, median markdown 22%, and only 6 exceed 25%. So the "% off"
+ * chip printed on every single product page in the shop. A discount flag that
+ * is always on is not a discount flag, it is decoration — and on a page whose
+ * job is to make one garment feel considered, it reads as a clearance rack.
+ *
+ * The strike-through price and the "Save PKR x" line immediately below still
+ * state the saving in full, so nothing is hidden from the shopper; only the
+ * shouting is removed. Above the threshold the chip returns and now means
+ * something. Kept as a module constant, identical value to ProductCard's, so
+ * the two surfaces cannot drift apart. */
+const STANDING_MARKDOWN = 25;
+
 export default function Product() {
   const { slug } = useParams();
   const nav = useNavigate();
@@ -95,7 +111,18 @@ export default function Product() {
   const soldOut = p.stock === 0;
   const onSale = p.compareAtPrice > p.price;
   const off = onSale ? Math.round((1 - p.price / p.compareAtPrice) * 100) : 0;
+  const notableMarkdown = onSale && off > STANDING_MARKDOWN;
   const lowStock = !soldOut && p.stock <= 5;
+
+  const tierLabel = p.tier === 'Premium' ? 'Signature' : p.tier;
+
+  /* MEASURED: 40 of 101 products list their own tier again inside `badges`,
+     so the header read "SIGNATURE" and then the badge row underneath read
+     "SIGNATURE  SILK-TOUCH  NEW" — the same word twice, 15px apart, in two
+     different colours. Dropping the echo leaves the genuine descriptors.
+     Case-insensitive because the data is merchant-entered. */
+  const extraBadges = (p.badges || [])
+    .filter((b) => String(b).trim().toLowerCase() !== String(tierLabel).trim().toLowerCase());
 
   const tryAdd = (goToCheckout) => {
     if (needsSize && !size) {
@@ -147,9 +174,9 @@ export default function Product() {
         <div>
           <div className="flex flex-wrap items-center gap-2">
             <span className={`pill ${p.tier === 'Premium' ? 'bg-obsidian text-alabaster' : p.tier === 'Standard' ? 'bg-satin text-obsidian' : 'badge-sage'}`}>
-              {p.tier === 'Premium' ? 'Signature' : p.tier}
+              {tierLabel}
             </span>
-            {onSale && <span className="badge-sale">{off}% off</span>}
+            {notableMarkdown && <span className="badge-sale">{off}% off</span>}
           </div>
 
           <h1 className="mt-4 font-display text-h1 leading-tight">{p.name}</h1>
@@ -196,9 +223,9 @@ export default function Product() {
 
           {p.shortDescription && <p className="mt-5 text-body leading-relaxed text-ink">{p.shortDescription}</p>}
 
-          {p.badges?.length > 0 && (
+          {extraBadges.length > 0 && (
             <ul className="mt-5 flex flex-wrap gap-2">
-              {p.badges.map((b) => <li key={b} className="badge-sage">{b}</li>)}
+              {extraBadges.map((b) => <li key={b} className="badge-sage">{b}</li>)}
             </ul>
           )}
 

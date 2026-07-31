@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { pkr } from '../../lib/format';
 
 /* ============================================================================
@@ -14,6 +14,7 @@ import { pkr } from '../../lib/format';
  * ========================================================================== */
 export default function StickyBuyBar({ product, watchRef, size, needsSize, onAdd, disabled }) {
   const [show, setShow] = useState(false);
+  const barRef = useRef(null);
 
   useEffect(() => {
     const el = watchRef.current;
@@ -34,10 +35,39 @@ export default function StickyBuyBar({ product, watchRef, size, needsSize, onAdd
     return () => io.disconnect();
   }, [watchRef]);
 
+  /* Publish this bar's real height so anything else docked at the bottom can
+     stack on top of it instead of guessing.
+     MEASURED: the bar is 72px at 390px wide but 94px at 320px, because the
+     product name and price wrap. The compare tray had hard-coded 125px and
+     still overlapped by 21px on the narrowest phone — the exact device least
+     able to lose a button. A ResizeObserver keeps the number honest through
+     rotation, font loading and long product names. */
+  useEffect(() => {
+    const el = barRef.current;
+    if (!el) return undefined;
+    const root = document.documentElement;
+    const publish = () => {
+      const h = Math.round(el.getBoundingClientRect().height);
+      if (h > 0) root.style.setProperty('--buy-bar-h', `${h}px`);
+    };
+    publish();
+    let ro;
+    if (typeof ResizeObserver !== 'undefined') { ro = new ResizeObserver(publish); ro.observe(el); }
+    window.addEventListener('resize', publish);
+    return () => {
+      ro?.disconnect();
+      window.removeEventListener('resize', publish);
+      // Leaving a stale height behind would push the tray up on every other
+      // page, so the variable is removed when the product page unmounts.
+      root.style.removeProperty('--buy-bar-h');
+    };
+  }, []);
+
   const onSale = product.compareAtPrice > product.price;
 
   return (
     <div
+      ref={barRef}
       /* aria-hidden alone is not enough: the button inside stays focusable and
          axe flags aria-hidden-focus. `inert` removes it from the tab order too;
          the attribute is ignored by engines that do not support it, and the

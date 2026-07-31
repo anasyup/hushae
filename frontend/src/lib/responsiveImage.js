@@ -64,6 +64,30 @@ export const SIZES = {
   tile: '(max-width: 640px) 90vw, 45vw',
   thumb: '96px',
   full: '(max-width: 1024px) 100vw, 800px',
+
+  /* PRODUCT GALLERY — Phase 2C, and the reason this key exists.
+   *
+   * MEASURED on live before adding it: the PDP main frame was inheriting
+   * SIZES.card. That string promises the browser a 45vw slot, so on a 390px
+   * phone at DPR 2 it asked for ~176px and happily took the 400px AVIF for a
+   * box that actually renders 358 CSS px = 716 device px. The hero shot of the
+   * product — the single most important image on the site — was being upscaled
+   * 1.79x. Desktop was worse: a 488px frame at DPR 2 needs 976px and got the
+   * 800px file via the same 320px promise.
+   *
+   * The real widths, read off the rendered layout:
+   *   <=640px   frame = viewport - 32px page padding  ~= 92vw
+   *   <=1024px  same single-column grid               ~= 92vw
+   *   >1024px   half of a max-w-7xl (1280px) grid minus the 64px gap and the
+   *             76px thumbnail rail = 488px, so 560px covers 1440 and 1920.
+   */
+  pdp: '(max-width: 1024px) 92vw, 560px',
+
+  /* The vertical thumbnail rail renders at exactly 64 CSS px (h-20 w-16), so
+     128 device px on a retina screen. It was inheriting SIZES.card too and
+     pulling the 800px variant for every thumb — four full-size images to draw
+     four postage stamps. */
+  railThumb: '64px',
 };
 
 /* The blur placeholders live in public/imageLqip.json, deliberately OUT of the

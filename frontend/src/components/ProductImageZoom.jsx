@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { X, ZoomIn } from 'lucide-react';
 import Img from './Img';
+import { SIZES } from '../lib/responsiveImage';
 
 /**
  * ProductImageZoom
@@ -13,6 +14,10 @@ export default function ProductImageZoom({ src, alt = '', eager = false }) {
   const [pos, setPos] = useState({ x: 50, y: 50 });
   const [zooming, setZooming] = useState(false);
   const [full, setFull] = useState(false);
+  /* Latched: the magnifier layer downloads the full-resolution original, so it
+     is not mounted until the shopper first hovers. Latched rather than tied to
+     `zooming` so the second hover does not re-fetch or flicker. */
+  const [armed, setArmed] = useState(false);
 
   useEffect(() => {
     if (!full) return;
@@ -35,7 +40,7 @@ export default function ProductImageZoom({ src, alt = '', eager = false }) {
       <div
         ref={wrapRef}
         className="group relative aspect-[4/5] w-full overflow-hidden rounded-[2rem] bg-satin/40 select-none"
-        onMouseEnter={() => setZooming(true)}
+        onMouseEnter={() => { setArmed(true); setZooming(true); }}
         onMouseLeave={() => setZooming(false)}
         onMouseMove={handleMove}
         onClick={() => setFull(true)}
@@ -51,26 +56,44 @@ export default function ProductImageZoom({ src, alt = '', eager = false }) {
         {/* base image */}
         {/* The first gallery frame is the LCP candidate on a PDP; Img defaults
             to loading="lazy", which delayed it. `eager` opts that one out. */}
+        {/* sizes: this frame is NOT a product card. Inheriting SIZES.card told
+            the browser to expect a 45vw slot and it fetched the 400px variant
+            for a 716 device-px box — a measured 1.79x upscale on the single
+            most important photograph on the site. SIZES.pdp states the real
+            geometry. */}
         <Img
           src={src}
           alt={alt}
+          sizes={SIZES.pdp}
           loading={eager ? 'eager' : 'lazy'}
           fetchpriority={eager ? 'high' : undefined}
           className={`h-full w-full object-cover transition-opacity duration-fast ${zooming ? 'opacity-0 md:opacity-0' : 'opacity-100'}`}
         />
 
-        {/* zoomed image — desktop only (>=768px) */}
-        <div
-          className="pointer-events-none absolute inset-0 hidden bg-no-repeat md:block"
-          style={{
-            backgroundImage: `url(${src})`,
-            backgroundSize: '250%',
-            backgroundPosition: `${pos.x}% ${pos.y}%`,
-            opacity: zooming ? 1 : 0,
-            transition: 'opacity 150ms ease',
-          }}
-          aria-hidden="true"
-        />
+        {/* zoomed image — desktop only (>=768px)
+            MEASURED: this layer named the ORIGINAL, unoptimised source. A
+            background-image is fetched as soon as the element is painted, so
+            every desktop PDP downloaded the full JPG — 224.7 KB on
+            cat-panties-hero.jpg — on top of the 61.7 KB AVIF already showing.
+            39% of the page's image bytes went to a layer at opacity 0 that
+            most shoppers never trigger.
+
+            `armed` flips on the first hover, so the file is fetched when the
+            shopper actually reaches for the magnifier and never before. It
+            stays armed afterwards, so moving the cursor back is instant. */}
+        {armed && (
+          <div
+            className="pointer-events-none absolute inset-0 hidden bg-no-repeat md:block"
+            style={{
+              backgroundImage: `url(${src})`,
+              backgroundSize: '250%',
+              backgroundPosition: `${pos.x}% ${pos.y}%`,
+              opacity: zooming ? 1 : 0,
+              transition: 'opacity 150ms ease',
+            }}
+            aria-hidden="true"
+          />
+        )}
 
         {/* Hint chip (bottom-right) */}
         {/* Decorative hints. They are inside a role="button", so leaving them

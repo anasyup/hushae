@@ -3,6 +3,7 @@ import { Play } from 'lucide-react';
 import Img from '../../components/Img';
 import ProductImageZoom from '../../components/ProductImageZoom';
 import { ytId } from '../../lib/media';
+import { SIZES } from '../../lib/responsiveImage';
 
 /* ============================================================================
  * Product gallery.
@@ -153,7 +154,10 @@ export default function ProductGallery({ media, index, onIndex, productName }) {
               }`}
             >
               {m.t === 'img' ? (
-                <Img src={m.url} alt="" className="h-20 w-16 object-cover" />
+                /* 64 CSS px wide = 128 device px. Without an explicit sizes it
+                   inherited SIZES.card and pulled the 800px variant for each
+                   postage stamp — measured 4 x 800px files to draw 4 thumbs. */
+                <Img src={m.url} alt="" sizes={SIZES.railThumb} className="h-20 w-16 object-cover" />
               ) : (
                 <span className="relative flex h-20 w-16 items-center justify-center bg-obsidian text-alabaster">
                   {ytId(m.url) && (

@@ -26,7 +26,20 @@ export default function CompareTray() {
   const { pathname } = useLocation();
   const cfg = useMemo(() => cxConfig(settings).compare, [settings]);
 
-  // Never over the compare page itself, the checkout, or the admin console.
+  /* Never over the compare page itself, the checkout, or the admin console.
+   *
+   * MEASURED on live, Phase 2C: a product page also docks StickyBuyBar at
+   * bottom-[53px] z-[41]. With two items in the tray both bars claimed the
+   * same 66px of screen and the tray — mounted later in App.jsx — painted on
+   * top, hiding "Add to bag" completely. A shopper who had compared anything
+   * could no longer buy from a scrolled product page on a phone.
+   *
+   * Buying beats comparing. On a product page the tray yields the dock to the
+   * buy bar on mobile; from md: up the buy bar is gone (it is lg:hidden and
+   * md:bottom-0) and the tray floats at bottom-6, so there is nothing to
+   * yield to and the tray stays.
+   */
+  const onProduct = pathname.startsWith('/product/');
   const suppressed = pathname === '/compare'
     || pathname.startsWith('/checkout')
     || pathname.startsWith('/admin');
@@ -35,9 +48,24 @@ export default function CompareTray() {
 
   return (
     <div
-      className={`fixed inset-x-0 bottom-[53px] z-[41] px-3 transition-transform duration-base ease-standard motion-reduce:transition-none md:bottom-6 md:px-6 ${
-        hidden ? 'pointer-events-none translate-y-[130%]' : 'translate-y-0'
-      }`}
+      /* Docking offsets. A fixed pixel guess was WRONG once already: the buy
+       * bar is 72px at 390px wide but 94px at 320px, because the product name
+       * and price wrap onto a second line. bottom-[125px] left a measured 21px
+       * overlap at 320px — the narrowest phone, and the one least able to
+       * afford a hidden button.
+       *
+       * So the offset is not hard-coded. StickyBuyBar publishes its own
+       * measured height on --buy-bar-h and the tray stacks on top of whatever
+       * that turns out to be. Falls back to 72px when the variable is absent
+       * (any page without a buy bar), and MobileNav's 53px is added below md
+       * where that nav exists. Above lg the buy bar unmounts and bottom-6 is
+       * correct again. */
+      style={onProduct ? { '--nav-h': '53px' } : undefined}
+      className={`fixed inset-x-0 z-[41] px-3 transition-transform duration-base ease-standard motion-reduce:transition-none md:px-6 ${
+        onProduct
+          ? 'bottom-[calc(var(--nav-h,53px)+var(--buy-bar-h,72px)+8px)] md:bottom-[calc(var(--buy-bar-h,72px)+8px)] lg:bottom-6'
+          : 'bottom-[53px] md:bottom-6'
+      } ${hidden ? 'pointer-events-none translate-y-[130%]' : 'translate-y-0'}`}
       aria-hidden={hidden}
       inert={hidden ? '' : undefined}
     >
