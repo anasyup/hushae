@@ -10,6 +10,7 @@ import NavDropdown from './header/NavDropdown';
 import MobileDrawer from './header/MobileDrawer';
 import useHeaderScroll from './header/useHeaderScroll';
 import useNavFit from './header/useNavFit';
+import SearchPanel from './search/SearchPanel';
 
 const clamp = (v, lo, hi, dflt) => {
   const n = Number(v);
@@ -40,11 +41,13 @@ export default function Header() {
   const [cats, setCats] = useState([]);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  /* Fetched once, lazily, the first time the shopper opens search — the
+     storefront must not pay for this on every page load. */
+  const [searchCfg, setSearchCfg] = useState(null);
   const [q, setQ] = useState('');
 
   const nav = useNavigate();
   const loc = useLocation();
-  const searchRef = useRef(null);
   const navRef = useRef(null);
   const logoRef = useRef(null);
   const burgerRef = useRef(null);
@@ -59,7 +62,10 @@ export default function Header() {
   const overHero = isHome && !past;
 
   useEffect(() => { api('/categories').then((d) => setCats(d.categories)).catch(() => {}); }, []);
-  useEffect(() => { if (searchOpen) searchRef.current?.focus(); }, [searchOpen]);
+  useEffect(() => {
+    if (!searchOpen || searchCfg) return;
+    api('/search/config').then(setSearchCfg).catch(() => setSearchCfg({}));
+  }, [searchOpen, searchCfg]);
 
   // A panel opening while the bar is tucked away would leave it off-screen.
   useEffect(() => { if (searchOpen || mobileOpen) reveal(); }, [searchOpen, mobileOpen, reveal]);
@@ -123,13 +129,6 @@ export default function Header() {
     () => ({ fontSize: `${navSize}px`, letterSpacing: navUpper ? '0.14em' : '0.005em' }),
     [navSize, navUpper],
   );
-
-  const submitSearch = (e) => {
-    e.preventDefault();
-    if (!q.trim()) return;
-    nav(`/shop?q=${encodeURIComponent(q.trim())}`);
-    setSearchOpen(false); setQ('');
-  };
 
   const iconBtn = `btn-icon ${overHero ? 'text-alabaster hover:bg-white/10' : 'text-obsidian hover:bg-satin/60'}`;
   const badge = 'absolute right-1 top-1 grid h-4 min-w-4 place-items-center rounded-full px-1 text-[9px] font-bold leading-none tabular-nums';
@@ -290,35 +289,13 @@ export default function Header() {
                 animate={{ height: 'auto', opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
                 transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
-                className="overflow-hidden border-t border-line bg-alabaster"
+                className="overflow-hidden"
               >
-                <form
-                  id="header-search"
-                  role="search"
-                  onSubmit={submitSearch}
-                  className="mx-auto flex max-w-3xl items-center gap-3 px-4 py-3.5"
-                >
-                  <Search size={17} strokeWidth={1.6} className="shrink-0 text-ash" aria-hidden="true" />
-                  <label htmlFor="header-search-input" className="sr-only">Search products</label>
-                  <input
-                    id="header-search-input"
-                    ref={searchRef}
-                    type="search"
-                    value={q}
-                    onChange={(e) => setQ(e.target.value)}
-                    onKeyDown={(e) => { if (e.key === 'Escape') { setSearchOpen(false); searchBtnRef.current?.focus(); } }}
-                    placeholder="Search bras, trunks, vests…"
-                    className="w-full bg-transparent text-body text-obsidian outline-none placeholder:text-ash/70"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => { setSearchOpen(false); searchBtnRef.current?.focus(); }}
-                    aria-label="Close search"
-                    className="btn-icon-sm -mr-1.5 shrink-0 text-ash hover:text-obsidian"
-                  >
-                    <X size={17} strokeWidth={1.7} aria-hidden="true" />
-                  </button>
-                </form>
+                <SearchPanel
+                  cfg={searchCfg}
+                  open={searchOpen}
+                  onClose={() => { setSearchOpen(false); searchBtnRef.current?.focus(); }}
+                />
               </motion.div>
             )}
           </AnimatePresence>

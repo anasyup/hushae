@@ -136,7 +136,17 @@ const D_GROUPS = ['similar', 'boughtTogether', 'popular', 'personalized', 'assis
  * Deliberately in-process and tiny. A shared cache (Redis) would be a second
  * service to run and fail; this is one variable.
  * ------------------------------------------------------------------------- */
-const CACHE_MS = 8000;
+/* MEASURED: warm requests come back bimodal — exactly 208ms or 404ms, never
+   in between. 404 is almost exactly 2x208, i.e. one round-trip versus two.
+   The cache is per-process and Vercel rotates across several instances, so
+   each new instance pays for its own first settings read.
+
+   60s rather than 8s: the document only changes when the merchant saves, the
+   settings route invalidates on save, and search config is presentation, not
+   money. The honest caveat is that invalidation only reaches the instance
+   that handled the save; another instance can serve up to 60s stale. For a
+   placeholder string or a synonym that is the right trade. */
+const CACHE_MS = 60000;
 let _cache = { at: 0, doc: null };
 
 async function rawSettings() {
