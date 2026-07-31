@@ -14,39 +14,54 @@ export default function Footer() {
   const f = s.footer || {};
   const baseCols = Array.isArray(f.columns) && f.columns.length ? f.columns : [];
 
-  /* CMS pages the merchant ticked "show in the footer", APPENDED to the last
-     existing column — merchant columns from /admin/theme are never replaced.
+  /* CMS pages the merchant ticked "show in the footer".
 
-     MEASURED REGRESSION AND FIX. The first version depended on `baseCols`,
-     which is rebuilt from `settings` on every render, so `cols` got a new
-     identity the moment the nav request resolved and the whole column block
-     re-rendered. On LIVE the footer grew 695 -> 1302px and scored 0.5504 of
-     layout shift on pages that have no CMS content at all — the previous
-     deployment measured 0.0000 on the same URL.
+     GROUPING. A page can carry a navGroup ("Help", "Guides"). Grouped pages
+     become their OWN column with that heading; ungrouped ones are appended to
+     the last existing column. Merchant columns from /admin/theme are never
+     replaced — a CMS page can only ever add.
 
-     Two changes: depend on the SERIALISED nav rather than the object, and
-     return `baseCols` by reference whenever there is nothing to add, so the
-     common case produces no new array at all. */
+     MEASURED REGRESSION AND FIX (kept from the previous pass). The first
+     version depended on `baseCols`, which is rebuilt from `settings` on every
+     render, so `cols` got a new identity the moment the nav request resolved
+     and the whole column block re-rendered. On LIVE the footer grew
+     695 -> 1302px and scored 0.5504 of layout shift on pages with no CMS
+     content at all. Depend on SERIALISED values, and return `baseCols` by
+     reference when there is nothing to add. */
   const cmsNav = useCmsNav();
-  const cmsKey = JSON.stringify(cmsNav.footer || []);
+  const groupsKey = JSON.stringify(cmsNav.footerGroups || []);
+  const baseKey = JSON.stringify(baseCols);
   const cols = useMemo(() => {
-    let links = [];
-    try { links = JSON.parse(cmsKey).map((p) => ({ label: p.label, href: `/${p.slug}` })); } catch { links = []; }
-    if (!links.length) return baseCols;
+    let groups = [];
+    try { groups = JSON.parse(groupsKey); } catch { groups = []; }
+    if (!groups.length) return baseCols;
 
     const existing = new Set(
       baseCols.flatMap((c) => (c.links || []).map((l) => String(l?.href || '').replace(/\/+$/, ''))),
     );
+    const toLink = (l) => ({ label: l.label, href: `/${l.slug}` });
     // A page already linked by hand must not appear twice.
-    const fresh = links.filter((l) => !existing.has(l.href));
-    if (!fresh.length) return baseCols;
+    const unseen = (l) => !existing.has(`/${l.slug}`);
 
-    if (!baseCols.length) return [{ title: f.cmsColumnTitle || 'More', links: fresh }];
+    const named = groups.filter((g) => g.title).map((g) => ({
+      title: g.title,
+      links: (g.links || []).filter(unseen).map(toLink),
+    })).filter((g) => g.links.length);
+
+    const loose = groups
+      .filter((g) => !g.title)
+      .flatMap((g) => (g.links || []).filter(unseen).map(toLink));
+
+    if (!named.length && !loose.length) return baseCols;
+
     const out = baseCols.map((c) => ({ ...c, links: [...(c.links || [])] }));
-    out[out.length - 1].links.push(...fresh);
-    return out;
+    if (loose.length) {
+      if (out.length) out[out.length - 1].links.push(...loose);
+      else out.push({ title: f.cmsColumnTitle || 'More', links: loose });
+    }
+    return [...out, ...named];
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cmsKey, JSON.stringify(baseCols), f.cmsColumnTitle]);
+  }, [groupsKey, baseKey, f.cmsColumnTitle]);
   const [email, setEmail] = useState('');
   const [state, setState] = useState(null); // null | 'ok' | 'already' | 'err' | 'busy'
 

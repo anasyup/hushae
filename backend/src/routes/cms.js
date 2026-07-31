@@ -20,20 +20,48 @@ const router = express.Router();
 /** Pages for the footer/header menus. One query, cached shape. */
 router.get('/nav', asyncHandler(async (req, res) => {
   const cfg = await E.cmsConfig();
-  if (!cfg.enabled) return res.json({ footer: [], header: [] });
+  if (!cfg.enabled) return res.json({ footer: [], header: [], footerGroups: [], headerGroups: [] });
 
   const now = new Date();
   const rows = await CmsPage.find({
     status: 'published',
     $or: [{ showInFooter: true }, { showInHeader: true }],
-  }).select('title slug navLabel showInFooter showInHeader sortOrder publishAt unpublishAt status');
+  }).select('title slug navLabel navGroup showInFooter showInHeader sortOrder publishAt unpublishAt status');
 
+  /* liveState() is applied in JS rather than in the query because a scheduled
+     page is status:'published' with a future publishAt — the same rule the
+     public page route uses, so the menu can never advertise a page a shopper
+     would be 404'd from. */
   const live = rows.filter((p) => p.liveState(now).live);
-  const shape = (p) => ({ label: p.navLabel || p.title, slug: p.slug });
+  const shape = (p) => ({ label: p.navLabel || p.title, slug: p.slug, group: p.navGroup || '' });
+  const bySort = (a, b) => (a.sortOrder - b.sortOrder) || String(a.title).localeCompare(String(b.title));
+
+  /* Collapse into groups, PRESERVING the flat list beside it.
+     The flat array is what shipped in Part 3 and what the Footer already
+     consumes; removing it to "clean up" would break a live component for no
+     gain. Groups are additive — a client reads whichever shape it needs. */
+  const group = (list) => {
+    const map = new Map();
+    for (const p of list) {
+      const key = p.group || '';
+      if (!map.has(key)) map.set(key, []);
+      map.get(key).push({ label: p.label, slug: p.slug });
+    }
+    // Ungrouped links come first, then named groups alphabetically — a stable
+    // order matters because the footer renders these as columns.
+    return [...map.entries()]
+      .sort((a, b) => (a[0] === '' ? -1 : b[0] === '' ? 1 : a[0].localeCompare(b[0])))
+      .map(([title, links]) => ({ title, links }));
+  };
+
+  const footerFlat = live.filter((p) => p.showInFooter).sort(bySort).map(shape);
+  const headerFlat = live.filter((p) => p.showInHeader).sort(bySort).map(shape);
 
   res.json({
-    footer: live.filter((p) => p.showInFooter).sort((a, b) => a.sortOrder - b.sortOrder).map(shape),
-    header: live.filter((p) => p.showInHeader).sort((a, b) => a.sortOrder - b.sortOrder).map(shape),
+    footer: footerFlat.map(({ label, slug }) => ({ label, slug })),
+    header: headerFlat.map(({ label, slug }) => ({ label, slug })),
+    footerGroups: group(footerFlat),
+    headerGroups: group(headerFlat),
   });
 }));
 

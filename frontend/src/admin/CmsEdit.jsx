@@ -452,6 +452,12 @@ export default function CmsEdit() {
                 hint={`Leave blank to use "${p.title || 'the page name'}". Useful when the page name is long.`}
                 placeholder="Sizing"
               />
+              <Text
+                label="Group heading (optional)" value={p.navGroup}
+                onChange={(v) => set('navGroup', v.slice(0, 40))}
+                hint="Pages sharing a heading are listed together under it in the footer — for example Help, or Guides. Leave blank to sit with the other links."
+                placeholder="Help"
+              />
               <Num
                 label="Order in the list" value={p.sortOrder}
                 onChange={(v) => set('sortOrder', v)}

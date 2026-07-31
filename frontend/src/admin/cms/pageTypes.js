@@ -82,6 +82,7 @@ export const EMPTY_PAGE = {
   showInFooter: false,
   showInHeader: false,
   navLabel: '',
+  navGroup: '',
   sortOrder: 100,
   seo: {
     title: '',

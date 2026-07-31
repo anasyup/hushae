@@ -21,7 +21,7 @@ import { api } from '../api/client';
 
 let cache = null;
 let inflight = null;
-const EMPTY = { footer: [], header: [] };
+const EMPTY = { footer: [], header: [], footerGroups: [], headerGroups: [] };
 
 export function useCmsNav() {
   const [nav, setNav] = useState(() => cache || EMPTY);
@@ -33,7 +33,17 @@ export function useCmsNav() {
     let alive = true;
     if (!inflight) {
       inflight = api('/cms/nav')
-        .then((d) => { cache = { footer: d.footer || [], header: d.header || [] }; return cache; })
+        .then((d) => {
+          cache = {
+            footer: d.footer || [],
+            header: d.header || [],
+            // Groups are additive — the flat arrays stay so an older consumer
+            // keeps working. Both shapes come from one request.
+            footerGroups: d.footerGroups || [],
+            headerGroups: d.headerGroups || [],
+          };
+          return cache;
+        })
         .catch(() => { cache = EMPTY; return cache; })
         .finally(() => { inflight = null; });
     }

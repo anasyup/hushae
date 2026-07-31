@@ -95,6 +95,17 @@ const cmsPageSchema = new mongoose.Schema({
   showInHeader: { type: Boolean, default: false },
   navLabel:     { type: String, default: '' },
   sortOrder:    { type: Number, default: 100 },
+  /* NAVIGATION GROUP.
+     A heading to file this link under — "Help", "Company", "Guides". Empty
+     means ungrouped, which is what every page created before this field
+     existed will read as, so nothing moves when this ships.
+
+     Deliberately a free-text STRING and not a reference to a Group model:
+     a merchant with four footer links does not need a second screen to manage
+     three headings, and typing the same word twice is how the grouping is
+     expressed. The server groups by exact string. A model here would be the
+     kind of technical debt that looks like architecture. */
+  navGroup:     { type: String, default: '', trim: true, maxlength: 40 },
 
   /* ---- Audit ---------------------------------------------------------- */
   createdBy: { type: String, default: '' },
@@ -107,6 +118,7 @@ const cmsPageSchema = new mongoose.Schema({
 cmsPageSchema.index({ status: 1, publishAt: 1, unpublishAt: 1 });
 cmsPageSchema.index({ type: 1, sortOrder: 1 });
 cmsPageSchema.index({ showInFooter: 1, sortOrder: 1 });
+cmsPageSchema.index({ showInHeader: 1, sortOrder: 1 });
 
 /**
  * Is this page actually live right now?

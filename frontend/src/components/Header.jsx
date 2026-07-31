@@ -8,6 +8,7 @@ import OfferBar from './OfferBar';
 import Wordmark from './Wordmark';
 import NavDropdown from './header/NavDropdown';
 import MobileDrawer from './header/MobileDrawer';
+import { useCmsNav } from '../lib/useCmsNav';
 import useHeaderScroll from './header/useHeaderScroll';
 import useNavFit from './header/useNavFit';
 import SearchPanel from './search/SearchPanel';
@@ -78,7 +79,7 @@ export default function Header() {
 
   // ── Admin-editable config ────────────────────────────────────────────────
   const hdr = settings?.header || {};
-  const menu = useMemo(() => (
+  const baseMenu = useMemo(() => (
     Array.isArray(hdr.menu) && hdr.menu.length ? hdr.menu : [
       { label: 'Women', href: '/women', dropdown: 'women' },
       { label: 'Men', href: '/men', dropdown: 'men' },
@@ -89,6 +90,38 @@ export default function Header() {
       { label: 'Track Order', href: '/track' },
     ]
   ), [hdr.menu]);
+
+  /* CMS pages the merchant ticked "show in the top menu", APPENDED to whatever
+     the theme editor already defines. Never replacing it: the shop's own
+     Women / Men / Sale links are the navigation, and a page is an addition.
+
+     WHY THIS IS RISKIER THAN THE FOOTER, AND WHAT GUARDS IT
+     `menu` feeds useNavFit(), which measures the rendered bar and shrinks the
+     gap until the links fit. Changing the menu AFTER first paint therefore
+     re-runs a measurement and can move the whole header — the exact class of
+     bug that cost 0.5504 CLS in the footer this sprint. Two mitigations:
+       · dependencies are SERIALISED strings, so the array identity only
+         changes when the content genuinely does;
+       · `baseMenu` is returned BY REFERENCE when there is nothing to add,
+         which is the case on every shop that has not marked a page for the
+         header — so the common path produces no new array and no re-measure.
+     Verified by measuring CLS on the live header after deploy. */
+  const cmsNav = useCmsNav();
+  const cmsHeaderKey = JSON.stringify(cmsNav.header || []);
+  const baseMenuKey = JSON.stringify(baseMenu);
+  const menu = useMemo(() => {
+    let links = [];
+    try { links = JSON.parse(cmsHeaderKey); } catch { links = []; }
+    if (!links.length) return baseMenu;
+
+    const existing = new Set(baseMenu.map((m) => String(m?.href || '').replace(/\/+$/, '')));
+    const fresh = links
+      .filter((l) => !existing.has(`/${l.slug}`))
+      .map((l) => ({ label: l.label, href: `/${l.slug}` }));
+    if (!fresh.length) return baseMenu;
+    return [...baseMenu, ...fresh];
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cmsHeaderKey, baseMenuKey]);
 
   const boxed    = hdr.width === 'boxed';
   const deskH    = clamp(hdr.height, 56, 120, 80);
