@@ -63,11 +63,12 @@ const NAV_GROUPS = [
   {
     label: 'Insights',
     icon: BarChart3,
-    match: ['/admin/analytics', '/admin/insights', '/admin/finance', '/admin/live', '/admin/growth'],
+    match: ['/admin/analytics', '/admin/insights', '/admin/finance', '/admin/live', '/admin/growth', '/admin/search-analytics'],
     children: [
       { to: '/admin/finance',   label: 'Finance',       icon: CreditCard },
       { to: '/admin/analytics', label: 'Analytics',     icon: BarChart3 },
       { to: '/admin/insights',  label: 'Deep insights', icon: TrendingUp },
+      { to: '/admin/search-analytics', label: 'Search analytics', icon: Search },
       { to: '/admin/live',      label: 'Live view',     icon: Activity },
       { to: '/admin/growth',    label: 'Growth',        icon: TrendingUp },
     ],
@@ -82,6 +83,7 @@ const NAV_GROUPS = [
       { to: '/admin/settings/payments',     label: 'Payments',       icon: CreditCard },
       { to: '/admin/settings/shipping',     label: 'Shipping',       icon: Truck },
       { to: '/admin/settings/loyalty',      label: 'Loyalty rules',  icon: Sparkles },
+      { to: '/admin/settings/search',       label: 'Search rules',   icon: Search },
       { to: '/admin/apps',                  label: 'Integrations',   icon: Zap },
       { to: '/admin/settings/security',     label: 'Security',       icon: ShieldCheck },
       { to: '/admin/backup',                label: 'Backup & restore', icon: FileText },

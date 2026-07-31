@@ -66,6 +66,8 @@ const SettingsAccounts = lazy(() => import('./admin/SettingsAccounts'));
 const SettingsCX = lazy(() => import('./admin/SettingsCX'));
 const SettingsReviews = lazy(() => import('./admin/SettingsReviews'));
 const SettingsLoyalty = lazy(() => import('./admin/SettingsLoyalty'));
+const SettingsSearch = lazy(() => import('./admin/SettingsSearch'));
+const SearchAnalytics = lazy(() => import('./admin/SearchAnalytics'));
 const AdminLoyalty = lazy(() => import('./admin/Loyalty'));
 const AdminQuestions = lazy(() => import('./admin/Questions'));
 const Dashboard = lazy(() => import('./admin/Dashboard'));
@@ -203,6 +205,8 @@ export default function App() {
           <Route path="/admin/settings/reviews" element={<Suspense fallback={<EditorFallback />}><SettingsReviews /></Suspense>} />
           <Route path="/admin/settings/loyalty" element={<Suspense fallback={<EditorFallback />}><SettingsLoyalty /></Suspense>} />
           <Route path="/admin/loyalty" element={<Suspense fallback={<EditorFallback />}><AdminLoyalty /></Suspense>} />
+          <Route path="/admin/settings/search" element={<Suspense fallback={<EditorFallback />}><SettingsSearch /></Suspense>} />
+          <Route path="/admin/search-analytics" element={<Suspense fallback={<EditorFallback />}><SearchAnalytics /></Suspense>} />
           <Route path="/admin/settings/security" element={<SettingsSecurity />} />
           <Route path="/admin/settings/legal" element={<SettingsLegal />} />
           <Route path="/admin/settings/advanced" element={<SettingsAdmin />} />

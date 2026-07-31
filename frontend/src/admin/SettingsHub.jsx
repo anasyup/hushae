@@ -84,6 +84,13 @@ const CARDS = [
     tags: ['loyalty', 'rewards', 'points', 'tier', 'vip', 'referral', 'refer', 'gift card', 'credit', 'wallet', 'badge', 'birthday', 'retention'],
   },
   {
+    to: '/admin/settings/search',
+    icon: Search,
+    title: 'Search & Discovery',
+    desc: 'What customers can search, typo tolerance, synonyms, suggestions and the shopping assistant.',
+    tags: ['search', 'find', 'synonym', 'typo', 'suggest', 'autocomplete', 'filter', 'discovery', 'assistant', 'recommend'],
+  },
+  {
     to: '/admin/apps',
     icon: Zap,
     title: 'Apps & Integrations',

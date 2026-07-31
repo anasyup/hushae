@@ -128,9 +128,12 @@ export default function ShoppingAssistant({ cfg, open, onClose }) {
           <div className="min-w-0 flex-1">
             <h2 id={titleId} className="truncate font-display text-h5">{a.title || 'Shopping assistant'}</h2>
           </div>
+          {/* min-h/w-11 locally rather than editing .btn-icon-sm, which is
+              shared with the whole storefront: measured at 36px here, and 44
+              is the floor on a phone. */}
           <button
             type="button" onClick={onClose} aria-label="Close assistant"
-            className="btn-icon-sm shrink-0 text-ash hover:text-obsidian"
+            className="btn-icon-sm h-11 w-11 shrink-0 text-ash hover:text-obsidian"
           >
             <X size={18} aria-hidden="true" />
           </button>
