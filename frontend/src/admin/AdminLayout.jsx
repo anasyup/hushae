@@ -3,7 +3,7 @@ import { Link, NavLink, Navigate, useLocation } from 'react-router-dom';
 import {
   Activity, BadgePercent, BarChart3, ChevronDown, CreditCard, FileText, FolderOpen, Globe, Home,
   LayoutTemplate, LogOut, Menu, MessageSquare, Package, PackagePlus, PackageX,
-  Search, Settings as SettingsIcon, ShieldCheck, ShoppingBag, Store, Tags, TrendingUp, Truck, Users, X, Zap,
+  Search, Settings as SettingsIcon, ShieldCheck, ShoppingBag, Sparkles, Store, Tags, TrendingUp, Truck, Users, X, Zap,
 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { applyAdminTheme, clearAdminTheme } from '../lib/adminTheme';
@@ -25,12 +25,13 @@ const NAV_GROUPS = [
   {
     label: 'Sales',
     icon: ShoppingBag,
-    match: ['/admin/orders', '/admin/customers', '/admin/discounts', '/admin/abandoned-carts', '/admin/payments'],
+    match: ['/admin/orders', '/admin/customers', '/admin/discounts', '/admin/abandoned-carts', '/admin/payments', '/admin/loyalty'],
     children: [
       { to: '/admin/orders',           label: 'Orders',           icon: ShoppingBag },
       { to: '/admin/payments',         label: 'Payments',         icon: CreditCard },
       { to: '/admin/customers',        label: 'Customers',        icon: Users },
       { to: '/admin/discounts',        label: 'Discounts',        icon: BadgePercent },
+      { to: '/admin/loyalty',          label: 'Loyalty',          icon: Sparkles },
       { to: '/admin/abandoned-carts',  label: 'Abandoned carts',  icon: ShoppingBag },
     ],
   },
@@ -80,6 +81,7 @@ const NAV_GROUPS = [
       { to: '/admin/settings/store',        label: 'Store details',  icon: Store },
       { to: '/admin/settings/payments',     label: 'Payments',       icon: CreditCard },
       { to: '/admin/settings/shipping',     label: 'Shipping',       icon: Truck },
+      { to: '/admin/settings/loyalty',      label: 'Loyalty rules',  icon: Sparkles },
       { to: '/admin/apps',                  label: 'Integrations',   icon: Zap },
       { to: '/admin/settings/security',     label: 'Security',       icon: ShieldCheck },
       { to: '/admin/backup',                label: 'Backup & restore', icon: FileText },

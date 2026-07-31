@@ -77,6 +77,13 @@ const CARDS = [
     tags: ['review', 'rating', 'stars', 'moderation', 'question', 'qa', 'feedback', 'verified'],
   },
   {
+    to: '/admin/settings/loyalty',
+    icon: Sparkles,
+    title: 'Loyalty & Rewards',
+    desc: 'Points, VIP tiers, referrals, store credit and gift cards — how customers are rewarded for coming back.',
+    tags: ['loyalty', 'rewards', 'points', 'tier', 'vip', 'referral', 'refer', 'gift card', 'credit', 'wallet', 'badge', 'birthday', 'retention'],
+  },
+  {
     to: '/admin/apps',
     icon: Zap,
     title: 'Apps & Integrations',
