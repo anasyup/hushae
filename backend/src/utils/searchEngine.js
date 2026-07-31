@@ -422,24 +422,34 @@ async function runSearch({ query, filters = {}, cfg, limit = 24, skip = 0 }) {
     + 'ratingAvg ratingCount sizes colors fabric badges tags isFeatured isBestSeller '
     + 'shortDescription createdAt';
 
-  let docs = await Product.find({ ...base, ...narrowQuery(allTerms, cfg) }).select(SELECT).lean();
+  /* ONE fetch, both passes.
+   *
+   * Three shapes were measured on live before settling here:
+   *
+   *   a) narrowed find, then a second full find only on a miss   ~570ms
+   *   b) narrowed find, countDocuments, then a full find on a miss ~1400ms
+   *   c) one find of the filtered set, scored twice in memory     ~200ms
+   *
+   * (b) was my own bad fix: countDocuments is itself a round-trip, and it ran
+   * before we knew whether the reuse applied, so the common case went from two
+   * trips to three. Optimising the rare path taxed the normal one.
+   *
+   * (c) wins because the pre-filter was never the expensive part — the round
+   * trip was. The base filter is already narrow (active, in this category, in
+   * this price band); pulling it once and scoring it twice in memory costs
+   * microseconds, and the fuzzy pass gets a strictly better candidate pool
+   * than the regex pre-filter could give it anyway. */
+  const docs = await Product.find(base).select(SELECT).lean();
 
   let scored = docs
     .map((p) => { const r = scoreProduct(p, expanded, cfg, false); return r ? { p, ...r } : null; })
     .filter(Boolean);
 
-  /* Fuzzy is a SECOND pass and only when the strict one found nothing.
-     Running it always would make "bra" match "bran".
-
-     MEASURED: this path cost ~570ms against ~190ms for a normal search,
-     partly because it re-fetched the catalogue. The narrowed set is a strict
-     subset of the full set, so when the pre-filter already returned
-     everything there is nothing new to fetch — reuse what is in memory. */
+  // Fuzzy is a SECOND pass, only on a miss: running it always would make
+  // "bra" match "bran".
   let usedFuzzy = false;
   if (!scored.length && cfg.fuzzy?.enabled) {
-    const total = await Product.countDocuments(base);
-    const pool = docs.length >= total ? docs : await Product.find(base).select(SELECT).lean();
-    scored = pool
+    scored = docs
       .map((p) => { const r = scoreProduct(p, expanded, cfg, true); return r ? { p, ...r } : null; })
       .filter(Boolean);
     usedFuzzy = scored.length > 0;
