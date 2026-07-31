@@ -3,7 +3,7 @@ import { Link, NavLink, Navigate, useLocation } from 'react-router-dom';
 import {
   Activity, BadgePercent, BarChart3, ChevronDown, CreditCard, FileText, FolderOpen, Globe, Home,
   LayoutTemplate, LogOut, Megaphone, Menu, MessageSquare, Package, PackagePlus, PackageX,
-  Search, Settings as SettingsIcon, ShieldCheck, ShoppingBag, Sparkles, Store, Tags, TrendingUp, Truck, Users, X, Zap,
+  Search, Settings as SettingsIcon, ShieldCheck, Signpost, ShoppingBag, Sparkles, Store, Tags, TrendingUp, Truck, Users, X, Zap,
 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { applyAdminTheme, clearAdminTheme } from '../lib/adminTheme';
@@ -53,9 +53,11 @@ const NAV_GROUPS = [
   {
     label: 'Storefront',
     icon: Store,
-    match: ['/admin/store', '/admin/content', '/admin/markets'],
+    match: ['/admin/store', '/admin/content', '/admin/cms', '/admin/markets'],
     children: [
       { to: '/admin/store',   label: 'Online Store', icon: Store },
+      { to: '/admin/cms',     label: 'Pages',        icon: FileText, exact: true },
+      { to: '/admin/cms/redirects', label: 'Old addresses', icon: Signpost },
       { to: '/admin/content', label: 'Content',      icon: LayoutTemplate },
       { to: '/admin/faq',     label: 'FAQ',          icon: FileText },
       { to: '/admin/markets', label: 'Markets',      icon: Globe },
@@ -313,10 +315,17 @@ export default function AdminLayout({ children, title }) {
         {/* Desktop topbar — breadcrumb, quick actions, notifications */}
         <TopBar title={title} auth={auth} />
 
-        <main className="min-w-0 flex-1 p-4 md:p-8">
+        {/* MEASURED, Sprint 2L P2: this was a second <main>, nested inside the
+            <main id="main-content"> App.jsx already renders. Two main landmarks
+            on one page is a WCAG 1.3.1 failure — a screen reader offers "main"
+            twice and neither is the whole content. Reproduced identically on
+            LIVE commit 756cd0a, so it is pre-existing, not a regression.
+            A <div> with the same classes renders byte-identically; no CSS or JS
+            in the project selects `main`. */}
+        <div className="min-w-0 flex-1 p-4 md:p-8">
           {title && <h1 className="mb-6 font-sans text-[28px] font-semibold leading-tight text-neutral-900 md:hidden">{title}</h1>}
-          <div className="min-w-0">{children}</div>
-        </main>
+          <div className="admin-main min-w-0">{children}</div>
+        </div>
       </div>
 
       {/* Floating profit calculator — available on every admin page */}

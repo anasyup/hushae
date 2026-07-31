@@ -73,6 +73,11 @@ const Promotions = lazy(() => import('./admin/Promotions'));
 const PromotionEdit = lazy(() => import('./admin/PromotionEdit'));
 const MarketingSettings = lazy(() => import('./admin/MarketingSettings'));
 const MarketingAnalytics = lazy(() => import('./admin/MarketingAnalytics'));
+/* CMS screens: lazy (gotcha 26). The page builder pulls the section registry
+   and must never reach a shopper's bundle. */
+const Cms = lazy(() => import('./admin/Cms'));
+const CmsEdit = lazy(() => import('./admin/CmsEdit'));
+const CmsRedirects = lazy(() => import('./admin/CmsRedirects'));
 const AdminLoyalty = lazy(() => import('./admin/Loyalty'));
 const AdminQuestions = lazy(() => import('./admin/Questions'));
 const Dashboard = lazy(() => import('./admin/Dashboard'));
@@ -222,6 +227,11 @@ export default function App() {
           <Route path="/admin/flash-sales" element={<Suspense fallback={<EditorFallback />}><Promotions /></Suspense>} />
           <Route path="/admin/marketing/settings" element={<Suspense fallback={<EditorFallback />}><MarketingSettings /></Suspense>} />
           <Route path="/admin/marketing/analytics" element={<Suspense fallback={<EditorFallback />}><MarketingAnalytics /></Suspense>} />
+          <Route path="/admin/cms" element={<Suspense fallback={<EditorFallback />}><Cms /></Suspense>} />
+          {/* /new and /redirects must precede /:id or they are read as ids. */}
+          <Route path="/admin/cms/new" element={<Suspense fallback={<EditorFallback />}><CmsEdit /></Suspense>} />
+          <Route path="/admin/cms/redirects" element={<Suspense fallback={<EditorFallback />}><CmsRedirects /></Suspense>} />
+          <Route path="/admin/cms/:id" element={<Suspense fallback={<EditorFallback />}><CmsEdit /></Suspense>} />
           <Route path="/admin/settings/security" element={<SettingsSecurity />} />
           <Route path="/admin/settings/legal" element={<SettingsLegal />} />
           <Route path="/admin/settings/advanced" element={<SettingsAdmin />} />
