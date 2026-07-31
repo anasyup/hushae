@@ -17,7 +17,7 @@ router.put('/', protect, adminOnly, asyncHandler(async (req, res) => {
   const b = req.body || {};
   const s = await getSettings();
   ['storeName', 'tagline', 'contactEmail', 'contactPhone', 'hero', 'trustBadges',
-    'shippingFlatRate', 'freeShippingThreshold', 'cart', 'checkout', 'account', 'customerExperience', 'reviews', 'loyalty', 'paymentMethods', 'theme', 'offerBar', 'integrations', 'storefrontLock', 'cookiePopup', 'media', 'marquee', 'promoPopup', 'faq', 'operatingCosts', 'signatureSplit', 'productSections', 'header', 'footer',
+    'shippingFlatRate', 'freeShippingThreshold', 'cart', 'checkout', 'account', 'customerExperience', 'reviews', 'loyalty', 'paymentMethods', 'theme', 'offerBar', 'integrations', 'storefrontLock', 'cookiePopup', 'media', 'marquee', 'promoPopup', 'faq', 'operatingCosts', 'signatureSplit', 'productSections', 'header', 'footer', 'cms',
     'monthlyRevenueGoal', 'marginThresholdPercent'].forEach((f) => {
     if (b[f] !== undefined) s[f] = b[f];
   });
@@ -27,6 +27,7 @@ router.put('/', protect, adminOnly, asyncHandler(async (req, res) => {
      their own change take effect immediately rather than up to 8s later. */
   try { require('../utils/searchEngine').invalidateSettingsCache(); } catch { /* optional */ }
   try { require('../utils/promotionEngine').invalidateCache(); } catch { /* optional */ }
+  try { require('../utils/cmsEngine').invalidateCache(); } catch { /* optional */ }
   res.json({ settings: s });
 }));
 

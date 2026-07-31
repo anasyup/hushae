@@ -341,6 +341,56 @@ const settingsSchema = new mongoose.Schema({
   // Every value a shopper's search depends on now lives here.
   // ==========================================================================
   // ==========================================================================
+  // CMS & CONTENT
+  //
+  // Measured before this block existed: /privacy, /terms, /returns and
+  // /shipping-policy all render from a hardcoded DOCS object in
+  // frontend/src/pages/Legal.jsx. The merchant cannot change a word of their
+  // own returns policy without a developer.
+  // ==========================================================================
+  cms: {
+    enabled: { type: Boolean, default: true },
+
+    // Never publish on create — a page that goes live the instant it is saved
+    // gives nobody a chance to read it first.
+    defaultStatus:   { type: String,  default: 'draft', enum: ['draft', 'published'] },
+    requireSeoTitle: { type: Boolean, default: false },
+    // Renaming a slug silently breaks every existing link. On by default.
+    autoRedirectOnRename: { type: Boolean, default: true },
+    maxVersions:     { type: Number,  default: 30 },
+
+    slug: {
+      lowercase: { type: Boolean, default: true },
+      maxLength: { type: Number,  default: 80 },
+      // Addresses that would shadow a real route. Serving a CMS page at /cart
+      // would break the shop in a way that looks like a caching bug.
+      reserved: {
+        type: [String],
+        default: [
+          'admin', 'api', 'cart', 'checkout', 'account', 'shop', 'search', 'product',
+          'category', 'collection', 'wishlist', 'compare', 'rewards', 'track',
+          'order', 'sale', 'new', 'best', 'men', 'women', 'fit-finder',
+          'reset-password', 'verify-email', '__theme-preview',
+        ],
+      },
+    },
+
+    seo: {
+      titleTemplate:      { type: String,  default: '%s · HUSHAE' },
+      defaultDescription: { type: String,  default: '' },
+      defaultOgImage:     { type: String,  default: '' },
+      twitterHandle:      { type: String,  default: '' },
+      defaultNoIndex:     { type: Boolean, default: false },
+    },
+
+    structuredData: {
+      enabled:      { type: Boolean, default: true },
+      organisation: { type: Boolean, default: true },
+      breadcrumbs:  { type: Boolean, default: true },
+    },
+  },
+
+  // ==========================================================================
   // MARKETING & PROMOTIONS
   //
   // Measured before this block existed:
