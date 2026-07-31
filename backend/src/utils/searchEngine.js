@@ -422,37 +422,59 @@ async function runSearch({ query, filters = {}, cfg, limit = 24, skip = 0 }) {
     + 'ratingAvg ratingCount sizes colors fabric badges tags isFeatured isBestSeller '
     + 'shortDescription createdAt';
 
-  /* ONE fetch, both passes.
+  /* Four shapes were measured against the live database before settling here:
    *
-   * Three shapes were measured on live before settling here:
+   *   a) narrowed find, second full find only on a miss     ~570ms
+   *   b) narrowed find, countDocuments, then find on a miss ~1400ms
+   *   c) one full find, scored twice in memory              ~412ms normal
+   *                                                        (~820ms on colour)
+   *   d) narrowed find; on a miss, a LEAN full find          this one
    *
-   *   a) narrowed find, then a second full find only on a miss   ~570ms
-   *   b) narrowed find, countDocuments, then a full find on a miss ~1400ms
-   *   c) one find of the filtered set, scored twice in memory     ~200ms
+   * (b) was my own bad fix — countDocuments is itself a round-trip and ran
+   * before we knew the reuse applied, so the common case went from two trips
+   * to three. Reverted.
    *
-   * (b) was my own bad fix: countDocuments is itself a round-trip, and it ran
-   * before we knew whether the reuse applied, so the common case went from two
-   * trips to three. Optimising the rare path taxed the normal one.
+   * (c) looked elegant and was worse for the case that matters. Isolating the
+   * cost showed why:
    *
-   * (c) wins because the pre-filter was never the expensive part — the round
-   * trip was. The base filter is already narrow (active, in this category, in
-   * this price band); pulling it once and scoring it twice in memory costs
-   * microseconds, and the fuzzy pass gets a strictly better candidate pool
-   * than the regex pre-filter could give it anyway. */
-  const docs = await Product.find(base).select(SELECT).lean();
+   *     /api/products?limit=1     median  350ms
+   *     /api/products?limit=101   median 1056ms
+   *
+   * Pulling the whole catalogue is genuinely expensive — it is transfer, not
+   * query planning — and (c) made EVERY search pay it so that the rare typo
+   * would not.
+   *
+   * (d) keeps the narrow pre-filter for the common path, and on the rare miss
+   * fetches the fallback pool with only the fields fuzzy matching needs. That
+   * pool is a fraction of the full document because the images array, which
+   * dominates the payload, is left behind. */
+  let docs = await Product.find({ ...base, ...narrowQuery(allTerms, cfg) }).select(SELECT).lean();
 
   let scored = docs
     .map((p) => { const r = scoreProduct(p, expanded, cfg, false); return r ? { p, ...r } : null; })
     .filter(Boolean);
 
-  // Fuzzy is a SECOND pass, only on a miss: running it always would make
-  // "bra" match "bran".
+  /* Fuzzy is a SECOND pass, only on a miss: running it always would make
+     "bra" match "bran". The candidate scan needs only the text fields; the
+     matching ids are then re-read in full, so a typo costs one small scan
+     plus one tiny fetch instead of hauling the entire catalogue. */
   let usedFuzzy = false;
   if (!scored.length && cfg.fuzzy?.enabled) {
-    scored = docs
-      .map((p) => { const r = scoreProduct(p, expanded, cfg, true); return r ? { p, ...r } : null; })
+    const LIGHT = 'name sku categorySlug tags colors.name sizes fabric badges shortDescription';
+    const light = await Product.find(base).select(LIGHT).lean();
+    const hits = light
+      .map((p) => { const r = scoreProduct(p, expanded, cfg, true); return r ? { id: p._id, ...r } : null; })
       .filter(Boolean);
-    usedFuzzy = scored.length > 0;
+
+    if (hits.length) {
+      const byId = new Map(hits.map((h) => [String(h.id), h]));
+      const full = await Product.find({ _id: { $in: hits.map((h) => h.id) } }).select(SELECT).lean();
+      scored = full.map((p) => {
+        const h = byId.get(String(p._id));
+        return { p, score: h.score, fuzzy: h.fuzzy, synonym: h.synonym };
+      });
+      usedFuzzy = true;
+    }
   }
 
   scored.sort((a, b) => b.score - a.score
