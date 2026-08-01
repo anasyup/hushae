@@ -43,15 +43,32 @@ export default function TheEdit({ eyebrow = 'The edit', title, blurb, products =
     <section aria-labelledby="edit-title" className="container-page mt-ed-md xl:mt-ed-lg">
       {/* Header on the page grid, CTA aligned to the baseline of the title so
           the two read as one line of type rather than a heading plus a button. */}
-      <div className="flex flex-wrap items-end justify-between gap-x-10 gap-y-4">
-        <div className="max-w-2xl">
+      {/* V2.2. MEASURED: the two instances of this component and the New
+          Arrivals grid all opened at hdrX=80 with a 49px heading — three
+          product sections entered from the identical point, so the middle of
+          the page read as one long catalogue.
+          On the mirrored instance the header now sits on the RIGHT, over the
+          side the lead plate occupies. Composition and spacing only: same
+          products, same counts, same type sizes, same DOM order.
+
+          Two failures before this worked, both measured:
+          - `flex-row-reverse` threw the CTA to the far LEFT margin, ~830px from
+            the right-aligned title it belongs to.
+          - Swapping `order` alone did not help either: `justify-between` still
+            drove the two children to OPPOSITE edges (measured cta at x=80,
+            title at x=912). The order was correct; the justification was not.
+          - And `xl:ml-auto` on the title block was a third cause: auto margin
+            absorbs ALL free space, so even with justify-end the CTA was still
+            pinned to x=80. Removed; justify-end alone does the work. */}
+      <div className={`flex flex-wrap items-end gap-x-10 gap-y-4 ${mirrored ? 'xl:justify-end' : 'justify-between'}`}>
+        <div className={`max-w-2xl ${mirrored ? 'xl:order-2 xl:text-right' : ''}`}>
           <p className="text-label uppercase tracking-[0.24em] text-sagedeep">{eyebrow}</p>
           <h2 id="edit-title" className="mt-3 font-display text-h1 leading-[1.02] text-obsidian">
             {title}
           </h2>
           {blurb && <p className="mt-3 max-w-md text-body-sm leading-relaxed text-ash">{blurb}</p>}
         </div>
-        <Link to={href} className="cta-editorial shrink-0">
+        <Link to={href} className={`cta-editorial shrink-0 ${mirrored ? 'xl:order-1' : ''}`}>
           {ctaLabel}
           <span aria-hidden="true">&rarr;</span>
         </Link>
@@ -86,7 +103,7 @@ export default function TheEdit({ eyebrow = 'The edit', title, blurb, products =
           scanning down meets a different shape without losing the rhythm.
           `priority` stays on the first instance only: the second is far below
           the fold and should not compete for the LCP fetch. */}
-      <div className="mt-10 grid grid-cols-2 gap-x-6 gap-y-12 md:grid-cols-3 xl:mt-14 xl:grid-cols-12 xl:gap-x-8">
+      <div className={`mt-10 grid grid-cols-2 gap-x-6 md:grid-cols-3 xl:grid-cols-12 xl:gap-x-8 ${mirrored ? 'gap-y-10 xl:mt-12' : 'gap-y-12 xl:mt-14'}`}>
         {/* Lead — 6 of 12 columns, and it spans both rows so the supporting
             pieces stack beside it at half its height. This is the whole idea:
             one garment is the subject. */}

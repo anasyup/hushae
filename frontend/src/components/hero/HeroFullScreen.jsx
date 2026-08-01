@@ -165,7 +165,16 @@ export default function HeroFullScreen({ hero }) {
              a 1440 headline occupying 4% of its height. The vw slope is what
              carries a hero; the ceiling now lets it reach 8.5rem (136px) while
              the minimum, and therefore mobile, is untouched. */
-          style={{ '--d': '0ms', fontSize: 'clamp(2.75rem, 8.2vw, 8.5rem)' }}
+          /* MOBILE PRESENCE. MEASURED at 390: the cover line rendered 44px and
+             occupied 9.8% of the viewport height on a full-screen photograph —
+             it read as a caption sitting on the image rather than the line the
+             hero is built around. Desktop at 118/136px has real presence;
+             mobile did not inherit it, and mobile is 85% of orders.
+             The FLOOR moves 2.75rem -> 3.5rem (44 -> 56px). The 8.2vw slope
+             and the 8.5rem ceiling are untouched, and 8.2vw only overtakes a
+             56px floor at a 683px viewport — so every width from 768 up is
+             byte-identical to what is live now. */
+          style={{ '--d': '0ms', fontSize: 'clamp(3.5rem, 8.2vw, 8.5rem)' }}
         >
           {title}
         </h1>
@@ -274,14 +283,20 @@ export default function HeroFullScreen({ hero }) {
                the mark is the one we already use elsewhere on this page. */}
         {badges.length > 0 && (
           <ul
-            className={`hero-rise mt-11 flex max-w-full flex-wrap items-center gap-y-2 border-t border-alabaster/20 pt-6 text-label uppercase tracking-[0.22em] text-alabaster/65 sm:max-w-[560px] lg:max-w-[820px] xl:mt-12 xl:max-w-[880px] 2xl:max-w-[980px] ${centred ? 'justify-center' : ''}`}
+            className={`hero-rise mt-9 flex max-w-full flex-col gap-y-1.5 border-t border-alabaster/20 pt-5 text-label uppercase tracking-[0.22em] text-alabaster/65 sm:mt-11 sm:max-w-[560px] sm:flex-row sm:flex-wrap sm:items-center sm:gap-y-2 sm:pt-6 lg:max-w-[820px] xl:mt-12 xl:max-w-[880px] 2xl:max-w-[980px] ${centred ? 'justify-center' : ''}`}
             style={{ '--d': '260ms' }}
           >
             {badges.map((bText, i) => (
               /* The separator was a sibling of the text, so on a narrow
                  viewport a wrapped row could begin with a rule and nothing
                  before it. As a ::before it can never outlive its pair. */
-              <li key={bText} className="mr-5 flex items-center before:mr-5 before:h-2.5 before:w-px before:bg-alabaster/25 before:content-[''] first:before:hidden last:mr-0">
+              /* MEASURED at 390: the row wrapped to THREE lines (74px) and every
+                 wrapped line began with a hanging separator rule, because a
+                 horizontal divider only reads as a divider when both items sit
+                 on the same line.
+                 Below sm the list becomes a plain stack with no rules; from sm
+                 it is the inline divided row exactly as it is on desktop. */
+              <li key={bText} className="flex items-center sm:mr-5 sm:before:mr-5 sm:before:h-2.5 sm:before:w-px sm:before:bg-alabaster/25 sm:before:content-[''] sm:first:before:hidden sm:last:mr-0">
                 {bText}
               </li>
             ))}
