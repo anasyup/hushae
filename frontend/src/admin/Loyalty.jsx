@@ -131,7 +131,7 @@ function AdjustDialog({ account, onClose, onDone }) {
 
           <div className="mb-4">
             <label className="label" htmlFor="adj-note">Reason</label>
-            <textarea id="adj-note" className="input min-h-[76px]" maxLength={200} value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g. Goodwill for late delivery on VL-20260712-004521" />
+            <textarea id="adj-note" className="input min-h-[76px]" maxLength={200} value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g. Goodwill for late delivery on HS-20260712-004521" />
             <p className="mt-1.5 text-[11px] text-neutral-500">Saved against your name in the ledger, forever.</p>
           </div>
 

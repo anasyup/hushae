@@ -1073,7 +1073,7 @@ const settingsSchema = new mongoose.Schema({
         { question: 'Return / exchange kaisay karoon?', answer: '14 din ke andar unused / unworn product exchange kar sakte hain. Hygiene ki wajah se innerwear ki wapsi sirf defective items par hoti hai. Contact karein: /track ya WhatsApp.' },
         { question: 'Fabric quality kya hai?', answer: 'Har product 3-tier quality system se pass hota hai — cotton, modal, aur cooling mesh premium sources se. Fabric details har product page par listed hain.' },
         { question: 'Payment methods kya kya available hain?', answer: 'Abhi Cash on Delivery (COD) available hai. JazzCash, EasyPaisa, Bank Transfer aur online cards jaldi add ho rahay hain.' },
-        { question: 'Order kaisay track karoon?', answer: 'Order confirm hone par aap ko unique order number milta hai (VL-YYYYMMDD-XXXXXX). /track page par jaa kar order number + phone se live status dekhein.' },
+        { question: 'Order kaisay track karoon?', answer: 'Order confirm hone par aap ko unique order number milta hai (HS-YYYYMMDD-XXXXXX). /track page par jaa kar order number + phone se live status dekhein.' },
         { question: 'Kya aap international ship karte hain?', answer: 'Abhi sirf Pakistan ke andar deliver karte hain. Middle East aur international shipping jaldi shuru hogi.' },
       ],
     },

@@ -58,7 +58,7 @@ export default function ProductForm() {
     if (images.length < 4) { toast('Add at least 4 images (tiles par + dabayen)'); return; }
     const cat = cats.find((c) => c.slug === f.categorySlug);
     const body = {
-      name: f.name, sku: f.sku || `VL-${Date.now().toString(36).toUpperCase()}`, gender: f.gender,
+      name: f.name, sku: f.sku || `HS-${Date.now().toString(36).toUpperCase()}`, gender: f.gender,
       tier: f.tier, price: Number(f.price), compareAtPrice: f.compareAtPrice ? Number(f.compareAtPrice) : null,
       costPrice: f.costPrice ? Number(f.costPrice) : 0,
       stock: Number(f.stock) || 0, images, video: '', shortDescription: f.shortDescription, description: f.description,

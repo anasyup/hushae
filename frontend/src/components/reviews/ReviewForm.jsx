@@ -222,7 +222,7 @@ export default function ReviewForm({ product, cfg, onClose, onPosted }) {
                   <FloatField
                     label="Order number" required value={orderNumber}
                     onChange={(v) => { setOrderNumber(v.toUpperCase()); setErrs((x) => ({ ...x, orderNumber: '' })); }}
-                    error={errs.orderNumber} hint={!errs.orderNumber ? 'On your confirmation, e.g. VL-20260730-A1B2C3' : ''}
+                    error={errs.orderNumber} hint={!errs.orderNumber ? 'On your confirmation, e.g. HS-20260730-A1B2C3' : ''}
                   />
                   <FloatField
                     label="Mobile used on the order" required autoComplete="tel" inputMode="tel"
