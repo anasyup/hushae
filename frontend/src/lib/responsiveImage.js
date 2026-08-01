@@ -81,7 +81,23 @@ export const SIZES = {
    *   >1024px   half of a max-w-7xl (1280px) grid minus the 64px gap and the
    *             76px thumbnail rail = 488px, so 560px covers 1440 and 1920.
    */
-  pdp: '(max-width: 1024px) 92vw, 560px',
+  /* RE-MEASURED in Phase 2F at every breakpoint, because the first version was
+     right on phones and wrong everywhere else. Actual rendered frame width:
+        390 -> 358 (91.8vw)      1024 -> 356 (34.8vw)
+        640 -> 520 (81.3vw)      1280 -> 484 (37.8vw)
+        768 -> 616 (80.2vw)      1440 -> 484 (33.6vw)
+                                 1920 -> 484 (25.2vw)
+     Three faults in '(max-width: 1024px) 92vw, 560px':
+       1. 92vw only holds below 640; from 640 the container caps and the frame
+          is ~80vw, so the browser was told 706px for a 616px box at 768.
+       2. the breakpoint was ONE PIXEL out. The two-column grid starts AT
+          1024px (Tailwind lg), so at exactly 1024 the frame is 356px while
+          `max-width: 1024px` still promised 942px — a 2.6x over-request.
+       3. 560px overstated the 484px frame from lg up.
+     The frame never exceeds 616 CSS px = 1232 device px at DPR 2, which no
+     variant can satisfy (largest is 800), but an honest `sizes` at least stops
+     the browser over-fetching on desktop where the box is only 484px. */
+  pdp: '(max-width: 639px) 92vw, (max-width: 1023px) 81vw, 500px',
 
   /* The vertical thumbnail rail renders at exactly 64 CSS px (h-20 w-16), so
      128 device px on a retina screen. It was inheriting SIZES.card too and
