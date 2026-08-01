@@ -36,7 +36,7 @@ import { SIZES, pictureSources } from '../../lib/responsiveImage';
 
 const BAND = '/images/collection/band-neutral.jpg';
 
-export default function CollectionBanner({ title, blurb, eyebrow = 'HUSHAE', count }) {
+export default function CollectionBanner({ title, blurb, eyebrow = 'HUSHAE', count, showCount = false }) {
   return (
     <section
       aria-labelledby="collection-title"
@@ -106,9 +106,20 @@ export default function CollectionBanner({ title, blurb, eyebrow = 'HUSHAE', cou
               {blurb}
             </p>
           )}
-          {typeof count === 'number' && count > 0 && (
-            <p className="mt-1 text-caption tabular-nums text-ash">
-              {count} {count === 1 ? 'piece' : 'pieces'}
+          {/* MEASURED CLS on /sale: the count arrives with the product fetch,
+              so this line appeared AFTER first paint. The band's height is
+              locked but its text block is bottom-aligned, so a third line
+              pushed the h1 and blurb up 21px — 0.0177 of shift inside a
+              component built to have none.
+              The row is now always present and only its TEXT is conditional,
+              so the box is reserved from the first frame. `showCount` lets a
+              caller that will never have a count opt the row out entirely at
+              build time rather than reserving space for nothing. */}
+          {showCount && (
+            <p className="mt-1 min-h-[1.125rem] text-caption tabular-nums text-ash" aria-live="polite">
+              {typeof count === 'number' && count > 0
+                ? `${count} ${count === 1 ? 'piece' : 'pieces'}`
+                : '\u00A0'}
             </p>
           )}
         </div>

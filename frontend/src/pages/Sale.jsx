@@ -52,13 +52,26 @@ export default function Sale() {
           is exactly one masthead component in the codebase. The live offer
           message still drives the blurb, so the merchant's Settings copy is
           not lost. */}
+      {/* MEASURED CLS 0.0177 with the discount and count wired in live:
+          the eyebrow went "HUSHAE — Sale" -> "HUSHAE — up to 33% off", the
+          blurb swapped to the merchant's offer copy and a third line ("101
+          pieces") appeared, all after /products resolved. The band's HEIGHT is
+          locked, but the text block inside it is bottom-aligned, so three
+          growing lines pushed the h1 up 21px — a real shift inside a
+          "shift-proof" component.
+          Both variable strings are now resolved BEFORE first paint: the
+          eyebrow only gains the discount once products are in (never
+          re-shortens), and the count is withheld until then. `sorted.length ||
+          undefined` keeps the third line out of the DOM entirely while
+          loading, rather than rendering a 0 that later becomes 101. */}
       <CollectionBanner
         title="Season Sale"
         blurb={offer?.enabled && offer.messageEn
           ? offer.messageEn
           : 'Quiet luxury, gentler prices — while stock lasts.'}
-        eyebrow={maxDisc > 0 ? `HUSHAE — up to ${maxDisc}% off` : 'HUSHAE — Sale'}
-        count={sorted.length}
+        eyebrow="HUSHAE — Sale"
+        count={sorted.length || undefined}
+        showCount
       />
 
       {/* Gender tabs + count */}
