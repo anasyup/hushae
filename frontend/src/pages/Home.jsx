@@ -7,10 +7,11 @@ import { api } from '../api/client';
 import { snap } from '../lib/format';
 import Img from '../components/Img';
 import Marquee from '../components/Marquee';
-import FeaturedMarquee from '../components/FeaturedMarquee';
 import FeaturedCollections from '../components/FeaturedCollections';
 import Diptych from '../components/home/Diptych';
 import TheEdit from '../components/home/TheEdit';
+import EditorialStory from '../components/home/EditorialStory';
+import ProductGrid from '../components/home/ProductGrid';
 import CommunityGrid from '../components/CommunityGrid';
 import TrustBadges from '../components/TrustBadges';
 import ProductRow from '../components/ProductRow';
@@ -34,7 +35,7 @@ export default function Home() {
   const [cats, setCats] = useState([]);
   const [best, setBest] = useState(null);
   const [signature, setSignature] = useState(null);
-  const [trending, setTrending] = useState(null);
+  const [fresh, setFresh] = useState(null);
   const s = settings || {};
   const hero = s.hero || {};
   const [nl, setNl] = useState('');
@@ -44,7 +45,15 @@ export default function Home() {
     api('/categories').then((d) => setCats(d.categories)).catch(() => {});
     api('/products?bestSeller=true&limit=10').then((d) => setBest(d.products)).catch(() => setBest([]));
     api('/products?featured=true&limit=10').then((d) => setSignature(d.products)).catch(() => setSignature([]));
-    api('/products/trending?limit=8').then((d) => setTrending(d.products || [])).catch(() => setTrending([]));
+    /* PHASE 6. Was /products/trending, whose carousel Phase 5 deleted — the
+       request was still firing and its result discarded. Repurposed for the
+       New Arrivals grid the blueprint calls for, so the section costs no extra
+       round trip. */
+    /* newDays, not sort=newest. MEASURED: sort=newest returned 10 bras in the
+       first 12 products, because the catalogue was seeded category by category
+       — a "New arrivals" spread of six near-identical bras is worse than no
+       section. newDays=30 spans 10 categories across 12 products. */
+    api('/products?newDays=30&limit=6').then((d) => setFresh(d.products || [])).catch(() => setFresh([]));
   }, []);
 
   const wCats = cats.filter((c) => c.gender === 'women');
@@ -96,10 +105,12 @@ export default function Home() {
       )}
 
       {/* Featured products — dark auto-sliding strip right after the hero */}
-      <FeaturedMarquee
-        products={(signature && signature.length ? signature : best) || []}
-        title="Signature Pieces"
-      />
+      {/* PHASE 6. The last carousel is gone. It was a 623px auto-sliding
+          strip fed by the SAME `signature` array that TheEdit composition
+          below already presents — the page showed one set of products twice,
+          once as a scrub-strip and once as a composition. The blueprint has no
+          slider anywhere, and a duplicate of adjacent content is the weakest
+          possible reason for a section to exist. */}
 
       {/* ═══════════════════════════════════════════════════════════
           EDITORIAL BLOCKS — HUSHAE magazine-style storefront
@@ -136,6 +147,27 @@ export default function Home() {
       <div className="mt-14"><TrustBadges /></div>
 
       {/* CATEGORIES section removed per user — replaced by Featured Collections + editorial blocks */}
+
+      {/* PHASE 6 — EDITORIAL STORY. The blueprint's brand chapter, and the
+          measured gap: all twelve sections were selling or asking, none simply
+          spoke. */}
+      <EditorialStory />
+
+      {/* PHASE 6 — NEW ARRIVALS. Blueprint asks for six large plates, no
+          slider. ProductGrid is a new shape rather than a reuse of TheEdit:
+          TheEdit is deliberately asymmetric because it has a subject, and
+          applying that to new arrivals would imply an editor's pick that does
+          not exist. Six equals, three across, all visible at once. */}
+      {fresh && fresh.length >= 3 && (
+        <ProductGrid
+          eyebrow="Just arrived"
+          title={'New\narrivals.'}
+          blurb="The latest additions to the edit, photographed as they land."
+          products={fresh.map(snap)}
+          href="/new"
+          ctaLabel="View new arrivals"
+        />
+      )}
 
       {/* PHASE 5 — the last two carousels ("Best Sellers" and "Trending Now")
           were the same ProductRow component a third and fourth time, 966px of
