@@ -86,6 +86,7 @@ export default function ProductGrid({
                gives the garment the room that makes this read as photography
                rather than a thumbnail. */
             ratio="aspect-[4/5]"
+            sizeKey="cardWide"
           />
         ))}
       </div>

@@ -42,6 +42,11 @@ function ProductCard({
   // every existing call site.
   ratio = null,
   showPrice = true,
+  /* FINAL. Which SIZES entry this card should advertise. Default keeps every
+     existing caller on the grid width; the homepage compositions that render
+     wider plates opt in, so the browser stops resolving a 400w file into a
+     624px slot. */
+  sizeKey = 'card',
   showSaleBadge = true,
   showQuickAdd = true,
   showWishlist = true,
@@ -150,14 +155,14 @@ function ProductCard({
               same images as 400px AVIF are 0.36 MB. */}
           <picture>
             {pictureSources(failed ? '' : primary).map((s) => (
-              <source key={s.type} type={s.type} srcSet={s.srcSet} sizes={SIZES.card} />
+              <source key={s.type} type={s.type} srcSet={s.srcSet} sizes={SIZES[sizeKey] || SIZES.card} />
             ))}
           <img
             src={failed ? FALLBACK : (primary || FALLBACK)}
             alt={p.name}
             width="900"
             height="1125"
-            sizes={SIZES.card}
+            sizes={SIZES[sizeKey] || SIZES.card}
             loading={priority ? 'eager' : 'lazy'}
             fetchpriority={priority ? 'high' : 'auto'}
             decoding="async"
@@ -176,14 +181,14 @@ function ProductCard({
           {secondary && (
             <picture>
               {pictureSources(secondary).map((s) => (
-                <source key={s.type} type={s.type} srcSet={s.srcSet} sizes={SIZES.card} />
+                <source key={s.type} type={s.type} srcSet={s.srcSet} sizes={SIZES[sizeKey] || SIZES.card} />
               ))}
             <img
               src={secondary}
               alt=""
               width="900"
               height="1125"
-              sizes={SIZES.card}
+              sizes={SIZES[sizeKey] || SIZES.card}
               loading="lazy"
               decoding="async"
               aria-hidden="true"

@@ -63,7 +63,27 @@ export const SIZES = {
      variant at every desktop width. With the wider shell a card renders ~270px
      at 1440 and ~330px at 2560 (5 columns), which needs up to 660 device px at
      DPR 2 — so the browser must be allowed to reach for 800w. */
-  card: '(max-width: 640px) 45vw, (max-width: 1024px) 30vw, (max-width: 1599px) 21vw, 320px',
+  /* FINAL. The tail was a fixed `320px`, but MEASURED at 1920 a card slot is
+     404px — the browser was handed a 320w promise and resolved a file smaller
+     than the box (0.79x). A fixed-px tail cannot track a fluid shell; the
+     container keeps growing to 1840 while the promise stays flat.
+     Stated in vw so the tail scales with the grid (404/1920 = 21vw). */
+  card: '(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 21vw',
+
+  /* FINAL. MEASURED at 1440: three homepage compositions render cards far
+     WIDER than the 21vw SIZES.card promises, so the browser resolved the 400w
+     variant into slots that needed much more:
+       Edit / Best Sellers lead   624px slot from a 302px file — 0.48x
+       New Arrivals plate         405px slot from a 302px file — 0.75x
+     A 0.48x image is visibly soft, and it is the largest photograph in the
+     section. These two keys state the real slot width so the srcset picks the
+     800w file. Nothing else changes: same images, same crops, same layout. */
+  /* The lead plate is col-span-2/3 (full grid width) until the 12-column
+     layout starts at xl=1280 — NOT at 1024. Promising 46vw at tablet resolved
+     a 353px file into a 704px slot (0.50x). The breakpoint must match the
+     component's own, so the tail only kicks in from 1280. */
+  cardLead: '(max-width: 1279px) 94vw, 44vw',
+  cardWide: '(max-width: 640px) 45vw, (max-width: 1024px) 46vw, 29vw',
   hero: '100vw',
   tile: '(max-width: 640px) 90vw, 45vw',
   thumb: '96px',

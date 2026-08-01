@@ -108,7 +108,7 @@ export default function TheEdit({ eyebrow = 'The edit', title, blurb, products =
             pieces stack beside it at half its height. This is the whole idea:
             one garment is the subject. */}
         <div className={`col-span-2 md:col-span-3 xl:col-span-6 xl:row-span-2 ${mirrored ? 'xl:col-start-7 xl:row-start-1' : ''}`}>
-          <ProductCard product={lead} headingLevel="h3" priority={!mirrored} ratio="aspect-[5/7]" />
+          <ProductCard product={lead} headingLevel="h3" priority={!mirrored} ratio="aspect-[5/7]" sizeKey="cardLead" />
         </div>
 
         {/* Supporting four, 2-up in the remaining 7 columns.
