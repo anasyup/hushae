@@ -29,11 +29,17 @@ export default function TrustBadges() {
                  `min-w-0` lets the text column actually shrink (gotcha 16),
                  and the padding/gap tighten below sm only — every breakpoint
                  from 360 up is untouched. */
-              className="card flex items-start gap-2.5 p-4 sm:gap-3.5 sm:p-5">
-              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-satin text-obsidian sm:h-10 sm:w-10"><Icon size={18} strokeWidth={1.8} /></span>
+              /* PHASE 9. Was a bordered `.card` box with a filled circular
+                 icon chip — measured as 8 of the 14 pill radii on the home
+                 page. Same content, stated as a ruled column: hairline above,
+                 icon drawn at line weight, no fill and no enclosure. The
+                 min-w-0 and the tightened chrome below sm are UNCHANGED —
+                 they are the 320px overflow fix from Sprint 2J. */
+              className="flex items-start gap-2.5 border-t border-line pt-4 sm:gap-3.5">
+              <Icon size={18} strokeWidth={1.25} className="mt-0.5 shrink-0 text-obsidian" aria-hidden="true" />
               <span className="min-w-0">
-                <span className="block text-[13px] font-semibold tracking-wide">{b.title}</span>
-                <span className="mt-0.5 block text-xs leading-relaxed text-ash">{b.text}</span>
+                <span className="block text-label-lg font-medium uppercase tracking-[0.16em] text-obsidian">{b.title}</span>
+                <span className="mt-1.5 block text-body-sm leading-relaxed text-ash">{b.text}</span>
               </span>
             </motion.div>
           );

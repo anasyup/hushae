@@ -35,11 +35,25 @@ function Group({ title, children }) {
   );
 }
 
+/* PHASE 9 — the chip shape.
+   MEASURED on live: /shop, /women and /men each rendered 30 elements at
+   border-radius 9999px. Phase 8 squared the chips on /search, but that page
+   uses a DIFFERENT component (components/search/SearchFilters.jsx) — this one,
+   which serves every collection page and the mobile sheet, was never touched.
+   So the two filter UIs in the same store disagreed with each other and with
+   the Phase 4 `rounded-control` token.
+   One base string now drives every chip, so the shape cannot drift again. */
+const CHIP_BASE = 'rounded-control border text-caption font-semibold transition-colors duration-fast';
+const CHIP_OFF  = 'border-line text-ash hover:border-obsidian/40';
+const CHIP_ON   = 'border-obsidian bg-obsidian text-alabaster';
+
 export default function FilterPanel({ catList, f, touch = false }) {
   const { get, list, setOne, setMany, toggleMany } = f;
-  // Touch surfaces get 44px targets; the desktop rail can be tighter.
-  const chipPad = touch ? 'px-4 py-2.5 min-h-[44px]' : 'px-3.5 py-1.5';
-  const sizePad = touch ? 'min-w-[46px] min-h-[44px]' : 'min-w-10 py-2';
+  /* Touch surfaces get 44px targets; the desktop rail can be tighter, but not
+     as tight as it was — py-1.5 gave a 32px chip, well under the 36px the
+     desktop sort control next to it uses. */
+  const chipPad = touch ? 'px-4 py-2.5 min-h-[44px]' : 'px-3.5 py-2 min-h-[36px]';
+  const sizePad = touch ? 'min-w-[46px] min-h-[44px]' : 'min-w-10 min-h-[36px] py-2';
 
   const band = PRICE_BANDS.find((b) => b.min === get('minPrice') && b.max === get('maxPrice'));
 
@@ -73,9 +87,7 @@ export default function FilterPanel({ catList, f, touch = false }) {
         <button
           type="button" aria-pressed={get('availability') === 'in'}
           onClick={() => setOne('availability', get('availability') === 'in' ? '' : 'in')}
-          className={`inline-flex items-center gap-2 rounded-full border text-caption font-semibold transition-colors duration-fast ${chipPad} ${
-            get('availability') === 'in' ? 'border-obsidian bg-obsidian text-alabaster' : 'border-line text-ash hover:border-obsidian/40'
-          }`}
+          className={`inline-flex items-center gap-2 ${CHIP_BASE} ${chipPad} ${get('availability') === 'in' ? CHIP_ON : CHIP_OFF}`}
         >
           {get('availability') === 'in' && <Check size={12} aria-hidden="true" />} In stock only
         </button>
@@ -91,9 +103,7 @@ export default function FilterPanel({ catList, f, touch = false }) {
                 onClick={() => setMany(on
                   ? { minPrice: '', maxPrice: '' }
                   : { minPrice: b.min, maxPrice: b.max })}
-                className={`rounded-full border text-caption font-semibold transition-colors duration-fast ${chipPad} ${
-                  on ? 'border-obsidian bg-obsidian text-alabaster' : 'border-line text-ash hover:border-obsidian/40'
-                }`}
+                className={`${CHIP_BASE} ${chipPad} ${on ? CHIP_ON : CHIP_OFF}`}
               >
                 {b.label}
               </button>
@@ -109,9 +119,7 @@ export default function FilterPanel({ catList, f, touch = false }) {
             return (
               <button
                 key={t} type="button" aria-pressed={on} onClick={() => toggleMany('tier', t)}
-                className={`rounded-full border text-caption font-semibold transition-colors duration-fast ${chipPad} ${
-                  on ? 'border-obsidian bg-obsidian text-alabaster' : 'border-line text-ash hover:border-obsidian/40'
-                }`}
+                className={`${CHIP_BASE} ${chipPad} ${on ? CHIP_ON : CHIP_OFF}`}
               >
                 {t}
               </button>
@@ -128,9 +136,7 @@ export default function FilterPanel({ catList, f, touch = false }) {
               <button
                 key={s} type="button" aria-pressed={on} onClick={() => toggleMany('size', s)}
                 aria-label={`Size ${s}`}
-                className={`rounded-control border px-2.5 text-caption font-semibold transition-colors duration-fast ${sizePad} ${
-                  on ? 'border-obsidian bg-obsidian text-alabaster' : 'border-line text-ash hover:border-obsidian/40'
-                }`}
+                className={`${CHIP_BASE} px-2.5 ${sizePad} ${on ? CHIP_ON : CHIP_OFF}`}
               >
                 {s}
               </button>
@@ -150,9 +156,14 @@ export default function FilterPanel({ catList, f, touch = false }) {
                    eleven identical "button"s. */
                 aria-label={c.name}
                 title={c.name}
-                className={`grid place-items-center rounded-full border transition-[box-shadow,transform] duration-fast hover:scale-105 ${
+                /* PHASE 9. Squared with everything else. A circle reads as a
+                   UI dot; a square reads as a fabric swatch, which is what it
+                   actually is. Scale-on-hover replaced by a ring — a control
+                   that grows on hover is the one motion the rest of the store
+                   removed in Phase 4. */
+                className={`grid place-items-center rounded-control border transition-[box-shadow,border-color] duration-fast ${
                   touch ? 'h-11 w-11' : 'h-8 w-8'
-                } ${on ? 'border-transparent ring-2 ring-obsidian ring-offset-2 ring-offset-alabaster' : 'border-line'}`}
+                } ${on ? 'border-transparent ring-2 ring-obsidian ring-offset-2 ring-offset-alabaster' : 'border-line hover:ring-1 hover:ring-obsidian/30'}`}
                 style={{ backgroundColor: c.hex }}
               >
                 {on && (
@@ -174,9 +185,7 @@ export default function FilterPanel({ catList, f, touch = false }) {
             return (
               <button
                 key={t} type="button" aria-pressed={on} onClick={() => toggleMany('fit', t)}
-                className={`rounded-full border text-caption font-semibold transition-colors duration-fast ${chipPad} ${
-                  on ? 'border-obsidian bg-obsidian text-alabaster' : 'border-line text-ash hover:border-obsidian/40'
-                }`}
+                className={`${CHIP_BASE} ${chipPad} ${on ? CHIP_ON : CHIP_OFF}`}
               >
                 {t}
               </button>
@@ -192,7 +201,7 @@ export default function FilterPanel({ catList, f, touch = false }) {
             return (
               <button
                 key={bTech} type="button" aria-pressed={on} onClick={() => toggleMany('badge', bTech)}
-                className={`rounded-full border text-caption font-medium transition-colors duration-fast ${chipPad} ${
+                className={`rounded-control border text-caption font-medium transition-colors duration-fast ${chipPad} ${
                   on ? 'border-sagedeep bg-sage/25 text-sagedeep' : 'border-line text-ash hover:border-sage'
                 }`}
               >

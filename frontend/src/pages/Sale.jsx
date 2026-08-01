@@ -77,7 +77,7 @@ export default function Sale() {
       <div className="flex flex-wrap items-center gap-2.5">
         {TABS.map(([v, k]) => (
           <button key={v} onClick={() => setTab(v)}
-            className={`rounded-full border px-5 py-2.5 text-[12px] font-semibold uppercase tracking-widest transition ${tab === v ? 'border-obsidian bg-obsidian text-alabaster' : 'border-line text-ash hover:border-obsidian/40 hover:text-obsidian'}`}>
+            className={`rounded-control min-h-[44px] border px-5 py-2.5 text-caption font-semibold uppercase tracking-[0.16em] transition ${tab === v ? 'border-obsidian bg-obsidian text-alabaster' : 'border-line text-ash hover:border-obsidian/40 hover:text-obsidian'}`}>
             <Tx k={k} />
           </button>
         ))}

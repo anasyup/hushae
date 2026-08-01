@@ -257,7 +257,7 @@
 
   /* ── Empty state ──────────────────────────────────────────────────────── */
   .empty-state      { @apply mx-auto grid max-w-sm place-items-center py-14 text-center md:py-20; }
-  .empty-state-icon { @apply grid h-16 w-16 place-items-center rounded-full bg-satin/70 text-ash; }
+  .empty-state-icon { @apply grid h-16 w-16 place-items-center rounded-control bg-satin/70 text-ash; }
 
   /* ── Tables (admin) ───────────────────────────────────────────────────── */
   .table-head { @apply px-4 py-3 text-left text-label font-semibold uppercase text-ash; }

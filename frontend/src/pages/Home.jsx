@@ -201,30 +201,59 @@ export default function Home() {
             behind it — a gradient-hero device from SaaS marketing pages, and
             the only place on the site still using blur as decoration. Now a
             square black plate: type, rule, action. Nothing else. */}
-        <div className="relative overflow-hidden bg-obsidian px-6 py-16 text-center text-alabaster md:py-24">
-          <span className="mx-auto grid h-12 w-12 place-items-center border border-alabaster/25"><Ruler size={20} strokeWidth={1.5} /></span>
-          <h2 className="mt-6 font-display text-3xl md:text-4xl">Never guess your size again</h2>
-          <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-alabaster/70">
-            Answer four quick questions and our Fit Finder recommends your true HUSHAE size — for him and for her.
-          </p>
-          <Link to="/fit-finder" className="mt-8 inline-flex items-center gap-2 rounded-full bg-alabaster px-8 py-3.5 text-[13px] font-semibold uppercase tracking-widest text-obsidian transition hover:bg-white">
-            Start Fit Finder <ArrowRight size={15} />
-          </Link>
+        {/* PHASE 9. MEASURED at 1440: the plate was centred with a 36px h2, a
+            14px paragraph and a 9999px-radius CTA — the last pill button left
+            in a primary position on the page, sitting on the one black plate
+            where it is most visible. Centre-stacked type over a wide dark field
+            also wastes the plate: 1,232px of measure carrying a 448px column.
+            Now an asymmetric editorial plate. Type sits left on the page grid
+            at the same rungs the refined sections use (label / h2 / body), the
+            action moves to the right edge as a drawn rule, and a hairline
+            divides them so the plate reads as a spread rather than a banner. */}
+        <div className="relative overflow-hidden bg-obsidian px-6 py-16 text-alabaster md:px-12 md:py-20 xl:px-16 xl:py-24">
+          <div className="grid items-end gap-x-12 gap-y-8 xl:grid-cols-[1.4fr_1fr]">
+            <div className="max-w-[46ch]">
+              <span className="grid h-11 w-11 place-items-center border border-alabaster/25"><Ruler size={18} strokeWidth={1.5} /></span>
+              <p className="mt-6 text-label uppercase tracking-[0.24em] text-alabaster/60">The fit service</p>
+              <h2 className="mt-3 whitespace-pre-line font-display text-h2 leading-[1.04] text-alabaster">
+                {'Never guess\nyour size again.'}
+              </h2>
+            </div>
+            <div className="xl:pb-1">
+              <p className="max-w-md text-body-sm leading-relaxed text-alabaster/70">
+                Answer four quick questions and our Fit Finder recommends your true HUSHAE size — for him and for her.
+              </p>
+              <Link to="/fit-finder" className="cta-editorial-light mt-6">
+                Start Fit Finder
+                <span aria-hidden="true">&rarr;</span>
+              </Link>
+            </div>
+          </div>
         </div>
       </motion.section>
 
       {/* FABRIC TECH */}
+      {/* PHASE 9 — FABRIC TECHNOLOGY.
+          MEASURED: five bordered boxes, each with a circular sage chip, a 14px
+          title and 12px body — the smallest body copy on the page, and the
+          only remaining place where a coloured circle carries an icon. Five
+          boxed cards in a row is the "feature grid" every SaaS template ships.
+          A house states its properties as a specification list, not as cards.
+          Now a ruled table: no boxes, no fills, no circles. A hairline above
+          each column, the icon drawn at line weight in ink, and the type on
+          the real rungs (label-lg / body-sm). The rules give the row its
+          structure, which is what the borders were badly imitating. */}
       <section className="container-page mt-ed-md xl:mt-ed-sm">
-        <motion.div {...fadeUp} className="mb-10 text-center">
-          <p className="text-[11px] font-bold uppercase tracking-widest text-sagedeep">Fabric technology</p>
-          <h2 className="mt-2 font-display text-3xl md:text-4xl">Engineered to disappear</h2>
+        <motion.div {...fadeUp} className="max-w-2xl">
+          <p className="text-label uppercase tracking-[0.24em] text-sagedeep">Fabric technology</p>
+          <h2 className="mt-3 font-display text-h2 leading-[1.04] text-obsidian">Engineered to disappear</h2>
         </motion.div>
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
+        <div className="mt-10 grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-5 md:gap-x-8 xl:mt-14">
           {FABRIC_TECH.map(({ icon: Icon, title, text }, i) => (
-            <motion.div key={title} {...fadeUp} transition={{ delay: i * 0.06 }} className="card p-6 text-center">
-              <span className="mx-auto grid h-11 w-11 place-items-center rounded-full bg-sage/20 text-sagedeep"><Icon size={19} strokeWidth={1.8} /></span>
-              <p className="mt-4 text-sm font-semibold uppercase tracking-wider">{title}</p>
-              <p className="mt-2 text-xs leading-relaxed text-ash">{text}</p>
+            <motion.div key={title} {...fadeUp} transition={{ delay: i * 0.06 }} className="border-t border-line pt-5">
+              <Icon size={20} strokeWidth={1.25} className="text-obsidian" aria-hidden="true" />
+              <p className="mt-4 text-label-lg font-medium uppercase tracking-[0.18em] text-obsidian">{title}</p>
+              <p className="mt-2 text-body-sm leading-relaxed text-ash">{text}</p>
             </motion.div>
           ))}
         </div>
@@ -247,33 +276,35 @@ export default function Home() {
 
       {/* TESTIMONIALS */}
       <motion.section {...fadeUp} className="container-page mt-ed-md xl:mt-ed-lg">
-        <div className="mb-10 text-center">
-          <p className="text-[11px] font-bold uppercase tracking-widest text-sagedeep">Loved by</p>
-          <h2 className="mt-2 font-display text-3xl md:text-4xl">Women & men across Pakistan</h2>
-          <div className="mt-4 flex items-center justify-center gap-1">
-            {[1,2,3,4,5].map((i) => <span key={i} className="text-lg text-amber-500">★</span>)}
-            <span className="ml-2 text-[12px] font-semibold text-neutral-700">4.9 · 320+ reviews</span>
-          </div>
+        {/* PHASE 9 — TESTIMONIALS.
+            MEASURED: 24px-radius cards, amber ★ glyphs at rgb(245,158,11) and
+            a rating line in rgb(64,64,64) — the ONLY off-palette text colour
+            found anywhere in an 8-route sweep. Amber stars are the single most
+            recognisable review-widget tell on the internet; a fashion house
+            sets the words and the name, not a rating badge.
+            Type-led quotes on hairlines, no boxes, no stars, no avatars. */}
+        <div className="max-w-2xl">
+          <p className="text-label uppercase tracking-[0.24em] text-sagedeep">Loved by</p>
+          <h2 className="mt-3 font-display text-h2 leading-[1.04] text-obsidian">Women &amp; men across Pakistan</h2>
         </div>
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="mt-10 grid gap-x-10 gap-y-10 md:grid-cols-3 xl:mt-14 xl:gap-x-14">
           {[
-            { name: 'Ayesha K.',    city: 'Lahore',      rating: 5, text: 'The fit is unreal — it disappears under everything. Discreet packaging is a huge plus, felt private and premium.', tier: 'Verified buyer' },
-            { name: 'Muhammad H.',  city: 'Karachi',     rating: 5, text: 'Best undershirts I have ever owned. Breathable in Karachi summers and the fit holds after many washes.', tier: 'Verified buyer' },
-            { name: 'Sana R.',      city: 'Islamabad',   rating: 5, text: 'Ordered the shapewear for a wedding, arrived in 2 days. Comfortable, no lines, no sliding. Ordering more.', tier: 'Verified buyer' },
+            { name: 'Ayesha K.',    city: 'Lahore',      text: 'The fit is unreal — it disappears under everything. Discreet packaging is a huge plus, felt private and premium.', tier: 'Verified buyer' },
+            { name: 'Muhammad H.',  city: 'Karachi',     text: 'Best undershirts I have ever owned. Breathable in Karachi summers and the fit holds after many washes.', tier: 'Verified buyer' },
+            { name: 'Sana R.',      city: 'Islamabad',   text: 'Ordered the shapewear for a wedding, arrived in 2 days. Comfortable, no lines, no sliding. Ordering more.', tier: 'Verified buyer' },
           ].map((r, i) => (
-            <div key={i} className="rounded-3xl border border-line bg-white/70 p-6">
-              <div className="flex items-center gap-1 text-amber-500">
-                {Array.from({ length: r.rating }).map((_, k) => <span key={k}>★</span>)}
-              </div>
-              <p className="mt-4 text-[14px] leading-relaxed text-obsidian">"{r.text}"</p>
-              <div className="mt-5 flex items-center gap-3 border-t border-line pt-4">
-                <span className="grid h-9 w-9 place-items-center rounded-full bg-obsidian text-[11px] font-bold text-alabaster">{r.name.split(' ').map((s) => s[0]).slice(0, 2).join('')}</span>
-                <div>
-                  <p className="text-[13px] font-semibold text-obsidian">{r.name}</p>
-                  <p className="text-[10.5px] uppercase tracking-wider text-ash">{r.city} · {r.tier}</p>
-                </div>
-              </div>
-            </div>
+            <figure key={i} className="border-t border-line pt-6">
+              {/* Cormorant at body-lg: the quote is the largest thing in its
+                  column, which is how a magazine signals a pull quote without
+                  a box around it. */}
+              <blockquote className="font-display text-body-lg leading-[1.55] text-obsidian">
+                &ldquo;{r.text}&rdquo;
+              </blockquote>
+              <figcaption className="mt-6 text-label uppercase leading-[1.7] tracking-[0.18em] text-ash">
+                {r.name} · {r.city}
+                <span className="block text-ash/80">{r.tier}</span>
+              </figcaption>
+            </figure>
           ))}
         </div>
       </motion.section>
@@ -293,18 +324,25 @@ export default function Home() {
 
       {/* PRESS / TRUST BAR */}
       <motion.section {...fadeUp} className="container-page mt-ed-md xl:mt-ed-md">
-        <div className="rounded-[2rem] border border-line bg-white/60 px-6 py-10 md:py-12">
-          <p className="text-center text-[10px] font-bold uppercase tracking-widest text-ash">Why choose HUSHAE</p>
-          <div className="mt-6 grid grid-cols-2 gap-6 sm:grid-cols-4">
+        {/* PHASE 9 — WHY HUSHAE.
+            MEASURED: a 32px-radius white slab, a 10px label (the smallest text
+            on the page) and 11px sub-copy. The rounded slab is the shape a
+            dashboard uses for a stats widget. Squared to the page, the label
+            promoted to the same rung every other section uses, and the four
+            promises separated by vertical hairlines so they read as one
+            statement in four parts rather than four floating captions. */}
+        <div className="border-y border-line py-10 md:py-14">
+          <p className="text-label uppercase tracking-[0.24em] text-ash">Why choose HUSHAE</p>
+          <div className="mt-8 grid grid-cols-2 gap-y-8 sm:grid-cols-4">
             {[
               { title: 'Discreet',       sub: 'Unmarked packaging on every order' },
               { title: 'Nationwide',     sub: 'COD across all of Pakistan' },
               { title: 'Free ship',      sub: 'On orders over PKR 4,999' },
               { title: '14-day exchange',sub: 'Easy size swaps within two weeks' },
             ].map((x, i) => (
-              <div key={i} className="text-center">
-                <p className="font-display text-lg md:text-xl">{x.title}</p>
-                <p className="mt-1 text-[11px] leading-relaxed text-ash">{x.sub}</p>
+              <div key={i} className={i > 0 ? 'sm:border-l sm:border-line sm:pl-8' : ''}>
+                <p className="font-display text-h3 leading-[1.1] text-obsidian">{x.title}</p>
+                <p className="mt-2 max-w-[24ch] text-body-sm leading-relaxed text-ash">{x.sub}</p>
               </div>
             ))}
           </div>
@@ -313,21 +351,38 @@ export default function Home() {
 
       {/* NEWSLETTER */}
       <motion.section {...fadeUp} className="container-page mt-ed-md xl:mt-ed-sm">
-        <div className="rounded-[2.5rem] bg-satin/60 px-6 py-14 text-center">
-          <h2 className="font-display text-2xl md:text-3xl">Join the inner circle</h2>
-          <p className="mx-auto mt-2 max-w-sm text-sm text-ash">Early access to new drops, fit guides and private offers. No noise, ever.</p>
-          {nlDone ? (
-            <p className="mx-auto mt-6 inline-flex items-center gap-2 rounded-full bg-sage/25 px-5 py-3 text-sm font-medium text-sagedeep">
-              Welcome in. Your first edit arrives soon.
-            </p>
-          ) : (
-            <form onSubmit={(e) => { e.preventDefault(); if (nl.includes('@')) { localStorage.setItem('hushae.newsletter', nl); setNlDone(true); } }}
-              className="mx-auto mt-6 flex max-w-md gap-2 rounded-full border border-line bg-white/70 p-1.5">
-              <input type="email" required value={nl} onChange={(e) => setNl(e.target.value)} placeholder="Your email address"
-                className="w-full bg-transparent px-4 text-sm outline-none placeholder:text-ash/60" />
-              <button className="btn-primary !px-6 !py-2.5 !text-[11px]">Subscribe</button>
-            </form>
-          )}
+        {/* PHASE 9 — NEWSLETTER.
+            MEASURED: a 40px-radius satin blob holding a 9999px-radius form
+            with a 30px h2 — the roundest object on the site, and the last
+            place a pill wrapped an input. Every squared control the rest of
+            the store uses was contradicted here at the final scroll position,
+            which is the last impression the page leaves.
+            Squared satin plate, type left on the grid, and the form rebuilt as
+            a single ruled line: the input is an underline, the action is the
+            house button. Nothing is enclosed. */}
+        <div className="bg-satin/60 px-6 py-14 md:px-12 md:py-20 xl:px-16">
+          <div className="grid items-end gap-x-12 gap-y-8 xl:grid-cols-[1fr_1fr]">
+            <div className="max-w-[42ch]">
+              <p className="text-label uppercase tracking-[0.24em] text-sagedeep">Newsletter</p>
+              <h2 className="mt-3 font-display text-h2 leading-[1.04] text-obsidian">Join the inner circle</h2>
+              <p className="mt-4 text-body-sm leading-relaxed text-ash">Early access to new drops, fit guides and private offers. No noise, ever.</p>
+            </div>
+            {nlDone ? (
+              <p role="status" className="border-t border-obsidian/20 pt-5 text-body-sm font-medium text-sagedark">
+                Welcome in. Your first edit arrives soon.
+              </p>
+            ) : (
+              <form onSubmit={(e) => { e.preventDefault(); if (nl.includes('@')) { localStorage.setItem('hushae.newsletter', nl); setNlDone(true); } }}
+                className="flex flex-col gap-4 sm:flex-row sm:items-end">
+                <div className="min-w-0 flex-1">
+                  <label htmlFor="home-nl" className="text-label uppercase tracking-[0.18em] text-ash">Email address</label>
+                  <input id="home-nl" type="email" required value={nl} onChange={(e) => setNl(e.target.value)} placeholder="you@example.com"
+                    className="mt-2 min-h-[44px] w-full border-0 border-b border-obsidian/25 bg-transparent pb-2 text-body text-obsidian outline-none transition-colors duration-base placeholder:text-ash/60 focus:border-obsidian focus-visible:ring-0" />
+                </div>
+                <button className="btn-primary shrink-0">Subscribe</button>
+              </form>
+            )}
+          </div>
         </div>
       </motion.section>
     </div>

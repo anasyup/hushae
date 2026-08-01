@@ -48,7 +48,7 @@ export default function FitFinder() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-14 md:px-8">
       <div className="text-center">
-        <span className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-satin text-obsidian"><Ruler size={22} /></span>
+        <span className="mx-auto grid h-14 w-14 place-items-center rounded-control border border-line bg-satin text-obsidian"><Ruler size={22} strokeWidth={1.4} /></span>
         <h1 className="mt-5 font-display text-4xl">Fit Finder</h1>
         <p className="mx-auto mt-2 max-w-sm text-sm text-ash">Four questions. One true size. {settings?.tagline}</p>
       </div>
@@ -66,13 +66,13 @@ export default function FitFinder() {
               <div className="mx-auto mt-8 grid max-w-md gap-3">
                 {steps[step].opts.map(([v, l]) => (
                   <button key={v} onClick={() => { set(steps[step].key, v); }}
-                    className={`rounded-2xl border px-5 py-4 text-left text-sm font-medium transition ${a[steps[step].key] === v ? 'border-obsidian bg-obsidian text-alabaster' : 'border-line hover:border-obsidian/50'}`}>
+                    className={`rounded-control min-h-[44px] border px-5 py-4 text-left text-body-sm font-medium transition ${a[steps[step].key] === v ? 'border-obsidian bg-obsidian text-alabaster' : 'border-line hover:border-obsidian/50'}`}>
                     {l}
                   </button>
                 ))}
               </div>
               {a.gender === 'women' && step === 2 && (
-                <div className="mx-auto mt-8 max-w-md rounded-2xl bg-satin/50 p-5">
+                <div className="mx-auto mt-8 max-w-md rounded-control bg-satin/50 p-5">
                   <p className="text-xs font-bold uppercase tracking-widest text-ash">Optional — bra size? (band + cup)</p>
                   <div className="mt-3 flex flex-wrap gap-2">
                     {['32', '34', '36', '38'].map((b) => (
@@ -93,7 +93,7 @@ export default function FitFinder() {
             </motion.div>
           ) : (
             <motion.div key="result" initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} className="text-center">
-              <span className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-sage/25 text-sagedeep"><Check size={26} strokeWidth={2.5} /></span>
+              <span className="mx-auto grid h-14 w-14 place-items-center rounded-control bg-sage/25 text-sagedeep"><Check size={26} strokeWidth={2} /></span>
               <p className="mt-5 text-[11px] font-bold uppercase tracking-widest text-ash">Your recommended size</p>
               <p className="mt-2 font-display text-6xl">{r.letter}</p>
               {r.bra && <p className="mt-2 text-sm text-ash">For bras, start from <b className="text-obsidian">{r.bra}</b> — sister sizes may also work.</p>}
