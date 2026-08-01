@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { pkr } from '../../lib/format';
+import Img from '../../components/Img';
 
 /* ============================================================================
  * Add-to-bag bar.
@@ -100,14 +101,30 @@ export default function StickyBuyBar({ product, watchRef, size, needsSize, onAdd
             the gallery. Hidden below lg where the space genuinely is not
             there. */}
         {thumb && (
-          <img
-            src={thumb}
-            alt=""
-            aria-hidden="true"
-            width="44"
-            height="55"
-            className="hidden h-14 w-11 shrink-0 rounded-control object-cover lg:block"
-          />
+          /* MEASURED in Phase 2F: this was a bare <img src>, which bypasses the
+             AVIF/WebP pipeline entirely — it pulled the 224.7 KB ORIGINAL
+             cat-panties-hero.jpg to paint a 44x55px thumbnail, on every product
+             page, at every viewport. It was the only unoptimised image left on
+             the whole storefront.
+             Worse, it downloaded on MOBILE too: the element is `lg:block`, so
+             it is display:none below lg, but `display:none` does not stop an
+             <img src> from being fetched — the bytes were spent on phones that
+             never showed the thumbnail.
+             Img is the project's one image component and already handles
+             <picture>, srcset and lazy loading, so this is a reuse rather than
+             a new abstraction. `sizes="44px"` states the real slot; loading is
+             lazy by default, which is correct for a bar that is off-screen at
+             first paint. */
+          <span aria-hidden="true" className="hidden shrink-0 lg:block">
+            <Img
+              src={thumb}
+              alt=""
+              sizes="44px"
+              width="44"
+              height="55"
+              className="h-14 w-11 rounded-control object-cover"
+            />
+          </span>
         )}
 
         <div className="min-w-0 flex-1">
