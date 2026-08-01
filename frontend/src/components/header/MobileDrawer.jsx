@@ -83,29 +83,39 @@ export default function MobileDrawer({ open, onClose, menu, wCats, mCats, storeN
                 {[['/', 'Home'], ...flat.map((m) => [m.href || '/', m.label])].map(([to, label]) => (
                   <li key={to + label}>
                     <Link to={to} onClick={onClose}
-                      className="block rounded-control px-3 py-3 text-body font-semibold text-obsidian transition-colors duration-fast hover:bg-satin/50">
+                      className="flex min-h-[44px] items-center rounded-control px-3 py-3 text-body font-semibold text-obsidian transition-colors duration-base ease-standard hover:bg-satin/50">
                       {label}
                     </Link>
                   </li>
                 ))}
               </ul>
 
+              {/* MEASURED, Phase 2D: these category rows were 41px against a
+                  44px target, and 22 links sat in one undifferentiated scroll
+                  with the gender only implied by a caption. A hairline rule and
+                  a "View all" tail give each gender a real edge, and py-3 puts
+                  every row over the tap-target minimum. */}
               {[['Women', '/women', wCats], ['Men', '/men', mCats]].map(([g, to, list]) => (
                 list.length > 0 && (
-                  <div key={g} className="mt-7">
-                    <Link to={to} onClick={onClose}
-                      className="block px-3 pb-1 text-label font-bold uppercase text-ash">
+                  <div key={g} className="mt-7 border-t border-line pt-5">
+                    <p className="px-3 pb-1.5 text-label font-bold uppercase tracking-widest text-ash">
                       {storeName} — {g}
-                    </Link>
+                    </p>
                     <ul>
                       {list.map((c) => (
                         <li key={c.slug}>
                           <Link to={`/category/${c.slug}`} onClick={onClose}
-                            className="block rounded-control px-3 py-2.5 text-body-sm text-ink transition-colors duration-fast hover:bg-satin/50 hover:text-obsidian">
+                            className="flex min-h-[44px] items-center rounded-control px-3 py-3 text-body-sm text-ink transition-colors duration-base ease-standard hover:bg-satin/50 hover:text-obsidian">
                             {c.name}
                           </Link>
                         </li>
                       ))}
+                      <li>
+                        <Link to={to} onClick={onClose}
+                          className="flex min-h-[44px] items-center gap-1.5 rounded-control px-3 py-3 text-caption font-bold uppercase tracking-widest text-obsidian transition-colors duration-base ease-standard hover:bg-satin/50">
+                          View all {g} <span aria-hidden="true">&rarr;</span>
+                        </Link>
+                      </li>
                     </ul>
                   </div>
                 )
@@ -113,11 +123,11 @@ export default function MobileDrawer({ open, onClose, menu, wCats, mCats, storeN
 
               <div className="mt-7 flex gap-2 border-t border-line pt-5">
                 <Link to="/wishlist" onClick={onClose}
-                  className="flex flex-1 items-center justify-center gap-2 rounded-control border border-line py-3 text-body-sm font-semibold text-obsidian transition-colors duration-fast hover:bg-satin/50">
+                  className="flex flex-1 items-center justify-center gap-2 rounded-control border border-line py-3 text-body-sm font-semibold text-obsidian transition-colors duration-base ease-standard hover:bg-satin/50">
                   <Heart size={15} strokeWidth={1.7} aria-hidden="true" /> Wishlist
                 </Link>
                 <Link to="/account" onClick={onClose}
-                  className="flex flex-1 items-center justify-center gap-2 rounded-control border border-line py-3 text-body-sm font-semibold text-obsidian transition-colors duration-fast hover:bg-satin/50">
+                  className="flex flex-1 items-center justify-center gap-2 rounded-control border border-line py-3 text-body-sm font-semibold text-obsidian transition-colors duration-base ease-standard hover:bg-satin/50">
                   <User size={15} strokeWidth={1.7} aria-hidden="true" /> Account
                 </Link>
               </div>

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useId, useRef, useState } from 'react';
+import {Fragment, useCallback, useEffect, useId, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Clock, Mic, Search, TrendingUp, X } from 'lucide-react';
 import { api } from '../../api/client';
@@ -94,6 +94,16 @@ export default function SearchPanel({ cfg: cfgProp, open, onClose, anchorRef }) 
     history.forEach((t) => rows.push({ kind: 'history', value: t }));
     trending.forEach((t) => rows.push({ kind: 'trending', value: t }));
   }
+
+  /* MEASURED, Phase 2D: the resting panel was 346px of six unlabelled chips.
+     Nothing said which were the shopper's own recent searches and which were
+     the shop's popular ones — and the "Recent" caption that did exist was
+     printed BELOW the whole list, so it labelled nothing.
+     `head` marks the first row of each group so the heading renders inline,
+     above its own rows. Computed here rather than in the map so the listbox
+     itself stays a flat array and ArrowDown still crosses sections. */
+  rows.forEach((r, i) => { r.head = i === 0 || rows[i - 1].kind !== r.kind; });
+  const GROUP_LABEL = { history: 'Recent searches', trending: 'Popular right now', product: 'Products', category: 'Categories', term: 'Suggestions' };
 
   const go = useCallback((term) => {
     const t = String(term || '').trim();
@@ -236,10 +246,22 @@ export default function SearchPanel({ cfg: cfgProp, open, onClose, anchorRef }) 
           {rows.map((row, i) => {
             const id = `${listId}-opt-${i}`;
             const selected = active === i;
+            /* role="presentation" so injecting a heading into a listbox does
+               not add a bogus option to the a11y tree. */
+            const heading = row.head && GROUP_LABEL[row.kind] ? (
+              <li key={`h-${row.kind}`} role="presentation"
+                className="px-4 pb-1 pt-3 text-label uppercase tracking-widest text-ash first:pt-1.5">
+                {GROUP_LABEL[row.kind]}
+              </li>
+            ) : null;
+
+            const withHead = (node) => (heading
+              ? <Fragment key={`g-${i}`}>{heading}{node}</Fragment>
+              : node);
 
             if (row.kind === 'product') {
               const p = row.value;
-              return (
+              return withHead(
                 <li key={`p-${p._id}`} id={id} role="option" aria-selected={selected}>
                   <button type="button" className={`${rowCls(i)} py-2`} onClick={() => choose(row, i)} tabIndex={-1}>
                     {cfg.suggest.showImages && (
@@ -261,7 +283,7 @@ export default function SearchPanel({ cfg: cfgProp, open, onClose, anchorRef }) 
 
             if (row.kind === 'category') {
               const c = row.value;
-              return (
+              return withHead(
                 <li key={`c-${c.slug}`} id={id} role="option" aria-selected={selected}>
                   <button type="button" className={rowCls(i)} onClick={() => choose(row, i)} tabIndex={-1}>
                     <Search size={15} className="shrink-0 text-ash" aria-hidden="true" />
@@ -276,7 +298,7 @@ export default function SearchPanel({ cfg: cfgProp, open, onClose, anchorRef }) 
 
             const isHistory = row.kind === 'history';
             const Icon = isHistory ? Clock : row.kind === 'trending' ? TrendingUp : Search;
-            return (
+            return withHead(
               <li key={`${row.kind}-${row.value}`} id={id} role="option" aria-selected={selected} className="relative">
                 <button type="button" className={`${rowCls(i)} ${isHistory ? 'pr-12' : ''}`} onClick={() => choose(row, i)} tabIndex={-1}>
                   <Icon size={15} className="shrink-0 text-ash" aria-hidden="true" />
@@ -299,16 +321,16 @@ export default function SearchPanel({ cfg: cfgProp, open, onClose, anchorRef }) 
           })}
         </ul>
 
-        {/* ---- section labels and empties ---- */}
+        {/* "Clear all" only — the group headings now live inline, above their
+            own rows, instead of a caption printed under the whole list. */}
         {!q.trim() && history.length > 0 && (
-          <div className="mx-auto flex max-w-3xl items-center justify-between px-4 pb-3 pt-1">
-            <span className="text-label uppercase tracking-widest text-ash">Recent</span>
+          <div className="mx-auto flex max-w-3xl justify-end px-4 pb-2">
             <button
               type="button"
               onClick={() => setHistory(clearHistory())}
-              className="min-h-[44px] px-2 text-caption font-semibold text-ash underline-offset-4 hover:text-obsidian hover:underline"
+              className="min-h-[44px] px-2 text-caption font-semibold text-ash underline-offset-4 transition-colors duration-base ease-standard hover:text-obsidian hover:underline"
             >
-              Clear all
+              Clear recent searches
             </button>
           </div>
         )}
