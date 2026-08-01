@@ -9,8 +9,8 @@ import Img from '../components/Img';
 import Marquee from '../components/Marquee';
 import FeaturedMarquee from '../components/FeaturedMarquee';
 import FeaturedCollections from '../components/FeaturedCollections';
-import EditorialBlock from '../components/EditorialBlock';
-import SignatureSplitHero from '../components/SignatureSplitHero';
+import Diptych from '../components/home/Diptych';
+import TheEdit from '../components/home/TheEdit';
 import CommunityGrid from '../components/CommunityGrid';
 import TrustBadges from '../components/TrustBadges';
 import ProductRow from '../components/ProductRow';
@@ -106,73 +106,29 @@ export default function Home() {
           Inspired by CK/Skims/Everlane but original discreet-luxury voice
           ═══════════════════════════════════════════════════════════ */}
 
-      {/* Block 1 — Half/Half split hero — Women (left) + Men (right), CK "Classic Calvins" style */}
-      <SignatureSplitHero />
+      {/* PHASE 5 — DIPTYCH replaces the split hero + two alternating editorial
+          blocks. MEASURED: those three sections ran 1000 + 960 + 960 = 2,920px,
+          nearly three screens, to say one thing — HUSHAE makes innerwear for
+          women and for men. Alternating image-left/image-right is the most
+          common layout in any ecommerce theme and reads as a feature list.
+          Two plates sharing one horizon say it in a single glance. */}
+      <Diptych />
 
-      {/* Premium, perfected — Signature product row directly under the split hero */}
-      {signature && signature.length > 0 && (
-        <div className="mt-14 md:mt-20">
-          <motion.div {...fadeUp}>
-            <ProductRow
-              eyebrow="The Signature Edit"
-              title="Premium, perfected"
-              products={signature.map(snap)}
-              note="Silk-touch finishes · limited restock"
-            />
-          </motion.div>
-        </div>
+      {/* PHASE 5 — THE EDIT replaces the "Signature" carousel. See the
+          component for the measurement: four carousels on one page, three of
+          them the same component with a different heading. A composition has a
+          subject; a carousel gives everything equal weight and hides most of
+          it behind a gesture. */}
+      {signature && signature.length >= 3 && (
+        <TheEdit
+          eyebrow="The Signature Edit"
+          title={'Premium,\nperfected.'}
+          blurb="Silk-touch finishes, limited restock — the pieces we make no compromises on."
+          products={signature.map(snap)}
+          href="/shop?tier=Premium"
+          ctaLabel="View the edit"
+        />
       )}
-
-      {/* Block 2 — Women highlight (image right, copy left, warm) */}
-      <EditorialBlock
-        eyebrow="For her"
-        title={"Quiet, considered,\nyours."}
-        subtitle="Bras that vanish under a slip dress. Briefs cut for real bodies. Lounge sets you'll live in."
-        image="/images/products/cat-bras-hero.jpg"
-        ctas={[
-          { label: 'Shop the Edit', to: '/women' },
-          { label: 'View Bras', to: '/category/bras' },
-        ]}
-        imageSide="right"
-      />
-
-      {/* Block 3 — Men highlight (image left, copy right) */}
-      <EditorialBlock
-        eyebrow="For him"
-        title={"Everyday essentials,\nrefined."}
-        subtitle="Modal-cotton briefs, contoured trunks and thermal layers — engineered for the daily rotation."
-        image="/images/products/cat-briefs-hero.jpg"
-        ctas={[
-          { label: 'Shop the Edit', to: '/men' },
-          { label: 'View Briefs', to: '/category/briefs' },
-        ]}
-        imageSide="left"
-      />
-
-      {/* Block 4 — Full-bleed overlay hero for a category push */}
-      <EditorialBlock
-        eyebrow="Discreet always"
-        title={"Delivered in plain,\nunmarked parcels."}
-        subtitle="Every order ships in a signature HUSHAE parcel with zero product references on the outside. Because what you wear beneath is only ever your business."
-        image="/images/products/cat-sleepwear-hero.jpg"
-        ctas={[
-          { label: 'Shop All', to: '/shop' },
-        ]}
-        overlay
-        tall
-      />
-
-      <Marquee />
-
-      {/* ══════════════════════════════════════════════════════════════════
-          ADMIN-BUILT PRODUCT SECTIONS
-          Everything here is created and configured from the Theme Editor
-          (/admin/theme → Template → Product sections). Add, remove, reorder
-          and restyle rows without touching code.
-          ══════════════════════════════════════════════════════════════════ */}
-      {(s.productSections || []).map((ps) => (
-        <AnimatedProductListSection key={ps.id} cfg={ps} />
-      ))}
 
       {/* Featured collections — pulls collections flagged featuredOnHome by admin */}
       <FeaturedCollections />
@@ -181,24 +137,24 @@ export default function Home() {
 
       {/* CATEGORIES section removed per user — replaced by Featured Collections + editorial blocks */}
 
-      {/* BEST SELLERS */}
-      <div className="mt-24">
-        {best === null
-          ? <div className="container-page"><ProductGridSkeleton count={4} /></div>
-          : <motion.div {...fadeUp}><ProductRow eyebrow="Loved across Pakistan" title="Best Sellers" products={best.map(snap)} note="Restocked weekly" /></motion.div>}
-      </div>
-
-      {/* TRENDING — most-ordered products in the last 30 days */}
-      {Array.isArray(trending) && trending.length > 0 && (
-        <motion.div {...fadeUp} className="mt-24">
-          <ProductRow
-            eyebrow="Flying off the shelves"
-            title="Trending Now"
-            products={trending.map(snap)}
-            note={`Top ${trending.length} by recent orders`}
+      {/* PHASE 5 — the last two carousels ("Best Sellers" and "Trending Now")
+          were the same ProductRow component a third and fourth time, 966px of
+          identical interaction. Best Sellers survives as a composition; the
+          Trending row is deleted rather than restyled, because a page does not
+          need two "these are popular" statements and the brief was explicit:
+          if a section is weak, delete it. */}
+      {best === null
+        ? <div className="container-page mt-ed-md"><ProductGridSkeleton count={4} /></div>
+        : (
+          <TheEdit
+            eyebrow="Loved across Pakistan"
+            title={'Best\nsellers.'}
+            blurb="Restocked weekly — the pieces our customers keep coming back for."
+            products={best.map(snap)}
+            href="/best"
+            ctaLabel="View best sellers"
           />
-        </motion.div>
-      )}
+        )}
 
       {/* FIT FINDER CTA */}
       {/* PHASE 4 editorial rhythm. MEASURED: five consecutive sections all sat
@@ -209,10 +165,12 @@ export default function Home() {
           a chapter break. Mobile keeps one rung, because uniform pacing IS
           correct on a narrow column; the scale only opens from xl. */}
       <motion.section {...fadeUp} className="container-page mt-ed-md xl:mt-ed-md">
-        <div className="relative overflow-hidden rounded-[2.5rem] bg-obsidian px-6 py-14 text-center text-alabaster md:py-20">
-          <div className="absolute -left-24 -top-24 h-72 w-72 rounded-full bg-sage/15 blur-3xl" />
-          <div className="absolute -bottom-24 -right-24 h-72 w-72 rounded-full bg-satin/10 blur-3xl" />
-          <span className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-alabaster/10"><Ruler size={22} /></span>
+        {/* PHASE 5. Was a 40px-rounded slab with two blurred coloured orbs
+            behind it — a gradient-hero device from SaaS marketing pages, and
+            the only place on the site still using blur as decoration. Now a
+            square black plate: type, rule, action. Nothing else. */}
+        <div className="relative overflow-hidden bg-obsidian px-6 py-16 text-center text-alabaster md:py-24">
+          <span className="mx-auto grid h-12 w-12 place-items-center border border-alabaster/25"><Ruler size={20} strokeWidth={1.5} /></span>
           <h2 className="mt-6 font-display text-3xl md:text-4xl">Never guess your size again</h2>
           <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-alabaster/70">
             Answer four quick questions and our Fit Finder recommends your true HUSHAE size — for him and for her.
