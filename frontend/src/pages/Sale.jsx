@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { Sparkles } from 'lucide-react';
 import { api } from '../api/client';
 import { useApp } from '../store/AppContext';
@@ -93,14 +92,21 @@ export default function Sale() {
           <ProductGridSkeleton count={8} />
         ) : sorted.length > 0 ? (
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 lg:grid-cols-4">
-            {sorted.map((p, i) => (
-              <motion.div key={p._id} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: Math.min(i * 0.04, 0.4) }}>
-                {/* h2, matching Shop.jsx. MEASURED on live: the page ran
-                    h1 -> h3 with nothing between, because ProductCard defaults
-                    to h3 and Sale never passed a level. Shop passes h2 and has
-                    no skip; this page now agrees with it. */}
-                <ProductCard product={p} headingLevel="h2" />
-              </motion.div>
+            {/* MEASURED: /sale and /shop both render 101 cards and both settle
+                at ~3,737 DOM nodes, yet Lighthouse gave /shop TBT 110ms and
+                /sale 840ms — Perf 79 vs 59. The difference is this wrapper:
+                every card was a motion.div with its own initial/animate and a
+                staggered delay, so 101 framer-motion instances mounted, each
+                scheduling work on the main thread. /shop renders plain
+                children and is 7x cheaper.
+                The stagger also capped at 0.4s, so the last ~90 cards shared
+                one delay and did not read as a stagger anyway — it was paying
+                for an effect nobody could see.
+
+                h2 matches Shop.jsx: this page ran h1 -> h3 on live because
+                ProductCard defaults to h3 and Sale never passed a level. */}
+            {sorted.map((p) => (
+              <ProductCard key={p._id} product={p} headingLevel="h2" />
             ))}
           </div>
         ) : (
