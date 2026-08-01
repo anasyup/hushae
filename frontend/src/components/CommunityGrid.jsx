@@ -108,7 +108,7 @@ export default function CommunityGrid({
           rather than inventing a centred variant. */}
       <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-4">
         <div className="max-w-xl">
-          <p className="text-label uppercase tracking-widest text-sagedeep">{eyebrow}</p>
+          <p className="text-label uppercase tracking-[0.24em] text-sagedeep">{eyebrow}</p>
           <h2 id="community-title" className="mt-1.5 font-display text-obsidian" style={{ fontSize: 'clamp(1.5rem, 4.81vw - 1.577rem, 2.75rem)' }}>{title}</h2>
           <p className="mt-2 text-body-sm leading-relaxed text-ash">{blurb}</p>
         </div>

@@ -80,7 +80,7 @@ export default function Footer() {
   };
 
   return (
-    <footer className="mt-24 border-t border-line bg-satin/40">
+    <footer className="mt-ed-md border-t border-line bg-satin/40">
       {/* FINAL — DUPLICATE REMOVED.
           MEASURED on live: "Join the inner circle" rendered twice within ~200px
           — once as the homepage newsletter section and again here, each with
