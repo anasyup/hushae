@@ -83,18 +83,25 @@ export default function HeroFullScreen({ hero }) {
         poster={hero.poster || hero.image || DEFAULT_HERO_STILL}
       />
 
-      {/* Two-stop scrim. A single flat wash either greys the image or leaves
-          the type unreadable; weighting it to the bottom keeps the picture
-          bright where it matters and the words legible where they sit. */}
+      {/* V2. MEASURED on the shipped hero at 1440: sampling luminance across
+          the frame returned 13–25 (near-black) from 5% to 65% of the width at
+          every height. Two full-bleed scrims were stacked — a vertical one
+          reaching 0.85 alpha at the foot AND a horizontal one at 0.72 — so
+          they multiplied. The photograph only survived in the right third.
+
+          The brand pays for photography; a scrim that erases two thirds of it
+          is spending that money and then covering it up. This gradient now
+          weights hard to the FOOT only, where the type actually sits, and
+          releases the upper frame so the image is visible. */}
       <div
         className="absolute inset-0"
         aria-hidden="true"
         style={{
           background: `linear-gradient(to top,
-            rgba(13,13,13,${Math.min(0.94, overlay + 0.3)}) 0%,
-            rgba(13,13,13,${Math.min(0.9, overlay + 0.08)}) 22%,
-            rgba(13,13,13,${overlay * 0.55}) 58%,
-            rgba(13,13,13,${Math.max(0, overlay - 0.32)}) 100%)`,
+            rgba(13,13,13,${Math.min(0.92, overlay + 0.34)}) 0%,
+            rgba(13,13,13,${Math.min(0.78, overlay + 0.10)}) 26%,
+            rgba(13,13,13,${overlay * 0.34}) 58%,
+            rgba(13,13,13,0) 100%)`,
         }}
       />
 
@@ -109,23 +116,42 @@ export default function HeroFullScreen({ hero }) {
           their contrast and the type keeps its legibility. Skipped entirely
           when the hero is centre-aligned, where there is no single reading
           edge to protect. */}
+      {/* V2. Kept — the contrast reason is real — but pulled back and, more
+          importantly, made SHORT. It now covers only the lower 62% of the
+          frame where the words are, instead of the full height. The reading
+          edge stays protected; the upper photograph is released. */}
+      {/* Clipping this to `top-[38%]` produced a VISIBLE HORIZONTAL SEAM
+          straight across the photograph — the scrim began at full strength on
+          its first pixel. A scrim must never have an edge. It stays full-height
+          and is faded vertically with a mask instead, so it is absent at the
+          top and full at the foot with no boundary anywhere. */}
       {!centred && (
         <div
           className="absolute inset-0"
           aria-hidden="true"
           style={{
             background: `linear-gradient(to right,
-              rgba(13,13,13,0.72) 0%,
-              rgba(13,13,13,0.55) 28%,
-              rgba(13,13,13,0.16) 62%,
+              rgba(13,13,13,0.60) 0%,
+              rgba(13,13,13,0.36) 34%,
+              rgba(13,13,13,0.07) 66%,
               rgba(13,13,13,0) 100%)`,
+            maskImage: 'linear-gradient(to top, #000 0%, #000 34%, rgba(0,0,0,0.35) 62%, rgba(0,0,0,0) 88%)',
+            WebkitMaskImage: 'linear-gradient(to top, #000 0%, #000 34%, rgba(0,0,0,0.35) 62%, rgba(0,0,0,0) 88%)',
           }}
         />
       )}
 
       <div className={`relative z-10 mx-auto w-full max-w-7xl px-5 pb-16 md:px-8 md:pb-24 xl:max-w-[1360px] xl:px-10 xl:pb-28 2xl:max-w-[1560px] 2xl:px-14 2xl:pb-32 3xl:max-w-shell 3xl:px-16 ${centred ? 'text-center' : ''}`}>
+        {/* V2. The eyebrow sits on a short rule. A hairline that starts the
+            line of type is the brand's own mark (Brand DNA — THE RULE: a line
+            places, it does not enclose) and it gives the cover line something
+            to hang from instead of floating in the corner. */}
         {hero.eyebrow && (
-          <p className="hero-rise text-label font-semibold uppercase text-alabaster/75" style={{ '--d': '80ms' }}>
+          <p
+            className="hero-rise flex items-center gap-4 text-label font-medium uppercase tracking-[0.28em] text-alabaster/75"
+            style={{ '--d': '80ms' }}
+          >
+            <span aria-hidden="true" className={`h-px w-10 bg-alabaster/45 ${centred ? 'hidden' : ''}`} />
             {hero.eyebrow}
           </p>
         )}
@@ -144,9 +170,13 @@ export default function HeroFullScreen({ hero }) {
           {title}
         </h1>
 
+        {/* V2. Measure capped at 46ch. A standfirst running the full 1,712px
+            shell is unreadable — a magazine sets its intro narrow under a wide
+            cover line, and the contrast between the two widths is what makes
+            the headline read as a headline. */}
         {hero.subtitle && (
           <p
-            className={`hero-rise mt-6 max-w-lg text-body-lg leading-relaxed text-alabaster/80 ${centred ? 'mx-auto' : ''}`}
+            className={`hero-rise mt-6 max-w-[46ch] text-body-lg leading-[1.6] text-alabaster/85 ${centred ? 'mx-auto' : ''}`}
             style={{ '--d': '140ms' }}
           >
             {hero.subtitle}
@@ -156,7 +186,10 @@ export default function HeroFullScreen({ hero }) {
         {showButtons && (
           <div
             data-section="hero.button"
-            className={`hero-rise mt-9 flex flex-wrap items-center gap-3 ${centred ? 'justify-center' : ''}`}
+            /* V2. Was mt-9 (36px) with gap-3 (12px). At a 118px cover line a
+               36px gap reads as crowding, and two buttons 12px apart read as a
+               segmented control rather than two choices. Both opened up. */
+            className={`hero-rise mt-11 flex flex-wrap items-center gap-4 xl:mt-12 ${centred ? 'justify-center' : ''}`}
             style={{ '--d': '200ms' }}
           >
             {hero.ctaStyle === 'dropdown' ? (
@@ -167,7 +200,7 @@ export default function HeroFullScreen({ hero }) {
                   onClick={() => setMenuOpen((v) => !v)}
                   aria-haspopup="menu"
                   aria-expanded={menuOpen}
-                  className="btn btn-lg bg-alabaster text-obsidian hover:bg-white"
+                  className="btn hero-cta bg-alabaster text-obsidian hover:bg-white"
                 >
                   {hero.ctaWomen || 'Shop Now'}
                   <ChevronDown
@@ -206,12 +239,18 @@ export default function HeroFullScreen({ hero }) {
                     photography a glyph competes with the image, and the pairing
                     of a solid and an outlined mark already reads as primary +
                     secondary without one. */}
-                <Link to="/women" className="btn btn-lg bg-alabaster tracking-[0.2em] text-obsidian hover:bg-white">
+                {/* V2. MEASURED: both marks rendered 49px tall — under the
+                    56px the rest of the page's primary actions use, and small
+                    against a 118px cover line. `hero-cta` adds the height and
+                    the settling letter-spacing on hover. The outlined mark's
+                    border was /50; at 1px over a photograph that reads as a
+                    disabled control, so it is lifted to /70. */}
+                <Link to="/women" className="btn hero-cta bg-alabaster text-obsidian hover:bg-white">
                   {hero.ctaWomen || 'Shop Women'}
                 </Link>
                 <Link
                   to="/men"
-                  className="btn btn-lg border border-alabaster/50 tracking-[0.2em] text-alabaster hover:border-alabaster hover:bg-alabaster hover:text-obsidian"
+                  className="btn hero-cta border border-alabaster/70 text-alabaster hover:border-alabaster hover:bg-alabaster hover:text-obsidian"
                 >
                   {hero.ctaMen || 'Shop Men'}
                 </Link>
@@ -222,11 +261,11 @@ export default function HeroFullScreen({ hero }) {
 
         {badges.length > 0 && (
           <ul
-            className={`hero-rise mt-10 flex flex-wrap items-center gap-x-5 gap-y-2 text-label uppercase text-alabaster/70 ${centred ? 'justify-center' : ''}`}
+            className={`hero-rise mt-12 flex flex-wrap items-center gap-x-6 gap-y-2 text-label uppercase tracking-[0.22em] text-alabaster/65 xl:mt-14 ${centred ? 'justify-center' : ''}`}
             style={{ '--d': '260ms' }}
           >
             {badges.map((bText, i) => (
-              <li key={bText} className="flex items-center gap-5">
+              <li key={bText} className="flex items-center gap-6">
                 {bText}
                 {i < badges.length - 1 && <span className="h-2.5 w-px bg-alabaster/25" aria-hidden="true" />}
               </li>

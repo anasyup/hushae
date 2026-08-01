@@ -107,6 +107,18 @@
   .btn-sm { @apply min-h-[44px] text-btn-sm; padding: 0.625rem 1.25rem; }
   .btn-lg { padding: 1.125rem 2.75rem; }
 
+  /* ── Hero action ──────────────────────────────────────────────────────────
+     V2. MEASURED: the hero marks rendered 49px tall under a 118px cover line.
+     A hero is the one place on the site where the action has to hold its own
+     against display type, and 49px does not.
+     56px of height, wider tracking, and the tracking OPENS on hover — the word
+     settles rather than the box lighting up. The transition list already
+     includes letter-spacing on `.btn`, so this inherits it. */
+  .hero-cta {
+    @apply min-h-[56px] tracking-[0.2em] hover:tracking-[0.24em];
+    padding: 1.125rem 2.75rem;
+  }
+
   .btn-primary   { @apply btn bg-obsidian text-alabaster hover:bg-graphite; }
   .btn-secondary { @apply btn bg-satin text-obsidian hover:bg-stone; }
   /* The outline is HUSHAE's signature action: a hairline that fills from

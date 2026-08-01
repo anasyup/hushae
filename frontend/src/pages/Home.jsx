@@ -376,10 +376,14 @@ export default function Home() {
                 className="flex flex-col gap-4 sm:flex-row sm:items-end">
                 <div className="min-w-0 flex-1">
                   <label htmlFor="home-nl" className="text-label uppercase tracking-[0.18em] text-ash">Email address</label>
+                  {/* V2. The rule thickens rather than only darkening on focus:
+                      a 1px line changing colour is easy to miss, and this is
+                      the only input on the homepage. min-h 44 -> 48 so the
+                      field and the button share one optical height. */}
                   <input id="home-nl" type="email" required value={nl} onChange={(e) => setNl(e.target.value)} placeholder="you@example.com"
-                    className="mt-2 min-h-[44px] w-full border-0 border-b border-obsidian/25 bg-transparent pb-2 text-body text-obsidian outline-none transition-colors duration-base placeholder:text-ash/60 focus:border-obsidian focus-visible:ring-0" />
+                    className="mt-2 min-h-[48px] w-full border-0 border-b-[1.5px] border-obsidian/20 bg-transparent pb-2 text-body text-obsidian outline-none transition-colors duration-base placeholder:text-ash/55 focus:border-obsidian focus-visible:ring-0" />
                 </div>
-                <button className="btn-primary shrink-0">Subscribe</button>
+                <button className="btn-primary min-h-[48px] shrink-0">Subscribe</button>
               </form>
             )}
           </div>

@@ -92,22 +92,42 @@ export default function Diptych({ plates = PLATES }) {
             {/* Vertical scrim, weighted to the foot where the type sits. Strong
                 enough for AA on ivory type, light enough that the upper two
                 thirds of the photograph are untouched. */}
+            {/* V2. The scrim now deepens slightly on hover. Previously only
+                the photograph moved, so the type sat on a fixed wash while the
+                picture slid underneath it — the caption read as detached from
+                the plate. Deepening the wash in the same 1.2s beat ties the
+                two together: the plate settles as one object. */}
             <div
               aria-hidden="true"
-              className="absolute inset-0"
+              className="absolute inset-0 transition-opacity duration-[1200ms] ease-standard group-hover:opacity-0 motion-reduce:transition-none"
               style={{
                 background:
                   'linear-gradient(to top, rgba(17,17,17,0.72) 0%, rgba(17,17,17,0.42) 28%, rgba(17,17,17,0.06) 58%, rgba(17,17,17,0) 100%)',
               }}
             />
+            <div
+              aria-hidden="true"
+              className="absolute inset-0 opacity-0 transition-opacity duration-[1200ms] ease-standard group-hover:opacity-100 motion-reduce:transition-none"
+              style={{
+                background:
+                  'linear-gradient(to top, rgba(17,17,17,0.80) 0%, rgba(17,17,17,0.52) 30%, rgba(17,17,17,0.12) 60%, rgba(17,17,17,0) 100%)',
+              }}
+            />
 
-            {/* Type sits IN the plate, bottom-left, on the page grid. */}
-            <div className="absolute inset-x-0 bottom-0 p-7 md:p-10 xl:p-14">
+            {/* Type sits IN the plate, bottom-left, on the page grid.
+                V2. MEASURED at 1440: padding was a uniform 56px, and the CTA's
+                full-width rule finished ~14px from the frame edge — the block
+                read as having slipped down rather than been placed. A plate
+                like this needs MORE room at the foot than at the sides, the
+                way a printed caption sits above the trim. Foot padding is now
+                its own value and the copy measure is capped in ch so the line
+                breaks land the same way at every width. */}
+            <div className="absolute inset-x-0 bottom-0 px-7 pb-9 md:px-10 md:pb-12 xl:px-14 xl:pb-16">
               <p className="text-label uppercase tracking-[0.24em] text-alabaster/80">{pl.eyebrow}</p>
-              <h2 className="mt-3 whitespace-pre-line font-display text-h1 leading-[0.98] text-alabaster">
+              <h2 className="mt-4 whitespace-pre-line font-display text-h1 leading-[0.98] text-alabaster">
                 {pl.title}
               </h2>
-              <p className="mt-3 max-w-sm text-body-sm leading-relaxed text-alabaster/85">
+              <p className="mt-4 max-w-[38ch] text-body-sm leading-[1.6] text-alabaster/85">
                 {pl.body}
               </p>
               {/* Rendered as a span, not a link: the whole plate is already the

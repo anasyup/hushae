@@ -142,7 +142,12 @@ export default function Footer() {
         </div>
         )}
       </div>
-      <div data-section="footer.bottom" className="border-t border-line/70 py-5 text-center text-[11px] uppercase tracking-widest text-ash">
+      {/* V2. MEASURED: 11px, the smallest type on the site, with default
+          tracking-widest. The legal line is the last thing on the page and it
+          was set below the caption rung. Raised to the `caption` token (13px)
+          and given the brand's own tracking so it reads as a closing mark
+          rather than fine print. Padding opened to match the footer's rhythm. */}
+      <div data-section="footer.bottom" className="border-t border-line/70 py-6 text-center text-caption uppercase tracking-[0.2em] text-ash xl:py-8">
         {f.bottomText || `© ${new Date().getFullYear()} ${s.storeName || 'HUSHAE'} · All rights reserved · Discreet always`}
       </div>
     </footer>

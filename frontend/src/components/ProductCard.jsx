@@ -300,7 +300,11 @@ function ProductCard({
           rhythm across every row, and is exactly how a printed catalogue sets
           a caption. Colour deepens on hover so the whole plate responds as a
           unit rather than only the words. */}
-      <div className="mt-4 flex flex-1 flex-col border-t border-line pt-3.5 transition-colors duration-base ease-standard group-hover:border-obsidian/35">
+      {/* V2. mt-4 -> mt-5 and pt-3.5 -> pt-4. MEASURED: the rule sat 16px
+          under the image and the name 14px under the rule, so the caption read
+          as attached to the photograph rather than set beneath it. A printed
+          catalogue leaves more air above the rule than below it. */}
+      <div className="mt-5 flex flex-1 flex-col border-t border-line pt-4 transition-colors duration-base ease-standard group-hover:border-obsidian/35">
         {/* Two lines are always reserved so cards in a row end level. Measured
             spread was 17–21px before; this makes it 0. */}
         {/* clamp-2 caps the visible lines, but at 320px a long title can still
@@ -344,6 +348,12 @@ function ProductCard({
             </span>
             {onSale && (
               <>
+                {/* V2. Tried text-smoke here to step the was-price back.
+                    MEASURED 2.74:1 on alabaster — under the 4.5 floor. REVERTED.
+                    `ash` (5.11:1) is the lightest honest grey on this ground;
+                    gotcha 20 already recorded that and I re-broke it. The
+                    hierarchy is carried by SIZE and the display face instead:
+                    Cormorant 20px against Inter 13px is separation enough. */}
                 <span className="truncate text-caption tabular-nums text-ash line-through">
                   <span className="sr-only">Regular price </span>{pkr(p.compareAtPrice)}
                 </span>
