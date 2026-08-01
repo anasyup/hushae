@@ -44,6 +44,9 @@ const LIGHT_HEX = new Set(['#FFFFFF', '#FFF', '#F7F5F1', '#EFEAE3', '#E3C9B3', '
  * the two surfaces cannot drift apart. */
 const STANDING_MARKDOWN = 25;
 
+/* Shared so the three crumbs cannot drift apart. */
+const CRUMB = 'transition-colors duration-base ease-standard hover:text-obsidian';
+
 export default function Product() {
   const { slug } = useParams();
   const nav = useNavigate();
@@ -176,12 +179,17 @@ export default function Product() {
         jsonLdId="product"
       />
 
+      {/* MEASURED transition: all 0s — the breadcrumb links had no easing at
+          all while the size buttons beside them run 150ms and the CTAs 220ms.
+          A colour that snaps reads as a plain document link; a colour that
+          eases reads as a considered one. This is the cheapest luxury cue on
+          the page and it was simply missing. */}
       <nav aria-label="Breadcrumb" className="mb-6 flex items-center gap-1.5 text-caption text-ash">
-        <Link to="/" className="hover:text-obsidian">Home</Link>
+        <Link to="/" className={CRUMB}>Home</Link>
         <ChevronRight size={12} aria-hidden="true" />
-        <Link to={`/${p.gender}`} className="capitalize hover:text-obsidian">{p.gender}</Link>
+        <Link to={`/${p.gender}`} className={`capitalize ${CRUMB}`}>{p.gender}</Link>
         <ChevronRight size={12} aria-hidden="true" />
-        <Link to={`/category/${p.categorySlug}`} className="hover:text-obsidian">{p.categorySlug.replace(/-/g, ' ')}</Link>
+        <Link to={`/category/${p.categorySlug}`} className={CRUMB}>{p.categorySlug.replace(/-/g, ' ')}</Link>
         <ChevronRight size={12} aria-hidden="true" />
         <span aria-current="page" className="clamp-2 max-w-[180px] text-obsidian">{p.name}</span>
       </nav>
@@ -197,7 +205,7 @@ export default function Product() {
             {notableMarkdown && <span className="badge-sale">{off}% off</span>}
           </div>
 
-          <h1 className="mt-4 font-display text-h1 leading-tight">{p.name}</h1>
+          <h1 className="mt-gap-sm font-display text-h1 leading-tight">{p.name}</h1>
 
           {/* MEASURED: this header advertised "4.7 · 70 reviews" while the
               reviews section 2,000px below rendered "No reviews yet". 100 of
@@ -211,7 +219,7 @@ export default function Product() {
               actually be able to display, so the two can no longer disagree.
               Nothing is deleted: if the merchant approves real reviews the
               count reappears by itself. */}
-          <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-body-sm">
+          <div className="mt-gap-sm flex flex-wrap items-center gap-x-3 gap-y-1 text-body-sm">
             {reviewsShown > 0 ? (
               <>
                 <span className="inline-flex items-center gap-1 text-obsidian">
@@ -229,14 +237,23 @@ export default function Product() {
             <span className="text-ash">SKU {p.sku}</span>
           </div>
 
-          <div className="mt-5 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+          {/* MEASURED type ladder before this change (390px):
+                h1 30 · price 24 · comparePrice 17 · shortDesc 15 · save/stock/sku 13
+              The struck-through OLD price was rendering at body-lg (17px) —
+              LARGER than the product's own description (15px) and second only
+              to the live price itself. The loudest thing after the price was
+              the number the shopper is not paying.
+              body-sm (13px) puts it on the same rung as "Save PKR x", which is
+              the same idea expressed twice; the strike-through and the colour
+              already mark it as historic. New ladder: 30 · 24 · 13. */}
+          <div className="mt-gap-md flex flex-wrap items-baseline gap-x-3 gap-y-1">
             <span className="font-display text-h2 tabular-nums text-obsidian">{pkr(p.price)}</span>
             {onSale && (
               <>
-                <span className="text-body-lg tabular-nums text-ash line-through">
+                <span className="text-body-sm tabular-nums text-ash line-through">
                   <span className="sr-only">Regular price </span>{pkr(p.compareAtPrice)}
                 </span>
-                <span className="text-body-sm font-semibold text-sagedeep">
+                <span className="text-body-sm tabular-nums text-sagedeep">
                   Save {pkr(p.compareAtPrice - p.price)}
                 </span>
               </>
@@ -245,7 +262,7 @@ export default function Product() {
 
           {/* Stock is a live region: choosing a variant should tell a screen
               reader whether it can actually be bought. */}
-          <p aria-live="polite" className="mt-3 flex items-center gap-1.5 text-body-sm">
+          <p aria-live="polite" className="mt-gap-sm flex items-center gap-1.5 text-body-sm">
             {soldOut ? (
               <><AlertCircle size={14} className="text-red-600" aria-hidden="true" /><span className="font-medium text-red-700">Sold out — check back soon</span></>
             ) : lowStock ? (
@@ -255,16 +272,16 @@ export default function Product() {
             )}
           </p>
 
-          {p.shortDescription && <p className="mt-5 text-body leading-relaxed text-ink">{p.shortDescription}</p>}
+          {p.shortDescription && <p className="mt-gap-md text-body leading-relaxed text-ink">{p.shortDescription}</p>}
 
           {extraBadges.length > 0 && (
-            <ul className="mt-5 flex flex-wrap gap-2">
+            <ul className="mt-gap-md flex flex-wrap gap-2">
               {extraBadges.map((b) => <li key={b} className="badge-sage">{b}</li>)}
             </ul>
           )}
 
           {p.colors?.length > 0 && (
-            <fieldset className="mt-7 border-0 p-0">
+            <fieldset className="mt-gap-lg border-0 p-0">
               <legend className="label !mb-2">
                 <Tx k="color" /> — <span className="text-obsidian">{color}</span>
               </legend>
@@ -279,8 +296,11 @@ export default function Product() {
                       aria-pressed={on}
                       aria-label={c.name}
                       title={c.name}
-                      className={`grid h-11 w-11 place-items-center rounded-full border transition-[box-shadow,transform] duration-fast hover:scale-105 ${
-                        on ? 'border-transparent ring-2 ring-obsidian ring-offset-2 ring-offset-alabaster' : 'border-line'
+                      /* 5% with no curve was a pop; 3% on the standard curve
+                         is a lift. The selected ring is what communicates
+                         state — the scale only acknowledges the pointer. */
+                      className={`grid h-11 w-11 place-items-center rounded-full border transition-[box-shadow,transform] duration-base ease-standard hover:scale-[1.03] active:scale-[0.98] motion-reduce:transition-none motion-reduce:hover:scale-100 ${
+                        on ? 'border-transparent ring-2 ring-obsidian ring-offset-2 ring-offset-alabaster' : 'border-line hover:border-stone'
                       }`}
                       style={{ backgroundColor: c.hex }}
                     >
@@ -298,21 +318,21 @@ export default function Product() {
           )}
 
           {needsSize && (
-            <fieldset ref={sizeRef} className="mt-7 border-0 p-0">
+            <fieldset ref={sizeRef} className="mt-gap-lg border-0 p-0">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <legend className="label !mb-0 float-left"><Tx k="size" /></legend>
                 <div className="flex items-center gap-4">
                   <button type="button" onClick={() => setGuideOpen(true)}
-                    className="text-caption font-semibold text-ash underline underline-offset-4 hover:text-obsidian">
+                    className="text-caption font-semibold text-ash underline underline-offset-4 transition-colors duration-base ease-standard hover:text-obsidian">
                     Size guide
                   </button>
-                  <Link to="/fit-finder" className="inline-flex items-center gap-1 text-caption font-semibold text-sagedeep hover:underline">
+                  <Link to="/fit-finder" className="inline-flex items-center gap-1 text-caption font-semibold text-sagedeep transition-colors duration-base ease-standard hover:text-sagedark hover:underline">
                     <Ruler size={12} aria-hidden="true" /> Fit Finder
                   </Link>
                 </div>
               </div>
 
-              <div className="mt-3 flex flex-wrap gap-2">
+              <div className="mt-gap-sm flex flex-wrap gap-2">
                 {p.sizes.map((s) => {
                   const on = size === s;
                   return (
@@ -322,8 +342,14 @@ export default function Product() {
                       onClick={() => { setSize(s); setSizeErr(false); }}
                       aria-pressed={on}
                       aria-label={`Size ${s}`}
-                      className={`min-h-[44px] min-w-[52px] rounded-control border px-3.5 text-body-sm font-semibold transition-colors duration-fast ${
-                        on ? 'border-obsidian bg-obsidian text-alabaster' : 'border-line text-ink hover:border-obsidian/50'
+                      /* transition-colors only meant the selected state
+                         arrived with no physical feedback at all. A 2% settle
+                         on press plus a hairline lift on hover is the whole
+                         gesture — anything larger reads as a toy. */
+                      className={`min-h-[44px] min-w-[52px] rounded-control border px-3.5 text-body-sm transition-[color,background-color,border-color,transform] duration-base ease-standard active:scale-[0.98] motion-reduce:transition-none motion-reduce:active:scale-100 ${
+                        on
+                          ? 'border-obsidian bg-obsidian font-medium text-alabaster'
+                          : 'border-line font-normal text-ink hover:border-obsidian/60 hover:bg-cream/40'
                       }`}
                     >
                       {s}
@@ -341,7 +367,7 @@ export default function Product() {
             </fieldset>
           )}
 
-          <div className="mt-8 flex items-center gap-3">
+          <div className="mt-gap-lg flex items-center gap-3">
             <QuantityStepper value={qty} onChange={setQty} min={1} max={Math.max(1, Math.min(10, p.stock || 10))} />
             <button
               type="button"
@@ -356,7 +382,7 @@ export default function Product() {
             </button>
           </div>
 
-          <div ref={ctaRef} className="mt-4 grid grid-cols-2 gap-3">
+          <div ref={ctaRef} className="mt-gap-sm grid grid-cols-2 gap-3">
             <button type="button" onClick={() => tryAdd(false)} disabled={soldOut} className="btn btn-outline disabled:opacity-40">
               <Tx k="addToCart" />
             </button>
@@ -373,7 +399,7 @@ export default function Product() {
             )}
           </p>
 
-          <ul className="mt-6 grid grid-cols-3 gap-2 rounded-card border border-line bg-white/50 p-4 text-center">
+          <ul className="mt-gap-lg grid grid-cols-3 gap-2 rounded-card border border-line bg-white/50 p-4 text-center">
             {[
               [Truck, '2–4 day delivery'],
               [RotateCcw, '14-day exchange'],
@@ -385,7 +411,7 @@ export default function Product() {
             ))}
           </ul>
 
-          <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 rounded-card border border-line bg-white/50 px-4 py-3">
+          <div className="mt-gap-sm flex flex-wrap items-center gap-x-4 gap-y-2 rounded-card border border-line bg-white/50 px-4 py-3">
             <span className="text-label font-bold uppercase text-ash">Pay with</span>
             {[[Banknote, 'Cash on delivery'], [CreditCard, 'JazzCash'], [CreditCard, 'EasyPaisa'], [Package, 'Bank transfer']].map(([Icon, label]) => (
               <span key={label} className="inline-flex items-center gap-1.5 text-caption text-ink">
@@ -398,13 +424,13 @@ export default function Product() {
               frequently-bought-together. Renders nothing when no promotion
               covers the product, so the page is unchanged for a catalogue with
               no promotions attached. */}
-          <div className="mt-6">
+          <div className="mt-gap-md">
             <Suspense fallback={null}>
               <ProductPromoPanel product={p} />
             </Suspense>
           </div>
 
-          <div className="mt-8">
+          <div className="mt-gap-lg">
             <Accordion title="Description" defaultOpen>
               <p>{p.description}</p>
             </Accordion>
