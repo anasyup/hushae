@@ -14,12 +14,18 @@ import { pkr } from '../../lib/format';
  * here can return an empty page.
  * ========================================================================== */
 
-function Group({ title, children, defaultOpen = true, count }) {
+/* headingLevel, not a hard-coded h3. MEASURED on live: /search ran h1 -> h3
+   with nothing between, because these filter groups are the first headings
+   after the page title. They are top-level sections of the filter panel, so h2
+   is correct; the prop exists so a future nested use can still pass h3 rather
+   than this being swapped globally. Same trap as the product-card heading
+   order caught in Sprint 2C.2. */
+function Group({ title, children, defaultOpen = true, count, headingLevel: H = 'h2' }) {
   const [open, setOpen] = useState(defaultOpen);
   const id = useId();
   return (
     <section className="border-b border-line py-4 first:pt-0">
-      <h3>
+      <H>
         <button
           type="button"
           onClick={() => setOpen((o) => !o)}
@@ -33,7 +39,7 @@ function Group({ title, children, defaultOpen = true, count }) {
           </span>
           <ChevronDown size={15} className={`shrink-0 text-ash transition ${open ? 'rotate-180' : ''}`} aria-hidden="true" />
         </button>
-      </h3>
+      </H>
       {open && <div id={id} className="mt-3">{children}</div>}
     </section>
   );

@@ -9,6 +9,7 @@ import { usePromotions, useProductBadges, promosForProduct } from '../lib/usePro
 import EmptyState from '../components/ui/EmptyState';
 import SearchFilters from '../components/search/SearchFilters';
 import ShoppingAssistant from '../components/search/ShoppingAssistant';
+import CollectionBanner from '../components/collection/CollectionBanner';
 
 /* ============================================================================
  * SEARCH RESULTS
@@ -156,18 +157,34 @@ export default function Search() {
 
   return (
     <div className="container-page py-6 md:py-10">
-      {/* ---------------- header ---------------- */}
+      {/* ---------------- header ----------------
+          MEASURED, Phase 2E: this page opened with a bare 24px h1 on flat
+          alabaster while /shop opened with a 30px h1 inside a 168px editorial
+          masthead — the same store in two different registers depending on how
+          the shopper arrived.
+          The SAME CollectionBanner component is reused, not a copy: one
+          masthead in the codebase, one place to change it.
+
+          The h1 stays inside the banner and keeps its italic query treatment,
+          because the query IS the page title here. The live status line stays
+          BELOW the banner rather than being passed as `count`: it carries
+          three states (searching / n pieces / could not load) that a plain
+          number prop cannot express, and it must remain an aria-live region
+          that announces when results change. */}
+      <CollectionBanner
+        eyebrow={q ? 'HUSHAE — Search' : 'HUSHAE — All'}
+        title={q
+          ? <>Results for{' '}
+            <span className="italic">
+              {highlight(q, q).map((part, i) => <span key={i}>{part.text}</span>)}
+            </span>
+          </>
+          : 'All products'}
+        blurb={q ? 'Everything matching your search, across men and women.' : 'The complete HUSHAE edit.'}
+      />
+
       <div className="mb-5">
-        <h1 className="font-display text-h2">
-          {q
-            ? <>Results for{' '}
-              <span className="italic">
-                {highlight(q, q).map((p, i) => <span key={i}>{p.text}</span>)}
-              </span>
-            </>
-            : 'All products'}
-        </h1>
-        <p className="mt-1.5 text-body-sm text-ash" aria-live="polite">
+        <p className="text-body-sm text-ash" aria-live="polite">
           {loading
             ? 'Searching…'
             : data

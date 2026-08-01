@@ -11,6 +11,7 @@ import FeaturedMarquee from '../components/FeaturedMarquee';
 import FeaturedCollections from '../components/FeaturedCollections';
 import EditorialBlock from '../components/EditorialBlock';
 import SignatureSplitHero from '../components/SignatureSplitHero';
+import CommunityGrid from '../components/CommunityGrid';
 import TrustBadges from '../components/TrustBadges';
 import ProductRow from '../components/ProductRow';
 import { AnimatedProductListSection } from '../components/ProductListSection';
@@ -279,6 +280,19 @@ export default function Home() {
           ))}
         </div>
       </motion.section>
+
+      {/* COMMUNITY / INSTAGRAM
+          Placed after the testimonials and before the trust bar: the page has
+          just claimed people love the product, so photographs of it in real
+          wardrobes are the evidence for that claim. Putting it after the trust
+          bar would bury it under the newsletter.
+          The handle and profile URL come from Settings → Integrations → Social,
+          which is currently EMPTY on live — the component falls back to an
+          in-app CTA rather than rendering a dead link. */}
+      <CommunityGrid
+        href={settings?.integrations?.social?.instagram || ''}
+        handle={settings?.integrations?.social?.instagramHandle || '@hushae.pk'}
+      />
 
       {/* PRESS / TRUST BAR */}
       <motion.section {...fadeUp} className="mx-auto mt-24 max-w-7xl px-4 md:px-8">
