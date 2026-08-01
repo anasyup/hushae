@@ -7,6 +7,7 @@ import { api } from '../api/client';
 import OfferBar from './OfferBar';
 import Wordmark from './Wordmark';
 import NavDropdown from './header/NavDropdown';
+import MegaMenu from './header/MegaMenu';
 import MobileDrawer from './header/MobileDrawer';
 import { useCmsNav } from '../lib/useCmsNav';
 import useHeaderScroll from './header/useHeaderScroll';
@@ -148,6 +149,15 @@ export default function Header() {
     [wCats, mCats],
   );
 
+  /* The mega menu's "Collections" rung. These are the shop's OWN existing
+     routes — the same ones already in baseMenu — not invented destinations.
+     Static, so it never causes a re-measure in useNavFit. */
+  const COLLECTIONS = useMemo(() => ([
+    { label: 'New Arrivals', href: '/new' },
+    { label: 'Best Sellers', href: '/best' },
+    { label: 'Sale', href: '/sale' },
+  ]), []);
+
   const linkCls = useCallback(({ isActive }) => (
     `relative whitespace-nowrap py-1 transition-colors duration-base ease-standard after:absolute after:-bottom-0.5 after:left-0 after:h-px after:w-full after:origin-left after:bg-current after:transition-transform after:duration-base after:ease-entrance ${
       isActive ? 'after:scale-x-100' : 'after:scale-x-0 hover:after:scale-x-100'
@@ -232,15 +242,31 @@ export default function Header() {
             >
               {menu.filter((m) => m && m.label).map((m, i) => (
                 m.dropdown ? (
-                  <NavDropdown
-                    key={`${m.label}-${i}`}
-                    label={m.label}
-                    to={m.href || '/'}
-                    items={dropItems(m.dropdown)}
-                    linkCls={linkCls}
-                    navStyle={navStyle}
-                    onDark={overHero}
-                  />
+                  /* Women and Men get the editorial panel; any other dropdown a
+                     merchant defines keeps the compact list, which is the right
+                     shape for a short utility menu. */
+                  (m.dropdown === 'women' || m.dropdown === 'men') ? (
+                    <MegaMenu
+                      key={`${m.label}-${i}`}
+                      label={m.label}
+                      to={m.href || '/'}
+                      items={dropItems(m.dropdown)}
+                      collections={COLLECTIONS}
+                      linkCls={linkCls}
+                      navStyle={navStyle}
+                      onDark={overHero}
+                    />
+                  ) : (
+                    <NavDropdown
+                      key={`${m.label}-${i}`}
+                      label={m.label}
+                      to={m.href || '/'}
+                      items={dropItems(m.dropdown)}
+                      linkCls={linkCls}
+                      navStyle={navStyle}
+                      onDark={overHero}
+                    />
+                  )
                 ) : (
                   <NavLink
                     key={`${m.label}-${i}`}
