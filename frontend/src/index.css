@@ -65,7 +65,20 @@
   .eyebrow { @apply text-label font-semibold uppercase text-ash; }
 
   /* ── Layout ───────────────────────────────────────────────────────────── */
-  .container-page { @apply mx-auto w-full max-w-7xl px-4 md:px-8; }
+  /* PHASE 3 — the desktop shell.
+     MEASURED before: max-w-7xl froze every page at 1280px, so a 1920 screen
+     showed 640px of empty margin (33%) and a 2560 screen 1280px (50%). The
+     product grid, cards and PDP frame were identical at all three widths.
+     Mobile and tablet are UNTOUCHED: below xl this is the same
+     `w-full px-4 md:px-8` box it always was. The width only opens from xl up,
+     in measured steps, and stops at 1840 — filling a 2560 display edge to edge
+     would read as a catalogue, not an edit. */
+  .container-page {
+    @apply mx-auto w-full max-w-7xl px-4 md:px-8
+           xl:max-w-[1360px] xl:px-10
+           2xl:max-w-[1560px] 2xl:px-14
+           3xl:max-w-shell 3xl:px-16;
+  }
   .section-y      { @apply py-sect-y md:py-sect-y-lg; }
 
   /* ── Buttons ──────────────────────────────────────────────────────────── */

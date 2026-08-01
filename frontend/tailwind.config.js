@@ -2,6 +2,24 @@
 export default {
   content: ['./index.html', './src/**/*.{js,jsx}'],
   theme: {
+    /* PHASE 3 — desktop breakpoints.
+       Tailwind's default 2xl is 1536px and the theme never used it, so every
+       layout froze at max-w-7xl (1280px). MEASURED on live: the container, the
+       940px product grid, the 220px cards and the 484px PDP frame were
+       BYTE-IDENTICAL at 1440, 1920 and 2560 — 33% of a 1920 screen and 50% of a
+       2560 screen was empty margin.
+       NOTE: the comment lives OUTSIDE the object. A block comment inside the
+       screens literal made Tailwind emit ZERO media queries — every responsive
+       variant in the whole stylesheet silently vanished and .container-page
+       compiled to a bare max-width:80rem. Caught by grepping the built CSS. */
+    screens: {
+      sm: '640px',
+      md: '768px',
+      lg: '1024px',
+      xl: '1280px',
+      '2xl': '1600px',
+      '3xl': '1920px',
+    },
     extend: {
       colors: {
         // Refined premium palette — inspired by Calvin Klein / Hanro / editorial fashion houses.
@@ -44,12 +62,18 @@ export default {
       // ── Design system tokens ────────────────────────────────────────────
       // Type scale. Each entry pairs a size with its line-height and tracking
       // so a heading can never be set with the wrong leading by accident.
+      /* PHASE 3 — desktop type ceilings.
+         MEASURED on live: /shop rendered h1 at 44px and body at 13px on a 2560
+         display, because every clamp maxed out around a 1280 viewport. Only the
+         DISPLAY and HEADING ceilings are raised; body, caption, label and btn
+         are untouched, so mobile, tablet and reading measure are unchanged and
+         no line-length regression is possible. */
       fontSize: {
-        'display-1': ['clamp(2.75rem, 6vw, 4.5rem)',  { lineHeight: '1.02', letterSpacing: '-0.02em' }],
-        'display-2': ['clamp(2.25rem, 4.6vw, 3.5rem)', { lineHeight: '1.06', letterSpacing: '-0.018em' }],
-        h1: ['clamp(1.875rem, 3.4vw, 2.75rem)', { lineHeight: '1.12', letterSpacing: '-0.015em' }],
-        h2: ['clamp(1.5rem, 2.6vw, 2rem)',      { lineHeight: '1.18', letterSpacing: '-0.012em' }],
-        h3: ['clamp(1.25rem, 2vw, 1.5rem)',     { lineHeight: '1.25', letterSpacing: '-0.008em' }],
+        'display-1': ['clamp(2.75rem, 6vw, 5.75rem)',  { lineHeight: '1.02', letterSpacing: '-0.02em' }],
+        'display-2': ['clamp(2.25rem, 4.6vw, 4.5rem)', { lineHeight: '1.06', letterSpacing: '-0.018em' }],
+        h1: ['clamp(1.875rem, 3.4vw, 3.75rem)', { lineHeight: '1.12', letterSpacing: '-0.015em' }],
+        h2: ['clamp(1.5rem, 2.6vw, 2.75rem)',      { lineHeight: '1.18', letterSpacing: '-0.012em' }],
+        h3: ['clamp(1.25rem, 2vw, 1.875rem)',     { lineHeight: '1.25', letterSpacing: '-0.008em' }],
         h4: ['1.125rem', { lineHeight: '1.35', letterSpacing: '-0.005em' }],
         h5: ['1rem',     { lineHeight: '1.4' }],
         h6: ['0.875rem', { lineHeight: '1.45', letterSpacing: '0.01em' }],
@@ -65,6 +89,14 @@ export default {
       },
 
       // 4px base grid. Named steps stop 'p-3 vs p-3.5' drift between authors.
+      maxWidth: {
+        /* The editorial column. 7xl (1280) was the only width in the theme.
+           These are the measured content widths the desktop redesign targets:
+           1440 -> 1360, 1920 -> 1680, 2560 -> 1840. Capping at 1840 rather
+           than filling 2560 is deliberate — a product grid that spans a full
+           studio display stops reading as a considered edit. */
+        shell: '1840px',
+      },
       spacing: {
         'gap-xs': '0.5rem',   // 8  — inside a chip
         'gap-sm': '0.75rem',  // 12 — between related controls

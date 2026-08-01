@@ -99,7 +99,7 @@ export default function CommunityGrid({
   const Cta = cta.as;
 
   return (
-    <section aria-labelledby="community-title" className="mx-auto mt-14 max-w-7xl px-4 md:mt-20 md:px-8">
+    <section aria-labelledby="community-title" className="container-page mt-14 md:mt-20">
       {/* Header sits left, matching every other section header on this page
           rather than inventing a centred variant. */}
       <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-4">

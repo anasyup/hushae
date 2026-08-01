@@ -38,7 +38,7 @@ export default function Sale() {
   const offer = settings?.offerBar;
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 md:px-8 md:py-10">
+    <div className="container-page py-8 md:py-10">
       {/* MEASURED, Phase 2E: this was a 640px black slab on a 390px phone —
           a full-height promotional hero with two blurred sage orbs, a 48px
           headline and four staggered framer-motion entrances. /shop, /women,

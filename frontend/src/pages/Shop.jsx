@@ -136,7 +136,12 @@ export default function Shop({ preset = {} }) {
 
       <ActiveChips chips={f.chips} onRemove={f.removeChip} onClearAll={f.clearAll} className="mb-7" />
 
-      <div className="grid gap-10 lg:grid-cols-[236px_1fr]">
+      {/* PHASE 3. MEASURED: the sidebar stayed 236px and the grid 940px at
+          1440, 1920 AND 2560 — the filter rail took a larger share of a wider
+          screen while the products it filters did not grow at all. The rail now
+          widens slightly and the gap opens, so the grid gains most of the extra
+          width rather than the chrome. */}
+      <div className="grid gap-10 lg:grid-cols-[236px_1fr] xl:gap-12 2xl:grid-cols-[268px_1fr] 2xl:gap-16 3xl:grid-cols-[288px_1fr]">
         <aside className="hidden lg:block" aria-label="Product filters">
           {/* top-24 clears the sticky header; the rail scrolls on its own so a
               long facet list never traps the page. */}
@@ -172,7 +177,7 @@ export default function Shop({ preset = {} }) {
               /* Dimmed while a new result set is in flight. The grid keeps its
                  height, so refining a filter cannot shift the page. */
               aria-busy={pending || undefined}
-              className={`grid grid-cols-2 gap-x-gap-md gap-y-gap-xl transition-opacity duration-base md:grid-cols-3 xl:grid-cols-4 ${
+              className={`grid grid-cols-2 gap-x-gap-md gap-y-gap-xl transition-opacity duration-base md:grid-cols-3 xl:grid-cols-4 2xl:gap-x-8 2xl:gap-y-14 ${
                 pending ? 'opacity-50' : 'opacity-100'
               }`}
             >

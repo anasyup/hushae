@@ -63,7 +63,7 @@ export default function Home() {
       {hero.fullScreen ? (
         <HeroFullScreen hero={hero} />
       ) : (
-      <section className="mx-auto max-w-7xl px-4 pt-8 md:px-8 md:pt-14">
+      <section className="container-page pt-8 md:pt-14">
         <div className="grid items-center gap-10 md:grid-cols-2">
           <motion.div initial={{ opacity: 0, y: 26 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
             <p className="text-[11px] font-bold uppercase tracking-widest text-sagedeep">{hero.eyebrow || 'Premium innerwear · Made in Pakistan'}</p>
@@ -184,7 +184,7 @@ export default function Home() {
       {/* BEST SELLERS */}
       <div className="mt-24">
         {best === null
-          ? <div className="mx-auto max-w-7xl px-4 md:px-8"><ProductGridSkeleton count={4} /></div>
+          ? <div className="container-page"><ProductGridSkeleton count={4} /></div>
           : <motion.div {...fadeUp}><ProductRow eyebrow="Loved across Pakistan" title="Best Sellers" products={best.map(snap)} note="Restocked weekly" /></motion.div>}
       </div>
 
@@ -201,7 +201,7 @@ export default function Home() {
       )}
 
       {/* FIT FINDER CTA */}
-      <motion.section {...fadeUp} className="mx-auto mt-24 max-w-7xl px-4 md:px-8">
+      <motion.section {...fadeUp} className="container-page mt-24">
         <div className="relative overflow-hidden rounded-[2.5rem] bg-obsidian px-6 py-14 text-center text-alabaster md:py-20">
           <div className="absolute -left-24 -top-24 h-72 w-72 rounded-full bg-sage/15 blur-3xl" />
           <div className="absolute -bottom-24 -right-24 h-72 w-72 rounded-full bg-satin/10 blur-3xl" />
@@ -217,7 +217,7 @@ export default function Home() {
       </motion.section>
 
       {/* FABRIC TECH */}
-      <section className="mx-auto mt-24 max-w-7xl px-4 md:px-8">
+      <section className="container-page mt-24">
         <motion.div {...fadeUp} className="mb-10 text-center">
           <p className="text-[11px] font-bold uppercase tracking-widest text-sagedeep">Fabric technology</p>
           <h2 className="mt-2 font-display text-3xl md:text-4xl">Engineered to disappear</h2>
@@ -249,7 +249,7 @@ export default function Home() {
       })()}
 
       {/* TESTIMONIALS */}
-      <motion.section {...fadeUp} className="mx-auto mt-24 max-w-7xl px-4 md:px-8">
+      <motion.section {...fadeUp} className="container-page mt-24">
         <div className="mb-10 text-center">
           <p className="text-[11px] font-bold uppercase tracking-widest text-sagedeep">Loved by</p>
           <h2 className="mt-2 font-display text-3xl md:text-4xl">Women & men across Pakistan</h2>
@@ -295,7 +295,7 @@ export default function Home() {
       />
 
       {/* PRESS / TRUST BAR */}
-      <motion.section {...fadeUp} className="mx-auto mt-24 max-w-7xl px-4 md:px-8">
+      <motion.section {...fadeUp} className="container-page mt-24">
         <div className="rounded-[2rem] border border-line bg-white/60 px-6 py-10 md:py-12">
           <p className="text-center text-[10px] font-bold uppercase tracking-widest text-ash">Why choose HUSHAE</p>
           <div className="mt-6 grid grid-cols-2 gap-6 sm:grid-cols-4">
@@ -315,7 +315,7 @@ export default function Home() {
       </motion.section>
 
       {/* NEWSLETTER */}
-      <motion.section {...fadeUp} className="mx-auto mt-24 max-w-7xl px-4 md:px-8">
+      <motion.section {...fadeUp} className="container-page mt-24">
         <div className="rounded-[2.5rem] bg-satin/60 px-6 py-14 text-center">
           <h2 className="font-display text-2xl md:text-3xl">Join the inner circle</h2>
           <p className="mx-auto mt-2 max-w-sm text-sm text-ash">Early access to new drops, fit guides and private offers. No noise, ever.</p>

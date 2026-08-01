@@ -194,7 +194,14 @@ export default function Product() {
         <span aria-current="page" className="clamp-2 max-w-[180px] text-obsidian">{p.name}</span>
       </nav>
 
-      <div className="grid gap-8 lg:grid-cols-2 lg:gap-16">
+      {/* PHASE 3. MEASURED: an even 50/50 split held the image frame at 484px —
+          33.6% of a 1440 screen, 25.2% at 1920 and 18.9% at 2560, while the
+          purchase panel (which is text and never needs 576px) took an equal
+          half. On a fashion PDP the garment should dominate.
+          From xl the gallery takes ~57% and the panel ~43%; the panel is still
+          wider in absolute pixels than it was at 1440 because the whole shell
+          grew. */}
+      <div className="grid gap-8 lg:grid-cols-2 lg:gap-16 xl:grid-cols-[1.32fr_1fr] xl:gap-20 2xl:gap-24">
         <ProductGallery media={media} index={imgIdx} onIndex={setImgIdx} productName={p.name} />
 
         <div>

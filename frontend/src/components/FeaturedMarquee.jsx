@@ -171,7 +171,7 @@ export default function FeaturedMarquee({ products, title = 'HUSHAE — Signatur
 
   return (
     <section className="relative overflow-hidden bg-obsidian py-10 md:py-14">
-      <div className="mx-auto mb-6 flex max-w-7xl items-end justify-between gap-4 px-4 md:mb-8 md:px-8">
+      <div className="container-page mb-6 flex items-end justify-between gap-4 md:mb-8">
         <div>
           <p className="text-[10px] font-bold uppercase tracking-widest text-alabaster/60">Featured</p>
           <h2 className="mt-1 font-display text-2xl text-alabaster md:text-3xl">{title}</h2>

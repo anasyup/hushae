@@ -123,7 +123,7 @@ export default function HeroFullScreen({ hero }) {
         />
       )}
 
-      <div className={`relative z-10 mx-auto w-full max-w-7xl px-5 pb-16 md:px-8 md:pb-24 ${centred ? 'text-center' : ''}`}>
+      <div className={`relative z-10 mx-auto w-full max-w-7xl px-5 pb-16 md:px-8 md:pb-24 xl:max-w-[1360px] xl:px-10 xl:pb-28 2xl:max-w-[1560px] 2xl:px-14 2xl:pb-32 3xl:max-w-shell 3xl:px-16 ${centred ? 'text-center' : ''}`}>
         {hero.eyebrow && (
           <p className="hero-rise text-label font-semibold uppercase text-alabaster/75" style={{ '--d': '80ms' }}>
             {hero.eyebrow}

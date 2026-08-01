@@ -95,7 +95,7 @@ export default function StickyBuyBar({ product, watchRef, size, needsSize, onAdd
       }`}
       style={{ paddingBottom: '0.75rem' }}
     >
-      <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 pt-3 md:px-8 lg:gap-6">
+      <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 pt-3 md:px-8 lg:gap-6 xl:max-w-[1360px] xl:px-10 2xl:max-w-[1560px] 2xl:px-14 3xl:max-w-shell 3xl:px-16">
         {/* Desktop earns the thumbnail: at 1440px the bar is 1,280px of empty
             alabaster otherwise, and the shopper may be four screens away from
             the gallery. Hidden below lg where the space genuinely is not

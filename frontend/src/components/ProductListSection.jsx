@@ -87,7 +87,7 @@ export default function ProductListSection({ cfg }) {
     rowGap: `${gapY}px`,
   };
 
-  const wrap = full ? 'px-4 md:px-8' : 'mx-auto max-w-7xl px-4 md:px-8';
+  const wrap = full ? 'px-4 md:px-8' : 'container-page';
 
   if (products === null) {
     return (

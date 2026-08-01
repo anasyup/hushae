@@ -209,7 +209,7 @@ export default function Header() {
           }`}
         >
           <div className={`relative flex h-14 items-center px-4 md:px-6 lg:h-[var(--hdr-h)] lg:px-10 ${
-            boxed ? 'mx-auto w-full max-w-7xl' : 'w-full'
+            boxed ? 'mx-auto w-full max-w-7xl xl:max-w-[1360px] 2xl:max-w-[1560px] 3xl:max-w-shell' : 'w-full'
           }`}>
 
             <button

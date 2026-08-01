@@ -13,7 +13,7 @@ export default function TrustBadges() {
     { title: 'Made in Pakistan', text: 'Crafted locally, finished internationally.' },
   ];
   return (
-    <div className="mx-auto max-w-7xl px-4 md:px-8">
+    <div className="container-page">
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-5">
         {badges.slice(0, 4).map((b, i) => {
           const Icon = ICONS[i % ICONS.length];

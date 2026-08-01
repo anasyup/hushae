@@ -22,7 +22,7 @@ export default function FeaturedCollections() {
   const list = cols.slice(0, 4);
 
   return (
-    <section className="mx-auto mt-24 max-w-7xl px-4 md:px-8">
+    <section className="container-page mt-24">
       <motion.div
         initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: '-60px' }} transition={{ duration: 0.6 }}

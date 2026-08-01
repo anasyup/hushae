@@ -59,7 +59,11 @@ export function pictureSources(src) {
  * These strings come from the real rendered widths in this theme.
  */
 export const SIZES = {
-  card: '(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 320px',
+  /* PHASE 3 re-measure. The flat 320px tail meant a card pulled the 400w
+     variant at every desktop width. With the wider shell a card renders ~270px
+     at 1440 and ~330px at 2560 (5 columns), which needs up to 660 device px at
+     DPR 2 — so the browser must be allowed to reach for 800w. */
+  card: '(max-width: 640px) 45vw, (max-width: 1024px) 30vw, (max-width: 1599px) 21vw, 320px',
   hero: '100vw',
   tile: '(max-width: 640px) 90vw, 45vw',
   thumb: '96px',
@@ -97,7 +101,7 @@ export const SIZES = {
      The frame never exceeds 616 CSS px = 1232 device px at DPR 2, which no
      variant can satisfy (largest is 800), but an honest `sizes` at least stops
      the browser over-fetching on desktop where the box is only 484px. */
-  pdp: '(max-width: 639px) 92vw, (max-width: 1023px) 81vw, 500px',
+  pdp: '(max-width: 639px) 92vw, (max-width: 1023px) 81vw, (max-width: 1439px) 620px, 780px',
 
   /* The vertical thumbnail rail renders at exactly 64 CSS px (h-20 w-16), so
      128 device px on a retina screen. It was inheriting SIZES.card too and
