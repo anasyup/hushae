@@ -85,7 +85,15 @@ export default function CommunityGrid({
     }
     : {
       as: Link,
-      props: { to: '/shop', 'aria-label': 'Shop the HUSHAE edit' },
+      /* NO aria-label. MEASURED: Lighthouse flagged
+         label-content-name-mismatch because the visible text read "Shop the
+         edit" while the accessible name was "Shop the HUSHAE edit" — WCAG
+         2.5.3 requires the accessible name to CONTAIN the visible label, and
+         voice-control users say what they see. The link text is already a
+         complete, unambiguous name, so the attribute was pure harm.
+         The external branch keeps its aria-label because that one leads with
+         the visible words "Follow @handle" and only adds the new-tab warning. */
+      props: { to: '/shop' },
       label: 'Shop the edit',
     };
   const Cta = cta.as;
