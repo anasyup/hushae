@@ -82,7 +82,7 @@ export default function Footer() {
       {/* Newsletter */}
       {f.showNewsletter !== false && (
       <div data-section="footer.newsletter" className="border-b border-line/70">
-        <div className="container-page flex flex-col items-center gap-5 py-10 text-center md:flex-row md:justify-between md:text-left">
+        <div className="container-page flex flex-col items-center gap-5 py-10 text-center md:flex-row md:justify-between md:text-left xl:py-14">
           <div>
             <p className="font-display text-xl">{f.newsletterTitle || 'Join the inner circle'}</p>
             <p className="mt-1 text-sm text-ash">{f.newsletterText || 'Early access to new drops, fit guides and private offers.'}</p>
@@ -100,7 +100,11 @@ export default function Footer() {
         </div>
       </div>
       )}
-      <div className="container-page grid gap-10 py-14 md:grid-cols-4">
+      {/* PHASE 7. MEASURED 665px total with py-14 (56px) and a 40px gutter — a
+          utility footer. A luxury footer is defined by AIR, not by more links:
+          the padding and column gutter open substantially from xl, where there
+          is room for it, and mobile keeps its current compact treatment. */}
+      <div className="container-page grid gap-10 py-14 md:grid-cols-4 xl:gap-16 xl:py-24 2xl:gap-20 2xl:py-32">
         <div data-section="footer.about">
           <p className="font-display text-lg tracking-widest2 text-obsidian">{s.storeName || 'HUSHAE'}</p>
           <p className="mt-3 text-sm leading-relaxed text-ash">{f.aboutText || s.tagline || 'Second Skin, First Choice.'}</p>

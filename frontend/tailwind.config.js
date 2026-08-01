@@ -74,13 +74,31 @@ export default {
         h1: ['clamp(1.875rem, 3.4vw, 3.75rem)', { lineHeight: '1.12', letterSpacing: '-0.015em' }],
         h2: ['clamp(1.5rem, 2.6vw, 2.75rem)',      { lineHeight: '1.18', letterSpacing: '-0.012em' }],
         h3: ['clamp(1.25rem, 2vw, 1.875rem)',     { lineHeight: '1.25', letterSpacing: '-0.008em' }],
-        h4: ['1.125rem', { lineHeight: '1.35', letterSpacing: '-0.005em' }],
-        h5: ['1rem',     { lineHeight: '1.4' }],
+        /* Intermediate rungs. With body at 17 and h2 at 60 there was nothing
+           between 18 and 44 for a sub-heading to occupy, so every section
+           jumped straight from display to caption. */
+        h4: ['clamp(1.125rem, 2.6vw + 0.06rem, 1.5rem)',  { lineHeight: '1.32', letterSpacing: '-0.005em' }],
+        h5: ['clamp(1rem, 1.7vw + 0.19rem, 1.25rem)',     { lineHeight: '1.38' }],
         h6: ['0.875rem', { lineHeight: '1.45', letterSpacing: '0.01em' }],
-        'body-lg': ['1.0625rem', { lineHeight: '1.7' }],
-        body:      ['0.9375rem', { lineHeight: '1.65' }],
-        'body-sm': ['0.8125rem', { lineHeight: '1.6' }],
-        caption:   ['0.75rem',   { lineHeight: '1.5' }],
+        /* PHASE 7 — the reading sizes, re-measured on live at 1920.
+           MEASURED PROBLEM: ten paragraphs across the homepage rendered at
+           12-15px under headlines of 60-112px. That gap is the single biggest
+           reason the page read as cheap — a luxury house sets body copy at
+           16-18px and lets the ramp between display and text be gradual.
+           These are `clamp()` so MOBILE IS UNCHANGED (the min matches the old
+           fixed value exactly) and only desktop grows:
+             body     15 -> 17    body-sm  13 -> 15
+             body-lg  17 -> 19    caption  12 -> 13
+           Line-height eases as size grows, which is how type wants to set.
+           SLOPE RE-MEASURED: the first attempt used a gentle vw slope and
+           tablet picked up +2px (768px went 13 -> 15). The brief is desktop
+           only. The slope is now steep with a low intercept, so every value is
+           pinned to its minimum until ~1024 and reaches the maximum by ~1600 —
+           390 and 768 keep their existing sizes exactly. */
+        'body-lg': ['clamp(1.0625rem, 1.55vw + 0.30rem, 1.1875rem)', { lineHeight: '1.7' }],
+        body:      ['clamp(0.9375rem, 1.55vw + 0.18rem, 1.0625rem)',  { lineHeight: '1.66' }],
+        'body-sm': ['clamp(0.8125rem, 1.55vw + 0.06rem, 0.9375rem)', { lineHeight: '1.62' }],
+        caption:   ['clamp(0.75rem, 0.8vw + 0.35rem, 0.8125rem)',   { lineHeight: '1.55' }],
         // UI labels are always uppercase + widely tracked in this brand.
         'label-lg': ['0.75rem',   { lineHeight: '1', letterSpacing: '0.18em' }],
         label:      ['0.6875rem', { lineHeight: '1', letterSpacing: '0.18em' }],

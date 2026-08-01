@@ -122,12 +122,20 @@
      anywhere a filled rectangle would fight the photography.
      The rule is a pseudo-element rather than an underline so it can animate its
      scale without touching the text baseline. */
+  /* PHASE 7. MEASURED: every editorial CTA on the homepage rendered 85x15px —
+     a 15px-tall tap target with an 11px label. It read as a footnote, not as
+     the primary action of a section, and it sat far under the 44px WCAG 2.5.5
+     minimum.
+     Now a real affordance: 44px of height from padding, a 12px label, and the
+     rule moved to the FULL width of the block so it reads as a drawn line
+     rather than an underline hugging the words. `items-end` keeps the type
+     optically on the rule while the box grows upward. */
   .cta-editorial {
-    @apply relative inline-flex items-center gap-2 pb-1 text-label font-semibold uppercase
-      tracking-[0.2em] text-obsidian transition-colors duration-base ease-standard
+    @apply relative inline-flex min-h-[44px] items-center gap-2.5 pb-3 pt-3 text-btn-sm font-semibold uppercase
+      tracking-[0.22em] text-obsidian transition-colors duration-base ease-standard
       after:absolute after:inset-x-0 after:bottom-0 after:h-px after:origin-left
       after:scale-x-100 after:bg-current after:transition-transform after:duration-slow
-      after:ease-standard hover:after:scale-x-[1.06] motion-reduce:after:transition-none;
+      after:ease-standard hover:text-graphite hover:after:scale-x-[1.04] motion-reduce:after:transition-none;
   }
   /* Over photography the same CTA inverts to ivory. */
   .cta-editorial-light { @apply cta-editorial text-alabaster; }
@@ -136,11 +144,14 @@
      For a caption sitting directly on a photograph. No fill, no border — the
      rule alone carries it, and a soft text-shadow keeps it legible over a
      mid-tone without a scrim darkening the image. */
+  /* Same correction over photography. The rule now rests at 40% and draws to
+     full on hover — visible enough to read as an action at a glance, with the
+     completion reserved for intent. */
   .cta-image {
-    @apply relative inline-flex items-center gap-2 pb-1 text-label font-semibold uppercase
-      tracking-[0.2em] text-alabaster
+    @apply relative inline-flex min-h-[44px] items-center gap-2.5 pb-3 pt-3 text-btn-sm font-semibold uppercase
+      tracking-[0.22em] text-alabaster
       after:absolute after:inset-x-0 after:bottom-0 after:h-px after:origin-left
-      after:scale-x-0 after:bg-alabaster after:transition-transform after:duration-slow
+      after:scale-x-[0.4] after:bg-alabaster after:transition-transform after:duration-slow
       after:ease-standard hover:after:scale-x-100 motion-reduce:after:transition-none;
     text-shadow: 0 1px 12px rgb(17 17 17 / 0.35);
   }

@@ -217,7 +217,7 @@ function ProductCard({
                Compare is a power-user tool; it is now revealed on the card the
                shopper is actually touching (`:focus-within`) and stays visible
                once something IS compared, so state is never hidden. */
-            className={`absolute right-2 top-[3.6rem] grid h-11 w-11 place-items-center rounded-control bg-alabaster/80 backdrop-blur-[2px] transition-[background-color,opacity,color] duration-base ease-standard hover:bg-alabaster md:right-3 md:top-[3.25rem] md:h-9 md:w-9 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 motion-reduce:transition-none ${
+            className={`absolute right-2 top-[3.6rem] grid h-11 w-11 place-items-center rounded-control bg-alabaster/80 backdrop-blur-[2px] transition-[background-color,opacity,color] duration-base ease-standard hover:bg-alabaster md:right-3 md:top-[3.9rem] md:h-11 md:w-11 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 motion-reduce:transition-none ${
               compared ? 'text-obsidian !opacity-100' : 'text-graphite'
             }`}
           >
@@ -238,7 +238,7 @@ function ProductCard({
                gesture that does not exist on touch would remove it entirely.
                Softened instead — a lighter ground and a thinner icon, so it
                reads as jewellery on the image rather than a UI button. */
-            className={`absolute right-2 top-2 grid h-11 w-11 place-items-center rounded-control bg-alabaster/80 backdrop-blur-[2px] transition-[background-color,opacity,color] duration-base ease-standard hover:bg-alabaster md:right-3 md:top-3 md:h-9 md:w-9 md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100 motion-reduce:transition-none ${
+            className={`absolute right-2 top-2 grid h-11 w-11 place-items-center rounded-control bg-alabaster/80 backdrop-blur-[2px] transition-[background-color,opacity,color] duration-base ease-standard hover:bg-alabaster md:right-3 md:top-3 md:h-11 md:w-11 md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100 motion-reduce:transition-none ${
               wished ? 'text-obsidian md:!opacity-100' : 'text-graphite'
             }`}
           >
@@ -314,7 +314,7 @@ function ProductCard({
             a small sans-serif label read as considered rather than cramped.
             The h-[2.6em] lock and clamp-2 STAY: they were a measured CLS fix
             (cards in one row ended 20px apart without them). */}
-        <Heading className="h-[2.6em] overflow-hidden text-body-sm font-normal leading-[1.3] tracking-[0.012em] text-ink">
+        <Heading className="h-[2.6em] overflow-hidden text-body-sm font-normal uppercase leading-[1.4] tracking-[0.09em] text-ash">
           <Link
             to={`/product/${p.slug}`}
             className="clamp-2 transition-colors duration-fast hover:text-obsidian"
@@ -331,7 +331,15 @@ function ProductCard({
             {/* font-semibold -> font-medium. On a grid where every item is
                 discounted, a bold price plus a strike-through plus a badge was
                 three separate shouts about money on one tile. */}
-            <span className={`text-body font-medium tabular-nums tracking-[0.01em] ${soldOut ? 'text-ash' : 'text-obsidian'}`}>
+            {/* PHASE 7. MEASURED at 1920: name 16px, price 15px — the price
+                was SMALLER than the product name, so a shopper scanning a grid
+                had no fixed point to land on. In a luxury catalogue the name is
+                the quiet label and the price is the fact; both matter, but they
+                must not be the same size.
+                The display face also does the work here: Cormorant numerals at
+                17px read as a price in a lookbook, where Inter at 15px read as
+                a data field. */}
+            <span className={`font-display text-h5 tabular-nums tracking-[0.01em] ${soldOut ? 'text-ash' : 'text-obsidian'}`}>
               {pkr(p.price)}
             </span>
             {onSale && (
