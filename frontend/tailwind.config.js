@@ -68,9 +68,14 @@ export default {
          DISPLAY and HEADING ceilings are raised; body, caption, label and btn
          are untouched, so mobile, tablet and reading measure are unchanged and
          no line-length regression is possible. */
+      /* PHASE 8 — display ceilings. MEASURED: the hero h1 rendered exactly
+         112px at 1440, 1920 and 2560 because display-1 capped at 5.75rem, so a
+         2560 monitor got a 1440 headline. The vw slope is what should carry a
+         cover line; the ceiling now lets it. Tracking tightens as size grows,
+         which is how large display type wants to set. */
       fontSize: {
-        'display-1': ['clamp(2.75rem, 6vw, 5.75rem)',  { lineHeight: '1.02', letterSpacing: '-0.02em' }],
-        'display-2': ['clamp(2.25rem, 4.6vw, 4.5rem)', { lineHeight: '1.06', letterSpacing: '-0.018em' }],
+        'display-1': ['clamp(2.75rem, 6vw, 8.5rem)',   { lineHeight: '0.98', letterSpacing: '-0.025em' }],
+        'display-2': ['clamp(2.25rem, 4.6vw, 6rem)',   { lineHeight: '1.0',  letterSpacing: '-0.022em' }],
         h1: ['clamp(1.875rem, 3.4vw, 3.75rem)', { lineHeight: '1.12', letterSpacing: '-0.015em' }],
         h2: ['clamp(1.5rem, 2.6vw, 2.75rem)',      { lineHeight: '1.18', letterSpacing: '-0.012em' }],
         h3: ['clamp(1.25rem, 2vw, 1.875rem)',     { lineHeight: '1.25', letterSpacing: '-0.008em' }],
@@ -100,8 +105,13 @@ export default {
         'body-sm': ['clamp(0.8125rem, 1.55vw + 0.06rem, 0.9375rem)', { lineHeight: '1.62' }],
         caption:   ['clamp(0.75rem, 0.8vw + 0.35rem, 0.8125rem)',   { lineHeight: '1.55' }],
         // UI labels are always uppercase + widely tracked in this brand.
-        'label-lg': ['0.75rem',   { lineHeight: '1', letterSpacing: '0.18em' }],
-        label:      ['0.6875rem', { lineHeight: '1', letterSpacing: '0.18em' }],
+        'label-lg': ['clamp(0.75rem, 1.2vw + 0.15rem, 0.875rem)', { lineHeight: '1', letterSpacing: '0.18em' }],
+        /* PHASE 8. Measured 11px on the PDP for accordion titles and fieldset
+           legends. Tracked caps below 12px lose legibility on a large screen —
+           the tracking that makes them elegant also thins them. Desktop only:
+           the clamp minimum is the previous fixed value, so mobile and tablet
+           are unchanged. */
+        label:      ['clamp(0.6875rem, 1.1vw + 0.13rem, 0.8125rem)', { lineHeight: '1', letterSpacing: '0.18em' }],
         'btn':    ['0.8125rem', { lineHeight: '1', letterSpacing: '0.16em' }],
         'btn-sm': ['0.6875rem', { lineHeight: '1', letterSpacing: '0.16em' }],
       },

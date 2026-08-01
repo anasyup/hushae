@@ -126,9 +126,19 @@ export default function Header() {
 
   const boxed    = hdr.width === 'boxed';
   const deskH    = clamp(hdr.height, 56, 120, 80);
-  const navSize  = clamp(hdr.navSize, 10, 18, 13);
-  const navGap   = clamp(hdr.navGap, 12, 64, 34);
-  const navUpper = hdr.navUppercase === true;
+  /* PHASE 8 — navigation typography.
+     MEASURED on live at 1920: 13px, letter-spacing 0.065px (effectively zero),
+     sentence case, weight 500, 34px gaps. That is the typography of an
+     application menu, not of a fashion house — and it is the first thing a
+     visitor reads.
+     Small widely-tracked capitals are the convention every reference brand
+     uses, because tracking is what turns a five-letter word into a mark rather
+     than a label. Defaults only: navSize, navGap and navUppercase all remain
+     admin-editable, so a merchant who preferred the old setting can restore it
+     without a deploy. navUppercase now defaults ON (was opt-in and unused). */
+  const navSize  = clamp(hdr.navSize, 10, 18, 12);
+  const navGap   = clamp(hdr.navGap, 12, 64, 38);
+  const navUpper = hdr.navUppercase !== false;
   const centred  = hdr.menuAlign !== 'left';
   const hairline = hdr.border !== false;
 
@@ -161,7 +171,7 @@ export default function Header() {
   const linkCls = useCallback(({ isActive }) => (
     `relative whitespace-nowrap py-1 transition-colors duration-base ease-standard after:absolute after:-bottom-0.5 after:left-0 after:h-px after:w-full after:origin-left after:bg-current after:transition-transform after:duration-base after:ease-entrance ${
       isActive ? 'after:scale-x-100' : 'after:scale-x-0 hover:after:scale-x-100'
-    } ${navUpper ? 'font-semibold uppercase' : 'font-medium'} ${
+    } ${navUpper ? 'font-medium uppercase' : 'font-medium'} ${
       overHero
         ? (isActive ? 'text-alabaster' : 'text-alabaster/85 hover:text-alabaster')
         : (isActive ? 'text-obsidian' : 'text-ink/80 hover:text-obsidian')
@@ -169,7 +179,7 @@ export default function Header() {
   ), [navUpper, overHero]);
 
   const navStyle = useMemo(
-    () => ({ fontSize: `${navSize}px`, letterSpacing: navUpper ? '0.14em' : '0.005em' }),
+    () => ({ fontSize: `${navSize}px`, letterSpacing: navUpper ? '0.18em' : '0.005em' }),
     [navSize, navUpper],
   );
 

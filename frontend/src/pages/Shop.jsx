@@ -126,7 +126,7 @@ export default function Shop({ preset = {} }) {
             /* Sorting reorders the same set — it replaces rather than pushes,
                so Back still undoes the last real filter. */
             onChange={(e) => f.setOne('sort', e.target.value, { replace: true })}
-            className="min-h-[40px] appearance-none rounded-full border border-line bg-white/70 py-2 pl-4 pr-9 text-caption font-semibold outline-none transition-colors duration-fast hover:border-obsidian/40"
+            className="min-h-[44px] appearance-none rounded-control border border-line bg-white/70 py-2.5 pl-4 pr-9 text-caption font-medium uppercase tracking-[0.1em] outline-none transition-colors duration-base ease-standard hover:border-obsidian/40"
           >
             {SORTS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
           </select>

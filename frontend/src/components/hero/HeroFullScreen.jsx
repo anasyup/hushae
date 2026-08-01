@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, ChevronDown } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import HeroMedia from './HeroMedia';
 
 /* Shipped fallback so the hero is never an empty black frame. Overridden by
@@ -133,8 +133,13 @@ export default function HeroFullScreen({ hero }) {
         {/* The LCP candidate. Painted immediately; the reveal is CSS-only. */}
         <h1
           data-section="hero.heading"
-          className={`hero-rise mt-4 max-w-[15ch] whitespace-pre-line font-display font-normal leading-[0.98] tracking-[-0.02em] text-alabaster ${centred ? 'mx-auto' : ''}`}
-          style={{ '--d': '0ms', fontSize: 'clamp(2.75rem, 8.2vw, 7rem)' }}
+          className={`hero-rise mt-4 max-w-[15ch] whitespace-pre-line font-display font-normal leading-[0.94] tracking-[-0.025em] text-alabaster xl:max-w-[13ch] ${centred ? 'mx-auto' : ''}`}
+          /* PHASE 8. MEASURED: this clamp capped at 7rem, so the cover line
+             rendered exactly 112px at 1440, 1920 AND 2560 — a 2560 monitor got
+             a 1440 headline occupying 4% of its height. The vw slope is what
+             carries a hero; the ceiling now lets it reach 8.5rem (136px) while
+             the minimum, and therefore mobile, is untouched. */
+          style={{ '--d': '0ms', fontSize: 'clamp(2.75rem, 8.2vw, 8.5rem)' }}
         >
           {title}
         </h1>
@@ -194,13 +199,19 @@ export default function HeroFullScreen({ hero }) {
               </div>
             ) : (
               <>
-                <Link to="/women" className="btn btn-lg bg-alabaster text-obsidian hover:bg-white">
+                {/* PHASE 8. These were hidden by hero.showButtons=false, so the
+                    hero carried no call to action at all — the merchant has now
+                    enabled them. Tracking widened to 0.2em to match the
+                    navigation and editorial CTAs, and the arrow removed: over
+                    photography a glyph competes with the image, and the pairing
+                    of a solid and an outlined mark already reads as primary +
+                    secondary without one. */}
+                <Link to="/women" className="btn btn-lg bg-alabaster tracking-[0.2em] text-obsidian hover:bg-white">
                   {hero.ctaWomen || 'Shop Women'}
-                  <ArrowRight size={15} strokeWidth={2} aria-hidden="true" />
                 </Link>
                 <Link
                   to="/men"
-                  className="btn btn-lg border border-alabaster/45 text-alabaster hover:border-alabaster hover:bg-alabaster hover:text-obsidian"
+                  className="btn btn-lg border border-alabaster/50 tracking-[0.2em] text-alabaster hover:border-alabaster hover:bg-alabaster hover:text-obsidian"
                 >
                   {hero.ctaMen || 'Shop Men'}
                 </Link>

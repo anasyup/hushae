@@ -50,13 +50,17 @@ function Group({ title, children, defaultOpen = true, count, headingLevel: H = '
 function Chip({ label, count, checked, onChange, touch }) {
   return (
     <label
-      className={`inline-flex cursor-pointer items-center gap-2 rounded-full border transition ${
-        touch ? 'min-h-[44px] px-4' : 'min-h-[38px] px-3.5'
-      } ${checked ? 'border-obsidian bg-obsidian text-alabaster' : 'border-stone bg-white text-graphite hover:bg-satin/60'}`}
+      /* PHASE 8. Measured 38px rounded-full pills — the last pills left on the
+         collection page after Phase 4 squared the language, and under the 44px
+         target. Squared, raised to 44, and the label tracked so a filter reads
+         as a considered option rather than a form control. */
+      className={`inline-flex cursor-pointer items-center gap-2 rounded-control border transition-colors duration-base ease-standard ${
+        touch ? 'min-h-[44px] px-4' : 'min-h-[44px] px-4'
+      } ${checked ? 'border-obsidian bg-obsidian text-alabaster' : 'border-line bg-white text-graphite hover:border-obsidian/40 hover:bg-satin/40'}`}
     >
       <input type="checkbox" checked={checked} onChange={onChange} className="sr-only" />
       {checked && <Check size={13} aria-hidden="true" />}
-      <span className="text-caption font-medium">{label}</span>
+      <span className="text-caption font-medium tracking-[0.04em]">{label}</span>
       {count != null && (
         <span className={`text-[10px] tabular-nums ${checked ? 'text-alabaster/70' : 'text-ash'}`}>{count}</span>
       )}
@@ -151,7 +155,7 @@ export default function SearchFilters({ facets, params, onToggle, onSet, multi, 
               return (
                 <label
                   key={c.value}
-                  className={`inline-flex cursor-pointer items-center gap-2 rounded-full border transition ${
+                  className={`inline-flex cursor-pointer items-center gap-2 rounded-control border transition-colors duration-base ease-standard ${
                     touch ? 'min-h-[44px] px-3' : 'min-h-[38px] px-2.5'
                   } ${on ? 'border-obsidian bg-obsidian text-alabaster' : 'border-stone bg-white text-graphite hover:bg-satin/60'}`}
                 >
