@@ -42,13 +42,30 @@ export default function ProductGrid({
 
   return (
     <section aria-labelledby="grid-title" className="container-page mt-ed-md xl:mt-ed-lg">
+      {/* V2.1. MEASURED at 1440: 204px between the end of the blurb and the
+          top of the grid. `items-end` pins the CTA to the bottom of a header
+          block whose height is set by a two-line 49px title plus a two-line
+          blurb, and mt-14 was then added on top of that.
+          CORRECTION: re-measured from the right element. The gap from the
+          BLURB to the grid is only 40px — my first probe measured from the
+          eyebrow and counted the whole header block as dead space. And
+          `items-baseline` was worse: it lifted the CTA to y=4465, ABOVE the
+          49px title, so the action floated beside the eyebrow. Reverted to
+          items-end, which aligns it with the foot of the copy.
+          The genuine problem here is the opposite of what I assumed: 40px
+          between a 49px title block and its products is too TIGHT, not too
+          loose — every other section on this page opens at 56px or more.
+
+          1. Better: the grid gets the same opening interval as its peers.
+          2. HUSHAE: content, card count and order are untouched.
+          3. Not a copy: the value is our own ed-* rhythm. */}
       <div className="flex flex-wrap items-end justify-between gap-x-10 gap-y-4">
         <div className="max-w-2xl">
           <p className="text-label uppercase tracking-[0.24em] text-sagedeep">{eyebrow}</p>
           <h2 id="grid-title" className="mt-3 whitespace-pre-line font-display text-h1 leading-[1.02] text-obsidian">
             {title}
           </h2>
-          {blurb && <p className="mt-3 max-w-md text-body-sm leading-relaxed text-ash">{blurb}</p>}
+          {blurb && <p className="mt-4 max-w-md text-body-sm leading-[1.6] text-ash">{blurb}</p>}
         </div>
         <Link to={href} className="cta-editorial shrink-0">
           {ctaLabel}
@@ -59,7 +76,7 @@ export default function ProductGrid({
       {/* 2 up on phones, 3 up from md and never more. The gap widens with the
           shell so the plates keep air around them at 1,840px instead of
           crowding into a contact sheet. */}
-      <div className="mt-10 grid grid-cols-2 gap-x-6 gap-y-14 md:grid-cols-3 xl:mt-14 xl:gap-x-8 xl:gap-y-20 2xl:gap-x-10">
+      <div className="mt-12 grid grid-cols-2 gap-x-6 gap-y-14 md:grid-cols-3 xl:mt-16 xl:gap-x-8 xl:gap-y-20 2xl:gap-x-10">
         {list.map((pr) => (
           <ProductCard
             key={pr.id || pr._id || pr.slug}

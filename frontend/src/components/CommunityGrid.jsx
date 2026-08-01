@@ -99,7 +99,11 @@ export default function CommunityGrid({
   const Cta = cta.as;
 
   return (
-    <section aria-labelledby="community-title" className="container-page mt-14 md:mt-20">
+    /* V2.1. MEASURED: 80px top gap. The page's rhythm scale is 72 / 120 / 176
+       (ed-sm / ed-md / ed-lg) and 80 is on none of them — it was a raw mt-20
+       left over from before the scale existed. This is a movement change
+       (testimonials to photography), so it takes ed-md. */
+    <section aria-labelledby="community-title" className="container-page mt-ed-sm md:mt-ed-md">
       {/* Header sits left, matching every other section header on this page
           rather than inventing a centred variant. */}
       <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-4">
@@ -134,7 +138,18 @@ export default function CommunityGrid({
           397x1005 slot — a 0.40 ratio, a letterbox on its side.
           Four columns, lead spanning 2x2, four portraits filling the rest:
           the lead lands near 1/1 and every other frame keeps its 4/5 crop. */}
-      <div className="mt-7 grid grid-cols-2 gap-2.5 md:mt-9 md:grid-cols-4 md:gap-3">
+      {/* V2.1. MEASURED at 1440: gutters were 12px between 311px frames — a
+          3.8% ratio. That is a contact sheet: the photographs touch, so they
+          read as one texture rather than five separate moments. Every other
+          composition on this page breathes at 24-32px.
+          Opened to 16/20/24px with the shell. The frames and the 2x2 lead are
+          unchanged; only the air between them moves.
+
+          1. Better: five photographs read as five, not as a tiled surface.
+          2. HUSHAE: the page already spaces its plates this way — this section
+             was the one exception.
+          3. Not a copy: values come from our own gap-* scale. */}
+      <div className="mt-7 grid grid-cols-2 gap-3 md:mt-9 md:grid-cols-4 md:gap-4 xl:gap-5 2xl:gap-6">
         <Frame tile={lead} lead className="col-span-2 md:row-span-2" ratio="aspect-[4/5] md:h-full md:aspect-auto" />
         {rest.map((t) => (
           <Frame key={t.src} tile={t} ratio="aspect-[4/5]" />

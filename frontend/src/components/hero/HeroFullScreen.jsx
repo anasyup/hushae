@@ -259,15 +259,30 @@ export default function HeroFullScreen({ hero }) {
           </div>
         )}
 
+        {/* V2.1. MEASURED at 1440: the cover line ends at x=808 and the two
+            actions at x=457, but this row ran to x=1360 — 552px past the
+            longest thing above it. Three elements of one block with three
+            different right edges read as separate rows that happen to be
+            stacked, not as a composition.
+            Capped to the width the headline actually occupies and given a
+            hairline above it, so the block closes on the same line it opened
+            with (Brand DNA — THE RULE places, it does not enclose).
+
+            1. Better: the hero now has a defined block instead of a drift.
+            2. HUSHAE: the rule is the house mark, already used on the eyebrow.
+            3. Not a copy: derived from our own measured headline width, and
+               the mark is the one we already use elsewhere on this page. */}
         {badges.length > 0 && (
           <ul
-            className={`hero-rise mt-12 flex flex-wrap items-center gap-x-6 gap-y-2 text-label uppercase tracking-[0.22em] text-alabaster/65 xl:mt-14 ${centred ? 'justify-center' : ''}`}
+            className={`hero-rise mt-11 flex max-w-full flex-wrap items-center gap-y-2 border-t border-alabaster/20 pt-6 text-label uppercase tracking-[0.22em] text-alabaster/65 sm:max-w-[560px] lg:max-w-[820px] xl:mt-12 xl:max-w-[880px] 2xl:max-w-[980px] ${centred ? 'justify-center' : ''}`}
             style={{ '--d': '260ms' }}
           >
             {badges.map((bText, i) => (
-              <li key={bText} className="flex items-center gap-6">
+              /* The separator was a sibling of the text, so on a narrow
+                 viewport a wrapped row could begin with a rule and nothing
+                 before it. As a ::before it can never outlive its pair. */
+              <li key={bText} className="mr-5 flex items-center before:mr-5 before:h-2.5 before:w-px before:bg-alabaster/25 before:content-[''] first:before:hidden last:mr-0">
                 {bText}
-                {i < badges.length - 1 && <span className="h-2.5 w-px bg-alabaster/25" aria-hidden="true" />}
               </li>
             ))}
           </ul>

@@ -73,6 +73,33 @@ export default function EditorialStory({
           }}
         />
 
+        {/* V2.1 — ACCESSIBILITY FIX, measured not assumed.
+            At 1440 this photograph is bright exactly where the copy sits.
+            Sampling the real ground behind each line of type against ivory:
+              eyebrow  1.77:1     h2  3.05:1     body  2.68:1
+            All three fail WCAG (4.5 for body, 3.0 for large). The existing
+            scrim is weighted to the FOOT, but on the 21/9 desktop crop the
+            text block sits in the upper-middle of the frame, so it received
+            almost none of it.
+            This adds a left-edge wash — the reading column only. It is
+            horizontal, so it darkens where the words are without flattening
+            the photograph, and it fades out completely by 62% so the subject
+            on the right keeps its light.
+
+            1. Better: the copy becomes legible; today it is not.
+            2. HUSHAE: the picture is still the page — this protects one
+               column rather than dimming the whole image.
+            3. Not a copy: it is the same left-edge treatment we already use on
+               the hero, applied here because the same problem was measured. */}
+        <div
+          aria-hidden="true"
+          className="absolute inset-0"
+          style={{
+            background:
+              'linear-gradient(to right, rgba(17,17,17,0.72) 0%, rgba(17,17,17,0.58) 22%, rgba(17,17,17,0.22) 44%, rgba(17,17,17,0) 62%)',
+          }}
+        />
+
         {/* Copy on the page grid, so it lines up with every section above and
             below even though the image itself is full-bleed. */}
         <div className="absolute inset-x-0 bottom-0">

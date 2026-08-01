@@ -179,6 +179,7 @@ export default function Home() {
         ? <div className="container-page mt-ed-md"><ProductGridSkeleton count={4} /></div>
         : (
           <TheEdit
+            mirrored
             eyebrow="Loved across Pakistan"
             title={'Best\nsellers.'}
             blurb="Restocked weekly — the pieces our customers keep coming back for."
@@ -210,7 +211,7 @@ export default function Home() {
             at the same rungs the refined sections use (label / h2 / body), the
             action moves to the right edge as a drawn rule, and a hairline
             divides them so the plate reads as a spread rather than a banner. */}
-        <div className="relative overflow-hidden bg-obsidian px-6 py-16 text-alabaster md:px-12 md:py-20 xl:px-16 xl:py-24">
+        <div className="relative overflow-hidden bg-obsidian px-6 py-14 text-alabaster md:px-12 md:py-16 xl:px-16 xl:py-20">
           <div className="grid items-end gap-x-12 gap-y-8 xl:grid-cols-[1.4fr_1fr]">
             <div className="max-w-[46ch]">
               <span className="grid h-11 w-11 place-items-center border border-alabaster/25"><Ruler size={18} strokeWidth={1.5} /></span>
@@ -219,11 +220,23 @@ export default function Home() {
                 {'Never guess\nyour size again.'}
               </h2>
             </div>
-            <div className="xl:pb-1">
-              <p className="max-w-md text-body-sm leading-relaxed text-alabaster/70">
+            {/* V2.1. MEASURED at 1440: the right column sat with `pb-1`, so
+                its copy and action floated at the vertical centre of the plate
+                while the title block was bottom-aligned — the two halves of one
+                dark plate did not share a baseline.
+                A hairline now opens the column and the block is pinned to the
+                foot of the grid, so both halves rest on the same line.
+
+                1. Better: the plate reads as one object, not two stacked ideas.
+                2. HUSHAE: the opening rule is the house mark, already used on
+                   the hero eyebrow and the trust columns.
+                3. Not a copy: same 1px alabaster/20 rule and ed-* rhythm the
+                   rest of this page already uses. */}
+            <div className="border-t border-alabaster/20 pt-7 xl:pt-8">
+              <p className="max-w-[46ch] text-body-sm leading-[1.65] text-alabaster/75">
                 Answer four quick questions and our Fit Finder recommends your true HUSHAE size — for him and for her.
               </p>
-              <Link to="/fit-finder" className="cta-editorial-light mt-6">
+              <Link to="/fit-finder" className="cta-editorial-light mt-7">
                 Start Fit Finder
                 <span aria-hidden="true">&rarr;</span>
               </Link>
@@ -249,11 +262,28 @@ export default function Home() {
           <h2 className="mt-3 font-display text-h2 leading-[1.04] text-obsidian">Engineered to disappear</h2>
         </motion.div>
         <div className="mt-10 grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-5 md:gap-x-8 xl:mt-14">
+          {/* V2.1. MEASURED: the rule opened each column, then the icon sat
+              alone on its own line with the label 16px below it — three
+              separate horizontal bands per column, so the eye read icon,
+              pause, word, pause, sentence. A specification list should read as
+              one unit per property.
+              Icon and label now share a baseline row, the body sits under
+              them, and the rule darkens on hover so the whole column responds
+              rather than nothing at all.
+
+              1. Better: five properties scan as five items, not fifteen.
+              2. HUSHAE: line-weight 1.25 icons on a hairline — the same
+                 drawn-not-filled language as the rest of the page.
+              3. Not a copy: our own `line`/`obsidian` tokens and the same
+                 hover treatment the product card caption already uses. */}
           {FABRIC_TECH.map(({ icon: Icon, title, text }, i) => (
-            <motion.div key={title} {...fadeUp} transition={{ delay: i * 0.06 }} className="border-t border-line pt-5">
-              <Icon size={20} strokeWidth={1.25} className="text-obsidian" aria-hidden="true" />
-              <p className="mt-4 text-label-lg font-medium uppercase tracking-[0.18em] text-obsidian">{title}</p>
-              <p className="mt-2 text-body-sm leading-relaxed text-ash">{text}</p>
+            <motion.div key={title} {...fadeUp} transition={{ delay: i * 0.06 }}
+              className="group/spec border-t border-line pt-5 transition-colors duration-base ease-standard hover:border-obsidian/35">
+              <div className="flex items-center gap-3">
+                <Icon size={18} strokeWidth={1.25} className="shrink-0 text-obsidian" aria-hidden="true" />
+                <p className="text-label-lg font-medium uppercase tracking-[0.18em] text-obsidian">{title}</p>
+              </div>
+              <p className="mt-3 max-w-[30ch] text-body-sm leading-[1.65] text-ash">{text}</p>
             </motion.div>
           ))}
         </div>
@@ -360,12 +390,29 @@ export default function Home() {
             Squared satin plate, type left on the grid, and the form rebuilt as
             a single ruled line: the input is an underline, the action is the
             house button. Nothing is enclosed. */}
-        <div className="bg-satin/60 px-6 py-14 md:px-12 md:py-20 xl:px-16">
+        <div className="bg-satin/60 px-6 py-14 md:px-12 md:py-16 xl:px-16 xl:py-20">
           <div className="grid items-end gap-x-12 gap-y-8 xl:grid-cols-[1fr_1fr]">
+            {/* V2.1 — DUPLICATE FOUND AND RESOLVED.
+                MEASURED: "Join the inner circle" rendered TWICE on this page —
+                here, and again 200px lower in the footer, each with its own
+                email field. Two identical asks stacked back to back is the
+                clearest possible signal that nobody composed the page end to
+                end. Worse, they behave differently: the footer form POSTs to
+                /api/subscribers, this one only wrote to localStorage.
+                Neither section is removed. This one is re-pitched as what it
+                actually is — the editorial invitation, with the fit-guide and
+                early-access promise — while the footer keeps the plain utility
+                signup. Different words, different weight, one page.
+
+                1. Better: the page stops asking the same question twice.
+                2. HUSHAE: the promise here is discretion and first access,
+                   which is the brand's own language, not generic "subscribe".
+                3. Not a copy: no reference brand informed this; it is a
+                   measured duplication being resolved. */}
             <div className="max-w-[42ch]">
-              <p className="text-label uppercase tracking-[0.24em] text-sagedeep">Newsletter</p>
-              <h2 className="mt-3 font-display text-h2 leading-[1.04] text-obsidian">Join the inner circle</h2>
-              <p className="mt-4 text-body-sm leading-relaxed text-ash">Early access to new drops, fit guides and private offers. No noise, ever.</p>
+              <p className="text-label uppercase tracking-[0.24em] text-sagedeep">The inner circle</p>
+              <h2 className="mt-3 font-display text-h2 leading-[1.04] text-obsidian">First look, before anyone else.</h2>
+              <p className="mt-4 text-body-sm leading-[1.65] text-ash">New drops and fit guides, sent quietly. No noise, and never your inbox for anything else.</p>
             </div>
             {nlDone ? (
               <p role="status" className="border-t border-obsidian/20 pt-5 text-body-sm font-medium text-sagedark">

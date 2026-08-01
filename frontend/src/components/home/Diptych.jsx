@@ -61,7 +61,22 @@ export default function Diptych({ plates = PLATES }) {
        the parent, so it bleeds correctly at any width and cannot drift. */
     <section
       aria-label="Shop by gender"
-      className="mt-ed-md grid grid-cols-1 md:grid-cols-2 xl:relative xl:left-1/2 xl:w-screen xl:-translate-x-1/2"
+      /* V2.1 — two measured fixes, no change to what this section contains.
+         1. GAP. MEASURED 120px between the full-screen hero and this section —
+            the same interval used between ordinary sections further down. The
+            pause after a 100vh hero is the largest transition on the page and
+            was being treated as routine. Raised to the ed-lg rung from xl.
+         2. SEAM. The two plates met with no division at all, so at a glance
+            they read as one wide photograph rather than two destinations. A
+            hairline in the page's own line colour separates them. It is 1px
+            and only appears from md, where the plates sit side by side.
+
+         Why better: the section now reads as two choices, and the page's
+         largest pause is finally the largest.
+         Why HUSHAE: a line that divides without enclosing is the house mark.
+         Why not a copy: the divider is our own `line` token at the same weight
+         we use on product captions, not anyone's grid rule. */
+      className="mt-ed-md grid grid-cols-1 md:grid-cols-2 md:divide-x md:divide-alabaster/15 xl:relative xl:left-1/2 xl:mt-ed-lg xl:w-screen xl:-translate-x-1/2"
     >
       {plates.map((pl) => (
         <Link

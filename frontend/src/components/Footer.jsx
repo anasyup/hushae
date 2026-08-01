@@ -83,15 +83,33 @@ export default function Footer() {
       {f.showNewsletter !== false && (
       <div data-section="footer.newsletter" className="border-b border-line/70">
         <div className="container-page flex flex-col items-center gap-5 py-10 text-center md:flex-row md:justify-between md:text-left xl:py-14">
-          <div>
-            <p className="font-display text-xl">{f.newsletterTitle || 'Join the inner circle'}</p>
-            <p className="mt-1 text-sm text-ash">{f.newsletterText || 'Early access to new drops, fit guides and private offers.'}</p>
+          {/* V2.1. MEASURED: this row used a boxed `.input` on white while the
+              homepage's signup 200px above used a ruled underline — two
+              different input languages for the same action on one page. The
+              box is also the one enclosed control left in the storefront
+              chrome.
+              Matched to the ruled underline, and the heading raised from
+              text-xl to the h4 rung so it is not the smallest display type on
+              the page. The submit handler, the /api/subscribers POST and every
+              state message are untouched.
+
+              1. Better: one signup language instead of two.
+              2. HUSHAE: a line, not a box — the house mark.
+              3. Not a copy: the same underline this page already uses. */}
+          <div className="md:max-w-[46ch]">
+            <p className="font-display text-h4">{f.newsletterTitle || 'Join the inner circle'}</p>
+            <p className="mt-1.5 text-body-sm leading-[1.6] text-ash">{f.newsletterText || 'Early access to new drops, fit guides and private offers.'}</p>
           </div>
           <form onSubmit={subscribe} className="w-full max-w-md">
-            <div className="flex gap-2">
+            {/* MEASURED FAILURE at 320/360/390: a single flex row with a
+                `whitespace-nowrap` button overflowed to 427px. The underline
+                input needs a minimum width and the button will not shrink, so
+                below sm they must stack. */}
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
               <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
-                placeholder={t('newsPlaceholder')} className="input flex-1 bg-white" />
-              <button className="btn-primary whitespace-nowrap" disabled={state === 'busy'}><Send size={14} /> <Tx k="subscribe" /></button>
+                placeholder={t('newsPlaceholder')}
+                className="min-h-[48px] w-full min-w-0 flex-1 border-0 border-b-[1.5px] border-obsidian/20 bg-transparent pb-2 text-body text-obsidian outline-none transition-colors duration-base placeholder:text-ash/55 focus:border-obsidian focus-visible:ring-0" />
+              <button className="btn-primary min-h-[48px] w-full shrink-0 whitespace-nowrap sm:w-auto" disabled={state === 'busy'}><Send size={14} /> <Tx k="subscribe" /></button>
             </div>
             {state === 'ok' && <p className="mt-2 text-xs font-medium text-sagedeep"><Tx k="newsOk" /></p>}
             {state === 'already' && <p className="mt-2 text-xs font-medium text-ash"><Tx k="newsDup" /></p>}
