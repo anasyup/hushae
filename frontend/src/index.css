@@ -229,7 +229,10 @@
      Contrast notes from earlier sprints are preserved: obsidian on clay is
      6.59:1 (white would be 2.87:1), and sage/25 needs `sagedark` at 5.4:1
      because `sagedeep` measured 4.26:1 once the wash sits on white. */
-  .pill { @apply inline-flex items-center gap-1 rounded-control px-2.5 py-1 text-label font-semibold uppercase tracking-[0.16em]; }
+  /* FINAL. font-semibold -> font-medium and tracking widened. A tracked
+     medium micro-label reads as a caption in a lookbook; semibold at this size
+     reads as UI chrome. */
+  .pill { @apply inline-flex items-center gap-1 rounded-control px-2 py-[3px] text-label font-medium uppercase tracking-[0.18em]; }
   /* The default badge. MEASURED FAILURE on the first attempt: ivory type on an
      unfilled ground sampled 3.42 / 2.73 / 1.09 / 6.24:1 across four cards — the
      1.09 was "New" over a cream lounge set. HUSHAE photographs pale garments on
@@ -240,7 +243,13 @@
      itself and cannot vary with the image behind it. Measured 15.8:1 on every
      card. */
   .badge-quiet    { @apply pill bg-alabaster/95 text-obsidian backdrop-blur-[2px]; }
-  .badge-sale     { @apply pill bg-obsidian text-alabaster; }
+  /* FINAL. The solid obsidian slab was the loudest object on the homepage —
+     louder than the photography and the headings, on a brand whose whole
+     proposition is discretion. It read as an outlet sticker.
+     Now a hairline marker on the paper ground: no fill, ink type, a 1px rule.
+     The discount is still stated, it simply stops shouting. `pill` already
+     supplies rounded-control, so the geometry is unchanged. */
+  .badge-sale     { @apply pill border border-obsidian/45 bg-alabaster/90 text-obsidian backdrop-blur-[2px]; }
   .badge-new      { @apply pill border border-obsidian/25 bg-alabaster/85 text-obsidian backdrop-blur-[2px]; }
   .badge-best     { @apply pill bg-clay text-obsidian; }
   .badge-soldout  { @apply pill bg-obsidian text-alabaster; }

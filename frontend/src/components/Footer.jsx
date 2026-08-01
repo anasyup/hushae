@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { CreditCard, Facebook, Instagram, Mail, MapPin, Music2, Phone, Send } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
@@ -62,6 +62,8 @@ export default function Footer() {
     return [...out, ...named];
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [groupsKey, baseKey, f.cmsColumnTitle]);
+  const { pathname } = useLocation();
+  const isHome = pathname === '/';
   const [email, setEmail] = useState('');
   const [state, setState] = useState(null); // null | 'ok' | 'already' | 'err' | 'busy'
 
@@ -79,8 +81,16 @@ export default function Footer() {
 
   return (
     <footer className="mt-24 border-t border-line bg-satin/40">
-      {/* Newsletter */}
-      {f.showNewsletter !== false && (
+      {/* FINAL — DUPLICATE REMOVED.
+          MEASURED on live: "Join the inner circle" rendered twice within ~200px
+          — once as the homepage newsletter section and again here, each with
+          its own email field. One screen asked the same question twice.
+          The homepage section is the richer of the two (eyebrow, promise copy,
+          labelled field) and it stays. This bar is suppressed on the HOME route
+          only; every other page still shows it, so no page loses its signup and
+          the merchant's `showNewsletter` switch keeps working everywhere else.
+          The subscribe handler and the /api/subscribers POST are untouched. */}
+      {f.showNewsletter !== false && !isHome && (
       <div data-section="footer.newsletter" className="border-b border-line/70">
         <div className="container-page flex flex-col items-center gap-5 py-10 text-center md:flex-row md:justify-between md:text-left xl:py-14">
           {/* V2.1. MEASURED: this row used a boxed `.input` on white while the
@@ -138,7 +148,7 @@ export default function Footer() {
         {/* Link columns — merchant-managed from /admin/theme › Footer */}
         {cols.map((col, i) => (
           <div key={i} data-section={`footer.col${i}`}>
-            <p className="text-[11px] font-bold uppercase tracking-widest text-ash">{col.title}</p>
+            <p className="text-label font-medium uppercase tracking-[0.2em] text-ash">{col.title}</p>
             <div className="mt-4 space-y-2.5 text-sm">
               {(col.links || []).filter((l) => l && l.label).map((l, j) => (
                 <Link key={j} className="block text-obsidian/80 hover:text-obsidian" to={l.href || '/'}>{l.label}</Link>
@@ -148,9 +158,18 @@ export default function Footer() {
         ))}
         {f.showContact !== false && (
         <div data-section="footer.contact">
-          <p className="text-[11px] font-bold uppercase tracking-widest text-ash">{f.contactTitle || 'Contact'}</p>
+          <p className="text-label font-medium uppercase tracking-[0.2em] text-ash">{f.contactTitle || 'Contact'}</p>
           <div className="mt-4 space-y-2.5 text-sm text-obsidian/80">
-            <p className="flex items-center gap-2"><Mail size={14} className="text-ash" /> {s.contactEmail || 'care@hushae.pk'}</p>
+            {/* FINAL. The live settings document still carries the legacy
+                `care@veloura.pk` from the pre-rename data, and it was rendering
+                a DIFFERENT BRAND's address in HUSHAE's contact block — the most
+                damaging trust defect on the page.
+                The code default was already correct; the DB value was
+                overriding it. Any address on the old domain is now ignored in
+                favour of the house default, so the storefront is correct
+                whether or not the record is ever updated in Admin. A real
+                HUSHAE address entered by the merchant still wins. */}
+            <p className="flex items-center gap-2"><Mail size={14} className="text-ash" /> {(s.contactEmail && !/veloura/i.test(s.contactEmail)) ? s.contactEmail : 'care@hushae.pk'}</p>
             <p className="flex items-center gap-2"><Phone size={14} className="text-ash" /> {s.contactPhone || '+92 300 0000000'}</p>
             {f.contactNote !== '' && <p className="flex items-center gap-2"><MapPin size={14} className="text-ash" /> {f.contactNote || 'Pakistan — nationwide delivery'}</p>}
           </div>

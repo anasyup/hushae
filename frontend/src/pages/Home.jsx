@@ -216,7 +216,13 @@ export default function Home() {
             <div className="max-w-[46ch]">
               <span className="grid h-11 w-11 place-items-center border border-alabaster/25"><Ruler size={18} strokeWidth={1.5} /></span>
               <p className="mt-6 text-label uppercase tracking-[0.24em] text-alabaster/60">The fit service</p>
-              <h2 className="mt-3 whitespace-pre-line font-display text-h2 leading-[1.04] text-alabaster">
+              {/* FINAL type ladder. Sections 7-12 all measured exactly 37px, so
+                  after Best Sellers the page stopped ranking anything. Fit
+                  Finder, Community and the Newsletter take the third rung;
+                  Fabric and Testimonials stay below as supporting copy. Steep
+                  slope + low intercept pins to 24px until ~1024, so mobile and
+                  tablet are unchanged. */}
+              <h2 className="mt-3 whitespace-pre-line font-display leading-[1.04] text-alabaster" style={{ fontSize: 'clamp(1.5rem, 4.81vw - 1.577rem, 2.75rem)' }}>
                 {'Never guess\nyour size again.'}
               </h2>
             </div>
@@ -411,7 +417,7 @@ export default function Home() {
                    measured duplication being resolved. */}
             <div className="max-w-[42ch]">
               <p className="text-label uppercase tracking-[0.24em] text-sagedeep">The inner circle</p>
-              <h2 className="mt-3 font-display text-h2 leading-[1.04] text-obsidian">First look, before anyone else.</h2>
+              <h2 className="mt-3 font-display leading-[1.04] text-obsidian" style={{ fontSize: 'clamp(1.5rem, 4.81vw - 1.577rem, 2.75rem)' }}>First look, before anyone else.</h2>
               <p className="mt-4 text-body-sm leading-[1.65] text-ash">New drops and fit guides, sent quietly. No noise, and never your inbox for anything else.</p>
             </div>
             {nlDone ? (
