@@ -11,6 +11,8 @@ const VARIANTS = {
   soldout: 'badge-soldout',
   neutral: 'badge-neutral',
   sage:    'badge-sage',
+  /* PHASE 4: the unfilled default for badges sitting ON photography. */
+  quiet:   'badge-quiet',
 };
 
 export default function Badge({ variant = 'neutral', children, className = '', ...rest }) {

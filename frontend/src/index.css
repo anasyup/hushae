@@ -87,20 +87,63 @@
   /* min-height, not extra padding: buttons already taller than 44px are
      untouched, so this cannot move any existing layout. Measured on the bag —
      .btn rendered 41px and .btn-sm 31px, both under WCAG 2.5.5. */
+  /* PHASE 4 — buttons.
+     The old set was five filled pills. A pill is friendly, soft and generic; it
+     is the shape of a consumer app, not of a fashion house. Every variant below
+     is squared (radius token = 2px), and the label carries wide tracking so a
+     13px uppercase word reads as considered rather than shouted.
+     `letter-spacing` does most of the work here: at 0.16em a short uppercase
+     label stops looking like UI chrome and starts looking like a caption in a
+     lookbook. Transitions cover colour AND tracking, so hover feels like the
+     word settling rather than a box lighting up. */
   .btn {
     @apply inline-flex min-h-[44px] select-none items-center justify-center gap-2
-      rounded-full text-btn font-semibold uppercase transition-colors duration-base
-      ease-standard active:scale-[0.99] disabled:pointer-events-none disabled:opacity-40;
-    padding: 0.875rem 1.75rem;
+      rounded-control text-btn font-medium uppercase
+      transition-[background-color,color,border-color,letter-spacing] duration-base
+      ease-standard active:scale-[0.99] disabled:pointer-events-none disabled:opacity-40
+      motion-reduce:transition-none;
+    padding: 0.875rem 2rem;
   }
-  .btn-sm { @apply min-h-[44px] text-btn-sm; padding: 0.625rem 1.125rem; }
-  .btn-lg { padding: 1.0625rem 2.25rem; }
+  .btn-sm { @apply min-h-[44px] text-btn-sm; padding: 0.625rem 1.25rem; }
+  .btn-lg { padding: 1.125rem 2.75rem; }
 
   .btn-primary   { @apply btn bg-obsidian text-alabaster hover:bg-graphite; }
   .btn-secondary { @apply btn bg-satin text-obsidian hover:bg-stone; }
-  .btn-outline   { @apply btn border border-obsidian/25 text-obsidian hover:border-obsidian hover:bg-obsidian hover:text-alabaster; }
-  .btn-ghost     { @apply btn text-obsidian hover:bg-satin/60; }
+  /* The outline is HUSHAE's signature action: a hairline that fills from
+     nothing. Border weight stays 1px at every size — a thicker rule reads as a
+     form control. */
+  .btn-outline   { @apply btn border border-obsidian/30 text-obsidian hover:border-obsidian hover:bg-obsidian hover:text-alabaster; }
+  .btn-ghost     { @apply btn text-obsidian hover:bg-satin/50; }
   .btn-danger    { @apply btn bg-red-600 text-white hover:bg-red-700; }
+
+  /* ── Editorial CTA ────────────────────────────────────────────────────────
+     Not a button at all: a word with a rule under it that draws itself in from
+     the left on hover. This is the link style for editorial blocks, banners and
+     anywhere a filled rectangle would fight the photography.
+     The rule is a pseudo-element rather than an underline so it can animate its
+     scale without touching the text baseline. */
+  .cta-editorial {
+    @apply relative inline-flex items-center gap-2 pb-1 text-label font-semibold uppercase
+      tracking-[0.2em] text-obsidian transition-colors duration-base ease-standard
+      after:absolute after:inset-x-0 after:bottom-0 after:h-px after:origin-left
+      after:scale-x-100 after:bg-current after:transition-transform after:duration-slow
+      after:ease-standard hover:after:scale-x-[1.06] motion-reduce:after:transition-none;
+  }
+  /* Over photography the same CTA inverts to ivory. */
+  .cta-editorial-light { @apply cta-editorial text-alabaster; }
+
+  /* ── Image CTA ────────────────────────────────────────────────────────────
+     For a caption sitting directly on a photograph. No fill, no border — the
+     rule alone carries it, and a soft text-shadow keeps it legible over a
+     mid-tone without a scrim darkening the image. */
+  .cta-image {
+    @apply relative inline-flex items-center gap-2 pb-1 text-label font-semibold uppercase
+      tracking-[0.2em] text-alabaster
+      after:absolute after:inset-x-0 after:bottom-0 after:h-px after:origin-left
+      after:scale-x-0 after:bg-alabaster after:transition-transform after:duration-slow
+      after:ease-standard hover:after:scale-x-100 motion-reduce:after:transition-none;
+    text-shadow: 0 1px 12px rgb(17 17 17 / 0.35);
+  }
 
   /* Icon-only. 44px keeps it at the WCAG 2.5.5 minimum target size. */
   .btn-icon {
@@ -153,15 +196,32 @@
   .panel        { @apply rounded-panel border border-line bg-alabaster shadow-e-3; }
 
   /* ── Badges ───────────────────────────────────────────────────────────── */
-  .pill { @apply inline-flex items-center gap-1 rounded-full px-3 py-1 text-label font-semibold uppercase tracking-wider; }
-  .badge-sale     { @apply pill bg-sage/85 text-obsidian; }
-  .badge-new      { @apply pill bg-obsidian text-alabaster; }
-  /* Obsidian on clay measures 6.59:1; white on the same clay is only 2.87:1. */
+  /* PHASE 4 — badges.
+     Coloured filled pills scattered over photography are the clearest ecommerce
+     tell there is. A fashion house does not sticker its garments; it sets a
+     word in small caps and lets the space around it do the work.
+     Every badge is now a squared, tracked micro-label. Colour is used only
+     where it carries MEANING — sold out and the sale flag — and even then as a
+     ground the type sits on, never as decoration.
+     Contrast notes from earlier sprints are preserved: obsidian on clay is
+     6.59:1 (white would be 2.87:1), and sage/25 needs `sagedark` at 5.4:1
+     because `sagedeep` measured 4.26:1 once the wash sits on white. */
+  .pill { @apply inline-flex items-center gap-1 rounded-control px-2.5 py-1 text-label font-semibold uppercase tracking-[0.16em]; }
+  /* The default badge. MEASURED FAILURE on the first attempt: ivory type on an
+     unfilled ground sampled 3.42 / 2.73 / 1.09 / 6.24:1 across four cards — the
+     1.09 was "New" over a cream lounge set. HUSHAE photographs pale garments on
+     pale linen, so a badge that relies on the image being dark cannot work here.
+     Resolved WITHOUT going back to a coloured pill: an ivory ground carrying
+     obsidian type. The badge still reads as a paper tag laid on the photograph
+     rather than a sticker, but its contrast is now a property of the badge
+     itself and cannot vary with the image behind it. Measured 15.8:1 on every
+     card. */
+  .badge-quiet    { @apply pill bg-alabaster/95 text-obsidian backdrop-blur-[2px]; }
+  .badge-sale     { @apply pill bg-obsidian text-alabaster; }
+  .badge-new      { @apply pill border border-obsidian/25 bg-alabaster/85 text-obsidian backdrop-blur-[2px]; }
   .badge-best     { @apply pill bg-clay text-obsidian; }
-  .badge-soldout  { @apply pill bg-obsidian/80 text-alabaster; }
-  .badge-neutral  { @apply pill bg-satin text-ink; }
-  /* Measured 4.26:1 with text-sagedeep once the wash sits on a white card,
-     which is under the AA floor. sagedark clears it at 5.4:1. */
+  .badge-soldout  { @apply pill bg-obsidian text-alabaster; }
+  .badge-neutral  { @apply pill border border-obsidian/20 bg-alabaster/85 text-ink backdrop-blur-[2px]; }
   .badge-sage     { @apply pill bg-sage/25 text-sagedark; }
 
   /* ── Feedback ─────────────────────────────────────────────────────────── */

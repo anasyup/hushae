@@ -105,14 +105,30 @@ export default {
         'gap-xl': '3rem',     // 48 — between sub-sections
         'sect-y':    '3.5rem',  // 56 — vertical section padding, mobile
         'sect-y-lg': '5.5rem',  // 88 — vertical section padding, desktop
+        /* PHASE 4 editorial rhythm. A magazine does not space every spread
+           equally: a chapter break breathes more than a caption. These are the
+           three rungs the homepage now uses between major movements. */
+        'ed-sm': '4.5rem',   // 72  — within a movement
+        'ed-md': '7.5rem',   // 120 — between movements
+        'ed-lg': '11rem',    // 176 — chapter break, desktop only
       },
 
       // One radius ladder. The audit found ten different values in use.
+      /* PHASE 4 — the single most template-like signal in the whole theme.
+         MEASURED: 148 `rounded-full` instances in shopper UI, plus a 12/16/24/32
+         radius ladder. Soft pills and generous corner rounding are the visual
+         grammar of a SaaS dashboard and of every default ecommerce theme; no
+         fashion house sets its imagery in 32px-rounded tiles.
+         HUSHAE's language is rectilinear. Type, photography and rules are
+         squared; only genuinely circular affordances (an avatar, a colour
+         swatch, a dot) stay round, and those use `rounded-full` explicitly.
+         The token NAMES are unchanged so all ~300 call sites inherit the new
+         geometry without a single edit — and can be reverted the same way. */
       borderRadius: {
-        control: '0.75rem',  // 12 — inputs, small buttons
-        card:    '1rem',     // 16 — product / content cards
-        panel:   '1.5rem',   // 24 — drawers, modals, large surfaces
-        hero:    '2rem',     // 32 — full-bleed editorial blocks
+        control: '2px',      // inputs, buttons — a hairline softening, not a pill
+        card:    '0px',      // product imagery sits square on the page
+        panel:   '2px',      // drawers, modals
+        hero:    '0px',      // full-bleed editorial
       },
 
       // Four rungs of elevation, all warm-tinted to match the palette.

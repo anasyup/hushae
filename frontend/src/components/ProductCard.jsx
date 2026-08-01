@@ -116,7 +116,7 @@ function ProductCard({
      sale still gets their badge. */
   const STANDING_MARKDOWN = 25;
   const legacyBadge = (showSaleBadge && off > STANDING_MARKDOWN) ? { variant: 'sale', label: `${off}% off` }
-    : isNew ? { variant: 'new', label: 'New' }
+    : isNew ? { variant: 'quiet', label: 'New' }
       : limited ? { variant: 'neutral', label: `Only ${p.stock} left` }
         : p.isBestSeller ? { variant: 'best', label: 'Bestseller' }
           : null;
@@ -131,7 +131,15 @@ function ProductCard({
 
   return (
     <article className="group relative flex flex-col" onMouseLeave={() => setSizePick(false)}>
-      <div className={`relative overflow-hidden rounded-card bg-cream ${soldOut ? 'opacity-[0.72]' : ''}`}>
+      {/* PHASE 4. Was `rounded-card bg-cream` — a 16px-rounded tinted tile. Two
+          problems: the rounding is app grammar, and the cream ground means the
+          photograph never touches the page, so a grid reads as a set of
+          containers instead of a set of garments.
+          Now square, and the ground matches the page (alabaster) so it is
+          invisible behind a full-bleed shot and simply becomes paper behind one
+          that is not. The hairline appears only on hover — the frame is a
+          response to attention, not permanent chrome. */}
+      <div className={`relative overflow-hidden rounded-card bg-alabaster ring-1 ring-inset ring-transparent transition-[box-shadow] duration-slow ease-standard group-hover:ring-line ${soldOut ? 'opacity-[0.72]' : ''}`}>
         {/* Redundant with the title link below, so it is skipped in the tab
             order — but the photo keeps a real alt so it is not lost to a
             screen reader. */}
@@ -154,8 +162,11 @@ function ProductCard({
             fetchpriority={priority ? 'high' : 'auto'}
             decoding="async"
             onError={() => setFailed(true)}
-            className={`w-full object-cover ${ratioCls} transition-[transform,opacity] duration-media ease-standard ${
-              secondary ? 'group-hover:opacity-0' : 'group-hover:scale-[1.03]'
+            /* 1.03 was a zoom; 1.015 over 700ms is a breath. On a garment the
+               difference is the whole difference between a widget and a
+               lookbook. */
+            className={`w-full object-cover ${ratioCls} transition-[transform,opacity] duration-[700ms] ease-standard motion-reduce:transition-none ${
+              secondary ? 'group-hover:opacity-0' : 'group-hover:scale-[1.015]'
             }`}
           />
           </picture>
@@ -176,7 +187,7 @@ function ProductCard({
               loading="lazy"
               decoding="async"
               aria-hidden="true"
-              className={`absolute inset-0 h-full w-full object-cover ${ratioCls} opacity-0 transition-[transform,opacity] duration-media ease-standard group-hover:scale-[1.03] group-hover:opacity-100`}
+              className={`absolute inset-0 h-full w-full object-cover ${ratioCls} opacity-0 transition-[transform,opacity] duration-[700ms] ease-standard motion-reduce:transition-none group-hover:scale-[1.015] group-hover:opacity-100`}
             />
             </picture>
           )}
@@ -185,7 +196,7 @@ function ProductCard({
         {/* Absolutely positioned over the image, so swapping a legacy badge for
             a server one when /promotions/badges resolves cannot shift layout. */}
         {badges.length > 0 && (
-          <span className="pointer-events-none absolute left-3 top-3 flex max-w-[calc(100%-1.5rem)] flex-wrap gap-1">
+          <span className="pointer-events-none absolute left-3 top-3 flex max-w-[calc(100%-1.5rem)] flex-wrap gap-1.5 md:left-4 md:top-4">
             {badges.map((b) => <Badge key={b.key} variant={b.variant}>{b.label}</Badge>)}
           </span>
         )}
@@ -206,8 +217,8 @@ function ProductCard({
                Compare is a power-user tool; it is now revealed on the card the
                shopper is actually touching (`:focus-within`) and stays visible
                once something IS compared, so state is never hidden. */
-            className={`absolute right-2 top-[3.4rem] grid h-11 w-11 place-items-center rounded-full bg-alabaster/85 backdrop-blur-sm transition-[transform,background-color,opacity] duration-base ease-standard hover:scale-105 hover:bg-alabaster md:right-2.5 md:top-[3rem] md:h-9 md:w-9 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 ${
-              compared ? 'text-obsidian !opacity-100' : 'text-ash'
+            className={`absolute right-2 top-[3.6rem] grid h-11 w-11 place-items-center rounded-control bg-alabaster/80 backdrop-blur-[2px] transition-[background-color,opacity,color] duration-base ease-standard hover:bg-alabaster md:right-3 md:top-[3.25rem] md:h-9 md:w-9 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 motion-reduce:transition-none ${
+              compared ? 'text-obsidian !opacity-100' : 'text-graphite'
             }`}
           >
             {compared
@@ -227,8 +238,8 @@ function ProductCard({
                gesture that does not exist on touch would remove it entirely.
                Softened instead — a lighter ground and a thinner icon, so it
                reads as jewellery on the image rather than a UI button. */
-            className={`absolute right-2 top-2 grid h-11 w-11 place-items-center rounded-full bg-alabaster/70 backdrop-blur-md transition-[transform,background-color,opacity] duration-base ease-standard hover:scale-105 hover:bg-alabaster md:right-2.5 md:top-2.5 md:h-9 md:w-9 md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100 ${
-              wished ? 'text-obsidian md:!opacity-100' : 'text-ash'
+            className={`absolute right-2 top-2 grid h-11 w-11 place-items-center rounded-control bg-alabaster/80 backdrop-blur-[2px] transition-[background-color,opacity,color] duration-base ease-standard hover:bg-alabaster md:right-3 md:top-3 md:h-9 md:w-9 md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100 motion-reduce:transition-none ${
+              wished ? 'text-obsidian md:!opacity-100' : 'text-graphite'
             }`}
           >
             <Heart size={15} strokeWidth={1.8} fill={wished ? 'currentColor' : 'none'} aria-hidden="true" />
@@ -253,7 +264,7 @@ function ProductCard({
                       type="button"
                       onClick={() => { addToCart(p, { size: s }); setSizePick(false); }}
                       aria-label={`Add ${p.name}, size ${s}, to bag`}
-                      className="min-w-9 rounded-control border border-line bg-white px-2.5 py-1.5 text-body-sm font-semibold transition-colors duration-fast hover:border-obsidian hover:bg-obsidian hover:text-alabaster"
+                      className="min-w-9 rounded-control border border-obsidian/20 bg-alabaster/95 px-2.5 py-1.5 text-body-sm font-medium tracking-[0.04em] transition-colors duration-base ease-standard hover:border-obsidian hover:bg-obsidian hover:text-alabaster"
                     >
                       {s}
                     </button>
@@ -268,7 +279,13 @@ function ProductCard({
                 /* Hidden from the tab order until the card is hovered or
                    focused — otherwise focus lands on an invisible button. */
                 tabIndex={-1}
-                className="min-h-[44px] w-full rounded-full bg-obsidian/92 py-2.5 text-btn-sm font-semibold uppercase text-alabaster backdrop-blur transition-colors duration-base hover:bg-obsidian group-hover:pointer-events-auto group-focus-within:pointer-events-auto md:pointer-events-none"
+                /* PHASE 4. Was a dark filled pill floating over the garment.
+                   Now an ivory bar flush to the bottom edge of the image that
+                   RISES into place — the gesture of a tag being turned over,
+                   and it never obscures the centre of the photograph.
+                   Ivory-on-obsidian rather than the reverse: a dark slab on a
+                   pale fashion image is a bruise. */
+                className="min-h-[44px] w-full translate-y-full rounded-none bg-alabaster/95 py-3 text-btn-sm font-semibold uppercase tracking-[0.18em] text-obsidian backdrop-blur-[2px] transition-[transform,background-color] duration-slow ease-standard hover:bg-alabaster group-hover:translate-y-0 group-hover:pointer-events-auto group-focus-within:translate-y-0 group-focus-within:pointer-events-auto motion-reduce:transition-none md:pointer-events-none"
               >
                 Quick add
               </button>
@@ -277,7 +294,13 @@ function ProductCard({
         )}
       </div>
 
-      <div className="mt-3.5 flex flex-1 flex-col px-0.5">
+      {/* PHASE 4. A hairline above the caption, flush to the image edge.
+          It is the smallest possible move and it does the most work: it ties
+          the text to the photograph as one plate, gives the grid a horizontal
+          rhythm across every row, and is exactly how a printed catalogue sets
+          a caption. Colour deepens on hover so the whole plate responds as a
+          unit rather than only the words. */}
+      <div className="mt-4 flex flex-1 flex-col border-t border-line pt-3.5 transition-colors duration-base ease-standard group-hover:border-obsidian/35">
         {/* Two lines are always reserved so cards in a row end level. Measured
             spread was 17–21px before; this makes it 0. */}
         {/* clamp-2 caps the visible lines, but at 320px a long title can still

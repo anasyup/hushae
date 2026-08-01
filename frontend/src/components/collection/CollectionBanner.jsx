@@ -40,12 +40,19 @@ export default function CollectionBanner({ title, blurb, eyebrow = 'HUSHAE', cou
   return (
     <section
       aria-labelledby="collection-title"
-      className="relative isolate mb-8 overflow-hidden rounded-panel bg-cream md:mb-12"
+      /* PHASE 4. Was a rounded, inset, tinted band — a hero banner. A magazine
+         masthead is FULL-BLEED and square: the photograph runs to the paper
+         edge and the title sits in it, not on a card above it.
+         Breaking out of the container with negative margins rather than moving
+         the component: every page that renders it keeps its own layout, and
+         mobile keeps the inset card because a full-bleed band on a 390px screen
+         has no negative space for the type to live in. */
+      className="relative isolate mb-8 overflow-hidden rounded-panel bg-cream md:mb-12 xl:-mx-10 xl:rounded-none 2xl:-mx-14 3xl:-mx-16"
     >
       {/* Fixed aspect on each breakpoint so the band NEVER changes height when
           the image decodes. Sprint 2L measured three different placeholder
           heights and every one of them produced a layout shift. */}
-      <div className="relative h-[168px] w-full md:h-[232px]">
+      <div className="relative h-[168px] w-full md:h-[232px] xl:h-[320px] 2xl:h-[380px]">
         <picture className="contents">
           {pictureSources(BAND).map((s) => (
             <source key={s.type} type={s.type} srcSet={s.srcSet} sizes="100vw" />
@@ -85,8 +92,8 @@ export default function CollectionBanner({ title, blurb, eyebrow = 'HUSHAE', cou
             The scrim is strongest on the left, so the text column is now
             CONSTRAINED to the region the scrim actually protects rather than
             the scrim being darkened until it hides the artwork. */}
-        <div className="relative flex h-full max-w-[68%] flex-col justify-end px-5 pb-5 sm:max-w-[60%] md:max-w-[52%] md:px-9 md:pb-7">
-          <p className="text-label uppercase text-sagedeep">{eyebrow}</p>
+        <div className="relative flex h-full max-w-[68%] flex-col justify-end px-5 pb-5 sm:max-w-[60%] md:max-w-[52%] md:px-9 md:pb-7 xl:max-w-[46%] xl:px-20 xl:pb-12 2xl:px-24 2xl:pb-14">
+          <p className="text-label uppercase tracking-[0.22em] text-sagedeep">{eyebrow}</p>
           <h1
             id="collection-title"
             className="mt-1.5 font-display text-h1 leading-[1.06] text-obsidian"
