@@ -56,7 +56,13 @@ export default function StoreLock({ children }) {
        which meant the entire shop was in the DOM and readable with dev tools
        or a screen reader while the gate was still up. */
     <>
-      <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-obsidian px-4 text-alabaster">
+      <div
+        className="fixed inset-0 flex flex-col items-center justify-center bg-obsidian px-4 text-alabaster"
+        style={{ zIndex: 'var(--z-lock)' }}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Store closed"
+      >
         <p className="font-display text-xl tracking-widest2">HUSHAE</p>
         <h1 className="mt-6 text-center font-display text-2xl md:text-3xl">{lock.heading || 'Opening soon'}</h1>
         {!!lock.message && <p className="mt-2 max-w-md text-center text-sm text-alabaster/60">{lock.message}</p>}

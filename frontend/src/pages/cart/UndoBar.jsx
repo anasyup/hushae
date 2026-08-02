@@ -29,9 +29,10 @@ export default function UndoBar({ pending, seconds = 5, onUndo, onDismiss }) {
   return (
     <div
       role="status"
-      className={`fixed bottom-[118px] left-1/2 z-[42] w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 transition-all duration-base ease-entrance motion-reduce:transition-none md:bottom-8 md:left-8 md:translate-x-0 ${
+      className={`fixed bottom-[calc(118px+env(safe-area-inset-bottom))] left-1/2 w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 transition-all duration-base ease-entrance motion-reduce:transition-none md:bottom-8 md:left-8 md:translate-x-0 ${
         mounted ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-0'
       }`}
+      style={{ zIndex: 'var(--z-toast)' }}
     >
       <div className="overflow-hidden rounded-panel bg-obsidian text-alabaster shadow-e-4">
         <div className="flex items-center gap-3 px-4 py-3">

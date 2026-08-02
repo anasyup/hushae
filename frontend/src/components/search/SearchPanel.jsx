@@ -241,7 +241,7 @@ export default function SearchPanel({ cfg: cfgProp, open, onClose, anchorRef }) 
       </div>
 
       {/* ---- the list ---- */}
-      <div className="max-h-[min(70svh,520px)] overflow-y-auto overscroll-contain border-t border-line/70">
+      <div className="max-h-[min(70svh,520px)] overflow-y-auto overscroll-contain border-t border-line/70 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
         <ul id={listId} role="listbox" aria-label="Search suggestions" className="mx-auto max-w-3xl py-1.5">
           {rows.map((row, i) => {
             const id = `${listId}-opt-${i}`;

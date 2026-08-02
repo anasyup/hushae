@@ -87,13 +87,15 @@ export default function StickyBuyBar({ product, watchRef, size, needsSize, onAdd
          pointer-events-none class already blocks clicks there. */
       aria-hidden={!show}
       inert={!show ? '' : undefined}
-      /* MobileNav is a 53px bar already docked at bottom-0 with z-40. Sitting
-         at the same offset hid this one completely — measured. This stacks
-         directly above it and takes a higher layer so the shadow reads. */
-      className={`fixed inset-x-0 bottom-[53px] z-[41] border-y border-line bg-alabaster/95 shadow-e-3 backdrop-blur-xl transition-transform duration-base ease-standard motion-reduce:transition-none md:bottom-0 lg:border-y-0 lg:border-t lg:bg-alabaster/90 lg:shadow-none ${
+      /* MobileNav is docked at bottom-0 with --z-mobilenav. This stacks directly
+         above it (+ safe-area inset), sits under the compare tray (z-compare
+         is one rung above), and clears iOS home indicator on all widths. */
+      className={`fixed inset-x-0 border-y border-line bg-alabaster/95 shadow-e-3 backdrop-blur-xl transition-transform duration-base ease-standard motion-reduce:transition-none
+                  bottom-[calc(53px+env(safe-area-inset-bottom))]
+                  md:bottom-0 lg:border-y-0 lg:border-t lg:bg-alabaster/90 lg:shadow-none ${
         show ? 'translate-y-0' : 'pointer-events-none translate-y-[150%]'
-      }`}
-      style={{ paddingBottom: '0.75rem' }}
+      } pb-[max(0.75rem,env(safe-area-inset-bottom))]`}
+      style={{ zIndex: 'var(--z-stickybar)' }}
     >
       <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 pt-3 md:px-8 lg:gap-6 xl:max-w-[1360px] xl:px-10 2xl:max-w-[1560px] 2xl:px-14 3xl:max-w-shell 3xl:px-16">
         {/* Desktop earns the thumbnail: at 1440px the bar is 1,280px of empty

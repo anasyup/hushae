@@ -57,7 +57,8 @@ export default function FilterSheet({ open, onClose, onReset, catList, f, result
         <motion.div
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
           transition={{ duration: 0.18 }}
-          className="fixed inset-0 z-50 bg-obsidian/40 backdrop-blur-[2px] lg:hidden"
+          className="fixed inset-0 bg-obsidian/40 backdrop-blur-[2px] lg:hidden"
+          style={{ zIndex: 'var(--z-dialog)' }}
           onClick={onClose}
         >
           <motion.div
@@ -83,7 +84,7 @@ export default function FilterSheet({ open, onClose, onReset, catList, f, result
             </div>
 
             {/* Both actions stay in the thumb zone, above the home indicator. */}
-            <div className="shrink-0 border-t border-line bg-alabaster px-5 pb-[max(1rem,env(safe-area-inset-bottom))] pt-4">
+            <div className="shrink-0 border-t border-line bg-alabaster px-5 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
               <div className="flex gap-3">
                 <button
                   type="button" onClick={onReset}

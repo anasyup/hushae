@@ -211,19 +211,13 @@ function ProductCard({
         {cmpOn && (
           <button
             type="button"
-            onClick={async () => { const r = await toggleCompare(p); if (r && r.ok === false) toast(r.message); }}
+            onClick={async (e) => { e.preventDefault(); e.stopPropagation(); const r = await toggleCompare(p); if (r && r.ok === false) toast(r.message); }}
             aria-pressed={compared}
             aria-label={`${compared ? 'Remove' : 'Add'} ${p.name} ${compared ? 'from' : 'to'} compare`}
-            /* MEASURED: these chips were `md:opacity-0 md:group-hover:...`, so
-               DESKTOP hid them and MOBILE showed all three permanently, sitting
-               on top of the product photograph at opacity 1. Mobile is 85% of
-               orders and the primary platform for this brand, so the platform
-               that mattered most got the cluttered treatment.
-               Compare is a power-user tool; it is now revealed on the card the
-               shopper is actually touching (`:focus-within`) and stays visible
-               once something IS compared, so state is never hidden. */
-            className={`absolute right-2 top-[3.6rem] grid h-11 w-11 place-items-center rounded-control bg-alabaster/80 backdrop-blur-[2px] transition-[background-color,opacity,color] duration-base ease-standard hover:bg-alabaster md:right-3 md:top-[3.9rem] md:h-11 md:w-11 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 motion-reduce:transition-none ${
-              compared ? 'text-obsidian !opacity-100' : 'text-graphite'
+            /* On mobile always visible (primary platform). On desktop shown on
+               hover/focus, same as before. Kept at 11w × 11h (44px target). */
+            className={`absolute right-2 top-[3.6rem] z-10 grid h-11 w-11 place-items-center rounded-control bg-alabaster/80 backdrop-blur-[2px] transition-[background-color,opacity,color] duration-base ease-standard hover:bg-alabaster md:right-3 md:top-[3.9rem] md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100 motion-reduce:transition-none ${
+              compared ? '!opacity-100 text-obsidian' : 'text-graphite'
             }`}
           >
             {compared
@@ -235,16 +229,14 @@ function ProductCard({
         {showWishlist && (
           <button
             type="button"
-            onClick={async () => { const r = await toggleWish(p); if (r && r.ok === false) toast(r.message); }}
+            onClick={async (e) => { e.preventDefault(); e.stopPropagation(); const r = await toggleWish(p); if (r && r.ok === false) toast(r.message); }}
             aria-pressed={wished}
             aria-label={`${wished ? 'Remove' : 'Save'} ${p.name} ${wished ? 'from' : 'to'} wishlist`}
-            /* Wishlist KEEPS its mobile visibility: saving is a primary
-               shopping action, not a power-user tool, and hiding it behind a
-               gesture that does not exist on touch would remove it entirely.
-               Softened instead — a lighter ground and a thinner icon, so it
-               reads as jewellery on the image rather than a UI button. */
-            className={`absolute right-2 top-2 grid h-11 w-11 place-items-center rounded-control bg-alabaster/80 backdrop-blur-[2px] transition-[background-color,opacity,color] duration-base ease-standard hover:bg-alabaster md:right-3 md:top-3 md:h-11 md:w-11 md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100 motion-reduce:transition-none ${
-              wished ? 'text-obsidian md:!opacity-100' : 'text-graphite'
+            /* On mobile always visible (primary platform). On desktop shown on
+               hover/focus. Compare button sits below this one, so they stack
+               neatly rather than overlapping; z-index keeps it tap-able. */
+            className={`absolute right-2 top-2 z-10 grid h-11 w-11 place-items-center rounded-control bg-alabaster/80 backdrop-blur-[2px] transition-[background-color,opacity,color] duration-base ease-standard hover:bg-alabaster md:right-3 md:top-3 md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100 motion-reduce:transition-none ${
+              wished ? '!opacity-100 text-obsidian' : 'text-graphite'
             }`}
           >
             <Heart size={15} strokeWidth={1.8} fill={wished ? 'currentColor' : 'none'} aria-hidden="true" />
@@ -256,7 +248,7 @@ function ProductCard({
             className={`absolute inset-x-2.5 bottom-2.5 transition-[transform,opacity] duration-base ease-entrance ${
               sizePick
                 ? 'translate-y-0 opacity-100'
-                : 'translate-y-1.5 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:translate-y-0 group-focus-within:opacity-100'
+                : 'translate-y-1.5 opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100 group-focus-within:translate-y-0 group-focus-within:opacity-100'
             }`}
           >
             {sizePick ? (
@@ -269,7 +261,7 @@ function ProductCard({
                       type="button"
                       onClick={() => { addToCart(p, { size: s }); setSizePick(false); }}
                       aria-label={`Add ${p.name}, size ${s}, to bag`}
-                      className="min-w-9 rounded-control border border-obsidian/20 bg-alabaster/95 px-2.5 py-1.5 text-body-sm font-medium tracking-[0.04em] transition-colors duration-base ease-standard hover:border-obsidian hover:bg-obsidian hover:text-alabaster"
+                      className="min-w-9 min-h-[44px] rounded-control border border-obsidian/20 bg-alabaster/95 px-2.5 py-1.5 text-body-sm font-medium tracking-[0.04em] transition-colors duration-base ease-standard hover:border-obsidian hover:bg-obsidian hover:text-alabaster"
                     >
                       {s}
                     </button>
@@ -281,16 +273,9 @@ function ProductCard({
                 type="button"
                 onClick={() => setSizePick(true)}
                 aria-label={`Quick add ${p.name}`}
-                /* Hidden from the tab order until the card is hovered or
-                   focused — otherwise focus lands on an invisible button. */
-                tabIndex={-1}
-                /* PHASE 4. Was a dark filled pill floating over the garment.
-                   Now an ivory bar flush to the bottom edge of the image that
-                   RISES into place — the gesture of a tag being turned over,
-                   and it never obscures the centre of the photograph.
-                   Ivory-on-obsidian rather than the reverse: a dark slab on a
-                   pale fashion image is a bruise. */
-                className="min-h-[44px] w-full translate-y-full rounded-none bg-alabaster/95 py-3 text-btn-sm font-semibold uppercase tracking-[0.18em] text-obsidian backdrop-blur-[2px] transition-[transform,background-color] duration-slow ease-standard hover:bg-alabaster group-hover:translate-y-0 group-hover:pointer-events-auto group-focus-within:translate-y-0 group-focus-within:pointer-events-auto motion-reduce:transition-none md:pointer-events-none"
+                /* On mobile Quick Add is always visible (primary platform);
+                   on desktop it is revealed on hover/focus as before. */
+                className="min-h-[44px] w-full rounded-control bg-alabaster/95 py-3 text-btn-sm font-semibold uppercase tracking-[0.18em] text-obsidian shadow-e-1 backdrop-blur-[2px] transition-[transform,background-color] duration-slow ease-standard hover:bg-alabaster md:pointer-events-none md:translate-y-full md:rounded-none md:bg-alabaster/95 md:shadow-none md:opacity-0 md:group-hover:pointer-events-auto md:group-hover:translate-y-0 md:group-hover:opacity-100 md:group-focus-within:pointer-events-auto md:group-focus-within:translate-y-0 md:group-focus-within:opacity-100 motion-reduce:transition-none"
               >
                 Quick add
               </button>

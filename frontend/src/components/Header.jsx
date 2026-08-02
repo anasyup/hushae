@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Heart, Menu, Search, ShoppingBag, User, X } from 'lucide-react';
+import { Heart, Menu, Search, ShoppingBag, User } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import OfferBar from './OfferBar';
@@ -13,6 +13,7 @@ import { useCmsNav } from '../lib/useCmsNav';
 import useHeaderScroll from './header/useHeaderScroll';
 import useNavFit from './header/useNavFit';
 import SearchPanel from './search/SearchPanel';
+import { storefrontConfig } from '../lib/storefrontConfig';
 
 const clamp = (v, lo, hi, dflt) => {
   const n = Number(v);
@@ -40,6 +41,7 @@ const clamp = (v, lo, hi, dflt) => {
  * ========================================================================== */
 export default function Header() {
   const { cartCount, wishlist, auth, setDrawerOpen, settings } = useApp();
+  const cfg = useMemo(() => storefrontConfig(settings), [settings]);
   const [cats, setCats] = useState([]);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -79,18 +81,8 @@ export default function Header() {
   const mCats = useMemo(() => cats.filter((c) => c.gender === 'men'), [cats]);
 
   // ── Admin-editable config ────────────────────────────────────────────────
-  const hdr = settings?.header || {};
-  const baseMenu = useMemo(() => (
-    Array.isArray(hdr.menu) && hdr.menu.length ? hdr.menu : [
-      { label: 'Women', href: '/women', dropdown: 'women' },
-      { label: 'Men', href: '/men', dropdown: 'men' },
-      { label: 'New Arrivals', href: '/new' },
-      { label: 'Best Sellers', href: '/best' },
-      { label: 'Sale', href: '/sale', highlight: true },
-      { label: 'Fit Finder', href: '/fit-finder' },
-      { label: 'Track Order', href: '/track' },
-    ]
-  ), [hdr.menu]);
+  const hdr = cfg.header;
+  const baseMenu = useMemo(() => hdr.menu, [hdr.menu]);
 
   /* CMS pages the merchant ticked "show in the top menu", APPENDED to whatever
      the theme editor already defines. Never replacing it: the shop's own
@@ -125,27 +117,17 @@ export default function Header() {
   }, [cmsHeaderKey, baseMenuKey]);
 
   const boxed    = hdr.width === 'boxed';
-  const deskH    = clamp(hdr.height, 56, 120, 80);
-  /* PHASE 8 — navigation typography.
-     MEASURED on live at 1920: 13px, letter-spacing 0.065px (effectively zero),
-     sentence case, weight 500, 34px gaps. That is the typography of an
-     application menu, not of a fashion house — and it is the first thing a
-     visitor reads.
-     Small widely-tracked capitals are the convention every reference brand
-     uses, because tracking is what turns a five-letter word into a mark rather
-     than a label. Defaults only: navSize, navGap and navUppercase all remain
-     admin-editable, so a merchant who preferred the old setting can restore it
-     without a deploy. navUppercase now defaults ON (was opt-in and unused). */
-  const navSize  = clamp(hdr.navSize, 10, 18, 12);
-  const navGap   = clamp(hdr.navGap, 12, 64, 38);
-  const navUpper = hdr.navUppercase !== false;
+  const deskH    = hdr.height; // already clamped by storefrontConfig()
+  const navSize  = hdr.navSize;
+  const navGap   = hdr.navGap;
+  const navUpper = hdr.navUppercase;
   const centred  = hdr.menuAlign !== 'left';
-  const hairline = hdr.border !== false;
+  const hairline = hdr.border;
 
-  const showSearch   = hdr.showSearch !== false;
-  const showWishlist = hdr.showWishlist !== false;
-  const showAccount  = hdr.showAccount !== false;
-  const showCart     = hdr.showCart !== false;
+  const showSearch   = hdr.showSearch;
+  const showWishlist = hdr.showWishlist;
+  const showAccount  = hdr.showAccount;
+  const showCart     = hdr.showCart;
   const iconCount = [showSearch, showWishlist, showAccount, showCart].filter(Boolean).length;
 
   const menuKey = useMemo(() => menu.map((m) => m && m.label).join('|'), [menu]);
@@ -194,9 +176,10 @@ export default function Header() {
       {!isHome && <OfferBar />}
 
       <div
-        className={`${isHome ? 'fixed inset-x-0 top-0' : 'sticky top-0'} z-40
+        className={`${isHome ? 'fixed inset-x-0 top-0' : 'sticky top-0'}
           transition-transform duration-base ease-standard
           ${hidden ? '-translate-y-full' : 'translate-y-0'}`}
+        style={{ zIndex: 'var(--z-header)' }}
       >
         {/* On the home page the whole group is fixed — out of normal flow —
             so the strip can appear once the hero is passed without moving a
@@ -218,9 +201,10 @@ export default function Header() {
               }`
           }`}
         >
-          <div className={`relative flex h-14 items-center px-4 md:px-6 lg:h-[var(--hdr-h)] lg:px-10 ${
-            boxed ? 'mx-auto w-full max-w-7xl xl:max-w-[1360px] 2xl:max-w-[1560px] 3xl:max-w-shell' : 'w-full'
-          }`}>
+          <div className={`relative flex min-h-[52px] items-center
+             px-4 md:px-6 lg:h-[var(--hdr-h)] lg:px-10
+             ${isHome ? 'pt-[max(0px,env(safe-area-inset-top))]' : ''}
+             ${boxed ? 'mx-auto w-full max-w-7xl xl:max-w-[1360px] 2xl:max-w-[1560px] 3xl:max-w-shell' : 'w-full'}`}>
 
             <button
               ref={burgerRef}
@@ -358,7 +342,8 @@ export default function Header() {
                 animate={{ height: 'auto', opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
                 transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
-                className="overflow-hidden"
+                className="relative overflow-hidden"
+                style={{ zIndex: 'var(--z-search)' }}
               >
                 <SearchPanel
                   cfg={searchCfg}
@@ -377,7 +362,7 @@ export default function Header() {
         menu={menu}
         wCats={wCats}
         mCats={mCats}
-        storeName={settings?.storeName || 'HUSHAE'}
+        storeName={cfg.storeName}
         returnFocusTo={burgerRef}
       />
     </>

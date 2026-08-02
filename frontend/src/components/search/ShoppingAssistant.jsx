@@ -110,7 +110,8 @@ export default function ShoppingAssistant({ cfg, open, onClose }) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 md:items-stretch md:justify-end"
+      className="fixed inset-0 flex items-end justify-center bg-black/40 md:items-stretch md:justify-end"
+      style={{ zIndex: 'var(--z-dialog)' }}
       onMouseDown={(e) => e.target === e.currentTarget && onClose?.()}
     >
       <div

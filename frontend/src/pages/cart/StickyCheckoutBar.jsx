@@ -40,13 +40,14 @@ export default function StickyCheckoutBar({ watchRef, pricing, cfg, blocked }) {
   return (
     <div
       ref={barRef}
-      className={`fixed inset-x-0 bottom-[53px] z-[41] border-t border-line bg-alabaster/97 backdrop-blur transition-transform duration-base ease-standard motion-reduce:transition-none md:hidden ${
-        hidden ? 'pointer-events-none translate-y-full' : 'translate-y-0'
-      }`}
+      className={`fixed inset-x-0 border-t border-line bg-alabaster/97 backdrop-blur transition-transform duration-base ease-standard motion-reduce:transition-none md:hidden
+                  bottom-[calc(53px+env(safe-area-inset-bottom))]
+                  ${hidden ? 'pointer-events-none translate-y-full' : 'translate-y-0'}`}
+      style={{ zIndex: 'var(--z-stickybar)' }}
       aria-hidden={hidden}
       inert={hidden ? '' : undefined}
     >
-      <div className="flex items-center gap-3 px-4 py-2.5">
+      <div className="flex items-center gap-3 px-4 py-2.5 pb-[max(0.625rem,env(safe-area-inset-bottom))]">
         <div className="min-w-0 flex-1">
           <p className="text-caption uppercase tracking-wider text-ash">
             {pricing.count} {pricing.count === 1 ? 'item' : 'items'}

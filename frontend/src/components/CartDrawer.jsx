@@ -96,7 +96,9 @@ export default function CartDrawer() {
       {drawerOpen && (
         <motion.div
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 bg-obsidian/30"
+          transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+          className="fixed inset-0 bg-obsidian/30"
+          style={{ zIndex: 'var(--z-drawer)' }}
           onClick={() => setDrawerOpen(false)}
         >
           <motion.div

@@ -106,9 +106,10 @@ export default function NavDropdown({ label, to, items, linkCls, navStyle, onDar
           onKeyDown={onPanelKey}
           onMouseEnter={cancelClose}
           onMouseLeave={scheduleClose}
-          className={`absolute left-1/2 top-full z-40 -translate-x-1/2 pt-4 transition-[opacity,transform] duration-base ease-entrance ${
+          className={`absolute left-1/2 top-full -translate-x-1/2 pt-4 transition-[opacity,transform] duration-base ease-entrance motion-reduce:transition-none ${
             open ? 'visible translate-y-0 opacity-100' : 'invisible -translate-y-1 opacity-0'
           }`}
+          style={{ zIndex: 'var(--z-header)' }}
         >
           <ul
             className={`min-w-[13.5rem] rounded-panel border border-line bg-alabaster p-1.5 shadow-e-4 ${onDark ? '' : ''}`}

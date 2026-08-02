@@ -94,17 +94,17 @@ export default function Shop({ preset = {} }) {
         blurb={meta[1]}
       />
 
-      <div className="mb-6 flex items-center justify-between gap-3 border-y border-line py-3.5">
+      <div className="sticky top-[56px] z-[var(--z-sticky)] mb-6 flex items-center justify-between gap-3 border-y border-line bg-alabaster/90 py-3 backdrop-blur supports-[backdrop-filter]:bg-alabaster/75 lg:static lg:z-auto lg:mb-6 lg:border-y lg:py-3.5 lg:backdrop-blur-0">
         <button
           ref={filterBtnRef}
           type="button"
           onClick={() => setSheetOpen(true)}
           aria-expanded={sheetOpen}
           aria-haspopup="dialog"
-          className="inline-flex min-h-[40px] items-center gap-2 text-btn-sm font-semibold uppercase text-obsidian lg:hidden"
+          className="inline-flex min-h-[44px] items-center gap-2 rounded-control border border-line bg-white/70 px-4 text-btn-sm font-semibold uppercase text-obsidian transition-colors duration-base hover:border-obsidian/40 lg:hidden"
         >
           <SlidersHorizontal size={15} strokeWidth={1.8} aria-hidden="true" />
-          Filters
+          Filter &amp; Sort
           {f.activeCount > 0 && (
             <span className="grid h-5 min-w-5 place-items-center rounded-full bg-obsidian px-1 text-[10px] font-bold text-alabaster">
               {f.activeCount}
@@ -113,8 +113,9 @@ export default function Shop({ preset = {} }) {
         </button>
 
         {/* The count is a live region so a filter change is announced rather
-            than silently re-rendering the grid. */}
-        <p aria-live="polite" className="hidden text-label uppercase text-ash lg:block">
+            than silently re-rendering the grid. Visible on mobile (primary
+            experience) and desktop (kept as before). */}
+        <p aria-live="polite" className="text-label uppercase text-ash lg:flex">
           {count === null ? 'Loading…' : `${count} piece${count === 1 ? '' : 's'}`}{pending && count !== null ? ' · updating' : ''}
         </p>
 
@@ -126,11 +127,11 @@ export default function Shop({ preset = {} }) {
             /* Sorting reorders the same set — it replaces rather than pushes,
                so Back still undoes the last real filter. */
             onChange={(e) => f.setOne('sort', e.target.value, { replace: true })}
-            className="min-h-[44px] appearance-none rounded-control border border-line bg-white/70 py-2.5 pl-4 pr-9 text-caption font-medium uppercase tracking-[0.1em] outline-none transition-colors duration-base ease-standard hover:border-obsidian/40"
+            className="min-h-[44px] appearance-none rounded-control border border-line bg-white/70 py-2.5 pl-3 pr-9 text-caption font-medium uppercase tracking-[0.1em] outline-none transition-colors duration-base ease-standard hover:border-obsidian/40 lg:pl-4"
           >
             {SORTS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
           </select>
-          <ChevronDown size={14} aria-hidden="true" className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-ash" />
+          <ChevronDown size={14} aria-hidden="true" className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-ash" />
         </div>
       </div>
 
@@ -177,7 +178,7 @@ export default function Shop({ preset = {} }) {
               /* Dimmed while a new result set is in flight. The grid keeps its
                  height, so refining a filter cannot shift the page. */
               aria-busy={pending || undefined}
-              className={`grid grid-cols-2 gap-x-gap-md gap-y-gap-xl transition-opacity duration-base md:grid-cols-3 xl:grid-cols-4 2xl:gap-x-8 2xl:gap-y-14 ${
+              className={`grid grid-cols-2 gap-x-3 gap-y-8 transition-opacity duration-base sm:gap-x-gap-md sm:gap-y-gap-xl md:grid-cols-3 xl:grid-cols-4 2xl:gap-x-8 2xl:gap-y-14 ${
                 pending ? 'opacity-50' : 'opacity-100'
               }`}
             >

@@ -1,64 +1,67 @@
 import { Link } from 'react-router-dom';
 import { ArrowRight, BadgePercent } from 'lucide-react';
 import { useApp } from '../store/AppContext';
+import { storefrontConfig } from '../lib/storefrontConfig';
 
 /* ============================================================================
  * OFFER BAR — the top-most strip on every page. English only.
  *
- * MEASURED IN PHASE 2F, and it turned out to be the single largest remaining
- * source of layout shift on the whole site.
+ * Locked height so the fallback → real-content swap can never move the page
+ * (CLS fix kept from Phase 2F). Single source of defaults lives in
+ * storefrontConfig(). Empty/invalid CTA link is rejected there, so the bar
+ * safely degrades to a message-only strip when no campaign is configured.
  *
- * The fallback copy renders immediately; the merchant's offer replaces it once
- * /settings resolves (~285ms). The two strings are different lengths, so the
- * strip CHANGED HEIGHT after first paint and pushed every page down with it:
- *
- *     320px   42px -> 28px   (-14px)   fallback wrapped to two lines
- *     390px   27px -> 28px   (+1px)
- *     768px   33px -> 34px   (+1px)
- *    1440px   33px -> 34px   (+1px)
- *
- * On /search that was 0.019 of the page's 0.0495 CLS, and it applies to every
- * route because this strip sits above everything.
- *
- * THE FIX IS A LOCKED HEIGHT, NOT SHORTER COPY
- * Both states now occupy exactly the same box — h-7 below sm, h-[34px] from sm
- * — with the content centred inside it and clipped rather than wrapped. The
- * height cannot depend on which string won the race, so the strip can never
- * move the page again. Truncation already existed on the offer branch; it is
- * now applied to the fallback too, which is what allowed 320px to wrap.
+ * Admin-ready:
+ *   · enabled flag respected (defaults to ON with safe house copy)
+ *   · messageEn/ctaEn/link come from settings.offerBar
+ *   · schedule.start/end shape reserved for a future scheduler (no UI now)
  * ========================================================================== */
 
-/* One box, both states. Any change here must keep the two branches identical
-   in height or the shift comes straight back. */
-const SHELL = 'flex h-7 items-center justify-center gap-2 overflow-hidden bg-obsidian px-3 text-center '
-  + 'text-[10px] uppercase tracking-wider text-alabaster/90 sm:h-[34px] sm:gap-3 sm:px-4 sm:text-[11px] sm:tracking-widest';
+const SHELL_BASE =
+  'relative flex h-7 items-center justify-center gap-2 overflow-hidden px-3 text-center '
+  + 'text-[10px] uppercase tracking-wider sm:h-[34px] sm:gap-3 sm:px-4 sm:text-[11px] sm:tracking-widest '
+  + 'select-none pt-[max(0px,env(safe-area-inset-top))]';
 
 export default function OfferBar() {
   const { settings } = useApp();
-  const offer = settings?.offerBar;
+  const cfg = storefrontConfig(settings);
+  const ob = cfg.offerBar;
 
-  if (offer?.enabled && offer.messageEn) {
-    const message = offer.messageEn;
-    const cta = offer.ctaEn || 'Shop now';
-    const link = offer.link || '/sale';
+  // House default: trust line when no campaign (or no message configured).
+  if (!ob.enabled || !ob.message) {
     return (
-      <div className={SHELL}>
-        <BadgePercent size={12} className="shrink-0 text-sage sm:hidden" aria-hidden="true" />
-        <BadgePercent size={13} className="hidden shrink-0 text-sage sm:block" aria-hidden="true" />
-        <span className="truncate">{message}</span>
-        <Link to={link} className="inline-flex shrink-0 items-center gap-1 border-b border-sage font-semibold text-sage transition-[gap] duration-base ease-standard hover:gap-1.5 motion-reduce:transition-none">
-          {cta} <ArrowRight size={11} aria-hidden="true" />
-        </Link>
+      <div
+        data-section="offerbar"
+        style={{ zIndex: 'var(--z-offerbar)' }}
+        className={`${SHELL_BASE} bg-obsidian text-alabaster/90`}
+        role="region"
+        aria-label="Announcement"
+      >
+        <span className="truncate sm:hidden">{ob.message}</span>
+        <span className="hidden truncate sm:inline">{ob.messageLong}</span>
       </div>
     );
   }
 
   return (
-    <div className={SHELL}>
-      {/* truncate, not wrap: at 320px the long fallback took two lines and made
-          the strip 42px, so the swap to the real offer LOST 14px. */}
-      <span className="truncate sm:hidden">Free shipping over PKR 4,999 · Discreet packaging</span>
-      <span className="hidden truncate sm:inline">Free nationwide shipping over PKR 4,999 · Discreet packaging on every order</span>
+    <div
+      data-section="offerbar"
+      style={{ zIndex: 'var(--z-offerbar)' }}
+      className={`${SHELL_BASE} bg-obsidian text-alabaster/90`}
+      role="region"
+      aria-label="Announcement"
+    >
+      <BadgePercent size={12} className="shrink-0 text-sage sm:hidden" aria-hidden="true" />
+      <BadgePercent size={13} className="hidden shrink-0 text-sage sm:block" aria-hidden="true" />
+      <span className="truncate">{ob.message}</span>
+      {ob.cta && ob.link && (
+        <Link
+          to={ob.link}
+          className="inline-flex shrink-0 items-center gap-1 border-b border-sage font-semibold text-sage transition-[gap,color] duration-base ease-standard hover:gap-1.5 hover:text-sage/80 motion-reduce:transition-none"
+        >
+          {ob.cta} <ArrowRight size={11} aria-hidden="true" />
+        </Link>
+      )}
     </div>
   );
 }

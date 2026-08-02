@@ -371,7 +371,8 @@ export default function Search() {
       {/* ---------------- filters, mobile sheet ---------------- */}
       {sheetOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-end bg-black/40 lg:hidden"
+          className="fixed inset-0 flex items-end bg-black/40 lg:hidden"
+          style={{ zIndex: 'var(--z-dialog)' }}
           onMouseDown={(e) => e.target === e.currentTarget && setSheetOpen(false)}
         >
           <div

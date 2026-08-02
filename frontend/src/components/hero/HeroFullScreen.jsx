@@ -141,7 +141,7 @@ export default function HeroFullScreen({ hero }) {
         />
       )}
 
-      <div className={`relative z-10 mx-auto w-full max-w-7xl px-5 pb-16 md:px-8 md:pb-24 xl:max-w-[1360px] xl:px-10 xl:pb-28 2xl:max-w-[1560px] 2xl:px-14 2xl:pb-32 3xl:max-w-shell 3xl:px-16 ${centred ? 'text-center' : ''}`}>
+      <div className={`relative z-10 mx-auto w-full max-w-7xl px-5 pb-[max(4rem,calc(env(safe-area-inset-bottom)+3.5rem))] md:px-8 md:pb-24 xl:max-w-[1360px] xl:px-10 xl:pb-28 2xl:max-w-[1560px] 2xl:px-14 2xl:pb-32 3xl:max-w-shell 3xl:px-16 ${centred ? 'text-center' : ''}`}>
         {/* V2. The eyebrow sits on a short rule. A hairline that starts the
             line of type is the brand's own mark (Brand DNA — THE RULE: a line
             places, it does not enclose) and it gives the cover line something

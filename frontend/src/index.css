@@ -12,8 +12,46 @@
  * ========================================================================== */
 
 @layer base {
-  html { @apply scroll-smooth; }
-  body { @apply bg-alabaster text-obsidian font-sans antialiased; }
+  /* ── Z-index scale (HUSHAE shell) ───────────────────────────────────────
+     Every fixed/absolute layer in the storefront uses one named slot so
+     nothing can ever stack on top of the wrong thing. Numbers are spread
+     by tens so there is always room to insert something between two layers
+     without renumbering. Admin shell is NOT here — it lives in its own
+     tree and does not share these variables.                               */
+  :root {
+    --z-base:           1;  /* page content (default) */
+    --z-sticky:        10;  /* sticky sub-elements (section nav, buy-bar, listing toolbar) */
+    --z-header:        30;  /* sticky/fixed header */
+    --z-offerbar:      35;  /* announcement bar (when docked above header) */
+    --z-drawer:        40;  /* cart drawer */
+    --z-mobilenav:     40;  /* mobile bottom nav */
+    --z-compare:       41;  /* compare tray (above mobile nav) */
+    --z-stickybar:     42;  /* PDP sticky buy bar (above compare) */
+    --z-search:        45;  /* search panel inside header */
+    --z-float:         50;  /* WhatsApp FAB */
+    --z-toast:         70;  /* toast notifications */
+    --z-promo:         72;  /* promo popup */
+    --z-cookie:        75;  /* cookie consent banner */
+    --z-dialog:        80;  /* modals, mobile menu drawer overlay */
+    --z-skip:         100;  /* skip-to-content link */
+    --z-lock:         110;  /* storefront lock gate */
+    --z-max:       99999;
+  }
+
+  html {
+    @apply scroll-smooth;
+    /* Horizontal scroll lock — a single rogue element can never widen the
+       page past the viewport. Child transforms and sticky positioning still
+       work because overflow-x is hidden on html alone. */
+    overflow-x: hidden;
+  }
+  body {
+    @apply bg-alabaster text-obsidian font-sans antialiased;
+    overflow-x: hidden;
+    min-height: 100vh;
+    min-height: 100svh;
+  }
+  #root { @apply min-h-screen; }
   ::selection { @apply bg-satin text-obsidian; }
   input[type='number']::-webkit-inner-spin-button { -webkit-appearance: none; }
 
@@ -43,7 +81,8 @@
     @apply sr-only;
   }
   .skip-link:focus-visible {
-    @apply not-sr-only fixed left-4 top-4 z-[100] rounded-control bg-obsidian px-4 py-2.5 text-btn-sm font-semibold uppercase text-alabaster;
+    @apply not-sr-only fixed left-4 top-4 rounded-control bg-obsidian px-4 py-2.5 text-btn-sm font-semibold uppercase text-alabaster;
+    z-index: var(--z-skip);
   }
 }
 

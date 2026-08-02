@@ -178,21 +178,18 @@ export default function MegaMenu({ label, to, items, linkCls, navStyle, onDark, 
              at the viewport minus the page gutter, and `right-auto/left-0` is
              overridden below for the second menu so neither panel can run off
              the right edge. */
-          className={`absolute top-full z-40 w-[min(46rem,calc(100vw-3rem))] pt-3 transition-[opacity,transform] duration-base ease-entrance motion-reduce:transition-none ${
+          className={`absolute top-full w-[min(46rem,calc(100vw-3rem))] pt-3 transition-[opacity,transform] duration-base ease-entrance motion-reduce:transition-none ${
             open ? 'visible translate-y-0 opacity-100' : 'invisible -translate-y-1 opacity-0'
           }`}
-          /* MEASURED regression at 1024px: anchoring with `left-0` starts the
-             736px panel at the trigger's own x. The Women trigger sits ~322px
-             in, so the panel reached 1058px against a 1024px viewport and the
-             PAGE gained a horizontal scrollbar — even while closed, because an
-             invisible box still occupies layout.
-             Centred on the viewport instead, using a measured offset (see the
-             `shift` state above). Clean at 1024 through 1920. */
-          style={shift === null
-            /* Before the first measurement the panel is parked off-canvas
-               instead of at left:auto, so it can never widen the document. */
-            ? { left: 0, transform: 'translateX(-50%)', visibility: 'hidden' }
-            : { left: `${shift}px`, transform: 'translateX(-50%)' }}
+          /* z-index slots above page content but below dialogs/drawers. */
+          style={{
+            zIndex: 'var(--z-header)',
+            ...(shift === null
+              /* Before the first measurement the panel is parked off-canvas
+                 instead of at left:auto, so it can never widen the document. */
+              ? { left: 0, transform: 'translateX(-50%)', visibility: 'hidden' }
+              : { left: `${shift}px`, transform: 'translateX(-50%)' }),
+          }}
         >
           <div className="overflow-hidden rounded-panel border border-line bg-alabaster shadow-e-4">
             <div className="grid gap-7 p-6 md:grid-cols-[1.15fr_0.85fr_minmax(0,11rem)] lg:gap-8">

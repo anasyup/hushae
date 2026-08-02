@@ -74,11 +74,11 @@ export default function CompareTray() {
        * probe missed it because it filtered on pointer-events:none — the tray
        * was untouchable but perfectly visible. visibility:hidden is animatable
        * (it flips at the end of the transition), so the slide is preserved. */
-      style={onProduct ? { '--nav-h': '53px' } : undefined}
-      className={`fixed inset-x-0 z-[41] px-3 transition-transform duration-base ease-standard motion-reduce:transition-none md:px-6 ${
+      style={onProduct ? { '--nav-h': '53px', zIndex: 'var(--z-compare)' } : { zIndex: 'var(--z-compare)' }}
+      className={`fixed inset-x-0 px-3 pb-[env(safe-area-inset-bottom)] transition-transform duration-base ease-standard motion-reduce:transition-none md:px-6 md:pb-0 ${
         onProduct
           ? 'bottom-[calc(var(--nav-h,53px)+var(--buy-bar-h,72px)+8px)] md:bottom-[calc(var(--buy-bar-h,72px)+8px)]'
-          : 'bottom-[53px] md:bottom-6'
+          : 'bottom-[calc(53px+env(safe-area-inset-bottom))] md:bottom-6'
       } ${hidden ? 'pointer-events-none invisible translate-y-[130%]' : 'visible translate-y-0'}`}
       aria-hidden={hidden}
       inert={hidden ? '' : undefined}
