@@ -121,3 +121,13 @@ PENDING: User live QA on actual device. Production push (main) only on "PUSH KAR
 - NO hardcoded JazzCash/EasyPaisa/Bank when disabled; NO 7-day contradiction — 14-day consistent.
 - Built 10.67s, 0 errors. node_modules+dist cleaned.
 PENDING: Preview deploy + QA.
+
+## 2026-08-02 — PDP density / typography refinement
+- Restrained type scale: H1 24→28→32 clamp, price 22→26px, labels 11px tracked caps.
+- Tighter vertical rhythm (py-4→6, mt-3/4, compact trust grid, compact pay row).
+- Removed duplicate colour name label, removed generic "between sizes" invented claim (Fit Finder only).
+- Fabric & Care accordions only rendered when real data exists; Fit & Feel neutral + Fit Finder CTA.
+- Sticky bar: h-44px thumb, inline size/color, min button 110px, text-[11px].
+- Trust: 3-col divide-x with 10.5px tracked caps; Pay row inline with active providers only.
+- Build 10.63s, 0 errors.
+PENDING: preview deploy + visual QA.
