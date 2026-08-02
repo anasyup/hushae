@@ -13,7 +13,7 @@
 export const CHECKOUT_DEFAULTS = {
   checkoutMigrated: false,
   title: 'Checkout',
-  subtitle: 'Secure checkout · discreet, unmarked packaging on every order',
+  subtitle: 'Discreet, unmarked packaging on every order',
 
   guestCheckout: true,
   accountRequired: false,
@@ -33,17 +33,21 @@ export const CHECKOUT_DEFAULTS = {
 
   showTrust: true,
   trust: [
-    { icon: 'Lock', label: 'Secure, encrypted checkout' },
-    { icon: 'RefreshCw', label: 'Easy 7-day exchanges' },
     { icon: 'Package', label: 'Discreet, unmarked parcel' },
-    { icon: 'Headphones', label: 'WhatsApp support, 7 days a week' },
+    { icon: 'ShieldCheck', label: 'Quality checked' },
+    { icon: 'Truck', label: '2\u20135 day delivery' },
   ],
 
+  /* Defaults are COD-only. Online methods are shipped DISABLED here — the
+   * merchant must both toggle the flag AND configure credentials in Admin
+   * before any of them render. The Checkout page itself filters further via
+   * publicPayments() so even if legacy booleans somehow flip, unconfigured
+   * gateways stay hidden. */
   paymentList: [
     { id: 'COD', label: 'Cash on Delivery', note: 'Pay the rider at your door', icon: 'Banknote', enabled: true, needsTxn: false, instructions: '', comingSoon: false },
-    { id: 'JazzCash', label: 'JazzCash', note: 'Send, then enter the transaction ID', icon: 'Smartphone', enabled: true, needsTxn: true, instructions: '', comingSoon: false },
-    { id: 'EasyPaisa', label: 'EasyPaisa', note: 'Send, then enter the transaction ID', icon: 'Smartphone', enabled: true, needsTxn: true, instructions: '', comingSoon: false },
-    { id: 'Bank Transfer', label: 'Bank Transfer', note: 'Transfer, then enter the reference', icon: 'Landmark', enabled: true, needsTxn: true, instructions: '', comingSoon: false },
+    { id: 'JazzCash', label: 'JazzCash', note: 'Send, then enter the transaction ID', icon: 'Smartphone', enabled: false, needsTxn: true, instructions: '', comingSoon: false },
+    { id: 'EasyPaisa', label: 'EasyPaisa', note: 'Send, then enter the transaction ID', icon: 'Smartphone', enabled: false, needsTxn: true, instructions: '', comingSoon: false },
+    { id: 'Bank Transfer', label: 'Bank Transfer', note: 'Transfer, then enter the reference', icon: 'Landmark', enabled: false, needsTxn: true, instructions: '', comingSoon: false },
   ],
 
   shippingMethods: [

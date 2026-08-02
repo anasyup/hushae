@@ -150,3 +150,20 @@ PENDING: preview deploy + QA.
 - Accordion renamed "Shipping & returns"; 14-day line only renders when exchangeEnabled.
 - Build 10.86s, 0 errors. node_modules+dist cleaned.
 PENDING: preview deploy + QA.
+
+## 2026-08-02 — Storewide policy + payment consistency
+- Added lib/publicConfig.js: publicPayments(), shippingFromSettings(), isCodOnly(),
+  MARQUEE_DEFAULTS, POLICY (hygiene-first, no blanket exchange promise).
+- Marquee default copy: no 14-day exchange; COD/discreet/free-shipping/Made in Pakistan.
+- TrustBadges (home) → 3 approved columns (Discreet/COD/Quality checked); no exchange promise.
+- cartConfig trust: Secure/7-day/Encrypted replaced with Quality/Discreet/Original/2–5 day delivery.
+- checkoutConfig: subtitle "Secure checkout" removed; trust list hygiene-safe;
+  paymentList defaults: COD enabled, JazzCash/EasyPaisa/Bank disabled (merchant must configure).
+- Footer paymentNote default → "Cash on delivery" (was "COD · JazzCash · SafePay").
+- Home "Why choose HUSHAE": 14-day exchange → Quality checked.
+- Legal pages: removed placeholder +92 300 0000000; Terms payment text clean;
+  Returns rewritten as hygiene policy (no 14-day promise, defective replaced);
+  Shipping delivery 2–5 days, flat 350/free 4999 consistent; cancellations via email.
+- PDP kept prior compact layout + colour-safety/sticky bar; unused RotateCcw import removed.
+- Build 11.03s, 0 errors. node_modules+dist cleaned.
+PENDING: preview deploy + QA.

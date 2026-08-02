@@ -35,10 +35,13 @@ export default function Legal({ kind = 'privacy' }) {
   );
 }
 
+/* Contact details are admin-managed. The placeholder phone is intentionally
+ * removed from customer-facing copy — we only publish email until the merchant
+ * configures a real support number / WhatsApp. */
 const CONTACT = {
   email: 'care@hushae.pk',
-  wa: '+92 300 0000000',
-  address: 'HUSHAE · Rawalpindi, Pakistan',
+  wa: '', // populated from settings once a real WhatsApp number is configured
+  address: 'HUSHAE · Pakistan',
 };
 
 const DOCS = {
@@ -78,15 +81,15 @@ const DOCS = {
       },
       {
         h: 'Payment',
-        p: [`Right now HUSHAE only accepts Cash on Delivery (COD). Please have the exact amount ready when the courier arrives. Online payment gateways (JazzCash, SafePay) will be enabled soon.`],
+        p: [`HUSHAE currently accepts Cash on Delivery (COD) only. Please have the exact amount ready when the courier arrives. Online payment methods will be announced once fully configured.`],
       },
       {
         h: 'Shipping & delivery',
-        p: [`Orders are processed within 24 hours (Mon–Sat) and delivered nationwide across Pakistan in 2–4 working days. Free shipping applies over PKR 4,999. Every parcel is discreetly packaged with no product references visible on the outside.`],
+        p: [`Orders are processed within 24\u201348 hours (Mon\u2013Sat) and delivered nationwide across Pakistan in 2\u20135 working days. Flat rate PKR 350; free shipping on orders over PKR 4,999. Every parcel is discreetly packaged with no product references visible on the outside.`],
       },
       {
         h: 'Cancellations',
-        p: [`You may cancel any order before it is dispatched by contacting us via WhatsApp (${CONTACT.wa}) or email. Once a parcel has left our warehouse the order can only be returned under our Returns Policy.`],
+        p: [`You may cancel any order before it is dispatched by emailing ${CONTACT.email}. Once a parcel has left our warehouse the order cannot be recalled, but wrong or defective items are always replaced \u2014 see Returns & Exchanges.`],
       },
       {
         h: 'Intellectual property',
@@ -96,28 +99,19 @@ const DOCS = {
   },
   returns: {
     title: 'Returns & Exchanges',
-    subtitle: 'Fair, simple, and discreet — like everything else we do.',
+    subtitle: 'Hygiene-first policy \u2014 honest and simple.',
     sections: [
       {
-        h: 'Our 14-day promise',
-        p: [`If a piece doesn't fit right, we'll exchange it within 14 days of delivery — no drama. Items must be unworn, unwashed, and in their original packaging with all tags attached.`],
+        h: 'Hygiene policy',
+        p: [`For hygiene reasons, opened, worn or washed innerwear cannot be returned or exchanged. This includes all bras, panties, briefs, boxers, trunks, shapewear and undershirts where the hygiene seal has been removed or the garment has been worn.`],
       },
       {
-        h: 'Hygiene rules',
-        p: [`For hygiene reasons, briefs, panties, thongs, and swim styles cannot be returned or exchanged once opened, unless there is a manufacturing defect. Bras, camisoles, sleepwear and outer layers can be exchanged if the hygiene liner and tags are still intact.`],
+        h: 'Wrong, damaged or defective items',
+        p: [`If something arrives damaged, defective or is the wrong item, contact us at ${CONTACT.email} within 48 hours with your order number and a photo. We will arrange a free replacement and cover the return courier \u2014 no cost to you.`],
       },
       {
-        h: 'How to start a return',
-        list: [
-          `WhatsApp us at ${CONTACT.wa} with your order number and the reason.`,
-          `We'll send a courier to collect the parcel — no cost to you if it's an exchange.`,
-          `Once we receive it, we ship the new size within 2 working days.`,
-          `If you'd prefer a store credit we'll issue that instead — valid for 60 days.`,
-        ],
-      },
-      {
-        h: 'Damaged or wrong items',
-        p: [`If something arrives damaged or the wrong piece was sent, WhatsApp us within 48 hours with a photo. We'll arrange a free replacement and pay the return courier.`],
+        h: 'Size exchanges',
+        p: [`Size exchanges for unworn, unwashed pieces in original packaging are handled case by case. Reach out to ${CONTACT.email} with your order number and we will do our best to find a solution. A general exchange window is not currently promised.`],
       },
     ],
   },
@@ -131,12 +125,7 @@ const DOCS = {
       },
       {
         h: 'Delivery times',
-        list: [
-          `Karachi, Lahore, Islamabad, Rawalpindi: 2 working days`,
-          `Faisalabad, Multan, Peshawar, Hyderabad, Sialkot: 3 working days`,
-          `Rest of Pakistan: 3–5 working days`,
-          `Same-day dispatch for orders placed before 3 PM (Mon–Sat)`,
-        ],
+        p: [`Most orders deliver in 2\u20135 working days across Pakistan. Same-day dispatch for orders placed before 3 PM, Mon\u2013Sat. Remote areas may take slightly longer; you will receive a tracking number as soon as your parcel leaves our warehouse.`],
       },
       {
         h: 'Cost',

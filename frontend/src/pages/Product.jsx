@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, lazy, Suspense } fro
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
   AlertCircle, ArrowLeft, CheckCircle2, ChevronRight, CreditCard, Heart, Loader2,
-  Package, RefreshCw, RotateCcw, Ruler, ShieldCheck, Sparkles, Star, Truck, Lock,
+  Package, RefreshCw, Ruler, ShieldCheck, Sparkles, Star, Truck, Lock,
 } from 'lucide-react';
 import { api } from '../api/client';
 import { useApp } from '../store/AppContext';

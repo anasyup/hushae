@@ -196,7 +196,7 @@ export function storefrontConfig(settings) {
     contactNote: safeText(f.contactNote, 'Pakistan — nationwide delivery'),
     paymentNote: f.paymentNote === '' ? null : safeText(
       f.paymentNote,
-      'COD · JazzCash · SafePay', // only lists methods actually wired up
+      'Cash on delivery',
     ),
     bottomText: safeText(
       f.bottomText,

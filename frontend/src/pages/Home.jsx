@@ -374,7 +374,7 @@ export default function Home() {
               { title: 'Discreet',       sub: 'Unmarked packaging on every order' },
               { title: 'Nationwide',     sub: 'COD across all of Pakistan' },
               { title: 'Free ship',      sub: 'On orders over PKR 4,999' },
-              { title: '14-day exchange',sub: 'Easy size swaps within two weeks' },
+              { title: 'Quality checked',sub: 'Every piece inspected before dispatch' },
             ].map((x, i) => (
               <div key={i} className={i > 0 ? 'sm:border-l sm:border-line sm:pl-8' : ''}>
                 <p className="font-display text-h3 leading-[1.1] text-obsidian">{x.title}</p>
