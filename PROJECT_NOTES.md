@@ -104,3 +104,20 @@ Admin panel untouched; all existing features/routes preserved; no schema/migrati
 - Known: Filter toolbar top-[56px] gives 3px gap under 53px non-home header (workable; not ideal).
 - Vercel CLI installed to `.vercel-tmp/` (gitignored).
 PENDING: verify preview URL; report to user; wait for QA.
+- Preview deploy LIVE: https://hushae-git-preview-global-shell-mobile-qa-yup-a60d356d.vercel.app
+  (commit c7c037e, branch preview/global-shell-mobile-qa)
+- Admin login: https://hushae-git-preview-global-shell-mobile-qa-yup-a60d356d.vercel.app/admin/login
+- All 26 tested routes HTTP 200; API /products, /categories, /settings 200.
+- Vercel SSO protection disabled (null) to make preview public; live prod hushae.vercel.app unaffected (200).
+- Local workspace: 7 MB / 439 files, no node_modules/dist/.vercel-tmp.
+PENDING: User live QA on actual device. Production push (main) only on "PUSH KARO".
+
+## 2026-08-02 — PDP premium upgrade
+- Rewrote Product.jsx: config-driven payment panel, proper add/loading/added/error states, free-shipping nudge, honest loyalty panel, tier badge dedup, larger size/color targets, colour name text, fit/fabric/care/shipping/size-info/details accordions, back link, retry button, "Made in Pakistan", aria-label/role="radio".
+- Upgraded StickyBuyBar: secondary Buy Now button, color+size labels, loading spinner + check animation, disabled states, aria-busy, added-pulse state.
+- SizeGuideModal: z-index → --z-lock (above everything), body scroll lock, Escape key, focus restoration, accessible name, safe-area padding, rounded-panel, link to Fit Finder.
+- ProductRow: accepts optional titleId for aria-labelledby.
+- NO fake data: missing fabric/care/model/fit fields render safe fallbacks.
+- NO hardcoded JazzCash/EasyPaisa/Bank when disabled; NO 7-day contradiction — 14-day consistent.
+- Built 10.67s, 0 errors. node_modules+dist cleaned.
+PENDING: Preview deploy + QA.

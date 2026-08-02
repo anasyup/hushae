@@ -1,7 +1,7 @@
 import ProductCard from './ProductCard';
 
 // Horizontal snap carousel — best sellers, recently viewed, bundles
-export default function ProductRow({ title, eyebrow, products, note }) {
+export default function ProductRow({ title, eyebrow, products, note, titleId }) {
   if (!products?.length) return null;
   return (
     <section className="container-page">
@@ -9,7 +9,7 @@ export default function ProductRow({ title, eyebrow, products, note }) {
         <div className="mb-6 flex items-end justify-between">
           <div>
             {eyebrow && <p className="text-[11px] font-bold uppercase tracking-widest text-sagedeep">{eyebrow}</p>}
-            {title && <h2 className="mt-1 font-display text-2xl md:text-3xl">{title}</h2>}
+            {title && <h2 id={titleId} className="mt-1 font-display text-2xl md:text-3xl">{title}</h2>}
           </div>
           {note && <p className="hidden text-xs uppercase tracking-widest text-ash md:block">{note}</p>}
         </div>

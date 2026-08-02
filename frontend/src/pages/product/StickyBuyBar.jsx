@@ -1,42 +1,42 @@
 import { useEffect, useRef, useState } from 'react';
 import { pkr } from '../../lib/format';
 import Img from '../../components/Img';
+import { CheckCircle2, Loader2 } from 'lucide-react';
 
 /* ============================================================================
- * Add-to-bag bar.
+ * Sticky Add-to-bag / Buy Now bar.
  *
- * Measured on an iPhone 13: the Add to bag button sat 1263px down a 664px
- * viewport — the shopper had to scroll roughly two screens past the price
- * before they could buy. This docks the action once the real button leaves
- * view, and gets out of the way when it is on screen.
+ * Appears once the in-page buy row scrolls out of view. Mobile dock stacks
+ * directly above the MobileNav (with safe-area); desktop docks on a hairline
+ * at top-0? No — bottom of viewport on mobile, top of viewport on desktop?
+ * We keep the original behaviour (fixed bottom on mobile, fixed bottom on
+ * desktop as a thin hairline strip) but add the Buy Now secondary action and
+ * proper loading / added / disabled states so the sticky bar cannot disagree
+ * with the main CTA row.
  *
- * PHASE 2C2 — it now runs on desktop too. MEASURED at 1440x900: scrolled to
- * y=2200 (reviews, recommendations, Q&A — the part of the page where a shopper
- * is deciding) there were ZERO fixed elements and Add to cart was off-screen,
- * so the only way to buy was to scroll back up roughly two screens. The bar
- * was `lg:hidden`, which was correct when it was a phone-only patch and wrong
- * once the page grew to 3,325px on desktop.
- *
- * The desktop treatment is deliberately not the phone one stretched wide: it
- * carries the product thumbnail and the chosen size, is right-weighted to the
- * action, and sits on a hairline rather than a shadow — a quiet dock, not a
- * banner.
- *
- * It reserves nothing in the layout (fixed, and it slides rather than
- * expanding), so it cannot contribute layout shift.
+ * The bar publishes its real height into --buy-bar-h so the Compare tray,
+ * Toasts, WhatsApp and the MobileNav can stack on top instead of guessing.
  * ========================================================================== */
-export default function StickyBuyBar({ product, watchRef, size, needsSize, onAdd, disabled, thumb }) {
+export default function StickyBuyBar({
+  product,
+  watchRef,
+  size,
+  color,
+  needsSize,
+  onAdd,
+  onBuyNow,
+  disabled,
+  adding = false,
+  added = false,
+  thumb,
+}) {
   const [show, setShow] = useState(false);
+  const [pulse, setPulse] = useState(false);
   const barRef = useRef(null);
 
   useEffect(() => {
     const el = watchRef.current;
     if (!el || typeof IntersectionObserver === 'undefined') return undefined;
-    // Show the bar once the real buy block has scrolled ABOVE the viewport.
-    // The earlier test also required boundingClientRect.top < 0, but that reads
-    // the rect at observation time — when the block sits below the fold on
-    // first paint it is negative-free and the bar stayed hidden even after
-    // scrolling past. Comparing against the observed root bounds is stable.
     const io = new IntersectionObserver(
       ([entry]) => {
         const past = entry.boundingClientRect.bottom < (entry.rootBounds?.top ?? 0) + 80;
@@ -48,13 +48,16 @@ export default function StickyBuyBar({ product, watchRef, size, needsSize, onAdd
     return () => io.disconnect();
   }, [watchRef]);
 
-  /* Publish this bar's real height so anything else docked at the bottom can
-     stack on top of it instead of guessing.
-     MEASURED: the bar is 72px at 390px wide but 94px at 320px, because the
-     product name and price wrap. The compare tray had hard-coded 125px and
-     still overlapped by 21px on the narrowest phone — the exact device least
-     able to lose a button. A ResizeObserver keeps the number honest through
-     rotation, font loading and long product names. */
+  useEffect(() => {
+    if (added) {
+      setPulse(true);
+      const t = setTimeout(() => setPulse(false), 1800);
+      return () => clearTimeout(t);
+    }
+    return undefined;
+  }, [added]);
+
+  /* Publish bar height for other docked elements. */
   useEffect(() => {
     const el = barRef.current;
     if (!el) return undefined;
@@ -70,53 +73,35 @@ export default function StickyBuyBar({ product, watchRef, size, needsSize, onAdd
     return () => {
       ro?.disconnect();
       window.removeEventListener('resize', publish);
-      // Leaving a stale height behind would push the tray up on every other
-      // page, so the variable is removed when the product page unmounts.
       root.style.removeProperty('--buy-bar-h');
     };
   }, []);
 
   const onSale = product.compareAtPrice > product.price;
+  const ready = needsSize ? !!size : true;
+  const actionDisabled = disabled || adding;
+
+  const addLabel = disabled
+    ? 'Sold out'
+    : adding ? 'Adding…'
+      : added && pulse ? 'Added'
+        : needsSize && !size ? 'Select a size'
+          : 'Add to bag';
 
   return (
     <div
       ref={barRef}
-      /* aria-hidden alone is not enough: the button inside stays focusable and
-         axe flags aria-hidden-focus. `inert` removes it from the tab order too;
-         the attribute is ignored by engines that do not support it, and the
-         pointer-events-none class already blocks clicks there. */
       aria-hidden={!show}
       inert={!show ? '' : undefined}
-      /* MobileNav is docked at bottom-0 with --z-mobilenav. This stacks directly
-         above it (+ safe-area inset), sits under the compare tray (z-compare
-         is one rung above), and clears iOS home indicator on all widths. */
       className={`fixed inset-x-0 border-y border-line bg-alabaster/95 shadow-e-3 backdrop-blur-xl transition-transform duration-base ease-standard motion-reduce:transition-none
                   bottom-[calc(53px+env(safe-area-inset-bottom))]
-                  md:bottom-0 lg:border-y-0 lg:border-t lg:bg-alabaster/90 lg:shadow-none ${
+                  md:bottom-0 lg:border-y-0 lg:border-t lg:bg-alabaster/95 lg:shadow-none ${
         show ? 'translate-y-0' : 'pointer-events-none translate-y-[150%]'
       } pb-[max(0.75rem,env(safe-area-inset-bottom))]`}
       style={{ zIndex: 'var(--z-stickybar)' }}
     >
-      <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 pt-3 md:px-8 lg:gap-6 xl:max-w-[1360px] xl:px-10 2xl:max-w-[1560px] 2xl:px-14 3xl:max-w-shell 3xl:px-16">
-        {/* Desktop earns the thumbnail: at 1440px the bar is 1,280px of empty
-            alabaster otherwise, and the shopper may be four screens away from
-            the gallery. Hidden below lg where the space genuinely is not
-            there. */}
+      <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 pt-3 md:px-8 lg:gap-5 xl:max-w-[1360px] xl:px-10 2xl:max-w-[1560px] 2xl:px-14 3xl:max-w-shell 3xl:px-16">
         {thumb && (
-          /* MEASURED in Phase 2F: this was a bare <img src>, which bypasses the
-             AVIF/WebP pipeline entirely — it pulled the 224.7 KB ORIGINAL
-             cat-panties-hero.jpg to paint a 44x55px thumbnail, on every product
-             page, at every viewport. It was the only unoptimised image left on
-             the whole storefront.
-             Worse, it downloaded on MOBILE too: the element is `lg:block`, so
-             it is display:none below lg, but `display:none` does not stop an
-             <img src> from being fetched — the bytes were spent on phones that
-             never showed the thumbnail.
-             Img is the project's one image component and already handles
-             <picture>, srcset and lazy loading, so this is a reuse rather than
-             a new abstraction. `sizes="44px"` states the real slot; loading is
-             lazy by default, which is correct for a bar that is off-screen at
-             first paint. */
           <span aria-hidden="true" className="hidden shrink-0 lg:block">
             <Img
               src={thumb}
@@ -131,29 +116,53 @@ export default function StickyBuyBar({ product, watchRef, size, needsSize, onAdd
 
         <div className="min-w-0 flex-1">
           <p className="truncate text-caption text-ash lg:text-body-sm lg:text-ink">{product.name}</p>
-          <p className="flex items-baseline gap-2">
-            <span className="text-body font-semibold tabular-nums text-obsidian lg:font-display lg:text-h5 lg:font-normal">{pkr(product.price)}</span>
+          <p className="flex flex-wrap items-baseline gap-x-2 gap-y-0">
+            <span className="text-body font-semibold tabular-nums text-obsidian lg:font-display lg:text-h5 lg:font-normal">
+              {pkr(product.price)}
+            </span>
             {onSale && (
               <span className="text-caption tabular-nums text-ash line-through">{pkr(product.compareAtPrice)}</span>
             )}
-            {/* The chosen size, so a shopper deep in the reviews can confirm
-                what they are about to buy without scrolling back. */}
             {size && (
-              <span className="hidden text-caption uppercase tracking-widest text-ash lg:inline">
+              <span className="ml-1 hidden text-caption uppercase tracking-widest text-ash lg:inline">
                 <span className="sr-only">Selected size </span>· {size}
+              </span>
+            )}
+            {color && (
+              <span className="ml-1 hidden text-caption text-ash lg:inline">
+                <span className="sr-only">Selected colour </span>· {color}
               </span>
             )}
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={onAdd}
-          disabled={disabled}
-          className="btn btn-primary min-h-[46px] shrink-0 disabled:opacity-40 lg:min-w-[210px]"
-        >
-          {disabled ? 'Sold out' : needsSize && !size ? 'Select a size' : 'Add to bag'}
-        </button>
+        <div className="flex shrink-0 items-center gap-2">
+          <button
+            type="button"
+            onClick={onAdd}
+            disabled={actionDisabled || !ready}
+            className="btn btn-outline min-h-[46px] min-w-[120px] inline-flex items-center justify-center gap-2 disabled:opacity-40 sm:min-w-[150px] lg:min-w-[170px]"
+            aria-busy={adding}
+          >
+            {adding ? (
+              <Loader2 size={15} className="animate-spin" aria-hidden="true" />
+            ) : added && pulse ? (
+              <CheckCircle2 size={15} aria-hidden="true" />
+            ) : null}
+            {addLabel}
+          </button>
+          {onBuyNow && (
+            <button
+              type="button"
+              onClick={onBuyNow}
+              disabled={actionDisabled || !ready}
+              className="btn btn-primary min-h-[46px] min-w-[110px] inline-flex items-center justify-center gap-2 disabled:opacity-40 sm:min-w-[140px]"
+              aria-busy={adding}
+            >
+              {adding ? <Loader2 size={15} className="animate-spin" aria-hidden="true" /> : 'Buy now'}
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
