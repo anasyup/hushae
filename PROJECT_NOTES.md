@@ -131,3 +131,14 @@ PENDING: Preview deploy + QA.
 - Trust: 3-col divide-x with 10.5px tracked caps; Pay row inline with active providers only.
 - Build 10.63s, 0 errors.
 PENDING: preview deploy + visual QA.
+
+## 2026-08-02 — PDP accuracy/polish pass
+- activePayments() now checks integration config + placeholder bank details: JazzCash/EasyPaisa/Bank only when genuinely configured. Current live config is COD-only → PDP shows only Cash on delivery.
+- COD-only state renders single "Cash on delivery" helper line; online-pay states get the inline Pay row. No more misleading "Secure pay" wording.
+- Colour/image bug fix: first colour only auto-selected when it maps to an image OR only one colour exists (bra/boxer no longer label nude photo as Black / navy as Olive). pickColor() switches gallery only for colour-specific images.
+- needsColor guard (>=2 colours) — colour required before Add to Cart; error "Please choose a colour" + sticky bar "Select options".
+- Badges: role=list/role=listitem, separated by 1.5px gap (no joined "EconomyEverydayBestseller"), max 2 extra + tier.
+- Delivery wording: "2–5 days" (no awkward "day delivery"). Fit&Feel removed generic "between sizes" copy, points to Fit Finder.
+- StickyBuyBar: accepts needsColor, shows "Select options" when size/colour missing.
+- Build 10.56s, 0 errors.
+PENDING: preview deploy + QA.

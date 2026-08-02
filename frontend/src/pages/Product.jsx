@@ -22,42 +22,40 @@ import Tx from '../components/Tx';
 const ProductPromoPanel = lazy(() => import('../components/marketing/ProductPromoPanel'));
 import Accordion from './product/Accordion';
 
-/* Light swatches need a dark tick, everything else a light one. */
 const LIGHT_HEX = new Set(['#FFFFFF', '#FFF', '#F7F5F1', '#EFEAE3', '#E3C9B3', '#E8C7C8', '#E4DDD3', '#F5F0EA']);
-
 const STANDING_MARKDOWN = 25;
 const CRUMB = 'transition-colors duration-base ease-standard hover:text-obsidian';
 
-/* Map payment IDs to a Lucide icon and a clean label. Unknown IDs fall back to
- * CreditCard. Only enabled providers render. */
-const PAYMENT_ICONS = {
-  cod: null,
-  jazzcash: CreditCard,
-  easypaisa: CreditCard,
-  bank: CreditCard,
-  card: CreditCard,
-};
-const PAYMENT_LABEL = {
-  cod: 'Cash on delivery',
-  jazzcash: 'JazzCash',
-  easypaisa: 'EasyPaisa',
-  bank: 'Bank transfer',
-  card: 'Card',
-};
+const PAYMENT_ICONS = { jazzcash: CreditCard, easypaisa: CreditCard, bank: CreditCard, card: CreditCard };
+const PAYMENT_LABEL = { cod: 'Cash on delivery', jazzcash: 'JazzCash', easypaisa: 'EasyPaisa', bank: 'Bank transfer', card: 'Card' };
 
 function activePayments(settings) {
+  const ints = settings?.integrations?.payments || {};
+  const jc = !!(ints.jazzcash?.configured || (ints.jazzcash?.merchantId && ints.jazzcash?.password));
+  const ep = !!(ints.easypaisa?.configured || (ints.easypaisa?.merchantId && ints.easypaisa?.password));
+  const bd = String(settings?.paymentMethods?.bankDetails || '');
+  const bankOk = bd.length > 0 && !/0000 0000/.test(bd);
+
+  const isOn = (id) => {
+    if (id === 'cod') return true;
+    if (id === 'jazzcash' || id === 'JazzCash') return jc;
+    if (id === 'easypaisa' || id === 'EasyPaisa') return ep;
+    if (id === 'bank' || id === 'Bank Transfer') return bankOk;
+    return true;
+  };
+
   const list = settings?.checkout?.paymentList;
-  if (Array.isArray(list) && list.length) {
+  if (Array.isArray(list) && list.length && settings?.checkout?.checkoutMigrated) {
     return list
-      .filter((m) => m && m.enabled && !m.comingSoon)
+      .filter((m) => m && m.enabled && !m.comingSoon && isOn(m.id))
       .map((m) => ({ id: m.id, label: m.label || PAYMENT_LABEL[m.id?.toLowerCase()] || m.id }));
   }
   const pm = settings?.paymentMethods || {};
   const out = [];
   if (pm.cod !== false) out.push({ id: 'cod', label: PAYMENT_LABEL.cod });
-  if (pm.jazzcash) out.push({ id: 'jazzcash', label: PAYMENT_LABEL.jazzcash });
-  if (pm.easypaisa) out.push({ id: 'easypaisa', label: PAYMENT_LABEL.easypaisa });
-  if (pm.bank) out.push({ id: 'bank', label: PAYMENT_LABEL.bank });
+  if (pm.jazzcash && jc) out.push({ id: 'jazzcash', label: PAYMENT_LABEL.jazzcash });
+  if (pm.easypaisa && ep) out.push({ id: 'easypaisa', label: PAYMENT_LABEL.easypaisa });
+  if (pm.bank && bankOk) out.push({ id: 'bank', label: PAYMENT_LABEL.bank });
   return out;
 }
 
@@ -87,6 +85,7 @@ export default function Product() {
   const [color, setColor] = useState('');
   const [qty, setQty] = useState(1);
   const [sizeErr, setSizeErr] = useState(false);
+  const [colorErr, setColorErr] = useState(false);
   const [added, setAdded] = useState(false);
   const [adding, setAdding] = useState(false);
   const [addError, setAddError] = useState('');
@@ -100,20 +99,23 @@ export default function Product() {
 
   const load = useCallback(() => {
     setErr(false); setP(null); setImgIdx(0); setSize(''); setColor(''); setQty(1);
-    setSizeErr(false); setAdded(false); setAdding(false); setAddError('');
+    setSizeErr(false); setColorErr(false); setAdded(false); setAdding(false); setAddError('');
     setBundle([]); setRelated([]); setReviewTotal(null); setLoading(true);
     api(`/products/${slug}`)
       .then((d) => {
-        setP(d.product);
-        setColor(d.product.colors?.[0]?.name || '');
-        pushRecent(d.product);
-        const bslug = d.product.bundleSlug || '';
+        const prod = d.product;
+        setP(prod);
+        const colours = prod.colors || [];
+        const canAutoPick = colours.length <= 1 || !!colours[0]?.image;
+        setColor(canAutoPick ? colours[0]?.name || '' : '');
+        pushRecent(prod);
+        const bslug = prod.bundleSlug || '';
         if (bslug) {
           api(`/products?category=${bslug}&limit=4&sort=popular`)
-            .then((x) => setBundle((x.products || []).filter((pp) => pp.slug !== d.product.slug).slice(0, 3)))
+            .then((x) => setBundle((x.products || []).filter((pp) => pp.slug !== prod.slug).slice(0, 3)))
             .catch(() => setBundle([]));
         }
-        api(`/reviews/product/${d.product._id}?limit=1`)
+        api(`/reviews/product/${prod._id}?limit=1`)
           .then((r) => setReviewTotal(Number(r?.total) || 0))
           .catch(() => setReviewTotal(0));
       })
@@ -123,18 +125,16 @@ export default function Product() {
   }, [slug, pushRecent]);
 
   useEffect(() => { load(); }, [load]);
-  useEffect(() => { setAdded(false); setAddError(''); }, [size, color, qty]);
+  useEffect(() => { setAdded(false); setAddError(''); setSizeErr(false); setColorErr(false); }, [size, color, qty]);
 
   const media = useMemo(() => {
     if (!p) return [];
     const imgs = (p.images || []).map((im) => ({
-      t: isVideo(im.url) ? 'video' : 'img',
-      url: im.url,
+      t: isVideo(im.url) ? 'video' : 'img', url: im.url,
       alt: im.alt || `${p.name}`,
     }));
     return p.video && !imgs.some((m) => m.url === p.video)
-      ? [...imgs, { t: 'video', url: p.video, alt: `${p.name} video` }]
-      : imgs;
+      ? [...imgs, { t: 'video', url: p.video, alt: `${p.name} video` }] : imgs;
   }, [p]);
 
   const payments = useMemo(() => activePayments(settings), [settings]);
@@ -164,6 +164,7 @@ export default function Product() {
   const wished = inWishlist(p);
   const isBra = p.categorySlug === 'bras';
   const needsSize = (p.sizes || []).length > 0;
+  const needsColor = (p.colors || []).length > 1;
   const soldOut = p.stock === 0;
   const onSale = p.compareAtPrice > p.price;
   const off = onSale ? Math.round((1 - p.price / p.compareAtPrice) * 100) : 0;
@@ -173,10 +174,11 @@ export default function Product() {
   const reviewsShown = reviewTotal ?? 0;
   const extraBadges = (p.badges || [])
     .filter((b) => String(b).trim().toLowerCase() !== String(tierLabel).trim().toLowerCase());
-  const canAdd = !soldOut && !adding && (needsSize ? !!size : true);
+  const canAdd = !soldOut && !adding && (needsSize ? !!size : true) && (needsColor ? !!color : true);
 
   const tryAdd = (goToCheckout) => {
     if (adding) return;
+    if (needsColor && !color) { setColorErr(true); return; }
     if (needsSize && !size) {
       setSizeErr(true);
       sizeRef.current?.scrollIntoView({ block: 'center', behavior: 'smooth' });
@@ -194,7 +196,7 @@ export default function Product() {
   };
 
   const pickColor = (name) => {
-    setColor(name); setSizeErr(false);
+    setColor(name); setSizeErr(false); setColorErr(false);
     const c = p.colors?.find((x) => x.name === name);
     if (c?.image) {
       const idx = p.images.findIndex((im) => im.url === c.image);
@@ -206,12 +208,13 @@ export default function Product() {
   const freeThreshold = Number(settings?.freeShippingThreshold ?? 4999);
   const estPoints = loyaltyOn && pointsPer > 0 ? Math.floor(pointsPer * p.price * qty) : 0;
   const deliveryRange = (shipping?.minDays && shipping?.maxDays)
-    ? `${shipping.minDays}–${shipping.maxDays} day delivery`
-    : '2–5 day delivery';
+    ? `${shipping.minDays}–${shipping.maxDays} days` : '2–5 days';
+  const codOnly = payments.length === 1 && payments[0].id === 'cod';
   const freeShipShort = freeThreshold > p.price * qty;
   const freeShipAway = Math.max(0, freeThreshold - p.price * qty);
-
   const careArr = Array.isArray(p.care) ? p.care : [];
+
+  const payLabel = codOnly ? 'Cash on delivery' : 'Pay';
 
   return (
     <div className="container-page py-4 md:py-8">
@@ -224,10 +227,11 @@ export default function Product() {
         jsonLdId="product"
       />
 
-      {/* Breadcrumb + back link */}
       <nav aria-label="Breadcrumb" className="mb-4 flex items-center gap-1 text-[11px] tracking-wide text-ash sm:gap-1.5">
-          <button type="button" onClick={() => nav(-1)} aria-label="Go back"
-            className="mr-1 inline-flex items-center gap-1 transition-colors hover:text-obsidian"><ArrowLeft size={12} aria-hidden="true" /><span className="hidden sm:inline">Back</span></button>
+        <button type="button" onClick={() => nav(-1)} aria-label="Go back"
+          className="mr-1 inline-flex items-center gap-1 transition-colors hover:text-obsidian">
+          <ArrowLeft size={12} aria-hidden="true" /><span className="hidden sm:inline">Back</span>
+        </button>
         <span className="hidden text-ash/50 sm:inline">|</span>
         <Link to="/" className={CRUMB}>Home</Link>
         <ChevronRight size={11} aria-hidden="true" />
@@ -238,34 +242,30 @@ export default function Product() {
         <span aria-current="page" className="hidden max-w-[200px] truncate text-obsidian sm:inline">{p.name}</span>
       </nav>
 
-      {/* Two column */}
       <div className="grid gap-6 md:gap-8 lg:grid-cols-[minmax(0,56%)_minmax(0,44%)] lg:gap-12 xl:grid-cols-[minmax(0,58%)_minmax(0,42%)] xl:gap-16">
         <ProductGallery media={media} index={imgIdx} onIndex={setImgIdx} productName={p.name} />
 
         <div className="lg:pt-1">
-          {/* Tier / badge row */}
-          <div className="flex flex-wrap items-center gap-1.5">
-            <span className={`inline-flex items-center rounded-control px-2 py-[3px] text-[10px] font-medium uppercase tracking-[0.18em] ${
+          <div className="flex flex-wrap items-center gap-1.5" role="list" aria-label="Product badges">
+            <span role="listitem" className={`inline-flex items-center rounded-control px-2 py-[3px] text-[10px] font-medium uppercase tracking-[0.18em] ${
               p.tier === 'Premium' ? 'bg-obsidian text-alabaster'
                 : p.tier === 'Standard' ? 'bg-satin text-obsidian'
                   : 'bg-sage/25 text-sagedark'
             }`}>{tierLabel}</span>
             {notableMarkdown && (
-              <span className="inline-flex items-center rounded-control border border-obsidian/40 bg-alabaster/80 px-2 py-[3px] text-[10px] font-medium uppercase tracking-[0.18em]">
+              <span role="listitem" className="inline-flex items-center rounded-control border border-obsidian/40 bg-alabaster/80 px-2 py-[3px] text-[10px] font-medium uppercase tracking-[0.18em]">
                 {off}% off
               </span>
             )}
-            {extraBadges.slice(0, 3).map((b) => (
-              <span key={b} className="inline-flex items-center rounded-control bg-sage/25 px-2 py-[3px] text-[10px] font-medium uppercase tracking-[0.18em] text-sagedark">
+            {extraBadges.slice(0, 2).map((b) => (
+              <span key={b} role="listitem" className="inline-flex items-center rounded-control bg-sage/25 px-2 py-[3px] text-[10px] font-medium uppercase tracking-[0.18em] text-sagedark">
                 {b}
               </span>
             ))}
           </div>
 
-          {/* H1 */}
           <h1 className="mt-2.5 font-display text-[24px] leading-[1.15] tracking-[-0.01em] sm:text-[28px] lg:text-[32px]">{p.name}</h1>
 
-          {/* Meta: rating + SKU */}
           <div className="mt-1.5 flex flex-wrap items-center gap-x-2.5 gap-y-0.5 text-[11.5px] text-ash">
             {reviewsShown > 0 && (
               <>
@@ -283,7 +283,6 @@ export default function Product() {
             <span>SKU {p.sku}</span>
           </div>
 
-          {/* Price */}
           <div className="mt-3 flex flex-wrap items-baseline gap-x-2.5 gap-y-0.5">
             <span className="font-display text-[22px] leading-none tracking-[-0.01em] tabular-nums sm:text-[24px] lg:text-[26px]">{pkr(p.price)}</span>
             {onSale && (
@@ -298,7 +297,6 @@ export default function Product() {
             )}
           </div>
 
-          {/* Stock */}
           <p aria-live="polite" className="mt-2 flex items-center gap-1 text-[12px]">
             {soldOut ? (
               <><AlertCircle size={12} className="text-red-600" aria-hidden="true" /><span className="font-medium text-red-700">Sold out</span></>
@@ -309,45 +307,46 @@ export default function Product() {
             )}
           </p>
 
-          {/* Short summary */}
           {p.shortDescription && (
             <p className="mt-3.5 max-w-[55ch] text-[14px] leading-[1.65] text-ink/85">{p.shortDescription}</p>
           )}
 
-          {/* Colour */}
           {p.colors?.length > 0 && (
             <fieldset className="mt-5 border-0 p-0">
               <legend className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.18em] text-ash">
-                Colour: <span className="text-obsidian normal-case tracking-normal">{color}</span>
+                Colour{color
+                  ? <> <span className="normal-case tracking-normal text-obsidian">— {color}</span></>
+                  : needsColor ? <> <span className="normal-case tracking-normal text-ash/80">— select</span></> : null}
               </legend>
-              <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Colour">
+              <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Colour" aria-required={needsColor}>
                 {p.colors.map((c) => {
                   const on = color === c.name;
                   return (
-                    <button
-                      key={c.name} type="button" role="radio" aria-checked={on}
-                      aria-label={c.name} title={c.name}
-                      onClick={() => pickColor(c.name)}
+                    <button key={c.name} type="button" role="radio" aria-checked={on}
+                      aria-label={c.name} title={c.name} onClick={() => pickColor(c.name)}
                       className={`grid h-10 w-10 place-items-center rounded-full border transition-[box-shadow,transform] duration-base ease-standard active:scale-[0.97] motion-reduce:transition-none motion-reduce:active:scale-100 ${
                         on ? 'border-transparent ring-2 ring-obsidian ring-offset-2 ring-offset-alabaster' : 'border-line hover:border-stone'
                       }`}
-                      style={{ backgroundColor: c.hex }}
-                    >
+                      style={{ backgroundColor: c.hex }}>
                       {on && <CheckCircle2 size={14} strokeWidth={2.4} aria-hidden="true"
                         className={LIGHT_HEX.has(String(c.hex).toUpperCase()) ? 'text-obsidian' : 'text-white'} />}
                     </button>
                   );
                 })}
               </div>
+              {colorErr && needsColor && !color && (
+                <p role="alert" className="mt-1.5 flex items-center gap-1 text-[11.5px] font-medium text-red-600">
+                  <AlertCircle size={11} aria-hidden="true" /> Please choose a colour
+                </p>
+              )}
             </fieldset>
           )}
 
-          {/* Size */}
           {needsSize && (
             <fieldset ref={sizeRef} className="mt-5 border-0 p-0">
               <div className="mb-1.5 flex flex-wrap items-center justify-between gap-2">
                 <legend className="block text-[11px] font-semibold uppercase tracking-[0.18em] text-ash">
-                  Size{size && <> <span className="text-obsidian normal-case tracking-normal">— {size}</span></>}
+                  Size{size ? <> <span className="normal-case tracking-normal text-obsidian">— {size}</span></> : null}
                 </legend>
                 <div className="flex items-center gap-3">
                   <button type="button" onClick={() => setGuideOpen(true)}
@@ -360,7 +359,7 @@ export default function Product() {
                   </Link>
                 </div>
               </div>
-              <div className="flex flex-wrap gap-1.5" role="radiogroup" aria-label="Size">
+              <div className="flex flex-wrap gap-1.5" role="radiogroup" aria-label="Size" aria-required>
                 {p.sizes.map((s) => {
                   const on = size === s;
                   return (
@@ -384,14 +383,11 @@ export default function Product() {
             </fieldset>
           )}
 
-          {/* Qty + Wishlist */}
           <div className="mt-5 flex items-center gap-2.5">
-            <QuantityStepper
-              value={qty} onChange={setQty} min={1}
+            <QuantityStepper value={qty} onChange={setQty} min={1}
               max={Math.max(1, Math.min(10, p.stock || 10))}
               disabled={soldOut} label="Quantity" size="sm" />
-            <button
-              type="button" onClick={() => toggleWish(p)} aria-pressed={wished}
+            <button type="button" onClick={() => toggleWish(p)} aria-pressed={wished}
               aria-label={`${wished ? 'Remove' : 'Save'} ${p.name} ${wished ? 'from' : 'to'} wishlist`}
               className={`grid h-11 w-11 shrink-0 place-items-center rounded-full border transition-colors duration-base ${
                 wished ? 'border-obsidian bg-obsidian text-alabaster' : 'border-line text-ash hover:border-obsidian/50 hover:text-obsidian'
@@ -400,21 +396,17 @@ export default function Product() {
             </button>
           </div>
 
-          {/* CTAs */}
           <div ref={ctaRef} className="mt-4 grid grid-cols-[1fr_auto] gap-2.5">
             <button type="button" onClick={() => tryAdd(false)} disabled={!canAdd}
-              className="btn btn-outline inline-flex min-h-[48px] items-center justify-center gap-2 text-[11.5px] disabled:opacity-40"
-              aria-busy={adding}>
+              className="btn btn-outline inline-flex min-h-[48px] items-center justify-center gap-2 text-[11.5px] disabled:opacity-40" aria-busy={adding}>
               {adding ? <><Loader2 size={14} className="animate-spin" aria-hidden="true" /> Adding…</> : <Tx k="addToCart" />}
             </button>
             <button type="button" onClick={() => tryAdd(true)} disabled={!canAdd}
-              className="btn btn-primary inline-flex min-h-[48px] items-center justify-center gap-2 px-5 text-[11.5px] disabled:opacity-40"
-              aria-busy={adding}>
+              className="btn btn-primary inline-flex min-h-[48px] items-center justify-center gap-2 px-5 text-[11.5px] disabled:opacity-40" aria-busy={adding}>
               {adding ? <Loader2 size={14} className="animate-spin" aria-hidden="true" /> : <Tx k="buyNow" />}
             </button>
           </div>
 
-          {/* Feedback */}
           <p aria-live="polite" className="min-h-[1.1rem] pt-1.5 text-[12px]">
             {added && !adding && !addError && (
               <span className="inline-flex items-center gap-1 font-medium text-sagedeep">
@@ -428,7 +420,6 @@ export default function Product() {
             )}
           </p>
 
-          {/* Free shipping nudge */}
           {!soldOut && freeThreshold > 0 && freeShipShort && (
             <p className="mt-2 rounded-control bg-satin/55 px-2.5 py-1.5 text-[11.5px] text-ink">
               Add <b className="text-obsidian">{pkr(freeShipAway)}</b> more for free shipping.
@@ -440,7 +431,6 @@ export default function Product() {
             </p>
           )}
 
-          {/* Trust — compact single row with dividers */}
           <ul className="mt-5 grid grid-cols-3 divide-x divide-line/80 rounded-control border border-line bg-white/55 px-1 py-3 text-center">
             <li className="flex flex-col items-center gap-1 px-1 text-[10.5px] font-medium uppercase tracking-wide text-ash">
               <Truck size={14} className="text-obsidian" aria-hidden="true" />
@@ -456,11 +446,10 @@ export default function Product() {
             </li>
           </ul>
 
-          {/* Pay with — compact inline */}
           {payments.length > 0 && (
             <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-control border border-line bg-white/55 px-3 py-2 text-[11px] text-ash">
-              <span className="inline-flex items-center gap-1 font-semibold uppercase tracking-[0.18em] text-ash">
-                <Lock size={10} aria-hidden="true" /> Pay
+              <span className="inline-flex items-center gap-1 font-semibold uppercase tracking-[0.18em]">
+                {!codOnly && <Lock size={10} aria-hidden="true" />}{payLabel}
               </span>
               {payments.map((m) => {
                 const Icn = PAYMENT_ICONS[m.id?.toLowerCase()] || null;
@@ -479,7 +468,6 @@ export default function Product() {
             </div>
           )}
 
-          {/* Loyalty */}
           {loyaltyOn && estPoints > 0 && (
             <p className="mt-2 inline-flex items-center gap-1 rounded-control bg-cream/80 px-2.5 py-1.5 text-[11px] text-ink">
               <Sparkles size={11} className="text-sagedeep" aria-hidden="true" />
@@ -491,7 +479,6 @@ export default function Product() {
             <div className="mt-4"><ProductPromoPanel product={p} /></div>
           </Suspense>
 
-          {/* Accordions */}
           <div className="mt-6 border-t border-line">
             <Accordion title="About this piece" defaultOpen>
               {p.description
@@ -501,7 +488,7 @@ export default function Product() {
 
             <Accordion title="Fit & feel">
               <div className="space-y-2 leading-[1.65]">
-                <p>Use the Fit Finder for a personal size recommendation in under a minute.</p>
+                <p>For a personal size recommendation, use Fit Finder in under a minute.</p>
                 <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-0.5 pt-1 text-[12.5px]">
                   <dt className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ash">Tier</dt>
                   <dd>{tierLabel}</dd>
@@ -588,7 +575,7 @@ export default function Product() {
       )}
 
       <StickyBuyBar
-        product={p} watchRef={ctaRef} size={size} color={color} needsSize={needsSize}
+        product={p} watchRef={ctaRef} size={size} color={color} needsSize={needsSize} needsColor={needsColor}
         onAdd={() => tryAdd(false)} onBuyNow={() => tryAdd(true)}
         disabled={soldOut} adding={adding} thumb={p.images?.[0]?.url}
       />

@@ -3,12 +3,12 @@ import { pkr } from '../../lib/format';
 import Img from '../../components/Img';
 import { CheckCircle2, Loader2 } from 'lucide-react';
 
-/* Compact, calm sticky buy bar. Appears once the in-page CTA row scrolls out.
+/* Compact sticky buy bar. Appears once the in-page CTA row scrolls out of view.
  * Mobile docks above MobileNav; desktop shows a thin hairline strip with
- * thumbnail + name/price/size + Add + Buy Now. Publishes its height to
- * --buy-bar-h so other docked elements (compare, toasts, WA) can sit above. */
+ * thumbnail + name/price/size/colour + Add + Buy Now. Publishes its height to
+ * --buy-bar-h so other docked elements (compare, toasts, WA) stack on top. */
 export default function StickyBuyBar({
-  product, watchRef, size, color, needsSize,
+  product, watchRef, size, color, needsSize, needsColor,
   onAdd, onBuyNow, disabled, adding = false, added = false, thumb,
 }) {
   const [show, setShow] = useState(false);
@@ -49,9 +49,14 @@ export default function StickyBuyBar({
   }, []);
 
   const onSale = product.compareAtPrice > product.price;
-  const ready = needsSize ? !!size : true;
+  const ready = (needsSize ? !!size : true) && (needsColor ? !!color : true);
   const actionDisabled = disabled || adding;
-  const addLabel = disabled ? 'Sold out' : adding ? 'Adding…' : added && pulse ? 'Added' : needsSize && !size ? 'Select size' : 'Add to bag';
+  const addLabel = disabled
+    ? 'Sold out'
+    : adding ? 'Adding…'
+      : added && pulse ? 'Added'
+        : (needsSize && !size) || (needsColor && !color) ? 'Select options'
+          : 'Add to bag';
 
   return (
     <div
