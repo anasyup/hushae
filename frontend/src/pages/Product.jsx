@@ -214,7 +214,11 @@ export default function Product() {
   const freeShipAway = Math.max(0, freeThreshold - p.price * qty);
   const careArr = Array.isArray(p.care) ? p.care : [];
 
-  const payLabel = codOnly ? 'Cash on delivery' : 'Pay';
+  /* Hygiene-first policy for innerwear. No blanket exchange promise — opened,
+   * worn, or washed pieces cannot be returned or exchanged. Wrong / defective
+   * items are always replaced. If the merchant later enables a limited
+   * exchange window in settings, wire exchangeEnabled to that flag here. */
+  const exchangeEnabled = false;
 
   return (
     <div className="container-page py-4 md:py-8">
@@ -246,6 +250,9 @@ export default function Product() {
         <ProductGallery media={media} index={imgIdx} onIndex={setImgIdx} productName={p.name} />
 
         <div className="lg:pt-1">
+          {/* Badges — visible spacing provided by gap-1.5; screen-reader commas are
+              rendered as visually hidden separators so assistive tech announces
+              "Economy, Everyday, Bestseller" rather than running words together. */}
           <div className="flex flex-wrap items-center gap-1.5" role="list" aria-label="Product badges">
             <span role="listitem" className={`inline-flex items-center rounded-control px-2 py-[3px] text-[10px] font-medium uppercase tracking-[0.18em] ${
               p.tier === 'Premium' ? 'bg-obsidian text-alabaster'
@@ -257,9 +264,12 @@ export default function Product() {
                 {off}% off
               </span>
             )}
-            {extraBadges.slice(0, 2).map((b) => (
-              <span key={b} role="listitem" className="inline-flex items-center rounded-control bg-sage/25 px-2 py-[3px] text-[10px] font-medium uppercase tracking-[0.18em] text-sagedark">
-                {b}
+            {extraBadges.slice(0, 2).map((b, i) => (
+              <span key={b} role="listitem" className="inline-flex items-center gap-1.5">
+                {i > 0 || notableMarkdown ? <span className="sr-only">, </span> : null}
+                <span className="inline-flex items-center rounded-control bg-sage/25 px-2 py-[3px] text-[10px] font-medium uppercase tracking-[0.18em] text-sagedark">
+                  {b}
+                </span>
               </span>
             ))}
           </div>
@@ -431,30 +441,41 @@ export default function Product() {
             </p>
           )}
 
+          {/* Combined trust + pay row — single source so COD never doubles up.
+              Trust grid always delivery/discreet. The third cell flips between
+              "Quality checked" (default hygiene-first policy) and an exchange
+              promise if/when the merchant enables exchanges in settings. */}
           <ul className="mt-5 grid grid-cols-3 divide-x divide-line/80 rounded-control border border-line bg-white/55 px-1 py-3 text-center">
             <li className="flex flex-col items-center gap-1 px-1 text-[10.5px] font-medium uppercase tracking-wide text-ash">
               <Truck size={14} className="text-obsidian" aria-hidden="true" />
               <span>{deliveryRange}</span>
             </li>
             <li className="flex flex-col items-center gap-1 px-1 text-[10.5px] font-medium uppercase tracking-wide text-ash">
-              <RotateCcw size={14} className="text-obsidian" aria-hidden="true" />
-              <span>14-day exchange</span>
+              {exchangeEnabled ? (
+                <><RotateCcw size={14} className="text-obsidian" aria-hidden="true" /><span>14-day exchange</span></>
+              ) : (
+                <><ShieldCheck size={14} className="text-obsidian" aria-hidden="true" /><span>Quality checked</span></>
+              )}
             </li>
             <li className="flex flex-col items-center gap-1 px-1 text-[10.5px] font-medium uppercase tracking-wide text-ash">
-              <ShieldCheck size={14} className="text-obsidian" aria-hidden="true" />
+              <Package size={14} className="text-obsidian" aria-hidden="true" />
               <span>Discreet parcel</span>
             </li>
           </ul>
 
+          {/* Single payment row — no duplicates. Label adapts for COD-only
+              vs multi-method (no misleading "Secure pay" when COD-only). */}
           {payments.length > 0 && (
             <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-control border border-line bg-white/55 px-3 py-2 text-[11px] text-ash">
-              <span className="inline-flex items-center gap-1 font-semibold uppercase tracking-[0.18em]">
-                {!codOnly && <Lock size={10} aria-hidden="true" />}{payLabel}
+              {!codOnly && <Lock size={10} aria-hidden="true" />}
+              <span className="font-semibold uppercase tracking-[0.18em] text-ash">
+                {codOnly ? 'Cash on delivery' : 'Pay'}
               </span>
-              {payments.map((m) => {
+              {!codOnly && payments.map((m, i) => {
                 const Icn = PAYMENT_ICONS[m.id?.toLowerCase()] || null;
                 return (
                   <span key={m.id || m.label} className="inline-flex items-center gap-1 text-ink">
+                    {i > 0 && <span className="sr-only">, </span>}
                     {Icn ? <Icn size={11} className="text-ash" aria-hidden="true" /> : null}
                     {m.label}
                   </span>
@@ -512,13 +533,13 @@ export default function Product() {
               </Accordion>
             )}
 
-            <Accordion title="Shipping & exchange">
+            <Accordion title="Shipping & returns">
               <div className="space-y-1.5 leading-[1.6]">
                 <p>Dispatched in 24–48h via courier in plain, unmarked packaging.
                   {flatRate > 0 && <> Flat {pkr(flatRate)} nationwide; free shipping on orders over {pkr(freeThreshold)}.</>}
                   {' '}Estimated delivery: <b>{deliveryRange}</b>.</p>
-                <p>Unworn, unwashed pieces in original packaging exchange within <b>14 days</b> — size swaps are free.</p>
-                <p className="text-ash">For hygiene reasons, innerwear is only returnable if it arrives faulty or incorrect.</p>
+                <p>For hygiene reasons, opened, worn or washed innerwear cannot be returned or exchanged. Wrong, damaged or defective items are replaced promptly — contact care with your order number.</p>
+                {exchangeEnabled && <p className="text-ash">Unworn, unwashed pieces in original packaging may be exchanged within 14 days — size swaps are free.</p>}
               </div>
             </Accordion>
 

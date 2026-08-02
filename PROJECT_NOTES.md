@@ -142,3 +142,11 @@ PENDING: preview deploy + visual QA.
 - StickyBuyBar: accepts needsColor, shows "Select options" when size/colour missing.
 - Build 10.56s, 0 errors.
 PENDING: preview deploy + QA.
+
+## 2026-08-02 — PDP cleanup: pay, policy, badge a11y
+- COD duplication fixed (single payment row; trust grid now delivery/quality/discreet).
+- Badges: sr-only ", " separators; gap-1.5; "Quality checked" replaces 14-day promise.
+- Hygiene-first returns wording: opened/worn/washed final; wrong/defective replaced.
+- Accordion renamed "Shipping & returns"; 14-day line only renders when exchangeEnabled.
+- Build 10.86s, 0 errors. node_modules+dist cleaned.
+PENDING: preview deploy + QA.
