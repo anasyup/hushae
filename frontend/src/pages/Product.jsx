@@ -201,7 +201,7 @@ export default function Product() {
             </div>
 
             <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#6B7252]">HUSHAE / {p.gender}</p>
-            <h1 className="font-sans text-3xl font-light uppercase tracking-tight text-neutral-900 sm:text-4xl leading-tight">
+            <h1 className="font-display text-3xl font-light uppercase tracking-[0.04em] text-neutral-900 sm:text-4xl leading-tight">
               {p.name}
             </h1>
 

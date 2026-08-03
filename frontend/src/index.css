@@ -2,54 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ===== ADMIN GLOBAL SCALE: Reduce ALL rem-based Tailwind sizes ===== */
-.admin-shell {
-  /* Trick: scale down ALL rem values by making the local font-size smaller.
-     But since rem uses <html>, we need to override specific Tailwind classes.
-     Shopify does: html { font-size: 62.5% } → 10px base */
-}
-.admin-shell .text-2xl { font-size: 1.15rem !important; }
-.admin-shell .text-xl { font-size: 1rem !important; }
-.admin-shell .text-lg { font-size: 0.9rem !important; }
-.admin-shell .text-base { font-size: 0.8rem !important; }
-.admin-shell .text-sm { font-size: 0.75rem !important; }
-.admin-shell .text-xs { font-size: 0.65rem !important; }
-.admin-shell .font-sans.text-2xl,
-.admin-shell .font-sans.text-xl,
-.admin-shell h1 { font-size: 1rem !important; }
-.admin-shell .rounded-2xl { border-radius: 8px !important; }
-.admin-shell .rounded-xl { border-radius: 6px !important; }
-.admin-shell .rounded-lg { border-radius: 5px !important; }
-.admin-shell .p-6 { padding: 12px !important; }
-.admin-shell .p-5 { padding: 10px !important; }
-.admin-shell .p-4 { padding: 8px !important; }
-.admin-shell .p-3 { padding: 6px !important; }
-.admin-shell .gap-6 { gap: 12px !important; }
-.admin-shell .gap-4 { gap: 8px !important; }
-.admin-shell .gap-3 { gap: 6px !important; }
-.admin-shell .space-y-6 > * + * { margin-top: 12px !important; }
-.admin-shell .space-y-5 > * + * { margin-top: 10px !important; }
-.admin-shell .space-y-4 > * + * { margin-top: 8px !important; }
-.admin-shell .space-y-3 > * + * { margin-top: 6px !important; }
-.admin-shell .mb-6 { margin-bottom: 12px !important; }
-.admin-shell .mb-5 { margin-bottom: 10px !important; }
-.admin-shell .mb-4 { margin-bottom: 8px !important; }
-.admin-shell .mb-3 { margin-bottom: 6px !important; }
-.admin-shell .mt-6 { margin-top: 12px !important; }
-.admin-shell .mt-4 { margin-top: 8px !important; }
-.admin-shell .px-6 { padding-left: 12px !important; padding-right: 12px !important; }
-.admin-shell .px-5 { padding-left: 10px !important; padding-right: 10px !important; }
-.admin-shell .py-4 { padding-top: 8px !important; padding-bottom: 8px !important; }
-.admin-shell .py-3 { padding-top: 6px !important; padding-bottom: 6px !important; }
-.admin-shell .h-12 { height: 32px !important; }
-.admin-shell .w-12 { width: 32px !important; }
-.admin-shell .h-10 { height: 28px !important; }
-.admin-shell .w-10 { width: 28px !important; }
-.admin-shell .h-9 { height: 24px !important; }
-.admin-shell .w-9 { width: 24px !important; }
-.admin-shell .h-8 { height: 22px !important; }
-.admin-shell .w-8 { width: 22px !important; }
-
 /* ============================================================================
  * HUSHAE design system — Silk Eclipse
  *
@@ -65,6 +17,16 @@
   html { @apply max-w-full scroll-smooth; overflow-x: clip; }
   body { @apply max-w-full overflow-x-clip bg-alabaster text-obsidian font-sans antialiased; }
   ::selection { @apply bg-satin text-obsidian; }
+
+  /* ── Luxury fashion typography (LV / CK / Gucci / Nike register) ────────
+     Every storefront heading inherits the Futura-style geometric display
+     face (Jost) and renders UPPERCASE with open tracking — the way CK, LV
+     and Gucci set their headlines. Any component that needs sentence case
+     adds `normal-case` locally. Admin is scoped by `.admin-shell` below and
+     is untouched by these rules. */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display uppercase;
+  }
   input[type='number']::-webkit-inner-spin-button { -webkit-appearance: none; }
 
   /* Keyboard users get a visible ring everywhere; pointer users never see it.
@@ -99,15 +61,17 @@
 
 @layer components {
 
-  /* ── Typography ───────────────────────────────────────────────────────── */
-  .h1 { @apply font-display text-h1 font-normal text-obsidian; }
-  .h2 { @apply font-display text-h2 font-normal text-obsidian; }
-  .h3 { @apply font-display text-h3 font-normal text-obsidian; }
-  .h4 { @apply font-sans text-h4 font-semibold text-obsidian; }
-  .h5 { @apply font-sans text-h5 font-semibold text-obsidian; }
-  .h6 { @apply font-sans text-h6 font-semibold uppercase tracking-wider text-obsidian; }
-  .display-1 { @apply font-display text-display-1 font-normal; }
-  .display-2 { @apply font-display text-display-2 font-normal; }
+  /* ── Typography (luxury fashion register — tracked caps on display face) */
+  .h1 { @apply font-display text-h1 font-normal uppercase text-obsidian; }
+  .h2 { @apply font-display text-h2 font-normal uppercase text-obsidian; }
+  .h3 { @apply font-display text-h3 font-normal uppercase text-obsidian; }
+  .h4 { @apply font-display text-h4 font-normal uppercase text-obsidian; }
+  .h5 { @apply font-display text-h5 font-normal uppercase text-obsidian; }
+  .h6 { @apply font-display text-h6 font-normal uppercase tracking-wider text-obsidian; }
+  .display-1 { @apply font-display text-display-1 font-normal uppercase; }
+  .display-2 { @apply font-display text-display-2 font-normal uppercase; }
+  /* Gucci-style editorial serif — Didot register for brand-story accents */
+  .display-serif { @apply font-serif text-h2 font-normal uppercase text-obsidian; }
   .body-lg { @apply text-body-lg text-ink; }
   .body    { @apply text-body text-ink; }
   .body-sm { @apply text-body-sm text-ash; }
@@ -418,57 +382,49 @@
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-/* ================= Admin — Shopify exact scale ================= */
+/* ================= Admin — Shopify-like clean look ================= */
+/* Root wrap that AdminLayout adds so we can scope admin-only tweaks */
 .admin-shell {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 13px;
+  font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  font-feature-settings: "cv02","cv03","cv04","cv11";
   -webkit-font-smoothing: antialiased;
-  font-size: 12px !important;
-  line-height: 1.4;
 }
 .admin-shell h1, .admin-shell h2, .admin-shell h3, .admin-shell h4 {
   font-family: 'Inter', ui-sans-serif, system-ui, sans-serif !important;
   letter-spacing: -0.01em;
   color: #0f172a;
-  font-size: inherit;
 }
-.admin-shell h1 { font-size: 16px !important; }
-.admin-shell h2, .admin-shell h3 { font-size: 14px !important; }
-.admin-shell .font-display {
+.admin-shell .font-display { /* legacy — force Inter inside admin */
   font-family: 'Inter', ui-sans-serif, system-ui, sans-serif !important;
+  letter-spacing: -0.005em;
 }
 .admin-shell button, .admin-shell input, .admin-shell select, .admin-shell textarea {
   font-family: inherit;
-  font-size: inherit;
 }
 .admin-shell .card {
-  border-radius: 8px;
+  border-radius: 16px;
   background-color: #ffffff !important;
   border-color: #E5E7EB !important;
-  box-shadow: none;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
 }
 .admin-shell .input {
-  border-radius: 6px;
+  border-radius: 10px;
   background-color: #ffffff !important;
-  padding: 5px 8px;
-  font-size: 12px;
 }
 .admin-shell .btn-primary {
-  border-radius: 6px;
+  border-radius: 10px;
   background-color: #0f172a;
-  padding: 5px 10px;
-  font-size: 11px;
-  letter-spacing: 0.01em;
+  padding: 10px 18px;
+  font-size: 12.5px;
+  letter-spacing: 0.02em;
 }
 .admin-shell .btn-outline {
-  border-radius: 6px;
-  padding: 5px 10px;
-  font-size: 11px;
-  letter-spacing: 0.01em;
+  border-radius: 10px;
+  padding: 10px 18px;
+  font-size: 12.5px;
+  letter-spacing: 0.02em;
 }
-.admin-shell .pill { font-size: 10px; padding: 2px 6px; }
-.admin-shell .table-head { font-size: 10px; padding: 6px 10px; }
-.admin-shell .table-cell { font-size: 12px; padding: 6px 10px; }
-.admin-shell .skeleton { border-radius: 6px; }
 
 /* ================= Admin dark mode (Settings → Appearance) ================= */
 .dark-admin { color-scheme: dark; }

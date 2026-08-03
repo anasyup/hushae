@@ -88,7 +88,7 @@ export default function Home() {
             <p className="text-[10px] font-bold uppercase tracking-[0.35em] text-[#FFFFFF]/80">
               {hero.eyebrow || 'HUSHAE · LUXURY CLASSICS'}
             </p>
-            <h1 className="mt-4 font-sans text-4xl font-bold uppercase tracking-tight text-[#FFFFFF] leading-[1.05] sm:text-6xl lg:text-7xl">
+            <h1 className="mt-4 font-display text-4xl font-light uppercase tracking-[0.04em] text-[#FFFFFF] leading-[1.05] sm:text-6xl lg:text-7xl">
               {hero.title ? hero.title.replace('\n', ' ') : 'SENSORY LUXURY.'}
             </h1>
             <p className="mt-4 text-[13px] md:text-[14px] leading-relaxed text-[#FFFFFF]/85 max-w-md mx-auto font-light">
@@ -149,7 +149,7 @@ export default function Home() {
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4">
           <motion.div {...fadeUp} className="max-w-xl">
             <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#FFFFFF]/80">NEW SEASON DROPS</p>
-            <h2 className="mt-4 font-sans text-3xl font-light uppercase tracking-tight text-[#FFFFFF] sm:text-5xl leading-none">
+            <h2 className="mt-4 font-display text-3xl font-light uppercase tracking-[0.05em] text-[#FFFFFF] sm:text-5xl leading-none">
               UNCONVENTIONAL COMFORT.
             </h2>
             <p className="mt-4 text-xs font-light text-[#FFFFFF]/90 max-w-sm mx-auto leading-relaxed">
@@ -196,7 +196,7 @@ export default function Home() {
           <div className="grid items-center gap-x-12 gap-y-8 lg:grid-cols-[1.2fr_1fr]">
             <div>
               <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#FFFFFF]/70">THE SIZE SERVICE</p>
-              <h2 className="mt-3 font-sans text-3xl font-light uppercase tracking-tight leading-[1.05] sm:text-5xl">
+              <h2 className="mt-3 font-display text-3xl font-light uppercase tracking-[0.05em] leading-[1.05] sm:text-5xl">
                 Find your exact HUSHAE fit.
               </h2>
             </div>
@@ -227,7 +227,7 @@ export default function Home() {
       <section className="bg-[#000000] text-[#FFFFFF] py-24 text-center md:py-32">
         <motion.div {...fadeUp} className="mx-auto max-w-xl px-4">
           <p className="text-[10px] font-bold uppercase tracking-[0.32em] text-[#FFFFFF]/70">JOIN THE CIRCLE</p>
-          <h2 className="mt-4 font-sans text-3xl font-light uppercase tracking-tight sm:text-4xl">
+          <h2 className="mt-4 font-display text-3xl font-light uppercase tracking-[0.05em] sm:text-4xl">
             Never miss a drop.
           </h2>
           <p className="mt-4 text-xs font-light text-[#FFFFFF]/70 max-w-sm mx-auto leading-relaxed">

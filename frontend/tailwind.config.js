@@ -47,9 +47,13 @@ export default {
         clay:      '#B3927E',   // rare warm accent (badges, sale)
       },
       fontFamily: {
-        // High-fashion geometric sans-serif system (matching Gucci, LV, CK, Nike, Adidas)
+        // Luxury fashion system (LV / CK / Gucci / Nike register):
+        //   sans    → Inter  (Helvetica-style neutral — Calvin Klein body/UI)
+        //   display → Jost   (Futura-style geometric sans — LV + Nike DNA)
+        //   serif   → Cormorant Garamond (Didot-style editorial — Gucci accent)
         sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        display: ['"Montserrat"', '"Inter"', 'ui-sans-serif', 'sans-serif'],
+        display: ['"Jost"', '"Montserrat"', '"Inter"', 'ui-sans-serif', 'sans-serif'],
+        serif: ['"Cormorant Garamond"', 'Georgia', 'serif'],
         urdu: ['"Noto Nastaliq Urdu"', 'serif'],
       },
       letterSpacing: {
@@ -66,23 +70,25 @@ export default {
          DISPLAY and HEADING ceilings are raised; body, caption, label and btn
          are untouched, so mobile, tablet and reading measure are unchanged and
          no line-length regression is possible. */
-      /* PHASE 8 — display ceilings. MEASURED: the hero h1 rendered exactly
-         112px at 1440, 1920 and 2560 because display-1 capped at 5.75rem, so a
-         2560 monitor got a 1440 headline. The vw slope is what should carry a
-         cover line; the ceiling now lets it. Tracking tightens as size grows,
-         which is how large display type wants to set. */
+      /* FONT SYSTEM v2 — luxury fashion register (LV / CK / Gucci / Nike).
+         Headings are set in the Futura-style geometric sans (Jost) and
+         rendered UPPERCASE with OPEN tracking — the convention every fashion
+         house uses (CK, LV, Gucci all set their headlines in tracked caps).
+         The old negative tracking was tuned for sentence-case type; caps need
+         air between the letters or they read as a shout, so the rungs now
+         open as they grow. Body rungs below are untouched. */
       fontSize: {
-        'display-1': ['clamp(2.75rem, 6vw, 8.5rem)',   { lineHeight: '0.98', letterSpacing: '-0.025em' }],
-        'display-2': ['clamp(2.25rem, 4.6vw, 6rem)',   { lineHeight: '1.0',  letterSpacing: '-0.022em' }],
-        h1: ['clamp(1.875rem, 3.4vw, 3.75rem)', { lineHeight: '1.12', letterSpacing: '-0.015em' }],
-        h2: ['clamp(1.5rem, 2.6vw, 2.75rem)',      { lineHeight: '1.18', letterSpacing: '-0.012em' }],
-        h3: ['clamp(1.25rem, 2vw, 1.875rem)',     { lineHeight: '1.25', letterSpacing: '-0.008em' }],
+        'display-1': ['clamp(2.75rem, 6vw, 8.5rem)',   { lineHeight: '0.98', letterSpacing: '0.01em' }],
+        'display-2': ['clamp(2.25rem, 4.6vw, 6rem)',   { lineHeight: '1.0',  letterSpacing: '0.01em' }],
+        h1: ['clamp(1.875rem, 3.4vw, 3.75rem)', { lineHeight: '1.1', letterSpacing: '0.02em' }],
+        h2: ['clamp(1.5rem, 2.6vw, 2.75rem)',      { lineHeight: '1.16', letterSpacing: '0.02em' }],
+        h3: ['clamp(1.25rem, 2vw, 1.875rem)',     { lineHeight: '1.24', letterSpacing: '0.015em' }],
         /* Intermediate rungs. With body at 17 and h2 at 60 there was nothing
            between 18 and 44 for a sub-heading to occupy, so every section
            jumped straight from display to caption. */
-        h4: ['clamp(1.125rem, 2.6vw + 0.06rem, 1.5rem)',  { lineHeight: '1.32', letterSpacing: '-0.005em' }],
-        h5: ['clamp(1rem, 1.7vw + 0.19rem, 1.25rem)',     { lineHeight: '1.38' }],
-        h6: ['0.875rem', { lineHeight: '1.45', letterSpacing: '0.01em' }],
+        h4: ['clamp(1.125rem, 2.6vw + 0.06rem, 1.5rem)',  { lineHeight: '1.3', letterSpacing: '0.03em' }],
+        h5: ['clamp(1rem, 1.7vw + 0.19rem, 1.25rem)',     { lineHeight: '1.36', letterSpacing: '0.02em' }],
+        h6: ['0.875rem', { lineHeight: '1.45', letterSpacing: '0.02em' }],
         /* PHASE 7 — the reading sizes, re-measured on live at 1920.
            MEASURED PROBLEM: ten paragraphs across the homepage rendered at
            12-15px under headlines of 60-112px. That gap is the single biggest
