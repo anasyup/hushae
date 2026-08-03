@@ -263,9 +263,9 @@ export default function Shop({ preset = {} }) {
               /* Dimmed while a new result set is in flight. The grid keeps its
                  height, so refining a filter cannot shift the page. */
               aria-busy={pending || undefined}
-              className={`grid grid-cols-2 gap-x-4 gap-y-10 transition-opacity duration-base md:gap-x-6 ${
-                view === 2 ? 'md:grid-cols-2 xl:grid-cols-2 2xl:gap-x-10' : view === 3 ? 'md:grid-cols-3 xl:grid-cols-3' : 'md:grid-cols-3 xl:grid-cols-4'
-              } 2xl:gap-y-14 ${
+              className={`grid grid-cols-2 gap-[2px] transition-opacity duration-base ${
+                view === 2 ? 'md:grid-cols-2 xl:grid-cols-2' : view === 3 ? 'md:grid-cols-3 xl:grid-cols-3' : 'md:grid-cols-3 xl:grid-cols-4'
+              } ${
                 pending ? 'opacity-50' : 'opacity-100'
               }`}
             >
