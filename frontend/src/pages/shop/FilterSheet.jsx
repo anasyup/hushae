@@ -40,19 +40,22 @@ export default function FilterSheet({ open, onClose, onReset, catList, f, result
       {open && (
         <motion.div
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-          transition={{ duration: 0.15 }}
-          className="fixed inset-0 z-50 bg-[#0E0E0E]/30"
+          transition={{ duration: 0.2 }}
+          className="fixed inset-0 z-50"
+          style={{ background: 'rgba(14,14,14,0.25)' }}
           onClick={onClose}
         >
           <motion.div
             ref={panelRef}
             role="dialog" aria-modal="true" aria-label="Filter products"
-            initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
-            transition={{ type: 'tween', duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+            initial={{ y: '30%' }}
+            animate={{ y: 0 }}
+            exit={{ y: '30%' }}
+            transition={{ type: 'spring', stiffness: 350, damping: 38, mass: 0.8 }}
             onClick={(e) => e.stopPropagation()}
             className="absolute inset-x-0 bottom-0 flex max-h-[90svh] flex-col bg-white"
+            style={{ boxShadow: '0 -4px 24px rgba(0,0,0,0.06)' }}
           >
-            {/* Header */}
             <div className="shrink-0 flex items-center justify-between border-b border-[#E3E2DF] px-5 py-4">
               <p className="text-[14px] font-light uppercase tracking-[0.14em] text-[#0E0E0E]">
                 Filter &amp; Sort
@@ -63,12 +66,10 @@ export default function FilterSheet({ open, onClose, onReset, catList, f, result
               </button>
             </div>
 
-            {/* Scrollable filter content */}
             <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-5">
               <FilterPanel catList={catList} f={f} touch />
             </div>
 
-            {/* Bottom */}
             <div className="shrink-0 border-t border-[#E3E2DF] px-5 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3 flex items-center gap-3">
               <button type="button" onClick={onReset}
                 disabled={f.activeCount === 0}

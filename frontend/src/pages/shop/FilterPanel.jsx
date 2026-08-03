@@ -2,13 +2,14 @@ import { Check } from 'lucide-react';
 
 export const SIZES = ['S', 'M', 'L', 'XL', 'XXL'];
 export const TIERS = ['Economy', 'Standard', 'Premium'];
+export const BADGES = ['Breathable', 'Cooling', 'Seamless', 'Sweat Control', 'Support', 'Silk-Touch', 'Quick Dry'];
 export const FITS = ['Regular', 'Relaxed', 'Slim', 'Seamless'];
 export const COLORS = [
-  { name: 'Black', hex: '#1A1A1A' }, { name: 'White', hex: '#FFFFFF' },
-  { name: 'Nude', hex: '#E3C9B3' }, { name: 'Blush', hex: '#E8C7C8' },
-  { name: 'Sage', hex: '#8F9C8B' }, { name: 'Slate', hex: '#6B7280' },
-  { name: 'Navy', hex: '#1F2A44' }, { name: 'Charcoal', hex: '#3A3A3A' },
+  { name: 'Black', hex: '#1A1A1A' }, { name: 'Soft White', hex: '#FFFFFF' }, { name: 'White', hex: '#FFFFFF' },
+  { name: 'Nude', hex: '#E3C9B3' }, { name: 'Blush', hex: '#E8C7C8' }, { name: 'Sage', hex: '#8F9C8B' },
+  { name: 'Slate', hex: '#6B7280' }, { name: 'Navy', hex: '#1F2A44' }, { name: 'Charcoal', hex: '#3A3A3A' },
   { name: 'Heather Grey', hex: '#9AA0A6' }, { name: 'Olive', hex: '#6B7252' },
+  { name: 'Cream', hex: '#F4EFE6' }, { name: 'Dove Grey', hex: '#B7B7B7' },
 ];
 export const PRICE_BANDS = [
   { key: '0-1000', label: 'Under PKR 1,000', min: '', max: '1000' },
@@ -102,7 +103,7 @@ export default function FilterPanel({ catList, f, touch = false }) {
                 aria-label={c.name} title={c.name}
                 className={`grid place-items-center rounded-[1px] border transition-all duration-150 ${touch ? 'h-10 w-10' : 'h-7 w-7'} ${sel ? 'border-[#0E0E0E] ring-1 ring-[#0E0E0E] ring-offset-1' : 'border-[#E3E2DF] hover:border-[#6E6E6B]'}`}
                 style={{ backgroundColor: c.hex }}>
-                {sel && <Check size={touch ? 14 : 11} strokeWidth={2.5} className={['#FFFFFF','#E3C9B3','#E8C7C8','#9AA0A6'].includes(c.hex) ? 'text-[#0E0E0E]' : 'text-white'} />}
+                {sel && <Check size={touch ? 14 : 11} strokeWidth={2.5} className={['#FFFFFF','#E3C9B3','#E8C7C8','#F4EFE6','#9AA0A6','#B7B7B7'].includes(c.hex) ? 'text-[#0E0E0E]' : 'text-white'} />}
               </button>
             );
           })}
@@ -127,6 +128,17 @@ export default function FilterPanel({ catList, f, touch = false }) {
           {FITS.map((t) => {
             const sel = list('fit').includes(t);
             return <button key={t} type="button" aria-pressed={sel} onClick={() => toggleMany('fit', t)} className={`${chip} ${pad} ${sel ? on : off}`}>{t}</button>;
+          })}
+        </div>
+      </div>
+
+      {/* Fabric technology */}
+      <div>
+        <SectionLabel>Fabric technology</SectionLabel>
+        <div className="flex flex-wrap gap-2">
+          {BADGES.map((b) => {
+            const sel = list('badge').includes(b);
+            return <button key={b} type="button" aria-pressed={sel} onClick={() => toggleMany('badge', b)} className={`${chip} ${pad} ${sel ? on : off}`}>{b}</button>;
           })}
         </div>
       </div>
