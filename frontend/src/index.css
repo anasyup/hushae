@@ -2,6 +2,54 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ===== ADMIN GLOBAL SCALE: Reduce ALL rem-based Tailwind sizes ===== */
+.admin-shell {
+  /* Trick: scale down ALL rem values by making the local font-size smaller.
+     But since rem uses <html>, we need to override specific Tailwind classes.
+     Shopify does: html { font-size: 62.5% } → 10px base */
+}
+.admin-shell .text-2xl { font-size: 1.15rem !important; }
+.admin-shell .text-xl { font-size: 1rem !important; }
+.admin-shell .text-lg { font-size: 0.9rem !important; }
+.admin-shell .text-base { font-size: 0.8rem !important; }
+.admin-shell .text-sm { font-size: 0.75rem !important; }
+.admin-shell .text-xs { font-size: 0.65rem !important; }
+.admin-shell .font-sans.text-2xl,
+.admin-shell .font-sans.text-xl,
+.admin-shell h1 { font-size: 1rem !important; }
+.admin-shell .rounded-2xl { border-radius: 8px !important; }
+.admin-shell .rounded-xl { border-radius: 6px !important; }
+.admin-shell .rounded-lg { border-radius: 5px !important; }
+.admin-shell .p-6 { padding: 12px !important; }
+.admin-shell .p-5 { padding: 10px !important; }
+.admin-shell .p-4 { padding: 8px !important; }
+.admin-shell .p-3 { padding: 6px !important; }
+.admin-shell .gap-6 { gap: 12px !important; }
+.admin-shell .gap-4 { gap: 8px !important; }
+.admin-shell .gap-3 { gap: 6px !important; }
+.admin-shell .space-y-6 > * + * { margin-top: 12px !important; }
+.admin-shell .space-y-5 > * + * { margin-top: 10px !important; }
+.admin-shell .space-y-4 > * + * { margin-top: 8px !important; }
+.admin-shell .space-y-3 > * + * { margin-top: 6px !important; }
+.admin-shell .mb-6 { margin-bottom: 12px !important; }
+.admin-shell .mb-5 { margin-bottom: 10px !important; }
+.admin-shell .mb-4 { margin-bottom: 8px !important; }
+.admin-shell .mb-3 { margin-bottom: 6px !important; }
+.admin-shell .mt-6 { margin-top: 12px !important; }
+.admin-shell .mt-4 { margin-top: 8px !important; }
+.admin-shell .px-6 { padding-left: 12px !important; padding-right: 12px !important; }
+.admin-shell .px-5 { padding-left: 10px !important; padding-right: 10px !important; }
+.admin-shell .py-4 { padding-top: 8px !important; padding-bottom: 8px !important; }
+.admin-shell .py-3 { padding-top: 6px !important; padding-bottom: 6px !important; }
+.admin-shell .h-12 { height: 32px !important; }
+.admin-shell .w-12 { width: 32px !important; }
+.admin-shell .h-10 { height: 28px !important; }
+.admin-shell .w-10 { width: 28px !important; }
+.admin-shell .h-9 { height: 24px !important; }
+.admin-shell .w-9 { width: 24px !important; }
+.admin-shell .h-8 { height: 22px !important; }
+.admin-shell .w-8 { width: 22px !important; }
+
 /* ============================================================================
  * HUSHAE design system — Silk Eclipse
  *
