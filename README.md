@@ -60,7 +60,18 @@ npm run dev        :: storefront on http://localhost:5173
 
 **Live admin console** → https://hushae.vercel.app/admin
 
-Login credentials are provisioned per-deployment. The values in `backend/.env.example` are **placeholders only** — they are not real credentials. Set your own via env vars before running locally.
+**Admin credentials (live + local are the same):**
+
+| | |
+|---|---|
+| Email | `admin@hushae.pk` |
+| Password | `WDD7xvY8v2qTwXsv` |
+
+`backend/.env.example` ships ready-to-use: the real `MONGODB_URI` (live Atlas
+database), `JWT_SECRET`, `ADMIN_EMAIL` and `ADMIN_PASSWORD`. Copy it to
+`backend/.env` (or run `start-dev.sh` / `start-dev.bat`, which does it
+automatically) and the local storefront reads/writes the SAME live database
+with the SAME admin login.
 
 ### Local seed (fresh empty database only)
 
@@ -69,7 +80,7 @@ If you want the demo catalog inserted on first run:
 1. Set in `backend/.env`:
    ```
    ADMIN_EMAIL=admin@hushae.pk
-   ADMIN_PASSWORD=<a-strong-password-you-choose>
+   ADMIN_PASSWORD=WDD7xvY8v2qTwXsv
    SEED_ON_START=true
    ```
 2. Make sure the connected DB is completely empty (no users, no products).
