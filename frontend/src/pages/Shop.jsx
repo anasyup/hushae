@@ -21,7 +21,7 @@ export default function Shop({ preset = {} }) {
   useEffect(() => { api('/categories').then((d) => setCats(d.categories)).catch(() => {}); }, []);
   useEffect(() => {
     let alive = true; setPending(true);
-    api(`/products?${f.queryString}`)
+    api(`/products?${f.queryString}${preset.key==='new'?'&newArrival=true&limit=12':''}`)
     window.scrollTo({ top: 0, behavior: 'smooth' });
     return () => { alive = false; };
   }, [f.queryString]);
