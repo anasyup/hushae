@@ -173,8 +173,8 @@ function SidebarContent({ onNavigate }) {
     <div className="flex h-full flex-col bg-[#ebebeb]">
       <div className="px-4 pb-3 pt-5">
         <NavLink to="/admin" onClick={onNavigate} className="block w-fit rounded-lg transition hover:opacity-70">
-          <p className="font-sans text-[17px] font-bold tracking-widest text-neutral-900">HUSHAE</p>
-          <p className="mt-0.5 text-[10px] font-medium uppercase tracking-widest text-neutral-400">Admin console</p>
+          <p className="font-sans text-[15px] font-bold tracking-widest text-neutral-900">HUSHAE</p>
+          <p className="mt-0.5 text-[9px] font-medium uppercase tracking-widest text-neutral-400">Admin console</p>
         </NavLink>
       </div>
       {role && role !== 'admin' && role !== 'Owner' && (
@@ -286,7 +286,7 @@ function TopBar({ title, auth, onCmdK }) {
   return (
     <header className="sticky top-0 z-20 hidden border-b border-neutral-200 bg-white/85 px-8 py-3 backdrop-blur md:block">
       <div className="flex items-center justify-between gap-6">
-        <div className="min-w-0 flex-1"><h1 className="truncate font-sans text-[22px] font-semibold leading-tight text-neutral-900">{title || crumbs[crumbs.length - 1]?.label}</h1><nav className="mt-0.5 flex items-center gap-1.5 text-[11px] text-neutral-500">{crumbs.map((c, i) => <span key={c.to} className="inline-flex items-center gap-1.5">{i > 0 && <span className="text-neutral-300">/</span>}{i === crumbs.length - 1 ? <span className="font-medium text-neutral-700">{c.label}</span> : <Link to={c.to} className="hover:text-neutral-900">{c.label}</Link>}</span>)}</nav></div>
+        <div className="min-w-0 flex-1"><h1 className="truncate font-sans text-[19px] font-semibold leading-tight text-neutral-900">{title || crumbs[crumbs.length - 1]?.label}</h1><nav className="mt-0.5 flex items-center gap-1.5 text-[10px] text-neutral-500">{crumbs.map((c, i) => <span key={c.to} className="inline-flex items-center gap-1.5">{i > 0 && <span className="text-neutral-300">/</span>}{i === crumbs.length - 1 ? <span className="font-medium text-neutral-700">{c.label}</span> : <Link to={c.to} className="hover:text-neutral-900">{c.label}</Link>}</span>)}</nav></div>
         <div className="flex items-center gap-2">
           {/* ⌘K Search button */}
           <button onClick={onCmdK} className="hidden items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-[10px] font-semibold text-neutral-500 transition hover:border-neutral-400 hover:text-neutral-700 md:inline-flex" title="Search admin (⌘K)"><Command size={10} /> Search</button>
