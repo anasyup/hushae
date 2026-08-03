@@ -21,7 +21,7 @@ export default function Shop({ preset = {} }) {
   useEffect(() => { api('/categories').then((d) => setCats(d.categories)).catch(() => {}); }, []);
   useEffect(() => {
     let alive = true; setPending(true);
-    api(`/products?${f.queryString}`).then((d) => { if (alive) setProducts(d.products); }).catch(() => { if (alive) setProducts([]); }).finally(() => { if (alive) setPending(false); });
+    api(`/products?${f.queryString}&limit=50`).then((d) => { if (alive) setProducts(d.products); }).catch(() => { if (alive) setProducts([]); }).finally(() => { if (alive) setPending(false); });
     window.scrollTo({ top: 0, behavior: 'smooth' });
     return () => { alive = false; };
   }, [f.queryString]);
