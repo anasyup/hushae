@@ -1,112 +1,226 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowLeft, ArrowRight, Check, Ruler } from 'lucide-react';
-import { useApp } from '../store/AppContext';
+import { ArrowRight, Ruler, Check } from 'lucide-react';
 
-const SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+/* ============================================================================
+ * Fit Finder v2 — 4 questions, no tape measure.
+ * Persists result to localStorage (hushae.fit).
+ * Shows YOUR FIT marker on every product and product card.
+ * ========================================================================== */
+
+const QUESTIONS = [
+  {
+    id: 'gender', label: 'Who are you shopping for?',
+    options: [
+      { value: 'women', label: 'Women', desc: 'Bras, panties, shapewear & more' },
+      { value: 'men', label: 'Men', desc: 'Briefs, boxers, trunks & vests' },
+    ],
+  },
+  {
+    id: 'height', label: 'What is your height?',
+    hint: 'Nearest approximation is fine.',
+    options: [
+      { value: 'short', label: "Under 5'4\" (162cm)" },
+      { value: 'average', label: "5'4\" – 5'8\" (162–172cm)" },
+      { value: 'tall', label: "Above 5'8\" (172cm)" },
+    ],
+  },
+  {
+    id: 'build', label: 'How would you describe your build?',
+    options: [
+      { value: 'slim', label: 'Slim / Lean' },
+      { value: 'average', label: 'Average / Athletic' },
+      { value: 'broad', label: 'Broad / Curvy' },
+    ],
+  },
+  {
+    id: 'preference', label: 'How do you prefer your innerwear to fit?',
+    options: [
+      { value: 'snug', label: 'Snug — close to the body', desc: 'Second-skin feel' },
+      { value: 'regular', label: 'Regular — comfortable', desc: 'Room to move' },
+      { value: 'relaxed', label: 'Relaxed — a bit looser', desc: 'Easy, casual fit' },
+    ],
+  },
+];
+
+const SIZE_MAP = {
+  women: {
+    'short-slim-snug': { size: 'XS', us: 2, uk: 6, eu: 32 },
+    'short-slim-regular': { size: 'S', us: 4, uk: 8, eu: 34 },
+    'short-slim-relaxed': { size: 'S', us: 4, uk: 8, eu: 34 },
+    'short-average-snug': { size: 'S', us: 4, uk: 8, eu: 34 },
+    'short-average-regular': { size: 'M', us: 6, uk: 10, eu: 36 },
+    'short-average-relaxed': { size: 'M', us: 6, uk: 10, eu: 36 },
+    'short-broad-snug': { size: 'M', us: 6, uk: 10, eu: 36 },
+    'short-broad-regular': { size: 'L', us: 8, uk: 12, eu: 38 },
+    'short-broad-relaxed': { size: 'L', us: 8, uk: 12, eu: 38 },
+    'average-slim-snug': { size: 'S', us: 4, uk: 8, eu: 34 },
+    'average-slim-regular': { size: 'M', us: 6, uk: 10, eu: 36 },
+    'average-slim-relaxed': { size: 'M', us: 6, uk: 10, eu: 36 },
+    'average-average-snug': { size: 'M', us: 6, uk: 10, eu: 36 },
+    'average-average-regular': { size: 'L', us: 8, uk: 12, eu: 38 },
+    'average-average-relaxed': { size: 'L', us: 8, uk: 12, eu: 38 },
+    'average-broad-snug': { size: 'L', us: 8, uk: 12, eu: 38 },
+    'average-broad-regular': { size: 'XL', us: 10, uk: 14, eu: 40 },
+    'average-broad-relaxed': { size: 'XL', us: 10, uk: 14, eu: 40 },
+    'tall-slim-snug': { size: 'S', us: 4, uk: 8, eu: 34 },
+    'tall-slim-regular': { size: 'M', us: 6, uk: 10, eu: 36 },
+    'tall-slim-relaxed': { size: 'M', us: 6, uk: 10, eu: 36 },
+    'tall-average-snug': { size: 'M', us: 6, uk: 10, eu: 36 },
+    'tall-average-regular': { size: 'L', us: 8, uk: 12, eu: 38 },
+    'tall-average-relaxed': { size: 'XL', us: 10, uk: 14, eu: 40 },
+    'tall-broad-snug': { size: 'L', us: 8, uk: 12, eu: 38 },
+    'tall-broad-regular': { size: 'XL', us: 10, uk: 14, eu: 40 },
+    'tall-broad-relaxed': { size: 'XXL', us: 12, uk: 16, eu: 42 },
+  },
+  men: {
+    'short-slim-snug': { size: 'S', us: 'S', uk: 'S', eu: 'S' },
+    'short-slim-regular': { size: 'M', us: 'M', uk: 'M', eu: 'M' },
+    'short-slim-relaxed': { size: 'M', us: 'M', uk: 'M', eu: 'M' },
+    'short-average-snug': { size: 'M', us: 'M', uk: 'M', eu: 'M' },
+    'short-average-regular': { size: 'L', us: 'L', uk: 'L', eu: 'L' },
+    'short-average-relaxed': { size: 'L', us: 'L', uk: 'L', eu: 'L' },
+    'short-broad-snug': { size: 'L', us: 'L', uk: 'L', eu: 'L' },
+    'short-broad-regular': { size: 'XL', us: 'XL', uk: 'XL', eu: 'XL' },
+    'short-broad-relaxed': { size: 'XL', us: 'XL', uk: 'XL', eu: 'XL' },
+    'average-slim-snug': { size: 'M', us: 'M', uk: 'M', eu: 'M' },
+    'average-slim-regular': { size: 'L', us: 'L', uk: 'L', eu: 'L' },
+    'average-slim-relaxed': { size: 'L', us: 'L', uk: 'L', eu: 'L' },
+    'average-average-snug': { size: 'L', us: 'L', uk: 'L', eu: 'L' },
+    'average-average-regular': { size: 'XL', us: 'XL', uk: 'XL', eu: 'XL' },
+    'average-average-relaxed': { size: 'XL', us: 'XL', uk: 'XL', eu: 'XL' },
+    'average-broad-snug': { size: 'XL', us: 'XL', uk: 'XL', eu: 'XL' },
+    'average-broad-regular': { size: 'XXL', us: 'XXL', uk: 'XXL', eu: 'XXL' },
+    'average-broad-relaxed': { size: 'XXL', us: 'XXL', uk: 'XXL', eu: 'XXL' },
+    'tall-slim-snug': { size: 'M', us: 'M', uk: 'M', eu: 'M' },
+    'tall-slim-regular': { size: 'L', us: 'L', uk: 'L', eu: 'L' },
+    'tall-slim-relaxed': { size: 'L', us: 'L', uk: 'L', eu: 'L' },
+    'tall-average-snug': { size: 'L', us: 'L', uk: 'L', eu: 'L' },
+    'tall-average-regular': { size: 'XL', us: 'XL', uk: 'XL', eu: 'XL' },
+    'tall-average-relaxed': { size: 'XXL', us: 'XXL', uk: 'XXL', eu: 'XXL' },
+    'tall-broad-snug': { size: 'XL', us: 'XL', uk: 'XL', eu: 'XL' },
+    'tall-broad-regular': { size: 'XXL', us: 'XXL', uk: 'XXL', eu: 'XXL' },
+    'tall-broad-relaxed': { size: '3XL', us: '3XL', uk: '3XL', eu: '3XL' },
+  },
+};
+
+function loadResult() {
+  try { return JSON.parse(localStorage.getItem('hushae.fit') || 'null'); } catch { return null; }
+}
+function saveResult(r) { localStorage.setItem('hushae.fit', JSON.stringify(r)); }
 
 export default function FitFinder() {
-  const { settings } = useApp();
   const [step, setStep] = useState(0);
-  const [a, setA] = useState({ gender: '', frame: '', usual: '', fit: '', band: '', cup: '' });
-  const set = (k, v) => setA((x) => ({ ...x, [k]: v }));
+  const [answers, setAnswers] = useState({});
+  const [result, setResult] = useState(loadResult);
 
-  const steps = [
-    {
-      key: 'gender', q: 'Who are we fitting?', opts: [['women', 'For her'], ['men', 'For him']],
-    },
-    {
-      key: 'frame', q: 'How would you describe your build?',
-      opts: a.gender === 'women'
-        ? [['petite', 'Petite / slim'], ['regular', 'Regular'], ['curvy', 'Curvy / broad']]
-        : [['slim', 'Slim'], ['regular', 'Regular'], ['broad', 'Broad / athletic']],
-    },
-    { key: 'usual', q: 'Your usual shirt / top size?', opts: SIZES.map((s) => [s, s]) },
-    {
-      key: 'fit', q: 'How do you like your fit?',
-      opts: [['relaxed', 'Relaxed — easy and roomy'], ['regular', 'Regular — just right'], ['snug', 'Snug — supportive and close']],
-    },
-  ];
+  const current = QUESTIONS[step];
+  if (!current) return null;
 
-  const done = step >= steps.length;
+  const pick = (value) => {
+    const next = { ...answers, [current.id]: value };
+    setAnswers(next);
 
-  const recommend = () => {
-    const i = SIZES.indexOf(a.usual);
-    let size = i;
-    if (['petite', 'slim'].includes(a.frame) && a.fit === 'snug') size = Math.max(0, i - 1);
-    if (['curvy', 'broad'].includes(a.frame) && a.fit === 'relaxed') size = Math.min(SIZES.length - 1, i + 1);
-    if (a.fit === 'snug' && i >= 2) size = Math.max(0, size - 0); // keep
-    const letter = SIZES[Math.max(0, Math.min(SIZES.length - 1, size))];
-    const bra = a.band && a.cup ? `${a.band}${a.cup}` : null;
-    return { letter, bra };
+    if (step < QUESTIONS.length - 1) {
+      setStep(step + 1);
+    } else {
+      const key = `${next.height}-${next.build}-${next.preference}`;
+      const genderMap = SIZE_MAP[next.gender] || SIZE_MAP.women;
+      const fit = genderMap[key] || genderMap['average-average-regular'];
+      const full = { ...fit, gender: next.gender, key };
+      setResult(full);
+      saveResult(full);
+    }
   };
-  const r = done ? recommend() : null;
 
-  const canNext = !!a[steps[Math.min(step, steps.length - 1)].key];
+  const previousAnswer = (field) => {
+    if (field === 'gender') return answers[field] || 'women';
+    return answers[field] || null;
+  };
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-14 md:px-8">
-      <div className="text-center">
-        <span className="mx-auto grid h-14 w-14 place-items-center rounded-control border border-line bg-satin text-obsidian"><Ruler size={22} strokeWidth={1.4} /></span>
-        <h1 className="mt-5 font-display text-4xl">Fit Finder</h1>
-        <p className="mx-auto mt-2 max-w-sm text-sm text-ash">Four questions. One true size. {settings?.tagline}</p>
-      </div>
+    <div style={{ fontFamily: "'Archivo', system-ui, sans-serif", background: '#F7F6F4', minHeight: '100vh' }}>
+      <div className="container section">
+        {/* Header */}
+        {step === 0 && !result && (
+          <div className="mb-12 text-center">
+            <Ruler size={28} className="mx-auto mb-4 text-[#0E0E0E]" />
+            <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[#6E6E6B]">HUSHAE Fit Finder</p>
+            <h1 className="mt-3 h1">Find your perfect fit</h1>
+            <p className="mt-3 body-sm text-[#6E6E6B] max-w-md mx-auto">Four questions. No tape measure. We'll calculate your true size across every HUSHAE piece.</p>
+          </div>
+        )}
 
-      {/* Progress */}
-      <div className="mx-auto mt-8 flex max-w-sm items-center gap-2">
-        {steps.map((_, i) => <div key={i} className={`h-1 flex-1 rounded-full transition ${i <= step - 1 || done ? 'bg-sagedeep' : i === step ? 'bg-ash/50' : 'bg-line'}`} />)}
-      </div>
+        {/* Progress */}
+        {!result && (
+          <div className="mb-10 flex items-center gap-2 max-w-md mx-auto">
+            {QUESTIONS.map((_, i) => (
+              <div key={i} className={`h-[2px] flex-1 transition-colors ${i < step ? 'bg-[#0E0E0E]' : i === step ? 'bg-[#0E0E0E]' : 'bg-[#E3E2DF]'}`} />
+            ))}
+            <span className="ml-2 text-[11px] tabular-nums text-[#6E6E6B]">{step + 1}/{QUESTIONS.length}</span>
+          </div>
+        )}
 
-      <div className="mt-10">
-        <AnimatePresence mode="wait">
-          {!done ? (
-            <motion.div key={step} initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -24 }} transition={{ duration: 0.25 }}>
-              <p className="text-center font-display text-2xl">{steps[step].q}</p>
-              <div className="mx-auto mt-8 grid max-w-md gap-3">
-                {steps[step].opts.map(([v, l]) => (
-                  <button key={v} onClick={() => { set(steps[step].key, v); }}
-                    className={`rounded-control min-h-[44px] border px-5 py-4 text-left text-body-sm font-medium transition ${a[steps[step].key] === v ? 'border-obsidian bg-obsidian text-alabaster' : 'border-line hover:border-obsidian/50'}`}>
-                    {l}
-                  </button>
-                ))}
-              </div>
-              {a.gender === 'women' && step === 2 && (
-                <div className="mx-auto mt-8 max-w-md rounded-control bg-satin/50 p-5">
-                  <p className="text-xs font-bold uppercase tracking-widest text-ash">Optional — bra size? (band + cup)</p>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {['32', '34', '36', '38'].map((b) => (
-                      <button key={b} onClick={() => set('band', a.band === b ? '' : b)}
-                        className={`min-w-11 rounded-lg border px-3 py-2 text-sm font-semibold ${a.band === b ? 'border-obsidian bg-obsidian text-alabaster' : 'border-line bg-white/60'}`}>{b}</button>
-                    ))}
-                    {['A', 'B', 'C', 'D'].map((c) => (
-                      <button key={c} onClick={() => set('cup', a.cup === c ? '' : c)}
-                        className={`min-w-11 rounded-lg border px-3 py-2 text-sm font-semibold ${a.cup === c ? 'border-sagedeep bg-sage/25 text-sagedeep' : 'border-line bg-white/60'}`}>{c}</button>
-                    ))}
-                  </div>
+        {/* Question */}
+        {!result && current && (
+          <div className="max-w-md mx-auto">
+            <h2 className="text-[18px] font-medium uppercase tracking-[0.06em] text-[#0E0E0E] mb-1">{current.label}</h2>
+            {current.hint && <p className="text-[13px] text-[#6E6E6B] mb-6">{current.hint}</p>}
+            <div className="space-y-3">
+              {current.options.map((opt) => (
+                <button key={opt.value} onClick={() => pick(opt.value)}
+                  className="w-full border border-[#E3E2DF] bg-white p-4 text-left transition-colors hover:border-[#0E0E0E]">
+                  <span className="text-[15px] font-medium text-[#0E0E0E]">{opt.label}</span>
+                  {opt.desc && <span className="mt-1 block text-[12px] text-[#6E6E6B]">{opt.desc}</span>}
+                </button>
+              ))}
+            </div>
+            {step > 0 && (
+              <button onClick={() => setStep(step - 1)} className="mt-6 text-[12px] font-medium uppercase tracking-[0.10em] text-[#6E6E6B] hover:text-[#0E0E0E]">
+                ← Back
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* Result */}
+        {result && (
+          <div className="max-w-md mx-auto text-center">
+            <div className="mb-8 inline-flex h-20 w-20 items-center justify-center border-2 border-[#0E0E0E]">
+              <span className="text-[28px] font-medium tabular-nums text-[#0E0E0E]">{result.size}</span>
+            </div>
+            <h2 className="h2">Your HUSHAE size is {result.size}</h2>
+
+            {/* Size conversions */}
+            <div className="mt-6 grid grid-cols-3 gap-2 max-w-xs mx-auto">
+              {[
+                { label: 'US', value: result.us },
+                { label: 'UK', value: result.uk },
+                { label: 'EU', value: result.eu },
+              ].map(({ label, value }) => (
+                <div key={label} className="border border-[#E3E2DF] p-3">
+                  <p className="text-[10px] font-medium uppercase tracking-[0.12em] text-[#6E6E6B]">{label}</p>
+                  <p className="mt-1 text-[16px] font-medium tabular-nums text-[#0E0E0E]">{value}</p>
                 </div>
-              )}
-              <div className="mx-auto mt-10 flex max-w-md justify-between">
-                <button onClick={() => setStep(Math.max(0, step - 1))} disabled={step === 0} className="btn-outline !px-5 !py-2.5 !text-[11px] disabled:opacity-0"><ArrowLeft size={14} /> Back</button>
-                <button onClick={() => setStep(step + 1)} disabled={!canNext} className="btn-primary !px-5 !py-2.5 !text-[11px]">{step === steps.length - 1 ? 'See my size' : 'Next'} <ArrowRight size={14} /></button>
-              </div>
-            </motion.div>
-          ) : (
-            <motion.div key="result" initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} className="text-center">
-              <span className="mx-auto grid h-14 w-14 place-items-center rounded-control bg-sage/25 text-sagedeep"><Check size={26} strokeWidth={2} /></span>
-              <p className="mt-5 text-[11px] font-bold uppercase tracking-widest text-ash">Your recommended size</p>
-              <p className="mt-2 font-display text-6xl">{r.letter}</p>
-              {r.bra && <p className="mt-2 text-sm text-ash">For bras, start from <b className="text-obsidian">{r.bra}</b> — sister sizes may also work.</p>}
-              <p className="mx-auto mt-4 max-w-sm text-sm leading-relaxed text-ash">
-                Based on your build and how you like things to feel. Between sizes? Size down for {a.fit === 'snug' ? 'a cleaner line' : 'support'}, up for ease.
-              </p>
-              <div className="mt-8 flex justify-center gap-3">
-                <Link to={`/${a.gender}`} className="btn-primary">Shop for {a.gender === 'women' ? 'her' : 'him'}</Link>
-                <button onClick={() => { setStep(0); setA({ gender: '', frame: '', usual: '', fit: '', band: '', cup: '' }); }} className="btn-outline">Start over</button>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+              ))}
+            </div>
+
+            <p className="mt-6 text-[13px] text-[#6E6E6B] max-w-sm mx-auto">
+              This size is saved and will appear on every product page. You can retake anytime.
+            </p>
+
+            <div className="mt-8 flex flex-col gap-3 max-w-xs mx-auto">
+              <Link to={result.gender === 'women' ? '/women' : '/men'}
+                className="min-h-[44px] bg-[#0E0E0E] text-[12px] font-medium uppercase tracking-[0.10em] text-white flex items-center justify-center transition-opacity hover:opacity-80">
+                Shop {result.gender === 'women' ? "Women's" : "Men's"} <ArrowRight size={12} className="ml-1" />
+              </Link>
+              <button onClick={() => { setStep(0); setAnswers({}); setResult(null); }}
+                className="min-h-[44px] border border-[#E3E2DF] text-[12px] font-medium uppercase tracking-[0.10em] text-[#6E6E6B] hover:text-[#0E0E0E]">
+                Retake Fit Finder
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
