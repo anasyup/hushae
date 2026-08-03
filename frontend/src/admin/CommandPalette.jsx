@@ -86,12 +86,12 @@ export default function CommandPalette({ onClose }) {
           <Search size={17} className="shrink-0 text-neutral-400" />
           <input ref={inputRef} value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={onKey}
             placeholder="Search admin… (type a page name or command)"
-            className="w-full bg-transparent text-[12px] text-neutral-900 outline-none placeholder:text-neutral-400" />
+            className="w-full bg-transparent text-[9px] text-neutral-900 outline-none placeholder:text-neutral-400" />
           <kbd className="hidden items-center gap-0.5 rounded-md border border-neutral-300 bg-neutral-100 px-2 py-1 text-[10px] font-semibold text-neutral-500 sm:flex"><Command size={10} />K</kbd>
         </div>
         <div className="max-h-[360px] overflow-y-auto p-2">
           {results.length === 0 ? (
-            <p className="p-8 text-center text-[13px] text-neutral-500">No results for "{q}"</p>
+            <p className="p-8 text-center text-[10px] text-neutral-500">No results for "{q}"</p>
           ) : (
             [...grouped.entries()].map(([cat, items]) => (
               <div key={cat} className="mb-1">
@@ -103,8 +103,8 @@ export default function CommandPalette({ onClose }) {
                     <button key={item.id} onClick={() => run(item)} onMouseEnter={() => setIdx(flatItems.indexOf(item))}
                       className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition ${active ? 'bg-neutral-100' : 'hover:bg-neutral-50'}`}>
                       <Icon size={16} strokeWidth={1.8} className={active ? 'text-neutral-900' : 'text-neutral-500'} />
-                      <span className="flex-1 text-[14px] font-medium text-neutral-900">{item.label}</span>
-                      <span className="text-[11px] text-neutral-400">{item.to}</span>
+                      <span className="flex-1 text-[9px] font-medium text-neutral-900">{item.label}</span>
+                      <span className="text-[9px] text-neutral-400">{item.to}</span>
                     </button>
                   );
                 })}

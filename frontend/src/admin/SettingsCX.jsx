@@ -18,8 +18,8 @@ function Section({ title, description, children }) {
   return (
     <section className="rounded-2xl border border-neutral-200 bg-white p-6">
       <div className="mb-5">
-        <p className="text-[11px] font-bold uppercase tracking-widest text-neutral-500">{title}</p>
-        {description && <p className="mt-1 text-[12px] leading-relaxed text-neutral-500">{description}</p>}
+        <p className="text-[9px] font-bold uppercase tracking-widest text-neutral-500">{title}</p>
+        {description && <p className="mt-1 text-[9px] leading-relaxed text-neutral-500">{description}</p>}
       </div>
       {children}
     </section>
@@ -30,8 +30,8 @@ function Toggle({ label, description, checked, onChange, disabled }) {
   return (
     <label className={`flex items-start justify-between gap-4 rounded-xl border border-neutral-200 bg-white px-4 py-3 transition ${disabled ? 'opacity-55' : 'cursor-pointer hover:border-neutral-300'}`}>
       <div className="min-w-0">
-        <p className="text-[13px] font-medium text-neutral-900">{label}</p>
-        {description && <p className="mt-0.5 text-[11px] leading-relaxed text-neutral-500">{description}</p>}
+        <p className="text-[10px] font-medium text-neutral-900">{label}</p>
+        {description && <p className="mt-0.5 text-[9px] leading-relaxed text-neutral-500">{description}</p>}
       </div>
       <button
         type="button" role="switch" aria-checked={!!checked} aria-label={label} disabled={disabled}
@@ -48,8 +48,8 @@ function Num({ label, hint, value, onChange, ...rest }) {
   return (
     <div>
       <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">{label}</label>
-      <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" type="number" value={value ?? 0} onChange={(e) => onChange(Number(e.target.value))} {...rest} />
-      {hint && <p className="mt-1.5 text-[11px] text-neutral-500">{hint}</p>}
+      <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900" type="number" value={value ?? 0} onChange={(e) => onChange(Number(e.target.value))} {...rest} />
+      {hint && <p className="mt-1.5 text-[9px] text-neutral-500">{hint}</p>}
     </div>
   );
 }
@@ -58,8 +58,8 @@ function Text({ label, hint, value, onChange, ...rest }) {
   return (
     <div>
       <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">{label}</label>
-      <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={value ?? ''} onChange={(e) => onChange(e.target.value)} {...rest} />
-      {hint && <p className="mt-1.5 text-[11px] text-neutral-500">{hint}</p>}
+      <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900" value={value ?? ''} onChange={(e) => onChange(e.target.value)} {...rest} />
+      {hint && <p className="mt-1.5 text-[9px] text-neutral-500">{hint}</p>}
     </div>
   );
 }
@@ -103,7 +103,7 @@ export default function SettingsCX() {
 
   return (
     <AdminLayout title="Customer Experience">
-      <Link to="/admin/settings" className="mb-4 inline-flex items-center gap-1.5 text-[12px] font-semibold text-neutral-500 transition hover:text-neutral-900">
+      <Link to="/admin/settings" className="mb-4 inline-flex items-center gap-1.5 text-[9px] font-semibold text-neutral-500 transition hover:text-neutral-900">
         <ArrowLeft size={13} /> Settings
       </Link>
 
@@ -113,7 +113,7 @@ export default function SettingsCX() {
         </span>
         <div>
           <h2 className="font-sans text-2xl leading-tight text-neutral-900">Customer Experience</h2>
-          <p className="mt-1 text-[13px] leading-relaxed text-neutral-500">
+          <p className="mt-1 text-[10px] leading-relaxed text-neutral-500">
             Wishlist, recently viewed and product comparison — the three tools shoppers use to decide.
           </p>
         </div>
@@ -168,10 +168,10 @@ export default function SettingsCX() {
 
       {dirty && (
         <div className="sticky bottom-4 z-30 mt-6 flex items-center justify-between gap-4 rounded-2xl border border-neutral-900 bg-neutral-900 px-4 py-3 text-white shadow-xl">
-          <p className="text-[13px] font-medium">Unsaved changes</p>
+          <p className="text-[10px] font-medium">Unsaved changes</p>
           <div className="flex items-center gap-2">
-            <button onClick={() => setS(JSON.parse(original))} className="rounded-lg border border-white/20 px-3 py-1.5 text-[12px] font-semibold text-white/80 transition hover:bg-white/10">Discard</button>
-            <button onClick={save} disabled={busy} className="inline-flex items-center gap-1.5 rounded-lg bg-white px-4 py-1.5 text-[12px] font-semibold text-neutral-900 transition hover:bg-neutral-100 disabled:opacity-50">
+            <button onClick={() => setS(JSON.parse(original))} className="rounded-lg border border-white/20 px-3 py-1.5 text-[9px] font-semibold text-white/80 transition hover:bg-white/10">Discard</button>
+            <button onClick={save} disabled={busy} className="inline-flex items-center gap-1.5 rounded-lg bg-white px-4 py-1.5 text-[9px] font-semibold text-neutral-900 transition hover:bg-neutral-100 disabled:opacity-50">
               <Save size={13} /> {busy ? 'Saving…' : 'Save'}
             </button>
           </div>

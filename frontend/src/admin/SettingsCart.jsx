@@ -23,8 +23,8 @@ function Section({ title, description, children }) {
   return (
     <section className="rounded-2xl border border-neutral-200 bg-white p-6">
       <div className="mb-5">
-        <p className="text-[11px] font-bold uppercase tracking-widest text-neutral-500">{title}</p>
-        {description && <p className="mt-1 text-[12px] leading-relaxed text-neutral-500">{description}</p>}
+        <p className="text-[9px] font-bold uppercase tracking-widest text-neutral-500">{title}</p>
+        {description && <p className="mt-1 text-[9px] leading-relaxed text-neutral-500">{description}</p>}
       </div>
       {children}
     </section>
@@ -35,8 +35,8 @@ function Toggle({ label, description, checked, onChange }) {
   return (
     <label className="flex cursor-pointer items-start justify-between gap-4 rounded-xl border border-neutral-200 bg-white px-4 py-3 transition hover:border-neutral-300">
       <div className="min-w-0">
-        <p className="text-[13px] font-medium text-neutral-900">{label}</p>
-        {description && <p className="mt-0.5 text-[11px] text-neutral-500">{description}</p>}
+        <p className="text-[10px] font-medium text-neutral-900">{label}</p>
+        {description && <p className="mt-0.5 text-[9px] text-neutral-500">{description}</p>}
       </div>
       <button
         type="button"
@@ -56,8 +56,8 @@ function Text({ label, hint, value, onChange, ...rest }) {
   return (
     <div>
       <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">{label}</label>
-      <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={value ?? ''} onChange={(e) => onChange(e.target.value)} {...rest} />
-      {hint && <p className="mt-1.5 text-[11px] text-neutral-500">{hint}</p>}
+      <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900" value={value ?? ''} onChange={(e) => onChange(e.target.value)} {...rest} />
+      {hint && <p className="mt-1.5 text-[9px] text-neutral-500">{hint}</p>}
     </div>
   );
 }
@@ -66,8 +66,8 @@ function Num({ label, hint, value, onChange, ...rest }) {
   return (
     <div>
       <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">{label}</label>
-      <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" type="number" value={value ?? 0} onChange={(e) => onChange(Number(e.target.value))} {...rest} />
-      {hint && <p className="mt-1.5 text-[11px] text-neutral-500">{hint}</p>}
+      <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900" type="number" value={value ?? 0} onChange={(e) => onChange(Number(e.target.value))} {...rest} />
+      {hint && <p className="mt-1.5 text-[9px] text-neutral-500">{hint}</p>}
     </div>
   );
 }
@@ -118,7 +118,7 @@ export default function SettingsCart() {
 
   return (
     <AdminLayout title="Shopping Bag">
-      <Link to="/admin/settings" className="mb-4 inline-flex items-center gap-1.5 text-[12px] font-semibold text-neutral-500 transition hover:text-neutral-900">
+      <Link to="/admin/settings" className="mb-4 inline-flex items-center gap-1.5 text-[9px] font-semibold text-neutral-500 transition hover:text-neutral-900">
         <ArrowLeft size={13} /> Settings
       </Link>
 
@@ -128,7 +128,7 @@ export default function SettingsCart() {
         </span>
         <div>
           <h2 className="font-sans text-2xl leading-tight text-neutral-900">Shopping Bag</h2>
-          <p className="mt-1 text-[13px] leading-relaxed text-neutral-500">
+          <p className="mt-1 text-[10px] leading-relaxed text-neutral-500">
             Every word, badge and rule on the cart page and the slide-out bag. Changes go live the moment you save — no developer needed.
           </p>
         </div>
@@ -151,7 +151,7 @@ export default function SettingsCart() {
             <Text label="Heading" value={c.emptyTitle} onChange={(v) => set('emptyTitle', v)} />
             <div>
               <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Message</label>
-              <textarea className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 min-h-[80px]" value={c.emptyText} onChange={(e) => set('emptyText', e.target.value)} />
+              <textarea className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[9px] outline-none transition focus:border-neutral-900 min-h-[80px]" value={c.emptyText} onChange={(e) => set('emptyText', e.target.value)} />
             </div>
           </div>
         </Section>
@@ -197,7 +197,7 @@ export default function SettingsCart() {
             <Text label="Recommendations heading" value={c.recommendTitle} onChange={(v) => set('recommendTitle', v)} />
             <div>
               <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">How to pick recommendations</label>
-              <select className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={c.recommendStrategy} onChange={(e) => set('recommendStrategy', e.target.value)}>
+              <select className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900" value={c.recommendStrategy} onChange={(e) => set('recommendStrategy', e.target.value)}>
                 <option value="auto">Smart — pairs with what is in the bag</option>
                 <option value="category">Same category</option>
                 <option value="recent">Recently viewed</option>
@@ -221,10 +221,10 @@ export default function SettingsCart() {
           <div className="mt-4 space-y-2">
             {(c.trust || []).map((t, i) => (
               <div key={i} className="flex items-center gap-2">
-                <select className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 w-40 shrink-0" value={t.icon} onChange={(e) => setTrust(i, 'icon', e.target.value)} aria-label={`Icon for badge ${i + 1}`}>
+                <select className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[9px] outline-none transition focus:border-neutral-900 w-40 shrink-0" value={t.icon} onChange={(e) => setTrust(i, 'icon', e.target.value)} aria-label={`Icon for badge ${i + 1}`}>
                   {TRUST_ICON_NAMES.map((n) => <option key={n} value={n}>{n}</option>)}
                 </select>
-                <input className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 flex-1" value={t.label} placeholder="e.g. Secure checkout" onChange={(e) => setTrust(i, 'label', e.target.value)} aria-label={`Text for badge ${i + 1}`} />
+                <input className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[9px] outline-none transition focus:border-neutral-900 flex-1" value={t.label} placeholder="e.g. Secure checkout" onChange={(e) => setTrust(i, 'label', e.target.value)} aria-label={`Text for badge ${i + 1}`} />
                 <button
                   type="button"
                   onClick={() => set('trust', c.trust.filter((_, j) => j !== i))}
@@ -238,7 +238,7 @@ export default function SettingsCart() {
             <button
               type="button"
               onClick={() => set('trust', [...(c.trust || []), { icon: 'ShieldCheck', label: '' }])}
-              className="w-full rounded-lg border border-dashed border-neutral-300 py-2 text-[11.5px] font-semibold text-neutral-600 transition hover:border-neutral-400 hover:text-neutral-900"
+              className="w-full rounded-lg border border-dashed border-neutral-300 py-2 text-[10px] font-semibold text-neutral-600 transition hover:border-neutral-400 hover:text-neutral-900"
             >
               + Add a badge
             </button>
@@ -256,10 +256,10 @@ export default function SettingsCart() {
 
       {dirty && (
         <div className="sticky bottom-4 z-30 mt-6 flex items-center justify-between gap-4 rounded-2xl border border-neutral-900 bg-neutral-900 px-4 py-3 text-white shadow-xl">
-          <p className="text-[13px] font-medium">Unsaved changes</p>
+          <p className="text-[10px] font-medium">Unsaved changes</p>
           <div className="flex items-center gap-2">
-            <button onClick={() => setS(JSON.parse(original))} className="rounded-lg border border-white/20 px-3 py-1.5 text-[12px] font-semibold text-white/80 transition hover:bg-white/10">Discard</button>
-            <button onClick={save} disabled={busy} className="inline-flex items-center gap-1.5 rounded-lg bg-white px-4 py-1.5 text-[12px] font-semibold text-neutral-900 transition hover:bg-neutral-100 disabled:opacity-50">
+            <button onClick={() => setS(JSON.parse(original))} className="rounded-lg border border-white/20 px-3 py-1.5 text-[9px] font-semibold text-white/80 transition hover:bg-white/10">Discard</button>
+            <button onClick={save} disabled={busy} className="inline-flex items-center gap-1.5 rounded-lg bg-white px-4 py-1.5 text-[9px] font-semibold text-neutral-900 transition hover:bg-neutral-100 disabled:opacity-50">
               <Save size={13} /> {busy ? 'Saving…' : 'Save'}
             </button>
           </div>

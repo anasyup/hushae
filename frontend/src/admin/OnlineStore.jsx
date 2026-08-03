@@ -39,10 +39,10 @@ export default function OnlineStore() {
   };
 
   const statusPill = live === null
-    ? <span className="flex items-center gap-1.5 rounded-full bg-neutral-100 px-3 py-1 text-[11px] font-semibold text-neutral-500">Checking…</span>
+    ? <span className="flex items-center gap-1.5 rounded-full bg-neutral-100 px-3 py-1 text-[9px] font-semibold text-neutral-500">Checking…</span>
     : live
-      ? <span className="flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-semibold text-emerald-700"><span className="h-1.5 w-1.5 rounded-full bg-emerald-600" /> Store Live</span>
-      : <span className="flex items-center gap-1.5 rounded-full bg-red-100 px-3 py-1 text-[11px] font-semibold text-red-800"><span className="h-1.5 w-1.5 rounded-full bg-red-600" /> Offline</span>;
+      ? <span className="flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-[9px] font-semibold text-emerald-700"><span className="h-1.5 w-1.5 rounded-full bg-emerald-600" /> Store Live</span>
+      : <span className="flex items-center gap-1.5 rounded-full bg-red-100 px-3 py-1 text-[9px] font-semibold text-red-800"><span className="h-1.5 w-1.5 rounded-full bg-red-600" /> Offline</span>;
 
   const ACTIONS = [
     ['Edit Theme', 'Sections, images, text, colours', Palette, '/admin/theme'],
@@ -56,10 +56,10 @@ export default function OnlineStore() {
   return (
     <AdminLayout title="Online Store">
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-3">{statusPill}{lock.enabled && <span className="flex items-center gap-1.5 rounded-full bg-[#f6dfc4] px-3 py-1 text-[11px] font-semibold text-[#9a5b13]"><Lock size={11} /> Password protected</span>}</div>
+        <div className="flex items-center gap-3">{statusPill}{lock.enabled && <span className="flex items-center gap-1.5 rounded-full bg-[#f6dfc4] px-3 py-1 text-[9px] font-semibold text-[#9a5b13]"><Lock size={11} /> Password protected</span>}</div>
         <div className="flex gap-2">
-          <button onClick={copyUrl} className="inline-flex items-center gap-1.5 rounded-full border border-neutral-300 bg-white px-4 py-2 text-[11px] font-semibold text-neutral-700 hover:bg-neutral-50 !py-2"><Copy size={13} /> {copied ? 'Copied!' : 'Copy link'}</button>
-          <a href="/" target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-4 py-2 text-[11px] font-semibold text-white hover:bg-black !py-2"><ExternalLink size={13} /> View store</a>
+          <button onClick={copyUrl} className="inline-flex items-center gap-1.5 rounded-full border border-neutral-300 bg-white px-4 py-2 text-[9px] font-semibold text-neutral-700 hover:bg-neutral-50 !py-2"><Copy size={13} /> {copied ? 'Copied!' : 'Copy link'}</button>
+          <a href="/" target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-4 py-2 text-[9px] font-semibold text-white hover:bg-black !py-2"><ExternalLink size={13} /> View store</a>
         </div>
       </div>
 
@@ -69,7 +69,7 @@ export default function OnlineStore() {
           <span className="flex gap-1.5">
             <span className="h-2.5 w-2.5 rounded-full bg-[#e26d6d]" /><span className="h-2.5 w-2.5 rounded-full bg-[#e5b45c]" /><span className="h-2.5 w-2.5 rounded-full bg-[#7fbf7f]" />
           </span>
-          <span className="mx-auto flex w-full max-w-md items-center justify-center gap-1.5 rounded-full bg-white px-3 py-1 text-[11px] text-neutral-500"><Globe size={11} /> {storeUrl.replace(/^https?:\/\//, '')}</span>
+          <span className="mx-auto flex w-full max-w-md items-center justify-center gap-1.5 rounded-full bg-white px-3 py-1 text-[9px] text-neutral-500"><Globe size={11} /> {storeUrl.replace(/^https?:\/\//, '')}</span>
           <span className="w-10" />
         </div>
         <div className="relative flex items-end justify-center gap-6 bg-[#ecebe8] px-6 pt-6">
@@ -93,11 +93,11 @@ export default function OnlineStore() {
                 <p className="text-xs text-neutral-500">Current theme · v1.0 · Active</p>
               </div>
             </div>
-            <span className="rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-semibold text-emerald-700">Live</span>
+            <span className="rounded-full bg-emerald-50 px-3 py-1 text-[9px] font-semibold text-emerald-700">Live</span>
           </div>
           <div className="mt-5 flex flex-wrap gap-2">
-            <Link to="/admin/theme" className="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-4 py-2 text-[11px] font-semibold text-white hover:bg-black"><Pencil size={14} /> Edit theme</Link>
-            <a href="/" target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-full border border-neutral-300 bg-white px-4 py-2 text-[11px] font-semibold text-neutral-700 hover:bg-neutral-50"><ExternalLink size={13} /> View store</a>
+            <Link to="/admin/theme" className="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-4 py-2 text-[9px] font-semibold text-white hover:bg-black"><Pencil size={14} /> Edit theme</Link>
+            <a href="/" target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-full border border-neutral-300 bg-white px-4 py-2 text-[9px] font-semibold text-neutral-700 hover:bg-neutral-50"><ExternalLink size={13} /> View store</a>
           </div>
         </div>
 
@@ -117,13 +117,13 @@ export default function OnlineStore() {
             </label>
           </div>
           <div className={`mt-4 grid gap-3 sm:grid-cols-2 ${lock.enabled ? '' : 'pointer-events-none opacity-40'}`}>
-            <div className="sm:col-span-2"><label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Password</label><input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={lock.password} onChange={(e) => setLock('password', e.target.value)} placeholder="e.g. hushae-2026" /></div>
-            <div><label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Heading (lock screen)</label><input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={lock.heading || ''} onChange={(e) => setLock('heading', e.target.value)} placeholder="HUSHAE is opening soon" /></div>
-            <div><label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Message</label><input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={lock.message || ''} onChange={(e) => setLock('message', e.target.value)} /></div>
+            <div className="sm:col-span-2"><label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Password</label><input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900" value={lock.password} onChange={(e) => setLock('password', e.target.value)} placeholder="e.g. hushae-2026" /></div>
+            <div><label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Heading (lock screen)</label><input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900" value={lock.heading || ''} onChange={(e) => setLock('heading', e.target.value)} placeholder="HUSHAE is opening soon" /></div>
+            <div><label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Message</label><input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900" value={lock.message || ''} onChange={(e) => setLock('message', e.target.value)} /></div>
           </div>
           <div className="mt-4 flex items-center gap-3">
-            <button onClick={saveLock} disabled={busy || !s} className="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-4 py-2 text-[11px] font-semibold text-white hover:bg-black">{busy ? 'Saving…' : 'Save'}</button>
-            {lock.enabled && <p className="flex items-center gap-1 text-[11px] text-neutral-500"><Check size={12} className="text-emerald-700" /> Save ke foran baad sab visitors se password manga jayega</p>}
+            <button onClick={saveLock} disabled={busy || !s} className="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-4 py-2 text-[9px] font-semibold text-white hover:bg-black">{busy ? 'Saving…' : 'Save'}</button>
+            {lock.enabled && <p className="flex items-center gap-1 text-[9px] text-neutral-500"><Check size={12} className="text-emerald-700" /> Save ke foran baad sab visitors se password manga jayega</p>}
           </div>
         </div>
       </div>
@@ -135,7 +135,7 @@ export default function OnlineStore() {
           <Link key={label} to={to} className="rounded-2xl border border-neutral-200 bg-white group p-4 transition hover:border-obsidian/30 hover:shadow-md">
             <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-neutral-100 text-neutral-900/70 transition group-hover:bg-neutral-900 group-hover:text-white"><Icon size={16} /></span>
             <p className="mt-3 text-sm font-semibold">{label}</p>
-            <p className="mt-0.5 text-[11px] leading-relaxed text-neutral-500">{desc}</p>
+            <p className="mt-0.5 text-[9px] leading-relaxed text-neutral-500">{desc}</p>
           </Link>
         ))}
       </div>

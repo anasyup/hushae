@@ -29,12 +29,12 @@ export default function AdminLogin() {
         <p className="text-center font-sans text-lg tracking-widest">HUSHAE</p>
         <p className="mt-1 text-center text-[9px] uppercase tracking-wider text-neutral-500">Private access — staff only</p>
         <form onSubmit={submit} className="mt-8 space-y-4" autoComplete="off">
-          <div><label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Username</label><input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" type="text" required autoComplete="off" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} /></div>
-          <div><label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Password</label><input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" type="password" required autoComplete="new-password" value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} /></div>
+          <div><label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Username</label><input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900" type="text" required autoComplete="off" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} /></div>
+          <div><label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Password</label><input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900" type="password" required autoComplete="new-password" value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} /></div>
           {err && <p className="rounded-xl bg-red-50 px-4 py-3 text-xs text-red-800">{err}</p>}
-          <button disabled={busy} className="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-4 py-2 text-[11px] font-semibold text-white hover:bg-black w-full"><Lock size={14} /> {busy ? 'Verifying…' : 'Sign In'}</button>
+          <button disabled={busy} className="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-4 py-2 text-[9px] font-semibold text-white hover:bg-black w-full"><Lock size={14} /> {busy ? 'Verifying…' : 'Sign In'}</button>
         </form>
-        <p className="mt-5 text-center text-[11px] leading-relaxed text-neutral-500">Authorised staff only</p>
+        <p className="mt-5 text-center text-[9px] leading-relaxed text-neutral-500">Authorised staff only</p>
       </div>
     </div>
   );

@@ -44,7 +44,7 @@ export default function QualityBadge({ quality, compact = false }) {
         {compact ? (
           <>
             <Star size={10} className={tone.text} fill="currentColor" />
-            <span className={`text-[10.5px] font-bold tabular-nums ${tone.text}`}>{score}</span>
+            <span className={`text-[9px] font-bold tabular-nums ${tone.text}`}>{score}</span>
           </>
         ) : (
           Array.from({ length: max }).map((_, i) => (
@@ -65,11 +65,11 @@ export default function QualityBadge({ quality, compact = false }) {
           role="tooltip"
           className="absolute left-0 top-6 z-40 w-56 rounded-lg border border-neutral-200 bg-white p-2.5 text-left shadow-xl"
         >
-          <span className="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-neutral-500">
+          <span className="mb-1.5 block text-[9px] font-bold uppercase tracking-wider text-neutral-500">
             Quality {score}/{max}
           </span>
           {reasons.map((r) => (
-            <span key={r.label} className="flex items-center gap-1.5 py-0.5 text-[11.5px]">
+            <span key={r.label} className="flex items-center gap-1.5 py-0.5 text-[10px]">
               <span className={`grid h-3 w-3 shrink-0 place-items-center rounded-full text-[8px] font-bold text-white ${
                 r.ok ? 'bg-emerald-500' : 'bg-red-400'}`}>
                 {r.ok ? '✓' : '✕'}
@@ -87,7 +87,7 @@ export default function QualityBadge({ quality, compact = false }) {
             </span>
           )}
           {hoursInStage > 0 && (
-            <span className="mt-1.5 block text-[10.5px] text-neutral-400">
+            <span className="mt-1.5 block text-[9px] text-neutral-400">
               {hoursInStage}h in current stage
             </span>
           )}

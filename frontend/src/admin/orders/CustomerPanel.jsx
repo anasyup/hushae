@@ -62,14 +62,14 @@ export default function CustomerPanel({ phone, token, onClose }) {
               {!c ? <div className="h-5 w-32 animate-pulse rounded bg-neutral-100" /> : (
                 <>
                   <div className="flex flex-wrap items-center gap-2">
-                    <h2 className="truncate text-[16px] font-semibold text-neutral-900">{c.name || 'Customer'}</h2>
+                    <h2 className="truncate text-[9px] font-semibold text-neutral-900">{c.name || 'Customer'}</h2>
                     {c.isRepeat && (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[10.5px] font-bold uppercase tracking-wide text-amber-700 ring-1 ring-amber-200">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-amber-700 ring-1 ring-amber-200">
                         <Award size={10} /> Repeat
                       </span>
                     )}
                   </div>
-                  <p className="mt-0.5 flex flex-wrap items-center gap-x-3 text-[12.5px] text-neutral-500">
+                  <p className="mt-0.5 flex flex-wrap items-center gap-x-3 text-[9px] text-neutral-500">
                     <span className="inline-flex items-center gap-1"><Phone size={11} />{c.phone}</span>
                     {c.city && <span className="inline-flex items-center gap-1"><MapPin size={11} />{c.city}</span>}
                   </p>
@@ -108,7 +108,7 @@ export default function CustomerPanel({ phone, token, onClose }) {
                   : t.key === 'notes' ? data.notes.length : null;
               return (
                 <button key={t.key} onClick={() => setTab(t.key)} aria-pressed={tab === t.key}
-                  className={`rounded-lg px-3 py-1.5 text-[12.5px] font-medium transition ${
+                  className={`rounded-lg px-3 py-1.5 text-[9px] font-medium transition ${
                     tab === t.key ? 'bg-neutral-900 text-white' : 'text-neutral-600 hover:bg-neutral-100'}`}>
                   {t.label}{n ? <span className="ml-1 opacity-60">{n}</span> : null}
                 </button>
@@ -119,7 +119,7 @@ export default function CustomerPanel({ phone, token, onClose }) {
 
         {/* Body */}
         <div className="flex-1 overflow-y-auto p-4">
-          {err && <p className="rounded-lg border border-red-200 bg-red-50 p-3 text-[13px] text-red-800">{err}</p>}
+          {err && <p className="rounded-lg border border-red-200 bg-red-50 p-3 text-[10px] text-red-800">{err}</p>}
           {!data && !err && (
             <div className="grid h-40 place-items-center"><Loader2 size={18} className="animate-spin text-neutral-400" /></div>
           )}
@@ -136,7 +136,7 @@ export default function CustomerPanel({ phone, token, onClose }) {
 
               <Section title={`Delivery addresses (${data.addresses.length})`}>
                 {data.addresses.map((a, i) => (
-                  <p key={i} className="border-b border-neutral-100 py-1.5 text-[12.5px] leading-snug text-neutral-700 last:border-0">
+                  <p key={i} className="border-b border-neutral-100 py-1.5 text-[9px] leading-snug text-neutral-700 last:border-0">
                     {a.line}{a.postalCode ? ` – ${a.postalCode}` : ''}
                   </p>
                 ))}
@@ -147,8 +147,8 @@ export default function CustomerPanel({ phone, token, onClose }) {
                   {data.favourites.map((f) => (
                     <div key={f.name} className="flex items-center gap-2 border-b border-neutral-100 py-1.5 last:border-0">
                       {f.image ? <img src={f.image} alt="" className="h-8 w-8 rounded object-cover" /> : <span className="h-8 w-8 rounded bg-neutral-100" />}
-                      <span className="min-w-0 flex-1 truncate text-[12.5px] text-neutral-700">{f.name}</span>
-                      <span className="shrink-0 text-[12px] font-semibold tabular-nums">×{f.units}</span>
+                      <span className="min-w-0 flex-1 truncate text-[9px] text-neutral-700">{f.name}</span>
+                      <span className="shrink-0 text-[9px] font-semibold tabular-nums">×{f.units}</span>
                     </div>
                   ))}
                 </Section>
@@ -164,15 +164,15 @@ export default function CustomerPanel({ phone, token, onClose }) {
                   <Link key={o._id} to={`/admin/orders/${o._id}`} onClick={onClose}
                     className="flex items-center gap-2.5 rounded-lg border border-neutral-200 p-2.5 transition hover:border-neutral-400">
                     <div className="min-w-0 flex-1">
-                      <p className="font-mono text-[12px] font-semibold text-neutral-900">{o.orderNumber}</p>
-                      <p className="mt-0.5 text-[11.5px] text-neutral-500">
+                      <p className="font-mono text-[9px] font-semibold text-neutral-900">{o.orderNumber}</p>
+                      <p className="mt-0.5 text-[10px] text-neutral-500">
                         {fmtDate(o.createdAt)} · {o.itemCount} item{o.itemCount === 1 ? '' : 's'}
                       </p>
                     </div>
                     <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ring-1 ${tone.pill}`}>
                       {STAGE_MAP[o.stage]?.label || o.status}
                     </span>
-                    <span className="w-20 shrink-0 text-right text-[13px] font-semibold tabular-nums">{pkr(o.total)}</span>
+                    <span className="w-20 shrink-0 text-right text-[10px] font-semibold tabular-nums">{pkr(o.total)}</span>
                   </Link>
                 );
               })}
@@ -188,11 +188,11 @@ export default function CustomerPanel({ phone, token, onClose }) {
                     <div key={i._id} className="rounded-lg border border-neutral-200 p-3">
                       <div className="flex items-center gap-2">
                         <AlertTriangle size={13} className="shrink-0 text-amber-600" />
-                        <span className="text-[13px] font-semibold">{i.issueType}</span>
-                        <span className="ml-auto rounded-full bg-neutral-100 px-2 py-0.5 text-[10.5px] font-semibold">{i.status}</span>
+                        <span className="text-[10px] font-semibold">{i.issueType}</span>
+                        <span className="ml-auto rounded-full bg-neutral-100 px-2 py-0.5 text-[9px] font-semibold">{i.status}</span>
                       </div>
-                      {i.description && <p className="mt-1.5 text-[12.5px] text-neutral-600">{i.description}</p>}
-                      <p className="mt-1.5 font-mono text-[11px] text-neutral-400">{i.orderNumber} · {fmtDate(i.createdAt)}</p>
+                      {i.description && <p className="mt-1.5 text-[9px] text-neutral-600">{i.description}</p>}
+                      <p className="mt-1.5 font-mono text-[9px] text-neutral-400">{i.orderNumber} · {fmtDate(i.createdAt)}</p>
                     </div>
                   ))}
                 </div>
@@ -206,8 +206,8 @@ export default function CustomerPanel({ phone, token, onClose }) {
                 <div className="space-y-2">
                   {data.notes.map((n, i) => (
                     <div key={i} className="rounded-lg bg-neutral-50 p-3">
-                      <p className="text-[12.5px] text-neutral-800">{n.body}</p>
-                      <p className="mt-1 font-mono text-[11px] text-neutral-400">
+                      <p className="text-[9px] text-neutral-800">{n.body}</p>
+                      <p className="mt-1 font-mono text-[9px] text-neutral-400">
                         {n.orderNumber} · {n.authorName || 'admin'} · {fmtDate(n.at)}
                       </p>
                     </div>
@@ -224,19 +224,19 @@ export default function CustomerPanel({ phone, token, onClose }) {
 const Stat = ({ label, value }) => (
   <div className="rounded-lg bg-neutral-50 px-2.5 py-2">
     <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-500">{label}</p>
-    <p className="mt-0.5 text-[14px] font-semibold tabular-nums text-neutral-900">{value}</p>
+    <p className="mt-0.5 text-[9px] font-semibold tabular-nums text-neutral-900">{value}</p>
   </div>
 );
 
 const Section = ({ title, children }) => (
   <div>
-    <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-neutral-500">{title}</p>
+    <p className="mb-1.5 text-[9px] font-semibold uppercase tracking-wider text-neutral-500">{title}</p>
     <div className="rounded-lg border border-neutral-200 px-3 py-1">{children}</div>
   </div>
 );
 
 const Row = ({ label, value, tone }) => (
-  <div className="flex items-center justify-between border-b border-neutral-100 py-1.5 text-[12.5px] last:border-0">
+  <div className="flex items-center justify-between border-b border-neutral-100 py-1.5 text-[9px] last:border-0">
     <span className="text-neutral-500">{label}</span>
     <span className={`font-medium ${tone === 'bad' ? 'text-red-600' : 'text-neutral-900'}`}>{value}</span>
   </div>
@@ -245,6 +245,6 @@ const Row = ({ label, value, tone }) => (
 const EmptyState = ({ icon: Icon, text }) => (
   <div className="py-12 text-center">
     <Icon size={24} className="mx-auto text-neutral-300" />
-    <p className="mt-2 text-[12.5px] text-neutral-500">{text}</p>
+    <p className="mt-2 text-[9px] text-neutral-500">{text}</p>
   </div>
 );

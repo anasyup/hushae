@@ -43,8 +43,8 @@ function Section({ icon: Icon, title, description, children, className = '' }) {
         <div className="flex items-center gap-2.5">
           {Icon && <Icon size={16} className="text-neutral-500" />}
           <div>
-            <h3 className="text-[14px] font-semibold text-neutral-900">{title}</h3>
-            {description && <p className="mt-0.5 text-[11px] text-neutral-500">{description}</p>}
+            <h3 className="text-[9px] font-semibold text-neutral-900">{title}</h3>
+            {description && <p className="mt-0.5 text-[9px] text-neutral-500">{description}</p>}
           </div>
         </div>
       </div>
@@ -57,16 +57,16 @@ function Section({ icon: Icon, title, description, children, className = '' }) {
 function Field({ label, hint, children }) {
   return (
     <div>
-      {label && <label className="mb-1.5 block text-[11px] font-bold uppercase tracking-widest text-neutral-500">{label}</label>}
+      {label && <label className="mb-1.5 block text-[9px] font-bold uppercase tracking-widest text-neutral-500">{label}</label>}
       {children}
-      {hint && <p className="mt-1.5 text-[11px] leading-relaxed text-neutral-400">{hint}</p>}
+      {hint && <p className="mt-1.5 text-[9px] leading-relaxed text-neutral-400">{hint}</p>}
     </div>
   );
 }
 
 function Check({ k, label, f, set }) {
   return (
-    <label className="flex cursor-pointer items-center gap-2.5 rounded-lg py-1.5 text-[13px] font-medium text-neutral-700 transition hover:text-neutral-900">
+    <label className="flex cursor-pointer items-center gap-2.5 rounded-lg py-1.5 text-[10px] font-medium text-neutral-700 transition hover:text-neutral-900">
       <input type="checkbox" checked={!!f[k]} onChange={(e) => set(k, e.target.checked)} className="h-4 w-4 rounded accent-neutral-900" />
       {label}
     </label>
@@ -148,7 +148,7 @@ export default function ProductForm() {
   return (
     <AdminLayout title={isNew ? 'Add Product' : 'Edit Product'}>
       {/* Back button */}
-      <Link to="/admin/products" className="mb-6 inline-flex items-center gap-1.5 text-[13px] font-medium text-neutral-500 transition hover:text-neutral-900">
+      <Link to="/admin/products" className="mb-6 inline-flex items-center gap-1.5 text-[10px] font-medium text-neutral-500 transition hover:text-neutral-900">
         <ArrowLeft size={14} /> Back to products
       </Link>
 
@@ -160,13 +160,13 @@ export default function ProductForm() {
           <Section icon={Info} title="General" description="Product name, description, and identity">
             <div className="space-y-4">
               <Field label="Product name *">
-                <input className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[14px] font-medium outline-none transition focus:border-neutral-900" value={f.name} onChange={(e) => set('name', e.target.value)} placeholder="Aura Seamless Wireless Bra" required />
+                <input className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[9px] font-medium outline-none transition focus:border-neutral-900" value={f.name} onChange={(e) => set('name', e.target.value)} placeholder="Aura Seamless Wireless Bra" required />
               </Field>
               <Field label="Short description" hint="One line shown on cards and listings">
-                <input className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[13px] outline-none transition focus:border-neutral-900" value={f.shortDescription} onChange={(e) => set('shortDescription', e.target.value)} placeholder="Second-skin comfort with invisible support" />
+                <input className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[10px] outline-none transition focus:border-neutral-900" value={f.shortDescription} onChange={(e) => set('shortDescription', e.target.value)} placeholder="Second-skin comfort with invisible support" />
               </Field>
               <Field label="Full description">
-                <textarea className="w-full min-h-[120px] rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[13px] leading-relaxed outline-none transition focus:border-neutral-900" value={f.description} onChange={(e) => set('description', e.target.value)} rows={5} placeholder="Describe your product in detail..." />
+                <textarea className="w-full min-h-[120px] rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[10px] leading-relaxed outline-none transition focus:border-neutral-900" value={f.description} onChange={(e) => set('description', e.target.value)} rows={5} placeholder="Describe your product in detail..." />
               </Field>
             </div>
           </Section>
@@ -181,10 +181,10 @@ export default function ProductForm() {
             <div className="space-y-5">
               <div className="grid gap-4 md:grid-cols-2">
                 <Field label="Sizes (comma separated)" hint="e.g. S, M, L, XL">
-                  <input className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[13px] outline-none transition focus:border-neutral-900" value={f.sizesText} onChange={(e) => set('sizesText', e.target.value)} placeholder="S, M, L, XL" />
+                  <input className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[10px] outline-none transition focus:border-neutral-900" value={f.sizesText} onChange={(e) => set('sizesText', e.target.value)} placeholder="S, M, L, XL" />
                 </Field>
                 <Field label="Fabric" hint="e.g. 92% combed cotton, 8% elastane">
-                  <input className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[13px] outline-none transition focus:border-neutral-900" value={f.fabric} onChange={(e) => set('fabric', e.target.value)} placeholder="92% combed cotton, 8% elastane" />
+                  <input className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[10px] outline-none transition focus:border-neutral-900" value={f.fabric} onChange={(e) => set('fabric', e.target.value)} placeholder="92% combed cotton, 8% elastane" />
                 </Field>
               </div>
 
@@ -192,12 +192,12 @@ export default function ProductForm() {
               <Field label="Tags" hint="Used for filters and smart collections">
                 <div className="flex flex-wrap gap-1.5 rounded-xl border border-neutral-300 bg-white p-2.5">
                   {(f.tags || []).map((t, i) => (
-                    <span key={t + i} className="inline-flex items-center gap-1 rounded-full bg-neutral-900 py-0.5 pl-2.5 pr-1 text-[11px] font-semibold text-white">
+                    <span key={t + i} className="inline-flex items-center gap-1 rounded-full bg-neutral-900 py-0.5 pl-2.5 pr-1 text-[9px] font-semibold text-white">
                       {t}
                       <button type="button" onClick={() => set('tags', (f.tags || []).filter((_, j) => j !== i))} className="grid h-4 w-4 place-items-center rounded-full bg-white/20 hover:bg-white/30">×</button>
                     </span>
                   ))}
-                  <input className="min-w-[120px] flex-1 bg-transparent px-2 py-1 text-[13px] outline-none placeholder:text-neutral-400" placeholder="Add tag + Enter" onKeyDown={(e) => {
+                  <input className="min-w-[120px] flex-1 bg-transparent px-2 py-1 text-[10px] outline-none placeholder:text-neutral-400" placeholder="Add tag + Enter" onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); const v = e.currentTarget.value.trim().toLowerCase(); if (v && !(f.tags || []).includes(v)) set('tags', [...(f.tags || []), v]); e.currentTarget.value = ''; }
                     else if (e.key === 'Backspace' && !e.currentTarget.value && (f.tags || []).length) set('tags', (f.tags || []).slice(0, -1));
                   }} />
@@ -210,18 +210,18 @@ export default function ProductForm() {
                   {f.colors.map((c, i) => (
                     <div key={i} className="flex items-center gap-2.5">
                       <input type="color" value={c.hex} onChange={(e) => set('colors', f.colors.map((x, j) => j === i ? { ...x, hex: e.target.value } : x))} className="h-10 w-12 cursor-pointer rounded-lg border border-neutral-300 bg-white p-1" />
-                      <input className="flex-1 rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[13px] outline-none transition focus:border-neutral-900" value={c.name} onChange={(e) => set('colors', f.colors.map((x, j) => j === i ? { ...x, name: e.target.value } : x))} placeholder="Colour name" />
+                      <input className="flex-1 rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[10px] outline-none transition focus:border-neutral-900" value={c.name} onChange={(e) => set('colors', f.colors.map((x, j) => j === i ? { ...x, name: e.target.value } : x))} placeholder="Colour name" />
                       {f.colors.length > 1 && (
                         <button type="button" onClick={() => set('colors', f.colors.filter((_, j) => j !== i))} className="grid h-9 w-9 place-items-center rounded-lg text-neutral-400 transition hover:bg-red-50 hover:text-red-600"><Trash2 size={14} /></button>
                       )}
                     </div>
                   ))}
-                  <button type="button" onClick={() => set('colors', [...f.colors, { name: '', hex: '#69625F' }])} className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-neutral-300 px-3.5 py-2 text-[12px] font-medium text-neutral-500 transition hover:border-neutral-400 hover:text-neutral-900"><Plus size={12} /> Add colour</button>
+                  <button type="button" onClick={() => set('colors', [...f.colors, { name: '', hex: '#69625F' }])} className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-neutral-300 px-3.5 py-2 text-[9px] font-medium text-neutral-500 transition hover:border-neutral-400 hover:text-neutral-900"><Plus size={12} /> Add colour</button>
                 </div>
               </Field>
 
               <Field label="Care instructions (one per line)">
-                <textarea className="w-full min-h-[80px] rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[13px] outline-none transition focus:border-neutral-900" value={f.careText} onChange={(e) => set('careText', e.target.value)} rows={3} placeholder="Machine wash cold&#10;Do not bleach&#10;Tumble dry low" />
+                <textarea className="w-full min-h-[80px] rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[10px] outline-none transition focus:border-neutral-900" value={f.careText} onChange={(e) => set('careText', e.target.value)} rows={3} placeholder="Machine wash cold&#10;Do not bleach&#10;Tumble dry low" />
               </Field>
             </div>
           </Section>
@@ -233,7 +233,7 @@ export default function ProductForm() {
                 const active = f.badges.includes(b);
                 return (
                   <button type="button" key={b} onClick={() => set('badges', active ? f.badges.filter((x) => x !== b) : [...f.badges, b])}
-                    className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-[12px] font-medium transition ${active ? 'border-emerald-600 bg-emerald-50 text-emerald-700' : 'border-neutral-200 bg-white text-neutral-600 hover:border-neutral-400'}`}>
+                    className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-[9px] font-medium transition ${active ? 'border-emerald-600 bg-emerald-50 text-emerald-700' : 'border-neutral-200 bg-white text-neutral-600 hover:border-neutral-400'}`}>
                     {active && <CheckIcon size={12} />}{b}
                   </button>
                 );
@@ -248,13 +248,13 @@ export default function ProductForm() {
           <Section title="Status">
             <div className="space-y-3">
               <Field label="Visibility">
-                <select className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[13px] font-medium outline-none transition focus:border-neutral-900" value={f.status || 'active'} onChange={(e) => set('status', e.target.value)}>
+                <select className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[10px] font-medium outline-none transition focus:border-neutral-900" value={f.status || 'active'} onChange={(e) => set('status', e.target.value)}>
                   <option value="active">Active — live in store</option>
                   <option value="draft">Draft — hidden, work in progress</option>
                 </select>
               </Field>
               {f.status === 'draft' && (
-                <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-[11px] text-amber-800">Draft products are hidden and cannot be ordered.</div>
+                <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-[9px] text-amber-800">Draft products are hidden and cannot be ordered.</div>
               )}
               <Check k="isFeatured" label="Featured in signature edit" f={f} set={set} />
               <Check k="isBestSeller" label="Mark as best seller" f={f} set={set} />
@@ -265,23 +265,23 @@ export default function ProductForm() {
           <Section icon={Tag} title="Organization">
             <div className="space-y-4">
               <Field label="Gender">
-                <select className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[13px] font-medium outline-none transition focus:border-neutral-900" value={f.gender} onChange={(e) => set('gender', e.target.value)}>
+                <select className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[10px] font-medium outline-none transition focus:border-neutral-900" value={f.gender} onChange={(e) => set('gender', e.target.value)}>
                   <option value="women">Women</option><option value="men">Men</option>
                 </select>
               </Field>
               <Field label="Category *">
-                <select className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[13px] font-medium outline-none transition focus:border-neutral-900" required value={f.categorySlug} onChange={(e) => set('categorySlug', e.target.value)}>
+                <select className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[10px] font-medium outline-none transition focus:border-neutral-900" required value={f.categorySlug} onChange={(e) => set('categorySlug', e.target.value)}>
                   <option value="">Choose category…</option>
                   {catOpts.map((c) => <option key={c.slug} value={c.slug}>{c.name}</option>)}
                 </select>
               </Field>
               <Field label="Tier">
-                <select className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[13px] font-medium outline-none transition focus:border-neutral-900" value={f.tier} onChange={(e) => set('tier', e.target.value)}>
+                <select className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[10px] font-medium outline-none transition focus:border-neutral-900" value={f.tier} onChange={(e) => set('tier', e.target.value)}>
                   {['Economy', 'Standard', 'Premium'].map((t) => <option key={t}>{t}</option>)}
                 </select>
               </Field>
               <Field label="SKU" hint="Auto-generated if left empty">
-                <input className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[13px] outline-none transition focus:border-neutral-900" value={f.sku} onChange={(e) => set('sku', e.target.value)} placeholder="Auto" />
+                <input className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[10px] outline-none transition focus:border-neutral-900" value={f.sku} onChange={(e) => set('sku', e.target.value)} placeholder="Auto" />
               </Field>
             </div>
           </Section>
@@ -291,10 +291,10 @@ export default function ProductForm() {
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
                 <Field label="Price (PKR) *">
-                  <input className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[14px] font-semibold outline-none transition focus:border-neutral-900" type="number" min="0" required value={f.price} onChange={(e) => set('price', e.target.value)} />
+                  <input className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[9px] font-semibold outline-none transition focus:border-neutral-900" type="number" min="0" required value={f.price} onChange={(e) => set('price', e.target.value)} />
                 </Field>
                 <Field label="Compare-at (Was price)">
-                  <input className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[14px] outline-none transition focus:border-neutral-900" type="number" min="0" value={f.compareAtPrice} onChange={(e) => set('compareAtPrice', e.target.value)} placeholder="e.g. 1550" disabled={!f.onSale} />
+                  <input className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[9px] outline-none transition focus:border-neutral-900" type="number" min="0" value={f.compareAtPrice} onChange={(e) => set('compareAtPrice', e.target.value)} placeholder="e.g. 1550" disabled={!f.onSale} />
                 </Field>
               </div>
 
@@ -314,28 +314,28 @@ export default function ProductForm() {
                     }}
                     className="h-4 w-4 rounded accent-neutral-900"
                   />
-                  <span className="text-[13px] font-semibold text-neutral-900">On sale — appears in /sale, shows % off</span>
+                  <span className="text-[10px] font-semibold text-neutral-900">On sale — appears in /sale, shows % off</span>
                 </label>
                 {!f.onSale ? (
-                  <p className="mt-1.5 text-[11px] leading-relaxed text-neutral-500">
+                  <p className="mt-1.5 text-[9px] leading-relaxed text-neutral-500">
                     Off by default — new products are never automatically discounted. Turn this on to run a sale.
                   </p>
                 ) : (
                   <>
                     {f.compareAtPrice && Number(f.compareAtPrice) > 0 && Number(f.price) > 0 && Number(f.compareAtPrice) <= Number(f.price) && (
-                      <p className="mt-2 rounded-lg bg-red-50 px-3 py-1.5 text-[11px] font-semibold text-red-700 ring-1 ring-red-200">
+                      <p className="mt-2 rounded-lg bg-red-50 px-3 py-1.5 text-[9px] font-semibold text-red-700 ring-1 ring-red-200">
                         Was price must be HIGHER than the selling price — otherwise there is no real discount.
                       </p>
                     )}
                     <div className="mt-3 grid gap-3 sm:grid-cols-2">
                       <Field label="Sale starts (optional)">
-                        <input type="datetime-local" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2.5 text-[12px] outline-none transition focus:border-neutral-900" value={f.saleStart} onChange={(e) => set('saleStart', e.target.value)} />
+                        <input type="datetime-local" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2.5 text-[9px] outline-none transition focus:border-neutral-900" value={f.saleStart} onChange={(e) => set('saleStart', e.target.value)} />
                       </Field>
                       <Field label="Sale ends (optional)">
-                        <input type="datetime-local" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2.5 text-[12px] outline-none transition focus:border-neutral-900" value={f.saleEnd} onChange={(e) => set('saleEnd', e.target.value)} />
+                        <input type="datetime-local" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2.5 text-[9px] outline-none transition focus:border-neutral-900" value={f.saleEnd} onChange={(e) => set('saleEnd', e.target.value)} />
                       </Field>
                     </div>
-                    <p className="mt-2 text-[11px] leading-relaxed text-neutral-500">
+                    <p className="mt-2 text-[9px] leading-relaxed text-neutral-500">
                       Leave dates empty for an open-ended sale. With an end date, customers see “Sale ends {f.saleEnd ? new Date(f.saleEnd).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '…' }” on the product page — with urgency when it is under 7 days away.
                     </p>
                   </>
@@ -349,13 +349,13 @@ export default function ProductForm() {
                   <span className="text-[10px] text-neutral-400">Internal only</span>
                 </div>
                 <Field label="Cost / Wholesale (PKR)">
-                  <input className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[13px] outline-none transition focus:border-neutral-900" type="number" min="0" value={f.costPrice} onChange={(e) => set('costPrice', e.target.value)} placeholder="e.g. 800" />
+                  <input className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[10px] outline-none transition focus:border-neutral-900" type="number" min="0" value={f.costPrice} onChange={(e) => set('costPrice', e.target.value)} placeholder="e.g. 800" />
                 </Field>
                 {Number(f.price) > 0 && Number(f.costPrice) > 0 && (
                   <div className="mt-3 flex items-center justify-between rounded-lg bg-white px-3 py-2.5">
-                    <span className="text-[13px] font-semibold text-neutral-700">Profit per unit</span>
+                    <span className="text-[10px] font-semibold text-neutral-700">Profit per unit</span>
                     <div className="flex items-center gap-2">
-                      <span className={`text-[12px] font-bold tabular-nums ${profit >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>PKR {profit.toLocaleString('en-PK')}</span>
+                      <span className={`text-[9px] font-bold tabular-nums ${profit >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>PKR {profit.toLocaleString('en-PK')}</span>
                       <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${margin >= 40 ? 'bg-emerald-100 text-emerald-800' : margin >= 20 ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-800'}`}>{margin.toFixed(1)}%</span>
                     </div>
                   </div>
@@ -363,17 +363,17 @@ export default function ProductForm() {
               </div>
 
               <Field label="Stock quantity">
-                <input className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[13px] outline-none transition focus:border-neutral-900" type="number" min="0" value={f.stock} onChange={(e) => set('stock', e.target.value)} />
+                <input className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[10px] outline-none transition focus:border-neutral-900" type="number" min="0" value={f.stock} onChange={(e) => set('stock', e.target.value)} />
               </Field>
             </div>
           </Section>
 
           {/* ── Actions ───────────────────────────────────────────────── */}
           <div className="space-y-2.5">
-            <button disabled={busy} className="flex w-full items-center justify-center gap-2 rounded-full bg-neutral-900 py-3 text-[13px] font-semibold text-white transition hover:bg-black disabled:opacity-50">
+            <button disabled={busy} className="flex w-full items-center justify-center gap-2 rounded-full bg-neutral-900 py-3 text-[10px] font-semibold text-white transition hover:bg-black disabled:opacity-50">
               <Save size={14} /> {busy ? 'Saving…' : isNew ? 'Create product' : 'Save changes'}
             </button>
-            <button type="button" disabled={busy} onClick={(e) => save(e, 'draft')} className="flex w-full items-center justify-center gap-2 rounded-full border border-neutral-300 bg-white py-3 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-50">
+            <button type="button" disabled={busy} onClick={(e) => save(e, 'draft')} className="flex w-full items-center justify-center gap-2 rounded-full border border-neutral-300 bg-white py-3 text-[9px] font-semibold text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-50">
               <EyeOff size={13} /> Save as draft
             </button>
           </div>

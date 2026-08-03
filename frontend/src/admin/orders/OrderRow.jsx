@@ -51,23 +51,23 @@ export default function OrderRow({
         <div className="min-w-0 flex-1">
           {/* Line 1 — identity + badges */}
           <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-            <Link to={`/admin/orders/${o._id}`} className="font-mono text-[13px] font-semibold text-neutral-900 hover:underline">
+            <Link to={`/admin/orders/${o._id}`} className="font-mono text-[10px] font-semibold text-neutral-900 hover:underline">
               {o.orderNumber}
             </Link>
             <button onClick={copyRef} aria-label="Copy order number" className="text-neutral-300 hover:text-neutral-700">
               <Copy size={11} />
             </button>
 
-            <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10.5px] font-bold uppercase tracking-wide ring-1 ${tone.pill}`}>
+            <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide ring-1 ${tone.pill}`}>
               {Icon ? <Icon size={10} /> : null} {STAGE_MAP[stage]?.label || stage}
             </span>
 
-            <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10.5px] font-semibold ring-1 ${pTone.pill}`}>
+            <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-semibold ring-1 ${pTone.pill}`}>
               <Wallet size={10} /> {o.paymentMethod} · {pState}
             </span>
 
             {invoicePrinted && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-neutral-100 px-2 py-0.5 text-[10.5px] font-semibold text-neutral-600 ring-1 ring-neutral-200">
+              <span className="inline-flex items-center gap-1 rounded-full bg-neutral-100 px-2 py-0.5 text-[9px] font-semibold text-neutral-600 ring-1 ring-neutral-200">
                 <Printer size={10} /> Printed
               </span>
             )}
@@ -77,17 +77,17 @@ export default function OrderRow({
               <span className="rounded-full bg-neutral-900 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">Rush</span>
             )}
             {o.qcStatus === 'passed' && (
-              <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[10.5px] font-semibold text-emerald-700 ring-1 ring-emerald-200">QC ✓</span>
+              <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[9px] font-semibold text-emerald-700 ring-1 ring-emerald-200">QC ✓</span>
             )}
             {o.customerService?.hasIssue && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-red-50 px-2 py-0.5 text-[10.5px] font-bold text-red-700 ring-1 ring-red-200">
+              <span className="inline-flex items-center gap-1 rounded-full bg-red-50 px-2 py-0.5 text-[9px] font-bold text-red-700 ring-1 ring-red-200">
                 <AlertTriangle size={10} /> {o.customerService.issueType || 'Issue'}
               </span>
             )}
           </div>
 
           {/* Line 2 — customer */}
-          <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[12.5px] text-neutral-600">
+          <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[9px] text-neutral-600">
             <button
               onClick={(e) => { e.stopPropagation(); onOpenCustomer?.(o.customerInfo?.phone); }}
               title="Open customer history"
@@ -102,8 +102,8 @@ export default function OrderRow({
 
         {/* Right — money + actions */}
         <div className="flex shrink-0 flex-col items-end gap-1.5">
-          <p className="text-[12px] font-semibold tabular-nums text-neutral-900">{pkr(o.total)}</p>
-          <p className="text-[11px] text-neutral-400">
+          <p className="text-[9px] font-semibold tabular-nums text-neutral-900">{pkr(o.total)}</p>
+          <p className="text-[9px] text-neutral-400">
             {itemCount} item{itemCount === 1 ? '' : 's'}
             {bins.length > 0 && (
               <>
@@ -120,7 +120,7 @@ export default function OrderRow({
               <button
                 disabled={busy} onClick={() => onStage(o._id, next)}
                 title={`Move to ${next}`}
-                className="inline-flex items-center gap-1 rounded-md bg-neutral-900 px-2.5 py-1.5 text-[11.5px] font-semibold text-white transition hover:bg-black disabled:opacity-50">
+                className="inline-flex items-center gap-1 rounded-md bg-neutral-900 px-2.5 py-1.5 text-[10px] font-semibold text-white transition hover:bg-black disabled:opacity-50">
                 {busy ? <Loader2 size={11} className="animate-spin" /> : <ArrowRight size={11} />} {next}
               </button>
             )}
@@ -133,40 +133,40 @@ export default function OrderRow({
                 <>
                   <div className="fixed inset-0 z-10" onClick={() => setMenu(false)} />
                   <div className="absolute right-0 top-8 z-20 w-52 rounded-lg border border-neutral-200 bg-white py-1 shadow-xl">
-                    <Link to={`/admin/orders/${o._id}`} className="block px-3 py-1.5 text-[12.5px] hover:bg-neutral-100">
+                    <Link to={`/admin/orders/${o._id}`} className="block px-3 py-1.5 text-[9px] hover:bg-neutral-100">
                       View full details
                     </Link>
                     {PRINT_DOCS.map((d) => (
                       <button key={d.key} onClick={() => { onPrint(o, d.key); setMenu(false); }}
-                        className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-[12.5px] hover:bg-neutral-100">
+                        className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-[9px] hover:bg-neutral-100">
                         <d.icon size={12} className="text-neutral-500" /> Print {d.label.toLowerCase()}
                       </button>
                     ))}
                     <div className="my-1 border-t border-neutral-100" />
                     {pState !== 'Confirmed' && (
                       <button onClick={() => { onVerify(o._id, 'Confirmed'); setMenu(false); }}
-                        className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-[12.5px] hover:bg-neutral-100">
+                        className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-[9px] hover:bg-neutral-100">
                         <Check size={12} className="text-emerald-600" /> Mark payment confirmed
                       </button>
                     )}
                     {pState === 'Pending' && (
                       <button onClick={() => { onVerify(o._id, 'Verified'); setMenu(false); }}
-                        className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-[12.5px] hover:bg-neutral-100">
+                        className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-[9px] hover:bg-neutral-100">
                         <Wallet size={12} className="text-blue-600" /> Mark payment verified
                       </button>
                     )}
                     <a href={`https://wa.me/${String(o.customerInfo?.phone || '').replace(/\D/g, '').replace(/^0/, '92')}`}
                       target="_blank" rel="noreferrer"
-                      className="flex w-full items-center gap-2 px-3 py-1.5 text-[12.5px] hover:bg-neutral-100">
+                      className="flex w-full items-center gap-2 px-3 py-1.5 text-[9px] hover:bg-neutral-100">
                       <MessageCircle size={12} className="text-emerald-600" /> WhatsApp customer
                     </a>
                     <button onClick={() => { onOpenService(o); setMenu(false); }}
-                      className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-[12.5px] hover:bg-neutral-100">
+                      className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-[9px] hover:bg-neutral-100">
                       <AlertTriangle size={12} className="text-amber-600" /> Log an issue
                     </button>
                     <div className="my-1 border-t border-neutral-100" />
                     <button onClick={() => { onStage(o._id, 'Cancelled', 'Cancelled from order desk'); setMenu(false); }}
-                      className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-[12.5px] text-red-600 hover:bg-red-50">
+                      className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-[9px] text-red-600 hover:bg-red-50">
                       <Ban size={12} /> Cancel order
                     </button>
                   </div>
@@ -188,12 +188,12 @@ export default function OrderRow({
               // Pick priority first: anything short or low gets pulled before it vanishes.
               .slice().sort((a, b) => (a.pickPriority || 3) - (b.pickPriority || 3))
               .map((it, i) => (
-                <div key={i} className="flex items-center gap-2.5 text-[12.5px]">
+                <div key={i} className="flex items-center gap-2.5 text-[9px]">
                   {it.image ? <img src={it.image} alt="" className="h-9 w-9 rounded object-cover" /> : <span className="h-9 w-9 rounded bg-neutral-200" />}
                   <span className="min-w-0 flex-1">
                     <span className="block truncate text-neutral-800">{it.name}</span>
                     {(it.warehouseLocation || it.sku) && (
-                      <span className="mt-0.5 flex items-center gap-1.5 text-[10.5px] text-neutral-400">
+                      <span className="mt-0.5 flex items-center gap-1.5 text-[9px] text-neutral-400">
                         {it.warehouseLocation && (
                           <span className="inline-flex items-center gap-1 rounded bg-neutral-200/70 px-1.5 py-0.5 font-mono font-semibold text-neutral-600">
                             <MapPin size={9} /> {it.warehouseLocation}
@@ -217,7 +217,7 @@ export default function OrderRow({
                 </div>
               ))}
           </div>
-          <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1 border-t border-neutral-200 pt-2 text-[11.5px] text-neutral-500">
+          <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1 border-t border-neutral-200 pt-2 text-[10px] text-neutral-500">
             <span>Address: <span className="text-neutral-800">{o.customerInfo?.address}</span></span>
             {o.trackingNumber && <span>Tracking: <span className="font-mono text-neutral-800">{o.trackingNumber}</span></span>}
             {o.courierName && <span>Courier: <span className="text-neutral-800">{o.courierName}</span></span>}

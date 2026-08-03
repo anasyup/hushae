@@ -108,8 +108,8 @@ export default function PromoPreview({ draft, onClose }) {
       >
         <div className="flex shrink-0 items-center justify-between gap-3 border-b border-neutral-200 px-5 py-4">
           <div className="min-w-0">
-            <h2 id="pp-title" className="text-[12px] font-semibold text-neutral-900">Test this promotion</h2>
-            <p className="mt-0.5 text-[12px] text-neutral-600">Nothing is saved or charged.</p>
+            <h2 id="pp-title" className="text-[9px] font-semibold text-neutral-900">Test this promotion</h2>
+            <p className="mt-0.5 text-[9px] text-neutral-600">Nothing is saved or charged.</p>
           </div>
           <button ref={closeRef} type="button" onClick={onClose} aria-label="Close" className="grid h-11 w-11 shrink-0 place-items-center rounded-lg text-neutral-600 transition hover:bg-neutral-100">
             <X size={18} />
@@ -118,12 +118,12 @@ export default function PromoPreview({ draft, onClose }) {
 
         <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">
           {/* ---- basket ---- */}
-          <p className="text-[11px] font-bold uppercase tracking-widest text-neutral-600">Test basket</p>
+          <p className="text-[9px] font-bold uppercase tracking-widest text-neutral-600">Test basket</p>
           <div className="relative mt-2">
             <Search size={15} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" aria-hidden="true" />
             <label htmlFor="pp-search" className="sr-only">Search products to add</label>
             <input
-              id="pp-search" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 min-h-[44px] pl-9" value={q}
+              id="pp-search" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900 min-h-[44px] pl-9" value={q}
               onChange={(e) => setQ(e.target.value)} placeholder="Search a product to add"
               autoComplete="off"
             />
@@ -136,8 +136,8 @@ export default function PromoPreview({ draft, onClose }) {
                     type="button" onClick={() => add(p)}
                     className="flex min-h-[44px] w-full items-center justify-between gap-3 px-4 py-2 text-left transition hover:bg-neutral-50"
                   >
-                    <span className="min-w-0 truncate text-[13px] text-neutral-900">{p.name}</span>
-                    <span className="shrink-0 text-[12px] tabular-nums text-neutral-600">{money(p.price)}</span>
+                    <span className="min-w-0 truncate text-[10px] text-neutral-900">{p.name}</span>
+                    <span className="shrink-0 text-[9px] tabular-nums text-neutral-600">{money(p.price)}</span>
                   </button>
                 </li>
               ))}
@@ -148,14 +148,14 @@ export default function PromoPreview({ draft, onClose }) {
             <ul className="mt-3 space-y-2">
               {cart.map((c) => (
                 <li key={c._id} className="flex items-center gap-3 rounded-xl border border-neutral-200 px-3 py-2">
-                  <span className="min-w-0 flex-1 truncate text-[13px] text-neutral-900">{c.name}</span>
+                  <span className="min-w-0 flex-1 truncate text-[10px] text-neutral-900">{c.name}</span>
                   <label className="sr-only" htmlFor={`qty-${c._id}`}>Quantity for {c.name}</label>
                   <input
                     id={`qty-${c._id}`} type="number" min="1" max="20" value={c.qty}
                     onChange={(e) => setCart((x) => x.map((y) => (y._id === c._id ? { ...y, qty: Math.max(1, Number(e.target.value) || 1) } : y)))}
-                    className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 min-h-[44px] w-20"
+                    className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900 min-h-[44px] w-20"
                   />
-                  <span className="w-24 shrink-0 text-right text-[12px] tabular-nums text-neutral-600">{money(c.price * c.qty)}</span>
+                  <span className="w-24 shrink-0 text-right text-[9px] tabular-nums text-neutral-600">{money(c.price * c.qty)}</span>
                   <button
                     type="button" onClick={() => setCart((x) => x.filter((y) => y._id !== c._id))}
                     aria-label={`Remove ${c.name}`}
@@ -169,11 +169,11 @@ export default function PromoPreview({ draft, onClose }) {
           )}
 
           {/* ---- customer ---- */}
-          <p className="mt-5 text-[11px] font-bold uppercase tracking-widest text-neutral-600">Pretend customer</p>
+          <p className="mt-5 text-[9px] font-bold uppercase tracking-widest text-neutral-600">Pretend customer</p>
           <div className="mt-2 grid gap-3 sm:grid-cols-2">
             <div>
               <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500" htmlFor="pp-orders">Past orders</label>
-              <select id="pp-orders" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 min-h-[44px]" value={orderCount} onChange={(e) => setOrderCount(Number(e.target.value))}>
+              <select id="pp-orders" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900 min-h-[44px]" value={orderCount} onChange={(e) => setOrderCount(Number(e.target.value))}>
                 <option value={0}>None — first-time customer</option>
                 <option value={1}>1 order</option>
                 <option value={5}>5 orders — regular</option>
@@ -181,17 +181,17 @@ export default function PromoPreview({ draft, onClose }) {
             </div>
             <div>
               <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500" htmlFor="pp-city">City</label>
-              <input id="pp-city" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 min-h-[44px]" value={city} onChange={(e) => setCity(e.target.value)} placeholder="Any" />
+              <input id="pp-city" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900 min-h-[44px]" value={city} onChange={(e) => setCity(e.target.value)} placeholder="Any" />
             </div>
           </div>
           <label className="mt-3 flex min-h-[44px] cursor-pointer items-center gap-3 rounded-xl border border-neutral-200 px-4">
             <input type="checkbox" checked={hasCoupon} onChange={(e) => setHasCoupon(e.target.checked)} className="h-4 w-4 accent-neutral-900" />
-            <span className="text-[13px] text-neutral-900">They also entered a coupon code</span>
+            <span className="text-[10px] text-neutral-900">They also entered a coupon code</span>
           </label>
 
           <button
             type="button" onClick={run} disabled={busy || !cart.length}
-            className="mt-4 inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg bg-neutral-900 px-4 text-[13px] font-semibold text-white transition hover:bg-neutral-800 disabled:opacity-50"
+            className="mt-4 inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg bg-neutral-900 px-4 text-[10px] font-semibold text-white transition hover:bg-neutral-800 disabled:opacity-50"
           >
             <Play size={14} /> {busy ? 'Running…' : 'Run the test'}
           </button>
@@ -200,13 +200,13 @@ export default function PromoPreview({ draft, onClose }) {
           {result && (
             <div className="mt-5 border-t border-neutral-200 pt-5" aria-live="polite">
               {!result.programmeLive && (
-                <p className="mb-3 rounded-xl bg-sky-50 px-4 py-2.5 text-[12px] text-sky-900">
+                <p className="mb-3 rounded-xl bg-sky-50 px-4 py-2.5 text-[9px] text-sky-900">
                   Marketing is switched off, so this is a simulation only — real customers
                   are not seeing any of this yet.
                 </p>
               )}
 
-              <dl className="space-y-2 text-[13px]">
+              <dl className="space-y-2 text-[10px]">
                 <div className="flex justify-between gap-4">
                   <dt className="text-neutral-600">Basket</dt>
                   <dd className="tabular-nums">{money(result.subtotal)}</dd>
@@ -218,7 +218,7 @@ export default function PromoPreview({ draft, onClose }) {
                   </div>
                 ))}
                 {result.capped && (
-                  <div className="rounded-lg bg-amber-50 px-3 py-2 text-[12px] text-amber-900">
+                  <div className="rounded-lg bg-amber-50 px-3 py-2 text-[9px] text-amber-900">
                     Trimmed to your ceiling of {money(result.capAmount)}. Raise the maximum in
                     Rules if you meant to give more.
                   </div>
@@ -227,14 +227,14 @@ export default function PromoPreview({ draft, onClose }) {
                   <dt>Customer pays</dt>
                   <dd className="text-lg tabular-nums">{money(result.payable)}</dd>
                 </div>
-                <div className="flex justify-between gap-4 text-[12px] text-neutral-600">
+                <div className="flex justify-between gap-4 text-[9px] text-neutral-600">
                   <dt>Effective discount</dt>
                   <dd className="tabular-nums">{result.effectivePercent}%</dd>
                 </div>
               </dl>
 
               {(result.discounts || []).length > 0 && (
-                <p className="mt-3 flex items-start gap-2 rounded-xl bg-emerald-50 px-3 py-2.5 text-[12px] text-emerald-900">
+                <p className="mt-3 flex items-start gap-2 rounded-xl bg-emerald-50 px-3 py-2.5 text-[9px] text-emerald-900">
                   <Check size={13} className="mt-0.5 shrink-0" aria-hidden="true" />
                   <span><strong>{result.discounts[0].label || result.discounts[0].name}</strong> applied.</span>
                 </p>
@@ -242,10 +242,10 @@ export default function PromoPreview({ draft, onClose }) {
 
               {(result.rejected || []).length > 0 && (
                 <div className="mt-4">
-                  <p className="text-[11px] font-bold uppercase tracking-widest text-neutral-600">Did not apply</p>
+                  <p className="text-[9px] font-bold uppercase tracking-widest text-neutral-600">Did not apply</p>
                   <ul className="mt-2 space-y-1.5">
                     {result.rejected.map((r, i) => (
-                      <li key={`${r.id}-${i}`} className="flex items-start justify-between gap-3 rounded-lg bg-neutral-50 px-3 py-2 text-[12px]">
+                      <li key={`${r.id}-${i}`} className="flex items-start justify-between gap-3 rounded-lg bg-neutral-50 px-3 py-2 text-[9px]">
                         <span className="min-w-0 truncate text-neutral-900">{r.name || 'Promotion'}</span>
                         <span className="shrink-0 text-neutral-600">{reasonText(r.rejectedFor)}</span>
                       </li>
@@ -255,7 +255,7 @@ export default function PromoPreview({ draft, onClose }) {
               )}
 
               {!(result.discounts || []).length && !(result.rejected || []).length && (
-                <p className="mt-3 rounded-xl bg-neutral-50 px-4 py-3 text-[12px] text-neutral-600">
+                <p className="mt-3 rounded-xl bg-neutral-50 px-4 py-3 text-[9px] text-neutral-600">
                   No promotion matched this basket.
                 </p>
               )}

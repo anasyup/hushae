@@ -43,7 +43,7 @@ export default function Insights() {
     <div className="grid place-items-center rounded-2xl border border-red-200 bg-red-50 p-8 text-center">
       <XCircle size={22} className="mb-2 text-red-600" />
       <p className="text-sm text-red-700">{err}</p>
-      <button onClick={() => { setErr(''); load(); }} className="mt-3 rounded-full border border-red-300 bg-white px-4 py-1.5 text-[11px] font-semibold text-red-700 hover:bg-red-100">Try again</button>
+      <button onClick={() => { setErr(''); load(); }} className="mt-3 rounded-full border border-red-300 bg-white px-4 py-1.5 text-[9px] font-semibold text-red-700 hover:bg-red-100">Try again</button>
     </div>
   </AdminLayout>;
 
@@ -55,7 +55,7 @@ export default function Insights() {
     <AdminLayout title="Insights">
       {/* Range picker */}
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-        <p className="text-[13px] text-neutral-500">Deep business metrics across the last <b className="text-neutral-900">{d.days} days</b>.</p>
+        <p className="text-[10px] text-neutral-500">Deep business metrics across the last <b className="text-neutral-900">{d.days} days</b>.</p>
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1 rounded-full border border-neutral-200 bg-white p-1">
             {[30, 60, 90, 180].map((n) => (
@@ -63,7 +63,7 @@ export default function Insights() {
                 key={n}
                 onClick={() => { setDays(n); load(n); }}
                 disabled={busy}
-                className={`rounded-full px-3 py-1.5 text-[11px] font-semibold transition ${
+                className={`rounded-full px-3 py-1.5 text-[9px] font-semibold transition ${
                   days === n ? 'bg-neutral-900 text-white' : 'text-neutral-500 hover:text-neutral-900'
                 }`}
               >{n}d</button>
@@ -72,7 +72,7 @@ export default function Insights() {
           <button
             onClick={() => load()}
             disabled={busy}
-            className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-[11px] font-semibold text-neutral-700 hover:bg-neutral-50 disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-[9px] font-semibold text-neutral-700 hover:bg-neutral-50 disabled:opacity-50"
           >
             <RefreshCw size={12} className={busy ? 'animate-spin' : ''} /> Refresh
           </button>
@@ -90,8 +90,8 @@ export default function Insights() {
       <section className="mb-6 rounded-2xl border border-neutral-200 bg-white p-6">
         <div className="mb-4 flex items-center justify-between">
           <div>
-            <p className="text-[11px] font-bold uppercase tracking-widest text-neutral-500">Best selling hours</p>
-            <p className="mt-1 text-[12px] text-neutral-500">Distribution of orders across the day — plan promotions at the peak.</p>
+            <p className="text-[9px] font-bold uppercase tracking-widest text-neutral-500">Best selling hours</p>
+            <p className="mt-1 text-[9px] text-neutral-500">Distribution of orders across the day — plan promotions at the peak.</p>
           </div>
           <span className="grid h-9 w-9 place-items-center rounded-xl bg-blue-50 text-blue-700"><Clock size={15}/></span>
         </div>
@@ -121,8 +121,8 @@ export default function Insights() {
         <section className="rounded-2xl border border-neutral-200 bg-white p-6">
           <div className="mb-4 flex items-center justify-between">
             <div>
-              <p className="text-[11px] font-bold uppercase tracking-widest text-neutral-500">Top cities</p>
-              <p className="mt-1 text-[12px] text-neutral-500">By revenue — focus your ads here.</p>
+              <p className="text-[9px] font-bold uppercase tracking-widest text-neutral-500">Top cities</p>
+              <p className="mt-1 text-[9px] text-neutral-500">By revenue — focus your ads here.</p>
             </div>
             <span className="grid h-9 w-9 place-items-center rounded-xl bg-purple-50 text-purple-700"><MapPin size={15}/></span>
           </div>
@@ -136,13 +136,13 @@ export default function Insights() {
                 return (
                   <div key={c._id + i} className="rounded-xl border border-neutral-100 bg-neutral-50/60 p-3">
                     <div className="flex items-center justify-between">
-                      <p className="text-[13px] font-semibold text-neutral-900">
+                      <p className="text-[10px] font-semibold text-neutral-900">
                         <span className="mr-2 inline-block w-4 text-neutral-400">{i + 1}.</span>
                         {c._id || '—'}
                       </p>
-                      <p className="font-sans text-[12.5px] font-semibold tabular-nums text-neutral-900">{pkr(c.revenue)}</p>
+                      <p className="font-sans text-[7px] font-semibold tabular-nums text-neutral-900">{pkr(c.revenue)}</p>
                     </div>
-                    <div className="mt-1.5 flex items-center gap-3 text-[11px] text-neutral-500">
+                    <div className="mt-1.5 flex items-center gap-3 text-[9px] text-neutral-500">
                       <span>{c.province}</span>
                       <span>·</span>
                       <span>{c.orders} order{c.orders === 1 ? '' : 's'}</span>
@@ -160,29 +160,29 @@ export default function Insights() {
         <section className="rounded-2xl border border-neutral-200 bg-white p-6">
           <div className="mb-4 flex items-center justify-between">
             <div>
-              <p className="text-[11px] font-bold uppercase tracking-widest text-neutral-500">Product profit ranking</p>
-              <p className="mt-1 text-[12px] text-neutral-500">Top 10 by gross profit (needs cost prices set).</p>
+              <p className="text-[9px] font-bold uppercase tracking-widest text-neutral-500">Product profit ranking</p>
+              <p className="mt-1 text-[9px] text-neutral-500">Top 10 by gross profit (needs cost prices set).</p>
             </div>
             <span className="grid h-9 w-9 place-items-center rounded-xl bg-emerald-50 text-emerald-700"><TrendingUp size={15}/></span>
           </div>
           {d.topProfit.length === 0 || d.topProfit.every((p) => p.profit === 0) ? (
-            <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-[12px] leading-relaxed text-amber-800">
+            <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-[9px] leading-relaxed text-amber-800">
               💡 Set the <b>Cost / Wholesale price</b> field on each product to see accurate profit ranking here.
             </div>
           ) : (
             <ol className="space-y-2">
               {d.topProfit.map((p, i) => (
                 <li key={p._id} className="flex items-center gap-3 rounded-xl border border-neutral-100 bg-neutral-50/60 p-2">
-                  <span className={`grid h-7 w-7 shrink-0 place-items-center rounded-lg text-[11px] font-bold ${
+                  <span className={`grid h-7 w-7 shrink-0 place-items-center rounded-lg text-[9px] font-bold ${
                     i === 0 ? 'bg-amber-500 text-white' : i === 1 ? 'bg-neutral-400 text-white' : i === 2 ? 'bg-amber-700 text-white' : 'bg-neutral-100 text-neutral-600'
                   }`}>{i + 1}</span>
                   {p.image && <Img src={p.image} alt="" className="h-10 w-8 shrink-0 rounded-md border border-neutral-200 object-cover" />}
                   <div className="min-w-0 flex-1">
-                    <p className="line-clamp-1 text-[12.5px] font-medium text-neutral-900">{p.name}</p>
-                    <p className="text-[11px] text-neutral-500">{p.unitsSold} sold · Revenue {pkr(p.revenue)}</p>
+                    <p className="line-clamp-1 text-[9px] font-medium text-neutral-900">{p.name}</p>
+                    <p className="text-[9px] text-neutral-500">{p.unitsSold} sold · Revenue {pkr(p.revenue)}</p>
                   </div>
                   <div className="text-right">
-                    <p className="font-sans text-[12.5px] font-semibold tabular-nums text-emerald-700">{pkr(p.profit)}</p>
+                    <p className="font-sans text-[7px] font-semibold tabular-nums text-emerald-700">{pkr(p.profit)}</p>
                     <p className="text-[10px] text-neutral-400">profit</p>
                   </div>
                 </li>
@@ -196,8 +196,8 @@ export default function Insights() {
       <section className="rounded-2xl border border-neutral-200 bg-white p-6">
         <div className="mb-4 flex items-center justify-between">
           <div>
-            <p className="text-[11px] font-bold uppercase tracking-widest text-neutral-500">Cohort analysis</p>
-            <p className="mt-1 text-[12px] text-neutral-500">Customers grouped by the month of their first order.</p>
+            <p className="text-[9px] font-bold uppercase tracking-widest text-neutral-500">Cohort analysis</p>
+            <p className="mt-1 text-[9px] text-neutral-500">Customers grouped by the month of their first order.</p>
           </div>
           <span className="grid h-9 w-9 place-items-center rounded-xl bg-neutral-900 text-white"><Users size={15}/></span>
         </div>
@@ -205,7 +205,7 @@ export default function Insights() {
           <p className="py-8 text-center text-sm text-neutral-400">Need more historical orders to build cohorts.</p>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[600px] text-[13px]">
+            <table className="w-full min-w-[600px] text-[10px]">
               <thead>
                 <tr className="border-b border-neutral-200 text-left">
                   <th className="py-2 text-[10px] font-bold uppercase tracking-widest text-neutral-500">First-order month</th>
@@ -220,11 +220,11 @@ export default function Insights() {
                   const pct = c.newCustomers ? Math.round((c.repeatCustomers / c.newCustomers) * 1000) / 10 : 0;
                   return (
                     <tr key={c._id} className="border-b border-neutral-100">
-                      <td className="py-2.5 font-mono text-[12px] text-neutral-700">{c._id}</td>
+                      <td className="py-2.5 font-mono text-[9px] text-neutral-700">{c._id}</td>
                       <td className="py-2.5 text-right tabular-nums">{c.newCustomers}</td>
                       <td className="py-2.5 text-right tabular-nums">{c.repeatCustomers}</td>
                       <td className="py-2.5 text-right tabular-nums">
-                        <span className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${pct >= 25 ? 'bg-emerald-50 text-emerald-700' : pct >= 10 ? 'bg-amber-50 text-amber-700' : 'bg-neutral-100 text-neutral-600'}`}>{pct}%</span>
+                        <span className={`rounded-full px-2 py-0.5 text-[9px] font-bold ${pct >= 25 ? 'bg-emerald-50 text-emerald-700' : pct >= 10 ? 'bg-amber-50 text-amber-700' : 'bg-neutral-100 text-neutral-600'}`}>{pct}%</span>
                       </td>
                       <td className="py-2.5 text-right font-sans font-semibold tabular-nums text-neutral-900">{pkr(c.totalSpent)}</td>
                     </tr>
@@ -248,8 +248,8 @@ function MiniKpi({ icon: Icon, label, value, sub, accent }) {
         </span>
       </div>
       <p className="mt-3 text-[10px] font-bold uppercase tracking-widest text-neutral-500">{label}</p>
-      <p className="mt-0.5 font-sans text-[12px] font-semibold leading-none tabular-nums tracking-tight text-neutral-900">{value}</p>
-      {sub && <p className="mt-1.5 text-[11px] text-neutral-500">{sub}</p>}
+      <p className="mt-0.5 font-sans text-[7px] font-semibold leading-none tabular-nums tracking-tight text-neutral-900">{value}</p>
+      {sub && <p className="mt-1.5 text-[9px] text-neutral-500">{sub}</p>}
     </div>
   );
 }

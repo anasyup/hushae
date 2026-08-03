@@ -62,7 +62,7 @@ export default function LiveView() {
         {cards.map(([Icon, label, v, hot]) => (
           <div key={label} className={`card p-5 ${hot ? 'ring-1 ring-emerald-200' : ''}`}>
             <div className="flex items-center justify-between">
-              <p className="text-[11px] font-bold uppercase tracking-wider text-neutral-500">{label}</p>
+              <p className="text-[9px] font-bold uppercase tracking-wider text-neutral-500">{label}</p>
               <Icon size={16} className={hot ? 'text-emerald-700' : 'text-emerald-700'} />
             </div>
             <p className={`mt-2 font-sans ${hot ? 'text-4xl' : 'text-2xl'}`}>{v}</p>
@@ -73,7 +73,7 @@ export default function LiveView() {
       <div className="mt-6 grid gap-6 lg:grid-cols-3">
         {/* Customer behaviour funnel */}
         <div className="rounded-2xl border border-neutral-200 bg-white p-6">
-          <p className="mb-5 flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-neutral-500"><Activity size={14} /> Customer behaviour — today</p>
+          <p className="mb-5 flex items-center gap-2 text-[9px] font-bold uppercase tracking-widest text-neutral-500"><Activity size={14} /> Customer behaviour — today</p>
           <div className="grid grid-cols-3 divide-x divide-line text-center">
             {[[ShoppingCart, 'Active carts', d.today.carts], [CreditCard, 'Reached checkout', d.today.checkouts], [Users, 'Purchased', d.today.orders]].map(([Icon, l, v]) => (
               <div key={l} className="px-2">
@@ -87,8 +87,8 @@ export default function LiveView() {
 
         {/* Sessions by location */}
         <div className="rounded-2xl border border-neutral-200 bg-white p-6 lg:col-span-2">
-          <p className="mb-1 flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-neutral-500"><MapPin size={14} /> Sessions by location — today</p>
-          <p className="mb-4 text-[11px] leading-relaxed text-neutral-500">Shehar visitor ke network (IP) se milta hai — VPN ya mobile network (Jazz/Telenor) ki wajah se qareebi shehar bhi dikh sakta hai. Ye GPS nahi, approximate area hai.</p>
+          <p className="mb-1 flex items-center gap-2 text-[9px] font-bold uppercase tracking-widest text-neutral-500"><MapPin size={14} /> Sessions by location — today</p>
+          <p className="mb-4 text-[9px] leading-relaxed text-neutral-500">Shehar visitor ke network (IP) se milta hai — VPN ya mobile network (Jazz/Telenor) ki wajah se qareebi shehar bhi dikh sakta hai. Ye GPS nahi, approximate area hai.</p>
           {d.byLocation.length === 0
             ? <p className="text-sm text-neutral-500">No visits yet today — jab visitors aayenge to unke shehar yahan dikhenge.</p>
             : (
@@ -109,7 +109,7 @@ export default function LiveView() {
 
       {/* Live feed */}
       <div className="rounded-2xl border border-neutral-200 bg-white mt-6 p-6">
-        <p className="mb-4 text-[11px] font-bold uppercase tracking-widest text-neutral-500">Live activity feed</p>
+        <p className="mb-4 text-[9px] font-bold uppercase tracking-widest text-neutral-500">Live activity feed</p>
         {d.feed.length === 0 ? <p className="text-sm text-neutral-500">Abhi koi activity nahi — store khulte hi yahan real-time feed chalegi.</p> : (
           <ol className="space-y-2">
             {d.feed.map((e, i) => (
@@ -117,7 +117,7 @@ export default function LiveView() {
                 <EvIcon e={e.event} />
                 <span className="font-medium">{EV_LABEL[e.event]}</span>
                 <span className="max-w-56 truncate font-mono text-xs text-neutral-500">{e.path}</span>
-                <span className="ml-auto flex items-center gap-2 text-[11px] text-neutral-500">
+                <span className="ml-auto flex items-center gap-2 text-[9px] text-neutral-500">
                   {e.city && <span>📍 {e.city}</span>}
                   <DevIcon d={e.device} />
                   <span className="w-16 text-right">{ago(e.createdAt)}</span>

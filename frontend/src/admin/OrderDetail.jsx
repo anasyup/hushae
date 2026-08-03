@@ -100,13 +100,13 @@ export default function OrderDetail() {
 
         {/* Status dropdown */}
         <select value={o.status} onChange={(e) => patch('/status', { status: e.target.value }, 'Status updated')} disabled={busy}
-          className={`cursor-pointer rounded-full border-0 px-3 py-2 text-[11px] font-bold uppercase tracking-wide outline-none ${statusPillClass(o.status)}`}>
+          className={`cursor-pointer rounded-full border-0 px-3 py-2 text-[9px] font-bold uppercase tracking-wide outline-none ${statusPillClass(o.status)}`}>
           {STATUSES.map((s) => <option key={s}>{s}</option>)}
         </select>
 
         {/* Payment dropdown */}
         <select value={o.paymentStatus} onChange={(e) => patch('/payment', { paymentStatus: e.target.value }, 'Payment updated')} disabled={busy}
-          className="cursor-pointer rounded-full border-0 bg-neutral-900 px-3 py-2 text-[11px] font-bold uppercase tracking-wide text-white outline-none">
+          className="cursor-pointer rounded-full border-0 bg-neutral-900 px-3 py-2 text-[9px] font-bold uppercase tracking-wide text-white outline-none">
           {PAY.map((s) => <option key={s}>{s}</option>)}
         </select>
 
@@ -129,8 +129,8 @@ export default function OrderDetail() {
             <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-neutral-100 text-neutral-600"><Icon size={14} /></span>
             <div className="min-w-0">
               <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">{label}</p>
-              <p className="mt-0.5 truncate text-[13px] font-semibold text-neutral-900">{value}</p>
-              <p className="truncate text-[11px] text-neutral-500">{sub}</p>
+              <p className="mt-0.5 truncate text-[10px] font-semibold text-neutral-900">{value}</p>
+              <p className="truncate text-[9px] text-neutral-500">{sub}</p>
             </div>
           </div>
         ))}
@@ -153,7 +153,7 @@ export default function OrderDetail() {
               </button>
             ))}
             {editable && !editing && (
-              <button onClick={startEdit} className="ml-auto mb-2 inline-flex items-center gap-1 rounded-full border border-neutral-300 bg-white px-3 py-1.5 text-[11px] font-semibold text-neutral-700 transition hover:border-neutral-900 hover:text-neutral-900"><Pencil size={11} /> Edit</button>
+              <button onClick={startEdit} className="ml-auto mb-2 inline-flex items-center gap-1 rounded-full border border-neutral-300 bg-white px-3 py-1.5 text-[9px] font-semibold text-neutral-700 transition hover:border-neutral-900 hover:text-neutral-900"><Pencil size={11} /> Edit</button>
             )}
           </div>
 
@@ -164,14 +164,14 @@ export default function OrderDetail() {
                 <div key={i} className="flex items-center gap-3 px-5 py-3">
                   {it.slug ? <Link to={`/product/${it.slug}`} target="_blank"><Img src={it.image} alt="" className="h-14 w-10 rounded-lg border border-neutral-200 object-cover" /></Link> : <Img src={it.image} alt="" className="h-14 w-10 rounded-lg border border-neutral-200 object-cover" />}
                   <div className="min-w-0 flex-1">
-                    <p className="text-[13px] font-semibold text-neutral-900 leading-snug">{it.name}</p>
-                    <p className="mt-0.5 flex items-center gap-1.5 text-[11px] text-neutral-500">
+                    <p className="text-[10px] font-semibold text-neutral-900 leading-snug">{it.name}</p>
+                    <p className="mt-0.5 flex items-center gap-1.5 text-[9px] text-neutral-500">
                       {it.size && <span className="rounded bg-neutral-100 px-1.5 py-0.5 font-medium">{it.size}</span>}
                       {it.color && <span className="rounded bg-neutral-100 px-1.5 py-0.5 font-medium">{it.color}</span>}
                       <span className="text-neutral-400">{pkr(it.price)} × {it.quantity}</span>
                     </p>
                   </div>
-                  <p className="text-[13px] font-semibold tabular-nums text-neutral-900">{pkr(it.lineTotal)}</p>
+                  <p className="text-[10px] font-semibold tabular-nums text-neutral-900">{pkr(it.lineTotal)}</p>
                 </div>
               )) : null}
 
@@ -180,20 +180,20 @@ export default function OrderDetail() {
                 <div key={i} className="flex items-center gap-3 px-5 py-3">
                   <Img src={it.image} alt="" className="h-14 w-10 rounded-lg border border-neutral-200 object-cover shrink-0" />
                   <div className="min-w-0 flex-1">
-                    <p className="text-[12px] font-semibold text-neutral-900 leading-snug">{it.name}</p>
+                    <p className="text-[9px] font-semibold text-neutral-900 leading-snug">{it.name}</p>
                     <div className="mt-1 flex flex-wrap items-center gap-1.5">
-                      {it.sizes.length > 0 && <select value={it.size} onChange={(e) => updLine(i, 'size', e.target.value)} className="rounded-lg border border-neutral-200 px-2 py-1 text-[11px] outline-none focus:border-neutral-900">{it.sizes.map((s) => <option key={s} value={s}>{s}</option>)}</select>}
-                      {it.colors.length > 0 && <select value={it.color} onChange={(e) => updLine(i, 'color', e.target.value)} className="rounded-lg border border-neutral-200 px-2 py-1 text-[11px] outline-none focus:border-neutral-900">{it.colors.map((c) => <option key={c.name} value={c.name}>{c.name}</option>)}</select>}
+                      {it.sizes.length > 0 && <select value={it.size} onChange={(e) => updLine(i, 'size', e.target.value)} className="rounded-lg border border-neutral-200 px-2 py-1 text-[9px] outline-none focus:border-neutral-900">{it.sizes.map((s) => <option key={s} value={s}>{s}</option>)}</select>}
+                      {it.colors.length > 0 && <select value={it.color} onChange={(e) => updLine(i, 'color', e.target.value)} className="rounded-lg border border-neutral-200 px-2 py-1 text-[9px] outline-none focus:border-neutral-900">{it.colors.map((c) => <option key={c.name} value={c.name}>{c.name}</option>)}</select>}
                       <div className="flex items-center gap-1 ml-1">
                         <button type="button" onClick={() => stepQty(i, -1)} className="grid h-5 w-5 place-items-center rounded border border-neutral-200 text-neutral-500 hover:border-neutral-900"><Minus size={10} /></button>
-                        <span className="w-5 text-center text-[11px] font-bold tabular-nums">{it.quantity}</span>
+                        <span className="w-5 text-center text-[9px] font-bold tabular-nums">{it.quantity}</span>
                         <button type="button" onClick={() => stepQty(i, 1)} className="grid h-5 w-5 place-items-center rounded border border-neutral-200 text-neutral-500 hover:border-neutral-900"><Plus size={10} /></button>
                         <span className="text-[10px] text-neutral-400">× {pkr(it.price)}</span>
                       </div>
                     </div>
                   </div>
                   <div className="flex flex-col items-end gap-1.5">
-                    <p className="text-[12px] font-bold tabular-nums">{pkr(it.price * it.quantity)}</p>
+                    <p className="text-[9px] font-bold tabular-nums">{pkr(it.price * it.quantity)}</p>
                     <button type="button" onClick={() => delLine(i)} className="rounded p-1 text-neutral-400 hover:bg-red-50 hover:text-red-600"><X size={12} /></button>
                   </div>
                 </div>
@@ -202,14 +202,14 @@ export default function OrderDetail() {
               {/* Add product search */}
               {editing && (
                 <div className="relative px-5 py-3">
-                  <input value={pq} onChange={(e) => searchPicker(e.target.value)} placeholder="Add product — search by name or SKU…" className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-[12px] outline-none focus:border-neutral-900" />
+                  <input value={pq} onChange={(e) => searchPicker(e.target.value)} placeholder="Add product — search by name or SKU…" className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-[9px] outline-none focus:border-neutral-900" />
                   {pRes.length > 0 && (
                     <div className="absolute inset-x-5 top-12 z-20 overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-lg">{pRes.map((p) => (
                       <button type="button" key={p._id} onClick={() => addPicked(p)} className="flex w-full items-center gap-2.5 px-3 py-2 text-left transition hover:bg-neutral-50">
                         <Img src={p.images[0]?.url} alt="" className="h-8 w-6 rounded object-cover" />
-                        <span className="flex-1 truncate text-[12px] font-medium">{p.name}</span>
+                        <span className="flex-1 truncate text-[9px] font-medium">{p.name}</span>
                         <span className="text-[10px] text-neutral-400">{p.sku}</span>
-                        <span className="text-[11px] font-bold">{pkr(p.price)}</span>
+                        <span className="text-[9px] font-bold">{pkr(p.price)}</span>
                       </button>
                     ))}</div>
                   )}
@@ -217,15 +217,15 @@ export default function OrderDetail() {
               )}
 
               {/* Totals footer */}
-              <div className="space-y-1 bg-neutral-50/60 px-5 py-4 text-[12px]">
+              <div className="space-y-1 bg-neutral-50/60 px-5 py-4 text-[9px]">
                 <div className="flex justify-between"><span className="text-neutral-500">Subtotal</span><span>{pkr(editing ? editSub : o.subtotal)}</span></div>
                 {!!o.discount && <div className="flex justify-between font-medium text-emerald-700"><span>Discount {o.couponCode && `(${o.couponCode})`}</span><span>− {pkr(o.discount)}</span></div>}
                 <div className="flex justify-between"><span className="text-neutral-500">Shipping</span><span>{o.shippingCharge === 0 ? 'Free' : pkr(o.shippingCharge)}</span></div>
-                <div className="flex justify-between pt-1.5 border-t border-neutral-200 text-[12px] font-semibold"><span>Total</span><span>{pkr(editing ? editTotal : o.total)}</span></div>
+                <div className="flex justify-between pt-1.5 border-t border-neutral-200 text-[9px] font-semibold"><span>Total</span><span>{pkr(editing ? editTotal : o.total)}</span></div>
                 {editing && (
                   <div className="flex items-center gap-2 pt-3">
-                    <button onClick={saveItems} disabled={busy} className="inline-flex items-center gap-1 rounded-full bg-neutral-900 px-4 py-2 text-[11px] font-semibold text-white hover:bg-black disabled:opacity-50"><Save size={11} /> {busy ? 'Saving…' : 'Update order'}</button>
-                    <button onClick={() => setEditing(false)} className="rounded-full border border-neutral-300 bg-white px-4 py-2 text-[11px] font-semibold text-neutral-700 hover:bg-neutral-50">Cancel</button>
+                    <button onClick={saveItems} disabled={busy} className="inline-flex items-center gap-1 rounded-full bg-neutral-900 px-4 py-2 text-[9px] font-semibold text-white hover:bg-black disabled:opacity-50"><Save size={11} /> {busy ? 'Saving…' : 'Update order'}</button>
+                    <button onClick={() => setEditing(false)} className="rounded-full border border-neutral-300 bg-white px-4 py-2 text-[9px] font-semibold text-neutral-700 hover:bg-neutral-50">Cancel</button>
                   </div>
                 )}
               </div>
@@ -236,7 +236,7 @@ export default function OrderDetail() {
           {tab === 'timeline' && (
             <div className="px-5 py-4">
               {(o.statusHistory || []).length === 0 ? (
-                <p className="py-8 text-center text-[12px] text-neutral-400">No status history recorded.</p>
+                <p className="py-8 text-center text-[9px] text-neutral-400">No status history recorded.</p>
               ) : (
                 <div className="space-y-3">
                   {(o.statusHistory || []).slice().reverse().map((h, i) => (
@@ -246,9 +246,9 @@ export default function OrderDetail() {
                         {i < (o.statusHistory || []).length - 1 && <div className="mt-0.5 h-full w-px bg-neutral-200" />}
                       </div>
                       <div className="pb-3">
-                        <p className="text-[13px] font-semibold text-neutral-900">{h.status}</p>
-                        <p className="text-[11px] text-neutral-500">{fmtDateTime(h.at)}</p>
-                        {h.note && <p className="mt-0.5 text-[11px] text-neutral-600 italic">"{h.note}"</p>}
+                        <p className="text-[10px] font-semibold text-neutral-900">{h.status}</p>
+                        <p className="text-[9px] text-neutral-500">{fmtDateTime(h.at)}</p>
+                        {h.note && <p className="mt-0.5 text-[9px] text-neutral-600 italic">"{h.note}"</p>}
                       </div>
                     </div>
                   ))}
@@ -265,18 +265,18 @@ export default function OrderDetail() {
                   <div className="flex items-center justify-between rounded-lg bg-neutral-50 px-4 py-3">
                     <div>
                       <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Tracking number</p>
-                      <p className="mt-0.5 font-mono text-[14px] font-semibold text-neutral-900">{o.trackingNumber}</p>
+                      <p className="mt-0.5 font-mono text-[9px] font-semibold text-neutral-900">{o.trackingNumber}</p>
                     </div>
                     <button onClick={() => navigator.clipboard?.writeText(o.trackingNumber)} className="rounded-full border border-neutral-300 bg-white p-2 text-neutral-500 hover:bg-neutral-100"><Copy size={13} /></button>
                   </div>
                   {o.courierName && (
                     <div className="rounded-lg bg-neutral-50 px-4 py-3">
                       <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Courier</p>
-                      <p className="mt-0.5 text-[13px] font-semibold text-neutral-900">{o.courierName}</p>
+                      <p className="mt-0.5 text-[10px] font-semibold text-neutral-900">{o.courierName}</p>
                     </div>
                   )}
                   {o.trackingUrl && (
-                    <a href={o.trackingUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-full bg-neutral-900 px-4 py-2 text-[11px] font-semibold text-white hover:bg-black">
+                    <a href={o.trackingUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-full bg-neutral-900 px-4 py-2 text-[9px] font-semibold text-white hover:bg-black">
                       <Truck size={11} /> Track online <ExternalLink size={10} />
                     </a>
                   )}
@@ -284,8 +284,8 @@ export default function OrderDetail() {
               ) : (
                 <div className="py-8 text-center">
                   <Truck size={24} className="mx-auto mb-2 text-neutral-300" />
-                  <p className="text-[12px] font-medium text-neutral-600">No tracking info yet</p>
-                  <p className="mt-1 text-[11px] text-neutral-400">Add a tracking number when the order ships.</p>
+                  <p className="text-[9px] font-medium text-neutral-600">No tracking info yet</p>
+                  <p className="mt-1 text-[9px] text-neutral-400">Add a tracking number when the order ships.</p>
                 </div>
               )}
             </div>
@@ -301,20 +301,20 @@ export default function OrderDetail() {
               <Link to={`/admin/customers`} className="text-[10px] font-semibold text-neutral-400 hover:text-neutral-900">View all</Link>
             </div>
             <div className="flex items-center gap-3 mb-3">
-              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-neutral-900 text-[12px] font-bold text-white">{(c.name || '?').slice(0, 1).toUpperCase()}</span>
+              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-neutral-900 text-[9px] font-bold text-white">{(c.name || '?').slice(0, 1).toUpperCase()}</span>
               <div className="min-w-0">
-                <p className="text-[13px] font-semibold text-neutral-900 truncate">{c.name}</p>
-                <p className="text-[11px] text-neutral-500">{c.city}</p>
+                <p className="text-[10px] font-semibold text-neutral-900 truncate">{c.name}</p>
+                <p className="text-[9px] text-neutral-500">{c.city}</p>
               </div>
             </div>
             <div className="mt-3 flex flex-wrap gap-1.5">
               {c.phone && (
                 <>
-                  <a href={`tel:${c.phone}`} className="inline-flex items-center gap-1 rounded-full border border-neutral-200 bg-white px-2.5 py-1.5 text-[11px] font-semibold text-neutral-700 transition hover:bg-neutral-50"><Phone size={10} /> Call</a>
-                  <a href={whatsappLink} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-full bg-emerald-600 px-2.5 py-1.5 text-[11px] font-semibold text-white transition hover:bg-emerald-700"><MessageCircle size={10} /> WhatsApp</a>
+                  <a href={`tel:${c.phone}`} className="inline-flex items-center gap-1 rounded-full border border-neutral-200 bg-white px-2.5 py-1.5 text-[9px] font-semibold text-neutral-700 transition hover:bg-neutral-50"><Phone size={10} /> Call</a>
+                  <a href={whatsappLink} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-full bg-emerald-600 px-2.5 py-1.5 text-[9px] font-semibold text-white transition hover:bg-emerald-700"><MessageCircle size={10} /> WhatsApp</a>
                 </>
               )}
-              {c.email && <a href={`mailto:${c.email}`} className="inline-flex items-center gap-1 rounded-full border border-neutral-200 bg-white px-2.5 py-1.5 text-[11px] font-semibold text-neutral-700 transition hover:bg-neutral-50"><Mail size={10} /> Email</a>}
+              {c.email && <a href={`mailto:${c.email}`} className="inline-flex items-center gap-1 rounded-full border border-neutral-200 bg-white px-2.5 py-1.5 text-[9px] font-semibold text-neutral-700 transition hover:bg-neutral-50"><Mail size={10} /> Email</a>}
             </div>
           </div>
 
@@ -324,8 +324,8 @@ export default function OrderDetail() {
               <MapPin size={13} className="text-neutral-500" />
               <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Delivery address</p>
             </div>
-            <p className="text-[12px] leading-relaxed text-neutral-900">{c.address}</p>
-            <p className="mt-1 text-[11px] font-medium text-neutral-600">{c.city}, {c.province}{c.postalCode ? ` — ${c.postalCode}` : ''}</p>
+            <p className="text-[9px] leading-relaxed text-neutral-900">{c.address}</p>
+            <p className="mt-1 text-[9px] font-medium text-neutral-600">{c.city}, {c.province}{c.postalCode ? ` — ${c.postalCode}` : ''}</p>
             {c.location?.lat != null && (
               <a href={c.location.mapsLink || `https://www.google.com/maps?q=${c.location.lat},${c.location.lng}`} target="_blank" rel="noreferrer"
                 className="mt-3 inline-flex items-center gap-1 rounded-full bg-blue-50 px-3 py-1.5 text-[10px] font-bold text-blue-700 ring-1 ring-blue-200 hover:bg-blue-100">
@@ -340,10 +340,10 @@ export default function OrderDetail() {
               <Banknote size={13} className="text-neutral-500" />
               <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Payment</p>
             </div>
-            <div className="space-y-2 text-[12px]">
+            <div className="space-y-2 text-[9px]">
               <div className="flex justify-between"><span className="text-neutral-500">Method</span><span className="font-semibold">{o.paymentMethod}</span></div>
               <div className="flex justify-between"><span className="text-neutral-500">Status</span><span className="font-semibold">{o.paymentStatus}</span></div>
-              {o.transactionId && <div className="flex justify-between"><span className="text-neutral-500">Txn ID</span><span className="font-mono text-[11px]">{o.transactionId.slice(0, 16)}…</span></div>}
+              {o.transactionId && <div className="flex justify-between"><span className="text-neutral-500">Txn ID</span><span className="font-mono text-[9px]">{o.transactionId.slice(0, 16)}…</span></div>}
               <div className="flex justify-between"><span className="text-neutral-500">Packaging</span><span className="font-semibold">{o.discreetPackaging ? 'Discreet' : 'Standard'}</span></div>
             </div>
           </div>

@@ -23,9 +23,9 @@ const num = (n) => Number(n || 0).toLocaleString('en-PK');
 function Stat({ label, value, sub, tone }) {
   return (
     <div className={`rounded-xl border bg-white px-4 py-3 ${tone === 'warn' ? 'border-amber-300' : 'border-neutral-200'}`}>
-      <p className="text-[11px] uppercase tracking-wider text-neutral-600">{label}</p>
+      <p className="text-[9px] uppercase tracking-wider text-neutral-600">{label}</p>
       <p className="mt-1 text-xl font-semibold text-neutral-900">{value}</p>
-      {sub && <p className="mt-0.5 text-[11px] text-neutral-600">{sub}</p>}
+      {sub && <p className="mt-0.5 text-[9px] text-neutral-600">{sub}</p>}
     </div>
   );
 }
@@ -33,15 +33,15 @@ function Stat({ label, value, sub, tone }) {
 function Table({ title, description, rows, cols, empty }) {
   return (
     <section className="rounded-2xl border border-neutral-200 bg-white p-5">
-      <p className="text-[11px] font-bold uppercase tracking-widest text-neutral-600">{title}</p>
-      {description && <p className="mt-1 text-[12px] leading-relaxed text-neutral-600">{description}</p>}
+      <p className="text-[9px] font-bold uppercase tracking-widest text-neutral-600">{title}</p>
+      {description && <p className="mt-1 text-[9px] leading-relaxed text-neutral-600">{description}</p>}
       {!rows?.length ? (
-        <p className="mt-4 rounded-xl bg-neutral-50 px-4 py-6 text-center text-[12px] text-neutral-600">{empty}</p>
+        <p className="mt-4 rounded-xl bg-neutral-50 px-4 py-6 text-center text-[9px] text-neutral-600">{empty}</p>
       ) : (
         <div className="mt-4 overflow-x-auto">
-          <table className="w-full text-left text-[13px]">
+          <table className="w-full text-left text-[10px]">
             <caption className="sr-only">{title}</caption>
-            <thead className="text-[11px] uppercase tracking-wider text-neutral-600">
+            <thead className="text-[9px] uppercase tracking-wider text-neutral-600">
               <tr>{cols.map((c) => (
                 <th key={c.key} scope="col" className={`pb-2 font-semibold ${c.align === 'right' ? 'text-right' : ''}`}>{c.label}</th>
               ))}</tr>
@@ -104,7 +104,7 @@ export default function SearchAnalytics() {
 
   return (
     <AdminLayout title="Search analytics">
-      <Link to="/admin/settings" className="mb-4 -ml-1 inline-flex min-h-[44px] items-center gap-1.5 px-1 text-[12px] font-semibold text-neutral-600 transition hover:text-neutral-900">
+      <Link to="/admin/settings" className="mb-4 -ml-1 inline-flex min-h-[44px] items-center gap-1.5 px-1 text-[9px] font-semibold text-neutral-600 transition hover:text-neutral-900">
         <ArrowLeft size={13} /> Settings
       </Link>
 
@@ -115,7 +115,7 @@ export default function SearchAnalytics() {
           </span>
           <div>
             <h2 className="font-sans text-2xl leading-tight text-neutral-900">Search analytics</h2>
-            <p className="mt-1 text-[13px] leading-relaxed text-neutral-600">
+            <p className="mt-1 text-[10px] leading-relaxed text-neutral-600">
               What customers look for, and what they fail to find.
             </p>
           </div>
@@ -124,17 +124,17 @@ export default function SearchAnalytics() {
           <label htmlFor="sa-days" className="sr-only">Time period</label>
           <select
             id="sa-days" value={days} onChange={(e) => setDays(Number(e.target.value))}
-            className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 min-h-[44px] max-w-[150px]"
+            className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900 min-h-[44px] max-w-[150px]"
           >
             <option value={7}>Last 7 days</option>
             <option value={30}>Last 30 days</option>
             <option value={90}>Last 90 days</option>
             <option value={365}>Last year</option>
           </select>
-          <button type="button" onClick={exportCsv} className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-neutral-300 px-3 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50">
+          <button type="button" onClick={exportCsv} className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-neutral-300 px-3 text-[9px] font-semibold text-neutral-700 transition hover:bg-neutral-50">
             <Download size={13} /> Export CSV
           </button>
-          <Link to="/admin/settings/search" className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-neutral-300 px-3 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50">
+          <Link to="/admin/settings/search" className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-neutral-300 px-3 text-[9px] font-semibold text-neutral-700 transition hover:bg-neutral-50">
             <SettingsIcon size={13} /> Rules
           </Link>
         </div>
@@ -173,7 +173,7 @@ export default function SearchAnalytics() {
               { key: 'term', label: 'Search term', render: (r) => <span className="font-medium text-neutral-900">{r.term}</span> },
               { key: 'count', label: 'Times', align: 'right', render: (r) => num(r.count) },
               { key: 'act', label: '', align: 'right', render: (r) => (
-                <Link to={`/admin/settings/search?add=${encodeURIComponent(r.term)}`} className="inline-flex min-h-[44px] items-center px-1 text-[12px] font-semibold text-neutral-700 underline-offset-2 hover:underline">
+                <Link to={`/admin/settings/search?add=${encodeURIComponent(r.term)}`} className="inline-flex min-h-[44px] items-center px-1 text-[9px] font-semibold text-neutral-700 underline-offset-2 hover:underline">
                   Add synonym
                 </Link>
               ) },
@@ -206,11 +206,11 @@ export default function SearchAnalytics() {
 
           {d?.device && Object.keys(d.device).length > 0 && (
             <section className="rounded-2xl border border-neutral-200 bg-white p-5">
-              <p className="text-[11px] font-bold uppercase tracking-widest text-neutral-600">Where they search from</p>
+              <p className="text-[9px] font-bold uppercase tracking-widest text-neutral-600">Where they search from</p>
               <div className="mt-4 grid grid-cols-3 gap-3">
                 {['mobile', 'tablet', 'desktop'].map((k) => (
                   <div key={k} className="rounded-xl bg-neutral-50 px-4 py-3">
-                    <p className="text-[11px] capitalize text-neutral-600">{k}</p>
+                    <p className="text-[9px] capitalize text-neutral-600">{k}</p>
                     <p className="mt-0.5 text-lg font-semibold text-neutral-900">{num(d.device[k] || 0)}</p>
                   </div>
                 ))}
@@ -224,10 +224,10 @@ export default function SearchAnalytics() {
           {quality && (quality.duplicateSizes?.length > 0 || quality.duplicateColors?.length > 0
             || quality.suspiciousColors?.length > 0 || quality.missingFabricCount > 0) && (
             <section className="rounded-2xl border border-amber-300 bg-amber-50 p-5">
-              <p className="flex items-center gap-2 text-[13px] font-semibold text-amber-900">
+              <p className="flex items-center gap-2 text-[10px] font-semibold text-amber-900">
                 <AlertTriangle size={14} /> Catalogue issues affecting search
               </p>
-              <ul className="mt-3 space-y-2 text-[12px] leading-relaxed text-amber-900">
+              <ul className="mt-3 space-y-2 text-[9px] leading-relaxed text-amber-900">
                 {quality.duplicateSizes?.map((s) => (
                   <li key={s.canonical}>
                     Size <strong>{s.canonical}</strong> is stored {s.variants.length} different ways: {s.variants.map((v) => `"${v}"`).join(', ')} — shoppers see one filter, but the records disagree.

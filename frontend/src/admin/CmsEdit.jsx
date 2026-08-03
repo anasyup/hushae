@@ -220,8 +220,8 @@ export default function CmsEdit() {
           </span>
           <div className="min-w-0">
             <h2 className="truncate font-sans text-2xl leading-tight text-neutral-900">{isNew ? 'New page' : p.title || 'Untitled'}</h2>
-            <p className="mt-1 flex flex-wrap items-center gap-2 text-[13px] text-neutral-600">
-              <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold ring-1 ${STATE_STYLE[reason] || STATE_STYLE.draft}`}>
+            <p className="mt-1 flex flex-wrap items-center gap-2 text-[10px] text-neutral-600">
+              <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[9px] font-semibold ring-1 ${STATE_STYLE[reason] || STATE_STYLE.draft}`}>
                 {STATE_LABEL[reason] || reason}
               </span>
               {p.slug && <span className="truncate">/{p.slug}</span>}
@@ -229,20 +229,20 @@ export default function CmsEdit() {
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Link to="/admin/cms" className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-neutral-300 px-3 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50">
+          <Link to="/admin/cms" className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-neutral-300 px-3 text-[9px] font-semibold text-neutral-700 transition hover:bg-neutral-50">
             <ArrowLeft size={13} aria-hidden="true" /> Pages
           </Link>
           {!isNew && state?.live && (
             <a
               href={`/${p.slug}`} target="_blank" rel="noreferrer"
-              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-neutral-300 px-3 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50"
+              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-neutral-300 px-3 text-[9px] font-semibold text-neutral-700 transition hover:bg-neutral-50"
             >
               <Eye size={13} aria-hidden="true" /> View
             </a>
           )}
           <button
             type="button" onClick={save} disabled={busy || (!dirty && !isNew)}
-            className="min-h-[44px] rounded-lg bg-neutral-900 px-4 text-[12px] font-semibold text-white transition hover:bg-neutral-800 disabled:opacity-50"
+            className="min-h-[44px] rounded-lg bg-neutral-900 px-4 text-[9px] font-semibold text-white transition hover:bg-neutral-800 disabled:opacity-50"
           >
             {busy ? 'Saving…' : isNew ? 'Save draft' : dirty ? 'Save changes' : 'Saved'}
           </button>
@@ -251,7 +251,7 @@ export default function CmsEdit() {
 
       {/* ---- what the customer sees right now ---- */}
       {!isNew && (
-        <div className={`mb-5 rounded-xl border px-4 py-3 text-[13px] ${state?.live ? 'border-emerald-200 bg-emerald-50 text-emerald-900' : 'border-neutral-200 bg-neutral-50 text-neutral-700'}`}>
+        <div className={`mb-5 rounded-xl border px-4 py-3 text-[10px] ${state?.live ? 'border-emerald-200 bg-emerald-50 text-emerald-900' : 'border-neutral-200 bg-neutral-50 text-neutral-700'}`}>
           {reason === 'live' && <>Customers can read this page now{p.hasDraft ? ' — but your newest edits are not published yet.' : '.'}</>}
           {reason === 'draft' && 'Only you can see this. Press Publish when it is ready.'}
           {reason === 'scheduled' && <>Hidden until {fmtWhen(p.publishAt)}. Nobody can reach it before then, even with the link.</>}
@@ -261,12 +261,12 @@ export default function CmsEdit() {
       )}
 
       {problems.length > 0 && (
-        <ul role="alert" className="mb-5 space-y-1 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-[12px] text-amber-900">
+        <ul role="alert" className="mb-5 space-y-1 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-[9px] text-amber-900">
           {problems.map((m) => <li key={m}>{m}</li>)}
         </ul>
       )}
       {errs.length > 0 && (
-        <ul role="alert" className="mb-5 space-y-1 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-[12px] text-red-800">
+        <ul role="alert" className="mb-5 space-y-1 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-[9px] text-red-800">
           {errs.map((e, i) => <li key={i}>{e.message}</li>)}
         </ul>
       )}
@@ -290,7 +290,7 @@ export default function CmsEdit() {
                   placeholder="size-guide"
                 />
                 {p.slug && !slugCheck.ok && (
-                  <p role="alert" className="mt-1.5 text-[11px] font-medium text-red-700">
+                  <p role="alert" className="mt-1.5 text-[9px] font-medium text-red-700">
                     {slugCheck.message}
                     {slugCheck.suggestion && (
                       <button
@@ -304,7 +304,7 @@ export default function CmsEdit() {
                   </p>
                 )}
                 {renamed && slugCheck.ok && (
-                  <p className="mt-1.5 rounded-lg bg-sky-50 px-3 py-2 text-[11px] leading-relaxed text-sky-900">
+                  <p className="mt-1.5 rounded-lg bg-sky-50 px-3 py-2 text-[9px] leading-relaxed text-sky-900">
                     You changed the address. Anyone using the old link would normally hit a dead end —
                     {cfg.autoRedirectOnRename
                       ? ' we will leave a note that sends them to the new one automatically.'
@@ -332,10 +332,10 @@ export default function CmsEdit() {
                 value={p.body || ''}
                 onChange={(e) => set('body', e.target.value)}
                 aria-describedby="cms-body-h"
-                className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 min-h-[320px] resize-y font-mono text-[13px] leading-relaxed"
+                className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900 min-h-[320px] resize-y font-mono text-[10px] leading-relaxed"
                 placeholder={'Returns\n\nWe accept returns within 14 days of delivery, as long as the item is unworn and the tags are still attached.\n\nHow to start a return\n\nMessage us on WhatsApp with your order number.'}
               />
-              <p id="cms-body-h" className="mt-1.5 text-[11px] leading-relaxed text-neutral-600">
+              <p id="cms-body-h" className="mt-1.5 text-[9px] leading-relaxed text-neutral-600">
                 A line on its own with nothing after it becomes a heading. Everything else becomes a paragraph.
                 {' '}{(p.body || '').length.toLocaleString('en-PK')} characters.
               </p>
@@ -354,11 +354,11 @@ export default function CmsEdit() {
                 id="cms-excerpt" rows={3} value={p.excerpt || ''}
                 onChange={(e) => set('excerpt', e.target.value)}
                 aria-describedby="cms-excerpt-h"
-                className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 resize-y"
+                className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900 resize-y"
                 placeholder="How to measure yourself and pick the right size."
                 maxLength={300}
               />
-              <p id="cms-excerpt-h" className="mt-1.5 text-[11px] text-neutral-600">
+              <p id="cms-excerpt-h" className="mt-1.5 text-[9px] text-neutral-600">
                 Keep it under about 160 characters. {(p.excerpt || '').length}/300 used.
               </p>
             </div>
@@ -370,7 +370,7 @@ export default function CmsEdit() {
           <Section title="Going live" description="Nothing is visible until you publish.">
             <div className="space-y-3">
               {isNew ? (
-                <p className="rounded-lg bg-neutral-50 px-3 py-2.5 text-[12px] leading-relaxed text-neutral-700">
+                <p className="rounded-lg bg-neutral-50 px-3 py-2.5 text-[9px] leading-relaxed text-neutral-700">
                   Save the page first. New pages are always saved as a draft so you can read them over before
                   anyone else does.
                 </p>
@@ -378,7 +378,7 @@ export default function CmsEdit() {
                 <>
                   <button
                     type="button" onClick={() => publish(null)} disabled={busy || dirty || reason === 'live'}
-                    className="inline-flex min-h-[44px] w-full items-center justify-center gap-1.5 rounded-lg bg-neutral-900 px-4 text-[12px] font-semibold text-white transition hover:bg-neutral-800 disabled:opacity-50"
+                    className="inline-flex min-h-[44px] w-full items-center justify-center gap-1.5 rounded-lg bg-neutral-900 px-4 text-[9px] font-semibold text-white transition hover:bg-neutral-800 disabled:opacity-50"
                   >
                     <Send size={13} aria-hidden="true" />
                     {reason === 'live' ? (p.hasDraft ? 'Publish your edits' : 'Already live') : 'Publish now'}
@@ -386,7 +386,7 @@ export default function CmsEdit() {
                   {reason === 'live' && p.hasDraft && (
                     <button
                       type="button" onClick={() => publish(null)} disabled={busy || dirty}
-                      className="min-h-[44px] w-full rounded-lg border border-neutral-900 px-4 text-[12px] font-semibold text-neutral-900 transition hover:bg-neutral-50 disabled:opacity-50"
+                      className="min-h-[44px] w-full rounded-lg border border-neutral-900 px-4 text-[9px] font-semibold text-neutral-900 transition hover:bg-neutral-50 disabled:opacity-50"
                     >
                       Publish the newest edits
                     </button>
@@ -394,18 +394,18 @@ export default function CmsEdit() {
                   {(reason === 'live' || reason === 'scheduled') && (
                     <button
                       type="button" onClick={unpublish} disabled={busy}
-                      className="inline-flex min-h-[44px] w-full items-center justify-center gap-1.5 rounded-lg border border-neutral-300 px-4 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-50"
+                      className="inline-flex min-h-[44px] w-full items-center justify-center gap-1.5 rounded-lg border border-neutral-300 px-4 text-[9px] font-semibold text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-50"
                     >
                       <EyeOff size={13} aria-hidden="true" /> Hide from customers
                     </button>
                   )}
                   {dirty && (
-                    <p className="text-[11px] leading-relaxed text-amber-800">
+                    <p className="text-[9px] leading-relaxed text-amber-800">
                       Save your changes before publishing — otherwise the old version goes live.
                     </p>
                   )}
                   {p.publishedAt && (
-                    <p className="text-[11px] text-neutral-600">Last published {fmtWhen(p.publishedAt)}</p>
+                    <p className="text-[9px] text-neutral-600">Last published {fmtWhen(p.publishedAt)}</p>
                   )}
                 </>
               )}
@@ -422,7 +422,7 @@ export default function CmsEdit() {
                 <button
                   type="button" disabled={busy || dirty || !scheduleAt}
                   onClick={() => publish(scheduleAt)}
-                  className="min-h-[44px] w-full rounded-lg border border-neutral-900 px-4 text-[12px] font-semibold text-neutral-900 transition hover:bg-neutral-50 disabled:opacity-50"
+                  className="min-h-[44px] w-full rounded-lg border border-neutral-900 px-4 text-[9px] font-semibold text-neutral-900 transition hover:bg-neutral-50 disabled:opacity-50"
                 >
                   Schedule
                 </button>
@@ -489,13 +489,13 @@ export default function CmsEdit() {
           {!isNew && !p.locked && (
             <button
               type="button" onClick={remove}
-              className="inline-flex min-h-[44px] w-full items-center justify-center gap-1.5 rounded-lg border border-red-200 px-4 text-[12px] font-semibold text-red-700 transition hover:bg-red-50"
+              className="inline-flex min-h-[44px] w-full items-center justify-center gap-1.5 rounded-lg border border-red-200 px-4 text-[9px] font-semibold text-red-700 transition hover:bg-red-50"
             >
               <Trash2 size={13} aria-hidden="true" /> Delete this page
             </button>
           )}
           {!isNew && p.locked && (
-            <p className="rounded-lg bg-amber-50 px-3 py-2.5 text-[11px] leading-relaxed text-amber-900">
+            <p className="rounded-lg bg-amber-50 px-3 py-2.5 text-[9px] leading-relaxed text-amber-900">
               This page is part of the shop and cannot be deleted. Hide it instead.
             </p>
           )}

@@ -42,7 +42,7 @@ export default function OrderDashboard({ token, onPipelineClick, onCustomerClick
   }, [token, days]);
 
   if (err) {
-    return <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-[13px] text-red-800">{err}</div>;
+    return <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-[10px] text-red-800">{err}</div>;
   }
   if (!data) {
     return (
@@ -61,8 +61,8 @@ export default function OrderDashboard({ token, onPipelineClick, onCustomerClick
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-baseline gap-2">
-          <p className="text-[13px] font-semibold text-neutral-900">Today at a glance</p>
-          <span className="inline-flex items-center gap-1 text-[11px] text-neutral-400">
+          <p className="text-[10px] font-semibold text-neutral-900">Today at a glance</p>
+          <span className="inline-flex items-center gap-1 text-[9px] text-neutral-400">
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
             live · {stamp ? stamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '—'}
           </span>
@@ -70,7 +70,7 @@ export default function OrderDashboard({ token, onPipelineClick, onCustomerClick
         <div className="flex gap-1 rounded-lg bg-neutral-100 p-0.5">
           {RANGES.map((r) => (
             <button key={r.d} onClick={() => setDays(r.d)}
-              className={`rounded-md px-2.5 py-1 text-[12px] font-semibold transition ${
+              className={`rounded-md px-2.5 py-1 text-[9px] font-semibold transition ${
                 days === r.d ? 'bg-white text-neutral-900 shadow-sm' : 'text-neutral-500 hover:text-neutral-900'}`}>
               {r.label}
             </button>
@@ -89,7 +89,7 @@ export default function OrderDashboard({ token, onPipelineClick, onCustomerClick
       </div>
 
       {/* Quick stats — the three numbers the desk quotes most often. */}
-      <div className="flex flex-wrap items-center gap-x-5 gap-y-2 rounded-lg bg-neutral-50 px-3 py-2.5 text-[12px]">
+      <div className="flex flex-wrap items-center gap-x-5 gap-y-2 rounded-lg bg-neutral-50 px-3 py-2.5 text-[9px]">
         <span className="flex items-center gap-1.5">
           <span className="font-semibold uppercase tracking-wider text-neutral-500">Payments</span>
           {['Pending', 'Verified', 'Confirmed'].map((st) => {
@@ -97,7 +97,7 @@ export default function OrderDashboard({ token, onPipelineClick, onCustomerClick
             const tone = st === 'Pending' ? 'bg-amber-100 text-amber-800'
               : st === 'Verified' ? 'bg-blue-100 text-blue-700' : 'bg-emerald-100 text-emerald-700';
             return (
-              <span key={st} className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${tone}`}>
+              <span key={st} className={`rounded-full px-2 py-0.5 text-[9px] font-semibold ${tone}`}>
                 {st} {n}
               </span>
             );
@@ -109,7 +109,7 @@ export default function OrderDashboard({ token, onPipelineClick, onCustomerClick
         <span className="flex items-center gap-1.5">
           <span className="font-semibold uppercase tracking-wider text-neutral-500">Methods</span>
           {Object.entries(data.byMethod).map(([m, n]) => (
-            <span key={m} className="rounded-full bg-white px-2 py-0.5 text-[11px] font-medium text-neutral-700 ring-1 ring-neutral-200">
+            <span key={m} className="rounded-full bg-white px-2 py-0.5 text-[9px] font-medium text-neutral-700 ring-1 ring-neutral-200">
               {m} {n}
             </span>
           ))}
@@ -132,7 +132,7 @@ export default function OrderDashboard({ token, onPipelineClick, onCustomerClick
 
       {/* Pipeline — clicking a stage filters the list below */}
       <div className="rounded-lg border border-neutral-200 p-3">
-        <p className="mb-2 text-[11.5px] font-semibold uppercase tracking-wider text-neutral-500">Pipeline</p>
+        <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-neutral-500">Pipeline</p>
         <div className="flex flex-wrap items-end gap-2">
           {data.pipeline.map((p) => {
             const g = GROUPS.find((x) => x.key === p.group);
@@ -141,9 +141,9 @@ export default function OrderDashboard({ token, onPipelineClick, onCustomerClick
                 className="group min-w-[92px] flex-1 rounded-lg border border-neutral-200 p-2 text-left transition hover:border-neutral-900">
                 <div className="flex items-center gap-1.5">
                   {g?.icon ? <g.icon size={12} className="text-neutral-400" /> : null}
-                  <span className="truncate text-[11px] font-medium text-neutral-600">{g?.label || p.group}</span>
+                  <span className="truncate text-[9px] font-medium text-neutral-600">{g?.label || p.group}</span>
                 </div>
-                <p className="mt-0.5 text-[19px] font-semibold tabular-nums leading-none text-neutral-900">{p.count}</p>
+                <p className="mt-0.5 text-[10px] font-semibold tabular-nums leading-none text-neutral-900">{p.count}</p>
                 <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-neutral-100">
                   <div className="h-full rounded-full bg-neutral-900 transition-all duration-500"
                     style={{ width: `${Math.round((p.count / maxPipe) * 100)}%` }} />
@@ -185,7 +185,7 @@ export default function OrderDashboard({ token, onPipelineClick, onCustomerClick
           </ResponsiveContainer>
           <div className="flex flex-wrap justify-center gap-x-3 gap-y-1">
             {methodData.map((m, i) => (
-              <span key={m.name} className="inline-flex items-center gap-1 text-[11px] text-neutral-600">
+              <span key={m.name} className="inline-flex items-center gap-1 text-[9px] text-neutral-600">
                 <span className="h-2 w-2 rounded-full" style={{ background: SLICE[i % SLICE.length] }} />
                 {m.name} ({m.value})
               </span>
@@ -221,13 +221,13 @@ export default function OrderDashboard({ token, onPipelineClick, onCustomerClick
                       {(c.name || '?').split(' ').map((w) => w[0]).slice(0, 2).join('').toUpperCase()}
                     </span>
                     <span className="min-w-0 flex-1">
-                      <span className="block truncate text-[12.5px] text-neutral-800">{c.name}</span>
-                      <span className="block text-[10.5px] text-neutral-400">
+                      <span className="block truncate text-[9px] text-neutral-800">{c.name}</span>
+                      <span className="block text-[9px] text-neutral-400">
                         {c.orders} order{c.orders === 1 ? '' : 's'}
                         {c.orders >= 3 && <span className="ml-1 font-semibold text-amber-600">· repeat</span>}
                       </span>
                     </span>
-                    <span className="shrink-0 text-[11.5px] font-semibold tabular-nums">{pkr(c.spent)}</span>
+                    <span className="shrink-0 text-[10px] font-semibold tabular-nums">{pkr(c.spent)}</span>
                   </button>
                 </li>
               ))}
@@ -239,8 +239,8 @@ export default function OrderDashboard({ token, onPipelineClick, onCustomerClick
           {data.topProducts.length === 0 ? <Empty /> : (
             <ul className="space-y-1.5">
               {data.topProducts.map((p, i) => (
-                <li key={p.name} className="flex items-center gap-2 text-[12.5px]">
-                  <span className="w-4 text-[11px] font-bold text-neutral-300">{i + 1}</span>
+                <li key={p.name} className="flex items-center gap-2 text-[9px]">
+                  <span className="w-4 text-[9px] font-bold text-neutral-300">{i + 1}</span>
                   <span className="min-w-0 flex-1 truncate text-neutral-700">{p.name}</span>
                   <span className="shrink-0 font-semibold tabular-nums">{p.units}</span>
                 </li>
@@ -253,9 +253,9 @@ export default function OrderDashboard({ token, onPipelineClick, onCustomerClick
           {data.topCities.length === 0 ? <Empty /> : (
             <ul className="space-y-1.5">
               {data.topCities.map((c) => (
-                <li key={c.city} className="flex items-center gap-2 text-[12.5px]">
+                <li key={c.city} className="flex items-center gap-2 text-[9px]">
                   <span className="min-w-0 flex-1 truncate text-neutral-700">{c.city}</span>
-                  <span className="shrink-0 text-[11px] text-neutral-400">{pkr(c.revenue)}</span>
+                  <span className="shrink-0 text-[9px] text-neutral-400">{pkr(c.revenue)}</span>
                   <span className="w-8 shrink-0 text-right font-semibold tabular-nums">{c.orders}</span>
                 </li>
               ))}
@@ -265,13 +265,13 @@ export default function OrderDashboard({ token, onPipelineClick, onCustomerClick
 
         <Panel title="Fulfilment speed">
           {data.stageSpeed.length === 0 ? (
-            <p className="py-3 text-center text-[11.5px] text-neutral-400">
+            <p className="py-3 text-center text-[10px] text-neutral-400">
               Not enough stage history yet — move a few orders through to build an average.
             </p>
           ) : (
             <ul className="space-y-1.5">
               {data.stageSpeed.slice(0, 5).map((s) => (
-                <li key={s.stage} className="flex items-center gap-2 text-[12.5px]">
+                <li key={s.stage} className="flex items-center gap-2 text-[9px]">
                   <span className="min-w-0 flex-1 truncate text-neutral-700">{s.stage}</span>
                   <span className="shrink-0 font-semibold tabular-nums">
                     {s.avgHours < 1 ? `${Math.round(s.avgHours * 60)}m` : `${s.avgHours}h`}
@@ -288,16 +288,16 @@ export default function OrderDashboard({ token, onPipelineClick, onCustomerClick
 
 const AXIS = { fontSize: 10, fill: '#9A9A9A' };
 const TIP = { borderRadius: 10, border: '1px solid #E4E0DA', fontSize: 12, boxShadow: '0 6px 20px rgba(0,0,0,.08)' };
-const Empty = () => <p className="py-3 text-center text-[11.5px] text-neutral-400">No data yet</p>;
+const Empty = () => <p className="py-3 text-center text-[10px] text-neutral-400">No data yet</p>;
 
 function Kpi({ label, value, sub, tone, accent }) {
   const cls = tone === 'good' ? 'text-emerald-700' : tone === 'bad' ? 'text-red-700'
     : tone === 'warn' ? 'text-amber-700' : 'text-neutral-900';
   return (
     <div className={`rounded-lg border px-3 py-2.5 ${accent ? 'border-neutral-900 bg-neutral-900' : 'border-neutral-200 bg-neutral-50/60'}`}>
-      <p className={`text-[10.5px] font-semibold uppercase tracking-wider ${accent ? 'text-white/60' : 'text-neutral-500'}`}>{label}</p>
-      <p className={`mt-0.5 text-[17px] font-semibold tabular-nums ${accent ? 'text-white' : cls}`}>{value}</p>
-      {sub && <p className={`text-[11px] ${accent ? 'text-white/50' : 'text-neutral-400'}`}>{sub}</p>}
+      <p className={`text-[9px] font-semibold uppercase tracking-wider ${accent ? 'text-white/60' : 'text-neutral-500'}`}>{label}</p>
+      <p className={`mt-0.5 text-[9px] font-semibold tabular-nums ${accent ? 'text-white' : cls}`}>{value}</p>
+      {sub && <p className={`text-[9px] ${accent ? 'text-white/50' : 'text-neutral-400'}`}>{sub}</p>}
     </div>
   );
 }
@@ -305,7 +305,7 @@ function Kpi({ label, value, sub, tone, accent }) {
 function Panel({ title, children }) {
   return (
     <div className="rounded-lg border border-neutral-200 p-3">
-      <p className="mb-2 text-[11.5px] font-semibold uppercase tracking-wider text-neutral-500">{title}</p>
+      <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-neutral-500">{title}</p>
       {children}
     </div>
   );

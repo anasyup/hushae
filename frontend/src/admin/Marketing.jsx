@@ -9,7 +9,7 @@ import AdminLayout from './AdminLayout';
 
 function BackToSettings() {
   return (
-    <Link to="/admin/settings" className="mb-4 inline-flex items-center gap-1.5 text-[12px] font-semibold text-neutral-500 transition hover:text-neutral-900">
+    <Link to="/admin/settings" className="mb-4 inline-flex items-center gap-1.5 text-[9px] font-semibold text-neutral-500 transition hover:text-neutral-900">
       <ArrowLeft size={13} /> Settings
     </Link>
   );
@@ -23,7 +23,7 @@ function PageIntro({ icon: Icon, title, description }) {
       </span>
       <div>
         <h2 className="font-sans text-2xl leading-tight text-neutral-900">{title}</h2>
-        <p className="mt-1 text-[13px] leading-relaxed text-neutral-500">{description}</p>
+        <p className="mt-1 text-[10px] leading-relaxed text-neutral-500">{description}</p>
       </div>
     </div>
   );
@@ -34,8 +34,8 @@ function Section({ title, description, children, action }) {
     <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
       <div className="mb-5 flex items-start justify-between">
         <div>
-          <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-900">{title}</p>
-          {description && <p className="mt-1 text-[12px] leading-relaxed text-neutral-500">{description}</p>}
+          <p className="text-[9px] font-bold uppercase tracking-widest text-neutral-900">{title}</p>
+          {description && <p className="mt-1 text-[9px] leading-relaxed text-neutral-500">{description}</p>}
         </div>
         {action && <div>{action}</div>}
       </div>
@@ -133,8 +133,8 @@ export default function Marketing() {
               <ShoppingBag size={14} className="text-neutral-500" />
               <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-500">Abandoned Carts</p>
             </div>
-            <p className="mt-2 text-[16px] font-bold text-neutral-900">{m.abandonedCartCount}</p>
-            <p className="text-[11px] text-neutral-500 mt-1">Carts awaiting checkout</p>
+            <p className="mt-2 text-[9px] font-bold text-neutral-900">{m.abandonedCartCount}</p>
+            <p className="text-[9px] text-neutral-500 mt-1">Carts awaiting checkout</p>
           </div>
 
           <div className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
@@ -142,8 +142,8 @@ export default function Marketing() {
               <TrendingUp size={14} className="text-neutral-500" />
               <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-500">Recovery Rate</p>
             </div>
-            <p className="mt-2 text-[16px] font-bold text-neutral-900">{m.recoveryRate}%</p>
-            <p className="text-[11px] text-emerald-600 mt-1">✓ {m.recoveredCount} Carts Recovered</p>
+            <p className="mt-2 text-[9px] font-bold text-neutral-900">{m.recoveryRate}%</p>
+            <p className="text-[9px] text-emerald-600 mt-1">✓ {m.recoveredCount} Carts Recovered</p>
           </div>
 
           <div className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
@@ -151,8 +151,8 @@ export default function Marketing() {
               <Mail size={14} className="text-neutral-500" />
               <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-500">Email Delivery / Open</p>
             </div>
-            <p className="mt-2 text-[16px] font-bold text-neutral-900">{m.emailDeliveryRate}% / {m.emailOpenRate}%</p>
-            <p className="text-[11px] text-neutral-500 mt-1">SMTP Connection Healthy</p>
+            <p className="mt-2 text-[9px] font-bold text-neutral-900">{m.emailDeliveryRate}% / {m.emailOpenRate}%</p>
+            <p className="text-[9px] text-neutral-500 mt-1">SMTP Connection Healthy</p>
           </div>
 
           <div className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
@@ -160,8 +160,8 @@ export default function Marketing() {
               <Star size={14} className="text-neutral-500" />
               <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-500">Review Request Response</p>
             </div>
-            <p className="mt-2 text-[16px] font-bold text-neutral-900">{m.responseRate}%</p>
-            <p className="text-[11px] text-neutral-500 mt-1">{m.reviewsCount} reviews from {m.reviewRequestsCount} requests</p>
+            <p className="mt-2 text-[9px] font-bold text-neutral-900">{m.responseRate}%</p>
+            <p className="text-[9px] text-neutral-500 mt-1">{m.reviewsCount} reviews from {m.reviewRequestsCount} requests</p>
           </div>
         </div>
 
@@ -174,7 +174,7 @@ export default function Marketing() {
               <button
                 onClick={handleSaveSettings}
                 disabled={busy || !isDirty}
-                className="inline-flex min-h-[38px] items-center gap-1.5 rounded-lg bg-neutral-900 px-4 py-1 text-[12px] font-semibold text-white transition hover:bg-neutral-800 disabled:opacity-40"
+                className="inline-flex min-h-[38px] items-center gap-1.5 rounded-lg bg-neutral-900 px-4 py-1 text-[9px] font-semibold text-white transition hover:bg-neutral-800 disabled:opacity-40"
               >
                 <Save size={13} /> {busy ? 'Saving…' : 'Save Rules'}
               </button>
@@ -183,8 +183,8 @@ export default function Marketing() {
             <div className="space-y-4">
               <label className="flex cursor-pointer items-start justify-between gap-4 rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-3">
                 <div className="min-w-0">
-                  <p className="text-[13px] font-medium text-neutral-900">Run Automated Abandoned Cart Recovery</p>
-                  <p className="text-[11px] text-neutral-500">Sends the transactional "Abandoned Cart" template if checkout is incomplete.</p>
+                  <p className="text-[10px] font-medium text-neutral-900">Run Automated Abandoned Cart Recovery</p>
+                  <p className="text-[9px] text-neutral-500">Sends the transactional "Abandoned Cart" template if checkout is incomplete.</p>
                 </div>
                 <span
                   onClick={() => updateAuto('abandonedCart', 'enabled', !auto.abandonedCart?.enabled)}
@@ -198,13 +198,13 @@ export default function Marketing() {
                 <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Timing: Send Email After (Hours)</label>
                 <input
                   type="number"
-                  className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !w-32"
+                  className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900 !w-32"
                   min={1}
                   max={24}
                   value={auto.abandonedCart?.delayHours || 2}
                   onChange={(e) => updateAuto('abandonedCart', 'delayHours', Number(e.target.value) || 2)}
                 />
-                <p className="text-[11px] text-neutral-500 mt-1">Recommended is 2 hours. Gives the customer enough time to return without losing intent.</p>
+                <p className="text-[9px] text-neutral-500 mt-1">Recommended is 2 hours. Gives the customer enough time to return without losing intent.</p>
               </div>
 
               <div className="pt-3 border-t">
@@ -222,8 +222,8 @@ export default function Marketing() {
             <div className="space-y-4">
               <label className="flex cursor-pointer items-start justify-between gap-4 rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-3">
                 <div className="min-w-0">
-                  <p className="text-[13px] font-medium text-neutral-900">Run Automated Review Requests</p>
-                  <p className="text-[11px] text-neutral-500">Triggers transactional "Review Request" email template after order delivery.</p>
+                  <p className="text-[10px] font-medium text-neutral-900">Run Automated Review Requests</p>
+                  <p className="text-[9px] text-neutral-500">Triggers transactional "Review Request" email template after order delivery.</p>
                 </div>
                 <span
                   onClick={() => updateAuto('reviewRequest', 'enabled', !auto.reviewRequest?.enabled)}
@@ -237,13 +237,13 @@ export default function Marketing() {
                 <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Timing: Send Email After (Days)</label>
                 <input
                   type="number"
-                  className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !w-32"
+                  className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900 !w-32"
                   min={1}
                   max={30}
                   value={auto.reviewRequest?.delayDays || 7}
                   onChange={(e) => updateAuto('reviewRequest', 'delayDays', Number(e.target.value) || 7)}
                 />
-                <p className="text-[11px] text-neutral-500 mt-1">Recommended is 7 days. Gives the customer ample time to wear and wash before rating.</p>
+                <p className="text-[9px] text-neutral-500 mt-1">Recommended is 7 days. Gives the customer ample time to wear and wash before rating.</p>
               </div>
 
               <div className="pt-3 border-t">

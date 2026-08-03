@@ -80,7 +80,7 @@ export default function ProfitCalculator() {
         onClick={() => setOpen((v) => !v)}
         aria-label="Profit calculator"
         title="Profit calculator"
-        className={`fixed bottom-5 right-5 z-40 flex items-center gap-2 rounded-full px-4 py-3 text-[12px] font-semibold shadow-lg transition ${
+        className={`fixed bottom-5 right-5 z-40 flex items-center gap-2 rounded-full px-4 py-3 text-[9px] font-semibold shadow-lg transition ${
           open ? 'bg-neutral-700 text-white' : 'bg-neutral-900 text-white hover:bg-neutral-800'
         }`}
       >
@@ -102,11 +102,11 @@ export default function ProfitCalculator() {
                 <Calculator size={16} />
                 <div>
                   <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Quick tool</p>
-                  <p className="text-[14px] font-semibold">Profit Calculator</p>
+                  <p className="text-[9px] font-semibold">Profit Calculator</p>
                 </div>
               </div>
               <div className="flex items-center gap-1">
-                <button onClick={reset} className="rounded-full px-2.5 py-1 text-[11px] font-semibold text-neutral-300 transition hover:bg-white/10 hover:text-white">Reset</button>
+                <button onClick={reset} className="rounded-full px-2.5 py-1 text-[9px] font-semibold text-neutral-300 transition hover:bg-white/10 hover:text-white">Reset</button>
                 <button onClick={() => setOpen(false)} aria-label="Close" className="rounded-full p-1.5 text-neutral-300 hover:bg-white/10 hover:text-white"><X size={16} /></button>
               </div>
             </div>
@@ -165,7 +165,7 @@ export default function ProfitCalculator() {
                 </Section>
               </div>
 
-              <div className="mt-5 rounded-xl border border-neutral-200 bg-neutral-50 p-3 text-[11px] leading-relaxed text-neutral-600">
+              <div className="mt-5 rounded-xl border border-neutral-200 bg-neutral-50 p-3 text-[9px] leading-relaxed text-neutral-600">
                 <b className="text-neutral-900">How this is calculated:</b><br />
                 Net profit = (Price × Qty) − (Cost × Qty) − (Packing + Courier subsidy) × Qty − Ads − Other − Tax.<br />
                 Break-even = orders needed to cover Ads + Other with the per-unit contribution margin.
@@ -190,7 +190,7 @@ function Section({ title, children }) {
 function Field({ label, v, onChange, placeholder, prefix, suffix }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-[10.5px] font-semibold text-neutral-500">{label}</span>
+      <span className="mb-1 block text-[9px] font-semibold text-neutral-500">{label}</span>
       <span className="relative block">
         {prefix && <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[10px] font-bold text-neutral-400">{prefix}</span>}
         <input
@@ -199,11 +199,11 @@ function Field({ label, v, onChange, placeholder, prefix, suffix }) {
           value={v}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
-          className={`w-full rounded-lg border border-neutral-200 bg-white py-2 text-[13px] font-medium text-neutral-900 outline-none transition focus:border-neutral-900 ${
+          className={`w-full rounded-lg border border-neutral-200 bg-white py-2 text-[10px] font-medium text-neutral-900 outline-none transition focus:border-neutral-900 ${
             prefix ? 'pl-11' : 'pl-3'
           } ${suffix ? 'pr-8' : 'pr-3'}`}
         />
-        {suffix && <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[11px] font-bold text-neutral-400">{suffix}</span>}
+        {suffix && <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[9px] font-bold text-neutral-400">{suffix}</span>}
       </span>
     </label>
   );
@@ -219,10 +219,10 @@ function OutputTile({ label, value, sub, tone = 'neutral', big, bigSub, small })
   return (
     <div className={`rounded-xl border p-3 ${map[tone]}`}>
       <p className="text-[9.5px] font-bold uppercase tracking-widest opacity-70">{label}</p>
-      <p className={`mt-1 font-sans tabular-nums leading-none tracking-tight ${big ? 'text-[12px] font-semibold' : small ? 'text-[12px] font-semibold' : 'text-[13px] font-semibold'}`}>
+      <p className={`mt-1 font-sans tabular-nums leading-none tracking-tight ${big ? 'text-[9px] font-semibold' : small ? 'text-[9px] font-semibold' : 'text-[10px] font-semibold'}`}>
         {value}
       </p>
-      {sub && <p className={`mt-1 ${bigSub ? 'text-[11px] font-semibold' : 'text-[10px] opacity-70'}`}>{sub}</p>}
+      {sub && <p className={`mt-1 ${bigSub ? 'text-[9px] font-semibold' : 'text-[10px] opacity-70'}`}>{sub}</p>}
     </div>
   );
 }

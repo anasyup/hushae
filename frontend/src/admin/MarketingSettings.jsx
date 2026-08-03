@@ -57,7 +57,7 @@ export default function MarketingSettings() {
 
   return (
     <AdminLayout title="Marketing rules">
-      <Link to="/admin/promotions" className="mb-4 -ml-1 inline-flex min-h-[44px] items-center gap-1.5 px-1 text-[12px] font-semibold text-neutral-600 transition hover:text-neutral-900">
+      <Link to="/admin/promotions" className="mb-4 -ml-1 inline-flex min-h-[44px] items-center gap-1.5 px-1 text-[9px] font-semibold text-neutral-600 transition hover:text-neutral-900">
         <ArrowLeft size={13} /> Promotions
       </Link>
 
@@ -68,22 +68,22 @@ export default function MarketingSettings() {
           </span>
           <div>
             <h2 className="font-sans text-2xl leading-tight text-neutral-900">Marketing rules</h2>
-            <p className="mt-1 text-[13px] leading-relaxed text-neutral-600">
+            <p className="mt-1 text-[10px] leading-relaxed text-neutral-600">
               The limits every promotion has to obey, and the extras that help customers buy more.
             </p>
           </div>
         </div>
-        <Link to="/admin/promotions" className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-neutral-300 px-3 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50">
+        <Link to="/admin/promotions" className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-neutral-300 px-3 text-[9px] font-semibold text-neutral-700 transition hover:bg-neutral-50">
           <BadgePercent size={13} /> Promotions
         </Link>
       </div>
 
       {problems.length > 0 && (
         <div role="alert" className="mb-5 rounded-2xl border border-amber-300 bg-amber-50 p-4">
-          <p className="flex items-center gap-2 text-[13px] font-semibold text-amber-900">
+          <p className="flex items-center gap-2 text-[10px] font-semibold text-amber-900">
             <AlertTriangle size={14} /> Check these
           </p>
-          <ul className="mt-2 list-disc space-y-1 pl-5 text-[12px] text-amber-900">
+          <ul className="mt-2 list-disc space-y-1 pl-5 text-[9px] text-amber-900">
             {problems.map((x) => <li key={x}>{x}</li>)}
           </ul>
         </div>
@@ -104,7 +104,7 @@ export default function MarketingSettings() {
           description="The single most important number on this page."
           tone="warn"
         >
-          <div className="mb-4 rounded-xl bg-amber-50 px-4 py-3 text-[12px] leading-relaxed text-amber-900">
+          <div className="mb-4 rounded-xl bg-amber-50 px-4 py-3 text-[9px] leading-relaxed text-amber-900">
             Every product in your shop already shows a compare-at price — an average markdown of
             about 22%. On top of that a customer can use a coupon, then loyalty points, then store
             credit, then a gift card. Without a ceiling those add up: a PKR 1,550 item can reach
@@ -126,7 +126,7 @@ export default function MarketingSettings() {
               hint="0 = not enforced."
             />
           </div>
-          <p className="mt-3 rounded-xl bg-neutral-50 px-4 py-3 text-[12px] text-neutral-600">
+          <p className="mt-3 rounded-xl bg-neutral-50 px-4 py-3 text-[9px] text-neutral-600">
             On a PKR 5,000 basket, promotions could take off at most{' '}
             <strong>PKR {Math.round(5000 * ((Number(M.maxTotalDiscountPercent) || 0) / 100)).toLocaleString('en-PK')}</strong>.
           </p>
@@ -213,7 +213,7 @@ export default function MarketingSettings() {
               hint="Promotion times are read in this timezone."
             />
           </div>
-          <p className="mt-3 rounded-xl bg-neutral-50 px-4 py-3 text-[12px] leading-relaxed text-neutral-600">
+          <p className="mt-3 rounded-xl bg-neutral-50 px-4 py-3 text-[9px] leading-relaxed text-neutral-600">
             Schedules are checked every time a basket is priced, not by a background job. A
             promotion starts and stops exactly on time without anything needing to be running.
           </p>

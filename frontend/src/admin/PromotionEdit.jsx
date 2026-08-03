@@ -124,7 +124,7 @@ export default function PromotionEdit() {
 
   return (
     <AdminLayout title={isNew ? 'New promotion' : p.name || 'Promotion'}>
-      <Link to="/admin/promotions" className="mb-4 -ml-1 inline-flex min-h-[44px] items-center gap-1.5 px-1 text-[12px] font-semibold text-neutral-600 transition hover:text-neutral-900">
+      <Link to="/admin/promotions" className="mb-4 -ml-1 inline-flex min-h-[44px] items-center gap-1.5 px-1 text-[9px] font-semibold text-neutral-600 transition hover:text-neutral-900">
         <ArrowLeft size={13} /> Promotions
       </Link>
 
@@ -137,19 +137,19 @@ export default function PromotionEdit() {
             <h2 className="font-sans text-2xl leading-tight text-neutral-900">
               {isNew ? 'New promotion' : p.name || 'Promotion'}
             </h2>
-            <p className="mt-1 text-[13px] leading-relaxed text-neutral-600">{t.help}</p>
+            <p className="mt-1 text-[10px] leading-relaxed text-neutral-600">{t.help}</p>
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
-          <button type="button" onClick={() => setPreviewOpen(true)} className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-neutral-300 px-3 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50">
+          <button type="button" onClick={() => setPreviewOpen(true)} className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-neutral-300 px-3 text-[9px] font-semibold text-neutral-700 transition hover:bg-neutral-50">
             <Play size={13} /> Test it
           </button>
           {!isNew && (
-            <button type="button" onClick={remove} className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-red-200 px-3 text-[12px] font-semibold text-red-600 transition hover:bg-red-50">
+            <button type="button" onClick={remove} className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-red-200 px-3 text-[9px] font-semibold text-red-600 transition hover:bg-red-50">
               <Trash2 size={13} /> Delete
             </button>
           )}
-          <button type="button" onClick={save} disabled={busy || problems.length > 0} className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg bg-neutral-900 px-4 text-[12px] font-semibold text-white transition hover:bg-neutral-800 disabled:opacity-50">
+          <button type="button" onClick={save} disabled={busy || problems.length > 0} className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg bg-neutral-900 px-4 text-[9px] font-semibold text-white transition hover:bg-neutral-800 disabled:opacity-50">
             <Save size={13} /> {busy ? 'Saving…' : isNew ? 'Create' : 'Save'}
           </button>
         </div>
@@ -157,7 +157,7 @@ export default function PromotionEdit() {
 
       {(problems.length > 0 || errs.length > 0) && (
         <div role="alert" className="mb-5 rounded-2xl border border-amber-300 bg-amber-50 p-4">
-          <ul className="list-disc space-y-1 pl-5 text-[12px] leading-relaxed text-amber-900">
+          <ul className="list-disc space-y-1 pl-5 text-[9px] leading-relaxed text-amber-900">
             {problems.map((x) => <li key={x}>{x}</li>)}
             {errs.map((x, i) => <li key={i}>{x.message}</li>)}
           </ul>
@@ -184,8 +184,8 @@ export default function PromotionEdit() {
                   onClick={() => set('type', x.id)}
                   className={`min-h-[44px] rounded-xl border px-4 py-3 text-left transition ${p.type === x.id ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-200 bg-white hover:border-neutral-300'}`}
                 >
-                  <span className="block text-[13px] font-semibold">{x.label}</span>
-                  <span className={`mt-0.5 block text-[11px] ${p.type === x.id ? 'text-white/70' : 'text-neutral-600'}`}>{x.example}</span>
+                  <span className="block text-[10px] font-semibold">{x.label}</span>
+                  <span className={`mt-0.5 block text-[9px] ${p.type === x.id ? 'text-white/70' : 'text-neutral-600'}`}>{x.example}</span>
                 </button>
               ))}
             </div>
@@ -234,13 +234,13 @@ export default function PromotionEdit() {
 
           {hasField(p.type, 'bundle') && (
             <>
-              <p className="mb-3 text-[12px] leading-relaxed text-neutral-600">
+              <p className="mb-3 text-[9px] leading-relaxed text-neutral-600">
                 Paste the product IDs that make up the bundle, one per line. You can copy an ID
                 from the address bar on any product page in Inventory.
               </p>
               <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500" htmlFor="bundle-ids">Products in the bundle</label>
               <textarea
-                id="bundle-ids" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 min-h-[96px] font-mono text-[12px]"
+                id="bundle-ids" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900 min-h-[96px] font-mono text-[9px]"
                 value={(p.bundle.productIds || []).join('\n')}
                 onChange={(e) => setG('bundle', 'productIds', e.target.value.split('\n').map((x) => x.trim()).filter(Boolean))}
               />
@@ -278,7 +278,7 @@ export default function PromotionEdit() {
               <button
                 type="button"
                 onClick={() => set('tiers', [...(p.tiers || []), { minSubtotal: 0, percent: 0, fixed: 0 }])}
-                className="mt-3 inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-neutral-300 px-3 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50"
+                className="mt-3 inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-neutral-300 px-3 text-[9px] font-semibold text-neutral-700 transition hover:bg-neutral-50"
               >
                 Add a tier
               </button>
@@ -286,7 +286,7 @@ export default function PromotionEdit() {
           )}
 
           {p.type === 'freeship' && (
-            <p className="rounded-xl bg-neutral-50 px-4 py-3 text-[12px] leading-relaxed text-neutral-600">
+            <p className="rounded-xl bg-neutral-50 px-4 py-3 text-[9px] leading-relaxed text-neutral-600">
               The delivery charge is waived whenever this promotion applies. Use the conditions
               below to decide who gets it — first orders only, a minimum spend, and so on.
             </p>
@@ -310,7 +310,7 @@ export default function PromotionEdit() {
                   {cats.map((c) => {
                     const on = (p.scope.categorySlugs || []).includes(c.slug);
                     return (
-                      <label key={c.slug} className={`inline-flex min-h-[44px] cursor-pointer items-center gap-2 rounded-full border px-4 text-[12px] font-medium transition ${on ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-50'}`}>
+                      <label key={c.slug} className={`inline-flex min-h-[44px] cursor-pointer items-center gap-2 rounded-full border px-4 text-[9px] font-medium transition ${on ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-50'}`}>
                         <input
                           type="checkbox" checked={on} className="sr-only"
                           onChange={() => setG('scope', 'categorySlugs', on
@@ -348,7 +348,7 @@ export default function PromotionEdit() {
                     {['Economy', 'Standard', 'Premium'].map((tier) => {
                       const on = (p.scope.tiers || []).includes(tier);
                       return (
-                        <label key={tier} className={`inline-flex min-h-[44px] cursor-pointer items-center gap-2 rounded-full border px-4 text-[12px] font-medium transition ${on ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-50'}`}>
+                        <label key={tier} className={`inline-flex min-h-[44px] cursor-pointer items-center gap-2 rounded-full border px-4 text-[9px] font-medium transition ${on ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-50'}`}>
                           <input
                             type="checkbox" checked={on} className="sr-only"
                             onChange={() => setG('scope', 'tiers', on ? p.scope.tiers.filter((x) => x !== tier) : [...(p.scope.tiers || []), tier])}
@@ -398,24 +398,24 @@ export default function PromotionEdit() {
                 {DAYS.map((d, i) => {
                   const on = (p.recurring.daysOfWeek || []).includes(i);
                   return (
-                    <label key={d} className={`inline-flex min-h-[44px] w-14 cursor-pointer items-center justify-center rounded-full border text-[12px] font-medium transition ${on ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-50'}`}>
+                    <label key={d} className={`inline-flex min-h-[44px] w-14 cursor-pointer items-center justify-center rounded-full border text-[9px] font-medium transition ${on ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-50'}`}>
                       <input type="checkbox" checked={on} onChange={() => toggleDay(i)} className="sr-only" />
                       {d}
                     </label>
                   );
                 })}
               </div>
-              <p className="mt-2 text-[11px] text-neutral-600">No days selected means every day.</p>
+              <p className="mt-2 text-[9px] text-neutral-600">No days selected means every day.</p>
 
               <div className="mt-4 grid gap-4 md:grid-cols-2">
                 <div>
                   <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500" htmlFor="rec-from">From</label>
-                  <input id="rec-from" type="time" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={minToTime(p.recurring.startMin)} onChange={(e) => setG('recurring', 'startMin', timeToMin(e.target.value))} />
+                  <input id="rec-from" type="time" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900" value={minToTime(p.recurring.startMin)} onChange={(e) => setG('recurring', 'startMin', timeToMin(e.target.value))} />
                 </div>
                 <div>
                   <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500" htmlFor="rec-to">Until</label>
-                  <input id="rec-to" type="time" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={minToTime(p.recurring.endMin)} onChange={(e) => setG('recurring', 'endMin', timeToMin(e.target.value))} />
-                  <p className="mt-1.5 text-[11px] text-neutral-600">A window like 22:00 to 02:00 crosses midnight and is handled correctly.</p>
+                  <input id="rec-to" type="time" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900" value={minToTime(p.recurring.endMin)} onChange={(e) => setG('recurring', 'endMin', timeToMin(e.target.value))} />
+                  <p className="mt-1.5 text-[9px] text-neutral-600">A window like 22:00 to 02:00 crosses midnight and is handled correctly.</p>
                 </div>
               </div>
             </div>
@@ -459,7 +459,7 @@ export default function PromotionEdit() {
             <div className="mt-4">
               <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500" htmlFor="elig-phones">Phone numbers, one per line</label>
               <textarea
-                id="elig-phones" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 min-h-[96px] font-mono text-[12px]"
+                id="elig-phones" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900 min-h-[96px] font-mono text-[9px]"
                 value={(p.eligibility.phones || []).join('\n')}
                 onChange={(e) => setG('eligibility', 'phones', e.target.value.split('\n').map((x) => x.trim()).filter(Boolean))}
               />
@@ -486,7 +486,7 @@ export default function PromotionEdit() {
             <Num label="Stop after giving away (PKR)" value={p.limits.maxTotalDiscount} onChange={(v) => setG('limits', 'maxTotalDiscount', v)} min="0" hint="A hard budget. 0 = none." />
           </div>
           {!isNew && (
-            <p className="mt-4 rounded-xl bg-neutral-50 px-4 py-3 text-[12px] text-neutral-600">
+            <p className="mt-4 rounded-xl bg-neutral-50 px-4 py-3 text-[9px] text-neutral-600">
               Used <strong>{p.usedCount || 0}</strong> times so far, giving away{' '}
               <strong>PKR {Number(p.totalDiscounted || 0).toLocaleString('en-PK')}</strong>.
             </p>
@@ -500,7 +500,7 @@ export default function PromotionEdit() {
               <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500" htmlFor="badge-colour">Badge colour</label>
               <div className="flex items-center gap-2">
                 <input id="badge-colour" type="color" aria-label="Badge colour picker" className="h-11 w-14 cursor-pointer rounded-lg border border-neutral-300 bg-white p-1" value={p.badge.color || '#B3927E'} onChange={(e) => setG('badge', 'color', e.target.value)} />
-                <input aria-label="Badge colour hex code" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={p.badge.color || ''} onChange={(e) => setG('badge', 'color', e.target.value)} />
+                <input aria-label="Badge colour hex code" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900" value={p.badge.color || ''} onChange={(e) => setG('badge', 'color', e.target.value)} />
               </div>
             </div>
           </div>
@@ -513,10 +513,10 @@ export default function PromotionEdit() {
 
       {dirty && (
         <div className="sticky bottom-4 z-30 mt-6 flex items-center justify-between gap-4 rounded-2xl border border-neutral-900 bg-neutral-900 px-4 py-3 text-white shadow-xl">
-          <p className="text-[13px] font-medium">Unsaved changes</p>
+          <p className="text-[10px] font-medium">Unsaved changes</p>
           <div className="flex items-center gap-2">
-            <button type="button" onClick={() => setP(JSON.parse(original))} className="min-h-[44px] rounded-lg border border-white/20 px-3 text-[12px] font-semibold text-white/80 transition hover:bg-white/10">Discard</button>
-            <button type="button" onClick={save} disabled={busy || problems.length > 0} className="min-h-[44px] rounded-lg bg-white px-4 text-[12px] font-semibold text-neutral-900 transition hover:bg-neutral-100 disabled:opacity-50">
+            <button type="button" onClick={() => setP(JSON.parse(original))} className="min-h-[44px] rounded-lg border border-white/20 px-3 text-[9px] font-semibold text-white/80 transition hover:bg-white/10">Discard</button>
+            <button type="button" onClick={save} disabled={busy || problems.length > 0} className="min-h-[44px] rounded-lg bg-white px-4 text-[9px] font-semibold text-neutral-900 transition hover:bg-neutral-100 disabled:opacity-50">
               {busy ? 'Saving…' : isNew ? 'Create' : 'Save'}
             </button>
           </div>

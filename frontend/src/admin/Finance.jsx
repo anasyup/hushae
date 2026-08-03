@@ -288,7 +288,7 @@ export default function Finance() {
       <div className="mx-auto grid max-w-md place-items-center rounded-2xl border border-red-200 bg-red-50 p-8 text-center">
         <XCircle size={22} className="mb-2 text-red-600" />
         <p className="text-sm text-red-700">{err}</p>
-        <button onClick={() => { setErr(''); load(); }} className="mt-3 rounded-full border border-red-300 bg-white px-4 py-1.5 text-[11px] font-semibold text-red-700 hover:bg-red-100">Try again</button>
+        <button onClick={() => { setErr(''); load(); }} className="mt-3 rounded-full border border-red-300 bg-white px-4 py-1.5 text-[9px] font-semibold text-red-700 hover:bg-red-100">Try again</button>
       </div>
     </AdminLayout>;
   }
@@ -308,23 +308,23 @@ export default function Finance() {
               key={r.key}
               onClick={() => setRange(r.key)}
               disabled={busy}
-              className={`rounded-full px-3 py-1.5 text-[11px] font-semibold transition ${
+              className={`rounded-full px-3 py-1.5 text-[9px] font-semibold transition ${
                 range === r.key ? 'bg-neutral-900 text-white' : 'text-neutral-500 hover:text-neutral-900'
               }`}
             >{r.label}</button>
           ))}
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={load} disabled={busy} className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-[11px] font-semibold text-neutral-700 hover:bg-neutral-50 disabled:opacity-50">
+          <button onClick={load} disabled={busy} className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-[9px] font-semibold text-neutral-700 hover:bg-neutral-50 disabled:opacity-50">
             <RefreshCw size={12} className={busy ? 'animate-spin' : ''} /> Refresh
           </button>
           <button
             onClick={() => exportPnlReport({ summary, rangeLabel: rangeMeta.label, sinceDate, until: now })}
-            className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-[11px] font-semibold text-neutral-700 transition hover:bg-neutral-50"
+            className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-[9px] font-semibold text-neutral-700 transition hover:bg-neutral-50"
           >
             <FileText size={12} /> P&amp;L report
           </button>
-          <button onClick={exportCsv} className="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-3 py-1.5 text-[11px] font-semibold text-white transition hover:bg-neutral-800">
+          <button onClick={exportCsv} className="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-3 py-1.5 text-[9px] font-semibold text-white transition hover:bg-neutral-800">
             <Download size={12} /> Export CSV
           </button>
         </div>
@@ -358,8 +358,8 @@ export default function Finance() {
       <section className="mt-6 rounded-2xl border border-neutral-200 bg-white p-6">
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
           <div>
-            <p className="text-[11px] font-bold uppercase tracking-widest text-neutral-500">Cash flow</p>
-            <p className="mt-1 text-[12px] text-neutral-500">Revenue vs cost of goods, day by day.</p>
+            <p className="text-[9px] font-bold uppercase tracking-widest text-neutral-500">Cash flow</p>
+            <p className="mt-1 text-[9px] text-neutral-500">Revenue vs cost of goods, day by day.</p>
           </div>
         </div>
         <div className="h-72">
@@ -387,7 +387,7 @@ export default function Finance() {
             </AreaChart>
           </ResponsiveContainer>
         </div>
-        <div className="mt-4 flex flex-wrap gap-4 text-[11px]">
+        <div className="mt-4 flex flex-wrap gap-4 text-[9px]">
           <span className="inline-flex items-center gap-1.5 text-neutral-600"><span className="h-2 w-2 rounded-full bg-emerald-600" /> Revenue</span>
           <span className="inline-flex items-center gap-1.5 text-neutral-600"><span className="h-2 w-2 rounded-full bg-red-600" /> Cost of goods</span>
         </div>
@@ -417,13 +417,13 @@ export default function Finance() {
       <section className="mt-6 rounded-2xl border border-neutral-900 bg-neutral-900 p-6 text-white">
         <div className="mb-4 flex items-center justify-between">
           <div>
-            <p className="text-[11px] font-bold uppercase tracking-widest text-neutral-400">Business advisor</p>
+            <p className="text-[9px] font-bold uppercase tracking-widest text-neutral-400">Business advisor</p>
             <h3 className="mt-1 font-sans text-xl">Recommendations for your store</h3>
           </div>
           <Target size={22} className="text-neutral-400" />
         </div>
         {summary.insights.length === 0 ? (
-          <p className="text-[12px] text-neutral-400">Everything is on track for this period — check back after more orders come in.</p>
+          <p className="text-[9px] text-neutral-400">Everything is on track for this period — check back after more orders come in.</p>
         ) : (
           <div className="space-y-2.5">
             {summary.insights.map((it, i) => {
@@ -431,13 +431,13 @@ export default function Finance() {
               return (
                 <div key={i} className="flex items-start gap-3 rounded-xl bg-white/5 p-3">
                   <span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${dot}`} />
-                  <p className="text-[12.5px] leading-relaxed text-neutral-100">{it.text}</p>
+                  <p className="text-[9px] leading-relaxed text-neutral-100">{it.text}</p>
                 </div>
               );
             })}
           </div>
         )}
-        <div className="mt-4 rounded-xl bg-white/5 p-3 text-[11px] leading-relaxed text-neutral-400">
+        <div className="mt-4 rounded-xl bg-white/5 p-3 text-[9px] leading-relaxed text-neutral-400">
           <b className="text-neutral-200">How this is calculated:</b> Net profit = Revenue − (COGS + packing + courier subsidy + prorated ads + SEO + other). Fixed monthly costs are prorated across the selected date range. Set costs in <Link to="/admin/settings/shipping" className="underline hover:text-white">Settings → Shipping & Operating Costs</Link>.
         </div>
       </section>
@@ -458,10 +458,10 @@ function BigKpi({ icon: Icon, label, value, sub, accent, highlight }) {
         </span>
       </div>
       <p className="mt-3 text-[10px] font-bold uppercase tracking-widest text-neutral-500">{label}</p>
-      <p className="mt-1 font-sans text-[12px] font-semibold tabular-nums leading-none tracking-tight text-neutral-900">
+      <p className="mt-1 font-sans text-[7px] font-semibold tabular-nums leading-none tracking-tight text-neutral-900">
         {value}
       </p>
-      {sub && <p className="mt-1.5 text-[11px] text-neutral-500">{sub}</p>}
+      {sub && <p className="mt-1.5 text-[9px] text-neutral-500">{sub}</p>}
     </div>
   );
 }
@@ -480,13 +480,13 @@ function ExpenseDonut({ summary }) {
     <div className="rounded-2xl border border-neutral-200 bg-white p-6">
       <div className="mb-4 flex items-center justify-between">
         <div>
-          <p className="text-[11px] font-bold uppercase tracking-widest text-neutral-500">Where the money goes</p>
-          <p className="mt-1 text-[12px] text-neutral-500">Expense breakdown for this period.</p>
+          <p className="text-[9px] font-bold uppercase tracking-widest text-neutral-500">Where the money goes</p>
+          <p className="mt-1 text-[9px] text-neutral-500">Expense breakdown for this period.</p>
         </div>
         <PieIcon size={16} className="text-neutral-400" />
       </div>
       {total === 0 ? (
-        <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-[12px] leading-relaxed text-amber-800">
+        <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-[9px] leading-relaxed text-amber-800">
           💡 No expenses recorded yet. Set <b>cost prices</b> on products and <b>operating costs</b> in Settings to see this breakdown.
         </div>
       ) : (
@@ -502,14 +502,14 @@ function ExpenseDonut({ summary }) {
             </ResponsiveContainer>
             <div className="pointer-events-none absolute inset-0 grid place-items-center text-center">
               <div>
-                <p className="font-sans text-[16px] font-semibold tabular-nums leading-none text-neutral-900">{pkr(total)}</p>
+                <p className="font-sans text-[7px] font-semibold tabular-nums leading-none text-neutral-900">{pkr(total)}</p>
                 <p className="mt-1 text-[9px] uppercase tracking-widest text-neutral-500">Total</p>
               </div>
             </div>
           </div>
           <ul className="flex-1 space-y-1.5">
             {data.sort((a, b) => b.value - a.value).map((d) => (
-              <li key={d.name} className="flex items-center gap-2 text-[12px]">
+              <li key={d.name} className="flex items-center gap-2 text-[9px]">
                 <span className="h-2 w-2 rounded-full" style={{ background: d.color }} />
                 <span className="flex-1 text-neutral-600">{d.name}</span>
                 <span className="font-semibold tabular-nums text-neutral-900">{pkr(d.value)}</span>
@@ -531,8 +531,8 @@ function PaymentDonut({ mix }) {
     <div className="rounded-2xl border border-neutral-200 bg-white p-6">
       <div className="mb-4 flex items-center justify-between">
         <div>
-          <p className="text-[11px] font-bold uppercase tracking-widest text-neutral-500">Payment methods</p>
-          <p className="mt-1 text-[12px] text-neutral-500">Revenue by how customers paid.</p>
+          <p className="text-[9px] font-bold uppercase tracking-widest text-neutral-500">Payment methods</p>
+          <p className="mt-1 text-[9px] text-neutral-500">Revenue by how customers paid.</p>
         </div>
         <BadgePercent size={16} className="text-neutral-400" />
       </div>
@@ -551,14 +551,14 @@ function PaymentDonut({ mix }) {
             </ResponsiveContainer>
             <div className="pointer-events-none absolute inset-0 grid place-items-center text-center">
               <div>
-                <p className="font-sans text-[16px] font-semibold tabular-nums leading-none text-neutral-900">{pkr(total)}</p>
+                <p className="font-sans text-[7px] font-semibold tabular-nums leading-none text-neutral-900">{pkr(total)}</p>
                 <p className="mt-1 text-[9px] uppercase tracking-widest text-neutral-500">Total</p>
               </div>
             </div>
           </div>
           <ul className="flex-1 space-y-1.5">
             {data.sort((a, b) => b.value - a.value).map((d) => (
-              <li key={d.name} className="flex items-center gap-2 text-[12px]">
+              <li key={d.name} className="flex items-center gap-2 text-[9px]">
                 <span className="h-2 w-2 rounded-full" style={{ background: d.color }} />
                 <span className="flex-1 text-neutral-600">{d.name}</span>
                 <span className="font-semibold tabular-nums text-neutral-900">{pkr(d.value)}</span>

@@ -79,7 +79,7 @@ export default function QuickFilters({ filters, setFilter, token, currentQuery, 
         return (
           <button key={p.key} title={p.hint} aria-pressed={on}
             onClick={() => setFilter({ preset: on ? '' : p.key })}
-            className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[12.5px] font-medium transition ${
+            className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[9px] font-medium transition ${
               on ? 'border-neutral-900 bg-neutral-900 text-white'
                  : 'border-neutral-200 bg-white text-neutral-600 hover:border-neutral-400'}`}>
             <p.icon size={12} /> {p.label}
@@ -92,7 +92,7 @@ export default function QuickFilters({ filters, setFilter, token, currentQuery, 
       {views.map((v) => (
         <span key={v._id} className="group relative">
           <button onClick={() => applyView(v)} title={v.ownerName ? `Saved by ${v.ownerName}` : 'Saved view'}
-            className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white py-1.5 pl-3 pr-7 text-[12.5px] font-medium text-neutral-600 transition hover:border-neutral-400">
+            className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white py-1.5 pl-3 pr-7 text-[9px] font-medium text-neutral-600 transition hover:border-neutral-400">
             <Star size={11} className="text-amber-500" fill="currentColor" /> {v.name}
           </button>
           <button onClick={(e) => removeView(v, e)} aria-label={`Delete ${v.name}`}
@@ -106,9 +106,9 @@ export default function QuickFilters({ filters, setFilter, token, currentQuery, 
         <span className="inline-flex items-center gap-1 rounded-full border border-neutral-900 bg-white py-1 pl-3 pr-1">
           <input autoFocus value={name} onChange={(e) => setName(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') saveView(); if (e.key === 'Escape') { setNaming(false); setName(''); } }}
-            placeholder="Name this view" className="w-32 text-[12.5px] outline-none" />
+            placeholder="Name this view" className="w-32 text-[9px] outline-none" />
           <button onClick={saveView} disabled={saving || !name.trim()}
-            className="rounded-full bg-neutral-900 px-2.5 py-1 text-[11.5px] font-semibold text-white disabled:opacity-40">
+            className="rounded-full bg-neutral-900 px-2.5 py-1 text-[10px] font-semibold text-white disabled:opacity-40">
             {saving ? <Loader2 size={11} className="animate-spin" /> : 'Save'}
           </button>
           <button onClick={() => { setNaming(false); setName(''); }} aria-label="Cancel"
@@ -118,7 +118,7 @@ export default function QuickFilters({ filters, setFilter, token, currentQuery, 
         </span>
       ) : (
         <button onClick={() => setNaming(true)} title="Save the current filters as a named view"
-          className="inline-flex items-center gap-1.5 rounded-full border border-dashed border-neutral-300 px-3 py-1.5 text-[12.5px] font-medium text-neutral-500 transition hover:border-neutral-400 hover:text-neutral-900">
+          className="inline-flex items-center gap-1.5 rounded-full border border-dashed border-neutral-300 px-3 py-1.5 text-[9px] font-medium text-neutral-500 transition hover:border-neutral-400 hover:text-neutral-900">
           <BookmarkPlus size={12} /> Save view
         </button>
       )}

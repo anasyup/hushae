@@ -9,7 +9,7 @@ import AdminLayout from './AdminLayout';
 
 function BackToSettings() {
   return (
-    <Link to="/admin/settings" className="mb-4 inline-flex items-center gap-1.5 text-[12px] font-semibold text-neutral-500 transition hover:text-neutral-900">
+    <Link to="/admin/settings" className="mb-4 inline-flex items-center gap-1.5 text-[9px] font-semibold text-neutral-500 transition hover:text-neutral-900">
       <ArrowLeft size={13} /> Settings
     </Link>
   );
@@ -23,7 +23,7 @@ function PageIntro({ icon: Icon, title, description }) {
       </span>
       <div>
         <h2 className="font-sans text-2xl leading-tight text-neutral-900">{title}</h2>
-        <p className="mt-1 text-[13px] leading-relaxed text-neutral-500">{description}</p>
+        <p className="mt-1 text-[10px] leading-relaxed text-neutral-500">{description}</p>
       </div>
     </div>
   );
@@ -34,8 +34,8 @@ function Section({ title, description, children, action }) {
     <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
       <div className="mb-5 flex items-start justify-between">
         <div>
-          <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-900">{title}</p>
-          {description && <p className="mt-1 text-[12px] leading-relaxed text-neutral-500">{description}</p>}
+          <p className="text-[9px] font-bold uppercase tracking-widest text-neutral-900">{title}</p>
+          {description && <p className="mt-1 text-[9px] leading-relaxed text-neutral-500">{description}</p>}
         </div>
         {action && <div>{action}</div>}
       </div>
@@ -292,7 +292,7 @@ export default function SettingsSecurity() {
               <button
                 key={t.id}
                 onClick={() => { setActiveTab(t.id); setLogPage(1); }}
-                className={`inline-flex shrink-0 items-center gap-1.5 rounded-lg border px-3.5 py-2 text-[13px] font-medium transition ${
+                className={`inline-flex shrink-0 items-center gap-1.5 rounded-lg border px-3.5 py-2 text-[10px] font-medium transition ${
                   active ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-200 bg-white text-neutral-600 hover:border-neutral-300'
                 }`}
               >
@@ -312,14 +312,14 @@ export default function SettingsSecurity() {
               description="Configure your unique identifier used for authentication."
             >
               <form onSubmit={handleUsernameChange} className="space-y-4">
-                <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-3 text-[12px] text-neutral-600">
+                <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-3 text-[9px] text-neutral-600">
                   <span className="font-semibold text-neutral-500">Current Username:</span>{' '}
                   <span className="font-mono text-neutral-900">{auth?.user?.email || '—'}</span>
                 </div>
                 <div>
                   <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">New Username (Email)</label>
                   <input
-                    className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900"
+                    className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900"
                     value={uNew}
                     onChange={(e) => setUNew(e.target.value)}
                     placeholder="e.g. admin@hushae.pk"
@@ -329,7 +329,7 @@ export default function SettingsSecurity() {
                 <div className="relative">
                   <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Confirm with Current Password</label>
                   <input
-                    className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 pr-10"
+                    className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[9px] outline-none transition focus:border-neutral-900 pr-10"
                     type={uShow ? 'text' : 'password'}
                     value={uCurrent}
                     onChange={(e) => setUCurrent(e.target.value)}
@@ -362,7 +362,7 @@ export default function SettingsSecurity() {
                 <div className="relative">
                   <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Current Password</label>
                   <input
-                    className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 pr-10"
+                    className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[9px] outline-none transition focus:border-neutral-900 pr-10"
                     type={show.c ? 'text' : 'password'}
                     value={current}
                     onChange={(e) => setCurrent(e.target.value)}
@@ -374,7 +374,7 @@ export default function SettingsSecurity() {
                   <div className="relative">
                     <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">New Password</label>
                     <input
-                      className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 pr-10"
+                      className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[9px] outline-none transition focus:border-neutral-900 pr-10"
                       type={show.n ? 'text' : 'password'}
                       value={next}
                       onChange={(e) => setNext(e.target.value)}
@@ -385,7 +385,7 @@ export default function SettingsSecurity() {
                   <div className="relative">
                     <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Confirm New Password</label>
                     <input
-                      className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 pr-10"
+                      className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[9px] outline-none transition focus:border-neutral-900 pr-10"
                       type={show.x ? 'text' : 'password'}
                       value={confirm}
                       onChange={(e) => setConfirm(e.target.value)}
@@ -431,7 +431,7 @@ export default function SettingsSecurity() {
                   <div>
                     <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Full Name</label>
                     <input
-                      className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900"
+                      className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900"
                       value={userForm.name}
                       onChange={(e) => setUserForm({ ...userForm, name: e.target.value })}
                       placeholder="e.g. Bilal Khan"
@@ -442,7 +442,7 @@ export default function SettingsSecurity() {
                     <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Email Address (Username)</label>
                     <input
                       type="email"
-                      className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900"
+                      className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900"
                       value={userForm.email}
                       onChange={(e) => setUserForm({ ...userForm, email: e.target.value })}
                       placeholder="e.g. bilal@hushae.pk"
@@ -453,7 +453,7 @@ export default function SettingsSecurity() {
                     <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Initial Password</label>
                     <input
                       type="password"
-                      className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900"
+                      className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900"
                       value={userForm.password}
                       onChange={(e) => setUserForm({ ...userForm, password: e.target.value })}
                       placeholder="••••••••"
@@ -463,7 +463,7 @@ export default function SettingsSecurity() {
                   <div>
                     <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Administrative Role</label>
                     <select
-                      className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900"
+                      className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900"
                       value={userForm.role}
                       onChange={(e) => setUserForm({ ...userForm, role: e.target.value })}
                     >
@@ -493,7 +493,7 @@ export default function SettingsSecurity() {
               >
                 <div className="overflow-hidden rounded-xl border border-neutral-200 bg-white">
                   <table className="w-full text-left">
-                    <thead className="bg-neutral-50 text-[11px] uppercase tracking-wider text-neutral-600">
+                    <thead className="bg-neutral-50 text-[9px] uppercase tracking-wider text-neutral-600">
                       <tr>
                         <th className="px-4 py-3 font-semibold">User</th>
                         <th className="px-4 py-3 font-semibold">Role</th>
@@ -501,12 +501,12 @@ export default function SettingsSecurity() {
                         <th className="px-4 py-3 text-right font-semibold">Actions</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-neutral-100 text-[13px]">
+                    <tbody className="divide-y divide-neutral-100 text-[10px]">
                       {users.map((u) => (
                         <tr key={u._id} className="hover:bg-neutral-50">
                           <td className="px-4 py-3">
                             <p className="font-semibold text-neutral-900">{u.name}</p>
-                            <p className="text-[11px] text-neutral-500 font-mono">{u.email}</p>
+                            <p className="text-[9px] text-neutral-500 font-mono">{u.email}</p>
                           </td>
                           <td className="px-4 py-3">
                             <select
@@ -561,7 +561,7 @@ export default function SettingsSecurity() {
               <div className="relative flex-1">
                 <Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
                 <input
-                  className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 !pl-9 !py-2"
+                  className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[9px] outline-none transition focus:border-neutral-900 !pl-9 !py-2"
                   value={logQuery}
                   onChange={(e) => setLogQuery(e.target.value)}
                   placeholder="Search logs by email, action, target..."
@@ -585,7 +585,7 @@ export default function SettingsSecurity() {
               <div className="space-y-3">
                 <div className="overflow-hidden rounded-xl border border-neutral-200 bg-white">
                   <table className="w-full text-left">
-                    <thead className="bg-neutral-50 text-[11px] uppercase tracking-wider text-neutral-600">
+                    <thead className="bg-neutral-50 text-[9px] uppercase tracking-wider text-neutral-600">
                       <tr>
                         <th className="px-4 py-3 font-semibold">User</th>
                         <th className="px-4 py-3 font-semibold">Action</th>
@@ -691,7 +691,7 @@ export default function SettingsSecurity() {
                     </div>
                     {/* Reasons */}
                     <div className="space-y-2">
-                      <p className="text-[11px] font-bold text-red-700 uppercase tracking-wider">Flagged Suspicious Indicators:</p>
+                      <p className="text-[9px] font-bold text-red-700 uppercase tracking-wider">Flagged Suspicious Indicators:</p>
                       <ul className="list-disc pl-4 space-y-1">
                         {(o.fraudFilter?.reasons || []).map((r, i) => (
                           <li key={i} className="text-xs text-neutral-700 font-medium">{r}</li>

@@ -37,8 +37,8 @@ export function Section({ title, description, children, tone, action }) {
     <section className={`rounded-2xl border bg-white p-6 ${tone === 'warn' ? 'border-amber-300' : 'border-neutral-200'}`}>
       <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-[11px] font-bold uppercase tracking-widest text-neutral-600">{title}</p>
-          {description && <p className="mt-1 text-[12px] leading-relaxed text-neutral-600">{description}</p>}
+          <p className="text-[9px] font-bold uppercase tracking-widest text-neutral-600">{title}</p>
+          {description && <p className="mt-1 text-[9px] leading-relaxed text-neutral-600">{description}</p>}
         </div>
         {action}
       </div>
@@ -58,8 +58,8 @@ export function Toggle({ label, description, checked, onChange, disabled }) {
   return (
     <label className={`flex min-h-[44px] items-center justify-between gap-4 rounded-xl border border-neutral-200 bg-white px-4 py-3 transition ${disabled ? 'opacity-55' : 'cursor-pointer hover:border-neutral-300'}`}>
       <span className="min-w-0">
-        <span className="block text-[13px] font-medium text-neutral-900">{label}</span>
-        {description && <span className="mt-0.5 block text-[11px] leading-relaxed text-neutral-600">{description}</span>}
+        <span className="block text-[10px] font-medium text-neutral-900">{label}</span>
+        {description && <span className="mt-0.5 block text-[9px] leading-relaxed text-neutral-600">{description}</span>}
       </span>
       <button
         type="button" role="switch" aria-checked={!!checked} aria-label={label} disabled={disabled}
@@ -87,7 +87,7 @@ export function Num({ label, hint, value, onChange, disabled, ...rest }) {
         onChange={(e) => onChange(e.target.value === '' ? 0 : Number(e.target.value))}
         {...rest}
       />
-      {hint && <p id={`${id}-h`} className="mt-1.5 text-[11px] leading-relaxed text-neutral-600">{hint}</p>}
+      {hint && <p id={`${id}-h`} className="mt-1.5 text-[9px] leading-relaxed text-neutral-600">{hint}</p>}
     </div>
   );
 }
@@ -102,7 +102,7 @@ export function Text({ label, hint, value, onChange, disabled, ...rest }) {
         aria-describedby={hint ? `${id}-h` : undefined}
         onChange={(e) => onChange(e.target.value)} {...rest}
       />
-      {hint && <p id={`${id}-h`} className="mt-1.5 text-[11px] leading-relaxed text-neutral-600">{hint}</p>}
+      {hint && <p id={`${id}-h`} className="mt-1.5 text-[9px] leading-relaxed text-neutral-600">{hint}</p>}
     </div>
   );
 }
@@ -119,7 +119,7 @@ export function Select({ label, hint, value, onChange, options, disabled }) {
       >
         {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
       </select>
-      {hint && <p id={`${id}-h`} className="mt-1.5 text-[11px] leading-relaxed text-neutral-600">{hint}</p>}
+      {hint && <p id={`${id}-h`} className="mt-1.5 text-[9px] leading-relaxed text-neutral-600">{hint}</p>}
     </div>
   );
 }
@@ -137,7 +137,7 @@ export function DateTime({ label, hint, value, onChange, disabled }) {
         aria-describedby={hint ? `${id}-h` : undefined}
         onChange={(e) => onChange(e.target.value ? new Date(e.target.value).toISOString() : null)}
       />
-      {hint && <p id={`${id}-h`} className="mt-1.5 text-[11px] leading-relaxed text-neutral-600">{hint}</p>}
+      {hint && <p id={`${id}-h`} className="mt-1.5 text-[9px] leading-relaxed text-neutral-600">{hint}</p>}
     </div>
   );
 }
@@ -145,9 +145,9 @@ export function DateTime({ label, hint, value, onChange, disabled }) {
 export function Stat({ label, value, sub, tone }) {
   return (
     <div className={`rounded-xl border bg-white px-4 py-3 ${tone === 'warn' ? 'border-amber-300' : 'border-neutral-200'}`}>
-      <p className="text-[11px] uppercase tracking-wider text-neutral-600">{label}</p>
+      <p className="text-[9px] uppercase tracking-wider text-neutral-600">{label}</p>
       <p className="mt-1 text-xl font-semibold text-neutral-900">{value}</p>
-      {sub && <p className="mt-0.5 text-[11px] text-neutral-600">{sub}</p>}
+      {sub && <p className="mt-0.5 text-[9px] text-neutral-600">{sub}</p>}
     </div>
   );
 }
@@ -168,8 +168,8 @@ export function Accordion({ title, subtitle, children, defaultOpen = false, badg
           className="flex min-h-[44px] w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-neutral-50"
         >
           <span className="min-w-0 flex-1">
-            <span className="block text-[13px] font-semibold text-neutral-900">{title}</span>
-            {subtitle && <span className="mt-0.5 block text-[11px] text-neutral-600">{subtitle}</span>}
+            <span className="block text-[10px] font-semibold text-neutral-900">{title}</span>
+            {subtitle && <span className="mt-0.5 block text-[9px] text-neutral-600">{subtitle}</span>}
           </span>
           {badge}
           <ChevronDown size={16} className={`shrink-0 text-neutral-500 transition ${open ? 'rotate-180' : ''}`} aria-hidden="true" />
@@ -185,12 +185,12 @@ export function SaveBar({ dirty, busy, onSave, onDiscard, disabled }) {
   if (!dirty) return null;
   return (
     <div className="sticky bottom-4 z-30 mt-6 flex items-center justify-between gap-4 rounded-2xl border border-neutral-900 bg-neutral-900 px-4 py-3 text-white shadow-xl">
-      <p className="text-[13px] font-medium">Unsaved changes</p>
+      <p className="text-[10px] font-medium">Unsaved changes</p>
       <div className="flex items-center gap-2">
-        <button type="button" onClick={onDiscard} className="min-h-[44px] rounded-lg border border-white/20 px-3 text-[12px] font-semibold text-white/80 transition hover:bg-white/10">
+        <button type="button" onClick={onDiscard} className="min-h-[44px] rounded-lg border border-white/20 px-3 text-[9px] font-semibold text-white/80 transition hover:bg-white/10">
           Discard
         </button>
-        <button type="button" onClick={onSave} disabled={busy || disabled} className="min-h-[44px] rounded-lg bg-white px-4 text-[12px] font-semibold text-neutral-900 transition hover:bg-neutral-100 disabled:opacity-50">
+        <button type="button" onClick={onSave} disabled={busy || disabled} className="min-h-[44px] rounded-lg bg-white px-4 text-[9px] font-semibold text-neutral-900 transition hover:bg-neutral-100 disabled:opacity-50">
           {busy ? 'Saving…' : 'Save'}
         </button>
       </div>

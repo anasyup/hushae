@@ -95,7 +95,7 @@ export default function Reviews() {
               tab === t.id ? 'bg-neutral-900 text-white' : 'bg-white text-neutral-600 ring-1 ring-neutral-200 hover:text-neutral-900'
             }`}
           >
-            {t.label} <span className="ml-1.5 rounded-full bg-black/10 px-1.5 py-0.5 text-[11px]">{counts[t.id] || 0}</span>
+            {t.label} <span className="ml-1.5 rounded-full bg-black/10 px-1.5 py-0.5 text-[9px]">{counts[t.id] || 0}</span>
           </button>
         ))}
       </div>
@@ -114,20 +114,20 @@ export default function Reviews() {
           {/* Bulk bar. Appears only with a selection so it never competes
               with the list for attention. */}
           <div className="flex flex-wrap items-center gap-2 rounded-xl border border-neutral-200 bg-white px-4 py-2.5">
-            <label className="flex cursor-pointer items-center gap-2 text-[12px] font-medium text-neutral-700">
+            <label className="flex cursor-pointer items-center gap-2 text-[9px] font-medium text-neutral-700">
               <input type="checkbox" checked={allChecked} onChange={toggleAll} className="h-4 w-4 accent-neutral-900" />
               Select all ({rows.length})
             </label>
             {selected.length > 0 && (
               <>
-                <span className="text-[12px] text-neutral-500">· {selected.length} selected</span>
+                <span className="text-[9px] text-neutral-500">· {selected.length} selected</span>
                 <div className="ml-auto flex flex-wrap gap-1.5">
-                  {tab !== 'approved' && <button onClick={() => bulk('approve')} disabled={busy==='bulk'} className="rounded-lg bg-neutral-900 px-3 py-1.5 text-[11.5px] font-semibold text-white disabled:opacity-50">Approve</button>}
-                  {tab !== 'rejected' && <button onClick={() => bulk('reject')} disabled={busy==='bulk'} className="rounded-lg border border-neutral-300 px-3 py-1.5 text-[11.5px] font-semibold text-neutral-700 disabled:opacity-50">Reject</button>}
-                  <button onClick={() => bulk('feature')} disabled={busy==='bulk'} className="rounded-lg border border-neutral-300 px-3 py-1.5 text-[11.5px] font-semibold text-neutral-700 disabled:opacity-50">Feature</button>
-                  <button onClick={() => bulk('pin')} disabled={busy==='bulk'} className="rounded-lg border border-neutral-300 px-3 py-1.5 text-[11.5px] font-semibold text-neutral-700 disabled:opacity-50">Pin</button>
-                  <button onClick={() => bulk('verify')} disabled={busy==='bulk'} className="rounded-lg border border-neutral-300 px-3 py-1.5 text-[11.5px] font-semibold text-neutral-700 disabled:opacity-50">Mark verified</button>
-                  <button onClick={() => bulk('delete')} disabled={busy==='bulk'} className="rounded-lg border border-red-200 px-3 py-1.5 text-[11.5px] font-semibold text-red-600 disabled:opacity-50">Delete</button>
+                  {tab !== 'approved' && <button onClick={() => bulk('approve')} disabled={busy==='bulk'} className="rounded-lg bg-neutral-900 px-3 py-1.5 text-[10px] font-semibold text-white disabled:opacity-50">Approve</button>}
+                  {tab !== 'rejected' && <button onClick={() => bulk('reject')} disabled={busy==='bulk'} className="rounded-lg border border-neutral-300 px-3 py-1.5 text-[10px] font-semibold text-neutral-700 disabled:opacity-50">Reject</button>}
+                  <button onClick={() => bulk('feature')} disabled={busy==='bulk'} className="rounded-lg border border-neutral-300 px-3 py-1.5 text-[10px] font-semibold text-neutral-700 disabled:opacity-50">Feature</button>
+                  <button onClick={() => bulk('pin')} disabled={busy==='bulk'} className="rounded-lg border border-neutral-300 px-3 py-1.5 text-[10px] font-semibold text-neutral-700 disabled:opacity-50">Pin</button>
+                  <button onClick={() => bulk('verify')} disabled={busy==='bulk'} className="rounded-lg border border-neutral-300 px-3 py-1.5 text-[10px] font-semibold text-neutral-700 disabled:opacity-50">Mark verified</button>
+                  <button onClick={() => bulk('delete')} disabled={busy==='bulk'} className="rounded-lg border border-red-200 px-3 py-1.5 text-[10px] font-semibold text-red-600 disabled:opacity-50">Delete</button>
                 </div>
               </>
             )}
@@ -198,7 +198,7 @@ export default function Reviews() {
               {replying === r._id && (
                 <div className="mt-4 border-t border-neutral-100 pt-4">
                   <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Public reply from HUSHAE</label>
-                  <textarea rows={3} className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={reply} onChange={(e) => setReply(e.target.value)}
+                  <textarea rows={3} className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900" value={reply} onChange={(e) => setReply(e.target.value)}
                     placeholder="Thanks for the feedback — we're glad the fit worked out…" />
                   <div className="mt-2 flex justify-end gap-2">
                     <button onClick={() => setReplying(null)} className="rounded-lg bg-white px-3 py-1.5 text-xs font-semibold ring-1 ring-neutral-200">Cancel</button>

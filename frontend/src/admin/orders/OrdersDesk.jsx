@@ -143,7 +143,7 @@ export default function OrdersDesk() {
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h1 className="font-sans text-xl font-semibold text-neutral-900">Orders</h1>
-            <p className="mt-0.5 text-[13px] text-neutral-500">
+            <p className="mt-0.5 text-[10px] text-neutral-500">
               {loading ? 'Loading…' : `${data.total} order${data.total === 1 ? '' : 's'}`}
               {counts ? ` · ${pkr(counts.revenue)} total value` : ''}
             </p>
@@ -173,7 +173,7 @@ export default function OrdersDesk() {
                   <div className="fixed inset-0 z-30" onClick={() => setShowNotes(false)} />
                   <div className="absolute right-0 top-11 z-40 max-h-96 w-80 overflow-y-auto rounded-xl border border-neutral-200 bg-white shadow-xl">
                     <div className="flex items-center justify-between border-b border-neutral-100 px-3 py-2">
-                      <p className="text-[13px] font-semibold">Notifications</p>
+                      <p className="text-[10px] font-semibold">Notifications</p>
                       <button onClick={() => setShowNotes(false)} className="text-neutral-400 hover:text-neutral-900"><X size={14} /></button>
                     </div>
                     {notes.items.length === 0 && <p className="p-6 text-center text-xs text-neutral-400">Nothing yet</p>}
@@ -184,8 +184,8 @@ export default function OrdersDesk() {
                           n.severity === 'danger' ? 'bg-red-500' : n.severity === 'warning' ? 'bg-amber-500'
                             : n.severity === 'success' ? 'bg-emerald-500' : 'bg-neutral-300'}`} />
                         <span className="min-w-0">
-                          <span className="block truncate text-[12.5px] font-medium text-neutral-900">{n.title}</span>
-                          {n.body && <span className="block truncate text-[11.5px] text-neutral-500">{n.body}</span>}
+                          <span className="block truncate text-[9px] font-medium text-neutral-900">{n.title}</span>
+                          {n.body && <span className="block truncate text-[10px] text-neutral-500">{n.body}</span>}
                         </span>
                       </button>
                     ))}
@@ -209,12 +209,12 @@ export default function OrdersDesk() {
             return (
               <button key={g.key} onClick={() => setFilter({ group: g.key, stage: '' })} title={g.hint}
                 aria-pressed={active}
-                className={`inline-flex shrink-0 items-center gap-1.5 rounded-lg border px-3 py-2 text-[13px] font-medium transition ${
+                className={`inline-flex shrink-0 items-center gap-1.5 rounded-lg border px-3 py-2 text-[10px] font-medium transition ${
                   active ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-200 bg-white text-neutral-600 hover:border-neutral-300'
                 }`}>
                 <g.icon size={14} /> {g.label}
                 {n != null && (
-                  <span className={`rounded-full px-1.5 text-[11px] font-bold ${active ? 'bg-white/20' : 'bg-neutral-100 text-neutral-600'}`}>{n}</span>
+                  <span className={`rounded-full px-1.5 text-[9px] font-bold ${active ? 'bg-white/20' : 'bg-neutral-100 text-neutral-600'}`}>{n}</span>
                 )}
               </button>
             );
@@ -242,7 +242,7 @@ export default function OrdersDesk() {
         />
 
         {selectAllMatching && data.total > orders.length && (
-          <p className="rounded-lg bg-amber-50 px-3 py-2 text-[12.5px] text-amber-800">
+          <p className="rounded-lg bg-amber-50 px-3 py-2 text-[9px] text-amber-800">
             All <strong>{data.total}</strong> matching orders are targeted — actions apply beyond this page.
             <button onClick={() => setSelectAllMatching(false)} className="ml-2 font-semibold underline">
               Limit to this page
@@ -252,7 +252,7 @@ export default function OrdersDesk() {
 
         {/* ── Select-all row ─────────────────────────────────────────────── */}
         {orders.length > 0 && (
-          <label className="flex cursor-pointer items-center gap-2 px-1 text-[12.5px] text-neutral-500">
+          <label className="flex cursor-pointer items-center gap-2 px-1 text-[9px] text-neutral-500">
             <input type="checkbox" checked={allOnPage} onChange={() => setSelected(allOnPage ? [] : ids)}
               className="h-4 w-4 cursor-pointer rounded border-neutral-300 accent-neutral-900" />
             Select all on this page
@@ -263,8 +263,8 @@ export default function OrdersDesk() {
         {error && (
           <div className="flex items-center gap-3 rounded-xl border border-red-200 bg-red-50 p-4">
             <AlertCircle size={18} className="shrink-0 text-red-600" />
-            <p className="flex-1 text-[13px] text-red-800">{error}</p>
-            <button onClick={() => reload()} className="rounded-md bg-red-600 px-3 py-1.5 text-[12.5px] font-semibold text-white">Retry</button>
+            <p className="flex-1 text-[10px] text-red-800">{error}</p>
+            <button onClick={() => reload()} className="rounded-md bg-red-600 px-3 py-1.5 text-[9px] font-semibold text-white">Retry</button>
           </div>
         )}
 
@@ -279,10 +279,10 @@ export default function OrdersDesk() {
         {!loading && orders.length === 0 && !error && (
           <div className="rounded-xl border border-dashed border-neutral-300 py-16 text-center">
             <Inbox size={28} className="mx-auto text-neutral-300" />
-            <p className="mt-3 text-[14px] font-medium text-neutral-700">No orders match these filters</p>
-            <p className="mt-1 text-[12.5px] text-neutral-500">Try widening the date range or clearing the search.</p>
+            <p className="mt-3 text-[9px] font-medium text-neutral-700">No orders match these filters</p>
+            <p className="mt-1 text-[9px] text-neutral-500">Try widening the date range or clearing the search.</p>
             {activeFilterCount > 0 && (
-              <button onClick={resetFilters} className="mt-4 rounded-lg bg-neutral-900 px-4 py-2 text-[13px] font-semibold text-white">
+              <button onClick={resetFilters} className="mt-4 rounded-lg bg-neutral-900 px-4 py-2 text-[10px] font-semibold text-white">
                 Clear all filters
               </button>
             )}
@@ -305,14 +305,14 @@ export default function OrdersDesk() {
         {/* ── Pagination ─────────────────────────────────────────────────── */}
         {data.pages > 1 && (
           <div className="flex items-center justify-between pt-1">
-            <p className="text-[12.5px] text-neutral-500">Page {data.page} of {data.pages}</p>
+            <p className="text-[9px] text-neutral-500">Page {data.page} of {data.pages}</p>
             <div className="flex gap-1.5">
               <button disabled={data.page <= 1} onClick={() => setFilter({ page: String(data.page - 1) })}
-                className="inline-flex items-center gap-1 rounded-lg border border-neutral-300 px-3 py-1.5 text-[13px] font-medium disabled:opacity-40">
+                className="inline-flex items-center gap-1 rounded-lg border border-neutral-300 px-3 py-1.5 text-[10px] font-medium disabled:opacity-40">
                 <ChevronLeft size={13} /> Previous
               </button>
               <button disabled={data.page >= data.pages} onClick={() => setFilter({ page: String(data.page + 1) })}
-                className="inline-flex items-center gap-1 rounded-lg border border-neutral-300 px-3 py-1.5 text-[13px] font-medium disabled:opacity-40">
+                className="inline-flex items-center gap-1 rounded-lg border border-neutral-300 px-3 py-1.5 text-[10px] font-medium disabled:opacity-40">
                 Next <ChevronRight size={13} />
               </button>
             </div>
@@ -328,19 +328,19 @@ export default function OrdersDesk() {
         <div className="fixed inset-0 z-50 grid place-items-center bg-black/40 p-4" onClick={() => setShowShortcuts(false)}>
           <div className="w-full max-w-sm rounded-xl bg-white p-5 shadow-2xl" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between">
-              <p className="inline-flex items-center gap-2 text-[12px] font-semibold"><Keyboard size={15} /> Shortcuts</p>
+              <p className="inline-flex items-center gap-2 text-[9px] font-semibold"><Keyboard size={15} /> Shortcuts</p>
               <button onClick={() => setShowShortcuts(false)} className="text-neutral-400 hover:text-neutral-900"><X size={15} /></button>
             </div>
             <dl className="mt-3 space-y-1.5">
               {[['/', 'Focus search'], ['P', 'Print packing slips'], ['A', 'Advance stage'],
                 ['M', 'Mark paid'], ['Esc', 'Clear selection'], ['?', 'This panel']].map(([k, v]) => (
-                <div key={k} className="flex items-center justify-between text-[12.5px]">
+                <div key={k} className="flex items-center justify-between text-[9px]">
                   <dt className="text-neutral-600">{v}</dt>
-                  <dd><kbd className="rounded border border-neutral-300 bg-neutral-50 px-1.5 py-0.5 font-mono text-[11px]">{k}</kbd></dd>
+                  <dd><kbd className="rounded border border-neutral-300 bg-neutral-50 px-1.5 py-0.5 font-mono text-[9px]">{k}</kbd></dd>
                 </div>
               ))}
             </dl>
-            <p className="mt-3 text-[11.5px] text-neutral-400">Action keys apply to the current selection.</p>
+            <p className="mt-3 text-[10px] text-neutral-400">Action keys apply to the current selection.</p>
           </div>
         </div>
       )}
@@ -380,33 +380,33 @@ function IssueModal({ order, token, toast, onClose, onSaved }) {
       <div className="w-full max-w-md rounded-xl bg-white p-5 shadow-2xl">
         <div className="flex items-start justify-between">
           <div>
-            <p className="text-[12px] font-semibold text-neutral-900">Log a customer issue</p>
-            <p className="mt-0.5 font-mono text-[12px] text-neutral-500">{order.orderNumber}</p>
+            <p className="text-[9px] font-semibold text-neutral-900">Log a customer issue</p>
+            <p className="mt-0.5 font-mono text-[9px] text-neutral-500">{order.orderNumber}</p>
           </div>
           <button onClick={onClose} className="text-neutral-400 hover:text-neutral-900"><X size={16} /></button>
         </div>
 
         <div className="mt-4 space-y-3">
           <div>
-            <span className="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-neutral-500">Issue type</span>
+            <span className="mb-1 block text-[9px] font-semibold uppercase tracking-wider text-neutral-500">Issue type</span>
             <select value={form.issueType} onChange={(e) => setForm({ ...form, issueType: e.target.value })} className={field}>
               {ISSUE_TYPES.map((t) => <option key={t}>{t}</option>)}
             </select>
           </div>
           <div>
-            <span className="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-neutral-500">What happened</span>
+            <span className="mb-1 block text-[9px] font-semibold uppercase tracking-wider text-neutral-500">What happened</span>
             <textarea rows={3} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })}
               placeholder="Describe the problem for the team" className={field} />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <span className="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-neutral-500">Refund</span>
+              <span className="mb-1 block text-[9px] font-semibold uppercase tracking-wider text-neutral-500">Refund</span>
               <select value={form.refundStatus} onChange={(e) => setForm({ ...form, refundStatus: e.target.value })} className={field}>
                 {REFUND_STATES.map((t) => <option key={t}>{t}</option>)}
               </select>
             </div>
             <div>
-              <span className="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-neutral-500">Severity</span>
+              <span className="mb-1 block text-[9px] font-semibold uppercase tracking-wider text-neutral-500">Severity</span>
               <select value={form.severity} onChange={(e) => setForm({ ...form, severity: e.target.value })} className={field}>
                 {['Low', 'Normal', 'High'].map((t) => <option key={t}>{t}</option>)}
               </select>
@@ -415,11 +415,11 @@ function IssueModal({ order, token, toast, onClose, onSaved }) {
         </div>
 
         <div className="mt-5 flex justify-end gap-2">
-          <button onClick={onClose} className="rounded-lg border border-neutral-300 px-3.5 py-2 text-[13px] font-medium text-neutral-700 hover:bg-neutral-50">
+          <button onClick={onClose} className="rounded-lg border border-neutral-300 px-3.5 py-2 text-[10px] font-medium text-neutral-700 hover:bg-neutral-50">
             Cancel
           </button>
           <button disabled={busy} onClick={save}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-neutral-900 px-3.5 py-2 text-[13px] font-semibold text-white hover:bg-black disabled:opacity-50">
+            className="inline-flex items-center gap-1.5 rounded-lg bg-neutral-900 px-3.5 py-2 text-[10px] font-semibold text-white hover:bg-black disabled:opacity-50">
             {busy ? <Loader2 size={13} className="animate-spin" /> : null} Save issue
           </button>
         </div>

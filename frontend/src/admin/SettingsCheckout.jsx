@@ -24,8 +24,8 @@ function Section({ title, description, children }) {
   return (
     <section className="rounded-2xl border border-neutral-200 bg-white p-6">
       <div className="mb-5">
-        <p className="text-[11px] font-bold uppercase tracking-widest text-neutral-500">{title}</p>
-        {description && <p className="mt-1 text-[12px] leading-relaxed text-neutral-500">{description}</p>}
+        <p className="text-[9px] font-bold uppercase tracking-widest text-neutral-500">{title}</p>
+        {description && <p className="mt-1 text-[9px] leading-relaxed text-neutral-500">{description}</p>}
       </div>
       {children}
     </section>
@@ -37,8 +37,8 @@ function Text({ label, hint, value, onChange, ...rest }) {
   return (
     <div>
       <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">{label}</label>
-      <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={value ?? ''} onChange={(e) => onChange(e.target.value)} {...rest} />
-      {hint && <p className="mt-1.5 text-[11px] text-neutral-500">{hint}</p>}
+      <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900" value={value ?? ''} onChange={(e) => onChange(e.target.value)} {...rest} />
+      {hint && <p className="mt-1.5 text-[9px] text-neutral-500">{hint}</p>}
     </div>
   );
 }
@@ -82,7 +82,7 @@ export default function SettingsCheckout() {
 
   return (
     <AdminLayout title="Checkout">
-      <Link to="/admin/settings" className="mb-4 inline-flex items-center gap-1.5 text-[12px] font-semibold text-neutral-500 transition hover:text-neutral-900">
+      <Link to="/admin/settings" className="mb-4 inline-flex items-center gap-1.5 text-[9px] font-semibold text-neutral-500 transition hover:text-neutral-900">
         <ArrowLeft size={13} /> Settings
       </Link>
 
@@ -92,7 +92,7 @@ export default function SettingsCheckout() {
         </span>
         <div>
           <h2 className="font-sans text-2xl leading-tight text-neutral-900">Checkout</h2>
-          <p className="mt-1 text-[13px] leading-relaxed text-neutral-500">
+          <p className="mt-1 text-[10px] leading-relaxed text-neutral-500">
             Payment methods, delivery options, wording and the thank-you page. Changes go live the moment you save.
           </p>
         </div>
@@ -126,12 +126,12 @@ export default function SettingsCheckout() {
                     <span className={`absolute top-3.5 h-4 w-4 rounded-full bg-white shadow transition-all ${m.enabled ? 'left-[18px]' : 'left-0.5'}`} />
                   </button>
                   <input
-                    className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 flex-1 min-w-[140px]" value={m.label} placeholder="Shown to customers"
+                    className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[9px] outline-none transition focus:border-neutral-900 flex-1 min-w-[140px]" value={m.label} placeholder="Shown to customers"
                     onChange={(e) => setRow('paymentList', i, 'label', e.target.value)}
                     aria-label={`Label for ${m.id}`}
                   />
                   <select
-                    className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 w-36 shrink-0" value={m.icon}
+                    className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[9px] outline-none transition focus:border-neutral-900 w-36 shrink-0" value={m.icon}
                     onChange={(e) => setRow('paymentList', i, 'icon', e.target.value)}
                     aria-label={`Icon for ${m.id}`}
                   >
@@ -147,28 +147,28 @@ export default function SettingsCheckout() {
                 </div>
                 <div className="mt-3 grid gap-3 md:grid-cols-2">
                   <input
-                    className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={m.note} placeholder="Short note, e.g. Pay the rider at your door"
+                    className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900" value={m.note} placeholder="Short note, e.g. Pay the rider at your door"
                     onChange={(e) => setRow('paymentList', i, 'note', e.target.value)}
                     aria-label={`Note for ${m.id}`}
                   />
                   <input
-                    className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={m.id} placeholder="Internal id"
+                    className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900" value={m.id} placeholder="Internal id"
                     onChange={(e) => setRow('paymentList', i, 'id', e.target.value)}
                     aria-label={`Internal id for ${m.label || 'method'}`}
                   />
                 </div>
                 <textarea
-                  className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 mt-3 min-h-[64px]" value={m.instructions || ''}
+                  className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[9px] outline-none transition focus:border-neutral-900 mt-3 min-h-[64px]" value={m.instructions || ''}
                   placeholder="Instructions shown when the customer picks this (account number, steps…)"
                   onChange={(e) => setRow('paymentList', i, 'instructions', e.target.value)}
                   aria-label={`Instructions for ${m.id}`}
                 />
                 <div className="mt-3 flex flex-wrap gap-4">
-                  <label className="flex items-center gap-2 text-[12px] text-neutral-700">
+                  <label className="flex items-center gap-2 text-[9px] text-neutral-700">
                     <input type="checkbox" checked={!!m.needsTxn} onChange={(e) => setRow('paymentList', i, 'needsTxn', e.target.checked)} className="h-4 w-4 accent-neutral-900" />
                     Ask for a transaction reference
                   </label>
-                  <label className="flex items-center gap-2 text-[12px] text-neutral-700">
+                  <label className="flex items-center gap-2 text-[9px] text-neutral-700">
                     <input type="checkbox" checked={!!m.comingSoon} onChange={(e) => setRow('paymentList', i, 'comingSoon', e.target.checked)} className="h-4 w-4 accent-neutral-900" />
                     Show as “coming soon” (cannot be selected)
                   </label>
@@ -178,11 +178,11 @@ export default function SettingsCheckout() {
             <button
               type="button"
               onClick={() => set('paymentList', [...(c.paymentList || []), { id: '', label: '', note: '', icon: 'CreditCard', enabled: false, needsTxn: false, instructions: '', comingSoon: true }])}
-              className="w-full rounded-lg border border-dashed border-neutral-300 py-2 text-[11.5px] font-semibold text-neutral-600 transition hover:border-neutral-400 hover:text-neutral-900"
+              className="w-full rounded-lg border border-dashed border-neutral-300 py-2 text-[10px] font-semibold text-neutral-600 transition hover:border-neutral-400 hover:text-neutral-900"
             >
               + Add a payment method
             </button>
-            <p className="text-[11px] leading-relaxed text-neutral-500">
+            <p className="text-[9px] leading-relaxed text-neutral-500">
               To add a brand-new provider (Stripe, PayPal, Apple Pay), add a row here and leave “coming soon” ticked until the provider is connected.
             </p>
           </div>
@@ -207,7 +207,7 @@ export default function SettingsCheckout() {
                     <span className={`absolute top-3.5 h-4 w-4 rounded-full bg-white shadow transition-all ${m.enabled ? 'left-[18px]' : 'left-0.5'}`} />
                   </button>
                   <input
-                    className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 min-w-[140px] flex-1" value={m.label}
+                    className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[9px] outline-none transition focus:border-neutral-900 min-w-[140px] flex-1" value={m.label}
                     onChange={(e) => setRow('shippingMethods', i, 'label', e.target.value)}
                     aria-label={`Label for ${m.id}`}
                   />
@@ -221,22 +221,22 @@ export default function SettingsCheckout() {
                 </div>
                 <div className="mt-3 grid gap-3 md:grid-cols-4">
                   <div className="md:col-span-4">
-                    <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={m.note} placeholder="Short note" onChange={(e) => setRow('shippingMethods', i, 'note', e.target.value)} aria-label={`Note for ${m.id}`} />
+                    <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900" value={m.note} placeholder="Short note" onChange={(e) => setRow('shippingMethods', i, 'note', e.target.value)} aria-label={`Note for ${m.id}`} />
                   </div>
                   <div>
                     <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Charge (PKR)</label>
-                    <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" type="number" min="0" value={m.rate} onChange={(e) => setRow('shippingMethods', i, 'rate', Number(e.target.value))} />
+                    <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900" type="number" min="0" value={m.rate} onChange={(e) => setRow('shippingMethods', i, 'rate', Number(e.target.value))} />
                   </div>
                   <div>
                     <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Fastest (days)</label>
-                    <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" type="number" min="0" value={m.minDays} onChange={(e) => setRow('shippingMethods', i, 'minDays', Number(e.target.value))} />
+                    <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900" type="number" min="0" value={m.minDays} onChange={(e) => setRow('shippingMethods', i, 'minDays', Number(e.target.value))} />
                   </div>
                   <div>
                     <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Slowest (days)</label>
-                    <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" type="number" min="0" value={m.maxDays} onChange={(e) => setRow('shippingMethods', i, 'maxDays', Number(e.target.value))} />
+                    <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900" type="number" min="0" value={m.maxDays} onChange={(e) => setRow('shippingMethods', i, 'maxDays', Number(e.target.value))} />
                   </div>
                   <div className="flex items-end pb-1">
-                    <label className="flex items-center gap-2 text-[12px] text-neutral-700">
+                    <label className="flex items-center gap-2 text-[9px] text-neutral-700">
                       <input type="checkbox" checked={m.freeEligible !== false} onChange={(e) => setRow('shippingMethods', i, 'freeEligible', e.target.checked)} className="h-4 w-4 accent-neutral-900" />
                       Free-shipping applies
                     </label>
@@ -247,7 +247,7 @@ export default function SettingsCheckout() {
             <button
               type="button"
               onClick={() => set('shippingMethods', [...(c.shippingMethods || []), { id: '', label: '', note: '', rate: 0, minDays: 2, maxDays: 5, enabled: false, freeEligible: true }])}
-              className="w-full rounded-lg border border-dashed border-neutral-300 py-2 text-[11.5px] font-semibold text-neutral-600 transition hover:border-neutral-400 hover:text-neutral-900"
+              className="w-full rounded-lg border border-dashed border-neutral-300 py-2 text-[10px] font-semibold text-neutral-600 transition hover:border-neutral-400 hover:text-neutral-900"
             >
               + Add a delivery method
             </button>
@@ -285,10 +285,10 @@ export default function SettingsCheckout() {
           <div className="mt-4 space-y-2">
             {(c.trust || []).map((t, i) => (
               <div key={i} className="flex items-center gap-2">
-                <select className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 w-40 shrink-0" value={t.icon} onChange={(e) => setRow('trust', i, 'icon', e.target.value)} aria-label={`Icon for badge ${i + 1}`}>
+                <select className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[9px] outline-none transition focus:border-neutral-900 w-40 shrink-0" value={t.icon} onChange={(e) => setRow('trust', i, 'icon', e.target.value)} aria-label={`Icon for badge ${i + 1}`}>
                   {TRUST_ICON_NAMES.map((n) => <option key={n} value={n}>{n}</option>)}
                 </select>
-                <input className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 flex-1" value={t.label} placeholder="e.g. Secure checkout" onChange={(e) => setRow('trust', i, 'label', e.target.value)} aria-label={`Text for badge ${i + 1}`} />
+                <input className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[9px] outline-none transition focus:border-neutral-900 flex-1" value={t.label} placeholder="e.g. Secure checkout" onChange={(e) => setRow('trust', i, 'label', e.target.value)} aria-label={`Text for badge ${i + 1}`} />
                 <button
                   type="button" onClick={() => set('trust', c.trust.filter((_, j) => j !== i))}
                   className="grid h-10 w-10 shrink-0 place-items-center rounded-lg text-neutral-500 transition hover:bg-red-50 hover:text-red-600"
@@ -300,7 +300,7 @@ export default function SettingsCheckout() {
             ))}
             <button
               type="button" onClick={() => set('trust', [...(c.trust || []), { icon: 'ShieldCheck', label: '' }])}
-              className="w-full rounded-lg border border-dashed border-neutral-300 py-2 text-[11.5px] font-semibold text-neutral-600 transition hover:border-neutral-400 hover:text-neutral-900"
+              className="w-full rounded-lg border border-dashed border-neutral-300 py-2 text-[10px] font-semibold text-neutral-600 transition hover:border-neutral-400 hover:text-neutral-900"
             >
               + Add a badge
             </button>
@@ -313,7 +313,7 @@ export default function SettingsCheckout() {
             <Text label="Heading" value={c.successTitle} onChange={(v) => set('successTitle', v)} />
             <div>
               <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Message</label>
-              <textarea className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 min-h-[80px]" value={c.successText} onChange={(e) => set('successText', e.target.value)} />
+              <textarea className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[9px] outline-none transition focus:border-neutral-900 min-h-[80px]" value={c.successText} onChange={(e) => set('successText', e.target.value)} />
             </div>
             <Text label="Extra note (optional)" value={c.successNote} onChange={(v) => set('successNote', v)} hint="Appears in small text at the bottom." />
           </div>
@@ -332,10 +332,10 @@ export default function SettingsCheckout() {
 
       {dirty && (
         <div className="sticky bottom-4 z-30 mt-6 flex items-center justify-between gap-4 rounded-2xl border border-neutral-900 bg-neutral-900 px-4 py-3 text-white shadow-xl">
-          <p className="text-[13px] font-medium">Unsaved changes</p>
+          <p className="text-[10px] font-medium">Unsaved changes</p>
           <div className="flex items-center gap-2">
-            <button onClick={() => setS(JSON.parse(original))} className="rounded-lg border border-white/20 px-3 py-1.5 text-[12px] font-semibold text-white/80 transition hover:bg-white/10">Discard</button>
-            <button onClick={save} disabled={busy} className="inline-flex items-center gap-1.5 rounded-lg bg-white px-4 py-1.5 text-[12px] font-semibold text-neutral-900 transition hover:bg-neutral-100 disabled:opacity-50">
+            <button onClick={() => setS(JSON.parse(original))} className="rounded-lg border border-white/20 px-3 py-1.5 text-[9px] font-semibold text-white/80 transition hover:bg-white/10">Discard</button>
+            <button onClick={save} disabled={busy} className="inline-flex items-center gap-1.5 rounded-lg bg-white px-4 py-1.5 text-[9px] font-semibold text-neutral-900 transition hover:bg-neutral-100 disabled:opacity-50">
               <Save size={13} /> {busy ? 'Saving…' : 'Save'}
             </button>
           </div>

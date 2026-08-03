@@ -28,7 +28,7 @@ export default function OrderAnalytics({ token }) {
   }, [token, days]);
 
   if (err) {
-    return <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-[13px] text-red-800">{err}</div>;
+    return <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-[10px] text-red-800">{err}</div>;
   }
   if (!data) {
     return (
@@ -45,11 +45,11 @@ export default function OrderAnalytics({ token }) {
   return (
     <div className="space-y-3 rounded-xl border border-neutral-200 bg-white p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="text-[13px] font-semibold text-neutral-900">Performance</p>
+        <p className="text-[10px] font-semibold text-neutral-900">Performance</p>
         <div className="flex gap-1 rounded-lg bg-neutral-100 p-0.5">
           {RANGES.map((r) => (
             <button key={r.d} onClick={() => setDays(r.d)}
-              className={`rounded-md px-2.5 py-1 text-[12px] font-semibold transition ${
+              className={`rounded-md px-2.5 py-1 text-[9px] font-semibold transition ${
                 days === r.d ? 'bg-white text-neutral-900 shadow-sm' : 'text-neutral-500 hover:text-neutral-900'}`}>
               {r.label}
             </button>
@@ -98,7 +98,7 @@ export default function OrderAnalytics({ token }) {
           </ResponsiveContainer>
           <div className="mt-1 flex flex-wrap justify-center gap-x-3 gap-y-1">
             {methodData.map((m, i) => (
-              <span key={m.name} className="inline-flex items-center gap-1 text-[11px] text-neutral-600">
+              <span key={m.name} className="inline-flex items-center gap-1 text-[9px] text-neutral-600">
                 <span className="h-2 w-2 rounded-full" style={{ background: SLICE[i % SLICE.length] }} />
                 {m.name} ({m.value})
               </span>
@@ -140,9 +140,9 @@ function Kpi({ label, value, sub, tone }) {
   const toneCls = tone === 'good' ? 'text-emerald-700' : tone === 'bad' ? 'text-red-700' : tone === 'warn' ? 'text-amber-700' : 'text-neutral-900';
   return (
     <div className="rounded-lg border border-neutral-200 bg-neutral-50/60 px-3 py-2.5">
-      <p className="text-[10.5px] font-semibold uppercase tracking-wider text-neutral-500">{label}</p>
-      <p className={`mt-0.5 text-[17px] font-semibold tabular-nums ${toneCls}`}>{value}</p>
-      {sub && <p className="text-[11px] text-neutral-400">{sub}</p>}
+      <p className="text-[9px] font-semibold uppercase tracking-wider text-neutral-500">{label}</p>
+      <p className={`mt-0.5 text-[9px] font-semibold tabular-nums ${toneCls}`}>{value}</p>
+      {sub && <p className="text-[9px] text-neutral-400">{sub}</p>}
     </div>
   );
 }
@@ -150,7 +150,7 @@ function Kpi({ label, value, sub, tone }) {
 function Panel({ title, children }) {
   return (
     <div className="rounded-lg border border-neutral-200 p-3">
-      <p className="mb-1.5 text-[11.5px] font-semibold uppercase tracking-wider text-neutral-500">{title}</p>
+      <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-neutral-500">{title}</p>
       {children}
     </div>
   );

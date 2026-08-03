@@ -9,7 +9,7 @@ import AdminLayout from './AdminLayout';
 
 function BackToSettings() {
   return (
-    <Link to="/admin/settings" className="mb-4 inline-flex items-center gap-1.5 text-[12px] font-semibold text-neutral-500 transition hover:text-neutral-900">
+    <Link to="/admin/settings" className="mb-4 inline-flex items-center gap-1.5 text-[9px] font-semibold text-neutral-500 transition hover:text-neutral-900">
       <ArrowLeft size={13} /> Settings
     </Link>
   );
@@ -23,7 +23,7 @@ function PageIntro({ icon: Icon, title, description }) {
       </span>
       <div>
         <h2 className="font-sans text-2xl leading-tight text-neutral-900">{title}</h2>
-        <p className="mt-1 text-[13px] leading-relaxed text-neutral-500">{description}</p>
+        <p className="mt-1 text-[10px] leading-relaxed text-neutral-500">{description}</p>
       </div>
     </div>
   );
@@ -34,8 +34,8 @@ function Section({ title, description, children, action }) {
     <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
       <div className="mb-5 flex items-start justify-between">
         <div>
-          <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-900">{title}</p>
-          {description && <p className="mt-1 text-[12px] leading-relaxed text-neutral-500">{description}</p>}
+          <p className="text-[9px] font-bold uppercase tracking-widest text-neutral-900">{title}</p>
+          {description && <p className="mt-1 text-[9px] leading-relaxed text-neutral-500">{description}</p>}
         </div>
         {action && <div>{action}</div>}
       </div>
@@ -298,7 +298,7 @@ export default function SettingsEmail() {
         />
 
         {!isSmtpConfigured && (
-          <div role="alert" className="mb-6 flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-[13px] text-amber-900 shadow-sm">
+          <div role="alert" className="mb-6 flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-[10px] text-amber-900 shadow-sm">
             <AlertTriangle className="mt-0.5 shrink-0 text-amber-600" size={18} />
             <div>
               <p className="font-semibold">SMTP Credentials are not fully set up</p>
@@ -320,7 +320,7 @@ export default function SettingsEmail() {
                 <button
                   onClick={handleSettingsSave}
                   disabled={busy || !isSettingsDirty}
-                  className="inline-flex min-h-[38px] items-center gap-1.5 rounded-lg bg-neutral-900 px-4 py-1 text-[12px] font-semibold text-white transition hover:bg-neutral-800 disabled:opacity-40"
+                  className="inline-flex min-h-[38px] items-center gap-1.5 rounded-lg bg-neutral-900 px-4 py-1 text-[9px] font-semibold text-white transition hover:bg-neutral-800 disabled:opacity-40"
                 >
                   <Save size={13} /> {busy ? 'Saving…' : 'Save SMTP'}
                 </button>
@@ -330,7 +330,7 @@ export default function SettingsEmail() {
                 <div>
                   <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">SMTP Host</label>
                   <input
-                    className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900"
+                    className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900"
                     value={emailCfg.host || ''}
                     onChange={(e) => setEmailValue('host', e.target.value)}
                     placeholder="e.g. smtp.gmail.com"
@@ -340,7 +340,7 @@ export default function SettingsEmail() {
                   <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">SMTP Port</label>
                   <input
                     type="number"
-                    className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900"
+                    className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900"
                     value={emailCfg.port || 587}
                     onChange={(e) => setEmailValue('port', Number(e.target.value) || 587)}
                     placeholder="e.g. 587"
@@ -349,7 +349,7 @@ export default function SettingsEmail() {
                 <div>
                   <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Username / User</label>
                   <input
-                    className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900"
+                    className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900"
                     value={emailCfg.user || ''}
                     onChange={(e) => setEmailValue('user', e.target.value)}
                     placeholder="e.g. care@hushae.pk"
@@ -360,7 +360,7 @@ export default function SettingsEmail() {
                   <div className="relative">
                     <input
                       type={showPass ? 'text' : 'password'}
-                      className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 pr-10"
+                      className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[9px] outline-none transition focus:border-neutral-900 pr-10"
                       value={emailCfg.pass || ''}
                       onChange={(e) => setEmailValue('pass', e.target.value)}
                       placeholder="••••••••••••"
@@ -377,7 +377,7 @@ export default function SettingsEmail() {
                 <div>
                   <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Sender Name / From Address</label>
                   <input
-                    className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900"
+                    className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900"
                     value={emailCfg.from || ''}
                     onChange={(e) => setEmailValue('from', e.target.value)}
                     placeholder="e.g. HUSHAE <care@hushae.pk>"
@@ -386,7 +386,7 @@ export default function SettingsEmail() {
                 <div>
                   <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Admin Alert Target Email</label>
                   <input
-                    className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900"
+                    className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900"
                     value={emailCfg.adminAlert || ''}
                     onChange={(e) => setEmailValue('adminAlert', e.target.value)}
                     placeholder="e.g. alert@hushae.pk"
@@ -395,8 +395,8 @@ export default function SettingsEmail() {
                 <div className="sm:col-span-2">
                   <label className="flex cursor-pointer items-center justify-between rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-3">
                     <div className="min-w-0">
-                      <p className="text-[13px] font-medium text-neutral-900">Use Secure TLS Connection (SSL/TLS)</p>
-                      <p className="text-[11px] text-neutral-500">Enable if your server requires direct SSL/TLS encryption (usually on port 465).</p>
+                      <p className="text-[10px] font-medium text-neutral-900">Use Secure TLS Connection (SSL/TLS)</p>
+                      <p className="text-[9px] text-neutral-500">Enable if your server requires direct SSL/TLS encryption (usually on port 465).</p>
                     </div>
                     <span
                       onClick={() => setEmailValue('secure', !emailCfg.secure)}
@@ -416,7 +416,7 @@ export default function SettingsEmail() {
             >
               <div className="flex gap-2">
                 <input
-                  className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 flex-1"
+                  className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[9px] outline-none transition focus:border-neutral-900 flex-1"
                   value={testEmail}
                   onChange={(e) => setTestEmail(e.target.value)}
                   placeholder="e.g. mytest@gmail.com"
@@ -426,7 +426,7 @@ export default function SettingsEmail() {
                   type="button"
                   onClick={handleSendTestEmail}
                   disabled={testBusy || !isSmtpConfigured}
-                  className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg bg-neutral-900 px-4 py-2 text-[12px] font-semibold text-white transition hover:bg-neutral-800 disabled:opacity-40"
+                  className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg bg-neutral-900 px-4 py-2 text-[9px] font-semibold text-white transition hover:bg-neutral-800 disabled:opacity-40"
                 >
                   <Send size={12} /> {testBusy ? 'Sending…' : 'Send Test'}
                 </button>
@@ -449,8 +449,8 @@ export default function SettingsEmail() {
                     }`}
                   >
                     <div>
-                      <p className="text-[13px] font-medium text-neutral-900">{t.name}</p>
-                      <p className="mt-0.5 text-[11px] text-neutral-500 font-normal">/{t.templateKey} · {t.subject}</p>
+                      <p className="text-[10px] font-medium text-neutral-900">{t.name}</p>
+                      <p className="mt-0.5 text-[9px] text-neutral-500 font-normal">/{t.templateKey} · {t.subject}</p>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className={`rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider ${
@@ -477,7 +477,7 @@ export default function SettingsEmail() {
                     <button
                       onClick={handleTemplateSave}
                       disabled={busy}
-                      className="inline-flex min-h-[38px] items-center gap-1.5 rounded-lg bg-neutral-900 px-4 py-1 text-[12px] font-semibold text-white transition hover:bg-neutral-800"
+                      className="inline-flex min-h-[38px] items-center gap-1.5 rounded-lg bg-neutral-900 px-4 py-1 text-[9px] font-semibold text-white transition hover:bg-neutral-800"
                     >
                       <Save size={13} /> {busy ? 'Saving…' : 'Save'}
                     </button>
@@ -486,7 +486,7 @@ export default function SettingsEmail() {
                   <div className="space-y-4">
                     {/* Active Toggle */}
                     <div className="flex items-center justify-between rounded-xl bg-neutral-50 p-3">
-                      <span className="text-[13px] font-medium text-neutral-700">Enable this email notification</span>
+                      <span className="text-[10px] font-medium text-neutral-700">Enable this email notification</span>
                       <span
                         onClick={() => setEditActive(!editActive)}
                         className={`relative h-5 w-9 shrink-0 cursor-pointer rounded-full transition ${editActive ? 'bg-neutral-900' : 'bg-neutral-300'}`}
@@ -499,11 +499,11 @@ export default function SettingsEmail() {
                     <div>
                       <div className="flex justify-between items-center mb-1">
                         <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Subject Line</label>
-                        <span className="text-[11px] text-neutral-500 font-mono">{`{...} variables work`}</span>
+                        <span className="text-[9px] text-neutral-500 font-mono">{`{...} variables work`}</span>
                       </div>
                       <input
                         ref={subjectRef}
-                        className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 font-medium"
+                        className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[9px] outline-none transition focus:border-neutral-900 font-medium"
                         value={editSubject}
                         onChange={(e) => setEditSubject(e.target.value)}
                         placeholder="Subject Line"
@@ -514,12 +514,12 @@ export default function SettingsEmail() {
                     <div>
                       <div className="flex justify-between items-center mb-1">
                         <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Template Body (HTML)</label>
-                        <span className="text-[11px] text-neutral-500 font-mono">Full HTML supported</span>
+                        <span className="text-[9px] text-neutral-500 font-mono">Full HTML supported</span>
                       </div>
                       <textarea
                         ref={bodyRef}
                         rows={16}
-                        className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 font-mono text-xs leading-relaxed"
+                        className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[9px] outline-none transition focus:border-neutral-900 font-mono text-xs leading-relaxed"
                         value={editBody}
                         onChange={(e) => setEditBody(e.target.value)}
                         placeholder="HTML content"
@@ -529,7 +529,7 @@ export default function SettingsEmail() {
                     {/* Variables Insertion Grid */}
                     <div>
                       <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-500 mb-2">Available Placeholders</p>
-                      <p className="text-[11px] text-neutral-500 mb-2">Click placeholder below to insert it at cursor position:</p>
+                      <p className="text-[9px] text-neutral-500 mb-2">Click placeholder below to insert it at cursor position:</p>
                       <div className="flex flex-wrap gap-1.5">
                         {selectedTemplate.variables.map((v) => (
                           <div key={v} className="inline-flex rounded-md border border-neutral-200 bg-neutral-50 p-1">
@@ -558,7 +558,7 @@ export default function SettingsEmail() {
                     {/* Preview Area */}
                     <div className="pt-3 border-t border-neutral-100">
                       <div className="flex justify-between items-center mb-2">
-                        <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-900">Live Mock Preview</p>
+                        <p className="text-[9px] font-bold uppercase tracking-widest text-neutral-900">Live Mock Preview</p>
                         <button
                           type="button"
                           onClick={() => setShowShowPreview(!showPreview)}
@@ -582,10 +582,10 @@ export default function SettingsEmail() {
 
                     {/* Send Template Test Email */}
                     <div className="pt-3 border-t border-neutral-100">
-                      <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-900 mb-2">Send Real Template Test</p>
+                      <p className="text-[9px] font-bold uppercase tracking-widest text-neutral-900 mb-2">Send Real Template Test</p>
                       <div className="flex gap-2">
                         <input
-                          className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 flex-1 !py-1.5 !text-xs"
+                          className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[9px] outline-none transition focus:border-neutral-900 flex-1 !py-1.5 !text-xs"
                           value={testTemplateEmail}
                           onChange={(e) => setTestTemplateEmail(e.target.value)}
                           placeholder="e.g. recipient@gmail.com"
@@ -595,7 +595,7 @@ export default function SettingsEmail() {
                           type="button"
                           onClick={handleSendTemplateTest}
                           disabled={templateTestBusy || !isSmtpConfigured}
-                          className="inline-flex min-h-[38px] items-center gap-1.5 rounded-lg bg-neutral-900 px-3 py-1 text-[11px] font-semibold text-white transition hover:bg-neutral-800 disabled:opacity-40"
+                          className="inline-flex min-h-[38px] items-center gap-1.5 rounded-lg bg-neutral-900 px-3 py-1 text-[9px] font-semibold text-white transition hover:bg-neutral-800 disabled:opacity-40"
                         >
                           {templateTestBusy ? 'Sending…' : 'Send'}
                         </button>

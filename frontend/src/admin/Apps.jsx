@@ -78,24 +78,24 @@ export default function Apps() {
           <div className={`mt-5 space-y-4 ${wa.enabled ? '' : 'pointer-events-none opacity-40'}`}>
             <div>
               <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">WhatsApp number (with country code)</label>
-              <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" placeholder="923001234567" value={wa.number} onChange={(e) => setWa('number', e.target.value)} />
-              <p className="mt-1 text-[11px] text-neutral-500">Example: 0300 1234567 → 923001234567 (remove the leading 0 and prefix '92')</p>
+              <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900" placeholder="923001234567" value={wa.number} onChange={(e) => setWa('number', e.target.value)} />
+              <p className="mt-1 text-[9px] text-neutral-500">Example: 0300 1234567 → 923001234567 (remove the leading 0 and prefix '92')</p>
             </div>
             <div>
               <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Default message (customer's first message)</label>
-              <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={wa.message} onChange={(e) => setWa('message', e.target.value)} />
+              <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900" value={wa.message} onChange={(e) => setWa('message', e.target.value)} />
             </div>
             <div className="mt-5 border-t border-neutral-100 pt-5">
-              <p className="text-[11px] font-bold uppercase tracking-widest text-neutral-500">Admin new-order alerts</p>
-              <p className="mt-1 text-[11px] text-neutral-500">Every new order fires a click-to-open WhatsApp link with the order summary. Free — no API needed.</p>
+              <p className="text-[9px] font-bold uppercase tracking-widest text-neutral-500">Admin new-order alerts</p>
+              <p className="mt-1 text-[9px] text-neutral-500">Every new order fires a click-to-open WhatsApp link with the order summary. Free — no API needed.</p>
               <div className="mt-3 grid gap-3 md:grid-cols-2">
                 <div>
                   <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Your WhatsApp (receives alerts)</label>
-                  <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" placeholder="923001234567" value={wa.adminAlertNumber} onChange={(e) => setWa('adminAlertNumber', e.target.value)} />
+                  <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900" placeholder="923001234567" value={wa.adminAlertNumber} onChange={(e) => setWa('adminAlertNumber', e.target.value)} />
                 </div>
                 <div>
                   <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Webhook URL (optional — for automation)</label>
-                  <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 font-mono text-xs" placeholder="https://hook.make.com/…" value={wa.webhookUrl} onChange={(e) => setWa('webhookUrl', e.target.value)} />
+                  <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900 font-mono text-xs" placeholder="https://hook.make.com/…" value={wa.webhookUrl} onChange={(e) => setWa('webhookUrl', e.target.value)} />
                 </div>
               </div>
             </div>
@@ -116,18 +116,18 @@ export default function Apps() {
           <div className={`mt-5 grid gap-3 md:grid-cols-3 ${loyalty.enabled ? '' : 'pointer-events-none opacity-40'}`}>
             <div>
               <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Fires every N delivered orders</label>
-              <input type="number" min={2} max={10} className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={loyalty.threshold} onChange={(e) => setLoyalty('threshold', parseInt(e.target.value, 10) || 2)} />
+              <input type="number" min={2} max={10} className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900" value={loyalty.threshold} onChange={(e) => setLoyalty('threshold', parseInt(e.target.value, 10) || 2)} />
             </div>
             <div>
               <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Discount %</label>
-              <input type="number" min={1} max={50} className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={loyalty.discountPercent} onChange={(e) => setLoyalty('discountPercent', parseInt(e.target.value, 10) || 10)} />
+              <input type="number" min={1} max={50} className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900" value={loyalty.discountPercent} onChange={(e) => setLoyalty('discountPercent', parseInt(e.target.value, 10) || 10)} />
             </div>
             <div>
               <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Coupon valid (days)</label>
-              <input type="number" min={7} max={365} className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={loyalty.validDays} onChange={(e) => setLoyalty('validDays', parseInt(e.target.value, 10) || 60)} />
+              <input type="number" min={7} max={365} className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900" value={loyalty.validDays} onChange={(e) => setLoyalty('validDays', parseInt(e.target.value, 10) || 60)} />
             </div>
           </div>
-          <p className="mt-3 text-[11px] text-neutral-500">
+          <p className="mt-3 text-[9px] text-neutral-500">
             A unique <code>HUSH-XXXXX</code> coupon is minted the moment the qualifying order is marked Delivered. Sent to the customer's email automatically.
           </p>
         </div>
@@ -138,15 +138,15 @@ export default function Apps() {
           <div className="mt-5 space-y-4">
             <div>
               <label className="label flex items-center gap-1.5"><Instagram size={13} /> Instagram URL</label>
-              <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" placeholder="https://instagram.com/hushae.pk" value={social.instagram} onChange={(e) => setSocial('instagram', e.target.value)} />
+              <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900" placeholder="https://instagram.com/hushae.pk" value={social.instagram} onChange={(e) => setSocial('instagram', e.target.value)} />
             </div>
             <div>
               <label className="label flex items-center gap-1.5"><Facebook size={13} /> Facebook URL</label>
-              <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" placeholder="https://facebook.com/hushae.pk" value={social.facebook} onChange={(e) => setSocial('facebook', e.target.value)} />
+              <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900" placeholder="https://facebook.com/hushae.pk" value={social.facebook} onChange={(e) => setSocial('facebook', e.target.value)} />
             </div>
             <div>
               <label className="label flex items-center gap-1.5"><Music2 size={13} /> TikTok URL</label>
-              <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" placeholder="https://tiktok.com/@hushae.pk" value={social.tiktok} onChange={(e) => setSocial('tiktok', e.target.value)} />
+              <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900" placeholder="https://tiktok.com/@hushae.pk" value={social.tiktok} onChange={(e) => setSocial('tiktok', e.target.value)} />
             </div>
           </div>
         </div>
@@ -157,7 +157,7 @@ export default function Apps() {
               <h2 className="font-sans text-lg">Media Library — PC se Image & Video Upload</h2>
               <p className="mt-0.5 text-xs text-neutral-500"><b className="text-neutral-900">Images upload without any setup</b> (they save into the database). This optional connection is only for <b className="text-neutral-900">videos and large files</b> .</p>
             </div>
-            {media.cloudName && media.uploadPreset && <span className="ml-auto rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-semibold text-emerald-700">Connected</span>}
+            {media.cloudName && media.uploadPreset && <span className="ml-auto rounded-full bg-emerald-50 px-3 py-1 text-[9px] font-semibold text-emerald-700">Connected</span>}
           </div>
           <ol className="mt-4 list-decimal space-y-1.5 rounded-2xl border border-neutral-200 bg-neutral-100 p-4 pl-9 text-xs leading-relaxed text-neutral-500">
             <li><b className="text-neutral-900">cloudinary.com</b> and create a free account (email + password — completely free)</li>
@@ -169,11 +169,11 @@ export default function Apps() {
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <div>
               <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Cloud Name</label>
-              <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" placeholder="e.g. dxyz123ab" value={media.cloudName} onChange={(e) => setMedia('cloudName', e.target.value)} />
+              <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900" placeholder="e.g. dxyz123ab" value={media.cloudName} onChange={(e) => setMedia('cloudName', e.target.value)} />
             </div>
             <div>
               <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Upload Preset</label>
-              <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" placeholder="e.g. hushae_uploads" value={media.uploadPreset} onChange={(e) => setMedia('uploadPreset', e.target.value)} />
+              <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900" placeholder="e.g. hushae_uploads" value={media.uploadPreset} onChange={(e) => setMedia('uploadPreset', e.target.value)} />
             </div>
           </div>
         </div>
@@ -189,51 +189,51 @@ export default function Apps() {
               </p>
             </div>
             {(email.host && email.user) && (
-              <span className="ml-auto rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-semibold text-emerald-700">Connected</span>
+              <span className="ml-auto rounded-full bg-emerald-50 px-3 py-1 text-[9px] font-semibold text-emerald-700">Connected</span>
             )}
           </div>
 
           <div className="mt-4 grid gap-4 md:grid-cols-2">
             <div>
               <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">SMTP host</label>
-              <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 font-mono text-xs" placeholder="smtp.gmail.com" value={email.host} onChange={(e) => setEmail('host', e.target.value)} />
+              <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900 font-mono text-xs" placeholder="smtp.gmail.com" value={email.host} onChange={(e) => setEmail('host', e.target.value)} />
             </div>
             <div>
               <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Port</label>
-              <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" type="number" placeholder="587" value={email.port} onChange={(e) => setEmail('port', Number(e.target.value) || 587)} />
-              <label className="mt-2 flex items-center gap-2 text-[11px] text-neutral-500">
+              <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900" type="number" placeholder="587" value={email.port} onChange={(e) => setEmail('port', Number(e.target.value) || 587)} />
+              <label className="mt-2 flex items-center gap-2 text-[9px] text-neutral-500">
                 <input type="checkbox" checked={!!email.secure} onChange={(e) => setEmail('secure', e.target.checked)} className="h-3.5 w-3.5 accent-obsidian" />
                 Use SSL (usually only for port 465)
               </label>
             </div>
             <div>
               <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Username</label>
-              <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" placeholder="you@yourstore.com" value={email.user} onChange={(e) => setEmail('user', e.target.value)} />
+              <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900" placeholder="you@yourstore.com" value={email.user} onChange={(e) => setEmail('user', e.target.value)} />
             </div>
             <div>
               <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Password / App password</label>
-              <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 font-mono text-xs" type="password" placeholder="•••••••••••" value={email.pass} onChange={(e) => setEmail('pass', e.target.value)} />
+              <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900 font-mono text-xs" type="password" placeholder="•••••••••••" value={email.pass} onChange={(e) => setEmail('pass', e.target.value)} />
             </div>
             <div>
               <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">"From" address</label>
-              <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" placeholder='"HUSHAE" &lt;no-reply@hushae.pk&gt;' value={email.from} onChange={(e) => setEmail('from', e.target.value)} />
-              <p className="mt-1.5 text-[11px] text-neutral-500">Leave blank to use your username.</p>
+              <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900" placeholder='"HUSHAE" &lt;no-reply@hushae.pk&gt;' value={email.from} onChange={(e) => setEmail('from', e.target.value)} />
+              <p className="mt-1.5 text-[9px] text-neutral-500">Leave blank to use your username.</p>
             </div>
             <div>
               <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Admin alert address</label>
-              <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" placeholder="you@yourstore.com" value={email.adminAlert} onChange={(e) => setEmail('adminAlert', e.target.value)} />
-              <p className="mt-1.5 text-[11px] text-neutral-500">Where new-order alerts go. Defaults to Username if empty.</p>
+              <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900" placeholder="you@yourstore.com" value={email.adminAlert} onChange={(e) => setEmail('adminAlert', e.target.value)} />
+              <p className="mt-1.5 text-[9px] text-neutral-500">Where new-order alerts go. Defaults to Username if empty.</p>
             </div>
           </div>
 
           <div className="mt-4 flex flex-wrap items-center gap-2">
-            <button type="button" onClick={testEmail} className="inline-flex items-center gap-1.5 rounded-full border border-neutral-300 bg-white px-4 py-2 text-[11px] font-semibold text-neutral-700 transition hover:bg-neutral-100">
+            <button type="button" onClick={testEmail} className="inline-flex items-center gap-1.5 rounded-full border border-neutral-300 bg-white px-4 py-2 text-[9px] font-semibold text-neutral-700 transition hover:bg-neutral-100">
               Send test email
             </button>
-            <span className="text-[11px] text-neutral-500">Save your changes first, then send a test.</span>
+            <span className="text-[9px] text-neutral-500">Save your changes first, then send a test.</span>
           </div>
 
-          <div className="mt-4 rounded-2xl border border-neutral-200 bg-neutral-100 p-3 text-[11px] leading-relaxed text-neutral-500">
+          <div className="mt-4 rounded-2xl border border-neutral-200 bg-neutral-100 p-3 text-[9px] leading-relaxed text-neutral-500">
             <b className="text-neutral-900">Gmail tip:</b> Turn on 2-Step Verification in Google Account, then create an "App password" — use that as the SMTP password. Host = <code>smtp.gmail.com</code>, port = <code>587</code>, SSL = off.
           </div>
         </div>
@@ -249,48 +249,48 @@ export default function Apps() {
               </p>
             </div>
             {(analytics.gaId || analytics.metaPixelId) && (
-              <span className="ml-auto rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-semibold text-emerald-700">Connected</span>
+              <span className="ml-auto rounded-full bg-emerald-50 px-3 py-1 text-[9px] font-semibold text-emerald-700">Connected</span>
             )}
           </div>
 
           <div className="mt-4 grid gap-4 md:grid-cols-2">
             <div>
               <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Google Analytics 4 ID</label>
-              <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 font-mono text-xs" placeholder="G-XXXXXXXXXX" value={analytics.gaId} onChange={(e) => setAn('gaId', e.target.value)} />
-              <p className="mt-1.5 text-[11px] text-neutral-500">
+              <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900 font-mono text-xs" placeholder="G-XXXXXXXXXX" value={analytics.gaId} onChange={(e) => setAn('gaId', e.target.value)} />
+              <p className="mt-1.5 text-[9px] text-neutral-500">
                 <a href="https://analytics.google.com" target="_blank" rel="noreferrer" className="underline hover:text-neutral-900">analytics.google.com</a> → Property banayein → Data streams → Measurement IDCopy it
               </p>
             </div>
             <div>
               <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Google Tag Manager ID (optional)</label>
-              <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 font-mono text-xs" placeholder="GTM-XXXXXXX" value={analytics.gtmId} onChange={(e) => setAn('gtmId', e.target.value)} />
-              <p className="mt-1.5 text-[11px] text-neutral-500">Advanced users only — fill this if you are using GTM</p>
+              <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900 font-mono text-xs" placeholder="GTM-XXXXXXX" value={analytics.gtmId} onChange={(e) => setAn('gtmId', e.target.value)} />
+              <p className="mt-1.5 text-[9px] text-neutral-500">Advanced users only — fill this if you are using GTM</p>
             </div>
             <div>
               <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Microsoft Clarity Project ID</label>
-              <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 font-mono text-xs" placeholder="xxxxxxxxxx" value={analytics.clarityId} onChange={(e) => setAn('clarityId', e.target.value)} />
-              <p className="mt-1.5 text-[11px] text-neutral-500">clarity.microsoft.com → Project settings → Copy Project ID</p>
+              <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900 font-mono text-xs" placeholder="xxxxxxxxxx" value={analytics.clarityId} onChange={(e) => setAn('clarityId', e.target.value)} />
+              <p className="mt-1.5 text-[9px] text-neutral-500">clarity.microsoft.com → Project settings → Copy Project ID</p>
             </div>
             <div>
               <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Meta (Facebook) Pixel ID</label>
-              <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 font-mono text-xs" placeholder="1234567890123456" value={analytics.metaPixelId} onChange={(e) => setAn('metaPixelId', e.target.value)} />
-              <p className="mt-1.5 text-[11px] text-neutral-500">
+              <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900 font-mono text-xs" placeholder="1234567890123456" value={analytics.metaPixelId} onChange={(e) => setAn('metaPixelId', e.target.value)} />
+              <p className="mt-1.5 text-[9px] text-neutral-500">
                 <a href="https://business.facebook.com/events_manager" target="_blank" rel="noreferrer" className="underline hover:text-neutral-900">Meta Events Manager</a> → Data source → Pixel IDCopy it
               </p>
             </div>
             <div>
               <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">TikTok Pixel ID (optional)</label>
-              <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 font-mono text-xs" placeholder="CXXXXXXXXXXXXXXXXXXX" value={analytics.tiktokPixelId} onChange={(e) => setAn('tiktokPixelId', e.target.value)} />
-              <p className="mt-1.5 text-[11px] text-neutral-500">TikTok Ads Manager → Assets → Events → Web events → Pixel ID</p>
+              <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900 font-mono text-xs" placeholder="CXXXXXXXXXXXXXXXXXXX" value={analytics.tiktokPixelId} onChange={(e) => setAn('tiktokPixelId', e.target.value)} />
+              <p className="mt-1.5 text-[9px] text-neutral-500">TikTok Ads Manager → Assets → Events → Web events → Pixel ID</p>
             </div>
           </div>
 
-          <div className="mt-4 rounded-2xl border border-neutral-200 bg-neutral-100 p-3 text-[11px] leading-relaxed text-neutral-500">
+          <div className="mt-4 rounded-2xl border border-neutral-200 bg-neutral-100 p-3 text-[9px] leading-relaxed text-neutral-500">
             <b className="text-neutral-900">Privacy note:</b> These scripts only load once the customer allows "Analytics" (GA/GTM)  or "Marketing" (Meta/TikTok Pixel) in the cookie consent. Leaving fields empty disables tracking.
           </div>
         </div>
       </div>
-      <button onClick={save} disabled={busy} className="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-4 py-2 text-[11px] font-semibold text-white hover:bg-black mt-6 w-full lg:w-auto">{busy ? 'Saving…' : 'Save Changes'}</button>
+      <button onClick={save} disabled={busy} className="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-4 py-2 text-[9px] font-semibold text-white hover:bg-black mt-6 w-full lg:w-auto">{busy ? 'Saving…' : 'Save Changes'}</button>
     </AdminLayout>
   );
 }

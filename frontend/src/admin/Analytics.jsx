@@ -86,7 +86,7 @@ function Group({ icon: Icon, title, hint, children, defaultOpen = true }) {
         <span className="grid h-9 w-9 place-items-center rounded-xl bg-neutral-100 text-emerald-700"><Icon size={16} /></span>
         <span className="flex-1">
           <span className="block text-sm font-bold">{title}</span>
-          <span className="block text-[11px] text-neutral-500">{hint}</span>
+          <span className="block text-[9px] text-neutral-500">{hint}</span>
         </span>
         <ChevronRight size={16} className={`text-neutral-500 transition-transform ${open ? 'rotate-90' : ''}`} />
       </button>
@@ -98,7 +98,7 @@ function Group({ icon: Icon, title, hint, children, defaultOpen = true }) {
 function Block({ title, children }) {
   return (
     <section>
-      <p className="mb-3 text-[11px] font-bold uppercase tracking-widest text-neutral-500">{title}</p>
+      <p className="mb-3 text-[9px] font-bold uppercase tracking-widest text-neutral-500">{title}</p>
       {children}
     </section>
   );
@@ -127,15 +127,15 @@ export default function Analytics() {
 
   const head = (
     <div className="mb-5 flex flex-wrap items-center gap-3">
-      <select value={range} onChange={(e) => setRange(e.target.value)} className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !w-44">
+      <select value={range} onChange={(e) => setRange(e.target.value)} className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900 !w-44">
         {RANGES.map((r) => <option key={r.v} value={r.v}>{r.label}</option>)}
       </select>
       {range === 'custom' && (
         <div className="flex items-center gap-2">
           <Calendar size={13} className="text-neutral-400" />
-          <input type="date" value={customFrom} onChange={(e) => setCustomFrom(e.target.value)} className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !w-36 !py-1.5" />
+          <input type="date" value={customFrom} onChange={(e) => setCustomFrom(e.target.value)} className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900 !w-36 !py-1.5" />
           <span className="text-xs text-neutral-400">to</span>
-          <input type="date" value={customTo} onChange={(e) => setCustomTo(e.target.value)} className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !w-36 !py-1.5" />
+          <input type="date" value={customTo} onChange={(e) => setCustomTo(e.target.value)} className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900 !w-36 !py-1.5" />
         </div>
       )}
       {a?.prev && range !== 'custom' && <span className="text-xs text-neutral-500">compared with the previous {RANGES.find((r) => r.v === range)?.label.toLowerCase()}</span>}
@@ -146,7 +146,7 @@ export default function Analytics() {
     <AdminLayout title="Analytics">
       {head}
       {err
-        ? <div className="rounded-2xl border border-neutral-200 bg-white mx-auto max-w-md p-10 text-center"><p className="text-sm text-red-700">{err}</p><button onClick={() => setTick((t) => t + 1)} className="inline-flex items-center gap-1.5 rounded-full border border-neutral-300 bg-white px-4 py-2 text-[11px] font-semibold text-neutral-700 hover:bg-neutral-50 mt-5 !px-5 !py-2 !text-[11px]">Try again</button></div>
+        ? <div className="rounded-2xl border border-neutral-200 bg-white mx-auto max-w-md p-10 text-center"><p className="text-sm text-red-700">{err}</p><button onClick={() => setTick((t) => t + 1)} className="inline-flex items-center gap-1.5 rounded-full border border-neutral-300 bg-white px-4 py-2 text-[9px] font-semibold text-neutral-700 hover:bg-neutral-50 mt-5 !px-5 !py-2 !text-[9px]">Try again</button></div>
         : <div className="animate-pulse rounded-xl bg-neutral-100 h-64 w-full" />}
     </AdminLayout>
   );

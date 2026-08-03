@@ -44,7 +44,7 @@ export default function Growth() {
             Emails collected from the footer newsletter form appear here. Copy the list and
             send your own sale announcements and coupon codes — the cheapest marketing you have.
           </p>
-          <button onClick={copyAll} disabled={!subs || !subs.length} className="inline-flex items-center gap-1.5 rounded-full border border-neutral-300 bg-white px-4 py-2 text-[11px] font-semibold text-neutral-700 hover:bg-neutral-50 mt-4"><Copy size={14} /> {copied ? 'Copied!' : 'Copy All Emails'}</button>
+          <button onClick={copyAll} disabled={!subs || !subs.length} className="inline-flex items-center gap-1.5 rounded-full border border-neutral-300 bg-white px-4 py-2 text-[9px] font-semibold text-neutral-700 hover:bg-neutral-50 mt-4"><Copy size={14} /> {copied ? 'Copied!' : 'Copy All Emails'}</button>
         </div>
       </div>
 
