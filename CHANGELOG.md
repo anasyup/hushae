@@ -23,6 +23,11 @@ Format:
 
 ## Changes
 
+- **2026-08-03** — ✉️ **SMTP Email LIVE — Brevo configured on Vercel**
+  - Added 7 env vars on Vercel: SMTP_HOST (smtp-relay.brevo.com), SMTP_PORT (587), SMTP_SECURE (false), SMTP_USER, SMTP_PASS (Brevo SMTP key), SMTP_FROM (HUSHAE <hushae.pk@gmail.com>), ADMIN_ALERT_EMAIL.
+  - Email engine (mailer.js) was already written — now enabled: order confirmations, new-order admin alerts, status updates, abandoned-cart recovery, loyalty rewards, review requests, password reset.
+  - Sender `hushae.pk@gmail.com` needs verification in Brevo (Senders & Domains) — pending user action.
+
 - **2026-08-02** — 🚀 **Token Validation, Database Alignment, and Repo Sync**
   - Checked and validated new GitHub PAT and Vercel Token (both verified 100% active).
   - Synced local `main` branch with the latest production code on `origin/main` (`884e607`).
