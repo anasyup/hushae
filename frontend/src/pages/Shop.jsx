@@ -270,17 +270,7 @@ export default function Shop({ preset = {} }) {
               }`}
             >
               {visible.map((p) => (
-                // Deliberately NOT eager. The source images are 1024x1024 PNGs
-                // of ~2MB; marking the first row high-priority made them the
-                // LCP element and pushed desktop LCP from 4.8s to 13.1s.
-                <ProductCard
-                  key={p._id}
-                  product={p}
-                  headingLevel="h2"
-                  marketingBadges={badgeMap[p.slug]}
-                  promos={promosForProduct(promo.scope, promo.promotions, p)}
-                  maxBadges={promo.badges?.maxPerCard || 2}
-                />
+                <ProductCard key={p._id} product={p} />
               ))}
             </div>
           )}
