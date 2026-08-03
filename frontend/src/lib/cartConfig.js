@@ -53,7 +53,7 @@ export const CART_DEFAULTS = {
   showTrust: true,
   trust: [
     { icon: 'ShieldCheck', label: 'Secure checkout' },
-    { icon: 'RefreshCw', label: 'Easy 7-day returns' },
+    { icon: 'RefreshCw', label: 'Easy 14-day returns' },
     { icon: 'BadgeCheck', label: '100% original products' },
     { icon: 'Lock', label: 'Encrypted payment' },
   ],

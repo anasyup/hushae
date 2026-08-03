@@ -34,7 +34,7 @@ export const CHECKOUT_DEFAULTS = {
   showTrust: true,
   trust: [
     { icon: 'Lock', label: 'Secure, encrypted checkout' },
-    { icon: 'RefreshCw', label: 'Easy 7-day exchanges' },
+    { icon: 'RefreshCw', label: 'Easy 14-day exchanges' },
     { icon: 'Package', label: 'Discreet, unmarked parcel' },
     { icon: 'Headphones', label: 'WhatsApp support, 7 days a week' },
   ],
