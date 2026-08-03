@@ -13,7 +13,12 @@ function smartQuery(c) {
   if (c.smart?.category)       q.categorySlug = c.smart.category;
   if (c.smart?.tier)           q.tier     = c.smart.tier;
   if (c.smart?.gender)         q.gender   = c.smart.gender;
-  if (c.smart?.onSale)         q.compareAtPrice = { $ne: null };
+  if (c.smart?.onSale) {
+    /* v2 — sale windows. A smart "On sale" collection now honours the sale
+       flag + was-price + window, not just a present compareAtPrice. */
+    const sf = Product.saleFilter();
+    q.$and = [...(q.$and || []), ...(sf.$and || [])];
+  }
   if (c.smart?.minPrice != null) q.price = { ...(q.price || {}), $gte: c.smart.minPrice };
   if (c.smart?.maxPrice != null) q.price = { ...(q.price || {}), $lte: c.smart.maxPrice };
   return q;
@@ -29,7 +34,7 @@ async function resolveProducts(c, limit = 60) {
     const manual = await Product.find({
       _id: { $in: c.products },
       isActive: true, status: { $ne: 'draft' },
-    }).select('name slug price compareAtPrice stock images gender categorySlug tier ratingAvg sizes colors tags');
+    }).select('name slug price compareAtPrice onSale saleStart saleEnd stock images gender categorySlug tier ratingAvg sizes colors tags');
     for (const p of manual) {
       if (!ids.has(String(p._id))) { ids.add(String(p._id)); items.push(p); }
     }
@@ -40,7 +45,7 @@ async function resolveProducts(c, limit = 60) {
     const smart = await Product.find(smartQuery(c))
       .sort({ isBestSeller: -1, stock: -1 })
       .limit(limit)
-      .select('name slug price compareAtPrice stock images gender categorySlug tier ratingAvg sizes colors tags');
+      .select('name slug price compareAtPrice onSale saleStart saleEnd stock images gender categorySlug tier ratingAvg sizes colors tags');
     for (const p of smart) {
       if (items.length >= limit) break;
       if (!ids.has(String(p._id))) { ids.add(String(p._id)); items.push(p); }

@@ -7,7 +7,7 @@ const E = require('../utils/searchEngine');
 
 const router = express.Router();
 
-const CARD = 'name slug price compareAtPrice stock images gender categorySlug tier '
+const CARD = 'name slug price compareAtPrice onSale saleStart saleEnd stock images gender categorySlug tier '
   + 'ratingAvg ratingCount sizes colors tags badges isFeatured isBestSeller createdAt';
 
 const assistLimit = rateLimit({ windowMs: 60 * 1000, max: 40, key: 'assistant', message: 'One moment — try again shortly' });

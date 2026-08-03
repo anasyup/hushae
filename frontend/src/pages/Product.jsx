@@ -7,6 +7,7 @@ import {
 import { api } from '../api/client';
 import { useApp } from '../store/AppContext';
 import { pkr, snap } from '../lib/format';
+import { isOnSale, salePercent, saleEndsSoon, saleEndsOnLabel } from '../lib/sale';
 import { isVideo } from '../lib/media';
 import QuantityStepper from '../components/ui/QuantityStepper';
 import ProductRow from '../components/ProductRow';
@@ -96,9 +97,13 @@ export default function Product() {
   const isBra = p.categorySlug === 'bras';
   const needsSize = (p.sizes || []).length > 0;
   const soldOut = p.stock === 0;
-  const onSale = p.compareAtPrice > p.price;
-  const off = onSale ? Math.round((1 - p.price / p.compareAtPrice) * 100) : 0;
+  /* v2 — sale windows. Only the merchant's explicit sale (flag + was-price +
+     window) counts; compareAtPrice alone no longer means "on sale". */
+  const onSale = isOnSale(p);
+  const off = salePercent(p);
   const notableMarkdown = onSale && off > STANDING_MARKDOWN;
+  const saleUrgent = saleEndsSoon(p, 7);
+  const saleEndLabel = saleEndsOnLabel(p);
   const lowStock = !soldOut && p.stock <= 5;
 
   const tierLabel = p.tier === 'Premium' ? 'Signature' : p.tier;
@@ -207,6 +212,17 @@ export default function Product() {
                 </>
               )}
             </div>
+
+            {/* Sale urgency — real windows end, so say so. Only when the sale
+                actually has an end date (saleEndsOnLabel returns '' otherwise). */}
+            {onSale && saleEndLabel && (
+              <p aria-live="polite" className="flex items-center gap-1.5 text-xs">
+                <AlertCircle size={13} className={saleUrgent ? 'text-red-600' : 'text-amber-600'} />
+                <span className={`font-semibold uppercase tracking-wider ${saleUrgent ? 'text-red-600' : 'text-amber-600'}`}>
+                  {saleUrgent ? `Sale ends soon — ${saleEndLabel}` : `Sale ends ${saleEndLabel}`}
+                </span>
+              </p>
+            )}
 
             {/* Stock Indicator */}
             <p aria-live="polite" className="flex items-center gap-1.5 text-xs">

@@ -4,6 +4,7 @@ import { ArrowLeft, BookmarkPlus, Truck } from 'lucide-react';
 import { useApp, lineKey } from '../store/AppContext';
 import { api } from '../api/client';
 import { pkr, snap } from '../lib/format';
+import { isOnSale } from '../lib/sale';
 import { cartConfig, deliveryWindow } from '../lib/cartConfig';
 import Img from '../components/Img';
 import ProductRow from '../components/ProductRow';
@@ -78,7 +79,12 @@ export default function Cart() {
             stock: p.stock ?? 0,
             sizes: p.sizes || [],
             isActive: p.isActive !== false,
+            /* Sale-window fields ride along so bag pricing can tell a real
+               sale from a stale was-price. */
             compareAtPrice: p.compareAtPrice || null,
+            onSale: p.onSale === true,
+            saleStart: p.saleStart || null,
+            saleEnd: p.saleEnd || null,
           };
         });
         setStockMap(map);
@@ -130,7 +136,10 @@ export default function Cart() {
   /* ---------------- Per-line status ---------------- */
   const lines = useMemo(() => cart.map((line, index) => {
     const m = stockMap[String(line.id)];
-    const withCompare = m?.compareAtPrice ? { ...line, compareAtPrice: m.compareAtPrice } : line;
+    /* v2 — sale windows: the live was-price is only attached while the product
+       is genuinely on sale; a cleared sale must not resurrect a strike-through
+       from the cart snapshot. */
+    const withCompare = m && isOnSale(m) ? { ...line, compareAtPrice: m.compareAtPrice, onSale: true, saleStart: m.saleStart, saleEnd: m.saleEnd } : { ...line, compareAtPrice: null, onSale: false, saleStart: null, saleEnd: null };
     if (!m) return { line: withCompare, index, status: 'ok', available: null };
     if (!m.isActive) return { line: withCompare, index, status: 'unavailable', available: 0 };
     if (m.stock <= 0) return { line: withCompare, index, status: 'oos', available: 0 };

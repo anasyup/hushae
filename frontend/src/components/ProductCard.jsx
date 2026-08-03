@@ -3,6 +3,7 @@ import { Check, Heart, Scale } from 'lucide-react';
 import { memo, useMemo, useState } from 'react';
 import { useApp } from '../store/AppContext';
 import { pkr } from '../lib/format';
+import { isOnSale, salePercent } from '../lib/sale';
 import Badge from './ui/Badge';
 import { SIZES, pictureSources } from '../lib/responsiveImage';
 
@@ -58,8 +59,10 @@ function ProductCard({
   }, [p.images, p.image]);
 
   const soldOut = p.stock === 0;
-  const onSale = p.compareAtPrice > p.price;
-  const off = onSale ? Math.round((1 - p.price / p.compareAtPrice) * 100) : 0;
+  /* v2 — sale windows. `compareAtPrice > price` used to mark every product
+     "on sale"; now the merchant's explicit onSale flag + window decide it. */
+  const onSale = isOnSale(p);
+  const off = salePercent(p);
   const isNew = p.createdAt ? Date.now() - new Date(p.createdAt).getTime() < 21 * DAY : false;
   const limited = !soldOut && p.stock > 0 && p.stock <= 5;
 

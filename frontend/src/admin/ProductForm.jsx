@@ -22,11 +22,18 @@ const BADGE_POOL = ['Breathable', 'Cooling', 'Seamless', 'Sweat Control', 'Suppo
 const EMPTY = {
   name: '', sku: '', gender: 'women', categorySlug: '', category: '',
   tier: 'Standard', price: '', compareAtPrice: '', costPrice: '',
+  /* v2 — sale windows. New products are NOT on sale by default: the merchant
+     must switch the sale on explicitly, otherwise a fresh launch can never
+     accidentally carry a "30% off" strike-through. */
+  onSale: false, saleStart: '', saleEnd: '',
   stock: 25, images: [], video: '', shortDescription: '', description: '',
   sizesText: '', fabric: '', colors: [{ name: 'Black', hex: '#1A1A1A' }],
   badges: [], tags: [], careText: '',
   isFeatured: false, isBestSeller: false, isActive: true, status: 'active', bundleSlug: '',
 };
+
+/* datetime-local inputs need "YYYY-MM-DDTHH:MM"; the API stores full ISO. */
+const toLocalInput = (iso) => (iso ? String(iso).slice(0, 16) : '');
 
 /* ── Section wrapper ─────────────────────────────────────────────────── */
 function Section({ icon: Icon, title, description, children, className = '' }) {
@@ -87,7 +94,9 @@ export default function ProductForm() {
         if (p.video && !imgs.includes(p.video)) imgs.push(p.video);
         setF({
           ...EMPTY, ...p, price: String(p.price), compareAtPrice: p.compareAtPrice || '',
-          costPrice: p.costPrice || '', images: imgs, video: '',
+          costPrice: p.costPrice || '',
+          onSale: p.onSale === true, saleStart: toLocalInput(p.saleStart), saleEnd: toLocalInput(p.saleEnd),
+          images: imgs, video: '',
           sizesText: p.sizes.join(', '), careText: p.care.join('\n'),
         });
       })
@@ -102,9 +111,17 @@ export default function ProductForm() {
     const images = f.images.filter(Boolean).map((url, i) => ({ url, alt: `${f.name} — view ${i + 1}` }));
     if (images.length < 4) { toast('Add at least 4 images'); return; }
     const cat = cats.find((c) => c.slug === f.categorySlug);
+    /* v2 — sale windows: when the sale switch is off, the was-price is
+       cleared too (a strike-through with no sale is a pricing lie). When it
+       is on, the was-price must be higher than the price or the sale is fake. */
+    const onSale = f.onSale === true;
+    const saleStart = onSale && f.saleStart ? new Date(f.saleStart).toISOString() : null;
+    const saleEnd = onSale && f.saleEnd ? new Date(f.saleEnd).toISOString() : null;
     const body = {
       name: f.name, sku: f.sku || `HS-${Date.now().toString(36).toUpperCase()}`, gender: f.gender,
-      tier: f.tier, price: Number(f.price), compareAtPrice: f.compareAtPrice ? Number(f.compareAtPrice) : null,
+      tier: f.tier, price: Number(f.price),
+      compareAtPrice: onSale ? (f.compareAtPrice ? Number(f.compareAtPrice) : null) : null,
+      onSale, saleStart, saleEnd,
       costPrice: f.costPrice ? Number(f.costPrice) : 0,
       stock: Number(f.stock) || 0, images, video: '', shortDescription: f.shortDescription, description: f.description,
       sizes: f.sizesText.split(',').map((s) => s.trim()).filter(Boolean),
@@ -276,9 +293,55 @@ export default function ProductForm() {
                 <Field label="Price (PKR) *">
                   <input className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[14px] font-semibold outline-none transition focus:border-neutral-900" type="number" min="0" required value={f.price} onChange={(e) => set('price', e.target.value)} />
                 </Field>
-                <Field label="Compare-at">
-                  <input className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[14px] outline-none transition focus:border-neutral-900" type="number" min="0" value={f.compareAtPrice} onChange={(e) => set('compareAtPrice', e.target.value)} placeholder="Optional" />
+                <Field label="Compare-at (Was price)">
+                  <input className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[14px] outline-none transition focus:border-neutral-900" type="number" min="0" value={f.compareAtPrice} onChange={(e) => set('compareAtPrice', e.target.value)} placeholder="e.g. 1550" disabled={!f.onSale} />
                 </Field>
+              </div>
+
+              {/* ── Sale window (v2) ──
+                  A product is on sale ONLY when this switch is on. New
+                  products start OFF, so nothing you launch is ever
+                  automatically discounted. */}
+              <div className={`rounded-xl border p-4 transition-colors ${f.onSale ? 'border-emerald-300 bg-emerald-50/60' : 'border-neutral-200 bg-white'}`}>
+                <label className="flex cursor-pointer items-center gap-2.5">
+                  <input
+                    type="checkbox"
+                    checked={f.onSale === true}
+                    onChange={(e) => {
+                      const on = e.target.checked;
+                      set('onSale', on);
+                      if (!on) { set('saleStart', ''); set('saleEnd', ''); set('compareAtPrice', ''); }
+                    }}
+                    className="h-4 w-4 rounded accent-neutral-900"
+                  />
+                  <span className="text-[13px] font-semibold text-neutral-900">On sale — appears in /sale, shows % off</span>
+                </label>
+                {!f.onSale ? (
+                  <p className="mt-1.5 text-[11px] leading-relaxed text-neutral-500">
+                    Off by default — new products are never automatically discounted. Turn this on to run a sale.
+                  </p>
+                ) : (
+                  <>
+                    {f.compareAtPrice && Number(f.compareAtPrice) > 0 && Number(f.price) > 0 && Number(f.compareAtPrice) <= Number(f.price) && (
+                      <p className="mt-2 rounded-lg bg-red-50 px-3 py-1.5 text-[11px] font-semibold text-red-700 ring-1 ring-red-200">
+                        Was price must be HIGHER than the selling price — otherwise there is no real discount.
+                      </p>
+                    )}
+                    <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                      <Field label="Sale starts (optional)">
+                        <input type="datetime-local" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2.5 text-[12px] outline-none transition focus:border-neutral-900" value={f.saleStart} onChange={(e) => set('saleStart', e.target.value)} />
+                      </Field>
+                      <Field label="Sale ends (optional)">
+                        <input type="datetime-local" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2.5 text-[12px] outline-none transition focus:border-neutral-900" value={f.saleEnd} onChange={(e) => set('saleEnd', e.target.value)} />
+                      </Field>
+                    </div>
+                    <p className="mt-2 text-[11px] leading-relaxed text-neutral-500">
+                      Leave dates empty for an open-ended sale. With an end date, customers see “Sale ends {f.saleEnd ? new Date(f.saleEnd).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '…' }” on the product page — with urgency when it is under 7 days away.
+                    </p>
+                  </>
+                )}
+              </div>
+
               </div>
 
               {/* Cost + Profit live */}

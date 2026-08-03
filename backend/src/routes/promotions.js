@@ -87,7 +87,7 @@ router.post('/badges', asyncHandler(async (req, res) => {
   if (!slugs.length) return res.json({ enabled: true, badges: {} });
 
   const products = await Product.find({ slug: { $in: slugs } })
-    .select('slug price compareAtPrice stock isBestSeller isFeatured createdAt').lean();
+    .select('slug price compareAtPrice onSale saleStart saleEnd stock isBestSeller isFeatured createdAt').lean();
 
   /* Recent order counts drive the Trending badge. One aggregate for the whole
      grid; doing it per product would be sixty queries for one screen. */

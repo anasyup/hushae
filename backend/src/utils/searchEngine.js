@@ -428,7 +428,7 @@ async function runSearch({ query, filters = {}, cfg, limit = 24, skip = 0 }) {
   const allTerms = [...new Set(expanded.flatMap((e) => [e.term, ...e.synonyms]))];
 
   const base = { isActive: true, status: { $ne: 'draft' }, ...filters };
-  const SELECT = 'name slug sku price compareAtPrice stock images gender categorySlug tier '
+  const SELECT = 'name slug sku price compareAtPrice onSale saleStart saleEnd stock images gender categorySlug tier '
     + 'ratingAvg ratingCount sizes colors fabric badges tags isFeatured isBestSeller '
     + 'shortDescription createdAt';
 
@@ -520,7 +520,7 @@ async function similarProducts(product, dcfg, limit) {
       { gender: product.gender, tier: product.tier },
       ...(product.tags?.length ? [{ tags: { $in: product.tags } }] : []),
     ],
-  }).select('name slug price compareAtPrice stock images gender categorySlug tier ratingAvg ratingCount sizes colors tags badges isBestSeller').lean();
+  }).select('name slug price compareAtPrice onSale saleStart saleEnd stock images gender categorySlug tier ratingAvg ratingCount sizes colors tags badges isBestSeller').lean();
 
   const myColors = new Set((product.colors || []).map((c) => norm(c.name)));
   const myTags = new Set((product.tags || []).map(norm));

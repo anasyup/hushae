@@ -5,6 +5,7 @@ import { api } from '../api/client';
 import { useApp } from '../store/AppContext';
 import ProductCard from '../components/ProductCard';
 import { ProductGridSkeleton } from '../components/Skeletons';
+import { isOnSale, salePercent } from '../lib/sale';
 import Tx from '../components/Tx';
 import CollectionBanner from '../components/collection/CollectionBanner';
 
@@ -16,7 +17,7 @@ const TABS = [
 
 // Dedicated Sale page — biggest discount first, offer hero driven by Settings.
 export default function Sale() {
-  const { settings } = useApp();
+  const { settings, toast } = useApp();
   const [tab, setTab] = useState('');
   const [products, setProducts] = useState(null);
 
@@ -27,14 +28,18 @@ export default function Sale() {
     api(`/products?${sp}`).then((d) => setProducts(d.products)).catch(() => setProducts([]));
   }, [tab]);
 
+  /* v2 — sale windows. The API already filters with the exact same rule, but
+     a client-side pass keeps the page honest if a window closes between the
+     fetch and the render (a sale that ended at midnight should not still be
+     listed at 00:01). */
   const sorted = useMemo(() => {
-    const list = [...(products || [])];
-    const disc = (p) => Math.round((1 - p.price / p.compareAtPrice) * 100);
+    const list = [...(products || [])].filter(isOnSale);
+    const disc = (p) => salePercent(p);
     list.sort((a, b) => disc(b) - disc(a));
     return list;
   }, [products]);
 
-  const maxDisc = sorted.length ? Math.round((1 - sorted[0].price / sorted[0].compareAtPrice) * 100) : 0;
+  const maxDisc = sorted.length ? salePercent(sorted[0]) : 0;
   const offer = settings?.offerBar;
 
   return (

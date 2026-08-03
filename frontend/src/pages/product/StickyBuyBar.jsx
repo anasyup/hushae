@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { pkr } from '../../lib/format';
+import { isOnSale } from '../../lib/sale';
 import Img from '../../components/Img';
 
 /* ============================================================================
@@ -76,7 +77,9 @@ export default function StickyBuyBar({ product, watchRef, size, needsSize, onAdd
     };
   }, []);
 
-  const onSale = product.compareAtPrice > product.price;
+  /* v2 — sale windows: the strike-through shows only for products the
+     merchant explicitly put on sale. */
+  const onSale = isOnSale(product);
 
   return (
     <div

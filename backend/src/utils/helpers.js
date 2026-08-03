@@ -33,4 +33,18 @@ const evaluateDiscount = (discount, subtotal) => {
   return { ok: true, amount };
 };
 
-module.exports = { asyncHandler, slugify, orderNumber, evaluateDiscount };
+/* ── Sale windows — the single source of truth for "is this product on sale".
+   Mirrors Product.saleFilter() and Product#isOnSale() for plain documents
+   (promotion engine, routes working with lean objects).
+   A product is on sale ONLY if: onSale flag + compareAtPrice > price +
+   sale window (start/end) currently open. compareAtPrice alone means nothing. */
+const isOnSale = (p, now = new Date()) => {
+  if (!p) return false;
+  if (p.onSale !== true) return false;
+  if (!(p.compareAtPrice > p.price)) return false;
+  if (p.saleStart && new Date(p.saleStart) > now) return false;
+  if (p.saleEnd && new Date(p.saleEnd) < now) return false;
+  return true;
+};
+
+module.exports = { asyncHandler, slugify, orderNumber, evaluateDiscount, isOnSale };

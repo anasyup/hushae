@@ -13,7 +13,7 @@ const router = express.Router();
 const suggestLimit = rateLimit({ windowMs: 60 * 1000, max: 120, key: 'suggest', message: 'Slow down a moment' });
 const searchLimit = rateLimit({ windowMs: 60 * 1000, max: 60, key: 'search', message: 'Too many searches — try again shortly' });
 
-const CARD = 'name slug sku price compareAtPrice stock images gender categorySlug tier '
+const CARD = 'name slug sku price compareAtPrice onSale saleStart saleEnd stock images gender categorySlug tier '
   + 'ratingAvg ratingCount sizes colors tags badges isFeatured isBestSeller createdAt';
 
 /** Fire-and-forget analytics. A logging failure must never fail a search. */
@@ -110,7 +110,8 @@ router.get('/suggest', suggestLimit, asyncHandler(async (req, res) => {
   res.json({
     products: products.map((p) => ({
       _id: p._id, name: p.name, slug: p.slug, price: p.price,
-      compareAtPrice: p.compareAtPrice, stock: p.stock,
+      compareAtPrice: p.compareAtPrice, onSale: p.onSale, saleStart: p.saleStart, saleEnd: p.saleEnd,
+      stock: p.stock,
       image: cfg.suggest.showImages ? (p.images?.[0]?.url || '') : '',
       categorySlug: p.categorySlug,
     })),
@@ -146,7 +147,13 @@ router.get('/', searchLimit, optionalAuth, asyncHandler(async (req, res) => {
   if (req.query.tag) filters.tags = { $in: many(req.query.tag).map((t) => t.toLowerCase()) };
   if (req.query.availability === 'in') filters.stock = { $gt: 0 };
   if (req.query.availability === 'out') filters.stock = 0;
-  if (req.query.sale === 'true') filters.compareAtPrice = { $ne: null };
+  if (req.query.sale === 'true') {
+    /* v2 — sale windows: only products the merchant explicitly put on sale
+       with a real was-price and an open window. compareAtPrice alone is not
+       a sale anymore. */
+    const sf = Product.saleFilter();
+    Object.assign(filters, sf);
+  }
   if (req.query.featured === 'true') filters.isFeatured = true;
   if (req.query.bestSeller === 'true') filters.isBestSeller = true;
   if (req.query.minRating) filters.ratingAvg = { $gte: Number(req.query.minRating) };
@@ -275,7 +282,11 @@ router.get('/facets', asyncHandler(async (req, res) => {
       price: [{ $group: { _id: null, min: { $min: '$price' }, max: { $max: '$price' } } }],
       stock: [{ $group: { _id: null, inStock: { $sum: { $cond: [{ $gt: ['$stock', 0] }, 1, 0] } }, outStock: { $sum: { $cond: [{ $gt: ['$stock', 0] }, 0, 1] } } } }],
       flags: [{ $group: { _id: null,
-        sale: { $sum: { $cond: [{ $ne: ['$compareAtPrice', null] }, 1, 0] } },
+        /* v2 — sale windows. The facet must count what the filter returns:
+           onSale switched on AND a real was-price. (Window dates are skipped
+           here — a facet count may drift by a day at the edges, the filter
+           itself is exact.) */
+        sale: { $sum: { $cond: [{ $and: ['$onSale', { $gt: ['$compareAtPrice', '$price'] }] }, 1, 0] } },
         featured: { $sum: { $cond: ['$isFeatured', 1, 0] } },
         best: { $sum: { $cond: ['$isBestSeller', 1, 0] } } } }],
     } },

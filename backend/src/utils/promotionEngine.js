@@ -1,3 +1,5 @@
+const { isOnSale } = require('./helpers');
+
 /* ============================================================================
  * PROMOTION ENGINE
  *
@@ -154,7 +156,9 @@ function matchesScope(product, scope, collectionMap) {
   const excluded = (s.excludeProductIds || []).some((id) => String(id) === String(product._id));
   if (excluded) return false;
 
-  if (s.excludeOnSale && product.compareAtPrice && product.compareAtPrice > product.price) return false;
+  /* v2 — sale windows: excludeOnSale honours the explicit sale flag + window,
+     not merely a present compareAtPrice (which used to exclude everything). */
+  if (s.excludeOnSale && isOnSale(product)) return false;
 
   if (s.gender && product.gender !== s.gender) return false;
   if ((s.tiers || []).length && !s.tiers.includes(product.tier)) return false;
@@ -549,10 +553,11 @@ function computeBadges(product, cfg, extra = {}) {
     if (days <= (b.newDays || 21)) out.push({ id: 'new', label: 'New', tone: 'dark' });
   }
 
-  if (b.showSale && product.compareAtPrice > product.price) {
+  /* v2 — sale windows: the Sale badge prints only for products the merchant
+     actually put on sale (flag + was-price + open window). The old test —
+     `compareAtPrice > price` — printed it on all 101 products. */
+  if (b.showSale && isOnSale(product)) {
     const pct = Math.round((1 - product.price / product.compareAtPrice) * 100);
-    // MEASURED: 101/101 products carry a compareAtPrice, so without this
-    // threshold the Sale badge prints on every card and tells nobody anything.
     if (pct >= (b.minSalePercent || 0)) out.push({ id: 'sale', label: `${pct}% off`, tone: 'sale' });
   }
 

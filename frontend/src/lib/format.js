@@ -10,6 +10,10 @@ export const fmtDateTime = (d) =>
 
 export const snap = (p) => ({
   id: p._id || p.id, slug: p.slug, name: p.name, price: p.price,
-  compareAtPrice: p.compareAtPrice || null, image: p.images?.[0]?.url || p.image || '',
+  compareAtPrice: p.compareAtPrice || null,
+  /* Sale-window flags must survive the snap, or the "is this on sale?" check
+     silently fails and cards lose their % off / strike-through. */
+  onSale: p.onSale === true, saleStart: p.saleStart || null, saleEnd: p.saleEnd || null,
+  image: p.images?.[0]?.url || p.image || '',
   sizes: p.sizes || [], colors: p.colors || [], tier: p.tier || '', badges: p.badges || [],
 });

@@ -21,6 +21,21 @@ const productSchema = new mongoose.Schema({
   tier: { type: String, enum: ['Economy', 'Standard', 'Premium'], required: true },
   price: { type: Number, required: true, min: 0 },
   compareAtPrice: { type: Number, default: null },
+  /* ── Sale windows (v2) ────────────────────────────────────────────────────
+     A product is ON SALE only when ALL of these hold:
+       1. onSale === true           (explicit merchant opt-in — default OFF)
+       2. compareAtPrice > price    (a real "was" price exists)
+       3. saleStart unset or <= now (sale window opened)
+       4. saleEnd   unset or >= now (sale window not closed)
+
+     compareAtPrice alone no longer means "on sale". New products default to
+     onSale:false, so a fresh launch is NEVER automatically discounted — the
+     merchant must switch the sale on in the product form. This kills the
+     "everything is permanently 30% off" state that destroyed price anchoring.
+  ──────────────────────────────────────────────────────────────────────── */
+  onSale: { type: Boolean, default: false },
+  saleStart: { type: Date, default: null },
+  saleEnd: { type: Date, default: null },
   // Cost / wholesale price per unit — used for profit calculation.
   // Never shown to customers. Only visible to admin.
   costPrice: { type: Number, default: 0, min: 0 },
@@ -45,5 +60,28 @@ const productSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 productSchema.index({ name: 'text', shortDescription: 'text' });
+
+/* Mongo predicate for "currently on sale" — used by /products?sale=true,
+   search, smart collections and anywhere else that filters the catalogue.
+   Returns a $and block so callers can merge it safely. */
+productSchema.statics.saleFilter = function saleFilter(now = new Date()) {
+  return {
+    $and: [
+      { onSale: true },
+      { $expr: { $gt: ['$compareAtPrice', '$price'] } },
+      { $or: [{ saleStart: null }, { saleStart: { $lte: now } }] },
+      { $or: [{ saleEnd: null }, { saleEnd: { $gte: now } }] },
+    ],
+  };
+};
+
+/* Instance check — mirrors saleFilter for in-memory documents. */
+productSchema.methods.isOnSale = function isOnSale(now = new Date()) {
+  if (this.onSale !== true) return false;
+  if (!(this.compareAtPrice > this.price)) return false;
+  if (this.saleStart && new Date(this.saleStart) > now) return false;
+  if (this.saleEnd && new Date(this.saleEnd) < now) return false;
+  return true;
+};
 
 module.exports = mongoose.model('Product', productSchema);

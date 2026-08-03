@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import {
-  AlertCircle, Archive, ArrowUpDown, CheckCircle2, ChevronDown, Copy, DollarSign, Eye, EyeOff,
+  AlertCircle, Archive, ArrowUpDown, BadgePercent, CheckCircle2, ChevronDown, Copy, DollarSign, Eye, EyeOff,
   Filter, Grid, LayoutGrid, List, Minus, Package, Pencil, Plus, Save, Search, Star, Trash2, TrendingUp, X,
 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
@@ -404,7 +404,10 @@ function ListView({ products, selected, onToggleSel, onToggleAll, onEnable, onDi
               </td>
               <td className="table-cell">
                 <p className="font-semibold text-neutral-900">{pkr(p.price)}</p>
-                {p.compareAtPrice && <p className="text-[11px] text-neutral-400 line-through">{pkr(p.compareAtPrice)}</p>}
+                {/* v2 — sale windows: the was-price only shows while the sale
+                    is genuinely switched on. */}
+                {p.onSale === true && p.compareAtPrice && <p className="text-[11px] text-neutral-400 line-through">{pkr(p.compareAtPrice)}</p>}
+                {p.onSale === true && <span className="mt-0.5 inline-block rounded-full bg-red-50 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-red-700 ring-1 ring-red-200">Sale</span>}
               </td>
               <td className="table-cell"><StockPill n={p.stock} /></td>
               <td className="table-cell"><StatusChip p={p} /></td>
@@ -546,6 +549,7 @@ function BulkEditModal({ count, onClose, onApply }) {
     { key: 'setStatus',      label: 'Change status',            icon: Eye,       hint: 'Move to draft (hidden) or active (live).' },
     { key: 'toggleFeatured', label: 'Featured on/off',          icon: Star,      hint: 'Mark or unmark as Featured across the selection.' },
     { key: 'toggleBest',     label: 'Best-seller on/off',       icon: TrendingUp,hint: 'Mark or unmark as Best-seller.' },
+    { key: 'toggleSale',     label: 'Sale on/off',              icon: BadgePercent, hint: 'Run a real sale: switch these products on or off the Sale page. Remember to set their was-prices in the product form.' },
   ];
 
   const active = actions.find((a) => a.key === action);
@@ -562,6 +566,7 @@ function BulkEditModal({ count, onClose, onApply }) {
     if (action === 'setStatus')      patch.status = status;
     if (action === 'toggleFeatured') patch.isFeatured = bool;
     if (action === 'toggleBest')     patch.isBestSeller = bool;
+    if (action === 'toggleSale')     patch.onSale = bool;
 
     if (needsNum && (numValue === '' || numValue === null)) return;
     setBusy(true);

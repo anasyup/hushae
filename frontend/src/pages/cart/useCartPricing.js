@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { shippingRules } from '../../lib/cartConfig';
+import { isOnSale } from '../../lib/sale';
 
 /* ============================================================================
  * The one place bag money is calculated.
@@ -40,7 +41,9 @@ export function useCartPricing(lines, settings, cfg, applied) {
       if (!q) continue;
       subtotal += line.price * q;
       count += q;
-      compareTotal += (line.compareAtPrice || line.price) * q;
+      /* v2 — sale windows: a "was" price only counts toward savings while the
+         product is genuinely on sale, or every line would inflate savings. */
+      compareTotal += (isOnSale(line) ? line.compareAtPrice : line.price) * q;
     }
 
     // A coupon validated against an older, larger subtotal must never exceed

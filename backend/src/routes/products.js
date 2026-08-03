@@ -33,7 +33,14 @@ function buildQuery(req, { adminView = false } = {}) {
   }
   if (req.query.featured === 'true') q.isFeatured = true;
   if (req.query.bestSeller === 'true') q.isBestSeller = true;
-  if (req.query.sale === 'true') q.compareAtPrice = { $ne: null };
+  if (req.query.sale === 'true') {
+    /* v2 — sale windows. `compareAtPrice != null` used to mean "on sale",
+       which put EVERY product in the Sale page and printed "% off" on every
+       card. Now a product is on sale only when the merchant switched the sale
+       on AND a real was-price exists AND the window is open. */
+    const sf = Product.saleFilter();
+    q.$and = [...(q.$and || []), ...(sf.$and || [])];
+  }
   if (minPrice || maxPrice) {
     q.price = {};
     if (minPrice) q.price.$gte = Number(minPrice);
@@ -85,7 +92,7 @@ router.get('/trending', asyncHandler(async (req, res) => {
   // Attach product info
   const ids = rows.map((r) => r._id).filter(Boolean);
   const products = await Product.find({ _id: { $in: ids }, isActive: true, status: { $ne: 'draft' } })
-    .select('name slug price compareAtPrice stock images gender categorySlug tier ratingAvg sizes colors');
+    .select('name slug price compareAtPrice onSale saleStart saleEnd stock images gender categorySlug tier ratingAvg sizes colors');
   const map = new Map(products.map((p) => [String(p._id), p.toObject()]));
 
   const out = rows
@@ -143,7 +150,7 @@ router.get('/:slug/related', asyncHandler(async (req, res) => {
   })
     .sort({ stock: -1, isBestSeller: -1, ratingAvg: -1 })
     .limit(8)
-    .select('name slug price compareAtPrice stock images gender categorySlug tier ratingAvg sizes colors');
+    .select('name slug price compareAtPrice onSale saleStart saleEnd stock images gender categorySlug tier ratingAvg sizes colors');
   res.json({ products });
 }));
 
@@ -184,15 +191,25 @@ router.patch('/bulk', protect, adminOnly, asyncHandler(async (req, res) => {
   const setDoc = {};
   const incDoc = {};
 
-  // Direct numeric fields
+  // Direct numeric fields (null clears the value — e.g. remove a was-price)
   ['price', 'compareAtPrice', 'costPrice', 'stock'].forEach((f) => {
-    if (patch[f] !== undefined && patch[f] !== null && patch[f] !== '') {
+    if (patch[f] === null) { setDoc[f] = null; return; }
+    if (patch[f] !== undefined && patch[f] !== '') {
       const n = Number(patch[f]);
       if (!Number.isFinite(n) || n < 0) {
         // skip invalid instead of failing the whole batch
         return;
       }
       setDoc[f] = n;
+    }
+  });
+
+  // Sale window dates — null clears, valid ISO strings set
+  ['saleStart', 'saleEnd'].forEach((f) => {
+    if (patch[f] === null) { setDoc[f] = null; return; }
+    if (patch[f]) {
+      const d = new Date(patch[f]);
+      if (!Number.isNaN(d.getTime())) setDoc[f] = d;
     }
   });
 
@@ -211,7 +228,7 @@ router.patch('/bulk', protect, adminOnly, asyncHandler(async (req, res) => {
   }
 
   // Booleans
-  ['isActive', 'isFeatured', 'isBestSeller'].forEach((f) => {
+  ['isActive', 'isFeatured', 'isBestSeller', 'onSale'].forEach((f) => {
     if (typeof patch[f] === 'boolean') setDoc[f] = patch[f];
   });
 
@@ -266,7 +283,8 @@ router.put('/:id', protect, adminOnly, asyncHandler(async (req, res) => {
   const b = req.body || {};
   const fields = ['name', 'sku', 'gender', 'category', 'categorySlug', 'tier', 'price', 'compareAtPrice',
     'costPrice', 'stock', 'images', 'video', 'shortDescription', 'description', 'sizes', 'colors', 'fabric', 'badges', 'tags',
-    'care', 'isFeatured', 'isBestSeller', 'isActive', 'status', 'ratingAvg', 'ratingCount', 'bundleSlug'];
+    'care', 'isFeatured', 'isBestSeller', 'isActive', 'status', 'ratingAvg', 'ratingCount', 'bundleSlug',
+    'onSale', 'saleStart', 'saleEnd'];
   fields.forEach((f) => { if (b[f] !== undefined) product[f] = b[f]; });
   if (b.slug) product.slug = slugify(b.slug);
   await product.save();

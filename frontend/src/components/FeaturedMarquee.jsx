@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Img from './Img';
 import { pkr } from '../lib/format';
+import { isOnSale } from '../lib/sale';
 
 /**
  * FeaturedMarquee — dark strip of featured products that drifts on its own and
@@ -232,7 +233,7 @@ export default function FeaturedMarquee({ products, title = 'HUSHAE — Signatur
                   draggable={false}
                   className="pointer-events-none h-full w-full object-cover transition-transform duration-700 group-hover/card:scale-[1.05]"
                 />
-                {p.compareAtPrice && p.compareAtPrice > p.price && (
+                {isOnSale(p) && (
                   <span className="absolute left-3 top-3 rounded-full bg-clay px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-obsidian">
                     Sale
                   </span>

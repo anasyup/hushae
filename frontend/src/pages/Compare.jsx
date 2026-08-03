@@ -5,6 +5,7 @@ import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import { cxConfig } from '../lib/cxConfig';
 import { pkr } from '../lib/format';
+import { isOnSale } from '../lib/sale';
 import Img from '../components/Img';
 import EmptyState from '../components/ui/EmptyState';
 
@@ -31,7 +32,8 @@ import EmptyState from '../components/ui/EmptyState';
 
 const ROWS = [
   { key: 'price', label: 'Price', get: (p) => (p.price != null ? pkr(p.price) : '—') },
-  { key: 'compareAtPrice', label: 'Was', get: (p) => (p.compareAtPrice ? pkr(p.compareAtPrice) : '—') },
+  /* "Was" price means something only while the sale is actually on. */
+  { key: 'compareAtPrice', label: 'Was', get: (p) => (isOnSale(p) ? pkr(p.compareAtPrice) : '—') },
   { key: 'tier', label: 'Range', get: (p) => p.tier || '—' },
   { key: 'fabric', label: 'Fabric', get: (p) => p.fabric || '—' },
   { key: 'sizes', label: 'Sizes', get: (p) => ((p.sizes || []).length ? p.sizes.join(', ') : '—') },

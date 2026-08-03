@@ -227,6 +227,12 @@ function buildCatalog() {
         name, slug,
         sku: `VL-${c.gender === 'women' ? 'W' : 'M'}${String(ci + 1).padStart(2, '0')}${String(ii + 1).padStart(2, '0')}`,
         gender: c.gender, categorySlug: c.slug, tier, price,
+        /* v2 — sale windows: only ~1 in 5 seeded products is on sale, and the
+           explicit onSale flag (not compareAtPrice) is what marks it. New
+           product launches default to NOT on sale until the merchant opts in. */
+        onSale,
+        saleStart: null,
+        saleEnd: null,
         compareAtPrice: onSale ? Math.round(price * 1.3 / 10) * 10 : null,
         stock: (ci % 3 === 0 && ii === 2) ? 4 : (ci % 4 === 1 && ii === 7) ? 3 : 8 + ((ii * 13 + ci * 7) % 53),
         images: [
