@@ -40,7 +40,7 @@ export default function Sale() {
           ))}
         </div>
         {products === null ? <ProductGridSkeleton count={8} /> : count > 0 ? (
-          <div className="grid grid-cols-2 gap-px md:gap-[2px] md:grid-cols-4">
+          <div className="grid grid-cols-2 gap-2 md:gap-4 md:grid-cols-4">
             {sorted.map((p) => <ProductCard key={p._id} product={p} />)}
           </div>
         ) : (

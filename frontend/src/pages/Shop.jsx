@@ -60,7 +60,7 @@ export default function Shop({ preset = {} }) {
           <div><EmptyState icon={SearchX} title="Nothing matches those filters" description="Try removing one or clear them all." onAction={f.clearAll} actionLabel="Clear all filters" />
             <ActiveChips chips={f.chips} onRemove={f.removeChip} onClearAll={f.clearAll} className="justify-center mt-4" /></div>
         ) : (
-          <div aria-busy={pending||undefined} className={`grid grid-cols-2 gap-px md:gap-[2px] md:grid-cols-4 transition-opacity duration-300 ${pending?'opacity-50':'opacity-100'}`}>
+          <div aria-busy={pending||undefined} className={`grid grid-cols-2 gap-2 md:gap-4 md:grid-cols-4 transition-opacity duration-300 ${pending?'opacity-50':'opacity-100'}`}>
             {visible.map((p) => <ProductCard key={p._id} product={p} />)}
           </div>
         )}
