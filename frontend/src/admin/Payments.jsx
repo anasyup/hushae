@@ -144,7 +144,7 @@ export default function Payments() {
   };
 
   if (err) return <AdminLayout title="Payments"><div className="mx-auto grid max-w-md place-items-center rounded-2xl border border-red-200 bg-red-50 p-8 text-center"><XCircle size={22} className="mb-2 text-red-600" /><p className="text-sm text-red-700">{err}</p><button onClick={load} className="mt-3 rounded-full border border-red-300 bg-white px-4 py-1.5 text-[11px] font-semibold text-red-700 hover:bg-red-100">Try again</button></div></AdminLayout>;
-  if (!stats) return <AdminLayout title="Payments"><div className="grid gap-4 md:grid-cols-4">{[1,2,3,4].map((i) => <div key={i} className="skeleton h-32 rounded-2xl" />)}</div></AdminLayout>;
+  if (!stats) return <AdminLayout title="Payments"><div className="grid gap-4 md:grid-cols-4">{[1,2,3,4].map((i) => <div key={i} className="animate-pulse rounded-xl bg-neutral-100 h-32 rounded-2xl" />)}</div></AdminLayout>;
 
   return (
     <AdminLayout title="Payments">
@@ -254,7 +254,7 @@ export default function Payments() {
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full min-w-[700px]">
-                <thead><tr className="border-b border-neutral-100 bg-neutral-50/60"><th className="table-head">Order</th><th className="table-head">Customer</th><th className="table-head">Method</th><th className="table-head">Amount</th><th className="table-head">Date</th><th className="table-head text-right">Actions</th></tr></thead>
+                <thead><tr className="border-b border-neutral-100 bg-neutral-50/60"><th className="px-3 py-2 text-left text-[10px] font-bold uppercase text-neutral-400">Order</th><th className="px-3 py-2 text-left text-[10px] font-bold uppercase text-neutral-400">Customer</th><th className="px-3 py-2 text-left text-[10px] font-bold uppercase text-neutral-400">Method</th><th className="px-3 py-2 text-left text-[10px] font-bold uppercase text-neutral-400">Amount</th><th className="px-3 py-2 text-left text-[10px] font-bold uppercase text-neutral-400">Date</th><th className="table-head text-right">Actions</th></tr></thead>
                 <tbody>
                   {stats.pendingOrders.slice(0, 50).map((o) => {
                     const M = METHOD_META[o.paymentMethod] || METHOD_META.COD;
@@ -262,9 +262,9 @@ export default function Payments() {
                     const busy = busyIds.has(o._id);
                     return (
                       <tr key={o._id} className="border-b border-neutral-100 hover:bg-neutral-50/70">
-                        <td className="table-cell"><Link to={`/admin/orders/${o._id}`} className="font-mono text-[12px] font-semibold hover:underline">{o.orderNumber}</Link></td>
+                        <td className="px-3 py-2 text-[12px]"><Link to={`/admin/orders/${o._id}`} className="font-mono text-[12px] font-semibold hover:underline">{o.orderNumber}</Link></td>
                         <td className="table-cell text-[13px] font-medium">{o.customerInfo?.name}</td>
-                        <td className="table-cell"><span className="inline-flex items-center gap-1.5 rounded-full bg-neutral-100 px-2.5 py-1 text-[11px] font-semibold" style={{ color: M.color }}><MIcon size={11} />{o.paymentMethod}</span></td>
+                        <td className="px-3 py-2 text-[12px]"><span className="inline-flex items-center gap-1.5 rounded-full bg-neutral-100 px-2.5 py-1 text-[11px] font-semibold" style={{ color: M.color }}><MIcon size={11} />{o.paymentMethod}</span></td>
                         <td className="table-cell font-sans font-semibold tabular-nums">{pkr(o.total)}</td>
                         <td className="table-cell text-[12px] text-neutral-500">{fmtDateTime(o.createdAt)}</td>
                         <td className="table-cell text-right">
@@ -290,27 +290,27 @@ export default function Payments() {
             <div className="flex flex-wrap items-center gap-2">
               <div className="relative">
                 <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400" />
-                <input value={txSearch} onChange={(e) => setTxSearch(e.target.value)} placeholder="Search order#, customer, txn ID…" className="input !w-60 !py-2 !pl-9 !text-[13px]" />
+                <input value={txSearch} onChange={(e) => setTxSearch(e.target.value)} placeholder="Search order#, customer, txn ID…" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !w-60 !py-2 !pl-9 !text-[13px]" />
               </div>
-              <select value={txStatus} onChange={(e) => setTxStatus(e.target.value)} className="input !w-36 !py-2 !text-[13px]"><option value="all">All statuses</option><option value="Paid">Paid</option><option value="Pending">Pending</option><option value="Verified">Verified</option><option value="Failed">Failed</option><option value="Refunded">Refunded</option></select>
-              <select value={txMethod} onChange={(e) => setTxMethod(e.target.value)} className="input !w-36 !py-2 !text-[13px]"><option value="all">All methods</option><option value="COD">COD</option><option value="JazzCash">JazzCash</option><option value="EasyPaisa">EasyPaisa</option><option value="Bank Transfer">Bank Transfer</option></select>
+              <select value={txStatus} onChange={(e) => setTxStatus(e.target.value)} className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !w-36 !py-2 !text-[13px]"><option value="all">All statuses</option><option value="Paid">Paid</option><option value="Pending">Pending</option><option value="Verified">Verified</option><option value="Failed">Failed</option><option value="Refunded">Refunded</option></select>
+              <select value={txMethod} onChange={(e) => setTxMethod(e.target.value)} className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !w-36 !py-2 !text-[13px]"><option value="all">All methods</option><option value="COD">COD</option><option value="JazzCash">JazzCash</option><option value="EasyPaisa">EasyPaisa</option><option value="Bank Transfer">Bank Transfer</option></select>
             </div>
             <button onClick={exportCsv} className="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-4 py-2 text-[11px] font-semibold text-white hover:bg-neutral-800"><Download size={12} /> Export CSV</button>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full min-w-[800px]">
-              <thead><tr className="border-b border-neutral-100 bg-neutral-50/60"><th className="table-head">Order</th><th className="table-head">Date</th><th className="table-head">Customer</th><th className="table-head">Method</th><th className="table-head">Status</th><th className="table-head text-right">Amount</th></tr></thead>
+              <thead><tr className="border-b border-neutral-100 bg-neutral-50/60"><th className="px-3 py-2 text-left text-[10px] font-bold uppercase text-neutral-400">Order</th><th className="px-3 py-2 text-left text-[10px] font-bold uppercase text-neutral-400">Date</th><th className="px-3 py-2 text-left text-[10px] font-bold uppercase text-neutral-400">Customer</th><th className="px-3 py-2 text-left text-[10px] font-bold uppercase text-neutral-400">Method</th><th className="px-3 py-2 text-left text-[10px] font-bold uppercase text-neutral-400">Status</th><th className="table-head text-right">Amount</th></tr></thead>
               <tbody>
                 {transactions.slice(0, 100).map((o) => {
                   const M = METHOD_META[o.paymentMethod] || METHOD_META.COD;
                   const MIcon = M.icon;
                   return (
                     <tr key={o._id} className="border-b border-neutral-100 hover:bg-neutral-50/70">
-                      <td className="table-cell"><Link to={`/admin/orders/${o._id}`} className="font-mono text-[12px] font-semibold hover:underline">{o.orderNumber}</Link></td>
+                      <td className="px-3 py-2 text-[12px]"><Link to={`/admin/orders/${o._id}`} className="font-mono text-[12px] font-semibold hover:underline">{o.orderNumber}</Link></td>
                       <td className="table-cell text-[12px] text-neutral-500">{fmtDateTime(o.createdAt)}</td>
-                      <td className="table-cell"><p className="text-[13px] font-semibold">{o.customerInfo?.name}</p><p className="text-[11px] text-neutral-500">{o.customerInfo?.phone}</p></td>
-                      <td className="table-cell"><span className="inline-flex items-center gap-1.5 rounded-full bg-neutral-100 px-2.5 py-1 text-[11px] font-semibold" style={{ color: M.color }}><MIcon size={11} />{o.paymentMethod}</span></td>
-                      <td className="table-cell"><span className={`pill ${o.paymentStatus === 'Paid' ? 'bg-emerald-100 text-emerald-800' : o.paymentStatus === 'Refunded' ? 'bg-orange-100 text-orange-800' : o.paymentStatus === 'Verified' ? 'bg-blue-100 text-blue-800' : 'bg-amber-100 text-amber-800'}`}>{o.paymentStatus}</span></td>
+                      <td className="px-3 py-2 text-[12px]"><p className="text-[13px] font-semibold">{o.customerInfo?.name}</p><p className="text-[11px] text-neutral-500">{o.customerInfo?.phone}</p></td>
+                      <td className="px-3 py-2 text-[12px]"><span className="inline-flex items-center gap-1.5 rounded-full bg-neutral-100 px-2.5 py-1 text-[11px] font-semibold" style={{ color: M.color }}><MIcon size={11} />{o.paymentMethod}</span></td>
+                      <td className="px-3 py-2 text-[12px]"><span className={`pill ${o.paymentStatus === 'Paid' ? 'bg-emerald-100 text-emerald-800' : o.paymentStatus === 'Refunded' ? 'bg-orange-100 text-orange-800' : o.paymentStatus === 'Verified' ? 'bg-blue-100 text-blue-800' : 'bg-amber-100 text-amber-800'}`}>{o.paymentStatus}</span></td>
                       <td className="table-cell text-right font-sans font-semibold tabular-nums">{pkr(o.total)}</td>
                     </tr>
                   );

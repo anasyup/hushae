@@ -124,7 +124,7 @@ export default function SearchAnalytics() {
           <label htmlFor="sa-days" className="sr-only">Time period</label>
           <select
             id="sa-days" value={days} onChange={(e) => setDays(Number(e.target.value))}
-            className="input min-h-[44px] max-w-[150px]"
+            className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 min-h-[44px] max-w-[150px]"
           >
             <option value={7}>Last 7 days</option>
             <option value={30}>Last 30 days</option>
@@ -151,7 +151,7 @@ export default function SearchAnalytics() {
       </div>
 
       {loading && !d ? (
-        <div className="skeleton h-96 w-full" />
+        <div className="animate-pulse rounded-xl bg-neutral-100 h-96 w-full" />
       ) : (
         <div className="space-y-5">
           {d?.searches === 0 && (

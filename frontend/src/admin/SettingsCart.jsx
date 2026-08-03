@@ -55,8 +55,8 @@ function Toggle({ label, description, checked, onChange }) {
 function Text({ label, hint, value, onChange, ...rest }) {
   return (
     <div>
-      <label className="label">{label}</label>
-      <input className="input" value={value ?? ''} onChange={(e) => onChange(e.target.value)} {...rest} />
+      <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">{label}</label>
+      <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={value ?? ''} onChange={(e) => onChange(e.target.value)} {...rest} />
       {hint && <p className="mt-1.5 text-[11px] text-neutral-500">{hint}</p>}
     </div>
   );
@@ -65,8 +65,8 @@ function Text({ label, hint, value, onChange, ...rest }) {
 function Num({ label, hint, value, onChange, ...rest }) {
   return (
     <div>
-      <label className="label">{label}</label>
-      <input className="input" type="number" value={value ?? 0} onChange={(e) => onChange(Number(e.target.value))} {...rest} />
+      <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">{label}</label>
+      <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" type="number" value={value ?? 0} onChange={(e) => onChange(Number(e.target.value))} {...rest} />
       {hint && <p className="mt-1.5 text-[11px] text-neutral-500">{hint}</p>}
     </div>
   );
@@ -90,7 +90,7 @@ export default function SettingsCart() {
       .catch(() => toast('Could not load settings'));
   }, []); // eslint-disable-line
 
-  if (!s) return <AdminLayout title="Shopping Bag"><div className="skeleton h-96 w-full" /></AdminLayout>;
+  if (!s) return <AdminLayout title="Shopping Bag"><div className="animate-pulse rounded-xl bg-neutral-100 h-96 w-full" /></AdminLayout>;
 
   const c = s.cart;
   const set = (k, v) => setS({ ...s, cart: { ...s.cart, [k]: v } });
@@ -150,7 +150,7 @@ export default function SettingsCart() {
           <div className="space-y-4">
             <Text label="Heading" value={c.emptyTitle} onChange={(v) => set('emptyTitle', v)} />
             <div>
-              <label className="label">Message</label>
+              <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Message</label>
               <textarea className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 min-h-[80px]" value={c.emptyText} onChange={(e) => set('emptyText', e.target.value)} />
             </div>
           </div>
@@ -196,8 +196,8 @@ export default function SettingsCart() {
             <Num label="Maximum quantity per item" value={c.maxQty} onChange={(v) => set('maxQty', v)} min="1" max="99" />
             <Text label="Recommendations heading" value={c.recommendTitle} onChange={(v) => set('recommendTitle', v)} />
             <div>
-              <label className="label">How to pick recommendations</label>
-              <select className="input" value={c.recommendStrategy} onChange={(e) => set('recommendStrategy', e.target.value)}>
+              <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">How to pick recommendations</label>
+              <select className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={c.recommendStrategy} onChange={(e) => set('recommendStrategy', e.target.value)}>
                 <option value="auto">Smart — pairs with what is in the bag</option>
                 <option value="category">Same category</option>
                 <option value="recent">Recently viewed</option>

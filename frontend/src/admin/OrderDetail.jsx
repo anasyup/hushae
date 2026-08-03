@@ -83,7 +83,7 @@ export default function OrderDetail() {
   };
 
   if (err) return <AdminLayout title="Order"><div className="mx-auto grid max-w-md place-items-center rounded-2xl border border-red-200 bg-red-50 p-10"><p className="text-sm text-red-700">{err}</p><button onClick={() => { setErr(''); load(); }} className="mt-4 rounded-full border border-red-300 bg-white px-4 py-2 text-xs font-semibold text-red-700 hover:bg-red-50">Try again</button></div></AdminLayout>;
-  if (!o) return <AdminLayout title="Order"><div className="grid gap-4"><div className="skeleton h-20 rounded-xl" /><div className="skeleton h-64 rounded-xl" /><div className="skeleton h-32 rounded-xl" /></div></AdminLayout>;
+  if (!o) return <AdminLayout title="Order"><div className="grid gap-4"><div className="animate-pulse rounded-xl bg-neutral-100 h-20 rounded-xl" /><div className="animate-pulse rounded-xl bg-neutral-100 h-64 rounded-xl" /><div className="animate-pulse rounded-xl bg-neutral-100 h-32 rounded-xl" /></div></AdminLayout>;
 
   const c = o.customerInfo;
   const pcs = o.items.reduce((a, it) => a + (it.quantity || 1), 0);

@@ -47,9 +47,9 @@ const Num = ({ label, hint, value, onChange, disabled, ...rest }) => {
   const id = useId();
   return (
     <div>
-      <label className="label" htmlFor={id}>{label}</label>
+      <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500" htmlFor={id}>{label}</label>
       <input
-        id={id} className="input" type="number" value={value ?? 0} disabled={disabled}
+        id={id} className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" type="number" value={value ?? 0} disabled={disabled}
         aria-describedby={hint ? `${id}-h` : undefined}
         onChange={(e) => onChange(e.target.value === '' ? 0 : Number(e.target.value))} {...rest}
       />
@@ -62,9 +62,9 @@ const Text = ({ label, hint, value, onChange, disabled, ...rest }) => {
   const id = useId();
   return (
     <div>
-      <label className="label" htmlFor={id}>{label}</label>
+      <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500" htmlFor={id}>{label}</label>
       <input
-        id={id} className="input" value={value ?? ''} disabled={disabled}
+        id={id} className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={value ?? ''} disabled={disabled}
         aria-describedby={hint ? `${id}-h` : undefined}
         onChange={(e) => onChange(e.target.value)} {...rest}
       />
@@ -99,7 +99,7 @@ export default function SettingsSearch() {
   }, []); // eslint-disable-line
 
   const dirty = useMemo(() => original && JSON.stringify(s) !== original, [s, original]);
-  if (!s) return <AdminLayout title="Search"><div className="skeleton h-96 w-full" /></AdminLayout>;
+  if (!s) return <AdminLayout title="Search"><div className="animate-pulse rounded-xl bg-neutral-100 h-96 w-full" /></AdminLayout>;
 
   const S = s.search || {};
   const D = s.discovery || {};

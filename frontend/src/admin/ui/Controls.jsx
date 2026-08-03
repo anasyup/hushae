@@ -72,7 +72,7 @@ export function Toggle({ label, description, checked, onChange, disabled }) {
   );
 }
 
-/* useId() on every field: a <label className="label"> sitting next to an input
+/* useId() on every field: a <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500"> sitting next to an input
    is only visually a label. Sprint 2J measured 45 of 79 controls on one admin
    screen announcing "edit text, blank" to a screen reader because of exactly
    that. htmlFor is what connects them. */
@@ -80,7 +80,7 @@ export function Num({ label, hint, value, onChange, disabled, ...rest }) {
   const id = useId();
   return (
     <div>
-      <label className="label" htmlFor={id}>{label}</label>
+      <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500" htmlFor={id}>{label}</label>
       <input
         id={id} className="input" type="number" value={value ?? 0} disabled={disabled}
         aria-describedby={hint ? `${id}-h` : undefined}
@@ -96,7 +96,7 @@ export function Text({ label, hint, value, onChange, disabled, ...rest }) {
   const id = useId();
   return (
     <div>
-      <label className="label" htmlFor={id}>{label}</label>
+      <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500" htmlFor={id}>{label}</label>
       <input
         id={id} className="input" value={value ?? ''} disabled={disabled}
         aria-describedby={hint ? `${id}-h` : undefined}
@@ -111,7 +111,7 @@ export function Select({ label, hint, value, onChange, options, disabled }) {
   const id = useId();
   return (
     <div>
-      <label className="label" htmlFor={id}>{label}</label>
+      <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500" htmlFor={id}>{label}</label>
       <select
         id={id} className="input" value={value ?? ''} disabled={disabled}
         aria-describedby={hint ? `${id}-h` : undefined}
@@ -131,7 +131,7 @@ export function DateTime({ label, hint, value, onChange, disabled }) {
   const local = value ? new Date(value).toISOString().slice(0, 16) : '';
   return (
     <div>
-      <label className="label" htmlFor={id}>{label}</label>
+      <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500" htmlFor={id}>{label}</label>
       <input
         id={id} className="input" type="datetime-local" value={local} disabled={disabled}
         aria-describedby={hint ? `${id}-h` : undefined}

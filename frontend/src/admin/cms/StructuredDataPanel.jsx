@@ -217,7 +217,7 @@ export default function StructuredDataPanel({ page, cfg, onChangeSeo }) {
 
         {/* ---- templates ---- */}
         <div>
-          <p className="label">Start from</p>
+          <p className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Start from</p>
           <div className="grid gap-2 sm:grid-cols-2">
             {TEMPLATES.map((tpl) => (
               <button
@@ -234,7 +234,7 @@ export default function StructuredDataPanel({ page, cfg, onChangeSeo }) {
 
         {/* ---- editor ---- */}
         <div>
-          <label className="label" htmlFor="sd-json">The note itself</label>
+          <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500" htmlFor="sd-json">The note itself</label>
           <textarea
             id="sd-json" rows={12} spellCheck={false}
             value={text}
@@ -275,7 +275,7 @@ export default function StructuredDataPanel({ page, cfg, onChangeSeo }) {
 
         {result.value && (
           <div>
-            <p className="label">Check it yourself</p>
+            <p className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Check it yourself</p>
             <a
               href="https://search.google.com/test/rich-results"
               target="_blank" rel="noreferrer"

@@ -265,7 +265,7 @@ export default function SettingsEmail() {
   if (!settings) {
     return (
       <AdminLayout title="Email & SMTP">
-        <div className="skeleton h-96 w-full" />
+        <div className="animate-pulse rounded-xl bg-neutral-100 h-96 w-full" />
       </AdminLayout>
     );
   }
@@ -328,35 +328,35 @@ export default function SettingsEmail() {
             >
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="label">SMTP Host</label>
+                  <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">SMTP Host</label>
                   <input
-                    className="input"
+                    className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900"
                     value={emailCfg.host || ''}
                     onChange={(e) => setEmailValue('host', e.target.value)}
                     placeholder="e.g. smtp.gmail.com"
                   />
                 </div>
                 <div>
-                  <label className="label">SMTP Port</label>
+                  <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">SMTP Port</label>
                   <input
                     type="number"
-                    className="input"
+                    className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900"
                     value={emailCfg.port || 587}
                     onChange={(e) => setEmailValue('port', Number(e.target.value) || 587)}
                     placeholder="e.g. 587"
                   />
                 </div>
                 <div>
-                  <label className="label">Username / User</label>
+                  <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Username / User</label>
                   <input
-                    className="input"
+                    className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900"
                     value={emailCfg.user || ''}
                     onChange={(e) => setEmailValue('user', e.target.value)}
                     placeholder="e.g. care@hushae.pk"
                   />
                 </div>
                 <div>
-                  <label className="label">Password</label>
+                  <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Password</label>
                   <div className="relative">
                     <input
                       type={showPass ? 'text' : 'password'}
@@ -375,18 +375,18 @@ export default function SettingsEmail() {
                   </div>
                 </div>
                 <div>
-                  <label className="label">Sender Name / From Address</label>
+                  <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Sender Name / From Address</label>
                   <input
-                    className="input"
+                    className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900"
                     value={emailCfg.from || ''}
                     onChange={(e) => setEmailValue('from', e.target.value)}
                     placeholder="e.g. HUSHAE <care@hushae.pk>"
                   />
                 </div>
                 <div>
-                  <label className="label">Admin Alert Target Email</label>
+                  <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Admin Alert Target Email</label>
                   <input
-                    className="input"
+                    className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900"
                     value={emailCfg.adminAlert || ''}
                     onChange={(e) => setEmailValue('adminAlert', e.target.value)}
                     placeholder="e.g. alert@hushae.pk"
@@ -498,7 +498,7 @@ export default function SettingsEmail() {
                     {/* Subject Line */}
                     <div>
                       <div className="flex justify-between items-center mb-1">
-                        <label className="label">Subject Line</label>
+                        <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Subject Line</label>
                         <span className="text-[11px] text-neutral-500 font-mono">{`{...} variables work`}</span>
                       </div>
                       <input
@@ -513,7 +513,7 @@ export default function SettingsEmail() {
                     {/* HTML Content Body */}
                     <div>
                       <div className="flex justify-between items-center mb-1">
-                        <label className="label">Template Body (HTML)</label>
+                        <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Template Body (HTML)</label>
                         <span className="text-[11px] text-neutral-500 font-mono">Full HTML supported</span>
                       </div>
                       <textarea

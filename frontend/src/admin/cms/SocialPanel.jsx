@@ -103,7 +103,7 @@ export default function SocialPanel({ page, cfg, onChangeSeo }) {
 
         {/* ---- image ---- */}
         <div>
-          <p className="label">Sharing picture</p>
+          <p className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Sharing picture</p>
           <MediaPicker
             value={seo.ogImage || ''}
             onChange={(v) => onChangeSeo('ogImage', v)}
@@ -129,13 +129,13 @@ export default function SocialPanel({ page, cfg, onChangeSeo }) {
         </div>
 
         <div>
-          <label className="label" htmlFor="og-desc">Sharing description</label>
+          <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500" htmlFor="og-desc">Sharing description</label>
           <textarea
             id="og-desc" rows={2}
             value={seo.ogDescription || ''}
             onChange={(e) => onChangeSeo('ogDescription', e.target.value.slice(0, 320))}
             aria-describedby="og-desc-h"
-            className="input resize-y"
+            className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 resize-y"
             placeholder={resolved.description}
           />
           <p id="og-desc-h" className="mt-1.5 text-[11px] leading-relaxed text-neutral-600">

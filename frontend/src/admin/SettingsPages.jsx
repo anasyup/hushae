@@ -113,7 +113,7 @@ function useSettingsSlice() {
  * ======================================================================== */
 export function SettingsStore() {
   const { s, setS, dirty, reset, save, busy } = useSettingsSlice();
-  if (!s) return <AdminLayout title="Store details"><div className="skeleton h-96 w-full" /></AdminLayout>;
+  if (!s) return <AdminLayout title="Store details"><div className="animate-pulse rounded-xl bg-neutral-100 h-96 w-full" /></AdminLayout>;
 
   const set = (k, v) => setS({ ...s, [k]: v });
   const setBadge = (i, k, v) => setS({ ...s, trustBadges: (s.trustBadges || []).map((b, j) => j === i ? { ...b, [k]: v } : b) });
@@ -126,15 +126,15 @@ export function SettingsStore() {
       <div className="space-y-5">
         <Section title="Identity" description="These appear in the header, footer, and every automated email.">
           <div className="grid gap-4 md:grid-cols-2">
-            <div><label className="label">Store name</label><input className="input" value={s.storeName || ''} onChange={(e) => set('storeName', e.target.value)} /></div>
-            <div><label className="label">Tagline</label><input className="input" value={s.tagline || ''} onChange={(e) => set('tagline', e.target.value)} /></div>
+            <div><label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Store name</label><input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={s.storeName || ''} onChange={(e) => set('storeName', e.target.value)} /></div>
+            <div><label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Tagline</label><input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={s.tagline || ''} onChange={(e) => set('tagline', e.target.value)} /></div>
           </div>
         </Section>
 
         <Section title="Contact" description="Shown in the footer, order confirmations, and used by customers to reach you.">
           <div className="grid gap-4 md:grid-cols-2">
-            <div><label className="label">Contact email</label><input className="input" type="email" value={s.contactEmail || ''} onChange={(e) => set('contactEmail', e.target.value)} placeholder="care@yourstore.com" /></div>
-            <div><label className="label">Contact phone</label><input className="input" value={s.contactPhone || ''} onChange={(e) => set('contactPhone', e.target.value)} placeholder="+92 300 1234567" /></div>
+            <div><label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Contact email</label><input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" type="email" value={s.contactEmail || ''} onChange={(e) => set('contactEmail', e.target.value)} placeholder="care@yourstore.com" /></div>
+            <div><label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Contact phone</label><input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={s.contactPhone || ''} onChange={(e) => set('contactPhone', e.target.value)} placeholder="+92 300 1234567" /></div>
           </div>
         </Section>
 
@@ -142,8 +142,8 @@ export function SettingsStore() {
           <div className="space-y-3">
             {(s.trustBadges || []).map((b, i) => (
               <div key={i} className="grid gap-2 md:grid-cols-[220px_1fr]">
-                <input className="input !py-2 !text-[12px] font-semibold" value={b.title || ''} onChange={(e) => setBadge(i, 'title', e.target.value)} placeholder="Badge title" />
-                <input className="input !py-2 !text-[12px]" value={b.text || ''} onChange={(e) => setBadge(i, 'text', e.target.value)} placeholder="Short supporting text" />
+                <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !py-2 !text-[12px] font-semibold" value={b.title || ''} onChange={(e) => setBadge(i, 'title', e.target.value)} placeholder="Badge title" />
+                <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !py-2 !text-[12px]" value={b.text || ''} onChange={(e) => setBadge(i, 'text', e.target.value)} placeholder="Short supporting text" />
               </div>
             ))}
           </div>
@@ -160,7 +160,7 @@ export function SettingsStore() {
  * ======================================================================== */
 export function SettingsPayments() {
   const { s, setS, dirty, reset, save, busy } = useSettingsSlice();
-  if (!s) return <AdminLayout title="Payments"><div className="skeleton h-96 w-full" /></AdminLayout>;
+  if (!s) return <AdminLayout title="Payments"><div className="animate-pulse rounded-xl bg-neutral-100 h-96 w-full" /></AdminLayout>;
 
   const pm = s.paymentMethods || {};
   const setPM = (k, v) => setS({ ...s, paymentMethods: { ...pm, [k]: v } });
@@ -190,8 +190,8 @@ export function SettingsPayments() {
             />
             {pm.jazzcash && (
               <div className="ml-4 grid gap-3 rounded-xl border border-neutral-200 bg-neutral-50 p-4 md:grid-cols-2">
-                <div><label className="label">JazzCash number</label><input className="input font-mono" value={pm.jazzcashNumber || ''} onChange={(e) => setPM('jazzcashNumber', e.target.value)} placeholder="0300 1234567" /></div>
-                <div><label className="label">Account title</label><input className="input" value={pm.jazzcashTitle || ''} onChange={(e) => setPM('jazzcashTitle', e.target.value)} placeholder="Your Name" /></div>
+                <div><label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">JazzCash number</label><input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 font-mono" value={pm.jazzcashNumber || ''} onChange={(e) => setPM('jazzcashNumber', e.target.value)} placeholder="0300 1234567" /></div>
+                <div><label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Account title</label><input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={pm.jazzcashTitle || ''} onChange={(e) => setPM('jazzcashTitle', e.target.value)} placeholder="Your Name" /></div>
               </div>
             )}
 
@@ -203,8 +203,8 @@ export function SettingsPayments() {
             />
             {pm.easypaisa && (
               <div className="ml-4 grid gap-3 rounded-xl border border-neutral-200 bg-neutral-50 p-4 md:grid-cols-2">
-                <div><label className="label">EasyPaisa number</label><input className="input font-mono" value={pm.easypaisaNumber || ''} onChange={(e) => setPM('easypaisaNumber', e.target.value)} placeholder="0345 1234567" /></div>
-                <div><label className="label">Account title</label><input className="input" value={pm.easypaisaTitle || ''} onChange={(e) => setPM('easypaisaTitle', e.target.value)} placeholder="Your Name" /></div>
+                <div><label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">EasyPaisa number</label><input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 font-mono" value={pm.easypaisaNumber || ''} onChange={(e) => setPM('easypaisaNumber', e.target.value)} placeholder="0345 1234567" /></div>
+                <div><label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Account title</label><input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={pm.easypaisaTitle || ''} onChange={(e) => setPM('easypaisaTitle', e.target.value)} placeholder="Your Name" /></div>
               </div>
             )}
           </div>
@@ -218,8 +218,8 @@ export function SettingsPayments() {
           />
           {pm.bank && (
             <div className="mt-3 rounded-xl border border-neutral-200 bg-neutral-50 p-4">
-              <label className="label">Bank details (shown to customers at checkout)</label>
-              <textarea className="input min-h-28 font-mono text-[12px]" value={pm.bankDetails || ''} onChange={(e) => setPM('bankDetails', e.target.value)} placeholder={'Bank: Meezan Bank\nTitle: Your Business Name\nIBAN: PK00 MEZN 0000 0000 0000 0000'} />
+              <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Bank details (shown to customers at checkout)</label>
+              <textarea className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 min-h-28 font-mono text-[12px]" value={pm.bankDetails || ''} onChange={(e) => setPM('bankDetails', e.target.value)} placeholder={'Bank: Meezan Bank\nTitle: Your Business Name\nIBAN: PK00 MEZN 0000 0000 0000 0000'} />
               <p className="mt-2 text-[11px] text-neutral-500">Multi-line supported. Include bank name, account title, and IBAN.</p>
             </div>
           )}
@@ -248,7 +248,7 @@ export function SettingsPayments() {
  * ======================================================================== */
 export function SettingsShipping() {
   const { s, setS, dirty, reset, save, busy } = useSettingsSlice();
-  if (!s) return <AdminLayout title="Shipping"><div className="skeleton h-96 w-full" /></AdminLayout>;
+  if (!s) return <AdminLayout title="Shipping"><div className="animate-pulse rounded-xl bg-neutral-100 h-96 w-full" /></AdminLayout>;
 
   const set = (k, v) => setS({ ...s, [k]: v });
   const oc = s.operatingCosts || {};
@@ -263,13 +263,13 @@ export function SettingsShipping() {
         <Section title="Shipping rates" description="Flat rate applies to every order below the free-shipping threshold.">
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <label className="label">Flat rate (PKR)</label>
-              <input className="input" type="number" min="0" value={s.shippingFlatRate ?? 350} onChange={(e) => set('shippingFlatRate', Number(e.target.value))} />
+              <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Flat rate (PKR)</label>
+              <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" type="number" min="0" value={s.shippingFlatRate ?? 350} onChange={(e) => set('shippingFlatRate', Number(e.target.value))} />
               <p className="mt-1.5 text-[11px] text-neutral-500">Standard for Pakistan: PKR 200–400 nationwide.</p>
             </div>
             <div>
-              <label className="label">Free shipping over (PKR)</label>
-              <input className="input" type="number" min="0" value={s.freeShippingThreshold ?? 4999} onChange={(e) => set('freeShippingThreshold', Number(e.target.value))} />
+              <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Free shipping over (PKR)</label>
+              <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" type="number" min="0" value={s.freeShippingThreshold ?? 4999} onChange={(e) => set('freeShippingThreshold', Number(e.target.value))} />
               <p className="mt-1.5 text-[11px] text-neutral-500">Encourages larger baskets. Set to 0 to disable.</p>
             </div>
           </div>
@@ -278,13 +278,13 @@ export function SettingsShipping() {
         <Section title="Per-order operating costs" description="These are subtracted from your gross profit — set them for accurate P&L.">
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <label className="label">Packing materials (PKR / order)</label>
-              <input className="input" type="number" min="0" value={oc.packingPerOrder || 0} onChange={(e) => setOC('packingPerOrder', e.target.value)} placeholder="e.g. 40" />
+              <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Packing materials (PKR / order)</label>
+              <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" type="number" min="0" value={oc.packingPerOrder || 0} onChange={(e) => setOC('packingPerOrder', e.target.value)} placeholder="e.g. 40" />
               <p className="mt-1.5 text-[11px] text-neutral-500">Boxes, tape, tissue paper, thank-you cards.</p>
             </div>
             <div>
-              <label className="label">Courier subsidy (PKR / order)</label>
-              <input className="input" type="number" min="0" value={oc.shippingSubsidy || 0} onChange={(e) => setOC('shippingSubsidy', e.target.value)} placeholder="e.g. 50" />
+              <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Courier subsidy (PKR / order)</label>
+              <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" type="number" min="0" value={oc.shippingSubsidy || 0} onChange={(e) => setOC('shippingSubsidy', e.target.value)} placeholder="e.g. 50" />
               <p className="mt-1.5 text-[11px] text-neutral-500">Difference between what courier charges you and what you charged the customer.</p>
             </div>
           </div>
@@ -293,28 +293,28 @@ export function SettingsShipping() {
         <Section title="Courier cost per parcel" description="What the courier bills you. Used by Finance → Order profitability to work out what you keep on each order.">
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <label className="label">Default courier cost (PKR / parcel)</label>
-              <input className="input" type="number" min="0" value={oc.defaultCourierCost || 0} onChange={(e) => setOC('defaultCourierCost', e.target.value)} placeholder="e.g. 250" />
+              <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Default courier cost (PKR / parcel)</label>
+              <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" type="number" min="0" value={oc.defaultCourierCost || 0} onChange={(e) => setOC('defaultCourierCost', e.target.value)} placeholder="e.g. 250" />
               <p className="mt-1.5 text-[11px] text-neutral-500">Applies to every city unless overridden below.</p>
             </div>
             <div>
-              <label className="label">Return costs this many times the outbound leg</label>
-              <input className="input" type="number" min="1" step="0.5" value={oc.returnCourierMultiplier ?? 2} onChange={(e) => setOC('returnCourierMultiplier', e.target.value)} />
+              <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Return costs this many times the outbound leg</label>
+              <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" type="number" min="1" step="0.5" value={oc.returnCourierMultiplier ?? 2} onChange={(e) => setOC('returnCourierMultiplier', e.target.value)} />
               <p className="mt-1.5 text-[11px] text-neutral-500">A returned parcel is usually billed both ways — that is 2.</p>
             </div>
           </div>
 
           <div className="mt-4">
-            <label className="label">Per-city rates (optional)</label>
+            <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Per-city rates (optional)</label>
             <div className="mt-1.5 space-y-2">
               {(oc.courierByCity || []).map((row, i) => (
                 <div key={i} className="flex items-center gap-2">
                   <input
-                    className="input flex-1" placeholder="City, e.g. Karachi" value={row.city || ''}
+                    className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 flex-1" placeholder="City, e.g. Karachi" value={row.city || ''}
                     onChange={(e) => setS({ ...s, operatingCosts: { ...oc, courierByCity: oc.courierByCity.map((r, j) => (j === i ? { ...r, city: e.target.value } : r)) } })}
                   />
                   <input
-                    className="input w-32" type="number" min="0" placeholder="PKR" value={row.cost ?? ''}
+                    className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 w-32" type="number" min="0" placeholder="PKR" value={row.cost ?? ''}
                     onChange={(e) => setS({ ...s, operatingCosts: { ...oc, courierByCity: oc.courierByCity.map((r, j) => (j === i ? { ...r, cost: Number(e.target.value) || 0 } : r)) } })}
                   />
                   <button
@@ -341,9 +341,9 @@ export function SettingsShipping() {
               ['card', 'Card / Visa (%)', '2.75'],
             ].map(([key, label, ph]) => (
               <div key={key}>
-                <label className="label">{label}</label>
+                <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">{label}</label>
                 <input
-                  className="input" type="number" min="0" step="0.05" placeholder={ph}
+                  className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" type="number" min="0" step="0.05" placeholder={ph}
                   value={(oc.paymentFees || {})[key] ?? ''}
                   onChange={(e) => setS({ ...s, operatingCosts: { ...oc, paymentFees: { ...(oc.paymentFees || {}), [key]: Number(e.target.value) || 0 } } })}
                 />
@@ -355,13 +355,13 @@ export function SettingsShipping() {
         <Section title="Targets & thresholds" description="Drive the dashboard goal tracker and the profitability warnings.">
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <label className="label">Monthly revenue goal (PKR)</label>
-              <input className="input" type="number" min="0" value={s.monthlyRevenueGoal || 0} onChange={(e) => set('monthlyRevenueGoal', Number(e.target.value) || 0)} placeholder="e.g. 500000" />
+              <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Monthly revenue goal (PKR)</label>
+              <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" type="number" min="0" value={s.monthlyRevenueGoal || 0} onChange={(e) => set('monthlyRevenueGoal', Number(e.target.value) || 0)} placeholder="e.g. 500000" />
               <p className="mt-1.5 text-[11px] text-neutral-500">Shown as a progress bar with a pace read on the Dashboard.</p>
             </div>
             <div>
-              <label className="label">Minimum acceptable margin (%)</label>
-              <input className="input" type="number" min="0" max="100" value={s.marginThresholdPercent ?? 15} onChange={(e) => set('marginThresholdPercent', Number(e.target.value) || 0)} placeholder="e.g. 15" />
+              <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Minimum acceptable margin (%)</label>
+              <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" type="number" min="0" max="100" value={s.marginThresholdPercent ?? 15} onChange={(e) => set('marginThresholdPercent', Number(e.target.value) || 0)} placeholder="e.g. 15" />
               <p className="mt-1.5 text-[11px] text-neutral-500">Orders below this are flagged amber in Finance → Order profitability.</p>
             </div>
           </div>
@@ -370,18 +370,18 @@ export function SettingsShipping() {
         <Section title="Monthly marketing & fixed costs" description="Fixed costs you pay every month — divided across all monthly orders in the P&L view.">
           <div className="grid gap-4 md:grid-cols-3">
             <div>
-              <label className="label">Ads (PKR / month)</label>
-              <input className="input" type="number" min="0" value={oc.monthlyMarketing || 0} onChange={(e) => setOC('monthlyMarketing', e.target.value)} placeholder="e.g. 25000" />
+              <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Ads (PKR / month)</label>
+              <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" type="number" min="0" value={oc.monthlyMarketing || 0} onChange={(e) => setOC('monthlyMarketing', e.target.value)} placeholder="e.g. 25000" />
               <p className="mt-1.5 text-[11px] text-neutral-500">Meta, Google, TikTok spend.</p>
             </div>
             <div>
-              <label className="label">SEO / Content (PKR / month)</label>
-              <input className="input" type="number" min="0" value={oc.monthlySeo || 0} onChange={(e) => setOC('monthlySeo', e.target.value)} placeholder="e.g. 10000" />
+              <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">SEO / Content (PKR / month)</label>
+              <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" type="number" min="0" value={oc.monthlySeo || 0} onChange={(e) => setOC('monthlySeo', e.target.value)} placeholder="e.g. 10000" />
               <p className="mt-1.5 text-[11px] text-neutral-500">Blog writing, agency retainer, backlinks.</p>
             </div>
             <div>
-              <label className="label">Other fixed (PKR / month)</label>
-              <input className="input" type="number" min="0" value={oc.monthlyOther || 0} onChange={(e) => setOC('monthlyOther', e.target.value)} placeholder="e.g. 5000" />
+              <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Other fixed (PKR / month)</label>
+              <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" type="number" min="0" value={oc.monthlyOther || 0} onChange={(e) => setOC('monthlyOther', e.target.value)} placeholder="e.g. 5000" />
               <p className="mt-1.5 text-[11px] text-neutral-500">Hosting, tools, subscriptions.</p>
             </div>
           </div>
@@ -495,9 +495,9 @@ export function SettingsSecurity() {
             </div>
             <div className="grid gap-4 md:grid-cols-2">
               <div>
-                <label className="label">New username</label>
+                <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">New username</label>
                 <input
-                  className="input"
+                  className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900"
                   value={uNew}
                   onChange={(e) => setUNew(e.target.value)}
                   placeholder="e.g. hushae_admin or you@hushae.pk"
@@ -506,9 +506,9 @@ export function SettingsSecurity() {
                 <p className="mt-1.5 text-[11px] text-neutral-500">Letters, numbers, dot, underscore or dash. Or use a valid email.</p>
               </div>
               <div className="relative">
-                <label className="label">Confirm with current password</label>
+                <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Confirm with current password</label>
                 <input
-                  className="input pr-10"
+                  className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 pr-10"
                   type={uShow ? 'text' : 'password'}
                   value={uCurrent}
                   onChange={(e) => setUCurrent(e.target.value)}
@@ -533,14 +533,14 @@ export function SettingsSecurity() {
         <Section title="Change password" description="A strong password uses at least 12 characters with upper- and lower-case letters, numbers, and a symbol.">
           <form onSubmit={submit} className="space-y-4">
             <div className="relative">
-              <label className="label">Current password</label>
-              <input className="input pr-10" type={show.c ? 'text' : 'password'} value={current} onChange={(e) => setCurrent(e.target.value)} autoComplete="current-password" />
+              <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Current password</label>
+              <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 pr-10" type={show.c ? 'text' : 'password'} value={current} onChange={(e) => setCurrent(e.target.value)} autoComplete="current-password" />
               {eyeBtn('c')}
             </div>
             <div className="grid gap-4 md:grid-cols-2">
               <div className="relative">
-                <label className="label">New password</label>
-                <input className="input pr-10" type={show.n ? 'text' : 'password'} value={next} onChange={(e) => setNext(e.target.value)} autoComplete="new-password" placeholder="Min 8 characters, letters + numbers" />
+                <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">New password</label>
+                <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 pr-10" type={show.n ? 'text' : 'password'} value={next} onChange={(e) => setNext(e.target.value)} autoComplete="new-password" placeholder="Min 8 characters, letters + numbers" />
                 {eyeBtn('n')}
                 {next && (
                   <div className="mt-2">
@@ -552,8 +552,8 @@ export function SettingsSecurity() {
                 )}
               </div>
               <div className="relative">
-                <label className="label">Confirm new password</label>
-                <input className="input pr-10" type={show.x ? 'text' : 'password'} value={confirm} onChange={(e) => setConfirm(e.target.value)} autoComplete="new-password" />
+                <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Confirm new password</label>
+                <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 pr-10" type={show.x ? 'text' : 'password'} value={confirm} onChange={(e) => setConfirm(e.target.value)} autoComplete="new-password" />
                 {eyeBtn('x')}
                 {confirm && next && confirm !== next && <p className="mt-1 text-[11px] font-semibold text-red-600">Passwords do not match</p>}
               </div>

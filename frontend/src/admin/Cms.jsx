@@ -193,7 +193,7 @@ export default function Cms() {
       </div>
 
       {rows === null ? (
-        <div className="skeleton h-64 w-full" />
+        <div className="animate-pulse rounded-xl bg-neutral-100 h-64 w-full" />
       ) : !rows.length ? (
         <Empty
           title={status || type || q ? 'Nothing in this group' : 'No pages yet'}

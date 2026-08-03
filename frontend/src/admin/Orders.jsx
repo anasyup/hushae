@@ -128,8 +128,8 @@ function OrderCard({ order: o, onAction, actionsBusyId }) {
               {o.orderNumber} <Copy size={11} className="opacity-0 transition-opacity group-hover/copy:opacity-100" />
             </button>
             <span className={`pill ${statusPill(o.status)}`}>{o.status}</span>
-            {o.verifiedByCall && <span className="pill bg-emerald-50 text-emerald-700"><Phone size={10} /> Verified</span>}
-            {o.discreetPackaging && <span className="pill bg-neutral-100 text-neutral-600">Discreet</span>}
+            {o.verifiedByCall && <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold bg-emerald-50 text-emerald-700"><Phone size={10} /> Verified</span>}
+            {o.discreetPackaging && <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold bg-neutral-100 text-neutral-600">Discreet</span>}
           </div>
 
           <div className="mt-2 flex items-center gap-2">
@@ -242,8 +242,8 @@ function OrderCard({ order: o, onAction, actionsBusyId }) {
               <p className="text-[12px] font-semibold text-purple-900">🚚 Arranging courier</p>
               <p className="mt-1 text-[11px] text-purple-800">Book pickup with TCS / Leopards / M&P and enter tracking details.</p>
               <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                <input value={trackingDraft.courierName} onChange={(e) => setTrackingDraft({ ...trackingDraft, courierName: e.target.value })} placeholder="Courier (e.g. TCS)" className="input !py-2 !text-[12px]" />
-                <input value={trackingDraft.trackingNumber} onChange={(e) => setTrackingDraft({ ...trackingDraft, trackingNumber: e.target.value })} placeholder="Tracking number" className="input !py-2 !text-[12px]" />
+                <input value={trackingDraft.courierName} onChange={(e) => setTrackingDraft({ ...trackingDraft, courierName: e.target.value })} placeholder="Courier (e.g. TCS)" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !py-2 !text-[12px]" />
+                <input value={trackingDraft.trackingNumber} onChange={(e) => setTrackingDraft({ ...trackingDraft, trackingNumber: e.target.value })} placeholder="Tracking number" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !py-2 !text-[12px]" />
               </div>
               <div className="mt-2 flex flex-wrap gap-2">
                 <button disabled={busy} onClick={() => onAction('save-tracking', o, trackingDraft)} className="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-1.5 text-[11px] font-semibold text-neutral-800 shadow-sm ring-1 ring-neutral-300 hover:bg-neutral-100 disabled:opacity-50">
@@ -516,7 +516,7 @@ export default function Orders() {
         </p>
         <div className="relative">
           <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400" />
-          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Order #, name, phone or email…" className="input !w-80 !py-2.5 !pl-9 !text-[13px]" />
+          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Order #, name, phone or email…" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !w-80 !py-2.5 !pl-9 !text-[13px]" />
         </div>
       </div>
 
@@ -530,7 +530,7 @@ export default function Orders() {
       {/* --------------- Order cards --------------- */}
       <div className="space-y-3">
         {orders === null && !err && (
-          <>{[1, 2, 3].map((i) => <div key={i} className="skeleton h-24 w-full rounded-2xl" />)}</>
+          <>{[1, 2, 3].map((i) => <div key={i} className="animate-pulse rounded-xl bg-neutral-100 h-24 w-full rounded-2xl" />)}</>
         )}
 
         {filtered.map((o) => (
@@ -548,7 +548,7 @@ export default function Orders() {
           <div className="grid place-items-center rounded-2xl border border-red-200 bg-red-50 py-14 text-center">
             <XCircle size={26} className="mb-2 text-red-500" />
             <p className="text-sm text-red-700">{err}</p>
-            <button onClick={load} className="btn-outline mt-4 !px-5 !py-2 !text-[11px]">Try again</button>
+            <button onClick={load} className="inline-flex items-center gap-1.5 rounded-full border border-neutral-300 bg-white px-4 py-2 text-[11px] font-semibold text-neutral-700 hover:bg-neutral-50 mt-4 !px-5 !py-2 !text-[11px]">Try again</button>
           </div>
         )}
       </div>

@@ -123,7 +123,7 @@ export default function PromoPreview({ draft, onClose }) {
             <Search size={15} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" aria-hidden="true" />
             <label htmlFor="pp-search" className="sr-only">Search products to add</label>
             <input
-              id="pp-search" className="input min-h-[44px] pl-9" value={q}
+              id="pp-search" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 min-h-[44px] pl-9" value={q}
               onChange={(e) => setQ(e.target.value)} placeholder="Search a product to add"
               autoComplete="off"
             />
@@ -153,7 +153,7 @@ export default function PromoPreview({ draft, onClose }) {
                   <input
                     id={`qty-${c._id}`} type="number" min="1" max="20" value={c.qty}
                     onChange={(e) => setCart((x) => x.map((y) => (y._id === c._id ? { ...y, qty: Math.max(1, Number(e.target.value) || 1) } : y)))}
-                    className="input min-h-[44px] w-20"
+                    className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 min-h-[44px] w-20"
                   />
                   <span className="w-24 shrink-0 text-right text-[12px] tabular-nums text-neutral-600">{money(c.price * c.qty)}</span>
                   <button
@@ -172,16 +172,16 @@ export default function PromoPreview({ draft, onClose }) {
           <p className="mt-5 text-[11px] font-bold uppercase tracking-widest text-neutral-600">Pretend customer</p>
           <div className="mt-2 grid gap-3 sm:grid-cols-2">
             <div>
-              <label className="label" htmlFor="pp-orders">Past orders</label>
-              <select id="pp-orders" className="input min-h-[44px]" value={orderCount} onChange={(e) => setOrderCount(Number(e.target.value))}>
+              <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500" htmlFor="pp-orders">Past orders</label>
+              <select id="pp-orders" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 min-h-[44px]" value={orderCount} onChange={(e) => setOrderCount(Number(e.target.value))}>
                 <option value={0}>None — first-time customer</option>
                 <option value={1}>1 order</option>
                 <option value={5}>5 orders — regular</option>
               </select>
             </div>
             <div>
-              <label className="label" htmlFor="pp-city">City</label>
-              <input id="pp-city" className="input min-h-[44px]" value={city} onChange={(e) => setCity(e.target.value)} placeholder="Any" />
+              <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500" htmlFor="pp-city">City</label>
+              <input id="pp-city" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 min-h-[44px]" value={city} onChange={(e) => setCity(e.target.value)} placeholder="Any" />
             </div>
           </div>
           <label className="mt-3 flex min-h-[44px] cursor-pointer items-center gap-3 rounded-xl border border-neutral-200 px-4">

@@ -47,7 +47,7 @@ export default function Insights() {
     </div>
   </AdminLayout>;
 
-  if (!d) return <AdminLayout title="Insights"><div className="grid gap-4 md:grid-cols-2">{[1,2,3,4].map(i=><div key={i} className="skeleton h-56"/>)}</div></AdminLayout>;
+  if (!d) return <AdminLayout title="Insights"><div className="grid gap-4 md:grid-cols-2">{[1,2,3,4].map(i=><div key={i} className="animate-pulse rounded-xl bg-neutral-100 h-56"/>)}</div></AdminLayout>;
 
   const peakHour = d.hourly.reduce((m, h) => h.orders > m.orders ? h : m, { hour: 0, orders: 0 });
 

@@ -143,7 +143,7 @@ export default function Backup() {
                 <select
                   value={orderStatus}
                   onChange={(e) => setOrderStatus(e.target.value)}
-                  className="input !py-1.5 !text-xs mt-1 bg-white"
+                  className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !py-1.5 !text-xs mt-1 bg-white"
                 >
                   <option value="">All Orders</option>
                   <option value="Pending">Pending</option>
@@ -160,7 +160,7 @@ export default function Backup() {
                     type="date"
                     value={orderStart}
                     onChange={(e) => setOrderStart(e.target.value)}
-                    className="input !py-1.5 !text-xs mt-1 bg-white"
+                    className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !py-1.5 !text-xs mt-1 bg-white"
                   />
                 </div>
                 <div>
@@ -169,7 +169,7 @@ export default function Backup() {
                     type="date"
                     value={orderEnd}
                     onChange={(e) => setOrderEnd(e.target.value)}
-                    className="input !py-1.5 !text-xs mt-1 bg-white"
+                    className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !py-1.5 !text-xs mt-1 bg-white"
                   />
                 </div>
               </div>

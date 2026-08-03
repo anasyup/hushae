@@ -14,7 +14,7 @@ export default function Content() {
 
   useEffect(() => { api('/settings').then((d) => setS(d.settings)).catch(() => toast('Could not load settings')); }, []); // eslint-disable-line
 
-  if (!s) return <AdminLayout title="Content"><div className="skeleton h-64 w-full" /></AdminLayout>;
+  if (!s) return <AdminLayout title="Content"><div className="animate-pulse rounded-xl bg-neutral-100 h-64 w-full" /></AdminLayout>;
 
   const hero = s.hero || {};
   const split = s.signatureSplit || {};
@@ -63,62 +63,62 @@ export default function Content() {
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="space-y-6">
           {/* HERO — organized in sub-sections */}
-          <div className="card p-6">
+          <div className="rounded-2xl border border-neutral-200 bg-white p-6">
             <div className="mb-5 flex items-start gap-3">
-              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-obsidian text-alabaster"><LayoutTemplate size={20} /></span>
+              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-neutral-900 text-white"><LayoutTemplate size={20} /></span>
               <div>
                 <h2 className="font-sans text-lg">Homepage Hero (Banner)</h2>
-                <p className="mt-0.5 text-xs text-ash">The full-screen banner every visitor sees first. Video or image — both supported.</p>
+                <p className="mt-0.5 text-xs text-neutral-500">The full-screen banner every visitor sees first. Video or image — both supported.</p>
               </div>
             </div>
 
             {/* TEXT CONTENT */}
-            <div className="mb-6 rounded-2xl border border-line bg-alabaster/40 p-4">
-              <p className="mb-3 text-[11px] font-bold uppercase tracking-widest text-sagedeep">Text Content</p>
+            <div className="mb-6 rounded-2xl border border-neutral-200 bg-white/40 p-4">
+              <p className="mb-3 text-[11px] font-bold uppercase tracking-widest text-emerald-700">Text Content</p>
               <div className="space-y-3">
-                <div><label className="label">Small tagline (above title)</label><input className="input" value={hero.eyebrow || ''} onChange={(e) => setHero('eyebrow', e.target.value)} placeholder="Premium innerwear · Made in Pakistan" /></div>
-                <div><label className="label">Main title</label><textarea className="input min-h-16" value={hero.title || ''} onChange={(e) => setHero('title', e.target.value)} placeholder={'Second Skin,\nFirst Choice.'} /><p className="mt-1 text-[11px] text-ash">Press Enter for a new line</p></div>
-                <div><label className="label">Subtitle</label><textarea className="input min-h-20" value={hero.subtitle || ''} onChange={(e) => setHero('subtitle', e.target.value)} placeholder="A short description shown below the title" /></div>
+                <div><label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Small tagline (above title)</label><input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={hero.eyebrow || ''} onChange={(e) => setHero('eyebrow', e.target.value)} placeholder="Premium innerwear · Made in Pakistan" /></div>
+                <div><label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Main title</label><textarea className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 min-h-16" value={hero.title || ''} onChange={(e) => setHero('title', e.target.value)} placeholder={'Second Skin,\nFirst Choice.'} /><p className="mt-1 text-[11px] text-neutral-500">Press Enter for a new line</p></div>
+                <div><label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Subtitle</label><textarea className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 min-h-20" value={hero.subtitle || ''} onChange={(e) => setHero('subtitle', e.target.value)} placeholder="A short description shown below the title" /></div>
               </div>
             </div>
 
             {/* BUTTONS */}
-            <div className="mb-6 rounded-2xl border border-line bg-alabaster/40 p-4">
+            <div className="mb-6 rounded-2xl border border-neutral-200 bg-white/40 p-4">
               <div className="mb-3 flex items-center justify-between">
-                <p className="text-[11px] font-bold uppercase tracking-widest text-sagedeep">Call-to-Action Buttons</p>
+                <p className="text-[11px] font-bold uppercase tracking-widest text-emerald-700">Call-to-Action Buttons</p>
                 <label className="relative inline-flex cursor-pointer items-center">
                   <input type="checkbox" className="peer sr-only" checked={hero.showButtons !== false} onChange={(e) => setHero('showButtons', e.target.checked)} />
-                  <span className="h-6 w-11 rounded-full bg-satin transition peer-checked:bg-obsidian after:absolute after:left-1 after:top-1 after:h-4 after:w-4 after:rounded-full after:bg-white after:transition peer-checked:after:translate-x-5" />
+                  <span className="h-6 w-11 rounded-full bg-neutral-100 transition peer-checked:bg-neutral-900 after:absolute after:left-1 after:top-1 after:h-4 after:w-4 after:rounded-full after:bg-white after:transition peer-checked:after:translate-x-5" />
                 </label>
               </div>
 
               {hero.showButtons === false ? (
-                <p className="rounded-xl bg-white/60 p-3 text-center text-xs text-ash">Buttons are hidden. Toggle on to show them.</p>
+                <p className="rounded-xl bg-white/60 p-3 text-center text-xs text-neutral-500">Buttons are hidden. Toggle on to show them.</p>
               ) : (
                 <>
                   <div className="mb-3">
-                    <label className="label">Button style</label>
+                    <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Button style</label>
                     <div className="grid grid-cols-2 gap-2">
                       <button type="button" onClick={() => setHero('ctaStyle', 'buttons')}
-                        className={`rounded-xl border px-3 py-2.5 text-left text-xs transition ${hero.ctaStyle !== 'dropdown' ? 'border-obsidian bg-obsidian text-alabaster' : 'border-line bg-white hover:bg-satin/50'}`}>
+                        className={`rounded-xl border px-3 py-2.5 text-left text-xs transition ${hero.ctaStyle !== 'dropdown' ? 'border-obsidian bg-neutral-900 text-white' : 'border-neutral-200 bg-white hover:bg-neutral-100'}`}>
                         <span className="block font-semibold">Two Buttons</span>
-                        <span className={`mt-0.5 block text-[10px] ${hero.ctaStyle !== 'dropdown' ? 'text-alabaster/70' : 'text-ash'}`}>Women + Men (classic)</span>
+                        <span className={`mt-0.5 block text-[10px] ${hero.ctaStyle !== 'dropdown' ? 'text-white/70' : 'text-neutral-500'}`}>Women + Men (classic)</span>
                       </button>
                       <button type="button" onClick={() => setHero('ctaStyle', 'dropdown')}
-                        className={`rounded-xl border px-3 py-2.5 text-left text-xs transition ${hero.ctaStyle === 'dropdown' ? 'border-obsidian bg-obsidian text-alabaster' : 'border-line bg-white hover:bg-satin/50'}`}>
+                        className={`rounded-xl border px-3 py-2.5 text-left text-xs transition ${hero.ctaStyle === 'dropdown' ? 'border-obsidian bg-neutral-900 text-white' : 'border-neutral-200 bg-white hover:bg-neutral-100'}`}>
                         <span className="block font-semibold">Dropdown Menu</span>
-                        <span className={`mt-0.5 block text-[10px] ${hero.ctaStyle === 'dropdown' ? 'text-alabaster/70' : 'text-ash'}`}>One Shop button with menu</span>
+                        <span className={`mt-0.5 block text-[10px] ${hero.ctaStyle === 'dropdown' ? 'text-white/70' : 'text-neutral-500'}`}>One Shop button with menu</span>
                       </button>
                     </div>
                   </div>
 
                   {hero.ctaStyle === 'dropdown' ? (
                     <>
-                      <div><label className="label">Button text</label><input className="input" value={hero.ctaWomen || ''} onChange={(e) => setHero('ctaWomen', e.target.value)} placeholder="Shop Now" /></div>
+                      <div><label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Button text</label><input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={hero.ctaWomen || ''} onChange={(e) => setHero('ctaWomen', e.target.value)} placeholder="Shop Now" /></div>
                       <div className="mt-3">
-                        <label className="label">Dropdown menu items</label>
-                        <p className="mt-1 text-[11px] text-ash">One item per line — format: <code className="rounded bg-satin px-1">Label | /link</code></p>
-                        <textarea className="input mt-2 min-h-32 font-mono text-[12px]"
+                        <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Dropdown menu items</label>
+                        <p className="mt-1 text-[11px] text-neutral-500">One item per line — format: <code className="rounded bg-neutral-100 px-1">Label | /link</code></p>
+                        <textarea className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 mt-2 min-h-32 font-mono text-[12px]"
                           value={(hero.shopMenu || []).map((it) => `${it.label || ''} | ${it.href || ''}`).join('\n')}
                           onChange={(e) => {
                             const items = e.target.value.split('\n').map((line) => {
@@ -132,8 +132,8 @@ export default function Content() {
                     </>
                   ) : (
                     <div className="grid gap-3 sm:grid-cols-2">
-                      <div><label className="label">Button 1 label (Women)</label><input className="input" value={hero.ctaWomen || ''} onChange={(e) => setHero('ctaWomen', e.target.value)} placeholder="Shop Women" /></div>
-                      <div><label className="label">Button 2 label (Men)</label><input className="input" value={hero.ctaMen || ''} onChange={(e) => setHero('ctaMen', e.target.value)} placeholder="Shop Men" /></div>
+                      <div><label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Button 1 label (Women)</label><input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={hero.ctaWomen || ''} onChange={(e) => setHero('ctaWomen', e.target.value)} placeholder="Shop Women" /></div>
+                      <div><label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Button 2 label (Men)</label><input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={hero.ctaMen || ''} onChange={(e) => setHero('ctaMen', e.target.value)} placeholder="Shop Men" /></div>
                     </div>
                   )}
                 </>
@@ -141,51 +141,51 @@ export default function Content() {
             </div>
 
             {/* MEDIA */}
-            <div className="mb-6 rounded-2xl border border-line bg-alabaster/40 p-4">
-              <p className="mb-3 text-[11px] font-bold uppercase tracking-widest text-sagedeep">Background Media</p>
+            <div className="mb-6 rounded-2xl border border-neutral-200 bg-white/40 p-4">
+              <p className="mb-3 text-[11px] font-bold uppercase tracking-widest text-emerald-700">Background Media</p>
               <div className="space-y-4">
                 <div>
-                  <label className="label">Banner image</label>
+                  <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Banner image</label>
                   <MediaPicker value={hero.image || ''} onChange={(v) => setHero('image', v)} accept="image" hideUrl />
-                  <p className="mt-1 text-[11px] text-ash">Recommended: 1920 × 1080 (16:9). Upload a high-quality JPG or WebP.</p>
+                  <p className="mt-1 text-[11px] text-neutral-500">Recommended: 1920 × 1080 (16:9). Upload a high-quality JPG or WebP.</p>
                 </div>
                 <div>
-                  <label className="label">Banner video (optional)</label>
+                  <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Banner video (optional)</label>
                   <MediaPicker value={hero.video || ''} onChange={(v) => setHero('video', v)} accept="video" buttonText="Upload video" hideUrl />
-                  <p className="mt-1 text-[11px] text-ash">If a video is uploaded, it replaces the image. Autoplays silently and loops. MP4 or WebM.</p>
+                  <p className="mt-1 text-[11px] text-neutral-500">If a video is uploaded, it replaces the image. Autoplays silently and loops. MP4 or WebM.</p>
                 </div>
               </div>
             </div>
 
             {/* STYLING */}
-            <div className="rounded-2xl border border-line bg-alabaster/40 p-4">
-              <p className="mb-3 text-[11px] font-bold uppercase tracking-widest text-sagedeep">Appearance</p>
+            <div className="rounded-2xl border border-neutral-200 bg-white/40 p-4">
+              <p className="mb-3 text-[11px] font-bold uppercase tracking-widest text-emerald-700">Appearance</p>
               <div className="space-y-4">
                 <div>
                   <div className="mb-1 flex items-center justify-between">
                     <label className="label !mb-0">Dark overlay</label>
-                    <span className="rounded-full bg-obsidian px-2 py-0.5 text-[10px] font-bold text-alabaster">{hero.overlayOpacity ?? 40}%</span>
+                    <span className="rounded-full bg-neutral-900 px-2 py-0.5 text-[10px] font-bold text-white">{hero.overlayOpacity ?? 40}%</span>
                   </div>
                   <input type="range" min="0" max="90" step="5"
                     value={hero.overlayOpacity ?? 40}
                     onChange={(e) => setHero('overlayOpacity', Number(e.target.value))}
                     className="w-full accent-obsidian" />
-                  <p className="mt-1 text-[11px] text-ash">Adds a dark gradient over the image so text stays readable. Higher = darker.</p>
+                  <p className="mt-1 text-[11px] text-neutral-500">Adds a dark gradient over the image so text stays readable. Higher = darker.</p>
                 </div>
 
                 <div>
-                  <label className="label">Text position</label>
-                  <select className="input" value={hero.align || 'left'} onChange={(e) => setHero('align', e.target.value)}>
+                  <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Text position</label>
+                  <select className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={hero.align || 'left'} onChange={(e) => setHero('align', e.target.value)}>
                     <option value="left">Left aligned (bottom)</option>
                     <option value="center">Center aligned</option>
                   </select>
                 </div>
 
-                <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-line bg-white/60 p-3 text-sm">
+                <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-neutral-200 bg-white/60 p-3 text-sm">
                   <input type="checkbox" className="mt-0.5 h-4 w-4 accent-obsidian" checked={!!hero.fullScreen} onChange={(e) => setHero('fullScreen', e.target.checked)} />
                   <span>
                     <span className="block font-medium">Full-screen banner</span>
-                    <span className="mt-0.5 block text-xs text-ash">Banner fills the entire viewport — premium international look</span>
+                    <span className="mt-0.5 block text-xs text-neutral-500">Banner fills the entire viewport — premium international look</span>
                   </span>
                 </label>
               </div>
@@ -193,157 +193,157 @@ export default function Content() {
           </div>
 
           {/* SIGNATURE SPLIT HERO — half/half Women + Men editorial block */}
-          <div className="card p-6">
+          <div className="rounded-2xl border border-neutral-200 bg-white p-6">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <h2 className="font-sans text-lg">Signature Split Hero (Women × Men)</h2>
-                <p className="mt-1 text-xs text-ash">Half-half CK-style editorial block below the video hero. Change images, videos, text, colours, or turn the whole section off.</p>
+                <p className="mt-1 text-xs text-neutral-500">Half-half CK-style editorial block below the video hero. Change images, videos, text, colours, or turn the whole section off.</p>
               </div>
               <label className="inline-flex cursor-pointer items-center gap-2">
                 <input type="checkbox" className="peer sr-only" checked={split.enabled !== false} onChange={(e) => setSplit('enabled', e.target.checked)} />
-                <div className="relative h-6 w-11 rounded-full bg-satin transition peer-checked:bg-sage after:absolute after:left-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:bg-white after:transition peer-checked:after:translate-x-5" />
+                <div className="relative h-6 w-11 rounded-full bg-neutral-100 transition peer-checked:bg-emerald-50 after:absolute after:left-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:bg-white after:transition peer-checked:after:translate-x-5" />
               </label>
             </div>
 
             <div className={`mt-6 space-y-6 ${split.enabled === false ? 'pointer-events-none opacity-40' : ''}`}>
               {/* Text */}
               <div className="grid gap-3 md:grid-cols-2">
-                <div><label className="label">Eyebrow (small caps)</label><input className="input" value={split.eyebrow || ''} onChange={(e) => setSplit('eyebrow', e.target.value)} placeholder="The Signature Edit" /></div>
-                <div><label className="label">Title (Enter for new line)</label><textarea className="input min-h-16" value={split.title || ''} onChange={(e) => setSplit('title', e.target.value)} placeholder={'Premium,\nperfected.'} /></div>
-                <div className="md:col-span-2"><label className="label">Subtitle</label><textarea className="input min-h-16" value={split.subtitle || ''} onChange={(e) => setSplit('subtitle', e.target.value)} /></div>
+                <div><label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Eyebrow (small caps)</label><input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={split.eyebrow || ''} onChange={(e) => setSplit('eyebrow', e.target.value)} placeholder="The Signature Edit" /></div>
+                <div><label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Title (Enter for new line)</label><textarea className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 min-h-16" value={split.title || ''} onChange={(e) => setSplit('title', e.target.value)} placeholder={'Premium,\nperfected.'} /></div>
+                <div className="md:col-span-2"><label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Subtitle</label><textarea className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 min-h-16" value={split.subtitle || ''} onChange={(e) => setSplit('subtitle', e.target.value)} /></div>
               </div>
 
               {/* Styling */}
               <div className="grid gap-3 md:grid-cols-4">
                 <div>
-                  <label className="label">Text colour</label>
+                  <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Text colour</label>
                   <div className="flex items-center gap-2">
-                    <input type="color" className="h-10 w-14 cursor-pointer rounded-lg border border-line" value={split.textColor || '#F7F5F1'} onChange={(e) => setSplit('textColor', e.target.value)} />
-                    <input className="input font-mono text-xs" value={split.textColor || '#F7F5F1'} onChange={(e) => setSplit('textColor', e.target.value)} />
+                    <input type="color" className="h-10 w-14 cursor-pointer rounded-lg border border-neutral-200" value={split.textColor || '#F7F5F1'} onChange={(e) => setSplit('textColor', e.target.value)} />
+                    <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 font-mono text-xs" value={split.textColor || '#F7F5F1'} onChange={(e) => setSplit('textColor', e.target.value)} />
                   </div>
                 </div>
                 <div>
-                  <label className="label">Title font</label>
-                  <select className="input" value={split.titleFont || 'display'} onChange={(e) => setSplit('titleFont', e.target.value)}>
+                  <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Title font</label>
+                  <select className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={split.titleFont || 'display'} onChange={(e) => setSplit('titleFont', e.target.value)}>
                     <option value="display">Cormorant Garamond (serif)</option>
                     <option value="sans">Inter (sans-serif)</option>
                   </select>
                 </div>
                 <div>
-                  <label className="label">Text shadow</label>
+                  <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Text shadow</label>
                   <label className="mt-2 inline-flex cursor-pointer items-center gap-2 text-sm">
                     <input type="checkbox" className="h-4 w-4 accent-obsidian" checked={split.textShadow !== false} onChange={(e) => setSplit('textShadow', e.target.checked)} />
                     Soft glow behind text
                   </label>
                 </div>
                 <div>
-                  <label className="label">Overlay strength ({split.overlayOpacity ?? 25}%)</label>
+                  <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Overlay strength ({split.overlayOpacity ?? 25}%)</label>
                   <input type="range" min={0} max={80} value={split.overlayOpacity ?? 25} onChange={(e) => setSplit('overlayOpacity', Number(e.target.value))} className="w-full accent-obsidian" />
                 </div>
               </div>
 
               {/* Left half */}
-              <div className="rounded-2xl border border-line bg-cream/40 p-4">
-                <p className="text-[11px] font-bold uppercase tracking-widest text-ash">Left half — Women</p>
+              <div className="rounded-2xl border border-neutral-200 bg-neutral-50/40 p-4">
+                <p className="text-[11px] font-bold uppercase tracking-widest text-neutral-500">Left half — Women</p>
                 <div className="mt-3 grid gap-3 md:grid-cols-2">
                   <div>
-                    <label className="label">Image</label>
+                    <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Image</label>
                     <MediaPicker value={split.leftImage || ''} onChange={(v) => setSplit('leftImage', v)} accept="image" hideUrl />
                   </div>
                   <div>
-                    <label className="label">Video (optional — plays instead of image)</label>
+                    <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Video (optional — plays instead of image)</label>
                     <MediaPicker value={split.leftVideo || ''} onChange={(v) => setSplit('leftVideo', v)} accept="video" buttonText="Upload video" hideUrl />
                   </div>
-                  <div><label className="label">CTA button label</label><input className="input" value={split.leftCtaLabel || ''} onChange={(e) => setSplit('leftCtaLabel', e.target.value)} placeholder="Shop Women" /></div>
-                  <div><label className="label">CTA link</label><input className="input font-mono text-xs" value={split.leftCtaHref || ''} onChange={(e) => setSplit('leftCtaHref', e.target.value)} placeholder="/women" /></div>
+                  <div><label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">CTA button label</label><input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={split.leftCtaLabel || ''} onChange={(e) => setSplit('leftCtaLabel', e.target.value)} placeholder="Shop Women" /></div>
+                  <div><label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">CTA link</label><input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 font-mono text-xs" value={split.leftCtaHref || ''} onChange={(e) => setSplit('leftCtaHref', e.target.value)} placeholder="/women" /></div>
                 </div>
               </div>
 
               {/* Right half */}
-              <div className="rounded-2xl border border-line bg-cream/40 p-4">
-                <p className="text-[11px] font-bold uppercase tracking-widest text-ash">Right half — Men</p>
+              <div className="rounded-2xl border border-neutral-200 bg-neutral-50/40 p-4">
+                <p className="text-[11px] font-bold uppercase tracking-widest text-neutral-500">Right half — Men</p>
                 <div className="mt-3 grid gap-3 md:grid-cols-2">
                   <div>
-                    <label className="label">Image</label>
+                    <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Image</label>
                     <MediaPicker value={split.rightImage || ''} onChange={(v) => setSplit('rightImage', v)} accept="image" hideUrl />
                   </div>
                   <div>
-                    <label className="label">Video (optional — plays instead of image)</label>
+                    <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Video (optional — plays instead of image)</label>
                     <MediaPicker value={split.rightVideo || ''} onChange={(v) => setSplit('rightVideo', v)} accept="video" buttonText="Upload video" hideUrl />
                   </div>
-                  <div><label className="label">CTA button label</label><input className="input" value={split.rightCtaLabel || ''} onChange={(e) => setSplit('rightCtaLabel', e.target.value)} placeholder="Shop Men" /></div>
-                  <div><label className="label">CTA link</label><input className="input font-mono text-xs" value={split.rightCtaHref || ''} onChange={(e) => setSplit('rightCtaHref', e.target.value)} placeholder="/men" /></div>
+                  <div><label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">CTA button label</label><input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={split.rightCtaLabel || ''} onChange={(e) => setSplit('rightCtaLabel', e.target.value)} placeholder="Shop Men" /></div>
+                  <div><label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">CTA link</label><input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 font-mono text-xs" value={split.rightCtaHref || ''} onChange={(e) => setSplit('rightCtaHref', e.target.value)} placeholder="/men" /></div>
                 </div>
               </div>
             </div>
           </div>
 
           {/* ANNOUNCEMENT */}
-          <div className="card p-6">
+          <div className="rounded-2xl border border-neutral-200 bg-white p-6">
             <h2 className="font-sans text-lg">Announcement Bar (top strip)</h2>
             <label className="mt-3 flex cursor-pointer items-center gap-2 text-sm">
               <input type="checkbox" className="h-4 w-4 accent-obsidian" checked={!!offer.enabled} onChange={(e) => setOffer('enabled', e.target.checked)} /> Announcement bar enabled
             </label>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
-              <div><label className="label">Message (English)</label><input className="input" value={offer.messageEn || ''} onChange={(e) => setOffer('messageEn', e.target.value)} /></div>
-              <div><label className="label">Message (Urdu)</label><input className="input" dir="rtl" value={offer.messageUr || ''} onChange={(e) => setOffer('messageUr', e.target.value)} /></div>
-              <div><label className="label">Button text (EN)</label><input className="input" value={offer.ctaEn || ''} onChange={(e) => setOffer('ctaEn', e.target.value)} /></div>
-              <div><label className="label">Link</label><input className="input" placeholder="/sale" value={offer.link || ''} onChange={(e) => setOffer('link', e.target.value)} /></div>
+              <div><label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Message (English)</label><input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={offer.messageEn || ''} onChange={(e) => setOffer('messageEn', e.target.value)} /></div>
+              <div><label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Message (Urdu)</label><input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" dir="rtl" value={offer.messageUr || ''} onChange={(e) => setOffer('messageUr', e.target.value)} /></div>
+              <div><label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Button text (EN)</label><input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={offer.ctaEn || ''} onChange={(e) => setOffer('ctaEn', e.target.value)} /></div>
+              <div><label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Link</label><input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" placeholder="/sale" value={offer.link || ''} onChange={(e) => setOffer('link', e.target.value)} /></div>
             </div>
           </div>
 
           {/* MARQUEE */}
-          <div className="card p-6">
+          <div className="rounded-2xl border border-neutral-200 bg-white p-6">
             <h2 className="font-sans text-lg">Scrolling Marquee Strip</h2>
-            <p className="mt-1 text-xs text-ash">A scrolling strip below the hero (like international fashion sites).</p>
+            <p className="mt-1 text-xs text-neutral-500">A scrolling strip below the hero (like international fashion sites).</p>
             <label className="mt-4 flex cursor-pointer items-center gap-2 text-sm">
               <input type="checkbox" className="h-4 w-4 accent-obsidian" checked={marquee.enabled !== false} onChange={(e) => setMq('enabled', e.target.checked)} /> Marquee enabled
             </label>
             <div className={`mt-4 ${marquee.enabled !== false ? '' : 'pointer-events-none opacity-40'}`}>
-              <label className="label">Items — one per line</label>
-              <textarea className="input min-h-28" value={(marquee.items || []).join('\n')}
+              <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Items — one per line</label>
+              <textarea className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 min-h-28" value={(marquee.items || []).join('\n')}
                 onChange={(e) => setMq('items', e.target.value.split('\n'))} placeholder={'COD available — nationwide\nFree shipping over PKR 4,999'} />
             </div>
           </div>
 
           {/* PROMO POPUP */}
-          <div className="card p-6">
+          <div className="rounded-2xl border border-neutral-200 bg-white p-6">
             <h2 className="font-sans text-lg">Newsletter Popup (coupon ke saath)</h2>
-            <p className="mt-1 text-xs text-ash">Shown to visitors once after a short delay — captures their email in exchange for a coupon code.</p>
+            <p className="mt-1 text-xs text-neutral-500">Shown to visitors once after a short delay — captures their email in exchange for a coupon code.</p>
             <label className="mt-4 flex cursor-pointer items-center gap-2 text-sm">
               <input type="checkbox" className="h-4 w-4 accent-obsidian" checked={promo.enabled !== false} onChange={(e) => setPromo('enabled', e.target.checked)} /> Popup enabled
             </label>
             <div className={`mt-4 grid gap-4 sm:grid-cols-2 ${promo.enabled !== false ? '' : 'pointer-events-none opacity-40'}`}>
-              <div><label className="label">Kitne second baad dikhe</label><input className="input" type="number" min="5" value={promo.delaySec} onChange={(e) => setPromo('delaySec', e.target.value)} /></div>
-              <div><label className="label">Reward coupon code</label><input className="input uppercase" placeholder="WELCOME10" value={promo.couponCode || ''} onChange={(e) => setPromo('couponCode', e.target.value)} /></div>
-              <div className="sm:col-span-2"><label className="label">Title</label><input className="input" placeholder="Join the HUSHAE inner circle" value={promo.title || ''} onChange={(e) => setPromo('title', e.target.value)} /></div>
-              <div className="sm:col-span-2"><label className="label">Text</label><textarea className="input min-h-16" value={promo.text || ''} onChange={(e) => setPromo('text', e.target.value)} /></div>
+              <div><label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Kitne second baad dikhe</label><input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" type="number" min="5" value={promo.delaySec} onChange={(e) => setPromo('delaySec', e.target.value)} /></div>
+              <div><label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Reward coupon code</label><input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 uppercase" placeholder="WELCOME10" value={promo.couponCode || ''} onChange={(e) => setPromo('couponCode', e.target.value)} /></div>
+              <div className="sm:col-span-2"><label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Title</label><input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" placeholder="Join the HUSHAE inner circle" value={promo.title || ''} onChange={(e) => setPromo('title', e.target.value)} /></div>
+              <div className="sm:col-span-2"><label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Text</label><textarea className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 min-h-16" value={promo.text || ''} onChange={(e) => setPromo('text', e.target.value)} /></div>
             </div>
-            <p className="mt-3 rounded-xl bg-satin/60 px-4 py-2.5 text-[11px] leading-relaxed text-ash">⚠️ Use a coupon code that already exists on your <b>Discounts page</b> — otherwise checkout will reject it.</p>
+            <p className="mt-3 rounded-xl bg-neutral-100 px-4 py-2.5 text-[11px] leading-relaxed text-neutral-500">⚠️ Use a coupon code that already exists on your <b>Discounts page</b> — otherwise checkout will reject it.</p>
           </div>
 
           {/* COOKIES */}
-          <div className="card p-6">
+          <div className="rounded-2xl border border-neutral-200 bg-white p-6">
             <h2 className="font-sans text-lg">Cookie Consent Popup</h2>
-            <p className="mt-1 text-xs text-ash">Shown once to new visitors — Accept / Refuse / Manage options included.</p>
+            <p className="mt-1 text-xs text-neutral-500">Shown once to new visitors — Accept / Refuse / Manage options included.</p>
             <label className="mt-4 flex cursor-pointer items-center gap-2 text-sm">
               <input type="checkbox" className="h-4 w-4 accent-obsidian" checked={cookie.enabled !== false} onChange={(e) => setCookie('enabled', e.target.checked)} /> Cookie popup enabled
             </label>
             <div className={`mt-4 grid gap-4 ${cookie.enabled !== false ? '' : 'pointer-events-none opacity-40'}`}>
-              <div><label className="label">Popup title</label><input className="input" value={cookie.title || ''} onChange={(e) => setCookie('title', e.target.value)} /></div>
-              <div><label className="label">Popup text</label><textarea className="input min-h-20" value={cookie.text || ''} onChange={(e) => setCookie('text', e.target.value)} /></div>
+              <div><label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Popup title</label><input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={cookie.title || ''} onChange={(e) => setCookie('title', e.target.value)} /></div>
+              <div><label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Popup text</label><textarea className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 min-h-20" value={cookie.text || ''} onChange={(e) => setCookie('text', e.target.value)} /></div>
             </div>
           </div>
 
-          <button onClick={save} disabled={busy} className="btn-primary w-full lg:w-auto">{busy ? 'Saving…' : 'Save All Changes'}</button>
+          <button onClick={save} disabled={busy} className="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-4 py-2 text-[11px] font-semibold text-white hover:bg-black w-full lg:w-auto">{busy ? 'Saving…' : 'Save All Changes'}</button>
         </div>
 
         {/* Live preview */}
         <div className="space-y-6 lg:sticky lg:top-8 lg:self-start">
-          <div className="card overflow-hidden">
-            <p className="border-b border-line bg-satin/30 px-5 py-2.5 text-[10px] font-semibold uppercase tracking-widest text-ash">Live Preview</p>
+          <div className="rounded-2xl border border-neutral-200 bg-white overflow-hidden">
+            <p className="border-b border-neutral-200 bg-neutral-100 px-5 py-2.5 text-[10px] font-semibold uppercase tracking-widest text-neutral-500">Live Preview</p>
             {offer.enabled && (
-              <div className="flex items-center justify-center gap-2 bg-obsidian px-4 py-2 text-center text-[11px] text-alabaster">
+              <div className="flex items-center justify-center gap-2 bg-neutral-900 px-4 py-2 text-center text-[11px] text-white">
                 <Megaphone size={12} className="shrink-0 opacity-70" />
                 <span>{offer.messageEn}</span>
                 <span className="font-semibold underline underline-offset-2">{offer.ctaEn}</span>
@@ -372,26 +372,26 @@ export default function Content() {
               <div className="grid items-center gap-5 p-6 sm:grid-cols-2">
                 <div>
                   <p className="whitespace-pre-line font-sans text-2xl leading-tight">{hero.title}</p>
-                  <p className="mt-2 text-xs leading-relaxed text-ash">{hero.subtitle}</p>
+                  <p className="mt-2 text-xs leading-relaxed text-neutral-500">{hero.subtitle}</p>
                   <div className="mt-4 flex gap-2">
-                    <span className="btn-primary !px-3 !py-2 text-[11px]">{hero.ctaWomen} <ArrowRight size={11} /></span>
-                    <span className="btn-outline !px-3 !py-2 text-[11px]">{hero.ctaMen}</span>
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-4 py-2 text-[11px] font-semibold text-white hover:bg-black !px-3 !py-2 text-[11px]">{hero.ctaWomen} <ArrowRight size={11} /></span>
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-neutral-300 bg-white px-4 py-2 text-[11px] font-semibold text-neutral-700 hover:bg-neutral-50 !px-3 !py-2 text-[11px]">{hero.ctaMen}</span>
                   </div>
                 </div>
                 {hero.image
                   ? <img src={hero.image} alt="hero" className="h-44 w-full rounded-2xl object-cover" onError={(e) => { e.target.style.display = 'none'; }} />
-                  : <div className="flex h-44 items-center justify-center rounded-2xl bg-satin text-xs text-ash">Default hero image</div>}
+                  : <div className="flex h-44 items-center justify-center rounded-2xl bg-neutral-100 text-xs text-neutral-500">Default hero image</div>}
               </div>
             )}
             {marquee.enabled !== false && (marquee.items || []).filter(Boolean).length > 0 && (
-              <div className="overflow-hidden bg-obsidian py-2 text-alabaster">
+              <div className="overflow-hidden bg-neutral-900 py-2 text-white">
                 <p className="whitespace-nowrap text-center text-[10px] font-medium uppercase tracking-widest opacity-90">
                   {(marquee.items || []).filter(Boolean).join('   ✦   ')}
                 </p>
               </div>
             )}
           </div>
-          <p className="text-xs leading-relaxed text-ash">Preview sirf andaaze  — changes apply to the live site immediately after saving.</p>
+          <p className="text-xs leading-relaxed text-neutral-500">Preview sirf andaaze  — changes apply to the live site immediately after saving.</p>
         </div>
       </div>
 
@@ -401,9 +401,9 @@ export default function Content() {
           <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-neutral-100 text-neutral-700"><HelpCircle size={20} /></span>
           <div className="flex-1">
             <h2 className="font-sans text-lg">FAQ Page</h2>
-            <p className="mt-0.5 text-xs text-ash">The FAQ editor now lives on its own page for a calmer, less crowded experience.</p>
+            <p className="mt-0.5 text-xs text-neutral-500">The FAQ editor now lives on its own page for a calmer, less crowded experience.</p>
           </div>
-          <a href="/admin/faq" className="btn-outline text-xs">Manage FAQ →</a>
+          <a href="/admin/faq" className="inline-flex items-center gap-1.5 rounded-full border border-neutral-300 bg-white px-4 py-2 text-[11px] font-semibold text-neutral-700 hover:bg-neutral-50 text-xs">Manage FAQ →</a>
         </div>
       </div>
     </AdminLayout>

@@ -103,7 +103,7 @@ export default function Questions() {
       </div>
 
       {rows.length === 0 ? (
-        <div className="card p-16 text-center">
+        <div className="rounded-2xl border border-neutral-200 bg-white p-16 text-center">
           <p className="font-sans text-xl text-neutral-900">Nothing here yet</p>
           <p className="mt-2 text-sm text-neutral-500">
             {tab === 'pending' ? 'New customer questions land here for your approval.'
@@ -136,7 +136,7 @@ export default function Questions() {
           </div>
 
           {rows.map((q) => (
-            <div key={q._id} className="card p-5">
+            <div key={q._id} className="rounded-2xl border border-neutral-200 bg-white p-5">
               <div className="flex gap-3">
                 <input
                   type="checkbox" checked={selected.includes(q._id)} onChange={() => toggleOne(q._id)}
@@ -231,9 +231,9 @@ export default function Questions() {
 
               {replying === q._id && (
                 <div className="mt-4 border-t border-neutral-100 pt-4">
-                  <label className="label" htmlFor={`reply-${q._id}`}>Public answer from HUSHAE</label>
+                  <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500" htmlFor={`reply-${q._id}`}>Public answer from HUSHAE</label>
                   <textarea
-                    id={`reply-${q._id}`} rows={3} className="input" value={reply}
+                    id={`reply-${q._id}`} rows={3} className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={reply}
                     onChange={(e) => setReply(e.target.value)}
                     placeholder="It runs true to size — we'd suggest your usual…"
                   />

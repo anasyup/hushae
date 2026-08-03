@@ -212,7 +212,7 @@ function StatusDonut({ byStatus }) {
         <div className="mt-4 flex items-center gap-4">
           <div className="relative h-36 w-36 shrink-0">
             <ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={data} dataKey="value" innerRadius={42} outerRadius={64} paddingAngle={2} startAngle={90} endAngle={-270}>{data.map((d, i) => <Cell key={i} fill={d.color} />)}</Pie></PieChart></ResponsiveContainer>
-            <div className="pointer-events-none absolute inset-0 grid place-items-center text-center"><div><p className="font-sans text-2xl font-semibold tabular-nums leading-none text-neutral-900">{total}</p><p className="mt-1 text-[10px] uppercase tracking-widest text-neutral-500">Total</p></div></div>
+            <div className="pointer-events-none absolute inset-0 grid place-items-center text-center"><div><p className="font-sans text-2xl font-semibold tabular-nums leading-none text-neutral-900">{total}</p><p className="mt-1 text-[9px] uppercase tracking-wider text-neutral-500">Total</p></div></div>
           </div>
           <ul className="flex-1 space-y-1.5">{data.slice(0, 6).map((d) => <li key={d.name} className="flex items-center gap-2 text-[12px]"><span className="h-2 w-2 rounded-full" style={{ background: d.color }} /><span className="flex-1 text-neutral-600">{d.name}</span><span className="font-semibold tabular-nums text-neutral-900">{d.value}</span></li>)}</ul>
         </div>
@@ -272,7 +272,7 @@ export default function Dashboard() {
   const toggleDark = () => { setAdminTheme(dark ? 'light' : 'dark'); setDark(!dark); };
 
   if (err) return <AdminLayout title="Dashboard"><div className="mx-auto grid max-w-md place-items-center rounded-2xl border border-red-200 bg-red-50 p-10 text-center"><AlertTriangle size={22} className="mb-2 text-red-600" /><p className="text-sm text-red-700">{err}</p><button onClick={() => { setErr(''); load(); }} className="mt-4 rounded-full border border-red-300 bg-white px-4 py-1.5 text-[11px] font-semibold text-red-700 hover:bg-red-100">Try again</button></div></AdminLayout>;
-  if (!d) return <AdminLayout title="Dashboard"><div className="grid gap-4 md:grid-cols-5">{[1,2,3,4,5].map((i) => <div key={i} className="skeleton h-32 rounded-2xl" />)}</div><div className="mt-6 skeleton h-72 rounded-2xl" /></AdminLayout>;
+  if (!d) return <AdminLayout title="Dashboard"><div className="grid gap-4 md:grid-cols-5">{[1,2,3,4,5].map((i) => <div key={i} className="animate-pulse rounded-xl bg-neutral-100 h-32 rounded-2xl" />)}</div><div className="mt-6 skeleton h-72 rounded-2xl" /></AdminLayout>;
 
   const sparkRevenue = d.chart.map((x) => ({ v: x.revenue }));
   const sparkOrders = d.chart.map((x) => ({ v: x.orders }));

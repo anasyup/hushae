@@ -99,7 +99,7 @@ export default function CmsEdit() {
     try { return JSON.parse(original).slug !== p?.slug; } catch { return false; }
   }, [original, p?.slug, isNew]);
 
-  if (!p) return <AdminLayout title="Page"><div className="skeleton h-96 w-full" /></AdminLayout>;
+  if (!p) return <AdminLayout title="Page"><div className="animate-pulse rounded-xl bg-neutral-100 h-96 w-full" /></AdminLayout>;
 
   const t = typeOf(p.type);
   const set = (k, v) => setP({ ...p, [k]: v });
@@ -326,13 +326,13 @@ export default function CmsEdit() {
             description="Write it the way you would explain it to a customer standing in front of you. Leave a blank line between paragraphs."
           >
             <div>
-              <label className="label" htmlFor="cms-body">Page writing</label>
+              <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500" htmlFor="cms-body">Page writing</label>
               <textarea
                 id="cms-body" rows={18}
                 value={p.body || ''}
                 onChange={(e) => set('body', e.target.value)}
                 aria-describedby="cms-body-h"
-                className="input min-h-[320px] resize-y font-mono text-[13px] leading-relaxed"
+                className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 min-h-[320px] resize-y font-mono text-[13px] leading-relaxed"
                 placeholder={'Returns\n\nWe accept returns within 14 days of delivery, as long as the item is unworn and the tags are still attached.\n\nHow to start a return\n\nMessage us on WhatsApp with your order number.'}
               />
               <p id="cms-body-h" className="mt-1.5 text-[11px] leading-relaxed text-neutral-600">
@@ -349,12 +349,12 @@ export default function CmsEdit() {
 
           <Accordion title="Short summary" subtitle="Used in search results and when the link is shared">
             <div>
-              <label className="label" htmlFor="cms-excerpt">Summary</label>
+              <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500" htmlFor="cms-excerpt">Summary</label>
               <textarea
                 id="cms-excerpt" rows={3} value={p.excerpt || ''}
                 onChange={(e) => set('excerpt', e.target.value)}
                 aria-describedby="cms-excerpt-h"
-                className="input resize-y"
+                className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 resize-y"
                 placeholder="How to measure yourself and pick the right size."
                 maxLength={300}
               />

@@ -95,7 +95,7 @@ export default function Marketing() {
   if (loading) {
     return (
       <AdminLayout title="Marketing & Automation">
-        <div className="skeleton h-96 w-full" />
+        <div className="animate-pulse rounded-xl bg-neutral-100 h-96 w-full" />
       </AdminLayout>
     );
   }
@@ -195,10 +195,10 @@ export default function Marketing() {
               </label>
 
               <div className={auto.abandonedCart?.enabled ? '' : 'pointer-events-none opacity-40'}>
-                <label className="label">Timing: Send Email After (Hours)</label>
+                <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Timing: Send Email After (Hours)</label>
                 <input
                   type="number"
-                  className="input !w-32"
+                  className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !w-32"
                   min={1}
                   max={24}
                   value={auto.abandonedCart?.delayHours || 2}
@@ -234,10 +234,10 @@ export default function Marketing() {
               </label>
 
               <div className={auto.reviewRequest?.enabled ? '' : 'pointer-events-none opacity-40'}>
-                <label className="label">Timing: Send Email After (Days)</label>
+                <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Timing: Send Email After (Days)</label>
                 <input
                   type="number"
-                  className="input !w-32"
+                  className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !w-32"
                   min={1}
                   max={30}
                   value={auto.reviewRequest?.delayDays || 7}

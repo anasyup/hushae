@@ -238,7 +238,7 @@ export default function Promotions() {
           </div>
 
           {rows === null ? (
-            <div className="skeleton h-64 w-full" />
+            <div className="animate-pulse rounded-xl bg-neutral-100 h-64 w-full" />
           ) : !filtered.length ? (
             <Empty
               title={filter ? 'Nothing in this group' : 'No promotions yet'}

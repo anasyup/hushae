@@ -36,8 +36,8 @@ function Section({ title, description, children }) {
 function Text({ label, hint, value, onChange, ...rest }) {
   return (
     <div>
-      <label className="label">{label}</label>
-      <input className="input" value={value ?? ''} onChange={(e) => onChange(e.target.value)} {...rest} />
+      <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">{label}</label>
+      <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={value ?? ''} onChange={(e) => onChange(e.target.value)} {...rest} />
       {hint && <p className="mt-1.5 text-[11px] text-neutral-500">{hint}</p>}
     </div>
   );
@@ -59,7 +59,7 @@ export default function SettingsCheckout() {
       .catch(() => toast('Could not load settings'));
   }, []); // eslint-disable-line
 
-  if (!s) return <AdminLayout title="Checkout"><div className="skeleton h-96 w-full" /></AdminLayout>;
+  if (!s) return <AdminLayout title="Checkout"><div className="animate-pulse rounded-xl bg-neutral-100 h-96 w-full" /></AdminLayout>;
 
   const c = s.checkout;
   const set = (k, v) => setS({ ...s, checkout: { ...s.checkout, [k]: v } });
@@ -147,12 +147,12 @@ export default function SettingsCheckout() {
                 </div>
                 <div className="mt-3 grid gap-3 md:grid-cols-2">
                   <input
-                    className="input" value={m.note} placeholder="Short note, e.g. Pay the rider at your door"
+                    className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={m.note} placeholder="Short note, e.g. Pay the rider at your door"
                     onChange={(e) => setRow('paymentList', i, 'note', e.target.value)}
                     aria-label={`Note for ${m.id}`}
                   />
                   <input
-                    className="input" value={m.id} placeholder="Internal id"
+                    className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={m.id} placeholder="Internal id"
                     onChange={(e) => setRow('paymentList', i, 'id', e.target.value)}
                     aria-label={`Internal id for ${m.label || 'method'}`}
                   />
@@ -221,19 +221,19 @@ export default function SettingsCheckout() {
                 </div>
                 <div className="mt-3 grid gap-3 md:grid-cols-4">
                   <div className="md:col-span-4">
-                    <input className="input" value={m.note} placeholder="Short note" onChange={(e) => setRow('shippingMethods', i, 'note', e.target.value)} aria-label={`Note for ${m.id}`} />
+                    <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={m.note} placeholder="Short note" onChange={(e) => setRow('shippingMethods', i, 'note', e.target.value)} aria-label={`Note for ${m.id}`} />
                   </div>
                   <div>
-                    <label className="label">Charge (PKR)</label>
-                    <input className="input" type="number" min="0" value={m.rate} onChange={(e) => setRow('shippingMethods', i, 'rate', Number(e.target.value))} />
+                    <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Charge (PKR)</label>
+                    <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" type="number" min="0" value={m.rate} onChange={(e) => setRow('shippingMethods', i, 'rate', Number(e.target.value))} />
                   </div>
                   <div>
-                    <label className="label">Fastest (days)</label>
-                    <input className="input" type="number" min="0" value={m.minDays} onChange={(e) => setRow('shippingMethods', i, 'minDays', Number(e.target.value))} />
+                    <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Fastest (days)</label>
+                    <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" type="number" min="0" value={m.minDays} onChange={(e) => setRow('shippingMethods', i, 'minDays', Number(e.target.value))} />
                   </div>
                   <div>
-                    <label className="label">Slowest (days)</label>
-                    <input className="input" type="number" min="0" value={m.maxDays} onChange={(e) => setRow('shippingMethods', i, 'maxDays', Number(e.target.value))} />
+                    <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Slowest (days)</label>
+                    <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" type="number" min="0" value={m.maxDays} onChange={(e) => setRow('shippingMethods', i, 'maxDays', Number(e.target.value))} />
                   </div>
                   <div className="flex items-end pb-1">
                     <label className="flex items-center gap-2 text-[12px] text-neutral-700">
@@ -312,7 +312,7 @@ export default function SettingsCheckout() {
           <div className="space-y-4">
             <Text label="Heading" value={c.successTitle} onChange={(v) => set('successTitle', v)} />
             <div>
-              <label className="label">Message</label>
+              <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Message</label>
               <textarea className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 min-h-[80px]" value={c.successText} onChange={(e) => set('successText', e.target.value)} />
             </div>
             <Text label="Extra note (optional)" value={c.successNote} onChange={(v) => set('successNote', v)} hint="Appears in small text at the bottom." />

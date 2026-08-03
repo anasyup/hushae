@@ -52,7 +52,7 @@ function Toggle({ label, description, checked, onChange, disabled }) {
 
 /* MEASURED: reading the real accessibility tree of the shipped admin pages
  * showed 11 of 12 fields on /settings/reviews and 16 of 28 on /settings/cart
- * announce NO name at all — a <label className="label"> sitting next to an
+ * announce NO name at all — a <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500"> sitting next to an
  * input is only visually a label; without htmlFor nothing connects them, so a
  * screen-reader user hears "edit text, blank".
  *
@@ -63,9 +63,9 @@ const Num = ({ label, hint, value, onChange, disabled, ...rest }) => {
   const id = useId();
   return (
     <div>
-      <label className="label" htmlFor={id}>{label}</label>
+      <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500" htmlFor={id}>{label}</label>
       <input
-        id={id} className="input" type="number" value={value ?? 0} disabled={disabled}
+        id={id} className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" type="number" value={value ?? 0} disabled={disabled}
         aria-describedby={hint ? `${id}-h` : undefined}
         onChange={(e) => onChange(e.target.value === '' ? 0 : Number(e.target.value))}
         {...rest}
@@ -79,9 +79,9 @@ const Text = ({ label, hint, value, onChange, disabled, ...rest }) => {
   const id = useId();
   return (
     <div>
-      <label className="label" htmlFor={id}>{label}</label>
+      <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500" htmlFor={id}>{label}</label>
       <input
-        id={id} className="input" value={value ?? ''} disabled={disabled}
+        id={id} className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={value ?? ''} disabled={disabled}
         aria-describedby={hint ? `${id}-h` : undefined}
         onChange={(e) => onChange(e.target.value)} {...rest}
       />
@@ -94,9 +94,9 @@ const Select = ({ label, hint, value, onChange, options, disabled }) => {
   const id = useId();
   return (
     <div>
-      <label className="label" htmlFor={id}>{label}</label>
+      <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500" htmlFor={id}>{label}</label>
       <select
-        id={id} className="input" value={value ?? ''} disabled={disabled}
+        id={id} className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={value ?? ''} disabled={disabled}
         aria-describedby={hint ? `${id}-h` : undefined}
         onChange={(e) => onChange(e.target.value)}
       >
@@ -182,7 +182,7 @@ export default function SettingsLoyalty() {
 
   const dirty = useMemo(() => original && JSON.stringify(s) !== original, [s, original]);
 
-  if (!s) return <AdminLayout title="Loyalty & Rewards"><div className="skeleton h-96 w-full" /></AdminLayout>;
+  if (!s) return <AdminLayout title="Loyalty & Rewards"><div className="animate-pulse rounded-xl bg-neutral-100 h-96 w-full" /></AdminLayout>;
 
   const L = s.loyalty;
   const off = !L.enabled;
@@ -335,10 +335,10 @@ export default function SettingsLoyalty() {
         >
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <label className="label" htmlFor="loy-spend-per-point">Spend needed for 1 point (PKR)</label>
+              <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500" htmlFor="loy-spend-per-point">Spend needed for 1 point (PKR)</label>
               <input
                 id="loy-spend-per-point" aria-describedby="loy-spend-per-point-h"
-                className="input" type="number" min="1" max="100000" disabled={off}
+                className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" type="number" min="1" max="100000" disabled={off}
                 value={spendPerPoint}
                 onChange={(e) => {
                   const v = Number(e.target.value);
@@ -460,10 +460,10 @@ export default function SettingsLoyalty() {
                       <Num label="Points multiplier" value={t.multiplier} onChange={(v) => setTier(i, 'multiplier', v)} min="1" max="10" step="0.05" disabled={off || !L.tiers.enabled} />
                       <Num label="Member discount (%)" value={t.discountPercent} onChange={(v) => setTier(i, 'discountPercent', v)} min="0" max="90" disabled={off || !L.tiers.enabled} />
                       <div>
-                        <label className="label" htmlFor={`tier-colour-${i}`}>Badge colour</label>
+                        <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500" htmlFor={`tier-colour-${i}`}>Badge colour</label>
                         <div className="flex items-center gap-2">
                           <input id={`tier-colour-${i}`} type="color" aria-label={`${t.name || t.id} badge colour, colour picker`} className="h-10 w-14 cursor-pointer rounded-lg border border-neutral-300 bg-white p-1" value={t.colour || '#C9BFB4'} onChange={(e) => setTier(i, 'colour', e.target.value)} disabled={off || !L.tiers.enabled} />
-                          <input aria-label={`${t.name || t.id} badge colour, hex code`} className="input" value={t.colour || ''} onChange={(e) => setTier(i, 'colour', e.target.value)} disabled={off || !L.tiers.enabled} />
+                          <input aria-label={`${t.name || t.id} badge colour, hex code`} className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={t.colour || ''} onChange={(e) => setTier(i, 'colour', e.target.value)} disabled={off || !L.tiers.enabled} />
                         </div>
                       </div>
                     </div>
@@ -471,7 +471,7 @@ export default function SettingsLoyalty() {
                       <Toggle label="Free delivery for this tier" checked={t.freeShipping} onChange={(v) => setTier(i, 'freeShipping', v)} disabled={off || !L.tiers.enabled} />
                     </div>
                     <div className="mt-4">
-                      <label className="label" htmlFor={`tier-perks-${i}`}>Perks shown to the customer (one per line)</label>
+                      <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500" htmlFor={`tier-perks-${i}`}>Perks shown to the customer (one per line)</label>
                       <textarea
                         id={`tier-perks-${i}`}
                         className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 min-h-[88px]" disabled={off || !L.tiers.enabled}

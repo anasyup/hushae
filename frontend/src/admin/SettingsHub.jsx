@@ -175,7 +175,7 @@ export default function SettingsHub() {
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Search settings…"
-            className="input !w-72 !py-2.5 !pl-9 !text-[13px]"
+            className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !w-72 !py-2.5 !pl-9 !text-[13px]"
           />
         </div>
       </div>

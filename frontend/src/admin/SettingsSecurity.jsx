@@ -317,9 +317,9 @@ export default function SettingsSecurity() {
                   <span className="font-mono text-neutral-900">{auth?.user?.email || '—'}</span>
                 </div>
                 <div>
-                  <label className="label">New Username (Email)</label>
+                  <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">New Username (Email)</label>
                   <input
-                    className="input"
+                    className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900"
                     value={uNew}
                     onChange={(e) => setUNew(e.target.value)}
                     placeholder="e.g. admin@hushae.pk"
@@ -327,7 +327,7 @@ export default function SettingsSecurity() {
                   />
                 </div>
                 <div className="relative">
-                  <label className="label">Confirm with Current Password</label>
+                  <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Confirm with Current Password</label>
                   <input
                     className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 pr-10"
                     type={uShow ? 'text' : 'password'}
@@ -360,7 +360,7 @@ export default function SettingsSecurity() {
             >
               <form onSubmit={handlePasswordChange} className="space-y-4">
                 <div className="relative">
-                  <label className="label">Current Password</label>
+                  <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Current Password</label>
                   <input
                     className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 pr-10"
                     type={show.c ? 'text' : 'password'}
@@ -372,7 +372,7 @@ export default function SettingsSecurity() {
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="relative">
-                    <label className="label">New Password</label>
+                    <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">New Password</label>
                     <input
                       className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 pr-10"
                       type={show.n ? 'text' : 'password'}
@@ -383,7 +383,7 @@ export default function SettingsSecurity() {
                     {eyeBtn('n')}
                   </div>
                   <div className="relative">
-                    <label className="label">Confirm New Password</label>
+                    <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Confirm New Password</label>
                     <input
                       className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 pr-10"
                       type={show.x ? 'text' : 'password'}
@@ -429,9 +429,9 @@ export default function SettingsSecurity() {
               >
                 <form onSubmit={handleCreateUser} className="space-y-4">
                   <div>
-                    <label className="label">Full Name</label>
+                    <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Full Name</label>
                     <input
-                      className="input"
+                      className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900"
                       value={userForm.name}
                       onChange={(e) => setUserForm({ ...userForm, name: e.target.value })}
                       placeholder="e.g. Bilal Khan"
@@ -439,10 +439,10 @@ export default function SettingsSecurity() {
                     />
                   </div>
                   <div>
-                    <label className="label">Email Address (Username)</label>
+                    <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Email Address (Username)</label>
                     <input
                       type="email"
-                      className="input"
+                      className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900"
                       value={userForm.email}
                       onChange={(e) => setUserForm({ ...userForm, email: e.target.value })}
                       placeholder="e.g. bilal@hushae.pk"
@@ -450,10 +450,10 @@ export default function SettingsSecurity() {
                     />
                   </div>
                   <div>
-                    <label className="label">Initial Password</label>
+                    <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Initial Password</label>
                     <input
                       type="password"
-                      className="input"
+                      className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900"
                       value={userForm.password}
                       onChange={(e) => setUserForm({ ...userForm, password: e.target.value })}
                       placeholder="••••••••"
@@ -461,9 +461,9 @@ export default function SettingsSecurity() {
                     />
                   </div>
                   <div>
-                    <label className="label">Administrative Role</label>
+                    <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Administrative Role</label>
                     <select
-                      className="input"
+                      className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900"
                       value={userForm.role}
                       onChange={(e) => setUserForm({ ...userForm, role: e.target.value })}
                     >
@@ -576,7 +576,7 @@ export default function SettingsSecurity() {
             </div>
 
             {logsBusy ? (
-              <div className="skeleton h-64 w-full" />
+              <div className="animate-pulse rounded-xl bg-neutral-100 h-64 w-full" />
             ) : logs.length === 0 ? (
               <div className="text-center py-12 bg-neutral-50 rounded-xl border border-dashed text-neutral-500 text-sm">
                 No audit logs found matching the query.
@@ -648,7 +648,7 @@ export default function SettingsSecurity() {
             description="System flags indicators like double-submissions, new customers placing orders over 10K PKR, matching phone numbers with separate names, or duplicate addresses."
           >
             {fraudBusy ? (
-              <div className="skeleton h-64 w-full" />
+              <div className="animate-pulse rounded-xl bg-neutral-100 h-64 w-full" />
             ) : fraudOrders.length === 0 ? (
               <div className="text-center py-16 bg-neutral-50 border border-dashed rounded-2xl text-neutral-500">
                 <Check className="mx-auto text-emerald-500 mb-2" size={24} />

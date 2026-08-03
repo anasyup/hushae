@@ -294,7 +294,7 @@ export default function Finance() {
   }
   if (!summary) {
     return <AdminLayout title="Finance">
-      <div className="grid gap-4 md:grid-cols-3">{[1, 2, 3, 4, 5, 6].map((i) => <div key={i} className="skeleton h-32" />)}</div>
+      <div className="grid gap-4 md:grid-cols-3">{[1, 2, 3, 4, 5, 6].map((i) => <div key={i} className="animate-pulse rounded-xl bg-neutral-100 h-32" />)}</div>
     </AdminLayout>;
   }
 

@@ -94,7 +94,7 @@ export default function Customers() {
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="Search name, email, or phone…"
-              className="input !w-72 !py-2.5 !pl-9 !text-[13px]"
+              className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !w-72 !py-2.5 !pl-9 !text-[13px]"
             />
           </div>
           <div className="flex items-center gap-1 rounded-full border border-neutral-200 bg-white p-1">
@@ -121,12 +121,12 @@ export default function Customers() {
         <table className="w-full min-w-[880px]">
           <thead>
             <tr className="border-b border-neutral-200 bg-neutral-50/60">
-              <th className="table-head">Customer</th>
-              <th className="table-head">Contact</th>
-              <th className="table-head">Joined</th>
-              <th className="table-head">Orders</th>
-              <th className="table-head">Spent</th>
-              <th className="table-head" />
+              <th className="px-3 py-2 text-left text-[10px] font-bold uppercase text-neutral-400">Customer</th>
+              <th className="px-3 py-2 text-left text-[10px] font-bold uppercase text-neutral-400">Contact</th>
+              <th className="px-3 py-2 text-left text-[10px] font-bold uppercase text-neutral-400">Joined</th>
+              <th className="px-3 py-2 text-left text-[10px] font-bold uppercase text-neutral-400">Orders</th>
+              <th className="px-3 py-2 text-left text-[10px] font-bold uppercase text-neutral-400">Spent</th>
+              <th className="px-3 py-2 text-left text-[10px] font-bold uppercase text-neutral-400" />
             </tr>
           </thead>
           <tbody>
@@ -136,7 +136,7 @@ export default function Customers() {
                   className="cursor-pointer border-b border-neutral-100 transition hover:bg-neutral-50/70"
                   onClick={() => toggle(c.id)}
                 >
-                  <td className="table-cell">
+                  <td className="px-3 py-2 text-[12px]">
                     <div className="flex items-center gap-3">
                       <span className="grid h-10 w-10 place-items-center rounded-full bg-neutral-900 text-[12px] font-bold uppercase text-white">
                         {(c.name || '?').slice(0, 2).toUpperCase()}
@@ -151,7 +151,7 @@ export default function Customers() {
                       </div>
                     </div>
                   </td>
-                  <td className="table-cell">
+                  <td className="px-3 py-2 text-[12px]">
                     <p className="flex items-center gap-1.5 text-[12px] text-neutral-700">
                       <Mail size={11} className="text-neutral-400" /> {c.email}
                     </p>
@@ -160,7 +160,7 @@ export default function Customers() {
                     </p>
                   </td>
                   <td className="table-cell text-[12px] text-neutral-500">{fmtDate(c.createdAt)}</td>
-                  <td className="table-cell">
+                  <td className="px-3 py-2 text-[12px]">
                     <span className="inline-flex items-center rounded-full bg-neutral-100 px-2 py-0.5 text-[11px] font-bold text-neutral-800 tabular-nums">
                       {c.orders}
                     </span>
@@ -168,7 +168,7 @@ export default function Customers() {
                   <td className="table-cell font-sans font-semibold tabular-nums text-neutral-900">
                     {c.spent ? pkr(c.spent) : <span className="text-neutral-400">—</span>}
                   </td>
-                  <td className="table-cell">
+                  <td className="px-3 py-2 text-[12px]">
                     <ChevronDown size={14} className={`text-neutral-400 transition-transform ${open === c.id ? 'rotate-180' : ''}`} />
                   </td>
                 </tr>
@@ -190,7 +190,7 @@ export default function Customers() {
                             >
                               <span className="font-mono font-semibold text-neutral-900">{o.orderNumber}</span>
                               <span className="text-neutral-500">{fmtDate(o.createdAt)}</span>
-                              <span className="pill bg-neutral-100 text-neutral-700 justify-self-start">{o.status}</span>
+                              <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold bg-neutral-100 text-neutral-700 justify-self-start">{o.status}</span>
                               <b className="justify-self-end tabular-nums">{pkr(o.total)}</b>
                             </Link>
                           ))}
@@ -204,7 +204,7 @@ export default function Customers() {
           </tbody>
         </table>
 
-        {list === null && <div className="p-6"><div className="skeleton h-40" /></div>}
+        {list === null && <div className="p-6"><div className="animate-pulse rounded-xl bg-neutral-100 h-40" /></div>}
         {list?.length === 0 && (
           <div className="grid place-items-center py-16 text-center">
             <span className="grid h-14 w-14 place-items-center rounded-2xl bg-neutral-100 text-neutral-500">

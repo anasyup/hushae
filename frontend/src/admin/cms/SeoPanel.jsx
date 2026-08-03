@@ -106,13 +106,13 @@ export default function SeoPanel({ page, cfg, onChange, onChangeSeo }) {
 
         {/* ---- description ---- */}
         <div>
-          <label className="label" htmlFor="seo-desc">Search description</label>
+          <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500" htmlFor="seo-desc">Search description</label>
           <textarea
             id="seo-desc" rows={3}
             value={seo.description || ''}
             onChange={(e) => onChangeSeo('description', e.target.value.slice(0, DESC_MAX))}
             aria-describedby="seo-desc-h"
-            className="input resize-y"
+            className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 resize-y"
             placeholder={page.excerpt || 'How to measure yourself and choose the right size.'}
           />
           <p id="seo-desc-h" className="mt-1.5 flex flex-wrap items-center gap-2 text-[11px] leading-relaxed text-neutral-600">

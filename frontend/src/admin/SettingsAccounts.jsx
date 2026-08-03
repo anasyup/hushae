@@ -50,8 +50,8 @@ function Toggle({ label, description, checked, onChange, disabled }) {
 function Num({ label, hint, value, onChange, ...rest }) {
   return (
     <div>
-      <label className="label">{label}</label>
-      <input className="input" type="number" value={value ?? 0} onChange={(e) => onChange(Number(e.target.value))} {...rest} />
+      <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">{label}</label>
+      <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" type="number" value={value ?? 0} onChange={(e) => onChange(Number(e.target.value))} {...rest} />
       {hint && <p className="mt-1.5 text-[11px] text-neutral-500">{hint}</p>}
     </div>
   );
@@ -60,8 +60,8 @@ function Num({ label, hint, value, onChange, ...rest }) {
 function Text({ label, hint, value, onChange, ...rest }) {
   return (
     <div>
-      <label className="label">{label}</label>
-      <input className="input" value={value ?? ''} onChange={(e) => onChange(e.target.value)} {...rest} />
+      <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">{label}</label>
+      <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={value ?? ''} onChange={(e) => onChange(e.target.value)} {...rest} />
       {hint && <p className="mt-1.5 text-[11px] text-neutral-500">{hint}</p>}
     </div>
   );
@@ -86,7 +86,7 @@ export default function SettingsAccounts() {
     api('/auth/policy').then((p) => setMailReady(!!p.emailFeatures)).catch(() => setMailReady(false));
   }, []); // eslint-disable-line
 
-  if (!s) return <AdminLayout title="Customer Accounts"><div className="skeleton h-96 w-full" /></AdminLayout>;
+  if (!s) return <AdminLayout title="Customer Accounts"><div className="animate-pulse rounded-xl bg-neutral-100 h-96 w-full" /></AdminLayout>;
 
   const a = s.account;
   const set = (k, v) => setS({ ...s, account: { ...s.account, [k]: v } });

@@ -34,7 +34,7 @@ export default function MarketingSettings() {
   }, []); // eslint-disable-line
 
   const dirty = useMemo(() => original && JSON.stringify(s) !== original, [s, original]);
-  if (!s) return <AdminLayout title="Marketing"><div className="skeleton h-96 w-full" /></AdminLayout>;
+  if (!s) return <AdminLayout title="Marketing"><div className="animate-pulse rounded-xl bg-neutral-100 h-96 w-full" /></AdminLayout>;
 
   const M = s.marketing || {};
   const set = (k, v) => setS({ ...s, marketing: { ...M, [k]: v } });

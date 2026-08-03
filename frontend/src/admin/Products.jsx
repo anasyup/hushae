@@ -132,7 +132,7 @@ export default function Products() {
               value={f.q}
               onChange={(e) => setF({ ...f, q: e.target.value })}
               placeholder="Search name, SKU, category…"
-              className="input !w-72 !py-2.5 !pl-9 !text-[13px]"
+              className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !w-72 !py-2.5 !pl-9 !text-[13px]"
             />
           </div>
 
@@ -218,7 +218,7 @@ export default function Products() {
 
       {/* ============ CONTENT ============ */}
       {list === null ? (
-        <div className="skeleton h-64" />
+        <div className="animate-pulse rounded-xl bg-neutral-100 h-64" />
       ) : filtered.length === 0 ? (
         <EmptyState onClear={clearFilters} hasFilters={hasFilters} />
       ) : view === 'grid' ? (
@@ -374,13 +374,13 @@ function ListView({ products, selected, onToggleSel, onToggleAll, onEnable, onDi
             <th className="w-10 px-4 py-3 text-left">
               <input type="checkbox" checked={allSelected} onChange={onToggleAll} className="h-4 w-4 rounded accent-neutral-900" />
             </th>
-            <th className="table-head">Product</th>
-            <th className="table-head">SKU</th>
-            <th className="table-head">Tier</th>
-            <th className="table-head">Price</th>
-            <th className="table-head">Stock</th>
-            <th className="table-head">Status</th>
-            <th className="table-head" />
+            <th className="px-3 py-2 text-left text-[10px] font-bold uppercase text-neutral-400">Product</th>
+            <th className="px-3 py-2 text-left text-[10px] font-bold uppercase text-neutral-400">SKU</th>
+            <th className="px-3 py-2 text-left text-[10px] font-bold uppercase text-neutral-400">Tier</th>
+            <th className="px-3 py-2 text-left text-[10px] font-bold uppercase text-neutral-400">Price</th>
+            <th className="px-3 py-2 text-left text-[10px] font-bold uppercase text-neutral-400">Stock</th>
+            <th className="px-3 py-2 text-left text-[10px] font-bold uppercase text-neutral-400">Status</th>
+            <th className="px-3 py-2 text-left text-[10px] font-bold uppercase text-neutral-400" />
           </tr>
         </thead>
         <tbody>
@@ -389,7 +389,7 @@ function ListView({ products, selected, onToggleSel, onToggleAll, onEnable, onDi
               <td className="px-4 py-3">
                 <input type="checkbox" checked={selected.has(p._id)} onChange={() => onToggleSel(p._id)} className="h-4 w-4 rounded accent-neutral-900" />
               </td>
-              <td className="table-cell">
+              <td className="px-3 py-2 text-[12px]">
                 <Link to={`/admin/products/${p._id}`} className="group flex items-center gap-3">
                   <Img src={p.images[0]?.url} alt="" className="h-12 w-9 shrink-0 rounded-lg border border-neutral-200 object-cover" />
                   <div className="min-w-0">
@@ -403,21 +403,21 @@ function ListView({ products, selected, onToggleSel, onToggleAll, onEnable, onDi
                 </Link>
               </td>
               <td className="table-cell font-mono text-xs text-neutral-500">{p.sku}</td>
-              <td className="table-cell">
+              <td className="px-3 py-2 text-[12px]">
                 <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold ${p.tier === 'Premium' ? 'bg-neutral-900 text-white' : p.tier === 'Standard' ? 'bg-neutral-100 text-neutral-700' : 'bg-emerald-50 text-emerald-700'}`}>
                   {p.tier}
                 </span>
               </td>
-              <td className="table-cell">
+              <td className="px-3 py-2 text-[12px]">
                 <p className="font-semibold text-neutral-900">{pkr(p.price)}</p>
                 {/* v2 — sale windows: the was-price only shows while the sale
                     is genuinely switched on. */}
                 {p.onSale === true && p.compareAtPrice && <p className="text-[11px] text-neutral-400 line-through">{pkr(p.compareAtPrice)}</p>}
                 {p.onSale === true && <span className="mt-0.5 inline-block rounded-full bg-red-50 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-red-700 ring-1 ring-red-200">Sale</span>}
               </td>
-              <td className="table-cell"><StockPill n={p.stock} /></td>
-              <td className="table-cell"><StatusChip p={p} /></td>
-              <td className="table-cell">
+              <td className="px-3 py-2 text-[12px]"><StockPill n={p.stock} /></td>
+              <td className="px-3 py-2 text-[12px]"><StatusChip p={p} /></td>
+              <td className="px-3 py-2 text-[12px]">
                 <div className="flex items-center justify-end gap-1">
                   <Link to={`/admin/products/${p._id}`} className="rounded-lg p-2 text-neutral-500 transition hover:bg-neutral-100 hover:text-neutral-900" aria-label="Edit">
                     <Pencil size={13} />
@@ -580,7 +580,7 @@ function BulkEditModal({ count, onClose, onApply }) {
   };
 
   return (
-    <div className="fixed inset-0 z-[70] flex items-end justify-center bg-obsidian/60 px-4 py-6 backdrop-blur-sm sm:items-center" onClick={onClose}>
+    <div className="fixed inset-0 z-[70] flex items-end justify-center bg-neutral-900/60 px-4 py-6 backdrop-blur-sm sm:items-center" onClick={onClose}>
       <div className="w-full max-w-lg overflow-hidden rounded-3xl bg-white shadow-2xl" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between border-b border-neutral-200 px-6 py-4">
           <div>
@@ -632,7 +632,7 @@ function BulkEditModal({ count, onClose, onApply }) {
                   type="number"
                   value={numValue}
                   onChange={(e) => setNumValue(e.target.value)}
-                  className="input flex-1 !text-lg !font-semibold"
+                  className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 flex-1 !text-lg !font-semibold"
                   placeholder={
                     action === 'setStock' ? '50'
                     : action === 'stockDelta' ? '+50 or -10'

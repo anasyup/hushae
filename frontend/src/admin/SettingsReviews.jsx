@@ -43,16 +43,16 @@ function Toggle({ label, description, checked, onChange, disabled }) {
 
 const Num = ({ label, hint, value, onChange, ...rest }) => (
   <div>
-    <label className="label">{label}</label>
-    <input className="input" type="number" value={value ?? 0} onChange={(e) => onChange(Number(e.target.value))} {...rest} />
+    <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">{label}</label>
+    <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" type="number" value={value ?? 0} onChange={(e) => onChange(Number(e.target.value))} {...rest} />
     {hint && <p className="mt-1.5 text-[11px] text-neutral-500">{hint}</p>}
   </div>
 );
 
 const Text = ({ label, hint, value, onChange, ...rest }) => (
   <div>
-    <label className="label">{label}</label>
-    <input className="input" value={value ?? ''} onChange={(e) => onChange(e.target.value)} {...rest} />
+    <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">{label}</label>
+    <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={value ?? ''} onChange={(e) => onChange(e.target.value)} {...rest} />
     {hint && <p className="mt-1.5 text-[11px] text-neutral-500">{hint}</p>}
   </div>
 );
@@ -74,7 +74,7 @@ export default function SettingsReviews() {
     api('/reviews/admin/stats', { token: auth?.token }).then(setStats).catch(() => {});
   }, []); // eslint-disable-line
 
-  if (!s) return <AdminLayout title="Reviews"><div className="skeleton h-96 w-full" /></AdminLayout>;
+  if (!s) return <AdminLayout title="Reviews"><div className="animate-pulse rounded-xl bg-neutral-100 h-96 w-full" /></AdminLayout>;
 
   const r = s.reviews;
   const set = (k, v) => setS({ ...s, reviews: { ...r, [k]: v } });

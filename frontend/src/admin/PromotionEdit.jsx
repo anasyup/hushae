@@ -55,7 +55,7 @@ export default function PromotionEdit() {
 
   const dirty = useMemo(() => original && JSON.stringify(p) !== original, [p, original]);
 
-  if (!p) return <AdminLayout title="Promotion"><div className="skeleton h-96 w-full" /></AdminLayout>;
+  if (!p) return <AdminLayout title="Promotion"><div className="animate-pulse rounded-xl bg-neutral-100 h-96 w-full" /></AdminLayout>;
 
   const t = typeOf(p.type);
   const set = (k, v) => setP({ ...p, [k]: v });
@@ -238,9 +238,9 @@ export default function PromotionEdit() {
                 Paste the product IDs that make up the bundle, one per line. You can copy an ID
                 from the address bar on any product page in Inventory.
               </p>
-              <label className="label" htmlFor="bundle-ids">Products in the bundle</label>
+              <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500" htmlFor="bundle-ids">Products in the bundle</label>
               <textarea
-                id="bundle-ids" className="input min-h-[96px] font-mono text-[12px]"
+                id="bundle-ids" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 min-h-[96px] font-mono text-[12px]"
                 value={(p.bundle.productIds || []).join('\n')}
                 onChange={(e) => setG('bundle', 'productIds', e.target.value.split('\n').map((x) => x.trim()).filter(Boolean))}
               />
@@ -409,12 +409,12 @@ export default function PromotionEdit() {
 
               <div className="mt-4 grid gap-4 md:grid-cols-2">
                 <div>
-                  <label className="label" htmlFor="rec-from">From</label>
-                  <input id="rec-from" type="time" className="input" value={minToTime(p.recurring.startMin)} onChange={(e) => setG('recurring', 'startMin', timeToMin(e.target.value))} />
+                  <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500" htmlFor="rec-from">From</label>
+                  <input id="rec-from" type="time" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={minToTime(p.recurring.startMin)} onChange={(e) => setG('recurring', 'startMin', timeToMin(e.target.value))} />
                 </div>
                 <div>
-                  <label className="label" htmlFor="rec-to">Until</label>
-                  <input id="rec-to" type="time" className="input" value={minToTime(p.recurring.endMin)} onChange={(e) => setG('recurring', 'endMin', timeToMin(e.target.value))} />
+                  <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500" htmlFor="rec-to">Until</label>
+                  <input id="rec-to" type="time" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={minToTime(p.recurring.endMin)} onChange={(e) => setG('recurring', 'endMin', timeToMin(e.target.value))} />
                   <p className="mt-1.5 text-[11px] text-neutral-600">A window like 22:00 to 02:00 crosses midnight and is handled correctly.</p>
                 </div>
               </div>
@@ -457,9 +457,9 @@ export default function PromotionEdit() {
           )}
           {p.eligibility.audience === 'phones' && (
             <div className="mt-4">
-              <label className="label" htmlFor="elig-phones">Phone numbers, one per line</label>
+              <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500" htmlFor="elig-phones">Phone numbers, one per line</label>
               <textarea
-                id="elig-phones" className="input min-h-[96px] font-mono text-[12px]"
+                id="elig-phones" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 min-h-[96px] font-mono text-[12px]"
                 value={(p.eligibility.phones || []).join('\n')}
                 onChange={(e) => setG('eligibility', 'phones', e.target.value.split('\n').map((x) => x.trim()).filter(Boolean))}
               />
@@ -497,10 +497,10 @@ export default function PromotionEdit() {
           <div className="grid gap-4 md:grid-cols-2">
             <Text label="Badge text" value={p.badge.text} onChange={(v) => setG('badge', 'text', v)} hint="Short, e.g. “Eid offer”. Blank = no badge." />
             <div>
-              <label className="label" htmlFor="badge-colour">Badge colour</label>
+              <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500" htmlFor="badge-colour">Badge colour</label>
               <div className="flex items-center gap-2">
                 <input id="badge-colour" type="color" aria-label="Badge colour picker" className="h-11 w-14 cursor-pointer rounded-lg border border-neutral-300 bg-white p-1" value={p.badge.color || '#B3927E'} onChange={(e) => setG('badge', 'color', e.target.value)} />
-                <input aria-label="Badge colour hex code" className="input" value={p.badge.color || ''} onChange={(e) => setG('badge', 'color', e.target.value)} />
+                <input aria-label="Badge colour hex code" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={p.badge.color || ''} onChange={(e) => setG('badge', 'color', e.target.value)} />
               </div>
             </div>
           </div>

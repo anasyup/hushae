@@ -390,7 +390,7 @@ export default function ThemeEditor() {
   };
 
   if (!settings) {
-    return <div className="flex h-screen items-center justify-center bg-neutral-100"><div className="skeleton h-24 w-64" /></div>;
+    return <div className="flex h-screen items-center justify-center bg-neutral-100"><div className="animate-pulse rounded-xl bg-neutral-100 h-24 w-64" /></div>;
   }
 
   const activeDef = activeSection && FIELD_SCHEMA[activeSection.id];
@@ -677,9 +677,9 @@ function FieldControl({ field, value, onChange }) {
         )}
       </div>
 
-      {field.type === 'text' && <input className="input" value={v ?? ''} onChange={(e) => onChange(e.target.value)} />}
-      {field.type === 'textarea' && <textarea rows={4} className="input" value={v ?? ''} onChange={(e) => onChange(e.target.value)} />}
-      {field.type === 'number' && <input type="number" className="input" value={v ?? 0} onChange={(e) => onChange(Number(e.target.value) || 0)} />}
+      {field.type === 'text' && <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={v ?? ''} onChange={(e) => onChange(e.target.value)} />}
+      {field.type === 'textarea' && <textarea rows={4} className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={v ?? ''} onChange={(e) => onChange(e.target.value)} />}
+      {field.type === 'number' && <input type="number" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={v ?? 0} onChange={(e) => onChange(Number(e.target.value) || 0)} />}
 
       {field.type === 'toggle' && (
         <div className="flex items-center gap-2">
@@ -689,7 +689,7 @@ function FieldControl({ field, value, onChange }) {
       )}
 
       {field.type === 'select' && (
-        <select className="input" value={v ?? field.default ?? ''} onChange={(e) => onChange(e.target.value)}>
+        <select className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={v ?? field.default ?? ''} onChange={(e) => onChange(e.target.value)}>
           {field.options.map(([val, lb]) => <option key={String(val)} value={val}>{lb}</option>)}
         </select>
       )}
@@ -709,7 +709,7 @@ function FieldControl({ field, value, onChange }) {
         <div className="flex items-center gap-2">
           <input type="color" className="h-10 w-14 cursor-pointer rounded-lg border border-neutral-200"
             value={v || '#ffffff'} onChange={(e) => onChange(e.target.value)} />
-          <input className="input font-mono text-xs" placeholder="transparent"
+          <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 font-mono text-xs" placeholder="transparent"
             value={v || ''} onChange={(e) => onChange(e.target.value)} />
           {v ? (
             <button type="button" onClick={() => onChange('')} title="Clear"
@@ -724,7 +724,7 @@ function FieldControl({ field, value, onChange }) {
       )}
 
       {field.type === 'lines' && (
-        <textarea rows={4} className="input font-mono text-xs"
+        <textarea rows={4} className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 font-mono text-xs"
           value={Array.isArray(v) ? v.join('\n') : ''} onChange={(e) => onChange(e.target.value.split('\n'))} />
       )}
 
@@ -754,7 +754,7 @@ function MenuEditor({ items, onChange }) {
       {items.map((it, i) => (
         <div key={i} className="rounded-lg border border-neutral-200 p-2.5">
           <div className="flex items-center gap-1.5">
-            <input className="input !py-1.5 flex-1 text-sm" placeholder="Label"
+            <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !py-1.5 flex-1 text-sm" placeholder="Label"
               value={it.label || ''} onChange={(e) => set(i, 'label', e.target.value)} />
             <button onClick={() => move(i, -1)} disabled={i === 0} title="Move up"
               className="grid h-7 w-7 shrink-0 place-items-center rounded text-neutral-400 hover:bg-neutral-100 hover:text-neutral-900 disabled:opacity-25"><ArrowUp size={12} /></button>
@@ -765,12 +765,12 @@ function MenuEditor({ items, onChange }) {
           </div>
           <div className="mt-1.5 flex items-center gap-1.5">
             <Link2 size={12} className="shrink-0 text-neutral-400" />
-            <input className="input !py-1.5 flex-1 font-mono text-xs" placeholder="/link"
+            <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !py-1.5 flex-1 font-mono text-xs" placeholder="/link"
               value={it.href || ''} onChange={(e) => set(i, 'href', e.target.value)} />
           </div>
           {'dropdown' in it || it.dropdown !== undefined ? (
             <div className="mt-1.5 flex items-center gap-2">
-              <select className="input !py-1.5 flex-1 text-xs" value={it.dropdown || ''}
+              <select className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !py-1.5 flex-1 text-xs" value={it.dropdown || ''}
                 onChange={(e) => set(i, 'dropdown', e.target.value)}>
                 <option value="">No dropdown</option>
                 <option value="women">Women categories</option>
@@ -807,7 +807,7 @@ function ColumnsEditor({ cols, onChange }) {
       {cols.map((col, i) => (
         <div key={i} className="rounded-lg border border-neutral-200 p-3">
           <div className="flex items-center gap-1.5">
-            <input className="input !py-1.5 flex-1 text-sm font-semibold" placeholder="Column title"
+            <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !py-1.5 flex-1 text-sm font-semibold" placeholder="Column title"
               value={col.title || ''} onChange={(e) => setCol(i, { title: e.target.value })} />
             <button onClick={() => moveCol(i, -1)} disabled={i === 0} title="Move left"
               className="grid h-7 w-7 shrink-0 place-items-center rounded text-neutral-400 hover:bg-neutral-100 disabled:opacity-25"><ArrowUp size={12} /></button>
@@ -819,9 +819,9 @@ function ColumnsEditor({ cols, onChange }) {
           <div className="mt-2 space-y-1.5 border-l-2 border-neutral-100 pl-2.5">
             {(col.links || []).map((l, j) => (
               <div key={j} className="flex items-center gap-1.5">
-                <input className="input !py-1 flex-1 text-xs" placeholder="Label" value={l.label || ''}
+                <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !py-1 flex-1 text-xs" placeholder="Label" value={l.label || ''}
                   onChange={(e) => setCol(i, { links: col.links.map((x, k) => (k === j ? { ...x, label: e.target.value } : x)) })} />
-                <input className="input !py-1 flex-1 font-mono text-[11px]" placeholder="/link" value={l.href || ''}
+                <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !py-1 flex-1 font-mono text-[11px]" placeholder="/link" value={l.href || ''}
                   onChange={(e) => setCol(i, { links: col.links.map((x, k) => (k === j ? { ...x, href: e.target.value } : x)) })} />
                 <button onClick={() => setCol(i, { links: col.links.filter((_, k) => k !== j) })}
                   className="grid h-6 w-6 shrink-0 place-items-center rounded text-neutral-400 hover:bg-red-50 hover:text-red-600"><X size={11} /></button>

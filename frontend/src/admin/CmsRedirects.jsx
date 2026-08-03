@@ -188,7 +188,7 @@ export default function CmsRedirects() {
       </div>
 
       {rows === null ? (
-        <div className="skeleton h-48 w-full" />
+        <div className="animate-pulse rounded-xl bg-neutral-100 h-48 w-full" />
       ) : !rows.length ? (
         <Empty
           title="No notes yet"

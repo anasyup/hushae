@@ -17,7 +17,7 @@ export default function AdminFaq() {
 
   useEffect(() => { api('/settings').then((d) => setS(d.settings)).catch(() => toast('Could not load settings')); }, []); // eslint-disable-line
 
-  if (!s) return <AdminLayout title="FAQ"><div className="skeleton h-64 w-full" /></AdminLayout>;
+  if (!s) return <AdminLayout title="FAQ"><div className="animate-pulse rounded-xl bg-neutral-100 h-64 w-full" /></AdminLayout>;
 
   const faq = s.faq || { enabled: true, heading: 'Frequently Asked Questions', subheading: '', items: [] };
   const setFaq = (k, v) => setS({ ...s, faq: { ...faq, [k]: v } });
@@ -55,7 +55,7 @@ export default function AdminFaq() {
     <AdminLayout title="FAQ">
     <div className="space-y-6">
       {/* Header */}
-      <div className="card p-6">
+      <div className="rounded-2xl border border-neutral-200 bg-white p-6">
         <div className="flex items-start gap-4">
           <span className="grid h-12 w-12 place-items-center rounded-xl bg-neutral-900 text-white">
             <HelpCircle size={22} />
@@ -75,28 +75,28 @@ export default function AdminFaq() {
               onChange={(e) => setFaq('enabled', e.target.checked)}
             />
             <span className="text-xs font-semibold text-neutral-600">FAQ page live</span>
-            <div className="relative h-6 w-11 rounded-full bg-satin transition peer-checked:bg-sage after:absolute after:left-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:bg-white after:transition peer-checked:after:translate-x-5" />
+            <div className="relative h-6 w-11 rounded-full bg-neutral-100 transition peer-checked:bg-emerald-50 after:absolute after:left-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:bg-white after:transition peer-checked:after:translate-x-5" />
           </label>
         </div>
       </div>
 
       {/* Page heading */}
-      <div className="card p-6">
+      <div className="rounded-2xl border border-neutral-200 bg-white p-6">
         <h2 className="font-sans text-base font-semibold text-neutral-900">Page headings</h2>
         <div className="mt-4 grid gap-4 md:grid-cols-2">
           <div>
-            <label className="label">Main heading</label>
+            <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Main heading</label>
             <input
-              className="input"
+              className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900"
               value={faq.heading || ''}
               onChange={(e) => setFaq('heading', e.target.value)}
               placeholder="Frequently Asked Questions"
             />
           </div>
           <div>
-            <label className="label">Sub-heading (optional)</label>
+            <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Sub-heading (optional)</label>
             <input
-              className="input"
+              className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900"
               value={faq.subheading || ''}
               onChange={(e) => setFaq('subheading', e.target.value)}
               placeholder="Sizing, shipping, returns…"
@@ -106,7 +106,7 @@ export default function AdminFaq() {
       </div>
 
       {/* Items */}
-      <div className="card p-6">
+      <div className="rounded-2xl border border-neutral-200 bg-white p-6">
         <div className="flex items-center justify-between">
           <h2 className="font-sans text-base font-semibold text-neutral-900">Questions</h2>
           <button onClick={addItem} className="inline-flex items-center gap-1.5 rounded-lg bg-neutral-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-black">
@@ -138,13 +138,13 @@ export default function AdminFaq() {
                   </div>
                 </div>
                 <input
-                  className="input mb-2 font-semibold"
+                  className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 mb-2 font-semibold"
                   placeholder="Question — e.g. How do I choose the right size?"
                   value={it.question || ''}
                   onChange={(e) => setItem(i, 'question', e.target.value)}
                 />
                 <textarea
-                  className="input min-h-24"
+                  className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 min-h-24"
                   placeholder="Answer — line breaks are supported."
                   value={it.answer || ''}
                   onChange={(e) => setItem(i, 'answer', e.target.value)}

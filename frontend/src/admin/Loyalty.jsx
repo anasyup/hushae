@@ -125,13 +125,13 @@ function AdjustDialog({ account, onClose, onDone }) {
           </div>
 
           <div className="mb-4">
-            <label className="label" htmlFor="adj-amount">Amount {kind === 'credit' ? '(PKR)' : '(points)'}</label>
-            <input id="adj-amount" className="input" type="number" min="1" inputMode="numeric" value={amount} onChange={(e) => setAmount(e.target.value)} />
+            <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500" htmlFor="adj-amount">Amount {kind === 'credit' ? '(PKR)' : '(points)'}</label>
+            <input id="adj-amount" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" type="number" min="1" inputMode="numeric" value={amount} onChange={(e) => setAmount(e.target.value)} />
           </div>
 
           <div className="mb-4">
-            <label className="label" htmlFor="adj-note">Reason</label>
-            <textarea id="adj-note" className="input min-h-[76px]" maxLength={200} value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g. Goodwill for late delivery on HS-20260712-004521" />
+            <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500" htmlFor="adj-note">Reason</label>
+            <textarea id="adj-note" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 min-h-[76px]" maxLength={200} value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g. Goodwill for late delivery on HS-20260712-004521" />
             <p className="mt-1.5 text-[11px] text-neutral-500">Saved against your name in the ledger, forever.</p>
           </div>
 
@@ -198,7 +198,7 @@ function MemberPanel({ id, onClose, onChanged }) {
         </div>
 
         <div className="min-h-0 flex-1 overflow-y-auto p-5">
-          {!data ? <div className="skeleton h-64 w-full" /> : (
+          {!data ? <div className="animate-pulse rounded-xl bg-neutral-100 h-64 w-full" /> : (
             <>
               {a.blocked && (
                 <p role="alert" className="mb-4 rounded-xl bg-red-50 px-4 py-3 text-[12px] font-medium text-red-700">
@@ -325,16 +325,16 @@ function NewCardDialog({ onClose, onDone }) {
         ) : (
           <form onSubmit={submit}>
             <div className="mb-4">
-              <label className="label" htmlFor="gc-amount">Amount (PKR)</label>
-              <input id="gc-amount" className="input" type="number" min="1" inputMode="numeric" value={amount} onChange={(e) => setAmount(e.target.value)} />
+              <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500" htmlFor="gc-amount">Amount (PKR)</label>
+              <input id="gc-amount" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" type="number" min="1" inputMode="numeric" value={amount} onChange={(e) => setAmount(e.target.value)} />
             </div>
             <div className="mb-4">
-              <label className="label" htmlFor="gc-label">Label (only you see this)</label>
-              <input id="gc-label" className="input" maxLength={80} value={label} onChange={(e) => setLabel(e.target.value)} placeholder="e.g. Eid giveaway" />
+              <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500" htmlFor="gc-label">Label (only you see this)</label>
+              <input id="gc-label" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" maxLength={80} value={label} onChange={(e) => setLabel(e.target.value)} placeholder="e.g. Eid giveaway" />
             </div>
             <div className="mb-4">
-              <label className="label" htmlFor="gc-to">Issued to (optional)</label>
-              <input id="gc-to" className="input" maxLength={120} value={issuedTo} onChange={(e) => setIssuedTo(e.target.value)} placeholder="Phone or email" />
+              <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500" htmlFor="gc-to">Issued to (optional)</label>
+              <input id="gc-to" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" maxLength={120} value={issuedTo} onChange={(e) => setIssuedTo(e.target.value)} placeholder="Phone or email" />
             </div>
             {err && <p role="alert" className="mb-3 rounded-lg bg-red-50 px-3 py-2 text-[12px] font-medium text-red-700">{err}</p>}
             <div className="flex gap-2">
@@ -480,17 +480,17 @@ export default function AdminLoyalty() {
             <div className="relative min-w-0 flex-1 sm:max-w-xs">
               <Search size={15} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" aria-hidden="true" />
               <input
-                className="input pl-9" type="search" value={q} onChange={(e) => setQ(e.target.value)}
+                className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 pl-9" type="search" value={q} onChange={(e) => setQ(e.target.value)}
                 placeholder="Search name, phone, email or code" aria-label="Search members"
               />
             </div>
             {tiers.length > 0 && (
-              <select className="input max-w-[160px]" value={tier} onChange={(e) => setTier(e.target.value)} aria-label="Filter by tier">
+              <select className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 max-w-[160px]" value={tier} onChange={(e) => setTier(e.target.value)} aria-label="Filter by tier">
                 <option value="">All tiers</option>
                 {tiers.map((t) => <option key={t} value={t}>{t}</option>)}
               </select>
             )}
-            <select className="input max-w-[180px]" value={sort} onChange={(e) => setSort(e.target.value)} aria-label="Sort members">
+            <select className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 max-w-[180px]" value={sort} onChange={(e) => setSort(e.target.value)} aria-label="Sort members">
               <option value="points">Most points</option>
               <option value="spend">Highest spend</option>
               <option value="recent">Recently active</option>
@@ -498,9 +498,9 @@ export default function AdminLoyalty() {
           </div>
 
           {rows === null ? (
-            <div className="skeleton h-64 w-full" />
+            <div className="animate-pulse rounded-xl bg-neutral-100 h-64 w-full" />
           ) : rows.length === 0 ? (
-            <div className="card p-12 text-center">
+            <div className="rounded-2xl border border-neutral-200 bg-white p-12 text-center">
               <p className="font-sans text-xl text-neutral-900">{q || tier ? 'Nothing matched' : 'No members yet'}</p>
               <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-neutral-500">
                 {q || tier
@@ -594,9 +594,9 @@ export default function AdminLoyalty() {
           </button>
 
           {cards === null ? (
-            <div className="skeleton h-48 w-full" />
+            <div className="animate-pulse rounded-xl bg-neutral-100 h-48 w-full" />
           ) : cards.length === 0 ? (
-            <div className="card p-12 text-center">
+            <div className="rounded-2xl border border-neutral-200 bg-white p-12 text-center">
               <p className="font-sans text-xl text-neutral-900">No gift cards yet</p>
               <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-neutral-500">
                 Create one for a giveaway, an apology, or a customer who wants to buy a present.

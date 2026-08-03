@@ -87,7 +87,7 @@ export default function MarketingAnalytics() {
         </div>
         <div className="flex flex-wrap gap-2">
           <label htmlFor="ma-days" className="sr-only">Time period</label>
-          <select id="ma-days" value={days} onChange={(e) => setDays(Number(e.target.value))} className="input min-h-[44px] max-w-[150px]">
+          <select id="ma-days" value={days} onChange={(e) => setDays(Number(e.target.value))} className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 min-h-[44px] max-w-[150px]">
             <option value={7}>Last 7 days</option>
             <option value={30}>Last 30 days</option>
             <option value={90}>Last 90 days</option>
@@ -113,7 +113,7 @@ export default function MarketingAnalytics() {
       </div>
 
       {loading && !d ? (
-        <div className="skeleton h-96 w-full" />
+        <div className="animate-pulse rounded-xl bg-neutral-100 h-96 w-full" />
       ) : (
         <div className="space-y-5">
           {d?.uses === 0 && (

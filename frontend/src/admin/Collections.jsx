@@ -39,7 +39,7 @@ export default function Collections() {
     catch (ex) { toast(ex.message); }
   };
 
-  if (!list) return <AdminLayout title="Collections"><div className="skeleton h-64" /></AdminLayout>;
+  if (!list) return <AdminLayout title="Collections"><div className="animate-pulse rounded-xl bg-neutral-100 h-64" /></AdminLayout>;
 
   return (
     <AdminLayout title="Collections">
@@ -177,7 +177,7 @@ function CollectionEditor({ collection, onClose, onSaved }) {
   };
 
   return (
-    <div className="fixed inset-0 z-[70] flex items-end justify-center bg-obsidian/60 px-4 py-6 backdrop-blur-sm sm:items-center" onClick={onClose}>
+    <div className="fixed inset-0 z-[70] flex items-end justify-center bg-neutral-900/60 px-4 py-6 backdrop-blur-sm sm:items-center" onClick={onClose}>
       <div className="w-full max-w-3xl overflow-hidden rounded-3xl bg-white shadow-2xl" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
         <div className="flex items-center justify-between border-b border-neutral-200 px-6 py-4">
@@ -192,19 +192,19 @@ function CollectionEditor({ collection, onClose, onSaved }) {
           {/* Basic info */}
           <div className="mb-5 grid gap-4 md:grid-cols-2">
             <div>
-              <label className="label">Name *</label>
-              <input className="input" value={c.name} onChange={(e) => set('name', e.target.value)} placeholder="Wedding Season" />
+              <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Name *</label>
+              <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={c.name} onChange={(e) => set('name', e.target.value)} placeholder="Wedding Season" />
             </div>
             <div>
-              <label className="label">URL slug</label>
-              <input className="input font-mono text-xs" value={c.slug} onChange={(e) => set('slug', e.target.value)} placeholder="wedding-season (auto if blank)" />
+              <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">URL slug</label>
+              <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 font-mono text-xs" value={c.slug} onChange={(e) => set('slug', e.target.value)} placeholder="wedding-season (auto if blank)" />
             </div>
             <div className="md:col-span-2">
-              <label className="label">Description</label>
-              <textarea className="input min-h-20" value={c.description} onChange={(e) => set('description', e.target.value)} placeholder="Short intro shown on the collection page…" />
+              <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Description</label>
+              <textarea className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 min-h-20" value={c.description} onChange={(e) => set('description', e.target.value)} placeholder="Short intro shown on the collection page…" />
             </div>
             <div className="md:col-span-2">
-              <label className="label">Banner image</label>
+              <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Banner image</label>
               <MediaPicker value={c.image} onChange={(v) => set('image', v)} accept="image" hideUrl />
               <p className="mt-1 text-[11px] text-neutral-500">Recommended 16:9 landscape.</p>
             </div>
@@ -225,7 +225,7 @@ function CollectionEditor({ collection, onClose, onSaved }) {
             {c.smart.enabled && (
               <div className="space-y-3">
                 <div>
-                  <label className="label">Any of these tags</label>
+                  <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Any of these tags</label>
                   <div className="rounded-xl border border-neutral-200 bg-white p-2">
                     <div className="flex flex-wrap gap-1.5">
                       {(c.smart.tags || []).map((t, i) => (
@@ -255,15 +255,15 @@ function CollectionEditor({ collection, onClose, onSaved }) {
                 </div>
                 <div className="grid gap-3 md:grid-cols-3">
                   <div>
-                    <label className="label">Category</label>
-                    <select className="input" value={c.smart.category} onChange={(e) => setSmart('category', e.target.value)}>
+                    <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Category</label>
+                    <select className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={c.smart.category} onChange={(e) => setSmart('category', e.target.value)}>
                       <option value="">Any</option>
                       {cats.map((k) => <option key={k.slug} value={k.slug}>{k.name}</option>)}
                     </select>
                   </div>
                   <div>
-                    <label className="label">Tier</label>
-                    <select className="input" value={c.smart.tier} onChange={(e) => setSmart('tier', e.target.value)}>
+                    <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Tier</label>
+                    <select className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={c.smart.tier} onChange={(e) => setSmart('tier', e.target.value)}>
                       <option value="">Any</option>
                       <option value="Economy">Economy</option>
                       <option value="Standard">Standard</option>
@@ -271,8 +271,8 @@ function CollectionEditor({ collection, onClose, onSaved }) {
                     </select>
                   </div>
                   <div>
-                    <label className="label">Gender</label>
-                    <select className="input" value={c.smart.gender} onChange={(e) => setSmart('gender', e.target.value)}>
+                    <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Gender</label>
+                    <select className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={c.smart.gender} onChange={(e) => setSmart('gender', e.target.value)}>
                       <option value="">Any</option>
                       <option value="women">Women</option>
                       <option value="men">Men</option>
@@ -295,7 +295,7 @@ function CollectionEditor({ collection, onClose, onSaved }) {
             </div>
             <div className="mb-2 relative">
               <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
-              <input className="input !py-2 !pl-9 !text-[12px]" placeholder="Search products by name, SKU or category" value={productSearch} onChange={(e) => setProductSearch(e.target.value)} />
+              <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !py-2 !pl-9 !text-[12px]" placeholder="Search products by name, SKU or category" value={productSearch} onChange={(e) => setProductSearch(e.target.value)} />
             </div>
             <div className="max-h-64 overflow-y-auto rounded-xl border border-neutral-200 bg-white">
               {filteredProducts.map((p) => {
@@ -338,8 +338,8 @@ function CollectionEditor({ collection, onClose, onSaved }) {
               <input type="checkbox" checked={c.isActive !== false} onChange={(e) => set('isActive', e.target.checked)} className="h-4 w-4 accent-neutral-900" />
             </label>
             <div>
-              <label className="label">Sort order</label>
-              <input type="number" className="input !py-2 !text-[12px]" value={c.sortOrder ?? 100} onChange={(e) => set('sortOrder', Number(e.target.value) || 100)} />
+              <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Sort order</label>
+              <input type="number" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !py-2 !text-[12px]" value={c.sortOrder ?? 100} onChange={(e) => set('sortOrder', Number(e.target.value) || 100)} />
             </div>
           </div>
         </div>

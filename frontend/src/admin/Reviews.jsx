@@ -101,7 +101,7 @@ export default function Reviews() {
       </div>
 
       {rows.length === 0 ? (
-        <div className="card p-16 text-center">
+        <div className="rounded-2xl border border-neutral-200 bg-white p-16 text-center">
           <p className="font-sans text-xl text-neutral-900">Nothing here yet</p>
           <p className="mt-2 text-sm text-neutral-500">
             {tab === 'pending' ? 'When a customer writes a review it will land here for your approval.' :
@@ -134,7 +134,7 @@ export default function Reviews() {
           </div>
 
           {rows.map(r => (
-            <div key={r._id} className="card p-5">
+            <div key={r._id} className="rounded-2xl border border-neutral-200 bg-white p-5">
               <div className="flex flex-col justify-between gap-3 md:flex-row">
                 <div className="flex flex-1 gap-3">
                   <input
@@ -197,8 +197,8 @@ export default function Reviews() {
 
               {replying === r._id && (
                 <div className="mt-4 border-t border-neutral-100 pt-4">
-                  <label className="label">Public reply from HUSHAE</label>
-                  <textarea rows={3} className="input" value={reply} onChange={(e) => setReply(e.target.value)}
+                  <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Public reply from HUSHAE</label>
+                  <textarea rows={3} className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={reply} onChange={(e) => setReply(e.target.value)}
                     placeholder="Thanks for the feedback — we're glad the fit worked out…" />
                   <div className="mt-2 flex justify-end gap-2">
                     <button onClick={() => setReplying(null)} className="rounded-lg bg-white px-3 py-1.5 text-xs font-semibold ring-1 ring-neutral-200">Cancel</button>

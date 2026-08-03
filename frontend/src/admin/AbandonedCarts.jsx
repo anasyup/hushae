@@ -68,7 +68,7 @@ export default function AbandonedCarts() {
     catch (ex) { toast(ex.message); }
   };
 
-  if (!data) return <AdminLayout title="Abandoned Carts"><div className="skeleton h-64 rounded-2xl" /></AdminLayout>;
+  if (!data) return <AdminLayout title="Abandoned Carts"><div className="animate-pulse rounded-xl bg-neutral-100 h-64 rounded-2xl" /></AdminLayout>;
   const s = data.stats || {};
   const carts = data.carts || [];
   const filtered = q.trim() ? carts.filter((c) => (c.name || '').toLowerCase().includes(q.toLowerCase()) || (c.email || '').toLowerCase().includes(q.toLowerCase()) || (c.phone || '').includes(q)) : carts;
@@ -101,7 +101,7 @@ export default function AbandonedCarts() {
           </div>
           <div className="relative">
             <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400" />
-            <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search name, email, phone…" className="input !w-56 !py-2 !pl-9 !text-[13px]" />
+            <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search name, email, phone…" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !w-56 !py-2 !pl-9 !text-[13px]" />
           </div>
         </div>
         {status === 'open' && carts.length > 0 && (
