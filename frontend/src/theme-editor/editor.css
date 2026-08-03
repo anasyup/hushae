@@ -74,7 +74,7 @@ textarea.te-input { height: auto; padding: 12px 14px; }
 .te-flash { animation: te-flash 1s ease-out; }
 
 /* ── Editor chrome ────────────────────────────────────────────────────── */
-.te-shell { font-family: Inter, system-ui, -apple-system, sans-serif; }
+.te-shell { font-family: 'Helvetica Neue', Helvetica, Arial, system-ui, sans-serif; }
 .te-scroll { scrollbar-width: thin; scrollbar-color: #d4d4d4 transparent; }
 .te-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
 .te-scroll::-webkit-scrollbar-thumb { background: #d4d4d4; border-radius: 999px; }
@@ -96,7 +96,7 @@ textarea.te-input { height: auto; padding: 12px 14px; }
 }
 
 /* ── On-canvas chrome (inside the preview iframe) ─────────────────────── */
-.te-overlay { font-family: Inter, system-ui, sans-serif; }
+.te-overlay { font-family: 'Helvetica Neue', Helvetica, Arial, system-ui, sans-serif; }
 /* Never let the storefront's own styles bleed into the toolbar */
 .te-overlay * { box-sizing: border-box; }
 /* Section being dragged fades out so the drop indicator reads clearly */

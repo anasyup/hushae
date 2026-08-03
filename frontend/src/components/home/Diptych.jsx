@@ -139,7 +139,7 @@ export default function Diptych({ plates = PLATES }) {
                 breaks land the same way at every width. */}
             <div className="absolute inset-x-0 bottom-0 px-7 pb-9 md:px-10 md:pb-12 xl:px-14 xl:pb-16">
               <p className="text-label uppercase tracking-[0.24em] text-alabaster/80">{pl.eyebrow}</p>
-              <h2 className="mt-4 whitespace-pre-line font-serif text-h1 font-light italic leading-[0.98] text-alabaster">
+              <h2 className="mt-4 whitespace-pre-line font-display text-h1 font-light uppercase tracking-[0.04em] leading-[0.98] text-alabaster">
                 {pl.title}
               </h2>
               <p className="mt-4 max-w-[38ch] text-body-sm leading-[1.6] text-alabaster/85">

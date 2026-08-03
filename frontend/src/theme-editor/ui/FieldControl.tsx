@@ -229,8 +229,9 @@ function ColorInput({ value, onChange }: { value: string; onChange: (v: string) 
 
 /* ── Font ───────────────────────────────────────────────────────────────── */
 const FONTS = [
-  'Inter', 'Cormorant Garamond', 'Playfair Display', 'DM Sans', 'Poppins', 'Montserrat',
-  'Lora', 'Libre Baskerville', 'Work Sans', 'Space Grotesk', 'Jost', 'Karla', 'Georgia', 'Helvetica Neue',
+  'Family Klein', 'Helvetica Neue', 'Helvetica', 'Arial', 'Inter',
+  'Montserrat', 'Cormorant Garamond', 'Playfair Display', 'DM Sans', 'Poppins',
+  'Lora', 'Libre Baskerville', 'Work Sans', 'Space Grotesk', 'Jost', 'Karla', 'Georgia',
 ];
 
 function FontPicker({ value, onChange }: { value: string; onChange: (v: string) => void }) {

@@ -136,7 +136,7 @@ const FIELD_SCHEMA = {
     { key: 'title',          label: 'Title (multi-line)', type: 'textarea' },
     { key: 'subtitle',       label: 'Subtitle',           type: 'textarea' },
     { key: 'textColor',      label: 'Text colour',        type: 'color', default: '#F7F5F1' },
-    { key: 'titleFont',      label: 'Title font',         type: 'select', options: [['display', 'Serif (Cormorant)'], ['sans', 'Sans (Inter)']], default: 'display' },
+    { key: 'titleFont',      label: 'Title font',         type: 'select', options: [['display', 'Helvetica (CK)'], ['sans', 'Helvetica (CK)']], default: 'display' },
     { key: 'textShadow',     label: 'Text soft glow',     type: 'toggle', default: true },
     { key: 'overlayOpacity', label: 'Image overlay',      type: 'range', min: 0, max: 80, default: 25, unit: '%' },
     { key: 'leftImage',      label: 'Left image (Women)', type: 'media', accept: 'image' },

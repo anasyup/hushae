@@ -47,13 +47,13 @@ export default {
         clay:      '#B3927E',   // rare warm accent (badges, sale)
       },
       fontFamily: {
-        // Luxury fashion system (LV / CK / Gucci / Nike register):
-        //   sans    → Inter  (Helvetica-style neutral — Calvin Klein body/UI)
-        //   display → Jost   (Futura-style geometric sans — LV + Nike DNA)
-        //   serif   → Cormorant Garamond (Didot-style editorial — Gucci accent)
-        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        display: ['"Jost"', '"Montserrat"', '"Inter"', 'ui-sans-serif', 'sans-serif'],
-        serif: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+        // Calvin Klein type system — the whole storefront speaks Helvetica.
+        //   'Family Klein' is CK's own cut when available; Helvetica Neue /
+        //   Helvetica / Arial are the universal system fallbacks. Headings and
+        //   body share the same family, exactly like CK sets its site.
+        sans: ['Family Klein', '"Helvetica Neue"', 'Helvetica', 'Arial', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        display: ['Family Klein', '"Helvetica Neue"', 'Helvetica', 'Arial', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        serif: ['Family Klein', '"Helvetica Neue"', 'Helvetica', 'Arial', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         urdu: ['"Noto Nastaliq Urdu"', 'serif'],
       },
       letterSpacing: {

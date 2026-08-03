@@ -108,7 +108,7 @@ export default function EditorialStory({
               <p className="text-label uppercase tracking-[0.24em] text-alabaster/75">{eyebrow}</p>
               <h2
                 id="story-title"
-                className="mt-4 whitespace-pre-line font-serif text-display-2 font-light italic leading-[0.96] text-alabaster"
+                className="mt-4 whitespace-pre-line font-display text-display-2 font-light uppercase tracking-[0.04em] leading-[0.96] text-alabaster"
               >
                 {title}
               </h2>

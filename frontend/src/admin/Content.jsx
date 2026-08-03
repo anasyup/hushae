@@ -225,7 +225,7 @@ export default function Content() {
                 <div>
                   <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Title font</label>
                   <select className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900" value={split.titleFont || 'display'} onChange={(e) => setSplit('titleFont', e.target.value)}>
-                    <option value="display">Cormorant Garamond (serif)</option>
+                    <option value="display">Helvetica Neue (CK)</option>
                     <option value="sans">Inter (sans-serif)</option>
                   </select>
                 </div>
