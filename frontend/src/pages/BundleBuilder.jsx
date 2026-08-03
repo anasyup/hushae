@@ -64,7 +64,7 @@ export default function BundleBuilder() {
   };
 
   return (
-    <div style={{ fontFamily: "'Archivo', system-ui, sans-serif", background: '#F7F6F4' }}>
+    <div style={{ fontFamily: "'Archivo', system-ui, sans-serif", background: '#F7F5F1' }}>
       <div className="container section">
         {/* Header */}
         <div className="mb-10">

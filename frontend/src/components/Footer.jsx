@@ -67,7 +67,7 @@ export default function Footer() {
   const hasSocial = social.instagram || social.facebook || social.tiktok;
 
   return (
-    <footer style={{ background: '#F7F6F4', borderTop: '1px solid #E3E2DF' }}>
+    <footer style={{ background: '#F7F5F1', borderTop: '1px solid #E3E2DF' }}>
       {f.showNewsletter !== false && !isHome && (
         <div style={{ borderBottom: '1px solid #E3E2DF' }}>
           <div className="flex flex-col items-center gap-6 px-4 py-12 text-center md:flex-row md:justify-between md:text-left md:px-8 lg:px-12 xl:py-14" style={{ maxWidth: '1400px', margin: '0 auto' }}>
