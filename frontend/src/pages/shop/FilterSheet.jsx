@@ -57,7 +57,7 @@ export default function FilterSheet({ open, onClose, onReset, catList, f, result
         <motion.div
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
           transition={{ duration: 0.18 }}
-          className="fixed inset-0 z-50 bg-obsidian/40 backdrop-blur-[2px] lg:hidden"
+          className="fixed inset-0 z-50 bg-obsidian/40 backdrop-blur-[2px] "
           onClick={onClose}
         >
           <motion.div

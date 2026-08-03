@@ -125,7 +125,7 @@ export default function Header() {
   }, [cmsHeaderKey, baseMenuKey]);
 
   const boxed    = hdr.width === 'boxed';
-  const deskH    = clamp(hdr.height, 56, 120, 80);
+  const deskH    = clamp(hdr.height, 40, 80, 44);
   /* PHASE 8 — navigation typography.
      MEASURED on live at 1920: 13px, letter-spacing 0.065px (effectively zero),
      sentence case, weight 500, 34px gaps. That is the typography of an
@@ -136,7 +136,7 @@ export default function Header() {
      than a label. Defaults only: navSize, navGap and navUppercase all remain
      admin-editable, so a merchant who preferred the old setting can restore it
      without a deploy. navUppercase now defaults ON (was opt-in and unused). */
-  const navSize  = clamp(hdr.navSize, 10, 18, 12);
+  const navSize  = clamp(hdr.navSize, 10, 16, 11);
   const navGap   = clamp(hdr.navGap, 12, 64, 38);
   const navUpper = hdr.navUppercase !== false;
   const centred  = hdr.menuAlign !== 'left';
@@ -209,7 +209,7 @@ export default function Header() {
               }`
           }`}
         >
-          <div className={`relative flex h-14 items-center px-4 md:px-6 lg:h-[var(--hdr-h)] lg:px-10 ${
+          <div className={`relative flex h-11 items-center px-4 md:px-6 lg:h-[var(--hdr-h)] lg:px-10 ${
             boxed ? 'mx-auto w-full max-w-7xl xl:max-w-[1360px] 2xl:max-w-[1560px] 3xl:max-w-shell' : 'w-full'
           }`}>
 
