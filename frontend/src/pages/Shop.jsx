@@ -7,7 +7,6 @@ import { ProductGridSkeleton } from '../components/Skeletons';
 import EmptyState from '../components/ui/EmptyState';
 import Seo from '../components/Seo';
 import useShopFilters, { applyClientFacets } from './shop/useShopFilters';
-import FilterPanel from './shop/FilterPanel';
 import FilterSheet from './shop/FilterSheet';
 import ActiveChips from './shop/ActiveChips';
 
@@ -222,59 +221,38 @@ export default function Shop({ preset = {} }) {
 
       <ActiveChips chips={f.chips} onRemove={f.removeChip} onClearAll={f.clearAll} className="mb-7" />
 
-      {/* PHASE 3. MEASURED: the sidebar stayed 236px and the grid 940px at
-          1440, 1920 AND 2560 — the filter rail took a larger share of a wider
-          screen while the products it filters did not grow at all. The rail now
-          widens slightly and the gap opens, so the grid gains most of the extra
-          width rather than the chrome. */}
-      <div className="grid gap-10 lg:grid-cols-[236px_1fr] xl:gap-12 2xl:grid-cols-[268px_1fr] 2xl:gap-16 3xl:grid-cols-[288px_1fr]">
-        <aside className="hidden lg:block" aria-label="Product filters">
-          {/* top-24 clears the sticky header; the rail scrolls on its own so a
-              long facet list never traps the page. */}
-          <div className="sticky top-24 max-h-[calc(100svh-8rem)] overflow-y-auto overscroll-contain pr-1">
-            <FilterPanel catList={catList} f={f} />
+      <div>
+        {products === null ? (
+          <ProductGridSkeleton />
+        ) : count === 0 ? (
+          <div>
+            <EmptyState
+              icon={SearchX}
+              title="Nothing matches those filters"
+              description={
+                f.list('size').length && f.category === 'bras'
+                  ? 'Bras are sized by band and cup (32B, 34C), so letter sizes will not match. Remove the size filter to see them.'
+                  : 'Try removing one — or clear them all and start again.'
+              }
+              onAction={f.clearAll}
+              actionLabel="Clear all filters"
+            />
+            <ActiveChips chips={f.chips} onRemove={f.removeChip} onClearAll={f.clearAll} className="justify-center" />
           </div>
-        </aside>
-
-        <div>
-          {products === null ? (
-            <ProductGridSkeleton />
-          ) : count === 0 ? (
-            <div>
-              <EmptyState
-                icon={SearchX}
-                title="Nothing matches those filters"
-                description={
-                  f.list('size').length && f.category === 'bras'
-                    // Bras are sized 32B / 34C, not S / M, so a letter size can
-                    // never match one. Say so rather than leaving a dead end.
-                    ? 'Bras are sized by band and cup (32B, 34C), so letter sizes will not match. Remove the size filter to see them.'
-                    : 'Try removing one — or clear them all and start again.'
-                }
-                onAction={f.clearAll}
-                actionLabel="Clear all filters"
-              />
-              {/* The filters that produced nothing, still removable one by one
-                  — clearing everything should not be the only way out. */}
-              <ActiveChips chips={f.chips} onRemove={f.removeChip} onClearAll={f.clearAll} className="justify-center" />
-            </div>
-          ) : (
-            <div
-              /* Dimmed while a new result set is in flight. The grid keeps its
-                 height, so refining a filter cannot shift the page. */
-              aria-busy={pending || undefined}
-              className={`grid grid-cols-2 gap-[2px] transition-opacity duration-base ${
-                view === 2 ? 'md:grid-cols-2 xl:grid-cols-2' : view === 3 ? 'md:grid-cols-3 xl:grid-cols-3' : 'md:grid-cols-3 xl:grid-cols-4'
-              } ${
-                pending ? 'opacity-50' : 'opacity-100'
-              }`}
-            >
-              {visible.map((p) => (
-                <ProductCard key={p._id} product={p} />
-              ))}
-            </div>
-          )}
-        </div>
+        ) : (
+          <div
+            aria-busy={pending || undefined}
+            className={`grid grid-cols-2 gap-[2px] transition-opacity duration-base ${
+              view === 2 ? 'md:grid-cols-2 xl:grid-cols-2' : view === 3 ? 'md:grid-cols-3 xl:grid-cols-3' : 'md:grid-cols-3 xl:grid-cols-4'
+            } ${
+              pending ? 'opacity-50' : 'opacity-100'
+            }`}
+          >
+            {visible.map((p) => (
+              <ProductCard key={p._id} product={p} />
+            ))}
+          </div>
+        )}
       </div>
 
       <FilterSheet
