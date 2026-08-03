@@ -37,7 +37,7 @@ export default function Legal({ kind = 'privacy' }) {
 
 const CONTACT = {
   email: 'care@hushae.pk',
-  wa: '+92 300 0000000',
+  wa: '0319 8459984',
   address: 'HUSHAE · Rawalpindi, Pakistan',
 };
 

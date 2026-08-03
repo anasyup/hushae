@@ -7,7 +7,7 @@ import { useEffect } from 'react';
 const SITE_NAME = 'HUSHAE';
 const DEFAULT_TITLE = 'HUSHAE — Second Skin, First Choice.';
 const DEFAULT_DESC = 'Premium innerwear for men and women. Made in Pakistan, finished to an international standard. Discreet packaging, COD nationwide.';
-const DEFAULT_IMAGE = '/favicon.svg';
+const DEFAULT_IMAGE = '/images/collection/band-neutral.jpg';
 
 function upsertMeta(attr, key, value) {
   if (!value) return;

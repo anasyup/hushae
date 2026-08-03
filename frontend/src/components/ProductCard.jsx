@@ -90,8 +90,9 @@ function ProductCard({
   const Heading = headingLevel;
 
   const getSubtitle = () => {
-    const genderStr = p.gender === 'women' ? "Women's" : p.gender === 'men' ? "Men's" : "Unisex";
-    const catName = p.categoryName || p.category?.name || (p.slug?.includes('bra') ? 'Bras' : p.slug?.includes('boxer') ? 'Boxers' : 'Essentials');
+    const genderStr = p.gender === 'women' ? "Women's" : p.gender === 'men' ? "Men's" : '';
+    const catName = p.categoryName || p.category?.name || p.categorySlug || 'Essentials';
+    if (!genderStr) return catName;
     return `${genderStr} ${catName}`;
   };
 

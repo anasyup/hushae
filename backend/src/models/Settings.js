@@ -5,7 +5,7 @@ const settingsSchema = new mongoose.Schema({
   storeName: { type: String, default: 'HUSHAE' },
   tagline: { type: String, default: 'Second Skin, First Choice.' },
   contactEmail: { type: String, default: 'care@hushae.pk' },
-  contactPhone: { type: String, default: '+92 300 0000000' },
+  contactPhone: { type: String, default: '0319 8459984' },
   // ==========================================================================
   // HEADER — logo block + fully editable main menu
   // ==========================================================================

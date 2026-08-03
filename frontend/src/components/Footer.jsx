@@ -170,7 +170,7 @@ export default function Footer() {
                 whether or not the record is ever updated in Admin. A real
                 HUSHAE address entered by the merchant still wins. */}
             <p className="flex items-center gap-2"><Mail size={14} className="text-ash" /> {(s.contactEmail && !/veloura/i.test(s.contactEmail)) ? s.contactEmail : 'care@hushae.pk'}</p>
-            <p className="flex items-center gap-2"><Phone size={14} className="text-ash" /> {s.contactPhone || '+92 300 0000000'}</p>
+            <p className="flex items-center gap-2"><Phone size={14} className="text-ash" /> {s.contactPhone || '0319 8459984'}</p>
             {f.contactNote !== '' && <p className="flex items-center gap-2"><MapPin size={14} className="text-ash" /> {f.contactNote || 'Pakistan — nationwide delivery'}</p>}
           </div>
           {f.paymentNote !== '' && (
