@@ -38,7 +38,6 @@ export default function Shop({ preset = {} }) {
   const [products, setProducts] = useState(null);
   const [pending, setPending] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
-  const [view, setView] = useState(3); // CK default: 3 columns
   const filterBtnRef = useRef(null);
 
   useEffect(() => { api('/categories').then((d) => setCats(d.categories)).catch(() => {}); }, []);
