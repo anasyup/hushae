@@ -1,53 +1,26 @@
 import { Link } from 'react-router-dom';
-import { ArrowRight, BadgePercent } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 
-/* ============================================================================
- * OFFER BAR — the top-most strip on every page. English only.
- *
- * MEASURED IN PHASE 2F, and it turned out to be the single largest remaining
- * source of layout shift on the whole site.
- *
- * The fallback copy renders immediately; the merchant's offer replaces it once
- * /settings resolves (~285ms). The two strings are different lengths, so the
- * strip CHANGED HEIGHT after first paint and pushed every page down with it:
- *
- *     320px   42px -> 28px   (-14px)   fallback wrapped to two lines
- *     390px   27px -> 28px   (+1px)
- *     768px   33px -> 34px   (+1px)
- *    1440px   33px -> 34px   (+1px)
- *
- * On /search that was 0.019 of the page's 0.0495 CLS, and it applies to every
- * route because this strip sits above everything.
- *
- * THE FIX IS A LOCKED HEIGHT, NOT SHORTER COPY
- * Both states now occupy exactly the same box — h-7 below sm, h-[34px] from sm
- * — with the content centred inside it and clipped rather than wrapped. The
- * height cannot depend on which string won the race, so the strip can never
- * move the page again. Truncation already existed on the offer branch; it is
- * now applied to the fallback too, which is what allowed 320px to wrap.
- * ========================================================================== */
+/* ═══════════════════════════════════════════════════════════════════════════
+ * OFFER BAR — Ultra-thin editorial strip. CK Malaysia style.
+ * 24px mobile, 28px desktop. Clean typography, no icons.
+ * ═════════════════════════════════════════════════════════════════════════ */
 
-/* One box, both states. Any change here must keep the two branches identical
-   in height or the shift comes straight back. */
-const SHELL = 'flex h-7 items-center justify-center gap-2 overflow-hidden bg-obsidian px-3 text-center '
-  + 'text-[10px] uppercase tracking-wider text-alabaster/90 sm:h-[34px] sm:gap-3 sm:px-4 sm:text-[11px] sm:tracking-widest';
+const SHELL = 'flex h-6 items-center justify-center bg-[#0E0E0E] px-4 text-center '
+  + 'text-[10px] font-light uppercase tracking-[0.14em] text-white/80 sm:h-[28px] sm:text-[11px] sm:tracking-[0.16em]';
 
 export default function OfferBar() {
   const { settings } = useApp();
   const offer = settings?.offerBar;
 
   if (offer?.enabled && offer.messageEn) {
-    const message = offer.messageEn;
-    const cta = offer.ctaEn || 'Shop now';
     const link = offer.link || '/sale';
     return (
       <div className={SHELL}>
-        <BadgePercent size={12} className="shrink-0 text-sage sm:hidden" aria-hidden="true" />
-        <BadgePercent size={13} className="hidden shrink-0 text-sage sm:block" aria-hidden="true" />
-        <span className="truncate">{message}</span>
-        <Link to={link} className="inline-flex shrink-0 items-center gap-1 border-b border-sage font-semibold text-sage transition-[gap] duration-base ease-standard hover:gap-1.5 motion-reduce:transition-none">
-          {cta} <ArrowRight size={11} aria-hidden="true" />
+        <span className="truncate">{offer.messageEn}</span>
+        <span className="mx-2 text-white/30">·</span>
+        <Link to={link} className="shrink-0 font-medium text-white hover:text-white/70 transition-colors">
+          {offer.ctaEn || 'Shop'}
         </Link>
       </div>
     );
@@ -55,10 +28,9 @@ export default function OfferBar() {
 
   return (
     <div className={SHELL}>
-      {/* truncate, not wrap: at 320px the long fallback took two lines and made
-          the strip 42px, so the swap to the real offer LOST 14px. */}
-      <span className="truncate sm:hidden">Free shipping over PKR 4,999 · Discreet packaging</span>
-      <span className="hidden truncate sm:inline">Free nationwide shipping over PKR 4,999 · Discreet packaging on every order</span>
+      <span className="truncate">Free shipping over PKR 4,999</span>
+      <span className="mx-2 text-white/30">·</span>
+      <span className="truncate">Discreet packaging on every order</span>
     </div>
   );
 }
