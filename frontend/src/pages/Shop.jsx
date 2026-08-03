@@ -25,7 +25,7 @@ export default function Shop({ preset = {} }) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
     return () => { alive = false; };
   }, [f.queryString]);
-  const visible = useMemo(() => applyClientFacets(products, f), [products, f]);
+  const visible = useMemo(() => applyClientFacets(products, f).slice(0, 50), [products, f]);
   const activeCat = cats.find((c) => c.slug === f.category);
   const meta = activeCat ? activeCat.name : TITLES[preset.key] || (f.get('q') ? `"${f.get('q')}"` : TITLES.all);
   const count = visible?.length ?? null;
