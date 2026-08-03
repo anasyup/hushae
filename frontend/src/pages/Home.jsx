@@ -9,7 +9,7 @@ import Seo, { organizationJsonLd } from '../components/Seo';
 
 export default function Home() {
   return (
-    <div style={{ background: '#FFFFFF', color: '#0E0E0E', fontFamily: "'Archivo', system-ui, sans-serif" }}>
+    <div style={{ background: '#F7F6F4', color: '#0E0E0E', fontFamily: "'Archivo', system-ui, sans-serif" }}>
       <Seo title="Premium Innerwear for Men & Women"
         description="Premium innerwear engineered for comfort. Made in Pakistan, finished to international standard."
         canonical="/"
