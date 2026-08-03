@@ -1,0 +1,50 @@
+/* ============================================================================
+ * HUSHAE Design Tokens v2 — Quiet luxury, no decoration.
+ * ========================================================================== */
+:root {
+  --paper:      #F7F6F4;
+  --paper-alt:  #FFFFFF;
+  --ink:        #0E0E0E;
+  --ash:        #6E6E6B;
+  --line:       #E3E2DF;
+  --alert:      #A4231F;
+  --font-ui:       'Archivo', system-ui, -apple-system, sans-serif;
+  --font-editorial:'Instrument Serif', Georgia, 'Times New Roman', serif;
+  --space-xs:  4px; --space-sm: 8px; --space-md: 16px; --space-lg: 24px;
+  --space-xl:  32px; --space-2xl: 48px; --space-3xl: 64px;
+  --section:   96px; --section-mobile: 56px; --gutter: 80px; --gutter-mobile: 20px;
+  --content-max: 1440px;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-family: var(--font-ui); font-size: 16px; line-height: 1.5; color: var(--ink); background: var(--paper); -webkit-font-smoothing: antialiased; }
+:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+img { display: block; max-width: 100%; height: auto; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+.eyebrow { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ash); }
+.nav-link { font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.10em; }
+.body-sm  { font-size: 13px; font-weight: 400; }
+.body     { font-size: 15px; font-weight: 400; line-height: 1.6; }
+.h3 { font-size: 18px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; }
+.h2 { font-size: 28px; font-weight: 400; text-transform: uppercase; letter-spacing: 0.02em; }
+.h1 { font-size: 36px; font-weight: 400; text-transform: uppercase; letter-spacing: 0.01em; }
+.editorial { font-family: var(--font-editorial); font-size: 48px; font-weight: 400; line-height: 1.15; }
+@media (min-width: 1024px) { .h2 { font-size: 44px; } .h1 { font-size: 64px; } .editorial { font-size: 88px; } }
+.section { padding: var(--section-mobile) 0; }
+@media (min-width: 768px) { .section { padding: var(--section) 0; } }
+.container { width: 100%; max-width: var(--content-max); margin: 0 auto; padding: 0 var(--gutter-mobile); }
+@media (min-width: 768px) { .container { padding: 0 var(--gutter); } }
+.btn { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 24px; font: 500 12px var(--font-ui); text-transform: uppercase; letter-spacing: 0.10em; border: none; cursor: pointer; transition: opacity 300ms var(--ease); }
+.btn:disabled { opacity: 0.4; pointer-events: none; }
+.btn-primary { background: var(--ink); color: var(--paper); }
+.btn-primary:hover { opacity: 0.85; }
+.btn-outline { background: transparent; color: var(--ink); border: 1px solid var(--ink); }
+.btn-outline:hover { background: var(--ink); color: var(--paper); }
+.input { width: 100%; min-height: 44px; padding: 0 12px; font: 400 13px var(--font-ui); color: var(--ink); background: var(--paper-alt); border: 1px solid var(--line); outline: none; }
+.input:focus { border-color: var(--ink); }
+.input::placeholder { color: var(--ash); }
+.hr { height: 1px; background: var(--line); border: none; }
+.product-tile { position: relative; background: var(--paper-alt); }
+.product-tile img { width: 100%; aspect-ratio: 4/5; object-fit: cover; }
+.skeleton { background: var(--line); animation: pulse 1.5s var(--ease) infinite; }
+@keyframes pulse { 0%,100% { opacity:1 } 50% { opacity:0.5 } }
