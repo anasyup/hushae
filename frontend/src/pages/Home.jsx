@@ -93,6 +93,36 @@ export default function Home() {
         ))}
       </section>
 
+      {/* ═══ 2.5 SHOP BY CATEGORY — Nasty Gal style pods ═══ */}
+      <section className="px-4 py-14 md:px-8 md:py-20 lg:px-12">
+        <div className="mb-8 flex items-end justify-between">
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.25em] text-neutral-400">Categories</p>
+            <h2 className="mt-2 text-2xl md:text-3xl font-light tracking-tight text-neutral-900 uppercase">Shop by category</h2>
+          </div>
+          <Link to="/shop" className="hidden md:inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.15em] text-neutral-500 hover:text-neutral-900">
+            Shop all <ArrowRight size={12} />
+          </Link>
+        </div>
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
+          {[
+            { href: '/category/bras', img: '/images/categories/bras.jpg', label: 'Bras', note: 'Bralettes, wired & wireless' },
+            { href: '/category/panties', img: '/images/categories/panties.jpg', label: 'Panties', note: 'Briefs, bikinis, boyshorts' },
+            { href: '/category/boxers', img: '/images/categories/boxers.jpg', label: 'Boxers', note: 'Printed, woven & cotton' },
+            { href: '/category/sleepwear-loungewear', img: '/images/categories/camisoles-slips.jpg', label: 'Sleepwear', note: 'Sets, slips & robes' },
+          ].map((c) => (
+            <Link key={c.href} to={c.href} className="group relative block overflow-hidden bg-neutral-100" style={{ aspectRatio: '3/4' }}>
+              <img src={c.img} alt={c.label} loading="lazy" className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-105" />
+              <div className="absolute inset-0 bg-black/15 transition group-hover:bg-black/30" />
+              <div className="absolute bottom-0 left-0 right-0 p-4 md:p-5">
+                <p className="text-[11px] md:text-xs font-semibold uppercase tracking-[0.2em] text-white">{c.label}</p>
+                <p className="mt-0.5 hidden text-[10px] text-white/60 sm:block">{c.note}</p>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
       {/* ═══ 3. BEST SELLERS — Product row with editorial header ═══ */}
       {best && best.length > 0 && (
         <section className="px-4 py-16 md:px-8 md:py-24 lg:px-12">

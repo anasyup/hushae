@@ -10,7 +10,6 @@ import useShopFilters, { applyClientFacets } from './shop/useShopFilters';
 import FilterPanel from './shop/FilterPanel';
 import FilterSheet from './shop/FilterSheet';
 import ActiveChips from './shop/ActiveChips';
-import CollectionBanner from '../components/collection/CollectionBanner';
 
 const SORTS = [
   ['popular', 'Most Popular'],
@@ -37,6 +36,12 @@ export default function Shop({ preset = {} }) {
   const [products, setProducts] = useState(null);
   const [pending, setPending] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
+  /* NIK SEN "View :" selector — desktop columns 2 / 3 / 4. Persisted in the
+     URL (?view=4) so a refresh keeps the shopper's choice. */
+  const [view, setView] = useState(() => {
+    const v = Number(new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '').get('view'));
+    return [2, 3, 4].includes(v) ? v : 4;
+  });
   const filterBtnRef = useRef(null);
   const firstLoad = useRef(true);
 
@@ -82,23 +87,24 @@ export default function Shop({ preset = {} }) {
         canonical={typeof window !== 'undefined' ? window.location.pathname : '/shop'}
       />
 
-      {/* MEASURED: probing /shop, /women, /sale and /search at 390px returned
-          hasBanner:false on every one. Each opened with an eyebrow, an h1 and
-          a sentence on flat alabaster, then went straight into the grid —
-          precisely the default Shopify collection template.
-          Replaced with an editorial masthead. Copy is unchanged and still
-          comes from the TITLES map above; only the setting is new. */}
-      <CollectionBanner
-        eyebrow={`HUSHAE — ${f.gender || 'all'}`}
-        title={meta[0]}
-        blurb={meta[1]}
-      />
+      {/* ── NIK SEN collection masthead ──
+          A fashion house names the collection and steps back: small eyebrow,
+          one big title, one quiet line. No banner image, no cards. */}
+      <header className="py-8 md:py-12">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-neutral-400">
+          HUSHAE — {f.gender || 'all'}
+        </p>
+        <h1 className="mt-3 font-display text-3xl md:text-5xl lg:text-6xl font-light uppercase tracking-[0.04em] text-neutral-900 leading-[1.05]">
+          {meta[0]}
+        </h1>
+        {meta[1] && (
+          <p className="mt-4 max-w-lg text-sm leading-relaxed text-neutral-500">{meta[1]}</p>
+        )}
+      </header>
 
-      {/* CK-style Horizontal Sub-category quick links */}
+      {/* ── NIK SEN toolbar: sub-category links · View : 2/4/8 · Sort by ── */}
       {(() => {
         const pk = preset.key;
-        if (!['women', 'men', 'new', 'best'].includes(pk)) return null;
-        
         let quickLinks = [];
         if (pk === 'women') {
           quickLinks = [
@@ -126,45 +132,80 @@ export default function Shop({ preset = {} }) {
             { label: `${labelPrefix} Men`, val: 'men', field: 'gender' },
           ];
         }
-
+        const hasLinks = quickLinks.length > 0;
         return (
-          <div className="flex flex-wrap items-center justify-between border-b border-[#E4E0DA] pb-4 mb-8">
-            <div className="flex flex-wrap gap-x-8 gap-y-2 text-[11px] uppercase tracking-[0.2em] font-semibold text-neutral-500">
-              {quickLinks.map((ql) => {
+          <div className="flex flex-wrap items-center justify-between gap-x-8 gap-y-3 border-b border-neutral-200 pb-5 mb-8">
+            <div className="flex flex-wrap gap-x-7 gap-y-2 text-[11px] uppercase tracking-[0.2em] font-medium text-neutral-400">
+              {hasLinks ? quickLinks.map((ql) => {
                 const currentVal = ql.field === 'category' ? f.category : f.get('gender');
                 const on = currentVal === ql.val || (!currentVal && ql.val === '');
                 return (
                   <button
                     key={ql.label}
                     onClick={() => {
-                      if (ql.field === 'category') {
-                        f.setOne('category', ql.val);
-                      } else {
-                        f.setOne('gender', ql.val);
-                      }
+                      if (ql.field === 'category') f.setOne('category', ql.val);
+                      else f.setOne('gender', ql.val);
                     }}
-                    className={`hover:text-[#000000] transition-colors ${on ? 'text-[#000000] underline underline-offset-8 decoration-2' : ''}`}
+                    className={`transition-colors hover:text-neutral-900 ${on ? 'text-neutral-900 underline underline-offset-8 decoration-1' : ''}`}
                   >
                     {ql.label}
                   </button>
                 );
-              })}
+              }) : (
+                <span aria-live="polite">{count === null ? '…' : `${count} piece${count === 1 ? '' : 's'}`}</span>
+              )}
             </div>
-            <p className="text-[11px] uppercase tracking-widest text-neutral-400 font-mono">
-              {count != null && <>{count} pieces found</>}
-            </p>
+
+            <div className="flex items-center gap-6">
+              {/* View : 2 / 4 / 8 — NIK SEN grid selector */}
+              <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.15em] text-neutral-400">
+                <span className="hidden sm:inline">View</span>
+                {[2, 3, 4].map((v) => (
+                  <button
+                    key={v}
+                    type="button"
+                    aria-pressed={view === v}
+                    onClick={() => {
+                      setView(v);
+                      const u = new URL(window.location.href);
+                      u.searchParams.set('view', String(v));
+                      window.history.replaceState(null, '', u.toString());
+                    }}
+                    className={`transition-colors ${view === v ? 'text-neutral-900 font-semibold' : 'hover:text-neutral-900'}`}
+                  >
+                    {v}
+                  </button>
+                ))}
+              </div>
+
+              {/* Sort by */}
+              <div className="relative">
+                <label htmlFor="shop-sort" className="sr-only">Sort products</label>
+                <select
+                  id="shop-sort"
+                  value={f.sort}
+                  onChange={(e) => f.setOne('sort', e.target.value, { replace: true })}
+                  className="appearance-none border-0 border-b border-neutral-300 bg-transparent py-1.5 pr-7 text-[11px] font-medium uppercase tracking-[0.15em] text-neutral-900 outline-none transition-colors hover:border-neutral-900 focus:border-neutral-900 cursor-pointer"
+                >
+                  <option value="popular">Sort by · Best selling</option>
+                  {SORTS.slice(1).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+                </select>
+                <ChevronDown size={13} aria-hidden="true" className="pointer-events-none absolute right-1 top-1/2 -translate-y-1/2 text-neutral-400" />
+              </div>
+            </div>
           </div>
         );
       })()}
 
-      <div className="mb-6 flex items-center justify-between gap-3 border-y border-line py-3.5">
+      {/* Mobile filter button + count row */}
+      <div className="mb-6 flex items-center justify-between gap-3 lg:hidden">
         <button
           ref={filterBtnRef}
           type="button"
           onClick={() => setSheetOpen(true)}
           aria-expanded={sheetOpen}
           aria-haspopup="dialog"
-          className="inline-flex min-h-[40px] items-center gap-2 text-btn-sm font-semibold uppercase text-obsidian lg:hidden"
+          className="inline-flex min-h-[40px] items-center gap-2 text-btn-sm font-semibold uppercase text-obsidian"
         >
           <SlidersHorizontal size={15} strokeWidth={1.8} aria-hidden="true" />
           Filters
@@ -174,27 +215,9 @@ export default function Shop({ preset = {} }) {
             </span>
           )}
         </button>
-
-        {/* The count is a live region so a filter change is announced rather
-            than silently re-rendering the grid. */}
-        <p aria-live="polite" className="hidden text-label uppercase text-ash lg:block">
+        <p aria-live="polite" className="text-label uppercase text-ash">
           {count === null ? 'Loading…' : `${count} piece${count === 1 ? '' : 's'}`}{pending && count !== null ? ' · updating' : ''}
         </p>
-
-        <div className="relative">
-          <label htmlFor="shop-sort" className="sr-only">Sort products</label>
-          <select
-            id="shop-sort"
-            value={f.sort}
-            /* Sorting reorders the same set — it replaces rather than pushes,
-               so Back still undoes the last real filter. */
-            onChange={(e) => f.setOne('sort', e.target.value, { replace: true })}
-            className="min-h-[44px] appearance-none rounded-control border border-line bg-white/70 py-2.5 pl-4 pr-9 text-caption font-medium uppercase tracking-[0.1em] outline-none transition-colors duration-base ease-standard hover:border-obsidian/40"
-          >
-            {SORTS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-          </select>
-          <ChevronDown size={14} aria-hidden="true" className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-ash" />
-        </div>
       </div>
 
       <ActiveChips chips={f.chips} onRemove={f.removeChip} onClearAll={f.clearAll} className="mb-7" />
@@ -240,7 +263,9 @@ export default function Shop({ preset = {} }) {
               /* Dimmed while a new result set is in flight. The grid keeps its
                  height, so refining a filter cannot shift the page. */
               aria-busy={pending || undefined}
-              className={`grid grid-cols-2 gap-x-gap-md gap-y-gap-xl transition-opacity duration-base md:grid-cols-3 xl:grid-cols-4 2xl:gap-x-8 2xl:gap-y-14 ${
+              className={`grid grid-cols-2 gap-x-4 gap-y-10 transition-opacity duration-base md:gap-x-6 ${
+                view === 2 ? 'md:grid-cols-2 xl:grid-cols-2 2xl:gap-x-10' : view === 3 ? 'md:grid-cols-3 xl:grid-cols-3' : 'md:grid-cols-3 xl:grid-cols-4'
+              } 2xl:gap-y-14 ${
                 pending ? 'opacity-50' : 'opacity-100'
               }`}
             >

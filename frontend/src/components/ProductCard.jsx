@@ -8,14 +8,14 @@ import Badge from './ui/Badge';
 import { SIZES, pictureSources } from '../lib/responsiveImage';
 
 /* ============================================================================
- * ProductCard — redesigned with exact Nike-style centered aesthetic.
+ * ProductCard — NIK SEN / RUADH editorial minimal.
  *
- * Clean borderless grid tile with centered typography:
- *   - Bold title in sentence case (centered).
- *   - Light category subtitle (centered).
- *   - Price in medium weight (centered).
- *   - Wishlist heart positioned elegantly at the top-left of the image.
- *   - Promo badges positioned elegantly at the top-right of the image.
+ * Clean square tile, nothing decorative:
+ *   - Square-cropped photography, no rounded corners
+ *   - Hover: second image crossfades + "View Product" bar slides up
+ *     (the Estudio Niksen interaction)
+ *   - Caption: name + price, left-aligned, quiet typography
+ *   - Sale: single small "% off" chip top-left; sold out = plain text
  * ========================================================================== */
 
 const DAY = 86400000;
@@ -40,7 +40,7 @@ function ProductCard({
   headingLevel = 'h3',
   marketingBadges = null,
   promos = null,
-  maxBadges = 2,
+  maxBadges = 1,
 }) {
   const { inWishlist, toggleWish, addToCart, inCompare, toggleCompare, settings, toast } = useApp();
   const [sizePick, setSizePick] = useState(false);
@@ -76,33 +76,29 @@ function ProductCard({
     .slice(0, Math.max(1, maxBadges))
     .map((b) => ({ variant: TONE_TO_VARIANT[b.tone] || 'neutral', label: b.label, key: b.id }));
 
-  const STANDING_MARKDOWN = 25;
-  const legacyBadge = (showSaleBadge && off > STANDING_MARKDOWN) ? { variant: 'sale', label: `${off}% off` }
-    : isNew ? { variant: 'quiet', label: 'New' }
-      : limited ? { variant: 'neutral', label: `Only ${p.stock} left` }
-        : p.isBestSeller ? { variant: 'best', label: 'Bestseller' }
-          : null;
+  /* NIK SEN register: one quiet chip only for a real markdown, plus server
+     promos. No "New / Bestseller / Only X left" sticker noise. */
+  const STANDING_MARKDOWN = 15;
+  const legacyBadge = (showSaleBadge && onSale && off > STANDING_MARKDOWN) ? { variant: 'sale', label: `${off}% off` } : null;
 
   const badges = soldOut
-    ? [{ variant: 'soldout', label: 'Sold out', key: 'sold' }]
+    ? []
     : fromServer.length ? fromServer
       : legacyBadge ? [{ ...legacyBadge, key: 'legacy' }] : [];
 
   const quickAddOpen = showQuickAdd && !soldOut && sizes.length > 0;
   const Heading = headingLevel;
 
-  // Format subtitle as Category and Gender (e.g. "Women's Bra" or "Men's Boxer")
   const getSubtitle = () => {
     const genderStr = p.gender === 'women' ? "Women's" : p.gender === 'men' ? "Men's" : "Unisex";
-    // Deduce category name from categories or slugs
     const catName = p.categoryName || p.category?.name || (p.slug?.includes('bra') ? 'Bras' : p.slug?.includes('boxer') ? 'Boxers' : 'Essentials');
     return `${genderStr} ${catName}`;
   };
 
   return (
     <article className="group relative flex flex-col" onMouseLeave={() => setSizePick(false)}>
-      {/* Image Container — clean borders, no thick roundings */}
-      <div className={`relative overflow-hidden rounded-[4px] bg-[#F4F4F4] ring-1 ring-inset ring-transparent transition-[box-shadow] duration-slow ease-standard group-hover:ring-neutral-200 ${soldOut ? 'opacity-[0.75]' : ''}`}>
+      {/* Image — square, no rounding, quiet photography */}
+      <div className={`relative overflow-hidden bg-[#F4F4F4] ${soldOut ? 'opacity-[0.7]' : ''}`}>
         <Link to={`/product/${p.slug}`} tabIndex={-1} className="block">
           <picture>
             {pictureSources(failed ? '' : primary).map((s) => (
@@ -143,25 +139,37 @@ function ProductCard({
           )}
         </Link>
 
-        {/* Badges on TOP-RIGHT (Nike style) */}
+        {/* NIK SEN: "View Product" bar slides up on hover */}
+        {!soldOut && (
+          <Link
+            to={`/product/${p.slug}`}
+            tabIndex={-1}
+            aria-hidden="true"
+            className="absolute inset-x-0 bottom-0 hidden translate-y-full bg-white/95 py-3 text-center text-[11px] font-semibold uppercase tracking-[0.2em] text-neutral-900 backdrop-blur-sm transition-transform duration-300 ease-standard group-hover:translate-y-0 md:block"
+          >
+            View Product
+          </Link>
+        )}
+
+        {/* Single quiet sale chip — top-left, NIK SEN keeps it minimal */}
         {badges.length > 0 && (
-          <span className="pointer-events-none absolute right-3 top-3 flex max-w-[calc(100%-1.5rem)] flex-wrap gap-1.5 md:right-4 md:top-4">
-            {badges.map((b) => <Badge key={b.key} variant={b.variant}>{b.label}</Badge>)}
+          <span className="pointer-events-none absolute left-3 top-3">
+            {badges.slice(0, 1).map((b) => <Badge key={b.key} variant={b.variant}>{b.label}</Badge>)}
           </span>
         )}
 
-        {/* Wishlist on TOP-LEFT (Nike style) */}
+        {/* Wishlist — quiet, top-right */}
         {showWishlist && (
           <button
             type="button"
             onClick={async () => { const r = await toggleWish(p); if (r && r.ok === false) toast(r.message); }}
             aria-pressed={wished}
             aria-label={`${wished ? 'Remove' : 'Save'} ${p.name} ${wished ? 'from' : 'to'} wishlist`}
-            className={`absolute left-3 top-3 grid h-10 w-10 place-items-center rounded-full bg-white/90 backdrop-blur-[2px] shadow-sm transition-[background-color,opacity,color] duration-base ease-standard hover:bg-white md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100 ${
+            className={`absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full bg-white/90 backdrop-blur-[2px] shadow-sm transition-[background-color,opacity,color] duration-base ease-standard hover:bg-white md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100 ${
               wished ? 'text-red-500 !opacity-100' : 'text-neutral-600'
             }`}
           >
-            <Heart size={15} strokeWidth={2} fill={wished ? 'currentColor' : 'none'} aria-hidden="true" />
+            <Heart size={14} strokeWidth={2} fill={wished ? 'currentColor' : 'none'} aria-hidden="true" />
           </button>
         )}
 
@@ -172,7 +180,7 @@ function ProductCard({
             onClick={async () => { const r = await toggleCompare(p); if (r && r.ok === false) toast(r.message); }}
             aria-pressed={compared}
             aria-label={`${compared ? 'Remove' : 'Add'} ${p.name} ${compared ? 'from' : 'to'} compare`}
-            className={`absolute left-3 top-[3.6rem] grid h-10 w-10 place-items-center rounded-full bg-white/90 backdrop-blur-[2px] shadow-sm transition-[background-color,opacity,color] duration-base ease-standard hover:bg-white md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100 ${
+            className={`absolute right-3 top-[3.4rem] grid h-9 w-9 place-items-center rounded-full bg-white/90 backdrop-blur-[2px] shadow-sm transition-[background-color,opacity,color] duration-base ease-standard hover:bg-white md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100 ${
               compared ? 'text-neutral-900 !opacity-100' : 'text-neutral-400'
             }`}
           >
@@ -191,7 +199,7 @@ function ProductCard({
             }`}
           >
             {sizePick ? (
-              <div className="rounded-[4px] bg-white/95 p-2.5 shadow-sm backdrop-blur">
+              <div className="bg-white/95 p-2.5 shadow-sm backdrop-blur">
                 <p className="mb-1.5 px-0.5 text-[10px] font-bold uppercase text-neutral-400">Select a size</p>
                 <div className="flex flex-wrap gap-1.5">
                   {sizes.map((s) => (
@@ -200,7 +208,7 @@ function ProductCard({
                       type="button"
                       onClick={() => { addToCart(p, { size: s }); setSizePick(false); }}
                       aria-label={`Add ${p.name}, size ${s}, to bag`}
-                      className="min-w-9 rounded-[2px] border border-neutral-200 bg-white px-2.5 py-1.5 text-xs font-semibold tracking-[0.04em] transition-colors duration-base ease-standard hover:border-neutral-900 hover:bg-neutral-900 hover:text-white"
+                      className="min-w-9 border border-neutral-200 bg-white px-2.5 py-1.5 text-xs font-semibold tracking-[0.04em] transition-colors duration-base ease-standard hover:border-neutral-900 hover:bg-neutral-900 hover:text-white"
                     >
                       {s}
                     </button>
@@ -213,7 +221,7 @@ function ProductCard({
                 onClick={() => setSizePick(true)}
                 aria-label={`Quick add ${p.name}`}
                 tabIndex={-1}
-                className="min-h-[42px] w-full translate-y-full rounded-[2px] bg-white/90 py-2.5 text-xs font-bold uppercase tracking-[0.15em] text-neutral-900 backdrop-blur-[2px] transition-[transform,background-color] duration-slow ease-standard hover:bg-white group-hover:translate-y-0 group-hover:pointer-events-auto group-focus-within:translate-y-0 group-focus-within:pointer-events-auto md:pointer-events-none"
+                className="min-h-[42px] w-full translate-y-full bg-white/95 py-2.5 text-xs font-bold uppercase tracking-[0.15em] text-neutral-900 backdrop-blur-[2px] transition-[transform,background-color] duration-slow ease-standard hover:bg-white group-hover:translate-y-0 group-hover:pointer-events-auto group-focus-within:translate-y-0 group-focus-within:pointer-events-auto md:hidden"
               >
                 Quick add
               </button>
@@ -222,10 +230,9 @@ function ProductCard({
         )}
       </div>
 
-      {/* Centered Borderless Caption (Nike Style) */}
-      <div className="mt-4 flex flex-1 flex-col items-center text-center">
-        {/* Title: sentence case, semibold, centered */}
-        <Heading className="font-sans text-[14px] font-semibold text-neutral-900 leading-snug">
+      {/* Caption — NIK SEN: name + price, left-aligned, quiet */}
+      <div className="mt-3 flex flex-1 flex-col">
+        <Heading className="font-sans text-[13px] font-medium leading-snug text-neutral-900">
           <Link
             to={`/product/${p.slug}`}
             className="transition-colors duration-fast hover:text-neutral-500"
@@ -234,19 +241,17 @@ function ProductCard({
           </Link>
         </Heading>
 
-        {/* Subtitle (Category): light gray, small, centered */}
-        <p className="mt-1 text-[12px] text-neutral-500 font-light">
-          {getSubtitle()}
+        <p className="mt-0.5 text-[11px] uppercase tracking-[0.08em] text-neutral-400">
+          {soldOut ? 'Sold out' : getSubtitle()}
         </p>
 
-        {/* Price: medium weight, centered */}
-        {showPrice && (
-          <p className="mt-1.5 flex items-baseline justify-center gap-x-2 whitespace-nowrap text-[14px]">
-            <span className={`font-semibold ${onSale ? 'text-neutral-900 font-bold' : 'text-neutral-900'}`}>
+        {showPrice && !soldOut && (
+          <p className="mt-1 flex items-baseline gap-x-2 whitespace-nowrap text-[13px]">
+            <span className={`font-medium ${onSale ? 'text-neutral-900' : 'text-neutral-900'}`}>
               {pkr(p.price)}
             </span>
             {onSale && (
-              <span className="text-[12px] text-neutral-400 line-through font-light">
+              <span className="text-[11px] text-neutral-400 line-through font-light">
                 {pkr(p.compareAtPrice)}
               </span>
             )}

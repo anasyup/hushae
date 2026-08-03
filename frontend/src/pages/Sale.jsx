@@ -7,7 +7,6 @@ import ProductCard from '../components/ProductCard';
 import { ProductGridSkeleton } from '../components/Skeletons';
 import { isOnSale, salePercent } from '../lib/sale';
 import Tx from '../components/Tx';
-import CollectionBanner from '../components/collection/CollectionBanner';
 
 const TABS = [
   ['', 'allItems'],
@@ -44,43 +43,25 @@ export default function Sale() {
 
   return (
     <div className="container-page py-8 md:py-10">
-      {/* MEASURED, Phase 2E: this was a 640px black slab on a 390px phone —
-          a full-height promotional hero with two blurred sage orbs, a 48px
-          headline and four staggered framer-motion entrances. /shop, /women,
-          /men, /new and /best all open with the 168px CollectionBanner
-          masthead instead. Sale was the one collection page shouting.
-          A discount page does not need to be loud to be understood: the grid
-          underneath already carries a "% off" chip on every card and the
-          strike-through price on all 101.
-          Reusing CollectionBanner rather than restyling this block, so there
-          is exactly one masthead component in the codebase. The live offer
-          message still drives the blurb, so the merchant's Settings copy is
-          not lost. */}
-      {/* MEASURED CLS 0.0177 with the discount and count wired in live:
-          the eyebrow went "HUSHAE — Sale" -> "HUSHAE — up to 33% off", the
-          blurb swapped to the merchant's offer copy and a third line ("101
-          pieces") appeared, all after /products resolved. The band's HEIGHT is
-          locked, but the text block inside it is bottom-aligned, so three
-          growing lines pushed the h1 up 21px — a real shift inside a
-          "shift-proof" component.
-          Both variable strings are now resolved BEFORE first paint: the
-          eyebrow only gains the discount once products are in (never
-          re-shortens), and the count is withheld until then. `sorted.length ||
-          undefined` keeps the third line out of the DOM entirely while
-          loading, rather than rendering a 0 that later becomes 101. */}
-      <CollectionBanner
-        title="Season Sale"
-        blurb={offer?.enabled && offer.messageEn
-          ? offer.messageEn
-          : 'Quiet luxury, gentler prices — while stock lasts.'}
-        eyebrow="HUSHAE — Sale"
-        count={sorted.length || undefined}
-        showCount
-      />
+      {/* NIK SEN masthead — same quiet register as the other collections */}
+      <header className="py-8 md:py-12">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-neutral-400">
+          HUSHAE — Sale
+        </p>
+        <h1 className="mt-3 font-display text-3xl md:text-5xl lg:text-6xl font-light uppercase tracking-[0.04em] text-neutral-900 leading-[1.05]">
+          Season Sale
+        </h1>
+        <p className="mt-4 max-w-lg text-sm leading-relaxed text-neutral-500">
+          {offer?.enabled && offer.messageEn
+            ? offer.messageEn
+            : 'Quiet luxury, gentler prices — while stock lasts.'}
+          {sorted.length > 0 && <span className="text-neutral-400"> · {sorted.length} pieces</span>}
+        </p>
+      </header>
 
-      {/* CK-style Horizontal Sub-category quick links */}
-      <div className="flex flex-wrap items-center justify-between border-b border-[#E4E0DA] pb-4 mb-8">
-        <div className="flex flex-wrap gap-x-8 gap-y-2 text-[11px] uppercase tracking-[0.2em] font-semibold text-neutral-500">
+      {/* Sale sub-tabs */}
+      <div className="flex flex-wrap items-center justify-between border-b border-neutral-200 pb-5 mb-8">
+        <div className="flex flex-wrap gap-x-7 gap-y-2 text-[11px] uppercase tracking-[0.2em] font-medium text-neutral-400">
           <button
             onClick={() => setTab('')}
             className={`hover:text-[#000000] transition-colors ${tab === '' ? 'text-[#000000] underline underline-offset-8 decoration-2' : ''}`}
