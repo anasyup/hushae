@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState, lazy, Suspense } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
-  AlertCircle, Banknote, CheckCircle2, ChevronRight, CreditCard, Heart,
+  AlertCircle, Award, Banknote, CheckCircle2, ChevronRight, CreditCard, Heart,
   Package, RotateCcw, Ruler, ShieldCheck, Star, Truck,
 } from 'lucide-react';
 import { api } from '../api/client';
@@ -45,6 +45,7 @@ export default function Product() {
   const [guideOpen, setGuideOpen] = useState(false);
   const [bundle, setBundle] = useState([]);
   const [related, setRelated] = useState([]);
+  const [complete, setComplete] = useState([]);   // CK-style "Complete the Look" — never empty
   const [reviewTotal, setReviewTotal] = useState(null);
 
   const ctaRef = useRef(null);   // the real Add/Buy row
@@ -52,7 +53,7 @@ export default function Product() {
 
   useEffect(() => {
     setP(null); setErr(false); setImgIdx(0); setSize(''); setQty(1);
-    setSizeErr(false); setAdded(false); setBundle([]); setRelated([]);
+    setSizeErr(false); setAdded(false); setBundle([]); setRelated([]); setComplete([]);
     setReviewTotal(null);
     api(`/products/${slug}`)
       .then((d) => {
@@ -68,6 +69,19 @@ export default function Product() {
       .catch(() => setErr(true));
     api(`/products/${slug}/related`).then((d) => setRelated(d.products || [])).catch(() => setRelated([]));
   }, [slug]); // eslint-disable-line
+
+  /* ── CK-style "Complete the Look" — the section must NEVER sit empty.
+     Priority: merchant bundle → same-category picks. Related is kept for the
+     "You may also like" row, which dedupes against this list. */
+  useEffect(() => {
+    if (!p) return;
+    if (bundle.length) { setComplete(bundle.slice(0, 4)); return; }
+    let alive = true;
+    api(`/products?category=${p.categorySlug}&limit=4&sort=popular`)
+      .then((x) => { if (alive) setComplete((x.products || []).filter((pr) => pr.slug !== p.slug).slice(0, 4)); })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, [p, bundle]); // eslint-disable-line
 
   useEffect(() => { setAdded(false); }, [size, color, qty]);
 
@@ -108,6 +122,17 @@ export default function Product() {
 
   const tierLabel = p.tier === 'Premium' ? 'Signature' : p.tier;
   const reviewsShown = reviewTotal ?? 0;
+
+  /* CK-style: Earn X points — mirrors the loyalty earn rate (server decides
+     the real award; this is the same display-only estimate checkout uses). */
+  const loyaltyCfg = settings?.loyalty;
+  const showPoints = loyaltyCfg?.enabled === true;
+  const earnPoints = showPoints
+    ? Math.floor(p.price * (Number(loyaltyCfg?.earn?.perCurrency) || 0.01))
+    : 0;
+
+  /* "You may also like" never duplicates "Complete the Look". */
+  const relatedExtra = related.filter((r) => !complete.some((c) => c.slug === r.slug));
 
   const extraBadges = (p.badges || [])
     .filter((b) => String(b).trim().toLowerCase() !== String(tierLabel).trim().toLowerCase());
@@ -180,13 +205,15 @@ export default function Product() {
               {p.name}
             </h1>
 
-            {/* Ratings & SKU */}
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-neutral-500 font-mono">
+            {/* Ratings & Item No — CK style: "(1) 5.0 / 5 · Item No. LX001544" */}
+            <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-xs text-neutral-500 font-mono">
               {reviewsShown > 0 ? (
                 <>
                   <span className="inline-flex items-center gap-1 text-neutral-900 font-semibold">
                     <Star size={13} fill="currentColor" aria-hidden="true" className="text-amber-500" />
                     <span>{p.ratingAvg.toFixed(1)}</span>
+                    <span className="text-neutral-400 font-normal">/ 5</span>
+                    <span className="text-neutral-400 font-normal">({reviewsShown})</span>
                   </span>
                   <span aria-hidden="true" className="text-neutral-300">|</span>
                   <a href="#reviews" className="hover:text-neutral-900 underline underline-offset-4 decoration-1">
@@ -194,8 +221,14 @@ export default function Product() {
                   </a>
                   <span aria-hidden="true" className="text-neutral-300">|</span>
                 </>
-              ) : null}
-              <span>SKU: <span className="font-semibold text-neutral-800">{p.sku || p._id?.slice(-8).toUpperCase()}</span></span>
+              ) : (
+                <span className="inline-flex items-center gap-1 text-neutral-500">
+                  <Star size={12} fill="currentColor" aria-hidden="true" className="text-neutral-300" />
+                  No reviews yet
+                  <span aria-hidden="true" className="text-neutral-300">|</span>
+                </span>
+              )}
+              <span>Item No. <span className="font-semibold text-neutral-800">{p.sku || p._id?.slice(-8).toUpperCase()}</span></span>
             </div>
 
             {/* Price section */}
@@ -313,6 +346,9 @@ export default function Product() {
                   <AlertCircle size={12} /> Choose your size
                 </p>
               )}
+              {!sizeErr && !size && (
+                <p className="text-[11px] text-neutral-400 mt-2">Please select a size</p>
+              )}
             </fieldset>
           )}
 
@@ -365,6 +401,25 @@ export default function Product() {
             </p>
           </div>
 
+          {/* ── CK-style Perks & Rewards ──
+              Calvin Klein quotes shipping + points right under the buy buttons
+              ("Free Standard Shipping on $75+", "Earn 780 Points 2X"). Same
+              placement here: one rewards strip (loyalty on) + one shipping note. */}
+          <div className="space-y-2.5">
+            {showPoints && (
+              <div className="flex items-center gap-2.5 rounded-[2px] border border-neutral-200 bg-white px-4 py-3">
+                <Award size={15} className="shrink-0 text-neutral-800" aria-hidden="true" />
+                <p className="text-xs leading-relaxed text-neutral-700">
+                  Earn <span className="font-bold text-neutral-900 tabular-nums">{earnPoints} {earnPoints === 1 ? 'point' : 'points'}</span> with this purchase
+                  {' '}<Link to="/rewards" className="font-semibold text-[#6B7252] underline underline-offset-4 hover:text-neutral-900">Join HUSHAE Circle</Link>
+                </p>
+              </div>
+            )}
+            <p className="text-[11px] leading-relaxed text-neutral-500">
+              Free standard shipping on orders over {pkr(settings?.freeShippingThreshold ?? 4999)} · COD available nationwide · Discreet packaging on every order
+            </p>
+          </div>
+
           {/* Offers Panel */}
           <div className="pt-2">
             <Suspense fallback={null}>
@@ -386,34 +441,13 @@ export default function Product() {
             ))}
           </ul>
 
-          {/* Accordion Sheets (Detailed Description) */}
+          {/* ── CK-style Accordions: Product Details · Fabric & Care · Shipping & Returns */}
           <div className="pt-2 space-y-1">
-            <Accordion title="Detailed Description" defaultOpen>
+            <Accordion title="Product Details" defaultOpen>
               <p className="text-sm text-neutral-600 leading-relaxed font-light">{p.description}</p>
-            </Accordion>
-            <Accordion title="Fabric & Feel (Strict Quality)">
-              <p className="font-semibold text-neutral-900 text-sm">{p.fabric}</p>
-              <p className="mt-2 text-sm text-neutral-600 leading-relaxed font-light">Every HUSHAE fabric is wash-tested for 40 cycles before it enters the edit — softness in, softness out.</p>
-            </Accordion>
-            <Accordion title="Care & Maintenance">
-              <ul className="list-disc space-y-1.5 pl-5 text-sm text-neutral-600 font-light">
-                {(p.care || []).map((c) => <li key={c}>{c}</li>)}
-              </ul>
-            </Accordion>
-            <Accordion title="Shipping & Returns Policy">
-              <p className="text-sm text-neutral-600 leading-relaxed font-light">
-                Flat {pkr(settings?.shippingFlatRate ?? 350)} nationwide, free over {pkr(settings?.freeShippingThreshold ?? 4999)}.
-                Dispatched in 24–48h in plain, unmarked packaging.
-              </p>
-              <p className="mt-2 text-sm text-neutral-600 leading-relaxed font-light">
-                Unworn pieces exchange within 14 days — size swaps are free. For hygiene reasons innerwear is only
-                returnable if it arrives faulty.
-              </p>
-            </Accordion>
-            <Accordion title="Composition Details">
-              <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-xs">
+              <dl className="mt-4 grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 border-t border-neutral-100 pt-4 text-xs">
                 {[
-                  ['SKU', p.sku || p._id?.toUpperCase()],
+                  ['Item No.', p.sku || p._id?.toUpperCase()],
                   ['Material', p.fabric],
                   ['Tier', p.tier === 'Premium' ? 'Signature' : p.tier],
                   ['Category', p.categorySlug?.replace(/-/g, ' ')],
@@ -426,21 +460,41 @@ export default function Product() {
                 ))}
               </dl>
             </Accordion>
+            <Accordion title="Fabric & Care">
+              <p className="font-semibold text-neutral-900 text-sm">{p.fabric}</p>
+              <p className="mt-2 text-sm text-neutral-600 leading-relaxed font-light">Every HUSHAE fabric is wash-tested for 40 cycles before it enters the edit — softness in, softness out.</p>
+              {(p.care || []).length > 0 && (
+                <ul className="mt-3 list-disc space-y-1.5 pl-5 text-sm text-neutral-600 font-light">
+                  {(p.care || []).map((c) => <li key={c}>{c}</li>)}
+                </ul>
+              )}
+            </Accordion>
+            <Accordion title="Shipping & Returns">
+              <p className="text-sm text-neutral-600 leading-relaxed font-light">
+                Flat {pkr(settings?.shippingFlatRate ?? 350)} nationwide, free over {pkr(settings?.freeShippingThreshold ?? 4999)}.
+                Dispatched in 24–48h in plain, unmarked packaging.
+              </p>
+              <p className="mt-2 text-sm text-neutral-600 leading-relaxed font-light">
+                Unworn pieces exchange within 14 days — size swaps are free. For hygiene reasons innerwear is only
+                returnable if it arrives faulty.
+              </p>
+            </Accordion>
           </div>
         </aside>
       </div>
 
-      {/* Complete the Set / Pairs with */}
-      {bundle.length > 0 && (
+      {/* ── CK-style "Complete the Look" — ALWAYS populated: bundle first,
+          same-category picks as fallback, so the section never sits empty. */}
+      {complete.length > 0 && (
         <div className="mt-24 md:mt-32">
-          <ProductRow eyebrow="Complete the set" title="Pairs perfectly with" products={bundle.map(snap)} />
+          <ProductRow eyebrow="Complete the look" title="Pairs perfectly with" products={complete.map(snap)} />
         </div>
       )}
 
-      {/* You may also like */}
-      {related.length > 0 && (
+      {/* You may also like — deduped against Complete the Look */}
+      {relatedExtra.length > 0 && (
         <div className="mt-24 md:mt-32">
-          <ProductRow eyebrow="You may also like" title="Related pieces" products={related.map(snap)} />
+          <ProductRow eyebrow="You may also like" title="Related pieces" products={relatedExtra.map(snap)} />
         </div>
       )}
 
