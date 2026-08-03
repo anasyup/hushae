@@ -100,6 +100,13 @@ export default function Products() {
     try { await api(`/products/${p._id}/permanent`, { method: 'DELETE', token: auth.token }); toast('Product deleted'); load(); }
     catch (ex) { toast(ex.message); }
   };
+  const duplicate = async (p) => {
+    try {
+      const d = await api(`/products/${p._id}/duplicate`, { method: 'POST', token: auth.token });
+      toast(`"${d.product.name}" created as draft`);
+      load();
+    } catch (ex) { toast(ex.message); }
+  };
 
   const toggleSel = (id) => {
     setSelected((s) => {
@@ -222,7 +229,7 @@ export default function Products() {
       ) : filtered.length === 0 ? (
         <EmptyState onClear={clearFilters} hasFilters={hasFilters} />
       ) : view === 'grid' ? (
-        <GridView products={paged} onEnable={enable} onDisable={disable} onRemove={remove} />
+        <GridView products={paged} onEnable={enable} onDisable={disable} onRemove={remove} onDuplicate={duplicate} />
       ) : (
         <ListView
           products={paged}
@@ -232,6 +239,7 @@ export default function Products() {
           onEnable={enable}
           onDisable={disable}
           onRemove={remove}
+          onDuplicate={duplicate}
         />
       )}
 
@@ -364,7 +372,7 @@ function StatusChip({ p }) {
   return <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700">● Live</span>;
 }
 
-function ListView({ products, selected, onToggleSel, onToggleAll, onEnable, onDisable, onRemove }) {
+function ListView({ products, selected, onToggleSel, onToggleAll, onEnable, onDisable, onRemove, onDuplicate }) {
   const allSelected = products.length > 0 && selected.size === products.length;
   return (
     <div className="overflow-x-auto rounded-2xl border border-neutral-200 bg-white">
@@ -422,6 +430,9 @@ function ListView({ products, selected, onToggleSel, onToggleAll, onEnable, onDi
                   <Link to={`/admin/products/${p._id}`} className="rounded-lg p-2 text-neutral-500 transition hover:bg-neutral-100 hover:text-neutral-900" aria-label="Edit">
                     <Pencil size={13} />
                   </Link>
+                  <button onClick={() => onDuplicate(p)} className="rounded-lg p-2 text-neutral-500 transition hover:bg-sky-50 hover:text-sky-700" aria-label="Duplicate" title="Duplicate product">
+                    <Copy size={13} />
+                  </button>
                   {p.isActive ? (
                     <button onClick={() => onDisable(p)} className="rounded-lg p-2 text-neutral-500 transition hover:bg-amber-50 hover:text-amber-700" aria-label="Archive" title="Archive">
                       <Archive size={13} />
@@ -444,7 +455,7 @@ function ListView({ products, selected, onToggleSel, onToggleAll, onEnable, onDi
   );
 }
 
-function GridView({ products, onEnable, onDisable, onRemove }) {
+function GridView({ products, onEnable, onDisable, onRemove, onDuplicate }) {
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {products.map((p) => (
@@ -476,6 +487,7 @@ function GridView({ products, onEnable, onDisable, onRemove }) {
               <p className="text-[9px] font-semibold text-neutral-900">{pkr(p.price)}</p>
               <div className="flex items-center gap-1">
                 <Link to={`/admin/products/${p._id}`} className="rounded-lg p-1.5 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900"><Pencil size={12} /></Link>
+                <button onClick={() => onDuplicate(p)} className="rounded-lg p-1.5 text-neutral-500 hover:bg-sky-50 hover:text-sky-700" aria-label="Duplicate" title="Duplicate product"><Copy size={12} /></button>
                 {p.isActive ? (
                   <button onClick={() => onDisable(p)} className="rounded-lg p-1.5 text-neutral-500 hover:bg-amber-50 hover:text-amber-700"><Archive size={12} /></button>
                 ) : (

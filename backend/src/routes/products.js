@@ -174,6 +174,36 @@ router.post('/', protect, adminOnly, asyncHandler(async (req, res) => {
   res.status(201).json({ product });
 }));
 
+/* Duplicate a product — clone into a DRAFT so it never appears on the
+ * storefront until the merchant edits and publishes it. New slug/SKU so
+ * there are no unique-index collisions. Images are shared references. */
+router.post('/:id/duplicate', protect, adminOnly, asyncHandler(async (req, res) => {
+  const src = await Product.findById(req.params.id);
+  if (!src) return res.status(404).json({ message: 'Product not found' });
+
+  const baseName = `${src.name} (Copy)`;
+  let slug = slugify(baseName);
+  if (await Product.findOne({ slug })) slug = `${slug}-${Date.now().toString(36).slice(-4)}`;
+  let sku = `${src.sku}-COPY`;
+  if (await Product.findOne({ sku })) sku = `${sku}-${Date.now().toString(36).slice(-4)}`;
+
+  const data = src.toObject();
+  delete data._id;
+  delete data.createdAt;
+  delete data.updatedAt;
+  delete data.__v;
+
+  const product = await Product.create({
+    ...data,
+    name: baseName,
+    slug,
+    sku,
+    status: 'draft',
+    isActive: false,
+  });
+  res.status(201).json({ product });
+}));
+
 /* Bulk update — apply the same patch to many products in one call.
  * Body: { ids: [id1, id2, ...], patch: { field: value, ... } }
  * Whitelisted fields: price, compareAtPrice, costPrice, stock, tier, isActive,
