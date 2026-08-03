@@ -29,7 +29,8 @@ export default function Shop({ preset = {} }) {
   }, [f.queryString]);
   const visible = useMemo(() => applyClientFacets(products, f), [products, f]);
   const activeCat = cats.find((c) => c.slug === f.category);
-  const meta = activeCat ? activeCat.name : TITLES[preset.key] || (f.get('q') ? `"${f.get('q')}"` : TITLES.all);
+  const fallbackCategoryName = f.category ? f.category.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()) : null;
+  const meta = activeCat ? activeCat.name : TITLES[preset.key] || fallbackCategoryName || (f.get('q') ? `"${f.get('q')}"` : TITLES.all);
   const count = visible?.length ?? null;
   const activeFilterCount = f.activeCount;
   return (

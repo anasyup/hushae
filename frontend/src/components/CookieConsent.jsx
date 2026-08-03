@@ -43,12 +43,12 @@ export default function CookieConsent() {
 
   return (
     <AnimatePresence>
-      <div className={`fixed inset-x-0 bottom-0 z-[90] flex justify-center p-3 sm:inset-0 sm:items-center sm:p-4 ${
+      <div className={`fixed inset-x-0 bottom-16 z-[90] flex justify-center px-3 pb-1 pt-0 sm:inset-0 sm:items-center sm:p-4 ${
         manage ? 'bg-obsidian/25 backdrop-blur-[2px]' : 'sm:bg-obsidian/15 sm:backdrop-blur-[2px]'
       }`}>
         <motion.div
           initial={{ opacity: 0, y: 24, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ duration: 0.35 }}
-          className="mb-[calc(env(safe-area-inset-bottom)+72px)] max-h-[70vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-line bg-alabaster p-4 shadow-card sm:mb-0 sm:max-h-none sm:rounded-[1.8rem] sm:p-7 md:p-9">
+          className="max-h-[50vh] w-full max-w-lg overflow-y-auto rounded-xl border border-line bg-alabaster p-3 sm:mb-0 sm:max-h-none sm:rounded-[1.8rem] sm:p-7 md:p-9">
           <div className="flex items-center gap-2.5 sm:gap-3">
             <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-obsidian text-alabaster sm:h-10 sm:w-10 sm:rounded-xl"><Cookie size={16} /></span>
             <p className="font-display text-[15px] uppercase tracking-widest2 sm:text-lg">{cfg?.title || 'Cookies on HUSHAE'}</p>
