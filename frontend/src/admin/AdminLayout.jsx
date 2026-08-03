@@ -9,6 +9,7 @@ import { useApp } from '../store/AppContext';
 import { applyAdminTheme, clearAdminTheme } from '../lib/adminTheme';
 import ProfitCalculator from './ProfitCalculator';
 import NotificationBell from './dashboard/NotificationBell';
+import CommandPalette from './CommandPalette';
 
 /* ============================================================================
  * ROLE-BASED PERMISSIONS
@@ -222,8 +223,19 @@ export default function AdminLayout({ children, title }) {
   const { auth } = useApp();
   const loc = useLocation();
   const [drawer, setDrawer] = useState(false);
+  const [cmdOpen, setCmdOpen] = useState(false);
   const role = auth?.user?.role;
   useEffect(() => { applyAdminTheme(); return () => clearAdminTheme(); }, []);
+  // Cmd+K
+  useEffect(() => {
+    const onKey = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault(); setCmdOpen((v) => !v);
+      }
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, []);
   if (!auth) return <Navigate to="/admin/login" state={{ from: loc.pathname }} replace />;
   if (!ALL_ROLES.includes(role || '')) return <Navigate to="/admin/login" replace />;
   if (isPathBlocked(loc.pathname, role)) return (
@@ -242,15 +254,16 @@ export default function AdminLayout({ children, title }) {
       {drawer && <div className="fixed inset-0 z-50 md:hidden"><div className="absolute inset-0 bg-black/40" onClick={() => setDrawer(false)} /><div className="absolute inset-y-0 left-0 w-64 shadow-xl"><button onClick={() => setDrawer(false)} className="absolute right-3 top-4 z-10 rounded-lg p-1.5 text-neutral-500 hover:bg-white/70"><X size={18} /></button><SidebarContent onNavigate={() => setDrawer(false)} /></div></div>}
       <div className="flex min-h-screen min-w-0 flex-1 flex-col md:pl-60">
         <div className="sticky top-0 z-30 flex items-center gap-3 border-b border-black/5 bg-[#ebebeb] px-4 py-3 md:hidden"><button onClick={() => setDrawer(true)} className="rounded-lg p-1.5 text-neutral-700 hover:bg-white/70"><Menu size={20} /></button><Link to="/admin" className="font-sans text-base font-bold tracking-widest text-neutral-900">HUSHAE</Link></div>
-        <TopBar title={title} auth={auth} />
+        <TopBar title={title} auth={auth} onCmdK={() => setCmdOpen(true)} />
         <div className="min-w-0 flex-1 p-4 md:p-8">{title && <h1 className="mb-6 font-sans text-[28px] font-semibold leading-tight text-neutral-900 md:hidden">{title}</h1>}<div className="admin-main min-w-0">{children}</div></div>
       </div>
       <ProfitCalculator />
+      {cmdOpen && <CommandPalette onClose={() => setCmdOpen(false)} />}
     </div>
   );
 }
 
-function TopBar({ title, auth }) {
+function TopBar({ title, auth, onCmdK }) {
   const loc = useLocation();
   const [createOpen, setCreateOpen] = useState(false);
   const createRef = useRef(null);
@@ -275,6 +288,8 @@ function TopBar({ title, auth }) {
       <div className="flex items-center justify-between gap-6">
         <div className="min-w-0 flex-1"><h1 className="truncate font-sans text-[22px] font-semibold leading-tight text-neutral-900">{title || crumbs[crumbs.length - 1]?.label}</h1><nav className="mt-0.5 flex items-center gap-1.5 text-[11px] text-neutral-500">{crumbs.map((c, i) => <span key={c.to} className="inline-flex items-center gap-1.5">{i > 0 && <span className="text-neutral-300">/</span>}{i === crumbs.length - 1 ? <span className="font-medium text-neutral-700">{c.label}</span> : <Link to={c.to} className="hover:text-neutral-900">{c.label}</Link>}</span>)}</nav></div>
         <div className="flex items-center gap-2">
+          {/* ⌘K Search button */}
+          <button onClick={onCmdK} className="hidden items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-[10px] font-semibold text-neutral-500 transition hover:border-neutral-400 hover:text-neutral-700 md:inline-flex" title="Search admin (⌘K)"><Command size={10} /> Search</button>
           <span className="hidden items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-[11px] font-semibold text-neutral-600 lg:inline-flex"><span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />Store online</span>
           {canCreate && <div className="relative" ref={createRef}><button onClick={() => setCreateOpen((v) => !v)} className="inline-flex items-center gap-1 rounded-full bg-neutral-900 px-3 py-1.5 text-[11px] font-semibold text-white transition hover:bg-neutral-800"><Plus size={12} /> Create</button>{createOpen && <div className="absolute right-0 top-full z-30 mt-1 w-56 rounded-xl border border-neutral-200 bg-white py-1 shadow-lg"><Link to="/admin/products/new" onClick={() => setCreateOpen(false)} className="flex items-center gap-2.5 px-3.5 py-2 text-[12px] font-medium text-neutral-700 transition hover:bg-neutral-50"><Package size={13} className="text-neutral-400" /> New product</Link><Link to="/admin/promotions/new" onClick={() => setCreateOpen(false)} className="flex items-center gap-2.5 px-3.5 py-2 text-[12px] font-medium text-neutral-700 transition hover:bg-neutral-50"><Megaphone size={13} className="text-neutral-400" /> New promotion</Link><Link to="/admin/discounts" onClick={() => setCreateOpen(false)} className="flex items-center gap-2.5 px-3.5 py-2 text-[12px] font-medium text-neutral-700 transition hover:bg-neutral-50"><BadgePercent size={13} className="text-neutral-400" /> New discount</Link><Link to="/admin/cms/new" onClick={() => setCreateOpen(false)} className="flex items-center gap-2.5 px-3.5 py-2 text-[12px] font-medium text-neutral-700 transition hover:bg-neutral-50"><FileText size={13} className="text-neutral-400" /> New page</Link></div>}</div>}
           <Link to="/" target="_blank" className="hidden items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-[11px] font-semibold text-neutral-600 transition hover:border-neutral-400 hover:text-neutral-900 md:inline-flex" title="Open storefront"><Globe size={12} /> View store</Link>
