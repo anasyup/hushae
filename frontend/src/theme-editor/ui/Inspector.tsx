@@ -56,7 +56,7 @@ function NodePanel() {
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
             {breadcrumb && (
-              <button onClick={() => select(section.id)} className="flex items-center gap-1 text-[11px] text-neutral-400 hover:text-[#005BD3]">
+              <button onClick={() => select(section.id)} className="flex items-center gap-1 text-[13px] text-neutral-400 hover:text-[#005BD3]">
                 <ChevronLeft size={11} /> {breadcrumb}
               </button>
             )}

@@ -56,25 +56,25 @@ export default function OrderInvoice() {
       <div className="flex items-start justify-between border-b-2 border-neutral-900 pb-6">
         <div>
           <p className="font-sans text-3xl font-bold tracking-widest">HUSHAE</p>
-          <p className="mt-1 text-[9px] uppercase tracking-widest text-neutral-500">Premium innerwear · Made in Pakistan</p>
+          <p className="mt-1 text-[12px] uppercase tracking-widest text-neutral-500">Premium innerwear · Made in Pakistan</p>
         </div>
         <div className="text-right">
-          <p className="text-[9px] font-bold uppercase tracking-widest text-neutral-500">Invoice</p>
+          <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-500">Invoice</p>
           <p className="mt-1 font-mono text-lg font-bold">{order.orderNumber}</p>
-          <p className="mt-1 text-[9px] text-neutral-500">{fmtDate(order.createdAt)}</p>
+          <p className="mt-1 text-[12px] text-neutral-500">{fmtDate(order.createdAt)}</p>
         </div>
       </div>
 
       {/* Bill to / Ship to */}
       <div className="mt-8 grid grid-cols-2 gap-8">
         <div>
-          <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-neutral-500">Bill to</p>
+          <p className="mb-2 text-[13px] font-bold uppercase tracking-widest text-neutral-500">Bill to</p>
           <p className="text-sm font-semibold">{c.name}</p>
           <p className="mt-0.5 text-xs text-neutral-600">{c.phone}</p>
           {c.email && <p className="text-xs text-neutral-600">{c.email}</p>}
         </div>
         <div>
-          <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-neutral-500">Ship to</p>
+          <p className="mb-2 text-[13px] font-bold uppercase tracking-widest text-neutral-500">Ship to</p>
           <p className="text-sm">{c.address}</p>
           <p className="mt-0.5 text-xs text-neutral-600">{c.city}, {c.province} {c.postalCode}</p>
         </div>
@@ -84,10 +84,10 @@ export default function OrderInvoice() {
       <table className="mt-8 w-full">
         <thead>
           <tr className="border-b border-neutral-300">
-            <th className="pb-2 text-left text-[10px] font-bold uppercase tracking-widest text-neutral-500">Item</th>
-            <th className="pb-2 text-center text-[10px] font-bold uppercase tracking-widest text-neutral-500">Qty</th>
-            <th className="pb-2 text-right text-[10px] font-bold uppercase tracking-widest text-neutral-500">Price</th>
-            <th className="pb-2 text-right text-[10px] font-bold uppercase tracking-widest text-neutral-500">Total</th>
+            <th className="pb-2 text-left text-[13px] font-bold uppercase tracking-widest text-neutral-500">Item</th>
+            <th className="pb-2 text-center text-[13px] font-bold uppercase tracking-widest text-neutral-500">Qty</th>
+            <th className="pb-2 text-right text-[13px] font-bold uppercase tracking-widest text-neutral-500">Price</th>
+            <th className="pb-2 text-right text-[13px] font-bold uppercase tracking-widest text-neutral-500">Total</th>
           </tr>
         </thead>
         <tbody>
@@ -95,7 +95,7 @@ export default function OrderInvoice() {
             <tr key={i} className="border-b border-neutral-100">
               <td className="py-3 text-sm">
                 <p className="font-medium">{it.name}</p>
-                <p className="mt-0.5 text-[9px] text-neutral-500">
+                <p className="mt-0.5 text-[12px] text-neutral-500">
                   {it.color}{it.size ? ` · ${it.size}` : ''}
                 </p>
               </td>
@@ -129,7 +129,7 @@ export default function OrderInvoice() {
             <span>{pkr(order.total)}</span>
           </div>
           <div className="mt-2 text-right">
-            <span className={`inline-block rounded-full px-3 py-1 text-[9px] font-semibold ${order.paymentStatus === 'Paid' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}`}>
+            <span className={`inline-block rounded-full px-3 py-1 text-[12px] font-semibold ${order.paymentStatus === 'Paid' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}`}>
               {order.paymentMethod} · {order.paymentStatus}
             </span>
           </div>
@@ -138,8 +138,8 @@ export default function OrderInvoice() {
 
       {/* Footer */}
       <div className="mt-16 border-t border-neutral-200 pt-6 text-center">
-        <p className="text-[9px] text-neutral-500">Thank you for shopping with HUSHAE</p>
-        <p className="mt-1 text-[10px] text-neutral-400">Questions? Contact us via /track on our website.</p>
+        <p className="text-[12px] text-neutral-500">Thank you for shopping with HUSHAE</p>
+        <p className="mt-1 text-[13px] text-neutral-400">Questions? Contact us via /track on our website.</p>
       </div>
     </div>
   );

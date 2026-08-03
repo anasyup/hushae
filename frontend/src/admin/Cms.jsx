@@ -32,13 +32,13 @@ function StatePill({ state, hasDraft }) {
   const r = state?.reason || 'draft';
   return (
     <span className="inline-flex flex-wrap items-center gap-1">
-      <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[9px] font-semibold ring-1 ${STATE_STYLE[r] || STATE_STYLE.draft}`}>
+      <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[13px] font-semibold ring-1 ${STATE_STYLE[r] || STATE_STYLE.draft}`}>
         {STATE_LABEL[r] || r}
       </span>
       {/* A live page with unsaved edits waiting behind it is the single most
           confusing CMS state. Say so rather than leaving it to be discovered. */}
       {hasDraft && (
-        <span className="inline-flex items-center rounded-full bg-violet-50 px-2 py-1 text-[10px] font-semibold text-violet-800 ring-1 ring-violet-200">
+        <span className="inline-flex items-center rounded-full bg-violet-50 px-2 py-1 text-[13px] font-semibold text-violet-800 ring-1 ring-violet-200">
           Unpublished edits
         </span>
       )}
@@ -125,16 +125,16 @@ export default function Cms() {
           </span>
           <div className="min-w-0">
             <h2 className="font-sans text-2xl leading-tight text-neutral-900">Pages</h2>
-            <p className="mt-1 text-[10px] leading-relaxed text-neutral-600">
+            <p className="mt-1 text-[13px] leading-relaxed text-neutral-600">
               Your own pages — size guide, about us, returns policy. Write it here, it appears on the shop.
             </p>
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Link to="/admin/cms/redirects" className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-neutral-300 px-3 text-[9px] font-semibold text-neutral-700 transition hover:bg-neutral-50">
+          <Link to="/admin/cms/redirects" className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-neutral-300 px-3 text-[13px] font-semibold text-neutral-700 transition hover:bg-neutral-50">
             <Signpost size={13} aria-hidden="true" /> Old addresses
           </Link>
-          <Link to="/admin/cms/new" className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg bg-neutral-900 px-4 text-[9px] font-semibold text-white transition hover:bg-neutral-800">
+          <Link to="/admin/cms/new" className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg bg-neutral-900 px-4 text-[13px] font-semibold text-white transition hover:bg-neutral-800">
             <Plus size={13} aria-hidden="true" /> New page
           </Link>
         </div>
@@ -159,17 +159,17 @@ export default function Cms() {
             onChange={(e) => setTerm(e.target.value)}
             aria-label="Search pages by name or address"
             placeholder="Search pages…"
-            className="h-11 w-full rounded-lg border border-neutral-300 bg-white pl-9 pr-3 text-[10px] text-neutral-900 placeholder:text-neutral-500 focus:border-neutral-900 focus:outline-none focus:ring-1 focus:ring-neutral-900"
+            className="h-11 w-full rounded-lg border border-neutral-300 bg-white pl-9 pr-3 text-[13px] text-neutral-900 placeholder:text-neutral-500 focus:border-neutral-900 focus:outline-none focus:ring-1 focus:ring-neutral-900"
           />
         </div>
-        <button type="submit" className="min-h-[44px] rounded-lg border border-neutral-300 px-4 text-[9px] font-semibold text-neutral-700 transition hover:bg-neutral-50">
+        <button type="submit" className="min-h-[44px] rounded-lg border border-neutral-300 px-4 text-[13px] font-semibold text-neutral-700 transition hover:bg-neutral-50">
           Search
         </button>
         <div className="ml-auto">
           <label htmlFor="cms-type" className="sr-only">Filter by page kind</label>
           <select
             id="cms-type" value={type} onChange={(e) => setParam('type', e.target.value)}
-            className="h-11 rounded-lg border border-neutral-300 bg-white px-3 text-[10px] text-neutral-900 focus:border-neutral-900 focus:outline-none focus:ring-1 focus:ring-neutral-900"
+            className="h-11 rounded-lg border border-neutral-300 bg-white px-3 text-[13px] text-neutral-900 focus:border-neutral-900 focus:outline-none focus:ring-1 focus:ring-neutral-900"
           >
             <option value="">All kinds</option>
             {PAGE_TYPES.map((t) => <option key={t.type} value={t.type}>{t.label}</option>)}
@@ -184,7 +184,7 @@ export default function Cms() {
             <button
               key={id || 'all'} type="button" onClick={() => setParam('status', id)}
               aria-pressed={status === id}
-              className={`inline-flex min-h-[44px] items-center gap-1.5 rounded-full border px-3.5 text-[9px] font-medium transition ${status === id ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-50'}`}
+              className={`inline-flex min-h-[44px] items-center gap-1.5 rounded-full border px-3.5 text-[13px] font-medium transition ${status === id ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-50'}`}
             >
               {label}
               {!status && <span className={status === id ? 'text-white/70' : 'text-neutral-500'}>{n}</span>}
@@ -201,7 +201,7 @@ export default function Cms() {
             ? 'Try another filter, or clear the search.'
             : 'A page is anything with its own web address — a size guide, an about page, your returns policy. Nothing goes live until you press Publish.'}
           action={!(status || type || q) && (
-            <Link to="/admin/cms/new" className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg bg-neutral-900 px-4 text-[9px] font-semibold text-white transition hover:bg-neutral-800">
+            <Link to="/admin/cms/new" className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg bg-neutral-900 px-4 text-[13px] font-semibold text-white transition hover:bg-neutral-800">
               <Plus size={13} aria-hidden="true" /> Create your first page
             </Link>
           )}
@@ -211,18 +211,18 @@ export default function Cms() {
           {/* Bulk bar. Actions only appear with a selection so they never
               compete with the list for attention. */}
           <div className="mb-3 flex flex-wrap items-center gap-2 rounded-xl border border-neutral-200 bg-white px-4 py-2.5">
-            <label className="flex min-h-[44px] cursor-pointer items-center gap-2 text-[9px] font-medium text-neutral-700">
+            <label className="flex min-h-[44px] cursor-pointer items-center gap-2 text-[13px] font-medium text-neutral-700">
               <input type="checkbox" checked={allChecked} onChange={toggleAll} className="h-4 w-4 accent-neutral-900" />
               Select all ({rows.length})
             </label>
             {selected.length > 0 && (
               <>
-                <span className="text-[9px] text-neutral-600">{selected.length} selected</span>
+                <span className="text-[13px] text-neutral-600">{selected.length} selected</span>
                 <div className="ml-auto flex flex-wrap gap-2">
-                  <button type="button" disabled={busy} onClick={() => bulk('publish')} className="min-h-[44px] rounded-lg border border-neutral-300 px-3 text-[9px] font-semibold text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-50">Publish</button>
-                  <button type="button" disabled={busy} onClick={() => bulk('unpublish')} className="min-h-[44px] rounded-lg border border-neutral-300 px-3 text-[9px] font-semibold text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-50">Hide</button>
-                  <button type="button" disabled={busy} onClick={() => bulk('archive')} className="min-h-[44px] rounded-lg border border-neutral-300 px-3 text-[9px] font-semibold text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-50">Archive</button>
-                  <button type="button" disabled={busy} onClick={() => bulk('delete')} className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-red-200 px-3 text-[9px] font-semibold text-red-700 transition hover:bg-red-50 disabled:opacity-50">
+                  <button type="button" disabled={busy} onClick={() => bulk('publish')} className="min-h-[44px] rounded-lg border border-neutral-300 px-3 text-[13px] font-semibold text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-50">Publish</button>
+                  <button type="button" disabled={busy} onClick={() => bulk('unpublish')} className="min-h-[44px] rounded-lg border border-neutral-300 px-3 text-[13px] font-semibold text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-50">Hide</button>
+                  <button type="button" disabled={busy} onClick={() => bulk('archive')} className="min-h-[44px] rounded-lg border border-neutral-300 px-3 text-[13px] font-semibold text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-50">Archive</button>
+                  <button type="button" disabled={busy} onClick={() => bulk('delete')} className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-red-200 px-3 text-[13px] font-semibold text-red-700 transition hover:bg-red-50 disabled:opacity-50">
                     <Trash2 size={13} aria-hidden="true" /> Delete
                   </button>
                 </div>
@@ -241,12 +241,12 @@ export default function Cms() {
                     aria-label={`Select ${p.title}`} className="mt-1 h-4 w-4 shrink-0 accent-neutral-900"
                   />
                   <Link to={`/admin/cms/${p._id}`} className="min-w-0 flex-1">
-                    <p className="truncate text-[10px] font-semibold text-neutral-900">{p.title}</p>
-                    <p className="mt-0.5 truncate text-[9px] text-neutral-600">/{p.slug} · {typeOf(p.type).short}</p>
+                    <p className="truncate text-[13px] font-semibold text-neutral-900">{p.title}</p>
+                    <p className="mt-0.5 truncate text-[13px] text-neutral-600">/{p.slug} · {typeOf(p.type).short}</p>
                   </Link>
                 </div>
                 <div className="mt-2 pl-7"><StatePill state={p.state} hasDraft={p.hasDraft} /></div>
-                <div className="mt-2 flex flex-wrap items-center gap-3 pl-7 text-[9px] text-neutral-600">
+                <div className="mt-2 flex flex-wrap items-center gap-3 pl-7 text-[13px] text-neutral-600">
                   <span>Edited {fmtDate(p.updatedAt)}</span>
                   {p.state?.reason === 'scheduled' && p.publishAt && <span>Goes live {fmtWhen(p.publishAt)}</span>}
                   {p.showInFooter && <span>In footer</span>}
@@ -259,7 +259,7 @@ export default function Cms() {
           <div className="hidden overflow-hidden rounded-xl border border-neutral-200 md:block">
             <table className="w-full text-left">
               <caption className="sr-only">Pages, {rows.length} shown</caption>
-              <thead className="bg-neutral-50 text-[9px] uppercase tracking-wider text-neutral-600">
+              <thead className="bg-neutral-50 text-[13px] uppercase tracking-wider text-neutral-600">
                 <tr>
                   <th scope="col" className="w-10 px-4 py-3">
                     <input type="checkbox" checked={allChecked} onChange={toggleAll} aria-label="Select all pages" className="h-4 w-4 accent-neutral-900" />
@@ -271,7 +271,7 @@ export default function Cms() {
                   <th scope="col" className="px-4 py-3 text-right font-semibold">View</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-neutral-100 text-[10px]">
+              <tbody className="divide-y divide-neutral-100 text-[13px]">
                 {rows.map((p) => (
                   <tr key={p._id} className="bg-white transition hover:bg-neutral-50">
                     <td className="px-4 py-3">
@@ -279,7 +279,7 @@ export default function Cms() {
                     </td>
                     <td className="px-4 py-3">
                       <Link to={`/admin/cms/${p._id}`} className="font-medium text-neutral-900 underline-offset-2 hover:underline">{p.title}</Link>
-                      <p className="mt-0.5 text-[9px] text-neutral-600">
+                      <p className="mt-0.5 text-[13px] text-neutral-600">
                         /{p.slug}
                         {p.locked && ' · built in'}
                         {p.showInFooter && ' · footer'}
@@ -290,7 +290,7 @@ export default function Cms() {
                     <td className="px-4 py-3">
                       <StatePill state={p.state} hasDraft={p.hasDraft} />
                       {p.state?.reason === 'scheduled' && p.publishAt && (
-                        <p className="mt-1 text-[9px] text-neutral-600">{fmtWhen(p.publishAt)}</p>
+                        <p className="mt-1 text-[13px] text-neutral-600">{fmtWhen(p.publishAt)}</p>
                       )}
                     </td>
                     <td className="px-4 py-3 text-neutral-700">{fmtDate(p.updatedAt)}</td>
@@ -298,12 +298,12 @@ export default function Cms() {
                       {p.state?.live ? (
                         <a
                           href={`/${p.slug}`} target="_blank" rel="noreferrer"
-                          className="inline-flex min-h-[44px] items-center gap-1 text-[9px] font-semibold text-neutral-700 underline-offset-2 hover:underline"
+                          className="inline-flex min-h-[44px] items-center gap-1 text-[13px] font-semibold text-neutral-700 underline-offset-2 hover:underline"
                         >
                           Open <ExternalLink size={12} aria-hidden="true" />
                           <span className="sr-only">{p.title} in a new tab</span>
                         </a>
-                      ) : <span className="text-[9px] text-neutral-500">—</span>}
+                      ) : <span className="text-[13px] text-neutral-500">—</span>}
                     </td>
                   </tr>
                 ))}

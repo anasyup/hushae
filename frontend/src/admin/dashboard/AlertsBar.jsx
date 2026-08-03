@@ -36,7 +36,7 @@ export default function AlertsBar({ alerts }) {
     return (
       <div className="mb-6 flex items-center gap-2.5 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3">
         <CheckCircle2 size={16} className="shrink-0 text-emerald-600" />
-        <p className="text-[10px] font-medium text-emerald-800">All caught up 🎉 — nothing needs your attention right now.</p>
+        <p className="text-[13px] font-medium text-emerald-800">All caught up 🎉 — nothing needs your attention right now.</p>
       </div>
     );
   }
@@ -52,12 +52,12 @@ export default function AlertsBar({ alerts }) {
               <Icon size={14} />
             </span>
             <div className="min-w-0 flex-1">
-              <p className="truncate text-[10px] font-semibold text-neutral-900">{a.title}</p>
-              {a.detail && <p className="truncate text-[10px] text-neutral-500">{a.detail}</p>}
+              <p className="truncate text-[13px] font-semibold text-neutral-900">{a.title}</p>
+              {a.detail && <p className="truncate text-[13px] text-neutral-500">{a.detail}</p>}
             </div>
             <Link
               to={a.link}
-              className="hidden shrink-0 items-center gap-1 rounded-full bg-neutral-900 px-3 py-1.5 text-[9px] font-semibold text-white transition hover:bg-neutral-700 sm:inline-flex"
+              className="hidden shrink-0 items-center gap-1 rounded-full bg-neutral-900 px-3 py-1.5 text-[12px] font-semibold text-white transition hover:bg-neutral-700 sm:inline-flex"
             >
               {a.cta || 'Open'} <ArrowRight size={11} />
             </Link>

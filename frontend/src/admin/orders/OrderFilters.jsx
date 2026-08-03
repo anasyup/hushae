@@ -11,7 +11,7 @@ import {
  * ========================================================================== */
 
 const field = 'w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm outline-none transition focus:border-neutral-900 focus:ring-2 focus:ring-neutral-900/10';
-const label = 'mb-1 block text-[9px] font-semibold uppercase tracking-wider text-neutral-500';
+const label = 'mb-1 block text-[12px] font-semibold uppercase tracking-wider text-neutral-500';
 
 export default function OrderFilters({ filters, setFilter, resetFilters, activeFilterCount, facets, onExport, token }) {
   const [open, setOpen] = useState(false);
@@ -97,20 +97,20 @@ export default function OrderFilters({ filters, setFilter, resetFilters, activeF
               {suggestions.length > 0 ? suggestions.map((sg) => (
                 <button key={`${sg.type}-${sg.value}`} onClick={() => applySuggestion(sg.value)}
                   className="flex w-full items-center gap-2 px-3 py-1.5 text-left hover:bg-neutral-50">
-                  <span className="w-14 shrink-0 text-[10px] font-bold uppercase tracking-wide text-neutral-400">{sg.type}</span>
-                  <span className="min-w-0 flex-1 truncate text-[9px] text-neutral-800">{sg.value}</span>
-                  {sg.hint && <span className="shrink-0 text-[9px] text-neutral-400">{sg.hint}</span>}
+                  <span className="w-14 shrink-0 text-[13px] font-bold uppercase tracking-wide text-neutral-400">{sg.type}</span>
+                  <span className="min-w-0 flex-1 truncate text-[12px] text-neutral-800">{sg.value}</span>
+                  {sg.hint && <span className="shrink-0 text-[12px] text-neutral-400">{sg.hint}</span>}
                 </button>
               )) : (
                 <>
-                  <p className="flex items-center justify-between px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-neutral-400">
+                  <p className="flex items-center justify-between px-3 py-1 text-[13px] font-bold uppercase tracking-wide text-neutral-400">
                     Recent
                     <button onClick={() => { setRecent([]); localStorage.removeItem('hushae.orderSearches'); }}
                       className="font-medium normal-case tracking-normal hover:text-neutral-900">Clear</button>
                   </p>
                   {recent.map((r) => (
                     <button key={r} onClick={() => applySuggestion(r)}
-                      className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-[9px] text-neutral-700 hover:bg-neutral-50">
+                      className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-[12px] text-neutral-700 hover:bg-neutral-50">
                       <Search size={11} className="text-neutral-300" /> {r}
                     </button>
                   ))}
@@ -144,7 +144,7 @@ export default function OrderFilters({ filters, setFilter, resetFilters, activeF
         >
           <SlidersHorizontal size={14} /> Filters
           {activeFilterCount > 0 && (
-            <span className="ml-0.5 rounded-full bg-white/25 px-1.5 text-[9px] font-bold">{activeFilterCount}</span>
+            <span className="ml-0.5 rounded-full bg-white/25 px-1.5 text-[12px] font-bold">{activeFilterCount}</span>
           )}
         </button>
 

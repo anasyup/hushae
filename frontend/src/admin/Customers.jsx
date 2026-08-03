@@ -94,7 +94,7 @@ export default function Customers() {
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="Search name, email, or phone…"
-              className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900 !w-72 !py-2.5 !pl-9 !text-[10px]"
+              className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !w-72 !py-2.5 !pl-9 !text-[13px]"
             />
           </div>
           <div className="flex items-center gap-1 rounded-full border border-neutral-200 bg-white p-1">
@@ -102,7 +102,7 @@ export default function Customers() {
               <button
                 key={s.key}
                 onClick={() => setSegment(s.key)}
-                className={`rounded-full px-3 py-1.5 text-[10px] font-semibold transition ${
+                className={`rounded-full px-3 py-1.5 text-[13px] font-semibold transition ${
                   segment === s.key ? 'bg-neutral-900 text-white' : 'text-neutral-500 hover:text-neutral-900'
                 }`}
               >
@@ -111,7 +111,7 @@ export default function Customers() {
             ))}
           </div>
         </div>
-        <p className="text-[9px] text-neutral-500">
+        <p className="text-[12px] text-neutral-500">
           <b className="text-neutral-900">{filtered.length}</b> of {list?.length || 0}
         </p>
       </div>
@@ -121,12 +121,12 @@ export default function Customers() {
         <table className="w-full min-w-[880px]">
           <thead>
             <tr className="border-b border-neutral-200 bg-neutral-50/60">
-              <th className="px-3 py-2 text-left text-[10px] font-bold uppercase text-neutral-400">Customer</th>
-              <th className="px-3 py-2 text-left text-[10px] font-bold uppercase text-neutral-400">Contact</th>
-              <th className="px-3 py-2 text-left text-[10px] font-bold uppercase text-neutral-400">Joined</th>
-              <th className="px-3 py-2 text-left text-[10px] font-bold uppercase text-neutral-400">Orders</th>
-              <th className="px-3 py-2 text-left text-[10px] font-bold uppercase text-neutral-400">Spent</th>
-              <th className="px-3 py-2 text-left text-[10px] font-bold uppercase text-neutral-400" />
+              <th className="px-3 py-2 text-left text-[13px] font-bold uppercase text-neutral-400">Customer</th>
+              <th className="px-3 py-2 text-left text-[13px] font-bold uppercase text-neutral-400">Contact</th>
+              <th className="px-3 py-2 text-left text-[13px] font-bold uppercase text-neutral-400">Joined</th>
+              <th className="px-3 py-2 text-left text-[13px] font-bold uppercase text-neutral-400">Orders</th>
+              <th className="px-3 py-2 text-left text-[13px] font-bold uppercase text-neutral-400">Spent</th>
+              <th className="px-3 py-2 text-left text-[13px] font-bold uppercase text-neutral-400" />
             </tr>
           </thead>
           <tbody>
@@ -136,48 +136,48 @@ export default function Customers() {
                   className="cursor-pointer border-b border-neutral-100 transition hover:bg-neutral-50/70"
                   onClick={() => toggle(c.id)}
                 >
-                  <td className="px-3 py-2 text-[9px]">
+                  <td className="px-3 py-2 text-[12px]">
                     <div className="flex items-center gap-3">
-                      <span className="grid h-10 w-10 place-items-center rounded-full bg-neutral-900 text-[9px] font-bold uppercase text-white">
+                      <span className="grid h-10 w-10 place-items-center rounded-full bg-neutral-900 text-[12px] font-bold uppercase text-white">
                         {(c.name || '?').slice(0, 2).toUpperCase()}
                       </span>
                       <div>
-                        <p className="text-[10px] font-semibold text-neutral-900">{c.name}</p>
+                        <p className="text-[13px] font-semibold text-neutral-900">{c.name}</p>
                         {c.orders >= 2 && (
-                          <span className="mt-0.5 inline-flex items-center gap-1 rounded-full bg-amber-50 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-amber-700">
+                          <span className="mt-0.5 inline-flex items-center gap-1 rounded-full bg-amber-50 px-1.5 py-0.5 text-[12px] font-bold uppercase tracking-wider text-amber-700">
                             <Crown size={9} /> VIP
                           </span>
                         )}
                       </div>
                     </div>
                   </td>
-                  <td className="px-3 py-2 text-[9px]">
-                    <p className="flex items-center gap-1.5 text-[9px] text-neutral-700">
+                  <td className="px-3 py-2 text-[12px]">
+                    <p className="flex items-center gap-1.5 text-[12px] text-neutral-700">
                       <Mail size={11} className="text-neutral-400" /> {c.email}
                     </p>
-                    <p className="mt-0.5 flex items-center gap-1.5 text-[9px] text-neutral-500">
+                    <p className="mt-0.5 flex items-center gap-1.5 text-[12px] text-neutral-500">
                       <Phone size={11} className="text-neutral-400" /> {c.phone || '—'}
                     </p>
                   </td>
-                  <td className="table-cell text-[9px] text-neutral-500">{fmtDate(c.createdAt)}</td>
-                  <td className="px-3 py-2 text-[9px]">
-                    <span className="inline-flex items-center rounded-full bg-neutral-100 px-2 py-0.5 text-[9px] font-bold text-neutral-800 tabular-nums">
+                  <td className="table-cell text-[12px] text-neutral-500">{fmtDate(c.createdAt)}</td>
+                  <td className="px-3 py-2 text-[12px]">
+                    <span className="inline-flex items-center rounded-full bg-neutral-100 px-2 py-0.5 text-[12px] font-bold text-neutral-800 tabular-nums">
                       {c.orders}
                     </span>
                   </td>
                   <td className="table-cell font-sans font-semibold tabular-nums text-neutral-900">
                     {c.spent ? pkr(c.spent) : <span className="text-neutral-400">—</span>}
                   </td>
-                  <td className="px-3 py-2 text-[9px]">
+                  <td className="px-3 py-2 text-[12px]">
                     <ChevronDown size={14} className={`text-neutral-400 transition-transform ${open === c.id ? 'rotate-180' : ''}`} />
                   </td>
                 </tr>
                 {open === c.id && (
                   <tr className="border-b border-neutral-100 bg-neutral-50/60">
                     <td colSpan={6} className="px-6 py-4">
-                      <p className="mb-3 text-[10px] font-bold uppercase tracking-widest text-neutral-500">Order history</p>
+                      <p className="mb-3 text-[13px] font-bold uppercase tracking-widest text-neutral-500">Order history</p>
                       {(orders[c.id] || []).length === 0 ? (
-                        <p className="text-[9px] text-neutral-500">
+                        <p className="text-[12px] text-neutral-500">
                           {orders[c.id] ? 'This customer has not placed any orders yet.' : 'Loading orders…'}
                         </p>
                       ) : (
@@ -186,11 +186,11 @@ export default function Customers() {
                             <Link
                               key={o._id}
                               to={`/admin/orders/${o._id}`}
-                              className="grid grid-cols-[1.5fr_1fr_1fr_1fr] items-center gap-3 rounded-xl border border-neutral-200 bg-white px-4 py-2.5 text-[9px] transition hover:border-neutral-300 hover:shadow-sm"
+                              className="grid grid-cols-[1.5fr_1fr_1fr_1fr] items-center gap-3 rounded-xl border border-neutral-200 bg-white px-4 py-2.5 text-[12px] transition hover:border-neutral-300 hover:shadow-sm"
                             >
                               <span className="font-mono font-semibold text-neutral-900">{o.orderNumber}</span>
                               <span className="text-neutral-500">{fmtDate(o.createdAt)}</span>
-                              <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold bg-neutral-100 text-neutral-700 justify-self-start">{o.status}</span>
+                              <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[13px] font-semibold bg-neutral-100 text-neutral-700 justify-self-start">{o.status}</span>
                               <b className="justify-self-end tabular-nums">{pkr(o.total)}</b>
                             </Link>
                           ))}
@@ -211,7 +211,7 @@ export default function Customers() {
               <UsersIcon size={22} />
             </span>
             <p className="mt-3 text-sm font-medium text-neutral-700">No registered customers yet</p>
-            <p className="mt-1 max-w-xs text-[9px] text-neutral-500">Guest orders do not create accounts — customers must sign up to appear here.</p>
+            <p className="mt-1 max-w-xs text-[12px] text-neutral-500">Guest orders do not create accounts — customers must sign up to appear here.</p>
           </div>
         )}
         {list?.length > 0 && filtered.length === 0 && (
@@ -232,9 +232,9 @@ function Kpi({ icon: Icon, label, value, accent, hint }) {
         <span className="grid h-10 w-10 place-items-center rounded-xl" style={{ background: `${accent}12`, color: accent }}>
           <Icon size={16} strokeWidth={1.9} />
         </span>
-        {hint && <span className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400">{hint}</span>}
+        {hint && <span className="text-[13px] font-semibold uppercase tracking-wider text-neutral-400">{hint}</span>}
       </div>
-      <p className="mt-3 text-[10px] font-bold uppercase tracking-widest text-neutral-500">{label}</p>
+      <p className="mt-3 text-[13px] font-bold uppercase tracking-widest text-neutral-500">{label}</p>
       <p className="mt-0.5 font-sans text-[7px] font-semibold leading-none tabular-nums tracking-tight text-neutral-900">
         {value}
       </p>

@@ -84,7 +84,7 @@ export default function NotificationBell() {
       >
         <Bell size={15} />
         {data.unread > 0 && (
-          <span className="absolute -right-1 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-red-500 px-1 text-[9px] font-bold text-white">
+          <span className="absolute -right-1 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-red-500 px-1 text-[12px] font-bold text-white">
             {data.unread > 9 ? '9+' : data.unread}
           </span>
         )}
@@ -93,12 +93,12 @@ export default function NotificationBell() {
       {open && (
         <div className="absolute right-0 top-full z-30 mt-2 w-80 overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-xl">
           <div className="flex items-center justify-between border-b border-neutral-100 px-4 py-3">
-            <p className="text-[9px] font-bold uppercase tracking-widest text-neutral-500">
+            <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-500">
               Notifications{data.unread > 0 ? ` · ${data.unread} new` : ''}
             </p>
             {data.unread > 0 && (
               <button onClick={markAll} disabled={busy}
-                className="text-[9px] font-semibold text-neutral-500 transition hover:text-neutral-900 disabled:opacity-50">
+                className="text-[12px] font-semibold text-neutral-500 transition hover:text-neutral-900 disabled:opacity-50">
                 Mark all as read
               </button>
             )}
@@ -106,7 +106,7 @@ export default function NotificationBell() {
 
           <div className="max-h-96 overflow-y-auto">
             {data.items.length === 0 ? (
-              <p className="py-10 text-center text-[9px] text-neutral-400">You&apos;re all caught up.</p>
+              <p className="py-10 text-center text-[12px] text-neutral-400">You&apos;re all caught up.</p>
             ) : data.items.map((n) => {
               const Icon = ICON[n.type] || PackageX;
               return (
@@ -119,9 +119,9 @@ export default function NotificationBell() {
                     <Icon size={13} />
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate text-[9px] font-semibold text-neutral-900">{n.title}</span>
-                    {n.body && <span className="mt-0.5 block line-clamp-2 text-[10px] leading-snug text-neutral-500">{n.body}</span>}
-                    <span className="mt-1 block text-[9px] text-neutral-400">{ago(n.at)}</span>
+                    <span className="block truncate text-[12px] font-semibold text-neutral-900">{n.title}</span>
+                    {n.body && <span className="mt-0.5 block line-clamp-2 text-[13px] leading-snug text-neutral-500">{n.body}</span>}
+                    <span className="mt-1 block text-[12px] text-neutral-400">{ago(n.at)}</span>
                   </span>
                   {!n.read && <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-blue-500" />}
                 </button>

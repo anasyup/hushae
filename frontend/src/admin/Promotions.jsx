@@ -44,7 +44,7 @@ const STATE_LABEL = {
 function StatePill({ state }) {
   const r = state?.reason || 'disabled';
   return (
-    <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[9px] font-semibold ring-1 ${STATE_STYLE[r] || STATE_STYLE.disabled}`}>
+    <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[12px] font-semibold ring-1 ${STATE_STYLE[r] || STATE_STYLE.disabled}`}>
       {STATE_LABEL[r] || r}
     </span>
   );
@@ -176,19 +176,19 @@ export default function Promotions() {
           </span>
           <div>
             <h2 className="font-sans text-2xl leading-tight text-neutral-900">{routeType === 'bundle' ? 'Bundles' : routeType === 'flash' ? 'Flash sales' : 'Promotions'}</h2>
-            <p className="mt-1 text-[10px] leading-relaxed text-neutral-600">
+            <p className="mt-1 text-[13px] leading-relaxed text-neutral-600">
               Automatic discounts. Customers do not type a code — these apply themselves.
             </p>
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Link to="/admin/marketing/analytics" className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-neutral-300 px-3 text-[9px] font-semibold text-neutral-700 transition hover:bg-neutral-50">
+          <Link to="/admin/marketing/analytics" className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-neutral-300 px-3 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50">
             <BarChart3 size={13} /> Analytics
           </Link>
-          <Link to="/admin/marketing/settings" className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-neutral-300 px-3 text-[9px] font-semibold text-neutral-700 transition hover:bg-neutral-50">
+          <Link to="/admin/marketing/settings" className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-neutral-300 px-3 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50">
             <SettingsIcon size={13} /> Rules
           </Link>
-          <Link to="/admin/promotions/new" className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg bg-neutral-900 px-4 text-[9px] font-semibold text-white transition hover:bg-neutral-800">
+          <Link to="/admin/promotions/new" className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg bg-neutral-900 px-4 text-[12px] font-semibold text-white transition hover:bg-neutral-800">
             <Plus size={13} /> New promotion
           </Link>
         </div>
@@ -213,7 +213,7 @@ export default function Promotions() {
             {label}
           </button>
         ))}
-        <button type="button" onClick={exportCsv} className="ml-auto inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-neutral-300 px-3 text-[9px] font-semibold text-neutral-700 transition hover:bg-neutral-50">
+        <button type="button" onClick={exportCsv} className="ml-auto inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-neutral-300 px-3 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50">
           <Download size={13} /> Export
         </button>
       </div>
@@ -230,7 +230,7 @@ export default function Promotions() {
                 key={id || 'all'} type="button"
                 onClick={() => { const p = new URLSearchParams(params); if (id) p.set('state', id); else p.delete('state'); setParams(p); }}
                 aria-pressed={filter === id}
-                className={`inline-flex min-h-[44px] items-center gap-1.5 rounded-full border px-3.5 text-[9px] font-medium transition ${filter === id ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-50'}`}
+                className={`inline-flex min-h-[44px] items-center gap-1.5 rounded-full border px-3.5 text-[12px] font-medium transition ${filter === id ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-50'}`}
               >
                 {label}<span className={filter === id ? 'text-white/70' : 'text-neutral-500'}>{n}</span>
               </button>
@@ -246,7 +246,7 @@ export default function Promotions() {
                 ? 'Try another filter.'
                 : 'A promotion applies itself at checkout — no code for the customer to remember. Start with something simple, like 10% off one category.'}
               action={!filter && (
-                <Link to="/admin/promotions/new" className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg bg-neutral-900 px-4 text-[9px] font-semibold text-white transition hover:bg-neutral-800">
+                <Link to="/admin/promotions/new" className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg bg-neutral-900 px-4 text-[12px] font-semibold text-white transition hover:bg-neutral-800">
                   <Plus size={13} /> Create your first promotion
                 </Link>
               )}
@@ -256,20 +256,20 @@ export default function Promotions() {
               {/* ---- bulk bar: only with a selection, so it never competes
                       with the list for attention ---- */}
               <div className="mb-3 flex flex-wrap items-center gap-2 rounded-xl border border-neutral-200 bg-white px-4 py-2.5">
-                <label className="flex min-h-[44px] cursor-pointer items-center gap-2 text-[9px] font-medium text-neutral-700">
+                <label className="flex min-h-[44px] cursor-pointer items-center gap-2 text-[12px] font-medium text-neutral-700">
                   <input type="checkbox" checked={allChecked} onChange={toggleAll} className="h-4 w-4 accent-neutral-900" />
                   Select all ({filtered.length})
                 </label>
                 {selected.length > 0 && (
                   <>
-                    <span className="text-[9px] text-neutral-600">{selected.length} selected</span>
+                    <span className="text-[12px] text-neutral-600">{selected.length} selected</span>
                     <div className="ml-auto flex flex-wrap gap-2">
-                      <button type="button" disabled={busy} onClick={() => bulk('enable')} className="min-h-[44px] rounded-lg border border-neutral-300 px-3 text-[9px] font-semibold text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-50">Turn on</button>
-                      <button type="button" disabled={busy} onClick={() => bulk('disable')} className="min-h-[44px] rounded-lg border border-neutral-300 px-3 text-[9px] font-semibold text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-50">Turn off</button>
-                      <button type="button" disabled={busy} onClick={duplicate} className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-neutral-300 px-3 text-[9px] font-semibold text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-50">
+                      <button type="button" disabled={busy} onClick={() => bulk('enable')} className="min-h-[44px] rounded-lg border border-neutral-300 px-3 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-50">Turn on</button>
+                      <button type="button" disabled={busy} onClick={() => bulk('disable')} className="min-h-[44px] rounded-lg border border-neutral-300 px-3 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-50">Turn off</button>
+                      <button type="button" disabled={busy} onClick={duplicate} className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-neutral-300 px-3 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-50">
                         <Copy size={13} /> Duplicate
                       </button>
-                      <button type="button" disabled={busy} onClick={() => bulk('delete')} className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-red-200 px-3 text-[9px] font-semibold text-red-600 transition hover:bg-red-50 disabled:opacity-50">
+                      <button type="button" disabled={busy} onClick={() => bulk('delete')} className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-red-200 px-3 text-[12px] font-semibold text-red-600 transition hover:bg-red-50 disabled:opacity-50">
                         <Trash2 size={13} /> Delete
                       </button>
                     </div>
@@ -288,12 +288,12 @@ export default function Promotions() {
                         aria-label={`Select ${p.name}`} className="mt-1 h-4 w-4 shrink-0 accent-neutral-900"
                       />
                       <Link to={`/admin/promotions/${p._id}`} className="min-w-0 flex-1">
-                        <p className="truncate text-[10px] font-semibold text-neutral-900">{p.name}</p>
-                        <p className="mt-0.5 text-[9px] text-neutral-600">{typeOf(p.type).short} · {rewardText(p)}</p>
+                        <p className="truncate text-[13px] font-semibold text-neutral-900">{p.name}</p>
+                        <p className="mt-0.5 text-[12px] text-neutral-600">{typeOf(p.type).short} · {rewardText(p)}</p>
                       </Link>
                       <StatePill state={p.state} />
                     </div>
-                    <div className="mt-2 flex flex-wrap items-center gap-3 pl-7 text-[9px] text-neutral-600">
+                    <div className="mt-2 flex flex-wrap items-center gap-3 pl-7 text-[12px] text-neutral-600">
                       <span>Priority {p.priority}</span>
                       <span>{num(p.usedCount)} uses</span>
                       {p.totalDiscounted > 0 && <span>{money(p.totalDiscounted)} given</span>}
@@ -306,7 +306,7 @@ export default function Promotions() {
               <div className="hidden overflow-hidden rounded-xl border border-neutral-200 md:block">
                 <table className="w-full text-left">
                   <caption className="sr-only">Promotions, {filtered.length} shown</caption>
-                  <thead className="bg-neutral-50 text-[9px] uppercase tracking-wider text-neutral-600">
+                  <thead className="bg-neutral-50 text-[12px] uppercase tracking-wider text-neutral-600">
                     <tr>
                       <th scope="col" className="w-10 px-4 py-3">
                         <input type="checkbox" checked={allChecked} onChange={toggleAll} aria-label="Select all promotions" className="h-4 w-4 accent-neutral-900" />
@@ -319,7 +319,7 @@ export default function Promotions() {
                       <th scope="col" className="px-4 py-3 text-right font-semibold">Given</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-neutral-100 text-[10px]">
+                  <tbody className="divide-y divide-neutral-100 text-[13px]">
                     {filtered.map((p) => (
                       <tr key={p._id} className="bg-white transition hover:bg-neutral-50">
                         <td className="px-4 py-3">
@@ -327,7 +327,7 @@ export default function Promotions() {
                         </td>
                         <td className="px-4 py-3">
                           <Link to={`/admin/promotions/${p._id}`} className="font-medium text-neutral-900 underline-offset-2 hover:underline">{p.name}</Link>
-                          <p className="mt-0.5 text-[9px] text-neutral-600">
+                          <p className="mt-0.5 text-[12px] text-neutral-600">
                             {typeOf(p.type).label}
                             {p.exclusive && ' · exclusive'}
                             {p.stackable && ' · stackable'}

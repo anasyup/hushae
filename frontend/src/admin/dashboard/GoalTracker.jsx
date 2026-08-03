@@ -37,13 +37,13 @@ export default function GoalTracker({ goal, onSaved }) {
     <div className="rounded-2xl border border-neutral-200 bg-white p-5">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-[9px] font-bold uppercase tracking-widest text-neutral-500">Monthly revenue goal</p>
-          <p className="mt-1 text-[9px] text-neutral-500">
+          <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-500">Monthly revenue goal</p>
+          <p className="mt-1 text-[12px] text-neutral-500">
             {goal.daysRemaining} day{goal.daysRemaining === 1 ? '' : 's'} left in the month
           </p>
         </div>
         <div className="flex shrink-0 items-center gap-2">
-          <span className={`rounded-full px-2.5 py-1 text-[9px] font-bold ring-1 ${pace.cls}`}>{pace.label}</span>
+          <span className={`rounded-full px-2.5 py-1 text-[12px] font-bold ring-1 ${pace.cls}`}>{pace.label}</span>
           <button
             onClick={() => { setValue(String(goal.goal || '')); setEditing((v) => !v); }}
             className="grid h-8 w-8 place-items-center rounded-lg text-neutral-400 transition hover:bg-neutral-100 hover:text-neutral-800"
@@ -64,20 +64,20 @@ export default function GoalTracker({ goal, onSaved }) {
             className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm tabular-nums outline-none focus:border-neutral-900"
           />
           <button onClick={save} disabled={busy}
-            className="inline-flex shrink-0 items-center gap-1 rounded-lg bg-neutral-900 px-3 py-2 text-[9px] font-semibold text-white disabled:opacity-50">
+            className="inline-flex shrink-0 items-center gap-1 rounded-lg bg-neutral-900 px-3 py-2 text-[12px] font-semibold text-white disabled:opacity-50">
             <Check size={13} /> Save
           </button>
         </div>
       ) : goal.goal === 0 ? (
         <button onClick={() => { setValue(''); setEditing(true); }}
-          className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-neutral-300 py-4 text-[9px] font-semibold text-neutral-600 transition hover:border-neutral-400 hover:text-neutral-900">
+          className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-neutral-300 py-4 text-[12px] font-semibold text-neutral-600 transition hover:border-neutral-400 hover:text-neutral-900">
           <Target size={14} /> Set a monthly revenue target
         </button>
       ) : (
         <>
           <div className="mt-4 flex items-baseline gap-2">
             <p className="font-sans text-[7px] font-semibold tabular-nums leading-none tracking-tight text-neutral-900">{pkr(goal.earned)}</p>
-            <p className="text-[9px] text-neutral-500">of {pkr(goal.goal)}</p>
+            <p className="text-[12px] text-neutral-500">of {pkr(goal.goal)}</p>
           </div>
 
           <div className="relative mt-3 h-2.5 overflow-hidden rounded-full bg-neutral-100">
@@ -90,13 +90,13 @@ export default function GoalTracker({ goal, onSaved }) {
             />
           </div>
 
-          <div className="mt-2.5 flex items-center justify-between text-[9px]">
+          <div className="mt-2.5 flex items-center justify-between text-[12px]">
             <span className="font-semibold tabular-nums text-neutral-800">{goal.pctAchieved}% complete</span>
             <span className="text-neutral-500">{goal.pctElapsed}% of month gone</span>
           </div>
 
           {goal.dailyNeeded > 0 && (
-            <p className="mt-3 rounded-lg bg-neutral-50 px-3 py-2 text-[10px] leading-relaxed text-neutral-600">
+            <p className="mt-3 rounded-lg bg-neutral-50 px-3 py-2 text-[13px] leading-relaxed text-neutral-600">
               Need <b className="text-neutral-900">{pkr(goal.dailyNeeded)}</b>/day for the remaining {goal.daysRemaining} day{goal.daysRemaining === 1 ? '' : 's'}.
             </p>
           )}

@@ -119,13 +119,13 @@ export default function CmsRedirects() {
           </span>
           <div className="min-w-0">
             <h2 className="font-sans text-2xl leading-tight text-neutral-900">Old addresses</h2>
-            <p className="mt-1 max-w-2xl text-[10px] leading-relaxed text-neutral-600">
+            <p className="mt-1 max-w-2xl text-[13px] leading-relaxed text-neutral-600">
               When a page changes address, anyone with the old link should still arrive. These are the notes
               on the old door. Renaming a page writes one automatically.
             </p>
           </div>
         </div>
-        <Link to="/admin/cms" className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-neutral-300 px-3 text-[9px] font-semibold text-neutral-700 transition hover:bg-neutral-50">
+        <Link to="/admin/cms" className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-neutral-300 px-3 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50">
           <ArrowLeft size={13} aria-hidden="true" /> Back to pages
         </Link>
       </div>
@@ -171,14 +171,14 @@ export default function CmsRedirects() {
               {(err || problem) && (
                 <p
                   role="alert"
-                  className={`mb-3 rounded-lg px-3 py-2 text-[9px] ${blocking || err ? 'bg-red-50 text-red-800' : 'bg-amber-50 text-amber-900'}`}
+                  className={`mb-3 rounded-lg px-3 py-2 text-[12px] ${blocking || err ? 'bg-red-50 text-red-800' : 'bg-amber-50 text-amber-900'}`}
                 >
                   {err || problem}
                 </p>
               )}
               <button
                 type="submit" disabled={busy || blocking}
-                className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg bg-neutral-900 px-4 text-[9px] font-semibold text-white transition hover:bg-neutral-800 disabled:opacity-50"
+                className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg bg-neutral-900 px-4 text-[12px] font-semibold text-white transition hover:bg-neutral-800 disabled:opacity-50"
               >
                 <Plus size={13} aria-hidden="true" /> {busy ? 'Saving…' : 'Add note'}
               </button>
@@ -201,8 +201,8 @@ export default function CmsRedirects() {
               <li key={r._id} className="rounded-xl border border-neutral-200 bg-white p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <p className="truncate text-[10px] font-medium text-neutral-900">/{r.from}</p>
-                    <p className="mt-1 flex items-center gap-1 truncate text-[9px] text-neutral-600">
+                    <p className="truncate text-[13px] font-medium text-neutral-900">/{r.from}</p>
+                    <p className="mt-1 flex items-center gap-1 truncate text-[12px] text-neutral-600">
                       <ArrowRight size={12} aria-hidden="true" /> {r.to}
                     </p>
                   </div>
@@ -214,12 +214,12 @@ export default function CmsRedirects() {
                     <span className="sr-only">Delete the note for /{r.from}</span>
                   </button>
                 </div>
-                <div className="mt-2 flex flex-wrap items-center gap-3 text-[9px] text-neutral-600">
+                <div className="mt-2 flex flex-wrap items-center gap-3 text-[12px] text-neutral-600">
                   <span>{r.code}</span>
                   <span>{r.hits || 0} used</span>
                   {r.auto && <span className="rounded-full bg-sky-50 px-2 py-0.5 font-medium text-sky-800">Automatic</span>}
                 </div>
-                {r.note && <p className="mt-1.5 text-[9px] text-neutral-600">{r.note}</p>}
+                {r.note && <p className="mt-1.5 text-[12px] text-neutral-600">{r.note}</p>}
               </li>
             ))}
           </ul>
@@ -227,7 +227,7 @@ export default function CmsRedirects() {
           <div className="hidden overflow-hidden rounded-xl border border-neutral-200 md:block">
             <table className="w-full text-left">
               <caption className="sr-only">Redirects, {rows.length} shown</caption>
-              <thead className="bg-neutral-50 text-[9px] uppercase tracking-wider text-neutral-600">
+              <thead className="bg-neutral-50 text-[12px] uppercase tracking-wider text-neutral-600">
                 <tr>
                   <th scope="col" className="px-4 py-3 font-semibold">Old address</th>
                   <th scope="col" className="px-4 py-3 font-semibold">Goes to</th>
@@ -237,18 +237,18 @@ export default function CmsRedirects() {
                   <th scope="col" className="w-16 px-4 py-3 text-right font-semibold">Remove</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-neutral-100 text-[10px]">
+              <tbody className="divide-y divide-neutral-100 text-[13px]">
                 {rows.map((r) => (
                   <tr key={r._id} className="bg-white transition hover:bg-neutral-50">
                     <td className="px-4 py-3">
                       <span className="font-medium text-neutral-900">/{r.from}</span>
-                      {r.note && <p className="mt-0.5 text-[9px] text-neutral-600">{r.note}</p>}
+                      {r.note && <p className="mt-0.5 text-[12px] text-neutral-600">{r.note}</p>}
                     </td>
                     <td className="px-4 py-3 text-neutral-700">{r.to}</td>
                     <td className="px-4 py-3">
                       <span className="text-neutral-700">{r.code}</span>
                       {r.auto && (
-                        <span className="ml-2 rounded-full bg-sky-50 px-2 py-0.5 text-[10px] font-semibold text-sky-800 ring-1 ring-sky-200">Automatic</span>
+                        <span className="ml-2 rounded-full bg-sky-50 px-2 py-0.5 text-[13px] font-semibold text-sky-800 ring-1 ring-sky-200">Automatic</span>
                       )}
                     </td>
                     <td className="px-4 py-3 text-right tabular-nums text-neutral-700">{r.hits || 0}</td>

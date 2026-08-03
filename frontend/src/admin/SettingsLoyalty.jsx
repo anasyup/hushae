@@ -24,8 +24,8 @@ function Section({ title, description, children, tone }) {
   return (
     <section className={`rounded-2xl border bg-white p-6 ${tone === 'warn' ? 'border-amber-300' : 'border-neutral-200'}`}>
       <div className="mb-5">
-        <p className="text-[9px] font-bold uppercase tracking-widest text-neutral-500">{title}</p>
-        {description && <p className="mt-1 text-[9px] leading-relaxed text-neutral-500">{description}</p>}
+        <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-500">{title}</p>
+        {description && <p className="mt-1 text-[12px] leading-relaxed text-neutral-500">{description}</p>}
       </div>
       {children}
     </section>
@@ -36,8 +36,8 @@ function Toggle({ label, description, checked, onChange, disabled }) {
   return (
     <label className={`flex items-start justify-between gap-4 rounded-xl border border-neutral-200 bg-white px-4 py-3 transition ${disabled ? 'opacity-55' : 'cursor-pointer hover:border-neutral-300'}`}>
       <div className="min-w-0">
-        <p className="text-[10px] font-medium text-neutral-900">{label}</p>
-        {description && <p className="mt-0.5 text-[9px] leading-relaxed text-neutral-500">{description}</p>}
+        <p className="text-[13px] font-medium text-neutral-900">{label}</p>
+        {description && <p className="mt-0.5 text-[12px] leading-relaxed text-neutral-500">{description}</p>}
       </div>
       <button
         type="button" role="switch" aria-checked={!!checked} aria-label={label} disabled={disabled}
@@ -52,7 +52,7 @@ function Toggle({ label, description, checked, onChange, disabled }) {
 
 /* MEASURED: reading the real accessibility tree of the shipped admin pages
  * showed 11 of 12 fields on /settings/reviews and 16 of 28 on /settings/cart
- * announce NO name at all — a <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500"> sitting next to an
+ * announce NO name at all — a <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500"> sitting next to an
  * input is only visually a label; without htmlFor nothing connects them, so a
  * screen-reader user hears "edit text, blank".
  *
@@ -63,14 +63,14 @@ const Num = ({ label, hint, value, onChange, disabled, ...rest }) => {
   const id = useId();
   return (
     <div>
-      <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500" htmlFor={id}>{label}</label>
+      <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500" htmlFor={id}>{label}</label>
       <input
-        id={id} className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900" type="number" value={value ?? 0} disabled={disabled}
+        id={id} className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" type="number" value={value ?? 0} disabled={disabled}
         aria-describedby={hint ? `${id}-h` : undefined}
         onChange={(e) => onChange(e.target.value === '' ? 0 : Number(e.target.value))}
         {...rest}
       />
-      {hint && <p id={`${id}-h`} className="mt-1.5 text-[9px] leading-relaxed text-neutral-500">{hint}</p>}
+      {hint && <p id={`${id}-h`} className="mt-1.5 text-[12px] leading-relaxed text-neutral-500">{hint}</p>}
     </div>
   );
 };
@@ -79,13 +79,13 @@ const Text = ({ label, hint, value, onChange, disabled, ...rest }) => {
   const id = useId();
   return (
     <div>
-      <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500" htmlFor={id}>{label}</label>
+      <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500" htmlFor={id}>{label}</label>
       <input
-        id={id} className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900" value={value ?? ''} disabled={disabled}
+        id={id} className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={value ?? ''} disabled={disabled}
         aria-describedby={hint ? `${id}-h` : undefined}
         onChange={(e) => onChange(e.target.value)} {...rest}
       />
-      {hint && <p id={`${id}-h`} className="mt-1.5 text-[9px] leading-relaxed text-neutral-500">{hint}</p>}
+      {hint && <p id={`${id}-h`} className="mt-1.5 text-[12px] leading-relaxed text-neutral-500">{hint}</p>}
     </div>
   );
 };
@@ -94,15 +94,15 @@ const Select = ({ label, hint, value, onChange, options, disabled }) => {
   const id = useId();
   return (
     <div>
-      <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500" htmlFor={id}>{label}</label>
+      <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500" htmlFor={id}>{label}</label>
       <select
-        id={id} className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900" value={value ?? ''} disabled={disabled}
+        id={id} className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={value ?? ''} disabled={disabled}
         aria-describedby={hint ? `${id}-h` : undefined}
         onChange={(e) => onChange(e.target.value)}
       >
         {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
       </select>
-      {hint && <p id={`${id}-h`} className="mt-1.5 text-[9px] leading-relaxed text-neutral-500">{hint}</p>}
+      {hint && <p id={`${id}-h`} className="mt-1.5 text-[12px] leading-relaxed text-neutral-500">{hint}</p>}
     </div>
   );
 };
@@ -124,8 +124,8 @@ function EarnRule({ label, description, on, points, onToggle, onPoints, disabled
           The row is the target, so the row is what must meet the minimum. */}
       <label className={`flex min-h-[44px] items-start justify-between gap-4 ${disabled ? '' : 'cursor-pointer'}`}>
         <div className="min-w-0">
-          <p className="text-[10px] font-medium text-neutral-900">{label}</p>
-          {description && <p className="mt-0.5 text-[9px] leading-relaxed text-neutral-500">{description}</p>}
+          <p className="text-[13px] font-medium text-neutral-900">{label}</p>
+          {description && <p className="mt-0.5 text-[12px] leading-relaxed text-neutral-500">{description}</p>}
         </div>
         <button
           type="button" role="switch" aria-checked={!!on} aria-label={label} disabled={disabled}
@@ -137,12 +137,12 @@ function EarnRule({ label, description, on, points, onToggle, onPoints, disabled
       </label>
       <div className="mt-3 flex items-center gap-2">
         <input
-          type="number" min="0" max="100000" className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[9px] outline-none transition focus:border-neutral-900 max-w-[140px]"
+          type="number" min="0" max="100000" className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 max-w-[140px]"
           value={points ?? 0} disabled={disabled || !on}
           aria-label={`${label} — points awarded`}
           onChange={(e) => onPoints(e.target.value === '' ? 0 : Number(e.target.value))}
         />
-        <span className="text-[9px] text-neutral-500">points</span>
+        <span className="text-[12px] text-neutral-500">points</span>
       </div>
     </div>
   );
@@ -256,7 +256,7 @@ export default function SettingsLoyalty() {
 
   return (
     <AdminLayout title="Loyalty & Rewards">
-      <Link to="/admin/settings" className="mb-4 -ml-1 inline-flex min-h-[44px] items-center gap-1.5 px-1 text-[9px] font-semibold text-neutral-600 transition hover:text-neutral-900">
+      <Link to="/admin/settings" className="mb-4 -ml-1 inline-flex min-h-[44px] items-center gap-1.5 px-1 text-[12px] font-semibold text-neutral-600 transition hover:text-neutral-900">
         <ArrowLeft size={13} /> Settings
       </Link>
 
@@ -266,12 +266,12 @@ export default function SettingsLoyalty() {
         </span>
         <div className="min-w-0">
           <h2 className="font-sans text-2xl leading-tight text-neutral-900">Loyalty & Rewards</h2>
-          <p className="mt-1 text-[10px] leading-relaxed text-neutral-600">
+          <p className="mt-1 text-[13px] leading-relaxed text-neutral-600">
             Points, tiers, referrals, store credit and gift cards. Every rupee is calculated on the
             server — nothing here can be changed by a customer.
           </p>
         </div>
-        <Link to="/admin/loyalty" className="ml-auto hidden min-h-[44px] shrink-0 items-center gap-1.5 rounded-lg border border-neutral-300 px-3 py-2 text-[9px] font-semibold text-neutral-700 transition hover:bg-neutral-50 sm:inline-flex">
+        <Link to="/admin/loyalty" className="ml-auto hidden min-h-[44px] shrink-0 items-center gap-1.5 rounded-lg border border-neutral-300 px-3 py-2 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50 sm:inline-flex">
           <Users size={13} /> Members
         </Link>
       </div>
@@ -285,7 +285,7 @@ export default function SettingsLoyalty() {
             ['Gift cards live', `PKR ${(stats.giftCards?.outstanding || 0).toLocaleString('en-PK')}`],
           ].map(([k, v]) => (
             <div key={k} className="rounded-xl border border-neutral-200 bg-white px-4 py-3">
-              <p className="text-[9px] uppercase tracking-wider text-neutral-500">{k}</p>
+              <p className="text-[12px] uppercase tracking-wider text-neutral-500">{k}</p>
               <p className="mt-1 text-xl font-semibold text-neutral-900">{v}</p>
             </div>
           ))}
@@ -294,10 +294,10 @@ export default function SettingsLoyalty() {
 
       {problems.length > 0 && (
         <div role="alert" className="mb-5 rounded-2xl border border-amber-300 bg-amber-50 p-4">
-          <p className="flex items-center gap-2 text-[10px] font-semibold text-amber-900">
+          <p className="flex items-center gap-2 text-[13px] font-semibold text-amber-900">
             <AlertTriangle size={14} /> Fix these before saving
           </p>
-          <ul className="mt-2 list-disc space-y-1 pl-5 text-[9px] leading-relaxed text-amber-900">
+          <ul className="mt-2 list-disc space-y-1 pl-5 text-[12px] leading-relaxed text-amber-900">
             {problems.map((p) => <li key={p}>{p}</li>)}
           </ul>
         </div>
@@ -335,17 +335,17 @@ export default function SettingsLoyalty() {
         >
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500" htmlFor="loy-spend-per-point">Spend needed for 1 point (PKR)</label>
+              <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500" htmlFor="loy-spend-per-point">Spend needed for 1 point (PKR)</label>
               <input
                 id="loy-spend-per-point" aria-describedby="loy-spend-per-point-h"
-                className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900" type="number" min="1" max="100000" disabled={off}
+                className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" type="number" min="1" max="100000" disabled={off}
                 value={spendPerPoint}
                 onChange={(e) => {
                   const v = Number(e.target.value);
                   setG('earn', 'perCurrency', v > 0 ? 1 / v : 0);
                 }}
               />
-              <p id="loy-spend-per-point-h" className="mt-1.5 text-[9px] leading-relaxed text-neutral-500">
+              <p id="loy-spend-per-point-h" className="mt-1.5 text-[12px] leading-relaxed text-neutral-500">
                 {spendPerPoint > 0
                   ? `A PKR 5,000 order earns about ${Math.floor(5000 / spendPerPoint)} points, worth PKR ${Math.floor((5000 / spendPerPoint) * (Number(L.redeem.pointValue) || 1)).toLocaleString('en-PK')} off a future order.`
                   : 'Set a value above zero or purchases earn nothing.'}
@@ -404,7 +404,7 @@ export default function SettingsLoyalty() {
             <Num label="Points must be spent in blocks of" value={L.redeem.step} onChange={(v) => setG('redeem', 'step', v)} min="1" max="10000" disabled={off || !L.redeem.enabled} hint="e.g. 50 means they can spend 200 or 250, never 213." />
             <Num label="Most of an order that points can cover (%)" value={L.redeem.maxPercentOfOrder} onChange={(v) => setG('redeem', 'maxPercentOfOrder', v)} min="1" max="100" disabled={off || !L.redeem.enabled} hint="Keep below 100 so every order still brings in some cash." />
           </div>
-          <p className="mt-3 rounded-xl bg-neutral-50 px-4 py-3 text-[9px] leading-relaxed text-neutral-600">
+          <p className="mt-3 rounded-xl bg-neutral-50 px-4 py-3 text-[12px] leading-relaxed text-neutral-600">
             On a PKR 5,000 order a customer could take off at most{' '}
             <strong>PKR {Math.floor(5000 * ((Number(L.redeem.maxPercentOfOrder) || 0) / 100)).toLocaleString('en-PK')}</strong>{' '}
             — that is {Math.floor((5000 * ((Number(L.redeem.maxPercentOfOrder) || 0) / 100)) / (Number(L.redeem.pointValue) || 1)).toLocaleString('en-PK')} points.
@@ -441,8 +441,8 @@ export default function SettingsLoyalty() {
                 >
                   <span className="h-6 w-6 shrink-0 rounded-full border border-black/10" style={{ background: t.colour || '#C9BFB4' }} aria-hidden="true" />
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate text-[10px] font-semibold text-neutral-900">{t.name || t.id}</span>
-                    <span className="block text-[9px] text-neutral-500">
+                    <span className="block truncate text-[13px] font-semibold text-neutral-900">{t.name || t.id}</span>
+                    <span className="block text-[12px] text-neutral-500">
                       From PKR {(t.minSpend || 0).toLocaleString('en-PK')} · {t.multiplier || 1}× points
                       {t.freeShipping ? ' · free delivery' : ''}
                       {t.discountPercent ? ` · ${t.discountPercent}% off` : ''}
@@ -460,10 +460,10 @@ export default function SettingsLoyalty() {
                       <Num label="Points multiplier" value={t.multiplier} onChange={(v) => setTier(i, 'multiplier', v)} min="1" max="10" step="0.05" disabled={off || !L.tiers.enabled} />
                       <Num label="Member discount (%)" value={t.discountPercent} onChange={(v) => setTier(i, 'discountPercent', v)} min="0" max="90" disabled={off || !L.tiers.enabled} />
                       <div>
-                        <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500" htmlFor={`tier-colour-${i}`}>Badge colour</label>
+                        <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500" htmlFor={`tier-colour-${i}`}>Badge colour</label>
                         <div className="flex items-center gap-2">
                           <input id={`tier-colour-${i}`} type="color" aria-label={`${t.name || t.id} badge colour, colour picker`} className="h-10 w-14 cursor-pointer rounded-lg border border-neutral-300 bg-white p-1" value={t.colour || '#C9BFB4'} onChange={(e) => setTier(i, 'colour', e.target.value)} disabled={off || !L.tiers.enabled} />
-                          <input aria-label={`${t.name || t.id} badge colour, hex code`} className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900" value={t.colour || ''} onChange={(e) => setTier(i, 'colour', e.target.value)} disabled={off || !L.tiers.enabled} />
+                          <input aria-label={`${t.name || t.id} badge colour, hex code`} className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={t.colour || ''} onChange={(e) => setTier(i, 'colour', e.target.value)} disabled={off || !L.tiers.enabled} />
                         </div>
                       </div>
                     </div>
@@ -471,15 +471,15 @@ export default function SettingsLoyalty() {
                       <Toggle label="Free delivery for this tier" checked={t.freeShipping} onChange={(v) => setTier(i, 'freeShipping', v)} disabled={off || !L.tiers.enabled} />
                     </div>
                     <div className="mt-4">
-                      <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500" htmlFor={`tier-perks-${i}`}>Perks shown to the customer (one per line)</label>
+                      <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500" htmlFor={`tier-perks-${i}`}>Perks shown to the customer (one per line)</label>
                       <textarea
                         id={`tier-perks-${i}`}
-                        className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[9px] outline-none transition focus:border-neutral-900 min-h-[88px]" disabled={off || !L.tiers.enabled}
+                        className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 min-h-[88px]" disabled={off || !L.tiers.enabled}
                         value={(t.perks || []).join('\n')}
                         onChange={(e) => setTier(i, 'perks', e.target.value.split('\n').map((x) => x.trim()).filter(Boolean))}
                       />
                     </div>
-                    <button type="button" onClick={() => removeTier(i)} className="mt-4 inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-red-200 px-3 py-1.5 text-[9px] font-semibold text-red-600 transition hover:bg-red-50">
+                    <button type="button" onClick={() => removeTier(i)} className="mt-4 inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-red-200 px-3 py-1.5 text-[12px] font-semibold text-red-600 transition hover:bg-red-50">
                       <Trash2 size={13} /> Remove tier
                     </button>
                   </div>
@@ -488,7 +488,7 @@ export default function SettingsLoyalty() {
             ))}
           </div>
 
-          <button type="button" onClick={addTier} disabled={off || !L.tiers.enabled} className="mt-3 inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-neutral-300 px-3 py-2 text-[9px] font-semibold text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-50">
+          <button type="button" onClick={addTier} disabled={off || !L.tiers.enabled} className="mt-3 inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-neutral-300 px-3 py-2 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-50">
             <Plus size={13} /> Add a tier
           </button>
         </Section>
@@ -536,7 +536,7 @@ export default function SettingsLoyalty() {
             <Num label="Card expires after (months)" value={L.giftCards.expiryMonths} onChange={(v) => setG('giftCards', 'expiryMonths', v)} min="0" max="120" disabled={off || !L.giftCards.enabled} hint="0 means never." />
             <Text label="Card code starts with" value={L.giftCards.codePrefix} onChange={(v) => setG('giftCards', 'codePrefix', v.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8))} disabled={off || !L.giftCards.enabled} />
           </div>
-          <Link to="/admin/loyalty?tab=gift-cards" className="mt-4 inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-neutral-300 px-3 py-2 text-[9px] font-semibold text-neutral-700 transition hover:bg-neutral-50">
+          <Link to="/admin/loyalty?tab=gift-cards" className="mt-4 inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-neutral-300 px-3 py-2 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50">
             <Gift size={13} /> Create and manage cards
           </Link>
         </Section>
@@ -566,13 +566,13 @@ export default function SettingsLoyalty() {
                   <Num label="Bonus points on unlock" value={a.points} onChange={(v) => setAch(i, 'points', v)} min="0" max="100000" disabled={off || !L.achievements.enabled} />
                   <Text label="Short note" value={a.note} onChange={(v) => setAch(i, 'note', v)} disabled={off || !L.achievements.enabled} />
                 </div>
-                <button type="button" onClick={() => removeAch(i)} className="mt-3 inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-red-200 px-3 py-1.5 text-[9px] font-semibold text-red-600 transition hover:bg-red-50">
+                <button type="button" onClick={() => removeAch(i)} className="mt-3 inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-red-200 px-3 py-1.5 text-[12px] font-semibold text-red-600 transition hover:bg-red-50">
                   <Trash2 size={13} /> Remove badge
                 </button>
               </div>
             ))}
           </div>
-          <button type="button" onClick={addAch} disabled={off || !L.achievements.enabled} className="mt-3 inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-neutral-300 px-3 py-2 text-[9px] font-semibold text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-50">
+          <button type="button" onClick={addAch} disabled={off || !L.achievements.enabled} className="mt-3 inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-neutral-300 px-3 py-2 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-50">
             <Plus size={13} /> Add a badge
           </button>
         </Section>
@@ -594,7 +594,7 @@ export default function SettingsLoyalty() {
             <Toggle label="Tell customers when they reach a new tier" checked={L.notify.onTierUp} onChange={(v) => setG('notify', 'onTierUp', v)} disabled={off} />
             <Toggle label="Warn customers before points expire" checked={L.notify.onExpiring} onChange={(v) => setG('notify', 'onExpiring', v)} disabled={off} />
           </div>
-          <p className="mt-3 text-[9px] leading-relaxed text-neutral-500">
+          <p className="mt-3 text-[12px] leading-relaxed text-neutral-500">
             These need an email service connected in Settings → Apps & Integrations. Until then nothing is sent,
             and the rewards page is where customers see their balance.
           </p>
@@ -603,10 +603,10 @@ export default function SettingsLoyalty() {
 
       {dirty && (
         <div className="sticky bottom-4 z-30 mt-6 flex items-center justify-between gap-4 rounded-2xl border border-neutral-900 bg-neutral-900 px-4 py-3 text-white shadow-xl">
-          <p className="text-[10px] font-medium">Unsaved changes</p>
+          <p className="text-[13px] font-medium">Unsaved changes</p>
           <div className="flex items-center gap-2">
-            <button onClick={() => setS(JSON.parse(original))} className="min-h-[44px] rounded-lg border border-white/20 px-3 py-1.5 text-[9px] font-semibold text-white/80 transition hover:bg-white/10">Discard</button>
-            <button onClick={save} disabled={busy || problems.length > 0} className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg bg-white px-4 py-1.5 text-[9px] font-semibold text-neutral-900 transition hover:bg-neutral-100 disabled:opacity-50">
+            <button onClick={() => setS(JSON.parse(original))} className="min-h-[44px] rounded-lg border border-white/20 px-3 py-1.5 text-[12px] font-semibold text-white/80 transition hover:bg-white/10">Discard</button>
+            <button onClick={save} disabled={busy || problems.length > 0} className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg bg-white px-4 py-1.5 text-[12px] font-semibold text-neutral-900 transition hover:bg-neutral-100 disabled:opacity-50">
               <Save size={13} /> {busy ? 'Saving…' : 'Save'}
             </button>
           </div>

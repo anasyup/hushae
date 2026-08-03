@@ -80,7 +80,7 @@ export default function Questions() {
         </span>
         <div>
           <h2 className="font-sans text-xl text-neutral-900">Questions &amp; Answers</h2>
-          <p className="mt-0.5 text-[10px] text-neutral-500">
+          <p className="mt-0.5 text-[13px] text-neutral-500">
             {counts.unanswered > 0
               ? `${counts.unanswered} live question${counts.unanswered === 1 ? '' : 's'} still waiting for an answer.`
               : 'Every live question has an answer.'}
@@ -93,7 +93,7 @@ export default function Questions() {
           <button
             key={id} onClick={() => setTab(id)}
             aria-current={tab === id ? 'page' : undefined}
-            className={`rounded-lg px-3.5 py-2 text-[9px] font-semibold transition ${
+            className={`rounded-lg px-3.5 py-2 text-[12px] font-semibold transition ${
               tab === id ? 'bg-neutral-900 text-white' : 'bg-white text-neutral-600 ring-1 ring-neutral-200 hover:text-neutral-900'
             }`}
           >
@@ -114,7 +114,7 @@ export default function Questions() {
       ) : (
         <div className="space-y-4">
           <div className="flex flex-wrap items-center gap-2 rounded-xl border border-neutral-200 bg-white px-4 py-2.5">
-            <label className="flex cursor-pointer items-center gap-2 text-[9px] font-medium text-neutral-700">
+            <label className="flex cursor-pointer items-center gap-2 text-[12px] font-medium text-neutral-700">
               <input
                 type="checkbox" checked={allChecked}
                 onChange={() => setSelected(allChecked ? [] : rows.map((r) => r._id))}
@@ -124,12 +124,12 @@ export default function Questions() {
             </label>
             {selected.length > 0 && (
               <>
-                <span className="text-[9px] text-neutral-500">· {selected.length} selected</span>
+                <span className="text-[12px] text-neutral-500">· {selected.length} selected</span>
                 <div className="ml-auto flex flex-wrap gap-1.5">
-                  {tab !== 'approved' && <button onClick={() => bulk('approve')} disabled={busy === 'bulk'} className="rounded-lg bg-neutral-900 px-3 py-1.5 text-[10px] font-semibold text-white disabled:opacity-50">Approve</button>}
-                  {tab !== 'rejected' && <button onClick={() => bulk('reject')} disabled={busy === 'bulk'} className="rounded-lg border border-neutral-300 px-3 py-1.5 text-[10px] font-semibold text-neutral-700 disabled:opacity-50">Reject</button>}
-                  <button onClick={() => bulk('feature')} disabled={busy === 'bulk'} className="rounded-lg border border-neutral-300 px-3 py-1.5 text-[10px] font-semibold text-neutral-700 disabled:opacity-50">Feature</button>
-                  <button onClick={() => bulk('delete')} disabled={busy === 'bulk'} className="rounded-lg border border-red-200 px-3 py-1.5 text-[10px] font-semibold text-red-600 disabled:opacity-50">Delete</button>
+                  {tab !== 'approved' && <button onClick={() => bulk('approve')} disabled={busy === 'bulk'} className="rounded-lg bg-neutral-900 px-3 py-1.5 text-[13px] font-semibold text-white disabled:opacity-50">Approve</button>}
+                  {tab !== 'rejected' && <button onClick={() => bulk('reject')} disabled={busy === 'bulk'} className="rounded-lg border border-neutral-300 px-3 py-1.5 text-[13px] font-semibold text-neutral-700 disabled:opacity-50">Reject</button>}
+                  <button onClick={() => bulk('feature')} disabled={busy === 'bulk'} className="rounded-lg border border-neutral-300 px-3 py-1.5 text-[13px] font-semibold text-neutral-700 disabled:opacity-50">Feature</button>
+                  <button onClick={() => bulk('delete')} disabled={busy === 'bulk'} className="rounded-lg border border-red-200 px-3 py-1.5 text-[13px] font-semibold text-red-600 disabled:opacity-50">Delete</button>
                 </div>
               </>
             )}
@@ -147,18 +147,18 @@ export default function Questions() {
                   <div className="flex flex-wrap items-center gap-2">
                     <p className="text-sm font-semibold text-neutral-900">{q.customerName}</p>
                     <p className="text-xs text-neutral-500">{new Date(q.createdAt).toLocaleDateString('en-PK')}</p>
-                    {q.featured && <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-700">Featured</span>}
-                    {q.reports > 0 && <span className="rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-semibold text-red-700">{q.reports} report{q.reports === 1 ? '' : 's'}</span>}
-                    {(q.answers || []).length === 0 && <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-semibold text-blue-700">Unanswered</span>}
+                    {q.featured && <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[13px] font-semibold text-amber-700">Featured</span>}
+                    {q.reports > 0 && <span className="rounded-full bg-red-50 px-2 py-0.5 text-[13px] font-semibold text-red-700">{q.reports} report{q.reports === 1 ? '' : 's'}</span>}
+                    {(q.answers || []).length === 0 && <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[13px] font-semibold text-blue-700">Unanswered</span>}
                   </div>
 
-                  <p className="mt-2 text-[9px] text-neutral-900">{q.body}</p>
+                  <p className="mt-2 text-[12px] text-neutral-900">{q.body}</p>
 
                   {(q.answers || []).length > 0 && (
                     <ul className="mt-3 space-y-2">
                       {q.answers.map((a) => (
                         <li key={a._id} className={`rounded-lg p-3 ${a.isMerchant ? 'bg-emerald-50' : 'bg-neutral-50'}`}>
-                          <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-500">
+                          <p className="text-[13px] font-bold uppercase tracking-wider text-neutral-500">
                             {a.isMerchant ? 'Your answer' : a.authorName}
                             {a.status !== 'approved' && <span className="ml-2 text-amber-700">· {a.status}</span>}
                           </p>
@@ -170,7 +170,7 @@ export default function Questions() {
                                   await api(`/questions/admin/${q._id}`, { method: 'PATCH', body: { answerId: a._id, answerStatus: 'approved' }, token: auth.token });
                                   load();
                                 }}
-                                className="rounded-md bg-neutral-900 px-2.5 py-1 text-[9px] font-semibold text-white"
+                                className="rounded-md bg-neutral-900 px-2.5 py-1 text-[12px] font-semibold text-white"
                               >
                                 Approve answer
                               </button>
@@ -179,7 +179,7 @@ export default function Questions() {
                                   await api(`/questions/admin/${q._id}`, { method: 'PATCH', body: { answerId: a._id, answerStatus: 'rejected' }, token: auth.token });
                                   load();
                                 }}
-                                className="rounded-md border border-neutral-300 px-2.5 py-1 text-[9px] font-semibold text-neutral-700"
+                                className="rounded-md border border-neutral-300 px-2.5 py-1 text-[12px] font-semibold text-neutral-700"
                               >
                                 Reject
                               </button>
@@ -231,13 +231,13 @@ export default function Questions() {
 
               {replying === q._id && (
                 <div className="mt-4 border-t border-neutral-100 pt-4">
-                  <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500" htmlFor={`reply-${q._id}`}>Public answer from HUSHAE</label>
+                  <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500" htmlFor={`reply-${q._id}`}>Public answer from HUSHAE</label>
                   <textarea
-                    id={`reply-${q._id}`} rows={3} className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900" value={reply}
+                    id={`reply-${q._id}`} rows={3} className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={reply}
                     onChange={(e) => setReply(e.target.value)}
                     placeholder="It runs true to size — we'd suggest your usual…"
                   />
-                  <p className="mt-1 text-[9px] text-neutral-500">Posting an answer also approves the question.</p>
+                  <p className="mt-1 text-[12px] text-neutral-500">Posting an answer also approves the question.</p>
                   <div className="mt-2 flex justify-end gap-2">
                     <button onClick={() => setReplying(null)} className="rounded-lg bg-white px-3 py-1.5 text-xs font-semibold ring-1 ring-neutral-200">Cancel</button>
                     <button onClick={() => sendReply(q._id)} disabled={busy === q._id} className="rounded-lg bg-neutral-900 px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-50">Post answer</button>

@@ -36,14 +36,14 @@ function Row({ p, note, tone }) {
         className={`flex min-h-[44px] items-center gap-3 rounded-xl border px-4 py-3 transition hover:border-neutral-300 ${tone === 'warn' ? 'border-amber-300 bg-amber-50' : 'border-neutral-200 bg-white'}`}
       >
         <span className="min-w-0 flex-1">
-          <span className="block truncate text-[10px] font-medium text-neutral-900">{p.name}</span>
-          <span className="mt-0.5 block text-[9px] text-neutral-600">
+          <span className="block truncate text-[13px] font-medium text-neutral-900">{p.name}</span>
+          <span className="mt-0.5 block text-[12px] text-neutral-600">
             {typeOf(p.type).short}
             {p.priority != null && ` · priority ${p.priority}`}
             {p.exclusive && ' · exclusive'}
           </span>
         </span>
-        <span className={`shrink-0 text-[9px] ${tone === 'warn' ? 'font-semibold text-amber-900' : 'text-neutral-600'}`}>{note}</span>
+        <span className={`shrink-0 text-[12px] ${tone === 'warn' ? 'font-semibold text-amber-900' : 'text-neutral-600'}`}>{note}</span>
       </Link>
     </li>
   );
@@ -52,10 +52,10 @@ function Row({ p, note, tone }) {
 function Group({ title, description, rows, render, empty }) {
   return (
     <section className="rounded-2xl border border-neutral-200 bg-white p-5">
-      <p className="text-[9px] font-bold uppercase tracking-widest text-neutral-600">{title}</p>
-      {description && <p className="mt-1 text-[9px] leading-relaxed text-neutral-600">{description}</p>}
+      <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-600">{title}</p>
+      {description && <p className="mt-1 text-[12px] leading-relaxed text-neutral-600">{description}</p>}
       {!rows.length ? (
-        <p className="mt-4 rounded-xl bg-neutral-50 px-4 py-6 text-center text-[9px] text-neutral-600">{empty}</p>
+        <p className="mt-4 rounded-xl bg-neutral-50 px-4 py-6 text-center text-[12px] text-neutral-600">{empty}</p>
       ) : (
         <ul className="mt-4 space-y-2">{rows.map(render)}</ul>
       )}
@@ -111,15 +111,15 @@ export default function PromoCalendar({ rows }) {
     <div className="space-y-5">
       {overlaps.length > 0 && (
         <section role="alert" className="rounded-2xl border border-amber-300 bg-amber-50 p-5">
-          <p className="flex items-center gap-2 text-[10px] font-semibold text-amber-900">
+          <p className="flex items-center gap-2 text-[13px] font-semibold text-amber-900">
             <AlertTriangle size={14} /> These promotions compete for the same products
           </p>
-          <p className="mt-1 text-[9px] leading-relaxed text-amber-900">
+          <p className="mt-1 text-[12px] leading-relaxed text-amber-900">
             Only the higher-priority one will apply to a shared item — the other is
             discarded. That is fine if you meant it. If not, narrow one of them or
             mark both as stackable.
           </p>
-          <ul className="mt-3 space-y-1.5 text-[9px] text-amber-900">
+          <ul className="mt-3 space-y-1.5 text-[12px] text-amber-900">
             {overlaps.map(([a, b]) => (
               <li key={`${a._id}-${b._id}`}>
                 <Link to={`/admin/promotions/${a._id}`} className="font-semibold underline-offset-2 hover:underline">{a.name}</Link>
@@ -181,10 +181,10 @@ export default function PromoCalendar({ rows }) {
                 >
                   <Clock size={14} className="shrink-0 text-neutral-500" aria-hidden="true" />
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate text-[10px] font-medium text-neutral-900">{p.name}</span>
-                    <span className="mt-0.5 block text-[9px] text-neutral-600">{note}</span>
+                    <span className="block truncate text-[13px] font-medium text-neutral-900">{p.name}</span>
+                    <span className="mt-0.5 block text-[12px] text-neutral-600">{note}</span>
                   </span>
-                  <span className={`shrink-0 rounded-full px-2 py-0.5 text-[9px] font-semibold ${p.state?.reason === 'live' ? 'bg-emerald-50 text-emerald-800' : 'bg-neutral-100 text-neutral-600'}`}>
+                  <span className={`shrink-0 rounded-full px-2 py-0.5 text-[12px] font-semibold ${p.state?.reason === 'live' ? 'bg-emerald-50 text-emerald-800' : 'bg-neutral-100 text-neutral-600'}`}>
                     {p.state?.reason === 'live' ? 'On' : 'Off'}
                   </span>
                 </Link>

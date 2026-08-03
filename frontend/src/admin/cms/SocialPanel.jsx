@@ -60,7 +60,7 @@ export default function SocialPanel({ page, cfg, onChangeSeo }) {
       title="Sharing on WhatsApp & Facebook"
       subtitle="The picture and words people see when your link is pasted"
       badge={!resolved.image ? (
-        <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-900 ring-1 ring-amber-300">
+        <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[13px] font-semibold text-amber-900 ring-1 ring-amber-300">
           No picture
         </span>
       ) : null}
@@ -68,7 +68,7 @@ export default function SocialPanel({ page, cfg, onChangeSeo }) {
       <div className="space-y-4">
         {/* ---- the card preview ---- */}
         <div>
-          <p className="mb-2 flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-widest text-neutral-600">
+          <p className="mb-2 flex items-center gap-1.5 text-[12px] font-bold uppercase tracking-widest text-neutral-600">
             <Share2 size={12} aria-hidden="true" /> How the link will look
           </p>
           <div className="overflow-hidden rounded-xl border border-neutral-200 bg-white">
@@ -81,35 +81,35 @@ export default function SocialPanel({ page, cfg, onChangeSeo }) {
               />
             ) : (
               <div className="grid aspect-[1200/630] w-full place-items-center bg-neutral-100 px-4 text-center">
-                <p className="text-[9px] leading-relaxed text-neutral-600">
+                <p className="text-[12px] leading-relaxed text-neutral-600">
                   No picture yet. WhatsApp will show a plain grey box with just the words.
                 </p>
               </div>
             )}
             <div className="border-t border-neutral-200 px-3 py-2.5">
-              <p className="text-[10px] uppercase tracking-wider text-neutral-500">hushae.pk</p>
-              <p className="mt-0.5 truncate text-[10px] font-semibold text-neutral-900">
+              <p className="text-[13px] uppercase tracking-wider text-neutral-500">hushae.pk</p>
+              <p className="mt-0.5 truncate text-[13px] font-semibold text-neutral-900">
                 {resolved.title || 'Your page name'}
               </p>
-              <p className="mt-0.5 line-clamp-2 text-[9px] leading-relaxed text-neutral-600">
+              <p className="mt-0.5 line-clamp-2 text-[12px] leading-relaxed text-neutral-600">
                 {resolved.description || 'Add a summary and it will appear here.'}
               </p>
             </div>
           </div>
-          <p className="mt-2 text-[9px] leading-relaxed text-neutral-600">
+          <p className="mt-2 text-[12px] leading-relaxed text-neutral-600">
             WhatsApp, Facebook and LinkedIn all read the same information, so this one card covers all three.
           </p>
         </div>
 
         {/* ---- image ---- */}
         <div>
-          <p className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Sharing picture</p>
+          <p className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500">Sharing picture</p>
           <MediaPicker
             value={seo.ogImage || ''}
             onChange={(v) => onChangeSeo('ogImage', v)}
             buttonText="Upload sharing picture"
           />
-          <p className="mt-1.5 text-[9px] leading-relaxed text-neutral-600">
+          <p className="mt-1.5 text-[12px] leading-relaxed text-neutral-600">
             Best size {IDEAL_W}×{IDEAL_H}. A tall or square photo gets its top and bottom cut off in chat.
             {usingFallbackImage && cfg.seo?.defaultOgImage && ' Leave blank to use your shop-wide sharing picture.'}
           </p>
@@ -129,16 +129,16 @@ export default function SocialPanel({ page, cfg, onChangeSeo }) {
         </div>
 
         <div>
-          <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500" htmlFor="og-desc">Sharing description</label>
+          <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500" htmlFor="og-desc">Sharing description</label>
           <textarea
             id="og-desc" rows={2}
             value={seo.ogDescription || ''}
             onChange={(e) => onChangeSeo('ogDescription', e.target.value.slice(0, 320))}
             aria-describedby="og-desc-h"
-            className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900 resize-y"
+            className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 resize-y"
             placeholder={resolved.description}
           />
-          <p id="og-desc-h" className="mt-1.5 text-[9px] leading-relaxed text-neutral-600">
+          <p id="og-desc-h" className="mt-1.5 text-[12px] leading-relaxed text-neutral-600">
             {usingFallbackDesc
               ? 'Blank, so it will use the search description.'
               : 'Overriding the search description. Clear this box to go back to using it.'}
@@ -164,7 +164,7 @@ export default function SocialPanel({ page, cfg, onChangeSeo }) {
         </div>
 
         {!cfg.seo?.twitterHandle && (
-          <p className="flex items-start gap-1.5 rounded-lg bg-neutral-50 px-3 py-2 text-[9px] leading-relaxed text-neutral-700">
+          <p className="flex items-start gap-1.5 rounded-lg bg-neutral-50 px-3 py-2 text-[12px] leading-relaxed text-neutral-700">
             <Facebook size={12} className="mt-0.5 shrink-0" aria-hidden="true" />
             Your shop has no Twitter/X handle saved, so cards will not credit an account. That is set once
             for the whole shop, not per page.

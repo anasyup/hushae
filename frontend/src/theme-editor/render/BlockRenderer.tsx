@@ -71,7 +71,7 @@ function BlockBody({ block: b, scope }: Props) {
       );
     case 'eyebrow':
       return (
-        <p className={`text-[11px] font-bold uppercase ${alignClass(s.align)}`}
+        <p className={`text-[13px] font-bold uppercase ${alignClass(s.align)}`}
           style={{ color: str(s.color) || 'var(--t-accent)', letterSpacing: `${num(s.tracking, 20) / 100}em` }}>
           {str(s.text)}
         </p>
@@ -182,7 +182,7 @@ function BlockBody({ block: b, scope }: Props) {
       const style = str(s.style, 'text');
       return (
         <a href={str(s.href, '/shop')} onClick={(e) => e.preventDefault()}
-          className="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-widest"
+          className="inline-flex items-center gap-1 text-[13px] font-bold uppercase tracking-widest"
           style={style === 'text' ? { textDecoration: 'underline', textUnderlineOffset: 4 } : buttonStyle({ ...s, size: 'sm' })}>
           {str(s.label, 'View all')} <ArrowRight size={13} />
         </a>
@@ -213,7 +213,7 @@ function BlockBody({ block: b, scope }: Props) {
           <figcaption className="mt-5 flex items-center gap-3 border-t pt-4" style={{ borderColor: 'var(--t-border)' }}>
             {str(s.avatar)
               ? <img src={str(s.avatar)} alt="" className="h-9 w-9 rounded-full object-cover" />
-              : <span className="grid h-9 w-9 place-items-center rounded-full text-[11px] font-bold"
+              : <span className="grid h-9 w-9 place-items-center rounded-full text-[13px] font-bold"
                 style={{ background: 'var(--t-primary)', color: 'var(--t-bg)' }}>
                 {str(s.author, 'A').split(' ').map((w) => w[0]).slice(0, 2).join('')}
               </span>}
@@ -241,7 +241,7 @@ function BlockBody({ block: b, scope }: Props) {
       return (
         <div className="relative pl-7">
           <span className="absolute left-0 top-1.5 h-2.5 w-2.5 rounded-full" style={{ background: 'var(--t-accent)' }} />
-          <p className="text-[11px] font-bold uppercase tracking-widest" style={{ color: 'var(--t-accent)' }}>{str(s.year)}</p>
+          <p className="text-[13px] font-bold uppercase tracking-widest" style={{ color: 'var(--t-accent)' }}>{str(s.year)}</p>
           <p className="mt-1 text-lg" style={{ fontFamily: 'var(--t-font-heading)' }}>{str(s.title)}</p>
           <p className="mt-1 text-sm leading-relaxed" style={{ color: 'var(--t-text-muted)' }}>{str(s.text)}</p>
         </div>
@@ -350,7 +350,7 @@ function CardPart({ block: b, scope }: Props) {
       return (
         <div className="flex items-center gap-1" style={{ color: 'var(--t-accent)' }}>
           {Array.from({ length: 5 }).map((_, i) => <Star key={i} size={11} fill={i < Math.round(avg) ? 'currentColor' : 'none'} />)}
-          {bool(s.showCount, true) && <span className="ml-1 text-[11px]" style={{ color: 'var(--t-text-muted)' }}>({p.ratingCount ?? 0})</span>}
+          {bool(s.showCount, true) && <span className="ml-1 text-[13px]" style={{ color: 'var(--t-text-muted)' }}>({p.ratingCount ?? 0})</span>}
         </div>
       );
     }
@@ -359,7 +359,7 @@ function CardPart({ block: b, scope }: Props) {
       const percent = Math.round((1 - price / compare) * 100);
       const pos = str(s.position, 'top-left') === 'top-right' ? { right: 12 } : { left: 12 };
       return (
-        <span className="absolute rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider"
+        <span className="absolute rounded-full px-2.5 py-1 text-[13px] font-bold uppercase tracking-wider"
           style={{ top: 12, ...pos, background: str(s.bg) || 'var(--t-accent)', color: str(s.fg) || '#fff' }}>
           {str(s.text, 'Save {percent}%').replace('{percent}', String(percent))}
         </span>
@@ -367,14 +367,14 @@ function CardPart({ block: b, scope }: Props) {
     }
     case 'card_inventory': {
       const stock = Number(p.stock ?? 0);
-      if (stock === 0) return <p className="text-[11px] font-semibold" style={{ color: 'var(--t-sale)' }}>Sold out</p>;
+      if (stock === 0) return <p className="text-[13px] font-semibold" style={{ color: 'var(--t-sale)' }}>Sold out</p>;
       if (stock > num(s.threshold, 5)) return null;
-      return <p className="text-[11px] font-semibold" style={{ color: 'var(--t-sale)' }}>Only {stock} left</p>;
+      return <p className="text-[13px] font-semibold" style={{ color: 'var(--t-sale)' }}>Only {stock} left</p>;
     }
     case 'card_quick_add':
       return (
         <button
-          className={`absolute inset-x-3 bottom-3 rounded-full py-2.5 text-[11px] font-semibold uppercase tracking-widest backdrop-blur transition-all ${
+          className={`absolute inset-x-3 bottom-3 rounded-full py-2.5 text-[13px] font-semibold uppercase tracking-widest backdrop-blur transition-all ${
             bool(s.showOnHover, true) ? 'translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100' : ''
           }`}
           style={{ background: 'rgba(13,13,13,.9)', color: '#F7F5F1' }}>
@@ -444,7 +444,7 @@ function Countdown({ settings: s }: { settings: SettingsBag }) {
             {String(u.v).padStart(2, '0')}
           </p>
           {bool(s.showLabels, true) && (
-            <p className="text-[10px] uppercase tracking-widest" style={{ color: 'var(--t-text-muted)' }}>{u.label}</p>
+            <p className="text-[13px] uppercase tracking-widest" style={{ color: 'var(--t-text-muted)' }}>{u.label}</p>
           )}
         </div>
       ))}

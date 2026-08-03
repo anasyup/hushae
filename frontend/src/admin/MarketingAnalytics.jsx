@@ -69,7 +69,7 @@ export default function MarketingAnalytics() {
 
   return (
     <AdminLayout title="Marketing analytics">
-      <Link to="/admin/promotions" className="mb-4 -ml-1 inline-flex min-h-[44px] items-center gap-1.5 px-1 text-[9px] font-semibold text-neutral-600 transition hover:text-neutral-900">
+      <Link to="/admin/promotions" className="mb-4 -ml-1 inline-flex min-h-[44px] items-center gap-1.5 px-1 text-[12px] font-semibold text-neutral-600 transition hover:text-neutral-900">
         <ArrowLeft size={13} /> Promotions
       </Link>
 
@@ -80,23 +80,23 @@ export default function MarketingAnalytics() {
           </span>
           <div>
             <h2 className="font-sans text-2xl leading-tight text-neutral-900">Marketing analytics</h2>
-            <p className="mt-1 text-[10px] leading-relaxed text-neutral-600">
+            <p className="mt-1 text-[13px] leading-relaxed text-neutral-600">
               What your promotions cost, and what they moved.
             </p>
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
           <label htmlFor="ma-days" className="sr-only">Time period</label>
-          <select id="ma-days" value={days} onChange={(e) => setDays(Number(e.target.value))} className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900 min-h-[44px] max-w-[150px]">
+          <select id="ma-days" value={days} onChange={(e) => setDays(Number(e.target.value))} className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 min-h-[44px] max-w-[150px]">
             <option value={7}>Last 7 days</option>
             <option value={30}>Last 30 days</option>
             <option value={90}>Last 90 days</option>
             <option value={365}>Last year</option>
           </select>
-          <button type="button" onClick={exportCsv} className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-neutral-300 px-3 text-[9px] font-semibold text-neutral-700 transition hover:bg-neutral-50">
+          <button type="button" onClick={exportCsv} className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-neutral-300 px-3 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50">
             <Download size={13} /> Export CSV
           </button>
-          <Link to="/admin/marketing/settings" className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-neutral-300 px-3 text-[9px] font-semibold text-neutral-700 transition hover:bg-neutral-50">
+          <Link to="/admin/marketing/settings" className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-neutral-300 px-3 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50">
             <SettingsIcon size={13} /> Rules
           </Link>
         </div>
@@ -121,7 +121,7 @@ export default function MarketingAnalytics() {
               title="No promotions have run yet"
               description="Once a promotion applies to a real order it appears here — how often, what it cost you, and which products it moved."
               action={(
-                <Link to="/admin/promotions/new" className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg bg-neutral-900 px-4 text-[9px] font-semibold text-white transition hover:bg-neutral-800">
+                <Link to="/admin/promotions/new" className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg bg-neutral-900 px-4 text-[12px] font-semibold text-white transition hover:bg-neutral-800">
                   Create a promotion
                 </Link>
               )}
@@ -130,15 +130,15 @@ export default function MarketingAnalytics() {
 
           {(d?.byPromotion || []).length > 0 && (
             <section className="rounded-2xl border border-neutral-200 bg-white p-5">
-              <p className="text-[9px] font-bold uppercase tracking-widest text-neutral-600">Top promotions</p>
-              <p className="mt-1 text-[9px] leading-relaxed text-neutral-600">
+              <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-600">Top promotions</p>
+              <p className="mt-1 text-[12px] leading-relaxed text-neutral-600">
                 Ordered by what they cost you. A high usage count with a high giveaway is only
                 good if those customers would not have bought anyway.
               </p>
               <div className="mt-4 overflow-x-auto">
-                <table className="w-full text-left text-[10px]">
+                <table className="w-full text-left text-[13px]">
                   <caption className="sr-only">Top promotions by amount given away</caption>
-                  <thead className="text-[9px] uppercase tracking-wider text-neutral-600">
+                  <thead className="text-[12px] uppercase tracking-wider text-neutral-600">
                     <tr>
                       <th scope="col" className="pb-2 font-semibold">Promotion</th>
                       <th scope="col" className="pb-2 font-semibold">Type</th>
@@ -169,12 +169,12 @@ export default function MarketingAnalytics() {
 
           {bundles.length > 0 && (
             <section className="rounded-2xl border border-neutral-200 bg-white p-5">
-              <p className="text-[9px] font-bold uppercase tracking-widest text-neutral-600">Top bundles</p>
+              <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-600">Top bundles</p>
               <ul className="mt-4 space-y-2">
                 {bundles.map((x) => (
                   <li key={x.id} className="flex items-center justify-between gap-3 rounded-xl border border-neutral-200 px-4 py-2.5">
-                    <Link to={`/admin/promotions/${x.id}`} className="min-w-0 truncate text-[10px] font-medium text-neutral-900 underline-offset-2 hover:underline">{x.name}</Link>
-                    <span className="shrink-0 text-[9px] tabular-nums text-neutral-600">{num(x.uses)} uses · {money(x.given)}</span>
+                    <Link to={`/admin/promotions/${x.id}`} className="min-w-0 truncate text-[13px] font-medium text-neutral-900 underline-offset-2 hover:underline">{x.name}</Link>
+                    <span className="shrink-0 text-[12px] tabular-nums text-neutral-600">{num(x.uses)} uses · {money(x.given)}</span>
                   </li>
                 ))}
               </ul>
@@ -183,16 +183,16 @@ export default function MarketingAnalytics() {
 
           <div className="grid gap-5 lg:grid-cols-2">
             <section className="rounded-2xl border border-neutral-200 bg-white p-5">
-              <p className="text-[9px] font-bold uppercase tracking-widest text-neutral-600">Starting soon</p>
+              <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-600">Starting soon</p>
               {!upcoming.length ? (
-                <p className="mt-4 rounded-xl bg-neutral-50 px-4 py-6 text-center text-[9px] text-neutral-600">Nothing scheduled.</p>
+                <p className="mt-4 rounded-xl bg-neutral-50 px-4 py-6 text-center text-[12px] text-neutral-600">Nothing scheduled.</p>
               ) : (
                 <ul className="mt-4 space-y-2">
                   {upcoming.map((p) => (
                     <li key={p._id}>
                       <Link to={`/admin/promotions/${p._id}`} className="flex min-h-[44px] items-center justify-between gap-3 rounded-xl border border-neutral-200 px-4 py-2.5 transition hover:border-neutral-300">
-                        <span className="min-w-0 truncate text-[10px] text-neutral-900">{p.name}</span>
-                        <span className="shrink-0 text-[9px] text-neutral-600">
+                        <span className="min-w-0 truncate text-[13px] text-neutral-900">{p.name}</span>
+                        <span className="shrink-0 text-[12px] text-neutral-600">
                           {p.startsAt ? new Date(p.startsAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : '—'}
                         </span>
                       </Link>
@@ -203,17 +203,17 @@ export default function MarketingAnalytics() {
             </section>
 
             <section className="rounded-2xl border border-neutral-200 bg-white p-5">
-              <p className="text-[9px] font-bold uppercase tracking-widest text-neutral-600">Finished</p>
-              <p className="mt-1 text-[9px] text-neutral-600">Ended, or hit a limit. Duplicate one to run it again.</p>
+              <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-600">Finished</p>
+              <p className="mt-1 text-[12px] text-neutral-600">Ended, or hit a limit. Duplicate one to run it again.</p>
               {!expired.length ? (
-                <p className="mt-4 rounded-xl bg-neutral-50 px-4 py-6 text-center text-[9px] text-neutral-600">Nothing has finished yet.</p>
+                <p className="mt-4 rounded-xl bg-neutral-50 px-4 py-6 text-center text-[12px] text-neutral-600">Nothing has finished yet.</p>
               ) : (
                 <ul className="mt-4 space-y-2">
                   {expired.map((p) => (
                     <li key={p._id}>
                       <Link to={`/admin/promotions/${p._id}`} className="flex min-h-[44px] items-center justify-between gap-3 rounded-xl border border-neutral-200 px-4 py-2.5 transition hover:border-neutral-300">
-                        <span className="min-w-0 truncate text-[10px] text-neutral-900">{p.name}</span>
-                        <span className="shrink-0 text-[9px] text-neutral-600">{num(p.usedCount)} uses</span>
+                        <span className="min-w-0 truncate text-[13px] text-neutral-900">{p.name}</span>
+                        <span className="shrink-0 text-[12px] text-neutral-600">{num(p.usedCount)} uses</span>
                       </Link>
                     </li>
                   ))}
@@ -224,19 +224,19 @@ export default function MarketingAnalytics() {
 
           {(d?.daily || []).length > 0 && (
             <section className="rounded-2xl border border-neutral-200 bg-white p-5">
-              <p className="text-[9px] font-bold uppercase tracking-widest text-neutral-600">Day by day</p>
+              <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-600">Day by day</p>
               <ul className="mt-4 space-y-1.5">
                 {d.daily.slice(-14).map((row) => {
                   const max = Math.max(...d.daily.map((x) => x.given), 1);
                   return (
                     <li key={row.date} className="flex items-center gap-3">
-                      <span className="w-20 shrink-0 text-[9px] tabular-nums text-neutral-600">
+                      <span className="w-20 shrink-0 text-[12px] tabular-nums text-neutral-600">
                         {new Date(row.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
                       </span>
                       <span className="h-2 min-w-0 flex-1 overflow-hidden rounded-full bg-neutral-100" aria-hidden="true">
                         <span className="block h-full rounded-full bg-neutral-900" style={{ width: `${Math.max(2, (row.given / max) * 100)}%` }} />
                       </span>
-                      <span className="w-28 shrink-0 text-right text-[9px] tabular-nums text-neutral-600">
+                      <span className="w-28 shrink-0 text-right text-[12px] tabular-nums text-neutral-600">
                         {money(row.given)} · {num(row.uses)}
                       </span>
                     </li>

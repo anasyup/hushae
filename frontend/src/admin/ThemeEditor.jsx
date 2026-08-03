@@ -406,7 +406,7 @@ export default function ThemeEditor() {
           </Link>
           <div className="hidden items-center gap-2 md:flex">
             <p className="font-sans text-sm font-semibold text-neutral-900">HUSHAE Theme</p>
-            <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-700">Active</span>
+            <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[13px] font-bold uppercase tracking-wider text-emerald-700">Active</span>
           </div>
         </div>
         <div className="hidden items-center gap-1 rounded-lg bg-neutral-100 p-1 md:flex">
@@ -440,14 +440,14 @@ export default function ThemeEditor() {
         {/* ── LEFT: sections tree ── */}
         <aside className="w-72 shrink-0 overflow-y-auto border-r border-neutral-200 bg-white">
           <div className="border-b border-neutral-100 p-4">
-            <p className="text-[9px] font-bold uppercase tracking-widest text-neutral-500">Home page</p>
+            <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-500">Home page</p>
           </div>
 
           {Object.entries(SECTION_TREE).map(([group, items]) => (
             <div key={group} className="border-b border-neutral-100">
               <button onClick={() => setOpenGroups((g) => ({ ...g, [group]: !g[group] }))}
                 className="flex w-full items-center justify-between px-4 py-3 text-left">
-                <p className="text-[9px] font-bold uppercase tracking-widest text-neutral-900">{group}</p>
+                <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-900">{group}</p>
                 {openGroups[group] ? <ChevronDown size={14} className="text-neutral-500" /> : <ChevronRight size={14} className="text-neutral-500" />}
               </button>
 
@@ -495,7 +495,7 @@ export default function ThemeEditor() {
                                   onClick={() => { setActivePs(null); setActiveSection({ group, ...b, parent: it.label }); selectAndScroll(b.id); }}
                                   className={`flex w-full items-center gap-2.5 py-2 pl-12 pr-4 text-left transition ${bActive ? 'bg-neutral-100 text-neutral-900' : 'text-neutral-500 hover:bg-neutral-50 hover:text-neutral-900'}`}>
                                   <BIcon size={13} className={bActive ? 'text-neutral-900' : 'text-neutral-400'} />
-                                  <span className="text-[10px]">{b.label}</span>
+                                  <span className="text-[13px]">{b.label}</span>
                                 </button>
                               );
                             })}
@@ -509,7 +509,7 @@ export default function ThemeEditor() {
                   {group === 'Template' && (
                     <>
                       {psList.length > 0 && (
-                        <p className="px-4 pb-1 pt-3 text-[10px] font-bold uppercase tracking-widest text-neutral-400">
+                        <p className="px-4 pb-1 pt-3 text-[13px] font-bold uppercase tracking-widest text-neutral-400">
                           Product sections
                         </p>
                       )}
@@ -603,7 +603,7 @@ export default function ThemeEditor() {
               </label>
               {PRODUCT_SECTION_FIELDS(categories).map((f, i) => {
                 if (f.group) {
-                  return <p key={`g${i}`} className="pt-3 text-[9px] font-bold uppercase tracking-widest text-neutral-900">{f.group}</p>;
+                  return <p key={`g${i}`} className="pt-3 text-[12px] font-bold uppercase tracking-widest text-neutral-900">{f.group}</p>;
                 }
                 if (f.showIf && !f.showIf(activePsCfg)) return null;
                 return (
@@ -625,7 +625,7 @@ function PanelHeader({ label, sub, onClose, actions }) {
   return (
     <div className="sticky top-0 z-10 flex items-start justify-between gap-2 border-b border-neutral-100 bg-white p-4">
       <div className="min-w-0">
-        <p className="text-[9px] font-bold uppercase tracking-widest text-neutral-500">{sub ? `${sub} ›` : 'Editing'}</p>
+        <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-500">{sub ? `${sub} ›` : 'Editing'}</p>
         <p className="mt-0.5 truncate font-sans text-base font-semibold text-neutral-900">{label}</p>
       </div>
       <div className="flex shrink-0 items-center gap-1">
@@ -662,14 +662,14 @@ function Toggle({ checked, onChange }) {
 
 function FieldControl({ field, value, onChange }) {
   if (field.type === 'note') {
-    return <div className="rounded-lg bg-neutral-50 p-3 text-[9px] leading-relaxed text-neutral-500">{field.label}</div>;
+    return <div className="rounded-lg bg-neutral-50 p-3 text-[12px] leading-relaxed text-neutral-500">{field.label}</div>;
   }
   const v = value !== undefined && value !== null ? value : field.default;
 
   return (
     <div>
       <div className="mb-1.5 flex items-center justify-between">
-        <label className="text-[9px] font-semibold uppercase tracking-wider text-neutral-500">{field.label}</label>
+        <label className="text-[12px] font-semibold uppercase tracking-wider text-neutral-500">{field.label}</label>
         {field.type === 'range' && (
           <input type="number" min={field.min} max={field.max} value={v ?? field.default}
             onChange={(e) => onChange(clampNum(e.target.value, field.min, field.max))}
@@ -677,9 +677,9 @@ function FieldControl({ field, value, onChange }) {
         )}
       </div>
 
-      {field.type === 'text' && <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900" value={v ?? ''} onChange={(e) => onChange(e.target.value)} />}
-      {field.type === 'textarea' && <textarea rows={4} className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900" value={v ?? ''} onChange={(e) => onChange(e.target.value)} />}
-      {field.type === 'number' && <input type="number" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900" value={v ?? 0} onChange={(e) => onChange(Number(e.target.value) || 0)} />}
+      {field.type === 'text' && <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={v ?? ''} onChange={(e) => onChange(e.target.value)} />}
+      {field.type === 'textarea' && <textarea rows={4} className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={v ?? ''} onChange={(e) => onChange(e.target.value)} />}
+      {field.type === 'number' && <input type="number" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={v ?? 0} onChange={(e) => onChange(Number(e.target.value) || 0)} />}
 
       {field.type === 'toggle' && (
         <div className="flex items-center gap-2">
@@ -689,7 +689,7 @@ function FieldControl({ field, value, onChange }) {
       )}
 
       {field.type === 'select' && (
-        <select className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900" value={v ?? field.default ?? ''} onChange={(e) => onChange(e.target.value)}>
+        <select className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={v ?? field.default ?? ''} onChange={(e) => onChange(e.target.value)}>
           {field.options.map(([val, lb]) => <option key={String(val)} value={val}>{lb}</option>)}
         </select>
       )}
@@ -709,7 +709,7 @@ function FieldControl({ field, value, onChange }) {
         <div className="flex items-center gap-2">
           <input type="color" className="h-10 w-14 cursor-pointer rounded-lg border border-neutral-200"
             value={v || '#ffffff'} onChange={(e) => onChange(e.target.value)} />
-          <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900 font-mono text-xs" placeholder="transparent"
+          <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 font-mono text-xs" placeholder="transparent"
             value={v || ''} onChange={(e) => onChange(e.target.value)} />
           {v ? (
             <button type="button" onClick={() => onChange('')} title="Clear"
@@ -724,7 +724,7 @@ function FieldControl({ field, value, onChange }) {
       )}
 
       {field.type === 'lines' && (
-        <textarea rows={4} className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900 font-mono text-xs"
+        <textarea rows={4} className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 font-mono text-xs"
           value={Array.isArray(v) ? v.join('\n') : ''} onChange={(e) => onChange(e.target.value.split('\n'))} />
       )}
 
@@ -754,7 +754,7 @@ function MenuEditor({ items, onChange }) {
       {items.map((it, i) => (
         <div key={i} className="rounded-lg border border-neutral-200 p-2.5">
           <div className="flex items-center gap-1.5">
-            <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900 !py-1.5 flex-1 text-sm" placeholder="Label"
+            <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !py-1.5 flex-1 text-sm" placeholder="Label"
               value={it.label || ''} onChange={(e) => set(i, 'label', e.target.value)} />
             <button onClick={() => move(i, -1)} disabled={i === 0} title="Move up"
               className="grid h-7 w-7 shrink-0 place-items-center rounded text-neutral-400 hover:bg-neutral-100 hover:text-neutral-900 disabled:opacity-25"><ArrowUp size={12} /></button>
@@ -765,12 +765,12 @@ function MenuEditor({ items, onChange }) {
           </div>
           <div className="mt-1.5 flex items-center gap-1.5">
             <Link2 size={12} className="shrink-0 text-neutral-400" />
-            <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900 !py-1.5 flex-1 font-mono text-xs" placeholder="/link"
+            <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !py-1.5 flex-1 font-mono text-xs" placeholder="/link"
               value={it.href || ''} onChange={(e) => set(i, 'href', e.target.value)} />
           </div>
           {'dropdown' in it || it.dropdown !== undefined ? (
             <div className="mt-1.5 flex items-center gap-2">
-              <select className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900 !py-1.5 flex-1 text-xs" value={it.dropdown || ''}
+              <select className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !py-1.5 flex-1 text-xs" value={it.dropdown || ''}
                 onChange={(e) => set(i, 'dropdown', e.target.value)}>
                 <option value="">No dropdown</option>
                 <option value="women">Women categories</option>
@@ -807,7 +807,7 @@ function ColumnsEditor({ cols, onChange }) {
       {cols.map((col, i) => (
         <div key={i} className="rounded-lg border border-neutral-200 p-3">
           <div className="flex items-center gap-1.5">
-            <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900 !py-1.5 flex-1 text-sm font-semibold" placeholder="Column title"
+            <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !py-1.5 flex-1 text-sm font-semibold" placeholder="Column title"
               value={col.title || ''} onChange={(e) => setCol(i, { title: e.target.value })} />
             <button onClick={() => moveCol(i, -1)} disabled={i === 0} title="Move left"
               className="grid h-7 w-7 shrink-0 place-items-center rounded text-neutral-400 hover:bg-neutral-100 disabled:opacity-25"><ArrowUp size={12} /></button>
@@ -819,16 +819,16 @@ function ColumnsEditor({ cols, onChange }) {
           <div className="mt-2 space-y-1.5 border-l-2 border-neutral-100 pl-2.5">
             {(col.links || []).map((l, j) => (
               <div key={j} className="flex items-center gap-1.5">
-                <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900 !py-1 flex-1 text-xs" placeholder="Label" value={l.label || ''}
+                <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !py-1 flex-1 text-xs" placeholder="Label" value={l.label || ''}
                   onChange={(e) => setCol(i, { links: col.links.map((x, k) => (k === j ? { ...x, label: e.target.value } : x)) })} />
-                <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900 !py-1 flex-1 font-mono text-[9px]" placeholder="/link" value={l.href || ''}
+                <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !py-1 flex-1 font-mono text-[12px]" placeholder="/link" value={l.href || ''}
                   onChange={(e) => setCol(i, { links: col.links.map((x, k) => (k === j ? { ...x, href: e.target.value } : x)) })} />
                 <button onClick={() => setCol(i, { links: col.links.filter((_, k) => k !== j) })}
                   className="grid h-6 w-6 shrink-0 place-items-center rounded text-neutral-400 hover:bg-red-50 hover:text-red-600"><X size={11} /></button>
               </div>
             ))}
             <button onClick={() => setCol(i, { links: [...(col.links || []), { label: 'New link', href: '/' }] })}
-              className="flex items-center gap-1 text-[9px] font-semibold text-neutral-500 hover:text-neutral-900">
+              className="flex items-center gap-1 text-[12px] font-semibold text-neutral-500 hover:text-neutral-900">
               <Plus size={11} /> Add link
             </button>
           </div>

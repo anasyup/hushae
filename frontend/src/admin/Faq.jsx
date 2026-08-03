@@ -85,18 +85,18 @@ export default function AdminFaq() {
         <h2 className="font-sans text-base font-semibold text-neutral-900">Page headings</h2>
         <div className="mt-4 grid gap-4 md:grid-cols-2">
           <div>
-            <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Main heading</label>
+            <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500">Main heading</label>
             <input
-              className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900"
+              className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900"
               value={faq.heading || ''}
               onChange={(e) => setFaq('heading', e.target.value)}
               placeholder="Frequently Asked Questions"
             />
           </div>
           <div>
-            <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Sub-heading (optional)</label>
+            <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500">Sub-heading (optional)</label>
             <input
-              className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900"
+              className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900"
               value={faq.subheading || ''}
               onChange={(e) => setFaq('subheading', e.target.value)}
               placeholder="Sizing, shipping, returns…"
@@ -124,7 +124,7 @@ export default function AdminFaq() {
             {(faq.items || []).map((it, i) => (
               <div key={i} className="rounded-2xl border border-neutral-200 bg-white p-4">
                 <div className="mb-2 flex items-center justify-between">
-                  <p className="text-[9px] font-bold uppercase tracking-widest text-neutral-400">Question {i + 1}</p>
+                  <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-400">Question {i + 1}</p>
                   <div className="flex items-center gap-1">
                     <button type="button" onClick={() => move(i, -1)} disabled={i === 0}
                       className="rounded-full p-1.5 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-900 disabled:opacity-30"
@@ -138,13 +138,13 @@ export default function AdminFaq() {
                   </div>
                 </div>
                 <input
-                  className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900 mb-2 font-semibold"
+                  className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 mb-2 font-semibold"
                   placeholder="Question — e.g. How do I choose the right size?"
                   value={it.question || ''}
                   onChange={(e) => setItem(i, 'question', e.target.value)}
                 />
                 <textarea
-                  className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900 min-h-24"
+                  className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 min-h-24"
                   placeholder="Answer — line breaks are supported."
                   value={it.answer || ''}
                   onChange={(e) => setItem(i, 'answer', e.target.value)}

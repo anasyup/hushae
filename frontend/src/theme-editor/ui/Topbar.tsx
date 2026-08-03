@@ -56,7 +56,7 @@ export default function Topbar({ onPublish }: { onPublish: () => void }) {
         </Link>
         <div className="hidden min-w-0 items-center gap-2 sm:flex">
           <p className="truncate text-[13px] font-semibold text-neutral-900">HUSHAE Theme</p>
-          <span className="shrink-0 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-700">
+          <span className="shrink-0 rounded-full bg-emerald-100 px-2 py-0.5 text-[13px] font-bold uppercase tracking-wider text-emerald-700">
             Live
           </span>
         </div>
@@ -75,7 +75,7 @@ export default function Topbar({ onPublish }: { onPublish: () => void }) {
         </span>
 
         <button onClick={() => setAutosave(!autosave)} title={autosave ? 'Autosave on' : 'Autosave off'}
-          className={`hidden h-8 items-center gap-1.5 rounded-md px-2 text-[11px] font-semibold transition lg:flex ${
+          className={`hidden h-8 items-center gap-1.5 rounded-md px-2 text-[13px] font-semibold transition lg:flex ${
             autosave ? 'text-emerald-700 hover:bg-emerald-50' : 'text-neutral-400 hover:bg-neutral-100'}`}>
           <span className={`h-1.5 w-1.5 rounded-full ${autosave ? 'bg-emerald-500' : 'bg-neutral-300'}`} /> Auto
         </button>

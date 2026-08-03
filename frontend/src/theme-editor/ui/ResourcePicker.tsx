@@ -93,7 +93,7 @@ export function ResourcePicker({ field, value, onChange }: { field: Field; value
               className={`flex items-center gap-1.5 rounded-md border border-neutral-200 bg-white px-1.5 py-1 ${drag === i ? 'opacity-40' : ''}`}
             >
               <GripVertical size={11} className="shrink-0 cursor-grab text-neutral-300 active:cursor-grabbing" />
-              <span className="w-4 shrink-0 text-center text-[10px] font-semibold text-neutral-400">{i + 1}</span>
+              <span className="w-4 shrink-0 text-center text-[13px] font-semibold text-neutral-400">{i + 1}</span>
               <span className="min-w-0 flex-1 truncate text-xs">{labelFor(id)}</span>
               <button onClick={() => toggle(id)} className="shrink-0 text-neutral-400 hover:text-red-600">
                 <X size={11} />
@@ -139,7 +139,7 @@ export function ResourcePicker({ field, value, onChange }: { field: Field; value
                     : <span className="h-8 w-8 shrink-0 rounded bg-neutral-100" />}
                   <span className="min-w-0 flex-1">
                     <span className="block truncate text-xs font-medium">{r.label}</span>
-                    {r.sub && <span className="block truncate text-[10px] text-neutral-400">{r.sub}</span>}
+                    {r.sub && <span className="block truncate text-[13px] text-neutral-400">{r.sub}</span>}
                   </span>
                   {on && <Check size={13} className="shrink-0 text-[#005BD3]" />}
                 </button>

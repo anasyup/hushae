@@ -68,26 +68,26 @@ export default function OrderPrintDoc() {
       <div className="flex items-start justify-between border-b-2 border-neutral-900 pb-4">
         <div>
           <p className="font-display text-2xl tracking-[0.28em]">HUSHAE</p>
-          <p className="mt-1 text-[9px] italic text-neutral-500">Second Skin, First Choice.</p>
+          <p className="mt-1 text-[12px] italic text-neutral-500">Second Skin, First Choice.</p>
         </div>
         <div className="text-right">
           <p className="text-2xl font-bold tracking-wide">{meta.title}</p>
-          <p className="mt-1 font-mono text-[9px] text-neutral-600">{order.orderNumber}</p>
-          <p className="text-[9px] text-neutral-500">{fmtDate(order.createdAt)}</p>
+          <p className="mt-1 font-mono text-[12px] text-neutral-600">{order.orderNumber}</p>
+          <p className="text-[12px] text-neutral-500">{fmtDate(order.createdAt)}</p>
         </div>
       </div>
 
       {/* Ship-to + summary */}
-      <div className="mt-6 flex justify-between gap-8 text-[10px] leading-relaxed">
+      <div className="mt-6 flex justify-between gap-8 text-[13px] leading-relaxed">
         <div>
-          <p className="mb-1 text-[10px] uppercase tracking-[0.22em] text-neutral-500">Ship to</p>
-          <p className="text-[9px] font-bold">{c.name}</p>
+          <p className="mb-1 text-[13px] uppercase tracking-[0.22em] text-neutral-500">Ship to</p>
+          <p className="text-[12px] font-bold">{c.name}</p>
           <p>{c.address}</p>
           <p>{c.city}, {c.province} {c.postalCode}</p>
           <p className="mt-1">{c.phone}</p>
         </div>
         <div className="text-right">
-          <p className="mb-1 text-[10px] uppercase tracking-[0.22em] text-neutral-500">Summary</p>
+          <p className="mb-1 text-[13px] uppercase tracking-[0.22em] text-neutral-500">Summary</p>
           <p>{order.items?.length || 0} line{(order.items?.length || 0) === 1 ? '' : 's'} · {units} unit{units === 1 ? '' : 's'}</p>
           <p>Payment: <span className="font-semibold">{order.paymentMethod}</span></p>
           {kind === 'packing_slip' && <p>Order total: <span className="font-semibold">{pkr(order.total)}</span></p>}
@@ -99,11 +99,11 @@ export default function OrderPrintDoc() {
       <table className="mt-6 w-full border-collapse">
         <thead>
           <tr>
-            {kind === 'pick_list' && <th className="w-10 border-b-2 border-neutral-900 py-2 text-left text-[10px] uppercase tracking-[0.2em] text-neutral-500">✓</th>}
-            <th className="border-b-2 border-neutral-900 py-2 text-left text-[10px] uppercase tracking-[0.2em] text-neutral-500">Item</th>
-            <th className="border-b-2 border-neutral-900 py-2 text-left text-[10px] uppercase tracking-[0.2em] text-neutral-500">Variant</th>
-            <th className="border-b-2 border-neutral-900 py-2 text-right text-[10px] uppercase tracking-[0.2em] text-neutral-500">Qty</th>
-            {kind === 'packing_slip' && <th className="border-b-2 border-neutral-900 py-2 text-right text-[10px] uppercase tracking-[0.2em] text-neutral-500">Amount</th>}
+            {kind === 'pick_list' && <th className="w-10 border-b-2 border-neutral-900 py-2 text-left text-[13px] uppercase tracking-[0.2em] text-neutral-500">✓</th>}
+            <th className="border-b-2 border-neutral-900 py-2 text-left text-[13px] uppercase tracking-[0.2em] text-neutral-500">Item</th>
+            <th className="border-b-2 border-neutral-900 py-2 text-left text-[13px] uppercase tracking-[0.2em] text-neutral-500">Variant</th>
+            <th className="border-b-2 border-neutral-900 py-2 text-right text-[13px] uppercase tracking-[0.2em] text-neutral-500">Qty</th>
+            {kind === 'packing_slip' && <th className="border-b-2 border-neutral-900 py-2 text-right text-[13px] uppercase tracking-[0.2em] text-neutral-500">Amount</th>}
           </tr>
         </thead>
         <tbody>
@@ -119,14 +119,14 @@ export default function OrderPrintDoc() {
                   {it.image ? <img src={it.image} alt="" className="h-12 w-10 border border-neutral-200 object-cover" /> : null}
                   <div>
                     <p className="font-bold">{it.name}</p>
-                    {it.slug && <p className="font-mono text-[10px] text-neutral-500">{it.slug}</p>}
+                    {it.slug && <p className="font-mono text-[13px] text-neutral-500">{it.slug}</p>}
                   </div>
                 </div>
               </td>
-              <td className="border-b border-neutral-200 py-3 text-[9px]">
+              <td className="border-b border-neutral-200 py-3 text-[12px]">
                 {[it.size, it.color].filter(Boolean).join(' · ') || '—'}
               </td>
-              <td className="border-b border-neutral-200 py-3 text-right text-[9px] font-bold tabular-nums">{it.quantity}</td>
+              <td className="border-b border-neutral-200 py-3 text-right text-[12px] font-bold tabular-nums">{it.quantity}</td>
               {kind === 'packing_slip' && (
                 <td className="border-b border-neutral-200 py-3 text-right tabular-nums">{pkr(it.lineTotal)}</td>
               )}
@@ -137,13 +137,13 @@ export default function OrderPrintDoc() {
 
       {c.notes && (
         <div className="mt-5 border border-neutral-300 p-3">
-          <p className="text-[10px] uppercase tracking-[0.2em] text-neutral-500">Customer note</p>
-          <p className="mt-1 text-[10px]">{c.notes}</p>
+          <p className="text-[13px] uppercase tracking-[0.2em] text-neutral-500">Customer note</p>
+          <p className="mt-1 text-[13px]">{c.notes}</p>
         </div>
       )}
 
       {/* Sign-off */}
-      <div className="mt-10 flex justify-between gap-8 text-[9px] text-neutral-500">
+      <div className="mt-10 flex justify-between gap-8 text-[12px] text-neutral-500">
         <div className="flex-1">
           <p className="border-t border-neutral-400 pt-1">Packed by</p>
         </div>
@@ -155,7 +155,7 @@ export default function OrderPrintDoc() {
         </div>
       </div>
 
-      <p className="mt-8 text-center text-[10px] uppercase tracking-[0.2em] text-neutral-400">
+      <p className="mt-8 text-center text-[13px] uppercase tracking-[0.2em] text-neutral-400">
         {meta.sub}
       </p>
     </div>

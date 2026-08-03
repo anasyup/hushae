@@ -255,7 +255,7 @@ function AnnouncementBar({ section }: { section: SectionNode }) {
       <span className="text-[11.5px] tracking-wide">{str(cfg.text)}</span>
       {str(cfg.ctaLabel) && (
         <a href={str(cfg.ctaHref, '#')} onClick={(e) => e.preventDefault()}
-          className="text-[11px] font-bold uppercase tracking-widest underline underline-offset-2">{str(cfg.ctaLabel)}</a>
+          className="text-[13px] font-bold uppercase tracking-widest underline underline-offset-2">{str(cfg.ctaLabel)}</a>
       )}
     </div>
   );
@@ -393,7 +393,7 @@ function MenuBlock({ block, categories }: { block: BlockNode; categories: any[] 
                             <span className="block p-3">
                               <span className="block text-sm font-semibold">{str(pc.title)}</span>
                               <span className="mt-0.5 block text-xs" style={{ color: 'var(--t-text-muted)' }}>{str(pc.text)}</span>
-                              <span className="mt-2 inline-block text-[11px] font-bold uppercase tracking-widest underline underline-offset-4">
+                              <span className="mt-2 inline-block text-[13px] font-bold uppercase tracking-widest underline underline-offset-4">
                                 {str(pc.ctaLabel, 'Shop now')}
                               </span>
                             </span>
@@ -404,7 +404,7 @@ function MenuBlock({ block, categories }: { block: BlockNode; categories: any[] 
                       return (
                         <span key={col.id} className="block" data-node-id={editable ? col.id : undefined}>
                           <a href={str(col.settings.titleHref, '#')} onClick={(e) => e.preventDefault()}
-                            className="mb-2 block text-[11px] font-bold uppercase tracking-widest" style={{ color: 'var(--t-text-muted)' }}>
+                            className="mb-2 block text-[13px] font-bold uppercase tracking-widest" style={{ color: 'var(--t-text-muted)' }}>
                             {str(col.settings.title)}
                           </a>
                           {links.map((l) => (
@@ -823,7 +823,7 @@ function BlogPosts({ section }: { section: SectionNode }) {
           {posts.map((p: any, i: number) => (
             <article key={i} className="flex flex-col gap-3">
               <img src={p.image || heroPlaceholder} alt="" className="w-full rounded-[var(--t-card-radius)] object-cover" style={{ aspectRatio: '16/9' }} />
-              {bool(s.showDate, true) && <p className="text-[11px] uppercase tracking-widest" style={{ color: 'var(--t-text-muted)' }}>{p.date}</p>}
+              {bool(s.showDate, true) && <p className="text-[13px] uppercase tracking-widest" style={{ color: 'var(--t-text-muted)' }}>{p.date}</p>}
               <h3 style={{ fontFamily: 'var(--t-font-heading)', fontSize: 20 }}>{p.title}</h3>
               {bool(s.showExcerpt, true) && <p className="text-sm" style={{ color: 'var(--t-text-muted)' }}>{p.excerpt}</p>}
             </article>
@@ -890,14 +890,14 @@ function FooterSection({ section }: { section: SectionNode }) {
           if (b.type === 'footer_contact') {
             return (
               <div key={b.id} {...nodeProps(b)}>
-                <p className="text-[11px] font-bold uppercase tracking-widest" style={{ color: 'var(--t-text-muted)' }}>{str(cfg.title, 'Contact')}</p>
+                <p className="text-[13px] font-bold uppercase tracking-widest" style={{ color: 'var(--t-text-muted)' }}>{str(cfg.title, 'Contact')}</p>
                 <div className="mt-4 space-y-2.5 text-sm">
                   <p className="flex items-center gap-2"><Icon name="Mail" size={14} /> {str(cfg.email) || data.settings.contactEmail || '—'}</p>
                   <p className="flex items-center gap-2"><Icon name="Phone" size={14} /> {str(cfg.phone) || data.settings.contactPhone || '—'}</p>
                   {str(cfg.note) && <p className="flex items-center gap-2"><Icon name="MapPin" size={14} /> {str(cfg.note)}</p>}
                 </div>
                 {bool(s.showPayments, true) && str(cfg.payments) && (
-                  <p className="mt-5 flex items-center gap-2 text-[11px] uppercase tracking-widest" style={{ color: 'var(--t-text-muted)' }}>
+                  <p className="mt-5 flex items-center gap-2 text-[13px] uppercase tracking-widest" style={{ color: 'var(--t-text-muted)' }}>
                     <Icon name="CreditCard" size={14} /> {str(cfg.payments)}
                   </p>
                 )}
@@ -907,7 +907,7 @@ function FooterSection({ section }: { section: SectionNode }) {
           // footer_column
           return (
             <div key={b.id} {...nodeProps(b)}>
-              <p className="text-[11px] font-bold uppercase tracking-widest" style={{ color: 'var(--t-text-muted)' }}>{str(cfg.title)}</p>
+              <p className="text-[13px] font-bold uppercase tracking-widest" style={{ color: 'var(--t-text-muted)' }}>{str(cfg.title)}</p>
               <div className="mt-4 space-y-2.5 text-sm">
                 {(b.blocks || []).filter((l) => !l.hidden).map((l) => (
                   <a key={l.id} href={str(l.settings.href, '#')} onClick={(e) => e.preventDefault()} className="block transition hover:opacity-70">
@@ -920,7 +920,7 @@ function FooterSection({ section }: { section: SectionNode }) {
         })}
       </div>
 
-      <div className="border-t pt-5 text-center text-[11px] uppercase tracking-widest" style={{ borderColor: 'var(--t-border)', color: 'var(--t-text-muted)' }}>
+      <div className="border-t pt-5 text-center text-[13px] uppercase tracking-widest" style={{ borderColor: 'var(--t-border)', color: 'var(--t-text-muted)' }}>
         {str(s.bottomText) || `© ${year} ${data.settings.storeName || 'HUSHAE'} · All rights reserved`}
       </div>
     </footer>
@@ -947,12 +947,12 @@ function FeaturedMarqueeSection({ section }: { section: SectionNode }) {
       <div className={containerClass(s.width)}>
         <div className="mb-7 flex items-end justify-between gap-4">
           <div>
-            {str(s.eyebrow) && <p className="text-[10px] font-bold uppercase tracking-widest opacity-60">{str(s.eyebrow)}</p>}
+            {str(s.eyebrow) && <p className="text-[13px] font-bold uppercase tracking-widest opacity-60">{str(s.eyebrow)}</p>}
             {str(s.heading) && <h2 className="mt-1 text-2xl md:text-3xl" style={{ fontFamily: 'var(--t-font-heading)' }}>{str(s.heading)}</h2>}
           </div>
           {bool(s.showViewAll, true) && (
             <a href={str(s.viewAllHref, '/best')} onClick={(e) => e.preventDefault()}
-              className="hidden shrink-0 text-[11px] font-semibold uppercase tracking-widest opacity-70 hover:opacity-100 md:inline-block">
+              className="hidden shrink-0 text-[13px] font-semibold uppercase tracking-widest opacity-70 hover:opacity-100 md:inline-block">
               {str(s.viewAllLabel, 'View all')} →
             </a>
           )}
@@ -1028,7 +1028,7 @@ function FeaturedCollectionsSection({ section }: { section: SectionNode }) {
                 <span className="absolute bottom-4 left-4 right-4">
                   <span className="block text-lg" style={{ color: '#F7F5F1', fontFamily: 'var(--t-font-heading)' }}>{c.name || c.title}</span>
                   {bool(s.showCount) && c.productCount != null && (
-                    <span className="block text-[11px]" style={{ color: 'rgba(247,245,241,.75)' }}>{c.productCount} products</span>
+                    <span className="block text-[13px]" style={{ color: 'rgba(247,245,241,.75)' }}>{c.productCount} products</span>
                   )}
                 </span>
               </>

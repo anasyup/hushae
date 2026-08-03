@@ -45,12 +45,12 @@ export default function Collections() {
     <AdminLayout title="Collections">
       {/* Header */}
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-        <p className="text-[10px] text-neutral-500">
+        <p className="text-[13px] text-neutral-500">
           Curated groups of products — Wedding Season, Summer Essentials, Bridal, etc. Show them on the homepage or link them from the menu.
         </p>
         <button
           onClick={() => setEditing({ ...EMPTY_COLLECTION })}
-          className="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-4 py-2 text-[9px] font-semibold text-white transition hover:bg-neutral-800"
+          className="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-4 py-2 text-[12px] font-semibold text-white transition hover:bg-neutral-800"
         >
           <Plus size={13} /> New collection
         </button>
@@ -63,7 +63,7 @@ export default function Collections() {
             <Boxes size={22} />
           </span>
           <p className="mt-4 text-sm font-medium text-neutral-700">No collections yet</p>
-          <p className="mt-1 max-w-xs text-[9px] text-neutral-500">Create your first collection to group products by theme, season or occasion.</p>
+          <p className="mt-1 max-w-xs text-[12px] text-neutral-500">Create your first collection to group products by theme, season or occasion.</p>
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -74,22 +74,22 @@ export default function Collections() {
                   ? <img src={c.image} alt={c.name} className="h-full w-full object-cover" onError={(e) => { e.target.style.display = 'none'; }} />
                   : <div className="flex h-full items-center justify-center bg-gradient-to-br from-neutral-100 to-neutral-200"><Boxes size={32} className="text-neutral-400" /></div>}
                 <div className="absolute right-2 top-2 flex gap-1">
-                  {c.featuredOnHome && <span className="rounded-full bg-amber-500 px-2 py-0.5 text-[10px] font-bold text-white"><Star size={9} className="inline" fill="currentColor" /> Featured</span>}
-                  {!c.isActive && <span className="rounded-full bg-neutral-200 px-2 py-0.5 text-[10px] font-bold text-neutral-700">Hidden</span>}
-                  {c.smart?.enabled && <span className="rounded-full bg-blue-600 px-2 py-0.5 text-[10px] font-bold text-white"><Sparkles size={9} className="inline" /> Smart</span>}
+                  {c.featuredOnHome && <span className="rounded-full bg-amber-500 px-2 py-0.5 text-[13px] font-bold text-white"><Star size={9} className="inline" fill="currentColor" /> Featured</span>}
+                  {!c.isActive && <span className="rounded-full bg-neutral-200 px-2 py-0.5 text-[13px] font-bold text-neutral-700">Hidden</span>}
+                  {c.smart?.enabled && <span className="rounded-full bg-blue-600 px-2 py-0.5 text-[13px] font-bold text-white"><Sparkles size={9} className="inline" /> Smart</span>}
                 </div>
               </div>
               <div className="p-4">
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
-                    <p className="truncate text-[9px] font-semibold text-neutral-900">{c.name}</p>
-                    <p className="mt-0.5 font-mono text-[9px] text-neutral-500">/collection/{c.slug}</p>
+                    <p className="truncate text-[12px] font-semibold text-neutral-900">{c.name}</p>
+                    <p className="mt-0.5 font-mono text-[12px] text-neutral-500">/collection/{c.slug}</p>
                   </div>
-                  <span className="shrink-0 rounded-full bg-neutral-100 px-2 py-0.5 text-[9px] font-bold text-neutral-700">{c.productCount || 0}</span>
+                  <span className="shrink-0 rounded-full bg-neutral-100 px-2 py-0.5 text-[12px] font-bold text-neutral-700">{c.productCount || 0}</span>
                 </div>
-                {c.description && <p className="mt-2 line-clamp-2 text-[9px] leading-relaxed text-neutral-600">{c.description}</p>}
+                {c.description && <p className="mt-2 line-clamp-2 text-[12px] leading-relaxed text-neutral-600">{c.description}</p>}
                 <div className="mt-4 flex items-center justify-between">
-                  <a href={`/collection/${c.slug}`} target="_blank" rel="noreferrer" className="text-[9px] font-semibold text-neutral-500 hover:text-neutral-900">Preview →</a>
+                  <a href={`/collection/${c.slug}`} target="_blank" rel="noreferrer" className="text-[12px] font-semibold text-neutral-500 hover:text-neutral-900">Preview →</a>
                   <div className="flex items-center gap-1">
                     <button onClick={() => setEditing(c)} className="rounded-lg p-1.5 text-neutral-500 transition hover:bg-neutral-100 hover:text-neutral-900" aria-label="Edit"><Edit3 size={13} /></button>
                     <button onClick={() => remove(c)} className="rounded-lg p-1.5 text-neutral-500 transition hover:bg-red-50 hover:text-red-700" aria-label="Delete"><Trash2 size={13} /></button>
@@ -182,7 +182,7 @@ function CollectionEditor({ collection, onClose, onSaved }) {
         {/* Header */}
         <div className="flex items-center justify-between border-b border-neutral-200 px-6 py-4">
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-500">{isNew ? 'New collection' : 'Edit collection'}</p>
+            <p className="text-[13px] font-bold uppercase tracking-widest text-neutral-500">{isNew ? 'New collection' : 'Edit collection'}</p>
             <h2 className="mt-0.5 font-sans text-xl text-neutral-900">{c.name || 'Untitled collection'}</h2>
           </div>
           <button onClick={onClose} disabled={busy} className="rounded-full p-2 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-900 disabled:opacity-40"><X size={18} /></button>
@@ -192,21 +192,21 @@ function CollectionEditor({ collection, onClose, onSaved }) {
           {/* Basic info */}
           <div className="mb-5 grid gap-4 md:grid-cols-2">
             <div>
-              <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Name *</label>
-              <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900" value={c.name} onChange={(e) => set('name', e.target.value)} placeholder="Wedding Season" />
+              <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500">Name *</label>
+              <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={c.name} onChange={(e) => set('name', e.target.value)} placeholder="Wedding Season" />
             </div>
             <div>
-              <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">URL slug</label>
-              <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900 font-mono text-xs" value={c.slug} onChange={(e) => set('slug', e.target.value)} placeholder="wedding-season (auto if blank)" />
+              <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500">URL slug</label>
+              <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 font-mono text-xs" value={c.slug} onChange={(e) => set('slug', e.target.value)} placeholder="wedding-season (auto if blank)" />
             </div>
             <div className="md:col-span-2">
-              <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Description</label>
-              <textarea className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900 min-h-20" value={c.description} onChange={(e) => set('description', e.target.value)} placeholder="Short intro shown on the collection page…" />
+              <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500">Description</label>
+              <textarea className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 min-h-20" value={c.description} onChange={(e) => set('description', e.target.value)} placeholder="Short intro shown on the collection page…" />
             </div>
             <div className="md:col-span-2">
-              <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Banner image</label>
+              <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500">Banner image</label>
               <MediaPicker value={c.image} onChange={(v) => set('image', v)} accept="image" hideUrl />
-              <p className="mt-1 text-[9px] text-neutral-500">Recommended 16:9 landscape.</p>
+              <p className="mt-1 text-[12px] text-neutral-500">Recommended 16:9 landscape.</p>
             </div>
           </div>
 
@@ -214,8 +214,8 @@ function CollectionEditor({ collection, onClose, onSaved }) {
           <div className="mb-5 rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
             <div className="mb-3 flex items-center justify-between">
               <div>
-                <p className="text-[9px] font-bold uppercase tracking-widest text-neutral-700">Smart rules</p>
-                <p className="mt-0.5 text-[9px] text-neutral-500">Products matching these rules are added automatically.</p>
+                <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-700">Smart rules</p>
+                <p className="mt-0.5 text-[12px] text-neutral-500">Products matching these rules are added automatically.</p>
               </div>
               <label className="relative inline-flex cursor-pointer items-center">
                 <input type="checkbox" className="peer sr-only" checked={!!c.smart.enabled} onChange={(e) => setSmart('enabled', e.target.checked)} />
@@ -225,11 +225,11 @@ function CollectionEditor({ collection, onClose, onSaved }) {
             {c.smart.enabled && (
               <div className="space-y-3">
                 <div>
-                  <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Any of these tags</label>
+                  <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500">Any of these tags</label>
                   <div className="rounded-xl border border-neutral-200 bg-white p-2">
                     <div className="flex flex-wrap gap-1.5">
                       {(c.smart.tags || []).map((t, i) => (
-                        <span key={t + i} className="inline-flex items-center gap-1 rounded-full bg-neutral-900 pl-3 pr-1 py-1 text-[9px] font-semibold text-white">
+                        <span key={t + i} className="inline-flex items-center gap-1 rounded-full bg-neutral-900 pl-3 pr-1 py-1 text-[12px] font-semibold text-white">
                           {t}
                           <button type="button" onClick={() => setSmart('tags', c.smart.tags.filter((_, j) => j !== i))} className="grid h-4 w-4 place-items-center rounded-full bg-white/20 text-white hover:bg-white/30">×</button>
                         </span>
@@ -255,15 +255,15 @@ function CollectionEditor({ collection, onClose, onSaved }) {
                 </div>
                 <div className="grid gap-3 md:grid-cols-3">
                   <div>
-                    <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Category</label>
-                    <select className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900" value={c.smart.category} onChange={(e) => setSmart('category', e.target.value)}>
+                    <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500">Category</label>
+                    <select className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={c.smart.category} onChange={(e) => setSmart('category', e.target.value)}>
                       <option value="">Any</option>
                       {cats.map((k) => <option key={k.slug} value={k.slug}>{k.name}</option>)}
                     </select>
                   </div>
                   <div>
-                    <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Tier</label>
-                    <select className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900" value={c.smart.tier} onChange={(e) => setSmart('tier', e.target.value)}>
+                    <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500">Tier</label>
+                    <select className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={c.smart.tier} onChange={(e) => setSmart('tier', e.target.value)}>
                       <option value="">Any</option>
                       <option value="Economy">Economy</option>
                       <option value="Standard">Standard</option>
@@ -271,8 +271,8 @@ function CollectionEditor({ collection, onClose, onSaved }) {
                     </select>
                   </div>
                   <div>
-                    <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Gender</label>
-                    <select className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900" value={c.smart.gender} onChange={(e) => setSmart('gender', e.target.value)}>
+                    <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500">Gender</label>
+                    <select className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={c.smart.gender} onChange={(e) => setSmart('gender', e.target.value)}>
                       <option value="">Any</option>
                       <option value="women">Women</option>
                       <option value="men">Men</option>
@@ -290,12 +290,12 @@ function CollectionEditor({ collection, onClose, onSaved }) {
           {/* Manual products */}
           <div className="mb-5">
             <div className="mb-3 flex items-center justify-between">
-              <p className="text-[9px] font-bold uppercase tracking-widest text-neutral-700">Manual products</p>
-              <span className="text-[9px] text-neutral-500">{selectedIds.size} selected</span>
+              <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-700">Manual products</p>
+              <span className="text-[12px] text-neutral-500">{selectedIds.size} selected</span>
             </div>
             <div className="mb-2 relative">
               <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
-              <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900 !py-2 !pl-9 !text-[9px]" placeholder="Search products by name, SKU or category" value={productSearch} onChange={(e) => setProductSearch(e.target.value)} />
+              <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !py-2 !pl-9 !text-[12px]" placeholder="Search products by name, SKU or category" value={productSearch} onChange={(e) => setProductSearch(e.target.value)} />
             </div>
             <div className="max-h-64 overflow-y-auto rounded-xl border border-neutral-200 bg-white">
               {filteredProducts.map((p) => {
@@ -310,14 +310,14 @@ function CollectionEditor({ collection, onClose, onSaved }) {
                     <input type="checkbox" checked={on} readOnly className="h-4 w-4 accent-neutral-900" />
                     <Img src={p.images?.[0]?.url} alt="" className="h-10 w-8 rounded-md border border-neutral-200 object-cover" />
                     <div className="min-w-0 flex-1">
-                      <p className="line-clamp-1 text-[9px] font-medium text-neutral-900">{p.name}</p>
-                      <p className="text-[10px] uppercase tracking-wider text-neutral-500">{p.gender} · {p.categorySlug} · {p.sku}</p>
+                      <p className="line-clamp-1 text-[12px] font-medium text-neutral-900">{p.name}</p>
+                      <p className="text-[13px] uppercase tracking-wider text-neutral-500">{p.gender} · {p.categorySlug} · {p.sku}</p>
                     </div>
                     <p className="font-sans text-[7px] font-semibold tabular-nums">{pkr(p.price)}</p>
                   </button>
                 );
               })}
-              {filteredProducts.length === 0 && <p className="p-6 text-center text-[9px] text-neutral-400">No products match.</p>}
+              {filteredProducts.length === 0 && <p className="p-6 text-center text-[12px] text-neutral-400">No products match.</p>}
             </div>
           </div>
 
@@ -326,27 +326,27 @@ function CollectionEditor({ collection, onClose, onSaved }) {
             <label className="flex items-center justify-between gap-3 rounded-xl border border-neutral-200 bg-white p-3 text-sm">
               <div>
                 <p className="font-medium">Show on homepage</p>
-                <p className="text-[9px] text-neutral-500">Feature this collection as a tile</p>
+                <p className="text-[12px] text-neutral-500">Feature this collection as a tile</p>
               </div>
               <input type="checkbox" checked={!!c.featuredOnHome} onChange={(e) => set('featuredOnHome', e.target.checked)} className="h-4 w-4 accent-neutral-900" />
             </label>
             <label className="flex items-center justify-between gap-3 rounded-xl border border-neutral-200 bg-white p-3 text-sm">
               <div>
                 <p className="font-medium">Active</p>
-                <p className="text-[9px] text-neutral-500">Public page reachable</p>
+                <p className="text-[12px] text-neutral-500">Public page reachable</p>
               </div>
               <input type="checkbox" checked={c.isActive !== false} onChange={(e) => set('isActive', e.target.checked)} className="h-4 w-4 accent-neutral-900" />
             </label>
             <div>
-              <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500">Sort order</label>
-              <input type="number" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900 !py-2 !text-[9px]" value={c.sortOrder ?? 100} onChange={(e) => set('sortOrder', Number(e.target.value) || 100)} />
+              <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500">Sort order</label>
+              <input type="number" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !py-2 !text-[12px]" value={c.sortOrder ?? 100} onChange={(e) => set('sortOrder', Number(e.target.value) || 100)} />
             </div>
           </div>
         </div>
 
         <div className="grid grid-cols-[auto_1fr] gap-3 border-t border-neutral-200 bg-neutral-50 px-6 py-4">
-          <button onClick={onClose} disabled={busy} className="rounded-full border border-neutral-300 bg-white px-5 py-3 text-[9px] font-semibold text-neutral-700 hover:bg-neutral-100 disabled:opacity-40">Cancel</button>
-          <button onClick={save} disabled={busy} className="inline-flex items-center justify-center gap-2 rounded-full bg-neutral-900 px-6 py-3 text-[9px] font-semibold uppercase tracking-widest text-white transition hover:bg-neutral-800 disabled:opacity-50">
+          <button onClick={onClose} disabled={busy} className="rounded-full border border-neutral-300 bg-white px-5 py-3 text-[12px] font-semibold text-neutral-700 hover:bg-neutral-100 disabled:opacity-40">Cancel</button>
+          <button onClick={save} disabled={busy} className="inline-flex items-center justify-center gap-2 rounded-full bg-neutral-900 px-6 py-3 text-[12px] font-semibold uppercase tracking-widest text-white transition hover:bg-neutral-800 disabled:opacity-50">
             <Save size={13} /> {busy ? 'Saving…' : (isNew ? 'Create collection' : 'Save changes')}
           </button>
         </div>

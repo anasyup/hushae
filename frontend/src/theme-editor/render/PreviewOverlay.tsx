@@ -85,7 +85,7 @@ export default function PreviewOverlay({
           >
             <GripVertical size={13} />
           </span>
-          <span className="max-w-[110px] truncate px-1 text-[11px] font-semibold">{label}</span>
+          <span className="max-w-[110px] truncate px-1 text-[13px] font-semibold">{label}</span>
           {canModify && (
             <>
               <button onClick={() => onMove(-1)} title="Move up" className="grid h-6 w-6 place-items-center rounded hover:bg-white/20">

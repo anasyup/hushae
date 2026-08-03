@@ -27,9 +27,9 @@ const num = (n) => Number(n || 0).toLocaleString('en-PK');
 function StatCard({ label, value, sub }) {
   return (
     <div className="rounded-xl border border-neutral-200 bg-white px-4 py-3">
-      <p className="text-[9px] uppercase tracking-wider text-neutral-500">{label}</p>
+      <p className="text-[12px] uppercase tracking-wider text-neutral-500">{label}</p>
       <p className="mt-1 text-xl font-semibold text-neutral-900">{value}</p>
-      {sub && <p className="mt-0.5 text-[9px] text-neutral-500">{sub}</p>}
+      {sub && <p className="mt-0.5 text-[12px] text-neutral-500">{sub}</p>}
     </div>
   );
 }
@@ -93,8 +93,8 @@ function AdjustDialog({ account, onClose, onDone }) {
       <div ref={panelRef} role="dialog" aria-modal="true" aria-labelledby="adj-title" className="max-h-[92svh] w-full overflow-y-auto rounded-t-2xl bg-white p-5 shadow-2xl sm:max-w-md sm:rounded-2xl">
         <div className="mb-4 flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <h2 id="adj-title" className="text-[9px] font-semibold text-neutral-900">Adjust balance</h2>
-            <p className="mt-0.5 truncate text-[9px] text-neutral-500">{account.name || 'Customer'} · {account.phone}</p>
+            <h2 id="adj-title" className="text-[12px] font-semibold text-neutral-900">Adjust balance</h2>
+            <p className="mt-0.5 truncate text-[12px] text-neutral-500">{account.name || 'Customer'} · {account.phone}</p>
           </div>
           <button ref={firstRef} type="button" onClick={onClose} aria-label="Close" className="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-neutral-500 transition hover:bg-neutral-100">
             <X size={16} />
@@ -106,40 +106,40 @@ function AdjustDialog({ account, onClose, onDone }) {
             {[['points', 'Points'], ['credit', 'Store credit']].map(([v, l]) => (
               <button
                 key={v} type="button" role="radio" aria-checked={kind === v} onClick={() => setKind(v)}
-                className={`min-h-[44px] rounded-xl border px-3 text-[10px] font-semibold transition ${kind === v ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-300 text-neutral-700 hover:bg-neutral-50'}`}
+                className={`min-h-[44px] rounded-xl border px-3 text-[13px] font-semibold transition ${kind === v ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-300 text-neutral-700 hover:bg-neutral-50'}`}
               >{l}</button>
             ))}
           </div>
 
-          <p className="mb-3 rounded-lg bg-neutral-50 px-3 py-2 text-[9px] text-neutral-600">
+          <p className="mb-3 rounded-lg bg-neutral-50 px-3 py-2 text-[12px] text-neutral-600">
             Current: <strong>{kind === 'credit' ? money(have) : `${num(have)} points`}</strong>
           </p>
 
           <div role="radiogroup" aria-label="Add or remove" className="mb-4 grid grid-cols-2 gap-2">
-            <button type="button" role="radio" aria-checked={dir === 1} onClick={() => setDir(1)} className={`inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl border px-3 text-[10px] font-semibold transition ${dir === 1 ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-300 text-neutral-700 hover:bg-neutral-50'}`}>
+            <button type="button" role="radio" aria-checked={dir === 1} onClick={() => setDir(1)} className={`inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl border px-3 text-[13px] font-semibold transition ${dir === 1 ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-300 text-neutral-700 hover:bg-neutral-50'}`}>
               <Plus size={14} /> Add
             </button>
-            <button type="button" role="radio" aria-checked={dir === -1} onClick={() => setDir(-1)} className={`inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl border px-3 text-[10px] font-semibold transition ${dir === -1 ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-300 text-neutral-700 hover:bg-neutral-50'}`}>
+            <button type="button" role="radio" aria-checked={dir === -1} onClick={() => setDir(-1)} className={`inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl border px-3 text-[13px] font-semibold transition ${dir === -1 ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-300 text-neutral-700 hover:bg-neutral-50'}`}>
               <Minus size={14} /> Remove
             </button>
           </div>
 
           <div className="mb-4">
-            <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500" htmlFor="adj-amount">Amount {kind === 'credit' ? '(PKR)' : '(points)'}</label>
-            <input id="adj-amount" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900" type="number" min="1" inputMode="numeric" value={amount} onChange={(e) => setAmount(e.target.value)} />
+            <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500" htmlFor="adj-amount">Amount {kind === 'credit' ? '(PKR)' : '(points)'}</label>
+            <input id="adj-amount" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" type="number" min="1" inputMode="numeric" value={amount} onChange={(e) => setAmount(e.target.value)} />
           </div>
 
           <div className="mb-4">
-            <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500" htmlFor="adj-note">Reason</label>
-            <textarea id="adj-note" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900 min-h-[76px]" maxLength={200} value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g. Goodwill for late delivery on HS-20260712-004521" />
-            <p className="mt-1.5 text-[9px] text-neutral-500">Saved against your name in the ledger, forever.</p>
+            <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500" htmlFor="adj-note">Reason</label>
+            <textarea id="adj-note" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 min-h-[76px]" maxLength={200} value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g. Goodwill for late delivery on HS-20260712-004521" />
+            <p className="mt-1.5 text-[12px] text-neutral-500">Saved against your name in the ledger, forever.</p>
           </div>
 
-          {err && <p role="alert" className="mb-3 rounded-lg bg-red-50 px-3 py-2 text-[9px] font-medium text-red-700">{err}</p>}
+          {err && <p role="alert" className="mb-3 rounded-lg bg-red-50 px-3 py-2 text-[12px] font-medium text-red-700">{err}</p>}
 
           <div className="flex gap-2">
-            <button type="button" onClick={onClose} className="min-h-[44px] flex-1 rounded-xl border border-neutral-300 px-4 text-[10px] font-semibold text-neutral-700 transition hover:bg-neutral-50">Cancel</button>
-            <button type="submit" disabled={busy} className="min-h-[44px] flex-1 rounded-xl bg-neutral-900 px-4 text-[10px] font-semibold text-white transition hover:bg-neutral-800 disabled:opacity-50">
+            <button type="button" onClick={onClose} className="min-h-[44px] flex-1 rounded-xl border border-neutral-300 px-4 text-[13px] font-semibold text-neutral-700 transition hover:bg-neutral-50">Cancel</button>
+            <button type="submit" disabled={busy} className="min-h-[44px] flex-1 rounded-xl bg-neutral-900 px-4 text-[13px] font-semibold text-white transition hover:bg-neutral-800 disabled:opacity-50">
               {busy ? 'Saving…' : 'Apply'}
             </button>
           </div>
@@ -189,8 +189,8 @@ function MemberPanel({ id, onClose, onChanged }) {
       <div role="dialog" aria-modal="true" aria-label="Member details" className="flex h-full w-full max-w-lg flex-col overflow-hidden bg-white shadow-2xl">
         <div className="flex shrink-0 items-start justify-between gap-3 border-b border-neutral-200 p-5">
           <div className="min-w-0">
-            <h2 className="truncate text-[9px] font-semibold text-neutral-900">{a?.name || 'Member'}</h2>
-            <p className="mt-0.5 truncate text-[9px] text-neutral-500">{a?.phone}{a?.email ? ` · ${a.email}` : ''}</p>
+            <h2 className="truncate text-[12px] font-semibold text-neutral-900">{a?.name || 'Member'}</h2>
+            <p className="mt-0.5 truncate text-[12px] text-neutral-500">{a?.phone}{a?.email ? ` · ${a.email}` : ''}</p>
           </div>
           <button ref={closeRef} type="button" onClick={onClose} aria-label="Close" className="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-neutral-500 transition hover:bg-neutral-100">
             <X size={16} />
@@ -201,7 +201,7 @@ function MemberPanel({ id, onClose, onChanged }) {
           {!data ? <div className="animate-pulse rounded-xl bg-neutral-100 h-64 w-full" /> : (
             <>
               {a.blocked && (
-                <p role="alert" className="mb-4 rounded-xl bg-red-50 px-4 py-3 text-[9px] font-medium text-red-700">
+                <p role="alert" className="mb-4 rounded-xl bg-red-50 px-4 py-3 text-[12px] font-medium text-red-700">
                   Blocked. {a.blockedReason || 'No reason recorded.'}
                 </p>
               )}
@@ -214,31 +214,31 @@ function MemberPanel({ id, onClose, onChanged }) {
               </div>
 
               <div className="mt-4 flex flex-wrap gap-2">
-                <button type="button" onClick={() => setAdjusting(true)} className="inline-flex min-h-[40px] items-center gap-1.5 rounded-lg bg-neutral-900 px-3 text-[9px] font-semibold text-white transition hover:bg-neutral-800">
+                <button type="button" onClick={() => setAdjusting(true)} className="inline-flex min-h-[40px] items-center gap-1.5 rounded-lg bg-neutral-900 px-3 text-[12px] font-semibold text-white transition hover:bg-neutral-800">
                   <Plus size={13} /> Adjust balance
                 </button>
-                <button type="button" onClick={toggleBlock} className={`inline-flex min-h-[40px] items-center gap-1.5 rounded-lg border px-3 text-[9px] font-semibold transition ${a.blocked ? 'border-neutral-300 text-neutral-700 hover:bg-neutral-50' : 'border-red-200 text-red-600 hover:bg-red-50'}`}>
+                <button type="button" onClick={toggleBlock} className={`inline-flex min-h-[40px] items-center gap-1.5 rounded-lg border px-3 text-[12px] font-semibold transition ${a.blocked ? 'border-neutral-300 text-neutral-700 hover:bg-neutral-50' : 'border-red-200 text-red-600 hover:bg-red-50'}`}>
                   <Ban size={13} /> {a.blocked ? 'Unblock' : 'Block'}
                 </button>
               </div>
 
-              <h3 className="mb-2 mt-6 text-[9px] font-bold uppercase tracking-widest text-neutral-500">Statement</h3>
+              <h3 className="mb-2 mt-6 text-[12px] font-bold uppercase tracking-widest text-neutral-500">Statement</h3>
               {!data.ledger?.length ? (
-                <p className="rounded-xl bg-neutral-50 px-4 py-6 text-center text-[9px] text-neutral-500">No movements yet.</p>
+                <p className="rounded-xl bg-neutral-50 px-4 py-6 text-center text-[12px] text-neutral-500">No movements yet.</p>
               ) : (
                 <ul className="divide-y divide-neutral-100 rounded-xl border border-neutral-200">
                   {data.ledger.map((r) => (
                     <li key={r._id} className="flex items-start justify-between gap-3 px-4 py-3">
                       <div className="min-w-0">
-                        <p className="text-[10px] font-medium capitalize text-neutral-900">{String(r.reason || '').replace(/-/g, ' ')}</p>
-                        <p className="mt-0.5 text-[9px] leading-relaxed text-neutral-500">
+                        <p className="text-[13px] font-medium capitalize text-neutral-900">{String(r.reason || '').replace(/-/g, ' ')}</p>
+                        <p className="mt-0.5 text-[12px] leading-relaxed text-neutral-500">
                           {new Date(r.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
                           {r.orderNumber ? ` · ${r.orderNumber}` : ''}
                           {r.note ? ` · ${r.note}` : ''}
                           {r.actor && r.actor !== 'system' ? ` · by ${r.actor}` : ''}
                         </p>
                       </div>
-                      <p className={`shrink-0 text-[10px] font-semibold tabular-nums ${r.amount > 0 ? 'text-emerald-700' : 'text-neutral-900'}`}>
+                      <p className={`shrink-0 text-[13px] font-semibold tabular-nums ${r.amount > 0 ? 'text-emerald-700' : 'text-neutral-900'}`}>
                         {r.amount > 0 ? '+' : ''}{num(r.amount)}{r.kind === 'credit' ? ' PKR' : ''}
                       </p>
                     </li>
@@ -300,7 +300,7 @@ function NewCardDialog({ onClose, onDone }) {
     <div className="fixed inset-0 z-[60] grid place-items-end bg-black/40 p-0 sm:place-items-center sm:p-4" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
       <div role="dialog" aria-modal="true" aria-labelledby="gc-title" className="max-h-[92svh] w-full overflow-y-auto rounded-t-2xl bg-white p-5 shadow-2xl sm:max-w-md sm:rounded-2xl">
         <div className="mb-4 flex items-start justify-between gap-3">
-          <h2 id="gc-title" className="text-[9px] font-semibold text-neutral-900">{code ? 'Card created' : 'New gift card'}</h2>
+          <h2 id="gc-title" className="text-[12px] font-semibold text-neutral-900">{code ? 'Card created' : 'New gift card'}</h2>
           <button ref={firstRef} type="button" onClick={onClose} aria-label="Close" className="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-neutral-500 transition hover:bg-neutral-100">
             <X size={16} />
           </button>
@@ -308,11 +308,11 @@ function NewCardDialog({ onClose, onDone }) {
 
         {code ? (
           <>
-            <p className="mb-3 rounded-xl bg-amber-50 px-4 py-3 text-[9px] leading-relaxed text-amber-900">
+            <p className="mb-3 rounded-xl bg-amber-50 px-4 py-3 text-[12px] leading-relaxed text-amber-900">
               Copy this code now. It is stored scrambled, so it can never be shown again — only replaced.
             </p>
             <div className="flex items-center gap-2">
-              <code className="min-w-0 flex-1 select-all break-all rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-3 text-[9px] font-semibold tracking-wide text-neutral-900">{code}</code>
+              <code className="min-w-0 flex-1 select-all break-all rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-3 text-[12px] font-semibold tracking-wide text-neutral-900">{code}</code>
               <button
                 type="button"
                 onClick={() => { navigator.clipboard?.writeText(code); toast('Code copied'); }}
@@ -320,26 +320,26 @@ function NewCardDialog({ onClose, onDone }) {
                 aria-label="Copy code"
               ><Copy size={15} /></button>
             </div>
-            <button type="button" onClick={onClose} className="mt-4 min-h-[44px] w-full rounded-xl bg-neutral-900 px-4 text-[10px] font-semibold text-white transition hover:bg-neutral-800">Done</button>
+            <button type="button" onClick={onClose} className="mt-4 min-h-[44px] w-full rounded-xl bg-neutral-900 px-4 text-[13px] font-semibold text-white transition hover:bg-neutral-800">Done</button>
           </>
         ) : (
           <form onSubmit={submit}>
             <div className="mb-4">
-              <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500" htmlFor="gc-amount">Amount (PKR)</label>
-              <input id="gc-amount" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900" type="number" min="1" inputMode="numeric" value={amount} onChange={(e) => setAmount(e.target.value)} />
+              <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500" htmlFor="gc-amount">Amount (PKR)</label>
+              <input id="gc-amount" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" type="number" min="1" inputMode="numeric" value={amount} onChange={(e) => setAmount(e.target.value)} />
             </div>
             <div className="mb-4">
-              <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500" htmlFor="gc-label">Label (only you see this)</label>
-              <input id="gc-label" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900" maxLength={80} value={label} onChange={(e) => setLabel(e.target.value)} placeholder="e.g. Eid giveaway" />
+              <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500" htmlFor="gc-label">Label (only you see this)</label>
+              <input id="gc-label" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" maxLength={80} value={label} onChange={(e) => setLabel(e.target.value)} placeholder="e.g. Eid giveaway" />
             </div>
             <div className="mb-4">
-              <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500" htmlFor="gc-to">Issued to (optional)</label>
-              <input id="gc-to" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900" maxLength={120} value={issuedTo} onChange={(e) => setIssuedTo(e.target.value)} placeholder="Phone or email" />
+              <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500" htmlFor="gc-to">Issued to (optional)</label>
+              <input id="gc-to" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" maxLength={120} value={issuedTo} onChange={(e) => setIssuedTo(e.target.value)} placeholder="Phone or email" />
             </div>
-            {err && <p role="alert" className="mb-3 rounded-lg bg-red-50 px-3 py-2 text-[9px] font-medium text-red-700">{err}</p>}
+            {err && <p role="alert" className="mb-3 rounded-lg bg-red-50 px-3 py-2 text-[12px] font-medium text-red-700">{err}</p>}
             <div className="flex gap-2">
-              <button type="button" onClick={onClose} className="min-h-[44px] flex-1 rounded-xl border border-neutral-300 px-4 text-[10px] font-semibold text-neutral-700 transition hover:bg-neutral-50">Cancel</button>
-              <button type="submit" disabled={busy} className="min-h-[44px] flex-1 rounded-xl bg-neutral-900 px-4 text-[10px] font-semibold text-white transition hover:bg-neutral-800 disabled:opacity-50">
+              <button type="button" onClick={onClose} className="min-h-[44px] flex-1 rounded-xl border border-neutral-300 px-4 text-[13px] font-semibold text-neutral-700 transition hover:bg-neutral-50">Cancel</button>
+              <button type="submit" disabled={busy} className="min-h-[44px] flex-1 rounded-xl bg-neutral-900 px-4 text-[13px] font-semibold text-white transition hover:bg-neutral-800 disabled:opacity-50">
                 {busy ? 'Creating…' : 'Create card'}
               </button>
             </div>
@@ -439,14 +439,14 @@ export default function AdminLoyalty() {
           </span>
           <div>
             <h2 className="font-sans text-2xl leading-tight text-neutral-900">Loyalty</h2>
-            <p className="mt-1 text-[10px] leading-relaxed text-neutral-600">Members, balances and gift cards.</p>
+            <p className="mt-1 text-[13px] leading-relaxed text-neutral-600">Members, balances and gift cards.</p>
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
-          <button type="button" onClick={exportCsv} className="inline-flex min-h-[40px] items-center gap-1.5 rounded-lg border border-neutral-300 px-3 text-[9px] font-semibold text-neutral-700 transition hover:bg-neutral-50">
+          <button type="button" onClick={exportCsv} className="inline-flex min-h-[40px] items-center gap-1.5 rounded-lg border border-neutral-300 px-3 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50">
             <Download size={13} /> Export ledger
           </button>
-          <Link to="/admin/settings/loyalty" className="inline-flex min-h-[40px] items-center gap-1.5 rounded-lg border border-neutral-300 px-3 text-[9px] font-semibold text-neutral-700 transition hover:bg-neutral-50">
+          <Link to="/admin/settings/loyalty" className="inline-flex min-h-[40px] items-center gap-1.5 rounded-lg border border-neutral-300 px-3 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50">
             <SettingsIcon size={13} /> Rules
           </Link>
         </div>
@@ -480,17 +480,17 @@ export default function AdminLoyalty() {
             <div className="relative min-w-0 flex-1 sm:max-w-xs">
               <Search size={15} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" aria-hidden="true" />
               <input
-                className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900 pl-9" type="search" value={q} onChange={(e) => setQ(e.target.value)}
+                className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 pl-9" type="search" value={q} onChange={(e) => setQ(e.target.value)}
                 placeholder="Search name, phone, email or code" aria-label="Search members"
               />
             </div>
             {tiers.length > 0 && (
-              <select className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900 max-w-[160px]" value={tier} onChange={(e) => setTier(e.target.value)} aria-label="Filter by tier">
+              <select className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 max-w-[160px]" value={tier} onChange={(e) => setTier(e.target.value)} aria-label="Filter by tier">
                 <option value="">All tiers</option>
                 {tiers.map((t) => <option key={t} value={t}>{t}</option>)}
               </select>
             )}
-            <select className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900 max-w-[180px]" value={sort} onChange={(e) => setSort(e.target.value)} aria-label="Sort members">
+            <select className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 max-w-[180px]" value={sort} onChange={(e) => setSort(e.target.value)} aria-label="Sort members">
               <option value="points">Most points</option>
               <option value="spend">Highest spend</option>
               <option value="recent">Recently active</option>
@@ -518,12 +518,12 @@ export default function AdminLoyalty() {
                     <button type="button" onClick={() => setOpenId(r._id)} className="w-full rounded-xl border border-neutral-200 bg-white p-4 text-left transition hover:border-neutral-300">
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
-                          <p className="truncate text-[10px] font-semibold text-neutral-900">{r.name || 'Customer'}</p>
-                          <p className="mt-0.5 truncate text-[9px] text-neutral-500">{r.phone}</p>
+                          <p className="truncate text-[13px] font-semibold text-neutral-900">{r.name || 'Customer'}</p>
+                          <p className="mt-0.5 truncate text-[12px] text-neutral-500">{r.phone}</p>
                         </div>
-                        <p className="shrink-0 text-[10px] font-semibold tabular-nums text-neutral-900">{num(r.pointsBalance)}</p>
+                        <p className="shrink-0 text-[13px] font-semibold tabular-nums text-neutral-900">{num(r.pointsBalance)}</p>
                       </div>
-                      <div className="mt-2 flex flex-wrap items-center gap-2 text-[9px] text-neutral-500">
+                      <div className="mt-2 flex flex-wrap items-center gap-2 text-[12px] text-neutral-500">
                         {r.tier && <span className="rounded-full bg-neutral-100 px-2 py-0.5 font-medium capitalize text-neutral-700">{r.tier}</span>}
                         {r.creditBalance > 0 && <span>{money(r.creditBalance)} credit</span>}
                         <span>Spend {money(r.tierSpend)}</span>
@@ -537,7 +537,7 @@ export default function AdminLoyalty() {
               <div className="hidden overflow-hidden rounded-xl border border-neutral-200 md:block">
                 <table className="w-full text-left">
                   <caption className="sr-only">Loyalty members, {meta.total} in total</caption>
-                  <thead className="bg-neutral-50 text-[9px] uppercase tracking-wider text-neutral-500">
+                  <thead className="bg-neutral-50 text-[12px] uppercase tracking-wider text-neutral-500">
                     <tr>
                       <th scope="col" className="px-4 py-3 font-semibold">Member</th>
                       <th scope="col" className="px-4 py-3 font-semibold">Tier</th>
@@ -548,12 +548,12 @@ export default function AdminLoyalty() {
                       <th scope="col" className="px-4 py-3" />
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-neutral-100 text-[10px]">
+                  <tbody className="divide-y divide-neutral-100 text-[13px]">
                     {rows.map((r) => (
                       <tr key={r._id} className="bg-white transition hover:bg-neutral-50">
                         <td className="px-4 py-3">
-                          <p className="font-medium text-neutral-900">{r.name || 'Customer'}{r.blocked && <span className="ml-2 rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-semibold text-red-700">Blocked</span>}</p>
-                          <p className="mt-0.5 text-[9px] text-neutral-500">{r.phone}{r.email ? ` · ${r.email}` : ''}</p>
+                          <p className="font-medium text-neutral-900">{r.name || 'Customer'}{r.blocked && <span className="ml-2 rounded-full bg-red-50 px-2 py-0.5 text-[13px] font-semibold text-red-700">Blocked</span>}</p>
+                          <p className="mt-0.5 text-[12px] text-neutral-500">{r.phone}{r.email ? ` · ${r.email}` : ''}</p>
                         </td>
                         <td className="px-4 py-3 capitalize text-neutral-700">{r.tier || '—'}</td>
                         <td className="px-4 py-3 text-right tabular-nums font-medium text-neutral-900">{num(r.pointsBalance)}</td>
@@ -561,7 +561,7 @@ export default function AdminLoyalty() {
                         <td className="px-4 py-3 text-right tabular-nums text-neutral-700">{money(r.tierSpend)}</td>
                         <td className="px-4 py-3 text-right tabular-nums text-neutral-700">{num(r.referralCount)}</td>
                         <td className="px-4 py-3 text-right">
-                          <button type="button" onClick={() => setOpenId(r._id)} className="min-h-[44px] rounded-lg border border-neutral-300 px-3 py-1.5 text-[9px] font-semibold text-neutral-700 transition hover:bg-neutral-100">
+                          <button type="button" onClick={() => setOpenId(r._id)} className="min-h-[44px] rounded-lg border border-neutral-300 px-3 py-1.5 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-100">
                             Open
                           </button>
                         </td>
@@ -572,14 +572,14 @@ export default function AdminLoyalty() {
               </div>
 
               <div className="mt-4 flex items-center justify-between gap-3">
-                <p className="text-[9px] text-neutral-500" aria-live="polite">
+                <p className="text-[12px] text-neutral-500" aria-live="polite">
                   Page {meta.page} · {num(meta.total)} member{meta.total === 1 ? '' : 's'}
                 </p>
                 <div className="flex gap-2">
-                  <button type="button" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1} className="inline-flex min-h-[40px] items-center gap-1 rounded-lg border border-neutral-300 px-3 text-[9px] font-semibold text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-40">
+                  <button type="button" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1} className="inline-flex min-h-[40px] items-center gap-1 rounded-lg border border-neutral-300 px-3 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-40">
                     <ChevronLeft size={14} /> Previous
                   </button>
-                  <button type="button" onClick={() => setPage((p) => p + 1)} disabled={!meta.hasMore} className="inline-flex min-h-[40px] items-center gap-1 rounded-lg border border-neutral-300 px-3 text-[9px] font-semibold text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-40">
+                  <button type="button" onClick={() => setPage((p) => p + 1)} disabled={!meta.hasMore} className="inline-flex min-h-[40px] items-center gap-1 rounded-lg border border-neutral-300 px-3 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-40">
                     Next <ChevronRight size={14} />
                   </button>
                 </div>
@@ -589,7 +589,7 @@ export default function AdminLoyalty() {
         </>
       ) : (
         <>
-          <button type="button" onClick={() => setNewCard(true)} className="mb-4 inline-flex min-h-[40px] items-center gap-1.5 rounded-lg bg-neutral-900 px-3 text-[9px] font-semibold text-white transition hover:bg-neutral-800">
+          <button type="button" onClick={() => setNewCard(true)} className="mb-4 inline-flex min-h-[40px] items-center gap-1.5 rounded-lg bg-neutral-900 px-3 text-[12px] font-semibold text-white transition hover:bg-neutral-800">
             <Gift size={13} /> New gift card
           </button>
 
@@ -607,12 +607,12 @@ export default function AdminLoyalty() {
               {cards.map((c) => (
                 <li key={c._id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-neutral-200 bg-white p-4">
                   <div className="min-w-0">
-                    <p className="text-[10px] font-semibold text-neutral-900">
+                    <p className="text-[13px] font-semibold text-neutral-900">
                       ····{c.last4}
-                      {!c.active && <span className="ml-2 rounded-full bg-neutral-100 px-2 py-0.5 text-[10px] font-semibold text-neutral-600">Disabled</span>}
-                      {c.expiresAt && new Date(c.expiresAt) < new Date() && <span className="ml-2 rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-800">Expired</span>}
+                      {!c.active && <span className="ml-2 rounded-full bg-neutral-100 px-2 py-0.5 text-[13px] font-semibold text-neutral-600">Disabled</span>}
+                      {c.expiresAt && new Date(c.expiresAt) < new Date() && <span className="ml-2 rounded-full bg-amber-50 px-2 py-0.5 text-[13px] font-semibold text-amber-800">Expired</span>}
                     </p>
-                    <p className="mt-0.5 text-[9px] leading-relaxed text-neutral-500">
+                    <p className="mt-0.5 text-[12px] leading-relaxed text-neutral-500">
                       {c.label || 'No label'}
                       {c.issuedTo ? ` · ${c.issuedTo}` : ''}
                       {c.expiresAt ? ` · expires ${new Date(c.expiresAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}` : ' · no expiry'}
@@ -620,10 +620,10 @@ export default function AdminLoyalty() {
                   </div>
                   <div className="flex items-center gap-4">
                     <p className="text-right">
-                      <span className="block text-[10px] font-semibold tabular-nums text-neutral-900">{money(c.balance)}</span>
-                      <span className="block text-[9px] text-neutral-500">of {money(c.initialAmount)}</span>
+                      <span className="block text-[13px] font-semibold tabular-nums text-neutral-900">{money(c.balance)}</span>
+                      <span className="block text-[12px] text-neutral-500">of {money(c.initialAmount)}</span>
                     </p>
-                    <button type="button" onClick={() => toggleCard(c)} className="min-h-[44px] rounded-lg border border-neutral-300 px-3 py-1.5 text-[9px] font-semibold text-neutral-700 transition hover:bg-neutral-50">
+                    <button type="button" onClick={() => toggleCard(c)} className="min-h-[44px] rounded-lg border border-neutral-300 px-3 py-1.5 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50">
                       {c.active ? 'Disable' : 'Enable'}
                     </button>
                   </div>

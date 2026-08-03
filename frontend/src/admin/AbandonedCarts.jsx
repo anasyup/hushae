@@ -94,19 +94,19 @@ export default function AbandonedCarts() {
               { k: 'all', l: 'All', n: (s.openCount || 0) + (s.recoveredCount || 0) },
             ].map((t) => (
               <button key={t.k} onClick={() => { setStatus(t.k); setQ(''); setExpanded(null); }}
-                className={`rounded-full px-3.5 py-1.5 text-[9px] font-semibold transition ${status === t.k ? 'bg-neutral-900 text-white' : 'text-neutral-500 hover:text-neutral-900'}`}>
-                {t.l} <span className={`ml-1 rounded-full px-1.5 text-[10px] font-bold ${status === t.k ? 'bg-white/20' : 'bg-neutral-100'}`}>{t.n || 0}</span>
+                className={`rounded-full px-3.5 py-1.5 text-[12px] font-semibold transition ${status === t.k ? 'bg-neutral-900 text-white' : 'text-neutral-500 hover:text-neutral-900'}`}>
+                {t.l} <span className={`ml-1 rounded-full px-1.5 text-[13px] font-bold ${status === t.k ? 'bg-white/20' : 'bg-neutral-100'}`}>{t.n || 0}</span>
               </button>
             ))}
           </div>
           <div className="relative">
             <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400" />
-            <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search name, email, phone…" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900 !w-56 !py-2 !pl-9 !text-[10px]" />
+            <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search name, email, phone…" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !w-56 !py-2 !pl-9 !text-[13px]" />
           </div>
         </div>
         {status === 'open' && carts.length > 0 && (
           <button onClick={bulkSend} disabled={busy === 'bulk'}
-            className="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-4 py-2 text-[9px] font-semibold text-white transition hover:bg-neutral-800 disabled:opacity-50">
+            className="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-4 py-2 text-[12px] font-semibold text-white transition hover:bg-neutral-800 disabled:opacity-50">
             <Send size={12} /> {busy === 'bulk' ? 'Sending…' : 'Bulk email all'}
           </button>
         )}
@@ -117,8 +117,8 @@ export default function AbandonedCarts() {
         {filtered.length === 0 ? (
           <div className="grid place-items-center rounded-2xl border border-dashed border-neutral-200 bg-white py-16 text-center">
             <ShoppingBag size={32} className="mb-3 text-neutral-300" />
-            <p className="text-[9px] font-medium text-neutral-700">{status === 'open' ? 'No open abandoned carts' : status === 'recovered' ? 'No recovered carts yet' : 'No cart data'}</p>
-            <p className="mt-1 text-[9px] text-neutral-500">{status === 'open' ? 'Customers who leave checkout appear here within 24 hours.' : 'Recovered carts are those where the customer returned and placed their order.'}</p>
+            <p className="text-[12px] font-medium text-neutral-700">{status === 'open' ? 'No open abandoned carts' : status === 'recovered' ? 'No recovered carts yet' : 'No cart data'}</p>
+            <p className="mt-1 text-[12px] text-neutral-500">{status === 'open' ? 'Customers who leave checkout appear here within 24 hours.' : 'Recovered carts are those where the customer returned and placed their order.'}</p>
           </div>
         ) : filtered.map((c) => {
           const isExpanded = expanded === c._id;
@@ -131,10 +131,10 @@ export default function AbandonedCarts() {
                 {/* Customer info */}
                 <div className="min-w-0">
                   <div className="flex items-center gap-3">
-                    <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-neutral-900 text-[9px] font-bold text-white">{(c.name || c.email || '?').slice(0, 1).toUpperCase()}</span>
+                    <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-neutral-900 text-[12px] font-bold text-white">{(c.name || c.email || '?').slice(0, 1).toUpperCase()}</span>
                     <div className="min-w-0">
-                      <p className="truncate text-[9px] font-semibold text-neutral-900">{c.name || 'Anonymous'}</p>
-                      <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[9px] text-neutral-500">
+                      <p className="truncate text-[12px] font-semibold text-neutral-900">{c.name || 'Anonymous'}</p>
+                      <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[12px] text-neutral-500">
                         {hasEmail && <span className="inline-flex items-center gap-1"><Mail size={10} /> {c.email}</span>}
                         {hasPhone && <span className="inline-flex items-center gap-1"><Phone size={10} /> {c.phone}</span>}
                       </div>
@@ -144,20 +144,20 @@ export default function AbandonedCarts() {
                   <div className="mt-3 flex items-center gap-3">
                     <div className="flex -space-x-2">
                       {(c.items || []).slice(0, 5).map((it, i) => (<Img key={i} src={it.image} alt="" className="h-8 w-6 rounded-md border-2 border-white object-cover shadow-sm" />))}
-                      {c.items?.length > 5 && <span className="grid h-8 w-6 place-items-center rounded-md border-2 border-white bg-neutral-100 text-[9px] font-bold text-neutral-600 shadow-sm">+{c.items.length - 5}</span>}
+                      {c.items?.length > 5 && <span className="grid h-8 w-6 place-items-center rounded-md border-2 border-white bg-neutral-100 text-[12px] font-bold text-neutral-600 shadow-sm">+{c.items.length - 5}</span>}
                     </div>
-                    <span className="text-[9px] text-neutral-500">{c.itemCount} item{c.itemCount === 1 ? '' : 's'} · <Clock size={10} className="inline" /> {fmtDateTime(c.lastSeenAt)}</span>
+                    <span className="text-[12px] text-neutral-500">{c.itemCount} item{c.itemCount === 1 ? '' : 's'} · <Clock size={10} className="inline" /> {fmtDateTime(c.lastSeenAt)}</span>
                   </div>
                 </div>
 
                 {/* Value + status */}
                 <div>
-                  <p className="font-sans text-[8px] font-semibold tabular-nums text-neutral-900">{pkr(c.subtotal)}</p>
+                  <p className="font-sans text-[14px] font-semibold tabular-nums text-neutral-900">{pkr(c.subtotal)}</p>
                   <div className="mt-1.5 flex flex-wrap gap-1.5">
-                    {c.recoveryEmailSentAt && <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-bold text-blue-700">Email sent</span>}
-                    {c.recoveredOrderId && <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700">Recovered ✓</span>}
-                    {c.discountCodeIssued && <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-bold text-amber-700">{c.discountCodeIssued}</span>}
-                    {!c.recoveryEmailSentAt && !c.recoveredOrderId && <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-bold text-amber-700">Awaiting action</span>}
+                    {c.recoveryEmailSentAt && <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[13px] font-bold text-blue-700">Email sent</span>}
+                    {c.recoveredOrderId && <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[13px] font-bold text-emerald-700">Recovered ✓</span>}
+                    {c.discountCodeIssued && <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[13px] font-bold text-amber-700">{c.discountCodeIssued}</span>}
+                    {!c.recoveryEmailSentAt && !c.recoveredOrderId && <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[13px] font-bold text-amber-700">Awaiting action</span>}
                   </div>
                 </div>
 
@@ -167,13 +167,13 @@ export default function AbandonedCarts() {
                     <div className="flex items-center gap-1.5">
                       {hasEmail && (
                         <button onClick={() => sendEmail(c._id)} disabled={busy === `email-${c._id}`}
-                          className="inline-flex items-center gap-1.5 rounded-full bg-blue-600 px-3.5 py-2.5 text-[9px] font-semibold text-white transition hover:bg-blue-700 disabled:opacity-50" title="Send recovery email">
+                          className="inline-flex items-center gap-1.5 rounded-full bg-blue-600 px-3.5 py-2.5 text-[12px] font-semibold text-white transition hover:bg-blue-700 disabled:opacity-50" title="Send recovery email">
                           <Mail size={11} /> {busy === `email-${c._id}` ? '…' : 'Email'}
                         </button>
                       )}
                       {hasPhone && (
                         <button onClick={() => sendWhatsApp(c.phone)}
-                          className="inline-flex items-center gap-1.5 rounded-full bg-emerald-600 px-3.5 py-2.5 text-[9px] font-semibold text-white transition hover:bg-emerald-700" title="Open WhatsApp">
+                          className="inline-flex items-center gap-1.5 rounded-full bg-emerald-600 px-3.5 py-2.5 text-[12px] font-semibold text-white transition hover:bg-emerald-700" title="Open WhatsApp">
                           <MessageCircle size={11} /> WhatsApp
                         </button>
                       )}
@@ -193,8 +193,8 @@ export default function AbandonedCarts() {
                   <div className="grid gap-4 md:grid-cols-2">
                     {/* Customer details */}
                     <div>
-                      <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-neutral-500">Customer details</p>
-                      <div className="space-y-1.5 rounded-xl border border-neutral-200 bg-white p-3 text-[9px]">
+                      <p className="mb-2 text-[13px] font-bold uppercase tracking-widest text-neutral-500">Customer details</p>
+                      <div className="space-y-1.5 rounded-xl border border-neutral-200 bg-white p-3 text-[12px]">
                         {c.name && <p className="flex justify-between"><span className="text-neutral-500">Name</span><span className="font-semibold text-neutral-900">{c.name}</span></p>}
                         {c.email && <p className="flex justify-between"><span className="text-neutral-500">Email</span><span className="font-medium text-neutral-900">{c.email}</span></p>}
                         {c.phone && (
@@ -212,10 +212,10 @@ export default function AbandonedCarts() {
 
                     {/* Item breakdown */}
                     <div>
-                      <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-neutral-500">Items in cart</p>
+                      <p className="mb-2 text-[13px] font-bold uppercase tracking-widest text-neutral-500">Items in cart</p>
                       <div className="space-y-1.5 rounded-xl border border-neutral-200 bg-white p-3">
                         {(c.items || []).map((it, i) => (
-                          <div key={i} className="flex items-center gap-2.5 text-[9px]">
+                          <div key={i} className="flex items-center gap-2.5 text-[12px]">
                             {it.image ? <img src={it.image} alt="" className="h-8 w-6 rounded object-cover" /> : <span className="h-8 w-6 rounded bg-neutral-100" />}
                             <span className="min-w-0 flex-1 truncate text-neutral-800">{it.name}</span>
                             <span className="shrink-0 text-neutral-500">{[it.size, it.color].filter(Boolean).join(' · ') || '—'}</span>
@@ -223,7 +223,7 @@ export default function AbandonedCarts() {
                             <span className="w-20 text-right font-medium tabular-nums">{pkr((it.price || 0) * (it.quantity || 1))}</span>
                           </div>
                         ))}
-                        <div className="border-t border-neutral-100 pt-1.5 mt-1 flex justify-between text-[9px]">
+                        <div className="border-t border-neutral-100 pt-1.5 mt-1 flex justify-between text-[12px]">
                           <span className="font-semibold text-neutral-900">Subtotal</span>
                           <span className="font-semibold tabular-nums text-neutral-900">{pkr(c.subtotal)}</span>
                         </div>
@@ -243,13 +243,13 @@ export default function AbandonedCarts() {
           <div className="flex items-start gap-3">
             <BarChart3 size={18} className="mt-0.5 shrink-0 text-blue-600" />
             <div>
-              <p className="text-[10px] font-semibold text-blue-900">Recovery tips</p>
-              <p className="mt-1 text-[9px] leading-relaxed text-blue-800">
+              <p className="text-[13px] font-semibold text-blue-900">Recovery tips</p>
+              <p className="mt-1 text-[12px] leading-relaxed text-blue-800">
                 Use <b>Email</b> for automated recovery with discount codes, or <b>WhatsApp</b> for personal follow-up. Best results come from reaching out within the first 2 hours.
               </p>
               <div className="mt-2 flex flex-wrap gap-2">
-                <Link to="/admin/settings/email" className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1.5 text-[9px] font-semibold text-blue-700 hover:bg-blue-100">Email templates →</Link>
-                <Link to="/admin/apps" className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1.5 text-[9px] font-semibold text-blue-700 hover:bg-blue-100">WhatsApp settings →</Link>
+                <Link to="/admin/settings/email" className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1.5 text-[12px] font-semibold text-blue-700 hover:bg-blue-100">Email templates →</Link>
+                <Link to="/admin/apps" className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1.5 text-[12px] font-semibold text-blue-700 hover:bg-blue-100">WhatsApp settings →</Link>
               </div>
             </div>
           </div>
@@ -264,9 +264,9 @@ function Kpi({ icon: Icon, label, value, sub, tone }) {
   return (
     <div className="rounded-2xl border border-neutral-200 bg-white p-5 transition hover:-translate-y-0.5 hover:shadow-sm">
       <span className={`grid h-10 w-10 place-items-center rounded-xl ${t[tone] || t.neutral}`}><Icon size={16} /></span>
-      <p className="mt-3 text-[10px] font-bold uppercase tracking-widest text-neutral-500">{label}</p>
+      <p className="mt-3 text-[13px] font-bold uppercase tracking-widest text-neutral-500">{label}</p>
       <p className="mt-0.5 font-sans text-[7px] font-semibold tabular-nums leading-none tracking-tight text-neutral-900">{value}</p>
-      {sub && <p className="mt-1.5 text-[9px] text-neutral-500">{sub}</p>}
+      {sub && <p className="mt-1.5 text-[12px] text-neutral-500">{sub}</p>}
     </div>
   );
 }

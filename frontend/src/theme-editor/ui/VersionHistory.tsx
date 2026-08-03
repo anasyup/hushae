@@ -46,7 +46,7 @@ export default function VersionHistory({ onPreview }: { onPreview: (v: ThemeVers
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0">
                 <p className="truncate text-[13px] font-medium text-neutral-900">{v.label}</p>
-                <p className="mt-0.5 flex items-center gap-1 text-[11px] text-neutral-400">
+                <p className="mt-0.5 flex items-center gap-1 text-[13px] text-neutral-400">
                   <Clock size={10} /> {when(v.createdAt)}
                 </p>
               </div>
@@ -72,7 +72,7 @@ export default function VersionHistory({ onPreview }: { onPreview: (v: ThemeVers
 
         {past.length > 0 && (
           <>
-            <p className="mb-1.5 mt-4 px-1 text-[10px] font-bold uppercase tracking-[0.12em] text-neutral-400">
+            <p className="mb-1.5 mt-4 px-1 text-[13px] font-bold uppercase tracking-[0.12em] text-neutral-400">
               This session
             </p>
             <div className="space-y-0.5">
@@ -80,7 +80,7 @@ export default function VersionHistory({ onPreview }: { onPreview: (v: ThemeVers
                 <div key={i} className="flex items-center gap-2 rounded px-2 py-1.5 text-[12px] text-neutral-500">
                   <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-neutral-300" />
                   <span className="flex-1 truncate">{h.label}</span>
-                  <span className="shrink-0 text-[10px] text-neutral-400">
+                  <span className="shrink-0 text-[13px] text-neutral-400">
                     {new Date(h.at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </span>
                 </div>

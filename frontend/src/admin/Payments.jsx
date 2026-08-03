@@ -143,7 +143,7 @@ export default function Payments() {
     const a = document.createElement('a'); a.href = url; a.download = `hushae-payments-${new Date().toISOString().slice(0, 10)}.csv`; a.click(); URL.revokeObjectURL(url);
   };
 
-  if (err) return <AdminLayout title="Payments"><div className="mx-auto grid max-w-md place-items-center rounded-2xl border border-red-200 bg-red-50 p-8 text-center"><XCircle size={22} className="mb-2 text-red-600" /><p className="text-sm text-red-700">{err}</p><button onClick={load} className="mt-3 rounded-full border border-red-300 bg-white px-4 py-1.5 text-[9px] font-semibold text-red-700 hover:bg-red-100">Try again</button></div></AdminLayout>;
+  if (err) return <AdminLayout title="Payments"><div className="mx-auto grid max-w-md place-items-center rounded-2xl border border-red-200 bg-red-50 p-8 text-center"><XCircle size={22} className="mb-2 text-red-600" /><p className="text-sm text-red-700">{err}</p><button onClick={load} className="mt-3 rounded-full border border-red-300 bg-white px-4 py-1.5 text-[12px] font-semibold text-red-700 hover:bg-red-100">Try again</button></div></AdminLayout>;
   if (!stats) return <AdminLayout title="Payments"><div className="grid gap-4 md:grid-cols-4">{[1,2,3,4].map((i) => <div key={i} className="animate-pulse rounded-xl bg-neutral-100 h-32 rounded-2xl" />)}</div></AdminLayout>;
 
   return (
@@ -169,14 +169,14 @@ export default function Payments() {
             const I = t.i;
             return (
               <button key={t.k} onClick={() => setTab(t.k)}
-                className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[9px] font-semibold transition ${active ? 'bg-neutral-900 text-white' : 'text-neutral-500 hover:text-neutral-900'}`}>
-                <I size={13} /> {t.l}{t.n != null && <span className={`rounded-full px-1.5 text-[10px] font-bold ${active ? 'bg-white/20' : 'bg-neutral-100'}`}>{t.n}</span>}
+                className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[12px] font-semibold transition ${active ? 'bg-neutral-900 text-white' : 'text-neutral-500 hover:text-neutral-900'}`}>
+                <I size={13} /> {t.l}{t.n != null && <span className={`rounded-full px-1.5 text-[13px] font-bold ${active ? 'bg-white/20' : 'bg-neutral-100'}`}>{t.n}</span>}
               </button>
             );
           })}
         </div>
         <div className="flex items-center gap-2">
-          <Link to="/admin/settings/payments" className="inline-flex items-center gap-1 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-[9px] font-semibold text-neutral-600 transition hover:bg-neutral-50">
+          <Link to="/admin/settings/payments" className="inline-flex items-center gap-1 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-[12px] font-semibold text-neutral-600 transition hover:bg-neutral-50">
             Payment settings <ArrowUpRight size={10} />
           </Link>
         </div>
@@ -189,10 +189,10 @@ export default function Payments() {
           <section className="rounded-2xl border border-neutral-200 bg-white p-6">
             <div className="mb-5 flex items-center justify-between">
               <div>
-                <p className="text-[9px] font-bold uppercase tracking-widest text-neutral-500">Payment revenue — 30 days</p>
+                <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-500">Payment revenue — 30 days</p>
                 <p className="mt-1 font-sans text-2xl font-semibold text-neutral-900">{pkr(stats.monthValue)}</p>
               </div>
-              <span className="rounded-full bg-emerald-50 px-3 py-1 text-[9px] font-bold text-emerald-700">
+              <span className="rounded-full bg-emerald-50 px-3 py-1 text-[12px] font-bold text-emerald-700">
                 {stats.change > 0 ? '▲' : stats.change < 0 ? '▼' : ''} {Math.abs(stats.change).toFixed(1)}% vs prior
               </span>
             </div>
@@ -212,7 +212,7 @@ export default function Payments() {
 
           {/* Gateway health */}
           <section>
-            <p className="mb-3 text-[9px] font-bold uppercase tracking-widest text-neutral-500">Payment gateways</p>
+            <p className="mb-3 text-[12px] font-bold uppercase tracking-widest text-neutral-500">Payment gateways</p>
             <div className="grid gap-3 md:grid-cols-3">
               {[
                 { title: 'Cash on Delivery', icon: Banknote, color: '#059669', enabled: settings?.paymentMethods?.cod !== false, account: 'Always active' },
@@ -224,10 +224,10 @@ export default function Payments() {
                   <div key={g.title} className={`rounded-2xl border p-4 ${g.enabled ? 'border-neutral-200 bg-white' : 'border-neutral-200 bg-neutral-50/50'}`}>
                     <div className="flex items-center justify-between">
                       <span className="grid h-10 w-10 place-items-center rounded-xl" style={{ background: g.color + '15', color: g.color }}><I size={16} /></span>
-                      <span className={`rounded-full px-2 py-0.5 text-[9px] font-bold uppercase ${g.enabled ? 'bg-emerald-50 text-emerald-700' : 'bg-neutral-200 text-neutral-600'}`}>{g.enabled ? 'Enabled' : 'Off'}</span>
+                      <span className={`rounded-full px-2 py-0.5 text-[12px] font-bold uppercase ${g.enabled ? 'bg-emerald-50 text-emerald-700' : 'bg-neutral-200 text-neutral-600'}`}>{g.enabled ? 'Enabled' : 'Off'}</span>
                     </div>
-                    <p className="mt-3 text-[10px] font-semibold text-neutral-900">{g.title}</p>
-                    <p className="mt-1 text-[9px] text-neutral-500">{g.account}</p>
+                    <p className="mt-3 text-[13px] font-semibold text-neutral-900">{g.title}</p>
+                    <p className="mt-1 text-[12px] text-neutral-500">{g.account}</p>
                   </div>
                 );
               })}
@@ -241,20 +241,20 @@ export default function Payments() {
         <section className="rounded-2xl border border-neutral-200 bg-white">
           <div className="flex items-center justify-between border-b border-neutral-100 px-6 py-4">
             <div>
-              <p className="text-[9px] font-bold uppercase tracking-widest text-neutral-500">Pending payment verification</p>
-              <p className="mt-1 text-[10px] text-neutral-500">{stats.pendingOrders.length} order{stats.pendingOrders.length === 1 ? '' : 's'} awaiting confirmation</p>
+              <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-500">Pending payment verification</p>
+              <p className="mt-1 text-[13px] text-neutral-500">{stats.pendingOrders.length} order{stats.pendingOrders.length === 1 ? '' : 's'} awaiting confirmation</p>
             </div>
           </div>
           {stats.pendingOrders.length === 0 ? (
             <div className="grid place-items-center py-16 text-center">
               <CheckCircle2 size={28} className="mb-2 text-emerald-500" />
-              <p className="text-[9px] font-medium text-neutral-700">All payments verified</p>
-              <p className="mt-1 text-[9px] text-neutral-500">No pending payments to review.</p>
+              <p className="text-[12px] font-medium text-neutral-700">All payments verified</p>
+              <p className="mt-1 text-[12px] text-neutral-500">No pending payments to review.</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full min-w-[700px]">
-                <thead><tr className="border-b border-neutral-100 bg-neutral-50/60"><th className="px-3 py-2 text-left text-[10px] font-bold uppercase text-neutral-400">Order</th><th className="px-3 py-2 text-left text-[10px] font-bold uppercase text-neutral-400">Customer</th><th className="px-3 py-2 text-left text-[10px] font-bold uppercase text-neutral-400">Method</th><th className="px-3 py-2 text-left text-[10px] font-bold uppercase text-neutral-400">Amount</th><th className="px-3 py-2 text-left text-[10px] font-bold uppercase text-neutral-400">Date</th><th className="table-head text-right">Actions</th></tr></thead>
+                <thead><tr className="border-b border-neutral-100 bg-neutral-50/60"><th className="px-3 py-2 text-left text-[13px] font-bold uppercase text-neutral-400">Order</th><th className="px-3 py-2 text-left text-[13px] font-bold uppercase text-neutral-400">Customer</th><th className="px-3 py-2 text-left text-[13px] font-bold uppercase text-neutral-400">Method</th><th className="px-3 py-2 text-left text-[13px] font-bold uppercase text-neutral-400">Amount</th><th className="px-3 py-2 text-left text-[13px] font-bold uppercase text-neutral-400">Date</th><th className="table-head text-right">Actions</th></tr></thead>
                 <tbody>
                   {stats.pendingOrders.slice(0, 50).map((o) => {
                     const M = METHOD_META[o.paymentMethod] || METHOD_META.COD;
@@ -262,15 +262,15 @@ export default function Payments() {
                     const busy = busyIds.has(o._id);
                     return (
                       <tr key={o._id} className="border-b border-neutral-100 hover:bg-neutral-50/70">
-                        <td className="px-3 py-2 text-[9px]"><Link to={`/admin/orders/${o._id}`} className="font-mono text-[9px] font-semibold hover:underline">{o.orderNumber}</Link></td>
-                        <td className="table-cell text-[10px] font-medium">{o.customerInfo?.name}</td>
-                        <td className="px-3 py-2 text-[9px]"><span className="inline-flex items-center gap-1.5 rounded-full bg-neutral-100 px-2.5 py-1 text-[9px] font-semibold" style={{ color: M.color }}><MIcon size={11} />{o.paymentMethod}</span></td>
+                        <td className="px-3 py-2 text-[12px]"><Link to={`/admin/orders/${o._id}`} className="font-mono text-[12px] font-semibold hover:underline">{o.orderNumber}</Link></td>
+                        <td className="table-cell text-[13px] font-medium">{o.customerInfo?.name}</td>
+                        <td className="px-3 py-2 text-[12px]"><span className="inline-flex items-center gap-1.5 rounded-full bg-neutral-100 px-2.5 py-1 text-[12px] font-semibold" style={{ color: M.color }}><MIcon size={11} />{o.paymentMethod}</span></td>
                         <td className="table-cell font-sans font-semibold tabular-nums">{pkr(o.total)}</td>
-                        <td className="table-cell text-[9px] text-neutral-500">{fmtDateTime(o.createdAt)}</td>
+                        <td className="table-cell text-[12px] text-neutral-500">{fmtDateTime(o.createdAt)}</td>
                         <td className="table-cell text-right">
                           <div className="flex items-center justify-end gap-1.5">
-                            <button disabled={busy} onClick={() => verifyPayment(o._id, 'Verified')} className="rounded-lg bg-blue-50 px-3 py-1.5 text-[9px] font-semibold text-blue-700 transition hover:bg-blue-100 disabled:opacity-50">Verify</button>
-                            <button disabled={busy} onClick={() => verifyPayment(o._id, 'Confirmed')} className="rounded-lg bg-emerald-50 px-3 py-1.5 text-[9px] font-semibold text-emerald-700 transition hover:bg-emerald-100 disabled:opacity-50">Confirm</button>
+                            <button disabled={busy} onClick={() => verifyPayment(o._id, 'Verified')} className="rounded-lg bg-blue-50 px-3 py-1.5 text-[12px] font-semibold text-blue-700 transition hover:bg-blue-100 disabled:opacity-50">Verify</button>
+                            <button disabled={busy} onClick={() => verifyPayment(o._id, 'Confirmed')} className="rounded-lg bg-emerald-50 px-3 py-1.5 text-[12px] font-semibold text-emerald-700 transition hover:bg-emerald-100 disabled:opacity-50">Confirm</button>
                           </div>
                         </td>
                       </tr>
@@ -290,27 +290,27 @@ export default function Payments() {
             <div className="flex flex-wrap items-center gap-2">
               <div className="relative">
                 <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400" />
-                <input value={txSearch} onChange={(e) => setTxSearch(e.target.value)} placeholder="Search order#, customer, txn ID…" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900 !w-60 !py-2 !pl-9 !text-[10px]" />
+                <input value={txSearch} onChange={(e) => setTxSearch(e.target.value)} placeholder="Search order#, customer, txn ID…" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !w-60 !py-2 !pl-9 !text-[13px]" />
               </div>
-              <select value={txStatus} onChange={(e) => setTxStatus(e.target.value)} className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900 !w-36 !py-2 !text-[10px]"><option value="all">All statuses</option><option value="Paid">Paid</option><option value="Pending">Pending</option><option value="Verified">Verified</option><option value="Failed">Failed</option><option value="Refunded">Refunded</option></select>
-              <select value={txMethod} onChange={(e) => setTxMethod(e.target.value)} className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900 !w-36 !py-2 !text-[10px]"><option value="all">All methods</option><option value="COD">COD</option><option value="JazzCash">JazzCash</option><option value="EasyPaisa">EasyPaisa</option><option value="Bank Transfer">Bank Transfer</option></select>
+              <select value={txStatus} onChange={(e) => setTxStatus(e.target.value)} className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !w-36 !py-2 !text-[13px]"><option value="all">All statuses</option><option value="Paid">Paid</option><option value="Pending">Pending</option><option value="Verified">Verified</option><option value="Failed">Failed</option><option value="Refunded">Refunded</option></select>
+              <select value={txMethod} onChange={(e) => setTxMethod(e.target.value)} className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !w-36 !py-2 !text-[13px]"><option value="all">All methods</option><option value="COD">COD</option><option value="JazzCash">JazzCash</option><option value="EasyPaisa">EasyPaisa</option><option value="Bank Transfer">Bank Transfer</option></select>
             </div>
-            <button onClick={exportCsv} className="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-4 py-2 text-[9px] font-semibold text-white hover:bg-neutral-800"><Download size={12} /> Export CSV</button>
+            <button onClick={exportCsv} className="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-4 py-2 text-[12px] font-semibold text-white hover:bg-neutral-800"><Download size={12} /> Export CSV</button>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full min-w-[800px]">
-              <thead><tr className="border-b border-neutral-100 bg-neutral-50/60"><th className="px-3 py-2 text-left text-[10px] font-bold uppercase text-neutral-400">Order</th><th className="px-3 py-2 text-left text-[10px] font-bold uppercase text-neutral-400">Date</th><th className="px-3 py-2 text-left text-[10px] font-bold uppercase text-neutral-400">Customer</th><th className="px-3 py-2 text-left text-[10px] font-bold uppercase text-neutral-400">Method</th><th className="px-3 py-2 text-left text-[10px] font-bold uppercase text-neutral-400">Status</th><th className="table-head text-right">Amount</th></tr></thead>
+              <thead><tr className="border-b border-neutral-100 bg-neutral-50/60"><th className="px-3 py-2 text-left text-[13px] font-bold uppercase text-neutral-400">Order</th><th className="px-3 py-2 text-left text-[13px] font-bold uppercase text-neutral-400">Date</th><th className="px-3 py-2 text-left text-[13px] font-bold uppercase text-neutral-400">Customer</th><th className="px-3 py-2 text-left text-[13px] font-bold uppercase text-neutral-400">Method</th><th className="px-3 py-2 text-left text-[13px] font-bold uppercase text-neutral-400">Status</th><th className="table-head text-right">Amount</th></tr></thead>
               <tbody>
                 {transactions.slice(0, 100).map((o) => {
                   const M = METHOD_META[o.paymentMethod] || METHOD_META.COD;
                   const MIcon = M.icon;
                   return (
                     <tr key={o._id} className="border-b border-neutral-100 hover:bg-neutral-50/70">
-                      <td className="px-3 py-2 text-[9px]"><Link to={`/admin/orders/${o._id}`} className="font-mono text-[9px] font-semibold hover:underline">{o.orderNumber}</Link></td>
-                      <td className="table-cell text-[9px] text-neutral-500">{fmtDateTime(o.createdAt)}</td>
-                      <td className="px-3 py-2 text-[9px]"><p className="text-[10px] font-semibold">{o.customerInfo?.name}</p><p className="text-[9px] text-neutral-500">{o.customerInfo?.phone}</p></td>
-                      <td className="px-3 py-2 text-[9px]"><span className="inline-flex items-center gap-1.5 rounded-full bg-neutral-100 px-2.5 py-1 text-[9px] font-semibold" style={{ color: M.color }}><MIcon size={11} />{o.paymentMethod}</span></td>
-                      <td className="px-3 py-2 text-[9px]"><span className={`pill ${o.paymentStatus === 'Paid' ? 'bg-emerald-100 text-emerald-800' : o.paymentStatus === 'Refunded' ? 'bg-orange-100 text-orange-800' : o.paymentStatus === 'Verified' ? 'bg-blue-100 text-blue-800' : 'bg-amber-100 text-amber-800'}`}>{o.paymentStatus}</span></td>
+                      <td className="px-3 py-2 text-[12px]"><Link to={`/admin/orders/${o._id}`} className="font-mono text-[12px] font-semibold hover:underline">{o.orderNumber}</Link></td>
+                      <td className="table-cell text-[12px] text-neutral-500">{fmtDateTime(o.createdAt)}</td>
+                      <td className="px-3 py-2 text-[12px]"><p className="text-[13px] font-semibold">{o.customerInfo?.name}</p><p className="text-[12px] text-neutral-500">{o.customerInfo?.phone}</p></td>
+                      <td className="px-3 py-2 text-[12px]"><span className="inline-flex items-center gap-1.5 rounded-full bg-neutral-100 px-2.5 py-1 text-[12px] font-semibold" style={{ color: M.color }}><MIcon size={11} />{o.paymentMethod}</span></td>
+                      <td className="px-3 py-2 text-[12px]"><span className={`pill ${o.paymentStatus === 'Paid' ? 'bg-emerald-100 text-emerald-800' : o.paymentStatus === 'Refunded' ? 'bg-orange-100 text-orange-800' : o.paymentStatus === 'Verified' ? 'bg-blue-100 text-blue-800' : 'bg-amber-100 text-amber-800'}`}>{o.paymentStatus}</span></td>
                       <td className="table-cell text-right font-sans font-semibold tabular-nums">{pkr(o.total)}</td>
                     </tr>
                   );
@@ -325,7 +325,7 @@ export default function Payments() {
       {/* ═══ METHODS ════════════════════════════════════════════════════ */}
       {tab === 'methods' && (
         <section className="rounded-2xl border border-neutral-200 bg-white p-6">
-          <p className="text-[9px] font-bold uppercase tracking-widest text-neutral-500">Payment method mix — 30 days</p>
+          <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-500">Payment method mix — 30 days</p>
           <div className="mt-4 space-y-3">
             {Object.entries(stats.byMethod).sort((a, b) => b[1].value - a[1].value).map(([name, m]) => {
               const M = METHOD_META[name] || { icon: CreditCard, color: '#64748b', label: name };
@@ -337,9 +337,9 @@ export default function Payments() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <span className="grid h-9 w-9 place-items-center rounded-lg" style={{ background: M.color + '15', color: M.color }}><MI size={15} /></span>
-                      <div><p className="text-[10px] font-semibold">{M.label}</p><p className="text-[9px] text-neutral-500">{m.count} orders · {m.paid} paid · {m.pending} pending</p></div>
+                      <div><p className="text-[13px] font-semibold">{M.label}</p><p className="text-[12px] text-neutral-500">{m.count} orders · {m.paid} paid · {m.pending} pending</p></div>
                     </div>
-                    <div className="text-right"><p className="font-sans text-[7px] font-semibold tabular-nums">{pkr(m.value)}</p><p className="text-[9px] text-neutral-500">{pct.toFixed(1)}%</p></div>
+                    <div className="text-right"><p className="font-sans text-[7px] font-semibold tabular-nums">{pkr(m.value)}</p><p className="text-[12px] text-neutral-500">{pct.toFixed(1)}%</p></div>
                   </div>
                   <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white"><div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: M.color }} /></div>
                 </div>
@@ -364,10 +364,10 @@ function KpiCard({ icon: Icon, label, value, sub, change, tone = 'neutral' }) {
   return (
     <div className="rounded-2xl border border-neutral-200 bg-white p-5 transition hover:-translate-y-0.5 hover:shadow-sm">
       <span className={`grid h-10 w-10 place-items-center rounded-xl ${t.bg} ${t.text}`}><Icon size={16} /></span>
-      <p className="mt-3 text-[10px] font-bold uppercase tracking-widest text-neutral-500">{label}</p>
+      <p className="mt-3 text-[13px] font-bold uppercase tracking-widest text-neutral-500">{label}</p>
       <p className="mt-1 font-sans text-[7px] font-semibold tabular-nums leading-none tracking-tight text-neutral-900">{value}</p>
-      {sub && <p className="mt-1.5 text-[9px] font-medium text-neutral-500">{sub}</p>}
-      {typeof change === 'number' && change !== 0 && <span className={`mt-2 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold ${t.badge}`}>{change > 0 ? '▲' : '▼'} {Math.abs(change).toFixed(1)}%</span>}
+      {sub && <p className="mt-1.5 text-[12px] font-medium text-neutral-500">{sub}</p>}
+      {typeof change === 'number' && change !== 0 && <span className={`mt-2 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[13px] font-bold ${t.badge}`}>{change > 0 ? '▲' : '▼'} {Math.abs(change).toFixed(1)}%</span>}
     </div>
   );
 }

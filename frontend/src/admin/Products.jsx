@@ -139,7 +139,7 @@ export default function Products() {
               value={f.q}
               onChange={(e) => setF({ ...f, q: e.target.value })}
               placeholder="Search name, SKU, category…"
-              className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900 !w-72 !py-2.5 !pl-9 !text-[10px]"
+              className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !w-72 !py-2.5 !pl-9 !text-[13px]"
             />
           </div>
 
@@ -159,19 +159,19 @@ export default function Products() {
         </div>
 
         <div className="flex items-center gap-2">
-          <button onClick={() => setCsvOpen(true)} className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-[9px] font-semibold text-neutral-600 transition hover:bg-neutral-50" title="Import/Export CSV">
+          <button onClick={() => setCsvOpen(true)} className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-[12px] font-semibold text-neutral-600 transition hover:bg-neutral-50" title="Import/Export CSV">
             <FileUp size={11} /> Import/Export
           </button>
           {selected.size > 0 && (
             <button
               onClick={() => setBulkOpen(true)}
-              className="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-3 py-1.5 text-[9px] font-semibold text-white transition hover:bg-neutral-800"
+              className="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-3 py-1.5 text-[12px] font-semibold text-white transition hover:bg-neutral-800"
               title="Bulk edit selected products"
             >
               <Pencil size={11} /> Edit {selected.size} selected
             </button>
           )}
-          <Link to="/admin/products/new" className="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-4 py-2 text-[9px] font-semibold text-white transition hover:bg-neutral-800">
+          <Link to="/admin/products/new" className="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-4 py-2 text-[12px] font-semibold text-white transition hover:bg-neutral-800">
             <Plus size={13} /> Add product
           </Link>
         </div>
@@ -207,7 +207,7 @@ export default function Products() {
 
       {/* ============ FILTER CHIPS ============ */}
       <div className="mb-5 flex flex-wrap items-center gap-2">
-        <span className="inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-widest text-neutral-500">
+        <span className="inline-flex items-center gap-1 text-[12px] font-bold uppercase tracking-widest text-neutral-500">
           <Filter size={12} /> Filter
         </span>
 
@@ -217,7 +217,7 @@ export default function Products() {
         <ChipSelect label="Stock" value={f.stock} onChange={(v) => setF({ ...f, stock: v })} options={[{ value: 'low', label: 'Low (≤5)' }, { value: 'out', label: 'Out of stock' }]} />
 
         {hasFilters && (
-          <button onClick={clearFilters} className="ml-1 text-[9px] font-semibold text-neutral-500 hover:text-neutral-900">
+          <button onClick={clearFilters} className="ml-1 text-[12px] font-semibold text-neutral-500 hover:text-neutral-900">
             Clear all
           </button>
         )}
@@ -247,7 +247,7 @@ export default function Products() {
       {csvOpen && <CsvImport onClose={() => setCsvOpen(false)} onDone={load} />}
       {filtered.length > 0 && (
         <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-neutral-200 bg-white px-4 py-3">
-          <p className="text-[9px] text-neutral-500">
+          <p className="text-[12px] text-neutral-500">
             Showing <b className="text-neutral-900">{Math.min((page - 1) * PER_PAGE + 1, filtered.length)}</b>–<b className="text-neutral-900">{Math.min(page * PER_PAGE, filtered.length)}</b> of <b className="text-neutral-900">{filtered.length}</b>
           </p>
           {pageCount > 1 && (
@@ -255,15 +255,15 @@ export default function Products() {
               <button
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
-                className="rounded-lg border border-neutral-200 bg-white px-3 py-1.5 text-[9px] font-semibold text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-40"
+                className="rounded-lg border border-neutral-200 bg-white px-3 py-1.5 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-40"
               >Prev</button>
               {pageNumbers(page, pageCount).map((n, i) => n === '…' ? (
-                <span key={`d${i}`} className="px-2 text-[9px] text-neutral-400">…</span>
+                <span key={`d${i}`} className="px-2 text-[12px] text-neutral-400">…</span>
               ) : (
                 <button
                   key={n}
                   onClick={() => setPage(n)}
-                  className={`min-w-8 rounded-lg px-2.5 py-1.5 text-[9px] font-semibold transition ${
+                  className={`min-w-8 rounded-lg px-2.5 py-1.5 text-[12px] font-semibold transition ${
                     n === page ? 'bg-neutral-900 text-white' : 'border border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-50'
                   }`}
                 >{n}</button>
@@ -271,7 +271,7 @@ export default function Products() {
               <button
                 onClick={() => setPage((p) => Math.min(pageCount, p + 1))}
                 disabled={page === pageCount}
-                className="rounded-lg border border-neutral-200 bg-white px-3 py-1.5 text-[9px] font-semibold text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-40"
+                className="rounded-lg border border-neutral-200 bg-white px-3 py-1.5 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-40"
               >Next</button>
             </div>
           )}
@@ -302,9 +302,9 @@ function SummaryCard({ icon: Icon, label, value, tone, sub, onClick, active }) {
         <span className={`grid h-9 w-9 place-items-center rounded-xl ${t.bg} ${t.text}`}>
           <Icon size={15} />
         </span>
-        {sub && <span className={`text-[10px] font-semibold ${t.text}`}>{sub}</span>}
+        {sub && <span className={`text-[13px] font-semibold ${t.text}`}>{sub}</span>}
       </div>
-      <p className="mt-3 text-[10px] font-bold uppercase tracking-widest text-neutral-500">{label}</p>
+      <p className="mt-3 text-[13px] font-bold uppercase tracking-widest text-neutral-500">{label}</p>
       <p className={`mt-0.5 font-sans text-2xl font-semibold tabular-nums leading-none tracking-tight ${active ? 'text-neutral-900' : 'text-neutral-800'}`}>
         {value.toLocaleString()}
       </p>
@@ -331,7 +331,7 @@ function ChipSelect({ label, value, options, onChange }) {
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen((v) => !v)}
-        className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[9px] font-semibold transition ${
+        className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[12px] font-semibold transition ${
           selected
             ? 'border-neutral-900 bg-neutral-900 text-white'
             : 'border-neutral-200 bg-white text-neutral-700 hover:border-neutral-400'
@@ -342,14 +342,14 @@ function ChipSelect({ label, value, options, onChange }) {
       </button>
       {open && (
         <div className="absolute left-0 top-full z-20 mt-1 max-h-64 min-w-40 overflow-y-auto rounded-xl border border-neutral-200 bg-white shadow-lg">
-          <button onClick={() => { onChange(''); setOpen(false); }} className={`block w-full px-3 py-2 text-left text-[9px] transition ${!value ? 'bg-neutral-100 font-semibold' : 'hover:bg-neutral-50'}`}>
+          <button onClick={() => { onChange(''); setOpen(false); }} className={`block w-full px-3 py-2 text-left text-[12px] transition ${!value ? 'bg-neutral-100 font-semibold' : 'hover:bg-neutral-50'}`}>
             All
           </button>
           {options.map((o) => (
             <button
               key={o.value}
               onClick={() => { onChange(o.value); setOpen(false); }}
-              className={`block w-full px-3 py-2 text-left text-[9px] transition ${value === o.value ? 'bg-neutral-100 font-semibold' : 'hover:bg-neutral-50'}`}
+              className={`block w-full px-3 py-2 text-left text-[12px] transition ${value === o.value ? 'bg-neutral-100 font-semibold' : 'hover:bg-neutral-50'}`}
             >
               {o.label}
             </button>
@@ -361,15 +361,15 @@ function ChipSelect({ label, value, options, onChange }) {
 }
 
 function StockPill({ n }) {
-  if (n === 0) return <span className="inline-flex items-center gap-1 rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-bold text-red-800">● Out</span>;
-  if (n <= 5)  return <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-800">● {n} left</span>;
-  return <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700">● {n}</span>;
+  if (n === 0) return <span className="inline-flex items-center gap-1 rounded-full bg-red-100 px-2 py-0.5 text-[13px] font-bold text-red-800">● Out</span>;
+  if (n <= 5)  return <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[13px] font-bold text-amber-800">● {n} left</span>;
+  return <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[13px] font-bold text-emerald-700">● {n}</span>;
 }
 
 function StatusChip({ p }) {
-  if (p.status === 'draft') return <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-800">Draft</span>;
-  if (!p.isActive) return <span className="inline-flex items-center rounded-full bg-neutral-200 px-2 py-0.5 text-[10px] font-bold text-neutral-700">Archived</span>;
-  return <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700">● Live</span>;
+  if (p.status === 'draft') return <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[13px] font-bold text-amber-800">Draft</span>;
+  if (!p.isActive) return <span className="inline-flex items-center rounded-full bg-neutral-200 px-2 py-0.5 text-[13px] font-bold text-neutral-700">Archived</span>;
+  return <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[13px] font-bold text-emerald-700">● Live</span>;
 }
 
 function ListView({ products, selected, onToggleSel, onToggleAll, onEnable, onDisable, onRemove, onDuplicate }) {
@@ -382,13 +382,13 @@ function ListView({ products, selected, onToggleSel, onToggleAll, onEnable, onDi
             <th className="w-10 px-4 py-3 text-left">
               <input type="checkbox" checked={allSelected} onChange={onToggleAll} className="h-4 w-4 rounded accent-neutral-900" />
             </th>
-            <th className="px-3 py-2 text-left text-[10px] font-bold uppercase text-neutral-400">Product</th>
-            <th className="px-3 py-2 text-left text-[10px] font-bold uppercase text-neutral-400">SKU</th>
-            <th className="px-3 py-2 text-left text-[10px] font-bold uppercase text-neutral-400">Tier</th>
-            <th className="px-3 py-2 text-left text-[10px] font-bold uppercase text-neutral-400">Price</th>
-            <th className="px-3 py-2 text-left text-[10px] font-bold uppercase text-neutral-400">Stock</th>
-            <th className="px-3 py-2 text-left text-[10px] font-bold uppercase text-neutral-400">Status</th>
-            <th className="px-3 py-2 text-left text-[10px] font-bold uppercase text-neutral-400" />
+            <th className="px-3 py-2 text-left text-[13px] font-bold uppercase text-neutral-400">Product</th>
+            <th className="px-3 py-2 text-left text-[13px] font-bold uppercase text-neutral-400">SKU</th>
+            <th className="px-3 py-2 text-left text-[13px] font-bold uppercase text-neutral-400">Tier</th>
+            <th className="px-3 py-2 text-left text-[13px] font-bold uppercase text-neutral-400">Price</th>
+            <th className="px-3 py-2 text-left text-[13px] font-bold uppercase text-neutral-400">Stock</th>
+            <th className="px-3 py-2 text-left text-[13px] font-bold uppercase text-neutral-400">Status</th>
+            <th className="px-3 py-2 text-left text-[13px] font-bold uppercase text-neutral-400" />
           </tr>
         </thead>
         <tbody>
@@ -397,12 +397,12 @@ function ListView({ products, selected, onToggleSel, onToggleAll, onEnable, onDi
               <td className="px-4 py-3">
                 <input type="checkbox" checked={selected.has(p._id)} onChange={() => onToggleSel(p._id)} className="h-4 w-4 rounded accent-neutral-900" />
               </td>
-              <td className="px-3 py-2 text-[9px]">
+              <td className="px-3 py-2 text-[12px]">
                 <Link to={`/admin/products/${p._id}`} className="group flex items-center gap-3">
                   <Img src={p.images[0]?.url} alt="" className="h-12 w-9 shrink-0 rounded-lg border border-neutral-200 object-cover" />
                   <div className="min-w-0">
-                    <p className="line-clamp-2 max-w-64 text-[10px] font-medium text-neutral-900 group-hover:underline">{p.name}</p>
-                    <div className="mt-1 flex items-center gap-2 text-[10px] uppercase tracking-wider text-neutral-500">
+                    <p className="line-clamp-2 max-w-64 text-[13px] font-medium text-neutral-900 group-hover:underline">{p.name}</p>
+                    <div className="mt-1 flex items-center gap-2 text-[13px] uppercase tracking-wider text-neutral-500">
                       <span>{p.gender}</span> · <span>{p.categorySlug}</span>
                       {p.isFeatured && <span className="inline-flex items-center gap-0.5 text-amber-600"><Star size={9} fill="currentColor" /> Featured</span>}
                       {p.isBestSeller && <span className="inline-flex items-center gap-0.5 text-purple-600"><TrendingUp size={9} /> Best</span>}
@@ -411,21 +411,21 @@ function ListView({ products, selected, onToggleSel, onToggleAll, onEnable, onDi
                 </Link>
               </td>
               <td className="table-cell font-mono text-xs text-neutral-500">{p.sku}</td>
-              <td className="px-3 py-2 text-[9px]">
-                <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold ${p.tier === 'Premium' ? 'bg-neutral-900 text-white' : p.tier === 'Standard' ? 'bg-neutral-100 text-neutral-700' : 'bg-emerald-50 text-emerald-700'}`}>
+              <td className="px-3 py-2 text-[12px]">
+                <span className={`inline-flex rounded-full px-2 py-0.5 text-[13px] font-bold ${p.tier === 'Premium' ? 'bg-neutral-900 text-white' : p.tier === 'Standard' ? 'bg-neutral-100 text-neutral-700' : 'bg-emerald-50 text-emerald-700'}`}>
                   {p.tier}
                 </span>
               </td>
-              <td className="px-3 py-2 text-[9px]">
+              <td className="px-3 py-2 text-[12px]">
                 <p className="font-semibold text-neutral-900">{pkr(p.price)}</p>
                 {/* v2 — sale windows: the was-price only shows while the sale
                     is genuinely switched on. */}
-                {p.onSale === true && p.compareAtPrice && <p className="text-[9px] text-neutral-400 line-through">{pkr(p.compareAtPrice)}</p>}
-                {p.onSale === true && <span className="mt-0.5 inline-block rounded-full bg-red-50 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-red-700 ring-1 ring-red-200">Sale</span>}
+                {p.onSale === true && p.compareAtPrice && <p className="text-[12px] text-neutral-400 line-through">{pkr(p.compareAtPrice)}</p>}
+                {p.onSale === true && <span className="mt-0.5 inline-block rounded-full bg-red-50 px-1.5 py-0.5 text-[12px] font-bold uppercase tracking-wider text-red-700 ring-1 ring-red-200">Sale</span>}
               </td>
-              <td className="px-3 py-2 text-[9px]"><StockPill n={p.stock} /></td>
-              <td className="px-3 py-2 text-[9px]"><StatusChip p={p} /></td>
-              <td className="px-3 py-2 text-[9px]">
+              <td className="px-3 py-2 text-[12px]"><StockPill n={p.stock} /></td>
+              <td className="px-3 py-2 text-[12px]"><StatusChip p={p} /></td>
+              <td className="px-3 py-2 text-[12px]">
                 <div className="flex items-center justify-end gap-1">
                   <Link to={`/admin/products/${p._id}`} className="rounded-lg p-2 text-neutral-500 transition hover:bg-neutral-100 hover:text-neutral-900" aria-label="Edit">
                     <Pencil size={13} />
@@ -465,7 +465,7 @@ function GridView({ products, onEnable, onDisable, onRemove, onDuplicate }) {
               <Img src={p.images[0]?.url} alt="" className="h-full w-full object-cover transition group-hover:scale-105" />
               <div className="absolute left-2 top-2 flex flex-col gap-1">
                 <StatusChip p={p} />
-                {p.stock === 0 && <span className="rounded-full bg-red-600 px-2 py-0.5 text-[10px] font-bold text-white">SOLD OUT</span>}
+                {p.stock === 0 && <span className="rounded-full bg-red-600 px-2 py-0.5 text-[13px] font-bold text-white">SOLD OUT</span>}
               </div>
               {(p.isFeatured || p.isBestSeller) && (
                 <div className="absolute right-2 top-2 flex gap-1">
@@ -477,14 +477,14 @@ function GridView({ products, onEnable, onDisable, onRemove, onDuplicate }) {
           </Link>
           <div className="p-3">
             <Link to={`/admin/products/${p._id}`}>
-              <p className="line-clamp-2 text-[9px] font-medium leading-snug text-neutral-900 hover:underline">{p.name}</p>
+              <p className="line-clamp-2 text-[12px] font-medium leading-snug text-neutral-900 hover:underline">{p.name}</p>
             </Link>
-            <div className="mt-1 flex items-center justify-between text-[9px] text-neutral-500">
+            <div className="mt-1 flex items-center justify-between text-[12px] text-neutral-500">
               <span className="font-mono">{p.sku}</span>
               <StockPill n={p.stock} />
             </div>
             <div className="mt-2 flex items-center justify-between">
-              <p className="text-[9px] font-semibold text-neutral-900">{pkr(p.price)}</p>
+              <p className="text-[12px] font-semibold text-neutral-900">{pkr(p.price)}</p>
               <div className="flex items-center gap-1">
                 <Link to={`/admin/products/${p._id}`} className="rounded-lg p-1.5 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900"><Pencil size={12} /></Link>
                 <button onClick={() => onDuplicate(p)} className="rounded-lg p-1.5 text-neutral-500 hover:bg-sky-50 hover:text-sky-700" aria-label="Duplicate" title="Duplicate product"><Copy size={12} /></button>
@@ -522,14 +522,14 @@ function EmptyState({ onClear, hasFilters }) {
         <Package size={22} />
       </span>
       <p className="mt-4 text-sm font-medium text-neutral-700">No products match</p>
-      <p className="mt-1 max-w-xs text-[9px] text-neutral-500">
+      <p className="mt-1 max-w-xs text-[12px] text-neutral-500">
         {hasFilters ? 'Try clearing the filters, or add a new product.' : 'You have no products yet — add your first one.'}
       </p>
       <div className="mt-5 flex items-center gap-2">
         {hasFilters && (
-          <button onClick={onClear} className="rounded-full border border-neutral-200 bg-white px-4 py-2 text-[9px] font-semibold text-neutral-700 hover:bg-neutral-50">Clear filters</button>
+          <button onClick={onClear} className="rounded-full border border-neutral-200 bg-white px-4 py-2 text-[12px] font-semibold text-neutral-700 hover:bg-neutral-50">Clear filters</button>
         )}
-        <Link to="/admin/products/new" className="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-4 py-2 text-[9px] font-semibold text-white hover:bg-neutral-800">
+        <Link to="/admin/products/new" className="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-4 py-2 text-[12px] font-semibold text-white hover:bg-neutral-800">
           <Plus size={12} /> Add product
         </Link>
       </div>
@@ -596,7 +596,7 @@ function BulkEditModal({ count, onClose, onApply }) {
       <div className="w-full max-w-lg overflow-hidden rounded-3xl bg-white shadow-2xl" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between border-b border-neutral-200 px-6 py-4">
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-500">Bulk edit</p>
+            <p className="text-[13px] font-bold uppercase tracking-widest text-neutral-500">Bulk edit</p>
             <h2 className="mt-0.5 font-sans text-xl text-neutral-900">Update {count} product{count === 1 ? '' : 's'}</h2>
           </div>
           <button onClick={onClose} disabled={busy} className="rounded-full p-2 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-900 disabled:opacity-40" aria-label="Close">
@@ -606,7 +606,7 @@ function BulkEditModal({ count, onClose, onApply }) {
 
         <div className="max-h-[70vh] overflow-y-auto px-6 py-5">
           {/* Action grid */}
-          <p className="mb-3 text-[10px] font-bold uppercase tracking-widest text-neutral-500">What do you want to do?</p>
+          <p className="mb-3 text-[13px] font-bold uppercase tracking-widest text-neutral-500">What do you want to do?</p>
           <div className="grid grid-cols-2 gap-2">
             {actions.map((a) => {
               const A = a.icon;
@@ -614,7 +614,7 @@ function BulkEditModal({ count, onClose, onApply }) {
                 <button
                   key={a.key}
                   onClick={() => setAction(a.key)}
-                  className={`flex items-center gap-2 rounded-xl border px-3 py-2.5 text-left text-[9px] transition ${
+                  className={`flex items-center gap-2 rounded-xl border px-3 py-2.5 text-left text-[12px] transition ${
                     action === a.key
                       ? 'border-neutral-900 bg-neutral-900 text-white'
                       : 'border-neutral-200 bg-white text-neutral-700 hover:border-neutral-400'
@@ -629,7 +629,7 @@ function BulkEditModal({ count, onClose, onApply }) {
 
           {/* Input area */}
           <div className="mt-5 rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
-            <p className="mb-3 text-[9px] leading-relaxed text-neutral-600">{active?.hint}</p>
+            <p className="mb-3 text-[12px] leading-relaxed text-neutral-600">{active?.hint}</p>
 
             {needsNum && (
               <div className="flex items-center gap-3">
@@ -644,7 +644,7 @@ function BulkEditModal({ count, onClose, onApply }) {
                   type="number"
                   value={numValue}
                   onChange={(e) => setNumValue(e.target.value)}
-                  className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900 flex-1 !text-lg !font-semibold"
+                  className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 flex-1 !text-lg !font-semibold"
                   placeholder={
                     action === 'setStock' ? '50'
                     : action === 'stockDelta' ? '+50 or -10'
@@ -666,7 +666,7 @@ function BulkEditModal({ count, onClose, onApply }) {
                   <button
                     key={t}
                     onClick={() => setTier(t)}
-                    className={`rounded-xl border px-3 py-2 text-[9px] font-semibold transition ${tier === t ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-200 bg-white text-neutral-700 hover:border-neutral-400'}`}
+                    className={`rounded-xl border px-3 py-2 text-[12px] font-semibold transition ${tier === t ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-200 bg-white text-neutral-700 hover:border-neutral-400'}`}
                   >{t}</button>
                 ))}
               </div>
@@ -681,7 +681,7 @@ function BulkEditModal({ count, onClose, onApply }) {
                   <button
                     key={o.v}
                     onClick={() => setStatus(o.v)}
-                    className={`rounded-xl border px-3 py-2 text-[9px] font-semibold transition ${status === o.v ? 'border-neutral-900 bg-neutral-900 text-white' : `border-neutral-200 bg-white ${o.tone} hover:border-neutral-400`}`}
+                    className={`rounded-xl border px-3 py-2 text-[12px] font-semibold transition ${status === o.v ? 'border-neutral-900 bg-neutral-900 text-white' : `border-neutral-200 bg-white ${o.tone} hover:border-neutral-400`}`}
                   >{o.label}</button>
                 ))}
               </div>
@@ -689,24 +689,24 @@ function BulkEditModal({ count, onClose, onApply }) {
 
             {(action === 'toggleFeatured' || action === 'toggleBest') && (
               <div className="grid grid-cols-2 gap-2">
-                <button onClick={() => setBool(true)}  className={`rounded-xl border px-3 py-2 text-[9px] font-semibold transition ${bool  ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-200 bg-white text-neutral-700 hover:border-neutral-400'}`}>Turn ON</button>
-                <button onClick={() => setBool(false)} className={`rounded-xl border px-3 py-2 text-[9px] font-semibold transition ${!bool ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-200 bg-white text-neutral-700 hover:border-neutral-400'}`}>Turn OFF</button>
+                <button onClick={() => setBool(true)}  className={`rounded-xl border px-3 py-2 text-[12px] font-semibold transition ${bool  ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-200 bg-white text-neutral-700 hover:border-neutral-400'}`}>Turn ON</button>
+                <button onClick={() => setBool(false)} className={`rounded-xl border px-3 py-2 text-[12px] font-semibold transition ${!bool ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-200 bg-white text-neutral-700 hover:border-neutral-400'}`}>Turn OFF</button>
               </div>
             )}
           </div>
 
-          <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-3 text-[9px] leading-relaxed text-amber-800">
+          <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-3 text-[12px] leading-relaxed text-amber-800">
             ⚠️ This will apply to <b>{count} product{count === 1 ? '' : 's'}</b> at once and cannot be undone.
             Make sure the correct rows are selected before confirming.
           </div>
         </div>
 
         <div className="grid grid-cols-[auto_1fr] gap-3 border-t border-neutral-200 bg-neutral-50 px-6 py-4">
-          <button onClick={onClose} disabled={busy} className="rounded-full border border-neutral-300 bg-white px-5 py-3 text-[9px] font-semibold text-neutral-700 hover:bg-neutral-100 disabled:opacity-40">Cancel</button>
+          <button onClick={onClose} disabled={busy} className="rounded-full border border-neutral-300 bg-white px-5 py-3 text-[12px] font-semibold text-neutral-700 hover:bg-neutral-100 disabled:opacity-40">Cancel</button>
           <button
             onClick={apply}
             disabled={busy || (needsNum && (numValue === '' || numValue === null))}
-            className="inline-flex items-center justify-center gap-2 rounded-full bg-neutral-900 px-6 py-3 text-[9px] font-semibold uppercase tracking-widest text-white transition hover:bg-neutral-800 disabled:opacity-50"
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-neutral-900 px-6 py-3 text-[12px] font-semibold uppercase tracking-widest text-white transition hover:bg-neutral-800 disabled:opacity-50"
           >
             <Save size={13} /> {busy ? 'Applying…' : `Apply to ${count} product${count === 1 ? '' : 's'}`}
           </button>

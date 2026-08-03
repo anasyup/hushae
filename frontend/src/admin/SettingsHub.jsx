@@ -164,7 +164,7 @@ export default function SettingsHub() {
       {/* Intro row: name + description + quick search */}
       <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div className="max-w-2xl">
-          <p className="text-[10px] leading-relaxed text-neutral-500">
+          <p className="text-[13px] leading-relaxed text-neutral-500">
             Configure how your store runs — from your name and contact info to payments,
             shipping, security and the apps you connect. Every card below opens a focused page.
           </p>
@@ -175,7 +175,7 @@ export default function SettingsHub() {
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Search settings…"
-            className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900 !w-72 !py-2.5 !pl-9 !text-[10px]"
+            className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !w-72 !py-2.5 !pl-9 !text-[13px]"
           />
         </div>
       </div>
@@ -204,16 +204,16 @@ export default function SettingsHub() {
                     </span>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
-                        <p className="text-[9px] font-semibold text-neutral-900">{c.title}</p>
+                        <p className="text-[12px] font-semibold text-neutral-900">{c.title}</p>
                         {c.badge && (
-                          <span className={`rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider ${
+                          <span className={`rounded-full px-2 py-0.5 text-[12px] font-bold uppercase tracking-wider ${
                             c.badge === 'Coming soon'
                               ? 'bg-amber-100 text-amber-800'
                               : 'bg-neutral-100 text-neutral-600'
                           }`}>{c.badge}</span>
                         )}
                       </div>
-                      <p className="mt-1 text-[9px] leading-relaxed text-neutral-500">{c.desc}</p>
+                      <p className="mt-1 text-[12px] leading-relaxed text-neutral-500">{c.desc}</p>
                     </div>
                     <span className="absolute right-4 top-4 text-neutral-300 transition group-hover:text-neutral-900">
                       {c.external ? <ArrowUpRight size={14} /> : <ChevronRight size={14} />}
@@ -230,18 +230,18 @@ export default function SettingsHub() {
           <div className="rounded-2xl border border-neutral-200 bg-white p-5">
             <div className="flex items-center gap-2">
               <Info size={14} className="text-neutral-500" />
-              <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-500">Signed in as</p>
+              <p className="text-[13px] font-bold uppercase tracking-widest text-neutral-500">Signed in as</p>
             </div>
-            <p className="mt-2 text-[10px] font-semibold text-neutral-900">{auth?.user?.name || 'Admin'}</p>
-            <p className="mt-0.5 font-mono text-[9px] text-neutral-500">{auth?.user?.email || 'underadmin'}</p>
-            <span className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-emerald-800">
+            <p className="mt-2 text-[13px] font-semibold text-neutral-900">{auth?.user?.name || 'Admin'}</p>
+            <p className="mt-0.5 font-mono text-[12px] text-neutral-500">{auth?.user?.email || 'underadmin'}</p>
+            <span className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-[13px] font-bold uppercase tracking-wider text-emerald-800">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
               Admin access
             </span>
           </div>
 
           <div className="rounded-2xl border border-neutral-200 bg-white p-5">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-500">Popular tasks</p>
+            <p className="text-[13px] font-bold uppercase tracking-widest text-neutral-500">Popular tasks</p>
             <div className="mt-3 space-y-1">
               {[
                 { to: '/admin/settings/security', label: 'Change admin password' },
@@ -249,7 +249,7 @@ export default function SettingsHub() {
                 { to: '/admin/apps',              label: 'Connect Google Analytics' },
                 { to: '/admin/settings/shipping', label: 'Update shipping rates' },
               ].map((t) => (
-                <Link key={t.to} to={t.to} className="flex items-center justify-between rounded-lg px-2 py-1.5 text-[9px] text-neutral-700 transition hover:bg-neutral-50">
+                <Link key={t.to} to={t.to} className="flex items-center justify-between rounded-lg px-2 py-1.5 text-[12px] text-neutral-700 transition hover:bg-neutral-50">
                   {t.label}
                   <ChevronRight size={12} className="text-neutral-400" />
                 </Link>
@@ -258,8 +258,8 @@ export default function SettingsHub() {
           </div>
 
           <div className="rounded-2xl border border-neutral-900 bg-neutral-900 p-5 text-neutral-100">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Need help?</p>
-            <p className="mt-2 text-[10px] leading-relaxed text-neutral-200">
+            <p className="text-[13px] font-bold uppercase tracking-widest text-neutral-400">Need help?</p>
+            <p className="mt-2 text-[13px] leading-relaxed text-neutral-200">
               Every setting page has inline hints. If you get stuck, contact your developer or open the changelog.
             </p>
           </div>

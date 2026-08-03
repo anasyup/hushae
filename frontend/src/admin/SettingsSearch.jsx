@@ -17,8 +17,8 @@ function Section({ title, description, children }) {
   return (
     <section className="rounded-2xl border border-neutral-200 bg-white p-6">
       <div className="mb-5">
-        <p className="text-[9px] font-bold uppercase tracking-widest text-neutral-600">{title}</p>
-        {description && <p className="mt-1 text-[9px] leading-relaxed text-neutral-600">{description}</p>}
+        <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-600">{title}</p>
+        {description && <p className="mt-1 text-[12px] leading-relaxed text-neutral-600">{description}</p>}
       </div>
       {children}
     </section>
@@ -29,8 +29,8 @@ function Toggle({ label, description, checked, onChange, disabled }) {
   return (
     <label className={`flex min-h-[44px] items-start justify-between gap-4 rounded-xl border border-neutral-200 bg-white px-4 py-3 transition ${disabled ? 'opacity-55' : 'cursor-pointer hover:border-neutral-300'}`}>
       <div className="min-w-0">
-        <p className="text-[10px] font-medium text-neutral-900">{label}</p>
-        {description && <p className="mt-0.5 text-[9px] leading-relaxed text-neutral-600">{description}</p>}
+        <p className="text-[13px] font-medium text-neutral-900">{label}</p>
+        {description && <p className="mt-0.5 text-[12px] leading-relaxed text-neutral-600">{description}</p>}
       </div>
       <button
         type="button" role="switch" aria-checked={!!checked} aria-label={label} disabled={disabled}
@@ -47,13 +47,13 @@ const Num = ({ label, hint, value, onChange, disabled, ...rest }) => {
   const id = useId();
   return (
     <div>
-      <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500" htmlFor={id}>{label}</label>
+      <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500" htmlFor={id}>{label}</label>
       <input
-        id={id} className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900" type="number" value={value ?? 0} disabled={disabled}
+        id={id} className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" type="number" value={value ?? 0} disabled={disabled}
         aria-describedby={hint ? `${id}-h` : undefined}
         onChange={(e) => onChange(e.target.value === '' ? 0 : Number(e.target.value))} {...rest}
       />
-      {hint && <p id={`${id}-h`} className="mt-1.5 text-[9px] leading-relaxed text-neutral-600">{hint}</p>}
+      {hint && <p id={`${id}-h`} className="mt-1.5 text-[12px] leading-relaxed text-neutral-600">{hint}</p>}
     </div>
   );
 };
@@ -62,13 +62,13 @@ const Text = ({ label, hint, value, onChange, disabled, ...rest }) => {
   const id = useId();
   return (
     <div>
-      <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-neutral-500" htmlFor={id}>{label}</label>
+      <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500" htmlFor={id}>{label}</label>
       <input
-        id={id} className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900" value={value ?? ''} disabled={disabled}
+        id={id} className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={value ?? ''} disabled={disabled}
         aria-describedby={hint ? `${id}-h` : undefined}
         onChange={(e) => onChange(e.target.value)} {...rest}
       />
-      {hint && <p id={`${id}-h`} className="mt-1.5 text-[9px] leading-relaxed text-neutral-600">{hint}</p>}
+      {hint && <p id={`${id}-h`} className="mt-1.5 text-[12px] leading-relaxed text-neutral-600">{hint}</p>}
     </div>
   );
 };
@@ -136,7 +136,7 @@ export default function SettingsSearch() {
 
   return (
     <AdminLayout title="Search & Discovery">
-      <Link to="/admin/settings" className="mb-4 -ml-1 inline-flex min-h-[44px] items-center gap-1.5 px-1 text-[9px] font-semibold text-neutral-600 transition hover:text-neutral-900">
+      <Link to="/admin/settings" className="mb-4 -ml-1 inline-flex min-h-[44px] items-center gap-1.5 px-1 text-[12px] font-semibold text-neutral-600 transition hover:text-neutral-900">
         <ArrowLeft size={13} /> Settings
       </Link>
 
@@ -147,19 +147,19 @@ export default function SettingsSearch() {
           </span>
           <div>
             <h2 className="font-sans text-2xl leading-tight text-neutral-900">Search & Discovery</h2>
-            <p className="mt-1 text-[10px] leading-relaxed text-neutral-600">
+            <p className="mt-1 text-[13px] leading-relaxed text-neutral-600">
               What customers can search, how forgiving it is, and what the assistant understands.
             </p>
           </div>
         </div>
-        <Link to="/admin/search-analytics" className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-neutral-300 px-3 text-[9px] font-semibold text-neutral-700 transition hover:bg-neutral-50">
+        <Link to="/admin/search-analytics" className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-neutral-300 px-3 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50">
           <BarChart3 size={13} /> Analytics
         </Link>
       </div>
 
       {problems.length > 0 && (
         <div role="alert" className="mb-5 rounded-2xl border border-amber-300 bg-amber-50 p-4">
-          <ul className="list-disc space-y-1 pl-5 text-[9px] text-amber-900">
+          <ul className="list-disc space-y-1 pl-5 text-[12px] text-amber-900">
             {problems.map((p) => <li key={p}>{p}</li>)}
           </ul>
         </div>
@@ -192,13 +192,13 @@ export default function SettingsSearch() {
                     onChange={(e) => setG('fields', k, e.target.checked)}
                     className="h-4 w-4 accent-neutral-900"
                   />
-                  <span className="text-[10px] font-medium text-neutral-900">{FIELD_LABELS[k]}</span>
+                  <span className="text-[13px] font-medium text-neutral-900">{FIELD_LABELS[k]}</span>
                 </label>
                 <div className="flex items-center gap-2">
-                  <label className="text-[9px] text-neutral-600" htmlFor={`w-${k}`}>Weight</label>
+                  <label className="text-[12px] text-neutral-600" htmlFor={`w-${k}`}>Weight</label>
                   <input
                     id={`w-${k}`} type="number" min="0" max="200"
-                    className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[9px] outline-none transition focus:border-neutral-900 max-w-[90px]" value={S.weights?.[k] ?? 0}
+                    className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 max-w-[90px]" value={S.weights?.[k] ?? 0}
                     disabled={S.fields?.[k] === false}
                     onChange={(e) => setG('weights', k, Number(e.target.value) || 0)}
                   />
@@ -231,15 +231,15 @@ export default function SettingsSearch() {
             {synonyms.map((x, i) => (
               <div key={i} className="flex flex-wrap items-center gap-2 rounded-xl border border-neutral-200 px-3 py-2">
                 <input
-                  className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[9px] outline-none transition focus:border-neutral-900 max-w-[160px]" value={x.from} aria-label={`Synonym ${i + 1}, first word`}
+                  className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 max-w-[160px]" value={x.from} aria-label={`Synonym ${i + 1}, first word`}
                   onChange={(e) => set('synonyms', synonyms.map((y, j) => (j === i ? { ...y, from: e.target.value.toLowerCase() } : y)))}
                 />
-                <span aria-hidden="true" className="text-[10px] text-neutral-600">{x.both !== false ? '↔' : '→'}</span>
+                <span aria-hidden="true" className="text-[13px] text-neutral-600">{x.both !== false ? '↔' : '→'}</span>
                 <input
-                  className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[9px] outline-none transition focus:border-neutral-900 max-w-[160px]" value={x.to} aria-label={`Synonym ${i + 1}, second word`}
+                  className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 max-w-[160px]" value={x.to} aria-label={`Synonym ${i + 1}, second word`}
                   onChange={(e) => set('synonyms', synonyms.map((y, j) => (j === i ? { ...y, to: e.target.value.toLowerCase() } : y)))}
                 />
-                <label className="flex min-h-[44px] cursor-pointer items-center gap-2 text-[9px] text-neutral-600">
+                <label className="flex min-h-[44px] cursor-pointer items-center gap-2 text-[12px] text-neutral-600">
                   <input
                     type="checkbox" checked={x.both !== false} className="h-4 w-4 accent-neutral-900"
                     onChange={(e) => set('synonyms', synonyms.map((y, j) => (j === i ? { ...y, both: e.target.checked } : y)))}
@@ -260,16 +260,16 @@ export default function SettingsSearch() {
 
           <div className="mt-3 flex flex-wrap items-center gap-2 rounded-xl border border-dashed border-neutral-300 px-3 py-2">
             <input
-              className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[9px] outline-none transition focus:border-neutral-900 max-w-[160px]" placeholder="customer's word" aria-label="New synonym, customer's word"
+              className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 max-w-[160px]" placeholder="customer's word" aria-label="New synonym, customer's word"
               value={newSyn.from} onChange={(e) => setNewSyn({ ...newSyn, from: e.target.value })}
             />
-            <span aria-hidden="true" className="text-[10px] text-neutral-600">↔</span>
+            <span aria-hidden="true" className="text-[13px] text-neutral-600">↔</span>
             <input
-              className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[9px] outline-none transition focus:border-neutral-900 max-w-[160px]" placeholder="your word" aria-label="New synonym, your word"
+              className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 max-w-[160px]" placeholder="your word" aria-label="New synonym, your word"
               value={newSyn.to} onChange={(e) => setNewSyn({ ...newSyn, to: e.target.value })}
               onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addSyn(); } }}
             />
-            <button type="button" onClick={addSyn} className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg bg-neutral-900 px-3 text-[9px] font-semibold text-white transition hover:bg-neutral-800">
+            <button type="button" onClick={addSyn} className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg bg-neutral-900 px-3 text-[12px] font-semibold text-white transition hover:bg-neutral-800">
               <Plus size={13} /> Add
             </button>
           </div>
@@ -282,7 +282,7 @@ export default function SettingsSearch() {
         >
           <div className="flex flex-wrap gap-2">
             {stopWords.map((w, i) => (
-              <span key={`${w}-${i}`} className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full border border-neutral-300 bg-white px-3 text-[9px] text-neutral-700">
+              <span key={`${w}-${i}`} className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full border border-neutral-300 bg-white px-3 text-[12px] text-neutral-700">
                 {w}
                 <button
                   type="button"
@@ -298,7 +298,7 @@ export default function SettingsSearch() {
           <div className="mt-3 flex flex-wrap gap-2">
             <label htmlFor="new-stop" className="sr-only">New ignored word</label>
             <input
-              id="new-stop" className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[9px] outline-none transition focus:border-neutral-900 max-w-[200px]" placeholder="add a word" value={newStop}
+              id="new-stop" className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 max-w-[200px]" placeholder="add a word" value={newStop}
               onChange={(e) => setNewStop(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key !== 'Enter') return;
@@ -315,7 +315,7 @@ export default function SettingsSearch() {
                 if (w && !stopWords.includes(w)) set('stopWords', [...stopWords, w]);
                 setNewStop('');
               }}
-              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-neutral-300 px-3 text-[9px] font-semibold text-neutral-700 transition hover:bg-neutral-50"
+              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-neutral-300 px-3 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50"
             >
               <Plus size={13} /> Add
             </button>
@@ -407,10 +407,10 @@ export default function SettingsSearch() {
 
       {dirty && (
         <div className="sticky bottom-4 z-30 mt-6 flex items-center justify-between gap-4 rounded-2xl border border-neutral-900 bg-neutral-900 px-4 py-3 text-white shadow-xl">
-          <p className="text-[10px] font-medium">Unsaved changes</p>
+          <p className="text-[13px] font-medium">Unsaved changes</p>
           <div className="flex items-center gap-2">
-            <button onClick={() => setS(JSON.parse(original))} className="min-h-[44px] rounded-lg border border-white/20 px-3 text-[9px] font-semibold text-white/80 transition hover:bg-white/10">Discard</button>
-            <button onClick={save} disabled={busy || problems.length > 0} className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg bg-white px-4 text-[9px] font-semibold text-neutral-900 transition hover:bg-neutral-100 disabled:opacity-50">
+            <button onClick={() => setS(JSON.parse(original))} className="min-h-[44px] rounded-lg border border-white/20 px-3 text-[12px] font-semibold text-white/80 transition hover:bg-white/10">Discard</button>
+            <button onClick={save} disabled={busy || problems.length > 0} className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg bg-white px-4 text-[12px] font-semibold text-neutral-900 transition hover:bg-neutral-100 disabled:opacity-50">
               <Save size={13} /> {busy ? 'Saving…' : 'Save'}
             </button>
           </div>

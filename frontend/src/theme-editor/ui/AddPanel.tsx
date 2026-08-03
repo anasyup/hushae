@@ -35,7 +35,7 @@ export function AddSectionPanel() {
         if (!items.length) return null;
         return (
           <div key={cat} className="mb-4">
-            <p className="mb-1.5 px-1 text-[10px] font-bold uppercase tracking-[0.12em] text-neutral-400">{cat}</p>
+            <p className="mb-1.5 px-1 text-[13px] font-bold uppercase tracking-[0.12em] text-neutral-400">{cat}</p>
             <div className="space-y-0.5">
               {items.map((s) => {
                 const atLimit = s.limit !== undefined && (counts.get(s.type) || 0) >= s.limit;
@@ -48,7 +48,7 @@ export function AddSectionPanel() {
                     <span className="min-w-0 flex-1">
                       <span className="block text-[13px] font-medium text-neutral-900">{s.name}</span>
                       {s.description && <span className="mt-0.5 block text-[11.5px] leading-snug text-neutral-500">{s.description}</span>}
-                      {atLimit && <span className="mt-0.5 block text-[11px] text-amber-600">Limit reached</span>}
+                      {atLimit && <span className="mt-0.5 block text-[13px] text-amber-600">Limit reached</span>}
                     </span>
                   </button>
                 );
@@ -100,7 +100,7 @@ export function AddBlockPanel() {
                 <Icon name={s.icon} size={15} />
               </span>
               <span className="flex-1 text-[13px] font-medium text-neutral-900">{s.name}</span>
-              {s.accepts?.length ? <span className="text-[10px] text-neutral-400">nests</span> : null}
+              {s.accepts?.length ? <span className="text-[13px] text-neutral-400">nests</span> : null}
             </button>
           );
         })}

@@ -36,7 +36,7 @@ export default function Growth() {
         <div className="rounded-2xl border border-neutral-200 bg-white p-5">
           <Users size={18} className="text-neutral-500" />
           <p className="mt-3 font-sans text-3xl">{subs ? subs.length : '—'}</p>
-          <p className="mt-0.5 text-[10px] uppercase tracking-wider text-neutral-500">Email Subscribers</p>
+          <p className="mt-0.5 text-[13px] uppercase tracking-wider text-neutral-500">Email Subscribers</p>
         </div>
         <div className="rounded-2xl border border-neutral-200 bg-white p-5 md:col-span-2">
           <h2 className="font-sans text-lg">Newsletter list</h2>
@@ -44,7 +44,7 @@ export default function Growth() {
             Emails collected from the footer newsletter form appear here. Copy the list and
             send your own sale announcements and coupon codes — the cheapest marketing you have.
           </p>
-          <button onClick={copyAll} disabled={!subs || !subs.length} className="inline-flex items-center gap-1.5 rounded-full border border-neutral-300 bg-white px-4 py-2 text-[9px] font-semibold text-neutral-700 hover:bg-neutral-50 mt-4"><Copy size={14} /> {copied ? 'Copied!' : 'Copy All Emails'}</button>
+          <button onClick={copyAll} disabled={!subs || !subs.length} className="inline-flex items-center gap-1.5 rounded-full border border-neutral-300 bg-white px-4 py-2 text-[12px] font-semibold text-neutral-700 hover:bg-neutral-50 mt-4"><Copy size={14} /> {copied ? 'Copied!' : 'Copy All Emails'}</button>
         </div>
       </div>
 
@@ -57,7 +57,7 @@ export default function Growth() {
         ) : (
           <table className="w-full min-w-[560px]">
             <thead><tr className="border-b border-neutral-200 bg-neutral-100">
-              {['#', 'Email', 'Subscribed On', ''].map((h) => <th key={h} className="px-3 py-2 text-left text-[10px] font-bold uppercase text-neutral-400">{h}</th>)}
+              {['#', 'Email', 'Subscribed On', ''].map((h) => <th key={h} className="px-3 py-2 text-left text-[13px] font-bold uppercase text-neutral-400">{h}</th>)}
             </tr></thead>
             <tbody>
               {subs.map((s, i) => (

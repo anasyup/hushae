@@ -99,22 +99,22 @@ export default function OrderProfitability({ days, from, to }) {
     <section className="mt-6 rounded-2xl border border-neutral-200 bg-white p-5 sm:p-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-[9px] font-bold uppercase tracking-widest text-neutral-500">Order profitability</p>
-          <p className="mt-1 text-[9px] text-neutral-500">
+          <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-500">Order profitability</p>
+          <p className="mt-1 text-[12px] text-neutral-500">
             What you actually keep on every single order, after cost of goods, packaging, courier and gateway fees.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <select value={filter} onChange={(e) => setFilter(e.target.value)}
-            className="min-h-[34px] rounded-full border border-neutral-200 bg-white px-3 text-[9px] font-semibold text-neutral-700 outline-none focus:border-neutral-900">
+            className="min-h-[34px] rounded-full border border-neutral-200 bg-white px-3 text-[12px] font-semibold text-neutral-700 outline-none focus:border-neutral-900">
             {FILTERS.map((f) => <option key={f.key} value={f.key}>{f.label}</option>)}
           </select>
           <button onClick={() => setSort('margin-asc')}
-            className={`min-h-[34px] rounded-full border px-3 text-[9px] font-semibold transition ${sort === 'margin-asc' ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-50'}`}>
+            className={`min-h-[34px] rounded-full border px-3 text-[12px] font-semibold transition ${sort === 'margin-asc' ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-50'}`}>
             Worst first
           </button>
           <button onClick={exportCsv}
-            className="inline-flex min-h-[34px] items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 text-[9px] font-semibold text-neutral-700 transition hover:bg-neutral-50">
+            className="inline-flex min-h-[34px] items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50">
             <Download size={12} /> CSV
           </button>
         </div>
@@ -138,7 +138,7 @@ export default function OrderProfitability({ days, from, to }) {
       )}
 
       {/* Ads caveat — stated where the numbers are read, not buried in a footnote */}
-      <p className="mt-3 flex items-start gap-2 rounded-lg bg-blue-50 px-3 py-2 text-[9px] leading-relaxed text-blue-800">
+      <p className="mt-3 flex items-start gap-2 rounded-lg bg-blue-50 px-3 py-2 text-[12px] leading-relaxed text-blue-800">
         <Info size={13} className="mt-0.5 shrink-0" />
         <span>
           Ad spend is <b>not</b> split across individual orders — attribution on COD checkout is unreliable and would
@@ -148,9 +148,9 @@ export default function OrderProfitability({ days, from, to }) {
 
       {/* Table — scrolls horizontally on phones rather than squeezing */}
       <div className="mt-4 overflow-x-auto">
-        <table className="w-full min-w-[860px] border-collapse text-[9px]">
+        <table className="w-full min-w-[860px] border-collapse text-[12px]">
           <thead>
-            <tr className="border-b border-neutral-200 text-[10px] font-bold uppercase tracking-wider text-neutral-500">
+            <tr className="border-b border-neutral-200 text-[13px] font-bold uppercase tracking-wider text-neutral-500">
               <th className="w-6 py-2" />
               <th className="py-2 text-left">Order</th>
               <th className="py-2 text-left">Customer</th>
@@ -182,7 +182,7 @@ export default function OrderProfitability({ days, from, to }) {
                     <td className="py-2.5 text-neutral-400">
                       {expanded ? <ChevronDown size={13} /> : <ChevronRight size={13} />}
                     </td>
-                    <td className="py-2.5 font-mono text-[10px] font-semibold text-neutral-900">{r.orderNumber}</td>
+                    <td className="py-2.5 font-mono text-[13px] font-semibold text-neutral-900">{r.orderNumber}</td>
                     <td className="max-w-[150px] truncate py-2.5 text-neutral-700">{r.customer}</td>
                     <td className="whitespace-nowrap py-2.5 text-neutral-500">{fmtDate(r.date)}</td>
                     <td className="py-2.5 text-right tabular-nums text-neutral-900">{r.revenue.toLocaleString()}</td>
@@ -197,7 +197,7 @@ export default function OrderProfitability({ days, from, to }) {
                       {r.revenue > 0 ? `${r.margin}%` : '—'}
                     </td>
                     <td className="py-2.5 text-right">
-                      <span className={`whitespace-nowrap rounded-full px-2 py-0.5 text-[10px] font-bold ring-1 ${h.cls}`}>{h.label}</span>
+                      <span className={`whitespace-nowrap rounded-full px-2 py-0.5 text-[13px] font-bold ring-1 ${h.cls}`}>{h.label}</span>
                     </td>
                   </tr>
 
@@ -207,7 +207,7 @@ export default function OrderProfitability({ days, from, to }) {
                       <td colSpan={11} className="px-2 py-4">
                         <div className="grid gap-4 md:grid-cols-2">
                           <div className="max-w-sm">
-                            <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-neutral-500">Full breakdown</p>
+                            <p className="mb-2 text-[13px] font-bold uppercase tracking-widest text-neutral-500">Full breakdown</p>
                             <dl className="space-y-1">
                               <Line label="Revenue" value={r.revenue} strong />
                               <Line label={`Cost of goods (${r.items} item${r.items === 1 ? '' : 's'})`} value={-r.cogs} />
@@ -215,14 +215,14 @@ export default function OrderProfitability({ days, from, to }) {
                               <Line label="Courier" value={-r.courier} />
                               <Line label={`Payment gateway fee${r.paymentMethod === 'COD' ? ' (COD — none)' : ` (${r.feePct}%)`}`} value={-r.paymentFee} />
                               <div className="!mt-2 flex items-center justify-between border-t border-neutral-300 pt-2">
-                                <dt className="text-[9px] font-bold text-neutral-900">Net profit</dt>
+                                <dt className="text-[12px] font-bold text-neutral-900">Net profit</dt>
                                 <dd className={`font-sans text-[7px] font-bold tabular-nums ${r.netProfit >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>
-                                  {pkr(r.netProfit)} {r.revenue > 0 && <span className="text-[9px] font-semibold">({r.margin}%)</span>}
+                                  {pkr(r.netProfit)} {r.revenue > 0 && <span className="text-[12px] font-semibold">({r.margin}%)</span>}
                                 </dd>
                               </div>
                             </dl>
                           </div>
-                          <div className="space-y-2 text-[10px] text-neutral-600">
+                          <div className="space-y-2 text-[13px] text-neutral-600">
                             <p><span className="text-neutral-500">City:</span> {r.city || '—'}</p>
                             <p><span className="text-neutral-500">Payment:</span> {r.paymentMethod}</p>
                             <p><span className="text-neutral-500">Stage:</span> {r.stage || r.status}</p>
@@ -253,7 +253,7 @@ export default function OrderProfitability({ days, from, to }) {
       </div>
 
       {data && data.total > data.limit && (
-        <div className="mt-4 flex items-center justify-between text-[10px]">
+        <div className="mt-4 flex items-center justify-between text-[13px]">
           <p className="text-neutral-500">
             {(data.page - 1) * data.limit + 1}–{Math.min(data.page * data.limit, data.total)} of {data.total}
           </p>
@@ -272,7 +272,7 @@ export default function OrderProfitability({ days, from, to }) {
 function Line({ label, value, strong }) {
   return (
     <div className="flex items-center justify-between gap-4">
-      <dt className={`text-[10px] ${strong ? 'font-semibold text-neutral-800' : 'text-neutral-500'}`}>{label}</dt>
+      <dt className={`text-[13px] ${strong ? 'font-semibold text-neutral-800' : 'text-neutral-500'}`}>{label}</dt>
       <dd className={`shrink-0 tabular-nums ${value < 0 ? 'text-neutral-600' : 'font-semibold text-neutral-900'}`}>
         {value < 0 ? `− ${pkr(Math.abs(value))}` : pkr(value)}
       </dd>

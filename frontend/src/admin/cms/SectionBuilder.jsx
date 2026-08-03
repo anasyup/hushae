@@ -86,7 +86,7 @@ function AddPanel({ onAdd, onClose }) {
   return (
     <div className="rounded-xl border border-neutral-900 bg-white">
       <div className="flex items-center gap-2 border-b border-neutral-200 px-3 py-2.5">
-        <p className="flex-1 text-[10px] font-semibold text-neutral-900">Add a block to the page</p>
+        <p className="flex-1 text-[13px] font-semibold text-neutral-900">Add a block to the page</p>
         <button
           type="button" onClick={onClose}
           className="grid h-11 w-11 place-items-center rounded-lg text-neutral-600 transition hover:bg-neutral-100"
@@ -109,13 +109,13 @@ function AddPanel({ onAdd, onClose }) {
           if (!shown.length) return null;
           return (
             <div key={cat} className="mb-3 last:mb-0">
-              <p className="mb-1.5 text-[10px] font-bold uppercase tracking-widest text-neutral-600">{cat}</p>
+              <p className="mb-1.5 text-[13px] font-bold uppercase tracking-widest text-neutral-600">{cat}</p>
               <div className="grid gap-1.5 sm:grid-cols-2">
                 {shown.map((s) => (
                   <button
                     key={s.type} type="button"
                     onClick={() => onAdd(s.type)}
-                    className="min-h-[44px] rounded-lg border border-neutral-200 px-3 py-2 text-left text-[9px] font-medium text-neutral-900 transition hover:border-neutral-900 hover:bg-neutral-50"
+                    className="min-h-[44px] rounded-lg border border-neutral-200 px-3 py-2 text-left text-[12px] font-medium text-neutral-900 transition hover:border-neutral-900 hover:bg-neutral-50"
                   >
                     {s.name}
                   </button>
@@ -125,7 +125,7 @@ function AddPanel({ onAdd, onClose }) {
           );
         })}
         {needle && !groups.some(([, l]) => l.some((s) => s.name.toLowerCase().includes(needle))) && (
-          <p className="px-1 py-4 text-center text-[9px] text-neutral-600">Nothing matches “{q}”.</p>
+          <p className="px-1 py-4 text-center text-[12px] text-neutral-600">Nothing matches “{q}”.</p>
         )}
       </div>
     </div>
@@ -157,12 +157,12 @@ function Row({ node, index, total, onMove, onDrag, onDrop, dragging, over, actio
         </span>
 
         <div className="min-w-0 flex-1">
-          <p className={`truncate text-[10px] font-medium ${node.hidden ? 'text-neutral-500' : 'text-neutral-900'}`}>
+          <p className={`truncate text-[13px] font-medium ${node.hidden ? 'text-neutral-500' : 'text-neutral-900'}`}>
             {label}
-            {node.hidden && <span className="ml-2 rounded-full bg-neutral-200 px-2 py-0.5 text-[10px] font-semibold text-neutral-700">off</span>}
-            {!schema && <span className="ml-2 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-900">unknown type</span>}
+            {node.hidden && <span className="ml-2 rounded-full bg-neutral-200 px-2 py-0.5 text-[13px] font-semibold text-neutral-700">off</span>}
+            {!schema && <span className="ml-2 rounded-full bg-amber-100 px-2 py-0.5 text-[13px] font-semibold text-amber-900">unknown type</span>}
           </p>
-          {detail && <p className="mt-0.5 truncate text-[9px] text-neutral-600">{String(detail).slice(0, 60)}</p>}
+          {detail && <p className="mt-0.5 truncate text-[12px] text-neutral-600">{String(detail).slice(0, 60)}</p>}
         </div>
 
         {/* Keyboard/touch equivalents for every drag action. */}
@@ -267,7 +267,7 @@ export default function SectionBuilder({ doc, onChange }) {
       title="Page blocks"
       description="Build the page out of ready-made blocks — a banner, a row of products, a set of questions. Drag to reorder, or use the arrows."
       action={
-        <span className="text-[9px] tabular-nums text-neutral-600">
+        <span className="text-[12px] tabular-nums text-neutral-600">
           {sections.length} of {MAX_SECTIONS}
         </span>
       }
@@ -279,15 +279,15 @@ export default function SectionBuilder({ doc, onChange }) {
       {!sections.length ? (
         <div className="rounded-xl border border-dashed border-neutral-300 bg-neutral-50 p-8 text-center">
           <Layers size={22} className="mx-auto text-neutral-400" aria-hidden="true" />
-          <p className="mt-2 text-[10px] font-medium text-neutral-900">No blocks yet</p>
-          <p className="mx-auto mt-1 max-w-sm text-[9px] leading-relaxed text-neutral-600">
+          <p className="mt-2 text-[13px] font-medium text-neutral-900">No blocks yet</p>
+          <p className="mx-auto mt-1 max-w-sm text-[12px] leading-relaxed text-neutral-600">
             You can leave this empty and just use the writing box above — that is right for a returns policy.
             Blocks are for pages that need pictures and product rows.
           </p>
           {!adding && (
             <button
               type="button" onClick={() => setAdding(true)}
-              className="mt-4 inline-flex min-h-[44px] items-center gap-1.5 rounded-lg bg-neutral-900 px-4 text-[9px] font-semibold text-white transition hover:bg-neutral-800"
+              className="mt-4 inline-flex min-h-[44px] items-center gap-1.5 rounded-lg bg-neutral-900 px-4 text-[12px] font-semibold text-white transition hover:bg-neutral-800"
             >
               <Plus size={13} aria-hidden="true" /> Add a block
             </button>
@@ -308,7 +308,7 @@ export default function SectionBuilder({ doc, onChange }) {
       {sections.length > 0 && !adding && (
         <button
           type="button" onClick={() => setAdding(true)} disabled={full}
-          className="mt-3 inline-flex min-h-[44px] w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-neutral-300 px-4 text-[9px] font-semibold text-neutral-700 transition hover:border-neutral-900 hover:bg-neutral-50 disabled:opacity-50"
+          className="mt-3 inline-flex min-h-[44px] w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-neutral-300 px-4 text-[12px] font-semibold text-neutral-700 transition hover:border-neutral-900 hover:bg-neutral-50 disabled:opacity-50"
         >
           <Plus size={13} aria-hidden="true" /> {full ? `Limit of ${MAX_SECTIONS} blocks reached` : 'Add another block'}
         </button>
@@ -317,7 +317,7 @@ export default function SectionBuilder({ doc, onChange }) {
       {adding && <div className="mt-3"><AddPanel onAdd={add} onClose={() => setAdding(false)} /></div>}
 
       {sections.some((s) => s.hidden) && (
-        <p className="mt-3 rounded-lg bg-neutral-50 px-3 py-2 text-[9px] leading-relaxed text-neutral-700">
+        <p className="mt-3 rounded-lg bg-neutral-50 px-3 py-2 text-[12px] leading-relaxed text-neutral-700">
           Blocks switched off stay saved but do not appear on the page. Useful for a seasonal banner you
           want back later.
         </p>

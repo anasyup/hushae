@@ -44,7 +44,7 @@ export default function SectionTree() {
     <div className="te-scroll flex-1 overflow-y-auto pb-6">
       {(['header', 'body', 'footer'] as SectionGroup[]).map((group) => (
         <div key={group} className="border-b border-neutral-100 py-1.5">
-          <p className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-neutral-400">
+          <p className="px-3 py-1.5 text-[13px] font-bold uppercase tracking-[0.12em] text-neutral-400">
             {GROUP_LABEL[group]}
           </p>
           {doc[group]

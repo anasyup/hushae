@@ -30,7 +30,7 @@ export default function BulkBar({ selected, total, onClear, onSelectAll, onBulk,
     finally { setBusy(''); setConfirm(null); setStageOpen(false); setPrintOpen(false); setReason(''); setNoteText(''); }
   };
 
-  const btn = 'inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[10px] font-semibold transition disabled:opacity-50';
+  const btn = 'inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[13px] font-semibold transition disabled:opacity-50';
 
   return (
     <>
@@ -39,10 +39,10 @@ export default function BulkBar({ selected, total, onClear, onSelectAll, onBulk,
         aria-label="Bulk actions"
         className="sticky top-2 z-30 flex flex-wrap items-center gap-2 rounded-xl border border-neutral-800 bg-neutral-900 px-3 py-2.5 text-white shadow-lg"
       >
-        <span className="mr-1 text-[10px] font-semibold">
+        <span className="mr-1 text-[13px] font-semibold">
           {count} selected
         </span>
-        <button onClick={onSelectAll} className="text-[9px] text-white/70 underline underline-offset-2 hover:text-white">
+        <button onClick={onSelectAll} className="text-[12px] text-white/70 underline underline-offset-2 hover:text-white">
           Select all {total}
         </button>
         <span className="mx-1 h-5 w-px bg-white/20" />
@@ -70,8 +70,8 @@ export default function BulkBar({ selected, total, onClear, onSelectAll, onBulk,
                   })}
                   className="flex w-full items-start gap-2 px-3 py-2 text-left hover:bg-neutral-100">
                   <span className="min-w-0">
-                    <span className="block text-[10px]">{s.label}</span>
-                    <span className="block text-[9px] text-neutral-400">{s.hint}</span>
+                    <span className="block text-[13px]">{s.label}</span>
+                    <span className="block text-[12px] text-neutral-400">{s.hint}</span>
                   </span>
                 </button>
               ))}
@@ -102,8 +102,8 @@ export default function BulkBar({ selected, total, onClear, onSelectAll, onBulk,
                   className="flex w-full items-start gap-2 px-3 py-1.5 text-left hover:bg-neutral-100">
                   <d.icon size={13} className="mt-0.5 shrink-0 text-neutral-500" />
                   <span>
-                    <span className="block text-[10px]">{d.label}</span>
-                    <span className="block text-[9px] text-neutral-400">{d.hint}</span>
+                    <span className="block text-[13px]">{d.label}</span>
+                    <span className="block text-[12px] text-neutral-400">{d.hint}</span>
                   </span>
                 </button>
               ))}
@@ -125,24 +125,24 @@ export default function BulkBar({ selected, total, onClear, onSelectAll, onBulk,
           {moreOpen && (
             <div className="absolute left-0 top-9 z-40 w-56 rounded-lg border border-neutral-200 bg-white py-1 text-neutral-800 shadow-xl">
               <button onClick={() => { setMoreOpen(false); setConfirm({ action: 'note', needsNote: true, title: `Add a note to ${count} order${count === 1 ? '' : 's'}`, body: 'The same note is written to every selected order.' }); }}
-                className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-[10px] hover:bg-neutral-100">
+                className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-[13px] hover:bg-neutral-100">
                 <NotebookPen size={13} className="text-neutral-500" /> Add internal note
               </button>
               <button onClick={() => { setMoreOpen(false); run('qc', { result: 'pass' }); }}
-                className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-[10px] hover:bg-neutral-100">
+                className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-[13px] hover:bg-neutral-100">
                 <BadgeCheck size={13} className="text-emerald-600" /> Mark QC passed
               </button>
               <button onClick={() => { setMoreOpen(false); run('qc', { result: 'fail' }); }}
-                className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-[10px] hover:bg-neutral-100">
+                className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-[13px] hover:bg-neutral-100">
                 <BadgeCheck size={13} className="text-amber-600" /> Flag for review
               </button>
               <div className="my-1 border-t border-neutral-100" />
               <button onClick={() => { setMoreOpen(false); run('priority', { flag: 'rush' }); }}
-                className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-[10px] hover:bg-neutral-100">
+                className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-[13px] hover:bg-neutral-100">
                 <Zap size={13} className="text-neutral-900" /> Flag as rush
               </button>
               <button onClick={() => { setMoreOpen(false); run('priority', { flag: 'clear' }); }}
-                className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-[10px] hover:bg-neutral-100">
+                className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-[13px] hover:bg-neutral-100">
                 <Zap size={13} className="text-neutral-300" /> Clear priority
               </button>
               <div className="my-1 border-t border-neutral-100" />
@@ -156,7 +156,7 @@ export default function BulkBar({ selected, total, onClear, onSelectAll, onBulk,
                   setWaLinks(d.links);
                 } catch (e) { toast?.(e.message || 'Could not build messages'); }
               }}
-                className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-[10px] hover:bg-neutral-100">
+                className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-[13px] hover:bg-neutral-100">
                 <MessageCircle size={13} className="text-emerald-600" /> WhatsApp customers
               </button>
             </div>
@@ -184,8 +184,8 @@ export default function BulkBar({ selected, total, onClear, onSelectAll, onBulk,
           <div className="flex max-h-[80vh] w-full max-w-md flex-col rounded-xl bg-white shadow-2xl">
             <div className="flex items-start justify-between border-b border-neutral-100 p-4">
               <div>
-                <p className="text-[9px] font-semibold text-neutral-900">WhatsApp {waLinks.length} customer{waLinks.length === 1 ? '' : 's'}</p>
-                <p className="mt-0.5 text-[9px] text-neutral-500">
+                <p className="text-[12px] font-semibold text-neutral-900">WhatsApp {waLinks.length} customer{waLinks.length === 1 ? '' : 's'}</p>
+                <p className="mt-0.5 text-[12px] text-neutral-500">
                   Each opens in WhatsApp with the message ready — you press send.
                 </p>
               </div>
@@ -197,10 +197,10 @@ export default function BulkBar({ selected, total, onClear, onSelectAll, onBulk,
                   className="block rounded-lg p-2.5 hover:bg-neutral-50">
                   <span className="flex items-center gap-2">
                     <MessageCircle size={13} className="shrink-0 text-emerald-600" />
-                    <span className="text-[10px] font-medium text-neutral-900">{l.name}</span>
-                    <span className="ml-auto font-mono text-[9px] text-neutral-400">{l.orderNumber}</span>
+                    <span className="text-[13px] font-medium text-neutral-900">{l.name}</span>
+                    <span className="ml-auto font-mono text-[12px] text-neutral-400">{l.orderNumber}</span>
                   </span>
-                  <span className="mt-0.5 block truncate pl-5 text-[10px] text-neutral-500">{l.preview}</span>
+                  <span className="mt-0.5 block truncate pl-5 text-[13px] text-neutral-500">{l.preview}</span>
                 </a>
               ))}
             </div>
@@ -211,8 +211,8 @@ export default function BulkBar({ selected, total, onClear, onSelectAll, onBulk,
       {confirm && (
         <div className="fixed inset-0 z-50 grid place-items-center bg-black/40 p-4" role="dialog" aria-modal="true">
           <div className="w-full max-w-md rounded-xl bg-white p-5 shadow-2xl">
-            <p className="text-[9px] font-semibold text-neutral-900">{confirm.title}</p>
-            <p className="mt-1.5 text-[10px] leading-relaxed text-neutral-600">{confirm.body}</p>
+            <p className="text-[12px] font-semibold text-neutral-900">{confirm.title}</p>
+            <p className="mt-1.5 text-[13px] leading-relaxed text-neutral-600">{confirm.body}</p>
 
             {confirm.needsReason && (
               <textarea
@@ -232,13 +232,13 @@ export default function BulkBar({ selected, total, onClear, onSelectAll, onBulk,
 
             <div className="mt-4 flex justify-end gap-2">
               <button onClick={() => { setConfirm(null); setReason(''); }}
-                className="rounded-lg border border-neutral-300 px-3.5 py-2 text-[10px] font-medium text-neutral-700 hover:bg-neutral-50">
+                className="rounded-lg border border-neutral-300 px-3.5 py-2 text-[13px] font-medium text-neutral-700 hover:bg-neutral-50">
                 Cancel
               </button>
               <button
                 disabled={!!busy || (confirm.needsReason && !reason.trim()) || (confirm.needsNote && !noteText.trim())}
                 onClick={() => run(confirm.action, { ...(confirm.payload || {}), reason: reason.trim(), note: noteText.trim() })}
-                className={`inline-flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-[10px] font-semibold text-white disabled:opacity-50 ${
+                className={`inline-flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-[13px] font-semibold text-white disabled:opacity-50 ${
                   confirm.danger ? 'bg-red-600 hover:bg-red-700' : 'bg-neutral-900 hover:bg-black'
                 }`}>
                 {busy ? <Loader2 size={13} className="animate-spin" /> : null} Confirm

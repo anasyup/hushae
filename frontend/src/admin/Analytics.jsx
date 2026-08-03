@@ -53,7 +53,7 @@ function LineChart({ data, k, color = '#3E5C4B', height = 170, fmt = (v) => v })
           </circle>
         ))}
       </svg>
-      <div className="mt-1 flex justify-between px-1 text-[10px] text-neutral-500">
+      <div className="mt-1 flex justify-between px-1 text-[13px] text-neutral-500">
         {data.filter((_, i) => i === 0 || i === data.length - 1 || i % Math.ceil(data.length / 6) === 0).map((d) => <span key={d.date}>{dayLabel(d.date)}</span>)}
       </div>
     </div>
@@ -86,7 +86,7 @@ function Group({ icon: Icon, title, hint, children, defaultOpen = true }) {
         <span className="grid h-9 w-9 place-items-center rounded-xl bg-neutral-100 text-emerald-700"><Icon size={16} /></span>
         <span className="flex-1">
           <span className="block text-sm font-bold">{title}</span>
-          <span className="block text-[9px] text-neutral-500">{hint}</span>
+          <span className="block text-[12px] text-neutral-500">{hint}</span>
         </span>
         <ChevronRight size={16} className={`text-neutral-500 transition-transform ${open ? 'rotate-90' : ''}`} />
       </button>
@@ -98,7 +98,7 @@ function Group({ icon: Icon, title, hint, children, defaultOpen = true }) {
 function Block({ title, children }) {
   return (
     <section>
-      <p className="mb-3 text-[9px] font-bold uppercase tracking-widest text-neutral-500">{title}</p>
+      <p className="mb-3 text-[12px] font-bold uppercase tracking-widest text-neutral-500">{title}</p>
       {children}
     </section>
   );
@@ -127,15 +127,15 @@ export default function Analytics() {
 
   const head = (
     <div className="mb-5 flex flex-wrap items-center gap-3">
-      <select value={range} onChange={(e) => setRange(e.target.value)} className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900 !w-44">
+      <select value={range} onChange={(e) => setRange(e.target.value)} className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !w-44">
         {RANGES.map((r) => <option key={r.v} value={r.v}>{r.label}</option>)}
       </select>
       {range === 'custom' && (
         <div className="flex items-center gap-2">
           <Calendar size={13} className="text-neutral-400" />
-          <input type="date" value={customFrom} onChange={(e) => setCustomFrom(e.target.value)} className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900 !w-36 !py-1.5" />
+          <input type="date" value={customFrom} onChange={(e) => setCustomFrom(e.target.value)} className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !w-36 !py-1.5" />
           <span className="text-xs text-neutral-400">to</span>
-          <input type="date" value={customTo} onChange={(e) => setCustomTo(e.target.value)} className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900 !w-36 !py-1.5" />
+          <input type="date" value={customTo} onChange={(e) => setCustomTo(e.target.value)} className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !w-36 !py-1.5" />
         </div>
       )}
       {a?.prev && range !== 'custom' && <span className="text-xs text-neutral-500">compared with the previous {RANGES.find((r) => r.v === range)?.label.toLowerCase()}</span>}
@@ -146,7 +146,7 @@ export default function Analytics() {
     <AdminLayout title="Analytics">
       {head}
       {err
-        ? <div className="rounded-2xl border border-neutral-200 bg-white mx-auto max-w-md p-10 text-center"><p className="text-sm text-red-700">{err}</p><button onClick={() => setTick((t) => t + 1)} className="inline-flex items-center gap-1.5 rounded-full border border-neutral-300 bg-white px-4 py-2 text-[9px] font-semibold text-neutral-700 hover:bg-neutral-50 mt-5 !px-5 !py-2 !text-[9px]">Try again</button></div>
+        ? <div className="rounded-2xl border border-neutral-200 bg-white mx-auto max-w-md p-10 text-center"><p className="text-sm text-red-700">{err}</p><button onClick={() => setTick((t) => t + 1)} className="inline-flex items-center gap-1.5 rounded-full border border-neutral-300 bg-white px-4 py-2 text-[12px] font-semibold text-neutral-700 hover:bg-neutral-50 mt-5 !px-5 !py-2 !text-[12px]">Try again</button></div>
         : <div className="animate-pulse rounded-xl bg-neutral-100 h-64 w-full" />}
     </AdminLayout>
   );
@@ -158,7 +158,7 @@ export default function Analytics() {
     return { txt: `${pc >= 0 ? '+' : ''}${pc}%`, up: pc >= 0 };
   };
   const Delta = ({ d }) => !d ? null : (
-    <span className={`ml-2 inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-[10px] font-bold ${d.up === null ? 'bg-neutral-100 text-neutral-500' : d.up ? 'bg-emerald-50 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
+    <span className={`ml-2 inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-[13px] font-bold ${d.up === null ? 'bg-neutral-100 text-neutral-500' : d.up ? 'bg-emerald-50 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
       {d.up === null ? null : d.up ? <TrendingUp size={10} /> : <TrendingDown size={10} />}{d.txt}
     </span>
   );
@@ -184,7 +184,7 @@ export default function Analytics() {
           <div key={label} className="rounded-2xl border border-neutral-200 bg-white p-4">
             <Icon size={16} className="text-neutral-500" />
             <p className="mt-3 font-sans text-xl">{v}<Delta d={d} /></p>
-            <p className="mt-0.5 text-[10px] uppercase tracking-wider text-neutral-500">{label}</p>
+            <p className="mt-0.5 text-[13px] uppercase tracking-wider text-neutral-500">{label}</p>
           </div>
         ))}
       </div>
@@ -222,12 +222,12 @@ export default function Analytics() {
                 <div className="rounded-2xl bg-neutral-100 p-5 text-center">
                   <UserPlus size={16} className="mx-auto text-emerald-700" />
                   <p className="mt-2 font-sans text-3xl">{a.customerSplit.fresh}</p>
-                  <p className="text-[10px] uppercase tracking-wider text-neutral-500">First-time buyers</p>
+                  <p className="text-[13px] uppercase tracking-wider text-neutral-500">First-time buyers</p>
                 </div>
                 <div className="rounded-2xl bg-neutral-100 p-5 text-center">
                   <Repeat size={16} className="mx-auto text-emerald-700" />
                   <p className="mt-2 font-sans text-3xl">{a.customerSplit.returning}</p>
-                  <p className="text-[10px] uppercase tracking-wider text-neutral-500">Returning buyers</p>
+                  <p className="text-[13px] uppercase tracking-wider text-neutral-500">Returning buyers</p>
                 </div>
               </div>
             </Block>

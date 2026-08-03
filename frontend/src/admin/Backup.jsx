@@ -125,8 +125,8 @@ export default function Backup() {
 
       {/* CSV Data Export Panel */}
       <section className="mb-6 rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
-        <p className="text-[9px] font-bold uppercase tracking-widest text-neutral-900 mb-2">CSV Data Exports</p>
-        <p className="text-[9px] text-neutral-500 mb-6">Download tailored datasets for bookkeeping, accounting, or custom analytics.</p>
+        <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-900 mb-2">CSV Data Exports</p>
+        <p className="text-[12px] text-neutral-500 mb-6">Download tailored datasets for bookkeeping, accounting, or custom analytics.</p>
         
         <div className="grid gap-6 md:grid-cols-2">
           {/* Order export card */}
@@ -139,11 +139,11 @@ export default function Backup() {
             {/* Filters */}
             <div className="space-y-3 mb-4">
               <div>
-                <label className="text-[9px] font-bold text-neutral-500 uppercase">Fulfillment Status</label>
+                <label className="text-[12px] font-bold text-neutral-500 uppercase">Fulfillment Status</label>
                 <select
                   value={orderStatus}
                   onChange={(e) => setOrderStatus(e.target.value)}
-                  className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900 !py-1.5 !text-xs mt-1 bg-white"
+                  className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !py-1.5 !text-xs mt-1 bg-white"
                 >
                   <option value="">All Orders</option>
                   <option value="Pending">Pending</option>
@@ -155,21 +155,21 @@ export default function Backup() {
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="text-[9px] font-bold text-neutral-500 uppercase">From Date</label>
+                  <label className="text-[12px] font-bold text-neutral-500 uppercase">From Date</label>
                   <input
                     type="date"
                     value={orderStart}
                     onChange={(e) => setOrderStart(e.target.value)}
-                    className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900 !py-1.5 !text-xs mt-1 bg-white"
+                    className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !py-1.5 !text-xs mt-1 bg-white"
                   />
                 </div>
                 <div>
-                  <label className="text-[9px] font-bold text-neutral-500 uppercase">To Date</label>
+                  <label className="text-[12px] font-bold text-neutral-500 uppercase">To Date</label>
                   <input
                     type="date"
                     value={orderEnd}
                     onChange={(e) => setOrderEnd(e.target.value)}
-                    className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[9px] outline-none transition focus:border-neutral-900 !py-1.5 !text-xs mt-1 bg-white"
+                    className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !py-1.5 !text-xs mt-1 bg-white"
                   />
                 </div>
               </div>
@@ -220,12 +220,12 @@ export default function Backup() {
       <section className="mb-6 rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
         <div className="mb-4 flex items-center justify-between">
           <div>
-            <p className="text-[9px] font-bold uppercase tracking-widest text-neutral-500">What's in your database</p>
-            <p className="mt-1 text-[9px] text-neutral-500">Live counts from MongoDB Atlas</p>
+            <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-500">What's in your database</p>
+            <p className="mt-1 text-[12px] text-neutral-500">Live counts from MongoDB Atlas</p>
           </div>
           <button
             onClick={() => api('/backup/info', { token: auth.token }).then(setInfo)}
-            className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-[9px] font-semibold text-neutral-700 hover:bg-neutral-50"
+            className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-[12px] font-semibold text-neutral-700 hover:bg-neutral-50"
           >
             <RefreshCw size={12} /> Refresh
           </button>
@@ -241,13 +241,13 @@ export default function Backup() {
             { label: 'Audit Logs', v: c.auditLogs },
           ].map((x) => (
             <div key={x.label} className="rounded-xl border border-neutral-100 bg-neutral-50 p-3">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-500">{x.label}</p>
+              <p className="text-[13px] font-bold uppercase tracking-widest text-neutral-500">{x.label}</p>
               <p className="mt-1 font-sans text-[7px] font-semibold tabular-nums leading-none tracking-tight text-neutral-900">{x.v ?? '—'}</p>
             </div>
           ))}
         </div>
         {info?.total > 0 && (
-          <p className="mt-4 text-[9px] text-neutral-500">
+          <p className="mt-4 text-[12px] text-neutral-500">
             Total records: <b className="text-neutral-900">{info.total.toLocaleString()}</b>
           </p>
         )}
@@ -257,9 +257,9 @@ export default function Backup() {
       <section className="mb-6 rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="max-w-md">
-            <p className="text-[9px] font-bold uppercase tracking-widest text-neutral-500">Download full JSON snapshot</p>
+            <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-500">Download full JSON snapshot</p>
             <h3 className="mt-1 font-sans text-xl text-neutral-900">Save your store to a JSON file</h3>
-            <p className="mt-2 text-[10px] leading-relaxed text-neutral-600">
+            <p className="mt-2 text-[13px] leading-relaxed text-neutral-600">
               One click gives you a single JSON file with everything —
               settings, categories, products, orders, subscribers, audit logs, and discounts.
               Passwords are stripped for security. Do this weekly.
@@ -268,7 +268,7 @@ export default function Backup() {
           <button
             onClick={download}
             disabled={downloading}
-            className="inline-flex items-center gap-2 rounded-full bg-neutral-900 px-6 py-3 text-[9px] font-semibold uppercase tracking-widest text-white transition hover:bg-neutral-800 disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-full bg-neutral-900 px-6 py-3 text-[12px] font-semibold uppercase tracking-widest text-white transition hover:bg-neutral-800 disabled:opacity-50"
           >
             <Download size={13} /> {downloading ? 'Preparing…' : 'Download backup'}
           </button>
@@ -280,16 +280,16 @@ export default function Backup() {
         <div className="mb-4 flex items-start gap-3">
           <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-red-100 text-red-700"><AlertTriangle size={16} /></span>
           <div>
-            <p className="text-[9px] font-bold uppercase tracking-widest text-red-700">Danger zone — restore</p>
+            <p className="text-[12px] font-bold uppercase tracking-widest text-red-700">Danger zone — restore</p>
             <h3 className="mt-1 font-sans text-xl text-neutral-900">Restore from a snapshot</h3>
-            <p className="mt-2 max-w-lg text-[10px] leading-relaxed text-neutral-700">
+            <p className="mt-2 max-w-lg text-[13px] leading-relaxed text-neutral-700">
               Uploading a JSON backup will <b>replace</b> existing records with the same ID.
               User accounts are not restored (passwords were stripped). Only use this if you
               are recovering from a bad state.
             </p>
           </div>
         </div>
-        <label className="mt-2 inline-flex cursor-pointer items-center gap-2 rounded-full border border-red-300 bg-white px-5 py-2.5 text-[9px] font-semibold text-red-700 transition hover:bg-red-100">
+        <label className="mt-2 inline-flex cursor-pointer items-center gap-2 rounded-full border border-red-300 bg-white px-5 py-2.5 text-[12px] font-semibold text-red-700 transition hover:bg-red-100">
           <Upload size={12} />
           {restoring ? 'Restoring…' : 'Choose backup file to restore'}
           <input type="file" accept="application/json,.json" className="hidden" onChange={(e) => restore(e.target.files?.[0])} disabled={restoring} />
@@ -311,8 +311,8 @@ function SafetyLayer({ icon: Icon, tone, title, text }) {
       <span className={`grid h-10 w-10 place-items-center rounded-xl ${t.bg} ${t.text}`}>
         <Icon size={16} strokeWidth={1.9} />
       </span>
-      <p className="mt-3 text-[9px] font-bold uppercase tracking-widest text-neutral-500">{title}</p>
-      <p className="mt-1.5 text-[9px] leading-relaxed text-neutral-600">{text}</p>
+      <p className="mt-3 text-[12px] font-bold uppercase tracking-widest text-neutral-500">{title}</p>
+      <p className="mt-1.5 text-[12px] leading-relaxed text-neutral-600">{text}</p>
     </div>
   );
 }
