@@ -384,190 +384,33 @@
 
 /* ================= Admin — Shopify-like clean look ================= */
 /* Root wrap that AdminLayout adds so we can scope admin-only tweaks */
+/* ================= Admin — Exact Shopify Polaris scale ================= */
+/*
+ * Shopify admin specs (polaris-react.shopify.com):
+ *   Base: 13px Inter on 4px grid
+ *   Headings: 13-16px, Body: 13px, Caption: 12px
+ *   Sidebar: 240px, Icons: 16px in nav
+ *   Cards: 8px radius, subtle border #E5E7EB
+ *   Spacing: multiples of 4px (8, 12, 16, 20, 24)
+ *   Topbar: ~48px height
+ */
 .admin-shell {
-  font-size: 13px;
-  font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
-  font-feature-settings: "cv02","cv03","cv04","cv11";
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
+  font-size: 13px;
+  line-height: 1.5;
 }
-.admin-shell h1, .admin-shell h2, .admin-shell h3, .admin-shell h4 {
-  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif !important;
-  letter-spacing: -0.01em;
-  color: #0f172a;
-}
-.admin-shell .font-display { /* legacy — force Inter inside admin */
-  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif !important;
-  letter-spacing: -0.005em;
-}
-.admin-shell button, .admin-shell input, .admin-shell select, .admin-shell textarea {
-  font-family: inherit;
-}
-.admin-shell .card {
-  border-radius: 16px;
-  background-color: #ffffff !important;
-  border-color: #E5E7EB !important;
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
-}
-.admin-shell .input {
-  border-radius: 10px;
-  background-color: #ffffff !important;
-}
-.admin-shell .btn-primary {
-  border-radius: 10px;
-  background-color: #0f172a;
-  padding: 10px 18px;
-  font-size: 12.5px;
-  letter-spacing: 0.02em;
-}
-.admin-shell .btn-outline {
-  border-radius: 10px;
-  padding: 10px 18px;
-  font-size: 12.5px;
-  letter-spacing: 0.02em;
-}
+.admin-shell h1 { font-size: 16px !important; font-weight: 600 !important; letter-spacing: -0.01em; }
+.admin-shell h2 { font-size: 14px !important; font-weight: 600 !important; }
+.admin-shell h3 { font-size: 13px !important; font-weight: 600 !important; }
+.admin-shell .font-display { font-family: 'Inter', ui-sans-serif, system-ui, sans-serif !important; }
+.admin-shell button, .admin-shell input, .admin-shell select, .admin-shell textarea { font-family: inherit; font-size: 13px; }
+.admin-shell .card { border-radius: 8px; background: #fff !important; border-color: #E5E7EB !important; box-shadow: none; }
+.admin-shell .input { border-radius: 6px; background: #fff !important; padding: 6px 10px; font-size: 13px; border-color: #D1D5DB; }
+.admin-shell .btn-primary { border-radius: 6px; background: #1a1a1a; padding: 5px 12px; font-size: 12px; font-weight: 600; }
+.admin-shell .btn-outline { border-radius: 6px; padding: 5px 12px; font-size: 12px; font-weight: 600; }
+.admin-shell .pill { font-size: 11px; padding: 3px 8px; border-radius: 4px; }
+.admin-shell .table-head { font-size: 11px; padding: 6px 12px; color: #6D7175; }
+.admin-shell .table-cell { font-size: 13px; padding: 8px 12px; }
+.admin-shell .skeleton { border-radius: 6px; }
 
-
-/* Re-scale ALL text classes more aggressively */
-.admin-shell .text-3xl { font-size: 0.9rem !important; }
-.admin-shell .text-2xl { font-size: 0.85rem !important; }
-.admin-shell .text-xl { font-size: 0.8rem !important; }
-.admin-shell .text-lg { font-size: 0.75rem !important; }
-.admin-shell .text-base { font-size: 0.7rem !important; }
-.admin-shell .text-sm { font-size: 0.65rem !important; }
-.admin-shell .text-xs { font-size: 0.6rem !important; }
-/* Tighter spacing */
-.admin-shell .p-8 { padding: 12px !important; }
-.admin-shell .p-6 { padding: 10px !important; }
-.admin-shell .p-5 { padding: 8px !important; }
-.admin-shell .p-4 { padding: 6px !important; }
-.admin-shell .p-3 { padding: 4px !important; }
-.admin-shell .px-8 { padding-left: 12px !important; padding-right: 12px !important; }
-.admin-shell .px-6 { padding-left: 10px !important; padding-right: 10px !important; }
-.admin-shell .px-5 { padding-left: 8px !important; padding-right: 8px !important; }
-.admin-shell .px-4 { padding-left: 6px !important; padding-right: 6px !important; }
-.admin-shell .py-3 { padding-top: 4px !important; padding-bottom: 4px !important; }
-.admin-shell .py-2 { padding-top: 3px !important; padding-bottom: 3px !important; }
-.admin-shell .mb-8 { margin-bottom: 12px !important; }
-.admin-shell .mb-6 { margin-bottom: 10px !important; }
-.admin-shell .mb-5 { margin-bottom: 8px !important; }
-.admin-shell .mb-4 { margin-bottom: 6px !important; }
-.admin-shell .mb-3 { margin-bottom: 4px !important; }
-.admin-shell .mt-6 { margin-top: 10px !important; }
-.admin-shell .mt-4 { margin-top: 6px !important; }
-.admin-shell .gap-6 { gap: 10px !important; }
-.admin-shell .gap-5 { gap: 8px !important; }
-.admin-shell .gap-4 { gap: 6px !important; }
-.admin-shell .gap-3 { gap: 4px !important; }
-.admin-shell .space-y-6 > * + * { margin-top: 10px !important; }
-.admin-shell .space-y-5 > * + * { margin-top: 8px !important; }
-.admin-shell .space-y-4 > * + * { margin-top: 6px !important; }
-.admin-shell .space-y-3 > * + * { margin-top: 4px !important; }
-.admin-shell .space-y-2 > * + * { margin-top: 3px !important; }
-
-
-/* ================= Admin dark mode (Settings → Appearance) ================= */
-.dark-admin { color-scheme: dark; }
-.dark-admin .bg-alabaster { background-color: #0F0F11 !important; }
-.dark-admin .text-obsidian { color: #ECEAE6 !important; }
-.dark-admin .text-ash { color: #9C968F !important; }
-.dark-admin .text-sagedeep { color: #9EBB9B !important; }
-.dark-admin .font-display { color: #F1EFEC; }
-.dark-admin .card { background-color: #19191C !important; border-color: #2A2A2E !important; }
-.dark-admin .input { background-color: #141416 !important; border-color: #34353B !important; color: #ECEAE6 !important; }
-.dark-admin .input:focus { background-color: #17171A !important; border-color: #6E7A6A !important; }
-.dark-admin select.input option { background-color: #141416; color: #ECEAE6; }
-.dark-admin .border-line { border-color: #2A2A2E !important; }
-.dark-admin .border-line\/60 { border-color: rgba(255,255,255,.09) !important; }
-.dark-admin .divide-line\/60 > * + * { border-color: rgba(255,255,255,.09) !important; }
-.dark-admin .bg-satin { background-color: #232326 !important; }
-.dark-admin .bg-satin\/20 { background-color: rgba(255,255,255,.05) !important; }
-.dark-admin .bg-satin\/30 { background-color: rgba(255,255,255,.07) !important; }
-.dark-admin .bg-satin\/40 { background-color: rgba(255,255,255,.09) !important; }
-.dark-admin .bg-satin\/50 { background-color: rgba(255,255,255,.11) !important; }
-.dark-admin .bg-satin\/70 { background-color: rgba(255,255,255,.13) !important; }
-.dark-admin .bg-white { background-color: #26262A !important; }
-.dark-admin .bg-\[\#ebebeb\] { background-color: #131315 !important; }
-.dark-admin .text-neutral-900 { color: #F1EFEC !important; }
-.dark-admin .text-neutral-700 { color: #CAC4BE !important; }
-.dark-admin .text-neutral-500 { color: #A6A09A !important; }
-.dark-admin .text-neutral-400 { color: #8B857F !important; }
-.dark-admin .hover\:bg-white\/70:hover { background-color: rgba(255,255,255,.08) !important; }
-.dark-admin .hover\:bg-satin\/20:hover { background-color: rgba(255,255,255,.06) !important; }
-.dark-admin .hover\:bg-satin\/30:hover { background-color: rgba(255,255,255,.09) !important; }
-.dark-admin .hover\:bg-satin\/40:hover, .dark-admin .hover\:bg-satin\/50:hover { background-color: rgba(255,255,255,.12) !important; }
-.dark-admin .bg-sage\/20, .dark-admin .bg-sage\/25 { background-color: rgba(120,140,115,.16) !important; }
-.dark-admin .skeleton { background-color: #1E1E21 !important; background-image: linear-gradient(90deg, rgba(40,40,44,0) 0, rgba(70,70,78,.55) 50%, rgba(40,40,44,0) 100%) !important; }
-.dark-admin .shadow-card, .dark-admin .shadow-soft { box-shadow: 0 14px 36px -18px rgba(0,0,0,.7) !important; }
-.dark-admin .btn-outline { border-color: rgba(255,255,255,.22) !important; color: #ECEAE6 !important; }
-.dark-admin .btn-outline:hover { background-color: #ECEAE6 !important; color: #141416 !important; border-color: #ECEAE6 !important; }
-.dark-admin input[type='color'] { background-color: #141416 !important; }
-
-.clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-
-.gallery-zoom img { transition: transform 0.7s cubic-bezier(0.2, 0.6, 0.2, 1); }
-.gallery-zoom:hover img { transform: scale(1.08); }
-
-/* ===== Premium printable invoice (original HUSHAE design) ===== */
-.invoice-sheet { display: none; }
-@media print {
-  body * { visibility: hidden !important; }
-  #invoice, #invoice * { visibility: visible !important; }
-  #invoice { position: absolute !important; top: 0 !important; left: 0 !important; width: 100% !important; background: #fff !important; }
-  .invoice-sheet { display: block !important; }
-}
-.invoice-sheet { font-family: Georgia, 'Times New Roman', 'Playfair Display', serif; color: #141414; }
-.inv-page { max-width: 780px; margin: 0 auto; padding: 44px 34px; }
-.inv-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; }
-.inv-brand { font-size: 30px; letter-spacing: 0.28em; }
-.inv-tag { margin-top: 6px; font-size: 11px; letter-spacing: 0.12em; color: #6b6b6b; font-style: italic; }
-.inv-title { font-size: 34px; font-weight: 700; letter-spacing: 0.08em; text-align: right; }
-.inv-meta { display: flex; justify-content: flex-end; gap: 8px; font-size: 12px; margin-top: 4px; }
-.inv-meta span { color: #6b6b6b; }
-.inv-rule { border: 0; border-top: 2px solid #141414; margin: 22px 0 26px; }
-.inv-bill { display: flex; justify-content: space-between; gap: 32px; font-size: 13px; line-height: 1.75; margin-bottom: 28px; }
-.inv-bill-right { text-align: right; }
-.inv-label { font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: #6b6b6b; margin-bottom: 6px; }
-.inv-strong { font-weight: 700; font-size: 15px; }
-.inv-table-wrap { position: relative; }
-.inv-watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-14deg); font-size: 70px; letter-spacing: 0.3em; color: rgba(20, 20, 20, 0.05); white-space: nowrap; pointer-events: none; }
-.inv-table { width: 100%; border-collapse: collapse; position: relative; }
-.inv-table th { text-align: left; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: #6b6b6b; padding: 8px 6px; border-bottom: 2px solid #141414; }
-.inv-table td { padding: 12px 6px; border-bottom: 1px solid #e3e3e3; font-size: 13px; vertical-align: middle; }
-.inv-table th.r, .inv-table td.r { text-align: right; }
-.inv-item { display: flex; align-items: center; gap: 12px; }
-.inv-item img { width: 44px; height: 56px; object-fit: cover; border: 1px solid #e3e3e3; }
-.inv-item-name { font-weight: 700; }
-.inv-item-sub { font-size: 11px; color: #6b6b6b; margin-top: 2px; }
-.inv-totals-wrap { display: flex; justify-content: flex-end; margin-top: 22px; }
-.inv-totals { width: 270px; font-size: 13px; }
-.inv-totals p { display: flex; justify-content: space-between; padding: 5px 0; }
-.inv-grand { border-top: 2px solid #141414; margin-top: 8px; padding-top: 12px !important; font-size: 19px; font-weight: 700; }
-.inv-footer { margin-top: 48px; text-align: center; }
-.inv-thanks { font-size: 16px; font-style: italic; }
-.inv-foot { font-size: 11px; color: #6b6b6b; margin-top: 6px; letter-spacing: 0.06em; }
-
-/* ==========================================================================
-   Admin-configurable product sections (settings.productSections)
-   Column counts come from CSS custom properties so the merchant can pick any
-   value in the Theme Editor — Tailwind can't generate these classes at build
-   time because the numbers are only known at runtime.
-   ========================================================================== */
-.ps-grid {
-  display: grid;
-  grid-template-columns: repeat(var(--ps-mcols, 2), minmax(0, 1fr));
-}
-@media (min-width: 768px) {
-  .ps-grid { grid-template-columns: repeat(var(--ps-cols, 4), minmax(0, 1fr)); }
-}
-/* Carousel slide width tracks the desktop column count */
-.ps-slide { width: 68%; }
-@media (min-width: 768px) {
-  .ps-slide { width: calc((100% - (var(--ps-cols, 4) - 1) * var(--ps-gap, 8px)) / var(--ps-cols, 4)); }
-}
-
-/* Theme-editor preview: flash a section when it is selected in the sidebar */
-@keyframes ps-flash-kf {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(45, 90, 160, 0); }
-  30%      { box-shadow: 0 0 0 3px rgba(45, 90, 160, 0.55); }
-}
-.ps-flash { animation: ps-flash-kf 1.2s ease-out; border-radius: 8px; }

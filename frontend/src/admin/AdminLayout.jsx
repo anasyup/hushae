@@ -173,20 +173,20 @@ function SidebarContent({ onNavigate }) {
     <div className="flex h-full flex-col bg-[#ebebeb]">
       <div className="px-3 pb-2 pt-4">
         <NavLink to="/admin" onClick={onNavigate} className="block w-fit rounded-lg transition hover:opacity-70">
-          <p className="font-sans text-[7px] font-bold tracking-widest text-neutral-900">HUSHAE</p>
-          <p className="mt-0.5 text-[7px] font-medium uppercase tracking-widest text-neutral-400">Admin</p>
+          <p className="font-sans text-[14px] font-bold tracking-[0.18em] text-neutral-900">HUSHAE</p>
+          <p className="mt-0 text-[15px] font-semibold uppercase tracking-[0.12em] text-neutral-400">Admin</p>
         </NavLink>
       </div>
       {role && role !== 'admin' && role !== 'Owner' && (
         <div className="mx-3 mb-2 rounded-lg border border-neutral-200 bg-white px-2.5 py-1.5">
-          <p className="text-[9px] font-bold uppercase tracking-wider text-neutral-500">{getRoleLabel(role)} view</p>
+          <p className="text-[11px] font-bold uppercase tracking-wider text-neutral-500">{getRoleLabel(role)} view</p>
         </div>
       )}
       <div className="relative px-3 pb-2">
         <Search size={13} className="pointer-events-none absolute left-6 top-1/2 -translate-y-1/2 text-neutral-400" />
         <input type="text" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search admin… (⌘K)"
           className="w-full rounded-lg border border-transparent bg-white/70 py-1.5 pl-8 pr-8 text-[9px] text-neutral-800 outline-none placeholder:text-neutral-400 focus:border-neutral-300 focus:bg-white" />
-        <kbd className="pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 rounded border border-neutral-300 bg-white px-1.5 py-0.5 text-[9px] font-semibold text-neutral-400"><Command size={9} />K</kbd>
+        <kbd className="pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 rounded border border-neutral-300 bg-white px-1.5 py-0.5 text-[15px] font-semibold text-neutral-400"><Command size={9} />K</kbd>
         {filtered.length > 0 && <div className="absolute inset-x-3 top-full z-10 mt-1 max-h-72 overflow-y-auto rounded-lg border border-neutral-200 bg-white shadow-lg">{filtered.map((f) => <Link key={f.to} to={f.to} onClick={() => { setQuery(''); onNavigate?.(); }} className="flex items-center gap-2 px-3 py-2 text-[9px] text-neutral-700 hover:bg-neutral-50"><f.icon size={14} className="text-neutral-400" /> {f.label}</Link>)}</div>}
       </div>
       <nav className="flex-1 space-y-0.5 overflow-y-auto px-2.5 pb-3">
@@ -242,20 +242,20 @@ export default function AdminLayout({ children, title }) {
     <div className="grid min-h-screen place-items-center bg-[#F4F6F8]">
       <div className="rounded-2xl border border-amber-200 bg-white p-10 text-center shadow-sm max-w-sm">
         <ShieldCheck size={36} className="mx-auto mb-3 text-amber-600" />
-        <p className="text-[9px] font-semibold text-neutral-900">Access restricted</p>
+        <p className="text-[15px] font-semibold text-neutral-900">Access restricted</p>
         <p className="mt-2 text-[10px] leading-relaxed text-neutral-500">This section is only available to Administrator and Owner roles. You are signed in as <b>{getRoleLabel(role || '')}</b>.</p>
-        <Link to="/admin" className="mt-5 inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-5 py-2.5 text-[9px] font-semibold text-white transition hover:bg-black">Back to Dashboard</Link>
+        <Link to="/admin" className="mt-5 inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-5 py-2.5 text-[15px] font-semibold text-white transition hover:bg-black">Back to Dashboard</Link>
       </div>
     </div>
   );
   return (
     <div className="admin-shell flex min-h-screen bg-[#F4F6F8]">
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-[200px] md:block"><SidebarContent /></aside>
+      <aside className="fixed inset-y-0 left-0 z-40 hidden w-[220px] md:block"><SidebarContent /></aside>
       {drawer && <div className="fixed inset-0 z-50 md:hidden"><div className="absolute inset-0 bg-black/40" onClick={() => setDrawer(false)} /><div className="absolute inset-y-0 left-0 w-64 shadow-xl"><button onClick={() => setDrawer(false)} className="absolute right-3 top-4 z-10 rounded-lg p-1.5 text-neutral-500 hover:bg-white/70"><X size={18} /></button><SidebarContent onNavigate={() => setDrawer(false)} /></div></div>}
-      <div className="flex min-h-screen min-w-0 flex-1 flex-col md:pl-[200px]">
+      <div className="flex min-h-screen min-w-0 flex-1 flex-col md:pl-[220px]">
         <div className="sticky top-0 z-30 flex items-center gap-3 border-b border-black/5 bg-[#ebebeb] px-4 py-3 md:hidden"><button onClick={() => setDrawer(true)} className="rounded-lg p-1.5 text-neutral-700 hover:bg-white/70"><Menu size={20} /></button><Link to="/admin" className="font-sans text-base font-bold tracking-widest text-neutral-900">HUSHAE</Link></div>
         <TopBar title={title} auth={auth} onCmdK={() => setCmdOpen(true)} />
-        <div className="min-w-0 flex-1 p-3 md:p-5">{title && <h1 className="mb-6 font-sans text-[8px] font-semibold leading-tight text-neutral-900 md:hidden">{title}</h1>}<div className="admin-main min-w-0">{children}</div></div>
+        <div className="min-w-0 flex-1 p-4 md:p-6">{title && <h1 className="mb-6 font-sans text-[8px] font-semibold leading-tight text-neutral-900 md:hidden">{title}</h1>}<div className="admin-main min-w-0">{children}</div></div>
       </div>
       <ProfitCalculator />
       {cmdOpen && <CommandPalette onClose={() => setCmdOpen(false)} />}
@@ -290,11 +290,11 @@ function TopBar({ title, auth, onCmdK }) {
         <div className="flex items-center gap-2">
           {/* ⌘K Search button */}
           <button onClick={onCmdK} className="hidden items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-[10px] font-semibold text-neutral-500 transition hover:border-neutral-400 hover:text-neutral-700 md:inline-flex" title="Search admin (⌘K)"><Command size={10} /> Search</button>
-          <span className="hidden items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-[9px] font-semibold text-neutral-600 lg:inline-flex"><span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />Store online</span>
-          {canCreate && <div className="relative" ref={createRef}><button onClick={() => setCreateOpen((v) => !v)} className="inline-flex items-center gap-1 rounded-full bg-neutral-900 px-3 py-1.5 text-[9px] font-semibold text-white transition hover:bg-neutral-800"><Plus size={12} /> Create</button>{createOpen && <div className="absolute right-0 top-full z-30 mt-1 w-56 rounded-xl border border-neutral-200 bg-white py-1 shadow-lg"><Link to="/admin/products/new" onClick={() => setCreateOpen(false)} className="flex items-center gap-2.5 px-3.5 py-2 text-[9px] font-medium text-neutral-700 transition hover:bg-neutral-50"><Package size={13} className="text-neutral-400" /> New product</Link><Link to="/admin/promotions/new" onClick={() => setCreateOpen(false)} className="flex items-center gap-2.5 px-3.5 py-2 text-[9px] font-medium text-neutral-700 transition hover:bg-neutral-50"><Megaphone size={13} className="text-neutral-400" /> New promotion</Link><Link to="/admin/discounts" onClick={() => setCreateOpen(false)} className="flex items-center gap-2.5 px-3.5 py-2 text-[9px] font-medium text-neutral-700 transition hover:bg-neutral-50"><BadgePercent size={13} className="text-neutral-400" /> New discount</Link><Link to="/admin/cms/new" onClick={() => setCreateOpen(false)} className="flex items-center gap-2.5 px-3.5 py-2 text-[9px] font-medium text-neutral-700 transition hover:bg-neutral-50"><FileText size={13} className="text-neutral-400" /> New page</Link></div>}</div>}
-          <Link to="/" target="_blank" className="hidden items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-[9px] font-semibold text-neutral-600 transition hover:border-neutral-400 hover:text-neutral-900 md:inline-flex" title="Open storefront"><Globe size={12} /> View store</Link>
+          <span className="hidden items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-[15px] font-semibold text-neutral-600 lg:inline-flex"><span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />Store online</span>
+          {canCreate && <div className="relative" ref={createRef}><button onClick={() => setCreateOpen((v) => !v)} className="inline-flex items-center gap-1 rounded-full bg-neutral-900 px-3 py-1.5 text-[15px] font-semibold text-white transition hover:bg-neutral-800"><Plus size={12} /> Create</button>{createOpen && <div className="absolute right-0 top-full z-30 mt-1 w-56 rounded-xl border border-neutral-200 bg-white py-1 shadow-lg"><Link to="/admin/products/new" onClick={() => setCreateOpen(false)} className="flex items-center gap-2.5 px-3.5 py-2 text-[9px] font-medium text-neutral-700 transition hover:bg-neutral-50"><Package size={13} className="text-neutral-400" /> New product</Link><Link to="/admin/promotions/new" onClick={() => setCreateOpen(false)} className="flex items-center gap-2.5 px-3.5 py-2 text-[9px] font-medium text-neutral-700 transition hover:bg-neutral-50"><Megaphone size={13} className="text-neutral-400" /> New promotion</Link><Link to="/admin/discounts" onClick={() => setCreateOpen(false)} className="flex items-center gap-2.5 px-3.5 py-2 text-[9px] font-medium text-neutral-700 transition hover:bg-neutral-50"><BadgePercent size={13} className="text-neutral-400" /> New discount</Link><Link to="/admin/cms/new" onClick={() => setCreateOpen(false)} className="flex items-center gap-2.5 px-3.5 py-2 text-[9px] font-medium text-neutral-700 transition hover:bg-neutral-50"><FileText size={13} className="text-neutral-400" /> New page</Link></div>}</div>}
+          <Link to="/" target="_blank" className="hidden items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-[15px] font-semibold text-neutral-600 transition hover:border-neutral-400 hover:text-neutral-900 md:inline-flex" title="Open storefront"><Globe size={12} /> View store</Link>
           <NotificationBell />
-          <div className="ml-1 flex items-center gap-2 rounded-full border border-neutral-200 bg-white p-1 pl-1 pr-3"><span className="grid h-7 w-7 place-items-center rounded-full bg-neutral-900 text-[9px] font-bold text-white">{initials}</span><span className="text-[9px] font-semibold text-neutral-800">{auth?.user?.name?.split(' ')[0] || 'Admin'}</span></div>
+          <div className="ml-1 flex items-center gap-2 rounded-full border border-neutral-200 bg-white p-1 pl-1 pr-3"><span className="grid h-7 w-7 place-items-center rounded-full bg-neutral-900 text-[9px] font-bold text-white">{initials}</span><span className="text-[15px] font-semibold text-neutral-800">{auth?.user?.name?.split(' ')[0] || 'Admin'}</span></div>
         </div>
       </div>
     </header>

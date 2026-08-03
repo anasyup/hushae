@@ -142,7 +142,7 @@ export default function OrdersDesk() {
         {/* ── Header ─────────────────────────────────────────────────────── */}
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h1 className="font-sans text-xl font-semibold text-neutral-900">Orders</h1>
+            <h1 className="text-[16px] font-semibold text-neutral-900">Orders</h1>
             <p className="mt-0.5 text-[10px] text-neutral-500">
               {loading ? 'Loading…' : `${data.total} order${data.total === 1 ? '' : 's'}`}
               {counts ? ` · ${pkr(counts.revenue)} total value` : ''}
