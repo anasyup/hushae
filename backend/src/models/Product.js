@@ -55,6 +55,7 @@ const productSchema = new mongoose.Schema({
   ratingCount: { type: Number, default: 0 },
   isFeatured: { type: Boolean, default: false },
   isBestSeller: { type: Boolean, default: false },
+  isNewArrival: { type: Boolean, default: false },
   isActive: { type: Boolean, default: true },
   status: { type: String, enum: ['active', 'draft'], default: 'active' }, // draft = hidden from store, work in progress
 }, { timestamps: true });

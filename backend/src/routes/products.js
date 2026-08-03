@@ -33,6 +33,7 @@ function buildQuery(req, { adminView = false } = {}) {
   }
   if (req.query.featured === 'true') q.isFeatured = true;
   if (req.query.bestSeller === 'true') q.isBestSeller = true;
+  if (req.query.newArrival === 'true') q.isNewArrival = true;
   if (req.query.sale === 'true') {
     /* v2 — sale windows. `compareAtPrice != null` used to mean "on sale",
        which put EVERY product in the Sale page and printed "% off" on every
