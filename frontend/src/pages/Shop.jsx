@@ -21,11 +21,11 @@ export default function Shop({ preset = {} }) {
   useEffect(() => { api('/categories').then((d) => setCats(d.categories)).catch(() => {}); }, []);
   useEffect(() => {
     let alive = true; setPending(true);
-    api(`/products?${f.queryString}&limit=50`).then((d) => { if (alive) setProducts(d.products); }).catch(() => { if (alive) setProducts([]); }).finally(() => { if (alive) setPending(false); });
+    api(`/products?${f.queryString}`).then((d) => { if (alive) setProducts(d.products); }).catch(() => { if (alive) setProducts([]); }).finally(() => { if (alive) setPending(false); });
     window.scrollTo({ top: 0, behavior: 'smooth' });
     return () => { alive = false; };
   }, [f.queryString]);
-  const visible = useMemo(() => (applyClientFacets(products, f) || []).slice(0, 50), [products, f]);
+  const visible = useMemo(() => applyClientFacets(products, f), [products, f]);
   const activeCat = cats.find((c) => c.slug === f.category);
   const meta = activeCat ? activeCat.name : TITLES[preset.key] || (f.get('q') ? `"${f.get('q')}"` : TITLES.all);
   const count = visible?.length ?? null;
