@@ -1,26 +1,13 @@
-import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
-import { api } from '../api/client';
-import ProductCard from '../components/ProductCard';
 import Seo, { organizationJsonLd } from '../components/Seo';
 
 /* ============================================================================
- * HUSHAE HOME v3 — CK Minimalist Editorial.
- * 5 sections only. No brand stories, no newsletter fluff.
- * Palette: #F7F6F4 paper, #0E0E0E ink, #6E6E6B ash, #E3E2DF line
- * Type: Archivo (UI), Instrument Serif (editorial headings)
+ * HUSHAE HOME v4 — Pure CK editorial. Hero → Categories → Fit Finder.
+ * No product grids. Clean, quiet, luxury.
  * ========================================================================== */
 
 export default function Home() {
-  const [newArrivals, setNewArrivals] = useState(null);
-  const [best, setBest] = useState(null);
-
-  useEffect(() => {
-    api('/products?newArrival=true&limit=8&sort=newest').then((d) => setNewArrivals(d.products || [])).catch(() => setNewArrivals([]));
-    api('/products?bestSeller=true&limit=8').then((d) => setBest(d.products || [])).catch(() => setBest([]));
-  }, []);
-
   return (
     <div style={{ background: '#FFFFFF', color: '#0E0E0E', fontFamily: "'Archivo', system-ui, sans-serif" }}>
       <Seo title="Premium Innerwear for Men & Women"
@@ -29,7 +16,7 @@ export default function Home() {
         jsonLd={organizationJsonLd(typeof window !== 'undefined' ? window.location.origin : '')}
         jsonLdId="home-org" />
 
-      {/* ═══ 1. HERO ═══════════════════════════════════════════ */}
+      {/* 1. HERO */}
       <section className="relative w-full overflow-hidden bg-[#E3E2DF]" style={{ minHeight: '100svh' }}>
         <img src="/images/collection/band-neutral.jpg" alt="" fetchpriority="high"
           className="absolute inset-0 h-full w-full object-cover" />
@@ -54,7 +41,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ═══ 2. CATEGORY SPLIT ═════════════════════════════════ */}
+      {/* 2. CATEGORY SPLIT */}
       <section className="grid grid-cols-1 md:grid-cols-2">
         {[
           { to: '/women', img: '/images/categories/bras.jpg', label: 'Women', sub: 'Bras, panties, shapewear & more' },
@@ -71,43 +58,7 @@ export default function Home() {
         ))}
       </section>
 
-      {/* ═══ 3. NEW ARRIVALS ══════════════════════════════════ */}
-      {newArrivals && newArrivals.length > 0 && (
-        <section className="px-4 md:px-8 lg:px-12 py-16 md:py-20">
-          <div className="mb-8 flex items-end justify-between">
-            <div>
-              <h2 className="text-[22px] md:text-[28px] font-light tracking-[0.02em] text-[#0E0E0E]">New arrivals</h2>
-              <p className="mt-1 text-[13px] text-[#6E6E6B] font-light">The latest pieces, just landed.</p>
-            </div>
-            <Link to="/new" className="inline-flex items-center gap-1.5 text-[12px] font-medium uppercase tracking-[0.10em] text-[#6E6E6B] hover:text-[#0E0E0E] transition-colors">
-              View all <ArrowRight size={12} />
-            </Link>
-          </div>
-          <div className="grid grid-cols-2 gap-2 md:gap-4 md:grid-cols-4">
-            {newArrivals.slice(0, 8).map((p) => <ProductCard key={p._id} product={p} />)}
-          </div>
-        </section>
-      )}
-
-      {/* ═══ 4. BEST SELLERS ═══════════════════════════════════ */}
-      {best && best.length > 0 && (
-        <section className="px-4 md:px-8 lg:px-12 py-16 md:py-20" style={{ background: '#F7F6F4' }}>
-          <div className="mb-8 flex items-end justify-between">
-            <div>
-              <h2 className="text-[22px] md:text-[28px] font-light tracking-[0.02em] text-[#0E0E0E]">Best sellers</h2>
-              <p className="mt-1 text-[13px] text-[#6E6E6B] font-light">The pieces everyone comes back for.</p>
-            </div>
-            <Link to="/best" className="inline-flex items-center gap-1.5 text-[12px] font-medium uppercase tracking-[0.10em] text-[#6E6E6B] hover:text-[#0E0E0E] transition-colors">
-              View all <ArrowRight size={12} />
-            </Link>
-          </div>
-          <div className="grid grid-cols-2 gap-2 md:gap-4 md:grid-cols-4">
-            {best.slice(0, 8).map((p) => <ProductCard key={p._id} product={p} />)}
-          </div>
-        </section>
-      )}
-
-      {/* ═══ 5. FIT FINDER ══════════════════════════════════════ */}
+      {/* 3. FIT FINDER */}
       <section className="px-4 md:px-8 lg:px-12 py-20 md:py-24 text-center" style={{ background: '#0E0E0E' }}>
         <h2 className="text-[22px] md:text-[28px] font-light tracking-[0.02em] text-white">Find your exact fit</h2>
         <p className="mt-3 text-[14px] text-white/50 font-light max-w-md mx-auto">
