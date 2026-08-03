@@ -1,274 +1,330 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ChevronRight, Lock, LogOut, Mail, User as UserIcon } from 'lucide-react';
+import { Bell, ChevronRight, Heart, LayoutGrid, LogOut, MapPin, Package, ShieldCheck, User as UserIcon } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import { fmtDate, pkr } from '../lib/format';
-import { normalizePhone, validEmail, phoneTypingError } from '../lib/validators';
+import { accountConfig } from '../lib/accountConfig';
+import AuthCard from './account/AuthCard';
+import ProfilePanel from './account/ProfilePanel';
+import AddressPanel from './account/AddressPanel';
+import SecurityPanel from './account/SecurityPanel';
+import SavedPanel from './account/SavedPanel';
+import SessionsPanel from './account/SessionsPanel';
+import NotificationsPanel from './account/NotificationsPanel';
 
-function AuthCard() {
-  const { login, register, toast } = useApp();
-  const nav = useNavigate();
-  const [mode, setMode] = useState('login');
-  const [f, setF] = useState({ name: '', email: '', password: '', phone: '' });
-  const [ferrs, setFerrs] = useState({});
-  const [err, setErr] = useState('');
-  const [busy, setBusy] = useState(false);
+/* ============================================================================
+ * CUSTOMER ACCOUNT
+ *
+ * Mobile-first: ~85% of this store's customers are on a phone, so the default
+ * layout is a single column with a horizontally scrollable section rail. The
+ * two-column sidebar only appears from lg upwards.
+ *
+ * Configuration comes from settings.account (what the merchant wants) merged
+ * with /auth/policy (what the server can actually do). They differ on email:
+ * the merchant can switch reset-by-email on, but if no SMTP transport is
+ * configured the server refuses, and the UI must follow the server or it will
+ * promise emails that never arrive.
+ * ========================================================================== */
 
-  // Phone verification (SMS/WhatsApp code) — only active once a provider is connected on the server
-  const [otpEnabled, setOtpEnabled] = useState(false);
-  useEffect(() => { api('/otp/status').then((r) => setOtpEnabled(!!r?.enabled)).catch(() => {}); }, []);
-  const blank = { sent: false, demo: false, demoCode: '', via: '', code: '', sending: false, verifying: false, verified: false, phoneToken: '', resendIn: 0, error: '' };
-  const [otp, setOtp] = useState(blank);
-  const resetOtp = () => setOtp(blank);
-
-  const set = (k, v) => {
-    setF((x) => ({ ...x, [k]: v }));
-    setFerrs((x) => ({ ...x, [k]: '' }));
-    if (k === 'phone') resetOtp(); // number changed → must verify the new one
-  };
-
-  useEffect(() => {
-    if (otp.resendIn <= 0) return undefined;
-    const t = setInterval(() => setOtp((o) => ({ ...o, resendIn: Math.max(0, o.resendIn - 1) })), 1000);
-    return () => clearInterval(t);
-  }, [otp.resendIn]);
-
-  const phoneOK = normalizePhone(f.phone);
-  const emailOK = validEmail(f.email);
-  const passAllDigits = f.password.length > 0 && !/[a-zA-Z]/.test(f.password);
-  // Only flag email once it looks fully typed (dot after @ + chars after the dot) — no premature errors
-  const emailTypedWrong = (() => {
-    const em = f.email.trim();
-    const at = em.indexOf('@');
-    const dot = em.lastIndexOf('.');
-    return dot > at && dot < em.length - 2 && !validEmail(em);
-  })();
-
-  const sendCode = async () => {
-    if (!phoneOK || otp.sending || otp.resendIn > 0) return;
-    setOtp((o) => ({ ...o, sending: true, error: '' }));
-    try {
-      const r = await api('/otp/send', { method: 'POST', body: { phone: phoneOK } });
-      setOtp((o) => ({ ...o, sending: false, sent: true, demo: !!r.demo, demoCode: r.demoCode || '', via: r.via || '', code: '', resendIn: 60 }));
-    } catch (ex) { setOtp((o) => ({ ...o, sending: false, error: ex.message })); }
-  };
-
-  const verifyCode = async () => {
-    if (otp.code.length !== 6 || otp.verifying) return;
-    setOtp((o) => ({ ...o, verifying: true, error: '' }));
-    try {
-      const r = await api('/otp/verify', { method: 'POST', body: { phone: phoneOK, code: otp.code } });
-      setOtp((o) => ({ ...o, verifying: false, verified: true, phoneToken: r.phoneToken, error: '' }));
-    } catch (ex) { setOtp((o) => ({ ...o, verifying: false, error: ex.message })); }
-  };
-
-  const submit = async (e) => {
-    e.preventDefault();
-    setErr('');
-    if (mode === 'register') {
-      const fe = {};
-      if (f.name.trim().length < 3) fe.name = 'Enter your full name';
-      if (!phoneOK) fe.phone = 'Incorrect number';
-      if (!emailOK) fe.email = 'Incorrect email address';
-      if (f.password.length < 6) fe.password = 'Minimum 6 characters';
-      else if (!/[a-zA-Z]/.test(f.password)) fe.password = 'Add at least one letter — not only numbers';
-      if (Object.keys(fe).length) { setFerrs(fe); return; }
-      if (otpEnabled && !otp.verified) { setFerrs({ phone: 'Tap "Send code" and verify your number first' }); return; }
-    }
-    setBusy(true);
-    try {
-      const payload = { ...f, phone: phoneOK, phoneToken: otp.phoneToken };
-      const d = mode === 'login' ? await login(f.email, f.password) : await register(payload);
-      if (d.user.role === 'admin') nav('/admin');
-      toast(mode === 'login' ? 'Welcome back' : 'Account created');
-    } catch (ex) { setErr(ex.message); }
-    setBusy(false);
-  };
-
-  const ring = (bad) => (bad ? '!border-red-400 !ring-red-50' : '');
-
-  return (
-    <div className="mx-auto mt-10 max-w-md rounded-[2rem] border border-line bg-white/70 p-8 shadow-card">
-      <div className="mb-6 grid grid-cols-2 rounded-full bg-satin/60 p-1">
-        {[['login', 'Sign In'], ['register', 'Register']].map(([m, l]) => (
-          <button key={m} onClick={() => { setMode(m); setErr(''); setFerrs({}); resetOtp(); }}
-            className={`rounded-full py-2.5 text-[12px] font-bold uppercase tracking-widest transition ${mode === m ? 'bg-obsidian text-alabaster' : 'text-ash'}`}>{l}</button>
-        ))}
-      </div>
-      <form onSubmit={submit} className="space-y-4">
-        {mode === 'register' && (
-          <>
-            <div>
-              <label className="label">Full name</label>
-              <input className={`input ${ring(ferrs.name)}`} value={f.name} onChange={(e) => set('name', e.target.value)} placeholder="Enter name" />
-              {ferrs.name && <p className="mt-1 text-[11px] text-red-700">{ferrs.name}</p>}
-            </div>
-            <div>
-              <label className="label">Phone</label>
-              <div className="flex gap-2">
-                <input className={`input flex-1 ${ring(ferrs.phone || phoneTypingError(f.phone))}`}
-                  value={f.phone} inputMode="tel" onChange={(e) => set('phone', e.target.value)} placeholder="03XX-XXXXXXX" />
-                {otpEnabled && !otp.verified && (
-                  <button type="button" onClick={sendCode} disabled={!phoneOK || otp.sending || otp.resendIn > 0}
-                    className="btn-outline shrink-0 !px-3 !py-2 text-[11px] font-bold disabled:opacity-40">
-                    {otp.sending ? 'Sending…' : otp.resendIn > 0 ? `${otp.resendIn}s` : otp.sent ? 'Resend' : 'Send code'}
-                  </button>
-                )}
-              </div>
-              {ferrs.phone ? <p className="mt-1 text-[11px] text-red-700">{ferrs.phone}</p>
-                : phoneTypingError(f.phone) ? <p className="mt-1 text-[11px] font-medium text-red-700">Incorrect number</p> : null}
-
-              {/* SMS code entry */}
-              {otpEnabled && otp.sent && !otp.verified && (
-                <div className="mt-3 rounded-xl border border-line bg-satin/40 p-3">
-                  <div className="flex gap-2">
-                    <input className="input flex-1 text-center !tracking-[0.4em] font-bold" value={otp.code} inputMode="numeric" maxLength={6}
-                      onChange={(e) => setOtp((o) => ({ ...o, code: e.target.value.replace(/\D/g, '').slice(0, 6), error: '' }))}
-                      placeholder="6-digit code" />
-                    <button type="button" onClick={verifyCode} disabled={otp.code.length !== 6 || otp.verifying}
-                      className="btn-primary shrink-0 !px-4 !py-2 text-[11px] disabled:opacity-40">
-                      {otp.verifying ? 'Checking…' : 'Verify'}
-                    </button>
-                  </div>
-                  {otp.demo && otp.demoCode && (
-                    <p className="mt-2 rounded-lg bg-amber-50 px-3 py-2 text-[11px] font-bold text-amber-800 ring-1 ring-amber-200">
-                      Demo mode (SMS not connected yet) — your code: <span className="tracking-[0.2em]">{otp.demoCode}</span>
-                    </p>
-                  )}
-                  <p className="mt-2 text-[10px] text-ash">
-                    {otp.demo ? 'Demo code (SMS not connected yet)' : otp.via === 'whatsapp' ? `Code sent to your WhatsApp (${phoneOK})` : `Code sent by SMS to ${phoneOK}`} · valid for 5 minutes
-                  </p>
-                </div>
-              )}
-              {otpEnabled && otp.verified && <p className="mt-1 text-[11px] font-semibold text-emerald-700">✓ Number verified</p>}
-              {otp.error && <p className="mt-1 text-[11px] font-medium text-red-700">{otp.error}</p>}
-            </div>
-          </>
-        )}
-        <div>
-          <label className="label">Email</label>
-          <input className={`input ${ring(ferrs.email || (mode === 'register' && emailTypedWrong))}`}
-            type="email" required value={f.email} onChange={(e) => set('email', e.target.value)} placeholder="you@example.com" />
-          {ferrs.email ? <p className="mt-1 text-[11px] text-red-700">{ferrs.email}</p>
-            : mode === 'register' && emailTypedWrong && <p className="mt-1 text-[11px] font-medium text-red-700">Incorrect email address</p>}
-        </div>
-        <div>
-          <label className="label">Password</label>
-          <input className={`input ${ring(ferrs.password || passAllDigits)}`} type="password" required minLength={6} value={f.password} onChange={(e) => set('password', e.target.value)} placeholder="Minimum 6 characters, include a letter" />
-          {ferrs.password ? <p className="mt-1 text-[11px] text-red-700">{ferrs.password}</p>
-            : passAllDigits && <p className="mt-1 text-[11px] font-medium text-red-700">Add at least one letter — not only numbers</p>}
-        </div>
-        {err && <p className="rounded-xl bg-red-50 px-4 py-3 text-xs text-red-800">{err}</p>}
-        <button disabled={busy || (mode === 'register' && otpEnabled && !otp.verified)} className="btn-primary w-full disabled:opacity-40">
-          <Lock size={14} /> {busy ? 'One moment…' : mode === 'login' ? 'Sign In' : (!otpEnabled || otp.verified) ? 'Create Account' : 'Verify number to continue'}
-        </button>
-      </form>
-      <p className="mt-4 text-center text-xs leading-relaxed text-ash">Accounts are optional — guest checkout always works.</p>
-    </div>
-  );
-}
+/* `when` lets the merchant hide a whole section from
+   Admin -> Settings -> Customer Accounts without a deploy. Sections with no
+   `when` are always present. */
+const ALL_SECTIONS = [
+  { id: 'overview', label: 'Overview', icon: LayoutGrid },
+  { id: 'orders', label: 'Orders', icon: Package },
+  { id: 'saved', label: 'Saved', icon: Heart, when: (c) => c.showWishlist || c.showRecentlyViewed },
+  { id: 'profile', label: 'Profile', icon: UserIcon },
+  { id: 'addresses', label: 'Addresses', icon: MapPin },
+  { id: 'notifications', label: 'Notifications', icon: Bell, when: (c) => c.showNotifications },
+  { id: 'security', label: 'Security', icon: ShieldCheck },
+];
 
 export default function Account() {
-  const { auth, logout, toast } = useApp();
-  const [tab, setTab] = useState('orders');
+  const { auth, logout, settings, patchUser, toast } = useApp();
+  const nav = useNavigate();
+
+  const [policy, setPolicy] = useState(null);
+  const cfg = useMemo(() => accountConfig(settings, policy), [settings, policy]);
+
+  const SECTIONS = useMemo(() => ALL_SECTIONS.filter((s) => !s.when || s.when(cfg)), [cfg]);
+  const [section, setSection] = useState('overview');
   const [orders, setOrders] = useState(null);
-  const [profile, setProfile] = useState(null);
-  const [addr, setAddr] = useState({ name: '', phone: '', address: '', city: '', province: 'Punjab' });
+  const [user, setUser] = useState(null);
+  const [loadErr, setLoadErr] = useState('');
+  const headingRef = useRef(null);
+
+  /* Loyalty standing, for the overview tile. `null` while in flight, and the
+     tile renders a dash rather than a zero — showing "0 points" to someone who
+     has 2,450 for half a second is worse than showing nothing. */
+  const [loyalty, setLoyalty] = useState(null);
+  const loyaltyOn = loyalty?.enabled === true;
+
+  /* The server's real capabilities. Fetched once, for signed-out and
+     signed-in alike, because the sign-in form needs it too. */
+  useEffect(() => {
+    let alive = true;
+    api('/auth/policy')
+      .then((p) => { if (alive) setPolicy(p); })
+      .catch(() => { if (alive) setPolicy({}); });   // {} still marks it "loaded"
+    return () => { alive = false; };
+  }, []);
 
   useEffect(() => {
-    if (!auth) return;
-    api('/customer/orders', { token: auth.token }).then((d) => setOrders(d.orders)).catch(() => setOrders([]));
-    api('/customer/profile', { token: auth.token }).then((d) => {
-      setProfile(d.user);
-      if (d.user.addresses?.[0]) setAddr({ ...addr, ...d.user.addresses[0] });
-    }).catch(() => {});
-  }, [auth]); // eslint-disable-line
+    if (!auth?.token) { setUser(null); setOrders(null); return undefined; }
+    let alive = true;
+    setLoadErr('');
+    api('/customer/profile', { token: auth.token })
+      .then((d) => { if (alive) setUser(d.user); })
+      .catch((e) => { if (alive) setLoadErr(e.message || 'Could not load your account'); });
+    api('/customer/orders', { token: auth.token })
+      .then((d) => { if (alive) setOrders(d.orders || []); })
+      .catch(() => { if (alive) setOrders([]); });
+    // Returns { enabled:false } when the merchant has the programme switched
+    // off, which is why the tile keys on enabled rather than on the response.
+    api('/loyalty/me', { token: auth.token })
+      .then((d) => { if (alive) setLoyalty(d); })
+      .catch(() => { if (alive) setLoyalty({ enabled: false }); });
+    return () => { alive = false; };
+  }, [auth?.token]);
 
+  /* Keep the header/global user in step with anything a panel changes. */
+  const onUpdated = useCallback((u) => { setUser(u); patchUser(u); }, [patchUser]);
+
+  const go = (id) => {
+    setSection(id);
+    // Move focus to the panel heading so a screen reader announces the change
+    // instead of leaving focus on a nav button that no longer describes the view.
+    requestAnimationFrame(() => headingRef.current?.focus());
+  };
+
+  /* ---------------- signed out ---------------- */
   if (!auth) {
     return (
-      <div className="mx-auto max-w-7xl px-4 py-10 md:py-14 text-center md:px-8">
-        <h1 className="font-display text-3xl sm:text-4xl">Your account</h1>
-        <p className="mt-2 text-sm text-ash">Sign in for order history, saved addresses and faster checkout.</p>
-        <AuthCard />
+      <div className="container-page py-sect-y md:py-sect-y-lg">
+        <div className="text-center">
+          <h1 className="font-display text-h1">{cfg.signInTitle}</h1>
+          <p className="mx-auto mt-3 max-w-md text-body text-ash">{cfg.signInSubtitle}</p>
+        </div>
+        <AuthCard cfg={cfg} policyLoaded={policy !== null} />
       </div>
     );
   }
 
-  const saveProfile = async () => {
-    try {
-      await api('/customer/profile', { method: 'PUT', token: auth.token, body: { name: profile.name, phone: profile.phone, addresses: addr.address ? [addr] : [] } });
-      toast('Profile saved');
-    } catch (ex) { toast(ex.message); }
-  };
+  /* ---------------- loading ---------------- */
+  if (!user) {
+    return (
+      <div className="container-page py-sect-y">
+        {loadErr ? (
+          <div className="mx-auto max-w-md text-center">
+            <h1 className="font-display text-h3">We could not load your account</h1>
+            <p className="mt-3 text-body-sm text-ash">{loadErr}</p>
+            <button type="button" onClick={() => window.location.reload()} className="btn-primary mt-6">Try again</button>
+          </div>
+        ) : (
+          /* The skeleton must reserve roughly what the real page occupies.
+             A short skeleton let the footer paint high and then get pushed
+             618px down when the account rendered — measured 0.1515 CLS at
+             768px. These heights mirror the welcome card, the section rail
+             (a row on mobile, a column from lg) and the overview panel. */
+          <div role="status" aria-live="polite">
+            <span className="sr-only">Loading your account…</span>
+            <div className="skeleton h-[108px] w-full rounded-panel sm:h-[124px] lg:h-[134px]" />
+            <div className="mt-6 grid gap-6 lg:grid-cols-[220px_minmax(0,1fr)]">
+              <div className="skeleton h-[44px] w-full rounded-full lg:h-[228px] lg:rounded-card" />
+              <div className="skeleton h-[330px] w-full rounded-card sm:h-[130px] lg:h-[256px]" />
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  const firstName = (user.name || '').trim().split(/\s+/)[0] || 'there';
+  const initials = (user.name || '?').trim().split(/\s+/).slice(0, 2).map((w) => w[0]).join('').toUpperCase();
+  const defaultAddr = (user.addresses || []).find((a) => a.isDefault) || (user.addresses || [])[0];
+  const activeLabel = SECTIONS.find((s) => s.id === section)?.label || '';
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-12 md:px-8">
-      <div className="flex flex-wrap items-end justify-between gap-4">
+    <div className="container-page py-8 md:py-12">
+      {/* ---------------- welcome ---------------- */}
+      <header className="rounded-panel border border-line bg-white/60 p-5 md:p-7">
+        <div className="flex flex-wrap items-center gap-4">
+          {user.avatar ? (
+            <img src={user.avatar} alt="" className="h-14 w-14 shrink-0 rounded-full border border-line object-cover md:h-16 md:w-16" />
+          ) : (
+            <span aria-hidden="true" className="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-cream font-display text-h6 text-graphite md:h-16 md:w-16">
+              {initials}
+            </span>
+          )}
+          <div className="min-w-0 flex-1">
+            <p className="text-label uppercase tracking-widest text-sagedeep">{cfg.welcomeGreeting}</p>
+            <h1 className="mt-0.5 truncate font-display text-h2">{firstName}</h1>
+            <p className="mt-1 truncate text-body-sm text-ash">{user.email}</p>
+          </div>
+          <button
+            type="button" onClick={() => { logout(); toast('Signed out'); nav('/'); }}
+            className="btn btn-sm shrink-0 gap-1.5 border border-stone bg-white text-graphite hover:bg-satin/60"
+          >
+            <LogOut size={14} aria-hidden="true" /> Sign out
+          </button>
+        </div>
+      </header>
+
+      <div className="mt-6 grid gap-6 lg:grid-cols-[220px_minmax(0,1fr)]">
+        {/* ---------------- nav ----------------
+            Mobile: a scrollable rail. Desktop: a sidebar. Same buttons, so
+            there is only one set of state and one focus order. */}
+        {/* min-w-0 is what stops the scrollable rail from widening the page.
+            A grid child defaults to min-width:auto, so the rail's full content
+            width leaked into the layout and pushed the document 203px wider
+            than the viewport on a phone — measured. */}
+        <nav aria-label="Account sections" className="min-w-0 lg:sticky lg:top-24 lg:self-start">
+          <ul className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 pb-1 lg:mx-0 lg:flex-col lg:overflow-visible lg:px-0">
+            {SECTIONS.map(({ id, label, icon: Icon }) => (
+              <li key={id} className="shrink-0 lg:w-full">
+                <button
+                  type="button"
+                  onClick={() => go(id)}
+                  aria-current={section === id ? 'page' : undefined}
+                  className={`flex min-h-[44px] w-full items-center gap-2.5 whitespace-nowrap rounded-full px-4 text-body-sm font-medium transition-colors duration-fast lg:rounded-control lg:px-3.5 ${
+                    section === id
+                      ? 'bg-obsidian text-alabaster'
+                      : 'bg-white/70 text-ash hover:text-obsidian lg:bg-transparent'
+                  }`}
+                >
+                  <Icon size={15} aria-hidden="true" />
+                  {label}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </nav>
+
+        {/* ---------------- panels ---------------- */}
         <div>
-          <p className="text-[11px] font-bold uppercase tracking-widest text-sagedeep">Account</p>
-          <h1 className="mt-1 font-display text-4xl">{auth.user.name}</h1>
-          <p className="mt-1 flex items-center gap-2 text-sm text-ash"><Mail size={13} /> {auth.user.email}</p>
-        </div>
-        <button onClick={logout} className="btn-outline !px-5 !py-2.5 !text-[11px]"><LogOut size={14} /> Sign out</button>
-      </div>
+          <h2 ref={headingRef} tabIndex={-1} className="sr-only">{activeLabel}</h2>
 
-      <div className="mt-8 flex gap-2 border-b border-line">
-        {[['orders', 'Orders'], ['profile', 'Profile & Address']].map(([id, l]) => (
-          <button key={id} onClick={() => setTab(id)}
-            className={`px-4 py-3 text-[12px] font-bold uppercase tracking-widest transition ${tab === id ? 'border-b-2 border-obsidian text-obsidian' : 'text-ash hover:text-obsidian'}`}>{l}</button>
-        ))}
-      </div>
-
-      {tab === 'orders' && (
-        <div className="mt-6 space-y-4">
-          {orders === null ? <div className="skeleton h-24 w-full" /> : orders.length === 0 ? (
-            <div className="rounded-3xl border border-dashed border-line py-16 text-center">
-              <p className="font-display text-xl">No orders yet</p>
-              <Link to="/shop" className="btn-primary mt-6">Start Shopping</Link>
-            </div>
-          ) : orders.map((o) => (
-            <Link key={o._id} to={`/track?orderNumber=${o.orderNumber}&phone=${encodeURIComponent(o.customerInfo.phone)}`}
-              className="card group flex flex-wrap items-center gap-4 p-5 transition hover:shadow-card">
-              <div className="flex-1">
-                <p className="font-mono text-sm tracking-wide">{o.orderNumber}</p>
-                <p className="mt-1 text-xs text-ash">{fmtDate(o.createdAt)} · {o.items.length} item{o.items.length > 1 ? 's' : ''}</p>
+          {section === 'overview' && (
+            <div className="space-y-6">
+              <div className="grid gap-4 sm:grid-cols-3">
+                <button type="button" onClick={() => go('orders')} className="card-content text-left transition hover:border-obsidian/30">
+                  <p className="text-label uppercase tracking-widest text-ash">Orders</p>
+                  <p className="mt-2 font-display text-h3">{orders === null ? '—' : orders.length}</p>
+                  <p className="mt-1 text-caption text-ash">View order history</p>
+                </button>
+                <button type="button" onClick={() => go('addresses')} className="card-content text-left transition hover:border-obsidian/30">
+                  <p className="text-label uppercase tracking-widest text-ash">Addresses</p>
+                  <p className="mt-2 font-display text-h3">{(user.addresses || []).length}</p>
+                  <p className="mt-1 text-caption text-ash">Manage saved addresses</p>
+                </button>
+                {/* Rewards replaces the Wishlist tile when the programme is
+                    running — the wishlist already has its own section in the
+                    rail above, so the tile was a duplicate entry point. */}
+                {loyaltyOn ? (
+                  <Link to="/rewards" className="card-content block transition hover:border-obsidian/30">
+                    <p className="text-label uppercase tracking-widest text-ash">Rewards</p>
+                    <p className="mt-2 font-display text-h3 tabular-nums">
+                      {loyalty === null ? '—' : Number(loyalty.account?.points || 0).toLocaleString('en-PK')}
+                    </p>
+                    <p className="mt-1 text-caption text-ash">
+                      {loyalty?.tier?.current?.name ? `${loyalty.tier.current.name} member` : 'Points and tiers'}
+                    </p>
+                  </Link>
+                ) : (
+                  <Link to="/wishlist" className="card-content block transition hover:border-obsidian/30">
+                    <p className="text-label uppercase tracking-widest text-ash">Wishlist</p>
+                    <p className="mt-2 font-display text-h3">♡</p>
+                    <p className="mt-1 text-caption text-ash">Pieces you saved</p>
+                  </Link>
+                )}
               </div>
-              <span className={`pill ${o.status === 'Delivered' ? 'bg-sage/25 text-sagedeep' : 'bg-satin text-obsidian'}`}>{o.status}</span>
-              <p className="text-sm font-semibold">{pkr(o.total)}</p>
-              <ChevronRight size={16} className="text-ash transition group-hover:translate-x-0.5 group-hover:text-obsidian" />
-            </Link>
-          ))}
-        </div>
-      )}
 
-      {tab === 'profile' && profile && (
-        <div className="mt-6 grid gap-6 md:grid-cols-2">
-          <div className="card p-6">
-            <p className="mb-5 text-[11px] font-bold uppercase tracking-widest text-ash">Profile</p>
-            <div className="space-y-4">
-              <div><label className="label">Name</label><input className="input" value={profile.name} onChange={(e) => setProfile({ ...profile, name: e.target.value })} /></div>
-              <div><label className="label">Phone</label><input className="input" value={profile.phone || ''} onChange={(e) => setProfile({ ...profile, phone: e.target.value })} /></div>
-              <div><label className="label">Email</label><input className="input bg-satin/30" value={profile.email} disabled /></div>
+              {defaultAddr && (
+                <section className="card-content" aria-labelledby="ov-addr">
+                  <div className="flex items-center justify-between gap-3">
+                    <h3 id="ov-addr" className="text-label uppercase tracking-widest text-ash">Default delivery address</h3>
+                    <button type="button" onClick={() => go('addresses')} className="min-h-[44px] text-caption font-semibold text-ash underline-offset-4 hover:text-obsidian hover:underline">Change</button>
+                  </div>
+                  <p className="mt-3 text-body-sm">{defaultAddr.address}</p>
+                  <p className="text-caption text-ash">{[defaultAddr.city, defaultAddr.province, defaultAddr.postalCode].filter(Boolean).join(', ')}</p>
+                </section>
+              )}
+
+              {orders !== null && orders.length > 0 && (
+                <section className="card-content" aria-labelledby="ov-recent">
+                  <div className="flex items-center justify-between gap-3">
+                    <h3 id="ov-recent" className="text-label uppercase tracking-widest text-ash">Latest order</h3>
+                    <button type="button" onClick={() => go('orders')} className="min-h-[44px] text-caption font-semibold text-ash underline-offset-4 hover:text-obsidian hover:underline">All orders</button>
+                  </div>
+                  <div className="mt-3 flex flex-wrap items-center gap-3">
+                    <p className="font-mono text-body-sm">{orders[0].orderNumber}</p>
+                    <span className="pill bg-satin text-obsidian">{orders[0].status}</span>
+                    <p className="text-body-sm font-semibold tabular-nums">{pkr(orders[0].total)}</p>
+                  </div>
+                </section>
+              )}
             </div>
-          </div>
-          <div className="card p-6">
-            <p className="mb-5 text-[11px] font-bold uppercase tracking-widest text-ash">Default address</p>
-            <div className="space-y-4">
-              <div><label className="label">Street address</label><input className="input" value={addr.address} onChange={(e) => setAddr({ ...addr, address: e.target.value })} placeholder="House, street, area" /></div>
-              <div className="grid grid-cols-2 gap-4">
-                <div><label className="label">City</label><input className="input" value={addr.city} onChange={(e) => setAddr({ ...addr, city: e.target.value })} /></div>
-                <div><label className="label">Province</label>
-                  <select className="input" value={addr.province} onChange={(e) => setAddr({ ...addr, province: e.target.value })}>
-                    {['Punjab', 'Sindh', 'Khyber Pakhtunkhwa', 'Balochistan', 'Gilgit-Baltistan', 'Azad Kashmir', 'Islamabad (ICT)'].map((p) => <option key={p}>{p}</option>)}
-                  </select>
+          )}
+
+          {section === 'orders' && (
+            <section className="space-y-3" aria-labelledby="sec-orders">
+              <h3 id="sec-orders" className="text-label uppercase tracking-widest text-ash">Order history</h3>
+              {orders === null ? (
+                <div role="status" aria-live="polite">
+                  <span className="sr-only">Loading your orders…</span>
+                  <div className="skeleton h-24 w-full rounded-card" />
+                  <div className="skeleton mt-3 h-24 w-full rounded-card" />
                 </div>
-              </div>
+              ) : orders.length === 0 ? (
+                <div className="rounded-card border border-dashed border-line py-14 text-center">
+                  <span className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-cream text-ash" aria-hidden="true">
+                    <Package size={20} strokeWidth={1.6} />
+                  </span>
+                  <p className="mt-3 font-display text-h5">No orders yet</p>
+                  <p className="mt-1 text-body-sm text-ash">When you place an order it will appear here.</p>
+                  <Link to="/women" className="btn-primary mt-6">Start shopping</Link>
+                </div>
+              ) : (
+                <ul className="space-y-3">
+                  {orders.map((o) => (
+                    <li key={o._id}>
+                      {/* Goes to the private order page, not the public
+                          tracker. The old link also carried the customer's
+                          phone number in the query string. */}
+                      <Link
+                        to={`/account/orders/${encodeURIComponent(o.orderNumber)}`}
+                        className="card group flex flex-wrap items-center gap-3 p-4 transition hover:border-obsidian/30 sm:gap-4 sm:p-5"
+                      >
+                        <div className="min-w-0 flex-1">
+                          <p className="font-mono text-body-sm">{o.orderNumber}</p>
+                          <p className="mt-1 text-caption text-ash">
+                            {fmtDate(o.createdAt)} · {o.items.length} item{o.items.length > 1 ? 's' : ''}
+                          </p>
+                        </div>
+                        <span className={`pill ${o.status === 'Delivered' ? 'bg-sage/25 text-sagedark' : 'bg-satin text-obsidian'}`}>{o.status}</span>
+                        <p className="text-body-sm font-semibold tabular-nums">{pkr(o.total)}</p>
+                        <ChevronRight size={16} className="shrink-0 text-ash transition group-hover:translate-x-0.5 group-hover:text-obsidian" aria-hidden="true" />
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+          )}
+
+          {section === 'saved' && <SavedPanel cfg={cfg} />}
+          {section === 'notifications' && <NotificationsPanel user={user} onUpdated={onUpdated} />}
+          {section === 'profile' && <ProfilePanel cfg={cfg} user={user} onUpdated={onUpdated} />}
+          {section === 'addresses' && <AddressPanel cfg={cfg} user={user} onUpdated={onUpdated} />}
+          {section === 'security' && (
+            <div className="space-y-6">
+              <SecurityPanel cfg={cfg} user={user} onUpdated={onUpdated} />
+              {cfg.showSessions && <SessionsPanel />}
             </div>
-          </div>
-          <div className="md:col-span-2"><button onClick={saveProfile} className="btn-primary"><UserIcon size={14} /> Save changes</button></div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 }

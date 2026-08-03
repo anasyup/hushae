@@ -82,11 +82,27 @@ module.exports.publicGet = asyncHandler(async (req, res) => {
     'Cache-Control': 'public, max-age=31536000, immutable',
   };
 
-  // Small file — direct buffer
+  // Small file — direct buffer, still range-aware for media playback.
   if (!up.chunked) {
-    res.set({ ...base, 'Content-Length': String(up.data.length) });
+    const buf = up.data;
+    const m = req.headers.range ? /^bytes=(\d+)-(\d*)$/.exec(req.headers.range) : null;
+    if (m) {
+      const s0 = parseInt(m[1], 10);
+      const e0 = m[2] ? Math.min(buf.length - 1, parseInt(m[2], 10)) : buf.length - 1;
+      if (s0 >= buf.length || s0 > e0) {
+        return res.status(416).set({ ...base, 'Content-Range': `bytes */${buf.length}` }).end();
+      }
+      res.status(206).set({
+        ...base,
+        'Content-Length': String(e0 - s0 + 1),
+        'Content-Range': `bytes ${s0}-${e0}/${buf.length}`,
+      });
+      if (req.method === 'HEAD') return res.end();
+      return res.end(buf.subarray(s0, e0 + 1));
+    }
+    res.set({ ...base, 'Content-Length': String(buf.length) });
     if (req.method === 'HEAD') return res.end();
-    return res.send(up.data);
+    return res.send(buf);
   }
 
   // Chunked file — stream chunk docs in order
@@ -106,12 +122,13 @@ module.exports.publicGet = asyncHandler(async (req, res) => {
     return res.status(416).end();
   }
   const len = end - start + 1;
-  res.set({
+  // Set the status first: a range reply must be 206, and Safari on iOS refuses
+  // to play media when the server answers a Range request with a plain 200.
+  res.status(range ? 206 : 200).set({
     ...base,
     'Content-Length': String(len),
     ...(range ? { 'Content-Range': `bytes ${start}-${end}/${total}` } : {}),
   });
-  if (range) res.status(206);
   if (req.method === 'HEAD') return res.end();
 
   let pos = 0;

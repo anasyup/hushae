@@ -5,10 +5,11 @@ import { api } from '../api/client';
 import AdminLayout from './AdminLayout';
 
 const DEFAULTS = {
-  whatsapp: { enabled: false, number: '', message: 'Hi! I have a question about HUSHAE.' },
+  whatsapp: { enabled: false, number: '', message: 'Hi! I have a question about HUSHAE.', adminAlertNumber: '', webhookUrl: '' },
   social: { instagram: '', facebook: '', tiktok: '' },
-  analytics: { gaId: '', gtmId: '', metaPixelId: '', tiktokPixelId: '' },
+  analytics: { gaId: '', gtmId: '', clarityId: '', metaPixelId: '', tiktokPixelId: '' },
   email: { host: '', port: 587, secure: false, user: '', pass: '', from: '', adminAlert: '' },
+  loyalty: { enabled: true, threshold: 2, discountPercent: 10, validDays: 60 },
 };
 
 export default function Apps() {
@@ -16,7 +17,7 @@ export default function Apps() {
   const [s, setS] = useState(null);
   const [busy, setBusy] = useState(false);
 
-  useEffect(() => { api('/settings').then((d) => setS(d.settings)).catch(() => toast('Could not load settings')); }, []); // eslint-disable-line
+  useEffect(() => { api('/settings/admin', { token: auth.token }).then((d) => setS(d.settings)).catch(() => toast('Could not load settings')); }, []); // eslint-disable-line
 
   if (!s) return <AdminLayout title="Apps"><div className="skeleton h-64 w-full" /></AdminLayout>;
 
@@ -25,19 +26,21 @@ export default function Apps() {
   const social = { ...DEFAULTS.social, ...(integ.social || {}) };
   const analytics = { ...DEFAULTS.analytics, ...(integ.analytics || {}) };
   const email = { ...DEFAULTS.email, ...(integ.email || {}) };
+  const loyalty = { ...DEFAULTS.loyalty, ...(integ.loyalty || {}) };
   const media = s.media || { cloudName: '', uploadPreset: '' };
   const setI = (patch) => setS({ ...s, integrations: { ...integ, ...patch } });
   const setWa = (k, v) => setI({ whatsapp: { ...wa, [k]: v } });
   const setSocial = (k, v) => setI({ social: { ...social, [k]: v } });
   const setAn = (k, v) => setI({ analytics: { ...analytics, [k]: v } });
   const setEmail = (k, v) => setI({ email: { ...email, [k]: v } });
+  const setLoyalty = (k, v) => setI({ loyalty: { ...loyalty, [k]: v } });
   const setMedia = (k, v) => setS({ ...s, media: { ...media, [k]: v } });
 
   const save = async () => {
     setBusy(true);
     try {
       await api('/settings', { method: 'PUT', token: auth.token, body: {
-        integrations: { whatsapp: wa, social, analytics, email },
+        integrations: { whatsapp: wa, social, analytics, email, loyalty },
         media: { cloudName: media.cloudName.trim(), uploadPreset: media.uploadPreset.trim() },
       } });
       toast('Apps saved — applied to the website immediately');
@@ -76,13 +79,57 @@ export default function Apps() {
             <div>
               <label className="label">WhatsApp number (with country code)</label>
               <input className="input" placeholder="923001234567" value={wa.number} onChange={(e) => setWa('number', e.target.value)} />
-              <p className="mt-1 text-[11px] text-ash">Misal: 0300 1234567 → 923001234567 (remove the leading 0 and prefix '92')</p>
+              <p className="mt-1 text-[11px] text-ash">Example: 0300 1234567 → 923001234567 (remove the leading 0 and prefix '92')</p>
             </div>
             <div>
               <label className="label">Default message (customer's first message)</label>
               <input className="input" value={wa.message} onChange={(e) => setWa('message', e.target.value)} />
             </div>
+            <div className="mt-5 border-t border-neutral-100 pt-5">
+              <p className="text-[11px] font-bold uppercase tracking-widest text-ash">Admin new-order alerts</p>
+              <p className="mt-1 text-[11px] text-ash">Every new order fires a click-to-open WhatsApp link with the order summary. Free — no API needed.</p>
+              <div className="mt-3 grid gap-3 md:grid-cols-2">
+                <div>
+                  <label className="label">Your WhatsApp (receives alerts)</label>
+                  <input className="input" placeholder="923001234567" value={wa.adminAlertNumber} onChange={(e) => setWa('adminAlertNumber', e.target.value)} />
+                </div>
+                <div>
+                  <label className="label">Webhook URL (optional — for automation)</label>
+                  <input className="input font-mono text-xs" placeholder="https://hook.make.com/…" value={wa.webhookUrl} onChange={(e) => setWa('webhookUrl', e.target.value)} />
+                </div>
+              </div>
+            </div>
           </div>
+        </div>
+
+        <div className="card p-6">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <h2 className="font-sans text-lg">Loyalty rewards</h2>
+              <p className="text-xs text-ash">Automatically email a coupon to any customer who has completed N delivered orders. Retains repeat buyers.</p>
+            </div>
+            <label className="inline-flex cursor-pointer items-center gap-2">
+              <input type="checkbox" className="peer sr-only" checked={loyalty.enabled} onChange={(e) => setLoyalty('enabled', e.target.checked)} />
+              <div className="relative h-6 w-11 rounded-full bg-satin transition peer-checked:bg-sage after:absolute after:left-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:bg-white after:transition peer-checked:after:translate-x-5" />
+            </label>
+          </div>
+          <div className={`mt-5 grid gap-3 md:grid-cols-3 ${loyalty.enabled ? '' : 'pointer-events-none opacity-40'}`}>
+            <div>
+              <label className="label">Fires every N delivered orders</label>
+              <input type="number" min={2} max={10} className="input" value={loyalty.threshold} onChange={(e) => setLoyalty('threshold', parseInt(e.target.value, 10) || 2)} />
+            </div>
+            <div>
+              <label className="label">Discount %</label>
+              <input type="number" min={1} max={50} className="input" value={loyalty.discountPercent} onChange={(e) => setLoyalty('discountPercent', parseInt(e.target.value, 10) || 10)} />
+            </div>
+            <div>
+              <label className="label">Coupon valid (days)</label>
+              <input type="number" min={7} max={365} className="input" value={loyalty.validDays} onChange={(e) => setLoyalty('validDays', parseInt(e.target.value, 10) || 60)} />
+            </div>
+          </div>
+          <p className="mt-3 text-[11px] text-ash">
+            A unique <code>HUSH-XXXXX</code> coupon is minted the moment the qualifying order is marked Delivered. Sent to the customer's email automatically.
+          </p>
         </div>
 
         <div className="card p-6">
@@ -218,6 +265,11 @@ export default function Apps() {
               <label className="label">Google Tag Manager ID (optional)</label>
               <input className="input font-mono text-xs" placeholder="GTM-XXXXXXX" value={analytics.gtmId} onChange={(e) => setAn('gtmId', e.target.value)} />
               <p className="mt-1.5 text-[11px] text-ash">Advanced users only — fill this if you are using GTM</p>
+            </div>
+            <div>
+              <label className="label">Microsoft Clarity Project ID</label>
+              <input className="input font-mono text-xs" placeholder="xxxxxxxxxx" value={analytics.clarityId} onChange={(e) => setAn('clarityId', e.target.value)} />
+              <p className="mt-1.5 text-[11px] text-ash">clarity.microsoft.com → Project settings → Copy Project ID</p>
             </div>
             <div>
               <label className="label">Meta (Facebook) Pixel ID</label>

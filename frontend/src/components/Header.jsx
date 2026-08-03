@@ -1,156 +1,376 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Heart, Menu, Search, ShoppingBag, User, X } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
-import Tx from './Tx';
 import OfferBar from './OfferBar';
 import Wordmark from './Wordmark';
+import NavDropdown from './header/NavDropdown';
+import MegaMenu from './header/MegaMenu';
+import MobileDrawer from './header/MobileDrawer';
+import { useCmsNav } from '../lib/useCmsNav';
+import useHeaderScroll from './header/useHeaderScroll';
+import useNavFit from './header/useNavFit';
+import SearchPanel from './search/SearchPanel';
 
+const clamp = (v, lo, hi, dflt) => {
+  const n = Number(v);
+  return Number.isFinite(n) ? Math.max(lo, Math.min(hi, n)) : dflt;
+};
+
+/* ============================================================================
+ * HUSHAE header.
+ *
+ * Layout: logo hard left · menu optically centred on the viewport · icons hard
+ * right — the editorial register the brand is built on. Every value is
+ * admin-editable from /admin/theme, and the menu auto-fits so a merchant can
+ * add links without ever breaking the bar.
+ *
+ * ── Why the whole bar is one positioned group ───────────────────────────────
+ * The announcement strip and the bar used to mount and re-position on scroll:
+ * the strip appeared, and the header went fixed → sticky. That moved every
+ * page 115px and measured CLS 0.4558 on the home page.
+ *
+ * Now the group's position is decided by the ROUTE, never by scroll:
+ *   home  → fixed, so the full-bleed hero runs underneath it
+ *   else  → sticky, so it occupies its own box in the flow
+ * Scrolling only repaints colour, blur, border and shadow. Nothing in the
+ * layout can move, so the header contributes no layout shift at all.
+ * ========================================================================== */
 export default function Header() {
   const { cartCount, wishlist, auth, setDrawerOpen, settings } = useApp();
   const [cats, setCats] = useState([]);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  /* Fetched once, lazily, the first time the shopper opens search — the
+     storefront must not pay for this on every page load. */
+  const [searchCfg, setSearchCfg] = useState(null);
   const [q, setQ] = useState('');
-  const [scrolled, setScrolled] = useState(false);
+
   const nav = useNavigate();
   const loc = useLocation();
-  const searchRef = useRef(null);
+  const navRef = useRef(null);
+  const logoRef = useRef(null);
+  const burgerRef = useRef(null);
+  const searchBtnRef = useRef(null);
 
-  // On the homepage the hero is edge-to-edge full-screen video/image.
-  // We overlay the header on top of it (transparent), and only fill it in
-  // once the user starts scrolling past the fold.
   const isHome = loc.pathname === '/';
-  const heroOverlay = isHome && !scrolled;
+  const { atTop, past, hidden, reveal } = useHeaderScroll({
+    enableHide: !searchOpen && !mobileOpen,
+  });
+
+  // Over a full-bleed hero the bar paints transparent until the fold is passed.
+  const overHero = isHome && !past;
 
   useEffect(() => { api('/categories').then((d) => setCats(d.categories)).catch(() => {}); }, []);
-  useEffect(() => { if (searchOpen) searchRef.current?.focus(); }, [searchOpen]);
   useEffect(() => {
-    if (!isHome) { setScrolled(true); return; }
-    const onScroll = () => setScrolled(window.scrollY > 60);
-    onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, [isHome]);
+    if (!searchOpen || searchCfg) return;
+    api('/search/config').then(setSearchCfg).catch(() => setSearchCfg({}));
+  }, [searchOpen, searchCfg]);
 
-  const wCats = cats.filter((c) => c.gender === 'women');
-  const mCats = cats.filter((c) => c.gender === 'men');
+  // A panel opening while the bar is tucked away would leave it off-screen.
+  useEffect(() => { if (searchOpen || mobileOpen) reveal(); }, [searchOpen, mobileOpen, reveal]);
 
-  const linkCls = ({ isActive }) =>
-    `relative text-[12px] font-semibold uppercase tracking-widest transition ${
-      heroOverlay
-        ? (isActive ? 'text-alabaster' : 'text-alabaster/80 hover:text-alabaster')
-        : (isActive ? 'text-obsidian' : 'text-ash hover:text-obsidian')
-    }`;
+  // Close transient UI on navigation.
+  useEffect(() => { setMobileOpen(false); setSearchOpen(false); }, [loc.pathname]);
 
-  const submitSearch = (e) => {
-    e.preventDefault();
-    if (!q.trim()) return;
-    nav(`/shop?q=${encodeURIComponent(q.trim())}`);
-    setSearchOpen(false); setQ(''); setMobileOpen(false);
-  };
+  const wCats = useMemo(() => cats.filter((c) => c.gender === 'women'), [cats]);
+  const mCats = useMemo(() => cats.filter((c) => c.gender === 'men'), [cats]);
 
-  const Drop = ({ label, to, items }) => (
-    <div className="group relative">
-      <NavLink to={to} className={linkCls}>{label}</NavLink>
-      <div className="invisible absolute left-1/2 top-full z-40 -translate-x-1/2 pt-4 opacity-0 transition-all duration-200 group-hover:visible group-hover:opacity-100">
-        <div className="w-52 rounded-2xl border border-line bg-alabaster p-2 shadow-soft">
-          {items.map((c) => (
-            <Link key={c.slug} to={`/category/${c.slug}`} className="block rounded-xl px-4 py-2.5 text-sm text-ash transition hover:bg-satin/50 hover:text-obsidian">
-              {c.name}
-            </Link>
-          ))}
-        </div>
-      </div>
-    </div>
+  // ── Admin-editable config ────────────────────────────────────────────────
+  const hdr = settings?.header || {};
+  const baseMenu = useMemo(() => (
+    Array.isArray(hdr.menu) && hdr.menu.length ? hdr.menu : [
+      { label: 'Women', href: '/women', dropdown: 'women' },
+      { label: 'Men', href: '/men', dropdown: 'men' },
+      { label: 'New Arrivals', href: '/new' },
+      { label: 'Best Sellers', href: '/best' },
+      { label: 'Sale', href: '/sale', highlight: true },
+      { label: 'Fit Finder', href: '/fit-finder' },
+      { label: 'Track Order', href: '/track' },
+    ]
+  ), [hdr.menu]);
+
+  /* CMS pages the merchant ticked "show in the top menu", APPENDED to whatever
+     the theme editor already defines. Never replacing it: the shop's own
+     Women / Men / Sale links are the navigation, and a page is an addition.
+
+     WHY THIS IS RISKIER THAN THE FOOTER, AND WHAT GUARDS IT
+     `menu` feeds useNavFit(), which measures the rendered bar and shrinks the
+     gap until the links fit. Changing the menu AFTER first paint therefore
+     re-runs a measurement and can move the whole header — the exact class of
+     bug that cost 0.5504 CLS in the footer this sprint. Two mitigations:
+       · dependencies are SERIALISED strings, so the array identity only
+         changes when the content genuinely does;
+       · `baseMenu` is returned BY REFERENCE when there is nothing to add,
+         which is the case on every shop that has not marked a page for the
+         header — so the common path produces no new array and no re-measure.
+     Verified by measuring CLS on the live header after deploy. */
+  const cmsNav = useCmsNav();
+  const cmsHeaderKey = JSON.stringify(cmsNav.header || []);
+  const baseMenuKey = JSON.stringify(baseMenu);
+  const menu = useMemo(() => {
+    let links = [];
+    try { links = JSON.parse(cmsHeaderKey); } catch { links = []; }
+    if (!links.length) return baseMenu;
+
+    const existing = new Set(baseMenu.map((m) => String(m?.href || '').replace(/\/+$/, '')));
+    const fresh = links
+      .filter((l) => !existing.has(`/${l.slug}`))
+      .map((l) => ({ label: l.label, href: `/${l.slug}` }));
+    if (!fresh.length) return baseMenu;
+    return [...baseMenu, ...fresh];
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cmsHeaderKey, baseMenuKey]);
+
+  const boxed    = hdr.width === 'boxed';
+  const deskH    = clamp(hdr.height, 56, 120, 80);
+  /* PHASE 8 — navigation typography.
+     MEASURED on live at 1920: 13px, letter-spacing 0.065px (effectively zero),
+     sentence case, weight 500, 34px gaps. That is the typography of an
+     application menu, not of a fashion house — and it is the first thing a
+     visitor reads.
+     Small widely-tracked capitals are the convention every reference brand
+     uses, because tracking is what turns a five-letter word into a mark rather
+     than a label. Defaults only: navSize, navGap and navUppercase all remain
+     admin-editable, so a merchant who preferred the old setting can restore it
+     without a deploy. navUppercase now defaults ON (was opt-in and unused). */
+  const navSize  = clamp(hdr.navSize, 10, 18, 12);
+  const navGap   = clamp(hdr.navGap, 12, 64, 38);
+  const navUpper = hdr.navUppercase !== false;
+  const centred  = hdr.menuAlign !== 'left';
+  const hairline = hdr.border !== false;
+
+  const showSearch   = hdr.showSearch !== false;
+  const showWishlist = hdr.showWishlist !== false;
+  const showAccount  = hdr.showAccount !== false;
+  const showCart     = hdr.showCart !== false;
+  const iconCount = [showSearch, showWishlist, showAccount, showCart].filter(Boolean).length;
+
+  const menuKey = useMemo(() => menu.map((m) => m && m.label).join('|'), [menu]);
+  const { fitGap, flowLeft, collapsed } = useNavFit({
+    navRef, logoRef, menuKey, navGap, navSize, navUpper, iconCount,
+  });
+  const gapPx = fitGap ?? navGap;
+
+  const dropItems = useCallback(
+    (kind) => (kind === 'women' ? wCats : kind === 'men' ? mCats : []),
+    [wCats, mCats],
   );
+
+  /* The mega menu's "Collections" rung. These are the shop's OWN existing
+     routes — the same ones already in baseMenu — not invented destinations.
+     Static, so it never causes a re-measure in useNavFit. */
+  const COLLECTIONS = useMemo(() => ([
+    { label: 'New Arrivals', href: '/new' },
+    { label: 'Best Sellers', href: '/best' },
+    { label: 'Sale', href: '/sale' },
+  ]), []);
+
+  const linkCls = useCallback(({ isActive }) => (
+    `relative whitespace-nowrap py-1 transition-colors duration-base ease-standard after:absolute after:-bottom-0.5 after:left-0 after:h-px after:w-full after:origin-left after:bg-current after:transition-transform after:duration-base after:ease-entrance ${
+      isActive ? 'after:scale-x-100' : 'after:scale-x-0 hover:after:scale-x-100'
+    } ${navUpper ? 'font-medium uppercase' : 'font-medium'} ${
+      overHero
+        ? (isActive ? 'text-alabaster' : 'text-alabaster/85 hover:text-alabaster')
+        : (isActive ? 'text-obsidian' : 'text-ink/80 hover:text-obsidian')
+    }`
+  ), [navUpper, overHero]);
+
+  const navStyle = useMemo(
+    () => ({ fontSize: `${navSize}px`, letterSpacing: navUpper ? '0.18em' : '0.005em' }),
+    [navSize, navUpper],
+  );
+
+  const iconBtn = `btn-icon ${overHero ? 'text-alabaster hover:bg-white/10' : 'text-obsidian hover:bg-satin/60'}`;
+  const badge = 'absolute right-1 top-1 grid h-4 min-w-4 place-items-center rounded-full px-1 text-[9px] font-bold leading-none tabular-nums';
 
   return (
     <>
-      {!heroOverlay && <OfferBar />}
+      {/* Off the home page the strip sits in normal flow and scrolls away */}
+      {!isHome && <OfferBar />}
 
-      <header className={`z-40 transition-colors duration-300 ${
-        heroOverlay
-          ? 'fixed inset-x-0 top-0 border-b border-transparent bg-transparent text-alabaster'
-          : 'sticky top-0 border-b border-line bg-alabaster/95 text-obsidian backdrop-blur-md'
-      }`}>
-        <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-2 px-3 md:h-16 md:gap-4 md:px-8">
-          <button className={`rounded-full p-1.5 -ml-1.5 md:hidden ${heroOverlay ? 'text-alabaster' : ''}`} onClick={() => setMobileOpen(true)} aria-label="Menu"><Menu size={22} /></button>
-          <Wordmark forceColor={heroOverlay ? 'alabaster' : undefined} />
+      <div
+        className={`${isHome ? 'fixed inset-x-0 top-0' : 'sticky top-0'} z-40
+          transition-transform duration-base ease-standard
+          ${hidden ? '-translate-y-full' : 'translate-y-0'}`}
+      >
+        {/* On the home page, render the OfferBar inside the fixed container from frame 1 */}
+        {isHome && <OfferBar />}
+        <header
+          data-header
+          style={{ '--hdr-h': `${deskH}px` }}
+          className={`border-b transition-[background-color,border-color,box-shadow] duration-base ease-standard ${
+            overHero
+              ? 'on-dark border-transparent bg-transparent text-alabaster'
+              : `bg-alabaster/85 text-obsidian backdrop-blur-xl backdrop-saturate-150 ${
+                atTop ? 'border-transparent' : `${hairline ? 'border-line' : 'border-transparent'} shadow-e-1`
+              }`
+          }`}
+        >
+          <div className={`relative flex h-14 items-center px-4 md:px-6 lg:h-[var(--hdr-h)] lg:px-10 ${
+            boxed ? 'mx-auto w-full max-w-7xl xl:max-w-[1360px] 2xl:max-w-[1560px] 3xl:max-w-shell' : 'w-full'
+          }`}>
 
-          <nav className="hidden items-center gap-7 md:flex">
-            <Drop label={<Tx k="women" />} to="/women" items={wCats} />
-            <Drop label={<Tx k="men" />} to="/men" items={mCats} />
-            <NavLink to="/new" className={linkCls}><Tx k="newArrivals" /></NavLink>
-            <NavLink to="/best" className={linkCls}><Tx k="bestSellers" /></NavLink>
-            <NavLink to="/sale" className={({ isActive }) => `${linkCls({ isActive })} ${heroOverlay ? '' : '!text-sagedeep'}`}><Tx k="sale" /></NavLink>
-            <NavLink to="/fit-finder" className={linkCls}><Tx k="fitFinder" /></NavLink>
-            <NavLink to="/track" className={linkCls}><Tx k="trackOrder" /></NavLink>
-          </nav>
-
-          <div className={`flex items-center gap-0.5 md:gap-3 ${heroOverlay ? 'text-alabaster' : 'text-obsidian'}`}>
-            <button onClick={() => setSearchOpen((s) => !s)} aria-label="Search" className={`rounded-full p-2 transition ${heroOverlay ? 'hover:bg-white/10' : 'hover:bg-satin/60'}`}><Search size={19} /></button>
-            <Link to="/wishlist" aria-label="Wishlist" className={`relative hidden rounded-full p-2 transition md:inline-flex ${heroOverlay ? 'hover:bg-white/10' : 'hover:bg-satin/60'}`}>
-              <Heart size={19} />
-              {wishlist.length > 0 && <span className="absolute -right-0.5 -top-0.5 grid h-4 w-4 place-items-center rounded-full bg-sage text-[9px] font-bold text-obsidian">{wishlist.length}</span>}
-            </Link>
-            <Link to="/account" aria-label="Account" className={`relative hidden rounded-full p-2 transition md:inline-flex ${heroOverlay ? 'hover:bg-white/10' : 'hover:bg-satin/60'}`}>
-              <User size={19} />
-              {auth && <span className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full bg-sage" />}
-            </Link>
-            <button onClick={() => setDrawerOpen(true)} aria-label="Cart" className={`relative rounded-full p-2 transition ${heroOverlay ? 'hover:bg-white/10' : 'hover:bg-satin/60'}`}>
-              <ShoppingBag size={19} />
-              {cartCount > 0 && <span className={`absolute -right-0.5 -top-0.5 grid h-4 w-4 place-items-center rounded-full text-[9px] font-bold ${heroOverlay ? 'bg-alabaster text-obsidian' : 'bg-obsidian text-alabaster'}`}>{cartCount}</span>}
+            <button
+              ref={burgerRef}
+              type="button"
+              onClick={() => setMobileOpen(true)}
+              aria-label="Open menu"
+              aria-expanded={mobileOpen}
+              className={`-ml-2 shrink-0 ${collapsed ? '' : 'lg:hidden'} ${iconBtn}`}
+            >
+              <Menu size={21} strokeWidth={1.7} aria-hidden="true" />
             </button>
-          </div>
-        </div>
 
-        <AnimatePresence>
-          {searchOpen && (
-            <motion.form onSubmit={submitSearch} initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}
-              className="overflow-hidden border-t border-line">
-              <div className="mx-auto flex max-w-3xl items-center gap-3 px-4 py-3">
-                <Search size={18} className="text-ash" />
-                <input ref={searchRef} value={q} onChange={(e) => setQ(e.target.value)}
-                  placeholder="Search bras, trunks, vests..." className="w-full bg-transparent text-sm outline-none placeholder:text-ash/60" />
-                <button type="button" onClick={() => setSearchOpen(false)} aria-label="Close"><X size={18} className="text-ash" /></button>
-              </div>
-            </motion.form>
-          )}
-        </AnimatePresence>
-      </header>
+            <span
+              ref={logoRef}
+              data-section="header.logo"
+              className={`absolute left-1/2 -translate-x-1/2 ${collapsed ? '' : 'lg:static lg:translate-x-0'}`}
+            >
+              <Wordmark forceColor={overHero ? 'alabaster' : undefined} />
+            </span>
 
-      {/* Mobile menu */}
-      <AnimatePresence>
-        {mobileOpen && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 bg-obsidian/30" onClick={() => setMobileOpen(false)}>
-            <motion.div initial={{ x: '-100%' }} animate={{ x: 0 }} exit={{ x: '-100%' }} transition={{ type: 'tween', duration: 0.25 }}
-              className="h-full w-[85%] max-w-xs overflow-y-auto bg-alabaster p-6" onClick={(e) => e.stopPropagation()}>
-              <div className="mb-6 flex items-center justify-between">
-                <Wordmark />
-                <button onClick={() => setMobileOpen(false)} aria-label="Close"><X size={20} /></button>
-              </div>
-              <div className="space-y-1">
-                {[['/', 'home'], ['/new', 'newArrivals'], ['/best', 'bestSellers'], ['/sale', 'sale'], ['/fit-finder', 'fitFinder'], ['/track', 'trackOrder']].map(([to, k]) => (
-                  <Link key={to} to={to} onClick={() => setMobileOpen(false)} className="block rounded-xl px-3 py-2.5 text-sm font-semibold uppercase tracking-widest text-obsidian hover:bg-satin/50">
-                    <Tx k={k} />
-                  </Link>
-                ))}
-              </div>
-              {[['Women', '/women', wCats], ['Men', '/men', mCats]].map(([g, to, list]) => (
-                <div key={g} className="mt-6">
-                  <Link to={to} onClick={() => setMobileOpen(false)} className="px-3 text-[11px] font-bold uppercase tracking-widest text-ash">{settings?.storeName} — {g}</Link>
-                  {list.map((c) => (
-                    <Link key={c.slug} to={`/category/${c.slug}`} onClick={() => setMobileOpen(false)} className="block rounded-xl px-3 py-2 text-sm text-obsidian hover:bg-satin/50">{c.name}</Link>
-                  ))}
-                </div>
+            <nav
+              ref={navRef}
+              data-section="header.menu"
+              aria-label="Main"
+              style={{ gap: `${gapPx}px` }}
+              className={`hidden items-center ${collapsed ? '' : 'lg:flex'} ${
+                centred && !flowLeft ? 'absolute left-1/2 -translate-x-1/2' : 'ml-10'
+              }`}
+            >
+              {menu.filter((m) => m && m.label).map((m, i) => (
+                m.dropdown ? (
+                  /* Women and Men get the editorial panel; any other dropdown a
+                     merchant defines keeps the compact list, which is the right
+                     shape for a short utility menu. */
+                  (m.dropdown === 'women' || m.dropdown === 'men') ? (
+                    <MegaMenu
+                      key={`${m.label}-${i}`}
+                      label={m.label}
+                      to={m.href || '/'}
+                      items={dropItems(m.dropdown)}
+                      collections={COLLECTIONS}
+                      linkCls={linkCls}
+                      navStyle={navStyle}
+                      onDark={overHero}
+                    />
+                  ) : (
+                    <NavDropdown
+                      key={`${m.label}-${i}`}
+                      label={m.label}
+                      to={m.href || '/'}
+                      items={dropItems(m.dropdown)}
+                      linkCls={linkCls}
+                      navStyle={navStyle}
+                      onDark={overHero}
+                    />
+                  )
+                ) : (
+                  <NavLink
+                    key={`${m.label}-${i}`}
+                    to={m.href || '/'}
+                    style={navStyle}
+                    className={({ isActive }) => `${linkCls({ isActive })} ${m.highlight && !overHero ? '!text-sagedeep' : ''}`}
+                  >
+                    {m.label}
+                  </NavLink>
+                )
               ))}
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            </nav>
+
+            <div
+              data-section="header.icons"
+              className={`ml-auto flex shrink-0 items-center gap-0.5 md:gap-1 ${overHero ? 'text-alabaster' : 'text-obsidian'}`}
+            >
+              {showSearch && (
+                <button
+                  ref={searchBtnRef}
+                  type="button"
+                  onClick={() => setSearchOpen((s) => !s)}
+                  aria-label={searchOpen ? 'Close search' : 'Search products'}
+                  aria-expanded={searchOpen}
+                  aria-controls="header-search"
+                  className={iconBtn}
+                >
+                  <Search size={19} strokeWidth={1.6} aria-hidden="true" />
+                </button>
+              )}
+
+              {showWishlist && (
+                <Link
+                  to="/wishlist"
+                  aria-label={wishlist.length ? `Wishlist, ${wishlist.length} saved` : 'Wishlist'}
+                  className={`relative hidden ${collapsed ? '' : 'lg:grid'} ${iconBtn}`}
+                >
+                  <Heart size={19} strokeWidth={1.6} aria-hidden="true" />
+                  {wishlist.length > 0 && (
+                    <span className={`${badge} bg-sage text-obsidian`} aria-hidden="true">{wishlist.length}</span>
+                  )}
+                </Link>
+              )}
+
+              {showAccount && (
+                <Link
+                  to="/account"
+                  aria-label={auth ? 'Your account' : 'Sign in'}
+                  className={`relative hidden ${collapsed ? '' : 'lg:grid'} ${iconBtn}`}
+                >
+                  <User size={19} strokeWidth={1.6} aria-hidden="true" />
+                  {auth && <span className="absolute right-2.5 top-2.5 h-1.5 w-1.5 rounded-full bg-sage" aria-hidden="true" />}
+                </Link>
+              )}
+
+              {showCart && (
+                <button
+                  type="button"
+                  onClick={() => setDrawerOpen(true)}
+                  aria-label={cartCount ? `Open bag, ${cartCount} item${cartCount === 1 ? '' : 's'}` : 'Open bag'}
+                  className={`relative -mr-2 md:mr-0 ${iconBtn}`}
+                >
+                  <ShoppingBag size={19} strokeWidth={1.6} aria-hidden="true" />
+                  {cartCount > 0 && (
+                    <span className={`${badge} ${overHero ? 'bg-alabaster text-obsidian' : 'bg-obsidian text-alabaster'}`} aria-hidden="true">
+                      {cartCount}
+                    </span>
+                  )}
+                </button>
+              )}
+            </div>
+          </div>
+
+          <AnimatePresence>
+            {searchOpen && (
+              <motion.div
+                key="search"
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+                className="overflow-hidden"
+              >
+                <SearchPanel
+                  cfg={searchCfg}
+                  open={searchOpen}
+                  onClose={() => { setSearchOpen(false); searchBtnRef.current?.focus(); }}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </header>
+      </div>
+
+      <MobileDrawer
+        open={mobileOpen}
+        onClose={() => setMobileOpen(false)}
+        menu={menu}
+        wCats={wCats}
+        mCats={mCats}
+        storeName={settings?.storeName || 'HUSHAE'}
+        returnFocusTo={burgerRef}
+      />
     </>
   );
 }

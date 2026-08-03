@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import {
   AlertTriangle, CheckCircle2, Cloud, Database, Download, FileText,
-  RefreshCw, Shield, Upload,
+  RefreshCw, Shield, Upload, FileSpreadsheet, Calendar, CalendarDays
 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
@@ -20,6 +20,12 @@ export default function Backup() {
   const [info, setInfo] = useState(null);
   const [downloading, setDownloading] = useState(false);
   const [restoring, setRestoring] = useState(false);
+  
+  // CSV export state
+  const [orderStatus, setOrderStatus] = useState('');
+  const [orderStart, setOrderStart] = useState('');
+  const [orderEnd, setOrderEnd] = useState('');
+  const [exportBusy, setExportBusy] = useState({ orders: false, customers: false, products: false, reviews: false });
 
   useEffect(() => {
     api('/backup/info', { token: auth.token }).then(setInfo).catch(() => setInfo({ counts: {} }));
@@ -42,9 +48,43 @@ export default function Backup() {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      toast('Backup downloaded');
+      toast('Full database backup JSON downloaded successfully.');
     } catch (ex) { toast(ex.message || 'Download failed'); }
     setDownloading(false);
+  };
+
+  const handleExportCSV = async (type) => {
+    setExportBusy(prev => ({ ...prev, [type]: true }));
+    try {
+      const BASE = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
+      let queryStr = '';
+      if (type === 'orders') {
+        const params = [];
+        if (orderStatus) params.push(`status=${encodeURIComponent(orderStatus)}`);
+        if (orderStart) params.push(`start=${encodeURIComponent(orderStart)}`);
+        if (orderEnd) params.push(`end=${encodeURIComponent(orderEnd)}`);
+        if (params.length) queryStr = `?${params.join('&')}`;
+      }
+
+      const res = await fetch(`${BASE}/api/backup/export/${type}${queryStr}`, {
+        headers: { Authorization: `Bearer ${auth.token}` },
+      });
+      if (!res.ok) throw new Error(`Export of ${type} failed.`);
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${type}-export-${new Date().toISOString().slice(0, 10)}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toast(`${type.toUpperCase()} CSV Export downloaded successfully.`);
+    } catch (ex) {
+      toast(ex.message || `Export of ${type} failed.`);
+    } finally {
+      setExportBusy(prev => ({ ...prev, [type]: false }));
+    }
   };
 
   const restore = async (file) => {
@@ -63,7 +103,7 @@ export default function Backup() {
   const c = info?.counts || {};
 
   return (
-    <AdminLayout title="Backup & Restore">
+    <AdminLayout title="Data Management & Exports">
       {/* Safety layers explainer */}
       <div className="mb-6 grid gap-4 lg:grid-cols-3">
         <SafetyLayer
@@ -83,8 +123,101 @@ export default function Backup() {
         />
       </div>
 
+      {/* CSV Data Export Panel */}
+      <section className="mb-6 rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+        <p className="text-[11px] font-bold uppercase tracking-widest text-neutral-900 mb-2">CSV Data Exports</p>
+        <p className="text-[12px] text-neutral-500 mb-6">Download tailored datasets for bookkeeping, accounting, or custom analytics.</p>
+        
+        <div className="grid gap-6 md:grid-cols-2">
+          {/* Order export card */}
+          <div className="rounded-xl border border-neutral-100 bg-neutral-50 p-5">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="p-2 bg-neutral-900 text-white rounded-lg"><FileSpreadsheet size={16} /></span>
+              <p className="text-sm font-semibold text-neutral-900">Export Orders to CSV</p>
+            </div>
+            
+            {/* Filters */}
+            <div className="space-y-3 mb-4">
+              <div>
+                <label className="text-[11px] font-bold text-neutral-500 uppercase">Fulfillment Status</label>
+                <select
+                  value={orderStatus}
+                  onChange={(e) => setOrderStatus(e.target.value)}
+                  className="input !py-1.5 !text-xs mt-1 bg-white"
+                >
+                  <option value="">All Orders</option>
+                  <option value="Pending">Pending</option>
+                  <option value="Confirmed">Confirmed</option>
+                  <option value="Shipped">Shipped</option>
+                  <option value="Delivered">Delivered</option>
+                  <option value="Cancelled">Cancelled</option>
+                </select>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="text-[11px] font-bold text-neutral-500 uppercase">From Date</label>
+                  <input
+                    type="date"
+                    value={orderStart}
+                    onChange={(e) => setOrderStart(e.target.value)}
+                    className="input !py-1.5 !text-xs mt-1 bg-white"
+                  />
+                </div>
+                <div>
+                  <label className="text-[11px] font-bold text-neutral-500 uppercase">To Date</label>
+                  <input
+                    type="date"
+                    value={orderEnd}
+                    onChange={(e) => setOrderEnd(e.target.value)}
+                    className="input !py-1.5 !text-xs mt-1 bg-white"
+                  />
+                </div>
+              </div>
+            </div>
+            <button
+              onClick={() => handleExportCSV('orders')}
+              disabled={exportBusy.orders}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-neutral-900 px-4 py-2 text-xs font-semibold text-white transition hover:bg-neutral-800 disabled:opacity-45"
+            >
+              <Download size={13} /> {exportBusy.orders ? 'Exporting…' : 'Export Orders CSV'}
+            </button>
+          </div>
+
+          {/* Quick Exports Card */}
+          <div className="rounded-xl border border-neutral-100 bg-neutral-50 p-5 space-y-4 flex flex-col justify-between">
+            <div>
+              <p className="text-sm font-semibold text-neutral-900 mb-2">Quick Standard Exports</p>
+              <p className="text-xs text-neutral-500 mb-4">One-click downloads for customers, full product catalogs, and published user reviews.</p>
+            </div>
+            <div className="grid gap-2 sm:grid-cols-3">
+              <button
+                onClick={() => handleExportCSV('customers')}
+                disabled={exportBusy.customers}
+                className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-neutral-300 bg-white px-3 py-2 text-xs font-semibold text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-45"
+              >
+                <Download size={12} /> Customers
+              </button>
+              <button
+                onClick={() => handleExportCSV('products')}
+                disabled={exportBusy.products}
+                className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-neutral-300 bg-white px-3 py-2 text-xs font-semibold text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-45"
+              >
+                <Download size={12} /> Catalog
+              </button>
+              <button
+                onClick={() => handleExportCSV('reviews')}
+                disabled={exportBusy.reviews}
+                className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-neutral-300 bg-white px-3 py-2 text-xs font-semibold text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-45"
+              >
+                <Download size={12} /> Reviews
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Data footprint */}
-      <section className="mb-6 rounded-2xl border border-neutral-200 bg-white p-6">
+      <section className="mb-6 rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
         <div className="mb-4 flex items-center justify-between">
           <div>
             <p className="text-[11px] font-bold uppercase tracking-widest text-neutral-500">What's in your database</p>
@@ -97,7 +230,7 @@ export default function Backup() {
             <RefreshCw size={12} /> Refresh
           </button>
         </div>
-        <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
+        <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-7">
           {[
             { label: 'Products', v: c.products },
             { label: 'Categories', v: c.categories },
@@ -105,6 +238,7 @@ export default function Backup() {
             { label: 'Customers', v: c.users },
             { label: 'Subscribers', v: c.subscribers },
             { label: 'Discounts', v: c.discounts },
+            { label: 'Audit Logs', v: c.auditLogs },
           ].map((x) => (
             <div key={x.label} className="rounded-xl border border-neutral-100 bg-neutral-50 p-3">
               <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-500">{x.label}</p>
@@ -120,14 +254,14 @@ export default function Backup() {
       </section>
 
       {/* Download */}
-      <section className="mb-6 rounded-2xl border border-neutral-200 bg-white p-6">
+      <section className="mb-6 rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="max-w-md">
-            <p className="text-[11px] font-bold uppercase tracking-widest text-neutral-500">Download full snapshot</p>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-neutral-500">Download full JSON snapshot</p>
             <h3 className="mt-1 font-sans text-xl text-neutral-900">Save your store to a JSON file</h3>
             <p className="mt-2 text-[13px] leading-relaxed text-neutral-600">
               One click gives you a single JSON file with everything —
-              settings, categories, products, orders, subscribers, and discounts.
+              settings, categories, products, orders, subscribers, audit logs, and discounts.
               Passwords are stripped for security. Do this weekly.
             </p>
           </div>
@@ -142,7 +276,7 @@ export default function Backup() {
       </section>
 
       {/* Restore */}
-      <section className="rounded-2xl border border-red-200 bg-red-50/60 p-6">
+      <section className="rounded-2xl border border-red-200 bg-red-50/60 p-6 shadow-sm">
         <div className="mb-4 flex items-start gap-3">
           <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-red-100 text-red-700"><AlertTriangle size={16} /></span>
           <div>

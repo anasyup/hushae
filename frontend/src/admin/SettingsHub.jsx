@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import {
   ArrowUpRight, Bell, ChevronRight, CreditCard, FileText, Globe, Info,
   KeyRound, LayoutTemplate, MapPin, Package, Palette, Search, ShieldCheck,
-  Store, Truck, Zap,
+  Megaphone, ShoppingBag, Sparkles, Star, Store, Truck, Users, Zap,
 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import AdminLayout from './AdminLayout';
@@ -42,12 +42,75 @@ const CARDS = [
     tags: ['shipping', 'delivery', 'courier', 'rates', 'free'],
   },
   {
+    to: '/admin/settings/cart',
+    icon: ShoppingBag,
+    title: 'Shopping Bag',
+    desc: 'Cart wording, free-shipping bar, trust badges, promo codes, save for later, delivery promise and recommendations.',
+    tags: ['cart', 'bag', 'basket', 'coupon', 'promo', 'trust', 'free shipping', 'checkout', 'undo', 'recommendations'],
+  },
+  {
+    to: '/admin/settings/checkout',
+    icon: CreditCard,
+    title: 'Checkout',
+    desc: 'Payment methods, delivery options, checkout wording, trust badges, terms and the thank-you page.',
+    tags: ['checkout', 'payment', 'cod', 'jazzcash', 'easypaisa', 'stripe', 'paypal', 'apple pay', 'google pay', 'delivery', 'express', 'pickup', 'terms', 'thank you', 'order success'],
+  },
+  {
+    to: '/admin/settings/accounts',
+    icon: Users,
+    title: 'Customer Accounts',
+    desc: 'Registration, password rules, email verification, profile photos, saved addresses and what customers can do.',
+    tags: ['account', 'customer', 'register', 'login', 'password', 'reset', 'verification', 'avatar', 'address', 'session'],
+  },
+  {
+    to: '/admin/settings/experience',
+    icon: Sparkles,
+    title: 'Customer Experience',
+    desc: 'Wishlist, recently viewed and product comparison — limits, sharing and where each one appears.',
+    tags: ['wishlist', 'heart', 'saved', 'recently viewed', 'compare', 'comparison', 'experience'],
+  },
+  {
+    to: '/admin/settings/reviews',
+    icon: Star,
+    title: 'Reviews & Questions',
+    desc: 'Who can review, moderation, photo limits, the star breakdown and product questions.',
+    tags: ['review', 'rating', 'stars', 'moderation', 'question', 'qa', 'feedback', 'verified'],
+  },
+  {
+    to: '/admin/settings/loyalty',
+    icon: Sparkles,
+    title: 'Loyalty & Rewards',
+    desc: 'Points, VIP tiers, referrals, store credit and gift cards — how customers are rewarded for coming back.',
+    tags: ['loyalty', 'rewards', 'points', 'tier', 'vip', 'referral', 'refer', 'gift card', 'credit', 'wallet', 'badge', 'birthday', 'retention'],
+  },
+  {
+    to: '/admin/settings/search',
+    icon: Search,
+    title: 'Search & Discovery',
+    desc: 'What customers can search, typo tolerance, synonyms, suggestions and the shopping assistant.',
+    tags: ['search', 'find', 'synonym', 'typo', 'suggest', 'autocomplete', 'filter', 'discovery', 'assistant', 'recommend'],
+  },
+  {
+    to: '/admin/marketing',
+    icon: Megaphone,
+    title: 'Marketing & Automation',
+    desc: 'Track recovery rates, configure abandoned cart delays, automated review requests, discount rules, and flash sales.',
+    tags: ['marketing', 'promotion', 'discount', 'sale', 'flash', 'bundle', 'badge', 'upsell', 'cross sell', 'offer', 'deal', 'abandoned', 'review'],
+  },
+  {
     to: '/admin/apps',
     icon: Zap,
     title: 'Apps & Integrations',
     desc: 'Analytics, tracking pixels, WhatsApp chat, social links, media library — third-party connections.',
     tags: ['analytics', 'pixel', 'ga', 'facebook', 'tiktok', 'whatsapp', 'integration', 'apps'],
     badge: 'External',
+  },
+  {
+    to: '/admin/settings/email',
+    icon: Mail,
+    title: 'Email & SMTP',
+    desc: 'Configure SMTP credentials, edit 6 transactional email templates, and verify connections with test messages.',
+    tags: ['email', 'smtp', 'templates', 'mailer', 'send', 'test', 'order confirmation', 'status'],
   },
   {
     to: '/admin/settings/security',

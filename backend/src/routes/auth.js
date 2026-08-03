@@ -4,6 +4,8 @@ const { protect, signToken } = require('../middleware/auth');
 const { asyncHandler } = require('../utils/helpers');
 const { normalizePhone, validEmail, verifyEmailDomain } = require('../utils/validators');
 const { isConfigured: isOtpConfigured } = require('../utils/sms');
+const crypto = require('crypto');
+const { getAccountPolicy, canSendEmail, checkPassword } = require('../utils/accountPolicy');
 const rateLimit = require('../middleware/rateLimit');
 
 const router = express.Router();
@@ -15,7 +17,74 @@ const registerLimit = rateLimit({ windowMs: 60 * 60 * 1000, max: 8, key: 'regist
 const publicUser = (u) => ({
   id: u._id, name: u.name, email: u.email, phone: u.phone, role: u.role,
   addresses: u.addresses, createdAt: u.createdAt,
+  avatar: u.avatar || '', emailVerified: !!u.emailVerified,
+  notify: u.notify || {},
 });
+
+/* Token lifetime follows the merchant's session policy. "Remember me" gets
+   the longer window; a plain sign-in gets the short one. */
+const signFor = (user, remember, policy) => {
+  const days = remember
+    ? (Number(policy.rememberMeDays) || 30)
+    : (Number(policy.sessionDays) || 2);
+  return jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: `${days}d` });
+};
+
+/* Read a human device label out of the User-Agent. Deliberately coarse — the
+   point is "is this the phone I signed in on last week?", not fingerprinting.
+   Only the first two IP octets are kept, enough to say "same network". */
+function describeDevice(req) {
+  const ua = String(req.headers['user-agent'] || '');
+  const device = /iPhone/i.test(ua) ? 'iPhone'
+    : /iPad/i.test(ua) ? 'iPad'
+    : /Android/i.test(ua) ? 'Android phone'
+    : /Macintosh/i.test(ua) ? 'Mac'
+    : /Windows/i.test(ua) ? 'Windows PC'
+    : /Linux/i.test(ua) ? 'Linux computer'
+    : 'Unknown device';
+  const browser = /Edg\//i.test(ua) ? 'Edge'
+    : /OPR\//i.test(ua) ? 'Opera'
+    : /Chrome\//i.test(ua) ? 'Chrome'
+    : /Safari\//i.test(ua) ? 'Safari'
+    : /Firefox\//i.test(ua) ? 'Firefox'
+    : '';
+  const ip = String(req.headers['x-forwarded-for'] || req.ip || '').split(',')[0].trim();
+  const ipHint = ip.includes('.') ? ip.split('.').slice(0, 2).join('.') + '.x.x' : '';
+  return { device, browser, ipHint };
+}
+
+/* Issue a token AND record the session it belongs to, so the customer can see
+   and revoke it later. Capped at 10 so a bot cannot grow the document forever;
+   the oldest entry is dropped first. */
+async function issueSession(user, remember, policy, req) {
+  const days = remember ? (Number(policy.rememberMeDays) || 30) : (Number(policy.sessionDays) || 2);
+  const jti = crypto.randomBytes(12).toString('hex');
+  const token = jwt.sign(
+    { id: user._id, role: user.role, jti },
+    process.env.JWT_SECRET,
+    { expiresIn: `${days}d` },
+  );
+  const info = describeDevice(req);
+  user.sessions = [...(user.sessions || []), { jti, ...info, createdAt: new Date(), lastSeen: new Date() }].slice(-10);
+  await user.save();
+  return token;
+}
+
+const hashToken = (t) => crypto.createHash('sha256').update(String(t)).digest('hex');
+
+/* The mailer pulls in nodemailer, which is optional at runtime. Every other
+   route in this codebase requires it INSIDE the handler for exactly this
+   reason — a top-level require took the whole API down with a 500 when the
+   package was missing from package.json. Keep it lazy. */
+const mailerSend = async (opts) => {
+  try {
+    const { sendMail } = require('../utils/mailer');
+    return await sendMail(opts);
+  } catch (e) {
+    console.error('[auth] mailer unavailable:', e.message);
+    return { skipped: true, reason: 'mailer unavailable' };
+  }
+};
 
 router.post('/register', registerLimit, asyncHandler(async (req, res) => {
   const { name, email, password, phone, phoneToken } = req.body || {};
@@ -26,11 +95,20 @@ router.post('/register', registerLimit, asyncHandler(async (req, res) => {
   if (!validEmail(cleanEmail)) return res.status(400).json({ field: 'email', message: 'Incorrect email address' });
   const domainOk = await verifyEmailDomain(cleanEmail);
   if (!domainOk) return res.status(400).json({ field: 'email', message: "This email address doesn't exist — use a real email" });
-  if (String(password).length < 6) return res.status(400).json({ field: 'password', message: 'Password must be at least 6 characters' });
-  if (!/[a-zA-Z]/.test(String(password))) return res.status(400).json({ field: 'password', message: 'Password must include at least one letter — it cannot be only numbers' });
+  const policy = await getAccountPolicy();
+  if (!policy.registrationEnabled) {
+    return res.status(403).json({ message: 'New accounts are not being accepted right now. You can still check out as a guest.' });
+  }
+  const pwErr = checkPassword(password, policy);
+  if (pwErr) return res.status(400).json({ field: 'password', message: pwErr });
 
   const phoneNorm = normalizePhone(phone);
-  if (!phoneNorm) return res.status(400).json({ field: 'phone', message: 'Incorrect number — enter a Pakistani mobile (03XX-XXXXXXX)' });
+  if (policy.phoneRequired && !phoneNorm) {
+    return res.status(400).json({ field: 'phone', message: 'Incorrect number — enter a Pakistani mobile (03XX-XXXXXXX)' });
+  }
+  if (phone && !phoneNorm) {
+    return res.status(400).json({ field: 'phone', message: 'Incorrect number — enter a Pakistani mobile (03XX-XXXXXXX)' });
+  }
 
   // Phone SMS/OTP verification is enforced only once a provider (WhatsApp/SMS) is connected
   if (isOtpConfigured()) {
@@ -52,8 +130,47 @@ router.post('/register', registerLimit, asyncHandler(async (req, res) => {
   const phoneUsed = await require('../models/User').findOne({ phone: phoneNorm });
   if (phoneUsed) return res.status(409).json({ field: 'phone', message: 'An account already exists on this number — sign in instead' });
 
-  const user = await require('../models/User').create({ name: cleanName, email: cleanEmail, password, phone: phoneNorm });
-  res.status(201).json({ token: signToken(user), user: publicUser(user) });
+  const user = await require('../models/User').create({
+    name: cleanName, email: cleanEmail, password, phone: phoneNorm || '',
+    // Verification only means anything once mail can actually be sent.
+    emailVerified: !policy.emailVerifyRequired,
+  });
+  /* Loyalty: welcome points, and record who referred them.
+     Best-effort — a loyalty failure must never block a registration. */
+  try {
+    const E = require('../utils/loyaltyEngine');
+    const cfg = await E.loyaltyConfig();
+    if (cfg.enabled && phoneNorm) {
+      const acc = await E.getAccount({ phone: phoneNorm, email: cleanEmail, name: cleanName, user: user._id }, cfg);
+      if (acc) {
+        const ref = String(req.body?.referralCode || '').trim().toUpperCase();
+        if (cfg.referral?.enabled && ref && !acc.referredBy) {
+          const LoyaltyAccount = require('../models/LoyaltyAccount');
+          const referrer = await LoyaltyAccount.findOne({ referralCode: ref });
+          // Self-referral is the first thing anyone tries.
+          const selfRef = referrer && (String(referrer._id) === String(acc._id) || referrer.phone === acc.phone);
+          if (referrer && !(cfg.limits?.blockSelfReferral && selfRef)) {
+            acc.referredBy = ref;
+            await acc.save();
+          }
+        }
+        if (cfg.earn?.signupEnabled && cfg.earn.signupPoints > 0 && !acc.claimed?.signup) {
+          const r = await E.award({
+            phone: phoneNorm, email: cleanEmail, name: cleanName,
+            amount: cfg.earn.signupPoints, reason: 'signup', note: 'Welcome to the programme',
+            idempotencyKey: `signup:${acc._id}`,
+          });
+          if (r.ok) {
+            const LoyaltyAccount = require('../models/LoyaltyAccount');
+            await LoyaltyAccount.findByIdAndUpdate(acc._id, { $set: { 'claimed.signup': true } });
+          }
+        }
+      }
+    }
+  } catch (e) { console.error('[loyalty] signup award failed:', e.message); }
+
+  const token = await issueSession(user, !!req.body?.remember, policy, req);
+  res.status(201).json({ token, user: publicUser(user) });
 }));
 
 router.post('/login', loginLimit, asyncHandler(async (req, res) => {
@@ -64,11 +181,217 @@ router.post('/login', loginLimit, asyncHandler(async (req, res) => {
     return res.status(401).json({ message: 'Incorrect email or password' });
   }
   if (!user.isActive) return res.status(403).json({ message: 'This account has been disabled' });
-  res.json({ token: signToken(user), user: publicUser(user) });
+  if (user.deletedAt) return res.status(403).json({ message: 'This account has been closed' });
+  const policy = await getAccountPolicy();
+  const token = await issueSession(user, !!req.body?.remember, policy, req);
+  res.json({ token, user: publicUser(user) });
 }));
 
 router.get('/me', protect, asyncHandler(async (req, res) => {
   res.json({ user: publicUser(req.user) });
+}));
+
+/* ---------------------------------------------------------------------------
+ * PUBLIC ACCOUNT POLICY
+ * The storefront needs to know the rules before it can render the form —
+ * password length, whether registration is open, whether email features work.
+ * Nothing secret is exposed: no SMTP credentials, only capability flags.
+ * ------------------------------------------------------------------------- */
+router.get('/policy', asyncHandler(async (req, res) => {
+  const policy = await getAccountPolicy();
+  const mail = await canSendEmail();
+  res.json({
+    registrationEnabled: policy.registrationEnabled,
+    passwordMinLength: policy.passwordMinLength,
+    passwordRequireLetter: policy.passwordRequireLetter,
+    passwordRequireNumber: policy.passwordRequireNumber,
+    passwordRequireSymbol: policy.passwordRequireSymbol,
+    phoneRequired: policy.phoneRequired,
+    avatarEnabled: policy.avatarEnabled,
+    maxAddresses: policy.maxAddresses,
+    allowDeleteAccount: policy.allowDeleteAccount,
+    rememberMeDays: policy.rememberMeDays,
+    // The single flag the UI needs: can we honestly offer "reset my password"?
+    emailFeatures: mail.ok,
+    emailVerifyRequired: policy.emailVerifyRequired && mail.ok,
+  });
+}));
+
+/* ---------------------------------------------------------------------------
+ * FORGOT / RESET PASSWORD
+ *
+ * Only the SHA-256 hash of the token is stored, so a database leak does not
+ * hand an attacker working reset links.
+ *
+ * The response is deliberately identical whether or not the email exists —
+ * otherwise this endpoint becomes a way to discover which addresses have
+ * accounts. The one case where we DO differ is when email is not configured
+ * at all: pretending to send would be a lie, so we say so plainly.
+ * ------------------------------------------------------------------------- */
+const forgotLimit = rateLimit({ windowMs: 15 * 60 * 1000, max: 5, key: 'forgot', message: 'Too many reset requests — try again in a few minutes' });
+
+router.post('/forgot-password', forgotLimit, asyncHandler(async (req, res) => {
+  const mail = await canSendEmail();
+  if (!mail.ok) {
+    return res.status(503).json({
+      code: mail.reason,
+      message: mail.reason === 'smtp'
+        ? 'Password reset by email is not switched on for this store yet. Please contact us and we will help you sign in.'
+        : 'Password reset is currently unavailable. Please contact us and we will help you sign in.',
+    });
+  }
+
+  const email = String(req.body?.email || '').trim().toLowerCase();
+  const User = require('../models/User');
+  const user = email ? await User.findOne({ email, deletedAt: null }) : null;
+
+  if (user) {
+    const raw = crypto.randomBytes(32).toString('hex');
+    user.resetTokenHash = hashToken(raw);
+    user.resetTokenExp = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+    await user.save();
+
+    const base = (process.env.PUBLIC_URL || req.headers.origin || 'https://hushae.vercel.app').replace(/\/$/, '');
+    const link = `${base}/reset-password?token=${raw}&email=${encodeURIComponent(user.email)}`;
+    await mailerSend({
+      to: user.email,
+      subject: 'Reset your HUSHAE password',
+      text: `Open this link to choose a new password (valid for 1 hour):\n\n${link}\n\nIf you did not ask for this, you can ignore this email.`,
+      html: `<p>Open this link to choose a new password. It is valid for one hour.</p>
+             <p><a href="${link}">Reset my password</a></p>
+             <p style="color:#666;font-size:12px">If you did not ask for this, you can safely ignore this email.</p>`,
+    });
+  }
+
+  // Same answer either way — never reveal whether the address is registered.
+  res.json({ ok: true, message: 'If that email has an account, a reset link is on its way.' });
+}));
+
+router.post('/reset-password', forgotLimit, asyncHandler(async (req, res) => {
+  const { token, email, password } = req.body || {};
+  if (!token || !email) return res.status(400).json({ message: 'This reset link is incomplete' });
+
+  const policy = await getAccountPolicy();
+  const pwErr = checkPassword(password, policy);
+  if (pwErr) return res.status(400).json({ field: 'password', message: pwErr });
+
+  const User = require('../models/User');
+  const user = await User.findOne({ email: String(email).toLowerCase(), deletedAt: null })
+    .select('+resetTokenHash +resetTokenExp');
+
+  if (!user || !user.resetTokenHash || !user.resetTokenExp || user.resetTokenExp < new Date()) {
+    return res.status(400).json({ message: 'This reset link has expired. Please request a new one.' });
+  }
+  // Constant-time compare so the endpoint cannot be used as a timing oracle.
+  const given = Buffer.from(hashToken(token));
+  const stored = Buffer.from(user.resetTokenHash);
+  if (given.length !== stored.length || !crypto.timingSafeEqual(given, stored)) {
+    return res.status(400).json({ message: 'This reset link is not valid. Please request a new one.' });
+  }
+
+  user.password = password;          // hashed by the pre-save hook
+  user.resetTokenHash = '';
+  user.resetTokenExp = null;
+  await user.save();
+
+  res.json({ token: signFor(user, false, policy), user: publicUser(user) });
+}));
+
+/* ---------------------------------------------------------------------------
+ * EMAIL VERIFICATION
+ * ------------------------------------------------------------------------- */
+const verifyLimit = rateLimit({ windowMs: 15 * 60 * 1000, max: 6, key: 'verify', message: 'Too many verification emails — try again shortly' });
+
+router.post('/send-verification', protect, verifyLimit, asyncHandler(async (req, res) => {
+  const mail = await canSendEmail();
+  if (!mail.ok) return res.status(503).json({ code: mail.reason, message: 'Email verification is not switched on for this store yet.' });
+  if (req.user.emailVerified) return res.json({ ok: true, already: true });
+
+  const User = require('../models/User');
+  const user = await User.findById(req.user._id);
+  const raw = crypto.randomBytes(32).toString('hex');
+  user.verifyTokenHash = hashToken(raw);
+  user.verifyTokenExp = new Date(Date.now() + 24 * 60 * 60 * 1000);
+  await user.save();
+
+  const base = (process.env.PUBLIC_URL || req.headers.origin || 'https://hushae.vercel.app').replace(/\/$/, '');
+  const link = `${base}/verify-email?token=${raw}&email=${encodeURIComponent(user.email)}`;
+  await mailerSend({
+    to: user.email,
+    subject: 'Confirm your HUSHAE email',
+    text: `Confirm your email address (valid for 24 hours):\n\n${link}`,
+    html: `<p>Please confirm your email address. This link is valid for 24 hours.</p><p><a href="${link}">Confirm my email</a></p>`,
+  });
+  res.json({ ok: true });
+}));
+
+router.post('/verify-email', verifyLimit, asyncHandler(async (req, res) => {
+  const { token, email } = req.body || {};
+  if (!token || !email) return res.status(400).json({ message: 'This confirmation link is incomplete' });
+
+  const User = require('../models/User');
+  const user = await User.findOne({ email: String(email).toLowerCase(), deletedAt: null })
+    .select('+verifyTokenHash +verifyTokenExp');
+
+  if (!user || !user.verifyTokenHash || !user.verifyTokenExp || user.verifyTokenExp < new Date()) {
+    return res.status(400).json({ message: 'This confirmation link has expired. Please request a new one.' });
+  }
+  const given = Buffer.from(hashToken(token));
+  const stored = Buffer.from(user.verifyTokenHash);
+  if (given.length !== stored.length || !crypto.timingSafeEqual(given, stored)) {
+    return res.status(400).json({ message: 'This confirmation link is not valid.' });
+  }
+
+  user.emailVerified = true;
+  user.verifyTokenHash = '';
+  user.verifyTokenExp = null;
+  await user.save();
+  res.json({ ok: true, user: publicUser(user) });
+}));
+
+/* ---------------------------------------------------------------------------
+ * Share link — hand the admin console to someone without handing over the
+ * password.
+ *
+ * The owner mints a link; whoever opens it is signed in as the owner for a
+ * limited window and nothing longer. The link cannot be used to discover the
+ * password, and revoking it is a single click. This exists because the
+ * alternative people reach for — removing the login entirely — leaves a live
+ * shop open to the whole internet.
+ * ------------------------------------------------------------------------- */
+const shareLimit = rateLimit({ windowMs: 60 * 60 * 1000, max: 20, key: 'share', message: 'Too many share links — try again later' });
+
+router.post('/share-link', protect, shareLimit, asyncHandler(async (req, res) => {
+  if (req.user.role !== 'admin') return res.status(403).json({ message: 'Admins only' });
+
+  const hours = Math.min(72, Math.max(1, Number(req.body?.hours) || 24));
+  const Settings = require('../models/Settings');
+  const s = (await Settings.findOne({ key: 'store' })) || (await Settings.create({ key: 'store' }));
+
+  // A per-link id recorded on the settings doc, so "revoke" is just clearing it.
+  const linkId = require('crypto').randomBytes(9).toString('hex');
+  s.adminShare = { linkId, createdAt: new Date(), expiresAt: new Date(Date.now() + hours * 3600000), label: String(req.body?.label || '').slice(0, 60) };
+  await s.save();
+
+  const token = jwt.sign({ id: req.user._id, role: 'admin', share: linkId }, process.env.JWT_SECRET, { expiresIn: `${hours}h` });
+  res.json({ token, hours, expiresAt: s.adminShare.expiresAt, label: s.adminShare.label });
+}));
+
+router.get('/share-link', protect, asyncHandler(async (req, res) => {
+  if (req.user.role !== 'admin') return res.status(403).json({ message: 'Admins only' });
+  const Settings = require('../models/Settings');
+  const s = await Settings.findOne({ key: 'store' }).lean();
+  const share = s?.adminShare;
+  const live = share?.linkId && share.expiresAt && new Date(share.expiresAt) > new Date();
+  res.json({ active: Boolean(live), expiresAt: live ? share.expiresAt : null, label: live ? share.label : '' });
+}));
+
+router.delete('/share-link', protect, asyncHandler(async (req, res) => {
+  if (req.user.role !== 'admin') return res.status(403).json({ message: 'Admins only' });
+  const Settings = require('../models/Settings');
+  const s = await Settings.findOne({ key: 'store' });
+  if (s) { s.adminShare = { linkId: '', createdAt: null, expiresAt: null, label: '' }; await s.save(); }
+  res.json({ ok: true });
 }));
 
 // Change password — signed-in user only (customer or admin).

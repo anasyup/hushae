@@ -60,6 +60,17 @@ function loadGTM(gtmId) {
   `);
 }
 
+function loadClarity(clarityId) {
+  if (!clarityId) return;
+  injectInline('clarity-init', `
+    (function(c,l,a,r,i,t,y){
+      c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+      t=l.createElement(r);t.async=1;t.src='https://www.clarity.ms/tag/'+i;
+      y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window,document,'clarity','script','${clarityId}');
+  `);
+}
+
 function loadMetaPixel(pxId) {
   if (!pxId) return;
   injectInline('meta-pixel-init', `
@@ -94,6 +105,7 @@ export default function Analytics() {
       if (consent.analytics) {
         loadGA4(cfg.gaId?.trim());
         loadGTM(cfg.gtmId?.trim());
+        loadClarity(cfg.clarityId?.trim());
       }
       if (consent.marketing) {
         loadMetaPixel(cfg.metaPixelId?.trim());
@@ -110,7 +122,7 @@ export default function Analytics() {
       window.removeEventListener('storage', onStorage);
       window.removeEventListener('hushae:consent', onCustom);
     };
-  }, [cfg.gaId, cfg.gtmId, cfg.metaPixelId, cfg.tiktokPixelId]);
+  }, [cfg.gaId, cfg.gtmId, cfg.clarityId, cfg.metaPixelId, cfg.tiktokPixelId]);
 
   return null;
 }

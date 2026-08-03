@@ -41,7 +41,7 @@ export default function Payments() {
     try {
       const [o, s] = await Promise.all([
         api('/orders/admin', { token: auth.token }),
-        api('/settings'),
+        api('/settings/admin', { token: auth.token }),
       ]);
       setOrders(o.orders || []);
       setSettings(s.settings || {});

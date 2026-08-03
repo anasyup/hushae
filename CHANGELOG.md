@@ -23,6 +23,19 @@ Format:
 
 ## Changes
 
+- **2026-08-02** — 🚀 **Token Validation, Database Alignment, and Repo Sync**
+  - Checked and validated new GitHub PAT and Vercel Token (both verified 100% active).
+  - Synced local `main` branch with the latest production code on `origin/main` (`884e607`).
+  - Verified MongoDB Atlas database settings: validated that `storeName` is set to `HUSHAE`, payment methods are locked to COD-only, and email is set to `care@hushae.pk`.
+  - Tested compilation of the frontend and verified that everything builds perfectly with 0 warnings/errors (built in 10.96s).
+
+- **2026-08-02** — ✉️ **Module 8 & SMTP: Database-driven Email Template Editor + SMTP control panel + Homepage Page Builder activation**
+  - Created Mongoose model `EmailTemplate` to store 6 system transactional email templates.
+  - Updated `mailer.js` to dynamically load templates from MongoDB (or seed them with high-fidelity defaults if absent), replace variables `{orderNumber}`, `{customerName}`, etc., and respect active toggles.
+  - Implemented `/api/email-templates` CRUD backend routes supporting preview test delivery with simulated mock orders.
+  - Built a beautiful, clean, responsive Admin Control Panel at `/admin/settings/email` with cursor-based variable injection and instant live side-by-side mock preview.
+  - Seeded/activated the home page in `cmspages` collection and synchronized it with main `themes` document to activate the Page Builder homepage natively on `/` without code deployment.
+
 - **2026-07-27** — 🗑️ **Deleted duplicate Vercel `veloura` project + README rebrand**. User's screenshot showed a *second* Vercel project called `veloura` (id `prj_G2VwenWQOSxytnhF4Z2c6WHHn6jj`, alias `veloura-jade.vercel.app`) that we never realised existed — it was the original deployment from 4 days ago, sitting in the same team, and it's the one that was still showing the old VELOURA storefront + old admin. Called `DELETE /v9/projects/{id}` — got HTTP 204. Only the correct `hushae` project (id `prj_O4OBnPgwXtY4tCs5hPvxunlUVUyU`, aliases `hushae.vercel.app` + `veloura-73q1.vercel.app`) now remains.
 
   Also fully rewrote `README.md` — the old README still had `# V É L O U R A` as the title and printed `Username: underadmin · Password: Muhammad1` as documented default credentials. New README uses HUSHAE branding, points at `https://hushae.vercel.app`, no hardcoded credentials anywhere (references env vars + admin panel), documents `SEED_ON_START=true` opt-in flow, and adds a proper deployment section.
@@ -44,7 +57,7 @@ Format:
   - **Atlas — migrated database** from `veloura` → `hushae`. Copied every collection (users, categories, settings — 12 in total). The old `veloura` database still exists as backup for now; the app will only touch `hushae` going forward.
   - **Vercel env `MONGODB_URI`** — updated to point at `.../hushae?...`.
   - **Vercel env `ADMIN_EMAIL`** — updated `underadmin` → `admin@hushae.pk`.
-  - **Atlas admin user email** — updated `underadmin` → `admin@hushae.pk`. Display name stays `Hushae Admin`. Password unchanged (`quaPaj@AE9sFWqghtjH2`).
+  - **Atlas admin user email** — updated `underadmin` → `admin@hushae.pk`. Display name stays `Hushae Admin`. Password unchanged (value redacted — credentials never belong in the repo).
   - **Atlas — fully cleaned**: 0 products, 0 orders, 0 abandoned carts, 0 pageviews, 0 uploads. 10 categories kept (brand-neutral: Bras / Boxers / etc.). 1 admin user. 1 settings row.
   - **GitHub repo rename to `hushae`** attempted via API but our fine-grained PAT lacks Administration scope. User needs to rename manually: Settings → Rename repository → `hushae`. GitHub then auto-redirects the old URL indefinitely, so nothing else breaks.
 

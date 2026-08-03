@@ -25,7 +25,7 @@ export default function Collection() {
 
   if (err) {
     return (
-      <div className="mx-auto max-w-7xl px-4 py-24 text-center md:px-8">
+      <div className="container-page py-24 text-center">
         <span className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-satin/70 text-ash"><Boxes size={22} /></span>
         <h1 className="mt-6 font-display text-3xl">Collection not found</h1>
         <p className="mx-auto mt-2 max-w-sm text-sm text-ash">The collection you're looking for may have been renamed or removed.</p>
@@ -34,7 +34,7 @@ export default function Collection() {
     );
   }
   if (!data) return (
-    <div className="mx-auto max-w-7xl px-4 py-10 md:px-8">
+    <div className="container-page py-10">
       <div className="skeleton mb-6 h-64 w-full" />
       <ProductGridSkeleton count={8} />
     </div>
@@ -58,7 +58,7 @@ export default function Collection() {
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-obsidian/85 via-obsidian/30 to-obsidian/10" />
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}
-          className="relative mx-auto max-w-7xl px-4 py-20 text-center md:px-8 md:py-28">
+          className="container-page relative py-20 text-center md:py-28">
           <p className="text-[11px] font-bold uppercase tracking-widest text-alabaster/80">Collection</p>
           <h1 className="mt-3 font-display text-4xl leading-tight text-alabaster md:text-6xl">{c.name}</h1>
           {c.description && (
@@ -69,7 +69,7 @@ export default function Collection() {
       </section>
 
       {/* Products */}
-      <section className="mx-auto max-w-7xl px-4 py-12 md:px-8 md:py-16">
+      <section className="container-page py-12 md:py-16">
         {products.length === 0 ? (
           <div className="grid place-items-center py-16 text-center">
             <Boxes size={26} className="mb-3 text-neutral-300" />

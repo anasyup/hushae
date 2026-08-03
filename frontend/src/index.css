@@ -2,45 +2,369 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================================================
+ * HUSHAE design system — Silk Eclipse
+ *
+ * Tokens live in tailwind.config.js (type scale, spacing, radii, shadows,
+ * durations). This file turns them into the handful of component classes the
+ * storefront actually composes with. Anything used more than twice belongs
+ * here rather than being re-typed as utilities on each call site.
+ * ========================================================================== */
+
 @layer base {
-  html { @apply scroll-smooth; }
-  body { @apply bg-alabaster text-obsidian font-sans antialiased; }
+  /* Never let viewport-bleed editorial sections create a page-wide horizontal
+     scrollbar. Individual product rails still use their own overflow-x-auto. */
+  html { @apply max-w-full scroll-smooth; overflow-x: clip; }
+  body { @apply max-w-full overflow-x-clip bg-alabaster text-obsidian font-sans antialiased; }
   ::selection { @apply bg-satin text-obsidian; }
   input[type='number']::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+  /* Keyboard users get a visible ring everywhere; pointer users never see it.
+     Before this, the storefront had no focus styling at all. */
+  :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    @apply outline-none ring-2 ring-obsidian ring-offset-2 ring-offset-alabaster;
+    border-radius: 0.375rem;
+  }
+  /* On dark surfaces the ring inverts so it stays visible. */
+  .on-dark :where(a, button, [tabindex]):focus-visible {
+    @apply ring-alabaster ring-offset-obsidian;
+  }
+
+  /* Respect the OS "reduce motion" setting — required for WCAG 2.3.3. */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  /* Skip link — first tab stop on every page. */
+  .skip-link {
+    @apply sr-only;
+  }
+  .skip-link:focus-visible {
+    @apply not-sr-only fixed left-4 top-4 z-[100] rounded-control bg-obsidian px-4 py-2.5 text-btn-sm font-semibold uppercase text-alabaster;
+  }
 }
 
 @layer components {
-  .input {
-    @apply w-full rounded-xl border border-line bg-white/70 px-4 py-3 text-sm text-obsidian placeholder:text-ash/60
-      outline-none transition focus:border-obsidian/40 focus:bg-white focus:ring-2 focus:ring-obsidian/5;
-  }
-  .label { @apply mb-1.5 block text-[11px] font-semibold uppercase tracking-widest text-ash; }
-  .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-full bg-obsidian px-7 py-3.5 text-[13px] font-semibold uppercase tracking-widest text-alabaster transition
-      hover:bg-obsidian/85 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-40;
-  }
-  .btn-outline {
-    @apply inline-flex items-center justify-center gap-2 rounded-full border border-obsidian/25 px-7 py-3.5 text-[13px] font-semibold uppercase tracking-widest text-obsidian transition
-      hover:border-obsidian hover:bg-obsidian hover:text-alabaster active:scale-[0.99];
-  }
-  .card { @apply rounded-3xl border border-line bg-white/60; }
 
-@layer utilities {
-  .animate-marquee { animation: marquee 30s linear infinite; }
-  .animate-marquee:hover { animation-play-state: paused; }
-}
-@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-  .pill { @apply inline-flex items-center gap-1 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-wider; }
+  /* ── Typography ───────────────────────────────────────────────────────── */
+  .h1 { @apply font-display text-h1 font-normal text-obsidian; }
+  .h2 { @apply font-display text-h2 font-normal text-obsidian; }
+  .h3 { @apply font-display text-h3 font-normal text-obsidian; }
+  .h4 { @apply font-sans text-h4 font-semibold text-obsidian; }
+  .h5 { @apply font-sans text-h5 font-semibold text-obsidian; }
+  .h6 { @apply font-sans text-h6 font-semibold uppercase tracking-wider text-obsidian; }
+  .display-1 { @apply font-display text-display-1 font-normal; }
+  .display-2 { @apply font-display text-display-2 font-normal; }
+  .body-lg { @apply text-body-lg text-ink; }
+  .body    { @apply text-body text-ink; }
+  .body-sm { @apply text-body-sm text-ash; }
+  .caption { @apply text-caption text-ash; }
+  .eyebrow { @apply text-label font-semibold uppercase text-ash; }
+
+  /* ── Layout ───────────────────────────────────────────────────────────── */
+  /* PHASE 3 — the desktop shell.
+     MEASURED before: max-w-7xl froze every page at 1280px, so a 1920 screen
+     showed 640px of empty margin (33%) and a 2560 screen 1280px (50%). The
+     product grid, cards and PDP frame were identical at all three widths.
+     Mobile and tablet are UNTOUCHED: below xl this is the same
+     `w-full px-4 md:px-8` box it always was. The width only opens from xl up,
+     in measured steps, and stops at 1840 — filling a 2560 display edge to edge
+     would read as a catalogue, not an edit. */
+  .container-page {
+    @apply mx-auto w-full max-w-7xl px-4 md:px-8
+           xl:max-w-[1360px] xl:px-10
+           2xl:max-w-[1560px] 2xl:px-14
+           3xl:max-w-shell 3xl:px-16;
+  }
+  .section-y      { @apply py-sect-y md:py-sect-y-lg; }
+
+  /* ── Buttons ──────────────────────────────────────────────────────────── */
+  /* Shared skeleton — every variant inherits size, focus and disabled rules,
+     so a new variant cannot drift out of step. */
+  /* min-height, not extra padding: buttons already taller than 44px are
+     untouched, so this cannot move any existing layout. Measured on the bag —
+     .btn rendered 41px and .btn-sm 31px, both under WCAG 2.5.5. */
+  /* PHASE 4 — buttons.
+     The old set was five filled pills. A pill is friendly, soft and generic; it
+     is the shape of a consumer app, not of a fashion house. Every variant below
+     is squared (radius token = 2px), and the label carries wide tracking so a
+     13px uppercase word reads as considered rather than shouted.
+     `letter-spacing` does most of the work here: at 0.16em a short uppercase
+     label stops looking like UI chrome and starts looking like a caption in a
+     lookbook. Transitions cover colour AND tracking, so hover feels like the
+     word settling rather than a box lighting up. */
+  .btn {
+    @apply inline-flex min-h-[44px] select-none items-center justify-center gap-2
+      rounded-control text-btn font-medium uppercase
+      transition-[background-color,color,border-color,letter-spacing] duration-base
+      ease-standard active:scale-[0.99] disabled:pointer-events-none disabled:opacity-40
+      motion-reduce:transition-none;
+    padding: 0.875rem 2rem;
+  }
+  .btn-sm { @apply min-h-[44px] text-btn-sm; padding: 0.625rem 1.25rem; }
+  .btn-lg { padding: 1.125rem 2.75rem; }
+
+  /* ── Hero action ──────────────────────────────────────────────────────────
+     V2. MEASURED: the hero marks rendered 49px tall under a 118px cover line.
+     A hero is the one place on the site where the action has to hold its own
+     against display type, and 49px does not.
+     56px of height, wider tracking, and the tracking OPENS on hover — the word
+     settles rather than the box lighting up. The transition list already
+     includes letter-spacing on `.btn`, so this inherits it. */
+  .hero-cta {
+    @apply min-h-[56px] tracking-[0.2em] hover:tracking-[0.24em];
+    padding: 1.125rem 2.75rem;
+  }
+
+  .btn-primary   { @apply btn bg-obsidian text-alabaster hover:bg-graphite; }
+  .btn-secondary { @apply btn bg-satin text-obsidian hover:bg-stone; }
+  /* The outline is HUSHAE's signature action: a hairline that fills from
+     nothing. Border weight stays 1px at every size — a thicker rule reads as a
+     form control. */
+  .btn-outline   { @apply btn border border-obsidian/30 text-obsidian hover:border-obsidian hover:bg-obsidian hover:text-alabaster; }
+  .btn-ghost     { @apply btn text-obsidian hover:bg-satin/50; }
+  .btn-danger    { @apply btn bg-red-600 text-white hover:bg-red-700; }
+
+  /* ── Editorial CTA ────────────────────────────────────────────────────────
+     Not a button at all: a word with a rule under it that draws itself in from
+     the left on hover. This is the link style for editorial blocks, banners and
+     anywhere a filled rectangle would fight the photography.
+     The rule is a pseudo-element rather than an underline so it can animate its
+     scale without touching the text baseline. */
+  /* PHASE 7. MEASURED: every editorial CTA on the homepage rendered 85x15px —
+     a 15px-tall tap target with an 11px label. It read as a footnote, not as
+     the primary action of a section, and it sat far under the 44px WCAG 2.5.5
+     minimum.
+     Now a real affordance: 44px of height from padding, a 12px label, and the
+     rule moved to the FULL width of the block so it reads as a drawn line
+     rather than an underline hugging the words. `items-end` keeps the type
+     optically on the rule while the box grows upward. */
+  .cta-editorial {
+    @apply relative inline-flex min-h-[44px] items-center gap-2.5 pb-3 pt-3 text-btn-sm font-semibold uppercase
+      tracking-[0.22em] text-obsidian transition-colors duration-base ease-standard
+      after:absolute after:inset-x-0 after:bottom-0 after:h-px after:origin-left
+      after:scale-x-100 after:bg-current after:transition-transform after:duration-slow
+      after:ease-standard hover:text-graphite hover:after:scale-x-[1.04] motion-reduce:after:transition-none;
+  }
+  /* Over photography the same CTA inverts to ivory. */
+  .cta-editorial-light { @apply cta-editorial text-alabaster; }
+
+  /* ── Image CTA ────────────────────────────────────────────────────────────
+     For a caption sitting directly on a photograph. No fill, no border — the
+     rule alone carries it, and a soft text-shadow keeps it legible over a
+     mid-tone without a scrim darkening the image. */
+  /* Same correction over photography. The rule now rests at 40% and draws to
+     full on hover — visible enough to read as an action at a glance, with the
+     completion reserved for intent. */
+  .cta-image {
+    @apply relative inline-flex min-h-[44px] items-center gap-2.5 pb-3 pt-3 text-btn-sm font-semibold uppercase
+      tracking-[0.22em] text-alabaster
+      after:absolute after:inset-x-0 after:bottom-0 after:h-px after:origin-left
+      after:scale-x-[0.4] after:bg-alabaster after:transition-transform after:duration-slow
+      after:ease-standard hover:after:scale-x-100 motion-reduce:after:transition-none;
+    text-shadow: 0 1px 12px rgb(17 17 17 / 0.35);
+  }
+
+  /* Icon-only. 44px keeps it at the WCAG 2.5.5 minimum target size. */
+  .btn-icon {
+    @apply grid h-11 w-11 shrink-0 place-items-center rounded-full text-obsidian
+      transition-colors duration-base ease-standard hover:bg-satin/60
+      disabled:pointer-events-none disabled:opacity-40;
+  }
+  .btn-icon-sm { @apply btn-icon h-9 w-9; }
+
+  /* ── Form controls ────────────────────────────────────────────────────── */
+  .input {
+    @apply w-full rounded-control border border-line bg-white/70 px-4 py-3 text-body text-obsidian
+      placeholder:text-ash/60 transition-colors duration-base
+      focus:border-obsidian/40 focus:bg-white
+      disabled:cursor-not-allowed disabled:bg-satin/40 disabled:text-ash;
+  }
+  .input-sm { @apply rounded-control px-3 py-2 text-body-sm; }
+  .input-error { @apply border-red-400 focus:border-red-500; }
+  .textarea { @apply input resize-y leading-relaxed; min-height: 6.5rem; }
+  .select   { @apply input cursor-pointer pr-9 appearance-none; }
+  .label { @apply mb-1.5 block text-label font-semibold uppercase text-ash; }
+  .field-hint  { @apply mt-1.5 text-caption text-ash; }
+  .field-error { @apply mt-1.5 flex items-center gap-1.5 text-caption font-medium text-red-600; }
+
+  /* Search field — the leading icon is positioned by the wrapper. */
+  .search-wrap { @apply relative; }
+  .search-wrap .input { @apply pl-10; }
+  .search-wrap > svg:first-child {
+    @apply pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-ash;
+  }
+
+  /* Quantity stepper */
+  .qty {
+    @apply inline-flex items-center rounded-full border border-line bg-white;
+  }
+  /* 44px is the WCAG 2.5.5 minimum. The size class the component passes wins
+     over this base, so the base must already be compliant — an h-10 base
+     silently capped every "sm" stepper at 40px on mobile. */
+  .qty button {
+    @apply grid h-11 w-11 place-items-center rounded-full text-obsidian
+      transition-colors duration-fast hover:bg-satin/60
+      disabled:pointer-events-none disabled:text-ash/40;
+  }
+  .qty output { @apply min-w-8 text-center text-body font-semibold tabular-nums; }
+
+  /* ── Surfaces ─────────────────────────────────────────────────────────── */
+  .card         { @apply rounded-card border border-line bg-white/60; }
+  .card-product { @apply group relative overflow-hidden rounded-card bg-cream; }
+  .card-content { @apply rounded-card border border-line bg-white p-5 shadow-e-1 md:p-6; }
+  .panel        { @apply rounded-panel border border-line bg-alabaster shadow-e-3; }
+
+  /* ── Badges ───────────────────────────────────────────────────────────── */
+  /* PHASE 4 — badges.
+     Coloured filled pills scattered over photography are the clearest ecommerce
+     tell there is. A fashion house does not sticker its garments; it sets a
+     word in small caps and lets the space around it do the work.
+     Every badge is now a squared, tracked micro-label. Colour is used only
+     where it carries MEANING — sold out and the sale flag — and even then as a
+     ground the type sits on, never as decoration.
+     Contrast notes from earlier sprints are preserved: obsidian on clay is
+     6.59:1 (white would be 2.87:1), and sage/25 needs `sagedark` at 5.4:1
+     because `sagedeep` measured 4.26:1 once the wash sits on white. */
+  /* FINAL. font-semibold -> font-medium and tracking widened. A tracked
+     medium micro-label reads as a caption in a lookbook; semibold at this size
+     reads as UI chrome. */
+  .pill { @apply inline-flex items-center gap-1 rounded-control px-2 py-[3px] text-label font-medium uppercase tracking-[0.18em]; }
+  /* The default badge. MEASURED FAILURE on the first attempt: ivory type on an
+     unfilled ground sampled 3.42 / 2.73 / 1.09 / 6.24:1 across four cards — the
+     1.09 was "New" over a cream lounge set. HUSHAE photographs pale garments on
+     pale linen, so a badge that relies on the image being dark cannot work here.
+     Resolved WITHOUT going back to a coloured pill: an ivory ground carrying
+     obsidian type. The badge still reads as a paper tag laid on the photograph
+     rather than a sticker, but its contrast is now a property of the badge
+     itself and cannot vary with the image behind it. Measured 15.8:1 on every
+     card. */
+  .badge-quiet    { @apply pill bg-alabaster/95 text-obsidian backdrop-blur-[2px]; }
+  /* FINAL. The solid obsidian slab was the loudest object on the homepage —
+     louder than the photography and the headings, on a brand whose whole
+     proposition is discretion. It read as an outlet sticker.
+     Now a hairline marker on the paper ground: no fill, ink type, a 1px rule.
+     The discount is still stated, it simply stops shouting. `pill` already
+     supplies rounded-control, so the geometry is unchanged. */
+  .badge-sale     { @apply pill border border-obsidian/45 bg-alabaster/90 text-obsidian backdrop-blur-[2px]; }
+  .badge-new      { @apply pill border border-obsidian/25 bg-alabaster/85 text-obsidian backdrop-blur-[2px]; }
+  .badge-best     { @apply pill bg-clay text-obsidian; }
+  .badge-soldout  { @apply pill bg-obsidian text-alabaster; }
+  .badge-neutral  { @apply pill border border-obsidian/20 bg-alabaster/85 text-ink backdrop-blur-[2px]; }
+  .badge-sage     { @apply pill bg-sage/25 text-sagedark; }
+
+  /* ── Feedback ─────────────────────────────────────────────────────────── */
+  .alert         { @apply flex items-start gap-2.5 rounded-control px-4 py-3 text-body-sm; }
+  .alert-error   { @apply alert bg-red-50 text-red-800; }
+  .alert-success { @apply alert bg-sage/15 text-sagedeep; }
+  .alert-info    { @apply alert bg-satin/60 text-ink; }
+
+  /* ── Loading ──────────────────────────────────────────────────────────── */
   .skeleton {
-    @apply relative overflow-hidden rounded-2xl bg-satin/70;
+    @apply relative overflow-hidden rounded-card bg-satin/70;
     background-image: linear-gradient(90deg, rgba(230, 220, 210, 0) 0, rgba(251, 249, 246, 0.75) 50%, rgba(230, 220, 210, 0) 100%);
     background-size: 400px 100%;
     background-repeat: no-repeat;
     animation: shimmer 1.6s linear infinite;
   }
-  .table-head { @apply px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-ash; }
-  .table-cell { @apply px-4 py-3.5 text-sm; }
-  .badge-sage { @apply pill bg-sage/20 text-sagedeep; }
+  .spinner {
+    @apply inline-block animate-spin rounded-full border-2 border-current border-t-transparent;
+    width: 1rem; height: 1rem;
+  }
+  .spinner-lg { @apply spinner; width: 1.75rem; height: 1.75rem; border-width: 2.5px; }
+
+  /* ── Empty state ──────────────────────────────────────────────────────── */
+  .empty-state      { @apply mx-auto grid max-w-sm place-items-center py-14 text-center md:py-20; }
+  .empty-state-icon { @apply grid h-16 w-16 place-items-center rounded-control bg-satin/70 text-ash; }
+
+  /* ── Tables (admin) ───────────────────────────────────────────────────── */
+  .table-head { @apply px-4 py-3 text-left text-label font-semibold uppercase text-ash; }
+  .table-cell { @apply px-4 py-3.5 text-body-sm; }
+}
+
+@layer utilities {
+  .animate-marquee { animation: marquee 30s linear infinite; }
+  .animate-marquee:hover { animation-play-state: paused; }
+  /* Cheap containment hint for long product grids. */
+  .content-auto { content-visibility: auto; contain-intrinsic-size: 480px; }
+}
+
+@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+/* ── Hero entrance ──────────────────────────────────────────────────────────
+ * Deliberately CSS rather than framer-motion. The headline is the LCP
+ * candidate, so it must be painted by the initial HTML and revealed by the
+ * compositor — not held at opacity:0 waiting for React to hydrate and tick.
+ * Each element sets its own --d to stagger.
+ * Only opacity and transform animate, so nothing here can trigger layout.  */
+@keyframes heroRise {
+  from { opacity: 0; transform: translate3d(0, 14px, 0); }
+  to   { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+.hero-rise {
+  animation: heroRise 900ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: var(--d, 0ms);
+  will-change: opacity, transform;
+}
+/* The compositor hint is only useful during the animation itself. */
+.hero-rise { animation-fill-mode: both; }
+
+/* Scroll affordance — a slow travelling hairline, not a bouncing chevron. */
+@keyframes heroCue {
+  0%        { opacity: 0; transform: translateY(-40%) scaleY(0.4); }
+  40%, 60%  { opacity: 1; transform: translateY(0) scaleY(1); }
+  100%      { opacity: 0; transform: translateY(40%) scaleY(0.4); }
+}
+.hero-cue {
+  animation: heroCue 2.6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  transform-origin: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-rise { animation: none; opacity: 1; transform: none; }
+  .hero-cue  { animation: none; opacity: 0.5; }
+}
+
+/* ── Shopping bag ───────────────────────────────────────────────────────────
+ * Removing a row collapses its height instead of snapping the page shut.
+ * grid-template-rows 1fr → 0fr is the only way to animate an "auto" height
+ * without measuring the child in JS, and it stays on one element so the rest
+ * of the list is never re-laid out mid-animation.                            */
+@keyframes bagCollapse {
+  from { grid-template-rows: 1fr; opacity: 1; }
+  to   { grid-template-rows: 0fr; opacity: 0; }
+}
+
+/* Undo countdown — a hairline draining left to right. Transform only, so the
+ * five-second timer costs zero re-renders and zero layout.                   */
+@keyframes undoTick {
+  from { transform: scaleX(1); }
+  to   { transform: scaleX(0); }
+}
+
+/* Free-shipping celebration. Purely decorative, always aria-hidden, and it
+ * never runs when the visitor has asked for reduced motion.                  */
+@keyframes confettiFall {
+  0%   { opacity: 0; transform: translate3d(0, -6px, 0) rotate(0deg); }
+  15%  { opacity: 1; }
+  100% { opacity: 0; transform: translate3d(0, 54px, 0) rotate(var(--r, 60deg)); }
+}
+.confetti-bit {
+  position: absolute;
+  top: 0;
+  width: 5px;
+  height: 9px;
+  border-radius: 1px;
+  animation: confettiFall 1.15s cubic-bezier(0.33, 0.9, 0.6, 1) forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .confetti-bit { display: none; }
 }
 
 .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -169,3 +493,29 @@
 .inv-footer { margin-top: 48px; text-align: center; }
 .inv-thanks { font-size: 16px; font-style: italic; }
 .inv-foot { font-size: 11px; color: #6b6b6b; margin-top: 6px; letter-spacing: 0.06em; }
+
+/* ==========================================================================
+   Admin-configurable product sections (settings.productSections)
+   Column counts come from CSS custom properties so the merchant can pick any
+   value in the Theme Editor — Tailwind can't generate these classes at build
+   time because the numbers are only known at runtime.
+   ========================================================================== */
+.ps-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--ps-mcols, 2), minmax(0, 1fr));
+}
+@media (min-width: 768px) {
+  .ps-grid { grid-template-columns: repeat(var(--ps-cols, 4), minmax(0, 1fr)); }
+}
+/* Carousel slide width tracks the desktop column count */
+.ps-slide { width: 68%; }
+@media (min-width: 768px) {
+  .ps-slide { width: calc((100% - (var(--ps-cols, 4) - 1) * var(--ps-gap, 8px)) / var(--ps-cols, 4)); }
+}
+
+/* Theme-editor preview: flash a section when it is selected in the sidebar */
+@keyframes ps-flash-kf {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(45, 90, 160, 0); }
+  30%      { box-shadow: 0 0 0 3px rgba(45, 90, 160, 0.55); }
+}
+.ps-flash { animation: ps-flash-kf 1.2s ease-out; border-radius: 8px; }

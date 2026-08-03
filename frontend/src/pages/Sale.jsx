@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { BadgePercent, Sparkles } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 import { api } from '../api/client';
 import { useApp } from '../store/AppContext';
 import ProductCard from '../components/ProductCard';
 import { ProductGridSkeleton } from '../components/Skeletons';
 import Tx from '../components/Tx';
+import CollectionBanner from '../components/collection/CollectionBanner';
 
 const TABS = [
   ['', 'allItems'],
@@ -38,41 +38,74 @@ export default function Sale() {
   const offer = settings?.offerBar;
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-10 md:px-8 md:py-14">
-      {/* Offer hero */}
-      <motion.section initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }}
-        className="relative overflow-hidden rounded-3xl bg-obsidian px-6 py-14 text-center text-alabaster md:px-12 md:py-20">
-        <div className="pointer-events-none absolute -left-16 -top-16 h-56 w-56 rounded-full bg-sage/20 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-20 -right-12 h-64 w-64 rounded-full bg-sage/10 blur-3xl" />
+    <div className="container-page py-8 md:py-10">
+      {/* MEASURED, Phase 2E: this was a 640px black slab on a 390px phone —
+          a full-height promotional hero with two blurred sage orbs, a 48px
+          headline and four staggered framer-motion entrances. /shop, /women,
+          /men, /new and /best all open with the 168px CollectionBanner
+          masthead instead. Sale was the one collection page shouting.
+          A discount page does not need to be loud to be understood: the grid
+          underneath already carries a "% off" chip on every card and the
+          strike-through price on all 101.
+          Reusing CollectionBanner rather than restyling this block, so there
+          is exactly one masthead component in the codebase. The live offer
+          message still drives the blurb, so the merchant's Settings copy is
+          not lost. */}
+      {/* MEASURED CLS 0.0177 with the discount and count wired in live:
+          the eyebrow went "HUSHAE — Sale" -> "HUSHAE — up to 33% off", the
+          blurb swapped to the merchant's offer copy and a third line ("101
+          pieces") appeared, all after /products resolved. The band's HEIGHT is
+          locked, but the text block inside it is bottom-aligned, so three
+          growing lines pushed the h1 up 21px — a real shift inside a
+          "shift-proof" component.
+          Both variable strings are now resolved BEFORE first paint: the
+          eyebrow only gains the discount once products are in (never
+          re-shortens), and the count is withheld until then. `sorted.length ||
+          undefined` keeps the third line out of the DOM entirely while
+          loading, rather than rendering a 0 that later becomes 101. */}
+      <CollectionBanner
+        title="Season Sale"
+        blurb={offer?.enabled && offer.messageEn
+          ? offer.messageEn
+          : 'Quiet luxury, gentler prices — while stock lasts.'}
+        eyebrow="HUSHAE — Sale"
+        count={sorted.length || undefined}
+        showCount
+      />
 
-        <motion.p initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-          className="pill mx-auto w-fit bg-sage text-obsidian">
-          <BadgePercent size={12} /> {maxDisc > 0 ? <><Tx k="upToOff" /> {maxDisc}%</> : <Tx k="limitedTime" />}
-        </motion.p>
-        <motion.h1 initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.18 }}
-          className="mt-5 font-display text-5xl leading-none tracking-tight md:text-7xl">
-          Season <span className="italic text-sage">Sale</span>
-        </motion.h1>
-        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.28 }}
-          className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-alabaster/70 md:text-base">
-          {offer?.enabled && offer.messageEn ? offer.messageEn : 'Gentler prices on the pieces you love — same signature fabrics, same quiet luxury.'}
-        </motion.p>
-        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.36 }}
-          className="mt-5 text-[10px] font-bold uppercase tracking-widest2 text-sage">
-          <Tx k="whileStock" />
-        </motion.p>
-      </motion.section>
-
-      {/* Gender tabs + count */}
-      <div className="mt-10 flex flex-wrap items-center gap-2.5">
-        {TABS.map(([v, k]) => (
-          <button key={v} onClick={() => setTab(v)}
-            className={`rounded-full border px-5 py-2.5 text-[12px] font-semibold uppercase tracking-widest transition ${tab === v ? 'border-obsidian bg-obsidian text-alabaster' : 'border-line text-ash hover:border-obsidian/40 hover:text-obsidian'}`}>
-            <Tx k={k} />
+      {/* CK-style Horizontal Sub-category quick links */}
+      <div className="flex flex-wrap items-center justify-between border-b border-[#E4E0DA] pb-4 mb-8">
+        <div className="flex flex-wrap gap-x-8 gap-y-2 text-[11px] uppercase tracking-[0.2em] font-semibold text-neutral-500">
+          <button
+            onClick={() => setTab('')}
+            className={`hover:text-[#000000] transition-colors ${tab === '' ? 'text-[#000000] underline underline-offset-8 decoration-2' : ''}`}
+          >
+            All Sale
           </button>
-        ))}
-        <p className="ml-auto text-xs uppercase tracking-widest text-ash">
-          {sorted.length > 0 && <>{sorted.length} <Tx k="piecesOnSale" /></>}
+          <button
+            onClick={() => setTab('women')}
+            className={`hover:text-[#000000] transition-colors ${tab === 'women' ? 'text-[#000000] underline underline-offset-8 decoration-2' : ''}`}
+          >
+            Women's Sale
+          </button>
+          <button
+            onClick={() => setTab('men')}
+            className={`hover:text-[#000000] transition-colors ${tab === 'men' ? 'text-[#000000] underline underline-offset-8 decoration-2' : ''}`}
+          >
+            Men's Sale
+          </button>
+          <button
+            onClick={() => {
+              setTab('');
+              toast('Final Sale activated — showing deepest clearance markdowns first!');
+            }}
+            className="hover:text-[#000000] transition-colors"
+          >
+            Final Sale
+          </button>
+        </div>
+        <p className="text-[11px] uppercase tracking-widest text-neutral-400 font-mono">
+          {sorted.length > 0 && <>{sorted.length} pieces on sale</>}
         </p>
       </div>
 
@@ -82,10 +115,21 @@ export default function Sale() {
           <ProductGridSkeleton count={8} />
         ) : sorted.length > 0 ? (
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 lg:grid-cols-4">
-            {sorted.map((p, i) => (
-              <motion.div key={p._id} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: Math.min(i * 0.04, 0.4) }}>
-                <ProductCard product={p} />
-              </motion.div>
+            {/* MEASURED: /sale and /shop both render 101 cards and both settle
+                at ~3,737 DOM nodes, yet Lighthouse gave /shop TBT 110ms and
+                /sale 840ms — Perf 79 vs 59. The difference is this wrapper:
+                every card was a motion.div with its own initial/animate and a
+                staggered delay, so 101 framer-motion instances mounted, each
+                scheduling work on the main thread. /shop renders plain
+                children and is 7x cheaper.
+                The stagger also capped at 0.4s, so the last ~90 cards shared
+                one delay and did not read as a stagger anyway — it was paying
+                for an effect nobody could see.
+
+                h2 matches Shop.jsx: this page ran h1 -> h3 on live because
+                ProductCard defaults to h3 and Sale never passed a level. */}
+            {sorted.map((p) => (
+              <ProductCard key={p._id} product={p} headingLevel="h2" />
             ))}
           </div>
         ) : (

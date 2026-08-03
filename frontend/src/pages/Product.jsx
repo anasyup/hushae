@@ -1,35 +1,38 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, lazy, Suspense } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { ChevronDown, ChevronRight, Heart, Minus, Play, Plus, RotateCcw, Ruler, ShieldCheck, Star, Truck } from 'lucide-react';
+import {
+  AlertCircle, Banknote, CheckCircle2, ChevronRight, CreditCard, Heart,
+  Package, RotateCcw, Ruler, ShieldCheck, Star, Truck,
+} from 'lucide-react';
 import { api } from '../api/client';
 import { useApp } from '../store/AppContext';
 import { pkr, snap } from '../lib/format';
-import { isVideo, ytId } from '../lib/media';
-import Img from '../components/Img';
-import ProductImageZoom from '../components/ProductImageZoom';
+import { isVideo } from '../lib/media';
+import QuantityStepper from '../components/ui/QuantityStepper';
 import ProductRow from '../components/ProductRow';
+import ProductReviews from '../components/ProductReviews';
+import ProductQA from '../components/reviews/ProductQA';
 import SizeGuideModal from '../components/SizeGuideModal';
-import { PageSkeleton } from '../components/Skeletons';
+import { ProductSkeleton } from '../components/Skeletons';
 import Tx from '../components/Tx';
 import Seo, { productJsonLd } from '../components/Seo';
+import ProductGallery from './product/ProductGallery';
+import StickyBuyBar from './product/StickyBuyBar';
 
-function Accordion({ title, children, defaultOpen = false }) {
-  const [open, setOpen] = useState(defaultOpen);
-  return (
-    <div className="border-b border-line">
-      <button onClick={() => setOpen(!open)} className="flex w-full items-center justify-between py-4 text-left text-[12px] font-bold uppercase tracking-widest">
-        {title}<ChevronDown size={15} className={`text-ash transition ${open ? 'rotate-180' : ''}`} />
-      </button>
-      {open && <div className="pb-5 text-sm leading-relaxed text-ash">{children}</div>}
-    </div>
-  );
-}
+const ProductPromoPanel = lazy(() => import('../components/marketing/ProductPromoPanel'));
+
+import Accordion from './product/Accordion';
+
+const LIGHT_HEX = new Set(['#FFFFFF', '#FFF', '#F7F5F1', '#EFEAE3', '#E3C9B3', '#E8C7C8', '#E4DDD3']);
+const STANDING_MARKDOWN = 25;
+const CRUMB = 'transition-colors duration-base ease-standard hover:text-obsidian';
 
 export default function Product() {
   const { slug } = useParams();
   const nav = useNavigate();
   const { addToCart, inWishlist, toggleWish, pushRecent, recent, settings } = useApp();
+  const rvCfg = settings?.customerExperience?.recentlyViewed || {};
+
   const [p, setP] = useState(null);
   const [err, setErr] = useState(false);
   const [imgIdx, setImgIdx] = useState(0);
@@ -37,12 +40,19 @@ export default function Product() {
   const [color, setColor] = useState('');
   const [qty, setQty] = useState(1);
   const [sizeErr, setSizeErr] = useState(false);
+  const [added, setAdded] = useState(false);
   const [guideOpen, setGuideOpen] = useState(false);
   const [bundle, setBundle] = useState([]);
   const [related, setRelated] = useState([]);
+  const [reviewTotal, setReviewTotal] = useState(null);
+
+  const ctaRef = useRef(null);   // the real Add/Buy row
+  const sizeRef = useRef(null);
 
   useEffect(() => {
-    setP(null); setErr(false); setImgIdx(0); setSize(''); setQty(1); setBundle([]); setRelated([]);
+    setP(null); setErr(false); setImgIdx(0); setSize(''); setQty(1);
+    setSizeErr(false); setAdded(false); setBundle([]); setRelated([]);
+    setReviewTotal(null);
     api(`/products/${slug}`)
       .then((d) => {
         setP(d.product);
@@ -50,41 +60,65 @@ export default function Product() {
         pushRecent(d.product);
         const bslug = d.product.bundleSlug || '';
         if (bslug) api(`/products?category=${bslug}&limit=3&sort=popular`).then((x) => setBundle(x.products)).catch(() => {});
+        api(`/reviews/product/${d.product._id}?limit=1`)
+          .then((r) => setReviewTotal(Number(r?.total) || 0))
+          .catch(() => setReviewTotal(0));
       })
       .catch(() => setErr(true));
-    // Load related products (same category / gender+tier) — separate call so it's cached differently
     api(`/products/${slug}/related`).then((d) => setRelated(d.products || [])).catch(() => setRelated([]));
   }, [slug]); // eslint-disable-line
 
+  useEffect(() => { setAdded(false); }, [size, color, qty]);
+
+  const media = useMemo(() => {
+    if (!p) return [];
+    const imgs = (p.images || []).map((im) => ({ t: isVideo(im.url) ? 'video' : 'img', url: im.url, alt: im.alt || p.name }));
+    return p.video && !imgs.some((m) => m.url === p.video)
+      ? [...imgs, { t: 'video', url: p.video, alt: `${p.name} video` }]
+      : imgs;
+  }, [p]);
+
   if (err) {
     return (
-      <div className="mx-auto max-w-7xl px-4 py-24 text-center">
-        <p className="font-display text-3xl">This piece has moved on</p>
-        <p className="mt-2 text-ash">It may be sold out or no longer part of the edit.</p>
-        <Link to="/shop" className="btn-primary mt-8">Back to Shop</Link>
+      <div className="container-page py-sect-y md:py-sect-y-lg">
+        <div className="empty-state">
+          <span className="empty-state-icon" aria-hidden="true"><Package size={24} strokeWidth={1.6} /></span>
+          <h1 className="mt-6 font-display text-h2">This piece has moved on</h1>
+          <p className="mt-2 text-body-sm">It may be sold out or no longer part of the edit.</p>
+          <Link to="/shop" className="btn-primary mt-8">Back to Shop</Link>
+        </div>
       </div>
     );
   }
-  if (!p) return <PageSkeleton />;
+  if (!p) return <ProductSkeleton />;
 
   const wished = inWishlist(p);
   const isBra = p.categorySlug === 'bras';
-  const needsSize = p.sizes.length > 0;
+  const needsSize = (p.sizes || []).length > 0;
+  const soldOut = p.stock === 0;
+  const onSale = p.compareAtPrice > p.price;
+  const off = onSale ? Math.round((1 - p.price / p.compareAtPrice) * 100) : 0;
+  const notableMarkdown = onSale && off > STANDING_MARKDOWN;
+  const lowStock = !soldOut && p.stock <= 5;
 
-  // Gallery media = images array in admin-chosen order (photo + video tiles mixed);
-  // legacy `video` field appended only if not already inside images
-  const imgs = p.images.map((im) => ({ t: isVideo(im.url) ? 'video' : 'img', url: im.url, alt: im.alt }));
-  const media = p.video && !imgs.some((m) => m.url === p.video) ? [...imgs, { t: 'video', url: p.video, alt: `${p.name} video` }] : imgs;
-  const active = media[imgIdx] || media[0];
-  const activeYt = active?.t === 'video' ? ytId(active.url) : null;
+  const tierLabel = p.tier === 'Premium' ? 'Signature' : p.tier;
+  const reviewsShown = reviewTotal ?? 0;
 
-  const tryAdd = (then) => {
-    if (needsSize && !size) { setSizeErr(true); return; }
+  const extraBadges = (p.badges || [])
+    .filter((b) => String(b).trim().toLowerCase() !== String(tierLabel).trim().toLowerCase());
+
+  const tryAdd = (goToCheckout) => {
+    if (needsSize && !size) {
+      setSizeErr(true);
+      sizeRef.current?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      sizeRef.current?.querySelector('button')?.focus();
+      return;
+    }
     addToCart(p, { size, color, quantity: qty });
-    if (then) nav('/checkout');
+    setAdded(true);
+    if (goToCheckout) nav('/checkout');
   };
 
-  // Color select → jump gallery to that color's photo (if the color has one)
   const pickColor = (name) => {
     setColor(name);
     const c = p.colors.find((x) => x.name === name);
@@ -95,7 +129,7 @@ export default function Product() {
   };
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-6 md:py-8 md:px-8">
+    <div className="container-page py-6 md:py-8 bg-[#FBFAF8] text-[#000000]">
       <Seo
         title={p.name}
         description={p.shortDescription || p.description?.slice(0, 160) || `${p.name} — premium innerwear from HUSHAE. PKR ${p.price}. ${p.stock > 0 ? 'In stock' : 'Out of stock'}. COD available.`}
@@ -104,185 +138,320 @@ export default function Product() {
         jsonLd={productJsonLd(p, typeof window !== 'undefined' ? window.location.origin : '')}
         jsonLdId="product"
       />
-      {/* Breadcrumb */}
-      <nav className="mb-6 flex items-center gap-1.5 text-xs text-ash">
-        <Link to="/" className="hover:text-obsidian">Home</Link><ChevronRight size={12} />
-        <Link to={`/${p.gender}`} className="capitalize hover:text-obsidian">{p.gender}</Link><ChevronRight size={12} />
-        <Link to={`/category/${p.categorySlug}`} className="hover:text-obsidian">{p.categorySlug.replace(/-/g, ' ')}</Link><ChevronRight size={12} />
-        <span className="clamp-2 max-w-[180px] text-obsidian">{p.name}</span>
+
+      {/* Breadcrumbs */}
+      <nav aria-label="Breadcrumb" className="mb-6 flex items-center gap-1.5 text-[11px] uppercase tracking-[0.15em] text-neutral-400">
+        <Link to="/" className={CRUMB}>Home</Link>
+        <ChevronRight size={12} aria-hidden="true" />
+        <Link to={`/${p.gender}`} className={`capitalize ${CRUMB}`}>{p.gender}</Link>
+        <ChevronRight size={12} aria-hidden="true" />
+        <Link to={`/category/${p.categorySlug}`} className={CRUMB}>{p.categorySlug.replace(/-/g, ' ')}</Link>
+        <ChevronRight size={12} aria-hidden="true" />
+        <span aria-current="page" className="clamp-2 max-w-[180px] text-neutral-900 font-semibold">{p.name}</span>
       </nav>
 
-      <div className="grid gap-8 lg:grid-cols-2 lg:gap-16">
-        {/* Gallery */}
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="lg:sticky lg:top-24 lg:self-start">
-          <div className="grid gap-3 sm:grid-cols-[76px_1fr]">
-            <div className="order-2 -mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:order-1 sm:mx-0 sm:flex-col sm:overflow-visible sm:px-0">
-              {media.map((m, i) => (
-                <button key={i} onClick={() => setImgIdx(i)} aria-label={m.t === 'video' ? 'Play video' : `View ${i + 1}`}
-                  className={`shrink-0 overflow-hidden rounded-xl border-2 transition ${i === imgIdx ? 'border-obsidian' : 'border-transparent opacity-70 hover:opacity-100'}`}>
-                  {m.t === 'img' ? (
-                    <Img src={m.url} alt={m.alt} className="h-20 w-16 object-cover" />
-                  ) : (
-                    <span className="relative flex h-20 w-16 items-center justify-center bg-obsidian text-alabaster">
-                      {ytId(m.url)
-                        ? <img src={`https://img.youtube.com/vi/${ytId(m.url)}/hqdefault.jpg`} alt="" className="absolute inset-0 h-full w-full object-cover opacity-70" />
-                        : null}
-                      <Play size={18} fill="currentColor" className="relative" />
-                    </span>
-                  )}
-                </button>
-              ))}
-            </div>
-            <div className="order-1 sm:order-2">
-              {!active || active.t === 'img' ? (
-                <ProductImageZoom src={active?.url} alt={active?.alt || p.name} />
-              ) : activeYt ? (
-                <div className="overflow-hidden rounded-[2rem] bg-obsidian">
-                  <iframe src={`https://www.youtube.com/embed/${activeYt}?rel=0`} title="Product video"
-                    className="aspect-[4/5] w-full" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
-                </div>
-              ) : (
-                <div className="overflow-hidden rounded-[2rem] bg-obsidian">
-                  <video src={active.url} className="aspect-[4/5] w-full object-cover" controls autoPlay muted loop playsInline />
-                </div>
+      <div className="grid gap-8 lg:grid-cols-2 lg:gap-16 xl:grid-cols-[1.35fr_1fr] xl:gap-20">
+        {/* Left Column: Composed Lookbook Gallery */}
+        <div className="min-w-0">
+          <ProductGallery media={media} index={imgIdx} onIndex={setImgIdx} productName={p.name} />
+        </div>
+
+        {/* Right Column: Sticky, Premium Details Block (LV/Corsen Style) */}
+        <aside className="lg:sticky lg:top-28 lg:h-fit space-y-6">
+          <div className="border-b border-[#E4E0DA] pb-6 space-y-4">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-[10px] font-bold uppercase tracking-[0.25em] px-2.5 py-1 bg-neutral-900 text-white rounded-[2px]">
+                {tierLabel}
+              </span>
+              {notableMarkdown && (
+                <span className="text-[10px] font-bold uppercase tracking-[0.25em] px-2.5 py-1 bg-neutral-900 text-white rounded-[2px]">
+                  {off}% off
+                </span>
               )}
             </div>
-          </div>
-        </motion.div>
 
-        {/* Info */}
-        <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}>
-          <div className="flex items-center gap-2">
-            <span className={`pill ${p.tier === 'Premium' ? 'bg-obsidian text-alabaster' : p.tier === 'Standard' ? 'bg-satin text-obsidian' : 'bg-sage/25 text-sagedeep'}`}>{p.tier === 'Premium' ? 'Signature' : p.tier}</span>
-            {p.compareAtPrice && <span className="pill bg-sage/85 text-obsidian">Sale</span>}
-            {p.stock <= 5 && p.stock > 0 && <span className="pill bg-satin text-ash">Only {p.stock} left</span>}
-          </div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#6B7252]">HUSHAE / {p.gender}</p>
+            <h1 className="font-sans text-3xl font-light uppercase tracking-tight text-neutral-900 sm:text-4xl leading-tight">
+              {p.name}
+            </h1>
 
-          <h1 className="mt-4 font-display text-3xl leading-tight md:text-4xl">{p.name}</h1>
-
-          <div className="mt-3 flex items-center gap-3 text-sm">
-            <span className="inline-flex items-center gap-1 text-obsidian">
-              <Star size={14} fill="currentColor" /> <b>{p.ratingAvg.toFixed(1)}</b>
-            </span>
-            <span className="text-ash">·</span>
-            <span className="text-ash">{p.ratingCount} reviews</span>
-            <span className="text-ash">·</span>
-            <span className="text-ash">{p.sku}</span>
-          </div>
-
-          <div className="mt-5 flex items-baseline gap-3">
-            <span className="font-display text-3xl">{pkr(p.price)}</span>
-            {p.compareAtPrice && <span className="text-lg text-ash line-through">{pkr(p.compareAtPrice)}</span>}
-          </div>
-
-          <p className="mt-5 text-[15px] leading-relaxed text-ash">{p.shortDescription}</p>
-
-          {/* Fabric badges */}
-          <div className="mt-5 flex flex-wrap gap-2">
-            {p.badges.map((b) => <span key={b} className="badge-sage">{b}</span>)}
-          </div>
-
-          {/* Colour */}
-          {p.colors.length > 0 && (
-            <div className="mt-7">
-              <p className="label"><Tx k="color" /> — <span className="text-obsidian">{color}</span></p>
-              <div className="flex gap-3">
-                {p.colors.map((c) => (
-                  <button key={c.name} onClick={() => pickColor(c.name)} title={c.name}
-                    className={`h-9 w-9 rounded-full border transition ${color === c.name ? 'ring-2 ring-obsidian ring-offset-2 ring-offset-alabaster' : 'border-line'}`}
-                    style={{ backgroundColor: c.hex }} />
-                ))}
-              </div>
+            {/* Ratings & SKU */}
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-neutral-500 font-mono">
+              {reviewsShown > 0 ? (
+                <>
+                  <span className="inline-flex items-center gap-1 text-neutral-900 font-semibold">
+                    <Star size={13} fill="currentColor" aria-hidden="true" className="text-amber-500" />
+                    <span>{p.ratingAvg.toFixed(1)}</span>
+                  </span>
+                  <span aria-hidden="true" className="text-neutral-300">|</span>
+                  <a href="#reviews" className="hover:text-neutral-900 underline underline-offset-4 decoration-1">
+                    {reviewsShown} review{reviewsShown === 1 ? '' : 's'}
+                  </a>
+                  <span aria-hidden="true" className="text-neutral-300">|</span>
+                </>
+              ) : null}
+              <span>SKU: <span className="font-semibold text-neutral-800">{p.sku || p._id?.slice(-8).toUpperCase()}</span></span>
             </div>
+
+            {/* Price section */}
+            <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 pt-2">
+              <span className="font-sans text-2xl font-bold text-neutral-900 tabular-nums">{pkr(p.price)}</span>
+              {onSale && (
+                <>
+                  <span className="text-sm tabular-nums text-neutral-400 line-through font-light">
+                    {pkr(p.compareAtPrice)}
+                  </span>
+                  <span className="text-xs font-bold uppercase tracking-wider text-neutral-900 bg-neutral-100 px-2 py-0.5 rounded-[2px]">
+                    Save {pkr(p.compareAtPrice - p.price)}
+                  </span>
+                </>
+              )}
+            </div>
+
+            {/* Stock Indicator */}
+            <p aria-live="polite" className="flex items-center gap-1.5 text-xs">
+              {soldOut ? (
+                <><AlertCircle size={13} className="text-red-600" /><span className="font-semibold text-red-600 uppercase tracking-wider">Out of stock</span></>
+              ) : lowStock ? (
+                <><AlertCircle size={13} className="text-amber-600" /><span className="font-semibold text-amber-600 uppercase tracking-wider">Only {p.stock} left — High Demand</span></>
+              ) : (
+                <><CheckCircle2 size={13} className="text-[#6B7252]" /><span className="text-[#6B7252] font-semibold uppercase tracking-wider">In stock — Ships in 24–48h</span></>
+              )}
+            </p>
+          </div>
+
+          {/* Color Selector */}
+          {p.colors?.length > 0 && (
+            <fieldset className="border-0 p-0 space-y-2">
+              <legend className="text-[10px] font-bold uppercase tracking-[0.25em] text-neutral-500">
+                Colour — <span className="text-neutral-900 font-semibold">{color}</span>
+              </legend>
+              <div className="flex flex-wrap gap-2.5">
+                {p.colors.map((c) => {
+                  const on = color === c.name;
+                  return (
+                    <button
+                      key={c.name}
+                      type="button"
+                      onClick={() => pickColor(c.name)}
+                      aria-pressed={on}
+                      aria-label={c.name}
+                      title={c.name}
+                      className={`grid h-10 w-10 place-items-center rounded-full border transition-all duration-150 ${
+                        on ? 'border-transparent ring-2 ring-neutral-900 ring-offset-2 ring-offset-[#FBFAF8]' : 'border-neutral-200 hover:border-neutral-400'
+                      }`}
+                      style={{ backgroundColor: c.hex }}
+                    >
+                      {on && (
+                        <CheckCircle2
+                          size={14} strokeWidth={2.5}
+                          className={LIGHT_HEX.has(String(c.hex).toUpperCase()) ? 'text-neutral-900' : 'text-white'}
+                        />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </fieldset>
           )}
 
-          {/* Size */}
+          {/* Size Selector */}
           {needsSize && (
-            <div className="mt-7">
-              <div className="flex items-center justify-between">
-                <p className="label !mb-0"><Tx k="size" /> {sizeErr && !size && <span className="!text-red-700 normal-case tracking-normal">— please select</span>}</p>
-                <div className="flex items-center gap-4">
-                  <button onClick={() => setGuideOpen(true)} className="text-xs font-semibold text-ash underline underline-offset-2 hover:text-obsidian">Size guide</button>
-                  <Link to="/fit-finder" className="inline-flex items-center gap-1 text-xs font-semibold text-sagedeep hover:underline"><Ruler size={12} /> Fit Finder</Link>
+            <fieldset ref={sizeRef} className="border-0 p-0 space-y-2">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <legend className="text-[10px] font-bold uppercase tracking-[0.25em] text-neutral-500">Size</legend>
+                <div className="flex items-center gap-4 text-xs font-semibold">
+                  <button type="button" onClick={() => setGuideOpen(true)}
+                    className="text-neutral-500 underline underline-offset-4 hover:text-neutral-900">
+                    Size guide
+                  </button>
+                  <Link to="/fit-finder" className="inline-flex items-center gap-1 text-[#6B7252] hover:underline">
+                    <Ruler size={11} /> Fit Finder
+                  </Link>
                 </div>
               </div>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {p.sizes.map((s) => (
-                  <button key={s} onClick={() => { setSize(s); setSizeErr(false); }}
-                    className={`min-w-11 rounded-xl border px-3.5 py-2.5 text-sm font-semibold transition ${size === s ? 'border-obsidian bg-obsidian text-alabaster' : 'border-line hover:border-obsidian/50'}`}>{s}</button>
-                ))}
+
+              <div className="flex flex-wrap gap-2 pt-1">
+                {p.sizes.map((s) => {
+                  const on = size === s;
+                  return (
+                    <button
+                      key={s}
+                      type="button"
+                      onClick={() => { setSize(s); setSizeErr(false); }}
+                      aria-pressed={on}
+                      className={`min-h-[44px] min-w-[52px] rounded-[2px] border text-xs font-bold uppercase tracking-[0.05em] transition-all active:scale-[0.98] ${
+                        on
+                          ? 'border-neutral-900 bg-neutral-900 text-white'
+                          : 'border-neutral-200 text-neutral-700 hover:border-neutral-900 hover:bg-neutral-50'
+                      }`}
+                    >
+                      {s}
+                    </button>
+                  );
+                })}
               </div>
-            </div>
+
+              {sizeErr && !size && (
+                <p role="alert" className="flex items-center gap-1.5 text-xs text-red-600 mt-2">
+                  <AlertCircle size={12} /> Choose your size
+                </p>
+              )}
+            </fieldset>
           )}
 
-          {/* Qty + actions */}
-          <div className="mt-8 flex items-center gap-3">
-            <div className="inline-flex items-center rounded-full border border-line px-1">
-              <button onClick={() => setQty(Math.max(1, qty - 1))} className="p-3 text-ash hover:text-obsidian" aria-label="Decrease"><Minus size={14} /></button>
-              <span className="min-w-8 text-center text-sm font-semibold">{qty}</span>
-              <button onClick={() => setQty(Math.min(10, qty + 1))} className="p-3 text-ash hover:text-obsidian" aria-label="Increase"><Plus size={14} /></button>
+          {/* Quantity, Add to Cart & Wishlist Row (LV/Corsen Style - Unified & Asymmetric) */}
+          <div ref={ctaRef} className="pt-4 border-t border-[#E4E0DA] space-y-4">
+            <div className="flex items-center gap-3">
+              {/* Stepper */}
+              <QuantityStepper value={qty} onChange={setQty} min={1} max={Math.max(1, Math.min(10, p.stock || 10))} />
+
+              {/* Add to Bag (Sleek high-fashion rectangular) */}
+              <button
+                type="button"
+                onClick={() => tryAdd(false)}
+                disabled={soldOut}
+                className="flex-1 min-h-[46px] inline-flex items-center justify-center rounded-[2px] bg-neutral-900 text-white text-xs font-bold uppercase tracking-[0.2em] transition duration-300 hover:bg-[#6B7252] disabled:opacity-40"
+              >
+                Add to Bag
+              </button>
+
+              {/* Wishlist Square Button next to Add to Bag */}
+              <button
+                type="button"
+                onClick={() => toggleWish(p)}
+                aria-pressed={wished}
+                aria-label={wished ? 'Remove from wishlist' : 'Save to wishlist'}
+                className={`grid h-[46px] w-[46px] shrink-0 place-items-center rounded-[2px] border transition duration-300 ${
+                  wished ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-200 text-neutral-400 hover:border-neutral-900 hover:text-neutral-900 hover:bg-neutral-50'
+                }`}
+              >
+                <Heart size={16} strokeWidth={wished ? 2.5 : 2} fill={wished ? 'currentColor' : 'none'} />
+              </button>
             </div>
-            <button onClick={() => toggleWish(p)} aria-label="Wishlist"
-              className={`grid h-12 w-12 place-items-center rounded-full border transition ${wished ? 'border-obsidian bg-obsidian text-alabaster' : 'border-line text-ash hover:border-obsidian/50 hover:text-obsidian'}`}>
-              <Heart size={17} fill={wished ? 'currentColor' : 'none'} />
+
+            {/* Buy Now (Full width outline) */}
+            <button
+              type="button"
+              onClick={() => tryAdd(true)}
+              disabled={soldOut}
+              className="w-full min-h-[46px] inline-flex items-center justify-center rounded-[2px] border border-neutral-900 bg-transparent text-neutral-900 text-xs font-bold uppercase tracking-[0.2em] transition duration-300 hover:bg-neutral-900 hover:text-white disabled:opacity-40"
+            >
+              Express Checkout &rarr;
             </button>
+
+            <p aria-live="polite" className="min-h-[1.25rem] text-xs">
+              {added && (
+                <span className="inline-flex items-center gap-1.5 pt-1 font-semibold text-[#6B7252] uppercase tracking-wider">
+                  ✓ Successfully added to your bag
+                </span>
+              )}
+            </p>
           </div>
 
-          <div className="mt-4 grid grid-cols-2 gap-3">
-            <button onClick={() => tryAdd(false)} disabled={p.stock === 0} className="btn-outline"><Tx k="addToCart" /></button>
-            <button onClick={() => tryAdd(true)} disabled={p.stock === 0} className="btn-primary"><Tx k="buyNow" /></button>
+          {/* Offers Panel */}
+          <div className="pt-2">
+            <Suspense fallback={null}>
+              <ProductPromoPanel product={p} />
+            </Suspense>
           </div>
-          {p.stock === 0 && <p className="mt-3 text-sm text-red-700">Currently sold out — check back soon.</p>}
 
-          {/* Assurances */}
-          <div className="mt-8 grid grid-cols-3 gap-2 rounded-2xl border border-line bg-white/50 p-4 text-center">
-            {[[Truck, '2–4 day delivery'], [RotateCcw, '14-day exchange'], [ShieldCheck, 'Discreet parcel']].map(([Icon, txt]) => (
-              <div key={txt} className="flex flex-col items-center gap-1.5 text-[11px] font-medium text-ash"><Icon size={16} className="text-obsidian" />{txt}</div>
+          {/* Minimal Trust Row */}
+          <ul className="grid grid-cols-3 divide-x divide-neutral-200 border-t border-b border-[#E4E0DA] py-4 text-center">
+            {[
+              [Truck, '2–5 Day Delivery'],
+              [RotateCcw, '14-Day Exchange'],
+              [ShieldCheck, 'Discreet Package'],
+            ].map(([Icon, txt]) => (
+              <li key={txt} className="flex flex-col items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-neutral-500">
+                <Icon size={15} className="text-neutral-800" />
+                {txt}
+              </li>
             ))}
-          </div>
+          </ul>
 
-          {/* Accordions */}
-          <div className="mt-8">
-            <Accordion title="Description" defaultOpen>
-              <p>{p.description}</p>
+          {/* Accordion Sheets (Detailed Description) */}
+          <div className="pt-2 space-y-1">
+            <Accordion title="Detailed Description" defaultOpen>
+              <p className="text-sm text-neutral-600 leading-relaxed font-light">{p.description}</p>
             </Accordion>
-            <Accordion title="Fabric & Feel">
-              <p className="font-medium text-obsidian">{p.fabric}</p>
-              <p className="mt-2">Every HUSHAE fabric is wash-tested for 40 cycles before it enters the edit — softness in, softness out.</p>
+            <Accordion title="Fabric & Feel (Strict Quality)">
+              <p className="font-semibold text-neutral-900 text-sm">{p.fabric}</p>
+              <p className="mt-2 text-sm text-neutral-600 leading-relaxed font-light">Every HUSHAE fabric is wash-tested for 40 cycles before it enters the edit — softness in, softness out.</p>
             </Accordion>
-            <Accordion title="Care Instructions">
-              <ul className="list-disc space-y-1.5 pl-5">{p.care.map((c) => <li key={c}>{c}</li>)}</ul>
+            <Accordion title="Care & Maintenance">
+              <ul className="list-disc space-y-1.5 pl-5 text-sm text-neutral-600 font-light">
+                {(p.care || []).map((c) => <li key={c}>{c}</li>)}
+              </ul>
             </Accordion>
-            <Accordion title="Shipping & Exchange">
-              <p>
+            <Accordion title="Shipping & Returns Policy">
+              <p className="text-sm text-neutral-600 leading-relaxed font-light">
                 Flat {pkr(settings?.shippingFlatRate ?? 350)} nationwide, free over {pkr(settings?.freeShippingThreshold ?? 4999)}.
-                Dispatched in 24–48h in plain, unmarked packaging. Unworn pieces exchange within 14 days — size swaps are free.
+                Dispatched in 24–48h in plain, unmarked packaging.
+              </p>
+              <p className="mt-2 text-sm text-neutral-600 leading-relaxed font-light">
+                Unworn pieces exchange within 14 days — size swaps are free. For hygiene reasons innerwear is only
+                returnable if it arrives faulty.
               </p>
             </Accordion>
+            <Accordion title="Composition Details">
+              <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-xs">
+                {[
+                  ['SKU', p.sku || p._id?.toUpperCase()],
+                  ['Material', p.fabric],
+                  ['Tier', p.tier === 'Premium' ? 'Signature' : p.tier],
+                  ['Category', p.categorySlug?.replace(/-/g, ' ')],
+                  ['Sizes', (p.sizes || []).join(' · ') || '—'],
+                ].filter(([, v]) => v).map(([k, v]) => (
+                  <div key={k} className="contents">
+                    <dt className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">{k}</dt>
+                    <dd className="capitalize text-neutral-700 font-mono">{v}</dd>
+                  </div>
+                ))}
+              </dl>
+            </Accordion>
           </div>
-        </motion.div>
+        </aside>
       </div>
 
-      {/* Bundle */}
+      {/* Complete the Set / Pairs with */}
       {bundle.length > 0 && (
-        <div className="mt-24">
+        <div className="mt-24 md:mt-32">
           <ProductRow eyebrow="Complete the set" title="Pairs perfectly with" products={bundle.map(snap)} />
         </div>
       )}
 
-      {/* Related products — same category / gender+tier */}
+      {/* You may also like */}
       {related.length > 0 && (
-        <div className="mt-24">
+        <div className="mt-24 md:mt-32">
           <ProductRow eyebrow="You may also like" title="Related pieces" products={related.map(snap)} />
         </div>
       )}
 
-      {/* Recently viewed */}
-      {recent.filter((r) => r.slug !== p.slug).length > 0 && (
-        <div className="mt-24 pb-4">
-          <ProductRow eyebrow="Your history" title="Recently Viewed" products={recent.filter((r) => r.slug !== p.slug).slice(0, 8)} />
+      {/* Reviews Section */}
+      <div id="reviews" className="scroll-mt-28">
+        <ProductReviews product={p} />
+        <ProductQA product={p} />
+      </div>
+
+      {/* Recently Viewed */}
+      {rvCfg.enabled !== false && rvCfg.showOnProduct !== false
+        && recent.filter((r) => r.slug !== p.slug).length > 0 && (
+        <div className="mt-24 pb-4 md:mt-32">
+          <ProductRow eyebrow="Your history" title={rvCfg.title || 'Recently viewed'} products={recent.filter((r) => r.slug !== p.slug).slice(0, 8)} />
         </div>
       )}
+
+      {/* Sticky Bottom Purchase Bar */}
+      <StickyBuyBar
+        product={p}
+        watchRef={ctaRef}
+        size={size}
+        needsSize={needsSize}
+        onAdd={() => tryAdd(false)}
+        disabled={soldOut}
+        thumb={p.images?.[0]?.url}
+      />
 
       <SizeGuideModal open={guideOpen} onClose={() => setGuideOpen(false)} gender={p.gender} isBra={isBra} />
     </div>

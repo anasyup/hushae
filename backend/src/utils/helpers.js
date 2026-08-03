@@ -5,12 +5,19 @@ const asyncHandler = (fn) => (req, res, next) => Promise.resolve(fn(req, res, ne
 const slugify = (s) =>
   String(s).toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 
-// VL-YYYYMMDD-XXXXXX
+// HS-YYYYMMDD-XXXXXX
+/* FINAL AUDIT. Placing a real COD order returned VL-20260801-ED770D: every
+   order number still carried the legacy VELOURA prefix. That string is printed
+   on the confirmation page, the tracking page, the packing slip and every
+   customer email — the old brand was reaching the customer on the single most
+   important document of the purchase.
+   Existing VL- orders keep their numbers; `track` matches on the stored string,
+   so historical orders are unaffected. Only newly generated numbers change. */
 const orderNumber = () => {
   const d = new Date();
   const ymd = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`;
   const rand = crypto.randomBytes(3).toString('hex').toUpperCase();
-  return `VL-${ymd}-${rand}`;
+  return `HS-${ymd}-${rand}`;
 };
 
 // Check a discount doc against a subtotal; returns { ok, amount } or { ok:false, message }

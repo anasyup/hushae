@@ -1,13 +1,14 @@
 import { Fragment, useEffect, useMemo, useState } from 'react';
 import { Link, NavLink, Navigate, useLocation } from 'react-router-dom';
 import {
-  Activity, BadgePercent, BarChart3, Bell, ChevronDown, CreditCard, FileText, FolderOpen, Globe, Home,
-  LayoutTemplate, LogOut, Menu, Package, PackagePlus, PackageX,
-  Search, Settings as SettingsIcon, ShieldCheck, ShoppingBag, Store, Tags, TrendingUp, Truck, Users, X, Zap,
+  Activity, BadgePercent, BarChart3, ChevronDown, CreditCard, FileText, FolderOpen, Globe, Home,
+  LayoutTemplate, LogOut, Megaphone, Menu, MessageSquare, Package, PackagePlus, PackageX,
+  Search, Settings as SettingsIcon, ShieldCheck, Signpost, ShoppingBag, Sparkles, Store, Tags, TrendingUp, Truck, Users, X, Zap,
 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { applyAdminTheme, clearAdminTheme } from '../lib/adminTheme';
 import ProfitCalculator from './ProfitCalculator';
+import NotificationBell from './dashboard/NotificationBell';
 
 /* ------------------------------------------------------------------ *
  * Sidebar structure — Shopify-style with collapsible groups.
@@ -24,46 +25,54 @@ const NAV_GROUPS = [
   {
     label: 'Sales',
     icon: ShoppingBag,
-    match: ['/admin/orders', '/admin/customers', '/admin/discounts', '/admin/abandoned-carts', '/admin/payments'],
+    match: ['/admin/orders', '/admin/customers', '/admin/discounts', '/admin/abandoned-carts', '/admin/payments', '/admin/loyalty', '/admin/promotions', '/admin/bundles', '/admin/flash-sales'],
     children: [
       { to: '/admin/orders',           label: 'Orders',           icon: ShoppingBag },
       { to: '/admin/payments',         label: 'Payments',         icon: CreditCard },
       { to: '/admin/customers',        label: 'Customers',        icon: Users },
       { to: '/admin/discounts',        label: 'Discounts',        icon: BadgePercent },
+      { to: '/admin/loyalty',          label: 'Loyalty',          icon: Sparkles },
+      { to: '/admin/promotions',       label: 'Promotions',       icon: Megaphone },
       { to: '/admin/abandoned-carts',  label: 'Abandoned carts',  icon: ShoppingBag },
     ],
   },
   {
     label: 'Catalog',
     icon: Package,
-    match: ['/admin/products', '/admin/categories', '/admin/collections'],
+    match: ['/admin/products', '/admin/categories', '/admin/collections', '/admin/reviews', '/admin/questions'],
     children: [
       { to: '/admin/products',              label: 'Inventory',    icon: Package, exact: true },
       { to: '/admin/products/new',          label: 'Add product',  icon: PackagePlus },
-      { to: '/admin/products?status=draft', label: 'Drafts',       icon: FolderOpen },
       { to: '/admin/products?active=0',     label: 'Archived',     icon: PackageX },
       { to: '/admin/categories',            label: 'Categories',   icon: Tags },
       { to: '/admin/collections',           label: 'Collections',  icon: Tags },
+      { to: '/admin/reviews',               label: 'Reviews',      icon: MessageSquare },
+      { to: '/admin/questions',             label: 'Questions',    icon: MessageSquare },
     ],
   },
   {
     label: 'Storefront',
     icon: Store,
-    match: ['/admin/store', '/admin/content', '/admin/markets'],
+    match: ['/admin/store', '/admin/content', '/admin/cms', '/admin/markets'],
     children: [
       { to: '/admin/store',   label: 'Online Store', icon: Store },
+      { to: '/admin/cms',     label: 'Pages',        icon: FileText, exact: true },
+      { to: '/admin/cms/redirects', label: 'Old addresses', icon: Signpost },
       { to: '/admin/content', label: 'Content',      icon: LayoutTemplate },
+      { to: '/admin/faq',     label: 'FAQ',          icon: FileText },
       { to: '/admin/markets', label: 'Markets',      icon: Globe },
     ],
   },
   {
     label: 'Insights',
     icon: BarChart3,
-    match: ['/admin/analytics', '/admin/insights', '/admin/finance', '/admin/live', '/admin/growth'],
+    match: ['/admin/analytics', '/admin/insights', '/admin/finance', '/admin/live', '/admin/growth', '/admin/search-analytics', '/admin/marketing/analytics'],
     children: [
       { to: '/admin/finance',   label: 'Finance',       icon: CreditCard },
       { to: '/admin/analytics', label: 'Analytics',     icon: BarChart3 },
       { to: '/admin/insights',  label: 'Deep insights', icon: TrendingUp },
+      { to: '/admin/search-analytics', label: 'Search analytics', icon: Search },
+      { to: '/admin/marketing/analytics', label: 'Promo analytics', icon: Megaphone },
       { to: '/admin/live',      label: 'Live view',     icon: Activity },
       { to: '/admin/growth',    label: 'Growth',        icon: TrendingUp },
     ],
@@ -71,12 +80,15 @@ const NAV_GROUPS = [
   {
     label: 'Settings',
     icon: SettingsIcon,
-    match: ['/admin/settings', '/admin/apps', '/admin/backup'],
+    match: ['/admin/settings', '/admin/apps', '/admin/backup', '/admin/marketing/settings'],
     children: [
       { to: '/admin/settings',              label: 'Overview',       icon: SettingsIcon, exact: true },
       { to: '/admin/settings/store',        label: 'Store details',  icon: Store },
       { to: '/admin/settings/payments',     label: 'Payments',       icon: CreditCard },
       { to: '/admin/settings/shipping',     label: 'Shipping',       icon: Truck },
+      { to: '/admin/settings/loyalty',      label: 'Loyalty rules',  icon: Sparkles },
+      { to: '/admin/settings/search',       label: 'Search rules',   icon: Search },
+      { to: '/admin/marketing/settings',    label: 'Marketing rules', icon: Megaphone },
       { to: '/admin/apps',                  label: 'Integrations',   icon: Zap },
       { to: '/admin/settings/security',     label: 'Security',       icon: ShieldCheck },
       { to: '/admin/backup',                label: 'Backup & restore', icon: FileText },
@@ -270,8 +282,9 @@ export default function AdminLayout({ children, title }) {
 
   useEffect(() => { applyAdminTheme(); return () => clearAdminTheme(); }, []);
 
+  const ADMIN_ROLES = ['admin', 'Owner', 'Manager', 'Staff', 'Warehouse', 'Support'];
   if (!auth) return <Navigate to="/admin/login" state={{ from: loc.pathname }} replace />;
-  if (auth.user.role !== 'admin') return <Navigate to="/admin/login" replace />;
+  if (!ADMIN_ROLES.includes(auth.user.role)) return <Navigate to="/admin/login" replace />;
 
   return (
     <div className="admin-shell flex min-h-screen bg-[#F4F6F8]">
@@ -290,7 +303,10 @@ export default function AdminLayout({ children, title }) {
         </div>
       )}
 
-      <div className="flex min-h-screen flex-1 flex-col md:pl-60">
+      {/* min-w-0 is load-bearing: a flex child defaults to min-width:auto, so any
+          wide table inside stretched the whole admin shell past the viewport
+          instead of scrolling within its own container. */}
+      <div className="flex min-h-screen min-w-0 flex-1 flex-col md:pl-60">
         {/* Mobile topbar */}
         <div className="sticky top-0 z-30 flex items-center gap-3 border-b border-black/5 bg-[#ebebeb] px-4 py-3 md:hidden">
           <button onClick={() => setDrawer(true)} className="rounded-lg p-1.5 text-neutral-700 hover:bg-white/70"><Menu size={20} /></button>
@@ -300,10 +316,17 @@ export default function AdminLayout({ children, title }) {
         {/* Desktop topbar — breadcrumb, quick actions, notifications */}
         <TopBar title={title} auth={auth} />
 
-        <main className="flex-1 p-4 md:p-8">
+        {/* MEASURED, Sprint 2L P2: this was a second <main>, nested inside the
+            <main id="main-content"> App.jsx already renders. Two main landmarks
+            on one page is a WCAG 1.3.1 failure — a screen reader offers "main"
+            twice and neither is the whole content. Reproduced identically on
+            LIVE commit 756cd0a, so it is pre-existing, not a regression.
+            A <div> with the same classes renders byte-identically; no CSS or JS
+            in the project selects `main`. */}
+        <div className="min-w-0 flex-1 p-4 md:p-8">
           {title && <h1 className="mb-6 font-sans text-[28px] font-semibold leading-tight text-neutral-900 md:hidden">{title}</h1>}
-          <div>{children}</div>
-        </main>
+          <div className="admin-main min-w-0">{children}</div>
+        </div>
       </div>
 
       {/* Floating profit calculator — available on every admin page */}
@@ -317,7 +340,6 @@ export default function AdminLayout({ children, title }) {
  * ======================================================================== */
 function TopBar({ title, auth }) {
   const loc = useLocation();
-  const [notifOpen, setNotifOpen] = useState(false);
 
   const crumbs = (() => {
     const parts = loc.pathname.split('/').filter(Boolean); // ['admin', ...]
@@ -374,26 +396,7 @@ function TopBar({ title, auth }) {
           </Link>
 
           {/* Notifications */}
-          <div className="relative">
-            <button
-              onClick={() => setNotifOpen((v) => !v)}
-              className="relative rounded-full border border-neutral-200 bg-white p-2 text-neutral-600 transition hover:border-neutral-400 hover:text-neutral-900"
-              aria-label="Notifications"
-            >
-              <Bell size={15} />
-              <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-red-500" />
-            </button>
-            {notifOpen && (
-              <div className="absolute right-0 top-full z-30 mt-2 w-72 overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-xl">
-                <div className="border-b border-neutral-100 px-4 py-3">
-                  <p className="text-[11px] font-bold uppercase tracking-widest text-neutral-500">Notifications</p>
-                </div>
-                <div className="p-3 text-center">
-                  <p className="py-6 text-[12px] text-neutral-400">You&apos;re all caught up.</p>
-                </div>
-              </div>
-            )}
-          </div>
+          <NotificationBell />
 
           {/* Avatar */}
           <div className="ml-1 flex items-center gap-2 rounded-full border border-neutral-200 bg-white p-1 pl-1 pr-3">

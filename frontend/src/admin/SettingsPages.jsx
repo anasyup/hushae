@@ -87,7 +87,7 @@ function useSettingsSlice() {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    api('/settings').then((d) => { setS(d.settings); setOriginal(JSON.stringify(d.settings)); }).catch(() => toast('Could not load settings'));
+    api('/settings/admin', { token: auth.token }).then((d) => { setS(d.settings); setOriginal(JSON.stringify(d.settings)); }).catch(() => toast('Could not load settings'));
   }, []); // eslint-disable-line
 
   const dirty = s && original && JSON.stringify(s) !== original;
@@ -290,6 +290,83 @@ export function SettingsShipping() {
           </div>
         </Section>
 
+        <Section title="Courier cost per parcel" description="What the courier bills you. Used by Finance → Order profitability to work out what you keep on each order.">
+          <div className="grid gap-4 md:grid-cols-2">
+            <div>
+              <label className="label">Default courier cost (PKR / parcel)</label>
+              <input className="input" type="number" min="0" value={oc.defaultCourierCost || 0} onChange={(e) => setOC('defaultCourierCost', e.target.value)} placeholder="e.g. 250" />
+              <p className="mt-1.5 text-[11px] text-neutral-500">Applies to every city unless overridden below.</p>
+            </div>
+            <div>
+              <label className="label">Return costs this many times the outbound leg</label>
+              <input className="input" type="number" min="1" step="0.5" value={oc.returnCourierMultiplier ?? 2} onChange={(e) => setOC('returnCourierMultiplier', e.target.value)} />
+              <p className="mt-1.5 text-[11px] text-neutral-500">A returned parcel is usually billed both ways — that is 2.</p>
+            </div>
+          </div>
+
+          <div className="mt-4">
+            <label className="label">Per-city rates (optional)</label>
+            <div className="mt-1.5 space-y-2">
+              {(oc.courierByCity || []).map((row, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <input
+                    className="input flex-1" placeholder="City, e.g. Karachi" value={row.city || ''}
+                    onChange={(e) => setS({ ...s, operatingCosts: { ...oc, courierByCity: oc.courierByCity.map((r, j) => (j === i ? { ...r, city: e.target.value } : r)) } })}
+                  />
+                  <input
+                    className="input w-32" type="number" min="0" placeholder="PKR" value={row.cost ?? ''}
+                    onChange={(e) => setS({ ...s, operatingCosts: { ...oc, courierByCity: oc.courierByCity.map((r, j) => (j === i ? { ...r, cost: Number(e.target.value) || 0 } : r)) } })}
+                  />
+                  <button
+                    onClick={() => setS({ ...s, operatingCosts: { ...oc, courierByCity: oc.courierByCity.filter((_, j) => j !== i) } })}
+                    className="shrink-0 rounded-lg px-3 py-2 text-[11px] font-semibold text-neutral-500 hover:bg-red-50 hover:text-red-600"
+                  >Remove</button>
+                </div>
+              ))}
+              <button
+                onClick={() => setS({ ...s, operatingCosts: { ...oc, courierByCity: [...(oc.courierByCity || []), { city: '', cost: 0 }] } })}
+                className="w-full rounded-lg border border-dashed border-neutral-300 py-2 text-[11.5px] font-semibold text-neutral-600 hover:border-neutral-400 hover:text-neutral-900"
+              >+ Add a city rate</button>
+            </div>
+          </div>
+        </Section>
+
+        <Section title="Payment gateway fees" description="The percentage each method keeps. COD is normally 0 — you collect the cash yourself.">
+          <div className="grid gap-4 md:grid-cols-3">
+            {[
+              ['cod', 'COD (%)', '0'],
+              ['jazzcash', 'JazzCash (%)', '2'],
+              ['easypaisa', 'EasyPaisa (%)', '2'],
+              ['bank', 'Bank transfer (%)', '0'],
+              ['card', 'Card / Visa (%)', '2.75'],
+            ].map(([key, label, ph]) => (
+              <div key={key}>
+                <label className="label">{label}</label>
+                <input
+                  className="input" type="number" min="0" step="0.05" placeholder={ph}
+                  value={(oc.paymentFees || {})[key] ?? ''}
+                  onChange={(e) => setS({ ...s, operatingCosts: { ...oc, paymentFees: { ...(oc.paymentFees || {}), [key]: Number(e.target.value) || 0 } } })}
+                />
+              </div>
+            ))}
+          </div>
+        </Section>
+
+        <Section title="Targets & thresholds" description="Drive the dashboard goal tracker and the profitability warnings.">
+          <div className="grid gap-4 md:grid-cols-2">
+            <div>
+              <label className="label">Monthly revenue goal (PKR)</label>
+              <input className="input" type="number" min="0" value={s.monthlyRevenueGoal || 0} onChange={(e) => set('monthlyRevenueGoal', Number(e.target.value) || 0)} placeholder="e.g. 500000" />
+              <p className="mt-1.5 text-[11px] text-neutral-500">Shown as a progress bar with a pace read on the Dashboard.</p>
+            </div>
+            <div>
+              <label className="label">Minimum acceptable margin (%)</label>
+              <input className="input" type="number" min="0" max="100" value={s.marginThresholdPercent ?? 15} onChange={(e) => set('marginThresholdPercent', Number(e.target.value) || 0)} placeholder="e.g. 15" />
+              <p className="mt-1.5 text-[11px] text-neutral-500">Orders below this are flagged amber in Finance → Order profitability.</p>
+            </div>
+          </div>
+        </Section>
+
         <Section title="Monthly marketing & fixed costs" description="Fixed costs you pay every month — divided across all monthly orders in the P&L view.">
           <div className="grid gap-4 md:grid-cols-3">
             <div>
@@ -324,7 +401,7 @@ export function SettingsShipping() {
         </Section>
       </div>
 
-      <SaveBar dirty={dirty} busy={busy} onSave={() => save(['shippingFlatRate', 'freeShippingThreshold', 'operatingCosts'])} onReset={reset} />
+      <SaveBar dirty={dirty} busy={busy} onSave={() => save(['shippingFlatRate', 'freeShippingThreshold', 'operatingCosts', 'monthlyRevenueGoal', 'marginThresholdPercent'])} onReset={reset} />
     </AdminLayout>
   );
 }

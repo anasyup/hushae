@@ -42,7 +42,7 @@ export default function Track() {
       </div>
 
       <form onSubmit={(e) => { e.preventDefault(); search(); }} className="mx-auto mt-8 grid max-w-lg gap-3 sm:grid-cols-[1fr_1fr_auto]">
-        <input className="input" placeholder="Order number — VL-20260701-XXXXXX" value={on} onChange={(e) => setOn(e.target.value)} />
+        <input className="input" placeholder="Order number — HS-20260701-XXXXXX" value={on} onChange={(e) => setOn(e.target.value)} />
         <input className="input" placeholder="Phone — 03xx xxxxxxx" value={phone} onChange={(e) => setPhone(e.target.value)} />
         <button disabled={busy} className="btn-primary !px-5"><Search size={15} /> {busy ? 'Finding…' : 'Track'}</button>
       </form>

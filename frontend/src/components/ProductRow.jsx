@@ -4,7 +4,7 @@ import ProductCard from './ProductCard';
 export default function ProductRow({ title, eyebrow, products, note }) {
   if (!products?.length) return null;
   return (
-    <section className="mx-auto max-w-7xl px-4 md:px-8">
+    <section className="container-page">
       {(title || eyebrow) && (
         <div className="mb-6 flex items-end justify-between">
           <div>

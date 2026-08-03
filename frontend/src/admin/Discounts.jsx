@@ -23,8 +23,23 @@ export default function Discounts() {
   const [err, setErr] = useState('');
   const [busy, setBusy] = useState(false);
 
-  const load = () => api('/discounts', { token: auth.token }).then((d) => setList(d.discounts)).catch(() => setList([]));
-  useEffect(load, [auth]);
+  const load = () => api('/discounts', { token: auth.token })
+    .then((d) => setList(d.discounts))
+    .catch(() => setList([]));
+
+  /* MEASURED CRASH: this was `useEffect(load, [auth])`.
+     `load` returns a Promise, and React treats an effect's return value as the
+     CLEANUP function — so on the next run it tried to CALL that Promise and
+     threw "TypeError: n is not a function", blanking the whole page.
+
+     It only fired once the effect re-ran, which needs `auth` to change
+     identity after the first render. patchUser() does exactly that when
+     /auth/me returns, so the crash was always one settings-shape change away.
+
+     Two fixes in one line: the arrow body swallows the return value, and the
+     dependency is auth.token — a string — so the effect no longer re-runs
+     every time an unrelated field on the user object is refreshed. */
+  useEffect(() => { load(); }, [auth?.token]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
   const openNew = () => { setForm(EMPTY); setEditing(null); setErr(''); setShowForm(true); window.scrollTo({ top: 0, behavior: 'smooth' }); };

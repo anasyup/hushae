@@ -1,22 +1,22 @@
-import { useEffect, useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { ChevronDown, SlidersHorizontal, X } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { ChevronDown, SearchX, SlidersHorizontal } from 'lucide-react';
 import { api } from '../api/client';
 import ProductCard from '../components/ProductCard';
+import { usePromotions, useProductBadges, promosForProduct } from '../lib/usePromotions';
 import { ProductGridSkeleton } from '../components/Skeletons';
+import EmptyState from '../components/ui/EmptyState';
 import Seo from '../components/Seo';
+import useShopFilters, { applyClientFacets } from './shop/useShopFilters';
+import FilterPanel from './shop/FilterPanel';
+import FilterSheet from './shop/FilterSheet';
+import ActiveChips from './shop/ActiveChips';
+import CollectionBanner from '../components/collection/CollectionBanner';
 
-const SIZES = ['S', 'M', 'L', 'XL', 'XXL'];
-const TIERS = ['Economy', 'Standard', 'Premium'];
-const BADGES = ['Breathable', 'Cooling', 'Seamless', 'Sweat Control', 'Support', 'Silk-Touch', 'Quick Dry'];
-const COLORS = [
-  { name: 'Black', hex: '#1A1A1A' }, { name: 'Soft White', hex: '#FFFFFF' }, { name: 'White', hex: '#FFFFFF' },
-  { name: 'Nude', hex: '#E3C9B3' }, { name: 'Blush', hex: '#E8C7C8' }, { name: 'Sage', hex: '#8F9C8B' },
-  { name: 'Slate', hex: '#6B7280' }, { name: 'Navy', hex: '#1F2A44' }, { name: 'Charcoal', hex: '#3A3A3A' },
-  { name: 'Heather Grey', hex: '#9AA0A6' }, { name: 'Olive', hex: '#6B7252' },
-];
 const SORTS = [
-  ['popular', 'Most Popular'], ['newest', 'Newest'], ['price-asc', 'Price: Low to High'], ['price-desc', 'Price: High to Low'],
+  ['popular', 'Most Popular'],
+  ['newest', 'Newest'],
+  ['price-asc', 'Price: Low to High'],
+  ['price-desc', 'Price: High to Low'],
 ];
 
 const TITLES = {
@@ -29,173 +29,248 @@ const TITLES = {
 };
 
 export default function Shop({ preset = {} }) {
-  const [params, setParams] = useSearchParams();
+  /* Marketing badges. One request for the whole grid, not one per card, and
+     both hooks no-op when the merchant has marketing switched off. */
+  const promo = usePromotions();
+  const f = useShopFilters(preset);
   const [cats, setCats] = useState([]);
   const [products, setProducts] = useState(null);
-  const [filtersOpen, setFiltersOpen] = useState(false);
-
-  const get = (k) => params.get(k) || '';
-  const catParam = preset.category || get('category');
-  const gender = preset.gender || get('gender');
-  const sort = get('sort') || preset.sort || 'popular';
+  const [pending, setPending] = useState(false);
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const filterBtnRef = useRef(null);
+  const firstLoad = useRef(true);
 
   useEffect(() => { api('/categories').then((d) => setCats(d.categories)).catch(() => {}); }, []);
 
-  const qs = useMemo(() => {
-    const sp = new URLSearchParams();
-    if (gender) sp.set('gender', gender);
-    if (catParam) sp.set('category', catParam);
-    if (get('q')) sp.set('q', get('q'));
-    if (get('tier')) sp.set('tier', get('tier'));
-    if (get('size')) sp.set('size', get('size'));
-    if (get('color')) sp.set('color', get('color'));
-    if (get('badge')) sp.set('badge', get('badge'));
-    sp.set('sort', sort);
-    if (preset.bestSeller) sp.set('bestSeller', 'true');
-    if (preset.sale) sp.set('sale', 'true');
-    sp.set('limit', '120');
-    return sp.toString();
-  }, [params, preset]); // eslint-disable-line
-
   useEffect(() => {
-    setProducts(null);
-    api(`/products?${qs}`).then((d) => setProducts(d.products)).catch(() => setProducts([]));
-    window.scrollTo({ top: 0 });
-  }, [qs]);
+    let alive = true;
+    // The previous version set products back to null on every filter change,
+    // which unmounted the grid and left the screen blank for a measured
+    // 753ms. The old results now stay on screen, dimmed, until the new set
+    // lands — so the page never collapses and cannot shift.
+    setPending(true);
+    api(`/products?${f.queryString}`)
+      .then((d) => { if (alive) setProducts(d.products); })
+      .catch(() => { if (alive) setProducts([]); })
+      .finally(() => { if (alive) setPending(false); });
+    // Only jump to the top when a filter changes, never on first paint.
+    if (!firstLoad.current) window.scrollTo({ top: 0, behavior: 'smooth' });
+    firstLoad.current = false;
+    return () => { alive = false; };
+  }, [f.queryString]);
 
-  const setParam = (k, v) => {
-    const n = new URLSearchParams(params);
-    if (v) n.set(k, v); else n.delete(k);
-    setParams(n, { replace: true });
-  };
-  const toggleParam = (k, v) => setParam(k, get(k) === v ? '' : v);
+  // Facets the API cannot express (second and later values in a multi-select,
+  // availability) are applied here so the count and the grid always agree.
+  const visible = useMemo(() => applyClientFacets(products, f), [products, f]);
+  // Keyed on the rendered set, so a filter change re-asks for exactly the
+  // cards on screen rather than the whole unfiltered fetch.
+  const badgeMap = useProductBadges(visible);
 
-  const activeCat = cats.find((c) => c.slug === catParam);
+  const activeCat = cats.find((c) => c.slug === f.category);
   const meta = activeCat
     ? [activeCat.name, activeCat.description]
-    : TITLES[preset.key] || (get('q') ? [`“${get('q')}”`, 'Search results'] : TITLES.all);
+    : TITLES[preset.key] || (f.get('q') ? [`“${f.get('q')}”`, 'Search results'] : TITLES.all);
 
-  const catList = gender ? cats.filter((c) => c.gender === gender) : cats;
-  const activeFilters = ['tier', 'size', 'color', 'badge'].filter((k) => get(k)).length;
-
-  const FilterPanel = (
-    <div className="space-y-7">
-      <div>
-        <p className="mb-3 text-[11px] font-bold uppercase tracking-widest text-ash">Category</p>
-        <div className="space-y-1">
-          {catList.map((c) => (
-            <button key={c.slug} onClick={() => setParam('category', catParam === c.slug ? '' : c.slug)}
-              className={`block w-full rounded-lg px-3 py-2 text-left text-sm transition ${catParam === c.slug ? 'bg-obsidian text-alabaster' : 'text-obsidian/75 hover:bg-satin/60'}`}>
-              {c.name}
-            </button>
-          ))}
-        </div>
-      </div>
-      <div>
-        <p className="mb-3 text-[11px] font-bold uppercase tracking-widest text-ash">Tier</p>
-        <div className="flex flex-wrap gap-2">
-          {TIERS.map((t) => (
-            <button key={t} onClick={() => toggleParam('tier', t)}
-              className={`rounded-full border px-4 py-1.5 text-xs font-semibold transition ${get('tier') === t ? 'border-obsidian bg-obsidian text-alabaster' : 'border-line text-ash hover:border-obsidian/40'}`}>{t}</button>
-          ))}
-        </div>
-      </div>
-      <div>
-        <p className="mb-3 text-[11px] font-bold uppercase tracking-widest text-ash">Size</p>
-        <div className="flex flex-wrap gap-2">
-          {SIZES.map((s) => (
-            <button key={s} onClick={() => toggleParam('size', s)}
-              className={`min-w-10 rounded-lg border px-2.5 py-2 text-xs font-semibold transition ${get('size') === s ? 'border-obsidian bg-obsidian text-alabaster' : 'border-line text-ash hover:border-obsidian/40'}`}>{s}</button>
-          ))}
-        </div>
-      </div>
-      <div>
-        <p className="mb-3 text-[11px] font-bold uppercase tracking-widest text-ash">Colour</p>
-        <div className="flex flex-wrap gap-2.5">
-          {COLORS.map((c) => (
-            <button key={c.name} onClick={() => toggleParam('color', c.name)} title={c.name}
-              className={`h-7 w-7 rounded-full border transition ${get('color') === c.name ? 'ring-2 ring-obsidian ring-offset-2 ring-offset-alabaster' : 'border-line'}`}
-              style={{ backgroundColor: c.hex }} />
-          ))}
-        </div>
-        {get('color') && <button onClick={() => setParam('color', '')} className="mt-2 text-xs text-ash underline">{get('color')} — clear</button>}
-      </div>
-      <div>
-        <p className="mb-3 text-[11px] font-bold uppercase tracking-widest text-ash">Fabric Tech</p>
-        <div className="flex flex-wrap gap-2">
-          {BADGES.map((b) => (
-            <button key={b} onClick={() => toggleParam('badge', b)}
-              className={`rounded-full border px-3.5 py-1.5 text-xs font-medium transition ${get('badge') === b ? 'border-sagedeep bg-sage/25 text-sagedeep' : 'border-line text-ash hover:border-sage'}`}>{b}</button>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
+  const catList = f.gender ? cats.filter((c) => c.gender === f.gender) : cats;
+  const count = visible?.length ?? null;
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 md:py-10 md:px-8">
+    <div className="container-page py-8 md:py-10">
       <Seo
-        title={`${meta[0]}${gender ? ' — ' + gender.charAt(0).toUpperCase() + gender.slice(1) : ''}`}
+        title={`${meta[0]}${f.gender ? ' — ' + f.gender.charAt(0).toUpperCase() + f.gender.slice(1) : ''}`}
         description={meta[1] || 'Shop premium innerwear — bras, briefs, shapewear and more. Made in Pakistan.'}
         canonical={typeof window !== 'undefined' ? window.location.pathname : '/shop'}
       />
-      {/* Header */}
-      <div className="mb-6 md:mb-8">
-        <p className="text-[11px] font-bold uppercase tracking-widest text-sagedeep">HUSHAE — {gender || 'all'}</p>
-        <h1 className="mt-2 font-display text-3xl sm:text-4xl md:text-5xl">{meta[0]}</h1>
-        <p className="mt-3 max-w-xl text-sm leading-relaxed text-ash">{meta[1]}</p>
-      </div>
 
-      {/* Toolbar */}
-      <div className="mb-8 flex items-center justify-between gap-3 border-y border-line py-3.5">
-        <button onClick={() => setFiltersOpen(true)} className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-obsidian lg:hidden">
-          <SlidersHorizontal size={15} /> Filters {activeFilters > 0 && `(${activeFilters})`}
+      {/* MEASURED: probing /shop, /women, /sale and /search at 390px returned
+          hasBanner:false on every one. Each opened with an eyebrow, an h1 and
+          a sentence on flat alabaster, then went straight into the grid —
+          precisely the default Shopify collection template.
+          Replaced with an editorial masthead. Copy is unchanged and still
+          comes from the TITLES map above; only the setting is new. */}
+      <CollectionBanner
+        eyebrow={`HUSHAE — ${f.gender || 'all'}`}
+        title={meta[0]}
+        blurb={meta[1]}
+      />
+
+      {/* CK-style Horizontal Sub-category quick links */}
+      {(() => {
+        const pk = preset.key;
+        if (!['women', 'men', 'new', 'best'].includes(pk)) return null;
+        
+        let quickLinks = [];
+        if (pk === 'women') {
+          quickLinks = [
+            { label: 'All Women', val: '', field: 'category' },
+            { label: 'Bras', val: 'bras', field: 'category' },
+            { label: 'Panties', val: 'panties', field: 'category' },
+            { label: 'Shapewear', val: 'shapewear', field: 'category' },
+            { label: 'Sleepwear', val: 'sleepwear-loungewear', field: 'category' },
+            { label: 'Camisoles', val: 'camisoles-slips', field: 'category' },
+          ];
+        } else if (pk === 'men') {
+          quickLinks = [
+            { label: 'All Men', val: '', field: 'category' },
+            { label: 'Boxers', val: 'boxers', field: 'category' },
+            { label: 'Briefs', val: 'briefs', field: 'category' },
+            { label: 'Trunks', val: 'trunks', field: 'category' },
+            { label: 'Vests', val: 'vests-undershirts', field: 'category' },
+            { label: 'Sports', val: 'thermal-sports-innerwear', field: 'category' },
+          ];
+        } else if (pk === 'new' || pk === 'best') {
+          const labelPrefix = pk === 'new' ? 'New' : 'Loved';
+          quickLinks = [
+            { label: pk === 'new' ? 'New In' : 'Best Sellers', val: '', field: 'gender' },
+            { label: `${labelPrefix} Women`, val: 'women', field: 'gender' },
+            { label: `${labelPrefix} Men`, val: 'men', field: 'gender' },
+          ];
+        }
+
+        return (
+          <div className="flex flex-wrap items-center justify-between border-b border-[#E4E0DA] pb-4 mb-8">
+            <div className="flex flex-wrap gap-x-8 gap-y-2 text-[11px] uppercase tracking-[0.2em] font-semibold text-neutral-500">
+              {quickLinks.map((ql) => {
+                const currentVal = ql.field === 'category' ? f.category : f.get('gender');
+                const on = currentVal === ql.val || (!currentVal && ql.val === '');
+                return (
+                  <button
+                    key={ql.label}
+                    onClick={() => {
+                      if (ql.field === 'category') {
+                        f.setOne('category', ql.val);
+                      } else {
+                        f.setOne('gender', ql.val);
+                      }
+                    }}
+                    className={`hover:text-[#000000] transition-colors ${on ? 'text-[#000000] underline underline-offset-8 decoration-2' : ''}`}
+                  >
+                    {ql.label}
+                  </button>
+                );
+              })}
+            </div>
+            <p className="text-[11px] uppercase tracking-widest text-neutral-400 font-mono">
+              {count != null && <>{count} pieces found</>}
+            </p>
+          </div>
+        );
+      })()}
+
+      <div className="mb-6 flex items-center justify-between gap-3 border-y border-line py-3.5">
+        <button
+          ref={filterBtnRef}
+          type="button"
+          onClick={() => setSheetOpen(true)}
+          aria-expanded={sheetOpen}
+          aria-haspopup="dialog"
+          className="inline-flex min-h-[40px] items-center gap-2 text-btn-sm font-semibold uppercase text-obsidian lg:hidden"
+        >
+          <SlidersHorizontal size={15} strokeWidth={1.8} aria-hidden="true" />
+          Filters
+          {f.activeCount > 0 && (
+            <span className="grid h-5 min-w-5 place-items-center rounded-full bg-obsidian px-1 text-[10px] font-bold text-alabaster">
+              {f.activeCount}
+            </span>
+          )}
         </button>
-        <p className="hidden text-xs uppercase tracking-widest text-ash lg:block">
-          {products ? `${products.length} pieces` : 'Loading…'}
+
+        {/* The count is a live region so a filter change is announced rather
+            than silently re-rendering the grid. */}
+        <p aria-live="polite" className="hidden text-label uppercase text-ash lg:block">
+          {count === null ? 'Loading…' : `${count} piece${count === 1 ? '' : 's'}`}{pending && count !== null ? ' · updating' : ''}
         </p>
+
         <div className="relative">
-          <select value={sort} onChange={(e) => setParam('sort', e.target.value)}
-            className="appearance-none rounded-full border border-line bg-white/70 py-2 pl-4 pr-9 text-xs font-semibold outline-none transition hover:border-obsidian/40">
+          <label htmlFor="shop-sort" className="sr-only">Sort products</label>
+          <select
+            id="shop-sort"
+            value={f.sort}
+            /* Sorting reorders the same set — it replaces rather than pushes,
+               so Back still undoes the last real filter. */
+            onChange={(e) => f.setOne('sort', e.target.value, { replace: true })}
+            className="min-h-[44px] appearance-none rounded-control border border-line bg-white/70 py-2.5 pl-4 pr-9 text-caption font-medium uppercase tracking-[0.1em] outline-none transition-colors duration-base ease-standard hover:border-obsidian/40"
+          >
             {SORTS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
           </select>
-          <ChevronDown size={14} className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-ash" />
+          <ChevronDown size={14} aria-hidden="true" className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-ash" />
         </div>
       </div>
 
-      <div className="grid gap-10 lg:grid-cols-[230px_1fr]">
-        <aside className="hidden lg:block"><div className="sticky top-28">{FilterPanel}</div></aside>
+      <ActiveChips chips={f.chips} onRemove={f.removeChip} onClearAll={f.clearAll} className="mb-7" />
+
+      {/* PHASE 3. MEASURED: the sidebar stayed 236px and the grid 940px at
+          1440, 1920 AND 2560 — the filter rail took a larger share of a wider
+          screen while the products it filters did not grow at all. The rail now
+          widens slightly and the gap opens, so the grid gains most of the extra
+          width rather than the chrome. */}
+      <div className="grid gap-10 lg:grid-cols-[236px_1fr] xl:gap-12 2xl:grid-cols-[268px_1fr] 2xl:gap-16 3xl:grid-cols-[288px_1fr]">
+        <aside className="hidden lg:block" aria-label="Product filters">
+          {/* top-24 clears the sticky header; the rail scrolls on its own so a
+              long facet list never traps the page. */}
+          <div className="sticky top-24 max-h-[calc(100svh-8rem)] overflow-y-auto overscroll-contain pr-1">
+            <FilterPanel catList={catList} f={f} />
+          </div>
+        </aside>
 
         <div>
           {products === null ? (
             <ProductGridSkeleton />
-          ) : products.length === 0 ? (
-            <div className="grid place-items-center rounded-3xl border border-dashed border-line py-24 text-center">
-              <p className="font-display text-xl">Nothing matches those filters</p>
-              <p className="mt-2 text-sm text-ash">Try removing a filter or two.</p>
-              <button onClick={() => setParams({}, { replace: true })} className="btn-outline mt-6">Clear Filters</button>
+          ) : count === 0 ? (
+            <div>
+              <EmptyState
+                icon={SearchX}
+                title="Nothing matches those filters"
+                description={
+                  f.list('size').length && f.category === 'bras'
+                    // Bras are sized 32B / 34C, not S / M, so a letter size can
+                    // never match one. Say so rather than leaving a dead end.
+                    ? 'Bras are sized by band and cup (32B, 34C), so letter sizes will not match. Remove the size filter to see them.'
+                    : 'Try removing one — or clear them all and start again.'
+                }
+                onAction={f.clearAll}
+                actionLabel="Clear all filters"
+              />
+              {/* The filters that produced nothing, still removable one by one
+                  — clearing everything should not be the only way out. */}
+              <ActiveChips chips={f.chips} onRemove={f.removeChip} onClearAll={f.clearAll} className="justify-center" />
             </div>
           ) : (
-            <div className="grid grid-cols-2 gap-x-5 gap-y-9 md:grid-cols-3 xl:grid-cols-4">
-              {products.map((p) => <ProductCard key={p._id} product={p} />)}
+            <div
+              /* Dimmed while a new result set is in flight. The grid keeps its
+                 height, so refining a filter cannot shift the page. */
+              aria-busy={pending || undefined}
+              className={`grid grid-cols-2 gap-x-gap-md gap-y-gap-xl transition-opacity duration-base md:grid-cols-3 xl:grid-cols-4 2xl:gap-x-8 2xl:gap-y-14 ${
+                pending ? 'opacity-50' : 'opacity-100'
+              }`}
+            >
+              {visible.map((p) => (
+                // Deliberately NOT eager. The source images are 1024x1024 PNGs
+                // of ~2MB; marking the first row high-priority made them the
+                // LCP element and pushed desktop LCP from 4.8s to 13.1s.
+                <ProductCard
+                  key={p._id}
+                  product={p}
+                  headingLevel="h2"
+                  marketingBadges={badgeMap[p.slug]}
+                  promos={promosForProduct(promo.scope, promo.promotions, p)}
+                  maxBadges={promo.badges?.maxPerCard || 2}
+                />
+              ))}
             </div>
           )}
         </div>
       </div>
 
-      {/* Mobile filters drawer */}
-      {filtersOpen && (
-        <div className="fixed inset-0 z-50 bg-obsidian/30 lg:hidden" onClick={() => setFiltersOpen(false)}>
-          <div className="h-full w-[88%] max-w-sm overflow-y-auto bg-alabaster p-6" onClick={(e) => e.stopPropagation()}>
-            <div className="mb-6 flex items-center justify-between">
-              <p className="font-display text-xl">Filters</p>
-              <button onClick={() => setFiltersOpen(false)} aria-label="Close"><X size={20} /></button>
-            </div>
-            {FilterPanel}
-            <button onClick={() => setFiltersOpen(false)} className="btn-primary mt-8 w-full">Show {products?.length ?? ''} Results</button>
-          </div>
-        </div>
-      )}
+      <FilterSheet
+        open={sheetOpen}
+        onClose={() => setSheetOpen(false)}
+        onReset={f.clearAll}
+        catList={catList}
+        f={f}
+        resultCount={count}
+        returnFocusTo={filterBtnRef}
+      />
     </div>
   );
 }

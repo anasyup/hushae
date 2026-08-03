@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
+import { pictureSources } from '../lib/responsiveImage';
 
 /**
  * EditorialBlock — HUSHAE's own magazine-style storefront block.
@@ -29,15 +30,28 @@ export default function EditorialBlock({
 }) {
   const media = (
     <div className={`relative overflow-hidden ${tall ? 'aspect-[4/5] md:aspect-[3/4]' : 'aspect-[4/5] md:aspect-[5/6]'} w-full`}>
-      <motion.img
-        src={image}
-        alt={title}
-        initial={{ scale: 1.02 }}
-        whileInView={{ scale: 1 }}
-        viewport={{ once: true }}
-        transition={{ duration: 1 }}
-        className="absolute inset-0 h-full w-full object-cover"
-      />
+      {/* The side-by-side branch. MEASURED: this one was missed on the first
+          pass because it is a motion.img in a different code path from the
+          full-bleed branch below — the home page renders it three times with
+          150 KB JPEGs. `contents` keeps <picture> out of the layout so the
+          absolute positioning still resolves against the sized parent. */}
+      <picture className="contents">
+        {pictureSources(image).map((so) => (
+          <source key={so.type} type={so.type} srcSet={so.srcSet} sizes="(max-width: 768px) 100vw, 50vw" />
+        ))}
+        <motion.img
+          src={image}
+          alt={title}
+          sizes="(max-width: 768px) 100vw, 50vw"
+          loading="lazy"
+          decoding="async"
+          initial={{ scale: 1.02 }}
+          whileInView={{ scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 1 }}
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+      </picture>
       {overlay && <div className="absolute inset-0 bg-gradient-to-t from-obsidian/70 via-obsidian/10 to-transparent" />}
     </div>
   );
@@ -84,7 +98,12 @@ export default function EditorialBlock({
     return (
       <section className="relative w-full">
         <div className={`relative w-full overflow-hidden ${tall ? 'min-h-[70vh]' : 'min-h-[60vh]'} bg-obsidian`}>
-          <img src={image} alt={title} className="absolute inset-0 h-full w-full object-cover" />
+          <picture className="contents">
+            {pictureSources(image).map((so) => (
+              <source key={so.type} type={so.type} srcSet={so.srcSet} sizes="100vw" />
+            ))}
+            <img src={image} alt={title} sizes="100vw" loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover" />
+          </picture>
           <div className="absolute inset-0 bg-gradient-to-t from-obsidian/70 via-obsidian/30 to-transparent" />
           <motion.div
             initial={{ opacity: 0, y: 30 }}
