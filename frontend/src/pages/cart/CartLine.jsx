@@ -35,9 +35,7 @@ export default function CartLine({
 
   return (
     <li
-      className={`grid grid-cols-[76px_minmax(0,1fr)] gap-3.5 py-6 transition-opacity duration-base sm:grid-cols-[124px_minmax(0,1fr)] sm:gap-6 ${
-        removing ? 'opacity-0' : 'opacity-100'
-      }`}
+      className={`grid grid-cols-[76px_minmax(0,1fr)] gap-4 py-5 transition-opacity duration-300 sm:grid-cols-[100px_minmax(0,1fr)] ${removing ? 'opacity-0' : 'opacity-100'}`}
       aria-busy={removing || undefined}
     >
       {/* ---- Image ---- */}
