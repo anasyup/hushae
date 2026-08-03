@@ -22,6 +22,11 @@ Format:
 ---
 
 ## Changes
+- **2026-08-03** — 🛠️ **Phase 2 (Admin Completeness): Staff roles bug FIXED + Duplicate Product feature**
+  - **Critical bug fix:** `User.role` enum was `['customer','admin']` but the SettingsSecurity "Create Sub-User" screen offers Owner/Manager/Staff/Warehouse/Support. Every attempt failed live with `` `Manager` is not a valid enum value ``. Extended the enum so staff accounts can actually be created.
+  - **New:** `POST /api/products/:id/duplicate` — clones any product into a DRAFT (fresh slug/SKU, never live until published). Admin Products list + grid views got a Duplicate button (Copy icon).
+  - Deploy pending: Vercel free-plan 100 deployments/day limit reached on 2026-08-03; push is on `main` (426cc6f).
+
 
 - **2026-08-03** — ✉️ **SMTP Email LIVE — Brevo configured on Vercel**
   - Added 7 env vars on Vercel: SMTP_HOST (smtp-relay.brevo.com), SMTP_PORT (587), SMTP_SECURE (false), SMTP_USER, SMTP_PASS (Brevo SMTP key), SMTP_FROM (HUSHAE <hushae.pk@gmail.com>), ADMIN_ALERT_EMAIL.
