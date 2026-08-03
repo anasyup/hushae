@@ -288,8 +288,8 @@ export default function Dashboard() {
       {/* ── Row 1: Greeting + tools ────────────────────────────────────── */}
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="font-sans text-[26px] font-semibold text-neutral-900">{greeting}, {auth?.user?.name?.split(' ')[0] || 'Admin'}</p>
-          <p className="mt-1 text-[13px] text-neutral-500">Here's what's happening at HUSHAE today.</p>
+          <p className="font-sans text-[21px] font-semibold text-neutral-900">{greeting}, {auth?.user?.name?.split(' ')[0] || 'Admin'}</p>
+          <p className="mt-0.5 text-[12px] text-neutral-500">Here's what's happening at HUSHAE today.</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1.5 text-[11px] font-semibold text-emerald-700 ring-1 ring-emerald-200"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />Live{lastSync ? ` · ${lastSync.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : ''}</span>

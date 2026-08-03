@@ -373,6 +373,7 @@
 /* ================= Admin — Shopify-like clean look ================= */
 /* Root wrap that AdminLayout adds so we can scope admin-only tweaks */
 .admin-shell {
+  font-size: 13px;
   font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
   font-feature-settings: "cv02","cv03","cv04","cv11";
   -webkit-font-smoothing: antialiased;
