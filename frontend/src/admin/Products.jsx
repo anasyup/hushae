@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import {
-  AlertCircle, Archive, ArrowUpDown, BadgePercent, CheckCircle2, ChevronDown, Copy, DollarSign, Eye, EyeOff,
+  AlertCircle, Archive, ArrowUpDown, BadgePercent, CheckCircle2, ChevronDown, Copy, DollarSign, Download, Eye, EyeOff, FileUp,
   Filter, Grid, LayoutGrid, List, Minus, Package, Pencil, Plus, Save, Search, Star, Trash2, TrendingUp, X,
 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
@@ -9,6 +9,7 @@ import { api } from '../api/client';
 import { pkr } from '../lib/format';
 import AdminLayout from './AdminLayout';
 import Img from '../components/Img';
+import CsvImport from './CsvImport';
 
 /* ============================================================================
  * Products admin — premium redesign.
@@ -24,6 +25,7 @@ export default function Products() {
   const [view, setView] = useState('list'); // 'list' | 'grid'
   const [selected, setSelected] = useState(new Set());
   const [bulkOpen, setBulkOpen] = useState(false);
+  const [csvOpen, setCsvOpen] = useState(false);
   const [searchParams] = useSearchParams();
   const [f, setF] = useState({
     q: '', category: '', gender: '', tier: '', stock: '',
@@ -150,6 +152,9 @@ export default function Products() {
         </div>
 
         <div className="flex items-center gap-2">
+          <button onClick={() => setCsvOpen(true)} className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-[11px] font-semibold text-neutral-600 transition hover:bg-neutral-50" title="Import/Export CSV">
+            <FileUp size={11} /> Import/Export
+          </button>
           {selected.size > 0 && (
             <button
               onClick={() => setBulkOpen(true)}
@@ -231,6 +236,7 @@ export default function Products() {
       )}
 
       {/* ============ PAGINATION ============ */}
+      {csvOpen && <CsvImport onClose={() => setCsvOpen(false)} onDone={load} />}
       {filtered.length > 0 && (
         <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-neutral-200 bg-white px-4 py-3">
           <p className="text-[11px] text-neutral-500">

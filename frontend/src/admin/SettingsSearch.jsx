@@ -198,7 +198,7 @@ export default function SettingsSearch() {
                   <label className="text-[11px] text-neutral-600" htmlFor={`w-${k}`}>Weight</label>
                   <input
                     id={`w-${k}`} type="number" min="0" max="200"
-                    className="input max-w-[90px]" value={S.weights?.[k] ?? 0}
+                    className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 max-w-[90px]" value={S.weights?.[k] ?? 0}
                     disabled={S.fields?.[k] === false}
                     onChange={(e) => setG('weights', k, Number(e.target.value) || 0)}
                   />
@@ -231,12 +231,12 @@ export default function SettingsSearch() {
             {synonyms.map((x, i) => (
               <div key={i} className="flex flex-wrap items-center gap-2 rounded-xl border border-neutral-200 px-3 py-2">
                 <input
-                  className="input max-w-[160px]" value={x.from} aria-label={`Synonym ${i + 1}, first word`}
+                  className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 max-w-[160px]" value={x.from} aria-label={`Synonym ${i + 1}, first word`}
                   onChange={(e) => set('synonyms', synonyms.map((y, j) => (j === i ? { ...y, from: e.target.value.toLowerCase() } : y)))}
                 />
                 <span aria-hidden="true" className="text-[13px] text-neutral-600">{x.both !== false ? '↔' : '→'}</span>
                 <input
-                  className="input max-w-[160px]" value={x.to} aria-label={`Synonym ${i + 1}, second word`}
+                  className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 max-w-[160px]" value={x.to} aria-label={`Synonym ${i + 1}, second word`}
                   onChange={(e) => set('synonyms', synonyms.map((y, j) => (j === i ? { ...y, to: e.target.value.toLowerCase() } : y)))}
                 />
                 <label className="flex min-h-[44px] cursor-pointer items-center gap-2 text-[11px] text-neutral-600">
@@ -260,12 +260,12 @@ export default function SettingsSearch() {
 
           <div className="mt-3 flex flex-wrap items-center gap-2 rounded-xl border border-dashed border-neutral-300 px-3 py-2">
             <input
-              className="input max-w-[160px]" placeholder="customer's word" aria-label="New synonym, customer's word"
+              className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 max-w-[160px]" placeholder="customer's word" aria-label="New synonym, customer's word"
               value={newSyn.from} onChange={(e) => setNewSyn({ ...newSyn, from: e.target.value })}
             />
             <span aria-hidden="true" className="text-[13px] text-neutral-600">↔</span>
             <input
-              className="input max-w-[160px]" placeholder="your word" aria-label="New synonym, your word"
+              className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 max-w-[160px]" placeholder="your word" aria-label="New synonym, your word"
               value={newSyn.to} onChange={(e) => setNewSyn({ ...newSyn, to: e.target.value })}
               onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addSyn(); } }}
             />
@@ -298,7 +298,7 @@ export default function SettingsSearch() {
           <div className="mt-3 flex flex-wrap gap-2">
             <label htmlFor="new-stop" className="sr-only">New ignored word</label>
             <input
-              id="new-stop" className="input max-w-[200px]" placeholder="add a word" value={newStop}
+              id="new-stop" className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 max-w-[200px]" placeholder="add a word" value={newStop}
               onChange={(e) => setNewStop(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key !== 'Enter') return;

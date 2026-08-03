@@ -126,12 +126,12 @@ export default function SettingsCheckout() {
                     <span className={`absolute top-3.5 h-4 w-4 rounded-full bg-white shadow transition-all ${m.enabled ? 'left-[18px]' : 'left-0.5'}`} />
                   </button>
                   <input
-                    className="input flex-1 min-w-[140px]" value={m.label} placeholder="Shown to customers"
+                    className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 flex-1 min-w-[140px]" value={m.label} placeholder="Shown to customers"
                     onChange={(e) => setRow('paymentList', i, 'label', e.target.value)}
                     aria-label={`Label for ${m.id}`}
                   />
                   <select
-                    className="input w-36 shrink-0" value={m.icon}
+                    className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 w-36 shrink-0" value={m.icon}
                     onChange={(e) => setRow('paymentList', i, 'icon', e.target.value)}
                     aria-label={`Icon for ${m.id}`}
                   >
@@ -158,7 +158,7 @@ export default function SettingsCheckout() {
                   />
                 </div>
                 <textarea
-                  className="input mt-3 min-h-[64px]" value={m.instructions || ''}
+                  className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 mt-3 min-h-[64px]" value={m.instructions || ''}
                   placeholder="Instructions shown when the customer picks this (account number, steps…)"
                   onChange={(e) => setRow('paymentList', i, 'instructions', e.target.value)}
                   aria-label={`Instructions for ${m.id}`}
@@ -207,7 +207,7 @@ export default function SettingsCheckout() {
                     <span className={`absolute top-3.5 h-4 w-4 rounded-full bg-white shadow transition-all ${m.enabled ? 'left-[18px]' : 'left-0.5'}`} />
                   </button>
                   <input
-                    className="input min-w-[140px] flex-1" value={m.label}
+                    className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 min-w-[140px] flex-1" value={m.label}
                     onChange={(e) => setRow('shippingMethods', i, 'label', e.target.value)}
                     aria-label={`Label for ${m.id}`}
                   />
@@ -285,10 +285,10 @@ export default function SettingsCheckout() {
           <div className="mt-4 space-y-2">
             {(c.trust || []).map((t, i) => (
               <div key={i} className="flex items-center gap-2">
-                <select className="input w-40 shrink-0" value={t.icon} onChange={(e) => setRow('trust', i, 'icon', e.target.value)} aria-label={`Icon for badge ${i + 1}`}>
+                <select className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 w-40 shrink-0" value={t.icon} onChange={(e) => setRow('trust', i, 'icon', e.target.value)} aria-label={`Icon for badge ${i + 1}`}>
                   {TRUST_ICON_NAMES.map((n) => <option key={n} value={n}>{n}</option>)}
                 </select>
-                <input className="input flex-1" value={t.label} placeholder="e.g. Secure checkout" onChange={(e) => setRow('trust', i, 'label', e.target.value)} aria-label={`Text for badge ${i + 1}`} />
+                <input className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 flex-1" value={t.label} placeholder="e.g. Secure checkout" onChange={(e) => setRow('trust', i, 'label', e.target.value)} aria-label={`Text for badge ${i + 1}`} />
                 <button
                   type="button" onClick={() => set('trust', c.trust.filter((_, j) => j !== i))}
                   className="grid h-10 w-10 shrink-0 place-items-center rounded-lg text-neutral-500 transition hover:bg-red-50 hover:text-red-600"
@@ -313,7 +313,7 @@ export default function SettingsCheckout() {
             <Text label="Heading" value={c.successTitle} onChange={(v) => set('successTitle', v)} />
             <div>
               <label className="label">Message</label>
-              <textarea className="input min-h-[80px]" value={c.successText} onChange={(e) => set('successText', e.target.value)} />
+              <textarea className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 min-h-[80px]" value={c.successText} onChange={(e) => set('successText', e.target.value)} />
             </div>
             <Text label="Extra note (optional)" value={c.successNote} onChange={(v) => set('successNote', v)} hint="Appears in small text at the bottom." />
           </div>

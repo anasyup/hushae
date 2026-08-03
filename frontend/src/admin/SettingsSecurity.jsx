@@ -329,7 +329,7 @@ export default function SettingsSecurity() {
                 <div className="relative">
                   <label className="label">Confirm with Current Password</label>
                   <input
-                    className="input pr-10"
+                    className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 pr-10"
                     type={uShow ? 'text' : 'password'}
                     value={uCurrent}
                     onChange={(e) => setUCurrent(e.target.value)}
@@ -362,7 +362,7 @@ export default function SettingsSecurity() {
                 <div className="relative">
                   <label className="label">Current Password</label>
                   <input
-                    className="input pr-10"
+                    className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 pr-10"
                     type={show.c ? 'text' : 'password'}
                     value={current}
                     onChange={(e) => setCurrent(e.target.value)}
@@ -374,7 +374,7 @@ export default function SettingsSecurity() {
                   <div className="relative">
                     <label className="label">New Password</label>
                     <input
-                      className="input pr-10"
+                      className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 pr-10"
                       type={show.n ? 'text' : 'password'}
                       value={next}
                       onChange={(e) => setNext(e.target.value)}
@@ -385,7 +385,7 @@ export default function SettingsSecurity() {
                   <div className="relative">
                     <label className="label">Confirm New Password</label>
                     <input
-                      className="input pr-10"
+                      className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 pr-10"
                       type={show.x ? 'text' : 'password'}
                       value={confirm}
                       onChange={(e) => setConfirm(e.target.value)}
@@ -561,7 +561,7 @@ export default function SettingsSecurity() {
               <div className="relative flex-1">
                 <Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
                 <input
-                  className="input !pl-9 !py-2"
+                  className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 !pl-9 !py-2"
                   value={logQuery}
                   onChange={(e) => setLogQuery(e.target.value)}
                   placeholder="Search logs by email, action, target..."

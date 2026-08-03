@@ -47,7 +47,7 @@ export default function SettingsAdmin() {
   return (
     <AdminLayout title="Store Settings">
       {/* Appearance — admin panel theme (this device only) */}
-      <div className="card mb-6 p-6">
+      <div className="rounded-2xl border border-neutral-200 bg-white mb-6 p-6">
         <p className="mb-2 text-[11px] font-bold uppercase tracking-widest text-ash">Appearance — admin panel</p>
         <div className="flex flex-wrap items-center justify-between gap-4">
           <p className="max-w-md text-sm text-ash">Admin panel ka theme — white ya black. Sirf aapke is device par apply hota hai, store par koi asar nahi.</p>
@@ -60,7 +60,7 @@ export default function SettingsAdmin() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <div className="card space-y-5 p-6">
+        <div className="rounded-2xl border border-neutral-200 bg-white space-y-5 p-6">
           <p className="text-[11px] font-bold uppercase tracking-widest text-ash">Store</p>
           <div><label className="label">Store name</label><input className="input" value={s.storeName} onChange={(e) => set('storeName', e.target.value)} /></div>
           <div><label className="label">Tagline</label><input className="input" value={s.tagline} onChange={(e) => set('tagline', e.target.value)} /></div>
@@ -70,18 +70,18 @@ export default function SettingsAdmin() {
           </div>
         </div>
 
-        <div className="card space-y-5 p-6">
+        <div className="rounded-2xl border border-neutral-200 bg-white space-y-5 p-6">
           <p className="text-[11px] font-bold uppercase tracking-widest text-ash">Homepage hero</p>
-          <div><label className="label">Title</label><textarea className="input min-h-16" value={s.hero.title} onChange={(e) => setHero('title', e.target.value)} /></div>
-          <div><label className="label">Subtitle</label><textarea className="input min-h-16" value={s.hero.subtitle} onChange={(e) => setHero('subtitle', e.target.value)} /></div>
+          <div><label className="label">Title</label><textarea className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 min-h-16" value={s.hero.title} onChange={(e) => setHero('title', e.target.value)} /></div>
+          <div><label className="label">Subtitle</label><textarea className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 min-h-16" value={s.hero.subtitle} onChange={(e) => setHero('subtitle', e.target.value)} /></div>
           <div className="grid grid-cols-2 gap-4">
             <div><label className="label">Women CTA</label><input className="input" value={s.hero.ctaWomen} onChange={(e) => setHero('ctaWomen', e.target.value)} /></div>
             <div><label className="label">Men CTA</label><input className="input" value={s.hero.ctaMen} onChange={(e) => setHero('ctaMen', e.target.value)} /></div>
           </div>
-          <div><label className="label">Hero image URL</label><input className="input font-mono text-xs" value={s.hero.image} onChange={(e) => setHero('image', e.target.value)} /></div>
+          <div><label className="label">Hero image URL</label><input className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 font-mono text-xs" value={s.hero.image} onChange={(e) => setHero('image', e.target.value)} /></div>
         </div>
 
-        <div className="card space-y-5 p-6">
+        <div className="rounded-2xl border border-neutral-200 bg-white space-y-5 p-6">
           <div className="flex items-center justify-between">
             <p className="text-[11px] font-bold uppercase tracking-widest text-ash">Sale &amp; offer bar</p>
             <span className="rounded-full bg-sage/20 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-sagedeep">Shows above header</span>
@@ -89,23 +89,23 @@ export default function SettingsAdmin() {
           <Toggle label="Offer bar enabled" checked={!!s.offerBar?.enabled} onChange={(v) => setOffer('enabled', v)} />
           <div><label className="label">Message</label><input className="input" value={s.offerBar?.messageEn || ''} onChange={(e) => setOffer('messageEn', e.target.value)} placeholder="Season Sale — up to 40% off · while stock lasts" /></div>
           <div><label className="label">Button label</label><input className="input" value={s.offerBar?.ctaEn || ''} onChange={(e) => setOffer('ctaEn', e.target.value)} placeholder="Shop the Sale" /></div>
-          <div><label className="label">Button link</label><input className="input font-mono text-xs" value={s.offerBar?.link || ''} onChange={(e) => setOffer('link', e.target.value)} placeholder="/sale" /></div>
+          <div><label className="label">Button link</label><input className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 font-mono text-xs" value={s.offerBar?.link || ''} onChange={(e) => setOffer('link', e.target.value)} placeholder="/sale" /></div>
           <p className="text-[11px] leading-relaxed text-ash">
             Tip: to put any product on sale, open Products → Edit and set a <b>Compare-at price</b>. It will appear on the /sale page with the discount %.
           </p>
         </div>
 
-        <div className="card space-y-4 p-6">
+        <div className="rounded-2xl border border-neutral-200 bg-white space-y-4 p-6">
           <p className="text-[11px] font-bold uppercase tracking-widest text-ash">Trust badges</p>
           {s.trustBadges.map((b, i) => (
             <div key={i} className="grid grid-cols-[140px_1fr] items-center gap-3">
-              <input className="input !py-2.5 !text-xs font-semibold" value={b.title} onChange={(e) => setBadge(i, 'title', e.target.value)} />
-              <input className="input !py-2.5 !text-xs" value={b.text} onChange={(e) => setBadge(i, 'text', e.target.value)} />
+              <input className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 !py-2.5 !text-xs font-semibold" value={b.title} onChange={(e) => setBadge(i, 'title', e.target.value)} />
+              <input className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 !py-2.5 !text-xs" value={b.text} onChange={(e) => setBadge(i, 'text', e.target.value)} />
             </div>
           ))}
         </div>
 
-        <div className="card space-y-5 p-6">
+        <div className="rounded-2xl border border-neutral-200 bg-white space-y-5 p-6">
           <p className="text-[11px] font-bold uppercase tracking-widest text-ash">Shipping & payments</p>
           <div className="grid grid-cols-2 gap-4">
             <div><label className="label">Flat rate (PKR)</label><input className="input" type="number" min="0" value={s.shippingFlatRate} onChange={(e) => set('shippingFlatRate', e.target.value)} /></div>
@@ -117,13 +117,13 @@ export default function SettingsAdmin() {
             <Toggle label="EasyPaisa" checked={s.paymentMethods.easypaisa} onChange={(v) => setPM('easypaisa', v)} />
             <Toggle label="Bank Transfer" checked={s.paymentMethods.bank} onChange={(v) => setPM('bank', v)} />
           </div>
-          <div><label className="label">Bank details (shown at checkout)</label><textarea className="input min-h-20 font-mono text-xs" value={s.paymentMethods.bankDetails} onChange={(e) => setPM('bankDetails', e.target.value)} /></div>
+          <div><label className="label">Bank details (shown at checkout)</label><textarea className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 min-h-20 font-mono text-xs" value={s.paymentMethods.bankDetails} onChange={(e) => setPM('bankDetails', e.target.value)} /></div>
         </div>
       </div>
 
       <ChangePasswordCard />
 
-      <button onClick={save} disabled={busy} className="btn-primary mt-8"><Save size={15} /> {busy ? 'Saving…' : 'Save all settings'}</button>
+      <button onClick={save} disabled={busy} className="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-4 py-2 text-[11px] font-semibold text-white hover:bg-black mt-8"><Save size={15} /> {busy ? 'Saving…' : 'Save all settings'}</button>
     </AdminLayout>
   );
 }
@@ -198,7 +198,7 @@ function ChangePasswordCard() {
   );
 
   return (
-    <form onSubmit={submit} className="card mt-6 space-y-5 p-6">
+    <form onSubmit={submit} className="rounded-2xl border border-neutral-200 bg-white mt-6 space-y-5 p-6">
       <div className="flex items-center gap-2">
         <Lock size={16} className="text-sagedeep" />
         <p className="text-[11px] font-bold uppercase tracking-widest text-ash">Change password</p>
@@ -207,7 +207,7 @@ function ChangePasswordCard() {
       <div className="relative">
         <label className="label">Current password</label>
         <input
-          className="input pr-10"
+          className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 pr-10"
           type={show.c ? 'text' : 'password'}
           value={current}
           onChange={(e) => setCurrent(e.target.value)}
@@ -220,7 +220,7 @@ function ChangePasswordCard() {
         <div className="relative">
           <label className="label">New password</label>
           <input
-            className="input pr-10"
+            className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 pr-10"
             type={show.n ? 'text' : 'password'}
             value={next}
             onChange={(e) => setNext(e.target.value)}
@@ -241,7 +241,7 @@ function ChangePasswordCard() {
         <div className="relative">
           <label className="label">Confirm new password</label>
           <input
-            className="input pr-10"
+            className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 pr-10"
             type={show.x ? 'text' : 'password'}
             value={confirm}
             onChange={(e) => setConfirm(e.target.value)}
@@ -261,7 +261,7 @@ function ChangePasswordCard() {
       <button
         type="submit"
         disabled={busy || !current || !next || next !== confirm}
-        className="btn-primary"
+        className="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-4 py-2 text-[11px] font-semibold text-white hover:bg-black"
       >
         <Lock size={15} /> {busy ? 'Updating…' : 'Update password'}
       </button>

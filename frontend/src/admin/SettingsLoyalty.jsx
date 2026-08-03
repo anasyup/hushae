@@ -137,7 +137,7 @@ function EarnRule({ label, description, on, points, onToggle, onPoints, disabled
       </label>
       <div className="mt-3 flex items-center gap-2">
         <input
-          type="number" min="0" max="100000" className="input max-w-[140px]"
+          type="number" min="0" max="100000" className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 max-w-[140px]"
           value={points ?? 0} disabled={disabled || !on}
           aria-label={`${label} — points awarded`}
           onChange={(e) => onPoints(e.target.value === '' ? 0 : Number(e.target.value))}
@@ -474,7 +474,7 @@ export default function SettingsLoyalty() {
                       <label className="label" htmlFor={`tier-perks-${i}`}>Perks shown to the customer (one per line)</label>
                       <textarea
                         id={`tier-perks-${i}`}
-                        className="input min-h-[88px]" disabled={off || !L.tiers.enabled}
+                        className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 min-h-[88px]" disabled={off || !L.tiers.enabled}
                         value={(t.perks || []).join('\n')}
                         onChange={(e) => setTier(i, 'perks', e.target.value.split('\n').map((x) => x.trim()).filter(Boolean))}
                       />

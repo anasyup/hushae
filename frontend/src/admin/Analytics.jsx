@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import {
-  Banknote, BarChart3, ChevronRight, Globe, Layers, Monitor, Receipt, Repeat,
+  Banknote, BarChart3, Calendar, ChevronRight, Globe, Layers, Monitor, Receipt, Repeat,
   ShoppingBag, ShoppingCart, Smartphone, Tablet, TrendingDown, TrendingUp, UserPlus, Users,
 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
@@ -14,6 +14,7 @@ const RANGES = [
   { v: '30d', label: 'Last 30 days' },
   { v: '90d', label: 'Last 90 days' },
   { v: 'all', label: 'All time' },
+  { v: 'custom', label: 'Custom range' },
 ];
 
 const dayLabel = (iso) => new Date(`${iso}T00:00:00`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
@@ -110,23 +111,34 @@ const DevIcon = { mobile: Smartphone, tablet: Tablet, desktop: Monitor };
 export default function Analytics() {
   const { auth, logout } = useApp();
   const [range, setRange] = useState('30d');
+  const [customFrom, setCustomFrom] = useState(new Date(Date.now() - 30*86400000).toISOString().slice(0,10));
+  const [customTo, setCustomTo] = useState(new Date().toISOString().slice(0,10));
   const [a, setA] = useState(null);
   const [err, setErr] = useState('');
   const [tick, setTick] = useState(0);
 
   useEffect(() => {
     setA(null); setErr('');
-    api(`/analytics/overview?range=${range}`, { token: auth.token })
+    const qs = range === 'custom' ? `range=custom&from=${customFrom}&to=${customTo}` : `range=${range}`;
+    api(`/analytics/overview?${qs}`, { token: auth.token })
       .then(setA)
       .catch((e) => { if (e?.status === 401) { logout(); return; } setErr('Failed to load analytics — please try again.'); });
   }, [auth, range, tick]); // eslint-disable-line
 
   const head = (
     <div className="mb-5 flex flex-wrap items-center gap-3">
-      <select value={range} onChange={(e) => setRange(e.target.value)} className="input !w-52">
+      <select value={range} onChange={(e) => setRange(e.target.value)} className="input !w-44">
         {RANGES.map((r) => <option key={r.v} value={r.v}>{r.label}</option>)}
       </select>
-      {a?.prev && <span className="text-xs text-ash">compared with the previous {RANGES.find((r) => r.v === range)?.label.toLowerCase()}</span>}
+      {range === 'custom' && (
+        <div className="flex items-center gap-2">
+          <Calendar size={13} className="text-neutral-400" />
+          <input type="date" value={customFrom} onChange={(e) => setCustomFrom(e.target.value)} className="input !w-36 !py-1.5" />
+          <span className="text-xs text-neutral-400">to</span>
+          <input type="date" value={customTo} onChange={(e) => setCustomTo(e.target.value)} className="input !w-36 !py-1.5" />
+        </div>
+      )}
+      {a?.prev && range !== 'custom' && <span className="text-xs text-ash">compared with the previous {RANGES.find((r) => r.v === range)?.label.toLowerCase()}</span>}
     </div>
   );
 

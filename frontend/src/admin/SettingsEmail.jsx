@@ -360,7 +360,7 @@ export default function SettingsEmail() {
                   <div className="relative">
                     <input
                       type={showPass ? 'text' : 'password'}
-                      className="input pr-10"
+                      className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 pr-10"
                       value={emailCfg.pass || ''}
                       onChange={(e) => setEmailValue('pass', e.target.value)}
                       placeholder="••••••••••••"
@@ -416,7 +416,7 @@ export default function SettingsEmail() {
             >
               <div className="flex gap-2">
                 <input
-                  className="input flex-1"
+                  className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 flex-1"
                   value={testEmail}
                   onChange={(e) => setTestEmail(e.target.value)}
                   placeholder="e.g. mytest@gmail.com"
@@ -503,7 +503,7 @@ export default function SettingsEmail() {
                       </div>
                       <input
                         ref={subjectRef}
-                        className="input font-medium"
+                        className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 font-medium"
                         value={editSubject}
                         onChange={(e) => setEditSubject(e.target.value)}
                         placeholder="Subject Line"
@@ -519,7 +519,7 @@ export default function SettingsEmail() {
                       <textarea
                         ref={bodyRef}
                         rows={16}
-                        className="input font-mono text-xs leading-relaxed"
+                        className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 font-mono text-xs leading-relaxed"
                         value={editBody}
                         onChange={(e) => setEditBody(e.target.value)}
                         placeholder="HTML content"
@@ -585,7 +585,7 @@ export default function SettingsEmail() {
                       <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-900 mb-2">Send Real Template Test</p>
                       <div className="flex gap-2">
                         <input
-                          className="input flex-1 !py-1.5 !text-xs"
+                          className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 flex-1 !py-1.5 !text-xs"
                           value={testTemplateEmail}
                           onChange={(e) => setTestTemplateEmail(e.target.value)}
                           placeholder="e.g. recipient@gmail.com"

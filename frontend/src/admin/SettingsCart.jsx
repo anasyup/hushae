@@ -151,7 +151,7 @@ export default function SettingsCart() {
             <Text label="Heading" value={c.emptyTitle} onChange={(v) => set('emptyTitle', v)} />
             <div>
               <label className="label">Message</label>
-              <textarea className="input min-h-[80px]" value={c.emptyText} onChange={(e) => set('emptyText', e.target.value)} />
+              <textarea className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 min-h-[80px]" value={c.emptyText} onChange={(e) => set('emptyText', e.target.value)} />
             </div>
           </div>
         </Section>
@@ -221,10 +221,10 @@ export default function SettingsCart() {
           <div className="mt-4 space-y-2">
             {(c.trust || []).map((t, i) => (
               <div key={i} className="flex items-center gap-2">
-                <select className="input w-40 shrink-0" value={t.icon} onChange={(e) => setTrust(i, 'icon', e.target.value)} aria-label={`Icon for badge ${i + 1}`}>
+                <select className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 w-40 shrink-0" value={t.icon} onChange={(e) => setTrust(i, 'icon', e.target.value)} aria-label={`Icon for badge ${i + 1}`}>
                   {TRUST_ICON_NAMES.map((n) => <option key={n} value={n}>{n}</option>)}
                 </select>
-                <input className="input flex-1" value={t.label} placeholder="e.g. Secure checkout" onChange={(e) => setTrust(i, 'label', e.target.value)} aria-label={`Text for badge ${i + 1}`} />
+                <input className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 flex-1" value={t.label} placeholder="e.g. Secure checkout" onChange={(e) => setTrust(i, 'label', e.target.value)} aria-label={`Text for badge ${i + 1}`} />
                 <button
                   type="button"
                   onClick={() => set('trust', c.trust.filter((_, j) => j !== i))}
