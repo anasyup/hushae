@@ -102,7 +102,7 @@ export default function OrderRow({
 
         {/* Right — money + actions */}
         <div className="flex shrink-0 flex-col items-end gap-1.5">
-          <p className="text-[15px] font-semibold tabular-nums text-neutral-900">{pkr(o.total)}</p>
+          <p className="text-[12px] font-semibold tabular-nums text-neutral-900">{pkr(o.total)}</p>
           <p className="text-[11px] text-neutral-400">
             {itemCount} item{itemCount === 1 ? '' : 's'}
             {bins.length > 0 && (

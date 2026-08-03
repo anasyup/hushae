@@ -355,7 +355,7 @@ export default function ProductForm() {
                   <div className="mt-3 flex items-center justify-between rounded-lg bg-white px-3 py-2.5">
                     <span className="text-[13px] font-semibold text-neutral-700">Profit per unit</span>
                     <div className="flex items-center gap-2">
-                      <span className={`text-[15px] font-bold tabular-nums ${profit >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>PKR {profit.toLocaleString('en-PK')}</span>
+                      <span className={`text-[12px] font-bold tabular-nums ${profit >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>PKR {profit.toLocaleString('en-PK')}</span>
                       <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${margin >= 40 ? 'bg-emerald-100 text-emerald-800' : margin >= 20 ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-800'}`}>{margin.toFixed(1)}%</span>
                     </div>
                   </div>

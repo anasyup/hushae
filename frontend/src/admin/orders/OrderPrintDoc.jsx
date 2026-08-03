@@ -81,7 +81,7 @@ export default function OrderPrintDoc() {
       <div className="mt-6 flex justify-between gap-8 text-[13px] leading-relaxed">
         <div>
           <p className="mb-1 text-[10px] uppercase tracking-[0.22em] text-neutral-500">Ship to</p>
-          <p className="text-[15px] font-bold">{c.name}</p>
+          <p className="text-[12px] font-bold">{c.name}</p>
           <p>{c.address}</p>
           <p>{c.city}, {c.province} {c.postalCode}</p>
           <p className="mt-1">{c.phone}</p>
@@ -126,7 +126,7 @@ export default function OrderPrintDoc() {
               <td className="border-b border-neutral-200 py-3 text-[12px]">
                 {[it.size, it.color].filter(Boolean).join(' · ') || '—'}
               </td>
-              <td className="border-b border-neutral-200 py-3 text-right text-[15px] font-bold tabular-nums">{it.quantity}</td>
+              <td className="border-b border-neutral-200 py-3 text-right text-[12px] font-bold tabular-nums">{it.quantity}</td>
               {kind === 'packing_slip' && (
                 <td className="border-b border-neutral-200 py-3 text-right tabular-nums">{pkr(it.lineTotal)}</td>
               )}

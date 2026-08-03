@@ -93,7 +93,7 @@ function AdjustDialog({ account, onClose, onDone }) {
       <div ref={panelRef} role="dialog" aria-modal="true" aria-labelledby="adj-title" className="max-h-[92svh] w-full overflow-y-auto rounded-t-2xl bg-white p-5 shadow-2xl sm:max-w-md sm:rounded-2xl">
         <div className="mb-4 flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <h2 id="adj-title" className="text-[15px] font-semibold text-neutral-900">Adjust balance</h2>
+            <h2 id="adj-title" className="text-[12px] font-semibold text-neutral-900">Adjust balance</h2>
             <p className="mt-0.5 truncate text-[12px] text-neutral-500">{account.name || 'Customer'} · {account.phone}</p>
           </div>
           <button ref={firstRef} type="button" onClick={onClose} aria-label="Close" className="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-neutral-500 transition hover:bg-neutral-100">
@@ -189,7 +189,7 @@ function MemberPanel({ id, onClose, onChanged }) {
       <div role="dialog" aria-modal="true" aria-label="Member details" className="flex h-full w-full max-w-lg flex-col overflow-hidden bg-white shadow-2xl">
         <div className="flex shrink-0 items-start justify-between gap-3 border-b border-neutral-200 p-5">
           <div className="min-w-0">
-            <h2 className="truncate text-[15px] font-semibold text-neutral-900">{a?.name || 'Member'}</h2>
+            <h2 className="truncate text-[12px] font-semibold text-neutral-900">{a?.name || 'Member'}</h2>
             <p className="mt-0.5 truncate text-[12px] text-neutral-500">{a?.phone}{a?.email ? ` · ${a.email}` : ''}</p>
           </div>
           <button ref={closeRef} type="button" onClick={onClose} aria-label="Close" className="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-neutral-500 transition hover:bg-neutral-100">
@@ -300,7 +300,7 @@ function NewCardDialog({ onClose, onDone }) {
     <div className="fixed inset-0 z-[60] grid place-items-end bg-black/40 p-0 sm:place-items-center sm:p-4" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
       <div role="dialog" aria-modal="true" aria-labelledby="gc-title" className="max-h-[92svh] w-full overflow-y-auto rounded-t-2xl bg-white p-5 shadow-2xl sm:max-w-md sm:rounded-2xl">
         <div className="mb-4 flex items-start justify-between gap-3">
-          <h2 id="gc-title" className="text-[15px] font-semibold text-neutral-900">{code ? 'Card created' : 'New gift card'}</h2>
+          <h2 id="gc-title" className="text-[12px] font-semibold text-neutral-900">{code ? 'Card created' : 'New gift card'}</h2>
           <button ref={firstRef} type="button" onClick={onClose} aria-label="Close" className="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-neutral-500 transition hover:bg-neutral-100">
             <X size={16} />
           </button>

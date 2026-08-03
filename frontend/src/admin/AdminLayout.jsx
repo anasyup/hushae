@@ -255,7 +255,7 @@ export default function AdminLayout({ children, title }) {
       <div className="flex min-h-screen min-w-0 flex-1 flex-col md:pl-[200px]">
         <div className="sticky top-0 z-30 flex items-center gap-3 border-b border-black/5 bg-[#ebebeb] px-4 py-3 md:hidden"><button onClick={() => setDrawer(true)} className="rounded-lg p-1.5 text-neutral-700 hover:bg-white/70"><Menu size={20} /></button><Link to="/admin" className="font-sans text-base font-bold tracking-widest text-neutral-900">HUSHAE</Link></div>
         <TopBar title={title} auth={auth} onCmdK={() => setCmdOpen(true)} />
-        <div className="min-w-0 flex-1 p-3 md:p-5">{title && <h1 className="mb-6 font-sans text-[28px] font-semibold leading-tight text-neutral-900 md:hidden">{title}</h1>}<div className="admin-main min-w-0">{children}</div></div>
+        <div className="min-w-0 flex-1 p-3 md:p-5">{title && <h1 className="mb-6 font-sans text-[13px] font-semibold leading-tight text-neutral-900 md:hidden">{title}</h1>}<div className="admin-main min-w-0">{children}</div></div>
       </div>
       <ProfitCalculator />
       {cmdOpen && <CommandPalette onClose={() => setCmdOpen(false)} />}
@@ -286,7 +286,7 @@ function TopBar({ title, auth, onCmdK }) {
   return (
     <header className="sticky top-0 z-20 hidden border-b border-neutral-200 bg-white/85 px-8 py-3 backdrop-blur md:block">
       <div className="flex items-center justify-between gap-6">
-        <div className="min-w-0 flex-1"><h1 className="truncate font-sans text-[15px] font-semibold leading-tight text-neutral-900">{title || crumbs[crumbs.length - 1]?.label}</h1><nav className="mt-0.5 flex items-center gap-1.5 text-[10px] text-neutral-500">{crumbs.map((c, i) => <span key={c.to} className="inline-flex items-center gap-1.5">{i > 0 && <span className="text-neutral-300">/</span>}{i === crumbs.length - 1 ? <span className="font-medium text-neutral-700">{c.label}</span> : <Link to={c.to} className="hover:text-neutral-900">{c.label}</Link>}</span>)}</nav></div>
+        <div className="min-w-0 flex-1"><h1 className="truncate font-sans text-[12px] font-semibold leading-tight text-neutral-900">{title || crumbs[crumbs.length - 1]?.label}</h1><nav className="mt-0.5 flex items-center gap-1.5 text-[10px] text-neutral-500">{crumbs.map((c, i) => <span key={c.to} className="inline-flex items-center gap-1.5">{i > 0 && <span className="text-neutral-300">/</span>}{i === crumbs.length - 1 ? <span className="font-medium text-neutral-700">{c.label}</span> : <Link to={c.to} className="hover:text-neutral-900">{c.label}</Link>}</span>)}</nav></div>
         <div className="flex items-center gap-2">
           {/* ⌘K Search button */}
           <button onClick={onCmdK} className="hidden items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-[10px] font-semibold text-neutral-500 transition hover:border-neutral-400 hover:text-neutral-700 md:inline-flex" title="Search admin (⌘K)"><Command size={10} /> Search</button>

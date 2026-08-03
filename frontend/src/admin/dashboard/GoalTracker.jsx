@@ -76,7 +76,7 @@ export default function GoalTracker({ goal, onSaved }) {
       ) : (
         <>
           <div className="mt-4 flex items-baseline gap-2">
-            <p className="font-sans text-[24px] font-semibold tabular-nums leading-none tracking-tight text-neutral-900">{pkr(goal.earned)}</p>
+            <p className="font-sans text-[16px] font-semibold tabular-nums leading-none tracking-tight text-neutral-900">{pkr(goal.earned)}</p>
             <p className="text-[12px] text-neutral-500">of {pkr(goal.goal)}</p>
           </div>
 

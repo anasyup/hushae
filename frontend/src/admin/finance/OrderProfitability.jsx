@@ -131,7 +131,7 @@ export default function OrderProfitability({ days, from, to }) {
           ].map(([label, value, cls]) => (
             <div key={label}>
               <p className="text-[9.5px] font-bold uppercase tracking-widest text-neutral-500">{label}</p>
-              <p className={`mt-0.5 font-sans text-[15px] font-semibold tabular-nums ${cls || 'text-neutral-900'}`}>{value}</p>
+              <p className={`mt-0.5 font-sans text-[12px] font-semibold tabular-nums ${cls || 'text-neutral-900'}`}>{value}</p>
             </div>
           ))}
         </div>

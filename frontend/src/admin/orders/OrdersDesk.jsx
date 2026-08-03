@@ -328,7 +328,7 @@ export default function OrdersDesk() {
         <div className="fixed inset-0 z-50 grid place-items-center bg-black/40 p-4" onClick={() => setShowShortcuts(false)}>
           <div className="w-full max-w-sm rounded-xl bg-white p-5 shadow-2xl" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between">
-              <p className="inline-flex items-center gap-2 text-[15px] font-semibold"><Keyboard size={15} /> Shortcuts</p>
+              <p className="inline-flex items-center gap-2 text-[12px] font-semibold"><Keyboard size={15} /> Shortcuts</p>
               <button onClick={() => setShowShortcuts(false)} className="text-neutral-400 hover:text-neutral-900"><X size={15} /></button>
             </div>
             <dl className="mt-3 space-y-1.5">
@@ -380,7 +380,7 @@ function IssueModal({ order, token, toast, onClose, onSaved }) {
       <div className="w-full max-w-md rounded-xl bg-white p-5 shadow-2xl">
         <div className="flex items-start justify-between">
           <div>
-            <p className="text-[15px] font-semibold text-neutral-900">Log a customer issue</p>
+            <p className="text-[12px] font-semibold text-neutral-900">Log a customer issue</p>
             <p className="mt-0.5 font-mono text-[12px] text-neutral-500">{order.orderNumber}</p>
           </div>
           <button onClick={onClose} className="text-neutral-400 hover:text-neutral-900"><X size={16} /></button>

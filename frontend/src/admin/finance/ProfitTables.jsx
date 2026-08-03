@@ -174,7 +174,7 @@ export function CodExposure() {
       <p className="text-[11px] font-bold uppercase tracking-widest text-neutral-500">COD exposure</p>
       <p className="mt-1 text-[12px] text-neutral-500">Money you have not been paid yet, because the parcel has not been delivered.</p>
 
-      <p className="mt-4 font-sans text-[26px] font-semibold tabular-nums leading-none tracking-tight text-neutral-900">{pkr(d.exposure)}</p>
+      <p className="mt-4 font-sans text-[17px] font-semibold tabular-nums leading-none tracking-tight text-neutral-900">{pkr(d.exposure)}</p>
       <p className="mt-1.5 text-[11.5px] text-neutral-500">
         across {d.orders} open order{d.orders === 1 ? '' : 's'} · avg {pkr(d.avgExposure)}
       </p>
@@ -254,7 +254,7 @@ export function BreakEven({ days, from, to }) {
       ) : (
         <>
           <div className="mt-4 flex items-baseline gap-2">
-            <p className="font-sans text-[30px] font-semibold tabular-nums leading-none tracking-tight text-neutral-900">{d.ordersNeededPerDay}</p>
+            <p className="font-sans text-[20px] font-semibold tabular-nums leading-none tracking-tight text-neutral-900">{d.ordersNeededPerDay}</p>
             <p className="text-[12px] text-neutral-500">order{d.ordersNeededPerDay === 1 ? '' : 's'} / day needed</p>
           </div>
 

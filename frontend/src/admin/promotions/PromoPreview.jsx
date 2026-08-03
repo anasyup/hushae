@@ -108,7 +108,7 @@ export default function PromoPreview({ draft, onClose }) {
       >
         <div className="flex shrink-0 items-center justify-between gap-3 border-b border-neutral-200 px-5 py-4">
           <div className="min-w-0">
-            <h2 id="pp-title" className="text-[15px] font-semibold text-neutral-900">Test this promotion</h2>
+            <h2 id="pp-title" className="text-[12px] font-semibold text-neutral-900">Test this promotion</h2>
             <p className="mt-0.5 text-[12px] text-neutral-600">Nothing is saved or charged.</p>
           </div>
           <button ref={closeRef} type="button" onClick={onClose} aria-label="Close" className="grid h-11 w-11 shrink-0 place-items-center rounded-lg text-neutral-600 transition hover:bg-neutral-100">

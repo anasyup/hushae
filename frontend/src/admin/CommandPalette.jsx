@@ -86,7 +86,7 @@ export default function CommandPalette({ onClose }) {
           <Search size={17} className="shrink-0 text-neutral-400" />
           <input ref={inputRef} value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={onKey}
             placeholder="Search admin… (type a page name or command)"
-            className="w-full bg-transparent text-[15px] text-neutral-900 outline-none placeholder:text-neutral-400" />
+            className="w-full bg-transparent text-[12px] text-neutral-900 outline-none placeholder:text-neutral-400" />
           <kbd className="hidden items-center gap-0.5 rounded-md border border-neutral-300 bg-neutral-100 px-2 py-1 text-[10px] font-semibold text-neutral-500 sm:flex"><Command size={10} />K</kbd>
         </div>
         <div className="max-h-[360px] overflow-y-auto p-2">

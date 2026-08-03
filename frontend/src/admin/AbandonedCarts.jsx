@@ -152,7 +152,7 @@ export default function AbandonedCarts() {
 
                 {/* Value + status */}
                 <div>
-                  <p className="font-sans text-[18px] font-semibold tabular-nums text-neutral-900">{pkr(c.subtotal)}</p>
+                  <p className="font-sans text-[13px] font-semibold tabular-nums text-neutral-900">{pkr(c.subtotal)}</p>
                   <div className="mt-1.5 flex flex-wrap gap-1.5">
                     {c.recoveryEmailSentAt && <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-bold text-blue-700">Email sent</span>}
                     {c.recoveredOrderId && <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700">Recovered ✓</span>}
@@ -265,7 +265,7 @@ function Kpi({ icon: Icon, label, value, sub, tone }) {
     <div className="rounded-2xl border border-neutral-200 bg-white p-5 transition hover:-translate-y-0.5 hover:shadow-sm">
       <span className={`grid h-10 w-10 place-items-center rounded-xl ${t[tone] || t.neutral}`}><Icon size={16} /></span>
       <p className="mt-3 text-[10px] font-bold uppercase tracking-widest text-neutral-500">{label}</p>
-      <p className="mt-0.5 font-sans text-[22px] font-semibold tabular-nums leading-none tracking-tight text-neutral-900">{value}</p>
+      <p className="mt-0.5 font-sans text-[12px] font-semibold tabular-nums leading-none tracking-tight text-neutral-900">{value}</p>
       {sub && <p className="mt-1.5 text-[11px] text-neutral-500">{sub}</p>}
     </div>
   );

@@ -77,7 +77,7 @@ export default function SeoPanel({ page, cfg, onChange, onChangeSeo }) {
           </p>
           <div className="rounded-lg border border-neutral-200 bg-white p-3">
             <p className="truncate text-[11px] text-[#006621]">hushae.pk/{page.slug || '…'}</p>
-            <p className="mt-0.5 truncate text-[15px] leading-snug text-[#1a0dab]">
+            <p className="mt-0.5 truncate text-[12px] leading-snug text-[#1a0dab]">
               {resolved.fullTitle || 'Your page name'}
             </p>
             <p className="mt-1 line-clamp-2 text-[12px] leading-relaxed text-neutral-700">

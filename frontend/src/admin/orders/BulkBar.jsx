@@ -184,7 +184,7 @@ export default function BulkBar({ selected, total, onClear, onSelectAll, onBulk,
           <div className="flex max-h-[80vh] w-full max-w-md flex-col rounded-xl bg-white shadow-2xl">
             <div className="flex items-start justify-between border-b border-neutral-100 p-4">
               <div>
-                <p className="text-[15px] font-semibold text-neutral-900">WhatsApp {waLinks.length} customer{waLinks.length === 1 ? '' : 's'}</p>
+                <p className="text-[12px] font-semibold text-neutral-900">WhatsApp {waLinks.length} customer{waLinks.length === 1 ? '' : 's'}</p>
                 <p className="mt-0.5 text-[12.5px] text-neutral-500">
                   Each opens in WhatsApp with the message ready — you press send.
                 </p>
@@ -211,7 +211,7 @@ export default function BulkBar({ selected, total, onClear, onSelectAll, onBulk,
       {confirm && (
         <div className="fixed inset-0 z-50 grid place-items-center bg-black/40 p-4" role="dialog" aria-modal="true">
           <div className="w-full max-w-md rounded-xl bg-white p-5 shadow-2xl">
-            <p className="text-[15px] font-semibold text-neutral-900">{confirm.title}</p>
+            <p className="text-[12px] font-semibold text-neutral-900">{confirm.title}</p>
             <p className="mt-1.5 text-[13px] leading-relaxed text-neutral-600">{confirm.body}</p>
 
             {confirm.needsReason && (

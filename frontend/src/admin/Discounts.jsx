@@ -41,7 +41,7 @@ export default function Discounts() {
         <button onClick={openNew} className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-neutral-900 px-4 text-[12px] font-semibold text-white transition hover:bg-neutral-800"><Plus size={13} /> New code</button>
       </div>
       <div className="mb-5 grid gap-3 sm:grid-cols-3">
-        {[{ label: 'Total codes', value: stats.total, tone: '' }, { label: 'Active', value: stats.active, tone: 'text-emerald-700' }, { label: 'Total uses', value: stats.used, tone: '' }].map((s) => <div key={s.label} className="rounded-2xl border border-neutral-200 bg-white p-4"><p className="text-[10px] font-bold uppercase tracking-widest text-neutral-500">{s.label}</p><p className={`mt-1 font-sans text-[22px] font-semibold ${s.tone || 'text-neutral-900'}`}>{s.value}</p></div>)}
+        {[{ label: 'Total codes', value: stats.total, tone: '' }, { label: 'Active', value: stats.active, tone: 'text-emerald-700' }, { label: 'Total uses', value: stats.used, tone: '' }].map((s) => <div key={s.label} className="rounded-2xl border border-neutral-200 bg-white p-4"><p className="text-[10px] font-bold uppercase tracking-widest text-neutral-500">{s.label}</p><p className={`mt-1 font-sans text-[12px] font-semibold ${s.tone || 'text-neutral-900'}`}>{s.value}</p></div>)}
       </div>
       {showForm && (
         <form onSubmit={save} className="mb-5 overflow-hidden rounded-2xl border border-neutral-200 bg-white">
@@ -71,7 +71,7 @@ export default function Discounts() {
                 <button onClick={() => toggle(d)} title={d.active ? 'Deactivate' : 'Activate'} className={`grid h-8 w-8 place-items-center rounded-lg transition ${d.active ? 'text-emerald-600 hover:bg-emerald-50' : 'text-neutral-400 hover:bg-neutral-100'}`}>{d.active ? <ToggleRight size={18} /> : <ToggleLeft size={18} />}</button>
               </div>
               <div className="mt-3">
-                <p className="text-[15px] font-semibold text-neutral-900">{d.type === 'percent' ? `${d.value}% off` : `${pkr(d.value)} off`}</p>
+                <p className="text-[12px] font-semibold text-neutral-900">{d.type === 'percent' ? `${d.value}% off` : `${pkr(d.value)} off`}</p>
                 <div className="mt-2 flex flex-wrap gap-2 text-[11px]">
                   {d.minSubtotal > 0 && <span className="rounded-full bg-neutral-100 px-2 py-0.5 font-medium text-neutral-600">Min order {pkr(d.minSubtotal)}</span>}
                   {d.expiresAt && <span className={`rounded-full px-2 py-0.5 font-medium ${new Date(d.expiresAt) < new Date() ? 'bg-red-50 text-red-700' : 'bg-neutral-100 text-neutral-600'}`}><Calendar size={10} className="mr-1 inline" />{fmtDate(d.expiresAt)}</span>}

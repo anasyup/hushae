@@ -133,7 +133,7 @@ export default function Marketing() {
               <ShoppingBag size={14} className="text-neutral-500" />
               <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-500">Abandoned Carts</p>
             </div>
-            <p className="mt-2 text-[24px] font-bold text-neutral-900">{m.abandonedCartCount}</p>
+            <p className="mt-2 text-[16px] font-bold text-neutral-900">{m.abandonedCartCount}</p>
             <p className="text-[11px] text-neutral-500 mt-1">Carts awaiting checkout</p>
           </div>
 
@@ -142,7 +142,7 @@ export default function Marketing() {
               <TrendingUp size={14} className="text-neutral-500" />
               <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-500">Recovery Rate</p>
             </div>
-            <p className="mt-2 text-[24px] font-bold text-neutral-900">{m.recoveryRate}%</p>
+            <p className="mt-2 text-[16px] font-bold text-neutral-900">{m.recoveryRate}%</p>
             <p className="text-[11px] text-emerald-600 mt-1">✓ {m.recoveredCount} Carts Recovered</p>
           </div>
 
@@ -151,7 +151,7 @@ export default function Marketing() {
               <Mail size={14} className="text-neutral-500" />
               <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-500">Email Delivery / Open</p>
             </div>
-            <p className="mt-2 text-[24px] font-bold text-neutral-900">{m.emailDeliveryRate}% / {m.emailOpenRate}%</p>
+            <p className="mt-2 text-[16px] font-bold text-neutral-900">{m.emailDeliveryRate}% / {m.emailOpenRate}%</p>
             <p className="text-[11px] text-neutral-500 mt-1">SMTP Connection Healthy</p>
           </div>
 
@@ -160,7 +160,7 @@ export default function Marketing() {
               <Star size={14} className="text-neutral-500" />
               <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-500">Review Request Response</p>
             </div>
-            <p className="mt-2 text-[24px] font-bold text-neutral-900">{m.responseRate}%</p>
+            <p className="mt-2 text-[16px] font-bold text-neutral-900">{m.responseRate}%</p>
             <p className="text-[11px] text-neutral-500 mt-1">{m.reviewsCount} reviews from {m.reviewRequestsCount} requests</p>
           </div>
         </div>

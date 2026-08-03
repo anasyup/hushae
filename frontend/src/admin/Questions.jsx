@@ -152,7 +152,7 @@ export default function Questions() {
                     {(q.answers || []).length === 0 && <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-semibold text-blue-700">Unanswered</span>}
                   </div>
 
-                  <p className="mt-2 text-[15px] text-neutral-900">{q.body}</p>
+                  <p className="mt-2 text-[12px] text-neutral-900">{q.body}</p>
 
                   {(q.answers || []).length > 0 && (
                     <ul className="mt-3 space-y-2">

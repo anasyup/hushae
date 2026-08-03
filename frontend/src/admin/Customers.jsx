@@ -235,7 +235,7 @@ function Kpi({ icon: Icon, label, value, accent, hint }) {
         {hint && <span className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400">{hint}</span>}
       </div>
       <p className="mt-3 text-[10px] font-bold uppercase tracking-widest text-neutral-500">{label}</p>
-      <p className="mt-0.5 font-sans text-[24px] font-semibold leading-none tabular-nums tracking-tight text-neutral-900">
+      <p className="mt-0.5 font-sans text-[16px] font-semibold leading-none tabular-nums tracking-tight text-neutral-900">
         {value}
       </p>
     </div>

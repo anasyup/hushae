@@ -248,7 +248,7 @@ function MiniKpi({ icon: Icon, label, value, sub, accent }) {
         </span>
       </div>
       <p className="mt-3 text-[10px] font-bold uppercase tracking-widest text-neutral-500">{label}</p>
-      <p className="mt-0.5 font-sans text-[22px] font-semibold leading-none tabular-nums tracking-tight text-neutral-900">{value}</p>
+      <p className="mt-0.5 font-sans text-[12px] font-semibold leading-none tabular-nums tracking-tight text-neutral-900">{value}</p>
       {sub && <p className="mt-1.5 text-[11px] text-neutral-500">{sub}</p>}
     </div>
   );

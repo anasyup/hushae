@@ -221,7 +221,7 @@ export default function OrderDetail() {
                 <div className="flex justify-between"><span className="text-neutral-500">Subtotal</span><span>{pkr(editing ? editSub : o.subtotal)}</span></div>
                 {!!o.discount && <div className="flex justify-between font-medium text-emerald-700"><span>Discount {o.couponCode && `(${o.couponCode})`}</span><span>− {pkr(o.discount)}</span></div>}
                 <div className="flex justify-between"><span className="text-neutral-500">Shipping</span><span>{o.shippingCharge === 0 ? 'Free' : pkr(o.shippingCharge)}</span></div>
-                <div className="flex justify-between pt-1.5 border-t border-neutral-200 text-[15px] font-semibold"><span>Total</span><span>{pkr(editing ? editTotal : o.total)}</span></div>
+                <div className="flex justify-between pt-1.5 border-t border-neutral-200 text-[12px] font-semibold"><span>Total</span><span>{pkr(editing ? editTotal : o.total)}</span></div>
                 {editing && (
                   <div className="flex items-center gap-2 pt-3">
                     <button onClick={saveItems} disabled={busy} className="inline-flex items-center gap-1 rounded-full bg-neutral-900 px-4 py-2 text-[11px] font-semibold text-white hover:bg-black disabled:opacity-50"><Save size={11} /> {busy ? 'Saving…' : 'Update order'}</button>
