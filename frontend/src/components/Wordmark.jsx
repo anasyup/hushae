@@ -53,9 +53,22 @@ export default function Wordmark({ size = 'md', variant = 'link', className = ''
   // ON here made it flash an outline for ~400ms on every cold load.
   const boxed = settings ? h.logoBoxed !== false : false;
 
+  // ── Brand mark — the HUSHAE monogram (black square · white H · red accent),
+  //    rendered inline so the header lockup matches the favicon. It inherits
+  //    the current text colour, so it flips cleanly on dark surfaces. ────────
+  const Mark = ({ size = 26 }) => (
+    <svg width={size} height={size} viewBox="0 0 64 64" aria-hidden="true"
+      className="shrink-0" style={{ borderRadius: 12 }}>
+      <rect width="64" height="64" rx="12" fill={forceColor === 'alabaster' ? '#F7F5F1' : '#111111'} />
+      <path d="M18 46V18h5.4v9.9h17.2V18H46v28h-5.4V32.9H23.4V46H18z"
+        fill={forceColor === 'alabaster' ? '#111111' : '#F7F5F1'} />
+      <rect x="22" y="50" width="20" height="2" rx="1" fill="#D50000" />
+    </svg>
+  );
+
   // The wordmark is also the home link, so it needs a comfortable tap height
   // even when it is plain text — 44px matches the rest of the header controls.
-  const base = `inline-flex min-h-[44px] select-none items-center ${fontCls} font-semibold leading-none ${colorCls} ${hasPx ? '' : sizeCls} ${className} ${
+  const base = `inline-flex min-h-[44px] select-none items-center gap-2.5 ${fontCls} font-bold leading-none ${colorCls} ${hasPx ? '' : sizeCls} ${className} ${
     boxed ? 'border px-3 py-1.5 ' + (forceColor === 'alabaster' ? 'border-alabaster/70' : 'border-obsidian/70') : ''
   }`;
   const style = {
@@ -63,9 +76,15 @@ export default function Wordmark({ size = 'md', variant = 'link', className = ''
     ...(hasPx ? { fontSize: `clamp(${Math.round(px * 0.82)}px, 4.4vw, ${px}px)` } : {}),
   };
 
-  if (variant === 'plain') return <span className={base} style={style}>{text}</span>;
+  if (variant === 'plain') return (
+    <span className={base} style={style}>
+      <Mark size={hasPx ? Math.max(18, Math.min(26, px - 2)) : 22} />
+      {text}
+    </span>
+  );
   return (
     <Link to={to} className={base} style={style} aria-label={`${text} — home`}>
+      <Mark size={hasPx ? Math.max(18, Math.min(26, px - 2)) : 22} />
       {text}
     </Link>
   );

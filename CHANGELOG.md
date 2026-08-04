@@ -371,3 +371,8 @@ Format:
   - Added favicon-16x16.png, favicon-32x32.png, apple-touch-icon.png (ImageMagick renders of the SVG).
   - index.html: linked SVG + both PNG sizes + apple-touch-icon; theme-color updated to warm ivory #F7F5F1.
   - Browser tab (Chrome), mobile home-screen and older browsers now all show the HUSHAE H mark.
+
+- **2026-08-04** — 🎨 **Header wordmark upgraded — H logo mark + bold (brand lockup)**
+  - Wordmark now pairs the HUSHAE monogram mark (inline SVG: black square · white H · red accent — matches the favicon) with the wordmark text.
+  - Weight bumped font-semibold → font-bold, gap between mark and text (gap-2.5).
+  - Mark inherits text colour so it flips cleanly on dark surfaces; sizes to the admin logoSize.
