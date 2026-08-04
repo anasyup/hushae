@@ -68,6 +68,7 @@ app.use('/api/security', require('./routes/security'));
 app.use('/api/marketing/automation', require('./routes/marketing'));
 app.use('/api/blog', require('./routes/blog'));
 app.use('/api/customer-groups', require('./routes/customerGroups'));
+app.use('/api/email-campaigns', require('./routes/emailCampaigns'));
 
 app.use('/api', (req, res) => res.status(404).json({ message: 'Not found' }));
 

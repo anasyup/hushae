@@ -22,6 +22,18 @@ Format:
 ---
 
 ## Changes
+- **2026-08-04** — 📧 **TIER 2.5: Email Campaigns + Customer Tags**
+  - **Email campaigns (group → email blast)**
+    - New `EmailCampaign` model — subject, body, target (group | subscribers), outcome numbers (matched/optedIn/skipped/sent/failed), status, sentByName.
+    - New `routes/emailCampaigns.js` — POST / (create + send), GET / (history), GET /:id (detail). Recipients resolved LIVE from the group's rules (or the newsletter subscriber list), deduped, and **only registered users who explicitly opted into marketing emails** (notify.marketingEmail) are eligible — the store's "no spam, ever" promise, enforced in code.
+    - Daily cap 280 emails/run (Brevo free 300/day); mailer `{skipped}` (no SMTP) is counted as skipped, never as sent.
+    - Admin UI: CustomerGroups card → **"Email"** button → compose modal (subject + message) → send. New **Marketing → Email campaigns** history screen (status pills, expand for stats + message).
+  - **Customer tags (power the group tag rules)**
+    - `PATCH /api/admin/customers/:id/tags` — set merchant tags (deduped, capped length).
+    - Customers screen: expanded row shows tag chips (add / remove) — tags now have a UI, which the group rules' anyTag/allTags depend on.
+    - Customers list API now returns tags.
+  - **Verification:** new `backend/test-tier25.js` 14/14; tier1 22/22, tier2 16/16, CMS 56+14 — all green. Frontend build clean.
+
 - **2026-08-04** — 🧩 **TIER 2: Customer Groups + Navigation Builder + Publish Flow polish**
   - **Customer Groups (Shopify-style saved segments)**
     - New `CustomerGroup` model — name + optional rules (minSpend, minOrders, lastOrderDays, noOrders, city, province, anyTag, allTags). Members are NEVER stored — evaluated live from Users + Orders so groups never go stale.

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
-  ArrowLeft, Crown, Loader2, Plus, RefreshCcw, Save, Search, Trash2, Users,
+  ArrowLeft, Crown, Loader2, Mail, Plus, RefreshCcw, Save, Send, Trash2, Users, X,
 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
@@ -63,6 +63,31 @@ export default function CustomerGroups() {
   const [saving, setSaving] = useState(false);
   const [preview, setPreview] = useState(null);
   const [previewBusy, setPreviewBusy] = useState(false);
+
+  /* ── Email campaign modal ── */
+  const [emailFor, setEmailFor] = useState(null); // group object or null
+  const [emailSubject, setEmailSubject] = useState('');
+  const [emailBody, setEmailBody] = useState('');
+  const [emailBusy, setEmailBusy] = useState(false);
+
+  const openEmail = (g) => { setEmailFor(g); setEmailSubject(''); setEmailBody(''); };
+  const closeEmail = () => { setEmailFor(null); setEmailSubject(''); setEmailBody(''); setEmailBusy(false); };
+
+  const sendEmail = async () => {
+    if (!emailSubject.trim() || !emailBody.trim()) { toast('Subject and message are required'); return; }
+    setEmailBusy(true);
+    try {
+      const d = await api('/email-campaigns', {
+        method: 'POST', token: auth?.token,
+        body: { target: 'group', groupId: emailFor._id, subject: emailSubject, body: emailBody },
+      });
+      toast(d.message || 'Campaign sent');
+      closeEmail();
+    } catch (ex) {
+      toast(ex.message || 'Could not send — check SMTP is active');
+    }
+    setEmailBusy(false);
+  };
 
   const load = useCallback(async () => {
     try {
@@ -272,13 +297,54 @@ export default function CustomerGroups() {
                   <p className="text-[22px] font-bold text-neutral-900">{g.memberCount?.toLocaleString?.() || 0}</p>
                   <p className="text-[11px] font-medium uppercase tracking-wider text-neutral-400">members</p>
                 </div>
-                <button onClick={() => startEdit(g)} className="rounded-full border border-neutral-200 px-3.5 py-1.5 text-[12px] font-semibold text-neutral-700 transition hover:border-neutral-900">
-                  Edit
-                </button>
+                <div className="flex items-center gap-1.5">
+                  <button onClick={() => openEmail(g)} className="inline-flex items-center gap-1 rounded-full border border-neutral-200 px-3 py-1.5 text-[12px] font-semibold text-neutral-700 transition hover:border-emerald-500 hover:text-emerald-700" title="Email this group">
+                    <Mail size={12} /> Email
+                  </button>
+                  <button onClick={() => startEdit(g)} className="rounded-full border border-neutral-200 px-3.5 py-1.5 text-[12px] font-semibold text-neutral-700 transition hover:border-neutral-900">
+                    Edit
+                  </button>
+                </div>
               </div>
               <p className="mt-3 border-t border-neutral-100 pt-2 text-[11px] text-neutral-400">Updated {fmtDate(g.updatedAt)}</p>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* ── Email campaign modal ── */}
+      {emailFor && (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-black/40 p-4" onClick={closeEmail}>
+          <div className="w-full max-w-lg rounded-2xl border border-neutral-200 bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <div className="mb-4 flex items-start justify-between">
+              <div>
+                <h3 className="flex items-center gap-2 text-[15px] font-bold text-neutral-900"><Send size={15} /> Email “{emailFor.name}”</h3>
+                <p className="mt-0.5 text-[12px] text-neutral-400">
+                  Goes to group members who opted into marketing emails ({emailFor.memberCount?.toLocaleString?.() || 0} members in group).
+                </p>
+              </div>
+              <button onClick={closeEmail} className="rounded-lg p-1.5 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700"><X size={16} /></button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="mb-1 block text-[12px] font-bold uppercase tracking-wider text-neutral-500">Subject</label>
+                <input className={inputCls} value={emailSubject} onChange={(e) => setEmailSubject(e.target.value)} placeholder="A little note from HUSHAE" />
+              </div>
+              <div>
+                <label className="mb-1 block text-[12px] font-bold uppercase tracking-wider text-neutral-500">Message</label>
+                <textarea className={`${inputCls} min-h-40 resize-y`} value={emailBody} onChange={(e) => setEmailBody(e.target.value)} placeholder={'Hi,\n\nA short, personal message…\n\n— HUSHAE'} />
+                <p className="mt-1 text-[11px] text-neutral-400">Plain text — line breaks are kept. Only opted-in customers receive it.</p>
+              </div>
+            </div>
+
+            <div className="mt-5 flex items-center justify-end gap-2">
+              <button onClick={closeEmail} className="rounded-full border border-neutral-200 px-4 py-2 text-[13px] font-semibold text-neutral-600 hover:border-neutral-400">Cancel</button>
+              <button onClick={sendEmail} disabled={emailBusy} className="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-5 py-2 text-[13px] font-semibold text-white transition hover:bg-black disabled:opacity-60">
+                {emailBusy ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />} Send email
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </AdminLayout>

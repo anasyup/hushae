@@ -1,7 +1,7 @@
 import { Fragment, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  ChevronDown, Crown, Filter, Mail, Phone, Search, ShoppingBag,
+  ChevronDown, Crown, Filter, Loader2, Mail, Phone, Plus, Search, ShoppingBag, Tag as TagIcon, X,
   TrendingUp, Users as UsersIcon,
 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
@@ -31,6 +31,28 @@ export default function Customers() {
   const [orders, setOrders] = useState({});
   const [q, setQ] = useState('');
   const [segment, setSegment] = useState('all');
+  const [tagDraft, setTagDraft] = useState('');   // per-customer input: {id: 'text'}
+  const [tagBusy, setTagBusy] = useState(null);   // customer id currently saving
+
+  /* Save a customer's tag set (Shopify-style). */
+  const saveTags = async (c, tags) => {
+    setTagBusy(c.id);
+    try {
+      const d = await api(`/admin/customers/${c.id}/tags`, { method: 'PATCH', token: auth.token, body: { tags } });
+      setList((ls) => ls.map((x) => (x.id === c.id ? { ...x, tags: d.tags } : x)));
+      setTagDraft((t) => ({ ...t, [c.id]: '' }));
+    } catch { /* toast handled below */ }
+    setTagBusy(null);
+  };
+
+  const addTag = (c) => {
+    const t = (tagDraft[c.id] || '').trim();
+    if (!t) return;
+    const next = [...(c.tags || []), t];
+    saveTags(c, next);
+  };
+
+  const removeTag = (c, t) => saveTags(c, (c.tags || []).filter((x) => x !== t));
 
   useEffect(() => {
     api('/admin/customers', { token: auth.token })
@@ -175,6 +197,35 @@ export default function Customers() {
                 {open === c.id && (
                   <tr className="border-b border-neutral-100 bg-neutral-50/60">
                     <td colSpan={6} className="px-6 py-4">
+                      {/* ── Tags (merchant labels — power the group rules) ── */}
+                      <p className="mb-2 text-[13px] font-bold uppercase tracking-widest text-neutral-500">Tags</p>
+                      <div className="mb-4 flex flex-wrap items-center gap-2">
+                        {(c.tags || []).map((t) => (
+                          <span key={t} className="inline-flex items-center gap-1 rounded-full bg-neutral-900 px-2.5 py-1 text-[12px] font-medium text-white">
+                            <TagIcon size={10} />
+                            {t}
+                            {tagBusy === c.id ? (
+                              <Loader2 size={10} className="animate-spin" />
+                            ) : (
+                              <button onClick={(e) => { e.stopPropagation(); removeTag(c, t); }} className="rounded-full hover:text-red-300" aria-label={`Remove tag ${t}`}>
+                                <X size={10} />
+                              </button>
+                            )}
+                          </span>
+                        ))}
+                        <div className="inline-flex items-center gap-1">
+                          <input
+                            className="w-32 rounded-full border border-neutral-200 bg-white px-3 py-1 text-[12px] outline-none focus:border-neutral-900"
+                            placeholder="Add tag…"
+                            value={tagDraft[c.id] || ''}
+                            onChange={(e) => setTagDraft((t) => ({ ...t, [c.id]: e.target.value }))}
+                            onKeyDown={(e) => { if (e.key === 'Enter') addTag(c); }}
+                          />
+                          <button onClick={() => addTag(c)} className="grid h-6 w-6 place-items-center rounded-full bg-neutral-900 text-white hover:bg-black" aria-label="Add tag">
+                            <Plus size={11} />
+                          </button>
+                        </div>
+                      </div>
                       <p className="mb-3 text-[13px] font-bold uppercase tracking-widest text-neutral-500">Order history</p>
                       {(orders[c.id] || []).length === 0 ? (
                         <p className="text-[12px] text-neutral-500">

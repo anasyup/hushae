@@ -261,7 +261,7 @@ router.get('/insights', asyncHandler(async (req, res) => {
 // Customers list with order counts
 router.get('/customers', asyncHandler(async (req, res) => {
   const customers = await User.find({ role: 'customer' }).sort({ createdAt: -1 }).limit(500)
-    .select('name email phone createdAt isActive');
+    .select('name email phone createdAt isActive tags');
   const orderCounts = await Order.aggregate([
     { $match: { customer: { $ne: null } } },
     { $group: { _id: '$customer', orders: { $sum: 1 }, spent: { $sum: '$total' } } },
@@ -271,8 +271,21 @@ router.get('/customers', asyncHandler(async (req, res) => {
     customers: customers.map((c) => ({
       id: c._id, name: c.name, email: c.email, phone: c.phone, createdAt: c.createdAt,
       orders: map[String(c._id)]?.orders || 0, spent: map[String(c._id)]?.spent || 0,
+      tags: c.tags || [],
     })),
   });
+}));
+
+/** PATCH /api/admin/customers/:id/tags — set a customer's merchant tags. */
+router.patch('/customers/:id/tags', asyncHandler(async (req, res) => {
+  const { tags } = req.body || {};
+  if (!Array.isArray(tags)) return res.status(400).json({ message: 'tags must be an array' });
+  const clean = [...new Set(tags.map((t) => String(t).trim()).filter(Boolean).map((t) => t.slice(0, 30)))];
+  const user = await User.findById(req.params.id);
+  if (!user) return res.status(404).json({ message: 'Customer not found' });
+  user.tags = clean;
+  await user.save();
+  res.json({ ok: true, tags: user.tags });
 }));
 
 // ---- Analytics: last 14 days series + status + top products + totals ----
