@@ -389,3 +389,6 @@ Format:
   - Previous CK-text images were still served by the browser because /images/* has a 1-year immutable Cache-Control. The AI text swap also hadn't fully removed "Calvin Klein".
   - Generated 3 brand-new images with HUSHAE on the product (hushae-hero-women, hushae-hero-men, hushae-fabric) and switched Home.jsx to the NEW filenames — new URLs force every browser to fetch fresh, so no CK text can linger from cache.
   - Deleted the old hero-ck/hero-ck-men/detail-01 files.
+
+- **2026-08-04** — 🎨 **Wordmark: H monogram removed everywhere (text-only HUSHAE)**
+  - Removed the inline H-mark SVG from Wordmark entirely — header (home + all pages) and mobile drawer now show only the bold "HUSHAE" text wordmark. Favicon (browser tab) keeps the H mark.
