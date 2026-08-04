@@ -80,6 +80,12 @@ const userSchema = new mongoose.Schema({
   // Soft delete. A hard delete would orphan every order this customer placed,
   // and those orders are the merchant's financial records.
   deletedAt: { type: Date, default: null },
+
+  /* ---- Merchant tags (Shopify-style customer tags) ----
+     Free-form labels a merchant can attach to a customer ("VIP", "Returns",
+     "Wholesale") and use to filter the customers screen or build segments.
+     Different from roles: a tag is a marketing/ops label, not a permission. */
+  tags: { type: [String], default: [] },
 }, { timestamps: true });
 
 /* Exactly one default address, always. If the client marked several, the last

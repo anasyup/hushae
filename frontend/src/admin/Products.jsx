@@ -91,6 +91,15 @@ export default function Products() {
     try { await api(`/products/${p._id}`, { method: 'PUT', token: auth.token, body: { isActive: true } }); toast(`"${p.name}" is now live`); load(); }
     catch (ex) { toast(ex.message); }
   };
+  /* Draft → live in one click. A draft product is invisible on the storefront
+     (status:'draft'); publishing flips status to active AND makes it visible. */
+  const publish = async (p) => {
+    try {
+      await api(`/products/${p._id}`, { method: 'PUT', token: auth.token, body: { status: 'active', isActive: true } });
+      toast(`"${p.name}" published`);
+      load();
+    } catch (ex) { toast(ex.message); }
+  };
   const disable = async (p) => {
     try { await api(`/products/${p._id}`, { method: 'DELETE', token: auth.token }); toast(`"${p.name}" archived`); load(); }
     catch (ex) { toast(ex.message); }
@@ -229,7 +238,7 @@ export default function Products() {
       ) : filtered.length === 0 ? (
         <EmptyState onClear={clearFilters} hasFilters={hasFilters} />
       ) : view === 'grid' ? (
-        <GridView products={paged} onEnable={enable} onDisable={disable} onRemove={remove} onDuplicate={duplicate} />
+        <GridView products={paged} onEnable={enable} onDisable={disable} onRemove={remove} onDuplicate={duplicate} onPublish={publish} />
       ) : (
         <ListView
           products={paged}
@@ -238,6 +247,7 @@ export default function Products() {
           onToggleAll={toggleSelAll}
           onEnable={enable}
           onDisable={disable}
+          onPublish={publish}
           onRemove={remove}
           onDuplicate={duplicate}
         />
@@ -372,7 +382,7 @@ function StatusChip({ p }) {
   return <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[13px] font-bold text-emerald-700">● Live</span>;
 }
 
-function ListView({ products, selected, onToggleSel, onToggleAll, onEnable, onDisable, onRemove, onDuplicate }) {
+function ListView({ products, selected, onToggleSel, onToggleAll, onEnable, onDisable, onPublish, onRemove, onDuplicate }) {
   const allSelected = products.length > 0 && selected.size === products.length;
   return (
     <div className="overflow-x-auto rounded-2xl border border-neutral-200 bg-white">
@@ -430,6 +440,11 @@ function ListView({ products, selected, onToggleSel, onToggleAll, onEnable, onDi
                   <Link to={`/admin/products/${p._id}`} className="rounded-lg p-2 text-neutral-500 transition hover:bg-neutral-100 hover:text-neutral-900" aria-label="Edit">
                     <Pencil size={13} />
                   </Link>
+                  {p.status === 'draft' && (
+                    <button onClick={() => onPublish(p)} className="rounded-lg px-2 py-1 text-[11px] font-bold uppercase tracking-wide text-white transition bg-emerald-600 hover:bg-emerald-700" title="Publish now" aria-label="Publish">
+                      Publish
+                    </button>
+                  )}
                   <button onClick={() => onDuplicate(p)} className="rounded-lg p-2 text-neutral-500 transition hover:bg-sky-50 hover:text-sky-700" aria-label="Duplicate" title="Duplicate product">
                     <Copy size={13} />
                   </button>
@@ -455,7 +470,7 @@ function ListView({ products, selected, onToggleSel, onToggleAll, onEnable, onDi
   );
 }
 
-function GridView({ products, onEnable, onDisable, onRemove, onDuplicate }) {
+function GridView({ products, onEnable, onDisable, onRemove, onDuplicate, onPublish }) {
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {products.map((p) => (
@@ -487,6 +502,9 @@ function GridView({ products, onEnable, onDisable, onRemove, onDuplicate }) {
               <p className="text-[12px] font-semibold text-neutral-900">{pkr(p.price)}</p>
               <div className="flex items-center gap-1">
                 <Link to={`/admin/products/${p._id}`} className="rounded-lg p-1.5 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900"><Pencil size={12} /></Link>
+                {p.status === 'draft' && (
+                  <button onClick={() => onPublish(p)} className="rounded-md bg-emerald-600 px-1.5 py-1 text-[10px] font-bold uppercase tracking-wide text-white hover:bg-emerald-700" title="Publish now">Publish</button>
+                )}
                 <button onClick={() => onDuplicate(p)} className="rounded-lg p-1.5 text-neutral-500 hover:bg-sky-50 hover:text-sky-700" aria-label="Duplicate" title="Duplicate product"><Copy size={12} /></button>
                 {p.isActive ? (
                   <button onClick={() => onDisable(p)} className="rounded-lg p-1.5 text-neutral-500 hover:bg-amber-50 hover:text-amber-700"><Archive size={12} /></button>

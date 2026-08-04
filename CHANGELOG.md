@@ -22,6 +22,23 @@ Format:
 ---
 
 ## Changes
+- **2026-08-04** — 🧩 **TIER 2: Customer Groups + Navigation Builder + Publish Flow polish**
+  - **Customer Groups (Shopify-style saved segments)**
+    - New `CustomerGroup` model — name + optional rules (minSpend, minOrders, lastOrderDays, noOrders, city, province, anyTag, allTags). Members are NEVER stored — evaluated live from Users + Orders so groups never go stale.
+    - New `utils/customerSegments.js` — evaluation engine (Orders aggregated by phone, merged with registered users, cancelled/refunded excluded).
+    - New `routes/customerGroups.js` — CRUD + `/:id/members` (live evaluation) + `/preview` (rule preview without saving) + cached memberCount on the group.
+    - `User.tags` added — merchant tags on customers ("VIP", "Wholesale"…).
+    - Admin UI: `/admin/customers/groups` — group builder with live member-count preview as you adjust rules, member list (spend/orders), group cards with cached counts. Nav: Customers → Groups.
+    - New `backend/test-tier2.js` — 16/16 integration tests pass (rules, preview, CRUD, auth, settings nav shape).
+  - **Navigation Builder (drag-drop header/footer menus)**
+    - New `/admin/navigation` screen — drag to reorder header links (native HTML5 DnD), add/remove links, dropdown (women/men), Sale highlight; footer columns with links, add/remove column, reorder.
+    - Writes `settings.header.menu` + `settings.footer.columns` through the existing PUT /api/settings — the storefront needs ZERO changes (it already reads these exact shapes).
+    - Live "what customers see" preview strip.
+  - **Publish flow polish**
+    - Blog list: one-click **Publish / Unpublish** button per row (draft → published without opening the editor).
+    - Products list + grid: **Publish** button on draft products (flips status draft → active + visible), alongside the existing archive/restore.
+  - **Verification:** frontend build clean, tier2 tests 16/16, CMS regression 56+14 still green.
+
 - **2026-08-04** — 🚀 **TIER 1: Shopify-Complete — Blog/Articles + Draft Orders + Card Gateway setup (LIVE)**
   - **Blog / Articles (naya feature)**
     - Backend: `BlogPost` model (title, slug, excerpt, markdown content, cover, author, tags, status draft/published/scheduled/archived, SEO block, view counter). `liveState()` mirrors CmsPage — scheduled posts kabhi leak nahi hote.

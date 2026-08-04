@@ -68,6 +68,7 @@ const Products = lazy(() => import('./admin/Products'));
 const ProductForm = lazy(() => import('./admin/ProductForm'));
 const Categories = lazy(() => import('./admin/Categories'));
 const Customers = lazy(() => import('./admin/Customers'));
+const CustomerGroups = lazy(() => import('./admin/CustomerGroups'));
 const SettingsAdmin = lazy(() => import('./admin/Settings'));
 const SettingsHub = lazy(() => import('./admin/SettingsHub'));
 const Growth = lazy(() => import('./admin/Growth'));
@@ -110,6 +111,7 @@ const CmsEdit = lazy(() => import('./admin/CmsEdit'));
 const CmsRedirects = lazy(() => import('./admin/CmsRedirects'));
 const AdminBlog = lazy(() => import('./admin/Blog'));
 const AdminBlogEdit = lazy(() => import('./admin/BlogEdit'));
+const Navigation = lazy(() => import('./admin/Navigation'));
 const AdminLoyalty = lazy(() => import('./admin/Loyalty'));
 const AdminQuestions = lazy(() => import('./admin/Questions'));
 const Dashboard = lazy(() => import('./admin/Dashboard'));
@@ -266,6 +268,7 @@ export default function App() {
           <Route path="/admin/products/:id" element={<ProductForm />} />
           <Route path="/admin/categories" element={<Categories />} />
           <Route path="/admin/customers" element={<Customers />} />
+          <Route path="/admin/customers/groups" element={<Suspense fallback={<EditorFallback />}><CustomerGroups /></Suspense>} />
           <Route path="/admin/settings" element={<SettingsHub />} />
           <Route path="/admin/settings/store" element={<SettingsStore />} />
           <Route path="/admin/settings/payments" element={<SettingsPayments />} />
@@ -298,6 +301,7 @@ export default function App() {
           <Route path="/admin/cms/:id" element={<Suspense fallback={<EditorFallback />}><CmsEdit /></Suspense>} />
           {/* BLOG — article management. /new must precede /:id. */}
           <Route path="/admin/blog" element={<Suspense fallback={<EditorFallback />}><AdminBlog /></Suspense>} />
+          <Route path="/admin/navigation" element={<Suspense fallback={<EditorFallback />}><Navigation /></Suspense>} />
           <Route path="/admin/blog/new" element={<Suspense fallback={<EditorFallback />}><AdminBlogEdit /></Suspense>} />
           <Route path="/admin/blog/:id" element={<Suspense fallback={<EditorFallback />}><AdminBlogEdit /></Suspense>} />
           <Route path="/admin/settings/security" element={<SettingsSecurity />} />

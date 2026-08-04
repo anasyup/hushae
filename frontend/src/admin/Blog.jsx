@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
-  Calendar, Eye, FileText, Loader2, Pencil, Plus, RefreshCcw,
+  Calendar, Eye, FileText, Globe, Loader2, Pencil, Plus, RefreshCcw,
   Search, Trash2,
 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
@@ -80,6 +80,20 @@ export default function Blog() {
     }
   };
 
+  /* One-click publish / unpublish straight from the list (Shopify-style). */
+  const togglePublish = async (p) => {
+    const to = p.status === 'published' ? 'draft' : 'published';
+    setBusy(true);
+    try {
+      await api(`/blog/admin/${p._id}`, { method: 'PUT', token: auth?.token, body: { status: to } });
+      toast(to === 'published' ? 'Article published' : 'Article moved to draft');
+      load();
+    } catch {
+      toast('Could not change status');
+    }
+    setBusy(false);
+  };
+
   return (
     <AdminLayout title="Blog">
       <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
@@ -154,6 +168,16 @@ export default function Blog() {
                   </p>
                 </div>
                 <div className="flex shrink-0 items-center gap-1">
+                  {(p.status === 'draft' || p.status === 'published') && (
+                    <button
+                      onClick={() => togglePublish(p)}
+                      disabled={busy}
+                      className={`rounded-lg px-2 py-1.5 text-[11px] font-bold uppercase tracking-wide transition ${p.status === 'published' ? 'text-neutral-500 hover:bg-amber-50 hover:text-amber-700' : 'bg-emerald-600 text-white hover:bg-emerald-700'}`}
+                      title={p.status === 'published' ? 'Move to draft' : 'Publish now'}
+                    >
+                      {p.status === 'published' ? <><Globe size={12} className="inline" /> Unpublish</> : <><Globe size={12} className="inline" /> Publish</>}
+                    </button>
+                  )}
                   <button onClick={() => openSlug(p.slug, p.status)} className="rounded-lg p-2 text-neutral-400 transition hover:bg-neutral-100 hover:text-neutral-700" title="View article">
                     <Eye size={15} />
                   </button>

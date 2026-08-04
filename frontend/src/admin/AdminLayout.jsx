@@ -54,10 +54,11 @@ const NAV_GROUPS = [
   },
   {
     key: 'customers', label: 'Customers', icon: Users,
-    match: ['/admin/customers', '/admin/loyalty'],
+    match: ['/admin/customers', '/admin/loyalty', '/admin/customers/groups'],
     children: [
-      { to: '/admin/customers',  label: 'All customers', icon: Users },
-      { to: '/admin/loyalty',    label: 'Loyalty',       icon: Sparkles },
+      { to: '/admin/customers',      label: 'All customers', icon: Users },
+      { to: '/admin/customers/groups', label: 'Groups',      icon: Users },
+      { to: '/admin/loyalty',        label: 'Loyalty',       icon: Sparkles },
     ],
   },
   {
@@ -72,10 +73,11 @@ const NAV_GROUPS = [
   },
   {
     key: 'storefront', label: 'Storefront', icon: Store,
-    match: ['/admin/store', '/admin/theme', '/admin/theme-legacy', '/admin/cms', '/admin/content', '/admin/faq', '/admin/markets', '/admin/blog'],
+    match: ['/admin/store', '/admin/theme', '/admin/theme-legacy', '/admin/cms', '/admin/content', '/admin/faq', '/admin/markets', '/admin/blog', '/admin/navigation'],
     children: [
       { to: '/admin/store',       label: 'Online Store',    icon: Globe },
       { to: '/admin/theme',       label: 'Theme Editor',    icon: LayoutTemplate },
+      { to: '/admin/navigation',  label: 'Navigation',      icon: Menu },
       { to: '/admin/cms',         label: 'Pages',           icon: FileText, exact: true },
       { to: '/admin/cms/redirects', label: 'Old addresses', icon: Signpost },
       { to: '/admin/blog',        label: 'Blog',            icon: FileText },
