@@ -22,6 +22,11 @@ Format:
 ---
 
 ## Changes
+- **2026-08-03** — 🐛 **CRITICAL FIX: blank storefront (PageRenderer crash on missing block settings)**
+  - Symptom: homepage rendered as a blank cream page. Headless-Chrome test captured the exact error: `TypeError: Cannot read properties of undefined (reading 'align')` in PageRenderer.
+  - Root cause: two `button_row` blocks in the published theme document (sec_editorial_women/ew4, sec_editorial_men/em4) have NO `settings` object at all, so `s.align` threw and React unmounted the whole tree.
+  - Fix: defensive `|| {}` on every `section.settings` / `b.settings` read in SectionRenderer.tsx (21) and BlockRenderer.tsx (4) — a missing settings object now renders with defaults instead of crashing the page.
+
 - **2026-08-03** — 🔐 **Two-Factor Authentication (2FA) for admin accounts**
   - Backend: `User` model 2FA fields (enabled flag + hashed code + expiry + attempts). Login now returns `twoFactorRequired` when the account has 2FA on, emails a 6-digit code, and `/api/auth/2fa/verify` completes the sign-in. `/api/auth/2fa/toggle` enables/disables with current-password + emailed-code proof. Rate-limited like login.
   - Frontend: AdminLogin shows a 2-step screen (password → emailed code). Settings → Security → My Login has a 2FA card (turn on/off, code entry).

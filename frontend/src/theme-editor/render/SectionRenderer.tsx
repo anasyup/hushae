@@ -22,7 +22,7 @@ export const SectionRenderer = memo(function SectionRenderer({ section }: { sect
   const { editable, theme, selectedId, hoveredId, onSelect, onHover } = useRenderCtx();
   if (section.hidden) return null;
 
-  const s = section.settings;
+  const s = section.settings || {};
   const anim = animationProps(s, theme.animEnabled !== false);
   const style = sectionStyle(s);
 
@@ -70,7 +70,7 @@ const kids = (n: SectionNode | BlockNode, type: string) => (n.blocks || []).filt
 const notTypes = (n: SectionNode | BlockNode, types: string[]) => (n.blocks || []).filter((b) => !types.includes(b.type));
 
 function SectionBody({ section }: { section: SectionNode }) {
-  const s = section.settings;
+  const s = section.settings || {};
   const wrap = containerClass(s.width);
 
   switch (section.type) {
@@ -238,7 +238,7 @@ function SectionBody({ section }: { section: SectionNode }) {
 
 /* ── Header ────────────────────────────────────────────────────────────── */
 function AnnouncementBar({ section }: { section: SectionNode }) {
-  const s = section.settings;
+  const s = section.settings || {};
   const items = (section.blocks || []).filter((b) => !b.hidden);
   const [i, setI] = useState(0);
   useEffect(() => {
@@ -263,7 +263,7 @@ function AnnouncementBar({ section }: { section: SectionNode }) {
 
 function HeaderSection({ section }: { section: SectionNode }) {
   const { data } = useRenderCtx();
-  const s = section.settings;
+  const s = section.settings || {};
   const logo = (section.blocks || []).find((b) => b.type === 'logo' && !b.hidden);
   const menu = (section.blocks || []).find((b) => b.type === 'menu' && !b.hidden);
   const icons = (section.blocks || []).find((b) => b.type === 'header_icons' && !b.hidden);
@@ -460,7 +460,7 @@ const OBJECT_POS: Record<string, string> = {
 };
 
 function HeroSection({ section }: { section: SectionNode }) {
-  const s = section.settings;
+  const s = section.settings || {};
   const h = str(s.height, 'screen');
   const height = h === 'custom' ? `${num(s.customHeight, 640)}px` : HEIGHTS[h] || '100svh';
   const overlay = num(s.overlay, 45) / 100;
@@ -483,7 +483,7 @@ function HeroSection({ section }: { section: SectionNode }) {
 }
 
 function SplitHero({ section }: { section: SectionNode }) {
-  const s = section.settings;
+  const s = section.settings || {};
   const overlay = num(s.overlay, 25) / 100;
   const half = (img: string, video: string, label: string) => (
     <div className="relative flex-1 overflow-hidden">
@@ -511,7 +511,7 @@ function SplitHero({ section }: { section: SectionNode }) {
 }
 
 function ImageBanner({ section }: { section: SectionNode }) {
-  const s = section.settings;
+  const s = section.settings || {};
   const side = str(s.imageSide, 'full');
   const height = HEIGHTS[str(s.height, 'md')] || '58vh';
   const content = (
@@ -539,7 +539,7 @@ function ImageBanner({ section }: { section: SectionNode }) {
 }
 
 function Slideshow({ section }: { section: SectionNode }) {
-  const s = section.settings;
+  const s = section.settings || {};
   const slides = (section.blocks || []).filter((b) => b.type === 'slide' && !b.hidden);
   const [i, setI] = useState(0);
   useEffect(() => {
@@ -621,7 +621,7 @@ function buildQuery(s: SectionNode['settings']) {
 }
 
 function ProductSection({ section }: { section: SectionNode }) {
-  const s = section.settings;
+  const s = section.settings || {};
   const { getProducts, requestProducts } = useRenderCtx();
   const query = useMemo(() => buildQuery(s), [s.source, s.count, s.sort, s.gender, s.collection, s.products]);
   useEffect(() => { requestProducts(query, query); }, [query, requestProducts]);
@@ -673,7 +673,7 @@ function ProductSection({ section }: { section: SectionNode }) {
 const skeletonProduct = { name: 'Product title', price: 0, images: [], stock: 10 };
 
 function FeaturedProduct({ section }: { section: SectionNode }) {
-  const s = section.settings;
+  const s = section.settings || {};
   const { getProducts, requestProducts } = useRenderCtx();
   const q = s.product ? `/products?ids=${s.product}&limit=1` : '/products?featured=true&limit=1';
   useEffect(() => { requestProducts(q, q); }, [q, requestProducts]);
@@ -702,7 +702,7 @@ function FeaturedProduct({ section }: { section: SectionNode }) {
 }
 
 function CollectionList({ section }: { section: SectionNode }) {
-  const s = section.settings;
+  const s = section.settings || {};
   const { data } = useRenderCtx();
   const chosen = Array.isArray(s.collections) ? (s.collections as string[]) : [];
   const cats = chosen.length ? data.categories.filter((c) => chosen.includes(c.slug)) : data.categories.slice(0, 6);
@@ -729,7 +729,7 @@ function CollectionList({ section }: { section: SectionNode }) {
 
 /* ── Misc sections ─────────────────────────────────────────────────────── */
 function Marquee({ section }: { section: SectionNode }) {
-  const s = section.settings;
+  const s = section.settings || {};
   const items = (Array.isArray(s.items) ? s.items : []) as Array<{ text?: string }>;
   const text = items.map((i) => i?.text).filter(Boolean);
   if (!text.length) return <Empty label="Add a message" />;
@@ -754,7 +754,7 @@ function Marquee({ section }: { section: SectionNode }) {
 }
 
 function Tabs({ section }: { section: SectionNode }) {
-  const s = section.settings;
+  const s = section.settings || {};
   const tabs = (section.blocks || []).filter((b) => b.type === 'tab' && !b.hidden);
   const [i, setI] = useState(0);
   if (!tabs.length) return <Empty label="Add a tab" />;
@@ -778,7 +778,7 @@ function Tabs({ section }: { section: SectionNode }) {
 }
 
 function Newsletter({ section }: { section: SectionNode }) {
-  const s = section.settings;
+  const s = section.settings || {};
   return (
     <div className={containerClass(s.width)}>
       <div className={`flex flex-col gap-4 ${alignClass(s.align, 'items')} ${alignClass(s.align)}`}>
@@ -793,7 +793,7 @@ function Newsletter({ section }: { section: SectionNode }) {
 }
 
 function ContactForm({ section }: { section: SectionNode }) {
-  const s = section.settings;
+  const s = section.settings || {};
   return (
     <div className={containerClass(s.width)}>
       <div className="mx-auto flex flex-col gap-4" style={{ maxWidth: num(s.maxWidth, 560) }}>
@@ -812,7 +812,7 @@ function ContactForm({ section }: { section: SectionNode }) {
 }
 
 function BlogPosts({ section }: { section: SectionNode }) {
-  const s = section.settings;
+  const s = section.settings || {};
   const { data } = useRenderCtx();
   const posts = (data.blogs || []).slice(0, num(s.count, 3));
   return (
@@ -835,7 +835,7 @@ function BlogPosts({ section }: { section: SectionNode }) {
 }
 
 function FooterSection({ section }: { section: SectionNode }) {
-  const s = section.settings;
+  const s = section.settings || {};
   const { data } = useRenderCtx();
   const blocks = (section.blocks || []).filter((b) => !b.hidden);
   const newsletter = blocks.find((b) => b.type === 'footer_newsletter');
@@ -931,7 +931,7 @@ function FooterSection({ section }: { section: SectionNode }) {
 /* ── Parity sections ───────────────────────────────────────────────────── */
 
 function FeaturedMarqueeSection({ section }: { section: SectionNode }) {
-  const s = section.settings;
+  const s = section.settings || {};
   const { getProducts, requestProducts } = useRenderCtx();
   const query = useMemo(() => buildQuery({ ...s, count: num(s.count, 10) }), [s.source, s.count, s.sort, s.gender, s.collection, s.products]);
   useEffect(() => { requestProducts(query, query); }, [query, requestProducts]);
@@ -987,7 +987,7 @@ function FeaturedMarqueeSection({ section }: { section: SectionNode }) {
 }
 
 function FeaturedCollectionsSection({ section }: { section: SectionNode }) {
-  const s = section.settings;
+  const s = section.settings || {};
   const { data } = useRenderCtx();
   const [featured, setFeatured] = useState<any[] | null>(null);
 
@@ -1043,7 +1043,7 @@ function FeaturedCollectionsSection({ section }: { section: SectionNode }) {
 }
 
 function EditorialSection({ section }: { section: SectionNode }) {
-  const s = section.settings;
+  const s = section.settings || {};
   const side = str(s.imageSide, 'left');
   const content = (
     <div className={`flex flex-col justify-center gap-4 ${alignClass(s.align, 'items')} ${alignClass(s.align)}`}>
@@ -1082,7 +1082,7 @@ function EditorialSection({ section }: { section: SectionNode }) {
 }
 
 function CtaBanner({ section }: { section: SectionNode }) {
-  const s = section.settings;
+  const s = section.settings || {};
   return (
     <div className={containerClass(s.width)}>
       <div className="relative overflow-hidden"

@@ -45,7 +45,7 @@ const children = (b: BlockNode, scope?: Record<string, unknown>) =>
   (b.blocks || []).map((c) => <BlockRenderer key={c.id} block={c} scope={scope} />);
 
 function BlockBody({ block: b, scope }: Props) {
-  const s = b.settings;
+  const s = b.settings || {};
   switch (b.type) {
     // ── text ────────────────────────────────────────────────────────────────
     case 'heading': {
@@ -272,7 +272,7 @@ const placeholder =
 
 // ── Product card ────────────────────────────────────────────────────────────
 function ProductCardBlock({ block: b, scope }: Props) {
-  const s = b.settings;
+  const s = b.settings || {};
   const product = scope?.product as Record<string, unknown> | undefined;
   const kids = b.blocks || [];
   const overlays = kids.filter((k) => ['card_badge', 'card_wishlist', 'card_quick_add'].includes(k.type));
@@ -300,7 +300,7 @@ function ProductCardBlock({ block: b, scope }: Props) {
 }
 
 function CardPart({ block: b, scope }: Props) {
-  const s = b.settings;
+  const s = b.settings || {};
   const p = (scope?.product || {}) as Record<string, any>;
   const price = Number(p.price ?? 0);
   const compare = Number(p.compareAtPrice ?? 0);
@@ -404,7 +404,7 @@ function CardPart({ block: b, scope }: Props) {
 }
 
 function FaqItem({ block: b }: { block: BlockNode }) {
-  const s = b.settings;
+  const s = b.settings || {};
   const [open, setOpen] = useState(bool(s.open));
   useEffect(() => setOpen(bool(s.open)), [s.open]);
   return (
