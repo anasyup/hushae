@@ -379,3 +379,8 @@ Format:
 
 - **2026-08-04** — 🎨 **Header: home shows text-only "HUSHAE" (no H mark)**
   - Wordmark gains showMark prop; header passes showMark={!isHome} — the home page shows just the bold "HUSHAE" wordmark (clean, no monogram), while other pages keep the H mark lockup.
+
+- **2026-08-04** — 🖼️ **Campaign imagery — brand text changed CK → HUSHAE**
+  - hero-ck.jpg: regenerated with "HUSHAE" on the waistband/backdrop (was showing Calvin Klein text from the earlier AI prompt).
+  - hero-ck-men.jpg + detail-01.jpg: edited in place — CK/Calvin Klein text replaced with HUSHAE.
+  - Home now shows only the HUSHAE brand in all campaign imagery.
