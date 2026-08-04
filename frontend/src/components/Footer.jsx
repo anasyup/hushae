@@ -121,7 +121,7 @@ export default function Footer() {
                 className="min-h-[48px] w-full min-w-0 flex-1 border-0 border-b-[1.5px] border-obsidian/20 bg-transparent pb-2 text-body text-obsidian outline-none transition-colors duration-base placeholder:text-ash/55 focus:border-obsidian focus-visible:ring-0" />
               <button className="btn-primary min-h-[48px] w-full shrink-0 whitespace-nowrap sm:w-auto" disabled={state === 'busy'}><Send size={14} /> <Tx k="subscribe" /></button>
             </div>
-            {state === 'ok' && <p className="mt-2 text-xs font-medium text-sagedeep"><Tx k="newsOk" /></p>}
+            {state === 'ok' && <p className="mt-2 text-xs font-medium text-obsidian"><Tx k="newsOk" /></p>}
             {state === 'already' && <p className="mt-2 text-xs font-medium text-ash"><Tx k="newsDup" /></p>}
             {state === 'err' && <p className="mt-2 text-xs font-medium text-red-700"><Tx k="newsErr" /></p>}
           </form>

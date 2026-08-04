@@ -297,3 +297,11 @@ Format:
   - New Home.jsx: full-bleed B&W campaign hero ("Second skin, first choice." with Instrument Serif italic), black marquee ticker (brand promises), category split (Women/Men with new imagery), best sellers + featured rows on the refined palette, editorial split brand story (fabric image + cream panel), full-bleed campaign section ("Signature pieces."), 4-item trust row (discreet packaging / COD / returns / wash-tested), fit finder CTA, newsletter with real /subscribers POST.
   - Switched Home to the Tailwind design-system tokens (alabaster/obsidian/ash/line/clay, Helvetica CK stack) — the old hardcoded hexes (#F7F6F4, #0E0E0E, Archivo) were inconsistent with the system and read as "off-brand".
   - 4 AI campaign images added to public/images/campaign/ (hero-bw, hero-men, fabric-cream, campaign-lifestyle).
+
+- **2026-08-04** — 🎨 **Header + Announcement Bar + chrome → premium monochrome**
+  - OfferBar (announcement bar): sage-green icon/CTA → alabaster on obsidian with hairline underline CTA (CK-style). CLS-locked height untouched.
+  - Header "Sale" highlight: green text → always-visible hairline underline (editorial emphasis, no green).
+  - Wishlist badge + account dot: sage → obsidian/alabaster monochrome (inverts over hero).
+  - MobileNav cart badge, SearchPanel match-highlight, ShoppingAssistant chips: sage → monochrome.
+  - Footer newsletter success message: sagedeep → obsidian.
+  - ProductCard sale badge already monochrome (white + black border) — untouched.

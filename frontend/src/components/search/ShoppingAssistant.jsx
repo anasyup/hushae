@@ -174,7 +174,7 @@ export default function ShoppingAssistant({ cfg, open, onClose }) {
               {t.from === 'bot' && understoodChips(t.understood).length > 0 && (
                 <p className="flex flex-wrap gap-1.5 px-1">
                   {understoodChips(t.understood).map((c) => (
-                    <span key={c} className="rounded-full bg-sage/25 px-2.5 py-1 text-caption text-sagedark">{c}</span>
+                    <span key={c} className="rounded-full bg-obsidian/5 px-2.5 py-1 text-caption text-obsidian">{c}</span>
                   ))}
                 </p>
               )}

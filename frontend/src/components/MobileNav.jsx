@@ -52,7 +52,7 @@ export default function MobileNav() {
                 <span className="relative">
                   <Heart size={19} strokeWidth={isActive ? 2.1 : 1.7} />
                   {wishlist.length > 0 && (
-                    <span className="absolute -right-1.5 -top-1 grid h-3.5 min-w-3.5 place-items-center rounded-full bg-sage px-1 text-[8px] font-bold text-obsidian">
+                    <span className="absolute -right-1.5 -top-1 grid h-3.5 min-w-3.5 place-items-center rounded-full bg-obsidian px-1 text-[8px] font-bold text-alabaster">
                       {wishlist.length}
                     </span>
                   )}

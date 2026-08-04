@@ -273,7 +273,7 @@ export default function Header() {
                     key={`${m.label}-${i}`}
                     to={m.href || '/'}
                     style={navStyle}
-                    className={({ isActive }) => `${linkCls({ isActive })} ${m.highlight && !overHero ? '!text-sagedeep' : ''}`}
+                    className={({ isActive }) => `${linkCls({ isActive })} ${m.highlight && !overHero ? 'after:scale-x-100' : ''}`}
                   >
                     {m.label}
                   </NavLink>
@@ -307,7 +307,7 @@ export default function Header() {
                 >
                   <Heart size={19} strokeWidth={1.6} aria-hidden="true" />
                   {wishlist.length > 0 && (
-                    <span className={`${badge} bg-sage text-obsidian`} aria-hidden="true">{wishlist.length}</span>
+                    <span className={`${badge} ${overHero ? 'bg-alabaster text-obsidian' : 'bg-obsidian text-alabaster'}`} aria-hidden="true">{wishlist.length}</span>
                   )}
                 </Link>
               )}
@@ -319,7 +319,7 @@ export default function Header() {
                   className={`relative hidden ${collapsed ? '' : 'lg:grid'} ${iconBtn}`}
                 >
                   <User size={19} strokeWidth={1.6} aria-hidden="true" />
-                  {auth && <span className="absolute right-2.5 top-2.5 h-1.5 w-1.5 rounded-full bg-sage" aria-hidden="true" />}
+                  {auth && <span className={`absolute right-2.5 top-2.5 h-1.5 w-1.5 rounded-full ${overHero ? 'bg-alabaster' : 'bg-obsidian'}`} aria-hidden="true" />}
                 </Link>
               )}
 

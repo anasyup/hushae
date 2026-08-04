@@ -43,10 +43,10 @@ export default function OfferBar() {
     const link = offer.link || '/sale';
     return (
       <div className={SHELL}>
-        <BadgePercent size={12} className="shrink-0 text-sage sm:hidden" aria-hidden="true" />
-        <BadgePercent size={13} className="hidden shrink-0 text-sage sm:block" aria-hidden="true" />
+        <BadgePercent size={12} className="shrink-0 text-alabaster/60 sm:hidden" aria-hidden="true" />
+        <BadgePercent size={13} className="hidden shrink-0 text-alabaster/60 sm:block" aria-hidden="true" />
         <span className="truncate">{message}</span>
-        <Link to={link} className="inline-flex shrink-0 items-center gap-1 border-b border-sage font-semibold text-sage transition-[gap] duration-base ease-standard hover:gap-1.5 motion-reduce:transition-none">
+        <Link to={link} className="inline-flex shrink-0 items-center gap-1 border-b border-alabaster/50 font-medium text-alabaster transition-[gap] duration-base ease-standard hover:gap-1.5 hover:border-alabaster motion-reduce:transition-none">
           {cta} <ArrowRight size={11} aria-hidden="true" />
         </Link>
       </div>

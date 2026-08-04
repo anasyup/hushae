@@ -164,7 +164,7 @@ export default function SearchPanel({ cfg: cfgProp, open, onClose, anchorRef }) 
   const showEmptyHint = q.trim().length >= cfg.minChars && !loading && data && !rows.length;
   const Mark = ({ text }) => (cfg.suggest.highlightMatch
     ? <>{highlight(text, q).map((p, i) => (p.hit
-      ? <mark key={i} className="bg-sage/40 text-obsidian">{p.text}</mark>
+      ? <mark key={i} className="bg-line text-obsidian">{p.text}</mark>
       : <span key={i}>{p.text}</span>))}</>
     : text);
 
