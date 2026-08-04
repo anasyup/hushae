@@ -365,3 +365,9 @@ Format:
 
 - **2026-08-04** — 🎨 **Header stays pure white on scroll (no off-white switch)**
   - Non-over-hero state was bg-alabaster/95 (warm ivory) — on home it flipped from white to off-white the moment you scrolled. Both states now bg-white/95, so the header is pure white at the top AND while scrolling, on every page.
+
+- **2026-08-04** — 🎨 **HUSHAE logo / favicon (replaces legacy V)**
+  - New favicon.svg: black rounded square + white bold "H" (Helvetica) + CK-red hairline accent — the HUSHAE monogram.
+  - Added favicon-16x16.png, favicon-32x32.png, apple-touch-icon.png (ImageMagick renders of the SVG).
+  - index.html: linked SVG + both PNG sizes + apple-touch-icon; theme-color updated to warm ivory #F7F5F1.
+  - Browser tab (Chrome), mobile home-screen and older browsers now all show the HUSHAE H mark.
