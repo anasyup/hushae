@@ -21,7 +21,6 @@ import Seo, { organizationJsonLd } from '../components/Seo';
  * Instead:
  *   · one art-directed hero on warm ivory
  *   · a numbered campaign index (01 · 02 · 03) — an editorial device, not a menu
- *   · category as TYPOGRAPHY — big tracked links over hairlines (COS register)
  *   · one product rail ("The Edit")
  *   · one editorial statement, serif italic
  *   · trust as a single quiet line, not four boxes
@@ -34,24 +33,6 @@ const CAMPAIGN = [
   { no: '01', label: 'For Her', sub: 'Bras · Panties · Shapewear', img: '/images/campaign/essentials-01.jpg', href: '/women' },
   { no: '02', label: 'For Him', sub: 'Briefs · Boxers · Trunks', img: '/images/campaign/essentials-02.jpg', href: '/men' },
   { no: '03', label: 'The Fabric', sub: 'Modal · Cotton · Stretch', img: '/images/campaign/detail-01.jpg', href: '/about' },
-];
-
-/* ── Category as typography (COS / Zara register) ───────────────────────── */
-const CATEGORIES = [
-  { group: 'Women', items: [
-    { label: 'Bras', href: '/category/bras' },
-    { label: 'Panties', href: '/category/panties' },
-    { label: 'Shapewear', href: '/category/shapewear' },
-    { label: 'Sleepwear', href: '/category/sleepwear-loungewear' },
-    { label: 'Camisoles & Slips', href: '/category/camisoles-slips' },
-  ] },
-  { group: 'Men', items: [
-    { label: 'Briefs', href: '/category/briefs' },
-    { label: 'Boxers', href: '/category/boxers' },
-    { label: 'Trunks', href: '/category/trunks' },
-    { label: 'Vests & Undershirts', href: '/category/vests-undershirts' },
-    { label: 'Thermal & Sports', href: '/category/thermal-sports' },
-  ] },
 ];
 
 const TRUST_LINE = 'Discreet packaging · COD nationwide · 7-day returns · Wash-tested 40 cycles';
@@ -139,28 +120,6 @@ export default function Home() {
                   <ArrowUpRight size={18} className="text-ash transition-transform duration-base group-hover:translate-x-0.5 group-hover:-translate-y-0.5" strokeWidth={1.5} />
                 </div>
               </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ═══ 03 — CATEGORIES AS TYPOGRAPHY (COS register) ═════════ */}
-      <section className="border-t border-line bg-alabaster py-20 md:py-28">
-        <div className="container">
-          <p className="mb-12 text-[11px] font-medium uppercase tracking-[0.3em] text-ash">Shop by category</p>
-          <div className="grid grid-cols-1 gap-x-16 gap-y-14 md:grid-cols-2">
-            {CATEGORIES.map((g) => (
-              <div key={g.group}>
-                <p className="border-b border-line pb-4 font-display text-[15px] font-medium uppercase tracking-[0.24em] text-obsidian">{g.group}</p>
-                <div className="divide-y divide-line">
-                  {g.items.map((it) => (
-                    <Link key={it.label} to={it.href} className="group flex items-baseline justify-between py-4 transition-colors duration-base hover:text-obsidian">
-                      <span className="text-[17px] font-light tracking-[0.04em] text-obsidian/80 transition-all duration-base group-hover:tracking-[0.08em] md:text-[22px]">{it.label}</span>
-                      <ArrowUpRight size={15} className="text-ash opacity-0 transition-all duration-base group-hover:opacity-100" strokeWidth={1.5} />
-                    </Link>
-                  ))}
-                </div>
-              </div>
             ))}
           </div>
         </div>

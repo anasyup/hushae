@@ -320,3 +320,7 @@ Format:
   - Full redesign with restraint as the luxury signal. Removed: marquee ticker, image category tiles (read as stocky), busy decorations.
   - New structure: art-directed hero on warm ivory ("Second skin." — huge serif/uppercase), numbered campaign index (01 For Her / 02 For Him / 03 The Fabric) as an editorial device, categories as TYPOGRAPHY (big tracked links over hairlines, COS register), one curated product rail ("The Edit"), editorial statement with serif pull-quote, quiet full-bleed "For Him" campaign, trust as a single hairline line, fit finder, dark newsletter.
   - 4 new art-directed campaign images (warm muted, SKIMS/COS aesthetic): essentials-01 (her), essentials-02 (him), detail-01 (fabric), campaign-01 (house).
+
+- **2026-08-04** — 🎨 **Home: removed "Shop by category" section** (user request)
+  - Deleted the typography "Shop by category" block + its CATEGORIES constant.
+  - "The Edit / Best sellers." rail untouched — home now: hero → campaign index → The Edit → statement → campaign → trust → fit finder → newsletter.
