@@ -71,28 +71,30 @@ export default function Home() {
         jsonLd={organizationJsonLd(typeof window !== 'undefined' ? window.location.origin : '')}
         jsonLdId="home-org" />
 
-      {/* ═══ 1. HERO — full-bleed campaign ═════════════════════════ */}
-      <section className="relative w-full overflow-hidden" style={{ minHeight: '92vh' }}>
-        <img src="/images/campaign/hero-bw.jpg" alt="" fetchpriority="high"
-          className="absolute inset-0 h-full w-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-t from-obsidian/80 via-obsidian/10 to-obsidian/20" />
+      {/* ═══ 1. HERO — full-bleed white campaign (CK style) ═════════ */}
+      <section className="relative w-full overflow-hidden bg-white" style={{ minHeight: '92vh' }}>
+        {/* Full-bleed image — spans left edge to right edge, no bars. */}
+        <img src="/images/campaign/hero-women-white.jpg" alt="" fetchpriority="high"
+          className="absolute inset-0 h-full w-full object-cover object-center" />
+        {/* Subtle bottom veil for text legibility on the bright image */}
+        <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-white/90 via-white/30 to-transparent" />
         <div className="relative flex min-h-[92vh] items-end">
-          <div className="container pb-14 md:pb-24">
+          <div className="w-full px-5 pb-12 md:px-10 md:pb-20 lg:px-16">
             <div className="max-w-2xl">
-              <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-white/70">Premium innerwear · Made in Pakistan</p>
-              <h1 className="mt-5 font-display text-[44px] leading-[1.02] font-medium uppercase tracking-[0.02em] text-white md:text-[84px]">
+              <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-ash">Premium innerwear · Made in Pakistan</p>
+              <h1 className="mt-5 font-display text-[44px] leading-[1.02] font-medium uppercase tracking-[0.02em] text-obsidian md:text-[88px]">
                 Second skin,
                 <br />
                 <span style={serif} className="normal-case italic tracking-normal">first choice.</span>
               </h1>
-              <p className="mt-6 max-w-md text-[14px] leading-relaxed text-white/75">
+              <p className="mt-6 max-w-md text-[15px] leading-relaxed text-graphite">
                 Engineered for comfort. Designed in Pakistan, finished to an international standard.
               </p>
               <div className="mt-9 flex flex-wrap gap-3">
-                <Link to="/women" className="inline-flex min-h-[48px] items-center justify-center bg-white px-9 text-[12px] font-semibold uppercase tracking-[0.14em] text-obsidian transition hover:bg-obsidian hover:text-white">
+                <Link to="/women" className="inline-flex min-h-[48px] items-center justify-center bg-obsidian px-9 text-[12px] font-semibold uppercase tracking-[0.14em] text-white transition hover:bg-graphite">
                   Shop Women
                 </Link>
-                <Link to="/men" className="inline-flex min-h-[48px] items-center justify-center border border-white/50 px-9 text-[12px] font-semibold uppercase tracking-[0.14em] text-white transition hover:bg-white hover:text-obsidian">
+                <Link to="/men" className="inline-flex min-h-[48px] items-center justify-center border border-obsidian/30 px-9 text-[12px] font-semibold uppercase tracking-[0.14em] text-obsidian transition hover:bg-obsidian hover:text-white">
                   Shop Men
                 </Link>
               </div>
@@ -115,12 +117,12 @@ export default function Home() {
       {/* ═══ 3. CATEGORY SPLIT ═════════════════════════════════════ */}
       <section className="grid grid-cols-1 md:grid-cols-2">
         {[
-          { to: '/women', img: '/images/campaign/hero-bw.jpg', label: 'Women', sub: 'Bras · Panties · Shapewear' },
-          { to: '/men', img: '/images/campaign/hero-men.jpg', label: 'Men', sub: 'Briefs · Boxers · Trunks' },
+          { to: '/women', img: '/images/campaign/hero-women-white.jpg', label: 'Women', sub: 'Bras · Panties · Shapewear' },
+          { to: '/men', img: '/images/campaign/hero-men-white.jpg', label: 'Men', sub: 'Briefs · Boxers · Trunks' },
         ].map(({ to, img, label, sub }) => (
           <Link key={to} to={to} className="group relative block overflow-hidden bg-line" style={{ aspectRatio: '4/5' }}>
             <img src={img} alt={label} loading="lazy" className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]" style={{ transitionTimingFunction: 'cubic-bezier(0.22, 1, 0.36, 1)' }} />
-            <div className="absolute inset-0 bg-gradient-to-t from-obsidian/70 via-transparent to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-obsidian/60 via-transparent to-transparent" />
             <div className="absolute bottom-0 left-0 right-0 p-7 md:p-12">
               <p className="font-display text-[34px] font-medium uppercase tracking-[0.04em] text-white md:text-[44px]">{label}</p>
               <p className="mt-1 text-[12px] uppercase tracking-[0.16em] text-white/70">{sub}</p>
@@ -174,25 +176,25 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ═══ 6. CAMPAIGN FULL-BLEED — signature edit ═══════════════ */}
-      <section className="relative overflow-hidden bg-obsidian text-white">
-        <img src="/images/campaign/campaign-lifestyle.jpg" alt="The HUSHAE edit" loading="lazy" className="absolute inset-0 h-full w-full object-cover opacity-60" />
-        <div className="absolute inset-0 bg-gradient-to-r from-obsidian/85 via-obsidian/45 to-obsidian/20" />
-        <div className="relative flex min-h-[70vh] items-center">
-          <div className="container py-20">
+      {/* ═══ 6. CAMPAIGN FULL-BLEED — signature edit (white collective) ═ */}
+      <section className="relative overflow-hidden bg-white text-obsidian">
+        <img src="/images/campaign/campaign-wide-white.jpg" alt="The HUSHAE edit" loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
+        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-white/85 via-white/20 to-transparent" />
+        <div className="relative flex min-h-[70vh] items-end">
+          <div className="w-full px-5 pb-12 md:px-10 md:pb-16 lg:px-16">
             <div className="max-w-xl">
-              <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-white/60">The edit</p>
+              <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-ash">The edit</p>
               <h2 className="mt-4 font-display text-[34px] font-medium uppercase tracking-[0.02em] leading-tight md:text-[56px]">
                 Signature <span style={serif} className="normal-case italic">pieces.</span>
               </h2>
-              <p className="mt-5 max-w-md text-[14px] leading-relaxed text-white/75">
+              <p className="mt-5 max-w-md text-[14px] leading-relaxed text-graphite">
                 The pieces we keep restocking because they keep selling out — cut in our signature modal blend.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
-                <Link to="/shop?tier=Premium" className="inline-flex min-h-[48px] items-center justify-center bg-white px-9 text-[12px] font-semibold uppercase tracking-[0.14em] text-obsidian transition hover:bg-transparent hover:text-white hover:ring-1 hover:ring-white">
+                <Link to="/shop?tier=Premium" className="inline-flex min-h-[48px] items-center justify-center bg-obsidian px-9 text-[12px] font-semibold uppercase tracking-[0.14em] text-white transition hover:bg-graphite">
                   Shop the edit
                 </Link>
-                <Link to="/sale" className="inline-flex min-h-[48px] items-center justify-center border border-white/40 px-9 text-[12px] font-semibold uppercase tracking-[0.14em] text-white transition hover:bg-white hover:text-obsidian">
+                <Link to="/sale" className="inline-flex min-h-[48px] items-center justify-center border border-obsidian/30 px-9 text-[12px] font-semibold uppercase tracking-[0.14em] text-obsidian transition hover:bg-obsidian hover:text-white">
                   Sale
                 </Link>
               </div>
