@@ -310,3 +310,8 @@ Format:
   - **Root cause:** hero was switched to bright white campaign imagery, but the header still assumed a DARK hero (`overHero` → transparent bg + ALABASTER/white text). White text on white image = header invisible. That was the red-circled defect.
   - **Fix:** header over the hero now renders DARK (obsidian) text/icons/wordmark — always readable; mega-menu dropdowns forced to the light variant; Sale link underline always visible. Added a soft ivory top veil on the hero (alabaster gradient) so the dark header reads cleanly over any bright area.
   - **Footer:** `bg-satin/40` (patchy beige) → `bg-alabaster` (clean ivory unified with the page); refined column/contact labels (tracking 0.24em), 13px links with hover transitions, wider air/padding, uppercase-tracked wordmark in the about column.
+
+- **2026-08-04** — 🎨 **Home v3 — CK/Tommy category-tiles structure + Featured pieces removed**
+  - Removed the "Featured pieces" product rail (user request) — one curated rail ("Best sellers") reads as an edit, two read as a catalogue.
+  - Added a 6-tile **category rail** (Bras, Panties, Shapewear, Briefs, Boxers, Trunks) in the CK/Tommy pattern — editorial image tiles with label + sub + underline-on-hover + "Shop now", each linking to /category/:slug (verified: ?category= filters work).
+  - Structure now: hero → marquee → category tiles → best sellers → brand story → signature campaign → trust → fit finder → newsletter.

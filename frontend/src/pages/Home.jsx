@@ -7,25 +7,17 @@ import ProductCard from '../components/ProductCard';
 import Seo, { organizationJsonLd } from '../components/Seo';
 
 /* ============================================================================
- * HUSHAE HOME — editorial luxury (CK / Zara register).
+ * HUSHAE HOME — editorial luxury, CK / Tommy register.
  *
- * Type: Helvetica (CK stack) for UI + Instrument Serif italic for editorial
- *       moments — the one "luxury" voice on the page.
- * Palette: alabaster ivory, obsidian ink, ash, hairline line. No borders on
- *       cards, no shadows, no radius — the premium is in the negative space.
- * Motion: one easing curve, opacity/translate only.
+ * Structure follows the reference fashion houses (checked live):
+ *   hero campaign → brand ticker → category tiles rail → best sellers →
+ *   brand story → signature campaign → trust → fit finder → newsletter.
+ * Deliberately NO second generic product rail: one curated rail reads
+ * "edit", two read "catalogue".
  *
- * Sections:
- *   1 Hero (full-bleed B&W campaign)
- *   2 Marquee ticker (brand promises)
- *   3 Category split (Women / Men)
- *   4 Best sellers
- *   5 Editorial split (brand story, serif)
- *   6 Campaign full-bleed (signature edit)
- *   7 Featured pieces
- *   8 Trust row
- *   9 Fit finder CTA
- *   10 Newsletter
+ * Type: Helvetica (CK stack) UI + Instrument Serif italic editorial moments.
+ * Palette: alabaster ivory, obsidian ink, ash, hairline line. No card
+ * borders/shadows — premium is in the negative space.
  * ========================================================================== */
 
 const serif = { fontFamily: "'Instrument Serif', Georgia, serif", fontWeight: 400 };
@@ -42,16 +34,24 @@ const MARQUEE = [
   'Wash-tested 40 cycles', 'Finished to international standard',
 ];
 
+/* ── Category tiles rail (CK / Tommy "shop the category" pattern) ───────── */
+const CATEGORY_TILES = [
+  { label: 'Bras', sub: 'Support that disappears', img: '/images/categories/bras.jpg', href: '/category/bras' },
+  { label: 'Panties', sub: 'Everyday essentials', img: '/images/categories/panties.jpg', href: '/category/panties' },
+  { label: 'Shapewear', sub: 'Smooth lines', img: '/images/categories/shapewear.jpg', href: '/category/shapewear' },
+  { label: 'Briefs', sub: 'Support that stays', img: '/images/categories/briefs.jpg', href: '/category/briefs' },
+  { label: 'Boxers', sub: 'Room to breathe', img: '/images/categories/boxers.jpg', href: '/category/boxers' },
+  { label: 'Trunks', sub: 'The middle ground', img: '/images/categories/trunks.jpg', href: '/category/trunks' },
+];
+
 export default function Home() {
   const { settings } = useApp();
   const [best, setBest] = useState(null);
-  const [featured, setFeatured] = useState(null);
   const [nl, setNl] = useState('');
   const [nlDone, setNlDone] = useState(false);
 
   useEffect(() => {
     api('/products?bestSeller=true&limit=8').then((d) => setBest(d.products || [])).catch(() => setBest([]));
-    api('/products?featured=true&limit=8').then((d) => setFeatured(d.products || [])).catch(() => setFeatured([]));
   }, []);
 
   const subscribe = (e) => {
@@ -59,7 +59,6 @@ export default function Home() {
     if (!nl.trim()) return;
     setNlDone(true);
     setNl('');
-    // Fire the real subscriber POST — the newsletter list the campaigns use.
     api('/subscribers', { method: 'POST', body: { email: nl.trim() } }).catch(() => {});
   };
 
@@ -71,14 +70,13 @@ export default function Home() {
         jsonLd={organizationJsonLd(typeof window !== 'undefined' ? window.location.origin : '')}
         jsonLdId="home-org" />
 
-      {/* ═══ 1. HERO — full-bleed white campaign (CK style) ═════════ */}
+      {/* ═══ 1. HERO — full-bleed white campaign ══════════════════ */}
       <section className="relative w-full overflow-hidden bg-white" style={{ minHeight: '92vh' }}>
-        {/* Full-bleed image — spans left edge to right edge, no bars. */}
         <img src="/images/campaign/hero-women-white.jpg" alt="" fetchpriority="high"
           className="absolute inset-0 h-full w-full object-cover object-center" />
         {/* Top ivory veil — keeps the dark header readable over the bright image */}
         <div className="absolute inset-x-0 top-0 h-36 bg-gradient-to-b from-alabaster/85 via-alabaster/40 to-transparent" />
-        {/* Subtle bottom veil for text legibility on the bright image */}
+        {/* Bottom veil for text legibility */}
         <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-white/90 via-white/30 to-transparent" />
         <div className="relative flex min-h-[92vh] items-end">
           <div className="w-full px-5 pb-12 md:px-10 md:pb-20 lg:px-16">
@@ -116,29 +114,44 @@ export default function Home() {
         </div>
       </div>
 
-      {/* ═══ 3. CATEGORY SPLIT ═════════════════════════════════════ */}
-      <section className="grid grid-cols-1 md:grid-cols-2">
-        {[
-          { to: '/women', img: '/images/campaign/hero-women-white.jpg', label: 'Women', sub: 'Bras · Panties · Shapewear' },
-          { to: '/men', img: '/images/campaign/hero-men-white.jpg', label: 'Men', sub: 'Briefs · Boxers · Trunks' },
-        ].map(({ to, img, label, sub }) => (
-          <Link key={to} to={to} className="group relative block overflow-hidden bg-line" style={{ aspectRatio: '4/5' }}>
-            <img src={img} alt={label} loading="lazy" className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]" style={{ transitionTimingFunction: 'cubic-bezier(0.22, 1, 0.36, 1)' }} />
-            <div className="absolute inset-0 bg-gradient-to-t from-obsidian/60 via-transparent to-transparent" />
-            <div className="absolute bottom-0 left-0 right-0 p-7 md:p-12">
-              <p className="font-display text-[34px] font-medium uppercase tracking-[0.04em] text-white md:text-[44px]">{label}</p>
-              <p className="mt-1 text-[12px] uppercase tracking-[0.16em] text-white/70">{sub}</p>
-              <span className="mt-5 inline-flex items-center gap-2 border-b border-white/40 pb-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-white transition group-hover:border-white">
-                Explore <ArrowRight size={12} />
-              </span>
+      {/* ═══ 3. CATEGORY TILES RAIL (CK / Tommy pattern) ═══════════ */}
+      <section className="bg-alabaster py-16 md:py-24">
+        <div className="container">
+          <div className="mb-10 flex items-end justify-between">
+            <div>
+              <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-ash">Shop the edit</p>
+              <h2 className="mt-3 font-display text-[28px] font-medium uppercase tracking-[0.03em] md:text-[40px]">By category</h2>
             </div>
-          </Link>
-        ))}
+            <Link to="/shop" className="inline-flex items-center gap-1.5 border-b border-line pb-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-ash transition hover:border-obsidian hover:text-obsidian">
+              Shop all <ArrowRight size={12} />
+            </Link>
+          </div>
+          <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-6 lg:gap-x-6">
+            {CATEGORY_TILES.map((c) => (
+              <Link key={c.label} to={c.href} className="group block">
+                <div className="relative overflow-hidden bg-line" style={{ aspectRatio: '3/4' }}>
+                  <img src={c.img} alt={c.label} loading="lazy"
+                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.05]"
+                    style={{ transitionTimingFunction: 'cubic-bezier(0.22, 1, 0.36, 1)' }} />
+                  <div className="absolute inset-0 bg-gradient-to-t from-obsidian/55 via-transparent to-transparent opacity-80 transition-opacity duration-500 group-hover:opacity-100" />
+                  <div className="absolute inset-x-0 bottom-0 p-4">
+                    <p className="font-display text-[16px] font-medium uppercase tracking-[0.08em] text-white md:text-[18px]">{c.label}</p>
+                    <p className="mt-0.5 hidden text-[11px] text-white/70 md:block">{c.sub}</p>
+                    <span className="mt-2 block h-px w-0 bg-white transition-all duration-500 group-hover:w-full" />
+                  </div>
+                </div>
+                <span className="mt-3 block text-[11px] font-semibold uppercase tracking-[0.14em] text-obsidian/70 transition group-hover:text-obsidian">
+                  Shop now <ArrowRight size={10} className="inline -mt-0.5" />
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
       </section>
 
-      {/* ═══ 4. BEST SELLERS ═══════════════════════════════════════ */}
+      {/* ═══ 4. BEST SELLERS — the one curated rail ════════════════ */}
       {best && best.length > 0 && (
-        <section className="bg-alabaster py-16 md:py-24">
+        <section className="bg-white py-16 md:py-24">
           <div className="container">
             <div className="mb-10 flex items-end justify-between">
               <div>
@@ -178,7 +191,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ═══ 6. CAMPAIGN FULL-BLEED — signature edit (white collective) ═ */}
+      {/* ═══ 6. CAMPAIGN FULL-BLEED — signature edit ═══════════════ */}
       <section className="relative overflow-hidden bg-white text-obsidian">
         <img src="/images/campaign/campaign-wide-white.jpg" alt="The HUSHAE edit" loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
         <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-white/85 via-white/20 to-transparent" />
@@ -205,27 +218,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ═══ 7. FEATURED PIECES ════════════════════════════════════ */}
-      {featured && featured.length > 0 && (
-        <section className="bg-white py-16 md:py-24">
-          <div className="container">
-            <div className="mb-10 flex items-end justify-between">
-              <div>
-                <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-ash">New season</p>
-                <h2 className="mt-3 font-display text-[28px] font-medium uppercase tracking-[0.03em] md:text-[40px]">Featured pieces</h2>
-              </div>
-              <Link to="/new" className="inline-flex items-center gap-1.5 border-b border-line pb-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-ash transition hover:border-obsidian hover:text-obsidian">
-                New arrivals <ArrowRight size={12} />
-              </Link>
-            </div>
-            <div className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-4 md:gap-x-6">
-              {featured.slice(0, 8).map((p) => <ProductCard key={p._id} product={p} />)}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* ═══ 8. TRUST ROW ══════════════════════════════════════════ */}
+      {/* ═══ 7. TRUST ROW ══════════════════════════════════════════ */}
       <section className="border-y border-line bg-alabaster">
         <div className="container grid grid-cols-2 gap-6 py-10 md:grid-cols-4">
           {TRUST.map(({ icon: Icon, title, sub }) => (
@@ -240,7 +233,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ═══ 9. FIT FINDER ═════════════════════════════════════════ */}
+      {/* ═══ 8. FIT FINDER ═════════════════════════════════════════ */}
       <section className="bg-obsidian py-16 text-center text-white md:py-24">
         <div className="container">
           <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-white/50">Size guide</p>
@@ -256,14 +249,14 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ═══ 10. NEWSLETTER ════════════════════════════════════════ */}
+      {/* ═══ 9. NEWSLETTER ════════════════════════════════════════ */}
       <section className="bg-alabaster py-16 md:py-24">
         <div className="container max-w-xl text-center">
           <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-ash">Stay in touch</p>
           <h2 className="mt-3 font-display text-[26px] font-medium uppercase tracking-[0.03em] md:text-[34px]">Join the circle</h2>
           <p className="mt-3 text-[13px] text-ash">Early access to new drops, fit guides and private offers. No spam, ever.</p>
           {nlDone ? (
-            <p className="mt-8 text-[12px] font-semibold uppercase tracking-[0.14em] text-sagedeep">You&apos;re on the list — welcome.</p>
+            <p className="mt-8 text-[12px] font-semibold uppercase tracking-[0.14em] text-obsidian">You&apos;re on the list — welcome.</p>
           ) : (
             <form onSubmit={subscribe} className="mx-auto mt-8 flex max-w-md flex-col gap-3 sm:flex-row">
               <input type="email" value={nl} onChange={(e) => setNl(e.target.value)} required placeholder="Your email"
