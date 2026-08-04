@@ -111,7 +111,7 @@ export default function NavDropdown({ label, to, items, linkCls, navStyle, onDar
           }`}
         >
           <ul
-            className={`min-w-[13.5rem] rounded-panel border border-line bg-alabaster p-1.5 shadow-e-4 ${onDark ? '' : ''}`}
+            className={`min-w-[13.5rem] rounded-panel border border-line bg-white p-1.5 shadow-e-4 ${onDark ? '' : ''}`}
             role="list"
           >
             {items.map((c) => (

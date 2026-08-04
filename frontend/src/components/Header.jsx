@@ -201,8 +201,8 @@ export default function Header() {
           style={{ '--hdr-h': `${deskH}px` }}
           className={`border-b transition-[background-color,border-color,box-shadow] duration-base ease-standard ${
             overHero
-              ? 'border-transparent bg-transparent text-obsidian'
-              : `bg-alabaster/85 text-obsidian backdrop-blur-xl backdrop-saturate-150 ${
+              ? 'border-line bg-white/95 text-obsidian backdrop-blur-xl backdrop-saturate-150'
+              : `bg-alabaster/95 text-obsidian backdrop-blur-xl backdrop-saturate-150 ${
                 atTop ? 'border-transparent' : `${hairline ? 'border-line' : 'border-transparent'} shadow-e-1`
               }`
           }`}

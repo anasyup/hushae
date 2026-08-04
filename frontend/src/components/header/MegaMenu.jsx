@@ -194,7 +194,7 @@ export default function MegaMenu({ label, to, items, linkCls, navStyle, onDark, 
             ? { left: 0, transform: 'translateX(-50%)', visibility: 'hidden' }
             : { left: `${shift}px`, transform: 'translateX(-50%)' }}
         >
-          <div className="overflow-hidden rounded-panel border border-line bg-alabaster shadow-e-4">
+          <div className="overflow-hidden rounded-panel border border-line bg-white shadow-e-4">
             <div className="grid gap-7 p-6 md:grid-cols-[1.15fr_0.85fr_minmax(0,11rem)] lg:gap-8">
 
               {/* ── Categories ─────────────────────────────────────────── */}
@@ -259,7 +259,7 @@ export default function MegaMenu({ label, to, items, linkCls, navStyle, onDark, 
                 >
                   {/* aspect-[4/5] reserves the box before the AVIF decodes, so
                       opening the panel cannot shift its own contents. */}
-                  <span className="block overflow-hidden rounded-card bg-cream">
+                  <span className="block overflow-hidden rounded-card bg-line">
                     <Img
                       src={feature.image}
                       alt=""

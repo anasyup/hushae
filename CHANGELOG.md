@@ -349,3 +349,8 @@ Format:
 - **2026-08-04** — 🎨 **Home: Campaign trays full-bleed (wider, zero gap) + Fit Finder image background**
   - The Campaign trays: removed container + 40px gaps → full-bleed edge-to-edge grid with 1px hairline separators (gap-px bg-line), tiles now 4/5 aspect (wider), labels padded inside.
   - Fit Finder: added animated background image (slow Ken Burns zoom, 22s alternate) with soft ivory overlays for black-type legibility; 3 step chips (01 Measure / 02 Compare / 03 Match) as "buttons on the image" with staggered reveal; CTA now has an expanding ring pulse (ff-pulse) + hover arrow. New keyframes: kenburns, ff-pulse.
+
+- **2026-08-04** — 🎨 **Header white (never transparent) + footer black/white + dropdowns white**
+  - Header: over-hero state no longer transparent — always solid white/95 with blur + hairline border; nav/icons already dark obsidian.
+  - MegaMenu + NavDropdown panels: bg-alabaster (beige) → bg-white; featured placeholder cream → line.
+  - Footer: bg-alabaster → bg-obsidian (black), all text flipped to alabaster/white (wordmark, links, contact, payment note, bottom bar), borders → white/10-15, social chips → white/10 with white hover, newsletter input/button restyled for dark (underline + outline white button).

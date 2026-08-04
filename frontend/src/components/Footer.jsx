@@ -80,7 +80,7 @@ export default function Footer() {
   };
 
   return (
-    <footer className="mt-ed-md border-t border-line bg-alabaster">
+    <footer className="mt-ed-md border-t border-white/10 bg-obsidian text-alabaster">
       {/* FINAL — DUPLICATE REMOVED.
           MEASURED on live: "Join the inner circle" rendered twice within ~200px
           — once as the homepage newsletter section and again here, each with
@@ -91,39 +91,22 @@ export default function Footer() {
           the merchant's `showNewsletter` switch keeps working everywhere else.
           The subscribe handler and the /api/subscribers POST are untouched. */}
       {f.showNewsletter !== false && !isHome && (
-      <div data-section="footer.newsletter" className="border-b border-line/70">
+      <div data-section="footer.newsletter" className="border-b border-white/10">
         <div className="container-page flex flex-col items-center gap-5 py-10 text-center md:flex-row md:justify-between md:text-left xl:py-14">
-          {/* V2.1. MEASURED: this row used a boxed `.input` on white while the
-              homepage's signup 200px above used a ruled underline — two
-              different input languages for the same action on one page. The
-              box is also the one enclosed control left in the storefront
-              chrome.
-              Matched to the ruled underline, and the heading raised from
-              text-xl to the h4 rung so it is not the smallest display type on
-              the page. The submit handler, the /api/subscribers POST and every
-              state message are untouched.
-
-              1. Better: one signup language instead of two.
-              2. HUSHAE: a line, not a box — the house mark.
-              3. Not a copy: the same underline this page already uses. */}
           <div className="md:max-w-[46ch]">
-            <p className="font-display text-h4">{f.newsletterTitle || 'Join the inner circle'}</p>
-            <p className="mt-1.5 text-body-sm leading-[1.6] text-ash">{f.newsletterText || 'Early access to new drops, fit guides and private offers.'}</p>
+            <p className="font-display text-h4 text-alabaster">{f.newsletterTitle || 'Join the inner circle'}</p>
+            <p className="mt-1.5 text-body-sm leading-[1.6] text-alabaster/60">{f.newsletterText || 'Early access to new drops, fit guides and private offers.'}</p>
           </div>
           <form onSubmit={subscribe} className="w-full max-w-md">
-            {/* MEASURED FAILURE at 320/360/390: a single flex row with a
-                `whitespace-nowrap` button overflowed to 427px. The underline
-                input needs a minimum width and the button will not shrink, so
-                below sm they must stack. */}
             <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
               <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
                 placeholder={t('newsPlaceholder')}
-                className="min-h-[48px] w-full min-w-0 flex-1 border-0 border-b-[1.5px] border-obsidian/20 bg-transparent pb-2 text-body text-obsidian outline-none transition-colors duration-base placeholder:text-ash/55 focus:border-obsidian focus-visible:ring-0" />
-              <button className="btn-primary min-h-[48px] w-full shrink-0 whitespace-nowrap sm:w-auto" disabled={state === 'busy'}><Send size={14} /> <Tx k="subscribe" /></button>
+                className="min-h-[48px] w-full min-w-0 flex-1 border-0 border-b-[1.5px] border-alabaster/25 bg-transparent pb-2 text-body text-alabaster outline-none transition-colors duration-base placeholder:text-alabaster/40 focus:border-alabaster focus-visible:ring-0" />
+              <button className="min-h-[48px] w-full shrink-0 whitespace-nowrap border border-alabaster/50 px-6 text-[12px] font-semibold uppercase tracking-[0.14em] text-alabaster transition-colors duration-base hover:bg-alabaster hover:text-obsidian sm:w-auto" disabled={state === 'busy'}><Send size={14} /> <Tx k="subscribe" /></button>
             </div>
-            {state === 'ok' && <p className="mt-2 text-xs font-medium text-obsidian"><Tx k="newsOk" /></p>}
-            {state === 'already' && <p className="mt-2 text-xs font-medium text-ash"><Tx k="newsDup" /></p>}
-            {state === 'err' && <p className="mt-2 text-xs font-medium text-red-700"><Tx k="newsErr" /></p>}
+            {state === 'ok' && <p className="mt-2 text-xs font-medium text-alabaster"><Tx k="newsOk" /></p>}
+            {state === 'already' && <p className="mt-2 text-xs font-medium text-alabaster/60"><Tx k="newsDup" /></p>}
+            {state === 'err' && <p className="mt-2 text-xs font-medium text-red-400"><Tx k="newsErr" /></p>}
           </form>
         </div>
       </div>
@@ -134,32 +117,32 @@ export default function Footer() {
           is room for it, and mobile keeps its current compact treatment. */}
       <div className="container-page grid gap-12 py-16 md:grid-cols-4 xl:gap-16 xl:py-24 2xl:gap-24 2xl:py-28">
         <div data-section="footer.about">
-          <p className="font-display text-lg uppercase tracking-[0.32em] text-obsidian">{s.storeName || 'HUSHAE'}</p>
-          <p className="mt-4 max-w-[30ch] text-sm leading-relaxed text-ash">{f.aboutText || s.tagline || 'Second Skin, First Choice.'}</p>
+          <p className="font-display text-lg uppercase tracking-[0.32em] text-alabaster">{s.storeName || 'HUSHAE'}</p>
+          <p className="mt-4 max-w-[30ch] text-sm leading-relaxed text-alabaster/60">{f.aboutText || s.tagline || 'Second Skin, First Choice.'}</p>
           {f.showSocial !== false && (social.instagram || social.facebook || social.tiktok) && (
             <div className="mt-4 flex gap-2">
-              {social.instagram && <a href={social.instagram} target="_blank" rel="noreferrer" aria-label="Instagram" className="flex h-9 w-9 items-center justify-center rounded-full border border-line bg-white text-obsidian/70 transition hover:border-obsidian hover:text-obsidian"><Instagram size={16} /></a>}
-              {social.facebook && <a href={social.facebook} target="_blank" rel="noreferrer" aria-label="Facebook" className="flex h-9 w-9 items-center justify-center rounded-full border border-line bg-white text-obsidian/70 transition hover:border-obsidian hover:text-obsidian"><Facebook size={16} /></a>}
-              {social.tiktok && <a href={social.tiktok} target="_blank" rel="noreferrer" aria-label="TikTok" className="flex h-9 w-9 items-center justify-center rounded-full border border-line bg-white text-obsidian/70 transition hover:border-obsidian hover:text-obsidian"><Music2 size={16} /></a>}
+              {social.instagram && <a href={social.instagram} target="_blank" rel="noreferrer" aria-label="Instagram" className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-alabaster/80 transition hover:border-white hover:bg-white/20 hover:text-white"><Instagram size={16} /></a>}
+              {social.facebook && <a href={social.facebook} target="_blank" rel="noreferrer" aria-label="Facebook" className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-alabaster/80 transition hover:border-white hover:bg-white/20 hover:text-white"><Facebook size={16} /></a>}
+              {social.tiktok && <a href={social.tiktok} target="_blank" rel="noreferrer" aria-label="TikTok" className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-alabaster/80 transition hover:border-white hover:bg-white/20 hover:text-white"><Music2 size={16} /></a>}
             </div>
           )}
-          {f.tagline !== '' && <p className="mt-6 text-[11px] uppercase tracking-[0.2em] text-ash">{f.tagline || 'Made in Pakistan · Worn worldwide soon'}</p>}
+          {f.tagline !== '' && <p className="mt-6 text-[11px] uppercase tracking-[0.2em] text-alabaster/50">{f.tagline || 'Made in Pakistan · Worn worldwide soon'}</p>}
         </div>
         {/* Link columns — merchant-managed from /admin/theme › Footer */}
         {cols.map((col, i) => (
           <div key={i} data-section={`footer.col${i}`}>
-            <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-ash">{col.title}</p>
+            <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-alabaster/60">{col.title}</p>
             <div className="mt-5 space-y-3 text-[13px]">
               {(col.links || []).filter((l) => l && l.label).map((l, j) => (
-                <Link key={j} className="block text-obsidian/75 transition-colors duration-base hover:text-obsidian" to={l.href || '/'}>{l.label}</Link>
+                <Link key={j} className="block text-alabaster/75 transition-colors duration-base hover:text-white" to={l.href || '/'}>{l.label}</Link>
               ))}
             </div>
           </div>
         ))}
         {f.showContact !== false && (
         <div data-section="footer.contact">
-          <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-ash">{f.contactTitle || 'Contact'}</p>
-          <div className="mt-5 space-y-3 text-[13px] text-obsidian/80">
+          <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-alabaster/60">{f.contactTitle || 'Contact'}</p>
+          <div className="mt-5 space-y-3 text-[13px] text-alabaster/80">
             {/* FINAL. The live settings document still carries the legacy
                 `care@veloura.pk` from the pre-rename data, and it was rendering
                 a DIFFERENT BRAND's address in HUSHAE's contact block — the most
@@ -169,12 +152,12 @@ export default function Footer() {
                 favour of the house default, so the storefront is correct
                 whether or not the record is ever updated in Admin. A real
                 HUSHAE address entered by the merchant still wins. */}
-            <p className="flex items-center gap-2"><Mail size={14} className="text-ash" /> {(s.contactEmail && !/veloura/i.test(s.contactEmail)) ? s.contactEmail : 'care@hushae.pk'}</p>
-            <p className="flex items-center gap-2"><Phone size={14} className="text-ash" /> {s.contactPhone || '0319 8459984'}</p>
-            {f.contactNote !== '' && <p className="flex items-center gap-2"><MapPin size={14} className="text-ash" /> {f.contactNote || 'Pakistan — nationwide delivery'}</p>}
+            <p className="flex items-center gap-2"><Mail size={14} className="text-alabaster/50" /> {(s.contactEmail && !/veloura/i.test(s.contactEmail)) ? s.contactEmail : 'care@hushae.pk'}</p>
+            <p className="flex items-center gap-2"><Phone size={14} className="text-alabaster/50" /> {s.contactPhone || '0319 8459984'}</p>
+            {f.contactNote !== '' && <p className="flex items-center gap-2"><MapPin size={14} className="text-alabaster/50" /> {f.contactNote || 'Pakistan — nationwide delivery'}</p>}
           </div>
           {f.paymentNote !== '' && (
-            <p className="mt-6 flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-ash"><CreditCard size={14} /> {f.paymentNote || 'COD · JazzCash · EasyPaisa · Bank Transfer'}</p>
+            <p className="mt-6 flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-alabaster/50"><CreditCard size={14} /> {f.paymentNote || 'COD · JazzCash · EasyPaisa · Bank Transfer'}</p>
           )}
         </div>
         )}
@@ -184,7 +167,7 @@ export default function Footer() {
           was set below the caption rung. Raised to the `caption` token (13px)
           and given the brand's own tracking so it reads as a closing mark
           rather than fine print. Padding opened to match the footer's rhythm. */}
-      <div data-section="footer.bottom" className="border-t border-line/70 py-6 text-center text-caption uppercase tracking-[0.2em] text-ash xl:py-8">
+      <div data-section="footer.bottom" className="border-t border-white/15 py-6 text-center text-caption uppercase tracking-[0.2em] text-alabaster/60 xl:py-8">
         {f.bottomText || `© ${new Date().getFullYear()} ${s.storeName || 'HUSHAE'} · All rights reserved · Discreet always`}
       </div>
     </footer>
