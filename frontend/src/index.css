@@ -314,6 +314,18 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
+/* ── Fit Finder background — slow Ken Burns zoom (classy, not jumpy) ──────── */
+@keyframes kenburns {
+  from { transform: scale(1) translateY(0); }
+  to   { transform: scale(1.09) translateY(-1.5%); }
+}
+
+/* ── Fit Finder CTA — soft expanding ring pulse ───────────────────────────── */
+@keyframes ff-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(17, 17, 17, 0.28); }
+  50%      { box-shadow: 0 0 0 14px rgba(17, 17, 17, 0); }
+}
+
 /* ── Hero entrance ──────────────────────────────────────────────────────────
  * Deliberately CSS rather than framer-motion. The headline is the LCP
  * candidate, so it must be painted by the initial HTML and revealed by the

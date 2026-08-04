@@ -345,3 +345,7 @@ Format:
 - **2026-08-04** — 🎨 **Home: banner headings → BLACK (visibility) + Fit Finder animations**
   - Hero "SECOND SKIN" + campaign "CONSIDERED COMFORT": white type was invisible on the bright campaign images → switched to black (obsidian) type with soft ivory veils; CTAs flipped to black buttons.
   - Fit Finder: added scroll-into-view Reveal (IntersectionObserver fade+rise) with staggered delays on eyebrow/heading/paragraph/CTA, a soft ambient glow, an underline accent animation on "Exact Fit." (ff-underline keyframes), and a CTA arrow slide on hover.
+
+- **2026-08-04** — 🎨 **Home: Campaign trays full-bleed (wider, zero gap) + Fit Finder image background**
+  - The Campaign trays: removed container + 40px gaps → full-bleed edge-to-edge grid with 1px hairline separators (gap-px bg-line), tiles now 4/5 aspect (wider), labels padded inside.
+  - Fit Finder: added animated background image (slow Ken Burns zoom, 22s alternate) with soft ivory overlays for black-type legibility; 3 step chips (01 Measure / 02 Compare / 03 Match) as "buttons on the image" with staggered reveal; CTA now has an expanding ring pulse (ff-pulse) + hover arrow. New keyframes: kenburns, ff-pulse.

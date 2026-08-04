@@ -117,26 +117,27 @@ export default function Home() {
             <p className="text-[12px] font-semibold uppercase tracking-[0.3em] text-obsidian">The Campaign</p>
             <span className="text-[10px] font-medium uppercase tracking-[0.3em] text-ash">01 — 03</span>
           </div>
-          <div className="grid grid-cols-1 gap-x-10 gap-y-14 md:grid-cols-3">
-            {TRAYS.map((t) => (
-              <Link key={t.label} to={t.href} className="group block">
-                <div className="relative overflow-hidden bg-line" style={{ aspectRatio: '3/4' }}>
-                  <img src={t.img} alt={t.label} loading="lazy"
-                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1.1s] group-hover:scale-[1.05]"
-                    style={{ transitionTimingFunction: 'cubic-bezier(0.22, 1, 0.36, 1)' }} />
+        </div>
+        {/* Full-bleed, zero gap — trays stretch edge to edge with a 1px hairline */}
+        <div className="grid grid-cols-1 gap-px bg-line md:grid-cols-3">
+          {TRAYS.map((t) => (
+            <Link key={t.label} to={t.href} className="group block bg-white">
+              <div className="relative overflow-hidden bg-line" style={{ aspectRatio: '4/5' }}>
+                <img src={t.img} alt={t.label} loading="lazy"
+                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1.1s] group-hover:scale-[1.05]"
+                  style={{ transitionTimingFunction: 'cubic-bezier(0.22, 1, 0.36, 1)' }} />
+              </div>
+              <div className="flex items-baseline justify-between px-5 py-6 md:px-8">
+                <div>
+                  <p className="font-display text-[20px] font-bold uppercase tracking-[0.06em] text-obsidian md:text-[24px]">{t.label}</p>
+                  <p className="mt-1.5 text-[12px] uppercase tracking-[0.18em] text-ash">{t.sub}</p>
                 </div>
-                <div className="mt-6 flex items-baseline justify-between">
-                  <div>
-                    <p className="font-display text-[20px] font-bold uppercase tracking-[0.06em] text-obsidian md:text-[24px]">{t.label}</p>
-                    <p className="mt-1.5 text-[12px] uppercase tracking-[0.18em] text-ash">{t.sub}</p>
-                  </div>
-                  <span className="flex h-10 w-10 items-center justify-center rounded-full border border-line text-obsidian transition-colors duration-base group-hover:border-obsidian group-hover:bg-obsidian group-hover:text-white">
-                    <ArrowUpRight size={16} strokeWidth={1.6} />
-                  </span>
-                </div>
-              </Link>
-            ))}
-          </div>
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-line text-obsidian transition-colors duration-base group-hover:border-obsidian group-hover:bg-obsidian group-hover:text-white">
+                  <ArrowUpRight size={16} strokeWidth={1.6} />
+                </span>
+              </div>
+            </Link>
+          ))}
         </div>
       </section>
 
@@ -211,11 +212,16 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ═══ 07 — FIT FINDER (animated reveal) ═════════════════════ */}
-      <section className="relative overflow-hidden border-t border-line bg-alabaster py-20 text-center md:py-28">
-        {/* Subtle ambient glow — quiet depth behind the reveal */}
-        <div className="pointer-events-none absolute left-1/2 top-1/2 h-[420px] w-[720px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-satin/40 blur-[120px]" aria-hidden="true" />
-        <div className="relative container max-w-xl">
+      {/* ═══ 07 — FIT FINDER (image background + animations) ═══════ */}
+      <section className="relative overflow-hidden border-t border-line py-20 text-center md:py-32">
+        {/* Animated background image — slow Ken Burns zoom */}
+        <img src="/images/campaign/detail-01.jpg" alt="" aria-hidden="true" loading="lazy"
+          className="absolute inset-0 h-full w-full object-cover animate-[kenburns_22s_ease-in-out_infinite_alternate]" />
+        {/* Soft ivory overlay — keeps the black type readable */}
+        <div className="absolute inset-0 bg-alabaster/85" />
+        <div className="absolute inset-0 bg-gradient-to-b from-alabaster/40 via-transparent to-alabaster/60" />
+
+        <div className="relative container max-w-2xl">
           <Reveal>
             <p className="text-[12px] font-semibold uppercase tracking-[0.3em] text-ash">The Fit Finder</p>
           </Reveal>
@@ -226,14 +232,28 @@ export default function Home() {
               <span className="inline-block animate-[ff-underline_1.4s_cubic-bezier(0.22,1,0.36,1)_0.3s_both]">Exact Fit.</span>
             </h2>
           </Reveal>
-          <Reveal delay={240}>
-            <p className="mx-auto mt-6 max-w-md text-[14px] leading-relaxed text-ash">
+
+          {/* Step chips — "buttons on the image", staggered reveal */}
+          <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
+            {['01 Measure', '02 Compare', '03 Match'].map((s, i) => (
+              <Reveal key={s} delay={240 + i * 90}>
+                <Link to="/fit-finder"
+                  className="inline-flex items-center gap-2 border border-obsidian/25 bg-white/75 px-5 py-2.5 text-[11px] font-bold uppercase tracking-[0.2em] text-obsidian backdrop-blur-sm transition-colors duration-base hover:border-obsidian hover:bg-obsidian hover:text-white">
+                  {s}
+                </Link>
+              </Reveal>
+            ))}
+          </div>
+
+          <Reveal delay={520}>
+            <p className="mx-auto mt-7 max-w-md text-[14px] leading-relaxed text-graphite">
               No tape measure. Our Fit Finder works out your true size from the pieces you already own.
             </p>
           </Reveal>
-          <Reveal delay={360}>
+
+          <Reveal delay={640}>
             <Link to="/fit-finder"
-              className="group mt-10 inline-flex min-h-[56px] items-center justify-center bg-obsidian px-12 text-[13px] font-bold uppercase tracking-[0.18em] text-white transition-all duration-base hover:bg-graphite hover:shadow-lg">
+              className="group mt-9 inline-flex min-h-[56px] items-center justify-center bg-obsidian px-12 text-[13px] font-bold uppercase tracking-[0.18em] text-white transition-all duration-base hover:bg-graphite animate-[ff-pulse_2.6s_ease-in-out_infinite]">
               Start the Fit Finder
               <ArrowRight size={14} className="ml-2 transition-transform duration-base group-hover:translate-x-1" />
             </Link>
