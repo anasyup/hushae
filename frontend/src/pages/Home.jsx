@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, ArrowUpRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import ProductCard from '../components/ProductCard';
@@ -28,11 +28,11 @@ import Seo, { organizationJsonLd } from '../components/Seo';
 
 const serif = { fontFamily: "'Instrument Serif', Georgia, serif", fontWeight: 400 };
 
-/* ── Campaign index — the numbered editorial device ─────────────────────── */
+/* ── Campaign trays (CK below-hero tray style: image + label + shop link) ── */
 const CAMPAIGN = [
-  { no: '01', label: 'For Her', sub: 'Bras · Panties · Shapewear', img: '/images/campaign/essentials-01.jpg', href: '/women' },
-  { no: '02', label: 'For Him', sub: 'Briefs · Boxers · Trunks', img: '/images/campaign/essentials-02.jpg', href: '/men' },
-  { no: '03', label: 'The Fabric', sub: 'Modal · Cotton · Stretch', img: '/images/campaign/detail-01.jpg', href: '/about' },
+  { label: 'For Her', sub: 'Bras · Panties · Shapewear', cta: 'Shop Women', img: '/images/campaign/essentials-01.jpg', href: '/women' },
+  { label: 'For Him', sub: 'Briefs · Boxers · Trunks', cta: 'Shop Men', img: '/images/campaign/essentials-02.jpg', href: '/men' },
+  { label: 'The Fabric', sub: 'Modal · Cotton · Stretch', cta: 'Our standards', img: '/images/campaign/detail-01.jpg', href: '/about' },
 ];
 
 const TRUST_LINE = 'Discreet packaging · COD nationwide · 7-day returns · Wash-tested 40 cycles';
@@ -96,28 +96,27 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ═══ 02 — CAMPAIGN INDEX (numbered editorial) ═════════════ */}
-      <section className="bg-alabaster py-20 md:py-28">
+      {/* ═══ 02 — THE CAMPAIGN — CK below-hero tray style ═══════ */}
+      <section className="border-t border-line bg-white py-20 md:py-28">
         <div className="container">
           <div className="mb-12 flex items-end justify-between">
             <p className="text-[11px] font-medium uppercase tracking-[0.3em] text-ash">The Campaign</p>
             <span className="text-[10px] font-medium uppercase tracking-[0.3em] text-ash/70">Index</span>
           </div>
-          <div className="grid grid-cols-1 gap-px bg-line md:grid-cols-3">
+          <div className="grid grid-cols-1 gap-x-8 gap-y-14 md:grid-cols-3">
             {CAMPAIGN.map((c) => (
-              <Link key={c.no} to={c.href} className="group relative block bg-alabaster">
-                <div className="relative overflow-hidden" style={{ aspectRatio: '3/4' }}>
+              <Link key={c.label} to={c.href} className="group block">
+                <div className="relative overflow-hidden bg-line" style={{ aspectRatio: '4/5' }}>
                   <img src={c.img} alt={c.label} loading="lazy"
                     className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1.2s] group-hover:scale-[1.04]"
                     style={{ transitionTimingFunction: 'cubic-bezier(0.22, 1, 0.36, 1)' }} />
-                  <span className="absolute left-5 top-5 font-display text-[13px] font-medium uppercase tracking-[0.2em] text-obsidian">{c.no}</span>
                 </div>
-                <div className="flex items-baseline justify-between border-b border-line py-5">
-                  <div>
-                    <p className="font-display text-[20px] font-medium uppercase tracking-[0.06em] text-obsidian md:text-[24px]">{c.label}</p>
-                    <p className="mt-1 text-[12px] uppercase tracking-[0.16em] text-ash">{c.sub}</p>
-                  </div>
-                  <ArrowUpRight size={18} className="text-ash transition-transform duration-base group-hover:translate-x-0.5 group-hover:-translate-y-0.5" strokeWidth={1.5} />
+                <div className="mt-6">
+                  <p className="font-display text-[19px] font-medium uppercase tracking-[0.08em] text-obsidian md:text-[22px]">{c.label}</p>
+                  <p className="mt-1.5 text-[12px] uppercase tracking-[0.16em] text-ash">{c.sub}</p>
+                  <span className="mt-5 inline-flex items-center gap-2 border-b border-line pb-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-obsidian transition-colors duration-base group-hover:border-obsidian">
+                    {c.cta} <ArrowRight size={12} />
+                  </span>
                 </div>
               </Link>
             ))}

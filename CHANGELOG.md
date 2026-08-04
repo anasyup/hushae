@@ -324,3 +324,6 @@ Format:
 - **2026-08-04** — 🎨 **Home: removed "Shop by category" section** (user request)
   - Deleted the typography "Shop by category" block + its CATEGORIES constant.
   - "The Edit / Best sellers." rail untouched — home now: hero → campaign index → The Edit → statement → campaign → trust → fit finder → newsletter.
+
+- **2026-08-04** — 🎨 **Home: "The Campaign" section → CK below-hero tray style**
+  - Restyled from tall numbered editorial tiles to CK's below-hero tray pattern (checked live): clean white section, grid of image tiles (4/5), label + sub below, hairline "Shop" CTA link with arrow. Same 3 items (For Her / For Him / The Fabric) with per-tile CTAs (Shop Women / Shop Men / Our standards).
