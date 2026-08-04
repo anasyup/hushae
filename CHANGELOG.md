@@ -402,3 +402,10 @@ Format:
   - Root cause: deskH defaulted to 44px when /settings hadn't loaded yet; live header.height is 80, so the bar painted small then jumped once settings arrived (~2s).
   - Fix 1: Header default height → 80 (clamp fallback 44→80), so the very first paint is full-size.
   - Fix 2: AppContext hydrates settings from localStorage (hushae.settings) instantly, then refreshes from the server in the background and re-caches — every refresh now paints the full layout on frame one, no jump.
+
+- **2026-08-04** — 🎨 **Admin dark theme — full rewrite (v2, no more weird gaps)**
+  - New coherent dark palette (cool blue-grey: #0b0d10 base, #15181e cards, #1a1e25 raised) replacing the muddy greys.
+  - Full coverage so nothing stays white-on-dark: cards, panels, dropdowns, modals, inputs, selects, textareas, tables, dividers, hover states.
+  - Status badges/pills + their text + ring colours mapped to proper dark tints (emerald/red/amber/sky/purple/blue).
+  - Buttons: dark buttons flip to light, white buttons flip to dark; focus rings remapped.
+  - Scrollbars + overlays styled; scoped under .dark-admin .admin-shell so the storefront is untouched.
