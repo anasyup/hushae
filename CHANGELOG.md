@@ -286,3 +286,9 @@ Format:
   - **Honest pricing fix**: 79 products at permanent fake 50% off → **18 products on genuine 25–30% off** (45-day window), 82 regular-priced. Revenue per unit unchanged (price untouched). Script: `backend/fix-sale-strategy.js` (env-only URI).
   - **OfferBar message fixed** to match reality: "up to 30% off on signature pieces" (was "up to 29%" while badges showed 50%).
   - Verified live: sale page 18 products, home best-sellers clean, product pages show star ratings + review counts.
+
+- **2026-08-04** — 🐛 **FIX: /sale showing 0 products (sale window timezone bug)**
+  - Symptom: /sale rendered "0 products" while /api/products?sale=true returned 18. /best & /women fine.
+  - Root cause: `fix-sale-strategy.js` set `saleStart: now` (script's exact instant, 16:31 UTC = 21:31 PKT). The storefront's `isOnSale()` treats a future saleStart as "sale not started" — so any browser whose clock was before that instant (every visitor in PKT before 21:31, and all timezones west of UTC) had ALL sale products filtered out. Empty state rendered.
+  - Fix: `saleStart = null` on all on-sale products (null = no start constraint → live for everyone immediately; saleEnd Sep 18 stays). Verified live: /sale now shows 18 products with correct 25-26% off badges.
+  - Script `fix-sale-strategy.js` updated so future runs never set saleStart to "now".

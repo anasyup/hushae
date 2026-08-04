@@ -33,11 +33,16 @@ async function main() {
       // Genuine 20-30% off: compareAt = price / (1 - discount), rounded to 10.
       const discount = 0.20 + ((p.tier === 'Premium') ? 0.10 : 0.05); // premium 30%, rest 25%
       const was = Math.round((p.price / (1 - discount)) / 10) * 10;
+      /* saleStart deliberately NULL (no start constraint): a sale with a
+         start time of "right now" is in the future for any browser whose
+         clock/timezone is behind the script's moment, which makes /sale
+         render 0 products (isOnSale drops everything). NULL = live for
+         everyone immediately. */
       await Product.updateOne({ _id: p._id }, {
         $set: {
           compareAtPrice: was > p.price ? was : null,
           onSale: was > p.price,
-          saleStart: now,
+          saleStart: null,
           saleEnd: end,
         },
       });
