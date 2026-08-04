@@ -22,9 +22,9 @@ const CK_RED = '#D50000';
 
 /* ── CK tray row: image tile + label below (Denim / Jackets / Dresses) ───── */
 const TRAYS = [
-  { label: 'For Her', sub: 'Bras · Panties · Shapewear', img: '/images/campaign/hero-ck.jpg', href: '/women' },
-  { label: 'For Him', sub: 'Briefs · Boxers · Trunks', img: '/images/campaign/hero-ck-men.jpg', href: '/men' },
-  { label: 'The Fabric', sub: 'Modal · Cotton · Stretch', img: '/images/campaign/detail-01.jpg', href: '/about' },
+  { label: 'For Her', sub: 'Bras · Panties · Shapewear', img: '/images/campaign/hushae-hero-women.jpg', href: '/women' },
+  { label: 'For Him', sub: 'Briefs · Boxers · Trunks', img: '/images/campaign/hushae-hero-men.jpg', href: '/men' },
+  { label: 'The Fabric', sub: 'Modal · Cotton · Stretch', img: '/images/campaign/hushae-fabric.jpg', href: '/about' },
 ];
 
 const PERKS = ['Discreet packaging', 'COD nationwide', '7-day returns', 'Wash-tested 40 cycles'];
@@ -79,7 +79,7 @@ export default function Home() {
 
       {/* ═══ 01 — HERO: full-bleed, enormous type ══════════════════ */}
       <section className="relative w-full overflow-hidden bg-white" style={{ minHeight: '100vh' }}>
-        <img src="/images/campaign/hero-ck.jpg" alt="" fetchpriority="high"
+        <img src="/images/campaign/hushae-hero-women.jpg" alt="" fetchpriority="high"
           className="absolute inset-0 h-full w-full object-cover object-center" />
         {/* Light veils — the hero image is bright, so the type is BLACK */}
         <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-alabaster/80 via-alabaster/30 to-transparent" />
@@ -180,7 +180,7 @@ export default function Home() {
 
       {/* ═══ 05 — CAMPAIGN FULL-BLEED (For Him) ════════════════════ */}
       <section className="relative overflow-hidden bg-white">
-        <img src="/images/campaign/hero-ck-men.jpg" alt="For him" loading="lazy"
+        <img src="/images/campaign/hushae-hero-men.jpg" alt="For him" loading="lazy"
           className="absolute inset-0 h-full w-full object-cover object-center" />
         {/* Bright image → light veil + BLACK type */}
         <div className="absolute inset-x-0 bottom-0 h-[65%] bg-gradient-to-t from-alabaster/95 via-alabaster/40 to-transparent" />
@@ -215,7 +215,7 @@ export default function Home() {
       {/* ═══ 07 — FIT FINDER (image background + animations) ═══════ */}
       <section className="relative overflow-hidden border-t border-line py-20 text-center md:py-32">
         {/* Animated background image — slow Ken Burns zoom */}
-        <img src="/images/campaign/detail-01.jpg" alt="" aria-hidden="true" loading="lazy"
+        <img src="/images/campaign/hushae-fabric.jpg" alt="" aria-hidden="true" loading="lazy"
           className="absolute inset-0 h-full w-full object-cover animate-[kenburns_22s_ease-in-out_infinite_alternate]" />
         {/* Soft ivory overlay — keeps the black type readable */}
         <div className="absolute inset-0 bg-alabaster/85" />
