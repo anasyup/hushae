@@ -292,3 +292,8 @@ Format:
   - Root cause: `fix-sale-strategy.js` set `saleStart: now` (script's exact instant, 16:31 UTC = 21:31 PKT). The storefront's `isOnSale()` treats a future saleStart as "sale not started" — so any browser whose clock was before that instant (every visitor in PKT before 21:31, and all timezones west of UTC) had ALL sale products filtered out. Empty state rendered.
   - Fix: `saleStart = null` on all on-sale products (null = no start constraint → live for everyone immediately; saleEnd Sep 18 stays). Verified live: /sale now shows 18 products with correct 25-26% off badges.
   - Script `fix-sale-strategy.js` updated so future runs never set saleStart to "now".
+
+- **2026-08-04** — 🎨 **FRONT STORE REDESIGN — Home page (CK/Zara editorial luxury)**
+  - New Home.jsx: full-bleed B&W campaign hero ("Second skin, first choice." with Instrument Serif italic), black marquee ticker (brand promises), category split (Women/Men with new imagery), best sellers + featured rows on the refined palette, editorial split brand story (fabric image + cream panel), full-bleed campaign section ("Signature pieces."), 4-item trust row (discreet packaging / COD / returns / wash-tested), fit finder CTA, newsletter with real /subscribers POST.
+  - Switched Home to the Tailwind design-system tokens (alabaster/obsidian/ash/line/clay, Helvetica CK stack) — the old hardcoded hexes (#F7F6F4, #0E0E0E, Archivo) were inconsistent with the system and read as "off-brand".
+  - 4 AI campaign images added to public/images/campaign/ (hero-bw, hero-men, fabric-cream, campaign-lifestyle).

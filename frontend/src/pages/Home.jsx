@@ -1,19 +1,46 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, PackageCheck, RefreshCcw, ShieldCheck, Truck } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import ProductCard from '../components/ProductCard';
 import Seo, { organizationJsonLd } from '../components/Seo';
 
 /* ============================================================================
- * HUSHAE HOME v2 — Quiet editorial. 7 sections, no decoration.
+ * HUSHAE HOME — editorial luxury (CK / Zara register).
  *
- * Palette: #F7F6F4 paper, #0E0E0E ink, #6E6E6B ash, #E3E2DF line
- * Type: Archivo (UI), Instrument Serif (editorial, sparingly)
- * Grid: 2px gap, no card borders, no shadows, no radius
- * Motion: one easing curve, opacity/translate only, 300-500ms
+ * Type: Helvetica (CK stack) for UI + Instrument Serif italic for editorial
+ *       moments — the one "luxury" voice on the page.
+ * Palette: alabaster ivory, obsidian ink, ash, hairline line. No borders on
+ *       cards, no shadows, no radius — the premium is in the negative space.
+ * Motion: one easing curve, opacity/translate only.
+ *
+ * Sections:
+ *   1 Hero (full-bleed B&W campaign)
+ *   2 Marquee ticker (brand promises)
+ *   3 Category split (Women / Men)
+ *   4 Best sellers
+ *   5 Editorial split (brand story, serif)
+ *   6 Campaign full-bleed (signature edit)
+ *   7 Featured pieces
+ *   8 Trust row
+ *   9 Fit finder CTA
+ *   10 Newsletter
  * ========================================================================== */
+
+const serif = { fontFamily: "'Instrument Serif', Georgia, serif", fontWeight: 400 };
+
+const TRUST = [
+  { icon: PackageCheck, title: 'Discreet packaging', sub: 'Plain parcel, always' },
+  { icon: Truck, title: 'COD nationwide', sub: 'Pay at your door' },
+  { icon: RefreshCcw, title: 'Easy 7-day returns', sub: 'No questions asked' },
+  { icon: ShieldCheck, title: 'Wash-tested 40 cycles', sub: 'Softness in, softness out' },
+];
+
+const MARQUEE = [
+  'Made in Pakistan', 'Premium innerwear', 'Discreet packaging', 'COD nationwide',
+  'Wash-tested 40 cycles', 'Finished to international standard',
+];
 
 export default function Home() {
   const { settings } = useApp();
@@ -27,111 +54,219 @@ export default function Home() {
     api('/products?featured=true&limit=8').then((d) => setFeatured(d.products || [])).catch(() => setFeatured([]));
   }, []);
 
+  const subscribe = (e) => {
+    e.preventDefault();
+    if (!nl.trim()) return;
+    setNlDone(true);
+    setNl('');
+    // Fire the real subscriber POST — the newsletter list the campaigns use.
+    api('/subscribers', { method: 'POST', body: { email: nl.trim() } }).catch(() => {});
+  };
+
   return (
-    <div style={{ background: '#F7F6F4', color: '#0E0E0E', fontFamily: "'Archivo', system-ui, sans-serif" }}>
+    <div className="bg-alabaster text-obsidian font-sans">
       <Seo title="Premium Innerwear for Men & Women"
         description="Premium innerwear engineered for comfort. Made in Pakistan, finished to international standard."
         canonical="/"
         jsonLd={organizationJsonLd(typeof window !== 'undefined' ? window.location.origin : '')}
         jsonLdId="home-org" />
 
-      {/* ═══ 1. HERO — Full bleed, bottom-left caption ═══════════ */}
-      <section className="relative w-full overflow-hidden bg-[#E3E2DF]" style={{ minHeight: '85vh' }}>
-        <img src="/images/collection/band-neutral.jpg" alt="" fetchpriority="high"
+      {/* ═══ 1. HERO — full-bleed campaign ═════════════════════════ */}
+      <section className="relative w-full overflow-hidden" style={{ minHeight: '92vh' }}>
+        <img src="/images/campaign/hero-bw.jpg" alt="" fetchpriority="high"
           className="absolute inset-0 h-full w-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0E0E0E]/60 via-transparent to-transparent" />
-        <div className="absolute bottom-0 left-0 right-0 p-6 md:p-16">
-          <div className="max-w-xl">
-            <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-white/70">Premium innerwear · Made in Pakistan</p>
-            <h1 className="mt-3 text-[36px] md:text-[64px] font-normal uppercase tracking-[0.01em] text-white leading-[1.05]">Second skin,<br />first choice.</h1>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link to="/women" className="inline-flex min-h-[44px] items-center justify-center bg-white px-8 text-[12px] font-medium uppercase tracking-[0.10em] text-[#0E0E0E] transition-opacity hover:opacity-80">Shop Women</Link>
-              <Link to="/men" className="inline-flex min-h-[44px] items-center justify-center border border-white/40 px-8 text-[12px] font-medium uppercase tracking-[0.10em] text-white hover:bg-white hover:text-[#0E0E0E]">Shop Men</Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ═══ 2. CATEGORY SPLIT ═══════════════════════════════════ */}
-      <section className="grid grid-cols-1 md:grid-cols-2">
-        {[{ to: '/women', img: '/images/categories/bras.jpg', label: 'Women', sub: 'Bras, panties, shapewear & more' },
-          { to: '/men', img: '/images/categories/briefs.jpg', label: 'Men', sub: 'Briefs, boxers, trunks & vests' }]
-          .map(({ to, img, label, sub }) => (
-            <Link key={to} to={to} className="group relative block overflow-hidden bg-[#E3E2DF]" style={{ aspectRatio: '4/5' }}>
-              <img src={img} alt={label} loading="lazy" className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]" style={{ transitionTimingFunction: 'cubic-bezier(0.22, 1, 0.36, 1)' }} />
-              <div className="absolute inset-0 bg-[#0E0E0E]/20 group-hover:bg-[#0E0E0E]/30 transition-colors duration-500" />
-              <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10">
-                <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-white/80">{label}</p>
-                <p className="mt-1 text-[13px] text-white/60">{sub}</p>
+        <div className="absolute inset-0 bg-gradient-to-t from-obsidian/80 via-obsidian/10 to-obsidian/20" />
+        <div className="relative flex min-h-[92vh] items-end">
+          <div className="container pb-14 md:pb-24">
+            <div className="max-w-2xl">
+              <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-white/70">Premium innerwear · Made in Pakistan</p>
+              <h1 className="mt-5 font-display text-[44px] leading-[1.02] font-medium uppercase tracking-[0.02em] text-white md:text-[84px]">
+                Second skin,
+                <br />
+                <span style={serif} className="normal-case italic tracking-normal">first choice.</span>
+              </h1>
+              <p className="mt-6 max-w-md text-[14px] leading-relaxed text-white/75">
+                Engineered for comfort. Designed in Pakistan, finished to an international standard.
+              </p>
+              <div className="mt-9 flex flex-wrap gap-3">
+                <Link to="/women" className="inline-flex min-h-[48px] items-center justify-center bg-white px-9 text-[12px] font-semibold uppercase tracking-[0.14em] text-obsidian transition hover:bg-obsidian hover:text-white">
+                  Shop Women
+                </Link>
+                <Link to="/men" className="inline-flex min-h-[48px] items-center justify-center border border-white/50 px-9 text-[12px] font-semibold uppercase tracking-[0.14em] text-white transition hover:bg-white hover:text-obsidian">
+                  Shop Men
+                </Link>
               </div>
-            </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ 2. MARQUEE — brand promises ═══════════════════════════ */}
+      <div className="overflow-hidden border-y border-line bg-obsidian py-3 text-white">
+        <div className="flex w-max animate-[marquee_28s_linear_infinite] gap-10 whitespace-nowrap pr-10">
+          {[...MARQUEE, ...MARQUEE].map((t, i) => (
+            <span key={i} className="inline-flex items-center gap-10 text-[11px] font-medium uppercase tracking-[0.22em] text-white/80">
+              {t} <span className="text-clay">✦</span>
+            </span>
           ))}
+        </div>
+      </div>
+
+      {/* ═══ 3. CATEGORY SPLIT ═════════════════════════════════════ */}
+      <section className="grid grid-cols-1 md:grid-cols-2">
+        {[
+          { to: '/women', img: '/images/campaign/hero-bw.jpg', label: 'Women', sub: 'Bras · Panties · Shapewear' },
+          { to: '/men', img: '/images/campaign/hero-men.jpg', label: 'Men', sub: 'Briefs · Boxers · Trunks' },
+        ].map(({ to, img, label, sub }) => (
+          <Link key={to} to={to} className="group relative block overflow-hidden bg-line" style={{ aspectRatio: '4/5' }}>
+            <img src={img} alt={label} loading="lazy" className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]" style={{ transitionTimingFunction: 'cubic-bezier(0.22, 1, 0.36, 1)' }} />
+            <div className="absolute inset-0 bg-gradient-to-t from-obsidian/70 via-transparent to-transparent" />
+            <div className="absolute bottom-0 left-0 right-0 p-7 md:p-12">
+              <p className="font-display text-[34px] font-medium uppercase tracking-[0.04em] text-white md:text-[44px]">{label}</p>
+              <p className="mt-1 text-[12px] uppercase tracking-[0.16em] text-white/70">{sub}</p>
+              <span className="mt-5 inline-flex items-center gap-2 border-b border-white/40 pb-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-white transition group-hover:border-white">
+                Explore <ArrowRight size={12} />
+              </span>
+            </div>
+          </Link>
+        ))}
       </section>
 
-      {/* ═══ 3. BEST SELLERS ════════════════════════════════════ */}
+      {/* ═══ 4. BEST SELLERS ═══════════════════════════════════════ */}
       {best && best.length > 0 && (
-        <section className="section">
+        <section className="bg-alabaster py-16 md:py-24">
           <div className="container">
             <div className="mb-10 flex items-end justify-between">
-              <div><p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[#6E6E6B]">Loved</p><h2 className="mt-2 h2">Best sellers</h2></div>
-              <Link to="/best" className="inline-flex items-center gap-1.5 text-[12px] font-medium uppercase tracking-[0.10em] text-[#6E6E6B] hover:text-[#0E0E0E]">View all <ArrowRight size={12} /></Link>
+              <div>
+                <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-ash">Loved</p>
+                <h2 className="mt-3 font-display text-[28px] font-medium uppercase tracking-[0.03em] md:text-[40px]">Best sellers</h2>
+              </div>
+              <Link to="/best" className="inline-flex items-center gap-1.5 border-b border-line pb-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-ash transition hover:border-obsidian hover:text-obsidian">
+                View all <ArrowRight size={12} />
+              </Link>
             </div>
-            <div className="grid grid-cols-2 gap-[2px] md:grid-cols-4">{best.slice(0, 8).map((p) => <ProductCard key={p._id} product={p} />)}</div>
+            <div className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-4 md:gap-x-6">
+              {best.slice(0, 8).map((p) => <ProductCard key={p._id} product={p} />)}
+            </div>
           </div>
         </section>
       )}
 
-      {/* ═══ 4. BRAND STORY ════════════════════════════════════ */}
-      <section className="relative overflow-hidden bg-[#0E0E0E] text-white" style={{ minHeight: '65vh' }}>
-        <img src="/images/hero/editorial-signature.jpg" alt="" className="absolute inset-0 h-full w-full object-cover opacity-50" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#0E0E0E]/80 via-[#0E0E0E]/40 to-transparent" />
-        <div className="relative flex items-center" style={{ minHeight: '65vh' }}>
-          <div className="container py-20"><div className="max-w-lg">
-            <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-white/60">The house</p>
-            <h2 className="mt-4 h2 !text-white">Made to be forgotten.</h2>
-            <p className="mt-5 body-sm text-white/70 max-w-md">The best innerwear is the piece you stop noticing by ten in the morning. We cut for that moment — modal that moves, seams that sit flat, elastics that hold without pressing.</p>
-            <p className="mt-4 text-[11px] uppercase tracking-[0.10em] text-white/50">Designed and made in Pakistan · finished to an international standard</p>
-            <Link to="/about" className="mt-6 inline-flex items-center gap-1.5 border-b border-white/30 pb-2 text-[12px] font-medium uppercase tracking-[0.10em] text-white hover:border-white">Our standards <ArrowRight size={12} /></Link>
-          </div></div>
+      {/* ═══ 5. EDITORIAL SPLIT — brand story ═══════════════════════ */}
+      <section className="grid grid-cols-1 md:grid-cols-2">
+        <div className="relative min-h-[420px] overflow-hidden bg-line">
+          <img src="/images/campaign/fabric-cream.jpg" alt="HUSHAE fabric" loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
+        </div>
+        <div className="flex items-center bg-cream px-7 py-16 md:px-16">
+          <div className="max-w-md">
+            <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-ash">The house</p>
+            <h2 className="mt-4 font-display text-[30px] font-medium uppercase tracking-[0.02em] leading-tight md:text-[42px]">
+              Made to be <span style={serif} className="normal-case italic">forgotten.</span>
+            </h2>
+            <p className="mt-5 text-[14px] leading-relaxed text-ash">
+              The best innerwear is the piece you stop noticing by ten in the morning. We cut for that moment — modal that moves, seams that sit flat, elastics that hold without pressing.
+            </p>
+            <p className="mt-4 text-[11px] uppercase tracking-[0.16em] text-ash">Designed and made in Pakistan · finished to an international standard</p>
+            <Link to="/about" className="mt-7 inline-flex items-center gap-2 border-b border-obsidian/30 pb-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-obsidian transition hover:border-obsidian">
+              Our standards <ArrowRight size={12} />
+            </Link>
+          </div>
         </div>
       </section>
 
-      {/* ═══ 5. FEATURED ═══════════════════════════════════════ */}
+      {/* ═══ 6. CAMPAIGN FULL-BLEED — signature edit ═══════════════ */}
+      <section className="relative overflow-hidden bg-obsidian text-white">
+        <img src="/images/campaign/campaign-lifestyle.jpg" alt="The HUSHAE edit" loading="lazy" className="absolute inset-0 h-full w-full object-cover opacity-60" />
+        <div className="absolute inset-0 bg-gradient-to-r from-obsidian/85 via-obsidian/45 to-obsidian/20" />
+        <div className="relative flex min-h-[70vh] items-center">
+          <div className="container py-20">
+            <div className="max-w-xl">
+              <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-white/60">The edit</p>
+              <h2 className="mt-4 font-display text-[34px] font-medium uppercase tracking-[0.02em] leading-tight md:text-[56px]">
+                Signature <span style={serif} className="normal-case italic">pieces.</span>
+              </h2>
+              <p className="mt-5 max-w-md text-[14px] leading-relaxed text-white/75">
+                The pieces we keep restocking because they keep selling out — cut in our signature modal blend.
+              </p>
+              <div className="mt-8 flex flex-wrap gap-3">
+                <Link to="/shop?tier=Premium" className="inline-flex min-h-[48px] items-center justify-center bg-white px-9 text-[12px] font-semibold uppercase tracking-[0.14em] text-obsidian transition hover:bg-transparent hover:text-white hover:ring-1 hover:ring-white">
+                  Shop the edit
+                </Link>
+                <Link to="/sale" className="inline-flex min-h-[48px] items-center justify-center border border-white/40 px-9 text-[12px] font-semibold uppercase tracking-[0.14em] text-white transition hover:bg-white hover:text-obsidian">
+                  Sale
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ 7. FEATURED PIECES ════════════════════════════════════ */}
       {featured && featured.length > 0 && (
-        <section className="section" style={{ background: '#FFFFFF' }}>
+        <section className="bg-white py-16 md:py-24">
           <div className="container">
             <div className="mb-10 flex items-end justify-between">
-              <div><p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[#6E6E6B]">The edit</p><h2 className="mt-2 h2">Signature pieces</h2></div>
-              <Link to="/shop?tier=Premium" className="inline-flex items-center gap-1.5 text-[12px] font-medium uppercase tracking-[0.10em] text-[#6E6E6B] hover:text-[#0E0E0E]">Shop all <ArrowRight size={12} /></Link>
+              <div>
+                <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-ash">New season</p>
+                <h2 className="mt-3 font-display text-[28px] font-medium uppercase tracking-[0.03em] md:text-[40px]">Featured pieces</h2>
+              </div>
+              <Link to="/new" className="inline-flex items-center gap-1.5 border-b border-line pb-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-ash transition hover:border-obsidian hover:text-obsidian">
+                New arrivals <ArrowRight size={12} />
+              </Link>
             </div>
-            <div className="grid grid-cols-2 gap-[2px] md:grid-cols-4">{featured.slice(0, 8).map((p) => <ProductCard key={p._id} product={p} />)}</div>
+            <div className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-4 md:gap-x-6">
+              {featured.slice(0, 8).map((p) => <ProductCard key={p._id} product={p} />)}
+            </div>
           </div>
         </section>
       )}
 
-      {/* ═══ 6. FIT FINDER ═════════════════════════════════════ */}
-      <section className="section text-center" style={{ background: '#0E0E0E' }}>
-        <div className="container">
-          <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-white/50">Size guide</p>
-          <h2 className="mt-3 h2 !text-white">Find your exact fit</h2>
-          <p className="mt-3 body-sm text-white/60 max-w-md mx-auto">Four questions. No tape measure. Our Fit Finder calculates your true size.</p>
-          <Link to="/fit-finder" className="mt-6 inline-flex min-h-[44px] items-center justify-center bg-white px-8 text-[12px] font-medium uppercase tracking-[0.10em] text-[#0E0E0E] transition-opacity hover:opacity-80">Start Fit Finder <ArrowRight size={12} className="ml-1" /></Link>
+      {/* ═══ 8. TRUST ROW ══════════════════════════════════════════ */}
+      <section className="border-y border-line bg-alabaster">
+        <div className="container grid grid-cols-2 gap-6 py-10 md:grid-cols-4">
+          {TRUST.map(({ icon: Icon, title, sub }) => (
+            <div key={title} className="flex items-start gap-3">
+              <Icon size={18} className="mt-0.5 shrink-0 text-ash" strokeWidth={1.5} />
+              <div>
+                <p className="text-[12px] font-semibold uppercase tracking-[0.10em] text-obsidian">{title}</p>
+                <p className="mt-0.5 text-[12px] text-ash">{sub}</p>
+              </div>
+            </div>
+          ))}
         </div>
       </section>
 
-      {/* ═══ 7. NEWSLETTER ═════════════════════════════════════ */}
-      <section className="section text-center border-t border-[#E3E2DF]">
+      {/* ═══ 9. FIT FINDER ═════════════════════════════════════════ */}
+      <section className="bg-obsidian py-16 text-center text-white md:py-24">
         <div className="container">
-          <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[#6E6E6B]">Stay in touch</p>
-          <h2 className="mt-2 h3">Join the circle</h2>
-          <p className="mt-2 text-[13px] text-[#6E6E6B] max-w-sm mx-auto">Early access to new drops. No spam, ever.</p>
+          <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-white/50">Size guide</p>
+          <h2 className="mt-4 font-display text-[28px] font-medium uppercase tracking-[0.02em] md:text-[40px]">
+            Find your <span style={serif} className="normal-case italic">exact</span> fit
+          </h2>
+          <p className="mx-auto mt-4 max-w-md text-[14px] leading-relaxed text-white/65">
+            Four questions. No tape measure. Our Fit Finder works out your true size from the pieces you already own.
+          </p>
+          <Link to="/fit-finder" className="mt-8 inline-flex min-h-[48px] items-center justify-center bg-white px-9 text-[12px] font-semibold uppercase tracking-[0.14em] text-obsidian transition hover:bg-transparent hover:text-white hover:ring-1 hover:ring-white">
+            Start Fit Finder <ArrowRight size={12} className="ml-2" />
+          </Link>
+        </div>
+      </section>
+
+      {/* ═══ 10. NEWSLETTER ════════════════════════════════════════ */}
+      <section className="bg-alabaster py-16 md:py-24">
+        <div className="container max-w-xl text-center">
+          <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-ash">Stay in touch</p>
+          <h2 className="mt-3 font-display text-[26px] font-medium uppercase tracking-[0.03em] md:text-[34px]">Join the circle</h2>
+          <p className="mt-3 text-[13px] text-ash">Early access to new drops, fit guides and private offers. No spam, ever.</p>
           {nlDone ? (
-            <p className="mt-6 text-[12px] font-medium uppercase tracking-[0.10em] text-[#0E0E0E]">You&apos;re on the list.</p>
+            <p className="mt-8 text-[12px] font-semibold uppercase tracking-[0.14em] text-sagedeep">You&apos;re on the list — welcome.</p>
           ) : (
-            <form onSubmit={(e) => { e.preventDefault(); if (nl.trim()) { setNlDone(true); setNl(''); } }} className="mt-6 flex flex-col sm:flex-row gap-2 max-w-sm mx-auto">
+            <form onSubmit={subscribe} className="mx-auto mt-8 flex max-w-md flex-col gap-3 sm:flex-row">
               <input type="email" value={nl} onChange={(e) => setNl(e.target.value)} required placeholder="Your email"
-                className="flex-1 min-h-[44px] border-b border-[#E3E2DF] bg-transparent px-2 text-[13px] outline-none focus:border-[#0E0E0E] placeholder:text-[#6E6E6B]" />
-              <button type="submit" className="min-h-[44px] bg-[#0E0E0E] px-6 text-[12px] font-medium uppercase tracking-[0.10em] text-white transition-opacity hover:opacity-80">Subscribe</button>
+                className="min-h-[48px] flex-1 border-b border-line bg-transparent px-2 text-[13px] outline-none transition focus:border-obsidian placeholder:text-ash" />
+              <button type="submit" className="min-h-[48px] bg-obsidian px-8 text-[12px] font-semibold uppercase tracking-[0.14em] text-white transition hover:bg-graphite">
+                Subscribe
+              </button>
             </form>
           )}
         </div>
