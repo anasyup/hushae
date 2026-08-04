@@ -139,7 +139,7 @@ export default function FitFinder() {
   };
 
   return (
-    <div style={{ fontFamily: "'Archivo', system-ui, sans-serif", background: '#F7F5F1', minHeight: '100vh' }}>
+    <div style={{ fontFamily: "'Archivo', system-ui, sans-serif", background: '#F7F6F4', minHeight: '100vh' }}>
       <div className="container section">
         {/* Header */}
         {step === 0 && !result && (

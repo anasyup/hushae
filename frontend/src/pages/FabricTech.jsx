@@ -51,7 +51,7 @@ export default function FabricTech({ slug = 'breathable' }) {
   }, [slug]);
 
   return (
-    <div style={{ fontFamily: "'Archivo', system-ui, sans-serif", background: '#F7F5F1' }}>
+    <div style={{ fontFamily: "'Archivo', system-ui, sans-serif", background: '#F7F6F4' }}>
       <div className="bg-[#0E0E0E] text-white section">
         <div className="container text-center py-12 md:py-20">
           <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-white/50">Fabric technology</p>

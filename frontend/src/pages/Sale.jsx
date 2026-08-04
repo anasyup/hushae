@@ -23,7 +23,7 @@ export default function Sale() {
   }, [products]);
   const count = sorted.length;
   return (
-    <div style={{ fontFamily: "'Archivo', system-ui, sans-serif", background: '#F7F5F1', minHeight: '100vh' }}>
+    <div style={{ fontFamily: "'Archivo', system-ui, sans-serif", background: '#FFFFFF', minHeight: '100vh' }}>
       <div className="px-4 md:px-8 lg:px-12">
         <div className="flex items-baseline justify-between pt-8 pb-2">
           <div className="flex items-baseline gap-3">
