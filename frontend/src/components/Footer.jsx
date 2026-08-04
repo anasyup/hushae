@@ -80,7 +80,7 @@ export default function Footer() {
   };
 
   return (
-    <footer className="mt-ed-md border-t border-line bg-satin/40">
+    <footer className="mt-ed-md border-t border-line bg-alabaster">
       {/* FINAL — DUPLICATE REMOVED.
           MEASURED on live: "Join the inner circle" rendered twice within ~200px
           — once as the homepage newsletter section and again here, each with
@@ -132,10 +132,10 @@ export default function Footer() {
           utility footer. A luxury footer is defined by AIR, not by more links:
           the padding and column gutter open substantially from xl, where there
           is room for it, and mobile keeps its current compact treatment. */}
-      <div className="container-page grid gap-10 py-14 md:grid-cols-4 xl:gap-16 xl:py-24 2xl:gap-20 2xl:py-32">
+      <div className="container-page grid gap-12 py-16 md:grid-cols-4 xl:gap-16 xl:py-24 2xl:gap-24 2xl:py-28">
         <div data-section="footer.about">
-          <p className="font-display text-lg tracking-widest2 text-obsidian">{s.storeName || 'HUSHAE'}</p>
-          <p className="mt-3 text-sm leading-relaxed text-ash">{f.aboutText || s.tagline || 'Second Skin, First Choice.'}</p>
+          <p className="font-display text-lg uppercase tracking-[0.32em] text-obsidian">{s.storeName || 'HUSHAE'}</p>
+          <p className="mt-4 max-w-[30ch] text-sm leading-relaxed text-ash">{f.aboutText || s.tagline || 'Second Skin, First Choice.'}</p>
           {f.showSocial !== false && (social.instagram || social.facebook || social.tiktok) && (
             <div className="mt-4 flex gap-2">
               {social.instagram && <a href={social.instagram} target="_blank" rel="noreferrer" aria-label="Instagram" className="flex h-9 w-9 items-center justify-center rounded-full border border-line bg-white text-obsidian/70 transition hover:border-obsidian hover:text-obsidian"><Instagram size={16} /></a>}
@@ -143,23 +143,23 @@ export default function Footer() {
               {social.tiktok && <a href={social.tiktok} target="_blank" rel="noreferrer" aria-label="TikTok" className="flex h-9 w-9 items-center justify-center rounded-full border border-line bg-white text-obsidian/70 transition hover:border-obsidian hover:text-obsidian"><Music2 size={16} /></a>}
             </div>
           )}
-          {f.tagline !== '' && <p className="mt-4 text-xs uppercase tracking-widest text-ash">{f.tagline || 'Made in Pakistan · Worn worldwide soon'}</p>}
+          {f.tagline !== '' && <p className="mt-6 text-[11px] uppercase tracking-[0.2em] text-ash">{f.tagline || 'Made in Pakistan · Worn worldwide soon'}</p>}
         </div>
         {/* Link columns — merchant-managed from /admin/theme › Footer */}
         {cols.map((col, i) => (
           <div key={i} data-section={`footer.col${i}`}>
-            <p className="text-label font-medium uppercase tracking-[0.2em] text-ash">{col.title}</p>
-            <div className="mt-4 space-y-2.5 text-sm">
+            <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-ash">{col.title}</p>
+            <div className="mt-5 space-y-3 text-[13px]">
               {(col.links || []).filter((l) => l && l.label).map((l, j) => (
-                <Link key={j} className="block text-obsidian/80 hover:text-obsidian" to={l.href || '/'}>{l.label}</Link>
+                <Link key={j} className="block text-obsidian/75 transition-colors duration-base hover:text-obsidian" to={l.href || '/'}>{l.label}</Link>
               ))}
             </div>
           </div>
         ))}
         {f.showContact !== false && (
         <div data-section="footer.contact">
-          <p className="text-label font-medium uppercase tracking-[0.2em] text-ash">{f.contactTitle || 'Contact'}</p>
-          <div className="mt-4 space-y-2.5 text-sm text-obsidian/80">
+          <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-ash">{f.contactTitle || 'Contact'}</p>
+          <div className="mt-5 space-y-3 text-[13px] text-obsidian/80">
             {/* FINAL. The live settings document still carries the legacy
                 `care@veloura.pk` from the pre-rename data, and it was rendering
                 a DIFFERENT BRAND's address in HUSHAE's contact block — the most
@@ -174,7 +174,7 @@ export default function Footer() {
             {f.contactNote !== '' && <p className="flex items-center gap-2"><MapPin size={14} className="text-ash" /> {f.contactNote || 'Pakistan — nationwide delivery'}</p>}
           </div>
           {f.paymentNote !== '' && (
-            <p className="mt-5 flex items-center gap-2 text-[11px] uppercase tracking-widest text-ash"><CreditCard size={14} /> {f.paymentNote || 'COD · JazzCash · EasyPaisa · Bank Transfer'}</p>
+            <p className="mt-6 flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-ash"><CreditCard size={14} /> {f.paymentNote || 'COD · JazzCash · EasyPaisa · Bank Transfer'}</p>
           )}
         </div>
         )}

@@ -305,3 +305,8 @@ Format:
   - MobileNav cart badge, SearchPanel match-highlight, ShoppingAssistant chips: sage → monochrome.
   - Footer newsletter success message: sagedeep → obsidian.
   - ProductCard sale badge already monochrome (white + black border) — untouched.
+
+- **2026-08-04** — 🐛🎨 **FIX: invisible header on white hero + luxury footer polish**
+  - **Root cause:** hero was switched to bright white campaign imagery, but the header still assumed a DARK hero (`overHero` → transparent bg + ALABASTER/white text). White text on white image = header invisible. That was the red-circled defect.
+  - **Fix:** header over the hero now renders DARK (obsidian) text/icons/wordmark — always readable; mega-menu dropdowns forced to the light variant; Sale link underline always visible. Added a soft ivory top veil on the hero (alabaster gradient) so the dark header reads cleanly over any bright area.
+  - **Footer:** `bg-satin/40` (patchy beige) → `bg-alabaster` (clean ivory unified with the page); refined column/contact labels (tracking 0.24em), 13px links with hover transitions, wider air/padding, uppercase-tracked wordmark in the about column.

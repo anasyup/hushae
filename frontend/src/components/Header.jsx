@@ -172,9 +172,7 @@ export default function Header() {
     `relative whitespace-nowrap py-1 transition-colors duration-base ease-standard after:absolute after:-bottom-0.5 after:left-0 after:h-px after:w-full after:origin-left after:bg-current after:transition-transform after:duration-base after:ease-entrance ${
       isActive ? 'after:scale-x-100' : 'after:scale-x-0 hover:after:scale-x-100'
     } ${navUpper ? 'font-medium uppercase' : 'font-medium'} ${
-      overHero
-        ? (isActive ? 'text-alabaster' : 'text-alabaster/85 hover:text-alabaster')
-        : (isActive ? 'text-obsidian' : 'text-ink/80 hover:text-obsidian')
+      isActive ? 'text-obsidian' : 'text-ink/80 hover:text-obsidian'
     }`
   ), [navUpper, overHero]);
 
@@ -183,7 +181,7 @@ export default function Header() {
     [navSize, navUpper],
   );
 
-  const iconBtn = `btn-icon ${overHero ? 'text-alabaster hover:bg-white/10' : 'text-obsidian hover:bg-satin/60'}`;
+  const iconBtn = 'btn-icon text-obsidian hover:bg-satin/60';
   const badge = 'absolute right-1 top-1 grid h-4 min-w-4 place-items-center rounded-full px-1 text-[9px] font-bold leading-none tabular-nums';
 
   return (
@@ -203,7 +201,7 @@ export default function Header() {
           style={{ '--hdr-h': `${deskH}px` }}
           className={`border-b transition-[background-color,border-color,box-shadow] duration-base ease-standard ${
             overHero
-              ? 'on-dark border-transparent bg-transparent text-alabaster'
+              ? 'border-transparent bg-transparent text-obsidian'
               : `bg-alabaster/85 text-obsidian backdrop-blur-xl backdrop-saturate-150 ${
                 atTop ? 'border-transparent' : `${hairline ? 'border-line' : 'border-transparent'} shadow-e-1`
               }`
@@ -229,7 +227,7 @@ export default function Header() {
               data-section="header.logo"
               className={`absolute left-1/2 -translate-x-1/2 ${collapsed ? '' : 'lg:static lg:translate-x-0'}`}
             >
-              <Wordmark forceColor={overHero ? 'alabaster' : undefined} />
+              <Wordmark />
             </span>
 
             <nav
@@ -255,7 +253,7 @@ export default function Header() {
                       collections={COLLECTIONS}
                       linkCls={linkCls}
                       navStyle={navStyle}
-                      onDark={overHero}
+                      onDark={false}
                     />
                   ) : (
                     <NavDropdown
@@ -265,7 +263,7 @@ export default function Header() {
                       items={dropItems(m.dropdown)}
                       linkCls={linkCls}
                       navStyle={navStyle}
-                      onDark={overHero}
+                      onDark={false}
                     />
                   )
                 ) : (
@@ -273,7 +271,7 @@ export default function Header() {
                     key={`${m.label}-${i}`}
                     to={m.href || '/'}
                     style={navStyle}
-                    className={({ isActive }) => `${linkCls({ isActive })} ${m.highlight && !overHero ? 'after:scale-x-100' : ''}`}
+                    className={({ isActive }) => `${linkCls({ isActive })} ${m.highlight ? 'after:scale-x-100' : ''}`}
                   >
                     {m.label}
                   </NavLink>
@@ -283,7 +281,7 @@ export default function Header() {
 
             <div
               data-section="header.icons"
-              className={`ml-auto flex shrink-0 items-center gap-0.5 md:gap-1 ${overHero ? 'text-alabaster' : 'text-obsidian'}`}
+              className="ml-auto flex shrink-0 items-center gap-0.5 md:gap-1 text-obsidian"
             >
               {showSearch && (
                 <button
@@ -307,7 +305,7 @@ export default function Header() {
                 >
                   <Heart size={19} strokeWidth={1.6} aria-hidden="true" />
                   {wishlist.length > 0 && (
-                    <span className={`${badge} ${overHero ? 'bg-alabaster text-obsidian' : 'bg-obsidian text-alabaster'}`} aria-hidden="true">{wishlist.length}</span>
+                    <span className={`${badge} bg-obsidian text-alabaster`} aria-hidden="true">{wishlist.length}</span>
                   )}
                 </Link>
               )}
@@ -319,7 +317,7 @@ export default function Header() {
                   className={`relative hidden ${collapsed ? '' : 'lg:grid'} ${iconBtn}`}
                 >
                   <User size={19} strokeWidth={1.6} aria-hidden="true" />
-                  {auth && <span className={`absolute right-2.5 top-2.5 h-1.5 w-1.5 rounded-full ${overHero ? 'bg-alabaster' : 'bg-obsidian'}`} aria-hidden="true" />}
+                  {auth && <span className="absolute right-2.5 top-2.5 h-1.5 w-1.5 rounded-full bg-obsidian" aria-hidden="true" />}
                 </Link>
               )}
 
@@ -332,7 +330,7 @@ export default function Header() {
                 >
                   <ShoppingBag size={19} strokeWidth={1.6} aria-hidden="true" />
                   {cartCount > 0 && (
-                    <span className={`${badge} ${overHero ? 'bg-alabaster text-obsidian' : 'bg-obsidian text-alabaster'}`} aria-hidden="true">
+                    <span className={`${badge} bg-obsidian text-alabaster`} aria-hidden="true">
                       {cartCount}
                     </span>
                   )}

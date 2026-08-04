@@ -76,6 +76,8 @@ export default function Home() {
         {/* Full-bleed image — spans left edge to right edge, no bars. */}
         <img src="/images/campaign/hero-women-white.jpg" alt="" fetchpriority="high"
           className="absolute inset-0 h-full w-full object-cover object-center" />
+        {/* Top ivory veil — keeps the dark header readable over the bright image */}
+        <div className="absolute inset-x-0 top-0 h-36 bg-gradient-to-b from-alabaster/85 via-alabaster/40 to-transparent" />
         {/* Subtle bottom veil for text legibility on the bright image */}
         <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-white/90 via-white/30 to-transparent" />
         <div className="relative flex min-h-[92vh] items-end">
