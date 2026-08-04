@@ -333,3 +333,6 @@ Format:
   - `#0E0E0E→obsidian` · `#6E6E6B→ash` · `#E3E2DF→line` · `#F7F6F4→alabaster` · Archivo→Helvetica CK stack (39k edits via script).
   - Removed Archivo from Google Fonts (unused now — only Instrument Serif loads); page wrappers white → warm ivory alabaster (#F7F5F1) for a cohesive warm tone across all pages.
   - Verified: no old hex/Archivo remains in pages/components; build clean.
+
+- **2026-08-04** — 🎨 **Home: removed "The Edit / Best sellers." product rail** (user request)
+  - Deleted the best-sellers rail + its state/effect/imports. Home is now fully editorial: hero → campaign trays → statement → campaign → trust → fit finder → newsletter. Product discovery stays on /shop and category pages.

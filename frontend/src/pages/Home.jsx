@@ -1,9 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
-import ProductCard from '../components/ProductCard';
 import Seo, { organizationJsonLd } from '../components/Seo';
 
 /* ============================================================================
@@ -14,15 +13,15 @@ import Seo, { organizationJsonLd } from '../components/Seo';
  *
  * Deliberate absences (what makes it feel premium, not template-y):
  *   · NO marquee ticker
- *   · NO image category tiles (they read as stocky "shop by category")
- *   · NO second product rail — one "edit" only
+ *   · NO image category tiles
+ *   · NO product rails — editorial only
  *   · NO badges, chips, or decoration
  *
  * Instead:
  *   · one art-directed hero on warm ivory
- *   · a numbered campaign index (01 · 02 · 03) — an editorial device, not a menu
- *   · one product rail ("The Edit")
+ *   · CK-style campaign trays (image + label + shop link)
  *   · one editorial statement, serif italic
+ *   · one quiet campaign section
  *   · trust as a single quiet line, not four boxes
  * ========================================================================== */
 
@@ -39,13 +38,8 @@ const TRUST_LINE = 'Discreet packaging · COD nationwide · 7-day returns · Was
 
 export default function Home() {
   const { settings } = useApp();
-  const [best, setBest] = useState(null);
   const [nl, setNl] = useState('');
   const [nlDone, setNlDone] = useState(false);
-
-  useEffect(() => {
-    api('/products?bestSeller=true&limit=8').then((d) => setBest(d.products || [])).catch(() => setBest([]));
-  }, []);
 
   const subscribe = (e) => {
     e.preventDefault();
@@ -124,29 +118,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ═══ 04 — THE EDIT (single curated rail) ══════════════════ */}
-      {best && best.length > 0 && (
-        <section className="border-t border-line bg-white py-20 md:py-28">
-          <div className="container">
-            <div className="mb-12 flex items-end justify-between">
-              <div>
-                <p className="text-[11px] font-medium uppercase tracking-[0.3em] text-ash">The Edit</p>
-                <h2 className="mt-4 font-display text-[28px] font-medium uppercase tracking-[0.02em] md:text-[44px]">
-                  Best <span style={serif} className="normal-case italic font-normal tracking-normal">sellers.</span>
-                </h2>
-              </div>
-              <Link to="/best" className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-ash transition-colors duration-base hover:text-obsidian">
-                View all <ArrowRight size={12} />
-              </Link>
-            </div>
-            <div className="grid grid-cols-2 gap-x-6 gap-y-12 md:grid-cols-4 md:gap-x-8">
-              {best.slice(0, 8).map((p) => <ProductCard key={p._id} product={p} />)}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* ═══ 05 — EDITORIAL STATEMENT ════════════════════════════ */}
+      {/* ═══ 04 — EDITORIAL STATEMENT ════════════════════════════ */}
       <section className="grid grid-cols-1 md:grid-cols-2">
         <div className="relative min-h-[480px] overflow-hidden bg-line">
           <img src="/images/campaign/campaign-01.jpg" alt="The HUSHAE house" loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
