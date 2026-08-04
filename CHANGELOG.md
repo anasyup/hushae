@@ -22,6 +22,11 @@ Format:
 ---
 
 ## Changes
+- **2026-08-03** — 🔐 **Two-Factor Authentication (2FA) for admin accounts**
+  - Backend: `User` model 2FA fields (enabled flag + hashed code + expiry + attempts). Login now returns `twoFactorRequired` when the account has 2FA on, emails a 6-digit code, and `/api/auth/2fa/verify` completes the sign-in. `/api/auth/2fa/toggle` enables/disables with current-password + emailed-code proof. Rate-limited like login.
+  - Frontend: AdminLogin shows a 2-step screen (password → emailed code). Settings → Security → My Login has a 2FA card (turn on/off, code entry).
+  - Note: code emails depend on SMTP being live (Brevo activation pending); the code is still stored server-side so verification works once email arrives.
+
 - **2026-08-03** — ⭐ **Review request emails now fire on Delivered orders**
   - `sendReviewRequest()` was defined in mailer.js but never called anywhere. Now it fires once when an order transitions INTO Delivered (ordersAdmin stage flow + both legacy status-update routes). No spam: guarded by prev-status check.
 

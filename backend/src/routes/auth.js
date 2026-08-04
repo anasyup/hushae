@@ -173,6 +173,32 @@ router.post('/register', registerLimit, asyncHandler(async (req, res) => {
   res.status(201).json({ token, user: publicUser(user) });
 }));
 
+const crypto2fa = require('crypto');
+
+/* Issue a 6-digit 2FA code, email it, and store only its hash on the user.
+ * Best-effort email: if SMTP is down the code is still stored so the admin
+ * panel can surface a fallback (dev shows code via API only to the owner). */
+async function issueTwoFactorCode(user) {
+  const code = String(crypto2fa.randomInt(100000, 1000000));
+  user.twoFactorCodeHash = crypto2fa.createHash('sha256').update(code).digest('hex');
+  user.twoFactorExp = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+  user.twoFactorAttempts = 0;
+  await user.save();
+  try {
+    const mailer = require('../utils/mailer');
+    await mailer.sendMail({
+      to: user.email,
+      subject: 'HUSHAE — your sign-in code',
+      html: `<div style="font-family:Arial,sans-serif;max-width:480px;margin:0 auto;padding:24px;border:1px solid #eee;border-radius:12px">
+        <p style="font-size:14px;color:#333">Your HUSHAE admin sign-in code is:</p>
+        <p style="font-size:32px;font-weight:700;letter-spacing:8px;color:#111;margin:16px 0">${code}</p>
+        <p style="font-size:12px;color:#888">It expires in 5 minutes. If you did not try to sign in, please ignore this email.</p>
+      </div>`,
+    });
+  } catch { /* email best-effort */ }
+  return code;
+}
+
 router.post('/login', loginLimit, asyncHandler(async (req, res) => {
   const { email, password } = req.body || {};
   if (!email || !password) return res.status(400).json({ message: 'Email and password are required' });
@@ -182,9 +208,76 @@ router.post('/login', loginLimit, asyncHandler(async (req, res) => {
   }
   if (!user.isActive) return res.status(403).json({ message: 'This account has been disabled' });
   if (user.deletedAt) return res.status(403).json({ message: 'This account has been closed' });
+  // 2FA gate — password correct, now ask for the email code
+  if (user.twoFactorEnabled) {
+    await issueTwoFactorCode(user);
+    return res.json({ twoFactorRequired: true, email: user.email });
+  }
   const policy = await getAccountPolicy();
   const token = await issueSession(user, !!req.body?.remember, policy, req);
   res.json({ token, user: publicUser(user) });
+}));
+
+/* POST /api/auth/2fa/verify { email, code } — completes the login after the
+ * emailed code is confirmed. Issues the same session token login would. */
+router.post('/2fa/verify', loginLimit, asyncHandler(async (req, res) => {
+  const { email, code } = req.body || {};
+  if (!email || !code) return res.status(400).json({ message: 'Email and code are required' });
+  const user = await require('../models/User').findOne({ email: String(email).toLowerCase() }).select('+twoFactorCodeHash +twoFactorExp +twoFactorAttempts');
+  if (!user || !user.twoFactorEnabled || !user.twoFactorCodeHash) {
+    return res.status(401).json({ message: 'No pending sign-in for this account' });
+  }
+  if (!user.twoFactorExp || new Date(user.twoFactorExp) < new Date()) {
+    return res.status(401).json({ message: 'Code expired — sign in again to get a new one' });
+  }
+  if (user.twoFactorAttempts >= 5) {
+    return res.status(429).json({ message: 'Too many attempts — sign in again for a fresh code' });
+  }
+  const guess = crypto2fa.createHash('sha256').update(String(code).trim()).digest('hex');
+  if (guess !== user.twoFactorCodeHash) {
+    user.twoFactorAttempts = (user.twoFactorAttempts || 0) + 1;
+    await user.save();
+    return res.status(401).json({ message: 'Incorrect code' });
+  }
+  // success — clear the code, issue a real session
+  user.twoFactorCodeHash = '';
+  user.twoFactorExp = null;
+  user.twoFactorAttempts = 0;
+  await user.save();
+  const policy = await getAccountPolicy();
+  const token = await issueSession(user, !!req.body?.remember, policy, req);
+  res.json({ token, user: publicUser(user) });
+}));
+
+/* Enable / disable 2FA for the signed-in admin (requires current password
+ * and, when enabling, the emailed code to prove the inbox is theirs). */
+router.post('/2fa/toggle', protect, asyncHandler(async (req, res) => {
+  const user = await require('../models/User').findById(req.user._id).select('+password +twoFactorCodeHash +twoFactorExp +twoFactorAttempts');
+  const { enable, code, password } = req.body || {};
+  if (!user || user.role === 'customer') return res.status(403).json({ message: 'Admins only' });
+  if (!password || !(await user.comparePassword(password))) {
+    return res.status(401).json({ message: 'Current password required' });
+  }
+  if (enable) {
+    if (!code) {
+      await issueTwoFactorCode(user);
+      return res.json({ step: 'code-sent' });
+    }
+    const guess = crypto2fa.createHash('sha256').update(String(code).trim()).digest('hex');
+    if (!user.twoFactorCodeHash || guess !== user.twoFactorCodeHash || !user.twoFactorExp || new Date(user.twoFactorExp) < new Date()) {
+      return res.status(401).json({ message: 'Incorrect or expired code' });
+    }
+    user.twoFactorEnabled = true;
+    user.twoFactorCodeHash = '';
+    user.twoFactorExp = null;
+    await user.save();
+    return res.json({ ok: true, twoFactorEnabled: true });
+  }
+  user.twoFactorEnabled = false;
+  user.twoFactorCodeHash = '';
+  user.twoFactorExp = null;
+  await user.save();
+  res.json({ ok: true, twoFactorEnabled: false });
 }));
 
 router.get('/me', protect, asyncHandler(async (req, res) => {

@@ -24,6 +24,11 @@ const userSchema = new mongoose.Schema({
   addresses: [addressSchema],
   wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
   isActive: { type: Boolean, default: true },
+  // ---- Two-factor auth (admin accounts) ----
+  twoFactorEnabled: { type: Boolean, default: false },
+  twoFactorCodeHash: { type: String, default: '', select: false },
+  twoFactorExp: { type: Date, default: null, select: false },
+  twoFactorAttempts: { type: Number, default: 0, select: false },
 
   // ---- Profile ----
   // Stored as an /api/uploads/:id reference, same as every other image on the

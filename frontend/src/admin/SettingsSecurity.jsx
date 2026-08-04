@@ -51,6 +51,9 @@ export default function SettingsSecurity() {
   const [activeTab, setActiveTab] = useState('personal');
   const [sessions, setSessions] = useState(null);
   const [sessBusy, setSessBusy] = useState(false);
+  // 2FA
+  const [twoFa, setTwoFa] = useState({ enabled: !!auth?.user?.twoFactorEnabled, step: 'idle', code: '', pass: '' });
+  const [twoFaBusy, setTwoFaBusy] = useState(false);
 
   // Personal password change
   const [current, setCurrent] = useState('');
@@ -447,6 +450,79 @@ export default function SettingsSecurity() {
                   {busy ? 'Updating…' : 'Update Password'}
                 </button>
               </form>
+            </Section>
+
+            {/* Two-factor authentication card */}
+            <Section
+              title="Two-Factor Authentication (2FA)"
+              description="Add an extra security layer: after your password, you'll need a 6-digit code emailed to you to sign in."
+            >
+              <div className="space-y-4">
+                <div className={`flex items-center justify-between rounded-xl border p-4 ${twoFa.enabled ? 'border-emerald-200 bg-emerald-50' : 'border-neutral-200 bg-neutral-50'}`}>
+                  <div>
+                    <p className="text-[13px] font-semibold text-neutral-900">{twoFa.enabled ? '2FA is ON' : '2FA is OFF'}</p>
+                    <p className="mt-0.5 text-[11px] text-neutral-500">{twoFa.enabled ? 'Every sign-in needs a code from your inbox.' : 'Sign-in currently needs only your password.'}</p>
+                  </div>
+                  <button
+                    onClick={() => setTwoFa({ ...twoFa, step: 'start' })}
+                    className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-semibold transition ${twoFa.enabled ? 'bg-white border border-neutral-200 text-neutral-600 hover:border-red-300 hover:text-red-600' : 'bg-neutral-900 text-white hover:bg-neutral-800'}`}
+                  >
+                    {twoFa.enabled ? 'Turn off' : 'Turn on'}
+                  </button>
+                </div>
+
+                {twoFa.step !== 'idle' && (
+                  <div className="rounded-xl border border-neutral-200 bg-white p-4">
+                    {twoFa.enabled ? (
+                      <p className="mb-3 text-[12px] text-neutral-600">Enter your current password to disable 2FA.</p>
+                    ) : twoFa.step === 'start' ? (
+                      <p className="mb-3 text-[12px] text-neutral-600">Enter your current password, then we'll email a verification code to <b className="text-neutral-900">{auth?.user?.email}</b>.</p>
+                    ) : (
+                      <p className="mb-3 text-[12px] text-neutral-600">We emailed a 6-digit code to <b className="text-neutral-900">{auth?.user?.email}</b>. Enter it to finish enabling 2FA.</p>
+                    )}
+                    {twoFa.step !== 'code' && (
+                      <div className="flex gap-2">
+                        <input type="password" placeholder="Current password" className="flex-1 rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none focus:border-neutral-900" value={twoFa.pass} onChange={(e) => setTwoFa({ ...twoFa, pass: e.target.value })} />
+                        <button
+                          disabled={twoFaBusy || !twoFa.pass}
+                          onClick={async () => {
+                            setTwoFaBusy(true); setErr('');
+                            try {
+                              const d = await api('/auth/2fa/toggle', { method: 'POST', token: auth.token, body: { enable: !twoFa.enabled, password: twoFa.pass } });
+                              if (d.step === 'code-sent') { setTwoFa({ ...twoFa, step: 'code', pass: '' }); toast('Verification code sent to your email'); }
+                              else if (d.ok) { setTwoFa({ enabled: d.twoFactorEnabled, step: 'idle', code: '', pass: '' }); toast(d.twoFactorEnabled ? '2FA enabled' : '2FA disabled'); }
+                            } catch (ex) { setErr(ex.message); }
+                            setTwoFaBusy(false);
+                          }}
+                          className="inline-flex items-center rounded-full bg-neutral-900 px-4 py-2 text-[12px] font-semibold text-white hover:bg-neutral-800 disabled:opacity-40"
+                        >
+                          {twoFaBusy ? '…' : 'Continue'}
+                        </button>
+                      </div>
+                    )}
+                    {twoFa.step === 'code' && (
+                      <div className="flex gap-2">
+                        <input type="text" inputMode="numeric" maxLength={6} placeholder="6-digit code" className="flex-1 rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[16px] tracking-[6px] outline-none focus:border-neutral-900" value={twoFa.code} onChange={(e) => setTwoFa({ ...twoFa, code: e.target.value.replace(/\D/g, '') })} />
+                        <button
+                          disabled={twoFaBusy || twoFa.code.length !== 6}
+                          onClick={async () => {
+                            setTwoFaBusy(true); setErr('');
+                            try {
+                              const d = await api('/auth/2fa/toggle', { method: 'POST', token: auth.token, body: { enable: true, password: twoFa.pass, code: twoFa.code } });
+                              if (d.ok) { setTwoFa({ enabled: true, step: 'idle', code: '', pass: '' }); toast('2FA enabled — you will need a code at next sign-in'); }
+                            } catch (ex) { setErr(ex.message); }
+                            setTwoFaBusy(false);
+                          }}
+                          className="inline-flex items-center rounded-full bg-neutral-900 px-4 py-2 text-[12px] font-semibold text-white hover:bg-neutral-800 disabled:opacity-40"
+                        >
+                          {twoFaBusy ? '…' : 'Verify'}
+                        </button>
+                      </div>
+                    )}
+                    <button type="button" onClick={() => setTwoFa({ ...twoFa, step: 'idle', code: '', pass: '' })} className="mt-3 text-[12px] text-neutral-400 hover:text-neutral-700">Cancel</button>
+                  </div>
+                )}
+              </div>
             </Section>
           </div>
         )}
