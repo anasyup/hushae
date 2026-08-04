@@ -39,14 +39,14 @@ export const THEME_GROUPS: ThemeGroup[] = [
     fields: [
       { type: 'header', label: 'Headings' },
       { type: 'font_picker', id: 'fontHeading', label: 'Heading font', default: 'Helvetica Neue' },
-      { type: 'range', id: 'headingScale', label: 'Heading scale', min: 70, max: 150, step: 5, unit: '%', default: 100 },
-      { type: 'range', id: 'headingTracking', label: 'Heading tracking', min: -5, max: 40, step: 1, unit: '/100em', default: 0 },
+      { type: 'range', id: 'headingScale', label: 'Heading size', min: 70, max: 150, step: 5, unit: '%', default: 100 },
+      { type: 'range', id: 'headingTracking', label: 'Heading tracking', min: -5, max: 40, step: 1, unit: ' /100em', default: 0 }, // 0 = normal, 20 = wide
       { type: 'select', id: 'headingWeight', label: 'Heading weight', default: '500',
         options: ['300', '400', '500', '600', '700'].map((v) => ({ value: v, label: v })) },
       { type: 'header', label: 'Body' },
       { type: 'font_picker', id: 'fontBody', label: 'Body font', default: 'Helvetica Neue' },
-      { type: 'range', id: 'bodyScale', label: 'Body scale', min: 80, max: 130, step: 5, unit: '%', default: 100 },
-      { type: 'range', id: 'bodyLeading', label: 'Body line height', min: 100, max: 200, step: 5, unit: '%', default: 160 },
+      { type: 'range', id: 'bodyScale', label: 'Body size', min: 80, max: 130, step: 5, unit: '%', default: 100 },
+      { type: 'range', id: 'bodyLeading', label: 'Line spacing', min: 100, max: 200, step: 5, unit: '%', default: 160 },
     ],
   },
   {
@@ -55,7 +55,7 @@ export const THEME_GROUPS: ThemeGroup[] = [
       { type: 'range', id: 'btnRadius', label: 'Corner radius', min: 0, max: 40, step: 1, unit: 'px', default: 999 },
       { type: 'range', id: 'btnPaddingX', label: 'Horizontal padding', min: 8, max: 48, step: 2, unit: 'px', default: 28 },
       { type: 'range', id: 'btnPaddingY', label: 'Vertical padding', min: 6, max: 28, step: 1, unit: 'px', default: 14 },
-      { type: 'range', id: 'btnTracking', label: 'Letter spacing', min: 0, max: 40, step: 1, unit: '/100em', default: 12 },
+      { type: 'range', id: 'btnTracking', label: 'Letter spacing', min: 0, max: 40, step: 1, unit: '/100em', default: 12, info: 'Wider = more space between letters' },
       { type: 'checkbox', id: 'btnUppercase', label: 'Uppercase labels', default: true },
       { type: 'range', id: 'btnBorderWidth', label: 'Border width', min: 0, max: 4, step: 1, unit: 'px', default: 1 },
     ],

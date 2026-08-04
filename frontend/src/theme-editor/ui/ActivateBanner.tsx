@@ -19,9 +19,9 @@ export default function ActivateBanner({ onActivate }: { onActivate: () => Promi
     <div className="flex items-center gap-3 border-b border-amber-200 bg-amber-50 px-4 py-2.5">
       <Rocket size={15} className="shrink-0 text-amber-600" />
       <p className="min-w-0 flex-1 text-[13.5px] leading-snug text-amber-900">
-        <span className="font-semibold">Editor not live yet.</span>{' '}
-        Your website still shows the original coded home page. Publish once to hand the home page over to this editor —
-        after that every change is made here, never in code.
+        <span className="font-semibold">Theme not applied yet.</span>{' '}
+        Your website currently shows the original coded home page. Click Publish in the top bar to apply this
+        theme to the homepage — after that, every change you make here shows on the site.
       </p>
       <button
         onClick={async () => { setBusy(true); await onActivate(); setBusy(false); }}

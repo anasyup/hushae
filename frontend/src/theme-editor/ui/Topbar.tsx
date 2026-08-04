@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  ArrowLeft, Check, Cloud, History, Loader2, Monitor, Redo2, Settings2,
+  ArrowLeft, Check, Cloud, ExternalLink, History, Loader2, Monitor, Redo2, Settings2,
   Smartphone, Tablet, Undo2,
 } from 'lucide-react';
 import { useEditor } from '../core/store';
@@ -56,8 +56,10 @@ export default function Topbar({ onPublish }: { onPublish: () => void }) {
         </Link>
         <div className="hidden min-w-0 items-center gap-2 sm:flex">
           <p className="truncate text-[15px] font-semibold text-neutral-900">HUSHAE Theme</p>
-          <span className="shrink-0 rounded-full bg-emerald-100 px-2 py-0.5 text-[15px] font-bold uppercase tracking-wider text-emerald-700">
-            Live
+          <span className={`shrink-0 rounded-full px-2 py-0.5 text-[15px] font-bold uppercase tracking-wider ${
+            dirty ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'
+          }`}>
+            {dirty ? 'Draft' : 'Live'}
           </span>
         </div>
       </div>
@@ -107,6 +109,10 @@ export default function Topbar({ onPublish }: { onPublish: () => void }) {
           {saving ? <Loader2 size={13} className="animate-spin" /> : null}
           {dirty || saving ? 'Publish' : 'Published'}
         </button>
+        <a href="/" target="_blank" rel="noreferrer" title="View live site"
+          className="ml-1 grid h-8 w-8 place-items-center rounded-md text-neutral-500 transition hover:bg-neutral-100 hover:text-neutral-900">
+          <ExternalLink size={14} />
+        </a>
       </div>
     </header>
   );
