@@ -362,3 +362,6 @@ Format:
 
 - **2026-08-04** — 🎨 **Footer gap on home removed (black → black seamless)**
   - Footer's mt-ed-md top margin now skipped on the home route (isHome), so the black "The Inner Circle" section and the black footer connect with no white gap between them. Other pages keep their normal margin.
+
+- **2026-08-04** — 🎨 **Header stays pure white on scroll (no off-white switch)**
+  - Non-over-hero state was bg-alabaster/95 (warm ivory) — on home it flipped from white to off-white the moment you scrolled. Both states now bg-white/95, so the header is pure white at the top AND while scrolling, on every page.
