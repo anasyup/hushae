@@ -248,6 +248,12 @@ router.patch('/:id/stage', protect, adminOnly, asyncHandler(async (req, res) => 
   if (flow.legacyFor(from) !== order.status) {
     try { require('../utils/mailer').sendStatusUpdate(order).catch(() => {}); } catch { /* noop */ }
   }
+
+  // Review request — fires once when an order reaches Delivered so we do not
+  // spam the customer on every later admin action on the same order.
+  if (order.status === 'Delivered' && flow.legacyFor(from) !== 'Delivered') {
+    try { require('../utils/mailer').sendReviewRequest(order).catch(() => {}); } catch { /* noop */ }
+  }
   res.json({ order: withStage(order.toObject()) });
 }));
 

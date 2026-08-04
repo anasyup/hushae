@@ -22,6 +22,9 @@ Format:
 ---
 
 ## Changes
+- **2026-08-03** — ⭐ **Review request emails now fire on Delivered orders**
+  - `sendReviewRequest()` was defined in mailer.js but never called anywhere. Now it fires once when an order transitions INTO Delivered (ordersAdmin stage flow + both legacy status-update routes). No spam: guarded by prev-status check.
+
 - **2026-08-03** — 🌙 **Phase 2 continued: Admin Dark Mode + Devices/Sessions UI**
   - Dark mode: full CSS theme (`admin-dark.css`, loaded via `main.jsx`), Moon/Sun toggle in the admin TopBar, preference saved in localStorage.
   - Devices tab in Settings → Security: lists every signed-in admin device (device, browser, network hint, last seen, "This device" marker), with per-device Revoke and "Sign out other devices" (reuses `/api/customer/sessions` endpoints).

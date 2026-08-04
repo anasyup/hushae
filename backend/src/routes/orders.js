@@ -508,6 +508,10 @@ router.patch('/admin/:id/status', protect, adminOnly, asyncHandler(async (req, r
     try {
       const mailer = require('../utils/mailer');
       mailer.sendStatusUpdate(order).catch(() => {});
+      // Review request fires once on the transition INTO Delivered
+      if (order.status === 'Delivered' && prevStatus !== 'Delivered') {
+        mailer.sendReviewRequest(order).catch(() => {});
+      }
     } catch { /* noop */ }
   }
 
@@ -627,6 +631,9 @@ router.patch('/admin/:id/payment', protect, adminOnly, asyncHandler(async (req, 
     try {
       const mailer = require('../utils/mailer');
       mailer.sendStatusUpdate(order).catch(() => {});
+      if (order.status === 'Delivered' && prevStatus !== 'Delivered') {
+        mailer.sendReviewRequest(order).catch(() => {});
+      }
     } catch { /* noop */ }
   }
   res.json({ order });
