@@ -359,3 +359,6 @@ Format:
   - "Shop Men" (Considered Comfort) + "Start the Fit Finder": solid black fill → transparent outline (black border/text, fills black on hover). Fit Finder CTA ring-pulse animation removed.
   - Header hide-on-scroll animation disabled (enableHide:false) — bar stays fixed, no weird tuck/translate.
   - Footer top border → solid obsidian (no visible beige edge on the black footer).
+
+- **2026-08-04** — 🎨 **Footer gap on home removed (black → black seamless)**
+  - Footer's mt-ed-md top margin now skipped on the home route (isHome), so the black "The Inner Circle" section and the black footer connect with no white gap between them. Other pages keep their normal margin.
