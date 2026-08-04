@@ -125,7 +125,7 @@ export default function Header() {
   }, [cmsHeaderKey, baseMenuKey]);
 
   const boxed    = hdr.width === 'boxed';
-  const deskH    = clamp(hdr.height, 40, 80, 44);
+  const deskH    = clamp(hdr.height, 40, 80, 80);
   /* PHASE 8 — navigation typography.
      MEASURED on live at 1920: 13px, letter-spacing 0.065px (effectively zero),
      sentence case, weight 500, 34px gaps. That is the typography of an

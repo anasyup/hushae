@@ -39,7 +39,7 @@ try {
 } catch { /* noop */ }
 
 export function AppProvider({ children }) {
-  const [settings, setSettings] = useState(null);
+  const [settings, setSettings] = useState(() => LS.get('hushae.settings', null));
   const [lang, setLang] = useState('en');
   const [auth, setAuth] = useState(() => LS.get('hushae.auth', null));
   const [cart, setCart] = useState(() => LS.get('hushae.cart', []));
@@ -61,7 +61,16 @@ export function AppProvider({ children }) {
   useEffect(() => { LS.set('hushae.compare', compare); }, [compare]);
   useEffect(() => { LS.set('hushae.auth', auth); }, [auth]);
 
-  useEffect(() => { api('/settings').then((d) => setSettings(d.settings)).catch(() => {}); }, []);
+  /* Settings: hydrate instantly from localStorage (so the header/theme paint
+     at FULL size on the first frame — no 44px→80px jump while /settings loads),
+     then refresh from the server in the background and re-cache. */
+  useEffect(() => {
+    let alive = true;
+    api('/settings')
+      .then((d) => { if (alive) { setSettings(d.settings); LS.set('hushae.settings', d.settings); } })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, []);
 
   // ── Theme Editor live preview ───────────────────────────────────────────
   // When this app runs inside the editor's iframe (?preview=1) it accepts

@@ -397,3 +397,8 @@ Format:
   - Vercel function region moved iad1 (US East) → bom1 (Mumbai) — cuts Pakistan↔server RTT from ~250ms to ~70ms on every API call and the HTML.
   - Campaign images converted to AVIF + WebP (hero-women 58→37KB avif, hero-men 43→28KB, fabric 164→78KB); Home now serves AVIF via <picture> with WebP/JPEG fallbacks (trays included).
   - Hero AVIF preloaded in <head> (LCP starts immediately); Instrument Serif stylesheet now async (media=print onload swap + preload) so Helvetica text paints instantly and fonts never block render.
+
+- **2026-08-04** — ⚡ **FIX: header 44px→80px jump on load (2s small header)**
+  - Root cause: deskH defaulted to 44px when /settings hadn't loaded yet; live header.height is 80, so the bar painted small then jumped once settings arrived (~2s).
+  - Fix 1: Header default height → 80 (clamp fallback 44→80), so the very first paint is full-size.
+  - Fix 2: AppContext hydrates settings from localStorage (hushae.settings) instantly, then refreshes from the server in the background and re-caches — every refresh now paints the full layout on frame one, no jump.
