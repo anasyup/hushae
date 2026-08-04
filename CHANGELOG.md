@@ -315,3 +315,8 @@ Format:
   - Removed the "Featured pieces" product rail (user request) — one curated rail ("Best sellers") reads as an edit, two read as a catalogue.
   - Added a 6-tile **category rail** (Bras, Panties, Shapewear, Briefs, Boxers, Trunks) in the CK/Tommy pattern — editorial image tiles with label + sub + underline-on-hover + "Shop now", each linking to /category/:slug (verified: ?category= filters work).
   - Structure now: hero → marquee → category tiles → best sellers → brand story → signature campaign → trust → fit finder → newsletter.
+
+- **2026-08-04** — 🎨 **Home v4 — "Quiet Luxury" (SKIMS/COS/Zara art direction)**
+  - Full redesign with restraint as the luxury signal. Removed: marquee ticker, image category tiles (read as stocky), busy decorations.
+  - New structure: art-directed hero on warm ivory ("Second skin." — huge serif/uppercase), numbered campaign index (01 For Her / 02 For Him / 03 The Fabric) as an editorial device, categories as TYPOGRAPHY (big tracked links over hairlines, COS register), one curated product rail ("The Edit"), editorial statement with serif pull-quote, quiet full-bleed "For Him" campaign, trust as a single hairline line, fit finder, dark newsletter.
+  - 4 new art-directed campaign images (warm muted, SKIMS/COS aesthetic): essentials-01 (her), essentials-02 (him), detail-01 (fabric), campaign-01 (house).
