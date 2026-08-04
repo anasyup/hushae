@@ -336,3 +336,8 @@ Format:
 
 - **2026-08-04** — 🎨 **Home: removed "The Edit / Best sellers." product rail** (user request)
   - Deleted the best-sellers rail + its state/effect/imports. Home is now fully editorial: hero → campaign trays → statement → campaign → trust → fit finder → newsletter. Product discovery stays on /shop and category pages.
+
+- **2026-08-04** — 🎨 **Home v5 — TRUE Calvin Klein anatomy (bold, not decorative)**
+  - Rebuilt from scratch to match CK's actual homepage: enormous bold uppercase Helvetica (52→150px), full-bleed stark-white campaign hero, CK tray row (image tile + label below + circle arrow), "Just In" product rail with CK-red accent, big typographic editorial statement on alabaster, full-bleed black "Considered Comfort" campaign, one-line perks, bold Fit Finder, black newsletter.
+  - Dropped the Instrument Serif italics and small/decorative treatments that were the previous miss — CK is a sans-serif house: Family Klein → Helvetica → Arial, monochrome + CK red (#D50000) only for accent.
+  - 2 new stark CK-style campaign images (hero-ck, hero-ck-men).

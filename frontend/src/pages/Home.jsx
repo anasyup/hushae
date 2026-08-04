@@ -1,45 +1,43 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, ArrowUpRight } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
+import ProductCard from '../components/ProductCard';
 import Seo, { organizationJsonLd } from '../components/Seo';
 
 /* ============================================================================
- * HUSHAE HOME — "Quiet Luxury" editorial.
+ * HUSHAE HOME — Calvin Klein anatomy, rebuilt properly.
  *
- * The reference is not "a fashion site" but the art direction of SKIMS / COS /
- * Zara: restraint, negative space, one strong visual voice, editorial type.
- *
- * Deliberate absences (what makes it feel premium, not template-y):
- *   · NO marquee ticker
- *   · NO image category tiles
- *   · NO product rails — editorial only
- *   · NO badges, chips, or decoration
- *
- * Instead:
- *   · one art-directed hero on warm ivory
- *   · CK-style campaign trays (image + label + shop link)
- *   · one editorial statement, serif italic
- *   · one quiet campaign section
- *   · trust as a single quiet line, not four boxes
+ * CK's homepage is BOLD, not decorative: one full-bleed hero with enormous
+ * Helvetica type, a tray row of clean image tiles, a product rail ("Just In"),
+ * an editorial statement, a full-bleed campaign, a perks line, a newsletter.
+ * Everything uppercase Helvetica (Family Klein → Neue → Arial), monochrome
+ * with CK-red used only for the announcement + sale accents, hairline rules,
+ * generous whitespace, subtle zoom/underline hovers. No serif italic
+ * decoration — that was the previous miss; CK is a sans-serif house.
  * ========================================================================== */
 
-const serif = { fontFamily: "'Instrument Serif', Georgia, serif", fontWeight: 400 };
+const CK_RED = '#D50000';
 
-/* ── Campaign trays (CK below-hero tray style: image + label + shop link) ── */
-const CAMPAIGN = [
-  { label: 'For Her', sub: 'Bras · Panties · Shapewear', cta: 'Shop Women', img: '/images/campaign/essentials-01.jpg', href: '/women' },
-  { label: 'For Him', sub: 'Briefs · Boxers · Trunks', cta: 'Shop Men', img: '/images/campaign/essentials-02.jpg', href: '/men' },
-  { label: 'The Fabric', sub: 'Modal · Cotton · Stretch', cta: 'Our standards', img: '/images/campaign/detail-01.jpg', href: '/about' },
+/* ── CK tray row: image tile + label below (Denim / Jackets / Dresses) ───── */
+const TRAYS = [
+  { label: 'For Her', sub: 'Bras · Panties · Shapewear', img: '/images/campaign/hero-ck.jpg', href: '/women' },
+  { label: 'For Him', sub: 'Briefs · Boxers · Trunks', img: '/images/campaign/hero-ck-men.jpg', href: '/men' },
+  { label: 'The Fabric', sub: 'Modal · Cotton · Stretch', img: '/images/campaign/detail-01.jpg', href: '/about' },
 ];
 
-const TRUST_LINE = 'Discreet packaging · COD nationwide · 7-day returns · Wash-tested 40 cycles';
+const PERKS = ['Discreet packaging', 'COD nationwide', '7-day returns', 'Wash-tested 40 cycles'];
 
 export default function Home() {
   const { settings } = useApp();
+  const [fresh, setFresh] = useState(null);
   const [nl, setNl] = useState('');
   const [nlDone, setNlDone] = useState(false);
+
+  useEffect(() => {
+    api('/products?newArrival=true&limit=8').then((d) => setFresh(d.products || [])).catch(() => setFresh([]));
+  }, []);
 
   const subscribe = (e) => {
     e.preventDefault();
@@ -50,66 +48,67 @@ export default function Home() {
   };
 
   return (
-    <div className="bg-alabaster text-obsidian font-sans">
+    <div className="bg-white text-obsidian font-sans">
       <Seo title="Premium Innerwear for Men & Women"
         description="Premium innerwear engineered for comfort. Made in Pakistan, finished to international standard."
         canonical="/"
         jsonLd={organizationJsonLd(typeof window !== 'undefined' ? window.location.origin : '')}
         jsonLdId="home-org" />
 
-      {/* ═══ 01 — HERO: art-directed, quiet ═══════════════════════ */}
-      <section className="relative w-full overflow-hidden bg-alabaster" style={{ minHeight: '100vh' }}>
-        <img src="/images/campaign/essentials-01.jpg" alt="" fetchpriority="high"
+      {/* ═══ 01 — HERO: full-bleed, enormous type ══════════════════ */}
+      <section className="relative w-full overflow-hidden bg-black" style={{ minHeight: '100vh' }}>
+        <img src="/images/campaign/hero-ck.jpg" alt="" fetchpriority="high"
           className="absolute inset-0 h-full w-full object-cover object-center" />
-        {/* Hairline-grade veils — barely there, keeps the type legible */}
-        <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-alabaster/80 via-alabaster/30 to-transparent" />
-        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-alabaster/90 via-alabaster/35 to-transparent" />
-
-        {/* Editorial index — top right, tiny */}
-        <div className="absolute right-6 top-24 hidden items-center gap-2 text-[10px] font-medium uppercase tracking-[0.3em] text-obsidian/60 md:flex">
-          <span className="h-px w-8 bg-obsidian/40" /> 01 — The Essentials Edit
-        </div>
+        {/* CK-style: subtle bottom gradient only, top stays clean for header */}
+        <div className="absolute inset-x-0 bottom-0 h-[55%] bg-gradient-to-t from-black/70 via-black/25 to-transparent" />
 
         <div className="relative flex min-h-screen items-end">
-          <div className="w-full px-6 pb-14 md:px-12 md:pb-20 lg:px-20">
-            <p className="text-[11px] font-medium uppercase tracking-[0.3em] text-ash">New Season · Made in Pakistan</p>
-            <h1 className="mt-6 font-display text-[46px] leading-[0.98] font-medium uppercase tracking-[0.01em] text-obsidian md:text-[100px] lg:text-[120px]">
+          <div className="w-full px-5 pb-16 md:px-12 md:pb-24 lg:px-20">
+            <p className="text-[11px] font-medium uppercase tracking-[0.34em] text-white/70">Premium innerwear · Made in Pakistan</p>
+            <h1 className="mt-6 font-display text-[52px] font-bold uppercase leading-[0.92] tracking-[-0.01em] text-white md:text-[120px] lg:text-[150px]">
               Second
               <br />
-              <span style={serif} className="normal-case italic font-normal tracking-normal">skin.</span>
+              Skin
             </h1>
-            <div className="mt-8 flex flex-wrap items-center gap-6">
-              <Link to="/women" className="inline-flex min-h-[52px] items-center justify-center bg-obsidian px-10 text-[12px] font-semibold uppercase tracking-[0.18em] text-alabaster transition-colors duration-base hover:bg-graphite">
+            <p className="mt-7 max-w-md text-[15px] leading-relaxed text-white/80">
+              Engineered for comfort. Designed in Pakistan, finished to an international standard.
+            </p>
+            <div className="mt-10 flex flex-wrap items-center gap-4">
+              <Link to="/women"
+                className="inline-flex min-h-[56px] items-center justify-center bg-white px-12 text-[13px] font-bold uppercase tracking-[0.18em] text-black transition-colors duration-base hover:bg-black hover:text-white hover:ring-1 hover:ring-white">
                 Shop Women
               </Link>
-              <Link to="/men" className="group inline-flex min-h-[52px] items-center justify-center border-b border-obsidian/30 text-[12px] font-semibold uppercase tracking-[0.18em] text-obsidian transition-colors duration-base hover:border-obsidian">
-                Shop Men <ArrowRight size={13} className="ml-2 transition-transform duration-base group-hover:translate-x-1" />
+              <Link to="/men"
+                className="group inline-flex min-h-[56px] items-center justify-center border-b border-white/50 px-2 text-[13px] font-bold uppercase tracking-[0.18em] text-white transition-colors duration-base hover:border-white">
+                Shop Men <ArrowRight size={14} className="ml-2 transition-transform duration-base group-hover:translate-x-1" />
               </Link>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ═══ 02 — THE CAMPAIGN — CK below-hero tray style ═══════ */}
-      <section className="border-t border-line bg-white py-20 md:py-28">
+      {/* ═══ 02 — TRAY ROW (CK: image + label below) ═══════════════ */}
+      <section className="bg-white py-20 md:py-28">
         <div className="container">
-          <div className="mb-12 flex items-end justify-between">
-            <p className="text-[11px] font-medium uppercase tracking-[0.3em] text-ash">The Campaign</p>
-            <span className="text-[10px] font-medium uppercase tracking-[0.3em] text-ash/70">Index</span>
+          <div className="mb-12 flex items-baseline justify-between">
+            <p className="text-[12px] font-semibold uppercase tracking-[0.3em] text-obsidian">The Campaign</p>
+            <span className="text-[10px] font-medium uppercase tracking-[0.3em] text-ash">01 — 03</span>
           </div>
-          <div className="grid grid-cols-1 gap-x-8 gap-y-14 md:grid-cols-3">
-            {CAMPAIGN.map((c) => (
-              <Link key={c.label} to={c.href} className="group block">
-                <div className="relative overflow-hidden bg-line" style={{ aspectRatio: '4/5' }}>
-                  <img src={c.img} alt={c.label} loading="lazy"
-                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1.2s] group-hover:scale-[1.04]"
+          <div className="grid grid-cols-1 gap-x-10 gap-y-14 md:grid-cols-3">
+            {TRAYS.map((t) => (
+              <Link key={t.label} to={t.href} className="group block">
+                <div className="relative overflow-hidden bg-line" style={{ aspectRatio: '3/4' }}>
+                  <img src={t.img} alt={t.label} loading="lazy"
+                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1.1s] group-hover:scale-[1.05]"
                     style={{ transitionTimingFunction: 'cubic-bezier(0.22, 1, 0.36, 1)' }} />
                 </div>
-                <div className="mt-6">
-                  <p className="font-display text-[19px] font-medium uppercase tracking-[0.08em] text-obsidian md:text-[22px]">{c.label}</p>
-                  <p className="mt-1.5 text-[12px] uppercase tracking-[0.16em] text-ash">{c.sub}</p>
-                  <span className="mt-5 inline-flex items-center gap-2 border-b border-line pb-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-obsidian transition-colors duration-base group-hover:border-obsidian">
-                    {c.cta} <ArrowRight size={12} />
+                <div className="mt-6 flex items-baseline justify-between">
+                  <div>
+                    <p className="font-display text-[20px] font-bold uppercase tracking-[0.06em] text-obsidian md:text-[24px]">{t.label}</p>
+                    <p className="mt-1.5 text-[12px] uppercase tracking-[0.18em] text-ash">{t.sub}</p>
+                  </div>
+                  <span className="flex h-10 w-10 items-center justify-center rounded-full border border-line text-obsidian transition-colors duration-base group-hover:border-obsidian group-hover:bg-obsidian group-hover:text-white">
+                    <ArrowUpRight size={16} strokeWidth={1.6} />
                   </span>
                 </div>
               </Link>
@@ -118,91 +117,111 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ═══ 04 — EDITORIAL STATEMENT ════════════════════════════ */}
-      <section className="grid grid-cols-1 md:grid-cols-2">
-        <div className="relative min-h-[480px] overflow-hidden bg-line">
-          <img src="/images/campaign/campaign-01.jpg" alt="The HUSHAE house" loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
-        </div>
-        <div className="flex items-center bg-cream px-8 py-20 md:px-16 lg:px-20">
-          <div className="max-w-md">
-            <p className="text-[11px] font-medium uppercase tracking-[0.3em] text-ash">The House</p>
-            <p className="mt-8 font-display text-[28px] leading-[1.25] font-normal text-obsidian md:text-[36px]">
-              <span style={serif} className="italic">"The best innerwear is the piece you stop noticing</span>{' '}
-              by ten in the morning.
+      {/* ═══ 03 — JUST IN (product rail — CK "Just In") ════════════ */}
+      {fresh && fresh.length > 0 && (
+        <section className="border-t border-line bg-white py-20 md:py-28">
+          <div className="container">
+            <div className="mb-12 flex items-end justify-between">
+              <h2 className="font-display text-[30px] font-bold uppercase tracking-[0.02em] text-obsidian md:text-[48px]">
+                Just <span className="text-[#D50000]">In</span>
+              </h2>
+              <Link to="/new" className="group inline-flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.22em] text-obsidian">
+                Shop all <ArrowRight size={13} className="transition-transform duration-base group-hover:translate-x-1" />
+              </Link>
+            </div>
+            <div className="grid grid-cols-2 gap-x-6 gap-y-12 md:grid-cols-4 md:gap-x-8">
+              {fresh.slice(0, 8).map((p) => <ProductCard key={p._id} product={p} />)}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ═══ 04 — EDITORIAL STATEMENT (big typographic moment) ═════ */}
+      <section className="border-t border-line bg-alabaster py-24 md:py-36">
+        <div className="container max-w-4xl">
+          <p className="text-[12px] font-semibold uppercase tracking-[0.3em] text-ash">The House</p>
+          <p className="mt-10 font-display text-[34px] font-medium uppercase leading-[1.08] tracking-[0.01em] text-obsidian md:text-[64px]">
+            The best innerwear is the piece you stop noticing by ten in the morning.
+          </p>
+          <div className="mt-12 flex flex-wrap items-center gap-8">
+            <p className="max-w-sm text-[14px] leading-relaxed text-ash">
+              Modal that moves. Seams that sit flat. Elastics that hold without pressing. Designed and made in Pakistan, finished to an international standard.
             </p>
-            <p className="mt-8 text-[14px] leading-relaxed text-ash">
-              We cut for that moment — modal that moves, seams that sit flat, elastics that hold without pressing. Designed and made in Pakistan, finished to an international standard.
-            </p>
-            <Link to="/about" className="group mt-9 inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-obsidian">
-              Our standards <ArrowRight size={12} className="transition-transform duration-base group-hover:translate-x-1" />
+            <Link to="/about" className="group inline-flex items-center gap-2 border-b border-obsidian pb-1 text-[12px] font-semibold uppercase tracking-[0.22em] text-obsidian">
+              Our standards <ArrowRight size={13} className="transition-transform duration-base group-hover:translate-x-1" />
             </Link>
           </div>
         </div>
       </section>
 
-      {/* ═══ 06 — SIGNATURE CAMPAIGN (full-bleed, quiet) ═════════ */}
-      <section className="relative overflow-hidden bg-alabaster">
-        <img src="/images/campaign/essentials-02.jpg" alt="For him" loading="lazy" className="absolute inset-0 h-full w-full object-cover object-center" />
-        <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-alabaster/95 via-alabaster/40 to-transparent" />
-        <div className="relative flex min-h-[80vh] items-end">
-          <div className="w-full px-6 pb-14 md:px-12 md:pb-20 lg:px-20">
-            <div className="max-w-xl">
-              <p className="text-[11px] font-medium uppercase tracking-[0.3em] text-ash">02 — For Him</p>
-              <h2 className="mt-5 font-display text-[34px] font-medium uppercase tracking-[0.02em] leading-tight md:text-[56px]">
-                Considered <span style={serif} className="normal-case italic font-normal tracking-normal">comfort.</span>
-              </h2>
-              <p className="mt-5 max-w-md text-[14px] leading-relaxed text-graphite">
-                Briefs, boxers and trunks cut on a stretch blend that keeps its shape — the size you buy is the size you wear a year later.
-              </p>
-              <Link to="/men" className="group mt-8 inline-flex min-h-[52px] items-center justify-center bg-obsidian px-10 text-[12px] font-semibold uppercase tracking-[0.18em] text-alabaster transition-colors duration-base hover:bg-graphite">
-                Shop Men <ArrowRight size={13} className="ml-2" />
-              </Link>
-            </div>
+      {/* ═══ 05 — CAMPAIGN FULL-BLEED (For Him) ════════════════════ */}
+      <section className="relative overflow-hidden bg-black">
+        <img src="/images/campaign/hero-ck-men.jpg" alt="For him" loading="lazy"
+          className="absolute inset-0 h-full w-full object-cover object-center" />
+        <div className="absolute inset-x-0 bottom-0 h-[60%] bg-gradient-to-t from-black/75 via-black/30 to-transparent" />
+        <div className="relative flex min-h-[85vh] items-end">
+          <div className="w-full px-5 pb-16 md:px-12 md:pb-24 lg:px-20">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.34em] text-white/70">For Him · New Season</p>
+            <h2 className="mt-6 font-display text-[40px] font-bold uppercase leading-[0.95] tracking-[-0.01em] text-white md:text-[90px]">
+              Considered
+              <br />
+              Comfort
+            </h2>
+            <p className="mt-6 max-w-md text-[14px] leading-relaxed text-white/80">
+              Briefs, boxers and trunks cut on a stretch blend that keeps its shape — the size you buy is the size you wear a year later.
+            </p>
+            <Link to="/men"
+              className="group mt-9 inline-flex min-h-[56px] items-center justify-center bg-white px-12 text-[13px] font-bold uppercase tracking-[0.18em] text-black transition-colors duration-base hover:bg-black hover:text-white hover:ring-1 hover:ring-white">
+              Shop Men <ArrowRight size={14} className="ml-2" />
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* ═══ 07 — TRUST: one quiet line ═══════════════════════════ */}
-      <section className="border-t border-line bg-alabaster">
-        <div className="container flex flex-col items-center justify-between gap-3 py-8 text-center md:flex-row md:text-left">
-          <p className="text-[11px] font-medium uppercase tracking-[0.26em] text-ash">{TRUST_LINE}</p>
-          <Link to="/faq" className="text-[10px] font-semibold uppercase tracking-[0.26em] text-obsidian/60 transition-colors duration-base hover:text-obsidian">
-            Questions? Read our FAQ
-          </Link>
+      {/* ═══ 06 — PERKS (one line, CK style) ═══════════════════════ */}
+      <section className="border-t border-line bg-white">
+        <div className="container flex flex-wrap items-center justify-center gap-x-12 gap-y-3 py-8 md:justify-between">
+          {PERKS.map((p) => (
+            <span key={p} className="text-[11px] font-semibold uppercase tracking-[0.24em] text-ash">{p}</span>
+          ))}
         </div>
       </section>
 
-      {/* ═══ 08 — FIT FINDER ══════════════════════════════════════ */}
+      {/* ═══ 07 — FIT FINDER ═══════════════════════════════════════ */}
       <section className="border-t border-line bg-alabaster py-20 text-center md:py-28">
         <div className="container max-w-xl">
-          <p className="text-[11px] font-medium uppercase tracking-[0.3em] text-ash">The Fit Finder</p>
-          <h2 className="mt-5 font-display text-[28px] font-medium uppercase tracking-[0.02em] md:text-[40px]">
-            Four questions, <span style={serif} className="normal-case italic font-normal tracking-normal">exact</span> fit.
+          <p className="text-[12px] font-semibold uppercase tracking-[0.3em] text-ash">The Fit Finder</p>
+          <h2 className="mt-6 font-display text-[32px] font-bold uppercase tracking-[0.01em] text-obsidian md:text-[56px]">
+            Four Questions.
+            <br />
+            Exact Fit.
           </h2>
-          <p className="mx-auto mt-5 max-w-md text-[14px] leading-relaxed text-ash">
+          <p className="mx-auto mt-6 max-w-md text-[14px] leading-relaxed text-ash">
             No tape measure. Our Fit Finder works out your true size from the pieces you already own.
           </p>
-          <Link to="/fit-finder" className="group mt-8 inline-flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.2em] text-obsidian">
-            Start the Fit Finder <ArrowRight size={13} className="transition-transform duration-base group-hover:translate-x-1" />
+          <Link to="/fit-finder"
+            className="mt-10 inline-flex min-h-[56px] items-center justify-center bg-obsidian px-12 text-[13px] font-bold uppercase tracking-[0.18em] text-white transition-colors duration-base hover:bg-graphite">
+            Start the Fit Finder
           </Link>
         </div>
       </section>
 
-      {/* ═══ 09 — NEWSLETTER ══════════════════════════════════════ */}
-      <section className="border-t border-line bg-obsidian py-16 text-center text-alabaster md:py-20">
+      {/* ═══ 08 — NEWSLETTER (black, CK sign-up) ═══════════════════ */}
+      <section className="bg-black py-20 text-center text-white md:py-28">
         <div className="container max-w-xl">
-          <p className="text-[11px] font-medium uppercase tracking-[0.3em] text-alabaster/50">Stay in touch</p>
-          <h2 className="mt-4 font-display text-[24px] font-medium uppercase tracking-[0.04em] md:text-[30px]">The Inner Circle</h2>
-          <p className="mx-auto mt-3 max-w-md text-[13px] leading-relaxed text-alabaster/60">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-white/50">Stay in touch</p>
+          <h2 className="mt-6 font-display text-[28px] font-bold uppercase tracking-[0.02em] md:text-[44px]">The Inner Circle</h2>
+          <p className="mx-auto mt-4 max-w-md text-[13px] leading-relaxed text-white/60">
             Early access to new drops, fit guides and private offers. No spam, ever.
           </p>
           {nlDone ? (
-            <p className="mt-8 text-[11px] font-semibold uppercase tracking-[0.2em] text-alabaster">You&apos;re on the list — welcome.</p>
+            <p className="mt-9 text-[11px] font-semibold uppercase tracking-[0.2em] text-white">You&apos;re on the list — welcome.</p>
           ) : (
-            <form onSubmit={subscribe} className="mx-auto mt-8 flex max-w-md flex-col gap-4 sm:flex-row sm:items-end">
+            <form onSubmit={subscribe} className="mx-auto mt-9 flex max-w-md flex-col gap-4 sm:flex-row sm:items-end">
               <input type="email" value={nl} onChange={(e) => setNl(e.target.value)} required placeholder="Your email"
-                className="min-h-[52px] w-full min-w-0 flex-1 border-0 border-b border-alabaster/30 bg-transparent pb-2 text-[14px] text-alabaster outline-none transition-colors duration-base placeholder:text-alabaster/40 focus:border-alabaster" />
-              <button type="submit" className="min-h-[52px] shrink-0 border border-alabaster/50 px-8 text-[11px] font-semibold uppercase tracking-[0.2em] text-alabaster transition-colors duration-base hover:bg-alabaster hover:text-obsidian">
+                className="min-h-[56px] w-full min-w-0 flex-1 border-0 border-b border-white/30 bg-transparent pb-2 text-[14px] text-white outline-none transition-colors duration-base placeholder:text-white/40 focus:border-white" />
+              <button type="submit"
+                className="min-h-[56px] shrink-0 bg-white px-10 text-[12px] font-bold uppercase tracking-[0.2em] text-black transition-colors duration-base hover:bg-transparent hover:text-white hover:ring-1 hover:ring-white">
                 Subscribe
               </button>
             </form>
