@@ -140,6 +140,7 @@ const TreeNode = memo(function TreeNode({ node, group, depth, index, parentId, m
         onDrop={onDrop}
         onClick={() => select(node.id)}
         onDoubleClick={() => { setDraft(labelFor(node)); setEditing(true); }}
+        title={schema?.description || labelFor(node)}
         className={`group relative mx-1.5 flex items-center gap-1 rounded-md pr-1 transition ${
           active ? 'bg-[#005BD3]/10' : 'hover:bg-neutral-100'
         } ${dragOver === 'inside' ? 'ring-2 ring-inset ring-[#005BD3]' : ''}`}

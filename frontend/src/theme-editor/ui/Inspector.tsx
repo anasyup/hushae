@@ -24,6 +24,13 @@ export default function Inspector() {
   return <NodePanel key={loc.node.id} />;
 }
 
+/* Fields that need code/technical knowledge — grouped under "Advanced". */
+function isAdvanced(f: Field) {
+  const id = String(f.id || '');
+  return f.type === 'html' || f.type === 'liquid' || f.type === 'custom_liquid'
+    || /css|custom_class|code|html|liquid|script|data-/.test(id);
+}
+
 /* ── Node settings ──────────────────────────────────────────────────────── */
 function NodePanel() {
   const doc = useEditor((s) => s.doc);
@@ -92,7 +99,8 @@ function NodePanel() {
             {query ? 'No settings match your search.' : 'This block has no settings.'}
           </p>
         )}
-        {fields.map((f, i) => (
+        {/* Normal settings first */}
+        {fields.filter((f) => !isAdvanced(f)).map((f, i) => (
           <FieldControl
             key={f.id || `${f.type}-${i}`}
             field={f}
@@ -101,6 +109,26 @@ function NodePanel() {
             onChange={(v) => updateSettings(node.id, { [f.id!]: v })}
           />
         ))}
+        {/* Advanced settings — collapsed by default so beginners aren't
+            confronted with CSS/Liquid/code fields */}
+        {fields.filter(isAdvanced).length > 0 && (
+          <details className="rounded-lg border border-neutral-200">
+            <summary className="cursor-pointer select-none px-3 py-2.5 text-[15px] font-semibold text-neutral-700 hover:bg-neutral-50">
+              Advanced
+            </summary>
+            <div className="space-y-4 border-t border-neutral-100 p-3">
+              {fields.filter(isAdvanced).map((f, i) => (
+                <FieldControl
+                  key={f.id || `${f.type}-${i}`}
+                  field={f}
+                  settings={node.settings}
+                  value={node.settings[f.id!]}
+                  onChange={(v) => updateSettings(node.id, { [f.id!]: v })}
+                />
+              ))}
+            </div>
+          </details>
+        )}
       </div>
     </div>
   );

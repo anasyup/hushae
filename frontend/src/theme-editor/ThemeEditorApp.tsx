@@ -15,6 +15,8 @@ import type { ThemeVersion } from './core/types';
 import { api } from '../api/client';
 import { invalidateThemeDoc } from './useThemeDoc';
 import { useApp } from '../store/AppContext';
+import { findNode } from './core/docUtils';
+import { labelFor } from './core/registry';
 import './editor.css';
 
 /* ============================================================================
@@ -33,6 +35,7 @@ export default function ThemeEditorApp() {
   } = store;
 
   const [previewVersion, setPreviewVersion] = useState<ThemeVersion | null>(null);
+  const [mobilePanel, setMobilePanel] = useState<'tree' | 'inspector' | null>(null);
   const savedRef = useRef<{ doc: typeof doc; theme: typeof theme } | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -59,6 +62,21 @@ export default function ThemeEditorApp() {
     const state = useEditor.getState();
     const prev = savedRef.current;
     const changed = prev ? diffDocs(prev.doc, state.doc) : null;
+    // Human-readable version label, e.g. "Updated: Hero, Newsletter" instead
+    // of "Published 4 Aug, 08:22" — so version history means something.
+    const label = (() => {
+      if (!changed) return undefined;
+      const name = (id: string) => {
+        const loc = findNode(state.doc, id);
+        return loc ? labelFor(loc.node) : '';
+      };
+      const parts: string[] = [];
+      if (changed.added.length) parts.push(`Added: ${changed.added.map(name).filter(Boolean).slice(0, 2).join(', ')}`);
+      if (changed.changed.length) parts.push(`Updated: ${changed.changed.map(name).filter(Boolean).slice(0, 2).join(', ')}`);
+      if (changed.removed.length) parts.push(`Removed: ${changed.removed.map(name).filter(Boolean).slice(0, 2).join(', ')}`);
+      const s = parts.join(' · ');
+      return s ? s.slice(0, 80) : undefined;
+    })();
     setSaving(true);
     try {
       const res: any = await api('/theme', {
@@ -68,6 +86,7 @@ export default function ThemeEditorApp() {
           doc: state.doc,
           settings: state.theme,
           publish,
+          label: publish ? label : undefined,
           // Incremental hint — the server stores the full doc but logs the delta
           changedNodes: changed ? [...changed.changed, ...changed.added] : undefined,
           removedNodes: changed?.removed,
@@ -140,9 +159,14 @@ export default function ThemeEditorApp() {
       <Topbar onPublish={() => save(true)} />
       <ActivateBanner onActivate={() => save(true)} />
 
-      <div className="flex flex-1 overflow-hidden">
-        {/* LEFT */}
-        <aside className="relative flex w-[290px] shrink-0 flex-col border-r border-neutral-200 bg-white">
+      <div className="relative flex flex-1 overflow-hidden">
+        {/* LEFT — overlay on mobile, fixed sidebar from md up */}
+        {mobilePanel === 'tree' && (
+          <div className="absolute inset-0 z-30 bg-black/40 md:hidden" onClick={() => setMobilePanel(null)} />
+        )}
+        <aside className={`relative z-40 flex w-[290px] shrink-0 flex-col border-r border-neutral-200 bg-white ${
+          mobilePanel === 'tree' ? 'absolute inset-y-0 left-0 shadow-2xl md:static md:shadow-none' : 'hidden md:flex'
+        }`}>
           <div className="border-b border-neutral-100 px-3 py-2.5">
             <div className="flex items-center gap-1.5 rounded-lg bg-neutral-100 px-2.5 py-1.5">
               <Search size={12} className="shrink-0 text-neutral-400" />
@@ -162,10 +186,26 @@ export default function ThemeEditorApp() {
         {/* CENTRE */}
         <PreviewFrame />
 
-        {/* RIGHT */}
-        <aside className="w-[320px] shrink-0 border-l border-neutral-200 bg-white">
+        {/* RIGHT — overlay on mobile, fixed sidebar from md up */}
+        {mobilePanel === 'inspector' && (
+          <div className="absolute inset-0 z-30 bg-black/40 md:hidden" onClick={() => setMobilePanel(null)} />
+        )}
+        <aside className={`z-40 w-[320px] shrink-0 border-l border-neutral-200 bg-white ${
+          mobilePanel === 'inspector' ? 'absolute inset-y-0 right-0 shadow-2xl md:static md:shadow-none' : 'hidden md:block'
+        }`}>
           <Inspector />
         </aside>
+        {/* Floating toggles — mobile only */}
+        <div className="absolute bottom-4 left-1/2 z-30 flex -translate-x-1/2 gap-2 md:hidden">
+          <button onClick={() => setMobilePanel(mobilePanel === 'tree' ? null : 'tree')}
+            className="rounded-full bg-neutral-900 px-4 py-2 text-xs font-semibold text-white shadow-lg">
+            Sections
+          </button>
+          <button onClick={() => setMobilePanel(mobilePanel === 'inspector' ? null : 'inspector')}
+            className="rounded-full bg-neutral-900 px-4 py-2 text-xs font-semibold text-white shadow-lg">
+            Settings
+          </button>
+        </div>
       </div>
 
       {previewVersion && (

@@ -100,7 +100,12 @@ export const useEditor = create<EditorState>((set, get) => ({
 
   selectedId: null,
   hoveredId: null,
-  device: 'desktop',
+  device: (() => {
+    try {
+      const d = localStorage.getItem('hushae.te.device');
+      return d === 'tablet' || d === 'mobile' || d === 'desktop' ? d : 'desktop';
+    } catch { return 'desktop'; }
+  })(),
   expanded: {},
   sidebarQuery: '',
   addSectionFor: null,
@@ -162,7 +167,10 @@ export const useEditor = create<EditorState>((set, get) => ({
     if (id) get().expandAncestors(id);
   },
   hover: (id) => set({ hoveredId: id }),
-  setDevice: (device) => set({ device }),
+  setDevice: (device) => {
+    try { localStorage.setItem('hushae.te.device', device); } catch { /* ignore */ }
+    set({ device });
+  },
 
   toggleExpanded: (id, force) =>
     set((s) => ({ expanded: { ...s.expanded, [id]: force ?? !s.expanded[id] } })),

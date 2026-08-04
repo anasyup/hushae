@@ -50,7 +50,7 @@ router.get('/', asyncHandler(async (req, res) => {
  * Autosave writes the draft; publish promotes it and snapshots a version.
  */
 router.put('/', protect, adminOnly, asyncHandler(async (req, res) => {
-  const { doc, settings, publish, changedNodes, removedNodes } = req.body || {};
+  const { doc, settings, publish, changedNodes, removedNodes, label } = req.body || {};
   if (!doc || typeof doc !== 'object') return res.status(400).json({ message: 'doc is required' });
 
   const t = await getTheme();
@@ -65,7 +65,7 @@ router.put('/', protect, adminOnly, asyncHandler(async (req, res) => {
 
     await ThemeVersion.create({
       key: 'main',
-      label: `Published ${new Date().toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}`,
+      label: (label && String(label).trim().slice(0, 80)) || `Published ${new Date().toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}`,
       doc,
       theme: settings || {},
       changedNodes: Array.isArray(changedNodes) ? changedNodes.slice(0, 500) : [],
