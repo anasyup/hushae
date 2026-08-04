@@ -7,6 +7,11 @@ import { api } from '../api/client';
  * One in-flight request is reused by every caller, so App (deciding whether to
  * render the legacy chrome) and ThemedHome (rendering the document) never
  * double-fetch or disagree.
+ *
+ * `themed` is true only when a published document actually exists with at
+ * least one body section — that is the moment the storefront hands the home
+ * page to the theme editor. When there is no published doc, the storefront
+ * keeps rendering the hand-coded Home page (stable fallback).
  * ========================================================================== */
 
 let cache = null;      // { doc, theme, themed }
@@ -19,10 +24,11 @@ function load() {
   inflight = api('/theme')
     .then((d) => {
       const doc = d?.theme?.doc;
+      const hasBody = !!(doc && Array.isArray(doc.body) && doc.body.length);
       cache = {
         doc,
         theme: d?.theme?.settings || {},
-        themed: false, // Force fallback to stable Home.jsx to prevent layout issues and render built-in header/footer
+        themed: hasBody, // published doc exists → render it
       };
       return cache;
     })

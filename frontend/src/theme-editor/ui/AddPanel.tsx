@@ -35,7 +35,7 @@ export function AddSectionPanel() {
         if (!items.length) return null;
         return (
           <div key={cat} className="mb-4">
-            <p className="mb-1.5 px-1 text-[13px] font-bold uppercase tracking-[0.12em] text-neutral-400">{cat}</p>
+            <p className="mb-1.5 px-1 text-[15px] font-bold uppercase tracking-[0.12em] text-neutral-400">{cat}</p>
             <div className="space-y-0.5">
               {items.map((s) => {
                 const atLimit = s.limit !== undefined && (counts.get(s.type) || 0) >= s.limit;
@@ -46,9 +46,9 @@ export function AddSectionPanel() {
                       <Icon name={s.icon} size={15} />
                     </span>
                     <span className="min-w-0 flex-1">
-                      <span className="block text-[13px] font-medium text-neutral-900">{s.name}</span>
-                      {s.description && <span className="mt-0.5 block text-[11.5px] leading-snug text-neutral-500">{s.description}</span>}
-                      {atLimit && <span className="mt-0.5 block text-[13px] text-amber-600">Limit reached</span>}
+                      <span className="block text-[15px] font-medium text-neutral-900">{s.name}</span>
+                      {s.description && <span className="mt-0.5 block text-[15px] leading-snug text-neutral-500">{s.description}</span>}
+                      {atLimit && <span className="mt-0.5 block text-[15px] text-amber-600">Limit reached</span>}
                     </span>
                   </button>
                 );
@@ -99,8 +99,8 @@ export function AddBlockPanel() {
               <span className="grid h-8 w-8 shrink-0 place-items-center rounded-md bg-neutral-100 text-neutral-600">
                 <Icon name={s.icon} size={15} />
               </span>
-              <span className="flex-1 text-[13px] font-medium text-neutral-900">{s.name}</span>
-              {s.accepts?.length ? <span className="text-[13px] text-neutral-400">nests</span> : null}
+              <span className="flex-1 text-[15px] font-medium text-neutral-900">{s.name}</span>
+              {s.accepts?.length ? <span className="text-[15px] text-neutral-400">nests</span> : null}
             </button>
           );
         })}
@@ -126,7 +126,7 @@ function Overlay({
         <button onClick={onClose} className="grid h-7 w-7 place-items-center rounded text-neutral-500 hover:bg-neutral-100">
           <ArrowLeft size={15} />
         </button>
-        <p className="flex-1 text-[14px] font-semibold text-neutral-900">{title}</p>
+        <p className="flex-1 text-[15px] font-semibold text-neutral-900">{title}</p>
       </div>
       <div className="border-b border-neutral-100 px-3 py-2">
         <div className="flex items-center gap-1.5 rounded-lg bg-neutral-100 px-2.5 py-1.5">

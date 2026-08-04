@@ -23,10 +23,10 @@ const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v
 export const FieldControl = memo(function FieldControl({ field, value, settings, onChange }: Props) {
   // presentational
   if (field.type === 'header') {
-    return <p className="pt-4 text-[13px] font-bold uppercase tracking-widest text-neutral-900 first:pt-0">{field.label}</p>;
+    return <p className="pt-4 text-[15px] font-bold uppercase tracking-widest text-neutral-900 first:pt-0">{field.label}</p>;
   }
   if (field.type === 'paragraph') {
-    return <p className="rounded-lg bg-neutral-50 p-3 text-[12px] leading-relaxed text-neutral-500">{field.label}</p>;
+    return <p className="rounded-lg bg-neutral-50 p-3 text-[13.5px] leading-relaxed text-neutral-500">{field.label}</p>;
   }
   if (field.type === 'divider') return <hr className="border-neutral-200" />;
 
@@ -44,14 +44,14 @@ export const FieldControl = memo(function FieldControl({ field, value, settings,
               onChange={(e) => onChange(clamp(Number(e.target.value) || 0, field.min ?? -Infinity, field.max ?? Infinity))}
               className="w-16 rounded-md border border-neutral-300 px-2 py-1 text-right text-xs tabular-nums outline-none focus:border-[#005BD3]"
             />
-            {field.unit && <span className="text-[13px] text-neutral-400">{field.unit}</span>}
+            {field.unit && <span className="text-[15px] text-neutral-400">{field.unit}</span>}
           </span>
         )}
       </div>
 
       <Input field={field} v={v} settings={settings} onChange={onChange} />
 
-      {field.info && <p className="mt-1 text-[13px] leading-snug text-neutral-400">{field.info}</p>}
+      {field.info && <p className="mt-1 text-[15px] leading-snug text-neutral-400">{field.info}</p>}
     </div>
   );
 });
@@ -94,7 +94,7 @@ function Input({ field, v, settings, onChange }: { field: Field; v: SettingValue
             <span className="absolute inset-0 rounded-full bg-neutral-300 transition peer-checked:bg-[#005BD3]" />
             <span className="absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white shadow transition peer-checked:translate-x-4" />
           </span>
-          <span className="text-[13px] text-neutral-600">{v ? 'On' : 'Off'}</span>
+          <span className="text-[15px] text-neutral-600">{v ? 'On' : 'Off'}</span>
         </label>
       );
 

@@ -1,12 +1,33 @@
-import { useEffect, useState } from 'react';
+import { lazy, Suspense } from 'react';
+import { useThemeDoc } from './useThemeDoc';
 
 /* ============================================================================
- * Storefront bridge.
+ * Storefront home bridge.
  *
- * Forces fallback to the beautiful, hand-coded Home page to guarantee 100%
- * stability and prevent any client-side template crashes.
+ * When a theme document is published (themed === true), the home page is
+ * rendered from that document — header, body and footer — so everything the
+ * merchant builds in the Theme Editor actually appears on the website.
+ *
+ * When no document has been published yet (or it is empty), we fall back to
+ * the stable hand-coded Home page so the storefront is never blank.
+ *
+ * PageRenderer is lazy-loaded so shoppers who never see a themed home don't
+ * pay for the theme-editor renderer in their initial bundle.
  * ========================================================================== */
 
+const PageRenderer = lazy(() => import('./render/PageRenderer'));
+
 export default function ThemedHome({ fallback: Fallback }) {
-  return <Fallback />;
+  const { status, doc, theme, themed } = useThemeDoc();
+
+  // While the theme doc is loading, keep the fallback visible (no blank flash).
+  if (status === 'loading' || !themed || !doc) {
+    return <Fallback />;
+  }
+
+  return (
+    <Suspense fallback={<Fallback />}>
+      <PageRenderer doc={doc} theme={theme} />
+    </Suspense>
+  );
 }

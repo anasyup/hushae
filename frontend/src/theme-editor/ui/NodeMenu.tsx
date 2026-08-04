@@ -27,11 +27,18 @@ export function NodeMenu({
   const item = (icon: React.ReactNode, label: string, fn: () => void, danger = false) => (
     <button
       onClick={(e) => { e.stopPropagation(); fn(); setOpen(false); }}
-      className={`flex w-full items-center gap-2 px-3 py-1.5 text-left text-[12.5px] transition ${
+      className={`flex w-full items-center gap-2 px-3 py-1.5 text-left text-[13.5px] transition ${
         danger ? 'text-red-600 hover:bg-red-50' : 'text-neutral-700 hover:bg-neutral-100'}`}>
       {icon} {label}
     </button>
   );
+
+  const confirmDelete = () => {
+    const name = labelFor(node);
+    if (window.confirm(`Delete “${name}”? This cannot be undone.`)) {
+      remove(node.id);
+    }
+  };
 
   return (
     <div ref={ref} className="relative shrink-0">
@@ -58,7 +65,7 @@ export function NodeMenu({
           {!locked && (
             <>
               <div className="my-1 border-t border-neutral-100" />
-              {item(<Trash2 size={12} />, 'Delete', () => remove(node.id), true)}
+              {item(<Trash2 size={12} />, 'Delete', confirmDelete, true)}
             </>
           )}
         </div>

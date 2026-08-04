@@ -55,8 +55,8 @@ export default function Topbar({ onPublish }: { onPublish: () => void }) {
           <ArrowLeft size={16} />
         </Link>
         <div className="hidden min-w-0 items-center gap-2 sm:flex">
-          <p className="truncate text-[13px] font-semibold text-neutral-900">HUSHAE Theme</p>
-          <span className="shrink-0 rounded-full bg-emerald-100 px-2 py-0.5 text-[13px] font-bold uppercase tracking-wider text-emerald-700">
+          <p className="truncate text-[15px] font-semibold text-neutral-900">HUSHAE Theme</p>
+          <span className="shrink-0 rounded-full bg-emerald-100 px-2 py-0.5 text-[15px] font-bold uppercase tracking-wider text-emerald-700">
             Live
           </span>
         </div>
@@ -69,13 +69,13 @@ export default function Topbar({ onPublish }: { onPublish: () => void }) {
       </div>
 
       <div className="flex shrink-0 items-center gap-1">
-        <span className="mr-1 hidden items-center gap-1.5 text-[11.5px] text-neutral-500 lg:flex">
+        <span className="mr-1 hidden items-center gap-1.5 text-[15px] text-neutral-500 lg:flex">
           {saving ? <Loader2 size={11} className="animate-spin" /> : dirty ? <Cloud size={11} /> : <Check size={11} className="text-emerald-600" />}
           {savedLabel()}
         </span>
 
         <button onClick={() => setAutosave(!autosave)} title={autosave ? 'Autosave on' : 'Autosave off'}
-          className={`hidden h-8 items-center gap-1.5 rounded-md px-2 text-[13px] font-semibold transition lg:flex ${
+          className={`hidden h-8 items-center gap-1.5 rounded-md px-2 text-[15px] font-semibold transition lg:flex ${
             autosave ? 'text-emerald-700 hover:bg-emerald-50' : 'text-neutral-400 hover:bg-neutral-100'}`}>
           <span className={`h-1.5 w-1.5 rounded-full ${autosave ? 'bg-emerald-500' : 'bg-neutral-300'}`} /> Auto
         </button>
@@ -103,7 +103,7 @@ export default function Topbar({ onPublish }: { onPublish: () => void }) {
         </button>
 
         <button onClick={onPublish} disabled={saving}
-          className="ml-1.5 inline-flex h-8 items-center gap-1.5 rounded-md bg-neutral-900 px-4 text-[13px] font-semibold text-white transition hover:bg-black disabled:opacity-50">
+          className="ml-1.5 inline-flex h-8 items-center gap-1.5 rounded-md bg-neutral-900 px-4 text-[15px] font-semibold text-white transition hover:bg-black disabled:opacity-50">
           {saving ? <Loader2 size={13} className="animate-spin" /> : null}
           {dirty || saving ? 'Publish' : 'Published'}
         </button>

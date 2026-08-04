@@ -114,7 +114,11 @@ export default function ThemeEditorApp() {
       if (mod && e.key.toLowerCase() === 's') { e.preventDefault(); save(true); return; }
       if (typing) return;
       if (mod && e.key.toLowerCase() === 'd' && selectedId) { e.preventDefault(); duplicate(selectedId); return; }
-      if ((e.key === 'Delete' || e.key === 'Backspace') && selectedId) { e.preventDefault(); remove(selectedId); return; }
+      if ((e.key === 'Delete' || e.key === 'Backspace') && selectedId) {
+        e.preventDefault();
+        if (window.confirm('Delete this item? This cannot be undone.')) remove(selectedId);
+        return;
+      }
       if (e.key === 'Escape') select(null);
     };
     window.addEventListener('keydown', onKey);

@@ -67,7 +67,7 @@ function NodePanel() {
               <>
                 <button onClick={() => duplicate(node.id)} title="Duplicate"
                   className="grid h-7 w-7 place-items-center rounded text-neutral-500 hover:bg-neutral-100"><Copy size={13} /></button>
-                <button onClick={() => remove(node.id)} title="Delete"
+                <button onClick={() => { if (window.confirm(`Delete “${labelFor(node)}”? This cannot be undone.`)) remove(node.id); }} title="Delete"
                   className="grid h-7 w-7 place-items-center rounded text-neutral-500 hover:bg-red-50 hover:text-red-600"><Trash2 size={13} /></button>
               </>
             )}

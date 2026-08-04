@@ -44,7 +44,7 @@ export default function SectionTree() {
     <div className="te-scroll flex-1 overflow-y-auto pb-6">
       {(['header', 'body', 'footer'] as SectionGroup[]).map((group) => (
         <div key={group} className="border-b border-neutral-100 py-1.5">
-          <p className="px-3 py-1.5 text-[13px] font-bold uppercase tracking-[0.12em] text-neutral-400">
+          <p className="px-3 py-1.5 text-[15px] font-bold uppercase tracking-[0.12em] text-neutral-400">
             {GROUP_LABEL[group]}
           </p>
           {doc[group]
@@ -55,7 +55,7 @@ export default function SectionTree() {
             ))}
           {group !== 'header' && (
             <button onClick={() => openAddSection(group)}
-              className="mx-1.5 mt-1 flex w-[calc(100%-12px)] items-center gap-2 rounded-md px-2 py-2 text-left text-[13px] font-medium text-[#005BD3] transition hover:bg-[#005BD3]/8">
+              className="mx-1.5 mt-1 flex w-[calc(100%-12px)] items-center gap-2 rounded-md px-2 py-2 text-left text-[15px] font-medium text-[#005BD3] transition hover:bg-[#005BD3]/8">
               <Plus size={14} /> Add section
             </button>
           )}
@@ -159,9 +159,9 @@ const TreeNode = memo(function TreeNode({ node, group, depth, index, parentId, m
           <input autoFocus value={draft} onChange={(e) => setDraft(e.target.value)}
             onBlur={commitRename} onKeyDown={(e) => { if (e.key === 'Enter') commitRename(); if (e.key === 'Escape') setEditing(false); }}
             onClick={(e) => e.stopPropagation()}
-            className="min-w-0 flex-1 rounded border border-[#005BD3] px-1 py-0.5 text-[13px] outline-none" />
+            className="min-w-0 flex-1 rounded border border-[#005BD3] px-1 py-0.5 text-[15px] outline-none" />
         ) : (
-          <span className={`min-w-0 flex-1 truncate py-1.5 text-[13px] ${
+          <span className={`min-w-0 flex-1 truncate py-1.5 text-[15px] ${
             node.hidden ? 'text-neutral-400 line-through' : active ? 'font-medium text-neutral-900' : 'text-neutral-700'
           }`}>
             {labelFor(node)}
@@ -181,7 +181,7 @@ const TreeNode = memo(function TreeNode({ node, group, depth, index, parentId, m
 
       {expanded && canNest && (
         <button onClick={(e) => { e.stopPropagation(); openAddBlock(node.id); }}
-          className="mx-1.5 flex items-center gap-1.5 rounded-md py-1.5 text-left text-[12px] font-medium text-neutral-500 transition hover:text-[#005BD3]"
+          className="mx-1.5 flex items-center gap-1.5 rounded-md py-1.5 text-left text-[13.5px] font-medium text-neutral-500 transition hover:text-[#005BD3]"
           style={{ paddingLeft: 24 + depth * 14 }}>
           <Plus size={12} /> Add block
         </button>
