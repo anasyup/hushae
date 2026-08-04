@@ -57,7 +57,7 @@ export default function Header() {
 
   const isHome = loc.pathname === '/';
   const { atTop, past, hidden, reveal } = useHeaderScroll({
-    enableHide: !searchOpen && !mobileOpen,
+    enableHide: false, // hide-on-scroll animation disabled — header stays put
   });
 
   // Over a full-bleed hero the bar paints transparent until the fold is passed.

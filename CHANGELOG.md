@@ -354,3 +354,8 @@ Format:
   - Header: over-hero state no longer transparent — always solid white/95 with blur + hairline border; nav/icons already dark obsidian.
   - MegaMenu + NavDropdown panels: bg-alabaster (beige) → bg-white; featured placeholder cream → line.
   - Footer: bg-alabaster → bg-obsidian (black), all text flipped to alabaster/white (wordmark, links, contact, payment note, bottom bar), borders → white/10-15, social chips → white/10 with white hover, newsletter input/button restyled for dark (underline + outline white button).
+
+- **2026-08-04** — 🎨 **Buttons transparent + header animation off + footer edge black**
+  - "Shop Men" (Considered Comfort) + "Start the Fit Finder": solid black fill → transparent outline (black border/text, fills black on hover). Fit Finder CTA ring-pulse animation removed.
+  - Header hide-on-scroll animation disabled (enableHide:false) — bar stays fixed, no weird tuck/translate.
+  - Footer top border → solid obsidian (no visible beige edge on the black footer).

@@ -196,7 +196,7 @@ export default function Home() {
               Briefs, boxers and trunks cut on a stretch blend that keeps its shape — the size you buy is the size you wear a year later.
             </p>
             <Link to="/men"
-              className="group mt-9 inline-flex min-h-[56px] items-center justify-center bg-obsidian px-12 text-[13px] font-bold uppercase tracking-[0.18em] text-white transition-colors duration-base hover:bg-graphite">
+              className="group mt-9 inline-flex min-h-[56px] items-center justify-center border border-obsidian px-12 text-[13px] font-bold uppercase tracking-[0.18em] text-obsidian transition-colors duration-base hover:bg-obsidian hover:text-white">
               Shop Men <ArrowRight size={14} className="ml-2" />
             </Link>
           </div>
@@ -253,7 +253,7 @@ export default function Home() {
 
           <Reveal delay={640}>
             <Link to="/fit-finder"
-              className="group mt-9 inline-flex min-h-[56px] items-center justify-center bg-obsidian px-12 text-[13px] font-bold uppercase tracking-[0.18em] text-white transition-all duration-base hover:bg-graphite animate-[ff-pulse_2.6s_ease-in-out_infinite]">
+              className="group mt-9 inline-flex min-h-[56px] items-center justify-center border border-obsidian bg-white/40 px-12 text-[13px] font-bold uppercase tracking-[0.18em] text-obsidian backdrop-blur-sm transition-colors duration-base hover:bg-obsidian hover:text-white">
               Start the Fit Finder
               <ArrowRight size={14} className="ml-2 transition-transform duration-base group-hover:translate-x-1" />
             </Link>
