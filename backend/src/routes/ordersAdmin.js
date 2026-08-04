@@ -7,7 +7,10 @@ const OrderIssue = require('../models/OrderIssue');
 const OrderPrint = require('../models/OrderPrint');
 const OrderNotification = require('../models/OrderNotification');
 const { protect, adminOnly } = require('../middleware/auth');
-const { asyncHandler } = require('../utils/helpers');
+const { asyncHandler, orderNumber } = require('../utils/helpers');
+const { normalizePhone } = require('../utils/validators');
+const { postalCheck } = require('../data/postalcodes');
+const Settings = require('../models/Settings');
 const rateLimit = require('../middleware/rateLimit');
 const flow = require('../utils/orderFlow');
 const Product = require('../models/Product');
@@ -146,6 +149,141 @@ const SORTS = {
   'customer-desc': { 'customerInfo.name': -1 },
   'payment-unpaid': { paymentState: 1, createdAt: 1 },
 };
+
+/* ── CREATE ORDER (Draft / Phone order) ─────────────────────────────────────
+ * Shopify-style: the merchant builds the order for a customer who ordered by
+ * phone or WhatsApp. Pricing is computed SERVER-SIDE from the database — the
+ * admin picks products, the server prices them, then applies the store's
+ * shipping and tax rules. `manualDiscount` is the one number the admin can
+ * type (a courtesy they promised on the call); everything else is honest.
+ *
+ * The order is created with source:'admin' and flows through the exact same
+ * Pending → … pipeline as a web order, so the warehouse handles it like any
+ * other order. Stock is decremented atomically; a confirmation email is
+ * fired for orders with a customer email.
+ * ------------------------------------------------------------------------- */
+const draftLimit = rateLimit({ windowMs: 60 * 1000, max: 15, key: 'draft-order', message: 'Too many orders — wait a moment' });
+router.post('/', protect, adminOnly, draftLimit, asyncHandler(async (req, res) => {
+  const {
+    customerInfo = {}, items = [], paymentMethod = 'COD', shippingMethod = 'standard',
+    manualDiscount = 0, notes = '', discreetPackaging = true,
+  } = req.body || {};
+
+  // ── Customer identity ────────────────────────────────────────────────────
+  const required = ['name', 'phone', 'address', 'city', 'province', 'postalCode'];
+  for (const f of required) {
+    if (!customerInfo[f] || !String(customerInfo[f]).trim()) {
+      return res.status(400).json({ message: `Please provide ${f}` });
+    }
+  }
+  const phoneNorm = normalizePhone(customerInfo.phone);
+  if (!phoneNorm) {
+    return res.status(400).json({ message: 'Invalid phone number — enter a Pakistani mobile number (03XX-XXXXXXX)' });
+  }
+  const pc = postalCheck(customerInfo.postalCode, String(customerInfo.province || '').trim(), String(customerInfo.city || '').trim());
+  if (!pc.ok) return res.status(400).json({ message: pc.message, suggestion: pc.suggestion || '' });
+
+  if (!Array.isArray(items) || items.length === 0) {
+    return res.status(400).json({ message: 'Add at least one product' });
+  }
+
+  // ── Price + decrement stock from the DB (server is authoritative) ────────
+  const lineItems = [];
+  for (const it of items) {
+    const qty = Math.max(1, Math.min(parseInt(it.quantity || '1', 10), 10));
+    const product = await Product.findOneAndUpdate(
+      { _id: it.product, isActive: true, status: { $ne: 'draft' }, stock: { $gte: qty } },
+      { $inc: { stock: -qty } },
+      { new: true }
+    );
+    if (!product) {
+      const original = await Product.findById(it.product).select('name stock isActive status');
+      const itemName = original?.name || it.name || 'an item';
+      if (!original || !original.isActive || original.status === 'draft') {
+        return res.status(409).json({ message: `"${itemName}" is no longer available.`, productId: it.product, reason: 'unavailable' });
+      }
+      return res.status(409).json({ message: `"${itemName}" is out of stock (only ${original.stock} left).`, productId: it.product, reason: 'out-of-stock', available: original.stock });
+    }
+    if (it.size && product.sizes.length && !product.sizes.includes(it.size)) {
+      await Product.findByIdAndUpdate(product._id, { $inc: { stock: qty } });
+      return res.status(400).json({ message: `Size "${it.size}" is no longer available for "${product.name}".`, productId: product._id, reason: 'size-unavailable' });
+    }
+    lineItems.push({
+      product: product._id, name: product.name, slug: product.slug,
+      image: product.images[0]?.url || '', size: it.size || product.sizes[0] || '',
+      color: it.color || product.colors[0]?.name || '',
+      price: product.price, costPrice: product.costPrice || 0,
+      quantity: qty, lineTotal: product.price * qty,
+    });
+  }
+
+  const subtotal = lineItems.reduce((s, li) => s + li.lineTotal, 0);
+
+  // ── Shipping + tax from the store's own settings ─────────────────────────
+  const settings = (await Settings.findOne({ key: 'store' })) || (await Settings.create({ key: 'store' }));
+  const shipMethods = (settings.checkout && settings.checkout.shippingMethods) || [];
+  const chosenShip = shipMethods.find((m) => m.id === shippingMethod && m.enabled);
+  const free = subtotal >= (settings.freeShippingThreshold || 0);
+  const shippingCharge = chosenShip
+    ? (chosenShip.freeEligible !== false && free ? 0 : Number(chosenShip.rate) || 0)
+    : (free ? 0 : settings.shippingFlatRate || 0);
+
+  const taxPercent = Number(settings.cart && settings.cart.taxPercent) || 0;
+  const tax = taxPercent > 0 ? Math.round((subtotal * taxPercent) / 100) : 0;
+
+  const discount = Math.min(Math.max(0, Number(manualDiscount) || 0), subtotal);
+  const total = Math.max(0, subtotal - discount + shippingCharge + tax);
+
+  // ── Allowed payment method (mirror of the public checkout rule) ──────────
+  const list = (settings.checkout && settings.checkout.paymentList) || [];
+  const migrated = !!(settings.checkout && settings.checkout.checkoutMigrated);
+  const legacy = settings.paymentMethods || {};
+  const legacyMap = { COD: 'cod', JazzCash: 'jazzcash', EasyPaisa: 'easypaisa', 'Bank Transfer': 'bank' };
+  const allowed = list.length
+    ? list.filter((m) => m.comingSoon ? false : !migrated && legacyMap[m.id] !== undefined && legacy[legacyMap[m.id]] !== undefined ? !!legacy[legacyMap[m.id]] : !!m.enabled).map((m) => m.id)
+    : Object.keys(legacyMap).filter((k) => legacy[legacyMap[k]]);
+  if (!allowed.includes(paymentMethod)) {
+    return res.status(400).json({ message: 'That payment method is not available. Please choose another.' });
+  }
+
+  const order = await Order.create({
+    orderNumber: orderNumber(),
+    source: 'admin',
+    adminCreatedById: req.user?._id || null,
+    customer: customerInfo.userId || null,
+    customerInfo: {
+      name: String(customerInfo.name).trim(),
+      email: String(customerInfo.email || '').trim(),
+      phone: phoneNorm,
+      address: String(customerInfo.address).trim(),
+      city: String(customerInfo.city).trim(),
+      province: String(customerInfo.province).trim(),
+      postalCode: String(customerInfo.postalCode || '').trim(),
+      notes: String(notes || customerInfo.notes || '').trim(),
+    },
+    items: lineItems,
+    subtotal, discount, tax, taxPercent, shippingCharge,
+    total,
+    paymentMethod,
+    paymentStatus: paymentMethod === 'COD' ? 'Pending' : 'Pending',
+    status: 'Pending',
+    statusHistory: [{ status: 'Pending', note: 'Created manually by staff' }],
+    shippingMethod,
+    discreetPackaging: !!discreetPackaging,
+    adminNotes: String(notes || '').trim(),
+  });
+
+  // Notify the pipeline (new-order alerts, timeline, etc.)
+  try { flow.notify({ type: 'order.created', severity: 'info', order, title: `New order ${order.orderNumber}`, body: `Created by ${req.user?.name || 'staff'} — ${paymentMethod} · PKR ${total.toLocaleString()}` }).catch(() => {}); } catch { /* noop */ }
+  try { await OrderTimeline.create({ order: order._id, action: 'created', note: `Created manually by ${req.user?.name || req.user?.email || 'staff'}` }); } catch { /* noop */ }
+
+  // Confirmation email when we have an address (fire-and-forget, never blocks)
+  if (order.customerInfo.email) {
+    try { require('../utils/mailer').sendOrderConfirmation(order).catch(() => {}); } catch { /* noop */ }
+  }
+
+  res.status(201).json({ order: withStage(order.toObject ? order.toObject() : order) });
+}));
 
 /* ── LIST ─────────────────────────────────────────────────────────────────── */
 router.get('/', protect, adminOnly, asyncHandler(async (req, res) => {

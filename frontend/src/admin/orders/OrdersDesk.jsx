@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   AlertCircle, Bell, ChevronLeft, ChevronRight, Inbox, Keyboard,
-  Loader2, RefreshCcw, TrendingUp, X,
+  Loader2, Plus, RefreshCcw, TrendingUp, X,
 } from 'lucide-react';
 import AdminLayout from '../AdminLayout';
 import { pkr } from '../../lib/format';
@@ -150,6 +150,13 @@ export default function OrdersDesk() {
           </div>
 
           <div className="flex items-center gap-2">
+            <Link
+              to="/admin/orders/new"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-neutral-900 px-3 py-2 text-sm font-semibold text-white transition hover:bg-black"
+              title="Create an order for a customer who ordered by phone or WhatsApp"
+            >
+              <Plus size={14} /> Create order
+            </Link>
             <Link
               to="/admin"
               className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm font-medium text-neutral-700 transition hover:border-neutral-400"

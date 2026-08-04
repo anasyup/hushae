@@ -24,6 +24,8 @@ import ResetPassword from './pages/account/ResetPassword';
 import VerifyEmail from './pages/account/VerifyEmail';
 import MyOrderDetail from './pages/account/OrderDetail';
 import Sale from './pages/Sale';
+import Blog from './pages/Blog';
+import BlogPost from './pages/BlogPost';
 import Faq from './pages/Faq';
 import Collection from './pages/Collection';
 import Legal from './pages/Legal';
@@ -106,6 +108,8 @@ const Marketing = lazy(() => import('./admin/Marketing'));
 const Cms = lazy(() => import('./admin/Cms'));
 const CmsEdit = lazy(() => import('./admin/CmsEdit'));
 const CmsRedirects = lazy(() => import('./admin/CmsRedirects'));
+const AdminBlog = lazy(() => import('./admin/Blog'));
+const AdminBlogEdit = lazy(() => import('./admin/BlogEdit'));
 const AdminLoyalty = lazy(() => import('./admin/Loyalty'));
 const AdminQuestions = lazy(() => import('./admin/Questions'));
 const Dashboard = lazy(() => import('./admin/Dashboard'));
@@ -114,6 +118,7 @@ const Insights = lazy(() => import('./admin/Insights'));
 const Finance = lazy(() => import('./admin/Finance'));
 const Payments = lazy(() => import('./admin/Payments'));
 const OrdersDesk = lazy(() => import('./admin/orders/OrdersDesk'));
+const DraftOrder = lazy(() => import('./admin/orders/DraftOrder'));
 const OrderPrintDoc = lazy(() => import('./admin/orders/OrderPrintDoc'));
 /* Storefront suspense placeholder. EditorFallback is a full-height grey admin
    screen and would flash over the shop chrome. This reserves a reading column
@@ -244,11 +249,15 @@ export default function App() {
           <Route path="/returns" element={<CmsPage slug="returns" fallback={() => <Legal kind="returns" />} />} />
           <Route path="/shipping-policy" element={<CmsPage slug="shipping-policy" fallback={() => <Legal kind="shipping" />} />} />
           <Route path="/collection/:slug" element={<Collection />} />
+          {/* BLOG — journal / fit guides. /blog lists, /blog/:slug reads. */}
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/blog/:slug" element={<BlogPost />} />
 
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin" element={<Suspense fallback={<EditorFallback />}><Dashboard /></Suspense>} />
           <Route path="/admin/live" element={<LiveView />} />
           <Route path="/admin/orders" element={<Suspense fallback={<EditorFallback />}><OrdersDesk /></Suspense>} />
+          <Route path="/admin/orders/new" element={<Suspense fallback={<EditorFallback />}><DraftOrder /></Suspense>} />
           <Route path="/admin/orders-legacy" element={<Orders />} />
           <Route path="/admin/orders/:id" element={<OrderDetail />} />
           <Route path="/admin/orders/:id/invoice" element={<OrderInvoice />} />
@@ -287,6 +296,10 @@ export default function App() {
           <Route path="/admin/cms/new" element={<Suspense fallback={<EditorFallback />}><CmsEdit /></Suspense>} />
           <Route path="/admin/cms/redirects" element={<Suspense fallback={<EditorFallback />}><CmsRedirects /></Suspense>} />
           <Route path="/admin/cms/:id" element={<Suspense fallback={<EditorFallback />}><CmsEdit /></Suspense>} />
+          {/* BLOG — article management. /new must precede /:id. */}
+          <Route path="/admin/blog" element={<Suspense fallback={<EditorFallback />}><AdminBlog /></Suspense>} />
+          <Route path="/admin/blog/new" element={<Suspense fallback={<EditorFallback />}><AdminBlogEdit /></Suspense>} />
+          <Route path="/admin/blog/:id" element={<Suspense fallback={<EditorFallback />}><AdminBlogEdit /></Suspense>} />
           <Route path="/admin/settings/security" element={<SettingsSecurity />} />
           <Route path="/admin/settings/legal" element={<SettingsLegal />} />
           <Route path="/admin/settings/advanced" element={<SettingsAdmin />} />

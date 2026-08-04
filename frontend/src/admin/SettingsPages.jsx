@@ -165,6 +165,38 @@ export function SettingsPayments() {
   const pm = s.paymentMethods || {};
   const setPM = (k, v) => setS({ ...s, paymentMethods: { ...pm, [k]: v } });
 
+  /* ── Online card gateways ────────────────────────────────────────────────
+     Credentials live in s.integrations.payments.{safepay,jazzcash}. The Visa
+     entry in s.checkout.paymentList is what makes the option appear at
+     checkout, so enabling a gateway also flips that entry on. */
+  const ints = s.integrations || {};
+  const gw = ints.payments || {};
+  const sp = gw.safepay || {};
+  const jz = gw.jazzcash || {};
+  const setGW = (id, patch) => setS({ ...s, integrations: { ...ints, payments: { ...gw, [id]: { ...(gw[id] || {}), ...patch } } } });
+  const setSP = (k, v) => setGW('safepay', { [k]: v });
+  const setJZ = (k, v) => setGW('jazzcash', { [k]: v });
+
+  const spConfigured = !!(sp.apiKey && sp.secret);
+  const jzConfigured = !!(jz.merchantId && jz.password && jz.integritySalt);
+
+  /* The Visa row in paymentList. Defaults to comingSoon=true so it never
+     shows until a gateway is actually configured. */
+  const list = (s.checkout && s.checkout.paymentList) || [];
+  const visaRow = list.find((m) => m.id === 'Visa');
+  const gatewayOn = (which) => {
+    if (which === 'safepay') return visaRow?.enabled && spConfigured;
+    if (which === 'jazzcash-api') return visaRow?.enabled && jzConfigured;
+    return false;
+  };
+  const setGatewayEnabled = (which, on) => {
+    const id = which === 'safepay' ? 'Visa' : 'Visa'; // both light up the card option
+    const nextList = list.some((m) => m.id === 'Visa')
+      ? list.map((m) => (m.id === 'Visa' ? { ...m, enabled: on && (which === 'safepay' ? spConfigured : jzConfigured), comingSoon: false } : m))
+      : [...list, { id: 'Visa', label: 'Visa / Mastercard', note: 'Pay online with your card', icon: 'CreditCard', enabled: on && (which === 'safepay' ? spConfigured : jzConfigured), needsTxn: false, instructions: '', comingSoon: false }];
+    setS({ ...s, checkout: { ...(s.checkout || {}), paymentList: nextList } });
+  };
+
   return (
     <AdminLayout title="Payments">
       <BackToSettings />
@@ -225,20 +257,106 @@ export function SettingsPayments() {
           )}
         </Section>
 
-        <Section title="Online cards (coming soon)" description="Visa / Mastercard via SafePay, PayFast or JazzCash Merchant API. Requires business registration and STRN.">
-          <div className="flex items-center gap-3 rounded-xl border border-dashed border-neutral-300 bg-neutral-50 p-4">
-            <span className="grid h-10 w-10 place-items-center rounded-xl bg-white text-neutral-400">
-              <CreditCard size={16} />
-            </span>
-            <div>
-              <p className="text-[13px] font-semibold text-neutral-700">Card & wallet gateway</p>
-              <p className="text-[12px] text-neutral-500">Available once your business registration is complete — ask support to enable.</p>
+        <Section title="Online card gateway" description="Accept Visa / Mastercard payments online. Enter your provider keys — sandbox first, switch to live when you are ready to launch. Customers see cards at checkout only once a gateway is configured and enabled.">
+          {/* SafePay */}
+          <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-[13px] font-semibold text-neutral-800">SafePay <span className="ml-1 rounded bg-neutral-200 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-neutral-600">Visa · Mastercard</span></p>
+                <p className="mt-0.5 text-[12px] text-neutral-500">The leading Pakistani card gateway. Apply at getsafepay.com (needs STRN + bank account).</p>
+              </div>
+              <label className="flex shrink-0 cursor-pointer items-center gap-2 text-[12px] font-semibold text-neutral-700">
+                <span>{gatewayOn('safepay') ? 'Enabled' : 'Disabled'}</span>
+                <input type="checkbox" className="sr-only" checked={gatewayOn('safepay')} onChange={(e) => setGatewayEnabled('safepay', e.target.checked)} />
+                <span className={`relative inline-flex h-5 w-9 items-center rounded-full transition ${gatewayOn('safepay') ? 'bg-emerald-600' : 'bg-neutral-300'}`}>
+                  <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition ${gatewayOn('safepay') ? 'translate-x-4.5 ml-1' : 'ml-0.5'}`} />
+                </span>
+              </label>
             </div>
+
+            <div className="mt-3 flex items-center gap-3">
+              <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold ${sp.sandbox ? 'bg-amber-50 text-amber-700' : 'bg-emerald-50 text-emerald-700'}`}>
+                <span className={`h-1.5 w-1.5 rounded-full ${sp.sandbox ? 'bg-amber-500' : 'bg-emerald-500'}`} />
+                {sp.sandbox ? 'Sandbox (test mode)' : 'Live'}
+              </span>
+              <button type="button" onClick={() => setSP('sandbox', !sp.sandbox)} className="text-[12px] font-semibold text-neutral-500 underline-offset-2 hover:text-neutral-900 hover:underline">
+                Switch to {sp.sandbox ? 'live' : 'sandbox'}
+              </button>
+            </div>
+
+            {sp.sandbox && (
+              <p className="mt-2 rounded-lg bg-amber-50 px-3 py-2 text-[12px] text-amber-800">
+                Test mode — no real money moves. Paste your sandbox keys from the SafePay dashboard to try the flow end-to-end.
+              </p>
+            )}
+
+            <div className="mt-3 grid gap-3 md:grid-cols-2">
+              <div>
+                <label className="mb-1 block text-[12px] font-bold uppercase tracking-wider text-neutral-500">API key (client)</label>
+                <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 font-mono text-[12px] outline-none transition focus:border-neutral-900" value={sp.apiKey || ''} onChange={(e) => setSP('apiKey', e.target.value)} placeholder="SF-XXXX-…" />
+              </div>
+              <div>
+                <label className="mb-1 block text-[12px] font-bold uppercase tracking-wider text-neutral-500">Secret key</label>
+                <input type="password" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 font-mono text-[12px] outline-none transition focus:border-neutral-900" value={sp.secret || ''} onChange={(e) => setSP('secret', e.target.value)} placeholder="••••••••" />
+              </div>
+            </div>
+            <p className="mt-2 text-[12px] text-neutral-500">
+              {spConfigured ? 'Gateway is configured — cards will appear at checkout.' : 'Fill both keys to enable cards at checkout.'}
+            </p>
           </div>
+
+          {/* JazzCash Merchant API */}
+          <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-[13px] font-semibold text-neutral-800">JazzCash Merchant API <span className="ml-1 rounded bg-neutral-200 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-neutral-600">JazzCash · Cards</span></p>
+                <p className="mt-0.5 text-[12px] text-neutral-500">Full merchant checkout (hosted payment page). Register at payments.jazzcash.com.pk.</p>
+              </div>
+              <label className="flex shrink-0 cursor-pointer items-center gap-2 text-[12px] font-semibold text-neutral-700">
+                <span>{gatewayOn('jazzcash-api') ? 'Enabled' : 'Disabled'}</span>
+                <input type="checkbox" className="sr-only" checked={gatewayOn('jazzcash-api')} onChange={(e) => setGatewayEnabled('jazzcash-api', e.target.checked)} />
+                <span className={`relative inline-flex h-5 w-9 items-center rounded-full transition ${gatewayOn('jazzcash-api') ? 'bg-emerald-600' : 'bg-neutral-300'}`}>
+                  <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition ${gatewayOn('jazzcash-api') ? 'translate-x-4.5 ml-1' : 'ml-0.5'}`} />
+                </span>
+              </label>
+            </div>
+
+            <div className="mt-3 flex items-center gap-3">
+              <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold ${jz.sandbox ? 'bg-amber-50 text-amber-700' : 'bg-emerald-50 text-emerald-700'}`}>
+                <span className={`h-1.5 w-1.5 rounded-full ${jz.sandbox ? 'bg-amber-500' : 'bg-emerald-500'}`} />
+                {jz.sandbox ? 'Sandbox (test mode)' : 'Live'}
+              </span>
+              <button type="button" onClick={() => setJZ('sandbox', !jz.sandbox)} className="text-[12px] font-semibold text-neutral-500 underline-offset-2 hover:text-neutral-900 hover:underline">
+                Switch to {jz.sandbox ? 'live' : 'sandbox'}
+              </button>
+            </div>
+
+            <div className="mt-3 grid gap-3 md:grid-cols-3">
+              <div>
+                <label className="mb-1 block text-[12px] font-bold uppercase tracking-wider text-neutral-500">Merchant ID</label>
+                <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 font-mono text-[12px] outline-none transition focus:border-neutral-900" value={jz.merchantId || ''} onChange={(e) => setJZ('merchantId', e.target.value)} placeholder="MC-…" />
+              </div>
+              <div>
+                <label className="mb-1 block text-[12px] font-bold uppercase tracking-wider text-neutral-500">Password</label>
+                <input type="password" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 font-mono text-[12px] outline-none transition focus:border-neutral-900" value={jz.password || ''} onChange={(e) => setJZ('password', e.target.value)} placeholder="••••••••" />
+              </div>
+              <div>
+                <label className="mb-1 block text-[12px] font-bold uppercase tracking-wider text-neutral-500">Integrity salt</label>
+                <input type="password" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 font-mono text-[12px] outline-none transition focus:border-neutral-900" value={jz.integritySalt || ''} onChange={(e) => setJZ('integritySalt', e.target.value)} placeholder="••••••••" />
+              </div>
+            </div>
+            <p className="mt-2 text-[12px] text-neutral-500">
+              {jzConfigured ? 'Gateway is configured — JazzCash checkout will be offered.' : 'Fill merchant ID, password and integrity salt to enable.'}
+            </p>
+          </div>
+
+          <p className="text-[12px] text-neutral-400">
+            ⚠️ Credentials are encrypted at rest and never shown to shoppers. Use sandbox keys until launch day — then flip to live.
+          </p>
         </Section>
       </div>
 
-      <SaveBar dirty={dirty} busy={busy} onSave={() => save(['paymentMethods'])} onReset={reset} />
+      <SaveBar dirty={dirty} busy={busy} onSave={() => save(['paymentMethods', 'integrations', 'checkout'])} onReset={reset} />
     </AdminLayout>
   );
 }

@@ -20,6 +20,12 @@ const itemSchema = new mongoose.Schema({
 
 const orderSchema = new mongoose.Schema({
   orderNumber: { type: String, required: true, unique: true },
+  /* Where the order came from. 'web' = customer checkout, 'admin' = created
+     manually by staff (Shopify's "create order" / phone orders). Kept out of
+     the status workflow — an admin-created order flows through the exact same
+     Pending → … pipeline, so the warehouse treats it like any other order. */
+  source: { type: String, enum: ['web', 'admin'], default: 'web', index: true },
+  adminCreatedById: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
   customer: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
   customerInfo: {
     name: { type: String, required: true },

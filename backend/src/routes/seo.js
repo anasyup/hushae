@@ -7,6 +7,7 @@ const Product = require('../models/Product');
 const Category = require('../models/Category');
 const Settings = require('../models/Settings');
 const CmsPage = require('../models/CmsPage');
+const BlogPost = require('../models/BlogPost');
 
 const router = express.Router();
 
@@ -34,6 +35,9 @@ router.get('/robots.txt', (req, res) => {
     'Disallow: /api/',
     '',
     `Sitemap: ${site}/sitemap.xml`,
+    '',
+    // Blog articles are valuable organic-traffic pages — make sure they are crawled.
+    'Allow: /blog',
     '',
   ].join('\n');
   res.set('Content-Type', 'text/plain; charset=utf-8');
@@ -105,6 +109,21 @@ router.get('/sitemap.xml', async (req, res) => {
     }
     for (const p of products) {
       lines.push(urlXml(`/product/${p.slug}`, (p.updatedAt || new Date()).toISOString?.() || now, '0.7', 'weekly'));
+    }
+
+    /* BLOG POSTS — same live rules as /api/blog: scheduled posts are not
+       advertised before their publishAt, noIndex is respected. */
+    try {
+      const blogPosts = await BlogPost.find({ status: { $in: ['published', 'scheduled'] } })
+        .select('slug updatedAt publishAt seo').lean();
+      const blogNow = new Date();
+      for (const b of blogPosts) {
+        if (b.publishAt && blogNow < new Date(b.publishAt)) continue;
+        if (b.seo?.noIndex) continue;
+        lines.push(urlXml(`/blog/${b.slug}`, (b.updatedAt || new Date()).toISOString?.() || now, '0.6', 'weekly'));
+      }
+    } catch (e) {
+      console.error('sitemap: blog failed:', e.message);
     }
 
     /* De-duplicate. A legal page migrated into the CMS keeps its original
