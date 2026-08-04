@@ -227,7 +227,7 @@ export default function Header() {
               data-section="header.logo"
               className={`absolute left-1/2 -translate-x-1/2 ${collapsed ? '' : 'lg:static lg:translate-x-0'}`}
             >
-              <Wordmark />
+              <Wordmark showMark={!isHome} />
             </span>
 
             <nav

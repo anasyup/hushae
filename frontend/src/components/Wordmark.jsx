@@ -17,7 +17,7 @@ import { useApp } from '../store/AppContext';
  *  - size    'sm' | 'md' | 'lg'
  *  - variant 'link' (default) | 'plain'
  */
-export default function Wordmark({ size = 'md', variant = 'link', className = '', to = '/', forceColor }) {
+export default function Wordmark({ size = 'md', variant = 'link', className = '', to = '/', forceColor, showMark = true }) {
   const { settings } = useApp() || {};
   const h = settings?.header || {};
 
@@ -78,13 +78,13 @@ export default function Wordmark({ size = 'md', variant = 'link', className = ''
 
   if (variant === 'plain') return (
     <span className={base} style={style}>
-      <Mark size={hasPx ? Math.max(18, Math.min(26, px - 2)) : 22} />
+      {showMark && <Mark size={hasPx ? Math.max(18, Math.min(26, px - 2)) : 22} />}
       {text}
     </span>
   );
   return (
     <Link to={to} className={base} style={style} aria-label={`${text} — home`}>
-      <Mark size={hasPx ? Math.max(18, Math.min(26, px - 2)) : 22} />
+      {showMark && <Mark size={hasPx ? Math.max(18, Math.min(26, px - 2)) : 22} />}
       {text}
     </Link>
   );

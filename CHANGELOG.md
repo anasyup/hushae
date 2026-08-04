@@ -376,3 +376,6 @@ Format:
   - Wordmark now pairs the HUSHAE monogram mark (inline SVG: black square · white H · red accent — matches the favicon) with the wordmark text.
   - Weight bumped font-semibold → font-bold, gap between mark and text (gap-2.5).
   - Mark inherits text colour so it flips cleanly on dark surfaces; sizes to the admin logoSize.
+
+- **2026-08-04** — 🎨 **Header: home shows text-only "HUSHAE" (no H mark)**
+  - Wordmark gains showMark prop; header passes showMark={!isHome} — the home page shows just the bold "HUSHAE" wordmark (clean, no monogram), while other pages keep the H mark lockup.
