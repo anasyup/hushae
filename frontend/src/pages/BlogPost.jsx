@@ -47,7 +47,7 @@ export default function BlogPost() {
   const seoTitle = post.seo?.title || post.title;
 
   return (
-    <article style={{ background: '#F7F6F4', color: '#0E0E0E', fontFamily: "'Archivo', system-ui, sans-serif" }}>
+    <article style={{ background: '#F7F5F1', color: '#111111', fontFamily: "'Family Klein', 'Helvetica Neue', Helvetica, Arial, sans-serif" }}>
       <Seo
         title={seoTitle}
         description={post.seo?.description || post.excerpt || undefined}
@@ -68,21 +68,21 @@ export default function BlogPost() {
       />
 
       <div className="container max-w-3xl py-12 md:py-20">
-        <Link to="/blog" className="inline-flex items-center gap-1.5 text-[12px] font-medium uppercase tracking-[0.10em] text-[#6E6E6B] hover:text-[#0E0E0E] transition-colors">
+        <Link to="/blog" className="inline-flex items-center gap-1.5 text-[12px] font-medium uppercase tracking-[0.10em] text-ash hover:text-obsidian transition-colors">
           <ArrowLeft size={13} /> Journal
         </Link>
 
         <header className="mt-10">
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] font-medium uppercase tracking-[0.14em] text-[#6E6E6B]">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] font-medium uppercase tracking-[0.14em] text-ash">
             {post.author && <span>{post.author}</span>}
             <span className="inline-flex items-center gap-1"><Clock size={10} />{fmtDate(post.publishAt || post.createdAt)}</span>
           </div>
           <h1 className="mt-4 text-[32px] md:text-[48px] font-normal uppercase tracking-[0.01em] leading-[1.1]">{post.title}</h1>
-          {post.excerpt && <p className="mt-5 body text-[#6E6E6B] text-[16px] leading-relaxed max-w-2xl">{post.excerpt}</p>}
+          {post.excerpt && <p className="mt-5 body text-ash text-[16px] leading-relaxed max-w-2xl">{post.excerpt}</p>}
         </header>
 
         {post.coverImage && (
-          <div className="mt-10 overflow-hidden bg-[#E3E2DF]" style={{ aspectRatio: '16/9' }}>
+          <div className="mt-10 overflow-hidden bg-line" style={{ aspectRatio: '16/9' }}>
             <Img src={post.coverImage} alt={post.coverAlt || post.title} className="h-full w-full object-cover" />
           </div>
         )}
@@ -92,15 +92,15 @@ export default function BlogPost() {
         </div>
 
         {post.tags?.length > 0 && (
-          <div className="mt-12 flex flex-wrap gap-2 border-t border-[#E3E2DF] pt-6">
+          <div className="mt-12 flex flex-wrap gap-2 border-t border-line pt-6">
             {post.tags.map((t) => (
-              <span key={t} className="inline-flex items-center gap-1 rounded-full border border-[#E3E2DF] px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.10em] text-[#6E6E6B]"><TagIcon size={9} />{t}</span>
+              <span key={t} className="inline-flex items-center gap-1 rounded-full border border-line px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.10em] text-ash"><TagIcon size={9} />{t}</span>
             ))}
           </div>
         )}
 
-        <div className="mt-12 border-t border-[#E3E2DF] pt-8">
-          <Link to="/blog" className="inline-flex items-center gap-1.5 text-[12px] font-medium uppercase tracking-[0.10em] text-[#6E6E6B] hover:text-[#0E0E0E] transition-colors">
+        <div className="mt-12 border-t border-line pt-8">
+          <Link to="/blog" className="inline-flex items-center gap-1.5 text-[12px] font-medium uppercase tracking-[0.10em] text-ash hover:text-obsidian transition-colors">
             <ArrowLeft size={13} /> Back to journal
           </Link>
         </div>

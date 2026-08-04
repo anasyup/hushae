@@ -25,15 +25,15 @@ export default function CountrySelector({ compact = false, onChange }) {
   return (
     <div ref={ref} className="relative">
       <button onClick={() => setOpen(!open)}
-        className="flex items-center gap-1.5 text-[12px] font-medium uppercase tracking-[0.10em] hover:opacity-70 text-[#0E0E0E]">
+        className="flex items-center gap-1.5 text-[12px] font-medium uppercase tracking-[0.10em] hover:opacity-70 text-obsidian">
         {compact ? <><Globe size={14} />{market.code}</> : <><Globe size={14} />{market.name} · {market.currency}</>}
         <ChevronDown size={10} />
       </button>
       {open && (
-        <div className="absolute right-0 top-full z-50 mt-2 w-44 border border-[#E3E2DF] bg-white shadow-sm">
+        <div className="absolute right-0 top-full z-50 mt-2 w-44 border border-line bg-white shadow-sm">
           {Object.values(MARKETS).map((m) => (
             <button key={m.code} onClick={() => select(m.code)}
-              className={`block w-full px-3 py-2 text-left text-[12px] ${market.code === m.code ? 'bg-[#0E0E0E] text-white' : 'text-[#0E0E0E] hover:bg-[#F7F6F4]'}`}>
+              className={`block w-full px-3 py-2 text-left text-[12px] ${market.code === m.code ? 'bg-obsidian text-white' : 'text-obsidian hover:bg-alabaster'}`}>
               {m.name} · {m.currency}
             </button>
           ))}

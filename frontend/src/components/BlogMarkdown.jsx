@@ -84,7 +84,7 @@ function inline(text, keyBase) {
     if (rest[i] === '`') {
       const end = rest.indexOf('`', i + 1);
       if (end > -1) {
-        push(<code key={`${keyBase}-${k++}`} className="rounded bg-[#F0EFEC] px-1.5 py-0.5 font-mono text-[0.9em]">{rest.slice(i + 1, end)}</code>);
+        push(<code key={`${keyBase}-${k++}`} className="rounded bg-satin px-1.5 py-0.5 font-mono text-[0.9em]">{rest.slice(i + 1, end)}</code>);
         i = end + 1;
         continue;
       }
@@ -105,7 +105,7 @@ function inline(text, keyBase) {
 
 function blockquote(text, keyBase) {
   return (
-    <blockquote key={keyBase} className="my-6 border-l-2 border-[#0E0E0E] pl-5 italic text-[#6E6E6B]">
+    <blockquote key={keyBase} className="my-6 border-l-2 border-obsidian pl-5 italic text-ash">
       {inline(text, keyBase)}
     </blockquote>
   );
@@ -193,5 +193,5 @@ export default function BlogMarkdown({ text, headingLevel = 2 }) {
     }
   }
 
-  return <div className="mt-6 text-[#0E0E0E]">{blocks}</div>;
+  return <div className="mt-6 text-obsidian">{blocks}</div>;
 }

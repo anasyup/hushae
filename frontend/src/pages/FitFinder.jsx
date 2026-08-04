@@ -139,15 +139,15 @@ export default function FitFinder() {
   };
 
   return (
-    <div style={{ fontFamily: "'Archivo', system-ui, sans-serif", background: '#F7F6F4', minHeight: '100vh' }}>
+    <div style={{ fontFamily: "'Family Klein', 'Helvetica Neue', Helvetica, Arial, sans-serif", background: '#F7F5F1', minHeight: '100vh' }}>
       <div className="container section">
         {/* Header */}
         {step === 0 && !result && (
           <div className="mb-12 text-center">
-            <Ruler size={28} className="mx-auto mb-4 text-[#0E0E0E]" />
-            <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[#6E6E6B]">HUSHAE Fit Finder</p>
+            <Ruler size={28} className="mx-auto mb-4 text-obsidian" />
+            <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-ash">HUSHAE Fit Finder</p>
             <h1 className="mt-3 h1">Find your perfect fit</h1>
-            <p className="mt-3 body-sm text-[#6E6E6B] max-w-md mx-auto">Four questions. No tape measure. We'll calculate your true size across every HUSHAE piece.</p>
+            <p className="mt-3 body-sm text-ash max-w-md mx-auto">Four questions. No tape measure. We'll calculate your true size across every HUSHAE piece.</p>
           </div>
         )}
 
@@ -155,28 +155,28 @@ export default function FitFinder() {
         {!result && (
           <div className="mb-10 flex items-center gap-2 max-w-md mx-auto">
             {QUESTIONS.map((_, i) => (
-              <div key={i} className={`h-[2px] flex-1 transition-colors ${i < step ? 'bg-[#0E0E0E]' : i === step ? 'bg-[#0E0E0E]' : 'bg-[#E3E2DF]'}`} />
+              <div key={i} className={`h-[2px] flex-1 transition-colors ${i < step ? 'bg-obsidian' : i === step ? 'bg-obsidian' : 'bg-line'}`} />
             ))}
-            <span className="ml-2 text-[11px] tabular-nums text-[#6E6E6B]">{step + 1}/{QUESTIONS.length}</span>
+            <span className="ml-2 text-[11px] tabular-nums text-ash">{step + 1}/{QUESTIONS.length}</span>
           </div>
         )}
 
         {/* Question */}
         {!result && current && (
           <div className="max-w-md mx-auto">
-            <h2 className="text-[18px] font-medium uppercase tracking-[0.06em] text-[#0E0E0E] mb-1">{current.label}</h2>
-            {current.hint && <p className="text-[13px] text-[#6E6E6B] mb-6">{current.hint}</p>}
+            <h2 className="text-[18px] font-medium uppercase tracking-[0.06em] text-obsidian mb-1">{current.label}</h2>
+            {current.hint && <p className="text-[13px] text-ash mb-6">{current.hint}</p>}
             <div className="space-y-3">
               {current.options.map((opt) => (
                 <button key={opt.value} onClick={() => pick(opt.value)}
-                  className="w-full border border-[#E3E2DF] bg-white p-4 text-left transition-colors hover:border-[#0E0E0E]">
-                  <span className="text-[15px] font-medium text-[#0E0E0E]">{opt.label}</span>
-                  {opt.desc && <span className="mt-1 block text-[12px] text-[#6E6E6B]">{opt.desc}</span>}
+                  className="w-full border border-line bg-white p-4 text-left transition-colors hover:border-obsidian">
+                  <span className="text-[15px] font-medium text-obsidian">{opt.label}</span>
+                  {opt.desc && <span className="mt-1 block text-[12px] text-ash">{opt.desc}</span>}
                 </button>
               ))}
             </div>
             {step > 0 && (
-              <button onClick={() => setStep(step - 1)} className="mt-6 text-[12px] font-medium uppercase tracking-[0.10em] text-[#6E6E6B] hover:text-[#0E0E0E]">
+              <button onClick={() => setStep(step - 1)} className="mt-6 text-[12px] font-medium uppercase tracking-[0.10em] text-ash hover:text-obsidian">
                 ← Back
               </button>
             )}
@@ -186,8 +186,8 @@ export default function FitFinder() {
         {/* Result */}
         {result && (
           <div className="max-w-md mx-auto text-center">
-            <div className="mb-8 inline-flex h-20 w-20 items-center justify-center border-2 border-[#0E0E0E]">
-              <span className="text-[28px] font-medium tabular-nums text-[#0E0E0E]">{result.size}</span>
+            <div className="mb-8 inline-flex h-20 w-20 items-center justify-center border-2 border-obsidian">
+              <span className="text-[28px] font-medium tabular-nums text-obsidian">{result.size}</span>
             </div>
             <h2 className="h2">Your HUSHAE size is {result.size}</h2>
 
@@ -198,24 +198,24 @@ export default function FitFinder() {
                 { label: 'UK', value: result.uk },
                 { label: 'EU', value: result.eu },
               ].map(({ label, value }) => (
-                <div key={label} className="border border-[#E3E2DF] p-3">
-                  <p className="text-[10px] font-medium uppercase tracking-[0.12em] text-[#6E6E6B]">{label}</p>
-                  <p className="mt-1 text-[16px] font-medium tabular-nums text-[#0E0E0E]">{value}</p>
+                <div key={label} className="border border-line p-3">
+                  <p className="text-[10px] font-medium uppercase tracking-[0.12em] text-ash">{label}</p>
+                  <p className="mt-1 text-[16px] font-medium tabular-nums text-obsidian">{value}</p>
                 </div>
               ))}
             </div>
 
-            <p className="mt-6 text-[13px] text-[#6E6E6B] max-w-sm mx-auto">
+            <p className="mt-6 text-[13px] text-ash max-w-sm mx-auto">
               This size is saved and will appear on every product page. You can retake anytime.
             </p>
 
             <div className="mt-8 flex flex-col gap-3 max-w-xs mx-auto">
               <Link to={result.gender === 'women' ? '/women' : '/men'}
-                className="min-h-[44px] bg-[#0E0E0E] text-[12px] font-medium uppercase tracking-[0.10em] text-white flex items-center justify-center transition-opacity hover:opacity-80">
+                className="min-h-[44px] bg-obsidian text-[12px] font-medium uppercase tracking-[0.10em] text-white flex items-center justify-center transition-opacity hover:opacity-80">
                 Shop {result.gender === 'women' ? "Women's" : "Men's"} <ArrowRight size={12} className="ml-1" />
               </Link>
               <button onClick={() => { setStep(0); setAnswers({}); setResult(null); }}
-                className="min-h-[44px] border border-[#E3E2DF] text-[12px] font-medium uppercase tracking-[0.10em] text-[#6E6E6B] hover:text-[#0E0E0E]">
+                className="min-h-[44px] border border-line text-[12px] font-medium uppercase tracking-[0.10em] text-ash hover:text-obsidian">
                 Retake Fit Finder
               </button>
             </div>

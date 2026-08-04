@@ -64,42 +64,42 @@ export default function BundleBuilder() {
   };
 
   return (
-    <div style={{ fontFamily: "'Archivo', system-ui, sans-serif", background: '#F7F6F4' }}>
+    <div style={{ fontFamily: "'Family Klein', 'Helvetica Neue', Helvetica, Arial, sans-serif", background: '#F7F5F1' }}>
       <div className="container section">
         {/* Header */}
         <div className="mb-10">
-          <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[#6E6E6B]">Bundle & save</p>
+          <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-ash">Bundle & save</p>
           <h1 className="mt-2 h1">Build your pack</h1>
-          <p className="mt-3 body-sm text-[#6E6E6B] max-w-lg">
+          <p className="mt-3 body-sm text-ash max-w-lg">
             Pick {tiers[0].qty} or more pieces from the same category and save up to {tiers[tiers.length - 1].discount}%.
           </p>
         </div>
 
         {/* Tier indicator */}
-        <div className="mb-8 flex items-center gap-4 border-b border-[#E3E2DF] pb-4">
+        <div className="mb-8 flex items-center gap-4 border-b border-line pb-4">
           {tiers.map((t, i) => {
             const reached = bundle.length >= t.qty;
             const next = !reached && (i === 0 || bundle.length >= tiers[i - 1].qty);
             return (
               <div key={t.qty} className="flex items-center gap-3">
-                {i > 0 && <div className={`h-px w-6 ${bundle.length >= tiers[i - 1].qty ? 'bg-[#0E0E0E]' : 'bg-[#E3E2DF]'}`} />}
-                <span className={`text-[12px] font-medium uppercase tracking-[0.10em] ${reached ? 'text-[#0E0E0E]' : next ? 'text-[#0E0E0E]' : 'text-[#E3E2DF]'}`}>
+                {i > 0 && <div className={`h-px w-6 ${bundle.length >= tiers[i - 1].qty ? 'bg-obsidian' : 'bg-line'}`} />}
+                <span className={`text-[12px] font-medium uppercase tracking-[0.10em] ${reached ? 'text-obsidian' : next ? 'text-obsidian' : 'text-line'}`}>
                   {t.label} <span className="text-[10px]">({t.discount}% off)</span>
                 </span>
               </div>
             );
           })}
-          <span className="ml-auto text-[13px] tabular-nums text-[#6E6E6B]">{bundle.length}/{tiers[tiers.length - 1].qty}</span>
+          <span className="ml-auto text-[13px] tabular-nums text-ash">{bundle.length}/{tiers[tiers.length - 1].qty}</span>
         </div>
 
         <div className="grid gap-8 lg:grid-cols-[300px_1fr_280px]">
           {/* Category selector */}
           <div>
-            <p className="mb-3 text-[11px] font-medium uppercase tracking-[0.10em] text-[#6E6E6B]">Category</p>
+            <p className="mb-3 text-[11px] font-medium uppercase tracking-[0.10em] text-ash">Category</p>
             <div className="space-y-1">
               {cats.slice(0, 12).map((c) => (
                 <button key={c.slug} onClick={() => { setSelectedCat(c.slug); setBundle([]); }}
-                  className={`block w-full px-3 py-2.5 text-left text-[13px] transition-colors ${selectedCat === c.slug ? 'bg-[#0E0E0E] text-white' : 'text-[#0E0E0E] hover:bg-[#E3E2DF]'}`}>
+                  className={`block w-full px-3 py-2.5 text-left text-[13px] transition-colors ${selectedCat === c.slug ? 'bg-obsidian text-white' : 'text-obsidian hover:bg-line'}`}>
                   {c.name}
                 </button>
               ))}
@@ -108,22 +108,22 @@ export default function BundleBuilder() {
 
           {/* Product grid */}
           <div>
-            {loading && <p className="py-8 text-center text-[13px] text-[#6E6E6B]">Loading...</p>}
+            {loading && <p className="py-8 text-center text-[13px] text-ash">Loading...</p>}
             {!loading && !selectedCat && (
-              <p className="py-16 text-center text-[13px] text-[#6E6E6B]">Select a category to browse products.</p>
+              <p className="py-16 text-center text-[13px] text-ash">Select a category to browse products.</p>
             )}
             {!loading && products.length > 0 && (
               <div className="grid grid-cols-2 gap-[2px] sm:grid-cols-3">
                 {products.slice(0, 15).map((p) => (
                   <button key={p._id} onClick={() => add(p)}
                     className="product-tile group relative text-left">
-                    <img src={p.image || p.images?.[0]?.url} alt={p.name} className="w-full aspect-[4/5] object-cover bg-[#E3E2DF]" />
-                    <div className="absolute inset-0 flex items-center justify-center bg-[#0E0E0E]/0 opacity-0 transition-all duration-300 group-hover:bg-[#0E0E0E]/50 group-hover:opacity-100">
+                    <img src={p.image || p.images?.[0]?.url} alt={p.name} className="w-full aspect-[4/5] object-cover bg-line" />
+                    <div className="absolute inset-0 flex items-center justify-center bg-obsidian/0 opacity-0 transition-all duration-300 group-hover:bg-obsidian/50 group-hover:opacity-100">
                       <Plus size={24} className="text-white" />
                     </div>
                     <div className="mt-2 px-0">
-                      <p className="text-[12px] font-medium uppercase tracking-[0.04em] text-[#0E0E0E] leading-snug">{p.name}</p>
-                      <p className="mt-0.5 text-[12px] tabular-nums text-[#6E6E6B]">{pkr(p.price)}</p>
+                      <p className="text-[12px] font-medium uppercase tracking-[0.04em] text-obsidian leading-snug">{p.name}</p>
+                      <p className="mt-0.5 text-[12px] tabular-nums text-ash">{pkr(p.price)}</p>
                     </div>
                   </button>
                 ))}
@@ -132,33 +132,33 @@ export default function BundleBuilder() {
           </div>
 
           {/* Bundle summary */}
-          <div className="border border-[#E3E2DF] p-5" style={{ alignSelf: 'start', position: 'sticky', top: '100px' }}>
-            <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[#6E6E6B]">Your bundle</p>
+          <div className="border border-line p-5" style={{ alignSelf: 'start', position: 'sticky', top: '100px' }}>
+            <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-ash">Your bundle</p>
             {bundle.length === 0 ? (
-              <p className="mt-4 text-[13px] text-[#6E6E6B]">Click products to add them.</p>
+              <p className="mt-4 text-[13px] text-ash">Click products to add them.</p>
             ) : (
               <>
                 <div className="mt-4 space-y-3">
                   {bundle.map((p, i) => (
                     <div key={i} className="flex items-center gap-3">
-                      <span className="text-[12px] font-medium tabular-nums text-[#6E6E6B]">{i + 1}.</span>
-                      <span className="flex-1 text-[12px] font-medium uppercase tracking-[0.04em] text-[#0E0E0E] truncate">{p.name}</span>
-                      <span className="text-[12px] tabular-nums text-[#6E6E6B]">{pkr(p.price)}</span>
-                      <button onClick={() => remove(i)} className="text-[#6E6E6B] hover:text-[#0E0E0E]"><X size={12} /></button>
+                      <span className="text-[12px] font-medium tabular-nums text-ash">{i + 1}.</span>
+                      <span className="flex-1 text-[12px] font-medium uppercase tracking-[0.04em] text-obsidian truncate">{p.name}</span>
+                      <span className="text-[12px] tabular-nums text-ash">{pkr(p.price)}</span>
+                      <button onClick={() => remove(i)} className="text-ash hover:text-obsidian"><X size={12} /></button>
                     </div>
                   ))}
                 </div>
-                <div className="mt-4 space-y-1.5 border-t border-[#E3E2DF] pt-4">
-                  <div className="flex justify-between text-[12px]"><span className="text-[#6E6E6B]">Subtotal</span><span className="tabular-nums">{pkr(subtotal)}</span></div>
+                <div className="mt-4 space-y-1.5 border-t border-line pt-4">
+                  <div className="flex justify-between text-[12px]"><span className="text-ash">Subtotal</span><span className="tabular-nums">{pkr(subtotal)}</span></div>
                   {discount > 0 && (
-                    <div className="flex justify-between text-[12px]"><span className="text-[#0E0E0E] font-medium">Bundle discount ({currentTier?.discount}%)</span><span className="tabular-nums text-[#0E0E0E]">−{pkr(discount)}</span></div>
+                    <div className="flex justify-between text-[12px]"><span className="text-obsidian font-medium">Bundle discount ({currentTier?.discount}%)</span><span className="tabular-nums text-obsidian">−{pkr(discount)}</span></div>
                   )}
-                  <div className="flex justify-between text-[14px] font-medium pt-2 border-t border-[#E3E2DF]"><span>Total</span><span className="tabular-nums">{pkr(total)}</span></div>
+                  <div className="flex justify-between text-[14px] font-medium pt-2 border-t border-line"><span>Total</span><span className="tabular-nums">{pkr(total)}</span></div>
                 </div>
                 <div className="mt-4 space-y-2">
-                  <p className="text-[11px] text-[#6E6E6B]">Sizes: <span className="font-medium text-[#0E0E0E]">{unified}</span></p>
+                  <p className="text-[11px] text-ash">Sizes: <span className="font-medium text-obsidian">{unified}</span></p>
                   <button onClick={buyAll}
-                    className="w-full min-h-[44px] bg-[#0E0E0E] text-[12px] font-medium uppercase tracking-[0.10em] text-white transition-opacity hover:opacity-80">
+                    className="w-full min-h-[44px] bg-obsidian text-[12px] font-medium uppercase tracking-[0.10em] text-white transition-opacity hover:opacity-80">
                     Add bundle to bag
                   </button>
                 </div>
@@ -168,7 +168,7 @@ export default function BundleBuilder() {
         </div>
 
         {bundle.length === 0 && selectedCat && products.length > 0 && (
-          <p className="mt-4 text-center text-[13px] text-[#6E6E6B]">Click any product to start building your bundle.</p>
+          <p className="mt-4 text-center text-[13px] text-ash">Click any product to start building your bundle.</p>
         )}
       </div>
     </div>

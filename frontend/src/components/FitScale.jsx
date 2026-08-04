@@ -20,15 +20,15 @@ export default function FitScale({ sizes = [], value, onChange, fitData, fitResu
   const reviewFit = fitData?.reviewFit || null; // aggregate from reviews: { size, count }
 
   return (
-    <div className="space-y-3" style={{ fontFamily: "'Archivo', system-ui, sans-serif" }}>
+    <div className="space-y-3" style={{ fontFamily: "'Family Klein', 'Helvetica Neue', Helvetica, Arial, sans-serif" }}>
       {/* Header */}
       <div className="flex items-center justify-between">
-        <p className="text-[11px] font-medium uppercase tracking-[0.10em] text-[#6E6E6B]">Size</p>
+        <p className="text-[11px] font-medium uppercase tracking-[0.10em] text-ash">Size</p>
         <div className="flex items-center gap-4 text-[11px]">
-          <button type="button" onClick={() => {}} className="text-[#6E6E6B] underline underline-offset-4 hover:text-[#0E0E0E] font-medium uppercase tracking-[0.10em]">
+          <button type="button" onClick={() => {}} className="text-ash underline underline-offset-4 hover:text-obsidian font-medium uppercase tracking-[0.10em]">
             Size guide
           </button>
-          <Link to="/fit-finder" className="inline-flex items-center gap-1 text-[#0E0E0E] font-medium uppercase tracking-[0.10em] hover:opacity-60">
+          <Link to="/fit-finder" className="inline-flex items-center gap-1 text-obsidian font-medium uppercase tracking-[0.10em] hover:opacity-60">
             <Ruler size={11} /> Fit Finder
           </Link>
         </div>
@@ -36,7 +36,7 @@ export default function FitScale({ sizes = [], value, onChange, fitData, fitResu
 
       {/* Fit warning */}
       {fitWarning && (
-        <p className="text-[11px] text-[#6E6E6B] italic">
+        <p className="text-[11px] text-ash italic">
           This style {fitWarning} — {fitResult?.suggestion || 'consider sizing accordingly'}.
         </p>
       )}
@@ -44,7 +44,7 @@ export default function FitScale({ sizes = [], value, onChange, fitData, fitResu
       {/* The scale — ticks along a hairline */}
       <div className="relative">
         {/* Hairline */}
-        <div className="absolute left-0 right-0 top-7 h-px bg-[#E3E2DF]" />
+        <div className="absolute left-0 right-0 top-7 h-px bg-line" />
 
         {/* Ticks */}
         <div className="relative flex justify-between" style={{ paddingTop: '16px' }}>
@@ -64,30 +64,30 @@ export default function FitScale({ sizes = [], value, onChange, fitData, fitResu
                 {/* Tick mark */}
                 <div className="relative">
                   <div
-                    className={`h-3 w-px transition-colors ${selected || isFit ? 'bg-[#0E0E0E]' : 'bg-[#E3E2DF]'}`}
+                    className={`h-3 w-px transition-colors ${selected || isFit ? 'bg-obsidian' : 'bg-line'}`}
                   />
                   {/* Selected dot */}
                   {selected && (
-                    <div className="absolute -top-[3px] left-1/2 -translate-x-1/2 h-[9px] w-[9px] rounded-full bg-[#0E0E0E]" />
+                    <div className="absolute -top-[3px] left-1/2 -translate-x-1/2 h-[9px] w-[9px] rounded-full bg-obsidian" />
                   )}
                   {/* Fit Finder marker */}
                   {isFit && !selected && (
-                    <div className="absolute -top-[2px] left-1/2 -translate-x-1/2 h-[7px] w-[7px] rounded-full border border-[#0E0E0E] bg-white" />
+                    <div className="absolute -top-[2px] left-1/2 -translate-x-1/2 h-[7px] w-[7px] rounded-full border border-obsidian bg-white" />
                   )}
                   {/* Review aggregate marker */}
                   {hasReviews && !selected && !isFit && (
-                    <div className="absolute -top-[5px] left-1/2 -translate-x-1/2 h-[4px] w-[4px] rounded-full bg-[#6E6E6B]" />
+                    <div className="absolute -top-[5px] left-1/2 -translate-x-1/2 h-[4px] w-[4px] rounded-full bg-ash" />
                   )}
                 </div>
 
                 {/* Size label */}
-                <span className={`mt-3 text-[12px] font-medium tabular-nums transition-colors ${selected ? 'text-[#0E0E0E]' : 'text-[#6E6E6B]'}`}>
+                <span className={`mt-3 text-[12px] font-medium tabular-nums transition-colors ${selected ? 'text-obsidian' : 'text-ash'}`}>
                   {s}
                 </span>
 
                 {/* YOUR FIT label */}
                 {isFit && (
-                  <span className="mt-1 text-[9px] font-medium uppercase tracking-[0.12em] text-[#0E0E0E] whitespace-nowrap">
+                  <span className="mt-1 text-[9px] font-medium uppercase tracking-[0.12em] text-obsidian whitespace-nowrap">
                     Your fit
                   </span>
                 )}
@@ -99,15 +99,15 @@ export default function FitScale({ sizes = [], value, onChange, fitData, fitResu
 
       {/* Selected size text */}
       {value && (
-        <p className="text-[11px] text-[#0E0E0E]">
+        <p className="text-[11px] text-obsidian">
           Selected: <span className="font-medium">{value}</span>
-          {fitWarning && <span className="ml-2 text-[#6E6E6B]">({fitWarning})</span>}
+          {fitWarning && <span className="ml-2 text-ash">({fitWarning})</span>}
         </p>
       )}
 
       {/* No selection hint */}
       {!value && (
-        <p className="text-[11px] text-[#6E6E6B]">Please select a size</p>
+        <p className="text-[11px] text-ash">Please select a size</p>
       )}
     </div>
   );

@@ -23,18 +23,18 @@ export default function Sale() {
   }, [products]);
   const count = sorted.length;
   return (
-    <div style={{ fontFamily: "'Archivo', system-ui, sans-serif", background: '#FFFFFF', minHeight: '100vh' }}>
+    <div style={{ fontFamily: "'Family Klein', 'Helvetica Neue', Helvetica, Arial, sans-serif", background: '#F7F5F1', minHeight: '100vh' }}>
       <div className="px-4 md:px-8 lg:px-12">
         <div className="flex items-baseline justify-between pt-8 pb-2">
           <div className="flex items-baseline gap-3">
-            <h1 className="text-[28px] md:text-[32px] font-light text-[#0E0E0E] tracking-tight">Sale</h1>
-            <span className="text-[13px] text-[#6E6E6B] tabular-nums">{count} product{count === 1 ? '' : 's'}</span>
+            <h1 className="text-[28px] md:text-[32px] font-light text-obsidian tracking-tight">Sale</h1>
+            <span className="text-[13px] text-ash tabular-nums">{count} product{count === 1 ? '' : 's'}</span>
           </div>
         </div>
-        <div className="flex items-center gap-6 border-b border-[#E3E2DF] pb-3 mb-6 text-[12px] font-medium uppercase tracking-[0.10em]">
+        <div className="flex items-center gap-6 border-b border-line pb-3 mb-6 text-[12px] font-medium uppercase tracking-[0.10em]">
           {[{ v: '', l: 'All' }, { v: 'women', l: 'Women' }, { v: 'men', l: 'Men' }].map((t) => (
             <button key={t.v} onClick={() => setTab(t.v)}
-              className={`pb-3 -mb-[3px] border-b-2 ${tab === t.v ? 'border-[#0E0E0E] text-[#0E0E0E]' : 'border-transparent text-[#6E6E6B] hover:text-[#0E0E0E]'}`}>
+              className={`pb-3 -mb-[3px] border-b-2 ${tab === t.v ? 'border-obsidian text-obsidian' : 'border-transparent text-ash hover:text-obsidian'}`}>
               {t.l}
             </button>
           ))}
@@ -45,10 +45,10 @@ export default function Sale() {
           </div>
         ) : (
           <div className="py-20 text-center">
-            <Sparkles size={28} className="mx-auto text-[#6E6E6B]" />
+            <Sparkles size={28} className="mx-auto text-ash" />
             <p className="mt-4 text-[18px] font-medium uppercase tracking-[0.06em]"><Tx k="emptySale" /></p>
-            <p className="mt-2 text-[13px] text-[#6E6E6B]"><Tx k="emptySaleSub" /></p>
-            <Link to="/new" className="mt-6 inline-flex min-h-[44px] items-center bg-[#0E0E0E] px-8 text-[12px] font-medium uppercase tracking-[0.10em] text-white"><Tx k="newArrivals" /></Link>
+            <p className="mt-2 text-[13px] text-ash"><Tx k="emptySaleSub" /></p>
+            <Link to="/new" className="mt-6 inline-flex min-h-[44px] items-center bg-obsidian px-8 text-[12px] font-medium uppercase tracking-[0.10em] text-white"><Tx k="newArrivals" /></Link>
           </div>
         )}
       </div>

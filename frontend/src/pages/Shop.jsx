@@ -34,25 +34,25 @@ export default function Shop({ preset = {} }) {
   const count = visible?.length ?? null;
   const activeFilterCount = f.activeCount;
   return (
-    <div style={{ fontFamily: "'Archivo', system-ui, sans-serif", background: '#FFFFFF', minHeight: '100vh' }}>
+    <div style={{ fontFamily: "'Family Klein', 'Helvetica Neue', Helvetica, Arial, sans-serif", background: '#F7F5F1', minHeight: '100vh' }}>
       <Seo title={`${meta}${f.gender?' — '+f.gender.charAt(0).toUpperCase()+f.gender.slice(1):''}`} description={`Shop premium ${meta.toLowerCase()}. Made in Pakistan.`} canonical={window.location?.pathname||'/shop'} />
       <div className="px-4 md:px-8 lg:px-12">
         <div className="flex items-baseline justify-between pt-8 pb-2">
           <div className="flex items-baseline gap-3">
-            <h1 className="text-[28px] md:text-[32px] font-light text-[#0E0E0E] tracking-tight">{meta}</h1>
-            {count !== null && <span className="text-[13px] text-[#6E6E6B] tabular-nums">{count} product{count===1?'':'s'}</span>}
+            <h1 className="text-[28px] md:text-[32px] font-light text-obsidian tracking-tight">{meta}</h1>
+            {count !== null && <span className="text-[13px] text-ash tabular-nums">{count} product{count===1?'':'s'}</span>}
           </div>
-          {activeFilterCount > 0 && <button onClick={f.clearAll} className="flex items-center gap-1 text-[11px] font-medium uppercase tracking-[0.10em] text-[#6E6E6B] hover:text-[#0E0E0E]">Clear all <X size={12} /></button>}
+          {activeFilterCount > 0 && <button onClick={f.clearAll} className="flex items-center gap-1 text-[11px] font-medium uppercase tracking-[0.10em] text-ash hover:text-obsidian">Clear all <X size={12} /></button>}
         </div>
-        <div className="flex items-center justify-between border-b border-[#E3E2DF] pb-3 mb-6">
-          <button ref={filterBtnRef} onClick={() => setSheetOpen(true)} className="inline-flex items-center gap-2 text-[12px] font-medium uppercase tracking-[0.10em] text-[#0E0E0E] hover:opacity-60">
+        <div className="flex items-center justify-between border-b border-line pb-3 mb-6">
+          <button ref={filterBtnRef} onClick={() => setSheetOpen(true)} className="inline-flex items-center gap-2 text-[12px] font-medium uppercase tracking-[0.10em] text-obsidian hover:opacity-60">
             <SlidersHorizontal size={14} /> Filter and Sort
-            {activeFilterCount > 0 && <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#0E0E0E] px-1.5 text-[10px] font-bold text-white">{activeFilterCount}</span>}
+            {activeFilterCount > 0 && <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-obsidian px-1.5 text-[10px] font-bold text-white">{activeFilterCount}</span>}
           </button>
           <div className="flex items-center gap-4">
             <div className="relative">
               <select value={f.sort} onChange={(e) => f.setOne('sort', e.target.value, { replace: true })}
-                className="appearance-none bg-transparent pr-5 text-[12px] font-medium uppercase tracking-[0.10em] text-[#0E0E0E] outline-none cursor-pointer">
+                className="appearance-none bg-transparent pr-5 text-[12px] font-medium uppercase tracking-[0.10em] text-obsidian outline-none cursor-pointer">
                 {[['popular','Featured'],['newest','Newest'],['price-asc','Price: Low to High'],['price-desc','Price: High to Low']].map(([v,l])=><option key={v} value={v}>{l}</option>)}
               </select>
             </div>

@@ -327,3 +327,9 @@ Format:
 
 - **2026-08-04** — 🎨 **Home: "The Campaign" section → CK below-hero tray style**
   - Restyled from tall numbered editorial tiles to CK's below-hero tray pattern (checked live): clean white section, grid of image tiles (4/5), label + sub below, hairline "Shop" CTA link with arrow. Same 3 items (For Her / For Him / The Fabric) with per-tile CTAs (Shop Women / Shop Men / Our standards).
+
+- **2026-08-04** — 🎨 **FULL STOREFRONT → CK design system (14 files)**
+  - Converted all remaining hardcoded old palette + Archivo font to the CK design tokens across: Shop, Sale, Blog, BlogPost, FitFinder, BundleBuilder, FabricTech, NotFound, ProductCard, QuickView, FitScale, SearchOverlay, CountrySelector, BlogMarkdown.
+  - `#0E0E0E→obsidian` · `#6E6E6B→ash` · `#E3E2DF→line` · `#F7F6F4→alabaster` · Archivo→Helvetica CK stack (39k edits via script).
+  - Removed Archivo from Google Fonts (unused now — only Instrument Serif loads); page wrappers white → warm ivory alabaster (#F7F5F1) for a cohesive warm tone across all pages.
+  - Verified: no old hex/Archivo remains in pages/components; build clean.

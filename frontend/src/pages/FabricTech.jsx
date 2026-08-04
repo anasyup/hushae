@@ -51,8 +51,8 @@ export default function FabricTech({ slug = 'breathable' }) {
   }, [slug]);
 
   return (
-    <div style={{ fontFamily: "'Archivo', system-ui, sans-serif", background: '#F7F6F4' }}>
-      <div className="bg-[#0E0E0E] text-white section">
+    <div style={{ fontFamily: "'Family Klein', 'Helvetica Neue', Helvetica, Arial, sans-serif", background: '#F7F5F1' }}>
+      <div className="bg-obsidian text-white section">
         <div className="container text-center py-12 md:py-20">
           <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-white/50">Fabric technology</p>
           <h1 className="mt-3 h1 !text-white">{tech.title}</h1>
@@ -63,17 +63,17 @@ export default function FabricTech({ slug = 'breathable' }) {
         <div className="grid gap-12 md:grid-cols-2 max-w-3xl mx-auto">
           <div>
             <h2 className="h3">How it works</h2>
-            <p className="mt-4 body leading-relaxed text-[#6E6E6B]">{tech.body}</p>
+            <p className="mt-4 body leading-relaxed text-ash">{tech.body}</p>
           </div>
           <div>
             <h2 className="h3">When to choose</h2>
-            <p className="mt-4 body leading-relaxed text-[#6E6E6B]">{tech.whenToChoose}</p>
+            <p className="mt-4 body leading-relaxed text-ash">{tech.whenToChoose}</p>
           </div>
         </div>
       </div>
 
       {products.length > 0 && (
-        <div className="section" style={{ background: '#FFFFFF' }}>
+        <div className="section" style={{ background: '#F7F5F1' }}>
           <div className="container">
             <h2 className="h3 mb-8">{tech.name} products</h2>
             <div className="grid grid-cols-2 gap-[2px] md:grid-cols-4">
@@ -83,13 +83,13 @@ export default function FabricTech({ slug = 'breathable' }) {
         </div>
       )}
 
-      <div className="container section text-center border-t border-[#E3E2DF]">
-        <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[#6E6E6B]">Explore more</p>
+      <div className="container section text-center border-t border-line">
+        <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-ash">Explore more</p>
         <h2 className="mt-2 h3">All fabric technologies</h2>
         <div className="mt-6 flex flex-wrap justify-center gap-3">
           {Object.entries(TECHNOLOGIES).map(([key, t]) => (
             <Link key={key} to={`/fabric/${key}`}
-              className={`border px-6 py-2.5 text-[12px] font-medium uppercase tracking-[0.10em] transition-colors ${key === slug ? 'border-[#0E0E0E] bg-[#0E0E0E] text-white' : 'border-[#E3E2DF] text-[#0E0E0E] hover:border-[#0E0E0E]'}`}>
+              className={`border px-6 py-2.5 text-[12px] font-medium uppercase tracking-[0.10em] transition-colors ${key === slug ? 'border-obsidian bg-obsidian text-white' : 'border-line text-obsidian hover:border-obsidian'}`}>
               {t.name}
             </Link>
           ))}
