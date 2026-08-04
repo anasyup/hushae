@@ -341,3 +341,7 @@ Format:
   - Rebuilt from scratch to match CK's actual homepage: enormous bold uppercase Helvetica (52→150px), full-bleed stark-white campaign hero, CK tray row (image tile + label below + circle arrow), "Just In" product rail with CK-red accent, big typographic editorial statement on alabaster, full-bleed black "Considered Comfort" campaign, one-line perks, bold Fit Finder, black newsletter.
   - Dropped the Instrument Serif italics and small/decorative treatments that were the previous miss — CK is a sans-serif house: Family Klein → Helvetica → Arial, monochrome + CK red (#D50000) only for accent.
   - 2 new stark CK-style campaign images (hero-ck, hero-ck-men).
+
+- **2026-08-04** — 🎨 **Home: banner headings → BLACK (visibility) + Fit Finder animations**
+  - Hero "SECOND SKIN" + campaign "CONSIDERED COMFORT": white type was invisible on the bright campaign images → switched to black (obsidian) type with soft ivory veils; CTAs flipped to black buttons.
+  - Fit Finder: added scroll-into-view Reveal (IntersectionObserver fade+rise) with staggered delays on eyebrow/heading/paragraph/CTA, a soft ambient glow, an underline accent animation on "Exact Fit." (ff-underline keyframes), and a CTA arrow slide on hover.

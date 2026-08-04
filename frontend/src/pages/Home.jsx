@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, ArrowUpRight } from 'lucide-react';
 import { useApp } from '../store/AppContext';
@@ -29,6 +29,28 @@ const TRAYS = [
 
 const PERKS = ['Discreet packaging', 'COD nationwide', '7-day returns', 'Wash-tested 40 cycles'];
 
+/* ── Reveal — quiet scroll-into-view animation (fade + rise) ─────────────── */
+function Reveal({ children, delay = 0, className = '' }) {
+  const ref = useRef(null);
+  const [vis, setVis] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return undefined;
+    const io = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) { setVis(true); io.disconnect(); }
+    }, { threshold: 0.18, rootMargin: '0px 0px -40px 0px' });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+  return (
+    <div ref={ref}
+      className={`transition-all duration-700 ease-out will-change-transform ${vis ? 'translate-y-0 opacity-100' : 'translate-y-7 opacity-0'} ${className}`}
+      style={{ transitionDelay: `${delay}ms`, transitionTimingFunction: 'cubic-bezier(0.22, 1, 0.36, 1)' }}>
+      {children}
+    </div>
+  );
+}
+
 export default function Home() {
   const { settings } = useApp();
   const [fresh, setFresh] = useState(null);
@@ -56,30 +78,31 @@ export default function Home() {
         jsonLdId="home-org" />
 
       {/* ═══ 01 — HERO: full-bleed, enormous type ══════════════════ */}
-      <section className="relative w-full overflow-hidden bg-black" style={{ minHeight: '100vh' }}>
+      <section className="relative w-full overflow-hidden bg-white" style={{ minHeight: '100vh' }}>
         <img src="/images/campaign/hero-ck.jpg" alt="" fetchpriority="high"
           className="absolute inset-0 h-full w-full object-cover object-center" />
-        {/* CK-style: subtle bottom gradient only, top stays clean for header */}
-        <div className="absolute inset-x-0 bottom-0 h-[55%] bg-gradient-to-t from-black/70 via-black/25 to-transparent" />
+        {/* Light veils — the hero image is bright, so the type is BLACK */}
+        <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-alabaster/80 via-alabaster/30 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-[60%] bg-gradient-to-t from-alabaster/95 via-alabaster/40 to-transparent" />
 
         <div className="relative flex min-h-screen items-end">
           <div className="w-full px-5 pb-16 md:px-12 md:pb-24 lg:px-20">
-            <p className="text-[11px] font-medium uppercase tracking-[0.34em] text-white/70">Premium innerwear · Made in Pakistan</p>
-            <h1 className="mt-6 font-display text-[52px] font-bold uppercase leading-[0.92] tracking-[-0.01em] text-white md:text-[120px] lg:text-[150px]">
+            <p className="text-[11px] font-medium uppercase tracking-[0.34em] text-graphite">Premium innerwear · Made in Pakistan</p>
+            <h1 className="mt-6 font-display text-[52px] font-bold uppercase leading-[0.92] tracking-[-0.01em] text-obsidian md:text-[120px] lg:text-[150px]">
               Second
               <br />
               Skin
             </h1>
-            <p className="mt-7 max-w-md text-[15px] leading-relaxed text-white/80">
+            <p className="mt-7 max-w-md text-[15px] leading-relaxed text-graphite">
               Engineered for comfort. Designed in Pakistan, finished to an international standard.
             </p>
             <div className="mt-10 flex flex-wrap items-center gap-4">
               <Link to="/women"
-                className="inline-flex min-h-[56px] items-center justify-center bg-white px-12 text-[13px] font-bold uppercase tracking-[0.18em] text-black transition-colors duration-base hover:bg-black hover:text-white hover:ring-1 hover:ring-white">
+                className="inline-flex min-h-[56px] items-center justify-center bg-obsidian px-12 text-[13px] font-bold uppercase tracking-[0.18em] text-white transition-colors duration-base hover:bg-graphite">
                 Shop Women
               </Link>
               <Link to="/men"
-                className="group inline-flex min-h-[56px] items-center justify-center border-b border-white/50 px-2 text-[13px] font-bold uppercase tracking-[0.18em] text-white transition-colors duration-base hover:border-white">
+                className="group inline-flex min-h-[56px] items-center justify-center border-b border-obsidian/40 px-2 text-[13px] font-bold uppercase tracking-[0.18em] text-obsidian transition-colors duration-base hover:border-obsidian">
                 Shop Men <ArrowRight size={14} className="ml-2 transition-transform duration-base group-hover:translate-x-1" />
               </Link>
             </div>
@@ -155,23 +178,24 @@ export default function Home() {
       </section>
 
       {/* ═══ 05 — CAMPAIGN FULL-BLEED (For Him) ════════════════════ */}
-      <section className="relative overflow-hidden bg-black">
+      <section className="relative overflow-hidden bg-white">
         <img src="/images/campaign/hero-ck-men.jpg" alt="For him" loading="lazy"
           className="absolute inset-0 h-full w-full object-cover object-center" />
-        <div className="absolute inset-x-0 bottom-0 h-[60%] bg-gradient-to-t from-black/75 via-black/30 to-transparent" />
+        {/* Bright image → light veil + BLACK type */}
+        <div className="absolute inset-x-0 bottom-0 h-[65%] bg-gradient-to-t from-alabaster/95 via-alabaster/40 to-transparent" />
         <div className="relative flex min-h-[85vh] items-end">
           <div className="w-full px-5 pb-16 md:px-12 md:pb-24 lg:px-20">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.34em] text-white/70">For Him · New Season</p>
-            <h2 className="mt-6 font-display text-[40px] font-bold uppercase leading-[0.95] tracking-[-0.01em] text-white md:text-[90px]">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.34em] text-graphite">For Him · New Season</p>
+            <h2 className="mt-6 font-display text-[40px] font-bold uppercase leading-[0.95] tracking-[-0.01em] text-obsidian md:text-[90px]">
               Considered
               <br />
               Comfort
             </h2>
-            <p className="mt-6 max-w-md text-[14px] leading-relaxed text-white/80">
+            <p className="mt-6 max-w-md text-[14px] leading-relaxed text-graphite">
               Briefs, boxers and trunks cut on a stretch blend that keeps its shape — the size you buy is the size you wear a year later.
             </p>
             <Link to="/men"
-              className="group mt-9 inline-flex min-h-[56px] items-center justify-center bg-white px-12 text-[13px] font-bold uppercase tracking-[0.18em] text-black transition-colors duration-base hover:bg-black hover:text-white hover:ring-1 hover:ring-white">
+              className="group mt-9 inline-flex min-h-[56px] items-center justify-center bg-obsidian px-12 text-[13px] font-bold uppercase tracking-[0.18em] text-white transition-colors duration-base hover:bg-graphite">
               Shop Men <ArrowRight size={14} className="ml-2" />
             </Link>
           </div>
@@ -187,22 +211,33 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ═══ 07 — FIT FINDER ═══════════════════════════════════════ */}
-      <section className="border-t border-line bg-alabaster py-20 text-center md:py-28">
-        <div className="container max-w-xl">
-          <p className="text-[12px] font-semibold uppercase tracking-[0.3em] text-ash">The Fit Finder</p>
-          <h2 className="mt-6 font-display text-[32px] font-bold uppercase tracking-[0.01em] text-obsidian md:text-[56px]">
-            Four Questions.
-            <br />
-            Exact Fit.
-          </h2>
-          <p className="mx-auto mt-6 max-w-md text-[14px] leading-relaxed text-ash">
-            No tape measure. Our Fit Finder works out your true size from the pieces you already own.
-          </p>
-          <Link to="/fit-finder"
-            className="mt-10 inline-flex min-h-[56px] items-center justify-center bg-obsidian px-12 text-[13px] font-bold uppercase tracking-[0.18em] text-white transition-colors duration-base hover:bg-graphite">
-            Start the Fit Finder
-          </Link>
+      {/* ═══ 07 — FIT FINDER (animated reveal) ═════════════════════ */}
+      <section className="relative overflow-hidden border-t border-line bg-alabaster py-20 text-center md:py-28">
+        {/* Subtle ambient glow — quiet depth behind the reveal */}
+        <div className="pointer-events-none absolute left-1/2 top-1/2 h-[420px] w-[720px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-satin/40 blur-[120px]" aria-hidden="true" />
+        <div className="relative container max-w-xl">
+          <Reveal>
+            <p className="text-[12px] font-semibold uppercase tracking-[0.3em] text-ash">The Fit Finder</p>
+          </Reveal>
+          <Reveal delay={120}>
+            <h2 className="mt-6 font-display text-[32px] font-bold uppercase tracking-[0.01em] text-obsidian md:text-[56px]">
+              Four Questions.
+              <br />
+              <span className="inline-block animate-[ff-underline_1.4s_cubic-bezier(0.22,1,0.36,1)_0.3s_both]">Exact Fit.</span>
+            </h2>
+          </Reveal>
+          <Reveal delay={240}>
+            <p className="mx-auto mt-6 max-w-md text-[14px] leading-relaxed text-ash">
+              No tape measure. Our Fit Finder works out your true size from the pieces you already own.
+            </p>
+          </Reveal>
+          <Reveal delay={360}>
+            <Link to="/fit-finder"
+              className="group mt-10 inline-flex min-h-[56px] items-center justify-center bg-obsidian px-12 text-[13px] font-bold uppercase tracking-[0.18em] text-white transition-all duration-base hover:bg-graphite hover:shadow-lg">
+              Start the Fit Finder
+              <ArrowRight size={14} className="ml-2 transition-transform duration-base group-hover:translate-x-1" />
+            </Link>
+          </Reveal>
         </div>
       </section>
 

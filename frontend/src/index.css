@@ -308,6 +308,12 @@
 
 @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 
+/* ── Fit Finder accent — a quiet rise-in for the "Exact Fit." underline word ── */
+@keyframes ff-underline {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 /* ── Hero entrance ──────────────────────────────────────────────────────────
  * Deliberately CSS rather than framer-motion. The headline is the LCP
  * candidate, so it must be painted by the initial HTML and revealed by the
