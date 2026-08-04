@@ -392,3 +392,8 @@ Format:
 
 - **2026-08-04** — 🎨 **Wordmark: H monogram removed everywhere (text-only HUSHAE)**
   - Removed the inline H-mark SVG from Wordmark entirely — header (home + all pages) and mobile drawer now show only the bold "HUSHAE" text wordmark. Favicon (browser tab) keeps the H mark.
+
+- **2026-08-04** — ⚡ **PERFORMANCE: Mumbai region + AVIF/WebP images + async fonts**
+  - Vercel function region moved iad1 (US East) → bom1 (Mumbai) — cuts Pakistan↔server RTT from ~250ms to ~70ms on every API call and the HTML.
+  - Campaign images converted to AVIF + WebP (hero-women 58→37KB avif, hero-men 43→28KB, fabric 164→78KB); Home now serves AVIF via <picture> with WebP/JPEG fallbacks (trays included).
+  - Hero AVIF preloaded in <head> (LCP starts immediately); Instrument Serif stylesheet now async (media=print onload swap + preload) so Helvetica text paints instantly and fonts never block render.

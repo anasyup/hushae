@@ -12,7 +12,12 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+    <!-- Fonts: async, non-render-blocking — text paints with system Helvetica first -->
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" />
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+    <!-- Hero AVIF preloaded — LCP image starts downloading immediately -->
+    <link rel="preload" as="image" href="/images/campaign/hushae-hero-women.avif" type="image/avif" fetchpriority="high" />
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" /></noscript>
   </head>
   <body>
     <div id="root"></div>
