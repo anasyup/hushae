@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  ArrowLeft, Check, AlertTriangle, Eye, EyeOff, FileText, Lock, RefreshCw, Save, ShieldCheck, Trash2, Users, Key, ShieldAlert, Play, Search, X
+  ArrowLeft, Check, AlertTriangle, Eye, EyeOff, FileText, Lock, LogOut, Monitor, RefreshCw, Save, ShieldCheck, Smartphone, Trash2, Users, Key, ShieldAlert, Play, Search, X
 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
@@ -49,6 +49,8 @@ const ROLES = ['admin', 'Owner', 'Manager', 'Staff', 'Warehouse', 'Support'];
 export default function SettingsSecurity() {
   const { auth, setAuth, toast } = useApp();
   const [activeTab, setActiveTab] = useState('personal');
+  const [sessions, setSessions] = useState(null);
+  const [sessBusy, setSessBusy] = useState(false);
 
   // Personal password change
   const [current, setCurrent] = useState('');
@@ -87,8 +89,37 @@ export default function SettingsSecurity() {
       loadLogs();
     } else if (activeTab === 'fraud') {
       loadFraudOrders();
+    } else if (activeTab === 'sessions') {
+      loadSessions();
     }
   }, [activeTab, logPage]);
+
+  const loadSessions = () => {
+    api('/customer/sessions', { token: auth.token })
+      .then((d) => setSessions(d.sessions || []))
+      .catch(() => setSessions([]));
+  };
+
+  const revokeSession = async (jti) => {
+    setSessBusy(true);
+    try {
+      await api(`/customer/sessions/${jti}`, { method: 'DELETE', token: auth.token });
+      toast('Device signed out');
+      loadSessions();
+    } catch (ex) { toast(ex.message); }
+    setSessBusy(false);
+  };
+
+  const revokeOthers = async () => {
+    if (!window.confirm('Sign out every other device? You will stay signed in here.')) return;
+    setSessBusy(true);
+    try {
+      const d = await api('/customer/sessions/revoke-others', { method: 'POST', token: auth.token });
+      toast(`Signed out ${d.revoked || 0} other device(s)`);
+      loadSessions();
+    } catch (ex) { toast(ex.message); }
+    setSessBusy(false);
+  };
 
   // Loaders
   const loadUsers = () => {
@@ -283,6 +314,7 @@ export default function SettingsSecurity() {
           {[
             { id: 'personal', label: 'My Login', icon: Lock },
             { id: 'users', label: 'Users & Roles', icon: Users },
+            { id: 'sessions', label: 'Devices', icon: Monitor },
             { id: 'logs', label: 'Audit Logs', icon: FileText },
             { id: 'fraud', label: 'Fraud Filters', icon: ShieldAlert },
             { id: 'advanced', label: 'JWT Rotation', icon: Key }
@@ -549,6 +581,59 @@ export default function SettingsSecurity() {
               </Section>
             </div>
           </div>
+        )}
+
+        {activeTab === 'sessions' && (
+          <Section
+            title="Active Devices / Sessions"
+            description="Every device that is signed in to your admin account. Revoke any device you do not recognise."
+            action={
+              <button
+                onClick={revokeOthers}
+                disabled={sessBusy || !sessions?.length}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-3 py-1.5 text-[13px] font-semibold text-neutral-600 transition hover:border-neutral-400"
+              >
+                <LogOut size={12} /> Sign out other devices
+              </button>
+            }
+          >
+            {!sessions ? (
+              <p className="text-[13px] text-neutral-400">Loading devices…</p>
+            ) : sessions.length === 0 ? (
+              <p className="text-[13px] text-neutral-400">No active sessions found.</p>
+            ) : (
+              <div className="divide-y divide-neutral-100">
+                {sessions.map((s) => (
+                  <div key={s.jti} className="flex items-center justify-between gap-3 py-3">
+                    <div className="flex items-center gap-3">
+                      <span className="grid h-9 w-9 place-items-center rounded-xl bg-neutral-100 text-neutral-500">
+                        {/iPhone|Android|phone/i.test(s.device || '') ? <Smartphone size={15} /> : <Monitor size={15} />}
+                      </span>
+                      <div>
+                        <p className="text-[13px] font-semibold text-neutral-900">
+                          {s.device || 'Unknown device'}{s.browser ? ` · ${s.browser}` : ''}
+                          {s.current && <span className="ml-2 rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-bold uppercase text-emerald-700">This device</span>}
+                        </p>
+                        <p className="mt-0.5 text-[11px] text-neutral-500">
+                          {s.ipHint ? `Network ${s.ipHint} · ` : ''}
+                          Last seen {s.lastSeen ? new Date(s.lastSeen).toLocaleString() : '—'}
+                        </p>
+                      </div>
+                    </div>
+                    {!s.current && (
+                      <button
+                        onClick={() => revokeSession(s.jti)}
+                        disabled={sessBusy}
+                        className="inline-flex items-center gap-1 rounded-lg border border-neutral-200 px-2.5 py-1.5 text-[11px] font-semibold text-neutral-500 transition hover:border-red-300 hover:text-red-600"
+                      >
+                        <X size={11} /> Revoke
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </Section>
         )}
 
         {activeTab === 'logs' && (

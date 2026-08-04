@@ -5,6 +5,7 @@ import App from './App';
 import { AppProvider } from './store/AppContext';
 import './index.css';
 import './tokens.css';
+import './admin-dark.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

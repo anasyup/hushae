@@ -2,11 +2,11 @@ import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, NavLink, Navigate, useLocation } from 'react-router-dom';
 import {
   Activity, BadgePercent, BarChart3, ChevronDown, Command, CreditCard, FileText, FolderOpen, Globe, Home,
-  LayoutTemplate, LogOut, Megaphone, Menu, MessageSquare, Package, PackageX, Plus,
-  Search, Settings as SettingsIcon, ShieldCheck, ShoppingBag, Signpost, Sparkles, Star, Store, Tags, TrendingUp, Truck, Users, X, Zap,
+  LayoutTemplate, LogOut, Megaphone, Menu, MessageSquare, Moon, Package, PackageX, Plus,
+  Search, Settings as SettingsIcon, ShieldCheck, ShoppingBag, Signpost, Sparkles, Star, Store, Sun, Tags, TrendingUp, Truck, Users, X, Zap,
 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
-import { applyAdminTheme, clearAdminTheme } from '../lib/adminTheme';
+import { applyAdminTheme, clearAdminTheme, getAdminTheme, setAdminTheme } from '../lib/adminTheme';
 import ProfitCalculator from './ProfitCalculator';
 import NotificationBell from './dashboard/NotificationBell';
 import CommandPalette from './CommandPalette';
@@ -266,7 +266,13 @@ export default function AdminLayout({ children, title }) {
 function TopBar({ title, auth, onCmdK }) {
   const loc = useLocation();
   const [createOpen, setCreateOpen] = useState(false);
+  const [dark, setDark] = useState(() => getAdminTheme() === 'dark');
   const createRef = useRef(null);
+  const toggleDark = () => {
+    const next = !dark;
+    setDark(next);
+    setAdminTheme(next ? 'dark' : 'light');
+  };
   const role = auth?.user?.role;
   const canCreate = !role || role === 'admin' || role === 'Owner' || role === 'Manager';
   useEffect(() => {
@@ -288,6 +294,8 @@ function TopBar({ title, auth, onCmdK }) {
       <div className="flex items-center justify-between gap-6">
         <div className="min-w-0 flex-1"><h1 className="truncate font-sans text-lg font-semibold leading-tight text-neutral-900">{title || crumbs[crumbs.length - 1]?.label}</h1><nav className="mt-0.5 flex items-center gap-1.5 text-[13px] text-neutral-500">{crumbs.map((c, i) => <span key={c.to} className="inline-flex items-center gap-1.5">{i > 0 && <span className="text-neutral-300">/</span>}{i === crumbs.length - 1 ? <span className="font-medium text-neutral-700">{c.label}</span> : <Link to={c.to} className="hover:text-neutral-900">{c.label}</Link>}</span>)}</nav></div>
         <div className="flex items-center gap-2">
+          {/* Theme toggle — light/dark */}
+          <button onClick={toggleDark} className="hidden items-center justify-center rounded-full border border-neutral-200 bg-white p-2 text-neutral-500 transition hover:border-neutral-400 hover:text-neutral-900 md:inline-flex" title={dark ? 'Switch to light mode' : 'Switch to dark mode'}>{dark ? <Sun size={13} /> : <Moon size={13} />}</button>
           {/* ⌘K Search button */}
           <button onClick={onCmdK} className="hidden items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-[13px] font-semibold text-neutral-500 transition hover:border-neutral-400 hover:text-neutral-700 md:inline-flex" title="Search admin (⌘K)"><Command size={10} /> Search</button>
           <span className="hidden items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-[15px] font-semibold text-neutral-600 lg:inline-flex"><span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />Store online</span>

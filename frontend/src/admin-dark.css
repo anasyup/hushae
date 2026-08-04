@@ -1,0 +1,168 @@
+/* ============================================================================
+ * ADMIN DARK MODE — applied when <html class="dark-admin"> is present.
+ * Toggle lives in the admin TopBar (Moon/Sun button, saved in localStorage).
+ * ========================================================================== */
+
+.dark-admin {
+  color-scheme: dark;
+}
+
+/* Base surfaces */
+.dark-admin .admin-shell,
+.dark-admin body {
+  background: #0e0f11;
+}
+
+.dark-admin .admin-main {
+  background: #0e0f11;
+  color: #d6d6d8;
+}
+
+/* Sidebar */
+.dark-admin aside,
+.dark-admin .admin-shell aside,
+.dark-admin [class*="sidebar"] {
+  background: #131417 !important;
+  border-color: #26272b !important;
+}
+.dark-admin aside a,
+.dark-admin aside span,
+.dark-admin aside button {
+  color: #9a9ba1 !important;
+}
+.dark-admin aside a:hover,
+.dark-admin aside a.active {
+  background: #1f2126 !important;
+  color: #f2f2f3 !important;
+}
+
+/* TopBar */
+.dark-admin header,
+.dark-admin .sticky.top-0 {
+  background: rgba(19, 20, 23, 0.9) !important;
+  border-color: #26272b !important;
+}
+.dark-admin header h1,
+.dark-admin header nav,
+.dark-admin header nav a,
+.dark-admin header nav span {
+  color: #d6d6d8 !important;
+}
+.dark-admin header nav .text-neutral-300 {
+  color: #3a3b40 !important;
+}
+
+/* Cards & panels — the admin uses white cards everywhere */
+.dark-admin .bg-white,
+.dark-admin .bg-white\/60,
+.dark-admin .bg-white\/70,
+.dark-admin .bg-white\/80,
+.dark-admin .bg-white\/85,
+.dark-admin [class*="bg-white"] {
+  background-color: #17181b !important;
+  border-color: #26272b !important;
+  color: #d6d6d8 !important;
+}
+
+/* Neutral surfaces */
+.dark-admin .bg-neutral-50 { background-color: #17181b !important; }
+.dark-admin .bg-neutral-100 { background-color: #1d1e22 !important; }
+.dark-admin .bg-neutral-200 { background-color: #26272b !important; }
+.dark-admin .bg-neutral-900 { background-color: #e8e8ea !important; }
+.dark-admin .bg-neutral-900:hover { background-color: #ffffff !important; }
+
+/* Text colours */
+.dark-admin .text-neutral-900 { color: #e8e8ea !important; }
+.dark-admin .text-neutral-800 { color: #d6d6d8 !important; }
+.dark-admin .text-neutral-700 { color: #b9babe !important; }
+.dark-admin .text-neutral-600 { color: #9a9ba1 !important; }
+.dark-admin .text-neutral-500 { color: #7d7e84 !important; }
+.dark-admin .text-neutral-400 { color: #6b6c72 !important; }
+.dark-admin .text-neutral-300 { color: #56575d !important; }
+
+/* Borders */
+.dark-admin .border-neutral-100 { border-color: #26272b !important; }
+.dark-admin .border-neutral-200 { border-color: #2c2d32 !important; }
+.dark-admin .border-neutral-300 { border-color: #3a3b40 !important; }
+.dark-admin .border-neutral-900 { border-color: #e8e8ea !important; }
+.dark-admin .border-black\/5 { border-color: rgba(255,255,255,0.06) !important; }
+
+/* Inputs */
+.dark-admin input,
+.dark-admin select,
+.dark-admin textarea {
+  background-color: #1d1e22 !important;
+  border-color: #3a3b40 !important;
+  color: #e8e8ea !important;
+}
+.dark-admin input::placeholder,
+.dark-admin textarea::placeholder {
+  color: #56575d !important;
+}
+
+/* Tables */
+.dark-admin thead {
+  background-color: #1d1e22 !important;
+}
+.dark-admin thead th {
+  color: #9a9ba1 !important;
+}
+.dark-admin tbody tr:hover {
+  background-color: #1d1e22 !important;
+}
+.dark-admin tbody tr {
+  border-color: #26272b !important;
+}
+.dark-admin .divide-y > * {
+  border-color: #26272b !important;
+}
+.dark-admin .divide-neutral-100 > * {
+  border-color: #26272b !important;
+}
+
+/* Modal/overlay surfaces */
+.dark-admin .fixed.inset-0 [class*="bg-white"],
+.dark-admin [role="dialog"],
+.dark-admin [class*="modal"] {
+  background-color: #17181b !important;
+  border-color: #26272b !important;
+}
+
+/* Command palette, dropdowns, popovers */
+.dark-admin .shadow-lg,
+.dark-admin .shadow-xl,
+.dark-admin .shadow-sm {
+  background-color: #17181b !important;
+}
+
+/* Buttons that were white-on-dark already (Create, Add) keep contrast */
+.dark-admin button.bg-neutral-900 {
+  background-color: #e8e8ea !important;
+  color: #111 !important;
+}
+.dark-admin button.bg-neutral-900:hover {
+  background-color: #fff !important;
+}
+
+/* Small pills / chips */
+.dark-admin .bg-emerald-50 { background-color: rgba(16,185,129,0.12) !important; }
+.dark-admin .bg-red-50 { background-color: rgba(239,68,68,0.12) !important; }
+.dark-admin .bg-amber-50 { background-color: rgba(245,158,11,0.12) !important; }
+.dark-admin .bg-sky-50 { background-color: rgba(14,165,233,0.12) !important; }
+.dark-admin .bg-purple-50 { background-color: rgba(168,85,247,0.12) !important; }
+
+/* Scrollbars */
+.dark-admin ::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+.dark-admin ::-webkit-scrollbar-track {
+  background: #131417;
+}
+.dark-admin ::-webkit-scrollbar-thumb {
+  background: #3a3b40;
+  border-radius: 6px;
+}
+.dark-admin ::-webkit-scrollbar-thumb:hover {
+  background: #56575d;
+}

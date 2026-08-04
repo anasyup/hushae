@@ -22,6 +22,10 @@ Format:
 ---
 
 ## Changes
+- **2026-08-03** — 🌙 **Phase 2 continued: Admin Dark Mode + Devices/Sessions UI**
+  - Dark mode: full CSS theme (`admin-dark.css`, loaded via `main.jsx`), Moon/Sun toggle in the admin TopBar, preference saved in localStorage.
+  - Devices tab in Settings → Security: lists every signed-in admin device (device, browser, network hint, last seen, "This device" marker), with per-device Revoke and "Sign out other devices" (reuses `/api/customer/sessions` endpoints).
+
 - **2026-08-03** — 🛠️ **Phase 2 (Admin Completeness): Staff roles bug FIXED + Duplicate Product feature**
   - **Critical bug fix:** `User.role` enum was `['customer','admin']` but the SettingsSecurity "Create Sub-User" screen offers Owner/Manager/Staff/Warehouse/Support. Every attempt failed live with `` `Manager` is not a valid enum value ``. Extended the enum so staff accounts can actually be created.
   - **New:** `POST /api/products/:id/duplicate` — clones any product into a DRAFT (fresh slug/SKU, never live until published). Admin Products list + grid views got a Duplicate button (Copy icon).
