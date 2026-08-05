@@ -413,3 +413,9 @@ Format:
 - **2026-08-04** — 🎨 **Admin dark theme v2.1 — kill the white patches**
   - Root cause of the "weird" look: several admin surfaces + charts used HARDCODED light hexes that stayed white in dark mode.
   - Fixed: admin shell bg-[#F4F6F8]/bg-[#ebebeb] → dark; remaining light fills (bg-[#F1F1F1], #ECEBE8, #E5E7EB…) → dark; Recharts grid lines/ticks/tooltips/cursors/legend → dark palette; inline light-bg containers → dark; KPI accent text (#111111/#0D0D0D) + tinted icon bubbles → light/legible.
+
+- **2026-08-04** — 🎨 **Admin dark theme v3 — CSS-variable based (proper theming)**
+  - Root cause of the "ugly" dark mode: per-utility !important overrides never covered every screen consistently.
+  - Real fix: neutral/white/black colors in tailwind.config now map to CSS variables as `rgb(var(--x) / <alpha-value>)`; :root holds the light defaults (storefront byte-identical), .dark-admin swaps the whole palette in one place. Every `bg-white`, `text-neutral-900`, `border-neutral-200`, `bg-white/70` … across all 50+ admin screens now themes automatically and consistently.
+  - admin-dark.css slimmed to only what variables can't reach: sidebar/topbar chrome, Recharts SVG, status-badge tints, hardcoded hex fills, scrollbars.
+  - Clean cool-neutral dark palette (#0e1116 base, #161b22 cards, #1a2028 raised, #232b36 borders).

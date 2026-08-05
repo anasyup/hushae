@@ -30,6 +30,29 @@ export default {
         alabaster: '#F7F5F1',   // primary background — warm ivory (Hanro-style)
         cream:     '#EFEAE3',   // warm off-white — cards on alabaster
         satin:     '#E4DDD3',   // soft neutral (previous)
+
+        /* ── Theme-aware neutral + white/black (CSS-variable RGB) ─────────
+           Standard Tailwind theming: colors are `rgb(var(--x) / alpha)`,
+           so opacity utilities (bg-white/70, text-neutral-900/60 …) keep
+           working. index.css defines the triplets in :root (light = Tailwind
+           defaults) and .dark-admin (dark palette) — the admin dark mode
+           swaps the WHOLE palette in one place instead of per-utility
+           !important overrides. Storefront untouched. */
+        white: 'rgb(var(--tw-white) / <alpha-value>)',
+        black: 'rgb(var(--tw-black) / <alpha-value>)',
+        neutral: {
+          50:  'rgb(var(--n50)  / <alpha-value>)',
+          100: 'rgb(var(--n100) / <alpha-value>)',
+          200: 'rgb(var(--n200) / <alpha-value>)',
+          300: 'rgb(var(--n300) / <alpha-value>)',
+          400: 'rgb(var(--n400) / <alpha-value>)',
+          500: 'rgb(var(--n500) / <alpha-value>)',
+          600: 'rgb(var(--n600) / <alpha-value>)',
+          700: 'rgb(var(--n700) / <alpha-value>)',
+          800: 'rgb(var(--n800) / <alpha-value>)',
+          900: 'rgb(var(--n900) / <alpha-value>)',
+          950: 'rgb(var(--n950) / <alpha-value>)',
+        },
         stone:     '#C9BFB4',   // mid-tone warm
         // Secondary text. Was #7A736D, which measured 4.29:1 on alabaster and
         // 3.90:1 on cream — both under the 4.5:1 WCAG AA floor. Darkened just

@@ -11,6 +11,48 @@
  * here rather than being re-typed as utilities on each call site.
  * ========================================================================== */
 
+/* ── Theme-aware neutral/white/black tokens (RGB triplets) ────────────────
+   tailwind.config maps these to `rgb(var(--x) / <alpha-value>)`. :root holds
+   the LIGHT values (identical to Tailwind's defaults, so the storefront and
+   the light admin are byte-for-byte unchanged). .dark-admin swaps ONLY the
+   triplets — every `bg-white`, `text-neutral-900`, `border-neutral-200`,
+   `bg-white/70` … across the admin picks up the dark palette automatically.
+   This is the correct, scalable way to theme (no !important overrides). */
+:root {
+  --tw-white: 255 255 255;
+  --tw-black: 0 0 0;
+  --n50:  250 250 250;
+  --n100: 245 245 245;
+  --n200: 229 229 229;
+  --n300: 212 212 212;
+  --n400: 163 163 163;
+  --n500: 115 115 115;
+  --n600: 82 82 82;
+  --n700: 64 64 64;
+  --n800: 38 38 38;
+  --n900: 23 23 23;
+  --n950: 10 10 10;
+}
+
+/* Admin dark palette — clean cool-neutral dark.
+   Base #0e1116, cards #161b22, raised #1a2028, borders #232b36, text scale
+   descending from near-white (#eef1f5 → muted #6b7686). */
+.dark-admin {
+  --tw-white: 22 27 34;     /* cards / panels */
+  --tw-black: 14 17 22;     /* page background */
+  --n50:  22 27 34;         /* card surface */
+  --n100: 26 32 40;         /* raised / hover */
+  --n200: 35 43 54;         /* selected / strong borders */
+  --n300: 47 57 71;         /* input borders */
+  --n400: 75 86 100;        /* disabled */
+  --n500: 107 118 134;      /* secondary text */
+  --n600: 152 162 179;      /* body text */
+  --n700: 184 192 205;      /* emphasized text */
+  --n800: 211 217 226;      /* headings */
+  --n900: 238 241 245;      /* strongest text */
+  --n950: 248 250 252;
+}
+
 @layer base {
   /* Never let viewport-bleed editorial sections create a page-wide horizontal
      scrollbar. Individual product rails still use their own overflow-x-auto. */
