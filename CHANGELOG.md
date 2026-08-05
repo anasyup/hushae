@@ -419,3 +419,9 @@ Format:
   - Real fix: neutral/white/black colors in tailwind.config now map to CSS variables as `rgb(var(--x) / <alpha-value>)`; :root holds the light defaults (storefront byte-identical), .dark-admin swaps the whole palette in one place. Every `bg-white`, `text-neutral-900`, `border-neutral-200`, `bg-white/70` … across all 50+ admin screens now themes automatically and consistently.
   - admin-dark.css slimmed to only what variables can't reach: sidebar/topbar chrome, Recharts SVG, status-badge tints, hardcoded hex fills, scrollbars.
   - Clean cool-neutral dark palette (#0e1116 base, #161b22 cards, #1a2028 raised, #232b36 borders).
+
+- **2026-08-04** — 🌙 **Admin: dark mode is now the DEFAULT (full dark admin)**
+  - adminTheme.js default 'light' → 'dark' — the admin panel opens fully dark on first visit (login + all screens).
+  - applyAdminTheme() called in main.jsx BEFORE first paint (no light flash) and now route-aware: .dark-admin is applied only on /admin/* and removed on the storefront, so the storefront keeps its light palette.
+  - Added AdminThemeSync in App.jsx — re-applies the class on route changes (admin ↔ storefront never leaves the wrong palette).
+  - The Sun/Moon toggle still works; a user who picks light keeps that choice (persisted).

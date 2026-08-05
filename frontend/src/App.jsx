@@ -142,11 +142,21 @@ import CookieConsent from './components/CookieConsent';
 import PromoPopup from './components/PromoPopup';
 import MobileNav from './components/MobileNav';
 import { track } from './lib/track';
+import { applyAdminTheme } from './lib/adminTheme';
 import AnalyticsInjector from './components/Analytics';
 
 function ScrollToTop() {
   const { pathname, search } = useLocation();
   useEffect(() => { window.scrollTo(0, 0); }, [pathname, search]);
+  return null;
+}
+
+/* Re-apply the admin dark/light class whenever the route changes — the class
+   is added on admin pages and removed on the storefront, so navigating
+   admin ↔ storefront never leaves the wrong palette applied. */
+function AdminThemeSync() {
+  const { pathname } = useLocation();
+  useEffect(() => { applyAdminTheme(); }, [pathname]);
   return null;
 }
 
@@ -198,6 +208,7 @@ export default function App() {
   return (
     <div className="flex min-h-screen flex-col">
       <ScrollToTop />
+      <AdminThemeSync />
       <Tracker />
       {!isAdmin && (
         <a href="#main-content" className="skip-link">Skip to content</a>
