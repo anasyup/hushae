@@ -409,3 +409,7 @@ Format:
   - Status badges/pills + their text + ring colours mapped to proper dark tints (emerald/red/amber/sky/purple/blue).
   - Buttons: dark buttons flip to light, white buttons flip to dark; focus rings remapped.
   - Scrollbars + overlays styled; scoped under .dark-admin .admin-shell so the storefront is untouched.
+
+- **2026-08-04** — 🎨 **Admin dark theme v2.1 — kill the white patches**
+  - Root cause of the "weird" look: several admin surfaces + charts used HARDCODED light hexes that stayed white in dark mode.
+  - Fixed: admin shell bg-[#F4F6F8]/bg-[#ebebeb] → dark; remaining light fills (bg-[#F1F1F1], #ECEBE8, #E5E7EB…) → dark; Recharts grid lines/ticks/tooltips/cursors/legend → dark palette; inline light-bg containers → dark; KPI accent text (#111111/#0D0D0D) + tinted icon bubbles → light/legible.

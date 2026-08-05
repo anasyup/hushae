@@ -231,3 +231,76 @@
 .dark-admin ::-webkit-scrollbar-thumb:hover {
   background: #39415a;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+ * v2.1 — surfaces & charts that used HARDCODED light hexes (the "weird"
+ * white patches in dark mode). Targeted so the whole admin reads dark.
+ * ═══════════════════════════════════════════════════════════════════════ */
+
+/* Admin shell backgrounds (bg-[#F4F6F8], bg-[#ebebeb]) */
+.dark-admin .bg-\[#F4F6F8\] { background-color: #0b0d10 !important; }
+.dark-admin .bg-\[#f4f6f8\] { background-color: #0b0d10 !important; }
+.dark-admin .bg-\[#EBEBEB\] { background-color: #101318 !important; }
+.dark-admin .bg-\[#ebebeb\] { background-color: #101318 !important; }
+
+/* Remaining neutral light fills used across screens */
+.dark-admin .bg-\[#F1F1F1\] { background-color: #1a1e25 !important; }
+.dark-admin .bg-\[#F1EEE8\] { background-color: #1a1e25 !important; }
+.dark-admin .bg-\[#ECEBE8\] { background-color: #1a1e25 !important; }
+.dark-admin .bg-\[#E5E2DD\] { background-color: #1a1e25 !important; }
+.dark-admin .bg-\[#E5E7EB\] { background-color: #232833 !important; }
+.dark-admin .bg-\[#e5e7eb\] { background-color: #232833 !important; }
+
+/* ── Recharts (grid / ticks / tooltip / cursor) ───────────────────────── */
+.dark-admin .recharts-cartesian-grid line {
+  stroke: #232833 !important;
+}
+.dark-admin .recharts-cartesian-axis-tick text,
+.dark-admin .recharts-text,
+.dark-admin .recharts-polar-angle-axis-tick text {
+  fill: #7e8692 !important;
+}
+.dark-admin .recharts-default-tooltip,
+.dark-admin .recharts-tooltip-wrapper {
+  background-color: #15181e !important;
+  border-color: #2a303c !important;
+}
+.dark-admin .recharts-default-tooltip .recharts-tooltip-label,
+.dark-admin .recharts-default-tooltip .recharts-tooltip-item {
+  color: #d6d8dd !important;
+}
+.dark-admin .recharts-tooltip-cursor {
+  fill: rgba(255, 255, 255, 0.05) !important;
+}
+.dark-admin .recharts-legend-item-text {
+  color: #98a0ac !important;
+}
+
+/* Tooltips styled with inline border hex (#E4E0DA) inside chart wrappers */
+.dark-admin .recharts-wrapper [style*="border"],
+.dark-admin .recharts-tooltip-wrapper [style*="border"] {
+  border-color: #2a303c !important;
+  background-color: #15181e !important;
+}
+
+/* Chart container divs that hardcode a light bg */
+.dark-admin [style*="background: #fff"],
+.dark-admin [style*="background:#fff"],
+.dark-admin [style*="background: rgb(255, 255, 255)"] {
+  background-color: #15181e !important;
+}
+
+/* Dark text accents used as inline colours (KPI icons, chips) — flip to light */
+.dark-admin [style*="color: #111111"] { color: #e8eaee !important; }
+.dark-admin [style*="color: #0D0D0D"] { color: #e8eaee !important; }
+.dark-admin [style*="color: #1A1A1A"] { color: #e8eaee !important; }
+.dark-admin [style*="color: #0d0d0d"] { color: #e8eaee !important; }
+.dark-admin [style*="color: #111"]  { color: #e8eaee !important; }
+
+/* Accent-tinted icon bubbles (accent+'14' alpha) — keep tinted but legible */
+.dark-admin [style*="background: #11111114"],
+.dark-admin [style*="background: #0d0d0d14"] {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+
