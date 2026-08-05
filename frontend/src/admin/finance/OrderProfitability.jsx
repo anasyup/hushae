@@ -130,8 +130,8 @@ export default function OrderProfitability({ days, from, to }) {
             ['Needs a look', `${t.thin + t.loss}`, t.thin + t.loss > 0 ? 'text-amber-700' : ''],
           ].map(([label, value, cls]) => (
             <div key={label}>
-              <p className="text-[9.5px] font-bold uppercase tracking-widest text-neutral-500">{label}</p>
-              <p className={`mt-0.5 font-sans text-[7px] font-semibold tabular-nums ${cls || 'text-neutral-900'}`}>{value}</p>
+              <p className="text-[11px] font-bold uppercase tracking-widest text-neutral-500">{label}</p>
+              <p className={`mt-0.5 font-sans text-[13px] font-semibold tabular-nums ${cls || 'text-neutral-900'}`}>{value}</p>
             </div>
           ))}
         </div>
@@ -216,7 +216,7 @@ export default function OrderProfitability({ days, from, to }) {
                               <Line label={`Payment gateway fee${r.paymentMethod === 'COD' ? ' (COD — none)' : ` (${r.feePct}%)`}`} value={-r.paymentFee} />
                               <div className="!mt-2 flex items-center justify-between border-t border-neutral-300 pt-2">
                                 <dt className="text-[12px] font-bold text-neutral-900">Net profit</dt>
-                                <dd className={`font-sans text-[7px] font-bold tabular-nums ${r.netProfit >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>
+                                <dd className={`font-sans text-[13px] font-bold tabular-nums ${r.netProfit >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>
                                   {pkr(r.netProfit)} {r.revenue > 0 && <span className="text-[12px] font-semibold">({r.margin}%)</span>}
                                 </dd>
                               </div>

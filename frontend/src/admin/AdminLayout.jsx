@@ -74,10 +74,11 @@ const NAV_GROUPS = [
   },
   {
     key: 'storefront', label: 'Storefront', icon: Store,
-    match: ['/admin/store', '/admin/theme', '/admin/theme-legacy', '/admin/cms', '/admin/content', '/admin/faq', '/admin/markets', '/admin/blog', '/admin/navigation'],
+    match: ['/admin/store', '/admin/theme', '/admin/theme-sections', '/admin/theme-legacy', '/admin/cms', '/admin/content', '/admin/faq', '/admin/markets', '/admin/blog', '/admin/navigation'],
     children: [
       { to: '/admin/store',       label: 'Online Store',    icon: Globe },
       { to: '/admin/theme',       label: 'Theme Editor',    icon: LayoutTemplate },
+      { to: '/admin/theme-sections', label: 'Theme Sections', icon: LayoutTemplate },
       { to: '/admin/navigation',  label: 'Navigation',      icon: Menu },
       { to: '/admin/cms',         label: 'Pages',           icon: FileText, exact: true },
       { to: '/admin/cms/redirects', label: 'Old addresses', icon: Signpost },

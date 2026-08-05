@@ -425,3 +425,9 @@ Format:
   - applyAdminTheme() called in main.jsx BEFORE first paint (no light flash) and now route-aware: .dark-admin is applied only on /admin/* and removed on the storefront, so the storefront keeps its light palette.
   - Added AdminThemeSync in App.jsx — re-applies the class on route changes (admin ↔ storefront never leaves the wrong palette).
   - The Sun/Moon toggle still works; a user who picks light keeps that choice (persisted).
+
+- **2026-08-04** — 🐛 **ADMIN AUDIT FIXES (scan → fix)**
+  - CRITICAL: 24 KPI/value displays were text-[7px] (smaller than the 8px browser minimum — unreadable revenue/profit/spend numbers across Dashboard, Finance, Insights, Payments, AbandonedCarts, Collections, Customers, Discounts, Backup, GoalTracker, OrderProfitability, ProfitTables). All → text-[13px]; 9px/9.5px labels → 11px.
+  - Theme Editor: /admin/theme now opens the LIVE-STORE settings editor (iframe preview of the real storefront + instant unsaved preview via postMessage; Save only PUTs store settings — it NEVER touches the theme document, so it can't override the React home and never auto-publishes).
+  - Section/page builder moved to /admin/theme-sections (keeps draft-only autosave + explicit Publish; verified autosave calls save(false)).
+  - Verified: theme doc empty (React home safe), no broken nav links (every nav entry has a route), no console.error in admin screens, AdminLogin themable.

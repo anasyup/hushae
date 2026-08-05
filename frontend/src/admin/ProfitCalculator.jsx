@@ -218,7 +218,7 @@ function OutputTile({ label, value, sub, tone = 'neutral', big, bigSub, small })
   };
   return (
     <div className={`rounded-xl border p-3 ${map[tone]}`}>
-      <p className="text-[9.5px] font-bold uppercase tracking-widest opacity-70">{label}</p>
+      <p className="text-[11px] font-bold uppercase tracking-widest opacity-70">{label}</p>
       <p className={`mt-1 font-sans tabular-nums leading-none tracking-tight ${big ? 'text-[12px] font-semibold' : small ? 'text-[12px] font-semibold' : 'text-[13px] font-semibold'}`}>
         {value}
       </p>

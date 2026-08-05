@@ -140,7 +140,7 @@ export default function Insights() {
                         <span className="mr-2 inline-block w-4 text-neutral-400">{i + 1}.</span>
                         {c._id || '—'}
                       </p>
-                      <p className="font-sans text-[7px] font-semibold tabular-nums text-neutral-900">{pkr(c.revenue)}</p>
+                      <p className="font-sans text-[13px] font-semibold tabular-nums text-neutral-900">{pkr(c.revenue)}</p>
                     </div>
                     <div className="mt-1.5 flex items-center gap-3 text-[12px] text-neutral-500">
                       <span>{c.province}</span>
@@ -182,7 +182,7 @@ export default function Insights() {
                     <p className="text-[12px] text-neutral-500">{p.unitsSold} sold · Revenue {pkr(p.revenue)}</p>
                   </div>
                   <div className="text-right">
-                    <p className="font-sans text-[7px] font-semibold tabular-nums text-emerald-700">{pkr(p.profit)}</p>
+                    <p className="font-sans text-[13px] font-semibold tabular-nums text-emerald-700">{pkr(p.profit)}</p>
                     <p className="text-[13px] text-neutral-400">profit</p>
                   </div>
                 </li>
@@ -248,7 +248,7 @@ function MiniKpi({ icon: Icon, label, value, sub, accent }) {
         </span>
       </div>
       <p className="mt-3 text-[13px] font-bold uppercase tracking-widest text-neutral-500">{label}</p>
-      <p className="mt-0.5 font-sans text-[7px] font-semibold leading-none tabular-nums tracking-tight text-neutral-900">{value}</p>
+      <p className="mt-0.5 font-sans text-[13px] font-semibold leading-none tabular-nums tracking-tight text-neutral-900">{value}</p>
       {sub && <p className="mt-1.5 text-[12px] text-neutral-500">{sub}</p>}
     </div>
   );

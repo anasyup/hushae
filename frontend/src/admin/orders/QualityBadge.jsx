@@ -55,7 +55,7 @@ export default function QualityBadge({ quality, compact = false }) {
       </button>
 
       {priority === 'rush' && (
-        <span className="ml-1 inline-flex items-center gap-0.5 rounded-full bg-neutral-900 px-1.5 py-0.5 text-[9.5px] font-bold uppercase tracking-wide text-white">
+        <span className="ml-1 inline-flex items-center gap-0.5 rounded-full bg-neutral-900 px-1.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-white">
           <Zap size={9} /> Rush
         </span>
       )}

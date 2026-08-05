@@ -151,7 +151,7 @@ export default function Blog() {
                   {p.coverImage ? (
                     <img src={p.coverImage} alt="" className="h-full w-full object-cover" />
                   ) : (
-                    <div className="grid h-full w-full place-items-center text-[9px] font-bold uppercase tracking-widest text-neutral-400">HUSHAE</div>
+                    <div className="grid h-full w-full place-items-center text-[11px] font-bold uppercase tracking-widest text-neutral-400">HUSHAE</div>
                   )}
                 </div>
                 <div className="min-w-0 flex-1">

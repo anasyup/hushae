@@ -313,7 +313,7 @@ function CollectionEditor({ collection, onClose, onSaved }) {
                       <p className="line-clamp-1 text-[12px] font-medium text-neutral-900">{p.name}</p>
                       <p className="text-[13px] uppercase tracking-wider text-neutral-500">{p.gender} · {p.categorySlug} · {p.sku}</p>
                     </div>
-                    <p className="font-sans text-[7px] font-semibold tabular-nums">{pkr(p.price)}</p>
+                    <p className="font-sans text-[13px] font-semibold tabular-nums">{pkr(p.price)}</p>
                   </button>
                 );
               })}

@@ -58,7 +58,7 @@ function KpiCard({ icon: Icon, label, value, change, sparkData, accent = '#11111
         {change !== 0 && <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[12px] font-bold ${positive ? 'bg-emerald-50 text-emerald-700' : negative ? 'bg-red-50 text-red-700' : 'bg-neutral-100 text-neutral-600'}`}>{positive ? <ArrowUpRight size={11} /> : negative ? <ArrowDownRight size={11} /> : null}{changeText}</span>}
       </div>
       <p className="mt-4 text-[13px] font-bold uppercase tracking-widest text-neutral-500">{label}</p>
-      <p className="mt-1 font-sans text-[7px] font-semibold tabular-nums leading-none tracking-tight text-neutral-900">{display}</p>
+      <p className="mt-1 font-sans text-[13px] font-semibold tabular-nums leading-none tracking-tight text-neutral-900">{display}</p>
       <p className="mt-1 text-[12px] text-neutral-400">{compareLabel}</p>
       {sparkData?.length > 0 && <div className="mt-3 h-10"><ResponsiveContainer width="100%" height="100%"><AreaChart data={sparkData} margin={{ top: 2, right: 0, left: 0, bottom: 0 }}><defs><linearGradient id={`spk-${label}`} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={accent} stopOpacity={0.28} /><stop offset="100%" stopColor={accent} stopOpacity={0} /></linearGradient></defs><Area type="monotone" dataKey="v" stroke={accent} strokeWidth={2} fill={`url(#spk-${label})`} /></AreaChart></ResponsiveContainer></div>}
     </>
@@ -97,7 +97,7 @@ function ProfitTile({ icon: Icon, label, value, change, tone = 'neutral', format
     <div className={`rounded-xl border border-neutral-200 bg-white p-4 ring-1 ${t.ring}`}>
       <div className="flex items-center justify-between"><span className={`grid h-8 w-8 place-items-center rounded-lg ${t.bg} ${t.text}`}><Icon size={13} /></span>{typeof change === 'number' && change !== 0 && <span className={`text-[13px] font-bold ${change > 0 ? 'text-emerald-700' : 'text-red-700'}`}>{change > 0 ? '▲' : '▼'} {Math.abs(change).toFixed(1)}%</span>}</div>
       <p className="mt-3 text-[13px] font-bold uppercase tracking-widest text-neutral-500">{label}</p>
-      <p className={`mt-0.5 font-sans text-[7px] font-semibold leading-none tabular-nums tracking-tight ${t.text}`}>{display}</p>
+      <p className={`mt-0.5 font-sans text-[13px] font-semibold leading-none tabular-nums tracking-tight ${t.text}`}>{display}</p>
       {hint && <p className="mt-1.5 text-[13px] text-neutral-500">{hint}</p>}
     </div>
   );
@@ -394,7 +394,7 @@ export default function Dashboard() {
           <div className="rounded-2xl border border-neutral-200 bg-white p-6">
             <div className="mb-3 flex items-center justify-between"><p className="text-[12px] font-bold uppercase tracking-widest text-neutral-500">Top customers</p><Link to="/admin/customers" className="text-[12px] font-semibold text-neutral-500 hover:text-neutral-900">All</Link></div>
             {d.topCustomers.length === 0 ? <p className="py-6 text-center text-sm text-neutral-400">No customer data yet.</p> : <div className="space-y-3">{d.topCustomers.map((c, i) => (
-              <div key={c.phone + i} className="flex items-center gap-3"><span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-neutral-900 text-[12px] font-semibold text-white">{(c.name || '?').slice(0, 1).toUpperCase()}</span><div className="min-w-0 flex-1"><p className="truncate text-[12px] font-semibold text-neutral-900">{c.name}</p><p className="truncate text-[13px] text-neutral-500">{c.city} · {c.orders} order{c.orders === 1 ? '' : 's'}</p></div><p className="font-sans text-[7px] font-semibold tabular-nums text-neutral-900">{pkr(c.spent)}</p></div>
+              <div key={c.phone + i} className="flex items-center gap-3"><span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-neutral-900 text-[12px] font-semibold text-white">{(c.name || '?').slice(0, 1).toUpperCase()}</span><div className="min-w-0 flex-1"><p className="truncate text-[12px] font-semibold text-neutral-900">{c.name}</p><p className="truncate text-[13px] text-neutral-500">{c.city} · {c.orders} order{c.orders === 1 ? '' : 's'}</p></div><p className="font-sans text-[13px] font-semibold tabular-nums text-neutral-900">{pkr(c.spent)}</p></div>
             ))}</div>}
           </div>
         </div>

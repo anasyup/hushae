@@ -458,7 +458,7 @@ function BigKpi({ icon: Icon, label, value, sub, accent, highlight }) {
         </span>
       </div>
       <p className="mt-3 text-[13px] font-bold uppercase tracking-widest text-neutral-500">{label}</p>
-      <p className="mt-1 font-sans text-[7px] font-semibold tabular-nums leading-none tracking-tight text-neutral-900">
+      <p className="mt-1 font-sans text-[13px] font-semibold tabular-nums leading-none tracking-tight text-neutral-900">
         {value}
       </p>
       {sub && <p className="mt-1.5 text-[12px] text-neutral-500">{sub}</p>}
@@ -502,7 +502,7 @@ function ExpenseDonut({ summary }) {
             </ResponsiveContainer>
             <div className="pointer-events-none absolute inset-0 grid place-items-center text-center">
               <div>
-                <p className="font-sans text-[7px] font-semibold tabular-nums leading-none text-neutral-900">{pkr(total)}</p>
+                <p className="font-sans text-[13px] font-semibold tabular-nums leading-none text-neutral-900">{pkr(total)}</p>
                 <p className="mt-1 text-[12px] uppercase tracking-widest text-neutral-500">Total</p>
               </div>
             </div>
@@ -551,7 +551,7 @@ function PaymentDonut({ mix }) {
             </ResponsiveContainer>
             <div className="pointer-events-none absolute inset-0 grid place-items-center text-center">
               <div>
-                <p className="font-sans text-[7px] font-semibold tabular-nums leading-none text-neutral-900">{pkr(total)}</p>
+                <p className="font-sans text-[13px] font-semibold tabular-nums leading-none text-neutral-900">{pkr(total)}</p>
                 <p className="mt-1 text-[12px] uppercase tracking-widest text-neutral-500">Total</p>
               </div>
             </div>

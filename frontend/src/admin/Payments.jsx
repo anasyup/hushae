@@ -339,7 +339,7 @@ export default function Payments() {
                       <span className="grid h-9 w-9 place-items-center rounded-lg" style={{ background: M.color + '15', color: M.color }}><MI size={15} /></span>
                       <div><p className="text-[13px] font-semibold">{M.label}</p><p className="text-[12px] text-neutral-500">{m.count} orders · {m.paid} paid · {m.pending} pending</p></div>
                     </div>
-                    <div className="text-right"><p className="font-sans text-[7px] font-semibold tabular-nums">{pkr(m.value)}</p><p className="text-[12px] text-neutral-500">{pct.toFixed(1)}%</p></div>
+                    <div className="text-right"><p className="font-sans text-[13px] font-semibold tabular-nums">{pkr(m.value)}</p><p className="text-[12px] text-neutral-500">{pct.toFixed(1)}%</p></div>
                   </div>
                   <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white"><div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: M.color }} /></div>
                 </div>
@@ -365,7 +365,7 @@ function KpiCard({ icon: Icon, label, value, sub, change, tone = 'neutral' }) {
     <div className="rounded-2xl border border-neutral-200 bg-white p-5 transition hover:-translate-y-0.5 hover:shadow-sm">
       <span className={`grid h-10 w-10 place-items-center rounded-xl ${t.bg} ${t.text}`}><Icon size={16} /></span>
       <p className="mt-3 text-[13px] font-bold uppercase tracking-widest text-neutral-500">{label}</p>
-      <p className="mt-1 font-sans text-[7px] font-semibold tabular-nums leading-none tracking-tight text-neutral-900">{value}</p>
+      <p className="mt-1 font-sans text-[13px] font-semibold tabular-nums leading-none tracking-tight text-neutral-900">{value}</p>
       {sub && <p className="mt-1.5 text-[12px] font-medium text-neutral-500">{sub}</p>}
       {typeof change === 'number' && change !== 0 && <span className={`mt-2 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[13px] font-bold ${t.badge}`}>{change > 0 ? '▲' : '▼'} {Math.abs(change).toFixed(1)}%</span>}
     </div>

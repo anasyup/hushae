@@ -174,20 +174,20 @@ export function CodExposure() {
       <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-500">COD exposure</p>
       <p className="mt-1 text-[12px] text-neutral-500">Money you have not been paid yet, because the parcel has not been delivered.</p>
 
-      <p className="mt-4 font-sans text-[7px] font-semibold tabular-nums leading-none tracking-tight text-neutral-900">{pkr(d.exposure)}</p>
+      <p className="mt-4 font-sans text-[13px] font-semibold tabular-nums leading-none tracking-tight text-neutral-900">{pkr(d.exposure)}</p>
       <p className="mt-1.5 text-[13px] text-neutral-500">
         across {d.orders} open order{d.orders === 1 ? '' : 's'} · avg {pkr(d.avgExposure)}
       </p>
 
       <div className="mt-4 grid grid-cols-2 gap-2">
         <div className="rounded-xl bg-neutral-50 p-3">
-          <p className="text-[9.5px] font-bold uppercase tracking-widest text-neutral-500">Not shipped yet</p>
-          <p className="mt-0.5 font-sans text-[7px] font-semibold tabular-nums text-neutral-900">{d.buckets.notShipped}</p>
+          <p className="text-[11px] font-bold uppercase tracking-widest text-neutral-500">Not shipped yet</p>
+          <p className="mt-0.5 font-sans text-[13px] font-semibold tabular-nums text-neutral-900">{d.buckets.notShipped}</p>
           <p className="mt-0.5 text-[12px] text-neutral-500">Cancellable at no cost</p>
         </div>
         <div className="rounded-xl bg-amber-50 p-3">
-          <p className="text-[9.5px] font-bold uppercase tracking-widest text-amber-800">With the courier</p>
-          <p className="mt-0.5 font-sans text-[7px] font-semibold tabular-nums text-amber-900">{d.buckets.inTransit}</p>
+          <p className="text-[11px] font-bold uppercase tracking-widest text-amber-800">With the courier</p>
+          <p className="mt-0.5 font-sans text-[13px] font-semibold tabular-nums text-amber-900">{d.buckets.inTransit}</p>
           <p className="mt-0.5 text-[12px] text-amber-700">{pkr(d.sunkCost)} already spent</p>
         </div>
       </div>
@@ -254,7 +254,7 @@ export function BreakEven({ days, from, to }) {
       ) : (
         <>
           <div className="mt-4 flex items-baseline gap-2">
-            <p className="font-sans text-[7px] font-semibold tabular-nums leading-none tracking-tight text-neutral-900">{d.ordersNeededPerDay}</p>
+            <p className="font-sans text-[13px] font-semibold tabular-nums leading-none tracking-tight text-neutral-900">{d.ordersNeededPerDay}</p>
             <p className="text-[12px] text-neutral-500">order{d.ordersNeededPerDay === 1 ? '' : 's'} / day needed</p>
           </div>
 

@@ -242,7 +242,7 @@ export default function Backup() {
           ].map((x) => (
             <div key={x.label} className="rounded-xl border border-neutral-100 bg-neutral-50 p-3">
               <p className="text-[13px] font-bold uppercase tracking-widest text-neutral-500">{x.label}</p>
-              <p className="mt-1 font-sans text-[7px] font-semibold tabular-nums leading-none tracking-tight text-neutral-900">{x.v ?? '—'}</p>
+              <p className="mt-1 font-sans text-[13px] font-semibold tabular-nums leading-none tracking-tight text-neutral-900">{x.v ?? '—'}</p>
             </div>
           ))}
         </div>
