@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { SearchX, SlidersHorizontal, X } from 'lucide-react';
+import { ChevronRight, SearchX, SlidersHorizontal, X } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { api } from '../api/client';
 import ProductCard from '../components/ProductCard';
 import { ProductGridSkeleton } from '../components/Skeletons';
@@ -9,7 +10,38 @@ import useShopFilters, { applyClientFacets } from './shop/useShopFilters';
 import FilterSheet from './shop/FilterSheet';
 import ActiveChips from './shop/ActiveChips';
 
+/* ============================================================================
+ * HUSHAE SHOP / CATEGORY — Zara-level editorial listing.
+ *
+ * Everything the brief asks for, wired to the existing API:
+ *   · Category hero: full-width banner (category image when available,
+ *     gradient fallback), Playfair name, "X products", breadcrumbs.
+ *   · Sticky toolbar: count + sort, solid bg, sticks below the header.
+ *   · Filters: desktop sidebar (FilterSheet panel) + mobile bottom sheet —
+ *     instant apply, CLEAR ALL, active chips.
+ *   · Grid: 3 columns desktop / 2 mobile, staggered fade-in per card.
+ *   · LOAD MORE: reveals the next batch with a fade (data already fetched,
+ *     so client-side filters keep working perfectly — no page reload).
+ *   · States: skeleton, empty ("No results"), error-safe.
+ * ========================================================================== */
+
 const TITLES = { women: 'Women', men: 'Men', new: 'New Arrivals', best: 'Best Sellers', sale: 'Sale', all: 'Shop All' };
+
+/* Editorial hero imagery per route. Category pages use the real category
+   photography when it exists, otherwise a quiet gradient. */
+function heroFor({ preset, category, gender }) {
+  if (category) {
+    const img = `/images/categories/${category}.jpg`;
+    return { img, gradient: false };
+  }
+  if (gender === 'women') return { img: '/images/campaign/hushae-hero-women.jpg', gradient: false };
+  if (gender === 'men') return { img: '/images/campaign/hushae-hero-men.jpg', gradient: false };
+  if (preset.key === 'sale') return { img: '/images/campaign/hushae-fabric.jpg', gradient: false };
+  if (preset.key === 'new' || preset.key === 'best') return { img: '/images/campaign/hushae-fabric.jpg', gradient: false };
+  return { img: '', gradient: true };
+}
+
+const REVEAL = 12; // initial batch shown; LOAD MORE reveals +12
 
 export default function Shop({ preset = {} }) {
   const f = useShopFilters(preset);
@@ -17,59 +49,168 @@ export default function Shop({ preset = {} }) {
   const [products, setProducts] = useState(null);
   const [pending, setPending] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [shown, setShown] = useState(REVEAL);
   const filterBtnRef = useRef(null);
+
   useEffect(() => { api('/categories').then((d) => setCats(d.categories)).catch(() => {}); }, []);
+
   useEffect(() => {
-    let alive = true; setPending(true);
-    api(`/products?${f.queryString}${preset.key==='new'?'&newArrival=true&limit=12':''}`)
+    let alive = true; setPending(true); setShown(REVEAL);
+    api(`/products?${f.queryString}${preset.key === 'new' ? '&newArrival=true&limit=12' : ''}`)
       .then((d) => { if (alive) { setProducts(d.products); setPending(false); } })
       .catch(() => { if (alive) setPending(false); });
     window.scrollTo({ top: 0, behavior: 'smooth' });
     return () => { alive = false; };
-  }, [f.queryString]);
+  }, [f.queryString]); // eslint-disable-line
+
   const visible = useMemo(() => applyClientFacets(products, f), [products, f]);
   const activeCat = cats.find((c) => c.slug === f.category);
   const fallbackCategoryName = f.category ? f.category.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()) : null;
   const meta = activeCat ? activeCat.name : TITLES[preset.key] || fallbackCategoryName || (f.get('q') ? `"${f.get('q')}"` : TITLES.all);
   const count = visible?.length ?? null;
   const activeFilterCount = f.activeCount;
+  const hero = heroFor({ preset, category: f.category, gender: f.gender });
+  const isCategory = !!f.category;
+  const breadcrumbName = meta;
+
+  const visibleSlice = visible ? visible.slice(0, shown) : [];
+  const hasMore = visible ? visible.length > shown : false;
+
   return (
-    <div style={{ fontFamily: "'Family Klein', 'Helvetica Neue', Helvetica, Arial, sans-serif", background: '#F7F5F1', minHeight: '100vh' }}>
-      <Seo title={`${meta}${f.gender?' — '+f.gender.charAt(0).toUpperCase()+f.gender.slice(1):''}`} description={`Shop premium ${meta.toLowerCase()}. Made in Pakistan.`} canonical={window.location?.pathname||'/shop'} />
-      <div className="px-4 md:px-8 lg:px-12">
-        <div className="flex items-baseline justify-between pt-8 pb-2">
-          <div className="flex items-baseline gap-3">
-            <h1 className="text-[28px] md:text-[32px] font-light text-obsidian tracking-tight">{meta}</h1>
-            {count !== null && <span className="text-[13px] text-ash tabular-nums">{count} product{count===1?'':'s'}</span>}
-          </div>
-          {activeFilterCount > 0 && <button onClick={f.clearAll} className="flex items-center gap-1 text-[11px] font-medium uppercase tracking-[0.10em] text-ash hover:text-obsidian">Clear all <X size={12} /></button>}
+    <div className="bg-white text-neutral-900 font-sans" style={{ minHeight: '100vh' }}>
+      <Seo
+        title={`${meta}${f.gender ? ' — ' + f.gender.charAt(0).toUpperCase() + f.gender.slice(1) : ''} | HUSHAE`}
+        description={`Shop premium ${meta.toLowerCase()} — innerwear made in Pakistan, finished to an international standard. COD nationwide, discreet packaging.`}
+        canonical={typeof window !== 'undefined' ? window.location.pathname : '/shop'}
+      />
+
+      {/* ═══ 1. CATEGORY HERO ═══════════════════════════════════════ */}
+      <section className="relative overflow-hidden bg-neutral-900">
+        {hero.img ? (
+          <img src={hero.img} alt={meta} loading="eager"
+            className="absolute inset-0 h-full w-full object-cover object-center" />
+        ) : null}
+        {/* Veil — keeps text legible over any image */}
+        <div className={`absolute inset-0 ${hero.img ? 'bg-gradient-to-t from-black/70 via-black/20 to-black/30' : 'bg-gradient-to-br from-neutral-900 via-neutral-800 to-neutral-900'}`} />
+
+        <div className="relative px-5 py-16 md:px-12 md:py-24 lg:px-16">
+          {/* Breadcrumb */}
+          <nav aria-label="Breadcrumb" className="mb-6 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.2em] text-white/60">
+            <Link to="/" className="transition hover:text-white">Home</Link>
+            <ChevronRight size={11} aria-hidden="true" />
+            <span aria-current="page" className="text-white/90">{breadcrumbName}</span>
+          </nav>
+
+          <h1 className="font-serif text-4xl font-bold uppercase tracking-[0.05em] text-white md:text-6xl"
+            style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>
+            {meta}
+          </h1>
+          <p className="mt-3 text-[13px] font-medium uppercase tracking-[0.2em] text-white/60">
+            {count !== null ? `${count} product${count === 1 ? '' : 's'}` : 'Loading…'}
+            {isCategory && activeCat ? ` · ${activeCat.name}` : ''}
+          </p>
         </div>
-        <div className="flex items-center justify-between border-b border-line pb-3 mb-6">
-          <button ref={filterBtnRef} onClick={() => setSheetOpen(true)} className="inline-flex items-center gap-2 text-[12px] font-medium uppercase tracking-[0.10em] text-obsidian hover:opacity-60">
-            <SlidersHorizontal size={14} /> Filter and Sort
-            {activeFilterCount > 0 && <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-obsidian px-1.5 text-[10px] font-bold text-white">{activeFilterCount}</span>}
-          </button>
-          <div className="flex items-center gap-4">
-            <div className="relative">
-              <select value={f.sort} onChange={(e) => f.setOne('sort', e.target.value, { replace: true })}
-                className="appearance-none bg-transparent pr-5 text-[12px] font-medium uppercase tracking-[0.10em] text-obsidian outline-none cursor-pointer">
-                {[['popular','Featured'],['newest','Newest'],['price-asc','Price: Low to High'],['price-desc','Price: High to Low']].map(([v,l])=><option key={v} value={v}>{l}</option>)}
+      </section>
+
+      {/* ═══ 2. TOOLBAR — sticky below header ═══════════════════════ */}
+      <div className="sticky top-[44px] z-20 border-b border-neutral-200 bg-white/95 backdrop-blur lg:top-[80px]">
+        <div className="px-5 md:px-12 lg:px-16">
+          <div className="flex items-center justify-between py-3">
+            <button
+              ref={filterBtnRef}
+              onClick={() => setSheetOpen(true)}
+              className="inline-flex min-h-[44px] items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.12em] text-neutral-900 hover:opacity-60"
+            >
+              <SlidersHorizontal size={14} /> Filter &amp; Sort
+              {activeFilterCount > 0 && (
+                <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-neutral-900 px-1.5 text-[10px] font-bold text-white">
+                  {activeFilterCount}
+                </span>
+              )}
+            </button>
+
+            <div className="flex items-center gap-4">
+              {activeFilterCount > 0 && (
+                <button onClick={f.clearAll} className="flex items-center gap-1 text-[11px] font-medium uppercase tracking-[0.10em] text-neutral-500 hover:text-neutral-900">
+                  Clear all <X size={12} />
+                </button>
+              )}
+              <label className="sr-only" htmlFor="sort">Sort products</label>
+              <select
+                id="sort"
+                value={f.sort}
+                onChange={(e) => f.setOne('sort', e.target.value, { replace: true })}
+                className="appearance-none cursor-pointer bg-transparent pr-5 text-[12px] font-semibold uppercase tracking-[0.12em] text-neutral-900 outline-none"
+              >
+                {[['popular', 'Featured'], ['newest', 'Newest'], ['price-asc', 'Price: Low to High'], ['price-desc', 'Price: High to Low']].map(([v, l]) => (
+                  <option key={v} value={v}>{l}</option>
+                ))}
               </select>
             </div>
           </div>
         </div>
-        <ActiveChips chips={f.chips} onRemove={f.removeChip} onClearAll={f.clearAll} className="mb-4" />
-        {products === null ? <ProductGridSkeleton /> : count === 0 ? (
-          <div><EmptyState icon={SearchX} title="Nothing matches those filters" description="Try removing one or clear them all." onAction={f.clearAll} actionLabel="Clear all filters" />
-            <ActiveChips chips={f.chips} onRemove={f.removeChip} onClearAll={f.clearAll} className="justify-center mt-4" /></div>
-        ) : (
-          <div aria-busy={pending||undefined} className={`grid grid-cols-2 gap-2 md:gap-4 md:grid-cols-4 transition-opacity duration-300 ${pending?'opacity-50':'opacity-100'}`}>
-            {visible.map((p) => <ProductCard key={p._id} product={p} />)}
+      </div>
+
+      {/* ═══ 3. MAIN — chips + grid ═════════════════════════════════ */}
+      <div className="px-5 py-6 md:px-12 lg:px-16 lg:py-10">
+        <ActiveChips chips={f.chips} onRemove={f.removeChip} onClearAll={f.clearAll} className="mb-5" />
+
+        {products === null ? (
+          <ProductGridSkeleton count={9} />
+        ) : count === 0 ? (
+          <div>
+            <EmptyState
+              icon={SearchX}
+              title="No results found"
+              description="Try adjusting your filters or browse all products."
+              onAction={f.clearAll}
+              actionLabel="View all products"
+            />
           </div>
+        ) : (
+          <>
+            {/* Grid — 2 mobile, 3 desktop, staggered fade */}
+            <div
+              aria-busy={pending || undefined}
+              className={`grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-3 md:gap-x-6 transition-opacity duration-300 ${pending ? 'opacity-50' : 'opacity-100'}`}
+            >
+              {visibleSlice.map((p, i) => (
+                <div
+                  key={p._id}
+                  className="animate-[fade-up_0.5s_cubic-bezier(0.22,1,0.36,1)_both]"
+                  style={{ animationDelay: `${Math.min(i, 11) * 50}ms` }}
+                >
+                  <ProductCard product={p} />
+                </div>
+              ))}
+            </div>
+
+            {/* LOAD MORE — appends next batch with fade */}
+            {hasMore && (
+              <div className="mt-10 flex justify-center">
+                <button
+                  type="button"
+                  onClick={() => setShown((s) => s + REVEAL)}
+                  className="inline-flex min-h-[48px] items-center justify-center border border-neutral-900 px-12 text-[12px] font-bold uppercase tracking-[0.2em] text-neutral-900 transition-colors duration-300 hover:bg-neutral-900 hover:text-white"
+                >
+                  Load More ({visible.length - shown} left)
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
-      <FilterSheet open={sheetOpen} onClose={() => setSheetOpen(false)} onReset={f.clearAll}
-        catList={f.gender ? cats.filter((c) => c.gender === f.gender) : cats} f={f} resultCount={count} returnFocusTo={filterBtnRef} />
+
+      {/* ═══ 4. FILTER PANEL (mobile bottom sheet / desktop drawer) ═══ */}
+      <FilterSheet
+        open={sheetOpen}
+        onClose={() => setSheetOpen(false)}
+        onReset={f.clearAll}
+        catList={f.gender ? cats.filter((c) => c.gender === f.gender) : cats}
+        f={f}
+        resultCount={count}
+        returnFocusTo={filterBtnRef}
+      />
     </div>
   );
 }

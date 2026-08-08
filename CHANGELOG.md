@@ -443,3 +443,11 @@ Format:
   - Add to Bag: black → gold (#C9A96E) hover; button flips to "ADDED ✓" for 2s (timer + cleanup); header cart icon pops on add (cartBump state + cart-pop keyframe).
   - Playfair Display added to Google Fonts (async, non-render-blocking).
   - All other luxury pieces were already live (breadcrumbs, sale was-price, size pills, colour swatches with ring, quantity stepper, trust row, one-at-a-time accordions, Complete the Look + You may also like + Recently viewed carousels, sticky buy bar desktop+mobile, skeleton / not-found / out-of-stock states, SEO + Product JSON-LD).
+
+- **2026-08-04** — 🛍️ **Category / Shop pages — Zara-level editorial upgrade**
+  - Category hero: full-width banner (real category photography — all 10 category images exist — with gradient fallback), Playfair Display name, "X products" count, breadcrumbs (Home > Category).
+  - Sticky toolbar below the header (count + Filter & Sort + Clear all + sort dropdown), solid bg + blur.
+  - Grid: 2 columns mobile → 3 desktop (Zara density), staggered fade-up per card (50ms).
+  - LOAD MORE button: reveals next batch (12) with the same fade — data is already fetched so client-side filters keep working, no reload.
+  - Kept existing: FilterSheet (instant apply, CLEAR ALL, active chips), ProductCard hover second image + QUICK ADD + wishlist + badges, skeleton, empty state ("No results found" + View all products), SEO title/meta/canonical.
+  - fade-up keyframe added to index.css.

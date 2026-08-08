@@ -376,6 +376,12 @@
   100% { transform: scale(1) rotate(0); }
 }
 
+/* ── Staggered fade-up for product grids (Zara editorial) ────────────────── */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 /* ── Hero entrance ──────────────────────────────────────────────────────────
  * Deliberately CSS rather than framer-motion. The headline is the LCP
  * candidate, so it must be painted by the initial HTML and revealed by the
