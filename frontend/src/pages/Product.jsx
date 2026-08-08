@@ -42,6 +42,7 @@ export default function Product() {
   const [qty, setQty] = useState(1);
   const [sizeErr, setSizeErr] = useState(false);
   const [added, setAdded] = useState(false);
+  const addTimer = useRef(null); // resets "ADDED ✓" after 2s
   const [guideOpen, setGuideOpen] = useState(false);
   const [bundle, setBundle] = useState([]);
   const [related, setRelated] = useState([]);
@@ -146,6 +147,8 @@ export default function Product() {
     }
     addToCart(p, { size, color, quantity: qty });
     setAdded(true);
+    window.clearTimeout(addTimer.current);
+    addTimer.current = window.setTimeout(() => setAdded(false), 2000);
     if (goToCheckout) nav('/checkout');
   };
 
@@ -201,7 +204,8 @@ export default function Product() {
             </div>
 
             <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#6B7252]">HUSHAE / {p.gender}</p>
-            <h1 className="font-display text-3xl font-light uppercase tracking-[0.04em] text-neutral-900 sm:text-4xl leading-tight">
+            <h1 className="font-serif text-3xl font-bold uppercase tracking-[0.05em] text-neutral-900 sm:text-4xl leading-tight"
+              style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>
               {p.name}
             </h1>
 
@@ -358,14 +362,16 @@ export default function Product() {
               {/* Stepper */}
               <QuantityStepper value={qty} onChange={setQty} min={1} max={Math.max(1, Math.min(10, p.stock || 10))} />
 
-              {/* Add to Bag (Sleek high-fashion rectangular) */}
+              {/* Add to Bag — luxury: black → gold hover, "ADDED ✓" feedback */}
               <button
                 type="button"
                 onClick={() => tryAdd(false)}
                 disabled={soldOut}
-                className="flex-1 min-h-[46px] inline-flex items-center justify-center rounded-[2px] bg-neutral-900 text-white text-xs font-bold uppercase tracking-[0.2em] transition duration-300 hover:bg-[#6B7252] disabled:opacity-40"
+                className={`flex-1 min-h-[46px] inline-flex items-center justify-center rounded-[2px] text-white text-xs font-bold uppercase tracking-[0.2em] transition duration-300 disabled:opacity-40 ${
+                  added ? 'bg-[#C9A96E]' : 'bg-neutral-900 hover:bg-[#C9A96E]'
+                }`}
               >
-                Add to Bag
+                {added ? <>ADDED ✓</> : 'Add to Bag'}
               </button>
 
               {/* Wishlist Square Button next to Add to Bag */}

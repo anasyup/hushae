@@ -50,6 +50,9 @@ export function AppProvider({ children }) {
   const [compare, setCompare] = useState(() => LS.get('hushae.compare', []));
   const [toasts, setToasts] = useState([]);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  /* Cart icon bounce — bumped on every add-to-cart so the header bag icon
+     does a small pop (visual confirmation without opening the drawer). */
+  const [cartBump, setCartBump] = useState(0);
 
   const t = useCallback((k) => STR[k]?.[lang] || STR[k]?.en || k, [lang]);
 
@@ -162,6 +165,7 @@ export function AppProvider({ children }) {
       return [...c, { ...s, size: sizeUse, color: colorUse, qty: quantity }];
     });
     toast(STR.addedToBag[lang] || 'Added to your bag');
+    setCartBump((b) => b + 1); // header bag icon pop
   }, [toast, lang]);
 
   /* --------------------------------------------------------------------
@@ -314,7 +318,7 @@ export function AppProvider({ children }) {
   const value = useMemo(() => ({
     settings, lang, setLang, t,
     auth, setAuth, login, register, logout, patchUser,
-    cart, addToCart, updateQty, removeLine, restoreLine, clearCart, cartCount, cartSubtotal,
+    cart, addToCart, updateQty, removeLine, restoreLine, clearCart, cartCount, cartSubtotal, cartBump,
     saved, saveForLater, moveToBag, removeSaved,
     wishlist, inWishlist, toggleWish, clearWish,
     recent: recentLive, recentRaw: recent, pushRecent,

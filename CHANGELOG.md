@@ -436,3 +436,10 @@ Format:
   - Root cause: BlockRenderer's button case called `e.preventDefault()` UNCONDITIONALLY. On the LIVE storefront (editable=false) every theme button rendered an `<a href>` but the click never navigated — dead buttons across the themed home.
   - Fix: preventDefault only runs when `editable` is true (editor preview, where a click selects the node). In live mode the anchor navigates normally. Verified in BlockRenderer.tsx.
   - Also reset the theme document (published 15-section doc) so the storefront renders the hand-coded CK React home (the user's approved home) with fully working buttons.
+
+- **2026-08-04** — 🛍️ **Product Detail Page — luxury upgrade (CK/Zara spec)**
+  - Gallery (ProductGallery): desktop now ONE large main image with magnifier zoom (ProductImageZoom 2.5x) + 80px thumbnail strip — click swaps the main image with a 300ms crossfade; single image renders full-width with no strip. Mobile keeps the swipe deck and gains dot indicators.
+  - Product name → Playfair Display bold (luxury serif, letter-spacing 0.05em).
+  - Add to Bag: black → gold (#C9A96E) hover; button flips to "ADDED ✓" for 2s (timer + cleanup); header cart icon pops on add (cartBump state + cart-pop keyframe).
+  - Playfair Display added to Google Fonts (async, non-render-blocking).
+  - All other luxury pieces were already live (breadcrumbs, sale was-price, size pills, colour swatches with ring, quantity stepper, trust row, one-at-a-time accordions, Complete the Look + You may also like + Recently viewed carousels, sticky buy bar desktop+mobile, skeleton / not-found / out-of-stock states, SEO + Product JSON-LD).

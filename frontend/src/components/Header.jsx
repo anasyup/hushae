@@ -39,7 +39,7 @@ const clamp = (v, lo, hi, dflt) => {
  * layout can move, so the header contributes no layout shift at all.
  * ========================================================================== */
 export default function Header() {
-  const { cartCount, wishlist, auth, setDrawerOpen, settings } = useApp();
+  const { cartCount, wishlist, auth, setDrawerOpen, settings, cartBump } = useApp();
   const [cats, setCats] = useState([]);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -328,7 +328,10 @@ export default function Header() {
                   aria-label={cartCount ? `Open bag, ${cartCount} item${cartCount === 1 ? '' : 's'}` : 'Open bag'}
                   className={`relative -mr-2 md:mr-0 ${iconBtn}`}
                 >
-                  <ShoppingBag size={19} strokeWidth={1.6} aria-hidden="true" />
+                  {/* key={cartBump} restarts the pop animation on every add */}
+                  <span key={cartBump} className="inline-grid place-items-center">
+                    <ShoppingBag size={19} strokeWidth={1.6} aria-hidden="true" className={cartBump ? 'animate-[cart-pop_0.45s_cubic-bezier(0.22,1,0.36,1)]' : ''} />
+                  </span>
                   {cartCount > 0 && (
                     <span className={`${badge} bg-obsidian text-alabaster`} aria-hidden="true">
                       {cartCount}

@@ -368,6 +368,14 @@
   50%      { box-shadow: 0 0 0 14px rgba(17, 17, 17, 0); }
 }
 
+/* ── Cart icon pop — small scale bounce on add-to-bag ────────────────────── */
+@keyframes cart-pop {
+  0%   { transform: scale(1); }
+  35%  { transform: scale(1.28) rotate(-6deg); }
+  70%  { transform: scale(0.92) rotate(3deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+
 /* ── Hero entrance ──────────────────────────────────────────────────────────
  * Deliberately CSS rather than framer-motion. The headline is the LCP
  * candidate, so it must be painted by the initial HTML and revealed by the
