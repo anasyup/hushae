@@ -325,7 +325,9 @@ export default function Home() {
       {/* ═══ 07 — THE WORD (social proof carousel, auto-advance 5s) ═══ */}
       {social.length > 0 && (
         <section className="bg-sand py-20 md:py-40">
-          <div className="container">
+          <div className="container relative">
+            {/* 07 — chapter counter, top-right of the section */}
+            <ChapterMarker num="07" name="The Word" className="absolute right-0 top-0" />
             <div className="text-center">
               <p className="text-[10px] font-medium uppercase tracking-[0.24em] text-smoke">Highly Rated</p>
               <p className="mt-3 text-[24px] font-light normal-case tracking-[0.08em] text-charcoal md:text-[32px]">The Word</p>
@@ -357,7 +359,6 @@ export default function Home() {
                 ))}
               </div>
             )}
-            <ChapterMarker num="07" name="The Word" className="mt-12" />
           </div>
         </section>
       )}
@@ -393,8 +394,8 @@ export default function Home() {
               <input type="email" value={nl} onChange={(e) => setNl(e.target.value)} required placeholder="Your email"
                 className="min-h-[44px] w-full min-w-0 flex-1 border-0 border-b border-clay bg-transparent pb-2 text-[14px] font-light text-charcoal outline-none transition-colors duration-base placeholder:text-smoke/70 focus:border-charcoal" />
               <button type="submit" aria-label="Subscribe"
-                className="grid h-10 w-10 shrink-0 place-items-center border border-charcoal text-charcoal transition-colors duration-300 hover:bg-charcoal hover:text-white">
-                <ArrowRight size={16} strokeWidth={1.5} />
+                className="grid h-10 w-10 shrink-0 place-items-center text-smoke transition-colors duration-300 hover:text-charcoal">
+                <ArrowRight size={18} strokeWidth={1.5} />
               </button>
             </form>
           )}
