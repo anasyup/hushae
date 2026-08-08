@@ -22,6 +22,19 @@ Format:
 ---
 
 ## Changes
+- **2026-08-09** — 🏛️ **QUIET ARCHITECTURE — Product / Cart / Checkout luxury upgrade** (client: "bhot ghatiya, poor lag rahe hain")
+  - **Product page** (`Product.jsx`, `ProductGallery`, `StickyBuyBar`):
+    - Name → Title Case, "HUSHAE" prefix stripped, Inter 400 / 28px charcoal.
+    - Price Inter 500 / 18px; **"Save PKR X" badge removed**, sale countdown removed — only struck-through was-price.
+    - **Express Checkout button removed** — only Add to Bag (midnight, 0 radius, 500/14/0.08em, "Select a Size" until picked).
+    - Breadcrumb moved to TOP (11px smoke); gallery 4:5 → **3:4**; colour selector = flat 2px-clay rectangles with text names; size = 1px clay rectangles 12px padding; quantity = minimal `- 1 +` thin clay borders no bg; tabs = thin clay border + charcoal active line; urgency copy gone; stone bg, generous spacing.
+  - **Cart page** (`Cart.jsx`, `CartLine`, `OrderSummary`, `EmptyBag`, `CouponBox`, `FreeShipProgress`):
+    - Heading "Your Bag" (Inter 300, 32px — DB settings updated); names Title Case, no HUSHAE; rows = 80px square image | name/size/colour | compact qty | price | X; summary = **sand card, 32px padding, midnight CHECKOUT**; promo = "Have a promo code?" text link (borderless bottom-line input); free-ship = thin clay bar + 10px text; empty = "Your bag is empty" + "Continue Shopping →".
+  - **Checkout page** (`Checkout.jsx`, `FloatField`, `MethodPicker`, `CheckoutSummary`, `ReviewDialog`, `StickyPlaceOrder`):
+    - Verified: a full checkout form already existed (client's "no form" report was inaccurate) — upgraded its design: 60/40 grid (form | sticky sand summary), "Checkout" Inter 300 / 28px, CONTACT = email + phone, SHIPPING = name / address 1 / address 2 / province / city / postal / **country (Pakistan)**, all borderless bottom-line inputs (16px Inter 400, 14px pad), flat radio rows for delivery + payment (COD default), **PLACE ORDER** midnight 48px, sand summary with 60px thumbs + title-case names + clay dividers + "Discreet packaging · Secure checkout". All flows kept: validation, draft restore, review dialog, place-order API, rewards, pin location.
+  - **Global**: `.btn-qa` / `.summary-card` / `.input-line` / `.label-qa` / `.body-qa` primitives; no red badges, no countdowns, no save amounts.
+  - **Verified**: build clean; 12/12 routes 200; live bundle carries markers, zero "Express Checkout"; theme body empty (React home active); admin auth + settings PUT working.
+
 - **2026-08-09** — 🏛️ **QUIET ARCHITECTURE Phases 2-6 — homepage complete transformation** (one cohesive commit `a002c36`)
   - **Phase 2 — global typography/colour**
     - `body` → stone `#F5F3EF` bg + charcoal `#1A1B1C` text; base `h1-h6` → Inter 300 (admin shell keeps its own 600-weight via !important).
