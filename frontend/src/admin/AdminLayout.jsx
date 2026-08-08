@@ -1,7 +1,7 @@
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, NavLink, Navigate, useLocation } from 'react-router-dom';
 import {
-  Activity, BadgePercent, BarChart3, ChevronDown, Command, CreditCard, FileText, FolderOpen, Globe, Home,
+  Activity, BadgePercent, BarChart3, ImagePlus, ChevronDown, Command, CreditCard, FileText, FolderOpen, Globe, Home,
   LayoutTemplate, LogOut, Mail, Megaphone, Menu, MessageSquare, Moon, Package, PackageX, Plus,
   Search, Settings as SettingsIcon, ShieldCheck, ShoppingBag, Signpost, Sparkles, Star, Store, Sun, Tags, TrendingUp, Truck, Users, X, Zap,
 } from 'lucide-react';
@@ -63,9 +63,10 @@ const NAV_GROUPS = [
   },
   {
     key: 'marketing', label: 'Marketing', icon: Megaphone,
-    match: ['/admin/promotions', '/admin/bundles', '/admin/flash-sales', '/admin/discounts', '/admin/marketing', '/admin/marketing/settings', '/admin/marketing/analytics', '/admin/email-campaigns'],
+    match: ['/admin/promotions', '/admin/bundles', '/admin/flash-sales', '/admin/discounts', '/admin/marketing', '/admin/marketing/settings', '/admin/marketing/analytics', '/admin/email-campaigns', '/admin/banners', '/admin/banners/new', '/admin/banners/:id', '/admin/banners/slots'],
     children: [
       { to: '/admin/promotions',           label: 'Promotions',        icon: Megaphone },
+      { to: '/admin/banners',                label: 'Banners',            icon: ImagePlus },
       { to: '/admin/discounts',            label: 'Discounts',         icon: BadgePercent },
       { to: '/admin/email-campaigns',      label: 'Email campaigns',   icon: Mail },
       { to: '/admin/marketing/settings',   label: 'Automation rules',  icon: SettingsIcon },

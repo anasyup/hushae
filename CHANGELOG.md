@@ -457,3 +457,9 @@ Format:
   - Renamed the outlined drawer button "View bag" → "Continue shopping" (opens /cart).
   - Verified already present (no change): slide-from-right 0.28s with overlay, 448px desktop / full mobile, Escape + overlay + X close, focus trap, free-shipping progress bar, qty stepper with live totals, subtotal/total, empty state with shop links.
   - Checkout verified complete: 60/40 sticky split, contact + shipping + payment radios (COD/JazzCash/EasyPaisa/Bank Transfer), discreet packaging, order notes, promo code, trust badges, mobile stacked + collapsible summary + fixed place-order; order confirmation with animated check + HS- order number.
+
+- **2026-08-04** — 🏷️ **BANNER MANAGEMENT SYSTEM (Phase 2)**
+  - Backend: BannerSlot + Banner models; /api/banners (public resolve by slot+device, schedule+priority), impression/click tracking endpoints, admin slots+banners CRUD. Five predefined slots seeded (homepage-hero 1920×800, homepage-below 1200×400, category-sidebar 300×600, product-inline 800×200, cart-banner 400×200). lean()-safe live resolution (no instance methods on lean docs).
+  - Admin: Marketing → Banners — list (slot/status filters, schedule state, priority, impressions/clicks/CTR), editor with tabs (Content: image/video/html + MediaPicker + overlay text/position/colour/opacity · Assignment: slot+priority+device · Schedule: start/end + always-active + status · Analytics read-only), slots manager (table + create/edit/archive).
+  - Storefront: Banner component (fetches slot, IntersectionObserver impression when ≥50% visible ~1s, click tracking, CTA navigation); Homepage hero is now slot-driven with the existing CK hero as fallback; homepage-below slot added before the editorial statement.
+  - Backend integration test passed (resolve priority+schedule, analytics counters, unknown slot).

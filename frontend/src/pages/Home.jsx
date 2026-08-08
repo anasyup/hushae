@@ -4,6 +4,7 @@ import { ArrowRight, ArrowUpRight } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import ProductCard from '../components/ProductCard';
+import Banner from '../components/Banner';
 import Seo, { organizationJsonLd } from '../components/Seo';
 
 /* ============================================================================
@@ -77,15 +78,21 @@ export default function Home() {
         jsonLd={organizationJsonLd(typeof window !== 'undefined' ? window.location.origin : '')}
         jsonLdId="home-org" />
 
-      {/* ═══ 01 — HERO: full-bleed, enormous type ══════════════════ */}
+      {/* ═══ 01 — HERO: banner-slot driven (admin can replace without code) ══ */}
       <section className="relative w-full overflow-hidden bg-white" style={{ minHeight: '100vh' }}>
-        {/* HERO — preloaded AVIF (much smaller), then WebP/JPEG fallbacks */}
-        <picture className="absolute inset-0 h-full w-full">
-          <source srcSet="/images/campaign/hushae-hero-women.avif" type="image/avif" />
-          <source srcSet="/images/campaign/hushae-hero-women.webp" type="image/webp" />
-          <img src="/images/campaign/hushae-hero-women.jpg" alt="" fetchpriority="high"
-            className="absolute inset-0 h-full w-full object-cover object-center" />
-        </picture>
+        <Banner
+          slot="homepage-hero"
+          className="absolute inset-0 h-full w-full"
+          fallback={(
+            /* Default hero — shown until an admin publishes a homepage-hero banner */
+            <picture className="absolute inset-0 h-full w-full">
+              <source srcSet="/images/campaign/hushae-hero-women.avif" type="image/avif" />
+              <source srcSet="/images/campaign/hushae-hero-women.webp" type="image/webp" />
+              <img src="/images/campaign/hushae-hero-women.jpg" alt="" fetchpriority="high"
+                className="absolute inset-0 h-full w-full object-cover object-center" />
+            </picture>
+          )}
+        />
         {/* Light veils — the hero image is bright, so the type is BLACK */}
         <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-alabaster/80 via-alabaster/30 to-transparent" />
         <div className="absolute inset-x-0 bottom-0 h-[60%] bg-gradient-to-t from-alabaster/95 via-alabaster/40 to-transparent" />
@@ -168,6 +175,9 @@ export default function Home() {
           </div>
         </section>
       )}
+
+      {/* ═══ 03b — BELOW PRODUCTS banner slot (admin-controlled) ═══ */}
+      <Banner slot="homepage-below" className="aspect-[3/1] w-full bg-alabaster" fallback={null} />
 
       {/* ═══ 04 — EDITORIAL STATEMENT (big typographic moment) ═════ */}
       <section className="border-t border-line bg-alabaster py-24 md:py-36">

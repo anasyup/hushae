@@ -104,6 +104,9 @@ const PromotionEdit = lazy(() => import('./admin/PromotionEdit'));
 const MarketingSettings = lazy(() => import('./admin/MarketingSettings'));
 const MarketingAnalytics = lazy(() => import('./admin/MarketingAnalytics'));
 const EmailCampaigns = lazy(() => import('./admin/EmailCampaigns'));
+const BannerList = lazy(() => import('./admin/BannerList'));
+const BannerEdit = lazy(() => import('./admin/BannerEdit'));
+const BannerSlots = lazy(() => import('./admin/BannerSlots'));
 const Marketing = lazy(() => import('./admin/Marketing'));
 /* CMS screens: lazy (gotcha 26). The page builder pulls the section registry
    and must never reach a shopper's bundle. */
@@ -307,6 +310,10 @@ export default function App() {
           <Route path="/admin/marketing/settings" element={<Suspense fallback={<EditorFallback />}><MarketingSettings /></Suspense>} />
           <Route path="/admin/marketing/analytics" element={<Suspense fallback={<EditorFallback />}><MarketingAnalytics /></Suspense>} />
           <Route path="/admin/email-campaigns" element={<Suspense fallback={<EditorFallback />}><EmailCampaigns /></Suspense>} />
+          <Route path="/admin/banners" element={<Suspense fallback={<EditorFallback />}><BannerList /></Suspense>} />
+          <Route path="/admin/banners/slots" element={<Suspense fallback={<EditorFallback />}><BannerSlots /></Suspense>} />
+          <Route path="/admin/banners/new" element={<Suspense fallback={<EditorFallback />}><BannerEdit /></Suspense>} />
+          <Route path="/admin/banners/:id" element={<Suspense fallback={<EditorFallback />}><BannerEdit /></Suspense>} />
           <Route path="/admin/cms" element={<Suspense fallback={<EditorFallback />}><Cms /></Suspense>} />
           {/* /new and /redirects must precede /:id or they are read as ids. */}
           <Route path="/admin/cms/new" element={<Suspense fallback={<EditorFallback />}><CmsEdit /></Suspense>} />
