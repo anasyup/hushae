@@ -124,7 +124,7 @@ export default function Home() {
               <source srcSet="/images/campaign/hushae-hero-women.avif" type="image/avif" />
               <source srcSet="/images/campaign/hushae-hero-women.webp" type="image/webp" />
               <img src="/images/campaign/hushae-hero-women.jpg" alt="" fetchpriority="high"
-                className="absolute inset-0 h-full w-full object-cover object-center animate-[kenburns_15s_ease-in-out_infinite_alternate]" />
+                className="absolute inset-0 h-full w-full object-cover object-center animate-[kenburns_20s_ease-in-out_infinite_alternate]" />
             </picture>
           )}
         />

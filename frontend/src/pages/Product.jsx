@@ -172,17 +172,6 @@ export default function Product() {
         jsonLdId="product"
       />
 
-      {/* Breadcrumbs */}
-      <nav aria-label="Breadcrumb" className="mb-6 flex items-center gap-1.5 text-[11px] uppercase tracking-[0.15em] text-neutral-400">
-        <Link to="/" className={CRUMB}>Home</Link>
-        <ChevronRight size={12} aria-hidden="true" />
-        <Link to={`/${p.gender}`} className={`capitalize ${CRUMB}`}>{p.gender}</Link>
-        <ChevronRight size={12} aria-hidden="true" />
-        <Link to={`/category/${p.categorySlug}`} className={CRUMB}>{p.categorySlug.replace(/-/g, ' ')}</Link>
-        <ChevronRight size={12} aria-hidden="true" />
-        <span aria-current="page" className="clamp-2 max-w-[180px] text-neutral-900 font-semibold">{p.name}</span>
-      </nav>
-
       <div className="grid gap-8 lg:grid-cols-2 lg:gap-16 xl:grid-cols-[1.35fr_1fr] xl:gap-20">
         {/* Left Column: Composed Lookbook Gallery */}
         <div className="min-w-0">
@@ -362,16 +351,20 @@ export default function Product() {
               {/* Stepper */}
               <QuantityStepper value={qty} onChange={setQty} min={1} max={Math.max(1, Math.min(10, p.stock || 10))} />
 
-              {/* Add to Bag — luxury: black → gold hover, "ADDED ✓" feedback */}
+              {/* Add to Bag — CK/SKIMS: disabled ("Select a Size") until size picked */}
               <button
                 type="button"
                 onClick={() => tryAdd(false)}
-                disabled={soldOut}
-                className={`flex-1 min-h-[46px] inline-flex items-center justify-center rounded-[2px] text-white text-xs font-bold uppercase tracking-[0.2em] transition duration-300 disabled:opacity-40 ${
-                  added ? 'bg-[#C9A96E]' : 'bg-neutral-900 hover:bg-[#C9A96E]'
+                disabled={soldOut || (needsSize && !size)}
+                className={`flex-1 min-h-[46px] inline-flex items-center justify-center rounded-[2px] text-xs font-bold uppercase tracking-[0.2em] transition duration-300 ${
+                  soldOut
+                    ? 'cursor-not-allowed bg-neutral-200 text-neutral-500'
+                    : needsSize && !size
+                      ? 'cursor-not-allowed bg-neutral-100 text-neutral-400'
+                      : `text-white ${added ? 'bg-[#C9A96E]' : 'bg-neutral-900 hover:bg-[#C9A96E]'}`
                 }`}
               >
-                {added ? <>ADDED ✓</> : 'Add to Bag'}
+                {soldOut ? 'Out of Stock' : needsSize && !size ? 'Select a Size' : added ? 'ADDED ✓' : 'Add to Bag'}
               </button>
 
               {/* Wishlist Square Button next to Add to Bag */}
@@ -447,47 +440,21 @@ export default function Product() {
             ))}
           </ul>
 
-          {/* ── CK-style Accordions: Product Details · Fabric & Care · Shipping & Returns */}
-          <div className="pt-2 space-y-1">
-            <Accordion title="Product Details" defaultOpen>
-              <p className="text-sm text-neutral-600 leading-relaxed font-light">{p.description}</p>
-              <dl className="mt-4 grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 border-t border-neutral-100 pt-4 text-xs">
-                {[
-                  ['Item No.', p.sku || p._id?.toUpperCase()],
-                  ['Material', p.fabric],
-                  ['Tier', p.tier === 'Premium' ? 'Signature' : p.tier],
-                  ['Category', p.categorySlug?.replace(/-/g, ' ')],
-                  ['Sizes', (p.sizes || []).join(' · ') || '—'],
-                ].filter(([, v]) => v).map(([k, v]) => (
-                  <div key={k} className="contents">
-                    <dt className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">{k}</dt>
-                    <dd className="capitalize text-neutral-700 font-mono">{v}</dd>
-                  </div>
-                ))}
-              </dl>
-            </Accordion>
-            <Accordion title="Fabric & Care">
-              <p className="font-semibold text-neutral-900 text-sm">{p.fabric}</p>
-              <p className="mt-2 text-sm text-neutral-600 leading-relaxed font-light">Every HUSHAE fabric is wash-tested for 40 cycles before it enters the edit — softness in, softness out.</p>
-              {(p.care || []).length > 0 && (
-                <ul className="mt-3 list-disc space-y-1.5 pl-5 text-sm text-neutral-600 font-light">
-                  {(p.care || []).map((c) => <li key={c}>{c}</li>)}
-                </ul>
-              )}
-            </Accordion>
-            <Accordion title="Shipping & Returns">
-              <p className="text-sm text-neutral-600 leading-relaxed font-light">
-                Flat {pkr(settings?.shippingFlatRate ?? 350)} nationwide, free over {pkr(settings?.freeShippingThreshold ?? 4999)}.
-                Dispatched in 24–48h in plain, unmarked packaging.
-              </p>
-              <p className="mt-2 text-sm text-neutral-600 leading-relaxed font-light">
-                Unworn pieces exchange within 14 days — size swaps are free. For hygiene reasons innerwear is only
-                returnable if it arrives faulty.
-              </p>
-            </Accordion>
-          </div>
+          {/* ── CK/SKIMS-style horizontal TABS (premium, not FAQ accordion) ── */}
+          <ProductTabs p={p} settings={settings} />
         </aside>
       </div>
+
+      {/* ── Breadcrumbs — CK puts them BELOW product info, above recommendations ── */}
+      <nav aria-label="Breadcrumb" className="mt-14 flex items-center gap-1.5 border-t border-neutral-100 pt-6 text-[11px] uppercase tracking-[0.15em] text-neutral-400 md:mt-20">
+        <Link to="/" className="transition hover:text-neutral-900">Home</Link>
+        <ChevronRight size={12} aria-hidden="true" />
+        <Link to={`/${p.gender}`} className="capitalize transition hover:text-neutral-900">{p.gender}</Link>
+        <ChevronRight size={12} aria-hidden="true" />
+        <Link to={`/category/${p.categorySlug}`} className="capitalize transition hover:text-neutral-900">{p.categorySlug.replace(/-/g, ' ')}</Link>
+        <ChevronRight size={12} aria-hidden="true" />
+        <span aria-current="page" className="clamp-2 max-w-[220px] font-semibold text-neutral-900">{p.name}</span>
+      </nav>
 
       {/* ── CK-style "Complete the Look" — ALWAYS populated: bundle first,
           same-category picks as fallback, so the section never sits empty. */}
@@ -502,6 +469,31 @@ export default function Product() {
         <div className="mt-24 md:mt-32">
           <ProductRow eyebrow="You may also like" title="Related pieces" products={relatedExtra.map(snap)} />
         </div>
+      )}
+
+      {/* ── ABOUT THIS FABRIC — editorial close-up (SKIMS/CK feature) ── */}
+      {p.fabric && (
+        <section className="mt-20 grid grid-cols-1 items-center gap-8 border-t border-neutral-100 pt-14 md:mt-28 md:grid-cols-2 md:gap-14">
+          <div className="relative aspect-[4/3] overflow-hidden bg-neutral-100">
+            <img src="/images/campaign/hushae-fabric.jpg" alt={`${p.fabric} — HUSHAE fabric close-up`} loading="lazy"
+              className="absolute inset-0 h-full w-full object-cover" />
+          </div>
+          <div>
+            <p className="text-[11px] font-bold uppercase tracking-[0.24em] text-neutral-400">About this fabric</p>
+            <h2 className="mt-4 font-serif text-3xl font-bold uppercase tracking-[0.04em] text-neutral-900 md:text-4xl"
+              style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>
+              {p.fabric}
+            </h2>
+            <p className="mt-5 max-w-md text-sm leading-relaxed font-light text-neutral-600">
+              {p.shortDescription || p.description}
+            </p>
+            {(p.care || []).length > 0 && (
+              <ul className="mt-5 space-y-2 border-t border-neutral-100 pt-5 text-[12px] text-neutral-500">
+                {(p.care || []).slice(0, 3).map((c) => <li key={c} className="flex items-start gap-2"><span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-neutral-400" />{c}</li>)}
+              </ul>
+            )}
+          </div>
+        </section>
       )}
 
       {/* Reviews Section */}
@@ -530,6 +522,82 @@ export default function Product() {
       />
 
       <SizeGuideModal open={guideOpen} onClose={() => setGuideOpen(false)} gender={p.gender} isBra={isBra} />
+    </div>
+  );
+}
+
+/* ═══ CK/SKIMS horizontal tabs — active = bold + underline, 200ms fade ═════ */
+function ProductTabs({ p, settings }) {
+  const [tab, setTab] = useState('details');
+  const TABS = [
+    { id: 'details', label: 'Product Details' },
+    { id: 'fabric', label: 'Fabric & Care' },
+    { id: 'shipping', label: 'Shipping & Returns' },
+  ];
+  return (
+    <div className="pt-6">
+      {/* Tab bar */}
+      <div className="flex gap-8 border-b border-neutral-200" role="tablist" aria-label="Product information">
+        {TABS.map((t) => (
+          <button
+            key={t.id}
+            role="tab"
+            aria-selected={tab === t.id}
+            onClick={() => setTab(t.id)}
+            className={`-mb-px border-b-2 pb-3 text-[11px] font-bold uppercase tracking-[0.18em] transition-colors duration-200 ${
+              tab === t.id ? 'border-neutral-900 text-neutral-900' : 'border-transparent text-neutral-400 hover:text-neutral-700'
+            }`}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Tab content — 200ms fade */}
+      <div className="pt-5">
+        {tab === 'details' && (
+          <div key="details" className="animate-[fade-up_0.2s_ease-out_both]">
+            <p className="text-sm leading-relaxed font-light text-neutral-600">{p.description}</p>
+            <dl className="mt-4 grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 border-t border-neutral-100 pt-4 text-xs">
+              {[
+                ['Item No.', p.sku || p._id?.toUpperCase()],
+                ['Material', p.fabric],
+                ['Tier', p.tier === 'Premium' ? 'Signature' : p.tier],
+                ['Category', p.categorySlug?.replace(/-/g, ' ')],
+                ['Sizes', (p.sizes || []).join(' · ') || '—'],
+              ].filter(([, v]) => v).map(([k, v]) => (
+                <div key={k} className="contents">
+                  <dt className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">{k}</dt>
+                  <dd className="capitalize font-mono text-neutral-700">{v}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        )}
+        {tab === 'fabric' && (
+          <div key="fabric" className="animate-[fade-up_0.2s_ease-out_both]">
+            <p className="text-sm font-semibold text-neutral-900">{p.fabric}</p>
+            <p className="mt-2 text-sm leading-relaxed font-light text-neutral-600">Every HUSHAE fabric is wash-tested for 40 cycles before it enters the edit — softness in, softness out.</p>
+            {(p.care || []).length > 0 && (
+              <ul className="mt-3 list-disc space-y-1.5 pl-5 text-sm font-light text-neutral-600">
+                {(p.care || []).map((c) => <li key={c}>{c}</li>)}
+              </ul>
+            )}
+          </div>
+        )}
+        {tab === 'shipping' && (
+          <div key="shipping" className="animate-[fade-up_0.2s_ease-out_both]">
+            <p className="text-sm leading-relaxed font-light text-neutral-600">
+              Flat {pkr(settings?.shippingFlatRate ?? 350)} nationwide, free over {pkr(settings?.freeShippingThreshold ?? 4999)}.
+              Dispatched in 24–48h in plain, unmarked packaging.
+            </p>
+            <p className="mt-2 text-sm leading-relaxed font-light text-neutral-600">
+              Unworn pieces exchange within 14 days — size swaps are free. For hygiene reasons innerwear is only
+              returnable if it arrives faulty.
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

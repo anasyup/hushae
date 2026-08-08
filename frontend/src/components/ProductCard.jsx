@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Heart } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Heart } from 'lucide-react';
 import { memo, useMemo, useState } from 'react';
 import { useApp } from '../store/AppContext';
 import { pkr } from '../lib/format';
@@ -18,15 +18,17 @@ function ProductCard({ product: p, showPrice = true, showQuickAdd = true, showWi
   const { inWishlist, toggleWish, addToCart, toast } = useApp();
   const [sizePick, setSizePick] = useState(false);
   const [failed, setFailed] = useState(false);
+  const [imgIdx, setImgIdx] = useState(0);
   const wished = inWishlist(p);
   const sizes = p.sizes || [];
   const soldOut = p.stock === 0;
   const onSale = isOnSale(p);
   const off = salePercent(p);
-  const { primary, secondary } = useMemo(() => {
-    const list = (p.images || []).map(srcOf).filter(Boolean);
-    return { primary: list[0] || p.image || '', secondary: list[1] || '' };
-  }, [p.images, p.image]);
+  const allImages = useMemo(() => (p.images || []).map(srcOf).filter(Boolean), [p.images]);
+  const { primary, secondary } = useMemo(() => ({
+    primary: allImages[imgIdx] || p.image || '',
+    secondary: allImages.length > 1 ? allImages[(imgIdx + 1) % allImages.length] : allImages[1] || '',
+  }), [allImages, imgIdx, p.image]);
 
   const genderStr = p.gender === 'women' ? "Women's" : p.gender === 'men' ? "Men's" : '';
   const catName = p.categoryName || p.category?.name || p.categorySlug || '';
@@ -53,6 +55,30 @@ function ProductCard({ product: p, showPrice = true, showQuickAdd = true, showWi
         )}
         {soldOut && (
           <span className="absolute left-2 top-2 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-[0.1em] text-ash">Sold out</span>
+        )}
+        {/* Image browse arrows + counter — CK-style, show on hover */}
+        {allImages.length > 1 && !sizePick && (
+          <>
+            <button
+              type="button"
+              aria-label="Previous image"
+              onClick={(e) => { e.preventDefault(); setImgIdx((i) => (i - 1 + allImages.length) % allImages.length); }}
+              className="absolute left-2 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-full bg-white/85 text-neutral-900 opacity-0 transition-opacity duration-300 hover:bg-white group-hover:opacity-100"
+            >
+              <ChevronLeft size={15} />
+            </button>
+            <button
+              type="button"
+              aria-label="Next image"
+              onClick={(e) => { e.preventDefault(); setImgIdx((i) => (i + 1) % allImages.length); }}
+              className="absolute right-2 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-full bg-white/85 text-neutral-900 opacity-0 transition-opacity duration-300 hover:bg-white group-hover:opacity-100"
+            >
+              <ChevronRight size={15} />
+            </button>
+            <span className="pointer-events-none absolute bottom-2 left-1/2 -translate-x-1/2 bg-white/85 px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.14em] text-neutral-900 opacity-0 backdrop-blur transition-opacity duration-300 group-hover:opacity-100">
+              {imgIdx + 1} of {allImages.length}
+            </span>
+          </>
         )}
         {showWishlist && (
           <button type="button" onClick={async (e) => { e.preventDefault(); const r = await toggleWish(p); if (r && r.ok === false) toast(r.message); }}

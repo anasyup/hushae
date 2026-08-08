@@ -98,7 +98,7 @@ export default function ProductGallery({ media, index, onIndex, productName }) {
       {/* ── DESKTOP: main image + thumbnail strip with crossfade ───────── */}
       <div className="hidden sm:block">
         {/* Main image — the active one crossfades in over the previous (300ms) */}
-        <div className="relative aspect-[4/5] overflow-hidden bg-satin">
+        <div className="group/main relative aspect-[4/5] overflow-hidden bg-satin">
           {media.map((item, i) => (
             <div key={`${item.url}-${i}`} aria-hidden={i !== index}
               className={`absolute inset-0 transition-opacity duration-300 ease-out ${i === index ? CROSSFADE : HIDDEN}`}>
@@ -109,6 +109,28 @@ export default function ProductGallery({ media, index, onIndex, productName }) {
           <span className="pointer-events-none absolute right-4 top-4 z-10 bg-white/85 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-900 backdrop-blur">
             {String(index + 1).padStart(2, '0')} / {String(media.length).padStart(2, '0')}
           </span>
+
+          {/* SKIMS-style prev/next arrows — appear on hover */}
+          {!single && (
+            <>
+              <button
+                type="button"
+                onClick={() => onIndex((index - 1 + media.length) % media.length)}
+                aria-label="Previous image"
+                className="absolute left-3 top-1/2 z-10 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-white/85 text-neutral-900 opacity-0 shadow-sm backdrop-blur transition-all duration-300 hover:bg-white group-hover/main:opacity-100"
+              >
+                <ChevronLeft size={18} />
+              </button>
+              <button
+                type="button"
+                onClick={() => onIndex((index + 1) % media.length)}
+                aria-label="Next image"
+                className="absolute right-3 top-1/2 z-10 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-white/85 text-neutral-900 opacity-0 shadow-sm backdrop-blur transition-all duration-300 hover:bg-white group-hover/main:opacity-100"
+              >
+                <ChevronRight size={18} />
+              </button>
+            </>
+          )}
         </div>
 
         {/* Thumbnail strip — 80px, horizontal scroll on overflow */}

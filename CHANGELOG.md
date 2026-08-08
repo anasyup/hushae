@@ -471,3 +471,8 @@ Format:
   - SPACING: Just In section padding +20%, grid gaps 1.5rem→2rem+.
   - THE HOUSE: typographic (no image) — parallax applied to the For Him full-bleed campaign image instead (new useParallax hook, rAF-throttled, desktop-only, pure transform).
   - Sticky header already had backdrop-blur-xl (confirmed). Smooth scroll already global (scroll-smooth). Mobile bottom nav already [Home/Shop/Saved/Bag/Account].
+
+- **2026-08-04** — ✨ **PASS 1 + PASS 2 + PASS 3 — CK/SKIMS parity fixes**
+  - PRODUCT: Accordions → horizontal TABS (active bold + underline, 200ms fade). Breadcrumbs moved to BOTTOM (above recommendations). Add to Bag now DISABLED showing "Select a Size" until size picked (black only after). Gallery got SKIMS-style prev/next arrows on hover. "About this fabric" editorial section added (fabric close-up + care).
+  - CATEGORY: subcategory quick-nav pills (horizontal scroll), 3 featured collection banners (Shop Bras / Shop Panties / The Fabric Guide), grid 3→4 columns desktop. Product cards: hover arrows + "1 of 4" counter to browse all images.
+  - GLOBAL: section padding +25% (hero + main), grid gaps up, Ken Burns more dramatic (15% scale, 20s).
