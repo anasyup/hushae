@@ -22,6 +22,12 @@ Format:
 ---
 
 ## Changes
+- **2026-08-09** — 🐛🔧 **3 fixes: product images, New Arrivals nav, color audit** (commit `0347daf`)
+  - **FIX 1 (critical) — product images blank**: root cause = QA ProductCard's zoom wrapper was `absolute inset-0` with NO in-flow content, so the card Link collapsed to 0px height and every image clipped to nothing. Campaign tiles were fine (in-flow aspect). Fixed: zoom layer is now an in-flow `relative aspect-[3/4]` container; images are `absolute inset-0 h-full w-full` inside it. Verified: image URLs are healthy (HTTP 200, image/jpeg) and the card now has real height — homepage essentials, category grids, related/recently-viewed rails all render.
+  - **FIX 2 — "New Arrivals" in nav**: header menu = **New Arrivals · Women · Men · Journal · Sale** (5 items, logo still centered, same underline hover, admin settings updated in DB). Mobile bottom tab gained a **New** tab (Sparkles icon) → Home · Shop · New · Saved · Bag · Account.
+  - **FIX 3 — color audit**: storefront was already on-palette (no blue links, no green buttons, no old stone/clay hexes). Touched the leftovers: `.btn-primary` → midnight #1C2333 + pearl (every primary button sitewide), `--tw-black` → charcoal #1A1B1C, WhatsApp float bright green #25D366 → midnight, OfferBar/blog print hexes → charcoal/stone, cart/checkout "discount/you-save" greens (sagedark) → charcoal, success check → charcoal, toast icon → gold. Kept semantic RED only for form errors / destructive remove actions (WCAG — the QA ban is on red sale badges/urgency, which are already gone).
+  - **Verified**: build clean; 20/20 routes 200; live bundle carries the aspect fix + New Arrivals; theme body empty (React home active).
+
 - **2026-08-09** — 🏛️ **QUIET ARCHITECTURE — Product / Cart / Checkout luxury upgrade** (client: "bhot ghatiya, poor lag rahe hain")
   - **Product page** (`Product.jsx`, `ProductGallery`, `StickyBuyBar`):
     - Name → Title Case, "HUSHAE" prefix stripped, Inter 400 / 28px charcoal.
