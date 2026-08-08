@@ -30,6 +30,7 @@ export default function CartDrawer() {
   } = useApp();
   const cfg = useMemo(() => cartConfig(settings), [settings]);
   const [stockMap, setStockMap] = useState({});
+  const [picks, setPicks] = useState([]); // "You may also like" — best sellers, lazy-loaded once
   const panelRef = useRef(null);
   const opener = useRef(null);
 
@@ -37,6 +38,19 @@ export default function CartDrawer() {
     () => Array.from(new Set(cart.map((l) => l.id).filter(Boolean))).sort().join(','),
     [cart],
   );
+
+  /* Lazy-load best sellers for the drawer's "You may also like" rail —
+     fetched only when the drawer first opens, cached for the session. */
+  const picksFetched = useRef(false);
+  useEffect(() => {
+    if (!drawerOpen || picksFetched.current) return undefined;
+    picksFetched.current = true;
+    let alive = true;
+    api('/products?bestSeller=true&limit=6').then((d) => {
+      if (alive) setPicks(d.products || []);
+    }).catch(() => {});
+    return () => { alive = false; };
+  }, [drawerOpen]);
 
   useEffect(() => {
     if (!drawerOpen || !idKey) return undefined;
@@ -199,6 +213,29 @@ export default function CartDrawer() {
                   })}
                 </ul>
               )}
+
+              {/* ── YOU MAY ALSO LIKE — horizontal best-seller rail ── */}
+              {cart.length > 0 && picks.length > 0 && (
+                <div className="mt-4 border-t border-line pt-5">
+                  <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.22em] text-ash">You may also like</p>
+                  <div className="no-scrollbar -mx-1 flex gap-3 overflow-x-auto px-1 pb-1">
+                    {picks.map((p) => (
+                      <Link
+                        key={p._id}
+                        to={`/product/${p.slug}`}
+                        onClick={() => setDrawerOpen(false)}
+                        className="group w-[104px] shrink-0"
+                      >
+                        <div className="overflow-hidden bg-cream" style={{ aspectRatio: '3/4' }}>
+                          <Img src={p.images?.[0]?.url || ''} alt={p.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.05]" />
+                        </div>
+                        <p className="mt-1.5 truncate text-[11px] font-medium uppercase tracking-[0.04em] text-obsidian">{p.name}</p>
+                        <p className="text-[11px] font-semibold tabular-nums text-ash">{pkr(p.price)}</p>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             {cart.length > 0 && (
@@ -215,7 +252,7 @@ export default function CartDrawer() {
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
-                  <Link to="/cart" onClick={() => setDrawerOpen(false)} className="btn-outline btn-sm">View bag</Link>
+                  <Link to="/cart" onClick={() => setDrawerOpen(false)} className="btn-outline btn-sm">Continue shopping</Link>
                   {blocked ? (
                     <Link
                       to="/cart" onClick={() => setDrawerOpen(false)}

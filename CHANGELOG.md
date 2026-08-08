@@ -451,3 +451,9 @@ Format:
   - LOAD MORE button: reveals next batch (12) with the same fade — data is already fetched so client-side filters keep working, no reload.
   - Kept existing: FilterSheet (instant apply, CLEAR ALL, active chips), ProductCard hover second image + QUICK ADD + wishlist + badges, skeleton, empty state ("No results found" + View all products), SEO title/meta/canonical.
   - fade-up keyframe added to index.css.
+
+- **2026-08-04** — 🛒 **Cart drawer upgrade — "You may also like" + Continue shopping**
+  - Added a horizontal best-seller rail ("You may also like") inside the mini bag — lazy-loaded once (bestSeller=true&limit=6), small 104px cards with hover zoom, only when the bag has items.
+  - Renamed the outlined drawer button "View bag" → "Continue shopping" (opens /cart).
+  - Verified already present (no change): slide-from-right 0.28s with overlay, 448px desktop / full mobile, Escape + overlay + X close, focus trap, free-shipping progress bar, qty stepper with live totals, subtotal/total, empty state with shop links.
+  - Checkout verified complete: 60/40 sticky split, contact + shipping + payment radios (COD/JazzCash/EasyPaisa/Bank Transfer), discreet packaging, order notes, promo code, trust badges, mobile stacked + collapsible summary + fixed place-order; order confirmation with animated check + HS- order number.
