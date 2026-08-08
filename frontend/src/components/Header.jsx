@@ -87,8 +87,6 @@ export default function Header() {
       { label: 'New Arrivals', href: '/new' },
       { label: 'Best Sellers', href: '/best' },
       { label: 'Sale', href: '/sale', highlight: true },
-      { label: 'Fit Finder', href: '/fit-finder' },
-      { label: 'Track Order', href: '/track' },
     ]
   ), [hdr.menu]);
 

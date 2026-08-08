@@ -463,3 +463,11 @@ Format:
   - Admin: Marketing → Banners — list (slot/status filters, schedule state, priority, impressions/clicks/CTR), editor with tabs (Content: image/video/html + MediaPicker + overlay text/position/colour/opacity · Assignment: slot+priority+device · Schedule: start/end + always-active + status · Analytics read-only), slots manager (table + create/edit/archive).
   - Storefront: Banner component (fetches slot, IntersectionObserver impression when ≥50% visible ~1s, click tracking, CTA navigation); Homepage hero is now slot-driven with the existing CK hero as fallback; homepage-below slot added before the editorial statement.
   - Backend integration test passed (resolve priority+schedule, analytics counters, unknown slot).
+
+- **2026-08-04** — ✨ **CRITICAL CK-gap fixes (side-by-side audit vs CK.com)**
+  - HERO: cinematic Ken Burns zoom (15s alternate — video-feel without a video file; the Banner system is already video-capable so an admin can drop in an mp4/YouTube URL anytime). LIGHT veil only (~30% bottom, hairline top) so the image shines — was a heavy dark veil. Tagline shrunk to a tiny "Made in Pakistan" eyebrow. Headings tracking 0.12em. CTAs are now CK-style TEXT LINKS (hairline underline, arrow slides on hover) — no heavy bordered buttons.
+  - NAV: 7 → 5 items (moved Fit Finder + Track Order out; both still reachable via footer/account). Mixed case (navUppercase:false) applied in settings + code fallback.
+  - CAMPAIGN CARDS: hover zoom 1.03 + subtle 10% overlay + arrow slides right on hover; section padding up (py-24/32).
+  - SPACING: Just In section padding +20%, grid gaps 1.5rem→2rem+.
+  - THE HOUSE: typographic (no image) — parallax applied to the For Him full-bleed campaign image instead (new useParallax hook, rAF-throttled, desktop-only, pure transform).
+  - Sticky header already had backdrop-blur-xl (confirmed). Smooth scroll already global (scroll-smooth). Mobile bottom nav already [Home/Shop/Saved/Bag/Account].

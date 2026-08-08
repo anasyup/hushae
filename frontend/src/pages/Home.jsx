@@ -30,6 +30,40 @@ const TRAYS = [
 
 const PERKS = ['Discreet packaging', 'COD nationwide', '7-day returns', 'Wash-tested 40 cycles'];
 
+/* ── Subtle parallax — translates a full-bleed image against its section.
+   rAF-throttled, desktop-only (touch devices get nothing — they scroll the
+   image normally). Pure transform, so it can't trigger layout. ──────────── */
+function useParallax(amount = 60) {
+  const ref = useRef(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || window.matchMedia('(max-width: 767px)').matches) return undefined;
+    let raf = null;
+    const onScroll = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = null;
+        const rect = el.getBoundingClientRect();
+        const vh = window.innerHeight;
+        // Only parallax while the section is on screen.
+        if (rect.bottom < 0 || rect.top > vh) return;
+        const progress = (rect.top + rect.height / 2 - vh / 2) / vh;
+        el.style.transform = `translateY(${(-progress * amount).toFixed(1)}px) scale(1.06)`;
+      });
+    };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    return () => {
+      if (raf) cancelAnimationFrame(raf);
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+      el.style.transform = '';
+    };
+  }, [amount]);
+  return ref;
+}
+
 /* ── Reveal — quiet scroll-into-view animation (fade + rise) ─────────────── */
 function Reveal({ children, delay = 0, className = '' }) {
   const ref = useRef(null);
@@ -78,54 +112,53 @@ export default function Home() {
         jsonLd={organizationJsonLd(typeof window !== 'undefined' ? window.location.origin : '')}
         jsonLdId="home-org" />
 
-      {/* ═══ 01 — HERO: banner-slot driven (admin can replace without code) ══ */}
+      {/* ═══ 01 — HERO: banner-slot driven, cinematic (video-feel) ═══════════ */}
       <section className="relative w-full overflow-hidden bg-white" style={{ minHeight: '100vh' }}>
         <Banner
           slot="homepage-hero"
           className="absolute inset-0 h-full w-full"
           fallback={(
-            /* Default hero — shown until an admin publishes a homepage-hero banner */
+            /* Default hero — cinematic Ken Burns zoom (video-feel, 15s loop),
+               until an admin publishes a homepage-hero banner or video. */
             <picture className="absolute inset-0 h-full w-full">
               <source srcSet="/images/campaign/hushae-hero-women.avif" type="image/avif" />
               <source srcSet="/images/campaign/hushae-hero-women.webp" type="image/webp" />
               <img src="/images/campaign/hushae-hero-women.jpg" alt="" fetchpriority="high"
-                className="absolute inset-0 h-full w-full object-cover object-center" />
+                className="absolute inset-0 h-full w-full object-cover object-center animate-[kenburns_15s_ease-in-out_infinite_alternate]" />
             </picture>
           )}
         />
-        {/* Light veils — the hero image is bright, so the type is BLACK */}
-        <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-alabaster/80 via-alabaster/30 to-transparent" />
-        <div className="absolute inset-x-0 bottom-0 h-[60%] bg-gradient-to-t from-alabaster/95 via-alabaster/40 to-transparent" />
+        {/* LIGHT veil only — CK lets the image SHINE (~30% bottom legibility,
+            hairline top fade for the header) */}
+        <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-white/50 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-white/70 via-white/10 to-transparent" />
 
         <div className="relative flex min-h-screen items-end">
-          <div className="w-full px-5 pb-16 md:px-12 md:pb-24 lg:px-20">
-            <p className="text-[11px] font-medium uppercase tracking-[0.34em] text-graphite">Premium innerwear · Made in Pakistan</p>
-            <h1 className="mt-6 font-display text-[52px] font-bold uppercase leading-[0.92] tracking-[-0.01em] text-obsidian md:text-[120px] lg:text-[150px]">
+          <div className="w-full px-6 pb-14 md:px-14 md:pb-20 lg:px-24">
+            {/* Tiny eyebrow — muted, almost invisible (CK register) */}
+            <p className="text-[10px] font-medium uppercase tracking-[0.3em] text-neutral-500">Made in Pakistan</p>
+            <h1 className="mt-6 font-display text-[52px] font-bold uppercase leading-[0.95] tracking-[0.12em] text-neutral-900 md:text-[120px] lg:text-[150px]">
               Second
               <br />
               Skin
             </h1>
-            <p className="mt-7 max-w-md text-[15px] leading-relaxed text-graphite">
-              Engineered for comfort. Designed in Pakistan, finished to an international standard.
-            </p>
-            <div className="mt-10 flex flex-wrap items-center gap-4">
-              <Link to="/women"
-                className="inline-flex min-h-[56px] items-center justify-center bg-obsidian px-12 text-[13px] font-bold uppercase tracking-[0.18em] text-white transition-colors duration-base hover:bg-graphite">
-                Shop Women
+            <div className="mt-10 flex flex-wrap items-center gap-8">
+              {/* CK-style text links — no heavy borders, underline on hover */}
+              <Link to="/women" className="group inline-flex items-center gap-2 border-b border-neutral-900/30 pb-1 text-[12px] font-semibold uppercase tracking-[0.18em] text-neutral-900 transition-colors duration-300 hover:border-neutral-900">
+                Shop Women <ArrowRight size={13} className="transition-transform duration-300 group-hover:translate-x-1" />
               </Link>
-              <Link to="/men"
-                className="group inline-flex min-h-[56px] items-center justify-center border-b border-obsidian/40 px-2 text-[13px] font-bold uppercase tracking-[0.18em] text-obsidian transition-colors duration-base hover:border-obsidian">
-                Shop Men <ArrowRight size={14} className="ml-2 transition-transform duration-base group-hover:translate-x-1" />
+              <Link to="/men" className="group inline-flex items-center gap-2 border-b border-neutral-900/30 pb-1 text-[12px] font-semibold uppercase tracking-[0.18em] text-neutral-900 transition-colors duration-300 hover:border-neutral-900">
+                Shop Men <ArrowRight size={13} className="transition-transform duration-300 group-hover:translate-x-1" />
               </Link>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ═══ 02 — TRAY ROW (CK: image + label below) ═══════════════ */}
-      <section className="bg-white py-20 md:py-28">
+      {/* ═══ 02 — TRAY ROW (CK: image + label below, hover zoom + arrow slide) ═══ */}
+      <section className="bg-white py-24 md:py-32">
         <div className="container">
-          <div className="mb-12 flex items-baseline justify-between">
+          <div className="mb-14 flex items-baseline justify-between">
             <p className="text-[12px] font-semibold uppercase tracking-[0.3em] text-obsidian">The Campaign</p>
             <span className="text-[10px] font-medium uppercase tracking-[0.3em] text-ash">01 — 03</span>
           </div>
@@ -139,16 +172,18 @@ export default function Home() {
                   <source srcSet={t.img.replace('.jpg', '.avif')} type="image/avif" />
                   <source srcSet={t.img.replace('.jpg', '.webp')} type="image/webp" />
                   <img src={t.img} alt={t.label} loading="lazy"
-                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1.1s] group-hover:scale-[1.05]"
+                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1.2s] group-hover:scale-[1.03]"
                     style={{ transitionTimingFunction: 'cubic-bezier(0.22, 1, 0.36, 1)' }} />
                 </picture>
+                {/* subtle hover overlay */}
+                <div className="absolute inset-0 bg-neutral-900/0 transition-colors duration-500 group-hover:bg-neutral-900/10" />
               </div>
               <div className="flex items-baseline justify-between px-5 py-6 md:px-8">
                 <div>
                   <p className="font-display text-[20px] font-bold uppercase tracking-[0.06em] text-obsidian md:text-[24px]">{t.label}</p>
                   <p className="mt-1.5 text-[12px] uppercase tracking-[0.18em] text-ash">{t.sub}</p>
                 </div>
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-line text-obsidian transition-colors duration-base group-hover:border-obsidian group-hover:bg-obsidian group-hover:text-white">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-line text-obsidian transition-all duration-300 group-hover:translate-x-1 group-hover:border-obsidian group-hover:bg-obsidian group-hover:text-white">
                   <ArrowUpRight size={16} strokeWidth={1.6} />
                 </span>
               </div>
@@ -159,7 +194,7 @@ export default function Home() {
 
       {/* ═══ 03 — JUST IN (product rail — CK "Just In") ════════════ */}
       {fresh && fresh.length > 0 && (
-        <section className="border-t border-line bg-white py-20 md:py-28">
+        <section className="border-t border-line bg-white py-24 md:py-32">
           <div className="container">
             <div className="mb-12 flex items-end justify-between">
               <h2 className="font-display text-[30px] font-bold uppercase tracking-[0.02em] text-obsidian md:text-[48px]">
@@ -169,7 +204,7 @@ export default function Home() {
                 Shop all <ArrowRight size={13} className="transition-transform duration-base group-hover:translate-x-1" />
               </Link>
             </div>
-            <div className="grid grid-cols-2 gap-x-6 gap-y-12 md:grid-cols-4 md:gap-x-8">
+            <div className="grid grid-cols-2 gap-x-8 gap-y-14 md:grid-cols-4 md:gap-x-10">
               {fresh.slice(0, 8).map((p) => <ProductCard key={p._id} product={p} />)}
             </div>
           </div>
@@ -197,34 +232,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ═══ 05 — CAMPAIGN FULL-BLEED (For Him) ════════════════════ */}
-      <section className="relative overflow-hidden bg-white">
-        <picture className="absolute inset-0 h-full w-full">
-          <source srcSet="/images/campaign/hushae-hero-men.avif" type="image/avif" />
-          <source srcSet="/images/campaign/hushae-hero-men.webp" type="image/webp" />
-          <img src="/images/campaign/hushae-hero-men.jpg" alt="For him" loading="lazy"
-            className="absolute inset-0 h-full w-full object-cover object-center" />
-        </picture>
-        {/* Bright image → light veil + BLACK type */}
-        <div className="absolute inset-x-0 bottom-0 h-[65%] bg-gradient-to-t from-alabaster/95 via-alabaster/40 to-transparent" />
-        <div className="relative flex min-h-[85vh] items-end">
-          <div className="w-full px-5 pb-16 md:px-12 md:pb-24 lg:px-20">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.34em] text-graphite">For Him · New Season</p>
-            <h2 className="mt-6 font-display text-[40px] font-bold uppercase leading-[0.95] tracking-[-0.01em] text-obsidian md:text-[90px]">
-              Considered
-              <br />
-              Comfort
-            </h2>
-            <p className="mt-6 max-w-md text-[14px] leading-relaxed text-graphite">
-              Briefs, boxers and trunks cut on a stretch blend that keeps its shape — the size you buy is the size you wear a year later.
-            </p>
-            <Link to="/men"
-              className="group mt-9 inline-flex min-h-[56px] items-center justify-center border border-obsidian px-12 text-[13px] font-bold uppercase tracking-[0.18em] text-obsidian transition-colors duration-base hover:bg-obsidian hover:text-white">
-              Shop Men <ArrowRight size={14} className="ml-2" />
-            </Link>
-          </div>
-        </div>
-      </section>
+      {/* ═══ 05 — CAMPAIGN FULL-BLEED (For Him, subtle parallax) ═════ */}
+      <CampaignSection />
 
       {/* ═══ 06 — PERKS (one line, CK style) ═══════════════════════ */}
       <section className="border-t border-line bg-white">
@@ -311,5 +320,39 @@ export default function Home() {
         </div>
       </section>
     </div>
+  );
+}
+
+/* ═══ Campaign full-bleed — For Him, with a subtle parallax image ══════════ */
+function CampaignSection() {
+  const imgRef = useParallax(48);
+  return (
+    <section className="relative overflow-hidden bg-white">
+      <picture ref={imgRef} className="absolute inset-0 h-[115%] w-full will-change-transform">
+        <source srcSet="/images/campaign/hushae-hero-men.avif" type="image/avif" />
+        <source srcSet="/images/campaign/hushae-hero-men.webp" type="image/webp" />
+        <img src="/images/campaign/hushae-hero-men.jpg" alt="For him" loading="lazy"
+          className="h-full w-full object-cover object-center" />
+      </picture>
+      {/* Bright image → light veil + BLACK type */}
+      <div className="absolute inset-x-0 bottom-0 h-[65%] bg-gradient-to-t from-alabaster/95 via-alabaster/40 to-transparent" />
+      <div className="relative flex min-h-[85vh] items-end">
+        <div className="w-full px-6 pb-16 md:px-14 md:pb-24 lg:px-24">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-graphite">For Him · New Season</p>
+          <h2 className="mt-6 font-display text-[40px] font-bold uppercase leading-[0.95] tracking-[0.12em] text-obsidian md:text-[90px]">
+            Considered
+            <br />
+            Comfort
+          </h2>
+          <p className="mt-6 max-w-md text-[14px] leading-relaxed text-graphite">
+            Briefs, boxers and trunks cut on a stretch blend that keeps its shape — the size you buy is the size you wear a year later.
+          </p>
+          <Link to="/men"
+            className="group mt-9 inline-flex items-center gap-2 border-b border-obsidian/30 pb-1 text-[13px] font-bold uppercase tracking-[0.18em] text-obsidian transition-colors duration-300 hover:border-obsidian">
+            Shop Men <ArrowRight size={14} className="transition-transform duration-300 group-hover:translate-x-1" />
+          </Link>
+        </div>
+      </div>
+    </section>
   );
 }
