@@ -22,6 +22,18 @@ Format:
 ---
 
 ## Changes
+- **2026-08-09** — 🏛️ **QUIET ARCHITECTURE Phases 2-6 — homepage complete transformation** (one cohesive commit `a002c36`)
+  - **Phase 2 — global typography/colour**
+    - `body` → stone `#F5F3EF` bg + charcoal `#1A1B1C` text; base `h1-h6` → Inter 300 (admin shell keeps its own 600-weight via !important).
+    - `stone`/`clay` tailwind tokens migrated SAFELY to QA values (~50 `border-stone` call sites → `border-clay` #D4C9B8, old warm `clay` accents → `bronze`, `bg-stone` surfaces → `sand`); `.dark-admin` got QA var overrides so admin dark stays dark.
+  - **Phase 3 — navigation 72px**: centered logo (Inter 300, 0.15em, no box), nav flows left — **Women · Men · Journal · Sale** (Journal → `/journal` routes added, alias of Blog), icons 18px / 1.5px stroke / smoke, cart & wishlist = tiny dots (no number-in-circle, no pop animation), 1px clay border on scroll, underline slides from left (scaleX, 200ms). Prod settings updated: height 72, navSize 13, Title Case, menu 4 items.
+  - **Phase 4 — hero**: Banner-system video/still hero, MAX 10% black bottom gradient, lowercase **"second skin"** Inter 200 `clamp(48→96px)` white + text-shadow, subtitle + text-link CTAs, mono **"01"** chapter counter bottom-right.
+  - **Phase 5 — product card**: NO bg/border/shadow (image bleeds into the 2px mosaic), hover = flat-lay crossfade 300ms + 1.02 zoom 400ms, default state completely clean, hover-only arrows/counter/heart/Quick add; caption = name|price (13px Inter 400/500), material (11px smoke), sizes (10px), colour (10px); sale `PKR 600 ~~PKR 800~~`; no badges ever.
+  - **Phase 6 — homepage = 8 chapters with counters (01-08)**: 02 The Campaign (triptych 4:5, 2px seams, grayscale-warm, Explore/Read more), 03 The Essentials (4×2 mosaic, View All), 04 The House (centered manifesto, stone, 200px+ air), 05 Considered Comfort (50/50 split, grayscale, 120px text padding), 06 The Promise (floating trust, gold 32px 1.5px icons), 07 The Word (stone review cards, gold stars, italic quotes, 3-up carousel auto-advance 5s), 08 The Inner Circle (pills, borderless bottom-line input, arrow submit). Chapter counters flicker like page counters (50ms) via IntersectionObserver.
+  - **Animations**: scroll reveal (fade up 40px, 600ms, luxury ease, 120ms stagger), `--ease-luxury` timing token used throughout.
+  - **Footer**: midnight `#1C2333`, pearl text at 60%, no payment method names.
+  - **Verified**: build clean; 20/20 routes 200 (incl. /journal); bundle carries all QA markers; no COD / no serif / no SALE badge; theme body empty (React home active); admin login + settings PUT working.
+
 - **2026-08-09** — 🏛️ **QUIET ARCHITECTURE — Phase 1: Foundation tokens** (new custom theme: Japanese minimalism × Pakistani craftsmanship × Italian luxury; "whisper, don't shout")
   - **index.css** — added the full QA token block to `:root` (defined, not yet wired into components → zero visual change):
     - Colours (RGB triplets + hex comments): `--stone #F5F3EF` (warm bg), `--sand #EBE5DB` (cards), `--clay #D4C9B8` (borders), `--charcoal #1A1B1C` (text), `--smoke #8B8A87` (secondary), `--pearl #FFFFFF`, `--gold #C9A96E`, `--bronze #A68A56`, `--midnight #1C2333` (footer)
