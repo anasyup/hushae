@@ -32,7 +32,7 @@ export default function StickyPlaceOrder({ watchRef, total, label, onClick, busy
 
   return (
     <div
-      className={`fixed inset-x-0 bottom-[53px] z-[41] border-t border-line bg-alabaster/97 backdrop-blur
+      className={`fixed inset-x-0 bottom-[53px] z-[41] border-t border-clay bg-pearl/97 backdrop-blur
         transition-transform duration-base ease-standard motion-reduce:transition-none md:hidden
         ${hidden ? 'pointer-events-none translate-y-full' : 'translate-y-0'}`}
       aria-hidden={hidden}
@@ -40,14 +40,14 @@ export default function StickyPlaceOrder({ watchRef, total, label, onClick, busy
     >
       <div className="flex items-center gap-3 px-4 py-2.5">
         <div className="min-w-0 flex-1">
-          <p className="text-caption uppercase tracking-wider text-ash">Total to pay</p>
-          <p className="font-display text-h6 leading-tight tabular-nums">{pkr(total)}</p>
+          <p className="text-[10px] uppercase tracking-[0.12em] text-smoke">Total to pay</p>
+          <p className="text-[16px] font-medium leading-tight tabular-nums text-charcoal">{pkr(total)}</p>
         </div>
         <button
           type="button"
           onClick={onClick}
           disabled={busy || disabled}
-          className="btn btn-sm shrink-0 gap-1.5 bg-obsidian px-6 text-alabaster disabled:opacity-50"
+          className="min-h-[44px] shrink-0 bg-midnight px-6 text-[12px] font-medium uppercase tracking-[0.08em] text-white transition-colors duration-300 hover:bg-charcoal disabled:pointer-events-none disabled:opacity-50"
         >
           <Lock size={13} aria-hidden="true" />
           {busy ? 'Placing…' : label}

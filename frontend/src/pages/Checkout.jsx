@@ -59,12 +59,14 @@ export default function Checkout() {
     phone: draft?.phone ?? (auth?.user?.phone || addr.phone || ''),
     email: draft?.email ?? (auth?.user?.email || ''),
     address: draft?.address ?? (addr.address || ''),
+    address2: draft?.address2 ?? '',
     city: draft?.city ?? (addr.city || ''),
     customCity: draft?.customCity ?? '',
     province: draft?.province ?? (addr.province || 'Punjab'),
     postalCode: draft?.postalCode ?? '',
     notes: draft?.notes ?? '',
   });
+  const [country, setCountry] = useState('Pakistan');
   const [method, setMethod] = useState(draft?.method || '');
   const [ship, setShip] = useState(draft?.ship || '');
   const [txn, setTxn] = useState(draft?.txn || '');
@@ -327,7 +329,7 @@ export default function Checkout() {
         method: 'POST',
         token: auth?.token,
         body: {
-          customerInfo: { ...f, phone: normalizePhone(f.phone), city: cityLabel, customCity: undefined, location: loc },
+          customerInfo: { ...f, phone: normalizePhone(f.phone), city: cityLabel, customCity: undefined, country, location: loc },
           items: cart.map((l) => ({ product: l.id, size: l.size, color: l.color, quantity: l.qty })),
           paymentMethod: method,
           shippingMethod: ship || 'standard',
@@ -383,9 +385,9 @@ export default function Checkout() {
   if (cart.length === 0) {
     return (
       <div className="container-page py-sect-y text-center md:py-sect-y-lg">
-        <h1 className="font-display text-h2">Nothing to check out yet</h1>
-        <p className="mt-3 text-body text-ash">Your bag is empty — add a piece and come back.</p>
-        <Link to={cartCfg.continueHref} className="btn-primary mt-8">{cartCfg.continueLabel}</Link>
+        <h1 className="text-[24px] font-light normal-case text-charcoal">Nothing to check out yet</h1>
+        <p className="mt-3 text-[13px] text-smoke">Your bag is empty — add a piece and come back.</p>
+        <Link to={cartCfg.continueHref} className="btn-qa mt-8 !w-auto px-10">{cartCfg.continueLabel}</Link>
       </div>
     );
   }
@@ -394,31 +396,31 @@ export default function Checkout() {
 
   return (
     <div className="container-page py-8 md:py-12">
-      <header className="border-b border-line pb-6">
-        <Link to="/cart" className="inline-flex min-h-[44px] items-center gap-1.5 text-body-sm text-ash underline-offset-4 transition hover:text-obsidian hover:underline">
+      <header className="border-b border-clay pb-7">
+        <Link to="/cart" className="inline-flex min-h-[44px] items-center gap-1.5 text-[12px] text-smoke underline underline-offset-4 transition hover:text-charcoal">
           ← Back to bag
         </Link>
-        <h1 className="mt-2 font-display text-h1">{cfg.title}</h1>
-        <p className="mt-2 text-body-sm text-ash">{cfg.subtitle}</p>
+        {/* QA — "Checkout", Inter 300, 28px */}
+        <h1 className="mt-2 text-[28px] font-light normal-case tracking-[0.02em] text-charcoal">{cfg.title}</h1>
         {!auth && cfg.guestCheckout && (
-          <p className="mt-3 inline-flex flex-wrap items-center gap-1.5 text-body-sm text-ash">
+          <p className="mt-3 inline-flex flex-wrap items-center gap-1.5 text-[12px] text-smoke">
             <User size={13} aria-hidden="true" />
             Checking out as a guest.
-            <Link to="/account" className="font-medium text-obsidian underline underline-offset-4">Sign in</Link>
+            <Link to="/account" className="font-medium text-charcoal underline underline-offset-4">Sign in</Link>
             for faster checkout and order history.
           </p>
         )}
-        {auth && <p className="mt-3 text-body-sm text-ash">Ordering as <span className="font-medium text-ink">{auth.user.name}</span></p>}
+        {auth && <p className="mt-3 text-[12px] text-smoke">Ordering as <span className="font-medium text-charcoal">{auth.user.name}</span></p>}
       </header>
 
       {topErr && (
-        <p role="alert" className="mt-6 flex items-start gap-2.5 rounded-control border border-red-200 bg-red-50 px-4 py-3.5 text-body-sm text-red-800">
+        <p role="alert" className="mt-6 flex items-start gap-2.5 border border-red-200 bg-red-50 px-4 py-3.5 text-[12px] text-red-800">
           <AlertCircle size={16} className="mt-0.5 shrink-0" aria-hidden="true" />
           {topErr}
         </p>
       )}
 
-      <div className="mt-8 grid items-start gap-x-12 gap-y-10 lg:grid-cols-[minmax(0,1fr)_400px]">
+      <div className="mt-8 grid items-start gap-x-14 gap-y-12 lg:grid-cols-[3fr_2fr]">
         {/* ================= LEFT ================= */}
         <form
           ref={formRef}
@@ -426,39 +428,47 @@ export default function Checkout() {
           className="space-y-8"
           noValidate
         >
-          {/* ---- Contact ---- */}
+          {/* ---- Contact — email + phone, borderless bottom-line ---- */}
           <section aria-labelledby="sec-contact">
-            <h2 id="sec-contact" className="text-label uppercase tracking-widest text-ash">Contact</h2>
-            <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            <h2 id="sec-contact" className="label-qa">Contact</h2>
+            <div className="mt-4 grid gap-6">
               <FloatField
-                label="Full name" required autoComplete="name"
-                value={f.name} onChange={(v) => set('name', v)} error={errs.name}
+                label="Email" type="email" autoComplete="email" inputMode="email"
+                value={f.email} onChange={(v) => set('email', v)} error={errs.email}
+                hint="For your order confirmation and tracking updates."
               />
               <FloatField
-                label="Mobile number" required autoComplete="tel" inputMode="tel"
+                label="Phone" required autoComplete="tel" inputMode="tel"
                 value={f.phone} onChange={(v) => set('phone', v)}
                 error={errs.phone || (!errs.phone && phoneTypingError(f.phone) ? 'That does not look like a Pakistani mobile' : '')}
                 valid={phoneOk ? `Valid — ${phoneOk}` : ''}
               />
-              <div className="sm:col-span-2">
-                <FloatField
-                  label="Email (optional)" type="email" autoComplete="email" inputMode="email"
-                  value={f.email} onChange={(v) => set('email', v)} error={errs.email}
-                  hint="For your order confirmation and tracking updates."
-                />
-              </div>
             </div>
           </section>
 
-          {/* ---- Address ---- */}
+          {/* ---- Shipping ---- */}
           <section aria-labelledby="sec-address">
-            <h2 id="sec-address" className="text-label uppercase tracking-widest text-ash">Shipping address</h2>
-            <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            <h2 id="sec-address" className="label-qa">Shipping</h2>
+            <div className="mt-4 grid gap-6 sm:grid-cols-2">
               <div className="sm:col-span-2">
                 <FloatField
-                  label="Street address" required autoComplete="street-address"
+                  label="Full name" required autoComplete="name"
+                  value={f.name} onChange={(v) => set('name', v)} error={errs.name}
+                />
+              </div>
+
+              <div className="sm:col-span-2">
+                <FloatField
+                  label="Address line 1" required autoComplete="street-address"
                   value={f.address} onChange={(v) => set('address', v)} error={errs.address}
                   hint="House or flat number, street, area."
+                />
+              </div>
+
+              <div className="sm:col-span-2">
+                <FloatField
+                  label="Address line 2 (optional)" autoComplete="address-line2"
+                  value={f.address2} onChange={(v) => set('address2', v)}
                 />
               </div>
 
@@ -479,7 +489,7 @@ export default function Checkout() {
                   <button
                     type="button"
                     onClick={() => setF((x) => ({ ...x, city: '', customCity: '' }))}
-                    className="mt-1.5 min-h-[44px] text-caption font-semibold text-obsidian underline underline-offset-4"
+                    className="mt-1.5 min-h-[44px] text-[11px] text-smoke underline underline-offset-4 transition hover:text-charcoal"
                   >
                     ← Choose from the list
                   </button>
@@ -503,11 +513,17 @@ export default function Checkout() {
                 valid={postalLive?.ok && postalHint && f.postalCode === postalHint ? `Correct for ${f.city}` : ''}
                 hint={!f.postalCode && postalHint ? `${f.city} is usually ${postalHint}` : ''}
               />
+
+              <div className="sm:col-span-2">
+                <FloatSelect label="Country" value={country} onChange={setCountry}>
+                  <option value="Pakistan">Pakistan</option>
+                </FloatSelect>
+              </div>
             </div>
 
             {/* ---- Pin location ---- */}
             {cfg.showPinLocation && (
-              <div className="mt-4 rounded-card border border-line bg-cream/40 p-4">
+              <div className="mt-6 border border-clay/60 bg-sand/50 p-4">
                 <h3 className="flex flex-wrap items-center gap-2 text-label uppercase tracking-widest text-ash">
                   <MapPin size={13} aria-hidden="true" /> Pin location
                   <span className="font-normal normal-case tracking-normal">(optional — helps the rider find you)</span>
@@ -523,7 +539,7 @@ export default function Checkout() {
                     <div className="flex gap-2">
                       <label className="sr-only" htmlFor="maps-link">Google Maps share link</label>
                       <input
-                        id="maps-link" className="input input-sm min-h-[44px] flex-1" value={locLink}
+                        id="maps-link" className="input-line min-h-[44px] flex-1" value={locLink}
                         onChange={(e) => { setLocLink(e.target.value); setLocMsg({ type: '', text: '' }); }}
                         placeholder="Or paste a Google Maps link"
                       />
@@ -565,16 +581,16 @@ export default function Checkout() {
           {/* ---- Delivery method ---- */}
           {shipOptions.length > 0 && (
             <section aria-labelledby="sec-ship">
-              <h2 id="sec-ship" className="text-label uppercase tracking-widest text-ash">Delivery</h2>
+              <h2 id="sec-ship" className="label-qa">Delivery</h2>
               <div className="mt-4">
                 <MethodPicker
                   name="shipping" legend="Choose a delivery method"
                   options={shipOptions} value={ship} onChange={setShip}
                   renderMeta={(m) => (
-                    <span className="mt-1 flex items-center gap-1.5 text-caption text-ash">
+                    <span className="mt-1 flex items-center gap-1.5 text-[11px] text-smoke">
                       <Truck size={11} aria-hidden="true" />
                       {methodWindow(m)}
-                      <span className="font-medium text-ink">
+                      <span className="font-medium text-charcoal">
                         · {shippingCostFor(m, base) === 0 ? 'Free' : pkr(shippingCostFor(m, base))}
                       </span>
                     </span>
@@ -586,9 +602,9 @@ export default function Checkout() {
 
           {/* ---- Payment ---- */}
           <section aria-labelledby="sec-pay">
-            <h2 id="sec-pay" className="text-label uppercase tracking-widest text-ash">Payment</h2>
+            <h2 id="sec-pay" className="label-qa">Payment</h2>
             {errs.method && (
-              <p role="alert" className="mt-2 flex items-center gap-1.5 text-caption text-red-700">
+              <p role="alert" className="mt-2 flex items-center gap-1.5 text-[11px] text-red-700">
                 <AlertCircle size={12} aria-hidden="true" /> {errs.method}
               </p>
             )}
@@ -607,9 +623,9 @@ export default function Checkout() {
 
             {/* Instructions + reference for the selected method */}
             {payMethod?.needsTxn && (
-              <div className="mt-4 rounded-card bg-cream/50 p-4">
+              <div className="mt-4 border border-clay/60 bg-sand/50 p-4">
                 {(payMethod.instructions || (payMethod.id === 'Bank Transfer' && settings?.paymentMethods?.bankDetails)) && (
-                  <p className="mb-3 whitespace-pre-wrap text-caption leading-relaxed text-ash">
+                  <p className="mb-3 whitespace-pre-wrap text-[11px] leading-relaxed text-smoke">
                     {payMethod.instructions || settings?.paymentMethods?.bankDetails}
                   </p>
                 )}
@@ -621,7 +637,7 @@ export default function Checkout() {
               </div>
             )}
 
-            <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-card border border-line p-4 transition hover:border-obsidian/30">
+            <label className="mt-4 flex cursor-pointer items-start gap-3 border border-clay/60 p-4 transition hover:border-charcoal/40">
               <input
                 type="checkbox" checked={discreet} onChange={(e) => setDiscreet(e.target.checked)}
                 className="mt-1 h-[18px] w-[18px] shrink-0 accent-[#111111]"
@@ -629,8 +645,8 @@ export default function Checkout() {
               <span className="flex items-start gap-3">
                 <PackageCheck size={18} className="mt-0.5 shrink-0 text-graphite" aria-hidden="true" />
                 <span>
-                  <span className="block text-body-sm font-medium">Discreet packaging</span>
-                  <span className="mt-0.5 block text-caption leading-relaxed text-ash">
+                  <span className="block text-[13px] font-medium text-charcoal">Discreet packaging</span>
+                  <span className="mt-0.5 block text-[11px] leading-relaxed text-smoke">
                     A plain, unmarked parcel — no brand name or product details on the outside. Always free.
                   </span>
                 </span>

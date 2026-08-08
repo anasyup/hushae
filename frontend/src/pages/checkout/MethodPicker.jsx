@@ -28,18 +28,17 @@ export default function MethodPicker({ name, legend, options, value, onChange, r
   return (
     <fieldset>
       <legend className="sr-only">{legend}</legend>
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="divide-y divide-clay/60">
         {options.map((m) => {
-          const Icon = ICONS[m.icon] || CreditCard;
           const selected = value === m.id;
           const disabled = !!m.comingSoon;
           return (
             <label
               key={m.id}
-              className={`relative flex cursor-pointer items-start gap-3 rounded-card border p-4 transition-colors duration-fast
-                ${disabled ? 'cursor-not-allowed border-line opacity-55' : ''}
-                ${selected ? 'border-obsidian bg-obsidian/[0.035]' : 'border-line hover:border-obsidian/40'}
-                focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-obsidian`}
+              className={`relative flex cursor-pointer items-center gap-4 py-4 transition-colors duration-fast
+                ${disabled ? 'cursor-not-allowed opacity-55' : ''}
+                ${selected ? 'text-charcoal' : 'text-smoke hover:text-charcoal'}
+                focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-charcoal`}
             >
               <input
                 type="radio"
@@ -48,32 +47,23 @@ export default function MethodPicker({ name, legend, options, value, onChange, r
                 checked={selected}
                 disabled={disabled}
                 onChange={() => onChange(m.id)}
-                /* Visually replaced by the card, but still the real control:
-                   keyboard, arrow keys and screen readers all use this. */
                 className="peer sr-only"
               />
+              {/* Radio dot */}
               <span
                 aria-hidden="true"
-                className={`mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-full transition-colors
-                  ${selected ? 'bg-obsidian text-alabaster' : 'bg-satin/70 text-graphite'}`}
+                className={`grid h-[18px] w-[18px] shrink-0 place-items-center rounded-full border transition-colors
+                  ${selected ? 'border-charcoal' : 'border-clay'}`}
               >
-                <Icon size={16} strokeWidth={1.8} />
+                <span className={`h-2.5 w-2.5 rounded-full transition-colors ${selected ? 'bg-charcoal' : 'bg-transparent'}`} />
               </span>
               <span className="min-w-0 flex-1">
-                <span className="block text-body-sm font-medium">
+                <span className="block text-[13px] font-normal">
                   {m.label}
-                  {m.comingSoon && <span className="ml-1.5 text-caption font-normal text-ash">· coming soon</span>}
+                  {m.comingSoon && <span className="ml-1.5 text-[11px] text-smoke">· coming soon</span>}
                 </span>
-                {m.note && <span className="mt-0.5 block text-caption leading-relaxed text-ash">{m.note}</span>}
+                {m.note && <span className="mt-0.5 block text-[11px] leading-relaxed text-smoke">{m.note}</span>}
                 {renderMeta && renderMeta(m)}
-              </span>
-              {/* Selection dot */}
-              <span
-                aria-hidden="true"
-                className={`mt-1 grid h-[18px] w-[18px] shrink-0 place-items-center rounded-full border transition-colors
-                  ${selected ? 'border-obsidian' : 'border-bronze'}`}
-              >
-                <span className={`h-2.5 w-2.5 rounded-full transition-colors ${selected ? 'bg-obsidian' : 'bg-transparent'}`} />
               </span>
             </label>
           );

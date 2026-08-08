@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { ArrowRight } from 'lucide-react';
 import ProductRow from '../../components/ProductRow';
 import TrustRow from './TrustRow';
 
@@ -32,12 +33,14 @@ export default function EmptyBag({ cfg, recent = [], trending = [], loadingTrend
           <path d="M52 62h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" opacity=".55" />
         </svg>
 
-        <h1 className="mt-7 font-display text-h2">{cfg.emptyTitle}</h1>
-        <p className="mt-3 text-body text-ash">{cfg.emptyText}</p>
+        <h1 className="mt-7 text-[24px] font-light normal-case tracking-[0.02em] text-charcoal">{cfg.emptyTitle}</h1>
+        <p className="mt-3 text-[13px] text-smoke">{cfg.emptyText}</p>
 
-        <div className="mt-8 flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:justify-center">
-          <Link to={cfg.continueHref} className="btn-primary sm:px-10">{cfg.continueLabel}</Link>
-          <Link to="/best" className="btn-outline sm:px-10">Best sellers</Link>
+        <div className="mt-8 flex w-full flex-col items-center gap-4 sm:w-auto sm:flex-row sm:justify-center">
+          <Link to={cfg.continueHref} className="group inline-flex items-center gap-1.5 text-[12px] font-medium uppercase tracking-[0.12em] text-charcoal underline underline-offset-4 transition hover:text-smoke">
+            {cfg.continueLabel} <ArrowRight size={12} className="transition-transform duration-300 group-hover:translate-x-1" />
+          </Link>
+          <Link to="/best" className="text-[12px] font-medium uppercase tracking-[0.12em] text-smoke underline underline-offset-4 transition hover:text-charcoal">Best sellers</Link>
         </div>
 
         {cfg.showTrust && (

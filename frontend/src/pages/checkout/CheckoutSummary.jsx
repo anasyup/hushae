@@ -1,6 +1,10 @@
 import { Link } from 'react-router-dom';
 import { Lock } from 'lucide-react';
 import { pkr } from '../../lib/format';
+import { titleCase } from '../../lib/productMeta';
+
+/* QA - strip the header brand word, Title Case the rest. */
+const nameOf = (name) => titleCase(String(name || '').replace(/^HUSHAE\s+/i, ''));
 import Img from '../../components/Img';
 import CouponBox from '../cart/CouponBox';
 import TrustRow from '../cart/TrustRow';
@@ -20,35 +24,26 @@ export default function CheckoutSummary({
   submitRef, onSubmit, busy, disabled, rewardsSlot, promoQuote = null,
 }) {
   return (
-    <div className="card-content">
-      <h2 className="text-label uppercase tracking-widest text-ash">Your order</h2>
+    <div className="summary-card">
+      <h2 className="label-qa">Your order</h2>
 
-      <ul className="mt-5 max-h-72 space-y-3.5 overflow-y-auto pr-1">
+      <ul className="mt-5 max-h-80 space-y-4 overflow-y-auto pr-1">
         {cart.map((l, i) => (
-          <li key={`${l.id}-${l.size}-${l.color}-${i}`} className="flex items-center gap-3">
-            <div className="relative shrink-0">
-              <Img src={l.image} alt="" className="h-16 w-12 rounded-control border border-line object-cover" />
-              <span
-                className="absolute -right-1.5 -top-1.5 grid h-[19px] min-w-[19px] place-items-center rounded-full bg-obsidian px-1 text-[10px] font-bold text-alabaster"
-                aria-hidden="true"
-              >
-                {l.qty}
-              </span>
-            </div>
+          <li key={`${l.id}-${l.size}-${l.color}-${i}`} className="flex items-center gap-4 border-b border-clay/60 pb-4 last:border-0 last:pb-0">
+            <Img src={l.image} alt="" className="h-15 w-[60px] shrink-0 object-cover" />
             <div className="min-w-0 flex-1">
-              <p className="clamp-2 text-body-sm font-medium leading-snug">{l.name}</p>
-              <p className="text-caption text-ash">
-                {[l.size && `Size ${l.size}`, l.color].filter(Boolean).join(' · ')}
-                <span className="sr-only">, quantity {l.qty}</span>
+              <p className="clamp-2 text-[12px] font-normal leading-snug text-charcoal">{nameOf(l.name)}</p>
+              <p className="mt-0.5 text-[10px] text-smoke">
+                {[l.size && `Size ${l.size}`, l.color, `Qty ${l.qty}`].filter(Boolean).join(' · ')}
               </p>
             </div>
-            <p className="text-body-sm font-semibold tabular-nums">{pkr(l.price * l.qty)}</p>
+            <p className="shrink-0 text-[12px] font-medium tabular-nums text-charcoal">{pkr(l.price * l.qty)}</p>
           </li>
         ))}
       </ul>
 
       {cartCfg.couponEnabled && (
-        <div className="mt-5 border-t border-line pt-5">
+        <div className="mt-5 border-t border-clay pt-5">
           <CouponBox subtotal={pricing.subtotal} applied={applied} onApply={onApply} onRemove={onRemoveCoupon} />
         </div>
       )}
@@ -59,7 +54,7 @@ export default function CheckoutSummary({
           discounts={promoQuote.discounts}
           rejected={promoQuote.rejected}
           capped={promoQuote.capped}
-          className="mt-5 border-t border-line pt-5"
+          className="mt-5 border-t border-clay pt-5"
         />
       )}
 
@@ -68,9 +63,9 @@ export default function CheckoutSummary({
       {rewardsSlot}
 
       {/* Live region: the total changes when a coupon or shipping method changes. */}
-      <dl className="mt-5 space-y-3 border-t border-line pt-5 text-body-sm" aria-live="polite">
+      <dl className="mt-5 space-y-3 border-t border-clay pt-5 text-[13px]" aria-live="polite">
         <div className="flex justify-between gap-4">
-          <dt className="text-ash">Subtotal ({pricing.count} {pricing.count === 1 ? 'item' : 'items'})</dt>
+          <dt className="text-smoke">Subtotal ({pricing.count} {pricing.count === 1 ? 'item' : 'items'})</dt>
           <dd className="font-medium tabular-nums">{pkr(pricing.subtotal)}</dd>
         </div>
         {pricing.discount > 0 && (
@@ -80,14 +75,14 @@ export default function CheckoutSummary({
           </div>
         )}
         <div className="flex justify-between gap-4">
-          <dt className="text-ash">Shipping</dt>
+          <dt className="text-smoke">Shipping</dt>
           <dd className={`font-medium tabular-nums ${pricing.shipping === 0 ? 'text-sagedark' : ''}`}>
             {pricing.shipping === 0 ? 'Free' : pkr(pricing.shipping)}
           </dd>
         </div>
         {pricing.tax > 0 && (
           <div className="flex justify-between gap-4">
-            <dt className="text-ash">{cartCfg.taxLabel}</dt>
+            <dt className="text-smoke">{cartCfg.taxLabel}</dt>
             <dd className="font-medium tabular-nums">{pkr(pricing.tax)}</dd>
           </div>
         )}
@@ -112,9 +107,9 @@ export default function CheckoutSummary({
             <dd className="font-medium tabular-nums">− {pkr(pricing.cardValue)}</dd>
           </div>
         )}
-        <div className="flex items-baseline justify-between gap-4 border-t border-line pt-4">
-          <dt className="text-body font-semibold">Total</dt>
-          <dd className="font-display text-h4 tabular-nums">{pkr(pricing.total)}</dd>
+        <div className="flex items-baseline justify-between gap-4 border-t border-clay pt-4">
+          <dt className="text-[13px] font-medium text-charcoal">Total</dt>
+          <dd className="text-[20px] font-medium tabular-nums text-charcoal">{pkr(pricing.total)}</dd>
         </div>
         {pricing.savings > 0 && (
           <div className="flex justify-between gap-4 rounded-control bg-sage/12 px-3 py-2">
@@ -135,23 +130,23 @@ export default function CheckoutSummary({
         </button>
       </div>
 
-      <p className="mt-3 text-center text-caption text-ash">
+      <p className="mt-3 text-center text-[11px] text-smoke">
         You will see one final summary before anything is placed.
       </p>
 
       <Link
         to="/cart"
-        className="mt-2 flex min-h-[44px] w-full items-center justify-center text-body-sm text-ash underline-offset-4 transition hover:text-obsidian hover:underline"
+        className="mt-3 flex min-h-[44px] w-full items-center justify-center text-[12px] text-smoke underline underline-offset-4 transition hover:text-charcoal"
       >
         Back to bag
       </Link>
 
       {checkoutCfg.showTrust && (
-        <TrustRow items={checkoutCfg.trust} className="mt-5 border-t border-line pt-5" />
+        <p className="mt-5 border-t border-clay pt-5 text-center text-[11px] text-smoke">Discreet packaging - Secure checkout</p>
       )}
 
       {checkoutCfg.privacyText && (
-        <p className="mt-4 text-center text-caption leading-relaxed text-ash">{checkoutCfg.privacyText}</p>
+        <p className="mt-4 text-center text-[11px] leading-relaxed text-smoke">{checkoutCfg.privacyText}</p>
       )}
     </div>
   );

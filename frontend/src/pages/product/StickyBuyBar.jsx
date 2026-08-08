@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { pkr } from '../../lib/format';
+import { titleCase } from '../../lib/productMeta';
 import { isOnSale } from '../../lib/sale';
 import Img from '../../components/Img';
 
@@ -93,7 +94,7 @@ export default function StickyBuyBar({ product, watchRef, size, needsSize, onAdd
       /* MobileNav is a 53px bar already docked at bottom-0 with z-40. Sitting
          at the same offset hid this one completely — measured. This stacks
          directly above it and takes a higher layer so the shadow reads. */
-      className={`fixed inset-x-0 bottom-[53px] z-[41] border-y border-line bg-alabaster/95 shadow-e-3 backdrop-blur-xl transition-transform duration-base ease-standard motion-reduce:transition-none md:bottom-0 lg:border-y-0 lg:border-t lg:bg-alabaster/90 lg:shadow-none ${
+      className={`fixed inset-x-0 bottom-[53px] z-[41] border-y border-clay bg-pearl/95 shadow-e-3 backdrop-blur-xl transition-transform duration-base ease-standard motion-reduce:transition-none md:bottom-0 lg:border-y-0 lg:border-t lg:bg-pearl/95 lg:shadow-none ${
         show ? 'translate-y-0' : 'pointer-events-none translate-y-[150%]'
       }`}
       style={{ paddingBottom: '0.75rem' }}
@@ -131,11 +132,11 @@ export default function StickyBuyBar({ product, watchRef, size, needsSize, onAdd
         )}
 
         <div className="min-w-0 flex-1">
-          <p className="truncate text-caption text-ash lg:text-body-sm lg:text-ink">{product.name}</p>
+          <p className="truncate text-[12px] text-smoke lg:text-[13px] lg:text-charcoal">{titleCase(String(product.name).replace(/^HUSHAE\s+/i, ''))}</p>
           <p className="flex items-baseline gap-2">
-            <span className="text-body font-semibold tabular-nums text-obsidian lg:font-display lg:text-h5 lg:font-normal">{pkr(product.price)}</span>
+            <span className="text-[13px] font-medium tabular-nums text-charcoal">{pkr(product.price)}</span>
             {onSale && (
-              <span className="text-caption tabular-nums text-ash line-through">{pkr(product.compareAtPrice)}</span>
+              <span className="text-[11px] tabular-nums text-smoke line-through">{pkr(product.compareAtPrice)}</span>
             )}
             {/* The chosen size, so a shopper deep in the reviews can confirm
                 what they are about to buy without scrolling back. */}
@@ -151,7 +152,7 @@ export default function StickyBuyBar({ product, watchRef, size, needsSize, onAdd
           type="button"
           onClick={onAdd}
           disabled={disabled}
-          className="btn btn-primary min-h-[46px] shrink-0 disabled:opacity-40 lg:min-w-[210px]"
+          className="min-h-[48px] shrink-0 bg-midnight px-8 text-[12px] font-medium uppercase tracking-[0.08em] text-white transition-colors duration-300 hover:bg-charcoal disabled:pointer-events-none disabled:opacity-50 lg:min-w-[210px]"
         >
           {disabled ? 'Sold out' : needsSize && !size ? 'Select a size' : 'Add to bag'}
         </button>

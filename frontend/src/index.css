@@ -342,6 +342,27 @@
   .card-content { @apply rounded-card border border-line bg-white p-5 shadow-e-1 md:p-6; }
   .panel        { @apply rounded-panel border border-line bg-alabaster shadow-e-3; }
 
+  /* ── QA "Quiet Architecture" primitives (product / cart / checkout) ────
+     Midnight action button — full-width, 0 radius, Inter 500 / 14px /
+     0.08em, pearl text. The one button voice of the QA register. */
+  .btn-qa {
+    @apply inline-flex min-h-[48px] w-full items-center justify-center gap-2 bg-midnight px-8
+      text-[14px] font-medium uppercase tracking-[0.08em] text-pearl
+      transition-colors duration-300 hover:bg-charcoal disabled:pointer-events-none disabled:opacity-50;
+  }
+  /* Sand summary card — 32px padding, no border, no shadow. */
+  .summary-card { @apply bg-sand p-8; }
+  /* Borderless bottom-line input (1px clay) — 16px Inter 400, 14px vertical pad. */
+  .input-line {
+    @apply w-full border-0 border-b border-clay bg-transparent py-3.5 text-[16px] font-normal text-charcoal
+      outline-none transition-colors duration-base placeholder:text-smoke/60
+      focus:border-charcoal disabled:opacity-60;
+  }
+  /* QA meta label — Inter 500, 10px, uppercase, 0.15em, smoke. */
+  .label-qa { @apply text-[10px] font-medium uppercase tracking-[0.15em] text-smoke; }
+  /* QA caption line — Inter 400, 14px, smoke, 1.7 leading. */
+  .body-qa { @apply text-[14px] font-normal leading-[1.7] text-smoke; }
+
   /* ── Badges ───────────────────────────────────────────────────────────── */
   /* PHASE 4 — badges.
      Coloured filled pills scattered over photography are the clearest ecommerce

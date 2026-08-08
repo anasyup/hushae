@@ -51,7 +51,7 @@ export default function ProductGallery({ media, index, onIndex, productName }) {
 
   const isVideo = (item) => item && item.t !== 'img';
 
-  const Frame = ({ item, eager = false, ratioClass = 'aspect-[4/5]', frameClass = '' }) => {
+  const Frame = ({ item, eager = false, ratioClass = 'aspect-[3/4]', frameClass = '' }) => {
     if (!isVideo(item)) {
       return <ProductImageZoom src={item?.url} alt={item?.alt || productName} eager={eager} ratioClass={ratioClass} frameClass={frameClass} />;
     }
@@ -65,7 +65,7 @@ export default function ProductGallery({ media, index, onIndex, productName }) {
     );
   };
 
-  if (!media.length) return <div className="aspect-[4/5] bg-satin" />;
+  if (!media.length) return <div className="aspect-[3/4] bg-satin" />;
 
   const single = media.length === 1;
 
@@ -98,15 +98,15 @@ export default function ProductGallery({ media, index, onIndex, productName }) {
       {/* ── DESKTOP: main image + thumbnail strip with crossfade ───────── */}
       <div className="hidden sm:block">
         {/* Main image — the active one crossfades in over the previous (300ms) */}
-        <div className="group/main relative aspect-[4/5] overflow-hidden bg-satin">
+        <div className="group/main relative aspect-[3/4] overflow-hidden bg-satin">
           {media.map((item, i) => (
             <div key={`${item.url}-${i}`} aria-hidden={i !== index}
               className={`absolute inset-0 transition-opacity duration-300 ease-out ${i === index ? CROSSFADE : HIDDEN}`}>
-              <Frame item={item} eager={i === 0} ratioClass="aspect-[4/5]" frameClass="absolute inset-0" />
+              <Frame item={item} eager={i === 0} ratioClass="aspect-[3/4]" frameClass="absolute inset-0" />
             </div>
           ))}
-          {/* Editorial counter */}
-          <span className="pointer-events-none absolute right-4 top-4 z-10 bg-white/85 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-900 backdrop-blur">
+          {/* Editorial counter — quiet mono */}
+          <span className="pointer-events-none absolute right-4 top-4 z-10 font-mono text-[10px] font-light tracking-[0.2em] text-white/80 [text-shadow:0_1px_8px_rgba(0,0,0,0.35)]">
             {String(index + 1).padStart(2, '0')} / {String(media.length).padStart(2, '0')}
           </span>
 
@@ -157,8 +157,8 @@ export default function ProductGallery({ media, index, onIndex, productName }) {
           </div>
         )}
 
-        <p className="mt-3 text-[10px] font-semibold uppercase tracking-[0.2em] text-ash">
-          {single ? 'LOOK' : 'HOVER TO ZOOM · TAP A THUMBNAIL TO EXPLORE'}
+        <p className="mt-3 text-[10px] font-medium uppercase tracking-[0.2em] text-smoke">
+          {single ? 'Look' : 'Hover to zoom · tap a thumbnail to explore'}
         </p>
       </div>
     </section>

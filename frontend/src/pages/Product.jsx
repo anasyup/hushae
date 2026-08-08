@@ -1,13 +1,14 @@
 import { useEffect, useMemo, useRef, useState, lazy, Suspense } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
-  AlertCircle, Award, Banknote, CheckCircle2, ChevronRight, CreditCard, Heart,
-  Package, RotateCcw, Ruler, ShieldCheck, Star, Truck,
+  AlertCircle, Award, ChevronRight, Heart,
+  Package, RotateCcw, Ruler, ShieldCheck, Truck,
 } from 'lucide-react';
 import { api } from '../api/client';
 import { useApp } from '../store/AppContext';
 import { pkr, snap } from '../lib/format';
-import { isOnSale, salePercent, saleEndsSoon, saleEndsOnLabel } from '../lib/sale';
+import { isOnSale } from '../lib/sale';
+import { titleCase } from '../lib/productMeta';
 import { isVideo } from '../lib/media';
 import QuantityStepper from '../components/ui/QuantityStepper';
 import ProductRow from '../components/ProductRow';
@@ -24,9 +25,10 @@ const ProductPromoPanel = lazy(() => import('../components/marketing/ProductProm
 
 import Accordion from './product/Accordion';
 
-const LIGHT_HEX = new Set(['#FFFFFF', '#FFF', '#F7F5F1', '#EFEAE3', '#E3C9B3', '#E8C7C8', '#E4DDD3']);
-const STANDING_MARKDOWN = 25;
-const CRUMB = 'transition-colors duration-base ease-standard hover:text-obsidian';
+/* QA — brand name lives in the header; strip it from page-level names. */
+const displayName = (name) => String(name || '').replace(/^HUSHAE\s+/i, '');
+const nameOf = (p) => titleCase(displayName(p?.name));
+
 
 export default function Product() {
   const { slug } = useParams();
@@ -112,17 +114,11 @@ export default function Product() {
   const isBra = p.categorySlug === 'bras';
   const needsSize = (p.sizes || []).length > 0;
   const soldOut = p.stock === 0;
-  /* v2 — sale windows. Only the merchant's explicit sale (flag + was-price +
-     window) counts; compareAtPrice alone no longer means "on sale". */
+  /* v2 — sale windows. Only the merchant's explicit sale counts; the was-price
+     is shown struck through, never as a "save" amount or a countdown. */
   const onSale = isOnSale(p);
-  const off = salePercent(p);
-  const notableMarkdown = onSale && off > STANDING_MARKDOWN;
-  const saleUrgent = saleEndsSoon(p, 7);
-  const saleEndLabel = saleEndsOnLabel(p);
-  const lowStock = !soldOut && p.stock <= 5;
-
-  const tierLabel = p.tier === 'Premium' ? 'Signature' : p.tier;
   const reviewsShown = reviewTotal ?? 0;
+  const name = nameOf(p);
 
   /* CK-style: Earn X points — mirrors the loyalty earn rate (server decides
      the real award; this is the same display-only estimate checkout uses). */
@@ -134,9 +130,6 @@ export default function Product() {
 
   /* "You may also like" never duplicates "Complete the Look". */
   const relatedExtra = related.filter((r) => !complete.some((c) => c.slug === r.slug));
-
-  const extraBadges = (p.badges || [])
-    .filter((b) => String(b).trim().toLowerCase() !== String(tierLabel).trim().toLowerCase());
 
   const tryAdd = (goToCheckout) => {
     if (needsSize && !size) {
@@ -162,113 +155,79 @@ export default function Product() {
   };
 
   return (
-    <div className="container-page py-6 md:py-8 bg-[#FBFAF8] text-[#000000]">
+    <div className="container-page bg-stone py-6 text-charcoal md:py-8">
       <Seo
-        title={p.name}
-        description={p.shortDescription || p.description?.slice(0, 160) || `${p.name} — premium innerwear from HUSHAE. PKR ${p.price}. ${p.stock > 0 ? 'In stock' : 'Out of stock'}. COD available.`}
+        title={name}
+        description={p.shortDescription || p.description?.slice(0, 160) || `${name} — premium innerwear from HUSHAE. PKR ${p.price}. ${p.stock > 0 ? 'In stock' : 'Out of stock'}. COD available.`}
         image={p.images?.[0]?.url}
         canonical={`/product/${p.slug}`}
         jsonLd={productJsonLd(p, typeof window !== 'undefined' ? window.location.origin : '')}
         jsonLdId="product"
       />
 
-      <div className="grid gap-8 lg:grid-cols-2 lg:gap-16 xl:grid-cols-[1.35fr_1fr] xl:gap-20">
+      {/* QA — breadcrumb at the TOP, quiet 11px smoke */}
+      <nav aria-label="Breadcrumb" className="mb-6 flex flex-wrap items-center gap-1.5 text-[11px] font-normal text-smoke md:mb-8">
+        <Link to="/" className="transition hover:text-charcoal">Home</Link>
+        <ChevronRight size={11} aria-hidden="true" />
+        <Link to={`/${p.gender}`} className="capitalize transition hover:text-charcoal">{p.gender}</Link>
+        <ChevronRight size={11} aria-hidden="true" />
+        <Link to={`/category/${p.categorySlug}`} className="capitalize transition hover:text-charcoal">{p.categorySlug.replace(/-/g, ' ')}</Link>
+        <ChevronRight size={11} aria-hidden="true" />
+        <span aria-current="page" className="clamp-1 max-w-[240px]">{name}</span>
+      </nav>
+
+      <div className="grid gap-8 lg:grid-cols-2 lg:gap-14 xl:grid-cols-[1.2fr_1fr] xl:gap-20">
         {/* Left Column: Composed Lookbook Gallery */}
         <div className="min-w-0">
-          <ProductGallery media={media} index={imgIdx} onIndex={setImgIdx} productName={p.name} />
+          <ProductGallery media={media} index={imgIdx} onIndex={setImgIdx} productName={name} />
         </div>
 
-        {/* Right Column: Sticky, Premium Details Block (LV/Corsen Style) */}
-        <aside className="lg:sticky lg:top-28 lg:h-fit space-y-6">
-          <div className="border-b border-[#E4E0DA] pb-6 space-y-4">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-[10px] font-bold uppercase tracking-[0.25em] px-2.5 py-1 bg-neutral-900 text-white rounded-[2px]">
-                {tierLabel}
-              </span>
-              {notableMarkdown && (
-                <span className="text-[10px] font-bold uppercase tracking-[0.25em] px-2.5 py-1 bg-neutral-900 text-white rounded-[2px]">
-                  {off}% off
-                </span>
-              )}
-            </div>
-
-            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#6B7252]">HUSHAE / {p.gender}</p>
-            <h1 className="font-sans text-3xl font-bold uppercase tracking-[0.05em] text-neutral-900 sm:text-4xl leading-tight"
-              >
-              {p.name}
+        {/* Right Column: Sticky, Quiet Details */}
+        <aside className="lg:sticky lg:top-28 lg:h-fit space-y-7">
+          <div className="border-b border-clay pb-7 space-y-4">
+            {/* Product name — Inter 400, 28px, Title Case, charcoal */}
+            <h1 className="text-[28px] font-normal leading-tight normal-case tracking-[0.01em] text-charcoal">
+              {name}
             </h1>
 
-            {/* Ratings & Item No — CK style: "(1) 5.0 / 5 · Item No. LX001544" */}
-            <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-xs text-neutral-500 font-mono">
-              {reviewsShown > 0 ? (
-                <>
-                  <span className="inline-flex items-center gap-1 text-neutral-900 font-semibold">
-                    <Star size={13} fill="currentColor" aria-hidden="true" className="text-amber-500" />
-                    <span>{p.ratingAvg.toFixed(1)}</span>
-                    <span className="text-neutral-400 font-normal">/ 5</span>
-                    <span className="text-neutral-400 font-normal">({reviewsShown})</span>
-                  </span>
-                  <span aria-hidden="true" className="text-neutral-300">|</span>
-                  <a href="#reviews" className="hover:text-neutral-900 underline underline-offset-4 decoration-1">
-                    {reviewsShown} review{reviewsShown === 1 ? '' : 's'}
-                  </a>
-                  <span aria-hidden="true" className="text-neutral-300">|</span>
-                </>
-              ) : (
-                <span className="inline-flex items-center gap-1 text-neutral-500">
-                  <Star size={12} fill="currentColor" aria-hidden="true" className="text-neutral-300" />
-                  No reviews yet
-                  <span aria-hidden="true" className="text-neutral-300">|</span>
-                </span>
-              )}
-              <span>Item No. <span className="font-semibold text-neutral-800">{p.sku || p._id?.slice(-8).toUpperCase()}</span></span>
-            </div>
-
-            {/* Price section */}
-            <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 pt-2">
-              <span className="font-sans text-2xl font-bold text-neutral-900 tabular-nums">{pkr(p.price)}</span>
+            {/* Price — Inter 500, 18px + struck was-price. No "save" amounts. */}
+            <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+              <span className="text-[18px] font-medium text-charcoal tabular-nums">{pkr(p.price)}</span>
               {onSale && (
-                <>
-                  <span className="text-sm tabular-nums text-neutral-400 line-through font-light">
-                    {pkr(p.compareAtPrice)}
-                  </span>
-                  <span className="text-xs font-bold uppercase tracking-wider text-neutral-900 bg-neutral-100 px-2 py-0.5 rounded-[2px]">
-                    Save {pkr(p.compareAtPrice - p.price)}
-                  </span>
-                </>
+                <span className="text-[14px] font-normal text-smoke line-through tabular-nums">
+                  {pkr(p.compareAtPrice)}
+                </span>
               )}
             </div>
 
-            {/* Sale urgency — real windows end, so say so. Only when the sale
-                actually has an end date (saleEndsOnLabel returns '' otherwise). */}
-            {onSale && saleEndLabel && (
-              <p aria-live="polite" className="flex items-center gap-1.5 text-xs">
-                <AlertCircle size={13} className={saleUrgent ? 'text-red-600' : 'text-amber-600'} />
-                <span className={`font-semibold uppercase tracking-wider ${saleUrgent ? 'text-red-600' : 'text-amber-600'}`}>
-                  {saleUrgent ? `Sale ends soon — ${saleEndLabel}` : `Sale ends ${saleEndLabel}`}
-                </span>
-              </p>
-            )}
-
-            {/* Stock Indicator */}
-            <p aria-live="polite" className="flex items-center gap-1.5 text-xs">
-              {soldOut ? (
-                <><AlertCircle size={13} className="text-red-600" /><span className="font-semibold text-red-600 uppercase tracking-wider">Out of stock</span></>
-              ) : lowStock ? (
-                <><AlertCircle size={13} className="text-amber-600" /><span className="font-semibold text-amber-600 uppercase tracking-wider">Only {p.stock} left — High Demand</span></>
-              ) : (
-                <><CheckCircle2 size={13} className="text-[#6B7252]" /><span className="text-[#6B7252] font-semibold uppercase tracking-wider">In stock — Ships in 24–48h</span></>
-              )}
+            {/* Description — Inter 400, 14px, smoke, 1.7 leading */}
+            <p className="body-qa">
+              {p.shortDescription || p.description}
             </p>
+
+            {/* Quiet meta — reviews link · item no. */}
+            <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[11px] text-smoke">
+              {reviewsShown > 0 ? (
+                <a href="#reviews" className="underline underline-offset-4 transition hover:text-charcoal">
+                  {reviewsShown} review{reviewsShown === 1 ? '' : 's'}
+                </a>
+              ) : (
+                <span>No reviews yet</span>
+              )}
+              <span aria-hidden="true" className="text-clay">|</span>
+              <span>Item No. <span className="font-medium text-charcoal">{p.sku || p._id?.slice(-8).toUpperCase()}</span></span>
+              <span aria-hidden="true" className="text-clay">|</span>
+              <span>{soldOut ? 'Sold out' : 'In stock'}</span>
+            </div>
           </div>
 
-          {/* Color Selector */}
+          {/* Colour Selector — flat rectangles, 2px clay border, text-only */}
           {p.colors?.length > 0 && (
-            <fieldset className="border-0 p-0 space-y-2">
-              <legend className="text-[10px] font-bold uppercase tracking-[0.25em] text-neutral-500">
-                Colour — <span className="text-neutral-900 font-semibold">{color}</span>
+            <fieldset className="border-0 p-0">
+              <legend className="label-qa">
+                Colour — <span className="font-medium normal-case text-charcoal">{color}</span>
               </legend>
-              <div className="flex flex-wrap gap-2.5">
+              <div className="mt-3 flex flex-wrap gap-2">
                 {p.colors.map((c) => {
                   const on = color === c.name;
                   return (
@@ -278,18 +237,11 @@ export default function Product() {
                       onClick={() => pickColor(c.name)}
                       aria-pressed={on}
                       aria-label={c.name}
-                      title={c.name}
-                      className={`grid h-10 w-10 place-items-center rounded-full border transition-all duration-150 ${
-                        on ? 'border-transparent ring-2 ring-neutral-900 ring-offset-2 ring-offset-[#FBFAF8]' : 'border-neutral-200 hover:border-neutral-400'
+                      className={`border-2 px-4 py-2 text-[12px] font-normal normal-case text-charcoal transition-colors duration-150 ${
+                        on ? 'border-charcoal bg-charcoal text-white' : 'border-clay hover:border-charcoal'
                       }`}
-                      style={{ backgroundColor: c.hex }}
                     >
-                      {on && (
-                        <CheckCircle2
-                          size={14} strokeWidth={2.5}
-                          className={LIGHT_HEX.has(String(c.hex).toUpperCase()) ? 'text-neutral-900' : 'text-white'}
-                        />
-                      )}
+                      {c.name}
                     </button>
                   );
                 })}
@@ -297,23 +249,23 @@ export default function Product() {
             </fieldset>
           )}
 
-          {/* Size Selector */}
+          {/* Size Selector — clean rectangles, 1px clay border, 12px padding */}
           {needsSize && (
-            <fieldset ref={sizeRef} className="border-0 p-0 space-y-2">
+            <fieldset ref={sizeRef} className="border-0 p-0">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <legend className="text-[10px] font-bold uppercase tracking-[0.25em] text-neutral-500">Size</legend>
-                <div className="flex items-center gap-4 text-xs font-semibold">
+                <legend className="label-qa">Size</legend>
+                <div className="flex items-center gap-4 text-[11px] font-normal">
                   <button type="button" onClick={() => setGuideOpen(true)}
-                    className="text-neutral-500 underline underline-offset-4 hover:text-neutral-900">
+                    className="text-smoke underline underline-offset-4 transition hover:text-charcoal">
                     Size guide
                   </button>
-                  <Link to="/fit-finder" className="inline-flex items-center gap-1 text-[#6B7252] hover:underline">
+                  <Link to="/fit-finder" className="inline-flex items-center gap-1 text-smoke transition hover:text-charcoal">
                     <Ruler size={11} /> Fit Finder
                   </Link>
                 </div>
               </div>
 
-              <div className="flex flex-wrap gap-2 pt-1">
+              <div className="mt-3 flex flex-wrap gap-2">
                 {p.sizes.map((s) => {
                   const on = size === s;
                   return (
@@ -322,10 +274,8 @@ export default function Product() {
                       type="button"
                       onClick={() => { setSize(s); setSizeErr(false); }}
                       aria-pressed={on}
-                      className={`min-h-[44px] min-w-[52px] rounded-[2px] border text-xs font-bold uppercase tracking-[0.05em] transition-all active:scale-[0.98] ${
-                        on
-                          ? 'border-neutral-900 bg-neutral-900 text-white'
-                          : 'border-neutral-200 text-neutral-700 hover:border-neutral-900 hover:bg-neutral-50'
+                      className={`border px-3 py-2 text-[13px] font-normal tracking-[0.02em] text-charcoal transition-colors duration-150 ${
+                        on ? 'border-charcoal bg-charcoal text-white' : 'border-clay hover:border-charcoal'
                       }`}
                     >
                       {s}
@@ -335,126 +285,100 @@ export default function Product() {
               </div>
 
               {sizeErr && !size && (
-                <p role="alert" className="flex items-center gap-1.5 text-xs text-red-600 mt-2">
+                <p role="alert" className="mt-2 flex items-center gap-1.5 text-[11px] text-red-700">
                   <AlertCircle size={12} /> Choose your size
                 </p>
               )}
               {!sizeErr && !size && (
-                <p className="text-[11px] text-neutral-400 mt-2">Please select a size</p>
+                <p className="mt-2 text-[11px] text-smoke">Please select a size</p>
               )}
             </fieldset>
           )}
 
-          {/* Quantity, Add to Cart & Wishlist Row (LV/Corsen Style - Unified & Asymmetric) */}
-          <div ref={ctaRef} className="pt-4 border-t border-[#E4E0DA] space-y-4">
+          {/* Quantity + Add to Bag + Wishlist */}
+          <div ref={ctaRef} className="space-y-4 border-t border-clay pt-6">
             <div className="flex items-center gap-3">
-              {/* Stepper */}
               <QuantityStepper value={qty} onChange={setQty} min={1} max={Math.max(1, Math.min(10, p.stock || 10))} />
 
-              {/* Add to Bag — CK/SKIMS: disabled ("Select a Size") until size picked */}
+              {/* Add to Bag — midnight, 0 radius, Inter 500 / 14 / 0.08em */}
               <button
                 type="button"
                 onClick={() => tryAdd(false)}
                 disabled={soldOut || (needsSize && !size)}
-                className={`flex-1 min-h-[46px] inline-flex items-center justify-center rounded-[2px] text-xs font-bold uppercase tracking-[0.2em] transition duration-300 ${
+                className={`flex-1 min-h-[48px] inline-flex items-center justify-center text-[14px] font-medium uppercase tracking-[0.08em] transition-colors duration-300 ${
                   soldOut
-                    ? 'cursor-not-allowed bg-neutral-200 text-neutral-500'
+                    ? 'cursor-not-allowed bg-sand text-smoke'
                     : needsSize && !size
-                      ? 'cursor-not-allowed bg-neutral-100 text-neutral-400'
-                      : `text-white ${added ? 'bg-[#C9A96E]' : 'bg-neutral-900 hover:bg-[#C9A96E]'}`
+                      ? 'cursor-not-allowed bg-sand text-smoke'
+                      : `text-white ${added ? 'bg-gold' : 'bg-midnight hover:bg-charcoal'}`
                 }`}
               >
-                {soldOut ? 'Out of Stock' : needsSize && !size ? 'Select a Size' : added ? 'ADDED ✓' : 'Add to Bag'}
+                {soldOut ? 'Sold out' : needsSize && !size ? 'Select a Size' : added ? 'ADDED ✓' : 'Add to Bag'}
               </button>
 
-              {/* Wishlist Square Button next to Add to Bag */}
               <button
                 type="button"
                 onClick={() => toggleWish(p)}
                 aria-pressed={wished}
                 aria-label={wished ? 'Remove from wishlist' : 'Save to wishlist'}
-                className={`grid h-[46px] w-[46px] shrink-0 place-items-center rounded-[2px] border transition duration-300 ${
-                  wished ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-200 text-neutral-400 hover:border-neutral-900 hover:text-neutral-900 hover:bg-neutral-50'
+                className={`grid h-[48px] w-[48px] shrink-0 place-items-center border transition-colors duration-300 ${
+                  wished ? 'border-charcoal bg-charcoal text-white' : 'border-clay text-smoke hover:border-charcoal hover:text-charcoal'
                 }`}
               >
-                <Heart size={16} strokeWidth={wished ? 2.5 : 2} fill={wished ? 'currentColor' : 'none'} />
+                <Heart size={16} strokeWidth={wished ? 2.2 : 1.6} fill={wished ? 'currentColor' : 'none'} />
               </button>
             </div>
 
-            {/* Buy Now (Full width outline) */}
-            <button
-              type="button"
-              onClick={() => tryAdd(true)}
-              disabled={soldOut}
-              className="w-full min-h-[46px] inline-flex items-center justify-center rounded-[2px] border border-neutral-900 bg-transparent text-neutral-900 text-xs font-bold uppercase tracking-[0.2em] transition duration-300 hover:bg-neutral-900 hover:text-white disabled:opacity-40"
-            >
-              Express Checkout &rarr;
-            </button>
-
-            <p aria-live="polite" className="min-h-[1.25rem] text-xs">
+            <p aria-live="polite" className="min-h-[1.25rem] text-[11px]">
               {added && (
-                <span className="inline-flex items-center gap-1.5 pt-1 font-semibold text-[#6B7252] uppercase tracking-wider">
-                  ✓ Successfully added to your bag
+                <span className="inline-flex items-center gap-1.5 pt-1 font-medium uppercase tracking-[0.12em] text-smoke">
+                  ✓ Added to your bag
                 </span>
               )}
             </p>
           </div>
 
-          {/* ── CK-style Perks & Rewards ──
-              Calvin Klein quotes shipping + points right under the buy buttons
-              ("Free Standard Shipping on $75+", "Earn 780 Points 2X"). Same
-              placement here: one rewards strip (loyalty on) + one shipping note. */}
+          {/* ── Rewards + shipping note — quiet, no urgency ── */}
           <div className="space-y-2.5">
             {showPoints && (
-              <div className="flex items-center gap-2.5 rounded-[2px] border border-neutral-200 bg-white px-4 py-3">
-                <Award size={15} className="shrink-0 text-neutral-800" aria-hidden="true" />
-                <p className="text-xs leading-relaxed text-neutral-700">
-                  Earn <span className="font-bold text-neutral-900 tabular-nums">{earnPoints} {earnPoints === 1 ? 'point' : 'points'}</span> with this purchase
-                  {' '}<Link to="/rewards" className="font-semibold text-[#6B7252] underline underline-offset-4 hover:text-neutral-900">Join HUSHAE Circle</Link>
+              <div className="flex items-center gap-2.5 border border-clay bg-white/60 px-4 py-3">
+                <Award size={15} className="shrink-0 text-gold" aria-hidden="true" />
+                <p className="text-[12px] leading-relaxed text-smoke">
+                  Earn <span className="font-medium text-charcoal tabular-nums">{earnPoints} {earnPoints === 1 ? 'point' : 'points'}</span> with this purchase
+                  {' '}<Link to="/rewards" className="font-medium text-charcoal underline underline-offset-4 transition hover:text-gold">Join HUSHAE Circle</Link>
                 </p>
               </div>
             )}
-            <p className="text-[11px] leading-relaxed text-neutral-500">
-              Free standard shipping on orders over {pkr(settings?.freeShippingThreshold ?? 4999)} · COD available nationwide · Discreet packaging on every order
+            <p className="text-[11px] leading-relaxed text-smoke">
+              Free standard shipping on orders over {pkr(settings?.freeShippingThreshold ?? 4999)} · Discreet packaging on every order
             </p>
           </div>
 
           {/* Offers Panel */}
-          <div className="pt-2">
+          <div className="pt-1">
             <Suspense fallback={null}>
               <ProductPromoPanel product={p} />
             </Suspense>
           </div>
 
           {/* Minimal Trust Row */}
-          <ul className="grid grid-cols-3 divide-x divide-neutral-200 border-t border-b border-[#E4E0DA] py-4 text-center">
+          <ul className="grid grid-cols-3 divide-x divide-clay border-y border-clay py-4 text-center">
             {[
               [Truck, '2–5 Day Delivery'],
               [RotateCcw, '14-Day Exchange'],
               [ShieldCheck, 'Discreet Package'],
             ].map(([Icon, txt]) => (
-              <li key={txt} className="flex flex-col items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-neutral-500">
-                <Icon size={15} className="text-neutral-800" />
+              <li key={txt} className="flex flex-col items-center gap-1.5 text-[10px] font-medium uppercase tracking-[0.14em] text-smoke">
+                <Icon size={15} strokeWidth={1.5} className="text-charcoal/70" />
                 {txt}
               </li>
             ))}
           </ul>
 
-          {/* ── CK/SKIMS-style horizontal TABS (premium, not FAQ accordion) ── */}
+          {/* ── Horizontal tabs — thin clay border, active charcoal line ── */}
           <ProductTabs p={p} settings={settings} />
         </aside>
       </div>
-
-      {/* ── Breadcrumbs — CK puts them BELOW product info, above recommendations ── */}
-      <nav aria-label="Breadcrumb" className="mt-14 flex items-center gap-1.5 border-t border-neutral-100 pt-6 text-[11px] uppercase tracking-[0.15em] text-neutral-400 md:mt-20">
-        <Link to="/" className="transition hover:text-neutral-900">Home</Link>
-        <ChevronRight size={12} aria-hidden="true" />
-        <Link to={`/${p.gender}`} className="capitalize transition hover:text-neutral-900">{p.gender}</Link>
-        <ChevronRight size={12} aria-hidden="true" />
-        <Link to={`/category/${p.categorySlug}`} className="capitalize transition hover:text-neutral-900">{p.categorySlug.replace(/-/g, ' ')}</Link>
-        <ChevronRight size={12} aria-hidden="true" />
-        <span aria-current="page" className="clamp-2 max-w-[220px] font-semibold text-neutral-900">{p.name}</span>
-      </nav>
 
       {/* ── CK-style "Complete the Look" — ALWAYS populated: bundle first,
           same-category picks as fallback, so the section never sits empty. */}
@@ -471,25 +395,24 @@ export default function Product() {
         </div>
       )}
 
-      {/* ── ABOUT THIS FABRIC — editorial close-up (SKIMS/CK feature) ── */}
+      {/* ── ABOUT THIS FABRIC — editorial close-up ── */}
       {p.fabric && (
-        <section className="mt-20 grid grid-cols-1 items-center gap-8 border-t border-neutral-100 pt-14 md:mt-28 md:grid-cols-2 md:gap-14">
-          <div className="relative aspect-[4/3] overflow-hidden bg-neutral-100">
+        <section className="mt-20 grid grid-cols-1 items-center gap-8 border-t border-clay/60 pt-14 md:mt-28 md:grid-cols-2 md:gap-14">
+          <div className="relative aspect-[4/3] overflow-hidden bg-sand">
             <img src="/images/campaign/hushae-fabric.jpg" alt={`${p.fabric} — HUSHAE fabric close-up`} loading="lazy"
               className="absolute inset-0 h-full w-full object-cover" />
           </div>
           <div>
-            <p className="text-[11px] font-bold uppercase tracking-[0.24em] text-neutral-400">About this fabric</p>
-            <h2 className="mt-4 font-sans text-3xl font-bold uppercase tracking-[0.04em] text-neutral-900 md:text-4xl"
-              >
+            <p className="label-qa">About this fabric</p>
+            <h2 className="mt-4 text-[28px] font-light normal-case tracking-[0.06em] text-charcoal md:text-[36px]">
               {p.fabric}
             </h2>
-            <p className="mt-5 max-w-md text-sm leading-relaxed font-light text-neutral-600">
+            <p className="mt-5 max-w-md body-qa">
               {p.shortDescription || p.description}
             </p>
             {(p.care || []).length > 0 && (
-              <ul className="mt-5 space-y-2 border-t border-neutral-100 pt-5 text-[12px] text-neutral-500">
-                {(p.care || []).slice(0, 3).map((c) => <li key={c} className="flex items-start gap-2"><span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-neutral-400" />{c}</li>)}
+              <ul className="mt-5 space-y-2 border-t border-clay/60 pt-5 text-[12px] text-smoke">
+                {(p.care || []).slice(0, 3).map((c) => <li key={c} className="flex items-start gap-2"><span className="mt-1.5 h-1 w-1 shrink-0 bg-smoke/60" />{c}</li>)}
               </ul>
             )}
           </div>
@@ -535,17 +458,17 @@ function ProductTabs({ p, settings }) {
     { id: 'shipping', label: 'Shipping & Returns' },
   ];
   return (
-    <div className="pt-6">
-      {/* Tab bar */}
-      <div className="flex gap-8 border-b border-neutral-200" role="tablist" aria-label="Product information">
+    <div className="pt-2">
+      {/* Tab bar — thin bottom border, active = charcoal line */}
+      <div className="flex gap-8 border-b border-clay" role="tablist" aria-label="Product information">
         {TABS.map((t) => (
           <button
             key={t.id}
             role="tab"
             aria-selected={tab === t.id}
             onClick={() => setTab(t.id)}
-            className={`-mb-px border-b-2 pb-3 text-[11px] font-bold uppercase tracking-[0.18em] transition-colors duration-200 ${
-              tab === t.id ? 'border-neutral-900 text-neutral-900' : 'border-transparent text-neutral-400 hover:text-neutral-700'
+            className={`-mb-px border-b pb-3 text-[10px] font-medium uppercase tracking-[0.15em] transition-colors duration-200 ${
+              tab === t.id ? 'border-charcoal text-charcoal' : 'border-transparent text-smoke hover:text-charcoal'
             }`}
           >
             {t.label}
@@ -557,8 +480,8 @@ function ProductTabs({ p, settings }) {
       <div className="pt-5">
         {tab === 'details' && (
           <div key="details" className="animate-[fade-up_0.2s_ease-out_both]">
-            <p className="text-sm leading-relaxed font-light text-neutral-600">{p.description}</p>
-            <dl className="mt-4 grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 border-t border-neutral-100 pt-4 text-xs">
+            <p className="body-qa">{p.description}</p>
+            <dl className="mt-4 grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 border-t border-clay/60 pt-4 text-[12px]">
               {[
                 ['Item No.', p.sku || p._id?.toUpperCase()],
                 ['Material', p.fabric],
@@ -567,8 +490,8 @@ function ProductTabs({ p, settings }) {
                 ['Sizes', (p.sizes || []).join(' · ') || '—'],
               ].filter(([, v]) => v).map(([k, v]) => (
                 <div key={k} className="contents">
-                  <dt className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">{k}</dt>
-                  <dd className="capitalize font-mono text-neutral-700">{v}</dd>
+                  <dt className="label-qa">{k}</dt>
+                  <dd className="normal-case text-charcoal/80">{v}</dd>
                 </div>
               ))}
             </dl>
@@ -576,10 +499,10 @@ function ProductTabs({ p, settings }) {
         )}
         {tab === 'fabric' && (
           <div key="fabric" className="animate-[fade-up_0.2s_ease-out_both]">
-            <p className="text-sm font-semibold text-neutral-900">{p.fabric}</p>
-            <p className="mt-2 text-sm leading-relaxed font-light text-neutral-600">Every HUSHAE fabric is wash-tested for 40 cycles before it enters the edit — softness in, softness out.</p>
+            <p className="text-[13px] font-medium text-charcoal">{p.fabric}</p>
+            <p className="mt-2 body-qa">Every HUSHAE fabric is wash-tested for 40 cycles before it enters the edit — softness in, softness out.</p>
             {(p.care || []).length > 0 && (
-              <ul className="mt-3 list-disc space-y-1.5 pl-5 text-sm font-light text-neutral-600">
+              <ul className="mt-3 list-disc space-y-1.5 pl-5 text-[13px] font-normal text-smoke">
                 {(p.care || []).map((c) => <li key={c}>{c}</li>)}
               </ul>
             )}
@@ -587,11 +510,11 @@ function ProductTabs({ p, settings }) {
         )}
         {tab === 'shipping' && (
           <div key="shipping" className="animate-[fade-up_0.2s_ease-out_both]">
-            <p className="text-sm leading-relaxed font-light text-neutral-600">
+            <p className="body-qa">
               Flat {pkr(settings?.shippingFlatRate ?? 350)} nationwide, free over {pkr(settings?.freeShippingThreshold ?? 4999)}.
               Dispatched in 24–48h in plain, unmarked packaging.
             </p>
-            <p className="mt-2 text-sm leading-relaxed font-light text-neutral-600">
+            <p className="mt-2 body-qa">
               Unworn pieces exchange within 14 days — size swaps are free. For hygiene reasons innerwear is only
               returnable if it arrives faulty.
             </p>

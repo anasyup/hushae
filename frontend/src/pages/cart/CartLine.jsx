@@ -1,8 +1,12 @@
 import { Link } from 'react-router-dom';
-import { AlertCircle, BookmarkPlus, Heart, Trash2, Truck } from 'lucide-react';
+import { AlertCircle, BookmarkPlus, Heart, Truck, X } from 'lucide-react';
 import Img from '../../components/Img';
 import QuantityStepper from '../../components/ui/QuantityStepper';
 import { pkr } from '../../lib/format';
+import { titleCase } from '../../lib/productMeta';
+
+/* QA — brand name lives in the header; strip it from bag names. */
+const nameOf = (name) => titleCase(String(name || '').replace(/^HUSHAE\s+/i, ''));
 
 /* ============================================================================
  * One line in the bag.
@@ -35,20 +39,20 @@ export default function CartLine({
 
   return (
     <li
-      className={`grid grid-cols-[76px_minmax(0,1fr)] gap-4 py-5 transition-opacity duration-300 sm:grid-cols-[100px_minmax(0,1fr)] ${removing ? 'opacity-0' : 'opacity-100'}`}
+      className={`grid grid-cols-[80px_minmax(0,1fr)] gap-5 py-5 transition-opacity duration-300 ${removing ? 'opacity-0' : 'opacity-100'}`}
       aria-busy={removing || undefined}
     >
-      {/* ---- Image ---- */}
+      {/* ---- Image — 80px square, bleeds to the edge ---- */}
       <Link
         to={`/product/${line.slug}`}
-        className={`group relative block overflow-hidden rounded-card bg-cream ${blocked ? 'opacity-55' : ''}`}
+        className={`group relative block overflow-hidden bg-sand ${blocked ? 'opacity-55' : ''}`}
         tabIndex={-1}
         aria-hidden="true"
       >
         <Img
           src={line.image}
           alt=""
-          className="aspect-[4/5] w-full object-cover transition-transform duration-media ease-standard group-hover:scale-[1.03] motion-reduce:transition-none"
+          className="aspect-square w-full object-cover transition-transform duration-media ease-standard group-hover:scale-[1.02] motion-reduce:transition-none"
         />
       </Link>
 
@@ -56,37 +60,34 @@ export default function CartLine({
       <div className="flex min-w-0 flex-col">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <p className="text-caption uppercase tracking-widest text-ash">HUSHAE</p>
-            {/* min-h keeps the tap target at 44px even for a one-line title —
-                the text stays where it is, only the hit area grows. */}
-            <h3 className="text-body font-medium leading-snug">
+            <h3 className="text-[13px] font-normal leading-snug normal-case text-charcoal">
               <Link
                 to={`/product/${line.slug}`}
-                className="inline-flex min-h-[44px] items-center transition hover:text-graphite hover:underline"
+                className="inline-flex min-h-[44px] items-center transition hover:text-smoke"
               >
-                {line.name}
+                {nameOf(line.name)}
               </Link>
             </h3>
-            <p className="mt-1.5 text-body-sm text-ash">
+            <p className="mt-0.5 text-[11px] text-smoke">
               {[line.size && `Size ${line.size}`, line.color].filter(Boolean).join(' · ') || '—'}
             </p>
           </div>
 
-          {/* Remove — 44px target, always reachable */}
+          {/* Remove — X, quiet */}
           <button
             type="button"
             onClick={onRemove}
-            className="-mr-2 -mt-1 grid h-11 w-11 shrink-0 place-items-center rounded-full text-ash transition hover:bg-satin/60 hover:text-obsidian"
+            className="-mr-1 -mt-1 grid h-10 w-10 shrink-0 place-items-center text-smoke transition hover:text-charcoal"
             aria-label={`Remove ${line.name} from your bag`}
           >
-            <Trash2 size={16} aria-hidden="true" />
+            <X size={16} aria-hidden="true" />
           </button>
         </div>
 
         {/* ---- Stock / delivery signal ---- */}
         {meta?.label && (
           <p
-            className={`mt-2 inline-flex w-fit items-center gap-1.5 rounded-full px-2.5 py-1 text-caption font-semibold ${
+            className={`mt-2 inline-flex w-fit items-center gap-1.5 px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.1em] ${
               meta.tone === 'bad' ? 'bg-red-50 text-red-700' : 'bg-amber-50 text-amber-800'
             }`}
           >
@@ -95,7 +96,7 @@ export default function CartLine({
           </p>
         )}
         {low && (
-          <p className="mt-2 inline-flex w-fit items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-1 text-caption font-semibold text-amber-800">
+          <p className="mt-2 inline-flex w-fit items-center gap-1.5 bg-amber-50 px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.1em] text-amber-800">
             <AlertCircle size={11} aria-hidden="true" />
             Only {available} left
           </p>
@@ -132,7 +133,7 @@ export default function CartLine({
               <button
                 type="button"
                 onClick={onSave}
-                className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-ash transition hover:bg-satin/60 hover:text-obsidian"
+                className="grid h-10 w-10 shrink-0 place-items-center text-smoke transition hover:text-charcoal"
                 aria-label={`Save ${line.name} for later`}
                 title="Save for later"
               >
@@ -143,8 +144,8 @@ export default function CartLine({
               type="button"
               onClick={onWish}
               aria-pressed={wished}
-              className={`grid h-11 w-11 shrink-0 place-items-center rounded-full transition hover:bg-satin/60 ${
-                wished ? 'text-bronze' : 'text-ash hover:text-obsidian'
+              className={`grid h-10 w-10 shrink-0 place-items-center transition ${
+                wished ? 'text-bronze' : 'text-smoke hover:text-charcoal'
               }`}
               aria-label={wished ? `Remove ${line.name} from wishlist` : `Add ${line.name} to wishlist`}
               title="Wishlist"
@@ -154,8 +155,8 @@ export default function CartLine({
           </div>
 
           <div className={`text-right ${blocked ? 'opacity-55' : ''}`}>
-            <p className="text-body font-semibold tabular-nums">{pkr(line.price * line.qty)}</p>
-            {line.qty > 1 && <p className="text-caption text-ash tabular-nums">{pkr(line.price)} each</p>}
+            <p className="text-[13px] font-medium tabular-nums text-charcoal">{pkr(line.price * line.qty)}</p>
+            {line.qty > 1 && <p className="mt-0.5 text-[11px] text-smoke tabular-nums">{pkr(line.price)} each</p>}
           </div>
         </div>
       </div>

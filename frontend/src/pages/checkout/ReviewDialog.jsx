@@ -73,7 +73,7 @@ export default function ReviewDialog({
         <div className="flex items-center justify-between border-b border-line px-5 py-4 sm:px-6">
           <div>
             <p className="text-caption font-bold uppercase tracking-widest text-ash">Final review</p>
-            <h2 id={titleId} className="mt-0.5 font-display text-h4">Confirm your order</h2>
+            <h2 id={titleId} className="mt-0.5 text-[24px] font-light normal-case text-charcoal">Confirm your order</h2>
           </div>
           <button
             type="button" onClick={onClose} disabled={busy} aria-label="Close review"
@@ -96,7 +96,7 @@ export default function ReviewDialog({
               <h3 className="text-caption font-bold uppercase tracking-widest text-ash">Delivering to</h3>
               <button type="button" onClick={onClose} className="min-h-[44px] text-caption font-semibold text-ash underline-offset-4 hover:text-obsidian hover:underline">Edit</button>
             </div>
-            <p className="text-body-sm font-semibold">{form.name}</p>
+            <p className="text-[13px] font-medium normal-case text-charcoal">{form.name}</p>
             <p className="mt-0.5 text-caption text-ash">{form.phone}{form.email ? ` · ${form.email}` : ''}</p>
             <p className="mt-2 text-caption">{form.address}</p>
             <p className="text-caption text-ash">{cityLabel}, {form.province} — {form.postalCode}</p>
@@ -115,7 +115,7 @@ export default function ReviewDialog({
                 <li key={`${l.id}-${l.size}-${l.color}-${i}`} className="flex items-center gap-3">
                   <Img src={l.image} alt="" className="h-12 w-9 shrink-0 rounded-md border border-line object-cover" />
                   <div className="min-w-0 flex-1">
-                    <p className="clamp-1 text-body-sm font-medium">{l.name}</p>
+                    <p className="clamp-1 text-[12px] font-normal normal-case text-charcoal">{l.name}</p>
                     <p className="text-caption text-ash">{l.size}{l.color ? ` · ${l.color}` : ''} · Qty {l.qty}</p>
                   </div>
                   <p className="text-body-sm font-semibold tabular-nums">{pkr(l.price * l.qty)}</p>
@@ -154,7 +154,7 @@ export default function ReviewDialog({
               )}
               <div className="flex items-end justify-between border-t border-line pt-3">
                 <dt className="text-body font-bold">Total</dt>
-                <dd className="font-display text-h4 tabular-nums">{pkr(pricing.total)}</dd>
+                <dd className="text-[20px] font-medium tabular-nums text-charcoal">{pkr(pricing.total)}</dd>
               </div>
             </dl>
           </section>
@@ -169,7 +169,7 @@ export default function ReviewDialog({
           </button>
           <button
             type="button" onClick={onConfirm} disabled={busy}
-            className="btn btn-sm gap-2 bg-obsidian text-alabaster hover:bg-graphite disabled:opacity-50"
+            className="btn-qa !w-auto px-10 disabled:opacity-50"
           >
             {busy ? <><Spinner label="Placing your order" /> Placing order…</> : <><Lock size={13} aria-hidden="true" /> Confirm · {pkr(pricing.total)}</>}
           </button>

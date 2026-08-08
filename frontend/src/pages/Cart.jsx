@@ -208,19 +208,20 @@ export default function Cart() {
   return (
     <div className="container-page py-8 md:py-12">
       {/* ---------------- Header ---------------- */}
-      <header className="border-b border-line pb-6">
+      <header className="border-b border-clay pb-7">
         <Link
           to={cfg.continueHref}
-          className="inline-flex min-h-[44px] items-center gap-1.5 text-body-sm text-ash underline-offset-4 transition hover:text-obsidian hover:underline"
+          className="inline-flex min-h-[44px] items-center gap-1.5 text-[12px] text-smoke underline underline-offset-4 transition hover:text-charcoal"
         >
-          <ArrowLeft size={14} aria-hidden="true" /> {cfg.continueLabel}
+          <ArrowLeft size={13} aria-hidden="true" /> {cfg.continueLabel}
         </Link>
         <div className="mt-2 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
-          <h1 className="font-display text-h1">{cfg.title}</h1>
-          <p className="text-body-sm text-ash" aria-live="polite">
+          {/* QA — "Your Bag", Inter 300, 32px */}
+          <h1 className="text-[32px] font-light normal-case tracking-[0.02em] text-charcoal">{cfg.title}</h1>
+          <p className="text-[12px] text-smoke" aria-live="polite">
             {pricing.count} {itemWord}
             {cfg.showDelivery && pricing.count > 0 && (
-              <span className="ml-2 inline-flex items-center gap-1.5 border-l border-line pl-2">
+              <span className="ml-2 inline-flex items-center gap-1.5 border-l border-clay pl-2">
                 <Truck size={12} aria-hidden="true" /> Arrives {delivery}
               </span>
             )}
@@ -237,7 +238,7 @@ export default function Cart() {
       <div className="mt-8 grid items-start gap-x-12 gap-y-10 lg:grid-cols-[minmax(0,1fr)_380px]">
         {/* ---------------- Lines ---------------- */}
         <section aria-label="Items in your bag">
-          <ul className="divide-y divide-line border-b border-line">
+          <ul className="divide-y divide-clay/60 border-b border-clay/60">
             {ordered.map((entry) => (
               <CartLine
                 key={lineKey(entry.line)}
@@ -263,7 +264,7 @@ export default function Cart() {
                 <BookmarkPlus size={13} aria-hidden="true" />
                 Saved for later ({saved.length})
               </h2>
-              <ul className="mt-4 divide-y divide-line border-y border-line">
+              <ul className="mt-4 divide-y divide-clay/60 border-y border-clay/60">
                 {saved.map((l) => (
                   <li key={lineKey(l)} className="flex items-center gap-4 py-4">
                     <Link to={`/product/${l.slug}`} className="shrink-0 overflow-hidden rounded-control bg-cream" tabIndex={-1} aria-hidden="true">
@@ -319,7 +320,7 @@ export default function Cart() {
 
       {/* ---------------- Recommendations ---------------- */}
       {cfg.recommendEnabled && suggest.length > 0 && (
-        <div className="mt-16 border-t border-line pt-12 md:mt-20">
+        <div className="mt-20 border-t border-clay/60 pt-14 md:mt-28">
           <ProductRow eyebrow={cfg.recommendTitle} title="You may also need" products={suggest} />
         </div>
       )}

@@ -20,8 +20,8 @@ export default function OrderSummary({ pricing, cfg, applied, onApply, onRemoveC
   const { subtotal, discount, shipping, tax, total, savings, count, threshold, freeShip } = pricing;
 
   return (
-    <div className="card-content">
-      <h2 className="text-label uppercase tracking-widest text-ash">Order summary</h2>
+    <div className="summary-card">
+      <h2 className="label-qa">Order summary</h2>
 
       {cfg.showProgress && (
         <div className="mt-5">
@@ -47,9 +47,9 @@ export default function OrderSummary({ pricing, cfg, applied, onApply, onRemoveC
         />
       )}
 
-      <dl className="mt-6 space-y-3 border-t border-line pt-5 text-body-sm" aria-live="polite">
+      <dl className="mt-6 space-y-3 border-t border-clay pt-5 text-[13px]" aria-live="polite">
         <div className="flex justify-between gap-4">
-          <dt className="text-ash">Subtotal ({count} {count === 1 ? 'item' : 'items'})</dt>
+          <dt className="text-smoke">Subtotal ({count} {count === 1 ? 'item' : 'items'})</dt>
           <dd className="font-medium tabular-nums">{pkr(subtotal)}</dd>
         </div>
 
@@ -61,7 +61,7 @@ export default function OrderSummary({ pricing, cfg, applied, onApply, onRemoveC
         )}
 
         <div className="flex justify-between gap-4">
-          <dt className="text-ash">Shipping</dt>
+          <dt className="text-smoke">Shipping</dt>
           <dd className={`font-medium tabular-nums ${freeShip ? 'text-sagedark' : ''}`}>
             {freeShip ? 'Free' : pkr(shipping)}
           </dd>
@@ -69,14 +69,14 @@ export default function OrderSummary({ pricing, cfg, applied, onApply, onRemoveC
 
         {tax > 0 && (
           <div className="flex justify-between gap-4">
-            <dt className="text-ash">{cfg.taxLabel}</dt>
+            <dt className="text-smoke">{cfg.taxLabel}</dt>
             <dd className="font-medium tabular-nums">{pkr(tax)}</dd>
           </div>
         )}
 
-        <div className="flex items-baseline justify-between gap-4 border-t border-line pt-4">
-          <dt className="text-body font-semibold">Estimated total</dt>
-          <dd className="font-display text-h4 tabular-nums">{pkr(total)}</dd>
+        <div className="flex items-baseline justify-between gap-4 border-t border-clay pt-4">
+          <dt className="text-[13px] font-medium text-charcoal">Estimated total</dt>
+          <dd className="text-[20px] font-medium tabular-nums text-charcoal">{pkr(total)}</dd>
         </div>
 
         {savings > 0 && (
@@ -98,7 +98,7 @@ export default function OrderSummary({ pricing, cfg, applied, onApply, onRemoveC
             <AlertCircle size={15} aria-hidden="true" /> Remove sold-out items to continue
           </p>
         ) : (
-          <Link to="/checkout" className="btn-primary w-full">{cfg.checkoutLabel}</Link>
+          <Link to="/checkout" className="btn-qa">{cfg.checkoutLabel}</Link>
         )}
       </div>
 
@@ -121,16 +121,16 @@ export default function OrderSummary({ pricing, cfg, applied, onApply, onRemoveC
 
       <Link
         to={cfg.continueHref}
-        className="mt-3 flex min-h-[44px] w-full items-center justify-center text-body-sm font-medium text-ash underline-offset-4 transition hover:text-obsidian hover:underline"
+        className="mt-4 flex min-h-[44px] w-full items-center justify-center text-[12px] text-smoke underline underline-offset-4 transition hover:text-charcoal"
       >
         {cfg.continueLabel}
       </Link>
 
-      <p className="mt-4 flex items-center justify-center gap-1.5 text-caption text-ash">
+      <p className="mt-4 flex items-center justify-center gap-1.5 text-[11px] text-smoke">
         <Lock size={11} aria-hidden="true" /> {cfg.deliveryNote}
       </p>
 
-      {cfg.showTrust && <TrustRow items={cfg.trust} className="mt-5 border-t border-line pt-5" />}
+      {cfg.showTrust && <TrustRow items={cfg.trust} className="mt-5 border-t border-clay pt-5" />}
     </div>
   );
 }

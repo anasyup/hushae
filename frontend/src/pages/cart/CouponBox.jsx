@@ -1,5 +1,5 @@
 import { useId, useRef, useState } from 'react';
-import { AlertCircle, Check, ChevronDown, Tag, X } from 'lucide-react';
+import { AlertCircle, Check, ChevronDown, X } from 'lucide-react';
 import { api } from '../../api/client';
 import { pkr } from '../../lib/format';
 import Spinner from '../../components/ui/Spinner';
@@ -46,21 +46,21 @@ export default function CouponBox({ subtotal, applied, onApply, onRemove }) {
   /* ---------- Applied ---------- */
   if (applied) {
     return (
-      <div className="rounded-control border border-sage/50 bg-sage/10 px-3.5 py-3">
+      <div className="border border-clay bg-white/60 px-4 py-3">
         <div className="flex items-center gap-2.5">
-          <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-sagedeep text-white" aria-hidden="true">
-            <Check size={13} strokeWidth={2.6} />
+          <span className="grid h-6 w-6 shrink-0 place-items-center bg-charcoal text-white" aria-hidden="true">
+            <Check size={13} strokeWidth={2.2} />
           </span>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-body-sm font-semibold text-sagedark">
+            <p className="truncate text-[13px] font-medium text-charcoal">
               {applied.code} applied
             </p>
-            <p className="text-caption text-ash">You saved {pkr(applied.discount)}</p>
+            <p className="text-[11px] text-smoke">You saved {pkr(applied.discount)}</p>
           </div>
           <button
             type="button"
             onClick={() => { onRemove(); setOpen(true); setState('idle'); }}
-            className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-ash transition hover:bg-white/70 hover:text-obsidian"
+            className="grid h-11 w-11 shrink-0 place-items-center text-smoke transition hover:text-charcoal"
             aria-label={`Remove coupon ${applied.code}`}
           >
             <X size={15} />
@@ -71,22 +71,21 @@ export default function CouponBox({ subtotal, applied, onApply, onRemove }) {
     );
   }
 
-  /* ---------- Collapsed / expanded ---------- */
+  /* ---------- Collapsed / expanded — QA: quiet text link ---------- */
   return (
-    <div className="rounded-control border border-line bg-white/50">
+    <div>
       <button
         type="button"
         onClick={() => { const n = !open; setOpen(n); if (n) requestAnimationFrame(() => inputRef.current?.focus()); }}
         aria-expanded={open}
         aria-controls={panelId}
-        className="flex min-h-[44px] w-full items-center gap-2.5 px-3.5 py-2.5 text-left"
+        className="flex min-h-[44px] w-full items-center gap-1.5 text-left text-[12px] text-smoke transition-colors duration-200 hover:text-charcoal"
       >
-        <Tag size={14} className="shrink-0 text-ash" aria-hidden="true" />
-        <span className="flex-1 text-body-sm font-medium">Have a promo code?</span>
+        <span className="underline underline-offset-4">Have a promo code?</span>
         <ChevronDown
-          size={15}
+          size={13}
           aria-hidden="true"
-          className={`shrink-0 text-ash transition-transform duration-base motion-reduce:transition-none ${open ? 'rotate-180' : ''}`}
+          className={`shrink-0 transition-transform duration-base motion-reduce:transition-none ${open ? 'rotate-180' : ''}`}
         />
       </button>
 
@@ -99,7 +98,7 @@ export default function CouponBox({ subtotal, applied, onApply, onRemove }) {
         inert={!open ? '' : undefined}
       >
         <div className="overflow-hidden">
-          <form onSubmit={submit} className="flex gap-2 px-3.5 pb-3.5 pt-0.5">
+          <form onSubmit={submit} className="flex items-end gap-3 pb-1">
             <label className="sr-only" htmlFor={`${panelId}-in`}>Promo code</label>
             <input
               id={`${panelId}-in`}
@@ -112,19 +111,19 @@ export default function CouponBox({ subtotal, applied, onApply, onRemove }) {
               spellCheck="false"
               aria-invalid={state === 'error'}
               aria-describedby={state === 'error' ? `${panelId}-err` : undefined}
-              className={`input input-sm min-h-[44px] flex-1 uppercase tracking-wider ${state === 'error' ? 'input-error' : ''}`}
+              className={`input-line min-w-0 flex-1 uppercase tracking-wider ${state === 'error' ? 'text-red-700' : ''}`}
             />
             <button
               type="submit"
               disabled={!code.trim() || state === 'loading'}
-              className="btn btn-sm min-h-[44px] shrink-0 bg-obsidian px-5 text-alabaster transition hover:bg-graphite disabled:opacity-40"
+              className="min-h-[44px] shrink-0 px-1 text-[11px] font-medium uppercase tracking-[0.12em] text-charcoal underline underline-offset-4 transition hover:text-smoke disabled:pointer-events-none disabled:opacity-40"
             >
               {state === 'loading' ? <Spinner label="Checking code" /> : 'Apply'}
             </button>
           </form>
 
           {state === 'error' && (
-            <p id={`${panelId}-err`} role="alert" className="flex items-start gap-1.5 px-3.5 pb-3.5 text-caption text-red-700">
+            <p id={`${panelId}-err`} role="alert" className="flex items-start gap-1.5 pt-2 text-[11px] text-red-700">
               <AlertCircle size={12} className="mt-0.5 shrink-0" aria-hidden="true" />
               {error}
             </p>

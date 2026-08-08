@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react';
-import { Truck, Check } from 'lucide-react';
 import { pkr } from '../../lib/format';
 import { fill } from '../../lib/cartConfig';
 
@@ -51,25 +50,15 @@ export default function FreeShipProgress({ subtotal, threshold, cfg }) {
 
   return (
     <div className="relative">
-      <div className="flex items-center gap-2">
-        <span
-          className={`grid h-7 w-7 shrink-0 place-items-center rounded-full transition-colors duration-base ${
-            unlocked ? 'bg-sagedeep text-white' : 'bg-satin text-ash'
-          }`}
-          aria-hidden="true"
-        >
-          {unlocked ? <Check size={14} strokeWidth={2.4} /> : <Truck size={13} strokeWidth={1.8} />}
-        </span>
-        <p className={`text-body-sm leading-tight ${unlocked ? 'font-medium text-sagedeep' : 'text-ash'}`}>
-          {message}
-        </p>
-      </div>
+      <p className={`text-[10px] leading-tight tracking-[0.04em] ${unlocked ? 'font-medium text-charcoal' : 'text-smoke'}`}>
+        {message}
+      </p>
 
-      {/* Track. Transform-only fill → no layout on change. */}
-      <div className="mt-2.5 h-1.5 overflow-hidden rounded-full bg-satin">
+      {/* Track — QA: thin clay bar, subtle fill. Transform-only → no layout. */}
+      <div className="mt-2 h-1 overflow-hidden bg-clay">
         <div
-          className={`h-full origin-left rounded-full transition-transform duration-slow ease-standard motion-reduce:transition-none ${
-            unlocked ? 'bg-sagedeep' : 'bg-sage'
+          className={`h-full origin-left transition-transform duration-slow ease-standard motion-reduce:transition-none ${
+            unlocked ? 'bg-charcoal' : 'bg-smoke/60'
           }`}
           style={{ transform: `scaleX(${pct / 100})`, width: '100%' }}
         />
