@@ -8,8 +8,10 @@
   --ash:        #6E6E6B;
   --line:       #E3E2DF;
   --alert:      #A4231F;
-  --font-ui:       'Archivo', system-ui, -apple-system, sans-serif;
-  --font-editorial:'Instrument Serif', Georgia, 'Times New Roman', serif;
+  --font-ui:       'Inter', system-ui, -apple-system, sans-serif;
+  /* QA: serif fully retired — was 'Instrument Serif', Georgia, serif. Kept the
+     var name so any legacy caller still composes; it now renders Inter. */
+  --font-editorial:'Inter', system-ui, -apple-system, sans-serif;
   --space-xs:  4px; --space-sm: 8px; --space-md: 16px; --space-lg: 24px;
   --space-xl:  32px; --space-2xl: 48px; --space-3xl: 64px;
   --section:   96px; --section-mobile: 56px; --gutter: 80px; --gutter-mobile: 20px;

@@ -54,6 +54,56 @@
   --n950: 248 250 252;
 }
 
+/* ════════════════════════════════════════════════════════════════════════
+ * QUIET ARCHITECTURE (QA) — HUSHAE custom theme tokens
+ * DNA: Japanese minimalism × Pakistani craftsmanship × Italian luxury.
+ *   "Whisper, don't shout. Space is the luxury. Motion reveals, never
+ *    attacks."
+ *
+ * Phase 1 (foundation) — variables are DEFINED here but no component uses
+ * them yet, so nothing visual changes until Phase 2 swaps the call sites.
+ * RGB triplets are the hex values decomposed for Tailwind, which maps these
+ * to `rgb(var(--x) / <alpha-value>)` so opacity utilities (bg-sand/60 …)
+ * keep working — same pattern as the --tw-white / --n* scale above.
+ * NOTE: tailwind.config's `stone` / `clay` class tokens are NOT wired to
+ * these variables yet — ~27 legacy border-stone / bg-clay call sites stay
+ * on their current values until Phase 2 migrates them (re-valuing now would
+ * silently erase button/input borders).
+ * ════════════════════════════════════════════════════════════════════════ */
+:root {
+  /* ── Colour — "Golden Hour Architecture" ─────────────────────────────
+     90% neutral (stone, sand, charcoal) + 10% accent (gold, bronze). */
+  --stone:    245 243 239;   /* #F5F3EF  warm stone — page background   */
+  --sand:     235 229 219;   /* #EBE5DB  sand — card surfaces           */
+  --clay:     212 201 184;   /* #D4C9B8  clay — borders                 */
+  --charcoal: 26 27 28;      /* #1A1B1C  off-black — primary text       */
+  --smoke:    139 138 135;   /* #8B8A87  secondary text                 */
+  --pearl:    255 255 255;   /* #FFFFFF  pure white — accents           */
+  --gold:     201 169 110;   /* #C9A96E  brand gold (keep)              */
+  --bronze:   166 138 86;    /* #A68A56  dark gold — hover              */
+  --midnight: 28 35 51;      /* #1C2333  deep dark — footer             */
+
+  /* ── Typography — 100% Inter; mono reserved for chapter counters ──── */
+  --font-display: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', 'Helvetica', 'Arial', sans-serif;
+  --font-body:    'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', 'Helvetica', 'Arial', sans-serif;
+  --font-mono:    'JetBrains Mono', ui-monospace, 'SF Mono', 'SFMono-Regular', Menlo, Consolas, monospace;
+
+  /* ── Spacing / layout ─────────────────────────────────────────────── */
+  --section-padding:        160px;   /* desktop vertical rhythm    */
+  --section-padding-mobile: 80px;
+  --card-gap:               2px;     /* architectural mosaic grid  */
+  --card-gap-mobile:        8px;
+  --content-max:            1440px;  /* container ceiling          */
+  --nav-height:             72px;    /* authoritative navigation   */
+  --bar-height:             24px;    /* ultra-thin announcement bar */
+
+  /* ── Motion — "Breath": slow, deliberate, purposeful ──────────────── */
+  --ease-luxury:      cubic-bezier(0.25, 1, 0.5, 1);  /* drawers, reveals */
+  --duration-reveal:  650ms;                          /* scroll reveal    */
+  --duration-hover:   400ms;                          /* image hover      */
+  --duration-fast:    250ms;                          /* button hover     */
+}
+
 @layer base {
   /* Never let viewport-bleed editorial sections create a page-wide horizontal
      scrollbar. Individual product rails still use their own overflow-x-auto. */

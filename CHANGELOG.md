@@ -22,6 +22,21 @@ Format:
 ---
 
 ## Changes
+- **2026-08-09** — 🏛️ **QUIET ARCHITECTURE — Phase 1: Foundation tokens** (new custom theme: Japanese minimalism × Pakistani craftsmanship × Italian luxury; "whisper, don't shout")
+  - **index.css** — added the full QA token block to `:root` (defined, not yet wired into components → zero visual change):
+    - Colours (RGB triplets + hex comments): `--stone #F5F3EF` (warm bg), `--sand #EBE5DB` (cards), `--clay #D4C9B8` (borders), `--charcoal #1A1B1C` (text), `--smoke #8B8A87` (secondary), `--pearl #FFFFFF`, `--gold #C9A96E`, `--bronze #A68A56`, `--midnight #1C2333` (footer)
+    - Typography: `--font-display` / `--font-body` (100% Inter), `--font-mono` (JetBrains Mono for chapter counters)
+    - Spacing: `--section-padding 160px/80px`, `--card-gap 2px/8px`, `--content-max 1440px`, `--nav-height 72px`, `--bar-height 24px`
+    - Motion "Breath": `--ease-luxury cubic-bezier(0.25,1,0.5,1)`, reveal 650ms, hover 400ms, fast 250ms
+  - **tailwind.config.js** — wired `sand / charcoal / pearl / gold / bronze / midnight` to the CSS vars (opacity utilities work); repurposed `smoke` (was unused) to #8B8A87; added `font-mono` (JetBrains Mono), `spacing.section / section-mobile`, easing `luxury`, durations `reveal / hover`.
+    - **Deliberate exception**: `stone` and `clay` class tokens keep their LEGACY values for now — ~27 existing `border-stone` / `bg-clay` call sites would silently lose borders/accents if re-valued; migration happens in Phase 2.
+  - **Serif purge (Phase 2 item, done early — "100% Inter, NO serif")**:
+    - index.html: removed `Instrument+Serif` from the Google Fonts load; added `Inter:wght@200` (hero lowercase) + `JetBrains Mono`.
+    - tokens.css: `--font-ui` + `--font-editorial` (was Instrument Serif) → Inter.
+    - Img.jsx fallback SVG (was Georgia), account invoice print CSS, admin printDocument stamp → Inter.
+    - Remaining "Georgia" is only the admin theme-sections FONT PICKER dropdown (a feature; storefront never renders it).
+  - **Verified**: build clean; QA vars + JetBrains Mono present in served CSS; zero serif refs in storefront bundle; nothing visual changed yet (tokens dormant by design).
+
 - **2026-08-09** — 🖤 **CDLP EXACT REBUILD — Product Card + Homepage Phase 2** (client brief: "cards aur homepage cheap lagte hain")
   - **Phase 1 — Product card complete rebuild (CDLP copy)**
     - `ProductCard.jsx` rewritten: grey `#F6F6F6` tile, NO borders/shadows/radius, image 3:4, hover → flat lay crossfade.

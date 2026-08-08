@@ -128,7 +128,7 @@ export default function OrderDetail() {
       if (!w) { toast('Please allow pop-ups to download your invoice'); setBusy(''); return; }
       const rows = inv.items.map((i) => `<tr><td>${i.name}${i.size ? ` — ${i.size}` : ''}</td><td style="text-align:center">${i.quantity}</td><td style="text-align:right">${pkr(i.lineTotal)}</td></tr>`).join('');
       w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Invoice ${inv.orderNumber}</title>
-<style>body{font-family:Georgia,serif;max-width:720px;margin:40px auto;padding:0 24px;color:#1A1A1A}
+<style>body{font-family:Inter,Helvetica,Arial,sans-serif;max-width:720px;margin:40px auto;padding:0 24px;color:#1A1A1A}
 h1{font-size:24px;letter-spacing:.12em;text-transform:uppercase;margin:0}
 table{width:100%;border-collapse:collapse;margin-top:24px;font-size:14px}
 td,th{padding:9px 0;border-bottom:1px solid #E4DED4;text-align:left}

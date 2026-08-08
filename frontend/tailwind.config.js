@@ -68,6 +68,22 @@ export default {
         // This darker step clears it at 5.4:1 and is used by .badge-sage.
         sagedark:  '#4E5A4C',
         clay:      '#B3927E',   // rare warm accent (badges, sale)
+
+        /* ── QUIET ARCHITECTURE (QA) theme tokens — Phase 1 foundation ──
+           Wired to the CSS variables in index.css (:root) so opacity
+           utilities work. `stone` and `clay` (above) keep their LEGACY
+           values until Phase 2 migrates the existing border-stone /
+           bg-clay call sites — re-valuing them now would wipe borders
+           and accents site-wide. `smoke` was unused, so it safely takes
+           the QA secondary-text value. */
+        sand:      'rgb(var(--sand) / <alpha-value>)',      // #EBE5DB card surfaces
+        charcoal:  'rgb(var(--charcoal) / <alpha-value>)',  // #1A1B1C primary text
+        pearl:     'rgb(var(--pearl) / <alpha-value>)',     // #FFFFFF accents
+        gold:      'rgb(var(--gold) / <alpha-value>)',      // #C9A96E brand gold
+        bronze:    'rgb(var(--bronze) / <alpha-value>)',    // #A68A56 dark gold hover
+        midnight:  'rgb(var(--midnight) / <alpha-value>)',  // #1C2333 footer
+        // repurposed — QA secondary text #8B8A87
+        smoke:     'rgb(var(--smoke) / <alpha-value>)',
       },
       fontFamily: {
         // Inter — the house font (CDLP/SKIMS register): clean, neutral,
@@ -76,6 +92,8 @@ export default {
         display: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Helvetica', 'Arial', 'sans-serif'],
         serif: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Helvetica', 'Arial', 'sans-serif'],
         urdu: ['"Noto Nastaliq Urdu"', 'serif'],
+        // QA — chapter counters + editorial numbers (JetBrains Mono, loaded in index.html)
+        mono: ['"JetBrains Mono"', 'ui-monospace', 'SF Mono', 'SFMono-Regular', 'Menlo', 'Consolas', 'monospace'],
       },
       letterSpacing: {
         widest2: '0.32em',
@@ -164,6 +182,9 @@ export default {
         'ed-sm': '4.5rem',   // 72  — within a movement
         'ed-md': '7.5rem',   // 120 — between movements
         'ed-lg': '11rem',    // 176 — chapter break, desktop only
+        /* QA — "Breathing Room" section rhythm */
+        section:        '160px',  // desktop vertical padding
+        'section-mobile': '80px', // mobile vertical padding
       },
 
       // One radius ladder. The audit found ten different values in use.
@@ -200,11 +221,16 @@ export default {
         base: '220ms',   // the default for anything interactive
         slow: '400ms',   // panels, accordions
         media: '700ms',  // image zoom, hero crossfades
+        // QA — reveal / hover registers
+        reveal: '600ms', // scroll reveal (sections fade up 40px)
+        hover: '400ms',  // image hover (1.02 scale, crossfade)
       },
       transitionTimingFunction: {
         entrance: 'cubic-bezier(0.16, 1, 0.3, 1)',
         exit: 'cubic-bezier(0.4, 0, 1, 1)',
         standard: 'cubic-bezier(0.2, 0.6, 0.2, 1)',
+        // QA "Breath" — the house ease: slow, deliberate, never springy
+        luxury: 'cubic-bezier(0.25, 1, 0.5, 1)',
       },
       keyframes: {
         shimmer: { '0%': { backgroundPosition: '-400px 0' }, '100%': { backgroundPosition: '400px 0' } },

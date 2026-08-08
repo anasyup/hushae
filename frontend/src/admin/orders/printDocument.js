@@ -180,7 +180,7 @@ export function buildPrintHtml({ orders, docType, store }) {
     font-size:9.5pt; line-height:1.32; }
   .head { display:flex; justify-content:space-between; align-items:flex-start;
     border-bottom:1px solid #000; padding-bottom:3px; }
-  .mark { font-family:Georgia,"Times New Roman",serif; font-size:13pt;
+  .mark { font-family:Inter,Helvetica,Arial,sans-serif; font-size:13pt;
     font-weight:600; letter-spacing:.18em; }
   .kind { font-size:7pt; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); }
   .meta { text-align:right; flex-shrink:0; }
