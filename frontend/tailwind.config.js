@@ -70,13 +70,11 @@ export default {
         clay:      '#B3927E',   // rare warm accent (badges, sale)
       },
       fontFamily: {
-        // Calvin Klein type system — the whole storefront speaks Helvetica.
-        //   'Family Klein' is CK's own cut when available; Helvetica Neue /
-        //   Helvetica / Arial are the universal system fallbacks. Headings and
-        //   body share the same family, exactly like CK sets its site.
-        sans: ['Family Klein', '"Helvetica Neue"', 'Helvetica', 'Arial', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        display: ['Family Klein', '"Helvetica Neue"', 'Helvetica', 'Arial', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        serif: ['Family Klein', '"Helvetica Neue"', 'Helvetica', 'Arial', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        // Inter — the house font (CDLP/SKIMS register): clean, neutral,
+        // quietly confident. UI + headings share one family.
+        sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Helvetica', 'Arial', 'sans-serif'],
+        display: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Helvetica', 'Arial', 'sans-serif'],
+        serif: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Helvetica', 'Arial', 'sans-serif'],
         urdu: ['"Noto Nastaliq Urdu"', 'serif'],
       },
       letterSpacing: {

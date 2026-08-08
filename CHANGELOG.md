@@ -487,3 +487,13 @@ Format:
   7. Campaign cards: bullet separators removed ("Bras  Panties  Shapewear" clean).
   8. Trust/perks bar: 10px, #888, transparent bg — quiet.
   10. Colors: obsidian already off-black #111111 (close to requested #1A1A1A).
+
+- **2026-08-04** — ✨ **4-brand luxury fusion (CK/SKIMS/CDLP/Tommy John)**
+  1. FONT: Playfair serif REMOVED everywhere → Inter only (300 light / 400 / 500 / 600). Hero "Second skin" thin 300, tracking 0.15em, sentence case. Section headings Inter 500.
+  2. ANNOUNCEMENT: CDLP ultra-thin (24px, 11px light) — rotating 3 quiet messages (Free Shipping Over PKR 4,999 / COD Nationwide / New Arrivals), no urgency words, off-black bg.
+  3. COLORS: bg #FAFAFA (warm), text #111111, gray #707070, borders #EBEBEB, gold #C9A96E kept.
+  4. CTAs: "Explore Women/Men" thin links; campaign cards get CDLP "Read more" secondary CTA; "Explore Collection" section CTA.
+  5. TRUST: Tommy John 3 cards (Best Fit Guarantee / Free Shipping 4,999+ / Discreet Packaging) with icon + title + text.
+  6. SOCIAL PROOF: "Highly Rated" carousel — real approved reviews (≥4★) with stars + name, horizontal scroll.
+  9. THE HOUSE: sentence case, light 300, #707070, 2x whitespace (py-32/52).
+  10. NEWSLETTER: CDLP segmented — WOMEN'S/MEN'S pills + email input below.

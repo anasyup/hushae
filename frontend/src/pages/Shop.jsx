@@ -15,7 +15,7 @@ import ActiveChips from './shop/ActiveChips';
  *
  * Everything the brief asks for, wired to the existing API:
  *   · Category hero: full-width banner (category image when available,
- *     gradient fallback), Playfair name, "X products", breadcrumbs.
+ *     gradient fallback), category name, "X products", breadcrumbs.
  *   · Sticky toolbar: count + sort, solid bg, sticks below the header.
  *   · Filters: desktop sidebar (FilterSheet panel) + mobile bottom sheet —
  *     instant apply, CLEAR ALL, active chips.
@@ -101,8 +101,8 @@ export default function Shop({ preset = {} }) {
             <span aria-current="page" className="text-white/90">{breadcrumbName}</span>
           </nav>
 
-          <h1 className="font-serif text-4xl font-bold uppercase tracking-[0.05em] text-white md:text-6xl"
-            style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>
+          <h1 className="font-sans text-4xl font-bold uppercase tracking-[0.05em] text-white md:text-6xl"
+            >
             {meta}
           </h1>
           <p className="mt-3 text-[13px] font-medium uppercase tracking-[0.2em] text-white/60">
@@ -191,7 +191,7 @@ export default function Shop({ preset = {} }) {
                   style={{ transitionTimingFunction: 'cubic-bezier(0.22, 1, 0.36, 1)' }} />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-transparent" />
                 <div className="absolute inset-x-0 bottom-0 p-5">
-                  <p className="font-serif text-xl font-bold uppercase tracking-[0.05em] text-white" style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>{b.label}</p>
+                  <p className="font-sans text-xl font-bold uppercase tracking-[0.05em] text-white" >{b.label}</p>
                   <p className="mt-0.5 text-[11px] uppercase tracking-[0.18em] text-white/70">{b.sub}</p>
                 </div>
               </Link>

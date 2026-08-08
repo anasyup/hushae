@@ -193,8 +193,8 @@ export default function Product() {
             </div>
 
             <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#6B7252]">HUSHAE / {p.gender}</p>
-            <h1 className="font-serif text-3xl font-bold uppercase tracking-[0.05em] text-neutral-900 sm:text-4xl leading-tight"
-              style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>
+            <h1 className="font-sans text-3xl font-bold uppercase tracking-[0.05em] text-neutral-900 sm:text-4xl leading-tight"
+              >
               {p.name}
             </h1>
 
@@ -480,8 +480,8 @@ export default function Product() {
           </div>
           <div>
             <p className="text-[11px] font-bold uppercase tracking-[0.24em] text-neutral-400">About this fabric</p>
-            <h2 className="mt-4 font-serif text-3xl font-bold uppercase tracking-[0.04em] text-neutral-900 md:text-4xl"
-              style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>
+            <h2 className="mt-4 font-sans text-3xl font-bold uppercase tracking-[0.04em] text-neutral-900 md:text-4xl"
+              >
               {p.fabric}
             </h2>
             <p className="mt-5 max-w-md text-sm leading-relaxed font-light text-neutral-600">

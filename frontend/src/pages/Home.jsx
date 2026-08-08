@@ -28,7 +28,26 @@ const TRAYS = [
   { label: 'The Fabric', sub: 'Modal  Cotton  Stretch', img: '/images/campaign/hushae-fabric.jpg', href: '/about' },
 ];
 
-const PERKS = ['Discreet packaging', 'COD nationwide', '7-day returns', 'Wash-tested 40 cycles'];
+const TRUST_CARDS = [
+  { icon: 'Ruler', title: 'Best Fit Guarantee', text: 'Free size swaps — the right fit, every time.' },
+  { icon: 'Truck', title: 'Free Shipping PKR 4,999+', text: 'Nationwide, discreetly packed.' },
+  { icon: 'Box', title: 'Discreet Packaging', text: 'Plain parcel, no branding on the outside.' },
+];
+
+/* Tommy John-style social proof — "Highly Rated" carousel. Fetches approved
+   reviews live (top-rated across products) so it is real, not decorative. */
+async function loadSocialProof() {
+  const prods = await api('/products?limit=8').catch(() => []);
+  const p = Array.isArray(prods) ? prods : (prods.products || []);
+  const reviews = [];
+  for (const prod of p.slice(0, 6)) {
+    const d = await api(`/reviews/product/${prod._id}?limit=1`).catch(() => null);
+    const r = d?.reviews?.[0];
+    if (r && r.rating >= 4) reviews.push({ name: r.customerName, rating: r.rating, body: r.body, product: prod.name });
+    if (reviews.length >= 4) break;
+  }
+  return reviews;
+}
 
 /* ── Subtle parallax — translates a full-bleed image against its section.
    rAF-throttled, desktop-only (touch devices get nothing — they scroll the
@@ -91,9 +110,17 @@ export default function Home() {
   const [fresh, setFresh] = useState(null);
   const [nl, setNl] = useState('');
   const [nlDone, setNlDone] = useState(false);
+  const [nlSeg, setNlSeg] = useState('women');
+  const [social, setSocial] = useState([]);
 
   useEffect(() => {
     api('/products?newArrival=true&limit=8').then((d) => setFresh(d.products || [])).catch(() => setFresh([]));
+  }, []);
+
+  useEffect(() => {
+    let alive = true;
+    loadSocialProof().then((r) => { if (alive) setSocial(r); }).catch(() => {});
+    return () => { alive = false; };
   }, []);
 
   const subscribe = (e) => {
@@ -136,19 +163,19 @@ export default function Home() {
           <div className="w-full px-6 pb-14 md:px-14 md:pb-20 lg:px-24">
             {/* Tiny eyebrow — muted, almost invisible (CK register) */}
             <p className="text-[10px] font-medium uppercase tracking-[0.3em] text-neutral-500">Made in Pakistan</p>
-            {/* CK-style: thin (300), tracked-out (0.15em), clean sans — no serif */}
-            <h1 className="mt-6 font-sans text-[44px] font-light uppercase leading-[1.02] tracking-[0.15em] text-neutral-900 md:text-[100px] lg:text-[120px]">
+            {/* CK "The Campus Edit": thin (300), tracked (0.15em), sentence case */}
+            <h1 className="mt-6 font-sans text-[44px] font-light normal-case leading-[1.1] tracking-[0.15em] text-neutral-900 md:text-[100px] lg:text-[120px]">
               Second
               <br />
-              Skin
+              skin
             </h1>
             <div className="mt-10 flex flex-wrap items-center gap-8">
-              {/* CK-style text links — no heavy borders, underline on hover */}
-              <Link to="/women" className="group inline-flex items-center gap-2 border-b border-neutral-900/30 pb-1 text-[12px] font-semibold uppercase tracking-[0.18em] text-neutral-900 transition-colors duration-300 hover:border-neutral-900">
-                Shop Women <ArrowRight size={13} className="transition-transform duration-300 group-hover:translate-x-1" />
+              {/* CDLP "Explore" — thin text links */}
+              <Link to="/women" className="group inline-flex items-center gap-2 border-b border-neutral-900/30 pb-1 text-[12px] font-light uppercase tracking-[0.18em] text-neutral-900 transition-colors duration-300 hover:border-neutral-900">
+                Explore Women <ArrowRight size={13} className="transition-transform duration-300 group-hover:translate-x-1" />
               </Link>
-              <Link to="/men" className="group inline-flex items-center gap-2 border-b border-neutral-900/30 pb-1 text-[12px] font-semibold uppercase tracking-[0.18em] text-neutral-900 transition-colors duration-300 hover:border-neutral-900">
-                Shop Men <ArrowRight size={13} className="transition-transform duration-300 group-hover:translate-x-1" />
+              <Link to="/men" className="group inline-flex items-center gap-2 border-b border-neutral-900/30 pb-1 text-[12px] font-light uppercase tracking-[0.18em] text-neutral-900 transition-colors duration-300 hover:border-neutral-900">
+                Explore Men <ArrowRight size={13} className="transition-transform duration-300 group-hover:translate-x-1" />
               </Link>
             </div>
           </div>
@@ -178,12 +205,16 @@ export default function Home() {
                 {/* subtle hover overlay */}
                 <div className="absolute inset-0 bg-neutral-900/0 transition-colors duration-500 group-hover:bg-neutral-900/10" />
               </div>
-              <div className="flex items-baseline justify-between px-5 py-6 md:px-8">
+              <div className="flex items-end justify-between px-5 py-6 md:px-8">
                 <div>
-                  <p className="font-display text-[20px] font-bold uppercase tracking-[0.06em] text-obsidian md:text-[24px]">{t.label}</p>
-                  <p className="mt-1.5 text-[12px] uppercase tracking-[0.18em] text-ash">{t.sub}</p>
+                  <p className="font-sans text-[20px] font-light normal-case tracking-[0.04em] text-neutral-900 md:text-[24px]">{t.label}</p>
+                  <p className="mt-1.5 text-[11px] font-light tracking-[0.18em] text-[#707070]">{t.sub}</p>
+                  {/* CDLP "Read more" secondary CTA */}
+                  <span className="mt-4 inline-flex items-center gap-1.5 border-b border-neutral-900/30 pb-0.5 text-[11px] font-medium uppercase tracking-[0.16em] text-neutral-900 transition-colors duration-300 group-hover:border-neutral-900">
+                    Read more <ArrowRight size={12} className="transition-transform duration-300 group-hover:translate-x-1" />
+                  </span>
                 </div>
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-line text-obsidian transition-all duration-300 group-hover:translate-x-1 group-hover:border-obsidian group-hover:bg-obsidian group-hover:text-white">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#EBEBEB] text-neutral-900 transition-all duration-300 group-hover:translate-x-1 group-hover:border-neutral-900 group-hover:bg-neutral-900 group-hover:text-white">
                   <ArrowUpRight size={16} strokeWidth={1.6} />
                 </span>
               </div>
@@ -201,7 +232,7 @@ export default function Home() {
                 Just <span className="text-[#D50000]">In</span>
               </h2>
               <Link to="/new" className="group inline-flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.22em] text-obsidian">
-                Shop all <ArrowRight size={13} className="transition-transform duration-base group-hover:translate-x-1" />
+                Explore Collection <ArrowRight size={13} className="transition-transform duration-base group-hover:translate-x-1" />
               </Link>
             </div>
             <div className="grid grid-cols-2 gap-x-8 gap-y-14 md:grid-cols-4 md:gap-x-10">
@@ -215,10 +246,10 @@ export default function Home() {
       <Banner slot="homepage-below" className="aspect-[3/1] w-full bg-alabaster" fallback={null} />
 
       {/* ═══ 04 — EDITORIAL STATEMENT (big typographic moment) ═════ */}
-      <section className="border-t border-line bg-alabaster py-24 md:py-36">
+      <section className="border-t border-[#EBEBEB] bg-[#FAFAFA] py-32 md:py-52">
         <div className="container max-w-4xl">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-neutral-400">The House</p>
-          <p className="mt-12 max-w-4xl font-sans text-[26px] font-light leading-[1.7] tracking-[0.02em] text-neutral-900 md:text-[44px]">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-[#707070]">The House</p>
+          <p className="mt-16 max-w-4xl font-sans text-[26px] font-light leading-[1.7] tracking-[0.02em] text-[#707070] md:text-[44px]">
             The best innerwear is the piece you stop noticing by ten in the morning.
           </p>
           <div className="mt-14 flex flex-wrap items-center gap-8">
@@ -235,14 +266,45 @@ export default function Home() {
       {/* ═══ 05 — CAMPAIGN FULL-BLEED (For Him, subtle parallax) ═════ */}
       <CampaignSection />
 
-      {/* ═══ 06 — PERKS — quiet, almost invisible (CK: discoverable but subtle) ═══ */}
-      <section className="border-t border-neutral-100 bg-transparent">
-        <div className="container flex flex-wrap items-center justify-center gap-x-12 gap-y-2 py-6 md:justify-between">
-          {PERKS.map((p) => (
-            <span key={p} className="text-[10px] font-medium uppercase tracking-[0.2em] text-[#888]">{p}</span>
+      {/* ═══ 06 — TRUST — Tommy John 3 cards ═══════════════════════ */}
+      <section className="border-y border-[#EBEBEB] bg-[#FAFAFA]">
+        <div className="container grid grid-cols-1 gap-8 py-10 md:grid-cols-3 md:py-14">
+          {TRUST_CARDS.map(({ icon, title, text }) => (
+            <div key={title} className="flex items-start gap-4">
+              <span className="mt-0.5 text-neutral-400">{icon === 'Truck' ? '🚚' : icon === 'Ruler' ? '📏' : '📦'}</span>
+              <div>
+                <p className="text-[12px] font-semibold uppercase tracking-[0.12em] text-[#111111]">{title}</p>
+                <p className="mt-1 text-[12px] leading-relaxed text-[#707070]">{text}</p>
+              </div>
+            </div>
           ))}
         </div>
       </section>
+
+      {/* ═══ 06b — HIGHLY RATED — Tommy John social proof carousel ═══ */}
+      {social.length > 0 && (
+        <section className="bg-[#FAFAFA]">
+          <div className="container py-12 md:py-16">
+            <div className="mb-8 text-center">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[#707070]">Highly Rated</p>
+              <p className="mt-2 text-[20px] font-light text-[#111111] md:text-[28px]">Loved by customers across Pakistan</p>
+            </div>
+            <div className="no-scrollbar -mx-5 flex gap-5 overflow-x-auto px-5 pb-2 md:mx-0 md:px-0">
+              {social.map((r, i) => (
+                <figure key={i} className="w-[300px] shrink-0 rounded-none border border-[#EBEBEB] bg-white p-6 md:w-[340px]">
+                  <div className="flex gap-0.5 text-[13px] text-[#C9A96E]">
+                    {Array.from({ length: 5 }).map((_, s) => <span key={s}>{s < r.rating ? '★' : '☆'}</span>)}
+                  </div>
+                  <blockquote className="mt-3 text-[13px] leading-relaxed text-[#111111]">“{r.body}”</blockquote>
+                  <figcaption className="mt-4 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#707070]">
+                    {r.name} <span className="font-normal text-neutral-400">· {r.product.replace(/^HUSHAE\s+/i, '')}</span>
+                  </figcaption>
+                </figure>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ═══ 07 — FIT FINDER (image background + animations) ═══════ */}
       <section className="relative overflow-hidden border-t border-line py-20 text-center md:py-32">
@@ -297,22 +359,38 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ═══ 08 — NEWSLETTER (black, CK sign-up) ═══════════════════ */}
-      <section className="bg-black py-20 text-center text-white md:py-28">
+      {/* ═══ 08 — NEWSLETTER — CDLP segmented (WOMEN'S / MEN'S + email) ═══ */}
+      <section className="bg-[#111111] py-20 text-center text-white md:py-28">
         <div className="container max-w-xl">
           <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-white/50">Stay in touch</p>
-          <h2 className="mt-6 font-display text-[28px] font-bold uppercase tracking-[0.02em] md:text-[44px]">The Inner Circle</h2>
-          <p className="mx-auto mt-4 max-w-md text-[13px] leading-relaxed text-white/60">
+          <h2 className="mt-6 font-sans text-[28px] font-light normal-case tracking-[0.08em] md:text-[40px]">The Inner Circle</h2>
+          <p className="mx-auto mt-4 max-w-md text-[13px] font-light leading-relaxed text-white/60">
             Early access to new drops, fit guides and private offers. No spam, ever.
           </p>
+
+          {/* Segment pills — WOMEN'S / MEN'S */}
+          <div className="mx-auto mt-8 flex w-fit gap-2" role="group" aria-label="Choose your segment">
+            {['Women', 'Men'].map((seg) => {
+              const on = (nlSeg || 'women') === seg.toLowerCase();
+              return (
+                <button key={seg} type="button" onClick={() => setNlSeg(seg.toLowerCase())}
+                  className={`rounded-full border px-6 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] transition-colors duration-300 ${
+                    on ? 'border-white bg-white text-[#111111]' : 'border-white/40 text-white/70 hover:border-white hover:text-white'
+                  }`}>
+                  {seg}&apos;s
+                </button>
+              );
+            })}
+          </div>
+
           {nlDone ? (
             <p className="mt-9 text-[11px] font-semibold uppercase tracking-[0.2em] text-white">You&apos;re on the list — welcome.</p>
           ) : (
-            <form onSubmit={subscribe} className="mx-auto mt-9 flex max-w-md flex-col gap-4 sm:flex-row sm:items-end">
+            <form onSubmit={subscribe} className="mx-auto mt-8 flex max-w-md flex-col gap-4 sm:flex-row sm:items-end">
               <input type="email" value={nl} onChange={(e) => setNl(e.target.value)} required placeholder="Your email"
-                className="min-h-[56px] w-full min-w-0 flex-1 border-0 border-b border-white/30 bg-transparent pb-2 text-[14px] text-white outline-none transition-colors duration-base placeholder:text-white/40 focus:border-white" />
+                className="min-h-[52px] w-full min-w-0 flex-1 border-0 border-b border-white/30 bg-transparent pb-2 text-[14px] font-light text-white outline-none transition-colors duration-base placeholder:text-white/40 focus:border-white" />
               <button type="submit"
-                className="min-h-[56px] shrink-0 bg-white px-10 text-[12px] font-bold uppercase tracking-[0.2em] text-black transition-colors duration-base hover:bg-transparent hover:text-white hover:ring-1 hover:ring-white">
+                className="min-h-[52px] shrink-0 rounded-none bg-white px-10 text-[12px] font-semibold uppercase tracking-[0.2em] text-[#111111] transition-colors duration-300 hover:bg-[#C9A96E] hover:text-white">
                 Subscribe
               </button>
             </form>

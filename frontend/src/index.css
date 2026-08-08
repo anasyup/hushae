@@ -19,19 +19,20 @@
    `bg-white/70` … across the admin picks up the dark palette automatically.
    This is the correct, scalable way to theme (no !important overrides). */
 :root {
-  --tw-white: 255 255 255;
-  --tw-black: 0 0 0;
+  /* SKIMS warm off-white background — not pure white */
+  --tw-white: 250 250 250;
+  --tw-black: 17 17 17;
   --n50:  250 250 250;
   --n100: 245 245 245;
-  --n200: 229 229 229;
-  --n300: 212 212 212;
-  --n400: 163 163 163;
-  --n500: 115 115 115;
-  --n600: 82 82 82;
-  --n700: 64 64 64;
-  --n800: 38 38 38;
-  --n900: 23 23 23;
-  --n950: 10 10 10;
+  --n200: 235 235 235;   /* borders #EBEBEB */
+  --n300: 220 220 220;
+  --n400: 170 170 170;
+  --n500: 112 112 112;   /* CDLP gray #707070 */
+  --n600: 112 112 112;
+  --n700: 90 90 90;
+  --n800: 60 60 60;
+  --n900: 17 17 17;      /* text #111111 */
+  --n950: 17 17 17;
 }
 
 /* Admin dark palette — clean cool-neutral dark.

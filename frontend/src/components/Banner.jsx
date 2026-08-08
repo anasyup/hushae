@@ -88,8 +88,8 @@ export default function Banner({ slot, fallback = null, className = '' }) {
       {(banner.heading || banner.subtitle || banner.ctaText) && (
         <div className={`relative flex h-full flex-col justify-center px-6 md:px-12 ${posCls}`}>
           {banner.heading && (
-            <h3 className="font-serif text-3xl font-bold uppercase tracking-[0.04em] md:text-5xl"
-              style={{ fontFamily: "'Playfair Display', Georgia, serif", color: banner.textColor }}>
+            <h3 className="font-sans text-3xl font-light uppercase tracking-[0.12em] md:text-5xl"
+              style={{ color: banner.textColor }}>
               {banner.heading}
             </h3>
           )}
