@@ -22,6 +22,22 @@ Format:
 ---
 
 ## Changes
+- **2026-08-09** — 🖤 **CDLP EXACT REBUILD — Product Card + Homepage Phase 2** (client brief: "cards aur homepage cheap lagte hain")
+  - **Phase 1 — Product card complete rebuild (CDLP copy)**
+    - `ProductCard.jsx` rewritten: grey `#F6F6F6` tile, NO borders/shadows/radius, image 3:4, hover → flat lay crossfade.
+    - ALL badges removed — no SALE / NEW / % off / sold-out tag on the image. Product is the only visible thing.
+    - Default state completely clean; arrows, "1 of X" counter, wishlist heart (top-right) and thin QUICK ADD bar appear only behind hover.
+    - Caption is now a magazine line: name + price on ONE line (title case, Inter 500, 14px; price right-aligned), fabric line (Inter 400, 12px, #707070), sizes as a clean spaced text row (11px), colour as text (11px) — no size boxes, no colour dots.
+    - Sale price prints `PKR 775 ~~PKR 1,030~~` (was-price struck).
+    - New `lib/productMeta.js` — `titleCase()` + `materialName()` (maps "92% Modal · 8% Elastane" → "Premium Modal", cotton → "Cotton Stretch", nylon → "Technical Nylon", etc.).
+  - **Phase 2 — Homepage sections**
+    - Announcement bar: 28px tall, messages = "Free Shipping Over PKR 4,999" → "Delivery in 48–72h Nationwide" → "New Arrivals". **"COD NATIONWIDE" removed** (the #1 cheap signal).
+    - Campaign cards: label only ("For Her / For Him / The Fabric") — bullet category lines removed; tiny "Read more" bottom-right; 4:5 images kept.
+    - Trust cards: outline lucide icons (2px stroke, no emoji), more padding, 11px text, #707070.
+    - Highly Rated: cards `#F6F6F6` (no border), review text sentence-case #707070, gold #C9A96E stars kept.
+    - Newsletter: white section, borderless bottom-line email input, sharp black SUBSCRIBE button.
+  - **No functionality changed**: quick-add size picker, wishlist, image browse, sale logic, cart — all intact. Build clean; verified in bundle.
+
 - **2026-08-04** — 📧 **TIER 2.5: Email Campaigns + Customer Tags**
   - **Email campaigns (group → email blast)**
     - New `EmailCampaign` model — subject, body, target (group | subscribers), outcome numbers (matched/optedIn/skipped/sent/failed), status, sentByName.

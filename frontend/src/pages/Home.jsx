@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, ArrowUpRight } from 'lucide-react';
+import { ArrowRight, Ruler, Truck, Package } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import ProductCard from '../components/ProductCard';
@@ -23,15 +23,15 @@ const CK_RED = '#D50000';
 
 /* ── CK tray row: image tile + label below (Denim / Jackets / Dresses) ───── */
 const TRAYS = [
-  { label: 'For Her', sub: 'Bras  Panties  Shapewear', img: '/images/campaign/hushae-hero-women.jpg', href: '/women' },
-  { label: 'For Him', sub: 'Briefs  Boxers  Trunks', img: '/images/campaign/hushae-hero-men.jpg', href: '/men' },
-  { label: 'The Fabric', sub: 'Modal  Cotton  Stretch', img: '/images/campaign/hushae-fabric.jpg', href: '/about' },
+  { label: 'For Her', img: '/images/campaign/hushae-hero-women.jpg', href: '/women' },
+  { label: 'For Him', img: '/images/campaign/hushae-hero-men.jpg', href: '/men' },
+  { label: 'The Fabric', img: '/images/campaign/hushae-fabric.jpg', href: '/about' },
 ];
 
 const TRUST_CARDS = [
-  { icon: 'Ruler', title: 'Best Fit Guarantee', text: 'Free size swaps — the right fit, every time.' },
-  { icon: 'Truck', title: 'Free Shipping PKR 4,999+', text: 'Nationwide, discreetly packed.' },
-  { icon: 'Box', title: 'Discreet Packaging', text: 'Plain parcel, no branding on the outside.' },
+  { Icon: Ruler, title: 'Best Fit Guarantee', text: 'Free size swaps — the right fit, every time.' },
+  { Icon: Truck, title: 'Free Shipping PKR 4,999+', text: 'Nationwide, discreetly packed.' },
+  { Icon: Package, title: 'Discreet Packaging', text: 'Plain parcel, no branding on the outside.' },
 ];
 
 /* Tommy John-style social proof — "Highly Rated" carousel. Fetches approved
@@ -205,17 +205,10 @@ export default function Home() {
                 {/* subtle hover overlay */}
                 <div className="absolute inset-0 bg-neutral-900/0 transition-colors duration-500 group-hover:bg-neutral-900/10" />
               </div>
-              <div className="flex items-end justify-between px-5 py-6 md:px-8">
-                <div>
-                  <p className="font-sans text-[20px] font-light normal-case tracking-[0.04em] text-neutral-900 md:text-[24px]">{t.label}</p>
-                  <p className="mt-1.5 text-[11px] font-light tracking-[0.18em] text-[#707070]">{t.sub}</p>
-                  {/* CDLP "Read more" secondary CTA */}
-                  <span className="mt-4 inline-flex items-center gap-1.5 border-b border-neutral-900/30 pb-0.5 text-[11px] font-medium uppercase tracking-[0.16em] text-neutral-900 transition-colors duration-300 group-hover:border-neutral-900">
-                    Read more <ArrowRight size={12} className="transition-transform duration-300 group-hover:translate-x-1" />
-                  </span>
-                </div>
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#EBEBEB] text-neutral-900 transition-all duration-300 group-hover:translate-x-1 group-hover:border-neutral-900 group-hover:bg-neutral-900 group-hover:text-white">
-                  <ArrowUpRight size={16} strokeWidth={1.6} />
+              <div className="flex items-baseline justify-between px-5 py-6 md:px-8">
+                <p className="font-sans text-[20px] font-light normal-case tracking-[0.04em] text-neutral-900 md:text-[24px]">{t.label}</p>
+                <span className="inline-flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-[0.18em] text-[#707070] transition-colors duration-300 group-hover:text-[#111111]">
+                  Read more <ArrowRight size={11} className="transition-transform duration-300 group-hover:translate-x-1" />
                 </span>
               </div>
             </Link>
@@ -268,14 +261,12 @@ export default function Home() {
 
       {/* ═══ 06 — TRUST — Tommy John 3 cards ═══════════════════════ */}
       <section className="border-y border-[#EBEBEB] bg-[#FAFAFA]">
-        <div className="container grid grid-cols-1 gap-8 py-10 md:grid-cols-3 md:py-14">
-          {TRUST_CARDS.map(({ icon, title, text }) => (
-            <div key={title} className="flex items-start gap-4">
-              <span className="mt-0.5 text-neutral-400">{icon === 'Truck' ? '🚚' : icon === 'Ruler' ? '📏' : '📦'}</span>
-              <div>
-                <p className="text-[12px] font-semibold uppercase tracking-[0.12em] text-[#111111]">{title}</p>
-                <p className="mt-1 text-[12px] leading-relaxed text-[#707070]">{text}</p>
-              </div>
+        <div className="container grid grid-cols-1 gap-10 py-14 md:grid-cols-3 md:gap-8 md:py-20">
+          {TRUST_CARDS.map(({ Icon, title, text }) => (
+            <div key={title} className="flex flex-col items-start gap-3">
+              <Icon size={20} strokeWidth={2} className="text-[#707070]" />
+              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#111111]">{title}</p>
+              <p className="text-[11px] leading-relaxed text-[#707070]">{text}</p>
             </div>
           ))}
         </div>
@@ -283,7 +274,7 @@ export default function Home() {
 
       {/* ═══ 06b — HIGHLY RATED — Tommy John social proof carousel ═══ */}
       {social.length > 0 && (
-        <section className="bg-[#FAFAFA]">
+        <section className="bg-white">
           <div className="container py-12 md:py-16">
             <div className="mb-8 text-center">
               <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[#707070]">Highly Rated</p>
@@ -291,11 +282,11 @@ export default function Home() {
             </div>
             <div className="no-scrollbar -mx-5 flex gap-5 overflow-x-auto px-5 pb-2 md:mx-0 md:px-0">
               {social.map((r, i) => (
-                <figure key={i} className="w-[300px] shrink-0 rounded-none border border-[#EBEBEB] bg-white p-6 md:w-[340px]">
+                <figure key={i} className="w-[300px] shrink-0 bg-[#F6F6F6] p-6 md:w-[340px]">
                   <div className="flex gap-0.5 text-[13px] text-[#C9A96E]">
                     {Array.from({ length: 5 }).map((_, s) => <span key={s}>{s < r.rating ? '★' : '☆'}</span>)}
                   </div>
-                  <blockquote className="mt-3 text-[13px] leading-relaxed text-[#111111]">“{r.body}”</blockquote>
+                  <blockquote className="mt-3 text-[13px] leading-relaxed text-[#707070]">“{r.body}”</blockquote>
                   <figcaption className="mt-4 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#707070]">
                     {r.name} <span className="font-normal text-neutral-400">· {r.product.replace(/^HUSHAE\s+/i, '')}</span>
                   </figcaption>
@@ -360,11 +351,11 @@ export default function Home() {
       </section>
 
       {/* ═══ 08 — NEWSLETTER — CDLP segmented (WOMEN'S / MEN'S + email) ═══ */}
-      <section className="bg-[#111111] py-20 text-center text-white md:py-28">
+      <section className="border-t border-[#EBEBEB] bg-white py-20 text-center text-[#111111] md:py-28">
         <div className="container max-w-xl">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-white/50">Stay in touch</p>
-          <h2 className="mt-6 font-sans text-[28px] font-light normal-case tracking-[0.08em] md:text-[40px]">The Inner Circle</h2>
-          <p className="mx-auto mt-4 max-w-md text-[13px] font-light leading-relaxed text-white/60">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-[#707070]">Stay in touch</p>
+          <h2 className="mt-6 font-sans text-[28px] font-light normal-case tracking-[0.08em] text-[#111111] md:text-[40px]">The Inner Circle</h2>
+          <p className="mx-auto mt-4 max-w-md text-[13px] font-light leading-relaxed text-[#707070]">
             Early access to new drops, fit guides and private offers. No spam, ever.
           </p>
 
@@ -375,7 +366,7 @@ export default function Home() {
               return (
                 <button key={seg} type="button" onClick={() => setNlSeg(seg.toLowerCase())}
                   className={`rounded-full border px-6 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] transition-colors duration-300 ${
-                    on ? 'border-white bg-white text-[#111111]' : 'border-white/40 text-white/70 hover:border-white hover:text-white'
+                    on ? 'border-[#111111] bg-[#111111] text-white' : 'border-[#111111]/25 text-[#707070] hover:border-[#111111] hover:text-[#111111]'
                   }`}>
                   {seg}&apos;s
                 </button>
@@ -384,13 +375,13 @@ export default function Home() {
           </div>
 
           {nlDone ? (
-            <p className="mt-9 text-[11px] font-semibold uppercase tracking-[0.2em] text-white">You&apos;re on the list — welcome.</p>
+            <p className="mt-9 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#111111]">You&apos;re on the list — welcome.</p>
           ) : (
-            <form onSubmit={subscribe} className="mx-auto mt-8 flex max-w-md flex-col gap-4 sm:flex-row sm:items-end">
+            <form onSubmit={subscribe} className="mx-auto mt-8 flex max-w-md flex-col gap-5 sm:flex-row sm:items-end sm:gap-4">
               <input type="email" value={nl} onChange={(e) => setNl(e.target.value)} required placeholder="Your email"
-                className="min-h-[52px] w-full min-w-0 flex-1 border-0 border-b border-white/30 bg-transparent pb-2 text-[14px] font-light text-white outline-none transition-colors duration-base placeholder:text-white/40 focus:border-white" />
+                className="min-h-[44px] w-full min-w-0 flex-1 border-0 border-b border-[#111111]/25 bg-transparent pb-2 text-[14px] font-light text-[#111111] outline-none transition-colors duration-base placeholder:text-[#707070]/60 focus:border-[#111111]" />
               <button type="submit"
-                className="min-h-[52px] shrink-0 rounded-none bg-white px-10 text-[12px] font-semibold uppercase tracking-[0.2em] text-[#111111] transition-colors duration-300 hover:bg-[#C9A96E] hover:text-white">
+                className="min-h-[44px] shrink-0 rounded-none bg-[#111111] px-10 text-[12px] font-semibold uppercase tracking-[0.2em] text-white transition-colors duration-300 hover:bg-[#C9A96E] hover:text-white">
                 Subscribe
               </button>
             </form>

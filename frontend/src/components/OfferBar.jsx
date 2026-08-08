@@ -4,15 +4,15 @@ import { useApp } from '../store/AppContext';
 
 /* ============================================================================
  * ANNOUNCEMENT BAR — CDLP ultra-thin style.
- * 24px, 11px light text, off-black bg. Rotates 3 quiet messages — no urgency,
- * no exclamation. Each message is a link to its destination.
+ * 28px, 11px light text, off-black bg. Rotates 3 quiet messages — no urgency,
+ * no exclamation, no discount talk. Each message is a link to its destination.
  * ========================================================================== */
 
 const ROTATE_MS = 4000;
 
 const FALLBACK = [
   { text: 'Free Shipping Over PKR 4,999', href: '/shipping-policy' },
-  { text: 'COD Nationwide', href: '/faq' },
+  { text: 'Delivery in 48–72h Nationwide', href: '/faq' },
   { text: 'New Arrivals', href: '/new' },
 ];
 
@@ -38,7 +38,7 @@ export default function OfferBar() {
   const active = messages[Math.min(idx, messages.length - 1)];
 
   return (
-    <div className="flex h-6 items-center justify-center overflow-hidden bg-[#111111] px-3 text-center">
+    <div className="flex h-7 items-center justify-center overflow-hidden bg-[#111111] px-3 text-center">
       <Link
         key={`${active.text}-${idx}`}
         to={active.href || '/shop'}
