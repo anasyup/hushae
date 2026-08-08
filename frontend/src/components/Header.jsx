@@ -82,6 +82,7 @@ export default function Header() {
   const hdr = settings?.header || {};
   const baseMenu = useMemo(() => (
     Array.isArray(hdr.menu) && hdr.menu.length ? hdr.menu : [
+      { label: 'New Arrivals', href: '/new' },
       { label: 'Women', href: '/women', dropdown: 'women' },
       { label: 'Men', href: '/men', dropdown: 'men' },
       { label: 'Journal', href: '/journal' },

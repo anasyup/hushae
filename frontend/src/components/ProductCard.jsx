@@ -60,18 +60,19 @@ function ProductCard({ product: p, showPrice = true, showQuickAdd = true, showWi
     <article className="group" onMouseLeave={() => setSizePick(false)}>
       {/* ── Image — 3:4, bleeds to the edge, hover = flat lay + 1.02 zoom ── */}
       <Link to={`/product/${p.slug}`} tabIndex={-1} className="relative block overflow-hidden bg-[#F5F3EF]">
-        {/* zoom layer — only the imagery scales, overlays stay put */}
-        <div className="absolute inset-0 transition-transform duration-hover ease-luxury group-hover:scale-[1.02]">
+        {/* zoom layer — in-flow with the 3:4 ratio so the card has real height;
+            only the imagery scales, overlays stay put */}
+        <div className="relative aspect-[3/4] overflow-hidden transition-transform duration-hover ease-luxury group-hover:scale-[1.02]">
           <img
             src={failed ? FALLBACK : (primary || FALLBACK)}
             alt={`${name}, front view`}
             width="900" height="1200" loading={priority ? 'eager' : 'lazy'}
             onError={() => setFailed(true)}
-            className={`w-full aspect-[3/4] object-cover transition-opacity duration-[300ms] ${secondary ? 'group-hover:opacity-0' : ''}`}
+            className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-[300ms] ${secondary ? 'group-hover:opacity-0' : ''}`}
             style={ease} />
           {secondary && (
             <img src={secondary} alt="" loading="lazy" aria-hidden="true"
-              className="absolute inset-0 w-full aspect-[3/4] object-cover opacity-0 transition-opacity duration-[300ms] group-hover:opacity-100"
+              className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-[300ms] group-hover:opacity-100"
               style={ease} />
           )}
         </div>

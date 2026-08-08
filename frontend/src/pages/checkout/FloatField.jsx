@@ -51,7 +51,7 @@ export default function FloatField({
           {error}
         </p>
       ) : valid ? (
-        <p id={msgId} className="mt-1.5 flex items-center gap-1.5 text-[11px] font-medium text-sagedark">
+        <p id={msgId} className="mt-1.5 flex items-center gap-1.5 text-[11px] font-medium text-charcoal">
           <Check size={12} className="shrink-0" aria-hidden="true" />
           {valid}
         </p>

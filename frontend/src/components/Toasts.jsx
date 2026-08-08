@@ -15,7 +15,7 @@ export default function Toasts() {
             exit={{ opacity: 0, y: 8 }}
             className="flex items-center gap-2.5 rounded-full bg-obsidian px-5 py-3 text-sm text-alabaster shadow-soft"
           >
-            <span className="grid h-5 w-5 place-items-center rounded-full bg-sage/30">
+            <span className="grid h-5 w-5 place-items-center rounded-full bg-gold/30">
               <Check size={12} strokeWidth={3} />
             </span>
             <span>{t.message}</span>

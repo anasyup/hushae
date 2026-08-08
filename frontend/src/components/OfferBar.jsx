@@ -51,7 +51,7 @@ export default function OfferBar({ hideOnScroll = false }) {
 
   return (
     <div
-      className={`flex h-6 items-center justify-center overflow-hidden bg-[#111111] px-3 text-center transition-transform duration-[400ms] ease-luxury ${
+      className={`flex h-6 items-center justify-center overflow-hidden bg-[#1A1B1C] px-3 text-center transition-transform duration-[400ms] ease-luxury ${
         hideOnScroll && gone ? '-translate-y-full' : 'translate-y-0'
       }`}
     >

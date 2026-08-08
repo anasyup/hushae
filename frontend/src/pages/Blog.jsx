@@ -23,7 +23,7 @@ export default function Blog() {
   }, []);
 
   return (
-    <div style={{ background: '#F7F5F1', color: '#111111', fontFamily: "'Family Klein', 'Helvetica Neue', Helvetica, Arial, sans-serif" }}>
+    <div style={{ background: '#F5F3EF', color: '#1A1B1C', fontFamily: "'Family Klein', 'Helvetica Neue', Helvetica, Arial, sans-serif" }}>
       <Seo
         title="Journal — Fit Guides & Fabric Stories"
         description="HUSHAE journal — fit guides, fabric care and the thinking behind pieces designed and made in Pakistan."

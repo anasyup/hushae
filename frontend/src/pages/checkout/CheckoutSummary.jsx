@@ -69,14 +69,14 @@ export default function CheckoutSummary({
           <dd className="font-medium tabular-nums">{pkr(pricing.subtotal)}</dd>
         </div>
         {pricing.discount > 0 && (
-          <div className="flex justify-between gap-4 text-sagedark">
+          <div className="flex justify-between gap-4 text-charcoal">
             <dt>Discount {applied?.code ? `(${applied.code})` : ''}</dt>
             <dd className="font-medium tabular-nums">− {pkr(pricing.discount)}</dd>
           </div>
         )}
         <div className="flex justify-between gap-4">
           <dt className="text-smoke">Shipping</dt>
-          <dd className={`font-medium tabular-nums ${pricing.shipping === 0 ? 'text-sagedark' : ''}`}>
+          <dd className={`font-medium tabular-nums ${pricing.shipping === 0 ? 'text-charcoal' : ''}`}>
             {pricing.shipping === 0 ? 'Free' : pkr(pricing.shipping)}
           </dd>
         </div>
@@ -90,19 +90,19 @@ export default function CheckoutSummary({
             hide what is a coupon, what is settled points and what is store
             credit — three different things on the merchant's books. */}
         {pricing.pointsValue > 0 && (
-          <div className="flex justify-between gap-4 text-sagedark">
+          <div className="flex justify-between gap-4 text-charcoal">
             <dt>Points applied</dt>
             <dd className="font-medium tabular-nums">− {pkr(pricing.pointsValue)}</dd>
           </div>
         )}
         {pricing.creditValue > 0 && (
-          <div className="flex justify-between gap-4 text-sagedark">
+          <div className="flex justify-between gap-4 text-charcoal">
             <dt>Store credit</dt>
             <dd className="font-medium tabular-nums">− {pkr(pricing.creditValue)}</dd>
           </div>
         )}
         {pricing.cardValue > 0 && (
-          <div className="flex justify-between gap-4 text-sagedark">
+          <div className="flex justify-between gap-4 text-charcoal">
             <dt>Gift card</dt>
             <dd className="font-medium tabular-nums">− {pkr(pricing.cardValue)}</dd>
           </div>
@@ -112,9 +112,9 @@ export default function CheckoutSummary({
           <dd className="text-[20px] font-medium tabular-nums text-charcoal">{pkr(pricing.total)}</dd>
         </div>
         {pricing.savings > 0 && (
-          <div className="flex justify-between gap-4 rounded-control bg-sage/12 px-3 py-2">
-            <dt className="text-caption font-semibold uppercase tracking-wider text-sagedark">You save</dt>
-            <dd className="text-caption font-bold tabular-nums text-sagedark">{pkr(pricing.savings)}</dd>
+          <div className="flex justify-between gap-4 rounded-control bg-sand px-3 py-2">
+            <dt className="text-caption font-semibold uppercase tracking-wider text-charcoal">You save</dt>
+            <dd className="text-caption font-bold tabular-nums text-charcoal">{pkr(pricing.savings)}</dd>
           </div>
         )}
       </dl>

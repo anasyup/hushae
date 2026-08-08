@@ -21,7 +21,7 @@
 :root {
   /* SKIMS warm off-white background — not pure white */
   --tw-white: 250 250 250;
-  --tw-black: 17 17 17;
+  --tw-black: 26 27 28;      /* QA charcoal #1A1B1C */
   --n50:  250 250 250;
   --n100: 245 245 245;
   --n200: 235 235 235;   /* borders #EBEBEB */
@@ -243,7 +243,7 @@
     padding: 1.125rem 2.75rem;
   }
 
-  .btn-primary   { @apply btn bg-obsidian text-alabaster hover:bg-graphite; }
+  .btn-primary   { @apply btn bg-midnight text-pearl hover:bg-charcoal; }
   .btn-secondary { @apply btn bg-satin text-obsidian hover:bg-sand; }
   /* The outline is HUSHAE's signature action: a hairline that fills from
      nothing. Border weight stays 1px at every size — a thicker rule reads as a

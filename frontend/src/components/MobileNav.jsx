@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from 'react-router-dom';
-import { Heart, Home as HomeIcon, ShoppingBag, User, Store } from 'lucide-react';
+import { Heart, Home as HomeIcon, ShoppingBag, Sparkles, Store, User } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 
 /*
@@ -42,6 +42,15 @@ export default function MobileNav() {
               <>
                 <Store size={19} strokeWidth={isActive ? 2.1 : 1.7} />
                 <span>Shop</span>
+              </>
+            )}
+          </NavLink>
+
+          <NavLink to="/new" className={cls}>
+            {({ isActive }) => (
+              <>
+                <Sparkles size={19} strokeWidth={isActive ? 2.1 : 1.7} />
+                <span>New</span>
               </>
             )}
           </NavLink>

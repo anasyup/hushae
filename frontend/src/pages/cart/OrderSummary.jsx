@@ -54,7 +54,7 @@ export default function OrderSummary({ pricing, cfg, applied, onApply, onRemoveC
         </div>
 
         {discount > 0 && (
-          <div className="flex justify-between gap-4 text-sagedark">
+          <div className="flex justify-between gap-4 text-charcoal">
             <dt>Discount {applied?.code ? `(${applied.code})` : ''}</dt>
             <dd className="font-medium tabular-nums">− {pkr(discount)}</dd>
           </div>
@@ -62,7 +62,7 @@ export default function OrderSummary({ pricing, cfg, applied, onApply, onRemoveC
 
         <div className="flex justify-between gap-4">
           <dt className="text-smoke">Shipping</dt>
-          <dd className={`font-medium tabular-nums ${freeShip ? 'text-sagedark' : ''}`}>
+          <dd className={`font-medium tabular-nums ${freeShip ? 'text-charcoal' : ''}`}>
             {freeShip ? 'Free' : pkr(shipping)}
           </dd>
         </div>
@@ -80,9 +80,9 @@ export default function OrderSummary({ pricing, cfg, applied, onApply, onRemoveC
         </div>
 
         {savings > 0 && (
-          <div className="flex justify-between gap-4 rounded-control bg-sage/12 px-3 py-2">
-            <dt className="text-caption font-semibold uppercase tracking-wider text-sagedark">You save</dt>
-            <dd className="text-caption font-bold tabular-nums text-sagedark">{pkr(savings)}</dd>
+          <div className="flex justify-between gap-4 rounded-control bg-sand px-3 py-2">
+            <dt className="text-caption font-semibold uppercase tracking-wider text-charcoal">You save</dt>
+            <dd className="text-caption font-bold tabular-nums text-charcoal">{pkr(savings)}</dd>
           </div>
         )}
       </dl>
