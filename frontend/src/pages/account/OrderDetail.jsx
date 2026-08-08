@@ -282,21 +282,21 @@ ${inv.tax ? `<div><span>Tax</span><span>${pkr(inv.tax)}</span></div>` : ''}
             <div className="mt-4 space-y-2">
               <Link
                 to={`/track?orderNumber=${encodeURIComponent(order.orderNumber)}`}
-                className="btn btn-sm w-full gap-2 border border-stone bg-white text-graphite hover:bg-satin/60"
+                className="btn btn-sm w-full gap-2 border border-bronze bg-white text-graphite hover:bg-satin/60"
               >
                 <PackageCheck size={14} aria-hidden="true" /> Track this order
               </Link>
 
               {cfg.allowInvoice && (
                 <button type="button" onClick={invoice} disabled={busy === 'invoice'}
-                  className="btn btn-sm w-full gap-2 border border-stone bg-white text-graphite hover:bg-satin/60 disabled:opacity-50">
+                  className="btn btn-sm w-full gap-2 border border-bronze bg-white text-graphite hover:bg-satin/60 disabled:opacity-50">
                   {busy === 'invoice' ? <Spinner label="Opening" /> : <Download size={14} aria-hidden="true" />} Invoice
                 </button>
               )}
 
               {cfg.allowReorder && (
                 <button type="button" onClick={reorder} disabled={busy === 'reorder'}
-                  className="btn btn-sm w-full gap-2 border border-stone bg-white text-graphite hover:bg-satin/60 disabled:opacity-50">
+                  className="btn btn-sm w-full gap-2 border border-bronze bg-white text-graphite hover:bg-satin/60 disabled:opacity-50">
                   {busy === 'reorder' ? <Spinner label="Adding" /> : <RotateCcw size={14} aria-hidden="true" />} Order again
                 </button>
               )}
@@ -310,7 +310,7 @@ ${inv.tax ? `<div><span>Tax</span><span>${pkr(inv.tax)}</span></div>` : ''}
 
               {canReturn && (
                 <button type="button" onClick={() => setDialog('return')}
-                  className="btn btn-sm w-full gap-2 border border-stone bg-white text-graphite hover:bg-satin/60">
+                  className="btn btn-sm w-full gap-2 border border-bronze bg-white text-graphite hover:bg-satin/60">
                   <RotateCcw size={14} aria-hidden="true" /> Request a return
                 </button>
               )}

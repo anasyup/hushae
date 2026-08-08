@@ -157,7 +157,7 @@ export default function ShoppingAssistant({ cfg, open, onClose }) {
                       key={p.id}
                       type="button"
                       onClick={() => ask(p.query || p.label)}
-                      className="inline-flex min-h-[44px] items-center rounded-full border border-stone bg-white px-4 text-caption font-medium text-graphite transition hover:bg-satin/60"
+                      className="inline-flex min-h-[44px] items-center rounded-full border border-bronze bg-white px-4 text-caption font-medium text-graphite transition hover:bg-satin/60"
                     >
                       {p.label}
                     </button>
@@ -193,7 +193,7 @@ export default function ShoppingAssistant({ cfg, open, onClose }) {
                           <span className="block truncate text-body-sm font-medium">{p.name}</span>
                           <span className="block text-caption text-ash">
                             {pkr(p.price)}
-                            {p.stock === 0 && <span className="ml-2 text-clay">Out of stock</span>}
+                            {p.stock === 0 && <span className="ml-2 text-bronze">Out of stock</span>}
                           </span>
                         </span>
                       </Link>
@@ -209,7 +209,7 @@ export default function ShoppingAssistant({ cfg, open, onClose }) {
                       key={f.label}
                       type="button"
                       onClick={() => ask(f.message)}
-                      className="inline-flex min-h-[44px] items-center rounded-full border border-stone bg-white px-4 text-caption font-medium text-graphite transition hover:bg-satin/60"
+                      className="inline-flex min-h-[44px] items-center rounded-full border border-bronze bg-white px-4 text-caption font-medium text-graphite transition hover:bg-satin/60"
                     >
                       {f.label}
                     </button>
@@ -242,7 +242,7 @@ export default function ShoppingAssistant({ cfg, open, onClose }) {
             placeholder="e.g. a cotton vest under 1500"
             autoComplete="off"
             enterKeyHint="send"
-            className="min-h-[44px] min-w-0 flex-1 rounded-control border border-stone bg-white px-4 text-body-sm outline-none focus:border-obsidian"
+            className="min-h-[44px] min-w-0 flex-1 rounded-control border border-bronze bg-white px-4 text-body-sm outline-none focus:border-obsidian"
           />
           <button
             type="submit"

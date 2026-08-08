@@ -36,7 +36,7 @@ export default function Field({
       {label && (
         <label htmlFor={id} className="label">
           {label}
-          {required && <span aria-hidden="true" className="ml-0.5 text-clay">*</span>}
+          {required && <span aria-hidden="true" className="ml-0.5 text-bronze">*</span>}
         </label>
       )}
       {control}

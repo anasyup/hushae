@@ -164,7 +164,7 @@ export default function Account() {
           </div>
           <button
             type="button" onClick={() => { logout(); toast('Signed out'); nav('/'); }}
-            className="btn btn-sm shrink-0 gap-1.5 border border-stone bg-white text-graphite hover:bg-satin/60"
+            className="btn btn-sm shrink-0 gap-1.5 border border-bronze bg-white text-graphite hover:bg-satin/60"
           >
             <LogOut size={14} aria-hidden="true" /> Sign out
           </button>

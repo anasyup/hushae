@@ -66,7 +66,7 @@ export default function PromoSummary({ discounts = [], rejected = [], capped, cl
       {nudges.length > 0 && (
         <ul className="mt-2 space-y-1.5">
           {nudges.map((n) => (
-            <li key={n} className="flex items-start gap-2 rounded-control border border-dashed border-stone px-3 py-2 text-caption text-graphite">
+            <li key={n} className="flex items-start gap-2 rounded-control border border-dashed border-bronze px-3 py-2 text-caption text-graphite">
               <Info size={12} className="mt-0.5 shrink-0 text-ash" aria-hidden="true" />
               <span>{n}</span>
             </li>

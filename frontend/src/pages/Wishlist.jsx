@@ -95,7 +95,7 @@ export default function Wishlist() {
             {cfg.allowShare && (
               <button
                 type="button" onClick={share}
-                className="btn btn-sm gap-1.5 border border-stone bg-white text-graphite hover:bg-satin/60"
+                className="btn btn-sm gap-1.5 border border-bronze bg-white text-graphite hover:bg-satin/60"
               >
                 {shared ? <Check size={13} className="text-sagedark" aria-hidden="true" /> : <Share2 size={13} aria-hidden="true" />}
                 {shared ? 'Link copied' : 'Share'}
@@ -104,7 +104,7 @@ export default function Wishlist() {
             {cfg.allowClearAll && (
               <button
                 type="button" onClick={() => setConfirmClear(true)}
-                className="btn btn-sm gap-1.5 border border-stone bg-white text-ash hover:text-obsidian"
+                className="btn btn-sm gap-1.5 border border-bronze bg-white text-ash hover:text-obsidian"
               >
                 <Trash2 size={13} aria-hidden="true" /> Clear all
               </button>
@@ -129,7 +129,7 @@ export default function Wishlist() {
             <button type="button" onClick={doClear} disabled={busy} className="btn btn-sm bg-red-600 text-white hover:bg-red-700 disabled:opacity-50">
               {busy ? <><Spinner label="Clearing" /> Clearing…</> : 'Yes, clear it'}
             </button>
-            <button type="button" onClick={() => setConfirmClear(false)} className="btn btn-sm border border-stone bg-white text-graphite">
+            <button type="button" onClick={() => setConfirmClear(false)} className="btn btn-sm border border-bronze bg-white text-graphite">
               Keep them
             </button>
           </div>

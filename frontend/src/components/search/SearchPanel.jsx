@@ -272,7 +272,7 @@ export default function SearchPanel({ cfg: cfgProp, open, onClose, anchorRef }) 
                       {cfg.suggest.showPrices && (
                         <span className="block text-caption text-ash">
                           {pkr(p.price)}
-                          {p.stock === 0 && <span className="ml-2 text-clay">Out of stock</span>}
+                          {p.stock === 0 && <span className="ml-2 text-bronze">Out of stock</span>}
                         </span>
                       )}
                     </span>
@@ -338,7 +338,7 @@ export default function SearchPanel({ cfg: cfgProp, open, onClose, anchorRef }) 
         {showEmptyHint && (
           <div className="mx-auto max-w-3xl px-4 py-6 text-center">
             <p className="text-body-sm">{cfg.noResults.message}</p>
-            <button type="button" onClick={() => go(q)} className="btn btn-sm mt-3 border border-stone bg-white text-graphite hover:bg-satin/60">
+            <button type="button" onClick={() => go(q)} className="btn btn-sm mt-3 border border-bronze bg-white text-graphite hover:bg-satin/60">
               See all results for “{q.trim()}”
             </button>
           </div>

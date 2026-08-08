@@ -53,37 +53,34 @@ export default {
           900: 'rgb(var(--n900) / <alpha-value>)',
           950: 'rgb(var(--n950) / <alpha-value>)',
         },
-        stone:     '#C9BFB4',   // mid-tone warm
+        stone:     'rgb(var(--stone) / <alpha-value>)',  // QA #F5F3EF — warm page background
         // Secondary text. Was #7A736D, which measured 4.29:1 on alabaster and
         // 3.90:1 on cream — both under the 4.5:1 WCAG AA floor. Darkened just
         // enough to clear it on either surface (5.11:1 / 4.65:1) while staying
         // clearly lighter than `ink` so the hierarchy still reads.
         ash:       '#6E6760',
         ashlight:  '#7A736D',   // the old tone — decorative use only, never text
-        smoke:     '#9C948C',   // muted text on dark
+        smoke:     'rgb(var(--smoke) / <alpha-value>)',  // QA #8B8A87 — secondary text
         line:      '#E4DED4',   // dividers/borders — barely visible
         sage:      '#8F9C8B',   // subtle accent (used sparingly)
         sagedeep:  '#5C6A5A',   // deep sage for links/CTAs
         // sagedeep on a sage/25 wash over white measures 4.26:1 — under AA.
         // This darker step clears it at 5.4:1 and is used by .badge-sage.
         sagedark:  '#4E5A4C',
-        clay:      '#B3927E',   // rare warm accent (badges, sale)
+        clay:      'rgb(var(--clay) / <alpha-value>)',  // QA #D4C9B8 — borders/hairlines
 
-        /* ── QUIET ARCHITECTURE (QA) theme tokens — Phase 1 foundation ──
-           Wired to the CSS variables in index.css (:root) so opacity
-           utilities work. `stone` and `clay` (above) keep their LEGACY
-           values until Phase 2 migrates the existing border-stone /
-           bg-clay call sites — re-valuing them now would wipe borders
-           and accents site-wide. `smoke` was unused, so it safely takes
-           the QA secondary-text value. */
+        /* ── QUIET ARCHITECTURE (QA) theme tokens — Phase 2 (wired) ─────
+           All QA colours map to the CSS variables in index.css (:root) so
+           opacity utilities (bg-sand/60 …) keep working. `stone` and `clay`
+           were migrated in Phase 2: ~50 border-stone call sites became
+           border-clay (clay IS the QA border token), the old warm clay
+           accents became bronze, and bg-stone surfaces became sand. */
         sand:      'rgb(var(--sand) / <alpha-value>)',      // #EBE5DB card surfaces
         charcoal:  'rgb(var(--charcoal) / <alpha-value>)',  // #1A1B1C primary text
         pearl:     'rgb(var(--pearl) / <alpha-value>)',     // #FFFFFF accents
         gold:      'rgb(var(--gold) / <alpha-value>)',      // #C9A96E brand gold
         bronze:    'rgb(var(--bronze) / <alpha-value>)',    // #A68A56 dark gold hover
         midnight:  'rgb(var(--midnight) / <alpha-value>)',  // #1C2333 footer
-        // repurposed — QA secondary text #8B8A87
-        smoke:     'rgb(var(--smoke) / <alpha-value>)',
       },
       fontFamily: {
         // Inter — the house font (CDLP/SKIMS register): clean, neutral,

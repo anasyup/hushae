@@ -18,7 +18,7 @@ export default function EmptyBag({ cfg, recent = [], trending = [], loadingTrend
       <div className="mx-auto grid max-w-md place-items-center px-4 py-sect-y text-center md:py-sect-y-lg">
         <svg
           viewBox="0 0 120 120" width="112" height="112" fill="none" aria-hidden="true"
-          className="text-stone"
+          className="text-bronze"
         >
           <circle cx="60" cy="60" r="52" fill="#EFEAE3" />
           <path

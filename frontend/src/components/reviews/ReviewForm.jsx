@@ -203,7 +203,7 @@ export default function ReviewForm({ product, cfg, onClose, onPosted }) {
                           id="rv-photos" type="file" accept="image/jpeg,image/png,image/webp" multiple className="sr-only"
                           onChange={(e) => { addPhotos(e.target.files); e.target.value = ''; }}
                         />
-                        <label htmlFor="rv-photos" className="grid h-16 w-16 cursor-pointer place-items-center rounded-control border border-dashed border-stone text-ash transition hover:border-obsidian hover:text-obsidian">
+                        <label htmlFor="rv-photos" className="grid h-16 w-16 cursor-pointer place-items-center rounded-control border border-dashed border-bronze text-ash transition hover:border-obsidian hover:text-obsidian">
                           {uploading ? <Spinner label="Uploading" /> : <ImagePlus size={18} aria-hidden="true" />}
                         </label>
                       </>
@@ -237,7 +237,7 @@ export default function ReviewForm({ product, cfg, onClose, onPosted }) {
               <button type="submit" disabled={busy} className="btn-primary gap-2 disabled:opacity-50">
                 {busy ? <><Spinner label="Posting" /> Posting…</> : 'Post review'}
               </button>
-              <button type="button" onClick={onClose} disabled={busy} className="btn border border-stone bg-white text-graphite hover:bg-satin/60">
+              <button type="button" onClick={onClose} disabled={busy} className="btn border border-bronze bg-white text-graphite hover:bg-satin/60">
                 Cancel
               </button>
             </div>

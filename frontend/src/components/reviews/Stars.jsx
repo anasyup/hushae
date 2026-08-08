@@ -16,7 +16,7 @@ export default function Stars({ value = 0, size = 14, className = '', label }) {
         const half = !full && rounded >= i - 0.5;
         return (
           <span key={i} className="relative inline-block" style={{ width: size, height: size }} aria-hidden="true">
-            <Star size={size} className="absolute inset-0 text-stone" strokeWidth={1.6} />
+            <Star size={size} className="absolute inset-0 text-bronze" strokeWidth={1.6} />
             {(full || half) && (
               <span className="absolute inset-0 overflow-hidden" style={{ width: half ? size / 2 : size }}>
                 <Star size={size} className="fill-sagedeep text-sagedeep" strokeWidth={1.6} />
@@ -57,7 +57,7 @@ export function StarInput({ value, onChange, name = 'rating', error }) {
               size={26}
               strokeWidth={1.6}
               aria-hidden="true"
-              className={i <= value ? 'fill-sagedeep text-sagedeep' : 'text-stone'}
+              className={i <= value ? 'fill-sagedeep text-sagedeep' : 'text-bronze'}
             />
             <span className="sr-only">{i} star{i === 1 ? '' : 's'}</span>
           </label>

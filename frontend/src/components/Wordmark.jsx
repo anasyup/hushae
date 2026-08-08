@@ -48,14 +48,13 @@ export default function Wordmark({ size = 'md', variant = 'link', className = ''
 
   // ── Text wordmark ─────────────────────────────────────────────────────────
   const text = h.logoText || settings?.storeName || 'HUSHAE';
-  const tracking = Math.max(0, Math.min(60, Number(h.logoTracking ?? 32))) / 100;
-  // Until the settings land the wordmark renders plain. Defaulting the box to
-  // ON here made it flash an outline for ~400ms on every cold load.
-  const boxed = settings ? h.logoBoxed !== false : false;
+  // QA logo: light 300 weight, open 0.15em tracking, no outline box.
+  const tracking = Math.max(0, Math.min(60, Number(h.logoTracking ?? 15))) / 100;
+  const boxed = settings ? h.logoBoxed === true : false;
 
   // The wordmark is also the home link, so it needs a comfortable tap height
   // even when it is plain text — 44px matches the rest of the header controls.
-  const base = `inline-flex min-h-[44px] select-none items-center ${fontCls} font-bold leading-none ${colorCls} ${hasPx ? '' : sizeCls} ${className} ${
+  const base = `inline-flex min-h-[44px] select-none items-center ${fontCls} font-light leading-none ${colorCls} ${hasPx ? '' : sizeCls} ${className} ${
     boxed ? 'border px-3 py-1.5 ' + (forceColor === 'alabaster' ? 'border-alabaster/70' : 'border-obsidian/70') : ''
   }`;
   const style = {

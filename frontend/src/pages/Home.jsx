@@ -1,38 +1,23 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Ruler, Truck, Package } from 'lucide-react';
-import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import ProductCard from '../components/ProductCard';
 import Banner from '../components/Banner';
 import Seo, { organizationJsonLd } from '../components/Seo';
 
 /* ============================================================================
- * HUSHAE HOME — Calvin Klein anatomy, rebuilt properly.
+ * HUSHAE HOME — "Quiet Architecture".
  *
- * CK's homepage is BOLD, not decorative: one full-bleed hero with enormous
- * Helvetica type, a tray row of clean image tiles, a product rail ("Just In"),
- * an editorial statement, a full-bleed campaign, a perks line, a newsletter.
- * Everything uppercase Helvetica (Family Klein → Neue → Arial), monochrome
- * with CK-red used only for the announcement + sale accents, hairline rules,
- * generous whitespace, subtle zoom/underline hovers. No serif italic
- * decoration — that was the previous miss; CK is a sans-serif house.
+ * Japanese minimalism × Pakistani craftsmanship × Italian luxury.
+ * "Whisper, don't shout. Space is the luxury. Motion reveals, never attacks."
+ *
+ * The page reads like a book: eight chapters, each numbered 01-08, each
+ * counter flicking like a page counter when it scrolls into view (50ms
+ * interval, IntersectionObserver). 2px grid seams make the product mosaic
+ * feel architectural. Headings are Inter 300; the hero is 200-weight
+ * lowercase. Nothing shouts.
  * ========================================================================== */
-
-const CK_RED = '#D50000';
-
-/* ── CK tray row: image tile + label below (Denim / Jackets / Dresses) ───── */
-const TRAYS = [
-  { label: 'For Her', img: '/images/campaign/hushae-hero-women.jpg', href: '/women' },
-  { label: 'For Him', img: '/images/campaign/hushae-hero-men.jpg', href: '/men' },
-  { label: 'The Fabric', img: '/images/campaign/hushae-fabric.jpg', href: '/about' },
-];
-
-const TRUST_CARDS = [
-  { Icon: Ruler, title: 'Best Fit Guarantee', text: 'Free size swaps — the right fit, every time.' },
-  { Icon: Truck, title: 'Free Shipping PKR 4,999+', text: 'Nationwide, discreetly packed.' },
-  { Icon: Package, title: 'Discreet Packaging', text: 'Plain parcel, no branding on the outside.' },
-];
 
 /* Tommy John-style social proof — "Highly Rated" carousel. Fetches approved
    reviews live (top-rated across products) so it is real, not decorative. */
@@ -44,46 +29,12 @@ async function loadSocialProof() {
     const d = await api(`/reviews/product/${prod._id}?limit=1`).catch(() => null);
     const r = d?.reviews?.[0];
     if (r && r.rating >= 4) reviews.push({ name: r.customerName, rating: r.rating, body: r.body, product: prod.name });
-    if (reviews.length >= 4) break;
+    if (reviews.length >= 6) break;
   }
   return reviews;
 }
 
-/* ── Subtle parallax — translates a full-bleed image against its section.
-   rAF-throttled, desktop-only (touch devices get nothing — they scroll the
-   image normally). Pure transform, so it can't trigger layout. ──────────── */
-function useParallax(amount = 60) {
-  const ref = useRef(null);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el || window.matchMedia('(max-width: 767px)').matches) return undefined;
-    let raf = null;
-    const onScroll = () => {
-      if (raf) return;
-      raf = requestAnimationFrame(() => {
-        raf = null;
-        const rect = el.getBoundingClientRect();
-        const vh = window.innerHeight;
-        // Only parallax while the section is on screen.
-        if (rect.bottom < 0 || rect.top > vh) return;
-        const progress = (rect.top + rect.height / 2 - vh / 2) / vh;
-        el.style.transform = `translateY(${(-progress * amount).toFixed(1)}px) scale(1.06)`;
-      });
-    };
-    onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onScroll, { passive: true });
-    return () => {
-      if (raf) cancelAnimationFrame(raf);
-      window.removeEventListener('scroll', onScroll);
-      window.removeEventListener('resize', onScroll);
-      el.style.transform = '';
-    };
-  }, [amount]);
-  return ref;
-}
-
-/* ── Reveal — quiet scroll-into-view animation (fade + rise) ─────────────── */
+/* ── Reveal — quiet scroll-into-view (fade up 40px, 600ms, luxury ease) ─── */
 function Reveal({ children, delay = 0, className = '' }) {
   const ref = useRef(null);
   const [vis, setVis] = useState(false);
@@ -92,21 +43,74 @@ function Reveal({ children, delay = 0, className = '' }) {
     if (!el) return undefined;
     const io = new IntersectionObserver(([e]) => {
       if (e.isIntersecting) { setVis(true); io.disconnect(); }
-    }, { threshold: 0.18, rootMargin: '0px 0px -40px 0px' });
+    }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
     io.observe(el);
     return () => io.disconnect();
   }, []);
   return (
     <div ref={ref}
-      className={`transition-all duration-700 ease-out will-change-transform ${vis ? 'translate-y-0 opacity-100' : 'translate-y-7 opacity-0'} ${className}`}
-      style={{ transitionDelay: `${delay}ms`, transitionTimingFunction: 'cubic-bezier(0.22, 1, 0.36, 1)' }}>
+      className={`transition-all duration-[600ms] ease-luxury will-change-transform ${vis ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'} ${className}`}
+      style={{ transitionDelay: `${delay}ms` }}>
       {children}
     </div>
   );
 }
 
+/* ── Chapter counter — "01 — SECOND SKIN". Mono, smoke, 64px, right-aligned.
+   Flicks through digits (50ms) like a page counter the first time its
+   section scrolls into view. ────────────────────────────────────────────── */
+function ChapterMarker({ num, name, light = false, className = '' }) {
+  const ref = useRef(null);
+  const [fl, setFl] = useState(false);
+  const [disp, setDisp] = useState(num);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return undefined;
+    const io = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) { setFl(true); io.disconnect(); }
+    }, { threshold: 0.2 });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+  useEffect(() => {
+    if (!fl) return undefined;
+    let n = 0;
+    const t = setInterval(() => {
+      n += 1;
+      setDisp(String(n % 10));
+      if (n >= 10) { clearInterval(t); setDisp(num); }
+    }, 50);
+    return () => clearInterval(t);
+  }, [fl, num]);
+  return (
+    <div ref={ref} className={`flex items-end justify-end gap-3 ${className}`}>
+      <span className={`font-mono text-[48px] font-extralight leading-none tabular-nums md:text-[64px] ${light ? 'text-white/70' : 'text-smoke/70'}`}>{disp}</span>
+      <span className={`mb-2 text-[10px] font-medium uppercase tracking-[0.2em] ${light ? 'text-white/60' : 'text-smoke'}`}>— {name}</span>
+    </div>
+  );
+}
+
+/* ── Section heading — Inter 300, Title Case, open tracking ─────────────── */
+const H = ({ children, className = '' }) => (
+  <h2 className={`font-light normal-case tracking-[0.08em] text-charcoal ${className}`}>{children}</h2>
+);
+
+const underline = 'group inline-flex items-center gap-1.5 border-b border-current/30 pb-1 text-[12px] font-medium uppercase tracking-[0.12em] transition-colors duration-300 hover:border-current';
+
+/* ── Campaign triptych — For Her / For Him / The Fabric ─────────────────── */
+const TRAYS = [
+  { label: 'For Her', cta: 'Explore', img: '/images/campaign/hushae-hero-women.jpg', href: '/women' },
+  { label: 'For Him', cta: 'Explore', img: '/images/campaign/hushae-hero-men.jpg', href: '/men' },
+  { label: 'The Fabric', cta: 'Read more', img: '/images/campaign/hushae-fabric.jpg', href: '/about' },
+];
+
+const TRUST_CARDS = [
+  { Icon: Ruler, title: 'Best Fit Guarantee', text: 'Free size swaps — the right fit, every time.' },
+  { Icon: Truck, title: 'Free Shipping', text: 'Orders over PKR 4,999 delivered nationwide.' },
+  { Icon: Package, title: 'Discreet Packaging', text: 'Plain parcel, no branding on the outside.' },
+];
+
 export default function Home() {
-  const { settings } = useApp();
   const [fresh, setFresh] = useState(null);
   const [nl, setNl] = useState('');
   const [nlDone, setNlDone] = useState(false);
@@ -114,7 +118,14 @@ export default function Home() {
   const [social, setSocial] = useState([]);
 
   useEffect(() => {
-    api('/products?newArrival=true&limit=8').then((d) => setFresh(d.products || [])).catch(() => setFresh([]));
+    /* The Essentials — bestsellers first, new arrivals as the fallback. */
+    api('/products?bestSeller=true&limit=8')
+      .then((d) => {
+        const list = d.products || [];
+        if (list.length) { setFresh(list); return; }
+        api('/products?newArrival=true&limit=8').then((d2) => setFresh(d2.products || [])).catch(() => setFresh([]));
+      })
+      .catch(() => api('/products?newArrival=true&limit=8').then((d2) => setFresh(d2.products || [])).catch(() => setFresh([])));
   }, []);
 
   useEffect(() => {
@@ -131,231 +142,232 @@ export default function Home() {
     api('/subscribers', { method: 'POST', body: { email: nl.trim() } }).catch(() => {});
   };
 
+  /* ── Social proof carousel — 3 per page, auto-advance every 5s ───────── */
+  const PAGE = 3;
+  const pages = useMemo(() => {
+    const out = [];
+    for (let i = 0; i < social.length; i += PAGE) out.push(social.slice(i, i + PAGE));
+    return out;
+  }, [social]);
+  const [pi, setPi] = useState(0);
+  useEffect(() => {
+    if (pages.length < 2) return undefined;
+    const t = setInterval(() => setPi((i) => (i + 1) % pages.length), 5000);
+    return () => clearInterval(t);
+  }, [pages.length]);
+
   return (
-    <div className="bg-white text-obsidian font-sans">
+    <div className="bg-stone text-charcoal font-sans">
       <Seo title="Premium Innerwear for Men & Women"
         description="Premium innerwear engineered for comfort. Made in Pakistan, finished to international standard."
         canonical="/"
         jsonLd={organizationJsonLd(typeof window !== 'undefined' ? window.location.origin : '')}
         jsonLdId="home-org" />
 
-      {/* ═══ 01 — HERO: banner-slot driven, cinematic (video-feel) ═══════════ */}
-      <section className="relative w-full overflow-hidden bg-white" style={{ minHeight: '100vh' }}>
-        <Banner
-          slot="homepage-hero"
-          className="absolute inset-0 h-full w-full"
-          fallback={(
-            /* Default hero — cinematic Ken Burns zoom (video-feel, 15s loop),
-               until an admin publishes a homepage-hero banner or video. */
-            <picture className="absolute inset-0 h-full w-full">
-              <source srcSet="/images/campaign/hushae-hero-women.avif" type="image/avif" />
-              <source srcSet="/images/campaign/hushae-hero-women.webp" type="image/webp" />
-              <img src="/images/campaign/hushae-hero-women.jpg" alt="" fetchpriority="high"
-                className="absolute inset-0 h-full w-full object-cover object-center animate-[kenburns_20s_ease-in-out_infinite_alternate]" />
-            </picture>
-          )}
-        />
-        {/* LIGHT veil — barely there (15%), CK lets the image shine */}
-        <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-white/40 to-transparent" />
-        <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-white/45 via-white/5 to-transparent" />
+      {/* ═══ 01 — SECOND SKIN (hero: banner video or still, lowercase 200) ═══ */}
+      <section className="relative w-full overflow-hidden bg-stone" style={{ minHeight: '70vh' }}>
+        <div className="absolute inset-0 md:min-h-[100vh]">
+          <Banner
+            slot="homepage-hero"
+            className="absolute inset-0 h-full w-full"
+            fallback={(
+              <picture className="absolute inset-0 h-full w-full">
+                <source srcSet="/images/campaign/hushae-hero-women.avif" type="image/avif" />
+                <source srcSet="/images/campaign/hushae-hero-women.webp" type="image/webp" />
+                <img src="/images/campaign/hushae-hero-women.jpg" alt="" fetchpriority="high"
+                  className="absolute inset-0 h-full w-full object-cover object-center animate-[kenburns_20s_ease-in-out_infinite_alternate]" />
+              </picture>
+            )}
+          />
+        </div>
+        {/* Max 10% black — barely there, only at the foot for text legibility */}
+        <div className="absolute inset-x-0 bottom-0 h-[45%] bg-gradient-to-t from-black/10 to-transparent" />
 
-        <div className="relative flex min-h-screen items-end">
-          <div className="w-full px-6 pb-14 md:px-14 md:pb-20 lg:px-24">
-            {/* Tiny eyebrow — muted, almost invisible (CK register) */}
-            <p className="text-[10px] font-medium uppercase tracking-[0.3em] text-neutral-500">Made in Pakistan</p>
-            {/* CK "The Campus Edit": thin (300), tracked (0.15em), sentence case */}
-            <h1 className="mt-6 font-sans text-[44px] font-light normal-case leading-[1.1] tracking-[0.15em] text-neutral-900 md:text-[100px] lg:text-[120px]">
-              Second
-              <br />
-              skin
+        <div className="relative flex min-h-[70vh] items-end md:min-h-[100vh]">
+          <div className="w-full px-6 pb-14 md:px-14 md:pb-24 lg:px-24">
+            <p className="text-[10px] font-medium uppercase tracking-[0.24em] text-white/70 [text-shadow:0_1px_12px_rgba(0,0,0,0.45)]">Made in Pakistan</p>
+            <h1 className="mt-6 font-sans text-[clamp(48px,6vw,96px)] font-extralight lowercase leading-[1.05] tracking-[0.12em] text-white [text-shadow:0_2px_32px_rgba(0,0,0,0.5)]">
+              second skin
             </h1>
+            <p className="mt-6 max-w-md text-[14px] font-light tracking-[0.05em] text-white/80 [text-shadow:0_1px_16px_rgba(0,0,0,0.45)]">
+              Engineered in Pakistan. Finished to an international standard.
+            </p>
             <div className="mt-10 flex flex-wrap items-center gap-8">
-              {/* CDLP "Explore" — thin text links */}
-              <Link to="/women" className="group inline-flex items-center gap-2 border-b border-neutral-900/30 pb-1 text-[12px] font-light uppercase tracking-[0.18em] text-neutral-900 transition-colors duration-300 hover:border-neutral-900">
-                Explore Women <ArrowRight size={13} className="transition-transform duration-300 group-hover:translate-x-1" />
-              </Link>
-              <Link to="/men" className="group inline-flex items-center gap-2 border-b border-neutral-900/30 pb-1 text-[12px] font-light uppercase tracking-[0.18em] text-neutral-900 transition-colors duration-300 hover:border-neutral-900">
-                Explore Men <ArrowRight size={13} className="transition-transform duration-300 group-hover:translate-x-1" />
-              </Link>
+              <Link to="/women" className={`${underline} text-white border-white/50 hover:border-white`}>Explore Women <ArrowRight size={12} className="transition-transform duration-300 group-hover:translate-x-1" /></Link>
+              <Link to="/men" className={`${underline} text-white border-white/50 hover:border-white`}>Explore Men <ArrowRight size={12} className="transition-transform duration-300 group-hover:translate-x-1" /></Link>
             </div>
           </div>
         </div>
+
+        {/* 01 — chapter counter, bottom-right */}
+        <div className="absolute bottom-6 right-6 md:bottom-10 md:right-10">
+          <ChapterMarker num="01" name="Second Skin" light />
+        </div>
       </section>
 
-      {/* ═══ 02 — TRAY ROW (CK: image + label below, hover zoom + arrow slide) ═══ */}
-      <section className="bg-white py-24 md:py-32">
+      {/* ═══ 02 — THE CAMPAIGN (triptych, 2px seams, grayscale-warm) ═══ */}
+      <section className="bg-stone py-20 md:py-40">
         <div className="container">
-          <div className="mb-14 flex items-baseline justify-between">
-            <p className="text-[12px] font-semibold uppercase tracking-[0.3em] text-obsidian">The Campaign</p>
-            <span className="text-[10px] font-medium uppercase tracking-[0.3em] text-ash">01 — 03</span>
-          </div>
+          <Reveal>
+            <div className="flex items-baseline justify-between">
+              <H className="text-[24px] md:text-[32px]">The Campaign</H>
+            </div>
+          </Reveal>
         </div>
-        {/* Full-bleed, zero gap — trays stretch edge to edge with a 1px hairline */}
-        <div className="grid grid-cols-1 gap-px bg-line md:grid-cols-3">
-          {TRAYS.map((t) => (
-            <Link key={t.label} to={t.href} className="group block bg-white">
-              <div className="relative overflow-hidden bg-line" style={{ aspectRatio: '4/5' }}>
-                <picture className="absolute inset-0 h-full w-full">
-                  <source srcSet={t.img.replace('.jpg', '.avif')} type="image/avif" />
-                  <source srcSet={t.img.replace('.jpg', '.webp')} type="image/webp" />
-                  <img src={t.img} alt={t.label} loading="lazy"
-                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1.2s] group-hover:scale-[1.03]"
-                    style={{ transitionTimingFunction: 'cubic-bezier(0.22, 1, 0.36, 1)' }} />
-                </picture>
-                {/* subtle hover overlay */}
-                <div className="absolute inset-0 bg-neutral-900/0 transition-colors duration-500 group-hover:bg-neutral-900/10" />
-              </div>
-              <div className="flex items-baseline justify-between px-5 py-6 md:px-8">
-                <p className="font-sans text-[20px] font-light normal-case tracking-[0.04em] text-neutral-900 md:text-[24px]">{t.label}</p>
-                <span className="inline-flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-[0.18em] text-[#707070] transition-colors duration-300 group-hover:text-[#111111]">
-                  Read more <ArrowRight size={11} className="transition-transform duration-300 group-hover:translate-x-1" />
-                </span>
-              </div>
-            </Link>
+        <div className="container mt-10 grid grid-cols-1 gap-2 md:grid-cols-3 md:gap-[2px]">
+          {TRAYS.map((t, i) => (
+            <Reveal key={t.label} delay={i * 120}>
+              <Link to={t.href} className="group block">
+                <div className="relative overflow-hidden bg-sand" style={{ aspectRatio: '4/5' }}>
+                  <picture className="absolute inset-0 h-full w-full">
+                    <source srcSet={t.img.replace('.jpg', '.avif')} type="image/avif" />
+                    <source srcSet={t.img.replace('.jpg', '.webp')} type="image/webp" />
+                    <img src={t.img} alt={t.label} loading="lazy"
+                      className="absolute inset-0 h-full w-full object-cover grayscale-[35%] transition-all duration-hover ease-luxury group-hover:scale-[1.02] group-hover:grayscale-0" />
+                  </picture>
+                  <div className="absolute inset-0 bg-charcoal/0 transition-colors duration-hover group-hover:bg-charcoal/5" />
+                </div>
+                <div className="flex items-baseline justify-between pt-4">
+                  <span className="text-[20px] font-light normal-case tracking-[0.04em] text-charcoal md:text-[24px]">{t.label}</span>
+                  <span className="inline-flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.12em] text-smoke transition-colors duration-300 group-hover:text-charcoal">
+                    {t.cta} <ArrowRight size={11} className="transition-transform duration-300 group-hover:translate-x-1" />
+                  </span>
+                </div>
+              </Link>
+            </Reveal>
           ))}
         </div>
+        <div className="container mt-14"><ChapterMarker num="02" name="The Campaign" /></div>
       </section>
 
-      {/* ═══ 03 — JUST IN (product rail — CK "Just In") ════════════ */}
+      {/* ═══ 03 — THE ESSENTIALS (4×2 mosaic, 2px seams) ═══ */}
       {fresh && fresh.length > 0 && (
-        <section className="border-t border-line bg-white py-24 md:py-32">
+        <section className="bg-stone pb-20 md:pb-40">
           <div className="container">
-            <div className="mb-12 flex items-end justify-between">
-              <h2 className="font-display text-[30px] font-bold uppercase tracking-[0.02em] text-obsidian md:text-[48px]">
-                Just <span className="text-[#D50000]">In</span>
-              </h2>
-              <Link to="/new" className="group inline-flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.22em] text-obsidian">
-                Explore Collection <ArrowRight size={13} className="transition-transform duration-base group-hover:translate-x-1" />
-              </Link>
-            </div>
-            <div className="grid grid-cols-2 gap-x-8 gap-y-14 md:grid-cols-4 md:gap-x-10">
+            <Reveal>
+              <div className="flex items-end justify-between">
+                <H className="text-[24px] md:text-[32px]">The Essentials</H>
+                <Link to="/best" className={`${underline} text-smoke`}>View All <ArrowRight size={12} /></Link>
+              </div>
+            </Reveal>
+            <div className="mt-10 grid grid-cols-2 gap-2 md:grid-cols-4 md:gap-[2px]">
               {fresh.slice(0, 8).map((p) => <ProductCard key={p._id} product={p} />)}
             </div>
+            <div className="mt-14"><ChapterMarker num="03" name="The Essentials" /></div>
           </div>
         </section>
       )}
 
       {/* ═══ 03b — BELOW PRODUCTS banner slot (admin-controlled) ═══ */}
-      <Banner slot="homepage-below" className="aspect-[3/1] w-full bg-alabaster" fallback={null} />
+      <Banner slot="homepage-below" className="aspect-[3/1] w-full bg-sand" fallback={null} />
 
-      {/* ═══ 04 — EDITORIAL STATEMENT (big typographic moment) ═════ */}
-      <section className="border-t border-[#EBEBEB] bg-[#FAFAFA] py-32 md:py-52">
-        <div className="container max-w-4xl">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-[#707070]">The House</p>
-          <p className="mt-16 max-w-4xl font-sans text-[26px] font-light leading-[1.7] tracking-[0.02em] text-[#707070] md:text-[44px]">
-            The best innerwear is the piece you stop noticing by ten in the morning.
-          </p>
-          <div className="mt-14 flex flex-wrap items-center gap-8">
-            <p className="max-w-sm text-[14px] leading-relaxed text-ash">
+      {/* ═══ 04 — THE HOUSE (centered manifesto, 200px+ breathing room) ═══ */}
+      <section className="bg-stone py-32 md:py-56">
+        <div className="container max-w-[480px] text-center">
+          <Reveal>
+            <p className="text-[20px] font-light leading-[1.8] tracking-[0.01em] text-smoke md:text-[24px]">
+              The best innerwear is the piece you stop noticing by ten in the morning.
+            </p>
+          </Reveal>
+          <Reveal delay={120}>
+            <p className="mx-auto mt-8 max-w-sm text-[14px] leading-relaxed text-smoke/80">
               Modal that moves. Seams that sit flat. Elastics that hold without pressing. Designed and made in Pakistan, finished to an international standard.
             </p>
-            <Link to="/about" className="group inline-flex items-center gap-2 border-b border-obsidian pb-1 text-[12px] font-semibold uppercase tracking-[0.22em] text-obsidian">
-              Our standards <ArrowRight size={13} className="transition-transform duration-base group-hover:translate-x-1" />
-            </Link>
+          </Reveal>
+          <Reveal delay={240}>
+            <Link to="/about" className={`${underline} mt-12 inline-flex text-smoke`}>Our Standards <ArrowRight size={12} /></Link>
+          </Reveal>
+          <ChapterMarker num="04" name="The House" className="mt-20" />
+        </div>
+      </section>
+
+      {/* ═══ 05 — CONSIDERED COMFORT (50/50 split, grayscale, 120px pad) ═══ */}
+      <section className="bg-pearl">
+        <div className="grid md:grid-cols-2">
+          <div className="relative min-h-[55vh] overflow-hidden md:min-h-[80vh]">
+            <picture className="absolute inset-0 h-full w-full">
+              <source srcSet="/images/campaign/hushae-hero-men.avif" type="image/avif" />
+              <source srcSet="/images/campaign/hushae-hero-men.webp" type="image/webp" />
+              <img src="/images/campaign/hushae-hero-men.jpg" alt="For him" loading="lazy"
+                className="absolute inset-0 h-full w-full object-cover object-center grayscale" />
+            </picture>
+          </div>
+          <div className="flex flex-col justify-center px-6 py-16 md:px-16 lg:px-[120px] md:py-[120px]">
+            <Reveal>
+              <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-smoke">For Him · New Season</p>
+              <H className="mt-5 text-[28px] md:text-[40px]">Considered Comfort</H>
+              <p className="mt-6 max-w-md text-[14px] leading-relaxed text-smoke">
+                Briefs, boxers and trunks cut on a stretch blend that keeps its shape — the size you buy is the size you wear a year later.
+              </p>
+              <Link to="/men" className={`${underline} mt-8 inline-flex text-smoke`}>Explore Men <ArrowRight size={12} /></Link>
+            </Reveal>
+            <ChapterMarker num="05" name="Considered Comfort" className="mt-16" />
           </div>
         </div>
       </section>
 
-      {/* ═══ 05 — CAMPAIGN FULL-BLEED (For Him, subtle parallax) ═════ */}
-      <CampaignSection />
-
-      {/* ═══ 06 — TRUST — Tommy John 3 cards ═══════════════════════ */}
-      <section className="border-y border-[#EBEBEB] bg-[#FAFAFA]">
-        <div className="container grid grid-cols-1 gap-10 py-14 md:grid-cols-3 md:gap-8 md:py-20">
-          {TRUST_CARDS.map(({ Icon, title, text }) => (
-            <div key={title} className="flex flex-col items-start gap-3">
-              <Icon size={20} strokeWidth={2} className="text-[#707070]" />
-              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#111111]">{title}</p>
-              <p className="text-[11px] leading-relaxed text-[#707070]">{text}</p>
-            </div>
-          ))}
+      {/* ═══ 06 — THE PROMISE (floating trust cards, gold line icons) ═══ */}
+      <section className="bg-stone py-20 md:py-40">
+        <div className="container">
+          <div className="grid grid-cols-1 gap-12 md:grid-cols-3 md:gap-8">
+            {TRUST_CARDS.map(({ Icon, title, text }, i) => (
+              <Reveal key={title} delay={i * 120} className="flex flex-col items-center text-center">
+                <Icon size={32} strokeWidth={1.5} className="text-gold" aria-hidden="true" />
+                <p className="mt-5 text-[14px] font-medium text-charcoal">{title}</p>
+                <p className="mt-2 max-w-[26ch] text-[12px] leading-relaxed text-smoke">{text}</p>
+              </Reveal>
+            ))}
+          </div>
+          <ChapterMarker num="06" name="The Promise" className="mt-16" />
         </div>
       </section>
 
-      {/* ═══ 06b — HIGHLY RATED — Tommy John social proof carousel ═══ */}
+      {/* ═══ 07 — THE WORD (social proof carousel, auto-advance 5s) ═══ */}
       {social.length > 0 && (
-        <section className="bg-white">
-          <div className="container py-12 md:py-16">
-            <div className="mb-8 text-center">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[#707070]">Highly Rated</p>
-              <p className="mt-2 text-[20px] font-light text-[#111111] md:text-[28px]">Loved by customers across Pakistan</p>
+        <section className="bg-sand py-20 md:py-40">
+          <div className="container">
+            <div className="text-center">
+              <p className="text-[10px] font-medium uppercase tracking-[0.24em] text-smoke">Highly Rated</p>
+              <p className="mt-3 text-[24px] font-light normal-case tracking-[0.08em] text-charcoal md:text-[32px]">The Word</p>
             </div>
-            <div className="no-scrollbar -mx-5 flex gap-5 overflow-x-auto px-5 pb-2 md:mx-0 md:px-0">
-              {social.map((r, i) => (
-                <figure key={i} className="w-[300px] shrink-0 bg-[#F6F6F6] p-6 md:w-[340px]">
-                  <div className="flex gap-0.5 text-[13px] text-[#C9A96E]">
-                    {Array.from({ length: 5 }).map((_, s) => <span key={s}>{s < r.rating ? '★' : '☆'}</span>)}
+
+            {/* mobile — native snap scroll */}
+            <div className="no-scrollbar -mx-5 mt-10 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 md:hidden">
+              {social.map((r, i) => <ReviewCard key={i} r={r} className="w-[85%] shrink-0 snap-center" />)}
+            </div>
+            {/* desktop — auto-advancing 3-up carousel */}
+            <div className="mt-10 hidden overflow-hidden md:block">
+              <div
+                className="flex transition-transform duration-[600ms] ease-luxury"
+                style={{ transform: `translateX(-${pi * 100}%)` }}
+              >
+                {pages.map((pg, i) => (
+                  <div key={i} className="grid w-full shrink-0 grid-cols-3 gap-6">
+                    {pg.map((r, j) => <ReviewCard key={j} r={r} />)}
                   </div>
-                  <blockquote className="mt-3 text-[13px] leading-relaxed text-[#707070]">“{r.body}”</blockquote>
-                  <figcaption className="mt-4 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#707070]">
-                    {r.name} <span className="font-normal text-neutral-400">· {r.product.replace(/^HUSHAE\s+/i, '')}</span>
-                  </figcaption>
-                </figure>
-              ))}
+                ))}
+              </div>
             </div>
+            {pages.length > 1 && (
+              <div className="mt-10 hidden justify-center gap-2 md:flex">
+                {pages.map((_, i) => (
+                  <button key={i} type="button" onClick={() => setPi(i)}
+                    aria-label={`Show reviews page ${i + 1}`}
+                    className={`h-1 w-6 transition-colors duration-300 ${i === pi ? 'bg-charcoal' : 'bg-clay'}`} />
+                ))}
+              </div>
+            )}
+            <ChapterMarker num="07" name="The Word" className="mt-12" />
           </div>
         </section>
       )}
 
-      {/* ═══ 07 — FIT FINDER (image background + animations) ═══════ */}
-      <section className="relative overflow-hidden border-t border-line py-20 text-center md:py-32">
-        {/* Animated background image — slow Ken Burns zoom */}
-        <picture className="absolute inset-0 h-full w-full">
-          <source srcSet="/images/campaign/hushae-fabric.avif" type="image/avif" />
-          <source srcSet="/images/campaign/hushae-fabric.webp" type="image/webp" />
-          <img src="/images/campaign/hushae-fabric.jpg" alt="" aria-hidden="true" loading="lazy"
-            className="absolute inset-0 h-full w-full object-cover animate-[kenburns_22s_ease-in-out_infinite_alternate]" />
-        </picture>
-        {/* Soft ivory overlay — keeps the black type readable */}
-        <div className="absolute inset-0 bg-alabaster/85" />
-        <div className="absolute inset-0 bg-gradient-to-b from-alabaster/40 via-transparent to-alabaster/60" />
-
-        <div className="relative container max-w-2xl">
-          <Reveal>
-            <p className="text-[12px] font-semibold uppercase tracking-[0.3em] text-ash">The Fit Finder</p>
-          </Reveal>
-          <Reveal delay={120}>
-            <h2 className="mt-6 font-display text-[32px] font-bold uppercase tracking-[0.01em] text-obsidian md:text-[56px]">
-              Four Questions.
-              <br />
-              <span className="inline-block animate-[ff-underline_1.4s_cubic-bezier(0.22,1,0.36,1)_0.3s_both]">Exact Fit.</span>
-            </h2>
-          </Reveal>
-
-          {/* Step chips — "buttons on the image", staggered reveal */}
-          <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
-            {['01 Measure', '02 Compare', '03 Match'].map((s, i) => (
-              <Reveal key={s} delay={240 + i * 90}>
-                <Link to="/fit-finder"
-                  className="inline-flex items-center gap-2 border border-obsidian/25 bg-white/75 px-5 py-2.5 text-[11px] font-bold uppercase tracking-[0.2em] text-obsidian backdrop-blur-sm transition-colors duration-base hover:border-obsidian hover:bg-obsidian hover:text-white">
-                  {s}
-                </Link>
-              </Reveal>
-            ))}
-          </div>
-
-          <Reveal delay={520}>
-            <p className="mx-auto mt-7 max-w-md text-[14px] leading-relaxed text-graphite">
-              No tape measure. Our Fit Finder works out your true size from the pieces you already own.
-            </p>
-          </Reveal>
-
-          <Reveal delay={640}>
-            <Link to="/fit-finder"
-              className="group mt-9 inline-flex min-h-[56px] items-center justify-center border border-obsidian bg-white/40 px-12 text-[13px] font-bold uppercase tracking-[0.18em] text-obsidian backdrop-blur-sm transition-colors duration-base hover:bg-obsidian hover:text-white">
-              Start the Fit Finder
-              <ArrowRight size={14} className="ml-2 transition-transform duration-base group-hover:translate-x-1" />
-            </Link>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* ═══ 08 — NEWSLETTER — CDLP segmented (WOMEN'S / MEN'S + email) ═══ */}
-      <section className="border-t border-[#EBEBEB] bg-white py-20 text-center text-[#111111] md:py-28">
-        <div className="container max-w-xl">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-[#707070]">Stay in touch</p>
-          <h2 className="mt-6 font-sans text-[28px] font-light normal-case tracking-[0.08em] text-[#111111] md:text-[40px]">The Inner Circle</h2>
-          <p className="mx-auto mt-4 max-w-md text-[13px] font-light leading-relaxed text-[#707070]">
+      {/* ═══ 08 — THE INNER CIRCLE (borderless newsletter, arrow submit) ═══ */}
+      <section className="bg-stone py-20 md:py-40">
+        <div className="container max-w-[480px] text-center">
+          <p className="text-[10px] font-medium uppercase tracking-[0.24em] text-smoke">Stay in touch</p>
+          <H className="mt-5 text-[28px] md:text-[40px]">The Inner Circle</H>
+          <p className="mx-auto mt-4 max-w-sm text-[13px] font-light leading-relaxed text-smoke">
             Early access to new drops, fit guides and private offers. No spam, ever.
           </p>
 
@@ -365,8 +377,8 @@ export default function Home() {
               const on = (nlSeg || 'women') === seg.toLowerCase();
               return (
                 <button key={seg} type="button" onClick={() => setNlSeg(seg.toLowerCase())}
-                  className={`rounded-full border px-6 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] transition-colors duration-300 ${
-                    on ? 'border-[#111111] bg-[#111111] text-white' : 'border-[#111111]/25 text-[#707070] hover:border-[#111111] hover:text-[#111111]'
+                  className={`rounded-full border px-6 py-2 text-[10px] font-medium uppercase tracking-[0.18em] transition-colors duration-300 ${
+                    on ? 'border-charcoal bg-charcoal text-white' : 'border-charcoal/25 text-smoke hover:border-charcoal hover:text-charcoal'
                   }`}>
                   {seg}&apos;s
                 </button>
@@ -375,53 +387,36 @@ export default function Home() {
           </div>
 
           {nlDone ? (
-            <p className="mt-9 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#111111]">You&apos;re on the list — welcome.</p>
+            <p className="mt-9 text-[10px] font-medium uppercase tracking-[0.2em] text-charcoal">You&apos;re on the list — welcome.</p>
           ) : (
-            <form onSubmit={subscribe} className="mx-auto mt-8 flex max-w-md flex-col gap-5 sm:flex-row sm:items-end sm:gap-4">
+            <form onSubmit={subscribe} className="mx-auto mt-10 flex items-end gap-4">
               <input type="email" value={nl} onChange={(e) => setNl(e.target.value)} required placeholder="Your email"
-                className="min-h-[44px] w-full min-w-0 flex-1 border-0 border-b border-[#111111]/25 bg-transparent pb-2 text-[14px] font-light text-[#111111] outline-none transition-colors duration-base placeholder:text-[#707070]/60 focus:border-[#111111]" />
-              <button type="submit"
-                className="min-h-[44px] shrink-0 rounded-none bg-[#111111] px-10 text-[12px] font-semibold uppercase tracking-[0.2em] text-white transition-colors duration-300 hover:bg-[#C9A96E] hover:text-white">
-                Subscribe
+                className="min-h-[44px] w-full min-w-0 flex-1 border-0 border-b border-clay bg-transparent pb-2 text-[14px] font-light text-charcoal outline-none transition-colors duration-base placeholder:text-smoke/70 focus:border-charcoal" />
+              <button type="submit" aria-label="Subscribe"
+                className="grid h-10 w-10 shrink-0 place-items-center border border-charcoal text-charcoal transition-colors duration-300 hover:bg-charcoal hover:text-white">
+                <ArrowRight size={16} strokeWidth={1.5} />
               </button>
             </form>
           )}
+          <p className="mt-3 text-[10px] tracking-[0.04em] text-smoke">No spam, ever. Unsubscribe anytime.</p>
+          <ChapterMarker num="08" name="The Inner Circle" className="mt-14" />
         </div>
       </section>
     </div>
   );
 }
 
-/* ═══ Campaign full-bleed — For Him, with a subtle parallax image ══════════ */
-function CampaignSection() {
-  const imgRef = useParallax(48);
+/* ── Review card — stone surface, gold stars, italic quote ──────────────── */
+function ReviewCard({ r, className = '' }) {
   return (
-    <section className="relative overflow-hidden bg-white">
-      <picture ref={imgRef} className="absolute inset-0 h-[115%] w-full will-change-transform">
-        <source srcSet="/images/campaign/hushae-hero-men.avif" type="image/avif" />
-        <source srcSet="/images/campaign/hushae-hero-men.webp" type="image/webp" />
-        <img src="/images/campaign/hushae-hero-men.jpg" alt="For him" loading="lazy"
-          className="h-full w-full object-cover object-center" />
-      </picture>
-      {/* Bright image → light veil + BLACK type */}
-      <div className="absolute inset-x-0 bottom-0 h-[65%] bg-gradient-to-t from-alabaster/95 via-alabaster/40 to-transparent" />
-      <div className="relative flex min-h-[85vh] items-end">
-        <div className="w-full px-6 pb-16 md:px-14 md:pb-24 lg:px-24">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-graphite">For Him  New Season</p>
-          <h2 className="mt-6 font-display text-[40px] font-bold uppercase leading-[0.95] tracking-[0.12em] text-obsidian md:text-[90px]">
-            Considered
-            <br />
-            Comfort
-          </h2>
-          <p className="mt-6 max-w-md text-[14px] leading-relaxed text-graphite">
-            Briefs, boxers and trunks cut on a stretch blend that keeps its shape — the size you buy is the size you wear a year later.
-          </p>
-          <Link to="/men"
-            className="group mt-9 inline-flex items-center gap-2 border-b border-obsidian/30 pb-1 text-[13px] font-bold uppercase tracking-[0.18em] text-obsidian transition-colors duration-300 hover:border-obsidian">
-            Shop Men <ArrowRight size={14} className="transition-transform duration-300 group-hover:translate-x-1" />
-          </Link>
-        </div>
+    <figure className={`bg-stone p-6 md:p-8 ${className}`}>
+      <div className="flex gap-0.5 text-[13px] text-gold">
+        {Array.from({ length: 5 }).map((_, s) => <span key={s}>{s < r.rating ? '★' : '☆'}</span>)}
       </div>
-    </section>
+      <blockquote className="mt-4 text-[14px] italic leading-relaxed text-charcoal">“{r.body}”</blockquote>
+      <figcaption className="mt-5 text-[11px] font-medium uppercase tracking-[0.12em] text-smoke">
+        {r.name} <span className="font-normal text-smoke/70">· {r.product.replace(/^HUSHAE\s+/i, '')}</span>
+      </figcaption>
+    </figure>
   );
 }

@@ -120,7 +120,7 @@ export default function Compare() {
         </div>
         <button
           type="button" onClick={() => { clearCompare(); toast('Compare cleared'); }}
-          className="btn btn-sm gap-1.5 border border-stone bg-white text-ash hover:text-obsidian"
+          className="btn btn-sm gap-1.5 border border-bronze bg-white text-ash hover:text-obsidian"
         >
           <Trash2 size={13} aria-hidden="true" /> Clear all
         </button>

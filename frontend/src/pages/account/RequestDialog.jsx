@@ -128,7 +128,7 @@ export default function RequestDialog({ kind, onClose, onSubmit }) {
             <button type="submit" disabled={busy} className="btn-primary gap-2 disabled:opacity-50">
               {busy ? <><Spinner label="Sending" /> Sending…</> : 'Send request'}
             </button>
-            <button type="button" onClick={onClose} disabled={busy} className="btn border border-stone bg-white text-graphite hover:bg-satin/60">
+            <button type="button" onClick={onClose} disabled={busy} className="btn border border-bronze bg-white text-graphite hover:bg-satin/60">
               Never mind
             </button>
           </div>

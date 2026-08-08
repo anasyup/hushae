@@ -163,7 +163,7 @@ export default function ReviewDialog({
         <div className="grid grid-cols-1 gap-3 border-t border-line bg-cream/40 px-5 py-4 sm:grid-cols-[auto_1fr] sm:px-6">
           <button
             type="button" onClick={onClose} disabled={busy}
-            className="btn btn-sm border border-stone bg-white text-graphite hover:bg-satin/60 disabled:opacity-40"
+            className="btn btn-sm border border-bronze bg-white text-graphite hover:bg-satin/60 disabled:opacity-40"
           >
             Edit details
           </button>

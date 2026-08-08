@@ -144,7 +144,7 @@ export default function CartLine({
               onClick={onWish}
               aria-pressed={wished}
               className={`grid h-11 w-11 shrink-0 place-items-center rounded-full transition hover:bg-satin/60 ${
-                wished ? 'text-clay' : 'text-ash hover:text-obsidian'
+                wished ? 'text-bronze' : 'text-ash hover:text-obsidian'
               }`}
               aria-label={wished ? `Remove ${line.name} from wishlist` : `Add ${line.name} to wishlist`}
               title="Wishlist"

@@ -206,7 +206,7 @@ export default function Search() {
         <button
           type="button"
           onClick={() => setSheetOpen(true)}
-          className="btn btn-sm inline-flex items-center gap-2 border border-stone bg-white text-graphite hover:bg-satin/60 lg:hidden"
+          className="btn btn-sm inline-flex items-center gap-2 border border-bronze bg-white text-graphite hover:bg-satin/60 lg:hidden"
           aria-expanded={sheetOpen}
         >
           <SlidersHorizontal size={14} aria-hidden="true" />
@@ -222,7 +222,7 @@ export default function Search() {
           <button
             type="button"
             onClick={() => setAssistOpen(true)}
-            className="btn btn-sm inline-flex items-center gap-2 border border-stone bg-white text-graphite hover:bg-satin/60"
+            className="btn btn-sm inline-flex items-center gap-2 border border-bronze bg-white text-graphite hover:bg-satin/60"
           >
             <Sparkles size={14} aria-hidden="true" />
             {cfg.assistant.buttonLabel || 'Help me choose'}
@@ -235,7 +235,7 @@ export default function Search() {
             id="search-sort"
             value={params.get('sort') || (q ? 'relevance' : 'newest')}
             onChange={(e) => setOne('sort', e.target.value, true)}
-            className="min-h-[44px] rounded-control border border-stone bg-white px-3 text-body-sm text-graphite"
+            className="min-h-[44px] rounded-control border border-bronze bg-white px-3 text-body-sm text-graphite"
           >
             {SORTS.filter(([v]) => v !== 'relevance' || q).map(([v, l]) => (
               <option key={v} value={v}>{l}</option>
@@ -254,7 +254,7 @@ export default function Search() {
                 key={`${k}-${v}`}
                 type="button"
                 onClick={() => (MULTI.includes(k) ? toggleMany(k, v) : setOne(k, ''))}
-                className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full border border-stone bg-white px-3.5 text-caption font-medium text-graphite transition hover:bg-satin/60"
+                className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full border border-bronze bg-white px-3.5 text-caption font-medium text-graphite transition hover:bg-satin/60"
               >
                 {v}
                 <X size={13} aria-hidden="true" />
@@ -310,7 +310,7 @@ export default function Search() {
                       <Link
                         key={t}
                         to={`/search?q=${encodeURIComponent(t)}`}
-                        className="inline-flex min-h-[44px] items-center rounded-full border border-stone bg-white px-4 text-body-sm text-graphite transition hover:bg-satin/60"
+                        className="inline-flex min-h-[44px] items-center rounded-full border border-bronze bg-white px-4 text-body-sm text-graphite transition hover:bg-satin/60"
                       >
                         {t}
                       </Link>

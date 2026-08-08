@@ -254,7 +254,7 @@ export default function AuthCard({ cfg, policyLoaded }) {
                   {otpEnabled && !otp.verified && (
                     <button
                       type="button" onClick={sendCode} disabled={!phoneOK || otp.sending || otp.resendIn > 0}
-                      className="btn btn-sm h-14 shrink-0 border border-stone bg-white px-3 text-graphite disabled:opacity-40"
+                      className="btn btn-sm h-14 shrink-0 border border-bronze bg-white px-3 text-graphite disabled:opacity-40"
                     >
                       {otp.sending ? '…' : otp.resendIn > 0 ? `${otp.resendIn}s` : otp.sent ? 'Resend' : 'Send code'}
                     </button>

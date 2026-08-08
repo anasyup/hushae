@@ -113,7 +113,7 @@ export default function AddressPanel({ cfg, user, onUpdated }) {
           Saved addresses ({list.length}/{cfg.maxAddresses || 5})
         </h2>
         {!editing && !atLimit && (
-          <button type="button" onClick={openNew} className="btn btn-sm gap-1.5 border border-stone bg-white text-graphite hover:bg-satin/60">
+          <button type="button" onClick={openNew} className="btn btn-sm gap-1.5 border border-bronze bg-white text-graphite hover:bg-satin/60">
             <Plus size={14} aria-hidden="true" /> Add address
           </button>
         )}
@@ -191,7 +191,7 @@ export default function AddressPanel({ cfg, user, onUpdated }) {
                     <button type="button" onClick={() => remove(a._id)} disabled={busy} className="btn btn-sm bg-red-600 text-white hover:bg-red-700 disabled:opacity-50">
                       {busy ? <Spinner label="Removing" /> : 'Yes, remove'}
                     </button>
-                    <button type="button" onClick={() => setConfirmDel(null)} className="btn btn-sm border border-stone bg-white text-graphite">
+                    <button type="button" onClick={() => setConfirmDel(null)} className="btn btn-sm border border-bronze bg-white text-graphite">
                       Keep it
                     </button>
                   </div>
@@ -265,7 +265,7 @@ export default function AddressPanel({ cfg, user, onUpdated }) {
             <button type="submit" disabled={busy} className="btn-primary gap-2 disabled:opacity-50">
               {busy ? <><Spinner label="Saving" /> Saving…</> : <><Check size={14} aria-hidden="true" /> Save address</>}
             </button>
-            <button type="button" onClick={close} className="btn border border-stone bg-white text-graphite hover:bg-satin/60">
+            <button type="button" onClick={close} className="btn border border-bronze bg-white text-graphite hover:bg-satin/60">
               Cancel
             </button>
           </div>

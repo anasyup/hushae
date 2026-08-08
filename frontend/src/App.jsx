@@ -269,6 +269,9 @@ export default function App() {
           {/* BLOG — journal / fit guides. /blog lists, /blog/:slug reads. */}
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<BlogPost />} />
+          {/* Journal — the editorial voice (CDLP-style nav item) */}
+          <Route path="/journal" element={<Blog />} />
+          <Route path="/journal/:slug" element={<BlogPost />} />
 
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin" element={<Suspense fallback={<EditorFallback />}><Dashboard /></Suspense>} />

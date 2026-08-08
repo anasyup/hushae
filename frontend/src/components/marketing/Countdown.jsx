@@ -62,7 +62,7 @@ export default function Countdown({ endsAt, label = 'Ends in', urgentMinutes = 6
 
   const Cell = ({ value, unit }) => (
     <span className="inline-flex flex-col items-center">
-      <span className={`min-w-[2.25rem] rounded-control px-1.5 py-1 text-center font-mono text-body-sm font-semibold tabular-nums ${urgent ? 'bg-clay/20 text-obsidian' : 'bg-satin text-obsidian'}`}>
+      <span className={`min-w-[2.25rem] rounded-control px-1.5 py-1 text-center font-mono text-body-sm font-semibold tabular-nums ${urgent ? 'bg-bronze/20 text-obsidian' : 'bg-satin text-obsidian'}`}>
         {pad(value)}
       </span>
       <span className="mt-0.5 text-[10px] uppercase tracking-wider text-ash">{unit}</span>

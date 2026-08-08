@@ -69,7 +69,7 @@ export default function FilterSheet({ open, onClose, onReset, catList, f, result
             className="absolute inset-x-0 bottom-0 flex max-h-[88svh] flex-col rounded-t-panel bg-alabaster shadow-e-4"
           >
             <div className="shrink-0 border-b border-line px-5 pb-3 pt-3">
-              <span className="mx-auto mb-3 block h-1 w-10 rounded-full bg-stone" aria-hidden="true" />
+              <span className="mx-auto mb-3 block h-1 w-10 rounded-full bg-sand" aria-hidden="true" />
               <div className="flex items-center justify-between">
                 <p className="font-display text-h4">Filters</p>
                 <button type="button" onClick={onClose} aria-label="Close filters" className="btn-icon -mr-2">

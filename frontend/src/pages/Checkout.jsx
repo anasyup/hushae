@@ -516,7 +516,7 @@ export default function Checkout() {
                   <div className="mt-3 grid gap-3 lg:grid-cols-[auto_1fr]">
                     <button
                       type="button" onClick={useCurrentLocation} disabled={locBusy}
-                      className="btn btn-sm gap-2 border border-stone bg-white text-graphite hover:bg-satin/60 disabled:opacity-50"
+                      className="btn btn-sm gap-2 border border-bronze bg-white text-graphite hover:bg-satin/60 disabled:opacity-50"
                     >
                       <Crosshair size={14} aria-hidden="true" /> {locBusy ? 'Getting location…' : 'Use my location'}
                     </button>

@@ -14,8 +14,8 @@ export default function MobileNav() {
   if (loc.pathname.startsWith('/admin')) return null;
 
   const cls = ({ isActive }) =>
-    `flex min-h-[52px] flex-1 flex-col items-center justify-center gap-0.5 py-1.5 text-[9.5px] font-semibold uppercase tracking-wider transition ${
-      isActive ? 'text-obsidian' : 'text-ash'
+    `flex min-h-[52px] flex-1 flex-col items-center justify-center gap-0.5 py-1.5 text-[10px] font-medium uppercase tracking-wider transition ${
+      isActive ? 'text-charcoal' : 'text-smoke'
     }`;
 
   return (

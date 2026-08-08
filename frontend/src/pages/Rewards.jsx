@@ -130,7 +130,7 @@ function ReferralCard({ data, cfg, toast }) {
         </code>
         <button
           type="button" onClick={copy}
-          className="grid min-h-[44px] w-12 shrink-0 place-items-center rounded-control border border-stone bg-white text-graphite transition hover:bg-satin/60"
+          className="grid min-h-[44px] w-12 shrink-0 place-items-center rounded-control border border-bronze bg-white text-graphite transition hover:bg-satin/60"
           aria-label={copied ? 'Invite link copied' : 'Copy invite link'}
         >
           {copied ? <Check size={16} className="text-sagedeep" /> : <Copy size={16} />}
@@ -215,7 +215,7 @@ function History({ token, cfg }) {
             <button
               type="button" disabled={busy}
               onClick={() => { const p = page + 1; setPage(p); load(p); }}
-              className="btn btn-sm mt-4 w-full border border-stone bg-white text-graphite hover:bg-satin/60 disabled:opacity-50"
+              className="btn btn-sm mt-4 w-full border border-bronze bg-white text-graphite hover:bg-satin/60 disabled:opacity-50"
             >
               {busy ? 'Loading…' : 'Show more'}
             </button>
@@ -371,7 +371,7 @@ export default function Rewards() {
         <div className="mt-5 flex flex-wrap gap-3">
           <Link to="/shop" className="btn-primary">Shop and earn</Link>
           {a.points >= (data.redeem?.minPoints || 0) && data.redeem?.enabled && (
-            <Link to="/cart" className="btn-ghost border border-stone">Spend at checkout</Link>
+            <Link to="/cart" className="btn-ghost border border-bronze">Spend at checkout</Link>
           )}
         </div>
       </header>
@@ -434,7 +434,7 @@ export default function Rewards() {
                     </p>
                     {!b.earned && (
                       <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-satin" aria-hidden="true">
-                        <div className="h-full rounded-full bg-stone" style={{ width: `${Math.max(3, b.progress)}%` }} />
+                        <div className="h-full rounded-full bg-sand" style={{ width: `${Math.max(3, b.progress)}%` }} />
                       </div>
                     )}
                   </li>

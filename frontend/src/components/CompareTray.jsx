@@ -110,7 +110,7 @@ export default function CompareTray() {
           ))}
           {/* Remaining slots, so the limit is visible rather than a surprise. */}
           {Array.from({ length: Math.max(0, (cfg.maxItems || 4) - compare.length) }).map((_, i) => (
-            <li key={`slot-${i}`} aria-hidden="true" className="h-11 w-11 shrink-0 rounded-control border border-dashed border-stone/60" />
+            <li key={`slot-${i}`} aria-hidden="true" className="h-11 w-11 shrink-0 rounded-control border border-dashed border-bronze/60" />
           ))}
         </ul>
 

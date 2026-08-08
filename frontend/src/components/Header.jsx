@@ -39,7 +39,7 @@ const clamp = (v, lo, hi, dflt) => {
  * layout can move, so the header contributes no layout shift at all.
  * ========================================================================== */
 export default function Header() {
-  const { cartCount, wishlist, auth, setDrawerOpen, settings, cartBump } = useApp();
+  const { cartCount, wishlist, auth, setDrawerOpen, settings } = useApp();
   const [cats, setCats] = useState([]);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -84,9 +84,8 @@ export default function Header() {
     Array.isArray(hdr.menu) && hdr.menu.length ? hdr.menu : [
       { label: 'Women', href: '/women', dropdown: 'women' },
       { label: 'Men', href: '/men', dropdown: 'men' },
-      { label: 'New Arrivals', href: '/new' },
-      { label: 'Best Sellers', href: '/best' },
-      { label: 'Sale', href: '/sale', highlight: true },
+      { label: 'Journal', href: '/journal' },
+      { label: 'Sale', href: '/sale' },
     ]
   ), [hdr.menu]);
 
@@ -123,21 +122,14 @@ export default function Header() {
   }, [cmsHeaderKey, baseMenuKey]);
 
   const boxed    = hdr.width === 'boxed';
-  const deskH    = clamp(hdr.height, 40, 80, 80);
-  /* PHASE 8 — navigation typography.
-     MEASURED on live at 1920: 13px, letter-spacing 0.065px (effectively zero),
-     sentence case, weight 500, 34px gaps. That is the typography of an
-     application menu, not of a fashion house — and it is the first thing a
-     visitor reads.
-     Small widely-tracked capitals are the convention every reference brand
-     uses, because tracking is what turns a five-letter word into a mark rather
-     than a label. Defaults only: navSize, navGap and navUppercase all remain
-     admin-editable, so a merchant who preferred the old setting can restore it
-     without a deploy. navUppercase now defaults ON (was opt-in and unused). */
-  const navSize  = clamp(hdr.navSize, 10, 16, 11);
+  /* QA — 72px bar: tall, authoritative, confident (--nav-height). */
+  const deskH    = clamp(hdr.height, 40, 80, 72);
+  /* QA — navigation: Inter 400, 13px, 0.08em tracking, Title Case.
+     All four values stay admin-editable from /admin/theme. */
+  const navSize  = clamp(hdr.navSize, 10, 16, 13);
   const navGap   = clamp(hdr.navGap, 12, 64, 38);
-  const navUpper = hdr.navUppercase !== false;
-  const centred  = hdr.menuAlign !== 'left';
+  const navUpper = hdr.navUppercase === true;
+  
   const hairline = hdr.border !== false;
 
   const showSearch   = hdr.showSearch !== false;
@@ -147,7 +139,7 @@ export default function Header() {
   const iconCount = [showSearch, showWishlist, showAccount, showCart].filter(Boolean).length;
 
   const menuKey = useMemo(() => menu.map((m) => m && m.label).join('|'), [menu]);
-  const { fitGap, flowLeft, collapsed } = useNavFit({
+  const { fitGap, collapsed } = useNavFit({
     navRef, logoRef, menuKey, navGap, navSize, navUpper, iconCount,
   });
   const gapPx = fitGap ?? navGap;
@@ -167,20 +159,23 @@ export default function Header() {
   ]), []);
 
   const linkCls = useCallback(({ isActive }) => (
-    `relative whitespace-nowrap py-1 transition-colors duration-base ease-standard after:absolute after:-bottom-0.5 after:left-0 after:h-px after:w-full after:origin-left after:bg-current after:transition-transform after:duration-base after:ease-entrance ${
+    /* QA — underline slides in from the LEFT (scaleX 0→1, 200ms) */
+    `relative whitespace-nowrap py-1 transition-colors duration-base ease-standard after:absolute after:-bottom-0.5 after:left-0 after:h-px after:w-full after:origin-left after:bg-current after:transition-transform after:duration-200 after:ease-luxury ${
       isActive ? 'after:scale-x-100' : 'after:scale-x-0 hover:after:scale-x-100'
-    } ${navUpper ? 'font-medium uppercase' : 'font-medium'} ${
-      isActive ? 'text-obsidian' : 'text-ink/80 hover:text-obsidian'
+    } ${navUpper ? 'font-normal uppercase' : 'font-normal'} ${
+      isActive ? 'text-charcoal' : 'text-smoke hover:text-charcoal'
     }`
-  ), [navUpper, overHero]);
+  ), [navUpper]);
 
   const navStyle = useMemo(
-    () => ({ fontSize: `${navSize}px`, letterSpacing: navUpper ? '0.18em' : '0.005em' }),
+    () => ({ fontSize: `${navSize}px`, letterSpacing: navUpper ? '0.18em' : '0.08em' }),
     [navSize, navUpper],
   );
 
-  const iconBtn = 'btn-icon text-obsidian hover:bg-satin/60';
+  /* QA — 18px line-art icons (1.5px stroke) in smoke */
+  const iconBtn = 'btn-icon text-smoke hover:text-charcoal hover:bg-satin/60';
   const badge = 'absolute right-1 top-1 grid h-4 min-w-4 place-items-center rounded-full px-1 text-[9px] font-bold leading-none tabular-nums';
+  const dot = 'absolute right-1 top-1 h-1.5 w-1.5 rounded-full bg-charcoal';
 
   return (
     <>
@@ -192,16 +187,17 @@ export default function Header() {
           transition-transform duration-base ease-standard
           ${hidden ? '-translate-y-full' : 'translate-y-0'}`}
       >
-        {/* On the home page, render the OfferBar inside the fixed container from frame 1 */}
-        {isHome && <OfferBar />}
+        {/* On the home page, render the OfferBar inside the fixed container from frame 1
+            and let it tuck away on scroll — space is the luxury. */}
+        {isHome && <OfferBar hideOnScroll />}
         <header
           data-header
           style={{ '--hdr-h': `${deskH}px` }}
           className={`border-b transition-[background-color,border-color,box-shadow] duration-base ease-standard ${
             overHero
-              ? 'border-line bg-white/95 text-obsidian backdrop-blur-xl backdrop-saturate-150'
-              : `bg-white/95 text-obsidian backdrop-blur-xl backdrop-saturate-150 ${
-                atTop ? 'border-transparent' : `${hairline ? 'border-line' : 'border-transparent'} shadow-e-1`
+              ? 'border-transparent bg-white/95 text-charcoal backdrop-blur-xl backdrop-saturate-150'
+              : `bg-white/95 text-charcoal backdrop-blur-xl backdrop-saturate-150 ${
+                atTop ? 'border-transparent' : `${hairline ? 'border-clay' : 'border-transparent'} shadow-e-1`
               }`
           }`}
         >
@@ -217,13 +213,14 @@ export default function Header() {
               aria-expanded={mobileOpen}
               className={`-ml-2 shrink-0 ${collapsed ? '' : 'lg:hidden'} ${iconBtn}`}
             >
-              <Menu size={21} strokeWidth={1.7} aria-hidden="true" />
+              <Menu size={20} strokeWidth={1.5} aria-hidden="true" />
             </button>
 
+            {/* QA — logo CENTERED on the bar, nav flows left, icons right */}
             <span
               ref={logoRef}
               data-section="header.logo"
-              className={`absolute left-1/2 -translate-x-1/2 ${collapsed ? '' : 'lg:static lg:translate-x-0'}`}
+              className="absolute left-1/2 -translate-x-1/2"
             >
               <Wordmark />
             </span>
@@ -233,9 +230,7 @@ export default function Header() {
               data-section="header.menu"
               aria-label="Main"
               style={{ gap: `${gapPx}px` }}
-              className={`hidden items-center ${collapsed ? '' : 'lg:flex'} ${
-                centred && !flowLeft ? 'absolute left-1/2 -translate-x-1/2' : 'ml-10'
-              }`}
+              className={`hidden items-center ${collapsed ? '' : 'lg:flex'} ml-8`}
             >
               {menu.filter((m) => m && m.label).map((m, i) => (
                 m.dropdown ? (
@@ -279,7 +274,7 @@ export default function Header() {
 
             <div
               data-section="header.icons"
-              className="ml-auto flex shrink-0 items-center gap-0.5 md:gap-1 text-obsidian"
+              className="ml-auto flex shrink-0 items-center gap-0.5 md:gap-1 text-smoke"
             >
               {showSearch && (
                 <button
@@ -291,7 +286,7 @@ export default function Header() {
                   aria-controls="header-search"
                   className={iconBtn}
                 >
-                  <Search size={19} strokeWidth={1.6} aria-hidden="true" />
+                  <Search size={18} strokeWidth={1.5} aria-hidden="true" />
                 </button>
               )}
 
@@ -301,9 +296,9 @@ export default function Header() {
                   aria-label={wishlist.length ? `Wishlist, ${wishlist.length} saved` : 'Wishlist'}
                   className={`relative hidden ${collapsed ? '' : 'lg:grid'} ${iconBtn}`}
                 >
-                  <Heart size={19} strokeWidth={1.6} aria-hidden="true" />
+                  <Heart size={18} strokeWidth={1.5} aria-hidden="true" />
                   {wishlist.length > 0 && (
-                    <span className={`${badge} bg-obsidian text-alabaster`} aria-hidden="true">{wishlist.length}</span>
+                    <span className={dot} aria-hidden="true" />
                   )}
                 </Link>
               )}
@@ -314,8 +309,8 @@ export default function Header() {
                   aria-label={auth ? 'Your account' : 'Sign in'}
                   className={`relative hidden ${collapsed ? '' : 'lg:grid'} ${iconBtn}`}
                 >
-                  <User size={19} strokeWidth={1.6} aria-hidden="true" />
-                  {auth && <span className="absolute right-2.5 top-2.5 h-1.5 w-1.5 rounded-full bg-obsidian" aria-hidden="true" />}
+                  <User size={18} strokeWidth={1.5} aria-hidden="true" />
+                  {auth && <span className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full bg-charcoal" aria-hidden="true" />}
                 </Link>
               )}
 
@@ -326,14 +321,12 @@ export default function Header() {
                   aria-label={cartCount ? `Open bag, ${cartCount} item${cartCount === 1 ? '' : 's'}` : 'Open bag'}
                   className={`relative -mr-2 md:mr-0 ${iconBtn}`}
                 >
-                  {/* key={cartBump} restarts the pop animation on every add */}
-                  <span key={cartBump} className="inline-grid place-items-center">
-                    <ShoppingBag size={19} strokeWidth={1.6} aria-hidden="true" className={cartBump ? 'animate-[cart-pop_0.45s_cubic-bezier(0.22,1,0.36,1)]' : ''} />
+                  {/* QA — tiny dot, never a number-in-circle (no pop animation) */}
+                  <span className="inline-grid place-items-center">
+                    <ShoppingBag size={18} strokeWidth={1.5} aria-hidden="true" />
                   </span>
                   {cartCount > 0 && (
-                    <span className={`${badge} bg-obsidian text-alabaster`} aria-hidden="true">
-                      {cartCount}
-                    </span>
+                    <span className={dot} aria-hidden="true" />
                   )}
                 </button>
               )}

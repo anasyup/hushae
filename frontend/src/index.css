@@ -52,6 +52,17 @@
   --n800: 211 217 226;      /* headings */
   --n900: 238 241 245;      /* strongest text */
   --n950: 248 250 252;
+  /* QA tokens under dark admin — insurance so any component that inherits
+     body colour/background (bg-stone, text-charcoal …) stays dark-correct
+     instead of flashing the light storefront values. */
+  --stone: 22 27 34;
+  --sand:  26 32 40;
+  --clay:  35 43 54;
+  --charcoal: 238 241 245;
+  --smoke: 152 162 179;
+  --gold:  201 169 110;
+  --bronze: 166 138 86;
+  --midnight: 14 17 22;
 }
 
 /* ════════════════════════════════════════════════════════════════════════
@@ -66,7 +77,7 @@
  * to `rgb(var(--x) / <alpha-value>)` so opacity utilities (bg-sand/60 …)
  * keep working — same pattern as the --tw-white / --n* scale above.
  * NOTE: tailwind.config's `stone` / `clay` class tokens are NOT wired to
- * these variables yet — ~27 legacy border-stone / bg-clay call sites stay
+ * these variables yet — ~27 legacy border-bronze / bg-bronze call sites stay
  * on their current values until Phase 2 migrates them (re-valuing now would
  * silently erase button/input borders).
  * ════════════════════════════════════════════════════════════════════════ */
@@ -108,8 +119,14 @@
   /* Never let viewport-bleed editorial sections create a page-wide horizontal
      scrollbar. Individual product rails still use their own overflow-x-auto. */
   html { @apply max-w-full scroll-smooth; overflow-x: clip; }
-  body { @apply max-w-full overflow-x-clip bg-alabaster text-obsidian font-sans antialiased; }
+  /* QA — warm stone page, off-black text (Quiet Architecture palette) */
+  body { @apply max-w-full overflow-x-clip bg-stone text-charcoal font-sans antialiased; }
   ::selection { @apply bg-satin text-obsidian; }
+
+  /* ── Quiet Architecture typography ────────────────────────────────────
+     Headings are Inter weight 300 (light) — the quiet architectural voice.
+     The admin shell forces its own 600-weight headings with !important, so
+     the lightening never touches the admin panel. */
 
   /* ── Calvin Klein typography ────────────────────────────────────────────
      Every storefront heading inherits the Helvetica family (Family Klein →
@@ -118,7 +135,7 @@
      need sentence case add `normal-case` locally. Admin is scoped by
      `.admin-shell` below and is untouched by these rules. */
   h1, h2, h3, h4, h5, h6 {
-    @apply font-display uppercase;
+    @apply font-display font-light uppercase;
   }
   input[type='number']::-webkit-inner-spin-button { -webkit-appearance: none; }
 
@@ -227,7 +244,7 @@
   }
 
   .btn-primary   { @apply btn bg-obsidian text-alabaster hover:bg-graphite; }
-  .btn-secondary { @apply btn bg-satin text-obsidian hover:bg-stone; }
+  .btn-secondary { @apply btn bg-satin text-obsidian hover:bg-sand; }
   /* The outline is HUSHAE's signature action: a hairline that fills from
      nothing. Border weight stays 1px at every size — a thicker rule reads as a
      form control. */
@@ -358,7 +375,7 @@
      supplies rounded-control, so the geometry is unchanged. */
   .badge-sale     { @apply pill border border-obsidian/45 bg-alabaster/90 text-obsidian backdrop-blur-[2px]; }
   .badge-new      { @apply pill border border-obsidian/25 bg-alabaster/85 text-obsidian backdrop-blur-[2px]; }
-  .badge-best     { @apply pill bg-clay text-obsidian; }
+  .badge-best     { @apply pill bg-bronze text-obsidian; }
   .badge-soldout  { @apply pill bg-obsidian text-alabaster; }
   .badge-neutral  { @apply pill border border-obsidian/20 bg-alabaster/85 text-ink backdrop-blur-[2px]; }
   .badge-sage     { @apply pill bg-sage/25 text-sagedark; }

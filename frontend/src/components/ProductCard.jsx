@@ -6,28 +6,28 @@ import { pkr } from '../lib/format';
 import { isOnSale } from '../lib/sale';
 import { titleCase, materialName } from '../lib/productMeta';
 
-/* HUSHAE v3 ProductCard — CDLP exact.
+/* HUSHAE ProductCard — Quiet Architecture (CDLP × Jacquemus).
  *
- * Golden rule: if you can see the UI, it's too much. The product should be
- * the only thing visible.
+ * Golden rule: if you can see the UI, it's too much.
  *
- *   ┌──────────────────┐
- *   │   MODEL IMAGE     │  3:4, no arrows/badges/counter by default,
- *   │  (hover→flat lay) │  everything appears behind hover only
- *   ├──────────────────┤
- *   │ Everyday Bra 775 │  name + price, same line, title case, Inter 500/14
- *   │ Premium Modal    │  fabric name, Inter 400/12, #707070
- *   │ S M L XL XXL     │  sizes as a clean text row, 11px
- *   │ Slate            │  colour as text, 11px
- *   └──────────────────┘
+ *   ┌──────────────┐
+ *   │   IMAGE 3:4  │  no bg, no border, no shadow — bleeds into the
+ *   │ (hover: flat │  2px architectural mosaic the grid provides.
+ *   │  lay + 1.02) │  default state: completely clean.
+ *   └──────────────┘  hover only: arrows, counter, wishlist heart,
+ *   Everyday Bra 775  thin "Quick add" bar.
+ *   Premium Modal
+ *   S M L XL
+ *   Slate
  *
- * Tile: #F6F6F6, no borders, no shadows, 0px radius. No badges — ever.
- * Sale price prints "PKR 775 PKR 1,030" (was-price struck through).
+ * Caption is a magazine line: name + price same line (Inter 400 / 500, 13px),
+ * material (11px smoke), sizes (10px smoke), colour (10px smoke).
+ * Sale prints "PKR 600 ~~PKR 800~~". No badges — ever.
  */
 
 const FALLBACK =
   'data:image/svg+xml;utf8,' + encodeURIComponent(
-    '<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1200"><rect width="100%" height="100%" fill="#EDEDED"/><text x="50%" y="50%" fill="#707070" font-family="Helvetica,Arial,sans-serif" font-size="16" letter-spacing="4" text-anchor="middle">HUSHAE</text></svg>');
+    '<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1200"><rect width="100%" height="100%" fill="#EDEDED"/><text x="50%" y="50%" fill="#8B8A87" font-family="Inter,Helvetica,Arial,sans-serif" font-size="16" letter-spacing="4" text-anchor="middle">HUSHAE</text></svg>');
 
 const srcOf = (im) => (typeof im === 'string' ? im : im?.url || '');
 
@@ -54,24 +54,27 @@ function ProductCard({ product: p, showPrice = true, showQuickAdd = true, showWi
   const material = materialName(p.fabric);
   const colour = p.colors?.[0]?.name || '';
 
-  const ease = { transitionTimingFunction: 'cubic-bezier(0.22, 1, 0.36, 1)' };
+  const ease = { transitionTimingFunction: 'cubic-bezier(0.25, 1, 0.5, 1)' };
 
   return (
-    <article className="group bg-[#F6F6F6]" onMouseLeave={() => setSizePick(false)}>
-      {/* ── Image — 3:4, flat-lay crossfade on hover, UI is hover-only ── */}
-      <Link to={`/product/${p.slug}`} tabIndex={-1} className="relative block overflow-hidden bg-[#F6F6F6]">
-        <img
-          src={failed ? FALLBACK : (primary || FALLBACK)}
-          alt={`${name}, front view`}
-          width="900" height="1200" loading={priority ? 'eager' : 'lazy'}
-          onError={() => setFailed(true)}
-          className={`w-full aspect-[3/4] object-cover transition-opacity duration-500 ${secondary ? 'group-hover:opacity-0' : ''}`}
-          style={ease} />
-        {secondary && (
-          <img src={secondary} alt="" loading="lazy" aria-hidden="true"
-            className="absolute inset-0 w-full aspect-[3/4] object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+    <article className="group" onMouseLeave={() => setSizePick(false)}>
+      {/* ── Image — 3:4, bleeds to the edge, hover = flat lay + 1.02 zoom ── */}
+      <Link to={`/product/${p.slug}`} tabIndex={-1} className="relative block overflow-hidden bg-[#F5F3EF]">
+        {/* zoom layer — only the imagery scales, overlays stay put */}
+        <div className="absolute inset-0 transition-transform duration-hover ease-luxury group-hover:scale-[1.02]">
+          <img
+            src={failed ? FALLBACK : (primary || FALLBACK)}
+            alt={`${name}, front view`}
+            width="900" height="1200" loading={priority ? 'eager' : 'lazy'}
+            onError={() => setFailed(true)}
+            className={`w-full aspect-[3/4] object-cover transition-opacity duration-[300ms] ${secondary ? 'group-hover:opacity-0' : ''}`}
             style={ease} />
-        )}
+          {secondary && (
+            <img src={secondary} alt="" loading="lazy" aria-hidden="true"
+              className="absolute inset-0 w-full aspect-[3/4] object-cover opacity-0 transition-opacity duration-[300ms] group-hover:opacity-100"
+              style={ease} />
+          )}
+        </div>
 
         {/* Browse arrows + counter — hidden behind hover ONLY */}
         {allImages.length > 1 && !sizePick && (
@@ -106,7 +109,7 @@ function ProductCard({ product: p, showPrice = true, showQuickAdd = true, showWi
             aria-label={`${wished ? 'Remove' : 'Save'} ${name}`}
             className={`absolute right-2 top-2 grid h-8 w-8 place-items-center bg-white/80 opacity-0 transition-opacity duration-300 group-hover:opacity-100 ${wished ? '!opacity-100' : ''}`}
           >
-            <Heart size={14} strokeWidth={1.5} fill={wished ? '#111111' : 'none'} className={wished ? 'text-[#111111]' : 'text-[#707070]'} />
+            <Heart size={14} strokeWidth={1.5} fill={wished ? '#1A1B1C' : 'none'} className={wished ? 'text-charcoal' : 'text-smoke'} />
           </button>
         )}
 
@@ -115,13 +118,13 @@ function ProductCard({ product: p, showPrice = true, showQuickAdd = true, showWi
           <button
             type="button"
             onClick={(e) => { e.preventDefault(); setSizePick(true); }}
-            className="absolute inset-x-0 bottom-0 translate-y-full bg-white/95 py-2.5 text-center text-[10px] font-medium uppercase tracking-[0.2em] text-[#111111] opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100"
+            className="absolute inset-x-0 bottom-0 translate-y-full bg-white/95 py-2.5 text-center text-[10px] font-medium uppercase tracking-[0.2em] text-charcoal opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100"
             style={ease}
           >Quick add</button>
         )}
         {showQuickAdd && soldOut && !sizePick && (
           <span
-            className="pointer-events-none absolute inset-x-0 bottom-0 translate-y-full bg-white/95 py-2.5 text-center text-[10px] font-medium uppercase tracking-[0.2em] text-[#707070] opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100"
+            className="pointer-events-none absolute inset-x-0 bottom-0 translate-y-full bg-white/95 py-2.5 text-center text-[10px] font-medium uppercase tracking-[0.2em] text-smoke opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100"
             style={ease}
           >Sold out</span>
         )}
@@ -131,7 +134,7 @@ function ProductCard({ product: p, showPrice = true, showQuickAdd = true, showWi
               {sizes.map((s) => (
                 <button key={s} type="button"
                   onClick={(e) => { e.preventDefault(); addToCart(p, { size: s }); setSizePick(false); }}
-                  className="min-w-[36px] border border-[#111111] px-2 py-1.5 text-[11px] font-medium uppercase tracking-[0.05em] text-[#111111] transition-colors hover:bg-[#111111] hover:text-white"
+                  className="min-w-[36px] border border-charcoal px-2 py-1.5 text-[11px] font-medium uppercase tracking-[0.05em] text-charcoal transition-colors hover:bg-charcoal hover:text-white"
                 >{s}</button>
               ))}
             </div>
@@ -139,28 +142,28 @@ function ProductCard({ product: p, showPrice = true, showQuickAdd = true, showWi
         )}
       </Link>
 
-      {/* ── Caption — a magazine line, not an ecommerce widget ── */}
-      <div className="flex flex-col p-4">
+      {/* ── Caption — a magazine line, 12px below the image ── */}
+      <div className="mt-3 flex flex-col">
         <div className="flex items-baseline justify-between gap-3">
-          <Link to={`/product/${p.slug}`} className="min-w-0 text-[14px] font-medium leading-snug text-[#111111] hover:opacity-60">
+          <Link to={`/product/${p.slug}`} className="min-w-0 text-[13px] font-normal leading-snug text-charcoal hover:opacity-60">
             {name}
           </Link>
           {showPrice && (
             soldOut ? (
-              <span className="whitespace-nowrap text-[11px] font-normal uppercase tracking-[0.08em] text-[#707070]">Sold out</span>
+              <span className="whitespace-nowrap text-[10px] font-normal uppercase tracking-[0.08em] text-smoke">Sold out</span>
             ) : (
-              <span className="whitespace-nowrap text-[14px] font-medium tabular-nums text-[#111111]">
+              <span className="whitespace-nowrap text-[13px] font-medium tabular-nums text-charcoal">
                 {pkr(p.price)}
                 {onSale && p.compareAtPrice > p.price && (
-                  <span className="ml-1.5 text-[11px] font-normal text-[#707070] line-through tabular-nums">{pkr(p.compareAtPrice)}</span>
+                  <span className="ml-1.5 text-[11px] font-normal text-smoke line-through tabular-nums">{pkr(p.compareAtPrice)}</span>
                 )}
               </span>
             )
           )}
         </div>
-        {material && <p className="mt-1 text-[12px] leading-relaxed text-[#707070]">{material}</p>}
-        {sizes.length > 0 && <p className="mt-1.5 text-[11px] tracking-[0.06em] text-[#707070]">{sizes.join('  ')}</p>}
-        {colour && <p className="mt-1 text-[11px] text-[#707070]">{colour}</p>}
+        {material && <p className="mt-1 text-[11px] leading-relaxed text-smoke">{material}</p>}
+        {sizes.length > 0 && <p className="mt-1.5 text-[10px] tracking-[0.06em] text-smoke">{sizes.join('  ')}</p>}
+        {colour && <p className="mt-1 text-[10px] text-smoke">{colour}</p>}
       </div>
     </article>
   );

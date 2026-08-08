@@ -82,7 +82,7 @@ export default function NotificationsPanel({ user, onUpdated }) {
                     aria-checked={v[k]}
                     aria-label={`${g.title} — ${label}`}
                     onClick={() => { setV({ ...v, [k]: !v[k] }); setSaved(''); }}
-                    className={`relative h-6 w-11 shrink-0 rounded-full transition-colors duration-fast ${v[k] ? 'bg-obsidian' : 'bg-stone'}`}
+                    className={`relative h-6 w-11 shrink-0 rounded-full transition-colors duration-fast ${v[k] ? 'bg-obsidian' : 'bg-sand'}`}
                   >
                     <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all duration-fast motion-reduce:transition-none ${v[k] ? 'left-[22px]' : 'left-0.5'}`} />
                   </button>

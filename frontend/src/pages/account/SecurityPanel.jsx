@@ -91,7 +91,7 @@ export default function SecurityPanel({ cfg, user, onUpdated }) {
           <p className="mt-3 text-body-sm text-ash">
             Your email address has not been confirmed yet. Confirming it lets us send order updates reliably.
           </p>
-          <button type="button" onClick={resendVerify} disabled={verifyBusy} className="btn btn-sm mt-4 gap-2 border border-stone bg-white text-graphite hover:bg-satin/60 disabled:opacity-50">
+          <button type="button" onClick={resendVerify} disabled={verifyBusy} className="btn btn-sm mt-4 gap-2 border border-bronze bg-white text-graphite hover:bg-satin/60 disabled:opacity-50">
             {verifyBusy ? <><Spinner label="Sending" /> Sending…</> : <><MailCheck size={14} aria-hidden="true" /> Send confirmation link</>}
           </button>
           {verifyMsg && <p role="status" className="mt-2 flex items-center gap-1.5 text-caption font-medium text-sagedark"><CheckCircle2 size={12} aria-hidden="true" />{verifyMsg}</p>}
@@ -148,7 +148,7 @@ export default function SecurityPanel({ cfg, user, onUpdated }) {
                 <button type="submit" disabled={delBusy} className="btn btn-sm bg-red-600 text-white hover:bg-red-700 disabled:opacity-50">
                   {delBusy ? <><Spinner label="Closing" /> Closing…</> : 'Yes, close my account'}
                 </button>
-                <button type="button" onClick={() => { setDelOpen(false); setDelPw(''); setDelErr(''); }} className="btn btn-sm border border-stone bg-white text-graphite">
+                <button type="button" onClick={() => { setDelOpen(false); setDelPw(''); setDelErr(''); }} className="btn btn-sm border border-bronze bg-white text-graphite">
                   Cancel
                 </button>
               </div>

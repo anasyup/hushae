@@ -71,7 +71,7 @@ export default function MethodPicker({ name, legend, options, value, onChange, r
               <span
                 aria-hidden="true"
                 className={`mt-1 grid h-[18px] w-[18px] shrink-0 place-items-center rounded-full border transition-colors
-                  ${selected ? 'border-obsidian' : 'border-stone'}`}
+                  ${selected ? 'border-obsidian' : 'border-bronze'}`}
               >
                 <span className={`h-2.5 w-2.5 rounded-full transition-colors ${selected ? 'bg-obsidian' : 'bg-transparent'}`} />
               </span>

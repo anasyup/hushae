@@ -141,7 +141,7 @@ export default function RewardsBox({
             <button
               type="button" disabled={disabled}
               onClick={() => onChange({ ...value, points: quote.maxPoints })}
-              className="min-h-[44px] rounded-control border border-stone bg-white px-3 text-caption font-semibold text-graphite transition hover:bg-satin/60 disabled:opacity-50"
+              className="min-h-[44px] rounded-control border border-bronze bg-white px-3 text-caption font-semibold text-graphite transition hover:bg-satin/60 disabled:opacity-50"
             >
               Use maximum ({num(quote.maxPoints)})
             </button>
@@ -222,7 +222,7 @@ export default function RewardsBox({
                 type="button"
                 onClick={checkCard}
                 disabled={disabled || !cardCode.trim() || cardState?.checking}
-                className="btn btn-sm shrink-0 border border-stone bg-white text-graphite hover:bg-satin/60 disabled:opacity-50"
+                className="btn btn-sm shrink-0 border border-bronze bg-white text-graphite hover:bg-satin/60 disabled:opacity-50"
               >
                 {cardState?.checking ? <Spinner label="Checking" /> : 'Apply'}
               </button>

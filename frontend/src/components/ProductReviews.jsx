@@ -195,7 +195,7 @@ export default function ProductReviews({ product }) {
 
             <button
               type="button" onClick={() => setVerifiedOnly((v) => !v)} aria-pressed={verifiedOnly}
-              className={`btn btn-sm gap-1.5 border ${verifiedOnly ? 'border-obsidian bg-obsidian text-alabaster' : 'border-stone bg-white text-graphite'}`}
+              className={`btn btn-sm gap-1.5 border ${verifiedOnly ? 'border-obsidian bg-obsidian text-alabaster' : 'border-bronze bg-white text-graphite'}`}
             >
               <CheckCircle2 size={13} aria-hidden="true" /> Verified only
             </button>
@@ -203,7 +203,7 @@ export default function ProductReviews({ product }) {
             {cfg.enablePhotos && (
               <button
                 type="button" onClick={() => setMediaOnly((v) => !v)} aria-pressed={mediaOnly}
-                className={`btn btn-sm gap-1.5 border ${mediaOnly ? 'border-obsidian bg-obsidian text-alabaster' : 'border-stone bg-white text-graphite'}`}
+                className={`btn btn-sm gap-1.5 border ${mediaOnly ? 'border-obsidian bg-obsidian text-alabaster' : 'border-bronze bg-white text-graphite'}`}
               >
                 <ImageIcon size={13} aria-hidden="true" /> With photos
               </button>
@@ -301,7 +301,7 @@ function ReviewRow({ review, cfg, onOpenPhoto }) {
           </span>
         )}
         {review.featured && (
-          <span className="rounded-full bg-clay/20 px-2 py-0.5 text-caption font-semibold text-graphite">Featured</span>
+          <span className="rounded-full bg-bronze/20 px-2 py-0.5 text-caption font-semibold text-graphite">Featured</span>
         )}
       </div>
 

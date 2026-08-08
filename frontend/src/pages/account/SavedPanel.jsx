@@ -54,7 +54,7 @@ export default function SavedPanel({ cfg }) {
             {wishlist.length > 0 && (
               <button
                 type="button" onClick={share}
-                className="btn btn-sm gap-1.5 border border-stone bg-white text-graphite hover:bg-satin/60"
+                className="btn btn-sm gap-1.5 border border-bronze bg-white text-graphite hover:bg-satin/60"
               >
                 {shared ? <Check size={13} className="text-sagedark" aria-hidden="true" /> : <Share2 size={13} aria-hidden="true" />}
                 {shared ? 'Link copied' : 'Share'}

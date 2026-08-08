@@ -53,12 +53,12 @@ export default function ProductPromoPanel({ product }) {
       {/* ---- flash banner + countdown ---- */}
       {flashPromo && flash?.enabled !== false && (
         <section
-          className="rounded-card border border-clay/40 bg-clay/10 p-4"
+          className="rounded-card border border-bronze/40 bg-bronze/10 p-4"
           aria-labelledby="promo-flash"
         >
           <div className="flex flex-wrap items-center justify-between gap-3">
             <p id="promo-flash" className="inline-flex items-center gap-2 text-body-sm font-semibold text-obsidian">
-              <Flame size={15} className="shrink-0 text-clay" aria-hidden="true" />
+              <Flame size={15} className="shrink-0 text-bronze" aria-hidden="true" />
               {flashPromo.badge?.text || flashPromo.label}
             </p>
             {flash?.showCountdown !== false && (

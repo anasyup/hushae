@@ -106,7 +106,7 @@ export default function ProfilePanel({ cfg, user, onUpdated }) {
               />
               <label
                 htmlFor="avatar-input"
-                className="btn btn-sm cursor-pointer gap-2 border border-stone bg-white text-graphite hover:bg-satin/60"
+                className="btn btn-sm cursor-pointer gap-2 border border-bronze bg-white text-graphite hover:bg-satin/60"
               >
                 {avBusy ? <Spinner label="Uploading" /> : <Camera size={14} aria-hidden="true" />}
                 {user.avatar ? 'Change photo' : 'Add photo'}
@@ -114,7 +114,7 @@ export default function ProfilePanel({ cfg, user, onUpdated }) {
               {user.avatar && (
                 <button
                   type="button" onClick={removeAvatar} disabled={avBusy}
-                  className="btn btn-sm gap-2 border border-stone bg-white text-ash hover:text-obsidian disabled:opacity-40"
+                  className="btn btn-sm gap-2 border border-bronze bg-white text-ash hover:text-obsidian disabled:opacity-40"
                 >
                   <Trash2 size={14} aria-hidden="true" /> Remove
                 </button>

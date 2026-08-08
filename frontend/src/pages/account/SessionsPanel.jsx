@@ -61,7 +61,7 @@ export default function SessionsPanel() {
         {others > 0 && (
           <button
             type="button" onClick={revokeOthers} disabled={busy === 'all'}
-            className="btn btn-sm gap-1.5 border border-stone bg-white text-graphite hover:bg-satin/60 disabled:opacity-50"
+            className="btn btn-sm gap-1.5 border border-bronze bg-white text-graphite hover:bg-satin/60 disabled:opacity-50"
           >
             {busy === 'all' ? <Spinner label="Signing out" /> : <LogOut size={13} aria-hidden="true" />}
             Sign out other devices

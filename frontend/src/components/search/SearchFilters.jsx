@@ -157,7 +157,7 @@ export default function SearchFilters({ facets, params, onToggle, onSet, multi, 
                   key={c.value}
                   className={`inline-flex cursor-pointer items-center gap-2 rounded-control border transition-colors duration-base ease-standard ${
                     touch ? 'min-h-[44px] px-3' : 'min-h-[38px] px-2.5'
-                  } ${on ? 'border-obsidian bg-obsidian text-alabaster' : 'border-stone bg-white text-graphite hover:bg-satin/60'}`}
+                  } ${on ? 'border-obsidian bg-obsidian text-alabaster' : 'border-bronze bg-white text-graphite hover:bg-satin/60'}`}
                 >
                   <input type="checkbox" checked={on} onChange={() => onToggle('color', c.value)} className="sr-only" />
                   <span
