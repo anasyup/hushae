@@ -157,7 +157,7 @@ export default function Footer() {
             {f.contactNote !== '' && <p className="flex items-center gap-2"><MapPin size={14} className="text-alabaster/50" /> {f.contactNote || 'Pakistan — nationwide delivery'}</p>}
           </div>
           {f.paymentNote !== '' && (
-            <p className="mt-6 flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-alabaster/50"><CreditCard size={14} /> {f.paymentNote || 'COD · JazzCash · EasyPaisa · Bank Transfer'}</p>
+            <p className="mt-6 flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-alabaster/50"><CreditCard size={14} /> {f.paymentNote || 'Secure payment'}</p>
           )}
         </div>
         )}

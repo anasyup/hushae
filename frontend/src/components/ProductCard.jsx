@@ -14,6 +14,10 @@ const FALLBACK =
 
 const srcOf = (im) => (typeof im === 'string' ? im : im?.url || '');
 
+/* Brand name appears in the header — repeating "HUSHAE" on every card reads
+   like keyword stuffing. Strip it from display names. */
+const displayName = (name) => String(name || '').replace(/^HUSHAE\s+/i, '');
+
 function ProductCard({ product: p, showPrice = true, showQuickAdd = true, showWishlist = true, priority = false }) {
   const { inWishlist, toggleWish, addToCart, toast } = useApp();
   const [sizePick, setSizePick] = useState(false);
@@ -51,7 +55,8 @@ function ProductCard({ product: p, showPrice = true, showQuickAdd = true, showWi
             style={ease} />
         )}
         {onSale && off > 0 && (
-          <span className="absolute left-2 top-2 border border-obsidian bg-white/90 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-[0.1em] text-obsidian">{off}% off</span>
+          /* Luxury SALE tag — black, quiet. No red discount badges. */
+          <span className="absolute left-2 top-2 bg-neutral-900 px-2 py-0.5 text-[9px] font-medium uppercase tracking-[0.18em] text-white">Sale</span>
         )}
         {soldOut && (
           <span className="absolute left-2 top-2 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-[0.1em] text-ash">Sold out</span>
@@ -104,7 +109,7 @@ function ProductCard({ product: p, showPrice = true, showQuickAdd = true, showWi
         )}
       </Link>
       <div className="mt-2 flex flex-col">
-        <Link to={`/product/${p.slug}`} className="text-[13px] font-medium uppercase tracking-[0.04em] text-obsidian leading-snug hover:opacity-60">{p.name}</Link>
+        <Link to={`/product/${p.slug}`} className="text-[13px] font-medium uppercase tracking-[0.04em] text-obsidian leading-snug hover:opacity-60">{displayName(p.name)}</Link>
         {subtitle && <p className="mt-0.5 text-[11px] uppercase tracking-[0.08em] text-ash">{soldOut ? 'Sold out' : subtitle}</p>}
         {showPrice && !soldOut && (
           <p className="mt-1 flex items-baseline gap-2 text-[13px]">

@@ -476,3 +476,14 @@ Format:
   - PRODUCT: Accordions → horizontal TABS (active bold + underline, 200ms fade). Breadcrumbs moved to BOTTOM (above recommendations). Add to Bag now DISABLED showing "Select a Size" until size picked (black only after). Gallery got SKIMS-style prev/next arrows on hover. "About this fabric" editorial section added (fabric close-up + care).
   - CATEGORY: subcategory quick-nav pills (horizontal scroll), 3 featured collection banners (Shop Bras / Shop Panties / The Fabric Guide), grid 3→4 columns desktop. Product cards: hover arrows + "1 of 4" counter to browse all images.
   - GLOBAL: section padding +25% (hero + main), grid gaps up, Ken Burns more dramatic (15% scale, 20s).
+
+- **2026-08-04** — ✨ **Homepage luxury audit fixes (10 issues)**
+  1. HERO font: Playfair serif → clean thin sans (weight 300, tracking 0.15em) — CK "The Campus Edit" register.
+  2. HERO overlay: heavy dark → ~15-20% barely-there veil — image shines.
+  3. Announcement bar: 21-word text → "UP TO 30% OFF SIGNATURE PIECES" (6 words), thinner (28px), 11px light.
+  4. Product cards: "HUSHAE " prefix stripped from names (displayName); red "25% OFF" badge → small black "SALE" tag; wishlist already heart-only.
+  5. Footer payment: "COD · JazzCash · EasyPaisa · Bank Transfer" → "Secure payment" (settings + code default).
+  6. "The House" manifesto: ALL CAPS → sentence case, weight 300, line-height 1.7, generous spacing.
+  7. Campaign cards: bullet separators removed ("Bras  Panties  Shapewear" clean).
+  8. Trust/perks bar: 10px, #888, transparent bg — quiet.
+  10. Colors: obsidian already off-black #111111 (close to requested #1A1A1A).

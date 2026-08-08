@@ -31,7 +31,7 @@ import { useApp } from '../store/AppContext';
 /* One box, both states. Any change here must keep the two branches identical
    in height or the shift comes straight back. */
 const SHELL = 'flex h-7 items-center justify-center gap-2 overflow-hidden bg-obsidian px-3 text-center '
-  + 'text-[10px] uppercase tracking-wider text-alabaster/90 sm:h-[34px] sm:gap-3 sm:px-4 sm:text-[11px] sm:tracking-widest';
+  + 'text-[11px] font-light uppercase tracking-widest text-alabaster/85 sm:h-7 sm:gap-3 sm:px-4';
 
 export default function OfferBar() {
   const { settings } = useApp();

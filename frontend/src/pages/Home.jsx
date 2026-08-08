@@ -23,9 +23,9 @@ const CK_RED = '#D50000';
 
 /* ── CK tray row: image tile + label below (Denim / Jackets / Dresses) ───── */
 const TRAYS = [
-  { label: 'For Her', sub: 'Bras · Panties · Shapewear', img: '/images/campaign/hushae-hero-women.jpg', href: '/women' },
-  { label: 'For Him', sub: 'Briefs · Boxers · Trunks', img: '/images/campaign/hushae-hero-men.jpg', href: '/men' },
-  { label: 'The Fabric', sub: 'Modal · Cotton · Stretch', img: '/images/campaign/hushae-fabric.jpg', href: '/about' },
+  { label: 'For Her', sub: 'Bras  Panties  Shapewear', img: '/images/campaign/hushae-hero-women.jpg', href: '/women' },
+  { label: 'For Him', sub: 'Briefs  Boxers  Trunks', img: '/images/campaign/hushae-hero-men.jpg', href: '/men' },
+  { label: 'The Fabric', sub: 'Modal  Cotton  Stretch', img: '/images/campaign/hushae-fabric.jpg', href: '/about' },
 ];
 
 const PERKS = ['Discreet packaging', 'COD nationwide', '7-day returns', 'Wash-tested 40 cycles'];
@@ -128,16 +128,16 @@ export default function Home() {
             </picture>
           )}
         />
-        {/* LIGHT veil only — CK lets the image SHINE (~30% bottom legibility,
-            hairline top fade for the header) */}
-        <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-white/50 to-transparent" />
-        <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-white/70 via-white/10 to-transparent" />
+        {/* LIGHT veil — barely there (15%), CK lets the image shine */}
+        <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-white/40 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-white/45 via-white/5 to-transparent" />
 
         <div className="relative flex min-h-screen items-end">
           <div className="w-full px-6 pb-14 md:px-14 md:pb-20 lg:px-24">
             {/* Tiny eyebrow — muted, almost invisible (CK register) */}
             <p className="text-[10px] font-medium uppercase tracking-[0.3em] text-neutral-500">Made in Pakistan</p>
-            <h1 className="mt-6 font-display text-[52px] font-bold uppercase leading-[0.95] tracking-[0.12em] text-neutral-900 md:text-[120px] lg:text-[150px]">
+            {/* CK-style: thin (300), tracked-out (0.15em), clean sans — no serif */}
+            <h1 className="mt-6 font-sans text-[44px] font-light uppercase leading-[1.02] tracking-[0.15em] text-neutral-900 md:text-[100px] lg:text-[120px]">
               Second
               <br />
               Skin
@@ -217,11 +217,11 @@ export default function Home() {
       {/* ═══ 04 — EDITORIAL STATEMENT (big typographic moment) ═════ */}
       <section className="border-t border-line bg-alabaster py-24 md:py-36">
         <div className="container max-w-4xl">
-          <p className="text-[12px] font-semibold uppercase tracking-[0.3em] text-ash">The House</p>
-          <p className="mt-10 font-display text-[34px] font-medium uppercase leading-[1.08] tracking-[0.01em] text-obsidian md:text-[64px]">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-neutral-400">The House</p>
+          <p className="mt-12 max-w-4xl font-sans text-[26px] font-light leading-[1.7] tracking-[0.02em] text-neutral-900 md:text-[44px]">
             The best innerwear is the piece you stop noticing by ten in the morning.
           </p>
-          <div className="mt-12 flex flex-wrap items-center gap-8">
+          <div className="mt-14 flex flex-wrap items-center gap-8">
             <p className="max-w-sm text-[14px] leading-relaxed text-ash">
               Modal that moves. Seams that sit flat. Elastics that hold without pressing. Designed and made in Pakistan, finished to an international standard.
             </p>
@@ -235,11 +235,11 @@ export default function Home() {
       {/* ═══ 05 — CAMPAIGN FULL-BLEED (For Him, subtle parallax) ═════ */}
       <CampaignSection />
 
-      {/* ═══ 06 — PERKS (one line, CK style) ═══════════════════════ */}
-      <section className="border-t border-line bg-white">
-        <div className="container flex flex-wrap items-center justify-center gap-x-12 gap-y-3 py-8 md:justify-between">
+      {/* ═══ 06 — PERKS — quiet, almost invisible (CK: discoverable but subtle) ═══ */}
+      <section className="border-t border-neutral-100 bg-transparent">
+        <div className="container flex flex-wrap items-center justify-center gap-x-12 gap-y-2 py-6 md:justify-between">
           {PERKS.map((p) => (
-            <span key={p} className="text-[11px] font-semibold uppercase tracking-[0.24em] text-ash">{p}</span>
+            <span key={p} className="text-[10px] font-medium uppercase tracking-[0.2em] text-[#888]">{p}</span>
           ))}
         </div>
       </section>
@@ -338,7 +338,7 @@ function CampaignSection() {
       <div className="absolute inset-x-0 bottom-0 h-[65%] bg-gradient-to-t from-alabaster/95 via-alabaster/40 to-transparent" />
       <div className="relative flex min-h-[85vh] items-end">
         <div className="w-full px-6 pb-16 md:px-14 md:pb-24 lg:px-24">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-graphite">For Him · New Season</p>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-graphite">For Him  New Season</p>
           <h2 className="mt-6 font-display text-[40px] font-bold uppercase leading-[0.95] tracking-[0.12em] text-obsidian md:text-[90px]">
             Considered
             <br />
