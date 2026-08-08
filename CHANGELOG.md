@@ -431,3 +431,8 @@ Format:
   - Theme Editor: /admin/theme now opens the LIVE-STORE settings editor (iframe preview of the real storefront + instant unsaved preview via postMessage; Save only PUTs store settings — it NEVER touches the theme document, so it can't override the React home and never auto-publishes).
   - Section/page builder moved to /admin/theme-sections (keeps draft-only autosave + explicit Publish; verified autosave calls save(false)).
   - Verified: theme doc empty (React home safe), no broken nav links (every nav entry has a route), no console.error in admin screens, AdminLogin themable.
+
+- **2026-08-04** — 🐛 **CRITICAL FIX: theme buttons were dead on the live storefront**
+  - Root cause: BlockRenderer's button case called `e.preventDefault()` UNCONDITIONALLY. On the LIVE storefront (editable=false) every theme button rendered an `<a href>` but the click never navigated — dead buttons across the themed home.
+  - Fix: preventDefault only runs when `editable` is true (editor preview, where a click selects the node). In live mode the anchor navigates normally. Verified in BlockRenderer.tsx.
+  - Also reset the theme document (published 15-section doc) so the storefront renders the hand-coded CK React home (the user's approved home) with fully working buttons.

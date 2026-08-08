@@ -78,13 +78,21 @@ function BlockBody({ block: b, scope }: Props) {
       );
 
     // ── actions ─────────────────────────────────────────────────────────────
-    case 'button':
+    case 'button': {
+      /* MEASURED BUG: preventDefault() ran unconditionally, so on the LIVE
+         storefront every theme button (href="/women" etc.) was a dead link —
+         the anchor rendered but the click never navigated. It only makes sense
+         in the EDITOR (editable=true), where a click should select the node
+         instead of navigating. In live mode we must let the anchor behave
+         normally. */
+      const { editable } = useRenderCtx();
       return (
         <a href={str(s.href, '#')} target={s.newTab ? '_blank' : undefined} rel={s.newTab ? 'noreferrer' : undefined}
-          style={buttonStyle(s)} onClick={(e) => e.preventDefault()}>
+          style={buttonStyle(s)} onClick={editable ? (e) => e.preventDefault() : undefined}>
           {str(s.label, 'Button')}
         </a>
       );
+    }
     case 'button_row':
       return (
         <div className={`flex flex-wrap ${alignClass(s.align, 'justify')}`} style={{ gap: num(s.gap, 12) }}>
