@@ -1,29 +1,22 @@
 import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, Heart } from 'lucide-react';
-import { memo, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useMemo, useState } from 'react';
 import { useApp } from '../store/AppContext';
 import { pkr } from '../lib/format';
 import { isOnSale } from '../lib/sale';
 import { titleCase, materialName } from '../lib/productMeta';
 
-/* HUSHAE ProductCard — v4 "minimal 3D, cool" (used on every grid: home,
- * category, shop, rails, product page).
+/* HUSHAE ProductCard — editorial luxury (SSENSE / COS / CDLP / CK register).
  *
- * The 3D is an accent, never decoration:
- *   · the image tile follows the cursor with a subtle perspective tilt
- *     (max ~5-6deg, desktop + fine pointer + reduced-motion OFF only)
- *   · on hover the card lifts with a warm floating shadow — no hard box
- *   · flat lay crossfades in with a 1.02 zoom (the one allowed motion)
+ * A real luxury card disappears — the product is the only thing visible.
+ *   · flat tile: no border, no shadow, no tilt, no lift
+ *   · hover = crossfade to the second image with a whisper of zoom (1.02)
+ *   · UI (arrows, counter, heart, quick-add) appears ONLY on hover
+ *   · caption is one clean block: name | price → material → sizes · colour
  *
- * Default state stays completely clean — the product is the only thing
- * visible. Hover only: tilt, lift, arrows, counter, wishlist heart, thin
- * Quick add bar.
- *
- * Caption — a magazine line, refined:
- *   Everyday Bra           775
- *   Premium Modal
- *   S M L XL · Slate
- * Sale prints "PKR 600 ~~PKR 800~~". No badges except a quiet "New" chip.
+ * This is how the reference houses do it: photography carries the card,
+ * the interface stays silent. No effects "because we can" — only the one
+ * hover behaviour a shopper expects.
  */
 
 const FALLBACK =
@@ -61,57 +54,26 @@ function ProductCard({
   const material = materialName(p.fabric);
   const colour = p.colors?.[0]?.name || '';
 
-  /* ── 3D tilt — cursor-follow perspective. Desktop + fine pointer only,
-        and never when the visitor asked for reduced motion. ─────────── */
-  const tiltRef = useRef(null);
-  const [tilt, setTilt] = useState(null); // { rx, ry }
-  const [tiltable, setTiltable] = useState(false);
-  useEffect(() => {
-    let fine = false, reduce = false;
-    try { fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches; } catch { /* noop */ }
-    try { reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch { /* noop */ }
-    setTiltable(fine && !reduce);
-  }, []);
-
-  const onTilt = (e) => {
-    if (!tiltable) return;
-    const el = tiltRef.current;
-    if (!el) return;
-    const r = el.getBoundingClientRect();
-    const px = (e.clientX - r.left) / r.width - 0.5;
-    const py = (e.clientY - r.top) / r.height - 0.5;
-    setTilt({ rx: -py * 5, ry: px * 6 });
-  };
-  const clearTilt = () => setTilt(null);
-
   const ease = { transitionTimingFunction: 'cubic-bezier(0.25, 1, 0.5, 1)' };
 
   return (
-    <article
-      className="group"
-      onMouseMove={onTilt}
-      onMouseLeave={() => { setSizePick(false); clearTilt(); }}
-    >
-      {/* ── Image — tilts + lifts on hover, flat lay crossfades ────────── */}
+    <article className="group" onMouseLeave={() => setSizePick(false)}>
+      {/* ── Image — flat, quiet. Hover = second image + whisper of zoom ── */}
       <Link
         to={`/product/${p.slug}`}
         tabIndex={-1}
-        className="relative block overflow-hidden bg-sand transition-shadow duration-hover ease-luxury group-hover:shadow-[0_30px_60px_-30px_rgba(26,27,28,0.35)]"
+        className="relative block overflow-hidden bg-sand"
       >
-        {/* tilt layer — in-flow ratio so the card always has real height */}
         <div
-          ref={tiltRef}
-          className={`relative ${ratio} overflow-hidden transition-transform duration-[350ms] ease-luxury`}
-          style={tilt
-            ? { transform: `perspective(900px) rotateX(${tilt.rx}deg) rotateY(${tilt.ry}deg) scale(1.015)` }
-            : undefined}
+          className={`relative ${ratio} overflow-hidden transition-transform duration-hover ease-luxury group-hover:scale-[1.02]`}
+          style={ease}
         >
           <img
             src={failed ? FALLBACK : (primary || FALLBACK)}
             alt={`${name}, front view`}
             width="900" height="1200" loading={priority ? 'eager' : 'lazy'}
             onError={() => setFailed(true)}
-            className={`absolute inset-0 h-full w-full object-cover transition-transform duration-hover ease-luxury group-hover:scale-[1.02] ${secondary ? 'transition-[opacity,transform] duration-[300ms] group-hover:opacity-0' : ''}`}
+            className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-[300ms] ${secondary ? 'group-hover:opacity-0' : ''}`}
             style={ease}
           />
           {secondary && (
@@ -122,7 +84,7 @@ function ProductCard({
           )}
         </div>
 
-        {/* New arrivals — quiet white chip */}
+        {/* New arrivals — quiet white chip (CK convention) */}
         {p.isNewArrival && (
           <span className="pointer-events-none absolute left-2 top-2 z-10 bg-white/90 px-2 py-1 text-[9px] font-medium uppercase tracking-[0.16em] text-charcoal">
             New
@@ -154,7 +116,7 @@ function ProductCard({
           </>
         )}
 
-        {/* Wishlist heart — hover only, top-right, gold when wished */}
+        {/* Wishlist heart — hover only, top-right, gold when saved */}
         {showWishlist && (
           <button
             type="button"
@@ -166,12 +128,12 @@ function ProductCard({
           </button>
         )}
 
-        {/* Quick add — thin bar, hover only; gold on its own hover */}
+        {/* Quick add — thin bar, hover only (CDLP) */}
         {showQuickAdd && !soldOut && sizes.length > 0 && !sizePick && (
           <button
             type="button"
             onClick={(e) => { e.preventDefault(); setSizePick(true); }}
-            className="absolute inset-x-0 bottom-0 z-10 translate-y-full bg-pearl/95 py-2.5 text-center text-[10px] font-medium uppercase tracking-[0.2em] text-charcoal opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100 hover:bg-gold hover:text-white"
+            className="absolute inset-x-0 bottom-0 z-10 translate-y-full bg-pearl/95 py-2.5 text-center text-[10px] font-medium uppercase tracking-[0.2em] text-charcoal opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100 hover:text-gold"
             style={ease}
           >Quick add</button>
         )}
@@ -195,8 +157,8 @@ function ProductCard({
         )}
       </Link>
 
-      {/* ── Caption — magazine line ── */}
-      <div className="mt-4 flex flex-col">
+      {/* ── Caption — one clean block, aligned to a baseline ─────────── */}
+      <div className="mt-3 flex flex-col">
         <div className="flex items-baseline justify-between gap-3">
           <Link to={`/product/${p.slug}`} className="min-w-0 text-[13px] font-medium leading-snug normal-case text-charcoal transition-colors duration-300 hover:text-smoke">
             {name}
@@ -214,9 +176,9 @@ function ProductCard({
             )
           )}
         </div>
-        {material && <p className="mt-1.5 text-[11px] leading-relaxed text-smoke">{material}</p>}
+        {material && <p className="mt-1 text-[11px] leading-relaxed text-smoke">{material}</p>}
         {(sizes.length > 0 || colour) && (
-          <p className="mt-1.5 text-[10px] tracking-[0.08em] text-smoke">
+          <p className="mt-1 text-[10px] tracking-[0.08em] text-smoke">
             {sizes.join('  ')}
             {colour && <><span className="mx-1.5 text-clay">·</span>{colour}</>}
           </p>
