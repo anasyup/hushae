@@ -1,3 +1,12 @@
+## Changes
+- **2026-08-09** — 📸 **OWN WARM CAMPAIGN PHOTOGRAPHY** (commit `c54b443`) — stock photos removed from homepage
+  - **8 AI-generated editorial images** in ONE art direction: golden-hour warm light, stone/sand/caramel palette, quiet luxury (Brunello × CK register):
+    - hero: hero-women / hero-men / hero-fabric (rotating slideshow)
+    - categories: cat-women / cat-men / cat-underwear / new arrivals
+    - editorial banners: editorial-modern (Modern Classics) / editorial-performance (Performance)
+  - **Warm shift**: hero/banner overlays black → warm dark `#1F1A12`; footer + all primary buttons `midnight #1C2333` (cool navy) → `charcoal #1A1B1C` (warm black) + graphite hover — whole site now warm, no cold navy.
+  - Verified: 12/12 routes 200; campaign images serve HTTP 200 image/jpeg; zero stock-image refs in live bundle; theme body empty.
+
 # Hushae — Changelog
 
 Yeh file har change ka record hai jo Arena assistant ke saath ki gayi hai.
