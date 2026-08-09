@@ -77,6 +77,13 @@ function ProductCard({ product: p, showPrice = true, showQuickAdd = true, showWi
           )}
         </div>
 
+        {/* New arrivals badge — quiet white chip, top-left */}
+        {p.isNewArrival && (
+          <span className="pointer-events-none absolute left-2 top-2 z-10 bg-white/90 px-2 py-1 text-[9px] font-semibold uppercase tracking-[0.16em] text-charcoal">
+            New
+          </span>
+        )}
+
         {/* Browse arrows + counter — hidden behind hover ONLY */}
         {allImages.length > 1 && !sizePick && (
           <>
