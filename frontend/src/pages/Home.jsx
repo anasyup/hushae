@@ -87,16 +87,16 @@ export default function Home() {
           className="absolute inset-0 h-full w-full object-cover object-center" />
         <div className="absolute inset-0 bg-black/30" />
         <div className="relative flex h-full flex-col items-center justify-center px-6 text-center text-white">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-white/80 [text-shadow:0_1px_16px_rgba(0,0,0,0.4)]">The New Edit</p>
-          <h1 className="mt-6 text-[clamp(40px,7vw,80px)] font-light uppercase leading-[1.04] tracking-[0.14em] [text-shadow:0_2px_32px_rgba(0,0,0,0.45)]">Second<br />Skin</h1>
-          <p className="mt-6 max-w-md text-[13px] font-light leading-[1.8] tracking-[0.12em] text-white/85 [text-shadow:0_1px_12px_rgba(0,0,0,0.4)]">
+          <p className="text-[11px] font-medium uppercase tracking-[0.1em] text-white/80 [text-shadow:0_1px_16px_rgba(0,0,0,0.4)]">The New Edit</p>
+          <h1 className="mt-6 text-[clamp(40px,7vw,80px)] font-medium uppercase leading-[1.02] tracking-[0.04em] [text-shadow:0_2px_32px_rgba(0,0,0,0.45)]">Second<br />Skin</h1>
+          <p className="mt-6 max-w-md text-[15px] font-normal leading-[1.6] tracking-[0.02em] text-white/90 [text-shadow:0_1px_12px_rgba(0,0,0,0.4)]">
             New season essentials — engineered in Pakistan, finished to an international standard.
           </p>
           <div className="mt-10 flex flex-wrap items-center justify-center gap-10">
-            <Link to="/women" className="group inline-flex items-center gap-2 border-b border-white/40 pb-1 text-[12px] font-medium uppercase tracking-[0.18em] text-white transition-colors duration-300 hover:border-white">
+            <Link to="/women" className="group inline-flex items-center gap-2 border-b border-white/40 pb-1 text-[12px] font-medium uppercase tracking-[0.08em] text-white transition-colors duration-300 hover:border-white">
               Shop Women <ArrowRight size={13} className="transition-transform duration-300 group-hover:translate-x-1" />
             </Link>
-            <Link to="/men" className="group inline-flex items-center gap-2 border-b border-white/40 pb-1 text-[12px] font-medium uppercase tracking-[0.18em] text-white transition-colors duration-300 hover:border-white">
+            <Link to="/men" className="group inline-flex items-center gap-2 border-b border-white/40 pb-1 text-[12px] font-medium uppercase tracking-[0.08em] text-white transition-colors duration-300 hover:border-white">
               Shop Men <ArrowRight size={13} className="transition-transform duration-300 group-hover:translate-x-1" />
             </Link>
           </div>
@@ -106,8 +106,8 @@ export default function Home() {
       {/* ═══ 03 — PROMOTIONS (admin banners, user request) ═══════════ */}
       <section className="mx-auto mt-14 max-w-7xl px-4 md:mt-20 md:px-8">
         <div className="mb-6 flex items-baseline justify-between border-t border-[#E5E5E5] pt-4">
-          <h2 className="text-[20px] font-light uppercase tracking-[0.14em] text-[#111111]">This Week</h2>
-          <span className="hidden text-[10px] font-medium uppercase tracking-[0.2em] text-[#707070] md:block">Promotions</span>
+          <h2 className="text-[20px] font-medium uppercase tracking-[0.02em] text-[#111111]">This Week</h2>
+          <span className="hidden text-[11px] font-medium uppercase tracking-[0.08em] text-[#696969] md:block">Promotions</span>
         </div>
         <Banner
           slot="homepage-promo-1"
@@ -127,8 +127,8 @@ export default function Home() {
       {/* ═══ 04 — CATEGORY TRAY (CK: image + label + Shop links) ═════ */}
       <section className="mx-auto mt-14 max-w-7xl px-4 md:mt-20 md:px-8">
         <div className="mb-8 flex items-baseline justify-between border-t border-[#E5E5E5] pt-4">
-          <h2 className="text-[20px] font-light uppercase tracking-[0.14em] text-[#111111]">Shop by Category</h2>
-          <Link to="/shop" className="hidden text-[10px] font-medium uppercase tracking-[0.18em] text-[#707070] transition hover:text-[#111111] md:block">View All</Link>
+          <h2 className="text-[20px] font-medium uppercase tracking-[0.02em] text-[#111111]">Shop by Category</h2>
+          <Link to="/shop" className="hidden text-[11px] font-medium uppercase tracking-[0.08em] text-[#696969] transition hover:text-[#111111] md:block">View All</Link>
         </div>
         <div className="grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-4 md:gap-x-5">
           {TRAY.map((t) => (
@@ -138,8 +138,8 @@ export default function Home() {
                   className="aspect-[3/4] w-full object-cover transition duration-700 group-hover:scale-[1.04]" />
               </Link>
               <div className="mt-4 flex items-baseline justify-between px-0.5">
-                <p className="text-[13px] font-medium uppercase tracking-[0.14em] text-[#111111]">{t.label}</p>
-                <Link to={t.shop} className="inline-flex items-center gap-1 text-[10px] font-medium uppercase tracking-[0.16em] text-[#707070] transition group-hover:text-[#111111]">
+                <p className="text-[13px] font-medium uppercase tracking-[0.04em] text-[#111111]">{t.label}</p>
+                <Link to={t.shop} className="inline-flex items-center gap-1 text-[11px] font-medium uppercase tracking-[0.08em] text-[#696969] transition group-hover:text-[#111111]">
                   Shop <ArrowRight size={11} />
                 </Link>
               </div>
@@ -152,11 +152,11 @@ export default function Home() {
       <section className="mt-14 md:mt-24">
         <div className="mx-auto max-w-7xl px-4 md:px-8">
           <div className="max-w-2xl">
-            <h2 className="text-[24px] font-light uppercase tracking-[0.12em] text-[#111111] md:text-[32px]">Feel the Fit</h2>
-            <p className="mt-3 max-w-md text-[13px] font-light leading-[1.8] text-[#707070]">
+            <h2 className="text-[24px] font-medium uppercase tracking-[0.02em] text-[#111111] md:text-[32px]">Feel the Fit</h2>
+            <p className="mt-3 max-w-md text-[15px] font-normal leading-[1.6] text-[#696969]">
               From relaxed and breezy to streamlined and supportive — the right fit changes everything.
             </p>
-            <Link to="/fit-finder" className="mt-5 inline-flex items-center gap-2 border-b border-[#111111]/25 pb-1 text-[12px] font-medium uppercase tracking-[0.18em] text-[#111111] transition hover:border-[#111111]">
+            <Link to="/fit-finder" className="mt-5 inline-flex items-center gap-2 border-b border-[#111111]/25 pb-1 text-[12px] font-medium uppercase tracking-[0.08em] text-[#111111] transition hover:border-[#111111]">
               Find your fit <ArrowRight size={13} className="transition-transform duration-300 group-hover:translate-x-1" />
             </Link>
           </div>
@@ -166,7 +166,7 @@ export default function Home() {
             <img src={`${IMG}/cat-women.jpg`} alt="Women's" loading="lazy" className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-105" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
             <div className="absolute inset-x-0 bottom-0 p-6">
-              <p className="text-lg font-light uppercase tracking-[0.14em] text-white">Women&apos;s Edit</p>
+              <p className="text-[15px] font-medium uppercase tracking-[0.04em] text-white">Women&apos;s Edit</p>
               <span className="mt-1 inline-block text-[10px] font-medium uppercase tracking-[0.18em] text-white/80">Shop Now →</span>
             </div>
           </Link>
@@ -174,7 +174,7 @@ export default function Home() {
             <img src={`${IMG}/cat-men.jpg`} alt="Men's" loading="lazy" className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-105" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
             <div className="absolute inset-x-0 bottom-0 p-6">
-              <p className="text-lg font-light uppercase tracking-[0.14em] text-white">Men&apos;s Edit</p>
+              <p className="text-[15px] font-medium uppercase tracking-[0.04em] text-white">Men&apos;s Edit</p>
               <span className="mt-1 inline-block text-[10px] font-medium uppercase tracking-[0.18em] text-white/80">Shop Now →</span>
             </div>
           </Link>
@@ -186,10 +186,10 @@ export default function Home() {
         <section className="mx-auto mt-14 max-w-7xl px-4 md:mt-24 md:px-8">
           <div className="mb-8 flex items-baseline justify-between border-t border-[#E5E5E5] pt-4">
             <div>
-              <h2 className="text-[20px] font-light uppercase tracking-[0.14em] text-[#111111]">Just In</h2>
+              <h2 className="text-[20px] font-medium uppercase tracking-[0.02em] text-[#111111]">Just In</h2>
               <p className="mt-1 text-[12px] text-[#707070]">New, minimalist staples to refresh your wardrobe with ease.</p>
             </div>
-            <Link to="/new" className="hidden text-[10px] font-medium uppercase tracking-[0.18em] text-[#707070] transition hover:text-[#111111] md:block">Shop All</Link>
+            <Link to="/new" className="hidden text-[11px] font-medium uppercase tracking-[0.08em] text-[#696969] transition hover:text-[#111111] md:block">Shop All</Link>
           </div>
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-5">
             {fresh.slice(0, 8).map((p) => <ProductCard key={p._id} product={p} />)}
@@ -201,15 +201,15 @@ export default function Home() {
       <section className="mt-14 md:mt-24">
         <div className="mx-auto max-w-7xl px-4 md:px-8">
           <div className="max-w-2xl">
-            <h2 className="text-[24px] font-light uppercase tracking-[0.12em] text-[#111111] md:text-[32px]">Signature Underwear</h2>
-            <p className="mt-3 max-w-md text-[13px] font-light leading-[1.8] text-[#707070]">
+            <h2 className="text-[24px] font-medium uppercase tracking-[0.02em] text-[#111111] md:text-[32px]">Signature Underwear</h2>
+            <p className="mt-3 max-w-md text-[15px] font-normal leading-[1.6] text-[#696969]">
               Smooth silhouettes with the logo waistband. Feel confident under anything.
             </p>
             <div className="mt-5 flex flex-wrap gap-8">
-              <Link to="/women" className="inline-flex items-center gap-2 border-b border-[#111111]/25 pb-1 text-[12px] font-medium uppercase tracking-[0.18em] text-[#111111] transition hover:border-[#111111]">
+              <Link to="/women" className="inline-flex items-center gap-2 border-b border-[#111111]/25 pb-1 text-[12px] font-medium uppercase tracking-[0.08em] text-[#111111] transition hover:border-[#111111]">
                 Shop Women <ArrowRight size={13} />
               </Link>
-              <Link to="/men" className="inline-flex items-center gap-2 border-b border-[#111111]/25 pb-1 text-[12px] font-medium uppercase tracking-[0.18em] text-[#111111] transition hover:border-[#111111]">
+              <Link to="/men" className="inline-flex items-center gap-2 border-b border-[#111111]/25 pb-1 text-[12px] font-medium uppercase tracking-[0.08em] text-[#111111] transition hover:border-[#111111]">
                 Shop Men <ArrowRight size={13} />
               </Link>
             </div>
@@ -228,8 +228,8 @@ export default function Home() {
       {/* ═══ 08 — REWARDS BAND (CK "My Calvin Rewards") ══════════════ */}
       <section className="mt-14 md:mt-24">
         <div className="mx-auto max-w-7xl px-4 py-14 text-center md:px-8 md:py-20">
-          <h2 className="text-[24px] font-light uppercase tracking-[0.14em] text-[#111111] md:text-[32px]">My Hushae Circle</h2>
-          <p className="mx-auto mt-3 max-w-md text-[13px] font-light leading-[1.8] text-[#707070]">
+          <h2 className="text-[24px] font-medium uppercase tracking-[0.02em] text-[#111111] md:text-[32px]">My Hushae Circle</h2>
+          <p className="mx-auto mt-3 max-w-md text-[15px] font-normal leading-[1.6] text-[#696969]">
             Earn. Redeem. Enjoy. A new way to experience HUSHAE — points, rewards and exclusive benefits.
           </p>
           <Link to="/rewards" className="mt-6 inline-flex min-h-[46px] items-center justify-center bg-[#111111] px-10 text-[12px] font-medium uppercase tracking-[0.16em] text-white transition-colors duration-300 hover:bg-[#333333]">
@@ -261,11 +261,11 @@ export default function Home() {
           <div className="absolute inset-0 bg-black/45" />
           <div className="absolute inset-0 flex items-center justify-center px-6 text-center text-white">
             <div>
-              <h2 className="text-[clamp(28px,5vw,44px)] font-light uppercase tracking-[0.2em] [text-shadow:0_2px_24px_rgba(0,0,0,0.4)]">#HUSHAE</h2>
-              <p className="mx-auto mt-4 max-w-xl text-[13px] font-light leading-[1.8] text-white/85">
+              <h2 className="text-[clamp(28px,5vw,44px)] font-medium uppercase tracking-[0.04em] [text-shadow:0_2px_24px_rgba(0,0,0,0.4)]">#HUSHAE</h2>
+              <p className="mx-auto mt-4 max-w-xl text-[15px] font-normal leading-[1.6] text-white/90">
                 Share your look. Tag @hushae and #HUSHAE on Instagram for a chance to be featured.
               </p>
-              <span className="mt-8 inline-flex items-center gap-2 border-b border-white/40 pb-1 text-[12px] font-medium uppercase tracking-[0.18em] text-white transition-colors duration-300 group-hover:border-white">
+              <span className="mt-8 inline-flex items-center gap-2 border-b border-white/40 pb-1 text-[12px] font-medium uppercase tracking-[0.08em] text-white transition-colors duration-300 group-hover:border-white">
                 Explore <ArrowRight size={13} className="transition-transform duration-300 group-hover:translate-x-1" />
               </span>
             </div>
@@ -283,8 +283,8 @@ function NewsletterBand() {
   return (
     <section className="mx-auto mt-14 max-w-7xl px-4 md:mt-20 md:px-8">
       <div className="border border-[#E5E5E5] px-6 py-14 text-center md:py-16">
-        <h2 className="text-[22px] font-light uppercase tracking-[0.14em] text-[#111111] md:text-[28px]">Get 10% Off</h2>
-        <p className="mx-auto mt-3 max-w-sm text-[13px] font-light leading-[1.8] text-[#707070]">
+        <h2 className="text-[22px] font-medium uppercase tracking-[0.02em] text-[#111111] md:text-[28px]">Get 10% Off</h2>
+        <p className="mx-auto mt-3 max-w-sm text-[15px] font-normal leading-[1.6] text-[#696969]">
           Join the circle for early access to new drops, fit guides and private offers.
         </p>
         {done ? (
@@ -293,7 +293,7 @@ function NewsletterBand() {
           <form onSubmit={(e) => { e.preventDefault(); if (email.trim()) { api('/subscribers', { method: 'POST', body: { email: email.trim() } }).catch(() => {}); setDone(true); } }}
             className="mx-auto mt-6 flex max-w-md items-end gap-3">
             <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="Your email"
-              className="min-h-[46px] w-full min-w-0 flex-1 border-0 border-b border-[#111111]/30 bg-transparent pb-2 text-[14px] font-light text-[#111111] outline-none transition-colors placeholder:text-[#707070]/60 focus:border-[#111111]" />
+              className="min-h-[46px] w-full min-w-0 flex-1 border-0 border-b border-[#111111]/30 bg-transparent pb-2 text-[15px] font-normal text-[#111111] outline-none transition-colors placeholder:text-[#696969]/60 focus:border-[#111111]" />
             <button type="submit"
               className="min-h-[46px] shrink-0 bg-[#111111] px-8 text-[11px] font-medium uppercase tracking-[0.16em] text-white transition-colors duration-300 hover:bg-[#333333]">
               Sign Up
