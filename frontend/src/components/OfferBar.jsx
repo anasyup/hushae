@@ -1,41 +1,26 @@
-import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { BadgePercent } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 
-/* ============================================================================
- * ANNOUNCEMENT BAR — Calvin Klein–style single static line.
- * "Free Shipping Over PKR 4,999 | Free Returns"
- * 24px, 10px light text, off-black bg. On the home page (hideOnScroll) the
- * bar tucks away the moment the visitor scrolls.
- * ========================================================================== */
-
-export default function OfferBar({ hideOnScroll = false }) {
+export default function OfferBar() {
   const { settings } = useApp();
   const offer = settings?.offerBar;
-  const [gone, setGone] = useState(false);
 
-  useEffect(() => {
-    if (!hideOnScroll) return undefined;
-    const onScroll = () => setGone(window.scrollY > 48);
-    onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, [hideOnScroll]);
-
-  if (offer?.enabled === false) return null;
+  if (offer?.enabled && offer.messageEn) {
+    return (
+      <div className="flex items-center justify-center gap-3 bg-obsidian px-4 py-2 text-center text-[11px] uppercase tracking-widest text-alabaster/90">
+        <BadgePercent size={13} className="shrink-0 text-sage" />
+        <span className="truncate">{offer.messageEn}</span>
+        <Link to={offer.link || '/sale'} className="inline-flex items-center gap-1 border-b border-sage font-semibold text-sage transition hover:gap-1.5">
+          {offer.ctaEn || 'Shop now'}
+        </Link>
+      </div>
+    );
+  }
 
   return (
-    <div
-      className={`flex h-6 items-center justify-center overflow-hidden bg-[#1A1B1C] px-3 text-center transition-transform duration-[400ms] ease-luxury ${
-        hideOnScroll && gone ? '-translate-y-full' : 'translate-y-0'
-      }`}
-    >
-      <Link
-        to="/shipping-policy"
-        className="truncate text-[10px] font-light uppercase tracking-[0.18em] text-white/80 transition-opacity duration-300 hover:text-white"
-      >
-        Free Shipping Over PKR 4,999 <span className="mx-2 text-white/40">|</span> Free Returns
-      </Link>
+    <div className="bg-obsidian py-2 text-center text-[11px] uppercase tracking-widest text-alabaster/90">
+      Free nationwide shipping over PKR 4,999 · Discreet packaging on every order
     </div>
   );
 }

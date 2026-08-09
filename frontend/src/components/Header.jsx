@@ -265,7 +265,7 @@ export default function Header() {
                     key={`${m.label}-${i}`}
                     to={m.href || '/'}
                     style={navStyle}
-                    className={({ isActive }) => `${linkCls({ isActive })} ${m.highlight ? 'after:scale-x-100' : ''}`}
+                    className={({ isActive }) => `${linkCls({ isActive })} ${m.highlight && !overHero ? '!text-sagedeep' : ''}`}
                   >
                     {m.label}
                   </NavLink>
