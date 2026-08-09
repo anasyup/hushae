@@ -22,6 +22,18 @@ Format:
 ---
 
 ## Changes
+- **2026-08-09** — 🖤 **HOMEPAGE REBUILT — Calvin Klein–style "REDEFINE MODERN"** (reference: luxury-apparel-copy; user: "asa frontstore banao bilkul asa same to same")
+  - Homepage converted to the exact reference structure, HUSHAE branding + PKR + real products:
+    - Announcement: static **"Free Shipping Over PKR 4,999 | Free Returns"** (was rotating 3 messages).
+    - Hero: **3-image rotating slideshow** (5s crossfade + dots), eyebrow "THE SPRING EDIT", huge tracked caps **"REDEFINE MODERN"**, "New Season Essentials", **SHOP WOMEN / SHOP MEN** buttons.
+    - **Shop By Category**: 4 tiles (Women / Men / Underwear / New Arrivals) with hover zoom + "Shop Now" links.
+    - Editorial banners: **THE ICON EDIT — Modern Classics / Discover** and **HUSHAE PERFORMANCE — Move With Purpose / Shop Now** (full-bleed, centered white type).
+    - **Best Sellers**: 4-col grid (real bestsellers from API), hover image swap + **"New" chip** on new arrivals.
+    - **#HUSHAE** social call-out + Explore.
+  - Removed from homepage: chapter counters, The House, Considered Comfort, The Promise, The Word, newsletter section (reference has none of these; footer keeps newsletter). Admin homepage-below banner slot retained (renders only if published).
+  - ProductCard gained a quiet white "New" badge (top-left) for `isNewArrival` products; static bar replaces rotating OfferBar.
+  - Verified: build clean; 12/12 routes 200; live bundle carries all reference markers; theme body empty (React home active).
+
 - **2026-08-09** — 🐛🔧 **3 fixes: product images, New Arrivals nav, color audit** (commit `0347daf`)
   - **FIX 1 (critical) — product images blank**: root cause = QA ProductCard's zoom wrapper was `absolute inset-0` with NO in-flow content, so the card Link collapsed to 0px height and every image clipped to nothing. Campaign tiles were fine (in-flow aspect). Fixed: zoom layer is now an in-flow `relative aspect-[3/4]` container; images are `absolute inset-0 h-full w-full` inside it. Verified: image URLs are healthy (HTTP 200, image/jpeg) and the card now has real height — homepage essentials, category grids, related/recently-viewed rails all render.
   - **FIX 2 — "New Arrivals" in nav**: header menu = **New Arrivals · Women · Men · Journal · Sale** (5 items, logo still centered, same underline hover, admin settings updated in DB). Mobile bottom tab gained a **New** tab (Sparkles icon) → Home · Shop · New · Saved · Bag · Account.
