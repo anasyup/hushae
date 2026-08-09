@@ -127,7 +127,7 @@ export default function CartDrawer() {
               </h2>
               <button
                 type="button" onClick={() => setDrawerOpen(false)} aria-label="Close bag"
-                className="grid h-11 w-11 place-items-center rounded-full transition hover:bg-satin/60"
+                className="grid h-11 w-11 place-items-center transition hover:bg-satin/60"
               >
                 <X size={18} aria-hidden="true" />
               </button>
@@ -174,7 +174,7 @@ export default function CartDrawer() {
                             <button
                               type="button" onClick={() => removeLine(lineKey(l))}
                               aria-label={`Remove ${l.name} from your bag`}
-                              className="-mr-2 -mt-1.5 grid h-11 w-11 shrink-0 place-items-center rounded-full text-ash transition hover:bg-satin/60 hover:text-obsidian"
+                              className="-mr-2 -mt-1.5 grid h-11 w-11 shrink-0 place-items-center text-ash transition hover:bg-satin/60 hover:text-obsidian"
                             >
                               <Trash2 size={15} aria-hidden="true" />
                             </button>

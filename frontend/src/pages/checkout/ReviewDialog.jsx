@@ -77,7 +77,7 @@ export default function ReviewDialog({
           </div>
           <button
             type="button" onClick={onClose} disabled={busy} aria-label="Close review"
-            className="grid h-11 w-11 place-items-center rounded-full text-ash transition hover:bg-satin/60 hover:text-obsidian disabled:opacity-40"
+            className="grid h-11 w-11 place-items-center text-ash transition hover:bg-satin/60 hover:text-obsidian disabled:opacity-40"
           >
             <X size={18} aria-hidden="true" />
           </button>

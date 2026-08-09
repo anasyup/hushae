@@ -171,7 +171,7 @@ export default function Wishlist() {
                   )}
                   <button
                     type="button" onClick={() => remove(p)}
-                    className="grid h-11 w-11 place-items-center rounded-full text-ash transition hover:bg-satin/60 hover:text-obsidian"
+                    className="grid h-11 w-11 place-items-center text-ash transition hover:bg-satin/60 hover:text-obsidian"
                     aria-label={`Remove ${p.name} from wishlist`}
                   >
                     <Trash2 size={14} aria-hidden="true" />
