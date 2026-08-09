@@ -1,4 +1,12 @@
 ## Changes
+- **2026-08-09** — 🖤 **FRONT STORE — CALVIN KLEIN CONVERSION (approved direction)** (commit `2c8ca54`)
+  - Monochrome tokens: white page, #111 text, #707070 secondary, #E5E5E5 hairlines. Tenor Sans + sage green + rounded-2xl template cards removed.
+  - Homepage CK editorial: full-bleed "SECOND SKIN" hero, hairline trust row, Promotions band (admin banners, kept), category image tiles (01-04 mono), Modern Classics + Move With Purpose campaign banners, Best Sellers + New Arrivals grids, #HUSHAE.
+  - Product cards: flat, clean, hover = 2nd image + 1.02 zoom, hover-only UI, gold heart.
+  - Footer: black, quiet.
+  - Verified: 13/13 routes 200; Tenor/sage/Fabric-Tech gone from bundle; promo banners active; theme body empty.
+
+## Changes
 - **2026-08-09** — 🎴 **PRODUCT CARD v5 — editorial luxury (SSENSE / COS / CDLP / CK register)** (commit `abdb234`)
   - Removed the AI-template effects the client rightly flagged: cursor-follow perspective tilt and the floating hover shadow. Real luxury cards have neither.
   - Card is now flat and silent — the photography carries it:
