@@ -64,8 +64,15 @@ export default function Home() {
 
           <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.8 }} className="relative">
             <div className="absolute -inset-4 -z-10 rounded-[2.5rem] bg-satin/70" />
-            <img src="https://images.unsplash.com/photo-1519744792095-2f2205e87b6f?auto=format&fit=crop&w=1600&q=80"
-              alt="HUSHAE editorial" className="aspect-[4/5] w-full rounded-[2.5rem] object-cover md:aspect-[5/6]" />
+            {/* own campaign photography — slow cinematic settle (no stock) */}
+            <motion.img
+              src="/images/campaign/qa/hero-women.jpg"
+              alt="HUSHAE editorial — second skin"
+              initial={{ scale: 1.06 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 10, ease: 'easeOut' }}
+              className="aspect-[4/5] w-full rounded-[2.5rem] object-cover object-center md:aspect-[5/6]"
+            />
             <div className="absolute bottom-5 left-5 rounded-2xl bg-alabaster/90 px-5 py-4 shadow-card backdrop-blur">
               <p className="text-[10px] font-bold uppercase tracking-widest text-sagedeep">The Silk Eclipse Edit</p>
               <p className="mt-1 text-sm font-medium">Featherweight layers, zero-dig fits</p>
