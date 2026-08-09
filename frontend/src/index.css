@@ -243,7 +243,7 @@
     padding: 1.125rem 2.75rem;
   }
 
-  .btn-primary   { @apply btn bg-midnight text-pearl hover:bg-charcoal; }
+  .btn-primary   { @apply btn bg-charcoal text-pearl hover:bg-graphite; }
   .btn-secondary { @apply btn bg-satin text-obsidian hover:bg-sand; }
   /* The outline is HUSHAE's signature action: a hairline that fills from
      nothing. Border weight stays 1px at every size — a thicker rule reads as a
@@ -346,7 +346,7 @@
      Midnight action button — full-width, 0 radius, Inter 500 / 14px /
      0.08em, pearl text. The one button voice of the QA register. */
   .btn-qa {
-    @apply inline-flex min-h-[48px] w-full items-center justify-center gap-2 bg-midnight px-8
+    @apply inline-flex min-h-[48px] w-full items-center justify-center gap-2 bg-charcoal px-8
       text-[14px] font-medium uppercase tracking-[0.08em] text-pearl
       transition-colors duration-300 hover:bg-charcoal disabled:pointer-events-none disabled:opacity-50;
   }

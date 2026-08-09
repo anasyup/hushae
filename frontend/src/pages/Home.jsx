@@ -14,19 +14,19 @@ import Seo, { organizationJsonLd } from '../components/Seo';
  * tracked — space is the luxury. Imagery breathes with a slow Ken Burns.
  * ========================================================================== */
 
-/* Hero slides — rotating full-bleed (5s crossfade) */
+/* Hero slides — rotating full-bleed (5s crossfade). Own campaign series. */
 const HERO_SLIDES = [
-  'https://images.unsplash.com/photo-1603189343302-e603f7add05a?w=1920&q=80',
-  'https://images.pexels.com/photos/20238948/pexels-photo-20238948.jpeg?w=1920&q=80',
-  'https://images.pexels.com/photos/20228980/pexels-photo-20228980.jpeg?w=1920&q=80',
+  '/images/campaign/qa/hero-women.jpg',
+  '/images/campaign/qa/hero-men.jpg',
+  '/images/campaign/qa/hero-fabric.jpg',
 ];
 
-/* Shop By Category — 4 tiles, HUSHAE routes */
+/* Shop By Category — 4 tiles, HUSHAE routes + own campaign imagery */
 const CATS = [
-  { label: 'Women', img: 'https://images.pexels.com/photos/6487416/pexels-photo-6487416.jpeg?w=800&q=80', href: '/women' },
-  { label: 'Men', img: 'https://images.unsplash.com/photo-1552393700-42696fb89bfa?w=800&q=80', href: '/men' },
-  { label: 'Underwear', img: 'https://images.pexels.com/photos/25194063/pexels-photo-25194063.jpeg?w=800&q=80', href: '/shop' },
-  { label: 'New Arrivals', img: 'https://images.pexels.com/photos/6764706/pexels-photo-6764706.jpeg?w=800&q=80', href: '/new' },
+  { label: 'Women', img: '/images/campaign/qa/cat-women.jpg', href: '/women' },
+  { label: 'Men', img: '/images/campaign/qa/cat-men.jpg', href: '/men' },
+  { label: 'Underwear', img: '/images/campaign/qa/cat-underwear.jpg', href: '/shop' },
+  { label: 'New Arrivals', img: '/images/campaign/qa/hero-fabric.jpg', href: '/new' },
 ];
 
 /* ── Luxury hairline text-link — no box, underline + sliding arrow ────────
@@ -67,7 +67,7 @@ function HeroSlides({ slides }) {
           }`}
         />
       ))}
-      <div className="absolute inset-0 bg-black/30" />
+      <div className="absolute inset-0 bg-[#1F1A12]/35" />
       <div className="absolute bottom-8 left-1/2 flex -translate-x-1/2 gap-2">
         {slides.map((_, idx) => (
           <button
@@ -95,7 +95,7 @@ function EditorialBanner({ img, eyebrow, title, body, cta, href }) {
           loading="lazy"
           className="absolute inset-0 h-full w-full object-cover animate-[kenburns_24s_ease-in-out_infinite_alternate]"
         />
-        <div className="absolute inset-0 bg-black/35" />
+        <div className="absolute inset-0 bg-[#1F1A12]/40" />
         <div className="absolute inset-0 flex items-center justify-center px-6 text-center text-white">
           <div>
             <p className="text-[10px] font-medium uppercase tracking-[0.32em] text-white/70">{eyebrow}</p>
@@ -212,7 +212,7 @@ export default function Home() {
 
       {/* ═══ THE ICON EDIT — Modern Classics ═════════════════════════ */}
       <EditorialBanner
-        img="https://images.unsplash.com/photo-1698206107850-41f6dd710043?w=1600&q=80"
+        img="/images/campaign/qa/editorial-modern.jpg"
         eyebrow="The Icon Edit"
         title="Modern Classics"
         body="The pieces that define the season. Timeless silhouettes, elevated fabrics."
@@ -222,7 +222,7 @@ export default function Home() {
 
       {/* ═══ HUSHAE PERFORMANCE — Move With Purpose ═══════════════════ */}
       <EditorialBanner
-        img="https://images.pexels.com/photos/33549240/pexels-photo-33549240.jpeg?w=1600&q=80"
+        img="/images/campaign/qa/editorial-performance.jpg"
         eyebrow="Hushae Performance"
         title="Move With Purpose"
         body="Engineered essentials for every moment."
@@ -260,12 +260,12 @@ export default function Home() {
       <section className="relative w-full overflow-hidden bg-stone">
         <div className="relative aspect-[16/9] min-h-[440px] overflow-hidden md:aspect-[21/8]">
           <img
-            src="https://images.pexels.com/photos/20228980/pexels-photo-20228980.jpeg?w=1920&q=80"
+            src="/images/campaign/qa/hero-women.jpg"
             alt="Share your look"
             loading="lazy"
             className="absolute inset-0 h-full w-full object-cover animate-[kenburns_24s_ease-in-out_infinite_alternate]"
           />
-          <div className="absolute inset-0 bg-charcoal/50" />
+          <div className="absolute inset-0 bg-[#1F1A12]/50" />
           <div className="absolute inset-0 flex items-center justify-center px-6 text-center text-white">
             <div>
               <h2 className="text-[clamp(28px,5vw,44px)] font-light uppercase tracking-[0.2em] [text-shadow:0_2px_24px_rgba(0,0,0,0.4)]">

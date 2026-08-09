@@ -152,7 +152,7 @@ export default function StickyBuyBar({ product, watchRef, size, needsSize, onAdd
           type="button"
           onClick={onAdd}
           disabled={disabled}
-          className="min-h-[48px] shrink-0 bg-midnight px-8 text-[12px] font-medium uppercase tracking-[0.08em] text-white transition-colors duration-300 hover:bg-charcoal disabled:pointer-events-none disabled:opacity-50 lg:min-w-[210px]"
+          className="min-h-[48px] shrink-0 bg-charcoal px-8 text-[12px] font-medium uppercase tracking-[0.08em] text-white transition-colors duration-300 hover:bg-charcoal disabled:pointer-events-none disabled:opacity-50 lg:min-w-[210px]"
         >
           {disabled ? 'Sold out' : needsSize && !size ? 'Select a size' : 'Add to bag'}
         </button>

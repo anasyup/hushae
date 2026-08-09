@@ -310,7 +310,7 @@ export default function Product() {
                     ? 'cursor-not-allowed bg-sand text-smoke'
                     : needsSize && !size
                       ? 'cursor-not-allowed bg-sand text-smoke'
-                      : `text-white ${added ? 'bg-gold' : 'bg-midnight hover:bg-charcoal'}`
+                      : `text-white ${added ? 'bg-gold' : 'bg-charcoal hover:bg-charcoal'}`
                 }`}
               >
                 {soldOut ? 'Sold out' : needsSize && !size ? 'Select a Size' : added ? 'ADDED ✓' : 'Add to Bag'}

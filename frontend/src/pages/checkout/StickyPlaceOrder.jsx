@@ -47,7 +47,7 @@ export default function StickyPlaceOrder({ watchRef, total, label, onClick, busy
           type="button"
           onClick={onClick}
           disabled={busy || disabled}
-          className="min-h-[44px] shrink-0 bg-midnight px-6 text-[12px] font-medium uppercase tracking-[0.08em] text-white transition-colors duration-300 hover:bg-charcoal disabled:pointer-events-none disabled:opacity-50"
+          className="min-h-[44px] shrink-0 bg-charcoal px-6 text-[12px] font-medium uppercase tracking-[0.08em] text-white transition-colors duration-300 hover:bg-charcoal disabled:pointer-events-none disabled:opacity-50"
         >
           <Lock size={13} aria-hidden="true" />
           {busy ? 'Placing…' : label}

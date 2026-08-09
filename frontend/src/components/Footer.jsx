@@ -80,7 +80,7 @@ export default function Footer() {
   };
 
   return (
-    <footer className={`${isHome ? '' : 'mt-ed-md'} border-t border-obsidian bg-midnight text-alabaster`}>
+    <footer className={`${isHome ? '' : 'mt-ed-md'} border-t border-obsidian bg-charcoal text-alabaster`}>
       {/* FINAL — DUPLICATE REMOVED.
           MEASURED on live: "Join the inner circle" rendered twice within ~200px
           — once as the homepage newsletter section and again here, each with
