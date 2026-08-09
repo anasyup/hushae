@@ -7,11 +7,13 @@ import Banner from '../components/Banner';
 import Seo, { organizationJsonLd } from '../components/Seo';
 
 /* ============================================================================
- * HUSHAE HOME — "REDEFINE MODERN" (Calvin Klein–style luxury edit), v2.
+ * HUSHAE HOME — "REDEFINE MODERN" (Calvin Klein–style luxury edit), v3.
  *
- * v2 — no box buttons. Every action is a quiet hairline text-link with a
- * sliding arrow (the luxury register). Typography is lighter and more
- * tracked — space is the luxury. Imagery breathes with a slow Ken Burns.
+ * v3 — warm ivory pass. HERO UNTOUCHED. Every other section was refined:
+ * editorial eyebrows + mono indexes, warm gradient overlays (no flat black),
+ * alternating stone/sand warm bands, hairline clay dividers, gold-tinted
+ * hovers, hairline text-link CTAs. The whole site palette warmed to the
+ * Veloura ivory register (stone #F6F2EB / sand #EFE8DC / clay #D8CCB8).
  * ========================================================================== */
 
 /* Hero slides — rotating full-bleed (5s crossfade). Own campaign series. */
@@ -47,7 +49,7 @@ function TextLink({ to, light = false, children }) {
   );
 }
 
-/* ── Hero slideshow — crossfade + dots ──────────────────────────────────── */
+/* ── Hero slideshow — crossfade + dots (UNTOUCHED) ──────────────────────── */
 function HeroSlides({ slides }) {
   const [i, setI] = useState(0);
   useEffect(() => {
@@ -83,8 +85,9 @@ function HeroSlides({ slides }) {
   );
 }
 
-/* ── Editorial banner — full-bleed image, centered quiet type ───────────── */
-function EditorialBanner({ img, eyebrow, title, body, cta, href }) {
+/* ── Editorial banner — warm gradient, centered or left editorial spread ── */
+function EditorialBanner({ img, eyebrow, title, body, cta, href, align = 'center', index }) {
+  const alignCls = align === 'left' ? 'items-start text-left' : 'items-center text-center';
   return (
     <section className="w-full overflow-hidden bg-stone">
       <div className="relative aspect-[16/10] overflow-hidden md:aspect-[21/9]">
@@ -95,11 +98,17 @@ function EditorialBanner({ img, eyebrow, title, body, cta, href }) {
           loading="lazy"
           className="absolute inset-0 h-full w-full object-cover animate-[kenburns_24s_ease-in-out_infinite_alternate]"
         />
-        <div className="absolute inset-0 bg-[#1F1A12]/40" />
-        <div className="absolute inset-0 flex items-center justify-center px-6 text-center text-white">
-          <div>
-            <p className="text-[10px] font-medium uppercase tracking-[0.32em] text-white/70">{eyebrow}</p>
-            <h3 className="mt-5 text-[clamp(28px,4vw,48px)] font-light uppercase leading-[1.08] tracking-[0.14em] [text-shadow:0_2px_24px_rgba(0,0,0,0.35)]">
+        {/* warm gradient — never flat black */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#1F1A12]/60 via-[#1F1A12]/10 to-transparent" />
+        <div className={`absolute inset-0 flex ${alignCls} px-6 text-white md:px-20`}>
+          <div className={align === 'left' ? 'max-w-lg' : ''}>
+            {index && (
+              <span className="font-mono text-[10px] tracking-[0.24em] text-white/60">{index}</span>
+            )}
+            <p className={`text-[10px] font-medium uppercase tracking-[0.32em] text-white/70 ${index ? 'mt-4' : ''}`}>
+              {eyebrow}
+            </p>
+            <h3 className="mt-5 text-[clamp(28px,4vw,46px)] font-light uppercase leading-[1.08] tracking-[0.14em] [text-shadow:0_2px_24px_rgba(0,0,0,0.35)]">
               {title}
             </h3>
             {body && (
@@ -152,7 +161,7 @@ export default function Home() {
         jsonLdId="home-org"
       />
 
-      {/* ═══ HERO — THE SPRING EDIT / REDEFINE MODERN ═══════════════════ */}
+      {/* ═══ HERO — THE SPRING EDIT / REDEFINE MODERN (UNTOUCHED) ═══════ */}
       <section className="relative h-[88vh] min-h-[560px] w-full overflow-hidden bg-stone">
         <HeroSlides slides={HERO_SLIDES} />
         <div className="relative flex h-full flex-col items-center justify-center px-6 text-center text-white">
@@ -174,13 +183,17 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ═══ SHOP BY CATEGORY — 4 editorial tiles ═════════════════════ */}
-      <section className="bg-stone py-20 md:py-28">
+      {/* ═══ SHOP BY CATEGORY — editorial tiles, warm hover ═══════════ */}
+      <section className="bg-stone py-24 md:py-32">
         <div className="container">
-          <div className="text-center">
-            <h2 className="text-[24px] font-light uppercase tracking-[0.14em] text-charcoal md:text-[32px]">
-              Shop By Category
-            </h2>
+          <div className="flex items-baseline justify-between">
+            <div>
+              <p className="text-[10px] font-medium uppercase tracking-[0.3em] text-smoke">The Edit</p>
+              <h2 className="mt-3 text-[24px] font-light uppercase tracking-[0.14em] text-charcoal md:text-[32px]">
+                Shop By Category
+              </h2>
+            </div>
+            <span className="hidden font-mono text-[10px] tracking-[0.2em] text-smoke md:block">01 — 04</span>
           </div>
           <div className="mt-12 grid grid-cols-2 gap-x-6 gap-y-12 lg:grid-cols-4">
             {CATS.map((c, idx) => (
@@ -196,11 +209,14 @@ export default function Home() {
                   <span className="pointer-events-none absolute left-3 top-3 font-mono text-[10px] tracking-[0.2em] text-white/80 [text-shadow:0_1px_8px_rgba(0,0,0,0.4)]">
                     {String(idx + 1).padStart(2, '0')}
                   </span>
-                  <div className="absolute inset-0 bg-charcoal/0 transition-colors duration-hover group-hover:bg-charcoal/10" />
+                  {/* warm gold-tinted hover — multiply, never grey */}
+                  <div className="pointer-events-none absolute inset-0 bg-gold/0 mix-blend-multiply transition-colors duration-hover group-hover:bg-gold/20" />
+                  {/* warm base gradient for legibility */}
+                  <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[#1F1A12]/25 to-transparent" />
                 </div>
                 <div className="mt-5 text-center">
                   <p className="text-[13px] font-medium uppercase tracking-[0.18em] text-charcoal">{c.label}</p>
-                  <span className="mt-2 inline-flex items-center gap-1.5 border-b border-charcoal/20 pb-0.5 text-[10px] font-medium uppercase tracking-[0.16em] text-smoke transition-colors duration-300 group-hover:border-charcoal group-hover:text-charcoal">
+                  <span className="mt-2 inline-flex items-center gap-1.5 border-b border-charcoal/20 pb-0.5 text-[10px] font-medium uppercase tracking-[0.16em] text-smoke transition-colors duration-300 group-hover:border-gold group-hover:text-gold">
                     Shop Now <ArrowRight size={11} className="transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true" />
                   </span>
                 </div>
@@ -218,6 +234,7 @@ export default function Home() {
         body="The pieces that define the season. Timeless silhouettes, elevated fabrics."
         cta="Discover"
         href="/women"
+        index="01"
       />
 
       {/* ═══ HUSHAE PERFORMANCE — Move With Purpose ═══════════════════ */}
@@ -228,16 +245,18 @@ export default function Home() {
         body="Engineered essentials for every moment."
         cta="Shop Now"
         href="/new"
+        index="02"
+        align="left"
       />
 
-      {/* ═══ BEST SELLERS ════════════════════════════════════════════ */}
+      {/* ═══ BEST SELLERS — warm band ════════════════════════════════ */}
       {fresh && fresh.length > 0 && (
-        <section className="bg-stone py-20 md:py-28">
+        <section className="border-y border-clay/40 bg-sand/40 py-24 md:py-32">
           <div className="container">
             <SecTitle
               eyebrow="Trending Now"
               right={
-                <Link to="/best" className="group inline-flex items-center gap-1.5 border-b border-charcoal/20 pb-0.5 text-[10px] font-medium uppercase tracking-[0.16em] text-smoke transition-colors duration-300 hover:border-charcoal hover:text-charcoal">
+                <Link to="/best" className="group inline-flex items-center gap-1.5 border-b border-charcoal/20 pb-0.5 text-[10px] font-medium uppercase tracking-[0.16em] text-smoke transition-colors duration-300 hover:border-gold hover:text-gold">
                   View All <ArrowRight size={11} className="transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true" />
                 </Link>
               }
@@ -256,7 +275,7 @@ export default function Home() {
       {/* Admin banner slot — only shows if a merchant publishes one */}
       <Banner slot="homepage-below" className="w-full bg-sand" fallback={null} />
 
-      {/* ═══ #HUSHAE ═════════════════════════════════════════════════ */}
+      {/* ═══ #HUSHAE — warm gradient ═════════════════════════════════ */}
       <section className="relative w-full overflow-hidden bg-stone">
         <div className="relative aspect-[16/9] min-h-[440px] overflow-hidden md:aspect-[21/8]">
           <img
@@ -265,10 +284,11 @@ export default function Home() {
             loading="lazy"
             className="absolute inset-0 h-full w-full object-cover animate-[kenburns_24s_ease-in-out_infinite_alternate]"
           />
-          <div className="absolute inset-0 bg-[#1F1A12]/50" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#1F1A12]/75 via-[#1F1A12]/25 to-transparent" />
           <div className="absolute inset-0 flex items-center justify-center px-6 text-center text-white">
             <div>
-              <h2 className="text-[clamp(28px,5vw,44px)] font-light uppercase tracking-[0.2em] [text-shadow:0_2px_24px_rgba(0,0,0,0.4)]">
+              <span className="font-mono text-[10px] tracking-[0.24em] text-white/60">03</span>
+              <h2 className="mt-4 text-[clamp(28px,5vw,44px)] font-light uppercase tracking-[0.2em] [text-shadow:0_2px_24px_rgba(0,0,0,0.4)]">
                 #HUSHAE
               </h2>
               <p className="mx-auto mt-5 max-w-xl text-[13px] font-light leading-[1.8] tracking-[0.04em] text-white/85">

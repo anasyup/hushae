@@ -82,11 +82,11 @@
  * silently erase button/input borders).
  * ════════════════════════════════════════════════════════════════════════ */
 :root {
-  /* ── Colour — "Golden Hour Architecture" ─────────────────────────────
+  /* ── Colour — "Golden Hour Architecture" (warmed — Veloura ivory register) ──
      90% neutral (stone, sand, charcoal) + 10% accent (gold, bronze). */
-  --stone:    245 243 239;   /* #F5F3EF  warm stone — page background   */
-  --sand:     235 229 219;   /* #EBE5DB  sand — card surfaces           */
-  --clay:     212 201 184;   /* #D4C9B8  clay — borders                 */
+  --stone:    246 242 235;   /* #F6F2EB  warm ivory — page background   */
+  --sand:     239 232 220;   /* #EFE8DC  warm sand — card surfaces      */
+  --clay:     216 204 184;   /* #D8CCB8  warm clay — borders            */
   --charcoal: 26 27 28;      /* #1A1B1C  off-black — primary text       */
   --smoke:    139 138 135;   /* #8B8A87  secondary text                 */
   --pearl:    255 255 255;   /* #FFFFFF  pure white — accents           */
