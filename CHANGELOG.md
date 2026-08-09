@@ -1,4 +1,14 @@
 ## Changes
+- **2026-08-09** — 🎴 **PRODUCT CARD v4 — "minimal 3D, cool"** (commit `cda8d50`) — one component, every grid (home Best Sellers, shop, categories, rails, product page)
+  - **3D as accent**: image tile follows the cursor with a subtle perspective tilt (max ~5-6deg rotateX/rotateY, `perspective(900px)`), guarded to desktop + fine pointer + `prefers-reduced-motion` OFF.
+  - **Warm lift**: on hover the card floats with a warm shadow (`0 30px 60px -30px rgba(26,27,28,.35)`) — no hard box, no border.
+  - Flat lay crossfades in with the single allowed 1.02 zoom; mono `01 / 03` image counter.
+  - Wishlist heart hover-only, **gold** when wished; Quick add thin bar hover-only, **gold** on its own hover.
+  - Caption refined to a magazine line: name | price (13px), material (11px smoke), then sizes · colour on one line (10px smoke, clay dot) — cleaner than the old 4-line stack.
+  - Sand tile background (warm), New chip kept.
+  - Verified: build clean; 11/11 routes 200; tilt + zoom markers live; theme body empty.
+
+## Changes
 - **2026-08-09** — 🧾 **ORDER CONFIRMATION PAGE — "minimal 3D, cool" redesign** (commit `c3529a8`)
   - Researched live first (Baymard + top-conversion confirmation pages) and applied the proven pattern:
     - Personalized thank-you with the customer's **first name** ("Thank you, Aqeel.")
