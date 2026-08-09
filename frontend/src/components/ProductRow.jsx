@@ -15,7 +15,7 @@ export default function ProductRow({ title, eyebrow, products, note }) {
           {note && <p className="hidden text-[11px] uppercase tracking-[0.12em] text-smoke md:block">{note}</p>}
         </div>
       )}
-      <div className="no-scrollbar -mx-4 flex snap-x snap-mandatory gap-5 overflow-x-auto px-4 pb-2 md:mx-0 md:px-0">
+      <div className="no-scrollbar -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 md:mx-0 md:px-0">
         {products.map((p) => (
           <div key={p.id || p._id || p.slug} className="w-44 shrink-0 snap-start md:w-56">
             <ProductCard product={p} compact />

@@ -263,7 +263,7 @@ export default function Home() {
             >
               Best Sellers
             </SecTitle>
-            <div className="mt-12 grid grid-cols-2 gap-x-6 gap-y-12 md:grid-cols-4">
+            <div className="mt-12 grid grid-cols-2 gap-x-4 gap-y-12 md:grid-cols-4 md:gap-x-6">
               {fresh.slice(0, 8).map((p) => (
                 <ProductCard key={p._id} product={p} />
               ))}

@@ -189,10 +189,10 @@ export default function Shop({ preset = {} }) {
                 <img src={b.img} alt={b.label} loading="lazy"
                   className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
                   style={{ transitionTimingFunction: 'cubic-bezier(0.22, 1, 0.36, 1)' }} />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#1F1A12]/55 via-transparent to-transparent" />
                 <div className="absolute inset-x-0 bottom-0 p-5">
-                  <p className="font-sans text-xl font-bold uppercase tracking-[0.05em] text-white" >{b.label}</p>
-                  <p className="mt-0.5 text-[11px] uppercase tracking-[0.18em] text-white/70">{b.sub}</p>
+                  <p className="font-sans text-[17px] font-light uppercase tracking-[0.14em] text-white" >{b.label}</p>
+                  <p className="mt-1 text-[10px] font-light uppercase tracking-[0.18em] text-white/70">{b.sub}</p>
                 </div>
               </Link>
             ))}
@@ -216,7 +216,7 @@ export default function Shop({ preset = {} }) {
             {/* Grid — 2 mobile, 3 desktop, staggered fade */}
             <div
               aria-busy={pending || undefined}
-              className={`grid grid-cols-2 gap-x-5 gap-y-10 md:grid-cols-4 md:gap-x-7 transition-opacity duration-300 ${pending ? 'opacity-50' : 'opacity-100'}`}
+              className={`grid grid-cols-2 gap-x-4 gap-y-12 md:grid-cols-4 md:gap-x-6 transition-opacity duration-300 ${pending ? 'opacity-50' : 'opacity-100'}`}
             >
               {visibleSlice.map((p, i) => (
                 <div
@@ -235,7 +235,7 @@ export default function Shop({ preset = {} }) {
                 <button
                   type="button"
                   onClick={() => setShown((s) => s + REVEAL)}
-                  className="inline-flex min-h-[48px] items-center justify-center border border-neutral-900 px-12 text-[12px] font-bold uppercase tracking-[0.2em] text-neutral-900 transition-colors duration-300 hover:bg-neutral-900 hover:text-white"
+                  className="inline-flex min-h-[48px] items-center justify-center bg-charcoal px-12 text-[12px] font-medium uppercase tracking-[0.16em] text-pearl transition-colors duration-300 hover:bg-graphite"
                 >
                   Load More ({visible.length - shown} left)
                 </button>
