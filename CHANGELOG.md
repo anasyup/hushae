@@ -1,4 +1,15 @@
 ## Changes
+- **2026-08-09** — 🏛️🔥 **WARM IVORY PASS — hero untouched, rest upgraded** (commit `582a6cf`)
+  - **Hero 100% untouched** (user: "hero banner ko mat chedna"). Header stays white (user: "header white hi rakho").
+  - **Palette warmed to Veloura ivory register** (index.css :root): stone `#F6F2EB`, sand `#EFE8DC`, clay `#D8CCB8` — whole site (homepage, category, product, cart, checkout) now warm ivory, no cool tones. Header/admin untouched.
+  - **Homepage sections major upgrade**:
+    - Shop By Category: "The Edit" eyebrow + mono `01 — 04`, warm gold-tinted multiply hover, warm base gradient, gold "Shop Now" hover.
+    - Editorial banners: warm gradients (never flat black), mono indexes 01/02, Performance banner now a LEFT-aligned editorial spread (max-w-lg) for contrast with the centered Modern Classics.
+    - Best Sellers: alternating warm sand band (`bg-sand/40`) with clay hairlines, gold View All hover.
+    - #HUSHAE: warm gradient + mono `03` index.
+  - **Verified**: build clean; 13/13 routes 200; warm `--stone: 246 242 235` served live; hero markers intact; theme body empty.
+
+## Changes
 - **2026-08-09** — 📸 **OWN WARM CAMPAIGN PHOTOGRAPHY** (commit `c54b443`) — stock photos removed from homepage
   - **8 AI-generated editorial images** in ONE art direction: golden-hour warm light, stone/sand/caramel palette, quiet luxury (Brunello × CK register):
     - hero: hero-women / hero-men / hero-fabric (rotating slideshow)
