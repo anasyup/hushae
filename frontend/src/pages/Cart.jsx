@@ -282,14 +282,14 @@ export default function Cart() {
                       <button
                         type="button"
                         onClick={() => { moveToBag(l); toast('Moved to your bag'); }}
-                        className="min-h-[44px] rounded-full px-3 text-label uppercase tracking-wider text-obsidian underline-offset-4 transition hover:underline"
+                        className="min-h-[44px] px-3 text-[11px] font-medium uppercase tracking-[0.14em] text-[#111111] underline-offset-4 transition hover:underline"
                       >
                         Move to bag
                       </button>
                       <button
                         type="button"
                         onClick={() => removeSaved(l)}
-                        className="min-h-[44px] rounded-full px-3 text-label uppercase tracking-wider text-ash transition hover:text-obsidian"
+                        className="min-h-[44px] px-3 text-[11px] font-medium uppercase tracking-[0.14em] text-[#707070] transition hover:text-[#111111]"
                         aria-label={`Remove ${l.name} from saved items`}
                       >
                         Remove

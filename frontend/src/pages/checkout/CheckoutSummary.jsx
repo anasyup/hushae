@@ -112,7 +112,7 @@ export default function CheckoutSummary({
           <dd className="text-[20px] font-medium tabular-nums text-charcoal">{pkr(pricing.total)}</dd>
         </div>
         {pricing.savings > 0 && (
-          <div className="flex justify-between gap-4 rounded-control bg-sand px-3 py-2">
+          <div className="flex justify-between gap-4 bg-[#FAFAFA] px-3 py-2">
             <dt className="text-caption font-semibold uppercase tracking-wider text-charcoal">You save</dt>
             <dd className="text-caption font-bold tabular-nums text-charcoal">{pkr(pricing.savings)}</dd>
           </div>

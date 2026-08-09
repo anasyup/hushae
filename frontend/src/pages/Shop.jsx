@@ -189,7 +189,7 @@ export default function Shop({ preset = {} }) {
                 <img src={b.img} alt={b.label} loading="lazy"
                   className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
                   style={{ transitionTimingFunction: 'cubic-bezier(0.22, 1, 0.36, 1)' }} />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#1F1A12]/55 via-transparent to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent" />
                 <div className="absolute inset-x-0 bottom-0 p-5">
                   <p className="font-sans text-[17px] font-light uppercase tracking-[0.14em] text-white" >{b.label}</p>
                   <p className="mt-1 text-[10px] font-light uppercase tracking-[0.18em] text-white/70">{b.sub}</p>
