@@ -1,13 +1,43 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Mail, MapPin, Phone } from 'lucide-react';
 import { useApp } from '../store/AppContext';
+import { api } from '../api/client';
 
 /* HUSHAE footer — Calvin Klein register: black, quiet, generous. */
 export default function Footer() {
   const { settings } = useApp();
   const s = settings || {};
+  const [email, setEmail] = useState('');
+  const [done, setDone] = useState(false);
   return (
     <footer className="mt-24 bg-[#111111] text-white">
+      {/* Newsletter — spec: clean input on black, white border, SIGN UP */}
+      <div className="border-b border-white/10">
+        <div className="mx-auto flex max-w-7xl flex-col items-center gap-4 px-4 py-10 text-center md:flex-row md:justify-between md:px-8 md:text-left">
+          <div>
+            <p className="text-[16px] font-medium uppercase tracking-[0.08em] text-white">Join the Circle</p>
+            <p className="mt-1 text-[13px] font-normal text-white/60">Early access to new drops. No spam, ever.</p>
+          </div>
+          {done ? (
+            <p className="text-[12px] font-medium uppercase tracking-[0.14em] text-white">You&apos;re on the list.</p>
+          ) : (
+            <form
+              onSubmit={(e) => { e.preventDefault(); if (email.trim()) { api('/subscribers', { method: 'POST', body: { email: email.trim() } }).catch(() => {}); setDone(true); } }}
+              className="flex w-full max-w-md items-end gap-3"
+            >
+              <input
+                type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="Your email"
+                className="min-h-[46px] w-full min-w-0 flex-1 border border-white/40 bg-transparent px-4 pb-1 text-[14px] font-normal text-white outline-none transition-colors placeholder:text-white/40 focus:border-white"
+              />
+              <button type="submit"
+                className="min-h-[46px] shrink-0 border border-white bg-transparent px-8 text-[11px] font-medium uppercase tracking-[0.16em] text-white transition-colors duration-300 hover:bg-white hover:text-black">
+                Sign Up
+              </button>
+            </form>
+          )}
+        </div>
+      </div>
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 md:grid-cols-4 md:px-8 md:py-20">
         <div>
           <p className="text-lg font-light uppercase tracking-[0.32em] text-white">HUSHAE</p>

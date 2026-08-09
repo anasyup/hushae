@@ -92,12 +92,14 @@ export default function Home() {
           <p className="mt-6 max-w-md text-[15px] font-normal leading-[1.6] tracking-[0.02em] text-white/90 [text-shadow:0_1px_12px_rgba(0,0,0,0.4)]">
             New season essentials — engineered in Pakistan, finished to an international standard.
           </p>
-          <div className="mt-10 flex flex-wrap items-center justify-center gap-10">
-            <Link to="/women" className="group inline-flex items-center gap-2 border-b border-white/40 pb-1 text-[12px] font-medium uppercase tracking-[0.08em] text-white transition-colors duration-300 hover:border-white">
-              Shop Women <ArrowRight size={13} className="transition-transform duration-300 group-hover:translate-x-1" />
+          <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
+            <Link to="/women"
+              className="inline-flex min-h-[50px] items-center justify-center border border-white/80 px-10 text-[12px] font-medium uppercase tracking-[0.16em] text-white transition-colors duration-300 hover:bg-white hover:text-black">
+              Shop Women
             </Link>
-            <Link to="/men" className="group inline-flex items-center gap-2 border-b border-white/40 pb-1 text-[12px] font-medium uppercase tracking-[0.08em] text-white transition-colors duration-300 hover:border-white">
-              Shop Men <ArrowRight size={13} className="transition-transform duration-300 group-hover:translate-x-1" />
+            <Link to="/men"
+              className="inline-flex min-h-[50px] items-center justify-center border border-white/80 px-10 text-[12px] font-medium uppercase tracking-[0.16em] text-white transition-colors duration-300 hover:bg-white hover:text-black">
+              Shop Men
             </Link>
           </div>
         </div>
@@ -121,6 +123,30 @@ export default function Home() {
             fallback={<PromoTile img={`${IMG}/hero-women.jpg`} eyebrow="New Arrivals" title="The Second Skin collection" sub="Featherweight layers, zero-dig fits." cta="Shop New" to="/new" />} />
           <Banner slot="homepage-promo-3" className="aspect-[16/10] w-full overflow-hidden"
             fallback={<PromoTile img={`${IMG}/hero-fabric.jpg`} eyebrow="Free Shipping" title="Over PKR 4,999 — nationwide" sub="Discreet, unmarked packaging on every order." cta="Explore" to="/women" />} />
+        </div>
+      </section>
+
+      {/* ═══ 03b — MEN / WOMEN SPLIT (spec: two side-by-side blocks) ═══ */}
+      <section className="mt-14 md:mt-20">
+        <div className="grid md:grid-cols-2">
+          <Link to="/women" className="group relative block aspect-[4/5] overflow-hidden bg-white md:aspect-auto md:min-h-[70vh]">
+            <img src={`${IMG}/hero-women.jpg`} alt="Women" loading="lazy"
+              className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1.2s] group-hover:scale-[1.04]" />
+            <div className="absolute inset-0 bg-black/25 transition-colors duration-500 group-hover:bg-black/10" />
+            <div className="absolute inset-x-0 bottom-0 p-8 md:p-12">
+              <p className="text-3xl font-medium uppercase tracking-[0.06em] text-white [text-shadow:0_2px_20px_rgba(0,0,0,0.4)]">Women</p>
+              <span className="mt-3 inline-block border-b border-white/60 pb-1 text-[12px] font-medium uppercase tracking-[0.14em] text-white">Shop Now</span>
+            </div>
+          </Link>
+          <Link to="/men" className="group relative block aspect-[4/5] overflow-hidden bg-white md:aspect-auto md:min-h-[70vh]">
+            <img src={`${IMG}/hero-men.jpg`} alt="Men" loading="lazy"
+              className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1.2s] group-hover:scale-[1.04]" />
+            <div className="absolute inset-0 bg-black/25 transition-colors duration-500 group-hover:bg-black/10" />
+            <div className="absolute inset-x-0 bottom-0 p-8 md:p-12">
+              <p className="text-3xl font-medium uppercase tracking-[0.06em] text-white [text-shadow:0_2px_20px_rgba(0,0,0,0.4)]">Men</p>
+              <span className="mt-3 inline-block border-b border-white/60 pb-1 text-[12px] font-medium uppercase tracking-[0.14em] text-white">Shop Now</span>
+            </div>
+          </Link>
         </div>
       </section>
 
@@ -234,6 +260,22 @@ export default function Home() {
           </p>
           <Link to="/rewards" className="mt-6 inline-flex min-h-[46px] items-center justify-center bg-[#111111] px-10 text-[12px] font-medium uppercase tracking-[0.16em] text-white transition-colors duration-300 hover:bg-[#333333]">
             Learn More
+          </Link>
+        </div>
+      </section>
+
+      {/* ═══ 08b — VALUES BLOCK (spec: grey, centered commitment) ═══ */}
+      <section className="bg-[#F5F5F5]">
+        <div className="mx-auto max-w-3xl px-4 py-16 text-center md:px-8 md:py-24">
+          <p className="text-[20px] font-medium uppercase leading-[1.5] tracking-[0.04em] text-[#111111] md:text-[26px]">
+            We Are Committed To A Better Future.
+          </p>
+          <p className="mx-auto mt-4 max-w-md text-[15px] font-normal leading-[1.6] text-[#696969]">
+            Responsibly sourced fabrics, honest manufacturing, and packaging that respects the planet.
+          </p>
+          <Link to="/about"
+            className="mt-8 inline-flex items-center gap-2 border-b border-[#111111]/30 pb-1 text-[12px] font-medium uppercase tracking-[0.12em] text-[#111111] transition-colors duration-300 hover:border-[#111111]">
+            Our Commitment <ArrowRight size={13} className="transition-transform duration-300 group-hover:translate-x-1" />
           </Link>
         </div>
       </section>

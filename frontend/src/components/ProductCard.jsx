@@ -103,9 +103,9 @@ function ProductCard({
 
         {showQuickAdd && !soldOut && sizes.length > 0 && !sizePick && (
           <button type="button" onClick={(e) => { e.preventDefault(); setSizePick(true); }}
-            className="absolute inset-x-0 bottom-0 z-10 translate-y-full bg-white/95 py-2.5 text-center text-[10px] font-medium uppercase tracking-[0.2em] text-[#111111] opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100 hover:text-[#C9A96E]"
+            className="absolute inset-x-0 bottom-0 z-10 translate-y-full border-t border-[#111111]/10 bg-white/95 py-3 text-center text-[11px] font-medium uppercase tracking-[0.18em] text-[#111111] opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100 hover:bg-[#111111] hover:text-white"
             style={ease}>
-            Quick add
+            Add To Bag
           </button>
         )}
         {showQuickAdd && soldOut && !sizePick && (
@@ -130,28 +130,35 @@ function ProductCard({
 
       <div className="mt-3 flex flex-col">
         <div className="flex items-baseline justify-between gap-3">
-          <Link to={`/product/${p.slug}`} className="min-w-0 text-[13px] font-medium leading-snug normal-case text-[#111111] transition-colors duration-300 hover:text-[#707070]">
+          <Link to={`/product/${p.slug}`} className="min-w-0 text-[13px] font-normal leading-snug normal-case text-[#111111] transition-colors duration-300 hover:text-[#696969]">
             {name}
           </Link>
           {showPrice && (
             soldOut ? (
-              <span className="whitespace-nowrap text-[10px] font-normal uppercase tracking-[0.08em] text-[#707070]">Sold out</span>
+              <span className="whitespace-nowrap text-[10px] font-normal uppercase tracking-[0.08em] text-[#696969]">Sold out</span>
             ) : (
               <span className="whitespace-nowrap text-[13px] font-medium tabular-nums text-[#111111]">
                 {pkr(p.price)}
                 {onSale && p.compareAtPrice > p.price && (
-                  <span className="ml-1.5 text-[11px] font-normal text-[#707070] line-through tabular-nums">{pkr(p.compareAtPrice)}</span>
+                  <span className="ml-1.5 text-[11px] font-normal text-[#696969] line-through tabular-nums">{pkr(p.compareAtPrice)}</span>
                 )}
               </span>
             )
           )}
         </div>
-        {material && <p className="mt-1 text-[11px] leading-relaxed text-[#707070]">{material}</p>}
-        {(sizes.length > 0 || colour) && (
-          <p className="mt-1 text-[10px] tracking-[0.08em] text-[#707070]">
-            {sizes.join('  ')}
-            {colour && <><span className="mx-1.5 text-[#E5E5E5]">·</span>{colour}</>}
-          </p>
+        {material && <p className="mt-1 text-[11px] leading-relaxed text-[#696969]">{material}</p>}
+        {/* Colour swatches — small circles, max 3 (spec) */}
+        {(p.colors || []).length > 0 && (
+          <div className="mt-1.5 flex items-center gap-1.5">
+            {(p.colors || []).slice(0, 3).map((c) => (
+              <span key={c.name} title={c.name}
+                className="h-3 w-3 rounded-full border border-[#CCCCCC]"
+                style={{ backgroundColor: c.hex || '#EEEEEE' }} />
+            ))}
+            {(p.colors || []).length > 3 && (
+              <span className="text-[9px] text-[#696969]">+{(p.colors || []).length - 3}</span>
+            )}
+          </div>
         )}
       </div>
     </article>
