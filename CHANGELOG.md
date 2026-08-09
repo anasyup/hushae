@@ -1,4 +1,15 @@
 ## Changes
+- **2026-08-09** — 🎴 **PRODUCT CARD v5 — editorial luxury (SSENSE / COS / CDLP / CK register)** (commit `abdb234`)
+  - Removed the AI-template effects the client rightly flagged: cursor-follow perspective tilt and the floating hover shadow. Real luxury cards have neither.
+  - Card is now flat and silent — the photography carries it:
+    - flat tile, no border, no shadow, no lift, no tilt
+    - hover = crossfade to the second image with a whisper of zoom (1.02, single transform on the wrapper)
+    - UI (browse arrows, mono counter, wishlist heart, thin Quick add bar) appears ONLY on hover
+    - caption = one clean baseline block: name | price (13px) → material (11px smoke) → sizes · colour (10px smoke)
+    - "New" chip kept (CK convention), gold wishlist heart kept
+  - Verified: build clean; tilt/perspective/shadow strings absent from bundle; 11/11 routes 200; theme body empty.
+
+## Changes
 - **2026-08-09** — 🎴 **PRODUCT CARD v4 — "minimal 3D, cool"** (commit `cda8d50`) — one component, every grid (home Best Sellers, shop, categories, rails, product page)
   - **3D as accent**: image tile follows the cursor with a subtle perspective tilt (max ~5-6deg rotateX/rotateY, `perspective(900px)`), guarded to desktop + fine pointer + `prefers-reduced-motion` OFF.
   - **Warm lift**: on hover the card floats with a warm shadow (`0 30px 60px -30px rgba(26,27,28,.35)`) — no hard box, no border.
