@@ -1,4 +1,19 @@
 ## Changes
+- **2026-08-09** — 🧾 **ORDER CONFIRMATION PAGE — "minimal 3D, cool" redesign** (commit `c3529a8`)
+  - Researched live first (Baymard + top-conversion confirmation pages) and applied the proven pattern:
+    - Personalized thank-you with the customer's **first name** ("Thank you, Aqeel.")
+    - Order number front-and-centre (mono, 22-26px) + copy + share
+    - Delivery ETA made obvious (gold truck icon, bordered pill)
+    - Item summary **with images** (60×80 thumbnails, title-case names, size/qty) — verify at a glance
+    - Quick facts 2×2 grid (Name / Total / Payment / Status)
+    - **One** primary CTA (Track this order) + quiet Continue Shopping hairline link
+    - Support email line (care@hushae.pk) for post-purchase anxiety
+    - Cross-sell **below** the confirmation, never above
+  - **3D as accent, never decoration**: floating gold 3D check badge (layered coin — gradient, rim highlight, bronze glow, 5s 3D float arc), check-pop entrance, order card settles in with a gentle `perspective(1200px) rotateX` tilt. All respects `prefers-reduced-motion`.
+  - Warm palette throughout (stone/sand/clay/charcoal/gold), zero green, hairline clay dividers, Inter light type.
+  - Verified: build clean; 8/8 routes 200; keyframes + markers live; theme body empty.
+
+## Changes
 - **2026-08-09** — 🏛️🔥 **WARM IVORY PASS — hero untouched, rest upgraded** (commit `582a6cf`)
   - **Hero 100% untouched** (user: "hero banner ko mat chedna"). Header stays white (user: "header white hi rakho").
   - **Palette warmed to Veloura ivory register** (index.css :root): stone `#F6F2EB`, sand `#EFE8DC`, clay `#D8CCB8` — whole site (homepage, category, product, cart, checkout) now warm ivory, no cool tones. Header/admin untouched.
