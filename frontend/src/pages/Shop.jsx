@@ -95,17 +95,17 @@ export default function Shop({ preset = {} }) {
 
         <div className="relative px-5 py-20 md:px-14 md:py-32 lg:px-20">
           {/* Breadcrumb */}
-          <nav aria-label="Breadcrumb" className="mb-6 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.2em] text-white/60">
+          <nav aria-label="Breadcrumb" className="mb-6 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.08em] text-white/60">
             <Link to="/" className="transition hover:text-white">Home</Link>
             <ChevronRight size={11} aria-hidden="true" />
             <span aria-current="page" className="text-white/90">{breadcrumbName}</span>
           </nav>
 
-          <h1 className="font-sans text-4xl font-bold uppercase tracking-[0.05em] text-white md:text-6xl"
+          <h1 className="font-sans text-4xl font-medium uppercase tracking-[0.02em] text-white md:text-6xl"
             >
             {meta}
           </h1>
-          <p className="mt-3 text-[13px] font-medium uppercase tracking-[0.2em] text-white/60">
+          <p className="mt-3 text-[13px] font-medium uppercase tracking-[0.08em] text-white/60">
             {count !== null ? `${count} product${count === 1 ? '' : 's'}` : 'Loading…'}
             {isCategory && activeCat ? ` · ${activeCat.name}` : ''}
           </p>
@@ -119,7 +119,7 @@ export default function Shop({ preset = {} }) {
             <button
               ref={filterBtnRef}
               onClick={() => setSheetOpen(true)}
-              className="inline-flex min-h-[44px] items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.12em] text-neutral-900 hover:opacity-60"
+              className="inline-flex min-h-[44px] items-center gap-2 text-[12px] font-medium uppercase tracking-[0.08em] text-[#111111] hover:opacity-60"
             >
               <SlidersHorizontal size={14} /> Filter &amp; Sort
               {activeFilterCount > 0 && (

@@ -186,7 +186,7 @@ export default function Product() {
         <aside className="lg:sticky lg:top-28 lg:h-fit space-y-7">
           <div className="border-b border-clay pb-7 space-y-4">
             {/* Product name — Inter 400, 28px, Title Case, charcoal */}
-            <h1 className="text-[28px] font-normal leading-tight normal-case tracking-[0.01em] text-charcoal">
+            <h1 className="text-[28px] font-medium leading-tight normal-case tracking-[0.01em] text-[#111111]">
               {name}
             </h1>
 
