@@ -82,17 +82,17 @@
  * silently erase button/input borders).
  * ════════════════════════════════════════════════════════════════════════ */
 :root {
-  /* ── Colour — "Golden Hour Architecture" (warmed — Veloura ivory register) ──
-     90% neutral (stone, sand, charcoal) + 10% accent (gold, bronze). */
-  --stone:    246 242 235;   /* #F6F2EB  warm ivory — page background   */
-  --sand:     239 232 220;   /* #EFE8DC  warm sand — card surfaces      */
-  --clay:     216 204 184;   /* #D8CCB8  warm clay — borders            */
-  --charcoal: 26 27 28;      /* #1A1B1C  off-black — primary text       */
-  --smoke:    139 138 135;   /* #8B8A87  secondary text                 */
-  --pearl:    255 255 255;   /* #FFFFFF  pure white — accents           */
-  --gold:     201 169 110;   /* #C9A96E  brand gold (keep)              */
-  --bronze:   166 138 86;    /* #A68A56  dark gold — hover              */
-  --midnight: 28 35 51;      /* #1C2333  deep dark — footer             */
+  /* ── CK MONOCHROME — clean white / black / gray (Calvin Klein register) ──
+     No warm ivory, no sage, no rounded template signals. */
+  --stone:    255 255 255;   /* #FFFFFF  page background            */
+  --sand:     250 250 250;   /* #FAFAFA  light surface              */
+  --clay:     229 229 229;   /* #E5E5E5  hairline borders           */
+  --charcoal: 17 17 17;      /* #111111  primary text / buttons     */
+  --smoke:    112 112 112;   /* #707070  secondary text             */
+  --pearl:    255 255 255;   /* #FFFFFF  accents on dark            */
+  --gold:     201 169 110;   /* #C9A96E  subtle accent (kept)       */
+  --bronze:   166 138 86;    /* #A68A56  dark gold hover            */
+  --midnight: 17 17 17;      /* #111111  footer / primary buttons   */
 
   /* ── Typography — 100% Inter; mono reserved for chapter counters ──── */
   --font-display: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', 'Helvetica', 'Arial', sans-serif;

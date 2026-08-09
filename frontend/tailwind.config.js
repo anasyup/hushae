@@ -26,10 +26,10 @@ export default {
         // Anchor: deep-warm black + soft ivory. Accents are muted, never loud.
         obsidian:  '#111111',   // primary ink (slightly warmer than pure #000)
         ink:       '#1A1A1A',   // secondary ink for softer text on light
-        graphite:  '#2E2C2A',   // hover/pressed states, dividers on dark
-        alabaster: '#F7F5F1',   // primary background — warm ivory (Hanro-style)
-        cream:     '#EFEAE3',   // warm off-white — cards on alabaster
-        satin:     '#E4DDD3',   // soft neutral (previous)
+        graphite:  '#333333',   // hover/pressed states, dividers on dark
+        alabaster: '#FFFFFF',   // primary background — warm ivory (Hanro-style)
+        cream:     '#F7F7F7',   // warm off-white — cards on alabaster
+        satin:     '#F0F0F0',   // soft neutral (previous)
 
         /* ── Theme-aware neutral + white/black (CSS-variable RGB) ─────────
            Standard Tailwind theming: colors are `rgb(var(--x) / alpha)`,
@@ -58,15 +58,15 @@ export default {
         // 3.90:1 on cream — both under the 4.5:1 WCAG AA floor. Darkened just
         // enough to clear it on either surface (5.11:1 / 4.65:1) while staying
         // clearly lighter than `ink` so the hierarchy still reads.
-        ash:       '#6E6760',
-        ashlight:  '#7A736D',   // the old tone — decorative use only, never text
+        ash:       '#707070',
+        ashlight:  '#8A8A8A',   // the old tone — decorative use only, never text
         smoke:     'rgb(var(--smoke) / <alpha-value>)',  // QA #8B8A87 — secondary text
-        line:      '#E4DED4',   // dividers/borders — barely visible
-        sage:      '#8F9C8B',   // subtle accent (used sparingly)
-        sagedeep:  '#5C6A5A',   // deep sage for links/CTAs
+        line:      '#E5E5E5',   // dividers/borders — barely visible
+        sage:      '#9CA3AF',   // subtle accent (used sparingly)
+        sagedeep:  '#111111',   // deep sage for links/CTAs
         // sagedeep on a sage/25 wash over white measures 4.26:1 — under AA.
         // This darker step clears it at 5.4:1 and is used by .badge-sage.
-        sagedark:  '#4E5A4C',
+        sagedark:  '#333333',
         clay:      'rgb(var(--clay) / <alpha-value>)',  // QA #D4C9B8 — borders/hairlines
 
         /* ── QUIET ARCHITECTURE (QA) theme tokens — Phase 2 (wired) ─────
