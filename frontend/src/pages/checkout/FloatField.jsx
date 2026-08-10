@@ -23,7 +23,7 @@ export default function FloatField({
 
   return (
     <div>
-      <label htmlFor={id} className={`label-qa mb-1 block ${error ? 'text-red-700' : ''}`}>
+      <label htmlFor={id} className={`label-qa mb-0.5 block ${error ? 'text-red-700' : ''}`}>
         {label}{required && <span aria-hidden="true"> *</span>}
       </label>
       <Tag
@@ -46,17 +46,17 @@ export default function FloatField({
       </Tag>
 
       {error ? (
-        <p id={msgId} role="alert" className="mt-1.5 flex items-start gap-1.5 text-[11px] text-red-700">
+        <p id={msgId} role="alert" className="mt-1 flex items-start gap-1.5 text-[11px] text-red-700">
           <AlertCircle size={12} className="mt-0.5 shrink-0" aria-hidden="true" />
           {error}
         </p>
       ) : valid ? (
-        <p id={msgId} className="mt-1.5 flex items-center gap-1.5 text-[11px] font-medium text-charcoal">
+        <p id={msgId} className="mt-1 flex items-center gap-1.5 text-[11px] font-medium text-charcoal">
           <Check size={12} className="shrink-0" aria-hidden="true" />
           {valid}
         </p>
       ) : hint ? (
-        <p id={msgId} className="mt-1.5 text-[11px] text-smoke">{hint}</p>
+        <p id={msgId} className="mt-1 text-[11px] text-smoke">{hint}</p>
       ) : null}
     </div>
   );
@@ -68,7 +68,7 @@ export function FloatSelect({ label, value, onChange, error, hint, required, dis
   const msgId = `${id}-msg`;
   return (
     <div className="relative">
-      <label htmlFor={id} className={`label-qa mb-1 block ${error ? 'text-red-700' : ''}`}>
+      <label htmlFor={id} className={`label-qa mb-0.5 block ${error ? 'text-red-700' : ''}`}>
         {label}{required && <span aria-hidden="true"> *</span>}
       </label>
       <select
@@ -85,11 +85,11 @@ export function FloatSelect({ label, value, onChange, error, hint, required, dis
       </select>
       <span className="pointer-events-none absolute bottom-4 right-1 text-smoke" aria-hidden="true">▾</span>
       {error ? (
-        <p id={msgId} role="alert" className="mt-1.5 flex items-start gap-1.5 text-[11px] text-red-700">
+        <p id={msgId} role="alert" className="mt-1 flex items-start gap-1.5 text-[11px] text-red-700">
           <AlertCircle size={12} className="mt-0.5 shrink-0" aria-hidden="true" />{error}
         </p>
       ) : hint ? (
-        <p id={msgId} className="mt-1.5 text-[11px] text-smoke">{hint}</p>
+        <p id={msgId} className="mt-1 text-[11px] text-smoke">{hint}</p>
       ) : null}
     </div>
   );

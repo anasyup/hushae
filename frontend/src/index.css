@@ -381,7 +381,7 @@
   .summary-card { @apply bg-sand p-8; }
   /* Borderless bottom-line input (1px clay) — 16px Inter 400, 14px vertical pad. */
   .input-line {
-    @apply w-full border-0 border-b border-clay bg-transparent py-2.5 text-[15px] font-normal text-charcoal
+    @apply w-full border-0 border-b border-clay bg-transparent py-2 text-[15px] font-normal text-charcoal
       outline-none transition-colors duration-base placeholder:text-smoke/60
       focus:border-charcoal disabled:opacity-60;
   }

@@ -456,7 +456,7 @@ export default function Checkout() {
         <form
           ref={formRef}
           onSubmit={(e) => { e.preventDefault(); openReview(); }}
-          className="space-y-4"
+          className="space-y-3"
           noValidate
         >
           {/* ---- Contact — compact card ---- */}
@@ -465,7 +465,7 @@ export default function Checkout() {
               <span className="grid h-7 w-7 place-items-center rounded-full border border-[#111111] text-[12px] font-medium text-[#111111]">1</span>
               <h2 id="sec-contact" className="text-[15px] font-medium uppercase tracking-[0.1em] text-[#111111]">Contact</h2>
             </div>
-            <div className="mt-3 grid gap-4">
+            <div className="mt-2.5 grid gap-3">
               <FloatField
                 label="Email" type="email" autoComplete="email" inputMode="email"
                 value={f.email} onChange={(v) => set('email', v)} error={errs.email}
@@ -486,7 +486,7 @@ export default function Checkout() {
               <span className="grid h-7 w-7 place-items-center rounded-full border border-[#111111] text-[12px] font-medium text-[#111111]">2</span>
               <h2 id="sec-address" className="text-[15px] font-medium uppercase tracking-[0.1em] text-[#111111]">Shipping</h2>
             </div>
-            <div className="mt-3 grid gap-4 sm:grid-cols-2">
+            <div className="mt-2.5 grid gap-3 sm:grid-cols-2">
               <div className="sm:col-span-2">
                 <FloatField
                   label="Full name" required autoComplete="name"
