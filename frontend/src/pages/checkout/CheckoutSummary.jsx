@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Lock } from 'lucide-react';
+import { BadgeCheck, Lock, RotateCcw, ShieldCheck, Truck } from 'lucide-react';
 import { pkr } from '../../lib/format';
 import { titleCase } from '../../lib/productMeta';
 
@@ -21,23 +21,46 @@ import PromoSummary from '../../components/marketing/PromoSummary';
  * ========================================================================== */
 export default function CheckoutSummary({
   cart, pricing, cartCfg, checkoutCfg, applied, onApply, onRemoveCoupon,
-  submitRef, onSubmit, busy, disabled, rewardsSlot, promoQuote = null,
+  submitRef, onSubmit, busy, disabled, rewardsSlot, promoQuote = null, onQty,
 }) {
   return (
     <div className="card-cream p-8">
-      <h2 className="label-qa">Your order</h2>
+      <div className="flex items-baseline justify-between">
+        <h2 className="text-[15px] font-medium uppercase tracking-[0.1em] text-[#111111]">Your Order</h2>
+        <span className="text-[10px] font-medium uppercase tracking-[0.12em] text-[#696969]">{pricing.count} item{pricing.count === 1 ? '' : 's'}</span>
+      </div>
+
+      {/* Delivery estimate — trust + clarity up front */}
+      <div className="mt-4 flex items-center gap-2.5 rounded-[2px] border border-[#E5E5E5] bg-[#FBF6EC] px-3.5 py-3">
+        <Truck size={15} className="shrink-0 text-[#C9A96E]" aria-hidden="true" />
+        <p className="text-[12px] leading-snug text-[#5B5955]">
+          Estimated delivery <span className="font-medium text-[#111111]">2–5 working days</span>
+          <span className="block text-[10px] text-[#696969]">Dispatched in 24h · discreet packaging</span>
+        </p>
+      </div>
 
       <ul className="mt-5 max-h-80 space-y-4 overflow-y-auto pr-1">
         {cart.map((l, i) => (
           <li key={`${l.id}-${l.size}-${l.color}-${i}`} className="flex items-center gap-4 border-b border-clay/60 pb-4 last:border-0 last:pb-0">
             <Img src={l.image} alt="" className="h-15 w-[60px] shrink-0 object-cover" />
             <div className="min-w-0 flex-1">
-              <p className="clamp-2 text-[12px] font-normal leading-snug text-charcoal">{nameOf(l.name)}</p>
-              <p className="mt-0.5 text-[10px] text-smoke">
-                {[l.size && `Size ${l.size}`, l.color, `Qty ${l.qty}`].filter(Boolean).join(' · ')}
+              <p className="clamp-2 text-[12px] font-normal leading-snug text-[#111111]">{nameOf(l.name)}</p>
+              <p className="mt-0.5 text-[10px] text-[#696969]">
+                {[l.size && `Size ${l.size}`, l.color].filter(Boolean).join(' · ')}
               </p>
+              {onQty && (
+                <div className="mt-1.5 inline-flex items-center border border-[#E5E5E5]">
+                  <button type="button" onClick={() => onQty(l, Math.max(1, l.qty - 1))}
+                    className="grid h-7 w-7 place-items-center text-[#696969] transition hover:text-[#111111]"
+                    aria-label={`Decrease quantity for ${l.name}`}>−</button>
+                  <span className="min-w-6 text-center text-[12px] tabular-nums text-[#111111]">{l.qty}</span>
+                  <button type="button" onClick={() => onQty(l, Math.min(cartCfg.maxQty || 10, l.qty + 1))}
+                    className="grid h-7 w-7 place-items-center text-[#696969] transition hover:text-[#111111]"
+                    aria-label={`Increase quantity for ${l.name}`}>+</button>
+                </div>
+              )}
             </div>
-            <p className="shrink-0 text-[12px] font-medium tabular-nums text-charcoal">{pkr(l.price * l.qty)}</p>
+            <p className="shrink-0 text-[12px] font-medium tabular-nums text-[#111111]">{pkr(l.price * l.qty)}</p>
           </li>
         ))}
       </ul>
@@ -126,13 +149,30 @@ export default function CheckoutSummary({
           disabled={busy || disabled}
           className="btn-gold disabled:opacity-50"
         >
-          {busy ? <><Spinner label="Working" /> One moment…</> : <><Lock size={14} aria-hidden="true" /> Review order</>}
+          {busy ? <><Spinner label="Working" /> One moment…</> : <><Lock size={14} aria-hidden="true" /> Place Order · {pkr(pricing.total)}</>}
         </button>
       </div>
 
-      <p className="mt-3 text-center text-[11px] text-smoke">
-        You will see one final summary before anything is placed.
+      {/* Security near the CTA — conversion booster */}
+      <p className="mt-3 flex items-center justify-center gap-1.5 text-[11px] text-[#696969]">
+        <ShieldCheck size={12} className="text-[#C9A96E]" aria-hidden="true" /> Encrypted Checkout
       </p>
+
+      {/* Trust badges row */}
+      <div className="mt-4 grid grid-cols-3 gap-2 border-t border-[#E5E5E5] pt-4 text-center">
+        <div className="text-[9px] font-medium uppercase tracking-[0.08em] text-[#696969]">
+          <Lock size={13} className="mx-auto mb-1 text-[#C9A96E]" aria-hidden="true" />
+          SSL Secure
+        </div>
+        <div className="text-[9px] font-medium uppercase tracking-[0.08em] text-[#696969]">
+          <RotateCcw size={13} className="mx-auto mb-1 text-[#C9A96E]" aria-hidden="true" />
+          Free Returns
+        </div>
+        <div className="text-[9px] font-medium uppercase tracking-[0.08em] text-[#696969]">
+          <BadgeCheck size={13} className="mx-auto mb-1 text-[#C9A96E]" aria-hidden="true" />
+          Money-Back
+        </div>
+      </div>
 
       <Link
         to="/cart"

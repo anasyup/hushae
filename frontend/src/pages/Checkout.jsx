@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AlertCircle, Crosshair, MapPin, PackageCheck, Truck, User } from 'lucide-react';
-import { useApp } from '../store/AppContext';
+import { useApp, lineKey } from '../store/AppContext';
 import { api } from '../api/client';
 import { pkr } from '../lib/format';
 import { cartConfig } from '../lib/cartConfig';
@@ -39,7 +39,7 @@ const DRAFT_KEY = 'hushae.checkoutDraft';
  *   field and the error count is announced.
  * ========================================================================== */
 export default function Checkout() {
-  const { cart, settings, clearCart, auth, toast } = useApp();
+  const { cart, settings, clearCart, auth, toast, updateQty } = useApp();
   const nav = useNavigate();
 
   const cfg = useMemo(() => checkoutConfig(settings), [settings]);
@@ -396,12 +396,17 @@ export default function Checkout() {
 
   return (
     <div className="surface-cream py-8 md:py-12"><div className="container-page">
-      <header className="border-b border-clay pb-7">
-        <Link to="/cart" className="inline-flex min-h-[44px] items-center gap-1.5 text-[12px] text-smoke underline underline-offset-4 transition hover:text-charcoal">
-          ← Back to bag
-        </Link>
-        {/* QA — "Checkout", Inter 300, 28px */}
-        <h1 className="mt-2 text-[28px] font-light normal-case tracking-[0.02em] text-charcoal">{cfg.title}</h1>
+      {/* Checkout steps — matches cart progression */}
+      <nav aria-label="Checkout progress" className="mb-6 flex items-center gap-3 text-[11px] font-medium uppercase tracking-[0.14em]">
+        <Link to="/cart" className="text-[#696969] transition hover:text-[#111111]">Bag</Link>
+        <span className="h-px w-8 bg-[#111111]" aria-hidden="true" />
+        <span className="text-[#111111]">Checkout</span>
+        <span className="h-px w-8 bg-[#E5E5E5]" aria-hidden="true" />
+        <span className="text-[#696969]">Confirmation</span>
+      </nav>
+
+      <header className="pb-7">
+        <h1 className="text-[32px] font-medium normal-case tracking-[0.01em] text-[#111111] md:text-[40px]">{cfg.title}</h1>
         {!auth && cfg.guestCheckout && (
           <p className="mt-3 inline-flex flex-wrap items-center gap-1.5 text-[12px] text-smoke">
             <User size={13} aria-hidden="true" />
@@ -412,6 +417,32 @@ export default function Checkout() {
         )}
         {auth && <p className="mt-3 text-[12px] text-smoke">Ordering as <span className="font-medium text-charcoal">{auth.user.name}</span></p>}
       </header>
+
+      {/* Express checkout — sleek badges (merchant-gated, disabled until live) */}
+      {(cartCfg.applePay || cartCfg.googlePay) && (
+        <div className="mt-6">
+          <p className="text-center text-[11px] font-medium uppercase tracking-[0.16em] text-[#696969]">Express Checkout</p>
+          <div className="mt-3 grid gap-3 sm:grid-cols-2">
+            {cartCfg.applePay && (
+              <button type="button" disabled
+                className="inline-flex min-h-[52px] items-center justify-center gap-2 rounded-[10px] bg-[#111111] px-6 text-[15px] font-medium text-white opacity-60">
+                <span className="text-[17px] leading-none"> </span> Pay
+              </button>
+            )}
+            {cartCfg.googlePay && (
+              <button type="button" disabled
+                className="inline-flex min-h-[52px] items-center justify-center gap-2 rounded-[10px] border border-[#111111] bg-white px-6 text-[15px] font-medium text-[#111111] opacity-60">
+                G Pay
+              </button>
+            )}
+          </div>
+          <div className="mt-4 flex items-center gap-3 text-[10px] font-medium uppercase tracking-[0.14em] text-[#696969]">
+            <span className="h-px flex-1 bg-[#E5E5E5]" aria-hidden="true" />
+            or
+            <span className="h-px flex-1 bg-[#E5E5E5]" aria-hidden="true" />
+          </div>
+        </div>
+      )}
 
       {topErr && (
         <p role="alert" className="mt-6 flex items-start gap-2.5 border border-red-200 bg-red-50 px-4 py-3.5 text-[12px] text-red-800">
@@ -430,8 +461,11 @@ export default function Checkout() {
         >
           {/* ---- Contact — email + phone, borderless bottom-line ---- */}
           <section aria-labelledby="sec-contact">
-            <h2 id="sec-contact" className="label-qa">Contact</h2>
-            <div className="mt-4 grid gap-6">
+            <div className="flex items-center gap-3">
+              <span className="grid h-7 w-7 place-items-center rounded-full border border-[#111111] text-[12px] font-medium text-[#111111]">1</span>
+              <h2 id="sec-contact" className="text-[15px] font-medium uppercase tracking-[0.1em] text-[#111111]">Contact</h2>
+            </div>
+            <div className="mt-6 grid gap-6">
               <FloatField
                 label="Email" type="email" autoComplete="email" inputMode="email"
                 value={f.email} onChange={(v) => set('email', v)} error={errs.email}
@@ -448,8 +482,11 @@ export default function Checkout() {
 
           {/* ---- Shipping ---- */}
           <section aria-labelledby="sec-address">
-            <h2 id="sec-address" className="label-qa">Shipping</h2>
-            <div className="mt-4 grid gap-6 sm:grid-cols-2">
+            <div className="flex items-center gap-3">
+              <span className="grid h-7 w-7 place-items-center rounded-full border border-[#111111] text-[12px] font-medium text-[#111111]">2</span>
+              <h2 id="sec-address" className="text-[15px] font-medium uppercase tracking-[0.1em] text-[#111111]">Shipping</h2>
+            </div>
+            <div className="mt-6 grid gap-6 sm:grid-cols-2">
               <div className="sm:col-span-2">
                 <FloatField
                   label="Full name" required autoComplete="name"
@@ -581,7 +618,7 @@ export default function Checkout() {
           {/* ---- Delivery method ---- */}
           {shipOptions.length > 0 && (
             <section aria-labelledby="sec-ship">
-              <h2 id="sec-ship" className="label-qa">Delivery</h2>
+              <h2 id="sec-ship" className="text-[13px] font-medium uppercase tracking-[0.1em] text-[#111111]">Delivery Method</h2>
               <div className="mt-4">
                 <MethodPicker
                   name="shipping" legend="Choose a delivery method"
@@ -602,7 +639,10 @@ export default function Checkout() {
 
           {/* ---- Payment ---- */}
           <section aria-labelledby="sec-pay">
-            <h2 id="sec-pay" className="label-qa">Payment</h2>
+            <div className="flex items-center gap-3">
+              <span className="grid h-7 w-7 place-items-center rounded-full border border-[#111111] text-[12px] font-medium text-[#111111]">3</span>
+              <h2 id="sec-pay" className="text-[15px] font-medium uppercase tracking-[0.1em] text-[#111111]">Payment</h2>
+            </div>
             {errs.method && (
               <p role="alert" className="mt-2 flex items-center gap-1.5 text-[11px] text-red-700">
                 <AlertCircle size={12} aria-hidden="true" /> {errs.method}
@@ -706,6 +746,9 @@ export default function Checkout() {
           <CheckoutSummary
             cart={cart}
             pricing={pricing}
+            onQty={(line, qty) => {
+              updateQty(lineKey(line), qty, cartCfg.maxQty || 10);
+            }}
             cartCfg={cartCfg}
             checkoutCfg={cfg}
             applied={applied}
