@@ -145,6 +145,15 @@
     @apply outline-none ring-2 ring-obsidian ring-offset-2 ring-offset-alabaster;
     border-radius: 0.375rem;
   }
+  /* Form fields stay borderless-line — never a white offset box on focus. */
+  input:focus, input:focus-visible,
+  select:focus, select:focus-visible,
+  textarea:focus, textarea:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+    -webkit-box-shadow: none !important;
+    border-radius: 0 !important;
+  }
   /* On dark surfaces the ring inverts so it stays visible. */
   .on-dark :where(a, button, [tabindex]):focus-visible {
     @apply ring-alabaster ring-offset-obsidian;
@@ -379,11 +388,28 @@
   .card-cream { background-color: #FBF6EC; border: 1px solid #E6D6B8; }
   /* Sand summary card — 32px padding, no border, no shadow. */
   .summary-card { @apply bg-sand p-8; }
-  /* Borderless bottom-line input (1px clay) — 16px Inter 400, 14px vertical pad. */
+  /* Borderless bottom-line input (1px clay) — type on the line, NO box.
+     The global focus-visible rule (ring-2 + ring-offset-alabaster) paints a
+     WHITE BOX around focused inputs — that must never appear here. We kill
+     ring + ring-offset with !important, and neutralise browser autofill's
+     white/yellow fill so the line stays invisible until typing. */
   .input-line {
     @apply w-full border-0 border-b border-clay bg-transparent py-1.5 text-[15px] font-normal text-charcoal
       outline-none transition-colors duration-base placeholder:text-smoke/60
-      focus:border-charcoal focus:outline-none focus:ring-0 focus-visible:ring-0 disabled:opacity-60;
+      focus:border-charcoal disabled:opacity-60;
+  }
+  .input-line:focus,
+  .input-line:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+    -webkit-box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+  .input-line:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 1000px transparent inset !important;
+    box-shadow: 0 0 0 1000px transparent inset !important;
+    -webkit-text-fill-color: #111111 !important;
+    transition: background-color 99999s ease-in-out 0s;
   }
   /* QA meta label — Inter 500, 10px, uppercase, 0.15em, smoke. */
   .label-qa { @apply text-[10px] font-medium uppercase tracking-[0.15em] text-smoke; }
