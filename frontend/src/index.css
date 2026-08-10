@@ -405,10 +405,31 @@
     -webkit-box-shadow: none !important;
     border-radius: 0 !important;
   }
-  .input-line:-webkit-autofill {
+  /* Autofill — kill Chrome/Safari's light-blue fill on EVERY state (normal,
+     hover, focus, active, selected). The background is painted by the browser
+     behind a 1000px inset shadow; we erase it and force the theme text
+     colour. `caret-color` keeps the typing caret charcoal too. */
+  .input-line:-webkit-autofill,
+  .input-line:-webkit-autofill:hover,
+  .input-line:-webkit-autofill:focus,
+  .input-line:-webkit-autofill:active {
     -webkit-box-shadow: 0 0 0 1000px transparent inset !important;
     box-shadow: 0 0 0 1000px transparent inset !important;
     -webkit-text-fill-color: #111111 !important;
+    color: #111111 !important;
+    caret-color: #111111 !important;
+    transition: background-color 99999s ease-in-out 0s;
+  }
+  /* Belt-and-braces: any text field that autofills anywhere on the store. */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  textarea:-webkit-autofill,
+  select:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 1000px transparent inset !important;
+    box-shadow: 0 0 0 1000px transparent inset !important;
+    -webkit-text-fill-color: #111111 !important;
+    caret-color: #111111 !important;
     transition: background-color 99999s ease-in-out 0s;
   }
   /* QA meta label — Inter 500, 10px, uppercase, 0.15em, smoke. */
