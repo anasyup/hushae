@@ -184,41 +184,43 @@ export default function Product() {
 
         {/* Right Column: Sticky, Quiet Details */}
         <aside className="lg:sticky lg:top-28 lg:h-fit space-y-7">
-          <div className="border-b border-clay pb-7 space-y-4">
-            {/* Product name — Inter 400, 28px, Title Case, charcoal */}
+          <div className="space-y-4">
+            {/* Collection eyebrow — reference: "Winter Monolith" */}
+            <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-[#696969]">
+              {p.categoryName || (p.tier === 'Premium' ? 'Signature' : p.tier || 'New Season')}
+            </p>
+
+            {/* Product name — title case, bold-ish */}
             <h1 className="text-[28px] font-medium leading-tight normal-case tracking-[0.01em] text-[#111111]">
               {name}
             </h1>
 
-            {/* Price — Inter 500, 18px + struck was-price. No "save" amounts. */}
-            <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-              <span className="text-[18px] font-medium text-charcoal tabular-nums">{pkr(p.price)}</span>
+            {/* Price + rating + reviews count */}
+            <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+              <span className="text-[20px] font-medium tabular-nums text-[#111111]">{pkr(p.price)}</span>
               {onSale && (
-                <span className="text-[14px] font-normal text-smoke line-through tabular-nums">
-                  {pkr(p.compareAtPrice)}
+                <span className="text-[14px] font-normal text-[#696969] line-through tabular-nums">{pkr(p.compareAtPrice)}</span>
+              )}
+              <span aria-hidden="true" className="text-[#CCCCCC]">|</span>
+              <a href="#reviews" className="inline-flex items-center gap-1.5 text-[13px] text-[#111111] transition hover:text-[#696969]">
+                <span className="inline-flex gap-0.5 text-[12px] text-[#111111]">
+                  {Array.from({ length: 5 }).map((_, st) => (
+                    <span key={st}>{st < Math.round(p.ratingAvg || 0) ? '★' : '☆'}</span>
+                  ))}
                 </span>
-              )}
+                <span className="text-[13px] font-medium">{Number(p.ratingAvg || 0).toFixed(1)}</span>
+                <span className="text-[13px] text-[#696969]">· {reviewsShown} review{reviewsShown === 1 ? '' : 's'}</span>
+              </a>
             </div>
 
-            {/* Description — Inter 400, 14px, smoke, 1.7 leading */}
-            <p className="body-qa">
-              {p.shortDescription || p.description}
+            {/* Stock — reference: "In stock — ships within 24 hours" */}
+            <p className="text-[13px] text-[#696969]">
+              {soldOut
+                ? 'Sold out'
+                : p.stock <= 5
+                  ? `Only ${p.stock} left — ships within 24 hours`
+                  : 'In stock — ships within 24 hours'}
             </p>
-
-            {/* Quiet meta — reviews link · item no. */}
-            <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[11px] text-smoke">
-              {reviewsShown > 0 ? (
-                <a href="#reviews" className="underline underline-offset-4 transition hover:text-charcoal">
-                  {reviewsShown} review{reviewsShown === 1 ? '' : 's'}
-                </a>
-              ) : (
-                <span>No reviews yet</span>
-              )}
-              <span aria-hidden="true" className="text-clay">|</span>
-              <span>Item No. <span className="font-medium text-charcoal">{p.sku || p._id?.slice(-8).toUpperCase()}</span></span>
-              <span aria-hidden="true" className="text-clay">|</span>
-              <span>{soldOut ? 'Sold out' : 'In stock'}</span>
-            </div>
           </div>
 
           {/* Colour Selector — flat rectangles, 2px clay border, text-only */}
@@ -329,12 +331,31 @@ export default function Product() {
               </button>
             </div>
 
+            {/* Buy now — reference secondary button */}
+            <button
+              type="button"
+              onClick={() => tryAdd(true)}
+              disabled={soldOut || (needsSize && !size)}
+              className={`w-full min-h-[48px] inline-flex items-center justify-center border text-[14px] font-medium uppercase tracking-[0.08em] transition-colors duration-300 ${
+                soldOut || (needsSize && !size)
+                  ? 'cursor-not-allowed border-[#E5E5E5] text-[#696969]'
+                  : 'border-[#111111] text-[#111111] hover:bg-[#111111] hover:text-white'
+              }`}
+            >
+              Buy now
+            </button>
+
             <p aria-live="polite" className="min-h-[1.25rem] text-[11px]">
               {added && (
-                <span className="inline-flex items-center gap-1.5 pt-1 font-medium uppercase tracking-[0.12em] text-smoke">
+                <span className="inline-flex items-center gap-1.5 pt-1 font-medium uppercase tracking-[0.12em] text-[#696969]">
                   ✓ Added to your bag
                 </span>
               )}
+            </p>
+
+            {/* Description — reference places it after the buttons */}
+            <p className="text-[14px] leading-[1.7] text-[#696969]">
+              {p.shortDescription || p.description}
             </p>
           </div>
 
@@ -375,8 +396,8 @@ export default function Product() {
             ))}
           </ul>
 
-          {/* ── Horizontal tabs — thin clay border, active charcoal line ── */}
-          <ProductTabs p={p} settings={settings} />
+          {/* ── Accordions — reference: Materials & traceability / Care / Shipping / Returns ── */}
+          <ProductAccordions p={p} settings={settings} />
         </aside>
       </div>
 
@@ -450,77 +471,37 @@ export default function Product() {
 }
 
 /* ═══ CK/SKIMS horizontal tabs — active = bold + underline, 200ms fade ═════ */
-function ProductTabs({ p, settings }) {
-  const [tab, setTab] = useState('details');
-  const TABS = [
-    { id: 'details', label: 'Product Details' },
-    { id: 'fabric', label: 'Fabric & Care' },
-    { id: 'shipping', label: 'Shipping & Returns' },
-  ];
+/* ═══ Accordions — reference structure (Materials & traceability / Care / Shipping / Returns) ═══ */
+function ProductAccordions({ p, settings }) {
   return (
-    <div className="pt-2">
-      {/* Tab bar — thin bottom border, active = charcoal line */}
-      <div className="flex gap-8 border-b border-clay" role="tablist" aria-label="Product information">
-        {TABS.map((t) => (
-          <button
-            key={t.id}
-            role="tab"
-            aria-selected={tab === t.id}
-            onClick={() => setTab(t.id)}
-            className={`-mb-px border-b pb-3 text-[10px] font-medium uppercase tracking-[0.15em] transition-colors duration-200 ${
-              tab === t.id ? 'border-charcoal text-charcoal' : 'border-transparent text-smoke hover:text-charcoal'
-            }`}
-          >
-            {t.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Tab content — 200ms fade */}
-      <div className="pt-5">
-        {tab === 'details' && (
-          <div key="details" className="animate-[fade-up_0.2s_ease-out_both]">
-            <p className="body-qa">{p.description}</p>
-            <dl className="mt-4 grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 border-t border-clay/60 pt-4 text-[12px]">
-              {[
-                ['Item No.', p.sku || p._id?.toUpperCase()],
-                ['Material', p.fabric],
-                ['Tier', p.tier === 'Premium' ? 'Signature' : p.tier],
-                ['Category', p.categorySlug?.replace(/-/g, ' ')],
-                ['Sizes', (p.sizes || []).join(' · ') || '—'],
-              ].filter(([, v]) => v).map(([k, v]) => (
-                <div key={k} className="contents">
-                  <dt className="label-qa">{k}</dt>
-                  <dd className="normal-case text-charcoal/80">{v}</dd>
-                </div>
-              ))}
-            </dl>
-          </div>
+    <div className="pt-4">
+      <Accordion title="Materials & traceability">
+        <p className="text-[13px]">{p.fabric}</p>
+        <p className="mt-2 text-[13px] leading-[1.7]">
+          {p.shortDescription || p.description}
+        </p>
+      </Accordion>
+      <Accordion title="Care">
+        {(p.care || []).length > 0 ? (
+          <ul className="list-disc space-y-1.5 pl-5 text-[13px] leading-[1.7]">
+            {(p.care || []).map((c) => <li key={c}>{c}</li>)}
+          </ul>
+        ) : (
+          <p className="text-[13px] leading-[1.7]">Machine wash cold, gentle cycle. Lay flat to dry. Do not bleach.</p>
         )}
-        {tab === 'fabric' && (
-          <div key="fabric" className="animate-[fade-up_0.2s_ease-out_both]">
-            <p className="text-[13px] font-medium text-charcoal">{p.fabric}</p>
-            <p className="mt-2 body-qa">Every HUSHAE fabric is wash-tested for 40 cycles before it enters the edit — softness in, softness out.</p>
-            {(p.care || []).length > 0 && (
-              <ul className="mt-3 list-disc space-y-1.5 pl-5 text-[13px] font-normal text-smoke">
-                {(p.care || []).map((c) => <li key={c}>{c}</li>)}
-              </ul>
-            )}
-          </div>
-        )}
-        {tab === 'shipping' && (
-          <div key="shipping" className="animate-[fade-up_0.2s_ease-out_both]">
-            <p className="body-qa">
-              Flat {pkr(settings?.shippingFlatRate ?? 350)} nationwide, free over {pkr(settings?.freeShippingThreshold ?? 4999)}.
-              Dispatched in 24–48h in plain, unmarked packaging.
-            </p>
-            <p className="mt-2 body-qa">
-              Unworn pieces exchange within 14 days — size swaps are free. For hygiene reasons innerwear is only
-              returnable if it arrives faulty.
-            </p>
-          </div>
-        )}
-      </div>
+      </Accordion>
+      <Accordion title="Shipping">
+        <p className="text-[13px] leading-[1.7]">
+          Flat {pkr(settings?.shippingFlatRate ?? 350)} nationwide, free over {pkr(settings?.freeShippingThreshold ?? 4999)}.
+          Dispatched in 24–48h in plain, unmarked packaging.
+        </p>
+      </Accordion>
+      <Accordion title="Returns">
+        <p className="text-[13px] leading-[1.7]">
+          Unworn pieces exchange within 14 days — size swaps are free. For hygiene reasons innerwear is only
+          returnable if it arrives faulty.
+        </p>
+      </Accordion>
     </div>
   );
 }
