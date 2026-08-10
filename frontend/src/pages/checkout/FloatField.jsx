@@ -79,7 +79,7 @@ export function FloatSelect({ label, value, onChange, error, hint, required, dis
         aria-invalid={error ? 'true' : undefined}
         aria-describedby={error || hint ? msgId : undefined}
         aria-required={required || undefined}
-        className={`input-line appearance-none pr-8 ${error ? '!border-red-500' : ''} ${disabled ? 'opacity-60' : ''}`}
+        className={`input-line appearance-none pr-8 focus:outline-none focus:ring-0 focus-visible:ring-0 ${error ? '!border-red-500' : ''} ${disabled ? 'opacity-60' : ''}`}
       >
         {children}
       </select>
