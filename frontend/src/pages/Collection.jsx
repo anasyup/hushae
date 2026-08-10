@@ -64,31 +64,32 @@ export default function Collection() {
         </nav>
       </div>
 
-      {/* Hero band — warm cream, image right */}
-      <section className="container-page pt-6 md:pt-10">
-        <div className="grid items-center gap-8 overflow-hidden rounded-2xl border border-[#E5E5E5]/70 bg-[#FBF6EC] md:grid-cols-2">
-          {/* Text */}
-          <div className="px-6 py-10 md:px-12 md:py-14">
-            <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[#C9A96E]">Collection</p>
-            <h1 className="mt-3 text-[32px] font-medium uppercase leading-[1.05] tracking-[0.03em] text-[#111111] md:text-[48px]">
-              {c.name}
-            </h1>
-            {c.description && (
-              <p className="mx-auto mt-4 max-w-md text-[15px] font-normal leading-[1.6] text-[#696969]">{c.description}</p>
-            )}
-            <div className="mt-6 flex items-center gap-4 text-[11px] font-medium uppercase tracking-[0.14em] text-[#696969]">
-              <span>{products.length} piece{products.length === 1 ? '' : 's'}</span>
-              <span className="h-3 w-px bg-[#E5E5E5]" aria-hidden="true" />
-              <span>New Season</span>
-            </div>
-          </div>
-          {/* Image */}
-          <div className="relative hidden h-full min-h-[320px] md:block">
-            {c.image ? (
-              <img src={c.image} alt={c.name} className="absolute inset-0 h-full w-full object-cover" />
-            ) : (
-              <div className="absolute inset-0 bg-gradient-to-br from-[#EFE8DC] to-[#E4D6C0]" />
-            )}
+      {/* Hero band — FULLSCREEN: full-bleed image + centered text */}
+      <section className="relative flex h-[85vh] min-h-[480px] w-full items-center justify-center overflow-hidden bg-[#111111]">
+        {/* Full-bleed image */}
+        {c.image ? (
+          <img src={c.image} alt={c.name} className="absolute inset-0 h-full w-full object-cover" />
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-[#2E2C2A] to-[#111111]" />
+        )}
+        {/* Warm veil — legibility */}
+        <div className="absolute inset-0 bg-black/40" />
+
+        {/* Centered text */}
+        <div className="relative px-6 text-center text-white">
+          <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-[#C9A96E]">Collection</p>
+          <h1 className="mt-4 text-[clamp(36px,7vw,72px)] font-medium uppercase leading-[1.02] tracking-[0.04em] [text-shadow:0_2px_32px_rgba(0,0,0,0.45)]">
+            {c.name}
+          </h1>
+          {c.description && (
+            <p className="mx-auto mt-5 max-w-xl text-[15px] font-normal leading-[1.6] text-white/85 [text-shadow:0_1px_12px_rgba(0,0,0,0.4)]">
+              {c.description}
+            </p>
+          )}
+          <div className="mt-7 flex items-center justify-center gap-4 text-[11px] font-medium uppercase tracking-[0.16em] text-white/70">
+            <span>{products.length} piece{products.length === 1 ? '' : 's'}</span>
+            <span className="h-3 w-px bg-white/30" aria-hidden="true" />
+            <span>New Season</span>
           </div>
         </div>
       </section>
