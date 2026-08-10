@@ -1,98 +1,87 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Award, ChevronLeft, ChevronRight, Lock, RotateCcw, Truck } from 'lucide-react';
 import { api } from '../api/client';
 import ProductCard from '../components/ProductCard';
 import Banner from '../components/Banner';
 import Seo, { organizationJsonLd } from '../components/Seo';
 
 /* ============================================================================
- * HUSHAE HOME — cloned from the REAL calvinklein.com homepage structure.
+ * HUSHAE HOME — the ultimate luxury homepage.
  *
- * Section order (mirrors CK exactly):
- *   1. Announcement bar            (OfferBar — in Header)
- *   2. HERO                        full-bleed image + headline + Shop Women/Men
- *   3. PROMOTIONS                  admin banners with buttons (user request)
- *   4. CATEGORY TRAY               image tiles + label below + Shop links (CK "Denim/Jackets/Dresses")
- *   5. EDITORIAL SUB-SECTION       headline + copy + 2 image tiles (CK "Feel the Fit")
- *   6. JUST IN                     new arrivals + rail (CK "Just In")
- *   7. SIGNATURE                   headline + copy + 2 tiles (CK "Signature Underwear")
- *   8. REWARDS BAND                (CK "My Calvin Rewards")
- *   9. VISUAL NAV STRIP            quick links (CK "Tees/Shorts/Swim")
- *   10. EMAIL SIGNUP               (CK "Get 10% Off")
+ * Synthesised from 15+ premium references (Bella Webflow template + 4 tall
+ * Dribbble homepages + earlier CK study). Structure:
+ *   1  HERO            cinematic 3-slide crossfade, arrows + dots, CTA button
+ *   2  PERKS           icon trust row (Quality / Shipping / Secure / Returns)
+ *   3  PROMOTIONS      admin hero-banner band (user feature, buttons)
+ *   4  MEN / WOMEN     split editorial blocks
+ *   5  CATEGORIES      real category imagery, image tiles + labels
+ *   6  BEST SELLERS    product grid
+ *   7  PROMO BANNER    "The Signature Edit" full-bleed editorial + CTA
+ *   8  JOURNAL         real blog posts
+ *   9  VALUES          grey commitment band
+ *   10 NEWSLETTER      "Get 10% Off" borderless input + button
+ *   11 #HUSHAE         social call-out
  *
- * Layout principles taken from the live site: image-led sections, hairline
- * dividers, generous whitespace, uppercase light tracked headlines, quiet
- * secondary gray, black buttons only where CK uses them.
+ * Palette stays the approved warm-luxury register: white / #111 / #696969
+ * hairlines, gold #C9A96E as the only accent.
  * ========================================================================== */
 
-const fadeUp = { initial: { opacity: 0, y: 22 }, whileInView: { opacity: 1, y: 0 }, viewport: { once: true, margin: '-60px' }, transition: { duration: 0.6 } };
 const IMG = '/images/campaign/qa';
 
-/* ── CK hero tray — image tile + label below + Shop links ───────────────── */
-const TRAY = [
-  { label: 'Bras', img: `${IMG}/cat-women.jpg`, shop: '/category/bras' },
-  { label: 'Panties', img: `${IMG}/cat-underwear.jpg`, shop: '/category/panties' },
-  { label: 'Boxers', img: `${IMG}/cat-men.jpg`, shop: '/category/boxers' },
-  { label: 'Loungewear', img: `${IMG}/hero-fabric.jpg`, shop: '/category/sleepwear-loungewear' },
+/* ── Hero slides — own campaign photography ─────────────────────────────── */
+const HERO_SLIDES = [
+  { img: `${IMG}/hero-women.jpg`, eyebrow: 'The New Edit', title: 'Second Skin', sub: 'New season essentials — engineered in Pakistan, finished to an international standard.' },
+  { img: `${IMG}/hero-men.jpg`, eyebrow: 'Signature Underwear', title: 'Worn Daily', sub: 'Smooth silhouettes with the logo waistband. Feel confident under anything.' },
+  { img: `${IMG}/hero-fabric.jpg`, eyebrow: 'The Fabric', title: 'Engineered Softness', sub: 'Breathable modal and stretch cottons, wash-tested for 40 cycles.' },
 ];
 
-/* ── Visual nav strip — quick links (CK "90s Utility · Tees · Shorts") ─── */
-const QUICKLINKS = [
-  { label: 'Bras', href: '/category/bras' },
-  { label: 'Briefs', href: '/category/briefs' },
-  { label: 'Shapewear', href: '/category/shapewear' },
-  { label: 'New Arrivals', href: '/new' },
-  { label: 'Sale', href: '/sale' },
-  { label: 'Best Sellers', href: '/best' },
+/* ── Perks — Bella-style icon trust row ─────────────────────────────────── */
+const PERKS = [
+  { Icon: Award, title: '100% Quality', text: 'Every piece wash-tested for 40 cycles' },
+  { Icon: Truck, title: 'Free Shipping', text: 'On orders over PKR 4,999' },
+  { Icon: Lock, title: 'Secure Payment', text: 'COD nationwide · encrypted checkout' },
+  { Icon: RotateCcw, title: 'Free Returns', text: '14-day exchange, free size swaps' },
 ];
 
-/* ── Promotional fallback tile (when no admin banner is published) ──────── */
-function PromoTile({ img, eyebrow, title, sub, cta, to }) {
-  return (
-    <Link to={to} className="group relative block h-full w-full overflow-hidden bg-white">
-      <img src={img} alt={title} loading="lazy"
-        className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-105" />
-      <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/15 to-transparent" />
-      <div className="absolute inset-0 flex flex-col justify-center px-7 md:px-12">
-        {eyebrow && <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#C9A96E]">{eyebrow}</p>}
-        <h3 className="mt-2 max-w-md text-2xl font-medium text-white md:text-4xl">{title}</h3>
-        {sub && <p className="mt-2 max-w-md text-[13px] text-white/85">{sub}</p>}
-        <span className="mt-6 inline-flex min-h-[44px] w-fit items-center justify-center bg-white px-8 text-[11px] font-semibold uppercase tracking-[0.2em] text-black transition-colors duration-300 hover:bg-[#C9A96E] hover:text-white">
-          {cta}
-        </span>
-      </div>
-    </Link>
-  );
-}
+/* ── Category tiles — real category images ──────────────────────────────── */
+const CATEGORIES = [
+  { label: 'Bras', img: '/images/categories/bras.jpg', href: '/category/bras' },
+  { label: 'Panties', img: '/images/categories/panties.jpg', href: '/category/panties' },
+  { label: 'Briefs', img: '/images/categories/briefs.jpg', href: '/category/briefs' },
+  { label: 'Boxers', img: '/images/categories/boxers.jpg', href: '/category/boxers' },
+  { label: 'Loungewear', img: '/images/categories/sleepwear-loungewear.jpg', href: '/category/sleepwear-loungewear' },
+];
 
-export default function Home() {
-  const [fresh, setFresh] = useState(null);
-
+/* ── Hero slideshow — crossfade + arrows + dots ─────────────────────────── */
+function HeroSlides() {
+  const [i, setI] = useState(0);
   useEffect(() => {
-    api('/products?newArrival=true&limit=8').then((d) => setFresh(d.products || [])).catch(() => setFresh([]));
+    const t = setInterval(() => setI((x) => (x + 1) % HERO_SLIDES.length), 5500);
+    return () => clearInterval(t);
   }, []);
+  const prev = () => setI((x) => (x - 1 + HERO_SLIDES.length) % HERO_SLIDES.length);
+  const next = () => setI((x) => (x + 1) % HERO_SLIDES.length);
 
   return (
-    <div className="bg-white font-sans text-[#111111]">
-      <Seo title="Premium Innerwear for Men & Women"
-        description="New season essentials, engineered for comfort. Made in Pakistan, finished to an international standard."
-        canonical="/"
-        jsonLd={organizationJsonLd(typeof window !== 'undefined' ? window.location.origin : '')}
-        jsonLdId="home-org" />
+    <section className="relative h-[90vh] min-h-[560px] w-full overflow-hidden bg-white">
+      {/* Slides */}
+      {HERO_SLIDES.map((s, idx) => (
+        <div key={idx} className={`absolute inset-0 transition-opacity duration-[900ms] ease-out ${idx === i ? 'opacity-100' : 'opacity-0'}`}>
+          <img src={s.img} alt={s.title} loading={idx === 0 ? 'eager' : 'lazy'}
+            className="absolute inset-0 h-full w-full object-cover object-center" />
+        </div>
+      ))}
+      {/* Warm veil — barely there, legibility only */}
+      <div className="absolute inset-0 bg-black/30" />
 
-      {/* ═══ 02 — HERO (CK: full-bleed + headline + dual CTA) ═════════ */}
-      <section className="relative h-[88vh] min-h-[560px] w-full overflow-hidden bg-white">
-        <img src={`${IMG}/hero-women.jpg`} alt="Second skin" fetchpriority="high"
-          className="absolute inset-0 h-full w-full object-cover object-center" />
-        <div className="absolute inset-0 bg-black/30" />
-        <div className="relative flex h-full flex-col items-center justify-center px-6 text-center text-white">
-          <p className="text-[11px] font-medium uppercase tracking-[0.1em] text-white/80 [text-shadow:0_1px_16px_rgba(0,0,0,0.4)]">The New Edit</p>
-          <h1 className="mt-6 text-[clamp(40px,7vw,80px)] font-medium uppercase leading-[1.02] tracking-[0.04em] [text-shadow:0_2px_32px_rgba(0,0,0,0.45)]">Second<br />Skin</h1>
-          <p className="mt-6 max-w-md text-[15px] font-normal leading-[1.6] tracking-[0.02em] text-white/90 [text-shadow:0_1px_12px_rgba(0,0,0,0.4)]">
-            New season essentials — engineered in Pakistan, finished to an international standard.
-          </p>
-          <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
+      {/* Text — centered, changes with slide */}
+      <div className="absolute inset-0 flex items-center justify-center px-6 text-center text-white">
+        <div key={`t-${i}`} className="max-w-3xl animate-[fade-up_0.5s_ease-out_both]">
+          <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-white/80 [text-shadow:0_1px_16px_rgba(0,0,0,0.4)]">{HERO_SLIDES[i].eyebrow}</p>
+          <h1 className="mt-5 text-[clamp(40px,7vw,84px)] font-medium uppercase leading-[1.02] tracking-[0.04em] [text-shadow:0_2px_32px_rgba(0,0,0,0.45)]">{HERO_SLIDES[i].title}</h1>
+          <p className="mx-auto mt-5 max-w-xl text-[15px] font-normal leading-[1.6] text-white/90 [text-shadow:0_1px_12px_rgba(0,0,0,0.4)]">{HERO_SLIDES[i].sub}</p>
+          <div className="mt-9 flex flex-wrap items-center justify-center gap-4">
             <Link to="/women"
               className="inline-flex min-h-[50px] items-center justify-center border border-white/80 px-10 text-[12px] font-medium uppercase tracking-[0.16em] text-white transition-colors duration-300 hover:bg-white hover:text-black">
               Shop Women
@@ -103,21 +92,91 @@ export default function Home() {
             </Link>
           </div>
         </div>
+      </div>
+
+      {/* Arrows */}
+      <button type="button" onClick={prev} aria-label="Previous slide"
+        className="absolute left-4 top-1/2 grid h-11 w-11 -translate-y-1/2 place-items-center border border-white/50 text-white transition-colors duration-300 hover:bg-white hover:text-black md:left-8">
+        <ChevronLeft size={18} />
+      </button>
+      <button type="button" onClick={next} aria-label="Next slide"
+        className="absolute right-4 top-1/2 grid h-11 w-11 -translate-y-1/2 place-items-center border border-white/50 text-white transition-colors duration-300 hover:bg-white hover:text-black md:right-8">
+        <ChevronRight size={18} />
+      </button>
+
+      {/* Dots */}
+      <div className="absolute bottom-8 left-1/2 flex -translate-x-1/2 gap-2">
+        {HERO_SLIDES.map((_, idx) => (
+          <button key={idx} type="button" onClick={() => setI(idx)} aria-label={`Slide ${idx + 1}`}
+            className={`h-1 rounded-full transition-all duration-300 ${idx === i ? 'w-8 bg-white' : 'w-2 bg-white/40 hover:bg-white/70'}`} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* ── Promotional fallback tile (when no admin banner is published) ──────── */
+function PromoTile({ img, eyebrow, title, sub, cta, to }) {
+  return (
+    <Link to={to} className="group relative block h-full w-full overflow-hidden bg-white">
+      <img src={img} alt={title} loading="lazy"
+        className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-105" />
+      <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/15 to-transparent" />
+      <div className="absolute inset-0 flex flex-col justify-center px-7 md:px-12">
+        {eyebrow && <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-[#C9A96E]">{eyebrow}</p>}
+        <h3 className="mt-2 max-w-md text-2xl font-medium text-white md:text-4xl">{title}</h3>
+        {sub && <p className="mt-2 max-w-md text-[13px] text-white/85">{sub}</p>}
+        <span className="mt-6 inline-flex min-h-[44px] w-fit items-center justify-center bg-white px-8 text-[11px] font-medium uppercase tracking-[0.18em] text-black transition-colors duration-300 hover:bg-[#C9A96E] hover:text-white">
+          {cta}
+        </span>
+      </div>
+    </Link>
+  );
+}
+
+export default function Home() {
+  const [fresh, setFresh] = useState(null);
+  const [best, setBest] = useState(null);
+  const [posts, setPosts] = useState([]);
+
+  useEffect(() => {
+    api('/products?bestSeller=true&limit=8').then((d) => setBest(d.products)).catch(() => setBest([]));
+    api('/products?newArrival=true&limit=8').then((d) => setFresh(d.products)).catch(() => setFresh([]));
+    api('/blog').then((d) => setPosts(d.posts || [])).catch(() => setPosts([]));
+  }, []);
+
+  return (
+    <div className="bg-white font-sans text-[#111111]">
+      <Seo title="Premium Innerwear for Men & Women"
+        description="New season essentials, engineered for comfort. Made in Pakistan, finished to an international standard."
+        canonical="/"
+        jsonLd={organizationJsonLd(typeof window !== 'undefined' ? window.location.origin : '')}
+        jsonLdId="home-org" />
+
+      {/* ═══ 01 — HERO: cinematic slideshow ═══════════════════════════ */}
+      <HeroSlides />
+
+      {/* ═══ 02 — PERKS: icon trust row ═══════════════════════════════ */}
+      <section className="border-b border-[#E5E5E5]">
+        <div className="mx-auto grid max-w-7xl grid-cols-2 gap-y-8 px-4 py-10 md:grid-cols-4 md:px-8 md:py-12">
+          {PERKS.map(({ Icon, title, text }) => (
+            <div key={title} className="flex flex-col items-center text-center">
+              <Icon size={22} strokeWidth={1.4} className="text-[#C9A96E]" aria-hidden="true" />
+              <p className="mt-3 text-[11px] font-medium uppercase tracking-[0.14em] text-[#111111]">{title}</p>
+              <p className="mt-1 max-w-[22ch] text-[11px] leading-relaxed text-[#696969]">{text}</p>
+            </div>
+          ))}
+        </div>
       </section>
 
-      {/* ═══ 03 — PROMOTIONS (admin banners, user request) ═══════════ */}
+      {/* ═══ 03 — PROMOTIONS (admin banners, buttons) ═════════════════ */}
       <section className="mx-auto mt-14 max-w-7xl px-4 md:mt-20 md:px-8">
         <div className="mb-6 flex items-baseline justify-between border-t border-[#E5E5E5] pt-4">
-          <h2 className="text-[20px] font-medium uppercase tracking-[0.02em] text-[#111111]">This Week</h2>
+          <h2 className="text-[20px] font-medium uppercase tracking-[0.04em] text-[#111111]">This Week</h2>
           <span className="hidden text-[11px] font-medium uppercase tracking-[0.08em] text-[#696969] md:block">Promotions</span>
         </div>
-        <Banner
-          slot="homepage-promo-1"
-          className="aspect-[16/9] w-full overflow-hidden md:aspect-[21/8]"
-          fallback={(
-            <PromoTile img={`${IMG}/editorial-modern.jpg`} eyebrow="The Summer Edit" title="Signature comfort, up to 30% off" sub="The pieces that define the season — now at their quiet best." cta="Shop Sale" to="/sale" />
-          )}
-        />
+        <Banner slot="homepage-promo-1" className="aspect-[16/9] w-full overflow-hidden md:aspect-[21/8]"
+          fallback={<PromoTile img={`${IMG}/editorial-modern.jpg`} eyebrow="The Summer Edit" title="Signature comfort, up to 30% off" sub="The pieces that define the season — now at their quiet best." cta="Shop Sale" to="/sale" />} />
         <div className="mt-5 grid gap-5 md:grid-cols-2">
           <Banner slot="homepage-promo-2" className="aspect-[16/10] w-full overflow-hidden"
             fallback={<PromoTile img={`${IMG}/hero-women.jpg`} eyebrow="New Arrivals" title="The Second Skin collection" sub="Featherweight layers, zero-dig fits." cta="Shop New" to="/new" />} />
@@ -126,10 +185,10 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ═══ 03b — MEN / WOMEN SPLIT (spec: two side-by-side blocks) ═══ */}
+      {/* ═══ 04 — MEN / WOMEN split ═══════════════════════════════════ */}
       <section className="mt-14 md:mt-20">
         <div className="grid md:grid-cols-2">
-          <Link to="/women" className="group relative block aspect-[4/5] overflow-hidden bg-white md:aspect-auto md:min-h-[70vh]">
+          <Link to="/women" className="group relative block aspect-[4/5] overflow-hidden bg-white md:aspect-auto md:min-h-[68vh]">
             <img src={`${IMG}/hero-women.jpg`} alt="Women" loading="lazy"
               className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1.2s] group-hover:scale-[1.04]" />
             <div className="absolute inset-0 bg-black/25 transition-colors duration-500 group-hover:bg-black/10" />
@@ -138,7 +197,7 @@ export default function Home() {
               <span className="mt-3 inline-block border-b border-white/60 pb-1 text-[12px] font-medium uppercase tracking-[0.14em] text-white">Shop Now</span>
             </div>
           </Link>
-          <Link to="/men" className="group relative block aspect-[4/5] overflow-hidden bg-white md:aspect-auto md:min-h-[70vh]">
+          <Link to="/men" className="group relative block aspect-[4/5] overflow-hidden bg-white md:aspect-auto md:min-h-[68vh]">
             <img src={`${IMG}/hero-men.jpg`} alt="Men" loading="lazy"
               className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1.2s] group-hover:scale-[1.04]" />
             <div className="absolute inset-0 bg-black/25 transition-colors duration-500 group-hover:bg-black/10" />
@@ -150,122 +209,108 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ═══ 04 — CATEGORY TRAY (CK: image + label + Shop links) ═════ */}
+      {/* ═══ 05 — CATEGORIES: real imagery tiles ══════════════════════ */}
       <section className="mx-auto mt-14 max-w-7xl px-4 md:mt-20 md:px-8">
         <div className="mb-8 flex items-baseline justify-between border-t border-[#E5E5E5] pt-4">
-          <h2 className="text-[20px] font-medium uppercase tracking-[0.02em] text-[#111111]">Shop by Category</h2>
+          <h2 className="text-[20px] font-medium uppercase tracking-[0.04em] text-[#111111]">Shop by Category</h2>
           <Link to="/shop" className="hidden text-[11px] font-medium uppercase tracking-[0.08em] text-[#696969] transition hover:text-[#111111] md:block">View All</Link>
         </div>
-        <div className="grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-4 md:gap-x-5">
-          {TRAY.map((t) => (
-            <div key={t.label} className="group">
-              <Link to={t.shop} className="block overflow-hidden bg-[#FAFAFA]">
-                <img src={t.img} alt={t.label} loading="lazy"
-                  className="aspect-[3/4] w-full object-cover transition duration-700 group-hover:scale-[1.04]" />
-              </Link>
-              <div className="mt-4 flex items-baseline justify-between px-0.5">
-                <p className="text-[13px] font-medium uppercase tracking-[0.04em] text-[#111111]">{t.label}</p>
-                <Link to={t.shop} className="inline-flex items-center gap-1 text-[11px] font-medium uppercase tracking-[0.08em] text-[#696969] transition group-hover:text-[#111111]">
-                  Shop <ArrowRight size={11} />
-                </Link>
+        <div className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-5 md:gap-x-5">
+          {CATEGORIES.map((c) => (
+            <Link key={c.label} to={c.href} className="group block">
+              <div className="relative aspect-[3/4] overflow-hidden bg-[#F5F5F5]">
+                <img src={c.img} alt={c.label} loading="lazy"
+                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]" />
               </div>
-            </div>
+              <div className="mt-3 flex items-baseline justify-between px-0.5">
+                <p className="text-[13px] font-medium uppercase tracking-[0.04em] text-[#111111]">{c.label}</p>
+                <span className="inline-flex items-center gap-1 text-[10px] font-medium uppercase tracking-[0.08em] text-[#696969] transition group-hover:text-[#111111]">
+                  Shop <ArrowRight size={11} />
+                </span>
+              </div>
+            </Link>
           ))}
         </div>
       </section>
 
-      {/* ═══ 05 — EDITORIAL SUB-SECTION (CK "Feel the Fit") ══════════ */}
-      <section className="mt-14 md:mt-24">
-        <div className="mx-auto max-w-7xl px-4 md:px-8">
-          <div className="max-w-2xl">
-            <h2 className="text-[24px] font-medium uppercase tracking-[0.02em] text-[#111111] md:text-[32px]">Feel the Fit</h2>
-            <p className="mt-3 max-w-md text-[15px] font-normal leading-[1.6] text-[#696969]">
-              From relaxed and breezy to streamlined and supportive — the right fit changes everything.
-            </p>
-            <Link to="/fit-finder" className="mt-5 inline-flex items-center gap-2 border-b border-[#111111]/25 pb-1 text-[12px] font-medium uppercase tracking-[0.08em] text-[#111111] transition hover:border-[#111111]">
-              Find your fit <ArrowRight size={13} className="transition-transform duration-300 group-hover:translate-x-1" />
-            </Link>
-          </div>
-        </div>
-        <div className="mx-auto mt-8 grid max-w-7xl gap-5 px-4 md:grid-cols-2 md:px-8">
-          <Link to="/women" className="group relative block aspect-[16/10] overflow-hidden bg-white">
-            <img src={`${IMG}/cat-women.jpg`} alt="Women's" loading="lazy" className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-105" />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-            <div className="absolute inset-x-0 bottom-0 p-6">
-              <p className="text-[15px] font-medium uppercase tracking-[0.04em] text-white">Women&apos;s Edit</p>
-              <span className="mt-1 inline-block text-[10px] font-medium uppercase tracking-[0.18em] text-white/80">Shop Now →</span>
-            </div>
-          </Link>
-          <Link to="/men" className="group relative block aspect-[16/10] overflow-hidden bg-white">
-            <img src={`${IMG}/cat-men.jpg`} alt="Men's" loading="lazy" className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-105" />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-            <div className="absolute inset-x-0 bottom-0 p-6">
-              <p className="text-[15px] font-medium uppercase tracking-[0.04em] text-white">Men&apos;s Edit</p>
-              <span className="mt-1 inline-block text-[10px] font-medium uppercase tracking-[0.18em] text-white/80">Shop Now →</span>
-            </div>
-          </Link>
-        </div>
-      </section>
-
-      {/* ═══ 06 — JUST IN (CK: new arrivals) ════════════════════════ */}
-      {fresh && fresh.length > 0 && (
+      {/* ═══ 06 — BEST SELLERS ════════════════════════════════════════ */}
+      {best && best.length > 0 && (
         <section className="mx-auto mt-14 max-w-7xl px-4 md:mt-24 md:px-8">
           <div className="mb-8 flex items-baseline justify-between border-t border-[#E5E5E5] pt-4">
             <div>
-              <h2 className="text-[20px] font-medium uppercase tracking-[0.02em] text-[#111111]">Just In</h2>
-              <p className="mt-1 text-[12px] text-[#707070]">New, minimalist staples to refresh your wardrobe with ease.</p>
+              <p className="text-[10px] font-medium uppercase tracking-[0.16em] text-[#696969]">Trending Now</p>
+              <h2 className="mt-2 text-[22px] font-medium uppercase tracking-[0.04em] text-[#111111] md:text-[28px]">Best Sellers</h2>
             </div>
-            <Link to="/new" className="hidden text-[11px] font-medium uppercase tracking-[0.08em] text-[#696969] transition hover:text-[#111111] md:block">Shop All</Link>
+            <Link to="/best" className="group inline-flex items-center gap-1.5 border-b border-[#111111]/25 pb-1 text-[11px] font-medium uppercase tracking-[0.08em] text-[#111111] transition-colors duration-300 hover:border-[#111111]">
+              View All <ArrowRight size={12} />
+            </Link>
           </div>
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-5">
-            {fresh.slice(0, 8).map((p) => <ProductCard key={p._id} product={p} />)}
+            {best.slice(0, 8).map((p) => <ProductCard key={p._id} product={p} />)}
           </div>
         </section>
       )}
 
-      {/* ═══ 07 — SIGNATURE (CK "Signature Underwear") ═══════════════ */}
+      {/* ═══ 07 — PROMO BANNER: The Signature Edit ═════════════════════ */}
       <section className="mt-14 md:mt-24">
-        <div className="mx-auto max-w-7xl px-4 md:px-8">
-          <div className="max-w-2xl">
-            <h2 className="text-[24px] font-medium uppercase tracking-[0.02em] text-[#111111] md:text-[32px]">Signature Underwear</h2>
-            <p className="mt-3 max-w-md text-[15px] font-normal leading-[1.6] text-[#696969]">
-              Smooth silhouettes with the logo waistband. Feel confident under anything.
-            </p>
-            <div className="mt-5 flex flex-wrap gap-8">
-              <Link to="/women" className="inline-flex items-center gap-2 border-b border-[#111111]/25 pb-1 text-[12px] font-medium uppercase tracking-[0.08em] text-[#111111] transition hover:border-[#111111]">
-                Shop Women <ArrowRight size={13} />
-              </Link>
-              <Link to="/men" className="inline-flex items-center gap-2 border-b border-[#111111]/25 pb-1 text-[12px] font-medium uppercase tracking-[0.08em] text-[#111111] transition hover:border-[#111111]">
-                Shop Men <ArrowRight size={13} />
-              </Link>
+        <Link to="/sale" className="group relative block h-[70vh] min-h-[420px] overflow-hidden bg-white">
+          <img src={`${IMG}/editorial-performance.jpg`} alt="The Signature Edit" loading="lazy"
+            className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1.2s] group-hover:scale-[1.03]" />
+          <div className="absolute inset-0 bg-black/40" />
+          <div className="absolute inset-0 flex items-center justify-center px-6 text-center text-white">
+            <div>
+              <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-[#C9A96E]">Limited Season</p>
+              <h2 className="mt-4 text-[clamp(30px,5vw,52px)] font-medium uppercase leading-[1.05] tracking-[0.05em] [text-shadow:0_2px_24px_rgba(0,0,0,0.4)]">
+                The Signature Edit
+              </h2>
+              <p className="mx-auto mt-4 max-w-md text-[15px] font-normal leading-[1.6] text-white/85">
+                Engineered essentials for every moment — now at their quiet best.
+              </p>
+              <span className="mt-8 inline-flex min-h-[50px] items-center justify-center border border-white/80 px-10 text-[12px] font-medium uppercase tracking-[0.16em] text-white transition-colors duration-300 group-hover:bg-white group-hover:text-black">
+                Shop Now
+              </span>
             </div>
           </div>
-        </div>
-        <div className="mx-auto mt-8 grid max-w-7xl gap-5 px-4 md:grid-cols-2 md:px-8">
-          <Link to="/category/bras" className="group relative block aspect-[16/10] overflow-hidden bg-white">
-            <img src={`${IMG}/hero-women.jpg`} alt="Women's underwear" loading="lazy" className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-105" />
-          </Link>
-          <Link to="/category/briefs" className="group relative block aspect-[16/10] overflow-hidden bg-white">
-            <img src={`${IMG}/hero-men.jpg`} alt="Men's underwear" loading="lazy" className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-105" />
-          </Link>
-        </div>
+        </Link>
       </section>
 
-      {/* ═══ 08 — REWARDS BAND (CK "My Calvin Rewards") ══════════════ */}
-      <section className="mt-14 md:mt-24">
-        <div className="mx-auto max-w-7xl px-4 py-14 text-center md:px-8 md:py-20">
-          <h2 className="text-[24px] font-medium uppercase tracking-[0.02em] text-[#111111] md:text-[32px]">My Hushae Circle</h2>
-          <p className="mx-auto mt-3 max-w-md text-[15px] font-normal leading-[1.6] text-[#696969]">
-            Earn. Redeem. Enjoy. A new way to experience HUSHAE — points, rewards and exclusive benefits.
-          </p>
-          <Link to="/rewards" className="mt-6 inline-flex min-h-[46px] items-center justify-center bg-[#111111] px-10 text-[12px] font-medium uppercase tracking-[0.16em] text-white transition-colors duration-300 hover:bg-[#333333]">
-            Learn More
-          </Link>
-        </div>
-      </section>
+      {/* ═══ 08 — JOURNAL: real blog posts ════════════════════════════ */}
+      {posts.length > 0 && (
+        <section className="mx-auto mt-14 max-w-7xl px-4 md:mt-24 md:px-8">
+          <div className="mb-8 flex items-baseline justify-between border-t border-[#E5E5E5] pt-4">
+            <div>
+              <p className="text-[10px] font-medium uppercase tracking-[0.16em] text-[#696969]">The Journal</p>
+              <h2 className="mt-2 text-[22px] font-medium uppercase tracking-[0.04em] text-[#111111] md:text-[28px]">Latest Stories</h2>
+            </div>
+            <Link to="/journal" className="group inline-flex items-center gap-1.5 border-b border-[#111111]/25 pb-1 text-[11px] font-medium uppercase tracking-[0.08em] text-[#111111] transition-colors duration-300 hover:border-[#111111]">
+              View All <ArrowRight size={12} />
+            </Link>
+          </div>
+          <div className="grid gap-8 md:grid-cols-3">
+            {posts.slice(0, 3).map((post) => (
+              <Link key={post.slug} to={`/journal/${post.slug}`} className="group block">
+                <div className="aspect-[16/10] overflow-hidden bg-[#F5F5F5]">
+                  {post.coverImage ? (
+                    <img src={post.coverImage} alt={post.title} loading="lazy"
+                      className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]" />
+                  ) : (
+                    <div className="grid h-full w-full place-items-center bg-[#F0F0F0] text-[11px] font-medium uppercase tracking-[0.2em] text-[#696969]">HUSHAE</div>
+                  )}
+                </div>
+                <p className="mt-4 text-[10px] font-medium uppercase tracking-[0.16em] text-[#C9A96E]">
+                  {post.category || 'Journal'}
+                </p>
+                <h3 className="mt-2 text-[15px] font-medium leading-snug normal-case text-[#111111] transition-colors duration-300 group-hover:text-[#696969]">
+                  {post.title}
+                </h3>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
-      {/* ═══ 08b — VALUES BLOCK (spec: grey, centered commitment) ═══ */}
-      <section className="bg-[#F5F5F5]">
+      {/* ═══ 09 — VALUES: commitment band ═════════════════════════════ */}
+      <section className="mt-14 bg-[#F5F5F5] md:mt-24">
         <div className="mx-auto max-w-3xl px-4 py-16 text-center md:px-8 md:py-24">
           <p className="text-[20px] font-medium uppercase leading-[1.5] tracking-[0.04em] text-[#111111] md:text-[26px]">
             We Are Committed To A Better Future.
@@ -280,34 +325,22 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ═══ 09 — VISUAL NAV STRIP (CK "Tees · Shorts · Swim") ═══════ */}
-      <section className="border-y border-[#E5E5E5]">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-10 gap-y-3 px-4 py-6 md:px-8">
-          {QUICKLINKS.map((l) => (
-            <Link key={l.label} to={l.href}
-              className="text-[11px] font-medium uppercase tracking-[0.18em] text-[#707070] transition hover:text-[#111111]">
-              {l.label}
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* ═══ 10 — EMAIL SIGNUP (CK "Get 10% Off") ═══════════════════ */}
+      {/* ═══ 10 — NEWSLETTER: Get 10% Off ═════════════════════════════ */}
       <NewsletterBand />
 
-      {/* ═══ #HUSHAE ════════════════════════════════════════════════ */}
+      {/* ═══ 11 — #HUSHAE ═════════════════════════════════════════════ */}
       <section className="mt-14 md:mt-20">
         <Link to="/new" className="group relative block h-[55vh] min-h-[360px] overflow-hidden bg-white">
-          <img src={`${IMG}/editorial-performance.jpg`} alt="Share your look" loading="lazy"
+          <img src={`${IMG}/editorial-modern.jpg`} alt="Share your look" loading="lazy"
             className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1.2s] group-hover:scale-[1.03]" />
           <div className="absolute inset-0 bg-black/45" />
           <div className="absolute inset-0 flex items-center justify-center px-6 text-center text-white">
             <div>
-              <h2 className="text-[clamp(28px,5vw,44px)] font-medium uppercase tracking-[0.04em] [text-shadow:0_2px_24px_rgba(0,0,0,0.4)]">#HUSHAE</h2>
-              <p className="mx-auto mt-4 max-w-xl text-[15px] font-normal leading-[1.6] text-white/90">
+              <h2 className="text-[clamp(28px,5vw,44px)] font-medium uppercase tracking-[0.06em] [text-shadow:0_2px_24px_rgba(0,0,0,0.4)]">#HUSHAE</h2>
+              <p className="mx-auto mt-4 max-w-xl text-[15px] font-normal leading-[1.6] text-white/85">
                 Share your look. Tag @hushae and #HUSHAE on Instagram for a chance to be featured.
               </p>
-              <span className="mt-8 inline-flex items-center gap-2 border-b border-white/40 pb-1 text-[12px] font-medium uppercase tracking-[0.08em] text-white transition-colors duration-300 group-hover:border-white">
+              <span className="mt-8 inline-flex items-center gap-2 border-b border-white/40 pb-1 text-[12px] font-medium uppercase tracking-[0.12em] text-white transition-colors duration-300 group-hover:border-white">
                 Explore <ArrowRight size={13} className="transition-transform duration-300 group-hover:translate-x-1" />
               </span>
             </div>
@@ -318,14 +351,14 @@ export default function Home() {
   );
 }
 
-/* ── Email signup band (CK "Get Your 10% Off") ─────────────────────────── */
+/* ── Email signup band — "Get 10% Off" ─────────────────────────────────── */
 function NewsletterBand() {
   const [email, setEmail] = useState('');
   const [done, setDone] = useState(false);
   return (
     <section className="mx-auto mt-14 max-w-7xl px-4 md:mt-20 md:px-8">
       <div className="border border-[#E5E5E5] px-6 py-14 text-center md:py-16">
-        <h2 className="text-[22px] font-medium uppercase tracking-[0.02em] text-[#111111] md:text-[28px]">Get 10% Off</h2>
+        <h2 className="text-[22px] font-medium uppercase tracking-[0.04em] text-[#111111] md:text-[28px]">Get 10% Off</h2>
         <p className="mx-auto mt-3 max-w-sm text-[15px] font-normal leading-[1.6] text-[#696969]">
           Join the circle for early access to new drops, fit guides and private offers.
         </p>
