@@ -39,7 +39,7 @@ export default function CheckoutSummary({
         </p>
       </div>
 
-      <ul className="mt-5 max-h-80 space-y-4 overflow-y-auto pr-1">
+      <ul className="no-scrollbar mt-5 max-h-80 space-y-4 overflow-y-auto pr-1">
         {cart.map((l, i) => (
           <li key={`${l.id}-${l.size}-${l.color}-${i}`} className="flex items-center gap-4 border-b border-clay/60 pb-4 last:border-0 last:pb-0">
             <Img src={l.image} alt="" className="h-15 w-[60px] shrink-0 object-cover" />
