@@ -461,10 +461,7 @@ export default function Checkout() {
         >
           {/* ---- Contact — compact card ---- */}
           <section aria-labelledby="sec-contact">
-            <div className="flex items-center gap-3">
-              <span className="grid h-7 w-7 place-items-center rounded-full border border-[#111111] text-[12px] font-medium text-[#111111]">1</span>
-              <h2 id="sec-contact" className="text-[15px] font-medium uppercase tracking-[0.1em] text-[#111111]">Contact</h2>
-            </div>
+            <h2 id="sec-contact" className="text-[14px] font-medium uppercase tracking-[0.1em] text-[#111111]">Contact</h2>
             <div className="mt-2.5 grid gap-3">
               <FloatField
                 label="Email" type="email" autoComplete="email" inputMode="email"
@@ -482,10 +479,7 @@ export default function Checkout() {
 
           {/* ---- Shipping — compact card ---- */}
           <section aria-labelledby="sec-address">
-            <div className="flex items-center gap-3">
-              <span className="grid h-7 w-7 place-items-center rounded-full border border-[#111111] text-[12px] font-medium text-[#111111]">2</span>
-              <h2 id="sec-address" className="text-[15px] font-medium uppercase tracking-[0.1em] text-[#111111]">Shipping</h2>
-            </div>
+            <h2 id="sec-address" className="text-[14px] font-medium uppercase tracking-[0.1em] text-[#111111]">Shipping</h2>
             <div className="mt-2.5 grid gap-3 sm:grid-cols-2">
               <div className="sm:col-span-2">
                 <FloatField
@@ -639,10 +633,7 @@ export default function Checkout() {
 
           {/* ---- Payment — compact card ---- */}
           <section aria-labelledby="sec-pay">
-            <div className="flex items-center gap-3">
-              <span className="grid h-7 w-7 place-items-center rounded-full border border-[#111111] text-[12px] font-medium text-[#111111]">3</span>
-              <h2 id="sec-pay" className="text-[15px] font-medium uppercase tracking-[0.1em] text-[#111111]">Payment</h2>
-            </div>
+            <h2 id="sec-pay" className="text-[14px] font-medium uppercase tracking-[0.1em] text-[#111111]">Payment</h2>
             {errs.method && (
               <p role="alert" className="mt-2 flex items-center gap-1.5 text-[11px] text-red-700">
                 <AlertCircle size={12} aria-hidden="true" /> {errs.method}
