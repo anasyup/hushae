@@ -208,6 +208,15 @@ export default function Cart() {
   return (
     <div className="container-page py-8 md:py-12">
       {/* ---------------- Header ---------------- */}
+      {/* Cart steps — premium checkout progression */}
+      <nav aria-label="Checkout progress" className="mb-8 flex items-center gap-3 text-[11px] font-medium uppercase tracking-[0.14em]">
+        <span className="text-[#111111]">Bag</span>
+        <span className="h-px w-8 bg-[#E5E5E5]" aria-hidden="true" />
+        <span className="text-[#696969]">Checkout</span>
+        <span className="h-px w-8 bg-[#E5E5E5]" aria-hidden="true" />
+        <span className="text-[#696969]">Confirmation</span>
+      </nav>
+
       <header className="border-b border-[#E5E5E5] pb-7">
         <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
           <h1 className="text-[32px] font-medium normal-case tracking-[0.01em] text-[#111111] md:text-[40px]">{cfg.title}</h1>

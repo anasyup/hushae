@@ -1,10 +1,9 @@
 import { Link } from 'react-router-dom';
-import { AlertCircle, Lock } from 'lucide-react';
+import { AlertCircle, ArrowRight, Lock, ShieldCheck, Truck, RotateCcw } from 'lucide-react';
 import { pkr } from '../../lib/format';
 import PromoSummary from '../../components/marketing/PromoSummary';
 import CouponBox from './CouponBox';
 import FreeShipProgress from './FreeShipProgress';
-import TrustRow from './TrustRow';
 
 /* ============================================================================
  * Order summary.
@@ -20,8 +19,8 @@ export default function OrderSummary({ pricing, cfg, applied, onApply, onRemoveC
   const { subtotal, discount, shipping, tax, total, savings, count, threshold, freeShip } = pricing;
 
   return (
-    <div className="summary-card">
-      <h2 className="label-qa">Order summary</h2>
+    <div className="border border-[#E5E5E5] bg-white p-6 md:p-8">
+      <h2 className="text-[15px] font-medium uppercase tracking-[0.08em] text-[#111111]">Order Summary</h2>
 
       {cfg.showProgress && (
         <div className="mt-5">
@@ -47,7 +46,7 @@ export default function OrderSummary({ pricing, cfg, applied, onApply, onRemoveC
         />
       )}
 
-      <dl className="mt-6 space-y-3 border-t border-clay pt-5 text-[13px]" aria-live="polite">
+      <dl className="mt-6 space-y-3 border-t border-[#E5E5E5] pt-5 text-[13px]" aria-live="polite">
         <div className="flex justify-between gap-4">
           <dt className="text-smoke">Subtotal ({count} {count === 1 ? 'item' : 'items'})</dt>
           <dd className="font-medium tabular-nums">{pkr(subtotal)}</dd>
@@ -74,9 +73,9 @@ export default function OrderSummary({ pricing, cfg, applied, onApply, onRemoveC
           </div>
         )}
 
-        <div className="flex items-baseline justify-between gap-4 border-t border-clay pt-4">
-          <dt className="text-[13px] font-medium text-charcoal">Estimated total</dt>
-          <dd className="text-[20px] font-medium tabular-nums text-charcoal">{pkr(total)}</dd>
+        <div className="flex items-baseline justify-between gap-4 border-t border-[#E5E5E5] pt-4">
+          <dt className="text-[13px] font-medium text-[#111111]">Total</dt>
+          <dd className="text-[26px] font-medium tabular-nums text-[#111111]">{pkr(total)}</dd>
         </div>
 
         {savings > 0 && (
@@ -98,7 +97,7 @@ export default function OrderSummary({ pricing, cfg, applied, onApply, onRemoveC
             <AlertCircle size={15} aria-hidden="true" /> Remove sold-out items to continue
           </p>
         ) : (
-          <Link to="/checkout" className="btn-qa">{cfg.checkoutLabel}</Link>
+          <Link to="/checkout" className="btn-qa group gap-2">{cfg.checkoutLabel} <ArrowRight size={14} className="transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true" /></Link>
         )}
       </div>
 
@@ -130,7 +129,13 @@ export default function OrderSummary({ pricing, cfg, applied, onApply, onRemoveC
         <Lock size={11} aria-hidden="true" /> {cfg.deliveryNote}
       </p>
 
-      {cfg.showTrust && <TrustRow items={cfg.trust} className="mt-5 border-t border-clay pt-5" />}
+      {cfg.showTrust && (
+        <div className="mt-5 flex items-center justify-between gap-2 border-t border-[#E5E5E5] pt-5 text-[10px] font-medium uppercase tracking-[0.1em] text-[#696969]">
+          <span className="inline-flex items-center gap-1.5"><Truck size={13} aria-hidden="true" /> Delivery 2–5 days</span>
+          <span className="inline-flex items-center gap-1.5"><RotateCcw size={13} aria-hidden="true" /> 14-day exchange</span>
+          <span className="inline-flex items-center gap-1.5"><ShieldCheck size={13} aria-hidden="true" /> Secure</span>
+        </div>
+      )}
     </div>
   );
 }
