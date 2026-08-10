@@ -69,12 +69,12 @@ export default function OrderConfirm() {
   const iconBtn = 'grid h-11 w-11 place-items-center border border-[#E5E5E5] text-[#707070] transition-colors duration-300 hover:border-[#111111] hover:text-[#111111]';
 
   return (
-    <div className="container-page bg-white py-16 text-[#111111] md:py-24">
+    <div className="surface-cream py-16 text-[#111111] md:py-24"><div className="container-page">
       <div className="mx-auto max-w-3xl">
         {/* ═══ HERO — simple black check ═══════════════════════════ */}
         <div className="text-center">
-          <div className="mx-auto grid h-16 w-16 place-items-center border border-[#111111] bg-white">
-            <Check size={30} strokeWidth={2} aria-hidden="true" />
+          <div className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-gold shadow-[0_10px_30px_-10px_rgba(201,169,110,0.7)]">
+            <Check size={30} strokeWidth={2.2} aria-hidden="true" className="text-white" />
           </div>
           <p className="mt-8 text-[10px] font-medium uppercase tracking-[0.3em] text-[#707070]">Order confirmed</p>
           <h1 className="mt-4 text-[clamp(30px,4vw,42px)] font-light normal-case leading-[1.1] tracking-[0.02em] text-[#111111]">
@@ -84,7 +84,7 @@ export default function OrderConfirm() {
         </div>
 
         {/* ═══ ORDER CARD — hairline ════════════════════════════════ */}
-        <div className="mx-auto mt-12 border border-[#E5E5E5] bg-white p-6 md:p-10">
+        <div className="card-cream mx-auto mt-12 p-6 md:p-10">
           <div className="text-center">
             <p className="text-[10px] font-medium uppercase tracking-[0.28em] text-[#707070]">Order number</p>
             <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
@@ -125,7 +125,7 @@ export default function OrderConfirm() {
 
         {/* ═══ ITEMS ════════════════════════════════════════════════ */}
         {order?.items?.length > 0 && (
-          <div className="mx-auto mt-6 border border-[#E5E5E5] bg-white p-6 md:p-10">
+          <div className="card-cream mx-auto mt-6 p-6 md:p-10">
             <div className="flex items-baseline justify-between">
               <h2 className="text-[10px] font-medium uppercase tracking-[0.28em] text-[#707070]">Items ({order.items.length})</h2>
               <span className="font-mono text-[10px] tracking-[0.2em] text-[#707070]">
@@ -177,7 +177,7 @@ export default function OrderConfirm() {
         <div className="mx-auto mt-10 flex max-w-xl flex-col items-center gap-5">
           <Link
             to={`/track?orderNumber=${orderNumber}${order?.customerInfo?.phone ? `&phone=${encodeURIComponent(order.customerInfo.phone)}` : ''}`}
-            className="inline-flex min-h-[52px] w-full items-center justify-center bg-[#111111] px-12 text-[13px] font-medium uppercase tracking-[0.16em] text-white transition-colors duration-300 hover:bg-[#333333] sm:w-auto"
+            className="inline-flex min-h-[52px] w-full items-center justify-center bg-gold px-12 text-[13px] font-medium uppercase tracking-[0.16em] text-white transition-colors duration-300 hover:bg-bronze sm:w-auto"
           >
             Track this order
           </Link>
@@ -220,6 +220,7 @@ export default function OrderConfirm() {
             <ProductRow eyebrow="Recently viewed" title="Pick up where you left off" products={recent.slice(0, 6)} />
           </div>
         )}
+      </div>
       </div>
     </div>
   );

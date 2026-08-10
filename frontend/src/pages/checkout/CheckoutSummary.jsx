@@ -24,7 +24,7 @@ export default function CheckoutSummary({
   submitRef, onSubmit, busy, disabled, rewardsSlot, promoQuote = null,
 }) {
   return (
-    <div className="summary-card">
+    <div className="card-cream p-8">
       <h2 className="label-qa">Your order</h2>
 
       <ul className="mt-5 max-h-80 space-y-4 overflow-y-auto pr-1">
@@ -124,7 +124,7 @@ export default function CheckoutSummary({
           type="button"
           onClick={onSubmit}
           disabled={busy || disabled}
-          className="btn-primary w-full gap-2 disabled:opacity-50"
+          className="btn-gold disabled:opacity-50"
         >
           {busy ? <><Spinner label="Working" /> One moment…</> : <><Lock size={14} aria-hidden="true" /> Review order</>}
         </button>

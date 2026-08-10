@@ -395,7 +395,7 @@ export default function Checkout() {
   const phoneOk = normalizePhone(f.phone);
 
   return (
-    <div className="container-page py-8 md:py-12">
+    <div className="surface-cream py-8 md:py-12"><div className="container-page">
       <header className="border-b border-clay pb-7">
         <Link to="/cart" className="inline-flex min-h-[44px] items-center gap-1.5 text-[12px] text-smoke underline underline-offset-4 transition hover:text-charcoal">
           ← Back to bag
@@ -758,6 +758,7 @@ export default function Checkout() {
 
       {/* Clearance for the sticky bar so it never covers the last field. */}
       <div className="h-24 md:hidden" aria-hidden="true" />
+    </div>
     </div>
   );
 }

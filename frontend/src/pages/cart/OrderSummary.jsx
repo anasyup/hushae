@@ -19,7 +19,7 @@ export default function OrderSummary({ pricing, cfg, applied, onApply, onRemoveC
   const { subtotal, discount, shipping, tax, total, savings, count, threshold, freeShip } = pricing;
 
   return (
-    <div className="border border-[#E5E5E5] bg-white p-6 md:p-8">
+    <div className="card-cream p-6 md:p-8">
       <h2 className="text-[15px] font-medium uppercase tracking-[0.08em] text-[#111111]">Order Summary</h2>
 
       {cfg.showProgress && (
@@ -97,7 +97,7 @@ export default function OrderSummary({ pricing, cfg, applied, onApply, onRemoveC
             <AlertCircle size={15} aria-hidden="true" /> Remove sold-out items to continue
           </p>
         ) : (
-          <Link to="/checkout" className="btn-qa group gap-2">{cfg.checkoutLabel} <ArrowRight size={14} className="transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true" /></Link>
+          <Link to="/checkout" className="btn-gold group gap-2">{cfg.checkoutLabel} <ArrowRight size={14} className="transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true" /></Link>
         )}
       </div>
 

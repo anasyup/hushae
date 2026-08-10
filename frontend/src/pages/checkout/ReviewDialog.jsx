@@ -169,7 +169,7 @@ export default function ReviewDialog({
           </button>
           <button
             type="button" onClick={onConfirm} disabled={busy}
-            className="btn-qa !w-auto px-10 disabled:opacity-50"
+            className="btn-gold !w-auto px-10 disabled:opacity-50"
           >
             {busy ? <><Spinner label="Placing your order" /> Placing order…</> : <><Lock size={13} aria-hidden="true" /> Confirm · {pkr(pricing.total)}</>}
           </button>

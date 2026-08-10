@@ -206,7 +206,7 @@ export default function Cart() {
   const itemWord = pricing.count === 1 ? 'item' : 'items';
 
   return (
-    <div className="bg-[#FAF5F2] py-8 md:py-12"><div className="container-page">
+    <div className="surface-cream py-8 md:py-12"><div className="container-page">
       {/* ---------------- Header ---------------- */}
       {/* Cart steps — premium checkout progression */}
       <nav aria-label="Checkout progress" className="mb-8 flex items-center gap-3 text-[11px] font-medium uppercase tracking-[0.14em]">
