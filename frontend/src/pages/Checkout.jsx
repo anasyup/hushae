@@ -460,12 +460,12 @@ export default function Checkout() {
           noValidate
         >
           {/* ---- Contact — compact card ---- */}
-          <section aria-labelledby="sec-contact" className="rounded-xl border border-[#E5E5E5] bg-white p-5">
+          <section aria-labelledby="sec-contact">
             <div className="flex items-center gap-3">
               <span className="grid h-7 w-7 place-items-center rounded-full border border-[#111111] text-[12px] font-medium text-[#111111]">1</span>
               <h2 id="sec-contact" className="text-[15px] font-medium uppercase tracking-[0.1em] text-[#111111]">Contact</h2>
             </div>
-            <div className="mt-4 grid gap-4">
+            <div className="mt-3 grid gap-4">
               <FloatField
                 label="Email" type="email" autoComplete="email" inputMode="email"
                 value={f.email} onChange={(v) => set('email', v)} error={errs.email}
@@ -481,12 +481,12 @@ export default function Checkout() {
           </section>
 
           {/* ---- Shipping — compact card ---- */}
-          <section aria-labelledby="sec-address" className="rounded-xl border border-[#E5E5E5] bg-white p-5">
+          <section aria-labelledby="sec-address">
             <div className="flex items-center gap-3">
               <span className="grid h-7 w-7 place-items-center rounded-full border border-[#111111] text-[12px] font-medium text-[#111111]">2</span>
               <h2 id="sec-address" className="text-[15px] font-medium uppercase tracking-[0.1em] text-[#111111]">Shipping</h2>
             </div>
-            <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            <div className="mt-3 grid gap-4 sm:grid-cols-2">
               <div className="sm:col-span-2">
                 <FloatField
                   label="Full name" required autoComplete="name"
@@ -560,7 +560,7 @@ export default function Checkout() {
 
             {/* ---- Pin location ---- */}
             {cfg.showPinLocation && (
-              <div className="mt-4 border border-[#E5E5E5] bg-[#FBF6EC] p-4">
+              <div className="mt-3 rounded-lg border border-[#E5E5E5]/70 bg-[#FBF6EC]/70 p-3.5">
                 <h3 className="flex flex-wrap items-center gap-2 text-label uppercase tracking-widest text-ash">
                   <MapPin size={13} aria-hidden="true" /> Pin location
                   <span className="font-normal normal-case tracking-normal">(optional — helps the rider find you)</span>
@@ -569,7 +569,7 @@ export default function Checkout() {
                   <div className="mt-3 grid gap-3 lg:grid-cols-[auto_1fr]">
                     <button
                       type="button" onClick={useCurrentLocation} disabled={locBusy}
-                      className="btn btn-sm gap-2 border border-bronze bg-white text-graphite hover:bg-satin/60 disabled:opacity-50"
+                      className="inline-flex min-h-[40px] items-center gap-1.5 border border-[#E5E5E5]/70 bg-[#FBF6EC]/60 px-4 text-[12px] font-medium text-[#5B5955] transition hover:border-[#C9A96E] disabled:opacity-50"
                     >
                       <Crosshair size={14} aria-hidden="true" /> {locBusy ? 'Getting location…' : 'Use my location'}
                     </button>
@@ -617,7 +617,7 @@ export default function Checkout() {
 
           {/* ---- Delivery method ---- */}
           {shipOptions.length > 0 && (
-            <section aria-labelledby="sec-ship" className="rounded-xl border border-[#E5E5E5] bg-white p-5">
+            <section aria-labelledby="sec-ship">
               <h2 id="sec-ship" className="text-[13px] font-medium uppercase tracking-[0.1em] text-[#111111]">Delivery Method</h2>
               <div className="mt-3">
                 <MethodPicker
@@ -638,7 +638,7 @@ export default function Checkout() {
           )}
 
           {/* ---- Payment — compact card ---- */}
-          <section aria-labelledby="sec-pay" className="rounded-xl border border-[#E5E5E5] bg-white p-5">
+          <section aria-labelledby="sec-pay">
             <div className="flex items-center gap-3">
               <span className="grid h-7 w-7 place-items-center rounded-full border border-[#111111] text-[12px] font-medium text-[#111111]">3</span>
               <h2 id="sec-pay" className="text-[15px] font-medium uppercase tracking-[0.1em] text-[#111111]">Payment</h2>
@@ -663,7 +663,7 @@ export default function Checkout() {
 
             {/* Instructions + reference for the selected method */}
             {payMethod?.needsTxn && (
-              <div className="mt-4 border border-clay/60 bg-sand/50 p-4">
+              <div className="mt-3 border border-[#E5E5E5]/70 bg-[#FBF6EC]/60 p-3.5">
                 {(payMethod.instructions || (payMethod.id === 'Bank Transfer' && settings?.paymentMethods?.bankDetails)) && (
                   <p className="mb-3 whitespace-pre-wrap text-[11px] leading-relaxed text-smoke">
                     {payMethod.instructions || settings?.paymentMethods?.bankDetails}
@@ -677,7 +677,7 @@ export default function Checkout() {
               </div>
             )}
 
-            <label className="mt-4 flex cursor-pointer items-start gap-3 border border-clay/60 p-4 transition hover:border-charcoal/40">
+            <label className="mt-3 flex cursor-pointer items-start gap-3 border border-[#E5E5E5]/70 p-3.5 transition hover:border-charcoal/40">
               <input
                 type="checkbox" checked={discreet} onChange={(e) => setDiscreet(e.target.checked)}
                 className="mt-1 h-[18px] w-[18px] shrink-0 accent-[#111111]"
@@ -695,7 +695,7 @@ export default function Checkout() {
           </section>
 
           {/* ---- Notes + consent — compact card ---- */}
-          <section aria-labelledby="sec-extra" className="rounded-xl border border-[#E5E5E5] bg-white p-5">
+          <section aria-labelledby="sec-extra">
             <h2 id="sec-extra" className="sr-only">Order notes and consent</h2>
             <div className="space-y-3">
               {cfg.showOrderNotes && (

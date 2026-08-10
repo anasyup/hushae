@@ -24,7 +24,7 @@ export default function CheckoutSummary({
   submitRef, onSubmit, busy, disabled, rewardsSlot, promoQuote = null, onQty,
 }) {
   return (
-    <div className="card-cream p-8">
+    <div className="card-cream p-6">
       <div className="flex items-baseline justify-between">
         <h2 className="text-[15px] font-medium uppercase tracking-[0.1em] text-[#111111]">Your Order</h2>
         <span className="text-[10px] font-medium uppercase tracking-[0.12em] text-[#696969]">{pricing.count} item{pricing.count === 1 ? '' : 's'}</span>
