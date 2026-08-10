@@ -23,7 +23,7 @@ export default function FloatField({
 
   return (
     <div>
-      <label htmlFor={id} className={`label-qa ${error ? 'text-red-700' : ''}`}>
+      <label htmlFor={id} className={`label-qa mb-1 block ${error ? 'text-red-700' : ''}`}>
         {label}{required && <span aria-hidden="true"> *</span>}
       </label>
       <Tag
@@ -68,7 +68,7 @@ export function FloatSelect({ label, value, onChange, error, hint, required, dis
   const msgId = `${id}-msg`;
   return (
     <div className="relative">
-      <label htmlFor={id} className={`label-qa ${error ? 'text-red-700' : ''}`}>
+      <label htmlFor={id} className={`label-qa mb-1 block ${error ? 'text-red-700' : ''}`}>
         {label}{required && <span aria-hidden="true"> *</span>}
       </label>
       <select
