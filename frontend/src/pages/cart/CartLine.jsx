@@ -45,7 +45,7 @@ export default function CartLine({
   const details = (
     <div className="min-w-0 flex-1">
       <h3 className="text-[14px] font-medium leading-snug normal-case text-[#111111]">
-        <Link to={`/product/${line.slug}`} className="inline-flex min-h-[44px] items-center transition hover:text-[#696969]">
+        <Link to={`/product/${line.slug}`} className="inline-flex min-h-[36px] items-center transition hover:text-[#696969]">
           {nameOf(line.name)}
         </Link>
       </h3>
@@ -59,7 +59,7 @@ export default function CartLine({
         </p>
       )}
       {low && (
-        <p className="mt-2 inline-flex w-fit items-center gap-1.5 bg-amber-50 px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.1em] text-amber-800">
+        <p className="mt-1.5 inline-flex w-fit items-center gap-1.5 bg-amber-50 px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.1em] text-amber-800">
           <AlertCircle size={11} aria-hidden="true" /> Only {available} left
         </p>
       )}
@@ -70,17 +70,17 @@ export default function CartLine({
       )}
       {meta?.help && <p className="mt-1.5 text-[11px] text-red-700">{meta.help}</p>}
       {!blocked && !low && cfg.showDelivery && delivery && (
-        <p className="mt-2 inline-flex items-center gap-1.5 text-[11px] text-[#696969]">
+        <p className="mt-1.5 inline-flex items-center gap-1.5 text-[11px] text-[#696969]">
           <Truck size={11} aria-hidden="true" /> Arrives {delivery}
         </p>
       )}
 
       {/* MOBILE: qty + price + actions */}
-      <div className="mt-4 flex items-center justify-between gap-3 md:hidden">
+      <div className="mt-2.5 flex items-center justify-between gap-3 md:hidden">
         <QuantityStepper value={line.qty} onChange={onQty} min={1} max={max} size="sm" disabled={blocked} label={`Quantity for ${line.name}`} />
         <span className="text-[15px] font-medium tabular-nums text-[#111111]">{pkr(line.price * line.qty)}</span>
       </div>
-      <div className="mt-3 flex items-center gap-1 md:hidden">
+      <div className="mt-2 flex items-center gap-1 md:hidden">
         {cfg.saveForLater && !blocked && (
           <button type="button" onClick={onSave}
             className="grid h-10 w-10 place-items-center text-[#696969] transition hover:text-[#111111]"
@@ -104,11 +104,11 @@ export default function CartLine({
 
   return (
     <li
-      className={`grid grid-cols-1 items-start gap-5 py-6 transition-opacity duration-300 md:grid-cols-[minmax(0,1fr)_110px_150px_110px_40px] md:items-center md:gap-6 ${removing ? 'opacity-0' : 'opacity-100'}`}
+      className={`grid grid-cols-1 items-start gap-4 py-4 transition-opacity duration-300 md:grid-cols-[minmax(0,1fr)_110px_150px_110px_40px] md:items-center md:gap-4 ${removing ? 'opacity-0' : 'opacity-100'}`}
       aria-busy={removing || undefined}
     >
       {/* Cell 1: thumb + details side by side */}
-      <div className="flex items-start gap-4">
+      <div className="flex items-start gap-3">
         {thumb}
         {details}
       </div>

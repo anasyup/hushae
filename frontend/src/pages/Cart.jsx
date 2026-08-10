@@ -247,7 +247,7 @@ export default function Cart() {
         {/* ---------------- Lines ---------------- */}
         <section aria-label="Items in your bag">
           {/* Column headers — desktop only (premium cart register) */}
-          <div className="hidden grid-cols-[minmax(0,1fr)_110px_150px_110px_40px] gap-6 border-b border-[#111111]/15 pb-3 text-[11px] font-medium uppercase tracking-[0.14em] text-[#696969] md:grid">
+          <div className="hidden grid-cols-[minmax(0,1fr)_110px_150px_110px_40px] gap-4 border-b border-[#111111]/15 pb-2.5 text-[11px] font-medium uppercase tracking-[0.14em] text-[#696969] md:grid">
             <span>Product</span>
             <span>Price</span>
             <span>Quantity</span>
