@@ -97,7 +97,7 @@ export default function CartLine({
             <Heart size={15} fill={wished ? 'currentColor' : 'none'} aria-hidden="true" />
           </button>
           <button type="button" onClick={onRemove}
-            className="grid h-10 w-10 place-items-center text-[#696969] transition hover:text-[#111111]"
+            className="grid h-10 w-10 place-items-center text-[#696969] transition hover:text-[#C41610]"
             aria-label={`Remove ${line.name} from your bag`}>
             <X size={16} aria-hidden="true" />
           </button>
@@ -105,10 +105,11 @@ export default function CartLine({
       </div>
 
       {/* ── DESKTOP cells ── */}
-      <div className="hidden text-[13px] tabular-nums text-[#111111] md:block">
-        {pkr(line.price)}
-        {onSale && line.compareAtPrice > line.price && (
-          <div className="text-[11px] text-[#696969] line-through">{pkr(line.compareAtPrice)}</div>
+      <div className="hidden text-[13px] tabular-nums md:block">
+        {onSale && line.compareAtPrice > line.price ? (
+          <span className="text-[#C41610]">{pkr(line.price)} <span className="text-[#696969] line-through">{pkr(line.compareAtPrice)}</span></span>
+        ) : (
+          <span className="text-[#111111]">{pkr(line.price)}</span>
         )}
       </div>
       <div className="hidden md:block">
@@ -119,7 +120,7 @@ export default function CartLine({
       </div>
       <div className="hidden justify-end md:flex">
         <button type="button" onClick={onRemove}
-          className="grid h-10 w-10 place-items-center text-[#696969] transition hover:text-[#111111]"
+          className="grid h-10 w-10 place-items-center text-[#696969] transition hover:text-[#C41610]"
           aria-label={`Remove ${line.name} from your bag`}>
           <X size={16} aria-hidden="true" />
         </button>

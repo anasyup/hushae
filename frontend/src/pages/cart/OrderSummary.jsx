@@ -129,13 +129,18 @@ export default function OrderSummary({ pricing, cfg, applied, onApply, onRemoveC
         <Lock size={11} aria-hidden="true" /> {cfg.deliveryNote}
       </p>
 
-      {cfg.showTrust && (
-        <div className="mt-5 flex items-center justify-between gap-2 border-t border-[#E5E5E5] pt-5 text-[10px] font-medium uppercase tracking-[0.1em] text-[#696969]">
+      {/* Security seals — Winterella: visual trust at checkout */}
+      <div className="mt-5 border-t border-[#E5E5E5] pt-5">
+        <div className="flex items-center justify-center gap-2 rounded-[2px] border border-[#E5E5E5] bg-[#FAFAFA] px-3 py-2.5 text-[10px] font-medium uppercase tracking-[0.12em] text-[#5B5955]">
+          <Lock size={12} aria-hidden="true" />
+          100% Secure Checkout
+        </div>
+        <div className="mt-2 flex items-center justify-between gap-2 text-[10px] font-medium uppercase tracking-[0.1em] text-[#5B5955]">
+          <span className="inline-flex items-center gap-1.5"><ShieldCheck size={13} aria-hidden="true" /> SSL Secured</span>
           <span className="inline-flex items-center gap-1.5"><Truck size={13} aria-hidden="true" /> Delivery 2–5 days</span>
           <span className="inline-flex items-center gap-1.5"><RotateCcw size={13} aria-hidden="true" /> 14-day exchange</span>
-          <span className="inline-flex items-center gap-1.5"><ShieldCheck size={13} aria-hidden="true" /> Secure</span>
         </div>
-      )}
+      </div>
     </div>
   );
 }
