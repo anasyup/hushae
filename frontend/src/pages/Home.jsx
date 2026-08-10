@@ -64,7 +64,7 @@ function HeroSlides() {
   const next = () => setI((x) => (x + 1) % HERO_SLIDES.length);
 
   return (
-    <section className="relative h-[90vh] min-h-[560px] w-full overflow-hidden bg-white">
+    <section className="relative h-[100svh] min-h-[560px] w-full overflow-hidden bg-white">
       {/* Slides */}
       {HERO_SLIDES.map((s, idx) => (
         <div key={idx} className={`absolute inset-0 transition-opacity duration-[900ms] ease-out ${idx === i ? 'opacity-100' : 'opacity-0'}`}>
