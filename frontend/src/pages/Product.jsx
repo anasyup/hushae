@@ -155,7 +155,7 @@ export default function Product() {
   };
 
   return (
-    <div className="container-page bg-stone py-6 text-charcoal md:py-8">
+    <div className="container-page bg-[#F8F5F0] py-6 text-[#070606] md:py-8">
       <Seo
         title={name}
         description={p.shortDescription || p.description?.slice(0, 160) || `${name} — premium innerwear from HUSHAE. PKR ${p.price}. ${p.stock > 0 ? 'In stock' : 'Out of stock'}. COD available.`}
@@ -454,6 +454,32 @@ export default function Product() {
         </div>
       )}
 
+      {/* ── Rus editorial close: "Discover our bestsellers" ── */}
+      {complete.length > 0 && (
+        <section className="mt-20 border-t border-[#E4E2DA] pt-14 md:mt-28">
+          <div className="relative aspect-[16/9] w-full overflow-hidden bg-[#E4E2DA] md:aspect-[21/8]">
+            <img src="/images/campaign/qa/editorial-modern.jpg" alt="Discover our bestsellers" loading="lazy"
+              className="absolute inset-0 h-full w-full object-cover" />
+            <div className="absolute inset-0 bg-black/40" />
+            <div className="absolute inset-0 flex items-center justify-center px-6 text-center text-white">
+              <div>
+                <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-white/80">The Edit</p>
+                <h2 className="mt-4 text-[clamp(26px,4vw,42px)] font-medium uppercase tracking-[0.06em]">Discover Our Bestsellers</h2>
+                <p className="mx-auto mt-3 max-w-md text-[14px] font-light leading-[1.7] text-white/85">
+                  The pieces everyone keeps coming back to — worn, loved, reordered.
+                </p>
+                <Link to="/best" className="mt-7 inline-flex min-h-[48px] items-center justify-center border border-white/80 px-9 text-[12px] font-medium uppercase tracking-[0.16em] text-white transition-colors duration-300 hover:bg-white hover:text-black">
+                  Shop Bestsellers
+                </Link>
+              </div>
+            </div>
+          </div>
+          <div className="mt-12">
+            <ProductRow eyebrow="Most loved" title="The Bestsellers" products={complete.slice(0, 6).map(snap)} />
+          </div>
+        </section>
+      )}
+
       {/* Sticky Bottom Purchase Bar */}
       <StickyBuyBar
         product={p}
@@ -475,13 +501,13 @@ export default function Product() {
 function ProductAccordions({ p, settings }) {
   return (
     <div className="pt-4">
-      <Accordion title="Materials & traceability">
+      <Accordion title="Material composition">
         <p className="text-[13px]">{p.fabric}</p>
         <p className="mt-2 text-[13px] leading-[1.7]">
           {p.shortDescription || p.description}
         </p>
       </Accordion>
-      <Accordion title="Care">
+      <Accordion title="Measurements">
         {(p.care || []).length > 0 ? (
           <ul className="list-disc space-y-1.5 pl-5 text-[13px] leading-[1.7]">
             {(p.care || []).map((c) => <li key={c}>{c}</li>)}
@@ -490,13 +516,13 @@ function ProductAccordions({ p, settings }) {
           <p className="text-[13px] leading-[1.7]">Machine wash cold, gentle cycle. Lay flat to dry. Do not bleach.</p>
         )}
       </Accordion>
-      <Accordion title="Shipping">
+      <Accordion title="Refund policy & shipping">
         <p className="text-[13px] leading-[1.7]">
           Flat {pkr(settings?.shippingFlatRate ?? 350)} nationwide, free over {pkr(settings?.freeShippingThreshold ?? 4999)}.
           Dispatched in 24–48h in plain, unmarked packaging.
         </p>
       </Accordion>
-      <Accordion title="Returns">
+      <Accordion title="Care">
         <p className="text-[13px] leading-[1.7]">
           Unworn pieces exchange within 14 days — size swaps are free. For hygiene reasons innerwear is only
           returnable if it arrives faulty.
