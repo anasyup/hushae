@@ -123,7 +123,7 @@ export default function Header() {
           </button>
 
           {/* Logo — LEFT */}
-          <Link to="/" aria-label="HUSHAE — home" className="flex-shrink-0 font-serif text-xl font-bold uppercase tracking-[0.15em] text-[#111111] md:text-2xl">
+          <Link to="/" aria-label="HUSHAE — home" className="flex-shrink-0 font-serif text-xl font-bold uppercase tracking-[0.18em] text-[#111111] md:text-2xl">
             HUSHAÈ
           </Link>
 
@@ -131,7 +131,7 @@ export default function Header() {
           <nav
             data-section="header.menu"
             aria-label="Main"
-            className="hidden flex-1 items-center justify-center gap-8 lg:flex"
+            className="hidden flex-1 items-center justify-center gap-7 lg:flex"
           >
             {menu.filter((m) => m && m.label).map((m, i) => {
               const dd = m.dropdown || (String(m.label).toLowerCase() === 'sale' ? 'sale' : '');
@@ -167,28 +167,28 @@ export default function Header() {
                 aria-controls="header-search"
                 className={iconBtn}
               >
-                <Search size={20} strokeWidth={1.5} aria-hidden="true" />
+                <Search size={16} strokeWidth={1.5} aria-hidden="true" />
               </button>
             )}
             {showWishlist && (
               <Link to="/wishlist" aria-label={wishlist.length ? `Wishlist, ${wishlist.length} saved` : 'Wishlist'}
                 className={`${iconBtn} hidden sm:grid`}>
-                <Heart size={20} strokeWidth={1.5} aria-hidden="true" />
+                <Heart size={16} strokeWidth={1.5} aria-hidden="true" />
               </Link>
             )}
             {showAccount && (
               <Link to="/account" aria-label={auth ? 'Your account' : 'Sign in'}
                 className={`${iconBtn} hidden sm:grid`}>
-                <User size={20} strokeWidth={1.5} aria-hidden="true" />
+                <User size={16} strokeWidth={1.5} aria-hidden="true" />
               </Link>
             )}
             {showCart && (
               <button type="button" onClick={() => setDrawerOpen(true)}
                 aria-label={cartCount ? `Open bag, ${cartCount} item${cartCount === 1 ? '' : 's'}` : 'Open bag'}
                 className={`relative ${iconBtn}`}>
-                <ShoppingBag size={20} strokeWidth={1.5} aria-hidden="true" />
+                <ShoppingBag size={16} strokeWidth={1.5} aria-hidden="true" />
                 {cartCount > 0 && (
-                  <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-black text-[9px] font-medium text-white">
+                  <span className="absolute -right-1.5 -top-1.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-black text-[8px] font-medium text-white">
                     {cartCount}
                   </span>
                 )}

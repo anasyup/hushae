@@ -239,20 +239,25 @@ export default function CartDrawer() {
             </div>
 
             {cart.length > 0 && (
-              <div className="border-t border-line px-5 py-4">
+              <div className="space-y-4 border-t border-neutral-200/80 bg-white p-6">
                 {cfg.showProgress && (
                   <div className="mb-4">
                     <FreeShipProgress subtotal={pricing.subtotal} threshold={pricing.threshold} cfg={cfg} />
                   </div>
                 )}
 
-                <div className="mb-4 flex items-baseline justify-between" aria-live="polite">
-                  <span className="text-label uppercase tracking-widest text-ash"><Tx k="subtotal" /></span>
-                  <span className="font-display text-h5 tabular-nums">{pkr(pricing.subtotal)}</span>
+                <div className="flex items-center justify-between text-[12px] uppercase tracking-[0.15em]">
+                  <span className="text-neutral-500">Subtotal</span>
+                  <span className="text-[14px] font-semibold text-black">{pkr(pricing.subtotal)}</span>
                 </div>
+                <p className="text-center text-[10px] uppercase tracking-widest text-neutral-400">
+                  Taxes and shipping calculated at checkout
+                </p>
 
-                <div className="grid grid-cols-2 gap-3">
-                  <Link to="/cart" onClick={() => setDrawerOpen(false)} className="btn-outline btn-sm">Continue shopping</Link>
+                <div className="grid grid-cols-2 gap-3 pt-1">
+                  <Link to="/cart" onClick={() => setDrawerOpen(false)} className="flex w-full items-center justify-center border border-black py-3 text-[10px] font-medium uppercase tracking-[0.2em] text-black transition-all duration-300 hover:bg-black hover:text-white">
+                    Bag View
+                  </Link>
                   {blocked ? (
                     <Link
                       to="/cart" onClick={() => setDrawerOpen(false)}
@@ -261,7 +266,9 @@ export default function CartDrawer() {
                       <AlertCircle size={12} aria-hidden="true" /> Fix items
                     </Link>
                   ) : (
-                    <Link to="/checkout" onClick={() => setDrawerOpen(false)} className="btn-primary btn-sm"><Tx k="checkout" /></Link>
+                    <Link to="/checkout" onClick={() => setDrawerOpen(false)} className="flex w-full items-center justify-center gap-1.5 bg-black py-3 text-[10px] font-medium uppercase tracking-[0.2em] text-white transition-all duration-300 hover:bg-neutral-800">
+                      <span>Checkout</span>
+                    </Link>
                   )}
                 </div>
               </div>

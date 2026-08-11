@@ -817,3 +817,11 @@ Format:
 - **2026-08-11** — 🧭 **HEADER — exact client reference (solid white, sticky)**: logo serif bold tracking 0.15em HUSHAÈ · centered 7-item nav 11px medium uppercase tracking 0.18em (Women/Men/Sale chevrons) · right icons 20px stroke 1.5 + real cart count badge · h-16 max-w-1600. Replaced the transparent-over-hero CK header.
 - **2026-08-11** — 🧹 **FIX: duplicate headers** — removed the secondary `HeaderNav` strip (was rendering under the new full nav header on Shop/Collection pages, causing two headers). The main header already carries the complete 7-item nav.
 - **2026-08-11** — 🐛 **FIX: product cards not opening** — the CK grid card's image box was a plain div (no Link), so clicking the card did nothing. Wrapped image + title/price in `<Link to="/product/slug">`; Buy Now pill still opens the SizeModal (its own button).
+- **2026-08-11** — ✨ **LUXURY SYSTEM — exact client reference set** (commit pending)
+  - New `LuxuryFilterBar`: rounded filter pills (Category/Price/Color/Size/Collection + All Filters, chevrons) + item count + Sort pill — wired to open the filter sheet.
+  - New `LuxuryCategoryShowcase`: Givenchy studio canvas (3/4 #eeece7→#e7e4dd, mix-blend-multiply image, hover arrow icon, tracking 0.22em titles + piece counts).
+  - `SizeModal` → luxury quick-add: "Quick Selection" header, product snapshot (serif title), 5-col sizes, "Add To Cart • {size}", blur backdrop.
+  - `CollectionCard`: auto slideshow on hover (1.5s cycle, resets on leave), badge top-right (black), bg `#f5f3ee`, dash indicators w-4/w-2 (black/30).
+  - `Header`: icons 16px, nav gap-7, logo tracking 0.18em, smaller cart badge.
+  - `Home`: Hero → FilterBar → Studio Categories → carousels → View More (outline) → Editorial → Newsletter.
+  - `CartDrawer`: luxury shell (#fcfbf9, white header "Your Shopping Bag", subtotal + "Bag View" outline + black "Checkout").

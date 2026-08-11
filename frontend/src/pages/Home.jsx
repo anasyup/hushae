@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { api } from '../api/client';
 import Seo, { organizationJsonLd } from '../components/Seo';
+import LuxuryFilterBar from '../components/LuxuryFilterBar';
+import LuxuryCategoryShowcase from '../components/LuxuryCategoryShowcase';
 
 /* ============================================================================
  * HUSHAE HOME — luxury homepage, exact client reference.
@@ -243,13 +245,23 @@ export default function Home() {
       {/* 01 — HERO (CK) */}
       <HeroSlides />
 
-      {/* 02 — CATEGORY GRID (Tom Ford) */}
-      <CategoryGridSection />
+      {/* 02 — FILTER BAR (reference) */}
+      <LuxuryFilterBar count={fresh.length || 8} onOpenFilters={() => {}} />
+
+      {/* 03 — STUDIO CATEGORY SHOWCASE (Givenchy canvas) */}
+      <LuxuryCategoryShowcase />
 
       {/* 03 — THE NEW COLLECTION (Givenchy) */}
       <ProductCarouselSection title="The New Collection" subtitle="EXPLORE NOW" products={fresh} href="/new" />
 
-      {/* 04 — EDITORIAL SPLIT (Loro Piana) */}
+      {/* 04 — VIEW MORE (reference button) */}
+      <div className="flex w-full justify-center">
+        <Link to="/shop" className="my-8 cursor-pointer border border-black bg-transparent px-10 py-3.5 text-[11px] font-medium uppercase tracking-[0.2em] text-black transition-all duration-300 ease-in-out hover:bg-black hover:text-white">
+          View More
+        </Link>
+      </div>
+
+      {/* 05 — EDITORIAL SPLIT (Loro Piana) */}
       <EditorialSplitSection />
 
       {/* 05 — OBJECTS OF DESIRE */}

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { pkr } from '../lib/format';
@@ -30,6 +30,14 @@ function CollectionCard({ product: p, priority = false, variant = 'bar', ratio =
   const [failed, setFailed] = useState(false);
   const [modal, setModal] = useState(false);
   const [swatchIdx, setSwatchIdx] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
+
+  /* Auto slideshow on hover — cycles images every 1.5s, resets on leave */
+  useEffect(() => {
+    if (!isHovered || images.length <= 1) { setImgIdx(0); return undefined; }
+    const t = setInterval(() => setImgIdx((i) => (i + 1) % images.length), 1500);
+    return () => clearInterval(t);
+  }, [isHovered, images.length]);
   const pill = variant === 'pill';
 
   const images = (p.images || []).map(srcOf).filter(Boolean);
@@ -94,9 +102,13 @@ function CollectionCard({ product: p, priority = false, variant = 'bar', ratio =
   const colors = p.colors || [];
 
   return (
-    <article className="group flex min-w-0 cursor-pointer flex-col font-sans">
+    <article
+      className="group flex min-w-0 cursor-pointer flex-col font-sans"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
       {/* 1. Image box — 4/5, light grey, carousel on hover (whole card links to product) */}
-      <Link to={`/product/${p.slug}`} tabIndex={-1} className="relative block w-full overflow-hidden bg-[#e8e8e8]" style={{ aspectRatio: '4 / 5' }}>
+      <Link to={`/product/${p.slug}`} tabIndex={-1} className="relative block w-full overflow-hidden bg-[#f5f3ee]" style={{ aspectRatio: '4 / 5' }}>
         <img
           src={failed ? FALLBACK : (images[imgIdx] || images[0] || srcOf(p.image) || FALLBACK)}
           alt={`${name}, front view`}
@@ -105,6 +117,13 @@ function CollectionCard({ product: p, priority = false, variant = 'bar', ratio =
           onError={() => setFailed(true)}
           className="h-full w-full object-cover transition-opacity duration-300"
         />
+
+        {/* Badge — top right */}
+        {badge && (
+          <span className="absolute right-2 top-2 z-10 bg-black px-2 py-0.5 text-[9px] font-medium uppercase tracking-wider text-white">
+            {badge}
+          </span>
+        )}
 
         {/* Hover controls */}
         {images.length > 1 && (
@@ -154,7 +173,7 @@ function CollectionCard({ product: p, priority = false, variant = 'bar', ratio =
                 type="button"
                 aria-label={`Image ${idx + 1}`}
                 onClick={(e) => { e.preventDefault(); setImgIdx(idx); }}
-                className={`h-[2px] border-0 transition-all duration-200 ${idx === imgIdx ? 'w-5 bg-black' : 'w-3 bg-neutral-400'}`}
+                className={`h-[2px] border-0 transition-all duration-300 ${idx === imgIdx ? 'w-4 bg-black' : 'w-2 bg-black/30'}`}
               />
             ))}
           </div>
