@@ -158,38 +158,42 @@ export default function Shop({ preset = {} }) {
         canonical={typeof window !== 'undefined' ? window.location.pathname : '/shop'}
       />
 
-      {/* ═══ 0. CATEGORY HERO BANNER — under the main header ═══════════ */}
-      <CategoryBanner img={banner.img} tag={banner.tag} title={banner.title} description={banner.desc} />
+      {/* ═══ 0. HERO BANNER — Best Sellers gets its own dark banner ═══ */}
+      {preset.key === 'best' ? <BestSellersBanner /> : <CategoryBanner img={banner.img} tag={banner.tag} title={banner.title} description={banner.desc} />}
 
       <div className="px-5 pb-10 md:px-10 md:pb-[60px]">
-        {/* ═══ 1. SUB-CATEGORY TOP BAR ═════════════════════════════════ */}
-        {navCats.length > 0 && (
-          <nav aria-label="Categories" className="flex flex-wrap items-center gap-x-7 gap-y-2 py-5 pb-[25px]">
-            {navCats.map((c) => {
-              const on = f.category === c.slug;
-              return (
-                <a
-                  key={c.slug}
-                  href={`/category/${c.slug}`}
-                  onClick={(e) => { e.preventDefault(); f.setOne('category', on ? '' : c.slug); }}
-                  className={`text-[13px] text-[#111111] no-underline ${on ? 'underline underline-offset-4' : 'hover:underline underline-offset-4'}`}
-                >
-                  {c.name}
-                </a>
-              );
-            })}
-          </nav>
+        {/* ═══ 1/2. BEST SELLERS → dropdown selects bar; else sub-nav + pills ═══ */}
+        {preset.key === 'best' ? (
+          <BestSellersFilterBar f={f} cats={cats} />
+        ) : (
+          <>
+            {navCats.length > 0 && (
+              <nav aria-label="Categories" className="flex flex-wrap items-center gap-x-7 gap-y-2 py-5 pb-[25px]">
+                {navCats.map((c) => {
+                  const on = f.category === c.slug;
+                  return (
+                    <a
+                      key={c.slug}
+                      href={`/category/${c.slug}`}
+                      onClick={(e) => { e.preventDefault(); f.setOne('category', on ? '' : c.slug); }}
+                      className={`text-[13px] text-[#111111] no-underline ${on ? 'underline underline-offset-4' : 'hover:underline underline-offset-4'}`}
+                    >
+                      {c.name}
+                    </a>
+                  );
+                })}
+              </nav>
+            )}
+            <FilterPills
+              countLabel={count !== null ? `${count} Item${count === 1 ? '' : 's'}` : '—'}
+              sortValue={f.sort}
+              sortLabel={SORT_LABELS[f.sort] || 'Featured'}
+              onSortChange={(v) => f.setOne('sort', v, { replace: true })}
+              pills={pills}
+              onAllFilters={() => setSheetOpen(true)}
+            />
+          </>
         )}
-
-        {/* ═══ 2. FILTER PILLS BAR ═════════════════════════════════════ */}
-        <FilterPills
-          countLabel={count !== null ? `${count} Item${count === 1 ? '' : 's'}` : '—'}
-          sortValue={f.sort}
-          sortLabel={SORT_LABELS[f.sort] || 'Featured'}
-          onSortChange={(v) => f.setOne('sort', v, { replace: true })}
-          pills={pills}
-          onAllFilters={() => setSheetOpen(true)}
-        />
 
         {/* ═══ 3. GRID ═════════════════════════════════════════════════ */}
         {products === null ? (
@@ -216,11 +220,11 @@ export default function Shop({ preset = {} }) {
             </div>
 
             {hasMore && (
-              <div className="mt-12 flex justify-center">
+              <div className="flex w-full justify-center py-12">
                 <button
                   type="button"
                   onClick={() => setShown((s) => s + REVEAL)}
-                  className="inline-flex min-h-[48px] items-center justify-center bg-[#111111] px-12 text-[12px] font-medium uppercase tracking-[0.16em] text-white transition-colors duration-300 hover:bg-[#333333]"
+                  className="h-14 w-full max-w-xs border border-black bg-transparent text-xs font-semibold uppercase tracking-[0.2em] text-black transition-all duration-300 hover:bg-black hover:text-white disabled:opacity-50"
                 >
                   Load More ({visible.length - shown} left)
                 </button>
@@ -240,6 +244,70 @@ export default function Shop({ preset = {} }) {
         resultCount={count}
         returnFocusTo={filterBtnRef}
       />
+    </div>
+  );
+}
+
+
+/* ═══ BEST SELLERS page — dark banner (reference "BestSellersHeader") ═══ */
+function BestSellersBanner() {
+  return (
+    <div className="relative flex h-64 items-center justify-start overflow-hidden bg-neutral-900 px-8 text-white md:h-80 md:px-16">
+      <div className="relative z-10 max-w-lg">
+        <span className="text-[10px] font-medium uppercase tracking-widest text-neutral-400">Most Loved</span>
+        <h1 className="my-2 font-serif text-3xl font-light uppercase tracking-wider md:text-5xl">Best Sellers</h1>
+        <p className="text-xs font-light text-neutral-300">The pieces our community reaches for again and again.</p>
+      </div>
+    </div>
+  );
+}
+
+/* Dropdown selects bar — Category / Price / Color / Size + Sort (reference). */
+function BestSellersFilterBar({ f, cats }) {
+  const priceBandKey = (() => {
+    const b = PRICE_BANDS.find((x) => x.min === f.get('minPrice') && x.max === f.get('maxPrice'));
+    return b ? b.key : '';
+  })();
+  const sel = (k) => (f.list(k)[0] || '');
+  const selCls = 'cursor-pointer rounded-none border border-neutral-300 bg-white px-3 py-2 focus:outline-none';
+  return (
+    <div className="my-6 flex flex-wrap items-center justify-between gap-4 border-b border-neutral-200 px-6 py-4 text-xs">
+      <div className="flex flex-wrap items-center gap-4">
+        <select value={f.category} onChange={(e) => f.setOne('category', e.target.value)} className={selCls} aria-label="Filter by category">
+          <option value="">Category</option>
+          {cats.map((c) => <option key={c.slug} value={c.slug}>{c.name}</option>)}
+        </select>
+        <select
+          value={priceBandKey}
+          onChange={(e) => {
+            const b = PRICE_BANDS.find((x) => x.key === e.target.value);
+            if (b) f.setMany({ minPrice: b.min, maxPrice: b.max });
+            else f.setMany({ minPrice: '', maxPrice: '' });
+          }}
+          className={selCls}
+          aria-label="Filter by price"
+        >
+          <option value="">Price</option>
+          {PRICE_BANDS.map((b) => <option key={b.key} value={b.key}>{b.label}</option>)}
+        </select>
+        <select value={sel('color')} onChange={(e) => f.setOne('color', e.target.value)} className={selCls} aria-label="Filter by color">
+          <option value="">Color</option>
+          {COLORS.map((c) => <option key={c.name} value={c.name}>{c.name}</option>)}
+        </select>
+        <select value={sel('size')} onChange={(e) => f.setOne('size', e.target.value)} className={selCls} aria-label="Filter by size">
+          <option value="">Size</option>
+          {SIZES.map((s) => <option key={s} value={s}>{s}</option>)}
+        </select>
+      </div>
+      <div className="text-neutral-500">
+        <span>Sort By: </span>
+        <select value={f.sort} onChange={(e) => f.setOne('sort', e.target.value, { replace: true })} className="cursor-pointer border-none bg-transparent font-semibold text-black focus:outline-none" aria-label="Sort products">
+          <option value="popular">Featured</option>
+          <option value="price-asc">Price: Low to High</option>
+          <option value="price-desc">Price: High to Low</option>
+          <option value="newest">Newest Arrivals</option>
+        </select>
+      </div>
     </div>
   );
 }

@@ -159,7 +159,7 @@ export default function Header() {
             </button>
 
             {/* Logo — LEFT (CK reference) */}
-            <Link to="/" aria-label="HUSHAE — home" className={`mr-8 text-[24px] font-medium uppercase leading-none tracking-[0.04em] transition-colors duration-300 ${ghost ? "text-white" : "text-black"}`}>
+            <Link to="/" aria-label="HUSHAE — home" className={`mr-8 font-serif text-2xl font-bold uppercase leading-none tracking-widest transition-colors duration-300 ${ghost ? "text-white" : "text-black"}`}>
               HUSHAE
             </Link>
 
