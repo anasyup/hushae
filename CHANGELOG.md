@@ -711,3 +711,8 @@ Format:
   - Tabs: Product Reviews (full component + QA) / Description / Additional Info (care + shipping).
   - Related Products (20/500 uppercase + View All) — pill cards enhanced: rounded Buy Now pill (radius 20, bottom 15), brand line, 13/600 price, gold-star rating.
   - Announcement bar: `#111`, 12px, gold CTA `#d4af37`.
+
+## Changes
+- **2026-08-11** — 🃏 **PRODUCT CARD v7 — exact "Fashion Product Grid" reference** (commit pending)
+  - `CollectionCard` bar variant re-cut: `#e5e2e0` tile · image zoom 1.015 (0.35s) · "New"/"Best Seller" badge bottom-LEFT (`#5b5b5b`, radius 2, 11px) · hover overlay: 38px white arrow circles (30 mobile) + centred **Buy Now pill** (radius 24, bottom 62/55) + clickable 22px dash indicators · 14px swatches (active 1px ring, "+N" extra) · title 14/500 · price row 14px (struck original + current). Buy Now opens new **`SizeModal.jsx`** (centred: Select Size · 4-col sizes · price · ADD TO CART · inline error · Esc/backdrop close) — same modal also used by pill variant.
+  - `ProductCard.jsx` now a thin memo alias of CollectionCard (single card design everywhere; `ratio` honoured).
