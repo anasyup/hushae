@@ -88,12 +88,12 @@ export default function Footer() {
   };
 
   return (
-    <footer className="mt-24 flex w-full flex-wrap bg-[#0d0d0d] text-[#e5e5e5]" style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif" }}>
+    <footer className="mt-24 flex min-h-[100vh] w-full flex-wrap bg-[#0d0d0d] text-[#e5e5e5]" style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif" }}>
       {/* ═══ LEFT — #171615 ═══════════════════════════════════════════ */}
       <div className="flex flex-1 flex-col justify-between bg-[#171615] px-6 py-12 md:px-16 md:py-20 lg:basis-[450px] lg:px-[60px] lg:py-20">
         {/* Brand */}
         <div>
-          <h2 className="text-[32px] font-medium tracking-[0.12em] text-white" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
+          <h2 className="text-[32px] font-medium tracking-[0.06em] text-white" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
             HUSHAE
           </h2>
           <p className="mt-1.5 text-[10px] uppercase tracking-[0.15em] text-[#8c8a87]">
