@@ -635,3 +635,10 @@ Format:
   6. SOCIAL PROOF: "Highly Rated" carousel — real approved reviews (≥4★) with stars + name, horizontal scroll.
   9. THE HOUSE: sentence case, light 300, #707070, 2x whitespace (py-32/52).
   10. NEWSLETTER: CDLP segmented — WOMEN'S/MEN'S pills + email input below.
+
+## Changes
+- **2026-08-11** — 📐 **HEADER/HERO v2 — exact client reference re-audit** (commit pending)
+  - OfferBar now pixel-matches the reference: `#000000` bg (was #111), `letter-spacing 0.5px`, `line-height 1.2`, no uppercase transform, CTA = plain underline + `margin-left 5px` (was border-b pill). Text stays "UP TO 30% OFF SIGNATURE PIECES · SHOP".
+  - Header: scroll threshold `>10px` (was 60), icons gap `18px` (was 20), inner padding `0 45px` at lg+ (was 72/96/120), wrapper flush `top-0` (was top-6), added `.ck-header:hover` → white solid state (reference has both hover & scrolled), logo 24px/500/uppercase/tracking 1px, nav 13px gap 28px.
+  - Hero: content `left: 60px` at md+ (was 80), title `letter-spacing -1px` (was -0.013em), desc 13px / max-w 380px / mb 20px, pills `10px 24px` radius `25px`, gap 12px, hover bg #f0f0f0 + -1px lift.
+  - Theme body still `[]` (React home active); DB settings already aligned (height 65, navSize 13, navGap 28, 7-item menu, offerBar msg/CTA).

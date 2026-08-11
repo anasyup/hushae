@@ -43,8 +43,11 @@ export default function Header() {
   const searchBtnRef = useRef(null);
 
   const isHome = loc.pathname === '/';
-  const { past, reveal } = useHeaderScroll({ enableHide: false });
-  const overHero = isHome && !past;
+  const { past, reveal } = useHeaderScroll({ enableHide: false, revealAfter: 10 });
+  const [hovered, setHovered] = useState(false);
+  /* ghost = transparent over hero (white text). Turns solid on scroll OR on
+     hover — CK reference has both `.ck-header:hover` and `.ck-header.scrolled`. */
+  const ghost = isHome && !past && !hovered;
 
   useEffect(() => { api('/categories').then((d) => setCats(d.categories)).catch(() => {}); }, []);
   useEffect(() => {
@@ -106,40 +109,42 @@ export default function Header() {
   const linkCls = useMemo(() => ({ isActive }) => (
     /* CK hover underline — inset 2px, white over hero, black when scrolled */
     `inline-block whitespace-nowrap px-1 py-[22px] text-[13px] font-normal tracking-[0.006em] transition-colors duration-300 ${
-      overHero ? 'text-white' : 'text-black'
+      ghost ? 'text-white' : 'text-black'
     } ${
       isActive
-        ? (overHero ? 'shadow-[inset_0_-2px_0_0_#ffffff]' : 'shadow-[inset_0_-2px_0_0_#000000]')
-        : (overHero ? 'hover:shadow-[inset_0_-2px_0_0_#ffffff]' : 'hover:shadow-[inset_0_-2px_0_0_#000000]')
+        ? (ghost ? 'shadow-[inset_0_-2px_0_0_#ffffff]' : 'shadow-[inset_0_-2px_0_0_#000000]')
+        : (ghost ? 'hover:shadow-[inset_0_-2px_0_0_#ffffff]' : 'hover:shadow-[inset_0_-2px_0_0_#000000]')
     }`
-  ), [overHero]);
+  ), [ghost]);
 
   const navStyle = useMemo(
     () => ({ fontSize: `${navSize}px`, letterSpacing: '0.006em' }),
     [navSize],
   );
 
-  const iconBtn = `grid h-10 w-10 place-items-center transition-colors duration-300 hover:opacity-60 ${overHero ? 'text-white' : 'text-black'}`;
-  const dot = `absolute right-2 top-2 h-1.5 w-1.5 rounded-full ${overHero ? 'bg-white' : 'bg-black'}`;
+  const iconBtn = `grid h-10 w-10 place-items-center transition-colors duration-300 hover:opacity-60 ${ghost ? 'text-white' : 'text-black'}`;
+  const dot = `absolute right-2 top-2 h-1.5 w-1.5 rounded-full ${ghost ? 'bg-white' : 'bg-black'}`;
 
   return (
     <>
       {!isHome && <OfferBar />}
 
       <div
-        className={`${isHome ? 'fixed inset-x-0 top-6' : 'sticky top-0'} z-40`}
+        className={`${isHome ? 'fixed inset-x-0 top-0' : 'sticky top-0'} z-40`}
       >
         {isHome && <OfferBar hideOnScroll />}
         <header
           data-header
           style={{ '--hdr-h': `${deskH}px` }}
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
           className={`border-b transition-[background-color,border-color,top,box-shadow] duration-300 ${
-            isHome && !past
-              ? 'top-6 border-transparent bg-transparent text-white'
-              : `top-0 border-[#e5e5e5] bg-white text-black shadow-[0_2px_10px_rgba(0,0,0,0.03)] ${hairline ? '' : 'border-transparent'}`
+            ghost
+              ? 'border-transparent bg-transparent text-white'
+              : `border-[#e5e5e5] bg-white text-black shadow-[0_2px_10px_rgba(0,0,0,0.03)] ${hairline ? '' : 'border-transparent'}`
           }`}
         >
-          <div className="flex h-11 w-full items-center justify-between px-5 md:px-8 lg:h-[var(--hdr-h)] lg:px-[72px] xl:px-[96px] 2xl:px-[120px]">
+          <div className="flex h-11 w-full items-center justify-between px-5 md:px-8 lg:h-[var(--hdr-h)] lg:px-[45px]">
             {/* Burger — mobile only */}
             <button
               ref={burgerRef}
@@ -153,7 +158,7 @@ export default function Header() {
             </button>
 
             {/* Logo — LEFT (CK reference) */}
-            <Link to="/" aria-label="HUSHAE — home" className={`mr-8 text-[24px] font-medium uppercase leading-none tracking-[0.04em] transition-colors duration-300 ${overHero ? "text-white" : "text-black"}`}>
+            <Link to="/" aria-label="HUSHAE — home" className={`mr-8 text-[24px] font-medium uppercase leading-none tracking-[0.04em] transition-colors duration-300 ${ghost ? "text-white" : "text-black"}`}>
               HUSHAE
             </Link>
 
@@ -185,7 +190,7 @@ export default function Header() {
             </nav>
 
             {/* Icons — right */}
-            <div data-section="header.icons" className="flex shrink-0 items-center gap-5">
+            <div data-section="header.icons" className="flex shrink-0 items-center gap-[18px]">
               {showSearch && (
                 <button
                   ref={searchBtnRef}

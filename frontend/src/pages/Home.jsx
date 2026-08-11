@@ -55,24 +55,24 @@ function HeroSlides() {
       <div className="absolute inset-0 bg-black/15" aria-hidden="true" />
 
       {/* Left side content */}
-      <div className="absolute bottom-[12%] left-[32px] z-10 max-w-[480px] text-white md:left-[60px] lg:left-[80px]">
-        <h1 className="text-[42px] font-light uppercase leading-[1.05] tracking-[-0.013em] text-white [text-shadow:0_2px_10px_rgba(0,0,0,0.2)] md:text-[58px]">
+      <div className="absolute bottom-[12%] left-[32px] z-10 max-w-[480px] text-white md:left-[60px]">
+        <h1 className="text-[42px] font-light uppercase leading-[1.05] tracking-[-1px] text-white [text-shadow:0_2px_10px_rgba(0,0,0,0.2)] md:text-[58px]">
           Second
           <br />
           Skin
           <br />
           Edit
         </h1>
-        <p className="mt-6 max-w-[360px] text-[12px] font-normal leading-[1.6] text-[#f0f0f0] md:text-[13px]">
+        <p className="mt-5 max-w-[380px] text-[13px] font-normal leading-[1.6] text-[#f0f0f0]">
           New season essentials, engineered in Pakistan. Featherweight layers with a barely-there finish.
         </p>
-        <div className="mt-8 flex gap-3">
+        <div className="mt-7 flex gap-3">
           <Link to="/women"
-            className="inline-block rounded-full bg-white px-[22px] py-[10px] text-[12px] font-medium tracking-[0.02em] text-black transition-all duration-200 hover:-translate-y-px hover:bg-[#f0f0f0] md:text-[13px]">
+            className="inline-block rounded-[25px] bg-white px-6 py-[10px] text-[13px] font-medium tracking-[0.02em] text-black transition-all duration-200 hover:-translate-y-px hover:bg-[#f0f0f0]">
             Shop Women
           </Link>
           <Link to="/men"
-            className="inline-block rounded-full bg-white px-[22px] py-[10px] text-[12px] font-medium tracking-[0.02em] text-black transition-all duration-200 hover:-translate-y-px hover:bg-[#f0f0f0] md:text-[13px]">
+            className="inline-block rounded-[25px] bg-white px-6 py-[10px] text-[13px] font-medium tracking-[0.02em] text-black transition-all duration-200 hover:-translate-y-px hover:bg-[#f0f0f0]">
             Shop Men
           </Link>
         </div>

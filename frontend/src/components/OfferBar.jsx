@@ -7,9 +7,9 @@ export default function OfferBar() {
 
   if (offer?.enabled && offer.messageEn) {
     return (
-      <div className="flex items-center justify-center gap-3 bg-[#111111] px-4 py-2 text-center text-[11px] uppercase tracking-[0.16em] text-white/90">
-        <span className="truncate">{offer.messageEn}</span>
-        <Link to={offer.link || '/sale'} className="inline-flex items-center gap-1 border-b border-white/50 font-medium text-white transition hover:gap-1.5">
+      <div className="w-full bg-[#000000] px-4 py-2 text-center text-[11px] font-normal leading-[1.2] tracking-[0.5px] text-[#ffffff]">
+        {offer.messageEn}
+        <Link to={offer.link || '/sale'} className="ml-[5px] font-medium text-[#ffffff] underline underline-offset-2">
           {offer.ctaEn || 'Shop now'}
         </Link>
       </div>
@@ -17,7 +17,7 @@ export default function OfferBar() {
   }
 
   return (
-    <div className="bg-[#111111] py-2 text-center text-[11px] uppercase tracking-[0.16em] text-white/90">
+    <div className="w-full bg-[#000000] px-4 py-2 text-center text-[11px] font-normal leading-[1.2] tracking-[0.5px] text-[#ffffff]">
       Free shipping over PKR 4,999 · Discreet packaging on every order
     </div>
   );
