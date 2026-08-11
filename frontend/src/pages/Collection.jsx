@@ -1,45 +1,43 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
 import { ArrowLeft, Boxes } from 'lucide-react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { api } from '../api/client';
 import CollectionCard from '../components/CollectionCard';
+import FilterPills from '../components/FilterPills';
 import { ProductGridSkeleton } from '../components/Skeletons';
 import Seo from '../components/Seo';
+import { SIZES, COLORS, PRICE_BANDS } from './shop/FilterPanel';
+import { fetchCats, fetchCollections } from '../lib/catalogue';
 
 /* ============================================================================
- * Public /collection/:slug page — exact client reference layout.
- *   · 1600px container, simple 32px uppercase header + subtitle
- *   · sticky filter bar (Filter & Refine + item count / sort select)
- *   · 4/3/2-col grid of CollectionCard
- * Filtering is client-side over the fetched collection list (size + colour).
+ * Public /collection/:slug — same CK layout as the shop listings:
+ *   · sub-category top bar · filter pills bar · 4/3/2-col grid
+ * Filtering is client-side over the fetched collection list.
  * ========================================================================== */
 
-/* Filter & Refine icon — exact SVG from the client reference (14px, stroke 2). */
-const FilterIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-    <line x1="4" y1="21" x2="4" y2="14" /><line x1="4" y1="10" x2="4" y2="3" />
-    <line x1="12" y1="21" x2="12" y2="12" /><line x1="12" y1="8" x2="12" y2="3" />
-    <line x1="20" y1="21" x2="20" y2="16" /><line x1="20" y1="12" x2="20" y2="3" />
-    <line x1="1" y1="14" x2="7" y2="14" /><line x1="9" y1="8" x2="15" y2="8" /><line x1="17" y1="16" x2="23" y2="16" />
-  </svg>
-);
+const SORT_LABELS = { featured: 'Featured', 'price-asc': 'Price: Low to High', 'price-desc': 'Price: High to Low', newest: 'Newest Arrivals' };
 
 export default function Collection() {
   const { slug } = useParams();
+  const navigate = useNavigate();
   const [data, setData] = useState(null);
   const [err, setErr] = useState(false);
+  const [cats, setCats] = useState([]);
+  const [collections, setCollections] = useState([]);
   const [sort, setSort] = useState('featured');
+  const [bandKey, setBandKey] = useState('');
   const [sizes, setSizes] = useState([]);
   const [colors, setColors] = useState([]);
-  const [filterOpen, setFilterOpen] = useState(false);
-  const filterBtnRef = useRef(null);
 
   useEffect(() => {
-    setData(null); setErr(false); setSort('featured'); setSizes([]); setColors([]); setFilterOpen(false);
+    setData(null); setErr(false); setSort('featured'); setBandKey(''); setSizes([]); setColors([]);
     api(`/collections/${slug}`)
       .then(setData)
       .catch(() => setErr(true));
   }, [slug]);
+
+  useEffect(() => { fetchCats().then(setCats); }, []);
+  useEffect(() => { fetchCollections().then(setCollections); }, []);
 
   const products = data?.products || [];
   const c = data?.collection;
@@ -54,13 +52,66 @@ export default function Collection() {
   const visible = useMemo(() => {
     if (!products.length) return [];
     let list = [...products];
+    if (bandKey) {
+      const b = PRICE_BANDS.find((x) => x.key === bandKey);
+      if (b) {
+        const min = b.min ? Number(b.min) : 0;
+        const max = b.max ? Number(b.max) : Infinity;
+        list = list.filter((p) => (p.price || 0) >= min && (p.price || 0) <= max);
+      }
+    }
     if (sizes.length) list = list.filter((p) => (p.sizes || []).some((s) => sizes.includes(s)));
     if (colors.length) list = list.filter((p) => (p.colors || []).some((col) => colors.includes(col.name)));
     if (sort === 'price-asc') list.sort((a, b) => (a.price || 0) - (b.price || 0));
     if (sort === 'price-desc') list.sort((a, b) => (b.price || 0) - (a.price || 0));
     if (sort === 'newest') list.sort((a, b) => (b.isNewArrival ? 1 : 0) - (a.isNewArrival ? 1 : 0));
     return list;
-  }, [products, sort, sizes, colors]);
+  }, [products, sort, bandKey, sizes, colors]);
+
+  const toggle = (set, v) => set((xs) => (xs.includes(v) ? xs.filter((x) => x !== v) : [...xs, v]));
+
+  const pills = [
+    {
+      key: 'category',
+      label: 'Category',
+      multi: false,
+      options: cats.map((x) => ({ value: x.slug, label: x.name })),
+      selected: [],
+      onPick: (s) => navigate(`/category/${s}`),
+    },
+    {
+      key: 'price',
+      label: 'Price',
+      multi: false,
+      options: PRICE_BANDS.map((b) => ({ value: b.key, label: b.label })),
+      selected: bandKey ? [bandKey] : [],
+      onPick: (k) => setBandKey((cur) => (cur === k ? '' : k)),
+    },
+    {
+      key: 'color',
+      label: 'Color',
+      multi: true,
+      options: (allColors.length ? allColors : COLORS).map((col) => ({ value: col.name || col, label: col.name || col })),
+      selected: colors,
+      onPick: (name) => toggle(setColors, name),
+    },
+    {
+      key: 'size',
+      label: 'Size',
+      multi: true,
+      options: (allSizes.length ? allSizes : SIZES).map((s) => ({ value: s, label: s })),
+      selected: sizes,
+      onPick: (s) => toggle(setSizes, s),
+    },
+    {
+      key: 'collection',
+      label: 'Collection',
+      multi: false,
+      options: collections.map((x) => ({ value: x.slug, label: x.name })),
+      selected: c ? [c.slug] : [],
+      onPick: (s) => { if (s !== slug) navigate(`/collection/${s}`); },
+    },
+  ];
 
   if (err) {
     return (
@@ -73,18 +124,17 @@ export default function Collection() {
     );
   }
   if (!data) return (
-    <div className="mx-auto max-w-[1600px] px-5 py-10 md:px-[30px]">
-      <div className="skeleton mb-6 h-16 w-full max-w-md" />
+    <div className="px-5 py-10 md:px-10">
+      <div className="skeleton mb-6 h-10 w-full max-w-md" />
       <ProductGridSkeleton count={8} />
     </div>
   );
 
-  const activeFilterCount = sizes.length + colors.length;
-  const toggle = (set, v) => set((xs) => (xs.includes(v) ? xs.filter((x) => x !== v) : [...xs, v]));
-  const clearAll = () => { setSizes([]); setColors([]); };
+  const activeFilterCount = (bandKey ? 1 : 0) + sizes.length + colors.length;
+  const clearAll = () => { setBandKey(''); setSizes([]); setColors([]); };
 
   return (
-    <div className="bg-white font-sans text-[#111111]" style={{ minHeight: '100vh' }}>
+    <div className="bg-white font-sans text-black" style={{ minHeight: '100vh' }}>
       <Seo
         title={c.name}
         description={c.description || `Shop the ${c.name} collection at HUSHAE — curated pieces for every moment.`}
@@ -92,105 +142,33 @@ export default function Collection() {
         canonical={`/collection/${c.slug}`}
       />
 
-      <div className="mx-auto max-w-[1600px] px-5 pb-20 pt-10 md:px-[30px]">
-        {/* ═══ 1. HEADER — title + subtitle ═════════════════════════════ */}
-        <div className="mb-[30px]">
-          <h1 className="mb-2 text-[26px] font-normal uppercase leading-tight tracking-[-0.5px] text-[#111111] md:text-[32px]">
-            {c.name}
-          </h1>
-          {c.description && <p className="text-[13px] text-[#666666]">{c.description}</p>}
-        </div>
-
-        {/* ═══ 2. FILTER BAR — sticky below header ═════════════════════ */}
-        <div className="sticky top-[44px] z-[90] -mx-5 mb-10 border-y border-[#e5e5e5] bg-white px-5 lg:top-[65px] md:-mx-[30px] md:px-[30px]">
-          <div className="flex items-center justify-between py-4">
-            <div className="flex items-center gap-5">
-              <div className="relative">
-                <button
-                  ref={filterBtnRef}
-                  onClick={() => setFilterOpen((o) => !o)}
-                  aria-expanded={filterOpen}
-                  aria-haspopup="true"
-                  className="flex items-center gap-2 text-[12px] font-medium uppercase tracking-[0.5px] text-[#111111] hover:opacity-60"
-                >
-                  <FilterIcon />
-                  Filter &amp; Refine
-                  {activeFilterCount > 0 && (
-                    <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-neutral-900 px-1.5 text-[10px] font-bold text-white">
-                      {activeFilterCount}
-                    </span>
-                  )}
-                </button>
-
-                {/* Client-side filter popover */}
-                {filterOpen && (
-                  <>
-                    <div className="fixed inset-0 z-10" onClick={() => setFilterOpen(false)} aria-hidden="true" />
-                    <div className="absolute left-0 top-full z-20 mt-3 w-[300px] border border-[#e5e5e5] bg-white p-5 shadow-[0_10px_30px_rgba(0,0,0,0.08)]">
-                      <div className="flex items-center justify-between">
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#111111]">Filter &amp; Refine</p>
-                        {activeFilterCount > 0 && (
-                          <button onClick={clearAll} className="text-[10px] font-medium uppercase tracking-[0.1em] text-[#777777] hover:text-[#111111]">
-                            Clear all
-                          </button>
-                        )}
-                      </div>
-                      {allSizes.length > 0 && (
-                        <div className="mt-4">
-                          <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#999999]">Size</p>
-                          <div className="flex flex-wrap gap-1.5">
-                            {allSizes.map((s) => (
-                              <button key={s} type="button" onClick={() => toggle(setSizes, s)}
-                                className={`min-w-[34px] border px-2 py-1.5 text-[11px] font-medium uppercase tracking-[0.05em] transition-colors ${sizes.includes(s) ? 'border-[#111111] bg-[#111111] text-white' : 'border-[#dddddd] text-[#111111] hover:border-[#111111]'}`}>
-                                {s}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                      {allColors.length > 0 && (
-                        <div className="mt-4">
-                          <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#999999]">Colour</p>
-                          <div className="flex flex-wrap gap-2">
-                            {allColors.map((col) => (
-                              <button key={col.name} type="button" onClick={() => toggle(setColors, col.name)} title={col.name}
-                                className={`h-6 w-6 rounded-full border transition ${colors.includes(col.name) ? 'border-[#111111] ring-1 ring-[#111111] ring-offset-2' : 'border-[#dddddd]'}`}
-                                style={{ backgroundColor: col.hex || '#EEEEEE' }} />
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                      <button
-                        onClick={() => setFilterOpen(false)}
-                        className="mt-5 w-full border border-[#111111] py-2.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#111111] transition-colors hover:bg-[#111111] hover:text-white"
-                      >
-                        Show {visible.length} item{visible.length === 1 ? '' : 's'}
-                      </button>
-                    </div>
-                  </>
-                )}
-              </div>
-              <span className="text-[12px] text-[#777777]">{visible.length} Item{visible.length === 1 ? '' : 's'}</span>
-            </div>
-
-            <div className="flex items-center gap-4">
-              <label className="sr-only" htmlFor="collection-sort">Sort products</label>
-              <select
-                id="collection-sort"
-                value={sort}
-                onChange={(e) => setSort(e.target.value)}
-                className="cursor-pointer bg-transparent text-[12px] font-medium uppercase tracking-[0.5px] text-[#111111] outline-none"
+      <div className="px-5 pb-10 md:px-10 md:pb-[60px]">
+        {/* ═══ 1. SUB-CATEGORY TOP BAR ═════════════════════════════════ */}
+        {cats.length > 0 && (
+          <nav aria-label="Categories" className="flex flex-wrap items-center gap-x-7 gap-y-2 py-5 pb-[25px]">
+            {cats.map((x) => (
+              <a
+                key={x.slug}
+                href={`/category/${x.slug}`}
+                onClick={(e) => { e.preventDefault(); navigate(`/category/${x.slug}`); }}
+                className="text-[13px] text-[#111111] no-underline hover:underline underline-offset-4"
               >
-                <option value="featured">Sort By: Featured</option>
-                <option value="price-asc">Price: Low to High</option>
-                <option value="price-desc">Price: High to Low</option>
-                <option value="newest">Newest Arrivals</option>
-              </select>
-            </div>
-          </div>
-        </div>
+                {x.name}
+              </a>
+            ))}
+          </nav>
+        )}
 
-        {/* ═══ 3. GRID ════════════════════════════════════════════════ */}
+        {/* ═══ 2. FILTER PILLS BAR ═════════════════════════════════════ */}
+        <FilterPills
+          countLabel={`${visible.length} Item${visible.length === 1 ? '' : 's'}`}
+          sortValue={sort}
+          sortLabel={SORT_LABELS[sort] || 'Featured'}
+          onSortChange={setSort}
+          pills={pills}
+        />
+
+        {/* ═══ 3. GRID ═════════════════════════════════════════════════ */}
         {visible.length === 0 ? (
           <div className="grid place-items-center py-16 text-center">
             <Boxes size={26} className="mb-3 text-[#C9A96E]" />
@@ -198,7 +176,7 @@ export default function Collection() {
             <button onClick={clearAll} className="btn-outline mt-6">Clear filters</button>
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-x-3 gap-y-5 md:grid-cols-3 md:gap-x-5 md:gap-y-[30px] lg:grid-cols-4 lg:gap-x-5">
+          <div className="grid grid-cols-2 gap-2.5 md:grid-cols-3 md:gap-4 lg:grid-cols-4">
             {visible.map((p) => <CollectionCard key={p._id} product={p} />)}
           </div>
         )}

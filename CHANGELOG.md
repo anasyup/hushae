@@ -651,3 +651,11 @@ Format:
   - `Collection.jsx` (/collection/:slug) same layout + lightweight client-side sort & size/colour filter popover over the fetched list.
   - Homepage Best Sellers keeps the previously-approved silent ProductCard (unchanged).
   - Fixes after live checks: hoisted Collection page hooks above early returns (crash), exposed `isNewArrival`/`isBestSeller` in product   - Homepage Best Sellers keeps the previously-approved silent ProductCard (unchanged). collection APIs, corrected badge field to `isBestSeller`.
+
+## Changes
+- **2026-08-11** — 🧪 **COLLECTION LAYOUT v2 — exact "CK Style Collection Layout" reference** (commit pending)
+  - New `FilterPills.jsx`: pill bar (Category/Price/Color/Size/Collection dropdowns + All Filters) + "{n} Items | Sort By: …" — white pills, 1px #dcdcdc, radius 20, hover black; active pills dark border + count badge; click-outside/Escape close.
+  - New `lib/catalogue.js`: single shared fetch for categories + collections (module-cached).
+  - `CollectionCard.jsx` re-cut to the new reference: main+hover image crossfade (0.4s), "New"/"Best Seller" badge BOTTOM-left (#333, 3px 8px), slider arrows (white 32px circles, hover-only), centred "Quick View" pill (hover-only desktop, always visible mobile — opens the QuickView modal), dash indicators (hover-only, hidden mobile), swatches active ring offset 1px, title 13/400, price 13/500 + #888 strike. Wishlist heart & quick-add slide-up removed per reference.
+  - `Shop.jsx`: container 0/40/60 (15 mobile), sub-category top bar (13px links, hover underline, active underline), pills bar wired to URL filters (category/price band/color/size via useShopFilters; Collection navigates), grid 4 cols gap 16 → 3 → 2 gap 10; LOAD MORE/EmptyState/FilterSheet kept.
+  - `Collection.jsx`: same layout; client-side pills (price band, size, colour) + sort; Collection pill highlights current.
