@@ -135,8 +135,8 @@ export default function Header() {
           style={{ '--hdr-h': `${deskH}px` }}
           className={`border-b transition-[background-color,border-color,top,box-shadow] duration-300 ${
             isHome && !past
-              ? 'top-6 border-[rgba(255,255,255,0.15)] bg-transparent text-white'
-              : `top-0 border-[#e5e5e5] bg-white text-black shadow-[0_2px_10px_rgba(0,0,0,0.05)] ${hairline ? '' : 'border-transparent'}`
+              ? 'top-6 border-transparent bg-transparent text-white'
+              : `top-0 border-[#e5e5e5] bg-white text-black shadow-[0_2px_10px_rgba(0,0,0,0.03)] ${hairline ? '' : 'border-transparent'}`
           }`}
         >
           <div className="flex h-11 w-full items-center justify-between px-5 md:px-8 lg:h-[var(--hdr-h)] lg:px-[72px] xl:px-[96px] 2xl:px-[120px]">
@@ -153,7 +153,7 @@ export default function Header() {
             </button>
 
             {/* Logo — LEFT (CK reference) */}
-            <Link to="/" aria-label="HUSHAE — home" className={`mr-8 text-[26px] font-normal leading-none tracking-[-0.033em] transition-colors duration-300 ${overHero ? "text-white" : "text-black"}`}>
+            <Link to="/" aria-label="HUSHAE — home" className={`mr-8 text-[24px] font-medium uppercase leading-none tracking-[0.04em] transition-colors duration-300 ${overHero ? "text-white" : "text-black"}`}>
               HUSHAE
             </Link>
 
@@ -196,20 +196,20 @@ export default function Header() {
                   aria-controls="header-search"
                   className={iconBtn}
                 >
-                  <Search size={22} strokeWidth={1.6} aria-hidden="true" />
+                  <Search size={20} strokeWidth={1.6} aria-hidden="true" />
                 </button>
               )}
               {showWishlist && (
                 <Link to="/wishlist" aria-label={wishlist.length ? `Wishlist, ${wishlist.length} saved` : 'Wishlist'}
                   className={`relative hidden lg:grid ${iconBtn}`}>
-                  <Heart size={22} strokeWidth={1.6} aria-hidden="true" />
+                  <Heart size={20} strokeWidth={1.6} aria-hidden="true" />
                   {wishlist.length > 0 && <span className={dot} aria-hidden="true" />}
                 </Link>
               )}
               {showAccount && (
                 <Link to="/account" aria-label={auth ? 'Your account' : 'Sign in'}
                   className={`relative hidden lg:grid ${iconBtn}`}>
-                  <User size={22} strokeWidth={1.6} aria-hidden="true" />
+                  <User size={20} strokeWidth={1.6} aria-hidden="true" />
                   {auth && <span className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-black" aria-hidden="true" />}
                 </Link>
               )}
@@ -217,7 +217,7 @@ export default function Header() {
                 <button type="button" onClick={() => setDrawerOpen(true)}
                   aria-label={cartCount ? `Open bag, ${cartCount} item${cartCount === 1 ? '' : 's'}` : 'Open bag'}
                   className={`relative ${iconBtn}`}>
-                  <ShoppingBag size={22} strokeWidth={1.6} aria-hidden="true" />
+                  <ShoppingBag size={20} strokeWidth={1.6} aria-hidden="true" />
                   {cartCount > 0 && <span className={dot} aria-hidden="true" />}
                 </button>
               )}

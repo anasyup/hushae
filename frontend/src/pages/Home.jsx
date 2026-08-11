@@ -56,7 +56,7 @@ function HeroSlides() {
 
       {/* Left side content */}
       <div className="absolute bottom-[12%] left-[32px] z-10 max-w-[480px] text-white md:left-[60px] lg:left-[80px]">
-        <h1 className="text-[42px] font-light leading-[1.05] tracking-[-0.02em] text-white [text-shadow:0_2px_10px_rgba(0,0,0,0.2)] md:text-[58px]">
+        <h1 className="text-[42px] font-light uppercase leading-[1.05] tracking-[-0.013em] text-white [text-shadow:0_2px_10px_rgba(0,0,0,0.2)] md:text-[58px]">
           Second
           <br />
           Skin
