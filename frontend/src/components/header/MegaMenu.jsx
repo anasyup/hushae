@@ -1,60 +1,24 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
-import Img from '../Img';
 
 /* ============================================================================
- * MEGA MENU
+ * MEGA MENU — Calvin Klein reference structure.
  *
- * Replaces NavDropdown's utility list for the two gendered entries. MEASURED
- * on live before writing this: the Women panel was a 216 x 234px box holding
- * five text rows — no imagery, no headings, no grouping, display:block. It is
- * a functional menu and it reads like one; a fashion house's navigation is
- * part of the shopfront, not a filing cabinet.
+ * Layout (mirrors the client's reference HTML/CSS):
+ *   promo-card (image + "Shop …" button) | FEATURED column | category columns
  *
- * WHAT IT REUSES, AND WHY NOTHING NEW IS FETCHED
- * The brief lists Dresses / Tops / Outerwear / Shoes / Bags for Women and
- * Shirts / Pants / Jackets for Men. HUSHAE does not sell those — the live
- * catalogue is 10 innerwear categories, 5 per gender, and inventing menu
- * entries that lead to empty grids would be worse navigation, not better.
- * So the panel is built from the SAME `cats` array the old dropdown used
- * (already fetched once in Header), plus:
- *   · category imagery — every one of the 10 categories already carries an
- *     `image`, all 10 are in the AVIF manifest at 400w. Zero new assets.
- *   · the shop's own /new, /best and /sale routes as the "Collections" rung.
- * No new endpoint, no new model, no duplicated data.
- *
- * ACCESSIBILITY IS CARRIED OVER WHOLESALE, NOT REWRITTEN
- * NavDropdown's keyboard contract was measured working (ArrowDown enters the
- * list, Escape closes and restores focus to the trigger, aria-expanded flips
- * correctly). That behaviour is reproduced here deliberately rather than
- * redesigned, because it already passed.
+ * Built from the SAME `cats` array the Header already fetches (5 categories
+ * per gender) plus the shop's own /new, /best, /collection and /sale routes.
+ * Accessibility (keyboard arrows, Escape, aria-expanded/controls) carried
+ * over from the previous implementation — measured working.
  * ========================================================================== */
 
-/* Editorial one-liners. Keyed by the live category slugs, with a neutral
-   fallback, so an unknown slug renders without a hole and a merchant adding a
-   category never has to touch this file. */
-const BLURB = {
-  bras: 'Support that disappears under everything.',
-  panties: 'Seamless, every day of the week.',
-  shapewear: 'Quiet structure, nothing to announce.',
-  'sleepwear-loungewear': 'For slow mornings and long evenings.',
-  'camisoles-slips': 'The layer that finishes the look.',
-  briefs: 'The everyday cut, refined.',
-  boxers: 'Room to move, cut to last.',
-  trunks: 'Shorter, sharper, stays put.',
-  'vests-undershirts': 'The base layer, done properly.',
-  'thermal-sports': 'Warmth and performance without bulk.',
-};
+const COL_HEAD = 'text-[11px] font-medium uppercase tracking-[0.08em] text-[#767676]';
+const LINK = 'block text-[13px] text-[#333333] transition-colors duration-150 hover:text-black hover:underline';
 
 export default function MegaMenu({ label, to, items, linkCls, navStyle, onDark, collections = [] }) {
   const [open, setOpen] = useState(false);
-  /* Horizontal offset that centres the panel on the VIEWPORT.
-     It cannot be pure CSS: `absolute left` resolves against the wrapper, and
-     the header group carries a transform (its hide-on-scroll translate), which
-     makes it the containing block for `position: fixed` too — so neither
-     `left: 50vw` nor `fixed` reaches the viewport. Measured on open only, so
-     there is no scroll-time cost. */
   const [shift, setShift] = useState(null);
   const wrapRef = useRef(null);
   const triggerRef = useRef(null);
@@ -70,16 +34,10 @@ export default function MegaMenu({ label, to, items, linkCls, navStyle, onDark, 
 
   useEffect(() => () => clearTimeout(closeTimer.current), []);
 
-  /* Measured on mount and on resize — NOT only while open. MEASURED bug: with
-     the offset applied lazily, the closed panel kept `left: auto`, so its
-     736px box started at the trigger's x and reached 1058px inside a 1024px
-     viewport. An invisible box still occupies layout, so the PAGE carried a
-     horizontal scrollbar at 1024px before anyone hovered anything. */
   useEffect(() => {
     const measure = () => {
       const el = wrapRef.current;
       if (!el) return;
-      // Distance from this trigger's left edge to the middle of the screen.
       setShift(Math.round(window.innerWidth / 2 - el.getBoundingClientRect().left));
     };
     measure();
@@ -129,10 +87,12 @@ export default function MegaMenu({ label, to, items, linkCls, navStyle, onDark, 
   };
 
   const hasItems = items.length > 0;
-  /* The panel leads with one category photograph. items[0] is the first
-     category for this gender, which is stable per gender and already in the
-     manifest — so the image is never a new download decision made at runtime. */
-  const feature = items.find((c) => c.image) || null;
+  /* Promo image — first category with an image for this gender. */
+  const promo = items.find((c) => c.image) || null;
+  /* Split the gender's categories into two columns (3 + 2). */
+  const half = Math.ceil(items.length / 2);
+  const colA = items.slice(0, half);
+  const colB = items.slice(half);
 
   return (
     <div
@@ -155,8 +115,8 @@ export default function MegaMenu({ label, to, items, linkCls, navStyle, onDark, 
         {label}
         {hasItems && (
           <ChevronDown
-            size={12} strokeWidth={2} aria-hidden="true"
-            className={`mt-px transition-transform duration-base ease-standard motion-reduce:transition-none ${open ? 'rotate-180' : ''}`}
+            size={12} strokeWidth={1.8} aria-hidden="true"
+            className={`mt-px transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
           />
         )}
       </NavLink>
@@ -168,68 +128,48 @@ export default function MegaMenu({ label, to, items, linkCls, navStyle, onDark, 
           onKeyDown={onPanelKey}
           onMouseEnter={cancelClose}
           onMouseLeave={scheduleClose}
-          /* `absolute`, NOT `fixed`, and that distinction cost a measured bug:
-             the header group carries `translate-y-0` for its hide-on-scroll
-             transform, and a transformed ancestor becomes the containing block
-             for a fixed child — so `top: var(--hdr-bottom)` resolved against
-             the header, not the viewport, and the panel opened 75px below the
-             bar with a hole between them.
-             Anchored to the trigger with top-full instead. The width is capped
-             at the viewport minus the page gutter, and `right-auto/left-0` is
-             overridden below for the second menu so neither panel can run off
-             the right edge. */
-          className={`absolute top-full z-40 w-[min(46rem,calc(100vw-3rem))] pt-3 transition-[opacity,transform] duration-base ease-entrance motion-reduce:transition-none ${
+          className={`absolute top-full z-40 w-[min(64rem,calc(100vw-3rem))] pt-3 transition-[opacity,transform] duration-200 ease-out ${
             open ? 'visible translate-y-0 opacity-100' : 'invisible -translate-y-1 opacity-0'
           }`}
-          /* MEASURED regression at 1024px: anchoring with `left-0` starts the
-             736px panel at the trigger's own x. The Women trigger sits ~322px
-             in, so the panel reached 1058px against a 1024px viewport and the
-             PAGE gained a horizontal scrollbar — even while closed, because an
-             invisible box still occupies layout.
-             Centred on the viewport instead, using a measured offset (see the
-             `shift` state above). Clean at 1024 through 1920. */
           style={shift === null
-            /* Before the first measurement the panel is parked off-canvas
-               instead of at left:auto, so it can never widen the document. */
             ? { left: 0, transform: 'translateX(-50%)', visibility: 'hidden' }
             : { left: `${shift}px`, transform: 'translateX(-50%)' }}
         >
-          <div className="overflow-hidden rounded-panel border border-line bg-white shadow-e-4">
-            <div className="grid gap-7 p-6 md:grid-cols-[1.15fr_0.85fr_minmax(0,11rem)] lg:gap-8">
+          <div className="overflow-hidden border border-[#e5e5e5] bg-white shadow-[0_10px_20px_rgba(0,0,0,0.03)]">
+            <div className="mx-auto flex max-w-[1600px] gap-10 px-10 py-8">
+              {/* ── Promo card (image + button) ─────────────────────────── */}
+              {promo && (
+                <Link
+                  to={to}
+                  tabIndex={open ? 0 : -1}
+                  onClick={() => setOpen(false)}
+                  className="group block w-[200px] shrink-0"
+                >
+                  <span className="block overflow-hidden bg-[#f5f5f5]">
+                    <img
+                      src={promo.image}
+                      alt=""
+                      loading="lazy"
+                      className="h-[260px] w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                    />
+                  </span>
+                  <span className="mt-3 block bg-[#28231E] py-2 text-center text-[11px] tracking-[0.02em] text-white">
+                    Shop {label}
+                  </span>
+                </Link>
+              )}
 
-              {/* ── Categories ─────────────────────────────────────────── */}
-              <div>
-                <p className="text-label font-bold uppercase tracking-widest text-ash">Shop {label}</p>
-                <ul className="mt-4 space-y-0.5">
-                  {items.map((c) => (
-                    <li key={c.slug}>
-                      <Link
-                        to={`/category/${c.slug}`}
-                        tabIndex={open ? 0 : -1}
-                        onClick={() => setOpen(false)}
-                        className="group/i block rounded-control px-3 py-2 transition-colors duration-base ease-standard hover:bg-satin/50"
-                      >
-                        <span className="block text-body font-medium text-obsidian">{c.name}</span>
-                        <span className="mt-0.5 block text-caption text-ash">
-                          {BLURB[c.slug] || `Explore ${c.name.toLowerCase()}.`}
-                        </span>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* ── Collections — the shop's real routes, not invented ones ─ */}
-              <div>
-                <p className="text-label font-bold uppercase tracking-widest text-ash">Collections</p>
-                <ul className="mt-4 space-y-0.5">
+              {/* ── FEATURED column ─────────────────────────────────────── */}
+              <div className="w-44 shrink-0">
+                <span className={`${COL_HEAD} mb-4 block`}>Featured</span>
+                <ul className="space-y-2.5">
                   {collections.map((c) => (
                     <li key={c.href}>
                       <Link
                         to={c.href}
                         tabIndex={open ? 0 : -1}
                         onClick={() => setOpen(false)}
-                        className="block rounded-control px-3 py-2 text-body text-ink transition-colors duration-base ease-standard hover:bg-satin/50 hover:text-obsidian"
+                        className={`${LINK} ${c.bold ? 'font-medium text-black' : ''}`}
                       >
                         {c.label}
                       </Link>
@@ -240,36 +180,52 @@ export default function MegaMenu({ label, to, items, linkCls, navStyle, onDark, 
                       to={to}
                       tabIndex={open ? 0 : -1}
                       onClick={() => setOpen(false)}
-                      className="mt-2 inline-flex items-center gap-1.5 rounded-control px-3 py-2 text-caption font-bold uppercase tracking-widest text-obsidian underline-offset-4 transition-colors duration-base ease-standard hover:underline"
+                      className="mt-1 inline-block text-[12px] font-medium uppercase tracking-[0.08em] text-black underline underline-offset-4"
                     >
-                      View all {label}
-                      <span aria-hidden="true">&rarr;</span>
+                      View all {label} →
                     </Link>
                   </li>
                 </ul>
               </div>
 
-              {/* ── Featured image ─────────────────────────────────────── */}
-              {feature && (
-                <Link
-                  to={`/category/${feature.slug}`}
-                  tabIndex={open ? 0 : -1}
-                  onClick={() => setOpen(false)}
-                  className="group/f hidden md:block"
-                >
-                  {/* aspect-[4/5] reserves the box before the AVIF decodes, so
-                      opening the panel cannot shift its own contents. */}
-                  <span className="block overflow-hidden rounded-card bg-line">
-                    <Img
-                      src={feature.image}
-                      alt=""
-                      sizes="176px"
-                      className="aspect-[4/5] w-full object-cover transition-transform duration-slow ease-standard group-hover/f:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover/f:scale-100"
-                    />
-                  </span>
-                  <span className="mt-3 block text-label font-bold uppercase tracking-widest text-ash">Featured</span>
-                  <span className="mt-1 block font-display text-h5 text-obsidian">{feature.name}</span>
-                </Link>
+              {/* ── Category column A ───────────────────────────────────── */}
+              <div className="min-w-0 flex-1">
+                <span className={`${COL_HEAD} mb-4 block`}>Shop {label}</span>
+                <ul className="space-y-2.5">
+                  {colA.map((c) => (
+                    <li key={c.slug}>
+                      <Link
+                        to={`/category/${c.slug}`}
+                        tabIndex={open ? 0 : -1}
+                        onClick={() => setOpen(false)}
+                        className={LINK}
+                      >
+                        {c.name}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* ── Category column B ───────────────────────────────────── */}
+              {colB.length > 0 && (
+                <div className="min-w-0 flex-1">
+                  <span className={`${COL_HEAD} mb-4 block`}>More</span>
+                  <ul className="space-y-2.5">
+                    {colB.map((c) => (
+                      <li key={c.slug}>
+                        <Link
+                          to={`/category/${c.slug}`}
+                          tabIndex={open ? 0 : -1}
+                          onClick={() => setOpen(false)}
+                          className={LINK}
+                        >
+                          {c.name}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               )}
             </div>
           </div>
