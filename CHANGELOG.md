@@ -790,3 +790,8 @@ Format:
 ## Changes
 - **2026-08-11** — 🃏 **CARD FIX: Buy Now + arrows + indicators restored** (commit pending)
   - Bar variant (minimal reference meta: swatches top, 13px title, 11px price, #f7f5f0 image) now has the hover overlay back: 32px slider arrows (image cycle), centred **Buy Now** pill (radius 24, opens SizeModal with size select → add to cart), dash indicators — hover-only on desktop, always visible on mobile. Sold out → "Sold Out" pill.
+
+## Changes
+- **2026-08-11** — 🃏 **CARD + GRID — exact CK tight-grid reference** (commit pending)
+  - `CollectionCard` bar variant re-cut to the 2nd reference: **4/5 image `#e8e8e8`** (carousel via index) · hover: **28px white arrows** (shadow-md, Chevron 16 stroke-2) + **Buy Now pill** (bottom-6, px-7 py-2.5, rounded-full, shadow-lg, opens SizeModal) + **black dash indicators** (active w-5 bg-black / inactive w-3 neutral-400) · **swatches BELOW image** (14px, ring-1 selection, colour image switches gallery) · title **12px semibold tracking-tight** · price **12px bold**.
+  - Shop grid → `grid-cols-2 md:grid-cols-4 gap-x-1 gap-y-10` (tight horizontal, tall rows).

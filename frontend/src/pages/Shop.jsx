@@ -217,7 +217,7 @@ export default function Shop({ preset = {} }) {
           <>
             <div
               aria-busy={pending || undefined}
-              className={`grid grid-cols-2 gap-2.5 transition-opacity duration-300 md:grid-cols-3 md:gap-4 lg:grid-cols-4 ${pending ? 'opacity-50' : 'opacity-100'}`}
+              className={`grid grid-cols-2 gap-x-1 gap-y-10 transition-opacity duration-300 md:grid-cols-4 ${pending ? 'opacity-50' : 'opacity-100'}`}
             >
               {visibleSlice.map((p) => (
                 <CollectionCard key={p._id} product={p} />

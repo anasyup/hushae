@@ -9,11 +9,10 @@ import SizeModal from './SizeModal';
 /* ============================================================================
  * HUSHAE CollectionCard — two variants, both from client references:
  *
- *  · variant="bar" (default) — minimal reference card:
- *      swatches on TOP (10px) · title 13px normal capitalize line-clamp-1 ·
- *      price 11px (struck original + current) · image #f7f5f0 3/4 · hover
- *      overlay: slider arrows (32px) + centred Buy Now pill (opens SizeModal)
- *      + dash indicators — always visible on mobile
+ *  · variant="bar" (default) — exact CK tight-grid reference:
+ *      4/5 image #e8e8e8 · hover: 28px arrows + Buy Now pill (bottom-6,
+ *      opens SizeModal) + black dash indicators · swatches BELOW image with
+ *      ring selection · title 12px semibold tracking-tight · price 12px bold
  *  · variant="pill" — PDP "Related Products" card:
  *      #f3ede2 tile · rounded Buy Now pill fade-in · brand line · 13/500
  *      title · 13/600 price + gold-star rating
@@ -30,6 +29,7 @@ function CollectionCard({ product: p, priority = false, variant = 'bar', ratio =
   const [imgIdx, setImgIdx] = useState(0);
   const [failed, setFailed] = useState(false);
   const [modal, setModal] = useState(false);
+  const [swatchIdx, setSwatchIdx] = useState(0);
   const pill = variant === 'pill';
 
   const images = (p.images || []).map(srcOf).filter(Boolean);
@@ -87,128 +87,116 @@ function CollectionCard({ product: p, priority = false, variant = 'bar', ratio =
     );
   }
 
-  /* ── BAR VARIANT — minimal reference card ────────────────────────── */
-  /* Swatches on TOP · title 13px normal capitalize · price 11px ·
-     image #f7f5f0, hover = secondary image swap + scale 1.05 ·
-     NO overlay, NO badge, NO arrows. Click opens the product page. */
+  /* ── BAR VARIANT — exact CK tight-grid reference card ────────────── */
+  /* 4/5 image #e8e8e8 (carousel) · hover: 28px arrows + Buy Now pill
+     (bottom-6) + black dash indicators · swatches BELOW image with ring
+     selection · title 12px semibold tracking-tight · price 12px bold */
   const colors = p.colors || [];
 
   return (
-    <article className="group min-w-0 cursor-pointer font-sans">
-      {/* Color swatches — above the image (reference) */}
-      {colors.length > 0 && (
-        <div className="mb-2 flex items-center gap-1.5">
-          {colors.slice(0, 4).map((c, i) => (
-            <span
-              key={`${c.name}-${i}`}
-              title={c.name}
-              className="h-2.5 w-2.5 rounded-full border border-neutral-300"
-              style={{ backgroundColor: c.hex || '#EEEEEE' }}
-            />
-          ))}
-          {colors.length > 4 && (
-            <span className="ml-0.5 text-[10px] text-neutral-400">+{colors.length - 4}</span>
-          )}
-        </div>
-      )}
-
-      {/* Title — exact reference typography */}
-      <h3 className="line-clamp-1 mb-1 font-sans text-[13px] font-normal capitalize leading-[18px] tracking-normal text-[#1e1e1e]">
-        {name}
-      </h3>
-
-      {/* Price */}
-      <div className="flex items-center gap-2 font-sans text-[11px] leading-[14px]">
-        {onSale && p.compareAtPrice > p.price && (
-          <span className="text-neutral-400 line-through">{pkr(p.compareAtPrice)}</span>
-        )}
-        <span className="font-medium text-[#1e1e1e]">{soldOut ? 'Sold out' : pkr(p.price)}</span>
-      </div>
-
-      {/* Image — hover: arrows + Buy Now pill + dash indicators */}
-      <Link
-        to={`/product/${p.slug}`}
-        tabIndex={-1}
-        className="relative mt-2 block w-full overflow-hidden bg-[#f7f5f0]"
-        style={{ aspectRatio: '3 / 4' }}
-      >
+    <article className="group flex min-w-0 cursor-pointer flex-col font-sans">
+      {/* 1. Image box — 4/5, light grey, carousel on hover */}
+      <div className="relative aspect-[4/5] w-full overflow-hidden bg-[#e8e8e8]">
         <img
           src={failed ? FALLBACK : (images[imgIdx] || images[0] || srcOf(p.image) || FALLBACK)}
           alt={`${name}, front view`}
-          width="900" height="1200"
+          width="900" height="1125"
           loading={priority ? 'eager' : 'lazy'}
           onError={() => setFailed(true)}
-          className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+          className="h-full w-full object-cover transition-opacity duration-300"
         />
-        {/* Secondary image crossfade on hover */}
-        {images.length > 1 && (
-          <img
-            src={images[(imgIdx + 1) % images.length]}
-            alt=""
-            loading="lazy"
-            aria-hidden="true"
-            className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-          />
-        )}
 
-        {/* Slider arrows — hover only */}
+        {/* Hover controls */}
         {images.length > 1 && (
           <>
             <button
               type="button"
               aria-label="Previous image"
               onClick={(e) => { e.preventDefault(); cycle(-1); }}
-              className="absolute left-2 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-full border-0 bg-white/90 text-black opacity-0 shadow transition-opacity duration-300 hover:bg-white group-hover:opacity-100"
+              className="absolute left-3 top-1/2 grid h-7 w-7 -translate-y-1/2 place-items-center rounded-full bg-white/90 text-black opacity-0 shadow-md transition hover:bg-white group-hover:opacity-100"
             >
-              <ChevronLeft size={16} strokeWidth={1.5} aria-hidden="true" />
+              <ChevronLeft size={16} strokeWidth={2} aria-hidden="true" />
             </button>
             <button
               type="button"
               aria-label="Next image"
               onClick={(e) => { e.preventDefault(); cycle(1); }}
-              className="absolute right-2 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-full border-0 bg-white/90 text-black opacity-0 shadow transition-opacity duration-300 hover:bg-white group-hover:opacity-100"
+              className="absolute right-3 top-1/2 grid h-7 w-7 -translate-y-1/2 place-items-center rounded-full bg-white/90 text-black opacity-0 shadow-md transition hover:bg-white group-hover:opacity-100"
             >
-              <ChevronRight size={16} strokeWidth={1.5} aria-hidden="true" />
+              <ChevronRight size={16} strokeWidth={2} aria-hidden="true" />
             </button>
           </>
         )}
 
-        {/* Buy Now — centred pill; hover-only on desktop, always visible on mobile */}
-        {soldOut ? (
-          <span className="pointer-events-none absolute bottom-[10px] left-1/2 -translate-x-1/2 whitespace-nowrap rounded-[24px] bg-black px-5 py-2.5 text-[11px] font-bold text-white opacity-100 md:bottom-4 md:opacity-0 md:group-hover:opacity-100">
-            Sold Out
-          </span>
-        ) : (
-          <button
-            type="button"
-            onClick={(e) => { e.preventDefault(); setModal(true); }}
-            className="absolute bottom-[10px] left-1/2 -translate-x-1/2 whitespace-nowrap rounded-[24px] border-0 bg-black px-5 py-2.5 text-[11px] font-bold tracking-[0.2px] text-white opacity-100 transition-[opacity,background] duration-200 hover:bg-[#222222] md:bottom-4 md:opacity-0 md:group-hover:opacity-100"
-          >
-            Buy Now
-          </button>
-        )}
+        {/* Buy Now pill */}
+        <div className="absolute bottom-6 left-1/2 z-10 -translate-x-1/2">
+          {soldOut ? (
+            <span className="pointer-events-none whitespace-nowrap rounded-full bg-black px-7 py-2.5 text-[11px] font-medium uppercase tracking-wider text-white opacity-100 shadow-lg md:opacity-0 md:group-hover:opacity-100">
+              Sold Out
+            </span>
+          ) : (
+            <button
+              type="button"
+              onClick={(e) => { e.preventDefault(); setModal(true); }}
+              className="whitespace-nowrap rounded-full bg-black px-7 py-2.5 text-[11px] font-medium uppercase tracking-wider text-white opacity-100 shadow-lg transition-all duration-200 hover:bg-neutral-800 md:opacity-0 md:group-hover:opacity-100"
+            >
+              Buy Now
+            </button>
+          )}
+        </div>
 
-        {/* Dash indicators — hover only */}
+        {/* Dash indicators — active black w-5, inactive neutral-400 w-3 */}
         {images.length > 1 && (
-          <div className="absolute bottom-[16px] left-1/2 hidden -translate-x-1/2 items-center gap-[5px] opacity-0 transition-opacity duration-300 group-hover:opacity-100 md:flex">
-            {images.map((_, i) => (
+          <div className="absolute bottom-2 left-1/2 z-10 hidden -translate-x-1/2 items-center gap-1 group-hover:flex md:flex">
+            {images.map((_, idx) => (
               <button
-                key={i}
+                key={idx}
                 type="button"
-                aria-label={`Image ${i + 1}`}
-                onClick={(e) => { e.preventDefault(); setImgIdx(i); }}
-                className={`h-[2px] border-0 transition-colors duration-200 ${i === imgIdx ? 'bg-white' : 'bg-white/65'}`}
-                style={{ width: 22 }}
+                aria-label={`Image ${idx + 1}`}
+                onClick={(e) => { e.preventDefault(); setImgIdx(idx); }}
+                className={`h-[2px] border-0 transition-all duration-200 ${idx === imgIdx ? 'w-5 bg-black' : 'w-3 bg-neutral-400'}`}
               />
             ))}
           </div>
         )}
-      </Link>
+      </div>
+
+      {/* 2. Color swatches — BELOW image, ring selection */}
+      {colors.length > 0 && (
+        <div className="mt-3 flex items-center gap-2 px-1">
+          {colors.slice(0, 4).map((c, idx) => (
+            <button
+              key={`${c.name}-${idx}`}
+              type="button"
+              title={c.name}
+              onClick={() => { setSwatchIdx(idx); const ci = images.indexOf(c.image || ''); if (ci >= 0) setImgIdx(ci); }}
+              className={`flex h-3.5 w-3.5 items-center justify-center rounded-full p-[1px] transition-all ${swatchIdx === idx ? 'ring-1 ring-black ring-offset-1' : ''}`}
+            >
+              <span className="block h-full w-full rounded-full border border-black/10" style={{ backgroundColor: c.hex || '#EEEEEE' }} />
+            </button>
+          ))}
+          {colors.length > 4 && (
+            <span className="text-[10px] font-sans text-neutral-400">+{colors.length - 4}</span>
+          )}
+        </div>
+      )}
+
+      {/* 3. Title + price */}
+      <div className="mt-2 space-y-1 px-1">
+        <h3 className="line-clamp-1 text-[12px] font-semibold tracking-tight text-[#1e1e1e]">
+          {name}
+        </h3>
+        <p className="text-[12px] font-bold text-[#1e1e1e]">
+          {soldOut ? 'Sold out' : pkr(p.price)}
+          {onSale && p.compareAtPrice > p.price && (
+            <span className="ml-1.5 text-[11px] font-normal text-neutral-400 line-through">{pkr(p.compareAtPrice)}</span>
+          )}
+        </p>
+      </div>
 
       {modal && <SizeModal product={p} onClose={() => setModal(false)} />}
     </article>
   );
 }
-
 
 export default CollectionCard;
