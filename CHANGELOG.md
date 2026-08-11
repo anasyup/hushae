@@ -670,3 +670,9 @@ Format:
   - `Product.jsx` re-cut: white bg, max-w 1400 (40/20), grid 1.2fr/0.8fr gap 60, sticky buy box top 90px; LEFT = 2×2 image grid (3/4 #f6f6f6); RIGHT = title 26/400/-0.5px UPPERCASE · price 18/500 + struck old · colour swatches 28px (selected 2px black ring) · size grid 5-col (selected black fill) + Size Guide · full-width black Add To Bag (13/600 ls 1px) · 3 accordions (Product Description / Fabric & Care / Shipping & Returns).
   - Bottom: "Complete The Look" — border-top, 18px uppercase title, 4-col CollectionCard grid (2 mobile). Reviews/QA, recently viewed, StickyBuyBar kept. Breadcrumb, rating row, stock line, qty, Buy Now, heart, points box, trust row, promo panel, related row, fabric editorial & bestsellers close removed per reference.
   - `Accordion.jsx` restyled to reference: 13/500 uppercase header, +/− glyph, 12px #555 content.
+
+## Changes
+- **2026-08-11** — 🃏 **PRODUCT CARD v6 — exact client reference (warm-nude luxury card)** (commit pending)
+  - `CollectionCard.jsx` re-cut: 3/4 tile bg `#f4f1ea`, hover = main image scale 1.03 (0.8s cubic-bezier(0.16,1,0.3,1)) + second image crossfade (0.4s), black "+ BUY NOW" bar slides up from bottom (hover-only desktop, always visible mobile; hover #1a1a1a) → opens size pick or adds straight to bag; meta = 10px swatches · name 12/400 ls 0.3px · cost 12/500 + struck old.
+  - Badge / slider arrows / Quick View / dash indicators removed per reference. Wishlist still available via home cards, cart items and account saved panel.
+  - Used across shop/collection grids + PDP "Complete The Look".

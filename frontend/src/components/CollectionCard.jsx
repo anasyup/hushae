@@ -1,69 +1,61 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { fetchCats } from '../lib/catalogue';
+import { useApp } from '../store/AppContext';
 import { pkr } from '../lib/format';
 import { isOnSale } from '../lib/sale';
-import { titleCase, materialName } from '../lib/productMeta';
-import QuickView from './QuickView';
+import { titleCase } from '../lib/productMeta';
 
 /* ============================================================================
- * HUSHAE CollectionCard — exact client reference ("CK Style Collection Layout").
- *   · 3/4 tile, bg #e5e5e5, main + hover image CROSSFADE (0.4s ease)
- *   · "New" badge bottom-left — #333333, 10px, 3px 8px, letter-spacing 0.5px
- *   · slider arrows (white 32px circles, soft shadow) — hover only
- *   · "Quick View" pill centred — hover only; always visible on mobile
- *   · dash indicators bottom centre — hover only; hidden on mobile
- *   · caption: swatches (12px, active black ring) · title 13/400 ·
- *     price 13/500 + struck old price (#888)
+ * HUSHAE CollectionCard — exact client reference (luxury warm-nude card).
+ *   · 3/4 tile, bg #f4f1ea (warm nude), overflow hidden
+ *   · hover: MAIN image scales 1.03 (0.8s cubic-bezier(0.16,1,0.3,1)) while
+ *     the SECOND image crossfades over it (0.4s ease)
+ *   · "+ BUY NOW" — black bar slides up from the bottom (hover-only on
+ *     desktop, always visible on mobile), hover #1a1a1a; opens a size pick
+ *     when the product needs one, otherwise adds straight to the bag
+ *   · meta: 10px swatches · name 12/400 ls 0.3px · cost 12/500 (+ struck old)
  * ========================================================================== */
 
 const FALLBACK =
   'data:image/svg+xml;utf8,' + encodeURIComponent(
-    '<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1200"><rect width="100%" height="100%" fill="#E5E5E5"/><text x="50%" y="50%" fill="#999999" font-family="Inter,Helvetica,Arial,sans-serif" font-size="16" letter-spacing="4" text-anchor="middle">HUSHAE</text></svg>');
+    '<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1200"><rect width="100%" height="100%" fill="#F4F1EA"/><text x="50%" y="50%" fill="#999999" font-family="Inter,Helvetica,Arial,sans-serif" font-size="16" letter-spacing="4" text-anchor="middle">HUSHAE</text></svg>');
 
 const srcOf = (im) => (typeof im === 'string' ? im : im?.url || '');
 const displayName = (name) => String(name || '').replace(/^HUSHAE\s+/i, '');
 
-function CollectionCard({ product: p, priority = false }) {
-  const [imgIdx, setImgIdx] = useState(0);
-  const [failed, setFailed] = useState(false);
-  const [quickView, setQuickView] = useState(false);
-  const [catLabel, setCatLabel] = useState('');
+/* Luxury ease — 0.8s zoom on the main image. */
+const EASE = { transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)' };
 
-  const images = useMemo(() => (p.images || []).map(srcOf).filter(Boolean), [p.images]);
-  const imgCount = images.length;
-  const main = images[imgIdx] || srcOf(p.image) || '';
-  const hover = imgCount > 1 ? images[(imgIdx + 1) % imgCount] : '';
+function CollectionCard({ product: p, priority = false }) {
+  const { addToCart } = useApp();
+  const [sizePick, setSizePick] = useState(false);
+  const [failed, setFailed] = useState(false);
+
+  const images = (p.images || []).map(srcOf).filter(Boolean);
+  const main = images[0] || srcOf(p.image) || '';
+  const hover = images[1] || '';
   const name = titleCase(displayName(p.name)) || 'Untitled';
+  const sizes = p.sizes || [];
   const soldOut = p.stock === 0;
   const onSale = isOnSale(p);
-  const caption = catLabel || materialName(p.fabric);
 
-  useEffect(() => {
-    if (!p.categorySlug) return;
-    let alive = true;
-    fetchCats().then((list) => { if (alive) setCatLabel(list.find((c) => c.slug === p.categorySlug)?.name || ''); });
-    return () => { alive = false; };
-  }, [p.categorySlug]);
-
-  const cycle = (dir) => {
-    if (imgCount < 2) return;
-    setImgIdx((i) => (i + dir + imgCount) % imgCount);
+  const buy = () => {
+    if (sizes.length) setSizePick(true);
+    else addToCart(p, {});
   };
 
   return (
-    <article className="group relative flex flex-col">
-      <Link to={`/product/${p.slug}`} tabIndex={-1} className="relative block w-full overflow-hidden bg-[#e5e5e5]" style={{ aspectRatio: '3 / 4' }}>
-        {/* Main image */}
+    <article className="group relative flex flex-col" onMouseLeave={() => setSizePick(false)}>
+      <Link to={`/product/${p.slug}`} tabIndex={-1} className="relative block w-full overflow-hidden bg-[#f4f1ea]" style={{ aspectRatio: '3 / 4' }}>
+        {/* Main image — zooms on hover */}
         <img
           src={failed ? FALLBACK : (main || FALLBACK)}
           alt={`${name}, front view`}
           width="900" height="1200"
           loading={priority ? 'eager' : 'lazy'}
           onError={() => setFailed(true)}
-          className="absolute inset-0 z-[1] h-full w-full object-cover transition-opacity duration-[400ms]"
-          style={{ opacity: 1 }}
+          className="h-full w-full object-cover transition-[transform,opacity] duration-[800ms] group-hover:scale-[1.03]"
+          style={EASE}
         />
         {/* Hover image — crossfades over the main one */}
         {hover && (
@@ -72,85 +64,63 @@ function CollectionCard({ product: p, priority = false }) {
             alt=""
             loading="lazy"
             aria-hidden="true"
-            className="absolute inset-0 z-[2] h-full w-full object-cover opacity-0 transition-opacity duration-[400ms] group-hover:opacity-100"
+            className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-[400ms] group-hover:opacity-100"
           />
         )}
 
-        {/* New badge — bottom-left */}
-        {(p.isNewArrival || p.isBestSeller === true) && (
-          <span className="pointer-events-none absolute bottom-3 left-3 z-[3] bg-[#333333] px-2 py-[3px] text-[10px] tracking-[0.5px] text-white">
-            {p.isBestSeller === true ? 'Best Seller' : 'New'}
-          </span>
-        )}
-
-        {/* Slider arrows — hover only */}
-        {imgCount > 1 && (
-          <>
+        {/* + BUY NOW — slides up on hover; always visible on mobile */}
+        {!sizePick && (
+          soldOut ? (
+            <span className="pointer-events-none absolute inset-x-0 bottom-0 z-[5] translate-y-0 bg-black py-3.5 text-center text-[11px] font-medium uppercase tracking-[2px] text-white md:translate-y-full md:group-hover:translate-y-0">
+              Sold Out
+            </span>
+          ) : (
             <button
-              type="button" aria-label="Previous image"
-              onClick={(e) => { e.preventDefault(); cycle(-1); }}
-              className="absolute left-3 top-1/2 z-[4] grid h-8 w-8 -translate-y-1/2 place-items-center rounded-full border-none bg-white text-black opacity-0 shadow-[0_2px_6px_rgba(0,0,0,0.15)] transition-opacity duration-300 group-hover:opacity-100"
+              type="button"
+              onClick={(e) => { e.preventDefault(); buy(); }}
+              className="absolute inset-x-0 bottom-0 z-[5] translate-y-0 bg-black py-3.5 text-center text-[11px] font-medium uppercase tracking-[2px] text-white transition-transform duration-300 hover:bg-[#1a1a1a] md:translate-y-full md:group-hover:translate-y-0"
+              style={EASE}
             >
-              <ChevronLeft size={15} aria-hidden="true" />
+              + Buy Now
             </button>
-            <button
-              type="button" aria-label="Next image"
-              onClick={(e) => { e.preventDefault(); cycle(1); }}
-              className="absolute right-3 top-1/2 z-[4] grid h-8 w-8 -translate-y-1/2 place-items-center rounded-full border-none bg-white text-black opacity-0 shadow-[0_2px_6px_rgba(0,0,0,0.15)] transition-opacity duration-300 group-hover:opacity-100"
-            >
-              <ChevronRight size={15} aria-hidden="true" />
-            </button>
-          </>
+          )
         )}
-
-        {/* Quick View — centred pill; hover-only on desktop, always visible on mobile */}
-        <button
-          type="button"
-          onClick={(e) => { e.preventDefault(); setQuickView(true); }}
-          className="absolute bottom-[10px] left-1/2 z-[4] -translate-x-1/2 whitespace-nowrap rounded-[20px] bg-black px-[22px] py-[10px] text-[12px] font-medium text-white opacity-100 transition-[opacity,transform] duration-300 md:bottom-[25px] md:opacity-0 md:group-hover:opacity-100"
-        >
-          Quick View
-        </button>
-
-        {/* Dash indicators — hover only, hidden on mobile */}
-        {imgCount > 1 && (
-          <div className="absolute bottom-[10px] left-1/2 z-[4] hidden -translate-x-1/2 items-center gap-1 opacity-0 transition-opacity duration-300 group-hover:opacity-100 md:flex">
-            {images.map((_, i) => (
-              <span key={i} className={`h-[2px] w-4 transition-colors duration-200 ${i === imgIdx ? 'bg-white' : 'bg-white/50'}`} />
-            ))}
+        {sizePick && (
+          <div className="absolute inset-x-0 bottom-0 z-[5] bg-black p-3">
+            <div className="flex flex-wrap justify-center gap-1.5">
+              {sizes.map((s) => (
+                <button key={s} type="button"
+                  onClick={(e) => { e.preventDefault(); addToCart(p, { size: s }); setSizePick(false); }}
+                  className="min-w-[34px] border border-white/60 px-2 py-1.5 text-[11px] font-medium uppercase tracking-[0.05em] text-white transition-colors hover:bg-white hover:text-black">
+                  {s}
+                </button>
+              ))}
+            </div>
           </div>
         )}
       </Link>
 
-      {/* Caption */}
+      {/* Meta */}
       <div className="pt-3">
         {(p.colors || []).length > 0 && (
-          <div className="mb-2 flex gap-1.5">
+          <div className="mb-1.5 flex gap-1.5">
             {(p.colors || []).slice(0, 3).map((c, i) => (
               <span key={`${c.name}-${i}`} title={c.name}
-                className={`h-3 w-3 rounded-full border border-[#cccccc] ${i === 0 ? 'outline outline-1 outline-black outline-offset-1' : ''}`}
+                className="h-[10px] w-[10px] rounded-full border border-black/15"
                 style={{ backgroundColor: c.hex || '#EEEEEE' }} />
             ))}
           </div>
         )}
-        <Link to={`/product/${p.slug}`} className="mb-1 block text-[13px] font-normal leading-snug text-black no-underline transition-colors duration-300 hover:text-[#666666]">
+        <Link to={`/product/${p.slug}`} className="block text-[12px] font-normal tracking-[0.3px] text-black no-underline transition-colors duration-200 hover:text-[#666666]">
           {name}
         </Link>
-        {caption && <p className="mb-1.5 text-[11px] text-[#777777]">{caption}</p>}
-        <p className="text-[13px] font-medium text-black">
+        <p className="mt-[3px] text-[12px] font-medium">
           {soldOut ? 'Sold out' : pkr(p.price)}
           {onSale && p.compareAtPrice > p.price && (
             <span className="ml-1.5 font-normal text-[#888888] line-through">{pkr(p.compareAtPrice)}</span>
           )}
         </p>
       </div>
-
-      {quickView && (
-        <QuickView
-          product={{ ...p, _id: p._id }}
-          onClose={() => setQuickView(false)}
-        />
-      )}
     </article>
   );
 }
