@@ -17,6 +17,33 @@ app.use(cors({ origin: true }));
 app.use(express.json({ limit: '10mb' }));
 app.use(require('./middleware/sanitize')); // NoSQL-injection block
 
+/* ── ORIGIN REBASE — stored image/media URLs may reference a previous
+   deployment domain (e.g. https://hushae.vercel.app/...). Rewrite them to
+   the CURRENT request origin so images keep working after a domain change.
+   Applied to every outgoing JSON response, so products, collections,
+   orders, reviews etc. all resolve images on whatever domain the site is
+   served from. */
+app.use((req, res, next) => {
+  const host = req.headers.host || '';
+  if (!host) return next();
+  const origin = `${req.protocol}://${host}`;
+  const OLD = 'https://hushae.vercel.app';
+  if (origin === OLD) return next(); // already the canonical domain — no-op
+  const sendJson = res.json.bind(res);
+  res.json = (body) => {
+    try {
+      const text = JSON.stringify(body);
+      if (text.includes(OLD)) {
+        return sendJson(JSON.parse(text.split(OLD).join(origin)));
+      }
+      return sendJson(body);
+    } catch {
+      return sendJson(body);
+    }
+  };
+  return next();
+});
+
 app.get('/api/health', (req, res) => res.json({ ok: true, name: 'HUSHAE API' }));
 
 /* ── API STATUS PAGE — open /api in a browser to see the backend live ── */
