@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Award, Lock, RotateCcw, Truck } from 'lucide-react';
+import { ArrowRight, Award, ChevronLeft, ChevronRight, Lock, RotateCcw, Truck } from 'lucide-react';
 import { api } from '../api/client';
 import ProductCard from '../components/ProductCard';
-import Banner from '../components/Banner';
 import Seo, { organizationJsonLd } from '../components/Seo';
 
 /* ============================================================================
@@ -29,6 +28,12 @@ import Seo, { organizationJsonLd } from '../components/Seo';
 
 const IMG = '/images/campaign/qa';
 
+const HERO_SLIDES = [
+  { img: `${IMG}/hero-women.jpg`, eyebrow: 'The New Edit', title: 'Second Skin', sub: 'New season essentials — engineered in Pakistan, finished to an international standard.' },
+  { img: `${IMG}/hero-men.jpg`, eyebrow: 'Signature Underwear', title: 'Worn Daily', sub: 'Smooth silhouettes with the logo waistband. Feel confident under anything.' },
+  { img: `${IMG}/hero-fabric.jpg`, eyebrow: 'The Fabric', title: 'Engineered Softness', sub: 'Breathable modal and stretch cottons, wash-tested for 40 cycles.' },
+];
+
 /* ── Perks — Bella-style icon trust row ─────────────────────────────────── */
 const PERKS = [
   { Icon: Award, title: '100% Quality', text: 'Every piece wash-tested for 40 cycles' },
@@ -46,69 +51,65 @@ const CATEGORIES = [
   { label: 'Loungewear', img: '/images/categories/sleepwear-loungewear.jpg', href: '/category/sleepwear-loungewear' },
 ];
 
-/* ── Hero — split-section (CK reference): 2 images + center overlay ─────── */
+/* ── Hero slideshow — crossfade + arrows + dots ─────────────────────────── */
 function HeroSlides() {
+  const [i, setI] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setI((x) => (x + 1) % HERO_SLIDES.length), 5500);
+    return () => clearInterval(t);
+  }, []);
+  const prev = () => setI((x) => (x - 1 + HERO_SLIDES.length) % HERO_SLIDES.length);
+  const next = () => setI((x) => (x + 1) % HERO_SLIDES.length);
+
   return (
-    <section className="relative h-[calc(100svh-72px)] min-h-[480px] w-full overflow-hidden bg-white font-sans">
-      {/* Split images */}
-      <div className="flex h-full w-full flex-col md:flex-row">
-        <div className="relative flex-1">
-          <img src={`${IMG}/hero-women.jpg`} alt="Women Collection" fetchpriority="high"
-            className="h-full w-full object-cover" />
-          <div className="absolute inset-0 bg-black/15" aria-hidden="true" />
+    <section className="relative h-[100svh] min-h-[560px] w-full overflow-hidden bg-white">
+      {/* Slides */}
+      {HERO_SLIDES.map((s, idx) => (
+        <div key={idx} className={`absolute inset-0 transition-opacity duration-[900ms] ease-out ${idx === i ? 'opacity-100' : 'opacity-0'}`}>
+          <img src={s.img} alt={s.title} loading={idx === 0 ? 'eager' : 'lazy'}
+            className="absolute inset-0 h-full w-full object-cover object-center" />
         </div>
-        <div className="relative flex-1">
-          <img src={`${IMG}/hero-men.jpg`} alt="Men Collection" loading="lazy"
-            className="h-full w-full object-cover" />
-          <div className="absolute inset-0 bg-black/15" aria-hidden="true" />
+      ))}
+      {/* Warm veil — barely there, legibility only */}
+      <div className="absolute inset-0 bg-black/30" />
+
+      {/* Text — centered, changes with slide */}
+      <div className="absolute inset-0 flex items-center justify-center px-6 text-center text-white">
+        <div key={`t-${i}`} className="max-w-3xl animate-[fade-up_0.5s_ease-out_both]">
+          <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-white/80 [text-shadow:0_1px_16px_rgba(0,0,0,0.4)]">{HERO_SLIDES[i].eyebrow}</p>
+          <h1 className="mt-5 text-[clamp(40px,7vw,84px)] font-medium uppercase leading-[1.02] tracking-[0.04em] [text-shadow:0_2px_32px_rgba(0,0,0,0.45)]">{HERO_SLIDES[i].title}</h1>
+          <p className="mx-auto mt-5 max-w-xl text-[15px] font-normal leading-[1.6] text-white/90 [text-shadow:0_1px_12px_rgba(0,0,0,0.4)]">{HERO_SLIDES[i].sub}</p>
+          <div className="mt-9 flex flex-wrap items-center justify-center gap-4">
+            <Link to="/women"
+              className="inline-flex min-h-[50px] items-center justify-center border border-white/80 px-10 text-[12px] font-medium uppercase tracking-[0.16em] text-white transition-colors duration-300 hover:bg-white hover:text-black">
+              Shop Women
+            </Link>
+            <Link to="/men"
+              className="inline-flex min-h-[50px] items-center justify-center border border-white/80 px-10 text-[12px] font-medium uppercase tracking-[0.16em] text-white transition-colors duration-300 hover:bg-white hover:text-black">
+              Shop Men
+            </Link>
+          </div>
         </div>
       </div>
 
-      {/* Center overlay */}
-      <div className="absolute left-1/2 top-[55%] z-10 w-[90%] max-w-[600px] -translate-x-1/2 -translate-y-1/2 text-center text-white">
-        <h1 className="text-[42px] font-light leading-[0.95] tracking-[-0.02em] text-white [text-shadow:0_2px_10px_rgba(0,0,0,0.2)] md:text-[64px]">
-          The
-          <br />
-          Campus
-          <br />
-          Edit
-        </h1>
-        <p className="mx-auto mt-5 max-w-md text-[12px] font-normal leading-[1.5] tracking-[0.013em] text-[#f0f0f0] md:text-[13px]">
-          Start the year fresh in casual essentials.
-          <br />
-          Made to transition seamlessly from class to after.
-        </p>
-        <div className="mt-7 flex items-center justify-center gap-3">
-          <Link to="/women"
-            className="inline-block rounded-full border border-white bg-white px-6 py-3 text-[12px] font-medium tracking-[0.02em] text-black transition-all duration-200 hover:-translate-y-px hover:bg-[#f0f0f0] md:px-6 md:text-[13px]">
-            Shop Women
-          </Link>
-          <Link to="/men"
-            className="inline-block rounded-full border border-white bg-white px-6 py-3 text-[12px] font-medium tracking-[0.02em] text-black transition-all duration-200 hover:-translate-y-px hover:bg-[#f0f0f0] md:px-6 md:text-[13px]">
-            Shop Men
-          </Link>
-        </div>
+      {/* Arrows */}
+      <button type="button" onClick={prev} aria-label="Previous slide"
+        className="absolute left-4 top-1/2 grid h-11 w-11 -translate-y-1/2 place-items-center border border-white/50 text-white transition-colors duration-300 hover:bg-white hover:text-black md:left-8">
+        <ChevronLeft size={18} />
+      </button>
+      <button type="button" onClick={next} aria-label="Next slide"
+        className="absolute right-4 top-1/2 grid h-11 w-11 -translate-y-1/2 place-items-center border border-white/50 text-white transition-colors duration-300 hover:bg-white hover:text-black md:right-8">
+        <ChevronRight size={18} />
+      </button>
+
+      {/* Dots */}
+      <div className="absolute bottom-8 left-1/2 flex -translate-x-1/2 gap-2">
+        {HERO_SLIDES.map((_, idx) => (
+          <button key={idx} type="button" onClick={() => setI(idx)} aria-label={`Slide ${idx + 1}`}
+            className={`h-1 rounded-full transition-all duration-300 ${idx === i ? 'w-8 bg-white' : 'w-2 bg-white/40 hover:bg-white/70'}`} />
+        ))}
       </div>
     </section>
-  );
-}
-
-/* ── Promotional fallback tile (when no admin banner is published) ──────── */
-function PromoTile({ img, eyebrow, title, sub, cta, to }) {
-  return (
-    <Link to={to} className="group relative block h-full w-full overflow-hidden bg-white">
-      <img src={img} alt={title} loading="lazy"
-        className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-105" />
-      <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/15 to-transparent" />
-      <div className="absolute inset-0 flex flex-col justify-center px-7 md:px-12">
-        {eyebrow && <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-[#C9A96E]">{eyebrow}</p>}
-        <h3 className="mt-2 max-w-md text-2xl font-medium text-white md:text-4xl">{title}</h3>
-        {sub && <p className="mt-2 max-w-md text-[13px] text-white/85">{sub}</p>}
-        <span className="mt-6 inline-flex min-h-[44px] w-fit items-center justify-center bg-white px-8 text-[11px] font-medium uppercase tracking-[0.18em] text-black transition-colors duration-300 hover:bg-[#C9A96E] hover:text-white">
-          {cta}
-        </span>
-      </div>
-    </Link>
   );
 }
 
@@ -147,19 +148,45 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ═══ 03 — PROMOTIONS (admin banners, buttons) ═════════════════ */}
-      <section className="mx-auto mt-14 max-w-7xl px-4 md:mt-20 md:px-8">
-        <div className="mb-6 flex items-baseline justify-between border-t border-[#E5E5E5] pt-4">
-          <h2 className="text-[20px] font-medium uppercase tracking-[0.04em] text-[#111111]">This Week</h2>
-          <span className="hidden text-[11px] font-medium uppercase tracking-[0.08em] text-[#696969] md:block">Promotions</span>
+      {/* ═══ 03 — PROMOTIONS: split banner (CK "The Campus Edit" reference) ═══ */}
+      <section className="relative mt-14 h-[60vh] min-h-[400px] w-full overflow-hidden md:mt-20 md:h-[70vh]">
+        {/* Split images — Women | Men */}
+        <div className="flex h-full w-full flex-col md:flex-row">
+          <Link to="/women" className="group relative flex-1 overflow-hidden">
+            <img src={`${IMG}/hero-women.jpg`} alt="Women Collection" loading="lazy"
+              className="h-full w-full object-cover transition-transform duration-[1.2s] group-hover:scale-[1.03]" />
+            <div className="absolute inset-0 bg-black/15 transition-colors duration-500 group-hover:bg-black/25" aria-hidden="true" />
+          </Link>
+          <Link to="/men" className="group relative flex-1 overflow-hidden">
+            <img src={`${IMG}/hero-men.jpg`} alt="Men Collection" loading="lazy"
+              className="h-full w-full object-cover transition-transform duration-[1.2s] group-hover:scale-[1.03]" />
+            <div className="absolute inset-0 bg-black/15 transition-colors duration-500 group-hover:bg-black/25" aria-hidden="true" />
+          </Link>
         </div>
-        <Banner slot="homepage-promo-1" className="aspect-[16/9] w-full overflow-hidden md:aspect-[21/8]"
-          fallback={<PromoTile img={`${IMG}/editorial-modern.jpg`} eyebrow="The Summer Edit" title="Signature comfort, up to 30% off" sub="The pieces that define the season — now at their quiet best." cta="Shop Sale" to="/sale" />} />
-        <div className="mt-5 grid gap-5 md:grid-cols-2">
-          <Banner slot="homepage-promo-2" className="aspect-[16/10] w-full overflow-hidden"
-            fallback={<PromoTile img={`${IMG}/hero-women.jpg`} eyebrow="New Arrivals" title="The Second Skin collection" sub="Featherweight layers, zero-dig fits." cta="Shop New" to="/new" />} />
-          <Banner slot="homepage-promo-3" className="aspect-[16/10] w-full overflow-hidden"
-            fallback={<PromoTile img={`${IMG}/hero-fabric.jpg`} eyebrow="Free Shipping" title="Over PKR 4,999 — nationwide" sub="Discreet, unmarked packaging on every order." cta="Explore" to="/women" />} />
+
+        {/* Center overlay */}
+        <div className="pointer-events-none absolute left-1/2 top-[55%] z-10 w-[90%] max-w-[600px] -translate-x-1/2 -translate-y-1/2 text-center text-white">
+          <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-white/80">This Week</p>
+          <h2 className="mt-3 text-[34px] font-light uppercase leading-[1.05] tracking-[0.02em] text-white [text-shadow:0_2px_10px_rgba(0,0,0,0.25)] md:text-[48px]">
+            The Campus
+            <br />
+            Edit
+          </h2>
+          <p className="mx-auto mt-4 max-w-md text-[12px] font-normal leading-[1.5] tracking-[0.013em] text-[#f0f0f0] md:text-[13px]">
+            Start the year fresh in casual essentials.
+            <br />
+            Made to transition seamlessly from class to after.
+          </p>
+          <div className="pointer-events-auto mt-7 flex items-center justify-center gap-3">
+            <Link to="/women"
+              className="inline-block rounded-full border border-white bg-white px-6 py-3 text-[12px] font-medium tracking-[0.02em] text-black transition-all duration-200 hover:-translate-y-px hover:bg-[#f0f0f0] md:text-[13px]">
+              Shop Women
+            </Link>
+            <Link to="/men"
+              className="inline-block rounded-full border border-white bg-white px-6 py-3 text-[12px] font-medium tracking-[0.02em] text-black transition-all duration-200 hover:-translate-y-px hover:bg-[#f0f0f0] md:text-[13px]">
+              Shop Men
+            </Link>
+          </div>
         </div>
       </section>
 
