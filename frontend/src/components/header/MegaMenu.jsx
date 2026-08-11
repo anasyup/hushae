@@ -143,7 +143,7 @@ export default function MegaMenu({ label, to, items, linkCls, navStyle, onDark, 
                   to={to}
                   tabIndex={open ? 0 : -1}
                   onClick={() => setOpen(false)}
-                  className="group block w-[200px] shrink-0"
+                  className="group relative block w-[200px] shrink-0"
                 >
                   <span className="block overflow-hidden bg-[#f5f5f5]">
                     <img
@@ -153,7 +153,8 @@ export default function MegaMenu({ label, to, items, linkCls, navStyle, onDark, 
                       className="h-[260px] w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
                     />
                   </span>
-                  <span className="mt-3 block bg-[#28231E] py-2 text-center text-[11px] tracking-[0.02em] text-white">
+                  {/* Promo button — overlay on the image (exact reference) */}
+                  <span className="absolute bottom-3 left-2.5 right-2.5 block bg-[rgba(40,35,30,0.85)] py-2 text-center text-[11px] tracking-[0.02em] text-white">
                     Shop {label}
                   </span>
                 </Link>
