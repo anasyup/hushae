@@ -93,7 +93,7 @@ router.get('/trending', asyncHandler(async (req, res) => {
   // Attach product info
   const ids = rows.map((r) => r._id).filter(Boolean);
   const products = await Product.find({ _id: { $in: ids }, isActive: true, status: { $ne: 'draft' } })
-    .select('name slug price compareAtPrice onSale saleStart saleEnd stock images gender categorySlug tier ratingAvg sizes colors');
+    .select('name slug price compareAtPrice onSale saleStart saleEnd stock images gender categorySlug tier ratingAvg sizes colors isNewArrival bestSeller');
   const map = new Map(products.map((p) => [String(p._id), p.toObject()]));
 
   const out = rows
@@ -151,7 +151,7 @@ router.get('/:slug/related', asyncHandler(async (req, res) => {
   })
     .sort({ stock: -1, isBestSeller: -1, ratingAvg: -1 })
     .limit(8)
-    .select('name slug price compareAtPrice onSale saleStart saleEnd stock images gender categorySlug tier ratingAvg sizes colors');
+    .select('name slug price compareAtPrice onSale saleStart saleEnd stock images gender categorySlug tier ratingAvg sizes colors isNewArrival bestSeller');
   res.json({ products });
 }));
 
