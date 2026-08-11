@@ -14,8 +14,8 @@ import { ChevronDown } from 'lucide-react';
  * over from the previous implementation — measured working.
  * ========================================================================== */
 
-const COL_HEAD = 'text-[11px] font-medium uppercase tracking-[0.08em] text-[#767676]';
-const LINK = 'block text-[13px] text-[#333333] transition-colors duration-150 hover:text-black hover:underline';
+const COL_HEAD = 'text-[11px] font-medium uppercase tracking-[0.031em] text-[#757575]';
+const LINK = 'block text-[13px] leading-[1.35] text-[#333333] transition-colors duration-150 hover:text-black hover:underline';
 
 export default function MegaMenu({ label, to, items, linkCls, navStyle, onDark, collections = [] }) {
   const [open, setOpen] = useState(false);
@@ -135,26 +135,26 @@ export default function MegaMenu({ label, to, items, linkCls, navStyle, onDark, 
             ? { left: 0, transform: 'translateX(-50%)', visibility: 'hidden' }
             : { left: `${shift}px`, transform: 'translateX(-50%)' }}
         >
-          <div className="overflow-hidden border border-[#e5e5e5] bg-white shadow-[0_10px_20px_rgba(0,0,0,0.03)]">
-            <div className="mx-auto flex max-w-[1600px] gap-10 px-10 py-8">
+          <div className="overflow-hidden border border-[#e5e5e5] bg-white shadow-[0_10px_25px_rgba(0,0,0,0.03)]">
+            <div className="mx-auto flex max-w-[1500px] gap-9 px-8 pb-12 pt-8">
               {/* ── Promo card (image + button) ─────────────────────────── */}
               {promo && (
                 <Link
                   to={to}
                   tabIndex={open ? 0 : -1}
                   onClick={() => setOpen(false)}
-                  className="group relative block w-[200px] shrink-0"
+                  className="group relative block w-[190px] shrink-0"
                 >
                   <span className="block overflow-hidden bg-[#f5f5f5]">
                     <img
                       src={promo.image}
                       alt=""
                       loading="lazy"
-                      className="h-[260px] w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                      className="h-[250px] w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
                     />
                   </span>
                   {/* Promo button — overlay on the image (exact reference) */}
-                  <span className="absolute bottom-3 left-2.5 right-2.5 block bg-[rgba(40,35,30,0.85)] py-2 text-center text-[11px] tracking-[0.02em] text-white">
+                  <span className="absolute bottom-3 left-2.5 right-2.5 block bg-[rgba(40,35,30,0.85)] py-[7px] text-center text-[11px] tracking-[0.013em] text-white">
                     Shop {label}
                   </span>
                 </Link>
@@ -162,8 +162,8 @@ export default function MegaMenu({ label, to, items, linkCls, navStyle, onDark, 
 
               {/* ── FEATURED column ─────────────────────────────────────── */}
               <div className="w-44 shrink-0">
-                <span className={`${COL_HEAD} mb-4 block`}>Featured</span>
-                <ul className="space-y-2.5">
+                <span className={`${COL_HEAD} mb-[14px] block`}>Featured</span>
+                <ul className="space-y-2">
                   {collections.map((c) => (
                     <li key={c.href}>
                       <Link
@@ -191,8 +191,8 @@ export default function MegaMenu({ label, to, items, linkCls, navStyle, onDark, 
 
               {/* ── Category column A ───────────────────────────────────── */}
               <div className="min-w-0 flex-1">
-                <span className={`${COL_HEAD} mb-4 block`}>Shop {label}</span>
-                <ul className="space-y-2.5">
+                <span className={`${COL_HEAD} mb-[14px] block`}>Shop {label}</span>
+                <ul className="space-y-2">
                   {colA.map((c) => (
                     <li key={c.slug}>
                       <Link
@@ -211,8 +211,8 @@ export default function MegaMenu({ label, to, items, linkCls, navStyle, onDark, 
               {/* ── Category column B ───────────────────────────────────── */}
               {colB.length > 0 && (
                 <div className="min-w-0 flex-1">
-                  <span className={`${COL_HEAD} mb-4 block`}>More</span>
-                  <ul className="space-y-2.5">
+                  <span className={`${COL_HEAD} mb-[14px] block`}>More</span>
+                  <ul className="space-y-2">
                     {colB.map((c) => (
                       <li key={c.slug}>
                         <Link

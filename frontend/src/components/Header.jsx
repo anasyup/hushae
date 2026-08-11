@@ -84,9 +84,9 @@ export default function Header() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cmsHeaderKey, baseMenu]);
 
-  const deskH = clamp(hdr.height, 40, 90, 70);
+  const deskH = clamp(hdr.height, 40, 90, 56);
   const navSize = clamp(hdr.navSize, 11, 16, 13);
-  const navGap = clamp(hdr.navGap, 16, 64, 32);
+  const navGap = clamp(hdr.navGap, 16, 64, 28);
   const hairline = hdr.border !== false;
 
   const showSearch = hdr.showSearch !== false;
@@ -105,13 +105,13 @@ export default function Header() {
 
   const linkCls = useMemo(() => ({ isActive }) => (
     /* CK hover underline — bottom hairline on hover/active */
-    `relative whitespace-nowrap py-6 transition-colors duration-200 after:absolute after:bottom-[18px] after:left-0 after:h-px after:w-full after:origin-left after:scale-x-0 after:bg-black after:transition-transform after:duration-200 after:ease-out ${
+    `relative flex h-full items-center whitespace-nowrap px-1 py-[18px] transition-colors duration-200 after:absolute after:bottom-0 after:left-0 after:h-[1.5px] after:w-full after:origin-left after:scale-x-0 after:bg-black after:transition-transform after:duration-200 after:ease-out ${
       isActive ? 'after:scale-x-100' : 'hover:after:scale-x-100'
-    } text-[13px] font-normal tracking-[0.02em] ${isActive ? 'text-black' : 'text-black/80 hover:text-black'}`
+    } text-[13px] font-normal tracking-[0.006em] ${isActive ? 'text-black' : 'text-black/80 hover:text-black'}`
   ), []);
 
   const navStyle = useMemo(
-    () => ({ fontSize: `${navSize}px`, letterSpacing: '0.02em' }),
+    () => ({ fontSize: `${navSize}px`, letterSpacing: '0.006em' }),
     [navSize],
   );
 
@@ -130,10 +130,10 @@ export default function Header() {
           data-header
           style={{ '--hdr-h': `${deskH}px` }}
           className={`border-b transition-[background-color,border-color] duration-200 ${
-            overHero ? 'border-transparent bg-white/95 text-black backdrop-blur-xl' : `bg-white text-black backdrop-blur-xl ${hairline ? 'border-[#e5e5e5]' : 'border-transparent'}`
+            overHero ? 'border-transparent bg-white/95 text-black backdrop-blur-xl' : `bg-white text-black backdrop-blur-xl ${hairline ? 'border-[#e0e0e0]' : 'border-transparent'}`
           }`}
         >
-          <div className="mx-auto flex h-11 max-w-[1600px] items-center justify-between px-4 md:px-6 lg:h-[var(--hdr-h)] lg:px-10">
+          <div className="mx-auto flex h-11 max-w-[1600px] items-center justify-between px-4 md:px-6 lg:h-[var(--hdr-h)] lg:px-8">
             {/* Burger — mobile only */}
             <button
               ref={burgerRef}
@@ -147,7 +147,7 @@ export default function Header() {
             </button>
 
             {/* Logo — LEFT (CK reference) */}
-            <Link to="/" aria-label="HUSHAE — home" className="mr-8 text-[28px] font-normal leading-none tracking-[-0.02em] text-black">
+            <Link to="/" aria-label="HUSHAE — home" className="mr-8 text-[24px] font-normal leading-none tracking-[-0.0375em] text-black">
               HUSHAE
             </Link>
 
@@ -179,7 +179,7 @@ export default function Header() {
             </nav>
 
             {/* Icons — right */}
-            <div data-section="header.icons" className="flex shrink-0 items-center gap-1">
+            <div data-section="header.icons" className="flex shrink-0 items-center gap-[18px]">
               {showSearch && (
                 <button
                   ref={searchBtnRef}
