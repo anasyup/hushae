@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Award, ChevronLeft, ChevronRight, Lock, RotateCcw, Truck } from 'lucide-react';
+import { ArrowRight, Award, Lock, RotateCcw, Truck } from 'lucide-react';
 import { api } from '../api/client';
 import ProductCard from '../components/ProductCard';
 import Banner from '../components/Banner';
@@ -29,13 +29,6 @@ import Seo, { organizationJsonLd } from '../components/Seo';
 
 const IMG = '/images/campaign/qa';
 
-/* ── Hero slides — own campaign photography ─────────────────────────────── */
-const HERO_SLIDES = [
-  { img: `${IMG}/hero-women.jpg`, eyebrow: 'The New Edit', title: 'Second Skin', sub: 'New season essentials — engineered in Pakistan, finished to an international standard.' },
-  { img: `${IMG}/hero-men.jpg`, eyebrow: 'Signature Underwear', title: 'Worn Daily', sub: 'Smooth silhouettes with the logo waistband. Feel confident under anything.' },
-  { img: `${IMG}/hero-fabric.jpg`, eyebrow: 'The Fabric', title: 'Engineered Softness', sub: 'Breathable modal and stretch cottons, wash-tested for 40 cycles.' },
-];
-
 /* ── Perks — Bella-style icon trust row ─────────────────────────────────── */
 const PERKS = [
   { Icon: Award, title: '100% Quality', text: 'Every piece wash-tested for 40 cycles' },
@@ -53,63 +46,48 @@ const CATEGORIES = [
   { label: 'Loungewear', img: '/images/categories/sleepwear-loungewear.jpg', href: '/category/sleepwear-loungewear' },
 ];
 
-/* ── Hero slideshow — crossfade + arrows + dots ─────────────────────────── */
+/* ── Hero — split-section (CK reference): 2 images + center overlay ─────── */
 function HeroSlides() {
-  const [i, setI] = useState(0);
-  useEffect(() => {
-    const t = setInterval(() => setI((x) => (x + 1) % HERO_SLIDES.length), 5500);
-    return () => clearInterval(t);
-  }, []);
-  const prev = () => setI((x) => (x - 1 + HERO_SLIDES.length) % HERO_SLIDES.length);
-  const next = () => setI((x) => (x + 1) % HERO_SLIDES.length);
-
   return (
-    <section className="relative h-[100svh] min-h-[560px] w-full overflow-hidden bg-white">
-      {/* Slides */}
-      {HERO_SLIDES.map((s, idx) => (
-        <div key={idx} className={`absolute inset-0 transition-opacity duration-[900ms] ease-out ${idx === i ? 'opacity-100' : 'opacity-0'}`}>
-          <img src={s.img} alt={s.title} loading={idx === 0 ? 'eager' : 'lazy'}
-            className="absolute inset-0 h-full w-full object-cover object-center" />
+    <section className="relative h-[calc(100svh-72px)] min-h-[480px] w-full overflow-hidden bg-white font-sans">
+      {/* Split images */}
+      <div className="flex h-full w-full flex-col md:flex-row">
+        <div className="relative flex-1">
+          <img src={`${IMG}/hero-women.jpg`} alt="Women Collection" fetchpriority="high"
+            className="h-full w-full object-cover" />
+          <div className="absolute inset-0 bg-black/15" aria-hidden="true" />
         </div>
-      ))}
-      {/* Warm veil — barely there, legibility only */}
-      <div className="absolute inset-0 bg-black/30" />
-
-      {/* Text — centered, changes with slide */}
-      <div className="absolute inset-0 flex items-center justify-center px-6 text-center text-white">
-        <div key={`t-${i}`} className="max-w-3xl animate-[fade-up_0.5s_ease-out_both]">
-          <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-white/80 [text-shadow:0_1px_16px_rgba(0,0,0,0.4)]">{HERO_SLIDES[i].eyebrow}</p>
-          <h1 className="mt-5 text-[clamp(40px,7vw,84px)] font-medium uppercase leading-[1.02] tracking-[0.04em] [text-shadow:0_2px_32px_rgba(0,0,0,0.45)]">{HERO_SLIDES[i].title}</h1>
-          <p className="mx-auto mt-5 max-w-xl text-[15px] font-normal leading-[1.6] text-white/90 [text-shadow:0_1px_12px_rgba(0,0,0,0.4)]">{HERO_SLIDES[i].sub}</p>
-          <div className="mt-9 flex flex-wrap items-center justify-center gap-4">
-            <Link to="/women"
-              className="inline-flex min-h-[50px] items-center justify-center border border-white/80 px-10 text-[12px] font-medium uppercase tracking-[0.16em] text-white transition-colors duration-300 hover:bg-white hover:text-black">
-              Shop Women
-            </Link>
-            <Link to="/men"
-              className="inline-flex min-h-[50px] items-center justify-center border border-white/80 px-10 text-[12px] font-medium uppercase tracking-[0.16em] text-white transition-colors duration-300 hover:bg-white hover:text-black">
-              Shop Men
-            </Link>
-          </div>
+        <div className="relative flex-1">
+          <img src={`${IMG}/hero-men.jpg`} alt="Men Collection" loading="lazy"
+            className="h-full w-full object-cover" />
+          <div className="absolute inset-0 bg-black/15" aria-hidden="true" />
         </div>
       </div>
 
-      {/* Arrows */}
-      <button type="button" onClick={prev} aria-label="Previous slide"
-        className="absolute left-4 top-1/2 grid h-11 w-11 -translate-y-1/2 place-items-center border border-white/50 text-white transition-colors duration-300 hover:bg-white hover:text-black md:left-8">
-        <ChevronLeft size={18} />
-      </button>
-      <button type="button" onClick={next} aria-label="Next slide"
-        className="absolute right-4 top-1/2 grid h-11 w-11 -translate-y-1/2 place-items-center border border-white/50 text-white transition-colors duration-300 hover:bg-white hover:text-black md:right-8">
-        <ChevronRight size={18} />
-      </button>
-
-      {/* Dots */}
-      <div className="absolute bottom-8 left-1/2 flex -translate-x-1/2 gap-2">
-        {HERO_SLIDES.map((_, idx) => (
-          <button key={idx} type="button" onClick={() => setI(idx)} aria-label={`Slide ${idx + 1}`}
-            className={`h-1 rounded-full transition-all duration-300 ${idx === i ? 'w-8 bg-white' : 'w-2 bg-white/40 hover:bg-white/70'}`} />
-        ))}
+      {/* Center overlay */}
+      <div className="absolute left-1/2 top-[55%] z-10 w-[90%] max-w-[600px] -translate-x-1/2 -translate-y-1/2 text-center text-white">
+        <h1 className="text-[42px] font-light leading-[0.95] tracking-[-0.02em] text-white [text-shadow:0_2px_10px_rgba(0,0,0,0.2)] md:text-[64px]">
+          The
+          <br />
+          Campus
+          <br />
+          Edit
+        </h1>
+        <p className="mx-auto mt-5 max-w-md text-[12px] font-normal leading-[1.5] tracking-[0.013em] text-[#f0f0f0] md:text-[13px]">
+          Start the year fresh in casual essentials.
+          <br />
+          Made to transition seamlessly from class to after.
+        </p>
+        <div className="mt-7 flex items-center justify-center gap-3">
+          <Link to="/women"
+            className="inline-block rounded-full border border-white bg-white px-6 py-3 text-[12px] font-medium tracking-[0.02em] text-black transition-all duration-200 hover:-translate-y-px hover:bg-[#f0f0f0] md:px-6 md:text-[13px]">
+            Shop Women
+          </Link>
+          <Link to="/men"
+            className="inline-block rounded-full border border-white bg-white px-6 py-3 text-[12px] font-medium tracking-[0.02em] text-black transition-all duration-200 hover:-translate-y-px hover:bg-[#f0f0f0] md:px-6 md:text-[13px]">
+            Shop Men
+          </Link>
+        </div>
       </div>
     </section>
   );
