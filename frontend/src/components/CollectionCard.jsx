@@ -95,8 +95,8 @@ function CollectionCard({ product: p, priority = false, variant = 'bar', ratio =
 
   return (
     <article className="group flex min-w-0 cursor-pointer flex-col font-sans">
-      {/* 1. Image box — 4/5, light grey, carousel on hover */}
-      <div className="relative aspect-[4/5] w-full overflow-hidden bg-[#e8e8e8]">
+      {/* 1. Image box — 4/5, light grey, carousel on hover (whole card links to product) */}
+      <Link to={`/product/${p.slug}`} tabIndex={-1} className="relative block w-full overflow-hidden bg-[#e8e8e8]" style={{ aspectRatio: '4 / 5' }}>
         <img
           src={failed ? FALLBACK : (images[imgIdx] || images[0] || srcOf(p.image) || FALLBACK)}
           alt={`${name}, front view`}
@@ -159,7 +159,7 @@ function CollectionCard({ product: p, priority = false, variant = 'bar', ratio =
             ))}
           </div>
         )}
-      </div>
+      </Link>
 
       {/* 2. Color swatches — BELOW image, ring selection */}
       {colors.length > 0 && (
@@ -182,7 +182,7 @@ function CollectionCard({ product: p, priority = false, variant = 'bar', ratio =
       )}
 
       {/* 3. Title + price */}
-      <div className="mt-2 space-y-1 px-1">
+      <Link to={`/product/${p.slug}`} className="mt-2 space-y-1 px-1">
         <h3 className="line-clamp-1 text-[12px] font-normal capitalize tracking-normal text-[#1e1e1e]">
           {name}
         </h3>
@@ -192,7 +192,7 @@ function CollectionCard({ product: p, priority = false, variant = 'bar', ratio =
           )}
           <span className="font-medium text-[#1e1e1e]">{soldOut ? 'Sold out' : pkr(p.price)}</span>
         </div>
-      </div>
+      </Link>
 
       {modal && <SizeModal product={p} onClose={() => setModal(false)} />}
     </article>
