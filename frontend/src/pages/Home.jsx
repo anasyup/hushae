@@ -1,60 +1,36 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Award, ChevronLeft, ChevronRight, Lock, RotateCcw, Truck } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { api } from '../api/client';
-import ProductCard from '../components/ProductCard';
 import Seo, { organizationJsonLd } from '../components/Seo';
 
 /* ============================================================================
- * HUSHAE HOME — the ultimate luxury homepage.
- *
- * Synthesised from 15+ premium references (Bella Webflow template + 4 tall
- * Dribbble homepages + earlier CK study). Structure:
- *   1  HERO            cinematic 3-slide crossfade, arrows + dots, CTA button
- *   2  PERKS           icon trust row (Quality / Shipping / Secure / Returns)
- *   3  PROMOTIONS      admin hero-banner band (user feature, buttons)
- *   5  CATEGORIES      real category imagery, image tiles + labels
- *   6  BEST SELLERS    product grid
- *   7  PROMO BANNER    "The Signature Edit" full-bleed editorial + CTA
- *   8  JOURNAL         real blog posts
- *   9  VALUES          grey commitment band
- *   10 NEWSLETTER      "Get 10% Off" borderless input + button
- *   11 #HUSHAE         social call-out
- *
- * Palette stays the approved warm-luxury register: white / #111 / #696969
- * hairlines, gold #C9A96E as the only accent.
+ * HUSHAE HOME — luxury homepage, exact client reference.
+ *   1  HERO            full-bleed "Second Skin Edit" (CK, approved)
+ *   2  CATEGORY GRID   Tom Ford style — 2/4 cols, 4/5 images, tracking 0.2em
+ *   3  PRODUCT CAROUSEL "The New Collection" — serif title + EXPLORE NOW
+ *   4  EDITORIAL SPLIT Loro Piana — 2 cards, serif headings + ArrowRight
+ *   5  PRODUCT CAROUSEL "Objects of Desire" — curated selection
+ *   6  NEWSLETTER      Subscribe to the Newsletter
  * ========================================================================== */
 
 const IMG = '/images/campaign/qa';
 
-/* ── Perks — Bella-style icon trust row ─────────────────────────────────── */
-const PERKS = [
-  { Icon: Award, title: '100% Quality', text: 'Every piece wash-tested for 40 cycles' },
-  { Icon: Truck, title: 'Free Shipping', text: 'On orders over PKR 4,999' },
-  { Icon: Lock, title: 'Secure Payment', text: 'COD nationwide · encrypted checkout' },
-  { Icon: RotateCcw, title: 'Free Returns', text: '14-day exchange, free size swaps' },
-];
-
-/* ── Category tiles — real category images ──────────────────────────────── */
+/* ── Category tiles (real HUSHAE category images) ──────────────────────── */
 const CATEGORIES = [
-  { label: 'Bras', img: '/images/categories/bras.jpg', href: '/category/bras' },
-  { label: 'Panties', img: '/images/categories/panties.jpg', href: '/category/panties' },
-  { label: 'Briefs', img: '/images/categories/briefs.jpg', href: '/category/briefs' },
-  { label: 'Boxers', img: '/images/categories/boxers.jpg', href: '/category/boxers' },
-  { label: 'Loungewear', img: '/images/categories/sleepwear-loungewear.jpg', href: '/category/sleepwear-loungewear' },
+  { title: "Women's Bras", image: '/images/categories/bras.jpg', href: '/category/bras' },
+  { title: "Women's Panties", image: '/images/categories/panties.jpg', href: '/category/panties' },
+  { title: "Men's Briefs", image: '/images/categories/briefs.jpg', href: '/category/briefs' },
+  { title: "Men's Boxers", image: '/images/categories/boxers.jpg', href: '/category/boxers' },
 ];
 
 /* ── Hero — full-bleed image + left content (CK reference) ───────────────── */
 function HeroSlides() {
   return (
     <section className="relative h-[100svh] w-full overflow-hidden bg-white">
-      {/* Full-bleed image */}
       <img src={`${IMG}/hero-women.jpg`} alt="New Edit" fetchpriority="high"
         className="h-full w-full object-cover" />
-      {/* Dark overlay 15% */}
       <div className="absolute inset-0 bg-black/15" aria-hidden="true" />
-
-      {/* Left side content */}
       <div className="absolute bottom-[12%] left-[32px] z-10 max-w-[480px] text-white md:left-[60px]">
         <h1 className="text-[42px] font-light uppercase leading-[1.05] tracking-[-1px] text-white [text-shadow:0_2px_10px_rgba(0,0,0,0.2)] md:text-[58px]">
           Second
@@ -81,208 +57,206 @@ function HeroSlides() {
   );
 }
 
-export default function Home() {
-  const [fresh, setFresh] = useState(null);
-  const [best, setBest] = useState(null);
-  const [posts, setPosts] = useState([]);
-
-  useEffect(() => {
-    api('/products?bestSeller=true&limit=8').then((d) => setBest(d.products)).catch(() => setBest([]));
-    api('/products?newArrival=true&limit=8').then((d) => setFresh(d.products)).catch(() => setFresh([]));
-    api('/blog').then((d) => setPosts(d.posts || [])).catch(() => setPosts([]));
-  }, []);
-
+/* ── SECTION 1: Minimalist category grid (Tom Ford style) ───────────────── */
+function CategoryGridSection() {
   return (
-    <div className="bg-white font-sans text-[#111111]">
-      <Seo title="Premium Innerwear for Men & Women"
-        description="New season essentials, engineered for comfort. Made in Pakistan, finished to an international standard."
-        canonical="/"
-        jsonLd={organizationJsonLd(typeof window !== 'undefined' ? window.location.origin : '')}
-        jsonLdId="home-org" />
-
-      {/* ═══ 01 — HERO: cinematic slideshow ═══════════════════════════ */}
-      <HeroSlides />
-
-      {/* ═══ 02 — PERKS: icon trust row ═══════════════════════════════ */}
-      <section className="border-b border-[#E5E5E5]">
-        <div className="mx-auto grid max-w-7xl grid-cols-2 gap-y-8 px-4 py-10 md:grid-cols-4 md:px-8 md:py-12">
-          {PERKS.map(({ Icon, title, text }) => (
-            <div key={title} className="flex flex-col items-center text-center">
-              <Icon size={22} strokeWidth={1.4} className="text-[#C9A96E]" aria-hidden="true" />
-              <p className="mt-3 text-[11px] font-medium uppercase tracking-[0.14em] text-[#111111]">{title}</p>
-              <p className="mt-1 max-w-[22ch] text-[11px] leading-relaxed text-[#696969]">{text}</p>
+    <section className="mx-auto max-w-[1600px] px-4 py-16 md:px-8">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
+        {CATEGORIES.map((cat) => (
+          <Link key={cat.title} to={cat.href} className="group flex cursor-pointer flex-col">
+            <div className="relative aspect-[4/5] overflow-hidden bg-[#f2f0ec]">
+              <img
+                src={cat.image}
+                alt={cat.title}
+                loading="lazy"
+                className="h-full w-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105"
+              />
             </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ═══ 03 — CATEGORIES: real imagery tiles ══════════════════════ */}
-      <section className="mx-auto mt-14 max-w-7xl px-4 md:mt-20 md:px-8">
-        <div className="mb-8 flex items-baseline justify-between border-t border-[#E5E5E5] pt-4">
-          <h2 className="text-[20px] font-medium uppercase tracking-[0.04em] text-[#111111]">Shop by Category</h2>
-          <Link to="/shop" className="hidden text-[11px] font-medium uppercase tracking-[0.08em] text-[#696969] transition hover:text-[#111111] md:block">View All</Link>
-        </div>
-        <div className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-5 md:gap-x-5">
-          {CATEGORIES.map((c) => (
-            <Link key={c.label} to={c.href} className="group block">
-              <div className="relative aspect-[3/4] overflow-hidden bg-[#F5F5F5]">
-                <img src={c.img} alt={c.label} loading="lazy"
-                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]" />
-              </div>
-              <div className="mt-3 flex items-baseline justify-between px-0.5">
-                <p className="text-[13px] font-medium uppercase tracking-[0.04em] text-[#111111]">{c.label}</p>
-                <span className="inline-flex items-center gap-1 text-[10px] font-medium uppercase tracking-[0.08em] text-[#696969] transition group-hover:text-[#111111]">
-                  Shop <ArrowRight size={11} />
-                </span>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* ═══ 04 — BEST SELLERS ════════════════════════════════════════ */}
-      {best && best.length > 0 && (
-        <section className="mx-auto mt-14 max-w-7xl px-4 md:mt-24 md:px-8">
-          <div className="mb-8 flex items-baseline justify-between border-t border-[#E5E5E5] pt-4">
-            <div>
-              <p className="text-[10px] font-medium uppercase tracking-[0.16em] text-[#696969]">Trending Now</p>
-              <h2 className="mt-2 text-[22px] font-medium uppercase tracking-[0.04em] text-[#111111] md:text-[28px]">Best Sellers</h2>
+            <div className="bg-transparent pb-2 pt-4">
+              <h3 className="text-[11px] font-medium uppercase tracking-[0.2em] text-[#111111] md:text-[12px]">
+                {cat.title}
+              </h3>
             </div>
-            <Link to="/best" className="group inline-flex items-center gap-1.5 border-b border-[#111111]/25 pb-1 text-[11px] font-medium uppercase tracking-[0.08em] text-[#111111] transition-colors duration-300 hover:border-[#111111]">
-              View All <ArrowRight size={12} />
-            </Link>
-          </div>
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-5">
-            {best.slice(0, 8).map((p) => <ProductCard key={p._id} product={p} />)}
-          </div>
-        </section>
-      )}
-
-      {/* ═══ 05 — PROMO BANNER: The Signature Edit ═════════════════════ */}
-      <section className="mt-14 md:mt-24">
-        <Link to="/sale" className="group relative block h-[70vh] min-h-[420px] overflow-hidden bg-white">
-          <img src={`${IMG}/editorial-performance.jpg`} alt="The Signature Edit" loading="lazy"
-            className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1.2s] group-hover:scale-[1.03]" />
-          <div className="absolute inset-0 bg-black/40" />
-          <div className="absolute inset-0 flex items-center justify-center px-6 text-center text-white">
-            <div>
-              <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-[#C9A96E]">Limited Season</p>
-              <h2 className="mt-4 text-[clamp(30px,5vw,52px)] font-medium uppercase leading-[1.05] tracking-[0.05em] [text-shadow:0_2px_24px_rgba(0,0,0,0.4)]">
-                The Signature Edit
-              </h2>
-              <p className="mx-auto mt-4 max-w-md text-[15px] font-normal leading-[1.6] text-white/85">
-                Engineered essentials for every moment — now at their quiet best.
-              </p>
-              <span className="mt-8 inline-flex min-h-[50px] items-center justify-center border border-white/80 px-10 text-[12px] font-medium uppercase tracking-[0.16em] text-white transition-colors duration-300 group-hover:bg-white group-hover:text-black">
-                Shop Now
-              </span>
-            </div>
-          </div>
-        </Link>
-      </section>
-
-      {/* ═══ 06 — JOURNAL: real blog posts ════════════════════════════ */}
-      {posts.length > 0 && (
-        <section className="mx-auto mt-14 max-w-7xl px-4 md:mt-24 md:px-8">
-          <div className="mb-8 flex items-baseline justify-between border-t border-[#E5E5E5] pt-4">
-            <div>
-              <p className="text-[10px] font-medium uppercase tracking-[0.16em] text-[#696969]">The Journal</p>
-              <h2 className="mt-2 text-[22px] font-medium uppercase tracking-[0.04em] text-[#111111] md:text-[28px]">Latest Stories</h2>
-            </div>
-            <Link to="/journal" className="group inline-flex items-center gap-1.5 border-b border-[#111111]/25 pb-1 text-[11px] font-medium uppercase tracking-[0.08em] text-[#111111] transition-colors duration-300 hover:border-[#111111]">
-              View All <ArrowRight size={12} />
-            </Link>
-          </div>
-          <div className="grid gap-8 md:grid-cols-3">
-            {posts.slice(0, 3).map((post) => (
-              <Link key={post.slug} to={`/journal/${post.slug}`} className="group block">
-                <div className="aspect-[16/10] overflow-hidden bg-[#F5F5F5]">
-                  {post.coverImage ? (
-                    <img src={post.coverImage} alt={post.title} loading="lazy"
-                      className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]" />
-                  ) : (
-                    <div className="grid h-full w-full place-items-center bg-[#F0F0F0] text-[11px] font-medium uppercase tracking-[0.2em] text-[#696969]">HUSHAE</div>
-                  )}
-                </div>
-                <p className="mt-4 text-[10px] font-medium uppercase tracking-[0.16em] text-[#C9A96E]">
-                  {post.category || 'Journal'}
-                </p>
-                <h3 className="mt-2 text-[15px] font-medium leading-snug normal-case text-[#111111] transition-colors duration-300 group-hover:text-[#696969]">
-                  {post.title}
-                </h3>
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* ═══ 07 — VALUES: commitment band ═════════════════════════════ */}
-      <section className="mt-14 bg-[#F5F5F5] md:mt-24">
-        <div className="mx-auto max-w-3xl px-4 py-16 text-center md:px-8 md:py-24">
-          <p className="text-[20px] font-medium uppercase leading-[1.5] tracking-[0.04em] text-[#111111] md:text-[26px]">
-            We Are Committed To A Better Future.
-          </p>
-          <p className="mx-auto mt-4 max-w-md text-[15px] font-normal leading-[1.6] text-[#696969]">
-            Responsibly sourced fabrics, honest manufacturing, and packaging that respects the planet.
-          </p>
-          <Link to="/about"
-            className="mt-8 inline-flex items-center gap-2 border-b border-[#111111]/30 pb-1 text-[12px] font-medium uppercase tracking-[0.12em] text-[#111111] transition-colors duration-300 hover:border-[#111111]">
-            Our Commitment <ArrowRight size={13} className="transition-transform duration-300 group-hover:translate-x-1" />
           </Link>
-        </div>
-      </section>
-
-      {/* ═══ 10 — NEWSLETTER: Get 10% Off ═════════════════════════════ */}
-      <NewsletterBand />
-
-      {/* ═══ 11 — #HUSHAE ═════════════════════════════════════════════ */}
-      <section className="mt-14 md:mt-20">
-        <Link to="/new" className="group relative block h-[55vh] min-h-[360px] overflow-hidden bg-white">
-          <img src={`${IMG}/editorial-modern.jpg`} alt="Share your look" loading="lazy"
-            className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1.2s] group-hover:scale-[1.03]" />
-          <div className="absolute inset-0 bg-black/45" />
-          <div className="absolute inset-0 flex items-center justify-center px-6 text-center text-white">
-            <div>
-              <h2 className="text-[clamp(28px,5vw,44px)] font-medium uppercase tracking-[0.06em] [text-shadow:0_2px_24px_rgba(0,0,0,0.4)]">#HUSHAE</h2>
-              <p className="mx-auto mt-4 max-w-xl text-[15px] font-normal leading-[1.6] text-white/85">
-                Share your look. Tag @hushae and #HUSHAE on Instagram for a chance to be featured.
-              </p>
-              <span className="mt-8 inline-flex items-center gap-2 border-b border-white/40 pb-1 text-[12px] font-medium uppercase tracking-[0.12em] text-white transition-colors duration-300 group-hover:border-white">
-                Explore <ArrowRight size={13} className="transition-transform duration-300 group-hover:translate-x-1" />
-              </span>
-            </div>
-          </div>
-        </Link>
-      </section>
-    </div>
+        ))}
+      </div>
+    </section>
   );
 }
 
-/* ── Email signup band — "Get 10% Off" ─────────────────────────────────── */
-function NewsletterBand() {
+/* ── SECTION 2 & 4: Product carousel (Givenchy style) ───────────────────── */
+function ProductCarouselSection({ title, subtitle, products, href }) {
+  return (
+    <section className="mx-auto max-w-[1600px] border-t border-neutral-200/60 px-4 py-16 md:px-8">
+      <div className="mb-10 space-y-1 text-center">
+        <h2 className="font-serif text-2xl font-normal tracking-wide text-[#111111] md:text-3xl">
+          {title}
+        </h2>
+        <Link
+          to={href || '/shop'}
+          className="inline-block border-b border-black/30 pb-0.5 text-[10px] font-medium uppercase tracking-[0.25em] text-neutral-500 transition-colors hover:text-black"
+        >
+          {subtitle}
+        </Link>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
+        {(products || []).slice(0, 4).map((item) => (
+          <Link key={item._id} to={`/product/${item.slug}`} className="group flex cursor-pointer flex-col">
+            <div className="relative flex aspect-[4/5] items-center justify-center overflow-hidden bg-[#f2f0ec]">
+              <img
+                src={(item.images?.[0]?.url) || item.image || ''}
+                alt={item.name}
+                loading="lazy"
+                className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+              />
+              {item.isNewArrival && (
+                <span className="absolute right-3 top-3 bg-black/80 px-2 py-1 text-[9px] font-medium uppercase tracking-[0.2em] text-white">
+                  New
+                </span>
+              )}
+              <span className="absolute bottom-5 translate-y-2 rounded-full bg-black/90 px-6 py-2.5 text-[10px] font-medium uppercase tracking-[0.2em] text-white opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100 hover:bg-black">
+                Buy Now
+              </span>
+            </div>
+
+            <div className="mt-3 space-y-1 px-1">
+              <p className="line-clamp-1 text-[12px] font-normal tracking-tight text-neutral-800">
+                {String(item.name || '').replace(/^HUSHAE\s+/i, '')}
+              </p>
+              <p className="text-[11px] font-semibold text-[#111111]">
+                PKR {Number(item.price || 0).toLocaleString('en-PK')}
+              </p>
+              {item.bestSeller === true && (
+                <p className="pt-0.5 text-[10px] uppercase tracking-widest text-neutral-400">
+                  Best Seller
+                </p>
+              )}
+            </div>
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* ── SECTION 3: Editorial split banner (Loro Piana style) ───────────────── */
+function EditorialSplitSection() {
+  return (
+    <section className="mx-auto max-w-[1600px] px-4 py-12 md:px-8">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <Link to="/new" className="group relative aspect-[4/5] cursor-pointer overflow-hidden bg-[#f2f0ec] md:aspect-[3/4]">
+          <img
+            src={`${IMG}/editorial-modern.jpg`}
+            alt="Spring Summer Collection"
+            loading="lazy"
+            className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+          />
+          <div className="absolute inset-0 bg-black/10 transition-colors group-hover:bg-black/20" aria-hidden="true" />
+          <div className="absolute bottom-8 left-8 right-8 space-y-2 text-white">
+            <h3 className="font-serif text-xl tracking-wide md:text-2xl">Spring / Summer Silhouette</h3>
+            <span className="inline-flex items-center gap-2 border-b border-white pb-1 text-[11px] font-medium uppercase tracking-[0.2em] transition hover:text-neutral-200">
+              Explore Collection <ArrowRight size={14} aria-hidden="true" />
+            </span>
+          </div>
+        </Link>
+
+        <Link to="/about" className="group relative aspect-[4/5] cursor-pointer overflow-hidden bg-[#f2f0ec] md:aspect-[3/4]">
+          <img
+            src={`${IMG}/hero-fabric.jpg`}
+            alt="Craftsmanship"
+            loading="lazy"
+            className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+          />
+          <div className="absolute inset-0 bg-black/10 transition-colors group-hover:bg-black/20" aria-hidden="true" />
+          <div className="absolute bottom-8 left-8 right-8 space-y-2 text-white">
+            <h3 className="font-serif text-xl tracking-wide md:text-2xl">Uncompromising Craftsmanship</h3>
+            <span className="inline-flex items-center gap-2 border-b border-white pb-1 text-[11px] font-medium uppercase tracking-[0.2em] transition hover:text-neutral-200">
+              Read The Story <ArrowRight size={14} aria-hidden="true" />
+            </span>
+          </div>
+        </Link>
+      </div>
+    </section>
+  );
+}
+
+/* ── SECTION 5: Luxury newsletter sign-up ───────────────────────────────── */
+function NewsletterSection() {
   const [email, setEmail] = useState('');
   const [done, setDone] = useState(false);
   return (
-    <section className="mx-auto mt-14 max-w-7xl px-4 md:mt-20 md:px-8">
-      <div className="border border-[#E5E5E5] px-6 py-14 text-center md:py-16">
-        <h2 className="text-[22px] font-medium uppercase tracking-[0.04em] text-[#111111] md:text-[28px]">Get 10% Off</h2>
-        <p className="mx-auto mt-3 max-w-sm text-[15px] font-normal leading-[1.6] text-[#696969]">
-          Join the circle for early access to new drops, fit guides and private offers.
+    <section className="border-t border-neutral-200/80 bg-[#f7f6f2] px-4 py-20 text-center">
+      <div className="mx-auto max-w-xl space-y-4">
+        <h3 className="font-serif text-2xl font-normal tracking-wide text-[#111111] md:text-3xl">
+          Subscribe to the Newsletter
+        </h3>
+        <p className="text-[12px] font-normal leading-relaxed tracking-wide text-neutral-500">
+          Be the first to receive updates on new arrivals, private sales, and seasonal collection previews.
         </p>
         {done ? (
-          <p className="mt-6 text-[12px] font-medium uppercase tracking-[0.16em] text-[#111111]">You&apos;re on the list.</p>
+          <p className="pt-4 text-[12px] font-medium uppercase tracking-[0.2em] text-[#111111]">You&apos;re on the list.</p>
         ) : (
-          <form onSubmit={(e) => { e.preventDefault(); if (email.trim()) { api('/subscribers', { method: 'POST', body: { email: email.trim() } }).catch(() => {}); setDone(true); } }}
-            className="mx-auto mt-6 flex max-w-md items-end gap-3">
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="Your email"
-              className="min-h-[46px] w-full min-w-0 flex-1 border-0 border-b border-[#111111]/30 bg-transparent pb-2 text-[15px] font-normal text-[#111111] outline-none transition-colors placeholder:text-[#696969]/60 focus:border-[#111111]" />
-            <button type="submit"
-              className="min-h-[46px] shrink-0 bg-[#111111] px-8 text-[11px] font-medium uppercase tracking-[0.16em] text-white transition-colors duration-300 hover:bg-[#333333]">
+          <form
+            className="mx-auto flex max-w-md items-center justify-center gap-2 pt-4"
+            onSubmit={(e) => { e.preventDefault(); if (email.trim()) { api('/subscribers', { method: 'POST', body: { email: email.trim() } }).catch(() => {}); setDone(true); } }}
+          >
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              placeholder="Enter your email address"
+              className="w-full border border-neutral-300 bg-white px-4 py-3 text-[12px] text-black transition focus:border-black focus:outline-none placeholder:text-[10px] placeholder:uppercase placeholder:tracking-widest placeholder:text-neutral-400"
+            />
+            <button
+              type="submit"
+              className="whitespace-nowrap bg-black px-6 py-3 text-[11px] font-medium uppercase tracking-[0.2em] text-white transition hover:bg-neutral-800"
+            >
               Sign Up
             </button>
           </form>
         )}
       </div>
     </section>
+  );
+}
+
+/* ═══ PAGE ═══════════════════════════════════════════════════════════════ */
+export default function Home() {
+  const [fresh, setFresh] = useState([]);
+  const [best, setBest] = useState([]);
+
+  useEffect(() => {
+    api('/products?newArrival=true&limit=8').then((d) => setFresh(d.products || [])).catch(() => setFresh([]));
+    api('/products?bestSeller=true&limit=8').then((d) => setBest(d.products || [])).catch(() => setBest([]));
+  }, []);
+
+  return (
+    <div className="w-full bg-[#fcfbf9] font-sans text-[#111111] selection:bg-black selection:text-white">
+      <Seo title="Premium Innerwear for Men & Women"
+        description="New season essentials, engineered for comfort. Made in Pakistan, finished to an international standard."
+        canonical="/"
+        jsonLd={organizationJsonLd(typeof window !== 'undefined' ? window.location.origin : '')}
+        jsonLdId="home-org" />
+
+      {/* 01 — HERO (CK) */}
+      <HeroSlides />
+
+      {/* 02 — CATEGORY GRID (Tom Ford) */}
+      <CategoryGridSection />
+
+      {/* 03 — THE NEW COLLECTION (Givenchy) */}
+      <ProductCarouselSection title="The New Collection" subtitle="EXPLORE NOW" products={fresh} href="/new" />
+
+      {/* 04 — EDITORIAL SPLIT (Loro Piana) */}
+      <EditorialSplitSection />
+
+      {/* 05 — OBJECTS OF DESIRE */}
+      <ProductCarouselSection title="Objects of Desire" subtitle="CURATED SELECTION" products={best} href="/best" />
+
+      {/* 06 — NEWSLETTER */}
+      <NewsletterSection />
+    </div>
   );
 }

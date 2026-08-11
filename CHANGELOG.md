@@ -801,3 +801,9 @@ Format:
 - **2026-08-11** — 🧭 **HEADER NAVIGATION — exact reference** (commit pending)
   - New `HeaderNav.jsx`: centered secondary nav strip (WOMEN'S / MEN'S / NEW ARRIVALS / COLLECTIONS / SALE) — font-sans 12px medium uppercase tracking-[0.15em] #1e1e1e, hover neutral-500, gap 8/10, border-b py-4, wired to real routes. Rendered under the main header on Shop (all presets) + Collection pages.
 - **2026-08-11** — 🧭 **HeaderNavigation v2 — exact ref**: 7 items (Women▾ Men▾ New Arrivals Best Sellers Sale▾ Fit Finder Track Order), 11px medium uppercase tracking 0.18em, ChevronDown (12px stroke-2) on dropdown items, gap 6/8, py-3.5.
+
+## Changes
+- **2026-08-11** — 🏠 **HOME — exact luxury reference (Tom Ford / Givenchy / Loro Piana)** (commit pending)
+  - Home rewritten: HERO (CK, kept) → **CategoryGrid** (2/4 cols, 4/5 `#f2f0ec`, tracking 0.2em titles, real category images) → **"The New Collection"** carousel (serif 2xl/3xl title + EXPLORE NOW link, 4/5 cards with New tag + Buy Now pill slide-up) → **EditorialSplit** (2 cards, serif headings + ArrowRight CTAs, hover zoom + overlay) → **"Objects of Desire"** (Best Sellers, CURATED SELECTION) → **Newsletter** (`#f7f6f2`, serif title, bordered input + black Sign Up, real /subscribers API).
+  - Replaced old perks/categories/best-sellers/promo/journal/values/newsletter band. Page bg `#fcfbf9`.
+  - NOTE: Vercel free-tier deploy quota exhausted (100/day) — deploy pending until quota resets (~24h) or manual redeploy from dashboard.
