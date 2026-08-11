@@ -497,26 +497,14 @@ export default function Product() {
         ))}
       </section>
 
-      {/* ═══ CUSTOMER REVIEWS ═════════════════════════════════════════ */}
-      <section id="reviews" className="scroll-mt-28 border-t border-neutral-200 py-16">
-        <div className="mx-auto max-w-[1440px] px-6 lg:px-12">
-          <ProductReviews product={p} />
-        </div>
-      </section>
-
-      {/* ═══ QUESTIONS & ANSWERS ══════════════════════════════════════ */}
-      <section className="border-t border-neutral-200 py-16">
-        <div className="mx-auto max-w-[1440px] px-6 lg:px-12">
-          <ProductQA product={p} />
-        </div>
-      </section>
-
       {/* ═══ YOU MAY ALSO LIKE ════════════════════════════════════════ */}
       {complete.length > 0 && (
-        <section className="mx-auto max-w-[1440px] px-6 py-16 lg:px-12">
-          <h3 className="mb-8 text-xl font-light uppercase tracking-widest">You May Also Like</h3>
-          <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
-            {complete.slice(0, 4).map((pr) => <CollectionCard key={pr._id} product={pr} variant="pill" />)}
+        <section className="border-t border-neutral-200 py-16">
+          <div className="mx-auto max-w-[1440px] px-6 lg:px-12">
+            <h3 className="mb-8 text-xl font-light uppercase tracking-widest">You May Also Like</h3>
+            <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
+              {complete.slice(0, 4).map((pr) => <CollectionCard key={pr._id} product={pr} variant="pill" />)}
+            </div>
           </div>
         </section>
       )}
@@ -535,6 +523,21 @@ export default function Product() {
           </div>
         </section>
       )}
+
+
+      {/* ═══ CUSTOMER REVIEWS ═════════════════════════════════════════ */}
+      <section id="reviews" className="scroll-mt-28 border-t border-neutral-200 py-16">
+        <div className="mx-auto max-w-[1440px] px-6 lg:px-12">
+          <ProductReviews product={p} />
+        </div>
+      </section>
+
+      {/* ═══ QUESTIONS & ANSWERS ══════════════════════════════════════ */}
+      <section className="border-t border-neutral-200 py-16">
+        <div className="mx-auto max-w-[1440px] px-6 lg:px-12">
+          <ProductQA product={p} />
+        </div>
+      </section>
 
       {/* Sticky bottom purchase bar */}
       <StickyBuyBar
