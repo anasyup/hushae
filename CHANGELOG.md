@@ -681,3 +681,8 @@ Format:
 - **2026-08-11** — 🛍️ **PDP v3 — exact "HUSHAE - Smoothing Full Slip" reference** + 🖥️ **local-run = live repo** (commit pending)
   - PDP: bg `#fdfbf7`, max-w 1500 (30/40), grid 1.3fr/0.7fr gap 50, sticky top 80 + pl-5 + gap 24, brand tag ("HUSHAE · tier", 10px ls 2.5px), title 28/300 lh 1.1, price 18/500 ls 0.5, option labels 11px ls 1.5px, swatches 24px (outline 1.5px offset 3), sizes 11px ls 1px border #e0e0e0, **"BUY NOW — EXPRESS CHECKOUT"** (12px ls 2.5px, py 18, hover #2a2a2a, adds + navigates to /checkout), accordions restyled (11px ls 1.5px, py 18, panel 12px lh 1.7) with reference titles (Product Highlights / Fabric & Care Instructions / Shipping & Easy Returns), "Pairs Well With" (14px ls 2px, gap 20). Size-guide link/modal removed per reference.
   - Local-run: `backend/.env.example` now ships the pre-launch working values (Atlas URI, admin creds, generated JWT) so GitHub ZIP → npm install → start-dev = same as live; heavy rotation warning added. README logins + design-system sections updated.
+
+## Changes
+- **2026-08-11** — 🃏 **PRODUCT CARD — single brand-wide design (client re-sent the warm-nude reference)** (commit pending)
+  - `ProductCard.jsx` rewritten to the SAME warm-nude luxury card used on collection grids: `#f4f1ea` tile, main zoom 1.03 (0.8s bezier) + crossfade, black "+ BUY NOW" slide-up (mobile always visible; size pick → add), 10px swatches, 12/400 name, 12/500 cost. `ratio`/`priority`/`compact` honoured for editorial layouts (The Edit lead keeps 5/7).
+  - Now the card is ONE design everywhere: Home best sellers + new arrivals, Sale, Search, FabricTech, ProductRow rails (recently viewed / related / bundles), TheEdit, ProductGrid, ProductListSection. Old silent card (hover-only UI, heart, arrows) removed.
