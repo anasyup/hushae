@@ -133,7 +133,7 @@ export default function Header() {
             overHero ? 'border-transparent bg-white/95 text-black backdrop-blur-xl' : `bg-white text-black backdrop-blur-xl ${hairline ? 'border-[#f0f0f0]' : 'border-transparent'}`
           }`}
         >
-          <div className="mx-auto flex h-11 w-full max-w-[1600px] items-center justify-between px-4 md:px-6 lg:h-[var(--hdr-h)] lg:px-[45px]">
+          <div className="flex h-11 w-full items-center justify-between px-4 md:px-6 lg:h-[var(--hdr-h)] lg:px-[60px] xl:px-[80px]">
             {/* Burger — mobile only */}
             <button
               ref={burgerRef}
