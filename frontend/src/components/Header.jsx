@@ -168,7 +168,7 @@ export default function Header() {
               data-section="header.menu"
               aria-label="Main"
               style={{ gap: `${navGap}px` }}
-              className="hidden items-center lg:flex"
+              className="hidden items-center lg:flex font-klein"
             >
               {menu.filter((m) => m && m.label).map((m, i) => {
                 const dd = m.dropdown || (String(m.label).toLowerCase() === 'sale' ? 'sale' : '');

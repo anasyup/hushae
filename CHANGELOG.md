@@ -776,3 +776,8 @@ Format:
 ## Changes
 - **2026-08-11** — 🔤 **KLEIN FONT — FontBolt link checked; licensed font not downloadable there** (commit pending)
   - FontBolt is a text generator (no font file download); the CK logo face is **Futura Light** (commercial). Since the licensed Klein/Futura .woff2 can't be obtained legally from that page, wired the closest **free Futura-style face: Jost** (Google Fonts) as the fallback in `.font-klein-*` stacks and the Klein `@font-face` hooks stay first — dropping licensed files into `frontend/public/fonts/` will switch the site to them automatically with zero code change.
+
+## Changes
+- **2026-08-11** — 🔠 **CK-LOOK FONTS — whole site** (commit pending)
+  - Honest: cannot copy the licensed Futura Light/Klein font files (copyright). Instead: `display`/headings switched from Playfair serif → **Klein/Jost stack** (Jost = open-source Futura twin, live now; licensed files take over automatically when dropped in `/fonts/`). Hero "SECOND SKIN EDIT", section titles, mega menu promo titles are now geometric CK-style sans.
+  - New `font-klein` Tailwind token (font-family only); applied to header nav (13px, = font-klein-sub size) + announcement bar. `serif` stays Playfair for footer/editorial accents.

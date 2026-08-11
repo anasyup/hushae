@@ -95,7 +95,7 @@
   --midnight: 17 17 17;      /* #111111  footer / primary buttons   */
 
   /* ── Typography — 100% Inter; mono reserved for chapter counters ──── */
-  --font-display: 'Playfair Display', serif;
+  --font-display: 'Klein', 'Jost', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', 'Helvetica', 'Arial', sans-serif;
   --font-body:    'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', 'Helvetica', 'Arial', sans-serif;
   --font-mono:    'JetBrains Mono', ui-monospace, 'SF Mono', 'SFMono-Regular', Menlo, Consolas, monospace;
 

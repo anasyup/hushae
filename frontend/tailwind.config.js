@@ -86,7 +86,10 @@ export default {
         // Plus Jakarta Sans (UI) + Playfair Display (serif display) —
         // exact client reference.
         sans: ['"Plus Jakarta Sans"', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Helvetica', 'Arial', 'sans-serif'],
-        display: ['"Playfair Display"', 'serif'],
+        /* CK register: licensed Klein files take priority, Jost (open-source
+           Futura twin) is the live face until the licensed files arrive. */
+        display: ['"Klein"', '"Jost"', 'ui-sans-serif', 'system-ui', '-apple-system', 'Segoe UI', 'Helvetica', 'Arial', 'sans-serif'],
+        klein: ['"Klein"', '"Jost"', 'ui-sans-serif', 'system-ui', '-apple-system', 'Segoe UI', 'Helvetica', 'Arial', 'sans-serif'],
         serif: ['"Playfair Display"', 'serif'],
         urdu: ['"Noto Nastaliq Urdu"', 'serif'],
         // QA — chapter counters + editorial numbers (JetBrains Mono, loaded in index.html)
