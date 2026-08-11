@@ -216,7 +216,7 @@ export default function Product() {
                         onClick={() => { setSize(s); setSizeErr(false); }}
                         aria-pressed={on}
                         className={`border py-3 text-[12px] font-medium transition-all duration-200 ${
-                          on ? 'border-black bg-black text-white' : 'border-[#e5dfd5] bg-[#faf8f5] text-[#1a1a1a] hover:border-black hover:bg-black hover:text-white'
+                          on ? 'border-black bg-black text-white' : 'border-[#e0d8cc] bg-[#fbf9f5] text-[#1a1a1a] hover:border-black hover:bg-black hover:text-white'
                         }`}
                       >
                         {s}
