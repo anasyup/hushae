@@ -781,3 +781,4 @@ Format:
 - **2026-08-11** — 🔠 **CK-LOOK FONTS — whole site** (commit pending)
   - Honest: cannot copy the licensed Futura Light/Klein font files (copyright). Instead: `display`/headings switched from Playfair serif → **Klein/Jost stack** (Jost = open-source Futura twin, live now; licensed files take over automatically when dropped in `/fonts/`). Hero "SECOND SKIN EDIT", section titles, mega menu promo titles are now geometric CK-style sans.
   - New `font-klein` Tailwind token (font-family only); applied to header nav (13px, = font-klein-sub size) + announcement bar. `serif` stays Playfair for footer/editorial accents.
+- **2026-08-11** — 🔧 **CK fonts — root cause fix**: legacy `tokens.css` `.font-display` (Tenor Sans serif, `!important`-free but later in bundle) was overriding the display token — storefront headings were still serif. `--font-editorial` → Klein/Jost stack, letter-spacing 0.08em → 0.02em. Headings now render Jost (Futura twin) site-wide.
