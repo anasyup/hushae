@@ -84,9 +84,9 @@ export default function Header() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cmsHeaderKey, baseMenu]);
 
-  const deskH = clamp(hdr.height, 40, 90, 56);
+  const deskH = clamp(hdr.height, 40, 90, 72);
   const navSize = clamp(hdr.navSize, 11, 16, 13);
-  const navGap = clamp(hdr.navGap, 16, 64, 28);
+  const navGap = clamp(hdr.navGap, 16, 64, 32);
   const hairline = hdr.border !== false;
 
   const showSearch = hdr.showSearch !== false;
@@ -105,9 +105,9 @@ export default function Header() {
 
   const linkCls = useMemo(() => ({ isActive }) => (
     /* CK hover underline — bottom hairline on hover/active */
-    `relative flex h-full items-center whitespace-nowrap px-1 py-[18px] transition-colors duration-200 after:absolute after:bottom-0 after:left-0 after:h-[1.5px] after:w-full after:origin-left after:scale-x-0 after:bg-black after:transition-transform after:duration-200 after:ease-out ${
-      isActive ? 'after:scale-x-100' : 'hover:after:scale-x-100'
-    } text-[13px] font-normal tracking-[0.006em] ${isActive ? 'text-black' : 'text-black/80 hover:text-black'}`
+    `inline-block whitespace-nowrap px-1 py-[26px] text-[13px] font-normal tracking-[0.006em] text-black transition-opacity duration-200 ${
+      isActive ? 'shadow-[inset_0_-2px_0_0_#000000]' : 'hover:shadow-[inset_0_-2px_0_0_#000000]'
+    }`
   ), []);
 
   const navStyle = useMemo(
@@ -130,10 +130,10 @@ export default function Header() {
           data-header
           style={{ '--hdr-h': `${deskH}px` }}
           className={`border-b transition-[background-color,border-color] duration-200 ${
-            overHero ? 'border-transparent bg-white/95 text-black backdrop-blur-xl' : `bg-white text-black backdrop-blur-xl ${hairline ? 'border-[#e0e0e0]' : 'border-transparent'}`
+            overHero ? 'border-transparent bg-white/95 text-black backdrop-blur-xl' : `bg-white text-black backdrop-blur-xl ${hairline ? 'border-[#f0f0f0]' : 'border-transparent'}`
           }`}
         >
-          <div className="mx-auto flex h-11 max-w-[1600px] items-center justify-between px-4 md:px-6 lg:h-[var(--hdr-h)] lg:px-8">
+          <div className="mx-auto flex h-11 w-full max-w-[1600px] items-center justify-between px-4 md:px-6 lg:h-[var(--hdr-h)] lg:px-[45px]">
             {/* Burger — mobile only */}
             <button
               ref={burgerRef}
@@ -147,7 +147,7 @@ export default function Header() {
             </button>
 
             {/* Logo — LEFT (CK reference) */}
-            <Link to="/" aria-label="HUSHAE — home" className="mr-8 text-[24px] font-normal leading-none tracking-[-0.0375em] text-black">
+            <Link to="/" aria-label="HUSHAE — home" className="mr-8 text-[28px] font-normal leading-none tracking-[-0.033em] text-black">
               HUSHAE
             </Link>
 
@@ -179,7 +179,7 @@ export default function Header() {
             </nav>
 
             {/* Icons — right */}
-            <div data-section="header.icons" className="flex shrink-0 items-center gap-[18px]">
+            <div data-section="header.icons" className="flex shrink-0 items-center gap-5">
               {showSearch && (
                 <button
                   ref={searchBtnRef}
@@ -190,20 +190,20 @@ export default function Header() {
                   aria-controls="header-search"
                   className={iconBtn}
                 >
-                  <Search size={20} strokeWidth={1.8} aria-hidden="true" />
+                  <Search size={22} strokeWidth={1.6} aria-hidden="true" />
                 </button>
               )}
               {showWishlist && (
                 <Link to="/wishlist" aria-label={wishlist.length ? `Wishlist, ${wishlist.length} saved` : 'Wishlist'}
                   className={`relative hidden lg:grid ${iconBtn}`}>
-                  <Heart size={20} strokeWidth={1.8} aria-hidden="true" />
+                  <Heart size={22} strokeWidth={1.6} aria-hidden="true" />
                   {wishlist.length > 0 && <span className={dot} aria-hidden="true" />}
                 </Link>
               )}
               {showAccount && (
                 <Link to="/account" aria-label={auth ? 'Your account' : 'Sign in'}
                   className={`relative hidden lg:grid ${iconBtn}`}>
-                  <User size={20} strokeWidth={1.8} aria-hidden="true" />
+                  <User size={22} strokeWidth={1.6} aria-hidden="true" />
                   {auth && <span className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-black" aria-hidden="true" />}
                 </Link>
               )}
@@ -211,7 +211,7 @@ export default function Header() {
                 <button type="button" onClick={() => setDrawerOpen(true)}
                   aria-label={cartCount ? `Open bag, ${cartCount} item${cartCount === 1 ? '' : 's'}` : 'Open bag'}
                   className={`relative ${iconBtn}`}>
-                  <ShoppingBag size={20} strokeWidth={1.8} aria-hidden="true" />
+                  <ShoppingBag size={22} strokeWidth={1.6} aria-hidden="true" />
                   {cartCount > 0 && <span className={dot} aria-hidden="true" />}
                 </button>
               )}
