@@ -158,18 +158,11 @@ export default function Shop({ preset = {} }) {
         canonical={typeof window !== 'undefined' ? window.location.pathname : '/shop'}
       />
 
-      {/* ═══ 0. HERO BANNER — dark Best Sellers banner on /best, image banner elsewhere ═══ */}
-      {preset.key === 'best' ? (
-        <BestSellersBanner />
-      ) : (
-        <CategoryBanner img={banner.img} tag={banner.tag} title={banner.title} description={banner.desc} />
-      )}
+      {/* ═══ 0. CATEGORY HERO BANNER — under the main header ═══════════ */}
+      <CategoryBanner img={banner.img} tag={banner.tag} title={banner.title} description={banner.desc} />
 
       <div className="px-5 pb-10 md:px-10 md:pb-[60px]">
-        {preset.key === 'best' ? (
-          /* Clean select dropdown bar — Best Sellers reference (categories removed) */
-          <BestSellersFilterBar f={f} cats={cats} />
-        ) : (
+        {(
           <>
             {/* ═══ 1. SUB-CATEGORY TOP BAR ═════════════════════════════ */}
             {navCats.length > 0 && (
@@ -255,66 +248,3 @@ export default function Shop({ preset = {} }) {
   );
 }
 
-
-/* ═══ BEST SELLERS — dark banner (reference) ═══════════════════════════ */
-function BestSellersBanner() {
-  return (
-    <div className="relative flex h-64 items-center justify-start overflow-hidden bg-neutral-900 px-8 text-white md:h-80 md:px-16">
-      <div className="relative z-10 max-w-lg">
-        <span className="text-[10px] font-medium uppercase tracking-widest text-neutral-400">Most Loved</span>
-        <h1 className="my-2 font-serif text-3xl font-light uppercase tracking-wider md:text-5xl">Best Sellers</h1>
-        <p className="text-xs font-light text-neutral-300">The pieces our community reaches for again and again.</p>
-      </div>
-    </div>
-  );
-}
-
-/* ═══ BEST SELLERS — clean select filter bar (reference; categories removed) ═══ */
-function BestSellersFilterBar({ f, cats }) {
-  const priceBandKey = (() => {
-    const b = PRICE_BANDS.find((x) => x.min === f.get('minPrice') && x.max === f.get('maxPrice'));
-    return b ? b.key : '';
-  })();
-  const sel = (k) => f.list(k)[0] || '';
-  const selectCls = 'cursor-pointer rounded-none border border-neutral-300 bg-white px-3 py-2 focus:outline-none';
-
-  return (
-    <div className="my-6 flex flex-wrap items-center justify-between gap-4 border-b border-neutral-200 px-6 py-4 text-xs">
-      <div className="flex flex-wrap items-center gap-4">
-        <select value={f.category} onChange={(e) => f.setOne('category', e.target.value)} className={selectCls} aria-label="Category">
-          <option value="">Category</option>
-          {cats.map((c) => <option key={c.slug} value={c.slug}>{c.name}</option>)}
-        </select>
-        <select
-          value={priceBandKey}
-          onChange={(e) => {
-            const b = PRICE_BANDS.find((x) => x.key === e.target.value);
-            f.setMany(b ? { minPrice: b.min, maxPrice: b.max } : { minPrice: '', maxPrice: '' });
-          }}
-          className={selectCls}
-          aria-label="Price"
-        >
-          <option value="">Price</option>
-          {PRICE_BANDS.map((b) => <option key={b.key} value={b.key}>{b.label}</option>)}
-        </select>
-        <select value={sel('color')} onChange={(e) => f.setOne('color', e.target.value)} className={selectCls} aria-label="Color">
-          <option value="">Color</option>
-          {COLORS.map((c) => <option key={c.name} value={c.name}>{c.name}</option>)}
-        </select>
-        <select value={sel('size')} onChange={(e) => f.setOne('size', e.target.value)} className={selectCls} aria-label="Size">
-          <option value="">Size</option>
-          {SIZES.map((s) => <option key={s} value={s}>{s}</option>)}
-        </select>
-      </div>
-      <div className="text-neutral-500">
-        <span>Sort By: </span>
-        <select value={f.sort} onChange={(e) => f.setOne('sort', e.target.value, { replace: true })} className="cursor-pointer border-none bg-transparent font-semibold text-black focus:outline-none" aria-label="Sort">
-          <option value="popular">Featured</option>
-          <option value="price-asc">Price: Low to High</option>
-          <option value="price-desc">Price: High to Low</option>
-          <option value="newest">Newest Arrivals</option>
-        </select>
-      </div>
-    </div>
-  );
-}

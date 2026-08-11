@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
-import { ArrowRight, Check, Copy, Share2, Truck } from 'lucide-react';
+import { ArrowRight, Check, CheckCircle, Copy, Share2, Truck } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import { pkr, fmtDate, snap } from '../lib/format';
@@ -71,20 +71,19 @@ export default function OrderConfirm() {
   return (
     <div className="surface-cream py-16 text-[#111111] md:py-24"><div className="container-page">
       <div className="mx-auto max-w-3xl">
-        {/* ═══ HERO — simple black check ═══════════════════════════ */}
+        {/* ═══ HERO — reference: black CheckCircle + serif title ═══ */}
         <div className="text-center">
-          <div className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-gold shadow-[0_10px_30px_-10px_rgba(201,169,110,0.7)]">
-            <Check size={30} strokeWidth={2.2} aria-hidden="true" className="text-white" />
-          </div>
-          <p className="mt-8 text-[10px] font-medium uppercase tracking-[0.3em] text-[#707070]">Order confirmed</p>
-          <h1 className="mt-4 text-[clamp(30px,4vw,42px)] font-light normal-case leading-[1.1] tracking-[0.02em] text-[#111111]">
-            {firstName ? <>Thank you, {firstName}.</> : 'Thank you.'}
+          <CheckCircle size={48} strokeWidth={1.2} aria-hidden="true" className="mx-auto text-black" />
+          <p className="mt-6 text-[10px] font-semibold uppercase tracking-widest text-neutral-400">Thank You</p>
+          <h1 className="mt-1 font-serif text-2xl font-light uppercase tracking-wider md:text-3xl">
+            Order Confirmed
           </h1>
+          {firstName && <p className="mt-2 text-xs text-neutral-500">Thank you, {firstName}.</p>}
           <p className="mx-auto mt-4 max-w-md text-[14px] font-light leading-[1.7] text-[#707070]">{cfg.successText}</p>
         </div>
 
         {/* ═══ ORDER CARD — hairline ════════════════════════════════ */}
-        <div className="card-cream mx-auto mt-12 p-6 md:p-10">
+        <div className="mx-auto mt-12 border border-neutral-200 bg-[#FAF9F6] p-6 md:p-10">
           <div className="text-center">
             <p className="text-[10px] font-medium uppercase tracking-[0.28em] text-[#707070]">Order number</p>
             <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
@@ -183,7 +182,7 @@ export default function OrderConfirm() {
           </Link>
           <Link
             to={cartCfg.continueHref}
-            className="group inline-flex items-center gap-2 border-b border-[#111111]/25 pb-1 text-[12px] font-medium uppercase tracking-[0.16em] text-[#111111] transition-colors duration-300 hover:border-[#111111]"
+            className="group inline-flex items-center justify-center gap-2 bg-black px-8 py-4 text-xs font-semibold uppercase tracking-[0.2em] text-white transition-colors duration-300 hover:bg-neutral-800"
           >
             {cartCfg.continueLabel} <ArrowRight size={13} className="transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true" />
           </Link>

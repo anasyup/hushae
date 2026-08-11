@@ -754,3 +754,9 @@ Format:
   - MegaPanel: entrance 0.2s (y 6), `shadow-2xl`.
   - `/best`: dark banner (bg-neutral-900, "MOST LOVED" eyebrow + serif "BEST SELLERS" + subtitle) + clean SELECT filter bar (Category/Price/Color/Size + Sort By — categories list removed), wired to useShopFilters.
   - Load More → reference outline style (max-w-xs h-14, border-black, hover fill, disabled:opacity-50).
+
+## Changes
+- **2026-08-11** — 🛒 **CHECKOUT + ORDER CONFIRMED — exact theme-matched reference** + ↩️ **Best Sellers reverted** (commit pending)
+  - Best Sellers section (/best) reverted to the OLD style: standard CategoryBanner + sub-nav + filter pills (dark banner + select bar removed per "purana jasa kar doo").
+  - Checkout: white bg, max-w 1200 (px-6 py-10), 12-col grid (7 form / 5 summary), serif "Checkout" h1, numbered sections (1. Contact Information / 2. Delivery Address / 3. Payment) in 12px tracking-widest neutral-400, FloatField/FloatSelect → bordered h-12 inputs (border neutral-300, focus:border-black), summary box `#FAF9F6` border p-8 sticky top-8 ("Order Summary" heading), black Place Order (h-13, tracking 0.2em), 3-col trust badges (Secure Checkout / Fast Shipping / Easy Returns).
+  - OrderConfirm: black CheckCircle (stroke 1.2), "Thank You" eyebrow + serif "Order Confirmed", `#FAF9F6` bordered card, black Continue Shopping button.

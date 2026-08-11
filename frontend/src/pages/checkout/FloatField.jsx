@@ -40,7 +40,7 @@ export default function FloatField({
         aria-invalid={error ? 'true' : undefined}
         aria-describedby={describedBy}
         aria-required={required || undefined}
-        className={`input-line ${as === 'textarea' ? 'min-h-[88px] resize-none' : ''} ${error ? '!border-red-500' : ''}`}
+        className={`h-12 w-full border bg-white px-4 text-xs text-neutral-900 placeholder:text-neutral-400 transition focus:border-black focus:outline-none ${as === 'textarea' ? 'min-h-[88px] resize-none' : ''} ${error ? '!border-red-500' : ''}`}
       >
         {children}
       </Tag>
@@ -79,11 +79,11 @@ export function FloatSelect({ label, value, onChange, error, hint, required, dis
         aria-invalid={error ? 'true' : undefined}
         aria-describedby={error || hint ? msgId : undefined}
         aria-required={required || undefined}
-        className={`input-line appearance-none pr-8 focus:outline-none focus:ring-0 focus-visible:ring-0 ${error ? '!border-red-500' : ''} ${disabled ? 'opacity-60' : ''}`}
+        className={`h-12 w-full cursor-pointer appearance-none border bg-white px-4 pr-8 text-xs text-neutral-900 focus:border-black focus:outline-none ${error ? '!border-red-500' : ''} ${disabled ? 'opacity-60' : ''}`}
       >
         {children}
       </select>
-      <span className="pointer-events-none absolute bottom-4 right-1 text-smoke" aria-hidden="true">▾</span>
+      <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400" aria-hidden="true">▾</span>
       {error ? (
         <p id={msgId} role="alert" className="mt-1 flex items-start gap-1.5 text-[11px] text-red-700">
           <AlertCircle size={12} className="mt-0.5 shrink-0" aria-hidden="true" />{error}

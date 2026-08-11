@@ -396,7 +396,7 @@ export default function Checkout() {
   const phoneOk = normalizePhone(f.phone);
 
   return (
-    <div className="surface-cream py-8 md:py-12"><div className="container-page">
+    <div className="bg-white py-10"><div className="mx-auto max-w-[1200px] px-6">
       {/* Checkout steps — matches cart progression */}
       <nav aria-label="Checkout progress" className="mb-6 flex items-center gap-3 text-[11px] font-medium uppercase tracking-[0.14em]">
         <Link to="/cart" className="text-[#696969] transition hover:text-[#111111]">Bag</Link>
@@ -407,7 +407,7 @@ export default function Checkout() {
       </nav>
 
       <header className="pb-7">
-        <h1 className="text-[32px] font-medium normal-case tracking-[0.01em] text-[#111111] md:text-[40px]">{cfg.title}</h1>
+        <h1 className="font-serif text-3xl font-light uppercase tracking-wider">{cfg.title}</h1>
         {!auth && cfg.guestCheckout && (
           <p className="mt-3 inline-flex flex-wrap items-center gap-1.5 text-[12px] text-smoke">
             <User size={13} aria-hidden="true" />
@@ -452,17 +452,17 @@ export default function Checkout() {
         </p>
       )}
 
-      <div className="mt-6 grid items-start gap-x-10 gap-y-8 lg:grid-cols-[3fr_2fr]">
+      <div className="mt-8 grid grid-cols-1 items-start gap-12 lg:grid-cols-12">
         {/* ================= LEFT ================= */}
         <form
           ref={formRef}
           onSubmit={(e) => { e.preventDefault(); openReview(); }}
-          className="space-y-3"
+          className="space-y-8 lg:col-span-7"
           noValidate
         >
           {/* ---- Contact — compact card ---- */}
           <section aria-labelledby="sec-contact">
-            <h2 id="sec-contact" className="text-[14px] font-medium uppercase tracking-[0.1em] text-[#111111]">Contact</h2>
+            <h2 id="sec-contact" className="text-xs font-semibold uppercase tracking-widest text-neutral-400">1. Contact Information</h2>
             <div className="mt-2.5 grid gap-3">
               <FloatField
                 label="Email" type="email" autoComplete="email" inputMode="email"
@@ -480,7 +480,7 @@ export default function Checkout() {
 
           {/* ---- Shipping — compact card ---- */}
           <section aria-labelledby="sec-address">
-            <h2 id="sec-address" className="text-[14px] font-medium uppercase tracking-[0.1em] text-[#111111]">Shipping</h2>
+            <h2 id="sec-address" className="text-xs font-semibold uppercase tracking-widest text-neutral-400">2. Delivery Address</h2>
             <div className="mt-2.5 grid gap-3 sm:grid-cols-2">
               <div className="sm:col-span-2">
                 <FloatField
@@ -635,7 +635,7 @@ export default function Checkout() {
 
           {/* ---- Payment — compact card ---- */}
           <section aria-labelledby="sec-pay">
-            <h2 id="sec-pay" className="text-[14px] font-medium uppercase tracking-[0.1em] text-[#111111]">Payment</h2>
+            <h2 id="sec-pay" className="text-xs font-semibold uppercase tracking-widest text-neutral-400">3. Payment</h2>
             {errs.method && (
               <p role="alert" className="mt-2 flex items-center gap-1.5 text-[11px] text-red-700">
                 <AlertCircle size={12} aria-hidden="true" /> {errs.method}
@@ -735,7 +735,7 @@ export default function Checkout() {
         </form>
 
         {/* ================= RIGHT ================= */}
-        <aside className="lg:sticky lg:top-24" aria-label="Order summary">
+        <aside className="lg:col-span-5" aria-label="Order summary">
           <CheckoutSummary
             cart={cart}
             pricing={pricing}

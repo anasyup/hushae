@@ -24,11 +24,10 @@ export default function CheckoutSummary({
   submitRef, onSubmit, busy, disabled, rewardsSlot, promoQuote = null, onQty,
 }) {
   return (
-    <div className="card-cream p-6">
-      <div className="flex items-baseline justify-between">
-        <h2 className="text-[15px] font-medium uppercase tracking-[0.1em] text-[#111111]">Your Order</h2>
-        <span className="text-[10px] font-medium uppercase tracking-[0.12em] text-[#696969]">{pricing.count} item{pricing.count === 1 ? '' : 's'}</span>
-      </div>
+    <div className="sticky top-8 border border-neutral-200 bg-[#FAF9F6] p-8">
+      <h2 className="mb-6 border-b border-neutral-200 pb-3 text-xs font-semibold uppercase tracking-widest">
+        Order Summary <span className="ml-1 font-normal normal-case text-neutral-500">({pricing.count} item{pricing.count === 1 ? '' : 's'})</span>
+      </h2>
 
       {/* Delivery estimate — trust + clarity up front */}
       <div className="mt-4 flex items-center gap-2.5 rounded-[2px] border border-[#E5E5E5] bg-[#FBF6EC] px-3.5 py-3">
@@ -147,16 +146,18 @@ export default function CheckoutSummary({
           type="button"
           onClick={onSubmit}
           disabled={busy || disabled}
-          className="btn-gold disabled:opacity-50"
+          className="h-[52px] w-full bg-black text-xs font-semibold uppercase tracking-[0.2em] text-white transition-colors duration-300 hover:bg-neutral-800 disabled:opacity-50"
         >
-          {busy ? <><Spinner label="Working" /> One moment…</> : <><Lock size={14} aria-hidden="true" /> Place Order · {pkr(pricing.total)}</>}
+          {busy ? 'One moment…' : `Place Order · ${pkr(pricing.total)}`}
         </button>
       </div>
 
-      {/* Security near the CTA — conversion booster */}
-      <p className="mt-3 flex items-center justify-center gap-1.5 text-[11px] text-[#696969]">
-        <ShieldCheck size={12} className="text-[#C9A96E]" aria-hidden="true" /> Encrypted Checkout
-      </p>
+      {/* Trust badges */}
+      <div className="mt-8 grid grid-cols-3 gap-2 border-t border-neutral-200 pt-6 text-center text-[10px] text-neutral-500">
+        <div className="flex flex-col items-center gap-1"><ShieldCheck size={16} className="text-black" aria-hidden="true" /><span>Secure Checkout</span></div>
+        <div className="flex flex-col items-center gap-1"><Truck size={16} className="text-black" aria-hidden="true" /><span>Fast Shipping</span></div>
+        <div className="flex flex-col items-center gap-1"><RotateCcw size={16} className="text-black" aria-hidden="true" /><span>Easy Returns</span></div>
+      </div>
 
       {/* Trust badges row */}
       <div className="mt-4 grid grid-cols-3 gap-2 border-t border-[#E5E5E5] pt-4 text-center">
