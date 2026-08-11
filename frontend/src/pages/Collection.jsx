@@ -5,6 +5,7 @@ import { api } from '../api/client';
 import CollectionCard from '../components/CollectionCard';
 import FilterPills from '../components/FilterPills';
 import CategoryBanner from '../components/CategoryBanner';
+import HeaderNav from '../components/HeaderNav';
 import { ProductGridSkeleton } from '../components/Skeletons';
 import Seo from '../components/Seo';
 import { SIZES, COLORS, PRICE_BANDS } from './shop/FilterPanel';
@@ -142,6 +143,9 @@ export default function Collection() {
         image={c.image}
         canonical={`/collection/${c.slug}`}
       />
+
+      {/* ═══ 0a. SECONDARY NAV — centered strip ═══ */}
+      <HeaderNav />
 
       {/* ═══ 0. CATEGORY HERO BANNER — under the main header ═══════════ */}
       <CategoryBanner

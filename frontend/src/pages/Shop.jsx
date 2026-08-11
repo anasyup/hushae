@@ -5,6 +5,7 @@ import { api } from '../api/client';
 import CollectionCard from '../components/CollectionCard';
 import FilterPills from '../components/FilterPills';
 import CategoryBanner from '../components/CategoryBanner';
+import HeaderNav from '../components/HeaderNav';
 import { ProductGridSkeleton } from '../components/Skeletons';
 import EmptyState from '../components/ui/EmptyState';
 import Seo from '../components/Seo';
@@ -157,6 +158,9 @@ export default function Shop({ preset = {} }) {
         description={`Shop premium ${meta.toLowerCase()} — innerwear made in Pakistan, finished to an international standard. COD nationwide, discreet packaging.`}
         canonical={typeof window !== 'undefined' ? window.location.pathname : '/shop'}
       />
+
+      {/* ═══ 0a. SECONDARY NAV — centered strip (reference HeaderNavigation) ═══ */}
+      <HeaderNav />
 
       {/* ═══ 0. HERO BANNER — Sale page uses the reference SalePageHeader ═══ */}
       {preset.key === 'sale' ? (
