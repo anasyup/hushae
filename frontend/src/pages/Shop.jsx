@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { api } from '../api/client';
 import CollectionCard from '../components/CollectionCard';
 import FilterPills from '../components/FilterPills';
+import CategoryBanner from '../components/CategoryBanner';
 import { ProductGridSkeleton } from '../components/Skeletons';
 import EmptyState from '../components/ui/EmptyState';
 import Seo from '../components/Seo';
@@ -28,6 +29,16 @@ import { fetchCats, fetchCollections } from '../lib/catalogue';
 const TITLES = { women: 'Women', men: 'Men', new: 'New Arrivals', best: 'Best Sellers', sale: 'Sale', all: 'Shop All' };
 
 const SORT_LABELS = { popular: 'Featured', 'price-asc': 'Price: Low to High', 'price-desc': 'Price: High to Low', newest: 'Newest Arrivals' };
+
+/* Category banner copy per route (client reference register). */
+const BANNER_META = {
+  women: { tag: 'Spring / Summer Edition', title: "Women's Essentials", desc: 'Engineered for second-skin comfort. Soft touch fabrics crafted with minimalist precision.' },
+  men: { tag: 'The Essentials Edit', title: "Men's Essentials", desc: 'Everyday essentials engineered for comfort — soft-touch fabrics with a clean finish.' },
+  new: { tag: 'New Season', title: 'New Arrivals', desc: 'Fresh from the studio — the latest drops, here first.' },
+  best: { tag: 'Most Loved', title: 'Best Sellers', desc: 'The pieces our community reaches for again and again.' },
+  sale: { tag: 'Seasonal Edit', title: 'Sale', desc: 'Seasonal savings on signature pieces.' },
+  all: { tag: 'The Collection', title: 'Shop All', desc: 'Premium innerwear made in Pakistan, finished to an international standard.' },
+};
 
 const REVEAL = 12; // initial batch shown; LOAD MORE reveals +12
 
@@ -60,6 +71,26 @@ export default function Shop({ preset = {} }) {
   const meta = activeCat ? activeCat.name : TITLES[preset.key] || fallbackCategoryName || (f.get('q') ? `"${f.get('q')}"` : TITLES.all);
   const count = visible?.length ?? null;
   const activeFilterCount = f.activeCount;
+
+  /* ── Category hero banner (client reference) ──────────────────────── */
+  const banner = useMemo(() => {
+    if (f.category) {
+      const cat = activeCat;
+      return {
+        img: `/images/categories/${f.category}.jpg`,
+        tag: cat ? (cat.gender === 'men' ? "Men's Collection" : "Women's Collection") : 'Collection',
+        title: meta,
+        desc: cat?.description || BANNER_META.all.desc,
+      };
+    }
+    const m = BANNER_META[preset.key] || BANNER_META.all;
+    const img = preset.key === 'new' || preset.key === 'best' ? '/images/campaign/qa/editorial-modern.jpg'
+      : preset.key === 'sale' ? '/images/campaign/qa/hero-fabric.jpg'
+      : preset.gender === 'women' ? '/images/campaign/qa/hero-women.jpg'
+      : preset.gender === 'men' ? '/images/campaign/qa/hero-men.jpg'
+      : '/images/campaign/qa/hero-fabric.jpg';
+    return { img, tag: m.tag, title: m.title, desc: m.desc };
+  }, [f.category, activeCat, preset.key, preset.gender, meta]);
 
   const navCats = useMemo(() => (f.gender ? cats.filter((c) => c.gender === f.gender) : cats), [cats, f.gender]);
 
@@ -126,6 +157,9 @@ export default function Shop({ preset = {} }) {
         description={`Shop premium ${meta.toLowerCase()} — innerwear made in Pakistan, finished to an international standard. COD nationwide, discreet packaging.`}
         canonical={typeof window !== 'undefined' ? window.location.pathname : '/shop'}
       />
+
+      {/* ═══ 0. CATEGORY HERO BANNER — under the main header ═══════════ */}
+      <CategoryBanner img={banner.img} tag={banner.tag} title={banner.title} description={banner.desc} />
 
       <div className="px-5 pb-10 md:px-10 md:pb-[60px]">
         {/* ═══ 1. SUB-CATEGORY TOP BAR ═════════════════════════════════ */}

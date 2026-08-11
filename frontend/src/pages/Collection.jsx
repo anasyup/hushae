@@ -4,6 +4,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { api } from '../api/client';
 import CollectionCard from '../components/CollectionCard';
 import FilterPills from '../components/FilterPills';
+import CategoryBanner from '../components/CategoryBanner';
 import { ProductGridSkeleton } from '../components/Skeletons';
 import Seo from '../components/Seo';
 import { SIZES, COLORS, PRICE_BANDS } from './shop/FilterPanel';
@@ -140,6 +141,14 @@ export default function Collection() {
         description={c.description || `Shop the ${c.name} collection at HUSHAE — curated pieces for every moment.`}
         image={c.image}
         canonical={`/collection/${c.slug}`}
+      />
+
+      {/* ═══ 0. CATEGORY HERO BANNER — under the main header ═══════════ */}
+      <CategoryBanner
+        img={c.image || '/images/campaign/qa/hero-fabric.jpg'}
+        tag="The Collection"
+        title={c.name}
+        description={c.description}
       />
 
       <div className="px-5 pb-10 md:px-10 md:pb-[60px]">

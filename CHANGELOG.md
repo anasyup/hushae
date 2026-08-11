@@ -659,3 +659,8 @@ Format:
   - `CollectionCard.jsx` re-cut to the new reference: main+hover image crossfade (0.4s), "New"/"Best Seller" badge BOTTOM-left (#333, 3px 8px), slider arrows (white 32px circles, hover-only), centred "Quick View" pill (hover-only desktop, always visible mobile — opens the QuickView modal), dash indicators (hover-only, hidden mobile), swatches active ring offset 1px, title 13/400, price 13/500 + #888 strike. Wishlist heart & quick-add slide-up removed per reference.
   - `Shop.jsx`: container 0/40/60 (15 mobile), sub-category top bar (13px links, hover underline, active underline), pills bar wired to URL filters (category/price band/color/size via useShopFilters; Collection navigates), grid 4 cols gap 16 → 3 → 2 gap 10; LOAD MORE/EmptyState/FilterSheet kept.
   - `Collection.jsx`: same layout; client-side pills (price band, size, colour) + sort; Collection pill highlights current.
+
+## Changes
+- **2026-08-11** — 🖼️ **CATEGORY HERO BANNER — exact client reference** (commit pending)
+  - New `CategoryBanner.jsx`: full-bleed 380px (280px ≤768), #f4f0eb fallback, object-cover center 30%, left→right gradient overlay (0.45/0.2/0), content = tag (11px ls 2px uppercase) · title (42px/300 ls -0.5px uppercase lh 1.1) · desc (13px #f0f0f0 max-w 420), mb 20px.
+  - Wired into Shop (all presets: women→"Women's Essentials"/hero-women, men, new, best, sale, all, category→cat image + gender tag) and Collection (/collection/:slug → collection image + "The Collection" tag) — sits directly under the main header, above sub-nav.
