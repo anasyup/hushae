@@ -686,3 +686,11 @@ Format:
 - **2026-08-11** — 🃏 **PRODUCT CARD — single brand-wide design (client re-sent the warm-nude reference)** (commit pending)
   - `ProductCard.jsx` rewritten to the SAME warm-nude luxury card used on collection grids: `#f4f1ea` tile, main zoom 1.03 (0.8s bezier) + crossfade, black "+ BUY NOW" slide-up (mobile always visible; size pick → add), 10px swatches, 12/400 name, 12/500 cost. `ratio`/`priority`/`compact` honoured for editorial layouts (The Edit lead keeps 5/7).
   - Now the card is ONE design everywhere: Home best sellers + new arrivals, Sale, Search, FabricTech, ProductRow rails (recently viewed / related / bundles), TheEdit, ProductGrid, ProductListSection. Old silent card (hover-only UI, heart, arrows) removed.
+
+## Changes
+- **2026-08-11** — 🛍️ **PDP v4 — exact "HUSHAE - Product Page" reference** (commit pending)
+  - bg `#fbf9f5`/text `#1a1a1a`, max-w 1440 (40/30), grid 1.2fr/0.8fr gap 50.
+  - LEFT: vertical image STACK (flex col, gap 16, 3/4 tiles `#f5efe6`) — replaces the 2×2 grid.
+  - RIGHT: WHITE buy-box card — bg white, padding 35, border `#efe8dd`, shadow 0 4px 20px rgba(0,0,0,0.02), sticky top 90, gap 22; title 28/400, price 18/500 + old 14 `#a0988e`, labels 11/600 ls 1px `#555`, swatches 26px (2px ring), sizes `#faf8f5`/`#e5dfd5` 12/500, "Buy Now" 12/600 ls 1.5px py 18 hover `#222`.
+  - Accordions: 2 (Product Description / Fabric & Care), header 12/600 ls 0.5px py 16, body 12px `#666` lh 1.6, hairlines `#efe8dd`.
+  - "Complete The Look" 16/500 ls 1px; rec cards = new `CollectionCard variant="pill"` (centred Buy Now pill radius 20, 10px 24px, 11/600 ls 0.5px — hover fade, mobile always; meta title 13/500 + price 12 `#555`, no swatches).

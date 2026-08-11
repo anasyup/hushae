@@ -36,7 +36,7 @@ const nameOf = (p) => titleCase(displayName(p?.name));
 
 const FALLBACK =
   'data:image/svg+xml;utf8,' + encodeURIComponent(
-    '<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1200"><rect width="100%" height="100%" fill="#F2EDE4"/><text x="50%" y="50%" fill="#999999" font-family="Inter,Helvetica,Arial,sans-serif" font-size="16" letter-spacing="4" text-anchor="middle">HUSHAE</text></svg>');
+    '<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1200"><rect width="100%" height="100%" fill="#F5EFE6"/><text x="50%" y="50%" fill="#999999" font-family="Inter,Helvetica,Arial,sans-serif" font-size="16" letter-spacing="4" text-anchor="middle">HUSHAE</text></svg>');
 
 export default function Product() {
   const { slug } = useParams();
@@ -134,7 +134,7 @@ export default function Product() {
   };
 
   return (
-    <div className="bg-[#fdfbf7] text-[#111111]">
+    <div className="bg-[#fbf9f5] text-[#1a1a1a]">
       <Seo
         title={name}
         description={p.shortDescription || p.description?.slice(0, 160) || `${name} — premium innerwear from HUSHAE. PKR ${p.price}. ${p.stock > 0 ? 'In stock' : 'Out of stock'}. COD available.`}
@@ -144,16 +144,16 @@ export default function Product() {
         jsonLdId="product"
       />
 
-      {/* ═══ PDP — 1.3fr / 0.7fr split ═════════════════════════════════ */}
-      <div className="mx-auto max-w-[1500px] px-5 py-5 md:px-10 md:py-[30px]">
-        <div className="grid items-start gap-[25px] lg:grid-cols-[1.3fr_0.7fr] lg:gap-[50px]">
-          {/* LEFT — 2×2 editorial gallery */}
-          <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+      {/* ═══ PDP — 1.2fr / 0.8fr split ═════════════════════════════════ */}
+      <div className="mx-auto max-w-[1440px] px-5 py-10 md:px-[30px]">
+        <div className="grid items-start gap-[25px] lg:grid-cols-[1.2fr_0.8fr] lg:gap-[50px]">
+          {/* LEFT — stacked editorial images */}
+          <div className="flex flex-col gap-4">
             {gallery.map((u, i) => (
-              <div key={`${u}-${i}`} className="w-full overflow-hidden bg-[#f2ede4]" style={{ aspectRatio: '3 / 4' }}>
+              <div key={`${u}-${i}`} className="w-full overflow-hidden bg-[#f5efe6]" style={{ aspectRatio: '3 / 4' }}>
                 <img
                   src={u}
-                  alt={`${name} — look ${i + 1}`}
+                  alt={`${name} — view ${i + 1}`}
                   loading={i === 0 ? 'eager' : 'lazy'}
                   onError={(e) => { if (e.currentTarget.src !== FALLBACK) e.currentTarget.src = FALLBACK; }}
                   className="h-full w-full object-cover"
@@ -162,28 +162,25 @@ export default function Product() {
             ))}
           </div>
 
-          {/* RIGHT — sticky minimal buy panel */}
-          <aside className="flex flex-col gap-6 lg:sticky lg:top-[80px] lg:h-fit lg:pl-5">
+          {/* RIGHT — white sticky buy box */}
+          <aside className="flex flex-col gap-[22px] border border-[#efe8dd] bg-white p-[35px] shadow-[0_4px_20px_rgba(0,0,0,0.02)] lg:sticky lg:top-[90px]">
             <div>
-              <span className="text-[10px] uppercase tracking-[2.5px] text-[#777777]">
-                HUSHAE{p.tier ? ` · ${p.tier}` : ''}
-              </span>
-              <h1 className="mt-1 text-[28px] font-light uppercase leading-[1.1] tracking-[-0.5px] text-[#111111]">
+              <h1 className="text-[28px] font-normal uppercase leading-tight tracking-[-0.5px] text-[#1a1a1a]">
                 {name}
               </h1>
-              <p className="mt-2 text-[18px] font-medium tracking-[0.5px]">
+              <p className="mt-2 text-[18px] font-medium">
                 {soldOut ? 'Sold out' : pkr(p.price)}
                 {onSale && p.compareAtPrice > p.price && (
-                  <span className="ml-2 text-[14px] font-normal text-[#888888] line-through">{pkr(p.compareAtPrice)}</span>
+                  <span className="ml-2 text-[14px] font-normal text-[#a0988e] line-through">{pkr(p.compareAtPrice)}</span>
                 )}
               </p>
             </div>
 
-            {/* Colour — 24px circles, active = 1.5px black ring */}
+            {/* Colour — 26px circles, active = 2px black ring */}
             {p.colors?.length > 0 && (
               <div>
-                <span className="mb-[10px] block text-[11px] font-semibold uppercase tracking-[1.5px]">Color: {color}</span>
-                <div className="flex gap-3">
+                <span className="mb-[10px] block text-[11px] font-semibold uppercase tracking-[1px] text-[#555555]">Color: {color}</span>
+                <div className="flex gap-2.5">
                   {p.colors.map((c) => {
                     const on = color === c.name;
                     return (
@@ -193,8 +190,8 @@ export default function Product() {
                         onClick={() => setColor(c.name)}
                         aria-pressed={on}
                         aria-label={c.name}
-                        className={`h-6 w-6 rounded-full border border-[#dddddd] transition-all duration-200 ${
-                          on ? 'outline outline-[1.5px] outline-black outline-offset-[3px]' : 'hover:outline hover:outline-1 hover:outline-black/50'
+                        className={`h-[26px] w-[26px] rounded-full border border-[#dddddd] transition-all duration-200 ${
+                          on ? 'outline outline-2 outline-black outline-offset-2' : 'hover:outline hover:outline-1 hover:outline-black/50'
                         }`}
                         style={{ backgroundColor: c.hex || '#EEEEEE' }}
                       />
@@ -207,7 +204,7 @@ export default function Product() {
             {/* Size — 5-col grid, active = black fill */}
             {needsSize && (
               <div ref={sizeRef}>
-                <span className="mb-[10px] block text-[11px] font-semibold uppercase tracking-[1.5px]">Select Size</span>
+                <span className="mb-[10px] block text-[11px] font-semibold uppercase tracking-[1px] text-[#555555]">Select Size</span>
                 <div className="grid grid-cols-5 gap-2">
                   {p.sizes.map((s) => {
                     const on = size === s;
@@ -217,8 +214,8 @@ export default function Product() {
                         type="button"
                         onClick={() => { setSize(s); setSizeErr(false); }}
                         aria-pressed={on}
-                        className={`border py-3 text-[11px] font-medium tracking-[1px] transition-all duration-200 ${
-                          on ? 'border-black bg-black text-white' : 'border-[#e0e0e0] bg-transparent text-[#111111] hover:border-black hover:bg-black hover:text-white'
+                        className={`border py-3 text-[12px] font-medium transition-all duration-200 ${
+                          on ? 'border-black bg-black text-white' : 'border-[#e5dfd5] bg-[#faf8f5] text-[#1a1a1a] hover:border-black hover:bg-black hover:text-white'
                         }`}
                       >
                         {s}
@@ -234,26 +231,26 @@ export default function Product() {
               </div>
             )}
 
-            {/* BUY NOW — express checkout, full width black */}
+            {/* BUY NOW — full width black */}
             <button
               type="button"
               onClick={() => tryAdd(true)}
               disabled={soldOut || (needsSize && !size)}
-              className={`mt-[10px] w-full py-[18px] text-[12px] font-medium uppercase tracking-[2.5px] transition-colors duration-300 ${
+              className={`w-full py-[18px] text-[12px] font-semibold uppercase tracking-[1.5px] transition-colors duration-200 ${
                 soldOut || (needsSize && !size)
-                  ? 'cursor-not-allowed bg-[#e5e5e5] text-[#888888]'
-                  : 'bg-black text-white hover:bg-[#2a2a2a]'
+                  ? 'cursor-not-allowed bg-[#f0ece5] text-[#888888]'
+                  : 'bg-black text-white hover:bg-[#222222]'
               }`}
             >
-              {soldOut ? 'Sold Out' : needsSize && !size ? 'Select A Size' : 'Buy Now — Express Checkout'}
+              {soldOut ? 'Sold Out' : needsSize && !size ? 'Select A Size' : 'Buy Now'}
             </button>
 
-            {/* Accordions — Product Highlights / Fabric & Care Instructions / Shipping & Easy Returns */}
-            <div className="mt-[10px] border-t border-[#e5e5e5]">
-              <Accordion title="Product Highlights">
+            {/* Accordions — Product Description / Fabric & Care */}
+            <div className="mt-[10px] border-t border-[#efe8dd]">
+              <Accordion title="Product Description">
                 <p>{p.shortDescription || p.description}</p>
               </Accordion>
-              <Accordion title="Fabric & Care Instructions">
+              <Accordion title="Fabric & Care">
                 <p>{p.fabric}</p>
                 {(p.care || []).length > 0 ? (
                   <ul className="mt-2 list-disc space-y-1 pl-4">
@@ -263,29 +260,23 @@ export default function Product() {
                   <p className="mt-2">Machine wash cold, gentle cycle. Lay flat to dry. Do not bleach.</p>
                 )}
               </Accordion>
-              <Accordion title="Shipping & Easy Returns">
-                <p>
-                  Express nationwide delivery in 2–4 working days. Free shipping over {pkr(settings?.freeShippingThreshold ?? 4999)}.
-                  Hassle-free exchanges within 7 days — for hygiene, innerwear is only returnable if it arrives faulty.
-                </p>
-              </Accordion>
             </div>
           </aside>
         </div>
       </div>
 
-      {/* ═══ PAIRS WELL WITH — single recommendation section ══════════ */}
+      {/* ═══ COMPLETE THE LOOK — single recommendation section ═══════ */}
       {complete.length > 0 && (
-        <section className="mx-auto mt-20 max-w-[1500px] border-t border-[#e5e5e5] px-5 pt-10 md:px-10">
-          <h3 className="mb-[30px] text-[14px] font-normal uppercase tracking-[2px]">Pairs Well With</h3>
+        <section className="mx-auto mt-20 max-w-[1440px] border-t border-[#efe8dd] px-5 pt-10 md:px-[30px]">
+          <h2 className="mb-[30px] text-[16px] font-medium uppercase tracking-[1px]">Complete The Look</h2>
           <div className="grid grid-cols-2 gap-5 lg:grid-cols-4">
-            {complete.slice(0, 4).map((pr) => <CollectionCard key={pr._id} product={pr} />)}
+            {complete.slice(0, 4).map((pr) => <CollectionCard key={pr._id} product={pr} variant="pill" />)}
           </div>
         </section>
       )}
 
       {/* Reviews + QA */}
-      <div id="reviews" className="mx-auto mt-20 max-w-[1500px] scroll-mt-28 px-5 md:px-10">
+      <div id="reviews" className="mx-auto mt-20 max-w-[1440px] scroll-mt-28 px-5 md:px-10">
         <ProductReviews product={p} />
         <ProductQA product={p} />
       </div>
@@ -293,7 +284,7 @@ export default function Product() {
       {/* Recently viewed */}
       {rvCfg.enabled !== false && rvCfg.showOnProduct !== false
         && recent.filter((r) => r.slug !== p.slug).length > 0 && (
-        <div className="mx-auto mt-20 max-w-[1500px] px-5 pb-4 md:px-10">
+        <div className="mx-auto mt-20 max-w-[1440px] px-5 pb-4 md:px-10">
           <ProductRow eyebrow="Your history" title={rvCfg.title || 'Recently viewed'} products={recent.filter((r) => r.slug !== p.slug).slice(0, 8)} />
         </div>
       )}

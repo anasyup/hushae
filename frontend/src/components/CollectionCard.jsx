@@ -6,14 +6,21 @@ import { isOnSale } from '../lib/sale';
 import { titleCase } from '../lib/productMeta';
 
 /* ============================================================================
- * HUSHAE CollectionCard — exact client reference (luxury warm-nude card).
- *   · 3/4 tile, bg #f4f1ea (warm nude), overflow hidden
- *   · hover: MAIN image scales 1.03 (0.8s cubic-bezier(0.16,1,0.3,1)) while
- *     the SECOND image crossfades over it (0.4s ease)
- *   · "+ BUY NOW" — black bar slides up from the bottom (hover-only on
- *     desktop, always visible on mobile), hover #1a1a1a; opens a size pick
- *     when the product needs one, otherwise adds straight to the bag
- *   · meta: 10px swatches · name 12/400 ls 0.3px · cost 12/500 (+ struck old)
+ * HUSHAE CollectionCard — two variants, both from client references:
+ *
+ *  · variant="bar"  (default) — luxury warm-nude card:
+ *      #f4f1ea tile · main image scales 1.03 (0.8s cubic-bezier(0.16,1,0.3,1))
+ *      while the second image crossfades (0.4s) · black "+ BUY NOW" bar slides
+ *      up from the bottom (desktop hover-only, always visible on mobile) ·
+ *      meta: 10px swatches · name 12/400 ls 0.3px · cost 12/500
+ *
+ *  · variant="pill" — "Complete The Look" PDP card:
+ *      #f5efe6 tile · centred "Buy Now" pill (radius 20, 10px 24px, 11/600
+ *      ls 0.5px) fades in on hover (always visible on mobile) · meta:
+ *      title 13/500 · price 12px #555
+ *
+ * Buy Now always opens a size pick when the product needs one, otherwise it
+ * adds straight to the bag. Sold-out shows a disabled label.
  * ========================================================================== */
 
 const FALLBACK =
@@ -26,10 +33,11 @@ const displayName = (name) => String(name || '').replace(/^HUSHAE\s+/i, '');
 /* Luxury ease — 0.8s zoom on the main image. */
 const EASE = { transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)' };
 
-function CollectionCard({ product: p, priority = false }) {
+function CollectionCard({ product: p, priority = false, variant = 'bar' }) {
   const { addToCart } = useApp();
   const [sizePick, setSizePick] = useState(false);
   const [failed, setFailed] = useState(false);
+  const pill = variant === 'pill';
 
   const images = (p.images || []).map(srcOf).filter(Boolean);
   const main = images[0] || srcOf(p.image) || '';
@@ -46,7 +54,12 @@ function CollectionCard({ product: p, priority = false }) {
 
   return (
     <article className="group relative flex flex-col" onMouseLeave={() => setSizePick(false)}>
-      <Link to={`/product/${p.slug}`} tabIndex={-1} className="relative block w-full overflow-hidden bg-[#f4f1ea]" style={{ aspectRatio: '3 / 4' }}>
+      <Link
+        to={`/product/${p.slug}`}
+        tabIndex={-1}
+        className={`relative block w-full overflow-hidden ${pill ? 'bg-[#f5efe6]' : 'bg-[#f4f1ea]'}`}
+        style={{ aspectRatio: '3 / 4' }}
+      >
         {/* Main image — zooms on hover */}
         <img
           src={failed ? FALLBACK : (main || FALLBACK)}
@@ -68,13 +81,28 @@ function CollectionCard({ product: p, priority = false }) {
           />
         )}
 
-        {/* + BUY NOW — slides up on hover; always visible on mobile */}
         {!sizePick && (
           soldOut ? (
-            <span className="pointer-events-none absolute inset-x-0 bottom-0 z-[5] translate-y-0 bg-[#000000] py-3.5 text-center text-[11px] font-medium uppercase tracking-[2px] text-white md:translate-y-full md:group-hover:translate-y-0">
-              Sold Out
-            </span>
+            pill ? (
+              <span className="pointer-events-none absolute bottom-[10px] left-1/2 z-[5] -translate-x-1/2 whitespace-nowrap rounded-[20px] bg-black px-6 py-2.5 text-[11px] font-semibold uppercase tracking-[0.5px] text-white opacity-100 md:bottom-5 md:opacity-0 md:group-hover:opacity-100">
+                Sold Out
+              </span>
+            ) : (
+              <span className="pointer-events-none absolute inset-x-0 bottom-0 z-[5] translate-y-0 bg-[#000000] py-3.5 text-center text-[11px] font-medium uppercase tracking-[2px] text-white md:translate-y-full md:group-hover:translate-y-0">
+                Sold Out
+              </span>
+            )
+          ) : pill ? (
+            /* Centred pill — fades in on hover; always visible on mobile */
+            <button
+              type="button"
+              onClick={(e) => { e.preventDefault(); buy(); }}
+              className="absolute bottom-[10px] left-1/2 z-[5] -translate-x-1/2 whitespace-nowrap rounded-[20px] bg-black px-6 py-2.5 text-[11px] font-semibold uppercase tracking-[0.5px] text-white opacity-100 transition-opacity duration-300 hover:bg-[#222222] md:bottom-5 md:opacity-0 md:group-hover:opacity-100"
+            >
+              Buy Now
+            </button>
           ) : (
+            /* Bottom bar — slides up on hover; always visible on mobile */
             <button
               type="button"
               onClick={(e) => { e.preventDefault(); buy(); }}
@@ -102,7 +130,7 @@ function CollectionCard({ product: p, priority = false }) {
 
       {/* Meta */}
       <div className="pt-3">
-        {(p.colors || []).length > 0 && (
+        {!pill && (p.colors || []).length > 0 && (
           <div className="mb-1.5 flex gap-1.5">
             {(p.colors || []).slice(0, 3).map((c, i) => (
               <span key={`${c.name}-${i}`} title={c.name}
@@ -111,10 +139,13 @@ function CollectionCard({ product: p, priority = false }) {
             ))}
           </div>
         )}
-        <Link to={`/product/${p.slug}`} className="block text-[12px] font-normal tracking-[0.3px] text-black no-underline transition-colors duration-200 hover:text-[#666666]">
+        <Link
+          to={`/product/${p.slug}`}
+          className={`block no-underline transition-colors duration-200 hover:text-[#666666] ${pill ? 'mb-1 text-[13px] font-medium' : 'text-[12px] font-normal tracking-[0.3px]'}`}
+        >
           {name}
         </Link>
-        <p className="mt-[3px] text-[12px] font-medium">
+        <p className={pill ? 'text-[12px] text-[#555555]' : 'mt-[3px] text-[12px] font-medium'}>
           {soldOut ? 'Sold out' : pkr(p.price)}
           {onSale && p.compareAtPrice > p.price && (
             <span className="ml-1.5 font-normal text-[#888888] line-through">{pkr(p.compareAtPrice)}</span>
