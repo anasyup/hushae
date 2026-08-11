@@ -41,6 +41,27 @@ export default function Collection() {
       .catch(() => setErr(true));
   }, [slug]);
 
+  const products = data?.products || [];
+  const c = data?.collection;
+
+  const allSizes = useMemo(() => [...new Set(products.flatMap((p) => p.sizes || []))], [products]);
+  const allColors = useMemo(() => {
+    const seen = new Map();
+    products.forEach((p) => (p.colors || []).forEach((col) => { if (!seen.has(col.name)) seen.set(col.name, col); }));
+    return [...seen.values()];
+  }, [products]);
+
+  const visible = useMemo(() => {
+    if (!products.length) return [];
+    let list = [...products];
+    if (sizes.length) list = list.filter((p) => (p.sizes || []).some((s) => sizes.includes(s)));
+    if (colors.length) list = list.filter((p) => (p.colors || []).some((col) => colors.includes(col.name)));
+    if (sort === 'price-asc') list.sort((a, b) => (a.price || 0) - (b.price || 0));
+    if (sort === 'price-desc') list.sort((a, b) => (b.price || 0) - (a.price || 0));
+    if (sort === 'newest') list.sort((a, b) => (b.isNewArrival ? 1 : 0) - (a.isNewArrival ? 1 : 0));
+    return list;
+  }, [products, sort, sizes, colors]);
+
   if (err) {
     return (
       <div className="container-page py-24 text-center">
@@ -57,25 +78,6 @@ export default function Collection() {
       <ProductGridSkeleton count={8} />
     </div>
   );
-
-  const { collection: c, products } = data;
-
-  const allSizes = useMemo(() => [...new Set(products.flatMap((p) => p.sizes || []))], [products]);
-  const allColors = useMemo(() => {
-    const seen = new Map();
-    products.forEach((p) => (p.colors || []).forEach((col) => { if (!seen.has(col.name)) seen.set(col.name, col); }));
-    return [...seen.values()];
-  }, [products]);
-
-  const visible = useMemo(() => {
-    let list = [...products];
-    if (sizes.length) list = list.filter((p) => (p.sizes || []).some((s) => sizes.includes(s)));
-    if (colors.length) list = list.filter((p) => (p.colors || []).some((col) => colors.includes(col.name)));
-    if (sort === 'price-asc') list.sort((a, b) => (a.price || 0) - (b.price || 0));
-    if (sort === 'price-desc') list.sort((a, b) => (b.price || 0) - (a.price || 0));
-    if (sort === 'newest') list.sort((a, b) => (b.isNewArrival ? 1 : 0) - (a.isNewArrival ? 1 : 0));
-    return list;
-  }, [products, sort, sizes, colors]);
 
   const activeFilterCount = sizes.length + colors.length;
   const toggle = (set, v) => set((xs) => (xs.includes(v) ? xs.filter((x) => x !== v) : [...xs, v]));
