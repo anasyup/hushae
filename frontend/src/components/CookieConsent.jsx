@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Cookie, ShieldCheck } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import Tx from './Tx';
@@ -12,6 +12,12 @@ const setStored = (analytics, marketing) => {
   try { window.dispatchEvent(new Event('hushae:consent')); } catch { /* noop */ }
 };
 
+/**
+ * Cookie consent — slim bottom bar (CK reference: no modals, nothing that
+ * covers the page). The wrapper is pointer-events-none so the store stays
+ * fully interactive; only the card itself receives clicks. Consent toggles
+ * (essential / analytics / marketing) expand in place via Manage.
+ */
 export default function CookieConsent() {
   const { settings } = useApp();
   const cfg = settings?.cookiePopup;
@@ -25,7 +31,7 @@ export default function CookieConsent() {
   const done = (a, m) => { setStored(a, m); setConsented(true); };
 
   const Row = ({ title, text, checked, onChange, locked }) => (
-    <div className="flex items-start justify-between gap-4 rounded-2xl border border-line/70 px-4 py-3">
+    <div className="flex items-start justify-between gap-4 rounded-xl border border-line/70 px-4 py-3">
       <div>
         <p className="text-[13px] font-semibold">{title}</p>
         <p className="mt-0.5 text-[11px] leading-relaxed text-ash">{text}</p>
@@ -41,51 +47,51 @@ export default function CookieConsent() {
     </div>
   );
 
+  const btn = 'inline-flex h-9 items-center justify-center rounded-full border px-4 text-[12px] font-medium uppercase tracking-wide transition-colors duration-200';
+  const btnDark = `${btn} border-obsidian bg-obsidian text-alabaster hover:bg-sagedeep`;
+  const btnLine = `${btn} border-obsidian/30 text-obsidian hover:border-obsidian hover:bg-obsidian hover:text-alabaster`;
+
   return (
-    <AnimatePresence>
-      <div className={`fixed inset-x-0 bottom-16 z-[90] flex justify-center px-3 pb-1 pt-0 sm:inset-0 sm:items-center sm:p-4 ${
-        manage ? 'bg-obsidian/25 backdrop-blur-[2px]' : 'sm:bg-obsidian/15 sm:backdrop-blur-[2px]'
-      }`}>
-        <motion.div
-          initial={{ opacity: 0, y: 24, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ duration: 0.35 }}
-          className="max-h-[50vh] w-full max-w-lg overflow-y-auto rounded-xl border border-line bg-alabaster p-3 sm:mb-0 sm:max-h-none sm:rounded-[1.8rem] sm:p-7 md:p-9">
-          <div className="flex items-center gap-2.5 sm:gap-3">
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-obsidian text-alabaster sm:h-10 sm:w-10 sm:rounded-xl"><Cookie size={16} /></span>
-            <p className="font-display text-[15px] uppercase tracking-widest2 sm:text-lg">{cfg?.title || 'Cookies on HUSHAE'}</p>
-          </div>
-          {/* Short line on phones, the full explanation once there is room. */}
-          <p className="mt-2 text-[12.5px] leading-relaxed text-ash sm:mt-4 sm:hidden">
-            We use cookies to remember your bag and improve the store.
-          </p>
-          <p className="mt-4 hidden text-[13px] leading-relaxed text-ash sm:block">
-            {cfg?.text || 'We use cookies to keep you signed in and remember your bag. With your permission, we also use a few cookies to understand traffic and improve the store.'}
-          </p>
-          <p className="mt-2 flex items-center gap-1.5 text-[11px] font-medium text-sagedeep sm:mt-3"><ShieldCheck size={13} /> <Tx k="cookiePromise" /></p>
-
-          {manage && (
-            <div className="mt-4 space-y-2.5">
-              <Row title={<Tx k="cookieEssential" />} text={<Tx k="cookieEssentialTxt" />} locked />
-              <Row title={<Tx k="cookieAnalytics" />} text={<Tx k="cookieAnalyticsTxt" />} checked={analytics} onChange={setAnalytics} />
-              <Row title={<Tx k="cookieMarketing" />} text={<Tx k="cookieMarketingTxt" />} checked={marketing} onChange={setMarketing} />
+    <div className="pointer-events-none fixed inset-x-0 bottom-0 z-[90] flex justify-center px-3 pb-3 sm:px-6 sm:pb-5">
+      <motion.div
+        initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease: 'easeOut' }}
+        className="pointer-events-auto w-full max-w-3xl rounded-2xl border border-line bg-alabaster p-4 shadow-[0_10px_40px_rgba(0,0,0,0.14)] sm:p-5"
+      >
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-8">
+          <div className="flex min-w-0 items-start gap-3 sm:items-center">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-obsidian text-alabaster"><Cookie size={15} /></span>
+            <div className="min-w-0">
+              <p className="font-display text-[13px] uppercase tracking-widest2">{cfg?.title || 'Cookies on HUSHAE'}</p>
+              <p className="mt-1 text-[12px] leading-relaxed text-ash">
+                {cfg?.text || 'We use cookies to keep you signed in and remember your bag. With your permission, we also use a few cookies to understand traffic and improve the store.'}
+              </p>
+              <p className="mt-1.5 flex items-center gap-1.5 text-[11px] font-medium text-sagedeep"><ShieldCheck size={12} /> <Tx k="cookiePromise" /></p>
             </div>
-          )}
-
-          <div className="mt-4 grid gap-2 sm:mt-6 sm:grid-cols-3 [&_button]:min-h-[44px]">
+          </div>
+          <div className="flex shrink-0 flex-wrap items-center gap-2">
             {manage ? (
               <>
-                <button onClick={() => setManage(false)} className="btn-outline order-2 sm:order-1"><Tx k="back" /></button>
-                <button onClick={() => done(analytics, marketing)} className="btn-primary order-1 sm:order-2 sm:col-span-2"><Tx k="cookieSave" /></button>
+                <button onClick={() => setManage(false)} className={btnLine}><Tx k="back" /></button>
+                <button onClick={() => done(analytics, marketing)} className={btnDark}><Tx k="cookieSave" /></button>
               </>
             ) : (
               <>
-                <button onClick={() => setManage(true)} className="btn-outline"><Tx k="cookieManage" /></button>
-                <button onClick={() => done(false, false)} className="btn-outline"><Tx k="cookieRefuse" /></button>
-                <button onClick={() => done(true, true)} className="btn-primary"><Tx k="cookieAccept" /></button>
+                <button onClick={() => setManage(true)} className={btnLine}><Tx k="cookieManage" /></button>
+                <button onClick={() => done(false, false)} className={btnLine}><Tx k="cookieRefuse" /></button>
+                <button onClick={() => done(true, true)} className={btnDark}><Tx k="cookieAccept" /></button>
               </>
             )}
           </div>
-        </motion.div>
-      </div>
-    </AnimatePresence>
+        </div>
+
+        {manage && (
+          <div className="mt-4 space-y-2.5 border-t border-line pt-4">
+            <Row title={<Tx k="cookieEssential" />} text={<Tx k="cookieEssentialTxt" />} locked />
+            <Row title={<Tx k="cookieAnalytics" />} text={<Tx k="cookieAnalyticsTxt" />} checked={analytics} onChange={setAnalytics} />
+            <Row title={<Tx k="cookieMarketing" />} text={<Tx k="cookieMarketingTxt" />} checked={marketing} onChange={setMarketing} />
+          </div>
+        )}
+      </motion.div>
+    </div>
   );
 }
