@@ -84,7 +84,7 @@ export default function Header() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cmsHeaderKey, baseMenu]);
 
-  const deskH = clamp(hdr.height, 40, 90, 72);
+  const deskH = clamp(hdr.height, 40, 90, 65);
   const navSize = clamp(hdr.navSize, 11, 16, 13);
   const navGap = clamp(hdr.navGap, 16, 64, 32);
   const hairline = hdr.border !== false;
@@ -104,33 +104,39 @@ export default function Header() {
   ]), []);
 
   const linkCls = useMemo(() => ({ isActive }) => (
-    /* CK hover underline — bottom hairline on hover/active */
-    `inline-block whitespace-nowrap px-1 py-[26px] text-[13px] font-normal tracking-[0.006em] text-black transition-opacity duration-200 ${
-      isActive ? 'shadow-[inset_0_-2px_0_0_#000000]' : 'hover:shadow-[inset_0_-2px_0_0_#000000]'
+    /* CK hover underline — inset 2px, white over hero, black when scrolled */
+    `inline-block whitespace-nowrap px-1 py-[22px] text-[13px] font-normal tracking-[0.006em] transition-colors duration-300 ${
+      overHero ? 'text-white' : 'text-black'
+    } ${
+      isActive
+        ? (overHero ? 'shadow-[inset_0_-2px_0_0_#ffffff]' : 'shadow-[inset_0_-2px_0_0_#000000]')
+        : (overHero ? 'hover:shadow-[inset_0_-2px_0_0_#ffffff]' : 'hover:shadow-[inset_0_-2px_0_0_#000000]')
     }`
-  ), []);
+  ), [overHero]);
 
   const navStyle = useMemo(
     () => ({ fontSize: `${navSize}px`, letterSpacing: '0.006em' }),
     [navSize],
   );
 
-  const iconBtn = 'grid h-10 w-10 place-items-center text-black transition-opacity duration-200 hover:opacity-60';
-  const dot = 'absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-black';
+  const iconBtn = `grid h-10 w-10 place-items-center transition-colors duration-300 hover:opacity-60 ${overHero ? 'text-white' : 'text-black'}`;
+  const dot = `absolute right-2 top-2 h-1.5 w-1.5 rounded-full ${overHero ? 'bg-white' : 'bg-black'}`;
 
   return (
     <>
       {!isHome && <OfferBar />}
 
       <div
-        className={`${isHome ? 'fixed inset-x-0 top-0' : 'sticky top-0'} z-40`}
+        className={`${isHome ? 'fixed inset-x-0 top-6' : 'sticky top-0'} z-40`}
       >
         {isHome && <OfferBar hideOnScroll />}
         <header
           data-header
           style={{ '--hdr-h': `${deskH}px` }}
-          className={`border-b transition-[background-color,border-color] duration-200 ${
-            overHero ? 'border-transparent bg-white/95 text-black backdrop-blur-xl' : `bg-white text-black backdrop-blur-xl ${hairline ? 'border-[#f0f0f0]' : 'border-transparent'}`
+          className={`border-b transition-[background-color,border-color,top,box-shadow] duration-300 ${
+            isHome && !past
+              ? 'top-6 border-[rgba(255,255,255,0.15)] bg-transparent text-white'
+              : `top-0 border-[#e5e5e5] bg-white text-black shadow-[0_2px_10px_rgba(0,0,0,0.05)] ${hairline ? '' : 'border-transparent'}`
           }`}
         >
           <div className="flex h-11 w-full items-center justify-between px-5 md:px-8 lg:h-[var(--hdr-h)] lg:px-[72px] xl:px-[96px] 2xl:px-[120px]">
@@ -141,13 +147,13 @@ export default function Header() {
               onClick={() => setMobileOpen(true)}
               aria-label="Open menu"
               aria-expanded={mobileOpen}
-              className={`-ml-2 grid h-10 w-10 shrink-0 place-items-center text-black lg:hidden ${iconBtn}`}
+              className={`-ml-2 grid h-10 w-10 shrink-0 place-items-center lg:hidden ${iconBtn}`}
             >
               <Menu size={20} strokeWidth={1.6} aria-hidden="true" />
             </button>
 
             {/* Logo — LEFT (CK reference) */}
-            <Link to="/" aria-label="HUSHAE — home" className="mr-8 text-[28px] font-normal leading-none tracking-[-0.033em] text-black">
+            <Link to="/" aria-label="HUSHAE — home" className={`mr-8 text-[26px] font-normal leading-none tracking-[-0.033em] transition-colors duration-300 ${overHero ? "text-white" : "text-black"}`}>
               HUSHAE
             </Link>
 
