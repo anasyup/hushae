@@ -236,7 +236,7 @@ export default function App() {
           <Route path="/men" element={<Shop preset={{ key: 'men', gender: 'men' }} />} />
           <Route path="/new" element={<Shop preset={{ key: 'new', sort: 'newest' }} />} />
           <Route path="/best" element={<Shop preset={{ key: 'best', bestSeller: true }} />} />
-          <Route path="/sale" element={<Sale />} />
+          <Route path="/sale" element={<Shop preset={{ key: 'sale' }} />} />
           <Route path="/category/:slug" element={<ShopWithCategory />} />
           <Route path="/product/:slug" element={<Product />} />
           <Route path="/cart" element={<Cart />} />

@@ -58,7 +58,7 @@ export default function Shop({ preset = {} }) {
 
   useEffect(() => {
     let alive = true; setPending(true); setShown(REVEAL);
-    api(`/products?${f.queryString}${preset.key === 'new' ? '&newArrival=true&limit=12' : ''}`)
+    api(`/products?${f.queryString}${preset.key === 'new' ? '&newArrival=true&limit=12' : ''}${preset.key === 'sale' ? '&sale=true' : ''}`)
       .then((d) => { if (alive) { setProducts(d.products); setPending(false); } })
       .catch(() => { if (alive) setPending(false); });
     window.scrollTo({ top: 0, behavior: 'smooth' });

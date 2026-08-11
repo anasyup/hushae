@@ -767,3 +767,7 @@ Format:
   - Header: logo → **HUSHAÈ**, nav Sale now opens a mega menu (Tommy Hilfiger style), trigger active = `border-b-2 border-black font-semibold` (layoutId underline replaced per v3), dropdown panel bg white / y4 0.18s.
   - MegaPanel: `sale` kind → black offer box "Up to 70% Off / Sale Styles" + Men's Sale · Women's Sale · New Season columns (col-span-3 each); standard Men/Women → 4/4/4 (promo · Featured · Categories).
   - `/sale`: new `SalePageHeader` — breadcrumb, 4xl "Sale", gender sub-tabs (Shop All/Men/Women wired to `?gender=`), filter chips (Gender/Category/Size/Color/Price/All Filters → FilterSheet), Items count + Sort By pill (real sort).
+
+## Changes
+- **2026-08-11** — 🔧 **/sale route → Shop preset (SalePageHeader live)** (commit pending)
+  - `/sale` was still rendering the legacy `Sale.jsx`; routed it to `<Shop preset={{ key: 'sale' }} />` so the reference SalePageHeader (gender tabs, filter chips, sort pill) + standard grid + filters render. Added `&sale=true` to the Shop query for the sale preset.
