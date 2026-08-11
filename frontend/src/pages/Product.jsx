@@ -205,7 +205,7 @@ export default function Product() {
           <div className="flex flex-col gap-[18px]">
             <div>
               <p className="text-[12px] font-semibold uppercase tracking-[1px] text-[#888888]">HUSHAE Essentials</p>
-              <h1 className="mt-1 text-[32px] font-normal leading-[1.2] tracking-[-0.5px] text-[#1a1a1a]">
+              <h1 className="mt-1 text-[32px] font-normal normal-case leading-[1.2] tracking-[-0.5px] text-[#1a1a1a]">
                 {name}
               </h1>
             </div>
