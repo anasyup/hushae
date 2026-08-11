@@ -808,3 +808,7 @@ Format:
   - Replaced old perks/categories/best-sellers/promo/journal/values/newsletter band. Page bg `#fcfbf9`.
   - NOTE: Vercel free-tier deploy quota exhausted (100/day) — deploy pending until quota resets (~24h) or manual redeploy from dashboard.
 - **2026-08-11** — 📡 **BACKEND LIVE STATUS PAGE**: `GET /api` now returns a branded HTML page (HUSHAE API — Live) showing API Online + Database connection state (green/amber/red) + clickable endpoint list (health, products, categories, collections, orders, reviews, settings, auth). Open `https://hushae.vercel.app/api` in a browser to see the backend running.
+- **2026-08-11** — 🚀 **VERCEL SERVICES DEPLOY CONFIG** — fixes fresh-import monorepo issue
+  - Root `vercel.json` now uses the **`services` format** Vercel's new import flow demands (frontend: root frontend/vite · backend: root backend), with `/api/*`, `/robots.txt`, `/sitemap.xml` routed to the backend service and everything else to frontend.
+  - New shared serverless handler `backend/src/vercel-handler.js` (Mongoose connection cache) used by BOTH the single-project entry (root `/api`) and the services-mode backend entry (`backend/api/index.js`).
+  - Deploying from the New-Project import now works with a single click (no card deletion / root selection needed).
