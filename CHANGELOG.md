@@ -716,3 +716,10 @@ Format:
 - **2026-08-11** — 🃏 **PRODUCT CARD v7 — exact "Fashion Product Grid" reference** (commit pending)
   - `CollectionCard` bar variant re-cut: `#e5e2e0` tile · image zoom 1.015 (0.35s) · "New"/"Best Seller" badge bottom-LEFT (`#5b5b5b`, radius 2, 11px) · hover overlay: 38px white arrow circles (30 mobile) + centred **Buy Now pill** (radius 24, bottom 62/55) + clickable 22px dash indicators · 14px swatches (active 1px ring, "+N" extra) · title 14/500 · price row 14px (struck original + current). Buy Now opens new **`SizeModal.jsx`** (centred: Select Size · 4-col sizes · price · ADD TO CART · inline error · Esc/backdrop close) — same modal also used by pill variant.
   - `ProductCard.jsx` now a thin memo alias of CollectionCard (single card design everywhere; `ratio` honoured).
+
+## Changes
+- **2026-08-11** — 🛍️ **PDP v7 — exact "Atelier" luxury reference** (commit pending)
+  - bg `#FAF9F6`; 12-col grid (7 gallery / 5 buy box, sticky top-28).
+  - Gallery: vertical thumbnail column (64×80, active black border, inactive 60%) + main 3/4 with hover arrows + expand → new fullscreen Lightbox (arrows + counter).
+  - Buy box: eyebrow · title 2xl/3xl font-light · star rating + reviews link · price row (2xl + struck + **"Save N%"** black badge) · Read More toggle · colour 36px ring-2 swatches · size 6-col h-11 + Size Guide · **stock indicator** (green/amber/red dots) · qty stepper + Add To Cart + heart · **Buy It Now** · trust 2×2 (Truck/RotateCcw/ShieldCheck/Box) · 3 accordions (Details & Fit / Shipping & Returns / Garment Care, ChevronDown style).
+  - Editorial Feature section (4/3 image, hover zoom), 4 feature cards, Reviews + QA on white band, **"You May Also Like"** (pill cards), Recently Viewed, sticky purchase bar.
