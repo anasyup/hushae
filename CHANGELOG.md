@@ -743,3 +743,7 @@ Format:
   - Panel: bg `#FAF9F6`, border-b, `shadow-xl`; promo card 4/3 `rounded-sm` (hover zoom 0.5s + black/25→35 overlay, title + CTA/ArrowRight); columns Featured (women 3 / men 2) · Shop {kind} (first 3 cats + View all) · More (rest); links `text-xs` neutral-800 hover translate-x-1, col heads 11px mb-5.
   - `MegaMenu.jsx` → trigger only (label + rotating chevron + layoutId animated underline, keyboard Enter/ArrowDown/Escape).
   - Header: `mega` state, `relative`, mega cleared on route change / header mouseleave / link click.
+
+## Changes
+- **2026-08-11** — 📢 **Announcement bar — exact header reference** (commit pending)
+  - `OfferBar.jsx`: bg `#000000`, text 11px uppercase **tracking-widest**, CTA white font-semibold underline (was gold accent from the John Lewis PDP ref — the header ref uses plain white). Mega menu v2 itself was already live (f807eee); this closes the last delta.
