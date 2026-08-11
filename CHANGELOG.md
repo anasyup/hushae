@@ -702,3 +702,12 @@ Format:
   - Brand tag "HUSHAE Essentials" (11px ls 2px #888), title 32/300, price 20/500 + old 15 `#999`, labels plain (inherit #1a1a1a), swatches 28px gap 12, sizes `#fbf9f5`/`#e0d8cc`, CTA group (mt 10 gap 10), Buy Now 12/600 ls 1.5 py 18 hover #222.
   - 3 accordions back (Product Description / Fabric & Care / Shipping & Easy Returns), hairlines `#eee7dc`.
   - Complete The Look: mt 100 pt 50, title 18/400 ls 1px; pill cards now RECTANGULAR Buy Now (no radius, 10px 22px, ls 1px, bottom 16), price `#666`.
+
+## Changes
+- **2026-08-11** — 🛍️ **PDP v6 — exact John Lewis ANYDAY reference** (commit pending)
+  - Breadcrumb (12px #777) back; bg `#fcfbf9`; hero grid 1fr/1fr gap 50 (max-w 1400, 20/30/60).
+  - Gallery: MAIN 3/4 image + thumbnail strip (80px, active black border, click switches main).
+  - Buy box (no card, non-sticky per ref): brand "HUSHAE Essentials" · title 32/400 NOT uppercase · price row 26/600 + old 16 `#999` + gold-star rating badge + stock · desc 13px #555 · colour 32px · size 6-col `#fff`/`#e2e2e2` + "View Size Chart" (modal) · TWO CTAs: Add To Cart (white outline) + Buy Now (black #111, hover #333).
+  - Tabs: Product Reviews (full component + QA) / Description / Additional Info (care + shipping).
+  - Related Products (20/500 uppercase + View All) — pill cards enhanced: rounded Buy Now pill (radius 20, bottom 15), brand line, 13/600 price, gold-star rating.
+  - Announcement bar: `#111`, 12px, gold CTA `#d4af37`.

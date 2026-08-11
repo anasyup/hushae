@@ -84,7 +84,7 @@ function CollectionCard({ product: p, priority = false, variant = 'bar' }) {
         {!sizePick && (
           soldOut ? (
             pill ? (
-              <span className="pointer-events-none absolute bottom-[10px] left-1/2 z-[5] -translate-x-1/2 whitespace-nowrap bg-black px-[22px] py-2.5 text-[11px] font-semibold uppercase tracking-[1px] text-white opacity-100 md:bottom-4 md:opacity-0 md:group-hover:opacity-100">
+              <span className="pointer-events-none absolute bottom-[10px] left-1/2 z-[5] -translate-x-1/2 whitespace-nowrap rounded-[20px] bg-black px-[22px] py-2.5 text-[11px] font-semibold uppercase tracking-[1px] text-white opacity-100 md:bottom-[15px] md:opacity-0 md:group-hover:opacity-100">
                 Sold Out
               </span>
             ) : (
@@ -97,7 +97,7 @@ function CollectionCard({ product: p, priority = false, variant = 'bar' }) {
             <button
               type="button"
               onClick={(e) => { e.preventDefault(); buy(); }}
-              className="absolute bottom-[10px] left-1/2 z-[5] -translate-x-1/2 whitespace-nowrap bg-black px-[22px] py-2.5 text-[11px] font-semibold uppercase tracking-[1px] text-white opacity-100 transition-opacity duration-300 hover:bg-[#222222] md:bottom-4 md:opacity-0 md:group-hover:opacity-100"
+              className="absolute bottom-[10px] left-1/2 z-[5] -translate-x-1/2 whitespace-nowrap rounded-[20px] bg-black px-[22px] py-2.5 text-[11px] font-semibold uppercase tracking-[1px] text-white opacity-100 transition-opacity duration-300 hover:bg-[#222222] md:bottom-[15px] md:opacity-0 md:group-hover:opacity-100"
             >
               Buy Now
             </button>
@@ -139,18 +139,37 @@ function CollectionCard({ product: p, priority = false, variant = 'bar' }) {
             ))}
           </div>
         )}
+        {pill && (
+          <p className="text-[10px] font-semibold uppercase tracking-[0.5px] text-[#888888]">HUSHAE</p>
+        )}
         <Link
           to={`/product/${p.slug}`}
-          className={`block no-underline transition-colors duration-200 hover:text-[#666666] ${pill ? 'mb-1 text-[13px] font-medium' : 'text-[12px] font-normal tracking-[0.3px]'}`}
+          className={`block no-underline transition-colors duration-200 hover:text-[#666666] ${pill ? 'mb-1 mt-0.5 text-[13px] font-medium' : 'text-[12px] font-normal tracking-[0.3px]'}`}
         >
           {name}
         </Link>
-        <p className={pill ? 'text-[12px] text-[#666666]' : 'mt-[3px] text-[12px] font-medium'}>
-          {soldOut ? 'Sold out' : pkr(p.price)}
-          {onSale && p.compareAtPrice > p.price && (
-            <span className="ml-1.5 font-normal text-[#888888] line-through">{pkr(p.compareAtPrice)}</span>
-          )}
-        </p>
+        {pill ? (
+          <>
+            <p className="text-[13px] font-semibold">
+              {soldOut ? 'Sold out' : pkr(p.price)}
+              {onSale && p.compareAtPrice > p.price && (
+                <span className="ml-1.5 font-normal text-[#999999] line-through">{pkr(p.compareAtPrice)}</span>
+              )}
+            </p>
+            {Number(p.ratingAvg || 0) > 0 && (
+              <p className="mt-1 text-[11px] text-[#666666]">
+                <span className="text-[#d4af37]" aria-hidden="true">★</span> {Number(p.ratingAvg).toFixed(1)}
+              </p>
+            )}
+          </>
+        ) : (
+          <p className="mt-[3px] text-[12px] font-medium">
+            {soldOut ? 'Sold out' : pkr(p.price)}
+            {onSale && p.compareAtPrice > p.price && (
+              <span className="ml-1.5 font-normal text-[#888888] line-through">{pkr(p.compareAtPrice)}</span>
+            )}
+          </p>
+        )}
       </div>
     </article>
   );
