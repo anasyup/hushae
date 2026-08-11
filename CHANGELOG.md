@@ -782,3 +782,7 @@ Format:
   - Honest: cannot copy the licensed Futura Light/Klein font files (copyright). Instead: `display`/headings switched from Playfair serif → **Klein/Jost stack** (Jost = open-source Futura twin, live now; licensed files take over automatically when dropped in `/fonts/`). Hero "SECOND SKIN EDIT", section titles, mega menu promo titles are now geometric CK-style sans.
   - New `font-klein` Tailwind token (font-family only); applied to header nav (13px, = font-klein-sub size) + announcement bar. `serif` stays Playfair for footer/editorial accents.
 - **2026-08-11** — 🔧 **CK fonts — root cause fix**: legacy `tokens.css` `.font-display` (Tenor Sans serif, `!important`-free but later in bundle) was overriding the display token — storefront headings were still serif. `--font-editorial` → Klein/Jost stack, letter-spacing 0.08em → 0.02em. Headings now render Jost (Futura twin) site-wide.
+
+## Changes
+- **2026-08-11** — 🃏 **PRODUCT CARD v8 — exact minimal reference** (commit pending)
+  - Bar variant rewritten: color swatches moved ABOVE the image (10px, border neutral-300, +N), title → h3 `font-sans font-normal text-[13px] leading-[18px] text-[#1e1e1e] capitalize line-clamp-1 mb-1`, price → `text-[11px] leading-[14px]` (struck original neutral-400 + current #1e1e1e medium), image → `#f7f5f0` 3/4 `mt-2`, hover = secondary image crossfade + `scale-105` (0.5s). Removed Buy Now pill/overlay/arrows/badge/dash indicators from the bar variant (not in this reference); pill variant (PDP related) unchanged.
