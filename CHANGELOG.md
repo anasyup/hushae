@@ -727,3 +727,8 @@ Format:
 ## Changes
 - **2026-08-11** — 🧩 **PDP bottom structure — exact ProductPage reference** (commit pending)
   - Section flow now: ProductHero → Editorial/BrandStory → You May Also Like → **Recently Viewed (xl light heading + 4-col ProductCard grid)** → **Customer Reviews** (own section) → **Questions & Answers** (own section) — each `py-16 border-t border-neutral-200`.
+
+## Changes
+- **2026-08-11** — 🖱️ **Interactive arrows + card meta — exact ProductDetailGallery/ProductCard reference** (commit pending)
+  - PDP main gallery arrows: 40px (w-10 h-10) rounded-full bg-white/90 `shadow-md`, hover scale-105, Chevron 20px stroke 1.5 — exact reference spec (thumbs + lightbox kept).
+  - Card (bar variant): hover arrows → 32px (h-8 w-8), left-2/right-2, bg-white/90 `shadow`, Chevron 16px stroke 1.5; title → **12px/600 UPPERCASE tracking-wider line-clamp-1**; price row → 12px, struck original neutral-400 + current neutral-500; image container mb-3. Badge / Buy Now (SizeModal) / indicators / swatches kept from the Fashion Grid reference.

@@ -103,7 +103,7 @@ function CollectionCard({ product: p, priority = false, variant = 'bar', ratio =
 
   return (
     <article className="group relative min-w-0">
-      <Link to={`/product/${p.slug}`} tabIndex={-1} className={`relative block w-full overflow-hidden bg-[#e5e2e0] ${ratio}`}>
+      <Link to={`/product/${p.slug}`} tabIndex={-1} className={`relative mb-3 block w-full overflow-hidden bg-[#e5e2e0] ${ratio}`}>
         <img
           src={failed ? FALLBACK : (main || FALLBACK)}
           alt={`${name}, front view`}
@@ -127,17 +127,17 @@ function CollectionCard({ product: p, priority = false, variant = 'bar', ratio =
                 type="button"
                 aria-label="Previous image"
                 onClick={(e) => { e.preventDefault(); cycle(-1); }}
-                className="absolute left-[7px] top-1/2 grid h-[30px] w-[30px] -translate-y-1/2 place-items-center rounded-full border-0 bg-white/95 text-black shadow-[0_2px_8px_rgba(0,0,0,0.12)] transition-transform duration-150 hover:scale-[1.05] hover:bg-white md:left-[14px] md:h-[38px] md:w-[38px]"
+                className="absolute left-2 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-full border-0 bg-white/90 text-black shadow transition-opacity duration-300 hover:bg-white"
               >
-                <ChevronLeft size={17} strokeWidth={2} aria-hidden="true" />
+                <ChevronLeft size={16} strokeWidth={1.5} aria-hidden="true" />
               </button>
               <button
                 type="button"
                 aria-label="Next image"
                 onClick={(e) => { e.preventDefault(); cycle(1); }}
-                className="absolute right-[7px] top-1/2 grid h-[30px] w-[30px] -translate-y-1/2 place-items-center rounded-full border-0 bg-white/95 text-black shadow-[0_2px_8px_rgba(0,0,0,0.12)] transition-transform duration-150 hover:scale-[1.05] hover:bg-white md:right-[14px] md:h-[38px] md:w-[38px]"
+                className="absolute right-2 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-full border-0 bg-white/90 text-black shadow transition-opacity duration-300 hover:bg-white"
               >
-                <ChevronRight size={17} strokeWidth={2} aria-hidden="true" />
+                <ChevronRight size={16} strokeWidth={1.5} aria-hidden="true" />
               </button>
             </>
           )}
@@ -196,15 +196,15 @@ function CollectionCard({ product: p, priority = false, variant = 'bar', ratio =
       )}
 
       {/* Details */}
-      <div className="flex flex-col gap-1.5">
-        <Link to={`/product/${p.slug}`} className="text-[14px] font-medium leading-[1.3] text-black no-underline transition-colors duration-200 hover:text-[#666666]">
+      <div className="flex flex-col">
+        <Link to={`/product/${p.slug}`} className="line-clamp-1 text-xs font-semibold uppercase tracking-wider text-black no-underline transition-colors duration-200 hover:text-[#666666]">
           {name}
         </Link>
-        <div className="flex min-h-[18px] items-center gap-2 text-[14px]">
+        <div className="mt-1 flex items-center gap-2 text-xs">
           {onSale && p.compareAtPrice > p.price && (
-            <span className="font-normal text-[#666666] line-through">{pkr(p.compareAtPrice)}</span>
+            <span className="font-normal text-neutral-400 line-through">{pkr(p.compareAtPrice)}</span>
           )}
-          <span className={`font-medium ${onSale ? 'text-black' : 'text-black'}`}>
+          <span className="text-neutral-500">
             {soldOut ? 'Sold out' : pkr(p.price)}
           </span>
         </div>

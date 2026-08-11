@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  AlertCircle, ArrowLeft, ArrowRight, Box, Heart, Maximize2,
+  AlertCircle, ArrowLeft, ArrowRight, Box, ChevronLeft, ChevronRight, Heart, Maximize2,
   Minus, Package, Plus, RotateCcw, ShieldCheck, ShoppingBag, Star, Truck, X,
 } from 'lucide-react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
@@ -254,17 +254,17 @@ export default function Product() {
                 type="button"
                 onClick={() => setImgIdx((i) => (i - 1 + gallery.length) % gallery.length)}
                 aria-label="Previous image"
-                className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 p-3 opacity-0 transition group-hover:opacity-100 hover:bg-white"
+                className="absolute left-4 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-black opacity-0 shadow-md transition-all duration-300 group-hover:opacity-100 hover:scale-105 hover:bg-white"
               >
-                <ArrowLeft size={16} strokeWidth={1.8} />
+                <ChevronLeft size={20} strokeWidth={1.5} />
               </button>
               <button
                 type="button"
                 onClick={() => setImgIdx((i) => (i + 1) % gallery.length)}
                 aria-label="Next image"
-                className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 p-3 opacity-0 transition group-hover:opacity-100 hover:bg-white"
+                className="absolute right-4 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-black opacity-0 shadow-md transition-all duration-300 group-hover:opacity-100 hover:scale-105 hover:bg-white"
               >
-                <ArrowRight size={16} strokeWidth={1.8} />
+                <ChevronRight size={20} strokeWidth={1.5} />
               </button>
             </div>
           </div>
