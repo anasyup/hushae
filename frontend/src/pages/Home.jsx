@@ -13,7 +13,6 @@ import Seo, { organizationJsonLd } from '../components/Seo';
  *   1  HERO            cinematic 3-slide crossfade, arrows + dots, CTA button
  *   2  PERKS           icon trust row (Quality / Shipping / Secure / Returns)
  *   3  PROMOTIONS      admin hero-banner band (user feature, buttons)
- *   4  MEN / WOMEN     split editorial blocks
  *   5  CATEGORIES      real category imagery, image tiles + labels
  *   6  BEST SELLERS    product grid
  *   7  PROMO BANNER    "The Signature Edit" full-bleed editorial + CTA
@@ -148,73 +147,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ═══ 03 — PROMOTIONS: split banner (CK "The Campus Edit" reference) ═══ */}
-      <section className="relative mt-14 h-[60vh] min-h-[400px] w-full overflow-hidden md:mt-20 md:h-[70vh]">
-        {/* Split images — Women | Men */}
-        <div className="flex h-full w-full flex-col md:flex-row">
-          <Link to="/women" className="group relative flex-1 overflow-hidden">
-            <img src={`${IMG}/hero-women.jpg`} alt="Women Collection" loading="lazy"
-              className="h-full w-full object-cover transition-transform duration-[1.2s] group-hover:scale-[1.03]" />
-            <div className="absolute inset-0 bg-black/15 transition-colors duration-500 group-hover:bg-black/25" aria-hidden="true" />
-          </Link>
-          <Link to="/men" className="group relative flex-1 overflow-hidden">
-            <img src={`${IMG}/hero-men.jpg`} alt="Men Collection" loading="lazy"
-              className="h-full w-full object-cover transition-transform duration-[1.2s] group-hover:scale-[1.03]" />
-            <div className="absolute inset-0 bg-black/15 transition-colors duration-500 group-hover:bg-black/25" aria-hidden="true" />
-          </Link>
-        </div>
-
-        {/* Center overlay */}
-        <div className="pointer-events-none absolute left-1/2 top-[55%] z-10 w-[90%] max-w-[600px] -translate-x-1/2 -translate-y-1/2 text-center text-white">
-          <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-white/80">This Week</p>
-          <h2 className="mt-3 text-[34px] font-light uppercase leading-[1.05] tracking-[0.02em] text-white [text-shadow:0_2px_10px_rgba(0,0,0,0.25)] md:text-[48px]">
-            The Campus
-            <br />
-            Edit
-          </h2>
-          <p className="mx-auto mt-4 max-w-md text-[12px] font-normal leading-[1.5] tracking-[0.013em] text-[#f0f0f0] md:text-[13px]">
-            Start the year fresh in casual essentials.
-            <br />
-            Made to transition seamlessly from class to after.
-          </p>
-          <div className="pointer-events-auto mt-7 flex items-center justify-center gap-3">
-            <Link to="/women"
-              className="inline-block rounded-full border border-white bg-white px-6 py-3 text-[12px] font-medium tracking-[0.02em] text-black transition-all duration-200 hover:-translate-y-px hover:bg-[#f0f0f0] md:text-[13px]">
-              Shop Women
-            </Link>
-            <Link to="/men"
-              className="inline-block rounded-full border border-white bg-white px-6 py-3 text-[12px] font-medium tracking-[0.02em] text-black transition-all duration-200 hover:-translate-y-px hover:bg-[#f0f0f0] md:text-[13px]">
-              Shop Men
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* ═══ 04 — MEN / WOMEN split ═══════════════════════════════════ */}
-      <section className="mt-14 md:mt-20">
-        <div className="grid md:grid-cols-2">
-          <Link to="/women" className="group relative block aspect-[4/5] overflow-hidden bg-white md:aspect-auto md:min-h-[68vh]">
-            <img src={`${IMG}/hero-women.jpg`} alt="Women" loading="lazy"
-              className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1.2s] group-hover:scale-[1.04]" />
-            <div className="absolute inset-0 bg-black/25 transition-colors duration-500 group-hover:bg-black/10" />
-            <div className="absolute inset-x-0 bottom-0 p-8 md:p-12">
-              <p className="text-3xl font-medium uppercase tracking-[0.06em] text-white [text-shadow:0_2px_20px_rgba(0,0,0,0.4)]">Women</p>
-              <span className="mt-3 inline-block border-b border-white/60 pb-1 text-[12px] font-medium uppercase tracking-[0.14em] text-white">Shop Now</span>
-            </div>
-          </Link>
-          <Link to="/men" className="group relative block aspect-[4/5] overflow-hidden bg-white md:aspect-auto md:min-h-[68vh]">
-            <img src={`${IMG}/hero-men.jpg`} alt="Men" loading="lazy"
-              className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1.2s] group-hover:scale-[1.04]" />
-            <div className="absolute inset-0 bg-black/25 transition-colors duration-500 group-hover:bg-black/10" />
-            <div className="absolute inset-x-0 bottom-0 p-8 md:p-12">
-              <p className="text-3xl font-medium uppercase tracking-[0.06em] text-white [text-shadow:0_2px_20px_rgba(0,0,0,0.4)]">Men</p>
-              <span className="mt-3 inline-block border-b border-white/60 pb-1 text-[12px] font-medium uppercase tracking-[0.14em] text-white">Shop Now</span>
-            </div>
-          </Link>
-        </div>
-      </section>
-
-      {/* ═══ 05 — CATEGORIES: real imagery tiles ══════════════════════ */}
+      {/* ═══ 03 — CATEGORIES: real imagery tiles ══════════════════════ */}
       <section className="mx-auto mt-14 max-w-7xl px-4 md:mt-20 md:px-8">
         <div className="mb-8 flex items-baseline justify-between border-t border-[#E5E5E5] pt-4">
           <h2 className="text-[20px] font-medium uppercase tracking-[0.04em] text-[#111111]">Shop by Category</h2>
@@ -238,7 +171,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ═══ 06 — BEST SELLERS ════════════════════════════════════════ */}
+      {/* ═══ 04 — BEST SELLERS ════════════════════════════════════════ */}
       {best && best.length > 0 && (
         <section className="mx-auto mt-14 max-w-7xl px-4 md:mt-24 md:px-8">
           <div className="mb-8 flex items-baseline justify-between border-t border-[#E5E5E5] pt-4">
@@ -256,7 +189,7 @@ export default function Home() {
         </section>
       )}
 
-      {/* ═══ 07 — PROMO BANNER: The Signature Edit ═════════════════════ */}
+      {/* ═══ 05 — PROMO BANNER: The Signature Edit ═════════════════════ */}
       <section className="mt-14 md:mt-24">
         <Link to="/sale" className="group relative block h-[70vh] min-h-[420px] overflow-hidden bg-white">
           <img src={`${IMG}/editorial-performance.jpg`} alt="The Signature Edit" loading="lazy"
@@ -279,7 +212,7 @@ export default function Home() {
         </Link>
       </section>
 
-      {/* ═══ 08 — JOURNAL: real blog posts ════════════════════════════ */}
+      {/* ═══ 06 — JOURNAL: real blog posts ════════════════════════════ */}
       {posts.length > 0 && (
         <section className="mx-auto mt-14 max-w-7xl px-4 md:mt-24 md:px-8">
           <div className="mb-8 flex items-baseline justify-between border-t border-[#E5E5E5] pt-4">
@@ -314,7 +247,7 @@ export default function Home() {
         </section>
       )}
 
-      {/* ═══ 09 — VALUES: commitment band ═════════════════════════════ */}
+      {/* ═══ 07 — VALUES: commitment band ═════════════════════════════ */}
       <section className="mt-14 bg-[#F5F5F5] md:mt-24">
         <div className="mx-auto max-w-3xl px-4 py-16 text-center md:px-8 md:py-24">
           <p className="text-[20px] font-medium uppercase leading-[1.5] tracking-[0.04em] text-[#111111] md:text-[26px]">
