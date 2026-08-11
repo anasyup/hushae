@@ -56,7 +56,7 @@ export default function Product() {
   const sizeRef = useRef(null);
 
   useEffect(() => {
-    setP(null); setErr(false); setSize(''); setColor(''); setSizeErr(false); setAdded(false); setBundle([]); setComplete([]);
+    setP(null); setErr(false); setSize(''); setColor(''); setSizeErr(false); setBundle([]); setComplete([]);
     api(`/products/${slug}`)
       .then((d) => {
         setP(d.product);
