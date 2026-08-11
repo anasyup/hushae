@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AlertCircle, Package } from 'lucide-react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { api } from '../api/client';
 import { useApp } from '../store/AppContext';
 import { pkr } from '../lib/format';
@@ -11,7 +11,6 @@ import CollectionCard from '../components/CollectionCard';
 import ProductRow from '../components/ProductRow';
 import ProductReviews from '../components/ProductReviews';
 import ProductQA from '../components/reviews/ProductQA';
-import SizeGuideModal from '../components/SizeGuideModal';
 import { ProductSkeleton } from '../components/Skeletons';
 import Seo, { productJsonLd } from '../components/Seo';
 import StickyBuyBar from './product/StickyBuyBar';
@@ -37,10 +36,11 @@ const nameOf = (p) => titleCase(displayName(p?.name));
 
 const FALLBACK =
   'data:image/svg+xml;utf8,' + encodeURIComponent(
-    '<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1200"><rect width="100%" height="100%" fill="#F6F6F6"/><text x="50%" y="50%" fill="#999999" font-family="Inter,Helvetica,Arial,sans-serif" font-size="16" letter-spacing="4" text-anchor="middle">HUSHAE</text></svg>');
+    '<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1200"><rect width="100%" height="100%" fill="#F2EDE4"/><text x="50%" y="50%" fill="#999999" font-family="Inter,Helvetica,Arial,sans-serif" font-size="16" letter-spacing="4" text-anchor="middle">HUSHAE</text></svg>');
 
 export default function Product() {
   const { slug } = useParams();
+  const nav = useNavigate();
   const { addToCart, pushRecent, recent, settings } = useApp();
   const rvCfg = settings?.customerExperience?.recentlyViewed || {};
 
@@ -49,11 +49,8 @@ export default function Product() {
   const [size, setSize] = useState('');
   const [color, setColor] = useState('');
   const [sizeErr, setSizeErr] = useState(false);
-  const [added, setAdded] = useState(false);
-  const addTimer = useRef(null); // resets "ADDED ✓" after 2s
-  const [guideOpen, setGuideOpen] = useState(false);
   const [bundle, setBundle] = useState([]);
-  const [complete, setComplete] = useState([]); // "Complete the Look" — never empty
+  const [complete, setComplete] = useState([]); // "Pairs Well With" — never empty
 
   const ctaRef = useRef(null);
   const sizeRef = useRef(null);
@@ -91,7 +88,6 @@ export default function Product() {
     return () => { alive = false; };
   }, [p, bundle]); // eslint-disable-line
 
-  useEffect(() => { setAdded(false); }, [size, color]);
 
   const media = useMemo(() => {
     if (!p) return [];
@@ -121,13 +117,12 @@ export default function Product() {
   }
   if (!p) return <ProductSkeleton />;
 
-  const isBra = p.categorySlug === 'bras';
   const needsSize = (p.sizes || []).length > 0;
   const soldOut = p.stock === 0;
   const onSale = isOnSale(p);
   const name = nameOf(p);
 
-  const tryAdd = () => {
+  const tryAdd = (goToCheckout = false) => {
     if (needsSize && !size) {
       setSizeErr(true);
       sizeRef.current?.scrollIntoView({ block: 'center', behavior: 'smooth' });
@@ -135,13 +130,11 @@ export default function Product() {
       return;
     }
     addToCart(p, { size, color });
-    setAdded(true);
-    window.clearTimeout(addTimer.current);
-    addTimer.current = window.setTimeout(() => setAdded(false), 2000);
+    if (goToCheckout) nav('/checkout');
   };
 
   return (
-    <div className="bg-white text-black">
+    <div className="bg-[#fdfbf7] text-[#111111]">
       <Seo
         title={name}
         description={p.shortDescription || p.description?.slice(0, 160) || `${name} — premium innerwear from HUSHAE. PKR ${p.price}. ${p.stock > 0 ? 'In stock' : 'Out of stock'}. COD available.`}
@@ -151,16 +144,16 @@ export default function Product() {
         jsonLdId="product"
       />
 
-      {/* ═══ PDP — 1.2fr / 0.8fr split ═════════════════════════════════ */}
-      <div className="mx-auto max-w-[1400px] px-5 py-10">
-        <div className="grid items-start gap-[25px] lg:grid-cols-[1.2fr_0.8fr] lg:gap-[60px]">
-          {/* LEFT — 2×2 image grid */}
+      {/* ═══ PDP — 1.3fr / 0.7fr split ═════════════════════════════════ */}
+      <div className="mx-auto max-w-[1500px] px-5 py-5 md:px-10 md:py-[30px]">
+        <div className="grid items-start gap-[25px] lg:grid-cols-[1.3fr_0.7fr] lg:gap-[50px]">
+          {/* LEFT — 2×2 editorial gallery */}
           <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
             {gallery.map((u, i) => (
-              <div key={`${u}-${i}`} className="w-full bg-[#f6f6f6]" style={{ aspectRatio: '3 / 4' }}>
+              <div key={`${u}-${i}`} className="w-full overflow-hidden bg-[#f2ede4]" style={{ aspectRatio: '3 / 4' }}>
                 <img
                   src={u}
-                  alt={`${name} — view ${i + 1}`}
+                  alt={`${name} — look ${i + 1}`}
                   loading={i === 0 ? 'eager' : 'lazy'}
                   onError={(e) => { if (e.currentTarget.src !== FALLBACK) e.currentTarget.src = FALLBACK; }}
                   className="h-full w-full object-cover"
@@ -169,13 +162,16 @@ export default function Product() {
             ))}
           </div>
 
-          {/* RIGHT — sticky buy box */}
-          <aside className="flex flex-col gap-5 lg:sticky lg:top-[90px] lg:h-fit">
+          {/* RIGHT — sticky minimal buy panel */}
+          <aside className="flex flex-col gap-6 lg:sticky lg:top-[80px] lg:h-fit lg:pl-5">
             <div>
-              <h1 className="text-[26px] font-normal uppercase leading-tight tracking-[-0.5px] text-black">
+              <span className="text-[10px] uppercase tracking-[2.5px] text-[#777777]">
+                HUSHAE{p.tier ? ` · ${p.tier}` : ''}
+              </span>
+              <h1 className="mt-1 text-[28px] font-light uppercase leading-[1.1] tracking-[-0.5px] text-[#111111]">
                 {name}
               </h1>
-              <p className="mt-2 text-[18px] font-medium">
+              <p className="mt-2 text-[18px] font-medium tracking-[0.5px]">
                 {soldOut ? 'Sold out' : pkr(p.price)}
                 {onSale && p.compareAtPrice > p.price && (
                   <span className="ml-2 text-[14px] font-normal text-[#888888] line-through">{pkr(p.compareAtPrice)}</span>
@@ -183,11 +179,11 @@ export default function Product() {
               </p>
             </div>
 
-            {/* Colour — 28px circles, selected = 2px black ring */}
+            {/* Colour — 24px circles, active = 1.5px black ring */}
             {p.colors?.length > 0 && (
               <div>
-                <span className="mb-2 block text-[12px] font-semibold uppercase">Color: {color}</span>
-                <div className="flex gap-2.5">
+                <span className="mb-[10px] block text-[11px] font-semibold uppercase tracking-[1.5px]">Color: {color}</span>
+                <div className="flex gap-3">
                   {p.colors.map((c) => {
                     const on = color === c.name;
                     return (
@@ -197,8 +193,8 @@ export default function Product() {
                         onClick={() => setColor(c.name)}
                         aria-pressed={on}
                         aria-label={c.name}
-                        className={`h-7 w-7 rounded-full border border-[#dddddd] transition-all duration-200 ${
-                          on ? 'outline outline-2 outline-black outline-offset-2' : 'hover:outline hover:outline-1 hover:outline-black/50'
+                        className={`h-6 w-6 rounded-full border border-[#dddddd] transition-all duration-200 ${
+                          on ? 'outline outline-[1.5px] outline-black outline-offset-[3px]' : 'hover:outline hover:outline-1 hover:outline-black/50'
                         }`}
                         style={{ backgroundColor: c.hex || '#EEEEEE' }}
                       />
@@ -208,15 +204,10 @@ export default function Product() {
               </div>
             )}
 
-            {/* Size — 5-col grid, selected = black fill */}
+            {/* Size — 5-col grid, active = black fill */}
             {needsSize && (
               <div ref={sizeRef}>
-                <div className="mb-2 flex items-center justify-between">
-                  <span className="text-[12px] font-semibold uppercase">Select Size</span>
-                  <button type="button" onClick={() => setGuideOpen(true)} className="text-[11px] text-[#666666] underline underline-offset-2 transition hover:text-black">
-                    Size Guide
-                  </button>
-                </div>
+                <span className="mb-[10px] block text-[11px] font-semibold uppercase tracking-[1.5px]">Select Size</span>
                 <div className="grid grid-cols-5 gap-2">
                   {p.sizes.map((s) => {
                     const on = size === s;
@@ -226,8 +217,8 @@ export default function Product() {
                         type="button"
                         onClick={() => { setSize(s); setSizeErr(false); }}
                         aria-pressed={on}
-                        className={`border py-3 text-[12px] font-medium transition-all duration-200 ${
-                          on ? 'border-black bg-black text-white' : 'border-[#dcdcdc] text-black hover:border-black hover:bg-black hover:text-white'
+                        className={`border py-3 text-[11px] font-medium tracking-[1px] transition-all duration-200 ${
+                          on ? 'border-black bg-black text-white' : 'border-[#e0e0e0] bg-transparent text-[#111111] hover:border-black hover:bg-black hover:text-white'
                         }`}
                       >
                         {s}
@@ -243,26 +234,26 @@ export default function Product() {
               </div>
             )}
 
-            {/* Add To Bag — full width, black */}
+            {/* BUY NOW — express checkout, full width black */}
             <button
               type="button"
-              onClick={tryAdd}
+              onClick={() => tryAdd(true)}
               disabled={soldOut || (needsSize && !size)}
-              className={`mt-2.5 w-full py-4 text-[13px] font-semibold uppercase tracking-[1px] transition-colors duration-200 ${
+              className={`mt-[10px] w-full py-[18px] text-[12px] font-medium uppercase tracking-[2.5px] transition-colors duration-300 ${
                 soldOut || (needsSize && !size)
-                  ? 'cursor-not-allowed bg-[#f0f0f0] text-[#888888]'
-                  : added ? 'bg-[#222222] text-white' : 'bg-black text-white hover:bg-[#222222]'
+                  ? 'cursor-not-allowed bg-[#e5e5e5] text-[#888888]'
+                  : 'bg-black text-white hover:bg-[#2a2a2a]'
               }`}
             >
-              {soldOut ? 'Sold Out' : needsSize && !size ? 'Select A Size' : added ? 'Added ✓' : 'Add To Bag'}
+              {soldOut ? 'Sold Out' : needsSize && !size ? 'Select A Size' : 'Buy Now — Express Checkout'}
             </button>
 
-            {/* Accordions — Product Description / Fabric & Care / Shipping & Returns */}
-            <div className="mt-[15px] border-t border-[#e5e5e5]">
-              <Accordion title="Product Description">
+            {/* Accordions — Product Highlights / Fabric & Care Instructions / Shipping & Easy Returns */}
+            <div className="mt-[10px] border-t border-[#e5e5e5]">
+              <Accordion title="Product Highlights">
                 <p>{p.shortDescription || p.description}</p>
               </Accordion>
-              <Accordion title="Fabric & Care">
+              <Accordion title="Fabric & Care Instructions">
                 <p>{p.fabric}</p>
                 {(p.care || []).length > 0 ? (
                   <ul className="mt-2 list-disc space-y-1 pl-4">
@@ -272,10 +263,10 @@ export default function Product() {
                   <p className="mt-2">Machine wash cold, gentle cycle. Lay flat to dry. Do not bleach.</p>
                 )}
               </Accordion>
-              <Accordion title="Shipping & Returns">
+              <Accordion title="Shipping & Easy Returns">
                 <p>
-                  Free nationwide shipping on orders over {pkr(settings?.freeShippingThreshold ?? 4999)} — dispatched in 24–48h in plain, unmarked packaging.
-                  Unworn pieces exchange within 14 days; for hygiene, innerwear is only returnable if it arrives faulty.
+                  Express nationwide delivery in 2–4 working days. Free shipping over {pkr(settings?.freeShippingThreshold ?? 4999)}.
+                  Hassle-free exchanges within 7 days — for hygiene, innerwear is only returnable if it arrives faulty.
                 </p>
               </Accordion>
             </div>
@@ -283,18 +274,18 @@ export default function Product() {
         </div>
       </div>
 
-      {/* ═══ COMPLETE THE LOOK — single recommendation section ═══════ */}
+      {/* ═══ PAIRS WELL WITH — single recommendation section ══════════ */}
       {complete.length > 0 && (
-        <section className="mx-auto mt-20 max-w-[1400px] border-t border-[#e5e5e5] px-5 pt-10">
-          <h3 className="mb-6 text-[18px] font-normal uppercase">Complete The Look</h3>
-          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <section className="mx-auto mt-20 max-w-[1500px] border-t border-[#e5e5e5] px-5 pt-10 md:px-10">
+          <h3 className="mb-[30px] text-[14px] font-normal uppercase tracking-[2px]">Pairs Well With</h3>
+          <div className="grid grid-cols-2 gap-5 lg:grid-cols-4">
             {complete.slice(0, 4).map((pr) => <CollectionCard key={pr._id} product={pr} />)}
           </div>
         </section>
       )}
 
       {/* Reviews + QA */}
-      <div id="reviews" className="mx-auto mt-20 max-w-[1400px] scroll-mt-28 px-5">
+      <div id="reviews" className="mx-auto mt-20 max-w-[1500px] scroll-mt-28 px-5 md:px-10">
         <ProductReviews product={p} />
         <ProductQA product={p} />
       </div>
@@ -302,7 +293,7 @@ export default function Product() {
       {/* Recently viewed */}
       {rvCfg.enabled !== false && rvCfg.showOnProduct !== false
         && recent.filter((r) => r.slug !== p.slug).length > 0 && (
-        <div className="mx-auto mt-20 max-w-[1400px] px-5 pb-4">
+        <div className="mx-auto mt-20 max-w-[1500px] px-5 pb-4 md:px-10">
           <ProductRow eyebrow="Your history" title={rvCfg.title || 'Recently viewed'} products={recent.filter((r) => r.slug !== p.slug).slice(0, 8)} />
         </div>
       )}
@@ -317,8 +308,6 @@ export default function Product() {
         disabled={soldOut}
         thumb={p.images?.[0]?.url}
       />
-
-      <SizeGuideModal open={guideOpen} onClose={() => setGuideOpen(false)} gender={p.gender} isBra={isBra} />
     </div>
   );
 }

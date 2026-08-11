@@ -676,3 +676,8 @@ Format:
   - `CollectionCard.jsx` re-cut: 3/4 tile bg `#f4f1ea`, hover = main image scale 1.03 (0.8s cubic-bezier(0.16,1,0.3,1)) + second image crossfade (0.4s), black "+ BUY NOW" bar slides up from bottom (hover-only desktop, always visible mobile; hover #1a1a1a) → opens size pick or adds straight to bag; meta = 10px swatches · name 12/400 ls 0.3px · cost 12/500 + struck old.
   - Badge / slider arrows / Quick View / dash indicators removed per reference. Wishlist still available via home cards, cart items and account saved panel.
   - Used across shop/collection grids + PDP "Complete The Look".
+
+## Changes
+- **2026-08-11** — 🛍️ **PDP v3 — exact "HUSHAE - Smoothing Full Slip" reference** + 🖥️ **local-run = live repo** (commit pending)
+  - PDP: bg `#fdfbf7`, max-w 1500 (30/40), grid 1.3fr/0.7fr gap 50, sticky top 80 + pl-5 + gap 24, brand tag ("HUSHAE · tier", 10px ls 2.5px), title 28/300 lh 1.1, price 18/500 ls 0.5, option labels 11px ls 1.5px, swatches 24px (outline 1.5px offset 3), sizes 11px ls 1px border #e0e0e0, **"BUY NOW — EXPRESS CHECKOUT"** (12px ls 2.5px, py 18, hover #2a2a2a, adds + navigates to /checkout), accordions restyled (11px ls 1.5px, py 18, panel 12px lh 1.7) with reference titles (Product Highlights / Fabric & Care Instructions / Shipping & Easy Returns), "Pairs Well With" (14px ls 2px, gap 20). Size-guide link/modal removed per reference.
+  - Local-run: `backend/.env.example` now ships the pre-launch working values (Atlas URI, admin creds, generated JWT) so GitHub ZIP → npm install → start-dev = same as live; heavy rotation warning added. README logins + design-system sections updated.

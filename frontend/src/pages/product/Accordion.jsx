@@ -20,7 +20,7 @@ export default function Accordion({ title, children, defaultOpen = false, headin
           onClick={() => setOpen((v) => !v)}
           aria-expanded={open}
           aria-controls={panelId}
-          className="flex w-full items-center justify-between gap-4 py-4 text-left text-[13px] font-medium uppercase tracking-[0.02em] text-black transition-colors duration-200 hover:text-[#666666]"
+          className="flex w-full items-center justify-between gap-4 py-[18px] text-left text-[11px] font-medium uppercase tracking-[1.5px] text-[#111111] transition-colors duration-200 hover:text-[#666666]"
         >
           {title}
           <span
@@ -43,7 +43,7 @@ export default function Accordion({ title, children, defaultOpen = false, headin
         }`}
       >
         <div className="min-h-0 overflow-hidden">
-          <div className="pb-4 text-[12px] leading-[1.6] text-[#555555]">
+          <div className="pb-[18px] text-[12px] leading-[1.7] text-[#555555]">
             {children}
           </div>
         </div>

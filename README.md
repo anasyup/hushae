@@ -58,14 +58,17 @@ npm run dev        :: storefront on http://localhost:5173
 
 ## Logins & testing
 
+**Live storefront** → https://hushae.vercel.app
 **Live admin console** → https://hushae.vercel.app/admin
 
-**Admin credentials:** ask the store owner — they live in Vercel env vars, never in the repository.
+**Admin login:** `admin@hushae.pk` — password lives in `backend/.env.example`
+(this repo ships with the pre-launch development credentials so a fresh ZIP
+download runs exactly like the live site against the same MongoDB Atlas
+database). Never commit real production secrets; rotate these before launch —
+see the warning at the top of `backend/.env.example`.
 
-`backend/.env.example` ships with placeholders only. Copy it to `backend/.env`
-(or run `start-dev.sh` / `start-dev.bat`, which does it automatically) and fill
-in your real `MONGODB_URI`, `JWT_SECRET` and `ADMIN_PASSWORD` — the values on
-Vercel are the source of truth for production.
+`start-dev.sh` / `start-dev.bat` copy `backend/.env.example` → `backend/.env`
+automatically on first run, so the one-command start just works with live data.
 
 ### Local seed (fresh empty database only)
 
@@ -121,10 +124,11 @@ Server-side guarantees: prices + stock are recomputed from the database at check
 
 ## Design system
 
-- Colours: obsidian `#111111`, alabaster `#F7F5F1`, cream `#EFEAE3`, sage `#8F9C8B`, clay `#B3927E`
-- Storefront fonts: Cormorant Garamond (display) + Inter (UI)
-- Admin fonts: Inter throughout (Shopify-style, clean)
-- Full-screen hero video, cursor-follow product zoom, auto-sliding featured marquee, mobile bottom nav, discreet-packaging branding
+- Storefront fonts: Hanken Grotesk (UI) + Cormorant Garamond (serif display accents)
+- Palette: charcoal `#1A1B1C` text, stone `#F6F2EB`, sand `#EFE8DC`, pearl `#FFFFFF`, smoke `#696969`, gold `#C9A96E`, bronze `#A68A56`
+- Calvin-Klein-inspired storefront: transparent→white sticky header, full-bleed hero,
+  filter-pill collection layouts, warm-nude product cards, split luxury footer
+- Admin console: dark mode, Shopify-style panels (Inter throughout)
 
 ---
 
