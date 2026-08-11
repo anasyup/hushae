@@ -1,81 +1,86 @@
-import { useEffect, useMemo, useRef, useState, lazy, Suspense } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
-import {
-  AlertCircle, Award, ChevronRight, Heart,
-  Package, RotateCcw, Ruler, ShieldCheck, Truck,
-} from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { AlertCircle, Package } from 'lucide-react';
+import { Link, useParams } from 'react-router-dom';
 import { api } from '../api/client';
 import { useApp } from '../store/AppContext';
-import { pkr, snap } from '../lib/format';
+import { pkr } from '../lib/format';
 import { isOnSale } from '../lib/sale';
 import { titleCase } from '../lib/productMeta';
 import { isVideo } from '../lib/media';
-import QuantityStepper from '../components/ui/QuantityStepper';
+import CollectionCard from '../components/CollectionCard';
 import ProductRow from '../components/ProductRow';
 import ProductReviews from '../components/ProductReviews';
 import ProductQA from '../components/reviews/ProductQA';
 import SizeGuideModal from '../components/SizeGuideModal';
 import { ProductSkeleton } from '../components/Skeletons';
-import Tx from '../components/Tx';
 import Seo, { productJsonLd } from '../components/Seo';
-import ProductGallery from './product/ProductGallery';
 import StickyBuyBar from './product/StickyBuyBar';
-
-const ProductPromoPanel = lazy(() => import('../components/marketing/ProductPromoPanel'));
-
 import Accordion from './product/Accordion';
 
-/* QA — brand name lives in the header; strip it from page-level names. */
+/* ============================================================================
+ * HUSHAE Product Details — exact client reference ("Hushae - Product Details
+ * Page").
+ *   · max-w 1400, padding 40px 20px, grid 1.2fr / 0.8fr gap 60
+ *   · LEFT: 2×2 image grid (3/4, #f6f6f6)
+ *   · RIGHT: sticky buy box (top 90px, gap 20):
+ *       title 26/400/-0.5px UPPERCASE · price 18/500 + struck old
+ *       color swatches 28px (selected = 2px black ring)
+ *       size grid 5-col (selected = black fill) + Size Guide link
+ *       Add To Bag — full-width black, 13/600 ls 1px uppercase
+ *       3 accordions: Product Description / Fabric & Care / Shipping & Returns
+ *   · bottom: "Complete The Look" 4-col grid (2 on mobile)
+ * Reviews, QA, recently viewed and the sticky purchase bar are kept below.
+ * ========================================================================== */
+
 const displayName = (name) => String(name || '').replace(/^HUSHAE\s+/i, '');
 const nameOf = (p) => titleCase(displayName(p?.name));
 
+const FALLBACK =
+  'data:image/svg+xml;utf8,' + encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1200"><rect width="100%" height="100%" fill="#F6F6F6"/><text x="50%" y="50%" fill="#999999" font-family="Inter,Helvetica,Arial,sans-serif" font-size="16" letter-spacing="4" text-anchor="middle">HUSHAE</text></svg>');
 
 export default function Product() {
   const { slug } = useParams();
-  const nav = useNavigate();
-  const { addToCart, inWishlist, toggleWish, pushRecent, recent, settings } = useApp();
+  const { addToCart, pushRecent, recent, settings } = useApp();
   const rvCfg = settings?.customerExperience?.recentlyViewed || {};
 
   const [p, setP] = useState(null);
   const [err, setErr] = useState(false);
-  const [imgIdx, setImgIdx] = useState(0);
   const [size, setSize] = useState('');
   const [color, setColor] = useState('');
-  const [qty, setQty] = useState(1);
   const [sizeErr, setSizeErr] = useState(false);
   const [added, setAdded] = useState(false);
   const addTimer = useRef(null); // resets "ADDED ✓" after 2s
   const [guideOpen, setGuideOpen] = useState(false);
   const [bundle, setBundle] = useState([]);
-  const [related, setRelated] = useState([]);
-  const [complete, setComplete] = useState([]);   // CK-style "Complete the Look" — never empty
-  const [reviewTotal, setReviewTotal] = useState(null);
+  const [complete, setComplete] = useState([]); // "Complete the Look" — never empty
 
-  const ctaRef = useRef(null);   // the real Add/Buy row
+  const ctaRef = useRef(null);
   const sizeRef = useRef(null);
 
   useEffect(() => {
-    setP(null); setErr(false); setImgIdx(0); setSize(''); setQty(1);
-    setSizeErr(false); setAdded(false); setBundle([]); setRelated([]); setComplete([]);
-    setReviewTotal(null);
+    setP(null); setErr(false); setSize(''); setColor(''); setSizeErr(false); setAdded(false); setBundle([]); setComplete([]);
     api(`/products/${slug}`)
       .then((d) => {
         setP(d.product);
-        setColor(d.product.colors[0]?.name || '');
+        setColor(d.product.colors?.[0]?.name || '');
         pushRecent(d.product);
-        const bslug = d.product.bundleSlug || '';
-        if (bslug) api(`/products?category=${bslug}&limit=3&sort=popular`).then((x) => setBundle(x.products)).catch(() => {});
-        api(`/reviews/product/${d.product._id}?limit=1`)
-          .then((r) => setReviewTotal(Number(r?.total) || 0))
-          .catch(() => setReviewTotal(0));
       })
       .catch(() => setErr(true));
-    api(`/products/${slug}/related`).then((d) => setRelated(d.products || [])).catch(() => setRelated([]));
   }, [slug]); // eslint-disable-line
 
-  /* ── CK-style "Complete the Look" — the section must NEVER sit empty.
-     Priority: merchant bundle → same-category picks. Related is kept for the
-     "You may also like" row, which dedupes against this list. */
+  /* Merchant bundle → the first "Complete the Look" source. */
+  useEffect(() => {
+    if (!p?.bundleSlug) { setBundle([]); return; }
+    let alive = true;
+    api(`/products?category=${p.bundleSlug}&limit=3&sort=popular`)
+      .then((x) => { if (alive) setBundle(x.products || []); })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, [p]);
+
+  /* ── "Complete the Look" — the section must NEVER sit empty.
+     Priority: merchant bundle → same-category picks. */
   useEffect(() => {
     if (!p) return;
     if (bundle.length) { setComplete(bundle.slice(0, 4)); return; }
@@ -86,7 +91,7 @@ export default function Product() {
     return () => { alive = false; };
   }, [p, bundle]); // eslint-disable-line
 
-  useEffect(() => { setAdded(false); }, [size, color, qty]);
+  useEffect(() => { setAdded(false); }, [size, color]);
 
   const media = useMemo(() => {
     if (!p) return [];
@@ -96,66 +101,47 @@ export default function Product() {
       : imgs;
   }, [p]);
 
+  /* Gallery = plain images from the media list (videos fall back to image). */
+  const gallery = useMemo(() => {
+    const imgs = (media || []).filter((m) => m.t === 'img').map((m) => m.url).filter(Boolean);
+    if (imgs.length) return imgs;
+    const first = media?.[0]?.url || p?.image || '';
+    return first ? [first] : [];
+  }, [media, p]);
+
   if (err) {
     return (
-      <div className="container-page py-sect-y md:py-sect-y-lg">
-        <div className="empty-state">
-          <span className="empty-state-icon" aria-hidden="true"><Package size={24} strokeWidth={1.6} /></span>
-          <h1 className="mt-6 font-display text-h2">This piece has moved on</h1>
-          <p className="mt-2 text-body-sm">It may be sold out or no longer part of the edit.</p>
-          <Link to="/shop" className="btn-primary mt-8">Back to Shop</Link>
-        </div>
+      <div className="mx-auto max-w-[1400px] px-5 py-24 text-center">
+        <span className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-[#F0F0F0] text-[#696969]"><Package size={22} /></span>
+        <h1 className="mt-6 text-3xl font-medium uppercase tracking-[0.04em] text-[#111111]">This piece has moved on</h1>
+        <p className="mx-auto mt-2 max-w-sm text-sm text-[#696969]">It may be sold out or no longer part of the edit.</p>
+        <Link to="/shop" className="btn-primary mt-8">Back to Shop</Link>
       </div>
     );
   }
   if (!p) return <ProductSkeleton />;
 
-  const wished = inWishlist(p);
   const isBra = p.categorySlug === 'bras';
   const needsSize = (p.sizes || []).length > 0;
   const soldOut = p.stock === 0;
-  /* v2 — sale windows. Only the merchant's explicit sale counts; the was-price
-     is shown struck through, never as a "save" amount or a countdown. */
   const onSale = isOnSale(p);
-  const reviewsShown = reviewTotal ?? 0;
   const name = nameOf(p);
 
-  /* CK-style: Earn X points — mirrors the loyalty earn rate (server decides
-     the real award; this is the same display-only estimate checkout uses). */
-  const loyaltyCfg = settings?.loyalty;
-  const showPoints = loyaltyCfg?.enabled === true;
-  const earnPoints = showPoints
-    ? Math.floor(p.price * (Number(loyaltyCfg?.earn?.perCurrency) || 0.01))
-    : 0;
-
-  /* "You may also like" never duplicates "Complete the Look". */
-  const relatedExtra = related.filter((r) => !complete.some((c) => c.slug === r.slug));
-
-  const tryAdd = (goToCheckout) => {
+  const tryAdd = () => {
     if (needsSize && !size) {
       setSizeErr(true);
       sizeRef.current?.scrollIntoView({ block: 'center', behavior: 'smooth' });
       sizeRef.current?.querySelector('button')?.focus();
       return;
     }
-    addToCart(p, { size, color, quantity: qty });
+    addToCart(p, { size, color });
     setAdded(true);
     window.clearTimeout(addTimer.current);
     addTimer.current = window.setTimeout(() => setAdded(false), 2000);
-    if (goToCheckout) nav('/checkout');
-  };
-
-  const pickColor = (name) => {
-    setColor(name);
-    const c = p.colors.find((x) => x.name === name);
-    if (c?.image) {
-      const idx = p.images.findIndex((im) => im.url === c.image);
-      if (idx >= 0) setImgIdx(idx);
-    }
   };
 
   return (
-    <div className="container-page bg-[#F8F5F0] py-6 text-[#070606] md:py-8">
+    <div className="bg-white text-black">
       <Seo
         title={name}
         description={p.shortDescription || p.description?.slice(0, 160) || `${name} — premium innerwear from HUSHAE. PKR ${p.price}. ${p.stock > 0 ? 'In stock' : 'Out of stock'}. COD available.`}
@@ -165,369 +151,174 @@ export default function Product() {
         jsonLdId="product"
       />
 
-      {/* QA — breadcrumb at the TOP, quiet 11px smoke */}
-      <nav aria-label="Breadcrumb" className="mb-6 flex flex-wrap items-center gap-1.5 text-[11px] font-normal text-smoke md:mb-8">
-        <Link to="/" className="transition hover:text-charcoal">Home</Link>
-        <ChevronRight size={11} aria-hidden="true" />
-        <Link to={`/${p.gender}`} className="capitalize transition hover:text-charcoal">{p.gender}</Link>
-        <ChevronRight size={11} aria-hidden="true" />
-        <Link to={`/category/${p.categorySlug}`} className="capitalize transition hover:text-charcoal">{p.categorySlug.replace(/-/g, ' ')}</Link>
-        <ChevronRight size={11} aria-hidden="true" />
-        <span aria-current="page" className="clamp-1 max-w-[240px]">{name}</span>
-      </nav>
-
-      <div className="grid gap-8 lg:grid-cols-2 lg:gap-14 xl:grid-cols-[1.2fr_1fr] xl:gap-20">
-        {/* Left Column: Composed Lookbook Gallery */}
-        <div className="min-w-0">
-          <ProductGallery media={media} index={imgIdx} onIndex={setImgIdx} productName={name} />
-        </div>
-
-        {/* Right Column: Sticky, Quiet Details */}
-        <aside className="lg:sticky lg:top-28 lg:h-fit space-y-7">
-          <div className="space-y-4">
-            {/* Collection eyebrow — reference: "Winter Monolith" */}
-            <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-[#696969]">
-              {p.categoryName || (p.tier === 'Premium' ? 'Signature' : p.tier || 'New Season')}
-            </p>
-
-            {/* Product name — title case, bold-ish */}
-            <h1 className="text-[28px] font-medium leading-tight normal-case tracking-[0.01em] text-[#111111]">
-              {name}
-            </h1>
-
-            {/* Price + rating + reviews count */}
-            <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
-              <span className="text-[20px] font-medium tabular-nums text-[#111111]">{pkr(p.price)}</span>
-              {onSale && (
-                <span className="text-[14px] font-normal text-[#696969] line-through tabular-nums">{pkr(p.compareAtPrice)}</span>
-              )}
-              <span aria-hidden="true" className="text-[#CCCCCC]">|</span>
-              <a href="#reviews" className="inline-flex items-center gap-1.5 text-[13px] text-[#111111] transition hover:text-[#696969]">
-                <span className="inline-flex gap-0.5 text-[12px] text-[#111111]">
-                  {Array.from({ length: 5 }).map((_, st) => (
-                    <span key={st}>{st < Math.round(p.ratingAvg || 0) ? '★' : '☆'}</span>
-                  ))}
-                </span>
-                <span className="text-[13px] font-medium">{Number(p.ratingAvg || 0).toFixed(1)}</span>
-                <span className="text-[13px] text-[#696969]">· {reviewsShown} review{reviewsShown === 1 ? '' : 's'}</span>
-              </a>
-            </div>
-
-            {/* Stock — reference: "In stock — ships within 24 hours" */}
-            <p className="text-[13px] text-[#696969]">
-              {soldOut
-                ? 'Sold out'
-                : p.stock <= 5
-                  ? `Only ${p.stock} left — ships within 24 hours`
-                  : 'In stock — ships within 24 hours'}
-            </p>
+      {/* ═══ PDP — 1.2fr / 0.8fr split ═════════════════════════════════ */}
+      <div className="mx-auto max-w-[1400px] px-5 py-10">
+        <div className="grid items-start gap-[25px] lg:grid-cols-[1.2fr_0.8fr] lg:gap-[60px]">
+          {/* LEFT — 2×2 image grid */}
+          <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+            {gallery.map((u, i) => (
+              <div key={`${u}-${i}`} className="w-full bg-[#f6f6f6]" style={{ aspectRatio: '3 / 4' }}>
+                <img
+                  src={u}
+                  alt={`${name} — view ${i + 1}`}
+                  loading={i === 0 ? 'eager' : 'lazy'}
+                  onError={(e) => { if (e.currentTarget.src !== FALLBACK) e.currentTarget.src = FALLBACK; }}
+                  className="h-full w-full object-cover"
+                />
+              </div>
+            ))}
           </div>
 
-          {/* Colour Selector — flat rectangles, 2px clay border, text-only */}
-          {p.colors?.length > 0 && (
-            <fieldset className="border-0 p-0">
-              <legend className="label-qa">
-                Colour — <span className="font-medium normal-case text-charcoal">{color}</span>
-              </legend>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {p.colors.map((c) => {
-                  const on = color === c.name;
-                  return (
-                    <button
-                      key={c.name}
-                      type="button"
-                      onClick={() => pickColor(c.name)}
-                      aria-pressed={on}
-                      aria-label={c.name}
-                      className={`border-2 px-4 py-2 text-[12px] font-normal normal-case text-charcoal transition-colors duration-150 ${
-                        on ? 'border-charcoal bg-charcoal text-white' : 'border-clay hover:border-charcoal'
-                      }`}
-                    >
-                      {c.name}
-                    </button>
-                  );
-                })}
-              </div>
-            </fieldset>
-          )}
+          {/* RIGHT — sticky buy box */}
+          <aside className="flex flex-col gap-5 lg:sticky lg:top-[90px] lg:h-fit">
+            <div>
+              <h1 className="text-[26px] font-normal uppercase leading-tight tracking-[-0.5px] text-black">
+                {name}
+              </h1>
+              <p className="mt-2 text-[18px] font-medium">
+                {soldOut ? 'Sold out' : pkr(p.price)}
+                {onSale && p.compareAtPrice > p.price && (
+                  <span className="ml-2 text-[14px] font-normal text-[#888888] line-through">{pkr(p.compareAtPrice)}</span>
+                )}
+              </p>
+            </div>
 
-          {/* Size Selector — clean rectangles, 1px clay border, 12px padding */}
-          {needsSize && (
-            <fieldset ref={sizeRef} className="border-0 p-0">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <legend className="label-qa">Size</legend>
-                <div className="flex items-center gap-4 text-[11px] font-normal">
-                  <button type="button" onClick={() => setGuideOpen(true)}
-                    className="text-smoke underline underline-offset-4 transition hover:text-charcoal">
-                    Size guide
-                  </button>
-                  <Link to="/fit-finder" className="inline-flex items-center gap-1 text-smoke transition hover:text-charcoal">
-                    <Ruler size={11} /> Fit Finder
-                  </Link>
+            {/* Colour — 28px circles, selected = 2px black ring */}
+            {p.colors?.length > 0 && (
+              <div>
+                <span className="mb-2 block text-[12px] font-semibold uppercase">Color: {color}</span>
+                <div className="flex gap-2.5">
+                  {p.colors.map((c) => {
+                    const on = color === c.name;
+                    return (
+                      <button
+                        key={c.name}
+                        type="button"
+                        onClick={() => setColor(c.name)}
+                        aria-pressed={on}
+                        aria-label={c.name}
+                        className={`h-7 w-7 rounded-full border border-[#dddddd] transition-all duration-200 ${
+                          on ? 'outline outline-2 outline-black outline-offset-2' : 'hover:outline hover:outline-1 hover:outline-black/50'
+                        }`}
+                        style={{ backgroundColor: c.hex || '#EEEEEE' }}
+                      />
+                    );
+                  })}
                 </div>
               </div>
+            )}
 
-              <div className="mt-3 flex flex-wrap gap-2">
-                {p.sizes.map((s) => {
-                  const on = size === s;
-                  return (
-                    <button
-                      key={s}
-                      type="button"
-                      onClick={() => { setSize(s); setSizeErr(false); }}
-                      aria-pressed={on}
-                      className={`border px-3 py-2 text-[13px] font-normal tracking-[0.02em] text-charcoal transition-colors duration-150 ${
-                        on ? 'border-charcoal bg-charcoal text-white' : 'border-clay hover:border-charcoal'
-                      }`}
-                    >
-                      {s}
-                    </button>
-                  );
-                })}
+            {/* Size — 5-col grid, selected = black fill */}
+            {needsSize && (
+              <div ref={sizeRef}>
+                <div className="mb-2 flex items-center justify-between">
+                  <span className="text-[12px] font-semibold uppercase">Select Size</span>
+                  <button type="button" onClick={() => setGuideOpen(true)} className="text-[11px] text-[#666666] underline underline-offset-2 transition hover:text-black">
+                    Size Guide
+                  </button>
+                </div>
+                <div className="grid grid-cols-5 gap-2">
+                  {p.sizes.map((s) => {
+                    const on = size === s;
+                    return (
+                      <button
+                        key={s}
+                        type="button"
+                        onClick={() => { setSize(s); setSizeErr(false); }}
+                        aria-pressed={on}
+                        className={`border py-3 text-[12px] font-medium transition-all duration-200 ${
+                          on ? 'border-black bg-black text-white' : 'border-[#dcdcdc] text-black hover:border-black hover:bg-black hover:text-white'
+                        }`}
+                      >
+                        {s}
+                      </button>
+                    );
+                  })}
+                </div>
+                {sizeErr && !size && (
+                  <p role="alert" className="mt-2 flex items-center gap-1.5 text-[11px] text-red-700">
+                    <AlertCircle size={12} /> Choose your size
+                  </p>
+                )}
               </div>
+            )}
 
-              {sizeErr && !size && (
-                <p role="alert" className="mt-2 flex items-center gap-1.5 text-[11px] text-red-700">
-                  <AlertCircle size={12} /> Choose your size
-                </p>
-              )}
-              {!sizeErr && !size && (
-                <p className="mt-2 text-[11px] text-smoke">Please select a size</p>
-              )}
-            </fieldset>
-          )}
-
-          {/* Quantity + Add to Bag + Wishlist */}
-          <div ref={ctaRef} className="space-y-4 border-t border-clay pt-6">
-            <div className="flex items-center gap-3">
-              <QuantityStepper value={qty} onChange={setQty} min={1} max={Math.max(1, Math.min(10, p.stock || 10))} />
-
-              {/* Add to Bag — midnight, 0 radius, Inter 500 / 14 / 0.08em */}
-              <button
-                type="button"
-                onClick={() => tryAdd(false)}
-                disabled={soldOut || (needsSize && !size)}
-                className={`flex-1 min-h-[48px] inline-flex items-center justify-center text-[14px] font-medium uppercase tracking-[0.08em] transition-colors duration-300 ${
-                  soldOut
-                    ? 'cursor-not-allowed bg-sand text-smoke'
-                    : needsSize && !size
-                      ? 'cursor-not-allowed bg-sand text-smoke'
-                      : `text-white ${added ? 'bg-gold' : 'bg-charcoal hover:bg-charcoal'}`
-                }`}
-              >
-                {soldOut ? 'Sold out' : needsSize && !size ? 'Select a Size' : added ? 'ADDED ✓' : 'Add to Bag'}
-              </button>
-
-              <button
-                type="button"
-                onClick={() => toggleWish(p)}
-                aria-pressed={wished}
-                aria-label={wished ? 'Remove from wishlist' : 'Save to wishlist'}
-                className={`grid h-[48px] w-[48px] shrink-0 place-items-center border transition-colors duration-300 ${
-                  wished ? 'border-charcoal bg-charcoal text-white' : 'border-clay text-smoke hover:border-charcoal hover:text-charcoal'
-                }`}
-              >
-                <Heart size={16} strokeWidth={wished ? 2.2 : 1.6} fill={wished ? 'currentColor' : 'none'} />
-              </button>
-            </div>
-
-            {/* Buy now — reference secondary button */}
+            {/* Add To Bag — full width, black */}
             <button
               type="button"
-              onClick={() => tryAdd(true)}
+              onClick={tryAdd}
               disabled={soldOut || (needsSize && !size)}
-              className={`w-full min-h-[48px] inline-flex items-center justify-center border text-[14px] font-medium uppercase tracking-[0.08em] transition-colors duration-300 ${
+              className={`mt-2.5 w-full py-4 text-[13px] font-semibold uppercase tracking-[1px] transition-colors duration-200 ${
                 soldOut || (needsSize && !size)
-                  ? 'cursor-not-allowed border-[#E5E5E5] text-[#696969]'
-                  : 'border-[#111111] text-[#111111] hover:bg-[#111111] hover:text-white'
+                  ? 'cursor-not-allowed bg-[#f0f0f0] text-[#888888]'
+                  : added ? 'bg-[#222222] text-white' : 'bg-black text-white hover:bg-[#222222]'
               }`}
             >
-              Buy now
+              {soldOut ? 'Sold Out' : needsSize && !size ? 'Select A Size' : added ? 'Added ✓' : 'Add To Bag'}
             </button>
 
-            <p aria-live="polite" className="min-h-[1.25rem] text-[11px]">
-              {added && (
-                <span className="inline-flex items-center gap-1.5 pt-1 font-medium uppercase tracking-[0.12em] text-[#696969]">
-                  ✓ Added to your bag
-                </span>
-              )}
-            </p>
-
-            {/* Description — reference places it after the buttons */}
-            <p className="text-[14px] leading-[1.7] text-[#696969]">
-              {p.shortDescription || p.description}
-            </p>
-          </div>
-
-          {/* ── Rewards + shipping note — quiet, no urgency ── */}
-          <div className="space-y-2.5">
-            {showPoints && (
-              <div className="flex items-center gap-2.5 border border-clay bg-white/60 px-4 py-3">
-                <Award size={15} className="shrink-0 text-gold" aria-hidden="true" />
-                <p className="text-[12px] leading-relaxed text-smoke">
-                  Earn <span className="font-medium text-charcoal tabular-nums">{earnPoints} {earnPoints === 1 ? 'point' : 'points'}</span> with this purchase
-                  {' '}<Link to="/rewards" className="font-medium text-charcoal underline underline-offset-4 transition hover:text-gold">Join HUSHAE Circle</Link>
+            {/* Accordions — Product Description / Fabric & Care / Shipping & Returns */}
+            <div className="mt-[15px] border-t border-[#e5e5e5]">
+              <Accordion title="Product Description">
+                <p>{p.shortDescription || p.description}</p>
+              </Accordion>
+              <Accordion title="Fabric & Care">
+                <p>{p.fabric}</p>
+                {(p.care || []).length > 0 ? (
+                  <ul className="mt-2 list-disc space-y-1 pl-4">
+                    {(p.care || []).map((c) => <li key={c}>{c}</li>)}
+                  </ul>
+                ) : (
+                  <p className="mt-2">Machine wash cold, gentle cycle. Lay flat to dry. Do not bleach.</p>
+                )}
+              </Accordion>
+              <Accordion title="Shipping & Returns">
+                <p>
+                  Free nationwide shipping on orders over {pkr(settings?.freeShippingThreshold ?? 4999)} — dispatched in 24–48h in plain, unmarked packaging.
+                  Unworn pieces exchange within 14 days; for hygiene, innerwear is only returnable if it arrives faulty.
                 </p>
-              </div>
-            )}
-            <p className="text-[11px] leading-relaxed text-smoke">
-              Free standard shipping on orders over {pkr(settings?.freeShippingThreshold ?? 4999)} · Discreet packaging on every order
-            </p>
-          </div>
-
-          {/* Offers Panel */}
-          <div className="pt-1">
-            <Suspense fallback={null}>
-              <ProductPromoPanel product={p} />
-            </Suspense>
-          </div>
-
-          {/* Minimal Trust Row */}
-          <ul className="grid grid-cols-3 divide-x divide-clay border-y border-clay py-4 text-center">
-            {[
-              [Truck, '2–5 Day Delivery'],
-              [RotateCcw, '14-Day Exchange'],
-              [ShieldCheck, 'Discreet Package'],
-            ].map(([Icon, txt]) => (
-              <li key={txt} className="flex flex-col items-center gap-1.5 text-[10px] font-medium uppercase tracking-[0.14em] text-smoke">
-                <Icon size={15} strokeWidth={1.5} className="text-charcoal/70" />
-                {txt}
-              </li>
-            ))}
-          </ul>
-
-          {/* ── Accordions — reference: Materials & traceability / Care / Shipping / Returns ── */}
-          <ProductAccordions p={p} settings={settings} />
-        </aside>
+              </Accordion>
+            </div>
+          </aside>
+        </div>
       </div>
 
-      {/* ── CK-style "Complete the Look" — ALWAYS populated: bundle first,
-          same-category picks as fallback, so the section never sits empty. */}
+      {/* ═══ COMPLETE THE LOOK — single recommendation section ═══════ */}
       {complete.length > 0 && (
-        <div className="mt-24 md:mt-32">
-          <ProductRow eyebrow="Complete the look" title="Pairs perfectly with" products={complete.map(snap)} />
-        </div>
-      )}
-
-      {/* You may also like — deduped against Complete the Look */}
-      {relatedExtra.length > 0 && (
-        <div className="mt-24 md:mt-32">
-          <ProductRow eyebrow="You may also like" title="Related pieces" products={relatedExtra.map(snap)} />
-        </div>
-      )}
-
-      {/* ── ABOUT THIS FABRIC — editorial close-up ── */}
-      {p.fabric && (
-        <section className="mt-20 grid grid-cols-1 items-center gap-8 border-t border-clay/60 pt-14 md:mt-28 md:grid-cols-2 md:gap-14">
-          <div className="relative aspect-[4/3] overflow-hidden bg-sand">
-            <img src="/images/campaign/hushae-fabric.jpg" alt={`${p.fabric} — HUSHAE fabric close-up`} loading="lazy"
-              className="absolute inset-0 h-full w-full object-cover" />
-          </div>
-          <div>
-            <p className="label-qa">About this fabric</p>
-            <h2 className="mt-4 text-[28px] font-light normal-case tracking-[0.06em] text-charcoal md:text-[36px]">
-              {p.fabric}
-            </h2>
-            <p className="mt-5 max-w-md body-qa">
-              {p.shortDescription || p.description}
-            </p>
-            {(p.care || []).length > 0 && (
-              <ul className="mt-5 space-y-2 border-t border-clay/60 pt-5 text-[12px] text-smoke">
-                {(p.care || []).slice(0, 3).map((c) => <li key={c} className="flex items-start gap-2"><span className="mt-1.5 h-1 w-1 shrink-0 bg-smoke/60" />{c}</li>)}
-              </ul>
-            )}
+        <section className="mx-auto mt-20 max-w-[1400px] border-t border-[#e5e5e5] px-5 pt-10">
+          <h3 className="mb-6 text-[18px] font-normal uppercase">Complete The Look</h3>
+          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+            {complete.slice(0, 4).map((pr) => <CollectionCard key={pr._id} product={pr} />)}
           </div>
         </section>
       )}
 
-      {/* Reviews Section */}
-      <div id="reviews" className="scroll-mt-28">
+      {/* Reviews + QA */}
+      <div id="reviews" className="mx-auto mt-20 max-w-[1400px] scroll-mt-28 px-5">
         <ProductReviews product={p} />
         <ProductQA product={p} />
       </div>
 
-      {/* Recently Viewed */}
+      {/* Recently viewed */}
       {rvCfg.enabled !== false && rvCfg.showOnProduct !== false
         && recent.filter((r) => r.slug !== p.slug).length > 0 && (
-        <div className="mt-24 pb-4 md:mt-32">
+        <div className="mx-auto mt-20 max-w-[1400px] px-5 pb-4">
           <ProductRow eyebrow="Your history" title={rvCfg.title || 'Recently viewed'} products={recent.filter((r) => r.slug !== p.slug).slice(0, 8)} />
         </div>
       )}
 
-      {/* ── Rus editorial close: "Discover our bestsellers" ── */}
-      {complete.length > 0 && (
-        <section className="mt-20 border-t border-[#E4E2DA] pt-14 md:mt-28">
-          <div className="relative aspect-[16/9] w-full overflow-hidden bg-[#E4E2DA] md:aspect-[21/8]">
-            <img src="/images/campaign/qa/editorial-modern.jpg" alt="Discover our bestsellers" loading="lazy"
-              className="absolute inset-0 h-full w-full object-cover" />
-            <div className="absolute inset-0 bg-black/40" />
-            <div className="absolute inset-0 flex items-center justify-center px-6 text-center text-white">
-              <div>
-                <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-white/80">The Edit</p>
-                <h2 className="mt-4 text-[clamp(26px,4vw,42px)] font-medium uppercase tracking-[0.06em]">Discover Our Bestsellers</h2>
-                <p className="mx-auto mt-3 max-w-md text-[14px] font-light leading-[1.7] text-white/85">
-                  The pieces everyone keeps coming back to — worn, loved, reordered.
-                </p>
-                <Link to="/best" className="mt-7 inline-flex min-h-[48px] items-center justify-center border border-white/80 px-9 text-[12px] font-medium uppercase tracking-[0.16em] text-white transition-colors duration-300 hover:bg-white hover:text-black">
-                  Shop Bestsellers
-                </Link>
-              </div>
-            </div>
-          </div>
-          <div className="mt-12">
-            <ProductRow eyebrow="Most loved" title="The Bestsellers" products={complete.slice(0, 6).map(snap)} />
-          </div>
-        </section>
-      )}
-
-      {/* Sticky Bottom Purchase Bar */}
+      {/* Sticky bottom purchase bar */}
       <StickyBuyBar
         product={p}
         watchRef={ctaRef}
         size={size}
         needsSize={needsSize}
-        onAdd={() => tryAdd(false)}
+        onAdd={tryAdd}
         disabled={soldOut}
         thumb={p.images?.[0]?.url}
       />
 
       <SizeGuideModal open={guideOpen} onClose={() => setGuideOpen(false)} gender={p.gender} isBra={isBra} />
-    </div>
-  );
-}
-
-/* ═══ CK/SKIMS horizontal tabs — active = bold + underline, 200ms fade ═════ */
-/* ═══ Accordions — reference structure (Materials & traceability / Care / Shipping / Returns) ═══ */
-function ProductAccordions({ p, settings }) {
-  return (
-    <div className="pt-4">
-      <Accordion title="Material composition">
-        <p className="text-[13px]">{p.fabric}</p>
-        <p className="mt-2 text-[13px] leading-[1.7]">
-          {p.shortDescription || p.description}
-        </p>
-      </Accordion>
-      <Accordion title="Measurements">
-        {(p.care || []).length > 0 ? (
-          <ul className="list-disc space-y-1.5 pl-5 text-[13px] leading-[1.7]">
-            {(p.care || []).map((c) => <li key={c}>{c}</li>)}
-          </ul>
-        ) : (
-          <p className="text-[13px] leading-[1.7]">Machine wash cold, gentle cycle. Lay flat to dry. Do not bleach.</p>
-        )}
-      </Accordion>
-      <Accordion title="Refund policy & shipping">
-        <p className="text-[13px] leading-[1.7]">
-          Flat {pkr(settings?.shippingFlatRate ?? 350)} nationwide, free over {pkr(settings?.freeShippingThreshold ?? 4999)}.
-          Dispatched in 24–48h in plain, unmarked packaging.
-        </p>
-      </Accordion>
-      <Accordion title="Care">
-        <p className="text-[13px] leading-[1.7]">
-          Unworn pieces exchange within 14 days — size swaps are free. For hygiene reasons innerwear is only
-          returnable if it arrives faulty.
-        </p>
-      </Accordion>
     </div>
   );
 }

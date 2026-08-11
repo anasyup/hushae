@@ -664,3 +664,9 @@ Format:
 - **2026-08-11** — 🖼️ **CATEGORY HERO BANNER — exact client reference** (commit pending)
   - New `CategoryBanner.jsx`: full-bleed 380px (280px ≤768), #f4f0eb fallback, object-cover center 30%, left→right gradient overlay (0.45/0.2/0), content = tag (11px ls 2px uppercase) · title (42px/300 ls -0.5px uppercase lh 1.1) · desc (13px #f0f0f0 max-w 420), mb 20px.
   - Wired into Shop (all presets: women→"Women's Essentials"/hero-women, men, new, best, sale, all, category→cat image + gender tag) and Collection (/collection/:slug → collection image + "The Collection" tag) — sits directly under the main header, above sub-nav.
+
+## Changes
+- **2026-08-11** — 🛍️ **PRODUCT DETAILS PAGE — exact client reference** (commit pending)
+  - `Product.jsx` re-cut: white bg, max-w 1400 (40/20), grid 1.2fr/0.8fr gap 60, sticky buy box top 90px; LEFT = 2×2 image grid (3/4 #f6f6f6); RIGHT = title 26/400/-0.5px UPPERCASE · price 18/500 + struck old · colour swatches 28px (selected 2px black ring) · size grid 5-col (selected black fill) + Size Guide · full-width black Add To Bag (13/600 ls 1px) · 3 accordions (Product Description / Fabric & Care / Shipping & Returns).
+  - Bottom: "Complete The Look" — border-top, 18px uppercase title, 4-col CollectionCard grid (2 mobile). Reviews/QA, recently viewed, StickyBuyBar kept. Breadcrumb, rating row, stock line, qty, Buy Now, heart, points box, trust row, promo panel, related row, fabric editorial & bestsellers close removed per reference.
+  - `Accordion.jsx` restyled to reference: 13/500 uppercase header, +/− glyph, 12px #555 content.
