@@ -732,3 +732,7 @@ Format:
 - **2026-08-11** — 🖱️ **Interactive arrows + card meta — exact ProductDetailGallery/ProductCard reference** (commit pending)
   - PDP main gallery arrows: 40px (w-10 h-10) rounded-full bg-white/90 `shadow-md`, hover scale-105, Chevron 20px stroke 1.5 — exact reference spec (thumbs + lightbox kept).
   - Card (bar variant): hover arrows → 32px (h-8 w-8), left-2/right-2, bg-white/90 `shadow`, Chevron 16px stroke 1.5; title → **12px/600 UPPERCASE tracking-wider line-clamp-1**; price row → 12px, struck original neutral-400 + current neutral-500; image container mb-3. Badge / Buy Now (SizeModal) / indicators / swatches kept from the Fashion Grid reference.
+
+## Changes
+- **2026-08-11** — 🗂️ **MEGA MENU — exact luxury animated reference** (commit pending)
+  - `MegaMenu.jsx` re-cut: full-width dropdown bg `#FAF9F6`, border-b, `shadow-2xl`, framer-motion opacity/y entrance (0.35s, ease [0.16,1,0.3,1]); 12-col grid (max-w 1440, px-6/12, py-12): promo banner card (col-span-4, 4/3, hover zoom 0.7s + black/20→30 overlay + bottom-left title/CTA with ArrowRight) · Featured (col-span-3 pl-6) · Shop {label} (col-span-3, first 3 categories + View all) · More (col-span-2, remaining categories). Links text-sm neutral-800, hover translate-x-1.5. Animated underline indicator (motion layoutId) under the trigger. Keyboard/Escape/aria kept.

@@ -1,25 +1,32 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
-import { ChevronDown } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowRight, ChevronDown } from 'lucide-react';
 
 /* ============================================================================
- * MEGA MENU — Calvin Klein reference structure.
+ * MEGA MENU — exact client reference (luxury animated mega menu).
  *
- * Layout (mirrors the client's reference HTML/CSS):
- *   promo-card (image + "Shop …" button) | FEATURED column | category columns
+ * Full-width dropdown, #FAF9F6, shadow-2xl, framer-motion opacity/y entrance:
+ *   promo banner card (4/3, hover zoom + overlay) | FEATURED | Shop {label}
+ *   | More — a 12-column grid with translate-x link hovers, plus an animated
+ *   underline indicator (layoutId) under the trigger.
  *
- * Built from the SAME `cats` array the Header already fetches (5 categories
- * per gender) plus the shop's own /new, /best, /collection and /sale routes.
- * Accessibility (keyboard arrows, Escape, aria-expanded/controls) carried
- * over from the previous implementation — measured working.
+ * Categories come from the `cats` array Header already fetches (first 3 →
+ * "Shop {label}", the rest → "More"). Featured = /new, /best, /collection,
+ * /sale routes. Keyboard arrows, Escape and aria states carried over.
  * ========================================================================== */
 
-const COL_HEAD = 'text-[11px] font-semibold uppercase tracking-[0.05em] text-[#111111]';
-const LINK = 'block py-1 text-[12.5px] leading-[1.35] text-[#333333] transition-colors duration-150 hover:text-black';
+const HEAD = 'text-[11px] font-semibold uppercase tracking-widest text-neutral-400';
+const LINK = 'inline-block text-sm tracking-wide text-neutral-800 transition-all duration-200 hover:translate-x-1.5 hover:text-black';
 
-export default function MegaMenu({ label, to, items, linkCls, navStyle, onDark, collections = [] }) {
+/* Promo per gender — reference copy with HUSHAE images. */
+const PROMO = {
+  men: { image: '/images/campaign/qa/hero-men.jpg', title: 'Essential Comfort', cta: 'Shop Men' },
+  women: { image: '/images/campaign/qa/hero-women.jpg', title: 'Cloud Lounge Collection', cta: 'Explore Women' },
+};
+
+export default function MegaMenu({ label, to, items, linkCls, navStyle, collections = [] }) {
   const [open, setOpen] = useState(false);
-  const [shift, setShift] = useState(null);
   const wrapRef = useRef(null);
   const triggerRef = useRef(null);
   const panelRef = useRef(null);
@@ -33,17 +40,6 @@ export default function MegaMenu({ label, to, items, linkCls, navStyle, onDark, 
   };
 
   useEffect(() => () => clearTimeout(closeTimer.current), []);
-
-  useEffect(() => {
-    const measure = () => {
-      const el = wrapRef.current;
-      if (!el) return;
-      setShift(Math.round(window.innerWidth / 2 - el.getBoundingClientRect().left));
-    };
-    measure();
-    window.addEventListener('resize', measure);
-    return () => window.removeEventListener('resize', measure);
-  }, [open]);
 
   useEffect(() => {
     if (!open) return undefined;
@@ -87,12 +83,9 @@ export default function MegaMenu({ label, to, items, linkCls, navStyle, onDark, 
   };
 
   const hasItems = items.length > 0;
-  /* Promo image — first category with an image for this gender. */
-  const promo = items.find((c) => c.image) || null;
-  /* Split the gender's categories into two columns (3 + 2). */
-  const half = Math.ceil(items.length / 2);
-  const colA = items.slice(0, half);
-  const colB = items.slice(half);
+  const promo = PROMO[to?.replace('/', '')] || { image: items.find((c) => c.image)?.image || '', title: `Shop ${label}`, cta: `Shop ${label}` };
+  const categories = items.slice(0, 3);
+  const more = items.slice(3);
 
   return (
     <div
@@ -104,7 +97,7 @@ export default function MegaMenu({ label, to, items, linkCls, navStyle, onDark, 
       <NavLink
         ref={triggerRef}
         to={to}
-        className={({ isActive }) => `${linkCls({ isActive })} inline-flex items-center gap-1`}
+        className={({ isActive }) => `${linkCls({ isActive })} relative inline-flex items-center gap-1`}
         style={navStyle}
         aria-expanded={hasItems ? open : undefined}
         aria-controls={hasItems && open ? panelId : undefined}
@@ -119,108 +112,98 @@ export default function MegaMenu({ label, to, items, linkCls, navStyle, onDark, 
             className={`mt-px transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
           />
         )}
+        {/* Animated underline indicator — slides between items (layoutId) */}
+        {open && (
+          <motion.div
+            layoutId="activeUnderline"
+            className="absolute bottom-0 left-0 right-0 h-[2px] bg-black"
+            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+          />
+        )}
       </NavLink>
 
-      {hasItems && (
-        <div
-          id={panelId}
-          ref={panelRef}
-          onKeyDown={onPanelKey}
-          onMouseEnter={cancelClose}
-          onMouseLeave={scheduleClose}
-          className={`absolute top-full z-40 w-[min(64rem,calc(100vw-3rem))] pt-3 transition-[opacity,transform] duration-200 ease-out ${
-            open ? 'visible translate-y-0 opacity-100' : 'invisible -translate-y-1 opacity-0'
-          }`}
-          style={shift === null
-            ? { left: 0, transform: 'translateX(-50%)', visibility: 'hidden' }
-            : { left: `${shift}px`, transform: 'translateX(-50%)' }}
-        >
-          <div className="overflow-hidden border-b border-[#e0e0e0] bg-white shadow-[0_10px_25px_rgba(0,0,0,0.03)]">
-            <div className="mx-auto flex max-w-[1600px] gap-[60px] px-[45px] pb-[50px] pt-10">
-              {/* ── Promo card (image + button) ─────────────────────────── */}
-              {promo && (
+      <AnimatePresence>
+        {hasItems && open && (
+          <motion.div
+            id={panelId}
+            key="panel"
+            ref={panelRef}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 8 }}
+            transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+            onKeyDown={onPanelKey}
+            onMouseEnter={cancelClose}
+            onMouseLeave={scheduleClose}
+            className="absolute left-0 right-0 top-full z-40 overflow-hidden border-b border-neutral-200 bg-[#FAF9F6] shadow-2xl"
+          >
+            <div className="mx-auto grid max-w-[1440px] grid-cols-12 gap-8 px-6 py-12 lg:px-12">
+              {/* Promo banner card */}
+              {promo.image && (
                 <Link
                   to={to}
-                  tabIndex={open ? 0 : -1}
+                  tabIndex={0}
                   onClick={() => setOpen(false)}
-                  className="group relative block w-[220px] shrink-0"
+                  className="group relative col-span-4 overflow-hidden bg-neutral-200"
+                  style={{ aspectRatio: '4 / 3' }}
                 >
-                  <span className="block overflow-hidden bg-[#f5f5f5]">
-                    <img
-                      src={promo.image}
-                      alt=""
-                      loading="lazy"
-                      className="h-[240px] w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-                    />
-                  </span>
-                  {/* Promo button — overlay on the image (exact reference) */}
-                  <span className="absolute bottom-3 left-2.5 right-2.5 block bg-[rgba(0,0,0,0.6)] py-[6px] text-center text-[11px] text-white">
-                    Shop {label}
-                  </span>
+                  <img
+                    src={promo.image}
+                    alt=""
+                    loading="lazy"
+                    className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-black/20 transition-colors duration-300 group-hover:bg-black/30" aria-hidden="true" />
+                  <div className="absolute bottom-6 left-6 text-white">
+                    <p className="mb-2 text-lg font-light normal-case tracking-wide">{promo.title}</p>
+                    <span className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest underline underline-offset-4">
+                      {promo.cta} <ArrowRight size={14} aria-hidden="true" />
+                    </span>
+                  </div>
                 </Link>
               )}
 
-              {/* ── FEATURED column ─────────────────────────────────────── */}
-              <div className="w-[220px] shrink-0">
-                <span className={`${COL_HEAD} mb-3 block`}>Featured</span>
-                <ul className="space-y-2">
+              {/* Featured */}
+              <div className="col-span-3 pl-6">
+                <h4 className={`${HEAD} mb-6`}>Featured</h4>
+                <ul className="space-y-4">
                   {collections.map((c) => (
                     <li key={c.href}>
-                      <Link
-                        to={c.href}
-                        tabIndex={open ? 0 : -1}
-                        onClick={() => setOpen(false)}
-                        className={`${LINK} ${c.bold ? 'font-medium text-black' : ''}`}
-                      >
+                      <Link to={c.href} tabIndex={0} onClick={() => setOpen(false)} className={LINK}>
                         {c.label}
                       </Link>
                     </li>
                   ))}
+                </ul>
+              </div>
+
+              {/* Shop {label} — first 3 categories */}
+              <div className="col-span-3">
+                <h4 className={`${HEAD} mb-6`}>Shop {label}</h4>
+                <ul className="space-y-4">
+                  {categories.map((c) => (
+                    <li key={c.slug}>
+                      <Link to={`/category/${c.slug}`} tabIndex={0} onClick={() => setOpen(false)} className={LINK}>
+                        {c.name}
+                      </Link>
+                    </li>
+                  ))}
                   <li>
-                    <Link
-                      to={to}
-                      tabIndex={open ? 0 : -1}
-                      onClick={() => setOpen(false)}
-                      className="mt-1 inline-block text-[12px] font-medium uppercase tracking-[0.08em] text-black underline underline-offset-4"
-                    >
-                      View all {label} →
+                    <Link to={to} tabIndex={0} onClick={() => setOpen(false)} className={LINK}>
+                      View all {label}
                     </Link>
                   </li>
                 </ul>
               </div>
 
-              {/* ── Category column A ───────────────────────────────────── */}
-              <div className="min-w-0 flex-1">
-                <span className={`${COL_HEAD} mb-3 block`}>Shop {label}</span>
-                <ul className="space-y-2">
-                  {colA.map((c) => (
-                    <li key={c.slug}>
-                      <Link
-                        to={`/category/${c.slug}`}
-                        tabIndex={open ? 0 : -1}
-                        onClick={() => setOpen(false)}
-                        className={LINK}
-                      >
-                        {c.name}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* ── Category column B ───────────────────────────────────── */}
-              {colB.length > 0 && (
-                <div className="min-w-0 flex-1">
-                  <span className={`${COL_HEAD} mb-3 block`}>More</span>
-                  <ul className="space-y-2">
-                    {colB.map((c) => (
+              {/* More — remaining categories */}
+              {more.length > 0 && (
+                <div className="col-span-2">
+                  <h4 className={`${HEAD} mb-6`}>More</h4>
+                  <ul className="space-y-4">
+                    {more.map((c) => (
                       <li key={c.slug}>
-                        <Link
-                          to={`/category/${c.slug}`}
-                          tabIndex={open ? 0 : -1}
-                          onClick={() => setOpen(false)}
-                          className={LINK}
-                        >
+                        <Link to={`/category/${c.slug}`} tabIndex={0} onClick={() => setOpen(false)} className={LINK}>
                           {c.name}
                         </Link>
                       </li>
@@ -229,9 +212,9 @@ export default function MegaMenu({ label, to, items, linkCls, navStyle, onDark, 
                 </div>
               )}
             </div>
-          </div>
-        </div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
