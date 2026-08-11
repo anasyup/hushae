@@ -34,70 +34,96 @@ export default function MegaPanel({ open, cats, collections, onClose }) {
       {kind && (
         <motion.div
           key="megapanel"
-          initial={{ opacity: 0, y: 6 }}
+          initial={{ opacity: 0, y: 4 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 6 }}
-          transition={{ duration: 0.2 }}
-          className="absolute left-0 right-0 top-full z-50 w-full overflow-hidden border-b border-neutral-200 bg-[#FAF9F6] shadow-2xl"
+          exit={{ opacity: 0, y: 4 }}
+          transition={{ duration: 0.18 }}
+          className="absolute left-0 right-0 top-full z-50 w-full overflow-hidden border-b border-neutral-200 bg-white shadow-xl"
         >
-          <div className="mx-auto grid max-w-[1440px] grid-cols-12 gap-8 px-6 py-10 lg:px-12">
-            {/* Promo card */}
-            {promo && (
-              <Link to={`/${kind}`} onClick={onClose} className="group relative col-span-4 overflow-hidden rounded-sm bg-neutral-200" style={{ aspectRatio: '4 / 3' }}>
-                <img
-                  src={promo.image}
-                  alt={promo.title}
-                  loading="lazy"
-                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-black/25 transition-colors duration-300 group-hover:bg-black/35" aria-hidden="true" />
-                <div className="absolute bottom-6 left-6 text-white">
-                  <p className="mb-2 text-base font-light normal-case tracking-wide">{promo.title}</p>
-                  <span className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest underline underline-offset-4">
-                    {promo.cta} <ArrowRight size={14} aria-hidden="true" />
-                  </span>
+          <div className="mx-auto max-w-[1440px] px-10 py-10">
+            {kind === 'sale' ? (
+              /* ── TOMMY HILFIGER STYLE SALE LAYOUT ─────────────────── */
+              <div className="grid grid-cols-12 items-center gap-10">
+                {/* Black offer box */}
+                <Link to="/sale" onClick={onClose} className="col-span-3 flex h-64 flex-col items-center justify-center border-4 border-black bg-black p-8 text-center text-white">
+                  <h2 className="mb-2 text-3xl font-bold tracking-tight">Up to 70% Off</h2>
+                  <p className="text-sm font-light uppercase tracking-widest">Sale Styles</p>
+                </Link>
+
+                {/* Men's Sale */}
+                <div className="col-span-3">
+                  <h4 className="mb-4 text-sm font-bold text-black">Men's Sale</h4>
+                  <ul className="space-y-2 text-xs">
+                    <li><Link to="/sale?gender=men" onClick={onClose} className="text-neutral-700 hover:text-black hover:underline">Shop All</Link></li>
+                    <li><Link to="/men" onClick={onClose} className="text-neutral-700 hover:text-black hover:underline">Clothing</Link></li>
+                    <li><Link to="/category/briefs" onClick={onClose} className="text-neutral-700 hover:text-black hover:underline">Underwear</Link></li>
+                    <li><Link to="/shop" onClick={onClose} className="text-neutral-700 hover:text-black hover:underline">Accessories</Link></li>
+                  </ul>
                 </div>
-              </Link>
-            )}
 
-            {/* Featured */}
-            <div className="col-span-3 pl-4">
-              <h4 className={HEAD}>Featured</h4>
-              <ul className="space-y-3">
-                {featured.map((c) => (
-                  <li key={c.href}>
-                    <Link to={c.href} onClick={onClose} className={LINK}>{c.label}</Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
+                {/* Women's Sale */}
+                <div className="col-span-3">
+                  <h4 className="mb-4 text-sm font-bold text-black">Women's Sale</h4>
+                  <ul className="space-y-2 text-xs">
+                    <li><Link to="/sale?gender=women" onClick={onClose} className="text-neutral-700 hover:text-black hover:underline">Shop All</Link></li>
+                    <li><Link to="/women" onClick={onClose} className="text-neutral-700 hover:text-black hover:underline">Clothing</Link></li>
+                    <li><Link to="/category/panties" onClick={onClose} className="text-neutral-700 hover:text-black hover:underline">Underwear</Link></li>
+                    <li><Link to="/shop" onClick={onClose} className="text-neutral-700 hover:text-black hover:underline">Accessories</Link></li>
+                  </ul>
+                </div>
 
-            {/* Shop {kind} */}
-            <div className="col-span-3">
-              <h4 className={HEAD}>Shop {kind === 'women' ? 'Women' : 'Men'}</h4>
-              <ul className="space-y-3">
-                {categories.map((c) => (
-                  <li key={c.slug}>
-                    <Link to={`/category/${c.slug}`} onClick={onClose} className={LINK}>{c.name}</Link>
-                  </li>
-                ))}
-                <li>
-                  <Link to={`/${kind}`} onClick={onClose} className={LINK}>View all {kind === 'women' ? 'Women' : 'Men'}</Link>
-                </li>
-              </ul>
-            </div>
+                {/* New Season */}
+                <div className="col-span-3">
+                  <h4 className="mb-4 text-sm font-bold text-black">New Season</h4>
+                  <ul className="space-y-2 text-xs">
+                    <li><Link to="/new" onClick={onClose} className="text-neutral-700 hover:text-black hover:underline">New Arrivals</Link></li>
+                    <li><Link to="/best" onClick={onClose} className="text-neutral-700 hover:text-black hover:underline">Best Sellers</Link></li>
+                    <li><Link to="/sale" onClick={onClose} className="text-neutral-700 hover:text-black hover:underline">Sale</Link></li>
+                    <li><Link to="/collection/new-arrivals" onClick={onClose} className="text-neutral-700 hover:text-black hover:underline">The Collection</Link></li>
+                  </ul>
+                </div>
+              </div>
+            ) : (
+              /* ── STANDARD MEN / WOMEN MEGA MENU (4/4/4) ───────────── */
+              <div className="grid grid-cols-12 gap-8">
+                {/* Promo */}
+                {promo && (
+                  <Link to={`/${kind}`} onClick={onClose} className="group relative col-span-4 aspect-[4/3] overflow-hidden">
+                    <img src={promo.image} alt={promo.title} loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                    <div className="absolute inset-0 bg-black/20" aria-hidden="true" />
+                    <div className="absolute bottom-4 left-4 text-white">
+                      <p className="text-sm font-semibold">{promo.title}</p>
+                      <span className="mt-1 block text-xs underline">{promo.cta}</span>
+                    </div>
+                  </Link>
+                )}
 
-            {/* More */}
-            {more.length > 0 && (
-              <div className="col-span-2">
-                <h4 className={HEAD}>More</h4>
-                <ul className="space-y-3">
-                  {more.map((c) => (
-                    <li key={c.slug}>
-                      <Link to={`/category/${c.slug}`} onClick={onClose} className={LINK}>{c.name}</Link>
+                {/* Featured */}
+                <div className="col-span-4">
+                  <h4 className="mb-4 text-xs font-semibold uppercase tracking-widest text-neutral-400">Featured</h4>
+                  <ul className="space-y-2">
+                    {featured.map((c) => (
+                      <li key={c.href}>
+                        <Link to={c.href} onClick={onClose} className="text-xs text-neutral-800 hover:text-black">{c.label}</Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Categories */}
+                <div className="col-span-4">
+                  <h4 className="mb-4 text-xs font-semibold uppercase tracking-widest text-neutral-400">Categories</h4>
+                  <ul className="space-y-2">
+                    {categories.map((c) => (
+                      <li key={c.slug}>
+                        <Link to={`/category/${c.slug}`} onClick={onClose} className="text-xs text-neutral-800 hover:text-black">{c.name}</Link>
+                      </li>
+                    ))}
+                    <li>
+                      <Link to={`/${kind}`} onClick={onClose} className="text-xs font-medium text-black underline underline-offset-4">View all {kind === 'women' ? 'Women' : 'Men'}</Link>
                     </li>
-                  ))}
-                </ul>
+                  </ul>
+                </div>
               </div>
             )}
           </div>

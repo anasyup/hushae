@@ -760,3 +760,10 @@ Format:
   - Best Sellers section (/best) reverted to the OLD style: standard CategoryBanner + sub-nav + filter pills (dark banner + select bar removed per "purana jasa kar doo").
   - Checkout: white bg, max-w 1200 (px-6 py-10), 12-col grid (7 form / 5 summary), serif "Checkout" h1, numbered sections (1. Contact Information / 2. Delivery Address / 3. Payment) in 12px tracking-widest neutral-400, FloatField/FloatSelect → bordered h-12 inputs (border neutral-300, focus:border-black), summary box `#FAF9F6` border p-8 sticky top-8 ("Order Summary" heading), black Place Order (h-13, tracking 0.2em), 3-col trust badges (Secure Checkout / Fast Shipping / Easy Returns).
   - OrderConfirm: black CheckCircle (stroke 1.2), "Thank You" eyebrow + serif "Order Confirmed", `#FAF9F6` bordered card, black Continue Shopping button.
+
+## Changes
+- **2026-08-11** — 🧵 **KLEIN FONT + SALE MEGA MENU + SALE PAGE HEADER — exact reference** (commit pending)
+  - Fonts: `@font-face` Klein (Medium/Regular, /fonts/, falls back to Helvetica/Arial like the reference) + utility classes `.font-klein-body` (16/24), `.font-klein-sub` (13/23), `.font-klein-badge` (10/15).
+  - Header: logo → **HUSHAÈ**, nav Sale now opens a mega menu (Tommy Hilfiger style), trigger active = `border-b-2 border-black font-semibold` (layoutId underline replaced per v3), dropdown panel bg white / y4 0.18s.
+  - MegaPanel: `sale` kind → black offer box "Up to 70% Off / Sale Styles" + Men's Sale · Women's Sale · New Season columns (col-span-3 each); standard Men/Women → 4/4/4 (promo · Featured · Categories).
+  - `/sale`: new `SalePageHeader` — breadcrumb, 4xl "Sale", gender sub-tabs (Shop All/Men/Women wired to `?gender=`), filter chips (Gender/Category/Size/Color/Price/All Filters → FilterSheet), Items count + Sort By pill (real sort).

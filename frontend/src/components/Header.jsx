@@ -160,7 +160,7 @@ export default function Header() {
 
             {/* Logo — LEFT (CK reference) */}
             <Link to="/" aria-label="HUSHAE — home" className={`mr-8 font-serif text-2xl font-bold uppercase tracking-widest transition-colors duration-300 ${ghost ? "text-white" : "text-black"}`}>
-              HUSHAE
+              HUSHAÈ
             </Link>
 
             {/* Nav — center */}
@@ -170,16 +170,17 @@ export default function Header() {
               style={{ gap: `${navGap}px` }}
               className="hidden items-center lg:flex"
             >
-              {menu.filter((m) => m && m.label).map((m, i) => (
-                m.dropdown === 'women' || m.dropdown === 'men' ? (
+              {menu.filter((m) => m && m.label).map((m, i) => {
+                const dd = m.dropdown || (String(m.label).toLowerCase() === 'sale' ? 'sale' : '');
+                return ['women', 'men', 'sale'].includes(dd) ? (
                   <MegaMenu
                     key={`${m.label}-${i}`}
                     label={m.label}
                     to={m.href || '/'}
                     linkCls={linkCls}
                     navStyle={navStyle}
-                    active={mega === m.dropdown}
-                    onOpen={() => setMega(m.dropdown)}
+                    active={mega === dd}
+                    onOpen={() => setMega(dd)}
                     onClose={() => setMega(null)}
                   />
                 ) : (
@@ -187,8 +188,8 @@ export default function Header() {
                     className={({ isActive }) => linkCls({ isActive })}>
                     {m.label}
                   </NavLink>
-                )
-              ))}
+                );
+              })}
             </nav>
 
             {/* Icons — right */}

@@ -158,8 +158,12 @@ export default function Shop({ preset = {} }) {
         canonical={typeof window !== 'undefined' ? window.location.pathname : '/shop'}
       />
 
-      {/* ═══ 0. CATEGORY HERO BANNER — under the main header ═══════════ */}
-      <CategoryBanner img={banner.img} tag={banner.tag} title={banner.title} description={banner.desc} />
+      {/* ═══ 0. HERO BANNER — Sale page uses the reference SalePageHeader ═══ */}
+      {preset.key === 'sale' ? (
+        <SalePageHeader f={f} count={count} onOpenFilters={() => setSheetOpen(true)} />
+      ) : (
+        <CategoryBanner img={banner.img} tag={banner.tag} title={banner.title} description={banner.desc} />
+      )}
 
       <div className="px-5 pb-10 md:px-10 md:pb-[60px]">
         {(
@@ -248,3 +252,50 @@ export default function Shop({ preset = {} }) {
   );
 }
 
+
+
+/* ═══ SALE PAGE HEADER — exact client reference (SalePageHeader) ═══════ */
+function SalePageHeader({ f, count, onOpenFilters }) {
+  const gender = f.get('gender');
+  const chip = 'rounded-full border border-neutral-300 px-5 py-2 text-xs font-medium transition hover:border-black';
+  return (
+    <div className="mx-auto w-full max-w-[1440px] px-8 py-8 font-klein-body">
+      <span className="mb-2 block text-xs text-neutral-400">Sale</span>
+      <h1 className="mb-6 text-4xl font-normal normal-case tracking-tight">Sale</h1>
+
+      {/* Gender sub-tabs */}
+      <div className="flex gap-6 border-b border-neutral-200 pb-4 text-sm">
+        <button onClick={() => f.setOne('gender', '')} className={`${!gender ? 'font-semibold text-black underline underline-offset-8' : 'text-neutral-500 hover:text-black'}`}>Shop All</button>
+        <button onClick={() => f.setOne('gender', 'men')} className={`${gender === 'men' ? 'font-semibold text-black underline underline-offset-8' : 'text-neutral-500 hover:text-black'}`}>Men</button>
+        <button onClick={() => f.setOne('gender', 'women')} className={`${gender === 'women' ? 'font-semibold text-black underline underline-offset-8' : 'text-neutral-500 hover:text-black'}`}>Women</button>
+      </div>
+
+      {/* Filter chips bar */}
+      <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
+        <div className="flex flex-wrap items-center gap-3">
+          <button onClick={() => f.setOne('gender', gender ? '' : 'women')} className={chip}>Gender ▾</button>
+          <button onClick={onOpenFilters} className={chip}>Category ▾</button>
+          <button onClick={onOpenFilters} className={chip}>Size ▾</button>
+          <button onClick={onOpenFilters} className={chip}>Color ▾</button>
+          <button onClick={onOpenFilters} className={chip}>Price ▾</button>
+          <button onClick={onOpenFilters} className={`${chip} flex items-center gap-1`}>All Filters ⚙</button>
+        </div>
+        <div className="flex items-center gap-4 text-xs text-neutral-500">
+          <span>{count !== null ? `${count} Items` : '—'}</span>
+          <div className="rounded-full border border-neutral-300 px-4 py-2 text-black">
+            <span>Sort By: </span>
+            <select
+              value={f.sort}
+              onChange={(e) => f.setOne('sort', e.target.value, { replace: true })}
+              className="bg-transparent font-semibold focus:outline-none"
+            >
+              <option value="popular">Recommended</option>
+              <option value="price-asc">Price: Low to High</option>
+              <option value="price-desc">Price: High to Low</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

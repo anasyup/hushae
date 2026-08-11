@@ -1,6 +1,5 @@
 import { useRef } from 'react';
 import { NavLink } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
 
 /* ============================================================================
@@ -30,7 +29,7 @@ export default function MegaMenu({ label, to, linkCls, navStyle, active, onOpen,
         to={to}
         onMouseEnter={onOpen}
         onKeyDown={onTriggerKey}
-        className={({ isActive }) => `${linkCls({ isActive })} relative inline-flex items-center gap-1`}
+        className={({ isActive }) => `${linkCls({ isActive })} relative inline-flex items-center gap-1 transition-colors ${active ? 'border-b-2 border-black font-semibold' : ''}`}
         style={navStyle}
         aria-expanded={active}
         aria-haspopup="true"
@@ -40,13 +39,6 @@ export default function MegaMenu({ label, to, linkCls, navStyle, active, onOpen,
           size={12} strokeWidth={1.8} aria-hidden="true"
           className={`mt-px transition-transform duration-200 ${active ? 'rotate-180' : ''}`}
         />
-        {active && (
-          <motion.div
-            layoutId="activeUnderline"
-            className="absolute bottom-0 left-0 right-0 h-[2px] bg-black"
-            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-          />
-        )}
       </NavLink>
     </div>
   );
