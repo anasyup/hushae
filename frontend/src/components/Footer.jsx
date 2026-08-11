@@ -5,20 +5,21 @@ import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 
 /* ============================================================================
- * HUSHAE FOOTER — Concept 03 (Figma reference): premium editorial fashion-house.
+ * HUSHAE FOOTER — exact match to the provided reference image.
  *
- * Dark monochrome · serif display · sans nav · generous negative space ·
- * thin low-contrast dividers · no cards/gradients/shadows.
+ * Measured from the reference (pixel analysis):
+ *   bg #0F0F0F · headline #D9D4C8 · subtitle #848079
+ *   nav links #B9B7B3 · bottom #827E78 · no gold accents
  *
- * Structure:
- *   1  NEWSLETTER  — "JOIN THE WORLD OF HUSHAE" + borderless email + SUBSCRIBE →
+ * Layout (mirrors the reference):
+ *   1  NEWSLETTER  — left: serif headline (2 lines) + subtitle;
+ *                    right: borderless email + SUBSCRIBE →
  *   2  MAIN NAV    — 4 columns: Shop / Customer Care / About / Legal
  *   3  BRAND+FOLLOW — serif wordmark + text social links
- *   4  UTILITY ROW — Country / Language / Currency (minimal interactive dropdowns)
- *   5  BOTTOM BAR  — © 2026 · Secure payments
+ *   4  UTILITY ROW — Country / Language / Currency (left, minimal dropdowns)
+ *   5  BOTTOM BAR  — centered © line
  *
- * Desktop: static 4-col grid. Mobile: elegant accordions (same data, + / −).
- * Interactions: 180-300ms ease-out; newsletter validation + success/error.
+ * Mobile: accordions (same data), everything stacks, generous spacing.
  * ========================================================================== */
 
 const NAV_COLUMNS = [
@@ -69,12 +70,21 @@ const NAV_COLUMNS = [
 
 const SOCIAL = ['Instagram', 'TikTok', 'Pinterest', 'Facebook'];
 
-const BORDER = 'border-[rgba(255,255,255,0.12)]';
-const COL_HEAD = 'text-[11px] font-medium uppercase tracking-[0.28em] text-[#F5F2EC]/60';
-const NAV_LINK =
-  'relative inline-block text-[13px] font-normal text-[#A8A49D] transition-colors duration-200 ease-out after:absolute after:-bottom-0.5 after:left-0 after:h-px after:w-full after:origin-left after:scale-x-0 after:bg-[#C9A96E] after:transition-transform after:duration-300 after:ease-out hover:text-[#F5F2EC] hover:after:scale-x-100';
+/* Palette — measured from the reference */
+const P_BG = '#0F0F0F';
+const P_PRIMARY = '#D9D4C8';   // headline / primary text
+const P_SUB = '#848079';       // subtitle / secondary
+const P_LINK = '#B9B7B3';      // nav links
+const P_DIM = '#827E78';       // bottom / meta
+const P_BORDER = 'rgba(255,255,255,0.12)';
 
-/* ── Minimal interactive dropdown (Country / Language / Currency) ───────── */
+const BORDER = `border-[${P_BORDER}]`;
+const COL_HEAD = `text-[11px] font-medium uppercase tracking-[0.28em] text-[${P_SUB}]`;
+const NAV_LINK =
+  `relative inline-block text-[13px] font-normal text-[${P_LINK}] transition-colors duration-200 ease-out ` +
+  `after:absolute after:-bottom-0.5 after:left-0 after:h-px after:w-full after:origin-left after:scale-x-0 after:bg-[${P_PRIMARY}] after:transition-transform after:duration-300 after:ease-out hover:text-[${P_PRIMARY}] hover:after:scale-x-100`;
+
+/* ── Minimal interactive dropdown ────────────────────────────────────────── */
 function Selector({ label, value, options, onChange }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
@@ -92,9 +102,9 @@ function Selector({ label, value, options, onChange }) {
         onClick={() => setOpen((o) => !o)}
         aria-haspopup="listbox"
         aria-expanded={open}
-        className="inline-flex items-center gap-2 border-b border-[rgba(255,255,255,0.25)] pb-1 text-[12px] font-normal uppercase tracking-[0.12em] text-[#A8A49D] transition-colors duration-200 hover:text-[#F5F2EC]"
+        className={`inline-flex items-center gap-2 border-b border-[${P_BORDER}] pb-1 text-[12px] font-normal uppercase tracking-[0.12em] text-[${P_DIM}] transition-colors duration-200 hover:text-[${P_PRIMARY}]`}
       >
-        <span className="hidden text-[10px] tracking-[0.2em] text-[#A8A49D]/60 md:inline">{label} ·</span>
+        <span className={`hidden text-[10px] tracking-[0.2em] text-[${P_DIM}]/70 md:inline`}>{label} ·</span>
         {value}
         <ChevronDown size={12} strokeWidth={1.5} aria-hidden="true" className={`transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
       </button>
@@ -102,7 +112,7 @@ function Selector({ label, value, options, onChange }) {
         <ul
           role="listbox"
           aria-label={label}
-          className="absolute bottom-full left-0 z-20 mb-2 min-w-[150px] border border-[rgba(255,255,255,0.14)] bg-[#1A1A1A] py-1 shadow-[0_16px_40px_rgba(0,0,0,0.5)]"
+          className={`absolute bottom-full left-0 z-20 mb-2 min-w-[150px] border border-[${P_BORDER}] bg-[#1A1A1A] py-1 shadow-[0_16px_40px_rgba(0,0,0,0.5)]`}
         >
           {options.map((o) => (
             <li key={o}>
@@ -111,7 +121,7 @@ function Selector({ label, value, options, onChange }) {
                 role="option"
                 aria-selected={value === o}
                 onClick={() => { onChange(o); setOpen(false); }}
-                className={`block w-full px-4 py-2 text-left text-[12px] tracking-[0.08em] transition-colors duration-150 ${value === o ? 'text-[#C9A96E]' : 'text-[#A8A49D] hover:bg-white/5 hover:text-[#F5F2EC]'}`}
+                className={`block w-full px-4 py-2 text-left text-[12px] tracking-[0.08em] transition-colors duration-150 ${value === o ? `text-[${P_PRIMARY}]` : `text-[${P_LINK}] hover:bg-white/5 hover:text-[${P_PRIMARY}]`}`}
               >
                 {o}
               </button>
@@ -123,7 +133,6 @@ function Selector({ label, value, options, onChange }) {
   );
 }
 
-/* ── Desktop column ──────────────────────────────────────────────────────── */
 function NavColumn({ col }) {
   return (
     <div>
@@ -139,25 +148,19 @@ function NavColumn({ col }) {
   );
 }
 
-/* ── Mobile accordion column — same data, collapsible, + / − ────────────── */
 function MobileNavColumn({ col, open, onToggle, id }) {
   return (
-    <div className="border-b border-[rgba(255,255,255,0.12)]">
+    <div className={`border-b ${BORDER}`}>
       <h3>
         <button
           type="button"
           onClick={onToggle}
           aria-expanded={open}
           aria-controls={`footer-panel-${id}`}
-          className="flex w-full items-center justify-between py-4 text-left text-[11px] font-medium uppercase tracking-[0.28em] text-[#F5F2EC]/70 transition-colors duration-200 hover:text-[#F5F2EC]"
+          className={`flex w-full items-center justify-between py-4 text-left text-[11px] font-medium uppercase tracking-[0.28em] text-[${P_SUB}] transition-colors duration-200 hover:text-[${P_PRIMARY}]`}
         >
           {col.title}
-          <Plus
-            size={15}
-            strokeWidth={1.5}
-            aria-hidden="true"
-            className={`text-[#A8A49D] transition-transform duration-300 ease-out ${open ? 'rotate-45' : ''}`}
-          />
+          <Plus size={15} strokeWidth={1.5} aria-hidden="true" className={`text-[${P_DIM}] transition-transform duration-300 ease-out ${open ? 'rotate-45' : ''}`} />
         </button>
       </h3>
       <div
@@ -206,24 +209,26 @@ export default function Footer() {
   };
 
   return (
-    <footer className="mt-24 bg-[#111111] text-[#F5F2EC]">
-      {/* ═══ 1 — NEWSLETTER: editorial headline + borderless form ═══════ */}
+    <footer className="mt-24 bg-[#0F0F0F] text-[#D9D4C8]">
+      {/* ═══ 1 — NEWSLETTER: left headline + right form ═══════════════ */}
       <div className={`border-b ${BORDER}`}>
-        <div className="mx-auto grid max-w-[1320px] gap-12 px-6 py-16 md:grid-cols-2 md:items-center md:gap-20 md:px-16 md:py-24">
+        <div className="mx-auto grid max-w-[1320px] gap-12 px-6 py-16 md:grid-cols-2 md:items-center md:gap-24 md:px-16 md:py-24">
+          {/* Left — editorial headline (2 lines) + subtitle */}
           <div>
-            <h2 className="text-[30px] font-normal uppercase leading-[1.1] tracking-[0.06em] text-[#F5F2EC] md:text-[44px]" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
+            <h2 className="text-[30px] font-normal uppercase leading-[1.1] tracking-[0.08em] text-[#D9D4C8] md:text-[46px]" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
               Join the world
               <br />
               of HUSHAE
             </h2>
-            <p className="mt-5 max-w-md text-[14px] font-normal leading-[1.8] text-[#A8A49D]">
+            <p className="mt-5 max-w-md text-[14px] font-normal leading-[1.8] text-[#848079]">
               Subscribe for new collections, exclusive releases and updates from our world.
             </p>
           </div>
 
+          {/* Right — borderless form */}
           <div>
             {done ? (
-              <p className="text-[12px] font-medium uppercase tracking-[0.2em] text-[#C9A96E]">Welcome to the world of HUSHAE.</p>
+              <p className="text-[12px] font-medium uppercase tracking-[0.2em] text-[#D9D4C8]">Welcome to the world of HUSHAE.</p>
             ) : (
               <form onSubmit={subscribe} noValidate>
                 <label htmlFor="footer-email" className="sr-only">Email address</label>
@@ -235,7 +240,7 @@ export default function Footer() {
                   placeholder="Email address"
                   aria-invalid={err ? 'true' : undefined}
                   aria-describedby={err ? 'footer-email-err' : undefined}
-                  className="w-full border-0 border-b border-[rgba(255,255,255,0.3)] bg-transparent pb-3 text-[15px] font-normal text-[#F5F2EC] outline-none transition-colors duration-300 placeholder:text-[#A8A49D]/60 focus:border-[#C9A96E]"
+                  className="w-full border-0 border-b border-[rgba(255,255,255,0.3)] bg-transparent pb-3 text-[15px] font-normal text-[#D9D4C8] outline-none transition-colors duration-300 placeholder:text-[#848079]/70 focus:border-[#D9D4C8]"
                 />
                 <div className="mt-4 flex items-center justify-between gap-4">
                   {err ? (
@@ -243,7 +248,7 @@ export default function Footer() {
                   ) : <span />}
                   <button
                     type="submit"
-                    className="group inline-flex min-h-[44px] items-center gap-2 border-b border-[rgba(255,255,255,0.35)] pb-1 text-[11px] font-medium uppercase tracking-[0.24em] text-[#F5F2EC] transition-colors duration-300 hover:border-[#C9A96E] hover:text-[#C9A96E]"
+                    className="group inline-flex min-h-[44px] items-center gap-2 border-b border-[rgba(255,255,255,0.35)] pb-1 text-[11px] font-medium uppercase tracking-[0.24em] text-[#D9D4C8] transition-colors duration-300 hover:border-[#D9D4C8]"
                   >
                     Subscribe
                     <ArrowRight size={13} strokeWidth={1.5} aria-hidden="true" className="transition-transform duration-300 group-hover:translate-x-1" />
@@ -261,7 +266,7 @@ export default function Footer() {
           {NAV_COLUMNS.map((col) => <NavColumn key={col.title} col={col} />)}
         </div>
 
-        {/* Mobile accordions — same data */}
+        {/* Mobile accordions */}
         <div className="mt-14 md:hidden">
           {NAV_COLUMNS.map((col, i) => (
             <MobileNavColumn
@@ -274,13 +279,13 @@ export default function Footer() {
           ))}
         </div>
 
-        {/* ═══ 3 — BRAND + SOCIAL ═════════════════════════════════════ */}
+        {/* ═══ 3 — BRAND + FOLLOW ═════════════════════════════════════ */}
         <div className={`mt-14 flex flex-col gap-10 border-t ${BORDER} pt-12 md:mt-16 md:flex-row md:items-start md:justify-between md:gap-20 md:pt-14`}>
           <div>
-            <p className="text-[38px] font-normal uppercase leading-none tracking-[0.3em] text-[#F5F2EC] md:text-[48px]" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
+            <p className="text-[38px] font-normal uppercase leading-none tracking-[0.3em] text-[#D9D4C8] md:text-[48px]" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
               HUSHAE
             </p>
-            <p className="mt-5 max-w-[32ch] text-[13px] font-normal leading-[1.8] text-[#A8A49D]">
+            <p className="mt-5 max-w-[32ch] text-[13px] font-normal leading-[1.8] text-[#848079]">
               Premium innerwear for men &amp; women. Made in Pakistan, finished to an international standard.
             </p>
           </div>
@@ -304,7 +309,7 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* ═══ 4 — UTILITY ROW: country / language / currency ═══════════ */}
+      {/* ═══ 4 — UTILITY ROW: country / language / currency (left) ════ */}
       <div className={`border-t ${BORDER}`}>
         <div className="mx-auto flex max-w-[1320px] flex-col items-start gap-4 px-6 py-6 md:flex-row md:items-center md:justify-start md:gap-10 md:px-16">
           <Selector label="Country / Region" value={country} options={['Pakistan / PK', 'United States / US', 'United Kingdom / GB', 'United Arab Emirates / AE']} onChange={setCountry} />
@@ -313,14 +318,11 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* ═══ 5 — BOTTOM BAR ═══════════════════════════════════════════ */}
+      {/* ═══ 5 — BOTTOM BAR (centered) ════════════════════════════════ */}
       <div className={`border-t ${BORDER}`}>
-        <div className="mx-auto flex max-w-[1320px] flex-col items-center justify-between gap-4 px-6 py-6 text-[10px] uppercase tracking-[0.18em] text-[#A8A49D]/60 md:flex-row md:px-16">
+        <div className="mx-auto flex max-w-[1320px] flex-col items-center justify-center gap-3 px-6 py-6 text-[10px] uppercase tracking-[0.2em] text-[#827E78] md:px-16">
           <p>&copy; {new Date().getFullYear()} HUSHAE. All rights reserved.</p>
-          <p className="flex items-center gap-3">
-            <span className="hidden h-3 w-px bg-[rgba(255,255,255,0.12)] md:block" aria-hidden="true" />
-            Secure payments
-          </p>
+          <p>Secure payments</p>
         </div>
       </div>
     </footer>
