@@ -36,7 +36,7 @@ const nameOf = (p) => titleCase(displayName(p?.name));
 
 const FALLBACK =
   'data:image/svg+xml;utf8,' + encodeURIComponent(
-    '<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1200"><rect width="100%" height="100%" fill="#F5EFE6"/><text x="50%" y="50%" fill="#999999" font-family="Inter,Helvetica,Arial,sans-serif" font-size="16" letter-spacing="4" text-anchor="middle">HUSHAE</text></svg>');
+    '<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1200"><rect width="100%" height="100%" fill="#F3EDE2"/><text x="50%" y="50%" fill="#999999" font-family="Inter,Helvetica,Arial,sans-serif" font-size="16" letter-spacing="4" text-anchor="middle">HUSHAE</text></svg>');
 
 export default function Product() {
   const { slug } = useParams();
@@ -144,13 +144,13 @@ export default function Product() {
         jsonLdId="product"
       />
 
-      {/* ═══ PDP — 1.2fr / 0.8fr split ═════════════════════════════════ */}
-      <div className="mx-auto max-w-[1440px] px-5 py-10 md:px-[30px]">
-        <div className="grid items-start gap-[25px] lg:grid-cols-[1.2fr_0.8fr] lg:gap-[50px]">
-          {/* LEFT — stacked editorial images */}
+      {/* ═══ PDP — 1.1fr / 0.9fr split ═════════════════════════════════ */}
+      <div className="mx-auto max-w-[1400px] px-6 py-10">
+        <div className="grid items-start gap-[30px] lg:grid-cols-[1.1fr_0.9fr] lg:gap-[60px]">
+          {/* LEFT — vertical luxury gallery flow */}
           <div className="flex flex-col gap-4">
             {gallery.map((u, i) => (
-              <div key={`${u}-${i}`} className="w-full overflow-hidden bg-[#f5efe6]" style={{ aspectRatio: '3 / 4' }}>
+              <div key={`${u}-${i}`} className="w-full overflow-hidden bg-[#f3ede2]" style={{ aspectRatio: '3 / 4' }}>
                 <img
                   src={u}
                   alt={`${name} — view ${i + 1}`}
@@ -162,16 +162,17 @@ export default function Product() {
             ))}
           </div>
 
-          {/* RIGHT — white sticky buy box */}
-          <aside className="flex flex-col gap-[22px] border border-[#efe8dd] bg-white p-[35px] shadow-[0_4px_20px_rgba(0,0,0,0.02)] lg:sticky lg:top-[90px]">
+          {/* RIGHT — sticky white buy box */}
+          <aside className="flex flex-col gap-6 border border-[#eee7dc] bg-white p-6 lg:sticky lg:top-20 lg:p-10">
             <div>
-              <h1 className="text-[28px] font-normal uppercase leading-tight tracking-[-0.5px] text-[#1a1a1a]">
+              <span className="text-[11px] uppercase tracking-[2px] text-[#888888]">HUSHAE Essentials</span>
+              <h1 className="mt-1 text-[32px] font-light uppercase leading-tight tracking-[-0.5px] text-[#1a1a1a]">
                 {name}
               </h1>
-              <p className="mt-2 text-[18px] font-medium">
+              <p className="mt-2 text-[20px] font-medium">
                 {soldOut ? 'Sold out' : pkr(p.price)}
                 {onSale && p.compareAtPrice > p.price && (
-                  <span className="ml-2 text-[14px] font-normal text-[#a0988e] line-through">{pkr(p.compareAtPrice)}</span>
+                  <span className="ml-2.5 text-[15px] font-normal text-[#999999] line-through">{pkr(p.compareAtPrice)}</span>
                 )}
               </p>
             </div>
@@ -179,8 +180,8 @@ export default function Product() {
             {/* Colour — 26px circles, active = 2px black ring */}
             {p.colors?.length > 0 && (
               <div>
-                <span className="mb-[10px] block text-[11px] font-semibold uppercase tracking-[1px] text-[#555555]">Color: {color}</span>
-                <div className="flex gap-2.5">
+                <span className="mb-[10px] block text-[11px] font-semibold uppercase tracking-[1px]">Color: {color}</span>
+                <div className="flex gap-3">
                   {p.colors.map((c) => {
                     const on = color === c.name;
                     return (
@@ -190,7 +191,7 @@ export default function Product() {
                         onClick={() => setColor(c.name)}
                         aria-pressed={on}
                         aria-label={c.name}
-                        className={`h-[26px] w-[26px] rounded-full border border-[#dddddd] transition-all duration-200 ${
+                        className={`h-7 w-7 rounded-full border border-[#dddddd] transition-all duration-200 ${
                           on ? 'outline outline-2 outline-black outline-offset-2' : 'hover:outline hover:outline-1 hover:outline-black/50'
                         }`}
                         style={{ backgroundColor: c.hex || '#EEEEEE' }}
@@ -204,7 +205,7 @@ export default function Product() {
             {/* Size — 5-col grid, active = black fill */}
             {needsSize && (
               <div ref={sizeRef}>
-                <span className="mb-[10px] block text-[11px] font-semibold uppercase tracking-[1px] text-[#555555]">Select Size</span>
+                <span className="mb-[10px] block text-[11px] font-semibold uppercase tracking-[1px]">Select Size</span>
                 <div className="grid grid-cols-5 gap-2">
                   {p.sizes.map((s) => {
                     const on = size === s;
@@ -231,22 +232,24 @@ export default function Product() {
               </div>
             )}
 
-            {/* BUY NOW — full width black */}
-            <button
-              type="button"
-              onClick={() => tryAdd(true)}
-              disabled={soldOut || (needsSize && !size)}
-              className={`w-full py-[18px] text-[12px] font-semibold uppercase tracking-[1.5px] transition-colors duration-200 ${
-                soldOut || (needsSize && !size)
-                  ? 'cursor-not-allowed bg-[#f0ece5] text-[#888888]'
-                  : 'bg-black text-white hover:bg-[#222222]'
-              }`}
-            >
-              {soldOut ? 'Sold Out' : needsSize && !size ? 'Select A Size' : 'Buy Now'}
-            </button>
+            {/* CTA group — direct purchase */}
+            <div className="mt-[10px] flex flex-col gap-2.5">
+              <button
+                type="button"
+                onClick={() => tryAdd(true)}
+                disabled={soldOut || (needsSize && !size)}
+                className={`w-full py-[18px] text-[12px] font-semibold uppercase tracking-[1.5px] transition-colors duration-200 ${
+                  soldOut || (needsSize && !size)
+                    ? 'cursor-not-allowed bg-[#f0ece5] text-[#888888]'
+                    : 'bg-black text-white hover:bg-[#222222]'
+                }`}
+              >
+                {soldOut ? 'Sold Out' : needsSize && !size ? 'Select A Size' : 'Buy Now'}
+              </button>
+            </div>
 
-            {/* Accordions — Product Description / Fabric & Care */}
-            <div className="mt-[10px] border-t border-[#efe8dd]">
+            {/* Accordions — Product Description / Fabric & Care / Shipping & Easy Returns */}
+            <div className="mt-[10px] border-t border-[#eee7dc]">
               <Accordion title="Product Description">
                 <p>{p.shortDescription || p.description}</p>
               </Accordion>
@@ -260,6 +263,12 @@ export default function Product() {
                   <p className="mt-2">Machine wash cold, gentle cycle. Lay flat to dry. Do not bleach.</p>
                 )}
               </Accordion>
+              <Accordion title="Shipping & Easy Returns">
+                <p>
+                  Complimentary nationwide shipping on orders over {pkr(settings?.freeShippingThreshold ?? 4999)}.
+                  Hassle-free 7-day exchanges — for hygiene, innerwear is only returnable if it arrives faulty.
+                </p>
+              </Accordion>
             </div>
           </aside>
         </div>
@@ -267,8 +276,8 @@ export default function Product() {
 
       {/* ═══ COMPLETE THE LOOK — single recommendation section ═══════ */}
       {complete.length > 0 && (
-        <section className="mx-auto mt-20 max-w-[1440px] border-t border-[#efe8dd] px-5 pt-10 md:px-[30px]">
-          <h2 className="mb-[30px] text-[16px] font-medium uppercase tracking-[1px]">Complete The Look</h2>
+        <section className="mx-auto mt-[100px] max-w-[1400px] border-t border-[#eee7dc] px-6 pt-[50px]">
+          <h2 className="mb-[30px] text-[18px] font-normal uppercase tracking-[1px]">Complete The Look</h2>
           <div className="grid grid-cols-2 gap-5 lg:grid-cols-4">
             {complete.slice(0, 4).map((pr) => <CollectionCard key={pr._id} product={pr} variant="pill" />)}
           </div>
@@ -276,7 +285,7 @@ export default function Product() {
       )}
 
       {/* Reviews + QA */}
-      <div id="reviews" className="mx-auto mt-20 max-w-[1440px] scroll-mt-28 px-5 md:px-10">
+      <div id="reviews" className="mx-auto mt-20 max-w-[1400px] scroll-mt-28 px-5 md:px-10">
         <ProductReviews product={p} />
         <ProductQA product={p} />
       </div>
@@ -284,7 +293,7 @@ export default function Product() {
       {/* Recently viewed */}
       {rvCfg.enabled !== false && rvCfg.showOnProduct !== false
         && recent.filter((r) => r.slug !== p.slug).length > 0 && (
-        <div className="mx-auto mt-20 max-w-[1440px] px-5 pb-4 md:px-10">
+        <div className="mx-auto mt-20 max-w-[1400px] px-6 pb-4 md:px-10">
           <ProductRow eyebrow="Your history" title={rvCfg.title || 'Recently viewed'} products={recent.filter((r) => r.slug !== p.slug).slice(0, 8)} />
         </div>
       )}

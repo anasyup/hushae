@@ -12,7 +12,7 @@ export default function Accordion({ title, children, defaultOpen = false, headin
   const btnId = `${id}-button`;
 
   return (
-    <div className="border-b border-[#efe8dd]">
+    <div className="border-b border-[#eee7dc]">
       <H>
         <button
           id={btnId}

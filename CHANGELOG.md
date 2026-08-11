@@ -694,3 +694,11 @@ Format:
   - RIGHT: WHITE buy-box card — bg white, padding 35, border `#efe8dd`, shadow 0 4px 20px rgba(0,0,0,0.02), sticky top 90, gap 22; title 28/400, price 18/500 + old 14 `#a0988e`, labels 11/600 ls 1px `#555`, swatches 26px (2px ring), sizes `#faf8f5`/`#e5dfd5` 12/500, "Buy Now" 12/600 ls 1.5px py 18 hover `#222`.
   - Accordions: 2 (Product Description / Fabric & Care), header 12/600 ls 0.5px py 16, body 12px `#666` lh 1.6, hairlines `#efe8dd`.
   - "Complete The Look" 16/500 ls 1px; rec cards = new `CollectionCard variant="pill"` (centred Buy Now pill radius 20, 10px 24px, 11/600 ls 0.5px — hover fade, mobile always; meta title 13/500 + price 12 `#555`, no swatches).
+
+## Changes
+- **2026-08-11** — 🛍️ **PDP v5 — exact "Luxury Product Detail Page" reference** (commit pending)
+  - max-w 1400 (40/24), grid 1.1fr/0.9fr gap 60, tiles `#f3ede2`.
+  - Buy box: border `#eee7dc`, padding 40 (24 mobile), gap 24, NO shadow, sticky top 80 (clears the 65px sticky header — reference's 40px would hide under it).
+  - Brand tag "HUSHAE Essentials" (11px ls 2px #888), title 32/300, price 20/500 + old 15 `#999`, labels plain (inherit #1a1a1a), swatches 28px gap 12, sizes `#fbf9f5`/`#e0d8cc`, CTA group (mt 10 gap 10), Buy Now 12/600 ls 1.5 py 18 hover #222.
+  - 3 accordions back (Product Description / Fabric & Care / Shipping & Easy Returns), hairlines `#eee7dc`.
+  - Complete The Look: mt 100 pt 50, title 18/400 ls 1px; pill cards now RECTANGULAR Buy Now (no radius, 10px 22px, ls 1px, bottom 16), price `#666`.

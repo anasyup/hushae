@@ -57,7 +57,7 @@ function CollectionCard({ product: p, priority = false, variant = 'bar' }) {
       <Link
         to={`/product/${p.slug}`}
         tabIndex={-1}
-        className={`relative block w-full overflow-hidden ${pill ? 'bg-[#f5efe6]' : 'bg-[#f4f1ea]'}`}
+        className={`relative block w-full overflow-hidden ${pill ? 'bg-[#f3ede2]' : 'bg-[#f4f1ea]'}`}
         style={{ aspectRatio: '3 / 4' }}
       >
         {/* Main image — zooms on hover */}
@@ -84,7 +84,7 @@ function CollectionCard({ product: p, priority = false, variant = 'bar' }) {
         {!sizePick && (
           soldOut ? (
             pill ? (
-              <span className="pointer-events-none absolute bottom-[10px] left-1/2 z-[5] -translate-x-1/2 whitespace-nowrap rounded-[20px] bg-black px-6 py-2.5 text-[11px] font-semibold uppercase tracking-[0.5px] text-white opacity-100 md:bottom-5 md:opacity-0 md:group-hover:opacity-100">
+              <span className="pointer-events-none absolute bottom-[10px] left-1/2 z-[5] -translate-x-1/2 whitespace-nowrap bg-black px-[22px] py-2.5 text-[11px] font-semibold uppercase tracking-[1px] text-white opacity-100 md:bottom-4 md:opacity-0 md:group-hover:opacity-100">
                 Sold Out
               </span>
             ) : (
@@ -97,7 +97,7 @@ function CollectionCard({ product: p, priority = false, variant = 'bar' }) {
             <button
               type="button"
               onClick={(e) => { e.preventDefault(); buy(); }}
-              className="absolute bottom-[10px] left-1/2 z-[5] -translate-x-1/2 whitespace-nowrap rounded-[20px] bg-black px-6 py-2.5 text-[11px] font-semibold uppercase tracking-[0.5px] text-white opacity-100 transition-opacity duration-300 hover:bg-[#222222] md:bottom-5 md:opacity-0 md:group-hover:opacity-100"
+              className="absolute bottom-[10px] left-1/2 z-[5] -translate-x-1/2 whitespace-nowrap bg-black px-[22px] py-2.5 text-[11px] font-semibold uppercase tracking-[1px] text-white opacity-100 transition-opacity duration-300 hover:bg-[#222222] md:bottom-4 md:opacity-0 md:group-hover:opacity-100"
             >
               Buy Now
             </button>
@@ -145,7 +145,7 @@ function CollectionCard({ product: p, priority = false, variant = 'bar' }) {
         >
           {name}
         </Link>
-        <p className={pill ? 'text-[12px] text-[#555555]' : 'mt-[3px] text-[12px] font-medium'}>
+        <p className={pill ? 'text-[12px] text-[#666666]' : 'mt-[3px] text-[12px] font-medium'}>
           {soldOut ? 'Sold out' : pkr(p.price)}
           {onSale && p.compareAtPrice > p.price && (
             <span className="ml-1.5 font-normal text-[#888888] line-through">{pkr(p.compareAtPrice)}</span>
