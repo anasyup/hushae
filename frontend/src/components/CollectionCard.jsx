@@ -71,14 +71,14 @@ function CollectionCard({ product: p, priority = false }) {
         {/* + BUY NOW — slides up on hover; always visible on mobile */}
         {!sizePick && (
           soldOut ? (
-            <span className="pointer-events-none absolute inset-x-0 bottom-0 z-[5] translate-y-0 bg-black py-3.5 text-center text-[11px] font-medium uppercase tracking-[2px] text-white md:translate-y-full md:group-hover:translate-y-0">
+            <span className="pointer-events-none absolute inset-x-0 bottom-0 z-[5] translate-y-0 bg-[#000000] py-3.5 text-center text-[11px] font-medium uppercase tracking-[2px] text-white md:translate-y-full md:group-hover:translate-y-0">
               Sold Out
             </span>
           ) : (
             <button
               type="button"
               onClick={(e) => { e.preventDefault(); buy(); }}
-              className="absolute inset-x-0 bottom-0 z-[5] translate-y-0 bg-black py-3.5 text-center text-[11px] font-medium uppercase tracking-[2px] text-white transition-transform duration-300 hover:bg-[#1a1a1a] md:translate-y-full md:group-hover:translate-y-0"
+              className="absolute inset-x-0 bottom-0 z-[5] translate-y-0 bg-[#000000] py-3.5 text-center text-[11px] font-medium uppercase tracking-[2px] text-white transition-transform duration-300 hover:bg-[#1a1a1a] md:translate-y-full md:group-hover:translate-y-0"
               style={EASE}
             >
               + Buy Now
@@ -86,7 +86,7 @@ function CollectionCard({ product: p, priority = false }) {
           )
         )}
         {sizePick && (
-          <div className="absolute inset-x-0 bottom-0 z-[5] bg-black p-3">
+          <div className="absolute inset-x-0 bottom-0 z-[5] bg-[#000000] p-3">
             <div className="flex flex-wrap justify-center gap-1.5">
               {sizes.map((s) => (
                 <button key={s} type="button"
