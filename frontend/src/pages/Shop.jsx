@@ -158,15 +158,20 @@ export default function Shop({ preset = {} }) {
         canonical={typeof window !== 'undefined' ? window.location.pathname : '/shop'}
       />
 
-      {/* ═══ 0. HERO BANNER — Best Sellers gets its own dark banner ═══ */}
-      {preset.key === 'best' ? <BestSellersBanner /> : <CategoryBanner img={banner.img} tag={banner.tag} title={banner.title} description={banner.desc} />}
+      {/* ═══ 0. HERO BANNER — dark Best Sellers banner on /best, image banner elsewhere ═══ */}
+      {preset.key === 'best' ? (
+        <BestSellersBanner />
+      ) : (
+        <CategoryBanner img={banner.img} tag={banner.tag} title={banner.title} description={banner.desc} />
+      )}
 
       <div className="px-5 pb-10 md:px-10 md:pb-[60px]">
-        {/* ═══ 1/2. BEST SELLERS → dropdown selects bar; else sub-nav + pills ═══ */}
         {preset.key === 'best' ? (
+          /* Clean select dropdown bar — Best Sellers reference (categories removed) */
           <BestSellersFilterBar f={f} cats={cats} />
         ) : (
           <>
+            {/* ═══ 1. SUB-CATEGORY TOP BAR ═════════════════════════════ */}
             {navCats.length > 0 && (
               <nav aria-label="Categories" className="flex flex-wrap items-center gap-x-7 gap-y-2 py-5 pb-[25px]">
                 {navCats.map((c) => {
@@ -184,6 +189,8 @@ export default function Shop({ preset = {} }) {
                 })}
               </nav>
             )}
+
+            {/* ═══ 2. FILTER PILLS BAR ═════════════════════════════════ */}
             <FilterPills
               countLabel={count !== null ? `${count} Item${count === 1 ? '' : 's'}` : '—'}
               sortValue={f.sort}
@@ -226,7 +233,7 @@ export default function Shop({ preset = {} }) {
                   onClick={() => setShown((s) => s + REVEAL)}
                   className="h-14 w-full max-w-xs border border-black bg-transparent text-xs font-semibold uppercase tracking-[0.2em] text-black transition-all duration-300 hover:bg-black hover:text-white disabled:opacity-50"
                 >
-                  Load More ({visible.length - shown} left)
+                  {pending ? 'Loading...' : `Load More (${visible.length - shown} left)`}
                 </button>
               </div>
             )}
@@ -249,7 +256,7 @@ export default function Shop({ preset = {} }) {
 }
 
 
-/* ═══ BEST SELLERS page — dark banner (reference "BestSellersHeader") ═══ */
+/* ═══ BEST SELLERS — dark banner (reference) ═══════════════════════════ */
 function BestSellersBanner() {
   return (
     <div className="relative flex h-64 items-center justify-start overflow-hidden bg-neutral-900 px-8 text-white md:h-80 md:px-16">
@@ -262,18 +269,19 @@ function BestSellersBanner() {
   );
 }
 
-/* Dropdown selects bar — Category / Price / Color / Size + Sort (reference). */
+/* ═══ BEST SELLERS — clean select filter bar (reference; categories removed) ═══ */
 function BestSellersFilterBar({ f, cats }) {
   const priceBandKey = (() => {
     const b = PRICE_BANDS.find((x) => x.min === f.get('minPrice') && x.max === f.get('maxPrice'));
     return b ? b.key : '';
   })();
-  const sel = (k) => (f.list(k)[0] || '');
-  const selCls = 'cursor-pointer rounded-none border border-neutral-300 bg-white px-3 py-2 focus:outline-none';
+  const sel = (k) => f.list(k)[0] || '';
+  const selectCls = 'cursor-pointer rounded-none border border-neutral-300 bg-white px-3 py-2 focus:outline-none';
+
   return (
     <div className="my-6 flex flex-wrap items-center justify-between gap-4 border-b border-neutral-200 px-6 py-4 text-xs">
       <div className="flex flex-wrap items-center gap-4">
-        <select value={f.category} onChange={(e) => f.setOne('category', e.target.value)} className={selCls} aria-label="Filter by category">
+        <select value={f.category} onChange={(e) => f.setOne('category', e.target.value)} className={selectCls} aria-label="Category">
           <option value="">Category</option>
           {cats.map((c) => <option key={c.slug} value={c.slug}>{c.name}</option>)}
         </select>
@@ -281,27 +289,26 @@ function BestSellersFilterBar({ f, cats }) {
           value={priceBandKey}
           onChange={(e) => {
             const b = PRICE_BANDS.find((x) => x.key === e.target.value);
-            if (b) f.setMany({ minPrice: b.min, maxPrice: b.max });
-            else f.setMany({ minPrice: '', maxPrice: '' });
+            f.setMany(b ? { minPrice: b.min, maxPrice: b.max } : { minPrice: '', maxPrice: '' });
           }}
-          className={selCls}
-          aria-label="Filter by price"
+          className={selectCls}
+          aria-label="Price"
         >
           <option value="">Price</option>
           {PRICE_BANDS.map((b) => <option key={b.key} value={b.key}>{b.label}</option>)}
         </select>
-        <select value={sel('color')} onChange={(e) => f.setOne('color', e.target.value)} className={selCls} aria-label="Filter by color">
+        <select value={sel('color')} onChange={(e) => f.setOne('color', e.target.value)} className={selectCls} aria-label="Color">
           <option value="">Color</option>
           {COLORS.map((c) => <option key={c.name} value={c.name}>{c.name}</option>)}
         </select>
-        <select value={sel('size')} onChange={(e) => f.setOne('size', e.target.value)} className={selCls} aria-label="Filter by size">
+        <select value={sel('size')} onChange={(e) => f.setOne('size', e.target.value)} className={selectCls} aria-label="Size">
           <option value="">Size</option>
           {SIZES.map((s) => <option key={s} value={s}>{s}</option>)}
         </select>
       </div>
       <div className="text-neutral-500">
         <span>Sort By: </span>
-        <select value={f.sort} onChange={(e) => f.setOne('sort', e.target.value, { replace: true })} className="cursor-pointer border-none bg-transparent font-semibold text-black focus:outline-none" aria-label="Sort products">
+        <select value={f.sort} onChange={(e) => f.setOne('sort', e.target.value, { replace: true })} className="cursor-pointer border-none bg-transparent font-semibold text-black focus:outline-none" aria-label="Sort">
           <option value="popular">Featured</option>
           <option value="price-asc">Price: Low to High</option>
           <option value="price-desc">Price: High to Low</option>

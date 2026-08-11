@@ -83,11 +83,11 @@ export default {
         midnight:  'rgb(var(--midnight) / <alpha-value>)',  // #1C2333 footer
       },
       fontFamily: {
-        // Inter — the house font (CDLP/SKIMS register): clean, neutral,
-        // quietly confident. UI + headings share one family.
+        // Plus Jakarta Sans (UI) + Playfair Display (serif display) —
+        // exact client reference.
         sans: ['"Plus Jakarta Sans"', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Helvetica', 'Arial', 'sans-serif'],
-        display: ['"Playfair Display"', 'Georgia', 'serif'],
-        serif: ['"Playfair Display"', 'Georgia', 'serif'],
+        display: ['"Playfair Display"', 'serif'],
+        serif: ['"Playfair Display"', 'serif'],
         urdu: ['"Noto Nastaliq Urdu"', 'serif'],
         // QA — chapter counters + editorial numbers (JetBrains Mono, loaded in index.html)
         mono: ['"JetBrains Mono"', 'ui-monospace', 'SF Mono', 'SFMono-Regular', 'Menlo', 'Consolas', 'monospace'],

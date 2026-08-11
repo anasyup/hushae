@@ -34,11 +34,11 @@ export default function MegaPanel({ open, cats, collections, onClose }) {
       {kind && (
         <motion.div
           key="megapanel"
-          initial={{ opacity: 0, y: 10 }}
+          initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 10 }}
-          transition={{ duration: 0.25, ease: 'easeOut' }}
-          className="absolute left-0 right-0 top-full z-50 w-full overflow-hidden border-b border-neutral-200 bg-[#FAF9F6] shadow-xl"
+          exit={{ opacity: 0, y: 6 }}
+          transition={{ duration: 0.2 }}
+          className="absolute left-0 right-0 top-full z-50 w-full overflow-hidden border-b border-neutral-200 bg-[#FAF9F6] shadow-2xl"
         >
           <div className="mx-auto grid max-w-[1440px] grid-cols-12 gap-8 px-6 py-10 lg:px-12">
             {/* Promo card */}

@@ -749,8 +749,8 @@ Format:
   - `OfferBar.jsx`: bg `#000000`, text 11px uppercase **tracking-widest**, CTA white font-semibold underline (was gold accent from the John Lewis PDP ref — the header ref uses plain white). Mega menu v2 itself was already live (f807eee); this closes the last delta.
 
 ## Changes
-- **2026-08-11** — ✒️ **Fonts + logo + Load More + Best Sellers header — exact reference** (commit pending)
-  - Fonts: index.html now loads **Playfair Display** (serif/display) + **Plus Jakarta Sans** (sans); tailwind fontFamily updated (was Hanken Grotesk / Cormorant).
-  - Header logo → `font-serif text-2xl font-bold uppercase tracking-widest` (Playfair).
-  - Shop Load More → minimal outline button (max-w-xs h-14, border black, hover fill, tracking 0.2em, disabled opacity-50).
-  - `/best` page: dark banner (h-64/80 bg-neutral-900, "MOST LOVED" eyebrow + serif "BEST SELLERS" + desc) + dropdown selects bar (Category/Price/Color/Size + Sort) wired to URL filters — replaces banner+pills on that page only.
+- **2026-08-11** — 🎨 **FONTS + BEST SELLERS page — exact reference** (commit pending)
+  - Fonts: index.html now loads **Playfair Display** (serif/display) + **Plus Jakarta Sans** (sans); tailwind.config sans→Plus Jakarta Sans, display+serif→Playfair Display; index.css font vars updated. Logo → `font-serif text-2xl font-bold tracking-widest`.
+  - MegaPanel: entrance 0.2s (y 6), `shadow-2xl`.
+  - `/best`: dark banner (bg-neutral-900, "MOST LOVED" eyebrow + serif "BEST SELLERS" + subtitle) + clean SELECT filter bar (Category/Price/Color/Size + Sort By — categories list removed), wired to useShopFilters.
+  - Load More → reference outline style (max-w-xs h-14, border-black, hover fill, disabled:opacity-50).
