@@ -654,8 +654,11 @@
 
 /* ═══════════════════════════════════════════════════════════════════════
    KLEIN FONT — exact client reference (fonts.css)
-   The licensed Klein .woff2 files ship in /fonts/. Until they are provided
-   the stack falls back to Helvetica/Arial — exactly like the reference CSS.
+   The licensed Klein .woff2 files ship in /fonts/ and take priority.
+   Until they are provided, the stack falls back to Jost (the closest free
+   Futura-style face — CK's logo type ≈ Futura Light), then Helvetica/Arial.
+   Drop licensed Klein/Futura .woff2 files into frontend/public/fonts/ and
+   the site will use them automatically.
    ═══════════════════════════════════════════════════════════════════════ */
 @font-face {
   font-family: 'Klein';
@@ -673,21 +676,21 @@
 }
 
 .font-klein-body {
-  font-family: 'Klein', Helvetica, Arial, sans-serif;
+  font-family: 'Klein', 'Jost', Helvetica, Arial, sans-serif;
   font-weight: 500;
   font-size: 16px;
   line-height: 24px;
   color: rgb(30, 30, 30);
 }
 .font-klein-sub {
-  font-family: 'Klein', Helvetica, Arial, sans-serif;
+  font-family: 'Klein', 'Jost', Helvetica, Arial, sans-serif;
   font-weight: 500;
   font-size: 13px;
   line-height: 23px;
   color: rgb(30, 30, 30);
 }
 .font-klein-badge {
-  font-family: 'Klein', Helvetica, Arial, sans-serif;
+  font-family: 'Klein', 'Jost', Helvetica, Arial, sans-serif;
   font-weight: 400;
   font-size: 10px;
   line-height: 15px;

@@ -772,3 +772,7 @@ Format:
 - **2026-08-11** — 🔧 **/sale route → Shop preset (SalePageHeader live)** (commit pending)
   - `/sale` was still rendering the legacy `Sale.jsx`; routed it to `<Shop preset={{ key: 'sale' }} />` so the reference SalePageHeader (gender tabs, filter chips, sort pill) + standard grid + filters render. Added `&sale=true` to the Shop query for the sale preset.
 - **2026-08-11** — 🔧 **/sale: hide duplicate FilterPills bar (SalePageHeader chips are the bar), fix JSX nesting**
+
+## Changes
+- **2026-08-11** — 🔤 **KLEIN FONT — FontBolt link checked; licensed font not downloadable there** (commit pending)
+  - FontBolt is a text generator (no font file download); the CK logo face is **Futura Light** (commercial). Since the licensed Klein/Futura .woff2 can't be obtained legally from that page, wired the closest **free Futura-style face: Jost** (Google Fonts) as the fallback in `.font-klein-*` stacks and the Klein `@font-face` hooks stay first — dropping licensed files into `frontend/public/fonts/` will switch the site to them automatically with zero code change.
