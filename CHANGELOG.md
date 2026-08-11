@@ -800,3 +800,4 @@ Format:
 ## Changes
 - **2026-08-11** — 🧭 **HEADER NAVIGATION — exact reference** (commit pending)
   - New `HeaderNav.jsx`: centered secondary nav strip (WOMEN'S / MEN'S / NEW ARRIVALS / COLLECTIONS / SALE) — font-sans 12px medium uppercase tracking-[0.15em] #1e1e1e, hover neutral-500, gap 8/10, border-b py-4, wired to real routes. Rendered under the main header on Shop (all presets) + Collection pages.
+- **2026-08-11** — 🧭 **HeaderNavigation v2 — exact ref**: 7 items (Women▾ Men▾ New Arrivals Best Sellers Sale▾ Fit Finder Track Order), 11px medium uppercase tracking 0.18em, ChevronDown (12px stroke-2) on dropdown items, gap 6/8, py-3.5.
