@@ -643,3 +643,10 @@ Format:
   - Hero: content `left: 60px` at md+ (was 80), title `letter-spacing -1px` (was -0.013em), desc 13px / max-w 380px / mb 20px, pills `10px 24px` radius `25px`, gap 12px, hover bg #f0f0f0 + -1px lift.
   - Theme body still `[]` (React home active); DB settings already aligned (height 65, navSize 13, navGap 28, 7-item menu, offerBar msg/CTA).
   - Cookie consent: full-screen blocking modal (sm:inset-0 + backdrop, dimmed hero   - Theme body still `[]` (React home active); DB settings already aligned (height 65, navSize 13, navGap 28, 7-item menu, offerBar msg/CTA). blocked all clicks on first visit) → slim bottom bar, pointer-events only on the card, Manage toggles preserved (commit `ad815a1`).
+
+## Changes
+- **2026-08-11** — 🛍️ **COLLECTION PAGE — exact client reference ("Hushae - Women Collection")** (commit pending)
+  - New `CollectionCard.jsx`: 3/4 tile (#f6f6f6), image zoom 1.05 (0.6s cubic-bezier), black badge top-left (New / Best Seller, 10px 4px 8px), white circle wishlist heart top-right (always visible, 32px, soft shadow, hover scale 1.1), "+ Quick Add" slides up on hover (always visible ≤768px, inverts black), caption = swatches (12px, active black ring) · title 13/500 · category 11 #777 · price 13/600 + struck old price (#999 ml 6px).
+  - `Shop.jsx` (/women /men /shop /new /best /sale /category/*) restyled to reference: white page, 1600px container (40/30), simple 32px/400/-0.5px UPPERCASE title + 13px #666 subtitle (dark hero, quick-nav pills & featured banners removed), sticky filter bar (top 65px, hairline borders, Filter & Refine = exact reference SVG + item count, native sort select with reference labels/order), grid 4→3→2 cols (30/20 → 20/12). FilterSheet / sort / chips / LOAD MORE / empty & skeleton states preserved.
+  - `Collection.jsx` (/collection/:slug) same layout + lightweight client-side sort & size/colour filter popover over the fetched list.
+  - Homepage Best Sellers keeps the previously-approved silent ProductCard (unchanged).
