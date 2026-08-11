@@ -786,3 +786,7 @@ Format:
 ## Changes
 - **2026-08-11** — 🃏 **PRODUCT CARD v8 — exact minimal reference** (commit pending)
   - Bar variant rewritten: color swatches moved ABOVE the image (10px, border neutral-300, +N), title → h3 `font-sans font-normal text-[13px] leading-[18px] text-[#1e1e1e] capitalize line-clamp-1 mb-1`, price → `text-[11px] leading-[14px]` (struck original neutral-400 + current #1e1e1e medium), image → `#f7f5f0` 3/4 `mt-2`, hover = secondary image crossfade + `scale-105` (0.5s). Removed Buy Now pill/overlay/arrows/badge/dash indicators from the bar variant (not in this reference); pill variant (PDP related) unchanged.
+
+## Changes
+- **2026-08-11** — 🃏 **CARD FIX: Buy Now + arrows + indicators restored** (commit pending)
+  - Bar variant (minimal reference meta: swatches top, 13px title, 11px price, #f7f5f0 image) now has the hover overlay back: 32px slider arrows (image cycle), centred **Buy Now** pill (radius 24, opens SizeModal with size select → add to cart), dash indicators — hover-only on desktop, always visible on mobile. Sold out → "Sold Out" pill.

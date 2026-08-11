@@ -11,8 +11,9 @@ import SizeModal from './SizeModal';
  *
  *  · variant="bar" (default) — minimal reference card:
  *      swatches on TOP (10px) · title 13px normal capitalize line-clamp-1 ·
- *      price 11px (struck original + current) · image #f7f5f0 3/4, hover =
- *      secondary image swap + scale 1.05 · NO overlay/badge/arrows
+ *      price 11px (struck original + current) · image #f7f5f0 3/4 · hover
+ *      overlay: slider arrows (32px) + centred Buy Now pill (opens SizeModal)
+ *      + dash indicators — always visible on mobile
  *  · variant="pill" — PDP "Related Products" card:
  *      #f3ede2 tile · rounded Buy Now pill fade-in · brand line · 13/500
  *      title · 13/600 price + gold-star rating
@@ -124,7 +125,7 @@ function CollectionCard({ product: p, priority = false, variant = 'bar', ratio =
         <span className="font-medium text-[#1e1e1e]">{soldOut ? 'Sold out' : pkr(p.price)}</span>
       </div>
 
-      {/* Image — hover swaps to secondary + scale */}
+      {/* Image — hover: arrows + Buy Now pill + dash indicators */}
       <Link
         to={`/product/${p.slug}`}
         tabIndex={-1}
@@ -149,7 +150,62 @@ function CollectionCard({ product: p, priority = false, variant = 'bar', ratio =
             className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
           />
         )}
+
+        {/* Slider arrows — hover only */}
+        {images.length > 1 && (
+          <>
+            <button
+              type="button"
+              aria-label="Previous image"
+              onClick={(e) => { e.preventDefault(); cycle(-1); }}
+              className="absolute left-2 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-full border-0 bg-white/90 text-black opacity-0 shadow transition-opacity duration-300 hover:bg-white group-hover:opacity-100"
+            >
+              <ChevronLeft size={16} strokeWidth={1.5} aria-hidden="true" />
+            </button>
+            <button
+              type="button"
+              aria-label="Next image"
+              onClick={(e) => { e.preventDefault(); cycle(1); }}
+              className="absolute right-2 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-full border-0 bg-white/90 text-black opacity-0 shadow transition-opacity duration-300 hover:bg-white group-hover:opacity-100"
+            >
+              <ChevronRight size={16} strokeWidth={1.5} aria-hidden="true" />
+            </button>
+          </>
+        )}
+
+        {/* Buy Now — centred pill; hover-only on desktop, always visible on mobile */}
+        {soldOut ? (
+          <span className="pointer-events-none absolute bottom-[10px] left-1/2 -translate-x-1/2 whitespace-nowrap rounded-[24px] bg-black px-5 py-2.5 text-[11px] font-bold text-white opacity-100 md:bottom-4 md:opacity-0 md:group-hover:opacity-100">
+            Sold Out
+          </span>
+        ) : (
+          <button
+            type="button"
+            onClick={(e) => { e.preventDefault(); setModal(true); }}
+            className="absolute bottom-[10px] left-1/2 -translate-x-1/2 whitespace-nowrap rounded-[24px] border-0 bg-black px-5 py-2.5 text-[11px] font-bold tracking-[0.2px] text-white opacity-100 transition-[opacity,background] duration-200 hover:bg-[#222222] md:bottom-4 md:opacity-0 md:group-hover:opacity-100"
+          >
+            Buy Now
+          </button>
+        )}
+
+        {/* Dash indicators — hover only */}
+        {images.length > 1 && (
+          <div className="absolute bottom-[16px] left-1/2 hidden -translate-x-1/2 items-center gap-[5px] opacity-0 transition-opacity duration-300 group-hover:opacity-100 md:flex">
+            {images.map((_, i) => (
+              <button
+                key={i}
+                type="button"
+                aria-label={`Image ${i + 1}`}
+                onClick={(e) => { e.preventDefault(); setImgIdx(i); }}
+                className={`h-[2px] border-0 transition-colors duration-200 ${i === imgIdx ? 'bg-white' : 'bg-white/65'}`}
+                style={{ width: 22 }}
+              />
+            ))}
+          </div>
+        )}
       </Link>
+
+      {modal && <SizeModal product={p} onClose={() => setModal(false)} />}
     </article>
   );
 }
