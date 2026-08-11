@@ -52,7 +52,7 @@ function CollectionCard({ product: p, priority = false }) {
 
   const img = p.images?.[0]?.url || srcOf(p.image) || '';
   const name = titleCase(displayName(p.name)) || 'Untitled';
-  const badge = p.bestSeller === true ? 'Best Seller' : p.isNewArrival ? 'New' : null;
+  const badge = p.isBestSeller === true ? 'Best Seller' : p.isNewArrival ? 'New' : null;
   const caption = catLabel || materialName(p.fabric);
 
   useEffect(() => {

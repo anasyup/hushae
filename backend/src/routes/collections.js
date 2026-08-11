@@ -34,7 +34,7 @@ async function resolveProducts(c, limit = 60) {
     const manual = await Product.find({
       _id: { $in: c.products },
       isActive: true, status: { $ne: 'draft' },
-    }).select('name slug price compareAtPrice onSale saleStart saleEnd stock images gender categorySlug tier ratingAvg sizes colors isNewArrival bestSeller tags');
+    }).select('name slug price compareAtPrice onSale saleStart saleEnd stock images gender categorySlug tier ratingAvg sizes colors isNewArrival isBestSeller tags');
     for (const p of manual) {
       if (!ids.has(String(p._id))) { ids.add(String(p._id)); items.push(p); }
     }
@@ -45,7 +45,7 @@ async function resolveProducts(c, limit = 60) {
     const smart = await Product.find(smartQuery(c))
       .sort({ isBestSeller: -1, stock: -1 })
       .limit(limit)
-      .select('name slug price compareAtPrice onSale saleStart saleEnd stock images gender categorySlug tier ratingAvg sizes colors isNewArrival bestSeller tags');
+      .select('name slug price compareAtPrice onSale saleStart saleEnd stock images gender categorySlug tier ratingAvg sizes colors isNewArrival isBestSeller tags');
     for (const p of smart) {
       if (items.length >= limit) break;
       if (!ids.has(String(p._id))) { ids.add(String(p._id)); items.push(p); }
