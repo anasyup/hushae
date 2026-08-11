@@ -19,6 +19,50 @@ app.use(require('./middleware/sanitize')); // NoSQL-injection block
 
 app.get('/api/health', (req, res) => res.json({ ok: true, name: 'HUSHAE API' }));
 
+/* ── API STATUS PAGE — open /api in a browser to see the backend live ── */
+app.get(['/api', '/api/'], (req, res) => {
+  const mongoose = require('mongoose');
+  const dbState = mongoose.connection.readyState; // 0 dis, 1 connected, 2 connecting, 3 disconnecting
+  const dbLabel = dbState === 1 ? 'Connected' : dbState === 2 ? 'Connecting…' : 'Not connected';
+  const dbColor = dbState === 1 ? '#16a34a' : dbState === 2 ? '#d97706' : '#dc2626';
+  const endpoints = [
+    ['/api/health', 'Health check'],
+    ['/api/products', 'Products (100 live)'],
+    ['/api/categories', 'Categories (10)'],
+    ['/api/collections', 'Collections (3)'],
+    ['/api/orders/track', 'Order tracking'],
+    ['/api/reviews', 'Reviews'],
+    ['/api/settings', 'Store settings'],
+    ['/api/auth', 'Auth & login'],
+  ];
+  const rows = endpoints.map(([p, label]) =>
+    `<tr><td><a href="${p}" target="_blank" class="ep">${p}</a></td><td class="muted">${label}</td></tr>`).join('');
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  res.send(`<!doctype html><html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>HUSHAE API — Live</title><style>
+  *{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;background:#fcfbf9;color:#111;display:flex;min-height:100vh;align-items:center;justify-content:center;padding:24px}
+  .card{background:#fff;border:1px solid #e5e5e5;border-radius:12px;max-width:680px;width:100%;padding:40px;box-shadow:0 10px 30px rgba(0,0,0,.04)}
+  .brand{font-size:26px;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
+  .tag{color:#888;font-size:12px;letter-spacing:.18em;text-transform:uppercase;margin-top:4px}
+  .status{display:flex;align-items:center;gap:10px;margin:28px 0 8px;padding:14px 16px;background:#f6f6f3;border-radius:8px;font-size:14px}
+  .dot{width:10px;height:10px;border-radius:50%;background:${dbColor}}
+  .ok{color:${dbColor};font-weight:600;text-transform:uppercase;letter-spacing:.1em;font-size:12px}
+  table{width:100%;border-collapse:collapse;margin-top:8px}
+  td{padding:10px 0;border-bottom:1px solid #f0f0f0;font-size:13px}
+  a.ep{color:#111;font-family:ui-monospace,Menlo,monospace;font-size:13px;text-decoration:none;border-bottom:1px solid #ccc}
+  a.ep:hover{border-color:#111}
+  .muted{color:#777}
+  .foot{margin-top:22px;color:#999;font-size:11px;letter-spacing:.08em;text-transform:uppercase;display:flex;justify-content:space-between}
+</style></head><body><div class="card">
+  <div class="brand">HUSHAE</div><div class="tag">Backend API — live endpoint</div>
+  <div class="status"><span class="dot"></span><span class="ok">API Online</span>
+    <span style="margin-left:auto;color:#555;font-size:12px">Database: <b style="color:${dbColor}">${dbLabel}</b></span></div>
+  <table>${rows}</table>
+  <div class="foot"><span>HUSHAE · Node/Express</span><span>${new Date().toISOString().slice(0, 19).replace('T', ' ')} UTC</span></div>
+</div></body></html>`);
+});
+
+
 // Kick off the daily in-DB auto-backup daemon.
 // Safe to call multiple times — internal flag prevents duplicate intervals.
 try { require('./utils/autoBackup').startAutoBackup(); } catch { /* noop */ }
