@@ -736,3 +736,10 @@ Format:
 ## Changes
 - **2026-08-11** — 🗂️ **MEGA MENU — exact luxury animated reference** (commit pending)
   - `MegaMenu.jsx` re-cut: full-width dropdown bg `#FAF9F6`, border-b, `shadow-2xl`, framer-motion opacity/y entrance (0.35s, ease [0.16,1,0.3,1]); 12-col grid (max-w 1440, px-6/12, py-12): promo banner card (col-span-4, 4/3, hover zoom 0.7s + black/20→30 overlay + bottom-left title/CTA with ArrowRight) · Featured (col-span-3 pl-6) · Shop {label} (col-span-3, first 3 categories + View all) · More (col-span-2, remaining categories). Links text-sm neutral-800, hover translate-x-1.5. Animated underline indicator (motion layoutId) under the trigger. Keyboard/Escape/aria kept.
+
+## Changes
+- **2026-08-11** — 🗂️ **MEGA MENU v2 — exact reference (panel = direct child of header)** (commit pending)
+  - New `MegaPanel.jsx`: single full-width dropdown rendered as DIRECT CHILD of the header (`absolute top-full left-0 right-0`), driven by header `mega` state; header `onMouseLeave` closes it; entrance 0.25s easeOut (opacity + y 10).
+  - Panel: bg `#FAF9F6`, border-b, `shadow-xl`; promo card 4/3 `rounded-sm` (hover zoom 0.5s + black/25→35 overlay, title + CTA/ArrowRight); columns Featured (women 3 / men 2) · Shop {kind} (first 3 cats + View all) · More (rest); links `text-xs` neutral-800 hover translate-x-1, col heads 11px mb-5.
+  - `MegaMenu.jsx` → trigger only (label + rotating chevron + layoutId animated underline, keyboard Enter/ArrowDown/Escape).
+  - Header: `mega` state, `relative`, mega cleared on route change / header mouseleave / link click.

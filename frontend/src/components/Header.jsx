@@ -6,6 +6,7 @@ import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import OfferBar from './OfferBar';
 import MegaMenu from './header/MegaMenu';
+import MegaPanel from './header/MegaPanel';
 import MobileDrawer from './header/MobileDrawer';
 import { useCmsNav } from '../lib/useCmsNav';
 import useHeaderScroll from './header/useHeaderScroll';
@@ -45,6 +46,7 @@ export default function Header() {
   const isHome = loc.pathname === '/';
   const { past, reveal } = useHeaderScroll({ enableHide: false, revealAfter: 10 });
   const [hovered, setHovered] = useState(false);
+  const [mega, setMega] = useState(null);
   /* ghost = transparent over hero (white text). Turns solid on scroll OR on
      hover — CK reference has both `.ck-header:hover` and `.ck-header.scrolled`. */
   const ghost = isHome && !past && !hovered;
@@ -55,7 +57,7 @@ export default function Header() {
     api('/search/config').then(setSearchCfg).catch(() => setSearchCfg({}));
   }, [searchOpen, searchCfg]);
   useEffect(() => { if (searchOpen || mobileOpen) reveal(); }, [searchOpen, mobileOpen, reveal]);
-  useEffect(() => { setMobileOpen(false); setSearchOpen(false); }, [loc.pathname]);
+  useEffect(() => { setMobileOpen(false); setSearchOpen(false); setMega(null); }, [loc.pathname]);
 
   const wCats = useMemo(() => cats.filter((c) => c.gender === 'women'), [cats]);
   const mCats = useMemo(() => cats.filter((c) => c.gender === 'men'), [cats]);
@@ -97,7 +99,6 @@ export default function Header() {
   const showAccount = hdr.showAccount !== false;
   const showCart = hdr.showCart !== false;
 
-  const dropItems = (kind) => (kind === 'women' ? wCats : kind === 'men' ? mCats : []);
 
   const COLLECTIONS = useMemo(() => ([
     { label: 'New Arrivals', href: '/new' },
@@ -137,8 +138,8 @@ export default function Header() {
           data-header
           style={{ '--hdr-h': `${deskH}px` }}
           onMouseEnter={() => setHovered(true)}
-          onMouseLeave={() => setHovered(false)}
-          className={`border-b transition-[background-color,border-color,top,box-shadow] duration-300 ${
+          onMouseLeave={() => { setHovered(false); setMega(null); }}
+          className={`relative border-b transition-[background-color,border-color,top,box-shadow] duration-300 ${
             ghost
               ? 'border-transparent bg-transparent text-white'
               : `border-[#e5e5e5] bg-white text-black shadow-[0_2px_10px_rgba(0,0,0,0.03)] ${hairline ? '' : 'border-transparent'}`
@@ -175,10 +176,11 @@ export default function Header() {
                     key={`${m.label}-${i}`}
                     label={m.label}
                     to={m.href || '/'}
-                    items={dropItems(m.dropdown)}
-                    collections={COLLECTIONS}
                     linkCls={linkCls}
                     navStyle={navStyle}
+                    active={mega === m.dropdown}
+                    onOpen={() => setMega(m.dropdown)}
+                    onClose={() => setMega(null)}
                   />
                 ) : (
                   <NavLink key={`${m.label}-${i}`} to={m.href || '/'} style={navStyle}
@@ -247,6 +249,14 @@ export default function Header() {
               </motion.div>
             )}
           </AnimatePresence>
+
+          {/* Full-width mega dropdown — direct child of header (reference v2) */}
+          <MegaPanel
+            open={mega}
+            cats={mega === 'men' ? mCats : wCats}
+            collections={COLLECTIONS}
+            onClose={() => setMega(null)}
+          />
         </header>
       </div>
 
