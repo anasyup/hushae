@@ -12,7 +12,7 @@ import SizeModal from './SizeModal';
  *  · variant="bar" (default) — exact CK tight-grid reference:
  *      4/5 image #e8e8e8 · hover: 28px arrows + Buy Now pill (bottom-6,
  *      opens SizeModal) + black dash indicators · swatches BELOW image with
- *      ring selection · title 12px semibold tracking-tight · price 12px bold
+ *      ring selection · title 12px font-normal capitalize tracking-normal · price 12px font-medium
  *  · variant="pill" — PDP "Related Products" card:
  *      #f3ede2 tile · rounded Buy Now pill fade-in · brand line · 13/500
  *      title · 13/600 price + gold-star rating
@@ -90,7 +90,7 @@ function CollectionCard({ product: p, priority = false, variant = 'bar', ratio =
   /* ── BAR VARIANT — exact CK tight-grid reference card ────────────── */
   /* 4/5 image #e8e8e8 (carousel) · hover: 28px arrows + Buy Now pill
      (bottom-6) + black dash indicators · swatches BELOW image with ring
-     selection · title 12px semibold tracking-tight · price 12px bold */
+     selection · title 12px font-normal capitalize tracking-normal · price 12px font-medium */
   const colors = p.colors || [];
 
   return (
@@ -183,15 +183,15 @@ function CollectionCard({ product: p, priority = false, variant = 'bar', ratio =
 
       {/* 3. Title + price */}
       <div className="mt-2 space-y-1 px-1">
-        <h3 className="line-clamp-1 text-[12px] font-semibold tracking-tight text-[#1e1e1e]">
+        <h3 className="line-clamp-1 text-[12px] font-normal capitalize tracking-normal text-[#1e1e1e]">
           {name}
         </h3>
-        <p className="text-[12px] font-bold text-[#1e1e1e]">
-          {soldOut ? 'Sold out' : pkr(p.price)}
+        <div className="flex items-center gap-2 text-[12px]">
           {onSale && p.compareAtPrice > p.price && (
-            <span className="ml-1.5 text-[11px] font-normal text-neutral-400 line-through">{pkr(p.compareAtPrice)}</span>
+            <span className="text-neutral-400 line-through">{pkr(p.compareAtPrice)}</span>
           )}
-        </p>
+          <span className="font-medium text-[#1e1e1e]">{soldOut ? 'Sold out' : pkr(p.price)}</span>
+        </div>
       </div>
 
       {modal && <SizeModal product={p} onClose={() => setModal(false)} />}

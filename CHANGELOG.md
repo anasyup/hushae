@@ -795,3 +795,4 @@ Format:
 - **2026-08-11** — 🃏 **CARD + GRID — exact CK tight-grid reference** (commit pending)
   - `CollectionCard` bar variant re-cut to the 2nd reference: **4/5 image `#e8e8e8`** (carousel via index) · hover: **28px white arrows** (shadow-md, Chevron 16 stroke-2) + **Buy Now pill** (bottom-6, px-7 py-2.5, rounded-full, shadow-lg, opens SizeModal) + **black dash indicators** (active w-5 bg-black / inactive w-3 neutral-400) · **swatches BELOW image** (14px, ring-1 selection, colour image switches gallery) · title **12px semibold tracking-tight** · price **12px bold**.
   - Shop grid → `grid-cols-2 md:grid-cols-4 gap-x-1 gap-y-10` (tight horizontal, tall rows).
+- **2026-08-11** — 🃏 **CARD exact match (2nd ref pass)**: title → `text-[12px] font-normal capitalize tracking-normal`, price → `flex gap-2 text-[12px]` (struck original neutral-400 + current font-medium). Grid gap-x-1 gap-y-10 2/4 already live.
