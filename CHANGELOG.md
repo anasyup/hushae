@@ -771,3 +771,4 @@ Format:
 ## Changes
 - **2026-08-11** — 🔧 **/sale route → Shop preset (SalePageHeader live)** (commit pending)
   - `/sale` was still rendering the legacy `Sale.jsx`; routed it to `<Shop preset={{ key: 'sale' }} />` so the reference SalePageHeader (gender tabs, filter chips, sort pill) + standard grid + filters render. Added `&sale=true` to the Shop query for the sale preset.
+- **2026-08-11** — 🔧 **/sale: hide duplicate FilterPills bar (SalePageHeader chips are the bar), fix JSX nesting**

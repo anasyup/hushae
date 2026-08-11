@@ -166,7 +166,7 @@ export default function Shop({ preset = {} }) {
       )}
 
       <div className="px-5 pb-10 md:px-10 md:pb-[60px]">
-        {(
+        {preset.key === 'sale' ? null : (
           <>
             {/* ═══ 1. SUB-CATEGORY TOP BAR ═════════════════════════════ */}
             {navCats.length > 0 && (
@@ -197,7 +197,8 @@ export default function Shop({ preset = {} }) {
               onAllFilters={() => setSheetOpen(true)}
             />
           </>
-        )}
+          )}
+        }
 
         {/* ═══ 3. GRID ═════════════════════════════════════════════════ */}
         {products === null ? (
