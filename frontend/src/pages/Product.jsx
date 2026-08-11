@@ -11,7 +11,6 @@ import { isOnSale } from '../lib/sale';
 import { titleCase } from '../lib/productMeta';
 import { isVideo } from '../lib/media';
 import CollectionCard from '../components/CollectionCard';
-import ProductRow from '../components/ProductRow';
 import ProductReviews from '../components/ProductReviews';
 import ProductQA from '../components/reviews/ProductQA';
 import SizeGuideModal from '../components/SizeGuideModal';
@@ -498,17 +497,23 @@ export default function Product() {
         ))}
       </section>
 
-      {/* ═══ REVIEWS ═════════════════════════════════════════════════ */}
-      <section id="reviews" className="scroll-mt-28 border-t bg-white py-20">
-        <div className="mx-auto max-w-[1440px] px-6">
+      {/* ═══ CUSTOMER REVIEWS ═════════════════════════════════════════ */}
+      <section id="reviews" className="scroll-mt-28 border-t border-neutral-200 py-16">
+        <div className="mx-auto max-w-[1440px] px-6 lg:px-12">
           <ProductReviews product={p} />
+        </div>
+      </section>
+
+      {/* ═══ QUESTIONS & ANSWERS ══════════════════════════════════════ */}
+      <section className="border-t border-neutral-200 py-16">
+        <div className="mx-auto max-w-[1440px] px-6 lg:px-12">
           <ProductQA product={p} />
         </div>
       </section>
 
       {/* ═══ YOU MAY ALSO LIKE ════════════════════════════════════════ */}
       {complete.length > 0 && (
-        <section className="mx-auto max-w-[1440px] px-6 py-20">
+        <section className="mx-auto max-w-[1440px] px-6 py-16 lg:px-12">
           <h3 className="mb-8 text-xl font-light uppercase tracking-widest">You May Also Like</h3>
           <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
             {complete.slice(0, 4).map((pr) => <CollectionCard key={pr._id} product={pr} variant="pill" />)}
@@ -516,13 +521,17 @@ export default function Product() {
         </section>
       )}
 
-      {/* Recently viewed */}
+      {/* Recently viewed — grid of cards (reference structure) */}
       {rvCfg.enabled !== false && rvCfg.showOnProduct !== false
         && recent.filter((r) => r.slug !== p.slug).length > 0 && (
-        <section className="border-t bg-neutral-100 py-16">
-          <div className="mx-auto max-w-[1440px] px-6">
-            <h3 className="mb-6 text-xs font-semibold uppercase tracking-[0.2em] text-neutral-500">{rvCfg.title || 'Recently Viewed'}</h3>
-            <ProductRow eyebrow="" title="" products={recent.filter((r) => r.slug !== p.slug).slice(0, 8)} />
+        <section className="border-t border-neutral-200 py-16">
+          <div className="mx-auto max-w-[1440px] px-6 lg:px-12">
+            <h3 className="mb-8 text-xl font-light uppercase tracking-widest">{rvCfg.title || 'Recently Viewed'}</h3>
+            <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
+              {recent.filter((r) => r.slug !== p.slug).slice(0, 4).map((pr) => (
+                <CollectionCard key={pr._id || pr.slug} product={pr} />
+              ))}
+            </div>
           </div>
         </section>
       )}

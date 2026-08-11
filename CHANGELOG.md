@@ -723,3 +723,7 @@ Format:
   - Gallery: vertical thumbnail column (64×80, active black border, inactive 60%) + main 3/4 with hover arrows + expand → new fullscreen Lightbox (arrows + counter).
   - Buy box: eyebrow · title 2xl/3xl font-light · star rating + reviews link · price row (2xl + struck + **"Save N%"** black badge) · Read More toggle · colour 36px ring-2 swatches · size 6-col h-11 + Size Guide · **stock indicator** (green/amber/red dots) · qty stepper + Add To Cart + heart · **Buy It Now** · trust 2×2 (Truck/RotateCcw/ShieldCheck/Box) · 3 accordions (Details & Fit / Shipping & Returns / Garment Care, ChevronDown style).
   - Editorial Feature section (4/3 image, hover zoom), 4 feature cards, Reviews + QA on white band, **"You May Also Like"** (pill cards), Recently Viewed, sticky purchase bar.
+
+## Changes
+- **2026-08-11** — 🧩 **PDP bottom structure — exact ProductPage reference** (commit pending)
+  - Section flow now: ProductHero → Editorial/BrandStory → You May Also Like → **Recently Viewed (xl light heading + 4-col ProductCard grid)** → **Customer Reviews** (own section) → **Questions & Answers** (own section) — each `py-16 border-t border-neutral-200`.
