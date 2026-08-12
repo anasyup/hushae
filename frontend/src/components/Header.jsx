@@ -92,7 +92,7 @@ export default function Header() {
 
   /* Reference nav-link style — 11px medium uppercase tracking 0.18em */
   const linkCls = useMemo(() => ({ isActive }) => (
-    `inline-flex items-center gap-1 font-sans text-[11px] font-medium uppercase tracking-[0.18em] text-[#1e1e1e] transition-colors duration-200 hover:text-neutral-500`
+    `inline-flex items-center gap-1 font-sans text-[11px] font-semibold uppercase tracking-[0.18em] text-[#111111] transition-colors duration-200 hover:text-neutral-500`
   ), []);
 
   const navStyle = useMemo(() => ({ fontSize: '11px', letterSpacing: '0.18em' }), []);

@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { api } from '../api/client';
 import Seo, { organizationJsonLd } from '../components/Seo';
-import LuxuryFilterBar from '../components/LuxuryFilterBar';
 import LuxuryCategoryShowcase from '../components/LuxuryCategoryShowcase';
 
 /* ============================================================================
@@ -245,10 +244,7 @@ export default function Home() {
       {/* 01 — HERO (CK) */}
       <HeroSlides />
 
-      {/* 02 — FILTER BAR (reference) */}
-      <LuxuryFilterBar count={fresh.length || 8} onOpenFilters={() => {}} />
-
-      {/* 03 — STUDIO CATEGORY SHOWCASE (Givenchy canvas) */}
+      {/* 02 — STUDIO CATEGORY SHOWCASE (Givenchy canvas) */}
       <LuxuryCategoryShowcase />
 
       {/* 03 — THE NEW COLLECTION (Givenchy) */}

@@ -5,6 +5,7 @@ import { api } from '../api/client';
 import CollectionCard from '../components/CollectionCard';
 import FilterPills from '../components/FilterPills';
 import CategoryBanner from '../components/CategoryBanner';
+import LuxuryFilterBar from '../components/LuxuryFilterBar';
 import { ProductGridSkeleton } from '../components/Skeletons';
 import EmptyState from '../components/ui/EmptyState';
 import Seo from '../components/Seo';
@@ -164,6 +165,8 @@ export default function Shop({ preset = {} }) {
       ) : (
         <CategoryBanner img={banner.img} tag={banner.tag} title={banner.title} description={banner.desc} />
       )}
+
+      <LuxuryFilterBar count={count || 0} f={f} onOpenFilters={() => setSheetOpen(true)} />
 
       <div className="px-5 pb-10 md:px-10 md:pb-[60px]">
         {preset.key === 'sale' ? null : (

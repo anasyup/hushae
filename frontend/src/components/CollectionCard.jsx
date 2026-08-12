@@ -36,12 +36,12 @@ function CollectionCard({ product: p, priority = false, variant = 'bar', ratio =
   const images = (p.images || []).map(srcOf).filter(Boolean);
   const main = images[imgIdx] || images[0] || srcOf(p.image) || '';
 
-  /* Auto slideshow on hover — cycles images every 1.5s, resets on leave */
+  /* Hover = ONE image change (primary -> secondary), no auto-cycle.
+     Mouse leave returns to the first image. Arrows still allow manual browse. */
   useEffect(() => {
-    if (!isHovered || images.length <= 1) { setImgIdx(0); return undefined; }
-    const t = setInterval(() => setImgIdx((i) => (i + 1) % images.length), 1500);
-    return () => clearInterval(t);
-  }, [isHovered, images.length]);
+    if (!isHovered) { setImgIdx(0); return; }
+    if (images.length > 1) setImgIdx((i) => (i === 0 ? 1 : i));
+  }, [isHovered]);
   const name = titleCase(displayName(p.name)) || 'Untitled';
   const soldOut = p.stock === 0;
   const onSale = isOnSale(p);
