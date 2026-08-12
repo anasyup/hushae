@@ -5,6 +5,9 @@ import { api } from '../api/client';
 import Seo, { organizationJsonLd } from '../components/Seo';
 import LuxuryCategoryShowcase from '../components/LuxuryCategoryShowcase';
 import CollectionCard from '../components/CollectionCard';
+import BrandManifesto from '../components/home/BrandManifesto';
+import CraftPillars from '../components/home/CraftPillars';
+import WorldStrip from '../components/home/WorldStrip';
 
 /* ============================================================================
  * HUSHAE HOME — luxury homepage, exact client reference.
@@ -92,14 +95,16 @@ function CategoryGridSection() {
 /* ── SECTION 2 & 4: Product carousel (Givenchy style) ───────────────────── */
 function ProductCarouselSection({ title, subtitle, products, href }) {
   return (
-    <section className="mx-auto max-w-[1600px] border-t border-neutral-200/60 px-4 py-16 md:px-8">
-      <div className="mb-10 space-y-1 text-center">
-        <h2 className="font-display text-2xl font-light uppercase tracking-[0.14em] text-[#111111] md:text-3xl">
+    <section className="mx-auto max-w-[1600px] border-t border-neutral-200/60 px-4 py-20 md:px-8">
+      <div className="mb-12 flex flex-col items-center gap-4 text-center">
+        {/* Seam — the house mark above each chapter */}
+        <div className="h-px w-10 bg-[#111111]/50" aria-hidden="true" />
+        <h2 className="font-display text-2xl font-light uppercase tracking-[0.16em] text-[#111111] md:text-3xl">
           {title}
         </h2>
         <Link
           to={href || '/shop'}
-          className="inline-block border-b border-black/30 pb-0.5 text-[10px] font-medium uppercase tracking-[0.25em] text-neutral-500 transition-colors hover:text-black"
+          className="inline-block border-b border-black/30 pb-1 text-[10px] font-medium uppercase tracking-[0.25em] text-neutral-500 transition-colors hover:text-black"
         >
           {subtitle}
         </Link>
@@ -162,7 +167,7 @@ function NewsletterSection() {
   return (
     <section className="border-t border-neutral-200/80 bg-[#f7f6f2] px-4 py-20 text-center">
       <div className="mx-auto max-w-xl space-y-4">
-        <h3 className="font-display text-2xl font-light uppercase tracking-[0.14em] text-[#111111] md:text-3xl">
+        <h3 className="font-display text-2xl font-light uppercase tracking-[0.16em] text-[#111111] md:text-3xl">
           Subscribe to the Newsletter
         </h3>
         <p className="text-[12px] font-normal leading-relaxed tracking-wide text-neutral-500">
@@ -214,29 +219,38 @@ export default function Home() {
         jsonLd={organizationJsonLd(typeof window !== 'undefined' ? window.location.origin : '')}
         jsonLdId="home-org" />
 
-      {/* 01 — HERO (CK) */}
+      {/* 01 — HERO (untouched) */}
       <HeroSlides />
 
-      {/* 02 — STUDIO CATEGORY SHOWCASE (Givenchy canvas) */}
+      {/* 02 — THE MAISON — brand manifesto (Second Skin Studio) */}
+      <BrandManifesto />
+
+      {/* 03 — STUDIO CATEGORY SHOWCASE (Givenchy canvas) */}
       <LuxuryCategoryShowcase />
 
-      {/* 03 — THE NEW COLLECTION (Givenchy) */}
+      {/* 04 — THE NEW COLLECTION (Givenchy) */}
       <ProductCarouselSection title="The New Collection" subtitle="EXPLORE NOW" products={fresh} href="/new" />
 
-      {/* 04 — VIEW MORE (reference button) */}
+      {/* 05 — THE CRAFT — three pillars (Second Skin Studio) */}
+      <CraftPillars />
+
+      {/* 06 — VIEW MORE (reference button) */}
       <div className="flex w-full justify-center">
         <Link to="/shop" className="my-8 cursor-pointer border border-black bg-transparent px-10 py-3.5 text-[11px] font-medium uppercase tracking-[0.2em] text-black transition-all duration-300 ease-in-out hover:bg-black hover:text-white">
           View More
         </Link>
       </div>
 
-      {/* 05 — EDITORIAL SPLIT (Loro Piana) */}
+      {/* 07 — EDITORIAL SPLIT (Loro Piana) */}
       <EditorialSplitSection />
 
-      {/* 05 — OBJECTS OF DESIRE */}
+      {/* 08 — OBJECTS OF DESIRE */}
       <ProductCarouselSection title="Objects of Desire" subtitle="CURATED SELECTION" products={best} href="/best" />
 
-      {/* 06 — NEWSLETTER */}
+      {/* 09 — WORLD OF HUSHAE — international strip (Second Skin Studio) */}
+      <WorldStrip />
+
+      {/* 10 — NEWSLETTER */}
       <NewsletterSection />
     </div>
   );
