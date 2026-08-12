@@ -83,24 +83,17 @@ export default {
         midnight:  'rgb(var(--midnight) / <alpha-value>)',  // #1C2333 footer
       },
       fontFamily: {
-        /* SYSTEM A — one CK/Givenchy family for the whole storefront.
+        /* One-family storefront — LOUIS VUITTON register.
            Licensed Klein .woff2 (when dropped in /fonts/) take priority;
-           Jost is the live Futura twin. Serif/product aliases point at the
-           same stack so leftover font-serif / font-product classes cannot
-           reintroduce Playfair or Source Sans. */
+           Jost is the live twin of LV Web / Futura. Every alias — display,
+           serif, product — points at the same stack so a leftover class can
+           never reintroduce a second family (LV never mixes in a serif). */
         sans:    ['"Klein"', '"Jost"', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
         display: ['"Klein"', '"Jost"', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
         klein:   ['"Klein"', '"Jost"', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
+        serif:   ['"Klein"', '"Jost"', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
+        editorial: ['"Klein"', '"Jost"', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
         product: ['"Klein"', '"Jost"', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
-        /* SYSTEM B — editorial serif accent (Burberry / Gucci register).
-           Bodoni Moda (Didone) is the free twin of BurberrySerif. It is
-           loaded in index.html and used ONLY at editorial display moments:
-           the hero cover-line accent and the brand chapter. It is never a
-           UI or product font. `serif` points here because the audit found
-           zero legacy font-serif call sites — a leftover class now lands on
-           the house serif instead of silently aliasing the sans. */
-        serif:    ['"Bodoni Moda"', '"Klein"', '"Jost"', 'Georgia', 'serif'],
-        editorial: ['"Bodoni Moda"', '"Klein"', '"Jost"', 'Georgia', 'serif'],
         urdu: ['"Noto Nastaliq Urdu"', 'serif'],
         // QA — chapter counters + editorial numbers (JetBrains Mono, loaded in index.html)
         mono: ['"JetBrains Mono"', 'ui-monospace', 'SF Mono', 'SFMono-Regular', 'Menlo', 'Consolas', 'monospace'],

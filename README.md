@@ -124,7 +124,7 @@ Server-side guarantees: prices + stock are recomputed from the database at check
 
 ## Design system
 
-- Storefront fonts: Klein → Jost (CK/LV geometric sans for UI, commerce and product copy) + Bodoni Moda (Didone serif — Burberry/Gucci editorial accent, hero cover line + brand chapter only)
+- Storefront fonts: Klein → Jost (Louis Vuitton register — one geometric sans throughout: logo, nav, headlines, labels, product and body copy; light-weight UPPERCASE headlines with open letter-spacing, no serif)
 - Palette: charcoal `#1A1B1C` text, stone `#F6F2EB`, sand `#EFE8DC`, pearl `#FFFFFF`, smoke `#696969`, gold `#C9A96E`, bronze `#A68A56`
 - Calvin-Klein-inspired storefront: transparent→white sticky header, full-bleed hero,
   filter-pill collection layouts, warm-nude product cards, split luxury footer

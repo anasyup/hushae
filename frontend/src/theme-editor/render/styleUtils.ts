@@ -58,7 +58,9 @@ export function alignClass(v: unknown, kind: 'text' | 'items' | 'justify' = 'tex
 const FONT: Record<string, string> = {
   display: 'var(--t-font-heading)',
   sans: 'var(--t-font-body)',
-  editorial: 'var(--t-font-editorial)',
+  // Legacy alias: a stored block with font:'editorial' resolves to the house
+  // heading font — the storefront is a one-family (LV register) system.
+  editorial: 'var(--t-font-heading)',
   mono: 'ui-monospace, SFMono-Regular, Menlo, monospace',
 };
 

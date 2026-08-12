@@ -178,8 +178,7 @@ function BlockBody({ block: b, scope }: Props) {
     case 'sh_title':
       return (
         <h2 style={{
-          fontFamily: str(s.font, 'display') === 'editorial' ? 'var(--t-font-editorial)'
-            : str(s.font, 'display') === 'display' ? 'var(--t-font-heading)' : 'var(--t-font-body)',
+          fontFamily: str(s.font, 'display') === 'display' ? 'var(--t-font-heading)' : 'var(--t-font-body)',
           fontSize: `calc(${num(s.size, 30)}px * var(--t-heading-scale, 1))`,
           fontWeight: 'var(--t-heading-weight)' as unknown as number,
           letterSpacing: 'var(--t-heading-tracking)',

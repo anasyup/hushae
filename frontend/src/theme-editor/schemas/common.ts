@@ -95,7 +95,6 @@ export const typographyFields = (prefix = ''): Field[] => {
       options: [
         { value: 'display', label: 'Display (heading)' },
         { value: 'sans', label: 'Body (sans)' },
-        { value: 'editorial', label: 'Editorial (serif)' },
         { value: 'mono', label: 'Mono' },
       ],
     },

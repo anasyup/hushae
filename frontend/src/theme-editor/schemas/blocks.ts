@@ -244,11 +244,7 @@ B({ type: 'sh_title', name: 'Collection title', icon: 'Heading', settings: [
   { type: 'text', id: 'text', label: 'Title', default: 'Featured collection' },
   { type: 'range', id: 'size', label: 'Size', min: 14, max: 72, step: 1, unit: 'px', default: 30 },
   { type: 'select', id: 'font', label: 'Font', default: 'display',
-    options: [
-      { value: 'display', label: 'Display (heading)' },
-      { value: 'sans', label: 'Body (sans)' },
-      { value: 'editorial', label: 'Editorial (serif)' },
-    ] },
+    options: [{ value: 'display', label: 'Display' }, { value: 'sans', label: 'Sans' }] },
 ] });
 B({ type: 'sh_view_all', name: 'View all button', icon: 'ArrowRight', settings: [
   { type: 'text', id: 'label', label: 'Label', default: 'View all' },

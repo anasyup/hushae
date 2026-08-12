@@ -231,7 +231,7 @@ function ColorInput({ value, onChange }: { value: string; onChange: (v: string) 
 const FONTS = [
   'Family Klein', 'Helvetica Neue', 'Helvetica', 'Arial', 'Inter',
   'Montserrat', 'Cormorant Garamond', 'Playfair Display', 'DM Sans', 'Poppins',
-  'Lora', 'Libre Baskerville', 'Work Sans', 'Space Grotesk', 'Jost', 'Bodoni Moda',
+  'Lora', 'Libre Baskerville', 'Work Sans', 'Space Grotesk', 'Jost',
   'Karla', 'Georgia',
 ];
 

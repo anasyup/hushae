@@ -43,7 +43,6 @@ export const THEME_GROUPS: ThemeGroup[] = [
       { type: 'range', id: 'headingTracking', label: 'Heading tracking', min: -5, max: 40, step: 1, unit: ' /100em', default: 0 }, // 0 = normal, 20 = wide
       { type: 'select', id: 'headingWeight', label: 'Heading weight', default: '500',
         options: ['300', '400', '500', '600', '700'].map((v) => ({ value: v, label: v })) },
-      { type: 'font_picker', id: 'fontEditorial', label: 'Editorial font (serif accents)', default: 'Bodoni Moda' },
       { type: 'header', label: 'Body' },
       { type: 'font_picker', id: 'fontBody', label: 'Body font', default: 'Jost' },
       { type: 'range', id: 'bodyScale', label: 'Body size', min: 80, max: 130, step: 5, unit: '%', default: 100 },
@@ -132,8 +131,8 @@ export function themeToCssVars(t: SettingsBag): Record<string, string> {
     '--t-success': v('colorSuccess', '#4F7A52'),
     '--t-font-heading': `"${v('fontHeading', 'Jost')}", "Klein", Helvetica, Arial, sans-serif`,
     '--t-font-body': `"${v('fontBody', 'Jost')}", "Klein", Helvetica, Arial, sans-serif`,
-    // Editorial serif accent (Burberry/Gucci register) — Bodoni Moda by default.
-    '--t-font-editorial': `"${v('fontEditorial', 'Bodoni Moda')}", "Klein", "Jost", Georgia, serif`,
+    // Editorial alias — the storefront is a one-family system (LV register).
+    '--t-font-editorial': `"${v('fontHeading', 'Jost')}", "Klein", Helvetica, Arial, sans-serif`,
     '--t-heading-scale': String(Number(v('headingScale', '100')) / 100),
     '--t-heading-tracking': `${Number(v('headingTracking', '0')) / 100}em`,
     '--t-heading-weight': v('headingWeight', '500'),

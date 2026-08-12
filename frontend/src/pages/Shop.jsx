@@ -234,7 +234,7 @@ function SalePageHeader({ f }) {
   return (
     <div className="mx-auto w-full max-w-[1440px] px-8 py-8 font-klein-body">
       <span className="mb-2 block text-xs text-neutral-400">Sale</span>
-      <h1 className="mb-6 text-4xl font-normal normal-case tracking-tight">Sale</h1>
+      <h1 className="mb-6 text-4xl font-light uppercase tracking-[0.12em]">Sale</h1>
 
       {/* Gender sub-tabs */}
       <div className="flex gap-6 border-b border-neutral-200 pb-4 text-sm">
