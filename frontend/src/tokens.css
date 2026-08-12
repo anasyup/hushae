@@ -28,7 +28,7 @@ img { display: block; max-width: 100%; height: auto; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
 .font-display { font-family: var(--font-editorial); letter-spacing: 0.02em; }
 .eyebrow { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ash); }
-.nav-link { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.12em; }
+.nav-link { font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.12em; }
 .body-sm  { font-size: 13px; font-weight: 400; }
 .body     { font-size: 15px; font-weight: 400; line-height: 1.6; }
 .h3 { font-size: 18px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; }

@@ -93,7 +93,7 @@ export const typographyFields = (prefix = ''): Field[] => {
     {
       type: 'select', id: k('font'), label: 'Font', default: 'display',
       options: [
-        { value: 'display', label: 'Display (serif)' },
+        { value: 'display', label: 'Display (heading)' },
         { value: 'sans', label: 'Body (sans)' },
         { value: 'mono', label: 'Mono' },
       ],

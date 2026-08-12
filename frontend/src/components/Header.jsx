@@ -100,7 +100,7 @@ export default function Header() {
 
   /* Reference nav-link style — 11px medium uppercase tracking 0.18em */
   const linkCls = useMemo(() => ({ isActive }) => (
-    `inline-flex items-center gap-1 font-sans text-[11px] font-semibold uppercase tracking-[0.18em] text-[#111111] transition-colors duration-200 hover:text-neutral-500`
+    `inline-flex items-center gap-1 font-sans text-[11px] font-medium uppercase tracking-[0.18em] text-[#111111] transition-colors duration-200 hover:text-neutral-500`
   ), []);
 
   const navStyle = useMemo(() => ({ fontSize: '11px', letterSpacing: '0.18em' }), []);
@@ -142,7 +142,7 @@ export default function Header() {
           <nav
             data-section="header.menu"
             aria-label="Main"
-            className="hidden flex-1 items-center justify-center gap-7 lg:flex"
+            className="hidden flex-1 items-center justify-center gap-8 lg:flex"
           >
             {menu.filter((m) => m && m.label).map((m, i) => {
               const dd = m.dropdown || (String(m.label).toLowerCase() === 'sale' ? 'sale' : '');

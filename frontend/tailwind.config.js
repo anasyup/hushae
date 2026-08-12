@@ -83,15 +83,16 @@ export default {
         midnight:  'rgb(var(--midnight) / <alpha-value>)',  // #1C2333 footer
       },
       fontFamily: {
-        /* SYSTEM A — one CK/Givenchy family for the whole storefront.
+        /* One-family storefront — LOUIS VUITTON register.
            Licensed Klein .woff2 (when dropped in /fonts/) take priority;
-           Jost is the live Futura twin. Serif/product aliases point at the
-           same stack so leftover font-serif / font-product classes cannot
-           reintroduce Playfair or Source Sans. */
+           Jost is the live twin of LV Web / Futura. Every alias — display,
+           serif, product — points at the same stack so a leftover class can
+           never reintroduce a second family (LV never mixes in a serif). */
         sans:    ['"Klein"', '"Jost"', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
         display: ['"Klein"', '"Jost"', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
         klein:   ['"Klein"', '"Jost"', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
         serif:   ['"Klein"', '"Jost"', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
+        editorial: ['"Klein"', '"Jost"', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
         product: ['"Klein"', '"Jost"', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
         urdu: ['"Noto Nastaliq Urdu"', 'serif'],
         // QA — chapter counters + editorial numbers (JetBrains Mono, loaded in index.html)

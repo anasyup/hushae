@@ -34,7 +34,10 @@ function HeroSlides() {
         className="h-full w-full object-cover" />
       <div className="absolute inset-0 bg-black/15" aria-hidden="true" />
       <div className="absolute bottom-[12%] left-[32px] z-10 max-w-[480px] text-white md:left-[60px]">
-        <h1 className="text-[42px] font-light uppercase leading-[1.05] tracking-[-1px] text-white [text-shadow:0_2px_10px_rgba(0,0,0,0.2)] md:text-[58px]">
+        {/* Cover line — LOUIS VUITTON register: one geometric sans (Jost, the
+            free twin of LV Web), light weight, UPPERCASE with open tracking.
+            LV never uses a serif — the air between the caps is the luxury. */}
+        <h1 className="font-display text-[42px] font-light uppercase leading-[1.1] tracking-[0.1em] text-white [text-shadow:0_2px_10px_rgba(0,0,0,0.2)] md:text-[64px] md:tracking-[0.12em]">
           Second
           <br />
           Skin
@@ -91,7 +94,7 @@ function ProductCarouselSection({ title, subtitle, products, href }) {
   return (
     <section className="mx-auto max-w-[1600px] border-t border-neutral-200/60 px-4 py-16 md:px-8">
       <div className="mb-10 space-y-1 text-center">
-        <h2 className="font-display text-2xl font-normal tracking-wide text-[#111111] md:text-3xl">
+        <h2 className="font-display text-2xl font-light uppercase tracking-[0.14em] text-[#111111] md:text-3xl">
           {title}
         </h2>
         <Link
@@ -125,7 +128,7 @@ function EditorialSplitSection() {
           />
           <div className="absolute inset-0 bg-black/10 transition-colors group-hover:bg-black/20" aria-hidden="true" />
           <div className="absolute bottom-8 left-8 right-8 space-y-2 text-white">
-            <h3 className="font-display text-xl tracking-wide md:text-2xl">Spring / Summer Silhouette</h3>
+            <h3 className="font-display text-xl font-light uppercase tracking-[0.1em] md:text-2xl">Spring / Summer Silhouette</h3>
             <span className="inline-flex items-center gap-2 border-b border-white pb-1 text-[11px] font-medium uppercase tracking-[0.2em] transition hover:text-neutral-200">
               Explore Collection <ArrowRight size={14} aria-hidden="true" />
             </span>
@@ -141,7 +144,7 @@ function EditorialSplitSection() {
           />
           <div className="absolute inset-0 bg-black/10 transition-colors group-hover:bg-black/20" aria-hidden="true" />
           <div className="absolute bottom-8 left-8 right-8 space-y-2 text-white">
-            <h3 className="font-display text-xl tracking-wide md:text-2xl">Uncompromising Craftsmanship</h3>
+            <h3 className="font-display text-xl font-light uppercase tracking-[0.1em] md:text-2xl">Uncompromising Craftsmanship</h3>
             <span className="inline-flex items-center gap-2 border-b border-white pb-1 text-[11px] font-medium uppercase tracking-[0.2em] transition hover:text-neutral-200">
               Read The Story <ArrowRight size={14} aria-hidden="true" />
             </span>
@@ -159,7 +162,7 @@ function NewsletterSection() {
   return (
     <section className="border-t border-neutral-200/80 bg-[#f7f6f2] px-4 py-20 text-center">
       <div className="mx-auto max-w-xl space-y-4">
-        <h3 className="font-display text-2xl font-normal tracking-wide text-[#111111] md:text-3xl">
+        <h3 className="font-display text-2xl font-light uppercase tracking-[0.14em] text-[#111111] md:text-3xl">
           Subscribe to the Newsletter
         </h3>
         <p className="text-[12px] font-normal leading-relaxed tracking-wide text-neutral-500">
