@@ -827,3 +827,4 @@ Format:
   - `CartDrawer`: luxury shell (#fcfbf9, white header "Your Shopping Bag", subtotal + "Bag View" outline + black "Checkout").
 - **2026-08-11** — 🔧 **DEPLOY FIX**: backend service needs `entrypoint: api/index.js` (Vercel `MISSING_SERVICE_CONFIG` error). Added `framework: express` + entrypoint to vercel.json services.
 - **2026-08-11** — 🐛 **FIX: site crash `isHome is not defined`** — Header rewrite dropped the `isHome` const; page rendered blank + console error. Restored `const isHome = loc.pathname === '/'`.
+- **2026-08-11** — 🔧 **DEPLOY MODE REVERT**: services mode broke SPA routes (/women → 404). Reverted vercel.json to classic single-project mode (install/build/output + rewrites /api/* → /api, /* → /index.html) which served /women correctly before. Root `api/index.js` still the serverless backend entry.
