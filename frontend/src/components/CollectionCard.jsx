@@ -183,7 +183,7 @@ function CollectionCard({ product: p, priority = false, variant = 'bar', ratio =
       <div className="mt-3 space-y-1.5 text-left">
         <Link
           to={`/product/${p.slug}`}
-          className="line-clamp-1 text-[14px] font-medium leading-snug tracking-[-0.01em] text-[#1a1a1a] transition-colors duration-200 hover:text-[#666666] hover:underline hover:underline-offset-2"
+          className="product-card-title line-clamp-1 transition-colors duration-200 hover:text-[#666666] hover:underline hover:underline-offset-2"
         >
           {toSentenceCase(displayName(p.name)) || 'Untitled'}
         </Link>
