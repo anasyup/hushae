@@ -152,7 +152,7 @@ export default function Shop({ preset = {} }) {
   const hasMore = visible ? visible.length > shown : false;
 
   return (
-    <div className="bg-white font-sans text-black" style={{ minHeight: '100vh' }}>
+    <div className="w-full min-h-screen bg-[#fcfbf9] font-sans text-black">
       <Seo
         title={`${meta}${f.gender ? ' — ' + f.gender.charAt(0).toUpperCase() + f.gender.slice(1) : ''} | HUSHAE`}
         description={`Shop premium ${meta.toLowerCase()} — innerwear made in Pakistan, finished to an international standard. COD nationwide, discreet packaging.`}
