@@ -36,7 +36,7 @@ export default function MegaMenu({ label, to, linkCls, navStyle, active, onOpen,
       >
         {label}
         <ChevronDown
-          size={12} strokeWidth={2.5} aria-hidden="true"
+          size={12} strokeWidth={2} aria-hidden="true"
           className={`mt-px transition-transform duration-200 ${active ? 'rotate-180' : ''}`}
         />
       </NavLink>

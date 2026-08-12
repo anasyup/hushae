@@ -36,7 +36,7 @@ export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setIsScrolled(window.scrollY > 20);
+    const onScroll = () => setIsScrolled(window.scrollY > 30);
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
@@ -109,18 +109,16 @@ export default function Header() {
 
   return (
     <>
-      {!isHome && <OfferBar />}
-
       <header
         data-header
         className={`fixed left-0 top-0 z-50 w-full transition-all duration-500 ease-in-out ${
           isScrolled || !isHome
-            ? 'border-b border-neutral-200/80 bg-white/95 py-0 text-black shadow-sm backdrop-blur-md'
-            : 'border-b border-white/10 bg-transparent py-2 text-white'
-        }`}
+            ? 'bg-white/95 py-3 text-black shadow-sm backdrop-blur-md'
+            : 'bg-transparent py-4 text-white'
+        } border-none outline-none`}
         onMouseLeave={() => setMega(null)}
       >
-        {isHome && <OfferBar hideOnScroll />}
+        {<OfferBar />}
 
         <div className="mx-auto flex h-16 max-w-[1600px] items-center justify-between gap-8 px-6">
           {/* Burger — mobile only */}
@@ -136,7 +134,7 @@ export default function Header() {
           </button>
 
           {/* Logo — LEFT */}
-          <Link to="/" aria-label="HUSHAE — home" className={`flex-shrink-0 font-serif text-xl font-bold uppercase tracking-[0.18em] transition-colors duration-300 md:text-2xl ${isScrolled || !isHome ? 'text-[#111111]' : 'text-white'}`}>
+          <Link to="/" aria-label="HUSHAE — home" className={`flex-shrink-0 font-serif text-2xl font-bold uppercase tracking-[0.2em] transition-colors duration-300 md:text-3xl ${isScrolled || !isHome ? 'text-black' : 'text-white'}`}>
             HUSHAÈ
           </Link>
 
