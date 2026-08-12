@@ -825,3 +825,4 @@ Format:
   - `Header`: icons 16px, nav gap-7, logo tracking 0.18em, smaller cart badge.
   - `Home`: Hero → FilterBar → Studio Categories → carousels → View More (outline) → Editorial → Newsletter.
   - `CartDrawer`: luxury shell (#fcfbf9, white header "Your Shopping Bag", subtotal + "Bag View" outline + black "Checkout").
+- **2026-08-11** — 🔧 **DEPLOY FIX**: backend service needs `entrypoint: api/index.js` (Vercel `MISSING_SERVICE_CONFIG` error). Added `framework: express` + entrypoint to vercel.json services.
