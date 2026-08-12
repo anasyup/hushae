@@ -3,7 +3,6 @@ import { SearchX } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../api/client';
 import CollectionCard from '../components/CollectionCard';
-import FilterPills from '../components/FilterPills';
 import CategoryBanner from '../components/CategoryBanner';
 import LuxuryFilterBar from '../components/LuxuryFilterBar';
 import { ProductGridSkeleton } from '../components/Skeletons';
@@ -152,58 +151,29 @@ export default function Shop({ preset = {} }) {
   const hasMore = visible ? visible.length > shown : false;
 
   return (
-    <div className="w-full min-h-screen bg-[#fcfbf9] font-sans text-black">
+    <div className="bg-white font-sans text-black" style={{ minHeight: '100vh' }}>
       <Seo
         title={`${meta}${f.gender ? ' — ' + f.gender.charAt(0).toUpperCase() + f.gender.slice(1) : ''} | HUSHAE`}
         description={`Shop premium ${meta.toLowerCase()} — innerwear made in Pakistan, finished to an international standard. COD nationwide, discreet packaging.`}
         canonical={typeof window !== 'undefined' ? window.location.pathname : '/shop'}
       />
 
-      {/* ═══ 0. HERO BANNER — Sale page uses the reference SalePageHeader ═══ */}
+      {/* ═══ 0. HERO BANNER ═══════════════════════════════════════════ */}
       {preset.key === 'sale' ? (
         <SalePageHeader f={f} count={count} onOpenFilters={() => setSheetOpen(true)} />
       ) : (
         <CategoryBanner img={banner.img} tag={banner.tag} title={banner.title} description={banner.desc} />
       )}
 
-      <LuxuryFilterBar count={count || 0} f={f} onOpenFilters={() => setSheetOpen(true)} />
+      {/* ═══ 1. SINGLE CLEAN FILTER BAR (exact reference) ═══════════════ */}
+      {preset.key === 'sale' ? (
+        <LuxuryFilterBar count={count || 0} f={f} onOpenFilters={() => setSheetOpen(true)} />
+      ) : (
+        <LuxuryFilterBar count={count || 0} f={f} onOpenFilters={() => setSheetOpen(true)} />
+      )}
 
       <div className="px-5 pb-10 md:px-10 md:pb-[60px]">
-        {preset.key === 'sale' ? null : (
-          <>
-            {/* ═══ 1. SUB-CATEGORY TOP BAR ═════════════════════════════ */}
-            {navCats.length > 0 && (
-              <nav aria-label="Categories" className="flex flex-wrap items-center gap-x-7 gap-y-2 py-5 pb-[25px]">
-                {navCats.map((c) => {
-                  const on = f.category === c.slug;
-                  return (
-                    <a
-                      key={c.slug}
-                      href={`/category/${c.slug}`}
-                      onClick={(e) => { e.preventDefault(); f.setOne('category', on ? '' : c.slug); }}
-                      className={`text-[13px] text-[#111111] no-underline ${on ? 'underline underline-offset-4' : 'hover:underline underline-offset-4'}`}
-                    >
-                      {c.name}
-                    </a>
-                  );
-                })}
-              </nav>
-            )}
-
-            {/* ═══ 2. FILTER PILLS BAR ═════════════════════════════════ */}
-            <FilterPills
-              countLabel={count !== null ? `${count} Item${count === 1 ? '' : 's'}` : '—'}
-              sortValue={f.sort}
-              sortLabel={SORT_LABELS[f.sort] || 'Featured'}
-              onSortChange={(v) => f.setOne('sort', v, { replace: true })}
-              pills={pills}
-              onAllFilters={() => setSheetOpen(true)}
-            />
-          </>
-          )}
-        }
-
-        {/* ═══ 3. GRID ═════════════════════════════════════════════════ */}
+        {/* ═══ 2. GRID ═════════════════════════════════════════════════ */}
         {products === null ? (
           <ProductGridSkeleton count={9} />
         ) : count === 0 ? (
