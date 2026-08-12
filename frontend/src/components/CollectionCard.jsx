@@ -25,6 +25,11 @@ const FALLBACK =
 
 const srcOf = (im) => (typeof im === 'string' ? im : im?.url || '');
 const displayName = (name) => String(name || '').replace(/^HUSHAE\s+/i, '');
+const toSentenceCase = (str) => String(str || '')
+  .toLowerCase()
+  .split(' ')
+  .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+  .join(' ');
 
 function CollectionCard({ product: p, priority = false, variant = 'bar', ratio = 'aspect-[3/4]' }) {
   const { addToCart } = useApp();
@@ -174,16 +179,36 @@ function CollectionCard({ product: p, priority = false, variant = 'bar', ratio =
         )}
       </Link>
 
-      {/* 2. Details — centered */}
-      <div className="mt-3 space-y-1 text-center">
-        <h4 className="line-clamp-1 text-[11px] font-medium uppercase tracking-[0.15em] text-[#111111] md:text-[12px]">
-          {name}
-        </h4>
-        <div className="flex items-center justify-center gap-2">
+      {/* 2. Details — sentence-case title + color swatches + price */}
+      <div className="mt-3 space-y-1.5 text-left">
+        <h3 className="line-clamp-1 text-[14px] font-medium leading-snug tracking-[-0.01em] text-[#1a1a1a]">
+          {toSentenceCase(displayName(p.name)) || 'Untitled'}
+        </h3>
+
+        {/* Color swatches row */}
+        {colors.length > 0 && (
+          <div className="flex items-center gap-1.5 pt-0.5">
+            {colors.slice(0, 5).map((c, idx) => (
+              <button
+                key={`${c.name}-${idx}`}
+                type="button"
+                title={c.name}
+                onClick={(e) => { e.preventDefault(); setSwatchIdx(idx); const ci = images.indexOf(c.image || ''); if (ci >= 0) setImgIdx(ci); }}
+                className={`h-[13px] w-[13px] rounded-full transition-all ${
+                  swatchIdx === idx ? 'ring-1 ring-neutral-800 ring-offset-1' : 'ring-1 ring-black/10'
+                }`}
+                style={{ backgroundColor: c.hex || '#EEEEEE' }}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* Price */}
+        <div className="flex items-center gap-2 pt-0.5">
           {onSale && p.compareAtPrice > p.price && (
-            <span className="text-[11px] font-normal text-neutral-400 line-through">{pkr(p.compareAtPrice)}</span>
+            <span className="text-[12px] text-neutral-400 line-through">{pkr(p.compareAtPrice)}</span>
           )}
-          <span className="text-[11px] font-semibold text-[#111111]">{soldOut ? 'Sold out' : pkr(p.price)}</span>
+          <span className="text-[13px] font-medium text-[#1a1a1a]">{soldOut ? 'Sold out' : pkr(p.price)}</span>
         </div>
       </div>
 
