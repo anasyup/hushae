@@ -5,25 +5,16 @@ import { api } from '../api/client';
 import Seo, { organizationJsonLd } from '../components/Seo';
 import LuxuryCategoryShowcase from '../components/LuxuryCategoryShowcase';
 import CollectionCard from '../components/CollectionCard';
-import CollectionIndex from '../components/home/CollectionIndex';
-import SignaturePiece from '../components/home/SignaturePiece';
-import CampaignBanner from '../components/home/CampaignBanner';
-import MaisonLine from '../components/home/MaisonLine';
+import DiscoverTiles from '../components/home/DiscoverTiles';
 
 /* ============================================================================
- * HUSHAE HOME — the house's own editorial luxury register.
- *   1  HERO               full-bleed campaign (approved, untouched)
- *   2  THE EDITS          typographic index — named collection gateways
- *   3  THE SIGNATURE      one real product on the editorial plate
- *   4  CURATED COLLECTIONS studio canvas (approved)
- *   5  THE NEW COLLECTION product chapter (approved)
- *   6  CAMPAIGN           cinematic mid-page beat (LV register headline)
- *   7  EDITORIAL SPLIT    two campaign plates (approved)
- *   8  OBJECTS OF DESIRE  product chapter (approved)
- *   9  THE MAISON LINE    type-only statement
- *   10 NEWSLETTER         (approved)
- *   Restraint is the luxury: one dark moment, hairline rules, light tracked
- *   caps, generous space. No gimmicks.
+ * HUSHAE HOME — luxury homepage, exact client reference.
+ *   1  HERO            full-bleed "Second Skin Edit" (CK, approved)
+ *   2  CATEGORY GRID   Tom Ford style — 2/4 cols, 4/5 images, tracking 0.2em
+ *   3  PRODUCT CAROUSEL "The New Collection" — serif title + EXPLORE NOW
+ *   4  EDITORIAL SPLIT Loro Piana — 2 cards, serif headings + ArrowRight
+ *   5  PRODUCT CAROUSEL "Objects of Desire" — curated selection
+ *   6  NEWSLETTER      Subscribe to the Newsletter
  * ========================================================================== */
 
 const IMG = '/images/campaign/qa';
@@ -224,34 +215,32 @@ export default function Home() {
         jsonLd={organizationJsonLd(typeof window !== 'undefined' ? window.location.origin : '')}
         jsonLdId="home-org" />
 
-      {/* 01 — HERO (approved, untouched) */}
+      {/* 01 — HERO (CK) */}
       <HeroSlides />
 
-      {/* 02 — THE EDITS — typographic index */}
-      <CollectionIndex />
+      {/* 02 — DISCOVER — editorial gateway (Chanel / Hermès / CK pattern) */}
+      <DiscoverTiles />
 
-      {/* 03 — THE SIGNATURE — one real product on the editorial plate */}
-      <SignaturePiece product={best[0] || null} />
-
-      {/* 04 — CURATED COLLECTIONS (approved) */}
+      {/* 03 — STUDIO CATEGORY SHOWCASE (Givenchy canvas) */}
       <LuxuryCategoryShowcase />
 
-      {/* 05 — THE NEW COLLECTION (approved) */}
+      {/* 04 — THE NEW COLLECTION (Givenchy) */}
       <ProductCarouselSection title="The New Collection" subtitle="EXPLORE NOW" products={fresh} href="/new" />
 
-      {/* 06 — CAMPAIGN — cinematic mid-page beat */}
-      <CampaignBanner />
+      {/* 04 — VIEW MORE (reference button) */}
+      <div className="flex w-full justify-center">
+        <Link to="/shop" className="my-8 cursor-pointer border border-black bg-transparent px-10 py-3.5 text-[11px] font-medium uppercase tracking-[0.2em] text-black transition-all duration-300 ease-in-out hover:bg-black hover:text-white">
+          View More
+        </Link>
+      </div>
 
-      {/* 07 — EDITORIAL SPLIT (approved) */}
+      {/* 05 — EDITORIAL SPLIT (Loro Piana) */}
       <EditorialSplitSection />
 
-      {/* 08 — OBJECTS OF DESIRE (approved) */}
+      {/* 05 — OBJECTS OF DESIRE */}
       <ProductCarouselSection title="Objects of Desire" subtitle="CURATED SELECTION" products={best} href="/best" />
 
-      {/* 09 — THE MAISON LINE — type-only statement */}
-      <MaisonLine />
-
-      {/* 10 — NEWSLETTER (approved) */}
+      {/* 06 — NEWSLETTER */}
       <NewsletterSection />
     </div>
   );
