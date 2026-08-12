@@ -32,16 +32,16 @@ function CollectionCard({ product: p, priority = false, variant = 'bar', ratio =
   const [swatchIdx, setSwatchIdx] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
 
+  const pill = variant === 'pill';
+  const images = (p.images || []).map(srcOf).filter(Boolean);
+  const main = images[imgIdx] || images[0] || srcOf(p.image) || '';
+
   /* Auto slideshow on hover — cycles images every 1.5s, resets on leave */
   useEffect(() => {
     if (!isHovered || images.length <= 1) { setImgIdx(0); return undefined; }
     const t = setInterval(() => setImgIdx((i) => (i + 1) % images.length), 1500);
     return () => clearInterval(t);
   }, [isHovered, images.length]);
-  const pill = variant === 'pill';
-
-  const images = (p.images || []).map(srcOf).filter(Boolean);
-  const main = images[imgIdx] || images[0] || srcOf(p.image) || '';
   const name = titleCase(displayName(p.name)) || 'Untitled';
   const soldOut = p.stock === 0;
   const onSale = isOnSale(p);
