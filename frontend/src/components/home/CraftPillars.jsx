@@ -1,10 +1,10 @@
 import Seam from './Seam';
 
 /* ============================================================================
- * THE CRAFT — three pillars (Rolex / Bottega register).
- * Numbered chapters on a warm skin-tone ground, divided by seam hairlines.
- * Each pillar: chapter number, light tracked-caps title, seam rule, quiet
- * body copy. Pillars rise in on scroll and grow a seam underline on hover.
+ * THE CRAFT — three quiet pillars.
+ * A restrained register: small numbered markers, light tracked-caps titles,
+ * fine seam rules, unhurried body copy. Space between the pillars is the
+ * luxury — nothing here shouts.
  * ========================================================================== */
 
 const PILLARS = [
@@ -27,11 +27,11 @@ const PILLARS = [
 
 export default function CraftPillars() {
   return (
-    <section className="w-full bg-[#f6f1ea] px-4 py-24 md:px-8 md:py-36">
+    <section className="w-full bg-[#f6f1ea] px-4 py-24 md:px-8 md:py-32">
       <div className="mx-auto max-w-[1600px]">
-        <header data-reveal className="border-b border-black/15 pb-8">
-          <p className="text-[11px] font-medium uppercase tracking-[0.32em] text-neutral-500">02 · The Craft</p>
-          <h2 className="mt-4 font-display text-2xl font-light uppercase tracking-[0.16em] text-[#111111] md:text-3xl">
+        <header data-reveal className="border-b border-black/10 pb-8">
+          <p className="text-[10px] font-medium uppercase tracking-[0.32em] text-neutral-500">The Craft</p>
+          <h2 className="mt-5 font-display text-2xl font-light uppercase tracking-[0.16em] text-[#111111] md:text-3xl">
             Why Hushae
           </h2>
         </header>
@@ -41,15 +41,14 @@ export default function CraftPillars() {
             <div
               key={p.n}
               data-reveal-item
-              className={`group relative md:px-12 ${i === 0 ? 'md:pl-0' : ''} ${i === 2 ? 'md:pr-0' : ''} ${
+              className={`md:px-12 ${i === 0 ? 'md:pl-0' : ''} ${i === 2 ? 'md:pr-0' : ''} ${
                 i > 0 ? 'border-t border-black/10 pt-12 md:border-l md:border-t-0 md:pt-0' : ''
               }`}
             >
-              <span className="text-[11px] font-light tracking-[0.34em] text-neutral-400">{p.n}</span>
+              <span className="text-[10px] font-light tracking-[0.34em] text-neutral-400">{p.n}</span>
               <h3 className="mt-5 font-display text-lg font-light uppercase tracking-[0.14em] text-[#111111]">{p.t}</h3>
-              {/* Seam — grows on hover, the house mark animating */}
-              <Seam className="mt-6 w-9 text-[#111111]/60 transition-all duration-500 group-hover:w-16" />
-              <p className="mt-6 text-[13px] font-light leading-[1.95] text-neutral-600">{p.d}</p>
+              <Seam className="mt-6 w-9 text-[#111111]/50" />
+              <p className="mt-6 max-w-xs text-[13px] font-light leading-[1.95] text-neutral-600">{p.d}</p>
             </div>
           ))}
         </div>

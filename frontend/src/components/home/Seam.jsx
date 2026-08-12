@@ -1,14 +1,13 @@
 /* ============================================================================
- * Seam — the house mark, drawn as an SVG hairline.
- * "A line places, it does not enclose." The seam is HUSHAE's own signature:
- * a fine rule that draws itself into view (data-draw, driven by LuxuryEffects).
- * Inherits currentColor so it can sit on light or dark grounds.
+ * Seam — the house mark, a fine SVG hairline.
+ * "A line places, it does not enclose." A static, perfectly crisp rule that
+ * inherits currentColor so it can sit on light or dark grounds. Crisp at any
+ * DPI thanks to vector-effect: non-scaling-stroke.
  * ========================================================================== */
 
 export default function Seam({ className = '' }) {
   return (
     <svg
-      data-draw
       aria-hidden="true"
       className={`${className} block`}
       width="100%"

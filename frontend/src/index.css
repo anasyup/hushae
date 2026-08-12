@@ -748,38 +748,6 @@
   color: rgb(255, 255, 255);
 }
 
-/* ════════════════════════════════════════════════════════════════════════
-   SECOND SKIN STUDIO — motion + texture layer
-   The marquee ticker, the film-grain overlay and the editorial seam drawing.
-   Everything respects prefers-reduced-motion.
-   ════════════════════════════════════════════════════════════════════════ */
-
-/* Slow editorial ticker — GPU transform, seamless 2-copy loop */
-.marquee-track {
-  animation: marquee 36s linear infinite;
-}
-@keyframes marquee {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-50%); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .marquee-track { animation: none; }
-}
-
-/* Film grain — a whisper of texture over the whole page, the way a print
-   campaign carries paper tooth. Multiply keeps it invisible on dark and
-   gives ivory surfaces a faint matte finish. Pure SVG noise, no assets. */
-.grain {
-  position: fixed;
-  inset: 0;
-  z-index: 35;
-  pointer-events: none;
-  opacity: 0.05;
-  mix-blend-mode: multiply;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-size: 160px 160px;
-}
-
 /* Smooth anchor scrolling (skip-link, in-page links) */
 @media (prefers-reduced-motion: no-preference) {
   html { scroll-behavior: smooth; }

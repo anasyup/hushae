@@ -1,8 +1,7 @@
 /* ============================================================================
- * WORLD OF HUSHAE — the international strip.
- * A dark editorial beat that carries the "world international" promise:
- * designed in Pakistan, delivered worldwide. Numbers count up as they enter
- * view — the quiet-luxury way to say scale without shouting.
+ * WORLD OF HUSHAE — the international statement.
+ * A dark, quiet editorial beat carrying the world promise: designed in
+ * Pakistan, delivered worldwide. Key numbers count up as they enter view.
  * ========================================================================== */
 
 const FACTS = [
@@ -15,8 +14,8 @@ const FACTS = [
 export default function WorldStrip() {
   return (
     <section className="w-full bg-[#111111] px-4 py-16 text-center md:px-8 md:py-24">
-      <p data-reveal className="text-[11px] font-medium uppercase tracking-[0.32em] text-neutral-400">
-        03 · World of Hushae
+      <p data-reveal className="text-[10px] font-medium uppercase tracking-[0.32em] text-neutral-400">
+        World of Hushae
       </p>
       <h2
         data-reveal
@@ -41,7 +40,7 @@ export default function WorldStrip() {
               <p className="font-display text-3xl font-light tracking-[0.08em] text-white md:text-4xl">{f.v}</p>
             )}
             <div className="mx-auto mt-4 h-px w-7 bg-white/30" aria-hidden="true" />
-            <p className="mt-4 text-[10px] font-medium uppercase tracking-[0.24em] text-neutral-400">{f.l}</p>
+            <p className="mt-4 text-[9px] font-medium uppercase tracking-[0.24em] text-neutral-400">{f.l}</p>
           </div>
         ))}
       </div>
