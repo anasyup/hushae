@@ -58,6 +58,7 @@ export function alignClass(v: unknown, kind: 'text' | 'items' | 'justify' = 'tex
 const FONT: Record<string, string> = {
   display: 'var(--t-font-heading)',
   sans: 'var(--t-font-body)',
+  editorial: 'var(--t-font-editorial)',
   mono: 'ui-monospace, SFMono-Regular, Menlo, monospace',
 };
 

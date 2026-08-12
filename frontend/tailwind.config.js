@@ -91,8 +91,16 @@ export default {
         sans:    ['"Klein"', '"Jost"', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
         display: ['"Klein"', '"Jost"', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
         klein:   ['"Klein"', '"Jost"', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
-        serif:   ['"Klein"', '"Jost"', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
         product: ['"Klein"', '"Jost"', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
+        /* SYSTEM B — editorial serif accent (Burberry / Gucci register).
+           Bodoni Moda (Didone) is the free twin of BurberrySerif. It is
+           loaded in index.html and used ONLY at editorial display moments:
+           the hero cover-line accent and the brand chapter. It is never a
+           UI or product font. `serif` points here because the audit found
+           zero legacy font-serif call sites — a leftover class now lands on
+           the house serif instead of silently aliasing the sans. */
+        serif:    ['"Bodoni Moda"', '"Klein"', '"Jost"', 'Georgia', 'serif'],
+        editorial: ['"Bodoni Moda"', '"Klein"', '"Jost"', 'Georgia', 'serif'],
         urdu: ['"Noto Nastaliq Urdu"', 'serif'],
         // QA — chapter counters + editorial numbers (JetBrains Mono, loaded in index.html)
         mono: ['"JetBrains Mono"', 'ui-monospace', 'SF Mono', 'SFMono-Regular', 'Menlo', 'Consolas', 'monospace'],

@@ -34,12 +34,16 @@ function HeroSlides() {
         className="h-full w-full object-cover" />
       <div className="absolute inset-0 bg-black/15" aria-hidden="true" />
       <div className="absolute bottom-[12%] left-[32px] z-10 max-w-[480px] text-white md:left-[60px]">
-        <h1 className="text-[42px] font-light uppercase leading-[1.05] tracking-[-1px] text-white [text-shadow:0_2px_10px_rgba(0,0,0,0.2)] md:text-[58px]">
+        {/* Cover line in the house register: CK/LV geometric sans (Jost) for
+            the opening lines, open tracking — caps need air — and the final
+            word set in the editorial serif italic (Bodoni Moda, the free twin
+            of BurberrySerif), the Burberry / Gucci campaign accent. */}
+        <h1 className="font-display text-[42px] font-normal uppercase leading-[1.05] tracking-[0.02em] text-white [text-shadow:0_2px_10px_rgba(0,0,0,0.2)] md:text-[58px]">
           Second
           <br />
           Skin
           <br />
-          Edit
+          <em className="font-editorial font-normal italic tracking-normal">Edit</em>
         </h1>
         <p className="mt-5 max-w-[380px] text-[13px] font-normal leading-[1.6] text-[#f0f0f0]">
           New season essentials, engineered in Pakistan. Featherweight layers with a barely-there finish.
