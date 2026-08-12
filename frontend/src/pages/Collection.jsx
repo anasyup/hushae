@@ -3,8 +3,7 @@ import { ArrowLeft, Boxes } from 'lucide-react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { api } from '../api/client';
 import CollectionCard from '../components/CollectionCard';
-import FilterPills from '../components/FilterPills';
-import CategoryBanner from '../components/CategoryBanner';
+import LuxuryFilterBar from '../components/LuxuryFilterBar';
 import { ProductGridSkeleton } from '../components/Skeletons';
 import Seo from '../components/Seo';
 import { SIZES, COLORS, PRICE_BANDS } from './shop/FilterPanel';
@@ -135,7 +134,7 @@ export default function Collection() {
   const clearAll = () => { setBandKey(''); setSizes([]); setColors([]); };
 
   return (
-    <div className="bg-white font-sans text-black" style={{ minHeight: '100vh' }}>
+    <div className="w-full min-h-screen bg-[#fcfbf9] font-sans text-black">
       <Seo
         title={c.name}
         description={c.description || `Shop the ${c.name} collection at HUSHAE — curated pieces for every moment.`}
@@ -143,41 +142,15 @@ export default function Collection() {
         canonical={`/collection/${c.slug}`}
       />
 
-      {/* ═══ 0. CATEGORY HERO BANNER — under the main header ═══════════ */}
-      <CategoryBanner
-        img={c.image || '/images/campaign/qa/hero-fabric.jpg'}
-        tag="The Collection"
-        title={c.name}
-        description={c.description}
+      {/* ═══ 1. LUXURY FILTER BAR ═════════════════════════════════════ */}
+      <LuxuryFilterBar
+        count={visible.length}
+        f={{ sort, setOne: (k, v) => { if (k === 'sort') setSort(v); } }}
+        onOpenFilters={() => setFilterOpen(true)}
       />
 
-      <div className="px-5 pb-10 md:px-10 md:pb-[60px]">
-        {/* ═══ 1. SUB-CATEGORY TOP BAR ═════════════════════════════════ */}
-        {cats.length > 0 && (
-          <nav aria-label="Categories" className="flex flex-wrap items-center gap-x-7 gap-y-2 py-5 pb-[25px]">
-            {cats.map((x) => (
-              <a
-                key={x.slug}
-                href={`/category/${x.slug}`}
-                onClick={(e) => { e.preventDefault(); navigate(`/category/${x.slug}`); }}
-                className="text-[13px] text-[#111111] no-underline hover:underline underline-offset-4"
-              >
-                {x.name}
-              </a>
-            ))}
-          </nav>
-        )}
-
-        {/* ═══ 2. FILTER PILLS BAR ═════════════════════════════════════ */}
-        <FilterPills
-          countLabel={`${visible.length} Item${visible.length === 1 ? '' : 's'}`}
-          sortValue={sort}
-          sortLabel={SORT_LABELS[sort] || 'Featured'}
-          onSortChange={setSort}
-          pills={pills}
-        />
-
-        {/* ═══ 3. GRID ═════════════════════════════════════════════════ */}
+      {/* ═══ 2. PRODUCT GRID — max-w 1600 ═════════════════════════════ */}
+      <div className="mx-auto max-w-[1600px] px-4 py-8 md:px-8">
         {visible.length === 0 ? (
           <div className="grid place-items-center py-16 text-center">
             <Boxes size={26} className="mb-3 text-[#C9A96E]" />
@@ -185,7 +158,7 @@ export default function Collection() {
             <button onClick={clearAll} className="btn-outline mt-6">Clear filters</button>
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-2.5 md:grid-cols-3 md:gap-4 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-x-1 gap-y-10 md:grid-cols-4">
             {visible.map((p) => <CollectionCard key={p._id} product={p} />)}
           </div>
         )}
