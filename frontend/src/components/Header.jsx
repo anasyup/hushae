@@ -35,6 +35,7 @@ export default function Header() {
   const [mega, setMega] = useState(null);
 
   const loc = useLocation();
+  const isHome = loc.pathname === '/';
   const burgerRef = useRef(null);
   const searchBtnRef = useRef(null);
 
