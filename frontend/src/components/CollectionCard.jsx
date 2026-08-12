@@ -116,7 +116,7 @@ function CollectionCard({ product: p, priority = false, variant = 'bar', ratio =
           width="900" height="1200"
           loading={priority ? 'eager' : 'lazy'}
           onError={() => setFailed(true)}
-          className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+          className="h-full w-full object-cover transition-opacity duration-500"
         />
 
         {/* Badge — top right */}

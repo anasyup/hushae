@@ -4,6 +4,7 @@ import { ArrowRight } from 'lucide-react';
 import { api } from '../api/client';
 import Seo, { organizationJsonLd } from '../components/Seo';
 import LuxuryCategoryShowcase from '../components/LuxuryCategoryShowcase';
+import CollectionCard from '../components/CollectionCard';
 
 /* ============================================================================
  * HUSHAE HOME — luxury homepage, exact client reference.
@@ -101,40 +102,9 @@ function ProductCarouselSection({ title, subtitle, products, href }) {
         </Link>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
+      <div className="grid grid-cols-2 gap-x-1 gap-y-10 md:grid-cols-4">
         {(products || []).slice(0, 4).map((item) => (
-          <Link key={item._id} to={`/product/${item.slug}`} className="group flex cursor-pointer flex-col">
-            <div className="relative flex aspect-[4/5] items-center justify-center overflow-hidden bg-[#f2f0ec]">
-              <img
-                src={(item.images?.[0]?.url) || item.image || ''}
-                alt={item.name}
-                loading="lazy"
-                className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-              />
-              {item.isNewArrival && (
-                <span className="absolute right-3 top-3 bg-black/80 px-2 py-1 text-[9px] font-medium uppercase tracking-[0.2em] text-white">
-                  New
-                </span>
-              )}
-              <span className="absolute bottom-5 translate-y-2 rounded-full bg-black/90 px-6 py-2.5 text-[10px] font-medium uppercase tracking-[0.2em] text-white opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100 hover:bg-black">
-                Buy Now
-              </span>
-            </div>
-
-            <div className="mt-3 space-y-1 px-1">
-              <p className="line-clamp-1 text-[12px] font-normal tracking-tight text-neutral-800">
-                {String(item.name || '').replace(/^HUSHAE\s+/i, '')}
-              </p>
-              <p className="text-[11px] font-semibold text-[#111111]">
-                PKR {Number(item.price || 0).toLocaleString('en-PK')}
-              </p>
-              {item.bestSeller === true && (
-                <p className="pt-0.5 text-[10px] uppercase tracking-widest text-neutral-400">
-                  Best Seller
-                </p>
-              )}
-            </div>
-          </Link>
+          <CollectionCard key={item._id} product={item} />
         ))}
       </div>
     </section>
