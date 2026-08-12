@@ -8,6 +8,8 @@ import CollectionCard from '../components/CollectionCard';
 import BrandManifesto from '../components/home/BrandManifesto';
 import CraftPillars from '../components/home/CraftPillars';
 import WorldStrip from '../components/home/WorldStrip';
+import SignaturePiece from '../components/home/SignaturePiece';
+import LookbookGallery from '../components/home/LookbookGallery';
 import LuxuryEffects from '../components/home/LuxuryEffects';
 import Seam from '../components/home/Seam';
 
@@ -17,13 +19,15 @@ import Seam from '../components/home/Seam';
  *   THE HOUSE       split editorial — photography + brand statement
  *   THE COLLECTIONS "Curated for Skin" — 4 named edits
  *   THE NEW COLLECTION — product chapter (fine seam header)
+ *   THE SIGNATURE   the best-selling piece, given the campaign plate
  *   THE EDIT        campaign split with parallax photography
+ *   THE LOOKBOOK    horizontal editorial gallery with measuring seam
  *   THE CRAFT       "Why Hushae" — three quiet pillars
  *   OBJECTS OF DESIRE — product chapter
  *   WORLD OF HUSHAE — international strip (counters)
  *   NEWSLETTER
- *   Motion: GSAP reveals / gentle parallax / counters (subtle, once,
- *   respects prefers-reduced-motion). Restraint is the luxury.
+ *   Motion: GSAP reveals / parallax / counters / pinned lookbook (subtle,
+ *   once, respects prefers-reduced-motion). Restraint is the luxury.
  * ========================================================================== */
 
 const IMG = '/images/campaign/qa';
@@ -258,19 +262,25 @@ export default function Home() {
         {/* 04 — THE NEW COLLECTION — product chapter */}
         <ProductCarouselSection title="The New Collection" subtitle="EXPLORE NOW" products={fresh} href="/new" />
 
-        {/* 05 — THE EDIT — campaign split (parallax photography) */}
+        {/* 05 — THE SIGNATURE — the best-selling piece on the campaign plate */}
+        <SignaturePiece product={best[0]} />
+
+        {/* 06 — THE EDIT — campaign split (parallax photography) */}
         <EditorialSplitSection />
 
-        {/* 06 — THE CRAFT — three quiet pillars */}
+        {/* 07 — THE LOOKBOOK — horizontal editorial gallery with measuring seam */}
+        <LookbookGallery />
+
+        {/* 08 — THE CRAFT — three quiet pillars */}
         <CraftPillars />
 
-        {/* 07 — OBJECTS OF DESIRE — product chapter */}
+        {/* 09 — OBJECTS OF DESIRE — product chapter */}
         <ProductCarouselSection title="Objects of Desire" subtitle="CURATED SELECTION" products={best} href="/best" />
 
-        {/* 08 — WORLD OF HUSHAE — international strip */}
+        {/* 10 — WORLD OF HUSHAE — international strip */}
         <WorldStrip />
 
-        {/* 09 — NEWSLETTER */}
+        {/* 11 — NEWSLETTER */}
         <NewsletterSection />
       </LuxuryEffects>
     </div>
