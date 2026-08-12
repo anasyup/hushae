@@ -33,6 +33,14 @@ export default function Header() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchCfg, setSearchCfg] = useState(null);
   const [mega, setMega] = useState(null);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setIsScrolled(window.scrollY > 20);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   const loc = useLocation();
   const isHome = loc.pathname === '/';
@@ -105,7 +113,11 @@ export default function Header() {
 
       <header
         data-header
-        className="sticky top-0 z-50 w-full border-b border-neutral-200 bg-white"
+        className={`fixed left-0 top-0 z-50 w-full transition-all duration-500 ease-in-out ${
+          isScrolled || !isHome
+            ? 'border-b border-neutral-200/80 bg-white/95 py-0 text-black shadow-sm backdrop-blur-md'
+            : 'border-b border-white/10 bg-transparent py-2 text-white'
+        }`}
         onMouseLeave={() => setMega(null)}
       >
         {isHome && <OfferBar hideOnScroll />}
@@ -118,13 +130,13 @@ export default function Header() {
             onClick={() => setMobileOpen(true)}
             aria-label="Open menu"
             aria-expanded={mobileOpen}
-            className="-ml-2 grid h-10 w-10 shrink-0 place-items-center text-[#111111] lg:hidden"
+            className={`-ml-2 grid h-10 w-10 shrink-0 place-items-center transition-colors duration-300 lg:hidden ${isScrolled || !isHome ? "text-[#111111]" : "text-white"}`}
           >
             <Menu size={20} strokeWidth={1.6} aria-hidden="true" />
           </button>
 
           {/* Logo — LEFT */}
-          <Link to="/" aria-label="HUSHAE — home" className="flex-shrink-0 font-serif text-xl font-bold uppercase tracking-[0.18em] text-[#111111] md:text-2xl">
+          <Link to="/" aria-label="HUSHAE — home" className={`flex-shrink-0 font-serif text-xl font-bold uppercase tracking-[0.18em] transition-colors duration-300 md:text-2xl ${isScrolled || !isHome ? 'text-[#111111]' : 'text-white'}`}>
             HUSHAÈ
           </Link>
 
@@ -157,7 +169,7 @@ export default function Header() {
           </nav>
 
           {/* Icons — RIGHT */}
-          <div data-section="header.icons" className="flex shrink-0 items-center gap-5 text-[#111111]">
+          <div data-section="header.icons" className={`flex shrink-0 items-center gap-5 transition-colors duration-300 ${isScrolled || !isHome ? "text-[#111111]" : "text-white"}`}>
             {showSearch && (
               <button
                 ref={searchBtnRef}

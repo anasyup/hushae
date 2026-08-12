@@ -100,98 +100,82 @@ function CollectionCard({ product: p, priority = false, variant = 'bar', ratio =
   }
 
   /* ── BAR VARIANT — exact client reference card ───────────────────── */
+  /* layered crossfade images (z-index) · 4/3 → sm:3/4 · side arrows on
+     hover · full-width BUY NOW button (opens SizeModal) · centered details */
   const colors = p.colors || [];
 
   return (
     <article
-      className="group relative flex w-full min-w-0 flex-col font-sans"
+      className="group relative flex w-full min-w-0 select-none flex-col font-sans"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* 1. Studio canvas — 3/4 #f2f0ec, p-6, object-contain mix-blend-multiply */}
-      <Link to={`/product/${p.slug}`} tabIndex={-1} className="relative flex aspect-[3/4] w-full items-center justify-center overflow-hidden bg-[#f2f0ec] p-6">
-        {/* Primary image */}
-        <img
-          src={failed ? FALLBACK : (images[imgIdx] || images[0] || srcOf(p.image) || FALLBACK)}
-          alt={`${name}, front view`}
-          width="900" height="1200"
-          loading={priority ? 'eager' : 'lazy'}
-          onError={() => setFailed(true)}
-          className="h-full w-full object-contain mix-blend-multiply transition-opacity duration-500 ease-in-out"
-        />
-        {/* Secondary image — crossfades on hover (studio fade) */}
-        {images.length > 1 && (
+      {/* 1. Image container — 4/3 (sm 3/4), #f2f0ec */}
+      <Link to={`/product/${p.slug}`} tabIndex={-1} className="relative block aspect-[4/3] w-full overflow-hidden bg-[#f2f0ec] sm:aspect-[3/4]">
+        {/* Layered images — crossfade via z-index + opacity */}
+        {[main, ...images.filter((u) => u !== main)].slice(0, 5).map((url, idx) => (
           <img
-            src={images[(imgIdx + 1) % images.length] || images[1]}
-            alt=""
-            aria-hidden="true"
-            loading="eager"
-            className="absolute inset-0 h-full w-full object-contain p-6 mix-blend-multiply opacity-0 transition-opacity duration-500 ease-in-out group-hover:opacity-100"
+            key={`${url}-${idx}`}
+            src={failed && idx === 0 ? FALLBACK : url}
+            alt={idx === 0 ? `${name}, front view` : ''}
+            width="900" height="1200"
+            loading={priority && idx === 0 ? 'eager' : 'lazy'}
+            onError={() => { if (idx === 0) setFailed(true); }}
+            className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ease-in-out ${
+              idx === imgIdx ? 'z-10 opacity-100' : 'z-0 opacity-0'
+            }`}
           />
-        )}
+        ))}
 
         {/* Badge — top right */}
         {badge && (
-          <span className="absolute right-2 top-2 z-10 bg-black px-2 py-0.5 text-[9px] font-medium uppercase tracking-wider text-white">
+          <span className="absolute right-2 top-2 z-20 bg-black px-2 py-0.5 text-[9px] font-medium uppercase tracking-widest text-white">
             {badge}
           </span>
         )}
 
-        {/* Hover arrows */}
+        {/* Side arrows — appear on hover */}
         {images.length > 1 && (
-          <>
+          <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-between px-2 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
             <button
               type="button"
-              aria-label="Previous image"
               onClick={(e) => { e.preventDefault(); cycle(-1); }}
-              className="absolute left-2 top-1/2 grid h-7 w-7 -translate-y-1/2 place-items-center rounded-full bg-white/90 text-black opacity-0 shadow-md transition hover:bg-white group-hover:opacity-100"
+              aria-label="Previous Image"
+              className="pointer-events-auto flex h-7 w-7 items-center justify-center rounded-full bg-white/80 text-black shadow-md transition-all hover:bg-white"
             >
-              <ChevronLeft size={16} strokeWidth={2} aria-hidden="true" />
+              <ChevronLeft size={16} aria-hidden="true" />
             </button>
             <button
               type="button"
-              aria-label="Next image"
               onClick={(e) => { e.preventDefault(); cycle(1); }}
-              className="absolute right-2 top-1/2 grid h-7 w-7 -translate-y-1/2 place-items-center rounded-full bg-white/90 text-black opacity-0 shadow-md transition hover:bg-white group-hover:opacity-100"
+              aria-label="Next Image"
+              className="pointer-events-auto flex h-7 w-7 items-center justify-center rounded-full bg-white/80 text-black shadow-md transition-all hover:bg-white"
             >
-              <ChevronRight size={16} strokeWidth={2} aria-hidden="true" />
+              <ChevronRight size={16} aria-hidden="true" />
             </button>
-          </>
-        )}
-
-        {/* Dash indicators */}
-        {images.length > 1 && (
-          <div className="absolute bottom-2 left-1/2 z-10 hidden -translate-x-1/2 items-center gap-1 group-hover:flex md:flex">
-            {images.map((_, idx) => (
-              <button
-                key={idx}
-                type="button"
-                aria-label={`Image ${idx + 1}`}
-                onClick={(e) => { e.preventDefault(); setImgIdx(idx); }}
-                className={`h-[2px] border-0 transition-all duration-300 ${idx === imgIdx ? 'w-4 bg-black' : 'w-2 bg-black/30'}`}
-              />
-            ))}
           </div>
         )}
 
-        {/* Buy Now pill — opens SizeModal (Select Size → ADD TO CART) */}
+        {/* BUY NOW — full-width button (opens SizeModal) */}
         {!soldOut ? (
-          <button
-            type="button"
-            onClick={(e) => { e.preventDefault(); setModal(true); }}
-            className="absolute bottom-5 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded-full bg-black px-6 py-2.5 text-[10px] font-medium uppercase tracking-widest text-white shadow-lg transition-all duration-200 hover:bg-neutral-800 md:opacity-0 md:group-hover:opacity-100"
-          >
-            Buy Now
-          </button>
+          <div className="absolute bottom-3 left-1/2 z-20 w-[85%] -translate-x-1/2 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+            <button
+              type="button"
+              onClick={(e) => { e.preventDefault(); setModal(true); }}
+              className="w-full bg-black py-2.5 text-[10px] font-medium uppercase tracking-[0.2em] text-white shadow-md transition-colors hover:bg-neutral-800"
+            >
+              Buy Now
+            </button>
+          </div>
         ) : (
-          <span className="pointer-events-none absolute bottom-5 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded-full bg-black px-6 py-2.5 text-[10px] font-medium uppercase tracking-widest text-white shadow-lg opacity-100 md:opacity-0 md:group-hover:opacity-100">
+          <span className="pointer-events-none absolute bottom-3 left-1/2 z-20 w-[85%] -translate-x-1/2 bg-black py-2.5 text-center text-[10px] font-medium uppercase tracking-[0.2em] text-white shadow-md opacity-100">
             Sold Out
           </span>
         )}
       </Link>
 
       {/* 2. Details — centered */}
-      <Link to={`/product/${p.slug}`} className="mt-3 space-y-1 text-center">
+      <div className="mt-3 space-y-1 text-center">
         <h4 className="line-clamp-1 text-[11px] font-medium uppercase tracking-[0.15em] text-[#111111] md:text-[12px]">
           {name}
         </h4>
@@ -199,9 +183,9 @@ function CollectionCard({ product: p, priority = false, variant = 'bar', ratio =
           {onSale && p.compareAtPrice > p.price && (
             <span className="text-[11px] font-normal text-neutral-400 line-through">{pkr(p.compareAtPrice)}</span>
           )}
-          <span className="text-[11px] font-medium tracking-wider text-[#111111]">{soldOut ? 'Sold out' : pkr(p.price)}</span>
+          <span className="text-[11px] font-semibold text-[#111111]">{soldOut ? 'Sold out' : pkr(p.price)}</span>
         </div>
-      </Link>
+      </div>
 
       {modal && <SizeModal product={p} onClose={() => setModal(false)} />}
     </article>
