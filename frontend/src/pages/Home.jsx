@@ -8,15 +8,24 @@ import CollectionCard from '../components/CollectionCard';
 import BrandManifesto from '../components/home/BrandManifesto';
 import CraftPillars from '../components/home/CraftPillars';
 import WorldStrip from '../components/home/WorldStrip';
+import MarqueeStrip from '../components/home/MarqueeStrip';
+import LuxuryEffects from '../components/home/LuxuryEffects';
+import Seam from '../components/home/Seam';
 
 /* ============================================================================
- * HUSHAE HOME — luxury homepage, exact client reference.
- *   1  HERO            full-bleed "Second Skin Edit" (CK, approved)
- *   2  CATEGORY GRID   Tom Ford style — 2/4 cols, 4/5 images, tracking 0.2em
- *   3  PRODUCT CAROUSEL "The New Collection" — serif title + EXPLORE NOW
- *   4  EDITORIAL SPLIT Loro Piana — 2 cards, serif headings + ArrowRight
- *   5  PRODUCT CAROUSEL "Objects of Desire" — curated selection
- *   6  NEWSLETTER      Subscribe to the Newsletter
+ * HUSHAE HOME — "Second Skin Studio", the house's own luxury register.
+ *   00  HERO            full-bleed campaign (untouched)
+ *   01  MARQUEE         slow editorial ticker (house claims)
+ *   02  THE MAISON      brand manifesto — "Second Skin, First Choice."
+ *   03  THE COLLECTIONS "Curated for Skin" — 4 named edits
+ *   04  THE NEW COLLECTION — product chapter (seam header)
+ *   05  THE CRAFT       "Why Hushae" — 3 numbered pillars
+ *   06  THE EDIT        campaign split (parallax photography)
+ *   07  OBJECTS OF DESIRE — product chapter
+ *   08  WORLD OF HUSHAE international strip (counters)
+ *   09  NEWSLETTER
+ *   Motion: GSAP reveals / parallax / counters / seam draws — see
+ *   LuxuryEffects. Everything respects prefers-reduced-motion.
  * ========================================================================== */
 
 const IMG = '/images/campaign/qa';
@@ -95,61 +104,77 @@ function CategoryGridSection() {
 /* ── SECTION 2 & 4: Product carousel (Givenchy style) ───────────────────── */
 function ProductCarouselSection({ title, subtitle, products, href }) {
   return (
-    <section className="mx-auto max-w-[1600px] border-t border-neutral-200/60 px-4 py-20 md:px-8">
-      <div className="mb-12 flex flex-col items-center gap-4 text-center">
-        {/* Seam — the house mark above each chapter */}
-        <div className="h-px w-10 bg-[#111111]/50" aria-hidden="true" />
+    <section className="mx-auto max-w-[1600px] border-t border-neutral-200/60 px-4 py-24 md:px-8">
+      <div data-reveal className="mb-14 flex flex-col items-center gap-5 text-center">
+        {/* Seam — the house mark, drawn on scroll */}
+        <Seam className="w-12 text-[#111111]/60" />
         <h2 className="font-display text-2xl font-light uppercase tracking-[0.16em] text-[#111111] md:text-3xl">
           {title}
         </h2>
         <Link
           to={href || '/shop'}
-          className="inline-block border-b border-black/30 pb-1 text-[10px] font-medium uppercase tracking-[0.25em] text-neutral-500 transition-colors hover:text-black"
+          className="group inline-flex items-center gap-2 border-b border-black/30 pb-1 text-[10px] font-medium uppercase tracking-[0.25em] text-neutral-500 transition-colors hover:text-black"
         >
           {subtitle}
+          <span className="transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true">&rarr;</span>
         </Link>
       </div>
 
-      <div className="grid grid-cols-2 gap-x-1 gap-y-10 md:grid-cols-4">
+      <div data-reveal-group className="grid grid-cols-2 gap-x-1 gap-y-12 md:grid-cols-4">
         {(products || []).slice(0, 4).map((item) => (
-          <CollectionCard key={item._id} product={item} />
+          <div key={item._id} data-reveal-item>
+            <CollectionCard product={item} />
+          </div>
         ))}
       </div>
     </section>
   );
 }
 
-/* ── SECTION 3: Editorial split banner (Loro Piana style) ───────────────── */
+/* ── SECTION 6: Editorial split banner — parallax photography ───────────── */
 function EditorialSplitSection() {
   return (
-    <section className="mx-auto max-w-[1600px] px-4 py-12 md:px-8">
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <Link to="/new" className="group relative aspect-[4/5] cursor-pointer overflow-hidden bg-[#f2f0ec] md:aspect-[3/4]">
-          <img
-            src={`${IMG}/editorial-modern.jpg`}
-            alt="Spring Summer Collection"
-            loading="lazy"
-            className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-          />
-          <div className="absolute inset-0 bg-black/10 transition-colors group-hover:bg-black/20" aria-hidden="true" />
-          <div className="absolute bottom-8 left-8 right-8 space-y-2 text-white">
-            <h3 className="font-display text-xl font-light uppercase tracking-[0.1em] md:text-2xl">Spring / Summer Silhouette</h3>
+    <section className="mx-auto max-w-[1600px] px-4 py-16 md:px-8">
+      <div data-reveal-group className="grid grid-cols-1 gap-5 md:grid-cols-2">
+        <Link
+          to="/new"
+          data-reveal-item
+          className="group relative aspect-[4/5] cursor-pointer overflow-hidden bg-[#f2f0ec] md:aspect-[3/4]"
+        >
+          {/* Parallax wrapper — the drift never reveals an edge (scale 1.12) */}
+          <div className="absolute inset-0" data-parallax="0.1" aria-hidden="true">
+            <img
+              src={`${IMG}/editorial-modern.jpg`}
+              alt=""
+              loading="lazy"
+              className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+            />
+          </div>
+          <div className="absolute inset-0 bg-black/10 transition-colors duration-500 group-hover:bg-black/20" aria-hidden="true" />
+          <div className="absolute bottom-8 left-8 right-8 space-y-3 text-white" data-reveal data-delay="0.1">
+            <h3 className="font-display text-xl font-light uppercase leading-[1.2] tracking-[0.1em] md:text-2xl">Spring / Summer Silhouette</h3>
             <span className="inline-flex items-center gap-2 border-b border-white pb-1 text-[11px] font-medium uppercase tracking-[0.2em] transition hover:text-neutral-200">
               Explore Collection <ArrowRight size={14} aria-hidden="true" />
             </span>
           </div>
         </Link>
 
-        <Link to="/about" className="group relative aspect-[4/5] cursor-pointer overflow-hidden bg-[#f2f0ec] md:aspect-[3/4]">
-          <img
-            src={`${IMG}/hero-fabric.jpg`}
-            alt="Craftsmanship"
-            loading="lazy"
-            className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-          />
-          <div className="absolute inset-0 bg-black/10 transition-colors group-hover:bg-black/20" aria-hidden="true" />
-          <div className="absolute bottom-8 left-8 right-8 space-y-2 text-white">
-            <h3 className="font-display text-xl font-light uppercase tracking-[0.1em] md:text-2xl">Uncompromising Craftsmanship</h3>
+        <Link
+          to="/about"
+          data-reveal-item
+          className="group relative aspect-[4/5] cursor-pointer overflow-hidden bg-[#f2f0ec] md:aspect-[3/4]"
+        >
+          <div className="absolute inset-0" data-parallax="0.1" aria-hidden="true">
+            <img
+              src={`${IMG}/hero-fabric.jpg`}
+              alt=""
+              loading="lazy"
+              className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+            />
+          </div>
+          <div className="absolute inset-0 bg-black/10 transition-colors duration-500 group-hover:bg-black/20" aria-hidden="true" />
+          <div className="absolute bottom-8 left-8 right-8 space-y-3 text-white" data-reveal data-delay="0.15">
+            <h3 className="font-display text-xl font-light uppercase leading-[1.2] tracking-[0.1em] md:text-2xl">Uncompromising Craftsmanship</h3>
             <span className="inline-flex items-center gap-2 border-b border-white pb-1 text-[11px] font-medium uppercase tracking-[0.2em] transition hover:text-neutral-200">
               Read The Story <ArrowRight size={14} aria-hidden="true" />
             </span>
@@ -165,12 +190,13 @@ function NewsletterSection() {
   const [email, setEmail] = useState('');
   const [done, setDone] = useState(false);
   return (
-    <section className="border-t border-neutral-200/80 bg-[#f7f6f2] px-4 py-20 text-center">
-      <div className="mx-auto max-w-xl space-y-4">
-        <h3 className="font-display text-2xl font-light uppercase tracking-[0.16em] text-[#111111] md:text-3xl">
+    <section className="border-t border-neutral-200/80 bg-[#f7f6f2] px-4 py-24 text-center">
+      <div className="mx-auto max-w-xl space-y-5">
+        <div data-reveal className="mx-auto h-px w-10 bg-[#111111]/40" aria-hidden="true" />
+        <h3 data-reveal data-delay="0.05" className="font-display text-2xl font-light uppercase tracking-[0.16em] text-[#111111] md:text-3xl">
           Subscribe to the Newsletter
         </h3>
-        <p className="text-[12px] font-normal leading-relaxed tracking-wide text-neutral-500">
+        <p data-reveal data-delay="0.1" className="text-[12px] font-light leading-[1.9] tracking-wide text-neutral-500">
           Be the first to receive updates on new arrivals, private sales, and seasonal collection previews.
         </p>
         {done ? (
@@ -219,39 +245,47 @@ export default function Home() {
         jsonLd={organizationJsonLd(typeof window !== 'undefined' ? window.location.origin : '')}
         jsonLdId="home-org" />
 
-      {/* 01 — HERO (untouched) */}
-      <HeroSlides />
+      {/* Film grain — the print-campaign tooth over the whole page */}
+      <div className="grain" aria-hidden="true" />
 
-      {/* 02 — THE MAISON — brand manifesto (Second Skin Studio) */}
-      <BrandManifesto />
+      <LuxuryEffects>
+        {/* 00 — HERO (untouched) */}
+        <HeroSlides />
 
-      {/* 03 — STUDIO CATEGORY SHOWCASE (Givenchy canvas) */}
-      <LuxuryCategoryShowcase />
+        {/* 00.5 — MARQUEE — slow editorial ticker */}
+        <MarqueeStrip />
 
-      {/* 04 — THE NEW COLLECTION (Givenchy) */}
-      <ProductCarouselSection title="The New Collection" subtitle="EXPLORE NOW" products={fresh} href="/new" />
+        {/* 01 — THE MAISON — brand manifesto (Second Skin Studio) */}
+        <BrandManifesto />
 
-      {/* 05 — THE CRAFT — three pillars (Second Skin Studio) */}
-      <CraftPillars />
+        {/* 02 — STUDIO CATEGORY SHOWCASE (Givenchy canvas) */}
+        <LuxuryCategoryShowcase />
 
-      {/* 06 — VIEW MORE (reference button) */}
-      <div className="flex w-full justify-center">
-        <Link to="/shop" className="my-8 cursor-pointer border border-black bg-transparent px-10 py-3.5 text-[11px] font-medium uppercase tracking-[0.2em] text-black transition-all duration-300 ease-in-out hover:bg-black hover:text-white">
-          View More
-        </Link>
-      </div>
+        {/* 03 — THE NEW COLLECTION (Givenchy) */}
+        <ProductCarouselSection title="The New Collection" subtitle="EXPLORE NOW" products={fresh} href="/new" />
 
-      {/* 07 — EDITORIAL SPLIT (Loro Piana) */}
-      <EditorialSplitSection />
+        {/* 04 — THE CRAFT — three pillars (Second Skin Studio) */}
+        <CraftPillars />
 
-      {/* 08 — OBJECTS OF DESIRE */}
-      <ProductCarouselSection title="Objects of Desire" subtitle="CURATED SELECTION" products={best} href="/best" />
+        {/* 05 — VIEW MORE (reference button) */}
+        <div data-reveal className="flex w-full justify-center">
+          <Link to="/shop" className="my-8 cursor-pointer border border-black bg-transparent px-10 py-3.5 text-[11px] font-medium uppercase tracking-[0.2em] text-black transition-all duration-300 ease-in-out hover:bg-black hover:text-white">
+            View More
+          </Link>
+        </div>
 
-      {/* 09 — WORLD OF HUSHAE — international strip (Second Skin Studio) */}
-      <WorldStrip />
+        {/* 06 — THE EDIT — campaign split (parallax photography) */}
+        <EditorialSplitSection />
 
-      {/* 10 — NEWSLETTER */}
-      <NewsletterSection />
+        {/* 07 — OBJECTS OF DESIRE */}
+        <ProductCarouselSection title="Objects of Desire" subtitle="CURATED SELECTION" products={best} href="/best" />
+
+        {/* 08 — WORLD OF HUSHAE — international strip (Second Skin Studio) */}
+        <WorldStrip />
+
+        {/* 09 — NEWSLETTER */}
+        <NewsletterSection />
+      </LuxuryEffects>
     </div>
   );
 }
