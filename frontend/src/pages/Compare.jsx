@@ -165,7 +165,7 @@ export default function Compare() {
                       </Link>
                       <Link
                         to={`/product/${slug}`}
-                        className="clamp-2 font-bodoni mt-2 block h-[2.6em] overflow-hidden text-body-sm font-medium leading-[1.3] transition hover:underline"
+                        className="clamp-2 mt-2 block h-[2.6em] overflow-hidden text-body-sm font-medium leading-[1.3] transition hover:underline"
                       >
                         {p.name}
                       </Link>

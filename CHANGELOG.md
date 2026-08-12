@@ -1,4 +1,13 @@
 ## Changes
+- **2026-08-12** — ↩️ **PRODUCT TITLE FONT — REVERTED to original (Plus Jakarta Sans)**
+  - Client instruction: "jo changes ke hain unhe hatao, jo pehle tha waisa karo" — the Bodoni Moda / Helvetica title-font experiments are removed.
+  - Card bar title back to `14px / 500 / tracking-[-0.01em]` (Plus Jakarta Sans, sentence case, clickable link + hover underline kept).
+  - Card pill variant title back to `13px / 500`.
+  - PDP h1 back to `text-2xl font-light` (no font token).
+  - Compare page product names back to default sans.
+  - Removed `bodoni` Tailwind token + Bodoni Moda from the Google Fonts link.
+
+## Changes
 - **2026-08-12** — 🔤 **PRODUCT TITLE FONT — DIDONE SERIF (Bodoni Moda), corrected from Helvetica**
   - Client reference crop ("Nod loafer / $1,300") measured pixel-by-pixel: the title is a **Didone fashion serif**, not Helvetica. Helvetica-class fonts (Arial metric) render the word ~58% wider than the reference (9.86 vs 6.28 width/cap ratio); **Bodoni Moda** matches the word proportions (6.10), the 'N' glyph (0.71 IoU), and the double-story 'a' (0.48) — the closest Google-hosted match. Playfair Display as fallback.
   - Replaced `helvetica` Tailwind token with `bodoni`: `'Bodoni Moda', 'Playfair Display', Georgia, serif`.
