@@ -25,7 +25,7 @@ export default function AccordionGroup({ items, headingLevel: H = 'h2' }) {
                 onClick={() => setOpen(isOpen ? null : index)}
                 aria-expanded={isOpen}
                 aria-controls={panelId}
-                className="flex w-full items-center justify-between text-left text-[12px] font-semibold uppercase tracking-wider text-[#1a1a1a] transition-colors duration-200 hover:text-[#666666]"
+                className="flex w-full items-center justify-between text-left text-[12px] font-medium uppercase tracking-[0.15em] text-[#1a1a1a] transition-colors duration-200 hover:text-[#666666]"
               >
                 {item.title}
                 <ChevronDown size={16} className={`shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} aria-hidden="true" />
@@ -39,7 +39,7 @@ export default function AccordionGroup({ items, headingLevel: H = 'h2' }) {
               className={`grid transition-[grid-template-rows,opacity] duration-300 ease-out ${isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}
             >
               <div className="min-h-0 overflow-hidden">
-                <div className="pt-4 text-xs leading-relaxed text-neutral-600">{item.content}</div>
+                <div className="pt-4 text-[12px] font-light leading-relaxed tracking-normal normal-case text-neutral-600">{item.content}</div>
               </div>
             </div>
           </div>

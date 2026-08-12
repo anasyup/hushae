@@ -274,10 +274,12 @@ export default function Product() {
         <div className="lg:col-span-5">
           <div className="space-y-6 lg:sticky lg:top-28 lg:h-fit">
             <div>
-              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-500">
+              <span className="text-[12px] font-medium uppercase tracking-[0.15em] text-neutral-500">
                 {p.categoryName || p.categorySlug?.replace(/-/g, ' ') || 'HUSHAE'}
               </span>
-              <h1 className="mt-2 text-2xl font-normal normal-case tracking-[0.025em] lg:text-3xl">{name}</h1>
+              {/* Luxury geometric UPPERCASE title — exact reference: 17/20px,
+                  regular weight, wide 0.16em tracking, relaxed leading. */}
+              <h1 className="mt-2 text-[17px] font-normal uppercase leading-relaxed tracking-[0.16em] text-[#111111] md:text-[20px]">{name}</h1>
               <div id="reviews-link" className="mt-4 flex items-center gap-2">
                 <button
                   type="button"
@@ -295,9 +297,9 @@ export default function Product() {
               </div>
             </div>
 
-            {/* Price row */}
+            {/* Price row — geometric light price (reference: 16/18px, light, 0.08em) */}
             <div className="flex items-baseline gap-3 border-y border-neutral-200 py-4">
-              <span className="text-2xl">{pkr(p.price)}</span>
+              <span className="text-[16px] font-light tracking-[0.08em] text-[#111111] md:text-[18px]">{pkr(p.price)}</span>
               {onSale && p.compareAtPrice > p.price && (
                 <>
                   <span className="text-sm text-neutral-400 line-through">{pkr(p.compareAtPrice)}</span>
@@ -313,7 +315,7 @@ export default function Product() {
                 <button
                   type="button"
                   onClick={() => setReadMore(!readMore)}
-                  className="mt-2 text-[11px] font-semibold uppercase tracking-wider text-black underline"
+                  className="mt-2 text-[11px] font-medium uppercase tracking-[0.15em] text-black underline"
                 >
                   {readMore ? 'Read Less' : 'Read More'}
                 </button>
@@ -323,8 +325,8 @@ export default function Product() {
             {/* Colour */}
             {p.colors?.length > 0 && (
               <div className="space-y-3">
-                <div className="text-xs uppercase tracking-wider">
-                  Color: <strong>{color}</strong>
+                <div className="text-[12px] font-medium uppercase tracking-[0.15em]">
+                  Color: <span className="font-normal text-neutral-500">{color}</span>
                 </div>
                 <div className="flex gap-4">
                   {p.colors.map((c) => {
@@ -348,9 +350,9 @@ export default function Product() {
             {/* Size */}
             {needsSize && (
               <div ref={sizeRef} className="space-y-3">
-                <div className="flex items-center justify-between text-xs uppercase tracking-wider">
-                  <span>Size: <strong>{size || 'Select Size'}</strong></span>
-                  <button type="button" onClick={() => setGuideOpen(true)} className="font-semibold underline">Size Guide</button>
+                <div className="flex items-center justify-between text-[12px] font-medium uppercase tracking-[0.15em]">
+                  <span>Size: <span className="font-normal text-neutral-500">{size || 'Select Size'}</span></span>
+                  <button type="button" onClick={() => setGuideOpen(true)} className="underline text-neutral-500 hover:text-black transition-colors">Size Guide</button>
                 </div>
                 <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
                   {p.sizes.map((s) => {
@@ -361,8 +363,8 @@ export default function Product() {
                         type="button"
                         onClick={() => { setSize(s); setSizeErr(false); }}
                         aria-pressed={on}
-                        className={`h-11 border text-xs font-semibold transition-colors ${
-                          on ? 'border-black bg-black text-white' : 'border-neutral-300 bg-white hover:border-black'
+                        className={`h-12 border text-[12px] font-normal uppercase tracking-[0.1em] transition-colors ${
+                          on ? 'border-black bg-black text-white' : 'border-neutral-300 bg-white text-black hover:border-black'
                         }`}
                       >
                         {s}
@@ -396,7 +398,7 @@ export default function Product() {
                 <button type="button" onClick={() => setQty(Math.max(1, qty - 1))} disabled={qty <= 1} aria-label="Decrease quantity">
                   <Minus size={16} />
                 </button>
-                <span className="text-sm font-semibold">{qty}</span>
+                <span className="text-[13px] font-medium">{qty}</span>
                 <button type="button" onClick={() => setQty(Math.min(maxQty, qty + 1))} disabled={qty >= maxQty} aria-label="Increase quantity">
                   <Plus size={16} />
                 </button>
@@ -405,7 +407,7 @@ export default function Product() {
                 type="button"
                 onClick={() => tryAdd(false)}
                 disabled={soldOut || (needsSize && !size)}
-                className={`flex h-12 flex-1 items-center justify-center gap-2 text-xs font-semibold uppercase tracking-widest transition-colors ${
+                className={`flex h-12 flex-1 items-center justify-center gap-2 text-[11px] font-medium uppercase tracking-[0.2em] transition-colors ${
                   soldOut || (needsSize && !size) ? 'cursor-not-allowed bg-neutral-200 text-neutral-500' : 'bg-black text-white hover:bg-neutral-800'
                 }`}
               >
@@ -427,7 +429,7 @@ export default function Product() {
               type="button"
               onClick={() => tryAdd(true)}
               disabled={soldOut || (needsSize && !size)}
-              className={`h-12 w-full text-xs font-semibold uppercase tracking-widest transition-colors ${
+              className={`h-12 w-full text-[11px] font-medium uppercase tracking-[0.2em] transition-colors ${
                 soldOut || (needsSize && !size) ? 'cursor-not-allowed bg-neutral-100 text-neutral-400' : 'border border-neutral-300 bg-neutral-100 hover:bg-neutral-200'
               }`}
             >
