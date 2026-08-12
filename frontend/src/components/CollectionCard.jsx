@@ -10,12 +10,11 @@ import SizeModal from './SizeModal';
 /* ============================================================================
  * HUSHAE CollectionCard — two variants, both from client references:
  *
- *  · variant="bar" (default) — Givenchy studio canvas reference:
- *      3/4 canvas #f2f0ec p-6 · images object-contain + mix-blend-multiply ·
- *      hover = secondary crossfade (no zoom) · arrows + dash indicators ·
- *      floating "+" (bottom-right) opens IN-CARD size overlay (no popup) ·
- *      details CENTERED: title 11/12px medium uppercase tracking 0.15em ·
- *      price 11px medium tracking-wider (struck old + current)
+ *  · variant="bar" (default) — exact client reference card:
+ *      3/4 image #f2f0ec · hover: arrows + dash indicators + floating "+"
+ *      (bottom-right) which opens an IN-CARD size overlay (no popup) ·
+ *      details: title 12px medium UPPERCASE tracking-wider · price 11px
+ *      struck original + semibold current
  *  · variant="pill" — PDP "Related Products" card:
  *      #f3ede2 tile · rounded Buy Now pill fade-in → SizeModal · brand line
  * ========================================================================== */
@@ -31,9 +30,8 @@ function CollectionCard({ product: p, priority = false, variant = 'bar', ratio =
   const { addToCart } = useApp();
   const [imgIdx, setImgIdx] = useState(0);
   const [failed, setFailed] = useState(false);
+  const [swatchIdx, setSwatchIdx] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
-  const [overlayOpen, setOverlayOpen] = useState(false);
-  const [pickSize, setPickSize] = useState('');
   const [modal, setModal] = useState(false);
 
   const pill = variant === 'pill';
@@ -101,36 +99,32 @@ function CollectionCard({ product: p, priority = false, variant = 'bar', ratio =
     );
   }
 
-  /* ── BAR VARIANT — Givenchy studio canvas reference ──────────────── */
-  const hasSecondary = images.length > 1;
+  /* ── BAR VARIANT — exact client reference card ───────────────────── */
+  const colors = p.colors || [];
 
   return (
     <article
-      className="group relative flex w-full min-w-0 select-none flex-col font-sans"
+      className="group relative flex w-full min-w-0 flex-col font-sans"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* 1. Studio backdrop container (Givenchy canvas) */}
-      <Link
-        to={`/product/${p.slug}`}
-        tabIndex={-1}
-        className="relative flex aspect-[3/4] w-full items-center justify-center overflow-hidden bg-[#f2f0ec] p-6"
-      >
-        {/* Primary image — normal state */}
+      {/* 1. Studio canvas — 3/4 #f2f0ec, p-6, object-contain mix-blend-multiply */}
+      <Link to={`/product/${p.slug}`} tabIndex={-1} className="relative flex aspect-[3/4] w-full items-center justify-center overflow-hidden bg-[#f2f0ec] p-6">
+        {/* Primary image */}
         <img
-          src={failed ? FALLBACK : (main || FALLBACK)}
+          src={failed ? FALLBACK : (images[imgIdx] || images[0] || srcOf(p.image) || FALLBACK)}
           alt={`${name}, front view`}
           width="900" height="1200"
           loading={priority ? 'eager' : 'lazy'}
           onError={() => setFailed(true)}
-          className={`h-full w-full object-contain mix-blend-multiply transition-opacity duration-500 ease-in-out ${hasSecondary ? 'group-hover:opacity-0' : ''}`}
+          className="h-full w-full object-contain mix-blend-multiply transition-opacity duration-500 ease-in-out"
         />
-
-        {/* Secondary image — isolated studio fade-in on hover */}
-        {hasSecondary && (
+        {/* Secondary image — crossfades on hover (studio fade) */}
+        {images.length > 1 && (
           <img
-            src={images[1]}
-            alt={`${name} hover view`}
+            src={images[(imgIdx + 1) % images.length] || images[1]}
+            alt=""
+            aria-hidden="true"
             loading="eager"
             className="absolute inset-0 h-full w-full object-contain p-6 mix-blend-multiply opacity-0 transition-opacity duration-500 ease-in-out group-hover:opacity-100"
           />
@@ -143,7 +137,7 @@ function CollectionCard({ product: p, priority = false, variant = 'bar', ratio =
           </span>
         )}
 
-        {/* Arrows */}
+        {/* Hover arrows */}
         {images.length > 1 && (
           <>
             <button
@@ -180,54 +174,24 @@ function CollectionCard({ product: p, priority = false, variant = 'bar', ratio =
           </div>
         )}
 
-        {/* Quick Add (+) — opens IN-CARD overlay */}
-        {!soldOut && (
+        {/* Buy Now pill — opens SizeModal (Select Size → ADD TO CART) */}
+        {!soldOut ? (
           <button
             type="button"
-            onClick={(e) => { e.preventDefault(); setOverlayOpen((o) => !o); setPickSize(''); }}
-            aria-label="Quick Add"
-            className={`absolute bottom-3 right-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-black shadow-sm backdrop-blur-md transition-all duration-300 hover:bg-black hover:text-white ${overlayOpen ? '!bg-black !text-white' : ''}`}
+            onClick={(e) => { e.preventDefault(); setModal(true); }}
+            className="absolute bottom-5 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded-full bg-black px-6 py-2.5 text-[10px] font-medium uppercase tracking-widest text-white shadow-lg transition-all duration-200 hover:bg-neutral-800 md:opacity-0 md:group-hover:opacity-100"
           >
-            <span className="text-base font-light leading-none" aria-hidden="true">{overlayOpen ? '✕' : '+'}</span>
+            Buy Now
           </button>
+        ) : (
+          <span className="pointer-events-none absolute bottom-5 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded-full bg-black px-6 py-2.5 text-[10px] font-medium uppercase tracking-widest text-white shadow-lg opacity-100 md:opacity-0 md:group-hover:opacity-100">
+            Sold Out
+          </span>
         )}
-
-        {/* IN-CARD slide-up size selector */}
-        <div
-          className={`absolute inset-x-0 bottom-0 z-20 bg-white/95 p-4 backdrop-blur-md transition-transform duration-300 ease-in-out ${
-            overlayOpen ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-full opacity-0'
-          }`}
-        >
-          <p className="mb-2 text-center text-[9px] font-medium uppercase tracking-[0.2em] text-neutral-400">
-            Select Size
-          </p>
-          <div className="mb-3 flex items-center justify-center gap-1.5">
-            {sizes.slice(0, 5).map((sz) => (
-              <button
-                key={sz}
-                type="button"
-                onClick={(e) => { e.preventDefault(); setPickSize(sz); }}
-                className={`h-7 w-7 border text-[10px] font-medium transition-colors ${
-                  pickSize === sz ? 'border-black bg-black text-white' : 'border-neutral-300 bg-transparent text-black hover:border-black'
-                }`}
-              >
-                {sz}
-              </button>
-            ))}
-          </div>
-          <button
-            type="button"
-            disabled={!pickSize}
-            onClick={(e) => { e.preventDefault(); addToCart(p, { size: pickSize }); setOverlayOpen(false); setPickSize(''); }}
-            className="w-full bg-black py-2 text-[9px] font-medium uppercase tracking-[0.2em] text-white transition-colors hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            {pickSize ? `ADD ${pickSize} TO CART` : 'SELECT A SIZE'}
-          </button>
-        </div>
       </Link>
 
-      {/* 2. Product details — bottom aligned, centered */}
-      <div className="mt-3 space-y-1 text-center">
+      {/* 2. Details — centered */}
+      <Link to={`/product/${p.slug}`} className="mt-3 space-y-1 text-center">
         <h4 className="line-clamp-1 text-[11px] font-medium uppercase tracking-[0.15em] text-[#111111] md:text-[12px]">
           {name}
         </h4>
@@ -237,7 +201,9 @@ function CollectionCard({ product: p, priority = false, variant = 'bar', ratio =
           )}
           <span className="text-[11px] font-medium tracking-wider text-[#111111]">{soldOut ? 'Sold out' : pkr(p.price)}</span>
         </div>
-      </div>
+      </Link>
+
+      {modal && <SizeModal product={p} onClose={() => setModal(false)} />}
     </article>
   );
 }
