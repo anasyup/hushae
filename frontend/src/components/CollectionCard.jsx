@@ -83,11 +83,11 @@ function CollectionCard({ product: p, priority = false, variant = 'bar', ratio =
           </button>
         </Link>
         <div className="pt-3">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.5px] text-[#888888]">HUSHAE</p>
+          <p className="text-[9px] font-medium uppercase tracking-[0.2em] text-[#999999]">HUSHAE</p>
           <Link to={`/product/${p.slug}`} className="product-card-title mb-1 mt-0.5 block no-underline transition-colors duration-200 hover:text-[#666666]">
             {name}
           </Link>
-          <p className="text-[13px] font-semibold">
+          <p className="text-[13px] font-medium">
             {soldOut ? 'Sold out' : pkr(p.price)}
             {onSale && p.compareAtPrice > p.price && (
               <span className="ml-1.5 font-normal text-[#999999] line-through">{pkr(p.compareAtPrice)}</span>
