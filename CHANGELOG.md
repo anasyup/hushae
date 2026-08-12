@@ -1,5 +1,15 @@
 ## Changes
-- **2026-08-12** — 🔤 **PRODUCT TITLE FONT — HERMÈS REFERENCE (Helvetica Neue)** (commit pending)
+- **2026-08-12** — 🔤 **PRODUCT TITLE FONT — DIDONE SERIF (Bodoni Moda), corrected from Helvetica**
+  - Client reference crop ("Nod loafer / $1,300") measured pixel-by-pixel: the title is a **Didone fashion serif**, not Helvetica. Helvetica-class fonts (Arial metric) render the word ~58% wider than the reference (9.86 vs 6.28 width/cap ratio); **Bodoni Moda** matches the word proportions (6.10), the 'N' glyph (0.71 IoU), and the double-story 'a' (0.48) — the closest Google-hosted match. Playfair Display as fallback.
+  - Replaced `helvetica` Tailwind token with `bodoni`: `'Bodoni Moda', 'Playfair Display', Georgia, serif`.
+  - Added Bodoni Moda to the Google Fonts link in `index.html` (variable font, opsz 6..96, wght 400..700).
+  - CollectionCard bar title: `font-bodoni`, 15px, medium weight (Didone x-height is small; 15px keeps visual parity with the old 14px sans). Sentence case, clickable link, hover grey + underline kept.
+  - CollectionCard pill variant (PDP related) title: `font-bodoni`, 14px, medium.
+  - PDP h1 product name: `font-bodoni` (same family card → product page), weight normal.
+  - Prices / swatches / badges / buttons untouched.
+
+## Changes
+- **2026-08-12** — 🔤 **PRODUCT TITLE FONT — HERMÈS REFERENCE (Helvetica Neue)** (commit `af89a36`)
   - Client pasted a Hermès product card crop ("Nod loafer / $1,300" — hermes.com loafers listing); the card titles there are set in **Helvetica Neue** (neutral grotesque, regular weight, natural tracking, sentence case).
   - Added `helvetica` Tailwind token: `'Helvetica Neue', Helvetica, Arial, sans-serif` (system stack, no font download needed; matches Hermès exactly on Mac/Windows).
   - CollectionCard bar title: `font-helvetica`, weight medium → **normal**, removed `tracking-[-0.01em]` (Hermès sets natural). Size stays 14px, sentence case, clickable link + hover underline kept.
