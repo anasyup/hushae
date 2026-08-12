@@ -4,33 +4,37 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { pkr } from '../lib/format';
 import { isOnSale } from '../lib/sale';
 import { titleCase } from '../lib/productMeta';
+import { useApp } from '../store/AppContext';
 import SizeModal from './SizeModal';
 
 /* ============================================================================
  * HUSHAE CollectionCard — two variants, both from client references:
  *
- *  · variant="bar" (default) — exact CK tight-grid reference:
- *      4/5 image #e8e8e8 · hover: 28px arrows + Buy Now pill (bottom-6,
- *      opens SizeModal) + black dash indicators · swatches BELOW image with
- *      ring selection · title 12px font-normal capitalize tracking-normal · price 12px font-medium
+ *  · variant="bar" (default) — exact client reference card:
+ *      3/4 image #f2f0ec · hover: arrows + dash indicators + floating "+"
+ *      (bottom-right) which opens an IN-CARD size overlay (no popup) ·
+ *      details: title 12px medium UPPERCASE tracking-wider · price 11px
+ *      struck original + semibold current
  *  · variant="pill" — PDP "Related Products" card:
- *      #f3ede2 tile · rounded Buy Now pill fade-in · brand line · 13/500
- *      title · 13/600 price + gold-star rating
+ *      #f3ede2 tile · rounded Buy Now pill fade-in → SizeModal · brand line
  * ========================================================================== */
 
 const FALLBACK =
   'data:image/svg+xml;utf8,' + encodeURIComponent(
-    '<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1200"><rect width="100%" height="100%" fill="#E5E2E0"/><text x="50%" y="50%" fill="#999999" font-family="Inter,Helvetica,Arial,sans-serif" font-size="16" letter-spacing="4" text-anchor="middle">HUSHAE</text></svg>');
+    '<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1200"><rect width="100%" height="100%" fill="#F2F0EC"/><text x="50%" y="50%" fill="#999999" font-family="Inter,Helvetica,Arial,sans-serif" font-size="16" letter-spacing="4" text-anchor="middle">HUSHAE</text></svg>');
 
 const srcOf = (im) => (typeof im === 'string' ? im : im?.url || '');
 const displayName = (name) => String(name || '').replace(/^HUSHAE\s+/i, '');
 
 function CollectionCard({ product: p, priority = false, variant = 'bar', ratio = 'aspect-[3/4]' }) {
+  const { addToCart } = useApp();
   const [imgIdx, setImgIdx] = useState(0);
   const [failed, setFailed] = useState(false);
-  const [modal, setModal] = useState(false);
   const [swatchIdx, setSwatchIdx] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
+  const [overlayOpen, setOverlayOpen] = useState(false);
+  const [pickSize, setPickSize] = useState('');
+  const [modal, setModal] = useState(false);
 
   const pill = variant === 'pill';
   const images = (p.images || []).map(srcOf).filter(Boolean);
@@ -41,11 +45,13 @@ function CollectionCard({ product: p, priority = false, variant = 'bar', ratio =
   useEffect(() => {
     if (!isHovered) { setImgIdx(0); return; }
     if (images.length > 1) setImgIdx((i) => (i === 0 ? 1 : i));
-  }, [isHovered]);
+  }, [isHovered]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const name = titleCase(displayName(p.name)) || 'Untitled';
   const soldOut = p.stock === 0;
   const onSale = isOnSale(p);
   const badge = p.isNewArrival === true ? 'New' : p.isBestSeller === true ? 'Best Seller' : null;
+  const sizes = p.sizes || [];
 
   const cycle = (dir) => {
     if (images.length < 2) return;
@@ -95,27 +101,24 @@ function CollectionCard({ product: p, priority = false, variant = 'bar', ratio =
     );
   }
 
-  /* ── BAR VARIANT — exact CK tight-grid reference card ────────────── */
-  /* 4/5 image #e8e8e8 (carousel) · hover: 28px arrows + Buy Now pill
-     (bottom-6) + black dash indicators · swatches BELOW image with ring
-     selection · title 12px font-normal capitalize tracking-normal · price 12px font-medium */
+  /* ── BAR VARIANT — exact client reference card ───────────────────── */
   const colors = p.colors || [];
 
   return (
     <article
-      className="group flex min-w-0 cursor-pointer flex-col font-sans"
+      className="group relative flex w-full min-w-0 flex-col font-sans"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* 1. Image box — 4/5, light grey, carousel on hover (whole card links to product) */}
-      <Link to={`/product/${p.slug}`} tabIndex={-1} className="relative block w-full overflow-hidden bg-[#f5f3ee]" style={{ aspectRatio: '4 / 5' }}>
+      {/* 1. Image box — 3/4, #f2f0ec, whole card links to product */}
+      <Link to={`/product/${p.slug}`} tabIndex={-1} className="relative block w-full overflow-hidden bg-[#f2f0ec]" style={{ aspectRatio: '3 / 4' }}>
         <img
           src={failed ? FALLBACK : (images[imgIdx] || images[0] || srcOf(p.image) || FALLBACK)}
           alt={`${name}, front view`}
-          width="900" height="1125"
+          width="900" height="1200"
           loading={priority ? 'eager' : 'lazy'}
           onError={() => setFailed(true)}
-          className="h-full w-full object-cover transition-opacity duration-300"
+          className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
         />
 
         {/* Badge — top right */}
@@ -125,14 +128,14 @@ function CollectionCard({ product: p, priority = false, variant = 'bar', ratio =
           </span>
         )}
 
-        {/* Hover controls */}
+        {/* Hover arrows */}
         {images.length > 1 && (
           <>
             <button
               type="button"
               aria-label="Previous image"
               onClick={(e) => { e.preventDefault(); cycle(-1); }}
-              className="absolute left-3 top-1/2 grid h-7 w-7 -translate-y-1/2 place-items-center rounded-full bg-white/90 text-black opacity-0 shadow-md transition hover:bg-white group-hover:opacity-100"
+              className="absolute left-2 top-1/2 grid h-7 w-7 -translate-y-1/2 place-items-center rounded-full bg-white/90 text-black opacity-0 shadow-md transition hover:bg-white group-hover:opacity-100"
             >
               <ChevronLeft size={16} strokeWidth={2} aria-hidden="true" />
             </button>
@@ -140,31 +143,14 @@ function CollectionCard({ product: p, priority = false, variant = 'bar', ratio =
               type="button"
               aria-label="Next image"
               onClick={(e) => { e.preventDefault(); cycle(1); }}
-              className="absolute right-3 top-1/2 grid h-7 w-7 -translate-y-1/2 place-items-center rounded-full bg-white/90 text-black opacity-0 shadow-md transition hover:bg-white group-hover:opacity-100"
+              className="absolute right-2 top-1/2 grid h-7 w-7 -translate-y-1/2 place-items-center rounded-full bg-white/90 text-black opacity-0 shadow-md transition hover:bg-white group-hover:opacity-100"
             >
               <ChevronRight size={16} strokeWidth={2} aria-hidden="true" />
             </button>
           </>
         )}
 
-        {/* Buy Now pill */}
-        <div className="absolute bottom-6 left-1/2 z-10 -translate-x-1/2">
-          {soldOut ? (
-            <span className="pointer-events-none whitespace-nowrap rounded-full bg-black px-7 py-2.5 text-[11px] font-medium uppercase tracking-wider text-white opacity-100 shadow-lg md:opacity-0 md:group-hover:opacity-100">
-              Sold Out
-            </span>
-          ) : (
-            <button
-              type="button"
-              onClick={(e) => { e.preventDefault(); setModal(true); }}
-              className="whitespace-nowrap rounded-full bg-black px-7 py-2.5 text-[11px] font-medium uppercase tracking-wider text-white opacity-100 shadow-lg transition-all duration-200 hover:bg-neutral-800 md:opacity-0 md:group-hover:opacity-100"
-            >
-              Buy Now
-            </button>
-          )}
-        </div>
-
-        {/* Dash indicators — active black w-5, inactive neutral-400 w-3 */}
+        {/* Dash indicators */}
         {images.length > 1 && (
           <div className="absolute bottom-2 left-1/2 z-10 hidden -translate-x-1/2 items-center gap-1 group-hover:flex md:flex">
             {images.map((_, idx) => (
@@ -178,42 +164,65 @@ function CollectionCard({ product: p, priority = false, variant = 'bar', ratio =
             ))}
           </div>
         )}
+
+        {/* Floating Quick Add (+) — opens IN-CARD overlay, no popup */}
+        {!soldOut && (
+          <button
+            type="button"
+            onClick={(e) => { e.preventDefault(); setOverlayOpen((o) => !o); setPickSize(''); }}
+            aria-label="Quick Add"
+            className={`absolute bottom-3 right-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white text-black shadow-md transition-all duration-300 hover:bg-black hover:text-white ${overlayOpen ? '!bg-black !text-white' : ''}`}
+          >
+            <span className="text-lg font-light leading-none" aria-hidden="true">{overlayOpen ? '✕' : '+'}</span>
+          </button>
+        )}
+
+        {/* IN-CARD OVERLAY — size selection slides up from bottom */}
+        <div
+          className={`absolute inset-x-0 bottom-0 z-20 bg-white/95 p-4 backdrop-blur-sm transition-transform duration-300 ease-in-out ${
+            overlayOpen ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-full opacity-0'
+          }`}
+        >
+          <p className="mb-2.5 text-center text-[9px] font-medium uppercase tracking-[0.2em] text-neutral-400">
+            Select Size
+          </p>
+          <div className="mb-3 flex items-center justify-center gap-1.5">
+            {sizes.slice(0, 5).map((sz) => (
+              <button
+                key={sz}
+                type="button"
+                onClick={(e) => { e.preventDefault(); setPickSize(sz); }}
+                className={`h-8 w-8 border text-[10px] font-medium transition-colors ${
+                  pickSize === sz ? 'border-black bg-black text-white' : 'border-neutral-300 bg-transparent text-black hover:border-black'
+                }`}
+              >
+                {sz}
+              </button>
+            ))}
+          </div>
+          <button
+            type="button"
+            disabled={!pickSize}
+            onClick={(e) => { e.preventDefault(); addToCart(p, { size: pickSize }); setOverlayOpen(false); setPickSize(''); }}
+            className="w-full bg-black py-2.5 text-[9px] font-medium uppercase tracking-[0.2em] text-white transition hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            {pickSize ? `ADD ${pickSize} TO CART` : 'SELECT A SIZE'}
+          </button>
+        </div>
       </Link>
 
-      {/* 2. Color swatches — BELOW image, ring selection */}
-      {colors.length > 0 && (
-        <div className="mt-3 flex items-center gap-2 px-1">
-          {colors.slice(0, 4).map((c, idx) => (
-            <button
-              key={`${c.name}-${idx}`}
-              type="button"
-              title={c.name}
-              onClick={() => { setSwatchIdx(idx); const ci = images.indexOf(c.image || ''); if (ci >= 0) setImgIdx(ci); }}
-              className={`flex h-3.5 w-3.5 items-center justify-center rounded-full p-[1px] transition-all ${swatchIdx === idx ? 'ring-1 ring-black ring-offset-1' : ''}`}
-            >
-              <span className="block h-full w-full rounded-full border border-black/10" style={{ backgroundColor: c.hex || '#EEEEEE' }} />
-            </button>
-          ))}
-          {colors.length > 4 && (
-            <span className="text-[10px] font-sans text-neutral-400">+{colors.length - 4}</span>
-          )}
-        </div>
-      )}
-
-      {/* 3. Title + price */}
-      <Link to={`/product/${p.slug}`} className="mt-2 space-y-1 px-1">
-        <h3 className="line-clamp-1 text-[12px] font-normal capitalize tracking-normal text-[#1e1e1e]">
+      {/* 2. Details — title uppercase tracking-wider, price struck + semibold */}
+      <Link to={`/product/${p.slug}`} className="mt-3 space-y-1 text-left">
+        <h4 className="line-clamp-1 text-[12px] font-medium uppercase tracking-wider text-[#111111]">
           {name}
-        </h3>
-        <div className="flex items-center gap-2 text-[12px]">
+        </h4>
+        <div className="flex items-center gap-2">
           {onSale && p.compareAtPrice > p.price && (
-            <span className="text-neutral-400 line-through">{pkr(p.compareAtPrice)}</span>
+            <span className="text-[11px] text-neutral-400 line-through">{pkr(p.compareAtPrice)}</span>
           )}
-          <span className="font-medium text-[#1e1e1e]">{soldOut ? 'Sold out' : pkr(p.price)}</span>
+          <span className="text-[11px] font-semibold text-black">{soldOut ? 'Sold out' : pkr(p.price)}</span>
         </div>
       </Link>
-
-      {modal && <SizeModal product={p} onClose={() => setModal(false)} />}
     </article>
   );
 }
