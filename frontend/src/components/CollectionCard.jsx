@@ -32,8 +32,6 @@ function CollectionCard({ product: p, priority = false, variant = 'bar', ratio =
   const [failed, setFailed] = useState(false);
   const [swatchIdx, setSwatchIdx] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
-  const [overlayOpen, setOverlayOpen] = useState(false);
-  const [pickSize, setPickSize] = useState('');
   const [modal, setModal] = useState(false);
 
   const pill = variant === 'pill';
@@ -165,50 +163,20 @@ function CollectionCard({ product: p, priority = false, variant = 'bar', ratio =
           </div>
         )}
 
-        {/* Floating Quick Add (+) — opens IN-CARD overlay, no popup */}
-        {!soldOut && (
+        {/* Buy Now pill — opens SizeModal (Select Size → ADD TO CART) */}
+        {!soldOut ? (
           <button
             type="button"
-            onClick={(e) => { e.preventDefault(); setOverlayOpen((o) => !o); setPickSize(''); }}
-            aria-label="Quick Add"
-            className={`absolute bottom-3 right-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white text-black shadow-md transition-all duration-300 hover:bg-black hover:text-white ${overlayOpen ? '!bg-black !text-white' : ''}`}
+            onClick={(e) => { e.preventDefault(); setModal(true); }}
+            className="absolute bottom-5 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded-full bg-black px-6 py-2.5 text-[10px] font-medium uppercase tracking-widest text-white shadow-lg transition-all duration-200 hover:bg-neutral-800 md:opacity-0 md:group-hover:opacity-100"
           >
-            <span className="text-lg font-light leading-none" aria-hidden="true">{overlayOpen ? '✕' : '+'}</span>
+            Buy Now
           </button>
+        ) : (
+          <span className="pointer-events-none absolute bottom-5 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded-full bg-black px-6 py-2.5 text-[10px] font-medium uppercase tracking-widest text-white shadow-lg opacity-100 md:opacity-0 md:group-hover:opacity-100">
+            Sold Out
+          </span>
         )}
-
-        {/* IN-CARD OVERLAY — size selection slides up from bottom */}
-        <div
-          className={`absolute inset-x-0 bottom-0 z-20 bg-white/95 p-4 backdrop-blur-sm transition-transform duration-300 ease-in-out ${
-            overlayOpen ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-full opacity-0'
-          }`}
-        >
-          <p className="mb-2.5 text-center text-[9px] font-medium uppercase tracking-[0.2em] text-neutral-400">
-            Select Size
-          </p>
-          <div className="mb-3 flex items-center justify-center gap-1.5">
-            {sizes.slice(0, 5).map((sz) => (
-              <button
-                key={sz}
-                type="button"
-                onClick={(e) => { e.preventDefault(); setPickSize(sz); }}
-                className={`h-8 w-8 border text-[10px] font-medium transition-colors ${
-                  pickSize === sz ? 'border-black bg-black text-white' : 'border-neutral-300 bg-transparent text-black hover:border-black'
-                }`}
-              >
-                {sz}
-              </button>
-            ))}
-          </div>
-          <button
-            type="button"
-            disabled={!pickSize}
-            onClick={(e) => { e.preventDefault(); addToCart(p, { size: pickSize }); setOverlayOpen(false); setPickSize(''); }}
-            className="w-full bg-black py-2.5 text-[9px] font-medium uppercase tracking-[0.2em] text-white transition hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            {pickSize ? `ADD ${pickSize} TO CART` : 'SELECT A SIZE'}
-          </button>
-        </div>
       </Link>
 
       {/* 2. Details — title uppercase tracking-wider, price struck + semibold */}
@@ -223,6 +191,8 @@ function CollectionCard({ product: p, priority = false, variant = 'bar', ratio =
           <span className="text-[11px] font-semibold text-black">{soldOut ? 'Sold out' : pkr(p.price)}</span>
         </div>
       </Link>
+
+      {modal && <SizeModal product={p} onClose={() => setModal(false)} />}
     </article>
   );
 }
