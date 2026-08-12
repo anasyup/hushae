@@ -91,6 +91,10 @@ export default {
         display: ['"Klein"', '"Jost"', 'ui-sans-serif', 'system-ui', '-apple-system', 'Segoe UI', 'Helvetica', 'Arial', 'sans-serif'],
         klein: ['"Klein"', '"Jost"', 'ui-sans-serif', 'system-ui', '-apple-system', 'Segoe UI', 'Helvetica', 'Arial', 'sans-serif'],
         serif: ['"Playfair Display"', 'serif'],
+        /* Givenchy product-title register. Live Givenchy uses licensed
+           Vectora LT Std Roman; Source Sans 3 is the open Frutiger/Vectora
+           cousin (same humanist cut, large x-height, slightly compact). */
+        product: ['"Source Sans 3"', '"Source Sans Pro"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         urdu: ['"Noto Nastaliq Urdu"', 'serif'],
         // QA — chapter counters + editorial numbers (JetBrains Mono, loaded in index.html)
         mono: ['"JetBrains Mono"', 'ui-monospace', 'SF Mono', 'SFMono-Regular', 'Menlo', 'Consolas', 'monospace'],

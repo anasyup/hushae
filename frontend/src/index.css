@@ -97,6 +97,7 @@
   /* ── Typography — 100% Inter; mono reserved for chapter counters ──── */
   --font-display: 'Klein', 'Jost', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', 'Helvetica', 'Arial', sans-serif;
   --font-body:    'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', 'Helvetica', 'Arial', sans-serif;
+  --font-product: 'Source Sans 3', 'Source Sans Pro', ui-sans-serif, system-ui, sans-serif;
   --font-mono:    'JetBrains Mono', ui-monospace, 'SF Mono', 'SFMono-Regular', Menlo, Consolas, monospace;
 
   /* ── Spacing / layout ─────────────────────────────────────────────── */
@@ -214,6 +215,21 @@
   .body-sm { @apply text-body-sm text-ash; }
   .caption { @apply text-caption text-ash; }
   .eyebrow { @apply text-label font-semibold uppercase text-ash; }
+
+  /* Givenchy product-card title — Vectora LT Std Roman metrics at 14px.
+     Live Givenchy sets titles at 12px / 400 / 0.025em. Client asked to keep
+     14px. Source Sans 3 stands in for licensed Vectora. */
+  .product-card-title {
+    font-family: var(--font-product);
+    font-size: 14px;
+    font-weight: 400;
+    font-style: normal;
+    line-height: 1.35;
+    letter-spacing: 0.025em;
+    color: #000000;
+    text-transform: none;
+    font-synthesis: none;
+  }
 
   /* ── Layout ───────────────────────────────────────────────────────────── */
   /* PHASE 3 — the desktop shell.

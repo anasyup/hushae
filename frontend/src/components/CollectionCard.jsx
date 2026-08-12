@@ -84,7 +84,7 @@ function CollectionCard({ product: p, priority = false, variant = 'bar', ratio =
         </Link>
         <div className="pt-3">
           <p className="text-[10px] font-semibold uppercase tracking-[0.5px] text-[#888888]">HUSHAE</p>
-          <Link to={`/product/${p.slug}`} className="mb-1 mt-0.5 block text-[13px] font-medium text-black no-underline transition-colors duration-200 hover:text-[#666666]">
+          <Link to={`/product/${p.slug}`} className="product-card-title mb-1 mt-0.5 block no-underline transition-colors duration-200 hover:text-[#666666]">
             {name}
           </Link>
           <p className="text-[13px] font-semibold">
