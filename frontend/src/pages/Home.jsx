@@ -8,24 +8,22 @@ import CollectionCard from '../components/CollectionCard';
 import BrandManifesto from '../components/home/BrandManifesto';
 import CraftPillars from '../components/home/CraftPillars';
 import WorldStrip from '../components/home/WorldStrip';
-import MarqueeStrip from '../components/home/MarqueeStrip';
 import LuxuryEffects from '../components/home/LuxuryEffects';
 import Seam from '../components/home/Seam';
 
 /* ============================================================================
- * HUSHAE HOME — "Second Skin Studio", the house's own luxury register.
- *   00  HERO            full-bleed campaign (untouched)
- *   01  MARQUEE         slow editorial ticker (house claims)
- *   02  THE MAISON      brand manifesto — "Second Skin, First Choice."
- *   03  THE COLLECTIONS "Curated for Skin" — 4 named edits
- *   04  THE NEW COLLECTION — product chapter (seam header)
- *   05  THE CRAFT       "Why Hushae" — 3 numbered pillars
- *   06  THE EDIT        campaign split (parallax photography)
- *   07  OBJECTS OF DESIRE — product chapter
- *   08  WORLD OF HUSHAE international strip (counters)
- *   09  NEWSLETTER
- *   Motion: GSAP reveals / parallax / counters / seam draws — see
- *   LuxuryEffects. Everything respects prefers-reduced-motion.
+ * HUSHAE HOME — the house's own ultra-luxury register.
+ *   HERO            full-bleed campaign (untouched)
+ *   THE HOUSE       split editorial — photography + brand statement
+ *   THE COLLECTIONS "Curated for Skin" — 4 named edits
+ *   THE NEW COLLECTION — product chapter (fine seam header)
+ *   THE EDIT        campaign split with parallax photography
+ *   THE CRAFT       "Why Hushae" — three quiet pillars
+ *   OBJECTS OF DESIRE — product chapter
+ *   WORLD OF HUSHAE — international strip (counters)
+ *   NEWSLETTER
+ *   Motion: GSAP reveals / gentle parallax / counters (subtle, once,
+ *   respects prefers-reduced-motion). Restraint is the luxury.
  * ========================================================================== */
 
 const IMG = '/images/campaign/qa';
@@ -185,25 +183,27 @@ function EditorialSplitSection() {
   );
 }
 
-/* ── SECTION 5: Luxury newsletter sign-up ───────────────────────────────── */
+/* ── NEWSLETTER — the house's private line ─────────────────────────────── */
 function NewsletterSection() {
   const [email, setEmail] = useState('');
   const [done, setDone] = useState(false);
   return (
-    <section className="border-t border-neutral-200/80 bg-[#f7f6f2] px-4 py-24 text-center">
-      <div className="mx-auto max-w-xl space-y-5">
-        <div data-reveal className="mx-auto h-px w-10 bg-[#111111]/40" aria-hidden="true" />
-        <h3 data-reveal data-delay="0.05" className="font-display text-2xl font-light uppercase tracking-[0.16em] text-[#111111] md:text-3xl">
-          Subscribe to the Newsletter
+    <section className="border-t border-neutral-200/80 bg-[#f7f6f2] px-4 py-24 text-center md:py-32">
+      <div className="mx-auto max-w-xl space-y-6">
+        <p data-reveal className="text-[10px] font-medium uppercase tracking-[0.32em] text-neutral-400">
+          The Private Line
+        </p>
+        <h3 data-reveal data-delay="0.06" className="font-display text-2xl font-light uppercase tracking-[0.16em] text-[#111111] md:text-3xl">
+          Join the House
         </h3>
-        <p data-reveal data-delay="0.1" className="text-[12px] font-light leading-[1.9] tracking-wide text-neutral-500">
-          Be the first to receive updates on new arrivals, private sales, and seasonal collection previews.
+        <p data-reveal data-delay="0.12" className="mx-auto max-w-sm text-[12px] font-light leading-[2] tracking-wide text-neutral-500">
+          Receive private previews of new collections, seasonal edits and members-only offers.
         </p>
         {done ? (
-          <p className="pt-4 text-[12px] font-medium uppercase tracking-[0.2em] text-[#111111]">You&apos;re on the list.</p>
+          <p className="pt-2 text-[12px] font-medium uppercase tracking-[0.2em] text-[#111111]">You&apos;re on the list.</p>
         ) : (
           <form
-            className="mx-auto flex max-w-md items-center justify-center gap-2 pt-4"
+            className="mx-auto mt-2 flex max-w-md items-end justify-center gap-3"
             onSubmit={(e) => { e.preventDefault(); if (email.trim()) { api('/subscribers', { method: 'POST', body: { email: email.trim() } }).catch(() => {}); setDone(true); } }}
           >
             <input
@@ -212,11 +212,11 @@ function NewsletterSection() {
               onChange={(e) => setEmail(e.target.value)}
               required
               placeholder="Enter your email address"
-              className="w-full border border-neutral-300 bg-white px-4 py-3 text-[12px] text-black transition focus:border-black focus:outline-none placeholder:text-[10px] placeholder:uppercase placeholder:tracking-widest placeholder:text-neutral-400"
+              className="h-12 w-full border-b border-neutral-400 bg-transparent px-1 pb-2 text-[12px] tracking-[0.05em] text-black transition focus:border-black focus:outline-none placeholder:text-[10px] placeholder:uppercase placeholder:tracking-widest placeholder:text-neutral-400"
             />
             <button
               type="submit"
-              className="whitespace-nowrap bg-black px-6 py-3 text-[11px] font-medium uppercase tracking-[0.2em] text-white transition hover:bg-neutral-800"
+              className="whitespace-nowrap border border-black bg-transparent px-8 py-3 text-[11px] font-medium uppercase tracking-[0.2em] text-black transition-all duration-300 hover:bg-black hover:text-white"
             >
               Sign Up
             </button>
@@ -245,42 +245,29 @@ export default function Home() {
         jsonLd={organizationJsonLd(typeof window !== 'undefined' ? window.location.origin : '')}
         jsonLdId="home-org" />
 
-      {/* Film grain — the print-campaign tooth over the whole page */}
-      <div className="grain" aria-hidden="true" />
-
       <LuxuryEffects>
-        {/* 00 — HERO (untouched) */}
+        {/* 01 — HERO (untouched) */}
         <HeroSlides />
 
-        {/* 00.5 — MARQUEE — slow editorial ticker */}
-        <MarqueeStrip />
-
-        {/* 01 — THE MAISON — brand manifesto (Second Skin Studio) */}
+        {/* 02 — THE HOUSE — split editorial: photography + statement */}
         <BrandManifesto />
 
-        {/* 02 — STUDIO CATEGORY SHOWCASE (Givenchy canvas) */}
+        {/* 03 — THE COLLECTIONS — named edits */}
         <LuxuryCategoryShowcase />
 
-        {/* 03 — THE NEW COLLECTION (Givenchy) */}
+        {/* 04 — THE NEW COLLECTION — product chapter */}
         <ProductCarouselSection title="The New Collection" subtitle="EXPLORE NOW" products={fresh} href="/new" />
 
-        {/* 04 — THE CRAFT — three pillars (Second Skin Studio) */}
-        <CraftPillars />
-
-        {/* 05 — VIEW MORE (reference button) */}
-        <div data-reveal className="flex w-full justify-center">
-          <Link to="/shop" className="my-8 cursor-pointer border border-black bg-transparent px-10 py-3.5 text-[11px] font-medium uppercase tracking-[0.2em] text-black transition-all duration-300 ease-in-out hover:bg-black hover:text-white">
-            View More
-          </Link>
-        </div>
-
-        {/* 06 — THE EDIT — campaign split (parallax photography) */}
+        {/* 05 — THE EDIT — campaign split (parallax photography) */}
         <EditorialSplitSection />
 
-        {/* 07 — OBJECTS OF DESIRE */}
+        {/* 06 — THE CRAFT — three quiet pillars */}
+        <CraftPillars />
+
+        {/* 07 — OBJECTS OF DESIRE — product chapter */}
         <ProductCarouselSection title="Objects of Desire" subtitle="CURATED SELECTION" products={best} href="/best" />
 
-        {/* 08 — WORLD OF HUSHAE — international strip (Second Skin Studio) */}
+        {/* 08 — WORLD OF HUSHAE — international strip */}
         <WorldStrip />
 
         {/* 09 — NEWSLETTER */}

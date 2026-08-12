@@ -68,18 +68,6 @@ export default function LuxuryEffects({ children }) {
           onUpdate: () => { el.textContent = Math.round(state.v) + suffix; },
         });
       });
-
-      /* ── Seam draws itself (SVG path) ───────────────────────────── */
-      gsap.utils.toArray('[data-draw]', root).forEach((el) => {
-        const path = el.tagName === 'path' ? el : el.querySelector('path');
-        if (!path || typeof path.getTotalLength !== 'function') return;
-        const len = path.getTotalLength();
-        gsap.set(path, { strokeDasharray: len, strokeDashoffset: len });
-        gsap.to(path, {
-          strokeDashoffset: 0, duration: 1.5, ease: 'power2.inOut',
-          scrollTrigger: { trigger: el, start: 'top 90%', once: true },
-        });
-      });
     });
 
     return () => { mm.revert(); };
