@@ -111,7 +111,7 @@ export default function Header() {
     <>
       <header
         data-header
-        className={`fixed left-0 top-0 z-50 w-full transition-all duration-500 ease-in-out ${
+        className={`fixed left-0 top-0 z-50 w-full !m-0 !p-0 transition-all duration-500 ease-in-out ${
           isScrolled || !isHome
             ? 'bg-white/95 py-3 text-black shadow-sm backdrop-blur-md'
             : 'bg-transparent py-4 text-white'
