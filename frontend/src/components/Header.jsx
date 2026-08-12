@@ -178,28 +178,28 @@ export default function Header() {
                 aria-controls="header-search"
                 className={iconBtn}
               >
-                <Search size={16} strokeWidth={1.5} aria-hidden="true" />
+                <Search size={16} strokeWidth={1.8} aria-hidden="true" />
               </button>
             )}
             {showWishlist && (
               <Link to="/wishlist" aria-label={wishlist.length ? `Wishlist, ${wishlist.length} saved` : 'Wishlist'}
                 className={`${iconBtn} hidden sm:grid`}>
-                <Heart size={16} strokeWidth={1.5} aria-hidden="true" />
+                <Heart size={16} strokeWidth={1.8} aria-hidden="true" />
               </Link>
             )}
             {showAccount && (
               <Link to="/account" aria-label={auth ? 'Your account' : 'Sign in'}
                 className={`${iconBtn} hidden sm:grid`}>
-                <User size={16} strokeWidth={1.5} aria-hidden="true" />
+                <User size={16} strokeWidth={1.8} aria-hidden="true" />
               </Link>
             )}
             {showCart && (
               <button type="button" onClick={() => setDrawerOpen(true)}
                 aria-label={cartCount ? `Open bag, ${cartCount} item${cartCount === 1 ? '' : 's'}` : 'Open bag'}
                 className={`relative ${iconBtn}`}>
-                <ShoppingBag size={16} strokeWidth={1.5} aria-hidden="true" />
+                <ShoppingBag size={16} strokeWidth={1.8} aria-hidden="true" />
                 {cartCount > 0 && (
-                  <span className="absolute -right-1.5 -top-1.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-black text-[8px] font-medium text-white">
+                  <span className="absolute -right-1.5 -top-1.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-black text-[8px] font-bold text-white">
                     {cartCount}
                   </span>
                 )}
