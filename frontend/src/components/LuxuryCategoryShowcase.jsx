@@ -18,11 +18,11 @@ export default function LuxuryCategoryShowcase() {
   return (
     <section className="w-full bg-[#fcfbf9] px-4 py-20 md:px-8">
       <div className="mx-auto max-w-[1600px]">
-        {/* Minimal section title — Second Skin Studio register */}
-        <div data-reveal className="mb-10 flex items-end justify-between border-b border-neutral-200/80 pb-6">
+        {/* Minimal section title */}
+        <div className="mb-10 flex items-end justify-between border-b border-neutral-200/80 pb-4">
           <div>
-            <span className="text-[11px] font-medium uppercase tracking-[0.3em] text-neutral-400">01 · The Collections</span>
-            <h2 className="mt-3 font-display text-2xl font-light uppercase tracking-[0.16em] text-[#111111] md:text-3xl">Curated for Skin</h2>
+            <span className="text-[10px] font-medium uppercase tracking-[0.25em] text-neutral-400">Curated Collections</span>
+            <h2 className="mt-1 font-display text-xl tracking-wide text-[#111111] md:text-2xl">Essential Categories</h2>
           </div>
           <Link to="/shop" className="hidden items-center gap-1 text-[11px] font-medium uppercase tracking-[0.2em] text-black transition hover:opacity-60 sm:flex">
             View All <ArrowUpRight size={14} aria-hidden="true" />
@@ -30,9 +30,9 @@ export default function LuxuryCategoryShowcase() {
         </div>
 
         {/* Studio canvas grid */}
-        <div data-reveal-group className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-5">
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-5">
           {CATEGORIES.map((cat) => (
-            <Link key={cat.title} to={cat.href} data-reveal-item className="group flex cursor-pointer flex-col">
+            <Link key={cat.title} to={cat.href} className="group flex cursor-pointer flex-col">
               <div className="relative flex aspect-[3/4] items-center justify-center overflow-hidden bg-[#eeece7] p-6 transition-colors duration-500 group-hover:bg-[#e7e4dd] md:p-10">
                 <img
                   src={cat.image}

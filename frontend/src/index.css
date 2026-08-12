@@ -747,14 +747,3 @@
   line-height: 15px;
   color: rgb(255, 255, 255);
 }
-
-/* Smooth anchor scrolling (skip-link, in-page links) */
-@media (prefers-reduced-motion: no-preference) {
-  html { scroll-behavior: smooth; }
-}
-
-/* Parallax safety: scaled photography so the drift never reveals an edge */
-[data-parallax] {
-  transform: scale(1.12);
-  will-change: transform;
-}
