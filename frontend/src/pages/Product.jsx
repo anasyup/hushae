@@ -38,7 +38,7 @@ const nameOf = (p) => titleCase(displayName(p?.name));
 
 const FALLBACK =
   'data:image/svg+xml;utf8,' + encodeURIComponent(
-    '<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1200"><rect width="100%" height="100%" fill="#F5F5F5"/><text x="50%" y="50%" fill="#999999" font-family="Inter,Helvetica,Arial,sans-serif" font-size="16" letter-spacing="4" text-anchor="middle">HUSHAE</text></svg>');
+    '<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1200"><rect width="100%" height="100%" fill="#F5F5F5"/><text x="50%" y="50%" fill="#999999" font-family="Jost,Helvetica,Arial,sans-serif" font-size="16" letter-spacing="4" text-anchor="middle">HUSHAE</text></svg>');
 
 export default function Product() {
   const { slug } = useParams();
@@ -277,7 +277,7 @@ export default function Product() {
               <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-500">
                 {p.categoryName || p.categorySlug?.replace(/-/g, ' ') || 'HUSHAE'}
               </span>
-              <h1 className="mt-2 text-2xl font-light normal-case tracking-tight lg:text-3xl">{name}</h1>
+              <h1 className="mt-2 text-2xl font-normal normal-case tracking-[0.025em] lg:text-3xl">{name}</h1>
               <div id="reviews-link" className="mt-4 flex items-center gap-2">
                 <button
                   type="button"

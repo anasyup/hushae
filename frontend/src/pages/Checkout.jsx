@@ -407,7 +407,7 @@ export default function Checkout() {
       </nav>
 
       <header className="pb-7">
-        <h1 className="font-serif text-3xl font-light uppercase tracking-wider">{cfg.title}</h1>
+        <h1 className="font-display text-3xl font-light uppercase tracking-wider">{cfg.title}</h1>
         {!auth && cfg.guestCheckout && (
           <p className="mt-3 inline-flex flex-wrap items-center gap-1.5 text-[12px] text-smoke">
             <User size={13} aria-hidden="true" />

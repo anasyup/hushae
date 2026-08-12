@@ -47,7 +47,7 @@ export default function BlogPost() {
   const seoTitle = post.seo?.title || post.title;
 
   return (
-    <article style={{ background: '#F7F5F1', color: '#111111', fontFamily: "'Family Klein', 'Helvetica Neue', Helvetica, Arial, sans-serif" }}>
+    <article style={{ background: '#F7F5F1', color: '#111111' }}>
       <Seo
         title={seoTitle}
         description={post.seo?.description || post.excerpt || undefined}

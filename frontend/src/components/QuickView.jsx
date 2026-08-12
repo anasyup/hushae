@@ -48,7 +48,7 @@ export default function QuickView({ product: p, onClose }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-white" onClick={onClose}>
-      <div className="flex h-full w-full max-w-6xl flex-col md:flex-row md:h-auto md:max-h-[90vh]" onClick={(e) => e.stopPropagation()} style={{ fontFamily: "'Family Klein', 'Helvetica Neue', Helvetica, Arial, sans-serif" }}>
+      <div className="flex h-full w-full max-w-6xl flex-col md:flex-row md:h-auto md:max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
         {/* Gallery */}
         <div className="relative flex-1 bg-line flex items-center justify-center" style={{ minHeight: '50vh' }}>
           <img src={failed ? '' : currentImg} alt={p.name}

@@ -134,7 +134,7 @@ export default function Header() {
           </button>
 
           {/* Logo — LEFT */}
-          <Link to="/" aria-label="HUSHAE — home" className={`flex-shrink-0 font-serif text-2xl font-bold uppercase tracking-[0.2em] transition-colors duration-300 md:text-3xl ${isScrolled || !isHome ? 'text-black' : 'text-white'}`}>
+          <Link to="/" aria-label="HUSHAE — home" className={`flex-shrink-0 font-display text-2xl font-medium uppercase tracking-[0.2em] transition-colors duration-300 md:text-3xl ${isScrolled || !isHome ? 'text-black' : 'text-white'}`}>
             HUSHAÈ
           </Link>
 

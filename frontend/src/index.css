@@ -95,9 +95,9 @@
   --midnight: 17 17 17;      /* #111111  footer / primary buttons   */
 
   /* ── Typography — 100% Inter; mono reserved for chapter counters ──── */
-  --font-display: 'Klein', 'Jost', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', 'Helvetica', 'Arial', sans-serif;
-  --font-body:    'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', 'Helvetica', 'Arial', sans-serif;
-  --font-product: 'Source Sans 3', 'Source Sans Pro', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Klein', 'Jost', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --font-body:    'Klein', 'Jost', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --font-product: 'Klein', 'Jost', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   --font-mono:    'JetBrains Mono', ui-monospace, 'SF Mono', 'SFMono-Regular', Menlo, Consolas, monospace;
 
   /* ── Spacing / layout ─────────────────────────────────────────────── */
@@ -216,9 +216,8 @@
   .caption { @apply text-caption text-ash; }
   .eyebrow { @apply text-label font-semibold uppercase text-ash; }
 
-  /* Givenchy product-card title — Vectora LT Std Roman metrics at 14px.
-     Live Givenchy sets titles at 12px / 400 / 0.025em. Client asked to keep
-     14px. Source Sans 3 stands in for licensed Vectora. */
+  /* Product-card title — Givenchy metrics (14px / 400 / 0.025em) on the
+     house face (Klein → Jost). Same family as nav, body and PDP. */
   .product-card-title {
     font-family: var(--font-product);
     font-size: 14px;

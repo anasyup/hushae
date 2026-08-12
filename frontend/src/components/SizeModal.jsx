@@ -65,7 +65,7 @@ export default function SizeModal({ product: p, onClose }) {
               <img src={p.images?.[0]?.url || p.image || ''} alt={nameOf(p)} className="h-full w-full object-cover" />
             </div>
             <div>
-              <h3 className="font-serif text-[13px] font-normal tracking-wide text-[#111111]">{nameOf(p)}</h3>
+              <h3 className="font-display text-[13px] font-normal tracking-wide text-[#111111]">{nameOf(p)}</h3>
               <p className="mt-1 text-[12px] font-semibold text-black">{pkr(p.price)}</p>
             </div>
           </div>

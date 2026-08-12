@@ -91,7 +91,7 @@ function ProductCarouselSection({ title, subtitle, products, href }) {
   return (
     <section className="mx-auto max-w-[1600px] border-t border-neutral-200/60 px-4 py-16 md:px-8">
       <div className="mb-10 space-y-1 text-center">
-        <h2 className="font-serif text-2xl font-normal tracking-wide text-[#111111] md:text-3xl">
+        <h2 className="font-display text-2xl font-normal tracking-wide text-[#111111] md:text-3xl">
           {title}
         </h2>
         <Link
@@ -125,7 +125,7 @@ function EditorialSplitSection() {
           />
           <div className="absolute inset-0 bg-black/10 transition-colors group-hover:bg-black/20" aria-hidden="true" />
           <div className="absolute bottom-8 left-8 right-8 space-y-2 text-white">
-            <h3 className="font-serif text-xl tracking-wide md:text-2xl">Spring / Summer Silhouette</h3>
+            <h3 className="font-display text-xl tracking-wide md:text-2xl">Spring / Summer Silhouette</h3>
             <span className="inline-flex items-center gap-2 border-b border-white pb-1 text-[11px] font-medium uppercase tracking-[0.2em] transition hover:text-neutral-200">
               Explore Collection <ArrowRight size={14} aria-hidden="true" />
             </span>
@@ -141,7 +141,7 @@ function EditorialSplitSection() {
           />
           <div className="absolute inset-0 bg-black/10 transition-colors group-hover:bg-black/20" aria-hidden="true" />
           <div className="absolute bottom-8 left-8 right-8 space-y-2 text-white">
-            <h3 className="font-serif text-xl tracking-wide md:text-2xl">Uncompromising Craftsmanship</h3>
+            <h3 className="font-display text-xl tracking-wide md:text-2xl">Uncompromising Craftsmanship</h3>
             <span className="inline-flex items-center gap-2 border-b border-white pb-1 text-[11px] font-medium uppercase tracking-[0.2em] transition hover:text-neutral-200">
               Read The Story <ArrowRight size={14} aria-hidden="true" />
             </span>
@@ -159,7 +159,7 @@ function NewsletterSection() {
   return (
     <section className="border-t border-neutral-200/80 bg-[#f7f6f2] px-4 py-20 text-center">
       <div className="mx-auto max-w-xl space-y-4">
-        <h3 className="font-serif text-2xl font-normal tracking-wide text-[#111111] md:text-3xl">
+        <h3 className="font-display text-2xl font-normal tracking-wide text-[#111111] md:text-3xl">
           Subscribe to the Newsletter
         </h3>
         <p className="text-[12px] font-normal leading-relaxed tracking-wide text-neutral-500">

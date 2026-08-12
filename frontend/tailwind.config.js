@@ -83,18 +83,16 @@ export default {
         midnight:  'rgb(var(--midnight) / <alpha-value>)',  // #1C2333 footer
       },
       fontFamily: {
-        // Plus Jakarta Sans (UI) + Playfair Display (serif display) —
-        // exact client reference.
-        sans: ['"Plus Jakarta Sans"', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Helvetica', 'Arial', 'sans-serif'],
-        /* CK register: licensed Klein files take priority, Jost (open-source
-           Futura twin) is the live face until the licensed files arrive. */
-        display: ['"Klein"', '"Jost"', 'ui-sans-serif', 'system-ui', '-apple-system', 'Segoe UI', 'Helvetica', 'Arial', 'sans-serif'],
-        klein: ['"Klein"', '"Jost"', 'ui-sans-serif', 'system-ui', '-apple-system', 'Segoe UI', 'Helvetica', 'Arial', 'sans-serif'],
-        serif: ['"Playfair Display"', 'serif'],
-        /* Givenchy product-title register. Live Givenchy uses licensed
-           Vectora LT Std Roman; Source Sans 3 is the open Frutiger/Vectora
-           cousin (same humanist cut, large x-height, slightly compact). */
-        product: ['"Source Sans 3"', '"Source Sans Pro"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        /* SYSTEM A — one CK/Givenchy family for the whole storefront.
+           Licensed Klein .woff2 (when dropped in /fonts/) take priority;
+           Jost is the live Futura twin. Serif/product aliases point at the
+           same stack so leftover font-serif / font-product classes cannot
+           reintroduce Playfair or Source Sans. */
+        sans:    ['"Klein"', '"Jost"', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
+        display: ['"Klein"', '"Jost"', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
+        klein:   ['"Klein"', '"Jost"', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
+        serif:   ['"Klein"', '"Jost"', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
+        product: ['"Klein"', '"Jost"', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
         urdu: ['"Noto Nastaliq Urdu"', 'serif'],
         // QA — chapter counters + editorial numbers (JetBrains Mono, loaded in index.html)
         mono: ['"JetBrains Mono"', 'ui-monospace', 'SF Mono', 'SFMono-Regular', 'Menlo', 'Consolas', 'monospace'],

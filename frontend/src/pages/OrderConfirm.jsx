@@ -75,7 +75,7 @@ export default function OrderConfirm() {
         <div className="text-center">
           <CheckCircle size={48} strokeWidth={1.2} aria-hidden="true" className="mx-auto text-black" />
           <p className="mt-6 text-[10px] font-semibold uppercase tracking-widest text-neutral-400">Thank You</p>
-          <h1 className="mt-1 font-serif text-2xl font-light uppercase tracking-wider md:text-3xl">
+          <h1 className="mt-1 font-display text-2xl font-light uppercase tracking-wider md:text-3xl">
             Order Confirmed
           </h1>
           {firstName && <p className="mt-2 text-xs text-neutral-500">Thank you, {firstName}.</p>}

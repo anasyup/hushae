@@ -55,7 +55,6 @@ export default function SearchOverlay({ onClose }) {
             onChange={(e) => search(e.target.value)}
             placeholder="Search products..."
             className="w-full bg-transparent text-[18px] font-normal text-obsidian outline-none placeholder:text-ash"
-            style={{ fontFamily: "'Family Klein', 'Helvetica Neue', Helvetica, Arial, sans-serif" }}
           />
           <button onClick={onClose} className="grid h-8 w-8 place-items-center text-ash hover:text-obsidian">
             <X size={18} />

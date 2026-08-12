@@ -20,7 +20,7 @@ export default function FitScale({ sizes = [], value, onChange, fitData, fitResu
   const reviewFit = fitData?.reviewFit || null; // aggregate from reviews: { size, count }
 
   return (
-    <div className="space-y-3" style={{ fontFamily: "'Family Klein', 'Helvetica Neue', Helvetica, Arial, sans-serif" }}>
+    <div className="space-y-3">
       {/* Header */}
       <div className="flex items-center justify-between">
         <p className="text-[11px] font-medium uppercase tracking-[0.10em] text-ash">Size</p>
