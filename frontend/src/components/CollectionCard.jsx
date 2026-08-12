@@ -84,7 +84,7 @@ function CollectionCard({ product: p, priority = false, variant = 'bar', ratio =
         </Link>
         <div className="pt-3">
           <p className="text-[10px] font-semibold uppercase tracking-[0.5px] text-[#888888]">HUSHAE</p>
-          <Link to={`/product/${p.slug}`} className="mb-1 mt-0.5 block text-[13px] font-medium text-black no-underline transition-colors duration-200 hover:text-[#666666]">
+          <Link to={`/product/${p.slug}`} className="mb-1 mt-0.5 block font-helvetica text-[13px] font-normal text-black no-underline transition-colors duration-200 hover:text-[#666666]">
             {name}
           </Link>
           <p className="text-[13px] font-semibold">
@@ -183,7 +183,7 @@ function CollectionCard({ product: p, priority = false, variant = 'bar', ratio =
       <div className="mt-3 space-y-1.5 text-left">
         <Link
           to={`/product/${p.slug}`}
-          className="line-clamp-1 text-[14px] font-medium leading-snug tracking-[-0.01em] text-[#1a1a1a] transition-colors duration-200 hover:text-[#666666] hover:underline hover:underline-offset-2"
+          className="line-clamp-1 font-helvetica text-[14px] font-normal leading-snug text-[#1a1a1a] transition-colors duration-200 hover:text-[#666666] hover:underline hover:underline-offset-2"
         >
           {toSentenceCase(displayName(p.name)) || 'Untitled'}
         </Link>

@@ -1,4 +1,13 @@
 ## Changes
+- **2026-08-12** — 🔤 **PRODUCT TITLE FONT — HERMÈS REFERENCE (Helvetica Neue)** (commit pending)
+  - Client pasted a Hermès product card crop ("Nod loafer / $1,300" — hermes.com loafers listing); the card titles there are set in **Helvetica Neue** (neutral grotesque, regular weight, natural tracking, sentence case).
+  - Added `helvetica` Tailwind token: `'Helvetica Neue', Helvetica, Arial, sans-serif` (system stack, no font download needed; matches Hermès exactly on Mac/Windows).
+  - CollectionCard bar title: `font-helvetica`, weight medium → **normal**, removed `tracking-[-0.01em]` (Hermès sets natural). Size stays 14px, sentence case, clickable link + hover underline kept.
+  - CollectionCard pill variant (PDP related) title: `font-helvetica`, normal weight.
+  - PDP h1 product name: `font-helvetica` added (same family across card → product page).
+  - Prices/swatches/badges/buttons untouched.
+
+## Changes
 - **2026-08-09** — 🖤 **FRONT STORE — CALVIN KLEIN CONVERSION (approved direction)** (commit `2c8ca54`)
   - Monochrome tokens: white page, #111 text, #707070 secondary, #E5E5E5 hairlines. Tenor Sans + sage green + rounded-2xl template cards removed.
   - Homepage CK editorial: full-bleed "SECOND SKIN" hero, hairline trust row, Promotions band (admin banners, kept), category image tiles (01-04 mono), Modern Classics + Move With Purpose campaign banners, Best Sellers + New Arrivals grids, #HUSHAE.

@@ -277,7 +277,7 @@ export default function Product() {
               <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-500">
                 {p.categoryName || p.categorySlug?.replace(/-/g, ' ') || 'HUSHAE'}
               </span>
-              <h1 className="mt-2 text-2xl font-light normal-case tracking-tight lg:text-3xl">{name}</h1>
+              <h1 className="mt-2 font-helvetica text-2xl font-light normal-case tracking-tight lg:text-3xl">{name}</h1>
               <div id="reviews-link" className="mt-4 flex items-center gap-2">
                 <button
                   type="button"

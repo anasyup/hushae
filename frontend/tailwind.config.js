@@ -86,6 +86,11 @@ export default {
         // Plus Jakarta Sans (UI) + Playfair Display (serif display) —
         // exact client reference.
         sans: ['"Plus Jakarta Sans"', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Helvetica', 'Arial', 'sans-serif'],
+        /* Hermès reference — product card titles are set in Helvetica Neue
+           (neutral grotesque, regular weight, sentence case). The reference
+           crop pasted by the client ("Nod loafer / $1,300" from hermes.com)
+           renders exactly in this stack. */
+        helvetica: ['"Helvetica Neue"', 'Helvetica', 'Arial', 'sans-serif'],
         /* CK register: licensed Klein files take priority, Jost (open-source
            Futura twin) is the live face until the licensed files arrive. */
         display: ['"Klein"', '"Jost"', 'ui-sans-serif', 'system-ui', '-apple-system', 'Segoe UI', 'Helvetica', 'Arial', 'sans-serif'],
