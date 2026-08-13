@@ -116,22 +116,22 @@ function HeroSlides() {
         </div>
       </div>
 
-      {/* Slide arrows — left/right, circular, always visible */}
+      {/* Slide arrows — plain ‹ › chevrons, no circle */}
       <button
         type="button"
         onClick={() => setIdx((i) => (i - 1 + HERO_SLIDES.length) % HERO_SLIDES.length)}
         aria-label="Previous slide"
-        className="absolute left-4 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/70 text-black opacity-80 shadow-sm transition-all hover:bg-white hover:opacity-100 md:left-6"
+        className="absolute left-4 top-1/2 z-20 -translate-y-1/2 p-2 text-white/90 transition-all hover:scale-110 hover:text-white md:left-6"
       >
-        <ChevronLeft size={22} strokeWidth={1.5} />
+        <ChevronLeft size={34} strokeWidth={1.5} />
       </button>
       <button
         type="button"
         onClick={() => setIdx((i) => (i + 1) % HERO_SLIDES.length)}
         aria-label="Next slide"
-        className="absolute right-4 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/70 text-black opacity-80 shadow-sm transition-all hover:bg-white hover:opacity-100 md:right-6"
+        className="absolute right-4 top-1/2 z-20 -translate-y-1/2 p-2 text-white/90 transition-all hover:scale-110 hover:text-white md:right-6"
       >
-        <ChevronRight size={22} strokeWidth={1.5} />
+        <ChevronRight size={34} strokeWidth={1.5} />
       </button>
 
       {/* Slide dots — thin, bottom centre */}
