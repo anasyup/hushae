@@ -33,7 +33,7 @@ const CATEGORIES = [
    If `video` is set the slide plays it (muted, loop, autoplay) with the
    image as poster; otherwise it shows the photo. To change slides, swap the
    paths below or add a video file under public/images/campaign/qa/.
-   Auto-advances every 6s, pauses on hover/focus; thin dots for manual
+   Auto-advances every 4s, pauses on hover/focus; thin dots for manual
    selection. No new action buttons, no filters — everything else unchanged. */
 const HERO_SLIDES = [
   { image: `${IMG}/hero-women.jpg`, video: '' },
@@ -48,7 +48,7 @@ function HeroSlides() {
 
   useEffect(() => {
     if (paused) return undefined;
-    const t = setInterval(() => setIdx((i) => (i + 1) % HERO_SLIDES.length), 6000);
+    const t = setInterval(() => setIdx((i) => (i + 1) % HERO_SLIDES.length), 4000);
     return () => clearInterval(t);
   }, [paused]);
 
