@@ -203,8 +203,8 @@ export default function Product() {
         jsonLdId="product"
       />
 
-      {/* ═══ BREADCRUMB ═════════════════════════════════════════════ */}
-      <div className="mx-auto flex max-w-[1440px] items-center gap-2 px-6 pt-6 text-[11px] uppercase tracking-widest text-neutral-500">
+      {/* ═══ BREADCRUMB — below the fixed transparent header (pt-24) ════ */}
+      <div className="mx-auto flex max-w-[1440px] items-center gap-2 px-6 pt-24 text-[11px] uppercase tracking-widest text-neutral-500">
         <Link to="/" className="transition hover:text-black">Home</Link>
         <Chevron />
         <Link to={`/${p.gender}`} className="capitalize transition hover:text-black">{p.gender}</Link>
