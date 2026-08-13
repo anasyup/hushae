@@ -203,27 +203,48 @@ export default function Product() {
         jsonLdId="product"
       />
 
-                        {/* ═══ MAIN — full-bleed stacked gallery + sticky panel (reference v9) ═══ */}
+                        {/* ═══ MAIN — hero image + 2-col detail grid + sticky panel (v10) ═══ */}
       <main className="grid w-full min-h-screen grid-cols-1 lg:grid-cols-12">
-        {/* LEFT — full-bleed stacked images, edge-to-edge (no dots) */}
-        <div className="space-y-1 bg-[#EFECE6] p-0 m-0 lg:col-span-6 xl:col-span-7">
-          {gallery.map((u, idx) => (
-            <button
-              key={`${u}-${idx}`}
-              type="button"
-              onClick={() => { setImgIdx(idx); setLightboxOpen(true); }}
-              aria-label={`View ${name} — angle ${idx + 1} fullscreen`}
-              className="block h-[85vh] w-full overflow-hidden p-0 m-0 lg:h-screen"
-            >
-              <img
-                src={u}
-                alt={`${name} — angle ${idx + 1}`}
-                loading={idx === 0 ? 'eager' : 'lazy'}
-                onError={(e) => { if (e.currentTarget.src !== FALLBACK) e.currentTarget.src = FALLBACK; }}
-                className="block h-full w-full object-cover object-top p-0 m-0"
-              />
-            </button>
-          ))}
+        {/* LEFT — main hero full edge-to-edge + remaining in 2-column grid */}
+        <div className="bg-[#EFECE6] p-0 m-0 lg:col-span-6 xl:col-span-7">
+          {/* 1. Main hero image — full height */}
+          <button
+            type="button"
+            onClick={() => { setImgIdx(0); setLightboxOpen(true); }}
+            aria-label={`View ${name} fullscreen`}
+            className="block h-[85vh] w-full overflow-hidden p-0 m-0 lg:h-screen"
+          >
+            <img
+              src={gallery[0] || FALLBACK}
+              alt={`${name} — main view`}
+              loading="eager"
+              onError={(e) => { if (e.currentTarget.src !== FALLBACK) e.currentTarget.src = FALLBACK; }}
+              className="block h-full w-full object-cover object-top p-0 m-0"
+            />
+          </button>
+
+          {/* 2. Remaining images — 2-column luxury grid */}
+          {gallery.length > 1 && (
+            <div className="grid grid-cols-2 gap-1 bg-[#FAF8F5] p-1">
+              {gallery.slice(1).map((u, idx) => (
+                <button
+                  key={`${u}-${idx}`}
+                  type="button"
+                  onClick={() => { setImgIdx(idx + 1); setLightboxOpen(true); }}
+                  aria-label={`View ${name} — detail ${idx + 1} fullscreen`}
+                  className="block w-full overflow-hidden bg-[#EFECE6]"
+                >
+                  <img
+                    src={u}
+                    alt={`${name} — detail ${idx + 1}`}
+                    loading="lazy"
+                    onError={(e) => { if (e.currentTarget.src !== FALLBACK) e.currentTarget.src = FALLBACK; }}
+                    className="aspect-[3/4] h-full w-full object-cover object-center transition-transform duration-500 hover:scale-105"
+                  />
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* RIGHT — sticky checkout panel (page ground, not white) */}
