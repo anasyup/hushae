@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  AlertCircle, ArrowLeft, ArrowRight, Box, ChevronLeft, ChevronRight, Heart, Maximize2,
+  AlertCircle, ArrowLeft, ArrowRight, Box, Heart,
   Minus, Package, Plus, RotateCcw, ShieldCheck, ShoppingBag, Star, Truck, X,
 } from 'lucide-react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
@@ -203,84 +203,80 @@ export default function Product() {
         jsonLdId="product"
       />
 
-      {/* ═══ BREADCRUMB — below the fixed transparent header (pt-24) ════ */}
-      <div className="mx-auto flex max-w-[1440px] items-center gap-2 px-6 pt-24 text-[11px] uppercase tracking-widest text-neutral-500">
-        <Link to="/" className="transition hover:text-black">Home</Link>
-        <Chevron />
-        <Link to={`/${p.gender}`} className="capitalize transition hover:text-black">{p.gender}</Link>
-        <Chevron />
-        <Link to={`/category/${p.categorySlug}`} className="capitalize transition hover:text-black">{p.categorySlug.replace(/-/g, ' ')}</Link>
-        <Chevron />
-        <span className="text-black">{name}</span>
-      </div>
-
-      {/* ═══ MAIN — 7 / 5 grid ═══════════════════════════════════════ */}
-      <main className="mx-auto grid max-w-[1440px] grid-cols-1 gap-10 px-6 py-8 lg:grid-cols-12 lg:gap-16">
-        {/* LEFT — gallery */}
-        <div className="lg:col-span-7">
-          <div className="flex flex-col-reverse gap-4 md:flex-row">
-            {/* Thumbnails — vertical on desktop */}
-            <div className="flex gap-3 overflow-x-auto md:flex-col md:overflow-visible">
-              {gallery.map((u, i) => (
-                <button
-                  key={`${u}-${i}`}
-                  type="button"
-                  onClick={() => setImgIdx(i)}
-                  aria-label={`View image ${i + 1}`}
-                  className={`h-20 w-16 shrink-0 border transition-opacity ${i === imgIdx ? 'border-black' : 'border-transparent opacity-60 hover:opacity-100'}`}
-                >
-                  <img src={u} alt="" loading="lazy" className="h-full w-full object-cover" />
-                </button>
-              ))}
-            </div>
-            {/* Main image */}
-            <div className="group relative aspect-[3/4] flex-1 overflow-hidden bg-neutral-100">
+            {/* ═══ MAIN — CALVIN KLEIN SPLIT (sticky gallery · clean buy box) ═══ */}
+      <main className="mx-auto grid w-full max-w-[1600px] grid-cols-1 pt-24 lg:grid-cols-12">
+        {/* LEFT — sticky full-height gallery (CK reference) */}
+        <div className="relative lg:col-span-6 xl:col-span-7">
+          <div className="group h-[70vh] w-full overflow-hidden bg-[#F2F0EC] lg:sticky lg:top-20 lg:h-screen">
+            {/* Clicking the photograph opens the lightbox */}
+            <button
+              type="button"
+              onClick={() => setLightboxOpen(true)}
+              aria-label="Open fullscreen"
+              className="block h-full w-full cursor-zoom-in"
+            >
               <img
                 src={gallery[imgIdx] || gallery[0] || FALLBACK}
                 alt={`${name} — view ${imgIdx + 1}`}
                 loading="eager"
                 onError={(e) => { if (e.currentTarget.src !== FALLBACK) e.currentTarget.src = FALLBACK; }}
-                className="h-full w-full object-cover"
+                className="h-full w-full object-cover object-center transition-all duration-500"
               />
-              <button
-                type="button"
-                onClick={() => setLightboxOpen(true)}
-                aria-label="Open fullscreen"
-                className="absolute right-4 top-4 bg-white/90 p-3 opacity-0 transition group-hover:opacity-100 hover:bg-white"
-              >
-                <Maximize2 size={16} strokeWidth={1.8} />
-              </button>
-              <button
-                type="button"
-                onClick={() => setImgIdx((i) => (i - 1 + gallery.length) % gallery.length)}
-                aria-label="Previous image"
-                className="absolute left-4 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-black opacity-0 shadow-md transition-all duration-300 group-hover:opacity-100 hover:scale-105 hover:bg-white"
-              >
-                <ChevronLeft size={20} strokeWidth={1.5} />
-              </button>
-              <button
-                type="button"
-                onClick={() => setImgIdx((i) => (i + 1) % gallery.length)}
-                aria-label="Next image"
-                className="absolute right-4 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-black opacity-0 shadow-md transition-all duration-300 group-hover:opacity-100 hover:scale-105 hover:bg-white"
-              >
-                <ChevronRight size={20} strokeWidth={1.5} />
-              </button>
-            </div>
+            </button>
+            {/* Minimal image dots — bottom overlay (CK reference) */}
+            {gallery.length > 1 && (
+              <div className="absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 items-center gap-2">
+                {gallery.map((u, idx) => (
+                  <button
+                    key={`${u}-${idx}`}
+                    type="button"
+                    onClick={() => setImgIdx(idx)}
+                    aria-label={`View image ${idx + 1}`}
+                    className={`h-2 rounded-full transition-all ${
+                      idx === imgIdx ? 'w-6 bg-black' : 'w-2 bg-black/30 hover:bg-black/50'
+                    }`}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
-        {/* RIGHT — sticky buy box */}
-        <div className="lg:col-span-5">
-          <div className="space-y-6 lg:sticky lg:top-28 lg:h-fit">
-            <div>
-              <span className="text-[12px] font-medium uppercase tracking-[0.15em] text-neutral-500">
-                {p.categoryName || p.categorySlug?.replace(/-/g, ' ') || 'HUSHAE'}
-              </span>
-              {/* Luxury geometric UPPERCASE title — exact reference: 17/20px,
-                  regular weight, wide 0.16em tracking, relaxed leading. */}
-              <h1 className="mt-2 text-[17px] font-normal uppercase leading-relaxed tracking-[0.16em] text-[#111111] md:text-[20px]">{name}</h1>
-              <div id="reviews-link" className="mt-4 flex items-center gap-2">
+        {/* RIGHT — CK clean typography & selection */}
+        <div ref={ctaRef} className="mx-auto flex w-full max-w-xl flex-col justify-center space-y-8 px-6 py-10 sm:px-12 lg:col-span-6 lg:px-16 lg:py-20 xl:col-span-5">
+          {/* Breadcrumb */}
+          <nav className="space-x-1 text-[12px] font-light tracking-wide text-neutral-400">
+            <Link to="/" className="transition hover:text-black">Home</Link>
+            <span className="mx-1">/</span>
+            <Link to={`/${p.gender}`} className="capitalize transition hover:text-black">{p.gender}</Link>
+            <span className="mx-1">/</span>
+            <Link to={`/category/${p.categorySlug}`} className="capitalize transition hover:text-black">{p.categorySlug.replace(/-/g, ' ')}</Link>
+            <span className="mx-1">/</span>
+            <span className="text-black">{name}</span>
+          </nav>
+
+          {/* Title & pricing — CK clean typography */}
+          <div className="space-y-2">
+            <h1 className="text-[24px] font-normal leading-snug tracking-[0.02em] text-[#111111] sm:text-[28px]">
+              {name}
+            </h1>
+
+            <div className="flex items-center gap-3 pt-1">
+              {onSale && p.compareAtPrice > p.price && (
+                <span className="text-[15px] font-light text-neutral-400 line-through">{pkr(p.compareAtPrice)}</span>
+              )}
+              <span className="text-[16px] font-semibold text-[#111111]">{pkr(p.price)}</span>
+            </div>
+
+            {onSale && p.compareAtPrice > p.price && (
+              <p className="pt-1 text-[12px] font-medium tracking-wide text-[#D9381E]">
+                Save {discount}% — limited-time offer
+              </p>
+            )}
+
+            {/* Rating — only when real reviews exist */}
+            {rating > 0 && (
+              <div id="reviews-link" className="flex items-center gap-2 pt-1">
                 <button
                   type="button"
                   onClick={() => document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth' })}
@@ -291,110 +287,118 @@ export default function Product() {
                       <Star key={s} size={14} className={`${s <= Math.round(rating) ? 'fill-black text-black' : 'text-neutral-300'}`} />
                     ))}
                   </span>
-                  {rating > 0 && <span className="text-xs font-semibold underline">{rating.toFixed(1)}</span>}
-                  {rating > 0 && <span className="text-xs text-neutral-500">({p.ratingCount || 0} Reviews)</span>}
+                  <span className="text-xs font-semibold underline">{rating.toFixed(1)}</span>
+                  <span className="text-xs text-neutral-500">({p.ratingCount || 0} Reviews)</span>
                 </button>
-              </div>
-            </div>
-
-            {/* Price row — geometric light price (reference: 16/18px, light, 0.08em) */}
-            <div className="flex items-baseline gap-3 border-y border-neutral-200 py-4">
-              <span className="text-[16px] font-light tracking-[0.08em] text-[#111111] md:text-[18px]">{pkr(p.price)}</span>
-              {onSale && p.compareAtPrice > p.price && (
-                <>
-                  <span className="text-sm text-neutral-400 line-through">{pkr(p.compareAtPrice)}</span>
-                  <span className="bg-black px-2 py-1 text-[10px] font-bold uppercase text-white">Save {discount}%</span>
-                </>
-              )}
-            </div>
-
-            {/* Description + Read More */}
-            <div className="text-sm leading-relaxed text-neutral-600">
-              <p>{desc}</p>
-              {p.description && p.description !== p.shortDescription && (
-                <button
-                  type="button"
-                  onClick={() => setReadMore(!readMore)}
-                  className="mt-2 text-[11px] font-medium uppercase tracking-[0.15em] text-black underline"
-                >
-                  {readMore ? 'Read Less' : 'Read More'}
-                </button>
-              )}
-            </div>
-
-            {/* Colour */}
-            {p.colors?.length > 0 && (
-              <div className="space-y-3">
-                <div className="text-[12px] font-medium uppercase tracking-[0.15em]">
-                  Color: <span className="font-normal text-neutral-500">{color}</span>
-                </div>
-                <div className="flex gap-4">
-                  {p.colors.map((c) => {
-                    const on = color === c.name;
-                    return (
-                      <button
-                        key={c.name}
-                        type="button"
-                        onClick={() => setColor(c.name)}
-                        title={c.name}
-                        aria-label={c.name}
-                        className={`h-9 w-9 rounded-full transition ${on ? 'scale-105 ring-2 ring-black ring-offset-2' : 'hover:scale-105'}`}
-                        style={{ backgroundColor: c.hex || '#EEEEEE' }}
-                      />
-                    );
-                  })}
-                </div>
               </div>
             )}
+          </div>
 
-            {/* Size */}
-            {needsSize && (
-              <div ref={sizeRef} className="space-y-3">
-                <div className="flex items-center justify-between text-[12px] font-medium uppercase tracking-[0.15em]">
-                  <span>Size: <span className="font-normal text-neutral-500">{size || 'Select Size'}</span></span>
-                  <button type="button" onClick={() => setGuideOpen(true)} className="underline text-neutral-500 hover:text-black transition-colors">Size Guide</button>
-                </div>
-                <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
-                  {p.sizes.map((s) => {
-                    const on = size === s;
-                    return (
-                      <button
-                        key={s}
-                        type="button"
-                        onClick={() => { setSize(s); setSizeErr(false); }}
-                        aria-pressed={on}
-                        className={`h-12 border text-[12px] font-normal uppercase tracking-[0.1em] transition-colors ${
-                          on ? 'border-black bg-black text-white' : 'border-neutral-300 bg-white text-black hover:border-black'
-                        }`}
-                      >
-                        {s}
-                      </button>
-                    );
-                  })}
-                </div>
-                {/* Stock indicator */}
-                {(() => {
-                  const st = stockState();
-                  const dot = st.tone === 'green' ? 'bg-emerald-600' : st.tone === 'amber' ? 'bg-amber-600' : 'bg-red-600';
-                  const txt = st.tone === 'green' ? 'text-emerald-700' : st.tone === 'amber' ? 'text-amber-700' : 'text-red-600';
+          {/* Colour — CK dots */}
+          {p.colors?.length > 0 && (
+            <div className="space-y-3 pt-2">
+              <span className="text-[13px] font-medium text-neutral-800">
+                Color: <span className="font-normal text-neutral-500">{color}</span>
+              </span>
+              <div className="flex items-center gap-3">
+                {p.colors.map((c) => {
+                  const on = color === c.name;
+                  const hex = String(c.hex || '#EEEEEE');
+                  const isLight = /^#(?:F|f){3}$/.test(hex) || /^#(?:F|f){6}$/.test(hex) || /^#(?:FFF|fff|F5F5F5|EFEFEF|F2F0EC)$/.test(hex);
                   return (
-                    <div className={`flex items-center gap-2 text-xs ${txt}`}>
-                      <span className={`h-2 w-2 rounded-full ${dot}`} aria-hidden="true" />
-                      {needsSize && !size ? 'Select a size to view availability.' : st.text}
-                    </div>
+                    <button
+                      key={c.name}
+                      type="button"
+                      onClick={() => setColor(c.name)}
+                      title={c.name}
+                      aria-label={c.name}
+                      className={`h-7 w-7 rounded-full p-[2px] transition-all ${
+                        on ? 'ring-1 ring-black ring-offset-2' : 'hover:scale-105'
+                      }`}
+                    >
+                      <span
+                        className={`block h-full w-full rounded-full ${isLight ? 'border border-neutral-300' : 'border border-black/10'}`}
+                        style={{ backgroundColor: hex }}
+                      />
+                    </button>
                   );
-                })()}
-                {sizeErr && !size && (
-                  <div className="flex items-center gap-2 border border-red-200 bg-red-50 p-3 text-xs text-red-700">
-                    <AlertCircle size={16} /> Please select a size before continuing.
-                  </div>
-                )}
+                })}
               </div>
-            )}
+            </div>
+          )}
 
-            {/* Qty + Add To Cart + Heart */}
+          {/* Size — CK grid */}
+          {needsSize && (
+            <div ref={sizeRef} className="space-y-3 pt-2">
+              <div className="flex items-center justify-between text-[13px]">
+                <span className="font-medium text-neutral-800">Size</span>
+                <button type="button" onClick={() => setGuideOpen(true)} className="text-[12px] text-neutral-500 underline transition hover:text-black">
+                  Size Guide
+                </button>
+              </div>
+
+              <div className="grid grid-cols-4 gap-3">
+                {p.sizes.map((s) => {
+                  const on = size === s;
+                  return (
+                    <button
+                      key={s}
+                      type="button"
+                      onClick={() => { setSize(s); setSizeErr(false); }}
+                      aria-pressed={on}
+                      className={`h-12 border text-[13px] font-medium transition-all ${
+                        on ? 'border-black bg-black text-white' : 'border-neutral-300 bg-white text-black hover:border-black'
+                      }`}
+                    >
+                      {s}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Stock indicator */}
+              {(() => {
+                const st = stockState();
+                const dot = st.tone === 'green' ? 'bg-emerald-600' : st.tone === 'amber' ? 'bg-amber-600' : 'bg-red-600';
+                const txt = st.tone === 'green' ? 'text-emerald-700' : st.tone === 'amber' ? 'text-amber-700' : 'text-red-600';
+                return (
+                  <div className={`flex items-center gap-2 text-xs ${txt}`}>
+                    <span className={`h-2 w-2 rounded-full ${dot}`} aria-hidden="true" />
+                    {needsSize && !size ? 'Select a size to view availability.' : st.text}
+                  </div>
+                );
+              })()}
+              {sizeErr && !size && (
+                <div className="flex items-center gap-2 border border-red-200 bg-red-50 p-3 text-xs text-red-700">
+                  <AlertCircle size={16} /> Please select a size before continuing.
+                </div>
+              )}
+
+              {/* Fit note */}
+              <p className="pt-1 text-[12px] font-light text-neutral-500">
+                Tailored regular fit — fits true to size
+              </p>
+            </div>
+          )}
+
+          {/* Description + Read More */}
+          <div className="space-y-2 pt-2 text-sm leading-relaxed text-neutral-600">
+            <p>{desc}</p>
+            {p.description && p.description !== p.shortDescription && (
+              <button
+                type="button"
+                onClick={() => setReadMore(!readMore)}
+                className="mt-2 text-[12px] font-medium text-neutral-500 underline transition hover:text-black"
+              >
+                {readMore ? 'Read Less' : 'Read More'}
+              </button>
+            )}
+          </div>
+
+          {/* Actions — CK buttons */}
+          <div className="space-y-3 pt-4">
             <div className="flex gap-3">
-              <div className="flex h-12 w-32 items-center justify-between border border-neutral-300 bg-white px-3">
+              <div className="flex h-14 w-32 shrink-0 items-center justify-between border border-neutral-300 bg-white px-3">
                 <button type="button" onClick={() => setQty(Math.max(1, qty - 1))} disabled={qty <= 1} aria-label="Decrease quantity">
                   <Minus size={16} />
                 </button>
@@ -407,50 +411,53 @@ export default function Product() {
                 type="button"
                 onClick={() => tryAdd(false)}
                 disabled={soldOut || (needsSize && !size)}
-                className={`flex h-12 flex-1 items-center justify-center gap-2 text-[11px] font-medium uppercase tracking-[0.2em] transition-colors ${
+                className={`h-14 flex-1 text-[13px] font-medium uppercase tracking-[0.15em] transition-colors ${
                   soldOut || (needsSize && !size) ? 'cursor-not-allowed bg-neutral-200 text-neutral-500' : 'bg-black text-white hover:bg-neutral-800'
                 }`}
               >
-                <ShoppingBag size={16} />
-                {soldOut ? 'Sold Out' : needsSize && !size ? 'Select A Size' : 'Add To Cart'}
-              </button>
-              <button
-                type="button"
-                onClick={() => toggleWish(p)}
-                aria-label={wished ? 'Remove from wishlist' : 'Save to wishlist'}
-                className="flex h-12 w-12 items-center justify-center border border-neutral-300 bg-white transition hover:border-black"
-              >
-                <Heart size={20} className={wished ? 'fill-black text-black' : ''} />
+                {soldOut ? 'Sold Out' : needsSize && !size ? 'Select a Size' : 'Add to Cart'}
               </button>
             </div>
 
-            {/* Buy It Now */}
+            {/* Wishlist — CK outline */}
+            <button
+              type="button"
+              onClick={() => toggleWish(p)}
+              aria-label={wished ? 'Remove from wishlist' : 'Save to wishlist'}
+              className="flex h-12 w-full items-center justify-center gap-2 border border-neutral-300 text-[12px] font-medium uppercase tracking-[0.15em] text-black transition-colors hover:border-black"
+            >
+              <Heart size={16} strokeWidth={1.5} className={wished ? 'fill-black text-black' : ''} />
+              <span>{wished ? 'Saved to Wishlist' : 'Add to Wishlist'}</span>
+            </button>
+
+            {/* Buy It Now — outline */}
             <button
               type="button"
               onClick={() => tryAdd(true)}
               disabled={soldOut || (needsSize && !size)}
-              className={`h-12 w-full text-[11px] font-medium uppercase tracking-[0.2em] transition-colors ${
-                soldOut || (needsSize && !size) ? 'cursor-not-allowed bg-neutral-100 text-neutral-400' : 'border border-neutral-300 bg-neutral-100 hover:bg-neutral-200'
+              className={`h-12 w-full text-[12px] font-medium uppercase tracking-[0.15em] transition-colors ${
+                soldOut || (needsSize && !size) ? 'cursor-not-allowed bg-neutral-100 text-neutral-400' : 'border border-neutral-300 bg-white text-black hover:border-black'
               }`}
             >
               Buy It Now
             </button>
-
-            {/* Trust features */}
-            <div className="grid grid-cols-2 gap-4 border-t border-neutral-200 pt-5 text-[11px] text-neutral-600">
-              {trust.map(([Icon, text]) => (
-                <div key={text} className="flex items-center gap-2">
-                  <Icon size={16} className="shrink-0 text-black" strokeWidth={1.6} />
-                  <span>{text}</span>
-                </div>
-              ))}
-            </div>
-
-            {/* Accordions */}
-            <AccordionGroup items={accordionItems} />
           </div>
+
+          {/* Trust features */}
+          <div className="grid grid-cols-2 gap-4 border-t border-neutral-200 pt-5 text-[11px] text-neutral-600">
+            {trust.map(([Icon, text]) => (
+              <div key={text} className="flex items-center gap-2">
+                <Icon size={16} className="shrink-0 text-black" strokeWidth={1.6} />
+                <span>{text}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Accordions */}
+          <AccordionGroup items={accordionItems} />
         </div>
       </main>
+
 
       {/* ═══ EDITORIAL FEATURE ════════════════════════════════════════ */}
       <section className="my-16 border-y border-neutral-200 bg-white py-20">
