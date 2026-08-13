@@ -122,7 +122,9 @@ export default function Header() {
         }`}
         onMouseLeave={() => setMega(null)}
       >
-        {<OfferBar />}
+        {/* Announcement bar — hidden on the PDP per the CK reference
+            (Requirement 2: announcement bar hidden on product page) */}
+        {!loc.pathname.startsWith('/product/') && <OfferBar />}
 
         {/* CK reference row — py-5 transparent / py-4 scrolled */}
         <div className={`mx-auto flex max-w-[1600px] items-center justify-between gap-8 px-6 transition-all duration-300 ease-in-out md:px-12 ${isScrolled ? 'py-4' : 'py-5'}`}>

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  AlertCircle, ArrowLeft, ArrowRight, Box, ChevronLeft, ChevronRight, Heart, Maximize2,
+  AlertCircle, ArrowLeft, ArrowRight, Box, ChevronLeft, ChevronRight, Heart,
   Minus, Package, Plus, RotateCcw, ShieldCheck, ShoppingBag, Star, Truck, X,
 } from 'lucide-react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
@@ -205,45 +205,49 @@ export default function Product() {
 
       {/* ═══ MAIN — CALVIN KLEIN SPLIT (6/7 gallery · 6/5 buy box) ═════ */}
       <main className="mx-auto grid w-full max-w-[1600px] grid-cols-1 lg:grid-cols-12">
-        {/* LEFT — sticky full-height gallery (CK register) */}
+        {/* LEFT — sticky full-height gallery (CK reference v2) */}
         <div className="relative lg:col-span-6 xl:col-span-7">
-          <div className="group h-[70vh] overflow-hidden bg-[#F2F0EC] lg:sticky lg:top-0 lg:h-screen">
-            <img
-              src={gallery[imgIdx] || gallery[0] || FALLBACK}
-              alt={`${name} — view ${imgIdx + 1}`}
-              loading="eager"
-              onError={(e) => { if (e.currentTarget.src !== FALLBACK) e.currentTarget.src = FALLBACK; }}
-              className="h-full w-full object-cover object-center transition-all duration-500"
-            />
-            {/* Expand — keep the lightbox */}
+          <div className="group h-[75vh] overflow-hidden bg-[#F4F2EE] lg:sticky lg:top-0 lg:h-screen">
+            {/* Clicking the photograph opens the lightbox (no visible icon,
+                per the CK reference: 'no fullscreen icon') */}
             <button
               type="button"
               onClick={() => setLightboxOpen(true)}
-              aria-label="Open fullscreen"
-              className="absolute right-4 top-4 z-10 bg-white/90 p-3 opacity-0 transition group-hover:opacity-100 hover:bg-white"
+              aria-label="View fullscreen"
+              className="block h-full w-full cursor-zoom-in"
             >
-              <Maximize2 size={16} strokeWidth={1.8} />
+              <img
+                src={gallery[imgIdx] || gallery[0] || FALLBACK}
+                alt={`${name} — view ${imgIdx + 1}`}
+                loading="eager"
+                onError={(e) => { if (e.currentTarget.src !== FALLBACK) e.currentTarget.src = FALLBACK; }}
+                className="h-full w-full object-cover object-center transition-all duration-500 ease-in-out"
+              />
             </button>
-            {/* Arrows — keep gallery navigation */}
-            <button
-              type="button"
-              onClick={() => setImgIdx((i) => (i - 1 + gallery.length) % gallery.length)}
-              aria-label="Previous image"
-              className="absolute left-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-black opacity-0 shadow-md transition-all duration-300 hover:scale-105 hover:bg-white"
-            >
-              <ChevronLeft size={20} strokeWidth={1.5} />
-            </button>
-            <button
-              type="button"
-              onClick={() => setImgIdx((i) => (i + 1) % gallery.length)}
-              aria-label="Next image"
-              className="absolute right-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-black opacity-0 shadow-md transition-all duration-300 hover:scale-105 hover:bg-white"
-            >
-              <ChevronRight size={20} strokeWidth={1.5} />
-            </button>
+            {/* Floating circular arrows — ALWAYS visible (CK reference v2) */}
+            {gallery.length > 1 && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setImgIdx((i) => (i - 1 + gallery.length) % gallery.length)}
+                  aria-label="Previous image"
+                  className="absolute left-5 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-black shadow-md transition-all hover:scale-105 hover:bg-white"
+                >
+                  <ChevronLeft size={20} strokeWidth={2} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setImgIdx((i) => (i + 1) % gallery.length)}
+                  aria-label="Next image"
+                  className="absolute right-5 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-black shadow-md transition-all hover:scale-105 hover:bg-white"
+                >
+                  <ChevronRight size={20} strokeWidth={2} />
+                </button>
+              </>
+            )}
           </div>
 
-          {/* Minimal image dots — bottom overlay (CK reference) */}
+          {/* Image dots — thin (CK reference v2: h-1.5) */}
           {gallery.length > 1 && (
             <div className="absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 items-center gap-2">
               {gallery.map((u, idx) => (
@@ -252,8 +256,8 @@ export default function Product() {
                   type="button"
                   onClick={() => setImgIdx(idx)}
                   aria-label={`View image ${idx + 1}`}
-                  className={`h-2 rounded-full transition-all ${
-                    idx === imgIdx ? 'w-6 bg-black' : 'w-2 bg-black/30 hover:bg-black/50'
+                  className={`h-1.5 rounded-full transition-all duration-300 ${
+                    idx === imgIdx ? 'w-6 bg-black' : 'w-1.5 bg-black/30 hover:bg-black/50'
                   }`}
                 />
               ))}
@@ -263,8 +267,8 @@ export default function Product() {
 
         {/* RIGHT — CK clean typography & selection */}
         <div className="mx-auto flex w-full max-w-xl flex-col justify-center space-y-8 px-6 py-10 sm:px-12 lg:col-span-6 lg:px-16 lg:py-20 xl:col-span-5">
-          {/* Breadcrumb */}
-          <nav className="text-[12px] font-light tracking-wide text-neutral-400">
+          {/* Breadcrumb — uppercase (CK reference v2) */}
+          <nav className="text-[11px] font-light uppercase tracking-wider text-neutral-400">
             <Link to="/" className="transition hover:text-black">Home</Link>
             <span className="mx-1">/</span>
             <Link to={`/${p.gender}`} className="capitalize transition hover:text-black">{p.gender}</Link>
@@ -274,24 +278,23 @@ export default function Product() {
             <span className="text-black">{name}</span>
           </nav>
 
-          {/* Title & pricing — CK clean typography */}
+          {/* Title & pricing — CK v2: UPPERCASE 22/26 tracking 0.12em */}
           <div className="space-y-2">
-            <h1 className="text-[24px] font-normal leading-snug tracking-[0.02em] text-[#111111] sm:text-[28px]">
+            <h1 className="text-[22px] font-normal uppercase tracking-[0.12em] text-[#111111] sm:text-[26px]">
               {name}
             </h1>
 
             <div className="flex items-center gap-3 pt-1">
               {onSale && p.compareAtPrice > p.price && (
-                <span className="text-[15px] font-light text-neutral-400 line-through">{pkr(p.compareAtPrice)}</span>
+                <span className="text-[14px] font-light text-neutral-400 line-through">{pkr(p.compareAtPrice)}</span>
               )}
               <span className="text-[16px] font-semibold text-[#111111]">{pkr(p.price)}</span>
+              {onSale && p.compareAtPrice > p.price && (
+                <span className="bg-black px-2 py-0.5 text-[9px] font-medium uppercase tracking-widest text-white">
+                  Save {discount}%
+                </span>
+              )}
             </div>
-
-            {onSale && p.compareAtPrice > p.price && (
-              <p className="pt-1 text-[12px] font-medium tracking-wide text-[#D9381E]">
-                Save {discount}% — limited-time offer
-              </p>
-            )}
 
             {/* Reviews link */}
             <div id="reviews-link" className="flex items-center gap-2 pt-1">
@@ -311,11 +314,11 @@ export default function Product() {
             </div>
           </div>
 
-          {/* Colour — CK dots */}
+          {/* Colour — CK dots (uppercase label) */}
           {p.colors?.length > 0 && (
             <div className="space-y-3 pt-2">
-              <span className="text-[13px] font-medium text-neutral-800">
-                Color: <span className="font-normal text-neutral-500">{color}</span>
+              <span className="text-[12px] font-medium uppercase tracking-[0.15em] text-neutral-800">
+                Color: <span className="font-light text-neutral-500">{color}</span>
               </span>
               <div className="flex items-center gap-3">
                 {p.colors.map((c) => {
@@ -342,12 +345,12 @@ export default function Product() {
             </div>
           )}
 
-          {/* Size — CK grid */}
+          {/* Size — CK grid v2 (uppercase tracking-widest) */}
           {needsSize && (
             <div ref={sizeRef} className="space-y-3 pt-2">
-              <div className="flex items-center justify-between text-[13px]">
+              <div className="flex items-center justify-between text-[12px] uppercase tracking-[0.15em]">
                 <span className="font-medium text-neutral-800">Size</span>
-                <button type="button" onClick={() => setGuideOpen(true)} className="text-[12px] text-neutral-500 underline transition hover:text-black">
+                <button type="button" onClick={() => setGuideOpen(true)} className="text-neutral-500 underline transition hover:text-black">
                   Size Guide
                 </button>
               </div>
@@ -361,7 +364,7 @@ export default function Product() {
                       type="button"
                       onClick={() => { setSize(s); setSizeErr(false); }}
                       aria-pressed={on}
-                      className={`h-12 border text-[13px] font-medium transition-all ${
+                      className={`h-12 border text-[12px] font-medium uppercase tracking-widest transition-all ${
                         on ? 'border-black bg-black text-white' : 'border-neutral-300 bg-white text-black hover:border-black'
                       }`}
                     >
@@ -421,7 +424,7 @@ export default function Product() {
                 type="button"
                 onClick={() => tryAdd(false)}
                 disabled={soldOut || (needsSize && !size)}
-                className={`flex h-14 flex-1 items-center justify-center gap-2 text-[13px] font-medium uppercase tracking-[0.15em] transition-colors ${
+                className={`flex h-14 flex-1 items-center justify-center gap-2 text-[11px] font-medium uppercase tracking-[0.2em] transition-colors ${
                   soldOut || (needsSize && !size) ? 'cursor-not-allowed bg-neutral-200 text-neutral-500' : 'bg-black text-white hover:bg-neutral-800'
                 }`}
               >
@@ -430,27 +433,27 @@ export default function Product() {
               </button>
             </div>
 
-            {/* Buy It Now */}
-            <button
-              type="button"
-              onClick={() => tryAdd(true)}
-              disabled={soldOut || (needsSize && !size)}
-              className={`h-12 w-full text-[12px] font-medium uppercase tracking-[0.15em] transition-colors ${
-                soldOut || (needsSize && !size) ? 'cursor-not-allowed bg-neutral-100 text-neutral-400' : 'border border-neutral-300 bg-white text-black hover:border-black'
-              }`}
-            >
-              Buy It Now
-            </button>
-
-            {/* Wishlist — CK outline */}
+            {/* Wishlist — CK outline (full width) */}
             <button
               type="button"
               onClick={() => toggleWish(p)}
               aria-label={wished ? 'Remove from wishlist' : 'Save to wishlist'}
-              className="flex h-12 w-full items-center justify-center gap-2 border border-neutral-300 text-[12px] font-medium uppercase tracking-[0.15em] text-black transition-colors hover:border-black"
+              className="flex h-12 w-full items-center justify-center gap-2 border border-neutral-300 text-[11px] font-medium uppercase tracking-[0.2em] text-black transition-colors hover:border-black"
             >
               <Heart size={16} strokeWidth={1.5} className={wished ? 'fill-black text-black' : ''} />
               <span>{wished ? 'Saved to Wishlist' : 'Add to Wishlist'}</span>
+            </button>
+
+            {/* Buy It Now — outline */}
+            <button
+              type="button"
+              onClick={() => tryAdd(true)}
+              disabled={soldOut || (needsSize && !size)}
+              className={`h-12 w-full text-[11px] font-medium uppercase tracking-[0.2em] transition-colors ${
+                soldOut || (needsSize && !size) ? 'cursor-not-allowed bg-neutral-100 text-neutral-400' : 'border border-neutral-300 bg-white text-black hover:border-black'
+              }`}
+            >
+              Buy It Now
             </button>
           </div>
 
