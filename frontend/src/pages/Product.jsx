@@ -18,6 +18,7 @@ import { ProductSkeleton } from '../components/Skeletons';
 import Seo, { productJsonLd } from '../components/Seo';
 import StickyBuyBar from './product/StickyBuyBar';
 import AccordionGroup from './product/Accordion';
+import ProductSectionHeader from './product/ProductSectionHeader';
 
 /* ============================================================================
  * HUSHAE Product Details — exact client reference ("Atelier" luxury PDP).
@@ -464,72 +465,154 @@ export default function Product() {
         </div>
       </main>
 
-      {/* ═══ EDITORIAL FEATURE ════════════════════════════════════════ */}
-      <section className="my-16 border-y border-neutral-200 bg-white py-20">
-        <div className="mx-auto grid max-w-[1440px] items-center gap-12 px-6 lg:grid-cols-2">
-          <div className="space-y-6">
-            <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-400">Editorial Feature</span>
-            <h2 className="text-3xl font-light normal-case lg:text-4xl">Crafted for Everyday Movement</h2>
-            <p className="text-sm leading-relaxed text-neutral-600">
-              {p.fabric ? `Built in ${p.fabric.toLowerCase()} — engineered in Pakistan and finished to an international standard.` : ''}
-              {p.shortDescription || ''}
-            </p>
-            <div className="grid grid-cols-2 gap-6 border-t pt-6">
-              <div>
-                <h4 className="text-xs font-bold uppercase">Ethical Production</h4>
-                <p className="mt-2 text-xs text-neutral-500">Responsibly made, garment-dyed in small batches.</p>
-              </div>
-              <div>
-                <h4 className="text-xs font-bold uppercase">Handcrafted Finish</h4>
-                <p className="mt-2 text-xs text-neutral-500">Finished by experienced artisans.</p>
+      {/* ═══ THE DETAILS — editorial 2-col (FWRD / Givenchy / Bottega register) ═══ */}
+      <section className="mx-auto w-full max-w-[1600px] px-4 py-20 md:px-8 md:py-28">
+        <div className="mx-auto max-w-[1440px]">
+          <div className="grid items-start gap-14 lg:grid-cols-12 lg:gap-20">
+            {/* Left — the details, set quietly */}
+            <div className="lg:col-span-7">
+              <ProductSectionHeader eyebrow="The Details" title={name} />
+
+              <p className="max-w-prose text-[15px] font-light leading-[2.1] text-neutral-600">
+                {p.description || p.shortDescription || desc}
+              </p>
+
+              {/* Detail rows — label / value, hairline divided */}
+              <dl className="mt-10 border-t border-neutral-200">
+                {[
+                  ['Fabric', p.fabric],
+                  ['Fit', 'Tailored regular fit — fits true to size'],
+                  ['Colour', color],
+                  ['SKU', p.sku || p.slug],
+                ].filter(([, v]) => v).map(([k, v]) => (
+                  <div key={k} className="flex items-baseline justify-between gap-6 border-b border-neutral-200 py-4">
+                    <dt className="text-[11px] font-medium uppercase tracking-[0.2em] text-neutral-400">{k}</dt>
+                    <dd className="text-right text-[13px] font-light text-neutral-700">{v}</dd>
+                  </div>
+                ))}
+              </dl>
+
+              {/* Care + Shipping — two quiet columns */}
+              <div className="mt-10 grid gap-10 sm:grid-cols-2">
+                <div>
+                  <h3 className="text-[11px] font-medium uppercase tracking-[0.2em] text-neutral-400">Garment Care</h3>
+                  <ul className="mt-4 space-y-2">
+                    {(p.care || []).length > 0
+                      ? (p.care || []).map((c) => (
+                          <li key={c} className="flex items-start gap-2 text-[13px] font-light leading-relaxed text-neutral-600">
+                            <span className="mt-2 h-px w-3 shrink-0 bg-neutral-300" aria-hidden="true" />
+                            {c}
+                          </li>
+                        ))
+                      : <li className="text-[13px] font-light leading-relaxed text-neutral-600">Machine wash cold, gentle cycle. Lay flat to dry. Do not bleach.</li>}
+                  </ul>
+                </div>
+                <div>
+                  <h3 className="text-[11px] font-medium uppercase tracking-[0.2em] text-neutral-400">Shipping & Returns</h3>
+                  <p className="mt-4 text-[13px] font-light leading-[1.9] text-neutral-600">
+                    Express delivery nationwide in 2–4 working days. Free shipping over {pkr(settings?.freeShippingThreshold ?? 4999)}.
+                    Unworn pieces exchange within 14 days — for hygiene, innerwear is only returnable if it arrives faulty.
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
-          <div className="aspect-[4/3] overflow-hidden bg-neutral-100">
-            <img
-              src="/images/campaign/qa/editorial-modern.jpg"
-              alt="Editorial"
-              loading="lazy"
-              className="h-full w-full object-cover transition-transform duration-700 hover:scale-105"
-            />
+
+            {/* Right — tall detail photograph */}
+            <div className="lg:col-span-5">
+              <div className="relative overflow-hidden bg-[#F2F0EC]">
+                <img
+                  src={gallery[1] || gallery[0] || '/images/campaign/qa/editorial-modern.jpg'}
+                  alt={`${name} — detail`}
+                  loading="lazy"
+                  decoding="async"
+                  className="aspect-[3/4] w-full object-cover"
+                />
+                <div className="absolute bottom-4 left-4 bg-white/85 px-3 py-1.5 backdrop-blur-sm">
+                  <p className="text-[9px] font-medium uppercase tracking-[0.24em] text-[#111111]">{name}</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ═══ FEATURE CARDS ════════════════════════════════════════════ */}
-      <section className="mx-auto mb-20 grid max-w-[1440px] grid-cols-1 gap-6 px-6 md:grid-cols-2 lg:grid-cols-4">
-        {[
-          ['Premium Materials', 'Premium materials selected for durability and comfort.'],
-          ['Tailored Precision', 'Designed for movement while maintaining a clean silhouette.'],
-          ['Signature Detailing', 'Minimal hardware engineered for everyday functionality.'],
-          ['Lifetime Repairs', 'We stand behind our craftsmanship and quality.'],
-        ].map(([t, d]) => (
-          <div key={t} className="border border-neutral-200 bg-white p-6">
-            <h4 className="text-xs font-bold uppercase tracking-widest">{t}</h4>
-            <p className="mt-3 text-xs leading-relaxed text-neutral-500">{d}</p>
+      {/* ═══ THE HUSHAE STANDARD — full-bleed brand band ═══════════════ */}
+      <section className="relative w-full overflow-hidden bg-[#111111]">
+        <div className="relative aspect-[4/5] sm:aspect-[16/9]">
+          <img
+            src="/images/campaign/qa/hero-fabric.jpg"
+            alt=""
+            loading="lazy"
+            decoding="async"
+            className="absolute inset-0 h-full w-full object-cover opacity-80"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/45 to-black/30" aria-hidden="true" />
+          <div className="absolute inset-0 flex items-center">
+            <div className="mx-auto w-full max-w-[1440px] px-6 md:px-10">
+              <div className="max-w-xl">
+                <p className="text-[10px] font-medium uppercase tracking-[0.32em] text-white/70">The Hushae Standard</p>
+                <h2 className="mt-5 font-display text-2xl font-light uppercase leading-[1.25] tracking-[0.12em] text-white md:text-3xl">
+                  Crafted for Everyday Movement
+                </h2>
+                <p className="mt-6 text-[14px] font-light leading-[1.9] text-white/85">
+                  {p.fabric ? `Built in ${p.fabric.toLowerCase()} — ` : ''}engineered in Pakistan and finished to an international standard.
+                </p>
+              </div>
+
+              {/* Three quiet pillars */}
+              <div className="mt-12 grid gap-10 border-t border-white/15 pt-10 sm:grid-cols-3">
+                {[
+                  ['Craftsmanship', 'Seams that sit flat, elastics that hold without pressing.'],
+                  ['Materials', 'Premium fabrics selected for durability and quiet comfort.'],
+                  ['Fit', 'Tailored to move with you — a clean silhouette that lasts.'],
+                ].map(([t, d]) => (
+                  <div key={t}>
+                    <span className="block h-px w-7 bg-white/40" aria-hidden="true" />
+                    <h3 className="mt-4 text-[12px] font-medium uppercase tracking-[0.2em] text-white">{t}</h3>
+                    <p className="mt-3 text-[13px] font-light leading-[1.8] text-white/70">{d}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
-        ))}
+        </div>
       </section>
 
-      {/* ═══ YOU MAY ALSO LIKE ════════════════════════════════════════ */}
+      {/* ═══ CUSTOMER REVIEWS ═════════════════════════════════════════ */}
+      <section id="reviews" className="scroll-mt-24 border-t border-neutral-200 py-20 md:py-24">
+        <div className="mx-auto max-w-[1440px] px-6 lg:px-12">
+          <ProductSectionHeader eyebrow="Social Proof" title="Customer Reviews" />
+          <ProductReviews product={p} />
+        </div>
+      </section>
+
+      {/* ═══ QUESTIONS & ANSWERS ══════════════════════════════════════ */}
+      <section className="border-t border-neutral-200 py-20 md:py-24">
+        <div className="mx-auto max-w-[1440px] px-6 lg:px-12">
+          <ProductSectionHeader eyebrow="Assistance" title="Questions & Answers" />
+          <ProductQA product={p} />
+        </div>
+      </section>
+
+      {/* ═══ COMPLETE THE LOOK ════════════════════════════════════════ */}
       {complete.length > 0 && (
-        <section className="border-t border-neutral-200 py-16">
+        <section className="border-t border-neutral-200 py-20 md:py-24">
           <div className="mx-auto max-w-[1440px] px-6 lg:px-12">
-            <h3 className="mb-8 text-xl font-light uppercase tracking-widest">You May Also Like</h3>
-            <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
+            <ProductSectionHeader eyebrow="The Edit" title="Complete the Look" />
+            <div className="grid grid-cols-2 gap-x-1 gap-y-10 md:grid-cols-4">
               {complete.slice(0, 4).map((pr) => <CollectionCard key={pr._id} product={pr} variant="pill" />)}
             </div>
           </div>
         </section>
       )}
 
-      {/* Recently viewed — grid of cards (reference structure) */}
+      {/* ═══ RECENTLY VIEWED ══════════════════════════════════════════ */}
       {rvCfg.enabled !== false && rvCfg.showOnProduct !== false
         && recent.filter((r) => r.slug !== p.slug).length > 0 && (
-        <section className="border-t border-neutral-200 py-16">
+        <section className="border-t border-neutral-200 py-20 md:py-24">
           <div className="mx-auto max-w-[1440px] px-6 lg:px-12">
-            <h3 className="mb-8 text-xl font-light uppercase tracking-widest">{rvCfg.title || 'Recently Viewed'}</h3>
-            <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
+            <ProductSectionHeader eyebrow="Continue Browsing" title={rvCfg.title || 'Recently Viewed'} />
+            <div className="grid grid-cols-2 gap-x-1 gap-y-10 md:grid-cols-4">
               {recent.filter((r) => r.slug !== p.slug).slice(0, 4).map((pr) => (
                 <CollectionCard key={pr._id || pr.slug} product={pr} />
               ))}
@@ -537,21 +620,6 @@ export default function Product() {
           </div>
         </section>
       )}
-
-
-      {/* ═══ CUSTOMER REVIEWS ═════════════════════════════════════════ */}
-      <section id="reviews" className="scroll-mt-28 border-t border-neutral-200 py-16">
-        <div className="mx-auto max-w-[1440px] px-6 lg:px-12">
-          <ProductReviews product={p} />
-        </div>
-      </section>
-
-      {/* ═══ QUESTIONS & ANSWERS ══════════════════════════════════════ */}
-      <section className="border-t border-neutral-200 py-16">
-        <div className="mx-auto max-w-[1440px] px-6 lg:px-12">
-          <ProductQA product={p} />
-        </div>
-      </section>
 
       {/* Sticky bottom purchase bar */}
       <StickyBuyBar
