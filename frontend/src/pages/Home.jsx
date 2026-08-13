@@ -162,7 +162,7 @@ function NewsletterSection() {
   const [email, setEmail] = useState('');
   const [done, setDone] = useState(false);
   return (
-    <section className="border-t border-neutral-200/80 bg-[#f7f6f2] px-4 py-20 text-center">
+    <section id="newsletter" className="border-t border-neutral-200/80 bg-[#f7f6f2] px-4 py-20 text-center">
       <div className="mx-auto max-w-xl space-y-4">
         <h3 className="font-display text-2xl font-light uppercase tracking-[0.14em] text-[#111111] md:text-3xl">
           Subscribe to the Newsletter
