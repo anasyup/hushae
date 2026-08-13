@@ -12,18 +12,18 @@ import { useCmsNav } from '../lib/useCmsNav';
 import SearchPanel from './search/SearchPanel';
 
 /* ============================================================================
- * HUSHAE header — theme-color scroll reference (exact client spec).
+ * HUSHAE header — announcement-collapse + theme-color reference (client spec).
  *
- *   · fixed top-0 z-50, px-6 lg:px-12 py-4, max-w-[1600px] row
- *   · TOP: bg-transparent text-black, hover:bg-[#FAF8F5] + border
- *   · SCROLLED (>20px): solid bg-[#FAF8F5] + border-b neutral-300/60 +
- *     shadow-sm (theme colour, not white); also solid while a mega panel
- *     is open so the dropdown reads cleanly
+ *   · fixed wrapper (flex-col) at top
+ *   · 1. BLACK ANNOUNCEMENT BAR: shown at top, COLLAPSES (max-h-0 opacity-0)
+ *     once scrolled >20px; hidden entirely on the PDP
+ *   · 2. MAIN HEADER: TOP = bg-transparent text-black hover:bg-[#FAF8F5]/90;
+ *     SCROLLED / mega open = solid bg-[#FAF8F5] + border-b neutral-300/60 +
+ *     shadow-sm
  *   · logo LEFT — serif SEMIBOLD tracking-widest uppercase (HUSHAÈ)
  *   · nav CENTER — 11px medium UPPERCASE tracking 0.2em, gap-8, hover
  *     opacity; SALE red-600; chevron on dropdown items (Women / Men / Sale)
  *   · utilities RIGHT — icon buttons Search · Wishlist · Account · Bag (n)
- *   · dropdowns: Women/Men/Sale open the full-width mega panel
  *   · mobile (md): nav hidden, hamburger + drawer
  * Functionality preserved: cart drawer, wishlist, auth, search panel, mega
  * menus, announcement bar (OfferBar), CMS-driven menu.
@@ -110,18 +110,28 @@ export default function Header() {
   const navStyle = useMemo(() => ({ fontSize: '11px', letterSpacing: '0.2em' }), []);
 
   return (
-    <>
+    <div className="fixed left-0 top-0 z-50 flex w-full flex-col">
+      {/* 1. Announcement bar — collapses (h-0) on scroll; hidden on PDP */}
+      {!loc.pathname.startsWith('/product/') && (
+        <div
+          className={`w-full overflow-hidden bg-black transition-all duration-300 ease-in-out ${
+            isScrolled ? 'max-h-0 opacity-0' : 'max-h-10 opacity-100'
+          }`}
+        >
+          <OfferBar />
+        </div>
+      )}
+
+      {/* 2. Main header — below the announcement bar */}
       <header
         data-header
-        className={`fixed left-0 top-0 z-50 w-full px-6 py-4 !m-0 transition-all duration-300 ease-in-out lg:px-12 ${
+        className={`w-full px-6 py-4 !m-0 transition-all duration-300 ease-in-out lg:px-12 ${
           mega || isScrolled
             ? 'border-b border-neutral-300/60 bg-[#FAF8F5] text-black shadow-sm'
-            : 'border-b border-transparent bg-transparent text-black hover:border-neutral-300/60 hover:bg-[#FAF8F5]'
+            : 'border-b border-transparent bg-transparent text-black hover:border-neutral-300/60 hover:bg-[#FAF8F5]/90'
         }`}
         onMouseLeave={() => setMega(null)}
       >
-        {/* Announcement bar — hidden on the PDP per the earlier reference */}
-        {!loc.pathname.startsWith('/product/') && <OfferBar />}
 
         {/* Reference row */}
         <div className="mx-auto flex w-full max-w-[1600px] items-center justify-between gap-8">
@@ -247,6 +257,6 @@ export default function Header() {
         storeName={settings?.storeName || 'HUSHAE'}
         returnFocusTo={burgerRef}
       />
-    </>
+    </div>
   );
 }
