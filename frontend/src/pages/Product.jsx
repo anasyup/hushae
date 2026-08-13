@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  AlertCircle, ArrowLeft, ArrowRight, Box, ChevronLeft, ChevronRight, Heart,
+  AlertCircle, ArrowLeft, ArrowRight, Box, ChevronDown, Heart,
   Minus, Package, Plus, RotateCcw, ShieldCheck, ShoppingBag, Star, Truck, X,
 } from 'lucide-react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
@@ -17,7 +17,6 @@ import SizeGuideModal from '../components/SizeGuideModal';
 import { ProductSkeleton } from '../components/Skeletons';
 import Seo, { productJsonLd } from '../components/Seo';
 import StickyBuyBar from './product/StickyBuyBar';
-import AccordionGroup from './product/Accordion';
 import ProductSectionHeader from './product/ProductSectionHeader';
 
 /* ============================================================================
@@ -204,264 +203,252 @@ export default function Product() {
         jsonLdId="product"
       />
 
-      {/* ═══ MAIN — CALVIN KLEIN SPLIT (6/7 gallery · 6/5 buy box) ═════ */}
-      <main className="mx-auto grid w-full max-w-[1600px] grid-cols-1 lg:grid-cols-12">
-        {/* LEFT — sticky full-height gallery (CK reference v4) */}
-        <div className="relative lg:col-span-6 xl:col-span-7">
-          <div className="group relative h-[70vh] overflow-hidden bg-[#F4F2EE] lg:sticky lg:top-0 lg:h-screen">
-            {/* Clicking the photograph opens the lightbox (no visible icon,
-                per the CK reference: 'no fullscreen icon') */}
+      {/* ═══ MAIN — 7/5 split: vertical stacked gallery + sticky details card ═══ */}
+      <main className="mx-auto grid w-full max-w-[1440px] grid-cols-1 gap-8 px-4 py-8 sm:px-8 lg:grid-cols-12 lg:gap-12">
+        {/* LEFT — vertical stacked gallery (fills the column — no empty space) */}
+        <div className="space-y-4 lg:col-span-7">
+          {gallery.map((u, index) => (
             <button
+              key={`${u}-${index}`}
               type="button"
-              onClick={() => setLightboxOpen(true)}
-              aria-label="View fullscreen"
-              className="block h-full w-full cursor-zoom-in"
+              onClick={() => { setImgIdx(index); setLightboxOpen(true); }}
+              aria-label={`View ${name} — angle ${index + 1} fullscreen`}
+              className="block w-full overflow-hidden rounded-sm border border-neutral-200/50 bg-[#EFECE6] shadow-sm"
             >
               <img
-                src={gallery[imgIdx] || gallery[0] || FALLBACK}
-                alt={`${name} — view ${imgIdx + 1}`}
-                loading="eager"
+                src={u}
+                alt={`${name} — angle ${index + 1}`}
+                loading={index === 0 ? 'eager' : 'lazy'}
                 onError={(e) => { if (e.currentTarget.src !== FALLBACK) e.currentTarget.src = FALLBACK; }}
-                className="h-full w-full object-cover object-center transition-all duration-500 ease-in-out"
+                className="block h-auto w-full object-cover"
               />
             </button>
-            {/* Floating circular arrows — ALWAYS visible (CK reference v5) */}
-            {gallery.length > 1 && (
-              <>
-                <button
-                  type="button"
-                  onClick={() => setImgIdx((i) => (i - 1 + gallery.length) % gallery.length)}
-                  aria-label="Previous image"
-                  className="absolute left-6 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-black shadow-sm transition-all hover:scale-105 hover:bg-white"
-                >
-                  <ChevronLeft size={20} strokeWidth={2} />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setImgIdx((i) => (i + 1) % gallery.length)}
-                  aria-label="Next image"
-                  className="absolute right-6 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-black shadow-md transition-all hover:scale-105 hover:bg-white"
-                >
-                  <ChevronRight size={20} strokeWidth={2} />
-                </button>
-              </>
-            )}
-          </div>
-          {/* NO bottom thumbnail overlay — ultra-clean full image (CK reference v5) */}
+          ))}
         </div>
 
-        {/* RIGHT — CK clean typography & selection */}
-        <div className="mx-auto flex w-full max-w-xl flex-col justify-center space-y-8 px-6 py-10 sm:px-12 lg:col-span-6 lg:px-16 lg:py-20 xl:col-span-5">
-          {/* Breadcrumb — uppercase (CK reference v2) */}
-          <nav className="text-[11px] font-light uppercase tracking-wider text-neutral-400">
-            <Link to="/" className="transition hover:text-black">Home</Link>
-            <span className="mx-1">/</span>
-            <Link to={`/${p.gender}`} className="capitalize transition hover:text-black">{p.gender}</Link>
-            <span className="mx-1">/</span>
-            <Link to={`/category/${p.categorySlug}`} className="capitalize transition hover:text-black">{p.categorySlug.replace(/-/g, ' ')}</Link>
-            <span className="mx-1">/</span>
-            <span className="text-black">{name}</span>
-          </nav>
+        {/* RIGHT — sticky details & checkout card */}
+        <div className="lg:col-span-5">
+          <div
+            ref={ctaRef}
+            className="space-y-6 rounded-sm border border-neutral-100 bg-white p-6 shadow-sm sm:p-8 lg:sticky lg:top-8"
+          >
+            {/* Breadcrumb */}
+            <nav className="text-[11px] font-light uppercase tracking-widest text-neutral-400">
+              <Link to="/" className="transition hover:text-black">Home</Link>
+              <span className="mx-1">/</span>
+              <Link to={`/${p.gender}`} className="capitalize transition hover:text-black">{p.gender}</Link>
+              <span className="mx-1">/</span>
+              <Link to={`/category/${p.categorySlug}`} className="capitalize transition hover:text-black">{p.categorySlug.replace(/-/g, ' ')}</Link>
+              <span className="mx-1">/</span>
+              <span className="text-black">{name}</span>
+            </nav>
 
-          {/* Title & pricing — CK v4: UPPERCASE 24/28 tracking 0.1em */}
-          <div className="space-y-2 border-b border-neutral-100 pb-6">
-            <h1 className="text-[24px] font-normal uppercase tracking-[0.1em] text-[#111111] sm:text-[28px]">
-              {name}
-            </h1>
+            {/* Title & price */}
+            <div className="space-y-2 border-b border-neutral-100 pb-5">
+              <h1 className="text-[22px] font-normal uppercase tracking-[0.08em] text-[#111111] sm:text-[26px]">
+                {name}
+              </h1>
 
-            <div className="flex items-center gap-3 pt-1">
-              {onSale && p.compareAtPrice > p.price && (
-                <span className="text-[14px] font-light text-neutral-400 line-through">{pkr(p.compareAtPrice)}</span>
-              )}
-              <span className="text-[18px] font-semibold text-[#111111]">{pkr(p.price)}</span>
-              {onSale && p.compareAtPrice > p.price && (
-                <span className="bg-[#111111] px-2 py-0.5 text-[9px] font-medium uppercase tracking-widest text-white">
-                  Save {discount}%
-                </span>
-              )}
-            </div>
-
-            {/* Reviews link */}
-            <div id="reviews-link" className="flex items-center gap-2 pt-1">
-              <button
-                type="button"
-                onClick={() => document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth' })}
-                className="flex items-center gap-2"
-              >
-                <span className="flex">
-                  {[1, 2, 3, 4, 5].map((s) => (
-                    <Star key={s} size={14} className={`${s <= Math.round(rating) ? 'fill-black text-black' : 'text-neutral-300'}`} />
-                  ))}
-                </span>
-                {rating > 0 && <span className="text-xs font-semibold underline">{rating.toFixed(1)}</span>}
-                {rating > 0 && <span className="text-xs text-neutral-500">({p.ratingCount || 0} Reviews)</span>}
-              </button>
-            </div>
-          </div>
-
-          {/* Colour — CK RECTANGULAR VARIANT CARDS (image per colour).
-              The product's own gallery photos stand in for per-variant shots
-              (data has no per-colour images); selecting a card also moves the
-              gallery to that colour's plate. */}
-          {p.colors?.length > 0 && (
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-[12px] font-medium uppercase tracking-[0.15em] text-neutral-800">
-                  Color: <span className="font-light text-neutral-500">{color}</span>
-                </span>
-              </div>
               <div className="flex items-center gap-3">
-                {p.colors.map((c, idx) => {
-                  const on = color === c.name;
-                  const cardImg = gallery[idx % gallery.length] || FALLBACK;
-                  return (
-                    <button
-                      key={c.name}
-                      type="button"
-                      onClick={() => { setColor(c.name); setImgIdx(idx % gallery.length); }}
-                      title={c.name}
-                      aria-label={c.name}
-                      aria-pressed={on}
-                      className={`group relative h-28 w-20 overflow-hidden rounded-sm border bg-[#EFECE6] p-1 transition-all duration-300 ${
-                        on ? 'border-black ring-1 ring-black' : 'border-transparent hover:border-neutral-400'
-                      }`}
-                    >
-                      <img
-                        src={cardImg}
-                        alt={c.name}
-                        className="h-full w-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
-                      />
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* Size — CK grid v2 (uppercase tracking-widest) */}
-          {needsSize && (
-            <div ref={sizeRef} className="space-y-3 pt-2">
-              <div className="flex items-center justify-between text-[12px] uppercase tracking-[0.15em]">
-                <span className="font-medium text-neutral-800">Size</span>
-                <button type="button" onClick={() => setGuideOpen(true)} className="text-neutral-500 underline transition hover:text-black">
-                  Size Guide
-                </button>
+                {onSale && p.compareAtPrice > p.price && (
+                  <span className="text-[14px] font-light text-neutral-400 line-through">{pkr(p.compareAtPrice)}</span>
+                )}
+                <span className="text-[18px] font-semibold text-[#111111]">{pkr(p.price)}</span>
+                {onSale && p.compareAtPrice > p.price && (
+                  <span className="bg-[#111111] px-2 py-0.5 text-[9px] font-medium uppercase tracking-widest text-white">
+                    Save {discount}%
+                  </span>
+                )}
               </div>
 
-              <div className="grid grid-cols-4 gap-2.5">
-                {p.sizes.map((s) => {
-                  const on = size === s;
-                  return (
-                    <button
-                      key={s}
-                      type="button"
-                      onClick={() => { setSize(s); setSizeErr(false); }}
-                      aria-pressed={on}
-                      className={`h-11 border text-[12px] font-medium uppercase tracking-widest transition-all ${
-                        on ? 'border-black bg-black text-white' : 'border-neutral-200 bg-white text-black hover:border-black'
-                      }`}
-                    >
-                      {s}
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Stock indicator */}
-              {(() => {
-                const st = stockState();
-                const dot = st.tone === 'green' ? 'bg-emerald-600' : st.tone === 'amber' ? 'bg-amber-600' : 'bg-red-600';
-                const txt = st.tone === 'green' ? 'text-emerald-700' : st.tone === 'amber' ? 'text-amber-700' : 'text-red-600';
-                return (
-                  <div className={`flex items-center gap-2 text-xs ${txt}`}>
-                    <span className={`h-2 w-2 rounded-full ${dot}`} aria-hidden="true" />
-                    {needsSize && !size ? 'Select a size to view availability.' : st.text}
-                  </div>
-                );
-              })()}
-              {sizeErr && !size && (
-                <div className="flex items-center gap-2 border border-red-200 bg-red-50 p-3 text-xs text-red-700">
-                  <AlertCircle size={16} /> Please select a size before continuing.
+              {/* Rating — only when real reviews exist */}
+              {rating > 0 && (
+                <div id="reviews-link" className="flex items-center gap-1.5 pt-1 text-[12px]">
+                  <button
+                    type="button"
+                    onClick={() => document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth' })}
+                    className="flex items-center gap-1.5"
+                  >
+                    <span className="flex">
+                      {[1, 2, 3, 4, 5].map((s) => (
+                        <Star key={s} size={13} className={`${s <= Math.round(rating) ? 'fill-black text-black' : 'text-neutral-300'}`} />
+                      ))}
+                    </span>
+                    <span className="font-medium text-neutral-500">{rating.toFixed(1)}</span>
+                    <span className="text-neutral-400">({p.ratingCount || 0} Reviews)</span>
+                  </button>
                 </div>
               )}
             </div>
-          )}
 
-          {/* Description + Read More */}
-          <div className="space-y-2 pt-2 text-sm leading-relaxed text-neutral-600">
-            <p>{desc}</p>
-            {p.description && p.description !== p.shortDescription && (
-              <button
-                type="button"
-                onClick={() => setReadMore(!readMore)}
-                className="text-[12px] font-medium text-neutral-500 underline transition hover:text-black"
-              >
-                {readMore ? 'Read Less' : 'Read More'}
-              </button>
+            {/* Colour — variant cards */}
+            {p.colors?.length > 0 && (
+              <div className="space-y-3">
+                <span className="text-[11px] font-medium uppercase tracking-[0.15em] text-neutral-700">
+                  Color: <span className="font-light text-neutral-500">{color}</span>
+                </span>
+                <div className="flex items-center gap-3">
+                  {p.colors.map((c, idx) => {
+                    const on = color === c.name;
+                    const cardImg = gallery[idx % gallery.length] || FALLBACK;
+                    return (
+                      <button
+                        key={c.name}
+                        type="button"
+                        onClick={() => { setColor(c.name); setImgIdx(idx % gallery.length); }}
+                        title={c.name}
+                        aria-label={c.name}
+                        aria-pressed={on}
+                        className={`h-[88px] w-16 overflow-hidden rounded-sm border bg-[#EFECE6] p-1 transition-all ${
+                          on ? 'border-black ring-1 ring-black' : 'border-transparent hover:border-neutral-300'
+                        }`}
+                      >
+                        <img
+                          src={cardImg}
+                          alt={c.name}
+                          className="h-full w-full object-cover"
+                        />
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
             )}
-          </div>
 
-          {/* Actions — CK buttons */}
-          <div className="space-y-3 pt-4">
-            <div className="flex gap-3">
-              <div className="flex h-14 w-32 shrink-0 items-center justify-between border border-neutral-300 bg-white px-3">
-                <button type="button" onClick={() => setQty(Math.max(1, qty - 1))} disabled={qty <= 1} aria-label="Decrease quantity">
-                  <Minus size={16} />
+            {/* Size — grid-cols-5 (5 sizes) */}
+            {needsSize && (
+              <div ref={sizeRef} className="space-y-3">
+                <div className="flex items-center justify-between text-[11px] uppercase tracking-[0.15em]">
+                  <span className="font-medium text-neutral-700">Size</span>
+                  <button type="button" onClick={() => setGuideOpen(true)} className="text-neutral-400 underline transition hover:text-black">
+                    Size Guide
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-5 gap-2">
+                  {p.sizes.map((s) => {
+                    const on = size === s;
+                    return (
+                      <button
+                        key={s}
+                        type="button"
+                        onClick={() => { setSize(s); setSizeErr(false); }}
+                        aria-pressed={on}
+                        className={`h-10 border text-[12px] font-medium transition-all ${
+                          on ? 'border-black bg-black text-white' : 'border-neutral-200 bg-white text-neutral-800 hover:border-black'
+                        }`}
+                      >
+                        {s}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Stock indicator */}
+                {(() => {
+                  const st = stockState();
+                  const dot = st.tone === 'green' ? 'bg-emerald-600' : st.tone === 'amber' ? 'bg-amber-600' : 'bg-red-600';
+                  const txt = st.tone === 'green' ? 'text-emerald-700' : st.tone === 'amber' ? 'text-amber-700' : 'text-red-600';
+                  return (
+                    <div className={`flex items-center gap-2 text-xs ${txt}`}>
+                      <span className={`h-2 w-2 rounded-full ${dot}`} aria-hidden="true" />
+                      {needsSize && !size ? 'Select a size to view availability.' : st.text}
+                    </div>
+                  );
+                })()}
+                {sizeErr && !size && (
+                  <div className="flex items-center gap-2 border border-red-200 bg-red-50 p-3 text-xs text-red-700">
+                    <AlertCircle size={16} /> Please select a size before continuing.
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Description */}
+            <div className="space-y-2 text-[13px] font-light leading-relaxed text-neutral-600">
+              <p>{desc}</p>
+              {p.description && p.description !== p.shortDescription && (
+                <button
+                  type="button"
+                  onClick={() => setReadMore(!readMore)}
+                  className="text-[11px] font-medium text-neutral-500 underline transition hover:text-black"
+                >
+                  {readMore ? 'Read Less' : 'Read More'}
+                </button>
+              )}
+            </div>
+
+            {/* Quantity + primary CTA */}
+            <div className="flex items-center gap-3 pt-2">
+              <div className="flex h-12 w-28 items-center justify-between border border-neutral-300 bg-white px-3">
+                <button type="button" onClick={() => setQty(Math.max(1, qty - 1))} disabled={qty <= 1} aria-label="Decrease quantity" className="text-lg font-light text-neutral-600 transition hover:text-black">
+                  −
                 </button>
                 <span className="text-[13px] font-medium">{qty}</span>
-                <button type="button" onClick={() => setQty(Math.min(maxQty, qty + 1))} disabled={qty >= maxQty} aria-label="Increase quantity">
-                  <Plus size={16} />
+                <button type="button" onClick={() => setQty(Math.min(maxQty, qty + 1))} disabled={qty >= maxQty} aria-label="Increase quantity" className="text-lg font-light text-neutral-600 transition hover:text-black">
+                  +
                 </button>
               </div>
               <button
                 type="button"
                 onClick={() => tryAdd(false)}
                 disabled={soldOut || (needsSize && !size)}
-                className={`flex h-[3.25rem] flex-1 items-center justify-center gap-2 text-[12px] font-medium uppercase tracking-[0.2em] transition-colors ${
+                className={`h-12 flex-1 text-[11px] font-medium uppercase tracking-[0.2em] transition-colors ${
                   soldOut || (needsSize && !size) ? 'cursor-not-allowed bg-neutral-200 text-neutral-500' : 'bg-[#111111] text-white hover:bg-neutral-800'
                 }`}
               >
-                <ShoppingBag size={16} />
                 {soldOut ? 'Sold Out' : needsSize && !size ? 'Select a Size' : 'Add to Bag'}
               </button>
             </div>
 
-            {/* Wishlist — CK outline (full width) */}
-            <button
-              type="button"
-              onClick={() => toggleWish(p)}
-              aria-label={wished ? 'Remove from wishlist' : 'Save to wishlist'}
-              className="flex h-12 w-full items-center justify-center gap-2 border border-neutral-300 text-[11px] font-medium uppercase tracking-[0.2em] text-black transition-colors hover:border-black"
-            >
-              <Heart size={16} strokeWidth={1.5} className={wished ? 'fill-black text-black' : ''} />
-              <span>{wished ? 'Saved to Wishlist' : 'Add to Wishlist'}</span>
-            </button>
+            {/* Wishlist + Buy now */}
+            <div className="space-y-2">
+              <button
+                type="button"
+                onClick={() => toggleWish(p)}
+                aria-label={wished ? 'Remove from wishlist' : 'Save to wishlist'}
+                className="flex h-11 w-full items-center justify-center gap-2 border border-neutral-300 text-[11px] font-medium uppercase tracking-[0.15em] text-black transition-colors hover:border-black"
+              >
+                <Heart size={16} strokeWidth={1.5} className={wished ? 'fill-black text-black' : ''} />
+                <span>{wished ? 'Saved to Wishlist' : 'Add to Wishlist'}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => tryAdd(true)}
+                disabled={soldOut || (needsSize && !size)}
+                className={`h-11 w-full text-[11px] font-medium uppercase tracking-[0.15em] transition-colors ${
+                  soldOut || (needsSize && !size) ? 'cursor-not-allowed bg-neutral-100 text-neutral-400' : 'bg-[#F5F5F5] text-neutral-800 hover:bg-neutral-200'
+                }`}
+              >
+                Buy It Now
+              </button>
+            </div>
 
-            {/* Buy It Now — outline */}
-            <button
-              type="button"
-              onClick={() => tryAdd(true)}
-              disabled={soldOut || (needsSize && !size)}
-              className={`h-12 w-full text-[11px] font-medium uppercase tracking-[0.2em] transition-colors ${
-                soldOut || (needsSize && !size) ? 'cursor-not-allowed bg-neutral-100 text-neutral-400' : 'border border-neutral-300 bg-white text-black hover:border-black'
-              }`}
-            >
-              Buy It Now
-            </button>
+            {/* Trust badges */}
+            <div className="grid grid-cols-2 gap-3 border-y border-neutral-100 py-4 text-[11px] text-neutral-600">
+              {trust.map(([Icon, text]) => (
+                <div key={text} className="flex items-center gap-2">
+                  <Icon size={16} className="shrink-0" strokeWidth={1.5} />
+                  <span>{text}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Collapsible details — native disclosure */}
+            <div className="space-y-1 pt-1 text-[12px]">
+              {accordionItems.map((item) => (
+                <details key={item.title} className="group border-b border-neutral-100 py-2">
+                  <summary className="flex cursor-pointer list-none items-center justify-between text-[11px] font-medium uppercase tracking-[0.15em] text-neutral-800">
+                    {item.title}
+                    <ChevronDown size={16} className="shrink-0 transition-transform group-open:rotate-180" aria-hidden="true" />
+                  </summary>
+                  <div className="pt-3 text-[12px] font-light leading-relaxed text-neutral-500">
+                    {item.content}
+                  </div>
+                </details>
+              ))}
+            </div>
           </div>
-
-          {/* Trust features — CK badges (icons + tracking-wide) */}
-          <div className="grid grid-cols-2 gap-4 border-t border-neutral-100 pt-6 text-[11px] tracking-wide text-neutral-600">
-            {trust.map(([Icon, text]) => (
-              <div key={text} className="flex items-center gap-2.5">
-                <Icon size={16} className="shrink-0 text-neutral-800" strokeWidth={1.5} />
-                <span>{text}</span>
-              </div>
-            ))}
-          </div>
-
-          {/* Accordions */}
-          <AccordionGroup items={accordionItems} />
         </div>
       </main>
 
