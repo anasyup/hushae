@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import { api } from '../api/client';
 import CollectionCard from '../components/CollectionCard';
 import CategoryBanner from '../components/CategoryBanner';
-import NewArrivalsHero from '../components/NewArrivalsHero';
 import LuxuryFilterBar from '../components/LuxuryFilterBar';
 import { ProductGridSkeleton } from '../components/Skeletons';
 import EmptyState from '../components/ui/EmptyState';
@@ -162,8 +161,6 @@ export default function Shop({ preset = {} }) {
       {/* ═══ 0. HERO BANNER ═══════════════════════════════════════════ */}
       {preset.key === 'sale' ? (
         <SalePageHeader f={f} count={count} onOpenFilters={() => setSheetOpen(true)} />
-      ) : preset.key === 'new' ? (
-        <NewArrivalsHero count={count || 0} />
       ) : (
         <CategoryBanner img={banner.img} tag={banner.tag} title={banner.title} description={banner.desc} />
       )}
