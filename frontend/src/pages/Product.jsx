@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  AlertCircle, ArrowLeft, ArrowRight, Box, Heart,
+  AlertCircle, ArrowLeft, ArrowRight, Box, ChevronDown, Heart,
   Package, RotateCcw, ShieldCheck, Star, Truck, X,
 } from 'lucide-react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
