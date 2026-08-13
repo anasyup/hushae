@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   AlertCircle, ArrowLeft, ArrowRight, Box, Heart,
-  Minus, Package, Plus, RotateCcw, ShieldCheck, ShoppingBag, Star, Truck, X,
+  Package, RotateCcw, ShieldCheck, Star, Truck, X,
 } from 'lucide-react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { api } from '../api/client';
@@ -203,108 +203,104 @@ export default function Product() {
         jsonLdId="product"
       />
 
-            {/* ═══ MAIN — CALVIN KLEIN SPLIT (sticky gallery · clean buy box) ═══ */}
-      <main className="mx-auto grid w-full max-w-[1600px] grid-cols-1 pt-24 lg:grid-cols-12">
-        {/* LEFT — sticky full-height gallery (CK reference) */}
-        <div className="relative lg:col-span-6 xl:col-span-7">
-          <div className="group h-[70vh] w-full overflow-hidden bg-[#F2F0EC] lg:sticky lg:top-20 lg:h-screen">
-            {/* Clicking the photograph opens the lightbox */}
-            <button
-              type="button"
-              onClick={() => setLightboxOpen(true)}
-              aria-label="Open fullscreen"
-              className="block h-full w-full cursor-zoom-in"
-            >
-              <img
-                src={gallery[imgIdx] || gallery[0] || FALLBACK}
-                alt={`${name} — view ${imgIdx + 1}`}
-                loading="eager"
-                onError={(e) => { if (e.currentTarget.src !== FALLBACK) e.currentTarget.src = FALLBACK; }}
-                className="h-full w-full object-cover object-center transition-all duration-500"
-              />
-            </button>
-            {/* Minimal image dots — bottom overlay (CK reference) */}
-            {gallery.length > 1 && (
-              <div className="absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 items-center gap-2">
-                {gallery.map((u, idx) => (
-                  <button
-                    key={`${u}-${idx}`}
-                    type="button"
-                    onClick={() => setImgIdx(idx)}
-                    aria-label={`View image ${idx + 1}`}
-                    className={`h-2 rounded-full transition-all ${
-                      idx === imgIdx ? 'w-6 bg-black' : 'w-2 bg-black/30 hover:bg-black/50'
-                    }`}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
+                  {/* ═══ MAIN — sticky image + white scrollable details (reference v8) ═══ */}
+      <main className="mx-auto grid w-full max-w-[1440px] grid-cols-1 lg:grid-cols-12">
+        {/* LEFT — fixed image container (no blank space) */}
+        <div className="flex h-[80vh] items-center justify-center overflow-hidden bg-[#EFECE6] lg:col-span-7 lg:sticky lg:top-0 lg:h-screen">
+          <button
+            type="button"
+            onClick={() => setLightboxOpen(true)}
+            aria-label={`View ${name} fullscreen`}
+            className="block h-full w-full cursor-zoom-in"
+          >
+            <img
+              src={gallery[imgIdx] || gallery[0] || FALLBACK}
+              alt={name}
+              loading="eager"
+              onError={(e) => { if (e.currentTarget.src !== FALLBACK) e.currentTarget.src = FALLBACK; }}
+              className="h-full w-full object-cover object-top"
+            />
+          </button>
+          {/* Minimal image dots */}
+          {gallery.length > 1 && (
+            <div className="absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 items-center gap-2">
+              {gallery.map((u, idx) => (
+                <button
+                  key={`${u}-${idx}`}
+                  type="button"
+                  onClick={() => setImgIdx(idx)}
+                  aria-label={`View image ${idx + 1}`}
+                  className={`h-2 rounded-full transition-all ${
+                    idx === imgIdx ? 'w-6 bg-black' : 'w-2 bg-black/30 hover:bg-black/50'
+                  }`}
+                />
+              ))}
+            </div>
+          )}
         </div>
 
-        {/* RIGHT — CK clean typography & selection */}
-        <div ref={ctaRef} className="mx-auto flex w-full max-w-xl flex-col justify-center space-y-8 px-6 py-10 sm:px-12 lg:col-span-6 lg:px-16 lg:py-20 xl:col-span-5">
-          {/* Breadcrumb */}
-          <nav className="space-x-1 text-[12px] font-light tracking-wide text-neutral-400">
+        {/* RIGHT — white scrollable details column */}
+        <div
+          ref={ctaRef}
+          className="flex flex-col justify-start space-y-6 bg-white px-6 py-10 sm:px-12 lg:col-span-5 lg:py-16"
+        >
+          {/* Breadcrumb — 10px tracking 0.2em uppercase */}
+          <nav className="space-x-1.5 text-[10px] font-light uppercase tracking-[0.2em] text-neutral-400">
             <Link to="/" className="transition hover:text-black">Home</Link>
-            <span className="mx-1">/</span>
+            <span>/</span>
             <Link to={`/${p.gender}`} className="capitalize transition hover:text-black">{p.gender}</Link>
-            <span className="mx-1">/</span>
+            <span>/</span>
             <Link to={`/category/${p.categorySlug}`} className="capitalize transition hover:text-black">{p.categorySlug.replace(/-/g, ' ')}</Link>
-            <span className="mx-1">/</span>
-            <span className="text-black">{name}</span>
+            <span>/</span>
+            <span className="font-normal text-black">{name}</span>
           </nav>
 
-          {/* Title & pricing — CK clean typography */}
-          <div className="space-y-2">
-            <h1 className="text-[24px] font-normal leading-snug tracking-[0.02em] text-[#111111] sm:text-[28px]">
+          {/* Title & price — serif 26px, outline Save badge */}
+          <div className="space-y-2 border-b border-neutral-200/60 pb-5">
+            <h1 className="font-serif text-[26px] font-normal uppercase tracking-[0.08em] text-[#111111]">
               {name}
             </h1>
 
-            <div className="flex items-center gap-3 pt-1">
+            <div className="flex items-center gap-3">
               {onSale && p.compareAtPrice > p.price && (
-                <span className="text-[15px] font-light text-neutral-400 line-through">{pkr(p.compareAtPrice)}</span>
+                <span className="text-[13px] font-light text-neutral-400 line-through">{pkr(p.compareAtPrice)}</span>
               )}
-              <span className="text-[16px] font-semibold text-[#111111]">{pkr(p.price)}</span>
+              <span className="text-[18px] font-medium text-[#111111]">{pkr(p.price)}</span>
+              {onSale && p.compareAtPrice > p.price && (
+                <span className="border border-black px-2 py-0.5 text-[9px] font-semibold uppercase tracking-widest text-black">
+                  Save {discount}%
+                </span>
+              )}
             </div>
 
-            {onSale && p.compareAtPrice > p.price && (
-              <p className="pt-1 text-[12px] font-medium tracking-wide text-[#D9381E]">
-                Save {discount}% — limited-time offer
-              </p>
-            )}
-
-            {/* Rating — only when real reviews exist */}
+            {/* Filled stars — only when real reviews exist */}
             {rating > 0 && (
-              <div id="reviews-link" className="flex items-center gap-2 pt-1">
+              <div id="reviews-link" className="flex items-center gap-2 pt-1 text-[11px]">
                 <button
                   type="button"
                   onClick={() => document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth' })}
                   className="flex items-center gap-2"
                 >
-                  <span className="flex">
+                  <span className="flex text-black">
                     {[1, 2, 3, 4, 5].map((s) => (
                       <Star key={s} size={14} className={`${s <= Math.round(rating) ? 'fill-black text-black' : 'text-neutral-300'}`} />
                     ))}
                   </span>
-                  <span className="text-xs font-semibold underline">{rating.toFixed(1)}</span>
-                  <span className="text-xs text-neutral-500">({p.ratingCount || 0} Reviews)</span>
+                  <span className="font-light text-neutral-500">({p.ratingCount || 0} Reviews)</span>
                 </button>
               </div>
             )}
           </div>
 
-          {/* Colour — CK dots */}
+          {/* Color circles — border-2, selected border-black scale-110 */}
           {p.colors?.length > 0 && (
-            <div className="space-y-3 pt-2">
-              <span className="text-[13px] font-medium text-neutral-800">
-                Color: <span className="font-normal text-neutral-500">{color}</span>
+            <div className="space-y-3">
+              <span className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-800">
+                Color: <span className="font-light text-neutral-500">{color}</span>
               </span>
               <div className="flex items-center gap-3">
                 {p.colors.map((c) => {
                   const on = color === c.name;
-                  const hex = String(c.hex || '#EEEEEE');
-                  const isLight = /^#(?:F|f){3}$/.test(hex) || /^#(?:F|f){6}$/.test(hex) || /^#(?:FFF|fff|F5F5F5|EFEFEF|F2F0EC)$/.test(hex);
                   return (
                     <button
                       key={c.name}
@@ -312,32 +308,29 @@ export default function Product() {
                       onClick={() => setColor(c.name)}
                       title={c.name}
                       aria-label={c.name}
-                      className={`h-7 w-7 rounded-full p-[2px] transition-all ${
-                        on ? 'ring-1 ring-black ring-offset-2' : 'hover:scale-105'
+                      aria-pressed={on}
+                      className={`h-7 w-7 rounded-full border-2 transition-all ${
+                        on ? 'scale-110 border-black' : 'border-transparent'
                       }`}
-                    >
-                      <span
-                        className={`block h-full w-full rounded-full ${isLight ? 'border border-neutral-300' : 'border border-black/10'}`}
-                        style={{ backgroundColor: hex }}
-                      />
-                    </button>
+                      style={{ backgroundColor: c.hex || '#EEEEEE' }}
+                    />
                   );
                 })}
               </div>
             </div>
           )}
 
-          {/* Size — CK grid */}
+          {/* Size — grid-cols-5 h-11 */}
           {needsSize && (
-            <div ref={sizeRef} className="space-y-3 pt-2">
-              <div className="flex items-center justify-between text-[13px]">
-                <span className="font-medium text-neutral-800">Size</span>
-                <button type="button" onClick={() => setGuideOpen(true)} className="text-[12px] text-neutral-500 underline transition hover:text-black">
+            <div ref={sizeRef} className="space-y-3">
+              <div className="flex items-center justify-between text-[11px] uppercase tracking-[0.18em]">
+                <span className="font-medium text-neutral-800">Select Size</span>
+                <button type="button" onClick={() => setGuideOpen(true)} className="text-neutral-400 underline transition hover:text-black">
                   Size Guide
                 </button>
               </div>
 
-              <div className="grid grid-cols-4 gap-3">
+              <div className="grid grid-cols-5 gap-2">
                 {p.sizes.map((s) => {
                   const on = size === s;
                   return (
@@ -346,8 +339,8 @@ export default function Product() {
                       type="button"
                       onClick={() => { setSize(s); setSizeErr(false); }}
                       aria-pressed={on}
-                      className={`h-12 border text-[13px] font-medium transition-all ${
-                        on ? 'border-black bg-black text-white' : 'border-neutral-300 bg-white text-black hover:border-black'
+                      className={`h-11 border text-[11px] font-medium tracking-widest transition-all ${
+                        on ? 'border-black bg-black text-white' : 'border-neutral-200 bg-white text-neutral-800 hover:border-black'
                       }`}
                     >
                       {s}
@@ -373,90 +366,77 @@ export default function Product() {
                   <AlertCircle size={16} /> Please select a size before continuing.
                 </div>
               )}
-
-              {/* Fit note */}
-              <p className="pt-1 text-[12px] font-light text-neutral-500">
-                Tailored regular fit — fits true to size
-              </p>
             </div>
           )}
 
-          {/* Description + Read More */}
-          <div className="space-y-2 pt-2 text-sm leading-relaxed text-neutral-600">
+          {/* Description */}
+          <div className="space-y-2 pt-1 text-[13px] font-light leading-relaxed text-neutral-600">
             <p>{desc}</p>
             {p.description && p.description !== p.shortDescription && (
               <button
                 type="button"
                 onClick={() => setReadMore(!readMore)}
-                className="mt-2 text-[12px] font-medium text-neutral-500 underline transition hover:text-black"
+                className="text-[11px] font-medium text-neutral-500 underline transition hover:text-black"
               >
                 {readMore ? 'Read Less' : 'Read More'}
               </button>
             )}
           </div>
 
-          {/* Actions — CK buttons */}
-          <div className="space-y-3 pt-4">
-            <div className="flex gap-3">
-              <div className="flex h-14 w-32 shrink-0 items-center justify-between border border-neutral-300 bg-white px-3">
-                <button type="button" onClick={() => setQty(Math.max(1, qty - 1))} disabled={qty <= 1} aria-label="Decrease quantity">
-                  <Minus size={16} />
-                </button>
-                <span className="text-[13px] font-medium">{qty}</span>
-                <button type="button" onClick={() => setQty(Math.min(maxQty, qty + 1))} disabled={qty >= maxQty} aria-label="Increase quantity">
-                  <Plus size={16} />
-                </button>
-              </div>
-              <button
-                type="button"
-                onClick={() => tryAdd(false)}
-                disabled={soldOut || (needsSize && !size)}
-                className={`h-14 flex-1 text-[13px] font-medium uppercase tracking-[0.15em] transition-colors ${
-                  soldOut || (needsSize && !size) ? 'cursor-not-allowed bg-neutral-200 text-neutral-500' : 'bg-black text-white hover:bg-neutral-800'
-                }`}
-              >
-                {soldOut ? 'Sold Out' : needsSize && !size ? 'Select a Size' : 'Add to Cart'}
-              </button>
-            </div>
-
-            {/* Wishlist — CK outline */}
+          {/* Main action buttons */}
+          <div className="space-y-2 pt-2">
+            <button
+              type="button"
+              onClick={() => tryAdd(false)}
+              disabled={soldOut || (needsSize && !size)}
+              className={`h-12 w-full text-[11px] font-semibold uppercase tracking-[0.25em] transition-colors ${
+                soldOut || (needsSize && !size) ? 'cursor-not-allowed bg-neutral-200 text-neutral-500' : 'bg-[#111111] text-white hover:bg-neutral-800'
+              }`}
+            >
+              {soldOut ? 'Sold Out' : needsSize && !size ? 'Select a Size' : 'Add to Bag'}
+            </button>
             <button
               type="button"
               onClick={() => toggleWish(p)}
               aria-label={wished ? 'Remove from wishlist' : 'Save to wishlist'}
-              className="flex h-12 w-full items-center justify-center gap-2 border border-neutral-300 text-[12px] font-medium uppercase tracking-[0.15em] text-black transition-colors hover:border-black"
+              className="flex h-11 w-full items-center justify-center gap-2 border border-neutral-300 bg-white text-[11px] font-medium uppercase tracking-[0.2em] text-black transition-colors hover:border-black"
             >
-              <Heart size={16} strokeWidth={1.5} className={wished ? 'fill-black text-black' : ''} />
+              <Heart size={16} strokeWidth={1.2} className={wished ? 'fill-black text-black' : ''} />
               <span>{wished ? 'Saved to Wishlist' : 'Add to Wishlist'}</span>
-            </button>
-
-            {/* Buy It Now — outline */}
-            <button
-              type="button"
-              onClick={() => tryAdd(true)}
-              disabled={soldOut || (needsSize && !size)}
-              className={`h-12 w-full text-[12px] font-medium uppercase tracking-[0.15em] transition-colors ${
-                soldOut || (needsSize && !size) ? 'cursor-not-allowed bg-neutral-100 text-neutral-400' : 'border border-neutral-300 bg-white text-black hover:border-black'
-              }`}
-            >
-              Buy It Now
             </button>
           </div>
 
-          {/* Trust features */}
-          <div className="grid grid-cols-2 gap-4 border-t border-neutral-200 pt-5 text-[11px] text-neutral-600">
-            {trust.map(([Icon, text]) => (
-              <div key={text} className="flex items-center gap-2">
-                <Icon size={16} className="shrink-0 text-black" strokeWidth={1.6} />
-                <span>{text}</span>
+          {/* Trust badges — 3-col uppercase */}
+          <div className="grid grid-cols-1 gap-3 border-y border-neutral-200/70 py-4 text-[10px] uppercase tracking-widest text-neutral-600 sm:grid-cols-3">
+            {[
+              [Truck, 'Express Delivery'],
+              [RotateCcw, '14-Day Returns'],
+              [ShieldCheck, 'Discreet Box'],
+            ].map(([Icon, label]) => (
+              <div key={label} className="flex items-center gap-2">
+                <Icon size={16} className="shrink-0 text-neutral-800" strokeWidth={1.2} />
+                <span>{label}</span>
               </div>
             ))}
           </div>
 
-          {/* Accordions */}
-          <AccordionGroup items={accordionItems} />
+          {/* Collapsible info — native disclosure */}
+          <div className="space-y-2 pt-1 text-[12px]">
+            {accordionItems.map((item) => (
+              <details key={item.title} className="group cursor-pointer border-b border-neutral-200/80 pb-3">
+                <summary className="flex list-none items-center justify-between text-[11px] font-medium uppercase tracking-[0.15em] text-neutral-800">
+                  {item.title}
+                  <ChevronDown size={16} className="shrink-0 transition-transform group-open:rotate-180" aria-hidden="true" />
+                </summary>
+                <div className="pt-2 text-[11px] font-light leading-relaxed text-neutral-500">
+                  {item.content}
+                </div>
+              </details>
+            ))}
+          </div>
         </div>
       </main>
+
 
 
       {/* ═══ EDITORIAL FEATURE ════════════════════════════════════════ */}
