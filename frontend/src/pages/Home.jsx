@@ -28,12 +28,67 @@ const CATEGORIES = [
   { title: "Men's Boxers", image: '/images/categories/boxers.jpg', href: '/category/boxers' },
 ];
 
-/* ── Hero — full-bleed image + left content (CK reference) ───────────────── */
+/* ── HERO SLIDER — 4 slides (image + optional video), same size/text/buttons ──
+   Each slide: `image` (poster / photo) and optional `video` (mp4/webm path).
+   If `video` is set the slide plays it (muted, loop, autoplay) with the
+   image as poster; otherwise it shows the photo. To change slides, swap the
+   paths below or add a video file under public/images/campaign/qa/.
+   Auto-advances every 6s, pauses on hover/focus; thin dots for manual
+   selection. No new action buttons, no filters — everything else unchanged. */
+const HERO_SLIDES = [
+  { image: `${IMG}/hero-women.jpg`, video: '' },
+  { image: `${IMG}/hero-men.jpg`, video: '' },
+  { image: `${IMG}/editorial-modern.jpg`, video: '' },
+  { image: `${IMG}/hero-fabric.jpg`, video: '' },
+];
+
 function HeroSlides() {
+  const [idx, setIdx] = useState(0);
+  const [paused, setPaused] = useState(false);
+
+  useEffect(() => {
+    if (paused) return undefined;
+    const t = setInterval(() => setIdx((i) => (i + 1) % HERO_SLIDES.length), 6000);
+    return () => clearInterval(t);
+  }, [paused]);
+
   return (
-    <section className="relative h-[100svh] w-full overflow-hidden bg-white">
-      <img src={`${IMG}/hero-women.jpg`} alt="New Edit" fetchpriority="high"
-        className="h-full w-full object-cover" />
+    <section
+      className="relative h-[100svh] w-full overflow-hidden bg-white"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      onFocusCapture={() => setPaused(true)}
+      onBlurCapture={() => setPaused(false)}
+    >
+      {/* Slides — crossfade */}
+      {HERO_SLIDES.map((s, i) => (
+        <div
+          key={s.image}
+          aria-hidden={i !== idx}
+          className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${i === idx ? 'opacity-100' : 'opacity-0'}`}
+        >
+          {s.video ? (
+            <video
+              src={s.video}
+              poster={s.image}
+              autoPlay
+              muted
+              loop
+              playsInline
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <img
+              src={s.image}
+              alt=""
+              fetchpriority={i === 0 ? 'high' : 'auto'}
+              loading={i === 0 ? 'eager' : 'lazy'}
+              className="h-full w-full object-cover"
+            />
+          )}
+        </div>
+      ))}
+
       <div className="absolute inset-0 bg-black/15" aria-hidden="true" />
       <div className="absolute bottom-[12%] left-[32px] z-10 max-w-[480px] text-white md:left-[60px]">
         {/* Cover line — LOUIS VUITTON register: one geometric sans (Jost, the
@@ -59,6 +114,22 @@ function HeroSlides() {
             Shop Men
           </Link>
         </div>
+      </div>
+
+      {/* Slide dots — thin, bottom centre */}
+      <div className="absolute bottom-6 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2">
+        {HERO_SLIDES.map((s, i) => (
+          <button
+            key={s.image}
+            type="button"
+            onClick={() => setIdx(i)}
+            aria-label={`Slide ${i + 1}`}
+            aria-current={i === idx}
+            className={`h-1.5 rounded-full transition-all duration-300 ${
+              i === idx ? 'w-6 bg-white' : 'w-1.5 bg-white/50 hover:bg-white/80'
+            }`}
+          />
+        ))}
       </div>
     </section>
   );
