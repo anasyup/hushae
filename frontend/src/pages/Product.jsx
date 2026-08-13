@@ -247,19 +247,29 @@ export default function Product() {
             )}
           </div>
 
-          {/* Image dots — thin (CK reference v2: h-1.5) */}
+          {/* Rounded thumbnails overlay — glass pill (CK reference v3) */}
           {gallery.length > 1 && (
-            <div className="absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 items-center gap-2">
+            <div className="no-scrollbar absolute bottom-6 left-1/2 z-20 flex max-w-[90%] -translate-x-1/2 items-center gap-3 overflow-x-auto rounded-2xl border border-white/40 bg-white/40 px-4 py-2 backdrop-blur-md">
               {gallery.map((u, idx) => (
                 <button
                   key={`${u}-${idx}`}
                   type="button"
                   onClick={() => setImgIdx(idx)}
                   aria-label={`View image ${idx + 1}`}
-                  className={`h-1.5 rounded-full transition-all duration-300 ${
-                    idx === imgIdx ? 'w-6 bg-black' : 'w-1.5 bg-black/30 hover:bg-black/50'
+                  aria-current={idx === imgIdx}
+                  className={`relative h-14 w-14 shrink-0 overflow-hidden rounded-2xl border-2 transition-all duration-200 ${
+                    idx === imgIdx
+                      ? 'scale-105 border-neutral-800 shadow-md'
+                      : 'border-transparent opacity-70 hover:opacity-100'
                   }`}
-                />
+                >
+                  <img
+                    src={u}
+                    alt={`Thumbnail ${idx + 1}`}
+                    loading="lazy"
+                    className="h-full w-full object-cover"
+                  />
+                </button>
               ))}
             </div>
           )}
