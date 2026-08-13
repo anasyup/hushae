@@ -12,7 +12,6 @@ import { titleCase } from '../lib/productMeta';
 import { isVideo } from '../lib/media';
 import CollectionCard from '../components/CollectionCard';
 import ProductReviews from '../components/ProductReviews';
-import ProductQA from '../components/reviews/ProductQA';
 import SizeGuideModal from '../components/SizeGuideModal';
 import { ProductSkeleton } from '../components/Skeletons';
 import Seo, { productJsonLd } from '../components/Seo';
@@ -561,13 +560,6 @@ export default function Product() {
       <section id="reviews" className="scroll-mt-28 border-t border-neutral-200 py-16">
         <div className="mx-auto max-w-[1440px] px-6 lg:px-12">
           <ProductReviews product={p} />
-        </div>
-      </section>
-
-      {/* ═══ QUESTIONS & ANSWERS ══════════════════════════════════════ */}
-      <section className="border-t border-neutral-200 py-16">
-        <div className="mx-auto max-w-[1440px] px-6 lg:px-12">
-          <ProductQA product={p} />
         </div>
       </section>
 

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Heart, Menu, Search, ShoppingBag, User } from 'lucide-react';
+import { Menu } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import OfferBar from './OfferBar';
@@ -12,18 +12,18 @@ import { useCmsNav } from '../lib/useCmsNav';
 import SearchPanel from './search/SearchPanel';
 
 /* ============================================================================
- * HUSHAE header — CALVIN KLEIN reference (exact client spec).
+ * HUSHAE header — transparent hover-white reference (exact client spec).
  *
- *   · fixed top-0 z-50, max-w-[1600px] px-6 md:px-12
- *   · transparent text-black py-5 at top; on scroll (>20px) -> solid WHITE
- *     bg, text-black, shadow-sm, border-b neutral-200, py-4
- *   · logo LEFT — 22/26px normal uppercase tracking 0.18em (HUSHAÈ)
- *   · nav CENTER — 12px medium UPPERCASE tracking 0.15em, gap-8,
- *     Sale link in red, chevron on dropdown items (Women / Men / Sale)
- *   · icons RIGHT — Search · Wishlist · Account · Bag (20px, stroke 1.5) +
- *     real cart count badge (CK pill)
+ *   · fixed top-0 z-50, border-b border-transparent, max-w-[1600px] px-6
+ *     md:px-12, py-4
+ *   · ALWAYS transparent text-black; turns WHITE on hover (or when a mega
+ *     panel is open) with border-b neutral-200 — no scroll-based change
+ *   · logo LEFT — serif BOLD tracking-widest uppercase (HUSHAÈ)
+ *   · nav CENTER — 12px medium UPPERCASE tracking 0.2em, gap-8,
+ *     Sale link red, chevron on dropdown items (Women / Men / Sale)
+ *   · utilities RIGHT — text links: Search · Account · Wishlist · Bag (n)
  *   · dropdowns: Women/Men/Sale open the full-width mega panel
- *   · mobile (lg): nav hidden, hamburger + drawer
+ *   · mobile (md): nav hidden, hamburger + drawer
  * Functionality preserved: cart drawer, wishlist, auth, search panel, mega
  * menus, announcement bar (OfferBar), CMS-driven menu.
  * ========================================================================== */
@@ -35,15 +35,6 @@ export default function Header() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchCfg, setSearchCfg] = useState(null);
   const [mega, setMega] = useState(null);
-  const [isScrolled, setIsScrolled] = useState(false);
-
-  useEffect(() => {
-    const onScroll = () => setIsScrolled(window.scrollY > 20);
-    onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
-
   const loc = useLocation();
   const burgerRef = useRef(null);
   const searchBtnRef = useRef(null);
@@ -58,7 +49,7 @@ export default function Header() {
   const wCats = useMemo(() => cats.filter((c) => c.gender === 'women'), [cats]);
   const mCats = useMemo(() => cats.filter((c) => c.gender === 'men'), [cats]);
 
-  /* ── Menu — admin-editable, default = reference nav (7 items) ─────────── */
+  /* ── Menu — admin-editable, default = reference nav (5 items) ─────────── */
   const hdr = settings?.header || {};
   const baseMenu = useMemo(() => (
     Array.isArray(hdr.menu) && hdr.menu.length ? hdr.menu : [
@@ -67,8 +58,6 @@ export default function Header() {
       { label: 'New Arrivals', href: '/new' },
       { label: 'Best Sellers', href: '/best' },
       { label: 'Sale', href: '/sale', dropdown: 'sale' },
-      { label: 'Fit Finder', href: '/fit-finder' },
-      { label: 'Track Order', href: '/track' },
     ]
   ), [hdr.menu]);
 
@@ -99,57 +88,52 @@ export default function Header() {
     { label: 'Sale', href: '/sale', bold: true },
   ]), []);
 
-  /* CK nav-link style — 12px medium uppercase tracking 0.15em; Sale stays red */
+  /* Reference nav-link style — 12px medium uppercase tracking 0.2em; Sale red */
   const linkCls = useMemo(() => ({ isActive }, label = '') => {
-    const base = 'inline-flex items-center gap-1 font-sans text-[12px] font-medium uppercase tracking-[0.15em] transition-colors duration-200';
+    const base = 'inline-flex items-center gap-1 font-sans text-[12px] font-medium uppercase tracking-[0.2em] transition-colors duration-200';
     const isSale = String(label || '').toLowerCase() === 'sale';
-    const color = isSale ? ' text-red-600 hover:text-red-500' : ' text-[#111111] hover:text-neutral-500';
+    const color = isSale ? ' text-red-500 hover:text-red-600' : ' text-[#111111] hover:text-neutral-500';
     return base + color;
   }, []);
 
-  const navStyle = useMemo(() => ({ fontSize: '12px', letterSpacing: '0.15em' }), []);
-
-  const iconBtn = 'grid h-10 w-10 place-items-center transition-opacity duration-200 hover:opacity-60';
+  const navStyle = useMemo(() => ({ fontSize: '12px', letterSpacing: '0.2em' }), []);
 
   return (
     <>
       <header
         data-header
-        className={`fixed left-0 top-0 z-50 w-full !m-0 !p-0 transition-all duration-300 ease-in-out ${
-          isScrolled
-            ? 'bg-white text-black shadow-sm border-b border-neutral-200'
-            : 'bg-transparent text-black'
+        className={`fixed left-0 top-0 z-50 w-full !m-0 !p-0 border-b transition-colors duration-300 ease-in-out ${
+          mega ? 'border-neutral-200 bg-white text-black' : 'border-transparent bg-transparent text-black hover:border-neutral-200 hover:bg-white'
         }`}
         onMouseLeave={() => setMega(null)}
       >
-        {/* Announcement bar — hidden on the PDP per the CK reference
-            (Requirement 2: announcement bar hidden on product page) */}
+        {/* Announcement bar — hidden on the PDP per the earlier reference */}
         {!loc.pathname.startsWith('/product/') && <OfferBar />}
 
-        {/* CK reference row — py-5 transparent / py-4 scrolled */}
-        <div className={`mx-auto flex max-w-[1600px] items-center justify-between gap-8 px-6 transition-all duration-300 ease-in-out md:px-12 ${isScrolled ? 'py-4' : 'py-5'}`}>
-          {/* Burger — mobile only */}
+        {/* Reference row — transparent, white on hover, py-4 */}
+        <div className="mx-auto flex w-full max-w-[1600px] items-center justify-between gap-8 px-6 py-4 md:px-12">
+          {/* Burger — mobile only (nav shows from md) */}
           <button
             ref={burgerRef}
             type="button"
             onClick={() => setMobileOpen(true)}
             aria-label="Open menu"
             aria-expanded={mobileOpen}
-            className="-ml-2 grid h-10 w-10 shrink-0 place-items-center text-[#111111] transition-colors duration-300 lg:hidden"
+            className="-ml-2 grid h-10 w-10 shrink-0 place-items-center text-[#111111] transition-colors duration-300 md:hidden"
           >
             <Menu size={20} strokeWidth={1.5} aria-hidden="true" />
           </button>
 
-          {/* Logo — LEFT (CK: 22/26px, normal, tracking 0.18em, uppercase) */}
-          <Link to="/" aria-label="HUSHAE — home" className="flex-shrink-0 font-display text-[22px] font-normal uppercase tracking-[0.18em] text-[#111111] transition-colors duration-300 md:text-[26px]">
+          {/* Logo — serif bold tracked caps (reference) */}
+          <Link to="/" aria-label="HUSHAE — home" className="flex-shrink-0 font-serif text-xl font-bold uppercase tracking-widest text-[#111111] transition-colors duration-300">
             HUSHAÈ
           </Link>
 
-          {/* Nav — CENTER */}
+          {/* Nav — CENTER (md+) */}
           <nav
             data-section="header.menu"
             aria-label="Main"
-            className="hidden flex-1 items-center justify-center gap-8 lg:flex"
+            className="hidden flex-1 items-center justify-center gap-8 md:flex"
           >
             {menu.filter((m) => m && m.label).map((m, i) => {
               const dd = m.dropdown || (String(m.label).toLowerCase() === 'sale' ? 'sale' : '');
@@ -173,8 +157,8 @@ export default function Header() {
             })}
           </nav>
 
-          {/* Icons — RIGHT */}
-          <div data-section="header.icons" className="flex shrink-0 items-center gap-6 text-[#111111]">
+          {/* Utility icons — text links (reference) */}
+          <div data-section="header.icons" className="flex shrink-0 items-center gap-5 text-[13px] font-medium uppercase tracking-[0.12em] text-[#111111]">
             {showSearch && (
               <button
                 ref={searchBtnRef}
@@ -183,33 +167,28 @@ export default function Header() {
                 aria-label={searchOpen ? 'Close search' : 'Search products'}
                 aria-expanded={searchOpen}
                 aria-controls="header-search"
-                className={iconBtn}
+                className="transition-colors duration-200 hover:text-neutral-500"
               >
-                <Search size={20} strokeWidth={1.5} aria-hidden="true" />
+                Search
               </button>
-            )}
-            {showWishlist && (
-              <Link to="/wishlist" aria-label={wishlist.length ? `Wishlist, ${wishlist.length} saved` : 'Wishlist'}
-                className={`${iconBtn} hidden sm:grid`}>
-                <Heart size={20} strokeWidth={1.5} aria-hidden="true" />
-              </Link>
             )}
             {showAccount && (
               <Link to="/account" aria-label={auth ? 'Your account' : 'Sign in'}
-                className={`${iconBtn} hidden sm:grid`}>
-                <User size={20} strokeWidth={1.5} aria-hidden="true" />
+                className="hidden transition-colors duration-200 hover:text-neutral-500 sm:inline-block">
+                Account
+              </Link>
+            )}
+            {showWishlist && (
+              <Link to="/wishlist" aria-label={wishlist.length ? `Wishlist, ${wishlist.length} saved` : 'Wishlist'}
+                className="hidden transition-colors duration-200 hover:text-neutral-500 sm:inline-block">
+                Wishlist
               </Link>
             )}
             {showCart && (
               <button type="button" onClick={() => setDrawerOpen(true)}
                 aria-label={cartCount ? `Open bag, ${cartCount} item${cartCount === 1 ? '' : 's'}` : 'Open bag'}
-                className={`relative ${iconBtn}`}>
-                <ShoppingBag size={20} strokeWidth={1.5} aria-hidden="true" />
-                {cartCount > 0 && (
-                  <span className="absolute -top-1 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-black text-[9px] font-medium text-white">
-                    {cartCount}
-                  </span>
-                )}
+                className="relative transition-colors duration-200 hover:text-neutral-500">
+                Bag ({cartCount})
               </button>
             )}
           </div>
