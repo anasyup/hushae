@@ -203,53 +203,60 @@ export default function Product() {
         jsonLdId="product"
       />
 
-                        {/* ═══ MAIN — hero image + 2-col detail grid + sticky panel (v10) ═══ */}
+                        {/* ═══ MAIN — main image + horizontal thumbnail strip + details (v11) ═══ */}
       <main className="grid w-full min-h-screen grid-cols-1 lg:grid-cols-12">
-        {/* LEFT — main hero full edge-to-edge + remaining in 2-column grid */}
-        <div className="bg-[#EFECE6] p-0 m-0 lg:col-span-6 xl:col-span-7">
-          {/* 1. Main hero image — full height */}
+        {/* LEFT — main big image + bottom horizontal thumbnail list */}
+        <div className="flex flex-col justify-between bg-[#EFECE6] p-0 m-0 lg:col-span-6 xl:col-span-7">
+          {/* 1. Top big main display image */}
           <button
             type="button"
-            onClick={() => { setImgIdx(0); setLightboxOpen(true); }}
+            onClick={() => setLightboxOpen(true)}
             aria-label={`View ${name} fullscreen`}
-            className="block h-[85vh] w-full overflow-hidden p-0 m-0 lg:h-screen"
+            className="flex h-[65vh] w-full items-center justify-center overflow-hidden bg-[#EFECE6] p-0 m-0 lg:h-[75vh]"
           >
             <img
-              src={gallery[0] || FALLBACK}
+              src={gallery[imgIdx] || gallery[0] || FALLBACK}
               alt={`${name} — main view`}
               loading="eager"
               onError={(e) => { if (e.currentTarget.src !== FALLBACK) e.currentTarget.src = FALLBACK; }}
-              className="block h-full w-full object-cover object-top p-0 m-0"
+              className="block h-full w-full object-cover object-top transition-opacity duration-300"
             />
           </button>
 
-          {/* 2. Remaining images — 2-column luxury grid */}
+          {/* 2. Bottom remaining images — horizontal list */}
           {gallery.length > 1 && (
-            <div className="grid grid-cols-2 gap-1 bg-[#FAF8F5] p-1">
-              {gallery.slice(1).map((u, idx) => (
-                <button
-                  key={`${u}-${idx}`}
-                  type="button"
-                  onClick={() => { setImgIdx(idx + 1); setLightboxOpen(true); }}
-                  aria-label={`View ${name} — detail ${idx + 1} fullscreen`}
-                  className="block w-full overflow-hidden bg-[#EFECE6]"
-                >
-                  <img
-                    src={u}
-                    alt={`${name} — detail ${idx + 1}`}
-                    loading="lazy"
-                    onError={(e) => { if (e.currentTarget.src !== FALLBACK) e.currentTarget.src = FALLBACK; }}
-                    className="aspect-[3/4] h-full w-full object-cover object-center transition-transform duration-500 hover:scale-105"
-                  />
-                </button>
-              ))}
+            <div className="w-full overflow-x-auto bg-[#FAF8F5] p-4">
+              <div className="flex min-w-max items-center gap-3">
+                {gallery.map((u, idx) => (
+                  <button
+                    key={`${u}-${idx}`}
+                    type="button"
+                    onClick={() => setImgIdx(idx)}
+                    aria-label={`View image ${idx + 1}`}
+                    aria-current={idx === imgIdx}
+                    className={`relative h-24 w-20 overflow-hidden rounded-md border-2 transition-all duration-200 lg:h-28 lg:w-24 ${
+                      idx === imgIdx
+                        ? 'scale-105 border-black opacity-100 shadow-md'
+                        : 'border-transparent opacity-60 hover:opacity-100'
+                    }`}
+                  >
+                    <img
+                      src={u}
+                      alt={`Thumbnail ${idx + 1}`}
+                      loading="lazy"
+                      onError={(e) => { if (e.currentTarget.src !== FALLBACK) e.currentTarget.src = FALLBACK; }}
+                      className="block h-full w-full object-cover object-top"
+                    />
+                  </button>
+                ))}
+              </div>
             </div>
           )}
         </div>
 
-        {/* RIGHT — sticky checkout panel (page ground, not white) */}
-        <div className="relative flex flex-col justify-start px-8 py-12 sm:px-14 lg:col-span-6 lg:px-16 xl:col-span-5">
-          <div ref={ctaRef} className="space-y-7 lg:sticky lg:top-10">
+        {/* RIGHT — details section (v11: balanced height, no sticky) */}
+        <div className="relative flex flex-col justify-start bg-[#FAF8F5] px-8 py-10 sm:px-14 lg:col-span-6 lg:px-16 xl:col-span-5">
+          <div ref={ctaRef} className="space-y-6">
             {/* Breadcrumb — 10px tracking 0.2em uppercase */}
             <nav className="space-x-1.5 text-[10px] font-light uppercase tracking-[0.2em] text-neutral-400">
               <Link to="/" className="transition hover:text-black">Home</Link>
