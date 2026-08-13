@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  AlertCircle, ArrowLeft, ArrowRight, Box, ChevronDown, Heart,
+  AlertCircle, ArrowLeft, ArrowRight, Box, ChevronDown, ChevronLeft, ChevronRight, Heart,
   Package, RotateCcw, ShieldCheck, Star, Truck, X,
 } from 'lucide-react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
@@ -208,20 +208,47 @@ export default function Product() {
         {/* LEFT — main big image + bottom horizontal thumbnail list */}
         <div className="flex flex-col justify-between bg-[#EFECE6] p-0 m-0 lg:col-span-6 xl:col-span-7">
           {/* 1. Top big main display image — fixed aspect ratio (3/4 mobile, 4/5 desktop) */}
-          <button
-            type="button"
-            onClick={() => setLightboxOpen(true)}
-            aria-label={`View ${name} fullscreen`}
-            className="aspect-[3/4] w-full overflow-hidden bg-[#EFECE6] p-0 m-0 lg:aspect-[4/5]"
-          >
-            <img
-              src={gallery[imgIdx] || gallery[0] || FALLBACK}
-              alt={`${name} — main view`}
-              loading="eager"
-              onError={(e) => { if (e.currentTarget.src !== FALLBACK) e.currentTarget.src = FALLBACK; }}
-              className="block h-full w-full object-cover object-center transition-opacity duration-300"
-            />
-          </button>
+          <div className="group relative aspect-[3/4] w-full overflow-hidden bg-[#EFECE6] p-0 m-0 lg:aspect-[4/5]">
+            {/* Clicking the photo opens the lightbox */}
+            <button
+              type="button"
+              onClick={() => setLightboxOpen(true)}
+              aria-label={`View ${name} fullscreen`}
+              className="block h-full w-full"
+            >
+              <img
+                src={gallery[imgIdx] || gallery[0] || FALLBACK}
+                alt={`${name} — main view`}
+                loading="eager"
+                onError={(e) => { if (e.currentTarget.src !== FALLBACK) e.currentTarget.src = FALLBACK; }}
+                className="block h-full w-full object-cover object-center transition-all duration-300"
+              />
+            </button>
+
+            {/* Left arrow */}
+            {gallery.length > 1 && (
+              <button
+                type="button"
+                onClick={() => setImgIdx((i) => (i - 1 + gallery.length) % gallery.length)}
+                aria-label="Previous image"
+                className="absolute left-3 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/70 text-black opacity-80 shadow-sm transition-all hover:bg-white hover:opacity-100"
+              >
+                <ChevronLeft size={24} strokeWidth={1.5} />
+              </button>
+            )}
+
+            {/* Right arrow */}
+            {gallery.length > 1 && (
+              <button
+                type="button"
+                onClick={() => setImgIdx((i) => (i + 1) % gallery.length)}
+                aria-label="Next image"
+                className="absolute right-3 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/70 text-black opacity-80 shadow-sm transition-all hover:bg-white hover:opacity-100"
+              >
+                <ChevronRight size={24} strokeWidth={1.5} />
+              </button>
+            )}
+          </div>
 
           {/* 2. Bottom remaining images — horizontal list */}
           {gallery.length > 1 && (
