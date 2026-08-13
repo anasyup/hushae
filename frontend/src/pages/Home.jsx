@@ -44,22 +44,14 @@ const HERO_SLIDES = [
 
 function HeroSlides() {
   const [idx, setIdx] = useState(0);
-  const [paused, setPaused] = useState(false);
 
   useEffect(() => {
-    if (paused) return undefined;
     const t = setInterval(() => setIdx((i) => (i + 1) % HERO_SLIDES.length), 4000);
     return () => clearInterval(t);
-  }, [paused]);
+  }, []);
 
   return (
-    <section
-      className="relative h-[100svh] w-full overflow-hidden bg-white"
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-      onFocusCapture={() => setPaused(true)}
-      onBlurCapture={() => setPaused(false)}
-    >
+    <section className="relative h-[100svh] w-full overflow-hidden bg-white">
       {/* Slides — crossfade */}
       {HERO_SLIDES.map((s, i) => (
         <div
