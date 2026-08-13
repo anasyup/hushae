@@ -5,9 +5,6 @@ import { api } from '../api/client';
 import CollectionCard from '../components/CollectionCard';
 import CategoryBanner from '../components/CategoryBanner';
 import NewArrivalsHero from '../components/NewArrivalsHero';
-import NewArrivalsStory from '../components/NewArrivalsStory';
-import NewArrivalsLookbook from '../components/NewArrivalsLookbook';
-import NewArrivalsClosing from '../components/NewArrivalsClosing';
 import LuxuryFilterBar from '../components/LuxuryFilterBar';
 import { ProductGridSkeleton } from '../components/Skeletons';
 import EmptyState from '../components/ui/EmptyState';
@@ -166,11 +163,7 @@ export default function Shop({ preset = {} }) {
       {preset.key === 'sale' ? (
         <SalePageHeader f={f} count={count} onOpenFilters={() => setSheetOpen(true)} />
       ) : preset.key === 'new' ? (
-        <>
-          <NewArrivalsHero count={count || 0} />
-          {/* Editorial story module between hero and the grid */}
-          <NewArrivalsStory />
-        </>
+        <NewArrivalsHero count={count || 0} />
       ) : (
         <CategoryBanner img={banner.img} tag={banner.tag} title={banner.title} description={banner.desc} />
       )}
@@ -221,14 +214,6 @@ export default function Shop({ preset = {} }) {
           </>
         )}
       </div>
-
-      {/* ═══ EDITORIAL CLOSE — lookbook + closing band (New Arrivals only) ═══ */}
-      {preset.key === 'new' && (
-        <>
-          <NewArrivalsLookbook />
-          <NewArrivalsClosing />
-        </>
-      )}
 
       {/* ═══ FILTER SHEET (All Filters) ═══════════════════════════════ */}
       <FilterSheet
