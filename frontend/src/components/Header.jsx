@@ -12,18 +12,20 @@ import { useCmsNav } from '../lib/useCmsNav';
 import SearchPanel from './search/SearchPanel';
 
 /* ============================================================================
- * HUSHAE header — exact client reference (solid white, sticky).
+ * HUSHAE header — CALVIN KLEIN reference (exact client spec).
  *
- *   · solid WHITE, border-b neutral-200, sticky top-0 z-50
- *   · logo LEFT — serif, text-xl/2xl, bold, tracking 0.15em, uppercase HUSHAÈ
- *   · nav CENTER — 7 items, 11px medium UPPERCASE tracking 0.18em, gap-8,
- *     chevron on dropdown items (Women / Men / Sale)
+ *   · fixed top-0 z-50, max-w-[1600px] px-6 md:px-12
+ *   · transparent text-black py-5 at top; on scroll (>20px) -> solid WHITE
+ *     bg, text-black, shadow-sm, border-b neutral-200, py-4
+ *   · logo LEFT — 22/26px normal uppercase tracking 0.18em (HUSHAÈ)
+ *   · nav CENTER — 12px medium UPPERCASE tracking 0.15em, gap-8,
+ *     Sale link in red, chevron on dropdown items (Women / Men / Sale)
  *   · icons RIGHT — Search · Wishlist · Account · Bag (20px, stroke 1.5) +
- *     real cart count badge
+ *     real cart count badge (CK pill)
  *   · dropdowns: Women/Men/Sale open the full-width mega panel
  *   · mobile (lg): nav hidden, hamburger + drawer
  * Functionality preserved: cart drawer, wishlist, auth, search panel, mega
- * menus, announcement bar.
+ * menus, announcement bar (OfferBar), CMS-driven menu.
  * ========================================================================== */
 
 export default function Header() {
@@ -36,14 +38,13 @@ export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setIsScrolled(window.scrollY > 30);
+    const onScroll = () => setIsScrolled(window.scrollY > 20);
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
   const loc = useLocation();
-  const isHome = loc.pathname === '/';
   const burgerRef = useRef(null);
   const searchBtnRef = useRef(null);
 
@@ -98,29 +99,33 @@ export default function Header() {
     { label: 'Sale', href: '/sale', bold: true },
   ]), []);
 
-  /* Reference nav-link style — 11px medium uppercase tracking 0.18em */
-  const linkCls = useMemo(() => ({ isActive }) => (
-    `inline-flex items-center gap-1 font-sans text-[11px] font-medium uppercase tracking-[0.18em] text-[#111111] transition-colors duration-200 hover:text-neutral-500`
-  ), []);
+  /* CK nav-link style — 12px medium uppercase tracking 0.15em; Sale stays red */
+  const linkCls = useMemo(() => ({ isActive }, label = '') => {
+    const base = 'inline-flex items-center gap-1 font-sans text-[12px] font-medium uppercase tracking-[0.15em] transition-colors duration-200';
+    const isSale = String(label || '').toLowerCase() === 'sale';
+    const color = isSale ? ' text-red-600 hover:text-red-500' : ' text-[#111111] hover:text-neutral-500';
+    return base + color;
+  }, []);
 
-  const navStyle = useMemo(() => ({ fontSize: '11px', letterSpacing: '0.18em' }), []);
+  const navStyle = useMemo(() => ({ fontSize: '12px', letterSpacing: '0.15em' }), []);
 
-  const iconBtn = 'grid h-10 w-10 place-items-center text-[#111111] transition-opacity duration-200 hover:opacity-60';
+  const iconBtn = 'grid h-10 w-10 place-items-center transition-opacity duration-200 hover:opacity-60';
 
   return (
     <>
       <header
         data-header
-        className={`fixed left-0 top-0 z-50 w-full !m-0 !p-0 transition-all duration-500 ease-in-out ${
-          isScrolled || !isHome
-            ? 'bg-white/95 py-3 text-black shadow-sm backdrop-blur-md'
-            : 'bg-transparent py-4 text-white'
-        } border-none outline-none`}
+        className={`fixed left-0 top-0 z-50 w-full !m-0 !p-0 transition-all duration-300 ease-in-out ${
+          isScrolled
+            ? 'bg-white text-black shadow-sm border-b border-neutral-200'
+            : 'bg-transparent text-black'
+        }`}
         onMouseLeave={() => setMega(null)}
       >
         {<OfferBar />}
 
-        <div className="mx-auto flex h-16 max-w-[1600px] items-center justify-between gap-8 px-6">
+        {/* CK reference row — py-5 transparent / py-4 scrolled */}
+        <div className={`mx-auto flex max-w-[1600px] items-center justify-between gap-8 px-6 transition-all duration-300 ease-in-out md:px-12 ${isScrolled ? 'py-4' : 'py-5'}`}>
           {/* Burger — mobile only */}
           <button
             ref={burgerRef}
@@ -128,13 +133,13 @@ export default function Header() {
             onClick={() => setMobileOpen(true)}
             aria-label="Open menu"
             aria-expanded={mobileOpen}
-            className={`-ml-2 grid h-10 w-10 shrink-0 place-items-center transition-colors duration-300 lg:hidden ${isScrolled || !isHome ? "text-[#111111]" : "text-white"}`}
+            className="-ml-2 grid h-10 w-10 shrink-0 place-items-center text-[#111111] transition-colors duration-300 lg:hidden"
           >
-            <Menu size={20} strokeWidth={1.6} aria-hidden="true" />
+            <Menu size={20} strokeWidth={1.5} aria-hidden="true" />
           </button>
 
-          {/* Logo — LEFT */}
-          <Link to="/" aria-label="HUSHAE — home" className={`flex-shrink-0 font-display text-2xl font-medium uppercase tracking-[0.2em] transition-colors duration-300 md:text-3xl ${isScrolled || !isHome ? 'text-black' : 'text-white'}`}>
+          {/* Logo — LEFT (CK: 22/26px, normal, tracking 0.18em, uppercase) */}
+          <Link to="/" aria-label="HUSHAE — home" className="flex-shrink-0 font-display text-[22px] font-normal uppercase tracking-[0.18em] text-[#111111] transition-colors duration-300 md:text-[26px]">
             HUSHAÈ
           </Link>
 
@@ -151,7 +156,7 @@ export default function Header() {
                   key={`${m.label}-${i}`}
                   label={m.label}
                   to={m.href || '/'}
-                  linkCls={linkCls}
+                  linkCls={(o) => linkCls(o, m.label)}
                   navStyle={navStyle}
                   active={mega === dd}
                   onOpen={() => setMega(dd)}
@@ -159,7 +164,7 @@ export default function Header() {
                 />
               ) : (
                 <NavLink key={`${m.label}-${i}`} to={m.href || '/'} style={navStyle}
-                  className={({ isActive }) => linkCls({ isActive })}>
+                  className={({ isActive }) => linkCls({ isActive }, m.label)}>
                   {m.label}
                 </NavLink>
               );
@@ -167,7 +172,7 @@ export default function Header() {
           </nav>
 
           {/* Icons — RIGHT */}
-          <div data-section="header.icons" className={`flex shrink-0 items-center gap-5 transition-colors duration-300 ${isScrolled || !isHome ? "text-[#111111]" : "text-white"}`}>
+          <div data-section="header.icons" className="flex shrink-0 items-center gap-6 text-[#111111]">
             {showSearch && (
               <button
                 ref={searchBtnRef}
@@ -178,28 +183,28 @@ export default function Header() {
                 aria-controls="header-search"
                 className={iconBtn}
               >
-                <Search size={16} strokeWidth={1.8} aria-hidden="true" />
+                <Search size={20} strokeWidth={1.5} aria-hidden="true" />
               </button>
             )}
             {showWishlist && (
               <Link to="/wishlist" aria-label={wishlist.length ? `Wishlist, ${wishlist.length} saved` : 'Wishlist'}
                 className={`${iconBtn} hidden sm:grid`}>
-                <Heart size={16} strokeWidth={1.8} aria-hidden="true" />
+                <Heart size={20} strokeWidth={1.5} aria-hidden="true" />
               </Link>
             )}
             {showAccount && (
               <Link to="/account" aria-label={auth ? 'Your account' : 'Sign in'}
                 className={`${iconBtn} hidden sm:grid`}>
-                <User size={16} strokeWidth={1.8} aria-hidden="true" />
+                <User size={20} strokeWidth={1.5} aria-hidden="true" />
               </Link>
             )}
             {showCart && (
               <button type="button" onClick={() => setDrawerOpen(true)}
                 aria-label={cartCount ? `Open bag, ${cartCount} item${cartCount === 1 ? '' : 's'}` : 'Open bag'}
                 className={`relative ${iconBtn}`}>
-                <ShoppingBag size={16} strokeWidth={1.8} aria-hidden="true" />
+                <ShoppingBag size={20} strokeWidth={1.5} aria-hidden="true" />
                 {cartCount > 0 && (
-                  <span className="absolute -right-1.5 -top-1.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-black text-[8px] font-bold text-white">
+                  <span className="absolute -top-1 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-black text-[9px] font-medium text-white">
                     {cartCount}
                   </span>
                 )}
