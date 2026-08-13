@@ -203,7 +203,7 @@ export default function Product() {
       />
 
                         {/* ═══ MAIN — main image + horizontal thumbnail strip + details (v11) ═══ */}
-      <main className="grid w-full min-h-screen grid-cols-1 lg:grid-cols-12">
+      <main className="grid w-full min-h-screen grid-cols-1 pt-16 lg:grid-cols-12 lg:pt-0">
         {/* LEFT — main big image + bottom horizontal thumbnail list */}
         <div className="flex flex-col justify-between bg-[#EFECE6] p-0 m-0 lg:col-span-6 xl:col-span-7">
           {/* 1. Top big main display image — fixed aspect ratio (3/4 mobile, 4/5 desktop) */}
@@ -280,8 +280,8 @@ export default function Product() {
           )}
         </div>
 
-        {/* RIGHT — details section (v11: balanced height, no sticky) */}
-        <div className="relative flex flex-col justify-start bg-[#FAF8F5] px-8 py-10 sm:px-14 lg:col-span-6 lg:px-16 xl:col-span-5">
+        {/* RIGHT — details section (top padding clears the fixed header) */}
+        <div className="relative flex flex-col justify-start bg-[#FAF8F5] px-8 pb-10 pt-24 sm:px-14 lg:col-span-6 lg:px-16 lg:pt-28 xl:col-span-5">
           <div ref={ctaRef} className="space-y-6">
             {/* Breadcrumb — 10px tracking 0.2em uppercase */}
             <nav className="space-x-1.5 text-[10px] font-light uppercase tracking-[0.2em] text-neutral-400">

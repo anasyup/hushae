@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Menu } from 'lucide-react';
+import { Heart, Menu, Search, ShoppingBag, User } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import OfferBar from './OfferBar';
@@ -49,7 +49,7 @@ export default function Header() {
   const wCats = useMemo(() => cats.filter((c) => c.gender === 'women'), [cats]);
   const mCats = useMemo(() => cats.filter((c) => c.gender === 'men'), [cats]);
 
-  /* ── Menu — admin-editable, default = reference nav (5 items) ─────────── */
+  /* ── Menu — admin-editable, default = reference nav (7 items) ─────────── */
   const hdr = settings?.header || {};
   const baseMenu = useMemo(() => (
     Array.isArray(hdr.menu) && hdr.menu.length ? hdr.menu : [
@@ -58,6 +58,8 @@ export default function Header() {
       { label: 'New Arrivals', href: '/new' },
       { label: 'Best Sellers', href: '/best' },
       { label: 'Sale', href: '/sale', dropdown: 'sale' },
+      { label: 'Fit Finder', href: '/fit-finder' },
+      { label: 'Track Order', href: '/track' },
     ]
   ), [hdr.menu]);
 
@@ -157,8 +159,8 @@ export default function Header() {
             })}
           </nav>
 
-          {/* Utility icons — text links (reference) */}
-          <div data-section="header.icons" className="flex shrink-0 items-center gap-5 text-[13px] font-medium uppercase tracking-[0.12em] text-[#111111]">
+          {/* Utility icons — icon buttons (reference) */}
+          <div data-section="header.icons" className="flex shrink-0 items-center gap-5 text-[#111111]">
             {showSearch && (
               <button
                 ref={searchBtnRef}
@@ -167,28 +169,31 @@ export default function Header() {
                 aria-label={searchOpen ? 'Close search' : 'Search products'}
                 aria-expanded={searchOpen}
                 aria-controls="header-search"
-                className="transition-colors duration-200 hover:text-neutral-500"
+                className="transition-opacity duration-200 hover:opacity-60"
               >
-                Search
+                <Search size={16} strokeWidth={1.5} aria-hidden="true" />
               </button>
-            )}
-            {showAccount && (
-              <Link to="/account" aria-label={auth ? 'Your account' : 'Sign in'}
-                className="hidden transition-colors duration-200 hover:text-neutral-500 sm:inline-block">
-                Account
-              </Link>
             )}
             {showWishlist && (
               <Link to="/wishlist" aria-label={wishlist.length ? `Wishlist, ${wishlist.length} saved` : 'Wishlist'}
-                className="hidden transition-colors duration-200 hover:text-neutral-500 sm:inline-block">
-                Wishlist
+                className="transition-opacity duration-200 hover:opacity-60">
+                <Heart size={16} strokeWidth={1.5} aria-hidden="true" />
+              </Link>
+            )}
+            {showAccount && (
+              <Link to="/account" aria-label={auth ? 'Your account' : 'Sign in'}
+                className="transition-opacity duration-200 hover:opacity-60">
+                <User size={16} strokeWidth={1.5} aria-hidden="true" />
               </Link>
             )}
             {showCart && (
               <button type="button" onClick={() => setDrawerOpen(true)}
                 aria-label={cartCount ? `Open bag, ${cartCount} item${cartCount === 1 ? '' : 's'}` : 'Open bag'}
-                className="relative transition-colors duration-200 hover:text-neutral-500">
-                Bag ({cartCount})
+                className="relative transition-opacity duration-200 hover:opacity-60">
+                <ShoppingBag size={16} strokeWidth={1.5} aria-hidden="true" />
+                <span className="absolute -right-2 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-black text-[9px] font-bold text-white">
+                  {cartCount}
+                </span>
               </button>
             )}
           </div>
