@@ -12,16 +12,17 @@ import { useCmsNav } from '../lib/useCmsNav';
 import SearchPanel from './search/SearchPanel';
 
 /* ============================================================================
- * HUSHAE header — transparent hover-white reference (exact client spec).
+ * HUSHAE header — theme-color scroll reference (exact client spec).
  *
- *   · fixed top-0 z-50, border-b border-transparent, max-w-[1600px] px-6
- *     md:px-12, py-4
- *   · ALWAYS transparent text-black; turns WHITE on hover (or when a mega
- *     panel is open) with border-b neutral-200 — no scroll-based change
- *   · logo LEFT — serif BOLD tracking-widest uppercase (HUSHAÈ)
- *   · nav CENTER — 12px medium UPPERCASE tracking 0.2em, gap-8,
- *     Sale link red, chevron on dropdown items (Women / Men / Sale)
- *   · utilities RIGHT — text links: Search · Account · Wishlist · Bag (n)
+ *   · fixed top-0 z-50, px-6 lg:px-12 py-4, max-w-[1600px] row
+ *   · TOP: bg-transparent text-black, hover:bg-[#FAF8F5] + border
+ *   · SCROLLED (>20px): solid bg-[#FAF8F5] + border-b neutral-300/60 +
+ *     shadow-sm (theme colour, not white); also solid while a mega panel
+ *     is open so the dropdown reads cleanly
+ *   · logo LEFT — serif SEMIBOLD tracking-widest uppercase (HUSHAÈ)
+ *   · nav CENTER — 11px medium UPPERCASE tracking 0.2em, gap-8, hover
+ *     opacity; SALE red-600; chevron on dropdown items (Women / Men / Sale)
+ *   · utilities RIGHT — icon buttons Search · Wishlist · Account · Bag (n)
  *   · dropdowns: Women/Men/Sale open the full-width mega panel
  *   · mobile (md): nav hidden, hamburger + drawer
  * Functionality preserved: cart drawer, wishlist, auth, search panel, mega
@@ -38,6 +39,14 @@ export default function Header() {
   const loc = useLocation();
   const burgerRef = useRef(null);
   const searchBtnRef = useRef(null);
+
+  const [isScrolled, setIsScrolled] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setIsScrolled(window.scrollY > 20);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   useEffect(() => { api('/categories').then((d) => setCats(d.categories)).catch(() => {}); }, []);
   useEffect(() => {
@@ -90,30 +99,32 @@ export default function Header() {
     { label: 'Sale', href: '/sale', bold: true },
   ]), []);
 
-  /* Reference nav-link style — 12px medium uppercase tracking 0.2em; Sale red */
+  /* Reference nav-link style — 11px medium uppercase tracking 0.2em; Sale red */
   const linkCls = useMemo(() => ({ isActive }, label = '') => {
-    const base = 'inline-flex items-center gap-1 font-sans text-[12px] font-medium uppercase tracking-[0.2em] transition-colors duration-200';
+    const base = 'inline-flex items-center gap-1 font-sans text-[11px] font-medium uppercase tracking-[0.2em] transition-opacity duration-200';
     const isSale = String(label || '').toLowerCase() === 'sale';
-    const color = isSale ? ' text-red-500 hover:text-red-600' : ' text-[#111111] hover:text-neutral-500';
+    const color = isSale ? ' text-red-600 hover:opacity-60' : ' text-[#111111] hover:opacity-60';
     return base + color;
   }, []);
 
-  const navStyle = useMemo(() => ({ fontSize: '12px', letterSpacing: '0.2em' }), []);
+  const navStyle = useMemo(() => ({ fontSize: '11px', letterSpacing: '0.2em' }), []);
 
   return (
     <>
       <header
         data-header
-        className={`fixed left-0 top-0 z-50 w-full !m-0 !p-0 border-b transition-colors duration-300 ease-in-out ${
-          mega ? 'border-neutral-200 bg-white text-black' : 'border-transparent bg-transparent text-black hover:border-neutral-200 hover:bg-white'
+        className={`fixed left-0 top-0 z-50 w-full px-6 py-4 !m-0 transition-all duration-300 ease-in-out lg:px-12 ${
+          mega || isScrolled
+            ? 'border-b border-neutral-300/60 bg-[#FAF8F5] text-black shadow-sm'
+            : 'border-b border-transparent bg-transparent text-black hover:border-neutral-300/60 hover:bg-[#FAF8F5]'
         }`}
         onMouseLeave={() => setMega(null)}
       >
         {/* Announcement bar — hidden on the PDP per the earlier reference */}
         {!loc.pathname.startsWith('/product/') && <OfferBar />}
 
-        {/* Reference row — transparent, white on hover, py-4 */}
-        <div className="mx-auto flex w-full max-w-[1600px] items-center justify-between gap-8 px-6 py-4 md:px-12">
+        {/* Reference row */}
+        <div className="mx-auto flex w-full max-w-[1600px] items-center justify-between gap-8">
           {/* Burger — mobile only (nav shows from md) */}
           <button
             ref={burgerRef}
