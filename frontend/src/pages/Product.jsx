@@ -207,19 +207,19 @@ export default function Product() {
       <main className="grid w-full min-h-screen grid-cols-1 lg:grid-cols-12">
         {/* LEFT — main big image + bottom horizontal thumbnail list */}
         <div className="flex flex-col justify-between bg-[#EFECE6] p-0 m-0 lg:col-span-6 xl:col-span-7">
-          {/* 1. Top big main display image */}
+          {/* 1. Top big main display image — fixed aspect ratio (3/4 mobile, 4/5 desktop) */}
           <button
             type="button"
             onClick={() => setLightboxOpen(true)}
             aria-label={`View ${name} fullscreen`}
-            className="flex h-[65vh] w-full items-center justify-center overflow-hidden bg-[#EFECE6] p-0 m-0 lg:h-[75vh]"
+            className="aspect-[3/4] w-full overflow-hidden bg-[#EFECE6] p-0 m-0 lg:aspect-[4/5]"
           >
             <img
               src={gallery[imgIdx] || gallery[0] || FALLBACK}
               alt={`${name} — main view`}
               loading="eager"
               onError={(e) => { if (e.currentTarget.src !== FALLBACK) e.currentTarget.src = FALLBACK; }}
-              className="block h-full w-full object-cover object-top transition-opacity duration-300"
+              className="block h-full w-full object-cover object-center transition-opacity duration-300"
             />
           </button>
 
