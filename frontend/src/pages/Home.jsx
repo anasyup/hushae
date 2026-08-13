@@ -5,6 +5,7 @@ import { api } from '../api/client';
 import Seo, { organizationJsonLd } from '../components/Seo';
 import LuxuryCategoryShowcase from '../components/LuxuryCategoryShowcase';
 import CollectionCard from '../components/CollectionCard';
+import NewArrivalsSection from '../components/home/NewArrivalsSection';
 import DiscoverTiles from '../components/home/DiscoverTiles';
 
 /* ============================================================================
@@ -224,8 +225,8 @@ export default function Home() {
       {/* 03 — STUDIO CATEGORY SHOWCASE (Givenchy canvas) */}
       <LuxuryCategoryShowcase />
 
-      {/* 04 — THE NEW COLLECTION (Givenchy) */}
-      <ProductCarouselSection title="The New Collection" subtitle="EXPLORE NOW" products={fresh} href="/new" />
+      {/* 04 — NEW ARRIVALS — luxury grid (editorial header + tabs) */}
+      <NewArrivalsSection products={fresh} />
 
       {/* 04 — VIEW MORE (reference button) */}
       <div className="flex w-full justify-center">
