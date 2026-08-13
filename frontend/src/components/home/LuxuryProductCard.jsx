@@ -46,6 +46,14 @@ export default function LuxuryProductCard({ product: p, priority = false }) {
   const sizes = p.sizes || [];
   const firstColor = colors[0]?.name || (p.colors?.[0]?.name) || '';
 
+  // Quiet category eyebrow (e.g. "Women · Loungewear")
+  const catFromSlug = String(p.categorySlug || '')
+    .split('-')
+    .map((w) => (w ? w[0].toUpperCase() + w.slice(1) : w))
+    .join(' ');
+  const genderLabel = p.gender === 'men' ? 'Men' : p.gender === 'women' ? 'Women' : '';
+  const categoryLabel = [genderLabel, catFromSlug].filter(Boolean).join(' · ') || 'HUSHAE';
+
   const quickAdd = (size) => {
     addToCart(p, { size, color: firstColor, quantity: 1 });
     setDrawerOpen(true);
@@ -129,6 +137,10 @@ export default function LuxuryProductCard({ product: p, priority = false }) {
 
       {/* Details */}
       <div className="space-y-1.5">
+        {/* Category eyebrow — the quiet luxury label */}
+        <p className="text-[9px] font-medium uppercase tracking-[0.22em] text-neutral-400">
+          {categoryLabel}
+        </p>
         <div className="flex items-center justify-between">
           <Link
             to={`/product/${slug}`}
