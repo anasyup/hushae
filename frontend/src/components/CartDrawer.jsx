@@ -118,18 +118,18 @@ export default function CartDrawer() {
             role="dialog" aria-modal="true" aria-label={cfg.title}
             initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
             transition={{ type: 'tween', duration: 0.28 }}
-            className="absolute right-0 top-0 flex h-full w-full max-w-md flex-col bg-alabaster shadow-e-4"
+            className="absolute right-0 top-0 flex h-full w-full flex-col bg-alabaster shadow-e-4 sm:w-[420px]"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between border-b border-line px-5 py-4">
-              <h2 className="text-label uppercase tracking-widest">
+            <div className="flex items-center justify-between border-b border-neutral-200 px-6 py-5">
+              <h2 className="text-[12px] font-semibold uppercase tracking-[0.2em]">
                 {cfg.title} <span className="text-ash">({pricing.count})</span>
               </h2>
               <button
                 type="button" onClick={() => setDrawerOpen(false)} aria-label="Close bag"
-                className="grid h-11 w-11 place-items-center transition hover:bg-satin/60"
+                className="grid h-9 w-9 place-items-center rounded border border-black text-black transition-colors hover:bg-black hover:text-white"
               >
-                <X size={18} aria-hidden="true" />
+                <X size={16} strokeWidth={2} aria-hidden="true" />
               </button>
             </div>
 
@@ -158,7 +158,7 @@ export default function CartDrawer() {
                       <li key={lineKey(l)} className="flex gap-3.5 py-4">
                         <Link
                           to={`/product/${l.slug}`} onClick={() => setDrawerOpen(false)}
-                          className={`shrink-0 overflow-hidden rounded-control bg-cream ${isBlocked ? 'opacity-55' : ''}`}
+                          className={`shrink-0 overflow-hidden bg-[#EFECE6] ${isBlocked ? 'opacity-55' : ''}`}
                           tabIndex={-1} aria-hidden="true"
                         >
                           <Img src={l.image} alt="" className="h-24 w-20 object-cover" />
@@ -166,7 +166,7 @@ export default function CartDrawer() {
 
                         <div className="flex min-w-0 flex-1 flex-col">
                           <div className="flex items-start justify-between gap-2">
-                            <h3 className={`clamp-2 text-body-sm font-medium leading-snug ${isBlocked ? 'opacity-60' : ''}`}>
+                            <h3 className={`clamp-2 text-[11px] font-semibold uppercase leading-tight tracking-wider ${isBlocked ? 'opacity-60' : ''}`}>
                               <Link to={`/product/${l.slug}`} onClick={() => setDrawerOpen(false)} className="hover:underline">
                                 {l.name}
                               </Link>
@@ -174,13 +174,13 @@ export default function CartDrawer() {
                             <button
                               type="button" onClick={() => removeLine(lineKey(l))}
                               aria-label={`Remove ${l.name} from your bag`}
-                              className="-mr-2 -mt-1.5 grid h-11 w-11 shrink-0 place-items-center text-ash transition hover:bg-satin/60 hover:text-obsidian"
+                              className="-mr-2 -mt-1 grid h-9 w-9 shrink-0 place-items-center text-neutral-400 transition hover:text-black"
                             >
-                              <Trash2 size={15} aria-hidden="true" />
+                              <Trash2 size={14} aria-hidden="true" />
                             </button>
                           </div>
 
-                          <p className="mt-0.5 text-caption text-ash">
+                          <p className="mt-1 text-[10px] uppercase tracking-wider text-neutral-400">
                             {[l.size && `Size ${l.size}`, l.color].filter(Boolean).join(' · ')}
                           </p>
 
@@ -239,7 +239,7 @@ export default function CartDrawer() {
             </div>
 
             {cart.length > 0 && (
-              <div className="space-y-4 border-t border-neutral-200/80 bg-white p-6">
+              <div className="space-y-4 border-t border-neutral-200 bg-[#FAF8F5] p-6">
                 {cfg.showProgress && (
                   <div className="mb-4">
                     <FreeShipProgress subtotal={pricing.subtotal} threshold={pricing.threshold} cfg={cfg} />
