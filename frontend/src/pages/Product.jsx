@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   AlertCircle, ArrowLeft, ArrowRight, Box, ChevronDown, Heart,
-  Minus, Package, Plus, RotateCcw, ShieldCheck, ShoppingBag, Star, Truck, X,
+  Package, RotateCcw, ShieldCheck, Star, Truck, X,
 } from 'lucide-react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { api } from '../api/client';
@@ -406,7 +406,7 @@ export default function Product() {
           <div className="grid grid-cols-1 gap-3 border-y border-neutral-200/70 py-4 text-[10px] uppercase tracking-widest text-neutral-600 sm:grid-cols-3">
             {[
               [Truck, 'Express Shipping'],
-              [RefreshCw, '14-Day Returns'],
+              [RotateCcw, '14-Day Returns'],
               [ShieldCheck, 'Authentic Packaging'],
             ].map(([Icon, label]) => (
               <div key={label} className="flex items-center gap-2">
