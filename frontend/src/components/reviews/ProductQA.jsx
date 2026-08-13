@@ -99,9 +99,29 @@ export default function ProductQA({ product }) {
       </p>
 
       {rows.length === 0 ? (
-        <p className="py-10 text-body-sm text-ash">
-          {debounced ? 'No questions match that search.' : cfg.qaEmptyText}
-        </p>
+        /* ── Premium empty state — designed, never a bare line ────────── */
+        debounced ? (
+          <p className="py-10 text-body-sm text-ash">
+            No questions match that search.
+          </p>
+        ) : (
+          <div className="mx-auto mt-10 max-w-md border border-line bg-white px-8 py-12 text-center">
+            <span className="mx-auto block h-px w-10 bg-obsidian/50" aria-hidden="true" />
+            <h3 className="mt-6 font-display text-sm font-medium uppercase tracking-[0.18em] text-obsidian">
+              Ask us anything
+            </h3>
+            <p className="mt-4 text-body-sm leading-relaxed text-ash">
+              {cfg.qaEmptyText}
+            </p>
+            <button
+              type="button"
+              onClick={() => setAsking(true)}
+              className="btn-primary mx-auto mt-7"
+            >
+              Ask a question
+            </button>
+          </div>
+        )
       ) : (
         <ul className="mt-5 divide-y divide-line border-t border-line">
           {rows.map((q) => <QuestionRow key={q._id} q={q} cfg={cfg} auth={auth} onAnswered={() => load(1, false)} />)}

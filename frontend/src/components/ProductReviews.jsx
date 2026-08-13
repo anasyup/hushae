@@ -249,7 +249,26 @@ export default function ProductReviews({ product }) {
           )}
         </>
       ) : (
-        <p className="py-12 text-center text-body text-ash">{cfg.emptyText}</p>
+        /* ── Premium empty state — never a bare line ────────────────────
+           A quiet, designed moment when no reviews exist yet: seam rule,
+           tracked-caps eyebrow, a considered line, and a clear CTA that
+           opens the review form. Restraint is the luxury. */
+        <div className="mx-auto mt-10 max-w-md border border-line bg-white px-8 py-12 text-center">
+          <span className="mx-auto block h-px w-10 bg-obsidian/50" aria-hidden="true" />
+          <h3 className="mt-6 font-display text-sm font-medium uppercase tracking-[0.18em] text-obsidian">
+            Be the first to write a review
+          </h3>
+          <p className="mt-4 text-body-sm leading-relaxed text-ash">
+            {cfg.emptyText}
+          </p>
+          <button
+            type="button"
+            onClick={() => setShowForm(true)}
+            className="btn-primary mx-auto mt-7"
+          >
+            Write a review
+          </button>
+        </div>
       )}
 
       {showForm && (
