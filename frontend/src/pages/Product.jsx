@@ -205,9 +205,9 @@ export default function Product() {
 
       {/* ═══ MAIN — CALVIN KLEIN SPLIT (6/7 gallery · 6/5 buy box) ═════ */}
       <main className="mx-auto grid w-full max-w-[1600px] grid-cols-1 lg:grid-cols-12">
-        {/* LEFT — sticky full-height gallery (CK reference v2) */}
+        {/* LEFT — sticky full-height gallery (CK reference v4) */}
         <div className="relative lg:col-span-6 xl:col-span-7">
-          <div className="group h-[75vh] overflow-hidden bg-[#F4F2EE] lg:sticky lg:top-0 lg:h-screen">
+          <div className="group relative h-[70vh] overflow-hidden bg-[#F4F2EE] lg:sticky lg:top-0 lg:h-screen">
             {/* Clicking the photograph opens the lightbox (no visible icon,
                 per the CK reference: 'no fullscreen icon') */}
             <button
@@ -224,14 +224,14 @@ export default function Product() {
                 className="h-full w-full object-cover object-center transition-all duration-500 ease-in-out"
               />
             </button>
-            {/* Floating circular arrows — ALWAYS visible (CK reference v2) */}
+            {/* Floating circular arrows — ALWAYS visible (CK reference) */}
             {gallery.length > 1 && (
               <>
                 <button
                   type="button"
                   onClick={() => setImgIdx((i) => (i - 1 + gallery.length) % gallery.length)}
                   aria-label="Previous image"
-                  className="absolute left-5 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-black shadow-md transition-all hover:scale-105 hover:bg-white"
+                  className="absolute left-6 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-black shadow-sm transition-all hover:scale-105 hover:bg-white"
                 >
                   <ChevronLeft size={20} strokeWidth={2} />
                 </button>
@@ -239,7 +239,7 @@ export default function Product() {
                   type="button"
                   onClick={() => setImgIdx((i) => (i + 1) % gallery.length)}
                   aria-label="Next image"
-                  className="absolute right-5 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-black shadow-md transition-all hover:scale-105 hover:bg-white"
+                  className="absolute right-6 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-black shadow-md transition-all hover:scale-105 hover:bg-white"
                 >
                   <ChevronRight size={20} strokeWidth={2} />
                 </button>
@@ -247,9 +247,9 @@ export default function Product() {
             )}
           </div>
 
-          {/* Rounded thumbnails overlay — glass pill (CK reference v3) */}
+          {/* Squircle thumbnails overlay — glass pill (CK reference v4: 12x12 rounded-xl) */}
           {gallery.length > 1 && (
-            <div className="no-scrollbar absolute bottom-6 left-1/2 z-20 flex max-w-[90%] -translate-x-1/2 items-center gap-3 overflow-x-auto rounded-2xl border border-white/40 bg-white/40 px-4 py-2 backdrop-blur-md">
+            <div className="no-scrollbar absolute bottom-6 left-1/2 z-20 flex max-w-[90%] -translate-x-1/2 items-center gap-3 overflow-x-auto rounded-2xl border border-white/30 bg-white/50 px-4 py-2 backdrop-blur-md">
               {gallery.map((u, idx) => (
                 <button
                   key={`${u}-${idx}`}
@@ -257,9 +257,9 @@ export default function Product() {
                   onClick={() => setImgIdx(idx)}
                   aria-label={`View image ${idx + 1}`}
                   aria-current={idx === imgIdx}
-                  className={`relative h-14 w-14 shrink-0 overflow-hidden rounded-2xl border-2 transition-all duration-200 ${
+                  className={`relative h-12 w-12 shrink-0 overflow-hidden rounded-xl border-2 transition-all duration-200 ${
                     idx === imgIdx
-                      ? 'scale-105 border-neutral-800 shadow-md'
+                      ? 'scale-105 border-black shadow-sm'
                       : 'border-transparent opacity-70 hover:opacity-100'
                   }`}
                 >
@@ -288,9 +288,9 @@ export default function Product() {
             <span className="text-black">{name}</span>
           </nav>
 
-          {/* Title & pricing — CK v2: UPPERCASE 22/26 tracking 0.12em */}
-          <div className="space-y-2">
-            <h1 className="text-[22px] font-normal uppercase tracking-[0.12em] text-[#111111] sm:text-[26px]">
+          {/* Title & pricing — CK v4: UPPERCASE 24/28 tracking 0.1em */}
+          <div className="space-y-2 border-b border-neutral-100 pb-6">
+            <h1 className="text-[24px] font-normal uppercase tracking-[0.1em] text-[#111111] sm:text-[28px]">
               {name}
             </h1>
 
@@ -298,9 +298,9 @@ export default function Product() {
               {onSale && p.compareAtPrice > p.price && (
                 <span className="text-[14px] font-light text-neutral-400 line-through">{pkr(p.compareAtPrice)}</span>
               )}
-              <span className="text-[16px] font-semibold text-[#111111]">{pkr(p.price)}</span>
+              <span className="text-[18px] font-semibold text-[#111111]">{pkr(p.price)}</span>
               {onSale && p.compareAtPrice > p.price && (
-                <span className="bg-black px-2 py-0.5 text-[9px] font-medium uppercase tracking-widest text-white">
+                <span className="bg-[#111111] px-2 py-0.5 text-[9px] font-medium uppercase tracking-widest text-white">
                   Save {discount}%
                 </span>
               )}
@@ -324,29 +324,37 @@ export default function Product() {
             </div>
           </div>
 
-          {/* Colour — CK dots (uppercase label) */}
+          {/* Colour — CK RECTANGULAR VARIANT CARDS (image per colour).
+              The product's own gallery photos stand in for per-variant shots
+              (data has no per-colour images); selecting a card also moves the
+              gallery to that colour's plate. */}
           {p.colors?.length > 0 && (
-            <div className="space-y-3 pt-2">
-              <span className="text-[12px] font-medium uppercase tracking-[0.15em] text-neutral-800">
-                Color: <span className="font-light text-neutral-500">{color}</span>
-              </span>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-[12px] font-medium uppercase tracking-[0.15em] text-neutral-800">
+                  Color: <span className="font-light text-neutral-500">{color}</span>
+                </span>
+              </div>
               <div className="flex items-center gap-3">
-                {p.colors.map((c) => {
+                {p.colors.map((c, idx) => {
                   const on = color === c.name;
+                  const cardImg = gallery[idx % gallery.length] || FALLBACK;
                   return (
                     <button
                       key={c.name}
                       type="button"
-                      onClick={() => setColor(c.name)}
+                      onClick={() => { setColor(c.name); setImgIdx(idx % gallery.length); }}
                       title={c.name}
                       aria-label={c.name}
-                      className={`h-7 w-7 rounded-full p-[2px] transition-all ${
-                        on ? 'ring-1 ring-black ring-offset-2' : 'hover:scale-105'
+                      aria-pressed={on}
+                      className={`group relative h-28 w-20 overflow-hidden rounded-sm border bg-[#EFECE6] p-1 transition-all duration-300 ${
+                        on ? 'border-black ring-1 ring-black' : 'border-transparent hover:border-neutral-400'
                       }`}
                     >
-                      <span
-                        className="block h-full w-full rounded-full border border-black/10"
-                        style={{ backgroundColor: c.hex || '#EEEEEE' }}
+                      <img
+                        src={cardImg}
+                        alt={c.name}
+                        className="h-full w-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
                       />
                     </button>
                   );
@@ -365,7 +373,7 @@ export default function Product() {
                 </button>
               </div>
 
-              <div className="grid grid-cols-4 gap-3">
+              <div className="grid grid-cols-4 gap-2.5">
                 {p.sizes.map((s) => {
                   const on = size === s;
                   return (
@@ -374,8 +382,8 @@ export default function Product() {
                       type="button"
                       onClick={() => { setSize(s); setSizeErr(false); }}
                       aria-pressed={on}
-                      className={`h-12 border text-[12px] font-medium uppercase tracking-widest transition-all ${
-                        on ? 'border-black bg-black text-white' : 'border-neutral-300 bg-white text-black hover:border-black'
+                      className={`h-11 border text-[12px] font-medium uppercase tracking-widest transition-all ${
+                        on ? 'border-black bg-black text-white' : 'border-neutral-200 bg-white text-black hover:border-black'
                       }`}
                     >
                       {s}
@@ -434,8 +442,8 @@ export default function Product() {
                 type="button"
                 onClick={() => tryAdd(false)}
                 disabled={soldOut || (needsSize && !size)}
-                className={`flex h-14 flex-1 items-center justify-center gap-2 text-[11px] font-medium uppercase tracking-[0.2em] transition-colors ${
-                  soldOut || (needsSize && !size) ? 'cursor-not-allowed bg-neutral-200 text-neutral-500' : 'bg-black text-white hover:bg-neutral-800'
+                className={`flex h-[3.25rem] flex-1 items-center justify-center gap-2 text-[12px] font-medium uppercase tracking-[0.2em] transition-colors ${
+                  soldOut || (needsSize && !size) ? 'cursor-not-allowed bg-neutral-200 text-neutral-500' : 'bg-[#111111] text-white hover:bg-neutral-800'
                 }`}
               >
                 <ShoppingBag size={16} />
@@ -467,11 +475,11 @@ export default function Product() {
             </button>
           </div>
 
-          {/* Trust features */}
-          <div className="grid grid-cols-2 gap-4 border-t border-neutral-200 pt-6 text-[11px] text-neutral-600">
+          {/* Trust features — CK badges (icons + tracking-wide) */}
+          <div className="grid grid-cols-2 gap-4 border-t border-neutral-100 pt-6 text-[11px] tracking-wide text-neutral-600">
             {trust.map(([Icon, text]) => (
-              <div key={text} className="flex items-center gap-2">
-                <Icon size={16} className="shrink-0 text-black" strokeWidth={1.6} />
+              <div key={text} className="flex items-center gap-2.5">
+                <Icon size={16} className="shrink-0 text-neutral-800" strokeWidth={1.5} />
                 <span>{text}</span>
               </div>
             ))}
