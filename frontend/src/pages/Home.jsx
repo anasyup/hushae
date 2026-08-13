@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
 import { api } from '../api/client';
 import Seo, { organizationJsonLd } from '../components/Seo';
 import LuxuryCategoryShowcase from '../components/LuxuryCategoryShowcase';
@@ -115,6 +115,24 @@ function HeroSlides() {
           </Link>
         </div>
       </div>
+
+      {/* Slide arrows — left/right, circular, always visible */}
+      <button
+        type="button"
+        onClick={() => setIdx((i) => (i - 1 + HERO_SLIDES.length) % HERO_SLIDES.length)}
+        aria-label="Previous slide"
+        className="absolute left-4 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/70 text-black opacity-80 shadow-sm transition-all hover:bg-white hover:opacity-100 md:left-6"
+      >
+        <ChevronLeft size={22} strokeWidth={1.5} />
+      </button>
+      <button
+        type="button"
+        onClick={() => setIdx((i) => (i + 1) % HERO_SLIDES.length)}
+        aria-label="Next slide"
+        className="absolute right-4 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/70 text-black opacity-80 shadow-sm transition-all hover:bg-white hover:opacity-100 md:right-6"
+      >
+        <ChevronRight size={22} strokeWidth={1.5} />
+      </button>
 
       {/* Slide dots — thin, bottom centre */}
       <div className="absolute bottom-6 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2">
