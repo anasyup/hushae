@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { ChevronDown, SlidersHorizontal } from 'lucide-react';
 import { api } from '../api/client';
 import Seo from '../components/Seo';
-import LuxuryProductCard from '../components/home/LuxuryProductCard';
+import RainsProductCard from '../components/home/RainsProductCard';
 import { ProductGridSkeleton } from '../components/Skeletons';
 import useShopFilters, { applyClientFacets } from './shop/useShopFilters';
 import FilterSheet from './shop/FilterSheet';
@@ -142,7 +142,7 @@ export default function NewArrivalsPage() {
           ) : (
             <div className={`grid grid-cols-1 gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-4 ${pending ? 'opacity-50' : 'opacity-100'} transition-opacity duration-300`}>
               {shownList.slice(0, 4).map((p) => (
-                <LuxuryProductCard key={p._id} product={p} />
+                <RainsProductCard key={p._id} product={p} />
               ))}
             </div>
           )}
@@ -185,7 +185,7 @@ export default function NewArrivalsPage() {
         <section className="px-6 lg:px-12">
           <div className="grid grid-cols-1 gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-4">
             {shownList.slice(4).map((p) => (
-              <LuxuryProductCard key={p._id} product={p} />
+              <RainsProductCard key={p._id} product={p} />
             ))}
           </div>
 
