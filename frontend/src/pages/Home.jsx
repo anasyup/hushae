@@ -285,7 +285,7 @@ export default function Home() {
   const [best, setBest] = useState([]);
 
   useEffect(() => {
-    api('/products?newArrival=true&limit=8').then((d) => setFresh(d.products || [])).catch(() => setFresh([]));
+    api('/products?newArrival=true&sort=newest&limit=12').then((d) => setFresh(d.products || [])).catch(() => setFresh([]));
     api('/products?bestSeller=true&limit=8').then((d) => setBest(d.products || [])).catch(() => setBest([]));
   }, []);
 

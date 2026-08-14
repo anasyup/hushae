@@ -51,7 +51,7 @@ export default function NewArrivalsSection({ products = [] }) {
     return out;
   }, [activeTab, sort, list]);
 
-  const show = visible.slice(0, 8);
+  const show = visible.slice(0, 10);
 
   if (!list.length) return null;
 
@@ -68,9 +68,18 @@ export default function NewArrivalsSection({ products = [] }) {
               New Arrivals
             </h2>
           </div>
-          <p className="mt-4 text-[11px] font-light uppercase tracking-[0.2em] text-neutral-400 lg:mt-0">
-            {show.length} {show.length === 1 ? 'Item' : 'Items'}
-          </p>
+          <div className="mt-4 flex items-center gap-6 lg:mt-0">
+            <p className="text-[11px] font-light uppercase tracking-[0.2em] text-neutral-400">
+              {show.length} {show.length === 1 ? 'Item' : 'Items'}
+            </p>
+            <Link
+              to="/new"
+              className="group flex items-center gap-2 border-b border-black/50 pb-1 text-[11px] font-medium uppercase tracking-[0.25em] text-black transition-colors hover:border-black"
+            >
+              View All
+              <ArrowRight size={14} className="transition-transform duration-300 group-hover:translate-x-1" />
+            </Link>
+          </div>
         </div>
 
         {/* 2 — Filter & Sort toolbar */}
@@ -128,16 +137,6 @@ export default function NewArrivalsSection({ products = [] }) {
           ))}
         </div>
 
-        {/* 4 — View all */}
-        <div className="mt-16 text-center">
-          <Link
-            to="/new"
-            className="group inline-flex items-center gap-3 border-b border-black/50 pb-1.5 text-[11px] font-medium uppercase tracking-[0.25em] text-black transition-colors hover:border-black"
-          >
-            View All New Arrivals
-            <ArrowRight size={14} className="transition-transform duration-300 group-hover:translate-x-1" />
-          </Link>
-        </div>
       </div>
     </section>
   );
