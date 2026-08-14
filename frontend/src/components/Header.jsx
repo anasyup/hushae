@@ -103,7 +103,7 @@ export default function Header() {
   const linkCls = useMemo(() => ({ isActive }, label = '') => {
     const base = 'inline-flex items-center gap-1 font-sans text-[11px] font-medium uppercase tracking-[0.2em] transition-colors duration-200';
     const isSale = String(label || '').toLowerCase() === 'sale';
-    const color = isSale ? ' text-red-600 font-semibold hover:text-red-700' : ' text-neutral-800 hover:text-black';
+    const color = isSale ? ' text-red-600 font-semibold hover:text-red-700' : ' text-black hover:opacity-60';
     return base + color;
   }, []);
 
@@ -125,12 +125,16 @@ export default function Header() {
       {/* 2. Main header — below the announcement bar */}
       <header
         data-header
-        className="w-full !m-0 border-b border-neutral-200/60 bg-[#FAF8F5] text-black"
+        className={`w-full h-[84px] !m-0 px-6 lg:px-12 transition-all duration-300 ease-in-out ${
+          mega || isScrolled
+            ? 'border-b border-neutral-200/80 bg-[#FAF8F5] text-black shadow-sm'
+            : 'border-b border-white/20 bg-transparent text-black'
+        }`}
         onMouseLeave={() => setMega(null)}
       >
 
         {/* Reference row */}
-        <div className="mx-auto flex h-[84px] w-full max-w-[1600px] items-center justify-between gap-8 px-6 lg:px-12">
+        <div className="mx-auto flex h-full w-full max-w-[1600px] items-center justify-between gap-8">
           {/* Burger — mobile only (nav shows from md) */}
           <button
             ref={burgerRef}
@@ -177,7 +181,7 @@ export default function Header() {
           </nav>
 
           {/* Utility icons — icon buttons (reference) */}
-          <div data-section="header.icons" className="flex shrink-0 items-center gap-5 text-black">
+          <div data-section="header.icons" className="flex shrink-0 items-center gap-5">
             {showSearch && (
               <button
                 ref={searchBtnRef}
