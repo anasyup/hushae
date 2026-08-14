@@ -125,10 +125,10 @@ export default function Header() {
       {/* 2. Main header — below the announcement bar */}
       <header
         data-header
-        className={`w-full h-[84px] !m-0 px-6 lg:px-12 transition-all duration-300 ease-in-out ${
+        className={`w-full h-[96px] !m-0 px-6 lg:px-12 transition-all duration-300 ease-in-out ${
           mega || isScrolled
-            ? 'border-b border-neutral-200/80 bg-[#FAF8F5] text-black shadow-sm'
-            : 'border-b border-white/20 bg-transparent text-black'
+            ? 'bg-[#FAF8F5] text-black shadow-sm'
+            : 'bg-transparent text-black'
         }`}
         onMouseLeave={() => setMega(null)}
       >
