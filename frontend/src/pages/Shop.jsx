@@ -1,9 +1,10 @@
-import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowRight, SearchX } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { SearchX } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { api } from '../api/client';
 import CollectionCard from '../components/CollectionCard';
 import CategoryBanner from '../components/CategoryBanner';
+import NewArrivalsHero from '../components/NewArrivalsHero';
 import LuxuryFilterBar from '../components/LuxuryFilterBar';
 import { ProductGridSkeleton } from '../components/Skeletons';
 import EmptyState from '../components/ui/EmptyState';
@@ -41,51 +42,6 @@ const BANNER_META = {
 };
 
 const REVEAL = 12; // initial batch shown; LOAD MORE reveals +12
-
-/* Versace-style editorial banner tiles — shown on the New Arrivals (/new)
-   grid only, interleaved after the 2nd and 6th product. Products keep the
-   existing CollectionCard design. */
-const NEW_BANNERS = [
-  {
-    id: 'banner-1',
-    title: "Autumn Lookbook '26",
-    subtitle: 'Shop the Look',
-    image: '/images/campaign/qa/editorial-performance.jpg',
-    href: '/shop',
-  },
-  {
-    id: 'banner-2',
-    title: 'Signature Essentials',
-    subtitle: 'Discover More',
-    image: '/images/campaign/qa/hero-fabric.jpg',
-    href: '/best',
-  },
-];
-
-function NewArrivalBanner({ title, subtitle, image, href }) {
-  return (
-    <Link
-      to={href}
-      className="group relative col-span-1 row-span-2 min-h-[520px] overflow-hidden bg-neutral-200 sm:col-span-2"
-    >
-      <img
-        src={image}
-        alt={title}
-        loading="lazy"
-        decoding="async"
-        className="h-full w-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105"
-      />
-      <div className="absolute inset-0 bg-black/20 transition-colors group-hover:bg-black/30" aria-hidden="true" />
-      <div className="absolute bottom-8 left-8 space-y-2 text-white">
-        <h3 className="font-serif text-xl uppercase tracking-widest lg:text-3xl">{title}</h3>
-        <span className="inline-flex items-center gap-2 border-b border-white pb-1 text-[10px] font-semibold uppercase tracking-[0.25em] transition hover:opacity-80">
-          <span>{subtitle}</span>
-          <ArrowRight size={14} aria-hidden="true" />
-        </span>
-      </div>
-    </Link>
-  );
-}
 
 export default function Shop({ preset = {} }) {
   const f = useShopFilters(preset);
@@ -206,6 +162,8 @@ export default function Shop({ preset = {} }) {
       {/* ═══ 0. HERO BANNER ═══════════════════════════════════════════ */}
       {preset.key === 'sale' ? (
         <SalePageHeader f={f} count={count} onOpenFilters={() => setSheetOpen(true)} />
+      ) : preset.key === 'new' ? (
+        <NewArrivalsHero count={count || 0} />
       ) : (
         <CategoryBanner img={banner.img} tag={banner.tag} title={banner.title} description={banner.desc} />
       )}
@@ -237,12 +195,8 @@ export default function Shop({ preset = {} }) {
               aria-busy={pending || undefined}
               className={`grid grid-cols-2 gap-x-1 gap-y-10 transition-opacity duration-300 md:grid-cols-4 ${pending ? 'opacity-50' : 'opacity-100'}`}
             >
-              {visibleSlice.map((p, i) => (
-                <Fragment key={p._id}>
-                  <CollectionCard product={p} />
-                  {preset.key === 'new' && i === 1 && <NewArrivalBanner {...NEW_BANNERS[0]} />}
-                  {preset.key === 'new' && i === 5 && <NewArrivalBanner {...NEW_BANNERS[1]} />}
-                </Fragment>
+              {visibleSlice.map((p) => (
+                <CollectionCard key={p._id} product={p} />
               ))}
             </div>
 
