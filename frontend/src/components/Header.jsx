@@ -12,19 +12,19 @@ import { useCmsNav } from '../lib/useCmsNav';
 import SearchPanel from './search/SearchPanel';
 
 /* ============================================================================
- * HUSHAE header — announcement-collapse + theme-color reference (client spec).
+ * HUSHAE header — sticky solid theme-color reference (exact client spec).
  *
- *   · fixed wrapper (flex-col) at top
- *   · 1. BLACK ANNOUNCEMENT BAR: shown at top, COLLAPSES (max-h-0 opacity-0)
- *     once scrolled >20px; hidden entirely on the PDP
- *   · 2. MAIN HEADER: TOP = bg-transparent text-black hover:bg-[#FAF8F5]/90;
- *     SCROLLED / mega open = solid bg-[#FAF8F5] + border-b neutral-300/60 +
- *     shadow-sm
- *   · logo LEFT — serif SEMIBOLD tracking-widest uppercase (HUSHAÈ)
- *   · nav CENTER — 11px medium UPPERCASE tracking 0.2em, gap-8, hover
- *     opacity; SALE red-600; chevron on dropdown items (Women / Men / Sale)
- *   · utilities RIGHT — icon buttons Search · Wishlist · Account · Bag (n)
- *   · mobile (md): nav hidden, hamburger + drawer
+ *   · ALWAYS solid bg-[#FAF8F5], text-black, border-b neutral-200/60
+ *   · fixed wrapper (flex-col) — BLACK ANNOUNCEMENT BAR above, collapses
+ *     (max-h-0) once scrolled >20px, hidden entirely on the PDP
+ *   · MAIN BAR ~84px: logo LEFT, nav CENTER, icons RIGHT
+ *   · logo — text-2xl font-serif font-bold uppercase tracking-[0.2em]
+ *   · nav — 11px medium UPPERCASE tracking 0.2em, gap-7, text-neutral-800
+ *     hover:text-black; SALE red-600; chevron on dropdown items
+ *     (Women / Men / Sale)
+ *   · utilities — Search · Wishlist (sm+) · Account (sm+) · Bag with count
+ *     badge (20px, stroke 1.5, gap-5)
+ *   · mobile (lg): nav hidden, hamburger + drawer
  * Functionality preserved: cart drawer, wishlist, auth, search panel, mega
  * menus, announcement bar (OfferBar), CMS-driven menu.
  * ========================================================================== */
@@ -101,9 +101,9 @@ export default function Header() {
 
   /* Reference nav-link style — 11px medium uppercase tracking 0.2em; Sale red */
   const linkCls = useMemo(() => ({ isActive }, label = '') => {
-    const base = 'inline-flex items-center gap-1 font-sans text-[11px] font-medium uppercase tracking-[0.2em] transition-opacity duration-200';
+    const base = 'inline-flex items-center gap-1 font-sans text-[11px] font-medium uppercase tracking-[0.2em] transition-colors duration-200';
     const isSale = String(label || '').toLowerCase() === 'sale';
-    const color = isSale ? ' text-red-600 hover:opacity-60' : ' text-[#111111] hover:opacity-60';
+    const color = isSale ? ' text-red-600 font-semibold hover:text-red-700' : ' text-neutral-800 hover:text-black';
     return base + color;
   }, []);
 
@@ -125,16 +125,12 @@ export default function Header() {
       {/* 2. Main header — below the announcement bar */}
       <header
         data-header
-        className={`w-full px-6 py-4 !m-0 transition-all duration-300 ease-in-out lg:px-12 ${
-          mega || isScrolled
-            ? 'border-b border-neutral-300/60 bg-[#FAF8F5] text-black shadow-sm'
-            : 'border-b border-transparent bg-transparent text-black hover:border-neutral-300/60 hover:bg-[#FAF8F5]/90'
-        }`}
+        className="w-full !m-0 border-b border-neutral-200/60 bg-[#FAF8F5] text-black"
         onMouseLeave={() => setMega(null)}
       >
 
         {/* Reference row */}
-        <div className="mx-auto flex w-full max-w-[1600px] items-center justify-between gap-8">
+        <div className="mx-auto flex h-[84px] w-full max-w-[1600px] items-center justify-between gap-8 px-6 lg:px-12">
           {/* Burger — mobile only (nav shows from md) */}
           <button
             ref={burgerRef}
@@ -142,13 +138,13 @@ export default function Header() {
             onClick={() => setMobileOpen(true)}
             aria-label="Open menu"
             aria-expanded={mobileOpen}
-            className="-ml-2 grid h-10 w-10 shrink-0 place-items-center text-[#111111] transition-colors duration-300 md:hidden"
+            className="-ml-2 grid h-10 w-10 shrink-0 place-items-center text-black transition-colors duration-300 lg:hidden"
           >
             <Menu size={20} strokeWidth={1.5} aria-hidden="true" />
           </button>
 
           {/* Logo — serif bold tracked caps (reference) */}
-          <Link to="/" aria-label="HUSHAE — home" className="flex-shrink-0 font-serif text-xl font-semibold uppercase tracking-widest text-[#111111] transition-colors duration-300 lg:text-2xl">
+          <Link to="/" aria-label="HUSHAE — home" className="flex-shrink-0 font-serif text-2xl font-bold uppercase tracking-[0.2em] text-black transition-opacity duration-300 hover:opacity-80">
             HUSHAÈ
           </Link>
 
@@ -156,7 +152,7 @@ export default function Header() {
           <nav
             data-section="header.menu"
             aria-label="Main"
-            className="hidden flex-1 items-center justify-center gap-8 md:flex"
+            className="hidden flex-1 items-center justify-center gap-7 lg:flex"
           >
             {menu.filter((m) => m && m.label).map((m, i) => {
               const dd = m.dropdown || (String(m.label).toLowerCase() === 'sale' ? 'sale' : '');
@@ -181,7 +177,7 @@ export default function Header() {
           </nav>
 
           {/* Utility icons — icon buttons (reference) */}
-          <div data-section="header.icons" className="flex shrink-0 items-center gap-5 text-[#111111]">
+          <div data-section="header.icons" className="flex shrink-0 items-center gap-5 text-black">
             {showSearch && (
               <button
                 ref={searchBtnRef}
@@ -192,27 +188,27 @@ export default function Header() {
                 aria-controls="header-search"
                 className="transition-opacity duration-200 hover:opacity-60"
               >
-                <Search size={16} strokeWidth={1.5} aria-hidden="true" />
+                <Search size={20} strokeWidth={1.5} aria-hidden="true" />
               </button>
             )}
             {showWishlist && (
               <Link to="/wishlist" aria-label={wishlist.length ? `Wishlist, ${wishlist.length} saved` : 'Wishlist'}
-                className="transition-opacity duration-200 hover:opacity-60">
-                <Heart size={16} strokeWidth={1.5} aria-hidden="true" />
+                className="hidden transition-opacity duration-200 hover:opacity-60 sm:block">
+                <Heart size={20} strokeWidth={1.5} aria-hidden="true" />
               </Link>
             )}
             {showAccount && (
               <Link to="/account" aria-label={auth ? 'Your account' : 'Sign in'}
-                className="transition-opacity duration-200 hover:opacity-60">
-                <User size={16} strokeWidth={1.5} aria-hidden="true" />
+                className="hidden transition-opacity duration-200 hover:opacity-60 sm:block">
+                <User size={20} strokeWidth={1.5} aria-hidden="true" />
               </Link>
             )}
             {showCart && (
               <button type="button" onClick={() => setDrawerOpen(true)}
                 aria-label={cartCount ? `Open bag, ${cartCount} item${cartCount === 1 ? '' : 's'}` : 'Open bag'}
                 className="relative transition-opacity duration-200 hover:opacity-60">
-                <ShoppingBag size={16} strokeWidth={1.5} aria-hidden="true" />
-                <span className="absolute -right-2 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-black text-[9px] font-bold text-white">
+                <ShoppingBag size={20} strokeWidth={1.5} aria-hidden="true" />
+                <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-black text-[9px] font-bold text-white">
                   {cartCount}
                 </span>
               </button>
