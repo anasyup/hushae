@@ -1,35 +1,41 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Heart } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Heart } from 'lucide-react';
 import { useApp } from '../../store/AppContext';
 import { pkr } from '../../lib/format';
 import { isOnSale } from '../../lib/sale';
+import SizeModal from '../SizeModal';
 
 /* ============================================================================
  * LuxuryProductCard — the house's new-arrivals card (client reference).
- *   · 3/4 image tile on #EFECE6; primary photo crossfades to the second
- *     photo on hover with a gentle scale (LV / Gucci register)
- *   · badge top-left (white glass pill), wishlist heart top-right (appears
- *     on hover, fills when saved)
- *   · QUICK ADD SIZE bar slides up on hover — choosing a size adds to bag
- *     with that size and opens the drawer (real cart, not a mock)
- *   · details: UPPERCASE name 12px tracking 0.12em + colour swatch dots +
- *     price with struck original when on sale
+ *   · 3/4 image tile on #EFECE6; layered crossfade images
+ *   · badge top-left (white glass), wishlist heart top-right (hover reveal)
+ *   · SIDE ARROWS on hover — cycle the gallery (same as CollectionCard)
+ *   · BUY NOW button on hover — opens the SizeModal quick-add (same as
+ *     CollectionCard)
+ *   · details: category eyebrow · UPPERCASE name 12px tracking 0.12em ·
+ *     colour swatch dots · price with struck original when on sale
  * Whole card links to the product page. Uses real product data.
  * ========================================================================== */
 
 const displayName = (name) => String(name || '').replace(/^HUSHAE\s+/i, '').toUpperCase();
 
 export default function LuxuryProductCard({ product: p, priority = false }) {
-  const { addToCart, toggleWish, inWishlist, setDrawerOpen } = useApp();
+  const { toggleWish, inWishlist } = useApp();
+  const [imgIdx, setImgIdx] = useState(0);
+  const [failed, setFailed] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const [modal, setModal] = useState(false);
+
   if (!p) return null;
 
   const images = (p.images || []).map((i) => (typeof i === 'string' ? i : i?.url)).filter(Boolean);
-  const primary = images[0];
-  const hover = images[1];
+  const main = images[imgIdx] || images[0] || '';
   const name = displayName(p.name) || 'Untitled';
   const slug = p.slug;
   const wished = inWishlist(p);
   const onSale = isOnSale(p);
+  const soldOut = p.stock === 0;
   const discount = onSale && p.compareAtPrice > p.price
     ? Math.round((1 - p.price / p.compareAtPrice) * 100)
     : 0;
@@ -43,8 +49,17 @@ export default function LuxuryProductCard({ product: p, priority = false }) {
         : null;
 
   const colors = (p.colors || []).filter((c) => c && c.hex).slice(0, 4);
-  const sizes = p.sizes || [];
-  const firstColor = colors[0]?.name || (p.colors?.[0]?.name) || '';
+
+  /* Hover = one image change (primary -> secondary), arrows browse manually. */
+  useEffect(() => {
+    if (!isHovered) { setImgIdx(0); return; }
+    if (images.length > 1) setImgIdx((i) => (i === 0 ? 1 : i));
+  }, [isHovered]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const cycle = (dir) => {
+    if (images.length < 2) return;
+    setImgIdx((i) => (i + dir + images.length) % images.length);
+  };
 
   // Quiet category eyebrow (e.g. "Women · Loungewear")
   const catFromSlug = String(p.categorySlug || '')
@@ -54,18 +69,17 @@ export default function LuxuryProductCard({ product: p, priority = false }) {
   const genderLabel = p.gender === 'men' ? 'Men' : p.gender === 'women' ? 'Women' : '';
   const categoryLabel = [genderLabel, catFromSlug].filter(Boolean).join(' · ') || 'HUSHAE';
 
-  const quickAdd = (size) => {
-    addToCart(p, { size, color: firstColor, quantity: 1 });
-    setDrawerOpen(true);
-  };
-
   const FALLBACK =
     'data:image/svg+xml;utf8,' + encodeURIComponent(
       '<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1200"><rect width="100%" height="100%" fill="#EFECE6"/></svg>');
 
   return (
-    <div className="group relative flex flex-col">
-      {/* Image tile — hover crossfade + quick add */}
+    <div
+      className="group relative flex flex-col"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      {/* Image tile — layered crossfade + arrows + Buy Now */}
       <Link
         to={`/product/${slug}`}
         tabIndex={-1}
@@ -73,30 +87,23 @@ export default function LuxuryProductCard({ product: p, priority = false }) {
         className="relative mb-4 block w-full cursor-pointer overflow-hidden bg-[#EFECE6]"
         style={{ aspectRatio: '3 / 4' }}
       >
-        {/* Primary image */}
-        <img
-          src={primary || FALLBACK}
-          alt={name}
-          loading={priority ? 'eager' : 'lazy'}
-          onError={(e) => { if (e.currentTarget.src !== FALLBACK) e.currentTarget.src = FALLBACK; }}
-          className="block h-full w-full object-cover object-top transition-opacity duration-700 group-hover:opacity-0"
-        />
-
-        {/* Secondary hover image — crossfade + scale */}
-        {hover && (
+        {/* Layered images — crossfade via z-index + opacity */}
+        {[main, ...images.filter((u) => u !== main)].slice(0, 5).map((url, idx) => (
           <img
-            src={hover}
-            alt=""
-            aria-hidden="true"
-            loading="lazy"
-            onError={(e) => { e.currentTarget.style.display = 'none'; }}
-            className="absolute inset-0 block h-full w-full object-cover object-top opacity-0 transition-all duration-700 group-hover:scale-105 group-hover:opacity-100"
+            key={`${url}-${idx}`}
+            src={failed && idx === 0 ? FALLBACK : url}
+            alt={idx === 0 ? name : ''}
+            loading={priority && idx === 0 ? 'eager' : 'lazy'}
+            onError={() => { if (idx === 0) setFailed(true); }}
+            className={`absolute inset-0 block h-full w-full object-cover object-top transition-opacity duration-500 ease-in-out ${
+              idx === imgIdx ? 'z-10 opacity-100' : 'z-0 opacity-0'
+            }`}
           />
-        )}
+        ))}
 
         {/* Badge — top left */}
         {badge && (
-          <span className="absolute left-3 top-3 bg-white/90 px-2.5 py-1 text-[9px] font-medium uppercase tracking-[0.2em] text-black backdrop-blur-sm">
+          <span className="absolute left-3 top-3 z-20 bg-white/90 px-2.5 py-1 text-[9px] font-medium uppercase tracking-[0.2em] text-black backdrop-blur-sm">
             {badge}
           </span>
         )}
@@ -107,37 +114,53 @@ export default function LuxuryProductCard({ product: p, priority = false }) {
           onClick={(e) => { e.preventDefault(); toggleWish(p); }}
           aria-label={wished ? 'Remove from wishlist' : 'Add to wishlist'}
           aria-pressed={wished}
-          className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/80 text-black opacity-0 shadow-sm transition-all hover:bg-white group-hover:opacity-100"
+          className="absolute right-3 top-3 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-white/80 text-black opacity-0 shadow-sm transition-all hover:bg-white group-hover:opacity-100"
         >
           <Heart size={16} strokeWidth={1.5} className={wished ? 'fill-black text-black' : 'text-black'} />
         </button>
 
-        {/* Quick add sizes — slides up on hover */}
-        {sizes.length > 0 && (
-          <div className="absolute inset-x-0 bottom-0 translate-y-full border-t border-neutral-200 bg-white/95 p-3 backdrop-blur-md transition-transform duration-300 ease-out group-hover:translate-y-0">
-            <span className="mb-2 block text-center text-[9px] font-medium uppercase tracking-[0.2em] text-neutral-400">
-              Quick Add Size
-            </span>
-            <div className="flex items-center justify-center gap-1.5">
-              {sizes.map((s) => (
-                <button
-                  key={s}
-                  type="button"
-                  onClick={(e) => { e.preventDefault(); quickAdd(s); }}
-                  aria-label={`Add ${name} in size ${s}`}
-                  className="flex h-7 w-7 items-center justify-center border border-neutral-300 text-[10px] font-medium tracking-wider text-black transition-colors hover:border-black hover:bg-black hover:text-white"
-                >
-                  {s}
-                </button>
-              ))}
-            </div>
+        {/* Side arrows — appear on hover */}
+        {images.length > 1 && (
+          <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-between px-2 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+            <button
+              type="button"
+              onClick={(e) => { e.preventDefault(); cycle(-1); }}
+              aria-label="Previous Image"
+              className="pointer-events-auto flex h-7 w-7 items-center justify-center rounded-full bg-white/80 text-black shadow-md transition-all hover:bg-white"
+            >
+              <ChevronLeft size={16} aria-hidden="true" />
+            </button>
+            <button
+              type="button"
+              onClick={(e) => { e.preventDefault(); cycle(1); }}
+              aria-label="Next Image"
+              className="pointer-events-auto flex h-7 w-7 items-center justify-center rounded-full bg-white/80 text-black shadow-md transition-all hover:bg-white"
+            >
+              <ChevronRight size={16} aria-hidden="true" />
+            </button>
           </div>
+        )}
+
+        {/* BUY NOW — full-width button (opens SizeModal) */}
+        {!soldOut ? (
+          <div className="absolute bottom-3 left-1/2 z-20 w-[85%] -translate-x-1/2 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+            <button
+              type="button"
+              onClick={(e) => { e.preventDefault(); setModal(true); }}
+              className="w-full bg-black py-2.5 text-[10px] font-medium uppercase tracking-[0.2em] text-white shadow-md transition-colors hover:bg-neutral-800"
+            >
+              Buy Now
+            </button>
+          </div>
+        ) : (
+          <span className="pointer-events-none absolute bottom-3 left-1/2 z-20 w-[85%] -translate-x-1/2 bg-black py-2.5 text-center text-[10px] font-medium uppercase tracking-[0.2em] text-white opacity-100 shadow-md">
+            Sold Out
+          </span>
         )}
       </Link>
 
       {/* Details */}
       <div className="space-y-1.5">
-        {/* Category eyebrow — the quiet luxury label */}
         <p className="text-[9px] font-medium uppercase tracking-[0.22em] text-neutral-400">
           {categoryLabel}
         </p>
@@ -169,6 +192,9 @@ export default function LuxuryProductCard({ product: p, priority = false }) {
           )}
         </div>
       </div>
+
+      {/* Size modal — quick add */}
+      {modal && <SizeModal product={p} onClose={() => setModal(false)} />}
     </div>
   );
 }
