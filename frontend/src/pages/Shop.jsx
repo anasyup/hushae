@@ -3,6 +3,7 @@ import { SearchX } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../api/client';
 import CollectionCard from '../components/CollectionCard';
+import RunwayCard from '../components/RunwayCard';
 import CategoryBanner from '../components/CategoryBanner';
 import NewArrivalsHero from '../components/NewArrivalsHero';
 import LuxuryFilterBar from '../components/LuxuryFilterBar';
@@ -193,11 +194,22 @@ export default function Shop({ preset = {} }) {
           <>
             <div
               aria-busy={pending || undefined}
-              className={`grid grid-cols-2 gap-x-1 gap-y-10 transition-opacity duration-300 md:grid-cols-4 ${pending ? 'opacity-50' : 'opacity-100'}`}
+              className={`transition-opacity duration-300 ${pending ? 'opacity-50' : 'opacity-100'}`}
             >
-              {visibleSlice.map((p) => (
-                <CollectionCard key={p._id} product={p} />
-              ))}
+              {preset.key === 'sale' ? (
+                /* RUNWAY GRID — bordered tiles, 4-up (Sale page reference) */
+                <div className="grid grid-cols-2 md:grid-cols-4">
+                  {visibleSlice.map((p) => (
+                    <RunwayCard key={p._id} product={p} />
+                  ))}
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-x-1 gap-y-10 md:grid-cols-4">
+                  {visibleSlice.map((p) => (
+                    <CollectionCard key={p._id} product={p} />
+                  ))}
+                </div>
+              )}
             </div>
 
             {hasMore && (
