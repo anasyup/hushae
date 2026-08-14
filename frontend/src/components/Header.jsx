@@ -125,7 +125,7 @@ export default function Header() {
       {/* 2. Main header — below the announcement bar */}
       <header
         data-header
-        className="w-full !m-0 border-b border-neutral-200/60 bg-[#FAF8F5] text-black"
+        className="w-full !m-0 border-b border-neutral-200/50 bg-[#FAF8F5]/85 text-black backdrop-blur-md transition-all duration-300"
         onMouseLeave={() => setMega(null)}
       >
 
