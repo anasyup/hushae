@@ -1,4 +1,13 @@
 ## Changes
+- **2026-08-16** — 🎨 **VISUAL DESIGN-SYSTEM PASS (branch `ui/design-system-polish`, preview-only — not merged)**
+  - **Tokens**: `--color-brand` #9C2C4E (deep rose-burgundy, 7.28:1 on white) + `brand-deep`/`brand-soft`; layered soft elevation replaces Tailwind's harsh shadow defaults (sm/md/lg/xl); `.admin-shell` focus-visible = 2px brand ring + 2px offset. Storefront CK monochrome untouched.
+  - **Cards**: KPI cards now 28px bold tabular numbers with a number ticker (useCountUp, ~700ms ease-out), per-card gradient wash tinted by the icon colour (~4% opacity), shadow-sm at rest + -2px lift + shadow-md on hover, 24px padding.
+  - **Buttons**: Quick Actions hero card (dark #111 + brand wash); primary = brand fill with hover-darken/scale(1.02)/active scale(0.98); secondary = white/5% tint; Refresh icon spins while loading; Verified button shows inline spinner.
+  - **Motion**: staggered widget entrance (Rise, 50ms steps, framer-motion), animated area/donut/bar charts (Recharts 700-800ms ease-out), progress bars fill 0→value (bar-fill keyframe), live-dot 2s pulse, alert banners collapse on dismiss (AnimatePresence). All reduced-motion safe.
+  - **Badges**: status dots on order pills, payment chips and reliability badges (soft-fill + 5px dot, currentColor).
+  - **Empty states**: icons added to "No orders yet", "All stocked up", "No customer data", "Sales data".
+  - Verified: preview at https://hushae-646htcdko-belo-dv.vercel.app — brand colour live, 28px KPIs, live-dot pulse, dark Quick Actions, zero console errors, no mobile horizontal scroll. Tests 8/8.
+
 - **2026-08-16** — 🏁 **COMPLETION BATCH — the remaining 8 dashboard/ops features**
   - **F3 test orders**: `Order.isTestOrder` flag + Settings → `includeTestOrders` (default OFF). Every analytics query (dashboard KPIs, chart, byStatus, best sellers, top customers, recent orders, P&L, payment health, alerts, compare, insights) now excludes test orders unless the merchant opts in. Also exposes `?test=yes/no` on the orders list.
   - **F7 date-range picker**: new `RangePicker` (presets Today / 7d / 30d / This month / Last month / This year / Custom with native date inputs — no new dependency). `GET /api/admin/dashboard` and `/api/orders/insights/dashboard` accept `from`/`to`; the chart buckets daily (≤62d) or ISO-weekly (>62d); KPI growth % is computed vs the equal-length previous window. Selection persists in localStorage + URL query params.
