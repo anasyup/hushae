@@ -1,28 +1,28 @@
-// Admin panel theme (light/dark) — saved on this device only.
-// DARK IS THE DEFAULT for the admin: the panel is designed dark-first, and
-// the toggle in the TopBar lets a user switch to light if they prefer. The
-// preference persists, so whoever chose light keeps it.
+// Admin panel theme — LIGHT ONLY.
 //
-// The .dark-admin class is applied ONLY on admin routes — the storefront
-// must keep its light neutral palette, so applyAdminTheme() checks the URL.
+// The dark theme was removed at the merchant's request (2026-08-15). The
+// .dark-admin class is never applied, so the admin always renders in its
+// light palette on every device.
+//
+// The exported functions are kept so any existing imports keep working; the
+// storage key was bumped so a previously-saved "dark" preference on any
+// device is ignored and everyone lands on light.
 
-const KEY = 'vl_admin_theme';
-const isAdminPath = () => typeof window !== 'undefined' && /^\/admin/.test(window.location.pathname);
+const KEY = 'vl_admin_theme_v2'; // bumped — ignores any stored 'dark' from before
 
 export function getAdminTheme() {
-  try { return localStorage.getItem(KEY) || 'dark'; } catch { return 'dark'; }
+  return 'light';
 }
 
 export function applyAdminTheme() {
-  const dark = isAdminPath() && getAdminTheme() === 'dark';
-  document.documentElement.classList.toggle('dark-admin', dark);
+  // Force light everywhere — dark theme removed.
+  if (typeof document !== 'undefined') document.documentElement.classList.remove('dark-admin');
 }
 
-export function setAdminTheme(t) {
-  try { localStorage.setItem(KEY, t); } catch { /* ignore */ }
-  applyAdminTheme();
+export function setAdminTheme() {
+  // No-op: only the light theme exists now. Kept for compatibility.
 }
 
 export function clearAdminTheme() {
-  document.documentElement.classList.remove('dark-admin');
+  if (typeof document !== 'undefined') document.documentElement.classList.remove('dark-admin');
 }

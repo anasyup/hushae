@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Moon, Save, Sun, Lock, Eye, EyeOff } from 'lucide-react';
+import { Save, Lock, Eye, EyeOff } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import AdminLayout from './AdminLayout';
-import { getAdminTheme, setAdminTheme } from '../lib/adminTheme';
 
 const Toggle = ({ label, checked, onChange }) => (
   <label className="flex cursor-pointer items-center justify-between rounded-2xl border border-neutral-200 px-4 py-3.5 text-sm">
@@ -18,7 +17,6 @@ export default function SettingsAdmin() {
   const { auth, toast } = useApp();
   const [s, setS] = useState(null);
   const [busy, setBusy] = useState(false);
-  const [theme, setTheme] = useState(getAdminTheme());
 
   useEffect(() => { api('/settings').then((d) => setS(d.settings)).catch(() => {}); }, []);
   if (!s) return <AdminLayout title="Store Settings"><div className="animate-pulse rounded-xl bg-neutral-100 h-96 w-full" /></AdminLayout>;
@@ -46,19 +44,6 @@ export default function SettingsAdmin() {
 
   return (
     <AdminLayout title="Store Settings">
-      {/* Appearance — admin panel theme (this device only) */}
-      <div className="rounded-2xl border border-neutral-200 bg-white mb-6 p-6">
-        <p className="mb-2 text-[12px] font-bold uppercase tracking-widest text-neutral-500">Appearance — admin panel</p>
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <p className="max-w-md text-sm text-neutral-500">Admin panel ka theme — white ya black. Sirf aapke is device par apply hota hai, store par koi asar nahi.</p>
-          <button
-            onClick={() => { const t = theme === 'dark' ? 'light' : 'dark'; setTheme(t); setAdminTheme(t); toast(t === 'dark' ? 'Dark mode ON 🌙' : 'Light mode ON ☀️'); }}
-            className={`flex items-center gap-2.5 rounded-full px-5 py-2.5 text-xs font-bold uppercase tracking-wider transition ${theme === 'dark' ? 'bg-neutral-900/85 text-white ring-1 ring-alabaster/20' : 'bg-neutral-900 text-white'}`}>
-            {theme === 'dark' ? <Moon size={14} /> : <Sun size={14} />} {theme === 'dark' ? 'Dark — ON' : 'Light — ON'}
-          </button>
-        </div>
-      </div>
-
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="rounded-2xl border border-neutral-200 bg-white space-y-5 p-6">
           <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-500">Store</p>

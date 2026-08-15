@@ -5,7 +5,6 @@ import App from './App';
 import { AppProvider } from './store/AppContext';
 import { applyAdminTheme } from './lib/adminTheme';
 import './index.css';
-import './admin-dark.css';
 
 /* Apply the admin theme BEFORE first paint so the panel opens in dark mode
    instantly (no light flash). AdminLogin + every admin screen is covered. */

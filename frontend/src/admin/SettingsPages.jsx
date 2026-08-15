@@ -2,13 +2,12 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   ArrowLeft, Ban, Building2, ChevronRight, CreditCard, Eye, EyeOff, FileText,
-  Landmark, Lock, MapPin, Moon, Package, Palette, Phone, Save, ShieldCheck,
-  Smartphone, Sparkles, Store, Sun, Truck,
+  Landmark, Lock, MapPin, Package, Palette, Phone, Save, ShieldCheck,
+  Smartphone, Sparkles, Store, Truck,
 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import AdminLayout from './AdminLayout';
-import { getAdminTheme, setAdminTheme as applyAdminThemeFn } from '../lib/adminTheme';
 
 /* ============================================================================
  * SETTINGS SUB-PAGES — one file, one export per screen.
@@ -529,7 +528,6 @@ export function SettingsShipping() {
  * ======================================================================== */
 export function SettingsSecurity() {
   const { auth, setAuth, toast } = useApp();
-  const [theme, setTheme] = useState(getAdminTheme());
 
   // Password change state
   const [current, setCurrent] = useState('');
@@ -681,19 +679,6 @@ export function SettingsSecurity() {
               <Lock size={13} /> {busy ? 'Updating…' : 'Update password'}
             </button>
           </form>
-        </Section>
-
-        <Section title="Appearance" description="Choose how the admin panel looks on this device only — the storefront is not affected.">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <p className="max-w-md text-[12px] text-neutral-500">Dark mode is easier on the eyes for long sessions; light mode is best in daylight.</p>
-            <button
-              onClick={() => { const t = theme === 'dark' ? 'light' : 'dark'; setTheme(t); applyAdminThemeFn(t); toast(t === 'dark' ? 'Dark mode on' : 'Light mode on'); }}
-              className="inline-flex items-center gap-2 rounded-full bg-neutral-900 px-5 py-2.5 text-[12px] font-semibold uppercase tracking-wider text-white transition hover:bg-neutral-800"
-            >
-              {theme === 'dark' ? <Moon size={14} /> : <Sun size={14} />}
-              {theme === 'dark' ? 'Dark — on' : 'Light — on'}
-            </button>
-          </div>
         </Section>
       </div>
     </AdminLayout>

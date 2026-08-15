@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom';
 import {
   Activity, AlertTriangle, ArrowDownRight, ArrowUpRight, BadgePercent, Box,
   Calendar, ChevronRight, CircleDollarSign, Clock, Download, Megaphone,
-  Moon, Package, PackagePlus, RefreshCw, ShoppingBag, Sparkles,
-  Sun, TrendingUp, Truck, Users, Zap,
+  Package, PackagePlus, RefreshCw, ShoppingBag, Sparkles,
+  TrendingUp, Truck, Users, Zap,
 } from 'lucide-react';
 import {
   Area, AreaChart, Bar, BarChart, CartesianGrid, Cell,
@@ -13,7 +13,6 @@ import {
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import { fmtDate, pkr } from '../lib/format';
-import { getAdminTheme, setAdminTheme } from '../lib/adminTheme';
 import AdminLayout from './AdminLayout';
 import Img from '../components/Img';
 import AlertsBar from './dashboard/AlertsBar';
@@ -247,7 +246,6 @@ export default function Dashboard() {
   const [goal, setGoal] = useState(null);
   const [compareMode, setCompareMode] = useState('prev');
   const [compare, setCompare] = useState(null);
-  const [dark, setDark] = useState(() => getAdminTheme() === 'dark');
 
   const load = async (silent = false) => {
     if (!silent) setRefreshing(true);
@@ -268,8 +266,6 @@ export default function Dashboard() {
   useEffect(() => { load(); }, [auth]);
   useEffect(() => { if (!auth?.token) return; api(`/dashboard/compare?mode=${compareMode}&days=30`, { token: auth.token }).then(setCompare).catch(() => setCompare(null)); }, [auth?.token, compareMode]);
   useEffect(() => { if (!auth?.token) return; const t = setInterval(() => load(true), 30000); return () => clearInterval(t); }, [auth]);
-
-  const toggleDark = () => { setAdminTheme(dark ? 'light' : 'dark'); setDark(!dark); };
 
   if (err) return <AdminLayout title="Dashboard"><div className="mx-auto grid max-w-md place-items-center rounded-2xl border border-red-200 bg-red-50 p-10 text-center"><AlertTriangle size={22} className="mb-2 text-red-600" /><p className="text-sm text-red-700">{err}</p><button onClick={() => { setErr(''); load(); }} className="mt-4 rounded-full border border-red-300 bg-white px-4 py-1.5 text-[12px] font-semibold text-red-700 hover:bg-red-100">Try again</button></div></AdminLayout>;
   if (!d) return <AdminLayout title="Dashboard"><div className="grid gap-4 md:grid-cols-5">{[1,2,3,4,5].map((i) => <div key={i} className="animate-pulse rounded-xl bg-neutral-100 h-32 rounded-2xl" />)}</div><div className="mt-6 skeleton h-72 rounded-2xl" /></AdminLayout>;
@@ -295,7 +291,6 @@ export default function Dashboard() {
           <span className="hidden items-center gap-1.5 rounded-full bg-neutral-100 px-3 py-1.5 text-[12px] font-semibold text-neutral-600 sm:inline-flex"><Calendar size={12} /> {new Date().toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long' })}</span>
           <button onClick={() => load()} disabled={refreshing} className="inline-flex min-h-[34px] items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-50"><RefreshCw size={12} className={refreshing ? 'animate-spin' : ''} /> Refresh</button>
           <button onClick={() => exportDashboardSummary({ d, goal, alerts, insights: smart, storeName: 'HUSHAE', compareLabel: compare?.label || '' })} className="inline-flex min-h-[34px] items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50"><Download size={12} /> Export</button>
-          <button onClick={toggleDark} className="grid h-[34px] w-[34px] place-items-center rounded-full border border-neutral-200 bg-white text-neutral-700 transition hover:bg-neutral-50">{dark ? <Sun size={13} /> : <Moon size={13} />}</button>
         </div>
       </div>
 
