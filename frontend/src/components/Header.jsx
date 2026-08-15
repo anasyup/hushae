@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Heart, LogOut, Menu, Search, ShoppingBag, User } from 'lucide-react';
+import { Heart, Menu, Search, ShoppingBag, User } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import OfferBar from './OfferBar';
@@ -30,8 +30,7 @@ import SearchPanel from './search/SearchPanel';
  * ========================================================================== */
 
 export default function Header() {
-  const { cartCount, wishlist, auth, logout, toast, setDrawerOpen, settings } = useApp();
-  const nav = useNavigate();
+  const { cartCount, wishlist, auth, setDrawerOpen, settings } = useApp();
   const [cats, setCats] = useState([]);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -214,17 +213,6 @@ export default function Header() {
                 <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-white text-[9px] font-bold text-black">
                   {cartCount}
                 </span>
-              </button>
-            )}
-            {auth && (
-              <button
-                type="button"
-                onClick={() => { logout(); toast('Signed out'); nav('/'); }}
-                aria-label="Sign out"
-                className="ml-2 hidden items-center gap-1.5 transition-opacity duration-200 hover:opacity-60 md:flex"
-              >
-                <LogOut size={16} strokeWidth={1.5} aria-hidden="true" />
-                <span className="text-[10px] uppercase tracking-widest">Sign Out</span>
               </button>
             )}
           </div>

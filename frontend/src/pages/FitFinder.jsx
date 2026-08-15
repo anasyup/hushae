@@ -140,7 +140,7 @@ export default function FitFinder() {
   };
 
   return (
-    <div style={{ background: '#F7F5F1', minHeight: '100vh' }}><Seo title="Fit Finder" description="Find your perfect HUSHAE size in under a minute — no tape measure needed." />
+    <div style={{ background: '#FAF8F5', minHeight: '100vh' }}><Seo title="Fit Finder" description="Find your perfect HUSHAE size in under a minute — no tape measure needed." />
       <div className="container section pt-[280px]">
         {/* Header */}
         {step === 0 && !result && (

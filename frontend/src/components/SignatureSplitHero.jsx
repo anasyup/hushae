@@ -21,7 +21,7 @@ export default function SignatureSplitHero() {
     eyebrow:        'The Signature Edit',
     title:          'Premium,\nperfected.',
     subtitle:       'Silk-touch fabrics. Bonded seamless edges. Discreet packaging always.',
-    textColor:      '#F7F5F1',
+    textColor:      '#FAF8F5',
     textShadow:     true,
     titleFont:      'display',
     leftImage:      '/images/products/gemini/hero-women-bra.png',
@@ -118,7 +118,7 @@ export default function SignatureSplitHero() {
             </Link>
           )}
           {cfg.rightCtaLabel && (
-            <Link to={cfg.rightCtaHref} className="inline-flex items-center justify-center rounded-full border border-current px-7 py-3 text-[11px] font-semibold uppercase tracking-widest transition hover:bg-alabaster hover:text-obsidian sm:px-8 sm:py-3.5 sm:text-[12px]" style={{ borderColor: (cfg.textColor || '#F7F5F1') + 'AA' }}>
+            <Link to={cfg.rightCtaHref} className="inline-flex items-center justify-center rounded-full border border-current px-7 py-3 text-[11px] font-semibold uppercase tracking-widest transition hover:bg-alabaster hover:text-obsidian sm:px-8 sm:py-3.5 sm:text-[12px]" style={{ borderColor: (cfg.textColor || '#FAF8F5') + 'AA' }}>
               {cfg.rightCtaLabel}
             </Link>
           )}

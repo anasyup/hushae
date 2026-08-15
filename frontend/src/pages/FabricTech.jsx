@@ -51,7 +51,7 @@ export default function FabricTech({ slug = 'breathable' }) {
   }, [slug]);
 
   return (
-    <div style={{ background: '#F7F5F1' }}>
+    <div style={{ background: '#FAF8F5' }}>
       <div className="bg-obsidian text-white section">
         <div className="container text-center py-12 md:py-20">
           <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-white/50">Fabric technology</p>
@@ -73,7 +73,7 @@ export default function FabricTech({ slug = 'breathable' }) {
       </div>
 
       {products.length > 0 && (
-        <div className="section" style={{ background: '#F7F5F1' }}>
+        <div className="section" style={{ background: '#FAF8F5' }}>
           <div className="container">
             <h2 className="h3 mb-8">{tech.name} products</h2>
             <div className="grid grid-cols-2 gap-[2px] md:grid-cols-4">

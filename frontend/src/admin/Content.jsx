@@ -218,8 +218,8 @@ export default function Content() {
                 <div>
                   <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500">Text colour</label>
                   <div className="flex items-center gap-2">
-                    <input type="color" className="h-10 w-14 cursor-pointer rounded-lg border border-neutral-200" value={split.textColor || '#F7F5F1'} onChange={(e) => setSplit('textColor', e.target.value)} />
-                    <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 font-mono text-xs" value={split.textColor || '#F7F5F1'} onChange={(e) => setSplit('textColor', e.target.value)} />
+                    <input type="color" className="h-10 w-14 cursor-pointer rounded-lg border border-neutral-200" value={split.textColor || '#FAF8F5'} onChange={(e) => setSplit('textColor', e.target.value)} />
+                    <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 font-mono text-xs" value={split.textColor || '#FAF8F5'} onChange={(e) => setSplit('textColor', e.target.value)} />
                   </div>
                 </div>
                 <div>
