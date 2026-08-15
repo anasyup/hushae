@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Ban, Check, CheckCircle2, MessageCircle, Phone, PhoneOff, RefreshCw } from 'lucide-react';
+import { Ban, Check, CheckCircle2, Loader2, MessageCircle, Phone, PhoneOff, RefreshCw } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import { fmtDate, pkr } from '../lib/format';
@@ -123,7 +123,7 @@ export default function VerificationQueue() {
 
                   <div className="flex shrink-0 items-center gap-1.5">
                     {wa && <a href={wa} target="_blank" rel="noreferrer" aria-label={`WhatsApp ${o.orderNumber}`} title="Verify via WhatsApp" className="grid h-9 w-9 place-items-center rounded-full border border-emerald-200 bg-emerald-50 text-emerald-700 transition hover:bg-emerald-100"><MessageCircle size={15} /></a>}
-                    <button disabled={busy} onClick={() => act(o._id, 'verified')} className="inline-flex h-9 items-center gap-1 rounded-full bg-neutral-900 px-3.5 text-[12px] font-semibold text-white transition hover:bg-neutral-800 disabled:opacity-50"><Check size={13} /> Verified</button>
+                    <button disabled={busy} onClick={() => act(o._id, 'verified')} className="inline-flex h-9 items-center gap-1 rounded-full bg-brand px-3.5 text-[12px] font-semibold text-white shadow-brand transition hover:bg-brand-deep active:scale-[0.98] disabled:opacity-50">{busy ? <Loader2 size={13} className="animate-spin" /> : <Check size={13} />} Verified</button>
                     <button disabled={busy} onClick={() => act(o._id, 'no-answer')} className="inline-flex h-9 items-center gap-1 rounded-full border border-neutral-300 bg-white px-3.5 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-50"><PhoneOff size={13} /> No Answer</button>
                     <button disabled={busy} onClick={() => { setCancelFor(o._id); setReason(''); }} className="inline-flex h-9 items-center gap-1 rounded-full border border-red-200 bg-white px-3.5 text-[12px] font-semibold text-red-600 transition hover:bg-red-50 disabled:opacity-50"><Ban size={13} /> Cancel</button>
                   </div>

@@ -25,6 +25,7 @@ export default function ReliabilityBadge({ reliability, compact = false }) {
       title={`${reliability.totalOrders} orders · ${reliability.cancelRate}% cancelled`}
       className={`inline-flex shrink-0 items-center gap-1 rounded-full font-semibold ring-1 ${compact ? 'px-1.5 py-0.5 text-[10px]' : 'px-2 py-0.5 text-[11px]'} ${cls}`}
     >
+      <span className="badge-dot" style={{ background: 'currentColor' }} aria-hidden="true" />
       <Icon size={compact ? 10 : 11} aria-hidden="true" />
       {reliability.label}
     </span>

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { AlertTriangle, ArrowRight, CheckCircle2, Info, PackageX, X } from 'lucide-react';
 
 const TONE = {
@@ -41,39 +42,50 @@ export default function AlertsBar({ alerts }) {
     );
   }
 
+  const reduce = useReducedMotion();
   return (
     <div className="mb-6 space-y-2">
-      {visible.map((a) => {
-        const tone = TONE[a.severity] || TONE.info;
-        const Icon = tone.icon;
-        return (
-          <div key={a.id} className="group flex items-center gap-3 rounded-2xl border border-neutral-200 bg-white p-3 pl-4 transition hover:border-neutral-300">
-            <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-lg ring-1 ${tone.chip}`}>
-              <Icon size={14} />
-            </span>
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-[13px] font-semibold text-neutral-900">{a.title}</p>
-              {a.detail && <p className="truncate text-[13px] text-neutral-500">{a.detail}</p>}
-            </div>
-            <Link
-              to={a.link}
-              className="hidden shrink-0 items-center gap-1 rounded-full bg-neutral-900 px-3 py-1.5 text-[12px] font-semibold text-white transition hover:bg-neutral-700 sm:inline-flex"
+      <AnimatePresence initial={false}>
+        {visible.map((a) => {
+          const tone = TONE[a.severity] || TONE.info;
+          const Icon = tone.icon;
+          return (
+            <motion.div
+              key={a.id}
+              layout={!reduce}
+              initial={reduce ? false : { opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={reduce ? { opacity: 0 } : { opacity: 0, height: 0, marginBottom: 0, overflow: 'hidden' }}
+              transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+              className="group flex items-center gap-3 rounded-xl border border-neutral-200/80 bg-white p-3 pl-4 shadow-sm transition hover:border-neutral-300"
             >
-              {a.cta || 'Open'} <ArrowRight size={11} />
-            </Link>
-            <Link to={a.link} className="shrink-0 rounded-full bg-neutral-900 p-2 text-white sm:hidden" aria-label={a.cta || 'Open'}>
-              <ArrowRight size={12} />
-            </Link>
-            <button
-              onClick={() => setDismissed((d) => [...d, a.id])}
-              className="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-neutral-400 transition hover:bg-neutral-100 hover:text-neutral-700"
-              aria-label="Dismiss alert"
-            >
-              <X size={13} />
-            </button>
-          </div>
-        );
-      })}
+              <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-lg ring-1 ${tone.chip}`}>
+                <Icon size={14} />
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-[13px] font-semibold text-neutral-900">{a.title}</p>
+                {a.detail && <p className="truncate text-[13px] text-neutral-500">{a.detail}</p>}
+              </div>
+              <Link
+                to={a.link}
+                className="hidden shrink-0 items-center gap-1 rounded-full bg-brand px-3 py-1.5 text-[12px] font-semibold text-white transition hover:bg-brand-deep sm:inline-flex"
+              >
+                {a.cta || 'Open'} <ArrowRight size={11} />
+              </Link>
+              <Link to={a.link} className="shrink-0 rounded-full bg-brand p-2 text-white sm:hidden" aria-label={a.cta || 'Open'}>
+                <ArrowRight size={12} />
+              </Link>
+              <button
+                onClick={() => setDismissed((d) => [...d, a.id])}
+                className="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-neutral-400 transition hover:bg-neutral-100 hover:text-neutral-700"
+                aria-label="Dismiss alert"
+              >
+                <X size={13} />
+              </button>
+            </motion.div>
+          );
+        })}
+      </AnimatePresence>
     </div>
   );
 }
