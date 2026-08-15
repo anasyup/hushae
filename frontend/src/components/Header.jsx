@@ -184,7 +184,7 @@ export default function Header() {
           </nav>
 
           {/* Utility icons — icon buttons (reference) */}
-          <div data-section="header.icons" className="flex shrink-0 items-center gap-5">
+          <div data-section="header.icons" className="flex shrink-0 items-center gap-5 text-xs font-medium uppercase tracking-wider">
             {showSearch && (
               <button
                 ref={searchBtnRef}
