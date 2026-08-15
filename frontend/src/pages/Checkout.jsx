@@ -557,7 +557,7 @@ export default function Checkout() {
 
             {/* ---- Pin location ---- */}
             {cfg.showPinLocation && (
-              <div className="mt-3 rounded-lg border border-[#E5E5E5]/70 bg-[#FBF6EC]/70 p-3.5">
+              <div className="mt-3 rounded-lg border border-[#E5E5E5]/70 bg-[#FFFFFF]/70 p-3.5">
                 <h3 className="flex flex-wrap items-center gap-2 text-label uppercase tracking-widest text-ash">
                   <MapPin size={13} aria-hidden="true" /> Pin location
                   <span className="font-normal normal-case tracking-normal">(optional — helps the rider find you)</span>
@@ -566,7 +566,7 @@ export default function Checkout() {
                   <div className="mt-3 grid gap-3 lg:grid-cols-[auto_1fr]">
                     <button
                       type="button" onClick={useCurrentLocation} disabled={locBusy}
-                      className="inline-flex min-h-[40px] items-center gap-1.5 border border-[#E5E5E5]/70 bg-[#FBF6EC]/60 px-4 text-[12px] font-medium text-[#5B5955] transition hover:border-[#C9A96E] disabled:opacity-50"
+                      className="inline-flex min-h-[40px] items-center gap-1.5 border border-[#E5E5E5]/70 bg-[#FFFFFF]/60 px-4 text-[12px] font-medium text-[#5B5955] transition hover:border-[#C9A96E] disabled:opacity-50"
                     >
                       <Crosshair size={14} aria-hidden="true" /> {locBusy ? 'Getting location…' : 'Use my location'}
                     </button>
@@ -657,7 +657,7 @@ export default function Checkout() {
 
             {/* Instructions + reference for the selected method */}
             {payMethod?.needsTxn && (
-              <div className="mt-3 border border-[#E5E5E5]/70 bg-[#FBF6EC]/60 p-3.5">
+              <div className="mt-3 border border-[#E5E5E5]/70 bg-[#FFFFFF]/60 p-3.5">
                 {(payMethod.instructions || (payMethod.id === 'Bank Transfer' && settings?.paymentMethods?.bankDetails)) && (
                   <p className="mb-3 whitespace-pre-wrap text-[11px] leading-relaxed text-smoke">
                     {payMethod.instructions || settings?.paymentMethods?.bankDetails}

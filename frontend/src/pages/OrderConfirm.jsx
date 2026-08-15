@@ -100,7 +100,7 @@ export default function OrderConfirm() {
             </div>
             <p className="sr-only" role="status">{copied ? 'Order number copied' : ''}{shared ? 'Order link copied' : ''}</p>
 
-            <p className="mt-5 inline-flex items-center gap-2 border border-[#E5E5E5] bg-[#FAFAFA] px-5 py-2.5 text-[12px] text-[#707070]">
+            <p className="mt-5 inline-flex items-center gap-2 border border-[#E5E5E5] bg-[#FFFFFF] px-5 py-2.5 text-[12px] text-[#707070]">
               <Truck size={13} aria-hidden="true" />
               Estimated delivery <span className="font-medium text-[#111111]">{eta}</span>
             </p>

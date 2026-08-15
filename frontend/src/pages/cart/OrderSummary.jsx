@@ -79,7 +79,7 @@ export default function OrderSummary({ pricing, cfg, applied, onApply, onRemoveC
         </div>
 
         {savings > 0 && (
-          <div className="flex justify-between gap-4 bg-[#FAFAFA] px-3 py-2">
+          <div className="flex justify-between gap-4 bg-[#FFFFFF] px-3 py-2">
             <dt className="text-caption font-semibold uppercase tracking-wider text-charcoal">You save</dt>
             <dd className="text-caption font-bold tabular-nums text-charcoal">{pkr(savings)}</dd>
           </div>
@@ -131,7 +131,7 @@ export default function OrderSummary({ pricing, cfg, applied, onApply, onRemoveC
 
       {/* Security seals — Winterella: visual trust at checkout */}
       <div className="mt-5 border-t border-[#E5E5E5] pt-5">
-        <div className="flex items-center justify-center gap-2 rounded-[2px] border border-[#E5E5E5] bg-[#FAFAFA] px-3 py-2.5 text-[10px] font-medium uppercase tracking-[0.12em] text-[#5B5955]">
+        <div className="flex items-center justify-center gap-2 rounded-[2px] border border-[#E5E5E5] bg-[#FFFFFF] px-3 py-2.5 text-[10px] font-medium uppercase tracking-[0.12em] text-[#5B5955]">
           <Lock size={12} aria-hidden="true" />
           100% Secure Checkout
         </div>

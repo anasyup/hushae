@@ -204,14 +204,14 @@ export default function Account() {
 
           {section === 'overview' && (
             <div className="grid gap-5 sm:grid-cols-3">
-              {/* Reference dash-card: #fafafa, 1px #eee, radius 8, 24px pad,
+              {/* Reference dash-card: #FFFFFF, 1px #eee, radius 8, 24px pad,
                   title 11/700 tracked, value 28/600, desc 13px grey */}
-              <button type="button" onClick={() => go('orders')} className="flex min-h-[140px] flex-col items-start rounded-lg border border-[#eeeeee] bg-[#fafafa] p-6 text-left">
+              <button type="button" onClick={() => go('orders')} className="flex min-h-[140px] flex-col items-start rounded-lg border border-[#eeeeee] bg-[#FFFFFF] p-6 text-left">
                 <span className="text-[11px] font-bold uppercase tracking-[1.2px] text-[#6b7280]">Orders</span>
                 <span className="my-3 text-[28px] font-semibold leading-none text-[#111111]">{orders === null ? '—' : orders.length}</span>
                 <span className="mt-auto text-[13px] text-[#9ca3af]">View order history</span>
               </button>
-              <button type="button" onClick={() => go('addresses')} className="flex min-h-[140px] flex-col items-start rounded-lg border border-[#eeeeee] bg-[#fafafa] p-6 text-left">
+              <button type="button" onClick={() => go('addresses')} className="flex min-h-[140px] flex-col items-start rounded-lg border border-[#eeeeee] bg-[#FFFFFF] p-6 text-left">
                 <span className="text-[11px] font-bold uppercase tracking-[1.2px] text-[#6b7280]">Addresses</span>
                 <span className="my-3 text-[28px] font-semibold leading-none text-[#111111]">{(user.addresses || []).length}</span>
                 <span className="mt-auto text-[13px] text-[#9ca3af]">Manage saved addresses</span>
@@ -220,7 +220,7 @@ export default function Account() {
                   running — the wishlist already has its own section in the
                   rail above, so the tile was a duplicate entry point. */}
               {loyaltyOn ? (
-                <Link to="/rewards" className="flex min-h-[140px] flex-col items-start rounded-lg border border-[#eeeeee] bg-[#fafafa] p-6 text-left">
+                <Link to="/rewards" className="flex min-h-[140px] flex-col items-start rounded-lg border border-[#eeeeee] bg-[#FFFFFF] p-6 text-left">
                   <span className="text-[11px] font-bold uppercase tracking-[1.2px] text-[#6b7280]">Rewards</span>
                   <span className="my-3 text-[28px] font-semibold leading-none tabular-nums text-[#111111]">
                     {loyalty === null ? '—' : Number(loyalty.account?.points || 0).toLocaleString('en-PK')}
@@ -230,7 +230,7 @@ export default function Account() {
                   </span>
                 </Link>
               ) : (
-                <Link to="/wishlist" className="flex min-h-[140px] flex-col items-start rounded-lg border border-[#eeeeee] bg-[#fafafa] p-6 text-left">
+                <Link to="/wishlist" className="flex min-h-[140px] flex-col items-start rounded-lg border border-[#eeeeee] bg-[#FFFFFF] p-6 text-left">
                   <span className="text-[11px] font-bold uppercase tracking-[1.2px] text-[#6b7280]">Wishlist</span>
                   <span className="my-3 text-[28px] font-semibold leading-none text-[#111111]">♡</span>
                   <span className="mt-auto text-[13px] text-[#9ca3af]">Pieces you saved</span>

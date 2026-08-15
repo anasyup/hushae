@@ -30,7 +30,7 @@ export default function CheckoutSummary({
       </h2>
 
       {/* Delivery estimate — trust + clarity up front */}
-      <div className="mt-4 flex items-center gap-2.5 rounded-[2px] border border-[#E5E5E5] bg-[#FBF6EC] px-3.5 py-3">
+      <div className="mt-4 flex items-center gap-2.5 rounded-[2px] border border-[#E5E5E5] bg-[#FFFFFF] px-3.5 py-3">
         <Truck size={15} className="shrink-0 text-[#C9A96E]" aria-hidden="true" />
         <p className="text-[12px] leading-snug text-[#5B5955]">
           Estimated delivery <span className="font-medium text-[#111111]">2–5 working days</span>
@@ -134,7 +134,7 @@ export default function CheckoutSummary({
           <dd className="text-[20px] font-medium tabular-nums text-charcoal">{pkr(pricing.total)}</dd>
         </div>
         {pricing.savings > 0 && (
-          <div className="flex justify-between gap-4 bg-[#FAFAFA] px-3 py-2">
+          <div className="flex justify-between gap-4 bg-[#FFFFFF] px-3 py-2">
             <dt className="text-caption font-semibold uppercase tracking-wider text-charcoal">You save</dt>
             <dd className="text-caption font-bold tabular-nums text-charcoal">{pkr(pricing.savings)}</dd>
           </div>
