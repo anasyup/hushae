@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import { SearchX } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../api/client';
@@ -202,11 +202,11 @@ export default function Shop({ preset = {} }) {
               className={`grid grid-cols-2 gap-x-1 gap-y-10 transition-opacity duration-300 md:grid-cols-4 ${pending ? 'opacity-50' : 'opacity-100'}`}
             >
               {visibleSlice.map((p, i) => (
-                <>
-                  <CollectionCard key={p._id} product={p} />
-                  {preset.key === 'sale' && i === 7 && <SaleSplitBanner key="sale-split-banner" />}
-                  {preset.key === 'new' && i === 7 && <NewArrivals3DBanner key="new-3d-banner" />}
-                </>
+                <Fragment key={p._id}>
+                  <CollectionCard product={p} />
+                  {preset.key === 'sale' && i === 7 && <SaleSplitBanner />}
+                  {preset.key === 'new' && i === 7 && <NewArrivals3DBanner />}
+                </Fragment>
               ))}
             </div>
 
