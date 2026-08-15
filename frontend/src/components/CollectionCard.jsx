@@ -99,19 +99,25 @@ function CollectionCard({ product: p, priority = false, variant = 'bar', ratio =
     );
   }
 
-  /* ── BAR VARIANT — client ProductCard reference (Rains register) ──── */
-  /* 3/4 image on #f4f4f2 · hover scale 1.05 (image stack) · badge top-left
-     · side arrows on hover · full-width BUY NOW (bag icon, glass black)
-     · details follow the shared card-type register: swatches · name (14/500
-       #22335A) · subtitle (fabric) · price · circular arrow */
+  /* ── BAR VARIANT — client LuxuryProductCard reference ─────────────── */
+  /* White card on a flush bordered grid (border-r/b), padded p-4/lg:p-6,
+     image tile 3/4, inline sizes "Add to cart :" (tap = instant add),
+     house typography register for name/subtitle/price. Side arrows and the
+     full-width BUY NOW (opens SizeModal) are preserved; on mobile the BUY
+     NOW is always visible (no hover). */
   return (
     <article
-      className="group relative flex w-full min-w-0 cursor-pointer select-none flex-col font-sans"
+      className="group relative flex w-full min-w-0 cursor-pointer select-none flex-col border-b border-r border-neutral-200/80 bg-white p-4 font-sans lg:p-6"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* 1. Image container — 3/4, #f4f4f2 */}
-      <Link to={`/product/${p.slug}`} tabIndex={-1} className="relative block aspect-[3/4.7] w-full overflow-hidden bg-[#f4f4f2]">
+      {/* 1. Image tile — 3/4, #f4f4f2 */}
+      <Link
+        to={`/product/${p.slug}`}
+        tabIndex={-1}
+        className="relative mb-4 block w-full overflow-hidden bg-[#f4f4f2] lg:mb-5"
+        style={{ aspectRatio: '3 / 4' }}
+      >
         {/* Image stack — crossfade on hover (no zoom) */}
         {[main, ...images.filter((u) => u !== main)].slice(0, 5).map((url, idx) => (
           <img
@@ -134,9 +140,9 @@ function CollectionCard({ product: p, priority = false, variant = 'bar', ratio =
           </span>
         )}
 
-        {/* Side arrows — appear on hover */}
+        {/* Side arrows — appear on hover (desktop) */}
         {images.length > 1 && (
-          <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-between px-2 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+          <div className="pointer-events-none absolute inset-0 z-20 hidden items-center justify-between px-2 opacity-0 transition-opacity duration-300 group-hover:opacity-100 lg:flex">
             <button
               type="button"
               onClick={(e) => { e.preventDefault(); cycle(-1); }}
@@ -156,56 +162,56 @@ function CollectionCard({ product: p, priority = false, variant = 'bar', ratio =
           </div>
         )}
 
-        {/* BUY NOW — full-width (opens SizeModal) */}
+        {/* BUY NOW — always visible on mobile, hover on desktop (opens SizeModal) */}
         {!soldOut ? (
-          <div className="absolute bottom-3 left-3 right-3 z-20 translate-y-2 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+          <div className="absolute bottom-3 left-3 right-3 z-20 opacity-100 transition-all duration-300 lg:translate-y-2 lg:opacity-0 lg:group-hover:translate-y-0 lg:group-hover:opacity-100">
             <button
               type="button"
               onClick={(e) => { e.preventDefault(); setModal(true); }}
-              className="flex w-full items-center justify-center gap-2 bg-black/90 px-4 py-3 text-[10px] font-medium uppercase tracking-[0.2em] text-white shadow-md backdrop-blur-sm transition-colors hover:bg-black"
+              className="flex w-full items-center justify-center gap-2 bg-black/90 px-4 py-2.5 text-[10px] font-medium uppercase tracking-[0.2em] text-white shadow-md backdrop-blur-sm transition-colors hover:bg-black lg:py-3"
             >
               <span>Buy Now</span>
               <ShoppingBag size={14} strokeWidth={1.8} aria-hidden="true" />
             </button>
           </div>
         ) : (
-          <span className="pointer-events-none absolute bottom-3 left-3 right-3 z-20 bg-black py-3 text-center text-[10px] font-medium uppercase tracking-[0.2em] text-white shadow-md">
+          <span className="pointer-events-none absolute bottom-3 left-3 right-3 z-20 bg-black py-2.5 text-center text-[10px] font-medium uppercase tracking-[0.2em] text-white shadow-md">
             Sold Out
           </span>
         )}
       </Link>
 
-      {/* 2. Details — swatches · name · subtitle · price · arrow (client register) */}
-      <div className="flex items-start justify-between gap-3 px-5 pb-5 pt-4">
-        <div className="flex min-w-0 flex-col">
-          <SwatchRow
-            product={p}
-            onPick={(c, idx) => { setSwatchIdx(idx); const ci = images.indexOf(c.image || ''); if (ci >= 0) setImgIdx(ci); }}
-          />
-          <Link
-            to={`/product/${p.slug}`}
-            className={`${CARD_NAME} ${CARD_NAME_LINK} line-clamp-1`}
-          >
-            {name}
-          </Link>
-
-          {subtitle && (
-            <p className={`${CARD_SUBTITLE} mt-[3px] line-clamp-1`}>{subtitle}</p>
-          )}
-
-          <div className="mt-[3px] flex flex-wrap items-center gap-2">
-            <PriceRow product={p} soldOut={soldOut} />
+      {/* 2. Details — inline sizes · name · subtitle · price (reference) */}
+      <div className="flex flex-col">
+        {sizes.length > 0 && (
+          <div className="mb-2.5 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-[10px] uppercase tracking-[0.12em] text-neutral-500">
+            <span className="font-normal">Add to cart :</span>
+            {sizes.slice(0, 6).map((sz) => (
+              <button
+                key={sz}
+                type="button"
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); addToCart(p, { size: sz }); }}
+                className="font-medium text-neutral-600 underline-offset-2 transition-colors hover:text-black hover:underline"
+              >
+                {sz}
+              </button>
+            ))}
           </div>
-        </div>
+        )}
 
-        <div className="pt-0.5">
-          <Link
-            to={`/product/${p.slug}`}
-            aria-label="View Product"
-            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-black transition-all duration-300 group-hover:bg-black group-hover:text-white"
-          >
-            <ArrowRight size={16} strokeWidth={1.5} className="-rotate-45 transition-transform duration-300 group-hover:rotate-0" aria-hidden="true" />
-          </Link>
+        <Link
+          to={`/product/${p.slug}`}
+          className={`${CARD_NAME} ${CARD_NAME_LINK} line-clamp-1`}
+        >
+          {name}
+        </Link>
+
+        {subtitle && (
+          <p className={`${CARD_SUBTITLE} mt-[3px] line-clamp-1`}>{subtitle}</p>
+        )}
+
+        <div className="mt-[3px] flex flex-wrap items-center gap-2">
+          <PriceRow product={p} soldOut={soldOut} />
         </div>
       </div>
 

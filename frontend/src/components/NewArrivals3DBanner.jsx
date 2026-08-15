@@ -57,7 +57,7 @@ export default function NewArrivals3DBanner() {
   return (
     <section
       aria-label="New arrivals by gender"
-      className="relative col-span-1 h-[100svh] w-screen overflow-hidden bg-[#111] sm:col-span-2 md:col-span-4"
+      className="relative col-span-2 h-[100svh] w-screen overflow-hidden bg-[#111] lg:col-span-4"
       style={{ marginInline: 'calc(50% - 50vw)' }}
     >
       <span

@@ -158,7 +158,7 @@ export default function Collection() {
             <button onClick={clearAll} className="btn-outline mt-6">Clear filters</button>
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-x-1 gap-y-10 md:grid-cols-4">
+          <div className="grid grid-cols-2 gap-0 border-t border-l border-neutral-200/80 lg:grid-cols-4">
             {visible.map((p) => <CollectionCard key={p._id} product={p} />)}
           </div>
         )}
