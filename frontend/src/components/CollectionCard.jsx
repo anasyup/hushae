@@ -112,22 +112,20 @@ function CollectionCard({ product: p, priority = false, variant = 'bar', ratio =
     >
       {/* 1. Image container — 3/4, #f4f4f2 */}
       <Link to={`/product/${p.slug}`} tabIndex={-1} className="relative block aspect-[3/4.2] w-full overflow-hidden bg-[#f4f4f2]">
-        {/* Image stack — crossfade + gentle zoom on hover */}
-        <div className={`absolute inset-0 transition-transform duration-700 ease-out ${isHovered ? 'scale-105' : 'scale-100'}`}>
-          {[main, ...images.filter((u) => u !== main)].slice(0, 5).map((url, idx) => (
-            <img
-              key={`${url}-${idx}`}
-              src={failed && idx === 0 ? FALLBACK : url}
-              alt={idx === 0 ? `${name}, front view` : ''}
-              width="900" height="1200"
-              loading={priority && idx === 0 ? 'eager' : 'lazy'}
-              onError={() => { if (idx === 0) setFailed(true); }}
-              className={`absolute inset-0 h-full w-full object-cover object-center transition-opacity duration-500 ease-in-out ${
-                idx === imgIdx ? 'z-10 opacity-100' : 'z-0 opacity-0'
-              }`}
-            />
-          ))}
-        </div>
+        {/* Image stack — crossfade on hover (no zoom) */}
+        {[main, ...images.filter((u) => u !== main)].slice(0, 5).map((url, idx) => (
+          <img
+            key={`${url}-${idx}`}
+            src={failed && idx === 0 ? FALLBACK : url}
+            alt={idx === 0 ? `${name}, front view` : ''}
+            width="900" height="1200"
+            loading={priority && idx === 0 ? 'eager' : 'lazy'}
+            onError={() => { if (idx === 0) setFailed(true); }}
+            className={`absolute inset-0 h-full w-full object-cover object-center transition-opacity duration-500 ease-in-out ${
+              idx === imgIdx ? 'z-10 opacity-100' : 'z-0 opacity-0'
+            }`}
+          />
+        ))}
 
         {/* Badge — top left */}
         {badge && (
