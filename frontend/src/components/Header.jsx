@@ -130,7 +130,7 @@ export default function Header() {
         data-header
         className={`w-full h-[96px] !m-0 px-6 lg:px-12 transition-all duration-300 ease-in-out ${
           mega || isScrolled
-            ? 'bg-black text-white shadow-sm'
+            ? 'bg-[#000000] text-white shadow-sm'
             : 'bg-transparent text-black'
         }`}
         onMouseLeave={() => setMega(null)}
