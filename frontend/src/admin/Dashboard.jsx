@@ -13,6 +13,8 @@ import {
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import { fmtDate, pkr } from '../lib/format';
+import { buildStatusDonut } from '../lib/statusDonut';
+import { PAYMENT_STATES, TONE } from './orders/orderConstants';
 import AdminLayout from './AdminLayout';
 import Img from '../components/Img';
 import AlertsBar from './dashboard/AlertsBar';
@@ -195,25 +197,18 @@ function RevenueChart({ data }) {
   );
 }
 
-const STATUS_COLORS = {
-  'Pending': '#f59e0b', 'Confirmed': '#06b6d4', 'Processing': '#3b82f6',
-  'Ready to Ship': '#6366f1', 'Shipped': '#8b5cf6', 'Out for Delivery': '#a855f7',
-  'Delivered': '#10b981', 'Cancelled': '#ef4444', 'Refunded': '#f97316',
-};
-
 function StatusDonut({ byStatus }) {
-  const data = Object.entries(byStatus).filter(([, n]) => n > 0).map(([name, value]) => ({ name, value, color: STATUS_COLORS[name] || '#9ca3af' }));
-  const total = data.reduce((n, d) => n + d.value, 0);
+  const { segments, total } = buildStatusDonut(byStatus);
   return (
     <div className="rounded-2xl border border-neutral-200 bg-white p-6">
       <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-500">Order status mix</p>
       {total === 0 ? <p className="py-16 text-center text-sm text-neutral-400">No orders yet.</p> : (
         <div className="mt-4 flex items-center gap-4">
           <div className="relative h-36 w-36 shrink-0">
-            <ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={data} dataKey="value" innerRadius={42} outerRadius={64} paddingAngle={2} startAngle={90} endAngle={-270}>{data.map((d, i) => <Cell key={i} fill={d.color} />)}</Pie></PieChart></ResponsiveContainer>
+            <ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={segments} dataKey="value" innerRadius={42} outerRadius={64} paddingAngle={2} startAngle={90} endAngle={-270}>{segments.map((d, i) => <Cell key={i} fill={d.color} />)}</Pie></PieChart></ResponsiveContainer>
             <div className="pointer-events-none absolute inset-0 grid place-items-center text-center"><div><p className="font-sans text-2xl font-semibold tabular-nums leading-none text-neutral-900">{total}</p><p className="mt-1 text-[12px] uppercase tracking-wider text-neutral-500">Total</p></div></div>
           </div>
-          <ul className="flex-1 space-y-1.5">{data.slice(0, 6).map((d) => <li key={d.name} className="flex items-center gap-2 text-[12px]"><span className="h-2 w-2 rounded-full" style={{ background: d.color }} /><span className="flex-1 text-neutral-600">{d.name}</span><span className="font-semibold tabular-nums text-neutral-900">{d.value}</span></li>)}</ul>
+          <ul className="flex-1 space-y-1.5">{segments.map((d) => <li key={d.name} className="flex items-center gap-2 text-[12px]"><span className="h-2 w-2 rounded-full" style={{ background: d.color }} /><span className="flex-1 text-neutral-600">{d.name}</span><span className="font-semibold tabular-nums text-neutral-900">{d.value}</span></li>)}</ul>
         </div>
       )}
     </div>
@@ -346,7 +341,7 @@ export default function Dashboard() {
         <div className="mb-6 grid gap-4 lg:grid-cols-2">
           <div className="rounded-2xl border border-neutral-200 bg-white p-5">
             <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-500">Payment health</p>
-            <div className="mt-3 flex flex-wrap gap-1.5">{['Pending', 'Verified', 'Confirmed'].map((st) => { const n = insights.paymentBreakdown?.[st] || 0; const tone = st === 'Pending' ? 'bg-amber-50 text-amber-800' : st === 'Verified' ? 'bg-blue-50 text-blue-700' : 'bg-emerald-50 text-emerald-700'; return <span key={st} className={`rounded-full px-2.5 py-1 text-[12px] font-semibold ring-1 ${tone}`}>{st} {n}</span>; })}</div>
+            <div className="mt-3 flex flex-wrap gap-1.5">{PAYMENT_STATES.map((p) => { const n = insights.paymentBreakdown?.[p.key] || 0; if (!n) return null; return <span key={p.key} className={`rounded-full px-2.5 py-1 text-[12px] font-semibold ring-1 ${TONE[p.tone]?.pill || 'bg-neutral-50 text-neutral-600 ring-neutral-200'}`}>{p.label} {n}</span>; })}{!Object.values(insights.paymentBreakdown || {}).some((n) => Number(n) > 0) && <span className="py-1 text-[12px] text-neutral-400">No orders in this period</span>}</div>
             <div className="mt-3 space-y-1.5 border-t border-neutral-100 pt-3 text-[12px]"><p className="flex justify-between"><span className="text-neutral-500">Verification rate</span><span className="font-semibold">{insights.kpis.paymentVerifiedRate}%</span></p><p className="flex justify-between"><span className="text-neutral-500">Avg time to ship</span><span className="font-semibold">{insights.avgShipHours ? (insights.avgShipHours < 1 ? `${Math.round(insights.avgShipHours * 60)}m` : `${insights.avgShipHours}h`) : '—'}</span></p><p className="flex justify-between"><span className="text-neutral-500">Issue rate</span><span className={`font-semibold ${insights.kpis.issueRate > 5 ? 'text-red-600' : ''}`}>{insights.kpis.issueRate}%</span></p></div>
           </div>
           <div className="rounded-2xl border border-neutral-200 bg-white p-5">

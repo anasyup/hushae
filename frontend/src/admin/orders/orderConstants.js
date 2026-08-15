@@ -74,7 +74,10 @@ export const SET_STAGE_CHOICES = [
 export const PAYMENT_METHODS = ['COD', 'JazzCash', 'EasyPaisa', 'Bank Transfer', 'Visa'];
 
 export const PAYMENT_STATES = [
-  { key: 'Pending',   label: 'Pending',   tone: 'amber' },
+  /* 'Pending' here is PAYMENT verification state, not fulfilment status —
+     the two share nothing but a word. Labelled "Payment Unverified" so it can
+     never be mistaken for the order-status "Pending" bucket on the donut. */
+  { key: 'Pending',   label: 'Payment Unverified',   tone: 'amber' },
   { key: 'Verified',  label: 'Verified',  tone: 'blue' },
   { key: 'Confirmed', label: 'Confirmed', tone: 'green' },
   { key: 'Failed',    label: 'Failed',    tone: 'red' },

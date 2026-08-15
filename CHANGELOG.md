@@ -1,4 +1,10 @@
 ## Changes
+- **2026-08-16** — 📊 **DASHBOARD — Order Status Mix donut + Payment health audit**
+  - Traced the two widgets to their sources: the donut counts FULFILMENT status (`GET /api/admin/dashboard` → `Order.aggregate([{ $group: { _id: '$status' } }])`); "Payment health" counts PAYMENT verification state (`GET /api/orders/insights/dashboard` → `paymentBreakdown` keyed on `order.paymentState`). They are two different fields by design — the shared word "Pending" was the only collision.
+  - Donut (StatusDonut): moved the segment maths into a pure, tested helper `frontend/src/lib/statusDonut.js` (`buildStatusDonut`). Removed the `slice(0, 6)` legend cap so EVERY non-zero status bucket now appears in the legend; zero buckets stay excluded; the centre Total is the sum of exactly the segments shown (verified live: 61 = Pending 11 + Cancelled 50).
+  - Payment health: "Pending" renamed to "Payment Unverified" (payment verification ≠ fulfilment). Applied via the shared `PAYMENT_STATES` constant (admin/orders/orderConstants.js) so the dashboard widget, the orders-desk quick stats and the filter dropdown all read the same unambiguous label. Zero-count payment chips are no longer rendered.
+  - Added `tests/dashboard-donut.mjs` — asserts sum(segments) === centre Total across empty, mixed-status, all-cancelled, all-non-zero and legacy-status scenarios (23 assertions). Full suite: 6/6 passing.
+
 - **2026-08-15** — 🎨 **DESIGN-SYSTEM RECONCILIATION + PRODUCTION POLISH**
   - Retired the stale `frontend/src/tokens.css` (unlayered and imported after `index.css`, so it was silently overriding `.btn`/`.input`/`.h1`/`.eyebrow` etc. with the old VELOURA pill + sage register — the pill `9999px` buttons and 8px inputs the client had already removed). Folded the still-used `.container`/`.section` aliases into `index.css` (values byte-for-byte identical), so Blog / FabricTech / FitFinder / BundleBuilder render unchanged. Admin `.btn` pinned to the 6px Shopify radius.
   - Note: the `HUSHAÈ` wordmark accent is the client's reference and is left as-is.

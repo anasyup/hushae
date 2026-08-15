@@ -6,7 +6,7 @@ import {
 import { Loader2, RefreshCcw } from 'lucide-react';
 import { api } from '../../api/client';
 import { pkr } from '../../lib/format';
-import { GROUPS } from './orderConstants';
+import { GROUPS, PAYMENT_STATES, TONE } from './orderConstants';
 
 /* ============================================================================
  * Live dashboard strip.
@@ -92,16 +92,18 @@ export default function OrderDashboard({ token, onPipelineClick, onCustomerClick
       <div className="flex flex-wrap items-center gap-x-5 gap-y-2 rounded-lg bg-neutral-50 px-3 py-2.5 text-[12px]">
         <span className="flex items-center gap-1.5">
           <span className="font-semibold uppercase tracking-wider text-neutral-500">Payments</span>
-          {['Pending', 'Verified', 'Confirmed'].map((st) => {
-            const n = data.paymentBreakdown?.[st] || 0;
-            const tone = st === 'Pending' ? 'bg-amber-100 text-amber-800'
-              : st === 'Verified' ? 'bg-blue-100 text-blue-700' : 'bg-emerald-100 text-emerald-700';
+          {PAYMENT_STATES.map((p) => {
+            const n = data.paymentBreakdown?.[p.key] || 0;
+            if (!n) return null;
             return (
-              <span key={st} className={`rounded-full px-2 py-0.5 text-[12px] font-semibold ${tone}`}>
-                {st} {n}
+              <span key={p.key} className={`rounded-full px-2 py-0.5 text-[12px] font-semibold ${TONE[p.tone]?.pill || 'bg-neutral-100 text-neutral-700 ring-neutral-200'}`}>
+                {p.label} {n}
               </span>
             );
           })}
+          {!Object.values(data.paymentBreakdown || {}).some((n) => Number(n) > 0) && (
+            <span className="text-[12px] text-neutral-400">—</span>
+          )}
         </span>
 
         <span className="hidden h-4 w-px bg-neutral-200 sm:block" />
