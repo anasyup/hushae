@@ -81,6 +81,15 @@ export default {
         gold:      'rgb(var(--gold) / <alpha-value>)',      // #C9A96E brand gold
         bronze:    'rgb(var(--bronze) / <alpha-value>)',    // #A68A56 dark gold hover
         midnight:  'rgb(var(--midnight) / <alpha-value>)',  // #1C2333 footer
+
+        /* ── BRAND ACCENT — one colour, used sparingly (admin primary
+           actions, active states, key highlights only). Deep rose/burgundy
+           for the innerwear register: white text on it measures 7.28:1 (AA).
+           Mirrors --color-brand / --color-brand-deep / --color-brand-soft
+           in index.css. */
+        brand:       '#9C2C4E',
+        'brand-deep':'#7F1D3A',
+        'brand-soft':'#F5E9ED',
       },
       fontFamily: {
         /* One-family storefront — LOUIS VUITTON register.
@@ -217,6 +226,14 @@ export default {
         'e-3': '0 12px 32px -12px rgba(17,17,17,0.16)',
         'e-4': '0 28px 64px -28px rgba(17,17,17,0.24)',
         focus: '0 0 0 2px #FFFFFF, 0 0 0 4px #111111',
+        /* Layered soft elevation — replaces Tailwind's harsh defaults.
+           Low opacity + larger blur: a surface reads as lifted without a
+           hard drop shadow. */
+        sm: '0 1px 2px rgba(17,17,17,0.04), 0 2px 8px rgba(17,17,17,0.04)',
+        md: '0 2px 4px rgba(17,17,17,0.04), 0 10px 24px rgba(17,17,17,0.06)',
+        lg: '0 4px 8px rgba(17,17,17,0.05), 0 18px 44px rgba(17,17,17,0.08)',
+        xl: '0 8px 16px rgba(17,17,17,0.05), 0 28px 72px rgba(17,17,17,0.10)',
+        brand: '0 6px 20px -6px rgba(156,44,78,0.45)',
       },
 
       transitionDuration: {

@@ -756,3 +756,52 @@
   line-height: 15px;
   color: rgb(255, 255, 255);
 }
+
+/* ════════════════════════════════════════════════════════════════════════
+   BRAND ACCENT + ADMIN POLISH (design-system pass)
+   One accent colour, used sparingly for admin primary actions and active
+   states. The storefront keeps its approved CK monochrome register.
+   ════════════════════════════════════════════════════════════════════════ */
+:root {
+  --color-brand:      #9C2C4E;   /* deep rose-burgundy — 7.28:1 on white */
+  --color-brand-deep: #7F1D3A;   /* hover / pressed */
+  --color-brand-soft: #F5E9ED;   /* 10% tint for soft fills */
+}
+
+/* Admin focus — a visible 2px brand ring with 2px offset (keyboard nav). */
+.admin-shell :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 2px;
+  box-shadow: none;
+}
+
+/* ── Live indicator — gentle scale/opacity pulse (2s), honours reduced-motion
+      via the global prefers-reduced-motion override in @layer base. ────── */
+@keyframes live-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.45; transform: scale(0.82); }
+}
+.live-dot {
+  animation: live-pulse 2s ease-in-out infinite;
+  transform-origin: center;
+}
+
+/* ── CSS fallback entrance for widgets (used when JS motion is disabled or
+      reduced-motion is on, framer-motion is skipped entirely). ─────────── */
+@keyframes widget-enter {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Badge dot — the 5px status dot rendered before pill labels. ──────── */
+.badge-dot { width: 5px; height: 5px; border-radius: 9999px; flex: none; }
+
+/* ── Progress-bar fill — animates width 0 → var(--w) on mount (600ms, ease-out).
+      Reduced-motion users get the final width instantly via the global rule. */
+@keyframes bar-fill {
+  from { width: 0; }
+  to   { width: var(--w, 0%); }
+}
+.animate-bar-fill {
+  animation: bar-fill 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
