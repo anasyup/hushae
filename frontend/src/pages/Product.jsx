@@ -59,6 +59,7 @@ export default function Product() {
   const [complete, setComplete] = useState([]); // "You May Also Like" — never empty
 
   const ctaRef = useRef(null);
+  const relatedRef = useRef(null);
   const sizeRef = useRef(null);
 
   useEffect(() => {
@@ -528,13 +529,43 @@ export default function Product() {
         ))}
       </section>
 
-      {/* ═══ YOU MAY ALSO LIKE ════════════════════════════════════════ */}
+      {/* ═══ YOU MAY ALSO LIKE — bigger cards + arrow carousel ════════ */}
       {complete.length > 0 && (
         <section className="border-t border-neutral-200 py-16">
           <div className="mx-auto max-w-[1440px] px-6 lg:px-12">
-            <h3 className="mb-8 text-xl font-light uppercase tracking-widest">You May Also Like</h3>
-            <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
-              {complete.slice(0, 4).map((pr) => <CollectionCard key={pr._id} product={pr} variant="pill" />)}
+            {/* Header — title left, arrows right */}
+            <div className="mb-8 flex items-end justify-between">
+              <h3 className="text-xl font-light uppercase tracking-widest">You May Also Like</h3>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => relatedRef.current?.scrollBy({ left: -380, behavior: 'smooth' })}
+                  aria-label="Previous products"
+                  className="flex h-10 w-10 items-center justify-center rounded-full border border-neutral-300 text-black transition-all hover:border-black hover:bg-black hover:text-white"
+                >
+                  <ChevronLeft size={18} strokeWidth={1.5} aria-hidden="true" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => relatedRef.current?.scrollBy({ left: 380, behavior: 'smooth' })}
+                  aria-label="Next products"
+                  className="flex h-10 w-10 items-center justify-center rounded-full border border-neutral-300 text-black transition-all hover:border-black hover:bg-black hover:text-white"
+                >
+                  <ChevronRight size={18} strokeWidth={1.5} aria-hidden="true" />
+                </button>
+              </div>
+            </div>
+
+            {/* Carousel track — bigger fixed-width cards */}
+            <div
+              ref={relatedRef}
+              className="no-scrollbar -mx-1 flex snap-x snap-mandatory gap-6 overflow-x-auto px-1 pb-2"
+            >
+              {complete.slice(0, 8).map((pr) => (
+                <div key={pr._id} className="w-[280px] shrink-0 snap-start sm:w-[320px] md:w-[340px]">
+                  <CollectionCard product={pr} variant="pill" />
+                </div>
+              ))}
             </div>
           </div>
         </section>
