@@ -12,6 +12,7 @@ import SecurityPanel from './account/SecurityPanel';
 import SavedPanel from './account/SavedPanel';
 import SessionsPanel from './account/SessionsPanel';
 import NotificationsPanel from './account/NotificationsPanel';
+import TrackOrderCard from '../components/TrackOrderCard';
 
 /* ============================================================================
  * CUSTOMER ACCOUNT
@@ -270,6 +271,8 @@ export default function Account() {
           {section === 'orders' && (
             <section className="space-y-3" aria-labelledby="sec-orders">
               <h3 id="sec-orders" className="text-label uppercase tracking-widest text-ash">Order history</h3>
+              {/* Track an order — lives here (removed from the header) */}
+              <TrackOrderCard />
               {orders === null ? (
                 <div role="status" aria-live="polite">
                   <span className="sr-only">Loading your orders…</span>

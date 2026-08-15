@@ -68,22 +68,23 @@ export default function Header() {
       { label: 'Best Sellers', href: '/best' },
       { label: 'Sale', href: '/sale', dropdown: 'sale' },
       { label: 'Fit Finder', href: '/fit-finder' },
-      { label: 'Track Order', href: '/track' },
     ]
   ), [hdr.menu]);
 
   const cmsNav = useCmsNav();
   const cmsHeaderKey = JSON.stringify(cmsNav.header || []);
   const menu = useMemo(() => {
+    /* Track Order moved into Account → Order history — never in the header. */
+    const noTrack = (m) => String(m?.href || '').replace(/\/+$/, '') !== '/track';
     let links = [];
     try { links = JSON.parse(cmsHeaderKey); } catch { links = []; }
-    if (!links.length) return baseMenu;
+    if (!links.length) return baseMenu.filter(noTrack);
     const existing = new Set(baseMenu.map((m) => String(m?.href || '').replace(/\/+$/, '')));
     const fresh = links
       .filter((l) => !existing.has(`/${l.slug}`))
       .map((l) => ({ label: l.label, href: `/${l.slug}` }));
-    if (!fresh.length) return baseMenu;
-    return [...baseMenu, ...fresh];
+    if (!fresh.length) return baseMenu.filter(noTrack);
+    return [...baseMenu, ...fresh].filter(noTrack);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cmsHeaderKey, baseMenu]);
 
