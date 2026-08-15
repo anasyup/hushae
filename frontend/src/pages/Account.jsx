@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Bell, ChevronRight, Heart, LayoutGrid, LogOut, MapPin, Package, ShieldCheck, User as UserIcon } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Bell, ChevronRight, Heart, LayoutGrid, MapPin, Package, ShieldCheck, User as UserIcon } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import { fmtDate, pkr } from '../lib/format';
@@ -42,8 +42,7 @@ const ALL_SECTIONS = [
 ];
 
 export default function Account() {
-  const { auth, logout, settings, patchUser, toast } = useApp();
-  const nav = useNavigate();
+  const { auth, settings, patchUser } = useApp();
 
   const [policy, setPolicy] = useState(null);
   const cfg = useMemo(() => accountConfig(settings, policy), [settings, policy]);
@@ -141,37 +140,27 @@ export default function Account() {
     );
   }
 
-  const firstName = (user.name || '').trim().split(/\s+/)[0] || 'there';
   const initials = (user.name || '?').trim().split(/\s+/).slice(0, 2).map((w) => w[0]).join('').toUpperCase();
-  const defaultAddr = (user.addresses || []).find((a) => a.isDefault) || (user.addresses || [])[0];
   const activeLabel = SECTIONS.find((s) => s.id === section)?.label || '';
 
   return (
     <div className="container-page py-8 md:py-12">
-      {/* ---------------- welcome ---------------- */}
-      <header className="rounded-panel border border-line bg-white/60 p-5 md:p-7">
-        <div className="flex flex-wrap items-center gap-4">
-          {user.avatar ? (
-            <img src={user.avatar} alt="" className="h-14 w-14 shrink-0 rounded-full border border-line object-cover md:h-16 md:w-16" />
-          ) : (
-            <span aria-hidden="true" className="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-cream font-display text-h6 text-graphite md:h-16 md:w-16">
-              {initials}
-            </span>
-          )}
-          <div className="min-w-0 flex-1">
-            <h1 className="truncate font-display text-h2">{firstName}</h1>
-            <p className="mt-1 truncate text-body-sm text-ash">{user.email}</p>
-          </div>
-          <button
-            type="button" onClick={() => { logout(); toast('Signed out'); nav('/'); }}
-            className="btn btn-sm shrink-0 gap-1.5 border border-bronze bg-white text-graphite hover:bg-satin/60"
-          >
-            <LogOut size={14} aria-hidden="true" /> Sign out
-          </button>
+      {/* ---------------- profile banner (reference register) ---------------- */}
+      <section className="flex items-center gap-5 border-b border-[#f0f0f0] pb-6">
+        {user.avatar ? (
+          <img src={user.avatar} alt="" className="h-14 w-14 shrink-0 rounded-full object-cover md:h-14 md:w-14" />
+        ) : (
+          <span aria-hidden="true" className="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-[#f3f4f6] text-xl font-semibold text-[#374151]">
+            {initials}
+          </span>
+        )}
+        <div className="min-w-0">
+          <h1 className="truncate text-[22px] font-bold tracking-[0.5px] text-[#111111]">{user.name}</h1>
+          <p className="mt-0.5 truncate text-[14px] text-[#6b7280]">{user.email}</p>
         </div>
-      </header>
+      </section>
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-[220px_minmax(0,1fr)]">
+      <div className="mt-10 grid gap-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-12">
         {/* ---------------- nav ----------------
             Mobile: a scrollable rail. Desktop: a sidebar. Same buttons, so
             there is only one set of state and one focus order. */}
@@ -187,13 +176,13 @@ export default function Account() {
                   type="button"
                   onClick={() => go(id)}
                   aria-current={section === id ? 'page' : undefined}
-                  className={`flex min-h-[44px] w-full items-center gap-2.5 whitespace-nowrap rounded-full px-4 text-body-sm font-medium transition-colors duration-fast lg:rounded-control lg:px-3.5 ${
+                  className={`flex min-h-[44px] w-full items-center gap-3 whitespace-nowrap rounded-full px-4 text-[14px] font-medium transition-all duration-200 lg:rounded-md lg:px-4 lg:py-3 ${
                     section === id
-                      ? 'bg-obsidian text-alabaster'
-                      : 'bg-white/70 text-ash hover:text-obsidian lg:bg-transparent'
+                      ? 'bg-[#111111] text-white'
+                      : 'bg-white/70 text-[#4b5563] hover:bg-[#f9fafb] hover:text-[#111111] lg:bg-transparent'
                   }`}
                 >
-                  <Icon size={15} aria-hidden="true" />
+                  <Icon size={15} aria-hidden="true" strokeWidth={1.6} />
                   {label}
                 </button>
               </li>
@@ -206,63 +195,38 @@ export default function Account() {
           <h2 ref={headingRef} tabIndex={-1} className="sr-only">{activeLabel}</h2>
 
           {section === 'overview' && (
-            <div className="space-y-6">
-              <div className="grid gap-4 sm:grid-cols-3">
-                <button type="button" onClick={() => go('orders')} className="card-content text-left transition hover:border-obsidian/30">
-                  <p className="text-label uppercase tracking-widest text-ash">Orders</p>
-                  <p className="mt-2 font-display text-h3">{orders === null ? '—' : orders.length}</p>
-                  <p className="mt-1 text-caption text-ash">View order history</p>
-                </button>
-                <button type="button" onClick={() => go('addresses')} className="card-content text-left transition hover:border-obsidian/30">
-                  <p className="text-label uppercase tracking-widest text-ash">Addresses</p>
-                  <p className="mt-2 font-display text-h3">{(user.addresses || []).length}</p>
-                  <p className="mt-1 text-caption text-ash">Manage saved addresses</p>
-                </button>
-                {/* Rewards replaces the Wishlist tile when the programme is
-                    running — the wishlist already has its own section in the
-                    rail above, so the tile was a duplicate entry point. */}
-                {loyaltyOn ? (
-                  <Link to="/rewards" className="card-content block transition hover:border-obsidian/30">
-                    <p className="text-label uppercase tracking-widest text-ash">Rewards</p>
-                    <p className="mt-2 font-display text-h3 tabular-nums">
-                      {loyalty === null ? '—' : Number(loyalty.account?.points || 0).toLocaleString('en-PK')}
-                    </p>
-                    <p className="mt-1 text-caption text-ash">
-                      {loyalty?.tier?.current?.name ? `${loyalty.tier.current.name} member` : 'Points and tiers'}
-                    </p>
-                  </Link>
-                ) : (
-                  <Link to="/wishlist" className="card-content block transition hover:border-obsidian/30">
-                    <p className="text-label uppercase tracking-widest text-ash">Wishlist</p>
-                    <p className="mt-2 font-display text-h3">♡</p>
-                    <p className="mt-1 text-caption text-ash">Pieces you saved</p>
-                  </Link>
-                )}
-              </div>
-
-              {defaultAddr && (
-                <section className="card-content" aria-labelledby="ov-addr">
-                  <div className="flex items-center justify-between gap-3">
-                    <h3 id="ov-addr" className="text-label uppercase tracking-widest text-ash">Default delivery address</h3>
-                    <button type="button" onClick={() => go('addresses')} className="min-h-[44px] text-caption font-semibold text-ash underline-offset-4 hover:text-obsidian hover:underline">Change</button>
-                  </div>
-                  <p className="mt-3 text-body-sm">{defaultAddr.address}</p>
-                  <p className="text-caption text-ash">{[defaultAddr.city, defaultAddr.province, defaultAddr.postalCode].filter(Boolean).join(', ')}</p>
-                </section>
-              )}
-
-              {orders !== null && orders.length > 0 && (
-                <section className="card-content" aria-labelledby="ov-recent">
-                  <div className="flex items-center justify-between gap-3">
-                    <h3 id="ov-recent" className="text-label uppercase tracking-widest text-ash">Latest order</h3>
-                    <button type="button" onClick={() => go('orders')} className="min-h-[44px] text-caption font-semibold text-ash underline-offset-4 hover:text-obsidian hover:underline">All orders</button>
-                  </div>
-                  <div className="mt-3 flex flex-wrap items-center gap-3">
-                    <p className="font-mono text-body-sm">{orders[0].orderNumber}</p>
-                    <span className="pill bg-satin text-obsidian">{orders[0].status}</span>
-                    <p className="text-body-sm font-semibold tabular-nums">{pkr(orders[0].total)}</p>
-                  </div>
-                </section>
+            <div className="grid gap-5 sm:grid-cols-3">
+              {/* Reference dash-card: #fafafa, 1px #eee, radius 8, 24px pad,
+                  title 11/700 tracked, value 28/600, desc 13px grey */}
+              <button type="button" onClick={() => go('orders')} className="flex min-h-[140px] flex-col items-start rounded-lg border border-[#eeeeee] bg-[#fafafa] p-6 text-left transition hover:border-black/20">
+                <span className="text-[11px] font-bold uppercase tracking-[1.2px] text-[#6b7280]">Orders</span>
+                <span className="my-3 text-[28px] font-semibold leading-none text-[#111111]">{orders === null ? '—' : orders.length}</span>
+                <span className="mt-auto text-[13px] text-[#9ca3af]">View order history</span>
+              </button>
+              <button type="button" onClick={() => go('addresses')} className="flex min-h-[140px] flex-col items-start rounded-lg border border-[#eeeeee] bg-[#fafafa] p-6 text-left transition hover:border-black/20">
+                <span className="text-[11px] font-bold uppercase tracking-[1.2px] text-[#6b7280]">Addresses</span>
+                <span className="my-3 text-[28px] font-semibold leading-none text-[#111111]">{(user.addresses || []).length}</span>
+                <span className="mt-auto text-[13px] text-[#9ca3af]">Manage saved addresses</span>
+              </button>
+              {/* Rewards replaces the Wishlist tile when the programme is
+                  running — the wishlist already has its own section in the
+                  rail above, so the tile was a duplicate entry point. */}
+              {loyaltyOn ? (
+                <Link to="/rewards" className="flex min-h-[140px] flex-col items-start rounded-lg border border-[#eeeeee] bg-[#fafafa] p-6 text-left transition hover:border-black/20">
+                  <span className="text-[11px] font-bold uppercase tracking-[1.2px] text-[#6b7280]">Rewards</span>
+                  <span className="my-3 text-[28px] font-semibold leading-none tabular-nums text-[#111111]">
+                    {loyalty === null ? '—' : Number(loyalty.account?.points || 0).toLocaleString('en-PK')}
+                  </span>
+                  <span className="mt-auto text-[13px] text-[#9ca3af]">
+                    {loyalty?.tier?.current?.name ? `${loyalty.tier.current.name} member` : 'Points and tiers'}
+                  </span>
+                </Link>
+              ) : (
+                <Link to="/wishlist" className="flex min-h-[140px] flex-col items-start rounded-lg border border-[#eeeeee] bg-[#fafafa] p-6 text-left transition hover:border-black/20">
+                  <span className="text-[11px] font-bold uppercase tracking-[1.2px] text-[#6b7280]">Wishlist</span>
+                  <span className="my-3 text-[28px] font-semibold leading-none text-[#111111]">♡</span>
+                  <span className="mt-auto text-[13px] text-[#9ca3af]">Pieces you saved</span>
+                </Link>
               )}
             </div>
           )}

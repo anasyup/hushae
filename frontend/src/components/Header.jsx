@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Link, NavLink, useLocation } from 'react-router-dom';
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Heart, Menu, Search, ShoppingBag, User } from 'lucide-react';
 import { useApp } from '../store/AppContext';
@@ -30,7 +30,8 @@ import SearchPanel from './search/SearchPanel';
  * ========================================================================== */
 
 export default function Header() {
-  const { cartCount, wishlist, auth, setDrawerOpen, settings } = useApp();
+  const { cartCount, wishlist, auth, logout, toast, setDrawerOpen, settings } = useApp();
+  const nav = useNavigate();
   const [cats, setCats] = useState([]);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -216,6 +217,15 @@ export default function Header() {
                 <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-black text-[9px] font-bold text-white">
                   {cartCount}
                 </span>
+              </button>
+            )}
+            {auth && (
+              <button
+                type="button"
+                onClick={() => { logout(); toast('Signed out'); nav('/'); }}
+                className="hidden text-[11px] font-semibold uppercase tracking-[1px] text-black transition-opacity duration-200 hover:opacity-60 sm:block"
+              >
+                ↪ Sign out
               </button>
             )}
           </div>
