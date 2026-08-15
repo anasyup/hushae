@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Heart, Menu, Search, ShoppingBag, User } from 'lucide-react';
+import { Heart, LogOut, Menu, Search, ShoppingBag, User } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import OfferBar from './OfferBar';
@@ -124,13 +124,14 @@ export default function Header() {
         </div>
       )}
 
-      {/* 2. Main header — below the announcement bar */}
+      {/* 2. Main header — below the announcement bar (CK reference:
+          transparent at top → solid #FAF8F5 + shadow once scrolled) */}
       <header
         data-header
         className={`w-full h-[96px] !m-0 px-6 lg:px-12 transition-all duration-300 ease-in-out ${
           mega || isScrolled
             ? 'bg-[#FAF8F5] text-black shadow-sm'
-            : 'bg-[#FAF8F5] text-black'
+            : 'bg-transparent text-black'
         }`}
         onMouseLeave={() => setMega(null)}
       >
@@ -223,9 +224,11 @@ export default function Header() {
               <button
                 type="button"
                 onClick={() => { logout(); toast('Signed out'); nav('/'); }}
-                className="hidden text-[11px] font-semibold uppercase tracking-[1px] text-black transition-opacity duration-200 hover:opacity-60 sm:block"
+                aria-label="Sign out"
+                className="ml-2 hidden items-center gap-1.5 text-black transition-opacity duration-200 hover:opacity-60 md:flex"
               >
-                ↪ Sign out
+                <LogOut size={16} strokeWidth={1.5} aria-hidden="true" />
+                <span className="text-[10px] uppercase tracking-widest">Sign Out</span>
               </button>
             )}
           </div>
