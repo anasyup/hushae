@@ -40,7 +40,7 @@ export default function CancellationReasons({ reasons = [] }) {
                   <span className="shrink-0 font-semibold tabular-nums text-neutral-900">{r.count} · {r.pct}%</span>
                 </div>
                 <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-neutral-100">
-                  <div className={`h-full rounded-full ${BARS[i] || 'bg-neutral-300'}`} style={{ width: `${(r.count / max) * 100}%` }} />
+                  <div className={`animate-bar-fill h-full rounded-full ${BARS[i] || 'bg-neutral-300'}`} style={{ '--w': `${(r.count / max) * 100}%`, width: `${(r.count / max) * 100}%` }} />
                 </div>
               </div>
             ))}

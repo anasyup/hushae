@@ -81,7 +81,7 @@ export default function GoalTracker({ goal, onSaved }) {
           </div>
 
           <div className="relative mt-3 h-2.5 overflow-hidden rounded-full bg-neutral-100">
-            <div className={`h-full rounded-full transition-all duration-700 ${pace.bar}`} style={{ width: `${pct}%` }} />
+            <div className={`animate-bar-fill h-full rounded-full ${pace.bar}`} style={{ '--w': `${pct}%`, width: `${pct}%` }} />
             {/* where the month itself has got to — the line you race */}
             <span
               className="absolute top-0 h-full w-px bg-neutral-900/40"

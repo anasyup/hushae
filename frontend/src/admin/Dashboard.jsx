@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import {
   Activity, AlertTriangle, ArrowDownRight, ArrowUpRight, BadgePercent, Box,
   Calendar, ChevronRight, CircleDollarSign, Clock, Download, Megaphone,
-  MessageCircle, Package, PackagePlus, RefreshCw, ShoppingBag, Sparkles,
+  MessageCircle, Package, PackageCheck, PackagePlus, RefreshCw, ShoppingBag, Sparkles,
   TrendingUp, Truck, Users, Zap,
 } from 'lucide-react';
 import {
@@ -26,6 +26,7 @@ import AbandonedCartsWidget from './dashboard/AbandonedCartsWidget';
 import ReorderModal from './dashboard/ReorderModal';
 import ReliabilityBadge from './ReliabilityBadge';
 import { exportDashboardSummary } from './dashboard/exportSummary';
+import { useCountUp, Rise, staggerOf } from './ui/Animate';
 
 /* ============================================================================
  * DASHBOARD — Phase 6 deep redesign.
@@ -93,22 +94,30 @@ function KpiCard({ icon: Icon, label, value, change, sparkData, accent = '#11111
   const positive = hasRate && change > 0; const negative = hasRate && change < 0;
   const isNew = change === null && value > 0;
   const changeText = hasRate ? Math.abs(change).toFixed(1) + '%' : '';
-  const display = format === 'money' ? pkr(value) : value.toLocaleString();
+  // Number ticker — animates 0 → value over ~700ms (instant under reduced motion).
+  const animated = useCountUp(value, { duration: 700 });
+  const display = format === 'money'
+    ? pkr(Math.round(animated))
+    : format === 'percent'
+      ? `${Math.round(animated)}%`
+      : Math.round(animated).toLocaleString();
+  // Subtle identity wash — each card's icon colour at ~4% opacity, top-left.
+  const wash = { background: `linear-gradient(135deg, ${accent}0A 0%, #FFFFFF 55%)` };
   const inner = (
     <>
       <div className="flex items-center justify-between">
-        <span className="grid h-11 w-11 place-items-center rounded-xl" style={{ background: `${accent}14`, color: accent }}><Icon size={17} strokeWidth={1.9} /></span>
+        <span className="grid h-11 w-11 place-items-center rounded-xl" style={{ background: `${accent}1A`, color: accent }}><Icon size={17} strokeWidth={1.9} /></span>
         {isNew ? <span className="inline-flex items-center gap-1 rounded-full bg-neutral-100 px-2 py-0.5 text-[12px] font-bold text-neutral-700">New</span>
           : hasRate && change !== 0 && <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[12px] font-bold ${positive ? 'bg-emerald-50 text-emerald-700' : negative ? 'bg-red-50 text-red-700' : 'bg-neutral-100 text-neutral-600'}`}>{positive ? <ArrowUpRight size={11} /> : negative ? <ArrowDownRight size={11} /> : null}{changeText}</span>}
       </div>
-      <p className="mt-4 text-[13px] font-bold uppercase tracking-widest text-neutral-500">{label}</p>
-      <p className="mt-1 font-sans text-[13px] font-semibold tabular-nums leading-none tracking-tight text-neutral-900">{display}</p>
-      <p className="mt-1 text-[12px] text-neutral-400">{compareLabel}</p>
-      {sparkData?.length > 0 && <div className="mt-3 h-10"><ResponsiveContainer width="100%" height="100%"><AreaChart data={sparkData} margin={{ top: 2, right: 0, left: 0, bottom: 0 }}><defs><linearGradient id={`spk-${label}`} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={accent} stopOpacity={0.28} /><stop offset="100%" stopColor={accent} stopOpacity={0} /></linearGradient></defs><Area type="monotone" dataKey="v" stroke={accent} strokeWidth={2} fill={`url(#spk-${label})`} /></AreaChart></ResponsiveContainer></div>}
+      <p className="mt-4 text-[12px] font-bold uppercase tracking-widest text-neutral-500">{label}</p>
+      <p className="mt-1.5 font-sans text-[28px] font-bold tabular-nums leading-none tracking-tight text-neutral-900">{display}</p>
+      <p className="mt-2 text-[12px] text-neutral-500">{compareLabel}</p>
+      {sparkData?.length > 0 && <div className="mt-4 h-10"><ResponsiveContainer width="100%" height="100%"><AreaChart data={sparkData} margin={{ top: 2, right: 0, left: 0, bottom: 0 }}><defs><linearGradient id={`spk-${label}`} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={accent} stopOpacity={0.28} /><stop offset="100%" stopColor={accent} stopOpacity={0} /></linearGradient></defs><Area type="monotone" dataKey="v" stroke={accent} strokeWidth={2} fill={`url(#spk-${label})`} isAnimationActive animationDuration={700} animationEasing="ease-out" /></AreaChart></ResponsiveContainer></div>}
     </>
   );
-  const cls = `relative overflow-hidden rounded-2xl border border-neutral-200 bg-white p-5 transition hover:-translate-y-0.5 hover:shadow-md ${to ? 'cursor-pointer' : ''}`;
-  return to ? <Link to={to} className={cls}>{inner}</Link> : <div className={cls}>{inner}</div>;
+  const cls = `relative overflow-hidden rounded-xl border border-neutral-200/80 bg-white p-6 shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-md ${to ? 'cursor-pointer' : ''}`;
+  return to ? <Link to={to} className={cls} style={wash}>{inner}</Link> : <div className={cls} style={wash}>{inner}</div>;
 }
 
 function QuickActions() {
@@ -121,17 +130,19 @@ function QuickActions() {
     { to: '/admin/discounts', icon: BadgePercent, label: 'Discounts' },
   ];
   return (
-    <div className="rounded-2xl border border-neutral-200 bg-white p-5">
-      <p className="text-[13px] font-bold uppercase tracking-widest text-neutral-500">Quick actions</p>
+    <div className="relative overflow-hidden rounded-xl border border-neutral-900 bg-neutral-900 p-5 text-white shadow-lg">
+      {/* subtle brand wash so the hero card reads intentional, not flat */}
+      <div aria-hidden="true" className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full opacity-30" style={{ background: 'radial-gradient(circle, #9C2C4E 0%, transparent 70%)' }} />
+      <p className="text-[13px] font-bold uppercase tracking-widest text-neutral-400">Quick actions</p>
       <div className="mt-3 grid grid-cols-2 gap-2">
         {actions.map((a) => (
           <Link
             key={a.label}
             to={a.to}
-            className={`flex flex-col items-center gap-1.5 rounded-xl border p-3 text-center transition-colors duration-150 ${
+            className={`relative flex flex-col items-center gap-1.5 rounded-xl border p-3 text-center transition-all duration-150 ease-out ${
               a.primary
-                ? 'border-neutral-900 bg-neutral-900 text-white hover:bg-neutral-800 active:bg-black'
-                : 'border-neutral-200 bg-white text-neutral-900 hover:border-neutral-300 hover:bg-neutral-50 active:bg-neutral-100'
+                ? 'border-brand bg-brand text-white shadow-brand hover:bg-brand-deep hover:scale-[1.02] active:scale-[0.98]'
+                : 'border-white/15 bg-white/5 text-white hover:border-white/30 hover:bg-white/10 active:bg-white/15'
             }`}
           >
             <a.icon size={18} strokeWidth={1.8} />
@@ -246,24 +257,24 @@ function RevenueChart({ data }) {
   const [mode, setMode] = useState('revenue');
   const total = data.reduce((n, d) => n + (mode === 'revenue' ? d.revenue : d.orders), 0);
   return (
-    <div className="rounded-2xl border border-neutral-200 bg-white p-6">
+    <div className="rounded-xl border border-neutral-200/80 bg-white p-6 shadow-sm">
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <div><p className="text-[12px] font-bold uppercase tracking-widest text-neutral-500">Last 14 days</p><p className="mt-1 font-sans text-2xl font-semibold tabular-nums text-neutral-900">{mode === 'revenue' ? pkr(total) : total.toLocaleString()}</p></div>
         <div className="flex items-center gap-1 rounded-full border border-neutral-200 bg-neutral-50 p-1">
           {['revenue', 'orders'].map((m) => (
-            <button key={m} onClick={() => setMode(m)} className={`rounded-full px-3 py-1 text-[12px] font-semibold uppercase tracking-wider transition ${mode === m ? 'bg-neutral-900 text-white' : 'text-neutral-500 hover:text-neutral-900'}`}>{m}</button>
+            <button key={m} onClick={() => setMode(m)} className={`rounded-full px-3 py-1 text-[12px] font-semibold uppercase tracking-wider transition ${mode === m ? 'bg-brand text-white' : 'text-neutral-500 hover:text-neutral-900'}`}>{m}</button>
           ))}
         </div>
       </div>
       <div className="h-56 w-full">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-            <defs><linearGradient id="rev-fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#111111" stopOpacity={0.25} /><stop offset="100%" stopColor="#111111" stopOpacity={0} /></linearGradient></defs>
+            <defs><linearGradient id="rev-fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#9C2C4E" stopOpacity={0.18} /><stop offset="100%" stopColor="#9C2C4E" stopOpacity={0} /></linearGradient></defs>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f1f1" vertical={false} />
             <XAxis dataKey="label" stroke="#9ca3af" tick={{ fontSize: 10 }} tickLine={false} axisLine={false} />
             <YAxis stroke="#9ca3af" tick={{ fontSize: 11 }} tickLine={false} axisLine={false} tickFormatter={(v) => mode === 'revenue' ? (v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v) : v} />
             <Tooltip contentStyle={{ borderRadius: 12, border: '1px solid #e5e7eb', fontSize: 12 }} formatter={(v) => mode === 'revenue' ? [pkr(v), 'Revenue'] : [v, 'Orders']} />
-            <Area type="monotone" dataKey={mode} stroke="#111111" strokeWidth={2.2} fill="url(#rev-fill)" dot={{ r: 3, fill: '#111111', stroke: '#fff', strokeWidth: 2 }} activeDot={{ r: 5 }} />
+            <Area type="monotone" dataKey={mode} stroke="#9C2C4E" strokeWidth={2.2} fill="url(#rev-fill)" dot={{ r: 3, fill: '#9C2C4E', stroke: '#fff', strokeWidth: 2 }} activeDot={{ r: 5 }} isAnimationActive animationDuration={800} animationEasing="ease-out" />
           </AreaChart>
         </ResponsiveContainer>
       </div>
@@ -273,14 +284,15 @@ function RevenueChart({ data }) {
 
 function StatusDonut({ byStatus }) {
   const { segments, total } = buildStatusDonut(byStatus);
+  const animatedTotal = useCountUp(total, { duration: 800 });
   return (
-    <div className="rounded-2xl border border-neutral-200 bg-white p-6">
+    <div className="rounded-xl border border-neutral-200/80 bg-white p-6 shadow-sm">
       <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-500">Order status mix</p>
-      {total === 0 ? <p className="py-16 text-center text-sm text-neutral-400">No orders yet.</p> : (
+      {total === 0 ? <div className="py-12 text-center text-sm text-neutral-400"><ShoppingBag size={22} className="mx-auto mb-2 text-neutral-300" /><p>No orders yet.</p></div> : (
         <div className="mt-4 flex items-center gap-4">
           <div className="relative h-36 w-36 shrink-0">
-            <ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={segments} dataKey="value" innerRadius={42} outerRadius={64} paddingAngle={2} startAngle={90} endAngle={-270}>{segments.map((d, i) => <Cell key={i} fill={d.color} />)}</Pie></PieChart></ResponsiveContainer>
-            <div className="pointer-events-none absolute inset-0 grid place-items-center text-center"><div><p className="font-sans text-2xl font-semibold tabular-nums leading-none text-neutral-900">{total}</p><p className="mt-1 text-[12px] uppercase tracking-wider text-neutral-500">Total</p></div></div>
+            <ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={segments} dataKey="value" innerRadius={42} outerRadius={64} paddingAngle={2} startAngle={90} endAngle={-270} isAnimationActive animationDuration={800} animationEasing="ease-out">{segments.map((d, i) => <Cell key={i} fill={d.color} />)}</Pie></PieChart></ResponsiveContainer>
+            <div className="pointer-events-none absolute inset-0 grid place-items-center text-center"><div><p className="font-sans text-2xl font-semibold tabular-nums leading-none text-neutral-900">{Math.round(animatedTotal)}</p><p className="mt-1 text-[12px] uppercase tracking-wider text-neutral-500">Total</p></div></div>
           </div>
           <ul className="flex-1 space-y-1.5">{segments.map((d) => <li key={d.name} className="flex items-center gap-2 text-[12px]"><span className="h-2 w-2 rounded-full" style={{ background: d.color }} /><span className="flex-1 text-neutral-600">{d.name}</span><span className="font-semibold tabular-nums text-neutral-900">{d.value}</span></li>)}</ul>
         </div>
@@ -293,14 +305,15 @@ function TodayHourly({ hourly }) {
   const total = hourly.reduce((n, h) => n + h.orders, 0);
   const peak = hourly.reduce((max, h) => h.orders > max.orders ? h : max, { hour: 0, orders: 0 });
   return (
-    <div className="rounded-2xl border border-neutral-200 bg-white p-6">
-      <div className="flex items-center justify-between"><div><p className="text-[12px] font-bold uppercase tracking-widest text-neutral-500">Today's activity</p><p className="mt-1 text-[12px] text-neutral-500">{total} order{total === 1 ? '' : 's'} · peak {peak.hour.toString().padStart(2, '0')}:00</p></div><span className="grid h-9 w-9 place-items-center rounded-xl bg-neutral-900 text-white"><Activity size={16} /></span></div>
+    <div className="rounded-xl border border-neutral-200/80 bg-white p-6 shadow-sm">
+      <div className="flex items-center justify-between"><div><p className="text-[12px] font-bold uppercase tracking-widest text-neutral-500">Today's activity</p><p className="mt-1 text-[12px] text-neutral-500">{total} order{total === 1 ? '' : 's'} · peak {peak.hour.toString().padStart(2, '0')}:00</p></div><span className="grid h-9 w-9 place-items-center rounded-xl bg-brand text-white"><Activity size={16} /></span></div>
       {total === 0 ? (
         <div className="mt-5 grid h-32 place-items-center rounded-xl bg-neutral-50 text-center">
+          <Activity size={20} className="mx-auto mb-2 text-neutral-300" />
           <p className="text-[13px] font-medium text-neutral-500">No orders yet today</p>
         </div>
       ) : (
-        <div className="mt-5 h-32 w-full"><ResponsiveContainer width="100%" height="100%"><BarChart data={hourly} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}><XAxis dataKey="hour" tick={{ fontSize: 10 }} stroke="#9ca3af" tickLine={false} axisLine={false} interval={2} /><YAxis tick={{ fontSize: 10 }} stroke="#9ca3af" tickLine={false} axisLine={false} allowDecimals={false} /><Tooltip contentStyle={{ borderRadius: 12, border: '1px solid #e5e7eb', fontSize: 12 }} formatter={(v) => [v, 'Orders']} labelFormatter={(h) => `${String(h).padStart(2, '0')}:00`} /><Bar dataKey="orders" radius={[6, 6, 0, 0]}>{hourly.map((h, i) => <Cell key={i} fill={h.orders === peak.orders && peak.orders > 0 ? '#111111' : '#d4d4d4'} />)}</Bar></BarChart></ResponsiveContainer></div>
+        <div className="mt-5 h-32 w-full"><ResponsiveContainer width="100%" height="100%"><BarChart data={hourly} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}><XAxis dataKey="hour" tick={{ fontSize: 10 }} stroke="#9ca3af" tickLine={false} axisLine={false} interval={2} /><YAxis tick={{ fontSize: 10 }} stroke="#9ca3af" tickLine={false} axisLine={false} allowDecimals={false} /><Tooltip contentStyle={{ borderRadius: 12, border: '1px solid #e5e7eb', fontSize: 12 }} formatter={(v) => [v, 'Orders']} labelFormatter={(h) => `${String(h).padStart(2, '0')}:00`} /><Bar dataKey="orders" radius={[6, 6, 0, 0]} isAnimationActive animationDuration={700} animationEasing="ease-out">{hourly.map((h, i) => <Cell key={i} fill={h.orders === peak.orders && peak.orders > 0 ? '#9C2C4E' : '#d4d4d4'} />)}</Bar></BarChart></ResponsiveContainer></div>
       )}
     </div>
   );
@@ -388,7 +401,7 @@ export default function Dashboard() {
           <p className="font-sans text-[16px] font-semibold text-neutral-900">{greeting}, {auth?.user?.name?.split(' ')[0] || 'Admin'}</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1.5 text-[12px] font-semibold text-emerald-700 ring-1 ring-emerald-200"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />Live{lastSync ? ` · ${lastSync.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : ''}</span>
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1.5 text-[12px] font-semibold text-emerald-700 ring-1 ring-emerald-200"><span className="live-dot h-1.5 w-1.5 rounded-full bg-emerald-500" />Live{lastSync ? ` · ${lastSync.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : ''}</span>
           <span className="hidden items-center gap-1.5 rounded-full bg-neutral-100 px-3 py-1.5 text-[12px] font-semibold text-neutral-600 sm:inline-flex"><Calendar size={12} /> {new Date().toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long' })}</span>
           <RangePicker value={range} onChange={applyRange} />
           <button onClick={() => load()} disabled={refreshing} className="inline-flex min-h-[34px] items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-50"><RefreshCw size={12} className={refreshing ? 'animate-spin' : ''} /> Refresh</button>
@@ -398,7 +411,7 @@ export default function Dashboard() {
 
       <AlertsBar alerts={alerts} />
 
-      {/* ── Row 2: KPI Cards + Quick Actions ───────────────────────────── */}
+<Rise delay={staggerOf(0)}>      {/* ── Row 2: KPI Cards + Quick Actions ───────────────────────────── */}
       <div className="mb-6 grid gap-4 md:grid-cols-5">
         <KpiCard icon={CircleDollarSign} label="Revenue" value={d.kpis.revenue.value} change={d.kpis.revenue.change} sparkData={sparkRevenue} accent="#059669" format="money" to="/admin/analytics" compareLabel={cmpLabel} />
         <KpiCard icon={ShoppingBag} label="Orders" value={d.kpis.orders.value} change={d.kpis.orders.change} sparkData={sparkOrders} accent="#2563eb" to="/admin/orders" compareLabel={cmpLabel} />
@@ -406,21 +419,25 @@ export default function Dashboard() {
         <KpiCard icon={TrendingUp} label="Avg Order Value" value={d.kpis.aov.value} change={d.kpis.aov.change} sparkData={sparkAov} accent="#dc2626" format="money" to="/admin/analytics" compareLabel={cmpLabel} />
         <QuickActions />
       </div>
+</Rise>
 
-      {/* ── Row 3: Revenue chart + Status donut ────────────────────────── */}
+<Rise delay={staggerOf(1)}>      {/* ── Row 3: Revenue chart + Status donut ────────────────────────── */}
       <div className="mb-6 grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2"><ChartBoundary><RevenueChart data={d.chart} /></ChartBoundary></div>
         <ChartBoundary><StatusDonut byStatus={d.byStatus} /></ChartBoundary>
       </div>
+</Rise>
 
-      {/* ── Row 4: Order pipeline ──────────────────────────────────────── */}
+<Rise delay={staggerOf(2)}>      {/* ── Row 4: Order pipeline ──────────────────────────────────────── */}
       <div className="mb-6"><PipelineStrip stats={d.stats} /></div>
+</Rise>
 
-      {/* ── Row 5: Goal + Insights ──────────────────────────────────────── */}
+<Rise delay={staggerOf(3)}>      {/* ── Row 5: Goal + Insights ──────────────────────────────────────── */}
       <div className="mb-6 grid gap-4 lg:grid-cols-2">
         <GoalTracker goal={goal} onSaved={() => load(true)} />
         <InsightsCard insights={smart} />
       </div>
+</Rise>
 
       {/* ── Row 6: P&L (conditional) ────────────────────────────────────── */}
       {d.kpis.profit && (d.kpis.profit.value !== 0 || d.kpis.cost.value !== 0) && (
@@ -440,7 +457,7 @@ export default function Dashboard() {
         <div className="mb-6 grid gap-4 lg:grid-cols-2">
           <div className="rounded-2xl border border-neutral-200 bg-white p-5">
             <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-500">Payment health</p>
-            <div className="mt-3 flex flex-wrap gap-1.5">{PAYMENT_STATES.map((p) => { const n = insights.paymentBreakdown?.[p.key] || 0; if (!n) return null; return <span key={p.key} className={`rounded-full px-2.5 py-1 text-[12px] font-semibold ring-1 ${TONE[p.tone]?.pill || 'bg-neutral-50 text-neutral-600 ring-neutral-200'}`}>{p.label} {n}</span>; })}{!Object.values(insights.paymentBreakdown || {}).some((n) => Number(n) > 0) && <span className="py-1 text-[12px] text-neutral-400">No orders in this period</span>}</div>
+            <div className="mt-3 flex flex-wrap gap-1.5">{PAYMENT_STATES.map((p) => { const n = insights.paymentBreakdown?.[p.key] || 0; if (!n) return null; return <span key={p.key} className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[12px] font-semibold ring-1 ${TONE[p.tone]?.pill || 'bg-neutral-50 text-neutral-600 ring-neutral-200'}`}><span className="badge-dot" style={{ background: 'currentColor' }} aria-hidden="true" />{p.label} {n}</span>; })}{!Object.values(insights.paymentBreakdown || {}).some((n) => Number(n) > 0) && <span className="py-1 text-[12px] text-neutral-400">No orders in this period</span>}</div>
             <div className="mt-3 space-y-1.5 border-t border-neutral-100 pt-3 text-[12px]"><p className="flex justify-between"><span className="text-neutral-500">Verification rate</span><span className="font-semibold">{insights.kpis.paymentVerifiedRate}%</span></p><p className="flex justify-between"><span className="text-neutral-500">Avg time to ship</span><span className="font-semibold">{insights.avgShipHours ? (insights.avgShipHours < 1 ? `${Math.round(insights.avgShipHours * 60)}m` : `${insights.avgShipHours}h`) : '—'}</span></p><p className="flex justify-between"><span className="text-neutral-500">Issue rate</span><span className={`font-semibold ${insights.kpis.issueRate > 5 ? 'text-red-600' : ''}`}>{insights.kpis.issueRate}%</span></p></div>
           </div>
           <div className="rounded-2xl border border-neutral-200 bg-white p-5">
@@ -454,26 +471,28 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* ── Row 7b: Cancellation reasons + Abandoned carts ─────────────── */}
+<Rise delay={staggerOf(4)}>      {/* ── Row 7b: Cancellation reasons + Abandoned carts ─────────────── */}
       <div id="cancellation-reasons" className="mb-6 grid scroll-mt-24 gap-4 lg:grid-cols-2">
         <CancellationReasons reasons={d.cancellationReasons || []} />
         <AbandonedCartsWidget />
       </div>
+</Rise>
 
-      {/* ── Row 8: Today activity + Best sellers ───────────────────────── */}
+<Rise delay={staggerOf(5)}>      {/* ── Row 8: Today activity + Best sellers ───────────────────────── */}
       <div className="mb-6 grid gap-6 lg:grid-cols-2">
         <ChartBoundary><TodayHourly hourly={d.hourly} /></ChartBoundary>
         <div className="rounded-2xl border border-neutral-200 bg-white p-6">
           <div className="flex items-center justify-between"><div><p className="text-[12px] font-bold uppercase tracking-widest text-neutral-500">Best sellers</p><p className="mt-1 text-[12px] text-neutral-500">Top 5 by units sold</p></div><Sparkles size={16} className="text-amber-500" /></div>
-          {d.bestSellers.length === 0 ? <p className="mt-6 text-center text-sm text-neutral-400">Sales data will appear here.</p> : (
+          {d.bestSellers.length === 0 ? <div className="mt-6 text-center text-sm text-neutral-400"><Sparkles size={20} className="mx-auto mb-2 text-neutral-300" /><p>Sales data will appear here.</p></div> : (
             <ol className="mt-5 space-y-3">{d.bestSellers.map((b, i) => (
               <li key={b.name} className="flex items-center gap-3"><span className={`grid h-7 w-7 shrink-0 place-items-center rounded-lg text-[12px] font-bold ${i === 0 ? 'bg-amber-500 text-white' : i === 1 ? 'bg-neutral-400 text-white' : i === 2 ? 'bg-amber-700 text-white' : 'bg-neutral-100 text-neutral-600'}`}>{i + 1}</span>{b.image && <Img src={b.image} alt="" className="h-10 w-8 rounded-md border border-neutral-200 object-cover" />}<div className="min-w-0 flex-1"><p className="truncate text-[13px] font-medium text-neutral-900">{b.name}</p><p className="text-[12px] text-neutral-500">{b.qty} sold · {pkr(b.revenue)}</p></div></li>
             ))}</ol>
           )}
         </div>
       </div>
+</Rise>
 
-      {/* ── Row 9: Recent orders + Low stock + Top customers ───────────── */}
+<Rise delay={staggerOf(6)}>      {/* ── Row 9: Recent orders + Low stock + Top customers ───────────── */}
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="rounded-2xl border border-neutral-200 bg-white p-6 lg:col-span-2">
           <div className="mb-4 flex items-center justify-between"><div><p className="text-[12px] font-bold uppercase tracking-widest text-neutral-500">Recent orders</p><p className="mt-1 text-[12px] text-neutral-500">Last 6 across all stages</p></div><Link to="/admin/orders" className="inline-flex items-center gap-1 text-[12px] font-semibold text-neutral-500 hover:text-neutral-900">View all <ChevronRight size={12} /></Link></div>
@@ -481,7 +500,7 @@ export default function Dashboard() {
             <div key={o._id} className="flex items-center gap-3 rounded-xl border border-neutral-100 p-3 transition hover:border-neutral-300 hover:bg-neutral-50">
               <Link to={`/admin/orders/${o._id}`} className="flex min-w-0 flex-1 items-center gap-3">
                 <Img src={o.items?.[0]?.image} alt="" className="h-11 w-9 shrink-0 rounded-lg border border-neutral-200 object-cover" />
-                <div className="min-w-0 flex-1"><div className="flex items-center gap-2"><p className="truncate font-mono text-[12px] font-semibold text-neutral-900">{o.orderNumber}</p><span className={`pill ${statusPill(o.status)}`}>{o.status}</span></div><p className="mt-0.5 truncate text-[12px] text-neutral-500">{o.customerInfo?.name} · {o.customerInfo?.city} · {fmtDate(o.createdAt)}</p></div>
+                <div className="min-w-0 flex-1"><div className="flex items-center gap-2"><p className="truncate font-mono text-[12px] font-semibold text-neutral-900">{o.orderNumber}</p><span className={`pill inline-flex items-center gap-1 ${statusPill(o.status)}`}><span className="badge-dot" style={{ background: 'currentColor' }} aria-hidden="true" />{o.status}</span></div><p className="mt-0.5 truncate text-[12px] text-neutral-500">{o.customerInfo?.name} · {o.customerInfo?.city} · {fmtDate(o.createdAt)}</p></div>
               </Link>
               <div className="flex shrink-0 items-center gap-2.5">
                 {o.status === 'Pending' && waVerifyLink(o, settings?.contactPhone || settings?.integrations?.whatsapp?.number || '') && (
@@ -497,16 +516,17 @@ export default function Dashboard() {
         <div className="space-y-6">
           <div className="rounded-2xl border border-neutral-200 bg-white p-6">
             <div className="mb-3 flex items-center justify-between"><p className="flex items-center gap-2 text-[12px] font-bold uppercase tracking-widest text-neutral-500"><AlertTriangle size={13} className="text-red-500" /> Low stock (≤ 10)</p><Link to="/admin/products" className="text-[12px] font-semibold text-neutral-500 hover:text-neutral-900">Manage</Link></div>
-            {d.lowStock.length === 0 ? <p className="py-6 text-center text-sm text-neutral-400">All stocked up.</p> : <div className="space-y-1">{d.lowStock.slice(0, 5).map((p) => <StockRow key={p._id} product={p} onSaved={() => load(true)} onReorder={setReorder} />)}</div>}
+            {d.lowStock.length === 0 ? <div className="py-6 text-center text-sm text-neutral-400"><PackageCheck size={20} className="mx-auto mb-2 text-neutral-300" /><p>All stocked up.</p></div> : <div className="space-y-1">{d.lowStock.slice(0, 5).map((p) => <StockRow key={p._id} product={p} onSaved={() => load(true)} onReorder={setReorder} />)}</div>}
           </div>
           <div className="rounded-2xl border border-neutral-200 bg-white p-6">
             <div className="mb-3 flex items-center justify-between"><p className="text-[12px] font-bold uppercase tracking-widest text-neutral-500">Top customers</p><Link to="/admin/customers" className="text-[12px] font-semibold text-neutral-500 hover:text-neutral-900">All</Link></div>
-            {d.topCustomers.length === 0 ? <p className="py-6 text-center text-sm text-neutral-400">No customer data yet.</p> : <div className="space-y-3">{d.topCustomers.map((c, i) => (
+            {d.topCustomers.length === 0 ? <div className="py-6 text-center text-sm text-neutral-400"><Users size={20} className="mx-auto mb-2 text-neutral-300" /><p>No customer data yet.</p></div> : <div className="space-y-3">{d.topCustomers.map((c, i) => (
               <div key={c.phone + i} className="flex items-center gap-3"><span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-neutral-900 text-[12px] font-semibold text-white">{(c.name || '?').slice(0, 1).toUpperCase()}</span><div className="min-w-0 flex-1"><div className="flex items-center gap-2"><p className="truncate text-[12px] font-semibold text-neutral-900">{c.name}</p><ReliabilityBadge reliability={c.reliability} compact /></div><p className="truncate text-[13px] text-neutral-500">{c.city} · {c.orders} order{c.orders === 1 ? '' : 's'}</p></div><p className="font-sans text-[13px] font-semibold tabular-nums text-neutral-900">{pkr(c.spent)}</p></div>
             ))}</div>}
           </div>
         </div>
       </div>
+</Rise>
 
       {reorder && <ReorderModal product={reorder} onClose={() => setReorder(null)} onSaved={() => load(true)} />}
     </AdminLayout>
