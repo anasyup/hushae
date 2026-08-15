@@ -10,6 +10,7 @@ import { titleCase } from '../lib/productMeta';
 import Img from '../components/Img';
 import ProductRow from '../components/ProductRow';
 import TrustRow from './cart/TrustRow';
+import Seo from '../components/Seo';
 
 /* ============================================================================
  * ORDER SUCCESS — Calvin Klein register.
@@ -69,7 +70,7 @@ export default function OrderConfirm() {
   const iconBtn = 'grid h-11 w-11 place-items-center border border-[#E5E5E5] text-[#707070] transition-colors duration-300 hover:border-[#111111] hover:text-[#111111]';
 
   return (
-    <div className="surface-cream py-16 text-[#111111] md:py-24"><div className="container-page">
+    <div className="surface-cream py-16 text-[#111111] md:py-24"><Seo title="Order Confirmed" description="Thank you — your HUSHAE order is confirmed." /><div className="container-page">
       <div className="mx-auto max-w-3xl">
         {/* ═══ HERO — reference: black CheckCircle + serif title ═══ */}
         <div className="text-center">

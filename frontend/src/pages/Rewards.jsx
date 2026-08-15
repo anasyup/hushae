@@ -8,6 +8,7 @@ import { api } from '../api/client';
 import { fmtDate, pkr } from '../lib/format';
 import { loyaltyConfig, pointsLabel, earnRateText } from '../lib/loyaltyConfig';
 import EmptyState from '../components/ui/EmptyState';
+import Seo from '../components/Seo';
 
 /* ============================================================================
  * REWARDS — the customer's own dashboard.
@@ -346,7 +347,7 @@ export default function Rewards() {
   const earned = data.achievements?.filter((x) => x.earned) || [];
 
   return (
-    <div className="container-page py-8 md:py-12">
+    <div className="container-page py-8 md:py-12"><Seo title="Rewards" description="Earn points and rewards with every HUSHAE order." />
       {/* ---------------- balance ---------------- */}
       <header className="rounded-panel border border-line bg-white/60 p-5 md:p-7">
         <p className="text-label uppercase tracking-widest text-sagedeep">{data.programName || cfg.programName}</p>

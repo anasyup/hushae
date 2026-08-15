@@ -83,6 +83,12 @@ const pkr = (n) => `PKR ${Number(n || 0).toLocaleString('en-PK')}`;
 const esc = (s) => String(s == null ? '' : s)
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
+// Public site origin used in email links. Prefers the configured env var,
+// then falls back to the live Vercel alias. Never hardcoded per-template.
+function siteUrl() {
+  return (process.env.PUBLIC_SITE_URL || process.env.PUBLIC_URL || 'https://hushae1.vercel.app').replace(/\/$/, '');
+}
+
 function baseLayout({ title, body }) {
   return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)}</title></head>
 <body style="margin:0;padding:0;background:#f7f5f1;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#111;">
@@ -96,7 +102,7 @@ function baseLayout({ title, body }) {
     </div>
     <div style="text-align:center;padding:20px;color:#7a736d;font-size:11px;line-height:1.6;">
       Discreet packaging on every order · 14-day easy exchange<br>
-      Need help? Reply to this email or visit <a href="https://hushae.vercel.app/track" style="color:#111;">Track your order</a>
+      Need help? Reply to this email or visit <a href="${siteUrl()}/track" style="color:#111;">Track your order</a>
     </div>
   </div>
 </body></html>`;
@@ -156,7 +162,7 @@ const DEFAULT_TEMPLATES = {
 </div>
 
 <div style="text-align:center;margin-top:32px;">
-  <a href="https://hushae.vercel.app/track"
+  <a href="${siteUrl()}/track"
      style="display:inline-block;background:#111;color:#fff;padding:12px 28px;border-radius:99px;text-decoration:none;font-size:12px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;">
     Track your order
   </a>
@@ -190,7 +196,7 @@ const DEFAULT_TEMPLATES = {
 </table>
 
 <div style="text-align:center;margin-top:24px;">
-  <a href="https://hushae.vercel.app/admin"
+  <a href="${siteUrl()}/admin"
      style="display:inline-block;background:#111;color:#fff;padding:12px 28px;border-radius:99px;text-decoration:none;font-size:12px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;">
     Open in admin
   </a>
@@ -213,7 +219,7 @@ const DEFAULT_TEMPLATES = {
 </div>
 
 <div style="text-align:center;margin-top:24px;">
-  <a href="https://hushae.vercel.app/track"
+  <a href="${siteUrl()}/track"
      style="display:inline-block;background:#111;color:#fff;padding:12px 28px;border-radius:99px;text-decoration:none;font-size:12px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;">
     Track your order
   </a>
@@ -243,7 +249,7 @@ const DEFAULT_TEMPLATES = {
 </table>
 
 <div style="text-align:center;margin-top:28px;">
-  <a href="https://hushae.vercel.app/cart"
+  <a href="${siteUrl()}/cart"
      style="display:inline-block;background:#111;color:#fff;padding:14px 32px;border-radius:99px;text-decoration:none;font-size:12px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;">
     Return to your bag
   </a>
@@ -283,7 +289,7 @@ const DEFAULT_TEMPLATES = {
 </table>
 
 <div style="text-align:center;margin-top:28px;">
-  <a href="https://hushae.vercel.app/account"
+  <a href="${siteUrl()}/account"
      style="display:inline-block;background:#111;color:#fff;padding:14px 32px;border-radius:99px;text-decoration:none;font-size:12px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;">
     Leave a review
   </a>

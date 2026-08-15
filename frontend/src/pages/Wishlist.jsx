@@ -8,6 +8,7 @@ import { CARD_NAME, CARD_NAME_LINK, CARD_SUBTITLE, cardSubtitle, PriceRow } from
 import Img from '../components/Img';
 import EmptyState from '../components/ui/EmptyState';
 import Spinner from '../components/ui/Spinner';
+import Seo from '../components/Seo';
 
 /* ============================================================================
  * WISHLIST
@@ -78,7 +79,7 @@ export default function Wishlist() {
   }
 
   return (
-    <div className="container-page py-8 md:py-12">
+    <div className="container-page py-8 md:py-12"><Seo title="Wishlist" description="Your saved HUSHAE pieces — move them to your bag in one tap." />
       <header className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3 border-b border-line pb-6">
         <div>
           <h1 className="font-display text-h1">

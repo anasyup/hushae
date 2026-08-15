@@ -152,7 +152,7 @@ export default function Header() {
 
           {/* Logo — serif bold tracked caps (reference) */}
           <Link to="/" aria-label="HUSHAE — home" className="flex-shrink-0 font-serif text-2xl font-bold uppercase tracking-[0.2em] text-black transition-opacity duration-300 hover:opacity-80">
-            HUSHAÈ
+            HUSHAE
           </Link>
 
           {/* Nav — CENTER (md+) */}

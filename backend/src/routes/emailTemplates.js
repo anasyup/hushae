@@ -132,7 +132,7 @@ router.post('/:key/test', asyncHandler(async (req, res) => {
     </div>
     <div style="text-align:center;padding:20px;color:#7a736d;font-size:11px;line-height:1.6;">
       Discreet packaging on every order · 14-day easy exchange<br>
-      Need help? Reply to this email or visit <a href="https://hushae.vercel.app/track" style="color:#111;">Track your order</a>
+      Need help? Reply to this email or visit <a href="https://hushae1.vercel.app/track" style="color:#111;">Track your order</a>
     </div>
   </div>
 </body></html>`;

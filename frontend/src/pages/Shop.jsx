@@ -157,7 +157,7 @@ export default function Shop({ preset = {} }) {
   return (
     <div className="bg-white font-sans text-black" style={{ minHeight: '100vh' }}>
       <Seo
-        title={`${meta}${f.gender ? ' — ' + f.gender.charAt(0).toUpperCase() + f.gender.slice(1) : ''} | HUSHAE`}
+        title={meta}
         description={`Shop premium ${meta.toLowerCase()} — innerwear made in Pakistan, finished to an international standard. COD nationwide, discreet packaging.`}
         canonical={typeof window !== 'undefined' ? window.location.pathname : '/shop'}
       />

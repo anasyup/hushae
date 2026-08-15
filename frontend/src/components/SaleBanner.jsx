@@ -37,10 +37,11 @@ export default function SaleBanner() {
               The Seasonal Sale
             </p>
 
-            <h1 className="mt-4 font-serif text-5xl font-normal uppercase leading-[1.02] tracking-[0.06em] text-white md:text-7xl lg:text-8xl">
+            <p className="mt-4 font-serif text-5xl font-normal uppercase leading-[1.02] tracking-[0.06em] text-white md:text-7xl lg:text-8xl">
               50%
+              <span className="sr-only"> </span>
               <span className="ml-3 align-baseline text-3xl tracking-[0.18em] md:text-5xl lg:text-6xl">Off</span>
-            </h1>
+            </p>
 
             <div className="mt-6 h-px w-14 bg-white/40" aria-hidden="true" />
 

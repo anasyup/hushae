@@ -760,7 +760,7 @@ router.post('/bulk/whatsapp', protect, adminOnly, bulkLimit, asyncHandler(async 
       .replace(/\{id\}/g, o.orderNumber)
       .replace(/\{status\}/g, flow.STAGE_MAP.get(stage)?.label || stage)
       .replace(/\{total\}/g, `PKR ${Number(o.total || 0).toLocaleString('en-PK')}`)
-      .replace(/\{link\}/g, `https://hushae.vercel.app/track?order=${encodeURIComponent(o.orderNumber)}`);
+      .replace(/\{link\}/g, `https://hushae1.vercel.app/track?order=${encodeURIComponent(o.orderNumber)}`);
     const phone = String(o.customerInfo?.phone || '').replace(/\D/g, '').replace(/^0/, '92');
     return {
       id: o._id,

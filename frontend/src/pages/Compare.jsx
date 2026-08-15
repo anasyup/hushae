@@ -8,6 +8,7 @@ import { pkr } from '../lib/format';
 import { isOnSale } from '../lib/sale';
 import Img from '../components/Img';
 import EmptyState from '../components/ui/EmptyState';
+import Seo from '../components/Seo';
 
 /* ============================================================================
  * COMPARE
@@ -107,7 +108,7 @@ export default function Compare() {
   };
 
   return (
-    <div className="container-page py-8 md:py-12">
+    <div className="container-page py-8 md:py-12"><Seo title="Compare" description="Compare HUSHAE pieces side by side." />
       <header className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3 border-b border-line pb-6">
         <div>
           <h1 className="font-display text-h1">

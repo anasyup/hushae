@@ -3,7 +3,7 @@
 A complete, full-stack, premium innerwear e-commerce platform (Phase 1: Pakistan).
 React storefront + admin console · Express REST API · MongoDB Atlas.
 
-**Live:** [https://hushae.vercel.app](https://hushae.vercel.app)
+**Live:** [https://hushae1.vercel.app](https://hushae1.vercel.app)
 
 ---
 
@@ -58,8 +58,8 @@ npm run dev        :: storefront on http://localhost:5173
 
 ## Logins & testing
 
-**Live storefront** → https://hushae.vercel.app
-**Live admin console** → https://hushae.vercel.app/admin
+**Live storefront** → https://hushae1.vercel.app
+**Live admin console** → https://hushae1.vercel.app/admin
 
 **Admin login:** `admin@hushae.pk` — password lives in `backend/.env.example`
 (this repo ships with the pre-launch development credentials so a fresh ZIP

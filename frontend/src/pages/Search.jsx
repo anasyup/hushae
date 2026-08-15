@@ -10,6 +10,7 @@ import EmptyState from '../components/ui/EmptyState';
 import SearchFilters from '../components/search/SearchFilters';
 import ShoppingAssistant from '../components/search/ShoppingAssistant';
 import CollectionBanner from '../components/collection/CollectionBanner';
+import Seo from '../components/Seo';
 
 /* ============================================================================
  * SEARCH RESULTS
@@ -156,7 +157,7 @@ export default function Search() {
   const heading = q ? `Results for “${q}”` : 'All products';
 
   return (
-    <div className="container-page py-6 md:py-10">
+    <div className="container-page py-6 md:py-10"><Seo title={q ? `Results for “${q}”` : 'Search'} description="Search HUSHAE — innerwear made in Pakistan, finished to an international standard." />
       {/* ---------------- header ----------------
           MEASURED, Phase 2E: this page opened with a bare 24px h1 on flat
           alabaster while /shop opened with a 30px h1 inside a 168px editorial

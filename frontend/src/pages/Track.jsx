@@ -6,6 +6,7 @@ import { api } from '../api/client';
 import { fmtDateTime, pkr } from '../lib/format';
 import Img from '../components/Img';
 import Tx from '../components/Tx';
+import Seo from '../components/Seo';
 
 const FLOW = ['Pending', 'Confirmed', 'Processing', 'Ready to Ship', 'Shipped', 'Out for Delivery', 'Delivered'];
 
@@ -34,7 +35,7 @@ export default function Track() {
   const activeIdx = order ? FLOW.indexOf(order.status) : -1;
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-12 md:px-8">
+    <div className="mx-auto max-w-3xl px-4 py-12 md:px-8"><Seo title="Track Your Order" description="Track your HUSHAE order by order number and phone." />
       <div className="text-center">
         <p className="text-[11px] font-bold uppercase tracking-widest text-sagedeep">Order tracking</p>
         <h1 className="mt-2 font-display text-4xl"><Tx k="trackOrder" /></h1>

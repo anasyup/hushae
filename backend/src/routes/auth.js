@@ -344,7 +344,7 @@ router.post('/forgot-password', forgotLimit, asyncHandler(async (req, res) => {
     user.resetTokenExp = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
     await user.save();
 
-    const base = (process.env.PUBLIC_URL || req.headers.origin || 'https://hushae.vercel.app').replace(/\/$/, '');
+    const base = (process.env.PUBLIC_URL || req.headers.origin || 'https://hushae1.vercel.app').replace(/\/$/, '');
     const link = `${base}/reset-password?token=${raw}&email=${encodeURIComponent(user.email)}`;
     await mailerSend({
       to: user.email,
@@ -407,7 +407,7 @@ router.post('/send-verification', protect, verifyLimit, asyncHandler(async (req,
   user.verifyTokenExp = new Date(Date.now() + 24 * 60 * 60 * 1000);
   await user.save();
 
-  const base = (process.env.PUBLIC_URL || req.headers.origin || 'https://hushae.vercel.app').replace(/\/$/, '');
+  const base = (process.env.PUBLIC_URL || req.headers.origin || 'https://hushae1.vercel.app').replace(/\/$/, '');
   const link = `${base}/verify-email?token=${raw}&email=${encodeURIComponent(user.email)}`;
   await mailerSend({
     to: user.email,

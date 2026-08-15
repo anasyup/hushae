@@ -102,11 +102,11 @@ export default function Footer() {
         </div>
 
         {/* Tagline */}
-        <h1 className="my-10 text-[28px] font-normal leading-[1.25] tracking-[-0.01em] text-[#e6e4e0] md:my-[60px] md:text-[36px]">
+        <p className="my-10 text-[28px] font-normal leading-[1.25] tracking-[-0.01em] text-[#e6e4e0] md:my-[60px] md:text-[36px]">
           Made for the everyday,
           <br />
           finished for everywhere.
-        </h1>
+        </p>
 
         {/* Features */}
         <p className="mb-10 text-[12px] text-[#8c8a87] md:mb-[60px]">

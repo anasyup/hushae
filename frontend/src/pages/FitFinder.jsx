@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Ruler, Check } from 'lucide-react';
+import Seo from '../components/Seo';
 
 /* ============================================================================
  * Fit Finder v2 — 4 questions, no tape measure.
@@ -139,7 +140,7 @@ export default function FitFinder() {
   };
 
   return (
-    <div style={{ background: '#F7F5F1', minHeight: '100vh' }}>
+    <div style={{ background: '#F7F5F1', minHeight: '100vh' }}><Seo title="Fit Finder" description="Find your perfect HUSHAE size in under a minute — no tape measure needed." />
       <div className="container section">
         {/* Header */}
         {step === 0 && !result && (

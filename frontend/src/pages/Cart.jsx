@@ -16,6 +16,7 @@ import UndoBar from './cart/UndoBar';
 import EmptyBag from './cart/EmptyBag';
 
 import { useCartPricing } from './cart/useCartPricing';
+import Seo from '../components/Seo';
 
 /* ============================================================================
  * SHOPPING BAG
@@ -200,13 +201,18 @@ export default function Cart() {
 
   /* ---------------- Empty ---------------- */
   if (cart.length === 0 && saved.length === 0) {
-    return <EmptyBag cfg={cfg} recent={recent.slice(0, 6)} trending={trending} loadingTrending={loadingTrending} />;
+    return (
+      <>
+        <Seo title="Your Bag" description="Review the items in your bag — secure checkout, COD nationwide, discreet packaging." />
+        <EmptyBag cfg={cfg} recent={recent.slice(0, 6)} trending={trending} loadingTrending={loadingTrending} />
+      </>
+    );
   }
 
   const itemWord = pricing.count === 1 ? 'item' : 'items';
 
   return (
-    <div className="surface-cream py-8 md:py-12"><div className="container-page">
+    <div className="surface-cream py-8 md:py-12"><Seo title="Your Bag" description="Review the items in your bag — secure checkout, COD nationwide, discreet packaging." /><div className="container-page">
       {/* ---------------- Header ---------------- */}
       {/* Cart steps — premium checkout progression */}
       <nav aria-label="Checkout progress" className="mb-8 flex items-center gap-3 text-[11px] font-medium uppercase tracking-[0.14em]">

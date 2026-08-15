@@ -13,6 +13,7 @@ import SavedPanel from './account/SavedPanel';
 import SessionsPanel from './account/SessionsPanel';
 import NotificationsPanel from './account/NotificationsPanel';
 import TrackOrderCard from '../components/TrackOrderCard';
+import Seo from '../components/Seo';
 
 /* ============================================================================
  * CUSTOMER ACCOUNT
@@ -101,7 +102,7 @@ export default function Account() {
   /* ---------------- signed out ---------------- */
   if (!auth) {
     return (
-      <div className="min-h-screen bg-[#FAF8F5] pt-[110px]">
+      <div className="min-h-screen bg-[#FAF8F5] pt-[110px]"><Seo title="Account" description="Your HUSHAE account — orders, addresses, wishlist and profile." />
         <div className="container-page py-sect-y md:py-sect-y-lg">
         <div className="text-center">
           <h1 className="font-display text-h1">{cfg.signInTitle}</h1>
@@ -116,7 +117,7 @@ export default function Account() {
   /* ---------------- loading ---------------- */
   if (!user) {
     return (
-      <div className="min-h-screen bg-[#FAF8F5] pt-[110px]">
+      <div className="min-h-screen bg-[#FAF8F5] pt-[110px]"><Seo title="Account" description="Your HUSHAE account — orders, addresses, wishlist and profile." />
         <div className="container-page py-sect-y">
         {loadErr ? (
           <div className="mx-auto max-w-md text-center">
@@ -148,7 +149,7 @@ export default function Account() {
   const activeLabel = SECTIONS.find((s) => s.id === section)?.label || '';
 
   return (
-    <div className="min-h-screen bg-[#FAF8F5] pt-[110px]">
+    <div className="min-h-screen bg-[#FAF8F5] pt-[110px]"><Seo title="Account" description="Your HUSHAE account — orders, addresses, wishlist and profile." />
       {/* Reference account-page wrapper — cream canvas, content starts below
           the fixed 96px header + announcement bar. */}
       <div className="mx-auto w-full max-w-[1280px] px-8 py-10">
