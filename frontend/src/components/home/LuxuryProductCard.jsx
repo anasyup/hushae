@@ -71,7 +71,7 @@ export default function LuxuryProductCard({ product: p, priority = false }) {
         tabIndex={-1}
         aria-label={name}
         className="relative mb-4 block w-full cursor-pointer overflow-hidden bg-[#EFECE6]"
-        style={{ aspectRatio: '3 / 4' }}
+        style={{ aspectRatio: '3 / 4.2' }}
       >
         {/* Layered images — crossfade via z-index + opacity */}
         {[main, ...images.filter((u) => u !== main)].slice(0, 5).map((url, idx) => (

@@ -25,7 +25,7 @@ const FALLBACK =
 const srcOf = (im) => (typeof im === 'string' ? im : im?.url || '');
 const displayName = (name) => String(name || '').replace(/^HUSHAE\s+/i, '');
 
-function CollectionCard({ product: p, priority = false, variant = 'bar', ratio = 'aspect-[3/4]' }) {
+function CollectionCard({ product: p, priority = false, variant = 'bar', ratio = 'aspect-[3/4.2]' }) {
   const { addToCart } = useApp();
   const [imgIdx, setImgIdx] = useState(0);
   const [failed, setFailed] = useState(false);
@@ -59,7 +59,7 @@ function CollectionCard({ product: p, priority = false, variant = 'bar', ratio =
   if (pill) {
     return (
       <article className="group relative flex flex-col">
-        <Link to={`/product/${p.slug}`} tabIndex={-1} className="relative block w-full overflow-hidden bg-[#f3ede2]" style={{ aspectRatio: '3 / 4' }}>
+        <Link to={`/product/${p.slug}`} tabIndex={-1} className="relative block w-full overflow-hidden bg-[#f3ede2]" style={{ aspectRatio: '3 / 4.2' }}>
           <img
             src={failed ? FALLBACK : (main || FALLBACK)}
             alt={`${name}, front view`}
@@ -111,7 +111,7 @@ function CollectionCard({ product: p, priority = false, variant = 'bar', ratio =
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* 1. Image container — 3/4, #f4f4f2 */}
-      <Link to={`/product/${p.slug}`} tabIndex={-1} className="relative block aspect-[3/4] w-full overflow-hidden bg-[#f4f4f2]">
+      <Link to={`/product/${p.slug}`} tabIndex={-1} className="relative block aspect-[3/4.2] w-full overflow-hidden bg-[#f4f4f2]">
         {/* Image stack — crossfade + gentle zoom on hover */}
         <div className={`absolute inset-0 transition-transform duration-700 ease-out ${isHovered ? 'scale-105' : 'scale-100'}`}>
           {[main, ...images.filter((u) => u !== main)].slice(0, 5).map((url, idx) => (
