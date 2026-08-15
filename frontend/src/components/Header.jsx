@@ -105,7 +105,7 @@ export default function Header() {
   const linkCls = useMemo(() => ({ isActive }, label = '') => {
     const base = 'inline-flex items-center gap-1 font-sans text-[11px] font-medium uppercase tracking-[0.2em] transition-colors duration-200';
     const isSale = String(label || '').toLowerCase() === 'sale';
-    const color = isSale ? ' text-red-600 font-semibold hover:text-red-700' : ' hover:opacity-60';
+    const color = isSale ? ' text-white font-semibold hover:opacity-60' : ' hover:opacity-60';
     return base + color;
   }, []);
 
