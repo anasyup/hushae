@@ -9,17 +9,13 @@ import ReviewForm from './reviews/ReviewForm';
 import Spinner from './ui/Spinner';
 
 /* ============================================================================
- * PRODUCT REVIEWS
+ * PRODUCT REVIEWS — luxury house register.
  *
- * Measured before this rewrite: 2 sort chips, 0 star filters, no media
- * gallery, no report, no pagination — the list simply fetched 30 and stopped.
- *
- * Everything here is driven by settings.reviews, so the merchant can withdraw
- * helpful votes, reporting, photos, the distribution graph or the whole
- * feature from Admin → Settings → Reviews without a deploy.
- *
- * Filters and sorting are SERVER-side. Filtering 30 pre-fetched rows in the
- * browser would silently lie once a product has more than 30 reviews.
+ * Visual language matches the rest of the storefront: fine hairline rules,
+ * tracked-caps eyebrows, serif headings, quiet type, restraint. All
+ * behaviour is unchanged — filters/sort are server-side, verified badges,
+ * helpful votes, reports, photos and the merchant-driven config all work
+ * exactly as before.
  * ========================================================================== */
 
 const SORTS = [
@@ -57,9 +53,6 @@ export default function ProductReviews({ product }) {
     return q.toString();
   }, [sort, star, verifiedOnly, mediaOnly, cfg.perPage]);
 
-  /* Filter/sort change → page 1. The previous rows stay on screen while the
-     new set loads (dimmed via aria-busy) rather than collapsing to nothing —
-     the same rule the shop grid learned in Sprint 2C.3. */
   useEffect(() => {
     if (!pid || !cfg.enabled) return undefined;
     let alive = true;
@@ -70,7 +63,6 @@ export default function ProductReviews({ product }) {
     return () => { alive = false; };
   }, [pid, query, cfg.enabled]);
 
-  /* The photo strip is its own request and only when the merchant allows it. */
   useEffect(() => {
     if (!pid || !cfg.enabled || !cfg.showMediaGallery || !cfg.enablePhotos) return undefined;
     let alive = true;
@@ -109,23 +101,39 @@ export default function ProductReviews({ product }) {
   const clearFilters = () => { setStar(0); setVerifiedOnly(false); setMediaOnly(false); };
 
   return (
-    <section className="container-page mt-16 border-t border-line pt-10" aria-labelledby="rv-h">
-      <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
+    <section className="mx-auto w-full max-w-[1440px] px-6 pt-10 lg:px-12" aria-labelledby="rv-h">
+      {/* ── Luxury header — seam + eyebrow + serif title ── */}
+      <div className="flex flex-col items-start justify-between gap-5 border-b border-neutral-300/60 pb-8 md:flex-row md:items-end">
         <div>
-          <p className="text-label uppercase tracking-widest text-sagedeep">Customer reviews</p>
-          <h2 id="rv-h" className="mt-1.5 font-display text-h2">{cfg.title}</h2>
+          <div className="flex items-center gap-4">
+            <span className="h-px w-8 bg-[#111111]/50" aria-hidden="true" />
+            <p className="text-[10px] font-medium uppercase tracking-[0.32em] text-neutral-400">
+              Customer Reviews
+            </p>
+          </div>
+          <h2 id="rv-h" className="mt-4 font-serif text-2xl font-normal uppercase tracking-[0.1em] text-[#111111] md:text-3xl">
+            {cfg.title}
+          </h2>
         </div>
-        <button type="button" onClick={() => setShowForm(true)} className="btn-outline">Write a review</button>
+        <button
+          type="button"
+          onClick={() => setShowForm(true)}
+          className="border border-black px-8 py-3 text-[11px] font-medium uppercase tracking-[0.2em] text-black transition-all duration-300 hover:bg-black hover:text-white"
+        >
+          Write a review
+        </button>
       </div>
 
       {total > 0 ? (
         <>
-          {/* ---- summary ---- */}
-          <div className="mt-8 grid gap-8 md:grid-cols-[220px_1fr]">
+          {/* ── Summary — serif number + refined distribution ── */}
+          <div className="mt-10 grid gap-10 md:grid-cols-[240px_1fr]">
             <div className="text-center md:text-left">
-              <p className="font-display text-display-2 leading-none">{avg.toFixed(1)}</p>
-              <Stars value={avg} size={18} className="mt-2 justify-center md:justify-start" />
-              <p className="mt-2 text-body-sm text-ash">
+              <p className="font-serif text-6xl font-normal leading-none tracking-[0.04em] text-[#111111]">
+                {avg.toFixed(1)}
+              </p>
+              <Stars value={avg} size={18} className="mt-3 justify-center md:justify-start" />
+              <p className="mt-3 text-[12px] font-light uppercase tracking-[0.15em] text-neutral-400">
                 {total} review{total === 1 ? '' : 's'}
                 {data?.verifiedCount ? ` · ${data.verifiedCount} verified` : ''}
               </p>
@@ -144,15 +152,15 @@ export default function ProductReviews({ product }) {
                       onClick={() => setStar(active ? 0 : k)}
                       aria-pressed={active}
                       aria-label={`${cnt} ${k} star review${cnt === 1 ? '' : 's'}${active ? ', filter active' : ''}`}
-                      className={`flex min-h-[44px] w-full items-center gap-3 rounded-control px-2 text-caption transition ${
-                        active ? 'bg-obsidian/[0.05]' : 'hover:bg-satin/50'
+                      className={`flex min-h-[44px] w-full items-center gap-3 px-2 transition ${
+                        active ? 'bg-[#111111]/[0.04]' : 'hover:bg-[#111111]/[0.03]'
                       }`}
                     >
-                      <span className="w-8 shrink-0 text-left text-ash">{k} ★</span>
-                      <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-line">
-                        <span className="block h-full rounded-full bg-sagedeep" style={{ width: `${pct}%` }} />
+                      <span className="w-8 shrink-0 text-left text-[12px] tracking-[0.1em] text-neutral-400">{k} ★</span>
+                      <span className="h-px flex-1 overflow-hidden bg-neutral-200">
+                        <span className="block h-full bg-[#111111]" style={{ width: `${pct}%` }} />
                       </span>
-                      <span className="w-8 shrink-0 text-right tabular-nums text-ash">{cnt}</span>
+                      <span className="w-8 shrink-0 text-right text-[12px] tabular-nums text-neutral-400">{cnt}</span>
                     </button>
                   );
                 })}
@@ -160,20 +168,20 @@ export default function ProductReviews({ product }) {
             )}
           </div>
 
-          {/* ---- customer photos ---- */}
+          {/* ── Customer photos ── */}
           {cfg.showMediaGallery && media.length > 0 && (
-            <div className="mt-8">
-              <h3 className="flex items-center gap-2 text-label uppercase tracking-widest text-ash">
+            <div className="mt-10">
+              <h3 className="flex items-center gap-2 text-[10px] font-medium uppercase tracking-[0.24em] text-neutral-400">
                 <ImageIcon size={13} aria-hidden="true" /> Customer photos ({media.length})
               </h3>
-              <ul className="no-scrollbar mt-3 flex gap-2 overflow-x-auto pb-1">
+              <ul className="no-scrollbar mt-4 flex gap-2 overflow-x-auto pb-1">
                 {media.map((m, i) => (
                   <li key={`${m.reviewId}-${i}`} className="shrink-0">
                     <button
                       type="button"
                       onClick={() => setLightbox(i)}
                       aria-label={`Open photo ${i + 1} of ${media.length} from ${m.by || 'a customer'}`}
-                      className="block h-20 w-20 overflow-hidden rounded-control border border-line bg-cream"
+                      className="block h-20 w-20 overflow-hidden border border-neutral-200 bg-[#f2f0ec]"
                     >
                       <img src={m.url} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover" />
                     </button>
@@ -183,48 +191,52 @@ export default function ProductReviews({ product }) {
             </div>
           )}
 
-          {/* ---- controls ---- */}
-          <div className="mt-8 flex flex-wrap items-center gap-2 border-t border-line pt-6">
+          {/* ── Controls — minimal luxury ── */}
+          <div className="mt-10 flex flex-wrap items-center gap-6 border-t border-neutral-200 pt-6">
             <label className="sr-only" htmlFor="rv-sort">Sort reviews</label>
             <select
               id="rv-sort" value={sort} onChange={(e) => setSort(e.target.value)}
-              className="input input-sm min-h-[44px] w-auto"
+              className="min-h-[44px] cursor-pointer appearance-none border-b border-neutral-300 bg-transparent pb-1 pr-6 text-[11px] font-medium uppercase tracking-[0.15em] text-black outline-none transition-colors hover:border-black focus:border-black"
             >
               {SORTS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
             </select>
 
             <button
               type="button" onClick={() => setVerifiedOnly((v) => !v)} aria-pressed={verifiedOnly}
-              className={`btn btn-sm gap-1.5 border ${verifiedOnly ? 'border-obsidian bg-obsidian text-alabaster' : 'border-bronze bg-white text-graphite'}`}
+              className={`min-h-[44px] border-b pb-1 text-[11px] font-medium uppercase tracking-[0.15em] transition-colors ${
+                verifiedOnly ? 'border-black text-black' : 'border-transparent text-neutral-400 hover:text-black'
+              }`}
             >
-              <CheckCircle2 size={13} aria-hidden="true" /> Verified only
+              <CheckCircle2 size={13} className="mr-1 inline" aria-hidden="true" /> Verified only
             </button>
 
             {cfg.enablePhotos && (
               <button
                 type="button" onClick={() => setMediaOnly((v) => !v)} aria-pressed={mediaOnly}
-                className={`btn btn-sm gap-1.5 border ${mediaOnly ? 'border-obsidian bg-obsidian text-alabaster' : 'border-bronze bg-white text-graphite'}`}
+                className={`min-h-[44px] border-b pb-1 text-[11px] font-medium uppercase tracking-[0.15em] transition-colors ${
+                  mediaOnly ? 'border-black text-black' : 'border-transparent text-neutral-400 hover:text-black'
+                }`}
               >
-                <ImageIcon size={13} aria-hidden="true" /> With photos
+                <ImageIcon size={13} className="mr-1 inline" aria-hidden="true" /> With photos
               </button>
             )}
 
             {filtered && (
               <button
                 type="button" onClick={clearFilters}
-                className="min-h-[44px] px-2 text-caption font-semibold text-ash underline-offset-4 hover:text-obsidian hover:underline"
+                className="min-h-[44px] px-1 text-[11px] font-medium uppercase tracking-[0.15em] text-neutral-400 underline underline-offset-4 transition-colors hover:text-black"
               >
                 Clear filters
               </button>
             )}
+
+            <span className="ml-auto text-[11px] font-light uppercase tracking-[0.15em] text-neutral-400" role="status" aria-live="polite">
+              {filtered ? `${matching} of ${total} match` : `Showing ${rows.length} of ${total}`}
+            </span>
           </div>
 
-          <p className="mt-3 text-caption text-ash" role="status" aria-live="polite">
-            {filtered ? `${matching} of ${total} reviews match` : `Showing ${rows.length} of ${total}`}
-          </p>
-
-          {/* ---- list ---- */}
-          <ul ref={listRef} className="mt-4 divide-y divide-line border-t border-line" aria-busy={data === null}>
+          {/* ── List ── */}
+          <ul ref={listRef} className="mt-2 divide-y divide-neutral-200 border-t border-neutral-200" aria-busy={data === null}>
             {rows.map((r) => (
               <ReviewRow key={r._id} review={r} cfg={cfg} onOpenPhoto={(url) => {
                 const i = media.findIndex((m) => m.url === url);
@@ -234,37 +246,39 @@ export default function ProductReviews({ product }) {
           </ul>
 
           {rows.length === 0 && data && (
-            <p className="py-10 text-center text-body-sm text-ash">
+            <p className="py-12 text-center text-[12px] font-light uppercase tracking-[0.15em] text-neutral-400">
               No reviews match those filters.{' '}
-              <button type="button" onClick={clearFilters} className="font-medium text-obsidian underline underline-offset-4">Clear them</button>
+              <button type="button" onClick={clearFilters} className="font-medium text-black underline underline-offset-4">
+                Clear them
+              </button>
             </p>
           )}
 
           {data?.hasMore && (
-            <div className="mt-6 text-center">
-              <button type="button" onClick={loadMore} disabled={loadingMore} className="btn-outline gap-2 disabled:opacity-50">
+            <div className="mt-10 text-center">
+              <button
+                type="button" onClick={loadMore} disabled={loadingMore}
+                className="border border-black px-10 py-3 text-[11px] font-medium uppercase tracking-[0.2em] text-black transition-all duration-300 hover:bg-black hover:text-white disabled:opacity-50"
+              >
                 {loadingMore ? <><Spinner label="Loading" /> Loading…</> : `Show more reviews (${matching - rows.length} left)`}
               </button>
             </div>
           )}
         </>
       ) : (
-        /* ── Premium empty state — never a bare line ────────────────────
-           A quiet, designed moment when no reviews exist yet: seam rule,
-           tracked-caps eyebrow, a considered line, and a clear CTA that
-           opens the review form. Restraint is the luxury. */
-        <div className="mx-auto mt-10 max-w-md border border-line bg-white px-8 py-12 text-center">
-          <span className="mx-auto block h-px w-10 bg-obsidian/50" aria-hidden="true" />
-          <h3 className="mt-6 font-display text-sm font-medium uppercase tracking-[0.18em] text-obsidian">
+        /* ── Premium empty state ── */
+        <div className="mx-auto mt-12 max-w-md border border-neutral-200 bg-white px-8 py-12 text-center">
+          <span className="mx-auto block h-px w-10 bg-[#111111]/50" aria-hidden="true" />
+          <h3 className="mt-6 font-serif text-sm font-medium uppercase tracking-[0.18em] text-[#111111]">
             Be the first to write a review
           </h3>
-          <p className="mt-4 text-body-sm leading-relaxed text-ash">
+          <p className="mt-4 text-[13px] font-light leading-relaxed text-neutral-500">
             {cfg.emptyText}
           </p>
           <button
             type="button"
             onClick={() => setShowForm(true)}
-            className="btn-primary mx-auto mt-7"
+            className="mx-auto mt-7 inline-block bg-[#111111] px-10 py-3 text-[11px] font-medium uppercase tracking-[0.2em] text-white transition-colors hover:bg-neutral-800"
           >
             Write a review
           </button>
@@ -281,7 +295,7 @@ export default function ProductReviews({ product }) {
 }
 
 /* ---------------------------------------------------------------------------
- * One review.
+ * One review — luxury register.
  * ------------------------------------------------------------------------- */
 function ReviewRow({ review, cfg, onOpenPhoto }) {
   const [helpful, setHelpful] = useState(review.helpful || 0);
@@ -293,12 +307,10 @@ function ReviewRow({ review, cfg, onOpenPhoto }) {
     if (busy) return;
     setBusy(true);
     try {
-      // The server owns the count — one vote per person, and it returns the
-      // real total, so an optimistic guess can never drift from the truth.
       const r = await api(`/reviews/${review._id}/helpful`, { method: 'POST' });
       if (typeof r.helpful === 'number') setHelpful(r.helpful);
       setVoted(!!r.voted);
-    } catch { /* silent — the count simply does not move */ }
+    } catch { /* silent */ }
     setBusy(false);
   };
 
@@ -311,31 +323,37 @@ function ReviewRow({ review, cfg, onOpenPhoto }) {
   };
 
   return (
-    <li className="py-6">
+    <li className="py-7">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
         <Stars value={review.rating} size={14} />
         {review.verified && (
-          <span className="inline-flex items-center gap-1 rounded-full bg-sage/25 px-2 py-0.5 text-caption font-semibold text-sagedark">
-            <CheckCircle2 size={10} aria-hidden="true" /> Verified purchase
+          <span className="inline-flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-[0.15em] text-[#111111]">
+            <CheckCircle2 size={12} aria-hidden="true" /> Verified purchase
           </span>
         )}
         {review.featured && (
-          <span className="rounded-full bg-bronze/20 px-2 py-0.5 text-caption font-semibold text-graphite">Featured</span>
+          <span className="text-[10px] font-medium uppercase tracking-[0.15em] text-neutral-400">Featured</span>
         )}
       </div>
 
-      {review.title && <h3 className="mt-2 text-body font-medium">{review.title}</h3>}
-      <p className="mt-1.5 whitespace-pre-line text-body-sm leading-relaxed">{review.body}</p>
+      {review.title && (
+        <h3 className="mt-3 font-serif text-base font-normal uppercase tracking-[0.08em] text-[#111111]">
+          {review.title}
+        </h3>
+      )}
+      <p className="mt-2 whitespace-pre-line text-[14px] font-light leading-[1.85] text-neutral-600">
+        {review.body}
+      </p>
 
       {(review.images || []).length > 0 && (
-        <ul className="mt-3 flex flex-wrap gap-2">
+        <ul className="mt-4 flex flex-wrap gap-2">
           {review.images.map((img, i) => (
             <li key={i}>
               <button
                 type="button"
                 onClick={() => onOpenPhoto(img.url)}
                 aria-label={`Open photo ${i + 1} from ${review.customerName}`}
-                className="block h-16 w-16 overflow-hidden rounded-control border border-line bg-cream"
+                className="block h-16 w-16 overflow-hidden border border-neutral-200 bg-[#f2f0ec]"
               >
                 <img src={img.url} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover" />
               </button>
@@ -344,23 +362,23 @@ function ReviewRow({ review, cfg, onOpenPhoto }) {
         </ul>
       )}
 
-      <p className="mt-2.5 text-caption text-ash">
+      <p className="mt-3 text-[11px] font-light uppercase tracking-[0.15em] text-neutral-400">
         {review.customerName} · {reviewDate(review.createdAt)}
       </p>
 
       {cfg.allowMerchantReply && review.adminReply && (
-        <div className="mt-3 rounded-card border-l-2 border-sagedeep bg-cream/50 px-4 py-3">
-          <p className="text-caption font-semibold uppercase tracking-wider text-sagedark">HUSHAE replied</p>
-          <p className="mt-1 text-body-sm leading-relaxed">{review.adminReply}</p>
+        <div className="mt-4 border-l border-[#111111] bg-[#f7f4ef] px-5 py-4">
+          <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-[#111111]">HUSHAE replied</p>
+          <p className="mt-1.5 text-[13px] font-light leading-relaxed text-neutral-600">{review.adminReply}</p>
         </div>
       )}
 
-      <div className="mt-3 flex flex-wrap items-center gap-1">
+      <div className="mt-3 flex flex-wrap items-center gap-2">
         {cfg.allowHelpful && (
           <button
             type="button" onClick={vote} disabled={busy} aria-pressed={voted}
-            className={`inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-3 text-caption transition ${
-              voted ? 'bg-obsidian/[0.06] font-semibold text-obsidian' : 'text-ash hover:text-obsidian'
+            className={`inline-flex min-h-[44px] items-center gap-1.5 px-3 text-[11px] font-medium uppercase tracking-[0.12em] transition ${
+              voted ? 'text-[#111111]' : 'text-neutral-400 hover:text-[#111111]'
             }`}
           >
             <ThumbsUp size={13} aria-hidden="true" />
@@ -370,7 +388,7 @@ function ReviewRow({ review, cfg, onOpenPhoto }) {
         {cfg.allowReport && (
           <button
             type="button" onClick={report} disabled={reported}
-            className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-3 text-caption text-ash transition hover:text-obsidian disabled:opacity-60"
+            className="inline-flex min-h-[44px] items-center gap-1.5 px-3 text-[11px] font-medium uppercase tracking-[0.12em] text-neutral-400 transition hover:text-[#111111] disabled:opacity-60"
           >
             <Flag size={12} aria-hidden="true" />
             {reported ? 'Reported' : 'Report'}
