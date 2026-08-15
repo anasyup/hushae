@@ -51,7 +51,7 @@ export default function OrderDetail() {
 
   if (!auth) {
     return (
-      <div className="container-page py-sect-y text-center pt-[140px]">
+      <div className="container-page py-sect-y text-center pt-[190px]">
         <h1 className="font-display text-h3">Please sign in to view this order</h1>
         <Link to="/account" className="btn-primary mt-6">Sign in</Link>
       </div>
@@ -60,7 +60,7 @@ export default function OrderDetail() {
 
   if (err) {
     return (
-      <div className="container-page py-sect-y text-center pt-[140px]">
+      <div className="container-page py-sect-y text-center pt-[190px]">
         <h1 className="font-display text-h3">Order not found</h1>
         <p className="mt-3 text-body-sm text-ash">{err}</p>
         <Link to="/account" className="btn-primary mt-6">Back to my account</Link>
@@ -74,7 +74,7 @@ export default function OrderDetail() {
          768px, 679px at 1440px. A 500px skeleton let the footer paint high and
          then get shoved down 534px — 0.2182 CLS on a phone. These blocks
          mirror the header, the progress strip and the two-column body. */
-      <div className="container-page pt-[140px] pb-8 md:pb-12" role="status" aria-live="polite">
+      <div className="container-page pt-[190px] pb-8 md:pb-12" role="status" aria-live="polite">
         <span className="sr-only">Loading your order…</span>
         <div className="skeleton h-[57px] w-full rounded-control lg:h-[81px]" />
         <div className="skeleton mt-6 h-[153px] w-full rounded-card sm:h-[121px] lg:h-[89px]" />
@@ -163,7 +163,7 @@ ${inv.tax ? `<div><span>Tax</span><span>${pkr(inv.tax)}</span></div>` : ''}
   };
 
   return (
-    <div className="container-page pt-[140px] pb-8 md:pb-12">
+    <div className="container-page pt-[190px] pb-8 md:pb-12">
       <Link to="/account" className="inline-flex min-h-[44px] items-center gap-1.5 text-body-sm text-ash underline-offset-4 transition hover:text-obsidian hover:underline">
         <ArrowLeft size={14} aria-hidden="true" /> Back to my account
       </Link>

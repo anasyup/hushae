@@ -35,7 +35,7 @@ export default function BlogPost() {
 
   if (!post) {
     return (
-      <div className="container pt-[140px] pb-20">
+      <div className="container pt-[190px] pb-20">
         <div className="skeleton h-72 w-full" />
         <div className="skeleton mt-8 h-6 w-2/3" />
         <div className="skeleton mt-4 h-4 w-full" />
@@ -67,7 +67,7 @@ export default function BlogPost() {
         jsonLdId="blog-post"
       />
 
-      <div className="container max-w-3xl pt-[140px] pb-12 md:pb-20">
+      <div className="container max-w-3xl pt-[190px] pb-12 md:pb-20">
         <Link to="/blog" className="inline-flex items-center gap-1.5 text-[12px] font-medium uppercase tracking-[0.10em] text-ash hover:text-obsidian transition-colors">
           <ArrowLeft size={13} /> Journal
         </Link>

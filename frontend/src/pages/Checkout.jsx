@@ -386,7 +386,7 @@ export default function Checkout() {
   /* ---------------- empty ---------------- */
   if (cart.length === 0) {
     return (
-      <div className="container-page py-sect-y text-center md:py-sect-y-lg pt-[140px]"><Seo title="Checkout" description="Complete your order — COD, JazzCash and card payments, discreet packaging." />
+      <div className="container-page py-sect-y text-center md:py-sect-y-lg pt-[190px]"><Seo title="Checkout" description="Complete your order — COD, JazzCash and card payments, discreet packaging." />
         <h1 className="text-[24px] font-light normal-case text-charcoal">Nothing to check out yet</h1>
         <p className="mt-3 text-[13px] text-smoke">Your bag is empty — add a piece and come back.</p>
         <Link to={cartCfg.continueHref} className="btn-qa mt-8 !w-auto px-10">{cartCfg.continueLabel}</Link>
@@ -397,7 +397,7 @@ export default function Checkout() {
   const phoneOk = normalizePhone(f.phone);
 
   return (
-    <div className="bg-white pt-[140px] pb-10"><Seo title="Checkout" description="Complete your order — COD, JazzCash and card payments, discreet packaging." /><div className="mx-auto max-w-[1200px] px-6">
+    <div className="bg-white pt-[190px] pb-10"><Seo title="Checkout" description="Complete your order — COD, JazzCash and card payments, discreet packaging." /><div className="mx-auto max-w-[1200px] px-6">
       {/* Checkout steps — matches cart progression */}
       <nav aria-label="Checkout progress" className="mb-6 flex items-center gap-3 text-[11px] font-medium uppercase tracking-[0.14em]">
         <Link to="/cart" className="text-[#696969] transition hover:text-[#111111]">Bag</Link>
