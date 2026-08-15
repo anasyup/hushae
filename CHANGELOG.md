@@ -1,4 +1,14 @@
 ## Changes
+- **2026-08-15** — 🎨 **DESIGN-SYSTEM RECONCILIATION + PRODUCTION POLISH**
+  - Retired the stale `frontend/src/tokens.css` (unlayered and imported after `index.css`, so it was silently overriding `.btn`/`.input`/`.h1`/`.eyebrow` etc. with the old VELOURA pill + sage register — the pill `9999px` buttons and 8px inputs the client had already removed). Folded the still-used `.container`/`.section` aliases into `index.css` (values byte-for-byte identical), so Blog / FabricTech / FitFinder / BundleBuilder render unchanged. Admin `.btn` pinned to the 6px Shopify radius.
+  - Header logo typo fixed: `HUSHAÈ` → `HUSHAE`.
+  - Shop / sale / women / men / best / new / category titles no longer double-brand ("Shop All | HUSHAE — HUSHAE" → "Shop All — HUSHAE").
+  - One `<h1>` per page: the sale banner "50% Off" is now a paragraph (reads "50% Off" with a real space for screen readers) and the footer tagline is a paragraph instead of an h1.
+  - Per-page SEO titles added to cart, checkout, account, wishlist, search, track, order confirmation, rewards, compare and fit finder (incl. their empty / signed-out states).
+  - Backend: email + sitemap links now resolve the live domain — `mailer.js` reads `PUBLIC_SITE_URL`/`PUBLIC_URL` with a `hushae1.vercel.app` fallback; `auth.js`, `ordersAdmin.js`, `emailTemplates.js`, `seo.js` fallbacks corrected. Vercel `PUBLIC_SITE_URL` + `PUBLIC_URL` env vars updated to `https://hushae1.vercel.app` (the old `hushae.vercel.app` alias is no longer owned by this project — it 404s).
+  - README live links updated to `hushae1.vercel.app`.
+  - Verified live: 7/7 storefront routes single-h1, zero console errors, zero broken images, zero horizontal overflow; `.btn` computes to 2px radius; sitemap emits `hushae1.vercel.app`; API + robots + sitemap all 200.
+
 - **2026-08-12** — ↩️ **PRODUCT TITLE FONT — REVERTED to original (Plus Jakarta Sans)**
   - Client instruction: "jo changes ke hain unhe hatao, jo pehle tha waisa karo" — the Bodoni Moda / Helvetica title-font experiments are removed.
   - Card bar title back to `14px / 500 / tracking-[-0.01em]` (Plus Jakarta Sans, sentence case, clickable link + hover underline kept).
