@@ -159,8 +159,7 @@ export default function Account() {
             </span>
           )}
           <div className="min-w-0 flex-1">
-            <p className="text-label uppercase tracking-widest text-sagedeep">{cfg.welcomeGreeting}</p>
-            <h1 className="mt-0.5 truncate font-display text-h2">{firstName}</h1>
+            <h1 className="truncate font-display text-h2">{firstName}</h1>
             <p className="mt-1 truncate text-body-sm text-ash">{user.email}</p>
           </div>
           <button
