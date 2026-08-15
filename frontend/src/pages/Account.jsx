@@ -101,12 +101,14 @@ export default function Account() {
   /* ---------------- signed out ---------------- */
   if (!auth) {
     return (
-      <div className="container-page py-sect-y md:py-sect-y-lg">
+      <div className="min-h-screen bg-[#FAF8F5] pt-[110px]">
+        <div className="container-page py-sect-y md:py-sect-y-lg">
         <div className="text-center">
           <h1 className="font-display text-h1">{cfg.signInTitle}</h1>
           <p className="mx-auto mt-3 max-w-md text-body text-ash">{cfg.signInSubtitle}</p>
         </div>
         <AuthCard cfg={cfg} policyLoaded={policy !== null} />
+        </div>
       </div>
     );
   }
@@ -114,7 +116,8 @@ export default function Account() {
   /* ---------------- loading ---------------- */
   if (!user) {
     return (
-      <div className="container-page py-sect-y">
+      <div className="min-h-screen bg-[#FAF8F5] pt-[110px]">
+        <div className="container-page py-sect-y">
         {loadErr ? (
           <div className="mx-auto max-w-md text-center">
             <h1 className="font-display text-h3">We could not load your account</h1>
@@ -136,6 +139,7 @@ export default function Account() {
             </div>
           </div>
         )}
+        </div>
       </div>
     );
   }
@@ -144,7 +148,10 @@ export default function Account() {
   const activeLabel = SECTIONS.find((s) => s.id === section)?.label || '';
 
   return (
-    <div className="mx-auto w-full max-w-[1280px] px-8 py-10">
+    <div className="min-h-screen bg-[#FAF8F5] pt-[110px]">
+      {/* Reference account-page wrapper — cream canvas, content starts below
+          the fixed 96px header + announcement bar. */}
+      <div className="mx-auto w-full max-w-[1280px] px-8 py-10">
       {/* ---------------- profile banner (reference register) ---------------- */}
       <section className="mb-8 flex items-center gap-[18px] border-b border-[#f0f0f0] pb-6">
         {user.avatar ? (
@@ -290,6 +297,7 @@ export default function Account() {
             </div>
           )}
         </div>
+      </div>
       </div>
     </div>
   );

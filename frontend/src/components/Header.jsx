@@ -105,7 +105,7 @@ export default function Header() {
   const linkCls = useMemo(() => ({ isActive }, label = '') => {
     const base = 'inline-flex items-center gap-1 font-sans text-[11px] font-medium uppercase tracking-[0.2em] transition-colors duration-200';
     const isSale = String(label || '').toLowerCase() === 'sale';
-    const color = isSale ? ' text-red-600 font-semibold hover:text-red-700' : ' text-white hover:opacity-60';
+    const color = isSale ? ' text-red-600 font-semibold hover:text-red-700' : ' text-black hover:opacity-60';
     return base + color;
   }, []);
 
@@ -129,8 +129,8 @@ export default function Header() {
         data-header
         className={`w-full h-[96px] !m-0 px-6 lg:px-12 transition-all duration-300 ease-in-out ${
           mega || isScrolled
-            ? 'bg-black text-white shadow-sm'
-            : 'bg-black text-white'
+            ? 'bg-[#FAF8F5] text-black shadow-sm'
+            : 'bg-[#FAF8F5] text-black'
         }`}
         onMouseLeave={() => setMega(null)}
       >
@@ -144,13 +144,13 @@ export default function Header() {
             onClick={() => setMobileOpen(true)}
             aria-label="Open menu"
             aria-expanded={mobileOpen}
-            className="-ml-2 grid h-10 w-10 shrink-0 place-items-center text-white transition-colors duration-300 lg:hidden"
+            className="-ml-2 grid h-10 w-10 shrink-0 place-items-center text-black transition-colors duration-300 lg:hidden"
           >
             <Menu size={20} strokeWidth={1.5} aria-hidden="true" />
           </button>
 
           {/* Logo — serif bold tracked caps (reference) */}
-          <Link to="/" aria-label="HUSHAE — home" className="flex-shrink-0 font-serif text-2xl font-bold uppercase tracking-[0.2em] text-white transition-opacity duration-300 hover:opacity-80">
+          <Link to="/" aria-label="HUSHAE — home" className="flex-shrink-0 font-serif text-2xl font-bold uppercase tracking-[0.2em] text-black transition-opacity duration-300 hover:opacity-80">
             HUSHAÈ
           </Link>
 
@@ -214,7 +214,7 @@ export default function Header() {
                 aria-label={cartCount ? `Open bag, ${cartCount} item${cartCount === 1 ? '' : 's'}` : 'Open bag'}
                 className="relative transition-opacity duration-200 hover:opacity-60">
                 <ShoppingBag size={20} strokeWidth={1.5} aria-hidden="true" />
-                <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-white text-[9px] font-bold text-black">
+                <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-black text-[9px] font-bold text-white">
                   {cartCount}
                 </span>
               </button>
@@ -223,7 +223,7 @@ export default function Header() {
               <button
                 type="button"
                 onClick={() => { logout(); toast('Signed out'); nav('/'); }}
-                className="hidden text-[11px] font-semibold uppercase tracking-[1px] text-white transition-opacity duration-200 hover:opacity-60 sm:block"
+                className="hidden text-[11px] font-semibold uppercase tracking-[1px] text-black transition-opacity duration-200 hover:opacity-60 sm:block"
               >
                 ↪ Sign out
               </button>
