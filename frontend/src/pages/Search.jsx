@@ -157,7 +157,7 @@ export default function Search() {
   const heading = q ? `Results for “${q}”` : 'All products';
 
   return (
-    <div className="container-page pt-[190px] pb-6 md:pb-10"><Seo title={q ? `Results for “${q}”` : 'Search'} description="Search HUSHAE — innerwear made in Pakistan, finished to an international standard." />
+    <div className="container-page pt-[220px] pb-6 md:pb-10"><Seo title={q ? `Results for “${q}”` : 'Search'} description="Search HUSHAE — innerwear made in Pakistan, finished to an international standard." />
       {/* ---------------- header ----------------
           MEASURED, Phase 2E: this page opened with a bare 24px h1 on flat
           alabaster while /shop opened with a 30px h1 inside a 168px editorial

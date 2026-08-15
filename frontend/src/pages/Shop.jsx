@@ -155,7 +155,7 @@ export default function Shop({ preset = {} }) {
   const hasMore = visible ? visible.length > shown : false;
 
   return (
-    <div className="bg-white pt-[190px] font-sans text-black" style={{ minHeight: '100vh' }}>
+    <div className="bg-white pt-[220px] font-sans text-black" style={{ minHeight: '100vh' }}>
       <Seo
         title={meta}
         description={`Shop premium ${meta.toLowerCase()} — innerwear made in Pakistan, finished to an international standard. COD nationwide, discreet packaging.`}
@@ -245,7 +245,7 @@ export default function Shop({ preset = {} }) {
 function SalePageHeader({ f }) {
   const gender = f.get('gender');
   return (
-    <div className="mx-auto w-full max-w-[1440px] px-8 pt-[190px] pb-8 font-klein-body">
+    <div className="mx-auto w-full max-w-[1440px] px-8 pt-[220px] pb-8 font-klein-body">
       <span className="mb-2 block text-xs text-neutral-400">Sale</span>
       <h1 className="mb-6 text-4xl font-light uppercase tracking-[0.12em]">Sale</h1>
 
