@@ -193,27 +193,27 @@ export default function Header() {
                 aria-label={searchOpen ? 'Close search' : 'Search products'}
                 aria-expanded={searchOpen}
                 aria-controls="header-search"
-                className="transition-opacity duration-200 hover:opacity-60"
+                className="p-1 transition-opacity duration-200 hover:opacity-60"
               >
                 <Search size={20} strokeWidth={1.5} aria-hidden="true" />
               </button>
             )}
             {showWishlist && (
               <Link to="/wishlist" aria-label={wishlist.length ? `Wishlist, ${wishlist.length} saved` : 'Wishlist'}
-                className="hidden transition-opacity duration-200 hover:opacity-60 sm:block">
+                className="hidden p-1 transition-opacity duration-200 hover:opacity-60 sm:block">
                 <Heart size={20} strokeWidth={1.5} aria-hidden="true" />
               </Link>
             )}
             {showAccount && (
               <Link to="/account" aria-label={auth ? 'Your account' : 'Sign in'}
-                className="hidden transition-opacity duration-200 hover:opacity-60 sm:block">
+                className="hidden p-1 transition-opacity duration-200 hover:opacity-60 sm:block">
                 <User size={20} strokeWidth={1.5} aria-hidden="true" />
               </Link>
             )}
             {showCart && (
               <button type="button" onClick={() => setDrawerOpen(true)}
                 aria-label={cartCount ? `Open bag, ${cartCount} item${cartCount === 1 ? '' : 's'}` : 'Open bag'}
-                className="relative transition-opacity duration-200 hover:opacity-60">
+                className="relative flex items-center justify-center p-1 transition-opacity duration-200 hover:opacity-60">
                 <ShoppingBag size={20} strokeWidth={1.5} aria-hidden="true" />
                 <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-black text-[9px] font-bold text-white">
                   {cartCount}
