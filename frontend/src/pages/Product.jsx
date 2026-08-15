@@ -112,7 +112,7 @@ export default function Product() {
 
   if (err) {
     return (
-      <div className="mx-auto max-w-[1440px] px-5 py-24 text-center">
+      <div className="mx-auto max-w-[1440px] px-5 pt-[120px] pb-24 text-center">
         <span className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-[#F0F0F0] text-[#696969]"><Package size={22} /></span>
         <h1 className="mt-6 text-3xl font-medium uppercase tracking-[0.04em] text-[#111111]">This piece has moved on</h1>
         <p className="mx-auto mt-2 max-w-sm text-sm text-[#696969]">It may be sold out or no longer part of the edit.</p>
@@ -193,7 +193,7 @@ export default function Product() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#FAF9F6] pb-20 font-sans text-[#1A1A1A] antialiased lg:pb-0">
+    <div className="min-h-screen bg-[#FAF9F6] pt-[120px] pb-20 font-sans text-[#1A1A1A] antialiased lg:pb-0">
       <Seo
         title={name}
         description={p.shortDescription || p.description?.slice(0, 160) || `${name} — premium innerwear from HUSHAE. PKR ${p.price}. ${p.stock > 0 ? 'In stock' : 'Out of stock'}. COD available.`}

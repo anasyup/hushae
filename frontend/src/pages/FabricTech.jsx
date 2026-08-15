@@ -59,7 +59,7 @@ export default function FabricTech({ slug = 'breathable' }) {
         </div>
       </div>
 
-      <div className="container section">
+      <div className="container section pt-[140px]">
         <div className="grid gap-12 md:grid-cols-2 max-w-3xl mx-auto">
           <div>
             <h2 className="h3">How it works</h2>

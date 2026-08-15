@@ -263,7 +263,7 @@ export default function Rewards() {
   /* ---- signed out ---- */
   if (!auth?.token) {
     return (
-      <div className="container-page py-sect-y">
+      <div className="container-page py-sect-y pt-[140px]">
         <EmptyState
           icon={Sparkles}
           title={cfg.programName}
@@ -290,7 +290,7 @@ export default function Rewards() {
    * reservation is roughly double the desktop one. */
   if (!data && !err) {
     return (
-      <div className="container-page py-8 md:py-12">
+      <div className="container-page pt-[140px] pb-8 md:pb-12">
         <div role="status" aria-live="polite">
           <span className="sr-only">Loading your rewards…</span>
           <div className="skeleton h-[382px] w-full rounded-panel md:h-[297px] lg:h-[302px] xl:h-[312px]" />
@@ -303,7 +303,7 @@ export default function Rewards() {
 
   if (err) {
     return (
-      <div className="container-page py-sect-y">
+      <div className="container-page py-sect-y pt-[140px]">
         <div className="mx-auto max-w-md text-center">
           <h1 className="font-display text-h3">We could not load your rewards</h1>
           <p className="mt-3 text-body-sm text-ash">{err}</p>
@@ -316,7 +316,7 @@ export default function Rewards() {
   /* ---- the merchant has switched the programme off ---- */
   if (data.enabled === false) {
     return (
-      <div className="container-page py-sect-y">
+      <div className="container-page py-sect-y pt-[140px]">
         <EmptyState
           icon={Sparkles}
           title="Rewards are not running right now"
@@ -331,7 +331,7 @@ export default function Rewards() {
      showing a zero that can never move ---- */
   if (data.needsPhone) {
     return (
-      <div className="container-page py-sect-y">
+      <div className="container-page py-sect-y pt-[140px]">
         <EmptyState
           icon={Sparkles}
           title="Add your mobile number"
@@ -347,7 +347,7 @@ export default function Rewards() {
   const earned = data.achievements?.filter((x) => x.earned) || [];
 
   return (
-    <div className="container-page py-8 md:py-12"><Seo title="Rewards" description="Earn points and rewards with every HUSHAE order." />
+    <div className="container-page pt-[140px] pb-8 md:pb-12"><Seo title="Rewards" description="Earn points and rewards with every HUSHAE order." />
       {/* ---------------- balance ---------------- */}
       <header className="rounded-panel border border-line bg-white/60 p-5 md:p-7">
         <p className="text-label uppercase tracking-widest text-sagedeep">{data.programName || cfg.programName}</p>

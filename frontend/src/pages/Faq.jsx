@@ -35,7 +35,7 @@ export default function Faq() {
 
   if (!enabled) {
     return (
-      <div className="mx-auto max-w-3xl px-4 py-16 text-center">
+      <div className="mx-auto max-w-3xl px-4 pt-[140px] pb-16 text-center">
         <p className="text-ash">FAQ page currently unavailable.</p>
       </div>
     );
@@ -50,7 +50,7 @@ export default function Faq() {
         jsonLd={jsonLd}
         jsonLdId="faq"
       />
-      <div className="mx-auto max-w-3xl px-4 py-12 md:py-16">
+      <div className="mx-auto max-w-3xl px-4 pt-[140px] pb-12 md:pb-16">
         <div className="mb-10 text-center">
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-satin">
             <HelpCircle size={22} className="text-obsidian" />

@@ -212,7 +212,7 @@ export default function Cart() {
   const itemWord = pricing.count === 1 ? 'item' : 'items';
 
   return (
-    <div className="surface-cream py-8 md:py-12"><Seo title="Your Bag" description="Review the items in your bag — secure checkout, COD nationwide, discreet packaging." /><div className="container-page">
+    <div className="surface-cream pt-[140px] pb-8 md:pb-12"><Seo title="Your Bag" description="Review the items in your bag — secure checkout, COD nationwide, discreet packaging." /><div className="container-page">
       {/* ---------------- Header ---------------- */}
       {/* Cart steps — premium checkout progression */}
       <nav aria-label="Checkout progress" className="mb-8 flex items-center gap-3 text-[11px] font-medium uppercase tracking-[0.14em]">

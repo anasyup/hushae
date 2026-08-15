@@ -245,7 +245,7 @@ export default function Shop({ preset = {} }) {
 function SalePageHeader({ f }) {
   const gender = f.get('gender');
   return (
-    <div className="mx-auto w-full max-w-[1440px] px-8 py-8 font-klein-body">
+    <div className="mx-auto w-full max-w-[1440px] px-8 pt-[140px] pb-8 font-klein-body">
       <span className="mb-2 block text-xs text-neutral-400">Sale</span>
       <h1 className="mb-6 text-4xl font-light uppercase tracking-[0.12em]">Sale</h1>
 

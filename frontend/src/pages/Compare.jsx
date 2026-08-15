@@ -75,7 +75,7 @@ export default function Compare() {
 
   if (!cfg.enabled) {
     return (
-      <div className="container-page py-sect-y text-center">
+      <div className="container-page py-sect-y text-center pt-[140px]">
         <h1 className="font-display text-h2">{cfg.title}</h1>
         <p className="mt-3 text-body text-ash">This feature is currently unavailable.</p>
         <Link to="/women" className="btn-primary mt-8">Continue shopping</Link>
@@ -85,7 +85,7 @@ export default function Compare() {
 
   if (compare.length === 0) {
     return (
-      <div className="container-page py-8 md:py-12">
+      <div className="container-page pt-[140px] pb-8 md:pb-12">
         <h1 className="font-display text-h1">{cfg.title}</h1>
         <EmptyState
           icon={Scale}
@@ -108,7 +108,7 @@ export default function Compare() {
   };
 
   return (
-    <div className="container-page py-8 md:py-12"><Seo title="Compare" description="Compare HUSHAE pieces side by side." />
+    <div className="container-page pt-[140px] pb-8 md:pb-12"><Seo title="Compare" description="Compare HUSHAE pieces side by side." />
       <header className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3 border-b border-line pb-6">
         <div>
           <h1 className="font-display text-h1">
