@@ -3,7 +3,7 @@ import { SearchX } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../api/client';
 import CollectionCard from '../components/CollectionCard';
-import CategoryBanner from '../components/CategoryBanner';
+import EditorialHero from '../components/EditorialHero';
 import SaleBanner from '../components/SaleBanner';
 import NewArrivals3DBanner from '../components/NewArrivals3DBanner';
 import SaleSplitBanner from '../components/SaleSplitBanner';
@@ -36,12 +36,28 @@ const SORT_LABELS = { popular: 'Featured', 'price-asc': 'Price: Low to High', 'p
 
 /* Category banner copy per route (client reference register). */
 const BANNER_META = {
-  women: { tag: 'Spring / Summer Edition', title: "Women's Essentials", desc: 'Engineered for second-skin comfort. Soft touch fabrics crafted with minimalist precision.' },
-  men: { tag: 'The Essentials Edit', title: "Men's Essentials", desc: 'Everyday essentials engineered for comfort — soft-touch fabrics with a clean finish.' },
+  women: {
+    tag: 'Spring / Summer Edition', title: "Women's Essentials",
+    desc: 'Engineered for second-skin comfort. Soft touch fabrics crafted with minimalist precision.',
+    strip: ['Spring / Summer Edition', 'Second Skin', 'Soft Touch', 'Delivered Worldwide'],
+  },
+  men: {
+    tag: 'The Essentials Edit', title: "Men's Essentials",
+    desc: 'Everyday essentials engineered for comfort — soft-touch fabrics with a clean finish.',
+    strip: ['The Essentials Edit', 'Everyday Comfort', 'Clean Finish', 'Delivered Worldwide'],
+  },
   new: { tag: 'New Season', title: 'New Arrivals', desc: 'Fresh from the studio — the latest drops, here first.' },
-  best: { tag: 'Most Loved', title: 'Best Sellers', desc: 'The pieces our community reaches for again and again.' },
+  best: {
+    tag: 'Most Loved', title: 'Best Sellers',
+    desc: 'The pieces our community reaches for again and again.',
+    strip: ['Most Loved', 'Community Picks', 'Loved Again & Again', 'Delivered Worldwide'],
+  },
   sale: { tag: 'Seasonal Edit', title: 'Sale', desc: 'Seasonal savings on signature pieces.' },
-  all: { tag: 'The Collection', title: 'Shop All', desc: 'Premium innerwear made in Pakistan, finished to an international standard.' },
+  all: {
+    tag: 'The Collection', title: 'Shop All',
+    desc: 'Premium innerwear made in Pakistan, finished to an international standard.',
+    strip: ['The Collection', 'Full Catalogue', 'All Pieces', 'Delivered Worldwide'],
+  },
 };
 
 const REVEAL = 12; // initial batch shown; LOAD MORE reveals +12
@@ -85,6 +101,7 @@ export default function Shop({ preset = {} }) {
         tag: cat ? (cat.gender === 'men' ? "Men's Collection" : "Women's Collection") : 'Collection',
         title: meta,
         desc: cat?.description || BANNER_META.all.desc,
+        strip: BANNER_META.all.strip,
       };
     }
     const m = BANNER_META[preset.key] || BANNER_META.all;
@@ -93,7 +110,7 @@ export default function Shop({ preset = {} }) {
       : preset.gender === 'women' ? '/images/campaign/qa/hero-women.jpg'
       : preset.gender === 'men' ? '/images/campaign/qa/hero-men.jpg'
       : '/images/campaign/qa/hero-fabric.jpg';
-    return { img, tag: m.tag, title: m.title, desc: m.desc };
+    return { img, tag: m.tag, title: m.title, desc: m.desc, strip: m.strip || [] };
   }, [f.category, activeCat, preset.key, preset.gender, meta]);
 
   const navCats = useMemo(() => (f.gender ? cats.filter((c) => c.gender === f.gender) : cats), [cats, f.gender]);
@@ -171,7 +188,14 @@ export default function Shop({ preset = {} }) {
       ) : preset.key === 'new' ? (
         <NewArrivalsHero count={count || 0} />
       ) : (
-        <CategoryBanner img={banner.img} tag={banner.tag} title={banner.title} description={banner.desc} />
+        <EditorialHero
+          img={banner.img}
+          tag={banner.tag}
+          title={banner.title}
+          description={banner.desc}
+          count={count || 0}
+          strip={banner.strip}
+        />
       )}
 
       {/* ═══ 1. SINGLE CLEAN FILTER BAR (exact reference) ═══════════════ */}
