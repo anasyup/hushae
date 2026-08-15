@@ -290,7 +290,7 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="w-full bg-[#fcfbf9] font-sans text-[#111111] selection:bg-black selection:text-white">
+    <div className="min-h-screen w-full bg-[#FAF8F5] font-sans text-[#111111] selection:bg-black selection:text-white">
       <Seo title="Premium Innerwear for Men & Women"
         description="New season essentials, engineered for comfort. Made in Pakistan, finished to an international standard."
         canonical="/"
