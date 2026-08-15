@@ -4,6 +4,7 @@ const Order = require('../models/Order');
 const Product = require('../models/Product');
 const OrderIssue = require('../models/OrderIssue');
 const SavedFilter = require('../models/SavedFilter');
+const Settings = require('../models/Settings');
 const { protect, adminOnly } = require('../middleware/auth');
 const { asyncHandler } = require('../utils/helpers');
 const { scoreOrder, enrichItems, pickRoute } = require('../utils/orderQuality');
