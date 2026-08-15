@@ -76,7 +76,7 @@ export default function FabricTech({ slug = 'breathable' }) {
         <div className="section" style={{ background: '#F7F5F1' }}>
           <div className="container">
             <h2 className="h3 mb-8">{tech.name} products</h2>
-            <div className="grid grid-cols-2 gap-[2px] md:grid-cols-4">
+            <div className="grid grid-cols-2 gap-x-3 gap-y-12 md:grid-cols-3">
               {products.map((p) => <ProductCard key={p._id} product={p} />)}
             </div>
           </div>

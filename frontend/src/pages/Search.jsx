@@ -286,7 +286,7 @@ export default function Search() {
         {/* ---------------- results ---------------- */}
         <div className="min-w-0">
           {loading ? (
-            <div className="grid grid-cols-2 gap-x-2 gap-y-6 md:grid-cols-3 xl:grid-cols-4 2xl:gap-x-8 2xl:gap-y-14" aria-hidden="true">
+            <div className="grid grid-cols-2 gap-x-3 gap-y-12 md:grid-cols-3" aria-hidden="true">
               {Array.from({ length: 8 }).map((_, i) => (
                 <div key={i} className="skeleton aspect-[3/4] w-full rounded-card" />
               ))}
@@ -322,7 +322,7 @@ export default function Search() {
               {data?.recovery?.products?.length > 0 && (
                 <section className="mt-10" aria-labelledby="rec-popular">
                   <h2 id="rec-popular" className="text-label uppercase tracking-widest text-ash">Popular right now</h2>
-                  <div className="mt-4 grid grid-cols-2 gap-x-2 gap-y-6 md:grid-cols-3 xl:grid-cols-4 2xl:gap-x-8 2xl:gap-y-14">
+                  <div className="mt-4 grid grid-cols-2 gap-x-3 gap-y-12 md:grid-cols-3">
                     {data.recovery.products.slice(0, 8).map((p) => (
                       <ProductCard key={p._id} product={p} headingLevel="h3" />
                     ))}
@@ -332,7 +332,7 @@ export default function Search() {
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-2 gap-x-2 gap-y-6 md:grid-cols-3 xl:grid-cols-4 2xl:gap-x-8 2xl:gap-y-14">
+              <div className="grid grid-cols-2 gap-x-3 gap-y-12 md:grid-cols-3">
                 {products.map((p, i) => (
                   <div key={`${p._id}-${i}`} onClick={() => onCardClick(p, i)}>
                     <ProductCard
