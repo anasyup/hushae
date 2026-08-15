@@ -64,7 +64,7 @@ export default function BundleBuilder() {
   };
 
   return (
-    <div style={{ background: '#FAF8F5' }}>
+    <div style={{ background: '#FFFFFF' }}>
       <div className="container section pt-[220px]">
         {/* Header */}
         <div className="mb-10">

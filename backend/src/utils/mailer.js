@@ -91,7 +91,7 @@ function siteUrl() {
 
 function baseLayout({ title, body }) {
   return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)}</title></head>
-<body style="margin:0;padding:0;background:#f7f5f1;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#111;">
+<body style="margin:0;padding:0;background:#FFFFFF;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#111;">
   <div style="max-width:600px;margin:0 auto;padding:24px;">
     <div style="text-align:center;padding:24px 0;border-bottom:2px solid #111;">
       <div style="font-family:'Cormorant Garamond',Georgia,serif;font-size:28px;font-weight:600;letter-spacing:0.32em;">HUSHAE</div>
@@ -134,7 +134,7 @@ const DEFAULT_TEMPLATES = {
   Thank you for your order! We're preparing it right now — you'll get another email as soon as it ships.
 </p>
 
-<div style="background:#f7f5f1;border-radius:12px;padding:16px;margin-bottom:24px;">
+<div style="background:#FFFFFF;border-radius:12px;padding:16px;margin-bottom:24px;">
   <div style="font-size:10px;letter-spacing:0.2em;color:#7a736d;text-transform:uppercase;">Order number</div>
   <div style="font-family:monospace;font-size:18px;font-weight:700;margin-top:4px;">{orderNumber}</div>
 </div>
@@ -174,7 +174,7 @@ const DEFAULT_TEMPLATES = {
     variables: ['orderNumber', 'total', 'customerName', 'customerPhone', 'customerEmail', 'city', 'paymentMethod', 'paymentStatus', 'productsList', 'storeName'],
     bodyHTML: `<p style="font-size:16px;margin:0 0 16px;font-weight:600;">🛍️ New order received</p>
 
-<div style="background:#f7f5f1;border-radius:12px;padding:16px;margin-bottom:20px;">
+<div style="background:#FFFFFF;border-radius:12px;padding:16px;margin-bottom:20px;">
   <div style="display:flex;justify-content:space-between;align-items:center;">
     <div>
       <div style="font-family:monospace;font-size:15px;font-weight:700;">{orderNumber}</div>
@@ -209,7 +209,7 @@ const DEFAULT_TEMPLATES = {
     bodyHTML: `<p style="font-size:16px;margin:0 0 8px;">Hi {customerName},</p>
 <p style="font-size:14px;line-height:1.7;color:#333;margin:0 0 24px;">{statusText}</p>
 
-<div style="background:#f7f5f1;border-radius:12px;padding:16px;margin-bottom:20px;">
+<div style="background:#FFFFFF;border-radius:12px;padding:16px;margin-bottom:20px;">
   <div style="font-size:10px;letter-spacing:0.2em;color:#7a736d;text-transform:uppercase;">Order</div>
   <div style="font-family:monospace;font-size:15px;font-weight:700;margin-top:4px;">{orderNumber}</div>
   <div style="margin-top:12px;padding-top:12px;border-top:1px solid #e4ded4;">
@@ -261,7 +261,7 @@ const DEFAULT_TEMPLATES = {
     variables: ['customerName', 'discountCode', 'discountPercent', 'expiryDate', 'storeName'],
     bodyHTML: `<p style="margin:0 0 14px;font-size:16px;">Dear {customerName},</p>
 <p style="margin:0 0 18px;font-size:15px;line-height:1.55;">You're part of the HUSHAE inner circle now. As a small thank you for coming back, here's a code just for you.</p>
-<div style="text-align:center;margin:26px 0;padding:24px;border:1px dashed #C9BFB4;background:#F7F5F1;border-radius:14px;">
+<div style="text-align:center;margin:26px 0;padding:24px;border:1px dashed #C9BFB4;background:#FFFFFF;border-radius:14px;">
   <p style="margin:0;font-size:11px;letter-spacing:.24em;color:#7A736D;text-transform:uppercase;">Your reward</p>
   <p style="margin:8px 0 0;font-family:'Cormorant Garamond',Georgia,serif;font-size:34px;letter-spacing:.16em;">{discountCode}</p>
   <p style="margin:10px 0 0;font-size:13px;color:#7A736D;">{discountPercent}% off your next order</p>

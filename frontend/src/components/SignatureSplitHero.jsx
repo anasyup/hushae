@@ -21,7 +21,7 @@ export default function SignatureSplitHero() {
     eyebrow:        'The Signature Edit',
     title:          'Premium,\nperfected.',
     subtitle:       'Silk-touch fabrics. Bonded seamless edges. Discreet packaging always.',
-    textColor:      '#FAF8F5',
+    textColor:      '#FFFFFF',
     textShadow:     true,
     titleFont:      'display',
     leftImage:      '/images/products/gemini/hero-women-bra.png',

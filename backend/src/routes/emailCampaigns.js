@@ -24,7 +24,7 @@ const campaignLimit = rateLimit({
 function wrapBody(body) {
   const text = String(body || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br/>');
   return `
-    <div style="font-family:Arial,Helvetica,sans-serif;color:#0E0E0E;max-width:560px;margin:0 auto;padding:32px 20px;line-height:1.6;background:#F7F5F1">
+    <div style="font-family:Arial,Helvetica,sans-serif;color:#0E0E0E;max-width:560px;margin:0 auto;padding:32px 20px;line-height:1.6;background:#FFFFFF">
       <p style="font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:#6E6E6B;margin:0 0 24px">HUSHAE</p>
       <div style="font-size:15px">${text}</div>
       <p style="font-size:11px;color:#6E6E6B;margin-top:32px;border-top:1px solid #E3E2DF;padding-top:16px">

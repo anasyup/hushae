@@ -80,7 +80,7 @@ export default function CollectionBanner({ title, blurb, eyebrow = 'HUSHAE', cou
           className="absolute inset-0"
           style={{
             background:
-              'linear-gradient(to right, rgba(247,245,241,0.97) 0%, rgba(247,245,241,0.94) 46%, rgba(247,245,241,0.62) 72%, rgba(247,245,241,0.10) 100%)',
+              'linear-gradient(to right, rgba(255,255,255,0.97) 0%, rgba(255,255,255,0.94) 46%, rgba(255,255,255,0.62) 72%, rgba(255,255,255,0.10) 100%)',
           }}
         />
 

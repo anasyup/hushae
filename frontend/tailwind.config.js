@@ -216,7 +216,7 @@ export default {
         'e-2': '0 4px 12px -4px rgba(17,17,17,0.10)',
         'e-3': '0 12px 32px -12px rgba(17,17,17,0.16)',
         'e-4': '0 28px 64px -28px rgba(17,17,17,0.24)',
-        focus: '0 0 0 2px #F7F5F1, 0 0 0 4px #111111',
+        focus: '0 0 0 2px #FFFFFF, 0 0 0 4px #111111',
       },
 
       transitionDuration: {

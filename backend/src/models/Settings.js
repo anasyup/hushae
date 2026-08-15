@@ -130,7 +130,7 @@ const settingsSchema = new mongoose.Schema({
     eyebrow:        { type: String,  default: 'The Signature Edit' },
     title:          { type: String,  default: 'Premium,\nperfected.' },
     subtitle:       { type: String,  default: 'Silk-touch fabrics. Bonded seamless edges. Discreet packaging always. The HUSHAE house edit, made for the pieces you\'ll reach for daily.' },
-    textColor:      { type: String,  default: '#F7F5F1' },
+    textColor:      { type: String,  default: '#FFFFFF' },
     textShadow:     { type: Boolean, default: true },
     titleFont:      { type: String,  default: 'display' },   // 'display' | 'sans'
     // Left half — Women

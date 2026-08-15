@@ -121,7 +121,7 @@ router.post('/:key/test', asyncHandler(async (req, res) => {
 
   // Base layout wrapping
   const baseLayout = (title, body) => `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)}</title></head>
-<body style="margin:0;padding:0;background:#f7f5f1;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#111;">
+<body style="margin:0;padding:0;background:#FFFFFF;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#111;">
   <div style="max-width:600px;margin:0 auto;padding:24px;">
     <div style="text-align:center;padding:24px 0;border-bottom:2px solid #111;">
       <div style="font-family:'Cormorant Garamond',Georgia,serif;font-size:28px;font-weight:600;letter-spacing:0.32em;">HUSHAE</div>
