@@ -144,23 +144,23 @@ export default function Account() {
   const activeLabel = SECTIONS.find((s) => s.id === section)?.label || '';
 
   return (
-    <div className="container-page py-8 md:py-12">
+    <div className="mx-auto w-full max-w-[1280px] px-8 py-10">
       {/* ---------------- profile banner (reference register) ---------------- */}
-      <section className="flex items-center gap-5 border-b border-[#f0f0f0] pb-6">
+      <section className="mb-8 flex items-center gap-[18px] border-b border-[#f0f0f0] pb-6">
         {user.avatar ? (
-          <img src={user.avatar} alt="" className="h-14 w-14 shrink-0 rounded-full object-cover md:h-14 md:w-14" />
+          <img src={user.avatar} alt="" className="h-[52px] w-[52px] shrink-0 rounded-full object-cover" />
         ) : (
-          <span aria-hidden="true" className="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-[#f3f4f6] text-xl font-semibold text-[#374151]">
+          <span aria-hidden="true" className="grid h-[52px] w-[52px] shrink-0 place-items-center rounded-full bg-[#f3f4f6] text-[18px] font-bold text-[#111111]">
             {initials}
           </span>
         )}
         <div className="min-w-0">
-          <h1 className="truncate text-[22px] font-bold tracking-[0.5px] text-[#111111]">{user.name}</h1>
-          <p className="mt-0.5 truncate text-[14px] text-[#6b7280]">{user.email}</p>
+          <h1 className="truncate text-[20px] font-bold tracking-[0.5px] text-[#111111]">{user.name}</h1>
+          <p className="mt-0.5 truncate text-[13px] text-[#6b7280]">{user.email}</p>
         </div>
       </section>
 
-      <div className="mt-10 grid gap-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-12">
+      <div className="grid gap-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-12">
         {/* ---------------- nav ----------------
             Mobile: a scrollable rail. Desktop: a sidebar. Same buttons, so
             there is only one set of state and one focus order. */}
@@ -176,10 +176,10 @@ export default function Account() {
                   type="button"
                   onClick={() => go(id)}
                   aria-current={section === id ? 'page' : undefined}
-                  className={`flex min-h-[44px] w-full items-center gap-3 whitespace-nowrap rounded-full px-4 text-[14px] font-medium transition-all duration-200 lg:rounded-md lg:px-4 lg:py-3 ${
+                  className={`flex min-h-[44px] w-full items-center gap-3 whitespace-nowrap rounded-full px-4 text-[14px] font-medium transition-colors lg:rounded-md lg:px-4 lg:py-3 ${
                     section === id
                       ? 'bg-[#111111] text-white'
-                      : 'bg-white/70 text-[#4b5563] hover:bg-[#f9fafb] hover:text-[#111111] lg:bg-transparent'
+                      : 'bg-white/70 text-[#4b5563] lg:bg-transparent'
                   }`}
                 >
                   <Icon size={15} aria-hidden="true" strokeWidth={1.6} />
@@ -198,12 +198,12 @@ export default function Account() {
             <div className="grid gap-5 sm:grid-cols-3">
               {/* Reference dash-card: #fafafa, 1px #eee, radius 8, 24px pad,
                   title 11/700 tracked, value 28/600, desc 13px grey */}
-              <button type="button" onClick={() => go('orders')} className="flex min-h-[140px] flex-col items-start rounded-lg border border-[#eeeeee] bg-[#fafafa] p-6 text-left transition hover:border-black/20">
+              <button type="button" onClick={() => go('orders')} className="flex min-h-[140px] flex-col items-start rounded-lg border border-[#eeeeee] bg-[#fafafa] p-6 text-left">
                 <span className="text-[11px] font-bold uppercase tracking-[1.2px] text-[#6b7280]">Orders</span>
                 <span className="my-3 text-[28px] font-semibold leading-none text-[#111111]">{orders === null ? '—' : orders.length}</span>
                 <span className="mt-auto text-[13px] text-[#9ca3af]">View order history</span>
               </button>
-              <button type="button" onClick={() => go('addresses')} className="flex min-h-[140px] flex-col items-start rounded-lg border border-[#eeeeee] bg-[#fafafa] p-6 text-left transition hover:border-black/20">
+              <button type="button" onClick={() => go('addresses')} className="flex min-h-[140px] flex-col items-start rounded-lg border border-[#eeeeee] bg-[#fafafa] p-6 text-left">
                 <span className="text-[11px] font-bold uppercase tracking-[1.2px] text-[#6b7280]">Addresses</span>
                 <span className="my-3 text-[28px] font-semibold leading-none text-[#111111]">{(user.addresses || []).length}</span>
                 <span className="mt-auto text-[13px] text-[#9ca3af]">Manage saved addresses</span>
@@ -212,7 +212,7 @@ export default function Account() {
                   running — the wishlist already has its own section in the
                   rail above, so the tile was a duplicate entry point. */}
               {loyaltyOn ? (
-                <Link to="/rewards" className="flex min-h-[140px] flex-col items-start rounded-lg border border-[#eeeeee] bg-[#fafafa] p-6 text-left transition hover:border-black/20">
+                <Link to="/rewards" className="flex min-h-[140px] flex-col items-start rounded-lg border border-[#eeeeee] bg-[#fafafa] p-6 text-left">
                   <span className="text-[11px] font-bold uppercase tracking-[1.2px] text-[#6b7280]">Rewards</span>
                   <span className="my-3 text-[28px] font-semibold leading-none tabular-nums text-[#111111]">
                     {loyalty === null ? '—' : Number(loyalty.account?.points || 0).toLocaleString('en-PK')}
@@ -222,7 +222,7 @@ export default function Account() {
                   </span>
                 </Link>
               ) : (
-                <Link to="/wishlist" className="flex min-h-[140px] flex-col items-start rounded-lg border border-[#eeeeee] bg-[#fafafa] p-6 text-left transition hover:border-black/20">
+                <Link to="/wishlist" className="flex min-h-[140px] flex-col items-start rounded-lg border border-[#eeeeee] bg-[#fafafa] p-6 text-left">
                   <span className="text-[11px] font-bold uppercase tracking-[1.2px] text-[#6b7280]">Wishlist</span>
                   <span className="my-3 text-[28px] font-semibold leading-none text-[#111111]">♡</span>
                   <span className="mt-auto text-[13px] text-[#9ca3af]">Pieces you saved</span>
