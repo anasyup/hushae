@@ -113,13 +113,9 @@ export default function Header() {
 
   return (
     <div className="fixed left-0 top-0 z-50 flex w-full flex-col">
-      {/* 1. Announcement bar — collapses (h-0) on scroll; hidden on PDP */}
+      {/* 1. Announcement bar — always visible (like the header), pure white */}
       {!loc.pathname.startsWith('/product/') && (
-        <div
-          className={`w-full overflow-hidden bg-white transition-all duration-300 ease-in-out ${
-            isScrolled ? 'max-h-0 opacity-0' : 'max-h-10 opacity-100'
-          }`}
-        >
+        <div className="w-full overflow-hidden bg-[#FFFFFF]">
           <OfferBar />
         </div>
       )}
