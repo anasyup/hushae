@@ -15,6 +15,7 @@ const rateLimit = require('../middleware/rateLimit');
 const flow = require('../utils/orderFlow');
 const Product = require('../models/Product');
 const { scoreOrder, enrichItems } = require('../utils/orderQuality');
+const { reliabilityMap } = require('../utils/customerReliability');
 
 const router = express.Router();
 
@@ -127,6 +128,8 @@ function buildFilter(q) {
   if (q.printed === 'yes') f['printStatus.invoice.printed'] = true;
   if (q.printed === 'no') f['printStatus.invoice.printed'] = { $ne: true };
   if (q.hasIssue === 'yes') f['customerService.hasIssue'] = true;
+  if (q.test === 'yes') f.isTestOrder = true;
+  if (q.test === 'no') f.isTestOrder = { $ne: true };
   if (q.q) {
     const rx = new RegExp(esc(String(q.q).trim()), 'i');
     f.$and = [...(f.$and || []), {
@@ -305,8 +308,21 @@ router.get('/', protect, adminOnly, asyncHandler(async (req, res) => {
     : [];
   const stockMap = new Map(products.map((p) => [String(p._id), p]));
 
+  // Customer reliability — computed server-side from each row's FULL history,
+  // so the badge reflects every order, not just the 50 on this page.
+  const phones = [...new Set(rows.map((o) => String(o.customerInfo?.phone || '').replace(/\D/g, '').slice(-10)).filter(Boolean))];
+  let rel = new Map();
+  if (phones.length) {
+    const hist = await Order.find({ 'customerInfo.phone': { $regex: new RegExp(`(${phones.join('|')})$`) } })
+      .select('customerInfo.phone status customerService').lean();
+    rel = reliabilityMap(hist);
+  }
+
   res.json({
-    orders: rows.map((o) => ({ ...withStage(o), items: enrichItems(o, stockMap) })),
+    orders: rows.map((o) => {
+      const key = String(o.customerInfo?.phone || '').replace(/\D/g, '').slice(-10);
+      return { ...withStage(o), items: enrichItems(o, stockMap), reliability: rel.get(key) || null };
+    }),
     page, limit, total, pages: Math.ceil(total / limit) || 1,
   });
 }));
@@ -343,6 +359,89 @@ router.get('/facets', protect, adminOnly, asyncHandler(async (req, res) => {
   });
 }));
 
+/* ── VERIFICATION QUEUE — every order awaiting payment verification for 24h+,
+     oldest first. Backs the dedicated worklist (was: a passive alert). ────── */
+router.get('/verification-queue', protect, adminOnly, asyncHandler(async (req, res) => {
+  const cutoff = new Date(Date.now() - 24 * 3600000);
+  const orders = await Order.find({
+    status: { $nin: ['Cancelled', 'Refunded', 'Delivered'] },
+    $or: [
+      { paymentState: 'Pending' },
+      { paymentState: { $in: [null, ''] }, paymentStatus: 'Pending' },
+    ],
+    createdAt: { $lte: cutoff },
+  })
+    .sort({ createdAt: 1 })
+    .limit(200)
+    .select('orderNumber createdAt total status stage paymentMethod paymentState customerInfo.name customerInfo.phone customerInfo.city noAnswer cancelReason')
+    .lean();
+
+  // Reliability per customer (server-side, keyed by phone).
+  const phones = [...new Set(orders.map((o) => String(o.customerInfo?.phone || '').replace(/\D/g, '').slice(-10)).filter(Boolean))];
+  let rel = new Map();
+  if (phones.length) {
+    const hist = await Order.find({ 'customerInfo.phone': { $regex: new RegExp(`(${phones.join('|')})$`) } })
+      .select('customerInfo.phone status customerService').lean();
+    rel = reliabilityMap(hist);
+  }
+  const enriched = orders.map((o) => ({
+    ...o,
+    reliability: rel.get(String(o.customerInfo?.phone || '').replace(/\D/g, '').slice(-10)) || null,
+  }));
+
+  res.json({ orders: enriched, count: enriched.length });
+}));
+
+/* ── VERIFY ACTION — one endpoint for the Call Queue buttons. ─────────────── */
+router.patch('/:id/verify-action', protect, adminOnly, asyncHandler(async (req, res) => {
+  if (!isId(req.params.id)) return res.status(400).json({ message: 'Invalid order id' });
+  const { action } = req.body || {};
+  const order = await Order.findById(req.params.id);
+  if (!order) return res.status(404).json({ message: 'Order not found' });
+
+  if (action === 'verified') {
+    order.paymentState = 'Verified';
+    order.paymentVerifiedAt = new Date();
+    order.paymentVerifiedBy = req.user._id;
+    order.paymentExpiresAt = null;
+    order.noAnswer = { attempts: 0, lastAt: null };
+  } else if (action === 'no-answer') {
+    order.noAnswer = {
+      attempts: (order.noAnswer?.attempts || 0) + 1,
+      lastAt: new Date(),
+    };
+  } else if (action === 'cancel') {
+    const reason = String(req.body?.reason || '').trim() || 'Other';
+    order.cancelReason = reason;
+    const from = flow.stageFromLegacy(order);
+    const r = flow.applyStage(order, 'Cancelled', { note: `Cancelled from verification queue — ${reason}`, actor: req.user });
+    if (!r.ok) return res.status(400).json({ message: r.reason });
+    await flow.recordTransition(order, { from, to: 'Cancelled', note: `Verification queue — ${reason}`, actor: req.user });
+  } else {
+    return res.status(400).json({ message: 'Unknown action' });
+  }
+
+  await order.save();
+  res.json({ ok: true, noAnswer: order.noAnswer, paymentState: order.paymentState, status: order.status });
+}));
+
+/* ── CANCELLATION REASONS — ranked reasons over the window, for the
+     analytics widget + the "cancelled this week" alert. ───────────────────── */
+router.get('/cancellation-reasons', protect, adminOnly, asyncHandler(async (req, res) => {
+  const days = Math.min(365, Math.max(1, parseInt(req.query.days || '30', 10)));
+  const since = new Date(Date.now() - days * 86400000);
+  const rows = await Order.aggregate([
+    { $match: { status: { $in: ['Cancelled', 'Refunded'] }, updatedAt: { $gte: since } } },
+    { $group: { _id: { $ifNull: ['$cancelReason', 'Not specified'] }, count: { $sum: 1 } } },
+    { $sort: { count: -1 } },
+  ]);
+  const total = rows.reduce((n, r) => n + r.count, 0);
+  res.json({
+    reasons: rows.map((r) => ({ reason: r._id, count: r.count, pct: total ? Math.round((r.count / total) * 1000) / 10 : 0 })),
+    total,
+  });
+}));
+
 /* ── SINGLE ORDER (with timeline, payments, issues, prints) ───────────────── */
 router.get('/:id', protect, adminOnly, asyncHandler(async (req, res) => {
   if (!isId(req.params.id)) return res.status(400).json({ message: 'Invalid order id' });
@@ -353,26 +452,32 @@ router.get('/:id', protect, adminOnly, asyncHandler(async (req, res) => {
   const prods = pIds.length ? await Product.find({ _id: { $in: pIds } }).select('sku stock categorySlug').lean() : [];
   order.items = enrichItems(order, new Map(prods.map((p) => [String(p._id), p])));
 
-  const [timeline, payments, issues, prints] = await Promise.all([
+  const [timeline, payments, issues, prints, hist] = await Promise.all([
     OrderTimeline.find({ order: order._id }).sort({ createdAt: 1 }).lean(),
     OrderPayment.find({ order: order._id }).sort({ createdAt: -1 }).lean(),
     OrderIssue.find({ order: order._id }).sort({ createdAt: -1 }).lean(),
     OrderPrint.find({ order: order._id }).sort({ createdAt: -1 }).limit(50).lean(),
+    Order.find({ 'customerInfo.phone': order.customerInfo?.phone })
+      .select('customerInfo.phone status customerService').lean(),
   ]);
+  const reliability = reliabilityMap(hist).get(String(order.customerInfo?.phone || '').replace(/\D/g, '').slice(-10)) || null;
 
-  res.json({ order: withStage(order), timeline, payments, issues, prints });
+  res.json({ order: withStage(order), timeline, payments, issues, prints, reliability });
 }));
 
 /* ── STAGE TRANSITION ─────────────────────────────────────────────────────── */
 router.patch('/:id/stage', protect, adminOnly, asyncHandler(async (req, res) => {
   if (!isId(req.params.id)) return res.status(400).json({ message: 'Invalid order id' });
-  const { stage, note = '' } = req.body || {};
+  const { stage, note = '', cancelReason = '' } = req.body || {};
   const order = await Order.findById(req.params.id);
   if (!order) return res.status(404).json({ message: 'Order not found' });
 
   const from = flow.stageFromLegacy(order);
   const result = flow.applyStage(order, stage, { note, actor: req.user });
   if (!result.ok) return res.status(400).json({ message: result.reason, allowed: result.allowed });
+
+  // Cancellation reasons are captured for the analytics widget.
+  if (stage === 'Cancelled' && cancelReason) order.cancelReason = String(cancelReason).trim().slice(0, 80);
 
   await order.save();
   await flow.recordTransition(order, { from, to: stage, note, actor: req.user });

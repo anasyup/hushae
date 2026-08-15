@@ -5,8 +5,9 @@ import {
   MessageCircle, MoreHorizontal, Phone, Printer, Wallet,
 } from 'lucide-react';
 import { fmtDate, pkr } from '../../lib/format';
-import { paymentTone, PRINT_DOCS, stageTone, STAGE_MAP } from './orderConstants';
+import { CANCEL_REASONS, paymentTone, PRINT_DOCS, stageTone, STAGE_MAP } from './orderConstants';
 import QualityBadge from './QualityBadge';
+import ReliabilityBadge from '../ReliabilityBadge';
 
 /** Stock states that deserve a warning colour in the warehouse strip. */
 const STOCK_TONE = {
@@ -24,6 +25,7 @@ export default function OrderRow({
 }) {
   const [open, setOpen] = useState(false);
   const [menu, setMenu] = useState(false);
+  const [cancelMenu, setCancelMenu] = useState(false);
 
   const stage = o.stage || 'New';
   const tone = stageTone(stage);
@@ -94,6 +96,7 @@ export default function OrderRow({
               className="font-medium text-neutral-800 underline decoration-neutral-300 underline-offset-2 hover:decoration-neutral-900">
               {o.customerInfo?.name}
             </button>
+            <ReliabilityBadge reliability={o.reliability} compact />
             <span className="inline-flex items-center gap-1"><Phone size={11} />{o.customerInfo?.phone}</span>
             <span className="inline-flex items-center gap-1"><MapPin size={11} />{o.customerInfo?.city}</span>
             <span className="text-neutral-400">{fmtDate(o.createdAt)}</span>
@@ -165,10 +168,23 @@ export default function OrderRow({
                       <AlertTriangle size={12} className="text-amber-600" /> Log an issue
                     </button>
                     <div className="my-1 border-t border-neutral-100" />
-                    <button onClick={() => { onStage(o._id, 'Cancelled', 'Cancelled from order desk'); setMenu(false); }}
-                      className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-[12px] text-red-600 hover:bg-red-50">
-                      <Ban size={12} /> Cancel order
+                    <button onClick={() => { setCancelMenu((v) => !v); }}
+                      className="flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left text-[12px] text-red-600 hover:bg-red-50">
+                      <span className="inline-flex items-center gap-2"><Ban size={12} /> Cancel order</span>
+                      <ChevronDown size={11} />
                     </button>
+                    {cancelMenu && (
+                      <div className="px-2 pb-1">
+                        <p className="px-1 pb-1 pt-1 text-[11px] font-semibold uppercase tracking-wide text-neutral-400">Reason (required)</p>
+                        {CANCEL_REASONS.map((r) => (
+                          <button key={r}
+                            onClick={() => { onStage(o._id, 'Cancelled', r, r); setMenu(false); setCancelMenu(false); }}
+                            className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-[12px] text-neutral-700 hover:bg-neutral-100">
+                            {r}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </>
               )}

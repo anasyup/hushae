@@ -1,28 +1,30 @@
-// Admin panel theme — LIGHT ONLY.
+// Admin panel theme — LIGHT by default, dark as an explicit opt-in.
 //
-// The dark theme was removed at the merchant's request (2026-08-15). The
-// .dark-admin class is never applied, so the admin always renders in its
-// light palette on every device.
+// History: dark used to be the forced default, then the merchant asked to
+// remove it (2026-08-15). It now returns as a TOP-BAR TOGGLE (sun/moon) that
+// defaults to LIGHT on every device until the user opts into dark — so the
+// panel looks exactly as before until someone deliberately switches it.
+// The choice is stored in localStorage per device.
 //
-// The exported functions are kept so any existing imports keep working; the
-// storage key was bumped so a previously-saved "dark" preference on any
-// device is ignored and everyone lands on light.
+// .dark-admin is applied ONLY on admin routes — the storefront never changes.
 
-const KEY = 'vl_admin_theme_v2'; // bumped — ignores any stored 'dark' from before
+const KEY = 'vl_admin_theme';
+const isAdminPath = () => typeof window !== 'undefined' && /^\/admin/.test(window.location.pathname);
 
 export function getAdminTheme() {
-  return 'light';
+  try { return localStorage.getItem(KEY) || 'light'; } catch { return 'light'; }
 }
 
 export function applyAdminTheme() {
-  // Force light everywhere — dark theme removed.
-  if (typeof document !== 'undefined') document.documentElement.classList.remove('dark-admin');
+  const dark = isAdminPath() && getAdminTheme() === 'dark';
+  document.documentElement.classList.toggle('dark-admin', dark);
 }
 
-export function setAdminTheme() {
-  // No-op: only the light theme exists now. Kept for compatibility.
+export function setAdminTheme(t) {
+  try { localStorage.setItem(KEY, t); } catch { /* ignore */ }
+  applyAdminTheme();
 }
 
 export function clearAdminTheme() {
-  if (typeof document !== 'undefined') document.documentElement.classList.remove('dark-admin');
+  document.documentElement.classList.remove('dark-admin');
 }

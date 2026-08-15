@@ -28,11 +28,18 @@ const isId = (v) => mongoose.Types.ObjectId.isValid(String(v));
 router.get('/dashboard', protect, adminOnly, asyncHandler(async (req, res) => {
   const days = Math.min(365, Math.max(1, parseInt(req.query.days || '30', 10)));
   const since = new Date(Date.now() - days * 86400000);
+  const s = await Settings.findOne({ key: 'store' }).lean().catch(() => null);
+  const excl = s?.includeTestOrders ? {} : { isTestOrder: { $ne: true } };
+  // from/to (inclusive) override `days` when both are present (date-range picker).
+  const from = req.query.from ? new Date(req.query.from) : since;
+  const toQ = req.query.to ? new Date(req.query.to) : new Date();
+  toQ.setHours(23, 59, 59, 999);
+  const range = { createdAt: { $gte: from, $lte: toQ }, ...excl };
   const startOfDay = new Date(); startOfDay.setHours(0, 0, 0, 0);
   const weekAgo = new Date(Date.now() - 7 * 86400000);
   const monthAgo = new Date(Date.now() - 30 * 86400000);
 
-  const orders = await Order.find({ createdAt: { $gte: since } })
+  const orders = await Order.find(range)
     .select('total createdAt status stage paymentMethod paymentState paymentStatus stageTimestamps customerService customerInfo items verifiedByCall stageUpdatedAt updatedAt')
     .lean();
 

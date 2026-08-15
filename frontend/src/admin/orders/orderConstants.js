@@ -99,6 +99,16 @@ export const SORT_OPTIONS = [
 ];
 
 export const ISSUE_TYPES = ['Wrong Item', 'Damaged', 'Missing', 'Quality Issue', 'Late Delivery', 'Other'];
+/* Required dropdown when staff cancel an order — feeds the Cancellation
+   Reasons analytics widget. */
+export const CANCEL_REASONS = [
+  'Customer changed mind',
+  'Out of stock',
+  'Fake/spam order',
+  'Customer unreachable',
+  'Duplicate order',
+  'Other',
+];
 export const REFUND_STATES = ['No Issue', 'Refund Requested', 'Refund Approved', 'Refund Sent', 'Completed', 'Rejected'];
 export const RETURN_STATES = ['Not Required', 'Requested', 'Approved', 'Returned', 'Completed', 'Rejected'];
 export const CANCEL_STATES = ['No Cancellation', 'Requested', 'Approved', 'Cancelled', 'Rejected'];

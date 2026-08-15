@@ -40,6 +40,11 @@ const productSchema = new mongoose.Schema({
   // Never shown to customers. Only visible to admin.
   costPrice: { type: Number, default: 0, min: 0 },
   stock: { type: Number, required: true, min: 0, default: 0 },
+  /* Low-stock reorder workflow — 'pending' while a reorder is outstanding so
+     staff don't duplicate it; cleared by "mark received". */
+  reorderStatus: { type: String, default: '', enum: ['', 'pending'] },
+  reorderRequestedAt: { type: Date, default: null },
+  targetStock: { type: Number, default: null },   // null → Settings.reorderTargetStock
   images: { type: [imageSchema], validate: v => v.length >= 1 },
   video: { type: String, default: '' }, // optional product video (MP4 URL or YouTube link)
   shortDescription: { type: String, default: '' },

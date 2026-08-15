@@ -35,6 +35,8 @@ export default function SettingsAdmin() {
         hero: s.hero, trustBadges: s.trustBadges, shippingFlatRate: Number(s.shippingFlatRate),
         freeShippingThreshold: Number(s.freeShippingThreshold), paymentMethods: s.paymentMethods, theme: s.theme,
         offerBar: s.offerBar,
+        includeTestOrders: !!s.includeTestOrders,
+        reorderTargetStock: Number(s.reorderTargetStock) || 50,
       };
       await api('/settings', { method: 'PUT', token: auth.token, body });
       toast('Settings saved');
@@ -44,6 +46,16 @@ export default function SettingsAdmin() {
 
   return (
     <AdminLayout title="Store Settings">
+      <div className="rounded-2xl border border-neutral-200 bg-white mb-6 p-6">
+        <p className="mb-2 text-[12px] font-bold uppercase tracking-widest text-neutral-500">Analytics</p>
+        <div className="space-y-3">
+          <Toggle label="Include test orders in analytics (Revenue, Orders, AOV, Top Customers)" checked={!!s.includeTestOrders} onChange={(v) => set('includeTestOrders', v)} />
+          <div className="flex items-center justify-between gap-4">
+            <label className="text-sm text-neutral-600" htmlFor="target-stock">Reorder target stock level</label>
+            <input id="target-stock" type="number" min="1" value={s.reorderTargetStock ?? 50} onChange={(e) => set('reorderTargetStock', Number(e.target.value))} className="w-24 rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" />
+          </div>
+        </div>
+      </div>
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="rounded-2xl border border-neutral-200 bg-white space-y-5 p-6">
           <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-500">Store</p>

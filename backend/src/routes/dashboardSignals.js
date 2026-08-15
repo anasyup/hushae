@@ -20,16 +20,19 @@ const LIVE = { $nin: ['Cancelled', 'Refunded'] };
  * ------------------------------------------------------------------------- */
 router.get('/alerts', asyncHandler(async (req, res) => {
   const now = Date.now();
+  const s = await Settings.findOne({ key: 'store' }).lean().catch(() => null);
+  const excl = s?.includeTestOrders ? {} : { isTestOrder: { $ne: true } };
   const [pendingPay, live, lowStock, cancelledToday] = await Promise.all([
     Order.countDocuments({
       paymentState: 'Pending',
       status: LIVE,
       createdAt: { $lte: new Date(now - 24 * HOUR) },
+      ...excl,
     }),
-    Order.find({ status: LIVE }).select('stage stageUpdatedAt updatedAt createdAt').lean(),
+    Order.find({ status: LIVE, ...excl }).select('stage stageUpdatedAt updatedAt createdAt').lean(),
     Product.countDocuments({ isActive: true, status: { $ne: 'draft' }, stock: { $lte: 10 } }),
-    Order.find({ status: 'Cancelled', updatedAt: { $gte: new Date(now - 7 * DAY) } })
-      .select('orderNumber _id').limit(5).lean(),
+    Order.find({ status: 'Cancelled', updatedAt: { $gte: new Date(now - 7 * DAY) }, ...excl })
+      .select('orderNumber _id cancelReason').limit(5).lean(),
   ]);
 
   const stuck = live.filter((o) => {
@@ -45,9 +48,9 @@ router.get('/alerts', asyncHandler(async (req, res) => {
       id: 'payment-pending',
       severity: 'warning',
       title: `${pendingPay} order${pendingPay === 1 ? '' : 's'} pending payment verification 24h+`,
-      detail: 'Confirm by call or mark paid so they can move to packing.',
-      link: '/admin/orders?payment=pending',
-      cta: 'Verify now',
+      detail: 'Work through them one tap at a time in the verification queue.',
+      link: '/admin/verification-queue',
+      cta: 'Open queue',
     });
   }
   if (stuck > 0) {
@@ -87,8 +90,8 @@ router.get('/alerts', asyncHandler(async (req, res) => {
       severity: 'info',
       title: `${cancelledToday.length} order${cancelledToday.length === 1 ? '' : 's'} cancelled this week — review the reason`,
       detail: 'Repeat cancellations usually point at a fixable cause.',
-      link: '/admin/orders?stage=issues',
-      cta: 'Review',
+      link: '/admin#cancellation-reasons',
+      cta: 'View reasons',
     });
   }
 
@@ -103,11 +106,13 @@ router.get('/insights', asyncHandler(async (req, res) => {
   const start30 = new Date(now - 30 * DAY);
   const start7 = new Date(now - 7 * DAY);
   const prev7 = new Date(now - 14 * DAY);
+  const s = await Settings.findOne({ key: 'store' }).lean().catch(() => null);
+  const excl = s?.includeTestOrders ? {} : { isTestOrder: { $ne: true } };
 
   const [recent, prior] = await Promise.all([
-    Order.find({ createdAt: { $gte: start30 }, status: LIVE })
+    Order.find({ createdAt: { $gte: start30 }, status: LIVE, ...excl })
       .select('customerInfo.city total items createdAt stageTimestamps').lean(),
-    Order.find({ createdAt: { $gte: prev7, $lt: start7 }, status: LIVE })
+    Order.find({ createdAt: { $gte: prev7, $lt: start7 }, status: LIVE, ...excl })
       .select('items total createdAt stageTimestamps').lean(),
   ]);
 
@@ -265,9 +270,11 @@ router.get('/compare', asyncHandler(async (req, res) => {
     baseFrom = new Date(baseTo); baseFrom.setDate(baseFrom.getDate() - days + 1); baseFrom.setHours(0, 0, 0, 0);
   }
 
+  const s = await Settings.findOne({ key: 'store' }).lean().catch(() => null);
+  const excl = s?.includeTestOrders ? {} : { isTestOrder: { $ne: true } };
   const bucket = async (from, to) => {
     const r = await Order.aggregate([
-      { $match: { createdAt: { $gte: from, $lte: to }, status: LIVE } },
+      { $match: { createdAt: { $gte: from, $lte: to }, status: LIVE, ...excl } },
       { $group: { _id: null, revenue: { $sum: '$total' }, orders: { $sum: 1 } } },
     ]);
     const row = r[0] || { revenue: 0, orders: 0 };

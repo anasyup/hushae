@@ -133,8 +133,8 @@ export function useOrderDesk() {
     }
   }, [load, toast]);
 
-  const setStage = (id, stage, note = '') =>
-    act(id, () => api(`${BASE}/${id}/stage`, { method: 'PATCH', token, body: { stage, note } }),
+  const setStage = (id, stage, note = '', cancelReason = '') =>
+    act(id, () => api(`${BASE}/${id}/stage`, { method: 'PATCH', token, body: { stage, note, cancelReason } }),
       { successMsg: `Moved to ${stage}` });
 
   const verifyPayment = (id, state, extra = {}) =>

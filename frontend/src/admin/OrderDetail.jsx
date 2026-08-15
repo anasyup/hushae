@@ -10,6 +10,8 @@ import { api } from '../api/client';
 import { fmtDate, fmtDateTime, pkr } from '../lib/format';
 import AdminLayout from './AdminLayout';
 import Img from '../components/Img';
+import ReliabilityBadge from './ReliabilityBadge';
+import { CANCEL_REASONS } from './orders/orderConstants';
 
 /* ============================================================================
  * ORDER DETAIL — Shopify-style tabbed redesign. Phase 6.
@@ -32,9 +34,12 @@ export default function OrderDetail() {
   const [tab, setTab] = useState('items');
   const [err, setErr] = useState('');
   const [busy, setBusy] = useState(false);
+  const [reliability, setReliability] = useState(null);
+  const [cancelOpen, setCancelOpen] = useState(false);
+  const [cancelReason, setCancelReason] = useState('');
 
   const load = () => api(`/orders/admin/${id}`, { token: auth.token })
-    .then((d) => setO(d.order))
+    .then((d) => { setO(d.order); setReliability(d.reliability || null); })
     .catch((e) => { if (e?.status === 401) { logout(); return; } setErr('Could not load order.'); });
   useEffect(() => { load(); }, [id]);
 
@@ -99,10 +104,34 @@ export default function OrderDetail() {
         <Link to="/admin/orders" className="inline-flex items-center gap-1 rounded-lg border border-neutral-200 bg-white px-3 py-2 text-xs font-semibold text-neutral-600 transition hover:border-neutral-400"><ArrowLeft size={12} /> Back</Link>
 
         {/* Status dropdown */}
-        <select value={o.status} onChange={(e) => patch('/status', { status: e.target.value }, 'Status updated')} disabled={busy}
+        <select
+          value={o.status}
+          onChange={(e) => {
+            if (e.target.value === 'Cancelled') { setCancelOpen(true); setCancelReason(''); return; }
+            patch('/status', { status: e.target.value }, 'Status updated');
+          }}
+          disabled={busy}
           className={`cursor-pointer rounded-full border-0 px-3 py-2 text-[12px] font-bold uppercase tracking-wide outline-none ${statusPillClass(o.status)}`}>
           {STATUSES.map((s) => <option key={s}>{s}</option>)}
         </select>
+
+        {cancelOpen && (
+          <div className="flex flex-wrap items-center gap-2 rounded-full border border-red-200 bg-red-50 px-3 py-1.5">
+            <span className="text-[12px] font-semibold text-red-700">Cancel reason:</span>
+            <select value={cancelReason} onChange={(e) => setCancelReason(e.target.value)} className="rounded-md border border-red-200 bg-white px-2 py-1 text-[12px] outline-none">
+              <option value="">Select reason…</option>
+              {CANCEL_REASONS.map((r) => <option key={r} value={r}>{r}</option>)}
+            </select>
+            {cancelReason === 'Other' && <input value={cancelReason} onChange={(e) => setCancelReason(e.target.value)} placeholder="Describe…" className="rounded-md border border-red-200 bg-white px-2 py-1 text-[12px] outline-none" />}
+            <button
+              disabled={!cancelReason || busy}
+              onClick={() => { patch('/status', { status: 'Cancelled', cancelReason }, 'Order cancelled'); setCancelOpen(false); }}
+              className="rounded-full bg-red-600 px-3 py-1 text-[12px] font-semibold text-white transition hover:bg-red-700 disabled:opacity-50">
+              Confirm
+            </button>
+            <button onClick={() => setCancelOpen(false)} className="rounded-full px-2 py-1 text-[12px] font-semibold text-neutral-500 hover:text-neutral-900">✕</button>
+          </div>
+        )}
 
         {/* Payment dropdown */}
         <select value={o.paymentStatus} onChange={(e) => patch('/payment', { paymentStatus: e.target.value }, 'Payment updated')} disabled={busy}
@@ -303,7 +332,10 @@ export default function OrderDetail() {
             <div className="flex items-center gap-3 mb-3">
               <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-neutral-900 text-[12px] font-bold text-white">{(c.name || '?').slice(0, 1).toUpperCase()}</span>
               <div className="min-w-0">
-                <p className="text-[13px] font-semibold text-neutral-900 truncate">{c.name}</p>
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="text-[13px] font-semibold text-neutral-900 truncate">{c.name}</p>
+                  <ReliabilityBadge reliability={reliability} />
+                </div>
                 <p className="text-[12px] text-neutral-500">{c.city}</p>
               </div>
             </div>

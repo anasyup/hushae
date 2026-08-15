@@ -126,6 +126,7 @@ const Payments = lazy(() => import('./admin/Payments'));
 const OrdersDesk = lazy(() => import('./admin/orders/OrdersDesk'));
 const DraftOrder = lazy(() => import('./admin/orders/DraftOrder'));
 const OrderPrintDoc = lazy(() => import('./admin/orders/OrderPrintDoc'));
+const VerificationQueue = lazy(() => import('./admin/VerificationQueue'));
 /* Storefront suspense placeholder. EditorFallback is a full-height grey admin
    screen and would flash over the shop chrome. This reserves a reading column
    instead, which is what keeps CLS at zero on a CMS route. */
@@ -277,6 +278,7 @@ export default function App() {
           <Route path="/admin" element={<Suspense fallback={<EditorFallback />}><Dashboard /></Suspense>} />
           <Route path="/admin/live" element={<LiveView />} />
           <Route path="/admin/orders" element={<Suspense fallback={<EditorFallback />}><OrdersDesk /></Suspense>} />
+          <Route path="/admin/verification-queue" element={<Suspense fallback={<EditorFallback />}><VerificationQueue /></Suspense>} />
           <Route path="/admin/orders/new" element={<Suspense fallback={<EditorFallback />}><DraftOrder /></Suspense>} />
           <Route path="/admin/orders-legacy" element={<Orders />} />
           <Route path="/admin/orders/:id" element={<OrderDetail />} />

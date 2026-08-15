@@ -308,6 +308,31 @@ router.patch('/:id/stock', protect, adminOnly, asyncHandler(async (req, res) => 
   res.json({ product: p });
 }));
 
+/* ── REORDER workflow (low-stock) ────────────────────────────────────────── */
+router.patch('/:id/reorder', protect, adminOnly, asyncHandler(async (req, res) => {
+  const p = await Product.findByIdAndUpdate(
+    req.params.id,
+    { $set: { reorderStatus: 'pending', reorderRequestedAt: new Date() } },
+    { new: true }
+  ).select('_id name stock reorderStatus reorderRequestedAt targetStock');
+  if (!p) return res.status(404).json({ message: 'Product not found' });
+  res.json({ product: p });
+}));
+
+router.patch('/:id/reorder/received', protect, adminOnly, asyncHandler(async (req, res) => {
+  const { stock } = req.body || {};
+  const update = { $set: { reorderStatus: '', reorderRequestedAt: null } };
+  if (stock !== undefined) {
+    const n = Number(stock);
+    if (!Number.isFinite(n) || n < 0) return res.status(400).json({ message: 'Invalid stock value' });
+    update.$set.stock = n;
+  }
+  const p = await Product.findByIdAndUpdate(req.params.id, update, { new: true })
+    .select('_id name stock reorderStatus');
+  if (!p) return res.status(404).json({ message: 'Product not found' });
+  res.json({ product: p });
+}));
+
 router.put('/:id', protect, adminOnly, asyncHandler(async (req, res) => {
   const product = await Product.findById(req.params.id);
   if (!product) return res.status(404).json({ message: 'Product not found' });
@@ -315,7 +340,7 @@ router.put('/:id', protect, adminOnly, asyncHandler(async (req, res) => {
   const fields = ['name', 'sku', 'gender', 'category', 'categorySlug', 'tier', 'price', 'compareAtPrice',
     'costPrice', 'stock', 'images', 'video', 'shortDescription', 'description', 'sizes', 'colors', 'fabric', 'badges', 'tags',
     'care', 'isFeatured', 'isBestSeller', 'isNewArrival', 'isActive', 'status', 'ratingAvg', 'ratingCount', 'bundleSlug',
-    'onSale', 'saleStart', 'saleEnd'];
+    'onSale', 'saleStart', 'saleEnd', 'targetStock'];
   fields.forEach((f) => { if (b[f] !== undefined) product[f] = b[f]; });
   if (b.slug) product.slug = slugify(b.slug);
   await product.save();

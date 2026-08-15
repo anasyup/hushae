@@ -6,6 +6,11 @@ const settingsSchema = new mongoose.Schema({
   tagline: { type: String, default: 'Second Skin, First Choice.' },
   contactEmail: { type: String, default: 'care@hushae.pk' },
   contactPhone: { type: String, default: '0319 8459984' },
+  /* Include admin/staff test orders in analytics. Default OFF — test orders
+     would otherwise inflate Revenue, Orders, AOV, Top Customers, etc. */
+  includeTestOrders: { type: Boolean, default: false },
+  /* Target stock level used by the low-stock "Reorder" suggestion. */
+  reorderTargetStock: { type: Number, default: 50 },
   // ==========================================================================
   // HEADER — logo block + fully editable main menu
   // ==========================================================================

@@ -120,7 +120,8 @@ router.put('/', protect, adminOnly, asyncHandler(async (req, res) => {
   const oldValue = s.toObject ? s.toObject() : {};
   ['storeName', 'tagline', 'contactEmail', 'contactPhone', 'hero', 'trustBadges',
     'shippingFlatRate', 'freeShippingThreshold', 'cart', 'checkout', 'account', 'customerExperience', 'reviews', 'loyalty', 'paymentMethods', 'theme', 'offerBar', 'integrations', 'storefrontLock', 'cookiePopup', 'media', 'marquee', 'promoPopup', 'faq', 'operatingCosts', 'signatureSplit', 'productSections', 'header', 'footer', 'cms',
-    'monthlyRevenueGoal', 'marginThresholdPercent', 'automation'].forEach((f) => {
+    'monthlyRevenueGoal', 'marginThresholdPercent', 'automation',
+    'includeTestOrders', 'reorderTargetStock'].forEach((f) => {
     if (b[f] !== undefined) s[f] = b[f];
   });
   await s.save();

@@ -20,6 +20,11 @@ import Img from '../components/Img';
 import AlertsBar from './dashboard/AlertsBar';
 import GoalTracker from './dashboard/GoalTracker';
 import InsightsCard from './dashboard/InsightsCard';
+import RangePicker, { resolvePreset } from './dashboard/RangePicker';
+import CancellationReasons from './dashboard/CancellationReasons';
+import AbandonedCartsWidget from './dashboard/AbandonedCartsWidget';
+import ReorderModal from './dashboard/ReorderModal';
+import ReliabilityBadge from './ReliabilityBadge';
 import { exportDashboardSummary } from './dashboard/exportSummary';
 
 /* ============================================================================
@@ -35,12 +40,6 @@ import { exportDashboardSummary } from './dashboard/exportSummary';
  *   Row 7: Today activity + Best sellers
  *   Row 8: Recent orders (2/3) + Low stock + Top customers (1/3)
  * ========================================================================== */
-
-const COMPARE_MODES = [
-  { key: 'prev', label: 'vs previous 30 days' },
-  { key: 'last-month', label: 'vs same period last month' },
-  { key: 'last-year', label: 'vs same period last year' },
-];
 
 /* Per-widget error boundary — a chart that throws (bad data, library hiccup)
    degrades to a small retry card instead of blanking the whole dashboard. */
@@ -158,7 +157,7 @@ function ProfitTile({ icon: Icon, label, value, change, tone = 'neutral', format
   );
 }
 
-function StockRow({ product: p, onSaved }) {
+function StockRow({ product: p, onSaved, onReorder }) {
   const { auth, toast } = useApp();
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState(String(p.stock));
@@ -183,6 +182,11 @@ function StockRow({ product: p, onSaved }) {
     <div className="group flex items-center gap-3 rounded-lg p-1.5 transition hover:bg-neutral-50">
       <Link to={`/admin/products/${p._id}`} className="flex min-w-0 flex-1 items-center gap-3"><Img src={p.images?.[0]?.url} alt="" className="h-10 w-8 shrink-0 rounded-md border border-neutral-200 object-cover" /><span className="line-clamp-2 flex-1 text-[12px] font-medium text-neutral-800">{p.name}</span></Link>
       <button onClick={() => { setValue(String(p.stock)); setEditing(true); }} title="Update stock" className={`pill shrink-0 transition hover:ring-2 hover:ring-neutral-300 ${p.stock === 0 ? 'bg-red-100 text-red-800' : 'bg-red-50 text-red-700'}`}>{p.stock} ✎</button>
+      {p.reorderStatus === 'pending' ? (
+        <button onClick={() => onReorder?.(p)} title="Reorder pending — tap to mark received" className="pill shrink-0 bg-amber-100 text-amber-800 transition hover:ring-2 hover:ring-amber-300">Reorder pending</button>
+      ) : (
+        <button onClick={() => onReorder?.(p)} title="Reorder" className="pill shrink-0 bg-neutral-900 text-white transition hover:bg-neutral-800">Reorder</button>
+      )}
     </div>
   );
 }
@@ -315,15 +319,43 @@ export default function Dashboard() {
   const [alerts, setAlerts] = useState(null);
   const [smart, setSmart] = useState(null);
   const [goal, setGoal] = useState(null);
-  const [compareMode, setCompareMode] = useState('prev');
-  const [compare, setCompare] = useState(null);
+  const [reorder, setReorder] = useState(null);
+
+  /* Date range — persisted to localStorage + URL query params so a refresh
+     never resets the selection. Defaults to the last 30 days. */
+  const [range, setRange] = useState(() => {
+    try {
+      const sp = new URLSearchParams(window.location.search);
+      const fromQ = sp.get('from'); const toQ = sp.get('to');
+      if (fromQ && toQ) return { preset: 'custom', from: fromQ, to: toQ };
+      const saved = JSON.parse(localStorage.getItem('hushae.dashRange') || 'null');
+      if (saved?.preset && saved.preset !== 'custom') {
+        const r = resolvePreset(saved.preset);
+        if (r) return { preset: saved.preset, from: r.from, to: r.to };
+      }
+      if (saved?.preset === 'custom' && saved.from && saved.to) return saved;
+    } catch { /* ignore */ }
+    const r = resolvePreset('30d');
+    return { preset: '30d', from: r.from, to: r.to };
+  });
+
+  const applyRange = (r) => {
+    setRange(r);
+    try { localStorage.setItem('hushae.dashRange', JSON.stringify(r)); } catch { /* ignore */ }
+    const sp = new URLSearchParams(window.location.search);
+    if (r.preset === 'custom') { sp.set('from', r.from); sp.set('to', r.to); }
+    else { sp.delete('from'); sp.delete('to'); }
+    const q = sp.toString();
+    window.history.replaceState(null, '', `${window.location.pathname}${q ? `?${q}` : ''}`);
+  };
 
   const load = async (silent = false) => {
     if (!silent) setRefreshing(true);
     try {
+      const qs = `from=${range.from}&to=${range.to}`;
       const [data, ins, al, sm, gl] = await Promise.all([
-        api('/admin/dashboard', { token: auth.token }),
-        api('/orders/insights/dashboard?days=30', { token: auth.token }).catch(() => null),
+        api(`/admin/dashboard?${qs}`, { token: auth.token }),
+        api(`/orders/insights/dashboard?${qs}`, { token: auth.token }).catch(() => null),
         api('/dashboard/alerts', { token: auth.token }).catch(() => null),
         api('/dashboard/insights', { token: auth.token }).catch(() => null),
         api('/dashboard/goal', { token: auth.token }).catch(() => null),
@@ -334,9 +366,8 @@ export default function Dashboard() {
     setRefreshing(false);
   };
 
-  useEffect(() => { load(); }, [auth]);
-  useEffect(() => { if (!auth?.token) return; api(`/dashboard/compare?mode=${compareMode}&days=30`, { token: auth.token }).then(setCompare).catch(() => setCompare(null)); }, [auth?.token, compareMode]);
-  useEffect(() => { if (!auth?.token) return; const t = setInterval(() => load(true), 30000); return () => clearInterval(t); }, [auth]);
+  useEffect(() => { load(); /* eslint-disable-next-line */ }, [auth, range]);
+  useEffect(() => { if (!auth?.token) return; const t = setInterval(() => load(true), 30000); return () => clearInterval(t); }, [auth, range]);
 
   if (err) return <AdminLayout title="Dashboard"><div className="mx-auto grid max-w-md place-items-center rounded-2xl border border-red-200 bg-red-50 p-10 text-center"><AlertTriangle size={22} className="mb-2 text-red-600" /><p className="text-sm text-red-700">{err}</p><button onClick={() => { setErr(''); load(); }} className="mt-4 rounded-full border border-red-300 bg-white px-4 py-1.5 text-[12px] font-semibold text-red-700 hover:bg-red-100">Try again</button></div></AdminLayout>;
   if (!d) return <AdminLayout title="Dashboard"><div className="grid gap-4 md:grid-cols-5">{[1,2,3,4,5].map((i) => <div key={i} className="animate-pulse rounded-xl bg-neutral-100 h-32 rounded-2xl" />)}</div><div className="mt-6 skeleton h-72 rounded-2xl" /></AdminLayout>;
@@ -347,8 +378,7 @@ export default function Dashboard() {
   const sparkAov = d.chart.map((x) => ({ v: x.orders ? x.revenue / x.orders : 0 }));
 
   const greeting = (() => { const h = new Date().getHours(); if (h < 12) return 'Good morning'; if (h < 17) return 'Good afternoon'; return 'Good evening'; })();
-  const cmpLabel = compare?.hasBaseline ? compare.label : compare && !compare.hasBaseline ? `${compare.label} — no data` : 'vs. previous 30 days';
-  const cmpChange = (key, fallback) => (compare?.hasBaseline ? compare.change[key] ?? fallback : fallback);
+  const cmpLabel = 'vs previous period';
 
   return (
     <AdminLayout title="Dashboard">
@@ -360,27 +390,20 @@ export default function Dashboard() {
         <div className="flex flex-wrap items-center gap-2">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1.5 text-[12px] font-semibold text-emerald-700 ring-1 ring-emerald-200"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />Live{lastSync ? ` · ${lastSync.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : ''}</span>
           <span className="hidden items-center gap-1.5 rounded-full bg-neutral-100 px-3 py-1.5 text-[12px] font-semibold text-neutral-600 sm:inline-flex"><Calendar size={12} /> {new Date().toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long' })}</span>
+          <RangePicker value={range} onChange={applyRange} />
           <button onClick={() => load()} disabled={refreshing} className="inline-flex min-h-[34px] items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-50"><RefreshCw size={12} className={refreshing ? 'animate-spin' : ''} /> Refresh</button>
-          <button onClick={() => exportDashboardSummary({ d, goal, alerts, insights: smart, storeName: 'HUSHAE', compareLabel: compare?.label || '' })} className="inline-flex min-h-[34px] items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50"><Download size={12} /> Export</button>
+          <button onClick={() => exportDashboardSummary({ d, goal, alerts, insights: smart, storeName: 'HUSHAE', compareLabel: cmpLabel })} className="inline-flex min-h-[34px] items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50"><Download size={12} /> Export</button>
         </div>
       </div>
 
       <AlertsBar alerts={alerts} />
 
-      {/* ── Compare selector ───────────────────────────────────────────── */}
-      <div className="mb-4 flex items-center justify-end">
-        <label className="flex items-center gap-2 text-[12px] font-semibold text-neutral-500">
-          <span className="hidden sm:inline">Compare</span>
-          <select value={compareMode} onChange={(e) => setCompareMode(e.target.value)} className="min-h-[34px] rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-[12px] font-semibold text-neutral-700 outline-none transition hover:bg-neutral-50 focus:border-neutral-900">{COMPARE_MODES.map((m) => <option key={m.key} value={m.key}>{m.label}</option>)}</select>
-        </label>
-      </div>
-
       {/* ── Row 2: KPI Cards + Quick Actions ───────────────────────────── */}
       <div className="mb-6 grid gap-4 md:grid-cols-5">
-        <KpiCard icon={CircleDollarSign} label="Revenue (30d)" value={d.kpis.revenue.value} change={cmpChange('revenue', d.kpis.revenue.change)} sparkData={sparkRevenue} accent="#059669" format="money" to="/admin/analytics" compareLabel={cmpLabel} />
-        <KpiCard icon={ShoppingBag} label="Orders (30d)" value={d.kpis.orders.value} change={cmpChange('orders', d.kpis.orders.change)} sparkData={sparkOrders} accent="#2563eb" to="/admin/orders" compareLabel={cmpLabel} />
-        <KpiCard icon={Users} label="New Customers" value={d.kpis.customers.value} change={d.kpis.customers.change} sparkData={sparkCustomers} accent="#7c3aed" to="/admin/customers" compareLabel="new in the last 30 days" />
-        <KpiCard icon={TrendingUp} label="Avg Order Value" value={d.kpis.aov.value} change={cmpChange('aov', d.kpis.aov.change)} sparkData={sparkAov} accent="#dc2626" format="money" to="/admin/analytics" compareLabel={cmpLabel} />
+        <KpiCard icon={CircleDollarSign} label="Revenue" value={d.kpis.revenue.value} change={d.kpis.revenue.change} sparkData={sparkRevenue} accent="#059669" format="money" to="/admin/analytics" compareLabel={cmpLabel} />
+        <KpiCard icon={ShoppingBag} label="Orders" value={d.kpis.orders.value} change={d.kpis.orders.change} sparkData={sparkOrders} accent="#2563eb" to="/admin/orders" compareLabel={cmpLabel} />
+        <KpiCard icon={Users} label="New Customers" value={d.kpis.customers.value} change={d.kpis.customers.change} sparkData={sparkCustomers} accent="#7c3aed" to="/admin/customers" compareLabel="in the selected period" />
+        <KpiCard icon={TrendingUp} label="Avg Order Value" value={d.kpis.aov.value} change={d.kpis.aov.change} sparkData={sparkAov} accent="#dc2626" format="money" to="/admin/analytics" compareLabel={cmpLabel} />
         <QuickActions />
       </div>
 
@@ -431,6 +454,12 @@ export default function Dashboard() {
         </div>
       )}
 
+      {/* ── Row 7b: Cancellation reasons + Abandoned carts ─────────────── */}
+      <div id="cancellation-reasons" className="mb-6 grid scroll-mt-24 gap-4 lg:grid-cols-2">
+        <CancellationReasons reasons={d.cancellationReasons || []} />
+        <AbandonedCartsWidget />
+      </div>
+
       {/* ── Row 8: Today activity + Best sellers ───────────────────────── */}
       <div className="mb-6 grid gap-6 lg:grid-cols-2">
         <ChartBoundary><TodayHourly hourly={d.hourly} /></ChartBoundary>
@@ -468,16 +497,18 @@ export default function Dashboard() {
         <div className="space-y-6">
           <div className="rounded-2xl border border-neutral-200 bg-white p-6">
             <div className="mb-3 flex items-center justify-between"><p className="flex items-center gap-2 text-[12px] font-bold uppercase tracking-widest text-neutral-500"><AlertTriangle size={13} className="text-red-500" /> Low stock (≤ 10)</p><Link to="/admin/products" className="text-[12px] font-semibold text-neutral-500 hover:text-neutral-900">Manage</Link></div>
-            {d.lowStock.length === 0 ? <p className="py-6 text-center text-sm text-neutral-400">All stocked up.</p> : <div className="space-y-1">{d.lowStock.slice(0, 5).map((p) => <StockRow key={p._id} product={p} onSaved={() => load(true)} />)}</div>}
+            {d.lowStock.length === 0 ? <p className="py-6 text-center text-sm text-neutral-400">All stocked up.</p> : <div className="space-y-1">{d.lowStock.slice(0, 5).map((p) => <StockRow key={p._id} product={p} onSaved={() => load(true)} onReorder={setReorder} />)}</div>}
           </div>
           <div className="rounded-2xl border border-neutral-200 bg-white p-6">
             <div className="mb-3 flex items-center justify-between"><p className="text-[12px] font-bold uppercase tracking-widest text-neutral-500">Top customers</p><Link to="/admin/customers" className="text-[12px] font-semibold text-neutral-500 hover:text-neutral-900">All</Link></div>
             {d.topCustomers.length === 0 ? <p className="py-6 text-center text-sm text-neutral-400">No customer data yet.</p> : <div className="space-y-3">{d.topCustomers.map((c, i) => (
-              <div key={c.phone + i} className="flex items-center gap-3"><span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-neutral-900 text-[12px] font-semibold text-white">{(c.name || '?').slice(0, 1).toUpperCase()}</span><div className="min-w-0 flex-1"><p className="truncate text-[12px] font-semibold text-neutral-900">{c.name}</p><p className="truncate text-[13px] text-neutral-500">{c.city} · {c.orders} order{c.orders === 1 ? '' : 's'}</p></div><p className="font-sans text-[13px] font-semibold tabular-nums text-neutral-900">{pkr(c.spent)}</p></div>
+              <div key={c.phone + i} className="flex items-center gap-3"><span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-neutral-900 text-[12px] font-semibold text-white">{(c.name || '?').slice(0, 1).toUpperCase()}</span><div className="min-w-0 flex-1"><div className="flex items-center gap-2"><p className="truncate text-[12px] font-semibold text-neutral-900">{c.name}</p><ReliabilityBadge reliability={c.reliability} compact /></div><p className="truncate text-[13px] text-neutral-500">{c.city} · {c.orders} order{c.orders === 1 ? '' : 's'}</p></div><p className="font-sans text-[13px] font-semibold tabular-nums text-neutral-900">{pkr(c.spent)}</p></div>
             ))}</div>}
           </div>
         </div>
       </div>
+
+      {reorder && <ReorderModal product={reorder} onClose={() => setReorder(null)} onSaved={() => load(true)} />}
     </AdminLayout>
   );
 }

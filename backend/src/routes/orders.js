@@ -490,16 +490,21 @@ router.get('/admin', protect, adminOnly, asyncHandler(async (req, res) => {
 router.get('/admin/:id', protect, adminOnly, asyncHandler(async (req, res) => {
   const order = await Order.findById(req.params.id);
   if (!order) return res.status(404).json({ message: 'Order not found' });
-  res.json({ order });
+  const { reliabilityMap } = require('../utils/customerReliability');
+  const hist = await Order.find({ 'customerInfo.phone': order.customerInfo?.phone })
+    .select('customerInfo.phone status customerService').lean();
+  const reliability = reliabilityMap(hist).get(String(order.customerInfo?.phone || '').replace(/\D/g, '').slice(-10)) || null;
+  res.json({ order, reliability });
 }));
 
 router.patch('/admin/:id/status', protect, adminOnly, asyncHandler(async (req, res) => {
-  const { status, note = '' } = req.body || {};
+  const { status, note = '', cancelReason = '' } = req.body || {};
   if (!Order.STATUSES.includes(status)) return res.status(400).json({ message: 'Invalid status' });
   const order = await Order.findById(req.params.id);
   if (!order) return res.status(404).json({ message: 'Order not found' });
   const prevStatus = order.status;
   order.status = status;
+  if (status === 'Cancelled' && cancelReason) order.cancelReason = String(cancelReason).trim().slice(0, 80);
   order.statusHistory.push({ status, note: String(note).slice(0, 200) });
   await order.save();
 

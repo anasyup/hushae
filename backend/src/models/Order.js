@@ -176,6 +176,23 @@ const orderSchema = new mongoose.Schema({
   /** Free-text owner: a packer, a courier desk, whoever. */
   assignedTo: { type: String, default: '' },
 
+  /* Test order — set manually, or auto-set when a staff member places an
+     order while signed in. Excluded from every analytics widget by default
+     (Settings → includeTestOrders re-includes them). */
+  isTestOrder: { type: Boolean, default: false, index: true },
+
+  /* Why this order was cancelled — captured by the required dropdown when
+     staff cancel. Feeds the Cancellation Reasons analytics widget. */
+  cancelReason: { type: String, default: '' },
+
+  /* Call-queue verification attempts — each "No Answer" click increments the
+     counter and stamps the time; 3+ auto-flags the order for review. */
+  noAnswer: {
+    attempts: { type: Number, default: 0 },
+    lastAt: { type: Date, default: null },
+    _id: false,
+  },
+
   /** Set when an order was created or actioned as part of a bulk run. */
   isBulkOrder: { type: Boolean, default: false },
   lastBulkBatchId: { type: String, default: '' },

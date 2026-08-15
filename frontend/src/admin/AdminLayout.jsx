@@ -2,11 +2,11 @@ import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, NavLink, Navigate, useLocation } from 'react-router-dom';
 import {
   Activity, BadgePercent, BarChart3, ImagePlus, ChevronDown, Command, CreditCard, FileText, FolderOpen, Globe, Home,
-  LayoutTemplate, LogOut, Mail, Megaphone, Menu, MessageSquare, Package, PackageX, Plus,
-  Search, Settings as SettingsIcon, ShieldCheck, ShoppingBag, Signpost, Sparkles, Star, Store, Tags, TrendingUp, Truck, Users, X, Zap,
+  LayoutTemplate, LogOut, Mail, Megaphone, Menu, MessageSquare, Package, PackageX, Phone, Plus,
+  Search, Settings as SettingsIcon, ShieldCheck, ShoppingBag, Signpost, Sparkles, Star, Store, Sun, Moon, Tags, TrendingUp, Truck, Users, X, Zap,
 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
-import { applyAdminTheme, clearAdminTheme } from '../lib/adminTheme';
+import { applyAdminTheme, clearAdminTheme, getAdminTheme, setAdminTheme } from '../lib/adminTheme';
 import ProfitCalculator from './ProfitCalculator';
 import NotificationBell from './dashboard/NotificationBell';
 import CommandPalette from './CommandPalette';
@@ -34,9 +34,10 @@ const NAV_TOP = [
 const NAV_GROUPS = [
   {
     key: 'orders', label: 'Orders', icon: ShoppingBag,
-    match: ['/admin/orders', '/admin/payments', '/admin/abandoned-carts'],
+    match: ['/admin/orders', '/admin/payments', '/admin/abandoned-carts', '/admin/verification-queue'],
     children: [
       { to: '/admin/orders',           label: 'All orders',         icon: ShoppingBag },
+      { to: '/admin/verification-queue', label: 'Verification queue', icon: Phone },
       { to: '/admin/payments',         label: 'Payments',           icon: CreditCard },
       { to: '/admin/abandoned-carts',  label: 'Abandoned carts',    icon: PackageX },
     ],
@@ -273,6 +274,8 @@ function TopBar({ title, auth, onCmdK }) {
   const loc = useLocation();
   const [createOpen, setCreateOpen] = useState(false);
   const createRef = useRef(null);
+  const [dark, setDark] = useState(() => getAdminTheme() === 'dark');
+  const toggleDark = () => { const next = !dark; setDark(next); setAdminTheme(next ? 'dark' : 'light'); };
   const role = auth?.user?.role;
   const canCreate = !role || role === 'admin' || role === 'Owner' || role === 'Manager';
   useEffect(() => {
@@ -299,6 +302,10 @@ function TopBar({ title, auth, onCmdK }) {
           <span className="hidden items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-[15px] font-semibold text-neutral-600 lg:inline-flex"><span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />Store online</span>
           {canCreate && <div className="relative" ref={createRef}><button onClick={() => setCreateOpen((v) => !v)} className="inline-flex items-center gap-1 rounded-full bg-neutral-900 px-3 py-1.5 text-[15px] font-semibold text-white transition hover:bg-neutral-800"><Plus size={12} /> Create</button>{createOpen && <div className="absolute right-0 top-full z-30 mt-1 w-56 rounded-xl border border-neutral-200 bg-white py-1 shadow-lg"><Link to="/admin/products/new" onClick={() => setCreateOpen(false)} className="flex items-center gap-2.5 px-3.5 py-2 text-[13px] font-medium text-neutral-700 transition hover:bg-neutral-50"><Package size={13} className="text-neutral-400" /> New product</Link><Link to="/admin/promotions/new" onClick={() => setCreateOpen(false)} className="flex items-center gap-2.5 px-3.5 py-2 text-[13px] font-medium text-neutral-700 transition hover:bg-neutral-50"><Megaphone size={13} className="text-neutral-400" /> New promotion</Link><Link to="/admin/discounts" onClick={() => setCreateOpen(false)} className="flex items-center gap-2.5 px-3.5 py-2 text-[13px] font-medium text-neutral-700 transition hover:bg-neutral-50"><BadgePercent size={13} className="text-neutral-400" /> New discount</Link><Link to="/admin/cms/new" onClick={() => setCreateOpen(false)} className="flex items-center gap-2.5 px-3.5 py-2 text-[13px] font-medium text-neutral-700 transition hover:bg-neutral-50"><FileText size={13} className="text-neutral-400" /> New page</Link><Link to="/admin/blog/new" onClick={() => setCreateOpen(false)} className="flex items-center gap-2.5 px-3.5 py-2 text-[13px] font-medium text-neutral-700 transition hover:bg-neutral-50"><FileText size={13} className="text-neutral-400" /> New blog article</Link></div>}</div>}
           <Link to="/" target="_blank" className="hidden items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-[15px] font-semibold text-neutral-600 transition hover:border-neutral-400 hover:text-neutral-900 md:inline-flex" title="Open storefront"><Globe size={12} /> View store</Link>
+          {/* Theme toggle — light default, dark opt-in (sun/moon) */}
+          <button onClick={toggleDark} aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'} title={dark ? 'Switch to light mode' : 'Switch to dark mode'} className="hidden items-center justify-center rounded-full border border-neutral-200 bg-white p-2 text-neutral-500 transition hover:border-neutral-400 hover:text-neutral-900 md:inline-flex">
+            {dark ? <Sun size={13} /> : <Moon size={13} />}
+          </button>
           <NotificationBell />
           <div className="ml-1 flex items-center gap-2 rounded-full border border-neutral-200 bg-white p-1 pl-1 pr-3"><span className="grid h-7 w-7 place-items-center rounded-full bg-neutral-900 text-[13px] font-bold text-white">{initials}</span><span className="text-[15px] font-semibold text-neutral-800">{auth?.user?.name?.split(' ')[0] || 'Admin'}</span></div>
         </div>
