@@ -25,9 +25,12 @@ export default function InsightsCard({ insights }) {
           <Icon size={16} className="text-amber-300" />
         </span>
         <div className="min-w-0 flex-1">
-          <p className="text-[13px] font-bold uppercase tracking-widest text-neutral-400">Smart insight</p>
+          {/* text-gray-400 (#9CA3AF) passes 7.44:1 on this near-black card —
+              text-neutral-400 was darkened globally for light cards and would
+              fail (3.91:1) on #111. */}
+          <p className="text-[13px] font-bold uppercase tracking-widest text-gray-400">Smart insight</p>
           <p className="mt-1.5 text-[13.5px] font-medium leading-relaxed text-neutral-50">{cur.text}</p>
-          {cur.hint && <p className="mt-1.5 text-[13px] leading-relaxed text-neutral-400">{cur.hint}</p>}
+          {cur.hint && <p className="mt-1.5 text-[13px] leading-relaxed text-gray-400">{cur.hint}</p>}
         </div>
       </div>
 

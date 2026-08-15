@@ -4,7 +4,7 @@ const Product = require('../models/Product');
 const User = require('../models/User');
 const Subscriber = require('../models/Subscriber');
 const { protect, adminOnly } = require('../middleware/auth');
-const { asyncHandler } = require('../utils/helpers');
+const { asyncHandler, growthPct } = require('../utils/helpers');
 
 const router = express.Router();
 router.use(protect, adminOnly);
@@ -106,10 +106,9 @@ router.get('/dashboard', asyncHandler(async (req, res) => {
   const curProfit = (cur.revenue || 0) - (cur.cost || 0);
   const prevProfit = (prev.revenue || 0) - (prev.cost || 0);
 
-  const pctChange = (a, b) => {
-    if (!b) return a > 0 ? 100 : 0;
-    return Math.round(((a - b) / b) * 1000) / 10;
-  };
+  // Growth % for the KPI cards — returns null (not a fake 100%) when the
+  // previous period is zero. See utils/helpers.growthPct.
+  const pctChange = (a, b) => growthPct(a, b);
 
   // Fill 14 days series with zeros for gaps
   const dayMap = Object.fromEntries(dailySeries.map((d) => [d._id, d]));
@@ -149,7 +148,7 @@ router.get('/dashboard', asyncHandler(async (req, res) => {
     kpis: {
       revenue:      { value: cur.revenue,   prev: prev.revenue,   change: pctChange(cur.revenue, prev.revenue) },
       orders:       { value: cur.orders,    prev: prev.orders,    change: pctChange(cur.orders, prev.orders) },
-      customers:    { value: newCustomers30, prev: 0,             change: 0 },
+      customers:    { value: newCustomers30, prev: 0,             change: null },
       aov:          { value: cur.orders ? Math.round(cur.revenue / cur.orders) : 0,
                       prev:  prev.orders ? Math.round(prev.revenue / prev.orders) : 0,
                       change: pctChange(
@@ -160,7 +159,7 @@ router.get('/dashboard', asyncHandler(async (req, res) => {
       cost:         { value: cur.cost || 0, prev: prev.cost || 0, change: pctChange(cur.cost, prev.cost) },
       margin:       { value: cur.revenue > 0 ? Math.round((curProfit / cur.revenue) * 1000) / 10 : 0,
                       prev:  prev.revenue > 0 ? Math.round((prevProfit / prev.revenue) * 1000) / 10 : 0,
-                      change: 0 },
+                      change: null },
     },
     chart,       // 14 days [{ date, label, orders, revenue }]
     hourly,      // 24 hours today

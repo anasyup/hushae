@@ -23,7 +23,13 @@
   --n100: 245 245 245;
   --n200: 235 235 235;   /* borders #EBEBEB */
   --n300: 220 220 220;
-  --n400: 170 170 170;
+  /* #6B7280 (was #AAAAAA) — WCAG AA fix. #AAAAAA measured 2.32:1 on white,
+     below the 4.5:1 floor for the 12-13px secondary text that uses
+     text-neutral-400 (KPI compare labels, payment method, empty states).
+     #6B7280 = 4.83:1 on white / 4.63:1 on #FAFAFA. Exception: the dark
+     "Smart insight" card uses text-gray-400 (#9CA3AF) instead — a single
+     gray cannot pass on both white and near-black. */
+  --n400: 107 114 128;
   --n500: 112 112 112;   /* CDLP gray #707070 */
   --n600: 112 112 112;
   --n700: 90 90 90;

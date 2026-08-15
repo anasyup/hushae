@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useState } from 'react';
+import { Component, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Activity, AlertTriangle, ArrowDownRight, ArrowUpRight, BadgePercent, Box,
   Calendar, ChevronRight, CircleDollarSign, Clock, Download, Megaphone,
-  Package, PackagePlus, RefreshCw, ShoppingBag, Sparkles,
+  MessageCircle, Package, PackagePlus, RefreshCw, ShoppingBag, Sparkles,
   TrendingUp, Truck, Users, Zap,
 } from 'lucide-react';
 import {
@@ -42,6 +42,45 @@ const COMPARE_MODES = [
   { key: 'last-year', label: 'vs same period last year' },
 ];
 
+/* Per-widget error boundary — a chart that throws (bad data, library hiccup)
+   degrades to a small retry card instead of blanking the whole dashboard. */
+class ChartBoundary extends Component {
+  constructor(props) { super(props); this.state = { failed: false }; }
+  static getDerivedStateFromError() { return { failed: true }; }
+  componentDidCatch(e) { console.error('Chart render error:', e); }
+  render() {
+    if (this.state.failed) {
+      return (
+        <div className="grid min-h-[160px] place-items-center rounded-2xl border border-neutral-200 bg-white p-6 text-center" role="alert">
+          <div>
+            <p className="text-[12px] font-semibold text-neutral-700">Couldn&apos;t render this chart</p>
+            <button type="button" onClick={() => this.setState({ failed: false })} className="mt-3 rounded-full border border-neutral-300 bg-white px-4 py-1.5 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50">Retry</button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+/* WhatsApp deep link for verifying a pending order — wa.me needs no API key.
+   Phone is normalised to international format (Pakistan default '92'). */
+const waDigits = (phone) => {
+  const d = String(phone || '').replace(/\D/g, '');
+  if (!d) return '';
+  if (d.startsWith('0')) return `92${d.slice(1)}`;
+  if (d.startsWith('92')) return d;
+  return `92${d}`;
+};
+const waVerifyLink = (o, storePhone) => {
+  const phone = waDigits(o?.customerInfo?.phone);
+  if (!phone) return '';
+  const name = String(o?.customerInfo?.name || '').trim();
+  const total = Number(o?.total || 0).toLocaleString('en-PK');
+  const msg = `Hi ${name || 'there'}, this is Hushae. Confirming your order ${o.orderNumber} for PKR ${total}. Please reply YES to confirm or call us at ${storePhone} if you have questions.`;
+  return `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
+};
+
 const statusPill = (s) =>
   s === 'Delivered' ? 'bg-emerald-100 text-emerald-800' : s === 'Cancelled' ? 'bg-red-100 text-red-800'
     : s === 'Refunded' ? 'bg-orange-100 text-orange-800' : s === 'Shipped' || s === 'Out for Delivery' ? 'bg-purple-100 text-purple-800'
@@ -49,14 +88,19 @@ const statusPill = (s) =>
     : s === 'Confirmed' ? 'bg-cyan-100 text-cyan-800' : 'bg-amber-100 text-amber-800';
 
 function KpiCard({ icon: Icon, label, value, change, sparkData, accent = '#111111', format = 'number', to, compareLabel = 'vs. previous 30 days' }) {
-  const positive = change > 0; const negative = change < 0;
-  const changeText = Math.abs(change).toFixed(1) + '%';
+  /* change === null means "no meaningful rate from zero" (backend growthPct):
+     current > 0 → show a neutral "New" chip; current === 0 → show nothing. */
+  const hasRate = typeof change === 'number' && Number.isFinite(change);
+  const positive = hasRate && change > 0; const negative = hasRate && change < 0;
+  const isNew = change === null && value > 0;
+  const changeText = hasRate ? Math.abs(change).toFixed(1) + '%' : '';
   const display = format === 'money' ? pkr(value) : value.toLocaleString();
   const inner = (
     <>
       <div className="flex items-center justify-between">
         <span className="grid h-11 w-11 place-items-center rounded-xl" style={{ background: `${accent}14`, color: accent }}><Icon size={17} strokeWidth={1.9} /></span>
-        {change !== 0 && <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[12px] font-bold ${positive ? 'bg-emerald-50 text-emerald-700' : negative ? 'bg-red-50 text-red-700' : 'bg-neutral-100 text-neutral-600'}`}>{positive ? <ArrowUpRight size={11} /> : negative ? <ArrowDownRight size={11} /> : null}{changeText}</span>}
+        {isNew ? <span className="inline-flex items-center gap-1 rounded-full bg-neutral-100 px-2 py-0.5 text-[12px] font-bold text-neutral-700">New</span>
+          : hasRate && change !== 0 && <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[12px] font-bold ${positive ? 'bg-emerald-50 text-emerald-700' : negative ? 'bg-red-50 text-red-700' : 'bg-neutral-100 text-neutral-600'}`}>{positive ? <ArrowUpRight size={11} /> : negative ? <ArrowDownRight size={11} /> : null}{changeText}</span>}
       </div>
       <p className="mt-4 text-[13px] font-bold uppercase tracking-widest text-neutral-500">{label}</p>
       <p className="mt-1 font-sans text-[13px] font-semibold tabular-nums leading-none tracking-tight text-neutral-900">{display}</p>
@@ -69,18 +113,28 @@ function KpiCard({ icon: Icon, label, value, change, sparkData, accent = '#11111
 }
 
 function QuickActions() {
+  /* Exactly ONE primary action — "Add product", the most frequent daily task.
+     Everything else is an equal-weight outline/ghost button. */
   const actions = [
-    { to: '/admin/orders', icon: ShoppingBag, label: 'View orders', hint: 'Manage all orders' },
-    { to: '/admin/products/new', icon: PackagePlus, label: 'Add product', hint: 'Create new listing', primary: true },
-    { to: '/admin/promotions/new', icon: Megaphone, label: 'New promo', hint: 'Start a campaign' },
-    { to: '/admin/discounts', icon: BadgePercent, label: 'Discounts', hint: 'Manage codes' },
+    { to: '/admin/orders', icon: ShoppingBag, label: 'View orders' },
+    { to: '/admin/products/new', icon: PackagePlus, label: 'Add product', primary: true },
+    { to: '/admin/promotions/new', icon: Megaphone, label: 'New promo' },
+    { to: '/admin/discounts', icon: BadgePercent, label: 'Discounts' },
   ];
   return (
     <div className="rounded-2xl border border-neutral-200 bg-white p-5">
       <p className="text-[13px] font-bold uppercase tracking-widest text-neutral-500">Quick actions</p>
       <div className="mt-3 grid grid-cols-2 gap-2">
         {actions.map((a) => (
-          <Link key={a.label} to={a.to} className={`flex flex-col items-center gap-1.5 rounded-xl border p-3 text-center transition hover:shadow-sm ${a.primary ? 'border-neutral-900 bg-neutral-900 text-white hover:bg-black' : 'border-neutral-200 bg-white text-neutral-700 hover:border-neutral-400 hover:bg-neutral-50'}`}>
+          <Link
+            key={a.label}
+            to={a.to}
+            className={`flex flex-col items-center gap-1.5 rounded-xl border p-3 text-center transition-colors duration-150 ${
+              a.primary
+                ? 'border-neutral-900 bg-neutral-900 text-white hover:bg-neutral-800 active:bg-black'
+                : 'border-neutral-200 bg-white text-neutral-900 hover:border-neutral-300 hover:bg-neutral-50 active:bg-neutral-100'
+            }`}
+          >
             <a.icon size={18} strokeWidth={1.8} />
             <span className="text-[12px] font-semibold leading-tight">{a.label}</span>
           </Link>
@@ -142,19 +196,35 @@ function PipelineStrip({ stats }) {
     { label: 'In Transit', n: stats.shipped, color: 'bg-purple-500', text: 'text-purple-700', to: '/admin/orders?group=shipped' },
     { label: 'Delivered', n: stats.delivered, color: 'bg-emerald-500', text: 'text-emerald-700', to: '/admin/orders?group=delivered' },
   ];
-  const total = items.reduce((n, x) => n + x.n, 0);
+  /* Fixed-width equal segments — a funnel has 6 stages regardless of volume, so
+     each stage keeps ~16.6% of the bar. A stage with orders is tinted its own
+     colour; an empty stage stays a light neutral placeholder (never collapsed
+     to zero width). Hovering a segment shows the exact count. */
   return (
     <div className="rounded-2xl border border-neutral-200 bg-white p-5">
       <div className="flex items-center justify-between">
         <div><p className="text-[12px] font-bold uppercase tracking-widest text-neutral-500">Order pipeline</p><p className="mt-1 text-[12px] text-neutral-500">Where every order is right now</p></div>
         <Link to="/admin/orders" className="text-[12px] font-semibold text-neutral-500 hover:text-neutral-900">Manage all →</Link>
       </div>
-      <div className="mt-4 flex h-3 overflow-hidden rounded-full bg-neutral-100">{items.map((it, i) => <div key={i} className={it.color} style={{ width: total ? `${(it.n / total) * 100}%` : '0%' }} title={`${it.label}: ${it.n}`} />)}</div>
+      <div className="mt-4 grid h-3 grid-cols-6 gap-0.5">
+        {items.map((it) => (
+          <div key={it.label} className="group relative">
+            <div
+              className={`h-full w-full ${it.n > 0 ? it.color : 'bg-neutral-200'}`}
+              role="img"
+              aria-label={`${it.label}: ${it.n} order${it.n === 1 ? '' : 's'}`}
+            />
+            <span className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-1.5 -translate-x-1/2 whitespace-nowrap rounded-md bg-neutral-900 px-2 py-1 text-[11px] font-semibold text-white opacity-0 shadow-lg transition-opacity duration-150 group-hover:opacity-100">
+              {it.label}: {it.n}
+            </span>
+          </div>
+        ))}
+      </div>
       <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
         {items.map((it) => (
           <Link key={it.label} to={it.to} className="group flex items-center gap-2 rounded-lg p-2 transition hover:bg-neutral-50">
-            <span className={`h-2 w-2 shrink-0 rounded-full ${it.color}`} />
-            <div className="min-w-0 flex-1"><p className="truncate text-[12px] text-neutral-500">{it.label}</p><p className={`text-[13px] font-bold tabular-nums ${it.text}`}>{it.n}</p></div>
+            <span className={`h-2 w-2 shrink-0 rounded-full ${it.n > 0 ? it.color : 'bg-neutral-200'}`} />
+            <div className="min-w-0 flex-1"><p className="truncate text-[12px] text-neutral-500">{it.label}</p><p className={`text-[13px] font-bold tabular-nums ${it.n > 0 ? it.text : 'text-neutral-400'}`}>{it.n}</p></div>
           </Link>
         ))}
       </div>
@@ -221,7 +291,13 @@ function TodayHourly({ hourly }) {
   return (
     <div className="rounded-2xl border border-neutral-200 bg-white p-6">
       <div className="flex items-center justify-between"><div><p className="text-[12px] font-bold uppercase tracking-widest text-neutral-500">Today's activity</p><p className="mt-1 text-[12px] text-neutral-500">{total} order{total === 1 ? '' : 's'} · peak {peak.hour.toString().padStart(2, '0')}:00</p></div><span className="grid h-9 w-9 place-items-center rounded-xl bg-neutral-900 text-white"><Activity size={16} /></span></div>
-      <div className="mt-5 h-32 w-full"><ResponsiveContainer width="100%" height="100%"><BarChart data={hourly} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}><XAxis dataKey="hour" tick={{ fontSize: 10 }} stroke="#9ca3af" tickLine={false} axisLine={false} interval={2} /><YAxis tick={{ fontSize: 10 }} stroke="#9ca3af" tickLine={false} axisLine={false} allowDecimals={false} /><Tooltip contentStyle={{ borderRadius: 12, border: '1px solid #e5e7eb', fontSize: 12 }} formatter={(v) => [v, 'Orders']} labelFormatter={(h) => `${String(h).padStart(2, '0')}:00`} /><Bar dataKey="orders" radius={[6, 6, 0, 0]}>{hourly.map((h, i) => <Cell key={i} fill={h.orders === peak.orders && peak.orders > 0 ? '#111111' : '#d4d4d4'} />)}</Bar></BarChart></ResponsiveContainer></div>
+      {total === 0 ? (
+        <div className="mt-5 grid h-32 place-items-center rounded-xl bg-neutral-50 text-center">
+          <p className="text-[13px] font-medium text-neutral-500">No orders yet today</p>
+        </div>
+      ) : (
+        <div className="mt-5 h-32 w-full"><ResponsiveContainer width="100%" height="100%"><BarChart data={hourly} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}><XAxis dataKey="hour" tick={{ fontSize: 10 }} stroke="#9ca3af" tickLine={false} axisLine={false} interval={2} /><YAxis tick={{ fontSize: 10 }} stroke="#9ca3af" tickLine={false} axisLine={false} allowDecimals={false} /><Tooltip contentStyle={{ borderRadius: 12, border: '1px solid #e5e7eb', fontSize: 12 }} formatter={(v) => [v, 'Orders']} labelFormatter={(h) => `${String(h).padStart(2, '0')}:00`} /><Bar dataKey="orders" radius={[6, 6, 0, 0]}>{hourly.map((h, i) => <Cell key={i} fill={h.orders === peak.orders && peak.orders > 0 ? '#111111' : '#d4d4d4'} />)}</Bar></BarChart></ResponsiveContainer></div>
+      )}
     </div>
   );
 }
@@ -230,7 +306,7 @@ function TodayHourly({ hourly }) {
  * MAIN DASHBOARD
  * ======================================================================== */
 export default function Dashboard() {
-  const { auth, logout } = useApp();
+  const { auth, logout, settings } = useApp();
   const [d, setD] = useState(null);
   const [err, setErr] = useState('');
   const [refreshing, setRefreshing] = useState(false);
@@ -310,8 +386,8 @@ export default function Dashboard() {
 
       {/* ── Row 3: Revenue chart + Status donut ────────────────────────── */}
       <div className="mb-6 grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2"><RevenueChart data={d.chart} /></div>
-        <StatusDonut byStatus={d.byStatus} />
+        <div className="lg:col-span-2"><ChartBoundary><RevenueChart data={d.chart} /></ChartBoundary></div>
+        <ChartBoundary><StatusDonut byStatus={d.byStatus} /></ChartBoundary>
       </div>
 
       {/* ── Row 4: Order pipeline ──────────────────────────────────────── */}
@@ -346,14 +422,18 @@ export default function Dashboard() {
           </div>
           <div className="rounded-2xl border border-neutral-200 bg-white p-5">
             <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-500">Peak order hours</p>
-            <ResponsiveContainer width="100%" height={140}><BarChart data={insights.hourly} margin={{ top: 12, right: 4, left: -22, bottom: 0 }}><CartesianGrid strokeDasharray="3 3" stroke="#EFECE7" vertical={false} /><XAxis dataKey="hour" tickFormatter={(h) => `${h}h`} tick={{ fontSize: 10, fill: '#9A9A9A' }} axisLine={false} tickLine={false} interval={3} /><YAxis tick={{ fontSize: 10, fill: '#9A9A9A' }} axisLine={false} tickLine={false} allowDecimals={false} /><Tooltip labelFormatter={(h) => `${h}:00 – ${h}:59`} contentStyle={{ borderRadius: 10, border: '1px solid #E4E0DA', fontSize: 12 }} /><Bar dataKey="orders" fill="#7C8B72" radius={[3, 3, 0, 0]} /></BarChart></ResponsiveContainer>
+            {!insights.hourly?.some((h) => h.orders > 0) ? (
+              <div className="grid h-[140px] place-items-center rounded-xl bg-neutral-50 text-center"><p className="text-[13px] font-medium text-neutral-500">No orders in this period</p></div>
+            ) : (
+              <ResponsiveContainer width="100%" height={140}><BarChart data={insights.hourly} margin={{ top: 12, right: 4, left: -22, bottom: 0 }}><CartesianGrid strokeDasharray="3 3" stroke="#EFECE7" vertical={false} /><XAxis dataKey="hour" tickFormatter={(h) => `${h}h`} tick={{ fontSize: 10, fill: '#9A9A9A' }} axisLine={false} tickLine={false} interval={3} /><YAxis tick={{ fontSize: 10, fill: '#9A9A9A' }} axisLine={false} tickLine={false} allowDecimals={false} /><Tooltip labelFormatter={(h) => `${h}:00 – ${h}:59`} contentStyle={{ borderRadius: 10, border: '1px solid #E4E0DA', fontSize: 12 }} /><Bar dataKey="orders" fill="#7C8B72" radius={[3, 3, 0, 0]} /></BarChart></ResponsiveContainer>
+            )}
           </div>
         </div>
       )}
 
       {/* ── Row 8: Today activity + Best sellers ───────────────────────── */}
       <div className="mb-6 grid gap-6 lg:grid-cols-2">
-        <TodayHourly hourly={d.hourly} />
+        <ChartBoundary><TodayHourly hourly={d.hourly} /></ChartBoundary>
         <div className="rounded-2xl border border-neutral-200 bg-white p-6">
           <div className="flex items-center justify-between"><div><p className="text-[12px] font-bold uppercase tracking-widest text-neutral-500">Best sellers</p><p className="mt-1 text-[12px] text-neutral-500">Top 5 by units sold</p></div><Sparkles size={16} className="text-amber-500" /></div>
           {d.bestSellers.length === 0 ? <p className="mt-6 text-center text-sm text-neutral-400">Sales data will appear here.</p> : (
@@ -369,11 +449,20 @@ export default function Dashboard() {
         <div className="rounded-2xl border border-neutral-200 bg-white p-6 lg:col-span-2">
           <div className="mb-4 flex items-center justify-between"><div><p className="text-[12px] font-bold uppercase tracking-widest text-neutral-500">Recent orders</p><p className="mt-1 text-[12px] text-neutral-500">Last 6 across all stages</p></div><Link to="/admin/orders" className="inline-flex items-center gap-1 text-[12px] font-semibold text-neutral-500 hover:text-neutral-900">View all <ChevronRight size={12} /></Link></div>
           <div className="space-y-2">{d.recentOrders.map((o) => (
-            <Link key={o._id} to={`/admin/orders/${o._id}`} className="flex items-center gap-3 rounded-xl border border-neutral-100 p-3 transition hover:border-neutral-300 hover:bg-neutral-50">
-              <Img src={o.items?.[0]?.image} alt="" className="h-11 w-9 shrink-0 rounded-lg border border-neutral-200 object-cover" />
-              <div className="min-w-0 flex-1"><div className="flex items-center gap-2"><p className="truncate font-mono text-[12px] font-semibold text-neutral-900">{o.orderNumber}</p><span className={`pill ${statusPill(o.status)}`}>{o.status}</span></div><p className="mt-0.5 truncate text-[12px] text-neutral-500">{o.customerInfo?.name} · {o.customerInfo?.city} · {fmtDate(o.createdAt)}</p></div>
-              <div className="text-right"><p className="font-sans text-[14px] font-semibold tabular-nums text-neutral-900">{pkr(o.total)}</p><p className="text-[13px] text-neutral-400">{o.paymentMethod}</p></div>
-            </Link>
+            <div key={o._id} className="flex items-center gap-3 rounded-xl border border-neutral-100 p-3 transition hover:border-neutral-300 hover:bg-neutral-50">
+              <Link to={`/admin/orders/${o._id}`} className="flex min-w-0 flex-1 items-center gap-3">
+                <Img src={o.items?.[0]?.image} alt="" className="h-11 w-9 shrink-0 rounded-lg border border-neutral-200 object-cover" />
+                <div className="min-w-0 flex-1"><div className="flex items-center gap-2"><p className="truncate font-mono text-[12px] font-semibold text-neutral-900">{o.orderNumber}</p><span className={`pill ${statusPill(o.status)}`}>{o.status}</span></div><p className="mt-0.5 truncate text-[12px] text-neutral-500">{o.customerInfo?.name} · {o.customerInfo?.city} · {fmtDate(o.createdAt)}</p></div>
+              </Link>
+              <div className="flex shrink-0 items-center gap-2.5">
+                {o.status === 'Pending' && waVerifyLink(o, settings?.contactPhone || settings?.integrations?.whatsapp?.number || '') && (
+                  <a href={waVerifyLink(o, settings?.contactPhone || settings?.integrations?.whatsapp?.number || '')} target="_blank" rel="noreferrer" aria-label={`Verify ${o.orderNumber} via WhatsApp`} title="Verify via WhatsApp" className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-emerald-200 bg-emerald-50 text-emerald-700 transition hover:bg-emerald-100">
+                    <MessageCircle size={14} />
+                  </a>
+                )}
+                <div className="text-right"><p className="font-sans text-[14px] font-semibold tabular-nums text-neutral-900">{pkr(o.total)}</p><p className="text-[13px] text-neutral-500">{o.paymentMethod}</p></div>
+              </div>
+            </div>
           ))}</div>
         </div>
         <div className="space-y-6">

@@ -47,4 +47,24 @@ const isOnSale = (p, now = new Date()) => {
   return true;
 };
 
-module.exports = { asyncHandler, slugify, orderNumber, evaluateDiscount, isOnSale };
+/* ── Growth percentage between two values ────────────────────────────────
+   Single source of truth for every dashboard KPI trend (Revenue, Orders,
+   AOV, Profit, Cost) and the "compare" endpoint.
+
+   Returns:
+     · null  when `previous` is 0/absent/NaN — there is NO meaningful growth
+       rate from zero. (previous=0 & current=0 → "no data"; previous=0 &
+       current>0 → the UI shows "New".) Callers must never render a % for null.
+     · number otherwise, rounded to 1 decimal (e.g. -100 when current = 0).
+
+   The old behaviour (`!b ? (a > 0 ? 100 : 0) : …`) returned a fake 100% when
+   the previous period was zero — the KPI card then displayed a green ▲100%
+   where the honest answer is "New". */
+const growthPct = (current, previous) => {
+  const cur = Number(current) || 0;
+  const prev = Number(previous) || 0;
+  if (!prev) return null;
+  return Math.round(((cur - prev) / prev) * 1000) / 10;
+};
+
+module.exports = { asyncHandler, slugify, orderNumber, evaluateDiscount, isOnSale, growthPct };

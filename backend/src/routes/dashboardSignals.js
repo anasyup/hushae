@@ -4,7 +4,7 @@ const Product = require('../models/Product');
 const Settings = require('../models/Settings');
 const OrderNotification = require('../models/OrderNotification');
 const { protect, adminOnly } = require('../middleware/auth');
-const { asyncHandler } = require('../utils/helpers');
+const { asyncHandler, growthPct } = require('../utils/helpers');
 const { costConfig, orderEconomics } = require('../utils/orderEconomics');
 
 const router = express.Router();
@@ -275,7 +275,9 @@ router.get('/compare', asyncHandler(async (req, res) => {
   };
 
   const [current, baseline] = await Promise.all([bucket(curFrom, now), bucket(baseFrom, baseTo)]);
-  const pct = (a, b) => (!b ? (a > 0 ? 100 : 0) : Math.round(((a - b) / b) * 1000) / 10);
+  // growthPct returns null when there is no meaningful rate from zero —
+  // the KPI cards show "New" / nothing instead of a fake 100%.
+  const pct = (a, b) => growthPct(a, b);
 
   res.json({
     mode,
