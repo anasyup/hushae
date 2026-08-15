@@ -1,7 +1,7 @@
 ## Changes
 - **2026-08-15** — 🎨 **DESIGN-SYSTEM RECONCILIATION + PRODUCTION POLISH**
   - Retired the stale `frontend/src/tokens.css` (unlayered and imported after `index.css`, so it was silently overriding `.btn`/`.input`/`.h1`/`.eyebrow` etc. with the old VELOURA pill + sage register — the pill `9999px` buttons and 8px inputs the client had already removed). Folded the still-used `.container`/`.section` aliases into `index.css` (values byte-for-byte identical), so Blog / FabricTech / FitFinder / BundleBuilder render unchanged. Admin `.btn` pinned to the 6px Shopify radius.
-  - Header logo typo fixed: `HUSHAÈ` → `HUSHAE`.
+  - Note: the `HUSHAÈ` wordmark accent is the client's reference and is left as-is.
   - Shop / sale / women / men / best / new / category titles no longer double-brand ("Shop All | HUSHAE — HUSHAE" → "Shop All — HUSHAE").
   - One `<h1>` per page: the sale banner "50% Off" is now a paragraph (reads "50% Off" with a real space for screen readers) and the footer tagline is a paragraph instead of an h1.
   - Per-page SEO titles added to cart, checkout, account, wishlist, search, track, order confirmation, rewards, compare and fit finder (incl. their empty / signed-out states).
