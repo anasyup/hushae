@@ -14,7 +14,7 @@ import SearchPanel from './search/SearchPanel';
 /* ============================================================================
  * HUSHAE header — sticky solid theme-color reference (exact client spec).
  *
- *   · ALWAYS solid bg-[#FAF8F5], text-black, border-b neutral-200/60
+ *   · top: transparent, black text · scrolled: solid BLACK, white text
  *   · fixed wrapper (flex-col) — BLACK ANNOUNCEMENT BAR above, collapses
  *     (max-h-0) once scrolled >20px, hidden entirely on the PDP
  *   · MAIN BAR ~84px: logo LEFT, nav CENTER, icons RIGHT
@@ -105,7 +105,7 @@ export default function Header() {
   const linkCls = useMemo(() => ({ isActive }, label = '') => {
     const base = 'inline-flex items-center gap-1 font-sans text-[11px] font-medium uppercase tracking-[0.2em] transition-colors duration-200';
     const isSale = String(label || '').toLowerCase() === 'sale';
-    const color = isSale ? ' text-red-600 font-semibold hover:text-red-700' : ' text-black hover:opacity-60';
+    const color = isSale ? ' text-red-600 font-semibold hover:text-red-700' : ' hover:opacity-60';
     return base + color;
   }, []);
 
@@ -125,12 +125,12 @@ export default function Header() {
       )}
 
       {/* 2. Main header — below the announcement bar (CK reference:
-          transparent at top → solid #FAF8F5 + shadow once scrolled) */}
+          transparent at top → solid BLACK + white text once scrolled) */}
       <header
         data-header
         className={`w-full h-[96px] !m-0 px-6 lg:px-12 transition-all duration-300 ease-in-out ${
           mega || isScrolled
-            ? 'bg-[#FAF8F5] text-black shadow-sm'
+            ? 'bg-black text-white shadow-sm'
             : 'bg-transparent text-black'
         }`}
         onMouseLeave={() => setMega(null)}
@@ -145,13 +145,13 @@ export default function Header() {
             onClick={() => setMobileOpen(true)}
             aria-label="Open menu"
             aria-expanded={mobileOpen}
-            className="-ml-2 grid h-10 w-10 shrink-0 place-items-center text-black transition-colors duration-300 lg:hidden"
+            className="-ml-2 grid h-10 w-10 shrink-0 place-items-center transition-colors duration-300 lg:hidden"
           >
             <Menu size={20} strokeWidth={1.5} aria-hidden="true" />
           </button>
 
           {/* Logo — serif bold tracked caps (reference) */}
-          <Link to="/" aria-label="HUSHAÈ — home" className="flex-shrink-0 font-serif text-2xl font-bold uppercase tracking-[0.2em] text-black transition-opacity duration-300 hover:opacity-80">
+          <Link to="/" aria-label="HUSHAÈ — home" className="flex-shrink-0 font-serif text-2xl font-bold uppercase tracking-[0.2em] transition-opacity duration-300 hover:opacity-80">
             HUSHAÈ
           </Link>
 
@@ -215,7 +215,7 @@ export default function Header() {
                 aria-label={cartCount ? `Open bag, ${cartCount} item${cartCount === 1 ? '' : 's'}` : 'Open bag'}
                 className="relative flex items-center justify-center p-1 transition-opacity duration-200 hover:opacity-60">
                 <ShoppingBag size={20} strokeWidth={1.5} aria-hidden="true" />
-                <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-black text-[9px] font-bold text-white">
+                <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-white text-[9px] font-bold text-black">
                   {cartCount}
                 </span>
               </button>
@@ -225,7 +225,7 @@ export default function Header() {
                 type="button"
                 onClick={() => { logout(); toast('Signed out'); nav('/'); }}
                 aria-label="Sign out"
-                className="ml-2 hidden items-center gap-1.5 text-black transition-opacity duration-200 hover:opacity-60 md:flex"
+                className="ml-2 hidden items-center gap-1.5 transition-opacity duration-200 hover:opacity-60 md:flex"
               >
                 <LogOut size={16} strokeWidth={1.5} aria-hidden="true" />
                 <span className="text-[10px] uppercase tracking-widest">Sign Out</span>
