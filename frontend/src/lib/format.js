@@ -16,4 +16,6 @@ export const snap = (p) => ({
   onSale: p.onSale === true, saleStart: p.saleStart || null, saleEnd: p.saleEnd || null,
   image: p.images?.[0]?.url || p.image || '',
   sizes: p.sizes || [], colors: p.colors || [], tier: p.tier || '', badges: p.badges || [],
+  /* Fabric / material survives the snap for the card subtitle line. */
+  fabric: p.fabric || '', categorySlug: p.categorySlug || '',
 });

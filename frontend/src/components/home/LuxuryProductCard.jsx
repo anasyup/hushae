@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, Heart } from 'lucide-react';
 import { useApp } from '../../store/AppContext';
-import { pkr } from '../../lib/format';
-import { isOnSale } from '../../lib/sale';
+import { titleCase } from '../../lib/productMeta';
+import { CARD_NAME, CARD_NAME_LINK, CARD_SUBTITLE, cardSubtitle, PriceRow, SwatchRow } from '../../lib/cardType';
 import SizeModal from '../SizeModal';
 
 /* ============================================================================
@@ -31,24 +31,18 @@ export default function LuxuryProductCard({ product: p, priority = false }) {
 
   const images = (p.images || []).map((i) => (typeof i === 'string' ? i : i?.url)).filter(Boolean);
   const main = images[imgIdx] || images[0] || '';
-  const name = displayName(p.name) || 'Untitled';
+  const name = titleCase(displayName(p.name)) || 'Untitled';
   const slug = p.slug;
   const wished = inWishlist(p);
-  const onSale = isOnSale(p);
   const soldOut = p.stock === 0;
-  const discount = onSale && p.compareAtPrice > p.price
-    ? Math.round((1 - p.price / p.compareAtPrice) * 100)
-    : 0;
-
+  /* Card stays to name · subtitle · price · swatches only — no promo
+     microcopy (client spec): New Season / Best Seller badges only. */
   const badge = p.isNewArrival === true
     ? 'New Season'
     : p.isBestSeller === true
       ? 'Best Seller'
-      : onSale && discount > 0
-        ? `Save ${discount}%`
-        : null;
-
-  const colors = (p.colors || []).filter((c) => c && c.hex).slice(0, 4);
+      : null;
+  const subtitle = cardSubtitle(p);
 
   /* Hover = one image change (primary -> secondary), arrows browse manually. */
   useEffect(() => {
@@ -60,14 +54,6 @@ export default function LuxuryProductCard({ product: p, priority = false }) {
     if (images.length < 2) return;
     setImgIdx((i) => (i + dir + images.length) % images.length);
   };
-
-  // Quiet category eyebrow (e.g. "Women · Loungewear")
-  const catFromSlug = String(p.categorySlug || '')
-    .split('-')
-    .map((w) => (w ? w[0].toUpperCase() + w.slice(1) : w))
-    .join(' ');
-  const genderLabel = p.gender === 'men' ? 'Men' : p.gender === 'women' ? 'Women' : '';
-  const categoryLabel = [genderLabel, catFromSlug].filter(Boolean).join(' · ') || 'HUSHAE';
 
   const FALLBACK =
     'data:image/svg+xml;utf8,' + encodeURIComponent(
@@ -159,37 +145,27 @@ export default function LuxuryProductCard({ product: p, priority = false }) {
         )}
       </Link>
 
-      {/* Details */}
-      <div className="space-y-1.5">
-        <p className="text-[9px] font-medium uppercase tracking-[0.22em] text-neutral-400">
-          {categoryLabel}
-        </p>
-        <div className="flex items-center justify-between">
-          <Link
-            to={`/product/${slug}`}
-            className="text-[12px] font-medium uppercase tracking-[0.12em] text-[#111111] transition-colors group-hover:underline"
-          >
-            {name}
-          </Link>
-          {colors.length > 0 && (
-            <span className="flex items-center gap-1 pl-2">
-              {colors.map((c) => (
-                <span
-                  key={c.name || c.hex}
-                  className="h-2 w-2 rounded-full border border-neutral-300"
-                  style={{ backgroundColor: c.hex }}
-                  title={c.name}
-                />
-              ))}
-            </span>
-          )}
-        </div>
-
-        <div className="flex items-center gap-2 pt-0.5">
-          <span className="text-[12px] font-medium text-[#111111]">{pkr(p.price)}</span>
-          {onSale && p.compareAtPrice > p.price && (
-            <span className="text-[11px] font-light text-neutral-400 line-through">{pkr(p.compareAtPrice)}</span>
-          )}
+      {/* Details — swatches · name · subtitle · price (shared register) */}
+      <div className="px-5 pb-5">
+        <SwatchRow
+          product={p}
+          onPick={(c, idx) => {
+            const ci = images.indexOf(c.image || '');
+            if (ci >= 0) setImgIdx(ci);
+            else if (images.length > 1) setImgIdx(idx % images.length);
+          }}
+        />
+        <Link
+          to={`/product/${slug}`}
+          className={`${CARD_NAME} ${CARD_NAME_LINK} block`}
+        >
+          {name}
+        </Link>
+        {subtitle && (
+          <p className={`${CARD_SUBTITLE} mt-[3px]`}>{subtitle}</p>
+        )}
+        <div className="mt-[3px] flex flex-wrap items-center gap-2">
+          <PriceRow product={p} soldOut={soldOut} />
         </div>
       </div>
 

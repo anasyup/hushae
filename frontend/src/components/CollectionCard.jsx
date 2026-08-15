@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, ChevronLeft, ChevronRight, ShoppingBag } from 'lucide-react';
-import { pkr } from '../lib/format';
-import { isOnSale } from '../lib/sale';
 import { titleCase } from '../lib/productMeta';
+import { CARD_NAME, CARD_NAME_LINK, CARD_SUBTITLE, cardSubtitle, PriceRow, SwatchRow } from '../lib/cardType';
 import { useApp } from '../store/AppContext';
 import SizeModal from './SizeModal';
 
@@ -30,6 +29,7 @@ function CollectionCard({ product: p, priority = false, variant = 'bar', ratio =
   const { addToCart } = useApp();
   const [imgIdx, setImgIdx] = useState(0);
   const [failed, setFailed] = useState(false);
+  const [swatchIdx, setSwatchIdx] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const [modal, setModal] = useState(false);
 
@@ -46,8 +46,8 @@ function CollectionCard({ product: p, priority = false, variant = 'bar', ratio =
 
   const name = titleCase(displayName(p.name)) || 'Untitled';
   const soldOut = p.stock === 0;
-  const onSale = isOnSale(p);
   const badge = p.isNewArrival === true ? 'New' : p.isBestSeller === true ? 'Best Seller' : null;
+  const subtitle = cardSubtitle(p);
   const sizes = p.sizes || [];
 
   const cycle = (dir) => {
@@ -76,22 +76,23 @@ function CollectionCard({ product: p, priority = false, variant = 'bar', ratio =
             Buy Now
           </button>
         </Link>
-        <div className="pt-3">
-          <p className="text-[9px] font-medium uppercase tracking-[0.2em] text-[#999999]">HUSHAE</p>
-          <Link to={`/product/${p.slug}`} className="product-card-title mb-1 mt-0.5 block no-underline transition-colors duration-200 hover:text-[#666666]">
+        <div className="px-5 pb-5 pt-4">
+          <SwatchRow
+            product={p}
+            onPick={(c, idx) => { setSwatchIdx(idx); const ci = images.indexOf(c.image || ''); if (ci >= 0) setImgIdx(ci); }}
+          />
+          <Link
+            to={`/product/${p.slug}`}
+            className={`${CARD_NAME} ${CARD_NAME_LINK} block`}
+          >
             {name}
           </Link>
-          <p className="text-[13px] font-medium">
-            {soldOut ? 'Sold out' : pkr(p.price)}
-            {onSale && p.compareAtPrice > p.price && (
-              <span className="ml-1.5 font-normal text-[#999999] line-through">{pkr(p.compareAtPrice)}</span>
-            )}
-          </p>
-          {Number(p.ratingAvg || 0) > 0 && (
-            <p className="mt-1 text-[11px] text-[#666666]">
-              <span className="text-[#d4af37]" aria-hidden="true">★</span> {Number(p.ratingAvg).toFixed(1)}
-            </p>
+          {subtitle && (
+            <p className={`${CARD_SUBTITLE} mt-[3px]`}>{subtitle}</p>
           )}
+          <div className="mt-[3px] flex flex-wrap items-center gap-2">
+            <PriceRow product={p} soldOut={soldOut} />
+          </div>
         </div>
         {modal && <SizeModal product={p} onClose={() => setModal(false)} />}
       </article>
@@ -101,14 +102,8 @@ function CollectionCard({ product: p, priority = false, variant = 'bar', ratio =
   /* ── BAR VARIANT — client ProductCard reference (Rains register) ──── */
   /* 3/4 image on #f4f4f2 · hover scale 1.05 (image stack) · badge top-left
      · side arrows on hover · full-width BUY NOW (bag icon, glass black)
-     · details: UPPERCASE name 12px · price + category · circular arrow */
-  const catFromSlug = String(p.categorySlug || '')
-    .split('-')
-    .map((w) => (w ? w[0].toUpperCase() + w.slice(1) : w))
-    .join(' ');
-  const genderLabel = p.gender === 'men' ? 'Men' : p.gender === 'women' ? 'Women' : '';
-  const categoryLabel = [genderLabel, catFromSlug].filter(Boolean).join(' · ');
-
+     · details follow the shared card-type register: swatches · name (14/500
+       #22335A) · subtitle (fabric) · price · circular arrow */
   return (
     <article
       className="group relative flex w-full min-w-0 cursor-pointer select-none flex-col font-sans"
@@ -182,30 +177,26 @@ function CollectionCard({ product: p, priority = false, variant = 'bar', ratio =
         )}
       </Link>
 
-      {/* 2. Details — name · price + category · circular arrow */}
-      <div className="flex items-start justify-between gap-2 pb-1 pt-3.5">
+      {/* 2. Details — swatches · name · subtitle · price · arrow (client register) */}
+      <div className="flex items-start justify-between gap-3 px-5 pb-5 pt-4">
         <div className="flex min-w-0 flex-col">
+          <SwatchRow
+            product={p}
+            onPick={(c, idx) => { setSwatchIdx(idx); const ci = images.indexOf(c.image || ''); if (ci >= 0) setImgIdx(ci); }}
+          />
           <Link
             to={`/product/${p.slug}`}
-            className="line-clamp-1 text-[12px] font-medium uppercase leading-tight tracking-[0.08em] text-black transition-colors group-hover:text-neutral-600"
+            className={`${CARD_NAME} ${CARD_NAME_LINK} line-clamp-1`}
           >
             {name}
           </Link>
 
-          <div className="mt-1 flex items-center gap-2">
-            {soldOut ? (
-              <span className="text-[11px] font-semibold tracking-wide text-neutral-900">Sold out</span>
-            ) : (
-              <>
-                {onSale && p.compareAtPrice > p.price && (
-                  <span className="text-[11px] font-normal text-neutral-400 line-through">{pkr(p.compareAtPrice)}</span>
-                )}
-                <span className="text-[11px] font-semibold tracking-wide text-neutral-900">{pkr(p.price)}</span>
-              </>
-            )}
-            {categoryLabel && (
-              <span className="truncate text-[10px] uppercase tracking-widest text-neutral-400">• {categoryLabel}</span>
-            )}
+          {subtitle && (
+            <p className={`${CARD_SUBTITLE} mt-[3px] line-clamp-1`}>{subtitle}</p>
+          )}
+
+          <div className="mt-[3px] flex flex-wrap items-center gap-2">
+            <PriceRow product={p} soldOut={soldOut} />
           </div>
         </div>
 

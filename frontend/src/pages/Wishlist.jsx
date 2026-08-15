@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import { AlertCircle, Check, Heart, Share2, ShoppingBag, Trash2 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { cxConfig } from '../lib/cxConfig';
-import { pkr } from '../lib/format';
+import { titleCase } from '../lib/productMeta';
+import { CARD_NAME, CARD_NAME_LINK, CARD_SUBTITLE, cardSubtitle, PriceRow } from '../lib/cardType';
 import Img from '../components/Img';
 import EmptyState from '../components/ui/EmptyState';
 import Spinner from '../components/ui/Spinner';
@@ -145,17 +146,26 @@ export default function Wishlist() {
         />
       ) : (
         <ul className="mt-6 divide-y divide-line border-b border-line sm:grid sm:grid-cols-2 sm:gap-x-6 sm:divide-y-0 sm:border-0 lg:grid-cols-3">
-          {wishlist.map((p) => (
+          {wishlist.map((p) => {
+            const sub = cardSubtitle(p);
+            return (
             <li key={p.id} className="flex items-center gap-4 py-4 sm:border-b sm:border-line">
               <Link to={`/product/${p.slug}`} className="shrink-0 overflow-hidden rounded-card bg-cream" tabIndex={-1} aria-hidden="true">
                 <Img src={p.image} alt="" className="h-24 w-20 object-cover" />
               </Link>
 
               <div className="flex min-w-0 flex-1 flex-col">
-                <h2 className="text-body-sm font-medium leading-snug">
-                  <Link to={`/product/${p.slug}`} className="transition hover:underline">{p.name}</Link>
-                </h2>
-                <p className="mt-1 text-body-sm font-semibold tabular-nums">{pkr(p.price)}</p>
+                {/* div, not h2 — the global heading rule forces serif+uppercase,
+                    the client register demands plain sans names. */}
+                <div className={CARD_NAME}>
+                  <Link to={`/product/${p.slug}`} className={CARD_NAME_LINK}>
+                    {titleCase(String(p.name || '').replace(/^HUSHAE\s+/i, ''))}
+                  </Link>
+                </div>
+                {sub && <p className={`${CARD_SUBTITLE} mt-[3px]`}>{sub}</p>}
+                <div className="mt-[3px] flex flex-wrap items-center gap-2">
+                  <PriceRow product={p} />
+                </div>
 
                 <div className="mt-auto flex flex-wrap items-center gap-1.5 pt-3">
                   {cfg.allowMoveToCart && (
@@ -179,7 +189,8 @@ export default function Wishlist() {
                 </div>
               </div>
             </li>
-          ))}
+            );
+          })}
         </ul>
       )}
     </div>

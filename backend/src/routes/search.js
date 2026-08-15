@@ -13,7 +13,7 @@ const router = express.Router();
 const suggestLimit = rateLimit({ windowMs: 60 * 1000, max: 120, key: 'suggest', message: 'Slow down a moment' });
 const searchLimit = rateLimit({ windowMs: 60 * 1000, max: 60, key: 'search', message: 'Too many searches — try again shortly' });
 
-const CARD = 'name slug sku price compareAtPrice onSale saleStart saleEnd stock images gender categorySlug tier '
+const CARD = 'name slug sku price compareAtPrice onSale saleStart saleEnd stock images gender categorySlug tier fabric '
   + 'ratingAvg ratingCount sizes colors tags badges isFeatured isBestSeller createdAt';
 
 /** Fire-and-forget analytics. A logging failure must never fail a search. */
