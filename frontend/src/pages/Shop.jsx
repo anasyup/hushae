@@ -5,6 +5,7 @@ import { api } from '../api/client';
 import CollectionCard from '../components/CollectionCard';
 import CategoryBanner from '../components/CategoryBanner';
 import SaleBanner from '../components/SaleBanner';
+import NewArrivals3DBanner from '../components/NewArrivals3DBanner';
 import SaleSplitBanner from '../components/SaleSplitBanner';
 import NewArrivalsHero from '../components/NewArrivalsHero';
 import LuxuryFilterBar from '../components/LuxuryFilterBar';
@@ -204,6 +205,7 @@ export default function Shop({ preset = {} }) {
                 <>
                   <CollectionCard key={p._id} product={p} />
                   {preset.key === 'sale' && i === 7 && <SaleSplitBanner key="sale-split-banner" />}
+                  {preset.key === 'new' && i === 7 && <NewArrivals3DBanner key="new-3d-banner" />}
                 </>
               ))}
             </div>

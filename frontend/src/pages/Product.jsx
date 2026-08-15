@@ -563,7 +563,7 @@ export default function Product() {
             >
               {complete.slice(0, 8).map((pr) => (
                 <div key={pr._id} className="w-[280px] shrink-0 snap-start sm:w-[320px] md:w-[340px]">
-                  <CollectionCard product={pr} variant="pill" />
+                  <CollectionCard product={pr} />
                 </div>
               ))}
             </div>
