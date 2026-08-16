@@ -1,4 +1,12 @@
 ## Changes
+- **2026-08-16** — 🖋️ **EDITORIAL REDESIGN — SHELL DEEPENING (branch `ui/editorial-redesign`, preview-only)**
+  - The previous editorial pass redesigned the dashboard content; this pass extends it to the whole admin SHELL so the entire screen reads editorial, not just the widgets:
+    - Sidebar: serif light HUSHAE wordmark + tiny caps "ADMIN" label; nav links as quiet ink/muted text (no white active box, no shadows); hairline-underline search; muted sign-out.
+    - Topbar: serif light page title, muted breadcrumbs; Search / Store online / View store / user identity as quiet text (all pills removed); "Create" is the single accent underline action; theme toggle + bell icon-only (bell badge now brand rose).
+  - All serif headings stay light (300) — an explicit override beats the admin-shell's !important 600 h1 rule.
+  - Verified live: Fraunces on greeting + wordmark, bone #FAF8F5 shell, zero console errors, no mobile horizontal scroll.
+  - Preview: https://hushae-asq7ytxej-belo-dv.vercel.app
+
 - **2026-08-16** — 🏁 **COMPLETION BATCH — the remaining 8 dashboard/ops features**
   - **F3 test orders**: `Order.isTestOrder` flag + Settings → `includeTestOrders` (default OFF). Every analytics query (dashboard KPIs, chart, byStatus, best sellers, top customers, recent orders, P&L, payment health, alerts, compare, insights) now excludes test orders unless the merchant opts in. Also exposes `?test=yes/no` on the orders list.
   - **F7 date-range picker**: new `RangePicker` (presets Today / 7d / 30d / This month / Last month / This year / Custom with native date inputs — no new dependency). `GET /api/admin/dashboard` and `/api/orders/insights/dashboard` accept `from`/`to`; the chart buckets daily (≤62d) or ISO-weekly (>62d); KPI growth % is computed vs the equal-length previous window. Selection persists in localStorage + URL query params.
