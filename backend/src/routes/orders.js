@@ -507,6 +507,7 @@ router.patch('/admin/:id/status', protect, adminOnly, asyncHandler(async (req, r
   if (status === 'Cancelled' && cancelReason) order.cancelReason = String(cancelReason).trim().slice(0, 80);
   order.statusHistory.push({ status, note: String(note).slice(0, 200) });
   await order.save();
+  try { require('../utils/auditLogger').logAction(req.user?.email, 'status', 'order', order.orderNumber, prevStatus, status); } catch { /* noop */ }
 
   // Fire-and-forget status-update email to customer for meaningful transitions
   if (prevStatus !== status) {

@@ -171,6 +171,7 @@ router.post('/', protect, adminOnly, asyncHandler(async (req, res) => {
     return res.status(409).json({ message: 'Slug or SKU already exists' });
   }
   const product = await Product.create({ ...b, slug });
+  try { require('../utils/auditLogger').logAction(req.user?.email, 'create', 'product', product.slug); } catch { /* noop */ }
   res.status(201).json({ product });
 }));
 
@@ -344,6 +345,7 @@ router.put('/:id', protect, adminOnly, asyncHandler(async (req, res) => {
   fields.forEach((f) => { if (b[f] !== undefined) product[f] = b[f]; });
   if (b.slug) product.slug = slugify(b.slug);
   await product.save();
+  try { require('../utils/auditLogger').logAction(req.user?.email, 'update', 'product', product.slug); } catch { /* noop */ }
   res.json({ product });
 }));
 

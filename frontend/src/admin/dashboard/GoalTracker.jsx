@@ -9,11 +9,11 @@ import { pkr } from '../../lib/format';
  * Desaturated pace tints; serif numbers. Editing behaviour unchanged.
  * ========================================================================== */
 
-const INK = '#1A1815';
-const MUTED = '#6F6A5E';
-const HAIRLINE = 'rgba(26,24,21,0.08)';
+const INK = 'var(--px-ink)';
+const MUTED = 'var(--px-muted)';
+const HAIRLINE = 'var(--px-border)';
 const PACE = {
-  ahead:      { label: 'Ahead of pace', bar: '#5F6B45' },
+  ahead:      { label: 'Ahead of pace', bar: 'var(--px-success)' },
   'on-track': { label: 'On track',      bar: '#5C6C8A' },
   behind:     { label: 'Behind pace',   bar: '#A67C52' },
   unset:      { label: 'No goal set',   bar: 'rgba(26,24,21,0.15)' },
@@ -78,7 +78,7 @@ export default function GoalTracker({ goal, onSaved }) {
       ) : (
         <>
           <div className="mt-4 flex items-baseline gap-2">
-            <p className="font-display-serif text-[26px] font-light leading-none tabular-nums" style={{ color: INK }}>{pkr(goal.earned)}</p>
+            <p className="text-[26px] font-bold leading-none tabular-nums" style={{ color: INK }}>{pkr(goal.earned)}</p>
             <p className="text-[12px]" style={{ color: MUTED }}>of {pkr(goal.goal)}</p>
           </div>
 
