@@ -5,18 +5,15 @@ import { useApp } from '../../store/AppContext';
 import { pkr } from '../../lib/format';
 
 /* ============================================================================
- * Monthly revenue goal — a thin 2px line progress indicator (not a chunky bar).
- * Desaturated pace tints; serif numbers. Editing behaviour unchanged.
+ * Monthly revenue goal — a thin 3px progress line (accent fill), Inter numbers.
+ * Behaviour unchanged.
  * ========================================================================== */
 
-const INK = '#1A1815';
-const MUTED = '#6F6A5E';
-const HAIRLINE = 'rgba(26,24,21,0.08)';
 const PACE = {
-  ahead:      { label: 'Ahead of pace', bar: '#5F6B45' },
-  'on-track': { label: 'On track',      bar: '#5C6C8A' },
-  behind:     { label: 'Behind pace',   bar: '#A67C52' },
-  unset:      { label: 'No goal set',   bar: 'rgba(26,24,21,0.15)' },
+  ahead:      { label: 'Ahead of pace', bar: 'var(--fs-success)' },
+  'on-track': { label: 'On track',      bar: 'var(--fs-accent)' },
+  behind:     { label: 'Behind pace',   bar: 'var(--fs-warning)' },
+  unset:      { label: 'No goal set',   bar: 'var(--fs-border-medium)' },
 };
 
 export default function GoalTracker({ goal, onSaved }) {
@@ -43,15 +40,10 @@ export default function GoalTracker({ goal, onSaved }) {
   return (
     <div>
       <div className="flex items-baseline justify-between gap-3">
-        <p className="text-[11px] font-medium uppercase tracking-[0.22em]" style={{ color: MUTED }}>Monthly revenue goal</p>
+        <p className="text-[11px] font-medium" style={{ color: 'var(--fs-text-muted)' }}>Monthly revenue goal</p>
         <div className="flex items-center gap-3">
-          <span className="text-[12px]" style={{ color: MUTED }}>{goal.daysRemaining} day{goal.daysRemaining === 1 ? '' : 's'} left · {pace.label.toLowerCase()}</span>
-          <button
-            onClick={() => { setValue(String(goal.goal || '')); setEditing((v) => !v); }}
-            className="transition-opacity hover:opacity-60"
-            aria-label="Edit goal"
-            style={{ color: MUTED }}
-          >
+          <span className="text-[12px]" style={{ color: 'var(--fs-text-muted)' }}>{goal.daysRemaining} day{goal.daysRemaining === 1 ? '' : 's'} left · {pace.label.toLowerCase()}</span>
+          <button onClick={() => { setValue(String(goal.goal || '')); setEditing((v) => !v); }} className="transition-opacity hover:opacity-60" aria-label="Edit goal" style={{ color: 'var(--fs-text-muted)' }}>
             <Pencil size={12} strokeWidth={1.5} />
           </button>
         </div>
@@ -64,38 +56,37 @@ export default function GoalTracker({ goal, onSaved }) {
             onChange={(e) => setValue(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') save(); if (e.key === 'Escape') setEditing(false); }}
             placeholder="e.g. 500000"
-            className="w-40 rounded border px-3 py-1.5 text-[13px] tabular-nums outline-none"
-            style={{ borderColor: HAIRLINE, color: INK, background: '#FFFFFF' }}
+            className="w-40 rounded-[8px] border px-3 py-1.5 text-[13px] tabular-nums outline-none"
+            style={{ borderColor: 'var(--fs-border-medium)', color: 'var(--fs-text-primary)', background: 'var(--fs-bg-card)' }}
           />
-          <button onClick={save} disabled={busy} className="text-[13px] font-medium underline underline-offset-4 disabled:opacity-50" style={{ color: INK }}>Save</button>
-          <button onClick={() => setEditing(false)} className="text-[13px] font-medium" style={{ color: MUTED }}>Cancel</button>
+          <button onClick={save} disabled={busy} className="text-[13px] font-semibold disabled:opacity-50" style={{ color: 'var(--fs-accent-soft-text)' }}>Save</button>
+          <button onClick={() => setEditing(false)} className="text-[13px] font-medium" style={{ color: 'var(--fs-text-muted)' }}>Cancel</button>
         </div>
       ) : goal.goal === 0 ? (
         <button onClick={() => { setValue(''); setEditing(true); }}
-          className="mt-4 inline-flex items-center gap-2 text-[13px] font-medium underline-offset-4 hover:underline" style={{ color: INK }}>
+          className="mt-4 inline-flex items-center gap-2 text-[13px] font-medium" style={{ color: 'var(--fs-accent-soft-text)' }}>
           <Target size={13} strokeWidth={1.5} /> Set a monthly revenue target
         </button>
       ) : (
         <>
           <div className="mt-4 flex items-baseline gap-2">
-            <p className="font-display-serif text-[26px] font-light leading-none tabular-nums" style={{ color: INK }}>{pkr(goal.earned)}</p>
-            <p className="text-[12px]" style={{ color: MUTED }}>of {pkr(goal.goal)}</p>
+            <p className="text-[21px] font-bold leading-none tabular-nums" style={{ color: 'var(--fs-text-primary)', letterSpacing: '-0.3px' }}>{pkr(goal.earned)}</p>
+            <p className="text-[12px]" style={{ color: 'var(--fs-text-muted)' }}>of {pkr(goal.goal)}</p>
           </div>
 
-          {/* thin 2px line progress */}
-          <div className="relative mt-3 h-[2px] w-full" style={{ background: 'rgba(26,24,21,0.08)' }}>
+          {/* thin 3px progress line */}
+          <div className="relative mt-3 h-[3px] w-full" style={{ background: 'var(--fs-border-subtle)' }}>
             <div className="animate-bar-fill absolute left-0 top-0 h-full" style={{ '--w': `${pct}%`, width: `${pct}%`, background: pace.bar }} />
-            <span className="absolute top-1/2 h-3 w-px -translate-y-1/2" style={{ left: `${Math.min(100, goal.pctElapsed)}%`, background: 'rgba(26,24,21,0.35)' }} title={`${goal.pctElapsed}% of the month elapsed`} />
           </div>
 
           <div className="mt-3 flex items-baseline justify-between text-[12px]">
-            <span className="font-medium tabular-nums" style={{ color: INK }}>{goal.pctAchieved}% complete</span>
-            <span style={{ color: MUTED }}>{goal.pctElapsed}% of month gone</span>
+            <span className="font-semibold tabular-nums" style={{ color: 'var(--fs-text-secondary)' }}>{goal.pctAchieved}% complete</span>
+            <span style={{ color: 'var(--fs-text-muted)' }}>{goal.pctElapsed}% of month gone</span>
           </div>
 
           {goal.dailyNeeded > 0 && (
-            <p className="mt-3 text-[13px]" style={{ color: MUTED }}>
-              Need <span className="font-medium" style={{ color: INK }}>{pkr(goal.dailyNeeded)}</span>/day for the remaining {goal.daysRemaining} day{goal.daysRemaining === 1 ? '' : 's'}.
+            <p className="mt-3 text-[13px]" style={{ color: 'var(--fs-text-muted)' }}>
+              Need <span className="font-medium" style={{ color: 'var(--fs-text-secondary)' }}>{pkr(goal.dailyNeeded)}</span>/day for the remaining {goal.daysRemaining} day{goal.daysRemaining === 1 ? '' : 's'}.
             </p>
           )}
         </>

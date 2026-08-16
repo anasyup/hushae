@@ -1,10 +1,8 @@
-// Admin panel theme — LIGHT by default, dark as an explicit opt-in.
+// Admin panel theme — FLAGSHIP DARK by default (Linear/Vercel register).
 //
-// History: dark used to be the forced default, then the merchant asked to
-// remove it (2026-08-15). It now returns as a TOP-BAR TOGGLE (sun/moon) that
-// defaults to LIGHT on every device until the user opts into dark — so the
-// panel looks exactly as before until someone deliberately switches it.
-// The choice is stored in localStorage per device.
+// Dark is the primary direction. A sun/moon toggle in the topbar still lets
+// a user switch to the optional light counterpart; the choice is stored in
+// localStorage per device. Default (no stored value) = 'dark'.
 //
 // .dark-admin is applied ONLY on admin routes — the storefront never changes.
 
@@ -12,7 +10,7 @@ const KEY = 'vl_admin_theme';
 const isAdminPath = () => typeof window !== 'undefined' && /^\/admin/.test(window.location.pathname);
 
 export function getAdminTheme() {
-  try { return localStorage.getItem(KEY) || 'light'; } catch { return 'light'; }
+  try { return localStorage.getItem(KEY) || 'dark'; } catch { return 'dark'; }
 }
 
 export function applyAdminTheme() {

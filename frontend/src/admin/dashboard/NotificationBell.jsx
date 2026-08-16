@@ -79,12 +79,12 @@ export default function NotificationBell() {
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen((v) => !v)}
-        className="relative p-2 text-[#6F6A5E] transition-opacity hover:opacity-60"
+        className="relative p-2 transition-opacity hover:opacity-60" style={{ color: "var(--fs-text-muted)" }}
         aria-label={`Notifications${data.unread ? ` — ${data.unread} unread` : ''}`}
       >
         <Bell size={15} strokeWidth={1.5} />
         {data.unread > 0 && (
-          <span className="absolute -right-0.5 -top-0.5 grid h-4 min-w-4 place-items-center rounded-full px-1 text-[11px] font-medium text-white" style={{ background: '#9C2C4E' }}>
+          <span className="absolute -right-0.5 -top-0.5 grid h-4 min-w-4 place-items-center rounded-full px-1 text-[11px] font-medium text-white" style={{ background: 'var(--fs-accent)' }}>
             {data.unread > 9 ? '9+' : data.unread}
           </span>
         )}

@@ -7,10 +7,10 @@ import { CalendarDays } from 'lucide-react';
  * value shape: { preset, from, to } (YYYY-MM-DD, inclusive).
  * ========================================================================== */
 
-const INK = '#1A1815';
-const MUTED = '#6F6A5E';
-const HAIRLINE = 'rgba(26,24,21,0.08)';
-const ACCENT = '#9C2C4E';
+const INK = 'var(--fs-text-primary)';
+const MUTED = 'var(--fs-text-muted)';
+const HAIRLINE = 'var(--fs-border-subtle)';
+const ACCENT = 'var(--fs-accent-soft-text)';
 
 const iso = (d) => d.toISOString().slice(0, 10);
 
@@ -101,7 +101,7 @@ export default function RangePicker({ value, onChange }) {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full z-40 mt-2 w-64 rounded-lg bg-white p-1.5 shadow-sm" style={{ border: `1px solid ${HAIRLINE}` }}>
+        <div className="absolute right-0 top-full z-40 mt-2 w-64 rounded-[10px] p-1.5" style={{ border: `1px solid ${HAIRLINE}`, background: "var(--fs-bg-card)" }}>
           {RANGE_PRESETS.map((p) => (
             <button
               key={p.key}
@@ -118,11 +118,11 @@ export default function RangePicker({ value, onChange }) {
             <div className="mt-1 space-y-2 border-t pt-2" style={{ borderColor: HAIRLINE }}>
               <label className="flex items-center justify-between gap-2 px-1 text-[12px]" style={{ color: MUTED }}>
                 From
-                <input type="date" value={value.from || ''} onChange={(e) => onChange({ ...value, preset: 'custom', from: e.target.value })} className="rounded border px-2 py-1 text-[12px] outline-none" style={{ borderColor: HAIRLINE, color: INK }} />
+                <input type="date" value={value.from || ''} onChange={(e) => onChange({ ...value, preset: 'custom', from: e.target.value })} className="rounded-[8px] border px-2 py-1 text-[12px] outline-none" style={{ borderColor: "var(--fs-border-medium)", color: INK, background: "var(--fs-bg-card)" }} />
               </label>
               <label className="flex items-center justify-between gap-2 px-1 text-[12px]" style={{ color: MUTED }}>
                 To
-                <input type="date" value={value.to || ''} onChange={(e) => onChange({ ...value, preset: 'custom', to: e.target.value })} className="rounded border px-2 py-1 text-[12px] outline-none" style={{ borderColor: HAIRLINE, color: INK }} />
+                <input type="date" value={value.to || ''} onChange={(e) => onChange({ ...value, preset: 'custom', to: e.target.value })} className="rounded-[8px] border px-2 py-1 text-[12px] outline-none" style={{ borderColor: "var(--fs-border-medium)", color: INK, background: "var(--fs-bg-card)" }} />
               </label>
             </div>
           )}

@@ -38,33 +38,33 @@
   --n950: 17 17 17;
 }
 
-/* Admin dark palette — opt-in via the topbar sun/moon toggle (default light).
-   Base #0e1116, cards #161b22, raised #1a2028, borders #232b36, text scale
-   descending from near-white (#eef1f5 → muted #6b7686). */
+/* Admin dark palette — flagship dark (Linear/Vercel register). Default theme.
+   Base #0A0A0C, cards #111114, raised #17171B, borders rgba(255,255,255,0.06),
+   text scale descending from #F4F4F5 → muted #8A8A93. */
 .dark-admin {
-  --tw-white: 22 27 34;     /* cards / panels */
-  --tw-black: 14 17 22;     /* page background */
-  --n50:  22 27 34;         /* card surface */
-  --n100: 26 32 40;         /* raised / hover */
-  --n200: 35 43 54;         /* selected / strong borders */
-  --n300: 47 57 71;         /* input borders */
-  --n400: 75 86 100;        /* disabled */
-  --n500: 107 118 134;      /* secondary text */
-  --n600: 152 162 179;      /* body text */
-  --n700: 184 192 205;      /* emphasized text */
-  --n800: 211 217 226;      /* headings */
-  --n900: 238 241 245;      /* strongest text */
-  --n950: 248 250 252;
+  --tw-white: 17 17 20;     /* cards / panels #111114 */
+  --tw-black: 10 10 12;     /* page background #0A0A0C */
+  --n50:  17 17 20;         /* card surface #111114 */
+  --n100: 23 23 27;         /* raised / hover #17171B */
+  --n200: 30 30 34;         /* selected / subtle borders */
+  --n300: 44 44 50;         /* input borders */
+  --n400: 66 66 74;         /* disabled */
+  --n500: 138 138 147;      /* muted text #8A8A93 */
+  --n600: 138 138 147;
+  --n700: 209 209 214;      /* secondary text #D1D1D6 */
+  --n800: 209 209 214;
+  --n900: 244 244 245;      /* primary text #F4F4F5 */
+  --n950: 244 244 245;
   /* QA tokens under dark admin — insurance so any component that inherits
      body colour/background stays dark-correct. */
-  --stone: 22 27 34;
-  --sand:  26 32 40;
-  --clay:  35 43 54;
-  --charcoal: 238 241 245;
-  --smoke: 152 162 179;
-  --gold:  201 169 110;
-  --bronze: 166 138 86;
-  --midnight: 14 17 22;
+  --stone: 10 10 12;
+  --sand:  17 17 20;
+  --clay:  30 30 34;
+  --charcoal: 244 244 245;
+  --smoke: 138 138 147;
+  --gold:  108 92 231;      /* accent #6C5CE7 (one accent) */
+  --bronze: 91 79 233;      /* accent-deep #5B4FE9 */
+  --midnight: 10 10 12;
 }
 
 /* ════════════════════════════════════════════════════════════════════════
@@ -662,16 +662,16 @@
   font-size: 14.5px;
   line-height: 1.55;
 }
-.admin-shell h1 { font-size: 20px !important; font-weight: 600 !important; letter-spacing: -0.01em; }
+.admin-shell h1 { font-size: 20px !important; font-weight: 700 !important; letter-spacing: -0.3px !important; }
 .admin-shell h2 { font-size: 18px !important; font-weight: 600 !important; }
 .admin-shell h3 { font-size: 16px !important; font-weight: 600 !important; }
 .admin-shell .font-display { font-family: 'Helvetica Neue', Helvetica, Arial, ui-sans-serif, system-ui, sans-serif !important; }
 .admin-shell button, .admin-shell input, .admin-shell select, .admin-shell textarea { font-family: inherit; font-size: 14px; }
-.admin-shell .card { border-radius: 8px; background: #fff !important; border-color: #E5E7EB !important; box-shadow: none; }
-.admin-shell .btn { border-radius: 6px; }
-.admin-shell .input { border-radius: 6px; background: #fff !important; padding: 8px 12px; font-size: 14px; border-color: #D1D5DB; }
-.admin-shell .btn-primary { border-radius: 6px; background: #1a1a1a; padding: 7px 14px; font-size: 13.5px; font-weight: 600; }
-.admin-shell .btn-outline { border-radius: 6px; padding: 7px 14px; font-size: 13.5px; font-weight: 600; }
+.admin-shell .card { border-radius: 8px; background: var(--fs-bg-card) !important; border-color: var(--fs-border-subtle) !important; box-shadow: none; }
+.admin-shell .btn { border-radius: 8px; }
+.admin-shell .input { border-radius: 8px; background: var(--fs-bg-card) !important; padding: 8px 12px; font-size: 14px; border-color: var(--fs-border-medium); color: var(--fs-text-primary); }
+.admin-shell .btn-primary { border-radius: 8px; background: var(--fs-accent); padding: 7px 14px; font-size: 13.5px; font-weight: 600; color: #FFFFFF; }
+.admin-shell .btn-outline { border-radius: 8px; padding: 7px 14px; font-size: 13.5px; font-weight: 600; }
 .admin-shell .pill { font-size: 12px; padding: 4px 9px; border-radius: 4px; }
 .admin-shell .table-head { font-size: 12.5px; padding: 8px 12px; color: #6D7175; }
 .admin-shell .table-cell { font-size: 14px; padding: 10px 12px; }
@@ -758,70 +758,70 @@
 }
 
 /* ════════════════════════════════════════════════════════════════════════
-   EDITORIAL ADMIN — warm luxury-minimal palette (Aesop / The Row register).
-   Bone page, warm near-black ink, warm muted grays, hairline dividers.
-   Accent is used EXTREMELY sparingly (one primary action + one number).
+   FLAGSHIP DARK — admin design tokens (Linear / Vercel register).
+   Dark is the PRIMARY direction; light is the optional counterpart. Every
+   component references var(--fs-*) — no hardcoded per-component hex.
    ════════════════════════════════════════════════════════════════════════ */
 :root {
-  --admin-bone:     #FAF8F5;
-  --admin-ink:      #1A1815;
-  --admin-muted:    #6F6A5E;   /* 5.08:1 on bone — WCAG AA */
-  --admin-faint:    #8A8578;   /* decorative only — never body text */
-  --admin-hairline: rgba(26, 24, 21, 0.08);
-  --admin-accent:   #9C2C4E;   /* deep rose-burgundy — 6.87:1 on bone */
-  /* desaturated status palette (text — flips to lighter tints in dark mode) */
-  --admin-s-pending:    #9C5A3C;
-  --admin-s-confirmed:  #5F6B45;
-  --admin-s-processing: #5C6C8A;
-  --admin-s-ready:      #6A6E8C;
-  --admin-s-shipped:    #6C6183;
-  --admin-s-delivered:  #5F6B45;
-  --admin-s-cancelled:  #9C5A52;
-  --admin-s-refunded:   #8F6040;
+  /* optional light mode — same structure, light counterpart */
+  --fs-bg-page:         #F8F9FB;
+  --fs-bg-sidebar:      #FFFFFF;
+  --fs-bg-card:         #FFFFFF;
+  --fs-bg-card-hover:   #F1F5F9;
+  --fs-border-subtle:   rgba(15, 23, 42, 0.06);
+  --fs-border-medium:   rgba(15, 23, 42, 0.12);
+  --fs-text-primary:    #0F172A;
+  --fs-text-secondary:  #475569;
+  --fs-text-muted:      #64748B;
+  --fs-accent:          #6C5CE7;
+  --fs-accent-hover:    #7C6CF0;
+  --fs-accent-soft-bg:  rgba(108, 92, 231, 0.12);
+  --fs-accent-soft-text:#6C5CE7;
+  --fs-success:  #16A34A;
+  --fs-warning:  #B45309;
+  --fs-danger:   #DC2626;
 }
 
-/* Dark-mode flips for the editorial palette (warm, not blue-black). */
+/* Primary — flagship dark (applied via .dark-admin; admin defaults to dark). */
 .dark-admin {
-  --admin-bone:     #141210;
-  --admin-ink:      #EDE7DC;
-  --admin-muted:    #B3AB9D;
-  --admin-faint:    #8A8578;
-  --admin-hairline: rgba(237, 231, 220, 0.12);
-  --admin-accent:   #D18AA0;
-  --admin-s-pending:    #C0805C;
-  --admin-s-confirmed:  #93A87A;
-  --admin-s-processing: #8FA3C2;
-  --admin-s-ready:      #9BA0C2;
-  --admin-s-shipped:    #A396C2;
-  --admin-s-delivered:  #93A87A;
-  --admin-s-cancelled:  #C0857C;
-  --admin-s-refunded:   #B99A6E;
+  --fs-bg-page:         #0A0A0C;
+  --fs-bg-sidebar:      #0E0E11;
+  --fs-bg-card:         #111114;
+  --fs-bg-card-hover:   #17171B;
+  --fs-border-subtle:   rgba(255, 255, 255, 0.06);
+  --fs-border-medium:   rgba(255, 255, 255, 0.10);
+  --fs-text-primary:    #F4F4F5;
+  --fs-text-secondary:  #D1D1D6;
+  --fs-text-muted:      #8A8A93;
+  --fs-accent:          #6C5CE7;
+  --fs-accent-hover:    #7C6CF0;
+  --fs-accent-soft-bg:  rgba(124, 108, 240, 0.15);
+  --fs-accent-soft-text:#B8AEFC;
+  --fs-success:  #4ADE80;
+  --fs-warning:  #F0B429;
+  --fs-danger:   #F87171;
 }
 
-/* FRAUNCES — self-hosted editorial serif (variable, 300-600 + optical size).
-   The admin's display face for the greeting and the big numbers. */
+/* INTER — self-hosted variable font (400–700). No serif anywhere in admin. */
 @font-face {
-  font-family: 'Fraunces';
-  src: url('/fonts/Fraunces-Latin.woff2') format('woff2');
-  font-weight: 300 600;
+  font-family: 'Inter';
+  src: url('/fonts/Inter-Latin.woff2') format('woff2');
+  font-weight: 400 700;
   font-style: normal;
   font-display: swap;
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+2215, U+FEFF, U+FFFD;
 }
-/* .admin-shell sets its own Inter family unlayered, which beats the layered
-   `font-display-serif` utility — reassert the serif for display elements, and
-   keep serif headings light (the admin's !important 600 rule would otherwise
-   force bold). */
-.admin-shell .font-display-serif { font-family: 'Fraunces', Georgia, 'Times New Roman', serif !important; }
-.admin-shell h1.font-display-serif, .admin-shell .font-display-serif { font-weight: 300 !important; }
 
-/* Quiet live indicator — gentle opacity pulse (2s). Reduced-motion users get
-   a static dot via the global prefers-reduced-motion override. */
-@keyframes admin-live-pulse {
+/* Admin focus ring — 2px accent + 2px offset (keyboard a11y; replaces
+   nothing — augments the default, per spec). */
+.admin-shell :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--fs-accent);
+  outline-offset: 2px;
+}
+
+/* Live indicator — gentle pulse (2s). Reduced-motion safe via global rule. */
+@keyframes fs-live-pulse {
   0%, 100% { opacity: 1; }
   50%      { opacity: 0.4; }
 }
-.live-dot { animation: admin-live-pulse 2s ease-in-out infinite; }
-
-/* Thin hairline divider helper — separation without borders or shadows. */
-.admin-hairline { border-color: var(--admin-hairline); }
+.live-dot { animation: fs-live-pulse 2s ease-in-out infinite; }

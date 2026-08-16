@@ -105,7 +105,7 @@ export default function VerificationQueue() {
             return (
               <div key={o._id} className={`rounded-2xl border bg-white p-4 transition ${idx === 0 ? 'border-neutral-900 ring-1 ring-neutral-900/10' : 'border-neutral-200'}`}>
                 <div className="flex flex-wrap items-center gap-3">
-                  <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-full text-[12px] font-bold ${idx === 0 ? 'bg-neutral-900 text-white' : 'bg-neutral-100 text-neutral-600'}`}>{idx + 1}</span>
+                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-[12px] font-semibold" style={idx === 0 ? { background: 'var(--fs-accent)', color: '#FFFFFF' } : { background: 'var(--fs-bg-card-hover)', color: 'var(--fs-text-muted)' }}>{idx + 1}</span>
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <p className="font-sans text-[14px] font-semibold text-neutral-900">{o.customerInfo?.name || 'Customer'}</p>
@@ -123,7 +123,7 @@ export default function VerificationQueue() {
 
                   <div className="flex shrink-0 items-center gap-1.5">
                     {wa && <a href={wa} target="_blank" rel="noreferrer" aria-label={`WhatsApp ${o.orderNumber}`} title="Verify via WhatsApp" className="grid h-9 w-9 place-items-center rounded-full border border-emerald-200 bg-emerald-50 text-emerald-700 transition hover:bg-emerald-100"><MessageCircle size={15} /></a>}
-                    <button disabled={busy} onClick={() => act(o._id, 'verified')} className="inline-flex h-9 items-center gap-1 rounded-full bg-neutral-900 px-3.5 text-[12px] font-semibold text-white transition hover:bg-neutral-800 disabled:opacity-50"><Check size={13} /> Verified</button>
+                    <button disabled={busy} onClick={() => act(o._id, 'verified')} className="inline-flex h-9 items-center gap-1 rounded-[8px] px-3.5 text-[12px] font-semibold text-[#FFFFFF] transition-colors hover:bg-[var(--fs-accent-hover)] active:scale-[0.98] disabled:opacity-50" style={{ background: 'var(--fs-accent)' }}><Check size={13} /> Verified</button>
                     <button disabled={busy} onClick={() => act(o._id, 'no-answer')} className="inline-flex h-9 items-center gap-1 rounded-full border border-neutral-300 bg-white px-3.5 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-50"><PhoneOff size={13} /> No Answer</button>
                     <button disabled={busy} onClick={() => { setCancelFor(o._id); setReason(''); }} className="inline-flex h-9 items-center gap-1 rounded-full border border-red-200 bg-white px-3.5 text-[12px] font-semibold text-red-600 transition hover:bg-red-50 disabled:opacity-50"><Ban size={13} /> Cancel</button>
                   </div>
@@ -137,7 +137,7 @@ export default function VerificationQueue() {
                       {CANCEL_REASONS.map((r) => <option key={r} value={r}>{r}</option>)}
                     </select>
                     {reason === 'Other' && <input value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Describe…" className="rounded-md border border-red-200 bg-white px-2 py-1.5 text-[12px] outline-none" />}
-                    <button disabled={!reason || busy} onClick={() => act(o._id, 'cancel', { reason })} className="rounded-full bg-red-600 px-3.5 py-1.5 text-[12px] font-semibold text-white transition hover:bg-red-700 disabled:opacity-50">Confirm cancel</button>
+                    <button disabled={!reason || busy} onClick={() => act(o._id, 'cancel', { reason })} className="rounded-[8px] px-3.5 py-1.5 text-[12px] font-semibold text-[#FFFFFF] transition-colors hover:opacity-80 disabled:opacity-50" style={{ background: 'var(--fs-danger)' }}>Confirm cancel</button>
                     <button onClick={() => { setCancelFor(null); setReason(''); }} className="rounded-full px-2 py-1.5 text-[12px] font-semibold text-neutral-500 hover:text-neutral-900">Dismiss</button>
                   </div>
                 )}
