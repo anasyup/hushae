@@ -70,7 +70,7 @@ export default function Wishlist() {
   /* The whole feature can be switched off by the merchant. */
   if (!cfg.enabled) {
     return (
-      <div className="container-page py-sect-y text-center pt-[150px]">
+      <div className="container-page py-sect-y text-center pt-[130px]">
         <h1 className="font-display text-h2">{cfg.title}</h1>
         <p className="mt-3 text-body text-ash">This feature is currently unavailable.</p>
         <Link to="/women" className="btn-primary mt-8">Continue shopping</Link>
@@ -79,7 +79,7 @@ export default function Wishlist() {
   }
 
   return (
-    <div className="container-page pt-[150px] pb-8 md:pb-12"><Seo title="Wishlist" description="Your saved HUSHAE pieces — move them to your bag in one tap." />
+    <div className="container-page pt-[130px] pb-8 md:pb-12"><Seo title="Wishlist" description="Your saved HUSHAE pieces — move them to your bag in one tap." />
       <header className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3 border-b border-line pb-6">
         <div>
           <h1 className="font-display text-h1">

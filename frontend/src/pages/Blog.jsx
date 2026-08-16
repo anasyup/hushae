@@ -31,7 +31,7 @@ export default function Blog() {
       />
 
       <header className="border-b border-line">
-        <div className="container pt-[150px] pb-16 md:pb-24">
+        <div className="container pt-[130px] pb-16 md:pb-24">
           <p className="eyebrow">The journal</p>
           <h1 className="mt-3 text-[36px] md:text-[56px] font-normal uppercase tracking-[0.01em] leading-[1.05]">Stories & fit guides</h1>
           <p className="mt-4 body-sm text-ash max-w-xl">The thinking behind the pieces — sizing notes, fabric care, and what makes innerwear work.</p>
@@ -39,11 +39,11 @@ export default function Blog() {
       </header>
 
       {error ? (
-        <div className="container pt-[150px] pb-20 text-center">
+        <div className="container pt-[130px] pb-20 text-center">
           <p className="body text-ash">The journal could not be loaded right now.</p>
         </div>
       ) : !posts ? (
-        <div className="container pt-[150px] pb-20">
+        <div className="container pt-[130px] pb-20">
           <div className="grid grid-cols-1 gap-[2px] bg-line md:grid-cols-3">
             {[0, 1, 2].map((i) => (
               <div key={i} className="bg-alabaster p-6"><div className="skeleton h-64 w-full" /><div className="skeleton mt-4 h-4 w-3/4" /></div>
@@ -51,7 +51,7 @@ export default function Blog() {
           </div>
         </div>
       ) : posts.length === 0 ? (
-        <div className="container pt-[150px] pb-20 text-center">
+        <div className="container pt-[130px] pb-20 text-center">
           <p className="body text-ash">Nothing published yet — the first story is on its way.</p>
         </div>
       ) : (

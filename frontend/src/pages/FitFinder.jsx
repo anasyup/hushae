@@ -141,10 +141,10 @@ export default function FitFinder() {
 
   return (
     <div style={{ background: '#FFFFFF', minHeight: '100vh' }}><Seo title="Fit Finder" description="Find your perfect HUSHAE size in under a minute — no tape measure needed." />
-      <div className="container section pt-[280px]">
+      <div className="container pb-12 pt-[130px] md:pb-16">
         {/* Header */}
         {step === 0 && !result && (
-          <div className="mb-12 text-center">
+          <div className="mb-8 text-center">
             <Ruler size={28} className="mx-auto mb-4 text-obsidian" />
             <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-ash">HUSHAE Fit Finder</p>
             <h1 className="mt-3 h1">Find your perfect fit</h1>
@@ -154,7 +154,7 @@ export default function FitFinder() {
 
         {/* Progress */}
         {!result && (
-          <div className="mb-10 flex items-center gap-2 max-w-md mx-auto">
+          <div className="mb-6 flex items-center gap-2 max-w-md mx-auto">
             {QUESTIONS.map((_, i) => (
               <div key={i} className={`h-[2px] flex-1 transition-colors ${i < step ? 'bg-obsidian' : i === step ? 'bg-obsidian' : 'bg-line'}`} />
             ))}
@@ -166,18 +166,18 @@ export default function FitFinder() {
         {!result && current && (
           <div className="max-w-md mx-auto">
             <h2 className="text-[18px] font-medium uppercase tracking-[0.06em] text-obsidian mb-1">{current.label}</h2>
-            {current.hint && <p className="text-[13px] text-ash mb-6">{current.hint}</p>}
-            <div className="space-y-3">
+            {current.hint && <p className="text-[13px] text-ash mb-5">{current.hint}</p>}
+            <div className="space-y-2.5">
               {current.options.map((opt) => (
                 <button key={opt.value} onClick={() => pick(opt.value)}
-                  className="w-full border border-line bg-white p-4 text-left transition-colors hover:border-obsidian">
+                  className="w-full border border-line bg-white p-3.5 text-left transition-colors hover:border-obsidian">
                   <span className="text-[15px] font-medium text-obsidian">{opt.label}</span>
                   {opt.desc && <span className="mt-1 block text-[12px] text-ash">{opt.desc}</span>}
                 </button>
               ))}
             </div>
             {step > 0 && (
-              <button onClick={() => setStep(step - 1)} className="mt-6 text-[12px] font-medium uppercase tracking-[0.10em] text-ash hover:text-obsidian">
+              <button onClick={() => setStep(step - 1)} className="mt-5 text-[12px] font-medium uppercase tracking-[0.10em] text-ash hover:text-obsidian">
                 ← Back
               </button>
             )}
@@ -187,13 +187,13 @@ export default function FitFinder() {
         {/* Result */}
         {result && (
           <div className="max-w-md mx-auto text-center">
-            <div className="mb-8 inline-flex h-20 w-20 items-center justify-center border-2 border-obsidian">
+            <div className="mb-6 inline-flex h-20 w-20 items-center justify-center border-2 border-obsidian">
               <span className="text-[28px] font-medium tabular-nums text-obsidian">{result.size}</span>
             </div>
             <h2 className="h2">Your HUSHAE size is {result.size}</h2>
 
             {/* Size conversions */}
-            <div className="mt-6 grid grid-cols-3 gap-2 max-w-xs mx-auto">
+            <div className="mt-5 grid grid-cols-3 gap-2 max-w-xs mx-auto">
               {[
                 { label: 'US', value: result.us },
                 { label: 'UK', value: result.uk },
@@ -206,11 +206,11 @@ export default function FitFinder() {
               ))}
             </div>
 
-            <p className="mt-6 text-[13px] text-ash max-w-sm mx-auto">
+            <p className="mt-5 text-[13px] text-ash max-w-sm mx-auto">
               This size is saved and will appear on every product page. You can retake anytime.
             </p>
 
-            <div className="mt-8 flex flex-col gap-3 max-w-xs mx-auto">
+            <div className="mt-6 flex flex-col gap-3 max-w-xs mx-auto">
               <Link to={result.gender === 'women' ? '/women' : '/men'}
                 className="min-h-[44px] bg-obsidian text-[12px] font-medium uppercase tracking-[0.10em] text-white flex items-center justify-center transition-opacity hover:opacity-80">
                 Shop {result.gender === 'women' ? "Women's" : "Men's"} <ArrowRight size={12} className="ml-1" />

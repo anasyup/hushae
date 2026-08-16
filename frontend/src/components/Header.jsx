@@ -119,13 +119,14 @@ export default function Header() {
         </div>
       )}
 
-      {/* 2. Main header — below the announcement bar (CK reference:
-          transparent at top → solid BLACK + white text once scrolled) */}
+      {/* 2. Main header — below the announcement bar.
+          Clean luxury: transparent (black text) at top over the hero →
+          solid white + hairline + black text once scrolled (no heavy block). */}
       <header
         data-header
-        className={`w-full h-[96px] !m-0 px-6 lg:px-12 transition-all duration-300 ease-in-out ${
+        className={`w-full h-[72px] !m-0 px-6 lg:px-12 transition-all duration-300 ease-in-out ${
           mega || isScrolled
-            ? 'bg-[#000000] text-white shadow-sm'
+            ? 'bg-[#FFFFFF] text-black border-b border-neutral-200 shadow-sm'
             : 'bg-transparent text-black'
         }`}
         onMouseLeave={() => setMega(null)}
@@ -145,8 +146,8 @@ export default function Header() {
             <Menu size={20} strokeWidth={1.5} aria-hidden="true" />
           </button>
 
-          {/* Logo — serif bold tracked caps (reference) */}
-          <Link to="/" aria-label="HUSHAÈ — home" className="flex-shrink-0 font-serif text-2xl font-bold uppercase tracking-[0.2em] transition-opacity duration-300 hover:opacity-80">
+          {/* Logo — quiet luxury: lighter weight, wider tracking */}
+          <Link to="/" aria-label="HUSHAÈ — home" className="flex-shrink-0 font-serif text-[21px] font-medium uppercase tracking-[0.3em] transition-opacity duration-300 hover:opacity-70">
             HUSHAÈ
           </Link>
 
@@ -210,7 +211,7 @@ export default function Header() {
                 aria-label={cartCount ? `Open bag, ${cartCount} item${cartCount === 1 ? '' : 's'}` : 'Open bag'}
                 className="relative flex items-center justify-center p-1 transition-opacity duration-200 hover:opacity-60">
                 <ShoppingBag size={20} strokeWidth={1.5} aria-hidden="true" />
-                <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-white text-[9px] font-bold text-black">
+                <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-black text-[9px] font-bold text-white">
                   {cartCount}
                 </span>
               </button>

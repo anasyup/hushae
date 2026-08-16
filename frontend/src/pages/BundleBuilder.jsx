@@ -65,7 +65,7 @@ export default function BundleBuilder() {
 
   return (
     <div style={{ background: '#FFFFFF' }}>
-      <div className="container section pt-[150px]">
+      <div className="container section pt-[130px]">
         {/* Header */}
         <div className="mb-10">
           <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-ash">Bundle & save</p>

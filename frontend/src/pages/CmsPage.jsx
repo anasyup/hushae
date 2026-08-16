@@ -153,7 +153,7 @@ export default function CmsPage({ slug: fixedSlug, fallback: Fallback }) {
           <PageRenderer doc={normalise(page.doc)} theme={theme || {}} />
         </Suspense>
       ) : (
-        <article className="mx-auto max-w-3xl px-4 pt-[150px] pb-16 md:px-8 md:pb-24">
+        <article className="mx-auto max-w-3xl px-4 pt-[130px] pb-16 md:px-8 md:pb-24">
           <p className="text-[11px] font-bold uppercase tracking-widest text-sagedeep">
             HUSHAE{page.type === 'legal' ? ' · Legal' : ''}
           </p>
