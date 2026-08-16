@@ -1,4 +1,12 @@
 ## Changes
+- **2026-08-16** — 🎯 **PRODUCTION REDESIGN & UX (branch `ui/production-redesign`, preview-only — not merged)**
+  - Phase 0 audit: `ADMIN-FEATURE-INVENTORY.md` — every nav item, API, model and status mapped. No fake features.
+  - Visual language (light primary): white surfaces, soft neutral #F6F6F8 page, charcoal #18181B text, HUSHAE purple #6C5CE7 accent, Inter self-hosted (no serif). Green/amber/red/blue status. Tokens centralised as --px-* CSS vars (light + optional dark, default light). Subtle 1px borders + faint shadow; no gradients/glass/3D.
+  - Sidebar: white, purple gradient mark + "Hushae" + Admin chip, purple soft active nav, ⌘K search. Topbar: 20px/700 title, outline secondary buttons, ONE primary "+ Add product", Create menu (real routes), Store-online dot.
+  - Dashboard: header (greeting/status/range/refresh/export), attention centre (real alerts + action buttons), KPI cards (24px/700, ↑↓/New trend, click-through, purple sparklines), sales overview (purple 2px line, no fill), order status donut, pipeline, payment health, peak hours, **Store health** (real signals, no fabricated score), **Activity feed** (real AuditLog — logAction extended to order status/stage + product create/update), cancellation reasons, abandoned carts, best sellers, **Recent orders with right-side Quick View drawer** (real /orders/manage/:id — items, totals, timeline, WhatsApp, stage advance), low stock + top customers.
+  - WCAG AA re-verified on white: muted #71717A 4.83:1, accent #6C5CE7 4.86:1, success darkened #15803D 5.02:1, danger 4.83:1, secondary 7.73:1. Focus ring + reduced-motion kept. Empty/loading/error states on every widget.
+  - Build clean, 8/8 test suites pass. Mobile 390px no h-scroll. Preview: https://hushae-oklns78rt-belo-dv.vercel.app
+
 - **2026-08-16** — 🖋️ **EDITORIAL REDESIGN — SHELL DEEPENING (branch `ui/editorial-redesign`, preview-only)**
   - The previous editorial pass redesigned the dashboard content; this pass extends it to the whole admin SHELL so the entire screen reads editorial, not just the widgets:
     - Sidebar: serif light HUSHAE wordmark + tiny caps "ADMIN" label; nav links as quiet ink/muted text (no white active box, no shadows); hairline-underline search; muted sign-out.
