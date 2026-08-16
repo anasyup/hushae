@@ -4,14 +4,15 @@ import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 
 /* ============================================================================
- * HUSHAE FOOTER — split luxury (exact HTML/CSS reference provided by client).
+ * HUSHAE FOOTER — quiet luxury, single clean column (v3).
  *
- * LEFT  (#171615)  — brand logo, tagline, features, country/language selectors
- * RIGHT (#0a0a0a)  — 3-col nav (Shop / Service / Connect), divider, newsletter
- *                    (borderless + →), legal links, copyright
+ * One dark surface (#0D0D0D), generous but compact:
+ *   Row 1 — brand wordmark + tagline | newsletter
+ *   Row 2 — nav columns (Shop / Service / Connect) | legal
+ *   Row 3 — hairline + copyright
  *
- * Body #0d0d0d · text #e5e5e5 · primary #fff · secondary #8c8a87 · divider #222
- * Mobile: columns 3→2, tagline 28px, padding 40/24.
+ * Removed: the split two-panel layout and the dead country/language selects
+ * (they were non-functional decoration taking vertical space).
  * ========================================================================== */
 
 const NAV = [
@@ -21,7 +22,8 @@ const NAV = [
       { label: 'Women', href: '/women' },
       { label: 'Men', href: '/men' },
       { label: 'New in', href: '/new' },
-      { label: 'Collections', href: '/collection/new-arrivals' },
+      { label: 'Best Sellers', href: '/best' },
+      { label: 'Sale', href: '/sale' },
     ],
   },
   {
@@ -31,6 +33,7 @@ const NAV = [
       { label: 'Delivery', href: '/shipping-policy' },
       { label: 'Returns', href: '/returns' },
       { label: 'Size guide', href: '/fit-finder' },
+      { label: 'Track order', href: '/track' },
     ],
   },
   {
@@ -39,7 +42,6 @@ const NAV = [
       { label: 'Instagram', href: '/journal' },
       { label: 'Pinterest', href: '/journal' },
       { label: 'TikTok', href: '/journal' },
-      { label: 'Newsletter', href: '#newsletter' },
     ],
   },
 ];
@@ -50,28 +52,8 @@ const LEGAL = [
   { label: 'Cookies', href: '/privacy' },
 ];
 
-/* ── Minimal native select — transparent, white text, arrow ─────────────── */
-function Selector({ label, options, id }) {
-  return (
-    <div>
-      <label htmlFor={id} className="mb-3 block text-[10px] uppercase tracking-[0.15em] text-[#8c8a87]">{label}</label>
-      <div className="relative inline-block w-[140px]">
-        <select
-          id={id}
-          defaultValue={options[0]}
-          className="w-full cursor-pointer appearance-none border-none bg-transparent pr-5 text-[14px] text-white focus:outline-none"
-        >
-          {options.map((o) => <option key={o} value={o} className="bg-[#171615]">{o}</option>)}
-        </select>
-        <span aria-hidden="true" className="pointer-events-none absolute right-0 top-1/2 -translate-y-1/2 -rotate-90 text-[14px] text-white">‹</span>
-      </div>
-    </div>
-  );
-}
-
 export default function Footer() {
   const { settings } = useApp();
-  const s = settings || {};
   const [email, setEmail] = useState('');
   const [err, setErr] = useState('');
   const [done, setDone] = useState(false);
@@ -88,100 +70,85 @@ export default function Footer() {
   };
 
   return (
-    <footer className="mt-10 flex w-full flex-wrap bg-[#0d0d0d] text-[#e5e5e5]">
-      {/* ═══ LEFT — #171615 ═══════════════════════════════════════════ */}
-      <div className="flex flex-1 flex-col justify-between bg-[#171615] px-6 py-6 md:px-12 md:py-8 lg:basis-[450px] lg:px-[50px]">
-        {/* Brand */}
-        <div>
-          <h2 className="text-[32px] font-medium tracking-[0.06em] text-white">
-            HUSHAE
-          </h2>
-          <p className="mt-1.5 text-[10px] uppercase tracking-[0.15em] text-[#8c8a87]">
-            Undergarments / Lingerie / Essentials
-          </p>
+    <footer className="mt-10 w-full bg-[#0D0D0D] text-[#e5e5e5]">
+      <div className="mx-auto w-full max-w-[1440px] px-6 py-10 md:px-[80px] md:py-14">
+
+        {/* ── Row 1 — brand + tagline | newsletter ──────────────────────── */}
+        <div className="flex flex-col gap-10 md:flex-row md:items-end md:justify-between">
+          <div className="max-w-md">
+            <h2 className="font-serif text-[26px] font-medium uppercase tracking-[0.24em] text-white">
+              HUSHAE
+            </h2>
+            <p className="mt-2 text-[10px] uppercase tracking-[0.2em] text-[#8c8a87]">
+              Undergarments · Lingerie · Essentials
+            </p>
+            <p className="mt-8 text-[22px] font-light leading-snug text-[#e6e4e0] md:text-[26px]">
+              Made for the everyday, finished for everywhere.
+            </p>
+          </div>
+
+          <div id="newsletter" className="w-full max-w-sm scroll-mt-24">
+            <h3 className="text-[16px] font-normal text-white">
+              {done ? 'Welcome to the circle.' : 'Sign up for updates'}
+            </h3>
+            <p className="mt-1.5 text-[12px] text-[#8c8a87]">
+              Early access to new drops and private offers.
+            </p>
+            {!done && (
+              <form onSubmit={subscribe} noValidate className="relative mt-4 flex items-center border-b border-[#333333] pb-2.5">
+                <label htmlFor="ft-email" className="sr-only">Your email</label>
+                <input
+                  id="ft-email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => { setEmail(e.target.value); if (err) setErr(''); }}
+                  placeholder="Your email"
+                  aria-invalid={err ? 'true' : undefined}
+                  className="w-full bg-transparent text-[14px] text-white placeholder:text-[#666666] focus:outline-none"
+                />
+                <button type="submit" aria-label="Submit" className="cursor-pointer bg-transparent pl-2.5 text-[18px] text-white transition-opacity hover:opacity-70">
+                  →
+                </button>
+              </form>
+            )}
+            {err && <p role="alert" className="mt-2 text-[11px] text-red-400">{err}</p>}
+          </div>
         </div>
 
-        {/* Tagline */}
-        <p className="my-6 text-[26px] font-normal leading-[1.25] tracking-[-0.01em] text-[#e6e4e0] md:my-8 md:text-[32px]">
-          Made for the everyday,
-          <br />
-          finished for everywhere.
-        </p>
+        {/* ── hairline ─────────────────────────────────────────────────── */}
+        <hr className="my-8 border-0 border-t border-[#222222] md:my-10" />
 
-        {/* Features */}
-        <p className="mb-4 text-[12px] text-[#8c8a87] md:mb-6">
-          Worldwide shipping · Easy returns · Secure checkout
-        </p>
+        {/* ── Row 2 — nav | legal ───────────────────────────────────────── */}
+        <div className="flex flex-col gap-8 md:flex-row md:justify-between">
+          <nav aria-label="Footer" className="grid grid-cols-2 gap-x-8 gap-y-6 sm:grid-cols-3 md:gap-x-16">
+            {NAV.map((col) => (
+              <div key={col.title}>
+                <span className="block text-[10px] uppercase tracking-[0.18em] text-[#8c8a87]">{col.title}</span>
+                <ul className="mt-4 space-y-2.5">
+                  {col.links.map((l) => (
+                    <li key={l.label}>
+                      <Link to={l.href} className="text-[14px] text-[#d1d1d1] no-underline transition-colors duration-200 hover:text-white">
+                        {l.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </nav>
 
-        {/* Selectors */}
-        <div className="flex flex-col gap-5 sm:flex-row sm:gap-8">
-          <Selector label="Country / Region" id="ft-country" options={['Pakistan', 'United States', 'United Kingdom', 'UAE']} />
-          <Selector label="Language" id="ft-lang" options={['English', 'اردو', 'العربية']} />
-        </div>
-      </div>
-
-      {/* ═══ RIGHT — #0a0a0a ══════════════════════════════════════════ */}
-      <div className="flex flex-1 flex-col bg-[#0a0a0a] px-6 py-6 md:px-12 md:py-8 lg:basis-[550px] lg:px-16">
-        {/* Nav grid — 3 columns */}
-        <nav aria-label="Footer" className="mb-6 grid grid-cols-2 gap-x-8 gap-y-5 md:mb-8 md:grid-cols-3 md:gap-[36px]">
-          {NAV.map((col) => (
-            <div key={col.title}>
-              <span className="mb-4 block text-[10px] uppercase tracking-[0.15em] text-[#8c8a87]">{col.title}</span>
-              <ul className="space-y-3">
-                {col.links.map((l) => (
-                  <li key={l.label}>
-                    {l.href.startsWith('#') ? (
-                      <a href={l.href} className="text-[15px] text-[#d1d1d1] no-underline transition-colors duration-200 hover:text-white">{l.label}</a>
-                    ) : (
-                      <Link to={l.href} className="text-[15px] text-[#d1d1d1] no-underline transition-colors duration-200 hover:text-white">{l.label}</Link>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </nav>
-
-        {/* Divider */}
-        <hr className="mb-6 border-0 border-t border-[#222222] md:mb-8" />
-
-        {/* Newsletter */}
-        <div id="newsletter" className="mb-6 scroll-mt-24 md:mb-8">
-          <h3 className="mb-3 text-[20px] font-normal text-white">
-            {done ? 'Welcome to the circle.' : 'Sign up for updates'}
-          </h3>
-          {!done && (
-            <form onSubmit={subscribe} noValidate className="relative flex max-w-[450px] items-center border-b border-[#333333] pb-3">
-              <label htmlFor="ft-email" className="sr-only">Your email</label>
-              <input
-                id="ft-email"
-                type="email"
-                value={email}
-                onChange={(e) => { setEmail(e.target.value); if (err) setErr(''); }}
-                placeholder="Your email"
-                aria-invalid={err ? 'true' : undefined}
-                className="w-full bg-transparent text-[14px] text-white placeholder:text-[#666666] focus:outline-none"
-              />
-              <button type="submit" aria-label="Submit" className="cursor-pointer bg-transparent pl-2.5 text-[18px] text-white">
-                →
-              </button>
-            </form>
-          )}
-          {err && <p role="alert" className="mt-2 text-[11px] text-red-400">{err}</p>}
-        </div>
-
-        {/* Legal + Copyright — pinned to bottom */}
-        <div className="mt-auto">
-          <p className="mb-4 text-[12px] text-[#777777]">
+          <div className="flex items-center gap-5 text-[12px] text-[#777777] md:items-end">
             {LEGAL.map((l, i) => (
-              <span key={l.label}>
-                {i > 0 && <span aria-hidden="true"> · </span>}
-                <Link to={l.href} className="no-underline text-[#777777] transition-colors duration-200 hover:text-[#aaaaaa]">{l.label}</Link>
+              <span key={l.label} className="flex items-center gap-5">
+                {i > 0 && <span aria-hidden="true" className="text-[#444444]">·</span>}
+                <Link to={l.href} className="no-underline transition-colors duration-200 hover:text-[#aaaaaa]">{l.label}</Link>
               </span>
             ))}
-          </p>
-          <p className="text-[12px] text-[#555555]">&copy; {new Date().getFullYear()} HUSHAE</p>
+          </div>
         </div>
+
+        {/* ── Row 3 — copyright ─────────────────────────────────────────── */}
+        <p className="mt-8 text-[12px] text-[#555555]">&copy; {new Date().getFullYear()} HUSHAE · Discreet packaging on every order</p>
       </div>
     </footer>
   );

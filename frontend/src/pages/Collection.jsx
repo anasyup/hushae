@@ -115,7 +115,7 @@ export default function Collection() {
 
   if (err) {
     return (
-      <div className="container-page pt-[150px] pb-24 text-center">
+      <div className="container-page pt-[130px] pb-24 text-center">
         <span className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-[#F0F0F0] text-[#696969]"><Boxes size={22} /></span>
         <h1 className="mt-6 text-3xl font-medium uppercase tracking-[0.04em] text-[#111111]">Collection Not Found</h1>
         <p className="mx-auto mt-2 max-w-sm text-sm text-[#696969]">The collection you're looking for may have been renamed or removed.</p>
@@ -124,7 +124,7 @@ export default function Collection() {
     );
   }
   if (!data) return (
-    <div className="px-5 pt-[150px] pb-10 md:px-10">
+    <div className="px-5 pt-[130px] pb-10 md:px-10">
       <div className="skeleton mb-6 h-10 w-full max-w-md" />
       <ProductGridSkeleton count={8} />
     </div>
@@ -134,7 +134,7 @@ export default function Collection() {
   const clearAll = () => { setBandKey(''); setSizes([]); setColors([]); };
 
   return (
-    <div className="w-full min-h-screen bg-[#fcfbf9] pt-[150px] font-sans text-black">
+    <div className="w-full min-h-screen bg-[#fcfbf9] pt-[130px] font-sans text-black">
       <Seo
         title={c.name}
         description={c.description || `Shop the ${c.name} collection at HUSHAE — curated pieces for every moment.`}

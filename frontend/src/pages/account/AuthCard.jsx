@@ -157,7 +157,7 @@ export default function AuthCard({ cfg, policyLoaded }) {
   /* ---------------- forgot-password view ---------------- */
   if (mode === 'forgot') {
     return (
-      <div className="mx-auto mt-6 w-full max-w-md rounded-panel border border-line bg-white/70 p-5 shadow-e-1 sm:p-6">
+      <div className="mx-auto mt-6 w-full max-w-md rounded-xl border border-neutral-200 bg-white p-6 shadow-e-2 sm:p-7">
         <button
           type="button" onClick={() => switchMode('login')}
           className="inline-flex min-h-[44px] items-center gap-1.5 text-body-sm text-ash underline-offset-4 transition hover:text-obsidian hover:underline"
@@ -165,7 +165,7 @@ export default function AuthCard({ cfg, policyLoaded }) {
           <ArrowLeft size={14} aria-hidden="true" /> Back to sign in
         </button>
 
-        <h2 className="mt-2 font-display text-h4">Reset your password</h2>
+        <h2 className="mt-2 font-serif text-[22px] font-medium uppercase tracking-[0.12em] text-obsidian">Reset your password</h2>
         <p className="mt-2 text-body-sm text-ash">
           Enter the email you signed up with and we will send you a link to choose a new password.
         </p>
@@ -200,9 +200,9 @@ export default function AuthCard({ cfg, policyLoaded }) {
   const canRegister = cfg.registrationEnabled;
 
   return (
-    <div className="mx-auto mt-6 w-full max-w-md rounded-panel border border-line bg-white/70 p-5 shadow-e-1 sm:p-6">
+    <div className="mx-auto mt-6 w-full max-w-md rounded-xl border border-neutral-200 bg-white p-6 shadow-e-2 sm:p-7">
       {canRegister ? (
-        <div role="tablist" aria-label="Sign in or register" className="mb-5 grid grid-cols-2 rounded-full bg-satin/60 p-1">
+        <div role="tablist" aria-label="Sign in or register" className="mb-6 flex gap-7 border-b border-neutral-200">
           {tabs.map(([m, label], i) => (
             <button
               key={m}
@@ -214,8 +214,8 @@ export default function AuthCard({ cfg, policyLoaded }) {
               tabIndex={mode === m ? 0 : -1}
               onClick={() => switchMode(m)}
               onKeyDown={(e) => onTabKey(e, i)}
-              className={`min-h-[44px] rounded-full text-label uppercase tracking-widest transition-colors duration-fast ${
-                mode === m ? 'bg-obsidian text-alabaster' : 'text-ash hover:text-obsidian'
+              className={`min-h-[44px] border-b-2 text-[13px] font-medium uppercase tracking-[0.12em] transition-colors duration-fast ${
+                mode === m ? 'border-obsidian text-obsidian' : 'border-transparent text-ash hover:text-obsidian'
               }`}
             >
               {label}
@@ -223,7 +223,7 @@ export default function AuthCard({ cfg, policyLoaded }) {
           ))}
         </div>
       ) : (
-        <h2 className="mb-6 font-display text-h4">Sign in</h2>
+        <h2 className="mb-6 font-serif text-[22px] font-medium uppercase tracking-[0.12em] text-obsidian">Sign in</h2>
       )}
 
       <div id="auth-panel" role={canRegister ? 'tabpanel' : undefined} aria-labelledby={canRegister ? `tab-${mode}` : undefined}>
