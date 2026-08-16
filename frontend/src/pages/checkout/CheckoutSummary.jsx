@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { BadgeCheck, Lock, RotateCcw, ShieldCheck, Truck } from 'lucide-react';
+import { Lock, Truck } from 'lucide-react';
 import { pkr } from '../../lib/format';
 import { titleCase } from '../../lib/productMeta';
 
@@ -150,29 +150,10 @@ export default function CheckoutSummary({
         >
           {busy ? 'One moment…' : `Place Order · ${pkr(pricing.total)}`}
         </button>
-      </div>
-
-      {/* Trust badges */}
-      <div className="mt-5 grid grid-cols-3 gap-2 border-t border-neutral-200 pt-4 text-center text-[10px] text-neutral-500">
-        <div className="flex flex-col items-center gap-1"><ShieldCheck size={16} className="text-black" aria-hidden="true" /><span>Secure Checkout</span></div>
-        <div className="flex flex-col items-center gap-1"><Truck size={16} className="text-black" aria-hidden="true" /><span>Fast Shipping</span></div>
-        <div className="flex flex-col items-center gap-1"><RotateCcw size={16} className="text-black" aria-hidden="true" /><span>Easy Returns</span></div>
-      </div>
-
-      {/* Trust badges row */}
-      <div className="mt-3 grid grid-cols-3 gap-2 border-t border-[#E5E5E5] pt-3 text-center">
-        <div className="text-[9px] font-medium uppercase tracking-[0.08em] text-[#696969]">
-          <Lock size={13} className="mx-auto mb-1 text-[#C9A96E]" aria-hidden="true" />
-          SSL Secure
-        </div>
-        <div className="text-[9px] font-medium uppercase tracking-[0.08em] text-[#696969]">
-          <RotateCcw size={13} className="mx-auto mb-1 text-[#C9A96E]" aria-hidden="true" />
-          Free Returns
-        </div>
-        <div className="text-[9px] font-medium uppercase tracking-[0.08em] text-[#696969]">
-          <BadgeCheck size={13} className="mx-auto mb-1 text-[#C9A96E]" aria-hidden="true" />
-          Money-Back
-        </div>
+        <p className="mt-3 flex items-center justify-center gap-1.5 text-center text-[10px] text-neutral-500">
+          <Lock size={12} className="text-[#111111]" aria-hidden="true" />
+          256-bit SSL secure checkout · discreet packaging
+        </p>
       </div>
 
       <Link

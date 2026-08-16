@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { AlertCircle, Crosshair, MapPin, PackageCheck, Truck, User } from 'lucide-react';
+import { AlertCircle, BadgeCheck, CreditCard, Crosshair, Lock, MapPin, PackageCheck, ShieldCheck, Truck, User } from 'lucide-react';
 import { useApp, lineKey } from '../store/AppContext';
 import { api } from '../api/client';
 import { pkr } from '../lib/format';
@@ -386,7 +386,7 @@ export default function Checkout() {
   /* ---------------- empty ---------------- */
   if (cart.length === 0) {
     return (
-      <div className="container-page py-sect-y text-center md:py-sect-y-lg pt-[130px]"><Seo title="Checkout" description="Complete your order — COD, JazzCash and card payments, discreet packaging." />
+      <div className="container-page py-sect-y text-center md:py-sect-y-lg pt-[150px]"><Seo title="Checkout" description="Complete your order — COD, JazzCash and card payments, discreet packaging." />
         <h1 className="text-[24px] font-light normal-case text-charcoal">Nothing to check out yet</h1>
         <p className="mt-3 text-[13px] text-smoke">Your bag is empty — add a piece and come back.</p>
         <Link to={cartCfg.continueHref} className="btn-qa mt-8 !w-auto px-10">{cartCfg.continueLabel}</Link>
@@ -397,7 +397,7 @@ export default function Checkout() {
   const phoneOk = normalizePhone(f.phone);
 
   return (
-    <div className="bg-white pt-[130px] pb-10"><Seo title="Checkout" description="Complete your order — COD, JazzCash and card payments, discreet packaging." /><div className="mx-auto max-w-[1200px] px-6">
+    <div className="bg-white pt-[150px] pb-10"><Seo title="Checkout" description="Complete your order — COD, JazzCash and card payments, discreet packaging." /><div className="mx-auto max-w-[1200px] px-6">
       {/* Checkout steps — matches cart progression */}
       <nav aria-label="Checkout progress" className="mb-7 mt-5 flex items-center gap-3 text-[11px] font-medium uppercase tracking-[0.14em]">
         <Link to="/cart" className="text-[#696969] transition hover:text-[#111111]">Bag</Link>
@@ -453,7 +453,7 @@ export default function Checkout() {
         </p>
       )}
 
-      <div className="mt-6 grid grid-cols-1 items-start gap-8 lg:grid-cols-12">
+      <div className="mt-6 grid grid-cols-1 items-start gap-8 lg:grid-cols-12 lg:gap-10">
         {/* ================= LEFT ================= */}
         <form
           ref={formRef}
@@ -463,8 +463,11 @@ export default function Checkout() {
         >
           {/* ---- Contact — compact card ---- */}
           <section aria-labelledby="sec-contact">
-            <h2 id="sec-contact" className="text-xs font-semibold uppercase tracking-widest text-neutral-400">1. Contact Information</h2>
-            <div className="mt-2 grid gap-3">
+            <div className="flex items-center gap-2.5">
+              <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-[#111111] text-[10px] font-semibold text-white" aria-hidden="true">1</span>
+              <h2 id="sec-contact" className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#111111]">Contact Information</h2>
+            </div>
+            <div className="mt-3 grid gap-3">
               <FloatField
                 label="Email" type="email" autoComplete="email" inputMode="email"
                 value={f.email} onChange={(v) => set('email', v)} error={errs.email}
@@ -481,8 +484,11 @@ export default function Checkout() {
 
           {/* ---- Shipping — compact card ---- */}
           <section aria-labelledby="sec-address">
-            <h2 id="sec-address" className="text-xs font-semibold uppercase tracking-widest text-neutral-400">2. Delivery Address</h2>
-            <div className="mt-2 grid gap-3 sm:grid-cols-2">
+            <div className="flex items-center gap-2.5">
+              <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-[#111111] text-[10px] font-semibold text-white" aria-hidden="true">2</span>
+              <h2 id="sec-address" className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#111111]">Delivery Address</h2>
+            </div>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2">
               <div className="sm:col-span-2">
                 <FloatField
                   label="Full name" required autoComplete="name"
@@ -636,7 +642,10 @@ export default function Checkout() {
 
           {/* ---- Payment — compact card ---- */}
           <section aria-labelledby="sec-pay">
-            <h2 id="sec-pay" className="text-xs font-semibold uppercase tracking-widest text-neutral-400">3. Payment</h2>
+            <div className="flex items-center gap-2.5">
+              <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-[#111111] text-[10px] font-semibold text-white" aria-hidden="true">3</span>
+              <h2 id="sec-pay" className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#111111]">Payment</h2>
+            </div>
             {errs.method && (
               <p role="alert" className="mt-2 flex items-center gap-1.5 text-[11px] text-red-700">
                 <AlertCircle size={12} aria-hidden="true" /> {errs.method}
@@ -686,6 +695,34 @@ export default function Checkout() {
                 </span>
               </span>
             </label>
+
+            {/* Security assurances — right at the point of purchase */}
+            <div className="mt-4 rounded-lg border border-neutral-200 bg-[#FAF9F6] p-4">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#111111]">
+                <Lock size={12} className="mr-1.5 inline" aria-hidden="true" /> Secure &amp; protected
+              </p>
+              <div className="mt-3 grid grid-cols-3 gap-2 text-center">
+                <div className="flex flex-col items-center gap-1">
+                  <ShieldCheck size={16} className="text-[#111111]" aria-hidden="true" />
+                  <span className="text-[10px] font-medium uppercase tracking-[0.08em] text-[#5B5955]">SSL Secure</span>
+                </div>
+                <div className="flex flex-col items-center gap-1">
+                  <Lock size={16} className="text-[#111111]" aria-hidden="true" />
+                  <span className="text-[10px] font-medium uppercase tracking-[0.08em] text-[#5B5955]">Encrypted</span>
+                </div>
+                <div className="flex flex-col items-center gap-1">
+                  <BadgeCheck size={16} className="text-[#111111]" aria-hidden="true" />
+                  <span className="text-[10px] font-medium uppercase tracking-[0.08em] text-[#5B5955]">Money-back</span>
+                </div>
+              </div>
+              <div className="mt-3 flex flex-wrap items-center justify-center gap-1.5 border-t border-neutral-200 pt-3">
+                {['Cash on Delivery', 'JazzCash', 'EasyPaisa', 'Bank Transfer', 'Visa', 'Mastercard'].map((m) => (
+                  <span key={m} className="rounded border border-neutral-300 bg-white px-2 py-1 text-[9px] font-medium uppercase tracking-[0.08em] text-[#696969]">
+                    {m}
+                  </span>
+                ))}
+              </div>
+            </div>
           </section>
 
           {/* ---- Notes + consent — compact card ---- */}
