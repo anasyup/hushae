@@ -756,3 +756,69 @@
   line-height: 15px;
   color: rgb(255, 255, 255);
 }
+
+/* ════════════════════════════════════════════════════════════════════════
+   EDITORIAL ADMIN — warm luxury-minimal palette (Aesop / The Row register).
+   Bone page, warm near-black ink, warm muted grays, hairline dividers.
+   Accent is used EXTREMELY sparingly (one primary action + one number).
+   ════════════════════════════════════════════════════════════════════════ */
+:root {
+  --admin-bone:     #FAF8F5;
+  --admin-ink:      #1A1815;
+  --admin-muted:    #6F6A5E;   /* 5.08:1 on bone — WCAG AA */
+  --admin-faint:    #8A8578;   /* decorative only — never body text */
+  --admin-hairline: rgba(26, 24, 21, 0.08);
+  --admin-accent:   #9C2C4E;   /* deep rose-burgundy — 6.87:1 on bone */
+  /* desaturated status palette (text — flips to lighter tints in dark mode) */
+  --admin-s-pending:    #9C5A3C;
+  --admin-s-confirmed:  #5F6B45;
+  --admin-s-processing: #5C6C8A;
+  --admin-s-ready:      #6A6E8C;
+  --admin-s-shipped:    #6C6183;
+  --admin-s-delivered:  #5F6B45;
+  --admin-s-cancelled:  #9C5A52;
+  --admin-s-refunded:   #8F6040;
+}
+
+/* Dark-mode flips for the editorial palette (warm, not blue-black). */
+.dark-admin {
+  --admin-bone:     #141210;
+  --admin-ink:      #EDE7DC;
+  --admin-muted:    #B3AB9D;
+  --admin-faint:    #8A8578;
+  --admin-hairline: rgba(237, 231, 220, 0.12);
+  --admin-accent:   #D18AA0;
+  --admin-s-pending:    #C0805C;
+  --admin-s-confirmed:  #93A87A;
+  --admin-s-processing: #8FA3C2;
+  --admin-s-ready:      #9BA0C2;
+  --admin-s-shipped:    #A396C2;
+  --admin-s-delivered:  #93A87A;
+  --admin-s-cancelled:  #C0857C;
+  --admin-s-refunded:   #B99A6E;
+}
+
+/* FRAUNCES — self-hosted editorial serif (variable, 300-600 + optical size).
+   The admin's display face for the greeting and the big numbers. */
+@font-face {
+  font-family: 'Fraunces';
+  src: url('/fonts/Fraunces-Latin.woff2') format('woff2');
+  font-weight: 300 600;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* .admin-shell sets its own Inter family unlayered, which beats the layered
+   `font-display-serif` utility — reassert the serif for display elements. */
+.admin-shell .font-display-serif { font-family: 'Fraunces', Georgia, 'Times New Roman', serif !important; }
+
+/* Quiet live indicator — gentle opacity pulse (2s). Reduced-motion users get
+   a static dot via the global prefers-reduced-motion override. */
+@keyframes admin-live-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.4; }
+}
+.live-dot { animation: admin-live-pulse 2s ease-in-out infinite; }
+
+/* Thin hairline divider helper — separation without borders or shadows. */
+.admin-hairline { border-color: var(--admin-hairline); }
