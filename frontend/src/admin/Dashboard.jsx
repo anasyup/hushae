@@ -26,6 +26,7 @@ import ReliabilityBadge from './ReliabilityBadge';
 import OrderQuickView from './OrderQuickView';
 import ActivityFeed from './dashboard/ActivityFeed';
 import StoreHealth from './dashboard/StoreHealth';
+import CustomizeWidgets, { useWidgetVisibility } from './dashboard/CustomizeWidgets';
 import { exportDashboardSummary } from './dashboard/exportSummary';
 import { useCountUp, Rise, staggerOf } from './ui/Animate';
 
@@ -326,6 +327,7 @@ export default function Dashboard() {
   const [goal, setGoal] = useState(null);
   const [reorder, setReorder] = useState(null);
   const [quickViewId, setQuickViewId] = useState(null);
+  const { visible, toggle } = useWidgetVisibility();
 
   const [range, setRange] = useState(() => {
     try {
@@ -430,6 +432,7 @@ export default function Dashboard() {
               <button onClick={() => exportDashboardSummary({ d, goal, alerts, insights: smart, storeName: 'HUSHAE', compareLabel: 'vs previous period' })} className="inline-flex items-center gap-1.5 rounded-[8px] border px-3 py-2 text-[12px] font-medium transition-colors hover:bg-[var(--px-bg-hover)] active:scale-[0.98]" style={{ borderColor: 'var(--px-border)', color: 'var(--px-secondary)' }}>
                 <Download size={13} /> Export
               </button>
+              <CustomizeWidgets visible={visible} toggle={toggle} />
             </div>
           </header>
         </Rise>
@@ -438,24 +441,24 @@ export default function Dashboard() {
         <Rise delay={staggerOf(1)}><div className="pb-4"><QuickActions /></div></Rise>
 
         {/* ── Attention centre (real alerts) ──────────────────────────────── */}
-        <Rise delay={staggerOf(2)}><div className="pb-4"><AlertsBar alerts={alerts} /></div></Rise>
+        {visible('attention') && <Rise delay={staggerOf(2)}><div className="pb-4"><AlertsBar alerts={alerts} /></div></Rise>}
 
         {/* ── Key metrics ─────────────────────────────────────────────────── */}
-        <Section delay={staggerOf(3)} className="pb-3"><KpiCards kpis={d.kpis} sparks={sparks} /></Section>
+        {visible('kpis') && <Section delay={staggerOf(3)} className="pb-3"><KpiCards kpis={d.kpis} sparks={sparks} /></Section>}
 
         {/* ── Sales overview + order status ───────────────────────────────── */}
-        <Section delay={staggerOf(4)} className="pb-3">
+        {visible('sales') && <Section delay={staggerOf(4)} className="pb-3">
           <div className="grid gap-3 lg:grid-cols-3">
             <div className="lg:col-span-2"><ChartBoundary><RevenueChart data={d.chart} rangeLabel={rangeLabel} /></ChartBoundary></div>
             <ChartBoundary><StatusDonut byStatus={d.byStatus} /></ChartBoundary>
           </div>
-        </Section>
+        </Section>}
 
         {/* ── Pipeline ────────────────────────────────────────────────────── */}
-        <Section delay={staggerOf(5)} className="pb-3"><PipelineStrip stats={d.stats} /></Section>
+        {visible('pipeline') && <Section delay={staggerOf(5)} className="pb-3"><PipelineStrip stats={d.stats} /></Section>}
 
         {/* ── Payment health + peak hours ─────────────────────────────────── */}
-        {insights && (
+        {insights && visible('payments') && (
           <Section delay={staggerOf(6)} className="pb-3">
             <div className="grid gap-3 lg:grid-cols-2">
               <div className={CARD} style={CARD_STYLE}>
@@ -505,23 +508,23 @@ export default function Dashboard() {
         )}
 
         {/* ── Store health + activity ─────────────────────────────────────── */}
-        <Section delay={staggerOf(7)} className="pb-3">
+        {visible('health') && <Section delay={staggerOf(7)} className="pb-3">
           <div className="grid gap-3 lg:grid-cols-2">
             <div className={CARD} style={CARD_STYLE}><StoreHealth insights={insights} lowStockCount={d.stats.lowStockCount} /></div>
             <div className={CARD} style={CARD_STYLE}><ActivityFeed /></div>
           </div>
-        </Section>
+        </Section>}
 
         {/* ── Goal + insight ──────────────────────────────────────────────── */}
-        <Section delay={staggerOf(8)} className="pb-3">
+        {visible('goal') && <Section delay={staggerOf(8)} className="pb-3">
           <div className="grid gap-3 lg:grid-cols-2">
             <div className={CARD} style={CARD_STYLE}><GoalTracker goal={goal} onSaved={() => load(true)} /></div>
             <div className={CARD} style={CARD_STYLE}><InsightsCard insights={smart} /></div>
           </div>
-        </Section>
+        </Section>}
 
         {/* ── P&L (conditional) ───────────────────────────────────────────── */}
-        {d.kpis.profit && (d.kpis.profit.value !== 0 || d.kpis.cost.value !== 0) && (
+        {d.kpis.profit && (d.kpis.profit.value !== 0 || d.kpis.cost.value !== 0) && visible('pnl') && (
           <Section delay={staggerOf(9)} className="pb-3">
             <div className={CARD} style={CARD_STYLE}>
               <div className="flex items-center justify-between">
@@ -542,15 +545,15 @@ export default function Dashboard() {
         )}
 
         {/* ── Cancellation reasons + abandoned carts ──────────────────────── */}
-        <Section delay={staggerOf(10)} className="pb-3">
+        {visible('reasons') && <Section delay={staggerOf(10)} className="pb-3">
           <div id="cancellation-reasons" className="grid scroll-mt-24 gap-3 lg:grid-cols-2">
             <div className={CARD} style={CARD_STYLE}><CancellationReasons reasons={d.cancellationReasons || []} /></div>
             <div className={CARD} style={CARD_STYLE}><AbandonedCartsWidget /></div>
           </div>
-        </Section>
+        </Section>}
 
         {/* ── Lists ───────────────────────────────────────────────────────── */}
-        <Section delay={staggerOf(11)} className="pb-3">
+        {visible('lists') && <Section delay={staggerOf(11)} className="pb-3">
           <div className="grid gap-3 lg:grid-cols-2">
             <div className={CARD} style={CARD_STYLE}>
               <div className="flex items-center justify-between">
@@ -609,10 +612,10 @@ export default function Dashboard() {
               </div>
             </div>
           </div>
-        </Section>
+        </Section>}
 
         {/* ── Low stock + top customers ───────────────────────────────────── */}
-        <Section delay={staggerOf(12)} className="pb-3">
+        {visible('lowtop') && <Section delay={staggerOf(12)} className="pb-3">
           <div className="grid gap-3 lg:grid-cols-2">
             <div className={CARD} style={CARD_STYLE}>
               <div className="flex items-center justify-between">
@@ -658,7 +661,7 @@ export default function Dashboard() {
               )}
             </div>
           </div>
-        </Section>
+        </Section>}
 
         {reorder && <ReorderModal product={reorder} onClose={() => setReorder(null)} onSaved={() => load(true)} />}
         {quickViewId && <OrderQuickView id={quickViewId} token={auth.token} onClose={() => setQuickViewId(null)} />}

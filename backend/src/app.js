@@ -136,6 +136,7 @@ app.use('/api/cms', require('./routes/cms'));
 app.use('/api/theme', require('./routes/theme'));
 app.use('/api/email-templates', require('./routes/emailTemplates'));
 app.use('/api/security', require('./routes/security'));
+app.use('/api/search', require('./routes/search'));
 app.use('/api/marketing/automation', require('./routes/marketing'));
 app.use('/api/blog', require('./routes/blog'));
 app.use('/api/customer-groups', require('./routes/customerGroups'));
