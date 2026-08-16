@@ -1,25 +1,27 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { AlertTriangle, ArrowRight, CheckCircle2, Info, PackageX, X } from 'lucide-react';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { Check, X } from 'lucide-react';
 
-const TONE = {
-  danger:  { chip: 'bg-red-50 text-red-700 ring-red-200',       dot: 'bg-red-500',   icon: PackageX },
-  warning: { chip: 'bg-amber-50 text-amber-800 ring-amber-200', dot: 'bg-amber-500', icon: AlertTriangle },
-  info:    { chip: 'bg-blue-50 text-blue-700 ring-blue-200',    dot: 'bg-blue-500',  icon: Info },
-};
+/* ============================================================================
+ * Alerts — a single quiet line-item list. No coloured banner blocks, no bold
+ * buttons. Each item: a small muted dot + title (sans) + detail (muted) + a
+ * subtle text-link action. Dismissals collapse smoothly (reduced-motion safe).
+ * ========================================================================== */
+
+const INK = '#1A1815';
+const MUTED = '#6F6A5E';
+const HAIRLINE = 'rgba(26,24,21,0.08)';
+const DOT = { danger: '#9C5A52', warning: '#A67C52', info: '#5C6C8A' };
 
 const KEY = 'hushae_alerts_dismissed';
 const readDismissed = () => {
   try { return JSON.parse(sessionStorage.getItem(KEY) || '[]'); } catch { return []; }
 };
 
-/**
- * "What needs my attention today" — sits between the greeting and the KPIs.
- * Dismissals last for the session only: a real condition should come back
- * tomorrow rather than being silenced forever.
- */
 export default function AlertsBar({ alerts }) {
   const [dismissed, setDismissed] = useState(readDismissed);
+  const reduce = useReducedMotion();
 
   useEffect(() => {
     try { sessionStorage.setItem(KEY, JSON.stringify(dismissed)); } catch { /* ignore */ }
@@ -34,46 +36,46 @@ export default function AlertsBar({ alerts }) {
 
   if (visible.length === 0) {
     return (
-      <div className="mb-6 flex items-center gap-2.5 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3">
-        <CheckCircle2 size={16} className="shrink-0 text-emerald-600" />
-        <p className="text-[13px] font-medium text-emerald-800">All caught up 🎉 — nothing needs your attention right now.</p>
+      <div className="flex items-center gap-2.5 text-[13px]" style={{ color: MUTED }}>
+        <Check size={14} strokeWidth={1.5} style={{ color: '#5F6B45' }} aria-hidden="true" />
+        All caught up — nothing needs your attention right now.
       </div>
     );
   }
 
   return (
-    <div className="mb-6 space-y-2">
-      {visible.map((a) => {
-        const tone = TONE[a.severity] || TONE.info;
-        const Icon = tone.icon;
-        return (
-          <div key={a.id} className="group flex items-center gap-3 rounded-2xl border border-neutral-200 bg-white p-3 pl-4 transition hover:border-neutral-300">
-            <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-lg ring-1 ${tone.chip}`}>
-              <Icon size={14} />
-            </span>
+    <div>
+      <AnimatePresence initial={false}>
+        {visible.map((a) => (
+          <motion.div
+            key={a.id}
+            layout={!reduce}
+            initial={reduce ? false : { opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={reduce ? { opacity: 0 } : { opacity: 0, height: 0, overflow: 'hidden', marginBottom: 0 }}
+            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            className="flex items-baseline gap-4 border-b py-2.5 last:border-0"
+            style={{ borderColor: HAIRLINE }}
+          >
+            <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: DOT[a.severity] || DOT.info }} aria-hidden="true" />
             <div className="min-w-0 flex-1">
-              <p className="truncate text-[13px] font-semibold text-neutral-900">{a.title}</p>
-              {a.detail && <p className="truncate text-[13px] text-neutral-500">{a.detail}</p>}
+              <span className="text-[13px]" style={{ color: INK }}>{a.title}</span>
+              {a.detail && <span className="ml-2 text-[13px]" style={{ color: MUTED }}>{a.detail}</span>}
             </div>
-            <Link
-              to={a.link}
-              className="hidden shrink-0 items-center gap-1 rounded-full bg-neutral-900 px-3 py-1.5 text-[12px] font-semibold text-white transition hover:bg-neutral-700 sm:inline-flex"
-            >
-              {a.cta || 'Open'} <ArrowRight size={11} />
-            </Link>
-            <Link to={a.link} className="shrink-0 rounded-full bg-neutral-900 p-2 text-white sm:hidden" aria-label={a.cta || 'Open'}>
-              <ArrowRight size={12} />
+            <Link to={a.link} className="shrink-0 text-[12px] font-medium underline underline-offset-4 hover:opacity-60" style={{ color: INK }}>
+              {a.cta || 'Open'}
             </Link>
             <button
-              onClick={() => setDismissed((d) => [...d, a.id])}
-              className="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-neutral-400 transition hover:bg-neutral-100 hover:text-neutral-700"
+              onClick={() => setDismissed((dd) => [...dd, a.id])}
+              className="shrink-0 transition-opacity hover:opacity-60"
               aria-label="Dismiss alert"
+              style={{ color: MUTED }}
             >
-              <X size={13} />
+              <X size={13} strokeWidth={1.5} />
             </button>
-          </div>
-        );
-      })}
+          </motion.div>
+        ))}
+      </AnimatePresence>
     </div>
   );
 }

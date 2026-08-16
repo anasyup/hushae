@@ -1,31 +1,24 @@
-import { ShieldCheck, ShieldAlert, UserPlus } from 'lucide-react';
-
 /* ============================================================================
- * Customer reliability badge — computed SERVER-side (utils/customerReliability),
- * keyed by phone number. Shown next to the customer name on the Orders list,
- * Order Detail and the verification queue.
- *
- *   · green  "Reliable"     — cancelRate < 10% AND 2+ delivered
- *   · yellow "New customer" — first or second order
- *   · red    "High risk"    — cancelRate > 40% with 3+ historical orders
+ * Customer reliability badge — text-only (coloured word + dot), no pill
+ * background. Server-computed in utils/customerReliability.js.
  * ========================================================================== */
 
-const STYLES = {
-  reliable: 'bg-emerald-50 text-emerald-700 ring-emerald-200',
-  new: 'bg-amber-50 text-amber-700 ring-amber-200',
-  'high-risk': 'bg-red-50 text-red-700 ring-red-200',
+const STYLE = {
+  reliable: '#5F6B45',
+  new: '#A67C52',
+  'high-risk': '#9C5A52',
 };
 
 export default function ReliabilityBadge({ reliability, compact = false }) {
   if (!reliability || !reliability.label) return null;
-  const Icon = reliability.tier === 'reliable' ? ShieldCheck : reliability.tier === 'high-risk' ? ShieldAlert : UserPlus;
-  const cls = STYLES[reliability.tier] || 'bg-neutral-50 text-neutral-600 ring-neutral-200';
+  const color = STYLE[reliability.tier] || '#6F6A5E';
   return (
     <span
       title={`${reliability.totalOrders} orders · ${reliability.cancelRate}% cancelled`}
-      className={`inline-flex shrink-0 items-center gap-1 rounded-full font-semibold ring-1 ${compact ? 'px-1.5 py-0.5 text-[10px]' : 'px-2 py-0.5 text-[11px]'} ${cls}`}
+      className={`inline-flex shrink-0 items-center gap-1.5 font-medium uppercase tracking-[0.08em] ${compact ? 'text-[10px]' : 'text-[11px]'}`}
+      style={{ color }}
     >
-      <Icon size={compact ? 10 : 11} aria-hidden="true" />
+      <span className="h-1 w-1 rounded-full" style={{ background: color }} aria-hidden="true" />
       {reliability.label}
     </span>
   );

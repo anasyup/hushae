@@ -97,6 +97,9 @@ export default {
         urdu: ['"Noto Nastaliq Urdu"', 'serif'],
         // QA — chapter counters + editorial numbers (JetBrains Mono, loaded in index.html)
         mono: ['"JetBrains Mono"', 'ui-monospace', 'SF Mono', 'SFMono-Regular', 'Menlo', 'Consolas', 'monospace'],
+        // Editorial display serif for the admin (Fraunces, loaded in index.html).
+        // Paired with the neutral sans for body — the fashion-editorial register.
+        displaySerif: ['"Fraunces"', 'Georgia', 'Times New Roman', 'serif'],
       },
       letterSpacing: {
         widest2: '0.32em',
