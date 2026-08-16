@@ -1,4 +1,13 @@
 ## Changes
+- **2026-08-16** — 🌑 **FLAGSHIP SAAS DARK ADMIN (branch `ui/flagship-dark`, preview-only — not merged)**
+  - Approved flagship-SaaS direction (Linear/Vercel/GitHub). Exact tokens applied centrally as `--fs-*` CSS variables: bg-page #0A0A0C, bg-sidebar #0E0E11, bg-card #111114, bg-card-hover #17171B, border-subtle 6% white / border-medium 10% white, text-primary #F4F4F5, text-secondary #D1D1D6, text-muted #8A8A93, accent #6C5CE7 (+hover #7C6CF0, soft-bg 15%, soft-text #B8AEFC), status #4ADE80/#F0B429/#F87171. Inter self-hosted (variable 400-700); NO serif anywhere. Depth via 1px borders + bg steps, zero drop shadows. Dark is the DEFAULT theme (toggle kept; light counterpart in :root).
+  - Sidebar: 22px gradient logo mark + "Hushae" 600/13px; 12px nav; active = accent-soft bg/text (7px radius, 7px/10px padding); hover white/4%; line icons, no colored boxes.
+  - Topbar: 20px/700/-0.3px title, caption subtitle, secondary outline buttons, ONE primary "+ Add product" (solid accent, hover/active/loading states).
+  - Dashboard: KPI cards (21px/700 values, 11px labels, ↑/↓/"New" trend, accent 60% 1.5px sparklines, NO icon chips, 4-col → 2-col), hero chart (accent 2px line, no fill, text tabs + accent-soft pill), order pipeline as status rows (7px dots, thick bar removed), quiet single-style alerts (dot + 12px text + accent-soft-text arrow link), quick actions as text links (no hero card), soft-fill badges with 5px dots.
+  - WCAG re-verified on dark: text-muted 5.51:1 (card) / 5.78:1 (page); accent-soft-text 9.42:1; white-on-accent 4.86:1; secondary 12.4:1; primary 17.2:1 — all pass AA.
+  - Functionality unchanged (WhatsApp verify, reliability badges, date picker, reorder modal, donut/pipeline counts). Build clean, 8/8 test suites pass. Mobile 390px: no h-scroll, KPI 2-col.
+  - Preview: https://hushae-7j0b7gaz1-belo-dv.vercel.app
+
 - **2026-08-16** — 🖋️ **EDITORIAL REDESIGN — SHELL DEEPENING (branch `ui/editorial-redesign`, preview-only)**
   - The previous editorial pass redesigned the dashboard content; this pass extends it to the whole admin SHELL so the entire screen reads editorial, not just the widgets:
     - Sidebar: serif light HUSHAE wordmark + tiny caps "ADMIN" label; nav links as quiet ink/muted text (no white active box, no shadows); hairline-underline search; muted sign-out.
