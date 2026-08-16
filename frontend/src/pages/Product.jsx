@@ -112,7 +112,7 @@ export default function Product() {
 
   if (err) {
     return (
-      <div className="mx-auto max-w-[1440px] px-5 pt-[200px] pb-24 text-center">
+      <div className="mx-auto max-w-[1440px] px-5 pt-[150px] pb-24 text-center">
         <span className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-[#F0F0F0] text-[#696969]"><Package size={22} /></span>
         <h1 className="mt-6 text-3xl font-medium uppercase tracking-[0.04em] text-[#111111]">This piece has moved on</h1>
         <p className="mx-auto mt-2 max-w-sm text-sm text-[#696969]">It may be sold out or no longer part of the edit.</p>

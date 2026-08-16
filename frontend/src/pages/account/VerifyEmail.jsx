@@ -42,7 +42,7 @@ export default function VerifyEmail() {
   }, [token, email, patchUser]);
 
   return (
-    <div className="container-page py-sect-y md:py-sect-y-lg pt-[220px]">
+    <div className="container-page py-sect-y md:py-sect-y-lg pt-[150px]">
       <div className="mx-auto max-w-md text-center" role="status" aria-live="polite">
         {state === 'working' && (
           <>

@@ -55,7 +55,7 @@ export default function ResetPassword() {
   const linkBroken = !token || !email;
 
   return (
-    <div className="container-page py-sect-y md:py-sect-y-lg pt-[220px]">
+    <div className="container-page py-sect-y md:py-sect-y-lg pt-[150px]">
       <div className="mx-auto w-full max-w-md">
         <h1 className="text-center font-display text-h2">Choose a new password</h1>
 

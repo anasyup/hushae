@@ -4,7 +4,7 @@ export default function NotFound() {
   return (
     <div style={{ background: '#FFFFFF', minHeight: '80vh' }}
       className="flex items-center justify-center">
-      <div className="text-center px-4 pt-[220px] pb-20">
+      <div className="text-center px-4 pt-[150px] pb-20">
         <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-ash">404</p>
         <h1 className="mt-4 h1">Page not found</h1>
         <p className="mt-3 body-sm text-ash max-w-sm mx-auto">

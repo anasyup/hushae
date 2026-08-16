@@ -8,7 +8,7 @@ import Seo from '../components/Seo';
 export default function Legal({ kind = 'privacy' }) {
   const doc = DOCS[kind] || DOCS.privacy;
   return (
-    <div className="mx-auto max-w-3xl px-4 pt-[220px] pb-16 md:pb-24 md:px-8">
+    <div className="mx-auto max-w-3xl px-4 pt-[150px] pb-16 md:pb-24 md:px-8">
       <Seo title={doc.title} description={doc.subtitle} canonical={`/${kind}`} />
       <p className="text-[11px] font-bold uppercase tracking-widest text-sagedeep">HUSHAE · Legal</p>
       <h1 className="mt-3 font-display text-4xl leading-tight md:text-5xl">{doc.title}</h1>
