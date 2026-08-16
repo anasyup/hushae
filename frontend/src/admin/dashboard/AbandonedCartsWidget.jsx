@@ -10,9 +10,9 @@ import { pkr } from '../../lib/format';
  * nudge (wa.me, no API key). Email/phone captured at checkout.
  * ========================================================================== */
 
-const INK = '#1A1815';
-const MUTED = '#6F6A5E';
-const HAIRLINE = 'rgba(26,24,21,0.08)';
+const INK = 'var(--px-ink)';
+const MUTED = 'var(--px-muted)';
+const HAIRLINE = 'var(--px-border)';
 
 const waDigits = (p) => {
   const d = String(p || '').replace(/\D/g, '');
@@ -44,11 +44,11 @@ export default function AbandonedCartsWidget() {
 
       <div className="mt-4 flex items-baseline gap-10">
         <div>
-          <p className="font-display-serif text-[30px] font-light leading-none tabular-nums" style={{ color: INK }}>{stats.openCount}</p>
+          <p className="text-[30px] font-bold leading-none tabular-nums" style={{ color: INK }}>{stats.openCount}</p>
           <p className="mt-1 text-[11px] uppercase tracking-[0.16em]" style={{ color: MUTED }}>Open</p>
         </div>
         <div>
-          <p className="font-display-serif text-[30px] font-light leading-none tabular-nums" style={{ color: INK }}>{pkr(stats.openValue)}</p>
+          <p className="text-[30px] font-bold leading-none tabular-nums" style={{ color: INK }}>{pkr(stats.openValue)}</p>
           <p className="mt-1 text-[11px] uppercase tracking-[0.16em]" style={{ color: MUTED }}>Potential revenue</p>
         </div>
       </div>

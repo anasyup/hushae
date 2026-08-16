@@ -480,6 +480,7 @@ router.patch('/:id/stage', protect, adminOnly, asyncHandler(async (req, res) => 
   if (stage === 'Cancelled' && cancelReason) order.cancelReason = String(cancelReason).trim().slice(0, 80);
 
   await order.save();
+  try { require('../utils/auditLogger').logAction(req.user?.email, 'stage', 'order', order.orderNumber, from, stage); } catch { /* noop */ }
   await flow.recordTransition(order, { from, to: stage, note, actor: req.user });
   await flow.notify({
     type: 'order.status', severity: 'info', order,

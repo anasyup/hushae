@@ -6,9 +6,9 @@ import { Ban } from 'lucide-react';
  * callout. Data: GET /api/admin/dashboard → cancellationReasons.
  * ========================================================================== */
 
-const INK = '#1A1815';
-const MUTED = '#6F6A5E';
-const FAINT = '#8A8578';
+const INK = 'var(--px-ink)';
+const MUTED = 'var(--px-muted)';
+const FAINT = 'var(--px-faint)';
 
 export default function CancellationReasons({ reasons = [] }) {
   const total = reasons.reduce((n, r) => n + r.count, 0);
@@ -31,7 +31,7 @@ export default function CancellationReasons({ reasons = [] }) {
         <>
           {top && top.count > 0 && (
             <p className="mt-4 text-[13px] leading-relaxed" style={{ color: MUTED }}>
-              <span className="font-display-serif text-[18px] font-light" style={{ color: INK }}>{top.pct}%</span> of cancellations this period are{' '}
+              <span className="text-[18px] font-semibold" style={{ color: INK }}>{top.pct}%</span> of cancellations this period are{' '}
               <span className="font-medium" style={{ color: INK }}>&ldquo;{top.reason}&rdquo;</span> — {top.reason === 'Out of stock' ? 'consider improving inventory sync.' : 'worth a closer look.'}
             </p>
           )}

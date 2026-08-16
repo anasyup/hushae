@@ -7,10 +7,10 @@ import { CalendarDays } from 'lucide-react';
  * value shape: { preset, from, to } (YYYY-MM-DD, inclusive).
  * ========================================================================== */
 
-const INK = '#1A1815';
-const MUTED = '#6F6A5E';
-const HAIRLINE = 'rgba(26,24,21,0.08)';
-const ACCENT = '#9C2C4E';
+const INK = 'var(--px-ink)';
+const MUTED = 'var(--px-muted)';
+const HAIRLINE = 'var(--px-border)';
+const ACCENT = 'var(--px-accent-soft-text)';
 
 const iso = (d) => d.toISOString().slice(0, 10);
 
