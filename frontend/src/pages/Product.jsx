@@ -193,7 +193,7 @@ export default function Product() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#FAF9F6] pt-[200px] pb-20 font-sans text-[#1A1A1A] antialiased lg:pb-0">
+    <div className="min-h-screen bg-[#FAF9F6] pt-0 pb-20 font-sans text-[#1A1A1A] antialiased lg:pb-0">
       <Seo
         title={name}
         description={p.shortDescription || p.description?.slice(0, 160) || `${name} — premium innerwear from HUSHAE. PKR ${p.price}. ${p.stock > 0 ? 'In stock' : 'Out of stock'}. COD available.`}
@@ -204,7 +204,7 @@ export default function Product() {
       />
 
                         {/* ═══ MAIN — main image + horizontal thumbnail strip + details (v11) ═══ */}
-      <main className="grid w-full min-h-screen grid-cols-1 pt-16 lg:grid-cols-12 lg:pt-0">
+      <main className="grid w-full min-h-screen grid-cols-1 pt-0 lg:grid-cols-12">
         {/* LEFT — main big image + bottom horizontal thumbnail list */}
         <div className="flex flex-col justify-between bg-[#EFECE6] p-0 m-0 lg:col-span-6 xl:col-span-7">
           {/* 1. Top big main display image — fixed aspect ratio (3/4 mobile, 4/5 desktop) */}
@@ -282,7 +282,7 @@ export default function Product() {
         </div>
 
         {/* RIGHT — details section (top padding clears the fixed header) */}
-        <div className="relative flex flex-col justify-start bg-[#FAF8F5] px-8 pb-10 pt-24 sm:px-14 lg:col-span-6 lg:px-16 lg:pt-28 xl:col-span-5">
+        <div className="relative flex flex-col justify-start bg-[#FAF8F5] px-8 pb-10 pt-8 sm:px-14 lg:col-span-6 lg:px-16 lg:pt-28 xl:col-span-5">
           <div ref={ctaRef} className="space-y-6">
             {/* Breadcrumb — 10px tracking 0.2em uppercase */}
             <nav className="space-x-1.5 text-[10px] font-light uppercase tracking-[0.2em] text-neutral-400">
