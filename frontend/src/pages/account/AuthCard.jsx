@@ -157,7 +157,7 @@ export default function AuthCard({ cfg, policyLoaded }) {
   /* ---------------- forgot-password view ---------------- */
   if (mode === 'forgot') {
     return (
-      <div className="mx-auto mt-8 w-full max-w-md rounded-panel border border-line bg-white/70 p-6 shadow-e-1 sm:p-8">
+      <div className="mx-auto mt-6 w-full max-w-md rounded-panel border border-line bg-white/70 p-5 shadow-e-1 sm:p-6">
         <button
           type="button" onClick={() => switchMode('login')}
           className="inline-flex min-h-[44px] items-center gap-1.5 text-body-sm text-ash underline-offset-4 transition hover:text-obsidian hover:underline"
@@ -176,7 +176,7 @@ export default function AuthCard({ cfg, policyLoaded }) {
             <p className="text-body-sm text-sagedark">{sent}</p>
           </div>
         ) : (
-          <form ref={formRef} onSubmit={submit} className="mt-6 space-y-4" noValidate>
+          <form ref={formRef} onSubmit={submit} className="mt-5 space-y-3.5" noValidate>
             {topErr && (
               <p role="alert" className="flex items-start gap-2 rounded-control border border-red-200 bg-red-50 px-4 py-3 text-body-sm text-red-800">
                 <AlertCircle size={15} className="mt-0.5 shrink-0" aria-hidden="true" />{topErr}
@@ -200,9 +200,9 @@ export default function AuthCard({ cfg, policyLoaded }) {
   const canRegister = cfg.registrationEnabled;
 
   return (
-    <div className="mx-auto mt-8 w-full max-w-md rounded-panel border border-line bg-white/70 p-6 shadow-e-1 sm:p-8">
+    <div className="mx-auto mt-6 w-full max-w-md rounded-panel border border-line bg-white/70 p-5 shadow-e-1 sm:p-6">
       {canRegister ? (
-        <div role="tablist" aria-label="Sign in or register" className="mb-6 grid grid-cols-2 rounded-full bg-satin/60 p-1">
+        <div role="tablist" aria-label="Sign in or register" className="mb-5 grid grid-cols-2 rounded-full bg-satin/60 p-1">
           {tabs.map(([m, label], i) => (
             <button
               key={m}
@@ -227,7 +227,7 @@ export default function AuthCard({ cfg, policyLoaded }) {
       )}
 
       <div id="auth-panel" role={canRegister ? 'tabpanel' : undefined} aria-labelledby={canRegister ? `tab-${mode}` : undefined}>
-        <form ref={formRef} onSubmit={submit} className="space-y-4" noValidate>
+        <form ref={formRef} onSubmit={submit} className="space-y-3.5" noValidate>
           {topErr && (
             <p role="alert" className="flex items-start gap-2 rounded-control border border-red-200 bg-red-50 px-4 py-3 text-body-sm text-red-800">
               <AlertCircle size={15} className="mt-0.5 shrink-0" aria-hidden="true" />{topErr}
@@ -349,7 +349,7 @@ export default function AuthCard({ cfg, policyLoaded }) {
       </div>
 
       {!cfg.registrationEnabled && (
-        <p className="mt-4 rounded-control bg-cream/60 px-4 py-3 text-caption leading-relaxed text-ash">
+        <p className="mt-3 rounded-control bg-cream/60 px-4 py-2.5 text-caption leading-relaxed text-ash">
           New accounts are not being accepted at the moment. You can still check out as a guest.
         </p>
       )}

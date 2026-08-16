@@ -102,11 +102,11 @@ export default function Account() {
   /* ---------------- signed out ---------------- */
   if (!auth) {
     return (
-      <div className="min-h-screen bg-[#FAF8F5] pt-[220px]"><Seo title="Account" description="Your HUSHAE account — orders, addresses, wishlist and profile." />
-        <div className="container-page py-sect-y md:py-sect-y-lg">
+      <div className="min-h-screen bg-[#FAF8F5] pt-[120px]"><Seo title="Account" description="Your HUSHAE account — orders, addresses, wishlist and profile." />
+        <div className="container-page flex min-h-[calc(100vh-220px)] flex-col items-center justify-center py-6">
         <div className="text-center">
           <h1 className="font-display text-h1">{cfg.signInTitle}</h1>
-          <p className="mx-auto mt-3 max-w-md text-body text-ash">{cfg.signInSubtitle}</p>
+          <p className="mx-auto mt-2 max-w-md text-body text-ash">{cfg.signInSubtitle}</p>
         </div>
         <AuthCard cfg={cfg} policyLoaded={policy !== null} />
         </div>
@@ -117,8 +117,8 @@ export default function Account() {
   /* ---------------- loading ---------------- */
   if (!user) {
     return (
-      <div className="min-h-screen bg-[#FAF8F5] pt-[220px]"><Seo title="Account" description="Your HUSHAE account — orders, addresses, wishlist and profile." />
-        <div className="container-page py-sect-y">
+      <div className="min-h-screen bg-[#FAF8F5] pt-[120px]"><Seo title="Account" description="Your HUSHAE account — orders, addresses, wishlist and profile." />
+        <div className="container-page py-6">
         {loadErr ? (
           <div className="mx-auto max-w-md text-center">
             <h1 className="font-display text-h3">We could not load your account</h1>
@@ -149,12 +149,12 @@ export default function Account() {
   const activeLabel = SECTIONS.find((s) => s.id === section)?.label || '';
 
   return (
-    <div className="min-h-screen bg-[#FAF8F5] pt-[220px]"><Seo title="Account" description="Your HUSHAE account — orders, addresses, wishlist and profile." />
+    <div className="min-h-screen bg-[#FAF8F5] pt-[130px]"><Seo title="Account" description="Your HUSHAE account — orders, addresses, wishlist and profile." />
       {/* Reference account-page wrapper — cream canvas, content starts below
           the fixed 96px header + announcement bar. */}
-      <div className="mx-auto w-full max-w-[1280px] px-8 py-10">
+      <div className="mx-auto w-full max-w-[1280px] px-6 py-5 md:px-8">
       {/* ---------------- profile banner (reference register) ---------------- */}
-      <section className="mb-8 flex items-center gap-[18px] border-b border-[#f0f0f0] pb-6">
+      <section className="mb-6 flex items-center gap-[18px] border-b border-[#f0f0f0] pb-5">
         {user.avatar ? (
           <img src={user.avatar} alt="" className="h-[52px] w-[52px] shrink-0 rounded-full object-cover" />
         ) : (
@@ -168,7 +168,7 @@ export default function Account() {
         </div>
       </section>
 
-      <div className="grid gap-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-12">
+      <div className="grid gap-5 lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-8">
         {/* ---------------- nav ----------------
             Mobile: a scrollable rail. Desktop: a sidebar. Same buttons, so
             there is only one set of state and one focus order. */}
@@ -206,12 +206,12 @@ export default function Account() {
             <div className="grid gap-5 sm:grid-cols-3">
               {/* Reference dash-card: #FFFFFF, 1px #eee, radius 8, 24px pad,
                   title 11/700 tracked, value 28/600, desc 13px grey */}
-              <button type="button" onClick={() => go('orders')} className="flex min-h-[140px] flex-col items-start rounded-lg border border-[#eeeeee] bg-[#FFFFFF] p-6 text-left">
+              <button type="button" onClick={() => go('orders')} className="flex min-h-[120px] flex-col items-start rounded-lg border border-[#eeeeee] bg-[#FFFFFF] p-5 text-left">
                 <span className="text-[11px] font-bold uppercase tracking-[1.2px] text-[#6b7280]">Orders</span>
                 <span className="my-3 text-[28px] font-semibold leading-none text-[#111111]">{orders === null ? '—' : orders.length}</span>
                 <span className="mt-auto text-[13px] text-[#9ca3af]">View order history</span>
               </button>
-              <button type="button" onClick={() => go('addresses')} className="flex min-h-[140px] flex-col items-start rounded-lg border border-[#eeeeee] bg-[#FFFFFF] p-6 text-left">
+              <button type="button" onClick={() => go('addresses')} className="flex min-h-[120px] flex-col items-start rounded-lg border border-[#eeeeee] bg-[#FFFFFF] p-5 text-left">
                 <span className="text-[11px] font-bold uppercase tracking-[1.2px] text-[#6b7280]">Addresses</span>
                 <span className="my-3 text-[28px] font-semibold leading-none text-[#111111]">{(user.addresses || []).length}</span>
                 <span className="mt-auto text-[13px] text-[#9ca3af]">Manage saved addresses</span>
@@ -220,7 +220,7 @@ export default function Account() {
                   running — the wishlist already has its own section in the
                   rail above, so the tile was a duplicate entry point. */}
               {loyaltyOn ? (
-                <Link to="/rewards" className="flex min-h-[140px] flex-col items-start rounded-lg border border-[#eeeeee] bg-[#FFFFFF] p-6 text-left">
+                <Link to="/rewards" className="flex min-h-[120px] flex-col items-start rounded-lg border border-[#eeeeee] bg-[#FFFFFF] p-5 text-left">
                   <span className="text-[11px] font-bold uppercase tracking-[1.2px] text-[#6b7280]">Rewards</span>
                   <span className="my-3 text-[28px] font-semibold leading-none tabular-nums text-[#111111]">
                     {loyalty === null ? '—' : Number(loyalty.account?.points || 0).toLocaleString('en-PK')}
@@ -230,7 +230,7 @@ export default function Account() {
                   </span>
                 </Link>
               ) : (
-                <Link to="/wishlist" className="flex min-h-[140px] flex-col items-start rounded-lg border border-[#eeeeee] bg-[#FFFFFF] p-6 text-left">
+                <Link to="/wishlist" className="flex min-h-[120px] flex-col items-start rounded-lg border border-[#eeeeee] bg-[#FFFFFF] p-5 text-left">
                   <span className="text-[11px] font-bold uppercase tracking-[1.2px] text-[#6b7280]">Wishlist</span>
                   <span className="my-3 text-[28px] font-semibold leading-none text-[#111111]">♡</span>
                   <span className="mt-auto text-[13px] text-[#9ca3af]">Pieces you saved</span>
@@ -292,7 +292,7 @@ export default function Account() {
           {section === 'profile' && <ProfilePanel cfg={cfg} user={user} onUpdated={onUpdated} />}
           {section === 'addresses' && <AddressPanel cfg={cfg} user={user} onUpdated={onUpdated} />}
           {section === 'security' && (
-            <div className="space-y-6">
+            <div className="space-y-4">
               <SecurityPanel cfg={cfg} user={user} onUpdated={onUpdated} />
               {cfg.showSessions && <SessionsPanel />}
             </div>

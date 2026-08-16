@@ -88,9 +88,9 @@ export default function Footer() {
   };
 
   return (
-    <footer className="mt-24 flex min-h-[100vh] w-full flex-wrap bg-[#0d0d0d] text-[#e5e5e5]">
+    <footer className="mt-10 flex w-full flex-wrap bg-[#0d0d0d] text-[#e5e5e5]">
       {/* ═══ LEFT — #171615 ═══════════════════════════════════════════ */}
-      <div className="flex flex-1 flex-col justify-between bg-[#171615] px-6 py-12 md:px-16 md:py-20 lg:basis-[450px] lg:px-[60px] lg:py-20">
+      <div className="flex flex-1 flex-col justify-between bg-[#171615] px-6 py-6 md:px-12 md:py-8 lg:basis-[450px] lg:px-[50px]">
         {/* Brand */}
         <div>
           <h2 className="text-[32px] font-medium tracking-[0.06em] text-white">
@@ -102,32 +102,32 @@ export default function Footer() {
         </div>
 
         {/* Tagline */}
-        <p className="my-10 text-[28px] font-normal leading-[1.25] tracking-[-0.01em] text-[#e6e4e0] md:my-[60px] md:text-[36px]">
+        <p className="my-6 text-[26px] font-normal leading-[1.25] tracking-[-0.01em] text-[#e6e4e0] md:my-8 md:text-[32px]">
           Made for the everyday,
           <br />
           finished for everywhere.
         </p>
 
         {/* Features */}
-        <p className="mb-10 text-[12px] text-[#8c8a87] md:mb-[60px]">
+        <p className="mb-4 text-[12px] text-[#8c8a87] md:mb-6">
           Worldwide shipping · Easy returns · Secure checkout
         </p>
 
         {/* Selectors */}
-        <div className="flex flex-col gap-8 sm:flex-row sm:gap-[60px]">
+        <div className="flex flex-col gap-5 sm:flex-row sm:gap-8">
           <Selector label="Country / Region" id="ft-country" options={['Pakistan', 'United States', 'United Kingdom', 'UAE']} />
           <Selector label="Language" id="ft-lang" options={['English', 'اردو', 'العربية']} />
         </div>
       </div>
 
       {/* ═══ RIGHT — #0a0a0a ══════════════════════════════════════════ */}
-      <div className="flex flex-1 flex-col bg-[#0a0a0a] px-6 py-12 md:px-12 md:py-20 lg:basis-[550px] lg:px-20 lg:py-20">
+      <div className="flex flex-1 flex-col bg-[#0a0a0a] px-6 py-6 md:px-12 md:py-8 lg:basis-[550px] lg:px-16">
         {/* Nav grid — 3 columns */}
-        <nav aria-label="Footer" className="mb-12 grid grid-cols-2 gap-x-8 gap-y-10 md:mb-[60px] md:grid-cols-3 md:gap-[40px]">
+        <nav aria-label="Footer" className="mb-6 grid grid-cols-2 gap-x-8 gap-y-5 md:mb-8 md:grid-cols-3 md:gap-[36px]">
           {NAV.map((col) => (
             <div key={col.title}>
-              <span className="mb-6 block text-[10px] uppercase tracking-[0.15em] text-[#8c8a87]">{col.title}</span>
-              <ul className="space-y-4">
+              <span className="mb-4 block text-[10px] uppercase tracking-[0.15em] text-[#8c8a87]">{col.title}</span>
+              <ul className="space-y-3">
                 {col.links.map((l) => (
                   <li key={l.label}>
                     {l.href.startsWith('#') ? (
@@ -143,11 +143,11 @@ export default function Footer() {
         </nav>
 
         {/* Divider */}
-        <hr className="mb-12 border-0 border-t border-[#222222] md:mb-[50px]" />
+        <hr className="mb-6 border-0 border-t border-[#222222] md:mb-8" />
 
         {/* Newsletter */}
-        <div id="newsletter" className="mb-12 scroll-mt-24 md:mb-[60px]">
-          <h3 className="mb-6 text-[20px] font-normal text-white">
+        <div id="newsletter" className="mb-6 scroll-mt-24 md:mb-8">
+          <h3 className="mb-3 text-[20px] font-normal text-white">
             {done ? 'Welcome to the circle.' : 'Sign up for updates'}
           </h3>
           {!done && (
@@ -172,7 +172,7 @@ export default function Footer() {
 
         {/* Legal + Copyright — pinned to bottom */}
         <div className="mt-auto">
-          <p className="mb-6 text-[12px] text-[#777777]">
+          <p className="mb-4 text-[12px] text-[#777777]">
             {LEGAL.map((l, i) => (
               <span key={l.label}>
                 {i > 0 && <span aria-hidden="true"> · </span>}
