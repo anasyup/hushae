@@ -15,6 +15,7 @@ import BulkBar from './BulkBar';
 import OrderRow from './OrderRow';
 import QuickFilters from './QuickFilters';
 import CustomerPanel from './CustomerPanel';
+import OrderQuickView from '../OrderQuickView';
 import { writeErrorWindow, writeLoadingWindow, writePrintWindow } from './printDocument';
 
 /* ============================================================================
@@ -38,6 +39,7 @@ export default function OrdersDesk() {
 
   const [selected, setSelected] = useState([]);
   const [showNotes, setShowNotes] = useState(false);
+  const [quickViewId, setQuickViewId] = useState(null);
   const [serviceFor, setServiceFor] = useState(null);
   const [selectAllMatching, setSelectAllMatching] = useState(false);
   const [customerPhone, setCustomerPhone] = useState(null);
@@ -305,6 +307,7 @@ export default function OrdersDesk() {
               onStage={setStage} onVerify={verifyPayment}
               onPrint={handlePrint} onOpenService={setServiceFor}
               onOpenCustomer={setCustomerPhone}
+              onQuickView={(o) => setQuickViewId(o._id)}
             />
           ))}
         </div>
@@ -329,6 +332,9 @@ export default function OrdersDesk() {
 
       {customerPhone && (
         <CustomerPanel phone={customerPhone} token={auth?.token} onClose={() => setCustomerPhone(null)} />
+      )}
+      {quickViewId && (
+        <OrderQuickView id={quickViewId} token={auth?.token} onClose={() => setQuickViewId(null)} />
       )}
 
       {showShortcuts && (

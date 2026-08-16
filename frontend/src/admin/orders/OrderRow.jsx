@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  AlertTriangle, ArrowRight, Ban, Check, ChevronDown, Copy, Loader2, MapPin,
+  AlertTriangle, ArrowRight, Ban, Check, ChevronDown, Copy, Eye, Loader2, MapPin,
   MessageCircle, MoreHorizontal, Phone, Printer, Wallet,
 } from 'lucide-react';
 import { fmtDate, pkr } from '../../lib/format';
@@ -21,7 +21,7 @@ const STOCK_TONE = {
  * ========================================================================== */
 
 export default function OrderRow({
-  order: o, selected, onSelect, busy, onStage, onVerify, onPrint, onOpenService, onOpenCustomer,
+  order: o, selected, onSelect, busy, onStage, onVerify, onPrint, onOpenService, onOpenCustomer, onQuickView,
 }) {
   const [open, setOpen] = useState(false);
   const [menu, setMenu] = useState(false);
@@ -125,6 +125,12 @@ export default function OrderRow({
                 title={`Move to ${next}`}
                 className="inline-flex items-center gap-1 rounded-md bg-neutral-900 px-2.5 py-1.5 text-[13px] font-semibold text-white transition hover:bg-black disabled:opacity-50">
                 {busy ? <Loader2 size={11} className="animate-spin" /> : <ArrowRight size={11} />} {next}
+              </button>
+            )}
+            {onQuickView && (
+              <button onClick={() => onQuickView(o)} aria-label="Quick view" title="Quick view"
+                className="grid h-7 w-7 place-items-center rounded-md border border-neutral-200 text-neutral-500 transition hover:bg-neutral-100 hover:text-neutral-900">
+                <Eye size={13} />
               </button>
             )}
             <div className="relative">
