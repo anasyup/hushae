@@ -837,3 +837,28 @@
 }
 .live-dot { animation: px-live-pulse 2s ease-in-out infinite; }
 
+
+/* ════════════════════════════════════════════════════════════════════════
+   ADMIN — GLOBAL MINIMAL NORMALIZATION (Shopify Polaris register).
+   Scoped to .admin-shell so the storefront is never touched. Unifies every
+   admin page (orders, products, customers, marketing, settings…) into one
+   consistent 8px-radius, flat, calm system.
+   ════════════════════════════════════════════════════════════════════════ */
+.admin-shell .rounded-2xl { border-radius: 10px !important; }
+.admin-shell .rounded-xl  { border-radius: 8px  !important; }
+.admin-shell .rounded-lg  { border-radius: 8px  !important; }
+.admin-shell .rounded-md  { border-radius: 6px  !important; }
+
+/* Dial down the heavy popover shadows (flat, border-based depth). */
+.admin-shell .shadow-xl,
+.admin-shell .shadow-lg { box-shadow: 0 4px 16px -4px rgba(0, 0, 0, 0.10) !important; }
+.admin-shell .shadow-md { box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.08) !important; }
+.admin-shell .shadow-sm { box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important; }
+
+/* Dark primary buttons — consistent with the topbar "Add product". */
+.admin-shell .bg-neutral-900 { background-color: #1A1A1A !important; }
+
+/* Calm card borders — one hairline tone everywhere. */
+.admin-shell .border-neutral-200 { border-color: #E3E3E5 !important; }
+.admin-shell .border-neutral-300 { border-color: #C9C9CD !important; }
+.admin-shell .border-neutral-100 { border-color: #EFF0F0 !important; }
