@@ -124,15 +124,15 @@ function getRoleLabel(role) {
   return map[role] || role;
 }
 
-const NAV_ITEM = 'flex items-center gap-2 rounded-[8px] px-[10px] py-[7px] text-[13px] transition-colors';
+const NAV_ITEM = 'flex items-center gap-2.5 rounded-[8px] px-2.5 py-[7px] text-[14px] transition-colors';
 const navItemStyle = (isActive) => ({
   fontWeight: isActive ? 600 : 400,
-  background: isActive ? 'var(--px-accent-soft-bg)' : 'transparent',
-  color: isActive ? 'var(--px-accent-soft-text)' : 'var(--px-secondary)',
+  background: isActive ? '#EDEDED' : 'transparent',
+  color: isActive ? 'var(--px-ink)' : 'var(--px-secondary)',
 });
 const linkCls = () => NAV_ITEM;
 const linkStyle = ({ isActive }) => navItemStyle(isActive);
-const childLinkCls = () => 'flex items-center gap-1.5 rounded-[8px] py-[6px] pl-7 pr-2 text-[13px] transition-colors';
+const childLinkCls = () => 'flex items-center gap-2 rounded-[8px] py-[6px] pl-7 pr-2.5 text-[14px] transition-colors';
 const childLinkStyle = (active) => navItemStyle(active);
 
 function isChildRouteActive(loc, to, exact = false) {
@@ -185,33 +185,24 @@ function SidebarContent({ onNavigate }) {
     <div className="flex h-full flex-col" style={{ background: 'var(--px-bg-sidebar)', borderRight: '1px solid var(--px-border)' }}>
       <div className="px-4 pb-3 pt-5">
         <NavLink to="/admin" onClick={onNavigate} className="flex items-center gap-2.5">
-          <span className="grid h-[22px] w-[22px] place-items-center rounded-[6px] text-[11px] font-bold text-white" style={{ background: 'linear-gradient(135deg, #6C5CE7, #5B4FE0)' }} aria-hidden="true">H</span>
-          <span className="text-[13px] font-semibold" style={{ color: 'var(--px-ink)' }}>Hushae</span>
-          <span className="rounded-full px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide" style={{ background: 'var(--px-accent-soft-bg)', color: 'var(--px-accent-soft-text)' }}>Admin</span>
+          <span className="grid h-[28px] w-[28px] place-items-center rounded-[8px] text-[13px] font-bold text-white" style={{ background: 'var(--px-accent)' }} aria-hidden="true">H</span>
+          <span className="text-[15px] font-semibold" style={{ color: 'var(--px-ink)' }}>HUSHAE</span>
         </NavLink>
       </div>
       {role && role !== 'admin' && role !== 'Owner' && (
         <div className="mx-4 mb-2"><p className="text-[11px] font-medium" style={{ color: 'var(--px-muted)' }}>{getRoleLabel(role)} view</p></div>
       )}
-      <div className="relative mx-3 mb-2">
-        <Search size={13} className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2" style={{ color: 'var(--px-muted)' }} />
-        <input type="text" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search…"
-          className="w-full rounded-[8px] border py-1.5 pl-8 pr-7 text-[13px] outline-none"
-          style={{ borderColor: 'var(--px-border)', color: 'var(--px-ink)', background: 'var(--px-bg-page)' }} />
-        <kbd className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 rounded border px-1 py-0.5 text-[10px] font-medium" style={{ borderColor: 'var(--px-border-strong)', color: 'var(--px-muted)' }}><Command size={9} />K</kbd>
-        {filtered.length > 0 && <div className="absolute inset-x-0 top-full z-10 mt-1 max-h-72 overflow-y-auto rounded-[10px] border py-1" style={{ background: 'var(--px-bg-card)', borderColor: 'var(--px-border)', boxShadow: 'var(--px-shadow-pop)' }}>{filtered.map((f) => <Link key={f.to} to={f.to} onClick={() => { setQuery(''); onNavigate?.(); }} className="flex items-center gap-2 px-3 py-2 text-[13px] transition-colors hover:bg-[var(--px-bg-hover)]" style={{ color: 'var(--px-secondary)' }}><f.icon size={13} style={{ color: 'var(--px-muted)' }} /> {f.label}</Link>)}</div>}
-      </div>
       <nav className="flex-1 space-y-0.5 overflow-y-auto px-2.5 pb-3">
         {NAV_TOP.map(({ to, label, icon: Icon, end }) => (
           <NavLink key={to} to={to} end={end} className={linkCls} style={linkStyle} onClick={onNavigate}>
-            {({ isActive }) => <><Icon size={15} strokeWidth={1.7} style={{ color: isActive ? 'var(--px-accent-soft-text)' : 'var(--px-muted)' }} />{label}</>}
+            {({ isActive }) => <><Icon size={16} strokeWidth={1.6} style={{ color: isActive ? 'var(--px-ink)' : 'var(--px-muted)' }} />{label}</>}
           </NavLink>
         ))}
         <div className="mt-2" />
         {visibleGroups.map((g) => <GroupDropdown key={g.label} group={g} onNavigate={onNavigate} defaultOpen={activeGroupLabel === g.label} />)}
       </nav>
       <div className="px-2.5 py-3" style={{ borderTop: '1px solid var(--px-border)' }}>
-        <button onClick={logout} className="flex w-full items-center gap-2.5 rounded-[8px] px-[10px] py-[7px] text-[13px] transition-colors hover:bg-[var(--px-bg-hover)]" style={{ color: 'var(--px-secondary)' }}><LogOut size={15} strokeWidth={1.6} /> Sign Out</button>
+        <button onClick={logout} className="flex w-full items-center gap-2.5 rounded-[8px] px-2.5 py-[7px] text-[14px] transition-colors hover:bg-[var(--px-bg-hover)]" style={{ color: 'var(--px-secondary)' }}><LogOut size={16} strokeWidth={1.6} /> Sign Out</button>
       </div>
     </div>
   );
@@ -302,21 +293,32 @@ function TopBar({ title, auth, onCmdK }) {
   })();
   const initials = (auth?.user?.name || 'A').split(' ').map((s) => s[0]).slice(0, 2).join('').toUpperCase();
   return (
-    <header className="sticky top-0 z-20 hidden border-b px-8 py-3 backdrop-blur md:block" style={{ borderColor: "var(--px-border)", background: "rgba(255,255,255,0.9)" }}>
-      <div className="flex items-center justify-between gap-6">
-        <div className="min-w-0 flex-1"><h1 className="truncate text-[20px] font-bold leading-tight" style={{ color: "var(--px-ink)", letterSpacing: "-0.3px" }}>{title || crumbs[crumbs.length - 1]?.label}</h1><nav className="mt-0.5 flex items-center gap-1.5 text-[12px]" style={{ color: "var(--px-muted)" }}>{crumbs.map((c, i) => <span key={c.to} className="inline-flex items-center gap-1.5">{i > 0 && <span className="opacity-40">/</span>}{i === crumbs.length - 1 ? <span style={{ color: "var(--px-secondary)" }}>{c.label}</span> : <Link to={c.to} className="transition-opacity hover:opacity-70">{c.label}</Link>}</span>)}</nav></div>
-        <div className="flex items-center gap-2">
-          <button onClick={onCmdK} className="hidden items-center gap-1.5 rounded-[8px] border px-3 py-2 text-[12px] font-medium transition-colors hover:bg-[var(--px-bg-hover)] md:inline-flex" style={{ borderColor: "var(--px-border)", color: "var(--px-muted)" }} title="Search admin (⌘K)"><Command size={12} strokeWidth={1.5} /> Search <kbd className="ml-1 rounded border px-1 text-[10px]" style={{ borderColor: "var(--px-border-strong)" }}>⌘K</kbd></button>
-          <span className="hidden items-center gap-1.5 text-[12px] lg:inline-flex" style={{ color: "var(--px-muted)" }}><span className="h-1.5 w-1.5 rounded-full" style={{ background: "var(--px-success)" }} aria-hidden="true" />Store online</span>
-          {canCreate && <div className="relative" ref={createRef}><button onClick={() => setCreateOpen((v) => !v)} className="inline-flex items-center gap-1 rounded-[8px] border px-3 py-2 text-[12px] font-medium transition-colors hover:bg-[var(--px-bg-hover)] active:scale-[0.98]" style={{ borderColor: "var(--px-border)", color: "var(--px-secondary)" }}>Create <ChevronDown size={12} /></button>{createOpen && <div className="absolute right-0 top-full z-30 mt-1 w-56 rounded-[10px] border py-1" style={{ background: "var(--px-bg-card)", borderColor: "var(--px-border)", boxShadow: "var(--px-shadow-pop)" }}><Link to="/admin/products/new" onClick={() => setCreateOpen(false)} className="flex items-center gap-2.5 px-3.5 py-2 text-[13px] transition-colors hover:bg-[var(--px-bg-hover)]" style={{ color: "var(--px-secondary)" }}><Package size={13} style={{ color: "var(--px-muted)" }} /> New product</Link><Link to="/admin/promotions/new" onClick={() => setCreateOpen(false)} className="flex items-center gap-2.5 px-3.5 py-2 text-[13px] transition-colors hover:bg-[var(--px-bg-hover)]" style={{ color: "var(--px-secondary)" }}><Megaphone size={13} style={{ color: "var(--px-muted)" }} /> New promotion</Link><Link to="/admin/discounts" onClick={() => setCreateOpen(false)} className="flex items-center gap-2.5 px-3.5 py-2 text-[13px] transition-colors hover:bg-[var(--px-bg-hover)]" style={{ color: "var(--px-secondary)" }}><BadgePercent size={13} style={{ color: "var(--px-muted)" }} /> New discount</Link><Link to="/admin/cms/new" onClick={() => setCreateOpen(false)} className="flex items-center gap-2.5 px-3.5 py-2 text-[13px] transition-colors hover:bg-[var(--px-bg-hover)]" style={{ color: "var(--px-secondary)" }}><FileText size={13} style={{ color: "var(--px-muted)" }} /> New page</Link><Link to="/admin/blog/new" onClick={() => setCreateOpen(false)} className="flex items-center gap-2.5 px-3.5 py-2 text-[13px] transition-colors hover:bg-[var(--px-bg-hover)]" style={{ color: "var(--px-secondary)" }}><FileText size={13} style={{ color: "var(--px-muted)" }} /> New blog article</Link></div>}</div>}
-          <Link to="/" target="_blank" className="hidden items-center gap-1.5 rounded-[8px] border px-3 py-2 text-[12px] font-medium transition-colors hover:bg-[var(--px-bg-hover)] md:inline-flex" style={{ borderColor: "var(--px-border)", color: "var(--px-secondary)" }} title="Open storefront"><Globe size={13} strokeWidth={1.5} /> View store</Link>
+    <header className="sticky top-0 z-20 hidden border-b md:block" style={{ borderColor: "var(--px-border)", background: "var(--px-bg-sidebar)" }}>
+      <div className="flex items-center gap-4 px-5 py-2.5">
+        {/* Store name — left */}
+        <Link to="/admin" className="hidden shrink-0 items-center gap-2.5 lg:flex">
+          <span className="grid h-[30px] w-[30px] place-items-center rounded-[8px] text-[14px] font-bold text-white" style={{ background: 'var(--px-accent)' }} aria-hidden="true">H</span>
+          <span className="text-[14px] font-semibold" style={{ color: 'var(--px-ink)' }}>HUSHAE</span>
+        </Link>
+
+        {/* CENTER SEARCH — the signature Shopify topbar element */}
+        <button onClick={onCmdK} className="mx-auto flex w-full max-w-[540px] items-center gap-2.5 rounded-[8px] border px-3.5 py-2 text-left transition-colors hover:border-[var(--px-border-strong)]" style={{ borderColor: 'var(--px-border)', background: 'var(--px-bg-card)', color: 'var(--px-muted)' }}>
+          <Search size={16} strokeWidth={1.6} aria-hidden="true" />
+          <span className="flex-1 truncate text-[14px]">Search orders, products, customers…</span>
+          <kbd className="hidden shrink-0 rounded border px-1.5 py-0.5 text-[11px] font-medium sm:inline" style={{ borderColor: 'var(--px-border)', color: 'var(--px-muted)' }}>⌘K</kbd>
+        </button>
+
+        <div className="flex shrink-0 items-center gap-1.5">
+          <span className="hidden items-center gap-1.5 px-2 text-[12px] xl:inline-flex" style={{ color: "var(--px-muted)" }}><span className="h-1.5 w-1.5 rounded-full" style={{ background: "var(--px-success)" }} aria-hidden="true" />Store online</span>
+          {canCreate && <div className="relative" ref={createRef}><button onClick={() => setCreateOpen((v) => !v)} className="inline-flex items-center gap-1 rounded-[8px] border px-3.5 py-[7px] text-[14px] font-medium transition-colors hover:bg-[var(--px-bg-hover)] active:scale-[0.98]" style={{ borderColor: "var(--px-border-strong)", color: "var(--px-secondary)" }}>Create <ChevronDown size={14} /></button>{createOpen && <div className="absolute right-0 top-full z-30 mt-1 w-56 rounded-[10px] border py-1" style={{ background: "var(--px-bg-card)", borderColor: "var(--px-border)", boxShadow: "var(--px-shadow-pop)" }}><Link to="/admin/products/new" onClick={() => setCreateOpen(false)} className="flex items-center gap-2.5 px-3.5 py-2 text-[13px] transition-colors hover:bg-[var(--px-bg-hover)]" style={{ color: "var(--px-secondary)" }}><Package size={13} style={{ color: "var(--px-muted)" }} /> New product</Link><Link to="/admin/promotions/new" onClick={() => setCreateOpen(false)} className="flex items-center gap-2.5 px-3.5 py-2 text-[13px] transition-colors hover:bg-[var(--px-bg-hover)]" style={{ color: "var(--px-secondary)" }}><Megaphone size={13} style={{ color: "var(--px-muted)" }} /> New promotion</Link><Link to="/admin/discounts" onClick={() => setCreateOpen(false)} className="flex items-center gap-2.5 px-3.5 py-2 text-[13px] transition-colors hover:bg-[var(--px-bg-hover)]" style={{ color: "var(--px-secondary)" }}><BadgePercent size={13} style={{ color: "var(--px-muted)" }} /> New discount</Link><Link to="/admin/cms/new" onClick={() => setCreateOpen(false)} className="flex items-center gap-2.5 px-3.5 py-2 text-[13px] transition-colors hover:bg-[var(--px-bg-hover)]" style={{ color: "var(--px-secondary)" }}><FileText size={13} style={{ color: "var(--px-muted)" }} /> New page</Link><Link to="/admin/blog/new" onClick={() => setCreateOpen(false)} className="flex items-center gap-2.5 px-3.5 py-2 text-[13px] transition-colors hover:bg-[var(--px-bg-hover)]" style={{ color: "var(--px-secondary)" }}><FileText size={13} style={{ color: "var(--px-muted)" }} /> New blog article</Link></div>}</div>}
+          <Link to="/" target="_blank" className="hidden items-center gap-1.5 rounded-[8px] border px-3.5 py-[7px] text-[14px] font-medium transition-colors hover:bg-[var(--px-bg-hover)] xl:inline-flex" style={{ borderColor: "var(--px-border-strong)", color: "var(--px-secondary)" }} title="Open storefront"><Globe size={15} strokeWidth={1.5} /> View store</Link>
           {/* ONE primary action */}
-          {canCreate && <Link to="/admin/products/new" className="inline-flex items-center gap-1.5 rounded-[8px] px-3 py-2 text-[12px] font-semibold text-[#FFFFFF] transition-colors active:scale-[0.98]" style={{ background: "var(--px-accent)" }} onMouseEnter={(e) => (e.currentTarget.style.background = "var(--px-accent-hover)")} onMouseLeave={(e) => (e.currentTarget.style.background = "var(--px-accent)")}><Plus size={13} /> Add product</Link>}
+          {canCreate && <Link to="/admin/products/new" className="inline-flex items-center gap-1.5 rounded-[8px] px-4 py-[7px] text-[14px] font-medium text-[#FFFFFF] transition-colors active:scale-[0.98]" style={{ background: "var(--px-primary)" }} onMouseEnter={(e) => (e.currentTarget.style.background = "var(--px-primary-hover)")} onMouseLeave={(e) => (e.currentTarget.style.background = "var(--px-primary)")}><Plus size={15} /> Add product</Link>}
           <button onClick={toggleDark} aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'} title={dark ? 'Switch to light mode' : 'Switch to dark mode'} className="hidden items-center justify-center rounded-[8px] p-2 transition-colors hover:bg-[var(--px-bg-hover)] md:inline-flex" style={{ color: "var(--px-muted)" }}>
             {dark ? <Sun size={14} /> : <Moon size={14} />}
           </button>
           <NotificationBell />
-          <div className="ml-1 flex items-center gap-2.5"><span className="grid h-7 w-7 place-items-center rounded-full text-[12px] font-semibold text-[#FFFFFF]" style={{ background: "var(--px-accent)" }}>{initials}</span><span className="text-[13px]" style={{ color: "var(--px-secondary)" }}>{auth?.user?.name?.split(' ')[0] || 'Admin'}</span></div>
+          <div className="ml-1 flex items-center gap-2"><span className="grid h-8 w-8 place-items-center rounded-full text-[12px] font-semibold" style={{ background: "var(--px-bg-hover)", color: "var(--px-secondary)" }}>{initials}</span><span className="hidden text-[14px] xl:inline" style={{ color: "var(--px-secondary)" }}>{auth?.user?.name?.split(' ')[0] || 'Admin'}</span></div>
         </div>
       </div>
     </header>

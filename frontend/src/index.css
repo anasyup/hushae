@@ -765,43 +765,47 @@
    Dark counterpart below (optional, toggle-kept, default LIGHT).
    ════════════════════════════════════════════════════════════════════════ */
 :root {
-  --px-bg-page:      #F6F6F8;
-  --px-bg-sidebar:   #FFFFFF;
+  --px-bg-page:      #F1F1F1;   /* Shopify admin page gray */
+  --px-bg-sidebar:   #FBFBFB;
   --px-bg-card:      #FFFFFF;
-  --px-bg-hover:     #F4F4F5;
-  --px-border:       #E6E6EA;
-  --px-border-strong:#D4D4D8;
-  --px-ink:          #18181B;
-  --px-secondary:    #52525B;
-  --px-muted:        #71717A;
-  --px-faint:        #A1A1AA;
-  --px-accent:       #6C5CE7;
-  --px-accent-hover: #5B4FE0;
-  --px-accent-soft-bg: rgba(108, 92, 231, 0.10);
-  --px-accent-soft-text: #6C5CE7;
-  --px-success: #15803D;
-  --px-warning: #B45309;
-  --px-danger:  #DC2626;
-  --px-info:    #2563EB;
-  --px-shadow-card: 0 1px 2px rgba(24,24,27,0.04), 0 1px 3px rgba(24,24,27,0.06);
-  --px-shadow-pop:  0 10px 40px -12px rgba(24,24,27,0.18);
+  --px-bg-hover:     #F1F1F1;
+  --px-border:       #E3E3E5;   /* card border — subdued */
+  --px-border-strong:#8C8C8C;
+  --px-ink:          #1A1A1A;   /* emphasis */
+  --px-secondary:    #303030;   /* body text */
+  --px-muted:        #6D7175;   /* subdued */
+  --px-faint:        #8C9196;
+  --px-accent:       #008060;   /* Shopify green — brand mark, money, success */
+  --px-accent-hover: #006E52;
+  --px-accent-soft-bg: #E7F5EE;
+  --px-accent-soft-text: #1C6A4F;
+  --px-primary:      #1A1A1A;   /* primary button fill (dark, Polaris) */
+  --px-primary-hover:#333333;
+  --px-success: #1C6A4F;
+  --px-warning: #8A6116;
+  --px-danger:  #B91C1C;
+  --px-info:    #1F5FA8;
+  --px-shadow-card: none;       /* Shopify cards are flat — border only */
+  --px-shadow-pop:  0 6px 24px rgba(0, 0, 0, 0.12);
 }
 
 .dark-admin {
-  --px-bg-page:      #0E0E11;
-  --px-bg-sidebar:   #131316;
-  --px-bg-card:      #17171B;
-  --px-bg-hover:     #1E1E23;
+  --px-bg-page:      #1A1A1A;
+  --px-bg-sidebar:   #1F1F1F;
+  --px-bg-card:      #242424;
+  --px-bg-hover:     #2E2E2E;
   --px-border:       rgba(255,255,255,0.08);
-  --px-border-strong:rgba(255,255,255,0.14);
-  --px-ink:          #F4F4F5;
-  --px-secondary:    #D4D4D8;
-  --px-muted:        #A1A1AA;
-  --px-faint:        #71717A;
-  --px-accent:       #7C6CF0;
-  --px-accent-hover: #8C7DF2;
-  --px-accent-soft-bg: rgba(124,108,240,0.16);
-  --px-accent-soft-text: #B8AEFC;
+  --px-border-strong:rgba(255,255,255,0.16);
+  --px-ink:          #F6F6F7;
+  --px-secondary:    #E3E3E5;
+  --px-muted:        #A0A0A0;
+  --px-faint:        #8C8C8C;
+  --px-accent:       #00A97E;
+  --px-accent-hover: #00B58A;
+  --px-accent-soft-bg: rgba(0,160,112,0.18);
+  --px-accent-soft-text: #7AE0B8;
+  --px-primary:      #F6F6F7;
+  --px-primary-hover:#FFFFFF;
   --px-success: #4ADE80;
   --px-warning: #F0B429;
   --px-danger:  #F87171;

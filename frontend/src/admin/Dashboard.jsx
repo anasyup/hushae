@@ -50,17 +50,17 @@ const CARD = 'rounded-[10px] border bg-white p-4';
 const CARD_STYLE = { background: 'var(--px-bg-card)', borderColor: 'var(--px-border)', boxShadow: 'var(--px-shadow-card)' };
 
 const STATUS_COLORS = {
-  Pending: '#B45309',
-  Confirmed: '#2563EB',
-  Processing: '#6C5CE7',
-  'Ready to Ship': '#71717A',
-  Shipped: '#71717A',
-  'Out for Delivery': '#71717A',
-  Delivered: '#16A34A',
-  Cancelled: '#DC2626',
-  Refunded: '#DC2626',
+  Pending: '#8A6116',
+  Confirmed: '#1F5FA8',
+  Processing: '#303030',
+  'Ready to Ship': '#6D7175',
+  Shipped: '#6D7175',
+  'Out for Delivery': '#6D7175',
+  Delivered: '#1C6A4F',
+  Cancelled: '#B91C1C',
+  Refunded: '#B91C1C',
 };
-const statusColor = (s) => STATUS_COLORS[s] || '#71717A';
+const statusColor = (s) => STATUS_COLORS[s] || '#6D7175';
 
 class ChartBoundary extends Component {
   constructor(props) { super(props); this.state = { failed: false }; }
@@ -71,7 +71,7 @@ class ChartBoundary extends Component {
       return (
         <div className="py-16 text-center" role="alert">
           <p className="text-[13px]" style={{ color: 'var(--px-muted)' }}>Couldn&apos;t render this chart</p>
-          <button type="button" onClick={() => this.setState({ failed: false })} className="mt-3 text-[12px] font-semibold" style={{ color: 'var(--px-accent-soft-text)' }}>Retry</button>
+          <button type="button" onClick={() => this.setState({ failed: false })} className="mt-3 text-[12px] font-semibold" style={{ color: 'var(--px-ink)' }}>Retry</button>
         </div>
       );
     }
@@ -182,7 +182,7 @@ function StockRow({ product: p, onSaved, onReorder }) {
     <div className="flex items-center gap-3 py-1.5">
       <Img src={p.images?.[0]?.url} alt="" className="h-12 w-9 shrink-0 rounded-[5px] object-cover" />
       <input type="number" min="0" autoFocus value={value} onChange={(e) => setValue(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') save(); if (e.key === 'Escape') setEditing(false); }} className="w-20 rounded-[8px] border px-2 py-1 text-[13px] tabular-nums outline-none" style={{ borderColor: 'var(--px-border-strong)', color: 'var(--px-ink)', background: 'var(--px-bg-card)' }} />
-      <button onClick={save} disabled={busy} className="text-[12px] font-semibold disabled:opacity-50" style={{ color: 'var(--px-accent-soft-text)' }}>Save</button>
+      <button onClick={save} disabled={busy} className="text-[12px] font-semibold disabled:opacity-50" style={{ color: 'var(--px-ink)' }}>Save</button>
       <button onClick={() => setEditing(false)} className="text-[12px] font-medium" style={{ color: 'var(--px-muted)' }}>Cancel</button>
     </div>
   );
@@ -197,25 +197,25 @@ function StockRow({ product: p, onSaved, onReorder }) {
       </button>
       {p.reorderStatus === 'pending'
         ? <button onClick={() => onReorder?.(p)} className="text-[12px] font-medium" style={{ color: 'var(--px-muted)' }}>Pending</button>
-        : <button onClick={() => onReorder?.(p)} className="text-[12px] font-semibold" style={{ color: 'var(--px-accent-soft-text)' }}>Reorder</button>}
+        : <button onClick={() => onReorder?.(p)} className="text-[12px] font-semibold" style={{ color: 'var(--px-ink)' }}>Reorder</button>}
     </div>
   );
 }
 
 function PipelineStrip({ stats }) {
   const items = [
-    { label: 'Pending', n: stats.pending, color: '#B45309', to: '/admin/orders?group=new' },
-    { label: 'Confirmed', n: stats.confirmed, color: '#2563EB', to: '/admin/orders?group=processing' },
-    { label: 'Processing', n: stats.processing, color: '#6C5CE7', to: '/admin/orders?group=processing' },
+    { label: 'Pending', n: stats.pending, color: '#8A6116', to: '/admin/orders?group=new' },
+    { label: 'Confirmed', n: stats.confirmed, color: '#1F5FA8', to: '/admin/orders?group=processing' },
+    { label: 'Processing', n: stats.processing, color: '#303030', to: '/admin/orders?group=processing' },
     { label: 'Ready', n: stats.readyToShip, color: '#71717A', to: '/admin/orders?group=to-ship' },
     { label: 'In Transit', n: stats.shipped, color: '#71717A', to: '/admin/orders?group=shipped' },
-    { label: 'Delivered', n: stats.delivered, color: '#16A34A', to: '/admin/orders?group=delivered' },
+    { label: 'Delivered', n: stats.delivered, color: '#1C6A4F', to: '/admin/orders?group=delivered' },
   ];
   return (
     <div className={CARD} style={CARD_STYLE}>
       <div className="flex items-center justify-between">
         <Label>Order pipeline</Label>
-        <Link to="/admin/orders" className="text-[12px] font-semibold" style={{ color: 'var(--px-accent-soft-text)' }}>Manage all →</Link>
+        <Link to="/admin/orders" className="text-[12px] font-semibold" style={{ color: 'var(--px-ink)' }}>Manage all →</Link>
       </div>
       <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-3 sm:grid-cols-3 lg:grid-cols-6">
         {items.map((it) => (
@@ -231,7 +231,7 @@ function PipelineStrip({ stats }) {
       {stats.pending > 0 && (
         <Link to="/admin/orders?group=new" className="mt-3 inline-flex items-center gap-2 text-[13px]" style={{ color: 'var(--px-secondary)' }}>
           <span className="tabular-nums">{stats.pending} new order{stats.pending === 1 ? '' : 's'} waiting to be confirmed</span>
-          <span className="text-[12px] font-semibold" style={{ color: 'var(--px-accent-soft-text)' }}>Review</span>
+          <span className="text-[12px] font-semibold" style={{ color: 'var(--px-ink)' }}>Review</span>
         </Link>
       )}
     </div>
@@ -253,7 +253,7 @@ function RevenueChart({ data, rangeLabel }) {
         </div>
         <div className="flex items-center gap-1 rounded-[8px] p-0.5" style={{ background: 'var(--px-bg-hover)' }}>
           {['revenue', 'orders'].map((m) => (
-            <button key={m} onClick={() => setMode(m)} className="rounded-[6px] px-2.5 py-1 text-[11px] font-medium capitalize transition-colors" style={mode === m ? { background: 'var(--px-accent)', color: '#FFFFFF' } : { color: 'var(--px-muted)' }}>
+            <button key={m} onClick={() => setMode(m)} className="rounded-[6px] px-2.5 py-1 text-[11px] font-medium capitalize transition-colors" style={mode === m ? { background: 'var(--px-primary)', color: '#FFFFFF' } : { color: 'var(--px-muted)' }}>
               {m}
             </button>
           ))}
@@ -380,7 +380,7 @@ export default function Dashboard() {
       <div className="mx-auto max-w-md py-24 text-center">
         <p className="text-[20px] font-bold" style={{ color: 'var(--px-ink)' }}>Something went wrong</p>
         <p className="mt-2 text-[13px]" style={{ color: 'var(--px-muted)' }}>{err}</p>
-        <button onClick={() => { setErr(''); load(); }} className="mt-6 text-[13px] font-semibold" style={{ color: 'var(--px-accent-soft-text)' }}>Try again</button>
+        <button onClick={() => { setErr(''); load(); }} className="mt-6 text-[13px] font-semibold" style={{ color: 'var(--px-ink)' }}>Try again</button>
       </div>
     </AdminLayout>
   );
@@ -581,7 +581,7 @@ export default function Dashboard() {
             <div className={CARD} style={CARD_STYLE}>
               <div className="flex items-center justify-between">
                 <Label>Recent orders</Label>
-                <Link to="/admin/orders" className="text-[12px] font-semibold" style={{ color: 'var(--px-accent-soft-text)' }}>View all →</Link>
+                <Link to="/admin/orders" className="text-[12px] font-semibold" style={{ color: 'var(--px-ink)' }}>View all →</Link>
               </div>
               <div className="mt-2">
                 {d.recentOrders.map((o) => (
@@ -620,7 +620,7 @@ export default function Dashboard() {
             <div className={CARD} style={CARD_STYLE}>
               <div className="flex items-center justify-between">
                 <Label>Low stock</Label>
-                <Link to="/admin/products" className="text-[12px] font-semibold" style={{ color: 'var(--px-accent-soft-text)' }}>Manage</Link>
+                <Link to="/admin/products" className="text-[12px] font-semibold" style={{ color: 'var(--px-ink)' }}>Manage</Link>
               </div>
               {d.lowStock.length === 0 ? (
                 <div className="mt-3 py-6 text-center">
@@ -635,7 +635,7 @@ export default function Dashboard() {
             <div className={CARD} style={CARD_STYLE}>
               <div className="flex items-center justify-between">
                 <Label>Top customers</Label>
-                <Link to="/admin/customers" className="text-[12px] font-semibold" style={{ color: 'var(--px-accent-soft-text)' }}>All</Link>
+                <Link to="/admin/customers" className="text-[12px] font-semibold" style={{ color: 'var(--px-ink)' }}>All</Link>
               </div>
               {d.topCustomers.length === 0 ? (
                 <div className="mt-3 py-6 text-center">

@@ -21,36 +21,36 @@
 }
 
 /* ── Admin shell wrapper (hardcoded light gray) → page background ────────── */
-.dark-admin .admin-shell { background: #0e1116 !important; }
+.dark-admin .admin-shell { background: #1A1A1A !important; }
 
 /* ── Sidebar chrome ─────────────────────────────────────────────────────── */
 .dark-admin aside,
 .dark-admin .admin-shell aside,
 .dark-admin [class*="sidebar"] {
-  background: #10141a !important;
-  border-color: #232b36 !important;
+  background: #1F1F1F !important;
+  border-color: rgba(255,255,255,0.08) !important;
 }
 .dark-admin aside a,
 .dark-admin aside span,
 .dark-admin aside button {
-  color: #98a2b3 !important;
+  color: #A0A0A0 !important;
 }
 .dark-admin aside a:hover,
 .dark-admin aside a.active {
-  background: #1a2028 !important;
-  color: #eef1f5 !important;
+  background: #2E2E2E !important;
+  color: #F6F6F7 !important;
 }
 
 /* ── TopBar chrome ──────────────────────────────────────────────────────── */
 .dark-admin header,
 .dark-admin .sticky.top-0 {
-  background: rgba(14, 17, 22, 0.92) !important;
-  border-color: #232b36 !important;
+  background: rgba(31, 31, 31, 0.95) !important;
+  border-color: rgba(255,255,255,0.08) !important;
 }
-.dark-admin .bg-\[#F4F6F8\] { background-color: #0e1116 !important; }
-.dark-admin .bg-\[#f4f6f8\] { background-color: #0e1116 !important; }
-.dark-admin .bg-\[#EBEBEB\] { background-color: #10141a !important; }
-.dark-admin .bg-\[#ebebeb\] { background-color: #10141a !important; }
+.dark-admin .bg-\[#F4F6F8\] { background-color: #1A1A1A !important; }
+.dark-admin .bg-\[#f4f6f8\] { background-color: #1A1A1A !important; }
+.dark-admin .bg-\[#EBEBEB\] { background-color: #1F1F1F !important; }
+.dark-admin .bg-\[#ebebeb\] { background-color: #1F1F1F !important; }
 
 /* ── Hardcoded light fills used in a few screens ────────────────────────── */
 .dark-admin .bg-\[#F1F1F1\] { background-color: #1a2028 !important; }
@@ -126,7 +126,7 @@
   fill: rgba(255,255,255,0.05) !important;
 }
 .dark-admin .recharts-legend-item-text {
-  color: #98a2b3 !important;
+  color: #A0A0A0 !important;
 }
 
 /* ── KPI accent text + tinted icon bubbles (inline styles) ──────────────── */
@@ -144,7 +144,7 @@
   height: 10px;
 }
 .dark-admin ::-webkit-scrollbar-track {
-  background: #0e1116;
+  background: #1A1A1A;
 }
 .dark-admin ::-webkit-scrollbar-thumb {
   background: #2f3947;

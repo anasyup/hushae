@@ -123,7 +123,7 @@ export default function OrderQuickView({ id, token, onClose }) {
                   <ol className="mt-2 space-y-1.5">
                     {(data?.timeline || []).slice(-6).map((t, i) => (
                       <li key={i} className="flex gap-2 text-[12px]">
-                        <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: 'var(--px-accent)' }} />
+                        <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: 'var(--px-primary)' }} />
                         <span style={{ color: 'var(--px-secondary)' }}>{t.note || t.title || t.status || 'Update'}</span>
                         <span className="ml-auto shrink-0" style={{ color: 'var(--px-muted)' }}>{fmtDateTime(t.createdAt || t.at)}</span>
                       </li>
@@ -147,7 +147,7 @@ export default function OrderQuickView({ id, token, onClose }) {
             </Link>
             <div className="flex-1" />
             {next && (
-              <button onClick={advance} disabled={busy} className="inline-flex items-center gap-1.5 rounded-[8px] px-3 py-2 text-[12px] font-semibold text-white transition-colors active:scale-[0.98] disabled:opacity-50" style={{ background: 'var(--px-accent)' }}>
+              <button onClick={advance} disabled={busy} className="inline-flex items-center gap-1.5 rounded-[8px] px-3 py-2 text-[12px] font-semibold text-white transition-colors active:scale-[0.98] disabled:opacity-50" style={{ background: 'var(--px-primary)' }}>
                 {busy ? <Loader2 size={13} className="animate-spin" /> : <ArrowRight size={13} />} {next}
               </button>
             )}
