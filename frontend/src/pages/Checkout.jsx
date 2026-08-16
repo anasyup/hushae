@@ -407,7 +407,7 @@ export default function Checkout() {
         <span className="text-[#696969]">Confirmation</span>
       </nav>
 
-      <header className="pb-7">
+      <header className="pb-5">
         <h1 className="font-display text-3xl font-light uppercase tracking-wider">{cfg.title}</h1>
         {!auth && cfg.guestCheckout && (
           <p className="mt-3 inline-flex flex-wrap items-center gap-1.5 text-[12px] text-smoke">
@@ -422,7 +422,7 @@ export default function Checkout() {
 
       {/* Express checkout — sleek badges (merchant-gated, disabled until live) */}
       {(cartCfg.applePay || cartCfg.googlePay) && (
-        <div className="mt-6">
+        <div className="mt-4">
           <p className="text-center text-[11px] font-medium uppercase tracking-[0.16em] text-[#696969]">Express Checkout</p>
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
             {cartCfg.applePay && (
@@ -447,24 +447,24 @@ export default function Checkout() {
       )}
 
       {topErr && (
-        <p role="alert" className="mt-6 flex items-start gap-2.5 border border-red-200 bg-red-50 px-4 py-3.5 text-[12px] text-red-800">
+        <p role="alert" className="mt-4 flex items-start gap-2.5 border border-red-200 bg-red-50 px-4 py-3 text-[12px] text-red-800">
           <AlertCircle size={16} className="mt-0.5 shrink-0" aria-hidden="true" />
           {topErr}
         </p>
       )}
 
-      <div className="mt-8 grid grid-cols-1 items-start gap-12 lg:grid-cols-12">
+      <div className="mt-6 grid grid-cols-1 items-start gap-8 lg:grid-cols-12">
         {/* ================= LEFT ================= */}
         <form
           ref={formRef}
           onSubmit={(e) => { e.preventDefault(); openReview(); }}
-          className="space-y-8 lg:col-span-7"
+          className="space-y-6 lg:col-span-7"
           noValidate
         >
           {/* ---- Contact — compact card ---- */}
           <section aria-labelledby="sec-contact">
             <h2 id="sec-contact" className="text-xs font-semibold uppercase tracking-widest text-neutral-400">1. Contact Information</h2>
-            <div className="mt-2.5 grid gap-3">
+            <div className="mt-2 grid gap-3">
               <FloatField
                 label="Email" type="email" autoComplete="email" inputMode="email"
                 value={f.email} onChange={(v) => set('email', v)} error={errs.email}
@@ -482,7 +482,7 @@ export default function Checkout() {
           {/* ---- Shipping — compact card ---- */}
           <section aria-labelledby="sec-address">
             <h2 id="sec-address" className="text-xs font-semibold uppercase tracking-widest text-neutral-400">2. Delivery Address</h2>
-            <div className="mt-2.5 grid gap-3 sm:grid-cols-2">
+            <div className="mt-2 grid gap-3 sm:grid-cols-2">
               <div className="sm:col-span-2">
                 <FloatField
                   label="Full name" required autoComplete="name"

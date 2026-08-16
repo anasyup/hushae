@@ -24,8 +24,8 @@ export default function CheckoutSummary({
   submitRef, onSubmit, busy, disabled, rewardsSlot, promoQuote = null, onQty,
 }) {
   return (
-    <div className="sticky top-8 mt-0 self-start border border-neutral-200 bg-[#FAF9F6] p-8">
-      <h2 className="mb-6 border-b border-neutral-200 pb-3 text-xs font-semibold uppercase tracking-widest">
+    <div className="sticky top-8 mt-0 self-start border border-neutral-200 bg-[#FAF9F6] p-6">
+      <h2 className="mb-5 border-b border-neutral-200 pb-2.5 text-xs font-semibold uppercase tracking-widest">
         Order Summary <span className="ml-1 font-normal normal-case text-neutral-500">({pricing.count} item{pricing.count === 1 ? '' : 's'})</span>
       </h2>
 
@@ -153,14 +153,14 @@ export default function CheckoutSummary({
       </div>
 
       {/* Trust badges */}
-      <div className="mt-8 grid grid-cols-3 gap-2 border-t border-neutral-200 pt-6 text-center text-[10px] text-neutral-500">
+      <div className="mt-5 grid grid-cols-3 gap-2 border-t border-neutral-200 pt-4 text-center text-[10px] text-neutral-500">
         <div className="flex flex-col items-center gap-1"><ShieldCheck size={16} className="text-black" aria-hidden="true" /><span>Secure Checkout</span></div>
         <div className="flex flex-col items-center gap-1"><Truck size={16} className="text-black" aria-hidden="true" /><span>Fast Shipping</span></div>
         <div className="flex flex-col items-center gap-1"><RotateCcw size={16} className="text-black" aria-hidden="true" /><span>Easy Returns</span></div>
       </div>
 
       {/* Trust badges row */}
-      <div className="mt-4 grid grid-cols-3 gap-2 border-t border-[#E5E5E5] pt-4 text-center">
+      <div className="mt-3 grid grid-cols-3 gap-2 border-t border-[#E5E5E5] pt-3 text-center">
         <div className="text-[9px] font-medium uppercase tracking-[0.08em] text-[#696969]">
           <Lock size={13} className="mx-auto mb-1 text-[#C9A96E]" aria-hidden="true" />
           SSL Secure

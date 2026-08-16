@@ -35,7 +35,7 @@ export default function MethodPicker({ name, legend, options, value, onChange, r
           return (
             <label
               key={m.id}
-              className={`relative flex cursor-pointer items-center gap-4 py-4 transition-colors duration-fast
+              className={`relative flex cursor-pointer items-center gap-4 py-3 transition-colors duration-fast
                 ${disabled ? 'cursor-not-allowed opacity-55' : ''}
                 ${selected ? 'text-charcoal' : 'text-smoke hover:text-charcoal'}
                 focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-charcoal`}
