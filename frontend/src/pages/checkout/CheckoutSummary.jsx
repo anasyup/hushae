@@ -24,7 +24,7 @@ export default function CheckoutSummary({
   submitRef, onSubmit, busy, disabled, rewardsSlot, promoQuote = null, onQty,
 }) {
   return (
-    <div className="sticky top-8 border border-neutral-200 bg-[#FAF9F6] p-8">
+    <div className="sticky top-8 mt-0 self-start border border-neutral-200 bg-[#FAF9F6] p-8">
       <h2 className="mb-6 border-b border-neutral-200 pb-3 text-xs font-semibold uppercase tracking-widest">
         Order Summary <span className="ml-1 font-normal normal-case text-neutral-500">({pricing.count} item{pricing.count === 1 ? '' : 's'})</span>
       </h2>

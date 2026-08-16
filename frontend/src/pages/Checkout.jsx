@@ -399,7 +399,7 @@ export default function Checkout() {
   return (
     <div className="bg-white pt-[150px] pb-10"><Seo title="Checkout" description="Complete your order — COD, JazzCash and card payments, discreet packaging." /><div className="mx-auto max-w-[1200px] px-6">
       {/* Checkout steps — matches cart progression */}
-      <nav aria-label="Checkout progress" className="mb-6 flex items-center gap-3 text-[11px] font-medium uppercase tracking-[0.14em]">
+      <nav aria-label="Checkout progress" className="mb-7 mt-5 flex items-center gap-3 text-[11px] font-medium uppercase tracking-[0.14em]">
         <Link to="/cart" className="text-[#696969] transition hover:text-[#111111]">Bag</Link>
         <span className="h-px w-8 bg-[#111111]" aria-hidden="true" />
         <span className="text-[#111111]">Checkout</span>
@@ -736,7 +736,7 @@ export default function Checkout() {
         </form>
 
         {/* ================= RIGHT ================= */}
-        <aside className="lg:col-span-5" aria-label="Order summary">
+        <aside className="lg:col-span-5 lg:self-start" aria-label="Order summary">
           <CheckoutSummary
             cart={cart}
             pricing={pricing}

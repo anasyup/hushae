@@ -40,7 +40,7 @@ export default function FloatField({
         aria-invalid={error ? 'true' : undefined}
         aria-describedby={describedBy}
         aria-required={required || undefined}
-        className={`h-12 w-full border bg-white px-4 text-xs text-neutral-900 placeholder:text-neutral-400 transition focus:border-black focus:outline-none ${as === 'textarea' ? 'min-h-[88px] resize-none' : ''} ${error ? '!border-red-500' : ''}`}
+        className={`h-auto min-h-[48px] w-full rounded border border-[#d1d5db] bg-white px-3.5 py-3 text-xs text-neutral-900 placeholder:text-neutral-400 transition focus:border-black focus:outline-none ${as === 'textarea' ? 'min-h-[88px] resize-none' : ''} ${error ? '!border-red-500' : ''}`}
       >
         {children}
       </Tag>
