@@ -223,7 +223,7 @@ export default function Shop({ preset = {} }) {
           <>
             <div
               aria-busy={pending || undefined}
-              className={`grid grid-cols-2 gap-0 border-t border-l border-neutral-200/80 transition-opacity duration-300 lg:grid-cols-4 ${pending ? 'opacity-50' : 'opacity-100'}`}
+              className={`grid grid-cols-2 gap-x-1 gap-y-10 transition-opacity duration-300 md:grid-cols-4 ${pending ? 'opacity-50' : 'opacity-100'}`}
             >
               {visibleSlice.map((p, i) => (
                 <Fragment key={p._id}>

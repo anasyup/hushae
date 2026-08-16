@@ -71,7 +71,7 @@ export default function LuxuryProductCard({ product: p, priority = false }) {
         tabIndex={-1}
         aria-label={name}
         className="relative mb-4 block w-full cursor-pointer overflow-hidden bg-[#EFECE6]"
-        style={{ aspectRatio: '3 / 4' }}
+        style={{ aspectRatio: '3 / 4.7' }}
       >
         {/* Layered images — crossfade via z-index + opacity */}
         {[main, ...images.filter((u) => u !== main)].slice(0, 5).map((url, idx) => (
@@ -129,7 +129,7 @@ export default function LuxuryProductCard({ product: p, priority = false }) {
 
         {/* BUY NOW — full-width button (opens SizeModal) */}
         {!soldOut ? (
-          <div className="absolute bottom-3 left-1/2 z-20 w-[85%] -translate-x-1/2 opacity-100 transition-all duration-300 lg:translate-y-2 lg:opacity-0 lg:group-hover:translate-y-0 lg:group-hover:opacity-100">
+          <div className="absolute bottom-3 left-1/2 z-20 w-[85%] -translate-x-1/2 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
             <button
               type="button"
               onClick={(e) => { e.preventDefault(); setModal(true); }}

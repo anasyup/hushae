@@ -43,7 +43,7 @@ export default function NewArrivalsSection({ products = [] }) {
         </div>
 
         {/* ── Luxury grid — cards unchanged ── */}
-        <div className="mt-12 grid grid-cols-2 gap-x-4 gap-y-12 lg:grid-cols-4 lg:gap-x-6 lg:gap-y-16">
+        <div className="mt-16 grid grid-cols-2 gap-x-6 gap-y-16 md:grid-cols-4">
           {show.map((p) => (
             <LuxuryProductCard key={p._id || p.slug} product={p} />
           ))}
