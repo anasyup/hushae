@@ -1,4 +1,10 @@
 ## Changes
+- **2026-08-16** — 🔍 **PRODUCTION REDESIGN — REMAINING PHASES COMPLETE (branch `ui/production-redesign`)**
+  - Phase 9 (global search): new admin-only `GET /api/search` returns grouped REAL entities — products (name/sku/slug), orders (orderNumber/name/phone/city), customers (name/email/phone), capped at 5. CommandPalette (⌘K) now debounce-fetches and shows grouped Products/Orders/Customers results above go-to/create commands; results navigate to real routes. Verified live: typing "cloud" surfaces HUSHAE Cloud Lounge Set + Cloud Knit Lounge Set with SKUs.
+  - Phase 10 (dashboard customization): "Customize" button in the header → widget-visibility panel (hide/show 11 sections), persisted in localStorage (hushae.dashWidgets). Verified: toggling Key metrics off removes the KPI row and survives refresh.
+  - Phase 7/14: confirmed the Products page already ships search/filter/sort/pagination/bulk/duplicate — nothing fake added.
+  - Build clean, 8/8 test suites pass. Preview: https://hushae-57ig14qat-belo-dv.vercel.app
+
 - **2026-08-16** — 🎯 **PRODUCTION REDESIGN & UX (branch `ui/production-redesign`, preview-only — not merged)**
   - Phase 0 audit: `ADMIN-FEATURE-INVENTORY.md` — every nav item, API, model and status mapped. No fake features.
   - Visual language (light primary): white surfaces, soft neutral #F6F6F8 page, charcoal #18181B text, HUSHAE purple #6C5CE7 accent, Inter self-hosted (no serif). Green/amber/red/blue status. Tokens centralised as --px-* CSS vars (light + optional dark, default light). Subtle 1px borders + faint shadow; no gradients/glass/3D.

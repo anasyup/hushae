@@ -56,8 +56,8 @@ AbandonedCart, CustomerGroup, OtpCode, Redirect.
 | Low-stock reorder | (widget/modal) | /api/products/:id/reorder | Product | LIVE | ✅ |
 | Abandoned carts | (widget+page) | /api/abandoned-cart/admin | AbandonedCart | LIVE | ✅ |
 | Audit/activity | — | /api/security/audit-logs | AuditLog | LIVE (settings/security events) | ✅ (surface as activity feed; extend logAction to orders+products) |
-| Global search | ⌘K | static nav + quick-create | — | LIVE | ✅ (enhance with real entity search) |
-| Store health | — | derived from insights+alerts | — | LIVE data available | ✅ (no fabricated score) |
+| Global search | ⌘K | /api/search (grouped real products/orders/customers) | Order/Product/User | LIVE | ✅ DONE |
+| Store health | — | derived from insights+alerts | — | LIVE data available | ✅ DONE (no fabricated score) |
 | Quick actions | topbar Create | routes exist | — | LIVE | ✅ |
 
 ## Inventory data available (live)
@@ -74,3 +74,13 @@ AbandonedCart, CustomerGroup, OtpCode, Redirect.
 - Light theme primary (white surfaces, soft neutral bg, charcoal text, HUSHAE purple
   accent #6C5CE7). Dark remains an optional toggle.
 - WCAG AA contrast + focus rings + reduced-motion respected.
+
+## Completion log (production-redesign branch)
+
+- Dashboard redesign (header, attention centre, KPIs, sales overview, order status, pipeline, payment health, peak hours, store health, activity feed, cancellation reasons, abandoned carts, lists) ✅
+- Order Quick View drawer (real /orders/manage/:id) ✅
+- Activity feed (real AuditLog; logAction extended to orders/products) ✅
+- Global search /api/search + CommandPalette entity groups ✅
+- Dashboard customization (hide widgets, localStorage persisted) ✅
+- Products page: existing search/filter/sort/pagination/bulk/duplicate confirmed — no fake additions ✅
+- WCAG AA (muted 4.83:1, accent 4.86:1, success #15803D 5.02:1), focus ring, reduced-motion ✅
