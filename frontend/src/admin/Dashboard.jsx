@@ -476,9 +476,9 @@ export default function Dashboard() {
         <Rise>
           <header className="flex flex-wrap items-end justify-between gap-4 pb-6">
             <div>
-              <h2 className="text-[20px] font-bold leading-tight" style={{ color: 'var(--fs-text-primary)', letterSpacing: '-0.3px' }}>
+              <p className="text-[20px] font-bold leading-tight" style={{ color: 'var(--fs-text-primary)', letterSpacing: '-0.3px' }}>
                 {greeting}, {firstName}
-              </h2>
+              </p>
               <p className="mt-1 flex items-center gap-2 text-[12px]" style={{ color: 'var(--fs-text-muted)' }}>
                 <span className="live-dot h-1.5 w-1.5 rounded-full" style={{ background: 'var(--fs-success)' }} aria-hidden="true" />
                 {new Date().toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long' })}
