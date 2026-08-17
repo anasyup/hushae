@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Lightbulb, MapPin, TrendingUp, Zap } from 'lucide-react';
+import { Clock, Lightbulb, MapPin, TrendingUp, Users, Zap } from 'lucide-react';
 
-const ICONS = { MapPin, TrendingUp, Zap, Lightbulb };
+const ICONS = { MapPin, TrendingUp, Zap, Clock, Users };
 
-/* Rotating observations — one at a time, quiet and editorial. */
+/** Rotating observations derived from live data — one at a time, no clutter. */
 export default function InsightsCard({ insights }) {
   const [i, setI] = useState(0);
   const list = insights || [];
@@ -19,21 +19,28 @@ export default function InsightsCard({ insights }) {
   const Icon = ICONS[cur.icon] || Lightbulb;
 
   return (
-    <div>
-      <div className="flex items-baseline justify-between">
-        <p className="text-[11px] font-medium uppercase tracking-[0.22em]" style={{ color: 'var(--px-muted)' }}>Insight</p>
-        <Icon size={14} strokeWidth={1.5} style={{ color: 'var(--px-faint)' }} aria-hidden="true" />
+    <div className="relative overflow-hidden rounded-2xl border border-neutral-900 bg-neutral-900 p-5 text-white">
+      <div className="flex items-start gap-3">
+        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white/10">
+          <Icon size={16} className="text-amber-300" />
+        </span>
+        <div className="min-w-0 flex-1">
+          {/* text-gray-400 (#9CA3AF) passes 7.44:1 on this near-black card —
+              text-neutral-400 was darkened globally for light cards and would
+              fail (3.91:1) on #111. */}
+          <p className="text-[13px] font-bold uppercase tracking-widest text-gray-400">Smart insight</p>
+          <p className="mt-1.5 text-[13.5px] font-medium leading-relaxed text-neutral-50">{cur.text}</p>
+          {cur.hint && <p className="mt-1.5 text-[13px] leading-relaxed text-gray-400">{cur.hint}</p>}
+        </div>
       </div>
-      <p className="mt-4 text-[20px] font-semibold leading-snug" style={{ color: 'var(--px-ink)' }}>{cur.text}</p>
-      {cur.hint && <p className="mt-2 text-[13px] leading-relaxed" style={{ color: 'var(--px-muted)' }}>{cur.hint}</p>}
+
       {list.length > 1 && (
         <div className="mt-4 flex items-center gap-1.5">
           {list.map((x, n) => (
             <button
               key={x.id}
               onClick={() => setI(n)}
-              className="h-px transition-all"
-              style={{ width: n === i ? 24 : 10, background: n === i ? 'var(--px-accent)' : 'rgba(26,24,21,0.2)' }}
+              className={`h-1 rounded-full transition-all ${n === i ? 'w-6 bg-white' : 'w-1.5 bg-white/30 hover:bg-white/60'}`}
               aria-label={`Insight ${n + 1}`}
             />
           ))}

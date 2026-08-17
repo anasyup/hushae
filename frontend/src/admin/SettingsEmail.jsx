@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  ArrowLeft, Check, AlertTriangle, ChevronRight, Eye, EyeOff, FileText, Mail, Save, Send, ShieldCheck, Sparkles, Star, ToggleLeft, ToggleRight, Info, Plus
+  ArrowLeft, Check, AlertTriangle, Eye, EyeOff, FileText, Mail, Save, Send, ShieldCheck, Sparkles, Star, ToggleLeft, ToggleRight, Info, Plus
 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';

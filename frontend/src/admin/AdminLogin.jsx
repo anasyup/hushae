@@ -16,14 +16,8 @@ export default function AdminLogin() {
   const [codeBusy, setCodeBusy] = useState(false);
   const [pendingEmail, setPendingEmail] = useState('');
 
-  // Already signed in as admin → straight to the console.
-  // `auth` is rehydrated from localStorage, so it can legitimately be a partial
-  // or stale object (older shape, cleared user, hand-edited storage). Reading
-  // auth.user.role unguarded threw "Cannot read properties of undefined" and
-  // took down the whole login route via the ErrorBoundary — locking the user
-  // out of the one screen that could fix their session. Optional chaining
-  // degrades to "show the login form" instead.
-  if (auth?.user?.role === 'admin') return <Navigate to="/admin" replace />;
+  // Already signed in as admin → straight to the console
+  if (auth && auth.user.role === 'admin') return <Navigate to="/admin" replace />;
 
   const submit = async (e) => {
     e.preventDefault();
@@ -36,7 +30,7 @@ export default function AdminLogin() {
         setBusy(false);
         return;
       }
-      if (d?.user?.role !== 'admin') { setErr('This account is not an admin.'); setBusy(false); return; }
+      if (d.user.role !== 'admin') { setErr('This account is not an admin.'); setBusy(false); return; }
       setAuth(d);
       nav('/admin', { replace: true });
     } catch (ex) { setErr(ex.message); setBusy(false); }
@@ -47,7 +41,7 @@ export default function AdminLogin() {
     setErr(''); setCodeBusy(true);
     try {
       const d = await api('/auth/2fa/verify', { method: 'POST', body: { email: pendingEmail, code } });
-      if (d?.user?.role !== 'admin') { setErr('This account is not an admin.'); setCodeBusy(false); return; }
+      if (d.user.role !== 'admin') { setErr('This account is not an admin.'); setCodeBusy(false); return; }
       setAuth(d);
       nav('/admin', { replace: true });
     } catch (ex) { setErr(ex.message); setCodeBusy(false); }

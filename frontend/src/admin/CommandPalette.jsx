@@ -1,19 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  BadgePercent, BarChart3, Command, FileText, Globe, LayoutTemplate,
-  Megaphone, Package, PackagePlus, Search, Settings, ShoppingBag,
-  Sparkles, Store, Users,
+  BadgePercent, BarChart3, Command, FileText, Globe,
+  LayoutTemplate, Megaphone, Package, PackagePlus, Search,
+  Settings, ShoppingBag, Sparkles, Store, Users,
 } from 'lucide-react';
-import { useApp } from '../store/AppContext';
-import { api } from '../api/client';
-import { pkr } from '../lib/format';
 
 /* ============================================================================
- * COMMAND PALETTE — ⌘K. Two-tier results:
- *   1. REAL entities (Products / Orders / Customers) from GET /api/search
- *   2. Go-to pages + quick-create commands
- * Navigation targets are real routes only.
+ * COMMAND PALETTE — ⌘K from anywhere in admin.
+ * Phase 4: fuzzy search across all admin pages + quick-create.
  * ========================================================================== */
 
 const ITEMS = [
@@ -21,7 +16,6 @@ const ITEMS = [
   { id: 'orders', label: 'All orders', category: 'Go to', icon: ShoppingBag, to: '/admin/orders', keywords: ['sales'] },
   { id: 'products', label: 'Inventory', category: 'Go to', icon: Package, to: '/admin/products', keywords: ['catalog'] },
   { id: 'customers', label: 'Customers', category: 'Go to', icon: Users, to: '/admin/customers', keywords: ['buyers'] },
-  { id: 'verification', label: 'Verification queue', category: 'Go to', icon: ShoppingBag, to: '/admin/verification-queue', keywords: ['pending', 'call'] },
   { id: 'analytics', label: 'Analytics', category: 'Go to', icon: BarChart3, to: '/admin/analytics', keywords: ['stats'] },
   { id: 'finance', label: 'Finance & P&L', category: 'Go to', icon: BarChart3, to: '/admin/finance', keywords: ['profit', 'money'] },
   { id: 'theme', label: 'Theme Editor', category: 'Go to', icon: LayoutTemplate, to: '/admin/theme', keywords: ['design', 'visual'] },
@@ -42,24 +36,6 @@ export default function CommandPalette({ onClose }) {
   const [idx, setIdx] = useState(0);
   const inputRef = useRef(null);
   const navigate = useNavigate();
-  const { auth } = useApp();
-
-  const [entities, setEntities] = useState({ products: [], orders: [], customers: [] });
-  const [loading, setLoading] = useState(false);
-
-  // Real entity search — debounced, only when the term is ≥ 2 chars.
-  useEffect(() => {
-    const term = q.trim();
-    if (term.length < 2) { setEntities({ products: [], orders: [], customers: [] }); return; }
-    setLoading(true);
-    const t = setTimeout(() => {
-      api(`/search/admin?q=${encodeURIComponent(term)}`, { token: auth.token })
-        .then((d) => setEntities({ products: d.products || [], orders: d.orders || [], customers: d.customers || [] }))
-        .catch(() => setEntities({ products: [], orders: [], customers: [] }))
-        .finally(() => setLoading(false));
-    }, 180);
-    return () => clearTimeout(t);
-  }, [q, auth.token]);
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -68,28 +44,28 @@ export default function CommandPalette({ onClose }) {
     return () => document.removeEventListener('keydown', onKey);
   }, [onClose]);
 
-  const navResults = useMemo(() => {
-    const term = q.trim().toLowerCase();
-    const base = term ? ITEMS.filter((i) =>
-      i.label.toLowerCase().includes(term) || i.category.toLowerCase().includes(term) || (i.keywords || []).join(' ').toLowerCase().includes(term))
-      : ITEMS.slice(0, 8);
-    return base;
+  const results = useMemo(() => {
+    if (!q.trim()) return ITEMS.slice(0, 8);
+    const term = q.toLowerCase();
+    return ITEMS.filter((item) => {
+      return item.label.toLowerCase().includes(term) ||
+        item.category.toLowerCase().includes(term) ||
+        (item.keywords || []).join(' ').toLowerCase().includes(term);
+    });
   }, [q]);
 
-  /* Build the flat ordered list: entity groups first (when searching), then nav. */
-  const flat = useMemo(() => {
-    const list = [];
-    const term = q.trim().toLowerCase();
-    if (term.length >= 2) {
-      entities.products.forEach((p) => list.push({ kind: 'product', id: p._id, label: p.name, sub: p.sku, to: `/admin/products/${p._id}` }));
-      entities.orders.forEach((o) => list.push({ kind: 'order', id: o._id, label: o.orderNumber, sub: `${o.customerInfo?.name} · ${pkr(o.total)}`, to: `/admin/orders/${o._id}` }));
-      entities.customers.forEach((c) => list.push({ kind: 'customer', id: c._id, label: c.name || c.email, sub: c.phone || c.email, to: '/admin/customers' }));
-    }
-    navResults.forEach((i) => list.push({ kind: 'nav', id: i.id, label: i.label, sub: i.to, to: i.to, external: i.external, category: i.category, icon: i.icon }));
-    return list;
-  }, [entities, navResults, q]);
+  useEffect(() => { setIdx(0); }, [results.length]);
 
-  useEffect(() => { setIdx(0); }, [flat.length]);
+  const grouped = useMemo(() => {
+    const map = new Map();
+    results.forEach((r) => {
+      if (!map.has(r.category)) map.set(r.category, []);
+      map.get(r.category).push(r);
+    });
+    return map;
+  }, [results]);
+
+  const flatItems = [...grouped.values()].flat();
 
   const run = (item) => {
     if (item.external) { window.open(item.to, '_blank'); }
@@ -98,89 +74,48 @@ export default function CommandPalette({ onClose }) {
   };
 
   const onKey = (e) => {
-    if (e.key === 'ArrowDown') { e.preventDefault(); setIdx((i) => Math.min(i + 1, flat.length - 1)); return; }
+    if (e.key === 'ArrowDown') { e.preventDefault(); setIdx((i) => Math.min(i + 1, flatItems.length - 1)); return; }
     if (e.key === 'ArrowUp') { e.preventDefault(); setIdx((i) => Math.max(i - 1, 0)); return; }
-    if (e.key === 'Enter' && flat[idx]) { e.preventDefault(); run(flat[idx]); }
+    if (e.key === 'Enter' && flatItems[idx]) { e.preventDefault(); run(flatItems[idx]); }
   };
 
-  const entityGroups = [];
-  if (q.trim().length >= 2) {
-    if (entities.products.length) entityGroups.push(['Products', entities.products.map((p) => ({ id: p._id, label: p.name, sub: p.sku || p.slug, to: `/admin/products/${p._id}` }))]);
-    if (entities.orders.length) entityGroups.push(['Orders', entities.orders.map((o) => ({ id: o._id, label: o.orderNumber, sub: `${o.customerInfo?.name || ''} · ${pkr(o.total)}`, to: `/admin/orders/${o._id}` }))]);
-    if (entities.customers.length) entityGroups.push(['Customers', entities.customers.map((c) => ({ id: c._id, label: c.name || c.email, sub: c.phone || c.email, to: '/admin/customers' }))]);
-  }
-
-  const navGroups = useMemo(() => {
-    const map = new Map();
-    navResults.forEach((r) => {
-      if (!map.has(r.category)) map.set(r.category, []);
-      map.get(r.category).push({ id: r.id, label: r.label, sub: r.to, to: r.to, external: r.external, icon: r.icon });
-    });
-    return map;
-  }, [navResults]);
-
   return (
-    <div className="fixed inset-0 z-[100] flex items-start justify-center bg-black/40 backdrop-blur-sm pt-[15vh]" onClick={onClose}>
-      <div className="w-full max-w-xl overflow-hidden rounded-xl shadow-2xl ring-1" style={{ background: 'var(--px-bg-card)', boxShadow: 'var(--px-shadow-pop)', borderColor: 'var(--px-border)' }} onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center gap-3 border-b px-4 py-3.5" style={{ borderColor: 'var(--px-border)' }}>
-          <Search size={16} className="shrink-0" style={{ color: 'var(--px-muted)' }} />
+    <div className="fixed inset-0 z-[100] flex items-start justify-center bg-black/50 backdrop-blur-sm pt-[15vh]" onClick={onClose}>
+      <div className="w-full max-w-xl overflow-hidden rounded-2xl bg-white shadow-2xl ring-1 ring-black/10" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center gap-3 border-b border-neutral-200 px-4 py-4">
+          <Search size={17} className="shrink-0 text-neutral-400" />
           <input ref={inputRef} value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={onKey}
-            placeholder="Search orders, products, customers… (or a page name)"
-            className="w-full bg-transparent text-[13px] outline-none placeholder:text-[var(--px-faint)]" style={{ color: 'var(--px-ink)' }} />
-          {loading && <span className="h-3.5 w-3.5 shrink-0 animate-spin rounded-full border-2" style={{ borderColor: 'var(--px-border-strong)', borderTopColor: 'var(--px-accent)' }} aria-hidden="true" />}
-          <kbd className="hidden items-center gap-0.5 rounded-md border px-1.5 py-0.5 text-[11px] font-semibold sm:flex" style={{ borderColor: 'var(--px-border-strong)', color: 'var(--px-muted)' }}><Command size={10} />K</kbd>
+            placeholder="Search admin… (type a page name or command)"
+            className="w-full bg-transparent text-[12px] text-neutral-900 outline-none placeholder:text-neutral-400" />
+          <kbd className="hidden items-center gap-0.5 rounded-md border border-neutral-300 bg-neutral-100 px-2 py-1 text-[13px] font-semibold text-neutral-500 sm:flex"><Command size={10} />K</kbd>
         </div>
-
-        <div className="max-h-[380px] overflow-y-auto p-1.5">
-          {flat.length === 0 && !loading ? (
-            <p className="p-8 text-center text-[13px]" style={{ color: 'var(--px-muted)' }}>No results for “{q}”</p>
+        <div className="max-h-[360px] overflow-y-auto p-2">
+          {results.length === 0 ? (
+            <p className="p-8 text-center text-[13px] text-neutral-500">No results for "{q}"</p>
           ) : (
-            <>
-              {entityGroups.map(([cat, items]) => (
-                <div key={cat} className="mb-1">
-                  <p className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em]" style={{ color: 'var(--px-muted)' }}>{cat}</p>
-                  {items.map((item) => {
-                    const active = flat.findIndex((f) => f.id === item.id && f.to === item.to) === idx;
-                    return (
-                      <button key={item.id} onClick={() => run(item)} onMouseEnter={() => setIdx(flat.findIndex((f) => f.id === item.id && f.to === item.to))}
-                        className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition-colors"
-                        style={{ background: active ? 'var(--px-accent-soft-bg)' : 'transparent' }}>
-                        <span className="min-w-0 flex-1">
-                          <span className="block truncate text-[13px] font-medium" style={{ color: active ? 'var(--px-accent-soft-text)' : 'var(--px-ink)' }}>{item.label}</span>
-                          <span className="block truncate text-[11px]" style={{ color: 'var(--px-muted)' }}>{item.sub}</span>
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              ))}
-
-              {[...navGroups.entries()].map(([cat, items]) => (
-                <div key={cat} className="mb-1">
-                  <p className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em]" style={{ color: 'var(--px-muted)' }}>{cat}</p>
-                  {items.map((item) => {
-                    const active = flat.findIndex((f) => f.kind === 'nav' && f.id === item.id) === idx;
-                    const Icon = item.icon;
-                    return (
-                      <button key={item.id} onClick={() => run(item)} onMouseEnter={() => setIdx(flat.findIndex((f) => f.kind === 'nav' && f.id === item.id))}
-                        className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition-colors"
-                        style={{ background: active ? 'var(--px-accent-soft-bg)' : 'transparent' }}>
-                        {Icon && <Icon size={15} strokeWidth={1.7} style={{ color: active ? 'var(--px-accent-soft-text)' : 'var(--px-muted)' }} />}
-                        <span className="flex-1 text-[13px] font-medium" style={{ color: active ? 'var(--px-accent-soft-text)' : 'var(--px-secondary)' }}>{item.label}</span>
-                        <span className="text-[11px]" style={{ color: 'var(--px-faint)' }}>{item.sub}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              ))}
-            </>
+            [...grouped.entries()].map(([cat, items]) => (
+              <div key={cat} className="mb-1">
+                <p className="px-3 py-1.5 text-[13px] font-bold uppercase tracking-[0.12em] text-neutral-400">{cat}</p>
+                {items.map((item) => {
+                  const active = flatItems.indexOf(item) === idx;
+                  const Icon = item.icon;
+                  return (
+                    <button key={item.id} onClick={() => run(item)} onMouseEnter={() => setIdx(flatItems.indexOf(item))}
+                      className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition ${active ? 'bg-neutral-100' : 'hover:bg-neutral-50'}`}>
+                      <Icon size={16} strokeWidth={1.8} className={active ? 'text-neutral-900' : 'text-neutral-500'} />
+                      <span className="flex-1 text-[12px] font-medium text-neutral-900">{item.label}</span>
+                      <span className="text-[12px] text-neutral-400">{item.to}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            ))
           )}
         </div>
-
-        <div className="flex items-center gap-4 border-t px-4 py-2.5" style={{ borderColor: 'var(--px-border)' }}>
-          <span className="text-[11px]" style={{ color: 'var(--px-muted)' }}><kbd className="rounded border px-1.5 py-0.5 text-[10px] font-semibold" style={{ borderColor: 'var(--px-border-strong)' }}>↑↓</kbd> navigate</span>
-          <span className="text-[11px]" style={{ color: 'var(--px-muted)' }}><kbd className="rounded border px-1.5 py-0.5 text-[10px] font-semibold" style={{ borderColor: 'var(--px-border-strong)' }}>↵</kbd> open</span>
-          <span className="text-[11px]" style={{ color: 'var(--px-muted)' }}><kbd className="rounded border px-1.5 py-0.5 text-[10px] font-semibold" style={{ borderColor: 'var(--px-border-strong)' }}>Esc</kbd> close</span>
+        <div className="flex items-center gap-4 border-t border-neutral-100 px-4 py-2.5">
+          <span className="text-[13px] text-neutral-400"><kbd className="rounded border border-neutral-300 bg-neutral-100 px-1.5 py-0.5 text-[12px] font-semibold text-neutral-500">↑↓</kbd> navigate</span>
+          <span className="text-[13px] text-neutral-400"><kbd className="rounded border border-neutral-300 bg-neutral-100 px-1.5 py-0.5 text-[12px] font-semibold text-neutral-500">↵</kbd> open</span>
+          <span className="text-[13px] text-neutral-400"><kbd className="rounded border border-neutral-300 bg-neutral-100 px-1.5 py-0.5 text-[12px] font-semibold text-neutral-500">Esc</kbd> close</span>
         </div>
       </div>
     </div>

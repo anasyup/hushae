@@ -718,20 +718,19 @@
 .admin-shell {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
-  font-size: 14px;
+  font-size: 14.5px;
   line-height: 1.55;
-  color: var(--px-ink);
 }
-.admin-shell h1 { font-size: 20px !important; font-weight: 700 !important; letter-spacing: -0.3px !important; }
+.admin-shell h1 { font-size: 20px !important; font-weight: 600 !important; letter-spacing: -0.01em; }
 .admin-shell h2 { font-size: 18px !important; font-weight: 600 !important; }
 .admin-shell h3 { font-size: 16px !important; font-weight: 600 !important; }
 .admin-shell .font-display { font-family: 'Helvetica Neue', Helvetica, Arial, ui-sans-serif, system-ui, sans-serif !important; }
 .admin-shell button, .admin-shell input, .admin-shell select, .admin-shell textarea { font-family: inherit; font-size: 14px; }
-.admin-shell .card { border-radius: 10px; background: var(--px-bg-card) !important; border-color: var(--px-border) !important; box-shadow: var(--px-shadow-card); }
-.admin-shell .btn { border-radius: 8px; }
-.admin-shell .input { border-radius: 8px; background: var(--px-bg-card) !important; padding: 8px 12px; font-size: 14px; border-color: var(--px-border-strong); color: var(--px-ink); }
-.admin-shell .btn-primary { border-radius: 8px; background: var(--px-accent); padding: 7px 14px; font-size: 13.5px; font-weight: 600; color: #FFFFFF; }
-.admin-shell .btn-outline { border-radius: 8px; padding: 7px 14px; font-size: 13.5px; font-weight: 600; }
+.admin-shell .card { border-radius: 8px; background: #fff !important; border-color: #E5E7EB !important; box-shadow: none; }
+.admin-shell .btn { border-radius: 6px; }
+.admin-shell .input { border-radius: 6px; background: #fff !important; padding: 8px 12px; font-size: 14px; border-color: #D1D5DB; }
+.admin-shell .btn-primary { border-radius: 6px; background: #1a1a1a; padding: 7px 14px; font-size: 13.5px; font-weight: 600; }
+.admin-shell .btn-outline { border-radius: 6px; padding: 7px 14px; font-size: 13.5px; font-weight: 600; }
 .admin-shell .pill { font-size: 12px; padding: 4px 9px; border-radius: 4px; }
 .admin-shell .table-head { font-size: 12.5px; padding: 8px 12px; color: #6D7175; }
 .admin-shell .table-cell { font-size: 14px; padding: 10px 12px; }
@@ -910,26 +909,7 @@
 
 
 /* ════════════════════════════════════════════════════════════════════════
-   ADMIN — GLOBAL MINIMAL NORMALIZATION (Shopify Polaris register).
-   Scoped to .admin-shell so the storefront is never touched. Unifies every
-   admin page (orders, products, customers, marketing, settings…) into one
-   consistent 8px-radius, flat, calm system.
+   ADMIN — reverted to the ORIGINAL register (merchant: "without changes").
+   The Shopify Polaris 8px-radius normalization was removed; admin pages use
+   their original Tailwind radii, black buttons and neutral borders.
    ════════════════════════════════════════════════════════════════════════ */
-.admin-shell .rounded-2xl { border-radius: 10px !important; }
-.admin-shell .rounded-xl  { border-radius: 8px  !important; }
-.admin-shell .rounded-lg  { border-radius: 8px  !important; }
-.admin-shell .rounded-md  { border-radius: 6px  !important; }
-
-/* Dial down the heavy popover shadows (flat, border-based depth). */
-.admin-shell .shadow-xl,
-.admin-shell .shadow-lg { box-shadow: 0 4px 16px -4px rgba(0, 0, 0, 0.10) !important; }
-.admin-shell .shadow-md { box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.08) !important; }
-.admin-shell .shadow-sm { box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important; }
-
-/* Dark primary buttons — consistent with the topbar "Add product". */
-.admin-shell .bg-neutral-900 { background-color: #1A1A1A !important; }
-
-/* Calm card borders — one hairline tone everywhere. */
-.admin-shell .border-neutral-200 { border-color: #E3E3E5 !important; }
-.admin-shell .border-neutral-300 { border-color: #C9C9CD !important; }
-.admin-shell .border-neutral-100 { border-color: #EFF0F0 !important; }

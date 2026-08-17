@@ -109,12 +109,6 @@ export default function Products() {
     try { await api(`/products/${p._id}/permanent`, { method: 'DELETE', token: auth.token }); toast('Product deleted'); load(); }
     catch (ex) { toast(ex.message); }
   };
-  const copySku = async (p) => {
-    try {
-      await navigator.clipboard.writeText(p.sku || '');
-      toast(`SKU "${p.sku}" copied`);
-    } catch { toast('Could not copy SKU'); }
-  };
   const duplicate = async (p) => {
     try {
       const d = await api(`/products/${p._id}/duplicate`, { method: 'POST', token: auth.token });
@@ -244,8 +238,7 @@ export default function Products() {
       ) : filtered.length === 0 ? (
         <EmptyState onClear={clearFilters} hasFilters={hasFilters} />
       ) : view === 'grid' ? (
-        <GridView products={paged} onEnable={enable} onDisable={disable} onRemove={remove} onDuplicate={duplicate}
-          onCopySku={copySku} onPublish={publish} />
+        <GridView products={paged} onEnable={enable} onDisable={disable} onRemove={remove} onDuplicate={duplicate} onPublish={publish} />
       ) : (
         <ListView
           products={paged}
@@ -389,7 +382,7 @@ function StatusChip({ p }) {
   return <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[13px] font-bold text-emerald-700">● Live</span>;
 }
 
-function ListView({ products, selected, onToggleSel, onToggleAll, onEnable, onDisable, onPublish, onRemove, onDuplicate, onCopySku }) {
+function ListView({ products, selected, onToggleSel, onToggleAll, onEnable, onDisable, onPublish, onRemove, onDuplicate }) {
   const allSelected = products.length > 0 && selected.size === products.length;
   return (
     <div className="overflow-x-auto rounded-2xl border border-neutral-200 bg-white">
@@ -444,9 +437,6 @@ function ListView({ products, selected, onToggleSel, onToggleAll, onEnable, onDi
               <td className="px-3 py-2 text-[12px]"><StatusChip p={p} /></td>
               <td className="px-3 py-2 text-[12px]">
                 <div className="flex items-center justify-end gap-1">
-                  <button onClick={() => onCopySku(p)} className="rounded-lg px-1.5 py-2 font-mono text-[11px] text-neutral-500 transition hover:bg-neutral-100 hover:text-neutral-900" aria-label="Copy SKU" title="Copy SKU">
-                    SKU
-                  </button>
                   <Link to={`/admin/products/${p._id}`} className="rounded-lg p-2 text-neutral-500 transition hover:bg-neutral-100 hover:text-neutral-900" aria-label="Edit">
                     <Pencil size={13} />
                   </Link>
@@ -455,9 +445,6 @@ function ListView({ products, selected, onToggleSel, onToggleAll, onEnable, onDi
                       Publish
                     </button>
                   )}
-                  <button onClick={() => onCopySku(p)} className="rounded-lg px-2 py-2 font-mono text-[10px] font-semibold text-neutral-500 transition hover:bg-neutral-100 hover:text-neutral-900" aria-label="Copy SKU" title="Copy SKU">
-                    SKU
-                  </button>
                   <button onClick={() => onDuplicate(p)} className="rounded-lg p-2 text-neutral-500 transition hover:bg-sky-50 hover:text-sky-700" aria-label="Duplicate" title="Duplicate product">
                     <Copy size={13} />
                   </button>
@@ -483,7 +470,7 @@ function ListView({ products, selected, onToggleSel, onToggleAll, onEnable, onDi
   );
 }
 
-function GridView({ products, onEnable, onDisable, onRemove, onDuplicate, onPublish, onCopySku }) {
+function GridView({ products, onEnable, onDisable, onRemove, onDuplicate, onPublish }) {
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {products.map((p) => (
