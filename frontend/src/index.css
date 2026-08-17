@@ -775,12 +775,12 @@
    --px-secondary:    #303030;   /* body text */
    --px-muted:        #6B7280;   /* subdued */
    --px-faint:        #9CA3AF;
-   --px-accent:       #9C2C4E;   /* deep rose-burgundy — brand mark, primary, active */
-   --px-accent-hover: #7F1D3A;
-   --px-accent-soft-bg: #F5E9ED;
-   --px-accent-soft-text: #9C2C4E;
-   --px-primary:      #9C2C4E;   /* primary button fill (burgundy) */
-   --px-primary-hover:#7F1D3A;
+   --px-accent:       #1A1A1A;   /* original monochrome — black brand mark / active */
+   --px-accent-hover: #333333;
+   --px-accent-soft-bg: #F4F4F5;
+   --px-accent-soft-text: #1A1A1A;
+   --px-primary:      #1A1A1A;   /* primary button fill (black, original) */
+   --px-primary-hover:#333333;
    --px-success: #1C6A4F;
    --px-warning: #8A6116;
    --px-danger:  #B91C1C;

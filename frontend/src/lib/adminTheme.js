@@ -1,15 +1,14 @@
-// Admin panel theme — BURGUNDY (design-system pass) by default.
+// Admin panel theme — ORIGINAL MONOCHROME by default.
 //
-// History: dark was the original flagship direction, then light Shopify,
-// then dark flagship again, and now (2026-08-17) the merchant picked the
-// burgundy design-system pass ("option 1") — white pages, black text, one
-// deep rose-burgundy accent (#9C2C4E) used for primary actions and active
-// states. Light is the default; a sun/moon toggle still lets a user switch
-// to dark, stored in localStorage per device.
+// History: the admin went through burgundy → editorial → flagship dark →
+// production redesign → Shopify light, and (2026-08-17) the merchant asked
+// to walk it back to the ORIGINAL register: white pages, black text, black
+// primary buttons, no coloured brand accent. Light is the default; a
+// sun/moon toggle still lets a user switch to dark, stored per device.
 //
 // .dark-admin is applied ONLY on admin routes — the storefront never changes.
 
-const KEY = 'vl_admin_theme_v4'; // bumped — so the burgundy default applies to existing devices too
+const KEY = 'vl_admin_theme_v5'; // bumped — original monochrome default applies to every device
 
 const isAdminPath = () => typeof window !== 'undefined' && /^\/admin/.test(window.location.pathname);
 
