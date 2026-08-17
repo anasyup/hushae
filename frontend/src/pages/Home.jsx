@@ -177,8 +177,8 @@ function CategoryGridSection() {
 /* ── SECTION 2 & 4: Product carousel (Givenchy style) ───────────────────── */
 function ProductCarouselSection({ title, subtitle, products, href }) {
   return (
-    <section className="mx-auto max-w-[1600px] border-t border-neutral-200/60 px-4 py-16 md:px-8">
-      <div className="mb-10 space-y-1 text-center">
+    <section className="border-t border-neutral-200/60 py-16">
+      <div className="mb-10 space-y-1 px-4 text-center md:px-8">
         <h2 className="section-title">
           {title}
         </h2>

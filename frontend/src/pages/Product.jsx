@@ -577,11 +577,11 @@ export default function Product() {
         <section className="border-t border-neutral-200 py-16">
           <div className="mx-auto max-w-[1440px] px-6 lg:px-12">
             <h3 className="mb-8 text-xl font-light uppercase tracking-widest">{rvCfg.title || 'Recently Viewed'}</h3>
-            <div className="grid grid-cols-1 gap-px border-y border-[#e7e5e0] bg-[#e7e5e0] min-[560px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-              {recent.filter((r) => r.slug !== p.slug).slice(0, 4).map((pr) => (
-                <CollectionCard key={pr._id || pr.slug} product={pr} />
-              ))}
-            </div>
+          </div>
+          <div className="grid grid-cols-1 gap-px border-y border-[#e7e5e0] bg-[#e7e5e0] min-[560px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            {recent.filter((r) => r.slug !== p.slug).slice(0, 4).map((pr) => (
+              <CollectionCard key={pr._id || pr.slug} product={pr} />
+            ))}
           </div>
         </section>
       )}

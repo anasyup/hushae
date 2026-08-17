@@ -20,8 +20,8 @@ export default function NewArrivalsSection({ products = [] }) {
   if (!list.length) return null;
 
   return (
-    <section className="w-full px-4 py-20 md:px-8 md:py-32">
-      <div className="mx-auto max-w-[1600px]">
+    <section className="w-full py-20 md:py-32">
+      <div className="mx-auto max-w-[1600px] px-4 md:px-8">
         {/* ── Editorial header ── */}
         <div className="flex flex-col justify-between border-b border-neutral-300/60 pb-9 md:flex-row md:items-end">
           <div>
@@ -41,13 +41,13 @@ export default function NewArrivalsSection({ products = [] }) {
             <ArrowRight size={14} className="transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true" />
           </Link>
         </div>
+      </div>
 
-        {/* ── Hairline grid — sale register ── */}
-        <div className="mt-16 grid grid-cols-1 gap-px border-y border-[#e7e5e0] bg-[#e7e5e0] min-[560px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-          {show.map((p) => (
-            <LuxuryProductCard key={p._id || p.slug} product={p} />
-          ))}
-        </div>
+      {/* ── Hairline grid — full-bleed sale register ── */}
+      <div className="mt-16 grid grid-cols-1 gap-px border-y border-[#e7e5e0] bg-[#e7e5e0] min-[560px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        {show.map((p) => (
+          <LuxuryProductCard key={p._id || p.slug} product={p} />
+        ))}
       </div>
     </section>
   );
