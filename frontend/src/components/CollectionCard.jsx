@@ -11,7 +11,10 @@ import SizeModal from './SizeModal';
 /* ============================================================================
  * HUSHAE CollectionCard — two variants, both from client references:
  *
- *  · variant="bar" (default) — exact client reference card:
+ *  · variant="minimal" (default) — Sale-page reference card (now the
+ *      unified card for every page per merchant request):
+ *      4/5 image on #f6f5f3 · UPPERCASE title 12px/700 · price + swatches
+ *  · variant="bar" — exact client reference card:
  *      3/4 image #f2f0ec · hover: arrows + dash indicators + floating "+"
  *      (bottom-right) which opens an IN-CARD size overlay (no popup) ·
  *      details: title 12px medium UPPERCASE tracking-wider · price 11px
@@ -27,7 +30,7 @@ const FALLBACK =
 const srcOf = (im) => (typeof im === 'string' ? im : im?.url || '');
 const displayName = (name) => String(name || '').replace(/^HUSHAE\s+/i, '');
 
-function CollectionCard({ product: p, priority = false, variant = 'bar', ratio = 'aspect-[3/4.7]' }) {
+function CollectionCard({ product: p, priority = false, variant = 'minimal', ratio = 'aspect-[3/4.7]' }) {
   const { addToCart } = useApp();
   const [imgIdx, setImgIdx] = useState(0);
   const [failed, setFailed] = useState(false);

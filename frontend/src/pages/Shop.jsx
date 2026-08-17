@@ -230,7 +230,7 @@ export default function Shop({ preset = {} }) {
             >
               {visibleSlice.map((p, i) => (
                 <Fragment key={p._id}>
-                  <CollectionCard product={p} variant={preset.key === 'sale' ? 'minimal' : 'bar'} />
+                  <CollectionCard product={p} variant="minimal" />
                   {preset.key === 'sale' && i === 7 && <SaleSplitBanner />}
                   {preset.key === 'new' && i === 7 && <NewArrivals3DBanner />}
                 </Fragment>
