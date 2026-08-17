@@ -225,7 +225,7 @@ export default function Shop({ preset = {} }) {
               aria-busy={pending || undefined}
               className={`grid grid-cols-2 gap-x-1 gap-y-10 transition-opacity duration-300 md:grid-cols-4 ${pending ? 'opacity-50' : 'opacity-100'} ${
                 preset.key === 'sale'
-                  ? '!grid-cols-1 !gap-4 !gap-y-6 min-[480px]:!grid-cols-2 md:!grid-cols-3 lg:!grid-cols-4 lg:!gap-5'
+                  ? '!grid-cols-1 !gap-4 !gap-y-6 min-[480px]:!grid-cols-2 md:!grid-cols-3 lg:!grid-cols-4 lg:!gap-6'
                   : ''
               }`}
             >

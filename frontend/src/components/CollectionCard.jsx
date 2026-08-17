@@ -102,10 +102,11 @@ function CollectionCard({ product: p, priority = false, variant = 'bar', ratio =
     );
   }
 
-  /* ── MINIMAL VARIANT — client reference (Helvetica minimalist) ───── */
-  /* Pure minimal: 3/4 image on #f4f4f4, name 14/600 #000, price 14/400,
-     color swatches (14px circles, 1px #e0e0e0 border). No badges, no arrows,
-     no Buy Now — the whole card links to the product. */
+  /* ── MINIMAL VARIANT — client Sale-page reference ────────────────── */
+  /* 4/5 image on #f6f5f3 with a 1.02 hover zoom, UPPERCASE title
+     12px/700 ls 0.8px #111, price row: old struck #9ca3af 12px + current
+     600 #111 13px, 12px color circles with rgba(0,0,0,.1) border. No badges,
+     no arrows, no Buy Now — the whole card links to the product. */
   if (minimal) {
     const swatches = (p.colors || []).filter((c) => c && c.hex).slice(0, 4);
     const minName = displayName(p.name) || 'Untitled';
@@ -116,8 +117,8 @@ function CollectionCard({ product: p, priority = false, variant = 'bar', ratio =
           to={`/product/${p.slug}`}
           tabIndex={-1}
           aria-label={minName}
-          className="mb-3 block w-full overflow-hidden bg-[#f4f4f4]"
-          style={{ aspectRatio: '3 / 4' }}
+          className="mb-3 block w-full overflow-hidden bg-[#f6f5f3]"
+          style={{ aspectRatio: '4 / 5' }}
         >
           <img
             src={failed ? FALLBACK : (main || FALLBACK)}
@@ -125,32 +126,32 @@ function CollectionCard({ product: p, priority = false, variant = 'bar', ratio =
             width="900" height="1200"
             loading={priority ? 'eager' : 'lazy'}
             onError={() => setFailed(true)}
-            className="h-full w-full object-cover"
+            className="h-full w-full object-cover transition-transform duration-300 ease-out group-hover:scale-[1.02]"
           />
         </Link>
 
-        <div className="flex flex-col items-start">
-          <h3 className="mb-1 text-[14px] font-semibold tracking-[0.3px] text-[#000000]">
+        <div className="flex flex-col gap-1.5">
+          <h3 className="text-[12px] font-bold uppercase tracking-[0.8px] text-[#111111]">
             <Link to={`/product/${p.slug}`} className="transition-opacity hover:opacity-60">
               {minName}
             </Link>
           </h3>
-          <p className="mb-3 flex items-center gap-2 text-[14px] font-normal text-[#000000]">
-            {soldOut ? 'Sold out' : (
+          <p className="flex items-center gap-2 text-[13px]">
+            {soldOut ? <span className="text-[#111111]">Sold out</span> : (
               <>
                 {onSaleP && p.compareAtPrice > p.price && (
-                  <span className="text-[13px] text-neutral-400 line-through">{pkr(p.compareAtPrice)}</span>
+                  <span className="text-[12px] text-[#9ca3af] line-through">{pkr(p.compareAtPrice)}</span>
                 )}
-                <span>{pkr(p.price)}</span>
+                <span className="font-semibold text-[#111111]">{pkr(p.price)}</span>
               </>
             )}
           </p>
           {swatches.length > 0 && (
-            <div className="flex gap-2">
+            <div className="flex gap-1.5 pt-0.5">
               {swatches.map((c, i) => (
                 <span
                   key={`${c.name}-${i}`}
-                  className="inline-block h-[14px] w-[14px] rounded-full border border-[#e0e0e0]"
+                  className="inline-block h-3 w-3 rounded-full border border-black/10"
                   style={{ backgroundColor: c.hex }}
                   title={c.name}
                 />
