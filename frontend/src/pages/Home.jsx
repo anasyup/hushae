@@ -181,11 +181,21 @@ function HeroSlides() {
       </button>
 
       {/* Slide dots — thin, bottom centre.
-          The dots sit 8px apart while .hit-44 paints a 44px hit box around
-          each, so neighbouring boxes overlapped by ~36px and a tap near a dot
-          frequently selected the wrong slide. gap-2 -> gap-3 and .hit-44 ->
-          a 24px box: still comfortably tappable, no longer ambiguous. */}
-      <div className="absolute bottom-6 left-1/2 z-20 flex -translate-x-1/2 items-center gap-3">
+          MEASURED TWICE. The dots were 6px wide with a .hit-44 pseudo-element,
+          so 44px hit boxes sat 8px apart and overlapped by ~36px. Widening the
+          gap to 12px and shrinking the pseudo to .hit-24 was still wrong: a
+          6px dot at gap-3 gives an 18px PITCH against a 24px box, so
+          neighbours STILL overlapped by 6px, and the pause control clipped the
+          last dot by 5px.
+
+          A centred pseudo-element can never tile cleanly, because the pitch is
+          set by the visual dot while the target is set by the pseudo. So the
+          BUTTON is the target now: 24x24 each, laid out edge to edge with no
+          gap, with the visual dot drawn inside. Pitch 24px = box 24px, which
+          tiles exactly — zero overlap, and every pixel between two dots
+          belongs to the nearer one. The dots look identical; only the
+          invisible geometry changed. */}
+      <div className="absolute bottom-6 left-1/2 z-20 flex -translate-x-1/2 items-center">
         {HERO_SLIDES.map((s, i) => (
           <button
             key={s.image}
@@ -193,19 +203,26 @@ function HeroSlides() {
             onClick={() => setIdx(i)}
             aria-label={`Go to slide ${i + 1} of ${HERO_SLIDES.length}`}
             aria-current={i === idx}
-            className={`hit-24 h-1.5 rounded-full transition-all duration-300 ${
-              i === idx ? 'w-6 bg-white' : 'w-1.5 bg-white/50 hover:bg-white/80'
-            }`}
-          />
+            className="group/dot grid h-6 w-6 shrink-0 place-items-center"
+          >
+            <span
+              aria-hidden="true"
+              className={`block h-1.5 rounded-full transition-all duration-300 ${
+                i === idx ? 'w-4 bg-white' : 'w-1.5 bg-white/50 group-hover/dot:bg-white/80'
+              }`}
+            />
+          </button>
         ))}
 
         {/* WCAG 2.2.2 pause control. Deliberately quiet — a hairline glyph in
-            the same register as the dots, not a media-player chrome button. */}
+            the same register as the dots, not a media-player chrome button.
+            A 44px target would overlap the last dot, so it matches the dots'
+            24px box and is separated by a real 8px margin, not a pseudo. */}
         <button
           type="button"
           onClick={() => setPaused((v) => !v)}
           aria-label={paused ? 'Play slideshow' : 'Pause slideshow'}
-          className="hit-44 ml-1 grid h-5 w-5 place-items-center text-white/70 transition-colors hover:text-white"
+          className="ml-2 grid h-6 w-6 shrink-0 place-items-center text-white/80 transition-colors hover:text-white"
         >
           {paused ? (
             <svg viewBox="0 0 12 12" width="10" height="10" fill="currentColor" aria-hidden="true">

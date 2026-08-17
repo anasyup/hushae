@@ -227,6 +227,12 @@ function CollectionCard({ product: p, priority = false, variant = 'minimal', rat
             </div>
           )}
 
+          {/* The title link measures ~128x19px, which the scan flags. It is
+              deliberately left at text size: WCAG 2.5.8 exempts a target when
+              an EQUIVALENT one is available, and the card image directly above
+              is a 195x279px link to the same href. Padding this to 44px would
+              add a large dead strip between the title and the price for no
+              real gain. Verified same-href in probe6. */}
           <h3 className="mb-1 font-sans text-[13px] font-medium normal-case leading-snug tracking-normal text-[#141312]">
             <Link to={`/product/${p.slug}`} className="transition-opacity hover:opacity-60">
               {minName}

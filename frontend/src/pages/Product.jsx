@@ -16,7 +16,6 @@ import SizeGuideModal from '../components/SizeGuideModal';
 import { ProductSkeleton } from '../components/Skeletons';
 import Seo, { productJsonLd } from '../components/Seo';
 import StickyBuyBar from './product/StickyBuyBar';
-import AccordionGroup from './product/Accordion';
 import { PRODUCT_GRID } from '../lib/productGrid';
 
 /* ============================================================================
@@ -303,12 +302,18 @@ export default function Product() {
               </h1>
 
               <div className="flex items-center gap-3 pt-1">
+                {/* neutral-400 on white is ~2.8:1. This is the was-price on
+                    the PDP — the number that justifies the discount — so it
+                    has to be readable. neutral-600 is 5.7:1 and still reads
+                    a clear step below the current price. */}
                 {onSale && p.compareAtPrice > p.price && (
-                  <span className="text-[13px] font-light text-neutral-400 line-through">{pkr(p.compareAtPrice)}</span>
+                  <span className="text-[13px] font-light text-neutral-600 line-through">{pkr(p.compareAtPrice)}</span>
                 )}
                 <span className="text-[20px] font-medium text-[#111111]">{pkr(p.price)}</span>
+                {/* 9px was the smallest type left on the PDP and this badge
+                    carries the actual saving. 11px floor. */}
                 {onSale && p.compareAtPrice > p.price && (
-                  <span className="bg-black px-2 py-0.5 text-[9px] font-medium uppercase tracking-widest text-white">
+                  <span className="bg-black px-2 py-0.5 text-[11px] font-medium uppercase tracking-widest text-white">
                     Save {discount}%
                   </span>
                 )}
@@ -320,7 +325,11 @@ export default function Product() {
                   <button
                     type="button"
                     onClick={() => document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth' })}
-                    className="flex items-center gap-2"
+                    /* Measured 129x16.5px. Jumps to the reviews section, so
+                       it is a control rather than inline prose. min-h-11 with
+                       a negative left margin keeps the stars flush with the
+                       title above. */
+                    className="-ml-1 flex min-h-11 items-center gap-2 px-1"
                   >
                     <span className="flex text-black">
                       {[1, 2, 3, 4, 5].map((s) => (
@@ -367,7 +376,17 @@ export default function Product() {
               <div ref={sizeRef} className="space-y-3">
                 <div className="flex items-center justify-between text-[11px] uppercase tracking-[0.18em]">
                   <span className="font-medium text-neutral-800">Select Size</span>
-                  <button type="button" onClick={() => setGuideOpen(true)} className="text-neutral-400 underline transition hover:text-black">
+                  {/* Measured 71.7x16.5px and neutral-400 (~2.8:1). This is a
+                      real button that opens the size chart — the thing a
+                      shopper taps when they are unsure which size to buy, so
+                      it is directly load-bearing for returns. 44px target via
+                      min-h-11 with a negative right margin so the row's
+                      visual alignment is unchanged, and neutral-600 (5.7:1). */}
+                  <button
+                    type="button"
+                    onClick={() => setGuideOpen(true)}
+                    className="-mr-1 inline-flex min-h-11 items-center px-1 text-neutral-600 underline transition hover:text-black"
+                  >
                     Size Guide
                   </button>
                 </div>
@@ -470,12 +489,21 @@ export default function Product() {
             {/* Accordion info — native disclosure */}
             <div className="space-y-2 pt-1 text-[12px]">
               {accordionItems.map((item) => (
-                <details key={item.title} className="group cursor-pointer border-b border-neutral-200/80 pb-3">
-                  <summary className="flex list-none items-center justify-between text-[11px] font-medium uppercase tracking-[0.15em] text-neutral-800">
+                <details key={item.title} className="group border-b border-neutral-200/80">
+                  {/* MEASURED 326x16.5px. A <summary> is a real control, not
+                      an inline text link, so the WCAG 2.5.8 inline-text
+                      exception does not apply — and these three sit stacked,
+                      so a 16.5px row makes "Shipping" and "Care" easy to
+                      confuse with a thumb. min-h-11 (44px) with the vertical
+                      padding moved off the <details> and onto the summary, so
+                      the whole row is the target rather than just the text.
+                      cursor-pointer moved here too: on the <details> it made
+                      the expanded BODY copy look clickable. */}
+                  <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between py-2 text-[11px] font-medium uppercase tracking-[0.15em] text-neutral-800">
                     {item.title}
                     <ChevronDown size={16} className="shrink-0 transition-transform group-open:rotate-180" aria-hidden="true" />
                   </summary>
-                  <div className="pt-2 text-[11px] font-light leading-relaxed text-neutral-500">
+                  <div className="pb-3 pt-1 text-[11px] font-light leading-relaxed text-neutral-500">
                     {item.content}
                   </div>
                 </details>

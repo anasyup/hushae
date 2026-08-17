@@ -47,11 +47,11 @@ const Half = ({ to, img, label, title, link, reverse }) => (
 
     {/* Type */}
     <span className="absolute inset-x-0 bottom-0 block p-6 text-white md:p-10">
-      <span className="block text-[9px] font-medium uppercase tracking-[0.32em] text-white/70">{label}</span>
+      <span className="block text-[11px] font-medium uppercase tracking-[0.32em] text-white/90">{label}</span>
       <span className="mt-2 block font-serif text-3xl font-normal uppercase tracking-[0.12em] md:text-5xl">
         {title}
       </span>
-      <span className="mt-5 inline-block border-b border-white/60 pb-1 text-[10px] font-medium uppercase tracking-[0.25em] transition-colors group-hover:border-white">
+      <span className="mt-5 inline-block border-b border-white/60 pb-1 text-[11px] font-medium uppercase tracking-[0.25em] transition-colors group-hover:border-white">
         {link}
       </span>
     </span>

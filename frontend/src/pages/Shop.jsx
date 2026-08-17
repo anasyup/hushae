@@ -275,11 +275,35 @@ function SalePageHeader({ f }) {
       <span className="mb-2 block text-xs text-neutral-400">Sale</span>
       <h1 className="mb-6 text-4xl font-light uppercase tracking-[0.12em]">Sale</h1>
 
-      {/* Gender sub-tabs */}
-      <div className="flex gap-6 border-b border-neutral-200 pb-4 text-sm">
-        <button onClick={() => f.setOne('gender', '')} className={`${!gender ? 'font-semibold text-black underline underline-offset-8' : 'text-neutral-500 hover:text-black'}`}>Shop All</button>
-        <button onClick={() => f.setOne('gender', 'men')} className={`${gender === 'men' ? 'font-semibold text-black underline underline-offset-8' : 'text-neutral-500 hover:text-black'}`}>Men</button>
-        <button onClick={() => f.setOne('gender', 'women')} className={`${gender === 'women' ? 'font-semibold text-black underline underline-offset-8' : 'text-neutral-500 hover:text-black'}`}>Women</button>
+      {/* Gender sub-tabs.
+          MEASURED 54x20 / 27x20 / 42x20 — these are the Sale page's primary
+          filter controls and "Men" was a 27px-wide target. min-h-11 makes each
+          a 44px row; the underline stays on the text via underline-offset, so
+          the tab bar looks the same. role=tablist/tab so a screen reader
+          announces them as a set with a selected state rather than three
+          unrelated buttons. */}
+      <div role="tablist" aria-label="Filter by gender" className="flex gap-6 border-b border-neutral-200 text-sm">
+        {[
+          { key: '', label: 'Shop All' },
+          { key: 'men', label: 'Men' },
+          { key: 'women', label: 'Women' },
+        ].map((t) => {
+          const active = (gender || '') === t.key;
+          return (
+            <button
+              key={t.key || 'all'}
+              type="button"
+              role="tab"
+              aria-selected={active}
+              onClick={() => f.setOne('gender', t.key)}
+              className={`inline-flex min-h-11 items-center pb-4 ${
+                active ? 'font-semibold text-black underline underline-offset-8' : 'text-neutral-500 hover:text-black'
+              }`}
+            >
+              {t.label}
+            </button>
+          );
+        })}
       </div>
 
     </div>

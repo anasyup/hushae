@@ -139,10 +139,18 @@ export default function Footer() {
                 {/* 10px -> 11px label floor. Contrast is already fine here
                     (5.65:1 on #0D0D0D); this is purely a legibility floor. */}
                 <span className="block text-[11px] uppercase tracking-[0.18em] text-[#8c8a87]">{col.title}</span>
-                <ul className="mt-4 space-y-2.5">
+                {/* Nav links measured 20px tall at a 34px pitch, so roughly
+                    14px of the gap between two links belonged to neither.
+                    inline-flex + min-h-11 makes each link a 44px target; the
+                    tighter space-y keeps the column's overall height close to
+                    what it was, so the footer does not grow. */}
+                <ul className="mt-2 space-y-0.5">
                   {col.links.map((l) => (
                     <li key={l.label}>
-                      <Link to={l.href} className="text-[14px] text-[#d1d1d1] no-underline transition-colors duration-200 hover:text-white">
+                      <Link
+                        to={l.href}
+                        className="inline-flex min-h-11 items-center text-[14px] text-[#d1d1d1] no-underline transition-colors duration-200 hover:text-white"
+                      >
                         {l.label}
                       </Link>
                     </li>
@@ -152,11 +160,22 @@ export default function Footer() {
             ))}
           </nav>
 
-          <div className="flex items-center gap-5 text-[12px] text-[#8A8A8A] md:items-end">
+          {/* Legal links measured 35.6x18px — Privacy, Terms and Cookies are
+              the links a shopper reaches for when they are already unsure
+              about a purchase, so they should not be the hardest thing on the
+              page to hit. inline-flex + min-h-11 gives each a 44px target
+              without changing the type size or the row's visual height (the
+              row is 44px tall either way once the separators are centred). */}
+          <div className="flex items-center gap-3 text-[12px] text-[#8A8A8A] md:items-end">
             {LEGAL.map((l, i) => (
-              <span key={l.label} className="flex items-center gap-5">
+              <span key={l.label} className="flex items-center gap-3">
                 {i > 0 && <span aria-hidden="true" className="text-[#444444]">·</span>}
-                <Link to={l.href} className="no-underline transition-colors duration-200 hover:text-[#D1D1D1]">{l.label}</Link>
+                <Link
+                  to={l.href}
+                  className="inline-flex min-h-11 items-center px-1 no-underline transition-colors duration-200 hover:text-[#D1D1D1]"
+                >
+                  {l.label}
+                </Link>
               </span>
             ))}
           </div>
