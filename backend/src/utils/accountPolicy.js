@@ -19,7 +19,7 @@ const ACCOUNT_DEFAULTS = {
   passwordRequireLetter: true,
   passwordRequireNumber: false,
   passwordRequireSymbol: false,
-  rememberMeDays: 30,
+  rememberMeDays: 365,
   sessionDays: 2,
   avatarEnabled: true,
   phoneRequired: true,
