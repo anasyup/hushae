@@ -61,14 +61,12 @@ npm run dev        :: storefront on http://localhost:5173
 **Live storefront** → https://hushae1.vercel.app
 **Live admin console** → https://hushae1.vercel.app/admin
 
-**Admin login:** `admin@hushae.pk` — password lives in `backend/.env.example`
-(this repo ships with the pre-launch development credentials so a fresh ZIP
-download runs exactly like the live site against the same MongoDB Atlas
-database). Never commit real production secrets; rotate these before launch —
-see the warning at the top of `backend/.env.example`.
+**Admin login:** the admin credentials are rotated and stored ONLY as Vercel
+environment variables (`ADMIN_EMAIL` / `ADMIN_PASSWORD`) — never in this repo.
+`backend/.env.example` contains placeholders only.
 
 `start-dev.sh` / `start-dev.bat` copy `backend/.env.example` → `backend/.env`
-automatically on first run, so the one-command start just works with live data.
+automatically on first run — fill in your own values before starting.
 
 ### Local seed (fresh empty database only)
 

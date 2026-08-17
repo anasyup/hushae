@@ -148,3 +148,26 @@ styles. `index.html` itself contains zero inline script or style.
 - **MongoDB password rotation** was chosen in an earlier sprint and a new
   password was never supplied.
 - **`settings.contactEmail`** is still `care@veloura.pk`.
+
+---
+
+## Credential rotation — 2026-08-16 (pre-launch)
+
+Performed ahead of the public launch:
+
+1. **Admin password** — rotated via `POST /api/auth/change-password`. The old
+   pre-launch password no longer authenticates. New value stored only as the
+   Vercel `ADMIN_PASSWORD` environment variable.
+2. **JWT_SECRET** — rotated to a fresh 64-char hex on Vercel; all previously
+   issued session tokens were invalidated.
+3. **Repo hygiene** — `backend/.env.example` now ships placeholders only (it
+   previously contained the live MongoDB connection string, JWT secret and
+   admin password). The README no longer documents the admin password location
+   as the repo.
+
+Still to do (requires access outside this repo):
+- **MongoDB Atlas password** — rotate the database user password at
+  cloud.mongodb.com → Database Access, then update the Vercel `MONGODB_URI`
+  env var to match. (The old Atlas URI exists in git history.)
+- Consider scrubbing git history (e.g. `git filter-repo`) if full removal of
+  historical secret strings is required.
