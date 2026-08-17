@@ -765,28 +765,28 @@
    Dark counterpart below (optional, toggle-kept, default LIGHT).
    ════════════════════════════════════════════════════════════════════════ */
 :root {
-  --px-bg-page:      #F1F1F1;   /* Shopify admin page gray */
-  --px-bg-sidebar:   #FBFBFB;
-  --px-bg-card:      #FFFFFF;
-  --px-bg-hover:     #F1F1F1;
-  --px-border:       #E3E3E5;   /* card border — subdued */
-  --px-border-strong:#8C8C8C;
-  --px-ink:          #1A1A1A;   /* emphasis */
-  --px-secondary:    #303030;   /* body text */
-  --px-muted:        #6D7175;   /* subdued */
-  --px-faint:        #8C9196;
-  --px-accent:       #008060;   /* Shopify green — brand mark, money, success */
-  --px-accent-hover: #006E52;
-  --px-accent-soft-bg: #E7F5EE;
-  --px-accent-soft-text: #1C6A4F;
-  --px-primary:      #1A1A1A;   /* primary button fill (dark, Polaris) */
-  --px-primary-hover:#333333;
-  --px-success: #1C6A4F;
-  --px-warning: #8A6116;
-  --px-danger:  #B91C1C;
-  --px-info:    #1F5FA8;
-  --px-shadow-card: none;       /* Shopify cards are flat — border only */
-  --px-shadow-pop:  0 6px 24px rgba(0, 0, 0, 0.12);
+   --px-bg-page:      #FFFFFF;   /* CK white pages — burgundy design */
+   --px-bg-sidebar:   #FBFBFB;
+   --px-bg-card:      #FFFFFF;
+   --px-bg-hover:     #F5F5F5;
+   --px-border:       #E5E5E5;   /* card border — subdued */
+   --px-border-strong:#8C8C8C;
+   --px-ink:          #111111;   /* emphasis */
+   --px-secondary:    #303030;   /* body text */
+   --px-muted:        #6B7280;   /* subdued */
+   --px-faint:        #9CA3AF;
+   --px-accent:       #9C2C4E;   /* deep rose-burgundy — brand mark, primary, active */
+   --px-accent-hover: #7F1D3A;
+   --px-accent-soft-bg: #F5E9ED;
+   --px-accent-soft-text: #9C2C4E;
+   --px-primary:      #9C2C4E;   /* primary button fill (burgundy) */
+   --px-primary-hover:#7F1D3A;
+   --px-success: #1C6A4F;
+   --px-warning: #8A6116;
+   --px-danger:  #B91C1C;
+   --px-info:    #1F5FA8;
+   --px-shadow-card: none;       /* flat cards — border only */
+   --px-shadow-pop:  0 6px 24px rgba(0, 0, 0, 0.10);
 }
 
 .dark-admin {
