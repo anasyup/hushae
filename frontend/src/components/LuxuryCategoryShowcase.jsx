@@ -21,8 +21,8 @@ export default function LuxuryCategoryShowcase() {
         {/* Minimal section title */}
         <div className="mb-10 flex items-end justify-between border-b border-neutral-200/80 pb-4">
           <div>
-            <span className="text-[10px] font-medium uppercase tracking-[0.25em] text-neutral-400">Curated Collections</span>
-            <h2 className="mt-1 font-display text-xl tracking-wide text-[#111111] md:text-2xl">Essential Categories</h2>
+            <span className="section-eyebrow">Curated Collections</span>
+            <h2 className="section-title mt-3">Essential Categories</h2>
           </div>
           <Link to="/shop" className="hidden items-center gap-1 text-[11px] font-medium uppercase tracking-[0.2em] text-black transition hover:opacity-60 sm:flex">
             View All <ArrowUpRight size={14} aria-hidden="true" />

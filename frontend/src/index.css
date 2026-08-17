@@ -218,6 +218,31 @@
   .caption { @apply text-caption text-ash; }
   .eyebrow { @apply text-label font-semibold uppercase text-ash; }
 
+  /* ── Section heading ──────────────────────────────────────────────────────
+     MEASURED: peer-level section titles on the homepage rendered three
+     different ways —
+       30px / 300 / 4.2px tracking  (Shop the Edit, Objects of Desire, Subscribe)
+       24px / 500 / 0.6px tracking  (Essential Categories)  <- weight AND
+                                     tracking outliers; 0.6px is an order of
+                                     magnitude tighter than its siblings
+       24px / 300 / 2.4px tracking  (editorial h3s)
+     Three treatments for one job reads as unfinished. The 30px/300/wide
+     setting is the dominant one and the one that matches the LV register the
+     product cards already use, so it becomes the single primitive.
+
+     `.section-title` is for peer-level section headings (h2). `.section-eyebrow`
+     is the kicker above it. Editorial h3s inside a section keep their smaller
+     setting via `.section-title-sm` — that is a genuine level change, not drift. */
+  .section-title {
+    @apply font-display text-2xl font-light uppercase tracking-[0.14em] text-obsidian md:text-3xl;
+  }
+  .section-title-sm {
+    @apply font-display text-xl font-light uppercase tracking-[0.1em] text-obsidian md:text-2xl;
+  }
+  .section-eyebrow {
+    @apply text-[10px] font-medium uppercase tracking-[0.3em] text-ash;
+  }
+
   /* Product-card title — minimal luxury (LV register).
      UPPERCASE with open tracking — the quiet-luxury house convention (LV,
      CK, The Row). Weight stays regular: the air between the caps, not the
@@ -530,6 +555,40 @@
 }
 
 @layer utilities {
+  /* ── Hit area ─────────────────────────────────────────────────────────────
+     MEASURED at 390x844: carousel dots rendered 6x6px, header search/bag 28x28,
+     image arrows 28x28. WCAG 2.5.8 (AA) requires 24x24 minimum; Apple HIG and
+     Material both recommend 44x44 for primary touch controls.
+
+     Inflating the icons themselves would coarsen a deliberately fine header, so
+     the target is expanded with a centred pseudo-element instead: the control
+     keeps its drawn size, the finger gets 44px. The pseudo-element is
+     position:absolute against the control, so the control needs `relative`
+     (applied here) and the utility must not be used on a static-positioned
+     parent that relies on overflow clipping.
+
+     `.hit-44` — primary controls (header utilities, carousel dots, arrows).
+     `.hit-24` — dense/secondary controls where 44px would overlap a neighbour. */
+  .hit-44 { position: relative; }
+  .hit-44::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    height: 44px;
+    width: 44px;
+    transform: translate(-50%, -50%);
+  }
+  .hit-24 { position: relative; }
+  .hit-24::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    height: 24px;
+    width: 24px;
+    transform: translate(-50%, -50%);
+  }
   .animate-marquee { animation: marquee 30s linear infinite; }
   .animate-marquee:hover { animation-play-state: paused; }
   /* Cheap containment hint for long product grids. */
@@ -687,6 +746,17 @@
    Drop licensed Klein/Futura .woff2 files into frontend/public/fonts/ and
    the site will use them automatically.
    ═══════════════════════════════════════════════════════════════════════ */
+/* DISABLED until the licensed files actually ship.
+   These two @font-face rules pointed at /fonts/Klein-*.woff2, which are not in
+   the repo. The SPA host answers unknown paths with index.html, so the browser
+   did not get a clean 404 — it downloaded the full HTML document twice on every
+   page load (200, content-type text/html), failed to parse it as woff2, and
+   fell through to Jost. Verified identical on production. Net effect: two
+   wasted document-sized requests per page view for zero visual benefit.
+   'Klein' stays first in the --font-* stacks below, so re-enabling is a
+   two-step: drop Klein-Regular.woff2 + Klein-Medium.woff2 into
+   frontend/public/fonts/ and uncomment this block. Nothing else changes.
+
 @font-face {
   font-family: 'Klein';
   src: url('/fonts/Klein-Medium.woff2') format('woff2');
@@ -701,6 +771,7 @@
   font-style: normal;
   font-display: swap;
 }
+*/
 
 /* ════════════════════════════════════════════════════════════════════════
    JOST — SELF-HOSTED (Louis Vuitton register)

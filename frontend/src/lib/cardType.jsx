@@ -12,7 +12,10 @@ import { pkr } from './format';
  *   · subtitle 14px / weight 400 / #111111 / line-height 1.4 — material,
  *              collection or attribution line, never a marketing phrase
  *   · price    14px — regular #5B5B5B (weight 400); discounted: strike
- *              #8A8886 + current #111111 weight 600
+ *              #6F6D6A + current #111111 weight 600
+ *              (strike was #8A8886 — measured 3.33:1 on the #FAF8F5 page
+ *              ground, under the 4.5:1 AA floor. #6F6D6A clears it at 4.7:1
+ *              while staying visibly recessive against the #111111 sale price.)
  *   · font     site primary sans only (no serif, no decorative)
  *   · spacing  12px swatches→name · 3px between name/subtitle/price
  *              · 16–20px card padding on all sides
@@ -23,7 +26,7 @@ export const CARD_NAME = 'text-[14px] font-medium leading-[1.4] text-[#22335A]';
 export const CARD_NAME_LINK = 'transition-colors hover:underline hover:underline-offset-2';
 export const CARD_SUBTITLE = 'text-[14px] font-normal leading-[1.4] text-[#111111]';
 export const CARD_PRICE_REGULAR = 'text-[14px] font-normal text-[#5B5B5B]';
-export const CARD_PRICE_WAS = 'text-[14px] font-normal text-[#8A8886] line-through';
+export const CARD_PRICE_WAS = 'text-[14px] font-normal text-[#6F6D6A] line-through';
 export const CARD_PRICE_SALE = 'text-[14px] font-semibold text-[#111111]';
 /* Swatch row sits above the name with a 12px gap (mb-3). */
 export const CARD_SWATCH_GAP = 'mb-3';
@@ -57,7 +60,13 @@ export function SwatchRow({ product: p, onPick }) {
   const colors = (p?.colors || []).filter((c) => c && (c.hex || c.name)).slice(0, 5);
   if (colors.length === 0) return null;
   return (
-    <div className={`${CARD_SWATCH_GAP} flex items-center gap-[7px]`}>
+    /* MEASURED: the swatch buttons were 15x15px — below the WCAG 2.5.8 (AA)
+       24px minimum target size, and awkward to hit on a phone. The DOT stays
+       15px so the card design is untouched; the BUTTON is now a 24px hit area
+       centred on it. Container gap drops to 0 because each button carries its
+       own 4.5px of padding, which keeps the visible spacing between dots at
+       ~9px, within a hair of the original 7px. */
+    <div className={`${CARD_SWATCH_GAP} flex items-center`}>
       {colors.map((c, idx) => (
         <button
           key={`${c.name}-${idx}`}
@@ -65,9 +74,14 @@ export function SwatchRow({ product: p, onPick }) {
           title={c.name || c.hex}
           aria-label={c.name || `Colour ${idx + 1}`}
           onClick={(e) => { e.preventDefault(); onPick?.(c, idx, e); }}
-          className="h-[15px] w-[15px] rounded-full border border-black/15 shadow-[inset_0_0_0_2px_#fff] transition-transform hover:scale-110"
-          style={{ backgroundColor: c.hex || '#EEEEEE' }}
-        />
+          className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full transition-transform hover:scale-110"
+        >
+          <span
+            aria-hidden="true"
+            className="block h-[15px] w-[15px] rounded-full border border-black/15 shadow-[inset_0_0_0_2px_#fff]"
+            style={{ backgroundColor: c.hex || '#EEEEEE' }}
+          />
+        </button>
       ))}
     </div>
   );

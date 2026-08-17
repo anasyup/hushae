@@ -21,8 +21,8 @@ export default function DiscoverTiles() {
       <div className="mx-auto max-w-[1600px]">
         <div className="mb-10 flex items-end justify-between border-b border-neutral-200/80 pb-6">
           <div>
-            <p className="text-[10px] font-medium uppercase tracking-[0.3em] text-neutral-400">Discover</p>
-            <h2 className="mt-3 font-display text-2xl font-light uppercase tracking-[0.14em] text-[#111111] md:text-3xl">
+            <p className="section-eyebrow">Discover</p>
+            <h2 className="section-title mt-3">
               Shop the Edit
             </h2>
           </div>

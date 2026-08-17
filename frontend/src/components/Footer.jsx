@@ -137,18 +137,18 @@ export default function Footer() {
             ))}
           </nav>
 
-          <div className="flex items-center gap-5 text-[12px] text-[#777777] md:items-end">
+          <div className="flex items-center gap-5 text-[12px] text-[#8A8A8A] md:items-end">
             {LEGAL.map((l, i) => (
               <span key={l.label} className="flex items-center gap-5">
                 {i > 0 && <span aria-hidden="true" className="text-[#444444]">·</span>}
-                <Link to={l.href} className="no-underline transition-colors duration-200 hover:text-[#aaaaaa]">{l.label}</Link>
+                <Link to={l.href} className="no-underline transition-colors duration-200 hover:text-[#D1D1D1]">{l.label}</Link>
               </span>
             ))}
           </div>
         </div>
 
         {/* ── Row 3 — copyright ─────────────────────────────────────────── */}
-        <p className="mt-8 text-[12px] text-[#555555]">&copy; {new Date().getFullYear()} HUSHAE · Discreet packaging on every order</p>
+        <p className="mt-8 text-[12px] text-[#8A8A8A]">&copy; {new Date().getFullYear()} HUSHAE · Discreet packaging on every order</p>
       </div>
     </footer>
   );

@@ -97,12 +97,14 @@ function HeroSlides() {
           New season essentials, engineered in Pakistan. Featherweight layers with a barely-there finish.
         </p>
         <div className="mt-7 flex gap-3">
-          <Link to="/women"
-            className="inline-block rounded-[25px] bg-white px-6 py-[10px] text-[13px] font-medium tracking-[0.02em] text-black transition-all duration-200 hover:-translate-y-px hover:bg-[#f0f0f0]">
+          {/* Hero actions use the shared .btn + .hero-cta primitives. They were
+              bespoke 25px pills at 40px tall: the pill radius contradicts the
+              design tokens (card:0 / control:2px) that the rest of the store
+              follows, and 40px sat under the 44px tap-target minimum. */}
+          <Link to="/women" className="btn hero-cta bg-white text-black hover:bg-[#f0f0f0]">
             Shop Women
           </Link>
-          <Link to="/men"
-            className="inline-block rounded-[25px] bg-white px-6 py-[10px] text-[13px] font-medium tracking-[0.02em] text-black transition-all duration-200 hover:-translate-y-px hover:bg-[#f0f0f0]">
+          <Link to="/men" className="btn hero-cta bg-white text-black hover:bg-[#f0f0f0]">
             Shop Men
           </Link>
         </div>
@@ -135,7 +137,7 @@ function HeroSlides() {
             onClick={() => setIdx(i)}
             aria-label={`Slide ${i + 1}`}
             aria-current={i === idx}
-            className={`h-1.5 rounded-full transition-all duration-300 ${
+            className={`hit-44 h-1.5 rounded-full transition-all duration-300 ${
               i === idx ? 'w-6 bg-white' : 'w-1.5 bg-white/50 hover:bg-white/80'
             }`}
           />
@@ -177,12 +179,14 @@ function ProductCarouselSection({ title, subtitle, products, href }) {
   return (
     <section className="mx-auto max-w-[1600px] border-t border-neutral-200/60 px-4 py-16 md:px-8">
       <div className="mb-10 space-y-1 text-center">
-        <h2 className="font-display text-2xl font-light uppercase tracking-[0.14em] text-[#111111] md:text-3xl">
+        <h2 className="section-title">
           {title}
         </h2>
+        {/* 18px tall as a bare link — raised to the 44px minimum via padding.
+            Kept as a centred inline-flex so the section header still centres. */}
         <Link
           to={href || '/shop'}
-          className="inline-block border-b border-black/30 pb-0.5 text-[10px] font-medium uppercase tracking-[0.25em] text-neutral-500 transition-colors hover:text-black"
+          className="inline-flex min-h-[44px] items-center border-b border-black/30 text-[10px] font-medium uppercase tracking-[0.25em] text-neutral-500 transition-colors hover:text-black"
         >
           {subtitle}
         </Link>
@@ -245,9 +249,9 @@ function NewsletterSection() {
   return (
     <section className="border-t border-neutral-200/80 bg-[#f7f6f2] px-4 py-20 text-center">
       <div className="mx-auto max-w-xl space-y-4">
-        <h3 className="font-display text-2xl font-light uppercase tracking-[0.14em] text-[#111111] md:text-3xl">
+        <h2 className="section-title">
           Subscribe to the Newsletter
-        </h3>
+        </h2>
         <p className="text-[12px] font-normal leading-relaxed tracking-wide text-neutral-500">
           Be the first to receive updates on new arrivals, private sales, and seasonal collection previews.
         </p>
@@ -258,8 +262,15 @@ function NewsletterSection() {
             className="mx-auto flex max-w-md items-center justify-center gap-2 pt-4"
             onSubmit={(e) => { e.preventDefault(); if (email.trim()) { api('/subscribers', { method: 'POST', body: { email: email.trim() } }).catch(() => {}); setDone(true); } }}
           >
+            {/* A placeholder is not an accessible name (WCAG 4.1.2): it is dropped
+                by most screen readers once the field has a value. Real label,
+                visually hidden so the layout is unchanged. */}
+            <label htmlFor="newsletter-email" className="sr-only">Email address</label>
             <input
+              id="newsletter-email"
+              name="email"
               type="email"
+              autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required

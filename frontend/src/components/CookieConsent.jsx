@@ -13,10 +13,22 @@ const setStored = (analytics, marketing) => {
 };
 
 /**
- * Cookie consent — slim bottom bar (CK reference: no modals, nothing that
- * covers the page). The wrapper is pointer-events-none so the store stays
- * fully interactive; only the card itself receives clicks. Consent toggles
- * (essential / analytics / marketing) expand in place via Manage.
+ * Cookie consent — slim full-bleed bottom bar.
+ *
+ * V2. MEASURED: the previous build was a centered max-w-3xl floating card with
+ * a 2xl radius and a 40px shadow. On the PDP it sat directly on top of the
+ * product image and the buy box; on / and /shop it covered the hero and the
+ * first product row. A consent notice must never occlude the merchandise.
+ *
+ * It is now a bar docked to the bottom edge: full width, square (tokens say
+ * card:0 / control:2px — a pill here was drift), hairline top rule instead of
+ * a drop shadow, and it reserves its own space rather than floating over the
+ * page. Buttons route through the shared .btn-sm / .btn-outline primitives so
+ * they inherit the 44px minimum tap target instead of the local 36px pills.
+ *
+ * The wrapper stays pointer-events-none so the store remains interactive;
+ * only the bar itself receives clicks. Consent toggles (essential / analytics
+ * / marketing) still expand in place via Manage.
  */
 export default function CookieConsent() {
   const { settings } = useApp();
@@ -31,7 +43,7 @@ export default function CookieConsent() {
   const done = (a, m) => { setStored(a, m); setConsented(true); };
 
   const Row = ({ title, text, checked, onChange, locked }) => (
-    <div className="flex items-start justify-between gap-4 rounded-xl border border-line/70 px-4 py-3">
+    <div className="flex items-start justify-between gap-4 rounded-control border border-line/70 px-4 py-3">
       <div>
         <p className="text-[13px] font-semibold">{title}</p>
         <p className="mt-0.5 text-[11px] leading-relaxed text-ash">{text}</p>
@@ -47,19 +59,20 @@ export default function CookieConsent() {
     </div>
   );
 
-  const btn = 'inline-flex h-9 items-center justify-center rounded-full border px-4 text-[12px] font-medium uppercase tracking-wide transition-colors duration-200';
-  const btnDark = `${btn} border-obsidian bg-obsidian text-alabaster hover:bg-sagedeep`;
-  const btnLine = `${btn} border-obsidian/30 text-obsidian hover:border-obsidian hover:bg-obsidian hover:text-alabaster`;
+  // Shared primitives — same scale, radius and 44px tap target as the rest of
+  // the store. No bespoke button geometry lives in this component.
+  const btnDark = 'btn btn-sm bg-obsidian text-alabaster hover:bg-sagedeep';
+  const btnLine = 'btn btn-sm btn-outline';
 
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-0 z-[90] flex justify-center px-3 pb-3 sm:px-6 sm:pb-5">
+    <div className="pointer-events-none fixed inset-x-0 bottom-0 z-[90]" role="region" aria-label="Cookie consent">
       <motion.div
         initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease: 'easeOut' }}
-        className="pointer-events-auto w-full max-w-3xl rounded-2xl border border-line bg-alabaster p-4 shadow-[0_10px_40px_rgba(0,0,0,0.14)] sm:p-5"
+        className="pointer-events-auto w-full border-t border-line bg-alabaster px-4 py-4 sm:px-6 sm:py-4"
       >
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-8">
+        <div className="mx-auto flex max-w-shell flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-8">
           <div className="flex min-w-0 items-start gap-3 sm:items-center">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-obsidian text-alabaster"><Cookie size={15} /></span>
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-control bg-obsidian text-alabaster"><Cookie size={15} /></span>
             <div className="min-w-0">
               <p className="font-display text-[13px] uppercase tracking-widest2">{cfg?.title || 'Cookies on HUSHAE'}</p>
               <p className="mt-1 text-[12px] leading-relaxed text-ash">
@@ -85,7 +98,7 @@ export default function CookieConsent() {
         </div>
 
         {manage && (
-          <div className="mt-4 space-y-2.5 border-t border-line pt-4">
+          <div className="mx-auto mt-4 max-w-shell space-y-2.5 border-t border-line pt-4">
             <Row title={<Tx k="cookieEssential" />} text={<Tx k="cookieEssentialTxt" />} locked />
             <Row title={<Tx k="cookieAnalytics" />} text={<Tx k="cookieAnalyticsTxt" />} checked={analytics} onChange={setAnalytics} />
             <Row title={<Tx k="cookieMarketing" />} text={<Tx k="cookieMarketingTxt" />} checked={marketing} onChange={setMarketing} />

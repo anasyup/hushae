@@ -50,9 +50,12 @@ export default function SaleBanner() {
               the edit lasts.
             </p>
 
+            {/* Uses the shared .cta-editorial-light primitive — this CTA was a
+                bespoke 105x15px link, under the 44px minimum. The primitive was
+                introduced for exactly this case; this instance had drifted. */}
             <Link
               to="/shop"
-              className="group mt-8 inline-flex items-center gap-3 border-b border-white/60 pb-1.5 text-[11px] font-medium uppercase tracking-[0.25em] text-white transition-colors hover:border-white"
+              className="cta-editorial-light group mt-8 gap-3"
             >
               Shop the Sale
               <span className="transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true">
