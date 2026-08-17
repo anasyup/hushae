@@ -91,13 +91,28 @@ export default function StickyBuyBar({ product, watchRef, size, needsSize, onAdd
          pointer-events-none class already blocks clicks there. */
       aria-hidden={!show}
       inert={!show ? '' : undefined}
-      /* MobileNav is a 53px bar already docked at bottom-0 with z-40. Sitting
-         at the same offset hid this one completely — measured. This stacks
-         directly above it and takes a higher layer so the shadow reads. */
-      className={`fixed inset-x-0 bottom-[53px] z-[41] border-y border-clay bg-pearl/95 shadow-e-3 backdrop-blur-xl transition-transform duration-base ease-standard motion-reduce:transition-none md:bottom-0 lg:border-y-0 lg:border-t lg:bg-pearl/95 lg:shadow-none ${
+      /* MobileNav is docked at bottom-0 with z-40. Sitting at the same offset
+         hid this one completely — measured.
+
+         The offset was hard-coded to 53px, which ignored the iOS safe-area
+         inset the nav adds on devices with a home indicator; the two bars
+         overlapped by 16px there. It now reads --nav-h, the nav's real
+         measured height (0px on md+, where the nav is hidden), so the two can
+         never collide regardless of device.
+
+         z raised 41 -> 50: it must sit above the WhatsApp float (z-45) since
+         both dock bottom-right, but stay under the consent notice (z-90). */
+      className={`fixed inset-x-0 z-50 border-y border-clay bg-pearl/95 shadow-e-3 backdrop-blur-xl transition-transform duration-base ease-standard motion-reduce:transition-none lg:border-y-0 lg:border-t lg:bg-pearl/95 lg:shadow-none ${
         show ? 'translate-y-0' : 'pointer-events-none translate-y-[150%]'
       }`}
-      style={{ paddingBottom: '0.75rem' }}
+      /* The 12px bottom padding is INSIDE the bar, so it extends the bar's own
+         box below its `bottom` offset — measured a residual 390x16px overlap
+         with the nav even after the offset was corrected. Adding it to the
+         offset instead keeps the internal breathing room without the bar
+         growing down into the nav. */
+      /* --consent-h keeps it clear of the cookie notice on a first visit; the
+         notice publishes 0px the moment consent is given. */
+      style={{ paddingBottom: '0.75rem', bottom: 'calc(var(--nav-h, 0px) + var(--consent-h, 0px) + 0.75rem)' }}
     >
       <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 pt-3 md:px-8 lg:gap-6 xl:max-w-[1360px] xl:px-10 2xl:max-w-[1560px] 2xl:px-14 3xl:max-w-shell 3xl:px-16">
         {/* Desktop earns the thumbnail: at 1440px the bar is 1,280px of empty

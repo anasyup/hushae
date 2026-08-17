@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Cookie, ShieldCheck } from 'lucide-react';
 import { useApp } from '../store/AppContext';
@@ -37,8 +37,32 @@ export default function CookieConsent() {
   const [manage, setManage] = useState(false);
   const [analytics, setAnalytics] = useState(true);
   const [marketing, setMarketing] = useState(false);
+  const barRef = useRef(null);
 
-  if (consented || cfg?.enabled === false) return null;
+  const hidden = consented || cfg?.enabled === false;
+
+  /* Publish the notice's height so the WhatsApp float can sit above it.
+     MEASURED: the bubble overlapped the notice by 48x48px — the entire
+     button — on a first visit, on every page. Once consent is given the
+     variable goes to 0px and the float drops back to its normal position. */
+  useEffect(() => {
+    const root = document.documentElement;
+    if (hidden) { root.style.setProperty('--consent-h', '0px'); return undefined; }
+    const el = barRef.current;
+    if (!el) return undefined;
+    const publish = () => root.style.setProperty('--consent-h', `${Math.round(el.getBoundingClientRect().height)}px`);
+    publish();
+    let ro;
+    if (typeof ResizeObserver !== 'undefined') { ro = new ResizeObserver(publish); ro.observe(el); }
+    window.addEventListener('resize', publish);
+    return () => {
+      ro?.disconnect();
+      window.removeEventListener('resize', publish);
+      root.style.setProperty('--consent-h', '0px');
+    };
+  }, [hidden, manage]);
+
+  if (hidden) return null;
 
   const done = (a, m) => { setStored(a, m); setConsented(true); };
 
@@ -65,8 +89,19 @@ export default function CookieConsent() {
   const btnLine = 'btn btn-sm btn-outline';
 
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-0 z-[90]" role="region" aria-label="Cookie consent">
+    /* MEASURED at 390px: docked at bottom-0 this bar covered the ENTIRE
+       53px MobileNav (390x53px overlap) — on a first visit the shopper could
+       not reach Home / Shop / Bag / Account at all until they dismissed it.
+       It now sits directly above the nav via --nav-h (0px on desktop, where
+       the nav is display:none, so the desktop bar is unchanged). */
+    <div
+      className="pointer-events-none fixed inset-x-0 z-[90]"
+      style={{ bottom: 'var(--nav-h, 0px)' }}
+      role="region"
+      aria-label="Cookie consent"
+    >
       <motion.div
+        ref={barRef}
         initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease: 'easeOut' }}
         className="pointer-events-auto w-full border-t border-line bg-alabaster px-4 py-4 sm:px-6 sm:py-4"
       >

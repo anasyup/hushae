@@ -148,14 +148,38 @@
     @apply outline-none ring-2 ring-obsidian ring-offset-2 ring-offset-alabaster;
     border-radius: 0.375rem;
   }
-  /* Form fields stay borderless-line — never a white offset box on focus. */
-  input:focus, input:focus-visible,
-  select:focus, select:focus-visible,
-  textarea:focus, textarea:focus-visible {
-    outline: none !important;
-    box-shadow: none !important;
-    -webkit-box-shadow: none !important;
-    border-radius: 0 !important;
+  /* Form fields stay borderless-line — never a white offset box on focus.
+     MEASURED: this rule used `input:focus, input:focus-visible { box-shadow:
+     none !important }`, which does not just suppress the offset box — it
+     destroys the ring the rule above paints, because a Tailwind `ring` IS a
+     box-shadow. Result: NO visible focus indicator at all on the account
+     email/password fields, the checkout fields, the remember-me checkbox and
+     the footer newsletter input. A keyboard shopper could not tell which
+     field they were in.
+
+     The intent was only to stop the ring-OFFSET halo on line inputs, so the
+     suppression is now scoped to mouse :focus and the ring is restored for
+     :focus-visible with offset 0 — flush to the field, no white box, still
+     clearly visible. Checkboxes and radios keep the offset ring since they
+     are not line inputs. */
+  input:focus:not(:focus-visible),
+  select:focus:not(:focus-visible),
+  textarea:focus:not(:focus-visible) {
+    outline: none;
+    box-shadow: none;
+    -webkit-box-shadow: none;
+  }
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    @apply outline-none ring-2 ring-obsidian;
+    --tw-ring-offset-width: 0px;
+    border-radius: 0.125rem;
+  }
+  input[type='checkbox']:focus-visible,
+  input[type='radio']:focus-visible {
+    --tw-ring-offset-width: 2px;
+    border-radius: 0.25rem;
   }
   /* On dark surfaces the ring inverts so it stays visible. */
   .on-dark :where(a, button, [tabindex]):focus-visible {

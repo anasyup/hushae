@@ -7,6 +7,7 @@ import LuxuryCategoryShowcase from '../components/LuxuryCategoryShowcase';
 import CollectionCard from '../components/CollectionCard';
 import NewArrivalsSection from '../components/home/NewArrivalsSection';
 import DiscoverTiles from '../components/home/DiscoverTiles';
+import { PRODUCT_GRID } from '../lib/productGrid';
 
 /* ============================================================================
  * HUSHAE HOME — luxury homepage, exact client reference.
@@ -44,14 +45,38 @@ const HERO_SLIDES = [
 
 function HeroSlides() {
   const [idx, setIdx] = useState(0);
+  const [paused, setPaused] = useState(false);
+
+  /* WCAG 2.2.2 (Pause, Stop, Hide): anything that auto-updates for more than
+     five seconds needs a way to stop it. This carousel advanced every 4s with
+     no control at all — a shopper reading the headline or reaching for
+     SHOP WOMEN could have the slide change under them, and a screen-reader
+     user got the content moved mid-sentence.
+
+     Three things stop it now: the explicit pause button below, hover/focus
+     anywhere in the hero (the code comment claimed this already happened —
+     it did not), and the OS reduce-motion setting, which pins it to the
+     first slide entirely. 4s is also simply too fast for a slide carrying a
+     three-line headline and two CTAs, so the interval is 6s. */
+  const reduceMotion = typeof window !== 'undefined'
+    && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
   useEffect(() => {
-    const t = setInterval(() => setIdx((i) => (i + 1) % HERO_SLIDES.length), 4000);
+    if (paused || reduceMotion) return undefined;
+    const t = setInterval(() => setIdx((i) => (i + 1) % HERO_SLIDES.length), 6000);
     return () => clearInterval(t);
-  }, []);
+  }, [paused, reduceMotion]);
 
   return (
-    <section className="relative h-[100svh] w-full overflow-hidden bg-white">
+    <section
+      className="relative h-[100svh] w-full overflow-hidden bg-white"
+      aria-roledescription="carousel"
+      aria-label="Campaign highlights"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      onFocusCapture={() => setPaused(true)}
+      onBlurCapture={(e) => { if (!e.currentTarget.contains(e.relatedTarget)) setPaused(false); }}
+    >
       {/* Slides — crossfade */}
       {HERO_SLIDES.map((s, i) => (
         <div
@@ -81,7 +106,30 @@ function HeroSlides() {
         </div>
       ))}
 
-      <div className="absolute inset-0 bg-black/15" aria-hidden="true" />
+      {/* Scrim.
+          MEASURED by sampling the real rendered pixels behind the type (a
+          parent-background walk cannot see through a photograph and reports
+          a meaningless 1.0): flat `bg-black/15` left the headline at 1.66:1
+          worst / 4.24 median and the sub-paragraph at 3.05 / 3.54 — an AA
+          failure on the pale slides (hero-women, hero-fabric).
+
+          The type block was then measured directly: it occupies 48%-79% of
+          the hero height (h1 starts at 48.4% on desktop / 53.6% on mobile,
+          the paragraph ends at ~79%, the CTAs sit below that). A purely
+          bottom-weighted gradient put its density BELOW the text and made the
+          numbers worse, so the ramp is anchored to that band instead — it
+          reaches full strength by 20% from the bottom and holds it through
+          85%, which is exactly where the words are. The top 40% of the
+          photograph stays essentially clean, so the campaign image still
+          reads as an image. */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0"
+        style={{
+          background:
+            'linear-gradient(to top, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.58) 20%, rgba(0,0,0,0.55) 55%, rgba(0,0,0,0.42) 85%, rgba(0,0,0,0.22) 100%)',
+        }}
+      />
       <div className="absolute bottom-[12%] left-[32px] z-10 max-w-[480px] text-white md:left-[60px]">
         {/* Cover line — LOUIS VUITTON register: one geometric sans (Jost, the
             free twin of LV Web), light weight, UPPERCASE with open tracking.
@@ -93,7 +141,11 @@ function HeroSlides() {
           <br />
           Edit
         </h1>
-        <p className="mt-5 max-w-[380px] text-[13px] font-normal leading-[1.6] text-[#f0f0f0]">
+        {/* #f0f0f0 measured 3.05:1 worst / 3.54 median over the pale slides.
+            Pure white on the strengthened scrim clears 4.5:1; the subdued
+            step below the headline now comes from size and weight rather than
+            from a dimmer grey. */}
+        <p className="mt-5 max-w-[380px] text-[13px] font-normal leading-[1.6] text-white">
           New season essentials, engineered in Pakistan. Featherweight layers with a barely-there finish.
         </p>
         <div className="mt-7 flex gap-3">
@@ -128,20 +180,44 @@ function HeroSlides() {
         <ChevronRight size={34} strokeWidth={1.5} />
       </button>
 
-      {/* Slide dots — thin, bottom centre */}
-      <div className="absolute bottom-6 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2">
+      {/* Slide dots — thin, bottom centre.
+          The dots sit 8px apart while .hit-44 paints a 44px hit box around
+          each, so neighbouring boxes overlapped by ~36px and a tap near a dot
+          frequently selected the wrong slide. gap-2 -> gap-3 and .hit-44 ->
+          a 24px box: still comfortably tappable, no longer ambiguous. */}
+      <div className="absolute bottom-6 left-1/2 z-20 flex -translate-x-1/2 items-center gap-3">
         {HERO_SLIDES.map((s, i) => (
           <button
             key={s.image}
             type="button"
             onClick={() => setIdx(i)}
-            aria-label={`Slide ${i + 1}`}
+            aria-label={`Go to slide ${i + 1} of ${HERO_SLIDES.length}`}
             aria-current={i === idx}
-            className={`hit-44 h-1.5 rounded-full transition-all duration-300 ${
+            className={`hit-24 h-1.5 rounded-full transition-all duration-300 ${
               i === idx ? 'w-6 bg-white' : 'w-1.5 bg-white/50 hover:bg-white/80'
             }`}
           />
         ))}
+
+        {/* WCAG 2.2.2 pause control. Deliberately quiet — a hairline glyph in
+            the same register as the dots, not a media-player chrome button. */}
+        <button
+          type="button"
+          onClick={() => setPaused((v) => !v)}
+          aria-label={paused ? 'Play slideshow' : 'Pause slideshow'}
+          className="hit-44 ml-1 grid h-5 w-5 place-items-center text-white/70 transition-colors hover:text-white"
+        >
+          {paused ? (
+            <svg viewBox="0 0 12 12" width="10" height="10" fill="currentColor" aria-hidden="true">
+              <path d="M3 1.5v9l7-4.5z" />
+            </svg>
+          ) : (
+            <svg viewBox="0 0 12 12" width="10" height="10" fill="currentColor" aria-hidden="true">
+              <rect x="3" y="1.5" width="2.5" height="9" rx="0.4" />
+              <rect x="7" y="1.5" width="2.5" height="9" rx="0.4" />
+            </svg>
+          )}
+        </button>
       </div>
     </section>
   );
@@ -192,7 +268,7 @@ function ProductCarouselSection({ title, subtitle, products, href }) {
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 gap-px border-y border-[#e7e5e0] bg-[#e7e5e0] min-[560px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+      <div className={PRODUCT_GRID}>
         {(products || []).slice(0, 4).map((item) => (
           <CollectionCard key={item._id} product={item} />
         ))}

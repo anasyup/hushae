@@ -16,6 +16,15 @@ export default function EmptyState({
   actionLabel,
   secondary,       // { label, to }
   className = '',
+  /* Render the title as a heading instead of a <p>.
+     MEASURED: /rewards had ZERO <h1> at all three viewports, because for a
+     signed-out visitor the whole page IS this component and the title was
+     markup-flat. A page with no heading is a real SEO and screen-reader
+     defect — a screen-reader user landing there gets no document outline.
+     Opt-in rather than default: most callers (empty cart, empty wishlist,
+     no search results) render BELOW a real page h1, and emitting a second
+     one there would break the outline in the other direction. */
+  as: As = 'p',
 }) {
   return (
     <div className={`empty-state ${className}`}>
@@ -24,7 +33,7 @@ export default function EmptyState({
           <Icon size={24} strokeWidth={1.6} />
         </span>
       )}
-      <p className="mt-6 font-display text-h3">{title}</p>
+      <As className="mt-6 font-display text-h3">{title}</As>
       {description && <p className="mt-2 text-body-sm">{description}</p>}
 
       {(action || onAction) && (

@@ -264,8 +264,16 @@ export default function Rewards() {
   if (!auth?.token) {
     return (
       <div className="container-page py-sect-y pt-[130px]">
-        <h1 className="sr-only">Rewards</h1>
+        {/* as="h1": for a signed-out visitor this IS the whole page, and it
+            was rendering without any heading at all.
+            Resolved against a concurrent fix that added `<h1 className=
+            "sr-only">Rewards</h1>` here. Keeping both would emit TWO h1s on
+            the same view. This one wins because the heading is the visible
+            programme name the shopper actually reads, rather than a
+            screen-reader-only label duplicating a title that is already on
+            screen. */}
         <EmptyState
+          as="h1"
           icon={Sparkles}
           title={cfg.programName}
           description={cfg.joinText}

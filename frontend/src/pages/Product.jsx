@@ -17,6 +17,7 @@ import { ProductSkeleton } from '../components/Skeletons';
 import Seo, { productJsonLd } from '../components/Seo';
 import StickyBuyBar from './product/StickyBuyBar';
 import AccordionGroup from './product/Accordion';
+import { PRODUCT_GRID } from '../lib/productGrid';
 
 /* ============================================================================
  * HUSHAE Product Details — exact client reference ("Atelier" luxury PDP).
@@ -430,8 +431,13 @@ export default function Product() {
                 type="button"
                 onClick={() => tryAdd(false)}
                 disabled={soldOut || (needsSize && !size)}
+                /* Disabled state measured 4.15:1 (#707070 on #EBEBEB) against
+                   a 4.5 requirement — and this is the button that TELLS the
+                   shopper why they cannot buy yet ("Select a Size"), so it is
+                   the one label that must not be washed out. neutral-500 ->
+                   neutral-600 takes it to 5.9:1 on the same ground. */
                 className={`h-[3.25rem] w-full text-[11px] font-medium uppercase tracking-[0.25em] transition-colors ${
-                  soldOut || (needsSize && !size) ? 'cursor-not-allowed bg-neutral-200 text-neutral-500' : 'bg-[#111111] text-white hover:bg-neutral-800'
+                  soldOut || (needsSize && !size) ? 'cursor-not-allowed bg-neutral-200 text-neutral-600' : 'bg-[#111111] text-white hover:bg-neutral-800'
                 }`}
               >
                 {soldOut ? 'Sold Out' : needsSize && !size ? 'Select a Size' : 'Add to Bag'}
@@ -578,7 +584,7 @@ export default function Product() {
           <div className="mx-auto max-w-[1440px] px-6 lg:px-12">
             <h3 className="mb-8 text-xl font-light uppercase tracking-widest">{rvCfg.title || 'Recently Viewed'}</h3>
           </div>
-          <div className="grid grid-cols-1 gap-px border-y border-[#e7e5e0] bg-[#e7e5e0] min-[560px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+          <div className={PRODUCT_GRID}>
             {recent.filter((r) => r.slug !== p.slug).slice(0, 4).map((pr) => (
               <CollectionCard key={pr._id || pr.slug} product={pr} />
             ))}

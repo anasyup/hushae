@@ -11,13 +11,50 @@ export default function SearchOverlay({ onClose }) {
   const [results, setResults] = useState(null); // null = initial, [] = no results
   const [loading, setLoading] = useState(false);
   const inputRef = useRef(null);
+  const panelRef = useRef(null);
   const timer = useRef(null);
 
   useEffect(() => { inputRef.current?.focus(); }, []);
+
+  /* MEASURED: this overlay reported `role: none, aria-modal: none, body
+     overflow: clip visible` — it was a plain <div> painted over the page.
+     Two consequences: a screen reader never announced it as a modal and
+     happily read the storefront behind it, and on a phone the PAGE SCROLLED
+     UNDER the overlay while the results list sat still.
+
+     MobileDrawer already solves all of this correctly (dialog role, scroll
+     lock without layout jump, focus trap, restore focus on close), so this
+     mirrors that implementation rather than inventing a second one. */
   useEffect(() => {
-    const onEsc = (e) => { if (e.key === 'Escape') onClose(); };
-    document.addEventListener('keydown', onEsc);
-    return () => document.removeEventListener('keydown', onEsc);
+    const FOCUSABLE = 'a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])';
+    const opener = document.activeElement;
+
+    const onKey = (e) => {
+      if (e.key === 'Escape') { onClose(); return; }
+      if (e.key !== 'Tab') return;
+      const nodes = [...(panelRef.current?.querySelectorAll(FOCUSABLE) || [])]
+        .filter((n) => n.offsetParent !== null);
+      if (!nodes.length) return;
+      const first = nodes[0];
+      const last = nodes[nodes.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    };
+
+    // Lock the page without a layout jump: replace the scrollbar with padding.
+    const sbw = window.innerWidth - document.documentElement.clientWidth;
+    const prevOverflow = document.body.style.overflow;
+    const prevPad = document.body.style.paddingRight;
+    document.body.style.overflow = 'hidden';
+    if (sbw > 0) document.body.style.paddingRight = `${sbw}px`;
+
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.body.style.overflow = prevOverflow;
+      document.body.style.paddingRight = prevPad;
+      opener?.focus?.();
+    };
   }, [onClose]);
 
   const search = (val) => {
@@ -43,23 +80,39 @@ export default function SearchOverlay({ onClose }) {
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center bg-white/95 backdrop-blur-sm pt-[12vh]" onClick={onClose}>
-      <div className="w-full max-w-2xl px-4" onClick={(e) => e.stopPropagation()}>
+    <div
+      className="fixed inset-0 z-50 flex items-start justify-center bg-white/95 pt-[12vh] backdrop-blur-sm"
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Search products"
+    >
+      <div ref={panelRef} className="w-full max-w-2xl px-4" onClick={(e) => e.stopPropagation()}>
         {/* Search input */}
         <div className="flex items-center gap-3 border-b border-line pb-3">
-          <Search size={18} className="shrink-0 text-ash" />
+          <Search size={18} className="shrink-0 text-ash" aria-hidden="true" />
           <input
             ref={inputRef}
-            type="text"
+            type="search"
             value={q}
             onChange={(e) => search(e.target.value)}
             placeholder="Search products..."
+            aria-label="Search products"
             className="w-full bg-transparent text-[18px] font-normal text-obsidian outline-none placeholder:text-ash"
           />
-          <button onClick={onClose} className="grid h-8 w-8 place-items-center text-ash hover:text-obsidian">
-            <X size={18} />
+          {/* 32px was under the 44px minimum for the only way out of a modal. */}
+          <button
+            onClick={onClose}
+            aria-label="Close search"
+            className="grid h-11 w-11 shrink-0 place-items-center text-ash hover:text-obsidian"
+          >
+            <X size={18} aria-hidden="true" />
           </button>
         </div>
+        {/* Result count for screen readers — the visual list updates silently. */}
+        <p className="sr-only" role="status" aria-live="polite">
+          {loading ? 'Searching' : results === null ? '' : `${results.length} result${results.length === 1 ? '' : 's'}`}
+        </p>
 
         {/* Results */}
         <div className="mt-4 max-h-[60vh] overflow-y-auto">

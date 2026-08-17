@@ -147,8 +147,14 @@ export default function Header() {
           </button>
 
           {/* Logo — quiet luxury: lighter weight, wider tracking */}
-          <Link to="/" aria-label="HUSHAÈ — home" className="flex-shrink-0 font-serif text-[21px] font-medium uppercase tracking-[0.3em] transition-opacity duration-300 hover:opacity-70">
-            HUSHAÈ
+          {/* Spelt HUSHAÈ here and HUSHAE absolutely everywhere else — the
+              footer wordmark, the copyright line, the <title>, the cookie
+              notice, the OG tags and all 100 product names in the database.
+              A shopper saw the accent at the top of the page and the bare E at
+              the bottom of the same page. Aligned to the unaccented form,
+              which is the one the brand actually ships. */}
+          <Link to="/" aria-label="HUSHAE — home" className="flex-shrink-0 font-serif text-[21px] font-medium uppercase tracking-[0.3em] transition-opacity duration-300 hover:opacity-70">
+            HUSHAE
           </Link>
 
           {/* Nav — CENTER (md+) */}

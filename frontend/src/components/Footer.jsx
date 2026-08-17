@@ -79,7 +79,10 @@ export default function Footer() {
             <h2 className="font-serif text-[26px] font-medium uppercase tracking-[0.24em] text-white">
               HUSHAE
             </h2>
-            <p className="mt-2 text-[10px] uppercase tracking-[0.2em] text-[#8c8a87]">
+            {/* Brand descriptor sitting directly under the wordmark — 10px
+                was the most-repeated sub-floor size on the site (48 hits
+                across the scan, once per page). 11px floor. */}
+            <p className="mt-2 text-[11px] uppercase tracking-[0.2em] text-[#8c8a87]">
               Undergarments · Lingerie · Essentials
             </p>
             <p className="mt-8 text-[22px] font-light leading-snug text-[#e6e4e0] md:text-[26px]">
@@ -104,14 +107,24 @@ export default function Footer() {
                   onChange={(e) => { setEmail(e.target.value); if (err) setErr(''); }}
                   placeholder="Your email"
                   aria-invalid={err ? 'true' : undefined}
-                  className="w-full bg-transparent text-[14px] text-white placeholder:text-[#666666] focus:outline-none"
+                  aria-describedby={err ? 'ft-email-err' : undefined}
+                  /* `focus:outline-none` with no replacement left this input
+                     with no focus indicator at all — on a dark footer, on
+                     every page. The ring inverts here because the ground is
+                     obsidian, not alabaster. */
+                  className="w-full bg-transparent text-[14px] text-white placeholder:text-[#8a8a8a] focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-0"
                 />
-                <button type="submit" aria-label="Submit" className="cursor-pointer bg-transparent pl-2.5 text-[18px] text-white transition-opacity hover:opacity-70">
+                {/* aria-label was "Submit" — accurate but contentless. */}
+                <button
+                  type="submit"
+                  aria-label="Subscribe to the newsletter"
+                  className="grid h-11 w-11 shrink-0 cursor-pointer place-items-center bg-transparent text-[18px] text-white transition-opacity hover:opacity-70"
+                >
                   →
                 </button>
               </form>
             )}
-            {err && <p role="alert" className="mt-2 text-[11px] text-red-400">{err}</p>}
+            {err && <p id="ft-email-err" role="alert" className="mt-2 text-[11px] text-red-400">{err}</p>}
           </div>
         </div>
 
@@ -123,7 +136,9 @@ export default function Footer() {
           <nav aria-label="Footer" className="grid grid-cols-2 gap-x-8 gap-y-6 sm:grid-cols-3 md:gap-x-16">
             {NAV.map((col) => (
               <div key={col.title}>
-                <span className="block text-[10px] uppercase tracking-[0.18em] text-[#8c8a87]">{col.title}</span>
+                {/* 10px -> 11px label floor. Contrast is already fine here
+                    (5.65:1 on #0D0D0D); this is purely a legibility floor. */}
+                <span className="block text-[11px] uppercase tracking-[0.18em] text-[#8c8a87]">{col.title}</span>
                 <ul className="mt-4 space-y-2.5">
                   {col.links.map((l) => (
                     <li key={l.label}>

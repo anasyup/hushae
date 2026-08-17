@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import LuxuryProductCard from './LuxuryProductCard';
+import { PRODUCT_GRID } from '../../lib/productGrid';
 
 /* ============================================================================
  * NEW ARRIVALS — the house's quiet editorial section (LV / Celine register).
@@ -44,7 +45,7 @@ export default function NewArrivalsSection({ products = [] }) {
       </div>
 
       {/* ── Hairline grid — full-bleed sale register ── */}
-      <div className="mt-16 grid grid-cols-1 gap-px border-y border-[#e7e5e0] bg-[#e7e5e0] min-[560px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+      <div className={`mt-16 ${PRODUCT_GRID}`}>
         {show.map((p) => (
           <LuxuryProductCard key={p._id || p.slug} product={p} />
         ))}

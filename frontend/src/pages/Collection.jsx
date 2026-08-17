@@ -8,6 +8,7 @@ import { ProductGridSkeleton } from '../components/Skeletons';
 import Seo from '../components/Seo';
 import { SIZES, COLORS, PRICE_BANDS } from './shop/FilterPanel';
 import { fetchCats, fetchCollections } from '../lib/catalogue';
+import { PRODUCT_GRID } from '../lib/productGrid';
 
 /* ============================================================================
  * Public /collection/:slug — same CK layout as the shop listings:
@@ -162,7 +163,7 @@ export default function Collection() {
             <button onClick={clearAll} className="btn-outline mt-6">Clear filters</button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-px border-y border-[#e7e5e0] bg-[#e7e5e0] min-[560px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+          <div className={PRODUCT_GRID}>
             {visible.map((p) => <CollectionCard key={p._id} product={p} />)}
           </div>
         )}

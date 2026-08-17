@@ -181,8 +181,25 @@ function CollectionCard({ product: p, priority = false, variant = 'minimal', rat
 
         {modal && <SizeModal product={p} onClose={() => setModal(false)} />}
         <div className="px-[10px] pb-1 pt-[10px]">
+          {/* Colour swatches.
+              MEASURED: these rendered at 12x12 CSS px carrying a .hit-24
+              helper — a 24px pseudo-element hit area with only 6px (gap-1.5)
+              between neighbours, 297 instances sitewide. Two problems:
+              24px is the bare WCAG 2.2 AA floor and well under the 44px iOS /
+              48px Android guidance, and because the pitch was 18px while the
+              hit boxes were 24px, ADJACENT HIT AREAS OVERLAPPED BY 6px. In the
+              overlap the later sibling wins, so a tap on the right edge of one
+              dot selected the NEXT colour. These are not decorative — tapping
+              one swaps the card's preview image.
+
+              Fixed by making the button itself the target instead of a
+              pseudo-element: a 24px button with the 14px dot centred inside,
+              4px apart. Pitch is 28px against a 24px target, so the hit areas
+              tile with clearance and can never overlap — a tap always resolves
+              to the dot under the finger. Row height 14px -> 24px, applied
+              uniformly to every card, so no card shifts relative to another. */}
           {swatches.length > 0 && (
-            <div className="mb-2 flex h-[14px] items-center gap-1.5" role="group" aria-label={`Colours for ${minName}`}>
+            <div className="mb-2 flex h-6 items-center gap-1" role="group" aria-label={`Colours for ${minName}`}>
               {swatches.map((c, i) => (
                 <button
                   key={`${c.name}-${i}`}
@@ -195,11 +212,15 @@ function CollectionCard({ product: p, priority = false, variant = 'minimal', rat
                     const ci = images.indexOf(srcOf(c.image) || '');
                     if (ci >= 0) setImgIdx(ci);
                   }}
-                  className="hit-24 relative h-3 w-3 shrink-0 rounded-full border border-black/[.12] after:rounded-full"
-                  style={{ backgroundColor: c.hex }}
+                  className="relative grid h-6 w-6 shrink-0 place-items-center rounded-full"
                 >
+                  <span
+                    className="block h-3.5 w-3.5 rounded-full border border-black/[.12]"
+                    style={{ backgroundColor: c.hex }}
+                    aria-hidden="true"
+                  />
                   {swatchIdx === i && (
-                    <span className="pointer-events-none absolute -inset-[3px] rounded-full border border-[#141312]" aria-hidden="true" />
+                    <span className="pointer-events-none absolute inset-[2px] rounded-full border border-[#141312]" aria-hidden="true" />
                   )}
                 </button>
               ))}
@@ -212,15 +233,22 @@ function CollectionCard({ product: p, priority = false, variant = 'minimal', rat
             </Link>
           </h3>
 
-          <p className="flex flex-wrap items-baseline gap-2 text-[13px] text-[#83817a]">
+          {/* Price row. #83817a measured 3.9:1 on white against a 4.5
+              requirement, and the struck compare-at then had opacity-60 on
+              top of that, taking it to roughly 2.3:1 — the was-price appears
+              on every sale card sitewide and was the least readable text in
+              any product grid. #6b6961 is 5.5:1, and the strike-through plus
+              the darker current price already carry the "this is the old one"
+              signal without dimming it into illegibility. */}
+          <p className="flex flex-wrap items-baseline gap-2 text-[13px] text-[#6b6961]">
             {soldOut ? (
               <span className="text-[#141312]">Sold out</span>
             ) : (
               <>
                 {onSaleP && p.compareAtPrice > p.price && (
-                  <span className="line-through opacity-60">{pkr(p.compareAtPrice)}</span>
+                  <span className="line-through">{pkr(p.compareAtPrice)}</span>
                 )}
-                <span className="text-[#141312]">{pkr(p.price)}</span>
+                <span className="font-medium text-[#141312]">{pkr(p.price)}</span>
               </>
             )}
           </p>

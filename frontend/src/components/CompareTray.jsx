@@ -74,11 +74,19 @@ export default function CompareTray() {
        * probe missed it because it filtered on pointer-events:none — the tray
        * was untouchable but perfectly visible. visibility:hidden is animatable
        * (it flips at the end of the transition), so the slide is preserved. */
-      style={onProduct ? { '--nav-h': '53px' } : undefined}
-      className={`fixed inset-x-0 z-[41] px-3 transition-transform duration-base ease-standard motion-reduce:transition-none md:px-6 ${
+      /* --nav-h used to be hard-coded to 53px here, which was wrong twice
+       * over: it ignored the iOS safe-area inset the nav actually carries,
+       * and the md: variant had to drop the term entirely to avoid adding a
+       * phantom 53px on desktop. MobileNav now publishes its real measured
+       * height globally (0px when it is display:none above md), so one
+       * expression is correct at every width and the local override is gone.
+       *
+       * z-[46] keeps the tray above the WhatsApp float (z-45), which docks in
+       * the same bottom-right corner. */
+      className={`fixed inset-x-0 z-[46] px-3 transition-transform duration-base ease-standard motion-reduce:transition-none md:px-6 ${
         onProduct
-          ? 'bottom-[calc(var(--nav-h,53px)+var(--buy-bar-h,72px)+8px)] md:bottom-[calc(var(--buy-bar-h,72px)+8px)]'
-          : 'bottom-[53px] md:bottom-6'
+          ? 'bottom-[calc(var(--nav-h,0px)+var(--buy-bar-h,72px)+8px)]'
+          : 'bottom-[calc(var(--nav-h,0px)+8px)] md:bottom-[calc(var(--nav-h,0px)+1.5rem)]'
       } ${hidden ? 'pointer-events-none invisible translate-y-[130%]' : 'visible translate-y-0'}`}
       aria-hidden={hidden}
       inert={hidden ? '' : undefined}

@@ -49,7 +49,7 @@ export default function NewArrivalsHero({ count }) {
 
       {/* Quiet editorial strip — season · first drop · worldwide */}
       <div className="border-y border-neutral-200/80 bg-[#FAF8F5]">
-        <div className="mx-auto flex w-full max-w-[1600px] flex-wrap items-center justify-center gap-x-10 gap-y-2 px-6 py-4 text-[9px] font-medium uppercase tracking-[0.24em] text-neutral-400 md:justify-between md:px-12">
+        <div className="mx-auto flex w-full max-w-[1600px] flex-wrap items-center justify-center gap-x-10 gap-y-2 px-6 py-4 text-[11px] font-medium uppercase tracking-[0.24em] text-neutral-500 md:justify-between md:px-12">
           <span>The New In</span>
           <span className="hidden sm:inline">·</span>
           <span>First Drop</span>

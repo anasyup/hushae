@@ -6,6 +6,7 @@ import ProductCard from '../components/ProductCard';
 import { ProductGridSkeleton } from '../components/Skeletons';
 import { isOnSale, salePercent } from '../lib/sale';
 import Tx from '../components/Tx';
+import { PRODUCT_GRID } from '../lib/productGrid';
 
 export default function Sale() {
   const [tab, setTab] = useState('');
@@ -42,7 +43,7 @@ export default function Sale() {
       </div>
       <div>
         {products === null ? <div className="px-4 md:px-8 lg:px-12"><ProductGridSkeleton count={8} /></div> : count > 0 ? (
-          <div className="grid grid-cols-1 gap-px border-y border-[#e7e5e0] bg-[#e7e5e0] min-[560px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+          <div className={PRODUCT_GRID}>
             {sorted.map((p) => <ProductCard key={p._id} product={p} />)}
           </div>
         ) : (

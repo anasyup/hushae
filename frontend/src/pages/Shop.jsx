@@ -16,6 +16,7 @@ import useShopFilters, { applyClientFacets } from './shop/useShopFilters';
 import FilterSheet from './shop/FilterSheet';
 import { SIZES, COLORS, PRICE_BANDS } from './shop/FilterPanel';
 import { fetchCats, fetchCollections } from '../lib/catalogue';
+import { PRODUCT_GRID_INNER } from '../lib/productGrid';
 
 /* ============================================================================
  * HUSHAE SHOP / CATEGORY — exact client reference ("CK Style Collection Layout").
@@ -221,8 +222,9 @@ export default function Shop({ preset = {} }) {
               aria-busy={pending || undefined}
               className={`grid transition-opacity duration-300 ${pending ? 'opacity-50' : 'opacity-100'} ${
                 /* Hairline grid: 1px gaps let the --line background show
-                   through as the only divider. Full-bleed everywhere. */
-                'grid-cols-1 gap-px border-y border-[#e7e5e0] bg-[#e7e5e0] min-[560px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'
+                   through as the only divider. Full-bleed everywhere.
+                   Shared with every other product list — see lib/productGrid. */
+                PRODUCT_GRID_INNER
               }`}
             >
               {visibleSlice.map((p, i) => (
