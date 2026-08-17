@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useMemo, useRef, useState, useCallback } from 'react';
+import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import { SearchX } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../api/client';
@@ -64,16 +64,6 @@ const REVEAL = 12; // initial batch shown; LOAD MORE reveals +12
 
 export default function Shop({ preset = {} }) {
   const f = useShopFilters(preset);
-  /* Sale grid density (2 / 4 / 8 columns), remembered per shopper. */
-  const [cols, setCols] = useState(() => {
-    if (typeof window === 'undefined') return 4;
-    const v = Number(window.localStorage.getItem('hushae:saleCols'));
-    return v === 2 || v === 4 || v === 8 ? v : 4;
-  });
-  const pickCols = useCallback((n) => {
-    setCols(n);
-    try { window.localStorage.setItem('hushae:saleCols', String(n)); } catch { /* private mode */ }
-  }, []);
   const navigate = useNavigate();
   const [cats, setCats] = useState([]);
   const [collections, setCollections] = useState([]);
@@ -211,29 +201,6 @@ export default function Shop({ preset = {} }) {
       {/* ═══ 1. SINGLE CLEAN FILTER BAR (exact reference) ═══════════════ */}
       <LuxuryFilterBar count={count || 0} f={f} onOpenFilters={() => setSheetOpen(true)} />
 
-      {/* Grid density — sale grid only. Hidden below lg where the column
-          count is driven by the breakpoint rather than by choice. */}
-      {preset.key === 'sale' && (
-        <div className="hidden w-full justify-end border-b border-[#e7e5e0] px-10 py-2.5 lg:flex">
-          <div className="flex items-center gap-3" role="group" aria-label="Grid density">
-            <span className="text-[12.5px] text-[#83817a]">View</span>
-            {[2, 4, 8].map((n) => (
-              <button
-                key={n}
-                type="button"
-                aria-pressed={cols === n}
-                onClick={() => pickCols(n)}
-                className={`hit-44 border-b px-0 py-0.5 text-[12.5px] transition-colors ${
-                  cols === n ? 'border-[#141312] text-[#141312]' : 'border-transparent text-[#83817a] hover:text-[#141312]'
-                }`}
-              >
-                {n === 2 ? 'Two' : n === 4 ? 'Four' : 'Eight'}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
       <div className={preset.key === 'sale' ? 'pb-10 md:pb-[60px]' : 'px-5 pb-10 md:px-10 md:pb-[60px]'}>
         {/* ═══ 2. GRID ═════════════════════════════════════════════════ */}
         {products === null ? (
@@ -252,13 +219,12 @@ export default function Shop({ preset = {} }) {
           <>
             <div
               aria-busy={pending || undefined}
-              style={preset.key === 'sale' ? { '--pg-cols': cols } : undefined}
               className={`grid transition-opacity duration-300 ${pending ? 'opacity-50' : 'opacity-100'} ${
                 preset.key === 'sale'
                   ? /* Hairline grid: the 1px gap lets the --line background
                        show through as the only divider. Full-bleed, so no
                        side padding and no max-width. */
-                    'grid-cols-1 gap-px border-y border-[#e7e5e0] bg-[#e7e5e0] min-[560px]:grid-cols-2 lg:[grid-template-columns:repeat(var(--pg-cols),minmax(0,1fr))]'
+                    'grid-cols-1 gap-px border-y border-[#e7e5e0] bg-[#e7e5e0] min-[560px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'
                   : 'grid-cols-2 gap-x-1 gap-y-10 md:grid-cols-4'
               }`}
             >
