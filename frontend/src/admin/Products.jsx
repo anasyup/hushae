@@ -245,7 +245,7 @@ export default function Products() {
         <EmptyState onClear={clearFilters} hasFilters={hasFilters} />
       ) : view === 'grid' ? (
         <GridView products={paged} onEnable={enable} onDisable={disable} onRemove={remove} onDuplicate={duplicate}
-          onCopySku={copySku} onPublish={publish} onCopySku={copySku} />
+          onCopySku={copySku} onPublish={publish} />
       ) : (
         <ListView
           products={paged}

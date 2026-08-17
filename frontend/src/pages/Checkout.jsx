@@ -417,7 +417,7 @@ export default function Checkout() {
             for faster checkout and order history.
           </p>
         )}
-        {auth && <p className="mt-3 text-[12px] text-smoke">Ordering as <span className="font-medium text-charcoal">{auth.user.name}</span></p>}
+        {auth?.user?.name && <p className="mt-3 text-[12px] text-smoke">Ordering as <span className="font-medium text-charcoal">{auth.user.name}</span></p>}
       </header>
 
       {/* Express checkout — sleek badges (merchant-gated, disabled until live) */}

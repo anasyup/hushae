@@ -1,6 +1,6 @@
 import pkg from '/home/user/node_modules/playwright-core/index.js';
 const { chromium } = pkg;
-import { serve, PREP } from '/tmp/harness.mjs';
+import { serve, PREP } from './harness.mjs';
 
 /* ============================================================================
  * FULL ROUTE REGRESSION
@@ -18,7 +18,10 @@ const srv = await serve(PORT);
 const B = `http://127.0.0.1:${PORT}`;
 
 const b = await chromium.launch({
-  executablePath: '/home/user/.cache/ms-playwright/chromium-1140/chrome-linux/chrome',
+  // Overridable: the pinned chromium build number changes between installs,
+  // and a hardcoded path is what silently broke this suite before.
+  executablePath: process.env.CHROME_PATH
+    || '/home/user/.cache/ms-playwright/chromium-1234/chrome-linux64/chrome',
   args: ['--no-sandbox'],
 });
 const ctx = await b.newContext({ viewport: { width: 1280, height: 900 } });
@@ -64,14 +67,17 @@ rows.forEach(([p, i, e]) => console.log(
   `${e === 0 && !i.blank && !i.nested ? 'ok  ' : 'BAD '} ${p.padEnd(22)} main:${i.mains}${i.nested ? ' NESTED!' : ''} ${i.blank ? 'BLANK ' : ''}errs:${e}  "${i.heading}"`));
 
 rows.length = 0;
-await pg.evaluate(async () => {
+/* Admin credentials differ per environment (the seeded local admin is not the
+   staging one). Hardcoding them made every admin route report a spurious 401.
+   Override with ADMIN_EMAIL / ADMIN_PASSWORD. */
+await pg.evaluate(async ([E, P]) => {
   const r = await fetch('/api/auth/login', {
     method: 'POST', headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ email: 'admin@hushae.pk', password: 'Hushae@2026' }),
+    body: JSON.stringify({ email: E, password: P }),
   });
   const d = await r.json();
   localStorage.setItem('hushae.auth', JSON.stringify({ token: d.token, user: d.user }));
-});
+}, [process.env.ADMIN_EMAIL || 'admin@hushae.pk', process.env.ADMIN_PASSWORD || 'Hushae@2026']);
 
 console.log('\n=========== ADMIN ===========');
 for (const p of ADMIN) await visit(p);

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  ArrowLeft, Check, AlertTriangle, Eye, EyeOff, FileText, Lock, LogOut, Monitor, RefreshCw, Save, ShieldCheck, Smartphone, Trash2, Users, Key, ShieldAlert, Play, Search, X
+  ArrowLeft, Check, AlertTriangle, Eye, EyeOff, FileText, Lock, LogOut, Monitor, Plus, RefreshCw, Save, ShieldCheck, Smartphone, Trash2, Users, Key, ShieldAlert, Play, Search, X
 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';

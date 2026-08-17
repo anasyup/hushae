@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   ArrowUpRight, Bell, ChevronRight, CreditCard, FileText, Globe, Info,
-  KeyRound, LayoutTemplate, MapPin, Package, Palette, Search, ShieldCheck,
+  KeyRound, LayoutTemplate, Mail, MapPin, Package, Palette, Search, ShieldCheck,
   Megaphone, ShoppingBag, Sparkles, Star, Store, Truck, Users, Zap,
 } from 'lucide-react';
 import { useApp } from '../store/AppContext';

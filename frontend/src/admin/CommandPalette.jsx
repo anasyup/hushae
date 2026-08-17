@@ -53,7 +53,7 @@ export default function CommandPalette({ onClose }) {
     if (term.length < 2) { setEntities({ products: [], orders: [], customers: [] }); return; }
     setLoading(true);
     const t = setTimeout(() => {
-      api(`/search?q=${encodeURIComponent(term)}`, { token: auth.token })
+      api(`/search/admin?q=${encodeURIComponent(term)}`, { token: auth.token })
         .then((d) => setEntities({ products: d.products || [], orders: d.orders || [], customers: d.customers || [] }))
         .catch(() => setEntities({ products: [], orders: [], customers: [] }))
         .finally(() => setLoading(false));

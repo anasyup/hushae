@@ -129,14 +129,18 @@ app.use('/api/collections', require('./routes/collections'));
 app.use('/api/reviews', require('./routes/reviews'));
 app.use('/api/questions', require('./routes/questions'));
 app.use('/api/loyalty', require('./routes/loyalty'));
-app.use('/api/search', require('./routes/search'));
+/* Order matters. The admin ⌘K palette is admin-only and must be matched before
+   the public storefront router, which owns the rest of the /api/search space.
+   Previously routes/search.js (protect+adminOnly) was mounted on bare
+   /api/search, so every shopper search returned 401. */
+app.use('/api/search/admin', require('./routes/search'));
+app.use('/api/search', require('./routes/searchPublic'));
 app.use('/api/discovery', require('./routes/discovery'));
 app.use('/api/promotions', require('./routes/promotions'));
 app.use('/api/cms', require('./routes/cms'));
 app.use('/api/theme', require('./routes/theme'));
 app.use('/api/email-templates', require('./routes/emailTemplates'));
 app.use('/api/security', require('./routes/security'));
-app.use('/api/search', require('./routes/search'));
 app.use('/api/marketing/automation', require('./routes/marketing'));
 app.use('/api/blog', require('./routes/blog'));
 app.use('/api/customer-groups', require('./routes/customerGroups'));
