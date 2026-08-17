@@ -165,8 +165,21 @@ function CollectionCard({ product: p, priority = false, variant = 'minimal', rat
               className="absolute inset-0 h-full w-full object-cover opacity-0 transition-[opacity,transform] duration-500 ease-out motion-reduce:transition-none group-hover:scale-[1.015] group-hover:opacity-100"
             />
           )}
+
+          {/* BUY NOW — always visible on mobile (no hover on touch), hover on lg+ */}
+          {!soldOut && (
+            <button
+              type="button"
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); setModal(true); }}
+              className="absolute bottom-2 left-2 right-2 z-[3] flex items-center justify-center gap-1.5 bg-black/90 px-3 py-2 text-[10px] font-medium uppercase tracking-[0.18em] text-white shadow-md backdrop-blur-sm transition-colors hover:bg-black lg:bottom-3 lg:left-3 lg:right-3 lg:translate-y-2 lg:opacity-0 lg:group-hover:translate-y-0 lg:group-hover:opacity-100"
+            >
+              <span>Buy Now</span>
+              <ShoppingBag size={13} strokeWidth={1.8} aria-hidden="true" />
+            </button>
+          )}
         </Link>
 
+        {modal && <SizeModal product={p} onClose={() => setModal(false)} />}
         <div className="px-[10px] pb-1 pt-[10px]">
           {swatches.length > 0 && (
             <div className="mb-2 flex h-[14px] items-center gap-1.5" role="group" aria-label={`Colours for ${minName}`}>
@@ -262,7 +275,7 @@ function CollectionCard({ product: p, priority = false, variant = 'minimal', rat
 
           {/* Side arrows — plain < > chevrons (no circle), appear on hover */}
           {images.length > 1 && (
-            <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-between px-1.5 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+            <div className="pointer-events-none absolute inset-0 z-20 hidden items-center justify-between px-1.5 opacity-0 transition-opacity duration-300 group-hover:opacity-100 lg:flex">
               <button
                 type="button"
                 onClick={(e) => { e.preventDefault(); cycle(-1); }}
@@ -284,11 +297,11 @@ function CollectionCard({ product: p, priority = false, variant = 'minimal', rat
 
           {/* BUY NOW — full-width (opens SizeModal) */}
           {!soldOut ? (
-            <div className="absolute bottom-3 left-3 right-3 z-20 translate-y-2 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+            <div className="absolute bottom-2 left-2 right-2 z-20 opacity-100 transition-all duration-300 lg:bottom-3 lg:left-3 lg:right-3 lg:translate-y-2 lg:opacity-0 lg:group-hover:translate-y-0 lg:group-hover:opacity-100">
               <button
                 type="button"
                 onClick={(e) => { e.preventDefault(); setModal(true); }}
-                className="flex w-full items-center justify-center gap-2 bg-black/90 px-4 py-3 text-[10px] font-medium uppercase tracking-[0.2em] text-white shadow-md backdrop-blur-sm transition-colors hover:bg-black"
+                className="flex w-full items-center justify-center gap-2 bg-black/90 px-4 py-2.5 text-[10px] font-medium uppercase tracking-[0.2em] text-white shadow-md backdrop-blur-sm transition-colors hover:bg-black lg:py-3"
               >
                 <span>Buy Now</span>
                 <ShoppingBag size={14} strokeWidth={1.8} aria-hidden="true" />

@@ -256,16 +256,14 @@ export default function App() {
           {/* FAQ — a CMS page at /faq wins if the merchant makes one; otherwise
               the existing settings-driven page with its FAQPage schema stays.
               Same reversible pattern as the legal routes. */}
-          <Route path="/faq" element={<CmsPage slug="faq" fallback={Faq} />} />
-          {/* LEGAL PAGES — address unchanged, content from the CMS.
-              `fallback` renders the original hardcoded copy until the merchant
-              creates the page, so the migration is reversible and /privacy is
-              never blank. Deleting Legal.jsx before real pages exist would be
-              the breaking change this avoids. */}
-          <Route path="/privacy" element={<CmsPage slug="privacy" fallback={() => <Legal kind="privacy" />} />} />
-          <Route path="/terms" element={<CmsPage slug="terms" fallback={() => <Legal kind="terms" />} />} />
-          <Route path="/returns" element={<CmsPage slug="returns" fallback={() => <Legal kind="returns" />} />} />
-          <Route path="/shipping-policy" element={<CmsPage slug="shipping-policy" fallback={() => <Legal kind="shipping" />} />} />
+          {/* FAQ + LEGAL — direct static routes (no CMS fetch, no 404 console
+              noise). Content stays the settings-driven FAQ and hardcoded legal
+              copy; a merchant CMS page would require flipping these back. */}
+          <Route path="/faq" element={<Faq />} />
+          <Route path="/privacy" element={<Legal kind="privacy" />} />
+          <Route path="/terms" element={<Legal kind="terms" />} />
+          <Route path="/returns" element={<Legal kind="returns" />} />
+          <Route path="/shipping-policy" element={<Legal kind="shipping" />} />
           <Route path="/collection/:slug" element={<Collection />} />
           {/* BLOG — journal / fit guides. /blog lists, /blog/:slug reads. */}
           <Route path="/blog" element={<Blog />} />

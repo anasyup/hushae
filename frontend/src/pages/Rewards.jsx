@@ -264,6 +264,7 @@ export default function Rewards() {
   if (!auth?.token) {
     return (
       <div className="container-page py-sect-y pt-[130px]">
+        <h1 className="sr-only">Rewards</h1>
         <EmptyState
           icon={Sparkles}
           title={cfg.programName}
@@ -317,6 +318,7 @@ export default function Rewards() {
   if (data.enabled === false) {
     return (
       <div className="container-page py-sect-y pt-[130px]">
+        <h1 className="sr-only">Rewards</h1>
         <EmptyState
           icon={Sparkles}
           title="Rewards are not running right now"
@@ -332,6 +334,7 @@ export default function Rewards() {
   if (data.needsPhone) {
     return (
       <div className="container-page py-sect-y pt-[130px]">
+        <h1 className="sr-only">Rewards</h1>
         <EmptyState
           icon={Sparkles}
           title="Add your mobile number"

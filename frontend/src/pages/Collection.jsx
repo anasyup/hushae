@@ -142,7 +142,11 @@ export default function Collection() {
         canonical={`/collection/${c.slug}`}
       />
 
-      {/* ═══ 1. LUXURY FILTER BAR ═════════════════════════════════════ */}
+      {/* ═══ 1. COLLECTION TITLE + FILTER BAR ═══════════════════════ */}
+      <div className="border-b border-[#e7e5e0] px-6 pb-4 pt-6 md:px-10">
+        <h1 className="text-[22px] font-medium uppercase tracking-[0.08em] text-[#111111] md:text-[26px]">{c.name}</h1>
+        {c.description && <p className="mt-1 max-w-xl text-[12px] leading-relaxed text-[#777777]">{c.description}</p>}
+      </div>
       <LuxuryFilterBar
         count={visible.length}
         f={{ sort, setOne: (k, v) => { if (k === 'sort') setSort(v); } }}
