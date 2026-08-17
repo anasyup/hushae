@@ -294,42 +294,112 @@ function ProductCarouselSection({ title, subtitle, products, href }) {
   );
 }
 
-/* ── SECTION 3: Editorial split banner (Loro Piana style) ───────────────── */
+/* ── SECTION 3: Editorial split banner (Loro Piana style) ───────────────────
+ *
+ * FULL-SCREEN. Was a contained band: max-w-[1600px] with px-4/px-8 gutters,
+ * a 16px gap between the two cards and 4/5 (mobile) / 3/4 (desktop) aspect
+ * boxes — roughly 1,003px tall on desktop with the page ground showing on
+ * every side.
+ *
+ * It now fills the viewport: the section is 100svh, the two panels sit side by
+ * side at 50vw each on md+, and the gutter and gap are gone so the two
+ * photographs meet on a single hairline. On mobile a 50/50 horizontal split
+ * would give each panel a 195px-wide sliver, so the panels stack and take
+ * 50svh each — still exactly one screenful, just divided the other way.
+ *
+ * IMAGE CHOICE — deliberate, not a copy-paste.
+ * The left panel used editorial-modern.jpg, which is 1584x672 LANDSCAPE. In a
+ * 720x900 full-height panel that image has to scale to ~2121px wide to cover,
+ * so 66% of the frame is cropped away and what survives is upscaled and soft.
+ * cat-women.jpg is 896x1200 PORTRAIT, shot for exactly this crop, so it fills
+ * a tall panel at native proportions. hero-fabric.jpg (768x1376) was already
+ * portrait and stays.
+ *
+ * 100svh (not vh) so mobile browser chrome does not push the panel taller
+ * than the visible area.
+ * ────────────────────────────────────────────────────────────────────────── */
 function EditorialSplitSection() {
-  return (
-    <section className="mx-auto max-w-[1600px] px-4 py-12 md:px-8">
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <Link to="/new" className="group relative aspect-[4/5] cursor-pointer overflow-hidden bg-[#f2f0ec] md:aspect-[3/4]">
-          <img
-            src={`${IMG}/editorial-modern.jpg`}
-            alt="Spring Summer Collection"
-            loading="lazy"
-            className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-          />
-          <div className="absolute inset-0 bg-black/10 transition-colors group-hover:bg-black/20" aria-hidden="true" />
-          <div className="absolute bottom-8 left-8 right-8 space-y-2 text-white">
-            <h3 className="font-display text-xl font-light uppercase tracking-[0.1em] md:text-2xl">Spring / Summer Silhouette</h3>
-            <span className="inline-flex items-center gap-2 border-b border-white pb-1 text-[11px] font-medium uppercase tracking-[0.2em] transition hover:text-neutral-200">
-              Explore Collection <ArrowRight size={14} aria-hidden="true" />
-            </span>
-          </div>
-        </Link>
+  const panels = [
+    {
+      to: '/new',
+      img: `${IMG}/cat-women.jpg`,
+      alt: 'Spring Summer collection',
+      title: 'Spring / Summer Silhouette',
+      cta: 'Explore Collection',
+      /* The subject stands in the upper-middle of this frame. In the short
+         422px-tall mobile panel a default 50% 50% crop cut her head off —
+         checked on the rendered page, not assumed. Biasing the crop upward
+         keeps the face in frame on mobile; on the tall desktop panel the
+         image covers almost exactly, so the shift is imperceptible there. */
+      pos: 'object-[50%_22%] md:object-center',
+    },
+    {
+      to: '/about',
+      img: `${IMG}/hero-fabric.jpg`,
+      alt: 'Craftsmanship',
+      title: 'Uncompromising Craftsmanship',
+      cta: 'Read The Story',
+      // Abstract fabric — no subject to protect, centre is correct.
+      pos: 'object-center',
+    },
+  ];
 
-        <Link to="/about" className="group relative aspect-[4/5] cursor-pointer overflow-hidden bg-[#f2f0ec] md:aspect-[3/4]">
-          <img
-            src={`${IMG}/hero-fabric.jpg`}
-            alt="Craftsmanship"
-            loading="lazy"
-            className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-          />
-          <div className="absolute inset-0 bg-black/10 transition-colors group-hover:bg-black/20" aria-hidden="true" />
-          <div className="absolute bottom-8 left-8 right-8 space-y-2 text-white">
-            <h3 className="font-display text-xl font-light uppercase tracking-[0.1em] md:text-2xl">Uncompromising Craftsmanship</h3>
-            <span className="inline-flex items-center gap-2 border-b border-white pb-1 text-[11px] font-medium uppercase tracking-[0.2em] transition hover:text-neutral-200">
-              Read The Story <ArrowRight size={14} aria-hidden="true" />
-            </span>
-          </div>
-        </Link>
+  return (
+    <section className="w-full">
+      <div className="grid h-[100svh] grid-cols-1 grid-rows-2 md:grid-cols-2 md:grid-rows-1">
+        {panels.map((p, i) => (
+          <Link
+            key={p.to}
+            to={p.to}
+            className="group relative block h-full w-full cursor-pointer overflow-hidden bg-[#f2f0ec]"
+          >
+            <img
+              src={p.img}
+              alt={p.alt}
+              loading="lazy"
+              decoding="async"
+              /* sizes tells the browser this is a half-width slot on desktop
+                 and full-width on mobile, so it never fetches more than it
+                 needs for the panel it actually paints. */
+              sizes="(min-width: 768px) 50vw, 100vw"
+              className={`absolute inset-0 h-full w-full object-cover ${p.pos} transition-transform duration-700 ease-out group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100`}
+            />
+            {/* Bottom-weighted scrim, matching the hero. The old flat
+                `bg-black/10` was measured failing WCAG on these same two
+                photographs (1.14:1 on the heading, 1.14 on the CTA) — at
+                full-screen the type sits over even more of the bright plaster,
+                so it needs a real ramp rather than a wash. Density is spent
+                only on the lower third where the words are. */}
+            <div
+              aria-hidden="true"
+              className="absolute inset-0 transition-opacity duration-500 group-hover:opacity-90"
+              style={{
+                background:
+                  'linear-gradient(to top, rgba(0,0,0,0.62) 0%, rgba(0,0,0,0.45) 22%, rgba(0,0,0,0.16) 48%, rgba(0,0,0,0) 72%)',
+              }}
+            />
+            {/* MEASURED: on mobile the LOWER panel's CTA sat at y=791-812
+                while MobileNav starts at y=791 — "Read the story" was 21px
+                underneath the tab bar. Only the last panel touches the bottom
+                of the viewport, so only it needs the offset; adding it to both
+                would push the upper panel's copy up for no reason. --nav-h is
+                the nav's real measured height and reports 0px on md+, where
+                the nav is display:none and the panels sit side by side. */}
+            <div
+              className="absolute inset-x-0 bottom-0 p-8 text-white md:p-12 lg:p-16"
+              style={i === panels.length - 1 ? { paddingBottom: 'calc(var(--nav-h, 0px) + 2rem)' } : undefined}
+            >
+              {/* Type scales with the panel now that it owns half a screen
+                  rather than a 400px card. */}
+              <h3 className="max-w-[22ch] font-display text-2xl font-light uppercase leading-[1.15] tracking-[0.1em] md:text-3xl lg:text-4xl">
+                {p.title}
+              </h3>
+              <span className="mt-5 inline-flex items-center gap-2 border-b border-white pb-1 text-[11px] font-medium uppercase tracking-[0.2em] transition-colors group-hover:border-white/60">
+                {p.cta} <ArrowRight size={14} aria-hidden="true" />
+              </span>
+            </div>
+          </Link>
+        ))}
       </div>
     </section>
   );
