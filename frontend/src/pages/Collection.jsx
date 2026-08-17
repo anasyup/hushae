@@ -149,8 +149,8 @@ export default function Collection() {
         onOpenFilters={() => setFilterOpen(true)}
       />
 
-      {/* ═══ 2. PRODUCT GRID — max-w 1600 ═════════════════════════════ */}
-      <div className="mx-auto max-w-[1600px] px-4 py-8 md:px-8">
+      {/* ═══ 2. PRODUCT GRID — full-bleed hairline (sale register) ═════ */}
+      <div className="py-8">
         {visible.length === 0 ? (
           <div className="grid place-items-center py-16 text-center">
             <Boxes size={26} className="mb-3 text-[#C9A96E]" />
@@ -158,7 +158,7 @@ export default function Collection() {
             <button onClick={clearAll} className="btn-outline mt-6">Clear filters</button>
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-x-1 gap-y-10 md:grid-cols-4">
+          <div className="grid grid-cols-1 gap-px border-y border-[#e7e5e0] bg-[#e7e5e0] min-[560px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             {visible.map((p) => <CollectionCard key={p._id} product={p} />)}
           </div>
         )}

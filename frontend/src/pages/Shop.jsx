@@ -201,7 +201,7 @@ export default function Shop({ preset = {} }) {
       {/* ═══ 1. SINGLE CLEAN FILTER BAR (exact reference) ═══════════════ */}
       <LuxuryFilterBar count={count || 0} f={f} onOpenFilters={() => setSheetOpen(true)} />
 
-      <div className={preset.key === 'sale' ? 'pb-10 md:pb-[60px]' : 'px-5 pb-10 md:px-10 md:pb-[60px]'}>
+      <div className="pb-10 md:pb-[60px]">
         {/* ═══ 2. GRID ═════════════════════════════════════════════════ */}
         {products === null ? (
           <ProductGridSkeleton count={9} />
@@ -220,12 +220,9 @@ export default function Shop({ preset = {} }) {
             <div
               aria-busy={pending || undefined}
               className={`grid transition-opacity duration-300 ${pending ? 'opacity-50' : 'opacity-100'} ${
-                preset.key === 'sale'
-                  ? /* Hairline grid: the 1px gap lets the --line background
-                       show through as the only divider. Full-bleed, so no
-                       side padding and no max-width. */
-                    'grid-cols-1 gap-px border-y border-[#e7e5e0] bg-[#e7e5e0] min-[560px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'
-                  : 'grid-cols-2 gap-x-1 gap-y-10 md:grid-cols-4'
+                /* Hairline grid: 1px gaps let the --line background show
+                   through as the only divider. Full-bleed everywhere. */
+                'grid-cols-1 gap-px border-y border-[#e7e5e0] bg-[#e7e5e0] min-[560px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'
               }`}
             >
               {visibleSlice.map((p, i) => (

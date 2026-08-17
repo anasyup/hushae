@@ -42,8 +42,8 @@ export default function NewArrivalsSection({ products = [] }) {
           </Link>
         </div>
 
-        {/* ── Luxury grid — cards unchanged ── */}
-        <div className="mt-16 grid grid-cols-2 gap-x-6 gap-y-16 md:grid-cols-4">
+        {/* ── Hairline grid — sale register ── */}
+        <div className="mt-16 grid grid-cols-1 gap-px border-y border-[#e7e5e0] bg-[#e7e5e0] min-[560px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {show.map((p) => (
             <LuxuryProductCard key={p._id || p.slug} product={p} />
           ))}

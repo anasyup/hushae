@@ -192,7 +192,7 @@ function ProductCarouselSection({ title, subtitle, products, href }) {
         </Link>
       </div>
 
-      <div className="grid grid-cols-2 gap-x-1 gap-y-10 md:grid-cols-4">
+      <div className="grid grid-cols-1 gap-px border-y border-[#e7e5e0] bg-[#e7e5e0] min-[560px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {(products || []).slice(0, 4).map((item) => (
           <CollectionCard key={item._id} product={item} />
         ))}
