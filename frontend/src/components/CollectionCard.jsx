@@ -257,24 +257,24 @@ function CollectionCard({ product: p, priority = false, variant = 'bar', ratio =
             </span>
           )}
 
-          {/* Side arrows — appear on hover */}
+          {/* Side arrows — plain < > chevrons (no circle), appear on hover */}
           {images.length > 1 && (
-            <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-between px-2 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+            <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-between px-1.5 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
               <button
                 type="button"
                 onClick={(e) => { e.preventDefault(); cycle(-1); }}
                 aria-label="Previous Image"
-                className="pointer-events-auto flex h-7 w-7 items-center justify-center rounded-full bg-white/80 text-black shadow-md transition-all hover:bg-white"
+                className="pointer-events-auto flex h-8 w-8 items-center justify-center text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.45)] transition-transform hover:scale-110"
               >
-                <ChevronLeft size={16} aria-hidden="true" />
+                <ChevronLeft size={26} strokeWidth={2} aria-hidden="true" />
               </button>
               <button
                 type="button"
                 onClick={(e) => { e.preventDefault(); cycle(1); }}
                 aria-label="Next Image"
-                className="pointer-events-auto flex h-7 w-7 items-center justify-center rounded-full bg-white/80 text-black shadow-md transition-all hover:bg-white"
+                className="pointer-events-auto flex h-8 w-8 items-center justify-center text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.45)] transition-transform hover:scale-110"
               >
-                <ChevronRight size={16} aria-hidden="true" />
+                <ChevronRight size={26} strokeWidth={2} aria-hidden="true" />
               </button>
             </div>
           )}
