@@ -8,7 +8,7 @@
 //
 // .dark-admin is applied ONLY on admin routes — the storefront never changes.
 
-const KEY = 'vl_admin_theme';
+const KEY = 'vl_admin_theme_v3'; // bumped — ignores any old light/dark prefs so dark shows for everyone until they toggle
 const isAdminPath = () => typeof window !== 'undefined' && /^\/admin/.test(window.location.pathname);
 
 export function getAdminTheme() {
