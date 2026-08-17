@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import {
   AlertCircle, Archive, ArrowUpDown, BadgePercent, CheckCircle2, ChevronDown, Copy, DollarSign, Download, Eye, EyeOff, FileUp,
-  Filter, Grid, LayoutGrid, List, Minus, Package, Pencil, Plus, Save, Search, Star, Trash2, TrendingUp, X,
+  Filter, LayoutGrid, List, Minus, Package, Pencil, Plus, Save, Search, Star, Trash2, TrendingUp, X,
 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
@@ -148,7 +148,7 @@ export default function Products() {
               value={f.q}
               onChange={(e) => setF({ ...f, q: e.target.value })}
               placeholder="Search name, SKU, category…"
-              className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !w-72 !py-2.5 !pl-9 !text-[13px]"
+              className="w-72 max-w-full rounded-xl border border-neutral-300 bg-white py-2.5 pl-9 pr-3 text-[13px] outline-none transition focus:border-neutral-900"
             />
           </div>
 

@@ -102,7 +102,7 @@ function KpiCard({ icon: Icon, label, value, change, sparkData, accent = '#11111
           : hasRate && change !== 0 && <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[12px] font-bold ${positive ? 'bg-emerald-50 text-emerald-700' : negative ? 'bg-red-50 text-red-700' : 'bg-neutral-100 text-neutral-600'}`}>{positive ? <ArrowUpRight size={11} /> : negative ? <ArrowDownRight size={11} /> : null}{changeText}</span>}
       </div>
       <p className="mt-4 text-[13px] font-bold uppercase tracking-widest text-neutral-500">{label}</p>
-      <p className="mt-1 font-sans text-[13px] font-semibold tabular-nums leading-none tracking-tight text-neutral-900">{display}</p>
+      <p className="mt-1 font-sans text-2xl font-semibold tabular-nums leading-none tracking-tight text-neutral-900">{display}</p>
       <p className="mt-1 text-[12px] text-neutral-400">{compareLabel}</p>
       {sparkData?.length > 0 && <div className="mt-3 h-10"><ResponsiveContainer width="100%" height="100%"><AreaChart data={sparkData} margin={{ top: 2, right: 0, left: 0, bottom: 0 }}><defs><linearGradient id={`spk-${label}`} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={accent} stopOpacity={0.28} /><stop offset="100%" stopColor={accent} stopOpacity={0} /></linearGradient></defs><Area type="monotone" dataKey="v" stroke={accent} strokeWidth={2} fill={`url(#spk-${label})`} /></AreaChart></ResponsiveContainer></div>}
     </>
@@ -374,7 +374,7 @@ export default function Dashboard() {
 
   const sparkRevenue = d.chart.map((x) => ({ v: x.revenue }));
   const sparkOrders = d.chart.map((x) => ({ v: x.orders }));
-  const sparkCustomers = d.chart.map((x) => ({ v: x.orders * 0.6 }));
+  const sparkCustomers = d.chart.map((x) => ({ v: x.customers }));
   const sparkAov = d.chart.map((x) => ({ v: x.orders ? x.revenue / x.orders : 0 }));
 
   const greeting = (() => { const h = new Date().getHours(); if (h < 12) return 'Good morning'; if (h < 17) return 'Good afternoon'; return 'Good evening'; })();

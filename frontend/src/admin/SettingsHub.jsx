@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import {
   ArrowUpRight, Bell, ChevronRight, CreditCard, FileText, Globe, Info,
   KeyRound, LayoutTemplate, Mail, MapPin, Package, Palette, Search, ShieldCheck,
-  Megaphone, ShoppingBag, Sparkles, Star, Store, Truck, Users, Zap,
+  Settings2, Megaphone, ShoppingBag, Sparkles, Star, Store, Truck, Users, Zap,
 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import AdminLayout from './AdminLayout';
@@ -120,12 +120,18 @@ const CARDS = [
     tags: ['security', 'password', 'admin', 'access', 'session', 'dark mode', 'theme'],
   },
   {
+    to: '/admin/settings/advanced',
+    icon: Settings2,
+    title: 'Advanced',
+    desc: 'Analytics preferences — include test orders and set the reorder stock target level.',
+    tags: ['advanced', 'analytics', 'test orders', 'reorder', 'target stock'],
+  },
+  {
     to: '/admin/settings/legal',
     icon: FileText,
     title: 'Legal & Policies',
     desc: 'Terms of service, privacy policy, refund policy, and cookie consent text.',
     tags: ['legal', 'privacy', 'terms', 'policy', 'refund', 'cookie'],
-    badge: 'Coming soon',
   },
   {
     to: '/admin/content',
@@ -175,7 +181,7 @@ export default function SettingsHub() {
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Search settings…"
-            className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !w-72 !py-2.5 !pl-9 !text-[13px]"
+            className="w-72 max-w-full rounded-xl border border-neutral-300 bg-white py-2.5 pl-9 pr-3 text-[13px] outline-none transition focus:border-neutral-900"
           />
         </div>
       </div>
@@ -233,7 +239,7 @@ export default function SettingsHub() {
               <p className="text-[13px] font-bold uppercase tracking-widest text-neutral-500">Signed in as</p>
             </div>
             <p className="mt-2 text-[13px] font-semibold text-neutral-900">{auth?.user?.name || 'Admin'}</p>
-            <p className="mt-0.5 font-mono text-[12px] text-neutral-500">{auth?.user?.email || 'underadmin'}</p>
+            <p className="mt-0.5 font-mono text-[12px] text-neutral-500">{auth?.user?.email || '—'}</p>
             <span className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-[13px] font-bold uppercase tracking-wider text-emerald-800">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
               Admin access

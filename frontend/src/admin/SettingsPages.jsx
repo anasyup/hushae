@@ -66,7 +66,7 @@ function SaveBar({ dirty, busy, onSave, onReset }) {
 
 function Toggle({ label, description, checked, onChange }) {
   return (
-    <label className="flex cursor-pointer items-start justify-between gap-4 rounded-xl border border-neutral-200 bg-white px-4 py-3 transition hover:border-neutral-300">
+    <label className="flex min-h-[44px] cursor-pointer items-start justify-between gap-4 rounded-xl border border-neutral-200 bg-white px-4 py-3 transition hover:border-neutral-300">
       <div className="min-w-0">
         <p className="text-[13px] font-medium text-neutral-900">{label}</p>
         {description && <p className="mt-0.5 text-[12px] text-neutral-500">{description}</p>}

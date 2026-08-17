@@ -81,7 +81,7 @@ export default function SettingsAdmin() {
         <div className="rounded-2xl border border-neutral-200 bg-white space-y-5 p-6">
           <div className="flex items-center justify-between">
             <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-500">Sale &amp; offer bar</p>
-            <span className="rounded-full bg-emerald-20 px-2.5 py-1 text-[13px] font-bold uppercase tracking-wider text-emerald-700">Shows above header</span>
+            <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[13px] font-bold uppercase tracking-wider text-emerald-700">Shows above header</span>
           </div>
           <Toggle label="Offer bar enabled" checked={!!s.offerBar?.enabled} onChange={(v) => setOffer('enabled', v)} />
           <div><label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500">Message</label><input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={s.offerBar?.messageEn || ''} onChange={(e) => setOffer('messageEn', e.target.value)} placeholder="Season Sale — up to 40% off · while stock lasts" /></div>

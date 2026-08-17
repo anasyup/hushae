@@ -64,7 +64,7 @@ const NAV_GROUPS = [
   },
   {
     key: 'marketing', label: 'Marketing', icon: Megaphone,
-    match: ['/admin/promotions', '/admin/bundles', '/admin/flash-sales', '/admin/discounts', '/admin/marketing', '/admin/marketing/settings', '/admin/marketing/analytics', '/admin/email-campaigns', '/admin/banners', '/admin/banners/new', '/admin/banners/:id', '/admin/banners/slots'],
+    match: ['/admin/promotions', '/admin/bundles', '/admin/flash-sales', '/admin/discounts', '/admin/marketing', '/admin/marketing/settings', '/admin/marketing/analytics', '/admin/email-campaigns', '/admin/banners', '/admin/banners/new', '/admin/banners/slots'],
     children: [
       { to: '/admin/promotions',           label: 'Promotions',        icon: Megaphone },
       { to: '/admin/banners',                label: 'Banners',            icon: ImagePlus },
@@ -79,10 +79,11 @@ const NAV_GROUPS = [
     match: ['/admin/store', '/admin/theme', '/admin/theme-sections', '/admin/theme-legacy', '/admin/cms', '/admin/content', '/admin/faq', '/admin/markets', '/admin/blog', '/admin/navigation'],
     children: [
       { to: '/admin/store',       label: 'Online Store',    icon: Globe },
+      { to: '/admin/content',     label: 'Content',         icon: ImagePlus },
       { to: '/admin/theme',       label: 'Theme Editor',    icon: LayoutTemplate },
       { to: '/admin/theme-sections', label: 'Theme Sections', icon: LayoutTemplate },
       { to: '/admin/navigation',  label: 'Navigation',      icon: Menu },
-      { to: '/admin/cms',         label: 'Pages',           icon: FileText, exact: true },
+      { to: '/admin/cms',         label: 'Pages',           icon: FileText },
       { to: '/admin/cms/redirects', label: 'Old addresses', icon: Signpost },
       { to: '/admin/blog',        label: 'Blog',            icon: FileText },
       { to: '/admin/faq',         label: 'FAQ',             icon: FileText },
@@ -105,7 +106,7 @@ const NAV_GROUPS = [
     key: 'settings', label: 'Settings', icon: SettingsIcon,
     match: ['/admin/settings', '/admin/apps', '/admin/backup'],
     children: [
-      { to: '/admin/settings',            label: 'Settings Hub',             icon: SettingsIcon, exact: true },
+      { to: '/admin/settings',            label: 'Settings Hub',             icon: SettingsIcon },
       { to: '/admin/settings/store',      label: 'Store Details',            icon: Store },
       { to: '/admin/settings/payments',   label: 'Payments',                 icon: CreditCard },
       { to: '/admin/settings/shipping',   label: 'Shipping & Delivery',      icon: Truck },
@@ -113,6 +114,7 @@ const NAV_GROUPS = [
       { to: '/admin/settings/email',      label: 'Email & Notifications',    icon: Megaphone },
       { to: '/admin/apps',                label: 'Integrations',             icon: Zap },
       { to: '/admin/backup',              label: 'Backup & Export',          icon: FileText },
+      { to: '/admin/settings/advanced',   label: 'Advanced',                 icon: SettingsIcon },
     ],
   },
 ];
@@ -130,19 +132,22 @@ const linkCls = ({ isActive }) =>
 const childLinkCls = (active) =>
   `flex items-center gap-1.5 rounded-md py-1 pl-7 pr-2 text-[13px] font-medium transition ${active ? 'bg-white text-neutral-900 shadow-sm' : 'text-neutral-500 hover:bg-white/60 hover:text-neutral-800'}`;
 
-function isChildRouteActive(loc, to, exact = false) {
+/* A nav item is active when its pathname matches AND, if the link itself
+   carries a query (e.g. "?group=new"), that query also matches. Query params
+   on the *current* URL (filters, pagination) no longer un-highlight the
+   parent nav item. */
+function isChildRouteActive(loc, to) {
   const [p, qs] = to.split('?');
   if (loc.pathname !== p) return false;
   if (qs) return loc.search.replace('?', '') === qs;
-  if (exact) return !loc.search;
-  return !loc.search;
+  return true;
 }
 
 function GroupDropdown({ group, onNavigate, defaultOpen }) {
   const loc = useLocation();
   const [open, setOpen] = useState(defaultOpen);
   const Icon = group.icon;
-  const isChildActive = group.children.some((c) => isChildRouteActive(loc, c.to, c.exact));
+  const isChildActive = group.children.some((c) => isChildRouteActive(loc, c.to));
   useEffect(() => { if (isChildActive) setOpen(true); }, [isChildActive]);
   return (
     <div>
@@ -152,7 +157,7 @@ function GroupDropdown({ group, onNavigate, defaultOpen }) {
         <ChevronDown size={11} className={`text-neutral-400 transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
       {open && <div className="mt-0.5 space-y-0.5">{group.children.map((c) => {
-        const active = isChildRouteActive(loc, c.to, c.exact); const ChildIcon = c.icon;
+        const active = isChildRouteActive(loc, c.to); const ChildIcon = c.icon;
         return <NavLink key={c.to} to={c.to} onClick={onNavigate} className={() => childLinkCls(active)}><ChildIcon size={12} strokeWidth={1.7} className="opacity-70" />{c.label}</NavLink>;
       })}</div>}
     </div>

@@ -42,7 +42,7 @@ router.get('/dashboard', asyncHandler(async (req, res) => {
   const [
     statusAgg, revenueAgg, totalProducts, lowStock, totalCustomers, recentOrders, bestAgg,
     currentWindow, previousWindow, dailySeries, todayHourly, topCustomers, newCustomersRange,
-    cancelAgg,
+    customerSeries, cancelAgg,
   ] = await Promise.all([
     Order.aggregate([{ $match: range }, { $group: { _id: '$status', count: { $sum: 1 } } }]),
     Order.aggregate([
@@ -110,6 +110,11 @@ router.get('/dashboard', asyncHandler(async (req, res) => {
     ]),
     Order.find(range).select('customerInfo.phone customerInfo.name customerInfo.city total status createdAt customerService').lean(),
     User.countDocuments({ role: 'customer', createdAt: { $gte: from, $lte: to } }),
+    User.aggregate([
+      { $match: { role: 'customer', createdAt: { $gte: from, $lte: to } } },
+      { $group: { _id: { $dateToString: { format: bucketFmt, date: '$createdAt' } }, count: { $sum: 1 } } },
+      { $sort: { _id: 1 } },
+    ]),
     Order.aggregate([
       { $match: { ...range, status: { $in: ['Cancelled', 'Refunded'] } } },
       { $group: { _id: { $ifNull: ['$cancelReason', 'Not specified'] }, count: { $sum: 1 } } },
@@ -148,7 +153,8 @@ router.get('/dashboard', asyncHandler(async (req, res) => {
     buckets.push({ key, label: weekly ? `Wk ${key.slice(5)}` : d.toLocaleDateString('en-US', { day: 'numeric', month: 'short' }) });
   }
   const dayMap = Object.fromEntries(dailySeries.map((d) => [d._id, d]));
-  const chart = buckets.map((b) => ({ date: b.key, label: b.label, orders: dayMap[b.key]?.orders || 0, revenue: dayMap[b.key]?.revenue || 0 }));
+  const customerDayMap = Object.fromEntries(customerSeries.map((d) => [d._id, d.count]));
+  const chart = buckets.map((b) => ({ date: b.key, label: b.label, orders: dayMap[b.key]?.orders || 0, revenue: dayMap[b.key]?.revenue || 0, customers: customerDayMap[b.key] || 0 }));
 
   // Fill 24 hours today
   const hourMap = Object.fromEntries(todayHourly.map((h) => [h._id, h.orders]));
