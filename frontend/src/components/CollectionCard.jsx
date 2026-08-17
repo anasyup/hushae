@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, ChevronLeft, ChevronRight, ShoppingBag } from 'lucide-react';
+import { pkr } from '../lib/format';
 import { titleCase } from '../lib/productMeta';
+import { isOnSale } from '../lib/sale';
 import { CARD_NAME, CARD_NAME_LINK, CARD_SUBTITLE, cardSubtitle, PriceRow, SwatchRow } from '../lib/cardType';
 import { useApp } from '../store/AppContext';
 import SizeModal from './SizeModal';
@@ -34,6 +36,7 @@ function CollectionCard({ product: p, priority = false, variant = 'bar', ratio =
   const [modal, setModal] = useState(false);
 
   const pill = variant === 'pill';
+  const minimal = variant === 'minimal';
   const images = (p.images || []).map(srcOf).filter(Boolean);
   const main = images[imgIdx] || images[0] || srcOf(p.image) || '';
 
@@ -95,6 +98,66 @@ function CollectionCard({ product: p, priority = false, variant = 'bar', ratio =
           </div>
         </div>
         {modal && <SizeModal product={p} onClose={() => setModal(false)} />}
+      </article>
+    );
+  }
+
+  /* ── MINIMAL VARIANT — client reference (Helvetica minimalist) ───── */
+  /* Pure minimal: 3/4 image on #f4f4f4, name 14/600 #000, price 14/400,
+     color swatches (14px circles, 1px #e0e0e0 border). No badges, no arrows,
+     no Buy Now — the whole card links to the product. */
+  if (minimal) {
+    const swatches = (p.colors || []).filter((c) => c && c.hex).slice(0, 4);
+    const minName = displayName(p.name) || 'Untitled';
+    const onSaleP = isOnSale(p);
+    return (
+      <article className="flex w-full min-w-0 cursor-pointer flex-col">
+        <Link
+          to={`/product/${p.slug}`}
+          tabIndex={-1}
+          aria-label={minName}
+          className="mb-3 block w-full overflow-hidden bg-[#f4f4f4]"
+          style={{ aspectRatio: '3 / 4' }}
+        >
+          <img
+            src={failed ? FALLBACK : (main || FALLBACK)}
+            alt={minName}
+            width="900" height="1200"
+            loading={priority ? 'eager' : 'lazy'}
+            onError={() => setFailed(true)}
+            className="h-full w-full object-cover"
+          />
+        </Link>
+
+        <div className="flex flex-col items-start">
+          <h3 className="mb-1 text-[14px] font-semibold tracking-[0.3px] text-[#000000]">
+            <Link to={`/product/${p.slug}`} className="transition-opacity hover:opacity-60">
+              {minName}
+            </Link>
+          </h3>
+          <p className="mb-3 flex items-center gap-2 text-[14px] font-normal text-[#000000]">
+            {soldOut ? 'Sold out' : (
+              <>
+                {onSaleP && p.compareAtPrice > p.price && (
+                  <span className="text-[13px] text-neutral-400 line-through">{pkr(p.compareAtPrice)}</span>
+                )}
+                <span>{pkr(p.price)}</span>
+              </>
+            )}
+          </p>
+          {swatches.length > 0 && (
+            <div className="flex gap-2">
+              {swatches.map((c, i) => (
+                <span
+                  key={`${c.name}-${i}`}
+                  className="inline-block h-[14px] w-[14px] rounded-full border border-[#e0e0e0]"
+                  style={{ backgroundColor: c.hex }}
+                  title={c.name}
+                />
+              ))}
+            </div>
+          )}
+        </div>
       </article>
     );
   }
