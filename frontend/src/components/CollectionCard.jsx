@@ -102,62 +102,112 @@ function CollectionCard({ product: p, priority = false, variant = 'bar', ratio =
     );
   }
 
-  /* ── MINIMAL VARIANT — client Sale-page reference ────────────────── */
-  /* 4/5 image on #f6f5f3 with a 1.02 hover zoom, UPPERCASE title
-     12px/700 ls 0.8px #111, price row: old struck #9ca3af 12px + current
-     600 #111 13px, 12px color circles with rgba(0,0,0,.1) border. No badges,
-     no arrows, no Buy Now — the whole card links to the product. */
+  /* ── MINIMAL VARIANT — client Sale-grid reference ─────────────────── */
+  /* Hairline full-bleed grid cell: 3/4.3 image on --pg-panel, hover image
+     swap (secondary crossfades in) + 1.015 zoom, top-left badge, clickable
+     colour swatches that switch the preview image, name 13px/500 sentence
+     case, price row muted with struck compare-at. The whole cell links to
+     the PDP; swatch buttons are real buttons nested outside the <a>. */
   if (minimal) {
-    const swatches = (p.colors || []).filter((c) => c && c.hex).slice(0, 4);
+    const swatches = (p.colors || []).filter((c) => c && c.hex).slice(0, 5);
     const minName = displayName(p.name) || 'Untitled';
     const onSaleP = isOnSale(p);
+    const second = images[1] || '';
+    const hasSwap = Boolean(second) && second !== main;
+    const minBadge = soldOut ? null
+      : onSaleP && p.compareAtPrice > p.price ? 'Sale'
+      : p.isNewArrival === true ? 'New'
+      : null;
+
     return (
-      <article className="flex w-full min-w-0 cursor-pointer flex-col">
+      <article className="group relative flex w-full min-w-0 flex-col bg-white">
         <Link
           to={`/product/${p.slug}`}
-          tabIndex={-1}
           aria-label={minName}
-          className="mb-3 block w-full overflow-hidden bg-[#f6f5f3]"
-          style={{ aspectRatio: '4 / 5' }}
+          className="relative block w-full overflow-hidden bg-[var(--pg-panel,#f5f4f2)]"
+          style={{ aspectRatio: '3 / 4.3' }}
         >
+          {minBadge && (
+            <span
+              className={`absolute left-[10px] top-[10px] z-[2] rounded-[2px] px-2 py-1 text-[10.5px] uppercase tracking-[0.04em] ${
+                minBadge === 'Sale' ? 'bg-[#141312] text-white' : 'bg-white text-[#141312]'
+              }`}
+            >
+              {minBadge}
+            </span>
+          )}
+          {soldOut && (
+            <span className="absolute left-[10px] top-[10px] z-[2] rounded-[2px] bg-white px-2 py-1 text-[10.5px] uppercase tracking-[0.04em] text-[#141312]">
+              Sold out
+            </span>
+          )}
+
           <img
             src={failed ? FALLBACK : (main || FALLBACK)}
             alt={minName}
             width="900" height="1200"
             loading={priority ? 'eager' : 'lazy'}
             onError={() => setFailed(true)}
-            className="h-full w-full object-cover transition-transform duration-300 ease-out group-hover:scale-[1.02]"
+            className={`absolute inset-0 h-full w-full object-cover transition-[opacity,transform] duration-500 ease-out motion-reduce:transition-none group-hover:scale-[1.015] ${
+              hasSwap ? 'group-hover:opacity-0' : ''
+            }`}
           />
+          {hasSwap && (
+            <img
+              src={second}
+              alt=""
+              aria-hidden="true"
+              width="900" height="1200"
+              loading="lazy"
+              className="absolute inset-0 h-full w-full object-cover opacity-0 transition-[opacity,transform] duration-500 ease-out motion-reduce:transition-none group-hover:scale-[1.015] group-hover:opacity-100"
+            />
+          )}
         </Link>
 
-        <div className="flex flex-col gap-1.5">
-          <h3 className="text-[12px] font-bold uppercase tracking-[0.8px] text-[#111111]">
+        <div className="px-[10px] pb-1 pt-[10px]">
+          {swatches.length > 0 && (
+            <div className="mb-2 flex h-[14px] items-center gap-1.5" role="group" aria-label={`Colours for ${minName}`}>
+              {swatches.map((c, i) => (
+                <button
+                  key={`${c.name}-${i}`}
+                  type="button"
+                  aria-label={c.name || `Colour ${i + 1}`}
+                  aria-pressed={swatchIdx === i}
+                  title={c.name}
+                  onClick={() => {
+                    setSwatchIdx(i);
+                    const ci = images.indexOf(srcOf(c.image) || '');
+                    if (ci >= 0) setImgIdx(ci);
+                  }}
+                  className="hit-24 relative h-3 w-3 shrink-0 rounded-full border border-black/[.12] after:rounded-full"
+                  style={{ backgroundColor: c.hex }}
+                >
+                  {swatchIdx === i && (
+                    <span className="pointer-events-none absolute -inset-[3px] rounded-full border border-[#141312]" aria-hidden="true" />
+                  )}
+                </button>
+              ))}
+            </div>
+          )}
+
+          <h3 className="mb-1 font-sans text-[13px] font-medium normal-case leading-snug tracking-normal text-[#141312]">
             <Link to={`/product/${p.slug}`} className="transition-opacity hover:opacity-60">
               {minName}
             </Link>
           </h3>
-          <p className="flex items-center gap-2 text-[13px]">
-            {soldOut ? <span className="text-[#111111]">Sold out</span> : (
+
+          <p className="flex flex-wrap items-baseline gap-2 text-[13px] text-[#83817a]">
+            {soldOut ? (
+              <span className="text-[#141312]">Sold out</span>
+            ) : (
               <>
                 {onSaleP && p.compareAtPrice > p.price && (
-                  <span className="text-[12px] text-[#9ca3af] line-through">{pkr(p.compareAtPrice)}</span>
+                  <span className="line-through opacity-60">{pkr(p.compareAtPrice)}</span>
                 )}
-                <span className="font-semibold text-[#111111]">{pkr(p.price)}</span>
+                <span className="text-[#141312]">{pkr(p.price)}</span>
               </>
             )}
           </p>
-          {swatches.length > 0 && (
-            <div className="flex gap-1.5 pt-0.5">
-              {swatches.map((c, i) => (
-                <span
-                  key={`${c.name}-${i}`}
-                  className="inline-block h-3 w-3 rounded-full border border-black/10"
-                  style={{ backgroundColor: c.hex }}
-                  title={c.name}
-                />
-              ))}
-            </div>
-          )}
         </div>
       </article>
     );

@@ -62,7 +62,7 @@ export default function SaleSplitBanner() {
   return (
     <section
       aria-label="Shop the sale by gender"
-      className="relative col-span-1 h-[100svh] w-screen overflow-hidden bg-[#111] min-[480px]:col-span-2 md:col-span-3 lg:col-span-4"
+      className="relative col-span-1 h-[100svh] w-full overflow-hidden bg-[#111] [grid-column:1/-1]"
       style={{ marginInline: 'calc(50% - 50vw)' }}
     >
       {/* Hairline divider — the seam between the two plates */}
