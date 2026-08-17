@@ -42,29 +42,29 @@
    Base #0e1116, cards #161b22, raised #1a2028, borders #232b36, text scale
    descending from near-white (#eef1f5 → muted #6b7686). */
 .dark-admin {
-  --tw-white: 22 27 34;     /* cards / panels */
-  --tw-black: 14 17 22;     /* page background */
-  --n50:  22 27 34;         /* card surface */
-  --n100: 26 32 40;         /* raised / hover */
-  --n200: 35 43 54;         /* selected / strong borders */
-  --n300: 47 57 71;         /* input borders */
-  --n400: 75 86 100;        /* disabled */
-  --n500: 107 118 134;      /* secondary text */
-  --n600: 152 162 179;      /* body text */
-  --n700: 184 192 205;      /* emphasized text */
-  --n800: 211 217 226;      /* headings */
-  --n900: 238 241 245;      /* strongest text */
-  --n950: 248 250 252;
+  --tw-white: 17 17 20;     /* cards / panels #111114 */
+  --tw-black: 10 10 12;     /* page background #0A0A0C */
+  --n50:  17 17 20;         /* card surface #111114 */
+  --n100: 23 23 27;         /* raised / hover #17171B */
+  --n200: 30 30 34;         /* selected / subtle borders */
+  --n300: 44 44 50;         /* input borders */
+  --n400: 66 66 74;         /* disabled */
+  --n500: 138 138 147;      /* muted text #8A8A93 */
+  --n600: 138 138 147;
+  --n700: 209 209 214;      /* secondary text #D1D1D6 */
+  --n800: 209 209 214;
+  --n900: 244 244 245;      /* primary text #F4F4F5 */
+  --n950: 244 244 245;
   /* QA tokens under dark admin — insurance so any component that inherits
      body colour/background stays dark-correct. */
-  --stone: 22 27 34;
-  --sand:  26 32 40;
-  --clay:  35 43 54;
-  --charcoal: 238 241 245;
-  --smoke: 152 162 179;
-  --gold:  201 169 110;
-  --bronze: 166 138 86;
-  --midnight: 14 17 22;
+  --stone: 10 10 12;
+  --sand:  17 17 20;
+  --clay:  30 30 34;
+  --charcoal: 244 244 245;
+  --smoke: 138 138 147;
+  --gold:  108 92 231;      /* accent #6C5CE7 (one accent) */
+  --bronze: 91 79 233;      /* accent-deep #5B4FE9 */
+  --midnight: 10 10 12;
 }
 
 /* ════════════════════════════════════════════════════════════════════════
@@ -790,28 +790,28 @@
 }
 
 .dark-admin {
-  --px-bg-page:      #1A1A1A;
-  --px-bg-sidebar:   #1F1F1F;
-  --px-bg-card:      #242424;
-  --px-bg-hover:     #2E2E2E;
-  --px-border:       rgba(255,255,255,0.08);
-  --px-border-strong:rgba(255,255,255,0.16);
-  --px-ink:          #F6F6F7;
-  --px-secondary:    #E3E3E5;
-  --px-muted:        #A0A0A0;
-  --px-faint:        #8C8C8C;
-  --px-accent:       #00A97E;
-  --px-accent-hover: #00B58A;
-  --px-accent-soft-bg: rgba(0,160,112,0.18);
-  --px-accent-soft-text: #7AE0B8;
-  --px-primary:      #F6F6F7;
+  --px-bg-page:      #0A0A0C;   /* flagship dark page */
+  --px-bg-sidebar:   #0E0E11;
+  --px-bg-card:      #111114;
+  --px-bg-hover:     #17171B;
+  --px-border:       rgba(255,255,255,0.06);
+  --px-border-strong:rgba(255,255,255,0.10);
+  --px-ink:          #F4F4F5;
+  --px-secondary:    #D1D1D6;
+  --px-muted:        #8A8A93;
+  --px-faint:        #6E6E76;
+  --px-accent:       #6C5CE7;   /* flagship purple */
+  --px-accent-hover: #7C6CF0;
+  --px-accent-soft-bg: rgba(124,108,240,0.15);
+  --px-accent-soft-text: #B8AEFC;
+  --px-primary:      #F4F4F5;
   --px-primary-hover:#FFFFFF;
   --px-success: #4ADE80;
   --px-warning: #F0B429;
   --px-danger:  #F87171;
-  --px-info:    #60A5FA;
+  --px-info:    #A5B4FC;
   --px-shadow-card: none;
-  --px-shadow-pop:  0 12px 40px -8px rgba(0,0,0,0.5);
+  --px-shadow-pop:  0 12px 40px -8px rgba(0,0,0,0.6);
 }
 
 /* INTER — self-hosted variable font (400–700). Admin body face. */

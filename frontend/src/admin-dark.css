@@ -1,18 +1,15 @@
 /* ============================================================================
- * ADMIN DARK MODE — applied when <html class="dark-admin"> is present.
- * Toggle lives in the admin TopBar (Moon/Sun button, saved in localStorage).
+ * ADMIN DARK MODE — FLAGSHIP DARK (Linear/Vercel register).
+ * Applied when <html class="dark-admin"> is present (default).
  *
- * v3 — CSS-variable based.
- *   The neutral/white/black palette now comes from CSS variables swapped in
- *   index.css (:root vs .dark-admin). Every `bg-white`, `text-neutral-*`,
- *   `border-neutral-*`, `ring-neutral-*` across the admin picks the dark
- *   palette automatically — no !important override needed for those.
- *
- * This file only handles what variables CANNOT:
- *   · the sidebar / topbar chrome (custom colours)
+ * The neutral/white/black palette comes from CSS variables swapped in
+ * index.css (:root light vs .dark-admin flagship dark). Every bg-white,
+ * text-neutral-*, border-neutral-* across the admin picks the dark palette
+ * automatically. This file only handles what variables CANNOT:
+ *   · the sidebar / topbar chrome
  *   · Recharts (inline SVG attributes)
  *   · status badges (tinted colours)
- *   · a few screens with hardcoded hex fills
+ *   · hardcoded hex fills on a few screens
  *   · scrollbars
  * ========================================================================== */
 
@@ -20,122 +17,124 @@
   color-scheme: dark;
 }
 
-/* ── Admin shell wrapper (hardcoded light gray) → page background ────────── */
-.dark-admin .admin-shell { background: #1A1A1A !important; }
+/* ── Admin shell wrapper → page background ──────────────────────────────── */
+.dark-admin .admin-shell { background: #0A0A0C !important; }
 
 /* ── Sidebar chrome ─────────────────────────────────────────────────────── */
 .dark-admin aside,
 .dark-admin .admin-shell aside,
 .dark-admin [class*="sidebar"] {
-  background: #1F1F1F !important;
-  border-color: rgba(255,255,255,0.08) !important;
+  background: #0E0E11 !important;
+  border-color: rgba(255, 255, 255, 0.06) !important;
 }
 .dark-admin aside a,
 .dark-admin aside span,
 .dark-admin aside button {
-  color: #A0A0A0 !important;
+  color: #8A8A93 !important;
 }
-.dark-admin aside a:hover,
-.dark-admin aside a.active {
-  background: #2E2E2E !important;
-  color: #F6F6F7 !important;
+.dark-admin aside a:hover {
+  background: rgba(255, 255, 255, 0.04) !important;
+  color: #D1D1D6 !important;
 }
 
 /* ── TopBar chrome ──────────────────────────────────────────────────────── */
 .dark-admin header,
 .dark-admin .sticky.top-0 {
-  background: rgba(31, 31, 31, 0.95) !important;
-  border-color: rgba(255,255,255,0.08) !important;
+  background: rgba(10, 10, 12, 0.92) !important;
+  border-color: rgba(255, 255, 255, 0.06) !important;
 }
-.dark-admin .bg-\[#F4F6F8\] { background-color: #1A1A1A !important; }
-.dark-admin .bg-\[#f4f6f8\] { background-color: #1A1A1A !important; }
-.dark-admin .bg-\[#EBEBEB\] { background-color: #1F1F1F !important; }
-.dark-admin .bg-\[#ebebeb\] { background-color: #1F1F1F !important; }
+.dark-admin .bg-\[\#F4F6F8\] { background-color: #0A0A0C !important; }
+.dark-admin .bg-\[\#f4f6f8\] { background-color: #0A0A0C !important; }
+.dark-admin .bg-\[\#EBEBEB\] { background-color: #0E0E11 !important; }
+.dark-admin .bg-\[\#ebebeb\] { background-color: #0E0E11 !important; }
+.dark-admin .bg-\[\#F3EFE7\] { background-color: #0E0E11 !important; }
+.dark-admin .bg-\[\#f3efe7\] { background-color: #0E0E11 !important; }
 
 /* ── Hardcoded light fills used in a few screens ────────────────────────── */
-.dark-admin .bg-\[#F1F1F1\] { background-color: #1a2028 !important; }
-.dark-admin .bg-\[#F1EEE8\] { background-color: #1a2028 !important; }
-.dark-admin .bg-\[#ECEBE8\] { background-color: #1a2028 !important; }
-.dark-admin .bg-\[#E5E2DD\] { background-color: #1a2028 !important; }
-.dark-admin .bg-\[#E5E7EB\] { background-color: #232b36 !important; }
-.dark-admin .bg-\[#e5e7eb\] { background-color: #232b36 !important; }
-.dark-admin .bg-\[#f6dfc4\] { background-color: rgba(245,158,11,0.14) !important; }
+.dark-admin .bg-\[\#F1F1F1\] { background-color: #17171B !important; }
+.dark-admin .bg-\[\#F1EEE8\] { background-color: #17171B !important; }
+.dark-admin .bg-\[\#ECEBE8\] { background-color: #17171B !important; }
+.dark-admin .bg-\[\#E5E2DD\] { background-color: #17171B !important; }
+.dark-admin .bg-\[\#E5E7EB\] { background-color: #1E1E22 !important; }
+.dark-admin .bg-\[\#e5e7eb\] { background-color: #1E1E22 !important; }
+.dark-admin .bg-\[\#f6dfc4\] { background-color: rgba(240, 180, 41, 0.14) !important; }
 
-/* ── Status badges / pills (dark tints) ─────────────────────────────────── */
-.dark-admin .bg-emerald-50  { background-color: rgba(16,185,129,0.14) !important; }
-.dark-admin .bg-emerald-100 { background-color: rgba(16,185,129,0.24) !important; }
-.dark-admin .bg-red-50      { background-color: rgba(239,68,68,0.14) !important; }
-.dark-admin .bg-red-100     { background-color: rgba(239,68,68,0.24) !important; }
-.dark-admin .bg-amber-50    { background-color: rgba(245,158,11,0.14) !important; }
-.dark-admin .bg-amber-100   { background-color: rgba(245,158,11,0.24) !important; }
-.dark-admin .bg-sky-50      { background-color: rgba(14,165,233,0.14) !important; }
-.dark-admin .bg-sky-100     { background-color: rgba(14,165,233,0.24) !important; }
-.dark-admin .bg-purple-50   { background-color: rgba(168,85,247,0.14) !important; }
-.dark-admin .bg-purple-100  { background-color: rgba(168,85,247,0.24) !important; }
-.dark-admin .bg-blue-50     { background-color: rgba(59,130,246,0.14) !important; }
-.dark-admin .bg-blue-100    { background-color: rgba(59,130,246,0.24) !important; }
-.dark-admin .bg-cyan-100    { background-color: rgba(6,182,212,0.24) !important; }
-.dark-admin .bg-orange-100  { background-color: rgba(249,115,22,0.24) !important; }
-.dark-admin .bg-indigo-50   { background-color: rgba(99,102,241,0.14) !important; }
-.dark-admin .bg-slate-50    { background-color: #1a2028 !important; }
+/* ── Status badges / pills — soft-fill (12-15% opacity of status colour) ── */
+.dark-admin .bg-emerald-50  { background-color: rgba(74, 222, 128, 0.14) !important; }
+.dark-admin .bg-emerald-100 { background-color: rgba(74, 222, 128, 0.22) !important; }
+.dark-admin .bg-red-50      { background-color: rgba(248, 113, 113, 0.14) !important; }
+.dark-admin .bg-red-100     { background-color: rgba(248, 113, 113, 0.22) !important; }
+.dark-admin .bg-amber-50    { background-color: rgba(240, 180, 41, 0.14) !important; }
+.dark-admin .bg-amber-100   { background-color: rgba(240, 180, 41, 0.22) !important; }
+.dark-admin .bg-sky-50      { background-color: rgba(108, 92, 231, 0.14) !important; }
+.dark-admin .bg-sky-100     { background-color: rgba(108, 92, 231, 0.22) !important; }
+.dark-admin .bg-purple-50   { background-color: rgba(108, 92, 231, 0.14) !important; }
+.dark-admin .bg-purple-100  { background-color: rgba(108, 92, 231, 0.22) !important; }
+.dark-admin .bg-blue-50     { background-color: rgba(108, 92, 231, 0.14) !important; }
+.dark-admin .bg-blue-100    { background-color: rgba(108, 92, 231, 0.22) !important; }
+.dark-admin .bg-cyan-100    { background-color: rgba(108, 92, 231, 0.22) !important; }
+.dark-admin .bg-orange-100  { background-color: rgba(240, 180, 41, 0.22) !important; }
+.dark-admin .bg-indigo-50   { background-color: rgba(108, 92, 231, 0.14) !important; }
+.dark-admin .bg-slate-50    { background-color: #17171B !important; }
 
-.dark-admin .text-emerald-700 { color: #34d399 !important; }
-.dark-admin .text-emerald-800 { color: #6ee7b7 !important; }
-.dark-admin .text-red-700     { color: #f87171 !important; }
-.dark-admin .text-red-800     { color: #fca5a5 !important; }
-.dark-admin .text-amber-700   { color: #fbbf24 !important; }
-.dark-admin .text-amber-800   { color: #fcd34d !important; }
-.dark-admin .text-sky-700     { color: #38bdf8 !important; }
-.dark-admin .text-sky-800     { color: #7dd3fc !important; }
-.dark-admin .text-blue-700    { color: #60a5fa !important; }
-.dark-admin .text-blue-800    { color: #93c5fd !important; }
-.dark-admin .text-purple-700  { color: #a78bfa !important; }
-.dark-admin .text-purple-800  { color: #c4b5fd !important; }
-.dark-admin .text-green-600   { color: #34d399 !important; }
-.dark-admin .text-red-600     { color: #f87171 !important; }
-.dark-admin .text-amber-600   { color: #fbbf24 !important; }
-.dark-admin .text-sky-600     { color: #38bdf8 !important; }
-.dark-admin .text-orange-600  { color: #fb923c !important; }
-.dark-admin .text-cyan-600    { color: #22d3ee !important; }
+.dark-admin .text-emerald-700 { color: #4ADE80 !important; }
+.dark-admin .text-emerald-800 { color: #4ADE80 !important; }
+.dark-admin .text-red-700     { color: #F87171 !important; }
+.dark-admin .text-red-800     { color: #F87171 !important; }
+.dark-admin .text-amber-700   { color: #F0B429 !important; }
+.dark-admin .text-amber-800   { color: #F0B429 !important; }
+.dark-admin .text-sky-700     { color: #B8AEFC !important; }
+.dark-admin .text-sky-800     { color: #B8AEFC !important; }
+.dark-admin .text-blue-700    { color: #B8AEFC !important; }
+.dark-admin .text-blue-800    { color: #B8AEFC !important; }
+.dark-admin .text-purple-700  { color: #B8AEFC !important; }
+.dark-admin .text-purple-800  { color: #B8AEFC !important; }
+.dark-admin .text-green-600   { color: #4ADE80 !important; }
+.dark-admin .text-red-600     { color: #F87171 !important; }
+.dark-admin .text-amber-600   { color: #F0B429 !important; }
+.dark-admin .text-sky-600     { color: #B8AEFC !important; }
+.dark-admin .text-orange-600  { color: #F0B429 !important; }
+.dark-admin .text-cyan-600    { color: #B8AEFC !important; }
 
-.dark-admin .ring-neutral-200 { --tw-ring-color: #232b36 !important; }
-.dark-admin .ring-emerald-200 { --tw-ring-color: rgba(16,185,129,0.35) !important; }
-.dark-admin .ring-red-200     { --tw-ring-color: rgba(239,68,68,0.35) !important; }
-.dark-admin .ring-amber-200   { --tw-ring-color: rgba(245,158,11,0.35) !important; }
-.dark-admin .ring-blue-200    { --tw-ring-color: rgba(59,130,246,0.35) !important; }
+.dark-admin .ring-neutral-200 { --tw-ring-color: rgba(255,255,255,0.06) !important; }
+.dark-admin .ring-emerald-200 { --tw-ring-color: rgba(74, 222, 128, 0.35) !important; }
+.dark-admin .ring-red-200     { --tw-ring-color: rgba(248, 113, 113, 0.35) !important; }
+.dark-admin .ring-amber-200   { --tw-ring-color: rgba(240, 180, 41, 0.35) !important; }
+.dark-admin .ring-blue-200    { --tw-ring-color: rgba(108, 92, 231, 0.35) !important; }
 
 /* ── Recharts (SVG inline attrs) ────────────────────────────────────────── */
 .dark-admin .recharts-cartesian-grid line {
-  stroke: #232b36 !important;
+  stroke: rgba(255, 255, 255, 0.06) !important;
 }
 .dark-admin .recharts-cartesian-axis-tick text,
 .dark-admin .recharts-text,
 .dark-admin .recharts-polar-angle-axis-tick text {
-  fill: #6b7686 !important;
+  fill: #8A8A93 !important;
 }
 .dark-admin .recharts-default-tooltip,
 .dark-admin .recharts-tooltip-wrapper {
-  background-color: #161b22 !important;
-  border-color: #2f3947 !important;
+  background-color: #111114 !important;
+  border-color: rgba(255, 255, 255, 0.10) !important;
 }
 .dark-admin .recharts-default-tooltip .recharts-tooltip-label,
 .dark-admin .recharts-default-tooltip .recharts-tooltip-item {
-  color: #d3d9e2 !important;
+  color: #D1D1D6 !important;
 }
 .dark-admin .recharts-tooltip-cursor {
-  fill: rgba(255,255,255,0.05) !important;
+  fill: rgba(255, 255, 255, 0.05) !important;
 }
 .dark-admin .recharts-legend-item-text {
-  color: #A0A0A0 !important;
+  color: #8A8A93 !important;
 }
 
-/* ── KPI accent text + tinted icon bubbles (inline styles) ──────────────── */
-.dark-admin [style*="color: #111111"] { color: #eef1f5 !important; }
-.dark-admin [style*="color: #0D0D0D"] { color: #eef1f5 !important; }
-.dark-admin [style*="color: #0d0d0d"] { color: #eef1f5 !important; }
+/* ── Legacy inline dark-ink overrides → primary text ────────────────────── */
+.dark-admin [style*="color: #111111"] { color: #F4F4F5 !important; }
+.dark-admin [style*="color: #0D0D0D"] { color: #F4F4F5 !important; }
+.dark-admin [style*="color: #0d0d0d"] { color: #F4F4F5 !important; }
+.dark-admin [style*="color: #1A1815"] { color: #F4F4F5 !important; }
 .dark-admin [style*="background: #11111114"],
 .dark-admin [style*="background: #0d0d0d14"] {
-  background-color: rgba(255,255,255,0.08) !important;
+  background-color: rgba(255, 255, 255, 0.08) !important;
 }
 
 /* ── Scrollbars ─────────────────────────────────────────────────────────── */
@@ -144,12 +143,13 @@
   height: 10px;
 }
 .dark-admin ::-webkit-scrollbar-track {
-  background: #1A1A1A;
+  background: #0A0A0C;
 }
 .dark-admin ::-webkit-scrollbar-thumb {
-  background: #2f3947;
+  background: rgba(255, 255, 255, 0.10);
   border-radius: 6px;
 }
 .dark-admin ::-webkit-scrollbar-thumb:hover {
-  background: #4b5664;
+  background: rgba(255, 255, 255, 0.18);
 }
+
