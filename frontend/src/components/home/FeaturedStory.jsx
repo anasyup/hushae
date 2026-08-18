@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { ArrowUpRight } from 'lucide-react';
 import SectionHeader from '../SectionHeader';
+import { SIZES, pictureSources } from '../../lib/responsiveImage';
 
 /* ============================================================================
  * FeaturedStory — HUSHAE's signature full-bleed campaign moment.
@@ -39,13 +40,26 @@ export default function FeaturedStory() {
         <div className="grid grid-cols-1 gap-x-8 gap-y-10 md:grid-cols-12 md:gap-x-12 md:gap-y-0">
           {/* Photo — 7 cols on desktop / 5 on tablet / full on mobile */}
           <div className="relative aspect-[4/5] overflow-hidden bg-[#f0f0f0] md:aspect-auto md:col-span-7 md:min-h-[600px] lg:min-h-[680px]">
-            <img
-              src={FEATURED.image}
-              alt={FEATURED.imageAlt}
-              loading="lazy"
-              decoding="async"
-              className="absolute inset-0 h-full w-full object-cover transition-transform duration-1000 ease-out hover:scale-[1.02]"
-            />
+            {(() => {
+              const sources = pictureSources(FEATURED.image);
+              const img = (
+                <img
+                  src={FEATURED.image}
+                  alt={FEATURED.imageAlt}
+                  loading="lazy"
+                  decoding="async"
+                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out hover:scale-[1.02]"
+                />
+              );
+              return sources.length ? (
+                <picture className="block h-full w-full">
+                  {sources.map((s) => (
+                    <source key={s.type} type={s.type} srcSet={s.srcSet} sizes={SIZES.tile} />
+                  ))}
+                  {img}
+                </picture>
+              ) : img;
+            })()}
             <div className="absolute bottom-4 left-4 right-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs font-medium uppercase tracking-label text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.45)] md:bottom-6 md:left-6 md:right-6">
               {FEATURED.meta.map((m, i) => (
                 <span key={m} className="inline-flex items-center gap-4">

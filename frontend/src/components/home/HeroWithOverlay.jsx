@@ -1,23 +1,20 @@
 import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { SIZES, pictureSources } from '../../lib/responsiveImage';
 
 /* ============================================================================
  * HeroWithOverlay — CK monochrome luxury hero with cinematic caption overlay.
  *
- * THE SERIF MOMENT
- *
+ * THE SERIF MOMENT (Fraunces on H1)
  * HUSHAE uses two families: Jost (sans, workhorse) and Fraunces (serif,
  * reserved). The hero H1 is the ONE moment on the storefront where the
  * serif appears. Negative tracking (-0.005em) tightens it into display
- * register, and the clamp() size ladder takes it from 48px mobile to 72px
- * desktop — a 1.5x scale that the rest of the page deliberately avoids.
+ * register, and the clamp sizes it from 52px mobile to 96px desktop —
+ * a commanding editorial scale the rest of the page deliberately avoids.
  *
- * Every luxury house has a single signature typography move. This is ours.
- *
- * CALVIN KLEIN PRINCIPLE: one campaign, one headline, one primary CTA.
- * We render 4 slides but always with the SAME campaign overlay — every slide
- * is a different studio crop of the same collection, never different products.
+ * Responsive images via <picture> AVIF/WebP allow the LCP candidate hero
+ * to load the smallest possible file for the viewport.
  * ========================================================================== */
 
 const SLIDES = [
@@ -47,19 +44,37 @@ export default function HeroWithOverlay() {
           aria-hidden={i !== idx}
           className={`absolute inset-0 transition-opacity duration-[900ms] ease-in-out ${i === idx ? 'opacity-100' : 'opacity-0'}`}
         >
-          <img
-            src={s.src}
-            alt="HUSHAE — premium innerwear, made in Pakistan"
-            fetchpriority={i === 0 ? 'high' : 'auto'}
-            loading={i === 0 ? 'eager' : 'lazy'}
-            decoding="async"
-            className="h-full w-full object-cover object-center"
-          />
+          {/*
+            AVIF/WebP <picture> for hero image — the LCP candidate.
+            Falls back to JPEG for legacy browsers.
+            `pictureSources` returns empty array if no optimized variant exists,
+            in which case a plain <img> is rendered.
+          */}
+          {(() => {
+            const sources = pictureSources(s.src);
+            const img = (
+              <img
+                src={s.src}
+                alt="HUSHAE — premium innerwear, made in Pakistan"
+                fetchpriority={i === 0 ? 'high' : 'auto'}
+                loading={i === 0 ? 'eager' : 'lazy'}
+                decoding="async"
+                className="h-full w-full object-cover object-center"
+              />
+            );
+            return sources.length ? (
+              <picture className="block h-full w-full">
+                {sources.map((src) => (
+                  <source key={src.type} type={src.type} srcSet={src.srcSet} sizes={SIZES.hero} />
+                ))}
+                {img}
+              </picture>
+            ) : img;
+          })()}
         </div>
       ))}
 
-      {/* Graduated bottom scrim — gives the caption block legibility without
-          darkening the whole frame. Reads as natural light, not a UI overlay. */}
+      {/* Graduated bottom scrim */}
       <div
         aria-hidden="true"
         className="absolute inset-x-0 bottom-0 h-1/2 md:h-2/5"
@@ -69,37 +84,40 @@ export default function HeroWithOverlay() {
         }}
       />
 
-      {/* Campaign caption — pinned bottom-left.
-          Stays off the centre so the photography keeps every edge. */}
+      {/* Campaign caption — bottom-left pinned */}
       <div className="absolute inset-x-0 bottom-0 z-10 px-5 pb-12 pt-10 text-white md:px-16 md:pb-20 md:pt-16 lg:px-20 lg:pb-24 lg:pt-20">
-        <div className="max-w-[640px]">
+        <div className="max-w-[680px]">
           <p className="text-xs font-medium uppercase tracking-eyebrow text-white/80">
             — The Daily Edit
           </p>
 
-          {/* THE SERIF MOMENT — Fraunces, display tracking-tight */}
-          <h1 className="mt-4 font-serif text-3xl font-light leading-[1.02] tracking-tight text-white md:text-3xl lg:text-3xl">
+          {/* THE SERIF MOMENT — Fraunces, display tracking-tight, editorial scale.
+              Size ladder: 52px mobile → 80px tablet → 96px desktop. The editorial
+              paragraph below gives context; the H1 does not need to describe the
+              brand. */}
+          <h1 className="mt-4 font-serif text-[3.25rem] font-light leading-[0.98] tracking-tight text-white md:text-[5rem] lg:text-[6rem]">
             Second Skin.
             <br />
-            <span className="font-light text-white/90">For every day.</span>
+            <span className="font-light text-white/85">For every day.</span>
           </h1>
 
-          <p className="mt-5 max-w-[40ch] text-md font-normal leading-[1.6] text-white/85 md:mt-6 md:max-w-[44ch] md:text-lg md:leading-[1.65]">
-            Crafted in Pakistan. Finished to an international standard. A four-piece wardrobe for the parts of you no one else sees.
+          <p className="mt-5 max-w-[40ch] text-md font-normal leading-[1.6] text-white/80 md:mt-6 md:max-w-[44ch] md:text-lg md:leading-[1.65]">
+            Crafted in Pakistan. Finished to an international standard.
+            A four-piece wardrobe for the parts of you no one else sees.
           </p>
 
-          {/* CTAs — ONE primary action, ONE quiet affordance */}
-          <div className="mt-7 flex flex-wrap items-center gap-3 md:mt-10 md:gap-4">
+          {/* CTAs — differentiated weight: primary is white button, secondary is hairline */}
+          <div className="mt-7 flex flex-wrap items-center gap-3 md:mt-10 md:gap-5">
             <Link
               to="/shop"
-              className="inline-flex min-h-[48px] items-center justify-center gap-2 bg-white px-7 text-xs font-medium uppercase tracking-label text-black transition-colors duration-300 hover:bg-white/85 md:min-h-[52px] md:px-9"
+              className="inline-flex min-h-[52px] items-center justify-center gap-2 bg-white px-8 text-xs font-medium uppercase tracking-label text-black transition-colors duration-300 hover:bg-white/85 md:px-10"
             >
               Shop the Edit
               <span aria-hidden="true">→</span>
             </Link>
             <Link
               to="/new"
-              className="inline-flex min-h-[48px] items-center gap-2 border-b border-white/70 pb-1 text-xs font-medium uppercase tracking-label text-white transition-colors duration-300 hover:border-white md:min-h-[52px]"
+              className="inline-flex min-h-[52px] items-center gap-2 border-b border-white/50 pb-1.5 text-xs font-medium uppercase tracking-label text-white/80 transition-colors duration-300 hover:border-white hover:text-white md:pb-2"
             >
               New Arrivals
               <span aria-hidden="true">→</span>
@@ -108,7 +126,7 @@ export default function HeroWithOverlay() {
         </div>
       </div>
 
-      {/* Slide arrows — luxury hairline circle */}
+      {/* Slide arrows */}
       <button
         type="button"
         onClick={() => setIdx((i) => (i - 1 + SLIDES.length) % SLIDES.length)}

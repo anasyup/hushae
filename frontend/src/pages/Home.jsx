@@ -220,17 +220,17 @@ export default function Home() {
       <TrustStrip />
 
       {/* 03 — DISCOVER — editorial gateway */}
-      <ScrollReveal delay={100}>
+      <ScrollReveal delay={80}>
         <DiscoverTiles />
       </ScrollReveal>
 
       {/* 04 — STUDIO CATEGORY SHOWCASE */}
-      <ScrollReveal delay={150}>
+      <ScrollReveal delay={120}>
         <LuxuryCategoryShowcase />
       </ScrollReveal>
 
       {/* 05 — FIT FINDER BANNER — full-bleed black band */}
-      <ScrollReveal delay={170}>
+      <ScrollReveal delay={160}>
         <FitFinderBanner />
       </ScrollReveal>
 
@@ -241,22 +241,22 @@ export default function Home() {
       </ScrollReveal>
 
       {/* 07 — EDITORIAL SPLIT (Loro Piana) */}
-      <ScrollReveal delay={300}>
+      <ScrollReveal delay={280}>
         <EditorialSplitSection />
       </ScrollReveal>
 
       {/* 08 — BRAND STORY — HUSHAE's origin editorial moment */}
-      <ScrollReveal delay={350}>
+      <ScrollReveal delay={320}>
         <BrandStory />
       </ScrollReveal>
 
       {/* 09 — FEATURED STORY — Modal Series signature campaign */}
-      <ScrollReveal delay={360}>
+      <ScrollReveal delay={340}>
         <FeaturedStory />
       </ScrollReveal>
 
       {/* 10 — OBJECTS OF DESIRE (centred header pattern) */}
-      <ScrollReveal delay={380}>
+      <ScrollReveal delay={360}>
         <ProductCarouselSection
           title="Objects of Desire"
           subtitle="CURATED SELECTION"
@@ -267,7 +267,7 @@ export default function Home() {
       </ScrollReveal>
 
       {/* 11 — CUSTOMER TESTIMONIAL */}
-      <ScrollReveal delay={420}>
+      <ScrollReveal delay={400}>
         <CustomerTestimonial />
       </ScrollReveal>
 
@@ -275,7 +275,7 @@ export default function Home() {
       <JournalTeaser limit={3} />
 
       {/* 13 — NEWSLETTER */}
-      <ScrollReveal delay={460}>
+      <ScrollReveal delay={440}>
         <NewsletterSection />
       </ScrollReveal>
     </div>
