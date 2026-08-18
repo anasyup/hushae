@@ -37,10 +37,10 @@ const CATEGORIES = [
    Auto-advances every 4s, pauses on hover/focus; thin dots for manual
    selection. No new action buttons, no filters — everything else unchanged. */
 const HERO_SLIDES = [
-  { image: `${IMG}/hero-slide-1.jpg`, video: '' },
-  { image: `${IMG}/hero-slide-2.jpg`, video: '' },
-  { image: `${IMG}/hero-slide-3.jpg`, video: '' },
-  { image: `${IMG}/hero-slide-4.jpg`, video: '' },
+  { image: `${IMG}/hero-new-1.jpg`, video: '' },
+  { image: `${IMG}/hero-new-2.jpg`, video: '' },
+  { image: `${IMG}/hero-new-3.jpg`, video: '' },
+  { image: `${IMG}/hero-new-4.jpg`, video: '' },
 ];
 
 function HeroSlides() {
