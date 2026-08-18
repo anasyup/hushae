@@ -363,4 +363,43 @@ router.patch('/tax/:id', asyncHandler(async (req, res) => {
   res.json({ zone: z });
 }));
 
+/* ── Launchpad (schedule + activate sale windows) ───────────── */
+const CampaignLaunch = require('../models/CampaignLaunch');
+
+router.get('/launches', asyncHandler(async (_req, res) => {
+  res.json({ launches: await CampaignLaunch.find({}).sort({ createdAt: -1 }).limit(40).lean() });
+}));
+router.post('/launches', asyncHandler(async (req, res) => {
+  const row = await CampaignLaunch.create(req.body || {});
+  res.status(201).json({ launch: row });
+}));
+router.post('/launches/:id/go-live', asyncHandler(async (req, res) => {
+  const row = await CampaignLaunch.findById(req.params.id);
+  if (!row) return res.status(404).json({ message: 'Launch not found' });
+  if (row.productIds?.length) {
+    await Product.updateMany(
+      { _id: { $in: row.productIds } },
+      { $set: { onSale: true, saleStart: row.startsAt || new Date(), saleEnd: row.endsAt || null } },
+    );
+  }
+  row.status = 'live';
+  row.launchedAt = new Date();
+  await row.save();
+  res.json({ launch: row });
+}));
+router.post('/launches/:id/end', asyncHandler(async (req, res) => {
+  const row = await CampaignLaunch.findById(req.params.id);
+  if (!row) return res.status(404).json({ message: 'Launch not found' });
+  if (row.productIds?.length) {
+    await Product.updateMany(
+      { _id: { $in: row.productIds } },
+      { $set: { onSale: false, saleEnd: new Date() } },
+    );
+  }
+  row.status = 'ended';
+  row.endedAt = new Date();
+  await row.save();
+  res.json({ launch: row });
+}));
+
 module.exports = router;

@@ -13,6 +13,7 @@ const TABS = [
   ['risk', 'Risk'],
   ['ship', 'Shipping'],
   ['tax', 'Tax'],
+  ['launch', 'Launchpad'],
 ];
 
 export default function CommerceOps({ start = 'overview' }) {
@@ -45,6 +46,7 @@ export default function CommerceOps({ start = 'overview' }) {
       {tab === 'risk' && <Risk token={token} toast={toast} />}
       {tab === 'ship' && <Shipping token={token} toast={toast} />}
       {tab === 'tax' && <Tax token={token} toast={toast} />}
+      {tab === 'launch' && <Launchpad token={token} toast={toast} />}
     </AdminLayout>
   );
 }
@@ -531,6 +533,75 @@ function Stat({ label, value }) {
     </div>
   );
 }
+function Launchpad({ token, toast }) {
+  const [list, setList] = useState([]);
+  const [products, setP] = useState([]);
+  const [f, setF] = useState({ name: '', startsAt: '', endsAt: '', discountCode: '', bannerNote: '', productIds: [] });
+  const load = () => {
+    api('/ops/launches', { token }).then((d) => setList(d.launches || [])).catch(() => {});
+    api('/products/admin/list', { token }).then((d) => setP((d.products || []).slice(0, 80))).catch(() => {});
+  };
+  useEffect(load, [token]);
+  const save = async (e) => {
+    e.preventDefault();
+    try {
+      await api('/ops/launches', {
+        method: 'POST', token,
+        body: {
+          ...f,
+          startsAt: f.startsAt ? new Date(f.startsAt).toISOString() : null,
+          endsAt: f.endsAt ? new Date(f.endsAt).toISOString() : null,
+        },
+      });
+      toast('Launch saved as draft'); load();
+    } catch (ex) { toast(ex.message); }
+  };
+  const go = async (id, path) => {
+    try { await api(`/ops/launches/${id}/${path}`, { method: 'POST', token, body: {} }); load(); }
+    catch (ex) { toast(ex.message); }
+  };
+  const toggleP = (id) => setF((x) => ({
+    ...x,
+    productIds: x.productIds.includes(id) ? x.productIds.filter((i) => i !== id) : [...x.productIds, id],
+  }));
+  return (
+    <div className="grid gap-4 lg:grid-cols-2">
+      <Card title="New campaign (draft → live → end)">
+        <form onSubmit={save} className="space-y-2">
+          <input className="input" placeholder="BLACK FRIDAY" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} required />
+          <input className="input" type="datetime-local" value={f.startsAt} onChange={(e) => setF({ ...f, startsAt: e.target.value })} />
+          <input className="input" type="datetime-local" value={f.endsAt} onChange={(e) => setF({ ...f, endsAt: e.target.value })} />
+          <input className="input" placeholder="Coupon code (optional)" value={f.discountCode} onChange={(e) => setF({ ...f, discountCode: e.target.value })} />
+          <input className="input" placeholder="Banner note" value={f.bannerNote} onChange={(e) => setF({ ...f, bannerNote: e.target.value })} />
+          <div className="max-h-40 overflow-auto rounded-lg border border-neutral-200 p-2 text-[12px]">
+            {products.map((p) => (
+              <label key={p._id} className="flex items-center gap-2 py-0.5">
+                <input type="checkbox" checked={f.productIds.includes(p._id)} onChange={() => toggleP(p._id)} />
+                {p.name}
+              </label>
+            ))}
+          </div>
+          <button className="btn-primary w-full" type="submit">Save draft</button>
+        </form>
+      </Card>
+      <Card title="Launches">
+        <ul className="space-y-3 text-[13px]">
+          {list.map((l) => (
+            <li key={l._id} className="rounded-lg border border-neutral-100 p-3">
+              <p className="font-semibold">{l.name} · {l.status}</p>
+              <p className="text-[12px] text-neutral-500">{l.productIds?.length || 0} products · {l.discountCode || 'no coupon'}</p>
+              <div className="mt-2 flex gap-2">
+                {l.status !== 'live' && l.status !== 'ended' && <button type="button" className="btn-outline" onClick={() => go(l._id, 'go-live')}>Go live (sale on)</button>}
+                {l.status === 'live' && <button type="button" className="btn-outline" onClick={() => go(l._id, 'end')}>End (sale off)</button>}
+              </div>
+            </li>
+          ))}
+        </ul>
+      </Card>
+    </div>
+  );
+}
+
 function Select({ value, onChange, options, placeholder }) {
   return (
     <select className="input" value={value} onChange={(e) => onChange(e.target.value)} required>

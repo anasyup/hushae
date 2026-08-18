@@ -409,6 +409,20 @@ router.post('/orders/:key/return', asyncHandler(async (req, res) => {
     openedByName: req.user.name,
     messages: [{ kind: 'inbound', channel: 'internal', body: reason, authorId: req.user._id, authorName: req.user.name }],
   });
+  try {
+    const ReturnCase = require('../models/ReturnCase');
+    await ReturnCase.create({
+      rma: `RMA-${Date.now().toString(36).toUpperCase()}`,
+      order: order._id,
+      orderNumber: order.orderNumber,
+      reason,
+      notes: issueType,
+      items: order.items.map((i) => ({
+        product: i.product, name: i.name, size: i.size, color: i.color, qty: i.quantity,
+      })),
+      history: [{ stage: 'requested', note: 'Customer portal', actor: req.user.email || req.user.name }],
+    });
+  } catch (e) { console.error('RMA create from portal:', e.message); }
   res.status(201).json({ ok: true, requestId: issue._id, message: 'Your return request is with our team. We will be in touch.' });
 }));
 

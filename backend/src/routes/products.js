@@ -341,7 +341,7 @@ router.put('/:id', protect, adminOnly, asyncHandler(async (req, res) => {
   const fields = ['name', 'sku', 'gender', 'category', 'categorySlug', 'tier', 'price', 'compareAtPrice',
     'costPrice', 'stock', 'images', 'video', 'shortDescription', 'description', 'sizes', 'colors', 'fabric', 'badges', 'tags',
     'care', 'isFeatured', 'isBestSeller', 'isNewArrival', 'isActive', 'status', 'ratingAvg', 'ratingCount', 'bundleSlug',
-    'onSale', 'saleStart', 'saleEnd', 'targetStock'];
+    'onSale', 'saleStart', 'saleEnd', 'targetStock', 'barcode', 'weightGrams', 'reorderPoint', 'safetyStock', 'variants'];
   fields.forEach((f) => { if (b[f] !== undefined) product[f] = b[f]; });
   if (b.slug) product.slug = slugify(b.slug);
   await product.save();

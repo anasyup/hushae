@@ -27,6 +27,7 @@ const EMPTY = {
      accidentally carry a "30% off" strike-through. */
   onSale: false, saleStart: '', saleEnd: '',
   stock: 25, images: [], video: '', shortDescription: '', description: '',
+  barcode: '', weightGrams: '', reorderPoint: 10, safetyStock: 3, variants: [],
   sizesText: '', fabric: '', colors: [{ name: 'Black', hex: '#1A1A1A' }],
   badges: [], tags: [], careText: '',
   isFeatured: false, isBestSeller: false, isActive: true, status: 'active', bundleSlug: '',
@@ -98,6 +99,9 @@ export default function ProductForm() {
           onSale: p.onSale === true, saleStart: toLocalInput(p.saleStart), saleEnd: toLocalInput(p.saleEnd),
           images: imgs, video: '',
           sizesText: p.sizes.join(', '), careText: p.care.join('\n'),
+          barcode: p.barcode || '', weightGrams: p.weightGrams || '',
+          reorderPoint: p.reorderPoint ?? 10, safetyStock: p.safetyStock ?? 3,
+          variants: Array.isArray(p.variants) ? p.variants : [],
         });
       })
       .catch(() => { toast('Product not found'); nav('/admin/products'); });
@@ -131,6 +135,17 @@ export default function ProductForm() {
       isFeatured: f.isFeatured, isBestSeller: f.isBestSeller, isActive: f.isActive,
       status: forceStatus || f.status || 'active',
       category: cat?._id || f.category || undefined, categorySlug: f.categorySlug || cat?.slug, bundleSlug: f.bundleSlug,
+      barcode: f.barcode || '', weightGrams: Number(f.weightGrams) || 0,
+      reorderPoint: Number(f.reorderPoint) || 0, safetyStock: Number(f.safetyStock) || 0,
+      variants: (f.variants || []).map((v) => ({
+        key: v.key || `${v.size || ''}|${v.color || ''}`,
+        sku: v.sku || '', barcode: v.barcode || '', size: v.size || '', color: v.color || '',
+        price: v.price === '' || v.price == null ? null : Number(v.price),
+        compareAtPrice: v.compareAtPrice === '' || v.compareAtPrice == null ? null : Number(v.compareAtPrice),
+        costPrice: v.costPrice === '' || v.costPrice == null ? null : Number(v.costPrice),
+        stock: Number(v.stock) || 0, weightGrams: Number(v.weightGrams) || 0,
+        image: v.image || '', active: v.active !== false,
+      })),
     };
     if (!body.category) { toast('Choose a category'); return; }
     setBusy(true);
@@ -224,6 +239,51 @@ export default function ProductForm() {
                 <textarea className="w-full min-h-[80px] rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[13px] outline-none transition focus:border-neutral-900" value={f.careText} onChange={(e) => set('careText', e.target.value)} rows={3} placeholder="Machine wash cold&#10;Do not bleach&#10;Tumble dry low" />
               </Field>
             </div>
+          </Section>
+
+          <Section icon={Tag} title="SKU matrix" description="Optional per-size/colour SKU, barcode, price and stock. Empty matrix uses the parent SKU/stock.">
+            <div className="mb-3 flex flex-wrap gap-2">
+              <button
+                type="button"
+                className="rounded-lg border border-neutral-300 px-3 py-2 text-[12px] font-semibold"
+                onClick={() => {
+                  const sizes = f.sizesText.split(',').map((s) => s.trim()).filter(Boolean);
+                  const colors = f.colors.filter((c) => c.name);
+                  const rows = [];
+                  (sizes.length ? sizes : ['']).forEach((size) => {
+                    (colors.length ? colors : [{ name: '' }]).forEach((c) => {
+                      const key = `${size}|${c.name}`;
+                      const prev = (f.variants || []).find((v) => v.key === key || (v.size === size && v.color === c.name));
+                      rows.push(prev || { key, sku: '', barcode: '', size, color: c.name, price: '', stock: f.stock, costPrice: '', active: true });
+                    });
+                  });
+                  set('variants', rows);
+                }}
+              >
+                Build from sizes × colours
+              </button>
+            </div>
+            {(f.variants || []).length > 0 && (
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[640px] text-left text-[12px]">
+                  <thead><tr className="text-neutral-400 uppercase tracking-wider">
+                    <th className="py-1">Size</th><th>Colour</th><th>SKU</th><th>Barcode</th><th>Price</th><th>Stock</th>
+                  </tr></thead>
+                  <tbody>
+                    {f.variants.map((v, i) => (
+                      <tr key={v.key || i} className="border-t border-neutral-100">
+                        <td className="py-1">{v.size || '—'}</td>
+                        <td>{v.color || '—'}</td>
+                        <td><input className="w-28 rounded border border-neutral-200 px-1 py-1" value={v.sku || ''} onChange={(e) => set('variants', f.variants.map((x, j) => j === i ? { ...x, sku: e.target.value } : x))} /></td>
+                        <td><input className="w-28 rounded border border-neutral-200 px-1 py-1" value={v.barcode || ''} onChange={(e) => set('variants', f.variants.map((x, j) => j === i ? { ...x, barcode: e.target.value } : x))} /></td>
+                        <td><input className="w-20 rounded border border-neutral-200 px-1 py-1" type="number" value={v.price ?? ''} onChange={(e) => set('variants', f.variants.map((x, j) => j === i ? { ...x, price: e.target.value } : x))} /></td>
+                        <td><input className="w-16 rounded border border-neutral-200 px-1 py-1" type="number" value={v.stock ?? 0} onChange={(e) => set('variants', f.variants.map((x, j) => j === i ? { ...x, stock: e.target.value } : x))} /></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </Section>
 
           {/* ── Badges ────────────────────────────────────────────────── */}

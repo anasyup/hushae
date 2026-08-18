@@ -392,6 +392,26 @@ router.post('/', placeOrderLimit, optionalAuth, asyncHandler(async (req, res) =>
     fraudFilter,
   });
 
+  try {
+    const { ensureDefaultWarehouse, applyMove, variantKeyOf } = require('../utils/inventoryEngine');
+    const wh = await ensureDefaultWarehouse();
+    for (const li of lineItems) {
+      await applyMove({
+        productId: li.product,
+        variantKey: variantKeyOf(li.size, li.color),
+        warehouseId: wh._id,
+        type: 'sale',
+        qty: li.quantity,
+        note: `Order ${order.orderNumber}`,
+        actor: 'checkout',
+        refType: 'order',
+        refId: String(order._id),
+      });
+    }
+  } catch (e) {
+    console.error('inventory sale movement skipped:', e.message);
+  }
+
   /* Debit the balances only now that the order exists.
    *
    * Doing this AFTER the write is the whole point: if the order had failed,
