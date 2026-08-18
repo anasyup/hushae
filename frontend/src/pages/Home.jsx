@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { api } from '../api/client';
 import Seo, { organizationJsonLd } from '../components/Seo';
 import LuxuryCategoryShowcase from '../components/LuxuryCategoryShowcase';
@@ -119,80 +119,10 @@ function HeroSlides() {
         }}
       />
 
-      {/* Slide arrows — plain ‹ › chevrons, no circle */}
-      <button
-        type="button"
-        onClick={() => setIdx((i) => (i - 1 + HERO_SLIDES.length) % HERO_SLIDES.length)}
-        aria-label="Previous slide"
-        className="absolute left-4 top-1/2 z-20 -translate-y-1/2 p-2 text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)] transition-all hover:scale-110 hover:text-white md:left-6"
-      >
-        <ChevronLeft size={34} strokeWidth={1.5} />
-      </button>
-      <button
-        type="button"
-        onClick={() => setIdx((i) => (i + 1) % HERO_SLIDES.length)}
-        aria-label="Next slide"
-        className="absolute right-4 top-1/2 z-20 -translate-y-1/2 p-2 text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)] transition-all hover:scale-110 hover:text-white md:right-6"
-      >
-        <ChevronRight size={34} strokeWidth={1.5} />
-      </button>
+      {/* Carousel controls removed at the merchant's request (2026-08):
+          the hero now shows the campaign image alone — no arrows, no dots,
+          no pause glyph. The crossfade auto-advance (6s) stays. */}
 
-      {/* Slide dots — thin, bottom centre.
-          MEASURED TWICE. The dots were 6px wide with a .hit-44 pseudo-element,
-          so 44px hit boxes sat 8px apart and overlapped by ~36px. Widening the
-          gap to 12px and shrinking the pseudo to .hit-24 was still wrong: a
-          6px dot at gap-3 gives an 18px PITCH against a 24px box, so
-          neighbours STILL overlapped by 6px, and the pause control clipped the
-          last dot by 5px.
-
-          A centred pseudo-element can never tile cleanly, because the pitch is
-          set by the visual dot while the target is set by the pseudo. So the
-          BUTTON is the target now: 24x24 each, laid out edge to edge with no
-          gap, with the visual dot drawn inside. Pitch 24px = box 24px, which
-          tiles exactly — zero overlap, and every pixel between two dots
-          belongs to the nearer one. The dots look identical; only the
-          invisible geometry changed. */}
-      <div className="absolute bottom-6 left-1/2 z-20 flex -translate-x-1/2 items-center">
-        {HERO_SLIDES.map((s, i) => (
-          <button
-            key={s.image}
-            type="button"
-            onClick={() => setIdx(i)}
-            aria-label={`Go to slide ${i + 1} of ${HERO_SLIDES.length}`}
-            aria-current={i === idx}
-            className="group/dot grid h-6 w-6 shrink-0 place-items-center"
-          >
-            <span
-              aria-hidden="true"
-              className={`block h-1.5 rounded-full transition-all duration-300 ${
-                i === idx ? 'w-4 bg-white' : 'w-1.5 bg-white/50 group-hover/dot:bg-white/80'
-              }`}
-            />
-          </button>
-        ))}
-
-        {/* WCAG 2.2.2 pause control. Deliberately quiet — a hairline glyph in
-            the same register as the dots, not a media-player chrome button.
-            A 44px target would overlap the last dot, so it matches the dots'
-            24px box and is separated by a real 8px margin, not a pseudo. */}
-        <button
-          type="button"
-          onClick={() => setPaused((v) => !v)}
-          aria-label={paused ? 'Play slideshow' : 'Pause slideshow'}
-          className="ml-2 grid h-6 w-6 shrink-0 place-items-center text-white/80 transition-colors hover:text-white"
-        >
-          {paused ? (
-            <svg viewBox="0 0 12 12" width="10" height="10" fill="currentColor" aria-hidden="true">
-              <path d="M3 1.5v9l7-4.5z" />
-            </svg>
-          ) : (
-            <svg viewBox="0 0 12 12" width="10" height="10" fill="currentColor" aria-hidden="true">
-              <rect x="3" y="1.5" width="2.5" height="9" rx="0.4" />
-              <rect x="7" y="1.5" width="2.5" height="9" rx="0.4" />
-            </svg>
-          )}
-        </button>
-      </div>
     </section>
   );
 }
