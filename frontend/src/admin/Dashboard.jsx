@@ -242,13 +242,13 @@ function PipelineStrip({ stats }) {
   );
 }
 
-function RevenueChart({ data }) {
+function RevenueChart({ data, rangeLabel }) {
   const [mode, setMode] = useState('revenue');
   const total = data.reduce((n, d) => n + (mode === 'revenue' ? d.revenue : d.orders), 0);
   return (
     <div className="rounded-2xl border border-neutral-200 bg-white p-6">
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-        <div><p className="text-[12px] font-bold uppercase tracking-widest text-neutral-500">Last 14 days</p><p className="mt-1 font-sans text-2xl font-semibold tabular-nums text-neutral-900">{mode === 'revenue' ? pkr(total) : total.toLocaleString()}</p></div>
+        <div><p className="text-[12px] font-bold uppercase tracking-widest text-neutral-500">{rangeLabel || 'Selected period'}</p><p className="mt-1 font-sans text-2xl font-semibold tabular-nums text-neutral-900">{mode === 'revenue' ? pkr(total) : total.toLocaleString()}</p></div>
         <div className="flex items-center gap-1 rounded-full border border-neutral-200 bg-neutral-50 p-1">
           {['revenue', 'orders'].map((m) => (
             <button key={m} onClick={() => setMode(m)} className={`rounded-full px-3 py-1 text-[12px] font-semibold uppercase tracking-wider transition ${mode === m ? 'bg-neutral-900 text-white' : 'text-neutral-500 hover:text-neutral-900'}`}>{m}</button>

@@ -78,7 +78,7 @@ export default function OrderDetail() {
   const stepQty = (i, d) => setEditItems((a) => a.map((it, j) => j === i ? { ...it, quantity: Math.min(10, Math.max(1, it.quantity + d)) } : it));
   const delLine = (i) => setEditItems((a) => a.filter((_, j) => j !== i));
   const searchPicker = async (q) => { setPq(q); if (q.trim().length < 2) { setPRes([]); return; } try { const d = await api(`/products/admin/list?q=${encodeURIComponent(q.trim())}`, { token: auth.token }); setPRes((d.products || []).filter((p) => p.isActive && p.status !== 'draft').slice(0, 6)); } catch { setPRes([]); } };
-  const addPicked = (p) => { setEditItems((a) => [...a, { product: String(p._id), name: p.name, image: p.images[0]?.url || '', price: p.price, quantity: 1, size: p.sizes[0] || '', color: p.colors[0]?.name || '', sizes: p.sizes || [], colors: p.colors || [] }]); setPq(''); setPRes([]); };
+  const addPicked = (p) => { setEditItems((a) => [...a, { product: String(p._id), name: p.name, image: p.images?.[0]?.url || '', price: p.price, quantity: 1, size: p.sizes?.[0] || '', color: p.colors?.[0]?.name || '', sizes: p.sizes || [], colors: p.colors || [] }]); setPq(''); setPRes([]); };
   const saveItems = async () => {
     if (!editItems.length) { toast('Order must have at least one item'); return; }
     setBusy(true);
@@ -235,7 +235,7 @@ export default function OrderDetail() {
                   {pRes.length > 0 && (
                     <div className="absolute inset-x-5 top-12 z-20 overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-lg">{pRes.map((p) => (
                       <button type="button" key={p._id} onClick={() => addPicked(p)} className="flex w-full items-center gap-2.5 px-3 py-2 text-left transition hover:bg-neutral-50">
-                        <Img src={p.images[0]?.url} alt="" className="h-8 w-6 rounded object-cover" />
+                        <Img src={p.images?.[0]?.url} alt="" className="h-8 w-6 rounded object-cover" />
                         <span className="flex-1 truncate text-[12px] font-medium">{p.name}</span>
                         <span className="text-[13px] text-neutral-400">{p.sku}</span>
                         <span className="text-[12px] font-bold">{pkr(p.price)}</span>

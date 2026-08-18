@@ -1,7 +1,7 @@
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, NavLink, Navigate, useLocation } from 'react-router-dom';
 import {
-  Activity, BadgePercent, BarChart3, ImagePlus, ChevronDown, Command, CreditCard, FileText, FolderOpen, Globe, Home,
+  Activity, BadgePercent, BarChart3, ImagePlus, ChevronDown, CreditCard, FileText, FolderOpen, Globe, Home,
   LayoutTemplate, LogOut, Mail, Megaphone, Menu, MessageSquare, Package, PackageX, Phone, Plus,
   Search, Settings as SettingsIcon, ShieldCheck, ShoppingBag, Signpost, Sparkles, Star, Store, Sun, Moon, Tags, TrendingUp, Truck, Users, X, Zap,
 } from 'lucide-react';
@@ -112,8 +112,11 @@ const NAV_GROUPS = [
       { to: '/admin/settings/store',      label: 'Store Details',            icon: Store },
       { to: '/admin/settings/payments',   label: 'Payments',                 icon: CreditCard },
       { to: '/admin/settings/shipping',   label: 'Shipping & Delivery',      icon: Truck },
-      { to: '/admin/settings/accounts',   label: 'Accounts & Security',      icon: ShieldCheck },
-      { to: '/admin/settings/email',      label: 'Email & Notifications',    icon: Megaphone },
+      { to: '/admin/settings/cart',       label: 'Shopping Bag',             icon: ShoppingBag },
+      { to: '/admin/settings/checkout',   label: 'Checkout',                 icon: CreditCard },
+      { to: '/admin/settings/accounts',   label: 'Customer Accounts',        icon: Users },
+      { to: '/admin/settings/email',      label: 'Email & Notifications',    icon: Mail },
+      { to: '/admin/settings/security',   label: 'Security',                 icon: ShieldCheck },
       { to: '/admin/apps',                label: 'Integrations',             icon: Zap },
       { to: '/admin/backup',              label: 'Backup & Export',          icon: FileText },
       { to: '/admin/settings/advanced',   label: 'Advanced',                 icon: SettingsIcon },
@@ -279,7 +282,29 @@ export default function AdminLayout({ children, title }) {
   );
 }
 
-function TopBar({ title, auth, onCmdK }) {
+function CreateMenu({ onPick }) {
+  const items = [
+    { to: '/admin/products/new', icon: Package, label: 'New product' },
+    { to: '/admin/promotions/new', icon: Megaphone, label: 'New promotion' },
+    { to: '/admin/discounts', icon: BadgePercent, label: 'New discount' },
+    { to: '/admin/cms/new', icon: FileText, label: 'New page' },
+    { to: '/admin/blog/new', icon: FileText, label: 'New blog article' },
+  ];
+  return (
+    <div className="absolute right-0 top-full z-30 mt-1 w-56 rounded-lg border border-neutral-200 bg-white py-1 shadow-lg">
+      {items.map((it) => {
+        const Icon = it.icon;
+        return (
+          <Link key={it.to} to={it.to} onClick={onPick} className="flex items-center gap-2.5 px-3.5 py-2 text-[13px] font-medium text-neutral-700 transition hover:bg-neutral-50">
+            <Icon size={13} className="text-neutral-400" /> {it.label}
+          </Link>
+        );
+      })}
+    </div>
+  );
+}
+
+function TopBar({ title, auth, onCmdK, onMenu }) {
   const { settings } = useApp();
   const loc = useLocation();
   const storeOpen = settings?.storefrontLock?.enabled !== true;
@@ -303,22 +328,33 @@ function TopBar({ title, auth, onCmdK }) {
     return out;
   })();
   const initials = (auth?.user?.name || 'A').split(' ').map((s) => s[0]).slice(0, 2).join('').toUpperCase();
+  const btnGhost = 'inline-flex min-h-[36px] items-center justify-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-2.5 text-[12px] font-semibold text-neutral-600 transition hover:border-neutral-300 hover:text-neutral-900';
+  const btnPrimary = 'inline-flex min-h-[36px] items-center gap-1 rounded-lg bg-neutral-900 px-3 text-[12px] font-semibold text-white transition hover:bg-neutral-800';
   return (
-    <header className="sticky top-0 z-20 hidden border-b border-neutral-200 bg-white/85 px-8 py-3 backdrop-blur md:block">
-      <div className="flex items-center justify-between gap-6">
-        <div className="min-w-0 flex-1"><h1 className="truncate font-sans text-lg font-semibold leading-tight text-neutral-900">{title || crumbs[crumbs.length - 1]?.label}</h1><nav className="mt-0.5 flex items-center gap-1.5 text-[13px] text-neutral-500">{crumbs.map((c, i) => <span key={c.to} className="inline-flex items-center gap-1.5">{i > 0 && <span className="text-neutral-300">/</span>}{i === crumbs.length - 1 ? <span className="font-medium text-neutral-700">{c.label}</span> : <Link to={c.to} className="hover:text-neutral-900">{c.label}</Link>}</span>)}</nav></div>
-        <div className="flex items-center gap-2">
-          {/* ⌘K Search button */}
-          <button onClick={onCmdK} className="hidden items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-[13px] font-semibold text-neutral-500 transition hover:border-neutral-400 hover:text-neutral-700 md:inline-flex" title="Search admin (⌘K)"><Command size={10} /> Search</button>
-          <span className="hidden items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-[15px] font-semibold text-neutral-600 lg:inline-flex"><span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />Store online</span>
-          {canCreate && <div className="relative" ref={createRef}><button onClick={() => setCreateOpen((v) => !v)} className="inline-flex items-center gap-1 rounded-full bg-neutral-900 px-3 py-1.5 text-[15px] font-semibold text-white transition hover:bg-neutral-800"><Plus size={12} /> Create</button>{createOpen && <div className="absolute right-0 top-full z-30 mt-1 w-56 rounded-xl border border-neutral-200 bg-white py-1 shadow-lg"><Link to="/admin/products/new" onClick={() => setCreateOpen(false)} className="flex items-center gap-2.5 px-3.5 py-2 text-[13px] font-medium text-neutral-700 transition hover:bg-neutral-50"><Package size={13} className="text-neutral-400" /> New product</Link><Link to="/admin/promotions/new" onClick={() => setCreateOpen(false)} className="flex items-center gap-2.5 px-3.5 py-2 text-[13px] font-medium text-neutral-700 transition hover:bg-neutral-50"><Megaphone size={13} className="text-neutral-400" /> New promotion</Link><Link to="/admin/discounts" onClick={() => setCreateOpen(false)} className="flex items-center gap-2.5 px-3.5 py-2 text-[13px] font-medium text-neutral-700 transition hover:bg-neutral-50"><BadgePercent size={13} className="text-neutral-400" /> New discount</Link><Link to="/admin/cms/new" onClick={() => setCreateOpen(false)} className="flex items-center gap-2.5 px-3.5 py-2 text-[13px] font-medium text-neutral-700 transition hover:bg-neutral-50"><FileText size={13} className="text-neutral-400" /> New page</Link><Link to="/admin/blog/new" onClick={() => setCreateOpen(false)} className="flex items-center gap-2.5 px-3.5 py-2 text-[13px] font-medium text-neutral-700 transition hover:bg-neutral-50"><FileText size={13} className="text-neutral-400" /> New blog article</Link></div>}</div>}
-          <Link to="/" target="_blank" className="hidden items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-[15px] font-semibold text-neutral-600 transition hover:border-neutral-400 hover:text-neutral-900 md:inline-flex" title="Open storefront"><Globe size={12} /> View store</Link>
-          {/* Theme toggle — light default, dark opt-in (sun/moon) */}
-          <button onClick={toggleDark} aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'} title={dark ? 'Switch to light mode' : 'Switch to dark mode'} className="hidden items-center justify-center rounded-full border border-neutral-200 bg-white p-2 text-neutral-500 transition hover:border-neutral-400 hover:text-neutral-900 md:inline-flex">
+    <header className="sticky top-0 z-20 border-b border-neutral-200 bg-white/90 px-3 py-2.5 backdrop-blur md:px-8 md:py-3">
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex min-w-0 flex-1 items-center gap-2">
+          <button type="button" onClick={onMenu} className="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-neutral-700 hover:bg-neutral-100 md:hidden" aria-label="Open menu"><Menu size={20} /></button>
+          <div className="min-w-0">
+            <h1 className="truncate font-sans text-[15px] font-semibold leading-tight text-neutral-900 md:text-lg">{title || crumbs[crumbs.length - 1]?.label}</h1>
+            <nav className="mt-0.5 hidden items-center gap-1.5 text-[13px] text-neutral-500 md:flex">{crumbs.map((c, i) => <span key={c.to} className="inline-flex items-center gap-1.5">{i > 0 && <span className="text-neutral-300">/</span>}{i === crumbs.length - 1 ? <span className="font-medium text-neutral-700">{c.label}</span> : <Link to={c.to} className="hover:text-neutral-900">{c.label}</Link>}</span>)}</nav>
+          </div>
+        </div>
+        <div className="flex shrink-0 items-center gap-1.5 md:gap-2">
+          <button type="button" onClick={onCmdK} className={btnGhost} title="Search admin (⌘K)"><Search size={14} /><span className="hidden sm:inline">Search</span></button>
+          <span className={`hidden items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[12px] font-semibold lg:inline-flex ${storeOpen ? 'border-neutral-200 bg-white text-neutral-600' : 'border-amber-200 bg-amber-50 text-amber-800'}`}><span className={`h-1.5 w-1.5 rounded-full ${storeOpen ? 'bg-emerald-500' : 'bg-amber-500'}`} />{storeOpen ? 'Store online' : 'Store locked'}</span>
+          {canCreate && (
+            <div className="relative" ref={createRef}>
+              <button type="button" onClick={() => setCreateOpen((v) => !v)} className={btnPrimary}><Plus size={12} /> <span className="hidden sm:inline">Create</span></button>
+              {createOpen && <CreateMenu onPick={() => setCreateOpen(false)} />}
+            </div>
+          )}
+          <Link to="/" target="_blank" className={`${btnGhost} hidden md:inline-flex`} title="Open storefront"><Globe size={12} /> View store</Link>
+          <button type="button" onClick={toggleDark} aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'} title={dark ? 'Switch to light mode' : 'Switch to dark mode'} className={`${btnGhost} h-9 w-9 px-0`}>
             {dark ? <Sun size={13} /> : <Moon size={13} />}
           </button>
           <NotificationBell />
-          <div className="ml-1 flex items-center gap-2 rounded-full border border-neutral-200 bg-white p-1 pl-1 pr-3"><span className="grid h-7 w-7 place-items-center rounded-full bg-neutral-900 text-[13px] font-bold text-white">{initials}</span><span className="text-[15px] font-semibold text-neutral-800">{auth?.user?.name?.split(' ')[0] || 'Admin'}</span></div>
+          <div className="ml-0.5 flex items-center gap-2 rounded-lg border border-neutral-200 bg-white p-1 pr-2 md:pr-3"><span className="grid h-7 w-7 place-items-center rounded-md bg-neutral-900 text-[12px] font-bold text-white">{initials}</span><span className="hidden text-[13px] font-semibold text-neutral-800 sm:inline">{auth?.user?.name?.split(' ')[0] || 'Admin'}</span></div>
         </div>
       </div>
     </header>

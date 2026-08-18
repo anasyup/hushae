@@ -43,7 +43,7 @@ export default function AdminLogin() {
     setErr(''); setCodeBusy(true);
     try {
       const d = await api('/auth/2fa/verify', { method: 'POST', body: { email: pendingEmail, code } });
-      if (d.user.role !== 'admin') { setErr('This account is not an admin.'); setCodeBusy(false); return; }
+      if (!STAFF_ROLES.includes(d.user?.role)) { setErr('This account does not have staff access.'); setCodeBusy(false); return; }
       setAuth(d);
       nav('/admin', { replace: true });
     } catch (ex) { setErr(ex.message); setCodeBusy(false); }
