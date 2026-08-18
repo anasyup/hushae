@@ -48,6 +48,12 @@ export default function Header() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  /* Full-bleed campaign photography sits under a transparent bar. Black type
+     on those frames is unreadable until the shopper scrolls. Invert to ivory
+     only while the bar is still glass; mega + scrolled stay ink-on-white. */
+  const overHero = ['/', '/women', '/men', '/new', '/best', '/sale', '/shop'].includes(loc.pathname);
+  const invert = overHero && !isScrolled && !mega && !searchOpen;
+
   useEffect(() => { api('/categories').then((d) => setCats(d.categories)).catch(() => {}); }, []);
   useEffect(() => {
     if (!searchOpen || searchCfg) return;
@@ -124,10 +130,12 @@ export default function Header() {
           solid white + hairline + black text once scrolled (no heavy block). */}
       <header
         data-header
-        className={`w-full h-[88px] !m-0 px-6 lg:px-12 transition-all duration-300 ease-in-out ${
-          mega || isScrolled
-            ? 'bg-[#FFFFFF] text-black border-b border-neutral-200 shadow-sm'
-            : 'bg-transparent text-black'
+        className={`w-full h-[88px] !m-0 px-6 lg:px-12 transition-[background-color,color,border-color,box-shadow] duration-300 ease-in-out ${
+          invert
+            ? 'bg-transparent text-white'
+            : mega || isScrolled
+              ? 'bg-[#FFFFFF] text-black border-b border-neutral-200 shadow-sm'
+              : 'bg-transparent text-black'
         }`}
         onMouseLeave={() => setMega(null)}
       >
@@ -217,9 +225,11 @@ export default function Header() {
                 aria-label={cartCount ? `Open bag, ${cartCount} item${cartCount === 1 ? '' : 's'}` : 'Open bag'}
                 className="hit-44 relative flex items-center justify-center p-1 transition-opacity duration-200 hover:opacity-60">
                 <ShoppingBag size={20} strokeWidth={1.5} aria-hidden="true" />
-                <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-black text-[9px] font-bold text-white">
-                  {cartCount}
-                </span>
+                {cartCount > 0 && (
+                  <span className={`absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full px-0.5 text-[9px] font-bold ${invert ? 'bg-white text-black' : 'bg-black text-white'}`}>
+                    {cartCount > 99 ? '99+' : cartCount}
+                  </span>
+                )}
               </button>
             )}
           </div>

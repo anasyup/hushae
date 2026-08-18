@@ -28,7 +28,7 @@ export default function DiscoverTiles() {
           </div>
           <Link
             to="/shop"
-            className="hidden items-center gap-1 text-[11px] font-medium uppercase tracking-[0.2em] text-black transition hover:opacity-60 sm:flex"
+            className="hidden min-h-[44px] items-center gap-1 text-[11px] font-medium uppercase tracking-[0.2em] text-black transition hover:opacity-60 sm:flex"
           >
             View All <span aria-hidden="true">&rarr;</span>
           </Link>

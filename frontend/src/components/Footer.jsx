@@ -39,9 +39,9 @@ const NAV = [
   {
     title: 'Connect',
     links: [
-      { label: 'Instagram', href: '/journal' },
-      { label: 'Pinterest', href: '/journal' },
-      { label: 'TikTok', href: '/journal' },
+      { label: 'Journal', href: '/journal' },
+      { label: 'Rewards', href: '/rewards' },
+      { label: 'Contact', href: '/faq' },
     ],
   },
 ];

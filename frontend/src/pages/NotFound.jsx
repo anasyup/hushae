@@ -2,19 +2,18 @@ import { Link } from 'react-router-dom';
 
 export default function NotFound() {
   return (
-    <div style={{ background: '#FFFFFF', minHeight: '80vh' }}
-      className="flex items-center justify-center">
-      <div className="text-center px-4 pt-[130px] pb-20">
-        <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-ash">404</p>
-        <h1 className="mt-4 h1">Page not found</h1>
-        <p className="mt-3 body-sm text-ash max-w-sm mx-auto">
-          The page you're looking for doesn't exist or has been moved.
+    <div className="flex min-h-[80vh] items-center justify-center bg-white">
+      <div className="px-4 pb-20 pt-[130px] text-center">
+        <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-ash">404</p>
+        <h1 className="mt-5 font-display text-3xl font-light uppercase tracking-[0.14em] text-obsidian md:text-4xl">Page not found</h1>
+        <p className="body-sm mx-auto mt-4 max-w-sm text-ash">
+          The page you&apos;re looking for doesn&apos;t exist or has been moved.
         </p>
-        <div className="mt-8 flex flex-wrap justify-center gap-3">
-          <Link to="/" className="min-h-[44px] bg-obsidian px-8 text-[12px] font-medium uppercase tracking-[0.10em] text-white flex items-center transition-opacity hover:opacity-80">
+        <div className="mt-10 flex flex-wrap justify-center gap-3">
+          <Link to="/" className="btn-primary">
             Home
           </Link>
-          <Link to="/shop" className="min-h-[44px] border border-line px-8 text-[12px] font-medium uppercase tracking-[0.10em] text-obsidian flex items-center hover:bg-alabaster">
+          <Link to="/shop" className="btn-outline">
             Shop all
           </Link>
         </div>

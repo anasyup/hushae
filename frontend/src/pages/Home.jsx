@@ -97,7 +97,7 @@ function HeroSlides() {
           ) : (
             <img
               src={s.image}
-              alt=""
+              alt={i === idx ? 'HUSHAE campaign' : ''}
               fetchpriority={i === 0 ? 'high' : 'auto'}
               loading={i === 0 ? 'eager' : 'lazy'}
               className="h-full w-full object-cover"
@@ -409,6 +409,16 @@ function EditorialSplitSection() {
 function NewsletterSection() {
   const [email, setEmail] = useState('');
   const [done, setDone] = useState(false);
+  const [err, setErr] = useState('');
+  const submit = (e) => {
+    e.preventDefault();
+    const v = email.trim();
+    if (!v) { setErr('Please enter your email address.'); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) { setErr('Please enter a valid email address.'); return; }
+    setErr('');
+    api('/subscribers', { method: 'POST', body: { email: v } }).catch(() => {});
+    setDone(true);
+  };
   return (
     <section className="border-t border-neutral-200/80 bg-[#f7f6f2] px-4 py-20 text-center">
       <div className="mx-auto max-w-xl space-y-4">
@@ -423,7 +433,8 @@ function NewsletterSection() {
         ) : (
           <form
             className="mx-auto flex max-w-md items-center justify-center gap-2 pt-4"
-            onSubmit={(e) => { e.preventDefault(); if (email.trim()) { api('/subscribers', { method: 'POST', body: { email: email.trim() } }).catch(() => {}); setDone(true); } }}
+            onSubmit={submit}
+            noValidate
           >
             {/* A placeholder is not an accessible name (WCAG 4.1.2): it is dropped
                 by most screen readers once the field has a value. Real label,
@@ -435,19 +446,22 @@ function NewsletterSection() {
               type="email"
               autoComplete="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => { setEmail(e.target.value); if (err) setErr(''); }}
               required
+              aria-invalid={err ? 'true' : undefined}
+              aria-describedby={err ? 'home-nl-err' : undefined}
               placeholder="Enter your email address"
               className="w-full border border-neutral-300 bg-white px-4 py-3 text-[12px] text-black transition focus:border-black focus:outline-none placeholder:text-[10px] placeholder:uppercase placeholder:tracking-widest placeholder:text-neutral-400"
             />
             <button
               type="submit"
-              className="whitespace-nowrap bg-black px-6 py-3 text-[11px] font-medium uppercase tracking-[0.2em] text-white transition hover:bg-neutral-800"
+              className="min-h-[44px] whitespace-nowrap bg-black px-6 py-3 text-[11px] font-medium uppercase tracking-[0.2em] text-white transition hover:bg-neutral-800"
             >
               Sign Up
             </button>
           </form>
         )}
+        {err && <p id="home-nl-err" role="alert" className="pt-2 text-[12px] text-red-700">{err}</p>}
       </div>
     </section>
   );
