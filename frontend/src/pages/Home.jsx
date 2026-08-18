@@ -83,22 +83,23 @@ function HeroSlides() {
         </div>
       ))}
 
-      {/* Slide arrows — luxury hairline circle (Gucci/Prada register) */}
+      {/* Slide arrows — thin, weightless luxury chevrons (no circle, no shadow).
+          Barely there at rest, they firm up on hover. CK / Zara register. */}
       <button
         type="button"
         onClick={() => setIdx((i) => (i - 1 + HERO_SLIDES.length) % HERO_SLIDES.length)}
         aria-label="Previous slide"
-        className="absolute left-3 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/60 text-white transition-all duration-300 hover:border-white hover:bg-white hover:text-black md:left-6"
+        className="absolute left-2 top-1/2 z-20 flex h-12 w-10 -translate-y-1/2 items-center justify-center text-white/70 transition-all duration-300 hover:text-white md:left-4"
       >
-        <ChevronLeft size={20} strokeWidth={1.5} aria-hidden="true" />
+        <ChevronLeft size={40} strokeWidth={1} aria-hidden="true" />
       </button>
       <button
         type="button"
         onClick={() => setIdx((i) => (i + 1) % HERO_SLIDES.length)}
         aria-label="Next slide"
-        className="absolute right-3 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/60 text-white transition-all duration-300 hover:border-white hover:bg-white hover:text-black md:right-6"
+        className="absolute right-2 top-1/2 z-20 flex h-12 w-10 -translate-y-1/2 items-center justify-center text-white/70 transition-all duration-300 hover:text-white md:right-4"
       >
-        <ChevronRight size={20} strokeWidth={1.5} aria-hidden="true" />
+        <ChevronRight size={40} strokeWidth={1} aria-hidden="true" />
       </button>
 
       {/* Subtle bottom scrim — keeps the imagery clean; no text overlay. */}
@@ -112,6 +113,42 @@ function HeroSlides() {
       />
 
     </section>
+  );
+}
+
+/* ── SECTION 0.5: New Arrivals banner — full-width clickable campaign shot ──
+ * A quiet full-bleed photograph of the new-season photoshoot. The WHOLE
+ * banner is a link to /new. Luxury minimal: image + a small tracked label,
+ * nothing else. Hover zooms the photograph a hair. */
+function NewArrivalsBanner() {
+  return (
+    <Link
+      to="/new"
+      aria-label="Shop New Arrivals"
+      className="group relative block w-full overflow-hidden bg-[#f2f0ec]"
+    >
+      <img
+        src={`${IMG}/banner-new-arrivals.jpg`}
+        alt="HUSHAE New Arrivals campaign"
+        loading="lazy"
+        decoding="async"
+        className="h-[42vw] max-h-[560px] min-h-[260px] w-full object-cover object-center transition-transform duration-[1200ms] ease-out group-hover:scale-[1.03]"
+      />
+      {/* Quiet bottom-left label — the only text, CK register */}
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between p-6 md:p-10">
+        <div>
+          <p className="text-[10px] font-medium uppercase tracking-[0.32em] text-white/85">
+            The New Season
+          </p>
+          <p className="mt-2 text-[26px] font-light uppercase leading-none tracking-[0.16em] text-white md:text-[40px]">
+            New Arrivals
+          </p>
+        </div>
+        <span className="hidden items-center gap-2 border-b border-white/70 pb-1 text-[11px] font-medium uppercase tracking-[0.24em] text-white transition-colors group-hover:border-white md:inline-flex">
+          Shop the Collection <ArrowRight size={14} aria-hidden="true" />
+        </span>
+      </div>
+    </Link>
   );
 }
 
@@ -373,6 +410,9 @@ export default function Home() {
 
       {/* 01 — HERO (CK) */}
       <HeroSlides />
+
+      {/* 01.5 — NEW ARRIVALS BANNER — clickable full-width campaign shot */}
+      <NewArrivalsBanner />
 
       {/* 02 — DISCOVER — editorial gateway (Chanel / Hermès / CK pattern) */}
       <DiscoverTiles />
