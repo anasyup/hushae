@@ -37,58 +37,49 @@ const CATEGORIES = [
    Auto-advances every 4s, pauses on hover/focus; thin dots for manual
    selection. No new action buttons, no filters — everything else unchanged. */
 const HERO_SLIDES = [
-  { image: `${IMG}/hero-new-1.jpg`, video: '' },
-  { image: `${IMG}/hero-new-2.jpg`, video: '' },
-  { image: `${IMG}/hero-new-3.jpg`, video: '' },
-  { image: `${IMG}/hero-new-4.jpg`, video: '' },
+  { landscape: `${IMG}/hero-new-1.jpg`, portrait: `${IMG}/hero-m-1.jpg` },
+  { landscape: `${IMG}/hero-new-2.jpg`, portrait: `${IMG}/hero-m-2.jpg` },
+  { landscape: `${IMG}/hero-new-3.jpg`, portrait: `${IMG}/hero-m-3.jpg` },
+  { landscape: `${IMG}/hero-new-4.jpg`, portrait: `${IMG}/hero-m-4.jpg` },
 ];
 
 function HeroSlides() {
   const [idx, setIdx] = useState(0);
 
-  /* Auto-advance every 5s — ALWAYS, with no hover pause (the merchant
-     wants the banner to keep moving; the earlier hover-to-pause meant the
-     slideshow froze whenever the cursor sat over the hero, which on load is
-     almost always). All four slides are preloaded eagerly so the crossfade
-     never shows a blank frame. */
+  /* Auto-advance every 4.5s — ALWAYS, no hover pause (the merchant wants
+     the banner to keep moving). Crossfade is 900ms so the change is clearly
+     visible. Slides are preloaded eagerly so the crossfade never shows a
+     blank frame. */
   useEffect(() => {
-    const t = setInterval(() => setIdx((i) => (i + 1) % HERO_SLIDES.length), 5000);
+    const t = setInterval(() => setIdx((i) => (i + 1) % HERO_SLIDES.length), 4500);
     return () => clearInterval(t);
   }, []);
 
   return (
     <section
-      className="relative h-[100svh] w-full overflow-hidden bg-white"
+      className="relative aspect-[4/5] w-full overflow-hidden bg-white md:aspect-[16/9]"
       aria-roledescription="carousel"
       aria-label="Campaign highlights"
     >
-      {/* Slides — crossfade */}
+      {/* Slides — crossfade. Art-directed: portrait crop on mobile (4:5),
+          landscape on desktop (16:9) — the photo always FITS, never zooms. */}
       {HERO_SLIDES.map((s, i) => (
         <div
-          key={s.image}
+          key={s.landscape}
           aria-hidden={i !== idx}
-          className={`absolute inset-0 transition-opacity duration-[1200ms] ease-in-out ${i === idx ? 'opacity-100' : 'opacity-0'}`}
+          className={`absolute inset-0 transition-opacity duration-[900ms] ease-in-out ${i === idx ? 'opacity-100' : 'opacity-0'}`}
         >
-          {s.video ? (
-            <video
-              src={s.video}
-              poster={s.image}
-              autoPlay
-              muted
-              loop
-              playsInline
-              className="h-full w-full object-cover object-center"
-            />
-          ) : (
+          <picture className="block h-full w-full">
+            <source media="(max-width: 767px)" srcSet={s.portrait} />
             <img
-              src={s.image}
+              src={s.landscape}
               alt={i === idx ? 'HUSHAE campaign' : ''}
               fetchpriority={i === 0 ? 'high' : 'auto'}
               loading="eager"
               decoding="async"
               className="h-full w-full object-cover object-center"
             />
-          )}
+          </picture>
         </div>
       ))}
 
