@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import SectionHeader from '../SectionHeader';
+import { SIZES, pictureSources } from '../../lib/responsiveImage';
 
 /* ============================================================================
  * DISCOVER — the luxury-brand editorial gateway.

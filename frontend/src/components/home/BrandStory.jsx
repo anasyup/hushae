@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import SectionHeader from '../SectionHeader';
+import { SIZES, pictureSources } from '../../lib/responsiveImage';
 
 /* ============================================================================
  * BrandStory — HUSHAE's unique positioning made visible.
@@ -20,13 +21,26 @@ export default function BrandStory() {
       <div className="mx-auto grid max-w-[1600px] grid-cols-1 md:grid-cols-12">
         {/* Photo — 7 cols on desktop, full-width on mobile */}
         <div className="relative aspect-[4/5] overflow-hidden bg-[#f0f0f0] md:aspect-auto md:col-span-7 md:min-h-[560px]">
-          <img
-            src="/images/campaign/qa/hero-fabric.jpg"
-            alt="HUSHAE — Cotton modal fabric, made in Pakistan"
-            loading="lazy"
-            decoding="async"
-            className="absolute inset-0 h-full w-full object-cover"
-          />
+          {(() => {
+              const sources = pictureSources('/images/campaign/qa/hero-fabric.jpg');
+              const img = (
+                <img
+                  src="/images/campaign/qa/hero-fabric.jpg"
+                  alt="HUSHAE — Cotton modal fabric, made in Pakistan"
+                  loading="lazy"
+                  decoding="async"
+                  className="absolute inset-0 h-full w-full object-cover"
+                />
+              );
+              return sources.length ? (
+                <picture className="absolute inset-0 h-full w-full">
+                  {sources.map((s) => (
+                    <source key={s.type} type={s.type} srcSet={s.srcSet} sizes={SIZES.tile} />
+                  ))}
+                  {img}
+                </picture>
+              ) : img;
+            })()}
           <div className="absolute bottom-4 left-4 text-xs font-medium uppercase tracking-label text-white/85 md:bottom-6 md:left-6">
             Made in Pakistan
           </div>
