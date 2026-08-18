@@ -5,12 +5,17 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 /* ============================================================================
  * HeroWithOverlay — CK monochrome luxury hero with cinematic caption overlay.
  *
- * The H1 sets the campaign name, a small tracked caps eyebrow sets season
- * context, a thin copy line tells the story. ONE primary CTA, ONE secondary.
- * Typography breathes — it sits bottom-left on desktop following the leading
- * line of the photograph and never fights the imagery.
+ * THE SERIF MOMENT
  *
- * CALVIN KLEIN PRINCIPLE: one campaign, one headline, one CTA.
+ * HUSHAE uses two families: Jost (sans, workhorse) and Fraunces (serif,
+ * reserved). The hero H1 is the ONE moment on the storefront where the
+ * serif appears. Negative tracking (-0.005em) tightens it into display
+ * register, and the clamp() size ladder takes it from 48px mobile to 72px
+ * desktop — a 1.5x scale that the rest of the page deliberately avoids.
+ *
+ * Every luxury house has a single signature typography move. This is ours.
+ *
+ * CALVIN KLEIN PRINCIPLE: one campaign, one headline, one primary CTA.
  * We render 4 slides but always with the SAME campaign overlay — every slide
  * is a different studio crop of the same collection, never different products.
  * ========================================================================== */
@@ -36,7 +41,6 @@ export default function HeroWithOverlay() {
       aria-roledescription="carousel"
       aria-label="Featured campaign"
     >
-      {/* Slides crossfade */}
       {SLIDES.map((s, i) => (
         <div
           key={s.src}
@@ -66,18 +70,21 @@ export default function HeroWithOverlay() {
       />
 
       {/* Campaign caption — pinned bottom-left.
-          Stays off the centre so the photography keeps every edge.            */}
+          Stays off the centre so the photography keeps every edge. */}
       <div className="absolute inset-x-0 bottom-0 z-10 px-5 pb-12 pt-10 text-white md:px-16 md:pb-20 md:pt-16 lg:px-20 lg:pb-24 lg:pt-20">
         <div className="max-w-[640px]">
-          <p className="text-[10px] font-medium uppercase tracking-[0.32em] text-white/80 md:text-[11px]">
+          <p className="text-xs font-medium uppercase tracking-eyebrow text-white/80">
             — The Daily Edit
           </p>
-          <h1 className="mt-4 font-display text-[34px] font-light uppercase leading-[1.05] tracking-[0.04em] text-white md:text-[56px] md:leading-[0.98] md:tracking-[0.02em] lg:text-[68px]">
+
+          {/* THE SERIF MOMENT — Fraunces, display tracking-tight */}
+          <h1 className="mt-4 font-serif text-3xl font-light leading-[1.02] tracking-tight text-white md:text-3xl lg:text-3xl">
             Second Skin.
-            <br className="hidden md:block" />
-            <span className="block md:inline"> For every day.</span>
+            <br />
+            <span className="font-light text-white/90">For every day.</span>
           </h1>
-          <p className="mt-5 max-w-[40ch] text-[13px] font-normal leading-[1.6] text-white/85 md:mt-6 md:max-w-[44ch] md:text-[14px]">
+
+          <p className="mt-5 max-w-[40ch] text-md font-normal leading-[1.6] text-white/85 md:mt-6 md:max-w-[44ch] md:text-lg md:leading-[1.65]">
             Crafted in Pakistan. Finished to an international standard. A four-piece wardrobe for the parts of you no one else sees.
           </p>
 
@@ -85,16 +92,14 @@ export default function HeroWithOverlay() {
           <div className="mt-7 flex flex-wrap items-center gap-3 md:mt-10 md:gap-4">
             <Link
               to="/shop"
-              className="inline-flex min-h-[48px] items-center justify-center gap-2 bg-white px-7 text-[11px] font-medium uppercase tracking-[0.22em] text-black transition-colors duration-300 hover:bg-white/85 md:min-h-[52px] md:px-9 md:text-[12px]"
-              style={{ borderRadius: '0px' }}
+              className="inline-flex min-h-[48px] items-center justify-center gap-2 bg-white px-7 text-xs font-medium uppercase tracking-label text-black transition-colors duration-300 hover:bg-white/85 md:min-h-[52px] md:px-9"
             >
               Shop the Edit
-              <span aria-hidden="true" className="text-[14px]">→</span>
+              <span aria-hidden="true">→</span>
             </Link>
             <Link
               to="/new"
-              className="inline-flex min-h-[48px] items-center gap-2 border-b border-white/70 pb-1 text-[11px] font-medium uppercase tracking-[0.22em] text-white transition-colors duration-300 hover:border-white md:min-h-[52px] md:text-[12px]"
-              style={{ paddingTop: '14px', paddingBottom: '14px' }}
+              className="inline-flex min-h-[48px] items-center gap-2 border-b border-white/70 pb-1 text-xs font-medium uppercase tracking-label text-white transition-colors duration-300 hover:border-white md:min-h-[52px]"
             >
               New Arrivals
               <span aria-hidden="true">→</span>

@@ -2,29 +2,23 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { api } from '../../api/client';
+import SectionHeader from '../SectionHeader';
 
 /* ============================================================================
  * JournalTeaser — "From the Journal" article cards.
  *
- * WHY IT IS HERE
- *
  * Top luxury storefronts ALWAYS send shoppers into editorial. SSENSE,
- * Net-a-Porter, Aesop, Mr Porter — all carry their editorial on the same
- * page where products live. The reason is simple: stories convert better
- * than catalogue. A shopper who has read two paragraphs about fabric
- * weights arrives at the product page already convinced.
+ * Net-a-Porter, Aesop, Mr Porter all carry their editorial on the same
+ * page where products live.
  *
  * HUSHAE already has a /journal route (powered by /api/blog) and an admin
  * editor. The teaser here connects that body of work to the home page
  * without forcing merchants to drag every article link into CMS — it reads
  * from the same API.
  *
- * DESIGN
- *
  * Two/three articles, sorted newest-first, with cover image, kicker (tag),
- * title, single-line excerpt, and date. On desktop three cards in one row;
- * on tablet two; on mobile the most recent stacks first and the others
- * below. Empty state: nothing renders, not a placeholder — silent elegance. */
+ * title, single-line excerpt, and date. Empty state: nothing renders, not
+ * a placeholder — silent elegance. */
 
 function formatDate(iso) {
   if (!iso) return '';
@@ -68,16 +62,11 @@ export default function JournalTeaser({ limit = 3 }) {
       return (
         <section className="border-b border-[#e5e5e5] bg-white px-4 py-16 md:px-8 md:py-24">
           <div className="mx-auto max-w-[1600px]">
-            <div className="mb-10 flex items-end justify-between md:mb-14">
-              <div>
-                <p className="text-[10px] font-medium uppercase tracking-[0.3em] text-neutral-500">
-                  From the Journal
-                </p>
-                <h2 className="mt-3 font-display text-2xl font-light uppercase tracking-[0.14em] text-black md:text-[34px]">
-                  Considered Notes
-                </h2>
-              </div>
-            </div>
+            <SectionHeader
+              eyebrow="From the Journal"
+              title="Considered Notes"
+              variant="quiet"
+            />
             <div className="grid grid-cols-1 gap-x-6 gap-y-12 md:grid-cols-3 md:gap-x-8 md:gap-y-0">
               {[1, 2, 3].map((i) => (
                 <JournalCardSkeleton key={i} />
@@ -93,23 +82,12 @@ export default function JournalTeaser({ limit = 3 }) {
   return (
     <section className="border-b border-[#e5e5e5] bg-white px-4 py-16 md:px-8 md:py-24">
       <div className="mx-auto max-w-[1600px]">
-        <div className="mb-10 flex items-end justify-between md:mb-14">
-          <div>
-            <p className="text-[10px] font-medium uppercase tracking-[0.3em] text-neutral-500">
-              From the Journal
-            </p>
-            <h2 className="mt-3 font-display text-2xl font-light uppercase tracking-[0.14em] text-black md:text-[34px]">
-              Considered Notes
-            </h2>
-          </div>
-          <Link
-            to="/journal"
-            className="hidden min-h-[44px] items-center gap-1 border-b border-black/40 pb-0.5 text-[10px] font-medium uppercase tracking-[0.25em] text-neutral-600 transition-colors hover:border-black hover:text-black sm:inline-flex"
-          >
-            Read the journal
-            <ArrowRight size={14} aria-hidden="true" />
-          </Link>
-        </div>
+        <SectionHeader
+          eyebrow="From the Journal"
+          title="Considered Notes"
+          href="/journal"
+          cta="Read the Journal"
+        />
 
         <div className="grid grid-cols-1 gap-x-6 gap-y-12 md:grid-cols-3 md:gap-x-8 md:gap-y-0">
           {posts.slice(0, 3).map((p) => (
@@ -126,18 +104,18 @@ export default function JournalTeaser({ limit = 3 }) {
                 </div>
               </Link>
               <div className="pt-5">
-                <p className="text-[10px] font-medium uppercase tracking-[0.3em] text-neutral-500">
+                <p className="text-xs font-medium uppercase tracking-eyebrow text-neutral-500">
                   {(Array.isArray(p.tags) && p.tags[0]) ? p.tags[0] : 'Journal'}
                 </p>
-                <h3 className="mt-3 font-display text-[18px] font-light uppercase leading-snug tracking-[0.04em] text-black md:text-[20px]">
+                <h3 className="mt-3 font-display text-lg font-light uppercase leading-snug tracking-caps text-black md:text-xl">
                   <Link to={`/blog/${p.slug}`} className="transition-opacity duration-300 hover:opacity-60">
                     {p.title}
                   </Link>
                 </h3>
-                <p className="mt-3 line-clamp-2 text-[13px] font-normal leading-relaxed text-neutral-600">
+                <p className="mt-3 line-clamp-2 text-sm font-normal leading-relaxed text-neutral-600">
                   {p.excerpt || ''}
                 </p>
-                <div className="mt-5 inline-flex items-center gap-3 text-[10px] font-medium uppercase tracking-[0.22em] text-neutral-500">
+                <div className="mt-5 inline-flex items-center gap-3 text-xs font-medium uppercase tracking-label text-neutral-500">
                   <time dateTime={p.publishAt || p.createdAt}>
                     {formatDate(p.publishAt || p.createdAt)}
                   </time>
@@ -151,17 +129,6 @@ export default function JournalTeaser({ limit = 3 }) {
               </div>
             </article>
           ))}
-        </div>
-
-        {/* Mobile-only "Read more" */}
-        <div className="mt-10 flex sm:hidden">
-          <Link
-            to="/journal"
-            className="inline-flex min-h-[44px] items-center gap-1 border-b border-black/50 pb-0.5 text-[11px] font-medium uppercase tracking-[0.22em] text-black"
-          >
-            Read the journal
-            <ArrowRight size={14} aria-hidden="true" />
-          </Link>
         </div>
       </div>
     </section>

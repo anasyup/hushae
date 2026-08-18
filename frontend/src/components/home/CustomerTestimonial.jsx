@@ -3,21 +3,14 @@ import { useEffect, useState } from 'react';
 /* ============================================================================
  * CustomerTestimonial — single voice, treatment like an editorial pull quote.
  *
- * WHY IT IS HERE
- *
  * A testimonial on a luxury homepage is not social proof — it is mood
  * setting. One correct voice beats five quotes. We use a single carefully
  * composed line and rotate approved quotes slowly; no name, no photo, no
  * star rating, no review platform badge. The voice belongs to a customer
  * who happens to have written in.
  *
- * DESIGN
- *
- * Centered, full-bleed section with a long-form quote set at H3 size. The
- * attribution sits below in a small tracked caps line. White background,
- * black ink — no background swatch, no decorative frame, no badge. The
- * section feels like a pause between product grids — the reader lands here,
- * breathes, and continues. */
+ * Centered, full-bleed section with a long-form quote set at H3 size. White
+ * background, black ink — no background swatch, no decorative frame, no badge. */
 
 const VOICES = [
   {
@@ -54,7 +47,7 @@ export default function CustomerTestimonial() {
         {/* Open-quote mark — thin, decorative only */}
         <div
           aria-hidden="true"
-          className="font-display text-[64px] font-light leading-[0.5] text-black md:text-[96px]"
+          className="font-display text-6xl font-light leading-[0.5] text-black md:text-7xl"
         >
           &ldquo;
         </div>
@@ -62,18 +55,17 @@ export default function CustomerTestimonial() {
         <p
           aria-live="polite"
           aria-atomic="true"
-          className="mt-2 font-display text-[22px] font-light leading-[1.4] tracking-[0.005em] text-black md:text-[34px] md:leading-[1.35] md:tracking-[0] lg:text-[38px]"
+          className="mt-2 font-display text-xl font-light leading-[1.4] tracking-body text-black md:text-2xl md:leading-[1.35] lg:text-3xl"
         >
           {v.quote}
         </p>
 
-        <div className="mt-8 flex items-center justify-center gap-3 text-[10px] font-medium uppercase tracking-[0.3em] text-neutral-500 md:mt-10 md:text-[11px]">
+        <div className="mt-8 flex items-center justify-center gap-3 text-xs font-medium uppercase tracking-label text-neutral-500 md:mt-10">
           <span className="h-px w-8 bg-neutral-300 md:w-10" aria-hidden="true" />
           <span>{v.name} — {v.city}</span>
           <span className="h-px w-8 bg-neutral-300 md:w-10" aria-hidden="true" />
         </div>
 
-        {/* Voice indicators — minimal hairline pips */}
         <div className="mt-8 flex items-center justify-center gap-2">
           {VOICES.map((_, idx) => (
             <button
