@@ -108,7 +108,7 @@
   --card-gap:               2px;     /* architectural mosaic grid  */
   --card-gap-mobile:        8px;
   --content-max:            1440px;  /* container ceiling          */
-  --nav-height:             80px;    /* authoritative navigation   */
+  --nav-height:             88px;    /* authoritative navigation   */
   --bar-height:             24px;    /* ultra-thin announcement bar */
 
   /* ── Motion — "Breath": slow, deliberate, purposeful ──────────────── */
