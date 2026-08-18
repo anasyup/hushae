@@ -44,7 +44,28 @@ const productSchema = new mongoose.Schema({
      staff don't duplicate it; cleared by "mark received". */
   reorderStatus: { type: String, default: '', enum: ['', 'pending'] },
   reorderRequestedAt: { type: Date, default: null },
-  targetStock: { type: Number, default: null },   // null → Settings.reorderTargetStock
+  targetStock: { type: Number, default: null },
+  barcode: { type: String, default: '' },
+  weightGrams: { type: Number, default: 0, min: 0 },
+  reorderPoint: { type: Number, default: 10, min: 0 },
+  safetyStock: { type: Number, default: 3, min: 0 },
+  variants: {
+    type: [{
+      key: { type: String, default: '' },
+      sku: { type: String, default: '' },
+      barcode: { type: String, default: '' },
+      size: { type: String, default: '' },
+      color: { type: String, default: '' },
+      price: { type: Number, default: null },
+      compareAtPrice: { type: Number, default: null },
+      costPrice: { type: Number, default: null },
+      stock: { type: Number, default: 0, min: 0 },
+      weightGrams: { type: Number, default: 0 },
+      image: { type: String, default: '' },
+      active: { type: Boolean, default: true },
+    }],
+    default: [],
+  },
   images: { type: [imageSchema], validate: v => v.length >= 1 },
   video: { type: String, default: '' }, // optional product video (MP4 URL or YouTube link)
   shortDescription: { type: String, default: '' },

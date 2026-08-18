@@ -345,16 +345,22 @@ router.post('/', placeOrderLimit, optionalAuth, asyncHandler(async (req, res) =>
 
   let fraudFilter = { isFlagged: false, reasons: [], status: 'approved' };
   try {
-    const { checkFraud } = require('../utils/fraudChecker');
-    fraudFilter = await checkFraud({
+    const { scoreRisk } = require('../utils/riskEngine');
+    const risk = await scoreRisk({
       customerInfo: {
         name: customerInfo.name.trim(), email: (customerInfo.email || '').trim(),
         phone: phoneNorm, address: customerInfo.address.trim(),
-        city: customerInfo.city.trim(), province: customerInfo.province.trim(),
-        postalCode: customerInfo.postalCode.trim()
       },
-      total
+      total,
+      paymentMethod,
     });
+    fraudFilter = {
+      isFlagged: risk.isFlagged,
+      reasons: risk.factors.map((f) => f.label),
+      score: risk.score,
+      band: risk.band,
+      status: risk.status,
+    };
   } catch (err) {
     console.error('Fraud filter check failed:', err.message);
   }

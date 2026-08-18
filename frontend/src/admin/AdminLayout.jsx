@@ -34,10 +34,11 @@ const NAV_TOP = [
 const NAV_GROUPS = [
   {
     key: 'orders', label: 'Orders', icon: ShoppingBag,
-    match: ['/admin/orders', '/admin/payments', '/admin/abandoned-carts', '/admin/verification-queue'],
+    match: ['/admin/orders', '/admin/payments', '/admin/abandoned-carts', '/admin/verification-queue', '/admin/ops'],
     children: [
       { to: '/admin/orders',           label: 'All orders',         icon: ShoppingBag },
       { to: '/admin/verification-queue', label: 'Verification queue', icon: Phone },
+      { to: '/admin/ops',              label: 'Commerce OS',        icon: Package },
       { to: '/admin/payments',         label: 'Payments',           icon: CreditCard },
       { to: '/admin/abandoned-carts',  label: 'Abandoned carts',    icon: PackageX },
     ],

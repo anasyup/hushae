@@ -207,6 +207,8 @@ const orderSchema = new mongoose.Schema({
   fraudFilter: {
     isFlagged: { type: Boolean, default: false, index: true },
     reasons: { type: [String], default: [] },
+    score: { type: Number, default: 0 },
+    band: { type: String, default: 'low' },
     status: { type: String, default: 'pending', enum: ['pending', 'approved', 'rejected'], index: true }
   }
 }, { timestamps: true, minimize: false });
