@@ -182,8 +182,8 @@ function SidebarContent({ onNavigate, onOpenCmd }) {
     <div className="flex h-full flex-col bg-[#ebebeb]">
       <div className="px-3 pb-2 pt-4">
         <NavLink to="/admin" onClick={onNavigate} className="block w-fit rounded-lg transition hover:opacity-70">
-          <p className="font-sans text-[14px] font-bold tracking-[0.18em] text-neutral-900">HUSHAE</p>
-          <p className="mt-0 text-[15px] font-semibold uppercase tracking-[0.12em] text-neutral-400">Admin</p>
+          <p className="font-sans text-[13px] font-bold tracking-[0.18em] text-neutral-900">HUSHAE</p>
+          <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-neutral-400">Admin</p>
         </NavLink>
       </div>
       {role && role !== 'admin' && role !== 'Owner' && (

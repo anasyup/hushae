@@ -383,12 +383,19 @@ export default function Dashboard() {
     ? `${range.from} – ${range.to}`
     : (RANGE_PRESETS.find((p) => p.key === range.preset)?.label || 'Selected period');
 
+  const todayTiles = [
+    { label: 'Confirm now', hint: 'New / pending', n: d.stats?.pending || 0, to: '/admin/orders?group=new', tone: 'amber' },
+    { label: 'Pack & ship', hint: 'Ready to leave', n: d.stats?.readyToShip || 0, to: '/admin/orders?group=to-ship', tone: 'blue' },
+    { label: 'On the road', hint: 'In transit', n: d.stats?.shipped || 0, to: '/admin/orders?group=shipped', tone: 'violet' },
+    { label: 'Restock', hint: '≤ 10 units', n: (d.lowStock || []).length, to: '/admin/products', tone: 'red' },
+  ];
+
   return (
-    <AdminLayout title="Dashboard">
-      {/* ── Row 1: Greeting + tools ────────────────────────────────────── */}
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+    <AdminLayout title="Today">
+      <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="font-sans text-[16px] font-semibold text-neutral-900">{greeting}, {auth?.user?.name?.split(' ')[0] || 'Admin'}</p>
+          <p className="font-sans text-[18px] font-semibold text-neutral-900">{greeting}, {auth?.user?.name?.split(' ')[0] || 'Admin'}</p>
+          <p className="mt-1 text-[13px] text-neutral-500">What needs a decision before anything else.</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1.5 text-[12px] font-semibold text-emerald-700 ring-1 ring-emerald-200"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />Live{lastSync ? ` · ${lastSync.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : ''}</span>
@@ -397,6 +404,23 @@ export default function Dashboard() {
           <button onClick={() => load()} disabled={refreshing} className="inline-flex min-h-[34px] items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-50"><RefreshCw size={12} className={refreshing ? 'animate-spin' : ''} /> Refresh</button>
           <button onClick={() => exportDashboardSummary({ d, goal, alerts, insights: smart, storeName: 'HUSHAE', compareLabel: cmpLabel })} className="inline-flex min-h-[34px] items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50"><Download size={12} /> Export</button>
         </div>
+      </div>
+
+      <div className="mb-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        {todayTiles.map((t) => (
+          <Link
+            key={t.label}
+            to={t.to}
+            className="group rounded-xl border border-neutral-200 bg-white p-4 transition hover:border-neutral-400"
+          >
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-neutral-500">{t.label}</p>
+            <p className="mt-2 font-sans text-3xl font-semibold tabular-nums text-neutral-900">{t.n}</p>
+            <p className="mt-1 flex items-center justify-between text-[12px] text-neutral-500">
+              <span>{t.hint}</span>
+              <span className="font-semibold text-neutral-900 opacity-0 transition group-hover:opacity-100">Open →</span>
+            </p>
+          </Link>
+        ))}
       </div>
 
       <AlertsBar alerts={alerts} />

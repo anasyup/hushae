@@ -96,9 +96,40 @@ export default function OrderDetail() {
   const editSub = editItems.reduce((s, it) => s + it.price * it.quantity, 0);
   const editTotal = Math.max(0, editSub - (o.discount || 0)) + (o.shippingCharge || 0);
   const whatsappLink = `https://wa.me/${String(c.phone || '').replace(/\D/g, '').replace(/^0/, '92')}`;
+  const waConfirm = `${whatsappLink}?text=${encodeURIComponent(`Hi ${c.name || 'there'}, this is HUSHAE. Confirming order ${o.orderNumber} for ${pkr(o.total)}. Reply YES to confirm.`)}`;
+  const nextMove = o.status === 'Pending' ? { status: 'Confirmed', label: 'Confirm order' }
+    : o.status === 'Confirmed' ? { status: 'Processing', label: 'Start processing' }
+    : o.status === 'Processing' ? { status: 'Ready to Ship', label: 'Mark ready to ship' }
+    : o.status === 'Ready to Ship' ? { status: 'Shipped', label: 'Mark shipped' }
+    : o.status === 'Shipped' || o.status === 'Out for Delivery' ? { status: 'Delivered', label: 'Mark delivered' }
+    : null;
 
   return (
     <AdminLayout title={`Order ${o.orderNumber}`}>
+      <div className="mb-5 flex flex-wrap items-center gap-2 rounded-xl border border-neutral-200 bg-white p-3">
+        <p className="mr-auto min-w-0 text-[13px] text-neutral-600">
+          Next step for <span className="font-semibold text-neutral-900">{o.orderNumber}</span>
+          {o.discreetPackaging ? <span className="ml-2 rounded bg-neutral-100 px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide">Discreet pack</span> : null}
+        </p>
+        {c.phone && (
+          <a href={waConfirm} target="_blank" rel="noreferrer" className="inline-flex min-h-[40px] items-center gap-1.5 rounded-lg bg-emerald-600 px-3 text-[12px] font-semibold text-white hover:bg-emerald-700">
+            <MessageCircle size={13} /> WhatsApp
+          </a>
+        )}
+        {nextMove && (
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => patch('/status', { status: nextMove.status }, nextMove.label)}
+            className="inline-flex min-h-[40px] items-center rounded-lg bg-neutral-900 px-4 text-[12px] font-semibold text-white hover:bg-black disabled:opacity-50"
+          >
+            {nextMove.label}
+          </button>
+        )}
+        <button type="button" onClick={() => window.open(`/admin/orders/${id}/invoice`, '_blank')} className="inline-flex min-h-[40px] items-center gap-1 rounded-lg border border-neutral-200 bg-white px-3 text-[12px] font-semibold text-neutral-700 hover:bg-neutral-50">
+          <Printer size={12} /> Print
+        </button>
+      </div>
       {/* ═══ TOP BAR ═══════════════════════════════════════════════ */}
       <div className="mb-5 flex flex-wrap items-center gap-2">
         <Link to="/admin/orders" className="inline-flex items-center gap-1 rounded-lg border border-neutral-200 bg-white px-3 py-2 text-xs font-semibold text-neutral-600 transition hover:border-neutral-400"><ArrowLeft size={12} /> Back</Link>
