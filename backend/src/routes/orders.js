@@ -515,12 +515,39 @@ router.patch('/admin/:id/status', protect, adminOnly, asyncHandler(async (req, r
   if (status === 'Cancelled' && prevStatus !== 'Cancelled') {
     try {
       const { releaseOrderLines } = require('../utils/inventoryEngine');
-      await releaseOrderLines({
-        lines: order.items.map((i) => ({ product: i.product, size: i.size, color: i.color, quantity: i.quantity })),
-        orderNumber: order.orderNumber,
-        actor: req.user?.email || 'admin',
-      });
+      const lines = order.items.map((i) => ({
+        product: i.product, size: i.size, color: i.color,
+        quantity: Math.max(0, (i.reservedQty || i.quantity || 0) - (i.fulfilledQty || 0) - (i.cancelledQty || 0)),
+      })).filter((l) => l.quantity > 0);
+      if (lines.length) {
+        await releaseOrderLines({ lines, orderNumber: order.orderNumber, actor: req.user?.email || 'admin' });
+        order.items.forEach((i) => {
+          const left = Math.max(0, (i.reservedQty || i.quantity || 0) - (i.fulfilledQty || 0) - (i.cancelledQty || 0));
+          i.cancelledQty = (i.cancelledQty || 0) + left;
+          i.reservedQty = i.fulfilledQty || 0;
+        });
+        await order.save();
+      }
     } catch (e) { console.error('stock release on cancel failed', e.message); }
+  }
+
+  if (['Ready to Ship', 'Shipped'].includes(status) && !['Ready to Ship', 'Shipped', 'Out for Delivery', 'Delivered'].includes(prevStatus)) {
+    try {
+      const { fulfillOrderLines } = require('../utils/inventoryEngine');
+      const lines = order.items.map((i) => ({
+        product: i.product, size: i.size, color: i.color,
+        quantity: Math.max(0, (i.reservedQty || 0) - (i.fulfilledQty || 0)),
+        fromQty: i.fulfilledQty || 0,
+      })).filter((l) => l.quantity > 0);
+      if (lines.length) {
+        await fulfillOrderLines({ lines, orderNumber: order.orderNumber, actor: req.user?.email || 'admin' });
+        order.items.forEach((i) => {
+          const n = Math.max(0, (i.reservedQty || 0) - (i.fulfilledQty || 0));
+          i.fulfilledQty = (i.fulfilledQty || 0) + n;
+        });
+        await order.save();
+      }
+    } catch (e) { console.error('fulfill on ship failed', e.message); }
   }
   try { require('../utils/auditLogger').logAction(req.user?.email, 'status', 'order', order.orderNumber, prevStatus, status); } catch { /* noop */ }
 

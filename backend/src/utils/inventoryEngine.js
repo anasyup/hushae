@@ -20,25 +20,34 @@ async function ensureDefaultWarehouse() {
   if (!w) w = await Warehouse.findOne({ isActive: true });
   if (!w) {
     w = await Warehouse.create({
-      code: 'PK-LHE',
-      name: 'Lahore HQ',
-      city: 'Lahore',
-      country: 'PK',
-      isDefault: true,
+      code: 'PK-LHE', name: 'Lahore HQ', city: 'Lahore', country: 'PK', isDefault: true,
     });
   }
   return w;
 }
 
-async function syncProductStock(productId) {
-  const pid = typeof productId === 'string' ? new mongoose.Types.ObjectId(productId) : productId;
+function oid(productId) {
+  return typeof productId === 'string' ? new mongoose.Types.ObjectId(productId) : productId;
+}
+
+async function snapshot(productId) {
+  const pid = oid(productId);
   const sums = await InventoryBalance.aggregate([
     { $match: { product: pid } },
-    { $group: { _id: '$product', onHand: { $sum: '$onHand' }, reserved: { $sum: '$reserved' } } },
+    {
+      $group: {
+        _id: '$product',
+        onHand: { $sum: '$onHand' },
+        reserved: { $sum: '$reserved' },
+        incoming: { $sum: '$incoming' },
+        damaged: { $sum: '$damaged' },
+      },
+    },
   ]);
-  const onHand = sums[0]?.onHand ?? 0;
-  await Product.findByIdAndUpdate(productId, { stock: onHand });
-  return onHand;
+  const row = sums[0] || { onHand: 0, reserved: 0, incoming: 0, damaged: 0 };
+  const available = Math.max(0, row.onHand - row.reserved);
+  await Product.findByIdAndUpdate(productId, { stock: available });
+  return { ...row, available };
 }
 
 async function seedBalance({ product, variantKey, warehouseId }) {
@@ -46,9 +55,17 @@ async function seedBalance({ product, variantKey, warehouseId }) {
   let row = await InventoryBalance.findOne(filter);
   if (row) return row;
   const v = (product.variants || []).find((x) => (x.key || variantKeyOf(x.size, x.color)) === (variantKey || ''));
-  const seed = v && Number.isFinite(v.stock) ? Number(v.stock) : Number(product.stock) || 0;
-  row = await InventoryBalance.create({ ...filter, onHand: seed, reserved: 0 });
+  const seed = v && Number.isFinite(Number(v.stock)) ? Number(v.stock) : Number(product.stock) || 0;
+  row = await InventoryBalance.create({ ...filter, onHand: seed, reserved: 0, incoming: 0, damaged: 0 });
   return row;
+}
+
+async function seedAll(product, warehouseId, variantKey) {
+  const keys = (product.variants || []).length
+    ? product.variants.map((v) => v.key || variantKeyOf(v.size, v.color))
+    : [variantKey || ''];
+  for (const k of keys) await seedBalance({ product, variantKey: k, warehouseId });
+  if (!keys.includes(variantKey || '')) await seedBalance({ product, variantKey, warehouseId });
 }
 
 async function alreadyMoved({ refType, refId, type }) {
@@ -56,24 +73,45 @@ async function alreadyMoved({ refType, refId, type }) {
   return StockMovement.findOne({ refType, refId, type }).lean();
 }
 
-async function applyMove({
-  productId, variantKey = '', warehouseId, type, qty, note = '', actor = '', refType = '', refId = '',
+async function writeMove({ productId, variantKey, warehouseId, type, qty, balanceAfter, note, actor, refType, refId }) {
+  await StockMovement.create({
+    product: productId, variantKey: variantKey || '', warehouse: warehouseId,
+    type, qty, balanceAfter, note, actor, refType, refId,
+  });
+}
+
+async function bumpVariantAvailable(product, variantKey, availableDelta) {
+  const [size, color] = String(variantKey || '').split('|');
+  const v = pickVariant(product, size, color);
+  if (!v) return;
+  v.stock = Math.max(0, (Number(v.stock) || 0) + availableDelta);
+  product.markModified('variants');
+  await product.save();
+}
+
+/**
+ * Reserve: available goes down, onHand unchanged, reserved up.
+ * Fulfill: reserved down, onHand down (units leave the building).
+ * Unreserve: reserved down (cancel before ship).
+ * Receive: onHand up, incoming down if any.
+ * Incoming: incoming up (PO sent).
+ * Damage: onHand down, damaged up.
+ */
+async function applyLedger({
+  productId, variantKey = '', warehouseId, action, qty, note = '', actor = '', refType = '', refId = '',
 }) {
-  const delta = Number(qty);
-  if (!Number.isFinite(delta) || delta === 0) {
+  const n = Math.abs(Number(qty) || 0);
+  if (!n) {
     const err = new Error('Quantity required');
     err.status = 400;
     throw err;
   }
-
+  const type = action;
   const dup = await alreadyMoved({ refType, refId, type });
-  if (dup) return { onHand: dup.balanceAfter, productStock: null, idempotent: true };
-
-  const sign = (type === 'sale' || type === 'transfer_out')
-    ? -Math.abs(delta)
-    : type === 'adjust'
-      ? delta
-      : Math.abs(delta);
+  if (dup) {
+    const snap = await snapshot(productId);
+    return { ...snap, idempotent: true, onHand: dup.balanceAfter };
+  }
 
   const product = await Product.findById(productId);
   if (!product) {
@@ -81,114 +119,176 @@ async function applyMove({
     err.status = 404;
     throw err;
   }
-
-  const keys = (product.variants || []).length
-    ? product.variants.map((v) => v.key || variantKeyOf(v.size, v.color))
-    : [variantKey || ''];
-  for (const k of keys) await seedBalance({ product, variantKey: k, warehouseId });
-  if (!keys.includes(variantKey || '')) await seedBalance({ product, variantKey, warehouseId });
-
+  await seedAll(product, warehouseId, variantKey);
   const filter = { product: productId, variantKey: variantKey || '', warehouse: warehouseId };
-  if (sign < 0) {
-    const row = await InventoryBalance.findOneAndUpdate(
-      { ...filter, onHand: { $gte: Math.abs(sign) } },
-      { $inc: { onHand: sign } },
+
+  let row;
+  if (action === 'reserve') {
+    row = await InventoryBalance.findOneAndUpdate(
+      { ...filter, $expr: { $gte: [{ $subtract: ['$onHand', '$reserved'] }, n] } },
+      { $inc: { reserved: n } },
       { new: true },
     );
     if (!row) {
-      const err = new Error('Not enough stock at this location');
+      const err = new Error('Not enough available stock at this location');
       err.status = 409;
       throw err;
     }
-    const v = pickVariant(product, ...(String(variantKey).split('|')));
-    if (v) {
-      v.stock = Math.max(0, (Number(v.stock) || 0) + sign);
-      product.markModified('variants');
-      await product.save();
+    await bumpVariantAvailable(product, variantKey, -n);
+  } else if (action === 'unreserve') {
+    row = await InventoryBalance.findOneAndUpdate(
+      { ...filter, reserved: { $gte: n } },
+      { $inc: { reserved: -n } },
+      { new: true },
+    );
+    if (!row) {
+      const err = new Error('Nothing reserved to release');
+      err.status = 409;
+      throw err;
     }
-    await StockMovement.create({
-      product: productId, variantKey: variantKey || '', warehouse: warehouseId,
-      type, qty: sign, balanceAfter: row.onHand, note, actor, refType, refId,
-    });
-    const productStock = await syncProductStock(productId);
-    return { onHand: row.onHand, productStock, idempotent: false };
+    await bumpVariantAvailable(product, variantKey, n);
+  } else if (action === 'fulfill') {
+    row = await InventoryBalance.findOneAndUpdate(
+      { ...filter, reserved: { $gte: n }, onHand: { $gte: n } },
+      { $inc: { reserved: -n, onHand: -n } },
+      { new: true },
+    );
+    if (!row) {
+      const err = new Error('Cannot fulfill — reserved/on-hand short');
+      err.status = 409;
+      throw err;
+    }
+  } else if (action === 'receive') {
+    row = await InventoryBalance.findOneAndUpdate(
+      filter,
+      { $inc: { onHand: n, incoming: -Math.min(n, 999999) } },
+      { new: true },
+    );
+    if (row.incoming < 0) {
+      row.incoming = 0;
+      await row.save();
+    }
+    await bumpVariantAvailable(product, variantKey, n);
+  } else if (action === 'incoming') {
+    row = await InventoryBalance.findOneAndUpdate(filter, { $inc: { incoming: n } }, { new: true });
+  } else if (action === 'damage') {
+    row = await InventoryBalance.findOneAndUpdate(
+      { ...filter, onHand: { $gte: n } },
+      { $inc: { onHand: -n, damaged: n } },
+      { new: true },
+    );
+    if (!row) {
+      const err = new Error('Not enough on-hand to mark damaged');
+      err.status = 409;
+      throw err;
+    }
+    await bumpVariantAvailable(product, variantKey, -n);
+  } else if (action === 'adjust') {
+    const signed = Number(qty);
+    if (signed < 0) {
+      row = await InventoryBalance.findOneAndUpdate(
+        { ...filter, $expr: { $gte: [{ $subtract: ['$onHand', '$reserved'] }, Math.abs(signed)] } },
+        { $inc: { onHand: signed } },
+        { new: true },
+      );
+      if (!row) {
+        const err = new Error('Adjust would take available below zero');
+        err.status = 409;
+        throw err;
+      }
+    } else {
+      row = await InventoryBalance.findOneAndUpdate(filter, { $inc: { onHand: signed } }, { new: true });
+    }
+    await bumpVariantAvailable(product, variantKey, signed);
+  } else if (action === 'transfer_out') {
+    row = await InventoryBalance.findOneAndUpdate(
+      { ...filter, $expr: { $gte: [{ $subtract: ['$onHand', '$reserved'] }, n] } },
+      { $inc: { onHand: -n } },
+      { new: true },
+    );
+    if (!row) {
+      const err = new Error('Not enough available to transfer');
+      err.status = 409;
+      throw err;
+    }
+    await bumpVariantAvailable(product, variantKey, -n);
+  } else if (action === 'transfer_in') {
+    row = await InventoryBalance.findOneAndUpdate(filter, { $inc: { onHand: n } }, { new: true });
+    await bumpVariantAvailable(product, variantKey, n);
+  } else if (action === 'return') {
+    row = await InventoryBalance.findOneAndUpdate(filter, { $inc: { onHand: n } }, { new: true });
+    await bumpVariantAvailable(product, variantKey, n);
+  } else {
+    const err = new Error(`Unknown inventory action ${action}`);
+    err.status = 400;
+    throw err;
   }
 
-  const row = await InventoryBalance.findOneAndUpdate(filter, { $inc: { onHand: sign } }, { new: true });
-  const v = pickVariant(product, ...(String(variantKey).split('|')));
-  if (v) {
-    v.stock = Math.max(0, (Number(v.stock) || 0) + sign);
-    product.markModified('variants');
-    await product.save();
-  }
-  await StockMovement.create({
-    product: productId, variantKey: variantKey || '', warehouse: warehouseId,
-    type, qty: sign, balanceAfter: row.onHand, note, actor, refType, refId,
+  await writeMove({
+    productId, variantKey, warehouseId, type, qty: action === 'adjust' ? Number(qty) : (['unreserve', 'fulfill', 'transfer_out', 'damage'].includes(action) ? -n : n),
+    balanceAfter: row.onHand, note, actor, refType, refId,
   });
-  const productStock = await syncProductStock(productId);
-  return { onHand: row.onHand, productStock, idempotent: false };
+  const snap = await snapshot(productId);
+  return { ...snap, onHand: row.onHand, reserved: row.reserved, incoming: row.incoming, damaged: row.damaged, idempotent: false };
 }
 
-async function allocateOrderLines({ lines, orderNumber, actor = 'checkout' }) {
+/** Back-compat wrapper used by ops routes. */
+async function applyMove(opts) {
+  const map = {
+    sale: 'fulfill',
+    receive: 'receive',
+    adjust: 'adjust',
+    transfer_out: 'transfer_out',
+    transfer_in: 'transfer_in',
+    return: 'return',
+    count: 'adjust',
+  };
+  const action = map[opts.type] || opts.type;
+  return applyLedger({ ...opts, action });
+}
+
+async function runLines({ lines, orderNumber, action, actor, suffix }) {
   const wh = await ensureDefaultWarehouse();
   const done = [];
   try {
     for (const li of lines) {
+      const qty = Number(li.quantity);
+      if (!qty) continue;
       const variantKey = variantKeyOf(li.size, li.color);
-      const result = await applyMove({
+      const warehouseId = li.warehouse || wh._id;
+      await applyLedger({
         productId: li.product,
         variantKey,
-        warehouseId: wh._id,
-        type: 'sale',
-        qty: li.quantity,
-        note: `Order ${orderNumber}`,
+        warehouseId,
+        action,
+        qty,
+        note: `${action} ${orderNumber}`,
         actor,
         refType: 'order',
-        refId: `${orderNumber}:${li.product}:${variantKey}:sale`,
+        refId: `${orderNumber}:${li.product}:${variantKey}:${suffix}:${Number(li.fromQty || 0)}-${Number(li.fromQty || 0) + qty}`,
       });
-      done.push(li);
-      li._stock = result;
+      done.push({ ...li, warehouseId, variantKey });
     }
-    return { warehouse: wh, lines };
+    return { warehouse: wh, done };
   } catch (e) {
-    for (const li of done) {
-      const variantKey = variantKeyOf(li.size, li.color);
-      await applyMove({
-        productId: li.product,
-        variantKey,
-        warehouseId: wh._id,
-        type: 'return',
-        qty: li.quantity,
-        note: `Rollback ${orderNumber}`,
-        actor,
-        refType: 'order',
-        refId: `${orderNumber}:${li.product}:${variantKey}:rollback`,
-      }).catch(() => {});
-    }
     throw e;
   }
 }
 
+async function allocateOrderLines({ lines, orderNumber, actor = 'checkout' }) {
+  return runLines({ lines, orderNumber, action: 'reserve', actor, suffix: 'reserve' });
+}
+
 async function releaseOrderLines({ lines, orderNumber, actor = 'cancel' }) {
-  const wh = await ensureDefaultWarehouse();
-  for (const li of lines) {
-    const variantKey = variantKeyOf(li.size, li.color);
-    await applyMove({
-      productId: li.product,
-      variantKey,
-      warehouseId: wh._id,
-      type: 'return',
-      qty: li.quantity,
-      note: `Release ${orderNumber}`,
-      actor,
-      refType: 'order',
-      refId: `${orderNumber}:${li.product}:${variantKey}:release`,
-    });
-  }
+  return runLines({ lines, orderNumber, action: 'unreserve', actor, suffix: 'unreserve' });
+}
+
+async function fulfillOrderLines({ lines, orderNumber, actor = 'fulfill' }) {
+  return runLines({ lines, orderNumber, action: 'fulfill', actor, suffix: 'fulfill' });
 }
 
 function forecastFromMovements(moves, days = 14) {
-  const sales = moves.filter((m) => m.type === 'sale');
+  const sales = moves.filter((m) => m.type === 'sale' || m.type === 'fulfill');
   const units = Math.abs(sales.reduce((n, m) => n + (m.qty || 0), 0));
   const daily = days > 0 ? units / days : 0;
   return { sold: units, daily, daysCover: daily > 0 ? null : Infinity };
@@ -197,11 +297,14 @@ function forecastFromMovements(moves, days = 14) {
 module.exports = {
   ensureDefaultWarehouse,
   applyMove,
+  applyLedger,
   variantKeyOf,
   pickVariant,
   forecastFromMovements,
   allocateOrderLines,
   releaseOrderLines,
-  syncProductStock,
+  fulfillOrderLines,
+  syncProductStock: snapshot,
+  snapshot,
   seedBalance,
 };

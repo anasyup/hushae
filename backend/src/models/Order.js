@@ -16,6 +16,11 @@ const itemSchema = new mongoose.Schema({
   costPrice: { type: Number, default: 0 },
   quantity: Number,
   lineTotal: Number,
+  reservedQty: { type: Number, default: 0 },
+  fulfilledQty: { type: Number, default: 0 },
+  cancelledQty: { type: Number, default: 0 },
+  returnedQty: { type: Number, default: 0 },
+  warehouse: { type: mongoose.Schema.Types.ObjectId, ref: 'Warehouse', default: null },
 }, { _id: false });
 
 const orderSchema = new mongoose.Schema({

@@ -1,4 +1,4 @@
-/* Inventory lifecycle: seed → allocate → idempotent sale → release → restock. */
+/* Reserve → available drop → fulfill → unreserve → oversell → idempotency. */
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 
@@ -8,7 +8,11 @@ async function main() {
 
   const Product = require('./src/models/Product');
   const Category = require('./src/models/Category');
-  const { allocateOrderLines, releaseOrderLines, applyMove, ensureDefaultWarehouse } = require('./src/utils/inventoryEngine');
+  const InventoryBalance = require('./src/models/InventoryBalance');
+  const {
+    allocateOrderLines, releaseOrderLines, fulfillOrderLines,
+    applyLedger, ensureDefaultWarehouse, variantKeyOf,
+  } = require('./src/utils/inventoryEngine');
 
   const cat = await Category.create({ name: 'Test', slug: `t-${Date.now()}`, gender: 'women' });
   const product = await Product.create({
@@ -36,60 +40,76 @@ async function main() {
     else console.log('ok', msg);
   };
 
-  await allocateOrderLines({
-    lines: [{ product: product._id, size: 'S', color: 'Black', quantity: 2 }],
-    orderNumber: 'HS-TEST-1',
-  });
-  const after1 = await Product.findById(product._id);
-  const vS = after1.variants.find((v) => v.key === 'S|Black');
-  assert(vS.stock === 2, `variant stock after sale is 2 (got ${vS.stock})`);
-  assert(after1.stock === 8, `parent stock is warehouse sum 8 (got ${after1.stock})`);
+  const bal = async (key) => InventoryBalance.findOne({ product: product._id, variantKey: key, warehouse: wh._id });
 
   await allocateOrderLines({
     lines: [{ product: product._id, size: 'S', color: 'Black', quantity: 2 }],
     orderNumber: 'HS-TEST-1',
   });
-  const afterDup = await Product.findById(product._id);
-  const vS2 = afterDup.variants.find((v) => v.key === 'S|Black');
-  assert(vS2.stock === 2, `idempotent sale does not double-decrement (got ${vS2.stock})`);
+  let row = await bal('S|Black');
+  let p = await Product.findById(product._id);
+  let vS = p.variants.find((v) => v.key === 'S|Black');
+  assert(row.onHand === 4, `onHand stays 4 after reserve (got ${row.onHand})`);
+  assert(row.reserved === 2, `reserved is 2 (got ${row.reserved})`);
+  assert(vS.stock === 2, `variant available 2 (got ${vS.stock})`);
+  assert(p.stock === 8, `storefront stock = available 8 (got ${p.stock})`);
+
+  await allocateOrderLines({
+    lines: [{ product: product._id, size: 'S', color: 'Black', quantity: 2 }],
+    orderNumber: 'HS-TEST-1',
+  });
+  row = await bal('S|Black');
+  assert(row.reserved === 2, `idempotent reserve stays 2 (got ${row.reserved})`);
 
   let oversold = false;
   try {
     await allocateOrderLines({
-      lines: [{ product: product._id, size: 'S', color: 'Black', quantity: 9 }],
+      lines: [{ product: product._id, size: 'S', color: 'Black', quantity: 3 }],
       orderNumber: 'HS-TEST-2',
     });
   } catch { oversold = true; }
-  assert(oversold, 'oversell is rejected');
+  assert(oversold, 'cannot reserve more than available');
 
-  await releaseOrderLines({
-    lines: [{ product: product._id, size: 'S', color: 'Black', quantity: 2 }],
+  await fulfillOrderLines({
+    lines: [{ product: product._id, size: 'S', color: 'Black', quantity: 1 }],
     orderNumber: 'HS-TEST-1',
   });
-  const afterRel = await Product.findById(product._id);
-  const vS3 = afterRel.variants.find((v) => v.key === 'S|Black');
-  assert(vS3.stock === 4, `release restores variant to 4 (got ${vS3.stock})`);
+  row = await bal('S|Black');
+  assert(row.onHand === 3, `fulfill 1 → onHand 3 (got ${row.onHand})`);
+  assert(row.reserved === 1, `fulfill 1 → reserved 1 (got ${row.reserved})`);
 
   await releaseOrderLines({
-    lines: [{ product: product._id, size: 'S', color: 'Black', quantity: 2 }],
+    lines: [{ product: product._id, size: 'S', color: 'Black', quantity: 1 }],
     orderNumber: 'HS-TEST-1',
   });
-  const afterRel2 = await Product.findById(product._id);
-  const vS4 = afterRel2.variants.find((v) => v.key === 'S|Black');
-  assert(vS4.stock === 4, `idempotent release does not double-credit (got ${vS4.stock})`);
+  row = await bal('S|Black');
+  p = await Product.findById(product._id);
+  vS = p.variants.find((v) => v.key === 'S|Black');
+  assert(row.reserved === 0, `unreserve leftover (got ${row.reserved})`);
+  assert(row.onHand === 3, `unreserve does not put units back on shelf (got ${row.onHand})`);
+  assert(vS.stock === 3, `available after unreserve 3 (got ${vS.stock})`);
 
-  await applyMove({
-    productId: product._id,
-    variantKey: 'M|Black',
-    warehouseId: wh._id,
-    type: 'adjust',
-    qty: 3,
-    refType: 'test',
-    refId: 'adj-1',
+  await applyLedger({
+    productId: product._id, variantKey: 'M|Black', warehouseId: wh._id,
+    action: 'incoming', qty: 5, refType: 'po', refId: 'po-1:incoming',
   });
-  const adj = await Product.findById(product._id);
-  const vM = adj.variants.find((v) => v.key === 'M|Black');
-  assert(vM.stock === 9, `adjust +3 on M → 9 (got ${vM.stock})`);
+  const m = await bal('M|Black');
+  assert(m.incoming === 5, `incoming 5 (got ${m.incoming})`);
+
+  await applyLedger({
+    productId: product._id, variantKey: 'M|Black', warehouseId: wh._id,
+    action: 'receive', qty: 5, refType: 'po', refId: 'po-1:receive',
+  });
+  const m2 = await bal('M|Black');
+  assert(m2.onHand === 11, `receive 5 onto 6 → 11 (got ${m2.onHand})`);
+  assert(m2.incoming === 0, `incoming cleared (got ${m2.incoming})`);
+
+  await applyLedger({
+    productId: product._id, variantKey: 'M|Black', warehouseId: wh._id,
+    action: 'damage', qty: 1, refType: 'rma', refId: 'dmg-1',
+  });
+  const m3 = await bal('M|Black');
+  assert(m3.damaged === 1 && m3.onHand === 10, `damage 1 (onHand ${m3.onHand} damaged ${m3.damaged})`);
 
   await mongoose.disconnect();
   await mem.stop();

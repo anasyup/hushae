@@ -152,6 +152,22 @@ router.post('/purchase-orders', asyncHandler(async (req, res) => {
     expectedAt: body.expectedAt || null,
     status: 'sent',
   });
+  try {
+    const { applyLedger, variantKeyOf } = require('../utils/inventoryEngine');
+    for (const line of po.lines) {
+      await applyLedger({
+        productId: line.product,
+        variantKey: line.variantKey || variantKeyOf('', ''),
+        warehouseId: po.warehouse,
+        action: 'incoming',
+        qty: line.qtyOrdered,
+        note: `PO ${po.number} expected`,
+        actor: req.user?.email || 'staff',
+        refType: 'po',
+        refId: `${po._id}:${line.product}:incoming`,
+      });
+    }
+  } catch (e) { console.error('incoming stock mark failed', e.message); }
   res.status(201).json({ purchaseOrder: po });
 }));
 router.post('/purchase-orders/:id/receive', asyncHandler(async (req, res) => {

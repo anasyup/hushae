@@ -194,34 +194,34 @@ router.post('/', protect, adminOnly, draftLimit, asyncHandler(async (req, res) =
     return res.status(400).json({ message: 'Add at least one product' });
   }
 
-  // ── Price + decrement stock from the DB (server is authoritative) ────────
+  const { allocateOrderLines, pickVariant } = require('../utils/inventoryEngine');
+  const reservedNumber = orderNumber();
   const lineItems = [];
   for (const it of items) {
     const qty = Math.max(1, Math.min(parseInt(it.quantity || '1', 10), 10));
-    const product = await Product.findOneAndUpdate(
-      { _id: it.product, isActive: true, status: { $ne: 'draft' }, stock: { $gte: qty } },
-      { $inc: { stock: -qty } },
-      { new: true }
-    );
+    const product = await Product.findOne({ _id: it.product, isActive: true, status: { $ne: 'draft' } });
     if (!product) {
-      const original = await Product.findById(it.product).select('name stock isActive status');
-      const itemName = original?.name || it.name || 'an item';
-      if (!original || !original.isActive || original.status === 'draft') {
-        return res.status(409).json({ message: `"${itemName}" is no longer available.`, productId: it.product, reason: 'unavailable' });
-      }
-      return res.status(409).json({ message: `"${itemName}" is out of stock (only ${original.stock} left).`, productId: it.product, reason: 'out-of-stock', available: original.stock });
+      return res.status(409).json({ message: 'A selected product is no longer available.', productId: it.product, reason: 'unavailable' });
     }
     if (it.size && product.sizes.length && !product.sizes.includes(it.size)) {
-      await Product.findByIdAndUpdate(product._id, { $inc: { stock: qty } });
       return res.status(400).json({ message: `Size "${it.size}" is no longer available for "${product.name}".`, productId: product._id, reason: 'size-unavailable' });
     }
+    const size = it.size || product.sizes[0] || '';
+    const color = it.color || product.colors[0]?.name || '';
+    const v = pickVariant(product, size, color);
+    const unit = (v && v.price != null) ? Number(v.price) : product.price;
     lineItems.push({
       product: product._id, name: product.name, slug: product.slug,
-      image: product.images[0]?.url || '', size: it.size || product.sizes[0] || '',
-      color: it.color || product.colors[0]?.name || '',
-      price: product.price, costPrice: product.costPrice || 0,
-      quantity: qty, lineTotal: product.price * qty,
+      image: (v && v.image) || product.images[0]?.url || '', size, color,
+      price: unit, costPrice: (v && v.costPrice != null) ? Number(v.costPrice) : (product.costPrice || 0),
+      quantity: qty, lineTotal: unit * qty,
+      reservedQty: qty, fulfilledQty: 0, cancelledQty: 0, returnedQty: 0,
     });
+  }
+  try {
+    await allocateOrderLines({ lines: lineItems, orderNumber: reservedNumber, actor: req.user?.email || 'admin' });
+  } catch (e) {
+    return res.status(e.status || 409).json({ message: e.message || 'Not enough stock', reason: 'out-of-stock' });
   }
 
   const subtotal = lineItems.reduce((s, li) => s + li.lineTotal, 0);
@@ -254,7 +254,7 @@ router.post('/', protect, adminOnly, draftLimit, asyncHandler(async (req, res) =
   }
 
   const order = await Order.create({
-    orderNumber: orderNumber(),
+    orderNumber: reservedNumber,
     source: 'admin',
     adminCreatedById: req.user?._id || null,
     customer: customerInfo.userId || null,
