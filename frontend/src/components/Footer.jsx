@@ -70,7 +70,7 @@ export default function Footer() {
   };
 
   return (
-    <footer className="mt-10 w-full bg-[#0D0D0D] text-[#e5e5e5]">
+    <footer className="mt-0 w-full bg-[#0D0D0D] text-[#e5e5e5]">
       <div className="mx-auto w-full max-w-[1440px] px-6 py-10 md:px-[80px] md:py-14">
 
         {/* ── Row 1 — brand + tagline | newsletter ──────────────────────── */}

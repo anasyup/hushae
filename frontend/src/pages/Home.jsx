@@ -157,7 +157,7 @@ function CategoryGridSection() {
 /* ── SECTION 2 & 4: Product carousel (Givenchy style) ───────────────────── */
 function ProductCarouselSection({ title, subtitle, products, href }) {
   return (
-    <section className="border-t border-neutral-200/60 py-16 md:py-24">
+    <section className="border-t border-neutral-200/60 pt-14 pb-10 md:pt-20 md:pb-12">
       <div className="mb-10 space-y-1 px-4 text-center md:px-8">
         <h2 className="section-title">
           {title}
@@ -307,7 +307,7 @@ function NewsletterSection() {
     setDone(true);
   };
   return (
-    <section className="border-t border-neutral-200/80 bg-[#f7f6f2] px-4 py-16 text-center md:py-24">
+    <section className="border-t border-neutral-200/80 bg-[#f7f6f2] px-4 pt-12 pb-10 text-center md:pt-14 md:pb-12">
       <div className="mx-auto max-w-xl space-y-4">
         <h2 className="section-title">
           Subscribe to the Newsletter
@@ -393,7 +393,7 @@ export default function Home() {
 
       {/* 04 — VIEW MORE (reference button) */}
       <div className="flex w-full justify-center">
-        <Link to="/shop" className="my-8 cursor-pointer border border-black bg-transparent px-10 py-3.5 text-[11px] font-medium uppercase tracking-[0.2em] text-black transition-all duration-300 ease-in-out hover:bg-black hover:text-white">
+        <Link to="/shop" className="mb-12 mt-0 cursor-pointer border border-black bg-transparent px-10 py-3.5 text-[11px] font-medium uppercase tracking-[0.2em] text-black transition-all duration-300 ease-in-out hover:bg-black hover:text-white">
           View More
         </Link>
       </div>

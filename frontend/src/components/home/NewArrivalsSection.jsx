@@ -21,7 +21,7 @@ export default function NewArrivalsSection({ products = [] }) {
   if (!list.length) return null;
 
   return (
-    <section className="w-full py-16 md:py-24">
+    <section className="w-full pb-10 md:pb-12">
       <div className="mx-auto max-w-[1600px] px-4 md:px-8">
         {/* ── Editorial header ── */}
         <div className="flex flex-col justify-between border-b border-neutral-300/60 pb-9 md:flex-row md:items-end">
@@ -45,7 +45,7 @@ export default function NewArrivalsSection({ products = [] }) {
       </div>
 
       {/* ── Hairline grid — full-bleed sale register ── */}
-      <div className={`mt-16 ${PRODUCT_GRID}`}>
+      <div className={`mt-10 ${PRODUCT_GRID}`}>
         {show.map((p) => (
           <LuxuryProductCard key={p._id || p.slug} product={p} />
         ))}

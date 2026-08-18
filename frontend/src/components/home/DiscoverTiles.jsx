@@ -17,9 +17,9 @@ const TILES = [
 
 export default function DiscoverTiles() {
   return (
-    <section className="w-full bg-[#fcfbf9] px-4 py-16 md:px-8 md:py-24">
+    <section className="w-full bg-[#fcfbf9] px-4 pt-14 pb-10 md:px-8 md:pt-20 md:pb-12">
       <div className="mx-auto max-w-[1600px]">
-        <div className="mb-10 flex items-end justify-between border-b border-neutral-200/80 pb-6">
+        <div className="mb-6 flex items-end justify-between border-b border-neutral-200/80 pb-5">
           <div>
             <p className="section-eyebrow">Discover</p>
             <h2 className="section-title mt-3">
