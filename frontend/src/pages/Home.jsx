@@ -227,7 +227,7 @@ function CategoryGridSection() {
 /* ── SECTION 2 & 4: Product carousel (Givenchy style) ───────────────────── */
 function ProductCarouselSection({ title, subtitle, products, href }) {
   return (
-    <section className="border-t border-neutral-200/60 py-16">
+    <section className="border-t border-neutral-200/60 py-16 md:py-24">
       <div className="mb-10 space-y-1 px-4 text-center md:px-8">
         <h2 className="section-title">
           {title}
@@ -377,7 +377,7 @@ function NewsletterSection() {
     setDone(true);
   };
   return (
-    <section className="border-t border-neutral-200/80 bg-[#f7f6f2] px-4 py-20 text-center">
+    <section className="border-t border-neutral-200/80 bg-[#f7f6f2] px-4 py-16 text-center md:py-24">
       <div className="mx-auto max-w-xl space-y-4">
         <h2 className="section-title">
           Subscribe to the Newsletter
@@ -441,6 +441,13 @@ export default function Home() {
         canonical="/"
         jsonLd={organizationJsonLd(typeof window !== 'undefined' ? window.location.origin : '')}
         jsonLdId="home-org" />
+
+      {/* H1 — visually hidden for SEO (the hero used to carry the only H1;
+          it now shows the campaign image alone, so the page keeps its title
+          here instead). Screen readers announce it; sighted users never see it. */}
+      <h1 className="sr-only">
+        HUSHAE — Premium innerwear for men and women, made in Pakistan
+      </h1>
 
       {/* 01 — HERO (CK) */}
       <HeroSlides />

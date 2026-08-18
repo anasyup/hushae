@@ -21,7 +21,7 @@ export default function NewArrivalsSection({ products = [] }) {
   if (!list.length) return null;
 
   return (
-    <section className="w-full py-20 md:py-32">
+    <section className="w-full py-16 md:py-24">
       <div className="mx-auto max-w-[1600px] px-4 md:px-8">
         {/* ── Editorial header ── */}
         <div className="flex flex-col justify-between border-b border-neutral-300/60 pb-9 md:flex-row md:items-end">

@@ -16,7 +16,7 @@ const CATEGORIES = [
 
 export default function LuxuryCategoryShowcase() {
   return (
-    <section className="w-full bg-[#fcfbf9] px-4 py-20 md:px-8">
+    <section className="w-full bg-[#fcfbf9] px-4 py-16 md:px-8 md:py-24">
       <div className="mx-auto max-w-[1600px]">
         {/* Minimal section title */}
         <div className="mb-10 flex items-end justify-between border-b border-neutral-200/80 pb-4">
