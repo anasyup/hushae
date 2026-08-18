@@ -1,13 +1,15 @@
 import { ChevronDown, SlidersHorizontal } from 'lucide-react';
 
 /* ============================================================================
- * LuxuryFilterBar — exact client reference.
- * Rounded filter pills (Category/Price/Color/Size/Collection + All Filters)
- * on the left; item count + "Sort By: …" pill on the right. bg #fcfbf9,
- * border-b. Used on the homepage under the hero.
+ * LuxuryFilterBar — CK / Gucci register (not Shopify pills).
+ * Bare tracked-caps labels with a small chevron, separated by hairline
+ * dividers. No pill borders, no backgrounds, no shadows — the air between
+ * the labels IS the luxury. Hover underlines the label. bg white, border-b.
  * ========================================================================== */
 
-const PILL = 'flex min-h-[44px] items-center gap-2 whitespace-nowrap rounded-full border border-neutral-300/80 bg-white px-4 py-2 text-[11px] font-normal text-[#111111] shadow-sm transition-all duration-200 hover:border-black';
+const BTN = 'group inline-flex min-h-[44px] items-center gap-1.5 whitespace-nowrap text-[11px] font-medium uppercase tracking-[0.18em] text-[#111111] transition-opacity duration-200 hover:opacity-60';
+
+const DIVIDER = 'h-4 w-px shrink-0 bg-black/15';
 
 export default function LuxuryFilterBar({ count = 12, onOpenFilters, f }) {
   const filters = [
@@ -21,44 +23,49 @@ export default function LuxuryFilterBar({ count = 12, onOpenFilters, f }) {
   const sortLabel = ({ popular: 'Featured', 'price-asc': 'Price: Low to High', 'price-desc': 'Price: High to Low', newest: 'Newest Arrivals' })[f?.sort] || 'Newest Arrivals';
 
   return (
-    <div className="w-full border-b border-neutral-200/60 bg-[#fcfbf9] px-4 py-4 md:px-8">
+    <div className="w-full border-b border-black/10 bg-white px-4 py-3 md:px-8">
       <div className="mx-auto flex max-w-[1600px] flex-wrap items-center justify-between gap-4">
-        {/* LEFT — rounded filter pills */}
-        <div className="no-scrollbar flex items-center gap-2.5 overflow-x-auto py-1">
-          {filters.map((filter) => (
-            <button
-              key={filter.key}
-              type="button"
-              onClick={() => { if (onOpenFilters) onOpenFilters(); }}
-              className={PILL}
-            >
-              <span>{filter.label}</span>
-              <ChevronDown size={12} strokeWidth={1.8} className="text-neutral-500" aria-hidden="true" />
-            </button>
+        {/* LEFT — bare filter labels with hairline dividers */}
+        <div className="no-scrollbar flex items-center overflow-x-auto">
+          {filters.map((filter, i) => (
+            <span key={filter.key} className="flex items-center">
+              {i > 0 && <span className={`${DIVIDER} mx-4`} aria-hidden="true" />}
+              <button
+                type="button"
+                onClick={() => { if (onOpenFilters) onOpenFilters(); }}
+                className={BTN}
+              >
+                <span className="border-b border-transparent pb-0.5 transition-colors group-hover:border-[#111111]">{filter.label}</span>
+                <ChevronDown size={12} strokeWidth={1.5} className="text-neutral-500" aria-hidden="true" />
+              </button>
+            </span>
           ))}
+          <span className={`${DIVIDER} mx-4`} aria-hidden="true" />
           <button
             type="button"
             onClick={() => { if (onOpenFilters) onOpenFilters(); }}
-            className={PILL}
+            className={BTN}
           >
-            <span>All Filters</span>
-            <SlidersHorizontal size={12} strokeWidth={1.8} className="text-neutral-600" aria-hidden="true" />
+            <span className="flex items-center gap-1.5 border-b border-transparent pb-0.5 transition-colors group-hover:border-[#111111]">
+              <SlidersHorizontal size={12} strokeWidth={1.5} className="text-neutral-600" aria-hidden="true" />
+              All Filters
+            </span>
           </button>
         </div>
 
-        {/* RIGHT — item count + sort pill */}
-        <div className="ml-auto flex items-center gap-4">
-          <span className="hidden text-[11px] font-normal uppercase tracking-wider text-neutral-400 sm:inline">
+        {/* RIGHT — item count + sort (bare label) */}
+        <div className="ml-auto flex items-center">
+          <span className="hidden text-[11px] font-normal uppercase tracking-[0.18em] text-neutral-400 sm:inline">
             {count} Items
           </span>
-          <span className="hidden text-neutral-300 sm:inline" aria-hidden="true">|</span>
+          <span className={`${DIVIDER} mx-4 hidden sm:inline`} aria-hidden="true" />
           <button
             type="button"
             onClick={() => { if (onOpenFilters) onOpenFilters(); }}
-            className={PILL}
+            className={BTN}
           >
-            <span>Sort By: {sortLabel}</span>
-            <ChevronDown size={12} strokeWidth={1.8} className="text-neutral-500" aria-hidden="true" />
+            <span className="border-b border-transparent pb-0.5 transition-colors group-hover:border-[#111111]">Sort By: {sortLabel}</span>
+            <ChevronDown size={12} strokeWidth={1.5} className="text-neutral-500" aria-hidden="true" />
           </button>
         </div>
       </div>

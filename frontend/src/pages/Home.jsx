@@ -83,22 +83,22 @@ function HeroSlides() {
         </div>
       ))}
 
-      {/* Slide arrows — plain ‹ › chevrons (no circle), luxury-minimal */}
+      {/* Slide arrows — luxury hairline circle (Gucci/Prada register) */}
       <button
         type="button"
         onClick={() => setIdx((i) => (i - 1 + HERO_SLIDES.length) % HERO_SLIDES.length)}
         aria-label="Previous slide"
-        className="absolute left-3 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)] transition-all hover:scale-110 hover:text-white md:left-6"
+        className="absolute left-3 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/60 text-white transition-all duration-300 hover:border-white hover:bg-white hover:text-black md:left-6"
       >
-        <ChevronLeft size={30} strokeWidth={1.5} aria-hidden="true" />
+        <ChevronLeft size={20} strokeWidth={1.5} aria-hidden="true" />
       </button>
       <button
         type="button"
         onClick={() => setIdx((i) => (i + 1) % HERO_SLIDES.length)}
         aria-label="Next slide"
-        className="absolute right-3 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)] transition-all hover:scale-110 hover:text-white md:right-6"
+        className="absolute right-3 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/60 text-white transition-all duration-300 hover:border-white hover:bg-white hover:text-black md:right-6"
       >
-        <ChevronRight size={30} strokeWidth={1.5} aria-hidden="true" />
+        <ChevronRight size={20} strokeWidth={1.5} aria-hidden="true" />
       </button>
 
       {/* Subtle bottom scrim — keeps the imagery clean; no text overlay. */}
