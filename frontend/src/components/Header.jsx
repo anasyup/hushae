@@ -130,7 +130,7 @@ export default function Header() {
           solid white + hairline + black text once scrolled (no heavy block). */}
       <header
         data-header
-        className={`w-full h-[88px] !m-0 px-6 lg:px-12 transition-[background-color,color,border-color,box-shadow] duration-300 ease-in-out ${
+        className={`w-full h-[96px] !m-0 px-6 lg:px-12 transition-[background-color,color,border-color,box-shadow] duration-300 ease-in-out ${
           invert
             ? 'bg-transparent text-white'
             : mega || isScrolled

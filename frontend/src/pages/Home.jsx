@@ -106,68 +106,25 @@ function HeroSlides() {
         </div>
       ))}
 
-      {/* Scrim.
-          MEASURED by sampling the real rendered pixels behind the type (a
-          parent-background walk cannot see through a photograph and reports
-          a meaningless 1.0): flat `bg-black/15` left the headline at 1.66:1
-          worst / 4.24 median and the sub-paragraph at 3.05 / 3.54 — an AA
-          failure on the pale slides (hero-women, hero-fabric).
-
-          The type block was then measured directly: it occupies 48%-79% of
-          the hero height (h1 starts at 48.4% on desktop / 53.6% on mobile,
-          the paragraph ends at ~79%, the CTAs sit below that). A purely
-          bottom-weighted gradient put its density BELOW the text and made the
-          numbers worse, so the ramp is anchored to that band instead — it
-          reaches full strength by 20% from the bottom and holds it through
-          85%, which is exactly where the words are. The top 40% of the
-          photograph stays essentially clean, so the campaign image still
-          reads as an image. */}
+      {/* Subtle bottom scrim — keeps the slide dots and arrows legible on
+          pale photos without darkening the imagery. The hero text overlay
+          was removed at the merchant's request (2026-08): the campaign
+          image now speaks alone. */}
       <div
         aria-hidden="true"
-        className="absolute inset-0"
+        className="absolute inset-x-0 bottom-0 h-24"
         style={{
           background:
-            'linear-gradient(to top, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.58) 20%, rgba(0,0,0,0.55) 55%, rgba(0,0,0,0.42) 85%, rgba(0,0,0,0.22) 100%)',
+            'linear-gradient(to top, rgba(0,0,0,0.28) 0%, rgba(0,0,0,0) 100%)',
         }}
       />
-      <div className="absolute bottom-[12%] left-[32px] z-10 max-w-[480px] text-white md:left-[60px]">
-        {/* Cover line — LOUIS VUITTON register: one geometric sans (Jost, the
-            free twin of LV Web), light weight, UPPERCASE with open tracking.
-            LV never uses a serif — the air between the caps is the luxury. */}
-        <h1 className="font-display text-[42px] font-light uppercase leading-[1.1] tracking-[0.1em] text-white [text-shadow:0_2px_10px_rgba(0,0,0,0.2)] md:text-[64px] md:tracking-[0.12em]">
-          Second
-          <br />
-          Skin
-          <br />
-          Edit
-        </h1>
-        {/* #f0f0f0 measured 3.05:1 worst / 3.54 median over the pale slides.
-            Pure white on the strengthened scrim clears 4.5:1; the subdued
-            step below the headline now comes from size and weight rather than
-            from a dimmer grey. */}
-        <p className="mt-5 max-w-[380px] text-[13px] font-normal leading-[1.6] text-white">
-          New season essentials, engineered in Pakistan. Featherweight layers with a barely-there finish.
-        </p>
-        <div className="mt-7 flex gap-3">
-          {/* Hero actions use the shared .btn + .hero-cta primitives. They were
-              bespoke 25px pills at 40px tall: the pill radius contradicts the
-              design tokens (card:0 / control:2px) that the rest of the store
-              follows, and 40px sat under the 44px tap-target minimum. */}
-          <Link to="/women" className="btn hero-cta bg-white text-black hover:bg-[#f0f0f0]">
-            Shop Women
-          </Link>
-          <Link to="/men" className="btn hero-cta bg-white text-black hover:bg-[#f0f0f0]">
-            Shop Men
-          </Link>
-        </div>
-      </div>
 
       {/* Slide arrows — plain ‹ › chevrons, no circle */}
       <button
         type="button"
         onClick={() => setIdx((i) => (i - 1 + HERO_SLIDES.length) % HERO_SLIDES.length)}
         aria-label="Previous slide"
-        className="absolute left-4 top-1/2 z-20 -translate-y-1/2 p-2 text-white/90 transition-all hover:scale-110 hover:text-white md:left-6"
+        className="absolute left-4 top-1/2 z-20 -translate-y-1/2 p-2 text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)] transition-all hover:scale-110 hover:text-white md:left-6"
       >
         <ChevronLeft size={34} strokeWidth={1.5} />
       </button>
@@ -175,7 +132,7 @@ function HeroSlides() {
         type="button"
         onClick={() => setIdx((i) => (i + 1) % HERO_SLIDES.length)}
         aria-label="Next slide"
-        className="absolute right-4 top-1/2 z-20 -translate-y-1/2 p-2 text-white/90 transition-all hover:scale-110 hover:text-white md:right-6"
+        className="absolute right-4 top-1/2 z-20 -translate-y-1/2 p-2 text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)] transition-all hover:scale-110 hover:text-white md:right-6"
       >
         <ChevronRight size={34} strokeWidth={1.5} />
       </button>
