@@ -230,6 +230,7 @@ const RESTRICTED_PATHS = [
   { prefix: '/admin/live', key: 'analytics' },
   { prefix: '/admin/apps', key: 'settings' },
   { prefix: '/admin/backup', key: 'settings' },
+  { prefix: '/admin/loyalty', key: 'customers' },
 ];
 
 function isPathBlocked(pathname, role) {
@@ -272,8 +273,7 @@ export default function AdminLayout({ children, title }) {
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-[220px] md:block"><SidebarContent onOpenCmd={() => setCmdOpen(true)} /></aside>
       {drawer && <div className="fixed inset-0 z-50 md:hidden"><div className="absolute inset-0 bg-black/40" onClick={() => setDrawer(false)} /><div className="absolute inset-y-0 left-0 w-64 shadow-xl"><button onClick={() => setDrawer(false)} className="absolute right-3 top-4 z-10 rounded-lg p-1.5 text-neutral-500 hover:bg-white/70"><X size={18} /></button><SidebarContent onNavigate={() => setDrawer(false)} onOpenCmd={() => { setDrawer(false); setCmdOpen(true); }} /></div></div>}
       <div className="flex min-h-screen min-w-0 flex-1 flex-col md:pl-[220px]">
-        <div className="sticky top-0 z-30 flex items-center gap-3 border-b border-black/5 bg-[#ebebeb] px-4 py-3 md:hidden"><button onClick={() => setDrawer(true)} className="rounded-lg p-1.5 text-neutral-700 hover:bg-white/70"><Menu size={20} /></button><Link to="/admin" className="font-sans text-base font-bold tracking-widest text-neutral-900">HUSHAE</Link></div>
-        <TopBar title={title} auth={auth} onCmdK={() => setCmdOpen(true)} />
+        <TopBar title={title} auth={auth} onCmdK={() => setCmdOpen(true)} onMenu={() => setDrawer(true)} />
         <div className="min-w-0 flex-1 p-4 md:p-6">{title && <h1 className="mb-6 font-sans text-[14px] font-semibold leading-tight text-neutral-900 md:hidden">{title}</h1>}<div className="admin-main min-w-0">{children}</div></div>
       </div>
       <ProfitCalculator />

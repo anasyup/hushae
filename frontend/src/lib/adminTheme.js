@@ -8,11 +8,12 @@
 //
 // .dark-admin is applied ONLY on admin routes — the storefront never changes.
 
-const KEY = 'vl_admin_theme';
+const KEY = 'hushae.admin_theme';
+const LEGACY_KEY = 'vl_admin_theme';
 const isAdminPath = () => typeof window !== 'undefined' && /^\/admin/.test(window.location.pathname);
 
 export function getAdminTheme() {
-  try { return localStorage.getItem(KEY) || 'light'; } catch { return 'light'; }
+  try { return localStorage.getItem(KEY) || localStorage.getItem(LEGACY_KEY) || 'light'; } catch { return 'light'; }
 }
 
 export function applyAdminTheme() {
