@@ -16,16 +16,16 @@ const CATEGORIES = [
 
 export default function LuxuryCategoryShowcase() {
   return (
-    <section className="w-full bg-[#fcfbf9] px-4 pb-10 md:px-8 md:pb-12">
+    <section className="w-full bg-white px-4 pb-12 md:px-8 md:pb-16">
       <div className="mx-auto max-w-[1600px]">
         {/* Minimal section title */}
-        <div className="mb-8 flex items-end justify-between border-b border-neutral-200/80 pb-4">
+        <div className="mb-10 flex items-end justify-between">
           <div>
-            <span className="section-eyebrow">Curated Collections</span>
-            <h2 className="section-title mt-3">Essential Categories</h2>
+            <span className="text-[10px] font-medium uppercase tracking-[0.3em] text-neutral-400">Curated Collections</span>
+            <h2 className="mt-3 text-2xl font-light uppercase tracking-[0.18em] text-[#111111] md:text-[34px]">Essential Categories</h2>
           </div>
-          <Link to="/shop" className="hidden items-center gap-1 text-[11px] font-medium uppercase tracking-[0.2em] text-black transition hover:opacity-60 sm:flex">
-            View All <ArrowUpRight size={14} aria-hidden="true" />
+          <Link to="/shop" className="hidden min-h-[44px] items-center gap-1 border-b border-black/40 pb-0.5 text-[10px] font-medium uppercase tracking-[0.25em] text-neutral-600 transition-colors hover:border-black hover:text-black sm:inline-flex">
+            View All <ArrowUpRight size={13} aria-hidden="true" />
           </Link>
         </div>
 
@@ -49,7 +49,7 @@ export default function LuxuryCategoryShowcase() {
                   Now object-cover with no padding and no blend mode: the tile
                   fills, and the aspect-[3/4] box still fixes the height so
                   there is no layout shift. */}
-              <div className="relative aspect-[3/4] overflow-hidden bg-[#eeece7]">
+              <div className="relative aspect-[3/4] overflow-hidden bg-[#f2f0ec]">
                 <img
                   src={cat.image}
                   alt={cat.title}

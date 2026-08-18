@@ -154,21 +154,22 @@ function CategoryGridSection() {
   );
 }
 
-/* ── SECTION 2 & 4: Product carousel (Givenchy style) ───────────────────── */
+/* ── SECTION 2 & 4: Product carousel (CK register — no rules, just air) ──── */
 function ProductCarouselSection({ title, subtitle, products, href }) {
   return (
-    <section className="border-t border-neutral-200/60 pt-14 pb-10 md:pt-20 md:pb-12">
-      <div className="mb-10 space-y-1 px-4 text-center md:px-8">
-        <h2 className="section-title">
+    <section className="px-4 pt-24 pb-10 md:px-8 md:pt-32 md:pb-14">
+      <div className="mb-12 space-y-3 px-4 text-center md:px-8">
+        <p className="text-[10px] font-medium uppercase tracking-[0.3em] text-neutral-400">
+          {subtitle}
+        </p>
+        <h2 className="text-2xl font-light uppercase tracking-[0.18em] text-[#111111] md:text-[34px]">
           {title}
         </h2>
-        {/* 18px tall as a bare link — raised to the 44px minimum via padding.
-            Kept as a centred inline-flex so the section header still centres. */}
         <Link
           to={href || '/shop'}
-          className="inline-flex min-h-[44px] items-center border-b border-black/30 text-[10px] font-medium uppercase tracking-[0.25em] text-neutral-500 transition-colors hover:text-black"
+          className="inline-flex min-h-[44px] items-center gap-1 border-b border-black/40 pb-0.5 text-[10px] font-medium uppercase tracking-[0.25em] text-neutral-600 transition-colors hover:border-black hover:text-black"
         >
-          {subtitle}
+          View All <span aria-hidden="true">&rarr;</span>
         </Link>
       </div>
 
@@ -307,19 +308,22 @@ function NewsletterSection() {
     setDone(true);
   };
   return (
-    <section className="border-t border-neutral-200/80 bg-[#f7f6f2] px-4 pt-12 pb-10 text-center md:pt-14 md:pb-12">
-      <div className="mx-auto max-w-xl space-y-4">
-        <h2 className="section-title">
-          Subscribe to the Newsletter
+    <section className="bg-white px-4 pt-24 pb-16 text-center md:pt-32 md:pb-20">
+      <div className="mx-auto max-w-md space-y-5">
+        <p className="text-[10px] font-medium uppercase tracking-[0.3em] text-neutral-400">
+          Stay in touch
+        </p>
+        <h2 className="text-2xl font-light uppercase tracking-[0.18em] text-[#111111] md:text-[30px]">
+          The Newsletter
         </h2>
         <p className="text-[12px] font-normal leading-relaxed tracking-wide text-neutral-500">
-          Be the first to receive updates on new arrivals, private sales, and seasonal collection previews.
+          New arrivals, private sales and seasonal previews — first.
         </p>
         {done ? (
           <p className="pt-4 text-[12px] font-medium uppercase tracking-[0.2em] text-[#111111]">You&apos;re on the list.</p>
         ) : (
           <form
-            className="mx-auto flex max-w-md items-center justify-center gap-2 pt-4"
+            className="mx-auto flex max-w-sm items-end justify-center gap-3 pt-4"
             onSubmit={submit}
             noValidate
           >
@@ -337,12 +341,12 @@ function NewsletterSection() {
               required
               aria-invalid={err ? 'true' : undefined}
               aria-describedby={err ? 'home-nl-err' : undefined}
-              placeholder="Enter your email address"
-              className="w-full border border-neutral-300 bg-white px-4 py-3 text-[12px] text-black transition focus:border-black focus:outline-none placeholder:text-[10px] placeholder:uppercase placeholder:tracking-widest placeholder:text-neutral-400"
+              placeholder="Email address"
+              className="w-full border-0 border-b border-black/30 bg-transparent px-0 py-2.5 text-[13px] text-black transition focus:border-black focus:outline-none placeholder:text-[12px] placeholder:tracking-wide placeholder:text-neutral-400"
             />
             <button
               type="submit"
-              className="min-h-[44px] whitespace-nowrap bg-black px-6 py-3 text-[11px] font-medium uppercase tracking-[0.2em] text-white transition hover:bg-neutral-800"
+              className="min-h-[44px] shrink-0 border-b border-black/30 pb-1 text-[11px] font-medium uppercase tracking-[0.2em] text-black transition-colors hover:border-black"
             >
               Sign Up
             </button>
@@ -365,7 +369,7 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen w-full bg-[#FAF8F5] font-sans text-[#111111] selection:bg-black selection:text-white">
+    <div className="min-h-screen w-full bg-white font-sans text-[#111111] selection:bg-black selection:text-white">
       <Seo title="Premium Innerwear for Men & Women"
         description="New season essentials, engineered for comfort. Made in Pakistan, finished to an international standard."
         canonical="/"
@@ -391,10 +395,10 @@ export default function Home() {
       {/* 04 — NEW ARRIVALS — luxury grid (editorial header + tabs) */}
       <NewArrivalsSection products={fresh} />
 
-      {/* 04 — VIEW MORE (reference button) */}
-      <div className="flex w-full justify-center">
-        <Link to="/shop" className="mb-12 mt-0 cursor-pointer border border-black bg-transparent px-10 py-3.5 text-[11px] font-medium uppercase tracking-[0.2em] text-black transition-all duration-300 ease-in-out hover:bg-black hover:text-white">
-          View More
+      {/* 04 — VIEW MORE — quiet CK affordance (underlined text, not a button) */}
+      <div className="flex w-full justify-center pb-10 md:pb-14">
+        <Link to="/shop" className="inline-flex min-h-[44px] items-center gap-1 border-b border-black/50 pb-0.5 text-[11px] font-medium uppercase tracking-[0.25em] text-black transition-colors hover:border-black hover:opacity-60">
+          View All <ArrowRight size={14} aria-hidden="true" />
         </Link>
       </div>
 

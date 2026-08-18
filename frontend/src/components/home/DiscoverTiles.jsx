@@ -17,18 +17,18 @@ const TILES = [
 
 export default function DiscoverTiles() {
   return (
-    <section className="w-full bg-[#fcfbf9] px-4 pt-14 pb-10 md:px-8 md:pt-20 md:pb-12">
+    <section className="w-full bg-white px-4 pt-20 pb-10 md:px-8 md:pt-28 md:pb-14">
       <div className="mx-auto max-w-[1600px]">
-        <div className="mb-6 flex items-end justify-between border-b border-neutral-200/80 pb-5">
+        <div className="mb-10 flex items-end justify-between">
           <div>
-            <p className="section-eyebrow">Discover</p>
-            <h2 className="section-title mt-3">
+            <p className="text-[10px] font-medium uppercase tracking-[0.3em] text-neutral-400">Discover</p>
+            <h2 className="mt-3 text-2xl font-light uppercase tracking-[0.18em] text-[#111111] md:text-[34px]">
               Shop the Edit
             </h2>
           </div>
           <Link
             to="/shop"
-            className="hidden min-h-[44px] items-center gap-1 text-[11px] font-medium uppercase tracking-[0.2em] text-black transition hover:opacity-60 sm:flex"
+            className="hidden min-h-[44px] items-center gap-1 border-b border-black/40 pb-0.5 text-[10px] font-medium uppercase tracking-[0.25em] text-neutral-600 transition-colors hover:border-black hover:text-black sm:inline-flex"
           >
             View All <span aria-hidden="true">&rarr;</span>
           </Link>

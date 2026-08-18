@@ -21,25 +21,25 @@ export default function NewArrivalsSection({ products = [] }) {
   if (!list.length) return null;
 
   return (
-    <section className="w-full pb-10 md:pb-12">
+    <section className="w-full bg-white pb-12 md:pb-16">
       <div className="mx-auto max-w-[1600px] px-4 md:px-8">
-        {/* ── Editorial header ── */}
-        <div className="flex flex-col justify-between border-b border-neutral-300/60 pb-9 md:flex-row md:items-end">
+        {/* ── Editorial header — CK register: thin tracked caps, no rules ── */}
+        <div className="flex flex-col justify-between pb-8 md:flex-row md:items-end">
           <div>
-            <p className="text-[10px] font-medium uppercase tracking-[0.34em] text-neutral-400">
-              Autumn / Winter &rsquo;26 — The New In
+            <p className="text-[10px] font-medium uppercase tracking-[0.3em] text-neutral-400">
+              The New In
             </p>
-            <h2 className="mt-6 font-serif text-3xl font-normal uppercase leading-[1.1] tracking-[0.08em] text-[#111111] md:text-5xl">
+            <h2 className="mt-4 text-[28px] font-light uppercase leading-[1.08] tracking-[0.14em] text-[#111111] md:text-[44px]">
               New Arrivals
             </h2>
           </div>
 
           <Link
             to="/new"
-            className="group mt-7 inline-flex min-h-[44px] items-center gap-2 border-b border-black/50 pb-1 text-[11px] font-medium uppercase tracking-[0.25em] text-black transition-colors hover:border-black md:mt-0"
+            className="group mt-6 inline-flex min-h-[44px] items-center gap-2 border-b border-black/40 pb-0.5 text-[10px] font-medium uppercase tracking-[0.25em] text-neutral-600 transition-colors hover:border-black hover:text-black md:mt-0"
           >
             View All
-            <ArrowRight size={14} className="transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true" />
+            <ArrowRight size={13} className="transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true" />
           </Link>
         </div>
       </div>
