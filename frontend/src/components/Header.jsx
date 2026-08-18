@@ -112,9 +112,9 @@ export default function Header() {
 
   return (
     <div className="fixed left-0 top-0 z-50 flex w-full flex-col">
-      {/* 1. Announcement bar — always visible (like the header), pure white */}
+      {/* 1. Announcement bar — always visible (like the header), black */}
       {!loc.pathname.startsWith('/product/') && (
-        <div className="w-full overflow-hidden bg-[#FFFFFF]">
+        <div className="w-full overflow-hidden bg-black">
           <OfferBar />
         </div>
       )}
@@ -124,7 +124,7 @@ export default function Header() {
           solid white + hairline + black text once scrolled (no heavy block). */}
       <header
         data-header
-        className={`w-full h-[72px] !m-0 px-6 lg:px-12 transition-all duration-300 ease-in-out ${
+        className={`w-full h-[80px] !m-0 px-6 lg:px-12 transition-all duration-300 ease-in-out ${
           mega || isScrolled
             ? 'bg-[#FFFFFF] text-black border-b border-neutral-200 shadow-sm'
             : 'bg-transparent text-black'

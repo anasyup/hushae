@@ -1,21 +1,13 @@
 import { Link } from 'react-router-dom';
 import { useApp } from '../store/AppContext';
 
-/* Announcement bar — black, uppercase tracking-widest, underlined CTA.
+/* Announcement bar — BLACK, slim, uppercase tracking-widest, underlined CTA.
  *
- * Two fixes measured at 390px:
- *   · Body copy was 10px on mobile (11px only from md). This is the first
- *     thing on the page and often carries the live discount, so it now starts
- *     at 11px — the storefront's label floor.
- *   · The CTA measured 36.6x15px. It is a promotional link (currently "UP TO
- *     30% OFF ... SHOP") and was the smallest tap target in the header.
- *     inline-block with vertical padding takes it to a 44px-tall target
- *     without changing the bar's own height, because the bar's py-2.5 already
- *     provides the room — the link's padding overlaps it rather than adding
- *     to it.
+ * Merchant request (2026-08): less height + black instead of white.
+ * A single compact line — py-1.5 keeps it slim; the CTA stays tappable.
  */
 const BAR =
-  'w-full border-none bg-[#FFFFFF] py-2.5 text-center text-[11px] font-medium uppercase leading-none tracking-[0.2em] text-black !m-0';
+  'w-full border-none bg-black py-1.5 text-center text-[11px] font-medium uppercase leading-none tracking-[0.2em] text-white !m-0';
 
 export default function OfferBar() {
   const { settings } = useApp();
@@ -27,7 +19,7 @@ export default function OfferBar() {
         {offer.messageEn}{' '}
         <Link
           to={offer.link || '/sale'}
-          className="ml-1 inline-block cursor-pointer py-[15px] font-bold underline decoration-1 underline-offset-2 hover:no-underline"
+          className="ml-1 inline-block cursor-pointer py-1 font-bold text-white underline decoration-1 underline-offset-2 hover:no-underline"
         >
           {offer.ctaEn || 'SHOP'}
         </Link>
