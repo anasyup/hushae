@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { SIZES, pictureSources } from '../../lib/responsiveImage';
+import AtelierNotes from './AtelierNotes';
 
 /* ============================================================================
  * HeroWithOverlay — CK monochrome luxury hero with cinematic caption overlay.
@@ -83,6 +84,9 @@ export default function HeroWithOverlay() {
             'linear-gradient(to top, rgba(0,0,0,0.62) 0%, rgba(0,0,0,0.42) 35%, rgba(0,0,0,0.18) 65%, rgba(0,0,0,0) 100%)',
         }}
       />
+
+      {/* AtelierNotes — live production indicator, Karachi workshop */}
+      <AtelierNotes />
 
       {/* Campaign caption — bottom-left pinned */}
       <div className="absolute inset-x-0 bottom-0 z-10 px-5 pb-12 pt-10 text-white md:px-16 md:pb-20 md:pt-16 lg:px-20 lg:pb-24 lg:pt-20">
