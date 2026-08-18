@@ -1,12 +1,15 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { api } from '../api/client';
 import Seo, { organizationJsonLd } from '../components/Seo';
 import LuxuryCategoryShowcase from '../components/LuxuryCategoryShowcase';
 import CollectionCard from '../components/CollectionCard';
 import NewArrivalsSection from '../components/home/NewArrivalsSection';
 import DiscoverTiles from '../components/home/DiscoverTiles';
+import HeroWithOverlay from '../components/home/HeroWithOverlay';
+import BrandStory from '../components/home/BrandStory';
+import CustomerTestimonial from '../components/home/CustomerTestimonial';
 import ScrollReveal from '../components/ScrollReveal';
 import { ProductRowSkeleton } from '../components/ProductSkeleton';
 import { PRODUCT_GRID } from '../lib/productGrid';
@@ -31,91 +34,10 @@ const CATEGORIES = [
   { title: "Men's Boxers", image: '/images/categories/boxers.jpg', href: '/category/boxers' },
 ];
 
-/* ── HERO SLIDER — 4 slides (image + optional video), same size/text/buttons ──
-   Each slide: `image` (poster / photo) and optional `video` (mp4/webm path).
-   If `video` is set the slide plays it (muted, loop, autoplay) with the
-   image as poster; otherwise it shows the photo. To change slides, swap the
-   paths below or add a video file under public/images/campaign/qa/.
-   Auto-advances every 4s, pauses on hover/focus; thin dots for manual
-   selection. No new action buttons, no filters — everything else unchanged. */
-const HERO_SLIDES = [
-  { landscape: `${IMG}/hero-new-1.jpg`, portrait: `${IMG}/hero-m-1.jpg` },
-  { landscape: `${IMG}/hero-new-2.jpg`, portrait: `${IMG}/hero-m-2.jpg` },
-  { landscape: `${IMG}/hero-new-3.jpg`, portrait: `${IMG}/hero-m-3.jpg` },
-  { landscape: `${IMG}/hero-new-4.jpg`, portrait: `${IMG}/hero-m-4.jpg` },
-];
-
-function HeroSlides() {
-  const [idx, setIdx] = useState(0);
-
-  /* Auto-advance every 4.5s — ALWAYS, no hover pause (the merchant wants
-     the banner to keep moving). Crossfade is 900ms so the change is clearly
-     visible. Slides are preloaded eagerly so the crossfade never shows a
-     blank frame. */
-  useEffect(() => {
-    const t = setInterval(() => setIdx((i) => (i + 1) % HERO_SLIDES.length), 4500);
-    return () => clearInterval(t);
-  }, []);
-
-  return (
-    <section
-      className="relative aspect-[4/5] w-full overflow-hidden bg-white md:aspect-[16/9]"
-      aria-roledescription="carousel"
-      aria-label="Campaign highlights"
-    >
-      {/* Slides — crossfade. Art-directed: portrait crop on mobile (4:5),
-          landscape on desktop (16:9) — the photo always FITS, never zooms. */}
-      {HERO_SLIDES.map((s, i) => (
-        <div
-          key={s.landscape}
-          aria-hidden={i !== idx}
-          className={`absolute inset-0 transition-opacity duration-[900ms] ease-in-out ${i === idx ? 'opacity-100' : 'opacity-0'}`}
-        >
-          <picture className="block h-full w-full">
-            <source media="(max-width: 767px)" srcSet={s.portrait} />
-            <img
-              src={s.landscape}
-              alt={i === idx ? 'HUSHAE campaign' : ''}
-              fetchpriority={i === 0 ? 'high' : 'auto'}
-              loading="eager"
-              decoding="async"
-              className="h-full w-full object-cover object-center"
-            />
-          </picture>
-        </div>
-      ))}
-
-      {/* Slide arrows — luxury hairline circle (Gucci/Prada register) */}
-      <button
-        type="button"
-        onClick={() => setIdx((i) => (i - 1 + HERO_SLIDES.length) % HERO_SLIDES.length)}
-        aria-label="Previous slide"
-        className="absolute left-3 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/60 text-white transition-all duration-300 hover:border-white hover:bg-white hover:text-black md:left-6"
-      >
-        <ChevronLeft size={20} strokeWidth={1.5} aria-hidden="true" />
-      </button>
-      <button
-        type="button"
-        onClick={() => setIdx((i) => (i + 1) % HERO_SLIDES.length)}
-        aria-label="Next slide"
-        className="absolute right-3 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/60 text-white transition-all duration-300 hover:border-white hover:bg-white hover:text-black md:right-6"
-      >
-        <ChevronRight size={20} strokeWidth={1.5} aria-hidden="true" />
-      </button>
-
-      {/* Subtle bottom scrim — keeps the imagery clean; no text overlay. */}
-      <div
-        aria-hidden="true"
-        className="absolute inset-x-0 bottom-0 h-24"
-        style={{
-          background:
-            'linear-gradient(to top, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0) 100%)',
-        }}
-      />
-
-    </section>
-  );
-}
+/* ── HERO — now extracted to HeroWithOverlay component (see
+   components/home/HeroWithOverlay.jsx) with cinematic text overlay,
+   campaign caption, and primary CTA. The vintage HeroSlides is removed in
+   favour of a single component that owns the campaign story.            *
 
 /* ── SECTION 1: Minimalist category grid (Tom Ford style) ───────────────── */
 function CategoryGridSection() {
@@ -366,15 +288,15 @@ export default function Home() {
         jsonLd={organizationJsonLd(typeof window !== 'undefined' ? window.location.origin : '')}
         jsonLdId="home-org" />
 
-      {/* H1 — visually hidden for SEO (the hero used to carry the only H1;
-          it now shows the campaign image alone, so the page keeps its title
-          here instead). Screen readers announce it; sighted users never see it. */}
+      {/* H1 lives inside the hero overlay now — kept here only as a safety
+          net for any crawlers that prefer an <h1> at the top of <main>. The
+          visual H1 is inside HeroWithOverlay.                            */}
       <h1 className="sr-only">
         HUSHAE — Premium innerwear for men and women, made in Pakistan
       </h1>
 
-      {/* 01 — HERO (CK) */}
-      <HeroSlides />
+      {/* 01 — HERO with cinematic overlay + CTA (CK monopoly of attention) */}
+      <HeroWithOverlay />
 
       {/* 02 — DISCOVER — editorial gateway (Chanel / Hermès / CK pattern) */}
       <ScrollReveal delay={100}>
@@ -406,14 +328,24 @@ export default function Home() {
         <EditorialSplitSection />
       </ScrollReveal>
 
-      {/* 05 — OBJECTS OF DESIRE */}
+      {/* 05b — BRAND STORY — HUSHAE's origin editorial moment */}
       <ScrollReveal delay={350}>
+        <BrandStory />
+      </ScrollReveal>
+
+      {/* 05c — OBJECTS OF DESIRE */}
+      <ScrollReveal delay={380}>
         <ProductCarouselSection title="Objects of Desire" subtitle="CURATED SELECTION" products={best || []} href="/best" />
         {best === null && <ProductRowSkeleton count={4} />}
       </ScrollReveal>
 
-      {/* 06 — NEWSLETTER */}
-      <ScrollReveal delay={400}>
+      {/* 06 — CUSTOMER TESTIMONIAL — single voice, editorial pull quote */}
+      <ScrollReveal delay={420}>
+        <CustomerTestimonial />
+      </ScrollReveal>
+
+      {/* 07 — NEWSLETTER */}
+      <ScrollReveal delay={460}>
         <NewsletterSection />
       </ScrollReveal>
     </div>
