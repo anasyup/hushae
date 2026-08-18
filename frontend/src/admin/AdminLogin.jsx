@@ -4,6 +4,8 @@ import { Lock, ShieldCheck, ArrowLeft } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 
+const STAFF_ROLES = ['admin', 'Owner', 'Manager', 'Staff', 'Warehouse', 'Support'];
+
 export default function AdminLogin() {
   const { auth, setAuth } = useApp();
   const nav = useNavigate();
@@ -17,7 +19,7 @@ export default function AdminLogin() {
   const [pendingEmail, setPendingEmail] = useState('');
 
   // Already signed in as admin → straight to the console
-  if (auth && auth.user.role === 'admin') return <Navigate to="/admin" replace />;
+  if (auth && STAFF_ROLES.includes(auth.user?.role)) return <Navigate to="/admin" replace />;
 
   const submit = async (e) => {
     e.preventDefault();
@@ -30,7 +32,7 @@ export default function AdminLogin() {
         setBusy(false);
         return;
       }
-      if (d.user.role !== 'admin') { setErr('This account is not an admin.'); setBusy(false); return; }
+      if (!STAFF_ROLES.includes(d.user?.role)) { setErr('This account does not have staff access.'); setBusy(false); return; }
       setAuth(d);
       nav('/admin', { replace: true });
     } catch (ex) { setErr(ex.message); setBusy(false); }
@@ -57,8 +59,8 @@ export default function AdminLogin() {
 
         {!step2 ? (
           <form onSubmit={submit} className="mt-8 space-y-4" autoComplete="off">
-            <div><label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500">Username</label><input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" type="text" required autoComplete="off" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} /></div>
-            <div><label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500">Password</label><input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" type="password" required autoComplete="new-password" value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} /></div>
+            <div><label htmlFor="admin-email" className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500">Email</label><input id="admin-email" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[13px] outline-none transition focus:border-neutral-900" type="email" required autoComplete="username" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} /></div>
+            <div><label htmlFor="admin-password" className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500">Password</label><input id="admin-password" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[13px] outline-none transition focus:border-neutral-900" type="password" required autoComplete="current-password" value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} /></div>
             {err && <p className="rounded-xl bg-red-50 px-4 py-3 text-xs text-red-800">{err}</p>}
             <button disabled={busy} className="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-4 py-2 text-[12px] font-semibold text-white hover:bg-black w-full"><Lock size={14} /> {busy ? 'Verifying…' : 'Sign In'}</button>
           </form>

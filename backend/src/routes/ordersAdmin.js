@@ -65,6 +65,10 @@ function buildFilter(q) {
       f.$or = [{ stage: { $in: valid } }, { stage: { $in: ['', null] }, status: { $in: legacy } }];
     }
   }
+  if (q.status && q.status !== 'all') {
+    const statuses = String(q.status).split(',').map((s) => s.trim()).filter(Boolean);
+    if (statuses.length) f.status = { $in: statuses };
+  }
   if (q.group && q.group !== 'all') {
     const stages = flow.STAGES.filter((s) => s.group === q.group).map((s) => s.key);
     const legacy = [...new Set(stages.map(flow.legacyFor))];

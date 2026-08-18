@@ -125,7 +125,14 @@ export default function Products() {
     });
   };
   const toggleSelAll = () => {
-    setSelected((s) => s.size === filtered.length ? new Set() : new Set(filtered.map((p) => p._id)));
+    const pageIds = paged.map((p) => p._id);
+    setSelected((s) => {
+      const allOnPage = pageIds.length > 0 && pageIds.every((id) => s.has(id));
+      const n = new Set(s);
+      if (allOnPage) pageIds.forEach((id) => n.delete(id));
+      else pageIds.forEach((id) => n.add(id));
+      return n;
+    });
   };
 
   const clearFilters = () => setF({ q: '', category: '', gender: '', tier: '', stock: '', status: '' });
@@ -383,7 +390,7 @@ function StatusChip({ p }) {
 }
 
 function ListView({ products, selected, onToggleSel, onToggleAll, onEnable, onDisable, onPublish, onRemove, onDuplicate }) {
-  const allSelected = products.length > 0 && selected.size === products.length;
+  const allSelected = products.length > 0 && products.every((p) => selected.has(p._id));
   return (
     <div className="overflow-x-auto rounded-2xl border border-neutral-200 bg-white">
       <table className="w-full min-w-[900px]">
@@ -409,7 +416,7 @@ function ListView({ products, selected, onToggleSel, onToggleAll, onEnable, onDi
               </td>
               <td className="px-3 py-2 text-[12px]">
                 <Link to={`/admin/products/${p._id}`} className="group flex items-center gap-3">
-                  <Img src={p.images[0]?.url} alt="" className="h-12 w-9 shrink-0 rounded-lg border border-neutral-200 object-cover" />
+                  <Img src={p.images?.[0]?.url} alt="" className="h-12 w-9 shrink-0 rounded-lg border border-neutral-200 object-cover" />
                   <div className="min-w-0">
                     <p className="line-clamp-2 max-w-64 text-[13px] font-medium text-neutral-900 group-hover:underline">{p.name}</p>
                     <div className="mt-1 flex items-center gap-2 text-[13px] uppercase tracking-wider text-neutral-500">
@@ -477,7 +484,7 @@ function GridView({ products, onEnable, onDisable, onRemove, onDuplicate, onPubl
         <div key={p._id} className="group relative overflow-hidden rounded-2xl border border-neutral-200 bg-white transition hover:-translate-y-0.5 hover:shadow-md">
           <Link to={`/admin/products/${p._id}`} className="block">
             <div className="relative aspect-[3/4] overflow-hidden bg-neutral-50">
-              <Img src={p.images[0]?.url} alt="" className="h-full w-full object-cover transition group-hover:scale-105" />
+              <Img src={p.images?.[0]?.url} alt="" className="h-full w-full object-cover transition group-hover:scale-105" />
               <div className="absolute left-2 top-2 flex flex-col gap-1">
                 <StatusChip p={p} />
                 {p.stock === 0 && <span className="rounded-full bg-red-600 px-2 py-0.5 text-[13px] font-bold text-white">SOLD OUT</span>}
@@ -705,7 +712,7 @@ function BulkEditModal({ count, onClose, onApply }) {
               </div>
             )}
 
-            {(action === 'toggleFeatured' || action === 'toggleBest') && (
+            {(action === 'toggleFeatured' || action === 'toggleBest' || action === 'toggleSale') && (
               <div className="grid grid-cols-2 gap-2">
                 <button onClick={() => setBool(true)}  className={`rounded-xl border px-3 py-2 text-[12px] font-semibold transition ${bool  ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-200 bg-white text-neutral-700 hover:border-neutral-400'}`}>Turn ON</button>
                 <button onClick={() => setBool(false)} className={`rounded-xl border px-3 py-2 text-[12px] font-semibold transition ${!bool ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-200 bg-white text-neutral-700 hover:border-neutral-400'}`}>Turn OFF</button>

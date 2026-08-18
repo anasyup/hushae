@@ -20,7 +20,7 @@ import Img from '../components/Img';
 import AlertsBar from './dashboard/AlertsBar';
 import GoalTracker from './dashboard/GoalTracker';
 import InsightsCard from './dashboard/InsightsCard';
-import RangePicker, { resolvePreset } from './dashboard/RangePicker';
+import RangePicker, { RANGE_PRESETS, resolvePreset } from './dashboard/RangePicker';
 import CancellationReasons from './dashboard/CancellationReasons';
 import AbandonedCartsWidget from './dashboard/AbandonedCartsWidget';
 import ReorderModal from './dashboard/ReorderModal';
@@ -194,7 +194,7 @@ function StockRow({ product: p, onSaved, onReorder }) {
 function PipelineStrip({ stats }) {
   const items = [
     { label: 'Pending', n: stats.pending, color: 'bg-amber-500', text: 'text-amber-700', to: '/admin/orders?group=new' },
-    { label: 'Confirmed', n: stats.confirmed, color: 'bg-cyan-500', text: 'text-cyan-700', to: '/admin/orders?group=processing' },
+    { label: 'Confirmed', n: stats.confirmed, color: 'bg-cyan-500', text: 'text-cyan-700', to: '/admin/orders?status=Confirmed&group=all' },
     { label: 'Processing', n: stats.processing, color: 'bg-blue-500', text: 'text-blue-700', to: '/admin/orders?group=processing' },
     { label: 'Ready', n: stats.readyToShip, color: 'bg-indigo-500', text: 'text-indigo-700', to: '/admin/orders?group=to-ship' },
     { label: 'In Transit', n: stats.shipped, color: 'bg-purple-500', text: 'text-purple-700', to: '/admin/orders?group=shipped' },
@@ -379,6 +379,9 @@ export default function Dashboard() {
 
   const greeting = (() => { const h = new Date().getHours(); if (h < 12) return 'Good morning'; if (h < 17) return 'Good afternoon'; return 'Good evening'; })();
   const cmpLabel = 'vs previous period';
+  const rangeLabel = range.preset === 'custom'
+    ? `${range.from} – ${range.to}`
+    : (RANGE_PRESETS.find((p) => p.key === range.preset)?.label || 'Selected period');
 
   return (
     <AdminLayout title="Dashboard">
@@ -409,7 +412,7 @@ export default function Dashboard() {
 
       {/* ── Row 3: Revenue chart + Status donut ────────────────────────── */}
       <div className="mb-6 grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2"><ChartBoundary><RevenueChart data={d.chart} /></ChartBoundary></div>
+        <div className="lg:col-span-2"><ChartBoundary><RevenueChart data={d.chart} rangeLabel={rangeLabel} /></ChartBoundary></div>
         <ChartBoundary><StatusDonut byStatus={d.byStatus} /></ChartBoundary>
       </div>
 
@@ -425,7 +428,7 @@ export default function Dashboard() {
       {/* ── Row 6: P&L (conditional) ────────────────────────────────────── */}
       {d.kpis.profit && (d.kpis.profit.value !== 0 || d.kpis.cost.value !== 0) && (
         <div className="mb-6 rounded-2xl border border-neutral-200 bg-white p-6">
-          <div className="mb-5 flex items-center justify-between"><div><p className="text-[12px] font-bold uppercase tracking-widest text-neutral-500">Profit & loss</p><p className="mt-1 text-[12px] text-neutral-500">Last 30 days · based on cost prices</p></div><Link to="/admin/products" className="text-[12px] font-semibold text-neutral-500 hover:text-neutral-900">Manage costs →</Link></div>
+          <div className="mb-5 flex items-center justify-between"><div><p className="text-[12px] font-bold uppercase tracking-widest text-neutral-500">Profit & loss</p><p className="mt-1 text-[12px] text-neutral-500">{rangeLabel} · based on cost prices</p></div><Link to="/admin/products" className="text-[12px] font-semibold text-neutral-500 hover:text-neutral-900">Manage costs →</Link></div>
           <div className="grid gap-4 sm:grid-cols-3">
             <ProfitTile label="Gross profit" value={d.kpis.profit.value} change={d.kpis.profit.change} tone={d.kpis.profit.value >= 0 ? 'green' : 'red'} format="money" icon={TrendingUp} />
             <ProfitTile label="Cost of goods" value={d.kpis.cost.value} tone="neutral" format="money" icon={Package} hint="What you paid for products sold" />

@@ -67,7 +67,9 @@ const NAV_GROUPS = [
     match: ['/admin/promotions', '/admin/bundles', '/admin/flash-sales', '/admin/discounts', '/admin/marketing', '/admin/marketing/settings', '/admin/marketing/analytics', '/admin/email-campaigns', '/admin/banners', '/admin/banners/new', '/admin/banners/slots'],
     children: [
       { to: '/admin/promotions',           label: 'Promotions',        icon: Megaphone },
-      { to: '/admin/banners',                label: 'Banners',            icon: ImagePlus },
+      { to: '/admin/bundles',              label: 'Bundles',           icon: Package },
+      { to: '/admin/flash-sales',          label: 'Flash sales',       icon: Zap },
+      { to: '/admin/banners',              label: 'Banners',           icon: ImagePlus },
       { to: '/admin/discounts',            label: 'Discounts',         icon: BadgePercent },
       { to: '/admin/email-campaigns',      label: 'Email campaigns',   icon: Mail },
       { to: '/admin/marketing/settings',   label: 'Automation rules',  icon: SettingsIcon },
@@ -76,7 +78,7 @@ const NAV_GROUPS = [
   },
   {
     key: 'storefront', label: 'Storefront', icon: Store,
-    match: ['/admin/store', '/admin/theme', '/admin/theme-sections', '/admin/theme-legacy', '/admin/cms', '/admin/content', '/admin/faq', '/admin/markets', '/admin/blog', '/admin/navigation'],
+    match: ['/admin/store', '/admin/theme', '/admin/theme-sections', '/admin/theme-legacy', '/admin/cms', '/admin/cms/redirects', '/admin/content', '/admin/faq', '/admin/markets', '/admin/blog', '/admin/navigation'],
     children: [
       { to: '/admin/store',       label: 'Online Store',    icon: Globe },
       { to: '/admin/content',     label: 'Content',         icon: ImagePlus },
@@ -164,19 +166,11 @@ function GroupDropdown({ group, onNavigate, defaultOpen }) {
   );
 }
 
-function SidebarContent({ onNavigate }) {
+function SidebarContent({ onNavigate, onOpenCmd }) {
   const { auth, logout } = useApp();
   const loc = useLocation();
-  const [query, setQuery] = useState('');
   const role = auth?.user?.role;
   const visibleGroups = role ? NAV_GROUPS.filter((g) => roleHasAccess(role, g.key)) : NAV_GROUPS;
-  const searchable = useMemo(() => {
-    const list = [];
-    NAV_TOP.forEach((it) => list.push({ to: it.to, label: it.label, icon: it.icon }));
-    visibleGroups.forEach((g) => g.children.forEach((c) => list.push({ to: c.to, label: `${g.label} · ${c.label}`, icon: c.icon })));
-    return list;
-  }, [visibleGroups]);
-  const filtered = query.trim() ? searchable.filter((it) => it.label.toLowerCase().includes(query.trim().toLowerCase())).slice(0, 8) : [];
   const activeGroupLabel = useMemo(() => {
     for (const g of visibleGroups) { if (g.match.some((m) => loc.pathname.startsWith(m))) return g.label; }
     return null;
@@ -194,12 +188,16 @@ function SidebarContent({ onNavigate }) {
           <p className="text-[13px] font-bold uppercase tracking-wider text-neutral-500">{getRoleLabel(role)} view</p>
         </div>
       )}
-      <div className="relative px-3 pb-2">
-        <Search size={13} className="pointer-events-none absolute left-6 top-1/2 -translate-y-1/2 text-neutral-400" />
-        <input type="text" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search admin… (⌘K)"
-          className="w-full rounded-lg border border-transparent bg-white/70 py-1.5 pl-8 pr-8 text-[13px] text-neutral-800 outline-none placeholder:text-neutral-400 focus:border-neutral-300 focus:bg-white" />
-        <kbd className="pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 rounded border border-neutral-300 bg-white px-1.5 py-0.5 text-[15px] font-semibold text-neutral-400"><Command size={9} />K</kbd>
-        {filtered.length > 0 && <div className="absolute inset-x-3 top-full z-10 mt-1 max-h-72 overflow-y-auto rounded-lg border border-neutral-200 bg-white shadow-lg">{filtered.map((f) => <Link key={f.to} to={f.to} onClick={() => { setQuery(''); onNavigate?.(); }} className="flex items-center gap-2 px-3 py-2 text-[13px] text-neutral-700 hover:bg-neutral-50"><f.icon size={14} className="text-neutral-400" /> {f.label}</Link>)}</div>}
+      <div className="px-3 pb-2">
+        <button
+          type="button"
+          onClick={() => onOpenCmd?.()}
+          className="flex w-full items-center gap-2 rounded-lg border border-transparent bg-white/70 px-2.5 py-1.5 text-left text-[13px] text-neutral-500 transition hover:border-neutral-300 hover:bg-white"
+        >
+          <Search size={13} className="shrink-0 text-neutral-400" />
+          <span className="flex-1">Search…</span>
+          <kbd className="rounded border border-neutral-300 bg-white px-1.5 py-0.5 text-[10px] font-semibold text-neutral-400">⌘K</kbd>
+        </button>
       </div>
       <nav className="flex-1 space-y-0.5 overflow-y-auto px-2.5 pb-3">
         {NAV_TOP.map(({ to, label, icon: Icon, end }) => <NavLink key={to} to={to} end={end} className={linkCls} onClick={onNavigate}>{({ isActive }) => <><Icon size={17} strokeWidth={isActive ? 2.1 : 1.8} />{label}</>}</NavLink>)}
@@ -217,11 +215,17 @@ const RESTRICTED_PATHS = [
   { prefix: '/admin/settings', key: 'settings' }, { prefix: '/admin/theme', key: 'storefront' },
   { prefix: '/admin/cms', key: 'storefront' }, { prefix: '/admin/store', key: 'storefront' },
   { prefix: '/admin/markets', key: 'storefront' }, { prefix: '/admin/content', key: 'storefront' },
+  { prefix: '/admin/blog', key: 'storefront' }, { prefix: '/admin/navigation', key: 'storefront' },
+  { prefix: '/admin/faq', key: 'storefront' },
   { prefix: '/admin/marketing', key: 'marketing' }, { prefix: '/admin/promotions', key: 'marketing' },
   { prefix: '/admin/bundles', key: 'marketing' }, { prefix: '/admin/flash-sales', key: 'marketing' },
-  { prefix: '/admin/discounts', key: 'marketing' }, { prefix: '/admin/finance', key: 'analytics' },
+  { prefix: '/admin/discounts', key: 'marketing' }, { prefix: '/admin/email-campaigns', key: 'marketing' },
+  { prefix: '/admin/banners', key: 'marketing' },
+  { prefix: '/admin/finance', key: 'analytics' },
   { prefix: '/admin/analytics', key: 'analytics' }, { prefix: '/admin/insights', key: 'analytics' },
-  { prefix: '/admin/growth', key: 'analytics' }, { prefix: '/admin/apps', key: 'settings' },
+  { prefix: '/admin/growth', key: 'analytics' }, { prefix: '/admin/search-analytics', key: 'analytics' },
+  { prefix: '/admin/live', key: 'analytics' },
+  { prefix: '/admin/apps', key: 'settings' },
   { prefix: '/admin/backup', key: 'settings' },
 ];
 
@@ -262,8 +266,8 @@ export default function AdminLayout({ children, title }) {
   );
   return (
     <div className="admin-shell flex min-h-screen bg-[#F4F6F8]">
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-[220px] md:block"><SidebarContent /></aside>
-      {drawer && <div className="fixed inset-0 z-50 md:hidden"><div className="absolute inset-0 bg-black/40" onClick={() => setDrawer(false)} /><div className="absolute inset-y-0 left-0 w-64 shadow-xl"><button onClick={() => setDrawer(false)} className="absolute right-3 top-4 z-10 rounded-lg p-1.5 text-neutral-500 hover:bg-white/70"><X size={18} /></button><SidebarContent onNavigate={() => setDrawer(false)} /></div></div>}
+      <aside className="fixed inset-y-0 left-0 z-40 hidden w-[220px] md:block"><SidebarContent onOpenCmd={() => setCmdOpen(true)} /></aside>
+      {drawer && <div className="fixed inset-0 z-50 md:hidden"><div className="absolute inset-0 bg-black/40" onClick={() => setDrawer(false)} /><div className="absolute inset-y-0 left-0 w-64 shadow-xl"><button onClick={() => setDrawer(false)} className="absolute right-3 top-4 z-10 rounded-lg p-1.5 text-neutral-500 hover:bg-white/70"><X size={18} /></button><SidebarContent onNavigate={() => setDrawer(false)} onOpenCmd={() => { setDrawer(false); setCmdOpen(true); }} /></div></div>}
       <div className="flex min-h-screen min-w-0 flex-1 flex-col md:pl-[220px]">
         <div className="sticky top-0 z-30 flex items-center gap-3 border-b border-black/5 bg-[#ebebeb] px-4 py-3 md:hidden"><button onClick={() => setDrawer(true)} className="rounded-lg p-1.5 text-neutral-700 hover:bg-white/70"><Menu size={20} /></button><Link to="/admin" className="font-sans text-base font-bold tracking-widest text-neutral-900">HUSHAE</Link></div>
         <TopBar title={title} auth={auth} onCmdK={() => setCmdOpen(true)} />
@@ -276,7 +280,9 @@ export default function AdminLayout({ children, title }) {
 }
 
 function TopBar({ title, auth, onCmdK }) {
+  const { settings } = useApp();
   const loc = useLocation();
+  const storeOpen = settings?.storefrontLock?.enabled !== true;
   const [createOpen, setCreateOpen] = useState(false);
   const createRef = useRef(null);
   const [dark, setDark] = useState(() => getAdminTheme() === 'dark');

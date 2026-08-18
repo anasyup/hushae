@@ -15,7 +15,7 @@ const BASE = '/orders/manage';
 
 export const DEFAULTS = {
   // Opens on New so the first thing an admin sees is what needs attention.
-  group: 'new', stage: '', paymentMethod: 'all', paymentState: 'all',
+  group: 'new', stage: '', status: '', paymentMethod: 'all', paymentState: 'all',
   q: '', from: '', to: '', minTotal: '', maxTotal: '', city: 'all',
   printed: '', hasIssue: '', sort: 'oldest', page: '1', limit: '50',
 };
