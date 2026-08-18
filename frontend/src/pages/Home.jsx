@@ -37,52 +37,37 @@ const CATEGORIES = [
    Auto-advances every 4s, pauses on hover/focus; thin dots for manual
    selection. No new action buttons, no filters — everything else unchanged. */
 const HERO_SLIDES = [
-  { image: `${IMG}/hero-women.jpg`, video: '' },
-  { image: `${IMG}/hero-men.jpg`, video: '' },
-  { image: `${IMG}/editorial-modern.jpg`, video: '' },
-  { image: `${IMG}/hero-fabric.jpg`, video: '' },
+  { image: `${IMG}/hero-slide-1.jpg`, video: '' },
+  { image: `${IMG}/hero-slide-2.jpg`, video: '' },
+  { image: `${IMG}/hero-slide-3.jpg`, video: '' },
+  { image: `${IMG}/hero-slide-4.jpg`, video: '' },
 ];
 
 function HeroSlides() {
   const [idx, setIdx] = useState(0);
-  const [paused, setPaused] = useState(false);
 
-  /* WCAG 2.2.2 (Pause, Stop, Hide): anything that auto-updates for more than
-     five seconds needs a way to stop it. This carousel advanced every 4s with
-     no control at all — a shopper reading the headline or reaching for
-     SHOP WOMEN could have the slide change under them, and a screen-reader
-     user got the content moved mid-sentence.
-
-     Three things stop it now: the explicit pause button below, hover/focus
-     anywhere in the hero (the code comment claimed this already happened —
-     it did not), and the OS reduce-motion setting, which pins it to the
-     first slide entirely. 4s is also simply too fast for a slide carrying a
-     three-line headline and two CTAs, so the interval is 6s. */
-  const reduceMotion = typeof window !== 'undefined'
-    && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-
+  /* Auto-advance every 5s — ALWAYS, with no hover pause (the merchant
+     wants the banner to keep moving; the earlier hover-to-pause meant the
+     slideshow froze whenever the cursor sat over the hero, which on load is
+     almost always). All four slides are preloaded eagerly so the crossfade
+     never shows a blank frame. */
   useEffect(() => {
-    if (paused || reduceMotion) return undefined;
-    const t = setInterval(() => setIdx((i) => (i + 1) % HERO_SLIDES.length), 6000);
+    const t = setInterval(() => setIdx((i) => (i + 1) % HERO_SLIDES.length), 5000);
     return () => clearInterval(t);
-  }, [paused, reduceMotion]);
+  }, []);
 
   return (
     <section
       className="relative h-[100svh] w-full overflow-hidden bg-white"
       aria-roledescription="carousel"
       aria-label="Campaign highlights"
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-      onFocusCapture={() => setPaused(true)}
-      onBlurCapture={(e) => { if (!e.currentTarget.contains(e.relatedTarget)) setPaused(false); }}
     >
       {/* Slides — crossfade */}
       {HERO_SLIDES.map((s, i) => (
         <div
           key={s.image}
           aria-hidden={i !== idx}
-          className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${i === idx ? 'opacity-100' : 'opacity-0'}`}
+          className={`absolute inset-0 transition-opacity duration-[1200ms] ease-in-out ${i === idx ? 'opacity-100' : 'opacity-0'}`}
         >
           {s.video ? (
             <video
@@ -92,36 +77,30 @@ function HeroSlides() {
               muted
               loop
               playsInline
-              className="h-full w-full object-cover"
+              className="h-full w-full object-cover object-center"
             />
           ) : (
             <img
               src={s.image}
               alt={i === idx ? 'HUSHAE campaign' : ''}
               fetchpriority={i === 0 ? 'high' : 'auto'}
-              loading={i === 0 ? 'eager' : 'lazy'}
-              className="h-full w-full object-cover"
+              loading="eager"
+              decoding="async"
+              className="h-full w-full object-cover object-center"
             />
           )}
         </div>
       ))}
 
-      {/* Subtle bottom scrim — keeps the slide dots and arrows legible on
-          pale photos without darkening the imagery. The hero text overlay
-          was removed at the merchant's request (2026-08): the campaign
-          image now speaks alone. */}
+      {/* Subtle bottom scrim — keeps the imagery clean; no text overlay. */}
       <div
         aria-hidden="true"
         className="absolute inset-x-0 bottom-0 h-24"
         style={{
           background:
-            'linear-gradient(to top, rgba(0,0,0,0.28) 0%, rgba(0,0,0,0) 100%)',
+            'linear-gradient(to top, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0) 100%)',
         }}
       />
-
-      {/* Carousel controls removed at the merchant's request (2026-08):
-          the hero now shows the campaign image alone — no arrows, no dots,
-          no pause glyph. The crossfade auto-advance (6s) stays. */}
 
     </section>
   );
