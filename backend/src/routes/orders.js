@@ -83,42 +83,21 @@ router.post('/', placeOrderLimit, optionalAuth, asyncHandler(async (req, res) =>
     }
   }
 
-  // Validate + price from DB, decrement stock atomically per line
+  const { allocateOrderLines, releaseOrderLines, variantKeyOf, pickVariant } = require('../utils/inventoryEngine');
+  const reservedNumber = orderNumber();
   const lineItems = [];
-  /* The full product docs, kept as they are loaded. The promotion engine needs
-     category, tier, tags and badges to decide what a rule applies to, and
-     re-reading the same products a second time would double the queries on
-     the hottest path in the app. */
   const productMap = new Map();
   for (const it of items) {
     const qty = Math.max(1, Math.min(parseInt(it.quantity || '1', 10), 10));
-    const product = await Product.findOneAndUpdate(
-      { _id: it.product, isActive: true, status: { $ne: 'draft' }, stock: { $gte: qty } },
-      { $inc: { stock: -qty } },
-      { new: true }
-    );
+    const product = await Product.findOne({ _id: it.product, isActive: true, status: { $ne: 'draft' } });
     if (!product) {
-      // Fetch the product to give a specific error message
-      const original = await Product.findById(it.product).select('name stock isActive status');
-      const itemName = original?.name || it.name || 'an item';
-      if (!original || !original.isActive || original.status === 'draft') {
-        return res.status(409).json({
-          message: `"${itemName}" is no longer available.`,
-          productId: it.product,
-          reason: 'unavailable',
-          itemName,
-        });
-      }
       return res.status(409).json({
-        message: `"${itemName}" is out of stock (only ${original.stock} left, you have ${qty} in your cart).`,
+        message: 'An item is no longer available.',
         productId: it.product,
-        reason: 'out-of-stock',
-        itemName,
-        available: original.stock,
+        reason: 'unavailable',
       });
     }
     if (it.size && product.sizes.length && !product.sizes.includes(it.size)) {
-      await Product.findByIdAndUpdate(product._id, { $inc: { stock: qty } });
       return res.status(400).json({
         message: `Size "${it.size}" is no longer available for "${product.name}".`,
         productId: product._id,
@@ -126,16 +105,30 @@ router.post('/', placeOrderLimit, optionalAuth, asyncHandler(async (req, res) =>
         itemName: product.name,
       });
     }
+    const size = it.size || product.sizes[0] || '';
+    const color = it.color || product.colors[0]?.name || '';
+    const v = pickVariant(product, size, color);
+    const unit = (v && v.price != null) ? Number(v.price) : product.price;
+    const cost = (v && v.costPrice != null) ? Number(v.costPrice) : (product.costPrice || 0);
     productMap.set(String(product._id), product.toObject ? product.toObject() : product);
     lineItems.push({
       product: product._id, name: product.name, slug: product.slug,
-      image: product.images[0]?.url || '', size: it.size || product.sizes[0] || '',
-      color: it.color || product.colors[0]?.name || '',
-      price: product.price,
-      costPrice: product.costPrice || 0, // snapshot cost for profit tracking
-      quantity: qty, lineTotal: product.price * qty,
+      image: (v && v.image) || product.images[0]?.url || '', size, color,
+      price: unit, costPrice: cost, quantity: qty, lineTotal: unit * qty,
     });
   }
+
+  try {
+    await allocateOrderLines({ lines: lineItems, orderNumber: reservedNumber, actor: 'checkout' });
+  } catch (e) {
+    return res.status(e.status || 409).json({
+      message: e.message || 'Not enough stock',
+      reason: 'out-of-stock',
+    });
+  }
+  const releaseReserved = async () => {
+    await releaseOrderLines({ lines: lineItems, orderNumber: reservedNumber, actor: 'checkout-rollback' }).catch(() => {});
+  };
 
   const subtotal = lineItems.reduce((s, li) => s + li.lineTotal, 0);
 
@@ -146,7 +139,7 @@ router.post('/', placeOrderLimit, optionalAuth, asyncHandler(async (req, res) =>
     const d = await Discount.findOne({ code: String(discountCode).trim().toUpperCase() });
     const r = evaluateDiscount(d, subtotal);
     if (!r.ok) {
-      for (const li of lineItems) await Product.findByIdAndUpdate(li.product, { $inc: { stock: li.quantity } });
+      await releaseReserved();
       return res.status(400).json({ message: r.message });
     }
     discountAmount = r.amount;
@@ -332,7 +325,7 @@ router.post('/', placeOrderLimit, optionalAuth, asyncHandler(async (req, res) =>
         } else if (wantCard) {
           // An invalid card is worth saying out loud — silently ignoring it
           // means the customer is charged more than the screen promised.
-          for (const li of lineItems) await Product.findByIdAndUpdate(li.product, { $inc: { stock: li.quantity } });
+          await releaseReserved();
           if (appliedCode) await Discount.findOneAndUpdate({ code: appliedCode }, { $inc: { usedCount: -1 } });
           return res.status(400).json({ field: 'giftCardCode', message: 'That gift card is not valid or has no balance left' });
         }
@@ -365,8 +358,10 @@ router.post('/', placeOrderLimit, optionalAuth, asyncHandler(async (req, res) =>
     console.error('Fraud filter check failed:', err.message);
   }
 
-  const order = await Order.create({
-    orderNumber: orderNumber(),
+  let order;
+  try {
+  order = await Order.create({
+    orderNumber: reservedNumber,
     customer: req.user ? req.user._id : null,
     customerInfo: {
       name: customerInfo.name.trim(), email: (customerInfo.email || '').trim(),
@@ -391,25 +386,9 @@ router.post('/', placeOrderLimit, optionalAuth, asyncHandler(async (req, res) =>
     discreetPackaging: !!discreetPackaging,
     fraudFilter,
   });
-
-  try {
-    const { ensureDefaultWarehouse, applyMove, variantKeyOf } = require('../utils/inventoryEngine');
-    const wh = await ensureDefaultWarehouse();
-    for (const li of lineItems) {
-      await applyMove({
-        productId: li.product,
-        variantKey: variantKeyOf(li.size, li.color),
-        warehouseId: wh._id,
-        type: 'sale',
-        qty: li.quantity,
-        note: `Order ${order.orderNumber}`,
-        actor: 'checkout',
-        refType: 'order',
-        refId: String(order._id),
-      });
-    }
   } catch (e) {
-    console.error('inventory sale movement skipped:', e.message);
+    await releaseReserved();
+    throw e;
   }
 
   /* Debit the balances only now that the order exists.
@@ -533,6 +512,16 @@ router.patch('/admin/:id/status', protect, adminOnly, asyncHandler(async (req, r
   if (status === 'Cancelled' && cancelReason) order.cancelReason = String(cancelReason).trim().slice(0, 80);
   order.statusHistory.push({ status, note: String(note).slice(0, 200) });
   await order.save();
+  if (status === 'Cancelled' && prevStatus !== 'Cancelled') {
+    try {
+      const { releaseOrderLines } = require('../utils/inventoryEngine');
+      await releaseOrderLines({
+        lines: order.items.map((i) => ({ product: i.product, size: i.size, color: i.color, quantity: i.quantity })),
+        orderNumber: order.orderNumber,
+        actor: req.user?.email || 'admin',
+      });
+    } catch (e) { console.error('stock release on cancel failed', e.message); }
+  }
   try { require('../utils/auditLogger').logAction(req.user?.email, 'status', 'order', order.orderNumber, prevStatus, status); } catch { /* noop */ }
 
   // Fire-and-forget status-update email to customer for meaningful transitions
