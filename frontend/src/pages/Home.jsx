@@ -10,6 +10,9 @@ import DiscoverTiles from '../components/home/DiscoverTiles';
 import HeroWithOverlay from '../components/home/HeroWithOverlay';
 import BrandStory from '../components/home/BrandStory';
 import CustomerTestimonial from '../components/home/CustomerTestimonial';
+import TrustStrip from '../components/home/TrustStrip';
+import FitFinderBanner from '../components/home/FitFinderBanner';
+import JournalTeaser from '../components/home/JournalTeaser';
 import ScrollReveal from '../components/ScrollReveal';
 import { ProductRowSkeleton } from '../components/ProductSkeleton';
 import { PRODUCT_GRID } from '../lib/productGrid';
@@ -298,7 +301,11 @@ export default function Home() {
       {/* 01 — HERO with cinematic overlay + CTA (CK monopoly of attention) */}
       <HeroWithOverlay />
 
-      {/* 02 — DISCOVER — editorial gateway (Chanel / Hermès / CK pattern) */}
+      {/* 02 — TRUST STRIP — permanent brand promises (sits between hero
+          promise and discover funnel — reassurance before attention) */}
+      <TrustStrip />
+
+      {/* 02b — DISCOVER — editorial gateway (Chanel / Hermès / CK pattern) */}
       <ScrollReveal delay={100}>
         <DiscoverTiles />
       </ScrollReveal>
@@ -306,6 +313,13 @@ export default function Home() {
       {/* 03 — STUDIO CATEGORY SHOWCASE (Givenchy canvas) */}
       <ScrollReveal delay={150}>
         <LuxuryCategoryShowcase />
+      </ScrollReveal>
+
+      {/* 03b — FIT FINDER BANNER — unique innerwear value prop, full-bleed
+          black band, gives the page a magazine-spread weight between product
+          sections. */}
+      <ScrollReveal delay={170}>
+        <FitFinderBanner />
       </ScrollReveal>
 
       {/* 04 — NEW ARRIVALS — luxury grid (editorial header + tabs) */}
@@ -343,6 +357,9 @@ export default function Home() {
       <ScrollReveal delay={420}>
         <CustomerTestimonial />
       </ScrollReveal>
+
+      {/* 06b — JOURNAL TEASER — editorial engagement before signup */}
+      <JournalTeaser limit={3} />
 
       {/* 07 — NEWSLETTER */}
       <ScrollReveal delay={460}>
