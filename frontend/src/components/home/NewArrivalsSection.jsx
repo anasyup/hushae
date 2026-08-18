@@ -36,7 +36,7 @@ export default function NewArrivalsSection({ products = [] }) {
 
           <Link
             to="/new"
-            className="group mt-7 inline-flex items-center gap-2 border-b border-black/50 pb-1 text-[11px] font-medium uppercase tracking-[0.25em] text-black transition-colors hover:border-black md:mt-0"
+            className="group mt-7 inline-flex min-h-[44px] items-center gap-2 border-b border-black/50 pb-1 text-[11px] font-medium uppercase tracking-[0.25em] text-black transition-colors hover:border-black md:mt-0"
           >
             View All
             <ArrowRight size={14} className="transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true" />

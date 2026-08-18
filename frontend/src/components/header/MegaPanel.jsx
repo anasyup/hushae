@@ -120,7 +120,7 @@ export default function MegaPanel({ open, cats, collections, onClose }) {
                       </li>
                     ))}
                     <li>
-                      <Link to={`/${kind}`} onClick={onClose} className="text-xs font-medium text-black underline underline-offset-4">View all {kind === 'women' ? 'Women' : 'Men'}</Link>
+                      <Link to={`/${kind}`} onClick={onClose} className="inline-flex min-h-[44px] items-center text-xs font-medium text-black underline underline-offset-4">View all {kind === 'women' ? 'Women' : 'Men'}</Link>
                     </li>
                   </ul>
                 </div>

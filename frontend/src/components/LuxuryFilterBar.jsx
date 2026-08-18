@@ -7,7 +7,7 @@ import { ChevronDown, SlidersHorizontal } from 'lucide-react';
  * border-b. Used on the homepage under the hero.
  * ========================================================================== */
 
-const PILL = 'flex items-center gap-2 whitespace-nowrap rounded-full border border-neutral-300/80 bg-white px-4 py-2 text-[11px] font-normal text-[#111111] shadow-sm transition-all duration-200 hover:border-black';
+const PILL = 'flex min-h-[44px] items-center gap-2 whitespace-nowrap rounded-full border border-neutral-300/80 bg-white px-4 py-2 text-[11px] font-normal text-[#111111] shadow-sm transition-all duration-200 hover:border-black';
 
 export default function LuxuryFilterBar({ count = 12, onOpenFilters, f }) {
   const filters = [

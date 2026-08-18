@@ -108,7 +108,7 @@ export default function Header() {
 
   /* Reference nav-link style — 11px medium uppercase tracking 0.2em; Sale red */
   const linkCls = useMemo(() => ({ isActive }, label = '') => {
-    const base = 'inline-flex items-center gap-1 font-sans text-[11px] font-medium uppercase tracking-[0.2em] transition-colors duration-200';
+    const base = 'inline-flex min-h-[44px] items-center gap-1 font-sans text-[11px] font-medium uppercase tracking-[0.2em] transition-colors duration-200';
     const isSale = String(label || '').toLowerCase() === 'sale';
     const color = isSale ? ' font-semibold hover:opacity-60' : ' hover:opacity-60';
     return base + color;
