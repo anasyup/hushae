@@ -84,17 +84,19 @@
  * silently erase button/input borders).
  * ════════════════════════════════════════════════════════════════════════ */
 :root {
-  /* ── CK MONOCHROME — clean white / black / gray (Calvin Klein register) ──
-     No warm ivory, no sage, no rounded template signals. */
-  --stone:    255 255 255;   /* #FFFFFF  page background            */
-  --sand:     255 255 255;   /* #FFFFFF  light surface (whitened)    */
-  --clay:     229 229 229;   /* #E5E5E5  hairline borders           */
-  --charcoal: 17 17 17;      /* #111111  primary text / buttons     */
-  --smoke:    105 105 105;   /* #696969  CK secondary gray */
-  --pearl:    255 255 255;   /* #FFFFFF  accents on dark            */
-  --gold:     201 169 110;   /* #C9A96E  subtle accent (kept)       */
-  --bronze:   166 138 86;    /* #A68A56  dark gold hover            */
-  --midnight: 17 17 17;      /* #111111  footer / primary buttons   */
+  /* ── CK MONOCHROME — pure black / white / gray (Calvin Klein register)
+     No warm ivory, no sage, no gold, no bronze — only ink, paper, and
+     cool neutral tones. The entire palette is achromatic so the product
+     photography carries every note of warmth the page needs.            */
+  --stone:    255 255 255;   /* #FFFFFF  page background              */
+  --sand:     255 255 255;   /* #FFFFFF  light surface                */
+  --clay:     229 229 229;   /* #E5E5E5  hairline borders / dividers */
+  --charcoal: 17 17 17;      /* #111111  primary text / buttons      */
+  --smoke:    105 105 105;   /* #696969  secondary text (CK gray)    */
+  --pearl:    255 255 255;   /* #FFFFFF  accents on dark              */
+  --gold:     0 0 0;         /* #000000  accent (CK black)            */
+  --bronze:   51 51 51;      /* #333333  dark hover state             */
+  --midnight: 17 17 17;      /* #111111  footer / primary buttons     */
 
   /* ── Typography — 100% Inter; mono reserved for chapter counters ──── */
   --font-display: 'Klein', 'Jost', 'Helvetica Neue', Helvetica, Arial, sans-serif;
@@ -451,15 +453,15 @@
       text-[14px] font-medium uppercase tracking-[0.08em] text-pearl
       transition-colors duration-300 hover:bg-charcoal disabled:pointer-events-none disabled:opacity-50;
   }
-  /* Gold action button — warm-gold register (cart/checkout/order confirm) */
+  /* CK monochrome action button — black register (cart/checkout/order confirm) */
   .btn-gold {
-    @apply inline-flex min-h-[48px] w-full items-center justify-center gap-2 bg-gold px-8
+    @apply inline-flex min-h-[48px] w-full items-center justify-center gap-2 bg-black px-8
       text-[14px] font-medium uppercase tracking-[0.08em] text-white
-      transition-colors duration-300 hover:bg-bronze disabled:pointer-events-none disabled:opacity-50;
+      transition-colors duration-300 hover:bg-[#333333] disabled:pointer-events-none disabled:opacity-50;
   }
-  /* Warm cream surface — the "warm cream + gold" money-page register */
-  .surface-cream { background-color: #F7F1E3; }
-  .card-cream { background-color: #FFFFFF; border: 1px solid #E6D6B8; }
+  /* CK monochrome surface */
+  .surface-cream { background-color: #FFFFFF; }
+  .card-cream { background-color: #FFFFFF; border: 1px solid #E5E5E5; }
   /* Sand summary card — 32px padding, no border, no shadow. */
   .summary-card { @apply bg-sand p-8; }
   /* Borderless bottom-line input (1px clay) — type on the line, NO box.
@@ -544,7 +546,7 @@
      supplies rounded-control, so the geometry is unchanged. */
   .badge-sale     { @apply pill border border-obsidian/45 bg-alabaster/90 text-obsidian backdrop-blur-[2px]; }
   .badge-new      { @apply pill border border-obsidian/25 bg-alabaster/85 text-obsidian backdrop-blur-[2px]; }
-  .badge-best     { @apply pill bg-bronze text-obsidian; }
+  .badge-best     { @apply pill bg-[#333333] text-white; }
   .badge-soldout  { @apply pill bg-obsidian text-alabaster; }
   .badge-neutral  { @apply pill border border-obsidian/20 bg-alabaster/85 text-ink backdrop-blur-[2px]; }
   .badge-sage     { @apply pill bg-sage/25 text-sagedark; }
@@ -557,8 +559,8 @@
 
   /* ── Loading ──────────────────────────────────────────────────────────── */
   .skeleton {
-    @apply relative overflow-hidden rounded-card bg-satin/70;
-    background-image: linear-gradient(90deg, rgba(230, 220, 210, 0) 0, rgba(251, 249, 246, 0.75) 50%, rgba(230, 220, 210, 0) 100%);
+    @apply relative overflow-hidden rounded-card bg-[#e8e8e8];
+    background-image: linear-gradient(90deg, rgba(232, 232, 232, 0) 0, rgba(245, 245, 245, 0.9) 50%, rgba(232, 232, 232, 0) 100%);
     background-size: 400px 100%;
     background-repeat: no-repeat;
     animation: shimmer 1.6s linear infinite;

@@ -24,11 +24,11 @@ export default {
       colors: {
         // Refined premium palette — inspired by Calvin Klein / Hanro / editorial fashion houses.
         // Anchor: deep-warm black + soft ivory. Accents are muted, never loud.
-        obsidian:  '#111111',   // primary ink (slightly warmer than pure #000)
+        obsidian:  '#111111',   // primary ink (CK: near-black)
         ink:       '#1A1A1A',   // secondary ink for softer text on light
         graphite:  '#333333',   // hover/pressed states, dividers on dark
-        alabaster: '#FFFFFF',   // primary background — warm ivory (Hanro-style)
-        cream:     '#F7F7F7',   // warm off-white — cards on alabaster
+        alabaster: '#FFFFFF',   // primary background — pure white (CK register)
+        cream:     '#F0F0F0',   // light cool gray — cards on alabaster
         satin:     '#F0F0F0',   // soft neutral (previous)
 
         /* ── Theme-aware neutral + white/black (CSS-variable RGB) ─────────
@@ -78,9 +78,9 @@ export default {
         sand:      'rgb(var(--sand) / <alpha-value>)',      // #EBE5DB card surfaces
         charcoal:  'rgb(var(--charcoal) / <alpha-value>)',  // #1A1B1C primary text
         pearl:     'rgb(var(--pearl) / <alpha-value>)',     // #FFFFFF accents
-        gold:      'rgb(var(--gold) / <alpha-value>)',      // #C9A96E brand gold
-        bronze:    'rgb(var(--bronze) / <alpha-value>)',    // #A68A56 dark gold hover
-        midnight:  'rgb(var(--midnight) / <alpha-value>)',  // #1C2333 footer
+        gold:      'rgb(var(--gold) / <alpha-value>)',      // #000000 accent (CK: black)
+        bronze:    'rgb(var(--bronze) / <alpha-value>)',    // #333333 dark hover (CK: gray)
+        midnight:  'rgb(var(--midnight) / <alpha-value>)',  // #111111 footer
       },
       fontFamily: {
         /* One-family storefront — LOUIS VUITTON register.

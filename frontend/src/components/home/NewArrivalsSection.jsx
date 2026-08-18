@@ -15,7 +15,9 @@ import { PRODUCT_GRID } from '../../lib/productGrid';
  * ========================================================================== */
 
 export default function NewArrivalsSection({ products = [] }) {
-  const list = (products || []).filter(Boolean);
+  // products=null means loading — parent shows skeleton instead
+  if (!products) return null;
+  const list = products.filter(Boolean);
   const show = list.slice(0, 10);
 
   if (!list.length) return null;

@@ -7,6 +7,8 @@ import LuxuryCategoryShowcase from '../components/LuxuryCategoryShowcase';
 import CollectionCard from '../components/CollectionCard';
 import NewArrivalsSection from '../components/home/NewArrivalsSection';
 import DiscoverTiles from '../components/home/DiscoverTiles';
+import ScrollReveal from '../components/ScrollReveal';
+import { ProductRowSkeleton } from '../components/ProductSkeleton';
 import { PRODUCT_GRID } from '../lib/productGrid';
 
 /* ============================================================================
@@ -348,8 +350,8 @@ function NewsletterSection() {
 
 /* ═══ PAGE ═══════════════════════════════════════════════════════════════ */
 export default function Home() {
-  const [fresh, setFresh] = useState([]);
-  const [best, setBest] = useState([]);
+  const [fresh, setFresh] = useState(null); // null = loading
+  const [best, setBest] = useState(null);
 
   useEffect(() => {
     api('/products?newArrival=true&sort=newest&limit=12').then((d) => setFresh(d.products || [])).catch(() => setFresh([]));
@@ -375,29 +377,45 @@ export default function Home() {
       <HeroSlides />
 
       {/* 02 — DISCOVER — editorial gateway (Chanel / Hermès / CK pattern) */}
-      <DiscoverTiles />
+      <ScrollReveal delay={100}>
+        <DiscoverTiles />
+      </ScrollReveal>
 
       {/* 03 — STUDIO CATEGORY SHOWCASE (Givenchy canvas) */}
-      <LuxuryCategoryShowcase />
+      <ScrollReveal delay={150}>
+        <LuxuryCategoryShowcase />
+      </ScrollReveal>
 
       {/* 04 — NEW ARRIVALS — luxury grid (editorial header + tabs) */}
-      <NewArrivalsSection products={fresh} />
+      <ScrollReveal delay={200}>
+        <NewArrivalsSection products={fresh} />
+        {fresh === null && <ProductRowSkeleton count={8} />}
+      </ScrollReveal>
 
       {/* 04 — VIEW MORE — quiet CK affordance (underlined text, not a button) */}
-      <div className="flex w-full justify-center pb-10 md:pb-14">
-        <Link to="/shop" className="inline-flex min-h-[44px] items-center gap-1 border-b border-black/50 pb-0.5 text-[11px] font-medium uppercase tracking-[0.25em] text-black transition-colors hover:border-black hover:opacity-60">
-          View All <ArrowRight size={14} aria-hidden="true" />
-        </Link>
-      </div>
+      {fresh !== null && (
+        <div className="flex w-full justify-center pb-10 md:pb-14">
+          <Link to="/shop" className="inline-flex min-h-[44px] items-center gap-1 border-b border-black/50 pb-0.5 text-[11px] font-medium uppercase tracking-[0.25em] text-black transition-colors hover:border-black hover:opacity-60">
+            View All <ArrowRight size={14} aria-hidden="true" />
+          </Link>
+        </div>
+      )}
 
       {/* 05 — EDITORIAL SPLIT (Loro Piana) */}
-      <EditorialSplitSection />
+      <ScrollReveal delay={300}>
+        <EditorialSplitSection />
+      </ScrollReveal>
 
       {/* 05 — OBJECTS OF DESIRE */}
-      <ProductCarouselSection title="Objects of Desire" subtitle="CURATED SELECTION" products={best} href="/best" />
+      <ScrollReveal delay={350}>
+        <ProductCarouselSection title="Objects of Desire" subtitle="CURATED SELECTION" products={best || []} href="/best" />
+        {best === null && <ProductRowSkeleton count={4} />}
+      </ScrollReveal>
 
       {/* 06 — NEWSLETTER */}
-      <NewsletterSection />
+      <ScrollReveal delay={400}>
+        <NewsletterSection />
+      </ScrollReveal>
     </div>
   );
 }
