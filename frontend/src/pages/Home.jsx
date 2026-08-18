@@ -13,6 +13,7 @@ import CustomerTestimonial from '../components/home/CustomerTestimonial';
 import TrustStrip from '../components/home/TrustStrip';
 import FitFinderBanner from '../components/home/FitFinderBanner';
 import JournalTeaser from '../components/home/JournalTeaser';
+import FeaturedStory from '../components/home/FeaturedStory';
 import ScrollReveal from '../components/ScrollReveal';
 import { ProductRowSkeleton } from '../components/ProductSkeleton';
 import { PRODUCT_GRID } from '../lib/productGrid';
@@ -345,6 +346,11 @@ export default function Home() {
       {/* 05b — BRAND STORY — HUSHAE's origin editorial moment */}
       <ScrollReveal delay={350}>
         <BrandStory />
+      </ScrollReveal>
+
+      {/* 05c — FEATURED STORY — Modal Series signature campaign */}
+      <ScrollReveal delay={360}>
+        <FeaturedStory />
       </ScrollReveal>
 
       {/* 05c — OBJECTS OF DESIRE */}
