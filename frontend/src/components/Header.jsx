@@ -106,31 +106,31 @@ export default function Header() {
     { label: 'Sale', href: '/sale', bold: true },
   ]), []);
 
-  /* Reference nav-link style — 11px medium uppercase tracking 0.2em; Sale red */
+  /* Reference nav-link style — 11px medium uppercase tracking 0.2em; Jet Black (#000000) */
   const linkCls = useMemo(() => ({ isActive }, label = '') => {
-    const base = 'inline-flex min-h-[44px] items-center gap-1 font-sans text-[11px] font-medium uppercase tracking-[0.2em] transition-colors duration-200';
+    const base = 'inline-flex min-h-[44px] items-center gap-1 font-sans text-[11px] font-medium uppercase tracking-[0.2em] transition-colors duration-200 text-[#000000]';
     const isSale = String(label || '').toLowerCase() === 'sale';
     const color = isSale ? ' font-semibold hover:opacity-60' : ' hover:opacity-60';
     return base + color;
   }, []);
 
-  const navStyle = useMemo(() => ({ fontSize: '11px', letterSpacing: '0.2em' }), []);
+  const navStyle = useMemo(() => ({ fontSize: '11px', letterSpacing: '0.2em', color: '#000000' }), []);
 
   return (
     <div className="fixed left-0 top-0 z-50 flex w-full flex-col">
-      {/* 1. Announcement bar — always visible (like the header), black */}
+      {/* 1. Announcement bar — always visible (like the header), jet black */}
       {!loc.pathname.startsWith('/product/') && (
-        <div className="w-full overflow-hidden bg-black">
+        <div className="w-full overflow-hidden bg-[#000000]">
           <OfferBar />
         </div>
       )}
 
       {/* 2. Main header — below the announcement bar.
-          Clean luxury: transparent with black text at top →
-          solid white + hairline + black text once scrolled. */}
+          Clean luxury: transparent with jet black text at top →
+          solid white + hairline + jet black text once scrolled. */}
       <header
         data-header
-        className={`w-full h-[96px] !m-0 px-6 lg:px-12 text-black transition-[background-color,border-color,box-shadow] duration-300 ease-in-out ${
+        className={`w-full h-[96px] !m-0 px-6 lg:px-12 text-[#000000] transition-[background-color,border-color,box-shadow] duration-300 ease-in-out ${
           isScrolled || mega
             ? 'bg-[#FFFFFF] border-b border-neutral-200 shadow-sm'
             : 'bg-transparent border-b border-transparent'
@@ -139,7 +139,7 @@ export default function Header() {
       >
 
         {/* Reference row */}
-        <div className="mx-auto flex h-full w-full max-w-[1600px] items-center justify-between gap-8 text-black">
+        <div className="mx-auto flex h-full w-full max-w-[1600px] items-center justify-between gap-8 text-[#000000]">
           {/* Burger — mobile only (nav shows from md) */}
           <button
             ref={burgerRef}
@@ -147,13 +147,13 @@ export default function Header() {
             onClick={() => setMobileOpen(true)}
             aria-label="Open menu"
             aria-expanded={mobileOpen}
-            className="-ml-2 grid h-10 w-10 shrink-0 place-items-center text-black transition-colors duration-300 lg:hidden"
+            className="-ml-2 grid h-10 w-10 shrink-0 place-items-center text-[#000000] transition-colors duration-300 lg:hidden"
           >
             <Menu size={20} strokeWidth={1.5} aria-hidden="true" />
           </button>
 
-          {/* Logo — clean luxury geometric sans */}
-          <Link to="/" aria-label="HUSHAE — home" className="flex-shrink-0 font-sans text-[20px] font-medium uppercase tracking-[0.32em] text-black transition-opacity duration-300 hover:opacity-70">
+          {/* Logo — clean luxury geometric sans (Jet Black) */}
+          <Link to="/" aria-label="HUSHAE — home" className="flex-shrink-0 font-sans text-[20px] font-medium uppercase tracking-[0.32em] text-[#000000] transition-opacity duration-300 hover:opacity-70">
             HUSHAE
           </Link>
 
@@ -161,7 +161,7 @@ export default function Header() {
           <nav
             data-section="header.menu"
             aria-label="Main"
-            className="hidden flex-1 items-center justify-center gap-7 lg:flex text-black"
+            className="hidden flex-1 items-center justify-center gap-7 lg:flex text-[#000000]"
           >
             {menu.filter((m) => m && m.label).map((m, i) => {
               const dd = m.dropdown || (String(m.label).toLowerCase() === 'sale' ? 'sale' : '');
@@ -185,8 +185,8 @@ export default function Header() {
             })}
           </nav>
 
-          {/* Utility icons — icon buttons (reference) */}
-          <div data-section="header.icons" className="flex shrink-0 items-center gap-5 text-xs font-medium uppercase tracking-wider text-black">
+          {/* Utility icons — icon buttons (Jet Black) */}
+          <div data-section="header.icons" className="flex shrink-0 items-center gap-5 text-xs font-medium uppercase tracking-wider text-[#000000]">
             {showSearch && (
               <button
                 ref={searchBtnRef}
@@ -195,30 +195,30 @@ export default function Header() {
                 aria-label={searchOpen ? 'Close search' : 'Search products'}
                 aria-expanded={searchOpen}
                 aria-controls="header-search"
-                className="hit-44 p-1 text-black transition-opacity duration-200 hover:opacity-60"
+                className="hit-44 p-1 text-[#000000] transition-opacity duration-200 hover:opacity-60"
               >
                 <Search size={20} strokeWidth={1.5} aria-hidden="true" />
               </button>
             )}
             {showWishlist && (
               <Link to="/wishlist" aria-label={wishlist.length ? `Wishlist, ${wishlist.length} saved` : 'Wishlist'}
-                className="hit-44 hidden p-1 text-black transition-opacity duration-200 hover:opacity-60 sm:block">
+                className="hit-44 hidden p-1 text-[#000000] transition-opacity duration-200 hover:opacity-60 sm:block">
                 <Heart size={20} strokeWidth={1.5} aria-hidden="true" />
               </Link>
             )}
             {showAccount && (
               <Link to="/account" aria-label={auth ? 'Your account' : 'Sign in'}
-                className="hit-44 hidden p-1 text-black transition-opacity duration-200 hover:opacity-60 sm:block">
+                className="hit-44 hidden p-1 text-[#000000] transition-opacity duration-200 hover:opacity-60 sm:block">
                 <User size={20} strokeWidth={1.5} aria-hidden="true" />
               </Link>
             )}
             {showCart && (
               <button type="button" onClick={() => setDrawerOpen(true)}
                 aria-label={cartCount ? `Open bag, ${cartCount} item${cartCount === 1 ? '' : 's'}` : 'Open bag'}
-                className="hit-44 relative flex items-center justify-center p-1 text-black transition-opacity duration-200 hover:opacity-60">
+                className="hit-44 relative flex items-center justify-center p-1 text-[#000000] transition-opacity duration-200 hover:opacity-60">
                 <ShoppingBag size={20} strokeWidth={1.5} aria-hidden="true" />
                 {cartCount > 0 && (
-                  <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-black px-0.5 text-[9px] font-bold text-white">
+                  <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#000000] px-0.5 text-[9px] font-bold text-[#FFFFFF]">
                     {cartCount > 99 ? '99+' : cartCount}
                   </span>
                 )}
