@@ -48,10 +48,10 @@ export default function Header() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  /* Full-bleed campaign photography sits under a transparent bar. Black type
-     on those frames is unreadable until the shopper scrolls. Invert to ivory
-     only while the bar is still glass; mega + scrolled stay ink-on-white. */
-  const overHero = ['/', '/women', '/men', '/new', '/best', '/sale', '/shop'].includes(loc.pathname);
+  /* Full-bleed campaign photography sits under a transparent bar on the
+     homepage. Inner pages (shop, women, men, cart, etc.) have light grounds
+     and need an immediate solid white bar so navigation is always legible. */
+  const overHero = loc.pathname === '/';
   const invert = overHero && !isScrolled && !mega && !searchOpen;
 
   useEffect(() => { api('/categories').then((d) => setCats(d.categories)).catch(() => {}); }, []);

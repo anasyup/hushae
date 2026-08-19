@@ -193,7 +193,7 @@ export default function Product() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#FAF9F6] pt-0 pb-20 font-sans text-[#1A1A1A] antialiased lg:pb-0">
+    <div className="min-h-screen bg-[#FAF9F6] pt-[96px] lg:pt-[104px] pb-20 font-sans text-[#1A1A1A] antialiased lg:pb-0">
       <Seo
         title={name}
         description={p.shortDescription || p.description?.slice(0, 160) || `${name} — premium innerwear from HUSHAE. PKR ${p.price}. ${p.stock > 0 ? 'In stock' : 'Out of stock'}. COD available.`}

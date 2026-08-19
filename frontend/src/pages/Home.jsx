@@ -144,8 +144,11 @@ function CategoryGridSection() {
 
 /* ── SECTION 2 & 4: Product carousel (CK register — no rules, just air) ──── */
 function ProductCarouselSection({ title, subtitle, products, href }) {
+  const items = (products || []).filter(Boolean).slice(0, 4);
+  if (!items.length) return null;
+
   return (
-    <section className="px-4 pt-24 pb-10 md:px-8 md:pt-32 md:pb-14">
+    <section className="px-4 pt-20 pb-10 md:px-8 md:pt-28 md:pb-14">
       <div className="mb-12 space-y-3 px-4 text-center md:px-8">
         <p className="text-[10px] font-medium uppercase tracking-[0.3em] text-neutral-400">
           {subtitle}
@@ -162,7 +165,7 @@ function ProductCarouselSection({ title, subtitle, products, href }) {
       </div>
 
       <div className={PRODUCT_GRID}>
-        {(products || []).slice(0, 4).map((item) => (
+        {items.map((item) => (
           <CollectionCard key={item._id} product={item} />
         ))}
       </div>
@@ -382,13 +385,6 @@ export default function Home() {
 
       {/* 04 — NEW ARRIVALS — luxury grid (editorial header + tabs) */}
       <NewArrivalsSection products={fresh} />
-
-      {/* 04 — VIEW MORE — quiet CK affordance (underlined text, not a button) */}
-      <div className="flex w-full justify-center pb-10 md:pb-14">
-        <Link to="/shop" className="inline-flex min-h-[44px] items-center gap-1 border-b border-black/50 pb-0.5 text-[11px] font-medium uppercase tracking-[0.25em] text-black transition-colors hover:border-black hover:opacity-60">
-          View All <ArrowRight size={14} aria-hidden="true" />
-        </Link>
-      </div>
 
       {/* 05 — EDITORIAL SPLIT (Loro Piana) */}
       <EditorialSplitSection />

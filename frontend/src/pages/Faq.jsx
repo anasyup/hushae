@@ -3,14 +3,37 @@ import { ChevronDown, HelpCircle } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import Seo from '../components/Seo';
 
+const DEFAULT_FAQS = [
+  {
+    question: 'What is HUSHAE’s delivery timeframe & shipping fee?',
+    answer: 'We offer Express Delivery nationwide across Pakistan in 2–4 business days. Orders above PKR 4,999 qualify for complimentary shipping. Standard shipping for smaller orders is flat PKR 250.',
+  },
+  {
+    question: 'Is discreet packaging guaranteed?',
+    answer: 'Yes, 100%. All HUSHAE orders are dispatched in unmarked, plain, tamper-proof courier packaging with no external product markings.',
+  },
+  {
+    question: 'What is your exchange and return policy?',
+    answer: 'We provide a 14-day hassle-free size exchange policy. For hygiene standards, innerwear items must be unworn, unwashed, and in original packaging with tags attached.',
+  },
+  {
+    question: 'Do you offer Cash on Delivery (COD)?',
+    answer: 'Yes, Cash on Delivery is available across all cities and towns nationwide in Pakistan.',
+  },
+  {
+    question: 'How do I choose the right size?',
+    answer: 'Please consult our interactive Fit Finder tool or reference the size charts on each product detail page for precision sizing.',
+  },
+];
+
 // Public FAQ page — content comes from Settings (admin-editable via /admin/content).
 // Also emits FAQPage JSON-LD schema for Google rich results.
 export default function Faq() {
   const { settings } = useApp();
   const [open, setOpen] = useState(0);
-  const [items, setItems] = useState([]);
+  const [items, setItems] = useState(DEFAULT_FAQS);
   const [heading, setHeading] = useState('Frequently Asked Questions');
-  const [subheading, setSubheading] = useState('');
+  const [subheading, setSubheading] = useState('Everything you need to know about sizing, delivery, exchanges, and discreet packaging.');
   const [enabled, setEnabled] = useState(true);
 
   useEffect(() => {
@@ -18,8 +41,9 @@ export default function Faq() {
     if (f) {
       setEnabled(f.enabled !== false);
       setHeading(f.heading || 'Frequently Asked Questions');
-      setSubheading(f.subheading || '');
-      setItems(Array.isArray(f.items) ? f.items.filter((x) => x?.question && x?.answer) : []);
+      setSubheading(f.subheading || 'Everything you need to know about sizing, delivery, exchanges, and discreet packaging.');
+      const custom = Array.isArray(f.items) ? f.items.filter((x) => x?.question && x?.answer) : [];
+      setItems(custom.length > 0 ? custom : DEFAULT_FAQS);
     }
   }, [settings]);
 
