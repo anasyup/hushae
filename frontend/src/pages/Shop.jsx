@@ -199,30 +199,30 @@ export default function Shop({ preset = {} }) {
         />
       )}
 
-      {/* ═══ SUB-CATEGORY QUICK PILL BAR (Luxury Horizontal Navigation) ═══ */}
+      {/* ═══ SUB-CATEGORY NAVIGATION (Minimalist Editorial Tabs) ═══ */}
       {navCats.length > 0 && (
-        <div className="w-full bg-[#FFFFFF] border-b border-neutral-100 px-4 py-3 md:px-8 overflow-x-auto no-scrollbar">
-          <div className="mx-auto flex max-w-[1600px] items-center gap-2">
+        <div className="w-full bg-[#FFFFFF] border-b border-neutral-100 px-6 md:px-12 overflow-x-auto no-scrollbar">
+          <div className="mx-auto flex max-w-[1600px] items-center gap-6 md:gap-8 py-3.5">
             <button
               type="button"
               onClick={() => f.setOne('category', '')}
-              className={`inline-flex min-h-[36px] items-center px-4 text-xs font-medium uppercase tracking-[0.14em] transition-all whitespace-nowrap ${
+              className={`inline-flex items-center text-[12px] uppercase tracking-[0.18em] transition-colors whitespace-nowrap pb-1 border-b-2 ${
                 !f.category
-                  ? 'bg-black text-white'
-                  : 'bg-neutral-100/80 text-neutral-800 hover:bg-black hover:text-white'
+                  ? 'border-black font-semibold text-[#000000]'
+                  : 'border-transparent font-normal text-neutral-400 hover:text-black'
               }`}
             >
-              All Pieces
+              All {f.gender ? (f.gender === 'women' ? 'Women' : 'Men') : 'Pieces'}
             </button>
             {navCats.map((c) => (
               <button
                 key={c.slug}
                 type="button"
                 onClick={() => f.setOne('category', f.category === c.slug ? '' : c.slug)}
-                className={`inline-flex min-h-[36px] items-center px-4 text-xs font-medium uppercase tracking-[0.14em] transition-all whitespace-nowrap ${
+                className={`inline-flex items-center text-[12px] uppercase tracking-[0.18em] transition-colors whitespace-nowrap pb-1 border-b-2 ${
                   f.category === c.slug
-                    ? 'bg-black text-white'
-                    : 'bg-neutral-100/80 text-neutral-800 hover:bg-black hover:text-white'
+                    ? 'border-black font-semibold text-[#000000]'
+                    : 'border-transparent font-normal text-neutral-400 hover:text-black'
                 }`}
               >
                 {c.name}
@@ -253,19 +253,12 @@ export default function Shop({ preset = {} }) {
           <>
             <div
               aria-busy={pending || undefined}
-              className={`grid transition-opacity duration-300 ${pending ? 'opacity-50' : 'opacity-100'} ${
-                /* Hairline grid: 1px gaps let the --line background show
-                   through as the only divider. Full-bleed everywhere.
-                   Shared with every other product list — see lib/productGrid. */
-                PRODUCT_GRID_INNER
+              className={`mx-auto max-w-[1600px] px-4 sm:px-6 md:px-10 pt-8 pb-16 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 md:gap-8 transition-opacity duration-300 ${
+                pending ? 'opacity-50' : 'opacity-100'
               }`}
             >
-              {visibleSlice.map((p, i) => (
-                <Fragment key={p._id}>
-                  <CollectionCard product={p} variant="minimal" />
-                  {preset.key === 'sale' && i === 7 && <SaleSplitBanner />}
-                  {preset.key === 'new' && i === 7 && <NewArrivals3DBanner />}
-                </Fragment>
+              {visibleSlice.map((p) => (
+                <CollectionCard key={p._id} product={p} />
               ))}
             </div>
 
@@ -274,7 +267,7 @@ export default function Shop({ preset = {} }) {
                 <button
                   type="button"
                   onClick={() => setShown((s) => s + REVEAL)}
-                  className="h-14 w-full max-w-xs border border-black bg-transparent text-xs font-semibold uppercase tracking-[0.2em] text-black transition-all duration-300 hover:bg-black hover:text-white disabled:opacity-50"
+                  className="h-12 w-full max-w-xs border border-black bg-transparent text-xs font-semibold uppercase tracking-[0.2em] text-black transition-all duration-300 hover:bg-black hover:text-white disabled:opacity-50"
                 >
                   {pending ? 'Loading...' : `Load More (${visible.length - shown} left)`}
                 </button>

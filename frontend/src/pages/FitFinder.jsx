@@ -1,73 +1,67 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Ruler, Check, RotateCcw, Sparkles, ShieldCheck } from 'lucide-react';
+import { ArrowRight, RotateCcw, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Seo from '../components/Seo';
 
 /* ============================================================================
- * HUSHAE FIT FINDER — Interactive Bespoke Luxury Fit Studio (SKIMS / CK Register)
+ * HUSHAE FIT FINDER — Minimalist Atelier Fit Studio (Pure, Airy & Borderless)
  *
- * Features:
- *   - 4 Tactile Interactive Steps (Gender, Height, Body Frame, Fit Preference)
- *   - Smooth Animated Transitions
- *   - International Conversion Matrix (US / UK / EU)
- *   - 1-Click Direct "Shop Your Size" Filter Routing
- *   - Stores result in localStorage ('hushae.fit') for persistent PDP recommendations
+ * No heavy boxes, no cluttered borders, no oversized elements.
+ * Pure editorial typography, refined line dividers, and high-fashion grace.
  * ========================================================================== */
 
 const QUESTIONS = [
   {
     id: 'gender',
-    stepTitle: 'Step 01',
+    stepNumber: '01',
     label: 'Who are you shopping for?',
-    subtitle: 'Select your department to calibrate pattern cuts & grading.',
+    subtitle: 'Select department for pattern grading.',
     options: [
       {
         value: 'women',
         label: 'Women’s Collection',
-        desc: 'Bras, seamless panties, bodysuits & loungewear',
-        tag: 'Second Skin Studio',
+        desc: 'Bras, seamless panties & silk-touch loungewear',
       },
       {
         value: 'men',
         label: 'Men’s Collection',
-        desc: 'Modal briefs, classic boxers, trunks & undershirts',
-        tag: 'Engineered Precision',
+        desc: 'Modal briefs, boxers, trunks & ribbed undershirts',
       },
     ],
   },
   {
     id: 'height',
-    stepTitle: 'Step 02',
+    stepNumber: '02',
     label: 'What is your height?',
-    subtitle: 'Helps us calibrate torso length, rise, and waistband drop.',
+    subtitle: 'Calibrates rise and torso proportions.',
     options: [
       { value: 'short', label: 'Petite / Under 5’4”', desc: 'Under 163 cm · Shorter inseam & rise' },
       { value: 'average', label: 'Standard / 5’4” – 5’8”', desc: '163 – 173 cm · Standard proportions' },
-      { value: 'tall', label: 'Tall / Above 5’8”', desc: 'Above 173 cm · Extended torso & leg length' },
+      { value: 'tall', label: 'Tall / Above 5’8”', desc: 'Above 173 cm · Extended rise & leg length' },
     ],
   },
   {
     id: 'build',
-    stepTitle: 'Step 03',
+    stepNumber: '03',
     label: 'How would you describe your frame?',
-    subtitle: 'Calculates hip-to-waist ratio and underband tension.',
+    subtitle: 'Calculates waistband tension and ease.',
     options: [
-      { value: 'slim', label: 'Slim / Lean Frame', desc: 'Narrower ribcage and slender contours' },
+      { value: 'slim', label: 'Slim / Lean Frame', desc: 'Slender contours & narrower ribcage' },
       { value: 'average', label: 'Medium / Athletic Frame', desc: 'Proportional athletic structure' },
       { value: 'broad', label: 'Full / Curvy Frame', desc: 'Fuller bust, hips, or broader shoulders' },
     ],
   },
   {
     id: 'preference',
-    stepTitle: 'Step 04',
+    stepNumber: '04',
     label: 'How do you prefer your pieces to feel?',
-    subtitle: 'Every HUSHAE piece is engineered to move with you.',
+    subtitle: 'Select your preferred everyday hold.',
     options: [
       {
         value: 'snug',
         label: 'Second-Skin Snug',
-        desc: 'Sculpted close to the body, zero bunching under clothing',
+        desc: 'Close to the body, zero bunching under clothing',
       },
       {
         value: 'regular',
@@ -192,90 +186,76 @@ export default function FitFinder() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FFFFFF] pt-[130px] pb-20 font-sans text-[#111111]">
+    <div className="min-h-screen bg-[#FFFFFF] pt-[140px] pb-24 font-sans text-[#111111]">
       <Seo
-        title="Bespoke Fit Studio — HUSHAE"
-        description="Calculate your precision HUSHAE size in under 60 seconds with our interactive tailoring algorithm."
+        title="Fit Guide — HUSHAE"
+        description="Find your precision HUSHAE size in four quiet steps."
         canonical="/fit-finder"
       />
 
-      <div className="mx-auto max-w-2xl px-6 sm:px-8">
-        {/* Top Eyebrow */}
-        <div className="mb-10 text-center">
-          <p className="text-[10.5px] font-medium uppercase tracking-[0.32em] text-neutral-400">
-            HUSHAE ATELIER
+      <div className="mx-auto max-w-xl px-6 sm:px-8">
+        {/* Subtle Header */}
+        <div className="mb-12 text-center">
+          <p className="text-[10px] font-medium uppercase tracking-[0.32em] text-neutral-400">
+            HUSHAE FIT GUIDE
           </p>
-          <h1 className="mt-3 text-3xl sm:text-4xl md:text-5xl font-light uppercase tracking-tight text-[#000000]">
-            Bespoke Fit Studio
+          <h1 className="mt-3 text-2xl sm:text-3xl md:text-4xl font-light uppercase tracking-[0.14em] text-[#000000]">
+            Find Your Size
           </h1>
-          <p className="mx-auto mt-3 max-w-md text-xs sm:text-sm font-light text-neutral-600 leading-relaxed">
-            No tape measure required. Four guided calibrations to determine your true second-skin size.
+          <p className="mx-auto mt-2 max-w-sm text-xs text-neutral-500 font-light leading-relaxed">
+            Four guided steps to determine your true second-skin fit.
           </p>
         </div>
 
-        {/* Studio Progress Bar */}
+        {/* Minimal Progress Indicator */}
         {!result && (
-          <div className="mb-10">
-            <div className="flex items-center justify-between text-[11px] uppercase tracking-widest text-neutral-400 mb-2.5">
-              <span>{current.stepTitle}</span>
-              <span>{step + 1} of {QUESTIONS.length}</span>
-            </div>
-            <div className="flex gap-1.5 h-1 w-full bg-neutral-100">
-              {QUESTIONS.map((_, i) => (
-                <div
-                  key={i}
-                  className={`h-full flex-1 transition-all duration-400 ${
-                    i <= step ? 'bg-[#000000]' : 'bg-neutral-200'
-                  }`}
-                />
-              ))}
-            </div>
+          <div className="mb-8 flex items-center justify-between border-b border-neutral-100 pb-3 text-[11px] font-medium tracking-[0.2em] text-neutral-400 uppercase">
+            <span>Step {current.stepNumber}</span>
+            <span>{step + 1} of {QUESTIONS.length}</span>
           </div>
         )}
 
-        {/* ── QUESTION CARD ──────────────────────────────────────────────── */}
+        {/* ── QUESTION STEP (Pure, Borderless Minimalist List) ───────────── */}
         <AnimatePresence mode="wait">
           {!result && current && (
             <motion.div
               key={current.id}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.25 }}
               className="space-y-6"
             >
               <div>
-                <h2 className="text-xl sm:text-2xl font-light uppercase tracking-tight text-[#000000]">
+                <h2 className="text-lg sm:text-xl font-normal text-[#000000] tracking-tight">
                   {current.label}
                 </h2>
-                <p className="mt-1 text-xs text-neutral-500 font-light">
+                <p className="mt-1 text-xs text-neutral-400 font-light">
                   {current.subtitle}
                 </p>
               </div>
 
-              <div className="space-y-3">
+              <div className="divide-y divide-neutral-100 border-y border-neutral-100">
                 {current.options.map((opt) => (
                   <button
                     key={opt.value}
                     type="button"
                     onClick={() => pick(opt.value)}
-                    className="group flex w-full flex-col text-left border border-neutral-200 p-5 bg-white transition-all duration-200 hover:border-black hover:shadow-md"
+                    className="group flex w-full items-center justify-between py-4 text-left transition-colors hover:pl-1.5"
                   >
-                    <div className="flex items-center justify-between w-full">
-                      <span className="text-[14px] sm:text-[15px] font-medium text-[#000000] group-hover:translate-x-1 transition-transform">
+                    <div>
+                      <span className="text-[13.5px] sm:text-[14px] font-normal text-[#000000] group-hover:text-neutral-500 transition-colors">
                         {opt.label}
                       </span>
-                      {opt.tag && (
-                        <span className="text-[9.5px] uppercase font-medium tracking-widest text-neutral-400 border border-neutral-200 px-2 py-0.5">
-                          {opt.tag}
+                      {opt.desc && (
+                        <span className="block text-[11px] text-neutral-400 font-light mt-0.5">
+                          {opt.desc}
                         </span>
                       )}
                     </div>
-                    {opt.desc && (
-                      <span className="mt-1.5 text-xs text-neutral-500 font-light leading-relaxed">
-                        {opt.desc}
-                      </span>
-                    )}
+                    <span className="text-neutral-300 group-hover:text-black transition-colors pl-4">
+                      &rarr;
+                    </span>
                   </button>
                 ))}
               </div>
@@ -284,66 +264,51 @@ export default function FitFinder() {
                 <button
                   type="button"
                   onClick={() => setStep(step - 1)}
-                  className="inline-flex items-center gap-1 text-xs uppercase tracking-widest text-neutral-400 hover:text-black transition-colors pt-2"
+                  className="inline-flex items-center gap-1 text-[11px] uppercase tracking-widest text-neutral-400 hover:text-black transition-colors pt-2"
                 >
-                  &larr; Previous Step
+                  &larr; Back
                 </button>
               )}
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* ── BESPOKE RESULT SCREEN ───────────────────────────────────────── */}
+        {/* ── MINIMAL RESULT DISPLAY (Pure Typography, No Clunky Boxes) ───── */}
         <AnimatePresence>
           {result && (
             <motion.div
-              initial={{ opacity: 0, scale: 0.96 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-              className="border border-neutral-200 bg-white p-8 sm:p-12 text-center shadow-xl space-y-6"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.3 }}
+              className="text-center space-y-8 pt-4"
             >
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-neutral-100 px-3 py-1 text-[10px] font-medium uppercase tracking-[0.2em] text-[#000000]">
-                <Sparkles size={12} /> True Fit Recommendation
-              </span>
-
-              {/* Big Jet Black Size Stamp */}
-              <div className="py-3">
-                <div className="mx-auto flex h-24 w-24 items-center justify-center border-2 border-black bg-white shadow-sm">
-                  <span className="font-serif text-4xl font-normal text-[#000000]">
-                    {result.size}
-                  </span>
-                </div>
-                <p className="mt-4 text-xl sm:text-2xl font-light text-[#000000] uppercase tracking-wide">
-                  Your HUSHAE Size is {result.label || result.size}
+              <div>
+                <span className="text-[10px] font-medium uppercase tracking-[0.3em] text-neutral-400">
+                  RECOMMENDED FIT
+                </span>
+                <p className="mt-4 font-serif text-6xl md:text-7xl font-normal text-[#000000] tracking-tight">
+                  {result.size}
                 </p>
-                <p className="mt-1 text-xs text-neutral-500 max-w-sm mx-auto leading-relaxed">
-                  Calibrated for {result.gender === 'women' ? "Women's" : "Men's"} innerwear and second-skin loungewear.
+                <p className="mt-2 text-sm font-normal text-neutral-600">
+                  {result.label || result.size}
                 </p>
               </div>
 
-              {/* International Conversions */}
-              <div className="grid grid-cols-3 gap-3 border-y border-neutral-100 py-5 max-w-xs mx-auto text-center">
-                <div className="space-y-1">
-                  <p className="text-[10px] uppercase tracking-widest text-neutral-400">UK / AUS</p>
-                  <p className="text-base font-medium text-[#000000]">{result.uk}</p>
-                </div>
-                <div className="space-y-1 border-x border-neutral-100">
-                  <p className="text-[10px] uppercase tracking-widest text-neutral-400">US / CAN</p>
-                  <p className="text-base font-medium text-[#000000]">{result.us}</p>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-[10px] uppercase tracking-widest text-neutral-400">EU</p>
-                  <p className="text-base font-medium text-[#000000]">{result.eu}</p>
-                </div>
+              {/* Minimal Conversion Baseline */}
+              <div className="flex items-center justify-center gap-8 text-[12px] border-y border-neutral-100 py-4 text-neutral-500">
+                <span>UK {result.uk}</span>
+                <span className="text-neutral-200">/</span>
+                <span>US {result.us}</span>
+                <span className="text-neutral-200">/</span>
+                <span>EU {result.eu}</span>
               </div>
 
-              {/* Action Buttons */}
-              <div className="space-y-3 pt-2 max-w-sm mx-auto">
+              <div className="space-y-4 max-w-xs mx-auto">
                 <Link
                   to={result.gender === 'women' ? '/women' : '/men'}
-                  className="flex min-h-[46px] w-full items-center justify-center gap-2 bg-[#000000] text-xs font-medium uppercase tracking-[0.2em] text-[#FFFFFF] transition-all hover:bg-neutral-800"
+                  className="inline-flex min-h-[44px] w-full items-center justify-center gap-2 bg-[#000000] text-xs font-medium uppercase tracking-[0.2em] text-[#FFFFFF] transition-opacity hover:opacity-80"
                 >
-                  <span>Shop In Your Size ({result.size})</span>
+                  <span>Shop {result.gender === 'women' ? "Women's" : "Men's"} ({result.size})</span>
                   <ArrowRight size={13} />
                 </Link>
 
@@ -352,7 +317,7 @@ export default function FitFinder() {
                   onClick={restart}
                   className="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-widest text-neutral-400 hover:text-black transition-colors"
                 >
-                  <RotateCcw size={11} /> Recalibrate Measurements
+                  <RotateCcw size={11} /> Retake Guide
                 </button>
               </div>
             </motion.div>
