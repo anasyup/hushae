@@ -1,399 +1,582 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ArrowRight, ArrowUpRight } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { api } from '../api/client';
 import Seo, { organizationJsonLd } from '../components/Seo';
-import LuxuryCategoryShowcase from '../components/LuxuryCategoryShowcase';
 import CollectionCard from '../components/CollectionCard';
-import NewArrivalsSection from '../components/home/NewArrivalsSection';
-import DiscoverTiles from '../components/home/DiscoverTiles';
-import { PRODUCT_GRID } from '../lib/productGrid';
 
 /* ============================================================================
- * HUSHAE HOME — luxury homepage, exact client reference.
- *   1  HERO            full-bleed "Second Skin Edit" (CK, approved)
- *   2  CATEGORY GRID   Tom Ford style — 2/4 cols, 4/5 images, tracking 0.2em
- *   3  PRODUCT CAROUSEL "The New Collection" — serif title + EXPLORE NOW
- *   4  EDITORIAL SPLIT Loro Piana — 2 cards, serif headings + ArrowRight
- *   5  PRODUCT CAROUSEL "Objects of Desire" — curated selection
- *   6  NEWSLETTER      Subscribe to the Newsletter
+ * HUSHAE HOME — Calvin Klein Luxury Editorial Register (Exact Reference)
+ *
+ * SECTIONS:
+ *   1. Clean Top Hero Banner (4-Slide Campaign Carousel with Direct Scroll Jumps)
+ *   2. Seamless 4-Panel Unified Category Strip (Zero Gap, Flush)
+ *   3. Curated Edit: New Arrivals (#new-arrivals)
+ *   4. Full-Bleed Editorial Campaign: "New Iconic Indigo"
+ *   5. Curated Edit: Women's Collection (#women-section)
+ *   6. Full-Bleed Editorial Campaign: "Signature Underwear"
+ *   7. Curated Edit: Men's Collection (#men-section)
+ *   8. Full-Bleed Editorial Campaign: "The Campus Edit"
+ *   9. Curated Edit: The Sale Edit (#sale-section)
  * ========================================================================== */
 
 const IMG = '/images/campaign/qa';
 
-/* ── Category tiles (real HUSHAE category images) ──────────────────────── */
-const CATEGORIES = [
-  { title: "Women's Bras", image: '/images/categories/bras.jpg', href: '/category/bras' },
-  { title: "Women's Panties", image: '/images/categories/panties.jpg', href: '/category/panties' },
-  { title: "Men's Briefs", image: '/images/categories/briefs.jpg', href: '/category/briefs' },
-  { title: "Men's Boxers", image: '/images/categories/boxers.jpg', href: '/category/boxers' },
-];
-
-/* ── HERO SLIDER — 4 slides (image + optional video), same size/text/buttons ──
-   Each slide: `image` (poster / photo) and optional `video` (mp4/webm path).
-   If `video` is set the slide plays it (muted, loop, autoplay) with the
-   image as poster; otherwise it shows the photo. To change slides, swap the
-   paths below or add a video file under public/images/campaign/qa/.
-   Auto-advances every 4s, pauses on hover/focus; thin dots for manual
-   selection. No new action buttons, no filters — everything else unchanged. */
+/* ── 1. HERO SLIDES (4 Slides linked to 4 Sections) ───────────────────────── */
 const HERO_SLIDES = [
-  { landscape: `${IMG}/hero-new-1.jpg`, portrait: `${IMG}/hero-m-1.jpg` },
-  { landscape: `${IMG}/hero-new-2.jpg`, portrait: `${IMG}/hero-m-2.jpg` },
-  { landscape: `${IMG}/hero-new-3.jpg`, portrait: `${IMG}/hero-m-3.jpg` },
-  { landscape: `${IMG}/hero-new-4.jpg`, portrait: `${IMG}/hero-m-4.jpg` },
+  {
+    id: 'new-arrivals',
+    title: 'For Your Transitional Wardrobe',
+    description: 'Polished outerwear and lightweight layers made for cool, unexpected days.',
+    landscape: `${IMG}/hero-new-1.jpg`,
+    portrait: `${IMG}/hero-m-1.jpg`,
+    targetId: 'new-arrivals',
+  },
+  {
+    id: 'women-section',
+    title: 'The Women’s Collection',
+    description: 'Second-skin bras, seamless panties, and luxury silk-touch loungewear.',
+    landscape: `${IMG}/hero-new-2.jpg`,
+    portrait: `${IMG}/hero-m-2.jpg`,
+    targetId: 'women-section',
+  },
+  {
+    id: 'men-section',
+    title: 'The Men’s Collection',
+    description: 'Breathable modal briefs, premium boxers, and ribbed undershirts.',
+    landscape: `${IMG}/hero-new-3.jpg`,
+    portrait: `${IMG}/hero-m-3.jpg`,
+    targetId: 'men-section',
+  },
+  {
+    id: 'sale-section',
+    title: 'The Autumn Sale Edit',
+    description: 'Exclusive seasonal discounts and signature value multipacks.',
+    landscape: `${IMG}/hero-new-4.jpg`,
+    portrait: `${IMG}/hero-m-4.jpg`,
+    targetId: 'sale-section',
+  },
 ];
 
 function HeroSlides() {
   const [idx, setIdx] = useState(0);
 
-  /* Auto-advance every 4.5s — ALWAYS, no hover pause (the merchant wants
-     the banner to keep moving). Crossfade is 900ms so the change is clearly
-     visible. Slides are preloaded eagerly so the crossfade never shows a
-     blank frame. */
   useEffect(() => {
-    const t = setInterval(() => setIdx((i) => (i + 1) % HERO_SLIDES.length), 4500);
+    const t = setInterval(() => setIdx((i) => (i + 1) % HERO_SLIDES.length), 5500);
     return () => clearInterval(t);
   }, []);
 
+  const scrollToSection = (targetId) => {
+    const el = document.getElementById(targetId);
+    if (el) {
+      const headerOffset = 80;
+      const elementPosition = el.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth',
+      });
+    }
+  };
+
   return (
     <section
-      className="relative aspect-[4/5] w-full overflow-hidden bg-white md:aspect-[16/9]"
+      className="relative aspect-[4/5] sm:aspect-[16/10] md:aspect-[16/9] w-full overflow-hidden bg-black text-white"
       aria-roledescription="carousel"
-      aria-label="Campaign highlights"
+      aria-label="Campaign Highlights"
     >
-      {/* Slides — crossfade. Art-directed: portrait crop on mobile (4:5),
-          landscape on desktop (16:9) — the photo always FITS, never zooms. */}
+      {/* Background Campaign Slides with Zero-Lag CSS GPU Crossfade */}
       {HERO_SLIDES.map((s, i) => (
         <div
           key={s.landscape}
           aria-hidden={i !== idx}
-          className={`absolute inset-0 transition-opacity duration-[900ms] ease-in-out ${i === idx ? 'opacity-100' : 'opacity-0'}`}
+          onClick={() => scrollToSection(s.targetId)}
+          className={`absolute inset-0 cursor-pointer transition-opacity duration-[800ms] ease-in-out ${i === idx ? 'opacity-100 z-10 pointer-events-auto' : 'opacity-0 z-0 pointer-events-none'}`}
         >
+          {/* Static High-Res Background Image */}
           <picture className="block h-full w-full">
             <source media="(max-width: 767px)" srcSet={s.portrait} />
             <img
               src={s.landscape}
-              alt={i === idx ? 'HUSHAE campaign' : ''}
+              alt={s.title}
               fetchpriority={i === 0 ? 'high' : 'auto'}
-              loading="eager"
+              loading={i === 0 ? 'eager' : 'lazy'}
               decoding="async"
               className="h-full w-full object-cover object-center"
             />
           </picture>
+
+          {/* Multi-Stop Gradient Scrim */}
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-black/20 md:bg-gradient-to-r md:from-black/75 md:via-black/30 md:to-transparent"
+          />
+
+          {/* Clean Editorial Typography */}
+          <div className="absolute inset-0 flex items-end md:items-center px-6 sm:px-12 md:px-16 lg:px-24 pb-12 sm:pb-16 md:pb-0">
+            <div className="max-w-md sm:max-w-xl space-y-2 sm:space-y-3">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light tracking-tight text-white leading-[1.08]">
+                {s.title}
+              </h2>
+
+              <p className="max-w-xs sm:max-w-md text-xs sm:text-sm font-normal text-white/90 leading-relaxed">
+                {s.description}
+              </p>
+            </div>
+          </div>
         </div>
       ))}
 
-      {/* Slide arrows — luxury hairline circle (Gucci/Prada register) */}
+      {/* Sleek, Borderless Hairline Slide Arrows */}
       <button
         type="button"
-        onClick={() => setIdx((i) => (i - 1 + HERO_SLIDES.length) % HERO_SLIDES.length)}
-        aria-label="Previous slide"
-        className="absolute left-3 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/60 text-white transition-all duration-300 hover:border-white hover:bg-white hover:text-black md:left-6"
-      >
-        <ChevronLeft size={20} strokeWidth={1.5} aria-hidden="true" />
-      </button>
-      <button
-        type="button"
-        onClick={() => setIdx((i) => (i + 1) % HERO_SLIDES.length)}
-        aria-label="Next slide"
-        className="absolute right-3 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/60 text-white transition-all duration-300 hover:border-white hover:bg-white hover:text-black md:right-6"
-      >
-        <ChevronRight size={20} strokeWidth={1.5} aria-hidden="true" />
-      </button>
-
-      {/* Subtle bottom scrim — keeps the imagery clean; no text overlay. */}
-      <div
-        aria-hidden="true"
-        className="absolute inset-x-0 bottom-0 h-24"
-        style={{
-          background:
-            'linear-gradient(to top, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0) 100%)',
+        onClick={(e) => {
+          e.stopPropagation();
+          setIdx((i) => (i - 1 + HERO_SLIDES.length) % HERO_SLIDES.length);
         }}
-      />
+        aria-label="Previous slide"
+        className="absolute left-3 sm:left-5 md:left-7 top-1/2 -translate-y-1/2 z-30 flex items-center justify-center p-2 text-white/70 transition-all duration-200 hover:text-white hover:-translate-x-1 drop-shadow-md"
+      >
+        <ChevronLeft size={38} strokeWidth={1.2} aria-hidden="true" />
+      </button>
 
-    </section>
-  );
-}
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          setIdx((i) => (i + 1) % HERO_SLIDES.length);
+        }}
+        aria-label="Next slide"
+        className="absolute right-3 sm:right-5 md:right-7 top-1/2 -translate-y-1/2 z-30 flex items-center justify-center p-2 text-white/70 transition-all duration-200 hover:text-white hover:translate-x-1 drop-shadow-md"
+      >
+        <ChevronRight size={38} strokeWidth={1.2} aria-hidden="true" />
+      </button>
 
-/* ── SECTION 1: Minimalist category grid (Tom Ford style) ───────────────── */
-function CategoryGridSection() {
-  return (
-    <section className="mx-auto max-w-[1600px] px-4 py-16 md:px-8">
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
-        {CATEGORIES.map((cat) => (
-          <Link key={cat.title} to={cat.href} className="group flex cursor-pointer flex-col">
-            <div className="relative aspect-[4/5] overflow-hidden bg-[#f2f0ec]">
-              <img
-                src={cat.image}
-                alt={cat.title}
-                loading="lazy"
-                className="h-full w-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105"
-              />
-            </div>
-            <div className="bg-transparent pb-2 pt-4">
-              <h3 className="text-[11px] font-medium uppercase tracking-[0.2em] text-[#111111] md:text-[12px]">
-                {cat.title}
-              </h3>
-            </div>
-          </Link>
+      {/* Slide Indicator Line Ticks on Bottom */}
+      <div className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2">
+        {HERO_SLIDES.map((s, i) => (
+          <button
+            key={s.id}
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setIdx(i);
+            }}
+            aria-label={`Go to slide ${i + 1}`}
+            className={`h-1 transition-all duration-300 rounded-full ${i === idx ? 'w-8 bg-white' : 'w-2 bg-white/40 hover:bg-white/70'}`}
+          />
         ))}
       </div>
     </section>
   );
 }
 
-/* ── SECTION 2 & 4: Product carousel (CK register — no rules, just air) ──── */
-function ProductCarouselSection({ title, subtitle, products, href }) {
-  const items = (products || []).filter(Boolean).slice(0, 4);
+/* ── 2. SEAMLESS UNIFIED 4-PANEL CATEGORY STRIP (ZERO GAP) ───────────────── */
+const CATEGORY_CARDS = [
+  {
+    title: 'T-Shirts + Tanks',
+    image: '/images/campaign/ck-tile-1.jpg',
+    alt: 'T-Shirts and Tanks collection',
+    womenHref: '/category/camisoles-slips',
+    menHref: '/category/vests-undershirts',
+  },
+  {
+    title: 'Jackets',
+    image: '/images/campaign/ck-tile-2.jpg',
+    alt: 'Jackets and outer layers',
+    womenHref: '/category/sleepwear-loungewear',
+    menHref: '/category/thermal-sports',
+  },
+  {
+    title: 'Sweaters',
+    image: '/images/campaign/ck-tile-3.jpg',
+    alt: 'Knitwear and sweaters',
+    menHref: '/category/thermal-sports',
+    womenHref: '/category/sleepwear-loungewear',
+    reverseLinks: true,
+  },
+  {
+    title: 'Underwear',
+    image: '/images/campaign/ck-tile-4.jpg',
+    alt: 'Signature luxury underwear',
+    womenHref: '/category/panties',
+    menHref: '/category/briefs',
+  },
+];
+
+function SeamlessCategoryStripSection() {
+  return (
+    <section className="w-full overflow-hidden bg-black" aria-label="Featured Categories">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-0 w-full">
+        {CATEGORY_CARDS.map((card) => (
+          <div
+            key={card.title}
+            className="group relative aspect-[3/4] sm:aspect-[4/5] md:aspect-[3/4] lg:aspect-[10/14] w-full overflow-hidden bg-[#1a1a1a] cursor-pointer"
+          >
+            <img
+              src={card.image}
+              alt={card.alt}
+              loading="lazy"
+              decoding="async"
+              className="h-full w-full object-cover object-center transition-opacity duration-300 group-hover:opacity-95"
+            />
+
+            <div
+              aria-hidden="true"
+              className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-transparent transition-opacity duration-300"
+            />
+
+            <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5 md:p-6 lg:p-7 text-white z-10">
+              <h3 className="text-sm sm:text-base md:text-lg lg:text-xl font-semibold tracking-tight text-white">
+                {card.title}
+              </h3>
+
+              <div className="mt-2 sm:mt-2.5 flex items-center gap-3.5 sm:gap-4 text-[11px] sm:text-xs font-normal text-white">
+                {card.reverseLinks ? (
+                  <>
+                    <Link
+                      to={card.menHref}
+                      className="group/link inline-flex items-center gap-0.5 border-b border-white/70 pb-0.5 transition-all hover:border-white hover:text-white"
+                    >
+                      <span>Shop Men</span>
+                      <ArrowUpRight size={11} className="opacity-0 -translate-x-1 group-hover/link:opacity-100 group-hover/link:translate-x-0 transition-all duration-200" />
+                    </Link>
+                    <Link
+                      to={card.womenHref}
+                      className="group/link inline-flex items-center gap-0.5 border-b border-white/70 pb-0.5 transition-all hover:border-white hover:text-white"
+                    >
+                      <span>Shop Women</span>
+                      <ArrowUpRight size={11} className="opacity-0 -translate-x-1 group-hover/link:opacity-100 group-hover/link:translate-x-0 transition-all duration-200" />
+                    </Link>
+                  </>
+                ) : (
+                  <>
+                    <Link
+                      to={card.womenHref}
+                      className="group/link inline-flex items-center gap-0.5 border-b border-white/70 pb-0.5 transition-all hover:border-white hover:text-white"
+                    >
+                      <span>Shop Women</span>
+                      <ArrowUpRight size={11} className="opacity-0 -translate-x-1 group-hover/link:opacity-100 group-hover/link:translate-x-0 transition-all duration-200" />
+                    </Link>
+                    <Link
+                      to={card.menHref}
+                      className="group/link inline-flex items-center gap-0.5 border-b border-white/70 pb-0.5 transition-all hover:border-white hover:text-white"
+                    >
+                      <span>Shop Men</span>
+                      <ArrowUpRight size={11} className="opacity-0 -translate-x-1 group-hover/link:opacity-100 group-hover/link:translate-x-0 transition-all duration-200" />
+                    </Link>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* ── 3. PRISTINE CURATED GALLERY ROW ─────────────────────────────────────── */
+function CuratedGallerySection({ id, eyebrow, title, products, viewAllHref, viewAllText = 'Explore All' }) {
+  const items = (products || []).slice(0, 4);
   if (!items.length) return null;
 
   return (
-    <section className="px-4 pt-20 pb-10 md:px-8 md:pt-28 md:pb-14">
-      <div className="mb-12 space-y-3 px-4 text-center md:px-8">
-        <p className="text-[10px] font-medium uppercase tracking-[0.3em] text-neutral-400">
-          {subtitle}
-        </p>
-        <h2 className="text-2xl font-light uppercase tracking-[0.18em] text-[#111111] md:text-[34px]">
-          {title}
-        </h2>
-        <Link
-          to={href || '/shop'}
-          className="inline-flex min-h-[44px] items-center gap-1 border-b border-black/40 pb-0.5 text-[10px] font-medium uppercase tracking-[0.25em] text-neutral-600 transition-colors hover:border-black hover:text-black"
-        >
-          View All <span aria-hidden="true">&rarr;</span>
-        </Link>
-      </div>
+    <section id={id} className="w-full bg-white py-16 sm:py-20 md:py-24 scroll-mt-20">
+      <div className="mx-auto max-w-[1500px] px-6 sm:px-8 md:px-12">
+        {/* Minimalist Section Header */}
+        <div className="flex flex-col justify-between sm:flex-row sm:items-end gap-3 pb-6 md:pb-8 border-b border-neutral-100 mb-8 md:mb-10">
+          <div>
+            <p className="text-[10px] font-medium uppercase tracking-[0.32em] text-neutral-400">
+              {eyebrow}
+            </p>
+            <h2 className="mt-2 text-2xl sm:text-3xl md:text-4xl font-light uppercase tracking-[0.14em] text-[#111111]">
+              {title}
+            </h2>
+          </div>
 
-      <div className={PRODUCT_GRID}>
-        {items.map((item) => (
-          <CollectionCard key={item._id} product={item} />
-        ))}
-      </div>
-    </section>
-  );
-}
-
-/* ── SECTION 3: Editorial split banner (Loro Piana style) ───────────────────
- *
- * FULL-SCREEN. Was a contained band: max-w-[1600px] with px-4/px-8 gutters,
- * a 16px gap between the two cards and 4/5 (mobile) / 3/4 (desktop) aspect
- * boxes — roughly 1,003px tall on desktop with the page ground showing on
- * every side.
- *
- * It now fills the viewport: the section is 100svh, the two panels sit side by
- * side at 50vw each on md+, and the gutter and gap are gone so the two
- * photographs meet on a single hairline. On mobile a 50/50 horizontal split
- * would give each panel a 195px-wide sliver, so the panels stack and take
- * 50svh each — still exactly one screenful, just divided the other way.
- *
- * IMAGE CHOICE — deliberate, not a copy-paste.
- * The left panel used editorial-modern.jpg, which is 1584x672 LANDSCAPE. In a
- * 720x900 full-height panel that image has to scale to ~2121px wide to cover,
- * so 66% of the frame is cropped away and what survives is upscaled and soft.
- * cat-women.jpg is 896x1200 PORTRAIT, shot for exactly this crop, so it fills
- * a tall panel at native proportions. hero-fabric.jpg (768x1376) was already
- * portrait and stays.
- *
- * 100svh (not vh) so mobile browser chrome does not push the panel taller
- * than the visible area.
- * ────────────────────────────────────────────────────────────────────────── */
-function EditorialSplitSection() {
-  const panels = [
-    {
-      to: '/new',
-      img: `${IMG}/cat-women.jpg`,
-      alt: 'Spring Summer collection',
-      title: 'Spring / Summer Silhouette',
-      cta: 'Explore Collection',
-      /* The subject stands in the upper-middle of this frame. In the short
-         422px-tall mobile panel a default 50% 50% crop cut her head off —
-         checked on the rendered page, not assumed. Biasing the crop upward
-         keeps the face in frame on mobile; on the tall desktop panel the
-         image covers almost exactly, so the shift is imperceptible there. */
-      pos: 'object-[50%_22%] md:object-center',
-    },
-    {
-      to: '/about',
-      img: `${IMG}/hero-fabric.jpg`,
-      alt: 'Craftsmanship',
-      title: 'Uncompromising Craftsmanship',
-      cta: 'Read The Story',
-      // Abstract fabric — no subject to protect, centre is correct.
-      pos: 'object-center',
-    },
-  ];
-
-  return (
-    <section className="w-full">
-      <div className="grid h-[100svh] grid-cols-1 grid-rows-2 md:grid-cols-2 md:grid-rows-1">
-        {panels.map((p, i) => (
           <Link
-            key={p.to}
-            to={p.to}
-            className="group relative block h-full w-full cursor-pointer overflow-hidden bg-[#f2f0ec]"
+            to={viewAllHref}
+            className="group inline-flex items-center gap-1.5 border-b border-black/40 pb-0.5 text-[11px] font-medium uppercase tracking-[0.22em] text-[#111111] transition-colors hover:border-black"
           >
-            <img
-              src={p.img}
-              alt={p.alt}
-              loading="lazy"
-              decoding="async"
-              /* sizes tells the browser this is a half-width slot on desktop
-                 and full-width on mobile, so it never fetches more than it
-                 needs for the panel it actually paints. */
-              sizes="(min-width: 768px) 50vw, 100vw"
-              className={`absolute inset-0 h-full w-full object-cover ${p.pos} transition-transform duration-700 ease-out group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100`}
-            />
-            {/* Bottom-weighted scrim, matching the hero. The old flat
-                `bg-black/10` was measured failing WCAG on these same two
-                photographs (1.14:1 on the heading, 1.14 on the CTA) — at
-                full-screen the type sits over even more of the bright plaster,
-                so it needs a real ramp rather than a wash. Density is spent
-                only on the lower third where the words are. */}
-            <div
-              aria-hidden="true"
-              className="absolute inset-0 transition-opacity duration-500 group-hover:opacity-90"
-              style={{
-                background:
-                  'linear-gradient(to top, rgba(0,0,0,0.62) 0%, rgba(0,0,0,0.45) 22%, rgba(0,0,0,0.16) 48%, rgba(0,0,0,0) 72%)',
-              }}
-            />
-            {/* MEASURED: on mobile the LOWER panel's CTA sat at y=791-812
-                while MobileNav starts at y=791 — "Read the story" was 21px
-                underneath the tab bar. Only the last panel touches the bottom
-                of the viewport, so only it needs the offset; adding it to both
-                would push the upper panel's copy up for no reason. --nav-h is
-                the nav's real measured height and reports 0px on md+, where
-                the nav is display:none and the panels sit side by side. */}
-            <div
-              className="absolute inset-x-0 bottom-0 p-8 text-white md:p-12 lg:p-16"
-              style={i === panels.length - 1 ? { paddingBottom: 'calc(var(--nav-h, 0px) + 2rem)' } : undefined}
-            >
-              {/* Type scales with the panel now that it owns half a screen
-                  rather than a 400px card. */}
-              <h3 className="max-w-[22ch] font-display text-2xl font-light uppercase leading-[1.15] tracking-[0.1em] md:text-3xl lg:text-4xl">
-                {p.title}
-              </h3>
-              <span className="mt-5 inline-flex items-center gap-2 border-b border-white pb-1 text-[11px] font-medium uppercase tracking-[0.2em] transition-colors group-hover:border-white/60">
-                {p.cta} <ArrowRight size={14} aria-hidden="true" />
-              </span>
-            </div>
+            <span>{viewAllText}</span>
+            <ArrowRight size={12} className="transition-transform duration-200 group-hover:translate-x-1" aria-hidden="true" />
           </Link>
-        ))}
+        </div>
+
+        {/* Clean, High-Spaced 4-Column Product Gallery */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
+          {items.map((product) => (
+            <CollectionCard key={product._id || product.slug} product={product} />
+          ))}
+        </div>
       </div>
     </section>
   );
 }
 
-/* ── SECTION 5: Luxury newsletter sign-up ───────────────────────────────── */
-function NewsletterSection() {
-  const [email, setEmail] = useState('');
-  const [done, setDone] = useState(false);
-  const [err, setErr] = useState('');
-  const submit = (e) => {
-    e.preventDefault();
-    const v = email.trim();
-    if (!v) { setErr('Please enter your email address.'); return; }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) { setErr('Please enter a valid email address.'); return; }
-    setErr('');
-    api('/subscribers', { method: 'POST', body: { email: v } }).catch(() => {});
-    setDone(true);
-  };
+/* ── 4. FULL-BLEED FEATURE 01: "New Iconic Indigo" ────────────────────────── */
+function FeatureIndigoSection() {
   return (
-    <section className="bg-white px-4 pt-24 pb-16 text-center md:pt-32 md:pb-20">
-      <div className="mx-auto max-w-md space-y-5">
-        <p className="text-[10px] font-medium uppercase tracking-[0.3em] text-neutral-400">
-          Stay in touch
-        </p>
-        <h2 className="text-2xl font-light uppercase tracking-[0.18em] text-[#111111] md:text-[30px]">
-          The Newsletter
-        </h2>
-        <p className="text-[12px] font-normal leading-relaxed tracking-wide text-neutral-500">
-          New arrivals, private sales and seasonal previews — first.
-        </p>
-        {done ? (
-          <p className="pt-4 text-[12px] font-medium uppercase tracking-[0.2em] text-[#111111]">You&apos;re on the list.</p>
-        ) : (
-          <form
-            className="mx-auto flex max-w-sm items-end justify-center gap-3 pt-4"
-            onSubmit={submit}
-            noValidate
+    <section className="relative w-full overflow-hidden bg-black text-white" aria-label="New Iconic Indigo">
+      <div className="relative min-h-[540px] sm:min-h-[660px] md:min-h-[780px] lg:min-h-[880px] w-full flex items-center">
+        <img
+          src="/images/campaign/ck-feature-indigo.jpg"
+          alt="New Iconic Indigo Campaign"
+          loading="lazy"
+          decoding="async"
+          className="absolute inset-0 h-full w-full object-cover object-center"
+        />
+
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/40 to-transparent md:from-black/75 md:via-black/25"
+        />
+
+        <div className="relative z-10 max-w-[1600px] w-full mx-auto px-6 sm:px-12 md:px-16 lg:px-24 py-20">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: '-60px' }}
+            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+            className="max-w-md sm:max-w-lg space-y-4 md:space-y-6"
           >
-            {/* A placeholder is not an accessible name (WCAG 4.1.2): it is dropped
-                by most screen readers once the field has a value. Real label,
-                visually hidden so the layout is unchanged. */}
-            <label htmlFor="newsletter-email" className="sr-only">Email address</label>
-            <input
-              id="newsletter-email"
-              name="email"
-              type="email"
-              autoComplete="email"
-              value={email}
-              onChange={(e) => { setEmail(e.target.value); if (err) setErr(''); }}
-              required
-              aria-invalid={err ? 'true' : undefined}
-              aria-describedby={err ? 'home-nl-err' : undefined}
-              placeholder="Email address"
-              className="w-full border-0 border-b border-black/30 bg-transparent px-0 py-2.5 text-[13px] text-black transition focus:border-black focus:outline-none placeholder:text-[12px] placeholder:tracking-wide placeholder:text-neutral-400"
-            />
-            <button
-              type="submit"
-              className="min-h-[44px] shrink-0 border-b border-black/30 pb-1 text-[11px] font-medium uppercase tracking-[0.2em] text-black transition-colors hover:border-black"
-            >
-              Sign Up
-            </button>
-          </form>
-        )}
-        {err && <p id="home-nl-err" role="alert" className="pt-2 text-[12px] text-red-700">{err}</p>}
+            <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-light tracking-tight text-white leading-[1.02]">
+              New<br />Iconic<br />Indigo
+            </h2>
+
+            <p className="max-w-xs sm:max-w-sm text-xs sm:text-sm font-normal text-neutral-300 leading-relaxed">
+              Denim reinvented in a deep, tonal hue for fall. The wardrobe staples with staying power.
+            </p>
+
+            <div className="flex items-center gap-8 pt-3 text-xs sm:text-sm font-medium text-white">
+              <Link
+                to="/category/bras"
+                className="group inline-flex items-center gap-1.5 border-b border-white pb-1 transition-all hover:border-neutral-400 hover:text-neutral-200"
+              >
+                <span>Shop Women</span>
+                <span aria-hidden="true" className="transition-transform duration-200 group-hover:translate-x-1">&rarr;</span>
+              </Link>
+              <Link
+                to="/category/briefs"
+                className="group inline-flex items-center gap-1.5 border-b border-white pb-1 transition-all hover:border-neutral-400 hover:text-neutral-200"
+              >
+                <span>Shop Men</span>
+                <span aria-hidden="true" className="transition-transform duration-200 group-hover:translate-x-1">&rarr;</span>
+              </Link>
+            </div>
+          </motion.div>
+        </div>
       </div>
     </section>
   );
 }
 
-/* ═══ PAGE ═══════════════════════════════════════════════════════════════ */
+/* ── 5. FULL-BLEED FEATURE 02: "Signature Underwear" ──────────────────────── */
+function FeatureUnderwearSection() {
+  return (
+    <section className="relative w-full overflow-hidden bg-[#f4f2ee] text-[#111111]" aria-label="Signature Underwear">
+      <div className="relative min-h-[540px] sm:min-h-[660px] md:min-h-[780px] lg:min-h-[880px] w-full flex items-center">
+        <img
+          src="/images/campaign/ck-feature-underwear.jpg"
+          alt="Signature Underwear Campaign"
+          loading="lazy"
+          decoding="async"
+          className="absolute inset-0 h-full w-full object-cover object-center"
+        />
+
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 bg-gradient-to-r from-white/80 via-white/30 to-transparent md:from-white/60 md:via-transparent"
+        />
+
+        <div className="relative z-10 max-w-[1600px] w-full mx-auto px-6 sm:px-12 md:px-16 lg:px-24 py-20">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: '-60px' }}
+            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+            className="max-w-md sm:max-w-lg space-y-4 md:space-y-6"
+          >
+            <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-light tracking-tight text-[#111111] leading-[1.02]">
+              Signature<br />Underwear
+            </h2>
+
+            <p className="max-w-xs sm:max-w-sm text-xs sm:text-sm font-normal text-neutral-800 leading-relaxed">
+              Feel confident under anything. Smooth silhouettes with the updated logo waistband.
+            </p>
+
+            <div className="flex items-center gap-8 pt-3 text-xs sm:text-sm font-medium text-[#111111]">
+              <Link
+                to="/category/panties"
+                className="group inline-flex items-center gap-1.5 border-b border-black pb-1 transition-all hover:opacity-60"
+              >
+                <span>Shop Women</span>
+                <span aria-hidden="true" className="transition-transform duration-200 group-hover:translate-x-1">&rarr;</span>
+              </Link>
+              <Link
+                to="/category/boxers"
+                className="group inline-flex items-center gap-1.5 border-b border-black pb-1 transition-all hover:opacity-60"
+              >
+                <span>Shop Men</span>
+                <span aria-hidden="true" className="transition-transform duration-200 group-hover:translate-x-1">&rarr;</span>
+              </Link>
+            </div>
+          </motion.div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ── 6. FULL-BLEED FEATURE 03: "The Campus Edit" ──────────────────────────── */
+function FeatureCampusSection() {
+  return (
+    <section className="relative w-full overflow-hidden bg-black text-white" aria-label="The Campus Edit">
+      <div className="relative min-h-[540px] sm:min-h-[660px] md:min-h-[780px] lg:min-h-[880px] w-full flex items-center justify-center">
+        <img
+          src="/images/campaign/ck-feature-campus.jpg"
+          alt="The Campus Edit Campaign"
+          loading="lazy"
+          decoding="async"
+          className="absolute inset-0 h-full w-full object-cover object-center"
+        />
+
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 bg-black/30 md:bg-black/25"
+        />
+
+        <div className="relative z-10 max-w-[1600px] w-full mx-auto px-6 sm:px-12 py-20 text-center flex flex-col items-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-60px' }}
+            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+            className="max-w-xs sm:max-w-md md:max-w-lg space-y-4 md:space-y-6"
+          >
+            <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-light tracking-tight text-white leading-[1.02] drop-shadow-lg">
+              The<br />Campus<br />Edit
+            </h2>
+
+            <p className="mx-auto max-w-xs sm:max-w-sm text-xs sm:text-sm font-normal text-white/95 leading-relaxed drop-shadow">
+              Start the year fresh in casual essentials. Made to transition seamlessly from class to after.
+            </p>
+
+            <div className="flex items-center justify-center gap-8 pt-3 text-xs sm:text-sm font-medium text-white drop-shadow">
+              <Link
+                to="/category/bras"
+                className="group inline-flex items-center gap-1.5 border-b border-white pb-1 transition-all hover:border-neutral-300 hover:text-neutral-100"
+              >
+                <span>Shop Women</span>
+                <span aria-hidden="true" className="transition-transform duration-200 group-hover:translate-x-1">&rarr;</span>
+              </Link>
+              <Link
+                to="/category/vests-undershirts"
+                className="group inline-flex items-center gap-1.5 border-b border-white pb-1 transition-all hover:border-neutral-300 hover:text-neutral-100"
+              >
+                <span>Shop Men</span>
+                <span aria-hidden="true" className="transition-transform duration-200 group-hover:translate-x-1">&rarr;</span>
+              </Link>
+            </div>
+          </motion.div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ═══ PAGE ROOT ═══════════════════════════════════════════════════════════ */
 export default function Home() {
-  const [fresh, setFresh] = useState([]);
-  const [best, setBest] = useState([]);
+  const [newArrivals, setNewArrivals] = useState([]);
+  const [womenProducts, setWomenProducts] = useState([]);
+  const [menProducts, setMenProducts] = useState([]);
+  const [saleProducts, setSaleProducts] = useState([]);
 
   useEffect(() => {
-    api('/products?newArrival=true&sort=newest&limit=12').then((d) => setFresh(d.products || [])).catch(() => setFresh([]));
-    api('/products?bestSeller=true&limit=8').then((d) => setBest(d.products || [])).catch(() => setBest([]));
+    api('/products?newArrival=true&sort=newest&limit=4')
+      .then((d) => setNewArrivals(d.products || []))
+      .catch(() => {});
+
+    api('/products?gender=women&limit=4')
+      .then((d) => setWomenProducts(d.products || []))
+      .catch(() => {});
+
+    api('/products?gender=men&limit=4')
+      .then((d) => setMenProducts(d.products || []))
+      .catch(() => {});
+
+    api('/products?bestSeller=true&limit=4')
+      .then((d) => setSaleProducts(d.products || []))
+      .catch(() => {});
   }, []);
 
   return (
     <div className="min-h-screen w-full bg-white font-sans text-[#111111] selection:bg-black selection:text-white">
-      <Seo title="Premium Innerwear for Men & Women"
+      <Seo
+        title="Premium Innerwear & Apparel — HUSHAE"
         description="New season essentials, engineered for comfort. Made in Pakistan, finished to an international standard."
         canonical="/"
         jsonLd={organizationJsonLd(typeof window !== 'undefined' ? window.location.origin : '')}
-        jsonLdId="home-org" />
+        jsonLdId="home-org"
+      />
 
-      {/* H1 — visually hidden for SEO (the hero used to carry the only H1;
-          it now shows the campaign image alone, so the page keeps its title
-          here instead). Screen readers announce it; sighted users never see it. */}
+      {/* Visually hidden H1 for SEO */}
       <h1 className="sr-only">
-        HUSHAE — Premium innerwear for men and women, made in Pakistan
+        HUSHAE — Premium innerwear and apparel for men and women
       </h1>
 
-      {/* 01 — HERO (CK) */}
+      {/* 01 — TOP HERO CAROUSEL */}
       <HeroSlides />
 
-      {/* 02 — DISCOVER — editorial gateway (Chanel / Hermès / CK pattern) */}
-      <DiscoverTiles />
+      {/* 02 — SEAMLESS UNIFIED 4-PANEL CATEGORY STRIP */}
+      <SeamlessCategoryStripSection />
 
-      {/* 03 — STUDIO CATEGORY SHOWCASE (Givenchy canvas) */}
-      <LuxuryCategoryShowcase />
+      {/* 03 — CURATED EDIT: NEW ARRIVALS (#new-arrivals) */}
+      <CuratedGallerySection
+        id="new-arrivals"
+        eyebrow="NEW SEASON ESSENTIALS"
+        title="New Arrivals"
+        products={newArrivals}
+        viewAllHref="/new"
+      />
 
-      {/* 04 — NEW ARRIVALS — luxury grid (editorial header + tabs) */}
-      <NewArrivalsSection products={fresh} />
+      {/* 04 — EDITORIAL CAMPAIGN 01: "New Iconic Indigo" */}
+      <FeatureIndigoSection />
 
-      {/* 05 — EDITORIAL SPLIT (Loro Piana) */}
-      <EditorialSplitSection />
+      {/* 05 — CURATED EDIT: WOMEN'S COLLECTION (#women-section) */}
+      <CuratedGallerySection
+        id="women-section"
+        eyebrow="SECOND SKIN SILHOUETTES"
+        title="Women's Collection"
+        products={womenProducts}
+        viewAllHref="/shop?gender=women"
+      />
 
-      {/* 05 — OBJECTS OF DESIRE */}
-      <ProductCarouselSection title="Objects of Desire" subtitle="CURATED SELECTION" products={best} href="/best" />
+      {/* 06 — EDITORIAL FEATURE 02: "Signature Underwear" */}
+      <FeatureUnderwearSection />
 
-      {/* 06 — NEWSLETTER */}
-      <NewsletterSection />
+      {/* 07 — CURATED EDIT: MEN'S COLLECTION (#men-section) */}
+      <CuratedGallerySection
+        id="men-section"
+        eyebrow="ENGINEERED FIT & COMFORT"
+        title="Men's Collection"
+        products={menProducts}
+        viewAllHref="/shop?gender=men"
+      />
+
+      {/* 08 — EDITORIAL FEATURE 03: "The Campus Edit" */}
+      <FeatureCampusSection />
+
+      {/* 09 — CURATED EDIT: THE SALE ARCHIVE (#sale-section) */}
+      <CuratedGallerySection
+        id="sale-section"
+        eyebrow="CURATED VALUE OFFERS"
+        title="The Sale Edit"
+        products={saleProducts}
+        viewAllHref="/sale"
+      />
     </div>
   );
 }
