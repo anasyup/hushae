@@ -126,22 +126,20 @@ export default function Header() {
       )}
 
       {/* 2. Main header — below the announcement bar.
-          Clean luxury: transparent (black text) at top over the hero →
-          solid white + hairline + black text once scrolled (no heavy block). */}
+          Clean luxury: transparent with black text at top →
+          solid white + hairline + black text once scrolled. */}
       <header
         data-header
-        className={`w-full h-[96px] !m-0 px-6 lg:px-12 transition-[background-color,color,border-color,box-shadow] duration-300 ease-in-out ${
-          invert
-            ? 'bg-transparent text-white'
-            : mega || isScrolled
-              ? 'bg-[#FFFFFF] text-black border-b border-neutral-200 shadow-sm'
-              : 'bg-transparent text-black'
+        className={`w-full h-[96px] !m-0 px-6 lg:px-12 text-black transition-[background-color,border-color,box-shadow] duration-300 ease-in-out ${
+          isScrolled || mega
+            ? 'bg-[#FFFFFF] border-b border-neutral-200 shadow-sm'
+            : 'bg-transparent border-b border-transparent'
         }`}
         onMouseLeave={() => setMega(null)}
       >
 
         {/* Reference row */}
-        <div className="mx-auto flex h-full w-full max-w-[1600px] items-center justify-between gap-8">
+        <div className="mx-auto flex h-full w-full max-w-[1600px] items-center justify-between gap-8 text-black">
           {/* Burger — mobile only (nav shows from md) */}
           <button
             ref={burgerRef}
@@ -149,19 +147,13 @@ export default function Header() {
             onClick={() => setMobileOpen(true)}
             aria-label="Open menu"
             aria-expanded={mobileOpen}
-            className="-ml-2 grid h-10 w-10 shrink-0 place-items-center transition-colors duration-300 lg:hidden"
+            className="-ml-2 grid h-10 w-10 shrink-0 place-items-center text-black transition-colors duration-300 lg:hidden"
           >
             <Menu size={20} strokeWidth={1.5} aria-hidden="true" />
           </button>
 
-          {/* Logo — quiet luxury: lighter weight, wider tracking */}
-          {/* Spelt HUSHAÈ here and HUSHAE absolutely everywhere else — the
-              footer wordmark, the copyright line, the <title>, the cookie
-              notice, the OG tags and all 100 product names in the database.
-              A shopper saw the accent at the top of the page and the bare E at
-              the bottom of the same page. Aligned to the unaccented form,
-              which is the one the brand actually ships. */}
-          <Link to="/" aria-label="HUSHAE — home" className="flex-shrink-0 font-serif text-[21px] font-medium uppercase tracking-[0.3em] transition-opacity duration-300 hover:opacity-70">
+          {/* Logo — clean luxury geometric sans */}
+          <Link to="/" aria-label="HUSHAE — home" className="flex-shrink-0 font-sans text-[20px] font-medium uppercase tracking-[0.32em] text-black transition-opacity duration-300 hover:opacity-70">
             HUSHAE
           </Link>
 
@@ -169,7 +161,7 @@ export default function Header() {
           <nav
             data-section="header.menu"
             aria-label="Main"
-            className="hidden flex-1 items-center justify-center gap-7 lg:flex"
+            className="hidden flex-1 items-center justify-center gap-7 lg:flex text-black"
           >
             {menu.filter((m) => m && m.label).map((m, i) => {
               const dd = m.dropdown || (String(m.label).toLowerCase() === 'sale' ? 'sale' : '');
@@ -194,7 +186,7 @@ export default function Header() {
           </nav>
 
           {/* Utility icons — icon buttons (reference) */}
-          <div data-section="header.icons" className="flex shrink-0 items-center gap-5 text-xs font-medium uppercase tracking-wider">
+          <div data-section="header.icons" className="flex shrink-0 items-center gap-5 text-xs font-medium uppercase tracking-wider text-black">
             {showSearch && (
               <button
                 ref={searchBtnRef}
@@ -203,30 +195,30 @@ export default function Header() {
                 aria-label={searchOpen ? 'Close search' : 'Search products'}
                 aria-expanded={searchOpen}
                 aria-controls="header-search"
-                className="hit-44 p-1 transition-opacity duration-200 hover:opacity-60"
+                className="hit-44 p-1 text-black transition-opacity duration-200 hover:opacity-60"
               >
                 <Search size={20} strokeWidth={1.5} aria-hidden="true" />
               </button>
             )}
             {showWishlist && (
               <Link to="/wishlist" aria-label={wishlist.length ? `Wishlist, ${wishlist.length} saved` : 'Wishlist'}
-                className="hit-44 hidden p-1 transition-opacity duration-200 hover:opacity-60 sm:block">
+                className="hit-44 hidden p-1 text-black transition-opacity duration-200 hover:opacity-60 sm:block">
                 <Heart size={20} strokeWidth={1.5} aria-hidden="true" />
               </Link>
             )}
             {showAccount && (
               <Link to="/account" aria-label={auth ? 'Your account' : 'Sign in'}
-                className="hit-44 hidden p-1 transition-opacity duration-200 hover:opacity-60 sm:block">
+                className="hit-44 hidden p-1 text-black transition-opacity duration-200 hover:opacity-60 sm:block">
                 <User size={20} strokeWidth={1.5} aria-hidden="true" />
               </Link>
             )}
             {showCart && (
               <button type="button" onClick={() => setDrawerOpen(true)}
                 aria-label={cartCount ? `Open bag, ${cartCount} item${cartCount === 1 ? '' : 's'}` : 'Open bag'}
-                className="hit-44 relative flex items-center justify-center p-1 transition-opacity duration-200 hover:opacity-60">
+                className="hit-44 relative flex items-center justify-center p-1 text-black transition-opacity duration-200 hover:opacity-60">
                 <ShoppingBag size={20} strokeWidth={1.5} aria-hidden="true" />
                 {cartCount > 0 && (
-                  <span className={`absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full px-0.5 text-[9px] font-bold ${invert ? 'bg-white text-black' : 'bg-black text-white'}`}>
+                  <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-black px-0.5 text-[9px] font-bold text-white">
                     {cartCount > 99 ? '99+' : cartCount}
                   </span>
                 )}
