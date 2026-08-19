@@ -53,14 +53,14 @@ export default function FabricTech({ slug = 'breathable' }) {
 
   return (
     <div style={{ background: '#FFFFFF' }}>
-      <div className="bg-obsidian text-white section">
-        <div className="container text-center py-12 md:py-20">
-          <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-white/50">Fabric technology</p>
-          <h1 className="mt-3 h1 !text-white">{tech.title}</h1>
+      <div className="bg-obsidian text-white pt-[130px] pb-14 md:pb-20">
+        <div className="container mx-auto px-6 text-center">
+          <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-white/60">Fabric technology</p>
+          <h1 className="mt-3 text-3xl md:text-5xl font-light uppercase tracking-wide text-white">{tech.title}</h1>
         </div>
       </div>
 
-      <div className="container section pt-[130px]">
+      <div className="container mx-auto px-6 py-16 md:py-24">
         <div className="grid gap-12 md:grid-cols-2 max-w-3xl mx-auto">
           <div>
             <h2 className="h3">How it works</h2>
