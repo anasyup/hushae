@@ -4,15 +4,7 @@ import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 
 /* ============================================================================
- * HUSHAE FOOTER — quiet luxury, single clean column (v3).
- *
- * One dark surface (#0D0D0D), generous but compact:
- *   Row 1 — brand wordmark + tagline | newsletter
- *   Row 2 — nav columns (Shop / Service / Connect) | legal
- *   Row 3 — hairline + copyright
- *
- * Removed: the split two-panel layout and the dead country/language selects
- * (they were non-functional decoration taking vertical space).
+ * HUSHAE FOOTER — JET BLACK (#000000) & PURE ORIGINAL WHITE (#FFFFFF)
  * ========================================================================== */
 
 const NAV = [
@@ -70,57 +62,49 @@ export default function Footer() {
   };
 
   return (
-    <footer className="mt-0 w-full bg-[#0D0D0D] text-[#e5e5e5]">
-      <div className="mx-auto w-full max-w-[1440px] px-6 py-10 md:px-[80px] md:py-14">
+    <footer className="mt-0 w-full bg-[#000000] text-[#FFFFFF]">
+      <div className="mx-auto w-full max-w-[1440px] px-6 py-12 md:px-12 md:py-16">
 
         {/* ── Row 1 — brand + tagline | newsletter ──────────────────────── */}
         <div className="flex flex-col gap-10 md:flex-row md:items-end md:justify-between">
           <div className="max-w-md">
-            <h2 className="font-serif text-[26px] font-medium uppercase tracking-[0.24em] text-white">
+            <h2 className="font-sans text-[24px] md:text-[28px] font-medium uppercase tracking-[0.3em] text-[#FFFFFF]">
               HUSHAE
             </h2>
-            {/* Brand descriptor sitting directly under the wordmark — 10px
-                was the most-repeated sub-floor size on the site (48 hits
-                across the scan, once per page). 11px floor. */}
-            <p className="mt-2 text-[11px] uppercase tracking-[0.2em] text-[#8c8a87]">
+            <p className="mt-2 text-[11px] uppercase tracking-[0.2em] text-[#FFFFFF]/80">
               Undergarments · Lingerie · Essentials
             </p>
-            <p className="mt-8 text-[22px] font-light leading-snug text-[#e6e4e0] md:text-[26px]">
+            <p className="mt-6 text-[20px] font-light leading-snug text-[#FFFFFF] md:text-[24px]">
               Made for the everyday, finished for everywhere.
             </p>
           </div>
 
           <div id="newsletter" className="w-full max-w-sm scroll-mt-24">
-            <h3 className="text-[16px] font-normal text-white">
+            <h3 className="text-[15px] font-medium uppercase tracking-wider text-[#FFFFFF]">
               {done ? 'Welcome to the circle.' : 'Sign up for updates'}
             </h3>
-            <p className="mt-1.5 text-[12px] text-[#8c8a87]">
-              Early access to new drops and private offers.
+            <p className="mt-1.5 text-[12px] text-[#FFFFFF]/80">
+              Early access to new drops, private sales and exclusive previews.
             </p>
             {!done && (
-              <form onSubmit={subscribe} noValidate className="relative mt-4 flex items-center border-b border-[#333333] pb-2.5">
+              <form onSubmit={subscribe} noValidate className="relative mt-4 flex items-center border-b border-[#FFFFFF]/40 pb-2.5">
                 <label htmlFor="ft-email" className="sr-only">Your email</label>
                 <input
                   id="ft-email"
                   type="email"
                   value={email}
                   onChange={(e) => { setEmail(e.target.value); if (err) setErr(''); }}
-                  placeholder="Your email"
+                  placeholder="Enter your email"
                   aria-invalid={err ? 'true' : undefined}
                   aria-describedby={err ? 'ft-email-err' : undefined}
-                  /* `focus:outline-none` with no replacement left this input
-                     with no focus indicator at all — on a dark footer, on
-                     every page. The ring inverts here because the ground is
-                     obsidian, not alabaster. */
-                  className="w-full bg-transparent text-[14px] text-white placeholder:text-[#8a8a8a] focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-0"
+                  className="w-full bg-transparent text-[14px] text-[#FFFFFF] placeholder:text-[#FFFFFF]/60 focus:outline-none focus:border-[#FFFFFF]"
                 />
-                {/* aria-label was "Submit" — accurate but contentless. */}
                 <button
                   type="submit"
                   aria-label="Subscribe to the newsletter"
-                  className="grid h-11 w-11 shrink-0 cursor-pointer place-items-center bg-transparent text-[18px] text-white transition-opacity hover:opacity-70"
+                  className="grid h-11 w-11 shrink-0 cursor-pointer place-items-center bg-transparent text-[18px] text-[#FFFFFF] transition-opacity hover:opacity-70"
                 >
-                  →
+                  &rarr;
                 </button>
               </form>
             )}
@@ -129,27 +113,20 @@ export default function Footer() {
         </div>
 
         {/* ── hairline ─────────────────────────────────────────────────── */}
-        <hr className="my-8 border-0 border-t border-[#222222] md:my-10" />
+        <hr className="my-8 border-0 border-t border-white/15 md:my-10" />
 
         {/* ── Row 2 — nav | legal ───────────────────────────────────────── */}
         <div className="flex flex-col gap-8 md:flex-row md:justify-between">
           <nav aria-label="Footer" className="grid grid-cols-2 gap-x-8 gap-y-6 sm:grid-cols-3 md:gap-x-16">
             {NAV.map((col) => (
               <div key={col.title}>
-                {/* 10px -> 11px label floor. Contrast is already fine here
-                    (5.65:1 on #0D0D0D); this is purely a legibility floor. */}
-                <span className="block text-[11px] uppercase tracking-[0.18em] text-[#8c8a87]">{col.title}</span>
-                {/* Nav links measured 20px tall at a 34px pitch, so roughly
-                    14px of the gap between two links belonged to neither.
-                    inline-flex + min-h-11 makes each link a 44px target; the
-                    tighter space-y keeps the column's overall height close to
-                    what it was, so the footer does not grow. */}
-                <ul className="mt-2 space-y-0.5">
+                <span className="block text-[11px] font-medium uppercase tracking-[0.2em] text-[#FFFFFF]/90">{col.title}</span>
+                <ul className="mt-3 space-y-1">
                   {col.links.map((l) => (
                     <li key={l.label}>
                       <Link
                         to={l.href}
-                        className="inline-flex min-h-11 items-center text-[14px] text-[#d1d1d1] no-underline transition-colors duration-200 hover:text-white"
+                        className="inline-flex min-h-[36px] items-center text-[13px] text-[#FFFFFF] no-underline transition-opacity hover:opacity-70"
                       >
                         {l.label}
                       </Link>
@@ -160,19 +137,14 @@ export default function Footer() {
             ))}
           </nav>
 
-          {/* Legal links measured 35.6x18px — Privacy, Terms and Cookies are
-              the links a shopper reaches for when they are already unsure
-              about a purchase, so they should not be the hardest thing on the
-              page to hit. inline-flex + min-h-11 gives each a 44px target
-              without changing the type size or the row's visual height (the
-              row is 44px tall either way once the separators are centred). */}
-          <div className="flex items-center gap-3 text-[12px] text-[#8A8A8A] md:items-end">
+          {/* Legal links */}
+          <div className="flex flex-wrap items-center gap-4 text-[12px] text-[#FFFFFF]/80 md:items-end">
             {LEGAL.map((l, i) => (
-              <span key={l.label} className="flex items-center gap-3">
-                {i > 0 && <span aria-hidden="true" className="text-[#444444]">·</span>}
+              <span key={l.label} className="flex items-center gap-4">
+                {i > 0 && <span aria-hidden="true" className="text-white/40">·</span>}
                 <Link
                   to={l.href}
-                  className="inline-flex min-h-11 items-center px-1 no-underline transition-colors duration-200 hover:text-[#D1D1D1]"
+                  className="inline-flex min-h-[36px] items-center no-underline text-[#FFFFFF] transition-opacity hover:opacity-70"
                 >
                   {l.label}
                 </Link>
@@ -182,7 +154,7 @@ export default function Footer() {
         </div>
 
         {/* ── Row 3 — copyright ─────────────────────────────────────────── */}
-        <p className="mt-8 text-[12px] text-[#8A8A8A]">&copy; {new Date().getFullYear()} HUSHAE · Discreet packaging on every order</p>
+        <p className="mt-8 text-[12px] text-[#FFFFFF]/70">&copy; {new Date().getFullYear()} HUSHAE · Discreet packaging on every order</p>
       </div>
     </footer>
   );
