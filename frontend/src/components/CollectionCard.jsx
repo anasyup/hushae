@@ -8,22 +8,23 @@ import { useApp } from '../store/AppContext';
 import SizeModal from './SizeModal';
 
 /* ============================================================================
- * HUSHAE CollectionCard — Quiet Luxury Hybrid (Rains + Calvin Klein Standard)
+ * HUSHAE CollectionCard — Quiet Luxury Hybrid (Calvin Klein / Rains Standard)
  *
  * SPECIFICATION:
- *   1. 3:4 Studio Portrait Canvas on #F8F8F8
- *   2. Smooth 500ms Secondary Image Crossfade on Hover
- *   3. Desktop Hover Slide-Up Quick Size Selector Bar (1-Click Add to Bag)
- *   4. Minimalist Top-Left Badges (New, Sale, Sold out)
- *   5. Quiet Luxury Metadata:
- *      - Line 1: Title (Title Case) ... Price (Right-aligned, Jet Black)
- *      - Line 2: Interactive 8px Circular Color Swatches (Click/hover swaps image)
+ *   1. 3:4 Studio Portrait Canvas on #F8F8F8 Ground
+ *   2. Smooth 500ms Secondary Angle Crossfade on Hover
+ *   3. Desktop Hover Slide-Up 1-Click Size Bar
+ *   4. Minimalist Top-Left Badge (New, Sale, Sold out)
+ *   5. Clean, Spacious, Elegant Metadata:
+ *      - Title (Title Case, Clean Jet Black, Truncated)
+ *      - Price Row (Clear PKR formatting + Struck Compare Price)
+ *      - Color Swatches (Delicate 8px circular dots)
  * ========================================================================== */
 
 const FALLBACK =
   'data:image/svg+xml;utf8,' +
   encodeURIComponent(
-    '<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1200"><rect width="100%" height="100%" fill="#F8F8F8"/><text x="50%" y="50%" fill="#BBBBBB" font-family="Jost,sans-serif" font-size="14" letter-spacing="3" text-anchor="middle">HUSHAE</text></svg>'
+    '<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1200"><rect width="100%" height="100%" fill="#F8F8F8"/><text x="50%" y="50%" fill="#CCCCCC" font-family="Jost,sans-serif" font-size="14" letter-spacing="3" text-anchor="middle">HUSHAE</text></svg>'
   );
 
 const srcOf = (im) => (typeof im === 'string' ? im : im?.url || '');
@@ -45,7 +46,7 @@ export default function CollectionCard({ product: p, priority = false }) {
   const second = images[1] || '';
   const hasSwap = Boolean(second) && second !== main;
 
-  const swatches = (p.colors || []).filter((c) => c && c.hex).slice(0, 5);
+  const swatches = (p.colors || []).filter((c) => c && c.hex).slice(0, 6);
   const sizes = (p.sizes || []).slice(0, 5);
   const name = titleCase(displayName(p.name)) || 'Essential Product';
   const soldOut = p.stock === 0;
@@ -126,7 +127,7 @@ export default function CollectionCard({ product: p, priority = false }) {
           {badge && (
             <div className="absolute left-2.5 top-2.5 z-10">
               <span
-                className={`inline-block px-2 py-0.5 text-[9px] font-medium uppercase tracking-[0.16em] ${
+                className={`inline-block px-2.5 py-0.5 text-[9.5px] font-medium uppercase tracking-[0.16em] ${
                   badge === 'Sale'
                     ? 'bg-[#000000] text-[#FFFFFF]'
                     : badge === 'Sold out'
@@ -200,83 +201,72 @@ export default function CollectionCard({ product: p, priority = false }) {
 
       {modal && <SizeModal product={p} onClose={() => setModal(false)} />}
 
-      {/* ── QUIET LUXURY METADATA AREA ───────────────────────────────────── */}
-      <div className="pt-3 pb-2 px-0.5">
-        {/* Line 1: Product Title & Price (Side by Side Baseline) */}
-        <div className="flex items-baseline justify-between gap-2.5 text-[12.5px] sm:text-[13px]">
-          <h3 className="min-w-0 truncate font-normal tracking-[-0.01em] text-[#000000]">
-            <Link
-              to={`/product/${p.slug}`}
-              className="transition-colors hover:text-neutral-500"
-              title={name}
-            >
-              {name}
-            </Link>
-          </h3>
+      {/* ── CLEAN & SPACIOUS LUXURY METADATA AREA ─────────────────────────── */}
+      <div className="px-3 pt-3.5 pb-4 md:px-4 md:pt-4 md:pb-5 bg-white space-y-1.5">
+        {/* Line 1: Product Title (Title Case, Clean & Uncluttered) */}
+        <h3 className="font-normal text-[13px] md:text-[14px] text-[#000000] tracking-[-0.01em] truncate leading-snug">
+          <Link
+            to={`/product/${p.slug}`}
+            className="transition-colors hover:text-neutral-500"
+            title={name}
+          >
+            {name}
+          </Link>
+        </h3>
 
-          <div className="flex shrink-0 items-baseline gap-1.5 text-right font-normal text-[#000000]">
-            {soldOut ? (
-              <span className="text-neutral-400">Sold out</span>
-            ) : (
-              <>
-                {onSaleP && p.compareAtPrice > p.price && (
-                  <span className="text-[11px] text-neutral-400 line-through font-normal">
-                    {pkr(p.compareAtPrice)}
-                  </span>
-                )}
-                <span>{pkr(p.price)}</span>
-              </>
-            )}
-          </div>
-        </div>
-
-        {/* Line 2: Circular Swatches & Subtle Fabric/Line Descriptor */}
-        <div className="mt-1.5 flex items-center justify-between min-h-[16px]">
-          {swatches.length > 0 ? (
-            <div className="flex items-center gap-1.5" role="group" aria-label={`Colors for ${name}`}>
-              {swatches.map((c, i) => (
-                <button
-                  key={`${c.name}-${i}`}
-                  type="button"
-                  aria-label={c.name || `Color ${i + 1}`}
-                  title={c.name}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setSwatchIdx(i);
-                    const ci = images.indexOf(srcOf(c.image) || '');
-                    if (ci >= 0) setImgIdx(ci);
-                  }}
-                  className="group/swatch relative flex h-3.5 w-3.5 items-center justify-center"
-                >
-                  <span
-                    className={`h-2 w-2 rounded-full border border-black/10 transition-transform ${
-                      swatchIdx === i ? 'scale-125 ring-1 ring-black/80 ring-offset-1' : 'hover:scale-110'
-                    }`}
-                    style={{ backgroundColor: c.hex }}
-                    aria-hidden="true"
-                  />
-                </button>
-              ))}
-
-              {p.colors && p.colors.length > 5 && (
-                <span className="text-[9.5px] text-neutral-400 font-normal pl-0.5">
-                  +{p.colors.length - 5}
+        {/* Line 2: Clean Price Display */}
+        <div className="flex items-baseline gap-2 text-[13px] md:text-[14px]">
+          {soldOut ? (
+            <span className="text-neutral-400 font-normal">Sold out</span>
+          ) : (
+            <>
+              <span className="font-medium text-[#000000]">
+                {pkr(p.price)}
+              </span>
+              {onSaleP && p.compareAtPrice > p.price && (
+                <span className="text-[11.5px] text-neutral-400 line-through font-normal">
+                  {pkr(p.compareAtPrice)}
                 </span>
               )}
-            </div>
-          ) : (
-            <span className="text-[10px] uppercase tracking-[0.14em] text-neutral-400">
-              {p.gender === 'women' ? "Women's" : p.gender === 'men' ? "Men's" : 'Core'} &bull; Second Skin
-            </span>
-          )}
-
-          {p.fabric && (
-            <span className="text-[10px] uppercase tracking-[0.1em] text-neutral-400 font-light truncate max-w-[110px]">
-              {p.fabric}
-            </span>
+            </>
           )}
         </div>
+
+        {/* Line 3: Circular Swatches (Dedicated Clean Row) */}
+        {swatches.length > 0 && (
+          <div className="pt-1 flex items-center gap-1.5" role="group" aria-label={`Colors for ${name}`}>
+            {swatches.map((c, i) => (
+              <button
+                key={`${c.name}-${i}`}
+                type="button"
+                aria-label={c.name || `Color ${i + 1}`}
+                title={c.name}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setSwatchIdx(i);
+                  const ci = images.indexOf(srcOf(c.image) || '');
+                  if (ci >= 0) setImgIdx(ci);
+                }}
+                className="group/swatch relative flex h-3.5 w-3.5 items-center justify-center"
+              >
+                <span
+                  className={`h-2.5 w-2.5 rounded-full border border-black/15 transition-transform ${
+                    swatchIdx === i ? 'scale-125 ring-1 ring-black/80 ring-offset-1' : 'hover:scale-110'
+                  }`}
+                  style={{ backgroundColor: c.hex }}
+                  aria-hidden="true"
+                />
+              </button>
+            ))}
+
+            {p.colors && p.colors.length > 6 && (
+              <span className="text-[9.5px] text-neutral-400 font-normal pl-0.5">
+                +{p.colors.length - 6}
+              </span>
+            )}
+          </div>
+        )}
       </div>
     </article>
   );
