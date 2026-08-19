@@ -1,4 +1,12 @@
 ## Changes
+- **2026-08-20** — 🆕 **NEW ARRIVALS V2 — 8 premium products, real photography**
+  - 8 new products added (seed: `backend/src/seed/seedNewArrivals.js`, idempotent upsert by SKU):
+    Women: Modal Soft-Cup Lounge Bra (W-BRA-001), Seamless High-Waist Brief (W-PNT-002), Silk-Touch Longline Camisole (W-CAM-003), Cloud-Knit Relaxed Kimono Robe (L-ROB-001), Essential Lounge Trouser (L-TRS-002) · Men: Signature Micro-Modal Trunk (M-TRK-001), Airlite Cotton Ribbed Boxer (M-BOX-002), Tailored Ribbed Undershirt (M-VST-003).
+  - All Premium tier, new-arrival flagged, launch prices with compare-at anchors, onSale=false (launch convention — never auto-discounted).
+  - **24 real editorial photographs** (3 per product: front / alternate angle / fabric detail) — licensed stock photography (Unsplash, same source as the existing demo catalog), self-hosted in `frontend/public/images/products/`, 900×1200 progressive JPEG ≤200KB each. Per the owner's direction, no AI-generated imagery.
+  - Product cards get the full treatment: 3-image hover crossfade + hairline browse chevrons + interactive color swatches (swatch click swaps the card image).
+  - New npm script: `npm run seed:newarrivals`. Verified idempotent (rerun = 0 duplicates) against in-memory Mongo; frontend production build clean.
+## Changes
 - **2026-08-16** — 🔍 **PRODUCTION REDESIGN — REMAINING PHASES COMPLETE (branch `ui/production-redesign`)**
   - Phase 9 (global search): new admin-only `GET /api/search` returns grouped REAL entities — products (name/sku/slug), orders (orderNumber/name/phone/city), customers (name/email/phone), capped at 5. CommandPalette (⌘K) now debounce-fetches and shows grouped Products/Orders/Customers results above go-to/create commands; results navigate to real routes. Verified live: typing "cloud" surfaces HUSHAE Cloud Lounge Set + Cloud Knit Lounge Set with SKUs.
   - Phase 10 (dashboard customization): "Customize" button in the header → widget-visibility panel (hide/show 11 sections), persisted in localStorage (hushae.dashWidgets). Verified: toggling Key metrics off removes the KPI row and survives refresh.
