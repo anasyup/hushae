@@ -84,6 +84,7 @@ function redactPublic(doc) {
 }
 
 router.get('/', asyncHandler(async (req, res) => {
+  res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=600, stale-while-revalidate=86400');
   const s = await getSettings();
   res.json({ settings: redactPublic(s) });
 }));

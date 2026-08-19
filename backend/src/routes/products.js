@@ -115,6 +115,7 @@ router.get('/admin/list', protect, adminOnly, asyncHandler(async (req, res) => {
 }));
 
 router.get('/', asyncHandler(async (req, res) => {
+  res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=300, stale-while-revalidate=86400');
   const q = buildQuery(req);
   const products = await Product.find(q)
     .sort(SORTS[req.query.sort] || SORTS.popular)
@@ -138,6 +139,7 @@ router.get('/', asyncHandler(async (req, res) => {
 
 // Related products — same category, exclude the current product, prefer in-stock
 router.get('/:slug/related', asyncHandler(async (req, res) => {
+  res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=600, stale-while-revalidate=86400');
   const p = await Product.findOne({ slug: req.params.slug, isActive: true, status: { $ne: 'draft' } });
   if (!p) return res.json({ products: [] });
   const products = await Product.find({

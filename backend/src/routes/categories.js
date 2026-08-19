@@ -7,6 +7,7 @@ const router = express.Router();
 
 // Public: active categories, optional ?gender=women|men ?all=1 (admin)
 router.get('/', asyncHandler(async (req, res) => {
+  res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=600, stale-while-revalidate=86400');
   const q = {};
   if (req.query.gender) q.gender = req.query.gender;
   if (req.query.all !== '1') q.isActive = true;
