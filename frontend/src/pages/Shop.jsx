@@ -199,6 +199,39 @@ export default function Shop({ preset = {} }) {
         />
       )}
 
+      {/* ═══ SUB-CATEGORY QUICK PILL BAR (Luxury Horizontal Navigation) ═══ */}
+      {navCats.length > 0 && (
+        <div className="w-full bg-[#FFFFFF] border-b border-neutral-100 px-4 py-3 md:px-8 overflow-x-auto no-scrollbar">
+          <div className="mx-auto flex max-w-[1600px] items-center gap-2">
+            <button
+              type="button"
+              onClick={() => f.setOne('category', '')}
+              className={`inline-flex min-h-[36px] items-center px-4 text-xs font-medium uppercase tracking-[0.14em] transition-all whitespace-nowrap ${
+                !f.category
+                  ? 'bg-black text-white'
+                  : 'bg-neutral-100/80 text-neutral-800 hover:bg-black hover:text-white'
+              }`}
+            >
+              All Pieces
+            </button>
+            {navCats.map((c) => (
+              <button
+                key={c.slug}
+                type="button"
+                onClick={() => f.setOne('category', f.category === c.slug ? '' : c.slug)}
+                className={`inline-flex min-h-[36px] items-center px-4 text-xs font-medium uppercase tracking-[0.14em] transition-all whitespace-nowrap ${
+                  f.category === c.slug
+                    ? 'bg-black text-white'
+                    : 'bg-neutral-100/80 text-neutral-800 hover:bg-black hover:text-white'
+                }`}
+              >
+                {c.name}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* ═══ 1. SINGLE CLEAN FILTER BAR (exact reference) ═══════════════ */}
       <LuxuryFilterBar count={count || 0} f={f} onOpenFilters={() => setSheetOpen(true)} />
 
