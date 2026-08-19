@@ -249,7 +249,7 @@ export default function Header() {
         {/* Full-width mega dropdown — direct child of header */}
         <MegaPanel
           open={mega}
-          cats={mega === 'men' ? mCats : wCats}
+          cats={cats}
           collections={COLLECTIONS}
           onClose={() => setMega(null)}
         />
