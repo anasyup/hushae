@@ -24,11 +24,11 @@ export default {
       colors: {
         // Refined premium palette — inspired by Calvin Klein / Hanro / editorial fashion houses.
         // Anchor: deep-warm black + soft ivory. Accents are muted, never loud.
-        obsidian:  '#111111',   // primary ink (CK: near-black)
+        obsidian:  '#111111',   // primary ink (slightly warmer than pure #000)
         ink:       '#1A1A1A',   // secondary ink for softer text on light
         graphite:  '#333333',   // hover/pressed states, dividers on dark
-        alabaster: '#FFFFFF',   // primary background — pure white (CK register)
-        cream:     '#F0F0F0',   // light cool gray — cards on alabaster
+        alabaster: '#FFFFFF',   // primary background — warm ivory (Hanro-style)
+        cream:     '#F7F7F7',   // warm off-white — cards on alabaster
         satin:     '#F0F0F0',   // soft neutral (previous)
 
         /* ── Theme-aware neutral + white/black (CSS-variable RGB) ─────────
@@ -78,96 +78,88 @@ export default {
         sand:      'rgb(var(--sand) / <alpha-value>)',      // #EBE5DB card surfaces
         charcoal:  'rgb(var(--charcoal) / <alpha-value>)',  // #1A1B1C primary text
         pearl:     'rgb(var(--pearl) / <alpha-value>)',     // #FFFFFF accents
-        gold:      'rgb(var(--gold) / <alpha-value>)',      // #000000 accent (CK: black)
-        bronze:    'rgb(var(--bronze) / <alpha-value>)',    // #333333 dark hover (CK: gray)
-        midnight:  'rgb(var(--midnight) / <alpha-value>)',  // #111111 footer
+        gold:      'rgb(var(--gold) / <alpha-value>)',      // #C9A96E brand gold
+        bronze:    'rgb(var(--bronze) / <alpha-value>)',    // #A68A56 dark gold hover
+        midnight:  'rgb(var(--midnight) / <alpha-value>)',  // #1C2333 footer
       },
       fontFamily: {
-        /* Two-family storefront — LV / Bottega register.
-           Jost (sans) is the workhorse — body, nav, headlines, UI.
-           Fraunces (serif) is reserved for ONE moment on the storefront
-           (the hero H1) to create an editorial distinction that one-family
-           sites like CK / Aesop do not have.               */
+        /* One-family storefront — LOUIS VUITTON register.
+           Licensed Klein .woff2 (when dropped in /fonts/) take priority;
+           Jost is the live twin of LV Web / Futura. Every alias — display,
+           serif, product — points at the same stack so a leftover class can
+           never reintroduce a second family (LV never mixes in a serif). */
         sans:    ['"Klein"', '"Jost"', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
         display: ['"Klein"', '"Jost"', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
         klein:   ['"Klein"', '"Jost"', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
-        /* Serif — Fraunces is loaded in /fonts/ (see index.css @font-face).
-           Used by `font-serif` for the one editorial moment in the hero.
-           Pair with text-3xl tracking-tight for the Fraunces display
-           (negative tracking on serifs is standard editorial practice). */
-        serif:        ['"Fraunces"', '"Klein"', '"Jost"', 'Georgia', 'serif'],
-        editorial:    ['"Fraunces"', '"Klein"', '"Jost"', 'Georgia', 'serif'],
-        product:      ['"Klein"', '"Jost"', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
+        serif:   ['"Klein"', '"Jost"', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
+        editorial: ['"Klein"', '"Jost"', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
+        product: ['"Klein"', '"Jost"', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
         urdu: ['"Noto Nastaliq Urdu"', 'serif'],
+        // QA — chapter counters + editorial numbers (JetBrains Mono, loaded in index.html)
         mono: ['"JetBrains Mono"', 'ui-monospace', 'SF Mono', 'SFMono-Regular', 'Menlo', 'Consolas', 'monospace'],
-        displaySerif: ['"Fraunces"', '"Klein"', '"Jost"', 'Georgia', 'serif'],
+        // Editorial display serif for the admin (Fraunces, loaded in index.html).
+        // Paired with the neutral sans for body — the fashion-editorial register.
+        displaySerif: ['"Fraunces"', 'Georgia', 'Times New Roman', 'serif'],
       },
-      /* ─────────────────────────────────────────────────────────────────────
-       * TYPOGRAPHY TOKENS — single source of truth
-       *
-       * Five tracking rungs only. Anything else is a bug.
-       *
-       *   tracking-eyebrow  0.32em — kicker tags ONLY (eyebrow above section)
-       *   tracking-label    0.22em — small caps UI labels (buttons, tags)
-       *   tracking-caps     0.14em — section subheads in UPPERCASE
-       *   tracking-heading  0.06em — section headings (open caps)
-       *   tracking-body     0em    — body copy, sentence case
-       *
-       * If a design calls for a tracking value that is not in this list, it is
-       * a bug, not a creative choice. Greppable, predictable, auditable.
-       * ───────────────────────────────────────────────────────────────────── */
       letterSpacing: {
-        'eyebrow': '0.32em',  // kicker tags — only on 9-11px tracked caps
-        'label':   '0.22em',  // buttons, badges, small caps
-        'caps':    '0.14em',  // section subheads in UPPERCASE
-        'heading': '0.06em',  // section headings (open caps)
-        'body':    '0em',     // body copy, sentence case
-        'tight':   '-0.005em', // display headlines (serif moment)
+        widest2: '0.32em',
+        wider3:  '0.24em',
       },
 
-      /* ─────────────────────────────────────────────────────────────────────
-       * SIZE TOKENS — seven rungs, all `clamp()`-scaled.
-       *
-       * Mobile → tablet → desktop is one continuous clamp so no component has
-       * to invent a custom breakpoint ladder. The `min` of each rung matches
-       * the value every existing section already used on mobile, so the
-       * migration is lossless.
-       *
-       *   text-xs    11px → 12px        (kicker tags, micro UI)
-       *   text-sm    13px → 14px        (small body, captions, mobile eyebrow)
-       *   text-md    15px → 17px        (default body, button labels)
-       *   text-lg    17px → 19px        (large body, lead paragraph)
-       *   text-xl    24px → 32px        (small heading, editorial callout)
-       *   text-2xl   32px → 48px        (section heading, peer-level title)
-       *   text-3xl   48px → 72px        (display, brand voice)
-       *
-       * Hero H1 uses text-3xl with serif (one custom moment).
-       * ───────────────────────────────────────────────────────────────────── */
+      // ── Design system tokens ────────────────────────────────────────────
+      // Type scale. Each entry pairs a size with its line-height and tracking
+      // so a heading can never be set with the wrong leading by accident.
+      /* PHASE 3 — desktop type ceilings.
+         MEASURED on live: /shop rendered h1 at 44px and body at 13px on a 2560
+         display, because every clamp maxed out around a 1280 viewport. Only the
+         DISPLAY and HEADING ceilings are raised; body, caption, label and btn
+         are untouched, so mobile, tablet and reading measure are unchanged and
+         no line-length regression is possible. */
+      /* FONT SYSTEM v2 — luxury fashion register (LV / CK / Gucci / Nike).
+         Headings are set in the Futura-style geometric sans (Jost) and
+         rendered UPPERCASE with OPEN tracking — the convention every fashion
+         house uses (CK, LV, Gucci all set their headlines in tracked caps).
+         The old negative tracking was tuned for sentence-case type; caps need
+         air between the letters or they read as a shout, so the rungs now
+         open as they grow. Body rungs below are untouched. */
       fontSize: {
-        // Body ramp (top of the ladder — read these first)
-        'xs':   ['clamp(0.6875rem, 0.95vw + 0.32rem, 0.75rem)',   { lineHeight: '1.4' }],
-        'sm':   ['clamp(0.8125rem, 0.95vw + 0.40rem, 0.875rem)',  { lineHeight: '1.55' }],
-        'md':   ['clamp(0.9375rem, 1.20vw + 0.40rem, 1.0625rem)', { lineHeight: '1.66' }],
-        'lg':   ['clamp(1.0625rem, 1.35vw + 0.46rem, 1.1875rem)', { lineHeight: '1.6' }],
-        'xl':   ['clamp(1.5rem,   2.6vw  + 0.55rem, 2rem)',        { lineHeight: '1.18', letterSpacing: '0.14em' }],   // subhead caps
-        '2xl':  ['clamp(2rem,     3.2vw  + 0.85rem, 3rem)',        { lineHeight: '1.1',  letterSpacing: '0.06em' }],   // section heading
-        '3xl':  ['clamp(3rem,     5.6vw  + 0.85rem, 4.5rem)',      { lineHeight: '1.02', letterSpacing: '0.04em' }],   // display (serif moment)
-
-        // Legacy aliases — kept so the existing h1/h2/h3 etc. classes still
-        // compile. New code should use xs/sm/md/lg/xl/2xl/3xl only.
+        'display-1': ['clamp(2.75rem, 6vw, 8.5rem)',   { lineHeight: '0.98', letterSpacing: '0.01em' }],
+        'display-2': ['clamp(2.25rem, 4.6vw, 6rem)',   { lineHeight: '1.0',  letterSpacing: '0.01em' }],
         h1: ['clamp(1.875rem, 3.4vw, 3.75rem)', { lineHeight: '1.1', letterSpacing: '0.02em' }],
-        h2: ['clamp(1.5rem, 2.6vw, 2.75rem)',   { lineHeight: '1.16', letterSpacing: '0.02em' }],
-        h3: ['clamp(1.25rem, 2vw, 1.875rem)',   { lineHeight: '1.24', letterSpacing: '0.015em' }],
-        h4: ['clamp(1.125rem, 2.6vw + 0.06rem, 1.5rem)', { lineHeight: '1.3', letterSpacing: '0.03em' }],
-        h5: ['clamp(1rem, 1.7vw + 0.19rem, 1.25rem)',      { lineHeight: '1.36', letterSpacing: '0.02em' }],
+        h2: ['clamp(1.5rem, 2.6vw, 2.75rem)',      { lineHeight: '1.16', letterSpacing: '0.02em' }],
+        h3: ['clamp(1.25rem, 2vw, 1.875rem)',     { lineHeight: '1.24', letterSpacing: '0.015em' }],
+        /* Intermediate rungs. With body at 17 and h2 at 60 there was nothing
+           between 18 and 44 for a sub-heading to occupy, so every section
+           jumped straight from display to caption. */
+        h4: ['clamp(1.125rem, 2.6vw + 0.06rem, 1.5rem)',  { lineHeight: '1.3', letterSpacing: '0.03em' }],
+        h5: ['clamp(1rem, 1.7vw + 0.19rem, 1.25rem)',     { lineHeight: '1.36', letterSpacing: '0.02em' }],
         h6: ['0.875rem', { lineHeight: '1.45', letterSpacing: '0.02em' }],
-        'display-1': ['clamp(2.75rem, 6vw, 8.5rem)', { lineHeight: '0.98', letterSpacing: '0.01em' }],
-        'display-2': ['clamp(2.25rem, 4.6vw, 6rem)', { lineHeight: '1.0', letterSpacing: '0.01em' }],
+        /* PHASE 7 — the reading sizes, re-measured on live at 1920.
+           MEASURED PROBLEM: ten paragraphs across the homepage rendered at
+           12-15px under headlines of 60-112px. That gap is the single biggest
+           reason the page read as cheap — a luxury house sets body copy at
+           16-18px and lets the ramp between display and text be gradual.
+           These are `clamp()` so MOBILE IS UNCHANGED (the min matches the old
+           fixed value exactly) and only desktop grows:
+             body     15 -> 17    body-sm  13 -> 15
+             body-lg  17 -> 19    caption  12 -> 13
+           Line-height eases as size grows, which is how type wants to set.
+           SLOPE RE-MEASURED: the first attempt used a gentle vw slope and
+           tablet picked up +2px (768px went 13 -> 15). The brief is desktop
+           only. The slope is now steep with a low intercept, so every value is
+           pinned to its minimum until ~1024 and reaches the maximum by ~1600 —
+           390 and 768 keep their existing sizes exactly. */
         'body-lg': ['clamp(1.0625rem, 1.55vw + 0.30rem, 1.1875rem)', { lineHeight: '1.7' }],
         body:      ['clamp(0.9375rem, 1.55vw + 0.18rem, 1.0625rem)',  { lineHeight: '1.66' }],
         'body-sm': ['clamp(0.8125rem, 1.55vw + 0.06rem, 0.9375rem)', { lineHeight: '1.62' }],
         caption:   ['clamp(0.75rem, 0.8vw + 0.35rem, 0.8125rem)',   { lineHeight: '1.55' }],
-        'label-lg': ['clamp(0.75rem, 1.2vw + 0.15rem, 0.875rem)',   { lineHeight: '1', letterSpacing: '0.18em' }],
+        // UI labels are always uppercase + widely tracked in this brand.
+        'label-lg': ['clamp(0.75rem, 1.2vw + 0.15rem, 0.875rem)', { lineHeight: '1', letterSpacing: '0.18em' }],
+        /* PHASE 8. Measured 11px on the PDP for accordion titles and fieldset
+           legends. Tracked caps below 12px lose legibility on a large screen —
+           the tracking that makes them elegant also thins them. Desktop only:
+           the clamp minimum is the previous fixed value, so mobile and tablet
+           are unchanged. */
         label:      ['clamp(0.6875rem, 1.1vw + 0.13rem, 0.8125rem)', { lineHeight: '1', letterSpacing: '0.18em' }],
         'btn':    ['0.8125rem', { lineHeight: '1', letterSpacing: '0.16em' }],
         'btn-sm': ['0.6875rem', { lineHeight: '1', letterSpacing: '0.16em' }],

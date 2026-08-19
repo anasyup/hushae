@@ -1,6 +1,4 @@
 import { Link } from 'react-router-dom';
-import SectionHeader from '../SectionHeader';
-import { SIZES, pictureSources } from '../../lib/responsiveImage';
 
 /* ============================================================================
  * DISCOVER — the luxury-brand editorial gateway.
@@ -21,12 +19,20 @@ export default function DiscoverTiles() {
   return (
     <section className="w-full bg-white px-4 pt-20 pb-10 md:px-8 md:pt-28 md:pb-14">
       <div className="mx-auto max-w-[1600px]">
-        <SectionHeader
-          eyebrow="Discover"
-          title="Shop the Edit"
-          href="/shop"
-          cta="View All"
-        />
+        <div className="mb-10 flex items-end justify-between">
+          <div>
+            <p className="text-[10px] font-medium uppercase tracking-[0.3em] text-neutral-400">Discover</p>
+            <h2 className="mt-3 text-2xl font-light uppercase tracking-[0.18em] text-[#111111] md:text-[34px]">
+              Shop the Edit
+            </h2>
+          </div>
+          <Link
+            to="/shop"
+            className="hidden min-h-[44px] items-center gap-1 border-b border-black/40 pb-0.5 text-[10px] font-medium uppercase tracking-[0.25em] text-neutral-600 transition-colors hover:border-black hover:text-black sm:inline-flex"
+          >
+            View All <span aria-hidden="true">&rarr;</span>
+          </Link>
+        </div>
 
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
           {TILES.map((t) => (
@@ -41,12 +47,12 @@ export default function DiscoverTiles() {
                 />
               </div>
               <div className="flex items-center justify-between pt-4">
-                <span className="text-xs font-medium uppercase tracking-label text-black">
+                <span className="text-[11px] font-medium uppercase tracking-[0.2em] text-[#111111]">
                   {t.label}
                 </span>
                 <span
                   aria-hidden="true"
-                  className="text-xs font-medium uppercase tracking-label text-neutral-400 transition-all duration-300 group-hover:translate-x-1 group-hover:text-black"
+                  className="text-[10px] font-medium uppercase tracking-[0.2em] text-neutral-400 transition-all duration-300 group-hover:translate-x-1 group-hover:text-[#111111]"
                 >
                   Shop
                 </span>
