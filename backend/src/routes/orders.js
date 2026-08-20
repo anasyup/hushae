@@ -5,7 +5,7 @@ const Settings = require('../models/Settings');
 const Discount = require('../models/Discount');
 const { protect, optionalAuth, adminOnly } = require('../middleware/auth');
 const { asyncHandler, orderNumber, evaluateDiscount } = require('../utils/helpers');
-const { postalCheck } = require('../data/postalcodes');
+const { postalCheck, CITY_POSTAL } = require('../data/postalcodes');
 const { normalizePhone } = require('../utils/validators');
 const rateLimit = require('../middleware/rateLimit');
 

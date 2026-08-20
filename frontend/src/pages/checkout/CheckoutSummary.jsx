@@ -115,7 +115,7 @@ export default function CheckoutSummary({
           disabled={busy || disabled}
           className="flex h-[52px] w-full items-center justify-center gap-2 rounded-full bg-[#000000] text-xs font-medium uppercase tracking-[0.2em] text-[#FFFFFF] shadow-md transition-all hover:bg-[#1A1A1A] hover:scale-[1.01] disabled:opacity-50"
         >
-          <span>{busy ? 'Placing Order…' : `Confirm Order · ${pkr(pricing.total)}`}</span>
+          <span>{busy ? 'Placing Order…' : 'Confirm Order'}</span>
           <ArrowRight size={14} />
         </button>
 

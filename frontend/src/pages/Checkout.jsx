@@ -475,7 +475,7 @@ export default function Checkout() {
                 disabled={busy}
                 className="flex h-[52px] w-full items-center justify-center gap-2 rounded-full bg-[#000000] text-xs font-medium uppercase tracking-[0.18em] text-[#FFFFFF] shadow-lg hover:bg-[#1A1A1A] transition-colors disabled:opacity-50"
               >
-                <span>{busy ? 'Placing Order…' : `Confirm Order · ${pkr(pricing.total)}`}</span>
+                <span>{busy ? 'Placing Order…' : 'Confirm Order'}</span>
                 <ArrowRight size={14} />
               </button>
             </div>
