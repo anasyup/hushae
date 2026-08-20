@@ -46,6 +46,24 @@ const PROVINCES_FALLBACK = [
   'Gilgit-Baltistan',
 ];
 
+const CITY_POSTAL = {
+  'Lahore': '54000', 'Faisalabad': '38000', 'Rawalpindi': '46000', 'Multan': '60000',
+  'Gujranwala': '52250', 'Sialkot': '51310', 'Bahawalpur': '63100', 'Sargodha': '40100',
+  'Gujrat': '50700', 'Karachi': '74200', 'Hyderabad': '71000', 'Sukkur': '65200',
+  'Peshawar': '25000', 'Mardan': '23200', 'Abbottabad': '22010', 'Quetta': '87300',
+  'Islamabad': '44000', 'Muzaffarabad': '13100', 'Mirpur': '10250', 'Gilgit': '15100',
+};
+
+const PROVINCE_POSTAL = {
+  'Punjab': '54000',
+  'Sindh': '74200',
+  'Islamabad (ICT)': '44000',
+  'Khyber Pakhtunkhwa': '25000',
+  'Balochistan': '87300',
+  'Azad Kashmir': '13100',
+  'Gilgit-Baltistan': '15100',
+};
+
 const DRAFT_KEY = 'hushae.checkoutDraft';
 
 export default function Checkout() {
@@ -145,7 +163,7 @@ export default function Checkout() {
             address: f.address.trim(),
             city: cityLabel,
             province: f.province,
-            postalCode: '00000',
+            postalCode: CITY_POSTAL[cityLabel] || PROVINCE_POSTAL[f.province] || '54000',
             country: 'Pakistan',
             notes: f.notes.trim() || undefined,
           },
@@ -155,7 +173,7 @@ export default function Checkout() {
             color: l.color || '',
             quantity: l.qty || 1,
           })),
-          paymentMethod: 'cod',
+          paymentMethod: 'COD',
           shippingMethod: 'standard',
           discountCode: applied?.code || '',
           discreetPackaging: true,

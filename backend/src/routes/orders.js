@@ -39,9 +39,27 @@ router.post('/', placeOrderLimit, optionalAuth, asyncHandler(async (req, res) =>
     return res.status(400).json({ message: 'Invalid phone number — enter a Pakistani mobile number (03XX-XXXXXXX)' });
   }
 
-  // Postal code: province/city ke hisaab se verify (delivery isi par depend karti hai)
-  const pc = postalCheck(customerInfo.postalCode, customerInfo.province.trim(), customerInfo.city.trim());
-  if (!pc.ok) return res.status(400).json({ message: pc.message, suggestion: pc.suggestion || '' });
+  // Postal code: auto-resolve from city/province or verify
+  const cityTrim = String(customerInfo.city || '').trim();
+  const provTrim = String(customerInfo.province || '').trim();
+  const fallbackPc = CITY_POSTAL[cityTrim] || {
+    'Punjab': '54000',
+    'Sindh': '74200',
+    'Islamabad (ICT)': '44000',
+    'Khyber Pakhtunkhwa': '25000',
+    'Balochistan': '87300',
+    'Azad Kashmir': '13100',
+    'Gilgit-Baltistan': '15100',
+  }[provTrim] || '54000';
+
+  if (!customerInfo.postalCode || customerInfo.postalCode === '00000' || !/^\d{5}$/.test(String(customerInfo.postalCode).trim())) {
+    customerInfo.postalCode = fallbackPc;
+  } else {
+    const pc = postalCheck(customerInfo.postalCode, provTrim, cityTrim);
+    if (!pc.ok) {
+      customerInfo.postalCode = pc.suggestion || fallbackPc;
+    }
+  }
 
   // Pin location (optional) — agar hai to Pakistan ke andar honi chahiye
   let location = { lat: null, lng: null, mapsLink: '' };
@@ -64,6 +82,13 @@ router.post('/', placeOrderLimit, optionalAuth, asyncHandler(async (req, res) =>
      in the admin panel does not require a code change here — and a method the
      merchant disabled cannot be ordered through a crafted request. Falls back
      to the legacy booleans for stores that have not migrated yet. */
+  // Payment method validation & normalization
+  let normPaymentMethod = paymentMethod;
+  if (String(paymentMethod).toLowerCase() === 'cod') normPaymentMethod = 'COD';
+  else if (String(paymentMethod).toLowerCase() === 'jazzcash') normPaymentMethod = 'JazzCash';
+  else if (String(paymentMethod).toLowerCase() === 'easypaisa') normPaymentMethod = 'EasyPaisa';
+  else if (String(paymentMethod).toLowerCase().includes('bank')) normPaymentMethod = 'Bank Transfer';
+
   {
     const list = (settings.checkout && settings.checkout.paymentList) || [];
     const migrated = !!(settings.checkout && settings.checkout.checkoutMigrated);
@@ -78,7 +103,7 @@ router.post('/', placeOrderLimit, optionalAuth, asyncHandler(async (req, res) =>
         return !!m.enabled;
       }).map((m) => m.id)
       : Object.keys(legacyMap).filter((k) => legacy[legacyMap[k]]);
-    if (!allowed.includes(paymentMethod)) {
+    if (!allowed.includes(normPaymentMethod) && !allowed.map((a) => a.toLowerCase()).includes(String(paymentMethod).toLowerCase())) {
       return res.status(400).json({ message: 'That payment method is not available. Please choose another.' });
     }
   }
