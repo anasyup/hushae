@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, BookmarkPlus, Truck, ArrowRight, ShieldCheck, Lock, Package } from 'lucide-react';
+import { ArrowLeft, BookmarkPlus, Truck, ArrowRight, ShieldCheck, Lock } from 'lucide-react';
 import { useApp, lineKey } from '../store/AppContext';
 import { api } from '../api/client';
 import { pkr, snap } from '../lib/format';
@@ -18,7 +18,7 @@ import { useCartPricing } from './cart/useCartPricing';
 import Seo from '../components/Seo';
 
 /* ============================================================================
- * HUSHAE Shopping Bag — Ultra-Luxury Full Bag Experience (CK / SKIMS / The Row)
+ * HUSHAE Shopping Bag — Official Luxury Flagship Experience (Calvin Klein / SSENSE)
  * ========================================================================== */
 
 const BLOCKING = new Set(['oos', 'unavailable', 'size-gone']);
@@ -162,65 +162,32 @@ export default function Cart() {
 
   if (cart.length === 0 && saved.length === 0) {
     return (
-      <div className="min-h-screen bg-[#FFFFFF] pt-[120px] pb-24 font-sans text-[#111111] antialiased">
+      <div className="min-h-screen bg-[#FFFFFF] pt-[110px] pb-24 font-sans text-[#111111] antialiased">
         <Seo title="Your Bag — HUSHAE" description="Review the items in your bag — secure checkout, COD nationwide, discreet packaging." />
-        <div className="mx-auto max-w-[1500px] px-6 sm:px-8 md:px-12">
+        <div className="mx-auto max-w-[1400px] px-6 sm:px-8 md:px-12">
           <EmptyBag cfg={cfg} recent={recent.slice(0, 6)} trending={trending} loadingTrending={loadingTrending} />
         </div>
       </div>
     );
   }
 
-  const freeShipThreshold = pricing.threshold || 4999;
-  const isFreeShip = pricing.subtotal >= freeShipThreshold;
-  const awayAmount = Math.max(0, freeShipThreshold - pricing.subtotal);
-
   return (
-    <div className="min-h-screen bg-[#FFFFFF] pt-[120px] pb-24 font-sans text-[#111111] antialiased">
+    <div className="min-h-screen bg-[#FFFFFF] pt-[110px] pb-24 font-sans text-[#111111] antialiased">
       <Seo title="Shopping Bag — HUSHAE" description="Review the items in your bag — secure checkout, COD nationwide, discreet packaging." />
 
-      <div className="mx-auto max-w-[1500px] px-6 sm:px-8 md:px-12">
-        {/* ── TOP HEADER BAR ── */}
-        <div className="border-b border-[#EAEAEA] pb-5 mb-8 flex flex-wrap items-baseline justify-between gap-4">
-          <div>
-            <p className="text-[10.5px] font-medium uppercase tracking-[0.3em] text-neutral-400">
-              SHOPPING BAG
-            </p>
-            <h1 className="mt-1 text-2xl sm:text-3xl md:text-4xl font-light uppercase tracking-tight text-[#000000]">
-              Your Bag <span className="text-neutral-400 text-xl md:text-2xl font-light">({pricing.count})</span>
-            </h1>
-          </div>
+      <div className="mx-auto max-w-[1400px] px-6 sm:px-8 md:px-12">
+        {/* ── TOP HEADER (Clean Official Typography) ── */}
+        <div className="border-b border-[#EAEAEA] pb-4 mb-8 flex flex-wrap items-baseline justify-between gap-4">
+          <h1 className="text-xl sm:text-2xl font-light uppercase tracking-[0.14em] text-[#000000]">
+            Shopping Bag <span className="text-neutral-400 font-light text-base sm:text-lg">({pricing.count})</span>
+          </h1>
 
-          <div className="flex items-center gap-4">
-            <Link
-              to="/shop"
-              className="inline-flex items-center gap-1.5 text-xs uppercase tracking-wider text-neutral-600 hover:text-black transition-colors"
-            >
-              <ArrowLeft size={13} />
-              <span>Continue Shopping</span>
-            </Link>
-          </div>
-        </div>
-
-        {/* ── TOP ASSURANCE & DELIVERY BANNER ── */}
-        <div className="mb-8 rounded-2xl bg-[#FBFBFB] border border-[#EAEAEA] p-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs shadow-xs">
-          <div className="flex items-center gap-3">
-            <div className="grid h-8 w-8 place-items-center rounded-full bg-[#FFFFFF] border border-[#EAEAEA] shrink-0">
-              <Truck size={15} className="text-black" />
-            </div>
-            <div className="text-neutral-600 font-light">
-              {isFreeShip ? (
-                <span className="font-medium text-black">Free Express Courier Delivery Unlocked</span>
-              ) : (
-                <span>Add <strong className="font-medium text-black">{pkr(awayAmount)}</strong> more to qualify for Free Express Shipping</span>
-              )}
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2 text-[11.5px] text-neutral-500 font-light">
-            <ShieldCheck size={14} className="text-black" />
-            <span>100% Plain Discreet Parcel</span>
-          </div>
+          <Link
+            to="/shop"
+            className="text-xs uppercase tracking-wider text-neutral-500 hover:text-black transition-colors underline underline-offset-4"
+          >
+            Continue Shopping
+          </Link>
         </div>
 
         {blocked && (
@@ -229,13 +196,13 @@ export default function Cart() {
           </div>
         )}
 
-        {/* ── 2-COLUMN LUXURY BAG SUITE ── */}
-        <div className="grid grid-cols-1 gap-10 lg:grid-cols-12 lg:gap-14 items-start">
+        {/* ── 2-COLUMN STRUCTURED LUXURY GRID ── */}
+        <div className="grid grid-cols-1 gap-10 lg:grid-cols-12 lg:gap-12 items-start">
 
-          {/* ── LEFT: LINE ITEMS (7 COLS) ── */}
-          <section className="lg:col-span-7 space-y-4" aria-label="Items in your bag">
-            {/* Table Header (Desktop) */}
-            <div className="hidden grid-cols-[minmax(0,1fr)_120px_140px_120px_40px] gap-4 border-b border-[#EAEAEA] pb-3 text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-400 md:grid">
+          {/* ── LEFT: LINE ITEMS TABLE (8 COLS) ── */}
+          <section className="lg:col-span-8" aria-label="Items in your bag">
+            {/* Table Header Row (Desktop) */}
+            <div className="hidden grid-cols-[minmax(0,1fr)_110px_120px_110px_36px] gap-4 border-b border-[#EAEAEA] pb-2.5 text-[10.5px] font-medium uppercase tracking-[0.18em] text-neutral-400 md:grid">
               <span>Item</span>
               <span>Price</span>
               <span>Quantity</span>
@@ -243,7 +210,7 @@ export default function Cart() {
               <span aria-hidden="true" />
             </div>
 
-            {/* Line items list */}
+            {/* List of clean lines */}
             <ul className="divide-y divide-[#EAEAEA] border-b border-[#EAEAEA]">
               {ordered.map((entry) => (
                 <CartLine
@@ -312,8 +279,8 @@ export default function Cart() {
             )}
           </section>
 
-          {/* ── RIGHT: STICKY ORDER SUMMARY (5 COLS) ── */}
-          <aside className="lg:col-span-5 lg:sticky lg:top-[120px]" aria-label="Order summary">
+          {/* ── RIGHT: STICKY ORDER SUMMARY (4 COLS) ── */}
+          <aside className="lg:col-span-4 lg:sticky lg:top-[110px]" aria-label="Order summary">
             <OrderSummary
               pricing={pricing}
               promoQuote={promoQuote}
@@ -327,14 +294,14 @@ export default function Cart() {
           </aside>
         </div>
 
-        {/* ── RECOMMENDATIONS / CURATED EDITS ── */}
+        {/* ── BELOW THE FOLD: COMPLETE THE LOOK ── */}
         {suggest.length > 0 && (
-          <section className="mt-24 border-t border-[#EAEAEA] pt-16">
-            <div className="mb-10 text-center">
-              <p className="text-[10.5px] font-medium uppercase tracking-[0.3em] text-neutral-400">
+          <section className="mt-20 border-t border-[#EAEAEA] pt-14">
+            <div className="mb-8 text-center">
+              <p className="text-[10.5px] font-medium uppercase tracking-[0.28em] text-neutral-400">
                 CURATED EDITS
               </p>
-              <h2 className="mt-2 text-2xl font-light uppercase tracking-wide text-black">
+              <h2 className="mt-1.5 text-xl sm:text-2xl font-light uppercase tracking-wide text-black">
                 Complete the Look
               </h2>
             </div>
