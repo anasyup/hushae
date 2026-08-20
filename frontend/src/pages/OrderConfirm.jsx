@@ -72,7 +72,7 @@ export default function OrderConfirm() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FFFFFF] pt-[120px] pb-24 font-sans text-[#111111] antialiased">
+    <div className="min-h-screen bg-[#FFFFFF] pt-[160px] sm:pt-[180px] md:pt-[190px] pb-24 font-sans text-[#111111] antialiased">
       <Seo
         title={`Order ${orderNumber} Confirmed — HUSHAE`}
         description="Thank you for your order with HUSHAE. 100% discreet delivery nationwide."
