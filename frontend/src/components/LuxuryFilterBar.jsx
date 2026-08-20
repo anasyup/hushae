@@ -1,72 +1,76 @@
-import { ChevronDown, SlidersHorizontal } from 'lucide-react';
+import { SlidersHorizontal, ChevronDown } from 'lucide-react';
 
 /* ============================================================================
- * LuxuryFilterBar — CK / Gucci register (not Shopify pills).
- * Bare tracked-caps labels with a small chevron, separated by hairline
- * dividers. No pill borders, no backgrounds, no shadows — the air between
- * the labels IS the luxury. Hover underlines the label. bg white, border-b.
+ * HUSHAE LuxuryFilterBar — Clean Minimalist Controls (Calvin Klein / Rains)
  * ========================================================================== */
 
-const BTN = 'group inline-flex min-h-[44px] items-center gap-1.5 whitespace-nowrap text-[11px] font-medium uppercase tracking-[0.18em] text-[#111111] transition-opacity duration-200 hover:opacity-60';
+const SORTS = [
+  { value: 'popular', label: 'Featured' },
+  { value: 'newest', label: 'Newest Arrivals' },
+  { value: 'price-asc', label: 'Price: Low to High' },
+  { value: 'price-desc', label: 'Price: High to Low' },
+];
 
-const DIVIDER = 'h-4 w-px shrink-0 bg-black/15';
-
-export default function LuxuryFilterBar({ count = 12, onOpenFilters, f }) {
-  const filters = [
-    { label: 'Category', key: 'category' },
-    { label: 'Price', key: 'price' },
-    { label: 'Color', key: 'color' },
-    { label: 'Size', key: 'size' },
-    { label: 'Collection', key: 'collection' },
-  ];
-
-  const sortLabel = ({ popular: 'Featured', 'price-asc': 'Price: Low to High', 'price-desc': 'Price: High to Low', newest: 'Newest Arrivals' })[f?.sort] || 'Newest Arrivals';
+export default function LuxuryFilterBar({ count = 0, onOpenFilters, f }) {
+  const activeCount = f?.activeCount || 0;
+  const currentSort = f?.sort || 'popular';
 
   return (
-    <div className="w-full border-b border-black/10 bg-white px-4 py-3 md:px-8">
-      <div className="mx-auto flex max-w-[1600px] flex-wrap items-center justify-between gap-4">
-        {/* LEFT — bare filter labels with hairline dividers */}
-        <div className="no-scrollbar flex items-center overflow-x-auto">
-          {filters.map((filter, i) => (
-            <span key={filter.key} className="flex items-center">
-              {i > 0 && <span className={`${DIVIDER} mx-4`} aria-hidden="true" />}
-              <button
-                type="button"
-                onClick={() => { if (onOpenFilters) onOpenFilters(); }}
-                className={BTN}
-              >
-                <span className="border-b border-transparent pb-0.5 transition-colors group-hover:border-[#111111]">{filter.label}</span>
-                <ChevronDown size={12} strokeWidth={1.5} className="text-neutral-500" aria-hidden="true" />
-              </button>
-            </span>
-          ))}
-          <span className={`${DIVIDER} mx-4`} aria-hidden="true" />
-          <button
-            type="button"
-            onClick={() => { if (onOpenFilters) onOpenFilters(); }}
-            className={BTN}
-          >
-            <span className="flex items-center gap-1.5 border-b border-transparent pb-0.5 transition-colors group-hover:border-[#111111]">
-              <SlidersHorizontal size={12} strokeWidth={1.5} className="text-neutral-600" aria-hidden="true" />
-              All Filters
-            </span>
-          </button>
+    <div className="w-full border-b border-[#EAEAEA] bg-[#FFFFFF] py-3.5 font-sans">
+      <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-4 px-6 md:px-12">
+        {/* Left: Item Counter & Active Filters Reset */}
+        <div className="flex items-center gap-3">
+          <span className="text-xs uppercase tracking-wider text-neutral-500 font-light">
+            {count} {count === 1 ? 'Piece' : 'Pieces'}
+          </span>
+
+          {activeCount > 0 && (
+            <button
+              type="button"
+              onClick={f?.clearAll}
+              className="text-xs text-neutral-400 hover:text-black underline underline-offset-4 transition-colors font-light"
+            >
+              Clear Filters ({activeCount})
+            </button>
+          )}
         </div>
 
-        {/* RIGHT — item count + sort (bare label) */}
-        <div className="ml-auto flex items-center">
-          <span className="hidden text-[11px] font-normal uppercase tracking-[0.18em] text-neutral-400 sm:inline">
-            {count} Items
-          </span>
-          <span className={`${DIVIDER} mx-4 hidden sm:inline`} aria-hidden="true" />
+        {/* Right: Filter Trigger & Sort Dropdown */}
+        <div className="flex items-center gap-3">
+          {/* All Filters Pill Button */}
           <button
             type="button"
-            onClick={() => { if (onOpenFilters) onOpenFilters(); }}
-            className={BTN}
+            onClick={onOpenFilters}
+            className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-medium uppercase tracking-wider transition-colors ${
+              activeCount > 0
+                ? 'border-black bg-black text-white'
+                : 'border-neutral-300 bg-white text-black hover:border-black'
+            }`}
           >
-            <span className="border-b border-transparent pb-0.5 transition-colors group-hover:border-[#111111]">Sort By: {sortLabel}</span>
-            <ChevronDown size={12} strokeWidth={1.5} className="text-neutral-500" aria-hidden="true" />
+            <SlidersHorizontal size={12} strokeWidth={1.6} />
+            <span>Filters</span>
+            {activeCount > 0 && (
+              <span className="grid h-4 w-4 place-items-center rounded-full bg-white text-[9px] font-bold text-black">
+                {activeCount}
+              </span>
+            )}
           </button>
+
+          {/* Sort Dropdown */}
+          <div className="relative">
+            <select
+              value={currentSort}
+              onChange={(e) => f?.setOne('sort', e.target.value)}
+              className="appearance-none rounded-full border border-neutral-300 bg-white px-4 py-2 pr-8 text-xs font-medium uppercase tracking-wider text-black hover:border-black focus:border-black focus:outline-none cursor-pointer transition-colors"
+            >
+              {SORTS.map((s) => (
+                <option key={s.value} value={s.value}>
+                  Sort: {s.label}
+                </option>
+              ))}
+            </select>
+            <ChevronDown size={12} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500" />
+          </div>
         </div>
       </div>
     </div>
