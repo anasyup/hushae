@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef, useState, Fragment } from 'react';
-import { SearchX, Sparkles, ShieldCheck, Feather, Truck, ArrowRight } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { SearchX } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../api/client';
 import CollectionCard from '../components/CollectionCard';
@@ -12,14 +12,7 @@ import FilterSheet from './shop/FilterSheet';
 import { fetchCats, fetchCollections } from '../lib/catalogue';
 
 /* ============================================================================
- * HUSHAE Catalog / Category — 100% Full-Bleed Edge-to-Edge Grid
- *
- * SPECIFICATION:
- *   - Cards connect directly to the left and right screen boundaries (w-full px-0).
- *   - Zero dead side margins on desktop and mobile viewports.
- *   - Top Atelier innovation ribbon & clean minimalist header.
- *   - Sub-category navigation & filter controls.
- *   - In-Grid 2-column editorial storytelling moments.
+ * HUSHAE Catalog / Category — Clean Luxury Architectural Standard
  * ========================================================================== */
 
 const TITLES = {
@@ -36,144 +29,35 @@ const BANNER_META = {
     tag: "WOMEN'S STUDIO",
     title: "Women's Collection",
     desc: 'Second-skin bras, seamless panties, and silk-touch loungewear engineered for weightless everyday comfort.',
-    moment1: {
-      image: '/images/campaign/ck-feature-indigo.jpg',
-      tag: 'STUDIO SERIES · 2026',
-      title: 'The Second-Skin Series',
-      desc: 'Seamless microfibre and modal silhouettes designed to feel weightless.',
-      linkTo: '/category/bras',
-      linkLabel: 'Shop Bras & Tops',
-    },
-    moment2: {
-      image: '/images/campaign/ck-tile-1.jpg',
-      tag: 'SILK-TOUCH ATELIER',
-      title: 'The Silk-Touch Edit',
-      desc: 'Fluid drapery and breathable nightwear finished to an international standard.',
-      linkTo: '/category/sleepwear-loungewear',
-      linkLabel: 'Shop Loungewear',
-    },
   },
   men: {
     tag: "MEN'S ESSENTIALS",
     title: "Men's Collection",
     desc: 'Breathable modal briefs, combed cotton boxers, and ribbed undershirts tailored to stay in place all day.',
-    moment1: {
-      image: '/images/campaign/ck-feature-campus.jpg',
-      tag: 'ENGINEERED PRECISION',
-      title: 'The Core Foundation',
-      desc: 'No-ride waistbands and breathable modal tailored for everyday ease.',
-      linkTo: '/category/briefs',
-      linkLabel: 'Shop Briefs & Trunks',
-    },
-    moment2: {
-      image: '/images/campaign/ck-feature-underwear.jpg',
-      tag: 'SECOND SKIN CRAFT',
-      title: 'The Pure Modal Series',
-      desc: 'Combed cotton ribs and contour pouches that hold their shape.',
-      linkTo: '/category/boxers',
-      linkLabel: 'Shop Boxers',
-    },
   },
   new: {
-    tag: 'THE STUDIO DROPS · SEASON 2026',
+    tag: 'SEASON 2026',
     title: 'New Arrivals',
     desc: 'Newly engineered silhouettes, second-skin fabrics, and fresh seasonal colorways.',
-    moment1: {
-      image: '/images/campaign/ck-feature-indigo.jpg',
-      tag: 'STUDIO DROP 01',
-      title: 'The Second-Skin Drop',
-      desc: 'Deep tonal hues and second-skin fits engineered for transitional days.',
-      linkTo: '/women',
-      linkLabel: 'Explore Women',
-    },
-    moment2: {
-      image: '/images/campaign/ck-feature-campus.jpg',
-      tag: 'STUDIO DROP 02',
-      title: 'The Essential Edit',
-      desc: 'Precision cuts in breathable Lenzing micro-modal and combed cotton.',
-      linkTo: '/men',
-      linkLabel: 'Explore Men',
-    },
   },
   best: {
-    tag: 'HOUSE ICONS & CULT CLASSICS',
+    tag: 'HOUSE ICONS',
     title: 'Best Sellers',
     desc: 'The signature modal and combed cotton pieces our community reaches for, reorders, and covets daily.',
-    moment1: {
-      image: '/images/campaign/ck-feature-underwear.jpg',
-      tag: 'HOUSE ICONS',
-      title: 'The Cult Classics',
-      desc: 'Rated 4.9 by verified clients across Pakistan.',
-      linkTo: '/shop',
-      linkLabel: 'Shop Icons',
-    },
   },
   sale: {
-    tag: 'THE SEASONAL ARCHIVE',
+    tag: 'THE ARCHIVE',
     title: 'The Archive Sale',
     desc: 'Curated seasonal reductions on signature modal, combed cotton, and luxury loungewear. Limited units remaining.',
-    moment1: {
-      image: '/images/campaign/qa/hero-fabric.jpg',
-      tag: 'ARCHIVE SERIES',
-      title: 'The Seasonal Archive',
-      desc: 'Exclusive seasonal reductions while limited studio units last.',
-      linkTo: '/sale',
-      linkLabel: 'Shop Archive',
-    },
   },
   all: {
-    tag: 'COMPLETE EDIT',
+    tag: 'ALL PIECES',
     title: 'The Full Collection',
     desc: 'Premium innerwear and apparel crafted in Pakistan, finished to an international standard.',
-    moment1: {
-      image: '/images/campaign/ck-feature-indigo.jpg',
-      tag: 'ATELIER EDIT',
-      title: 'The Second-Skin Craft',
-      desc: 'Crafted in Pakistan, finished to an international luxury standard.',
-      linkTo: '/women',
-      linkLabel: 'Explore Women',
-    },
   },
 };
 
 const REVEAL = 12;
-
-/* ── In-Grid Editorial Storytelling Card ── */
-function InGridEditorialCard({ moment }) {
-  if (!moment) return null;
-  return (
-    <div className="col-span-2 group relative overflow-hidden bg-[#111111] text-white flex flex-col justify-end p-6 sm:p-8 md:p-12 min-h-[360px] sm:min-h-[440px] aspect-[16/10] sm:aspect-[4/3] lg:aspect-auto">
-      <img
-        src={moment.image}
-        alt={moment.title}
-        className="absolute inset-0 h-full w-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105"
-        loading="lazy"
-        decoding="async"
-      />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent" />
-      <div className="relative z-10 space-y-2.5 max-w-md">
-        <p className="text-[10px] font-medium uppercase tracking-[0.28em] text-white/80">
-          {moment.tag}
-        </p>
-        <h3 className="text-2xl sm:text-3xl md:text-4xl font-light uppercase tracking-tight text-white leading-tight">
-          {moment.title}
-        </h3>
-        <p className="text-xs text-white/90 font-light leading-relaxed">
-          {moment.desc}
-        </p>
-        <div className="pt-2">
-          <Link
-            to={moment.linkTo || '/shop'}
-            className="inline-flex items-center gap-1.5 border-b border-white pb-0.5 text-xs font-medium uppercase tracking-wider text-white hover:text-neutral-200 transition-colors"
-          >
-            <span>{moment.linkLabel || 'Explore Edit'}</span>
-            <span aria-hidden="true">&rarr;</span>
-          </Link>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 export default function Shop({ preset = {} }) {
   const f = useShopFilters(preset);
@@ -213,8 +97,6 @@ export default function Shop({ preset = {} }) {
         tag: cat ? (cat.gender === 'men' ? "MEN'S ESSENTIALS" : "WOMEN'S STUDIO") : 'CATEGORY',
         title: meta,
         desc: cat?.description || BANNER_META.all.desc,
-        moment1: BANNER_META[cat?.gender || 'women']?.moment1,
-        moment2: BANNER_META[cat?.gender || 'women']?.moment2,
       };
     }
     return BANNER_META[preset.key] || BANNER_META.all;
@@ -225,46 +107,24 @@ export default function Shop({ preset = {} }) {
   const hasMore = visible ? visible.length > shown : false;
 
   return (
-    <div className="min-h-screen w-full bg-[#FFFFFF] pt-[120px] pb-28 font-sans text-[#111111] antialiased">
+    <div className="min-h-screen w-full bg-[#FFFFFF] pt-[110px] pb-24 font-sans text-[#111111] antialiased">
       <Seo
         title={`${meta} — HUSHAE`}
         description={`Shop premium ${meta.toLowerCase()} — innerwear made in Pakistan, finished to an international standard. COD nationwide, discreet packaging.`}
         canonical={typeof window !== 'undefined' ? window.location.pathname : '/shop'}
       />
 
-      {/* ═══ 1. ATELIER INNOVATION & FABRIC RIBBON (TOP LUXURY TICKER) ═════ */}
-      <div className="w-full bg-[#FBFBFB] border-b border-[#EAEAEA] py-2.5 px-6 md:px-12 text-[11px] text-neutral-600 font-light overflow-x-auto no-scrollbar">
-        <div className="flex items-center justify-between gap-8 whitespace-nowrap">
-          <span className="inline-flex items-center gap-2">
-            <Feather size={13} className="text-black" />
-            <span>95% Lenzing Modal &bull; Second-Skin Breathability</span>
-          </span>
-          <span className="hidden sm:inline-flex items-center gap-2">
-            <Sparkles size={13} className="text-black" />
-            <span>Zero-Chafe Bonded Flatlock Seams</span>
-          </span>
-          <span className="hidden md:inline-flex items-center gap-2">
-            <ShieldCheck size={13} className="text-black" />
-            <span>100% Plain Discreet Parcel</span>
-          </span>
-          <span className="inline-flex items-center gap-2">
-            <Truck size={13} className="text-black" />
-            <span>Express Delivery Across Pakistan</span>
-          </span>
-        </div>
-      </div>
-
-      {/* ═══ 2. MINIMALIST LUXURY CATALOG HEADER ══════════════════════════ */}
+      {/* ═══ 1. MINIMALIST LUXURY CATALOG HEADER ══════════════════════════ */}
       <div className="w-full px-6 md:px-12 pt-6 pb-6 border-b border-[#EAEAEA]">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-          <div className="space-y-1.5 max-w-2xl">
-            <p className="text-[10px] font-medium uppercase tracking-[0.3em] text-neutral-400">
+          <div className="space-y-1 max-w-2xl">
+            <p className="text-[10px] font-medium uppercase tracking-[0.26em] text-neutral-400">
               {headerInfo.tag}
             </p>
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-light uppercase tracking-[0.1em] text-[#000000]">
               {headerInfo.title}
             </h1>
-            <p className="text-xs sm:text-[13px] text-neutral-500 font-light leading-relaxed pt-1">
+            <p className="text-xs sm:text-[13px] text-neutral-500 font-light leading-relaxed pt-0.5">
               {headerInfo.desc}
             </p>
           </div>
@@ -291,14 +151,14 @@ export default function Shop({ preset = {} }) {
         </div>
       </div>
 
-      {/* ═══ 3. SUB-CATEGORY NAVIGATION TABS (Clean & Smooth) ═════════════ */}
+      {/* ═══ 2. SUB-CATEGORY NAVIGATION TABS (Clean & Smooth) ═════════════ */}
       {navCats.length > 0 && (
         <div className="w-full bg-[#FFFFFF] border-b border-[#EAEAEA] px-6 md:px-12 overflow-x-auto no-scrollbar">
           <div className="flex items-center gap-6 md:gap-8 py-3">
             <button
               type="button"
               onClick={() => f.setOne('category', '')}
-              className={`inline-flex items-center text-[11.5px] uppercase tracking-[0.2em] transition-colors whitespace-nowrap pb-1 border-b-2 ${
+              className={`inline-flex items-center text-[11.5px] uppercase tracking-[0.18em] transition-colors whitespace-nowrap pb-1 border-b-2 ${
                 !f.category
                   ? 'border-black font-medium text-[#000000]'
                   : 'border-transparent font-normal text-neutral-400 hover:text-black'
@@ -311,7 +171,7 @@ export default function Shop({ preset = {} }) {
                 key={c.slug}
                 type="button"
                 onClick={() => f.setOne('category', f.category === c.slug ? '' : c.slug)}
-                className={`inline-flex items-center text-[11.5px] uppercase tracking-[0.2em] transition-colors whitespace-nowrap pb-1 border-b-2 ${
+                className={`inline-flex items-center text-[11.5px] uppercase tracking-[0.18em] transition-colors whitespace-nowrap pb-1 border-b-2 ${
                   f.category === c.slug
                     ? 'border-black font-medium text-[#000000]'
                     : 'border-transparent font-normal text-neutral-400 hover:text-black'
@@ -324,10 +184,10 @@ export default function Shop({ preset = {} }) {
         </div>
       )}
 
-      {/* ═══ 4. SINGLE CLEAN FILTER & SORT CONTROL ROW ═══════════════════ */}
+      {/* ═══ 3. SINGLE CLEAN FILTER & SORT CONTROL ROW ═══════════════════ */}
       <LuxuryFilterBar count={count} f={f} onOpenFilters={() => setSheetOpen(true)} />
 
-      {/* ═══ 5. FULL-BLEED EDGE-TO-EDGE PRODUCT GRID (ATTACHED TO BOUNDARIES) ═ */}
+      {/* ═══ 4. FULL-BLEED EDGE-TO-EDGE PRODUCT GRID ═══════════════════════ */}
       <div className="w-full px-0 pt-0 pb-16">
         {products === null ? (
           <div className="px-6 md:px-12 pt-8">
@@ -345,7 +205,7 @@ export default function Shop({ preset = {} }) {
           </div>
         ) : (
           <>
-            {/* Grid connecting 100% to screen boundaries */}
+            {/* Edge-to-Edge Grid connected to left & right screen boundaries */}
             <div
               aria-busy={pending || undefined}
               className={`w-full grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1 sm:gap-1.5 md:gap-2 transition-opacity duration-300 ${
@@ -353,22 +213,11 @@ export default function Shop({ preset = {} }) {
               }`}
             >
               {visibleSlice.map((p, i) => (
-                <Fragment key={p._id || p.slug}>
-                  {/* Insert 1st Editorial Storytelling Moment after Product 4 */}
-                  {i === 4 && headerInfo?.moment1 && !f.hasActiveFilters && (
-                    <InGridEditorialCard moment={headerInfo.moment1} />
-                  )}
-
-                  {/* Insert 2nd Editorial Storytelling Moment after Product 10 */}
-                  {i === 10 && headerInfo?.moment2 && !f.hasActiveFilters && (
-                    <InGridEditorialCard moment={headerInfo.moment2} />
-                  )}
-
-                  <CollectionCard
-                    product={p}
-                    rank={preset.key === 'best' && i < 4 ? i + 1 : null}
-                  />
-                </Fragment>
+                <CollectionCard
+                  key={p._id || p.slug}
+                  product={p}
+                  rank={preset.key === 'best' && i < 4 ? i + 1 : null}
+                />
               ))}
             </div>
 
