@@ -70,25 +70,21 @@ export default function Collection() {
         canonical={`/collection/${c.slug}`}
       />
 
-      {/* ═══ 1. TYPOGRAPHIC HEADER ═════════════════════════════════════ */}
-      <div className="mx-auto max-w-[1600px] px-6 pt-8 pb-6 md:px-12 md:pt-10">
-        <h1 className="text-[22px] font-light uppercase tracking-[0.14em] text-black sm:text-[26px] md:text-[30px]">
+      {/* ═══ 1. CENTERED MAISON HEADER ═════════════════════════════════ */}
+      <header className="mx-auto max-w-[1600px] px-5 pt-10 pb-8 text-center md:px-10 md:pt-14 md:pb-10">
+        <h1 className="text-[24px] font-medium uppercase tracking-[0.14em] text-[#111111] sm:text-[28px] md:text-[32px]">
           {c.name}
-          <span className="ml-3 align-middle text-[12px] font-normal normal-case tracking-normal text-neutral-400 tabular-nums md:text-[13px]">
-            {count} {count === 1 ? 'piece' : 'pieces'}
-          </span>
         </h1>
         {c.description && (
-          <p className="mt-2 max-w-xl text-[13px] font-light leading-relaxed text-neutral-500">{c.description}</p>
+          <p className="mx-auto mt-3 max-w-xl text-[13px] font-light leading-relaxed text-neutral-500">{c.description}</p>
         )}
-      </div>
+      </header>
 
-      {/* ═══ 2. CONTROL ROW — sort only ════════════════════════════════ */}
-      <div className="border-y border-[#EAEAEA] bg-white">
-        <div className="mx-auto flex max-w-[1600px] items-center justify-end px-6 md:px-12">
-          <LuxuryFilterBar f={{ sort, setOne: (k, v) => { if (k === 'sort') setSort(v); } }} />
-        </div>
-      </div>
+      {/* ═══ 2. CONTROL BAR — count + sort ═════════════════════════════ */}
+      <LuxuryFilterBar
+        count={count}
+        f={{ sort, setOne: (k, v) => { if (k === 'sort') setSort(v); } }}
+      />
 
       {/* ═══ 3. PRODUCT GRID ═══════════════════════════════════════════ */}
       <div className="py-8">

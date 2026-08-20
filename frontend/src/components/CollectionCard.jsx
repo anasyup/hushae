@@ -165,7 +165,9 @@ export default function CollectionCard({ product: p, priority = false }) {
       {/* ── METADATA ─────────────────────────────────────────────────────── */}
       <div className="space-y-1.5 bg-white px-0.5 pt-3.5 pb-4 md:pt-4 md:pb-5">
         {/* Line 1: Product Title */}
-        <h3 className="truncate text-[13px] font-normal leading-snug tracking-[-0.01em] text-black md:text-[14px]">
+        {/* normal-case: the global stylesheet uppercases every h1–h6; luxury
+            houses set product names in sentence case (CK/Gucci/The Row). */}
+        <h3 className="truncate text-[13px] font-normal normal-case leading-snug tracking-[0.01em] text-[#111111] md:text-[13.5px]">
           <Link
             to={`/product/${p.slug}`}
             className="transition-colors hover:text-neutral-500"

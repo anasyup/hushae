@@ -11,15 +11,15 @@ import FilterSheet from './shop/FilterSheet';
 import { fetchCats } from '../lib/catalogue';
 
 /* ============================================================================
- * HUSHAE Catalog / Category — Quiet Luxury Architecture (The Row / CK / SSENSE)
+ * HUSHAE Catalog / Category — Maison PLP anatomy (Versace / Gucci / CK)
  *
- * PHILOSOPHY — the listing page is a UTILITY, not a campaign:
- *   - Pure typographic header: title + piece count. No marketing eyebrows,
- *     no promotional blurbs, no photo banners. Photography belongs to the
- *     home page and the products themselves.
- *   - ONE control row: category tabs left, filter/sort right, one hairline.
- *     (Previously three stacked bands: header block + tab row + filter bar.)
- *   - Products above the fold on every viewport.
+ *   1. Centered category title — confident weight, generous whitespace
+ *   2. Centered hairline-bordered category chips (square, wrap to rows)
+ *   3. Three-zone control bar: FILTERS · count · SORT BY
+ *   4. Product grid with editorial vertical rhythm
+ *
+ * No marketing eyebrows, no promotional blurbs, no photo banners — the
+ * page is a utility framed with couture typography.
  * ========================================================================== */
 
 const TITLES = {
@@ -39,10 +39,10 @@ const GENDER_TABS = [
 
 const REVEAL = 12;
 
-const TAB_BASE =
-  'inline-flex items-center whitespace-nowrap border-b pb-2 pt-2.5 text-[11px] uppercase tracking-[0.16em] transition-colors';
-const TAB_ON = 'border-black font-medium text-black';
-const TAB_OFF = 'border-transparent font-normal text-neutral-400 hover:text-black';
+const CHIP =
+  'inline-flex items-center whitespace-nowrap border px-4 py-2 text-[10.5px] uppercase tracking-[0.12em] transition-colors duration-200 min-h-[36px]';
+const CHIP_ON = 'border-[#111111] text-[#111111] font-medium';
+const CHIP_OFF = 'border-[#DDDDDD] text-[#555555] font-normal hover:border-[#111111] hover:text-[#111111]';
 
 export default function Shop({ preset = {} }) {
   const f = useShopFilters(preset);
@@ -70,11 +70,8 @@ export default function Shop({ preset = {} }) {
   const activeCat = cats.find((c) => c.slug === f.category);
   const fallbackCategoryName = f.category ? f.category.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()) : null;
   const title = activeCat ? activeCat.name : TITLES[preset.key] || fallbackCategoryName || (f.get('q') ? `"${f.get('q')}"` : TITLES.all);
-  const count = visible?.length ?? 0;
+  const count = visible?.length ?? null;
 
-  /* /sale carries both departments, so it gets a typographic gender switch
-     inside the same control row — same register as the category tabs, not a
-     separate pill bar. */
   const showGenderTabs = preset.key === 'sale' && !preset.gender;
   const navCats = useMemo(() => (f.gender ? cats.filter((c) => c.gender === f.gender) : cats), [cats, f.gender]);
   const visibleSlice = visible ? visible.slice(0, shown) : [];
@@ -88,71 +85,69 @@ export default function Shop({ preset = {} }) {
         canonical={typeof window !== 'undefined' ? window.location.pathname : '/shop'}
       />
 
-      {/* ═══ 1. TYPOGRAPHIC HEADER — title + count, nothing else ══════════ */}
-      <div className="mx-auto max-w-[1600px] px-6 pt-8 pb-6 md:px-12 md:pt-10">
-        <h1 className="text-[22px] font-light uppercase tracking-[0.14em] text-black sm:text-[26px] md:text-[30px]">
+      {/* ═══ 1. CENTERED MAISON HEADER ════════════════════════════════════ */}
+      <header className="mx-auto max-w-[1600px] px-5 pt-10 pb-8 text-center md:px-10 md:pt-14 md:pb-10">
+        <h1 className="text-[24px] font-medium uppercase tracking-[0.14em] text-[#111111] sm:text-[28px] md:text-[32px]">
           {title}
-          <span className="ml-3 align-middle text-[12px] font-normal normal-case tracking-normal text-neutral-400 tabular-nums md:text-[13px]">
-            {products === null ? '' : `${count} ${count === 1 ? 'piece' : 'pieces'}`}
-          </span>
         </h1>
-      </div>
 
-      {/* ═══ 2. SINGLE CONTROL ROW — tabs left · filter/sort right ════════ */}
-      <div className="border-y border-[#EAEAEA] bg-white">
-        <div className="mx-auto flex max-w-[1600px] items-center gap-6 px-6 md:px-12">
+        {/* Gender switch (/sale) — centered hairline chips above categories */}
+        {showGenderTabs && (
+          <div className="mt-7 flex flex-wrap items-center justify-center gap-2.5" role="group" aria-label="Department">
+            {GENDER_TABS.map((t) => {
+              const on = (f.get('gender') || '') === t.key;
+              return (
+                <button
+                  key={`g-${t.key}`}
+                  type="button"
+                  aria-pressed={on}
+                  onClick={() => f.setOne('gender', t.key)}
+                  className={`${CHIP} ${on ? CHIP_ON : CHIP_OFF}`}
+                >
+                  {t.label}
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Category chips — centered, wrapping, hairline-bordered (Versace) */}
+        {navCats.length > 0 && (
           <nav
             aria-label="Categories"
-            className="no-scrollbar flex min-w-0 flex-1 items-center gap-5 overflow-x-auto md:gap-7"
+            className={`no-scrollbar -mx-5 flex items-center gap-2.5 overflow-x-auto px-5 md:mx-0 md:flex-wrap md:justify-center md:overflow-visible md:px-0 ${showGenderTabs ? 'mt-3' : 'mt-7'}`}
           >
-            {showGenderTabs && (
-              <>
-                {GENDER_TABS.map((t) => (
-                  <button
-                    key={`g-${t.key}`}
-                    type="button"
-                    aria-pressed={(f.get('gender') || '') === t.key}
-                    onClick={() => f.setOne('gender', t.key)}
-                    className={`${TAB_BASE} ${(f.get('gender') || '') === t.key ? TAB_ON : TAB_OFF}`}
-                  >
-                    {t.label}
-                  </button>
-                ))}
-                <span aria-hidden="true" className="h-4 w-px shrink-0 bg-[#EAEAEA]" />
-              </>
-            )}
-
-            {!showGenderTabs && (
-              <button
-                type="button"
-                onClick={() => f.setOne('category', '')}
-                className={`${TAB_BASE} ${!f.category ? TAB_ON : TAB_OFF}`}
-              >
-                All
-              </button>
-            )}
+            <button
+              type="button"
+              onClick={() => f.setOne('category', '')}
+              className={`${CHIP} ${!f.category ? CHIP_ON : CHIP_OFF}`}
+            >
+              View All
+            </button>
             {navCats.map((c) => (
               <button
                 key={c.slug}
                 type="button"
                 onClick={() => f.setOne('category', f.category === c.slug ? '' : c.slug)}
-                className={`${TAB_BASE} ${f.category === c.slug ? TAB_ON : TAB_OFF}`}
+                className={`${CHIP} ${f.category === c.slug ? CHIP_ON : CHIP_OFF}`}
               >
                 {c.name}
               </button>
             ))}
           </nav>
+        )}
+      </header>
 
-          <LuxuryFilterBar
-            f={f}
-            onOpenFilters={() => setSheetOpen(true)}
-            filterBtnRef={filterBtnRef}
-          />
-        </div>
-      </div>
+      {/* ═══ 2. THREE-ZONE CONTROL BAR ════════════════════════════════════ */}
+      <LuxuryFilterBar
+        count={count}
+        f={f}
+        onOpenFilters={() => setSheetOpen(true)}
+        filterBtnRef={filterBtnRef}
+      />
 
       {/* ═══ 3. PRODUCT GRID ══════════════════════════════════════════════ */}
-      <div className="mx-auto max-w-[1600px] px-4 pt-8 pb-16 sm:px-6 md:px-12">
+      <div className="mx-auto max-w-[1600px] px-4 pt-10 pb-16 sm:px-6 md:px-10">
         {products === null ? (
           <ProductGridSkeleton count={8} />
         ) : count === 0 ? (
@@ -169,7 +164,7 @@ export default function Shop({ preset = {} }) {
           <>
             <div
               aria-busy={pending || undefined}
-              className={`grid grid-cols-2 gap-4 transition-opacity duration-300 sm:gap-6 md:grid-cols-3 md:gap-8 lg:grid-cols-4 ${
+              className={`grid grid-cols-2 gap-x-3 gap-y-8 transition-opacity duration-300 sm:gap-x-4 md:grid-cols-3 md:gap-y-12 lg:grid-cols-4 lg:gap-x-6 ${
                 pending ? 'opacity-50' : 'opacity-100'
               }`}
             >
@@ -183,7 +178,7 @@ export default function Shop({ preset = {} }) {
                 <button
                   type="button"
                   onClick={() => setShown((s) => s + REVEAL)}
-                  className="flex h-12 w-full max-w-xs items-center justify-center border border-black bg-white text-[11px] font-medium uppercase tracking-[0.2em] text-black transition-colors hover:bg-black hover:text-white disabled:opacity-50"
+                  className="flex h-12 w-full max-w-xs items-center justify-center border border-[#111111] bg-white text-[11px] font-medium uppercase tracking-[0.2em] text-[#111111] transition-colors hover:bg-[#111111] hover:text-white disabled:opacity-50"
                 >
                   {pending ? 'Loading…' : 'Load more'}
                 </button>
@@ -200,7 +195,7 @@ export default function Shop({ preset = {} }) {
         onReset={f.clearAll}
         catList={f.gender ? cats.filter((c) => c.gender === f.gender) : cats}
         f={f}
-        resultCount={count}
+        resultCount={count ?? 0}
         returnFocusTo={filterBtnRef}
       />
     </div>
