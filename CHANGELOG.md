@@ -1,4 +1,9 @@
 ## Changes
+- **2026-08-20** — 🗂️ **FULL CATALOG LIVE — 100 products seeded with self-hosted real imagery**
+  - New idempotent seed: `backend/src/seed/seedFullCatalog.js` (+ `npm run seed:catalog`) — upserts all 100 catalog products (buildCatalog) by SKU, never duplicates, never deletes.
+  - Resolves each product's self-hosted images from `frontend/public/images/products/` (`{slug}-model.jpg` primary + per-color shots mapped onto swatches) with Unsplash fallback only when no local file exists — matching the owner's "real images, not AI" direction.
+  - Verified against in-memory Mongo (100 created → rerun = 0 duplicates) then inserted into production via the admin API: **100/100 created, 0 failures**. Live catalog now 220 products (110 legacy HUS-* + 100 VL-* + 8 new arrivals + 2 pre-existing manual products), no duplicate SKUs.
+## Changes
 - **2026-08-20** — 🆕 **NEW ARRIVALS V2 — 8 premium products, real photography**
   - 8 new products added (seed: `backend/src/seed/seedNewArrivals.js`, idempotent upsert by SKU):
     Women: Modal Soft-Cup Lounge Bra (W-BRA-001), Seamless High-Waist Brief (W-PNT-002), Silk-Touch Longline Camisole (W-CAM-003), Cloud-Knit Relaxed Kimono Robe (L-ROB-001), Essential Lounge Trouser (L-TRS-002) · Men: Signature Micro-Modal Trunk (M-TRK-001), Airlite Cotton Ribbed Boxer (M-BOX-002), Tailored Ribbed Undershirt (M-VST-003).
