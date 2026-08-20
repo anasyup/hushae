@@ -295,25 +295,19 @@ export default function Product() {
               <span className="font-normal text-black">{name}</span>
             </nav>
 
-            {/* Title & price — serif 28/32, filled black SAVE badge */}
-            <div className="space-y-2 border-b border-neutral-300/60 pb-6">
-              <h1 className="font-serif text-[28px] font-normal uppercase tracking-[0.06em] text-[#111111] lg:text-[32px]">
+            {/* Title & price — Clean Luxury Typography */}
+            <div className="space-y-2.5 border-b border-neutral-200 pb-6">
+              <h1 className="font-sans text-[26px] sm:text-[30px] font-light uppercase tracking-[0.06em] text-[#000000] lg:text-[34px] leading-tight">
                 {name}
               </h1>
 
               <div className="flex items-center gap-3 pt-1">
-                {/* neutral-400 on white is ~2.8:1. This is the was-price on
-                    the PDP — the number that justifies the discount — so it
-                    has to be readable. neutral-600 is 5.7:1 and still reads
-                    a clear step below the current price. */}
                 {onSale && p.compareAtPrice > p.price && (
-                  <span className="text-[13px] font-light text-neutral-600 line-through">{pkr(p.compareAtPrice)}</span>
+                  <span className="text-[14px] font-light text-neutral-400 line-through">{pkr(p.compareAtPrice)}</span>
                 )}
-                <span className="text-[20px] font-medium text-[#111111]">{pkr(p.price)}</span>
-                {/* 9px was the smallest type left on the PDP and this badge
-                    carries the actual saving. 11px floor. */}
+                <span className="text-[22px] font-medium text-[#000000]">{pkr(p.price)}</span>
                 {onSale && p.compareAtPrice > p.price && (
-                  <span className="bg-black px-2 py-0.5 text-[11px] font-medium uppercase tracking-widest text-white">
+                  <span className="bg-black px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-widest text-white">
                     Save {discount}%
                   </span>
                 )}
@@ -376,19 +370,22 @@ export default function Product() {
               <div ref={sizeRef} className="space-y-3">
                 <div className="flex items-center justify-between text-[11px] uppercase tracking-[0.18em]">
                   <span className="font-medium text-neutral-800">Select Size</span>
-                  {/* Measured 71.7x16.5px and neutral-400 (~2.8:1). This is a
-                      real button that opens the size chart — the thing a
-                      shopper taps when they are unsure which size to buy, so
-                      it is directly load-bearing for returns. 44px target via
-                      min-h-11 with a negative right margin so the row's
-                      visual alignment is unchanged, and neutral-600 (5.7:1). */}
-                  <button
-                    type="button"
-                    onClick={() => setGuideOpen(true)}
-                    className="-mr-1 inline-flex min-h-11 items-center px-1 text-neutral-600 underline transition hover:text-black"
-                  >
-                    Size Guide
-                  </button>
+                  <div className="flex items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setGuideOpen(true)}
+                      className="inline-flex min-h-11 items-center text-neutral-600 underline transition hover:text-black"
+                    >
+                      Size Guide
+                    </button>
+                    <span className="text-neutral-300">·</span>
+                    <Link
+                      to="/fit-finder"
+                      className="inline-flex min-h-11 items-center font-medium text-black underline transition hover:opacity-70"
+                    >
+                      Fit Finder &rarr;
+                    </Link>
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-5 gap-2">
@@ -450,13 +447,8 @@ export default function Product() {
                 type="button"
                 onClick={() => tryAdd(false)}
                 disabled={soldOut || (needsSize && !size)}
-                /* Disabled state measured 4.15:1 (#707070 on #EBEBEB) against
-                   a 4.5 requirement — and this is the button that TELLS the
-                   shopper why they cannot buy yet ("Select a Size"), so it is
-                   the one label that must not be washed out. neutral-500 ->
-                   neutral-600 takes it to 5.9:1 on the same ground. */
                 className={`h-[3.25rem] w-full text-[11px] font-medium uppercase tracking-[0.25em] transition-colors ${
-                  soldOut || (needsSize && !size) ? 'cursor-not-allowed bg-neutral-200 text-neutral-600' : 'bg-[#111111] text-white hover:bg-neutral-800'
+                  soldOut || (needsSize && !size) ? 'cursor-not-allowed bg-neutral-200 text-neutral-600' : 'bg-[#000000] text-white hover:bg-neutral-800'
                 }`}
               >
                 {soldOut ? 'Sold Out' : needsSize && !size ? 'Select a Size' : 'Add to Bag'}
@@ -472,18 +464,24 @@ export default function Product() {
               </button>
             </div>
 
-            {/* Trust badges — 3-col uppercase */}
-            <div className="grid grid-cols-3 gap-2 border-y border-neutral-200/80 py-4 text-[10px] uppercase tracking-widest text-neutral-600">
-              {[
-                [Truck, 'Express'],
-                [RotateCcw, '14-Day Returns'],
-                [ShieldCheck, 'Discreet Box'],
-              ].map(([Icon, label]) => (
-                <div key={label} className="flex items-center gap-2">
-                  <Icon size={16} className="shrink-0 text-neutral-800" strokeWidth={1.2} />
-                  <span>{label}</span>
-                </div>
-              ))}
+            {/* Pakistan Luxury Assurance Box */}
+            <div className="grid grid-cols-2 gap-3.5 border-y border-neutral-200 py-5 text-[11px] text-neutral-800">
+              <div className="flex items-center gap-2.5">
+                <Truck size={16} className="shrink-0 text-black" strokeWidth={1.4} />
+                <span>Express 2–4 Days (Free over PKR 4,999)</span>
+              </div>
+              <div className="flex items-center gap-2.5">
+                <ShieldCheck size={16} className="shrink-0 text-black" strokeWidth={1.4} />
+                <span>100% Discreet Packaging</span>
+              </div>
+              <div className="flex items-center gap-2.5">
+                <RotateCcw size={16} className="shrink-0 text-black" strokeWidth={1.4} />
+                <span>14-Day Size Exchange</span>
+              </div>
+              <div className="flex items-center gap-2.5">
+                <Package size={16} className="shrink-0 text-black" strokeWidth={1.4} />
+                <span>Cash on Delivery Nationwide</span>
+              </div>
             </div>
 
             {/* Accordion info — native disclosure */}
