@@ -317,14 +317,14 @@ function CuratedGallerySection({ id, eyebrow, title, products, viewAllHref, view
   );
 }
 
-/* ── 4. FULL-BLEED FEATURE 01: "New Iconic Indigo" ────────────────────────── */
+/* ── 4. FULL-BLEED FEATURE 01: "The Second-Skin Series" ──────────────────── */
 function FeatureIndigoSection() {
   return (
-    <section className="relative w-full overflow-hidden bg-black text-white" aria-label="New Iconic Indigo">
+    <section className="relative w-full overflow-hidden bg-black text-white" aria-label="The Second-Skin Series">
       <div className="relative min-h-[540px] sm:min-h-[660px] md:min-h-[780px] lg:min-h-[880px] w-full flex items-center">
         <img
           src="/images/campaign/ck-feature-indigo.jpg"
-          alt="New Iconic Indigo Campaign"
+          alt="The Second-Skin Series Campaign"
           loading="lazy"
           decoding="async"
           className="absolute inset-0 h-full w-full object-cover object-center"
@@ -344,11 +344,11 @@ function FeatureIndigoSection() {
             className="max-w-md sm:max-w-lg space-y-4 md:space-y-6"
           >
             <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-light tracking-tight text-white leading-[1.02]">
-              New<br />Iconic<br />Indigo
+              The<br />Second-Skin<br />Series
             </h2>
 
             <p className="max-w-xs sm:max-w-sm text-xs sm:text-sm font-normal text-neutral-300 leading-relaxed">
-              Denim reinvented in a deep, tonal hue for fall. The wardrobe staples with staying power.
+              Engineered in pure Lenzing micro-modal and seamless microfibre for weightless everyday comfort and staying power.
             </p>
 
             <div className="flex items-center gap-8 pt-3 text-xs sm:text-sm font-medium text-white">
@@ -374,14 +374,14 @@ function FeatureIndigoSection() {
   );
 }
 
-/* ── 5. FULL-BLEED FEATURE 02: "Signature Underwear" ──────────────────────── */
+/* ── 5. FULL-BLEED FEATURE 02: "The Core Foundation" ────────────────────── */
 function FeatureUnderwearSection() {
   return (
-    <section className="relative w-full overflow-hidden bg-[#f4f2ee] text-[#111111]" aria-label="Signature Underwear">
+    <section className="relative w-full overflow-hidden bg-[#f4f2ee] text-[#111111]" aria-label="The Core Foundation">
       <div className="relative min-h-[540px] sm:min-h-[660px] md:min-h-[780px] lg:min-h-[880px] w-full flex items-center">
         <img
           src="/images/campaign/ck-feature-underwear.jpg"
-          alt="Signature Underwear Campaign"
+          alt="The Core Foundation Campaign"
           loading="lazy"
           decoding="async"
           className="absolute inset-0 h-full w-full object-cover object-center"
@@ -401,11 +401,11 @@ function FeatureUnderwearSection() {
             className="max-w-md sm:max-w-lg space-y-4 md:space-y-6"
           >
             <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-light tracking-tight text-[#111111] leading-[1.02]">
-              Signature<br />Underwear
+              The<br />Core<br />Foundation
             </h2>
 
             <p className="max-w-xs sm:max-w-sm text-xs sm:text-sm font-normal text-neutral-800 leading-relaxed">
-              Feel confident under anything. Smooth silhouettes with the updated logo waistband.
+              Contoured pouches, no-roll waistbands, and flatlock seams designed to feel invisible under anything.
             </p>
 
             <div className="flex items-center gap-8 pt-3 text-xs sm:text-sm font-medium text-[#111111]">
@@ -431,14 +431,14 @@ function FeatureUnderwearSection() {
   );
 }
 
-/* ── 6. FULL-BLEED FEATURE 03: "The Campus Edit" ──────────────────────────── */
+/* ── 6. FULL-BLEED FEATURE 03: "The Silk-Touch Atelier" ──────────────────── */
 function FeatureCampusSection() {
   return (
-    <section className="relative w-full overflow-hidden bg-black text-white" aria-label="The Campus Edit">
+    <section className="relative w-full overflow-hidden bg-black text-white" aria-label="The Silk-Touch Atelier">
       <div className="relative min-h-[540px] sm:min-h-[660px] md:min-h-[780px] lg:min-h-[880px] w-full flex items-center justify-center">
         <img
           src="/images/campaign/ck-feature-campus.jpg"
-          alt="The Campus Edit Campaign"
+          alt="The Silk-Touch Atelier Campaign"
           loading="lazy"
           decoding="async"
           className="absolute inset-0 h-full w-full object-cover object-center"
@@ -458,11 +458,11 @@ function FeatureCampusSection() {
             className="max-w-xs sm:max-w-md md:max-w-lg space-y-4 md:space-y-6"
           >
             <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-light tracking-tight text-white leading-[1.02] drop-shadow-lg">
-              The<br />Campus<br />Edit
+              The<br />Silk-Touch<br />Atelier
             </h2>
 
             <p className="mx-auto max-w-xs sm:max-w-sm text-xs sm:text-sm font-normal text-white/95 leading-relaxed drop-shadow">
-              Start the year fresh in casual essentials. Made to transition seamlessly from class to after.
+              Fluid slips, loungewear sets, and breathable nightwear crafted for effortless transitions from studio to home.
             </p>
 
             <div className="flex items-center justify-center gap-8 pt-3 text-xs sm:text-sm font-medium text-white drop-shadow">

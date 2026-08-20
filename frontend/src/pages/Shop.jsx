@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, Fragment } from 'react';
-import { SearchX, ArrowRight } from 'lucide-react';
+import { SearchX } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../api/client';
 import CollectionCard from '../components/CollectionCard';
@@ -12,13 +12,7 @@ import FilterSheet from './shop/FilterSheet';
 import { fetchCats, fetchCollections } from '../lib/catalogue';
 
 /* ============================================================================
- * HUSHAE Catalog / Category — Luxury Flagship Architecture (CK × D&G × Balmain)
- *
- * SPECIFICATION:
- *   - Product-First Entry: Zero heavy 500px hero banners pushing catalog down.
- *   - Refined Typographic Header with Category metadata & Piece Count.
- *   - Single Seamless Control Strip (Sub-categories + Filter Pill + Sort).
- *   - 4-Column Studio Grid with Embedded 2-Column Editorial Moments (CK style).
+ * HUSHAE Catalog / Category — Bespoke Luxury Flagship (Original HUSHAE Storytelling)
  * ========================================================================== */
 
 const TITLES = {
@@ -37,17 +31,17 @@ const BANNER_META = {
     desc: 'Second-skin bras, seamless panties, and silk-touch loungewear engineered for weightless everyday comfort.',
     moment1: {
       image: '/images/campaign/ck-feature-indigo.jpg',
-      tag: 'SECOND SKIN EDIT',
-      title: 'Iconic Indigo',
+      tag: 'STUDIO SERIES · 2026',
+      title: 'The Second-Skin Series',
       desc: 'Seamless microfibre and modal silhouettes designed to feel weightless.',
       linkTo: '/category/bras',
       linkLabel: 'Shop Bras & Tops',
     },
     moment2: {
       image: '/images/campaign/ck-tile-1.jpg',
-      tag: 'STUDIO ESSENTIALS',
-      title: 'Silk-Touch Lounge',
-      desc: 'Fluid drapery and breathable nightwear crafted with precision.',
+      tag: 'SILK-TOUCH ATELIER',
+      title: 'The Silk-Touch Edit',
+      desc: 'Fluid drapery and breathable nightwear finished to an international standard.',
       linkTo: '/category/sleepwear-loungewear',
       linkLabel: 'Shop Loungewear',
     },
@@ -58,16 +52,16 @@ const BANNER_META = {
     desc: 'Breathable modal briefs, combed cotton boxers, and ribbed undershirts tailored to stay in place all day.',
     moment1: {
       image: '/images/campaign/ck-feature-campus.jpg',
-      tag: 'ENGINEERED COMFORT',
-      title: 'The Campus Edit',
-      desc: 'No-ride waistbands and breathable modal tailored for everyday movement.',
+      tag: 'ENGINEERED PRECISION',
+      title: 'The Core Foundation',
+      desc: 'No-ride waistbands and breathable modal tailored for everyday ease.',
       linkTo: '/category/briefs',
       linkLabel: 'Shop Briefs & Trunks',
     },
     moment2: {
       image: '/images/campaign/ck-feature-underwear.jpg',
-      tag: 'FOUNDATION LAYERS',
-      title: 'Signature Underwear',
+      tag: 'SECOND SKIN CRAFT',
+      title: 'The Pure Modal Series',
       desc: 'Combed cotton ribs and contour pouches that hold their shape.',
       linkTo: '/category/boxers',
       linkLabel: 'Shop Boxers',
@@ -79,16 +73,16 @@ const BANNER_META = {
     desc: 'Newly engineered silhouettes, second-skin fabrics, and fresh seasonal colorways.',
     moment1: {
       image: '/images/campaign/ck-feature-indigo.jpg',
-      tag: 'DROP 01 · 2026',
-      title: 'New Iconic Indigo',
-      desc: 'Deep tonal hue and second-skin fits engineered for transitional days.',
+      tag: 'STUDIO DROP 01',
+      title: 'The Second-Skin Drop',
+      desc: 'Deep tonal hues and second-skin fits engineered for transitional days.',
       linkTo: '/women',
       linkLabel: 'Explore Women',
     },
     moment2: {
       image: '/images/campaign/ck-feature-campus.jpg',
-      tag: 'DROP 02 · 2026',
-      title: 'Modern Essentials',
+      tag: 'STUDIO DROP 02',
+      title: 'The Essential Edit',
       desc: 'Precision cuts in breathable Lenzing micro-modal and combed cotton.',
       linkTo: '/men',
       linkLabel: 'Explore Men',
@@ -100,9 +94,9 @@ const BANNER_META = {
     desc: 'The signature modal and combed cotton pieces our community reaches for, reorders, and covets daily.',
     moment1: {
       image: '/images/campaign/ck-feature-underwear.jpg',
-      tag: 'COMMUNITY ICONS',
-      title: 'Signature Underwear',
-      desc: 'Rated 4.9 by thousands of verified buyers nationwide.',
+      tag: 'HOUSE ICONS',
+      title: 'The Cult Classics',
+      desc: 'Rated 4.9 by verified clients across Pakistan.',
       linkTo: '/shop',
       linkLabel: 'Shop Icons',
     },
@@ -113,9 +107,9 @@ const BANNER_META = {
     desc: 'Curated seasonal reductions on signature modal, combed cotton, and luxury loungewear. Limited units remaining.',
     moment1: {
       image: '/images/campaign/qa/hero-fabric.jpg',
-      tag: 'SEASONAL ARCHIVE',
-      title: 'Curated Reductions',
-      desc: 'Exclusive seasonal archive savings while limited studio units last.',
+      tag: 'ARCHIVE SERIES',
+      title: 'The Seasonal Archive',
+      desc: 'Exclusive seasonal reductions while limited studio units last.',
       linkTo: '/sale',
       linkLabel: 'Shop Archive',
     },
@@ -127,8 +121,8 @@ const BANNER_META = {
     moment1: {
       image: '/images/campaign/ck-feature-indigo.jpg',
       tag: 'ATELIER EDIT',
-      title: 'Crafted in Pakistan',
-      desc: 'Finished to an international luxury standard with discreet delivery.',
+      title: 'The Second-Skin Craft',
+      desc: 'Crafted in Pakistan, finished to an international luxury standard.',
       linkTo: '/women',
       linkLabel: 'Explore Women',
     },
@@ -137,7 +131,7 @@ const BANNER_META = {
 
 const REVEAL = 12;
 
-/* ── Embedded Calvin Klein & Balmain-Style In-Grid Editorial Storytelling Card ── */
+/* ── In-Grid Editorial Storytelling Card (Original HUSHAE Styling) ── */
 function InGridEditorialCard({ moment }) {
   if (!moment) return null;
   return (
@@ -304,7 +298,7 @@ export default function Shop({ preset = {} }) {
       {/* ═══ 3. SINGLE CLEAN FILTER & SORT CONTROL ROW ═══════════════════ */}
       <LuxuryFilterBar count={count} f={f} onOpenFilters={() => setSheetOpen(true)} />
 
-      {/* ═══ 4. PRODUCT GRID WITH EMBEDDED EDITORIAL MOMENTS (CK / BALMAIN) ══ */}
+      {/* ═══ 4. PRODUCT GRID WITH EMBEDDED EDITORIAL MOMENTS ═══════════════ */}
       <div className="mx-auto max-w-[1600px] px-4 sm:px-6 md:px-12 pt-8 pb-16">
         {products === null ? (
           <ProductGridSkeleton count={8} />
