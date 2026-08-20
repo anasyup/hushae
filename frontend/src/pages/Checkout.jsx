@@ -11,9 +11,7 @@ import { cartConfig } from '../lib/cartConfig';
 import { checkoutConfig } from '../lib/checkoutConfig';
 import { normalizePhone } from '../lib/validators';
 import { useCartPricing } from './cart/useCartPricing';
-import usePromoQuote from '../lib/usePromoQuote';
-import Img from '../components/Img';
-import CouponBox from './cart/CouponBox';
+import CheckoutSummary from './checkout/CheckoutSummary';
 import Seo from '../components/Seo';
 
 const POPULAR_CITIES = [
@@ -45,7 +43,7 @@ const PROVINCES_FALLBACK = ['Punjab', 'Sindh', 'Islamabad (ICT)', 'Khyber Pakhtu
 const DRAFT_KEY = 'hushae.checkoutDraft';
 
 export default function Checkout() {
-  const { cart, settings, clearCart, auth, toast } = useApp();
+  const { cart, settings, clearCart, auth, toast, updateQty } = useApp();
   const nav = useNavigate();
 
   const cfg = useMemo(() => checkoutConfig(settings), [settings]);
@@ -67,7 +65,7 @@ export default function Checkout() {
     notes: draft?.notes ?? '',
   });
 
-  const [method] = useState('cod'); // Default Cash on Delivery
+  const [method] = useState('cod'); // Pre-selected Cash on Delivery
   const [applied, setApplied] = useState(null);
   const [errs, setErrs] = useState({});
   const [busy, setBusy] = useState(false);
@@ -105,10 +103,10 @@ export default function Checkout() {
 
   const validate = () => {
     const e = {};
-    if (!f.name || f.name.trim().length < 2) e.name = 'Please enter your name';
+    if (!f.name || f.name.trim().length < 2) e.name = 'Please enter your full name';
     if (!phoneOk) e.phone = 'Please enter a valid mobile number (e.g. 0300 1234567)';
     if (!f.address || f.address.trim().length < 5) e.address = 'Please enter your delivery address';
-    if (!cityLabel) e.city = 'Please select or enter your city';
+    if (!cityLabel) e.city = 'Please choose or enter your city';
     return e;
   };
 
@@ -119,7 +117,7 @@ export default function Checkout() {
     setErrs(validationErrors);
 
     if (Object.keys(validationErrors).length > 0) {
-      setTopErr('Please fill in the required fields below.');
+      setTopErr('Please complete your delivery details below.');
       return;
     }
 
@@ -169,13 +167,13 @@ export default function Checkout() {
         <Seo title="Checkout — HUSHAE" description="Your bag is empty." />
         <div className="mx-auto max-w-md px-6 space-y-4">
           <h1 className="text-2xl font-light uppercase tracking-wide text-black">Your bag is empty</h1>
-          <p className="text-xs text-neutral-500 font-light">Add items to your bag to proceed to checkout.</p>
+          <p className="text-xs text-neutral-500 font-light">Add pieces to your bag to proceed to checkout.</p>
           <div className="pt-2">
             <Link
               to="/shop"
-              className="inline-flex min-h-[44px] items-center justify-center bg-black px-8 text-xs font-medium uppercase tracking-widest text-white hover:bg-neutral-800 transition-colors"
+              className="inline-flex min-h-[46px] items-center justify-center rounded-full bg-black px-8 text-xs font-medium uppercase tracking-widest text-white hover:bg-neutral-800 transition-colors"
             >
-              Continue Shopping &rarr;
+              Explore Collection &rarr;
             </Link>
           </div>
         </div>
@@ -184,48 +182,57 @@ export default function Checkout() {
   }
 
   return (
-    <div className="min-h-screen bg-white pt-[120px] pb-24 font-sans text-[#111111] antialiased">
+    <div className="min-h-screen bg-[#FFFFFF] pt-[120px] pb-24 font-sans text-[#111111] antialiased">
       <Seo title="Checkout — HUSHAE" description="Complete your order with Cash on Delivery." />
 
-      <div className="mx-auto max-w-[1400px] px-6 sm:px-8 md:px-12">
-        {/* Simple Minimal Header */}
-        <div className="border-b border-neutral-200 pb-5 mb-8 flex items-baseline justify-between">
-          <h1 className="text-2xl font-light uppercase tracking-[0.1em] text-black">
-            Checkout
-          </h1>
-          <div className="flex items-center gap-1.5 text-xs text-neutral-500 font-light">
+      <div className="mx-auto max-w-[1500px] px-6 sm:px-8 md:px-12">
+        {/* Header */}
+        <div className="border-b border-neutral-100 pb-5 mb-8 flex flex-wrap items-baseline justify-between gap-4">
+          <div>
+            <p className="text-[10px] font-medium uppercase tracking-[0.28em] text-neutral-400">
+              FAST & SECURE
+            </p>
+            <h1 className="mt-1.5 text-2xl sm:text-3xl font-light uppercase tracking-tight text-black">
+              Checkout
+            </h1>
+          </div>
+
+          <div className="flex items-center gap-2 rounded-full border border-neutral-200 bg-neutral-50/80 px-4 py-1.5 text-xs text-neutral-600 font-light">
             <Lock size={12} className="text-black" />
-            <span>Secure 256-Bit Checkout</span>
+            <span>256-Bit SSL Encrypted &bull; Discreet Packaging</span>
           </div>
         </div>
 
         {topErr && (
-          <div className="mb-6 border border-red-200 bg-red-50 p-3.5 text-xs text-red-700">
+          <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 p-4 text-xs text-red-700">
             {topErr}
           </div>
         )}
 
-        {/* ═══ CLEAN 2-COLUMN CHECKOUT ════════════════════════════════════ */}
-        <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-16 items-start">
+        {/* ═══ 2-COLUMN CHECKOUT SUITE ════════════════════════════════════ */}
+        <div className="grid grid-cols-1 gap-10 lg:grid-cols-12 lg:gap-14 items-start">
 
-          {/* ── LEFT: DELIVERY & PAYMENT FORM (7 COLS) ───────────────────── */}
+          {/* ── LEFT: DELIVERY & PAYMENT (7 COLS — SOFT OVAL CARDS) ──────── */}
           <form
             ref={formRef}
             onSubmit={handlePlaceOrder}
-            className="space-y-8 lg:col-span-7"
+            className="space-y-6 lg:col-span-7"
             noValidate
           >
-            {/* Delivery Address */}
-            <div className="space-y-4">
-              <h2 className="text-xs font-medium uppercase tracking-[0.16em] text-black border-b border-neutral-100 pb-2">
-                Shipping Address
-              </h2>
+            {/* Delivery Address Card */}
+            <div className="rounded-3xl border border-neutral-200/90 bg-[#FAFAFA] p-6 sm:p-8 space-y-5 shadow-xs">
+              <div className="flex items-center justify-between border-b border-neutral-200/70 pb-3">
+                <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-black">
+                  Shipping Address
+                </h2>
+                <span className="text-[11px] text-neutral-400">Pakistan Delivery</span>
+              </div>
 
-              <div className="space-y-3.5">
+              <div className="space-y-4">
                 {/* Full Name */}
-                <div>
-                  <label className="block text-xs font-normal text-neutral-600 mb-1">
-                    Full Name *
+                <div className="space-y-1.5">
+                  <label className="block text-[11px] font-medium uppercase tracking-wider text-black">
+                    Full Name <span className="text-red-500">*</span>
                   </label>
                   <input
                     name="name"
@@ -234,17 +241,17 @@ export default function Checkout() {
                     value={f.name}
                     onChange={(e) => set('name', e.target.value)}
                     placeholder="Enter your name"
-                    className={`w-full border bg-white px-3.5 py-2.5 text-xs text-black placeholder:text-neutral-400 focus:border-black focus:outline-none transition-colors ${
+                    className={`w-full rounded-2xl border bg-white px-4 py-3 text-xs text-black placeholder:text-neutral-400 focus:border-black focus:outline-none transition-colors ${
                       errs.name ? 'border-red-500' : 'border-neutral-300'
                     }`}
                   />
                   {errs.name && <p className="text-[11px] text-red-600 mt-1">{errs.name}</p>}
                 </div>
 
-                {/* Mobile Number */}
-                <div>
-                  <label className="block text-xs font-normal text-neutral-600 mb-1">
-                    Mobile Number (WhatsApp) *
+                {/* Mobile / WhatsApp */}
+                <div className="space-y-1.5">
+                  <label className="block text-[11px] font-medium uppercase tracking-wider text-black">
+                    Mobile Number (WhatsApp) <span className="text-red-500">*</span>
                   </label>
                   <input
                     name="phone"
@@ -253,7 +260,7 @@ export default function Checkout() {
                     value={f.phone}
                     onChange={(e) => set('phone', e.target.value)}
                     placeholder="0300 1234567"
-                    className={`w-full border bg-white px-3.5 py-2.5 text-xs text-black placeholder:text-neutral-400 focus:border-black focus:outline-none transition-colors ${
+                    className={`w-full rounded-2xl border bg-white px-4 py-3 text-xs text-black placeholder:text-neutral-400 focus:border-black focus:outline-none transition-colors ${
                       errs.phone ? 'border-red-500' : 'border-neutral-300'
                     }`}
                   />
@@ -264,14 +271,14 @@ export default function Checkout() {
                   ) : errs.phone ? (
                     <p className="text-[11px] text-red-600 mt-1">{errs.phone}</p>
                   ) : (
-                    <p className="text-[11px] text-neutral-400 mt-0.5 font-light">Courier calls before delivery.</p>
+                    <p className="text-[10.5px] text-neutral-400 font-light">Courier calls this number prior to doorstep delivery.</p>
                   )}
                 </div>
 
-                {/* Address */}
-                <div>
-                  <label className="block text-xs font-normal text-neutral-600 mb-1">
-                    Street Address *
+                {/* Street Address */}
+                <div className="space-y-1.5">
+                  <label className="block text-[11px] font-medium uppercase tracking-wider text-black">
+                    Complete Street Address <span className="text-red-500">*</span>
                   </label>
                   <textarea
                     name="address"
@@ -279,123 +286,139 @@ export default function Checkout() {
                     rows={2}
                     value={f.address}
                     onChange={(e) => set('address', e.target.value)}
-                    placeholder="House / Flat #, Street, Area, Landmark"
-                    className={`w-full border bg-white px-3.5 py-2.5 text-xs text-black placeholder:text-neutral-400 focus:border-black focus:outline-none transition-colors resize-none ${
+                    placeholder="House / Flat #, Street, Area name, Nearby Landmark"
+                    className={`w-full rounded-2xl border bg-white px-4 py-3 text-xs text-black placeholder:text-neutral-400 focus:border-black focus:outline-none transition-colors resize-none ${
                       errs.address ? 'border-red-500' : 'border-neutral-300'
                     }`}
                   />
                   {errs.address && <p className="text-[11px] text-red-600 mt-1">{errs.address}</p>}
                 </div>
 
-                {/* City Selection */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs font-normal text-neutral-600 mb-1">
-                      City *
-                    </label>
-                    {f.city === '__other' ? (
-                      <div className="space-y-1">
-                        <input
-                          type="text"
-                          required
-                          value={f.customCity}
-                          onChange={(e) => set('customCity', e.target.value)}
-                          placeholder="Type your city"
-                          className="w-full border border-black px-3.5 py-2.5 text-xs text-black focus:outline-none"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => handleCityChange('Karachi')}
-                          className="text-[10px] text-neutral-500 underline"
-                        >
-                          &larr; Choose from city list
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="relative">
-                        <select
-                          value={f.city}
-                          onChange={(e) => handleCityChange(e.target.value)}
-                          className="w-full appearance-none border border-neutral-300 bg-white px-3.5 py-2.5 pr-8 text-xs text-black focus:border-black focus:outline-none cursor-pointer"
-                        >
-                          {POPULAR_CITIES.map((c) => (
-                            <option key={c} value={c}>{c}</option>
-                          ))}
-                          <option value="__other">Other city...</option>
-                        </select>
-                        <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 text-xs">▾</span>
-                      </div>
-                    )}
+                {/* Popular City Chips & Selector */}
+                <div className="space-y-2 pt-1">
+                  <label className="block text-[11px] font-medium uppercase tracking-wider text-black">
+                    City <span className="text-red-500">*</span>
+                  </label>
+
+                  {/* Fast Oval City Chips */}
+                  <div className="flex flex-wrap gap-1.5 pb-1">
+                    {POPULAR_CITIES.slice(0, 8).map((c) => (
+                      <button
+                        key={c}
+                        type="button"
+                        onClick={() => handleCityChange(c)}
+                        className={`rounded-full px-3.5 py-1.5 text-[11px] uppercase tracking-wider border transition-all ${
+                          f.city === c
+                            ? 'border-black bg-black text-white'
+                            : 'border-neutral-200 bg-white text-neutral-700 hover:border-black'
+                        }`}
+                      >
+                        {c}
+                      </button>
+                    ))}
                   </div>
 
-                  <div>
-                    <label className="block text-xs font-normal text-neutral-600 mb-1">
-                      Province *
+                  {f.city === '__other' ? (
+                    <div className="space-y-1 pt-1">
+                      <input
+                        type="text"
+                        required
+                        value={f.customCity}
+                        onChange={(e) => set('customCity', e.target.value)}
+                        placeholder="Type your city name"
+                        className="w-full rounded-2xl border border-black px-4 py-3 text-xs text-black focus:outline-none"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleCityChange('Karachi')}
+                        className="text-[10.5px] text-neutral-500 underline"
+                      >
+                        &larr; Choose from city list
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="relative">
+                      <select
+                        value={f.city}
+                        onChange={(e) => handleCityChange(e.target.value)}
+                        className="w-full appearance-none rounded-2xl border border-neutral-300 bg-white px-4 py-3 pr-8 text-xs text-black focus:border-black focus:outline-none cursor-pointer"
+                      >
+                        {POPULAR_CITIES.map((c) => (
+                          <option key={c} value={c}>{c}</option>
+                        ))}
+                        <option value="__other">Other city (Enter manually)...</option>
+                      </select>
+                      <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 text-xs">▾</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Province & Email Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                  <div className="space-y-1.5">
+                    <label className="block text-[11px] font-medium uppercase tracking-wider text-black">
+                      Province <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
                       <select
                         value={f.province}
                         onChange={(e) => set('province', e.target.value)}
-                        className="w-full appearance-none border border-neutral-300 bg-white px-3.5 py-2.5 pr-8 text-xs text-black focus:border-black focus:outline-none cursor-pointer"
+                        className="w-full appearance-none rounded-2xl border border-neutral-300 bg-white px-4 py-3 pr-8 text-xs text-black focus:border-black focus:outline-none cursor-pointer"
                       >
                         {PROVINCES_FALLBACK.map((pr) => (
                           <option key={pr} value={pr}>{pr}</option>
                         ))}
                       </select>
-                      <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 text-xs">▾</span>
+                      <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 text-xs">▾</span>
                     </div>
                   </div>
-                </div>
 
-                {/* Email (Optional) */}
-                <div>
-                  <label className="block text-xs font-normal text-neutral-600 mb-1">
-                    Email Address <span className="text-neutral-400 lowercase">(optional)</span>
-                  </label>
-                  <input
-                    name="email"
-                    type="email"
-                    value={f.email}
-                    onChange={(e) => set('email', e.target.value)}
-                    placeholder="For tracking updates"
-                    className="w-full border border-neutral-300 bg-white px-3.5 py-2.5 text-xs text-black placeholder:text-neutral-400 focus:border-black focus:outline-none transition-colors"
-                  />
+                  <div className="space-y-1.5">
+                    <label className="block text-[11px] font-medium uppercase tracking-wider text-black">
+                      Email <span className="text-neutral-400 lowercase">(optional)</span>
+                    </label>
+                    <input
+                      name="email"
+                      type="email"
+                      value={f.email}
+                      onChange={(e) => set('email', e.target.value)}
+                      placeholder="For tracking receipt"
+                      className="w-full rounded-2xl border border-neutral-300 bg-white px-4 py-3 text-xs text-black placeholder:text-neutral-400 focus:border-black focus:outline-none transition-colors"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Payment Method */}
-            <div className="space-y-3 pt-2">
-              <h2 className="text-xs font-medium uppercase tracking-[0.16em] text-black border-b border-neutral-100 pb-2">
+            {/* Payment Method Card */}
+            <div className="rounded-3xl border border-neutral-200/90 bg-[#FAFAFA] p-6 sm:p-8 space-y-4 shadow-xs">
+              <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-black border-b border-neutral-200/70 pb-3">
                 Payment Method
               </h2>
 
-              <div className="border border-black p-4 bg-neutral-50/50 flex items-start gap-3">
+              <div className="rounded-2xl border-2 border-black p-4 bg-white shadow-xs flex items-start gap-3.5">
                 <input
                   type="radio"
                   name="payment"
                   checked
                   readOnly
-                  className="mt-0.5 text-black focus:ring-0"
+                  className="mt-1 text-black focus:ring-0"
                 />
-                <div>
+                <div className="space-y-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-medium uppercase tracking-wider text-black">
+                    <Banknote size={17} className="text-black" />
+                    <span className="text-xs font-semibold uppercase tracking-wider text-black">
                       Cash on Delivery (COD)
                     </span>
-                    <span className="text-[10px] bg-black text-white px-1.5 py-0.5">Recommended</span>
+                    <span className="rounded-full bg-neutral-100 px-2.5 py-0.5 text-[9.5px] font-medium text-black uppercase">
+                      Doorstep Cash
+                    </span>
                   </div>
-                  <p className="text-xs text-neutral-500 font-light mt-1">
-                    Pay with cash at your doorstep when your order arrives.
+                  <p className="text-xs text-neutral-500 font-light leading-relaxed">
+                    Pay with cash at your doorstep when your courier delivers the parcel.
                   </p>
                 </div>
               </div>
-            </div>
-
-            {/* Discreet Packaging Note */}
-            <div className="border-t border-neutral-100 pt-4 flex items-center gap-2 text-xs text-neutral-500 font-light">
-              <ShieldCheck size={14} className="text-black shrink-0" />
-              <span>100% Plain, unmarked packaging guaranteed on every order.</span>
             </div>
 
             {/* Mobile Submit Button */}
@@ -403,10 +426,10 @@ export default function Checkout() {
               <button
                 type="submit"
                 disabled={busy}
-                className="flex h-[48px] w-full items-center justify-center gap-2 bg-black text-xs font-medium uppercase tracking-[0.18em] text-white hover:bg-neutral-800 transition-colors disabled:opacity-50"
+                className="flex h-[52px] w-full items-center justify-center gap-2 rounded-full bg-black text-xs font-medium uppercase tracking-[0.18em] text-white shadow-lg hover:bg-neutral-800 transition-colors disabled:opacity-50"
               >
-                <span>{busy ? 'Placing Order…' : `Place Order · ${pkr(pricing.total)}`}</span>
-                <ArrowRight size={13} />
+                <span>{busy ? 'Placing Order…' : `Confirm Order · ${pkr(pricing.total)}`}</span>
+                <ArrowRight size={14} />
               </button>
             </div>
           </form>
@@ -414,84 +437,18 @@ export default function Checkout() {
           {/* ── RIGHT: STICKY ORDER SUMMARY (5 COLS) ────────────────────── */}
           <div className="lg:col-span-5">
             <div className="lg:sticky lg:top-[120px] space-y-6">
-              
-              <div className="border border-neutral-200 bg-[#FAFAFA] p-6 space-y-5">
-                <div className="flex items-center justify-between border-b border-neutral-200 pb-3">
-                  <h3 className="text-xs font-medium uppercase tracking-wider text-black">
-                    Order Summary
-                  </h3>
-                  <span className="text-xs text-neutral-500">
-                    {pricing.count} {pricing.count === 1 ? 'item' : 'items'}
-                  </span>
-                </div>
-
-                {/* Items */}
-                <ul className="divide-y divide-neutral-200 max-h-72 overflow-y-auto no-scrollbar pr-1">
-                  {cart.map((l, i) => (
-                    <li key={`${l.id}-${l.size}-${l.color}-${i}`} className="flex items-center gap-3.5 py-3">
-                      <Img src={l.image} alt={l.name} className="h-14 w-11 object-cover bg-white shrink-0 border border-neutral-200" />
-                      <div className="min-w-0 flex-1 space-y-0.5">
-                        <p className="text-xs font-medium text-black truncate">{l.name}</p>
-                        <p className="text-[11px] text-neutral-500 font-light">
-                          {[l.size && `Size ${l.size}`, l.color].filter(Boolean).join(' · ')} &bull; Qty: {l.qty}
-                        </p>
-                      </div>
-                      <span className="text-xs font-medium text-black">{pkr(l.price * l.qty)}</span>
-                    </li>
-                  ))}
-                </ul>
-
-                {/* Coupon Box */}
-                <div className="border-t border-neutral-200 pt-3">
-                  <CouponBox subtotal={pricing.subtotal} applied={applied} onApply={setApplied} onRemove={() => setApplied(null)} />
-                </div>
-
-                {/* Totals */}
-                <div className="border-t border-neutral-200 pt-3 space-y-2 text-xs">
-                  <div className="flex justify-between text-neutral-600 font-light">
-                    <span>Subtotal</span>
-                    <span className="text-black font-normal">{pkr(pricing.subtotal)}</span>
-                  </div>
-
-                  {pricing.discount > 0 && (
-                    <div className="flex justify-between text-black font-medium">
-                      <span>Discount ({applied?.code})</span>
-                      <span>− {pkr(pricing.discount)}</span>
-                    </div>
-                  )}
-
-                  <div className="flex justify-between text-neutral-600 font-light">
-                    <span>Delivery</span>
-                    <span className="text-black font-normal">
-                      {pricing.shipping === 0 ? 'Free Express' : pkr(pricing.shipping)}
-                    </span>
-                  </div>
-
-                  <div className="flex items-baseline justify-between border-t border-neutral-300 pt-3 text-sm">
-                    <span className="font-medium text-black">Total to Pay (COD)</span>
-                    <span className="font-medium text-lg text-black">{pkr(pricing.total)}</span>
-                  </div>
-                </div>
-
-                {/* Desktop Place Order CTA */}
-                <div className="pt-2">
-                  <button
-                    type="button"
-                    onClick={handlePlaceOrder}
-                    disabled={busy}
-                    className="flex h-[48px] w-full items-center justify-center gap-2 bg-black text-xs font-medium uppercase tracking-[0.18em] text-white hover:bg-neutral-800 transition-colors disabled:opacity-50"
-                  >
-                    <span>{busy ? 'Placing Order…' : `Place Order · ${pkr(pricing.total)}`}</span>
-                    <ArrowRight size={13} />
-                  </button>
-
-                  <p className="mt-2.5 text-center text-[10.5px] text-neutral-400 font-light">
-                    Pay upon delivery &bull; 14-day exchange guarantee
-                  </p>
-                </div>
-
-              </div>
-
+              <CheckoutSummary
+                cart={cart}
+                pricing={pricing}
+                cartCfg={cartCfg}
+                checkoutCfg={cfg}
+                applied={applied}
+                onApply={setApplied}
+                onRemoveCoupon={() => setApplied(null)}
+                onSubmit={handlePlaceOrder}
+                busy={busy}
+                onQty={(line, q) => updateQty(lineKey(line), q, cartCfg.maxQty || 10)}
+              />
             </div>
           </div>
 
