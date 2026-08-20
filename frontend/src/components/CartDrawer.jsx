@@ -11,17 +11,15 @@ import Img from './Img';
 import { useCartPricing } from '../pages/cart/useCartPricing';
 
 /* ============================================================================
- * HUSHAE Cart Drawer — Ultra-Luxury Slide-Out Bag (Exact Reference Match)
+ * HUSHAE Cart Drawer — Ultra-Luxury Slide-Out Bag
  *
- * MATCHING USER'S SCREENSHOT INSPIRATION:
- *   1. Header: "SHOPPING BAG (count)" + Minimalist top-right "✕" close button
- *   2. Solid Jet Black notice: "Welcome back! Your products are still in the cart."
- *   3. Studio 3:4 Portrait Thumbnail on the left
- *   4. Item Details: "NEW COLLECTION" eyebrow, Title Case name, "Color: ...", "Size: ..."
- *   5. "Remove" subtle underline text link on the top right
- *   6. Minimalist "− 1 +" stepper & right-aligned price
- *   7. Subtotal, Promo code trigger, and Total breakdown
- *   8. Calvin Klein dual CTAs: "PROCEED TO CHECKOUT" & "CONTINUE SHOPPING"
+ * UNIFIED LUXURY THEME TOKENS:
+ *   - Soft "GOL" Curves: rounded-full pill buttons, rounded-2xl notice, rounded-full steppers
+ *   - Header: "SHOPPING BAG (count)" + Delicate rounded-full close icon
+ *   - Jet Black Notice Pill: "Welcome back! Your products are still in the cart."
+ *   - Studio 3:4 Portrait Thumbnail on the left with rounded-xl corners
+ *   - Title Case names, variant details, subtle underline "Remove" link
+ *   - Dual Smooth Pill CTAs: "PROCEED TO CHECKOUT" & "CONTINUE SHOPPING"
  * ========================================================================== */
 
 const nameOf = (name) => titleCase(String(name || '').replace(/^HUSHAE\s+/i, ''));
@@ -141,8 +139,8 @@ export default function CartDrawer() {
             className="absolute right-0 top-0 flex h-full w-full flex-col bg-[#FFFFFF] shadow-2xl sm:max-w-[440px]"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* ── TOP HEADER (SHOPPING BAG + BORDERLESS ✕) ── */}
-            <div className="flex items-center justify-between border-b border-[#EAEAEA] px-6 py-5 bg-[#FFFFFF]">
+            {/* ── TOP HEADER (SHOPPING BAG + ROUNDED CLOSE ICON) ── */}
+            <div className="flex items-center justify-between border-b border-[#EAEAEA] px-6 py-4.5 bg-[#FFFFFF]">
               <h2 className="text-xs font-normal uppercase tracking-[0.24em] text-[#000000]">
                 Shopping Bag <span className="text-neutral-400 font-light">({pricing.count})</span>
               </h2>
@@ -151,22 +149,22 @@ export default function CartDrawer() {
                 type="button"
                 onClick={() => setDrawerOpen(false)}
                 aria-label="Close bag"
-                className="text-neutral-400 hover:text-black transition-colors p-1"
+                className="grid h-8 w-8 place-items-center rounded-full text-neutral-400 hover:text-black hover:bg-neutral-100 transition-colors"
               >
-                <X size={18} strokeWidth={1.4} aria-hidden="true" />
+                <X size={17} strokeWidth={1.5} aria-hidden="true" />
               </button>
             </div>
 
-            {/* ── JET BLACK WELCOME / REASSURANCE BANNER (MATCHING REFERENCE) ── */}
+            {/* ── JET BLACK WELCOME BANNER (ROUNDED-2XL PILL CONTAINER) ── */}
             {cart.length > 0 && (
-              <div className="bg-[#000000] text-[#FFFFFF] px-6 py-2.5 text-[11px] font-normal tracking-wide text-center">
+              <div className="mx-6 mt-4 rounded-2xl bg-[#000000] text-[#FFFFFF] px-5 py-2.5 text-[11px] font-normal tracking-wide text-center">
                 Welcome back! Your products are still in the cart—pick up right where you left off.
               </div>
             )}
 
             {/* Warning banner if any out of stock */}
             {problems > 0 && (
-              <div className="flex items-start gap-2 border-b border-red-200 bg-red-50 px-6 py-3 text-xs text-red-800 font-light">
+              <div className="mx-6 mt-3 flex items-start gap-2 rounded-2xl border border-red-200 bg-red-50 px-5 py-3 text-xs text-red-800 font-light">
                 <AlertCircle size={14} className="mt-0.5 shrink-0 text-red-600" aria-hidden="true" />
                 <span>Please adjust {problems} item{problems === 1 ? '' : 's'} before checkout.</span>
               </div>
@@ -191,9 +189,9 @@ export default function CartDrawer() {
                     <Link
                       to="/shop"
                       onClick={() => setDrawerOpen(false)}
-                      className="inline-flex min-h-[44px] items-center justify-center bg-[#000000] px-8 text-xs font-medium uppercase tracking-[0.2em] text-[#FFFFFF] hover:bg-neutral-800 transition-colors"
+                      className="inline-flex min-h-[46px] items-center justify-center rounded-full bg-[#000000] px-8 text-xs font-medium uppercase tracking-[0.2em] text-[#FFFFFF] hover:bg-neutral-800 transition-colors shadow-md"
                     >
-                      Explore Collection
+                      Explore Collection &rarr;
                     </Link>
                   </div>
                 </div>
@@ -202,12 +200,12 @@ export default function CartDrawer() {
                   {lines.map(({ line: l, status, available }) => {
                     const isBlocked = ['oos', 'unavailable', 'size-gone'].includes(status);
                     return (
-                      <li key={lineKey(l)} className="pt-6 first:pt-0 pb-6 flex gap-4 items-start">
-                        {/* 3:4 Studio Portrait Thumbnail */}
+                      <li key={lineKey(l)} className="pt-6 first:pt-2 pb-6 flex gap-4 items-start">
+                        {/* 3:4 Studio Portrait Thumbnail (Rounded-xl) */}
                         <Link
                           to={`/product/${l.slug}`}
                           onClick={() => setDrawerOpen(false)}
-                          className={`aspect-[3/4] w-24 shrink-0 bg-[#F8F8F8] overflow-hidden transition-opacity ${
+                          className={`aspect-[3/4] w-24 shrink-0 bg-[#F8F8F8] overflow-hidden rounded-xl border border-[#EAEAEA] transition-opacity ${
                             isBlocked ? 'opacity-40' : 'hover:opacity-90'
                           }`}
                           tabIndex={-1}
@@ -215,7 +213,7 @@ export default function CartDrawer() {
                           <Img src={l.image} alt="" className="h-full w-full object-cover object-center" />
                         </Link>
 
-                        {/* Item Details Stack (Matching Screenshot 1) */}
+                        {/* Item Details Stack */}
                         <div className="flex min-w-0 flex-1 flex-col justify-between self-stretch">
                           <div>
                             {/* Line 1: Eyebrow + Remove Link */}
@@ -257,9 +255,9 @@ export default function CartDrawer() {
                             )}
                           </div>
 
-                          {/* Line 4: Minimalist Stepper & Price Row */}
+                          {/* Line 4: Minimalist Oval Stepper & Price Row */}
                           <div className="flex items-center justify-between pt-3">
-                            <div className="flex items-center gap-3 text-xs text-neutral-700 font-light">
+                            <div className="inline-flex items-center rounded-full border border-[#E0E0E0] bg-[#FFFFFF] px-2 py-0.5">
                               <button
                                 type="button"
                                 onClick={() => updateQty(lineKey(l), Math.max(1, l.qty - 1), cfg.maxQty)}
@@ -269,7 +267,7 @@ export default function CartDrawer() {
                               >
                                 <Minus size={11} />
                               </button>
-                              <span className="min-w-[16px] text-center font-normal text-black">
+                              <span className="min-w-[18px] text-center font-normal text-xs text-black">
                                 {l.qty}
                               </span>
                               <button
@@ -295,9 +293,9 @@ export default function CartDrawer() {
               )}
             </div>
 
-            {/* ── TOTALS & CHECKOUT FOOTER (EXACT SCREENSHOT 1 & 2 MATCH) ── */}
+            {/* ── TOTALS & CHECKOUT FOOTER (ROUNDED-FULL PILL CTAS) ── */}
             {cart.length > 0 && (
-              <div className="border-t border-[#EAEAEA] bg-[#FFFFFF] px-6 py-6 space-y-4">
+              <div className="border-t border-[#EAEAEA] bg-[#FFFFFF] px-6 py-6 space-y-4 shadow-lg">
                 {/* Subtotal */}
                 <div className="flex items-baseline justify-between text-xs uppercase tracking-wider">
                   <span className="text-[#000000] font-normal">SUBTOTAL</span>
@@ -328,12 +326,12 @@ export default function CartDrawer() {
                               value={couponCode}
                               onChange={(e) => { setCouponCode(e.target.value.toUpperCase()); setCouponErr(''); }}
                               placeholder="COUPON CODE"
-                              className="w-full border border-neutral-300 bg-white px-3 py-2 text-xs uppercase tracking-wider text-black focus:border-black focus:outline-none"
+                              className="w-full rounded-full border border-neutral-300 bg-white px-4 py-2 text-xs uppercase tracking-wider text-black focus:border-black focus:outline-none"
                             />
                             <button
                               type="submit"
                               disabled={!couponCode.trim() || couponBusy}
-                              className="bg-black px-4 py-2 text-xs font-medium uppercase tracking-wider text-white hover:bg-neutral-800 disabled:opacity-40"
+                              className="rounded-full bg-black px-5 py-2 text-xs font-medium uppercase tracking-wider text-white hover:bg-neutral-800 disabled:opacity-40 transition-colors"
                             >
                               {couponBusy ? '…' : 'Apply'}
                             </button>
@@ -362,13 +360,13 @@ export default function CartDrawer() {
                   <span className="text-base font-semibold tabular-nums">{pkr(pricing.total)}</span>
                 </div>
 
-                {/* Dual Action Buttons (Calvin Klein Inspired) */}
+                {/* Dual "GOL" Pill Action Buttons */}
                 <div className="space-y-2.5 pt-2">
                   {blocked ? (
                     <Link
                       to="/cart"
                       onClick={() => setDrawerOpen(false)}
-                      className="flex h-[48px] w-full items-center justify-center bg-red-100 text-xs font-medium uppercase tracking-[0.18em] text-red-800"
+                      className="flex h-[52px] w-full items-center justify-center rounded-full bg-red-100 text-xs font-medium uppercase tracking-[0.18em] text-red-800"
                     >
                       Fix Items in Bag
                     </Link>
@@ -376,16 +374,17 @@ export default function CartDrawer() {
                     <Link
                       to="/checkout"
                       onClick={() => setDrawerOpen(false)}
-                      className="flex h-[48px] w-full items-center justify-center bg-[#000000] text-xs font-medium uppercase tracking-[0.2em] text-[#FFFFFF] shadow-md hover:bg-neutral-800 transition-colors"
+                      className="flex h-[52px] w-full items-center justify-center gap-2 rounded-full bg-[#000000] text-xs font-medium uppercase tracking-[0.2em] text-[#FFFFFF] shadow-md hover:bg-neutral-800 transition-all hover:scale-[1.01]"
                     >
-                      PROCEED TO CHECKOUT
+                      <span>PROCEED TO CHECKOUT</span>
+                      <ArrowRight size={14} />
                     </Link>
                   )}
 
                   <button
                     type="button"
                     onClick={() => setDrawerOpen(false)}
-                    className="flex h-[44px] w-full items-center justify-center border border-neutral-300 bg-[#FFFFFF] text-xs font-medium uppercase tracking-[0.18em] text-[#000000] hover:border-black transition-colors"
+                    className="flex h-[46px] w-full items-center justify-center rounded-full border border-neutral-300 bg-[#FFFFFF] text-xs font-medium uppercase tracking-[0.18em] text-[#000000] hover:border-black transition-colors"
                   >
                     CONTINUE SHOPPING
                   </button>
