@@ -8,7 +8,7 @@ import { titleCase } from '../../lib/productMeta';
 const nameOf = (name) => titleCase(String(name || '').replace(/^HUSHAE\s+/i, ''));
 
 /* ============================================================================
- * HUSHAE CartLine — Ultra-Luxury Shopping Bag Line Row
+ * HUSHAE CartLine — Ultra-Luxury Shopping Bag Line Row (Calvin Klein / The Row)
  * ========================================================================== */
 
 const STATUS = {
@@ -31,7 +31,7 @@ export default function CartLine({
   const thumb = (
     <Link
       to={`/product/${line.slug}`}
-      className={`group relative block aspect-[3/4] w-24 sm:w-28 shrink-0 rounded-2xl overflow-hidden bg-[#F8F8F8] border border-[#EAEAEA] transition-opacity ${
+      className={`group relative block aspect-[3/4] w-24 sm:w-28 md:w-32 shrink-0 rounded-2xl overflow-hidden bg-[#F8F8F8] border border-[#EAEAEA] transition-opacity ${
         blocked ? 'opacity-50' : 'hover:opacity-90'
       }`}
       tabIndex={-1}
@@ -40,7 +40,7 @@ export default function CartLine({
       <Img
         src={line.image}
         alt=""
-        className="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
+        className="h-full w-full object-cover object-center transition-transform duration-500 ease-out group-hover:scale-105"
       />
     </Link>
   );
@@ -93,6 +93,26 @@ export default function CartLine({
           <Link to={`/product/${line.slug}`} className="underline underline-offset-2">Choose another size</Link> or remove.
         </p>
       )}
+
+      {/* Desktop understated actions */}
+      <div className="hidden md:flex items-center gap-4 text-xs text-neutral-400 font-light pt-1">
+        {cfg.saveForLater && !blocked && (
+          <button
+            type="button"
+            onClick={onSave}
+            className="hover:text-black transition-colors underline underline-offset-4"
+          >
+            Save for later
+          </button>
+        )}
+        <button
+          type="button"
+          onClick={onRemove}
+          className="hover:text-red-600 transition-colors underline underline-offset-4"
+        >
+          Remove
+        </button>
+      </div>
 
       {/* Mobile view controls */}
       <div className="mt-3 flex items-center justify-between gap-3 md:hidden pt-2 border-t border-[#F0F0F0]">
