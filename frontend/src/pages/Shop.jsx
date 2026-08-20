@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { SearchX } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState, Fragment } from 'react';
+import { SearchX, ArrowRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../api/client';
 import CollectionCard from '../components/CollectionCard';
@@ -12,13 +12,13 @@ import FilterSheet from './shop/FilterSheet';
 import { fetchCats, fetchCollections } from '../lib/catalogue';
 
 /* ============================================================================
- * HUSHAE Catalog / Category — Luxury Flagship Architecture (The Row / CK / SSENSE)
+ * HUSHAE Catalog / Category — Luxury Flagship Architecture (CK × D&G × Balmain)
  *
- * PHILOSOPHY:
- *   - Product-first: Products are visible immediately above the fold.
- *   - No heavy 500px dark photo banners pushing catalog below the fold.
- *   - Clean typographic header, sub-category tabs, and filter controls.
- *   - 4-column spacious 3:4 portrait studio grid with generous breathing room.
+ * SPECIFICATION:
+ *   - Product-First Entry: Zero heavy 500px hero banners pushing catalog down.
+ *   - Refined Typographic Header with Category metadata & Piece Count.
+ *   - Single Seamless Control Strip (Sub-categories + Filter Pill + Sort).
+ *   - 4-Column Studio Grid with Embedded 2-Column Editorial Moments (CK style).
  * ========================================================================== */
 
 const TITLES = {
@@ -35,35 +35,144 @@ const BANNER_META = {
     tag: "WOMEN'S STUDIO",
     title: "Women's Collection",
     desc: 'Second-skin bras, seamless panties, and silk-touch loungewear engineered for weightless everyday comfort.',
+    moment1: {
+      image: '/images/campaign/ck-feature-indigo.jpg',
+      tag: 'SECOND SKIN EDIT',
+      title: 'Iconic Indigo',
+      desc: 'Seamless microfibre and modal silhouettes designed to feel weightless.',
+      linkTo: '/category/bras',
+      linkLabel: 'Shop Bras & Tops',
+    },
+    moment2: {
+      image: '/images/campaign/ck-tile-1.jpg',
+      tag: 'STUDIO ESSENTIALS',
+      title: 'Silk-Touch Lounge',
+      desc: 'Fluid drapery and breathable nightwear crafted with precision.',
+      linkTo: '/category/sleepwear-loungewear',
+      linkLabel: 'Shop Loungewear',
+    },
   },
   men: {
     tag: "MEN'S ESSENTIALS",
     title: "Men's Collection",
     desc: 'Breathable modal briefs, combed cotton boxers, and ribbed undershirts tailored to stay in place all day.',
+    moment1: {
+      image: '/images/campaign/ck-feature-campus.jpg',
+      tag: 'ENGINEERED COMFORT',
+      title: 'The Campus Edit',
+      desc: 'No-ride waistbands and breathable modal tailored for everyday movement.',
+      linkTo: '/category/briefs',
+      linkLabel: 'Shop Briefs & Trunks',
+    },
+    moment2: {
+      image: '/images/campaign/ck-feature-underwear.jpg',
+      tag: 'FOUNDATION LAYERS',
+      title: 'Signature Underwear',
+      desc: 'Combed cotton ribs and contour pouches that hold their shape.',
+      linkTo: '/category/boxers',
+      linkLabel: 'Shop Boxers',
+    },
   },
   new: {
     tag: 'THE STUDIO DROPS · SEASON 2026',
     title: 'New Arrivals',
     desc: 'Newly engineered silhouettes, second-skin fabrics, and fresh seasonal colorways.',
+    moment1: {
+      image: '/images/campaign/ck-feature-indigo.jpg',
+      tag: 'DROP 01 · 2026',
+      title: 'New Iconic Indigo',
+      desc: 'Deep tonal hue and second-skin fits engineered for transitional days.',
+      linkTo: '/women',
+      linkLabel: 'Explore Women',
+    },
+    moment2: {
+      image: '/images/campaign/ck-feature-campus.jpg',
+      tag: 'DROP 02 · 2026',
+      title: 'Modern Essentials',
+      desc: 'Precision cuts in breathable Lenzing micro-modal and combed cotton.',
+      linkTo: '/men',
+      linkLabel: 'Explore Men',
+    },
   },
   best: {
     tag: 'HOUSE ICONS & CULT CLASSICS',
     title: 'Best Sellers',
     desc: 'The signature modal and combed cotton pieces our community reaches for, reorders, and covets daily.',
+    moment1: {
+      image: '/images/campaign/ck-feature-underwear.jpg',
+      tag: 'COMMUNITY ICONS',
+      title: 'Signature Underwear',
+      desc: 'Rated 4.9 by thousands of verified buyers nationwide.',
+      linkTo: '/shop',
+      linkLabel: 'Shop Icons',
+    },
   },
   sale: {
     tag: 'THE SEASONAL ARCHIVE',
     title: 'The Archive Sale',
     desc: 'Curated seasonal reductions on signature modal, combed cotton, and luxury loungewear. Limited units remaining.',
+    moment1: {
+      image: '/images/campaign/qa/hero-fabric.jpg',
+      tag: 'SEASONAL ARCHIVE',
+      title: 'Curated Reductions',
+      desc: 'Exclusive seasonal archive savings while limited studio units last.',
+      linkTo: '/sale',
+      linkLabel: 'Shop Archive',
+    },
   },
   all: {
     tag: 'COMPLETE EDIT',
     title: 'The Full Collection',
     desc: 'Premium innerwear and apparel crafted in Pakistan, finished to an international standard.',
+    moment1: {
+      image: '/images/campaign/ck-feature-indigo.jpg',
+      tag: 'ATELIER EDIT',
+      title: 'Crafted in Pakistan',
+      desc: 'Finished to an international luxury standard with discreet delivery.',
+      linkTo: '/women',
+      linkLabel: 'Explore Women',
+    },
   },
 };
 
 const REVEAL = 12;
+
+/* ── Embedded Calvin Klein & Balmain-Style In-Grid Editorial Storytelling Card ── */
+function InGridEditorialCard({ moment }) {
+  if (!moment) return null;
+  return (
+    <div className="col-span-2 group relative overflow-hidden bg-[#111111] text-white flex flex-col justify-end p-6 sm:p-8 md:p-10 min-h-[340px] sm:min-h-[420px] aspect-[16/10] sm:aspect-[4/3] lg:aspect-auto">
+      <img
+        src={moment.image}
+        alt={moment.title}
+        className="absolute inset-0 h-full w-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105"
+        loading="lazy"
+        decoding="async"
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent" />
+      <div className="relative z-10 space-y-2 max-w-md">
+        <p className="text-[10px] font-medium uppercase tracking-[0.28em] text-white/80">
+          {moment.tag}
+        </p>
+        <h3 className="text-2xl sm:text-3xl font-light uppercase tracking-tight text-white leading-tight">
+          {moment.title}
+        </h3>
+        <p className="text-xs text-white/90 font-light leading-relaxed">
+          {moment.desc}
+        </p>
+        <div className="pt-2">
+          <Link
+            to={moment.linkTo || '/shop'}
+            className="inline-flex items-center gap-1.5 border-b border-white pb-0.5 text-xs font-medium uppercase tracking-wider text-white hover:text-neutral-200 transition-colors"
+          >
+            <span>{moment.linkLabel || 'Explore Edit'}</span>
+            <span aria-hidden="true">&rarr;</span>
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function Shop({ preset = {} }) {
   const f = useShopFilters(preset);
@@ -103,6 +212,8 @@ export default function Shop({ preset = {} }) {
         tag: cat ? (cat.gender === 'men' ? "MEN'S ESSENTIALS" : "WOMEN'S STUDIO") : 'CATEGORY',
         title: meta,
         desc: cat?.description || BANNER_META.all.desc,
+        moment1: BANNER_META[cat?.gender || 'women']?.moment1,
+        moment2: BANNER_META[cat?.gender || 'women']?.moment2,
       };
     }
     return BANNER_META[preset.key] || BANNER_META.all;
@@ -193,7 +304,7 @@ export default function Shop({ preset = {} }) {
       {/* ═══ 3. SINGLE CLEAN FILTER & SORT CONTROL ROW ═══════════════════ */}
       <LuxuryFilterBar count={count} f={f} onOpenFilters={() => setSheetOpen(true)} />
 
-      {/* ═══ 4. PRODUCT GRID (STARTS IMMEDIATELY ON SCREEN LOAD) ═══════════ */}
+      {/* ═══ 4. PRODUCT GRID WITH EMBEDDED EDITORIAL MOMENTS (CK / BALMAIN) ══ */}
       <div className="mx-auto max-w-[1600px] px-4 sm:px-6 md:px-12 pt-8 pb-16">
         {products === null ? (
           <ProductGridSkeleton count={8} />
@@ -216,11 +327,22 @@ export default function Shop({ preset = {} }) {
               }`}
             >
               {visibleSlice.map((p, i) => (
-                <CollectionCard
-                  key={p._id || p.slug}
-                  product={p}
-                  rank={preset.key === 'best' && i < 4 ? i + 1 : null}
-                />
+                <Fragment key={p._id || p.slug}>
+                  {/* Insert 1st Editorial Storytelling Moment after Product 4 */}
+                  {i === 4 && headerInfo?.moment1 && !f.hasActiveFilters && (
+                    <InGridEditorialCard moment={headerInfo.moment1} />
+                  )}
+
+                  {/* Insert 2nd Editorial Storytelling Moment after Product 10 */}
+                  {i === 10 && headerInfo?.moment2 && !f.hasActiveFilters && (
+                    <InGridEditorialCard moment={headerInfo.moment2} />
+                  )}
+
+                  <CollectionCard
+                    product={p}
+                    rank={preset.key === 'best' && i < 4 ? i + 1 : null}
+                  />
+                </Fragment>
               ))}
             </div>
 
