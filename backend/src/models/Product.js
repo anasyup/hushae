@@ -87,6 +87,11 @@ const productSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 productSchema.index({ name: 'text', shortDescription: 'text' });
+productSchema.index({ isActive: 1, status: 1, categorySlug: 1 });
+productSchema.index({ isActive: 1, status: 1, gender: 1 });
+productSchema.index({ isActive: 1, status: 1, isBestSeller: 1 });
+productSchema.index({ isActive: 1, status: 1, isNewArrival: 1 });
+productSchema.index({ isActive: 1, status: 1, onSale: 1 });
 
 /* Mongo predicate for "currently on sale" — used by /products?sale=true,
    search, smart collections and anywhere else that filters the catalogue.

@@ -119,7 +119,8 @@ router.get('/', asyncHandler(async (req, res) => {
   const q = buildQuery(req);
   const products = await Product.find(q)
     .sort(SORTS[req.query.sort] || SORTS.popular)
-    .limit(Math.min(parseInt(req.query.limit || '100', 10), 200));
+    .limit(Math.min(parseInt(req.query.limit || '100', 10), 200))
+    .lean();
 
   // Hand-picked lists must come back in the exact order the merchant arranged
   // them in the theme editor, so honour the ?ids= sequence instead of the sort.
@@ -140,7 +141,7 @@ router.get('/', asyncHandler(async (req, res) => {
 // Related products — same category, exclude the current product, prefer in-stock
 router.get('/:slug/related', asyncHandler(async (req, res) => {
   res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=600, stale-while-revalidate=86400');
-  const p = await Product.findOne({ slug: req.params.slug, isActive: true, status: { $ne: 'draft' } });
+  const p = await Product.findOne({ slug: req.params.slug, isActive: true, status: { $ne: 'draft' } }).lean();
   if (!p) return res.json({ products: [] });
   const products = await Product.find({
     _id: { $ne: p._id },
@@ -153,12 +154,14 @@ router.get('/:slug/related', asyncHandler(async (req, res) => {
   })
     .sort({ stock: -1, isBestSeller: -1, ratingAvg: -1 })
     .limit(8)
-    .select('name slug price compareAtPrice onSale saleStart saleEnd stock images gender categorySlug tier fabric ratingAvg sizes colors isNewArrival isBestSeller');
+    .select('name slug price compareAtPrice onSale saleStart saleEnd stock images gender categorySlug tier fabric ratingAvg sizes colors isNewArrival isBestSeller')
+    .lean();
   res.json({ products });
 }));
 
 router.get('/:slug', asyncHandler(async (req, res) => {
-  const product = await Product.findOne({ slug: req.params.slug, isActive: true, status: { $ne: 'draft' } });
+  res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=300, stale-while-revalidate=86400');
+  const product = await Product.findOne({ slug: req.params.slug, isActive: true, status: { $ne: 'draft' } }).lean();
   if (!product) return res.status(404).json({ message: 'Product not found' });
   res.json({ product });
 }));

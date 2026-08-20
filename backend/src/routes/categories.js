@@ -11,7 +11,7 @@ router.get('/', asyncHandler(async (req, res) => {
   const q = {};
   if (req.query.gender) q.gender = req.query.gender;
   if (req.query.all !== '1') q.isActive = true;
-  const cats = await Category.find(q).sort({ sortOrder: 1, name: 1 });
+  const cats = await Category.find(q).sort({ sortOrder: 1, name: 1 }).lean();
   res.json({ categories: cats });
 }));
 

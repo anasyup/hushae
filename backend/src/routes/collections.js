@@ -56,14 +56,16 @@ async function resolveProducts(c, limit = 60) {
 
 /* -------- PUBLIC -------- */
 router.get('/', asyncHandler(async (req, res) => {
+  res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=600, stale-while-revalidate=86400');
   const q = { isActive: true };
   if (req.query.featured === 'true') q.featuredOnHome = true;
-  const collections = await Collection.find(q).sort({ sortOrder: 1, createdAt: -1 });
+  const collections = await Collection.find(q).sort({ sortOrder: 1, createdAt: -1 }).lean();
   res.json({ collections });
 }));
 
 router.get('/:slug', asyncHandler(async (req, res) => {
-  const c = await Collection.findOne({ slug: req.params.slug, isActive: true });
+  res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=600, stale-while-revalidate=86400');
+  const c = await Collection.findOne({ slug: req.params.slug, isActive: true }).lean();
   if (!c) return res.status(404).json({ message: 'Collection not found' });
   const products = await resolveProducts(c);
   res.json({ collection: c, products });
