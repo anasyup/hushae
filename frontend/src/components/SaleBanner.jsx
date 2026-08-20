@@ -33,21 +33,20 @@ export default function SaleBanner() {
         {/* Type — lower band, clear of the fixed header */}
         <div className="absolute inset-x-0 bottom-0">
           <div className="mx-auto w-full max-w-[1600px] px-6 pb-10 md:px-12 md:pb-14">
-            <p className="text-[10px] font-medium uppercase tracking-[0.34em] text-white/70">
-              The Seasonal Sale
+            <p className="text-[11px] font-medium uppercase tracking-[0.34em] text-white/90">
+              The Seasonal Archive
             </p>
 
-            <p className="mt-4 font-serif text-5xl font-normal uppercase leading-[1.02] tracking-[0.06em] text-white md:text-7xl lg:text-8xl">
+            <p className="mt-4 font-sans text-5xl font-light uppercase leading-[1.02] tracking-[0.06em] text-white md:text-7xl lg:text-8xl">
               50%
               <span className="sr-only"> </span>
-              <span className="ml-3 align-baseline text-3xl tracking-[0.18em] md:text-5xl lg:text-6xl">Off</span>
+              <span className="ml-3 align-baseline text-3xl font-light tracking-[0.18em] md:text-5xl lg:text-6xl">Off</span>
             </p>
 
-            <div className="mt-6 h-px w-14 bg-white/40" aria-hidden="true" />
+            <div className="mt-5 h-px w-14 bg-white/40" aria-hidden="true" />
 
-            <p className="mt-6 max-w-md text-[13px] font-light leading-[1.9] text-white/85">
-              Signature pieces, reduced for the season. Limited time — while
-              the edit lasts.
+            <p className="mt-5 max-w-md text-[13px] font-light leading-[1.9] text-white/90">
+              Signature modal and combed cotton pieces, reduced for the season. Limited quantities crafted — while archive units last.
             </p>
 
             {/* Uses the shared .cta-editorial-light primitive — this CTA was a

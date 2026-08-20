@@ -47,12 +47,12 @@ export default function EditorialHero({ img, tag, title, description, count, str
             {tag && (
               <p className="text-[11px] font-medium uppercase tracking-[0.32em] text-white/90">{tag}</p>
             )}
-            <h1 className="mt-5 font-serif text-4xl font-normal uppercase tracking-[0.08em] text-white md:text-6xl lg:text-7xl">
+            <h1 className="mt-4 font-sans text-4xl font-light uppercase tracking-[0.08em] text-white md:text-6xl lg:text-7xl">
               {title}
             </h1>
-            <div className="mt-6 h-px w-14 bg-white/50" aria-hidden="true" />
+            <div className="mt-5 h-px w-14 bg-white/50" aria-hidden="true" />
             {description && (
-              <p className="mt-6 max-w-md text-[13px] font-light leading-[1.8] text-white/85">{description}</p>
+              <p className="mt-5 max-w-md text-[13px] font-light leading-[1.8] text-white/90">{description}</p>
             )}
           </div>
         </div>

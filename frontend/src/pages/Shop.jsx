@@ -38,26 +38,40 @@ const SORT_LABELS = { popular: 'Featured', 'price-asc': 'Price: Low to High', 'p
 /* Category banner copy per route (client reference register). */
 const BANNER_META = {
   women: {
-    tag: 'Spring / Summer Edition', title: "Women's Essentials",
-    desc: 'Engineered for second-skin comfort. Soft touch fabrics crafted with minimalist precision.',
-    strip: ['Spring / Summer Edition', 'Second Skin', 'Soft Touch', 'Delivered Worldwide'],
+    tag: 'Women’s Studio Edit',
+    title: "Women's Collection",
+    desc: 'Second-skin bras, seamless panties, and silk-touch loungewear engineered for weightless comfort.',
+    strip: ['Second Skin Studio', 'Seamless Microfibre', 'Pure Modal', 'Discreet Packaging'],
   },
   men: {
-    tag: 'The Essentials Edit', title: "Men's Essentials",
-    desc: 'Everyday essentials engineered for comfort — soft-touch fabrics with a clean finish.',
-    strip: ['The Essentials Edit', 'Everyday Comfort', 'Clean Finish', 'Delivered Worldwide'],
+    tag: 'Engineered Precision',
+    title: "Men's Collection",
+    desc: 'Breathable modal briefs, combed cotton boxers, and ribbed undershirts built to stay in place all day.',
+    strip: ['No-Ride Waistband', 'Lenzing Modal', 'Combed Cotton Rib', 'Discreet Packaging'],
   },
-  new: { tag: 'New Season', title: 'New Arrivals', desc: 'Fresh from the studio — the latest drops, here first.' },
+  new: {
+    tag: 'The Studio Drops · 2026',
+    title: 'New Arrivals',
+    desc: 'Fresh from the studio — newly engineered silhouettes, second-skin fabrics, and fresh seasonal colorways.',
+    strip: ['Drop 01: Modal Series', 'Drop 02: Silk-Touch', 'Atelier Craft', 'Delivered Nationwide'],
+  },
   best: {
-    tag: 'Most Loved', title: 'Best Sellers',
-    desc: 'The pieces our community reaches for again and again.',
-    strip: ['Most Loved', 'Community Picks', 'Loved Again & Again', 'Delivered Worldwide'],
+    tag: 'The Cult Classics',
+    title: 'Best Sellers & Icons',
+    desc: 'The signature pieces our community reaches for, reorders, and covets daily.',
+    strip: ['House Icons', '5-Star Rated', 'Most Reordered', 'Guaranteed Fit'],
   },
-  sale: { tag: 'Seasonal Edit', title: 'Sale', desc: 'Seasonal savings on signature pieces.' },
+  sale: {
+    tag: 'The Seasonal Archive',
+    title: 'The Archive Sale',
+    desc: 'Curated seasonal reductions on signature modal, combed cotton, and luxury loungewear pieces.',
+    strip: ['Seasonal Archive', 'Limited Units', 'Signature Reductions', 'Discreet Delivery'],
+  },
   all: {
-    tag: 'The Collection', title: 'Shop All',
-    desc: 'Premium innerwear made in Pakistan, finished to an international standard.',
-    strip: ['The Collection', 'Full Catalogue', 'All Pieces', 'Delivered Worldwide'],
+    tag: 'The Complete Edit',
+    title: 'The Full Collection',
+    desc: 'Premium innerwear and apparel crafted in Pakistan, finished to an international standard.',
+    strip: ['Complete Catalogue', 'Second Skin', 'Natural Breathability', 'Delivered Nationwide'],
   },
 };
 
@@ -257,8 +271,8 @@ export default function Shop({ preset = {} }) {
                 pending ? 'opacity-50' : 'opacity-100'
               }`}
             >
-              {visibleSlice.map((p) => (
-                <CollectionCard key={p._id} product={p} />
+              {visibleSlice.map((p, i) => (
+                <CollectionCard key={p._id} product={p} rank={preset.key === 'best' && i < 4 ? i + 1 : null} />
               ))}
             </div>
 

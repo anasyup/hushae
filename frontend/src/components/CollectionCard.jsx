@@ -30,7 +30,7 @@ const FALLBACK =
 const srcOf = (im) => (typeof im === 'string' ? im : im?.url || '');
 const displayName = (name) => String(name || '').replace(/^HUSHAE\s+/i, '');
 
-export default function CollectionCard({ product: p, priority = false }) {
+export default function CollectionCard({ product: p, priority = false, rank = null }) {
   const { addToCart } = useApp();
   const [imgIdx, setImgIdx] = useState(0);
   const [failed, setFailed] = useState(false);
@@ -124,18 +124,20 @@ export default function CollectionCard({ product: p, priority = false }) {
           )}
 
           {/* Minimalist Top-Left Badge */}
-          {badge && (
+          {(badge || rank) && (
             <div className="absolute left-2.5 top-2.5 z-10">
               <span
                 className={`inline-block px-2.5 py-0.5 text-[9.5px] font-medium uppercase tracking-[0.16em] ${
-                  badge === 'Sale'
+                  rank
+                    ? 'bg-[#000000] text-[#FFFFFF]'
+                    : badge === 'Sale'
                     ? 'bg-[#000000] text-[#FFFFFF]'
                     : badge === 'Sold out'
                     ? 'bg-[#000000]/70 text-[#FFFFFF]'
                     : 'bg-[#FFFFFF] text-[#000000] shadow-xs'
                 }`}
               >
-                {badge}
+                {rank ? `#0${rank} Icon` : badge}
               </span>
             </div>
           )}
