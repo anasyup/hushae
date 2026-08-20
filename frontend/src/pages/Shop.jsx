@@ -12,7 +12,13 @@ import FilterSheet from './shop/FilterSheet';
 import { fetchCats, fetchCollections } from '../lib/catalogue';
 
 /* ============================================================================
- * HUSHAE Catalog / Category — Bespoke Luxury Flagship (Original HUSHAE Storytelling)
+ * HUSHAE Catalog / Category — Full-Bleed Edge-to-Edge Luxury Grid
+ *
+ * SPECIFICATION:
+ *   - Edge-to-Edge Flush Architecture: Cards connect directly to left/right boundaries.
+ *   - Zero dead side margins (Full-width 100% canvas).
+ *   - 4-Column Studio Grid on Desktop / 2-Column on Mobile.
+ *   - Embedded 2-column editorial storytelling moments.
  * ========================================================================== */
 
 const TITLES = {
@@ -131,11 +137,11 @@ const BANNER_META = {
 
 const REVEAL = 12;
 
-/* ── In-Grid Editorial Storytelling Card (Original HUSHAE Styling) ── */
+/* ── In-Grid Editorial Storytelling Card (Edge-to-Edge Flush) ── */
 function InGridEditorialCard({ moment }) {
   if (!moment) return null;
   return (
-    <div className="col-span-2 group relative overflow-hidden bg-[#111111] text-white flex flex-col justify-end p-6 sm:p-8 md:p-10 min-h-[340px] sm:min-h-[420px] aspect-[16/10] sm:aspect-[4/3] lg:aspect-auto">
+    <div className="col-span-2 group relative overflow-hidden bg-[#111111] text-white flex flex-col justify-end p-6 sm:p-8 md:p-12 min-h-[360px] sm:min-h-[440px] aspect-[16/10] sm:aspect-[4/3] lg:aspect-auto">
       <img
         src={moment.image}
         alt={moment.title}
@@ -144,11 +150,11 @@ function InGridEditorialCard({ moment }) {
         decoding="async"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent" />
-      <div className="relative z-10 space-y-2 max-w-md">
+      <div className="relative z-10 space-y-2.5 max-w-md">
         <p className="text-[10px] font-medium uppercase tracking-[0.28em] text-white/80">
           {moment.tag}
         </p>
-        <h3 className="text-2xl sm:text-3xl font-light uppercase tracking-tight text-white leading-tight">
+        <h3 className="text-2xl sm:text-3xl md:text-4xl font-light uppercase tracking-tight text-white leading-tight">
           {moment.title}
         </h3>
         <p className="text-xs text-white/90 font-light leading-relaxed">
@@ -218,7 +224,7 @@ export default function Shop({ preset = {} }) {
   const hasMore = visible ? visible.length > shown : false;
 
   return (
-    <div className="min-h-screen bg-[#FFFFFF] pt-[120px] pb-24 font-sans text-[#111111] antialiased">
+    <div className="min-h-screen w-full bg-[#FFFFFF] pt-[120px] pb-24 font-sans text-[#111111] antialiased">
       <Seo
         title={`${meta} — HUSHAE`}
         description={`Shop premium ${meta.toLowerCase()} — innerwear made in Pakistan, finished to an international standard. COD nationwide, discreet packaging.`}
@@ -226,8 +232,8 @@ export default function Shop({ preset = {} }) {
       />
 
       {/* ═══ 1. MINIMALIST LUXURY CATALOG HEADER ══════════════════════════ */}
-      <div className="mx-auto max-w-[1600px] px-6 md:px-12 pt-4 pb-6">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-[#EAEAEA] pb-6">
+      <div className="w-full px-6 md:px-12 pt-4 pb-6 border-b border-[#EAEAEA]">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div className="space-y-1.5 max-w-2xl">
             <p className="text-[10px] font-medium uppercase tracking-[0.3em] text-neutral-400">
               {headerInfo.tag}
@@ -265,7 +271,7 @@ export default function Shop({ preset = {} }) {
       {/* ═══ 2. SUB-CATEGORY NAVIGATION TABS (Clean & Smooth) ═════════════ */}
       {navCats.length > 0 && (
         <div className="w-full bg-[#FFFFFF] border-b border-[#EAEAEA] px-6 md:px-12 overflow-x-auto no-scrollbar">
-          <div className="mx-auto flex max-w-[1600px] items-center gap-6 md:gap-8 py-3">
+          <div className="flex items-center gap-6 md:gap-8 py-3">
             <button
               type="button"
               onClick={() => f.setOne('category', '')}
@@ -298,12 +304,14 @@ export default function Shop({ preset = {} }) {
       {/* ═══ 3. SINGLE CLEAN FILTER & SORT CONTROL ROW ═══════════════════ */}
       <LuxuryFilterBar count={count} f={f} onOpenFilters={() => setSheetOpen(true)} />
 
-      {/* ═══ 4. PRODUCT GRID WITH EMBEDDED EDITORIAL MOMENTS ═══════════════ */}
-      <div className="mx-auto max-w-[1600px] px-4 sm:px-6 md:px-12 pt-8 pb-16">
+      {/* ═══ 4. FULL-BLEED EDGE-TO-EDGE PRODUCT GRID (ATTACHED TO BOUNDARIES) ═ */}
+      <div className="w-full px-0 pt-0 pb-16">
         {products === null ? (
-          <ProductGridSkeleton count={8} />
+          <div className="px-6 md:px-12 pt-8">
+            <ProductGridSkeleton count={8} />
+          </div>
         ) : count === 0 ? (
-          <div className="py-16">
+          <div className="py-24 text-center px-6">
             <EmptyState
               icon={SearchX}
               title="No pieces found"
@@ -314,9 +322,10 @@ export default function Shop({ preset = {} }) {
           </div>
         ) : (
           <>
+            {/* Edge-to-Edge Grid connected to left & right screen boundaries */}
             <div
               aria-busy={pending || undefined}
-              className={`grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 md:gap-8 transition-opacity duration-300 ${
+              className={`grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-px bg-[#EAEAEA] border-b border-[#EAEAEA] transition-opacity duration-300 ${
                 pending ? 'opacity-50' : 'opacity-100'
               }`}
             >
@@ -332,16 +341,18 @@ export default function Shop({ preset = {} }) {
                     <InGridEditorialCard moment={headerInfo.moment2} />
                   )}
 
-                  <CollectionCard
-                    product={p}
-                    rank={preset.key === 'best' && i < 4 ? i + 1 : null}
-                  />
+                  <div className="bg-white">
+                    <CollectionCard
+                      product={p}
+                      rank={preset.key === 'best' && i < 4 ? i + 1 : null}
+                    />
+                  </div>
                 </Fragment>
               ))}
             </div>
 
             {hasMore && (
-              <div className="flex w-full justify-center pt-16 pb-4">
+              <div className="flex w-full justify-center pt-16 pb-4 px-6">
                 <button
                   type="button"
                   onClick={() => setShown((s) => s + REVEAL)}
