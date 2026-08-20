@@ -1,24 +1,19 @@
 import { Link } from 'react-router-dom';
-import { AlertCircle, BookmarkPlus, Heart, Truck, X } from 'lucide-react';
+import { AlertCircle, BookmarkPlus, Heart, Truck, Trash2 } from 'lucide-react';
 import Img from '../../components/Img';
 import QuantityStepper from '../../components/ui/QuantityStepper';
 import { pkr } from '../../lib/format';
 import { titleCase } from '../../lib/productMeta';
 
-/* QA — brand name lives in the header; strip it from bag names. */
 const nameOf = (name) => titleCase(String(name || '').replace(/^HUSHAE\s+/i, ''));
 
 /* ============================================================================
- * One line in the bag — Winterella register.
- *
- * Desktop: 5-column grid — [small thumb + name] [price] [qty] [total] [x]
- * The thumbnail is small (96px) — product text is the primary signal.
- * Mobile: small thumb + name, qty/price row, actions below.
+ * HUSHAE CartLine — Ultra-Luxury Shopping Bag Line Row
  * ========================================================================== */
 
 const STATUS = {
-  oos: { tone: 'bad', label: 'Out of stock', help: 'This piece has just sold out. Remove it to continue.' },
-  unavailable: { tone: 'bad', label: 'No longer available', help: 'This piece is no longer sold. Remove it to continue.' },
+  oos: { tone: 'bad', label: 'Out of stock', help: 'This piece has sold out. Remove it to proceed.' },
+  unavailable: { tone: 'bad', label: 'No longer available', help: 'This piece is no longer available. Remove it to proceed.' },
   'size-gone': { tone: 'bad', label: 'Size unavailable', help: null },
   low: { tone: 'warn', label: null, help: null },
 };
@@ -34,69 +29,87 @@ export default function CartLine({
   const onSale = line.onSale === true;
 
   const thumb = (
-    <Link to={`/product/${line.slug}`}
-      className={`group relative block w-[84px] shrink-0 overflow-hidden bg-[#F5F5F5] md:w-[96px] ${blocked ? 'opacity-55' : ''}`}
-      tabIndex={-1} aria-hidden="true">
-      <Img src={line.image} alt=""
-        className="aspect-[3/4] w-full object-cover transition-transform duration-media ease-standard group-hover:scale-[1.02] motion-reduce:transition-none" />
+    <Link
+      to={`/product/${line.slug}`}
+      className={`group relative block aspect-[3/4] w-20 sm:w-24 shrink-0 rounded-2xl overflow-hidden bg-[#F8F8F8] border border-[#EAEAEA] transition-opacity ${
+        blocked ? 'opacity-50' : 'hover:opacity-90'
+      }`}
+      tabIndex={-1}
+      aria-hidden="true"
+    >
+      <Img
+        src={line.image}
+        alt=""
+        className="h-full w-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
+      />
     </Link>
   );
 
   const details = (
-    <div className="min-w-0 flex-1">
-      <h3 className="text-[14px] font-medium leading-snug normal-case text-[#111111]">
-        <Link to={`/product/${line.slug}`} className="inline-flex min-h-[36px] items-center transition hover:text-[#696969]">
+    <div className="min-w-0 flex-1 space-y-1">
+      <h3 className="text-[14px] font-normal text-[#000000] leading-snug truncate">
+        <Link to={`/product/${line.slug}`} className="hover:text-neutral-500 transition-colors">
           {nameOf(line.name)}
         </Link>
       </h3>
-      <p className="mt-0.5 text-[12px] text-[#696969]">
+
+      <p className="text-[11.5px] text-neutral-500 font-light">
         {[line.size && `Size ${line.size}`, line.color].filter(Boolean).join(' · ') || '—'}
       </p>
 
       {meta?.label && (
-        <p className={`mt-2 inline-flex w-fit items-center gap-1.5 px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.1em] ${meta.tone === 'bad' ? 'bg-red-50 text-red-700' : 'bg-amber-50 text-amber-800'}`}>
-          <AlertCircle size={11} aria-hidden="true" /> {meta.label}
-        </p>
-      )}
-      {low && (
-        <p className="mt-1.5 inline-flex w-fit items-center gap-1.5 bg-amber-50 px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.1em] text-amber-800">
-          <AlertCircle size={11} aria-hidden="true" /> Only {available} left
-        </p>
-      )}
-      {status === 'size-gone' && (
-        <p className="mt-1.5 text-[11px] text-red-700">
-          <Link to={`/product/${line.slug}`} className="underline">Choose another size</Link> or remove it.
-        </p>
-      )}
-      {meta?.help && <p className="mt-1.5 text-[11px] text-red-700">{meta.help}</p>}
-      {!blocked && !low && cfg.showDelivery && delivery && (
-        <p className="mt-1.5 inline-flex items-center gap-1.5 text-[11px] text-[#696969]">
-          <Truck size={11} aria-hidden="true" /> Arrives {delivery}
+        <p className={`mt-1.5 inline-flex w-fit items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wider ${
+          meta.tone === 'bad' ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-amber-50 text-amber-800 border border-amber-200'
+        }`}>
+          <AlertCircle size={10} aria-hidden="true" /> {meta.label}
         </p>
       )}
 
-      {/* MOBILE: qty + price + actions */}
-      <div className="mt-2.5 flex items-center justify-between gap-3 md:hidden">
-        <QuantityStepper value={line.qty} onChange={onQty} min={1} max={max} size="sm" disabled={blocked} label={`Quantity for ${line.name}`} />
-        <span className="text-[15px] font-medium tabular-nums text-[#111111]">{pkr(line.price * line.qty)}</span>
+      {low && (
+        <p className="text-[11px] text-amber-700 font-light pt-0.5">
+          Only {available} remaining
+        </p>
+      )}
+
+      {status === 'size-gone' && (
+        <p className="text-[11px] text-red-600 font-light">
+          <Link to={`/product/${line.slug}`} className="underline underline-offset-2">Choose another size</Link> or remove.
+        </p>
+      )}
+
+      {/* Mobile view controls */}
+      <div className="mt-3 flex items-center justify-between gap-3 md:hidden pt-1">
+        <QuantityStepper
+          value={line.qty}
+          onChange={onQty}
+          min={1}
+          max={max}
+          size="sm"
+          disabled={blocked}
+          label={`Quantity for ${line.name}`}
+        />
+
+        <span className="text-[14px] font-medium tabular-nums text-[#000000]">
+          {pkr(line.price * line.qty)}
+        </span>
       </div>
-      <div className="mt-2 flex items-center gap-1 md:hidden">
+
+      <div className="mt-2 flex items-center gap-4 text-[11px] text-neutral-400 font-light md:hidden">
         {cfg.saveForLater && !blocked && (
-          <button type="button" onClick={onSave}
-            className="grid h-10 w-10 place-items-center text-[#696969] transition hover:text-[#111111]"
-            aria-label={`Save ${line.name} for later`} title="Save for later">
-            <BookmarkPlus size={15} aria-hidden="true" />
+          <button
+            type="button"
+            onClick={onSave}
+            className="hover:text-black transition-colors underline underline-offset-4"
+          >
+            Save for later
           </button>
         )}
-        <button type="button" onClick={onWish} aria-pressed={wished}
-          className={`grid h-10 w-10 place-items-center transition ${wished ? 'text-[#C9A96E]' : 'text-[#696969] hover:text-[#111111]'}`}
-          aria-label={wished ? `Remove ${line.name} from wishlist` : `Add ${line.name} to wishlist`} title="Wishlist">
-          <Heart size={15} fill={wished ? 'currentColor' : 'none'} aria-hidden="true" />
-        </button>
-        <button type="button" onClick={onRemove}
-          className="grid h-10 w-10 place-items-center text-[#696969] transition hover:text-[#C41610]"
-          aria-label={`Remove ${line.name} from your bag`}>
-          <X size={16} aria-hidden="true" />
+        <button
+          type="button"
+          onClick={onRemove}
+          className="hover:text-red-600 transition-colors underline underline-offset-4"
+        >
+          Remove
         </button>
       </div>
     </div>
@@ -104,34 +117,56 @@ export default function CartLine({
 
   return (
     <li
-      className={`grid grid-cols-1 items-start gap-4 py-4 transition-opacity duration-300 md:grid-cols-[minmax(0,1fr)_110px_150px_110px_40px] md:items-center md:gap-4 ${removing ? 'opacity-0' : 'opacity-100'}`}
+      className={`grid grid-cols-1 items-start gap-4 py-5 transition-opacity duration-300 md:grid-cols-[minmax(0,1fr)_120px_140px_120px_40px] md:items-center md:gap-4 ${
+        removing ? 'opacity-0' : 'opacity-100'
+      }`}
       aria-busy={removing || undefined}
     >
-      {/* Cell 1: thumb + details side by side */}
-      <div className="flex items-start gap-3">
+      {/* Cell 1: thumb + details */}
+      <div className="flex items-start gap-4">
         {thumb}
         {details}
       </div>
 
-      {/* Cells 2-5 (desktop) */}
-      <div className="hidden text-[13px] tabular-nums md:block">
+      {/* Cell 2: Unit Price (Desktop) */}
+      <div className="hidden text-[13.5px] tabular-nums md:block">
         {onSale && line.compareAtPrice > line.price ? (
-          <span className="text-[#C41610]">{pkr(line.price)} <span className="text-[#696969] line-through">{pkr(line.compareAtPrice)}</span></span>
+          <div className="space-y-0.5">
+            <span className="font-medium text-[#000000]">{pkr(line.price)}</span>
+            <span className="block text-[11px] text-neutral-400 line-through">{pkr(line.compareAtPrice)}</span>
+          </div>
         ) : (
-          <span className="text-[#111111]">{pkr(line.price)}</span>
+          <span className="font-normal text-neutral-700">{pkr(line.price)}</span>
         )}
       </div>
+
+      {/* Cell 3: Quantity Stepper (Desktop) */}
       <div className="hidden md:block">
-        <QuantityStepper value={line.qty} onChange={onQty} min={1} max={max} size="sm" disabled={blocked} label={`Quantity for ${line.name}`} />
+        <QuantityStepper
+          value={line.qty}
+          onChange={onQty}
+          min={1}
+          max={max}
+          size="sm"
+          disabled={blocked}
+          label={`Quantity for ${line.name}`}
+        />
       </div>
-      <div className={`hidden text-right text-[14px] font-medium tabular-nums text-[#111111] md:block ${blocked ? 'opacity-55' : ''}`}>
+
+      {/* Cell 4: Line Total (Desktop) */}
+      <div className={`hidden text-right text-[14px] font-medium tabular-nums text-[#000000] md:block ${blocked ? 'opacity-50 line-through' : ''}`}>
         {pkr(line.price * line.qty)}
       </div>
+
+      {/* Cell 5: Delete Icon (Desktop) */}
       <div className="hidden justify-end md:flex">
-        <button type="button" onClick={onRemove}
-          className="grid h-10 w-10 place-items-center text-[#696969] transition hover:text-[#C41610]"
-          aria-label={`Remove ${line.name} from your bag`}>
-          <X size={16} aria-hidden="true" />
+        <button
+          type="button"
+          onClick={onRemove}
+          className="grid h-8 w-8 place-items-center rounded-full text-neutral-400 hover:text-black hover:bg-neutral-100 transition-colors"
+          aria-label={`Remove ${line.name} from your bag`}
+        >
+          <Trash2 size={15} strokeWidth={1.5} aria-hidden="true" />
         </button>
       </div>
     </li>

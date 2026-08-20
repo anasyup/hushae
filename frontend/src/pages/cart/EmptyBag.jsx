@@ -1,70 +1,57 @@
 import { Link } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+import { ShoppingBag, ArrowRight } from 'lucide-react';
 import ProductRow from '../../components/ProductRow';
-import TrustRow from './TrustRow';
 
 /* ============================================================================
- * Empty bag.
- *
- * The illustration is inline SVG rather than an <img>: it is ~1 kB, needs no
- * request, and cannot arrive late and shift the page. It is aria-hidden — the
- * heading already says everything a screen reader needs.
- *
- * Recently viewed comes from local history, so an empty bag is still a way
- * back into the catalogue rather than a dead end.
+ * HUSHAE EmptyBag — Minimalist Luxury Empty State
  * ========================================================================== */
 export default function EmptyBag({ cfg, recent = [], trending = [], loadingTrending = false }) {
   return (
-    <>
-      <div className="mx-auto grid max-w-md place-items-center px-4 py-sect-y text-center md:py-sect-y-lg">
-        <svg
-          viewBox="0 0 120 120" width="112" height="112" fill="none" aria-hidden="true"
-          className="text-bronze"
-        >
-          <circle cx="60" cy="60" r="52" fill="#EFEAE3" />
-          <path
-            d="M38 46h44l-4.2 38.5a6 6 0 0 1-6 5.5H48.2a6 6 0 0 1-6-5.5L38 46Z"
-            stroke="currentColor" strokeWidth="2.2" strokeLinejoin="round"
-          />
-          <path
-            d="M50 46v-6a10 10 0 0 1 20 0v6"
-            stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"
-          />
-          <path d="M52 62h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" opacity=".55" />
-        </svg>
-
-        <h1 className="mt-7 text-[24px] font-light normal-case tracking-[0.02em] text-charcoal">{cfg.emptyTitle}</h1>
-        <p className="mt-3 text-[13px] text-smoke">{cfg.emptyText}</p>
-
-        <div className="mt-8 flex w-full flex-col items-center gap-4 sm:w-auto sm:flex-row sm:justify-center">
-          <Link to={cfg.continueHref} className="group inline-flex items-center gap-1.5 text-[12px] font-medium uppercase tracking-[0.12em] text-charcoal underline underline-offset-4 transition hover:text-smoke">
-            {cfg.continueLabel} <ArrowRight size={12} className="transition-transform duration-300 group-hover:translate-x-1" />
-          </Link>
-          <Link to="/best" className="text-[12px] font-medium uppercase tracking-[0.12em] text-smoke underline underline-offset-4 transition hover:text-charcoal">Best sellers</Link>
+    <div className="pt-8 pb-16 font-sans">
+      <div className="mx-auto max-w-md px-6 py-16 text-center space-y-5">
+        <div className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-[#F5F5F5] text-neutral-400">
+          <ShoppingBag size={24} strokeWidth={1.3} />
         </div>
 
-        {cfg.showTrust && (
-          <TrustRow items={cfg.trust} className="mt-10 w-full max-w-xs text-left" />
-        )}
+        <div className="space-y-1.5">
+          <h1 className="text-2xl font-light uppercase tracking-wide text-[#000000]">
+            Your Bag is Empty
+          </h1>
+          <p className="text-xs text-neutral-500 font-light leading-relaxed max-w-xs mx-auto">
+            Discover precision-engineered innerwear and apparel crafted for everyday luxury.
+          </p>
+        </div>
+
+        <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+          <Link
+            to="/shop"
+            className="inline-flex min-h-[46px] w-full sm:w-auto items-center justify-center gap-2 rounded-full bg-[#000000] px-8 text-xs font-medium uppercase tracking-widest text-[#FFFFFF] hover:bg-[#1A1A1A] transition-colors shadow-md"
+          >
+            <span>Explore Collection</span>
+            <ArrowRight size={13} />
+          </Link>
+          <Link
+            to="/best"
+            className="inline-flex min-h-[46px] w-full sm:w-auto items-center justify-center rounded-full border border-neutral-300 bg-white px-8 text-xs font-medium uppercase tracking-widest text-black hover:border-black transition-colors"
+          >
+            Best Sellers
+          </Link>
+        </div>
       </div>
 
       {recent.length > 0 && (
-        <div className="mt-4 pb-4">
-          <ProductRow eyebrow="Pick up where you left off" title="Recently viewed" products={recent} />
+        <div className="mt-12 border-t border-[#EAEAEA] pt-16">
+          <ProductRow eyebrow="CONTINUE BROWSING" title="Recently Viewed" products={recent} />
         </div>
       )}
 
-      {/* Trending is fetched after paint, so its slot is reserved. Without the
-          reservation the footer jumped 466px when the row landed — measured
-          CLS 0.0380 on desktop. Heights are the measured rendered heights of
-          the row at each breakpoint. */}
       {loadingTrending ? (
         <div className="mt-14 h-[398px] md:h-[466px]" aria-hidden="true" />
       ) : trending.length > 0 && (
-        <div className="mt-14 pb-8">
-          <ProductRow eyebrow="Loved right now" title="Trending at HUSHAE" products={trending} />
+        <div className="mt-12 border-t border-[#EAEAEA] pt-16">
+          <ProductRow eyebrow="COMMUNITY ICONS" title="Trending at HUSHAE" products={trending} />
         </div>
       )}
-    </>
+    </div>
   );
 }

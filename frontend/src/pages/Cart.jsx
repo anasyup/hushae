@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, BookmarkPlus, Truck } from 'lucide-react';
+import { ArrowLeft, BookmarkPlus, Truck, ArrowRight, ShieldCheck, Lock } from 'lucide-react';
 import { useApp, lineKey } from '../store/AppContext';
 import { api } from '../api/client';
 import { pkr, snap } from '../lib/format';
@@ -19,21 +19,7 @@ import { useCartPricing } from './cart/useCartPricing';
 import Seo from '../components/Seo';
 
 /* ============================================================================
- * SHOPPING BAG
- *
- * Configuration
- *   Every string, toggle and number comes from settings.cart via cartConfig().
- *   Nothing here is hardcoded copy — Admin → Settings → Shopping Bag rewrites
- *   the page without a deploy.
- *
- * Money
- *   One calculation, in useCartPricing. The summary, the sticky bar and the
- *   drawer all read the same object, so they cannot disagree.
- *
- * Removal
- *   Never instant. The row fades, its height collapses, and an Undo bar holds
- *   the line for the merchant-configured window. Only when that window closes
- *   is the removal final.
+ * HUSHAE Shopping Bag — Ultra-Luxury Full Bag Experience (CK / SKIMS / The Row)
  * ========================================================================== */
 
 const BLOCKING = new Set(['oos', 'unavailable', 'size-gone']);
@@ -57,12 +43,6 @@ export default function Cart() {
   const ctaRef = useRef(null);
   const undoTimer = useRef(0);
 
-  /* ---------------------------------------------------------------
-   * Live stock check.
-   * Keyed on the set of product IDs only. Keying it on quantity too
-   * (the old behaviour) refetched the whole catalogue slice on every
-   * single +/- click — two network round-trips per tap.
-   * ------------------------------------------------------------- */
   const idKey = useMemo(
     () => Array.from(new Set(cart.map((l) => l.id).filter(Boolean))).sort().join(','),
     [cart],
@@ -80,8 +60,6 @@ export default function Cart() {
             stock: p.stock ?? 0,
             sizes: p.sizes || [],
             isActive: p.isActive !== false,
-            /* Sale-window fields ride along so bag pricing can tell a real
-               sale from a stale was-price. */
             compareAtPrice: p.compareAtPrice || null,
             onSale: p.onSale === true,
             saleStart: p.saleStart || null,
@@ -94,11 +72,6 @@ export default function Cart() {
     return () => { alive = false; };
   }, [idKey]);
 
-  /* ---------------------------------------------------------------
-   * Recommendations. Strategy is merchant-selectable; 'auto' pairs the
-   * bag with its complement (bras → panties, briefs → vests).
-   * Depends on idKey, not on `cart`, so quantity edits do not refetch.
-   * ------------------------------------------------------------- */
   useEffect(() => {
     if (!cfg.recommendEnabled || !cart.length) { setSuggest([]); return; }
     const slugs = cart.map((l) => l.slug || '');
@@ -118,11 +91,8 @@ export default function Cart() {
       .then((d) => { if (alive) setSuggest((d.products || []).filter((p) => !inCart.has(p.slug)).slice(0, 4).map(snap)); })
       .catch(() => {});
     return () => { alive = false; };
-  }, [idKey, cfg.recommendEnabled, cfg.recommendStrategy]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [idKey, cfg.recommendEnabled, cfg.recommendStrategy]);
 
-  /* Trending — only ever fetched for the empty bag. `loadingTrending` lets
-     EmptyBag reserve the row's height so the footer cannot jump when it
-     lands (measured 0.0380 CLS before the reservation). */
   useEffect(() => {
     if (cart.length || trending.length) return undefined;
     let alive = true;
@@ -134,13 +104,11 @@ export default function Cart() {
     return () => { alive = false; };
   }, [cart.length, trending.length]);
 
-  /* ---------------- Per-line status ---------------- */
   const lines = useMemo(() => cart.map((line, index) => {
     const m = stockMap[String(line.id)];
-    /* v2 — sale windows: the live was-price is only attached while the product
-       is genuinely on sale; a cleared sale must not resurrect a strike-through
-       from the cart snapshot. */
-    const withCompare = m && isOnSale(m) ? { ...line, compareAtPrice: m.compareAtPrice, onSale: true, saleStart: m.saleStart, saleEnd: m.saleEnd } : { ...line, compareAtPrice: null, onSale: false, saleStart: null, saleEnd: null };
+    const withCompare = m && isOnSale(m)
+      ? { ...line, compareAtPrice: m.compareAtPrice, onSale: true, saleStart: m.saleStart, saleEnd: m.saleEnd }
+      : { ...line, compareAtPrice: null, onSale: false, saleStart: null, saleEnd: null };
     if (!m) return { line: withCompare, index, status: 'ok', available: null };
     if (!m.isActive) return { line: withCompare, index, status: 'unavailable', available: 0 };
     if (m.stock <= 0) return { line: withCompare, index, status: 'oos', available: 0 };
@@ -151,19 +119,14 @@ export default function Cart() {
 
   const blocked = lines.some((x) => BLOCKING.has(x.status));
   const pricing = useCartPricing(lines, settings, cfg, applied);
-  /* Display only. useCartPricing remains the single source of bag money; this
-     just tells the shopper which automatic offers the SERVER says apply. The
-     order route recomputes all of it when the order is placed. */
   const promoQuote = usePromoQuote(cart, { hasCoupon: !!applied });
-  const delivery = useMemo(() => deliveryWindow(cfg), [cfg.deliveryMinDays, cfg.deliveryMaxDays]); // eslint-disable-line react-hooks/exhaustive-deps
+  const delivery = useMemo(() => deliveryWindow(cfg), [cfg.deliveryMinDays, cfg.deliveryMaxDays]);
 
-  /* Sold-out rows float to the top: they are the only thing blocking checkout. */
   const ordered = useMemo(
     () => [...lines].sort((a, b) => (BLOCKING.has(b.status) ? 1 : 0) - (BLOCKING.has(a.status) ? 1 : 0)),
     [lines],
   );
 
-  /* ---------------- Remove with undo ---------------- */
   const commitPending = useCallback(() => {
     setPending(null);
     setRemoving(null);
@@ -172,7 +135,6 @@ export default function Cart() {
   const handleRemove = useCallback((entry) => {
     const key = lineKey(entry.line);
     setRemoving(key);
-    // Let the fade play, then drop the row and open the undo window.
     setTimeout(() => {
       removeLine(key);
       setRemoving(null);
@@ -199,167 +161,163 @@ export default function Cart() {
 
   const isWished = useCallback((line) => wishlist.some((w) => w.id === line.id), [wishlist]);
 
-  /* ---------------- Empty ---------------- */
   if (cart.length === 0 && saved.length === 0) {
     return (
       <>
-        <Seo title="Your Bag" description="Review the items in your bag — secure checkout, COD nationwide, discreet packaging." />
+        <Seo title="Your Bag — HUSHAE" description="Review the items in your bag — secure checkout, COD nationwide, discreet packaging." />
         <EmptyBag cfg={cfg} recent={recent.slice(0, 6)} trending={trending} loadingTrending={loadingTrending} />
       </>
     );
   }
 
-  const itemWord = pricing.count === 1 ? 'item' : 'items';
-
   return (
-    <div className="bg-white min-h-screen pt-[130px] pb-12"><Seo title="Your Bag" description="Review the items in your bag — secure checkout, COD nationwide, discreet packaging." /><div className="container-page">
-      {/* ---------------- Header ---------------- */}
-      {/* Cart steps — premium checkout progression */}
-      <nav aria-label="Checkout progress" className="mb-8 flex items-center gap-3 text-[11px] font-medium uppercase tracking-[0.14em]">
-        <span className="text-[#111111]">Bag</span>
-        <span className="h-px w-8 bg-[#E5E5E5]" aria-hidden="true" />
-        <span className="text-[#696969]">Checkout</span>
-        <span className="h-px w-8 bg-[#E5E5E5]" aria-hidden="true" />
-        <span className="text-[#696969]">Confirmation</span>
-      </nav>
+    <div className="min-h-screen bg-[#FFFFFF] pt-[120px] pb-24 font-sans text-[#111111] antialiased">
+      <Seo title="Your Bag — HUSHAE" description="Review the items in your bag — secure checkout, COD nationwide, discreet packaging." />
 
-      <header className="border-b border-[#E5E5E5] pb-7">
-        <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
-          <h1 className="text-[32px] font-medium normal-case tracking-[0.01em] text-[#111111] md:text-[40px]">{cfg.title}</h1>
-          <p className="text-[13px] text-[#696969]" aria-live="polite">
-            {pricing.count} {itemWord}
-            {cfg.showDelivery && pricing.count > 0 && (
-              <span className="ml-2 inline-flex items-center gap-1.5 border-l border-[#E5E5E5] pl-2">
-                <Truck size={12} aria-hidden="true" /> Arrives {delivery}
-              </span>
-            )}
-          </p>
-        </div>
-        <Link
-          to={cfg.continueHref}
-          className="mt-4 inline-flex min-h-[44px] items-center gap-1.5 text-[12px] text-[#696969] underline underline-offset-4 transition hover:text-[#111111]"
-        >
-          <ArrowLeft size={13} aria-hidden="true" /> {cfg.continueLabel}
-        </Link>
-      </header>
-
-      {blocked && (
-        <p role="alert" className="mt-6 rounded-control border border-red-200 bg-red-50 px-4 py-3 text-body-sm text-red-800">
-          Some pieces sold out while they were in your bag. Remove them to continue to checkout.
-        </p>
-      )}
-
-      <div className="mt-8 grid items-start gap-x-12 gap-y-10 lg:grid-cols-[minmax(0,1fr)_400px]">
-        {/* ---------------- Lines ---------------- */}
-        <section aria-label="Items in your bag">
-          {/* Column headers — desktop only (premium cart register) */}
-          <div className="hidden grid-cols-[minmax(0,1fr)_110px_150px_110px_40px] gap-4 border-b border-[#111111]/15 pb-2.5 text-[11px] font-medium uppercase tracking-[0.14em] text-[#696969] md:grid">
-            <span>Product</span>
-            <span>Price</span>
-            <span>Quantity</span>
-            <span className="text-right">Total</span>
-            <span aria-hidden="true" />
+      <div className="mx-auto max-w-[1500px] px-6 sm:px-8 md:px-12">
+        {/* ── TOP HEADER BAR ── */}
+        <div className="border-b border-[#EAEAEA] pb-5 mb-8 flex flex-wrap items-baseline justify-between gap-4">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-light uppercase tracking-tight text-[#000000]">
+              Shopping Bag
+            </h1>
+            <p className="mt-1 text-xs text-neutral-500 font-light">
+              {pricing.count} {pricing.count === 1 ? 'piece' : 'pieces'} in your bag
+            </p>
           </div>
-          <ul className="divide-y divide-[#E5E5E5] border-b border-[#E5E5E5]">
-            {ordered.map((entry) => (
-              <CartLine
-                key={lineKey(entry.line)}
-                line={entry.line}
-                status={entry.status}
-                available={entry.available}
-                cfg={cfg}
-                delivery={delivery}
-                removing={removing === lineKey(entry.line)}
-                wished={isWished(entry.line)}
-                onQty={(q) => updateQty(lineKey(entry.line), q, cfg.maxQty)}
-                onRemove={() => handleRemove(entry)}
-                onSave={() => handleSave(entry.line)}
-                onWish={() => toggleWish(entry.line)}
-              />
-            ))}
-          </ul>
 
-          {/* ---------------- Saved for later ---------------- */}
-          {cfg.saveForLater && saved.length > 0 && (
-            <section className="mt-10" aria-label="Saved for later">
-              <h2 className="flex items-center gap-2 text-label uppercase tracking-widest text-ash">
-                <BookmarkPlus size={13} aria-hidden="true" />
-                Saved for later ({saved.length})
-              </h2>
-              <ul className="mt-4 divide-y divide-clay/60 border-y border-clay/60">
-                {saved.map((l) => (
-                  <li key={lineKey(l)} className="flex items-center gap-4 py-4">
-                    <Link to={`/product/${l.slug}`} className="shrink-0 overflow-hidden rounded-control bg-cream" tabIndex={-1} aria-hidden="true">
-                      <Img src={l.image} alt="" className="h-16 w-14 object-cover" />
-                    </Link>
-                    <div className="min-w-0 flex-1">
-                      <h3 className="truncate text-body-sm font-medium">
-                        <Link to={`/product/${l.slug}`} className="transition hover:underline">{l.name}</Link>
-                      </h3>
-                      <p className="mt-0.5 text-caption text-ash">
-                        {[l.size && `Size ${l.size}`, l.color].filter(Boolean).join(' · ')} · {pkr(l.price)}
-                      </p>
-                    </div>
-                    <div className="flex shrink-0 items-center gap-1">
-                      <button
-                        type="button"
-                        onClick={() => { moveToBag(l); toast('Moved to your bag'); }}
-                        className="min-h-[44px] px-3 text-[11px] font-medium uppercase tracking-[0.14em] text-[#111111] underline-offset-4 transition hover:underline"
-                      >
-                        Move to bag
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => removeSaved(l)}
-                        className="min-h-[44px] px-3 text-[11px] font-medium uppercase tracking-[0.14em] text-[#707070] transition hover:text-[#111111]"
-                        aria-label={`Remove ${l.name} from saved items`}
-                      >
-                        Remove
-                      </button>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )}
-
-        </section>
-
-        {/* ---------------- Summary ---------------- */}
-        <aside className="lg:sticky lg:top-24" aria-label="Order summary">
-          <OrderSummary
-            pricing={pricing}
-            promoQuote={promoQuote}
-            cfg={cfg}
-            applied={applied}
-            onApply={setApplied}
-            onRemoveCoupon={() => setApplied(null)}
-            blocked={blocked}
-            ctaRef={ctaRef}
-          />
-        </aside>
-      </div>
-
-      {/* ---------------- Recommendations ---------------- */}
-      {cfg.recommendEnabled && suggest.length > 0 && (
-        <div className="mt-20 border-t border-clay/60 pt-14 md:mt-28">
-          <ProductRow eyebrow={cfg.recommendTitle} title="You may also need" products={suggest} />
+          <div className="flex items-center gap-4">
+            <Link
+              to="/shop"
+              className="inline-flex items-center gap-1.5 text-xs uppercase tracking-wider text-neutral-600 hover:text-black transition-colors"
+            >
+              <ArrowLeft size={13} />
+              <span>Continue Shopping</span>
+            </Link>
+          </div>
         </div>
-      )}
 
-      {/* Mobile: keep checkout one tap away, above the nav, never overlapping. */}
-      <StickyCheckoutBar watchRef={ctaRef} pricing={pricing} cfg={cfg} blocked={blocked} />
+        {blocked && (
+          <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 p-4 text-xs text-red-700">
+            Some pieces sold out while in your bag. Please remove them to proceed to checkout.
+          </div>
+        )}
 
-      <UndoBar
-        pending={pending}
-        seconds={cfg.undoSeconds}
-        onUndo={handleUndo}
-        onDismiss={commitPending}
-      />
+        {/* ── 2-COLUMN LUXURY BAG SUITE ── */}
+        <div className="grid grid-cols-1 gap-10 lg:grid-cols-12 lg:gap-14 items-start">
 
-      {/* Bottom padding so the sticky bar never covers the last row. */}
-      <div className="h-24 md:hidden" aria-hidden="true" />
-    </div>
+          {/* ── LEFT: LINE ITEMS (7 COLS) ── */}
+          <section className="lg:col-span-7 space-y-6" aria-label="Items in your bag">
+            {/* Table Header (Desktop) */}
+            <div className="hidden grid-cols-[minmax(0,1fr)_120px_140px_120px_40px] gap-4 border-b border-[#EAEAEA] pb-3 text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-400 md:grid">
+              <span>Product</span>
+              <span>Price</span>
+              <span>Quantity</span>
+              <span className="text-right">Total</span>
+              <span aria-hidden="true" />
+            </div>
+
+            {/* Line items list */}
+            <ul className="divide-y divide-[#EAEAEA] border-b border-[#EAEAEA]">
+              {ordered.map((entry) => (
+                <CartLine
+                  key={lineKey(entry.line)}
+                  line={entry.line}
+                  status={entry.status}
+                  available={entry.available}
+                  cfg={cfg}
+                  delivery={delivery}
+                  removing={removing === lineKey(entry.line)}
+                  wished={isWished(entry.line)}
+                  onQty={(q) => updateQty(lineKey(entry.line), q, cfg.maxQty)}
+                  onRemove={() => handleRemove(entry)}
+                  onSave={() => handleSave(entry.line)}
+                  onWish={() => toggleWish(entry.line)}
+                />
+              ))}
+            </ul>
+
+            {/* Saved for later section */}
+            {cfg.saveForLater && saved.length > 0 && (
+              <div className="mt-12 pt-6 border-t border-[#EAEAEA]" aria-label="Saved for later">
+                <h2 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-black">
+                  <BookmarkPlus size={14} aria-hidden="true" />
+                  Saved For Later ({saved.length})
+                </h2>
+
+                <ul className="mt-4 divide-y divide-[#EAEAEA] border-y border-[#EAEAEA]">
+                  {saved.map((l) => (
+                    <li key={lineKey(l)} className="flex items-center gap-4 py-4">
+                      <Link to={`/product/${l.slug}`} className="shrink-0 aspect-[3/4] w-16 rounded-xl overflow-hidden bg-[#F8F8F8] border border-[#EAEAEA]">
+                        <Img src={l.image} alt="" className="h-full w-full object-cover" />
+                      </Link>
+
+                      <div className="min-w-0 flex-1 space-y-0.5">
+                        <h3 className="text-xs font-medium text-black truncate">
+                          <Link to={`/product/${l.slug}`} className="hover:text-neutral-500 transition-colors">
+                            {l.name}
+                          </Link>
+                        </h3>
+                        <p className="text-[11px] text-neutral-500 font-light">
+                          {[l.size && `Size ${l.size}`, l.color].filter(Boolean).join(' · ')} · {pkr(l.price)}
+                        </p>
+                      </div>
+
+                      <div className="flex shrink-0 items-center gap-2 text-xs">
+                        <button
+                          type="button"
+                          onClick={() => { moveToBag(l); toast('Moved to your bag'); }}
+                          className="rounded-full border border-neutral-300 px-3.5 py-1.5 text-[11px] font-medium uppercase tracking-wider text-black hover:border-black transition-colors"
+                        >
+                          Move to Bag
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => removeSaved(l)}
+                          className="px-2 py-1 text-[11px] text-neutral-400 hover:text-red-600 transition-colors"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </section>
+
+          {/* ── RIGHT: STICKY ORDER SUMMARY (5 COLS) ── */}
+          <aside className="lg:col-span-5 lg:sticky lg:top-[120px]" aria-label="Order summary">
+            <OrderSummary
+              pricing={pricing}
+              promoQuote={promoQuote}
+              cfg={cfg}
+              applied={applied}
+              onApply={setApplied}
+              onRemoveCoupon={() => setApplied(null)}
+              blocked={blocked}
+              ctaRef={ctaRef}
+            />
+          </aside>
+        </div>
+
+        {/* ── RECOMMENDATIONS / YOU MAY ALSO NEED ── */}
+        {cfg.recommendEnabled && suggest.length > 0 && (
+          <div className="mt-24 border-t border-[#EAEAEA] pt-16">
+            <ProductRow eyebrow="RECOMMENDED EDITS" title="Complete Your Wardrobe" products={suggest} />
+          </div>
+        )}
+
+        {/* Mobile sticky bar */}
+        <StickyCheckoutBar watchRef={ctaRef} pricing={pricing} cfg={cfg} blocked={blocked} />
+
+        <UndoBar
+          pending={pending}
+          seconds={cfg.undoSeconds}
+          onUndo={handleUndo}
+          onDismiss={commitPending}
+        />
+      </div>
     </div>
   );
 }

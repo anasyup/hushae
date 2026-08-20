@@ -8,19 +8,20 @@ import { pkr } from '../lib/format';
 import { titleCase } from '../lib/productMeta';
 import { cartConfig } from '../lib/cartConfig';
 import Img from './Img';
+import QuantityStepper from './ui/QuantityStepper';
 import { useCartPricing } from '../pages/cart/useCartPricing';
 
 /* ============================================================================
  * HUSHAE Cart Drawer — Ultra-Luxury Slide-Out Bag (Calvin Klein / SKIMS / The Row)
  *
  * SPECIFICATION:
- *   - Pure White (#FFFFFF) & Soft Alabaster (#FBFBFB) ground
- *   - Sleek, borderless circular close icon (no harsh square boxes)
- *   - 3:4 portrait thumbnail with soft rounded corners on #F8F8F8
+ *   - Pure White (#FFFFFF) & Soft Alabaster ground
+ *   - Sleek, borderless circular close icon
+ *   - Strict 3:4 studio portrait thumbnail with subtle rounded corners
  *   - Title Case product names (strips repeated "HUSHAE" prefix)
  *   - Smooth oval pill quantity stepper (− 1 +)
- *   - Elegant rounded Free Shipping progress bar
- *   - Dual soft-oval pill action buttons (rounded-full)
+ *   - Clean Free Shipping progress bar
+ *   - Dual high-fashion soft-oval pill action buttons (rounded-full)
  * ========================================================================== */
 
 const nameOf = (name) => titleCase(String(name || '').replace(/^HUSHAE\s+/i, ''));
@@ -119,7 +120,7 @@ export default function CartDrawer() {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.25 }}
-          className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs font-sans"
+          className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs font-sans"
           onClick={() => setDrawerOpen(false)}
         >
           <motion.div
@@ -135,7 +136,7 @@ export default function CartDrawer() {
             onClick={(e) => e.stopPropagation()}
           >
             {/* ── TOP HEADER (Clean Luxury Typography & Borderless Close Icon) ── */}
-            <div className="flex items-center justify-between border-b border-[#EAEAEA] px-6 py-4.5 bg-[#FFFFFF]">
+            <div className="flex items-center justify-between border-b border-[#EAEAEA] px-6 py-4 bg-[#FFFFFF]">
               <div className="flex items-baseline gap-2">
                 <h2 className="text-[12px] font-semibold uppercase tracking-[0.22em] text-[#000000]">
                   Your Bag
@@ -161,11 +162,11 @@ export default function CartDrawer() {
                 <div className="flex items-center justify-between text-[11px] tracking-wide">
                   {isFreeShip ? (
                     <span className="font-medium text-[#000000]">
-                      Free shipping unlocked
+                      Free express shipping unlocked
                     </span>
                   ) : (
                     <span className="text-neutral-600 font-light">
-                      Add <strong className="font-medium text-black">{pkr(awayAmount)}</strong> for free delivery
+                      Add <strong className="font-medium text-black">{pkr(awayAmount)}</strong> for free shipping
                     </span>
                   )}
                   <span className="text-[10px] text-neutral-400 font-light">
@@ -221,16 +222,16 @@ export default function CartDrawer() {
                     const isBlocked = ['oos', 'unavailable', 'size-gone'].includes(status);
                     return (
                       <li key={lineKey(l)} className="flex gap-4 py-4 items-start">
-                        {/* 3:4 Studio Thumbnail */}
+                        {/* 3:4 Portrait Studio Thumbnail */}
                         <Link
                           to={`/product/${l.slug}`}
                           onClick={() => setDrawerOpen(false)}
-                          className={`h-24 w-18 rounded-xl overflow-hidden bg-[#F8F8F8] shrink-0 border border-[#EAEAEA] transition-opacity ${
+                          className={`aspect-[3/4] w-20 rounded-xl overflow-hidden bg-[#F8F8F8] shrink-0 border border-[#EAEAEA] transition-opacity ${
                             isBlocked ? 'opacity-50' : 'hover:opacity-90'
                           }`}
                           tabIndex={-1}
                         >
-                          <Img src={l.image} alt="" className="h-full w-full object-cover" />
+                          <Img src={l.image} alt="" className="h-full w-full object-cover object-center" />
                         </Link>
 
                         {/* Item Details */}
@@ -275,28 +276,15 @@ export default function CartDrawer() {
 
                           {/* Stepper + Price Row */}
                           <div className="flex items-center justify-between pt-3">
-                            {/* Smooth Oval Pill Stepper */}
-                            <div className="inline-flex items-center rounded-full border border-[#E0E0E0] bg-[#FFFFFF] px-1 py-0.5">
-                              <button
-                                type="button"
-                                onClick={() => updateQty(lineKey(l), Math.max(1, l.qty - 1), cfg.maxQty)}
-                                disabled={isBlocked || l.qty <= 1}
-                                className="h-6 w-6 grid place-items-center text-xs text-neutral-500 hover:text-black transition-colors disabled:opacity-30"
-                              >
-                                −
-                              </button>
-                              <span className="min-w-[20px] text-center text-xs font-medium text-black">
-                                {l.qty}
-                              </span>
-                              <button
-                                type="button"
-                                onClick={() => updateQty(lineKey(l), Math.min(cfg.maxQty || 10, l.qty + 1), cfg.maxQty)}
-                                disabled={isBlocked || l.qty >= (available ?? cfg.maxQty)}
-                                className="h-6 w-6 grid place-items-center text-xs text-neutral-500 hover:text-black transition-colors disabled:opacity-30"
-                              >
-                                +
-                              </button>
-                            </div>
+                            <QuantityStepper
+                              value={l.qty}
+                              onChange={(q) => updateQty(lineKey(l), q, cfg.maxQty)}
+                              min={1}
+                              max={Math.min(cfg.maxQty, available ?? cfg.maxQty) || 1}
+                              size="sm"
+                              disabled={isBlocked}
+                              label={`Quantity for ${l.name}`}
+                            />
 
                             <span className="text-xs font-medium text-[#000000] tabular-nums">
                               {pkr(l.price * l.qty)}
@@ -311,7 +299,7 @@ export default function CartDrawer() {
 
               {/* ── YOU MAY ALSO LIKE (Curated horizontal rail) ── */}
               {cart.length > 0 && picks.length > 0 && (
-                <div className="border-t border-[#EAEAEA] pt-5 mt-4">
+                <div className="border-t border-[#EAEAEA] pt-5 mt-4 pb-2">
                   <p className="text-[10.5px] font-medium uppercase tracking-[0.2em] text-neutral-400 mb-3">
                     You May Also Like
                   </p>
@@ -323,11 +311,11 @@ export default function CartDrawer() {
                         onClick={() => setDrawerOpen(false)}
                         className="group w-24 shrink-0 space-y-1.5"
                       >
-                        <div className="aspect-[3/4] w-full rounded-lg overflow-hidden bg-[#F8F8F8] border border-[#EAEAEA]">
+                        <div className="aspect-[3/4] w-full rounded-xl overflow-hidden bg-[#F8F8F8] border border-[#EAEAEA]">
                           <Img
                             src={p.images?.[0]?.url || ''}
                             alt={p.name}
-                            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                            className="h-full w-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
                           />
                         </div>
                         <p className="text-[11px] text-[#000000] truncate font-normal leading-tight">
@@ -345,8 +333,8 @@ export default function CartDrawer() {
 
             {/* ── STICKY FOOTER (Clean Luxury Summary & Smooth Oval Buttons) ── */}
             {cart.length > 0 && (
-              <div className="border-t border-[#EAEAEA] bg-[#FBFBFB] p-6 space-y-4 shadow-sm">
-                <div className="space-y-1">
+              <div className="border-t border-[#EAEAEA] bg-[#FFFFFF] p-6 space-y-3.5 shadow-lg">
+                <div className="space-y-0.5">
                   <div className="flex items-baseline justify-between">
                     <span className="text-xs font-normal uppercase tracking-wider text-neutral-500">
                       Subtotal
@@ -355,38 +343,38 @@ export default function CartDrawer() {
                       {pkr(pricing.subtotal)}
                     </span>
                   </div>
-                  <p className="text-[11px] text-neutral-400 font-light">
+                  <p className="text-[10.5px] text-neutral-400 font-light">
                     Taxes and delivery calculated at checkout
                   </p>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3 pt-1">
-                  <Link
-                    to="/cart"
-                    onClick={() => setDrawerOpen(false)}
-                    className="flex h-[46px] w-full items-center justify-center rounded-full border border-neutral-300 bg-[#FFFFFF] text-xs font-medium uppercase tracking-[0.16em] text-[#000000] hover:border-[#000000] transition-colors"
-                  >
-                    Bag View
-                  </Link>
-
+                <div className="space-y-2 pt-1">
                   {blocked ? (
                     <Link
                       to="/cart"
                       onClick={() => setDrawerOpen(false)}
-                      className="flex h-[46px] w-full items-center justify-center rounded-full bg-red-100 text-xs font-medium uppercase tracking-[0.16em] text-red-800"
+                      className="flex h-[50px] w-full items-center justify-center rounded-full bg-red-100 text-xs font-medium uppercase tracking-[0.16em] text-red-800"
                     >
-                      Fix Items
+                      Fix Items in Bag
                     </Link>
                   ) : (
                     <Link
                       to="/checkout"
                       onClick={() => setDrawerOpen(false)}
-                      className="flex h-[46px] w-full items-center justify-center gap-1.5 rounded-full bg-[#000000] text-xs font-medium uppercase tracking-[0.18em] text-[#FFFFFF] shadow-md hover:bg-[#1A1A1A] transition-colors"
+                      className="flex h-[50px] w-full items-center justify-center gap-2 rounded-full bg-[#000000] text-xs font-medium uppercase tracking-[0.2em] text-[#FFFFFF] shadow-md hover:bg-neutral-800 transition-all hover:scale-[1.01]"
                     >
-                      <span>Checkout</span>
+                      <span>Proceed to Checkout</span>
                       <ArrowRight size={13} />
                     </Link>
                   )}
+
+                  <Link
+                    to="/cart"
+                    onClick={() => setDrawerOpen(false)}
+                    className="flex h-[42px] w-full items-center justify-center rounded-full border border-neutral-200 bg-[#FFFFFF] text-xs font-medium uppercase tracking-[0.16em] text-neutral-700 hover:border-black hover:text-black transition-colors"
+                  >
+                    View Full Bag
+                  </Link>
                 </div>
               </div>
             )}

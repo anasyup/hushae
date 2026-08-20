@@ -1,12 +1,8 @@
 import { Minus, Plus } from 'lucide-react';
 
-/**
- * Quantity control shared by the cart, the cart drawer and the product page.
- *
- * QA — Quiet Architecture: a minimal "- 1 +" with thin clay borders and no
- * background. Uses <output aria-live="polite"> so a screen reader announces
- * the new count when a button is pressed.
- */
+/* ============================================================================
+ * HUSHAE QuantityStepper — Soft-Rounded Luxury Pill Stepper
+ * ========================================================================== */
 export default function QuantityStepper({
   value,
   onChange,
@@ -18,27 +14,49 @@ export default function QuantityStepper({
 }) {
   const dec = () => onChange(Math.max(min, value - 1));
   const inc = () => onChange(Math.min(max, value + 1));
-  const icon = size === 'sm' ? 11 : 12;
+  const iconSize = size === 'sm' ? 10 : 12;
+  const isSm = size === 'sm';
 
   return (
-    <div className="inline-flex items-center border border-clay" role="group" aria-label={label}>
+    <div
+      className={`inline-flex items-center rounded-full border border-[#E0E0E0] bg-[#FFFFFF] transition-colors hover:border-[#000000] ${
+        isSm ? 'px-1 py-0.5' : 'px-1.5 py-1'
+      }`}
+      role="group"
+      aria-label={label}
+    >
       <button
-        type="button" onClick={dec} disabled={disabled || value <= min}
-        className="grid h-8 w-9 place-items-center text-smoke transition-colors duration-fast hover:text-charcoal disabled:pointer-events-none disabled:text-smoke/30"
+        type="button"
+        onClick={dec}
+        disabled={disabled || value <= min}
+        className={`grid place-items-center text-neutral-500 hover:text-black transition-colors disabled:opacity-30 disabled:hover:text-neutral-500 ${
+          isSm ? 'h-6 w-6' : 'h-7 w-7'
+        }`}
         aria-label={`Decrease ${label.toLowerCase()}`}
       >
-        <Minus size={icon} aria-hidden="true" />
+        <Minus size={iconSize} strokeWidth={1.8} aria-hidden="true" />
       </button>
-      <output aria-live="polite" aria-label={`${label}: ${value}`}
-        className="min-w-7 px-1 text-center text-[13px] font-medium tabular-nums text-charcoal">
+
+      <output
+        aria-live="polite"
+        aria-label={`${label}: ${value}`}
+        className={`text-center font-medium tabular-nums text-[#000000] ${
+          isSm ? 'min-w-[20px] text-xs' : 'min-w-[24px] text-[13px]'
+        }`}
+      >
         {value}
       </output>
+
       <button
-        type="button" onClick={inc} disabled={disabled || value >= max}
-        className="grid h-8 w-9 place-items-center text-smoke transition-colors duration-fast hover:text-charcoal disabled:pointer-events-none disabled:text-smoke/30"
+        type="button"
+        onClick={inc}
+        disabled={disabled || value >= max}
+        className={`grid place-items-center text-neutral-500 hover:text-black transition-colors disabled:opacity-30 disabled:hover:text-neutral-500 ${
+          isSm ? 'h-6 w-6' : 'h-7 w-7'
+        }`}
         aria-label={`Increase ${label.toLowerCase()}`}
       >
-        <Plus size={icon} aria-hidden="true" />
+        <Plus size={iconSize} strokeWidth={1.8} aria-hidden="true" />
       </button>
     </div>
   );
