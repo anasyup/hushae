@@ -82,7 +82,7 @@ const waVerifyLink = (o, storePhone) => {
 
 const statusPill = (s) =>
   s === 'Delivered' ? 'bg-emerald-100 text-emerald-800' : s === 'Cancelled' ? 'bg-red-100 text-red-800'
-    : s === 'Refunded' ? 'bg-orange-100 text-orange-800' : s === 'Shipped' || s === 'Out for Delivery' ? 'bg-purple-100 text-purple-800'
+    : s === 'Refunded' ? 'bg-orange-100 text-orange-800' : s === 'Shipped' || s === 'Out for Delivery' ? 'bg-[#EAE0CC] text-[#7A6239]'
     : s === 'Ready to Ship' ? 'bg-blue-100 text-blue-800' : s === 'Processing' ? 'bg-blue-50 text-blue-700'
     : s === 'Confirmed' ? 'bg-cyan-100 text-cyan-800' : 'bg-amber-100 text-amber-800';
 
@@ -196,8 +196,8 @@ function PipelineStrip({ stats }) {
     { label: 'Pending', n: stats.pending, color: 'bg-amber-500', text: 'text-amber-700', to: '/admin/orders?group=new' },
     { label: 'Confirmed', n: stats.confirmed, color: 'bg-cyan-500', text: 'text-cyan-700', to: '/admin/orders?status=Confirmed&group=all' },
     { label: 'Processing', n: stats.processing, color: 'bg-blue-500', text: 'text-blue-700', to: '/admin/orders?group=processing' },
-    { label: 'Ready', n: stats.readyToShip, color: 'bg-indigo-500', text: 'text-indigo-700', to: '/admin/orders?group=to-ship' },
-    { label: 'In Transit', n: stats.shipped, color: 'bg-purple-500', text: 'text-purple-700', to: '/admin/orders?group=shipped' },
+    { label: 'Ready', n: stats.readyToShip, color: 'bg-[#A68A56]', text: 'text-[#8F7448]', to: '/admin/orders?group=to-ship' },
+    { label: 'In Transit', n: stats.shipped, color: 'bg-[#F4EEE2]0', text: 'text-[#8F7448]', to: '/admin/orders?group=shipped' },
     { label: 'Delivered', n: stats.delivered, color: 'bg-emerald-500', text: 'text-emerald-700', to: '/admin/orders?group=delivered' },
   ];
   /* Fixed-width equal segments — a funnel has 6 stages regardless of volume, so
@@ -429,7 +429,7 @@ export default function Dashboard() {
       <div className="mb-6 grid gap-4 md:grid-cols-5">
         <KpiCard icon={CircleDollarSign} label="Revenue" value={d.kpis.revenue.value} change={d.kpis.revenue.change} sparkData={sparkRevenue} accent="#059669" format="money" to="/admin/analytics" compareLabel={cmpLabel} />
         <KpiCard icon={ShoppingBag} label="Orders" value={d.kpis.orders.value} change={d.kpis.orders.change} sparkData={sparkOrders} accent="#2563eb" to="/admin/orders" compareLabel={cmpLabel} />
-        <KpiCard icon={Users} label="New Customers" value={d.kpis.customers.value} change={d.kpis.customers.change} sparkData={sparkCustomers} accent="#7c3aed" to="/admin/customers" compareLabel="in the selected period" />
+        <KpiCard icon={Users} label="New Customers" value={d.kpis.customers.value} change={d.kpis.customers.change} sparkData={sparkCustomers} accent="#A68A56" to="/admin/customers" compareLabel="in the selected period" />
         <KpiCard icon={TrendingUp} label="Avg Order Value" value={d.kpis.aov.value} change={d.kpis.aov.change} sparkData={sparkAov} accent="#dc2626" format="money" to="/admin/analytics" compareLabel={cmpLabel} />
         <QuickActions />
       </div>

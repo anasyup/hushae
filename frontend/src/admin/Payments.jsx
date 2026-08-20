@@ -29,7 +29,7 @@ const METHOD_META = {
   JazzCash:         { icon: Smartphone, color: '#dc2626', bg: 'bg-red-50',    label: 'JazzCash' },
   EasyPaisa:        { icon: Smartphone, color: '#16a34a', bg: 'bg-emerald-50',label: 'EasyPaisa' },
   'Bank Transfer':  { icon: Landmark,   color: '#2563eb', bg: 'bg-blue-50',   label: 'Bank Transfer' },
-  Visa:             { icon: CreditCard, color: '#1a1f71', bg: 'bg-indigo-50', label: 'Visa / Mastercard' },
+  Visa:             { icon: CreditCard, color: '#1a1f71', bg: 'bg-[#F4EEE2]', label: 'Visa / Mastercard' },
 };
 
 export default function Payments() {

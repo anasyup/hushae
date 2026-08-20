@@ -38,7 +38,7 @@ function StatePill({ state, hasDraft }) {
       {/* A live page with unsaved edits waiting behind it is the single most
           confusing CMS state. Say so rather than leaving it to be discovered. */}
       {hasDraft && (
-        <span className="inline-flex items-center rounded-full bg-violet-50 px-2 py-1 text-[13px] font-semibold text-violet-800 ring-1 ring-violet-200">
+        <span className="inline-flex items-center rounded-full bg-[#F4EEE2] px-2 py-1 text-[13px] font-semibold text-[#7A6239] ring-1 ring-[#D9C9A6]">
           Unpublished edits
         </span>
       )}

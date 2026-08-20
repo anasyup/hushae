@@ -24,7 +24,7 @@ import { CANCEL_REASONS } from './orders/orderConstants';
 const STATUSES = ['Pending', 'Confirmed', 'Processing', 'Ready to Ship', 'Shipped', 'Out for Delivery', 'Delivered', 'Cancelled', 'Refunded'];
 const PAY = ['Pending', 'Paid', 'Verified', 'Confirmed', 'Failed', 'Refunded'];
 
-const statusPillClass = (s) => s === 'Delivered' ? 'bg-emerald-100 text-emerald-700' : s === 'Cancelled' ? 'bg-red-100 text-red-700' : s === 'Refunded' ? 'bg-orange-100 text-orange-700' : s === 'Shipped' || s === 'Out for Delivery' ? 'bg-purple-100 text-purple-700' : s === 'Ready to Ship' ? 'bg-blue-100 text-blue-700' : s === 'Processing' ? 'bg-sky-100 text-sky-700' : s === 'Confirmed' ? 'bg-cyan-100 text-cyan-700' : 'bg-amber-100 text-amber-700';
+const statusPillClass = (s) => s === 'Delivered' ? 'bg-emerald-100 text-emerald-700' : s === 'Cancelled' ? 'bg-red-100 text-red-700' : s === 'Refunded' ? 'bg-orange-100 text-orange-700' : s === 'Shipped' || s === 'Out for Delivery' ? 'bg-[#EAE0CC] text-[#8F7448]' : s === 'Ready to Ship' ? 'bg-blue-100 text-blue-700' : s === 'Processing' ? 'bg-sky-100 text-sky-700' : s === 'Confirmed' ? 'bg-cyan-100 text-cyan-700' : 'bg-amber-100 text-amber-700';
 
 export default function OrderDetail() {
   const { id } = useParams();

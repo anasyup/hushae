@@ -65,7 +65,7 @@ const STAGE_TONE = {
   neutral: { text: 'text-neutral-700', bg: 'bg-neutral-100',   ring: 'ring-neutral-200',   pill: 'bg-neutral-900 text-white' },
   amber:   { text: 'text-amber-700',   bg: 'bg-amber-50',      ring: 'ring-amber-200',     pill: 'bg-amber-500 text-white' },
   blue:    { text: 'text-blue-700',    bg: 'bg-blue-50',       ring: 'ring-blue-200',      pill: 'bg-blue-600 text-white' },
-  purple:  { text: 'text-purple-700',  bg: 'bg-purple-50',     ring: 'ring-purple-200',    pill: 'bg-purple-600 text-white' },
+  purple:  { text: 'text-[#8F7448]',  bg: 'bg-[#F4EEE2]',     ring: 'ring-[#D9C9A6]',    pill: 'bg-[#A68A56] text-white' },
   green:   { text: 'text-emerald-700', bg: 'bg-emerald-50',    ring: 'ring-emerald-200',   pill: 'bg-emerald-600 text-white' },
   red:     { text: 'text-red-700',     bg: 'bg-red-50',        ring: 'ring-red-200',       pill: 'bg-red-600 text-white' },
 };
@@ -74,7 +74,7 @@ export const statusPill = (s) =>
   s === 'Delivered' ? 'bg-emerald-100 text-emerald-800'
     : s === 'Cancelled' ? 'bg-red-100 text-red-800'
     : s === 'Refunded' ? 'bg-orange-100 text-orange-800'
-    : s === 'Shipped' || s === 'Out for Delivery' ? 'bg-purple-100 text-purple-800'
+    : s === 'Shipped' || s === 'Out for Delivery' ? 'bg-[#EAE0CC] text-[#7A6239]'
     : s === 'Ready to Ship' ? 'bg-blue-100 text-blue-800'
     : s === 'Processing' ? 'bg-blue-50 text-blue-700'
     : s === 'Confirmed' ? 'bg-cyan-100 text-cyan-800'
@@ -113,7 +113,7 @@ function OrderCard({ order: o, onAction, actionsBusyId }) {
       <div className={`absolute inset-y-0 left-0 w-1 rounded-l-2xl ${
         stage === 'new'       ? 'bg-amber-400'
         : stage === 'to-ship'  ? 'bg-blue-500'
-        : stage === 'shipping' ? 'bg-purple-500'
+        : stage === 'shipping' ? 'bg-[#F4EEE2]0'
         : stage === 'delivered'? 'bg-emerald-500'
         : stage === 'issues'   ? 'bg-red-500'
         : 'bg-neutral-300'
@@ -238,9 +238,9 @@ function OrderCard({ order: o, onAction, actionsBusyId }) {
           )}
 
           {isProcessing && (
-            <div className="mb-3 rounded-xl border border-purple-200 bg-purple-50 p-3">
-              <p className="text-[12px] font-semibold text-purple-900">🚚 Arranging courier</p>
-              <p className="mt-1 text-[12px] text-purple-800">Book pickup with TCS / Leopards / M&P and enter tracking details.</p>
+            <div className="mb-3 rounded-xl border border-[#D9C9A6] bg-[#F4EEE2] p-3">
+              <p className="text-[12px] font-semibold text-[#6B552F]">🚚 Arranging courier</p>
+              <p className="mt-1 text-[12px] text-[#7A6239]">Book pickup with TCS / Leopards / M&P and enter tracking details.</p>
               <div className="mt-3 grid gap-2 sm:grid-cols-2">
                 <input value={trackingDraft.courierName} onChange={(e) => setTrackingDraft({ ...trackingDraft, courierName: e.target.value })} placeholder="Courier (e.g. TCS)" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !py-2 !text-[12px]" />
                 <input value={trackingDraft.trackingNumber} onChange={(e) => setTrackingDraft({ ...trackingDraft, trackingNumber: e.target.value })} placeholder="Tracking number" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !py-2 !text-[12px]" />
@@ -265,7 +265,7 @@ function OrderCard({ order: o, onAction, actionsBusyId }) {
                 </p>
               )}
               <div className="mt-2 flex flex-wrap gap-2">
-                <button disabled={busy} onClick={() => onAction('mark-shipped', o)} className="inline-flex items-center gap-1.5 rounded-lg bg-purple-600 px-3 py-1.5 text-[12px] font-semibold text-white shadow-sm hover:bg-purple-700 disabled:opacity-50">
+                <button disabled={busy} onClick={() => onAction('mark-shipped', o)} className="inline-flex items-center gap-1.5 rounded-lg bg-[#A68A56] px-3 py-1.5 text-[12px] font-semibold text-white shadow-sm hover:bg-[#8F7448] disabled:opacity-50">
                   <TruckIcon size={12} /> Courier Picked Up — Shipped
                 </button>
               </div>
@@ -273,16 +273,16 @@ function OrderCard({ order: o, onAction, actionsBusyId }) {
           )}
 
           {isShipped && (
-            <div className="mb-3 rounded-xl border border-purple-200 bg-purple-50 p-3">
-              <p className="text-[12px] font-semibold text-purple-900">🚛 In transit</p>
+            <div className="mb-3 rounded-xl border border-[#D9C9A6] bg-[#F4EEE2] p-3">
+              <p className="text-[12px] font-semibold text-[#6B552F]">🚛 In transit</p>
               {o.trackingNumber && (
-                <p className="mt-1 text-[12px] text-purple-800">
+                <p className="mt-1 text-[12px] text-[#7A6239]">
                   {o.courierName} · <code className="rounded bg-white px-1.5 py-0.5 font-mono">{o.trackingNumber}</code>
                 </p>
               )}
               <div className="mt-2 flex flex-wrap gap-2">
                 {o.status === 'Shipped' && (
-                  <button disabled={busy} onClick={() => onAction('mark-ofd', o)} className="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-1.5 text-[12px] font-semibold text-purple-800 shadow-sm ring-1 ring-purple-300 hover:bg-purple-100 disabled:opacity-50">
+                  <button disabled={busy} onClick={() => onAction('mark-ofd', o)} className="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-1.5 text-[12px] font-semibold text-[#7A6239] shadow-sm ring-1 ring-[#CDB98F] hover:bg-[#EAE0CC] disabled:opacity-50">
                     Out for Delivery
                   </button>
                 )}

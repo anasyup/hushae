@@ -83,7 +83,7 @@ export default function Insights() {
       <div className="mb-6 grid gap-4 md:grid-cols-3">
         <MiniKpi icon={Clock} label="Peak hour" value={`${String(peakHour.hour).padStart(2, '0')}:00`} sub={`${peakHour.orders} orders`} accent="#2563eb" />
         <MiniKpi icon={RotateCcw} label="Repeat rate" value={`${d.repeat.rate}%`} sub={`${d.repeat.repeat} of ${d.repeat.total} buyers came back`} accent="#059669" />
-        <MiniKpi icon={MapPin} label="Top city" value={d.topCities[0]?._id || '—'} sub={d.topCities[0] ? `${pkr(d.topCities[0].revenue)} · ${d.topCities[0].orders} orders` : ''} accent="#7c3aed" />
+        <MiniKpi icon={MapPin} label="Top city" value={d.topCities[0]?._id || '—'} sub={d.topCities[0] ? `${pkr(d.topCities[0].revenue)} · ${d.topCities[0].orders} orders` : ''} accent="#A68A56" />
       </div>
 
       {/* Best selling hours */}
@@ -124,7 +124,7 @@ export default function Insights() {
               <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-500">Top cities</p>
               <p className="mt-1 text-[12px] text-neutral-500">By revenue — focus your ads here.</p>
             </div>
-            <span className="grid h-9 w-9 place-items-center rounded-xl bg-purple-50 text-purple-700"><MapPin size={15}/></span>
+            <span className="grid h-9 w-9 place-items-center rounded-xl bg-[#F4EEE2] text-[#8F7448]"><MapPin size={15}/></span>
           </div>
           {d.topCities.length === 0 ? (
             <p className="py-8 text-center text-sm text-neutral-400">No delivery data yet.</p>
@@ -148,7 +148,7 @@ export default function Insights() {
                       <span>{c.orders} order{c.orders === 1 ? '' : 's'}</span>
                     </div>
                     <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white">
-                      <div className="h-full rounded-full bg-purple-500 transition-all" style={{ width: `${w}%` }} />
+                      <div className="h-full rounded-full bg-[#F4EEE2]0 transition-all" style={{ width: `${w}%` }} />
                     </div>
                   </div>
                 );

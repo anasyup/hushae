@@ -342,7 +342,7 @@ export default function Finance() {
           highlight={summary.netProfit < 0}
         />
         <BigKpi icon={Coins} label="Gross profit" value={pkr(summary.grossProfit)} sub={`${summary.grossMargin.toFixed(1)}% gross margin`} accent="#2563eb" />
-        <BigKpi icon={Wallet} label="Avg. order value" value={pkr(summary.aov)} sub={`${summary.itemCount} items sold`} accent="#7c3aed" />
+        <BigKpi icon={Wallet} label="Avg. order value" value={pkr(summary.aov)} sub={`${summary.itemCount} items sold`} accent="#A68A56" />
         <BigKpi icon={ShoppingBag} label="Total expenses" value={pkr(summary.totalExpense)} sub="COGS + costs + ads" accent="#d97706" />
         <BigKpi
           icon={AlertTriangle}
@@ -471,7 +471,7 @@ function ExpenseDonut({ summary }) {
     { name: 'Cost of goods',    value: summary.cogs,         color: '#dc2626' },
     { name: 'Packing',          value: summary.packingTotal, color: '#f59e0b' },
     { name: 'Courier subsidy',  value: summary.shipSubsidy,  color: '#d97706' },
-    { name: 'Ads',              value: summary.adsTotal,     color: '#7c3aed' },
+    { name: 'Ads',              value: summary.adsTotal,     color: '#A68A56' },
     { name: 'SEO / Content',    value: summary.seoTotal,     color: '#2563eb' },
     { name: 'Other fixed',      value: summary.otherTotal,   color: '#64748b' },
   ].filter((d) => d.value > 0);

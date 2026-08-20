@@ -39,32 +39,33 @@
 }
 
 /* Admin dark palette — opt-in via the topbar sun/moon toggle (default light).
-   Base #0e1116, cards #161b22, raised #1a2028, borders #232b36, text scale
-   descending from near-white (#eef1f5 → muted #6b7686). */
+   JET BLACK register: pure #000000 grounds, #0D0D0D cards, #151515 raised,
+   hairline #1F1F1F borders, pure-white text hierarchy, brand gold #C9A96E
+   as the single accent (no blue-grays, no purple). */
 .dark-admin {
-  --tw-white: 17 17 20;     /* cards / panels #111114 */
-  --tw-black: 10 10 12;     /* page background #0A0A0C */
-  --n50:  17 17 20;         /* card surface #111114 */
-  --n100: 23 23 27;         /* raised / hover #17171B */
-  --n200: 30 30 34;         /* selected / subtle borders */
-  --n300: 44 44 50;         /* input borders */
-  --n400: 66 66 74;         /* disabled */
-  --n500: 138 138 147;      /* muted text #8A8A93 */
-  --n600: 138 138 147;
-  --n700: 209 209 214;      /* secondary text #D1D1D6 */
-  --n800: 209 209 214;
-  --n900: 244 244 245;      /* primary text #F4F4F5 */
-  --n950: 244 244 245;
+  --tw-white: 13 13 13;     /* cards / panels #0D0D0D */
+  --tw-black: 0 0 0;        /* page background #000000 */
+  --n50:  13 13 13;         /* card surface #0D0D0D */
+  --n100: 21 21 21;         /* raised / hover #151515 */
+  --n200: 31 31 31;         /* hairline borders #1F1F1F */
+  --n300: 42 42 42;         /* input borders #2A2A2A */
+  --n400: 58 58 58;         /* disabled #3A3A3A */
+  --n500: 133 133 133;      /* muted text #858585 */
+  --n600: 133 133 133;
+  --n700: 190 190 190;      /* secondary text #BEBEBE */
+  --n800: 190 190 190;
+  --n900: 255 255 255;      /* primary text #FFFFFF */
+  --n950: 255 255 255;
   /* QA tokens under dark admin — insurance so any component that inherits
      body colour/background stays dark-correct. */
-  --stone: 10 10 12;
-  --sand:  17 17 20;
-  --clay:  30 30 34;
-  --charcoal: 244 244 245;
-  --smoke: 138 138 147;
-  --gold:  108 92 231;      /* accent #6C5CE7 (one accent) */
-  --bronze: 91 79 233;      /* accent-deep #5B4FE9 */
-  --midnight: 10 10 12;
+  --stone: 0 0 0;
+  --sand:  13 13 13;
+  --clay:  31 31 31;
+  --charcoal: 255 255 255;
+  --smoke: 133 133 133;
+  --gold:  201 169 110;     /* brand gold #C9A96E — the single accent */
+  --bronze: 166 138 86;     /* dark gold #A68A56 */
+  --midnight: 0 0 0;
 }
 
 /* ════════════════════════════════════════════════════════════════════════
@@ -882,53 +883,53 @@
    Dark counterpart below (optional, toggle-kept, default LIGHT).
    ════════════════════════════════════════════════════════════════════════ */
 :root {
-   --px-bg-page:      #F6F6F8;   /* production redesign — light lavender-gray page */
+   --px-bg-page:      #F5F5F5;   /* HUSHAE Command Center — light canvas */
    --px-bg-sidebar:   #FFFFFF;
    --px-bg-card:      #FFFFFF;
    --px-bg-hover:     #F4F4F5;
-   --px-border:       #E6E6EA;   /* card border — subdued */
-   --px-border-strong:#D4D4D8;
-   --px-ink:          #18181B;   /* emphasis */
-   --px-secondary:    #52525B;   /* body text */
-   --px-muted:        #71717A;   /* subdued */
-   --px-faint:        #A1A1AA;
-   --px-accent:       #6C5CE7;   /* HUSHAE purple — brand mark, primary, active */
-   --px-accent-hover: #5B4FE0;
-   --px-accent-soft-bg: rgba(108, 92, 231, 0.10);
-   --px-accent-soft-text: #6C5CE7;
-   --px-primary:      #6C5CE7;   /* primary button fill (purple) */
-   --px-primary-hover:#5B4FE0;
+   --px-border:       #E5E5E5;   /* hairline border — CK monochrome */
+   --px-border-strong:#D4D4D4;
+   --px-ink:          #111111;   /* jet ink emphasis */
+   --px-secondary:    #525252;   /* body text */
+   --px-muted:        #707070;   /* subdued */
+   --px-faint:        #A1A1A1;
+   --px-accent:       #A68A56;   /* brand bronze-gold — readable on white */
+   --px-accent-hover: #8F7448;
+   --px-accent-soft-bg: rgba(166, 138, 86, 0.12);
+   --px-accent-soft-text: #A68A56;
+   --px-primary:      #111111;   /* jet black primary button (CK register) */
+   --px-primary-hover:#000000;
    --px-success: #15803D;
    --px-warning: #B45309;
    --px-danger:  #DC2626;
    --px-info:    #2563EB;
-   --px-shadow-card: 0 1px 2px rgba(24,24,27,0.04), 0 1px 3px rgba(24,24,27,0.06);
-   --px-shadow-pop:  0 10px 40px -12px rgba(24,24,27,0.18);
+   --px-shadow-card: 0 1px 2px rgba(17,17,17,0.04), 0 1px 3px rgba(17,17,17,0.06);
+   --px-shadow-pop:  0 10px 40px -12px rgba(17,17,17,0.18);
 }
 
 .dark-admin {
-  --px-bg-page:      #0E0E11;   /* production redesign dark page */
-  --px-bg-sidebar:   #131316;
-  --px-bg-card:      #17171B;
-  --px-bg-hover:     #1E1E23;
-  --px-border:       rgba(255,255,255,0.08);
-  --px-border-strong:rgba(255,255,255,0.14);
-  --px-ink:          #F4F4F5;
-  --px-secondary:    #D4D4D8;
-  --px-muted:        #A1A1AA;
-  --px-faint:        #71717A;
-  --px-accent:       #7C6CF0;   /* purple */
-  --px-accent-hover: #8C7DF2;
-  --px-accent-soft-bg: rgba(124,108,240,0.16);
-  --px-accent-soft-text: #B8AEFC;
-  --px-primary:      #7C6CF0;
-  --px-primary-hover:#8C7DF2;
+  --px-bg-page:      #000000;   /* jet black page */
+  --px-bg-sidebar:   #0A0A0A;
+  --px-bg-card:      #0D0D0D;
+  --px-bg-hover:     #151515;
+  --px-border:       #1F1F1F;
+  --px-border-strong:#2A2A2A;
+  --px-ink:          #FFFFFF;
+  --px-secondary:    #D4D4D4;
+  --px-muted:        #A1A1A1;
+  --px-faint:        #717171;
+  --px-accent:       #D6BC8A;   /* light gold — readable on black */
+  --px-accent-hover: #E3CEA6;
+  --px-accent-soft-bg: rgba(201,169,110,0.16);
+  --px-accent-soft-text: #D6BC8A;
+  --px-primary:      #FFFFFF;   /* white primary button on jet black */
+  --px-primary-hover:#E5E5E5;
   --px-success: #4ADE80;
   --px-warning: #F0B429;
   --px-danger:  #F87171;
   --px-info:    #60A5FA;
   --px-shadow-card: none;
-  --px-shadow-pop:  0 12px 40px -8px rgba(0,0,0,0.5);
+  --px-shadow-pop:  0 12px 40px -8px rgba(0,0,0,0.6);
 }
 
 /* INTER — self-hosted variable font (400–700). Admin body face. */
@@ -941,7 +942,7 @@
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
-/* Admin focus ring — 2px purple + 2px offset (keyboard a11y). */
+/* Admin focus ring — 2px brand gold + 2px offset (keyboard a11y). */
 .admin-shell :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
   outline: 2px solid var(--px-accent);
   outline-offset: 2px;
