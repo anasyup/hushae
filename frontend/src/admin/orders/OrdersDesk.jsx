@@ -152,14 +152,14 @@ export default function OrdersDesk() {
           <div className="flex items-center gap-2">
             <Link
               to="/admin/orders/new"
-              className="inline-flex items-center gap-1.5 rounded-lg bg-neutral-900 px-3 py-2 text-sm font-semibold text-white transition hover:bg-black"
+              className="inline-flex items-center gap-1.5 rounded-md bg-neutral-900 px-3 py-2 text-sm font-semibold text-white transition hover:bg-black"
               title="Create an order for a customer who ordered by phone or WhatsApp"
             >
               <Plus size={14} /> Create order
             </Link>
             <Link
               to="/admin"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm font-medium text-neutral-700 transition hover:border-neutral-400"
+              className="inline-flex items-center gap-1.5 rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm font-medium text-neutral-700 transition hover:border-neutral-400"
             >
               <TrendingUp size={14} /> Analytics
             </Link>
@@ -167,7 +167,7 @@ export default function OrdersDesk() {
             <div className="relative">
               <button onClick={() => { setShowNotes((v) => !v); if (!showNotes) notes.markRead(); }}
                 aria-label="Notifications"
-                className="relative grid h-9 w-9 place-items-center rounded-lg border border-neutral-300 bg-white text-neutral-600 hover:border-neutral-400">
+                className="relative grid h-9 w-9 place-items-center rounded-md border border-neutral-300 bg-white text-neutral-600 hover:border-neutral-400">
                 <Bell size={15} />
                 {notes.unread > 0 && (
                   <span className="absolute -right-1 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-[#9A5548] px-1 text-[13px] font-bold text-white">
@@ -178,7 +178,7 @@ export default function OrdersDesk() {
               {showNotes && (
                 <>
                   <div className="fixed inset-0 z-30" onClick={() => setShowNotes(false)} />
-                  <div className="absolute right-0 top-11 z-40 max-h-96 w-80 overflow-y-auto rounded-xl border border-neutral-200 bg-white shadow-xl">
+                  <div className="absolute right-0 top-11 z-40 max-h-96 w-80 overflow-y-auto rounded-md border border-neutral-200 bg-white shadow-md">
                     <div className="flex items-center justify-between border-b border-neutral-100 px-3 py-2">
                       <p className="text-[13px] font-semibold">Notifications</p>
                       <button onClick={() => setShowNotes(false)} className="text-neutral-400 hover:text-neutral-900"><X size={14} /></button>
@@ -202,7 +202,7 @@ export default function OrdersDesk() {
             </div>
 
             <button onClick={() => reload()} aria-label="Refresh"
-              className="grid h-9 w-9 place-items-center rounded-lg border border-neutral-300 bg-white text-neutral-600 hover:border-neutral-400">
+              className="grid h-9 w-9 place-items-center rounded-md border border-neutral-300 bg-white text-neutral-600 hover:border-neutral-400">
               <RefreshCcw size={14} className={loading ? 'animate-spin' : ''} />
             </button>
           </div>
@@ -216,7 +216,7 @@ export default function OrdersDesk() {
             return (
               <button key={g.key} onClick={() => setFilter({ group: g.key, stage: '' })} title={g.hint}
                 aria-pressed={active}
-                className={`inline-flex shrink-0 items-center gap-1.5 rounded-lg border px-3 py-2 text-[13px] font-medium transition ${
+                className={`inline-flex shrink-0 items-center gap-1.5 rounded-md border px-3 py-2 text-[13px] font-medium transition ${
                   active ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-200 bg-white text-neutral-600 hover:border-neutral-300'
                 }`}>
                 <g.icon size={14} /> {g.label}
@@ -249,7 +249,7 @@ export default function OrdersDesk() {
         />
 
         {selectAllMatching && data.total > orders.length && (
-          <p className="rounded-lg bg-[#F6F1E6] px-3 py-2 text-[12px] text-[#6B552F]">
+          <p className="rounded-md bg-[#F6F1E6] px-3 py-2 text-[12px] text-[#6B552F]">
             All <strong>{data.total}</strong> matching orders are targeted — actions apply beyond this page.
             <button onClick={() => setSelectAllMatching(false)} className="ml-2 font-semibold underline">
               Limit to this page
@@ -268,7 +268,7 @@ export default function OrdersDesk() {
 
         {/* ── List ───────────────────────────────────────────────────────── */}
         {error && (
-          <div className="flex items-center gap-3 rounded-xl border border-[#E0C6BE] bg-[#F5EDEB] p-4">
+          <div className="flex items-center gap-3 rounded-md border border-[#E0C6BE] bg-[#F5EDEB] p-4">
             <AlertCircle size={18} className="shrink-0 text-[#9A5548]" />
             <p className="flex-1 text-[13px] text-[#7C4237]">{error}</p>
             <button onClick={() => reload()} className="rounded-md bg-[#9A5548] px-3 py-1.5 text-[12px] font-semibold text-white">Retry</button>
@@ -278,18 +278,18 @@ export default function OrdersDesk() {
         {loading && orders.length === 0 && (
           <div className="space-y-2">
             {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="h-20 animate-pulse rounded-xl bg-neutral-100" />
+              <div key={i} className="h-20 animate-pulse rounded-md bg-neutral-100" />
             ))}
           </div>
         )}
 
         {!loading && orders.length === 0 && !error && (
-          <div className="rounded-xl border border-dashed border-neutral-300 py-16 text-center">
+          <div className="rounded-md border border-dashed border-neutral-300 py-16 text-center">
             <Inbox size={28} className="mx-auto text-neutral-300" />
             <p className="mt-3 text-[12px] font-medium text-neutral-700">No orders match these filters</p>
             <p className="mt-1 text-[12px] text-neutral-500">Try widening the date range or clearing the search.</p>
             {activeFilterCount > 0 && (
-              <button onClick={resetFilters} className="mt-4 rounded-lg bg-neutral-900 px-4 py-2 text-[13px] font-semibold text-white">
+              <button onClick={resetFilters} className="mt-4 rounded-md bg-neutral-900 px-4 py-2 text-[13px] font-semibold text-white">
                 Clear all filters
               </button>
             )}
@@ -315,11 +315,11 @@ export default function OrdersDesk() {
             <p className="text-[12px] text-neutral-500">Page {data.page} of {data.pages}</p>
             <div className="flex gap-1.5">
               <button disabled={data.page <= 1} onClick={() => setFilter({ page: String(data.page - 1) })}
-                className="inline-flex items-center gap-1 rounded-lg border border-neutral-300 px-3 py-1.5 text-[13px] font-medium disabled:opacity-40">
+                className="inline-flex items-center gap-1 rounded-md border border-neutral-300 px-3 py-1.5 text-[13px] font-medium disabled:opacity-40">
                 <ChevronLeft size={13} /> Previous
               </button>
               <button disabled={data.page >= data.pages} onClick={() => setFilter({ page: String(data.page + 1) })}
-                className="inline-flex items-center gap-1 rounded-lg border border-neutral-300 px-3 py-1.5 text-[13px] font-medium disabled:opacity-40">
+                className="inline-flex items-center gap-1 rounded-md border border-neutral-300 px-3 py-1.5 text-[13px] font-medium disabled:opacity-40">
                 Next <ChevronRight size={13} />
               </button>
             </div>
@@ -333,7 +333,7 @@ export default function OrdersDesk() {
 
       {showShortcuts && (
         <div className="fixed inset-0 z-50 grid place-items-center bg-black/40 p-4" onClick={() => setShowShortcuts(false)}>
-          <div className="w-full max-w-sm rounded-xl bg-white p-5 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+          <div className="w-full max-w-sm rounded-md bg-white p-5 shadow-2xl" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between">
               <p className="inline-flex items-center gap-2 text-[12px] font-semibold"><Keyboard size={15} /> Shortcuts</p>
               <button onClick={() => setShowShortcuts(false)} className="text-neutral-400 hover:text-neutral-900"><X size={15} /></button>
@@ -380,11 +380,11 @@ function IssueModal({ order, token, toast, onClose, onSaved }) {
     }
   };
 
-  const field = 'w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-neutral-900';
+  const field = 'w-full rounded-md border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-neutral-900';
 
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-black/40 p-4" role="dialog" aria-modal="true">
-      <div className="w-full max-w-md rounded-xl bg-white p-5 shadow-2xl">
+      <div className="w-full max-w-md rounded-md bg-white p-5 shadow-2xl">
         <div className="flex items-start justify-between">
           <div>
             <p className="text-[12px] font-semibold text-neutral-900">Log a customer issue</p>
@@ -422,11 +422,11 @@ function IssueModal({ order, token, toast, onClose, onSaved }) {
         </div>
 
         <div className="mt-5 flex justify-end gap-2">
-          <button onClick={onClose} className="rounded-lg border border-neutral-300 px-3.5 py-2 text-[13px] font-medium text-neutral-700 hover:bg-neutral-50">
+          <button onClick={onClose} className="rounded-md border border-neutral-300 px-3.5 py-2 text-[13px] font-medium text-neutral-700 hover:bg-neutral-50">
             Cancel
           </button>
           <button disabled={busy} onClick={save}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-neutral-900 px-3.5 py-2 text-[13px] font-semibold text-white hover:bg-black disabled:opacity-50">
+            className="inline-flex items-center gap-1.5 rounded-md bg-neutral-900 px-3.5 py-2 text-[13px] font-semibold text-white hover:bg-black disabled:opacity-50">
             {busy ? <Loader2 size={13} className="animate-spin" /> : null} Save issue
           </button>
         </div>

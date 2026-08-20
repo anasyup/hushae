@@ -87,8 +87,8 @@ export default function OrderDetail() {
     setBusy(false);
   };
 
-  if (err) return <AdminLayout title="Order"><div className="mx-auto grid max-w-md place-items-center rounded-2xl border border-[#E0C6BE] bg-[#F5EDEB] p-10"><p className="text-sm text-[#8A4B3F]">{err}</p><button onClick={() => { setErr(''); load(); }} className="mt-4 rounded-full border border-[#D0ABA0] bg-white px-4 py-2 text-xs font-semibold text-[#8A4B3F] hover:bg-[#F5EDEB]">Try again</button></div></AdminLayout>;
-  if (!o) return <AdminLayout title="Order"><div className="grid gap-4"><div className="animate-pulse rounded-xl bg-neutral-100 h-20 rounded-xl" /><div className="animate-pulse rounded-xl bg-neutral-100 h-64 rounded-xl" /><div className="animate-pulse rounded-xl bg-neutral-100 h-32 rounded-xl" /></div></AdminLayout>;
+  if (err) return <AdminLayout title="Order"><div className="mx-auto grid max-w-md place-items-center rounded-md border border-[#E0C6BE] bg-[#F5EDEB] p-10"><p className="text-sm text-[#8A4B3F]">{err}</p><button onClick={() => { setErr(''); load(); }} className="mt-4 rounded-full border border-[#D0ABA0] bg-white px-4 py-2 text-xs font-semibold text-[#8A4B3F] hover:bg-[#F5EDEB]">Try again</button></div></AdminLayout>;
+  if (!o) return <AdminLayout title="Order"><div className="grid gap-4"><div className="animate-pulse rounded-md bg-neutral-100 h-20 rounded-md" /><div className="animate-pulse rounded-md bg-neutral-100 h-64 rounded-md" /><div className="animate-pulse rounded-md bg-neutral-100 h-32 rounded-md" /></div></AdminLayout>;
 
   const c = o.customerInfo;
   const pcs = o.items.reduce((a, it) => a + (it.quantity || 1), 0);
@@ -106,7 +106,7 @@ export default function OrderDetail() {
 
   return (
     <AdminLayout title={`Order ${o.orderNumber}`}>
-      <div className="mb-5 flex flex-wrap items-center gap-2 rounded-xl border border-neutral-200 bg-white p-3">
+      <div className="mb-5 flex flex-wrap items-center gap-2 rounded-md border border-neutral-200 bg-white p-3">
         <p className="mr-auto min-w-0 text-[13px] text-neutral-600">
           Next step for <span className="font-semibold text-neutral-900">{o.orderNumber}</span>
           {o.discreetPackaging ? <span className="ml-2 rounded bg-neutral-100 px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide">Discreet pack</span> : null}
@@ -185,7 +185,7 @@ export default function OrderDetail() {
           { icon: Banknote, label: 'Payment', value: o.paymentMethod, sub: o.paymentStatus },
           { icon: ReceiptText, label: 'Total', value: pkr(o.total), sub: fmtDateTime(o.createdAt) },
         ].map(({ icon: Icon, label, value, sub }) => (
-          <div key={label} className="flex items-center gap-2.5 rounded-xl border border-neutral-200 bg-white p-3">
+          <div key={label} className="flex items-center gap-2.5 rounded-md border border-neutral-200 bg-white p-3">
             <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-neutral-100 text-neutral-600"><Icon size={14} /></span>
             <div className="min-w-0">
               <p className="text-[13px] font-bold uppercase tracking-wider text-neutral-400">{label}</p>
@@ -199,7 +199,7 @@ export default function OrderDetail() {
       {/* ═══ MAIN CONTENT ════════════════════════════════════════ */}
       <div className="grid gap-5 lg:grid-cols-[1fr_300px]">
         {/* ── Left: Items + tab content ──────────────────────────────── */}
-        <div className="rounded-2xl border border-neutral-200 bg-white">
+        <div className="rounded-md border border-neutral-200 bg-white">
           {/* Tabs */}
           <div className="flex border-b border-neutral-100 px-5 pt-4 gap-1">
             {[
@@ -264,7 +264,7 @@ export default function OrderDetail() {
                 <div className="relative px-5 py-3">
                   <input value={pq} onChange={(e) => searchPicker(e.target.value)} placeholder="Add product — search by name or SKU…" className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-[12px] outline-none focus:border-neutral-900" />
                   {pRes.length > 0 && (
-                    <div className="absolute inset-x-5 top-12 z-20 overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-lg">{pRes.map((p) => (
+                    <div className="absolute inset-x-5 top-12 z-20 overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-sm">{pRes.map((p) => (
                       <button type="button" key={p._id} onClick={() => addPicked(p)} className="flex w-full items-center gap-2.5 px-3 py-2 text-left transition hover:bg-neutral-50">
                         <Img src={p.images?.[0]?.url} alt="" className="h-8 w-6 rounded object-cover" />
                         <span className="flex-1 truncate text-[12px] font-medium">{p.name}</span>
@@ -355,7 +355,7 @@ export default function OrderDetail() {
         {/* ── RIGHT SIDEBAR ────────────────────────────────────────── */}
         <div className="space-y-4">
           {/* Customer */}
-          <div className="rounded-2xl border border-neutral-200 bg-white p-5">
+          <div className="rounded-md border border-neutral-200 bg-white p-5">
             <div className="flex items-center justify-between mb-3">
               <p className="text-[13px] font-bold uppercase tracking-wider text-neutral-400">Customer</p>
               <Link to={`/admin/customers`} className="text-[13px] font-semibold text-neutral-400 hover:text-neutral-900">View all</Link>
@@ -382,7 +382,7 @@ export default function OrderDetail() {
           </div>
 
           {/* Address */}
-          <div className="rounded-2xl border border-neutral-200 bg-white p-5">
+          <div className="rounded-md border border-neutral-200 bg-white p-5">
             <div className="flex items-center gap-2 mb-3">
               <MapPin size={13} className="text-neutral-500" />
               <p className="text-[13px] font-bold uppercase tracking-wider text-neutral-400">Delivery address</p>
@@ -398,7 +398,7 @@ export default function OrderDetail() {
           </div>
 
           {/* Payment */}
-          <div className="rounded-2xl border border-neutral-200 bg-white p-5">
+          <div className="rounded-md border border-neutral-200 bg-white p-5">
             <div className="flex items-center gap-2 mb-3">
               <Banknote size={13} className="text-neutral-500" />
               <p className="text-[13px] font-bold uppercase tracking-wider text-neutral-400">Payment</p>

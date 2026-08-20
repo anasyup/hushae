@@ -108,7 +108,7 @@ function OrderCard({ order: o, onAction, actionsBusyId }) {
   };
 
   return (
-    <article className="group relative rounded-2xl border border-neutral-200 bg-white transition hover:border-neutral-300 hover:shadow-sm">
+    <article className="group relative rounded-md border border-neutral-200 bg-white transition hover:border-neutral-300 hover:shadow-sm">
       {/* Left status indicator strip */}
       <div className={`absolute inset-y-0 left-0 w-1 rounded-l-2xl ${
         stage === 'new'       ? 'bg-[#D4B87E]'
@@ -169,10 +169,10 @@ function OrderCard({ order: o, onAction, actionsBusyId }) {
 
         {/* --- QUICK ACTIONS --- */}
         <div className="flex items-center gap-1.5">
-          <Link to={`/admin/orders/${o._id}`} className="rounded-lg border border-neutral-200 px-3 py-1.5 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-900 hover:text-white">
+          <Link to={`/admin/orders/${o._id}`} className="rounded-md border border-neutral-200 px-3 py-1.5 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-900 hover:text-white">
             Details <ChevronRight size={11} className="inline" />
           </Link>
-          <button onClick={() => setExpanded((v) => !v)} aria-expanded={expanded} className="rounded-lg border border-neutral-200 px-2 py-1.5 text-neutral-500 transition hover:bg-neutral-100" title={expanded ? 'Hide actions' : 'Show actions'}>
+          <button onClick={() => setExpanded((v) => !v)} aria-expanded={expanded} className="rounded-md border border-neutral-200 px-2 py-1.5 text-neutral-500 transition hover:bg-neutral-100" title={expanded ? 'Hide actions' : 'Show actions'}>
             <ChevronRight size={13} className={`transition-transform ${expanded ? 'rotate-90' : ''}`} />
           </button>
         </div>
@@ -183,20 +183,20 @@ function OrderCard({ order: o, onAction, actionsBusyId }) {
         <div className="border-t border-neutral-100 bg-neutral-50/60 p-4 pl-5">
 
           {codPendingVerify && (
-            <div className="mb-3 rounded-xl border border-[#DCCBA5] bg-[#F6F1E6] p-3">
+            <div className="mb-3 rounded-md border border-[#DCCBA5] bg-[#F6F1E6] p-3">
               <p className="text-[12px] font-semibold text-[#5C4A28]">📞 COD verification pending</p>
               <p className="mt-1 text-[12px] text-[#6B552F]">Call the customer to confirm the order before shipping. Fake COD orders cost you courier fees.</p>
               <div className="mt-2 flex flex-wrap gap-2">
-                <a href={`tel:${o.customerInfo.phone}`} className="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-1.5 text-[12px] font-semibold text-[#5C4A28] shadow-sm ring-1 ring-[#CDB98F] hover:bg-[#EDE4CE]">
+                <a href={`tel:${o.customerInfo.phone}`} className="inline-flex items-center gap-1.5 rounded-md bg-white px-3 py-1.5 text-[12px] font-semibold text-[#5C4A28] shadow-sm ring-1 ring-[#CDB98F] hover:bg-[#EDE4CE]">
                   <Phone size={12} /> Call {o.customerInfo.phone}
                 </a>
-                <a href={`https://wa.me/${(o.customerInfo.phone || '').replace(/\D/g, '').replace(/^0/, '92')}?text=${encodeURIComponent(`Hi! This is HUSHAE regarding your order ${o.orderNumber}. Can we confirm the delivery details?`)}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-1.5 text-[12px] font-semibold text-[#33503F] shadow-sm ring-1 ring-[#B4C8BA] hover:bg-[#E9EFEA]">
+                <a href={`https://wa.me/${(o.customerInfo.phone || '').replace(/\D/g, '').replace(/^0/, '92')}?text=${encodeURIComponent(`Hi! This is HUSHAE regarding your order ${o.orderNumber}. Can we confirm the delivery details?`)}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-md bg-white px-3 py-1.5 text-[12px] font-semibold text-[#33503F] shadow-sm ring-1 ring-[#B4C8BA] hover:bg-[#E9EFEA]">
                   <MessageCircle size={12} /> WhatsApp
                 </a>
-                <button disabled={busy} onClick={() => onAction('verify-cod', o)} className="inline-flex items-center gap-1.5 rounded-lg bg-[#4A6B58] px-3 py-1.5 text-[12px] font-semibold text-white shadow-sm hover:bg-[#3E5C4B] disabled:opacity-50">
+                <button disabled={busy} onClick={() => onAction('verify-cod', o)} className="inline-flex items-center gap-1.5 rounded-md bg-[#4A6B58] px-3 py-1.5 text-[12px] font-semibold text-white shadow-sm hover:bg-[#3E5C4B] disabled:opacity-50">
                   <CheckCircle2 size={12} /> {busy ? 'Confirming…' : 'Confirm by Call'}
                 </button>
-                <button disabled={busy} onClick={() => onAction('cancel', o)} className="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-1.5 text-[12px] font-semibold text-[#8A4B3F] shadow-sm ring-1 ring-[#E0C6BE] hover:bg-[#F5EDEB]">
+                <button disabled={busy} onClick={() => onAction('cancel', o)} className="inline-flex items-center gap-1.5 rounded-md bg-white px-3 py-1.5 text-[12px] font-semibold text-[#8A4B3F] shadow-sm ring-1 ring-[#E0C6BE] hover:bg-[#F5EDEB]">
                   <XCircle size={12} /> Cancel
                 </button>
               </div>
@@ -204,7 +204,7 @@ function OrderCard({ order: o, onAction, actionsBusyId }) {
           )}
 
           {awaitingPayment && (
-            <div className="mb-3 rounded-xl border border-[#D4D4D4] bg-[#F1F1F1] p-3">
+            <div className="mb-3 rounded-md border border-[#D4D4D4] bg-[#F1F1F1] p-3">
               <p className="text-[12px] font-semibold text-[#3A3A3A]">💳 Awaiting payment confirmation</p>
               <p className="mt-1 text-[12px] text-[#4A4A4A]">
                 Method: <b>{o.paymentMethod}</b>
@@ -212,10 +212,10 @@ function OrderCard({ order: o, onAction, actionsBusyId }) {
               </p>
               <p className="mt-1 text-[12px] text-[#4A4A4A]">Verify payment in your account, then click below to confirm.</p>
               <div className="mt-2 flex flex-wrap gap-2">
-                <button disabled={busy} onClick={() => onAction('mark-paid', o)} className="inline-flex items-center gap-1.5 rounded-lg bg-[#4A6B58] px-3 py-1.5 text-[12px] font-semibold text-white shadow-sm hover:bg-[#3E5C4B] disabled:opacity-50">
+                <button disabled={busy} onClick={() => onAction('mark-paid', o)} className="inline-flex items-center gap-1.5 rounded-md bg-[#4A6B58] px-3 py-1.5 text-[12px] font-semibold text-white shadow-sm hover:bg-[#3E5C4B] disabled:opacity-50">
                   <CheckCircle2 size={12} /> {busy ? 'Confirming…' : 'Mark Paid → Auto-Confirm'}
                 </button>
-                <button disabled={busy} onClick={() => onAction('cancel', o)} className="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-1.5 text-[12px] font-semibold text-[#8A4B3F] shadow-sm ring-1 ring-[#E0C6BE] hover:bg-[#F5EDEB]">
+                <button disabled={busy} onClick={() => onAction('cancel', o)} className="inline-flex items-center gap-1.5 rounded-md bg-white px-3 py-1.5 text-[12px] font-semibold text-[#8A4B3F] shadow-sm ring-1 ring-[#E0C6BE] hover:bg-[#F5EDEB]">
                   <XCircle size={12} /> Cancel
                 </button>
               </div>
@@ -223,14 +223,14 @@ function OrderCard({ order: o, onAction, actionsBusyId }) {
           )}
 
           {isConfirmed && (
-            <div className="mb-3 rounded-xl border border-[#D4D4D4] bg-[#F1F1F1] p-3">
+            <div className="mb-3 rounded-md border border-[#D4D4D4] bg-[#F1F1F1] p-3">
               <p className="text-[12px] font-semibold text-[#3A3A3A]">📦 Ready to pack</p>
               <p className="mt-1 text-[12px] text-[#4A4A4A]">Print the invoice, pack the items with discreet packaging, then move to next stage.</p>
               <div className="mt-2 flex flex-wrap gap-2">
-                <a href={`/admin/orders/${o._id}/invoice`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-1.5 text-[12px] font-semibold text-neutral-800 shadow-sm ring-1 ring-neutral-300 hover:bg-neutral-100">
+                <a href={`/admin/orders/${o._id}/invoice`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-md bg-white px-3 py-1.5 text-[12px] font-semibold text-neutral-800 shadow-sm ring-1 ring-neutral-300 hover:bg-neutral-100">
                   <Printer size={12} /> Print Invoice
                 </a>
-                <button disabled={busy} onClick={() => onAction('mark-processing', o)} className="inline-flex items-center gap-1.5 rounded-lg bg-neutral-900 px-3 py-1.5 text-[12px] font-semibold text-white shadow-sm hover:bg-neutral-800 disabled:opacity-50">
+                <button disabled={busy} onClick={() => onAction('mark-processing', o)} className="inline-flex items-center gap-1.5 rounded-md bg-neutral-900 px-3 py-1.5 text-[12px] font-semibold text-white shadow-sm hover:bg-neutral-800 disabled:opacity-50">
                   <Send size={12} /> Packed — Arrange Courier
                 </button>
               </div>
@@ -238,18 +238,18 @@ function OrderCard({ order: o, onAction, actionsBusyId }) {
           )}
 
           {isProcessing && (
-            <div className="mb-3 rounded-xl border border-[#D9C9A6] bg-[#F4EEE2] p-3">
+            <div className="mb-3 rounded-md border border-[#D9C9A6] bg-[#F4EEE2] p-3">
               <p className="text-[12px] font-semibold text-[#6B552F]">🚚 Arranging courier</p>
               <p className="mt-1 text-[12px] text-[#7A6239]">Book pickup with TCS / Leopards / M&P and enter tracking details.</p>
               <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                <input value={trackingDraft.courierName} onChange={(e) => setTrackingDraft({ ...trackingDraft, courierName: e.target.value })} placeholder="Courier (e.g. TCS)" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !py-2 !text-[12px]" />
-                <input value={trackingDraft.trackingNumber} onChange={(e) => setTrackingDraft({ ...trackingDraft, trackingNumber: e.target.value })} placeholder="Tracking number" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !py-2 !text-[12px]" />
+                <input value={trackingDraft.courierName} onChange={(e) => setTrackingDraft({ ...trackingDraft, courierName: e.target.value })} placeholder="Courier (e.g. TCS)" className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !py-2 !text-[12px]" />
+                <input value={trackingDraft.trackingNumber} onChange={(e) => setTrackingDraft({ ...trackingDraft, trackingNumber: e.target.value })} placeholder="Tracking number" className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !py-2 !text-[12px]" />
               </div>
               <div className="mt-2 flex flex-wrap gap-2">
-                <button disabled={busy} onClick={() => onAction('save-tracking', o, trackingDraft)} className="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-1.5 text-[12px] font-semibold text-neutral-800 shadow-sm ring-1 ring-neutral-300 hover:bg-neutral-100 disabled:opacity-50">
+                <button disabled={busy} onClick={() => onAction('save-tracking', o, trackingDraft)} className="inline-flex items-center gap-1.5 rounded-md bg-white px-3 py-1.5 text-[12px] font-semibold text-neutral-800 shadow-sm ring-1 ring-neutral-300 hover:bg-neutral-100 disabled:opacity-50">
                   Save Tracking
                 </button>
-                <button disabled={busy} onClick={() => onAction('mark-ready', o, trackingDraft)} className="inline-flex items-center gap-1.5 rounded-lg bg-neutral-900 px-3 py-1.5 text-[12px] font-semibold text-white shadow-sm hover:bg-neutral-800 disabled:opacity-50">
+                <button disabled={busy} onClick={() => onAction('mark-ready', o, trackingDraft)} className="inline-flex items-center gap-1.5 rounded-md bg-neutral-900 px-3 py-1.5 text-[12px] font-semibold text-white shadow-sm hover:bg-neutral-800 disabled:opacity-50">
                   <PackageCheck size={12} /> Ready — Waiting for Pickup
                 </button>
               </div>
@@ -257,7 +257,7 @@ function OrderCard({ order: o, onAction, actionsBusyId }) {
           )}
 
           {isReadyToShip && (
-            <div className="mb-3 rounded-xl border border-[#D4D4D4] bg-[#F1F1F1] p-3">
+            <div className="mb-3 rounded-md border border-[#D4D4D4] bg-[#F1F1F1] p-3">
               <p className="text-[12px] font-semibold text-[#3A3A3A]">📮 Waiting for courier pickup</p>
               {o.courierName && (
                 <p className="mt-1 text-[12px] text-[#4A4A4A]">
@@ -265,7 +265,7 @@ function OrderCard({ order: o, onAction, actionsBusyId }) {
                 </p>
               )}
               <div className="mt-2 flex flex-wrap gap-2">
-                <button disabled={busy} onClick={() => onAction('mark-shipped', o)} className="inline-flex items-center gap-1.5 rounded-lg bg-[#A68A56] px-3 py-1.5 text-[12px] font-semibold text-white shadow-sm hover:bg-[#8F7448] disabled:opacity-50">
+                <button disabled={busy} onClick={() => onAction('mark-shipped', o)} className="inline-flex items-center gap-1.5 rounded-md bg-[#A68A56] px-3 py-1.5 text-[12px] font-semibold text-white shadow-sm hover:bg-[#8F7448] disabled:opacity-50">
                   <TruckIcon size={12} /> Courier Picked Up — Shipped
                 </button>
               </div>
@@ -273,7 +273,7 @@ function OrderCard({ order: o, onAction, actionsBusyId }) {
           )}
 
           {isShipped && (
-            <div className="mb-3 rounded-xl border border-[#D9C9A6] bg-[#F4EEE2] p-3">
+            <div className="mb-3 rounded-md border border-[#D9C9A6] bg-[#F4EEE2] p-3">
               <p className="text-[12px] font-semibold text-[#6B552F]">🚛 In transit</p>
               {o.trackingNumber && (
                 <p className="mt-1 text-[12px] text-[#7A6239]">
@@ -282,14 +282,14 @@ function OrderCard({ order: o, onAction, actionsBusyId }) {
               )}
               <div className="mt-2 flex flex-wrap gap-2">
                 {o.status === 'Shipped' && (
-                  <button disabled={busy} onClick={() => onAction('mark-ofd', o)} className="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-1.5 text-[12px] font-semibold text-[#7A6239] shadow-sm ring-1 ring-[#CDB98F] hover:bg-[#EAE0CC] disabled:opacity-50">
+                  <button disabled={busy} onClick={() => onAction('mark-ofd', o)} className="inline-flex items-center gap-1.5 rounded-md bg-white px-3 py-1.5 text-[12px] font-semibold text-[#7A6239] shadow-sm ring-1 ring-[#CDB98F] hover:bg-[#EAE0CC] disabled:opacity-50">
                     Out for Delivery
                   </button>
                 )}
-                <button disabled={busy} onClick={() => onAction('mark-delivered', o)} className="inline-flex items-center gap-1.5 rounded-lg bg-[#4A6B58] px-3 py-1.5 text-[12px] font-semibold text-white shadow-sm hover:bg-[#3E5C4B] disabled:opacity-50">
+                <button disabled={busy} onClick={() => onAction('mark-delivered', o)} className="inline-flex items-center gap-1.5 rounded-md bg-[#4A6B58] px-3 py-1.5 text-[12px] font-semibold text-white shadow-sm hover:bg-[#3E5C4B] disabled:opacity-50">
                   <CheckCircle2 size={12} /> Mark Delivered
                 </button>
-                <button disabled={busy} onClick={() => onAction('mark-failed', o)} className="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-1.5 text-[12px] font-semibold text-[#8A4B3F] shadow-sm ring-1 ring-[#E0C6BE] hover:bg-[#F5EDEB]">
+                <button disabled={busy} onClick={() => onAction('mark-failed', o)} className="inline-flex items-center gap-1.5 rounded-md bg-white px-3 py-1.5 text-[12px] font-semibold text-[#8A4B3F] shadow-sm ring-1 ring-[#E0C6BE] hover:bg-[#F5EDEB]">
                   Failed Delivery
                 </button>
               </div>
@@ -297,7 +297,7 @@ function OrderCard({ order: o, onAction, actionsBusyId }) {
           )}
 
           {o.status === 'Delivered' && (
-            <div className="rounded-xl border border-[#C9D8CE] bg-[#E9EFEA] p-3">
+            <div className="rounded-md border border-[#C9D8CE] bg-[#E9EFEA] p-3">
               <p className="text-[12px] font-semibold text-[#2B4436]">✅ Order delivered</p>
               <p className="mt-1 text-[12px] text-[#33503F]">The customer received their order. You can archive or process a return if requested.</p>
             </div>
@@ -460,7 +460,7 @@ export default function Orders() {
             <button
               key={s.key}
               onClick={() => setStage(s.key)}
-              className={`group relative overflow-hidden rounded-2xl border p-4 text-left transition ${
+              className={`group relative overflow-hidden rounded-md border p-4 text-left transition ${
                 active
                   ? `border-neutral-900 bg-white shadow-sm ring-2 ring-neutral-900/10`
                   : 'border-neutral-200 bg-white hover:border-neutral-300 hover:shadow-sm'
@@ -468,7 +468,7 @@ export default function Orders() {
             >
               {active && <span className={`absolute inset-x-0 top-0 h-[3px] ${tone.pill}`} />}
               <div className="flex items-start justify-between">
-                <span className={`grid h-9 w-9 place-items-center rounded-xl ${active ? tone.pill : `${tone.bg} ${tone.text}`}`}>
+                <span className={`grid h-9 w-9 place-items-center rounded-md ${active ? tone.pill : `${tone.bg} ${tone.text}`}`}>
                   <Icon size={16} strokeWidth={active ? 2.2 : 1.8} />
                 </span>
                 <span className={`rounded-full px-2 py-0.5 text-[12px] font-bold ${active ? 'bg-neutral-900 text-white' : 'bg-neutral-100 text-neutral-700'}`}>{n}</span>
@@ -516,13 +516,13 @@ export default function Orders() {
         </p>
         <div className="relative">
           <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400" />
-          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Order #, name, phone or email…" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !w-80 !py-2.5 !pl-9 !text-[13px]" />
+          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Order #, name, phone or email…" className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !w-80 !py-2.5 !pl-9 !text-[13px]" />
         </div>
       </div>
 
       {/* --------------- Sub-tab hint (contextual help) --------------- */}
       {subTab && currentSubList.find((s) => s.key === subTab)?.hint && (
-        <div className="mb-4 rounded-xl border border-[#D4D4D4] bg-[#F1F1F1] p-3">
+        <div className="mb-4 rounded-md border border-[#D4D4D4] bg-[#F1F1F1] p-3">
           <p className="text-[12px] text-[#3A3A3A]">💡 {currentSubList.find((s) => s.key === subTab).hint}</p>
         </div>
       )}
@@ -530,7 +530,7 @@ export default function Orders() {
       {/* --------------- Order cards --------------- */}
       <div className="space-y-3">
         {orders === null && !err && (
-          <>{[1, 2, 3].map((i) => <div key={i} className="animate-pulse rounded-xl bg-neutral-100 h-24 w-full rounded-2xl" />)}</>
+          <>{[1, 2, 3].map((i) => <div key={i} className="animate-pulse rounded-md bg-neutral-100 h-24 w-full rounded-md" />)}</>
         )}
 
         {filtered.map((o) => (
@@ -538,14 +538,14 @@ export default function Orders() {
         ))}
 
         {orders !== null && filtered.length === 0 && !err && (
-          <div className="grid place-items-center rounded-2xl border border-dashed border-neutral-200 bg-white py-16 text-center">
+          <div className="grid place-items-center rounded-md border border-dashed border-neutral-200 bg-white py-16 text-center">
             <ShoppingBag size={32} className="mb-3 text-neutral-300" />
             <p className="text-sm font-medium text-neutral-600">No orders in this view</p>
             <p className="mt-1 text-[12px] text-neutral-400">Try changing the stage or search terms.</p>
           </div>
         )}
         {err && (
-          <div className="grid place-items-center rounded-2xl border border-[#E0C6BE] bg-[#F5EDEB] py-14 text-center">
+          <div className="grid place-items-center rounded-md border border-[#E0C6BE] bg-[#F5EDEB] py-14 text-center">
             <XCircle size={26} className="mb-2 text-[#B46A5C]" />
             <p className="text-sm text-[#8A4B3F]">{err}</p>
             <button onClick={load} className="inline-flex items-center gap-1.5 rounded-full border border-neutral-300 bg-white px-4 py-2 text-[12px] font-semibold text-neutral-700 hover:bg-neutral-50 mt-4 !px-5 !py-2 !text-[12px]">Try again</button>

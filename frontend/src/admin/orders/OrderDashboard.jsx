@@ -42,11 +42,11 @@ export default function OrderDashboard({ token, onPipelineClick, onCustomerClick
   }, [token, days]);
 
   if (err) {
-    return <div className="rounded-xl border border-[#E0C6BE] bg-[#F5EDEB] p-4 text-[13px] text-[#7C4237]">{err}</div>;
+    return <div className="rounded-md border border-[#E0C6BE] bg-[#F5EDEB] p-4 text-[13px] text-[#7C4237]">{err}</div>;
   }
   if (!data) {
     return (
-      <div className="grid h-36 place-items-center rounded-xl border border-neutral-200 bg-white">
+      <div className="grid h-36 place-items-center rounded-md border border-neutral-200 bg-white">
         <Loader2 size={18} className="animate-spin text-neutral-400" />
       </div>
     );
@@ -57,7 +57,7 @@ export default function OrderDashboard({ token, onPipelineClick, onCustomerClick
   const maxPipe = Math.max(1, ...data.pipeline.map((p) => p.count));
 
   return (
-    <div className="space-y-3 rounded-xl border border-neutral-200 bg-white p-4">
+    <div className="space-y-3 rounded-md border border-neutral-200 bg-white p-4">
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-baseline gap-2">

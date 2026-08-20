@@ -42,7 +42,7 @@ export default function OrderRow({
   const copyRef = () => { navigator.clipboard?.writeText(o.orderNumber); };
 
   return (
-    <div className={`rounded-xl border bg-white transition ${selected ? 'border-neutral-900 ring-1 ring-neutral-900' : 'border-neutral-200 hover:border-neutral-300'}`}>
+    <div className={`rounded-md border bg-white transition ${selected ? 'border-neutral-900 ring-1 ring-neutral-900' : 'border-neutral-200 hover:border-neutral-300'}`}>
       <div className="flex items-start gap-3 p-3">
         <input
           type="checkbox" checked={selected} onChange={() => onSelect(o._id)}
@@ -135,7 +135,7 @@ export default function OrderRow({
               {menu && (
                 <>
                   <div className="fixed inset-0 z-10" onClick={() => setMenu(false)} />
-                  <div className="absolute right-0 top-8 z-20 w-52 rounded-lg border border-neutral-200 bg-white py-1 shadow-xl">
+                  <div className="absolute right-0 top-8 z-20 w-52 rounded-lg border border-neutral-200 bg-white py-1 shadow-md">
                     <Link to={`/admin/orders/${o._id}`} className="block px-3 py-1.5 text-[12px] hover:bg-neutral-100">
                       View full details
                     </Link>

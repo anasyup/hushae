@@ -37,7 +37,7 @@ export default function BulkBar({ selected, total, onClear, onSelectAll, onBulk,
       <div
         role="region"
         aria-label="Bulk actions"
-        className="sticky top-2 z-30 flex flex-wrap items-center gap-2 rounded-xl border border-neutral-800 bg-neutral-900 px-3 py-2.5 text-white shadow-lg"
+        className="sticky top-2 z-30 flex flex-wrap items-center gap-2 rounded-md border border-neutral-800 bg-neutral-900 px-3 py-2.5 text-white shadow-sm"
       >
         <span className="mr-1 text-[13px] font-semibold">
           {count} selected
@@ -60,7 +60,7 @@ export default function BulkBar({ selected, total, onClear, onSelectAll, onBulk,
             Set stage <ChevronDown size={12} />
           </button>
           {stageOpen && (
-            <div className="absolute left-0 top-9 z-40 max-h-80 w-60 overflow-y-auto rounded-lg border border-neutral-200 bg-white py-1 text-neutral-800 shadow-xl">
+            <div className="absolute left-0 top-9 z-40 max-h-80 w-60 overflow-y-auto rounded-lg border border-neutral-200 bg-white py-1 text-neutral-800 shadow-md">
               {SET_STAGE_CHOICES.map((s) => (
                 <button key={s.key}
                   onClick={() => setConfirm({
@@ -96,7 +96,7 @@ export default function BulkBar({ selected, total, onClear, onSelectAll, onBulk,
             {busy === 'print' ? <Loader2 size={13} className="animate-spin" /> : <Printer size={13} />} Print <ChevronDown size={12} />
           </button>
           {printOpen && (
-            <div className="absolute left-0 top-9 z-40 w-52 rounded-lg border border-neutral-200 bg-white py-1 text-neutral-800 shadow-xl">
+            <div className="absolute left-0 top-9 z-40 w-52 rounded-lg border border-neutral-200 bg-white py-1 text-neutral-800 shadow-md">
               {PRINT_DOCS.map((d) => (
                 <button key={d.key} onClick={() => { setPrintOpen(false); onPrint(d.key); }}
                   className="flex w-full items-start gap-2 px-3 py-1.5 text-left hover:bg-neutral-100">
@@ -123,7 +123,7 @@ export default function BulkBar({ selected, total, onClear, onSelectAll, onBulk,
             More <ChevronDown size={12} />
           </button>
           {moreOpen && (
-            <div className="absolute left-0 top-9 z-40 w-56 rounded-lg border border-neutral-200 bg-white py-1 text-neutral-800 shadow-xl">
+            <div className="absolute left-0 top-9 z-40 w-56 rounded-lg border border-neutral-200 bg-white py-1 text-neutral-800 shadow-md">
               <button onClick={() => { setMoreOpen(false); setConfirm({ action: 'note', needsNote: true, title: `Add a note to ${count} order${count === 1 ? '' : 's'}`, body: 'The same note is written to every selected order.' }); }}
                 className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-[13px] hover:bg-neutral-100">
                 <NotebookPen size={13} className="text-neutral-500" /> Add internal note
@@ -181,7 +181,7 @@ export default function BulkBar({ selected, total, onClear, onSelectAll, onBulk,
 
       {waLinks && (
         <div className="fixed inset-0 z-50 grid place-items-center bg-black/40 p-4" role="dialog" aria-modal="true">
-          <div className="flex max-h-[80vh] w-full max-w-md flex-col rounded-xl bg-white shadow-2xl">
+          <div className="flex max-h-[80vh] w-full max-w-md flex-col rounded-md bg-white shadow-2xl">
             <div className="flex items-start justify-between border-b border-neutral-100 p-4">
               <div>
                 <p className="text-[12px] font-semibold text-neutral-900">WhatsApp {waLinks.length} customer{waLinks.length === 1 ? '' : 's'}</p>
@@ -210,7 +210,7 @@ export default function BulkBar({ selected, total, onClear, onSelectAll, onBulk,
 
       {confirm && (
         <div className="fixed inset-0 z-50 grid place-items-center bg-black/40 p-4" role="dialog" aria-modal="true">
-          <div className="w-full max-w-md rounded-xl bg-white p-5 shadow-2xl">
+          <div className="w-full max-w-md rounded-md bg-white p-5 shadow-2xl">
             <p className="text-[12px] font-semibold text-neutral-900">{confirm.title}</p>
             <p className="mt-1.5 text-[13px] leading-relaxed text-neutral-600">{confirm.body}</p>
 
