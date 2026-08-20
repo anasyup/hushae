@@ -494,9 +494,10 @@ router.post('/', placeOrderLimit, optionalAuth, asyncHandler(async (req, res) =>
 
 // ---- Public order confirmation lookup by unique order number ----
 router.get('/lookup/:orderNumber', asyncHandler(async (req, res) => {
-  const on = String(req.params.orderNumber || '').trim().toUpperCase();
+  const on = String(req.params.orderNumber || '').trim();
   if (!on) return res.status(400).json({ message: 'Order number is required' });
-  const order = await Order.findOne({ orderNumber: on })
+  const rx = new RegExp(`^${on.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i');
+  const order = await Order.findOne({ orderNumber: { $regex: rx } })
     .select('orderNumber status createdAt customerInfo items subtotal shippingCharge discount couponCode total paymentMethod paymentStatus discreetPackaging courierName trackingNumber trackingUrl')
     .lean();
   if (!order) return res.status(404).json({ message: 'Order not found' });
