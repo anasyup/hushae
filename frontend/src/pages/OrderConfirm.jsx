@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import {
-  ArrowRight, Check, CheckCircle2, Copy, Lock, Package, RotateCcw,
-  ShieldCheck, Truck, MessageCircle, ArrowUpRight
+  ArrowRight, Check, Copy, Lock, RotateCcw,
+  ShieldCheck, Truck
 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
-import { pkr, fmtDateTime, fmtDate } from '../lib/format';
+import { pkr, fmtDateTime } from '../lib/format';
 import { cartConfig } from '../lib/cartConfig';
 import { checkoutConfig } from '../lib/checkoutConfig';
 import { titleCase } from '../lib/productMeta';
@@ -14,7 +14,7 @@ import Img from '../components/Img';
 import Seo from '../components/Seo';
 
 /* ============================================================================
- * HUSHAE Order Confirmation — Luxury Flagship Architecture (Calvin Klein / SSENSE)
+ * HUSHAE Order Confirmation — Clean Luxury Flagship (Calvin Klein / SSENSE)
  * ========================================================================== */
 
 const nameOf = (name) => titleCase(String(name || '').replace(/^HUSHAE\s+/i, ''));
@@ -45,7 +45,7 @@ export default function OrderConfirm() {
         if (alive) setLoading(false);
       });
     return () => { alive = false; };
-  }, [orderNumber]); // eslint-disable-line
+  }, [orderNumber]);
 
   const copyNumber = () => {
     navigator.clipboard?.writeText(orderNumber);
@@ -54,17 +54,15 @@ export default function OrderConfirm() {
   };
 
   const firstName = (order?.customerInfo?.name || '').trim().split(/\s+/)[0] || '';
-  const customerCity = order?.customerInfo?.city || '';
-  const customerProvince = order?.customerInfo?.province || '';
   const isCOD = String(order?.paymentMethod || 'COD').toUpperCase() === 'COD';
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#FFFFFF] pt-[140px] pb-24 font-sans text-center">
+      <div className="min-h-screen bg-[#FFFFFF] pt-[180px] pb-24 font-sans text-center">
         <div className="mx-auto max-w-md px-6 space-y-4">
           <div className="mx-auto h-12 w-12 rounded-full border-2 border-neutral-200 border-t-black animate-spin" />
           <p className="text-xs uppercase tracking-widest text-neutral-400 font-light">
-            Retrieving your order details…
+            Retrieving order details…
           </p>
         </div>
       </div>
@@ -85,20 +83,20 @@ export default function OrderConfirm() {
             <Check size={24} strokeWidth={2.2} />
           </div>
 
-          <div className="space-y-1 pt-2">
-            <p className="text-[10.5px] font-medium uppercase tracking-[0.3em] text-neutral-400">
+          <div className="space-y-1 pt-1.5">
+            <p className="text-[10px] font-medium uppercase tracking-[0.3em] text-neutral-400">
               CONFIRMATION
             </p>
             <h1 className="text-2xl sm:text-3xl font-light uppercase tracking-tight text-[#000000]">
               Thank you{firstName ? `, ${firstName}` : ''}
             </h1>
             <p className="text-xs sm:text-[13px] text-neutral-500 font-light max-w-md mx-auto pt-1 leading-relaxed">
-              Your order has been placed and is being prepared in our studio. We will contact you prior to courier delivery.
+              Your order has been confirmed and is being prepared in our studio. We will contact you prior to courier delivery.
             </p>
           </div>
 
           {/* 1-Tap Copy Order Number Pill */}
-          <div className="pt-3">
+          <div className="pt-2">
             <button
               type="button"
               onClick={copyNumber}
@@ -114,26 +112,8 @@ export default function OrderConfirm() {
           </div>
         </div>
 
-        {/* ═══ 2. ESTIMATED DELIVERY BANNER ════════════════════════════════ */}
-        <div className="mt-8 rounded-2xl border border-[#EAEAEA] bg-[#FBFBFB] p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs shadow-xs">
-          <div className="flex items-center gap-3">
-            <div className="grid h-9 w-9 place-items-center rounded-full bg-[#FFFFFF] border border-[#EAEAEA] shrink-0">
-              <Truck size={16} className="text-black" />
-            </div>
-            <div>
-              <p className="font-medium text-black">Estimated Delivery: 2–4 Business Days</p>
-              <p className="text-[11px] text-neutral-500 font-light">TCS Express Courier &bull; Nationwide Delivery</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-1.5 text-[11px] text-neutral-500 font-light">
-            <ShieldCheck size={14} className="text-black" />
-            <span>100% Plain Discreet Parcel</span>
-          </div>
-        </div>
-
-        {/* ═══ 3. STRUCTURED LUXURY MANIFEST CARD ══════════════════════════ */}
-        <div className="mt-8 rounded-3xl border border-[#EAEAEA] bg-[#FBFBFB] p-6 sm:p-8 space-y-6 shadow-xs">
+        {/* ═══ 2. UNIFIED LUXURY ORDER MANIFEST CARD (NO FRAGMENTED BOXES) ═══ */}
+        <div className="mt-10 rounded-3xl border border-[#EAEAEA] bg-[#FBFBFB] p-6 sm:p-8 space-y-6 shadow-xs">
           {/* Section Header */}
           <div className="flex items-center justify-between border-b border-[#EAEAEA] pb-3.5">
             <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-[#000000]">
@@ -150,34 +130,44 @@ export default function OrderConfirm() {
               {/* Shipping Details */}
               <div className="space-y-1.5">
                 <p className="text-[10.5px] font-medium uppercase tracking-wider text-neutral-400">
-                  Shipping Details
+                  Shipping Address
                 </p>
                 <p className="font-medium text-black">{order.customerInfo.name}</p>
                 <p className="text-neutral-600 font-light leading-relaxed">{order.customerInfo.address}</p>
                 <p className="text-neutral-600 font-light">
                   {[order.customerInfo.city, order.customerInfo.province, order.customerInfo.postalCode].filter(Boolean).join(', ')}
                 </p>
-                <p className="text-neutral-600 font-light pt-0.5">Phone: {order.customerInfo.phone}</p>
+                <p className="text-neutral-600 font-light pt-0.5">Mobile: {order.customerInfo.phone}</p>
               </div>
 
-              {/* Payment Details */}
-              <div className="space-y-1.5 sm:border-l sm:border-[#EAEAEA] sm:pl-6">
-                <p className="text-[10.5px] font-medium uppercase tracking-wider text-neutral-400">
-                  Payment Method
-                </p>
-                <div className="flex items-center gap-2 pt-0.5">
-                  <span className="rounded-full bg-black px-3 py-1 text-[10.5px] font-medium uppercase tracking-wider text-white">
-                    {order.paymentMethod || 'COD'}
-                  </span>
-                  <span className="text-xs text-neutral-600 font-light">
-                    {isCOD ? 'Cash on Delivery' : order.paymentMethod}
-                  </span>
+              {/* Payment & Estimated Delivery */}
+              <div className="space-y-2.5 sm:border-l sm:border-[#EAEAEA] sm:pl-6">
+                <div>
+                  <p className="text-[10.5px] font-medium uppercase tracking-wider text-neutral-400">
+                    Payment Method
+                  </p>
+                  <div className="flex items-center gap-2 pt-1">
+                    <span className="rounded-full bg-black px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-white">
+                      {order.paymentMethod || 'COD'}
+                    </span>
+                    <span className="text-xs text-neutral-600 font-light">
+                      {isCOD ? 'Cash on Delivery' : order.paymentMethod}
+                    </span>
+                  </div>
                 </div>
-                <p className="text-[11px] text-neutral-500 font-light pt-1 leading-relaxed">
-                  {isCOD
-                    ? 'Please have exact cash ready at your doorstep when courier arrives.'
-                    : 'Payment verification is processed securely.'}
-                </p>
+
+                <div className="pt-1">
+                  <p className="text-[10.5px] font-medium uppercase tracking-wider text-neutral-400">
+                    Estimated Delivery
+                  </p>
+                  <p className="text-xs font-medium text-black pt-0.5 flex items-center gap-1.5">
+                    <Truck size={13} className="text-black" />
+                    2–4 Business Days (TCS Express)
+                  </p>
+                  <p className="text-[10.5px] text-neutral-500 font-light pt-0.5">
+                    100% plain, unmarked discreet parcel
+                  </p>
+                </div>
               </div>
             </div>
           )}
@@ -240,14 +230,14 @@ export default function OrderConfirm() {
               </div>
 
               <div className="flex items-baseline justify-between border-t border-[#DCDCDC] pt-3.5 text-sm">
-                <span className="font-medium text-black">Total to Pay</span>
+                <span className="font-medium text-black">Total to Pay (COD)</span>
                 <span className="font-sans text-xl font-medium tabular-nums text-black">{pkr(order.total)}</span>
               </div>
             </div>
           )}
         </div>
 
-        {/* ═══ 4. DUAL "GOL" LUXURY PILL BUTTONS ═══════════════════════════ */}
+        {/* ═══ 3. DUAL "GOL" LUXURY PILL BUTTONS ═══════════════════════════ */}
         <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3.5">
           <Link
             to={`/track?orderNumber=${encodeURIComponent(orderNumber)}${order?.customerInfo?.phone ? `&phone=${encodeURIComponent(order.customerInfo.phone)}` : ''}`}
@@ -265,7 +255,7 @@ export default function OrderConfirm() {
           </Link>
         </div>
 
-        {/* ═══ 5. OFFICIAL REASSURANCE & CONCIERGE ═════════════════════════ */}
+        {/* ═══ 4. OFFICIAL REASSURANCE & CONCIERGE FOOTER ══════════════════ */}
         <div className="mt-12 border-t border-[#EAEAEA] pt-8 text-center space-y-3 text-xs text-neutral-500 font-light">
           <div className="flex flex-wrap items-center justify-center gap-6 text-[11.5px] text-neutral-600">
             <span className="inline-flex items-center gap-1.5">
@@ -279,7 +269,7 @@ export default function OrderConfirm() {
             </span>
           </div>
 
-          <p className="text-[11px] text-neutral-400 pt-2">
+          <p className="text-[11px] text-neutral-400 pt-1">
             Questions regarding your order? Reach our studio concierge at{' '}
             <a href="mailto:care@hushae.pk" className="text-black underline underline-offset-2">
               care@hushae.pk
