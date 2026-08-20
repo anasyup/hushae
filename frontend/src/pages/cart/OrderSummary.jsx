@@ -19,8 +19,8 @@ export default function OrderSummary({ pricing, cfg, applied, onApply, onRemoveC
   const { subtotal, discount, shipping, tax, total, savings, count, threshold, freeShip } = pricing;
 
   return (
-    <div className="card-cream p-6 md:p-8">
-      <h2 className="text-[15px] font-medium uppercase tracking-[0.08em] text-[#111111]">Order Summary</h2>
+    <div className="border border-neutral-200 bg-white p-6 md:p-8">
+      <h2 className="text-[14px] font-medium uppercase tracking-[0.12em] text-[#111111]">Order Summary</h2>
 
       {cfg.showProgress && (
         <div className="mt-5">
@@ -93,11 +93,17 @@ export default function OrderSummary({ pricing, cfg, applied, onApply, onRemoveC
           the moment the customer actually loses sight of the button. */}
       <div ref={ctaRef} className="mt-6">
         {blocked ? (
-          <p className="flex items-center justify-center gap-2 rounded-control bg-red-50 px-4 py-3.5 text-body-sm font-semibold text-red-700">
+          <p className="flex items-center justify-center gap-2 bg-red-50 px-4 py-3.5 text-xs font-semibold text-red-700">
             <AlertCircle size={15} aria-hidden="true" /> Remove sold-out items to continue
           </p>
         ) : (
-          <Link to="/checkout" className="btn-gold group gap-2">{cfg.checkoutLabel} <ArrowRight size={14} className="transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true" /></Link>
+          <Link
+            to="/checkout"
+            className="flex min-h-[50px] w-full items-center justify-center gap-2 bg-[#000000] text-xs font-medium uppercase tracking-[0.2em] text-[#FFFFFF] transition-colors hover:bg-neutral-800"
+          >
+            <span>{cfg.checkoutLabel || 'Proceed to Checkout'}</span>
+            <ArrowRight size={14} className="transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true" />
+          </Link>
         )}
       </div>
 
