@@ -1,9 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import {
-  AlertCircle, Check, Lock, Package, RotateCcw, ShieldCheck, Truck,
-  ArrowRight, Banknote
-} from 'lucide-react';
+import { Check, Lock, Banknote, ArrowRight } from 'lucide-react';
 import { useApp, lineKey } from '../store/AppContext';
 import { api } from '../api/client';
 import { pkr } from '../lib/format';
@@ -39,7 +36,16 @@ const PROVINCES_MAP = {
   'Quetta': 'Balochistan',
 };
 
-const PROVINCES_FALLBACK = ['Punjab', 'Sindh', 'Islamabad (ICT)', 'Khyber Pakhtunkhwa', 'Balochistan', 'Azad Kashmir', 'Gilgit-Baltistan'];
+const PROVINCES_FALLBACK = [
+  'Punjab',
+  'Sindh',
+  'Islamabad (ICT)',
+  'Khyber Pakhtunkhwa',
+  'Balochistan',
+  'Azad Kashmir',
+  'Gilgit-Baltistan',
+];
+
 const DRAFT_KEY = 'hushae.checkoutDraft';
 
 export default function Checkout() {
@@ -54,18 +60,18 @@ export default function Checkout() {
   }, []);
   const addr = auth?.user?.addresses?.[0] || {};
 
+  /* City & Province start UNSELECTED / EMPTY by default unless user has a saved profile/draft */
   const [f, setF] = useState({
     name: draft?.name ?? (auth?.user?.name || addr.name || ''),
     phone: draft?.phone ?? (auth?.user?.phone || addr.phone || ''),
     email: draft?.email ?? (auth?.user?.email || ''),
     address: draft?.address ?? (addr.address || ''),
-    city: draft?.city ?? (addr.city || 'Karachi'),
-    customCity: draft?.customCity ?? '',
-    province: draft?.province ?? (addr.province || 'Sindh'),
-    notes: draft?.notes ?? '',
+    city: draft?.city || addr.city || '',
+    customCity: draft?.customCity || '',
+    province: draft?.province || addr.province || '',
+    notes: draft?.notes || '',
   });
 
-  const [method] = useState('cod'); // Pre-selected Cash on Delivery
   const [applied, setApplied] = useState(null);
   const [errs, setErrs] = useState({});
   const [busy, setBusy] = useState(false);
@@ -74,9 +80,13 @@ export default function Checkout() {
 
   const handleCityChange = (chosenCity) => {
     if (chosenCity === '__other') {
-      setF((x) => ({ ...x, city: '__other', customCity: '' }));
+      setF((x) => ({ ...x, city: '__other', customCity: '', province: '' }));
+      setErrs((e) => ({ ...e, city: '', customCity: '' }));
+    } else if (chosenCity === '') {
+      setF((x) => ({ ...x, city: '', customCity: '', province: '' }));
+      setErrs((e) => ({ ...e, city: '', province: '' }));
     } else {
-      const autoProvince = PROVINCES_MAP[chosenCity] || f.province || 'Punjab';
+      const autoProvince = PROVINCES_MAP[chosenCity] || f.province || '';
       setF((x) => ({ ...x, city: chosenCity, province: autoProvince, customCity: '' }));
       setErrs((e) => ({ ...e, city: '', province: '' }));
     }
@@ -106,7 +116,8 @@ export default function Checkout() {
     if (!f.name || f.name.trim().length < 2) e.name = 'Please enter your full name';
     if (!phoneOk) e.phone = 'Please enter a valid mobile number (e.g. 0300 1234567)';
     if (!f.address || f.address.trim().length < 5) e.address = 'Please enter your delivery address';
-    if (!cityLabel) e.city = 'Please choose or enter your city';
+    if (!cityLabel) e.city = 'Please select or enter your city';
+    if (!f.province) e.province = 'Please select your province';
     return e;
   };
 
@@ -163,7 +174,7 @@ export default function Checkout() {
 
   if (cart.length === 0) {
     return (
-      <div className="min-h-screen bg-[#FFFFFF] pt-[140px] pb-24 text-center">
+      <div className="min-h-screen bg-[#FFFFFF] pt-[140px] pb-24 text-center font-sans antialiased">
         <Seo title="Checkout — HUSHAE" description="Your bag is empty." />
         <div className="mx-auto max-w-md px-6 space-y-4">
           <h1 className="text-2xl font-light uppercase tracking-wide text-[#000000]">Your bag is empty</h1>
@@ -188,18 +199,13 @@ export default function Checkout() {
       <div className="mx-auto max-w-[1500px] px-6 sm:px-8 md:px-12">
         {/* Top Header Bar */}
         <div className="border-b border-[#EAEAEA] pb-5 mb-8 flex flex-wrap items-baseline justify-between gap-4">
-          <div>
-            <p className="text-[10px] font-medium uppercase tracking-[0.28em] text-[#888888]">
-              FAST & SECURE
-            </p>
-            <h1 className="mt-1.5 text-2xl sm:text-3xl font-light uppercase tracking-tight text-[#000000]">
-              Checkout
-            </h1>
-          </div>
+          <h1 className="text-2xl sm:text-3xl font-light uppercase tracking-tight text-[#000000]">
+            Checkout
+          </h1>
 
           <div className="flex items-center gap-2 rounded-full border border-[#EAEAEA] bg-[#FBFBFB] px-4 py-1.5 text-xs text-[#555555] font-light">
             <Lock size={12} className="text-[#000000]" />
-            <span>256-Bit SSL Encrypted &bull; 100% Discreet Packaging</span>
+            <span>Discreet Delivery Nationwide</span>
           </div>
         </div>
 
@@ -221,11 +227,10 @@ export default function Checkout() {
           >
             {/* Delivery Address Card */}
             <div className="rounded-3xl border border-[#EAEAEA] bg-[#FBFBFB] p-6 sm:p-8 space-y-5 shadow-xs">
-              <div className="flex items-center justify-between border-b border-[#EAEAEA] pb-3">
+              <div className="border-b border-[#EAEAEA] pb-3">
                 <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-[#000000]">
                   Shipping Address
                 </h2>
-                <span className="text-[11px] text-[#888888]">Pakistan Delivery</span>
               </div>
 
               <div className="space-y-4">
@@ -251,7 +256,7 @@ export default function Checkout() {
                 {/* Mobile / WhatsApp */}
                 <div className="space-y-1.5">
                   <label className="block text-[11px] font-medium uppercase tracking-wider text-[#000000]">
-                    Mobile Number (WhatsApp) <span className="text-red-500">*</span>
+                    Mobile Number <span className="text-red-500">*</span>
                   </label>
                   <input
                     name="phone"
@@ -264,21 +269,19 @@ export default function Checkout() {
                       errs.phone ? 'border-red-500' : 'border-[#E0E0E0]'
                     }`}
                   />
-                  {phoneOk ? (
-                    <p className="text-[11px] text-emerald-600 mt-1 flex items-center gap-1">
-                      <Check size={11} /> Valid Pakistani Number ({phoneOk})
-                    </p>
-                  ) : errs.phone ? (
+                  {errs.phone ? (
                     <p className="text-[11px] text-red-600 mt-1">{errs.phone}</p>
-                  ) : (
-                    <p className="text-[10.5px] text-[#888888] font-light">Courier calls this number prior to delivery.</p>
-                  )}
+                  ) : phoneOk ? (
+                    <p className="text-[11px] text-emerald-600 mt-1 flex items-center gap-1 font-light">
+                      <Check size={11} /> {phoneOk}
+                    </p>
+                  ) : null}
                 </div>
 
                 {/* Street Address */}
                 <div className="space-y-1.5">
                   <label className="block text-[11px] font-medium uppercase tracking-wider text-[#000000]">
-                    Complete Street Address <span className="text-red-500">*</span>
+                    Delivery Address <span className="text-red-500">*</span>
                   </label>
                   <textarea
                     name="address"
@@ -300,7 +303,7 @@ export default function Checkout() {
                     City <span className="text-red-500">*</span>
                   </label>
 
-                  {/* Fast Oval City Chips */}
+                  {/* Fast Oval City Chips (No default selected) */}
                   <div className="flex flex-wrap gap-1.5 pb-1">
                     {POPULAR_CITIES.slice(0, 8).map((c) => (
                       <button
@@ -319,19 +322,21 @@ export default function Checkout() {
                   </div>
 
                   {f.city === '__other' ? (
-                    <div className="space-y-1 pt-1">
+                    <div className="space-y-1.5 pt-1">
                       <input
                         type="text"
                         required
                         value={f.customCity}
                         onChange={(e) => set('customCity', e.target.value)}
-                        placeholder="Type your city name"
-                        className="w-full rounded-2xl border border-[#000000] bg-[#FFFFFF] px-4 py-3 text-xs text-[#000000] focus:outline-none"
+                        placeholder="Enter your city name"
+                        className={`w-full rounded-2xl border bg-[#FFFFFF] px-4 py-3 text-xs text-[#000000] focus:outline-none ${
+                          errs.city ? 'border-red-500' : 'border-[#000000]'
+                        }`}
                       />
                       <button
                         type="button"
-                        onClick={() => handleCityChange('Karachi')}
-                        className="text-[10.5px] text-[#666666] underline hover:text-[#000000]"
+                        onClick={() => handleCityChange('')}
+                        className="text-[11px] text-[#666666] underline hover:text-[#000000]"
                       >
                         &larr; Choose from city list
                       </button>
@@ -339,10 +344,13 @@ export default function Checkout() {
                   ) : (
                     <div className="relative">
                       <select
-                        value={f.city}
+                        value={f.city || ''}
                         onChange={(e) => handleCityChange(e.target.value)}
-                        className="w-full appearance-none rounded-2xl border border-[#E0E0E0] bg-[#FFFFFF] px-4 py-3 pr-8 text-xs text-[#000000] focus:border-[#000000] focus:outline-none cursor-pointer"
+                        className={`w-full appearance-none rounded-2xl border bg-[#FFFFFF] px-4 py-3 pr-8 text-xs text-[#000000] focus:border-[#000000] focus:outline-none cursor-pointer transition-colors ${
+                          errs.city ? 'border-red-500' : 'border-[#E0E0E0]'
+                        }`}
                       >
+                        <option value="" disabled>Select City</option>
                         {POPULAR_CITIES.map((c) => (
                           <option key={c} value={c}>{c}</option>
                         ))}
@@ -351,6 +359,7 @@ export default function Checkout() {
                       <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[#888888] text-xs">▾</span>
                     </div>
                   )}
+                  {errs.city && <p className="text-[11px] text-red-600 mt-1">{errs.city}</p>}
                 </div>
 
                 {/* Province & Email Grid */}
@@ -361,16 +370,20 @@ export default function Checkout() {
                     </label>
                     <div className="relative">
                       <select
-                        value={f.province}
+                        value={f.province || ''}
                         onChange={(e) => set('province', e.target.value)}
-                        className="w-full appearance-none rounded-2xl border border-[#E0E0E0] bg-[#FFFFFF] px-4 py-3 pr-8 text-xs text-[#000000] focus:border-[#000000] focus:outline-none cursor-pointer"
+                        className={`w-full appearance-none rounded-2xl border bg-[#FFFFFF] px-4 py-3 pr-8 text-xs text-[#000000] focus:border-[#000000] focus:outline-none cursor-pointer transition-colors ${
+                          errs.province ? 'border-red-500' : 'border-[#E0E0E0]'
+                        }`}
                       >
+                        <option value="" disabled>Select Province</option>
                         {PROVINCES_FALLBACK.map((pr) => (
                           <option key={pr} value={pr}>{pr}</option>
                         ))}
                       </select>
                       <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[#888888] text-xs">▾</span>
                     </div>
+                    {errs.province && <p className="text-[11px] text-red-600 mt-1">{errs.province}</p>}
                   </div>
 
                   <div className="space-y-1.5">
@@ -382,7 +395,7 @@ export default function Checkout() {
                       type="email"
                       value={f.email}
                       onChange={(e) => set('email', e.target.value)}
-                      placeholder="For tracking receipt"
+                      placeholder="For order updates"
                       className="w-full rounded-2xl border border-[#E0E0E0] bg-[#FFFFFF] px-4 py-3 text-xs text-[#000000] placeholder:text-[#999999] focus:border-[#000000] focus:outline-none transition-colors"
                     />
                   </div>
@@ -409,9 +422,6 @@ export default function Checkout() {
                     <Banknote size={17} className="text-[#000000]" />
                     <span className="text-xs font-semibold uppercase tracking-wider text-[#000000]">
                       Cash on Delivery (COD)
-                    </span>
-                    <span className="rounded-full bg-[#F0F0F0] px-2.5 py-0.5 text-[9.5px] font-medium text-[#000000] uppercase">
-                      Doorstep Cash
                     </span>
                   </div>
                   <p className="text-xs text-[#666666] font-light leading-relaxed">

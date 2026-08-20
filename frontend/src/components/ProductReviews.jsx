@@ -122,10 +122,10 @@ export default function ProductReviews({ product }) {
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
           <div>
             <p className="text-[10px] font-medium uppercase tracking-[0.3em] text-neutral-400">
-              COMMUNITY SENTIMENT
+              REVIEWS
             </p>
             <h2 id="rv-h" className="mt-2 font-sans text-2xl sm:text-3xl font-light uppercase tracking-tight text-[#000000]">
-              Client Feedback
+              Client Reviews
             </h2>
           </div>
 
@@ -166,10 +166,10 @@ export default function ProductReviews({ product }) {
           {/* Verification Guarantee */}
           <div className="flex flex-col justify-center border-t sm:border-t-0 border-neutral-100 sm:pl-6 pt-4 sm:pt-0">
             <span className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-black">
-              <CheckCircle2 size={13} /> 100% Verified Buyers
+              <CheckCircle2 size={13} /> Verified Orders
             </span>
             <p className="mt-1 text-[11px] text-neutral-500 font-light">
-              Real reviews from customers across Pakistan.
+              Authentic feedback from verified clients across Pakistan.
             </p>
           </div>
         </div>

@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom';
 import { Lock, Truck, ShieldCheck, RotateCcw, ArrowRight } from 'lucide-react';
 import { pkr } from '../../lib/format';
 import { titleCase } from '../../lib/productMeta';
@@ -12,15 +11,12 @@ export default function CheckoutSummary({
   onSubmit, busy, disabled, onQty
 }) {
   return (
-    <div className="rounded-3xl border border-[#EAEAEA] bg-[#FBFBFB] p-6 sm:p-8 space-y-6 shadow-sm">
+    <div className="rounded-3xl border border-[#EAEAEA] bg-[#FBFBFB] p-6 sm:p-8 space-y-6 shadow-xs font-sans">
       {/* Header */}
       <div className="flex items-center justify-between border-b border-[#EAEAEA] pb-4">
         <div>
-          <p className="text-[10px] font-medium uppercase tracking-[0.24em] text-[#888888]">
-            SUMMARY
-          </p>
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-[#000000] mt-0.5">
-            Order Review
+          <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-[#000000]">
+            Order Summary
           </h2>
         </div>
         <span className="rounded-full bg-[#EAEAEA] px-3 py-1 text-[11px] font-medium text-[#000000]">
@@ -28,14 +24,14 @@ export default function CheckoutSummary({
         </span>
       </div>
 
-      {/* Delivery Assurance Oval Card */}
+      {/* Delivery Assurance */}
       <div className="rounded-2xl bg-[#FFFFFF] border border-[#EAEAEA] p-4 flex items-center gap-3.5 shadow-xs">
         <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#F5F5F5] shrink-0">
           <Truck size={16} className="text-[#000000]" />
         </div>
         <div className="text-xs text-[#555555] font-light leading-snug">
           Estimated delivery <strong className="font-medium text-[#000000]">2–4 business days</strong>
-          <span className="block text-[10.5px] text-[#888888] mt-0.5">100% plain discreet parcel &bull; TCS Express Courier</span>
+          <span className="block text-[11px] text-[#888888] mt-0.5">Express Courier Delivery</span>
         </div>
       </div>
 
@@ -99,14 +95,14 @@ export default function CheckoutSummary({
         )}
 
         <div className="flex justify-between text-[#555555] font-light">
-          <span>Courier Delivery</span>
+          <span>Delivery</span>
           <span className="text-[#000000] font-normal">
-            {pricing.shipping === 0 ? 'Free Express' : pkr(pricing.shipping)}
+            {pricing.shipping === 0 ? 'Free' : pkr(pricing.shipping)}
           </span>
         </div>
 
         <div className="flex items-baseline justify-between border-t border-[#DCDCDC] pt-3.5 text-sm">
-          <span className="font-medium text-[#000000]">Total to Pay (COD)</span>
+          <span className="font-medium text-[#000000]">Total</span>
           <span className="font-sans text-xl font-medium text-[#000000]">{pkr(pricing.total)}</span>
         </div>
       </div>
@@ -123,21 +119,21 @@ export default function CheckoutSummary({
           <ArrowRight size={14} />
         </button>
 
-        <p className="mt-3 flex items-center justify-center gap-1.5 text-center text-[10.5px] text-[#777777] font-light">
+        <p className="mt-3 flex items-center justify-center gap-1.5 text-center text-[11px] text-[#777777] font-light">
           <Lock size={11} className="text-[#000000]" />
-          256-Bit SSL encrypted &bull; Cash on Delivery verified
+          Discreet Packaging &bull; Cash on Delivery
         </p>
       </div>
 
       {/* Reassurance Pillars (Rounded Oval Card) */}
-      <div className="rounded-2xl border border-[#EAEAEA] bg-[#FFFFFF] p-4 space-y-2.5 text-[11px] text-[#555555] font-light">
+      <div className="rounded-2xl border border-[#EAEAEA] bg-[#FFFFFF] p-4 space-y-2.5 text-[11.5px] text-[#555555] font-light">
         <div className="flex items-center gap-2.5">
           <ShieldCheck size={14} className="text-[#000000] shrink-0" />
-          <span>100% Plain Discreet Packaging Guaranteed</span>
+          <span>Discreet Packaging Guaranteed</span>
         </div>
         <div className="flex items-center gap-2.5">
           <RotateCcw size={14} className="text-[#000000] shrink-0" />
-          <span>14-Day Easy Exchange Policy</span>
+          <span>14-Day Size Exchanges</span>
         </div>
       </div>
     </div>

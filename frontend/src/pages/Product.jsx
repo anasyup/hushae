@@ -140,7 +140,7 @@ export default function Product() {
 
   const stockState = () => {
     if (soldOut) return { tone: 'red', text: 'Out of Stock' };
-    if (p.stock <= 5) return { tone: 'amber', text: `Only ${p.stock} pieces remaining in studio` };
+    if (p.stock <= 5) return { tone: 'amber', text: 'Low Stock' };
     return { tone: 'green', text: 'In Stock · Dispatched in 24 Hours' };
   };
 
@@ -157,16 +157,16 @@ export default function Product() {
       ),
     },
     {
-      title: 'Shipping & Discreet Packaging',
+      title: 'Delivery & Discreet Packaging',
       content: (
         <p className="text-xs text-neutral-600 font-light leading-relaxed">
           Express Courier Delivery across Pakistan in 2–4 business days. Free shipping on orders above PKR 4,999.
-          Every parcel is dispatched in a 100% plain, unmarked, tamper-proof outer box with zero product markings.
+          Every parcel is dispatched in a plain, unmarked outer box with zero product markings.
         </p>
       ),
     },
     {
-      title: '14-Day Size Exchanges',
+      title: '14-Day Exchanges',
       content: (
         <p className="text-xs text-neutral-600 font-light leading-relaxed">
           Unworn pieces with original packaging are eligible for size exchanges within 14 days. Wash cold on gentle cycle and dry flat.
@@ -335,7 +335,7 @@ export default function Product() {
                     return (
                       <div className="flex items-center gap-2 text-[11.5px] text-neutral-500 pt-1 font-light">
                         <span className={`h-1.5 w-1.5 rounded-full ${dot}`} />
-                        <span>{needsSize && !size ? 'Choose your size for live dispatch time.' : st.text}</span>
+                        <span>{needsSize && !size ? 'Select your size' : st.text}</span>
                       </div>
                     );
                   })()}
@@ -382,15 +382,15 @@ export default function Product() {
               <div className="space-y-2 border-y border-neutral-100 py-4 text-[11.5px] text-neutral-600 font-light">
                 <div className="flex items-center gap-2.5">
                   <ShieldCheck size={14} className="text-black shrink-0" />
-                  <span>100% Plain Discreet Packaging Guarantee</span>
+                  <span>Discreet Packaging Guaranteed</span>
                 </div>
                 <div className="flex items-center gap-2.5">
                   <Truck size={14} className="text-black shrink-0" />
-                  <span>Express Delivery 2–4 Days (Free over PKR 4,999)</span>
+                  <span>Express Delivery (2–4 Days)</span>
                 </div>
                 <div className="flex items-center gap-2.5">
                   <RotateCcw size={14} className="text-black shrink-0" />
-                  <span>14-Day Size Exchange Support</span>
+                  <span>14-Day Size Exchanges</span>
                 </div>
               </div>
 

@@ -6,145 +6,114 @@ import CouponBox from './CouponBox';
 import FreeShipProgress from './FreeShipProgress';
 
 /* ============================================================================
- * Order summary.
- *
- * Every number arrives already computed from useCartPricing so the summary,
- * the sticky mobile bar and the checkout page can never disagree — there is no
- * second calculation anywhere in the bag.
- *
- * The totals block is wrapped in aria-live="polite" so a screen reader hears
- * the new total after a quantity change instead of silently re-rendering.
+ * HUSHAE Shopping Bag Order Summary — Clean Luxury Architecture
  * ========================================================================== */
 export default function OrderSummary({ pricing, cfg, applied, onApply, onRemoveCoupon, blocked, ctaRef, promoQuote = null }) {
   const { subtotal, discount, shipping, tax, total, savings, count, threshold, freeShip } = pricing;
 
   return (
-    <div className="border border-neutral-200 bg-white p-6 md:p-8">
-      <h2 className="text-[14px] font-medium uppercase tracking-[0.12em] text-[#111111]">Order Summary</h2>
+    <div className="rounded-3xl border border-[#EAEAEA] bg-[#FBFBFB] p-6 md:p-8 space-y-6 shadow-xs font-sans">
+      <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-[#000000]">
+        Order Summary
+      </h2>
 
       {cfg.showProgress && (
-        <div className="mt-5">
+        <div>
           <FreeShipProgress subtotal={subtotal} threshold={threshold} cfg={cfg} />
         </div>
       )}
 
       {cfg.couponEnabled && (
-        <div className="mt-5">
+        <div>
           <CouponBox subtotal={subtotal} applied={applied} onApply={onApply} onRemove={onRemoveCoupon} />
         </div>
       )}
 
-      {/* Totals. Live region: the numbers change under the customer's hands. */}
-      {/* Automatic offers, straight from the server's own calculation. Sits
-          above the totals because it explains them. */}
       {promoQuote && (promoQuote.discounts?.length > 0 || promoQuote.rejected?.length > 0) && (
         <PromoSummary
           discounts={promoQuote.discounts}
           rejected={promoQuote.rejected}
           capped={promoQuote.capped}
-          className="mt-5"
+          className="mt-4"
         />
       )}
 
-      <dl className="mt-6 space-y-3 border-t border-[#E5E5E5] pt-5 text-[13px]" aria-live="polite">
-        <div className="flex justify-between gap-4">
-          <dt className="text-smoke">Subtotal ({count} {count === 1 ? 'item' : 'items'})</dt>
-          <dd className="font-medium tabular-nums">{pkr(subtotal)}</dd>
+      {/* Totals */}
+      <div className="border-t border-[#EAEAEA] pt-4 space-y-2.5 text-xs" aria-live="polite">
+        <div className="flex justify-between text-[#555555] font-light">
+          <span>Subtotal ({count} {count === 1 ? 'piece' : 'pieces'})</span>
+          <span className="text-[#000000] font-normal tabular-nums">{pkr(subtotal)}</span>
         </div>
 
         {discount > 0 && (
-          <div className="flex justify-between gap-4 text-charcoal">
-            <dt>Discount {applied?.code ? `(${applied.code})` : ''}</dt>
-            <dd className="font-medium tabular-nums">− {pkr(discount)}</dd>
+          <div className="flex justify-between text-[#000000] font-medium">
+            <span>Discount {applied?.code ? `(${applied.code})` : ''}</span>
+            <span className="tabular-nums">− {pkr(discount)}</span>
           </div>
         )}
 
-        <div className="flex justify-between gap-4">
-          <dt className="text-smoke">Shipping</dt>
-          <dd className={`font-medium tabular-nums ${freeShip ? 'text-charcoal' : ''}`}>
-            {freeShip ? 'Free' : pkr(shipping)}
-          </dd>
+        <div className="flex justify-between text-[#555555] font-light">
+          <span>Delivery</span>
+          <span className="text-[#000000] font-normal tabular-nums">
+            {freeShip || shipping === 0 ? 'Free' : pkr(shipping)}
+          </span>
         </div>
 
         {tax > 0 && (
-          <div className="flex justify-between gap-4">
-            <dt className="text-smoke">{cfg.taxLabel}</dt>
-            <dd className="font-medium tabular-nums">{pkr(tax)}</dd>
+          <div className="flex justify-between text-[#555555] font-light">
+            <span>{cfg.taxLabel}</span>
+            <span className="text-[#000000] font-normal tabular-nums">{pkr(tax)}</span>
           </div>
         )}
 
-        <div className="flex items-baseline justify-between gap-4 border-t border-[#E5E5E5] pt-4">
-          <dt className="text-[13px] font-medium text-[#111111]">Total</dt>
-          <dd className="text-[26px] font-medium tabular-nums text-[#111111]">{pkr(total)}</dd>
+        <div className="flex items-baseline justify-between border-t border-[#DCDCDC] pt-3.5 text-sm">
+          <span className="font-medium text-[#000000]">Total</span>
+          <span className="font-sans text-xl font-medium tabular-nums text-[#000000]">{pkr(total)}</span>
         </div>
 
         {savings > 0 && (
-          <div className="flex justify-between gap-4 bg-[#FFFFFF] px-3 py-2">
-            <dt className="text-caption font-semibold uppercase tracking-wider text-charcoal">You save</dt>
-            <dd className="text-caption font-bold tabular-nums text-charcoal">{pkr(savings)}</dd>
+          <div className="flex justify-between rounded-xl bg-neutral-100 px-3 py-2 text-[11px] font-medium text-black">
+            <span>Your Savings</span>
+            <span className="tabular-nums">{pkr(savings)}</span>
           </div>
         )}
-      </dl>
+      </div>
 
-      {/* ---- Checkout ----
-          ctaRef sits on the button row itself, NOT on the summary card. An
-          observer on the whole card fires when the card's edge leaves the
-          viewport, which on a tall summary is hundreds of pixels away from
-          the moment the customer actually loses sight of the button. */}
-      <div ref={ctaRef} className="mt-6">
+      {/* Checkout CTA */}
+      <div ref={ctaRef} className="pt-2">
         {blocked ? (
-          <p className="flex items-center justify-center gap-2 bg-red-50 px-4 py-3.5 text-xs font-semibold text-red-700">
+          <p className="flex items-center justify-center gap-2 rounded-2xl bg-red-50 px-4 py-3.5 text-xs font-medium text-red-700">
             <AlertCircle size={15} aria-hidden="true" /> Remove sold-out items to continue
           </p>
         ) : (
           <Link
             to="/checkout"
-            className="flex min-h-[50px] w-full items-center justify-center gap-2 bg-[#000000] text-xs font-medium uppercase tracking-[0.2em] text-[#FFFFFF] transition-colors hover:bg-neutral-800"
+            className="flex h-[52px] w-full items-center justify-center gap-2 rounded-full bg-[#000000] text-xs font-medium uppercase tracking-[0.2em] text-[#FFFFFF] shadow-md transition-all hover:bg-[#1A1A1A] hover:scale-[1.01]"
           >
-            <span>{cfg.checkoutLabel || 'Proceed to Checkout'}</span>
-            <ArrowRight size={14} className="transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true" />
+            <span>Proceed to Checkout</span>
+            <ArrowRight size={14} aria-hidden="true" />
           </Link>
         )}
+
+        <p className="mt-3 flex items-center justify-center gap-1.5 text-center text-[11px] text-[#777777] font-light">
+          <Lock size={11} className="text-[#000000]" />
+          Discreet Packaging &bull; Cash on Delivery
+        </p>
       </div>
 
-      {/* Express payment placeholders — merchant switches these on once a
-          provider is live. Disabled, never a dead-end click. */}
-      {(cfg.applePay || cfg.googlePay) && (
-        <div className="mt-3 space-y-2">
-          {cfg.applePay && (
-            <button type="button" disabled className="btn w-full cursor-not-allowed border border-line bg-white/60 text-ash opacity-70">
-               Pay — coming soon
-            </button>
-          )}
-          {cfg.googlePay && (
-            <button type="button" disabled className="btn w-full cursor-not-allowed border border-line bg-white/60 text-ash opacity-70">
-              G Pay — coming soon
-            </button>
-          )}
+      {/* Reassurance Strip */}
+      <div className="rounded-2xl border border-[#EAEAEA] bg-[#FFFFFF] p-4 space-y-2.5 text-[11.5px] text-[#555555] font-light">
+        <div className="flex items-center gap-2.5">
+          <ShieldCheck size={14} className="text-[#000000] shrink-0" />
+          <span>Discreet Packaging Guaranteed</span>
         </div>
-      )}
-
-      <Link
-        to={cfg.continueHref}
-        className="mt-4 flex min-h-[44px] w-full items-center justify-center text-[12px] text-smoke underline underline-offset-4 transition hover:text-charcoal"
-      >
-        {cfg.continueLabel}
-      </Link>
-
-      <p className="mt-4 flex items-center justify-center gap-1.5 text-[11px] text-smoke">
-        <Lock size={11} aria-hidden="true" /> {cfg.deliveryNote}
-      </p>
-
-      {/* Security seals — Winterella: visual trust at checkout */}
-      <div className="mt-5 border-t border-[#E5E5E5] pt-5">
-        <div className="flex items-center justify-center gap-2 rounded-[2px] border border-[#E5E5E5] bg-[#FFFFFF] px-3 py-2.5 text-[10px] font-medium uppercase tracking-[0.12em] text-[#5B5955]">
-          <Lock size={12} aria-hidden="true" />
-          100% Secure Checkout
+        <div className="flex items-center gap-2.5">
+          <Truck size={14} className="text-[#000000] shrink-0" />
+          <span>Express Delivery Nationwide</span>
         </div>
-        <div className="mt-2 flex items-center justify-between gap-2 text-[10px] font-medium uppercase tracking-[0.1em] text-[#5B5955]">
-          <span className="inline-flex items-center gap-1.5"><ShieldCheck size={13} aria-hidden="true" /> SSL Secured</span>
-          <span className="inline-flex items-center gap-1.5"><Truck size={13} aria-hidden="true" /> Delivery 2–5 days</span>
-          <span className="inline-flex items-center gap-1.5"><RotateCcw size={13} aria-hidden="true" /> 14-day exchange</span>
+        <div className="flex items-center gap-2.5">
+          <RotateCcw size={14} className="text-[#000000] shrink-0" />
+          <span>14-Day Size Exchanges</span>
         </div>
       </div>
     </div>
