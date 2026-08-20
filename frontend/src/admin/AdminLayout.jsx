@@ -1,7 +1,7 @@
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, NavLink, Navigate, useLocation } from 'react-router-dom';
 import {
-  Activity, BadgePercent, BarChart3, ImagePlus, ChevronDown, CreditCard, FileText, FolderOpen, Globe, Home,
+  Activity, BadgePercent, BarChart3, ImagePlus, ChevronDown, ChevronRight, CreditCard, FileText, FolderOpen, Globe, Home,
   LayoutTemplate, LogOut, Mail, Megaphone, Menu, MessageSquare, Package, PackageX, Phone, Plus,
   Search, Settings as SettingsIcon, ShieldCheck, ShoppingBag, Signpost, Sparkles, Star, Store, Sun, Moon, Tags, TrendingUp, Truck, Users, X, Zap,
 } from 'lucide-react';
@@ -133,10 +133,10 @@ function getRoleLabel(role) {
 }
 
 const linkCls = ({ isActive }) =>
-  `group flex items-center gap-1.5 rounded-md px-2 py-1 text-[13px] font-medium transition ${isActive ? 'bg-white text-neutral-900 shadow-sm' : 'text-neutral-600 hover:bg-white/60 hover:text-neutral-900'}`;
+  `relative flex items-center gap-2.5 px-2 py-[7px] text-[13px] transition-colors ${isActive ? 'font-medium text-neutral-900' : 'text-neutral-500 hover:text-neutral-900'}`;
 
 const childLinkCls = (active) =>
-  `flex items-center gap-1.5 rounded-md py-1 pl-7 pr-2 text-[13px] font-medium transition ${active ? 'bg-white text-neutral-900 shadow-sm' : 'text-neutral-500 hover:bg-white/60 hover:text-neutral-800'}`;
+  `relative flex items-center gap-2 py-[5px] pl-7 pr-2 text-[13px] transition-colors ${active ? 'font-medium text-neutral-900' : 'text-neutral-400 hover:text-neutral-800'}`;
 
 /* A nav item is active when its pathname matches AND, if the link itself
    carries a query (e.g. "?group=new"), that query also matches. Query params
@@ -158,13 +158,18 @@ function GroupDropdown({ group, onNavigate, defaultOpen }) {
   return (
     <div>
       <button type="button" onClick={() => setOpen((v) => !v)} aria-expanded={open}
-        className={`flex w-full items-center gap-1.5 rounded-md px-2 py-1 text-[13px] font-medium transition ${isChildActive ? 'text-neutral-900' : 'text-neutral-600 hover:bg-white/60 hover:text-neutral-900'}`}>
-        <Icon size={14} strokeWidth={isChildActive ? 2 : 1.7} /><span className="flex-1 text-left">{group.label}</span>
-        <ChevronDown size={11} className={`text-neutral-400 transition-transform ${open ? 'rotate-180' : ''}`} />
+        className={`flex w-full items-center gap-2.5 px-2 py-[7px] text-[13px] transition-colors ${isChildActive ? 'font-medium text-neutral-900' : 'text-neutral-500 hover:text-neutral-900'}`}>
+        <Icon size={15} strokeWidth={isChildActive ? 2 : 1.7} className={isChildActive ? '' : 'text-neutral-400'} /><span className="flex-1 text-left">{group.label}</span>
+        <ChevronDown size={12} className={`text-neutral-400 transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
       {open && <div className="mt-0.5 space-y-0.5">{group.children.map((c) => {
         const active = isChildRouteActive(loc, c.to); const ChildIcon = c.icon;
-        return <NavLink key={c.to} to={c.to} onClick={onNavigate} className={() => childLinkCls(active)}><ChildIcon size={12} strokeWidth={1.7} className="opacity-70" />{c.label}</NavLink>;
+        return (
+          <NavLink key={c.to} to={c.to} onClick={onNavigate} className={() => childLinkCls(active)}>
+            {active && <span aria-hidden className="absolute left-1.5 top-1/2 h-3.5 w-[2px] -translate-y-1/2 bg-[#C9A96E]" />}
+            <ChildIcon size={12} strokeWidth={1.7} className="opacity-60" />{c.label}
+          </NavLink>
+        );
       })}</div>}
     </div>
   );
@@ -180,36 +185,54 @@ function SidebarContent({ onNavigate, onOpenCmd }) {
     return null;
   }, [loc.pathname, visibleGroups]);
   return (
-    <div className="flex h-full flex-col bg-[#ebebeb]">
-      <div className="px-3 pb-2 pt-4">
-        <NavLink to="/admin" onClick={onNavigate} className="block w-fit rounded-lg transition hover:opacity-70">
-          <p className="font-sans text-[13px] font-bold tracking-[0.18em] text-neutral-900">HUSHAE</p>
-          <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-neutral-400">Admin</p>
+    <div className="flex h-full flex-col bg-white">
+      {/* ── Wordmark ─────────────────────────────────────────────────── */}
+      <div className="px-4 pb-3 pt-5">
+        <NavLink to="/admin" onClick={onNavigate} className="block w-fit transition hover:opacity-70">
+          <p className="font-sans text-[15px] font-medium tracking-[0.28em] text-neutral-900">HUSHAE</p>
+          <p className="mt-1 text-[9px] font-semibold uppercase tracking-[0.34em] text-neutral-400">Admin Console</p>
         </NavLink>
       </div>
-      {role && role !== 'admin' && role !== 'Owner' && (
-        <div className="mx-3 mb-2 rounded-lg border border-neutral-200 bg-white px-2.5 py-1.5">
-          <p className="text-[13px] font-bold uppercase tracking-wider text-neutral-500">{getRoleLabel(role)} view</p>
-        </div>
-      )}
-      <div className="px-3 pb-2">
+
+      {/* ── Role + search (hairline area) ─────────────────────────────── */}
+      <div className="mx-4 border-b border-neutral-200 pb-3">
+        {role && role !== 'admin' && role !== 'Owner' && (
+          <p className="mb-2.5 text-[10px] font-semibold uppercase tracking-[0.22em] text-neutral-400">{getRoleLabel(role)} view</p>
+        )}
         <button
           type="button"
           onClick={() => onOpenCmd?.()}
-          className="flex w-full items-center gap-2 rounded-lg border border-transparent bg-white/70 px-2.5 py-1.5 text-left text-[13px] text-neutral-500 transition hover:border-neutral-300 hover:bg-white"
+          className="group flex w-full items-center gap-2 py-1 text-left text-[13px] text-neutral-500 transition hover:text-neutral-900"
         >
-          <Search size={13} className="shrink-0 text-neutral-400" />
-          <span className="flex-1">Search…</span>
-          <kbd className="rounded border border-neutral-300 bg-white px-1.5 py-0.5 text-[10px] font-semibold text-neutral-400">⌘K</kbd>
+          <Search size={13} strokeWidth={1.8} className="shrink-0 text-neutral-400 transition group-hover:text-neutral-900" />
+          <span className="flex-1">Search admin…</span>
+          <kbd className="text-[10px] font-medium tracking-[0.14em] text-neutral-400">⌘K</kbd>
         </button>
       </div>
-      <nav className="flex-1 space-y-0.5 overflow-y-auto px-2.5 pb-3">
-        {NAV_TOP.map(({ to, label, icon: Icon, end }) => <NavLink key={to} to={to} end={end} className={linkCls} onClick={onNavigate}>{({ isActive }) => <><Icon size={17} strokeWidth={isActive ? 2.1 : 1.8} />{label}</>}</NavLink>)}
-        <div className="mt-2" />
+
+      {/* ── Navigation ───────────────────────────────────────────────── */}
+      <nav className="flex-1 space-y-0.5 overflow-y-auto px-2.5 pb-4 pt-3">
+        {NAV_TOP.map(({ to, label, icon: Icon, end }) => (
+          <NavLink key={to} to={to} end={end} className={linkCls} onClick={onNavigate}>
+            {({ isActive }) => (
+              <>
+                <span aria-hidden className={`absolute left-0 top-1/2 h-4 w-[2px] -translate-y-1/2 bg-[#C9A96E] transition-opacity ${isActive ? 'opacity-100' : 'opacity-0'}`} />
+                <Icon size={16} strokeWidth={isActive ? 2 : 1.7} className={isActive ? '' : 'text-neutral-400'} />
+                {label}
+              </>
+            )}
+          </NavLink>
+        ))}
+        <div className="mx-2 my-3 border-t border-neutral-200" />
         {visibleGroups.map((g) => <GroupDropdown key={g.label} group={g} onNavigate={onNavigate} defaultOpen={activeGroupLabel === g.label} />)}
       </nav>
-      <div className="border-t border-black/5 px-2.5 py-3">
-        <button onClick={logout} className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] font-medium text-neutral-500 transition hover:bg-white/60 hover:text-red-600"><LogOut size={17} strokeWidth={1.8} /> Sign Out</button>
+
+      {/* ── Footer ───────────────────────────────────────────────────── */}
+      <div className="border-t border-neutral-200 px-2.5 py-3">
+        <button onClick={logout} className="flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-[13px] text-neutral-500 transition hover:text-red-600">
+          <LogOut size={15} strokeWidth={1.7} /> Sign out
+        </button>
+        <p className="mt-2 px-2 text-[9px] font-medium uppercase tracking-[0.24em] text-neutral-300">HUSHAE · Second Skin</p>
       </div>
     </div>
   );
@@ -260,22 +283,22 @@ export default function AdminLayout({ children, title }) {
   if (!auth) return <Navigate to="/admin/login" state={{ from: loc.pathname }} replace />;
   if (!ALL_ROLES.includes(role || '')) return <Navigate to="/admin/login" replace />;
   if (isPathBlocked(loc.pathname, role)) return (
-    <div className="grid min-h-screen place-items-center bg-[#F4F6F8]">
-      <div className="rounded-2xl border border-amber-200 bg-white p-10 text-center shadow-sm max-w-sm">
+    <div className="grid min-h-screen place-items-center bg-[#F5F5F5]">
+      <div className="max-w-sm rounded-md border border-amber-200 bg-white p-10 text-center shadow-sm">
         <ShieldCheck size={36} className="mx-auto mb-3 text-amber-600" />
         <p className="text-[15px] font-semibold text-neutral-900">Access restricted</p>
         <p className="mt-2 text-[13px] leading-relaxed text-neutral-500">This section is only available to Administrator and Owner roles. You are signed in as <b>{getRoleLabel(role || '')}</b>.</p>
-        <Link to="/admin" className="mt-5 inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-5 py-2.5 text-[15px] font-semibold text-white transition hover:bg-black">Back to Dashboard</Link>
+        <Link to="/admin" className="mt-5 inline-flex items-center gap-1.5 rounded-md bg-neutral-900 px-5 py-2.5 text-[15px] font-semibold text-white transition hover:bg-black">Back to Dashboard</Link>
       </div>
     </div>
   );
   return (
-    <div className="admin-shell flex min-h-screen bg-[#F4F6F8]">
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-[220px] md:block"><SidebarContent onOpenCmd={() => setCmdOpen(true)} /></aside>
-      {drawer && <div className="fixed inset-0 z-50 md:hidden"><div className="absolute inset-0 bg-black/40" onClick={() => setDrawer(false)} /><div className="absolute inset-y-0 left-0 w-64 shadow-xl"><button onClick={() => setDrawer(false)} className="absolute right-3 top-4 z-10 rounded-lg p-1.5 text-neutral-500 hover:bg-white/70"><X size={18} /></button><SidebarContent onNavigate={() => setDrawer(false)} onOpenCmd={() => { setDrawer(false); setCmdOpen(true); }} /></div></div>}
+    <div className="admin-shell flex min-h-screen">
+      <aside className="fixed inset-y-0 left-0 z-40 hidden w-[220px] border-r border-neutral-200 bg-white md:block"><SidebarContent onOpenCmd={() => setCmdOpen(true)} /></aside>
+      {drawer && <div className="fixed inset-0 z-50 md:hidden"><div className="absolute inset-0 bg-black/40" onClick={() => setDrawer(false)} /><div className="absolute inset-y-0 left-0 w-64 border-r border-neutral-200 bg-white"><button onClick={() => setDrawer(false)} className="absolute right-3 top-4 z-10 rounded-md p-1.5 text-neutral-500 hover:bg-neutral-100"><X size={18} /></button><SidebarContent onNavigate={() => setDrawer(false)} onOpenCmd={() => { setDrawer(false); setCmdOpen(true); }} /></div></div>}
       <div className="flex min-h-screen min-w-0 flex-1 flex-col md:pl-[220px]">
         <TopBar title={title} auth={auth} onCmdK={() => setCmdOpen(true)} onMenu={() => setDrawer(true)} />
-        <div className="min-w-0 flex-1 p-4 md:p-6">{title && <h1 className="mb-6 font-sans text-[14px] font-semibold leading-tight text-neutral-900 md:hidden">{title}</h1>}<div className="admin-main min-w-0">{children}</div></div>
+        <div className="min-w-0 flex-1 p-4 md:p-8">{title && <h1 className="mb-6 font-sans text-[14px] font-semibold leading-tight text-neutral-900 md:hidden">{title}</h1>}<div className="admin-main min-w-0">{children}</div></div>
       </div>
       <ProfitCalculator />
       {cmdOpen && <CommandPalette onClose={() => setCmdOpen(false)} />}
@@ -292,7 +315,7 @@ function CreateMenu({ onPick }) {
     { to: '/admin/blog/new', icon: FileText, label: 'New blog article' },
   ];
   return (
-    <div className="absolute right-0 top-full z-30 mt-1 w-56 rounded-lg border border-neutral-200 bg-white py-1 shadow-lg">
+    <div className="absolute right-0 top-full z-30 mt-1 w-56 rounded-md border border-neutral-200 bg-white py-1 shadow-sm">
       {items.map((it) => {
         const Icon = it.icon;
         return (
@@ -329,21 +352,28 @@ function TopBar({ title, auth, onCmdK, onMenu }) {
     return out;
   })();
   const initials = (auth?.user?.name || 'A').split(' ').map((s) => s[0]).slice(0, 2).join('').toUpperCase();
-  const btnGhost = 'inline-flex min-h-[36px] items-center justify-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-2.5 text-[12px] font-semibold text-neutral-600 transition hover:border-neutral-300 hover:text-neutral-900';
-  const btnPrimary = 'inline-flex min-h-[36px] items-center gap-1 rounded-lg bg-neutral-900 px-3 text-[12px] font-semibold text-white transition hover:bg-neutral-800';
+  const btnGhost = 'inline-flex min-h-[34px] items-center justify-center gap-1.5 rounded-md border border-neutral-200 bg-white px-2.5 text-[12px] font-medium text-neutral-500 transition hover:border-neutral-300 hover:text-neutral-900';
+  const btnPrimary = 'inline-flex min-h-[34px] items-center gap-1 rounded-md bg-neutral-900 px-3 text-[12px] font-semibold tracking-wide text-white transition hover:bg-black';
   return (
     <header className="sticky top-0 z-20 border-b border-neutral-200 bg-white/90 px-3 py-2.5 backdrop-blur md:px-8 md:py-3">
       <div className="flex items-center justify-between gap-3">
         <div className="flex min-w-0 flex-1 items-center gap-2">
-          <button type="button" onClick={onMenu} className="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-neutral-700 hover:bg-neutral-100 md:hidden" aria-label="Open menu"><Menu size={20} /></button>
+          <button type="button" onClick={onMenu} className="grid h-9 w-9 shrink-0 place-items-center rounded-md text-neutral-700 hover:bg-neutral-100 md:hidden" aria-label="Open menu"><Menu size={20} /></button>
           <div className="min-w-0">
-            <h1 className="truncate font-sans text-[15px] font-semibold leading-tight text-neutral-900 md:text-lg">{title || crumbs[crumbs.length - 1]?.label}</h1>
-            <nav className="mt-0.5 hidden items-center gap-1.5 text-[13px] text-neutral-500 md:flex">{crumbs.map((c, i) => <span key={c.to} className="inline-flex items-center gap-1.5">{i > 0 && <span className="text-neutral-300">/</span>}{i === crumbs.length - 1 ? <span className="font-medium text-neutral-700">{c.label}</span> : <Link to={c.to} className="hover:text-neutral-900">{c.label}</Link>}</span>)}</nav>
+            <h1 className="truncate font-sans text-[15px] font-medium leading-tight tracking-[0.01em] text-neutral-900 md:text-[16px]">{title || crumbs[crumbs.length - 1]?.label}</h1>
+            <nav className="mt-0.5 hidden items-center text-[12px] text-neutral-400 md:flex">{crumbs.map((c, i) => (
+              <span key={c.to} className="inline-flex items-center">
+                {i > 0 && <ChevronRight size={11} className="mx-1 text-neutral-300" />}
+                {i === crumbs.length - 1
+                  ? <span className="font-medium text-neutral-600">{c.label}</span>
+                  : <Link to={c.to} className="transition hover:text-neutral-900">{c.label}</Link>}
+              </span>
+            ))}</nav>
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-1.5 md:gap-2">
-          <button type="button" onClick={onCmdK} className={btnGhost} title="Search admin (⌘K)"><Search size={14} /><span className="hidden sm:inline">Search</span></button>
-          <span className={`hidden items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[12px] font-semibold lg:inline-flex ${storeOpen ? 'border-neutral-200 bg-white text-neutral-600' : 'border-amber-200 bg-amber-50 text-amber-800'}`}><span className={`h-1.5 w-1.5 rounded-full ${storeOpen ? 'bg-emerald-500' : 'bg-amber-500'}`} />{storeOpen ? 'Store online' : 'Store locked'}</span>
+          <button type="button" onClick={onCmdK} className={btnGhost} title="Search admin (⌘K)"><Search size={14} strokeWidth={1.8} /><span className="hidden sm:inline">Search</span></button>
+          <span className={`hidden items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11px] font-medium tracking-wide lg:inline-flex ${storeOpen ? 'border-neutral-200 bg-white text-neutral-500' : 'border-amber-200 bg-amber-50 text-amber-800'}`}><span className={`h-1.5 w-1.5 rounded-full ${storeOpen ? 'bg-emerald-500' : 'bg-amber-500'}`} />{storeOpen ? 'Store online' : 'Store locked'}</span>
           {canCreate && (
             <div className="relative" ref={createRef}>
               <button type="button" onClick={() => setCreateOpen((v) => !v)} className={btnPrimary}><Plus size={12} /> <span className="hidden sm:inline">Create</span></button>
@@ -355,7 +385,7 @@ function TopBar({ title, auth, onCmdK, onMenu }) {
             {dark ? <Sun size={13} /> : <Moon size={13} />}
           </button>
           <NotificationBell />
-          <div className="ml-0.5 flex items-center gap-2 rounded-lg border border-neutral-200 bg-white p-1 pr-2 md:pr-3"><span className="grid h-7 w-7 place-items-center rounded-md bg-neutral-900 text-[12px] font-bold text-white">{initials}</span><span className="hidden text-[13px] font-semibold text-neutral-800 sm:inline">{auth?.user?.name?.split(' ')[0] || 'Admin'}</span></div>
+          <div className="ml-0.5 flex items-center gap-2 rounded-md border border-neutral-200 bg-white p-1 pr-2 md:pr-3"><span className="grid h-7 w-7 place-items-center rounded-[4px] bg-neutral-900 text-[11px] font-semibold tracking-wide text-white">{initials}</span><span className="hidden text-[12px] font-medium text-neutral-800 sm:inline">{auth?.user?.name?.split(' ')[0] || 'Admin'}</span></div>
         </div>
       </div>
     </header>

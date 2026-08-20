@@ -21,7 +21,7 @@
   --tw-black: 26 27 28;      /* QA charcoal #1A1B1C */
   --n50:  255 255 255;
   --n100: 245 245 245;
-  --n200: 235 235 235;   /* borders #EBEBEB */
+  --n200: 229 229 229;   /* hairline borders #E5E5E5 (CK monochrome) */
   --n300: 220 220 220;
   /* #6B7280 (was #AAAAAA) — WCAG AA fix. #AAAAAA measured 2.32:1 on white,
      below the 4.5:1 floor for the 12-13px secondary text that uses
@@ -117,6 +117,24 @@
   --duration-hover:   400ms;                          /* image hover      */
   --duration-fast:    250ms;                          /* button hover     */
 }
+
+/* ════════════════════════════════════════════════════════════════════════
+ * ADMIN CONSOLE — HUSHAE Command Center (CK monochrome register)
+ * Light editorial shell: #F5F5F5 canvas, white surfaces, #E5E5E5 hairlines,
+ * #111111 ink, #696969 secondary, gold #C9A96E as the single accent.
+ * Scoped under .admin-shell so the storefront stays untouched.
+ * ════════════════════════════════════════════════════════════════════════ */
+.admin-shell {
+  background: #F5F5F5;
+  color: #111111;
+  -webkit-font-smoothing: antialiased;
+}
+.admin-shell ::selection { background: rgba(201, 169, 110, 0.32); }
+.admin-shell :focus-visible { outline: 2px solid #111111; outline-offset: 2px; }
+.admin-shell * { scrollbar-width: thin; scrollbar-color: #D8D8D8 transparent; }
+.admin-shell ::-webkit-scrollbar { width: 10px; height: 10px; }
+.admin-shell ::-webkit-scrollbar-thumb { background: #D8D8D8; border-radius: 8px; border: 2px solid #F5F5F5; }
+.admin-shell ::-webkit-scrollbar-track { background: transparent; }
 
 @layer base {
   /* Never let viewport-bleed editorial sections create a page-wide horizontal

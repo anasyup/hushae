@@ -21,7 +21,11 @@
 }
 
 /* ── Admin shell wrapper (hardcoded light gray) → page background ────────── */
-.dark-admin .admin-shell { background: #0e1116 !important; }
+.dark-admin .admin-shell { background: #0e1116 !important; color: #eef1f5 !important; }
+
+/* ── HUSHAE Command Center shell (v2) dark parity ───────────────────────── */
+.dark-admin .admin-shell ::-webkit-scrollbar-thumb { background: #2a323d; border-color: #0e1116; }
+.dark-admin .admin-shell :focus-visible { outline-color: #eef1f5; }
 
 /* ── Sidebar chrome ─────────────────────────────────────────────────────── */
 .dark-admin aside,
