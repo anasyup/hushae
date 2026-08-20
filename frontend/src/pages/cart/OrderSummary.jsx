@@ -8,23 +8,32 @@ import FreeShipProgress from './FreeShipProgress';
 /* ============================================================================
  * HUSHAE Shopping Bag Order Summary — Clean Luxury Architecture
  * ========================================================================== */
+
 export default function OrderSummary({ pricing, cfg, applied, onApply, onRemoveCoupon, blocked, ctaRef, promoQuote = null }) {
   const { subtotal, discount, shipping, tax, total, savings, count, threshold, freeShip } = pricing;
 
   return (
-    <div className="rounded-3xl border border-[#EAEAEA] bg-[#FBFBFB] p-6 md:p-8 space-y-6 shadow-xs font-sans">
-      <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-[#000000]">
-        Order Summary
-      </h2>
+    <div className="rounded-3xl border border-[#EAEAEA] bg-[#FBFBFB] p-6 sm:p-8 space-y-6 shadow-xs font-sans">
+      {/* Summary Header */}
+      <div className="flex items-center justify-between border-b border-[#EAEAEA] pb-4">
+        <h2 className="text-xs font-semibold uppercase tracking-[0.2em] text-[#000000]">
+          Order Summary
+        </h2>
+        <span className="rounded-full bg-[#EAEAEA] px-3 py-1 text-[11px] font-medium text-[#000000]">
+          {count} {count === 1 ? 'piece' : 'pieces'}
+        </span>
+      </div>
 
+      {/* Free Shipping Progress */}
       {cfg.showProgress && (
-        <div>
+        <div className="rounded-2xl bg-[#FFFFFF] border border-[#EAEAEA] p-4 shadow-xs">
           <FreeShipProgress subtotal={subtotal} threshold={threshold} cfg={cfg} />
         </div>
       )}
 
+      {/* Promo Code Box */}
       {cfg.couponEnabled && (
-        <div>
+        <div className="border-t border-[#EAEAEA] pt-4">
           <CouponBox subtotal={subtotal} applied={applied} onApply={onApply} onRemove={onRemoveCoupon} />
         </div>
       )}
@@ -38,10 +47,10 @@ export default function OrderSummary({ pricing, cfg, applied, onApply, onRemoveC
         />
       )}
 
-      {/* Totals */}
-      <div className="border-t border-[#EAEAEA] pt-4 space-y-2.5 text-xs" aria-live="polite">
+      {/* Totals Breakdown */}
+      <div className="border-t border-[#EAEAEA] pt-4 space-y-3 text-xs" aria-live="polite">
         <div className="flex justify-between text-[#555555] font-light">
-          <span>Subtotal ({count} {count === 1 ? 'piece' : 'pieces'})</span>
+          <span>Subtotal</span>
           <span className="text-[#000000] font-normal tabular-nums">{pkr(subtotal)}</span>
         </div>
 
@@ -53,9 +62,9 @@ export default function OrderSummary({ pricing, cfg, applied, onApply, onRemoveC
         )}
 
         <div className="flex justify-between text-[#555555] font-light">
-          <span>Delivery</span>
+          <span>Courier Delivery</span>
           <span className="text-[#000000] font-normal tabular-nums">
-            {freeShip || shipping === 0 ? 'Free' : pkr(shipping)}
+            {freeShip || shipping === 0 ? 'Free Express' : pkr(shipping)}
           </span>
         </div>
 
@@ -66,7 +75,7 @@ export default function OrderSummary({ pricing, cfg, applied, onApply, onRemoveC
           </div>
         )}
 
-        <div className="flex items-baseline justify-between border-t border-[#DCDCDC] pt-3.5 text-sm">
+        <div className="flex items-baseline justify-between border-t border-[#DCDCDC] pt-4 text-sm">
           <span className="font-medium text-[#000000]">Total</span>
           <span className="font-sans text-xl font-medium tabular-nums text-[#000000]">{pkr(total)}</span>
         </div>
@@ -109,7 +118,7 @@ export default function OrderSummary({ pricing, cfg, applied, onApply, onRemoveC
         </div>
         <div className="flex items-center gap-2.5">
           <Truck size={14} className="text-[#000000] shrink-0" />
-          <span>Express Delivery Nationwide</span>
+          <span>Express Delivery (2–4 Days)</span>
         </div>
         <div className="flex items-center gap-2.5">
           <RotateCcw size={14} className="text-[#000000] shrink-0" />

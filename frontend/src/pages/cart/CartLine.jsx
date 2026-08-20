@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { AlertCircle, BookmarkPlus, Heart, Truck, Trash2 } from 'lucide-react';
+import { AlertCircle, BookmarkPlus, Heart, Truck, Trash2, Check } from 'lucide-react';
 import Img from '../../components/Img';
 import QuantityStepper from '../../components/ui/QuantityStepper';
 import { pkr } from '../../lib/format';
@@ -31,7 +31,7 @@ export default function CartLine({
   const thumb = (
     <Link
       to={`/product/${line.slug}`}
-      className={`group relative block aspect-[3/4] w-20 sm:w-24 shrink-0 rounded-2xl overflow-hidden bg-[#F8F8F8] border border-[#EAEAEA] transition-opacity ${
+      className={`group relative block aspect-[3/4] w-24 sm:w-28 shrink-0 rounded-2xl overflow-hidden bg-[#F8F8F8] border border-[#EAEAEA] transition-opacity ${
         blocked ? 'opacity-50' : 'hover:opacity-90'
       }`}
       tabIndex={-1}
@@ -40,22 +40,39 @@ export default function CartLine({
       <Img
         src={line.image}
         alt=""
-        className="h-full w-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
+        className="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
       />
     </Link>
   );
 
   const details = (
-    <div className="min-w-0 flex-1 space-y-1">
-      <h3 className="text-[14px] font-normal text-[#000000] leading-snug truncate">
+    <div className="min-w-0 flex-1 space-y-1.5">
+      <h3 className="text-[15px] sm:text-[16px] font-normal text-[#000000] leading-snug truncate">
         <Link to={`/product/${line.slug}`} className="hover:text-neutral-500 transition-colors">
           {nameOf(line.name)}
         </Link>
       </h3>
 
-      <p className="text-[11.5px] text-neutral-500 font-light">
-        {[line.size && `Size ${line.size}`, line.color].filter(Boolean).join(' · ') || '—'}
-      </p>
+      <div className="flex flex-wrap items-center gap-2 text-xs text-neutral-500 font-light">
+        {line.size && (
+          <span className="rounded-full bg-neutral-100 px-2.5 py-0.5 text-[11px] font-medium text-black">
+            Size {line.size}
+          </span>
+        )}
+        {line.color && (
+          <span className="text-[11.5px] text-neutral-600">
+            {line.color}
+          </span>
+        )}
+      </div>
+
+      {/* Reassurance state */}
+      {!blocked && !low && (
+        <div className="flex items-center gap-1.5 text-[11px] text-emerald-600 font-light pt-0.5">
+          <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+          <span>In Stock · Dispatched in 24 Hours</span>
+        </div>
+      )}
 
       {meta?.label && (
         <p className={`mt-1.5 inline-flex w-fit items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wider ${
@@ -67,7 +84,7 @@ export default function CartLine({
 
       {low && (
         <p className="text-[11px] text-amber-700 font-light pt-0.5">
-          Only {available} remaining
+          Only {available} remaining in studio
         </p>
       )}
 
@@ -78,7 +95,7 @@ export default function CartLine({
       )}
 
       {/* Mobile view controls */}
-      <div className="mt-3 flex items-center justify-between gap-3 md:hidden pt-1">
+      <div className="mt-3 flex items-center justify-between gap-3 md:hidden pt-2 border-t border-[#F0F0F0]">
         <QuantityStepper
           value={line.qty}
           onChange={onQty}
@@ -89,12 +106,12 @@ export default function CartLine({
           label={`Quantity for ${line.name}`}
         />
 
-        <span className="text-[14px] font-medium tabular-nums text-[#000000]">
+        <span className="text-[15px] font-medium tabular-nums text-[#000000]">
           {pkr(line.price * line.qty)}
         </span>
       </div>
 
-      <div className="mt-2 flex items-center gap-4 text-[11px] text-neutral-400 font-light md:hidden">
+      <div className="mt-2 flex items-center gap-4 text-xs text-neutral-400 font-light md:hidden">
         {cfg.saveForLater && !blocked && (
           <button
             type="button"
@@ -117,26 +134,26 @@ export default function CartLine({
 
   return (
     <li
-      className={`grid grid-cols-1 items-start gap-4 py-5 transition-opacity duration-300 md:grid-cols-[minmax(0,1fr)_120px_140px_120px_40px] md:items-center md:gap-4 ${
+      className={`grid grid-cols-1 items-start gap-4 py-6 transition-opacity duration-300 md:grid-cols-[minmax(0,1fr)_120px_140px_120px_40px] md:items-center md:gap-4 ${
         removing ? 'opacity-0' : 'opacity-100'
       }`}
       aria-busy={removing || undefined}
     >
       {/* Cell 1: thumb + details */}
-      <div className="flex items-start gap-4">
+      <div className="flex items-start gap-4 sm:gap-5">
         {thumb}
         {details}
       </div>
 
       {/* Cell 2: Unit Price (Desktop) */}
-      <div className="hidden text-[13.5px] tabular-nums md:block">
+      <div className="hidden text-[14px] tabular-nums md:block">
         {onSale && line.compareAtPrice > line.price ? (
           <div className="space-y-0.5">
             <span className="font-medium text-[#000000]">{pkr(line.price)}</span>
             <span className="block text-[11px] text-neutral-400 line-through">{pkr(line.compareAtPrice)}</span>
           </div>
         ) : (
-          <span className="font-normal text-neutral-700">{pkr(line.price)}</span>
+          <span className="font-normal text-neutral-800">{pkr(line.price)}</span>
         )}
       </div>
 
@@ -154,7 +171,7 @@ export default function CartLine({
       </div>
 
       {/* Cell 4: Line Total (Desktop) */}
-      <div className={`hidden text-right text-[14px] font-medium tabular-nums text-[#000000] md:block ${blocked ? 'opacity-50 line-through' : ''}`}>
+      <div className={`hidden text-right text-[15px] font-medium tabular-nums text-[#000000] md:block ${blocked ? 'opacity-50 line-through' : ''}`}>
         {pkr(line.price * line.qty)}
       </div>
 
