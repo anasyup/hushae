@@ -19,6 +19,7 @@ import CollectionCard from '../components/CollectionCard';
  *   7. Curated Edit: Men's Collection (#men-section)
  *   8. Full-Bleed Editorial Campaign: "The Campus Edit"
  *   9. Curated Edit: The Sale Edit (#sale-section)
+ *   10. Minimalist Newsletter Block
  * ========================================================================== */
 
 const IMG = '/images/campaign/qa';
@@ -487,6 +488,64 @@ function FeatureCampusSection() {
   );
 }
 
+/* ── 7. LUXURY NEWSLETTER SECTION ─────────────────────────────────────────── */
+function LuxuryNewsletterSection() {
+  const [email, setEmail] = useState('');
+  const [done, setDone] = useState(false);
+  const [err, setErr] = useState('');
+
+  const submit = (e) => {
+    e.preventDefault();
+    const v = email.trim();
+    if (!v) { setErr('Please enter your email address.'); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) { setErr('Please enter a valid email address.'); return; }
+    setErr('');
+    api('/subscribers', { method: 'POST', body: { email: v } }).catch(() => {});
+    setDone(true);
+  };
+
+  return (
+    <section className="bg-white px-6 py-24 md:py-32 text-center border-t border-neutral-100">
+      <div className="mx-auto max-w-md space-y-4">
+        <p className="text-[10px] font-medium uppercase tracking-[0.32em] text-neutral-400">
+          STAY CONNECTED
+        </p>
+        <h2 className="text-2xl sm:text-3xl font-light uppercase tracking-[0.14em] text-[#000000]">
+          The Inner Circle
+        </h2>
+        <p className="text-xs sm:text-[13px] text-neutral-500 font-light leading-relaxed">
+          First access to studio drops, private sales, and seasonal previews.
+        </p>
+
+        {done ? (
+          <p className="pt-4 text-xs font-medium uppercase tracking-[0.2em] text-[#000000]">
+            You&apos;re on the list.
+          </p>
+        ) : (
+          <form onSubmit={submit} className="mx-auto flex max-w-sm items-end justify-center gap-3 pt-4" noValidate>
+            <label htmlFor="home-nl-email" className="sr-only">Email address</label>
+            <input
+              id="home-nl-email"
+              type="email"
+              value={email}
+              onChange={(e) => { setEmail(e.target.value); if (err) setErr(''); }}
+              placeholder="Enter your email"
+              className="w-full border-0 border-b border-black/30 bg-transparent px-0 py-2.5 text-xs text-black placeholder:text-neutral-400 focus:border-black focus:outline-none transition-colors"
+            />
+            <button
+              type="submit"
+              className="shrink-0 border-b border-black pb-1 text-xs font-medium uppercase tracking-[0.2em] text-black transition-opacity hover:opacity-60"
+            >
+              Subscribe
+            </button>
+          </form>
+        )}
+        {err && <p className="pt-2 text-xs text-red-600 font-light">{err}</p>}
+      </div>
+    </section>
+  );
+}
+
 /* ═══ PAGE ROOT ═══════════════════════════════════════════════════════════ */
 export default function Home() {
   const [newArrivals, setNewArrivals] = useState([]);
@@ -554,7 +613,7 @@ export default function Home() {
         viewAllHref="/shop?gender=women"
       />
 
-      {/* 06 — EDITORIAL FEATURE 02: "Signature Underwear" */}
+      {/* 06 — EDITORIAL CAMPAIGN 02: "Signature Underwear" */}
       <FeatureUnderwearSection />
 
       {/* 07 — CURATED EDIT: MEN'S COLLECTION (#men-section) */}
@@ -566,7 +625,7 @@ export default function Home() {
         viewAllHref="/shop?gender=men"
       />
 
-      {/* 08 — EDITORIAL FEATURE 03: "The Campus Edit" */}
+      {/* 08 — EDITORIAL CAMPAIGN 03: "The Campus Edit" */}
       <FeatureCampusSection />
 
       {/* 09 — CURATED EDIT: THE SALE ARCHIVE (#sale-section) */}
@@ -577,6 +636,9 @@ export default function Home() {
         products={saleProducts}
         viewAllHref="/sale"
       />
+
+      {/* 10 — THE INNER CIRCLE NEWSLETTER */}
+      <LuxuryNewsletterSection />
     </div>
   );
 }
