@@ -291,13 +291,12 @@ export default function Checkout() {
   /* ---------------- validation ---------------- */
   const validate = () => {
     const e = {};
-    if (f.name.trim().length < 3) e.name = 'Please enter your full name';
-    if (!normalizePhone(f.phone)) e.phone = 'Enter a valid Pakistani mobile, e.g. 0300 1234567';
-    if (f.address.trim().length < 6) e.address = 'Please enter your full street address';
+    if (f.name.trim().length < 2) e.name = 'Please enter your full name';
+    if (!normalizePhone(f.phone)) e.phone = 'Enter a valid Pakistani mobile number (e.g. 0300 1234567)';
+    if (f.address.trim().length < 5) e.address = 'Please enter your complete delivery address';
     if (!f.province) e.province = 'Please select your province';
     if (!cityLabel) e.city = 'Please choose your city';
-    if (!/^\d{5}$/.test(f.postalCode)) e.postalCode = 'Postal code must be 5 digits';
-    else if (postalLive && postalLive.ok === false) e.postalCode = 'That postal code does not match your city';
+    if (f.postalCode && !/^\d{5}$/.test(f.postalCode)) e.postalCode = 'Postal code must be 5 digits';
     if (f.email && !/^\S+@\S+\.\S+$/.test(f.email)) e.email = 'Enter a valid email, or leave it empty';
     if (!method) e.method = 'Please choose how you want to pay';
     if (cfg.termsRequired && !terms) e.terms = 'Please accept the terms to continue';
