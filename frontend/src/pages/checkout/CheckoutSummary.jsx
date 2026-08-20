@@ -1,175 +1,133 @@
 import { Link } from 'react-router-dom';
-import { Lock, Truck } from 'lucide-react';
+import { Lock, Truck, ShieldCheck, RotateCcw, ArrowRight } from 'lucide-react';
 import { pkr } from '../../lib/format';
 import { titleCase } from '../../lib/productMeta';
-
-/* QA - strip the header brand word, Title Case the rest. */
-const nameOf = (name) => titleCase(String(name || '').replace(/^HUSHAE\s+/i, ''));
 import Img from '../../components/Img';
 import CouponBox from '../cart/CouponBox';
-import TrustRow from '../cart/TrustRow';
-import Spinner from '../../components/ui/Spinner';
-import PromoSummary from '../../components/marketing/PromoSummary';
 
-/* ============================================================================
- * Checkout order summary.
- *
- * Reuses the bag's CouponBox and TrustRow verbatim, and every number comes
- * from the pricing object built by useCartPricing — the same engine the bag
- * and the drawer use. There is no second calculation on this page, which is
- * what let the old checkout quote a different total from the bag.
- * ========================================================================== */
+const nameOf = (name) => titleCase(String(name || '').replace(/^HUSHAE\s+/i, ''));
+
 export default function CheckoutSummary({
   cart, pricing, cartCfg, checkoutCfg, applied, onApply, onRemoveCoupon,
-  submitRef, onSubmit, busy, disabled, rewardsSlot, promoQuote = null, onQty,
+  onSubmit, busy, disabled, onQty
 }) {
   return (
-    <div className="sticky top-8 mt-0 self-start border border-neutral-200 bg-[#FAF9F6] p-6">
-      <h2 className="mb-5 border-b border-neutral-200 pb-2.5 text-xs font-semibold uppercase tracking-widest">
-        Order Summary <span className="ml-1 font-normal normal-case text-neutral-500">({pricing.count} item{pricing.count === 1 ? '' : 's'})</span>
-      </h2>
-
-      {/* Delivery estimate — trust + clarity up front */}
-      <div className="mt-4 flex items-center gap-2.5 rounded-[2px] border border-[#E5E5E5] bg-[#FFFFFF] px-3.5 py-3">
-        <Truck size={15} className="shrink-0 text-[#C9A96E]" aria-hidden="true" />
-        <p className="text-[12px] leading-snug text-[#5B5955]">
-          Estimated delivery <span className="font-medium text-[#111111]">2–5 working days</span>
-          <span className="block text-[10px] text-[#696969]">Dispatched in 24h · discreet packaging</span>
-        </p>
+    <div className="border border-neutral-200 bg-white p-6 sm:p-8 space-y-6 shadow-xs">
+      {/* Header */}
+      <div className="flex items-center justify-between border-b border-neutral-100 pb-4">
+        <h2 className="text-xs font-semibold uppercase tracking-[0.2em] text-[#000000]">
+          Order Summary
+        </h2>
+        <span className="text-xs text-neutral-500 font-light">
+          {pricing.count} {pricing.count === 1 ? 'item' : 'items'}
+        </span>
       </div>
 
-      <ul className="no-scrollbar mt-5 max-h-80 space-y-4 overflow-y-auto pr-1">
+      {/* Delivery Assurance */}
+      <div className="flex items-center gap-3 bg-neutral-50 p-3.5 border border-neutral-100">
+        <Truck size={16} className="text-black shrink-0" />
+        <div className="text-[11.5px] text-neutral-600 font-light leading-snug">
+          Estimated delivery <strong className="font-medium text-black">2–4 business days</strong>
+          <span className="block text-[10.5px] text-neutral-400">100% plain parcel &bull; discreet courier</span>
+        </div>
+      </div>
+
+      {/* Line Items List */}
+      <ul className="divide-y divide-neutral-100 max-h-72 overflow-y-auto no-scrollbar pr-1">
         {cart.map((l, i) => (
-          <li key={`${l.id}-${l.size}-${l.color}-${i}`} className="flex items-center gap-4 border-b border-clay/60 pb-4 last:border-0 last:pb-0">
-            <Img src={l.image} alt="" className="h-15 w-[60px] shrink-0 object-cover" />
-            <div className="min-w-0 flex-1">
-              <p className="clamp-2 text-[12px] font-normal leading-snug text-[#111111]">{nameOf(l.name)}</p>
-              <p className="mt-0.5 text-[10px] text-[#696969]">
+          <li key={`${l.id}-${l.size}-${l.color}-${i}`} className="flex items-center gap-3.5 py-3.5">
+            <Img src={l.image} alt="" className="h-16 w-12 object-cover bg-neutral-100 shrink-0" />
+            <div className="min-w-0 flex-1 space-y-0.5">
+              <p className="text-xs font-normal text-black truncate leading-snug">{nameOf(l.name)}</p>
+              <p className="text-[10.5px] text-neutral-400 font-light">
                 {[l.size && `Size ${l.size}`, l.color].filter(Boolean).join(' · ')}
               </p>
               {onQty && (
-                <div className="mt-1.5 inline-flex items-center border border-[#E5E5E5]">
-                  <button type="button" onClick={() => onQty(l, Math.max(1, l.qty - 1))}
-                    className="grid h-7 w-7 place-items-center text-[#696969] transition hover:text-[#111111]"
-                    aria-label={`Decrease quantity for ${l.name}`}>−</button>
-                  <span className="min-w-6 text-center text-[12px] tabular-nums text-[#111111]">{l.qty}</span>
-                  <button type="button" onClick={() => onQty(l, Math.min(cartCfg.maxQty || 10, l.qty + 1))}
-                    className="grid h-7 w-7 place-items-center text-[#696969] transition hover:text-[#111111]"
-                    aria-label={`Increase quantity for ${l.name}`}>+</button>
+                <div className="mt-1 inline-flex items-center border border-neutral-200 text-xs">
+                  <button
+                    type="button"
+                    onClick={() => onQty(l, Math.max(1, l.qty - 1))}
+                    className="h-6 w-6 grid place-items-center text-neutral-500 hover:text-black"
+                  >
+                    −
+                  </button>
+                  <span className="min-w-[20px] text-center text-[11px] font-medium">{l.qty}</span>
+                  <button
+                    type="button"
+                    onClick={() => onQty(l, Math.min(cartCfg?.maxQty || 10, l.qty + 1))}
+                    className="h-6 w-6 grid place-items-center text-neutral-500 hover:text-black"
+                  >
+                    +
+                  </button>
                 </div>
               )}
             </div>
-            <p className="shrink-0 text-[12px] font-medium tabular-nums text-[#111111]">{pkr(l.price * l.qty)}</p>
+            <span className="shrink-0 text-xs font-medium text-black">{pkr(l.price * l.qty)}</span>
           </li>
         ))}
       </ul>
 
-      {cartCfg.couponEnabled && (
-        <div className="mt-5 border-t border-clay pt-5">
-          <CouponBox subtotal={pricing.subtotal} applied={applied} onApply={onApply} onRemove={onRemoveCoupon} />
+      {/* Coupon Box */}
+      <div className="border-t border-neutral-100 pt-4">
+        <CouponBox subtotal={pricing.subtotal} applied={applied} onApply={onApply} onRemove={onRemoveCoupon} />
+      </div>
+
+      {/* Totals Breakdown */}
+      <div className="border-t border-neutral-100 pt-4 space-y-2.5 text-xs">
+        <div className="flex justify-between text-neutral-600 font-light">
+          <span>Subtotal</span>
+          <span className="text-black font-normal">{pkr(pricing.subtotal)}</span>
         </div>
-      )}
 
-      {/* Automatic promotions, priced by the server. */}
-      {promoQuote && (promoQuote.discounts?.length > 0 || promoQuote.rejected?.length > 0) && (
-        <PromoSummary
-          discounts={promoQuote.discounts}
-          rejected={promoQuote.rejected}
-          capped={promoQuote.capped}
-          className="mt-5 border-t border-clay pt-5"
-        />
-      )}
-
-      {/* Points, store credit and gift cards. Rendered by the parent so the
-          quote it depends on lives next to the pricing that consumes it. */}
-      {rewardsSlot}
-
-      {/* Live region: the total changes when a coupon or shipping method changes. */}
-      <dl className="mt-5 space-y-3 border-t border-clay pt-5 text-[13px]" aria-live="polite">
-        <div className="flex justify-between gap-4">
-          <dt className="text-smoke">Subtotal ({pricing.count} {pricing.count === 1 ? 'item' : 'items'})</dt>
-          <dd className="font-medium tabular-nums">{pkr(pricing.subtotal)}</dd>
-        </div>
         {pricing.discount > 0 && (
-          <div className="flex justify-between gap-4 text-charcoal">
-            <dt>Discount {applied?.code ? `(${applied.code})` : ''}</dt>
-            <dd className="font-medium tabular-nums">− {pkr(pricing.discount)}</dd>
+          <div className="flex justify-between text-black">
+            <span>Discount {applied?.code ? `(${applied.code})` : ''}</span>
+            <span className="font-medium">− {pkr(pricing.discount)}</span>
           </div>
         )}
-        <div className="flex justify-between gap-4">
-          <dt className="text-smoke">Shipping</dt>
-          <dd className={`font-medium tabular-nums ${pricing.shipping === 0 ? 'text-charcoal' : ''}`}>
-            {pricing.shipping === 0 ? 'Free' : pkr(pricing.shipping)}
-          </dd>
-        </div>
-        {pricing.tax > 0 && (
-          <div className="flex justify-between gap-4">
-            <dt className="text-smoke">{cartCfg.taxLabel}</dt>
-            <dd className="font-medium tabular-nums">{pkr(pricing.tax)}</dd>
-          </div>
-        )}
-        {/* Each reward is its own line. Rolling them into "discount" would
-            hide what is a coupon, what is settled points and what is store
-            credit — three different things on the merchant's books. */}
-        {pricing.pointsValue > 0 && (
-          <div className="flex justify-between gap-4 text-charcoal">
-            <dt>Points applied</dt>
-            <dd className="font-medium tabular-nums">− {pkr(pricing.pointsValue)}</dd>
-          </div>
-        )}
-        {pricing.creditValue > 0 && (
-          <div className="flex justify-between gap-4 text-charcoal">
-            <dt>Store credit</dt>
-            <dd className="font-medium tabular-nums">− {pkr(pricing.creditValue)}</dd>
-          </div>
-        )}
-        {pricing.cardValue > 0 && (
-          <div className="flex justify-between gap-4 text-charcoal">
-            <dt>Gift card</dt>
-            <dd className="font-medium tabular-nums">− {pkr(pricing.cardValue)}</dd>
-          </div>
-        )}
-        <div className="flex items-baseline justify-between gap-4 border-t border-clay pt-4">
-          <dt className="text-[13px] font-medium text-charcoal">Total</dt>
-          <dd className="text-[20px] font-medium tabular-nums text-charcoal">{pkr(pricing.total)}</dd>
-        </div>
-        {pricing.savings > 0 && (
-          <div className="flex justify-between gap-4 bg-[#FFFFFF] px-3 py-2">
-            <dt className="text-caption font-semibold uppercase tracking-wider text-charcoal">You save</dt>
-            <dd className="text-caption font-bold tabular-nums text-charcoal">{pkr(pricing.savings)}</dd>
-          </div>
-        )}
-      </dl>
 
-      <div ref={submitRef} className="mt-6">
+        <div className="flex justify-between text-neutral-600 font-light">
+          <span>Courier Delivery</span>
+          <span className="text-black font-normal">
+            {pricing.shipping === 0 ? 'Free Express' : pkr(pricing.shipping)}
+          </span>
+        </div>
+
+        <div className="flex items-baseline justify-between border-t border-neutral-200 pt-3 text-sm">
+          <span className="font-medium text-black">Total to Pay</span>
+          <span className="font-sans text-xl font-medium text-black">{pkr(pricing.total)}</span>
+        </div>
+      </div>
+
+      {/* 1-Tap Place Order Button */}
+      <div className="pt-2">
         <button
           type="button"
           onClick={onSubmit}
           disabled={busy || disabled}
-          className="h-[52px] w-full bg-black text-xs font-semibold uppercase tracking-[0.2em] text-white transition-colors duration-300 hover:bg-neutral-800 disabled:opacity-50"
+          className="flex h-[52px] w-full items-center justify-center gap-2 bg-[#000000] text-xs font-medium uppercase tracking-[0.2em] text-[#FFFFFF] shadow-md transition-colors hover:bg-neutral-800 disabled:opacity-50"
         >
-          {busy ? 'One moment…' : `Place Order · ${pkr(pricing.total)}`}
+          <span>{busy ? 'Placing Order…' : `Place COD Order · ${pkr(pricing.total)}`}</span>
+          <ArrowRight size={14} />
         </button>
-        <p className="mt-3 flex items-center justify-center gap-1.5 text-center text-[10px] text-neutral-500">
-          <Lock size={12} className="text-[#111111]" aria-hidden="true" />
-          256-bit SSL secure checkout · discreet packaging
+
+        <p className="mt-3 flex items-center justify-center gap-1.5 text-center text-[10.5px] text-neutral-400 font-light">
+          <Lock size={11} className="text-black" />
+          256-Bit SSL encrypted &bull; Cash on Delivery verified
         </p>
       </div>
 
-      <Link
-        to="/cart"
-        className="mt-3 flex min-h-[44px] w-full items-center justify-center text-[12px] text-smoke underline underline-offset-4 transition hover:text-charcoal"
-      >
-        Back to bag
-      </Link>
-
-      {checkoutCfg.showTrust && (
-        <p className="mt-5 border-t border-clay pt-5 text-center text-[11px] text-smoke">Discreet packaging - Secure checkout</p>
-      )}
-
-      {checkoutCfg.privacyText && (
-        <p className="mt-4 text-center text-[11px] leading-relaxed text-smoke">{checkoutCfg.privacyText}</p>
-      )}
+      {/* 3 Reassurance Pillars */}
+      <div className="border-t border-neutral-100 pt-4 space-y-2 text-[11px] text-neutral-500 font-light">
+        <div className="flex items-center gap-2">
+          <ShieldCheck size={13} className="text-black shrink-0" />
+          <span>100% Plain Discreet Packaging Guaranteed</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <RotateCcw size={13} className="text-black shrink-0" />
+          <span>14-Day Easy Exchange Policy</span>
+        </div>
+      </div>
     </div>
   );
 }
