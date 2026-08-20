@@ -22,7 +22,7 @@ import { LOYALTY_DEFAULTS } from '../lib/loyaltyConfig';
 
 function Section({ title, description, children, tone }) {
   return (
-    <section className={`rounded-2xl border bg-white p-6 ${tone === 'warn' ? 'border-[#CDB98F]' : 'border-neutral-200'}`}>
+    <section className={`rounded-md border bg-white p-6 ${tone === 'warn' ? 'border-[#CDB98F]' : 'border-neutral-200'}`}>
       <div className="mb-5">
         <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-500">{title}</p>
         {description && <p className="mt-1 text-[12px] leading-relaxed text-neutral-500">{description}</p>}
@@ -34,7 +34,7 @@ function Section({ title, description, children, tone }) {
 
 function Toggle({ label, description, checked, onChange, disabled }) {
   return (
-    <label className={`flex min-h-[44px] items-start justify-between gap-4 rounded-xl border border-neutral-200 bg-white px-4 py-3 transition ${disabled ? 'opacity-55' : 'cursor-pointer hover:border-neutral-300'}`}>
+    <label className={`flex min-h-[44px] items-start justify-between gap-4 rounded-md border border-neutral-200 bg-white px-4 py-3 transition ${disabled ? 'opacity-55' : 'cursor-pointer hover:border-neutral-300'}`}>
       <div className="min-w-0">
         <p className="text-[13px] font-medium text-neutral-900">{label}</p>
         {description && <p className="mt-0.5 text-[12px] leading-relaxed text-neutral-500">{description}</p>}
@@ -65,7 +65,7 @@ const Num = ({ label, hint, value, onChange, disabled, ...rest }) => {
     <div>
       <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500" htmlFor={id}>{label}</label>
       <input
-        id={id} className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" type="number" value={value ?? 0} disabled={disabled}
+        id={id} className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" type="number" value={value ?? 0} disabled={disabled}
         aria-describedby={hint ? `${id}-h` : undefined}
         onChange={(e) => onChange(e.target.value === '' ? 0 : Number(e.target.value))}
         {...rest}
@@ -81,7 +81,7 @@ const Text = ({ label, hint, value, onChange, disabled, ...rest }) => {
     <div>
       <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500" htmlFor={id}>{label}</label>
       <input
-        id={id} className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={value ?? ''} disabled={disabled}
+        id={id} className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={value ?? ''} disabled={disabled}
         aria-describedby={hint ? `${id}-h` : undefined}
         onChange={(e) => onChange(e.target.value)} {...rest}
       />
@@ -96,7 +96,7 @@ const Select = ({ label, hint, value, onChange, options, disabled }) => {
     <div>
       <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500" htmlFor={id}>{label}</label>
       <select
-        id={id} className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={value ?? ''} disabled={disabled}
+        id={id} className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={value ?? ''} disabled={disabled}
         aria-describedby={hint ? `${id}-h` : undefined}
         onChange={(e) => onChange(e.target.value)}
       >
@@ -118,7 +118,7 @@ const Select = ({ label, hint, value, onChange, options, disabled }) => {
  * value would flip the switch. */
 function EarnRule({ label, description, on, points, onToggle, onPoints, disabled }) {
   return (
-    <div className="rounded-xl border border-neutral-200 bg-white px-4 py-3">
+    <div className="rounded-md border border-neutral-200 bg-white px-4 py-3">
       {/* min-h-[44px] on the label, not the pill: rules without a description
           line collapsed to a 24px tap target while described ones were 39px.
           The row is the target, so the row is what must meet the minimum. */}
@@ -137,7 +137,7 @@ function EarnRule({ label, description, on, points, onToggle, onPoints, disabled
       </label>
       <div className="mt-3 flex items-center gap-2">
         <input
-          type="number" min="0" max="100000" className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 max-w-[140px]"
+          type="number" min="0" max="100000" className="w-full rounded-md border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 max-w-[140px]"
           value={points ?? 0} disabled={disabled || !on}
           aria-label={`${label} — points awarded`}
           onChange={(e) => onPoints(e.target.value === '' ? 0 : Number(e.target.value))}
@@ -182,7 +182,7 @@ export default function SettingsLoyalty() {
 
   const dirty = useMemo(() => original && JSON.stringify(s) !== original, [s, original]);
 
-  if (!s) return <AdminLayout title="Loyalty & Rewards"><div className="animate-pulse rounded-xl bg-neutral-100 h-96 w-full" /></AdminLayout>;
+  if (!s) return <AdminLayout title="Loyalty & Rewards"><div className="animate-pulse rounded-md bg-neutral-100 h-96 w-full" /></AdminLayout>;
 
   const L = s.loyalty;
   const off = !L.enabled;
@@ -261,7 +261,7 @@ export default function SettingsLoyalty() {
       </Link>
 
       <div className="mb-6 flex items-start gap-4 border-b border-neutral-200 pb-6">
-        <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-neutral-900 text-white">
+        <span className="grid h-12 w-12 shrink-0 place-items-center rounded-md bg-neutral-900 text-white">
           <Sparkles size={20} strokeWidth={1.8} />
         </span>
         <div className="min-w-0">
@@ -271,7 +271,7 @@ export default function SettingsLoyalty() {
             server — nothing here can be changed by a customer.
           </p>
         </div>
-        <Link to="/admin/loyalty" className="ml-auto hidden min-h-[44px] shrink-0 items-center gap-1.5 rounded-lg border border-neutral-300 px-3 py-2 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50 sm:inline-flex">
+        <Link to="/admin/loyalty" className="ml-auto hidden min-h-[44px] shrink-0 items-center gap-1.5 rounded-md border border-neutral-300 px-3 py-2 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50 sm:inline-flex">
           <Users size={13} /> Members
         </Link>
       </div>
@@ -284,7 +284,7 @@ export default function SettingsLoyalty() {
             ['Store credit', `PKR ${(stats.credit || 0).toLocaleString('en-PK')}`],
             ['Gift cards live', `PKR ${(stats.giftCards?.outstanding || 0).toLocaleString('en-PK')}`],
           ].map(([k, v]) => (
-            <div key={k} className="rounded-xl border border-neutral-200 bg-white px-4 py-3">
+            <div key={k} className="rounded-md border border-neutral-200 bg-white px-4 py-3">
               <p className="text-[12px] uppercase tracking-wider text-neutral-500">{k}</p>
               <p className="mt-1 text-xl font-semibold text-neutral-900">{v}</p>
             </div>
@@ -293,7 +293,7 @@ export default function SettingsLoyalty() {
       )}
 
       {problems.length > 0 && (
-        <div role="alert" className="mb-5 rounded-2xl border border-[#CDB98F] bg-[#F6F1E6] p-4">
+        <div role="alert" className="mb-5 rounded-md border border-[#CDB98F] bg-[#F6F1E6] p-4">
           <p className="flex items-center gap-2 text-[13px] font-semibold text-[#5C4A28]">
             <AlertTriangle size={14} /> Fix these before saving
           </p>
@@ -338,7 +338,7 @@ export default function SettingsLoyalty() {
               <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500" htmlFor="loy-spend-per-point">Spend needed for 1 point (PKR)</label>
               <input
                 id="loy-spend-per-point" aria-describedby="loy-spend-per-point-h"
-                className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" type="number" min="1" max="100000" disabled={off}
+                className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" type="number" min="1" max="100000" disabled={off}
                 value={spendPerPoint}
                 onChange={(e) => {
                   const v = Number(e.target.value);
@@ -404,7 +404,7 @@ export default function SettingsLoyalty() {
             <Num label="Points must be spent in blocks of" value={L.redeem.step} onChange={(v) => setG('redeem', 'step', v)} min="1" max="10000" disabled={off || !L.redeem.enabled} hint="e.g. 50 means they can spend 200 or 250, never 213." />
             <Num label="Most of an order that points can cover (%)" value={L.redeem.maxPercentOfOrder} onChange={(v) => setG('redeem', 'maxPercentOfOrder', v)} min="1" max="100" disabled={off || !L.redeem.enabled} hint="Keep below 100 so every order still brings in some cash." />
           </div>
-          <p className="mt-3 rounded-xl bg-neutral-50 px-4 py-3 text-[12px] leading-relaxed text-neutral-600">
+          <p className="mt-3 rounded-md bg-neutral-50 px-4 py-3 text-[12px] leading-relaxed text-neutral-600">
             On a PKR 5,000 order a customer could take off at most{' '}
             <strong>PKR {Math.floor(5000 * ((Number(L.redeem.maxPercentOfOrder) || 0) / 100)).toLocaleString('en-PK')}</strong>{' '}
             — that is {Math.floor((5000 * ((Number(L.redeem.maxPercentOfOrder) || 0) / 100)) / (Number(L.redeem.pointValue) || 1)).toLocaleString('en-PK')} points.
@@ -432,7 +432,7 @@ export default function SettingsLoyalty() {
 
           <div className="mt-5 space-y-2">
             {L.tiers.levels.map((t, i) => (
-              <div key={`${t.id}-${i}`} className="overflow-hidden rounded-xl border border-neutral-200">
+              <div key={`${t.id}-${i}`} className="overflow-hidden rounded-md border border-neutral-200">
                 <button
                   type="button"
                   onClick={() => setOpenTier(openTier === i ? null : i)}
@@ -462,8 +462,8 @@ export default function SettingsLoyalty() {
                       <div>
                         <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500" htmlFor={`tier-colour-${i}`}>Badge colour</label>
                         <div className="flex items-center gap-2">
-                          <input id={`tier-colour-${i}`} type="color" aria-label={`${t.name || t.id} badge colour, colour picker`} className="h-10 w-14 cursor-pointer rounded-lg border border-neutral-300 bg-white p-1" value={t.colour || '#C9BFB4'} onChange={(e) => setTier(i, 'colour', e.target.value)} disabled={off || !L.tiers.enabled} />
-                          <input aria-label={`${t.name || t.id} badge colour, hex code`} className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={t.colour || ''} onChange={(e) => setTier(i, 'colour', e.target.value)} disabled={off || !L.tiers.enabled} />
+                          <input id={`tier-colour-${i}`} type="color" aria-label={`${t.name || t.id} badge colour, colour picker`} className="h-10 w-14 cursor-pointer rounded-md border border-neutral-300 bg-white p-1" value={t.colour || '#C9BFB4'} onChange={(e) => setTier(i, 'colour', e.target.value)} disabled={off || !L.tiers.enabled} />
+                          <input aria-label={`${t.name || t.id} badge colour, hex code`} className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={t.colour || ''} onChange={(e) => setTier(i, 'colour', e.target.value)} disabled={off || !L.tiers.enabled} />
                         </div>
                       </div>
                     </div>
@@ -474,12 +474,12 @@ export default function SettingsLoyalty() {
                       <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500" htmlFor={`tier-perks-${i}`}>Perks shown to the customer (one per line)</label>
                       <textarea
                         id={`tier-perks-${i}`}
-                        className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 min-h-[88px]" disabled={off || !L.tiers.enabled}
+                        className="w-full rounded-md border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 min-h-[88px]" disabled={off || !L.tiers.enabled}
                         value={(t.perks || []).join('\n')}
                         onChange={(e) => setTier(i, 'perks', e.target.value.split('\n').map((x) => x.trim()).filter(Boolean))}
                       />
                     </div>
-                    <button type="button" onClick={() => removeTier(i)} className="mt-4 inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-[#E0C6BE] px-3 py-1.5 text-[12px] font-semibold text-[#9A5548] transition hover:bg-[#F5EDEB]">
+                    <button type="button" onClick={() => removeTier(i)} className="mt-4 inline-flex min-h-[44px] items-center gap-1.5 rounded-md border border-[#E0C6BE] px-3 py-1.5 text-[12px] font-semibold text-[#9A5548] transition hover:bg-[#F5EDEB]">
                       <Trash2 size={13} /> Remove tier
                     </button>
                   </div>
@@ -488,7 +488,7 @@ export default function SettingsLoyalty() {
             ))}
           </div>
 
-          <button type="button" onClick={addTier} disabled={off || !L.tiers.enabled} className="mt-3 inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-neutral-300 px-3 py-2 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-50">
+          <button type="button" onClick={addTier} disabled={off || !L.tiers.enabled} className="mt-3 inline-flex min-h-[44px] items-center gap-1.5 rounded-md border border-neutral-300 px-3 py-2 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-50">
             <Plus size={13} /> Add a tier
           </button>
         </Section>
@@ -536,7 +536,7 @@ export default function SettingsLoyalty() {
             <Num label="Card expires after (months)" value={L.giftCards.expiryMonths} onChange={(v) => setG('giftCards', 'expiryMonths', v)} min="0" max="120" disabled={off || !L.giftCards.enabled} hint="0 means never." />
             <Text label="Card code starts with" value={L.giftCards.codePrefix} onChange={(v) => setG('giftCards', 'codePrefix', v.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8))} disabled={off || !L.giftCards.enabled} />
           </div>
-          <Link to="/admin/loyalty?tab=gift-cards" className="mt-4 inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-neutral-300 px-3 py-2 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50">
+          <Link to="/admin/loyalty?tab=gift-cards" className="mt-4 inline-flex min-h-[44px] items-center gap-1.5 rounded-md border border-neutral-300 px-3 py-2 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50">
             <Gift size={13} /> Create and manage cards
           </Link>
         </Section>
@@ -548,7 +548,7 @@ export default function SettingsLoyalty() {
           </div>
           <div className="mt-4 space-y-3">
             {L.achievements.list.map((a, i) => (
-              <div key={`${a.id}-${i}`} className="rounded-xl border border-neutral-200 bg-white p-4">
+              <div key={`${a.id}-${i}`} className="rounded-md border border-neutral-200 bg-white p-4">
                 <div className="grid gap-4 md:grid-cols-2">
                   <Text label="Badge name" value={a.name} onChange={(v) => setAch(i, 'name', v)} disabled={off || !L.achievements.enabled} />
                   <Text label="ID" value={a.id} onChange={(v) => setAch(i, 'id', v.trim().toLowerCase().replace(/[^a-z0-9-]/g, ''))} disabled={off || !L.achievements.enabled} />
@@ -566,13 +566,13 @@ export default function SettingsLoyalty() {
                   <Num label="Bonus points on unlock" value={a.points} onChange={(v) => setAch(i, 'points', v)} min="0" max="100000" disabled={off || !L.achievements.enabled} />
                   <Text label="Short note" value={a.note} onChange={(v) => setAch(i, 'note', v)} disabled={off || !L.achievements.enabled} />
                 </div>
-                <button type="button" onClick={() => removeAch(i)} className="mt-3 inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-[#E0C6BE] px-3 py-1.5 text-[12px] font-semibold text-[#9A5548] transition hover:bg-[#F5EDEB]">
+                <button type="button" onClick={() => removeAch(i)} className="mt-3 inline-flex min-h-[44px] items-center gap-1.5 rounded-md border border-[#E0C6BE] px-3 py-1.5 text-[12px] font-semibold text-[#9A5548] transition hover:bg-[#F5EDEB]">
                   <Trash2 size={13} /> Remove badge
                 </button>
               </div>
             ))}
           </div>
-          <button type="button" onClick={addAch} disabled={off || !L.achievements.enabled} className="mt-3 inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-neutral-300 px-3 py-2 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-50">
+          <button type="button" onClick={addAch} disabled={off || !L.achievements.enabled} className="mt-3 inline-flex min-h-[44px] items-center gap-1.5 rounded-md border border-neutral-300 px-3 py-2 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-50">
             <Plus size={13} /> Add a badge
           </button>
         </Section>
@@ -602,11 +602,11 @@ export default function SettingsLoyalty() {
       </div>
 
       {dirty && (
-        <div className="sticky bottom-4 z-30 mt-6 flex items-center justify-between gap-4 rounded-2xl border border-neutral-900 bg-neutral-900 px-4 py-3 text-white shadow-xl">
+        <div className="sticky bottom-4 z-30 mt-6 flex items-center justify-between gap-4 rounded-md border border-neutral-900 bg-neutral-900 px-4 py-3 text-white shadow-md">
           <p className="text-[13px] font-medium">Unsaved changes</p>
           <div className="flex items-center gap-2">
-            <button onClick={() => setS(JSON.parse(original))} className="min-h-[44px] rounded-lg border border-white/20 px-3 py-1.5 text-[12px] font-semibold text-white/80 transition hover:bg-white/10">Discard</button>
-            <button onClick={save} disabled={busy || problems.length > 0} className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg bg-white px-4 py-1.5 text-[12px] font-semibold text-neutral-900 transition hover:bg-neutral-100 disabled:opacity-50">
+            <button onClick={() => setS(JSON.parse(original))} className="min-h-[44px] rounded-md border border-white/20 px-3 py-1.5 text-[12px] font-semibold text-white/80 transition hover:bg-white/10">Discard</button>
+            <button onClick={save} disabled={busy || problems.length > 0} className="inline-flex min-h-[44px] items-center gap-1.5 rounded-md bg-white px-4 py-1.5 text-[12px] font-semibold text-neutral-900 transition hover:bg-neutral-100 disabled:opacity-50">
               <Save size={13} /> {busy ? 'Saving…' : 'Save'}
             </button>
           </div>

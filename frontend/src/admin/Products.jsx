@@ -155,7 +155,7 @@ export default function Products() {
               value={f.q}
               onChange={(e) => setF({ ...f, q: e.target.value })}
               placeholder="Search name, SKU, category…"
-              className="w-72 max-w-full rounded-xl border border-neutral-300 bg-white py-2.5 pl-9 pr-3 text-[13px] outline-none transition focus:border-neutral-900"
+              className="w-72 max-w-full rounded-md border border-neutral-300 bg-white py-2.5 pl-9 pr-3 text-[13px] outline-none transition focus:border-neutral-900"
             />
           </div>
 
@@ -241,7 +241,7 @@ export default function Products() {
 
       {/* ============ CONTENT ============ */}
       {list === null ? (
-        <div className="animate-pulse rounded-xl bg-neutral-100 h-64" />
+        <div className="animate-pulse rounded-md bg-neutral-100 h-64" />
       ) : filtered.length === 0 ? (
         <EmptyState onClear={clearFilters} hasFilters={hasFilters} />
       ) : view === 'grid' ? (
@@ -263,7 +263,7 @@ export default function Products() {
       {/* ============ PAGINATION ============ */}
       {csvOpen && <CsvImport onClose={() => setCsvOpen(false)} onDone={load} />}
       {filtered.length > 0 && (
-        <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-neutral-200 bg-white px-4 py-3">
+        <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-md border border-neutral-200 bg-white px-4 py-3">
           <p className="text-[12px] text-neutral-500">
             Showing <b className="text-neutral-900">{Math.min((page - 1) * PER_PAGE + 1, filtered.length)}</b>–<b className="text-neutral-900">{Math.min(page * PER_PAGE, filtered.length)}</b> of <b className="text-neutral-900">{filtered.length}</b>
           </p>
@@ -272,7 +272,7 @@ export default function Products() {
               <button
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
-                className="rounded-lg border border-neutral-200 bg-white px-3 py-1.5 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-40"
+                className="rounded-md border border-neutral-200 bg-white px-3 py-1.5 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-40"
               >Prev</button>
               {pageNumbers(page, pageCount).map((n, i) => n === '…' ? (
                 <span key={`d${i}`} className="px-2 text-[12px] text-neutral-400">…</span>
@@ -280,7 +280,7 @@ export default function Products() {
                 <button
                   key={n}
                   onClick={() => setPage(n)}
-                  className={`min-w-8 rounded-lg px-2.5 py-1.5 text-[12px] font-semibold transition ${
+                  className={`min-w-8 rounded-md px-2.5 py-1.5 text-[12px] font-semibold transition ${
                     n === page ? 'bg-neutral-900 text-white' : 'border border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-50'
                   }`}
                 >{n}</button>
@@ -288,7 +288,7 @@ export default function Products() {
               <button
                 onClick={() => setPage((p) => Math.min(pageCount, p + 1))}
                 disabled={page === pageCount}
-                className="rounded-lg border border-neutral-200 bg-white px-3 py-1.5 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-40"
+                className="rounded-md border border-neutral-200 bg-white px-3 py-1.5 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-40"
               >Next</button>
             </div>
           )}
@@ -313,10 +313,10 @@ function SummaryCard({ icon: Icon, label, value, tone, sub, onClick, active }) {
   return (
     <button
       onClick={onClick}
-      className={`group relative overflow-hidden rounded-2xl border bg-white p-4 text-left transition hover:-translate-y-0.5 hover:shadow-sm ${active ? 'border-neutral-900 ring-2 ring-neutral-900/10' : 'border-neutral-200'}`}
+      className={`group relative overflow-hidden rounded-md border bg-white p-4 text-left transition hover:border-neutral-300 ${active ? 'border-neutral-900 ring-2 ring-neutral-900/10' : 'border-neutral-200'}`}
     >
       <div className="flex items-center justify-between">
-        <span className={`grid h-9 w-9 place-items-center rounded-xl ${t.bg} ${t.text}`}>
+        <span className={`grid h-9 w-9 place-items-center rounded-md ${t.bg} ${t.text}`}>
           <Icon size={15} />
         </span>
         {sub && <span className={`text-[13px] font-semibold ${t.text}`}>{sub}</span>}
@@ -358,7 +358,7 @@ function ChipSelect({ label, value, options, onChange }) {
         <ChevronDown size={11} className={`transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
       {open && (
-        <div className="absolute left-0 top-full z-20 mt-1 max-h-64 min-w-40 overflow-y-auto rounded-xl border border-neutral-200 bg-white shadow-lg">
+        <div className="absolute left-0 top-full z-20 mt-1 max-h-64 min-w-40 overflow-y-auto rounded-md border border-neutral-200 bg-white shadow-sm">
           <button onClick={() => { onChange(''); setOpen(false); }} className={`block w-full px-3 py-2 text-left text-[12px] transition ${!value ? 'bg-neutral-100 font-semibold' : 'hover:bg-neutral-50'}`}>
             All
           </button>
@@ -392,7 +392,7 @@ function StatusChip({ p }) {
 function ListView({ products, selected, onToggleSel, onToggleAll, onEnable, onDisable, onPublish, onRemove, onDuplicate }) {
   const allSelected = products.length > 0 && products.every((p) => selected.has(p._id));
   return (
-    <div className="overflow-x-auto rounded-2xl border border-neutral-200 bg-white">
+    <div className="overflow-x-auto rounded-md border border-neutral-200 bg-white">
       <table className="w-full min-w-[900px]">
         <thead>
           <tr className="border-b border-neutral-200 bg-neutral-50/60">
@@ -416,7 +416,7 @@ function ListView({ products, selected, onToggleSel, onToggleAll, onEnable, onDi
               </td>
               <td className="px-3 py-2 text-[12px]">
                 <Link to={`/admin/products/${p._id}`} className="group flex items-center gap-3">
-                  <Img src={p.images?.[0]?.url} alt="" className="h-12 w-9 shrink-0 rounded-lg border border-neutral-200 object-cover" />
+                  <Img src={p.images?.[0]?.url} alt="" className="h-12 w-9 shrink-0 rounded-md border border-neutral-200 object-cover" />
                   <div className="min-w-0">
                     <p className="line-clamp-2 max-w-64 text-[13px] font-medium text-neutral-900 group-hover:underline">{p.name}</p>
                     <div className="mt-1 flex items-center gap-2 text-[13px] uppercase tracking-wider text-neutral-500">
@@ -444,27 +444,27 @@ function ListView({ products, selected, onToggleSel, onToggleAll, onEnable, onDi
               <td className="px-3 py-2 text-[12px]"><StatusChip p={p} /></td>
               <td className="px-3 py-2 text-[12px]">
                 <div className="flex items-center justify-end gap-1">
-                  <Link to={`/admin/products/${p._id}`} className="rounded-lg p-2 text-neutral-500 transition hover:bg-neutral-100 hover:text-neutral-900" aria-label="Edit">
+                  <Link to={`/admin/products/${p._id}`} className="rounded-md p-2 text-neutral-500 transition hover:bg-neutral-100 hover:text-neutral-900" aria-label="Edit">
                     <Pencil size={13} />
                   </Link>
                   {p.status === 'draft' && (
-                    <button onClick={() => onPublish(p)} className="rounded-lg px-2 py-1 text-[11px] font-bold uppercase tracking-wide text-white transition bg-[#4A6B58] hover:bg-[#3E5C4B]" title="Publish now" aria-label="Publish">
+                    <button onClick={() => onPublish(p)} className="rounded-md px-2 py-1 text-[11px] font-bold uppercase tracking-wide text-white transition bg-[#4A6B58] hover:bg-[#3E5C4B]" title="Publish now" aria-label="Publish">
                       Publish
                     </button>
                   )}
-                  <button onClick={() => onDuplicate(p)} className="rounded-lg p-2 text-neutral-500 transition hover:bg-[#F1F1F1] hover:text-[#5A5A5A]" aria-label="Duplicate" title="Duplicate product">
+                  <button onClick={() => onDuplicate(p)} className="rounded-md p-2 text-neutral-500 transition hover:bg-[#F1F1F1] hover:text-[#5A5A5A]" aria-label="Duplicate" title="Duplicate product">
                     <Copy size={13} />
                   </button>
                   {p.isActive ? (
-                    <button onClick={() => onDisable(p)} className="rounded-lg p-2 text-neutral-500 transition hover:bg-[#F6F1E6] hover:text-[#7A6239]" aria-label="Archive" title="Archive">
+                    <button onClick={() => onDisable(p)} className="rounded-md p-2 text-neutral-500 transition hover:bg-[#F6F1E6] hover:text-[#7A6239]" aria-label="Archive" title="Archive">
                       <Archive size={13} />
                     </button>
                   ) : (
-                    <button onClick={() => onEnable(p)} className="rounded-lg p-2 text-[#4A6B58] transition hover:bg-[#E9EFEA]" aria-label="Restore" title="Restore">
+                    <button onClick={() => onEnable(p)} className="rounded-md p-2 text-[#4A6B58] transition hover:bg-[#E9EFEA]" aria-label="Restore" title="Restore">
                       <Eye size={13} />
                     </button>
                   )}
-                  <button onClick={() => onRemove(p)} className="rounded-lg p-2 text-neutral-500 transition hover:bg-[#F5EDEB] hover:text-[#8A4B3F]" aria-label="Delete" title="Delete permanently">
+                  <button onClick={() => onRemove(p)} className="rounded-md p-2 text-neutral-500 transition hover:bg-[#F5EDEB] hover:text-[#8A4B3F]" aria-label="Delete" title="Delete permanently">
                     <Trash2 size={13} />
                   </button>
                 </div>
@@ -481,7 +481,7 @@ function GridView({ products, onEnable, onDisable, onRemove, onDuplicate, onPubl
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {products.map((p) => (
-        <div key={p._id} className="group relative overflow-hidden rounded-2xl border border-neutral-200 bg-white transition hover:-translate-y-0.5 hover:shadow-md">
+        <div key={p._id} className="group relative overflow-hidden rounded-md border border-neutral-200 bg-white transition hover:-translate-y-0.5 hover:shadow-md">
           <Link to={`/admin/products/${p._id}`} className="block">
             <div className="relative aspect-[3/4] overflow-hidden bg-neutral-50">
               <Img src={p.images?.[0]?.url} alt="" className="h-full w-full object-cover transition group-hover:scale-105" />
@@ -508,17 +508,17 @@ function GridView({ products, onEnable, onDisable, onRemove, onDuplicate, onPubl
             <div className="mt-2 flex items-center justify-between">
               <p className="text-[12px] font-semibold text-neutral-900">{pkr(p.price)}</p>
               <div className="flex items-center gap-1">
-                <Link to={`/admin/products/${p._id}`} className="rounded-lg p-1.5 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900"><Pencil size={12} /></Link>
+                <Link to={`/admin/products/${p._id}`} className="rounded-md p-1.5 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900"><Pencil size={12} /></Link>
                 {p.status === 'draft' && (
                   <button onClick={() => onPublish(p)} className="rounded-md bg-[#4A6B58] px-1.5 py-1 text-[10px] font-bold uppercase tracking-wide text-white hover:bg-[#3E5C4B]" title="Publish now">Publish</button>
                 )}
-                <button onClick={() => onDuplicate(p)} className="rounded-lg p-1.5 text-neutral-500 hover:bg-[#F1F1F1] hover:text-[#5A5A5A]" aria-label="Duplicate" title="Duplicate product"><Copy size={12} /></button>
+                <button onClick={() => onDuplicate(p)} className="rounded-md p-1.5 text-neutral-500 hover:bg-[#F1F1F1] hover:text-[#5A5A5A]" aria-label="Duplicate" title="Duplicate product"><Copy size={12} /></button>
                 {p.isActive ? (
-                  <button onClick={() => onDisable(p)} className="rounded-lg p-1.5 text-neutral-500 hover:bg-[#F6F1E6] hover:text-[#7A6239]"><Archive size={12} /></button>
+                  <button onClick={() => onDisable(p)} className="rounded-md p-1.5 text-neutral-500 hover:bg-[#F6F1E6] hover:text-[#7A6239]"><Archive size={12} /></button>
                 ) : (
-                  <button onClick={() => onEnable(p)} className="rounded-lg p-1.5 text-[#4A6B58] hover:bg-[#E9EFEA]"><Eye size={12} /></button>
+                  <button onClick={() => onEnable(p)} className="rounded-md p-1.5 text-[#4A6B58] hover:bg-[#E9EFEA]"><Eye size={12} /></button>
                 )}
-                <button onClick={() => onRemove(p)} className="rounded-lg p-1.5 text-neutral-500 hover:bg-[#F5EDEB] hover:text-[#8A4B3F]"><Trash2 size={12} /></button>
+                <button onClick={() => onRemove(p)} className="rounded-md p-1.5 text-neutral-500 hover:bg-[#F5EDEB] hover:text-[#8A4B3F]"><Trash2 size={12} /></button>
               </div>
             </div>
           </div>
@@ -542,8 +542,8 @@ function pageNumbers(page, total) {
 
 function EmptyState({ onClear, hasFilters }) {
   return (
-    <div className="grid place-items-center rounded-2xl border border-dashed border-neutral-200 bg-white py-20 text-center">
-      <span className="grid h-14 w-14 place-items-center rounded-2xl bg-neutral-100 text-neutral-500">
+    <div className="grid place-items-center rounded-md border border-dashed border-neutral-200 bg-white py-20 text-center">
+      <span className="grid h-14 w-14 place-items-center rounded-md bg-neutral-100 text-neutral-500">
         <Package size={22} />
       </span>
       <p className="mt-4 text-sm font-medium text-neutral-700">No products match</p>
@@ -639,7 +639,7 @@ function BulkEditModal({ count, onClose, onApply }) {
                 <button
                   key={a.key}
                   onClick={() => setAction(a.key)}
-                  className={`flex items-center gap-2 rounded-xl border px-3 py-2.5 text-left text-[12px] transition ${
+                  className={`flex items-center gap-2 rounded-md border px-3 py-2.5 text-left text-[12px] transition ${
                     action === a.key
                       ? 'border-neutral-900 bg-neutral-900 text-white'
                       : 'border-neutral-200 bg-white text-neutral-700 hover:border-neutral-400'
@@ -653,14 +653,14 @@ function BulkEditModal({ count, onClose, onApply }) {
           </div>
 
           {/* Input area */}
-          <div className="mt-5 rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+          <div className="mt-5 rounded-md border border-neutral-200 bg-neutral-50 p-4">
             <p className="mb-3 text-[12px] leading-relaxed text-neutral-600">{active?.hint}</p>
 
             {needsNum && (
               <div className="flex items-center gap-3">
                 {action === 'stockDelta' && (
                   <div className="flex items-center gap-1">
-                    <button onClick={() => setNumValue(numValue.startsWith('-') ? numValue.slice(1) : `-${numValue}`)} className="rounded-lg border border-neutral-200 bg-white p-2 text-neutral-600 hover:bg-neutral-100" title="Flip sign">
+                    <button onClick={() => setNumValue(numValue.startsWith('-') ? numValue.slice(1) : `-${numValue}`)} className="rounded-md border border-neutral-200 bg-white p-2 text-neutral-600 hover:bg-neutral-100" title="Flip sign">
                       <Minus size={13} />
                     </button>
                   </div>
@@ -669,7 +669,7 @@ function BulkEditModal({ count, onClose, onApply }) {
                   type="number"
                   value={numValue}
                   onChange={(e) => setNumValue(e.target.value)}
-                  className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 flex-1 !text-lg !font-semibold"
+                  className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 flex-1 !text-lg !font-semibold"
                   placeholder={
                     action === 'setStock' ? '50'
                     : action === 'stockDelta' ? '+50 or -10'
@@ -691,7 +691,7 @@ function BulkEditModal({ count, onClose, onApply }) {
                   <button
                     key={t}
                     onClick={() => setTier(t)}
-                    className={`rounded-xl border px-3 py-2 text-[12px] font-semibold transition ${tier === t ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-200 bg-white text-neutral-700 hover:border-neutral-400'}`}
+                    className={`rounded-md border px-3 py-2 text-[12px] font-semibold transition ${tier === t ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-200 bg-white text-neutral-700 hover:border-neutral-400'}`}
                   >{t}</button>
                 ))}
               </div>
@@ -706,7 +706,7 @@ function BulkEditModal({ count, onClose, onApply }) {
                   <button
                     key={o.v}
                     onClick={() => setStatus(o.v)}
-                    className={`rounded-xl border px-3 py-2 text-[12px] font-semibold transition ${status === o.v ? 'border-neutral-900 bg-neutral-900 text-white' : `border-neutral-200 bg-white ${o.tone} hover:border-neutral-400`}`}
+                    className={`rounded-md border px-3 py-2 text-[12px] font-semibold transition ${status === o.v ? 'border-neutral-900 bg-neutral-900 text-white' : `border-neutral-200 bg-white ${o.tone} hover:border-neutral-400`}`}
                   >{o.label}</button>
                 ))}
               </div>
@@ -714,13 +714,13 @@ function BulkEditModal({ count, onClose, onApply }) {
 
             {(action === 'toggleFeatured' || action === 'toggleBest' || action === 'toggleSale') && (
               <div className="grid grid-cols-2 gap-2">
-                <button onClick={() => setBool(true)}  className={`rounded-xl border px-3 py-2 text-[12px] font-semibold transition ${bool  ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-200 bg-white text-neutral-700 hover:border-neutral-400'}`}>Turn ON</button>
-                <button onClick={() => setBool(false)} className={`rounded-xl border px-3 py-2 text-[12px] font-semibold transition ${!bool ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-200 bg-white text-neutral-700 hover:border-neutral-400'}`}>Turn OFF</button>
+                <button onClick={() => setBool(true)}  className={`rounded-md border px-3 py-2 text-[12px] font-semibold transition ${bool  ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-200 bg-white text-neutral-700 hover:border-neutral-400'}`}>Turn ON</button>
+                <button onClick={() => setBool(false)} className={`rounded-md border px-3 py-2 text-[12px] font-semibold transition ${!bool ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-200 bg-white text-neutral-700 hover:border-neutral-400'}`}>Turn OFF</button>
               </div>
             )}
           </div>
 
-          <div className="mt-4 rounded-xl border border-[#DCCBA5] bg-[#F6F1E6] p-3 text-[12px] leading-relaxed text-[#6B552F]">
+          <div className="mt-4 rounded-md border border-[#DCCBA5] bg-[#F6F1E6] p-3 text-[12px] leading-relaxed text-[#6B552F]">
             ⚠️ This will apply to <b>{count} product{count === 1 ? '' : 's'}</b> at once and cannot be undone.
             Make sure the correct rows are selected before confirming.
           </div>

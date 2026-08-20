@@ -19,7 +19,7 @@ import { ACCOUNT_DEFAULTS } from '../lib/accountConfig';
 
 function Section({ title, description, children }) {
   return (
-    <section className="rounded-2xl border border-neutral-200 bg-white p-6">
+    <section className="rounded-md border border-neutral-200 bg-white p-6">
       <div className="mb-5">
         <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-500">{title}</p>
         {description && <p className="mt-1 text-[12px] leading-relaxed text-neutral-500">{description}</p>}
@@ -31,7 +31,7 @@ function Section({ title, description, children }) {
 
 function Toggle({ label, description, checked, onChange, disabled }) {
   return (
-    <label className={`flex min-h-[44px] items-start justify-between gap-4 rounded-xl border border-neutral-200 bg-white px-4 py-3 transition ${disabled ? 'opacity-60' : 'cursor-pointer hover:border-neutral-300'}`}>
+    <label className={`flex min-h-[44px] items-start justify-between gap-4 rounded-md border border-neutral-200 bg-white px-4 py-3 transition ${disabled ? 'opacity-60' : 'cursor-pointer hover:border-neutral-300'}`}>
       <div className="min-w-0">
         <p className="text-[13px] font-medium text-neutral-900">{label}</p>
         {description && <p className="mt-0.5 text-[12px] leading-relaxed text-neutral-500">{description}</p>}
@@ -51,7 +51,7 @@ function Num({ label, hint, value, onChange, ...rest }) {
   return (
     <div>
       <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500">{label}</label>
-      <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" type="number" value={value ?? 0} onChange={(e) => onChange(Number(e.target.value))} {...rest} />
+      <input className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" type="number" value={value ?? 0} onChange={(e) => onChange(Number(e.target.value))} {...rest} />
       {hint && <p className="mt-1.5 text-[12px] text-neutral-500">{hint}</p>}
     </div>
   );
@@ -61,7 +61,7 @@ function Text({ label, hint, value, onChange, ...rest }) {
   return (
     <div>
       <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500">{label}</label>
-      <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={value ?? ''} onChange={(e) => onChange(e.target.value)} {...rest} />
+      <input className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={value ?? ''} onChange={(e) => onChange(e.target.value)} {...rest} />
       {hint && <p className="mt-1.5 text-[12px] text-neutral-500">{hint}</p>}
     </div>
   );
@@ -86,7 +86,7 @@ export default function SettingsAccounts() {
     api('/auth/policy').then((p) => setMailReady(!!p.emailFeatures)).catch(() => setMailReady(false));
   }, []); // eslint-disable-line
 
-  if (!s) return <AdminLayout title="Customer Accounts"><div className="animate-pulse rounded-xl bg-neutral-100 h-96 w-full" /></AdminLayout>;
+  if (!s) return <AdminLayout title="Customer Accounts"><div className="animate-pulse rounded-md bg-neutral-100 h-96 w-full" /></AdminLayout>;
 
   const a = s.account;
   const set = (k, v) => setS({ ...s, account: { ...s.account, [k]: v } });
@@ -113,7 +113,7 @@ export default function SettingsAccounts() {
       </Link>
 
       <div className="mb-6 flex items-start gap-4 border-b border-neutral-200 pb-6">
-        <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-neutral-900 text-white">
+        <span className="grid h-12 w-12 shrink-0 place-items-center rounded-md bg-neutral-900 text-white">
           <Users size={20} strokeWidth={1.8} />
         </span>
         <div>
@@ -148,7 +148,7 @@ export default function SettingsAccounts() {
 
         <Section title="Email features" description="Password reset and email confirmation both need an email service. Connect one in Settings → Apps & Integrations first.">
           {mailReady === false && (
-            <div className="mb-4 flex items-start gap-2.5 rounded-xl border border-[#DCCBA5] bg-[#F6F1E6] px-4 py-3">
+            <div className="mb-4 flex items-start gap-2.5 rounded-md border border-[#DCCBA5] bg-[#F6F1E6] px-4 py-3">
               <AlertTriangle size={15} className="mt-0.5 shrink-0 text-[#8F7448]" />
               <p className="text-[12px] leading-relaxed text-[#5C4A28]">
                 <b>No email service is connected yet.</b> Until one is, “Forgot password” stays hidden from customers
@@ -157,7 +157,7 @@ export default function SettingsAccounts() {
             </div>
           )}
           {mailReady === true && (
-            <p className="mb-4 rounded-xl border border-[#C9D8CE] bg-[#E9EFEA] px-4 py-3 text-[12px] text-[#2B4436]">
+            <p className="mb-4 rounded-md border border-[#C9D8CE] bg-[#E9EFEA] px-4 py-3 text-[12px] text-[#2B4436]">
               Email service is connected and working.
             </p>
           )}
@@ -224,11 +224,11 @@ export default function SettingsAccounts() {
       </div>
 
       {dirty && (
-        <div className="sticky bottom-4 z-30 mt-6 flex items-center justify-between gap-4 rounded-2xl border border-neutral-900 bg-neutral-900 px-4 py-3 text-white shadow-xl">
+        <div className="sticky bottom-4 z-30 mt-6 flex items-center justify-between gap-4 rounded-md border border-neutral-900 bg-neutral-900 px-4 py-3 text-white shadow-md">
           <p className="text-[13px] font-medium">Unsaved changes</p>
           <div className="flex items-center gap-2">
-            <button onClick={() => setS(JSON.parse(original))} className="rounded-lg border border-white/20 px-3 py-1.5 text-[12px] font-semibold text-white/80 transition hover:bg-white/10">Discard</button>
-            <button onClick={save} disabled={busy} className="inline-flex items-center gap-1.5 rounded-lg bg-white px-4 py-1.5 text-[12px] font-semibold text-neutral-900 transition hover:bg-neutral-100 disabled:opacity-50">
+            <button onClick={() => setS(JSON.parse(original))} className="rounded-md border border-white/20 px-3 py-1.5 text-[12px] font-semibold text-white/80 transition hover:bg-white/10">Discard</button>
+            <button onClick={save} disabled={busy} className="inline-flex items-center gap-1.5 rounded-md bg-white px-4 py-1.5 text-[12px] font-semibold text-neutral-900 transition hover:bg-neutral-100 disabled:opacity-50">
               <Save size={13} /> {busy ? 'Saving…' : 'Save'}
             </button>
           </div>

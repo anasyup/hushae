@@ -39,7 +39,7 @@ export default function Collections() {
     catch (ex) { toast(ex.message); }
   };
 
-  if (!list) return <AdminLayout title="Collections"><div className="animate-pulse rounded-xl bg-neutral-100 h-64" /></AdminLayout>;
+  if (!list) return <AdminLayout title="Collections"><div className="animate-pulse rounded-md bg-neutral-100 h-64" /></AdminLayout>;
 
   return (
     <AdminLayout title="Collections">
@@ -58,8 +58,8 @@ export default function Collections() {
 
       {/* Grid of collections */}
       {list.length === 0 ? (
-        <div className="grid place-items-center rounded-2xl border border-dashed border-neutral-200 bg-white py-16 text-center">
-          <span className="grid h-14 w-14 place-items-center rounded-2xl bg-neutral-100 text-neutral-500">
+        <div className="grid place-items-center rounded-md border border-dashed border-neutral-200 bg-white py-16 text-center">
+          <span className="grid h-14 w-14 place-items-center rounded-md bg-neutral-100 text-neutral-500">
             <Boxes size={22} />
           </span>
           <p className="mt-4 text-sm font-medium text-neutral-700">No collections yet</p>
@@ -68,7 +68,7 @@ export default function Collections() {
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {list.map((c) => (
-            <article key={c._id} className="group overflow-hidden rounded-2xl border border-neutral-200 bg-white transition hover:-translate-y-0.5 hover:shadow-md">
+            <article key={c._id} className="group overflow-hidden rounded-md border border-neutral-200 bg-white transition hover:-translate-y-0.5 hover:shadow-md">
               <div className="relative aspect-[16/9] overflow-hidden bg-neutral-50">
                 {c.image
                   ? <img src={c.image} alt={c.name} className="h-full w-full object-cover" onError={(e) => { e.target.style.display = 'none'; }} />
@@ -91,8 +91,8 @@ export default function Collections() {
                 <div className="mt-4 flex items-center justify-between">
                   <a href={`/collection/${c.slug}`} target="_blank" rel="noreferrer" className="text-[12px] font-semibold text-neutral-500 hover:text-neutral-900">Preview →</a>
                   <div className="flex items-center gap-1">
-                    <button onClick={() => setEditing(c)} className="rounded-lg p-1.5 text-neutral-500 transition hover:bg-neutral-100 hover:text-neutral-900" aria-label="Edit"><Edit3 size={13} /></button>
-                    <button onClick={() => remove(c)} className="rounded-lg p-1.5 text-neutral-500 transition hover:bg-[#F5EDEB] hover:text-[#8A4B3F]" aria-label="Delete"><Trash2 size={13} /></button>
+                    <button onClick={() => setEditing(c)} className="rounded-md p-1.5 text-neutral-500 transition hover:bg-neutral-100 hover:text-neutral-900" aria-label="Edit"><Edit3 size={13} /></button>
+                    <button onClick={() => remove(c)} className="rounded-md p-1.5 text-neutral-500 transition hover:bg-[#F5EDEB] hover:text-[#8A4B3F]" aria-label="Delete"><Trash2 size={13} /></button>
                   </div>
                 </div>
               </div>
@@ -193,15 +193,15 @@ function CollectionEditor({ collection, onClose, onSaved }) {
           <div className="mb-5 grid gap-4 md:grid-cols-2">
             <div>
               <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500">Name *</label>
-              <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={c.name} onChange={(e) => set('name', e.target.value)} placeholder="Wedding Season" />
+              <input className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={c.name} onChange={(e) => set('name', e.target.value)} placeholder="Wedding Season" />
             </div>
             <div>
               <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500">URL slug</label>
-              <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 font-mono text-xs" value={c.slug} onChange={(e) => set('slug', e.target.value)} placeholder="wedding-season (auto if blank)" />
+              <input className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 font-mono text-xs" value={c.slug} onChange={(e) => set('slug', e.target.value)} placeholder="wedding-season (auto if blank)" />
             </div>
             <div className="md:col-span-2">
               <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500">Description</label>
-              <textarea className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 min-h-20" value={c.description} onChange={(e) => set('description', e.target.value)} placeholder="Short intro shown on the collection page…" />
+              <textarea className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 min-h-20" value={c.description} onChange={(e) => set('description', e.target.value)} placeholder="Short intro shown on the collection page…" />
             </div>
             <div className="md:col-span-2">
               <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500">Banner image</label>
@@ -211,7 +211,7 @@ function CollectionEditor({ collection, onClose, onSaved }) {
           </div>
 
           {/* Smart rules toggle */}
-          <div className="mb-5 rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+          <div className="mb-5 rounded-md border border-neutral-200 bg-neutral-50 p-4">
             <div className="mb-3 flex items-center justify-between">
               <div>
                 <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-700">Smart rules</p>
@@ -226,7 +226,7 @@ function CollectionEditor({ collection, onClose, onSaved }) {
               <div className="space-y-3">
                 <div>
                   <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500">Any of these tags</label>
-                  <div className="rounded-xl border border-neutral-200 bg-white p-2">
+                  <div className="rounded-md border border-neutral-200 bg-white p-2">
                     <div className="flex flex-wrap gap-1.5">
                       {(c.smart.tags || []).map((t, i) => (
                         <span key={t + i} className="inline-flex items-center gap-1 rounded-full bg-neutral-900 pl-3 pr-1 py-1 text-[12px] font-semibold text-white">
@@ -256,14 +256,14 @@ function CollectionEditor({ collection, onClose, onSaved }) {
                 <div className="grid gap-3 md:grid-cols-3">
                   <div>
                     <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500">Category</label>
-                    <select className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={c.smart.category} onChange={(e) => setSmart('category', e.target.value)}>
+                    <select className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={c.smart.category} onChange={(e) => setSmart('category', e.target.value)}>
                       <option value="">Any</option>
                       {cats.map((k) => <option key={k.slug} value={k.slug}>{k.name}</option>)}
                     </select>
                   </div>
                   <div>
                     <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500">Tier</label>
-                    <select className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={c.smart.tier} onChange={(e) => setSmart('tier', e.target.value)}>
+                    <select className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={c.smart.tier} onChange={(e) => setSmart('tier', e.target.value)}>
                       <option value="">Any</option>
                       <option value="Economy">Economy</option>
                       <option value="Standard">Standard</option>
@@ -272,14 +272,14 @@ function CollectionEditor({ collection, onClose, onSaved }) {
                   </div>
                   <div>
                     <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500">Gender</label>
-                    <select className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={c.smart.gender} onChange={(e) => setSmart('gender', e.target.value)}>
+                    <select className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={c.smart.gender} onChange={(e) => setSmart('gender', e.target.value)}>
                       <option value="">Any</option>
                       <option value="women">Women</option>
                       <option value="men">Men</option>
                     </select>
                   </div>
                 </div>
-                <label className="flex items-center gap-2 rounded-xl border border-neutral-200 bg-white p-3 text-sm">
+                <label className="flex items-center gap-2 rounded-md border border-neutral-200 bg-white p-3 text-sm">
                   <input type="checkbox" checked={!!c.smart.onSale} onChange={(e) => setSmart('onSale', e.target.checked)} className="h-4 w-4 accent-neutral-900" />
                   Only products currently on sale (compare-at price set)
                 </label>
@@ -295,9 +295,9 @@ function CollectionEditor({ collection, onClose, onSaved }) {
             </div>
             <div className="mb-2 relative">
               <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
-              <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !py-2 !pl-9 !text-[12px]" placeholder="Search products by name, SKU or category" value={productSearch} onChange={(e) => setProductSearch(e.target.value)} />
+              <input className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !py-2 !pl-9 !text-[12px]" placeholder="Search products by name, SKU or category" value={productSearch} onChange={(e) => setProductSearch(e.target.value)} />
             </div>
-            <div className="max-h-64 overflow-y-auto rounded-xl border border-neutral-200 bg-white">
+            <div className="max-h-64 overflow-y-auto rounded-md border border-neutral-200 bg-white">
               {filteredProducts.map((p) => {
                 const on = selectedIds.has(String(p._id));
                 return (
@@ -323,14 +323,14 @@ function CollectionEditor({ collection, onClose, onSaved }) {
 
           {/* Display options */}
           <div className="grid gap-3 md:grid-cols-3">
-            <label className="flex items-center justify-between gap-3 rounded-xl border border-neutral-200 bg-white p-3 text-sm">
+            <label className="flex items-center justify-between gap-3 rounded-md border border-neutral-200 bg-white p-3 text-sm">
               <div>
                 <p className="font-medium">Show on homepage</p>
                 <p className="text-[12px] text-neutral-500">Feature this collection as a tile</p>
               </div>
               <input type="checkbox" checked={!!c.featuredOnHome} onChange={(e) => set('featuredOnHome', e.target.checked)} className="h-4 w-4 accent-neutral-900" />
             </label>
-            <label className="flex items-center justify-between gap-3 rounded-xl border border-neutral-200 bg-white p-3 text-sm">
+            <label className="flex items-center justify-between gap-3 rounded-md border border-neutral-200 bg-white p-3 text-sm">
               <div>
                 <p className="font-medium">Active</p>
                 <p className="text-[12px] text-neutral-500">Public page reachable</p>
@@ -339,7 +339,7 @@ function CollectionEditor({ collection, onClose, onSaved }) {
             </label>
             <div>
               <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500">Sort order</label>
-              <input type="number" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !py-2 !text-[12px]" value={c.sortOrder ?? 100} onChange={(e) => set('sortOrder', Number(e.target.value) || 100)} />
+              <input type="number" className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !py-2 !text-[12px]" value={c.sortOrder ?? 100} onChange={(e) => set('sortOrder', Number(e.target.value) || 100)} />
             </div>
           </div>
         </div>

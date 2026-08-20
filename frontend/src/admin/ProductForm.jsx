@@ -39,7 +39,7 @@ const toLocalInput = (iso) => (iso ? String(iso).slice(0, 16) : '');
 /* ── Section wrapper ─────────────────────────────────────────────────── */
 function Section({ icon: Icon, title, description, children, className = '' }) {
   return (
-    <section className={`rounded-2xl border border-neutral-200 bg-white ${className}`}>
+    <section className={`rounded-md border border-neutral-200 bg-white ${className}`}>
       <div className="border-b border-neutral-100 px-6 py-4">
         <div className="flex items-center gap-2.5">
           {Icon && <Icon size={16} className="text-neutral-500" />}
@@ -67,7 +67,7 @@ function Field({ label, hint, children }) {
 
 function Check({ k, label, f, set }) {
   return (
-    <label className="flex cursor-pointer items-center gap-2.5 rounded-lg py-1.5 text-[13px] font-medium text-neutral-700 transition hover:text-neutral-900">
+    <label className="flex cursor-pointer items-center gap-2.5 rounded-md py-1.5 text-[13px] font-medium text-neutral-700 transition hover:text-neutral-900">
       <input type="checkbox" checked={!!f[k]} onChange={(e) => set(k, e.target.checked)} className="h-4 w-4 rounded accent-neutral-900" />
       {label}
     </label>
@@ -175,13 +175,13 @@ export default function ProductForm() {
           <Section icon={Info} title="General" description="Product name, description, and identity">
             <div className="space-y-4">
               <Field label="Product name *">
-                <input className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[12px] font-medium outline-none transition focus:border-neutral-900" value={f.name} onChange={(e) => set('name', e.target.value)} placeholder="Aura Seamless Wireless Bra" required />
+                <input className="w-full rounded-md border border-neutral-300 bg-white px-4 py-3 text-[12px] font-medium outline-none transition focus:border-neutral-900" value={f.name} onChange={(e) => set('name', e.target.value)} placeholder="Aura Seamless Wireless Bra" required />
               </Field>
               <Field label="Short description" hint="One line shown on cards and listings">
-                <input className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[13px] outline-none transition focus:border-neutral-900" value={f.shortDescription} onChange={(e) => set('shortDescription', e.target.value)} placeholder="Second-skin comfort with invisible support" />
+                <input className="w-full rounded-md border border-neutral-300 bg-white px-4 py-3 text-[13px] outline-none transition focus:border-neutral-900" value={f.shortDescription} onChange={(e) => set('shortDescription', e.target.value)} placeholder="Second-skin comfort with invisible support" />
               </Field>
               <Field label="Full description">
-                <textarea className="w-full min-h-[120px] rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[13px] leading-relaxed outline-none transition focus:border-neutral-900" value={f.description} onChange={(e) => set('description', e.target.value)} rows={5} placeholder="Describe your product in detail..." />
+                <textarea className="w-full min-h-[120px] rounded-md border border-neutral-300 bg-white px-4 py-3 text-[13px] leading-relaxed outline-none transition focus:border-neutral-900" value={f.description} onChange={(e) => set('description', e.target.value)} rows={5} placeholder="Describe your product in detail..." />
               </Field>
             </div>
           </Section>
@@ -196,16 +196,16 @@ export default function ProductForm() {
             <div className="space-y-5">
               <div className="grid gap-4 md:grid-cols-2">
                 <Field label="Sizes (comma separated)" hint="e.g. S, M, L, XL">
-                  <input className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[13px] outline-none transition focus:border-neutral-900" value={f.sizesText} onChange={(e) => set('sizesText', e.target.value)} placeholder="S, M, L, XL" />
+                  <input className="w-full rounded-md border border-neutral-300 bg-white px-4 py-3 text-[13px] outline-none transition focus:border-neutral-900" value={f.sizesText} onChange={(e) => set('sizesText', e.target.value)} placeholder="S, M, L, XL" />
                 </Field>
                 <Field label="Fabric" hint="e.g. 92% combed cotton, 8% elastane">
-                  <input className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[13px] outline-none transition focus:border-neutral-900" value={f.fabric} onChange={(e) => set('fabric', e.target.value)} placeholder="92% combed cotton, 8% elastane" />
+                  <input className="w-full rounded-md border border-neutral-300 bg-white px-4 py-3 text-[13px] outline-none transition focus:border-neutral-900" value={f.fabric} onChange={(e) => set('fabric', e.target.value)} placeholder="92% combed cotton, 8% elastane" />
                 </Field>
               </div>
 
               {/* Tags */}
               <Field label="Tags" hint="Used for filters and smart collections">
-                <div className="flex flex-wrap gap-1.5 rounded-xl border border-neutral-300 bg-white p-2.5">
+                <div className="flex flex-wrap gap-1.5 rounded-md border border-neutral-300 bg-white p-2.5">
                   {(f.tags || []).map((t, i) => (
                     <span key={t + i} className="inline-flex items-center gap-1 rounded-full bg-neutral-900 py-0.5 pl-2.5 pr-1 text-[12px] font-semibold text-white">
                       {t}
@@ -224,19 +224,19 @@ export default function ProductForm() {
                 <div className="space-y-2">
                   {f.colors.map((c, i) => (
                     <div key={i} className="flex items-center gap-2.5">
-                      <input type="color" value={c.hex} onChange={(e) => set('colors', f.colors.map((x, j) => j === i ? { ...x, hex: e.target.value } : x))} className="h-10 w-12 cursor-pointer rounded-lg border border-neutral-300 bg-white p-1" />
-                      <input className="flex-1 rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[13px] outline-none transition focus:border-neutral-900" value={c.name} onChange={(e) => set('colors', f.colors.map((x, j) => j === i ? { ...x, name: e.target.value } : x))} placeholder="Colour name" />
+                      <input type="color" value={c.hex} onChange={(e) => set('colors', f.colors.map((x, j) => j === i ? { ...x, hex: e.target.value } : x))} className="h-10 w-12 cursor-pointer rounded-md border border-neutral-300 bg-white p-1" />
+                      <input className="flex-1 rounded-md border border-neutral-300 bg-white px-4 py-2.5 text-[13px] outline-none transition focus:border-neutral-900" value={c.name} onChange={(e) => set('colors', f.colors.map((x, j) => j === i ? { ...x, name: e.target.value } : x))} placeholder="Colour name" />
                       {f.colors.length > 1 && (
-                        <button type="button" onClick={() => set('colors', f.colors.filter((_, j) => j !== i))} className="grid h-9 w-9 place-items-center rounded-lg text-neutral-400 transition hover:bg-[#F5EDEB] hover:text-[#9A5548]"><Trash2 size={14} /></button>
+                        <button type="button" onClick={() => set('colors', f.colors.filter((_, j) => j !== i))} className="grid h-9 w-9 place-items-center rounded-md text-neutral-400 transition hover:bg-[#F5EDEB] hover:text-[#9A5548]"><Trash2 size={14} /></button>
                       )}
                     </div>
                   ))}
-                  <button type="button" onClick={() => set('colors', [...f.colors, { name: '', hex: '#69625F' }])} className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-neutral-300 px-3.5 py-2 text-[12px] font-medium text-neutral-500 transition hover:border-neutral-400 hover:text-neutral-900"><Plus size={12} /> Add colour</button>
+                  <button type="button" onClick={() => set('colors', [...f.colors, { name: '', hex: '#69625F' }])} className="inline-flex items-center gap-1.5 rounded-md border border-dashed border-neutral-300 px-3.5 py-2 text-[12px] font-medium text-neutral-500 transition hover:border-neutral-400 hover:text-neutral-900"><Plus size={12} /> Add colour</button>
                 </div>
               </Field>
 
               <Field label="Care instructions (one per line)">
-                <textarea className="w-full min-h-[80px] rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[13px] outline-none transition focus:border-neutral-900" value={f.careText} onChange={(e) => set('careText', e.target.value)} rows={3} placeholder="Machine wash cold&#10;Do not bleach&#10;Tumble dry low" />
+                <textarea className="w-full min-h-[80px] rounded-md border border-neutral-300 bg-white px-4 py-3 text-[13px] outline-none transition focus:border-neutral-900" value={f.careText} onChange={(e) => set('careText', e.target.value)} rows={3} placeholder="Machine wash cold&#10;Do not bleach&#10;Tumble dry low" />
               </Field>
             </div>
           </Section>
@@ -245,7 +245,7 @@ export default function ProductForm() {
             <div className="mb-3 flex flex-wrap gap-2">
               <button
                 type="button"
-                className="rounded-lg border border-neutral-300 px-3 py-2 text-[12px] font-semibold"
+                className="rounded-md border border-neutral-300 px-3 py-2 text-[12px] font-semibold"
                 onClick={() => {
                   const sizes = f.sizesText.split(',').map((s) => s.trim()).filter(Boolean);
                   const colors = f.colors.filter((c) => c.name);
@@ -308,13 +308,13 @@ export default function ProductForm() {
           <Section title="Status">
             <div className="space-y-3">
               <Field label="Visibility">
-                <select className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[13px] font-medium outline-none transition focus:border-neutral-900" value={f.status || 'active'} onChange={(e) => set('status', e.target.value)}>
+                <select className="w-full rounded-md border border-neutral-300 bg-white px-4 py-3 text-[13px] font-medium outline-none transition focus:border-neutral-900" value={f.status || 'active'} onChange={(e) => set('status', e.target.value)}>
                   <option value="active">Active — live in store</option>
                   <option value="draft">Draft — hidden, work in progress</option>
                 </select>
               </Field>
               {f.status === 'draft' && (
-                <div className="rounded-xl border border-[#DCCBA5] bg-[#F6F1E6] p-3 text-[12px] text-[#6B552F]">Draft products are hidden and cannot be ordered.</div>
+                <div className="rounded-md border border-[#DCCBA5] bg-[#F6F1E6] p-3 text-[12px] text-[#6B552F]">Draft products are hidden and cannot be ordered.</div>
               )}
               <Check k="isFeatured" label="Featured in signature edit" f={f} set={set} />
               <Check k="isBestSeller" label="Mark as best seller" f={f} set={set} />
@@ -325,23 +325,23 @@ export default function ProductForm() {
           <Section icon={Tag} title="Organization">
             <div className="space-y-4">
               <Field label="Gender">
-                <select className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[13px] font-medium outline-none transition focus:border-neutral-900" value={f.gender} onChange={(e) => set('gender', e.target.value)}>
+                <select className="w-full rounded-md border border-neutral-300 bg-white px-4 py-3 text-[13px] font-medium outline-none transition focus:border-neutral-900" value={f.gender} onChange={(e) => set('gender', e.target.value)}>
                   <option value="women">Women</option><option value="men">Men</option>
                 </select>
               </Field>
               <Field label="Category *">
-                <select className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[13px] font-medium outline-none transition focus:border-neutral-900" required value={f.categorySlug} onChange={(e) => set('categorySlug', e.target.value)}>
+                <select className="w-full rounded-md border border-neutral-300 bg-white px-4 py-3 text-[13px] font-medium outline-none transition focus:border-neutral-900" required value={f.categorySlug} onChange={(e) => set('categorySlug', e.target.value)}>
                   <option value="">Choose category…</option>
                   {catOpts.map((c) => <option key={c.slug} value={c.slug}>{c.name}</option>)}
                 </select>
               </Field>
               <Field label="Tier">
-                <select className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[13px] font-medium outline-none transition focus:border-neutral-900" value={f.tier} onChange={(e) => set('tier', e.target.value)}>
+                <select className="w-full rounded-md border border-neutral-300 bg-white px-4 py-3 text-[13px] font-medium outline-none transition focus:border-neutral-900" value={f.tier} onChange={(e) => set('tier', e.target.value)}>
                   {['Economy', 'Standard', 'Premium'].map((t) => <option key={t}>{t}</option>)}
                 </select>
               </Field>
               <Field label="SKU" hint="Auto-generated if left empty">
-                <input className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[13px] outline-none transition focus:border-neutral-900" value={f.sku} onChange={(e) => set('sku', e.target.value)} placeholder="Auto" />
+                <input className="w-full rounded-md border border-neutral-300 bg-white px-4 py-3 text-[13px] outline-none transition focus:border-neutral-900" value={f.sku} onChange={(e) => set('sku', e.target.value)} placeholder="Auto" />
               </Field>
             </div>
           </Section>
@@ -351,10 +351,10 @@ export default function ProductForm() {
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
                 <Field label="Price (PKR) *">
-                  <input className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[12px] font-semibold outline-none transition focus:border-neutral-900" type="number" min="0" required value={f.price} onChange={(e) => set('price', e.target.value)} />
+                  <input className="w-full rounded-md border border-neutral-300 bg-white px-4 py-3 text-[12px] font-semibold outline-none transition focus:border-neutral-900" type="number" min="0" required value={f.price} onChange={(e) => set('price', e.target.value)} />
                 </Field>
                 <Field label="Compare-at (Was price)">
-                  <input className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[12px] outline-none transition focus:border-neutral-900" type="number" min="0" value={f.compareAtPrice} onChange={(e) => set('compareAtPrice', e.target.value)} placeholder="e.g. 1550" disabled={!f.onSale} />
+                  <input className="w-full rounded-md border border-neutral-300 bg-white px-4 py-3 text-[12px] outline-none transition focus:border-neutral-900" type="number" min="0" value={f.compareAtPrice} onChange={(e) => set('compareAtPrice', e.target.value)} placeholder="e.g. 1550" disabled={!f.onSale} />
                 </Field>
               </div>
 
@@ -362,7 +362,7 @@ export default function ProductForm() {
                   A product is on sale ONLY when this switch is on. New
                   products start OFF, so nothing you launch is ever
                   automatically discounted. */}
-              <div className={`rounded-xl border p-4 transition-colors ${f.onSale ? 'border-[#B4C8BA] bg-[#E9EFEA]/60' : 'border-neutral-200 bg-white'}`}>
+              <div className={`rounded-md border p-4 transition-colors ${f.onSale ? 'border-[#B4C8BA] bg-[#E9EFEA]/60' : 'border-neutral-200 bg-white'}`}>
                 <label className="flex cursor-pointer items-center gap-2.5">
                   <input
                     type="checkbox"
@@ -383,16 +383,16 @@ export default function ProductForm() {
                 ) : (
                   <>
                     {f.compareAtPrice && Number(f.compareAtPrice) > 0 && Number(f.price) > 0 && Number(f.compareAtPrice) <= Number(f.price) && (
-                      <p className="mt-2 rounded-lg bg-[#F5EDEB] px-3 py-1.5 text-[12px] font-semibold text-[#8A4B3F] ring-1 ring-[#E0C6BE]">
+                      <p className="mt-2 rounded-md bg-[#F5EDEB] px-3 py-1.5 text-[12px] font-semibold text-[#8A4B3F] ring-1 ring-[#E0C6BE]">
                         Was price must be HIGHER than the selling price — otherwise there is no real discount.
                       </p>
                     )}
                     <div className="mt-3 grid gap-3 sm:grid-cols-2">
                       <Field label="Sale starts (optional)">
-                        <input type="datetime-local" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2.5 text-[12px] outline-none transition focus:border-neutral-900" value={f.saleStart} onChange={(e) => set('saleStart', e.target.value)} />
+                        <input type="datetime-local" className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2.5 text-[12px] outline-none transition focus:border-neutral-900" value={f.saleStart} onChange={(e) => set('saleStart', e.target.value)} />
                       </Field>
                       <Field label="Sale ends (optional)">
-                        <input type="datetime-local" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2.5 text-[12px] outline-none transition focus:border-neutral-900" value={f.saleEnd} onChange={(e) => set('saleEnd', e.target.value)} />
+                        <input type="datetime-local" className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2.5 text-[12px] outline-none transition focus:border-neutral-900" value={f.saleEnd} onChange={(e) => set('saleEnd', e.target.value)} />
                       </Field>
                     </div>
                     <p className="mt-2 text-[12px] leading-relaxed text-neutral-500">
@@ -403,16 +403,16 @@ export default function ProductForm() {
               </div>
 
               {/* Cost + Profit live */}
-              <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
+              <div className="rounded-md border border-neutral-200 bg-neutral-50 p-4">
                 <div className="flex items-center justify-between mb-3">
                   <p className="text-[13px] font-bold uppercase tracking-widest text-neutral-500">Cost & profit</p>
                   <span className="text-[13px] text-neutral-400">Internal only</span>
                 </div>
                 <Field label="Cost / Wholesale (PKR)">
-                  <input className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[13px] outline-none transition focus:border-neutral-900" type="number" min="0" value={f.costPrice} onChange={(e) => set('costPrice', e.target.value)} placeholder="e.g. 800" />
+                  <input className="w-full rounded-md border border-neutral-300 bg-white px-4 py-3 text-[13px] outline-none transition focus:border-neutral-900" type="number" min="0" value={f.costPrice} onChange={(e) => set('costPrice', e.target.value)} placeholder="e.g. 800" />
                 </Field>
                 {Number(f.price) > 0 && Number(f.costPrice) > 0 && (
-                  <div className="mt-3 flex items-center justify-between rounded-lg bg-white px-3 py-2.5">
+                  <div className="mt-3 flex items-center justify-between rounded-md bg-white px-3 py-2.5">
                     <span className="text-[13px] font-semibold text-neutral-700">Profit per unit</span>
                     <div className="flex items-center gap-2">
                       <span className={`text-[12px] font-bold tabular-nums ${profit >= 0 ? 'text-[#3E5C4B]' : 'text-[#8A4B3F]'}`}>PKR {profit.toLocaleString('en-PK')}</span>
@@ -423,7 +423,7 @@ export default function ProductForm() {
               </div>
 
               <Field label="Stock quantity">
-                <input className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[13px] outline-none transition focus:border-neutral-900" type="number" min="0" value={f.stock} onChange={(e) => set('stock', e.target.value)} />
+                <input className="w-full rounded-md border border-neutral-300 bg-white px-4 py-3 text-[13px] outline-none transition focus:border-neutral-900" type="number" min="0" value={f.stock} onChange={(e) => set('stock', e.target.value)} />
               </Field>
             </div>
           </Section>
