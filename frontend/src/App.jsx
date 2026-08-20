@@ -356,9 +356,9 @@ export default function App() {
               theme document, so it can never override the React home.
               Theme Sections = the visual section/page builder (explicit
               Publish only — autosave keeps a draft, never auto-publishes). */}
-          <Route path="/admin/theme" element={<Suspense fallback={<EditorFallback />}><ThemeEditor /></Suspense>} />
+          <Route path="/admin/theme" element={<Suspense fallback={<EditorFallback />}><ThemeEditorApp /></Suspense>} />
           <Route path="/admin/theme-sections" element={<Suspense fallback={<EditorFallback />}><ThemeEditorApp /></Suspense>} />
-          <Route path="/admin/theme-legacy" element={<ThemeEditor />} />
+          <Route path="/admin/theme-legacy" element={<Suspense fallback={<EditorFallback />}><ThemeEditor /></Suspense>} />
 
           <Route path="/admin/backup" element={<Backup />} />
           <Route path="/admin/export" element={<Backup />} />

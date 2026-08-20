@@ -42,44 +42,44 @@ export default function Topbar({ onPublish }: { onPublish: () => void }) {
   const devBtn = (d: typeof device, Icon: typeof Monitor, label: string) => (
     <button onClick={() => setDevice(d)} title={label} aria-label={label} aria-pressed={device === d}
       className={`grid h-8 w-8 place-items-center rounded-md transition ${
-        device === d ? 'bg-white text-neutral-900 shadow-sm' : 'text-neutral-500 hover:text-neutral-900'}`}>
+        device === d ? 'bg-white text-neutral-900 ring-1 ring-neutral-200' : 'text-neutral-500 hover:text-neutral-900'}`}>
       <Icon size={15} />
     </button>
   );
 
   return (
-    <header className="flex h-14 shrink-0 items-center justify-between gap-3 border-b border-neutral-200 bg-white px-3">
+    <header className="flex h-14 shrink-0 items-center justify-between gap-3 border-b border-[#E5E5E5] bg-white px-3">
       <div className="flex min-w-0 items-center gap-2">
         <Link to="/admin/store" title="Back to admin"
           className="grid h-8 w-8 shrink-0 place-items-center rounded-md text-neutral-500 transition hover:bg-neutral-100 hover:text-neutral-900">
           <ArrowLeft size={16} />
         </Link>
         <div className="hidden min-w-0 items-center gap-2 sm:flex">
-          <p className="truncate text-[15px] font-semibold text-neutral-900">HUSHAE Theme</p>
-          <span className={`shrink-0 rounded-full px-2 py-0.5 text-[15px] font-bold uppercase tracking-wider ${
-            dirty ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'
+          <p className="truncate text-[14px] font-medium tracking-[0.01em] text-neutral-900">HUSHAE Theme</p>
+          <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-medium uppercase tracking-[0.14em] ${
+            dirty ? 'bg-[#F6F1E6] text-[#6B552F]' : 'bg-[#E9EFEA] text-[#3E5C4B]'
           }`}>
             {dirty ? 'Draft' : 'Live'}
           </span>
         </div>
       </div>
 
-      <div className="hidden items-center gap-1 rounded-lg bg-neutral-100 p-1 md:flex">
+      <div className="hidden items-center gap-1 rounded-md border border-[#E5E5E5] bg-[#F5F5F5] p-1 md:flex">
         {devBtn('desktop', Monitor, 'Desktop')}
         {devBtn('tablet', Tablet, 'Tablet')}
         {devBtn('mobile', Smartphone, 'Mobile')}
       </div>
 
       <div className="flex shrink-0 items-center gap-1">
-        <span className="mr-1 hidden items-center gap-1.5 text-[15px] text-neutral-500 lg:flex">
-          {saving ? <Loader2 size={11} className="animate-spin" /> : dirty ? <Cloud size={11} /> : <Check size={11} className="text-emerald-600" />}
+        <span className="mr-1 hidden items-center gap-1.5 text-[12px] text-neutral-500 lg:flex">
+          {saving ? <Loader2 size={11} className="animate-spin" /> : dirty ? <Cloud size={11} /> : <Check size={11} className="text-[#4A6B58]" />}
           {savedLabel()}
         </span>
 
         <button onClick={() => setAutosave(!autosave)} title={autosave ? 'Autosave on' : 'Autosave off'}
-          className={`hidden h-8 items-center gap-1.5 rounded-md px-2 text-[15px] font-semibold transition lg:flex ${
-            autosave ? 'text-emerald-700 hover:bg-emerald-50' : 'text-neutral-400 hover:bg-neutral-100'}`}>
-          <span className={`h-1.5 w-1.5 rounded-full ${autosave ? 'bg-emerald-500' : 'bg-neutral-300'}`} /> Auto
+          className={`hidden h-8 items-center gap-1.5 rounded-md px-2 text-[12px] font-medium transition lg:flex ${
+            autosave ? 'text-[#3E5C4B] hover:bg-[#E9EFEA]' : 'text-neutral-400 hover:bg-neutral-100'}}`}>
+          <span className={`h-1.5 w-1.5 rounded-full ${autosave ? 'bg-[#5B7F6A]' : 'bg-neutral-300'}}`} /> Auto
         </button>
 
         <button onClick={() => setShowVersions(!showVersions)} title="Version history" aria-pressed={showVersions}
@@ -105,7 +105,7 @@ export default function Topbar({ onPublish }: { onPublish: () => void }) {
         </button>
 
         <button onClick={onPublish} disabled={saving}
-          className="ml-1.5 inline-flex h-8 items-center gap-1.5 rounded-md bg-neutral-900 px-4 text-[15px] font-semibold text-white transition hover:bg-black disabled:opacity-50">
+          className="ml-1.5 inline-flex h-8 items-center gap-1.5 rounded-md bg-neutral-900 px-4 text-[12px] font-semibold tracking-wide text-white transition hover:bg-black disabled:opacity-50">
           {saving ? <Loader2 size={13} className="animate-spin" /> : null}
           {dirty || saving ? 'Publish' : 'Published'}
         </button>

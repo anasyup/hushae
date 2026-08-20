@@ -84,7 +84,6 @@ const NAV_GROUPS = [
       { to: '/admin/store',       label: 'Online Store',    icon: Globe },
       { to: '/admin/content',     label: 'Content',         icon: ImagePlus },
       { to: '/admin/theme',       label: 'Theme Editor',    icon: LayoutTemplate },
-      { to: '/admin/theme-sections', label: 'Theme Sections', icon: LayoutTemplate },
       { to: '/admin/navigation',  label: 'Navigation',      icon: Menu },
       { to: '/admin/cms',         label: 'Pages',           icon: FileText },
       { to: '/admin/cms/redirects', label: 'Old addresses', icon: Signpost },

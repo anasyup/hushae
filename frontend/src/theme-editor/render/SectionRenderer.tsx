@@ -366,11 +366,11 @@ function MenuBlock({ block, categories }: { block: BlockNode; categories: any[] 
             {/* Simple dropdown */}
             {!isMega && simple.length > 0 && (
               <span className="invisible absolute left-1/2 top-full z-40 -translate-x-1/2 pt-4 opacity-0 transition group-hover:visible group-hover:opacity-100">
-                <span className="block w-52 rounded-2xl border p-2 shadow-lg"
+                <span className="block w-52 rounded-md border p-2 shadow-md"
                   style={{ background: 'var(--t-surface)', borderColor: 'var(--t-border)' }}>
                   {simple.map((c, i) => (
                     <a key={i} href={c.slug} onClick={(e) => e.preventDefault()}
-                      className="block rounded-xl px-4 py-2.5 text-sm hover:opacity-70">{c.name}</a>
+                      className="block rounded-md px-4 py-2.5 text-sm hover:opacity-70">{c.name}</a>
                   ))}
                 </span>
               </span>
@@ -379,7 +379,7 @@ function MenuBlock({ block, categories }: { block: BlockNode; categories: any[] 
             {/* Mega menu — merchant-built columns plus an optional promo card */}
             {isMega && kids.length > 0 && (
               <span className="invisible absolute inset-x-0 top-full z-40 pt-4 opacity-0 transition group-hover:visible group-hover:opacity-100">
-                <span className="mx-auto block w-full max-w-[var(--t-page-width)] rounded-2xl border p-6 shadow-xl"
+                <span className="mx-auto block w-full max-w-[var(--t-page-width)] rounded-md border p-6 shadow-md"
                   style={{ background: 'var(--t-surface)', borderColor: 'var(--t-border)' }}>
                   <span className="te-grid" style={{ '--cols': num(cfg.megaColumns, 4), '--mcols': 2, gap: 24 } as CSSProperties}>
                     {kids.map((col) => {
@@ -388,7 +388,7 @@ function MenuBlock({ block, categories }: { block: BlockNode; categories: any[] 
                         return (
                           <a key={col.id} href={str(pc.href, '#')} onClick={(e) => e.preventDefault()}
                             data-node-id={editable ? col.id : undefined}
-                            className="block overflow-hidden rounded-xl" style={{ background: 'var(--t-muted)' }}>
+                            className="block overflow-hidden rounded-md" style={{ background: 'var(--t-muted)' }}>
                             <img src={str(pc.image) || heroPlaceholder} alt="" className="h-28 w-full object-cover" />
                             <span className="block p-3">
                               <span className="block text-sm font-semibold">{str(pc.title)}</span>

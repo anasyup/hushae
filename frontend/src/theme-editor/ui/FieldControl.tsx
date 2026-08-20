@@ -42,7 +42,7 @@ export const FieldControl = memo(function FieldControl({ field, value, settings,
               type="number" min={field.min} max={field.max} step={field.step}
               value={Number(v ?? field.min ?? 0)}
               onChange={(e) => onChange(clamp(Number(e.target.value) || 0, field.min ?? -Infinity, field.max ?? Infinity))}
-              className="w-16 rounded-md border border-neutral-300 px-2 py-1 text-right text-xs tabular-nums outline-none focus:border-[#005BD3]"
+              className="w-16 rounded-md border border-neutral-300 px-2 py-1 text-right text-xs tabular-nums outline-none focus:border-[#A68A56]"
             />
             {field.unit && <span className="text-[15px] text-neutral-400">{field.unit}</span>}
           </span>
@@ -57,7 +57,7 @@ export const FieldControl = memo(function FieldControl({ field, value, settings,
 });
 
 function Input({ field, v, settings, onChange }: { field: Field; v: SettingValue; settings: SettingsBag; onChange: (x: SettingValue) => void }) {
-  const inputCls = 'w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm outline-none transition focus:border-[#005BD3] focus:ring-2 focus:ring-[#005BD3]/15';
+  const inputCls = 'w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm outline-none transition focus:border-[#A68A56] focus:ring-2 focus:ring-[#A68A56]/15';
 
   switch (field.type) {
     case 'text':
@@ -82,7 +82,7 @@ function Input({ field, v, settings, onChange }: { field: Field; v: SettingValue
       return (
         <input type="range" min={field.min ?? 0} max={field.max ?? 100} step={field.step ?? 1}
           value={Number(v ?? field.min ?? 0)} onChange={(e) => onChange(Number(e.target.value))}
-          className="te-range w-full accent-[#005BD3]" />
+          className="te-range w-full accent-[#A68A56]" />
       );
 
     case 'checkbox':
@@ -91,7 +91,7 @@ function Input({ field, v, settings, onChange }: { field: Field; v: SettingValue
         <label className="flex cursor-pointer items-center gap-2.5">
           <span className="relative inline-block h-5 w-9 shrink-0">
             <input type="checkbox" className="peer sr-only" checked={!!v} onChange={(e) => onChange(e.target.checked)} />
-            <span className="absolute inset-0 rounded-full bg-neutral-300 transition peer-checked:bg-[#005BD3]" />
+            <span className="absolute inset-0 rounded-full bg-neutral-300 transition peer-checked:bg-[#A68A56]" />
             <span className="absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white shadow transition peer-checked:translate-x-4" />
           </span>
           <span className="text-[15px] text-neutral-600">{v ? 'On' : 'Off'}</span>
@@ -110,7 +110,7 @@ function Input({ field, v, settings, onChange }: { field: Field; v: SettingValue
         <div className="space-y-1.5">
           {(field.options || []).map((o) => (
             <label key={String(o.value)} className="flex cursor-pointer items-center gap-2 text-sm">
-              <input type="radio" checked={String(v) === String(o.value)} onChange={() => onChange(o.value)} className="accent-[#005BD3]" />
+              <input type="radio" checked={String(v) === String(o.value)} onChange={() => onChange(o.value)} className="accent-[#A68A56]" />
               {o.label}
             </label>
           ))}
@@ -202,7 +202,7 @@ function ColorInput({ value, onChange }: { value: string; onChange: (v: string) 
         <button type="button" onClick={() => setOpen((o) => !o)}
           className="h-9 w-10 shrink-0 rounded-lg border border-neutral-300"
           style={{ background: value || 'repeating-conic-gradient(#e5e5e5 0 25%, #fff 0 50%) 50%/10px 10px' }} />
-        <input className="w-full rounded-lg border border-neutral-300 px-3 py-2 font-mono text-xs outline-none focus:border-[#005BD3]"
+        <input className="w-full rounded-lg border border-neutral-300 px-3 py-2 font-mono text-xs outline-none focus:border-[#A68A56]"
           placeholder="transparent" value={value} onChange={(e) => onChange(e.target.value)} />
         {value && (
           <button type="button" onClick={() => onChange('')} title="Clear"
@@ -212,7 +212,7 @@ function ColorInput({ value, onChange }: { value: string; onChange: (v: string) 
         )}
       </div>
       {open && (
-        <div className="absolute left-0 top-11 z-50 w-60 rounded-xl border border-neutral-200 bg-white p-3 shadow-xl">
+        <div className="absolute left-0 top-11 z-50 w-60 rounded-md border border-neutral-200 bg-white p-3 shadow-md">
           <input type="color" value={value || '#000000'} onChange={(e) => onChange(e.target.value)}
             className="h-24 w-full cursor-pointer rounded-lg border border-neutral-200" />
           <div className="mt-3 grid grid-cols-9 gap-1.5">
@@ -237,7 +237,7 @@ const FONTS = [
 
 function FontPicker({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   return (
-    <select className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-[#005BD3]"
+    <select className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-[#A68A56]"
       value={value} onChange={(e) => onChange(e.target.value)} style={{ fontFamily: `"${value}", sans-serif` }}>
       {FONTS.map((f) => <option key={f} value={f} style={{ fontFamily: `"${f}", sans-serif` }}>{f}</option>)}
     </select>
@@ -257,7 +257,7 @@ function IconPicker({ value, onChange }: { value: string; onChange: (v: string) 
           const I = resolveIcon(n);
           return (
             <button key={n} type="button" onClick={() => onChange(n)} title={n}
-              className={`grid h-8 place-items-center rounded-md transition ${value === n ? 'bg-[#005BD3] text-white' : 'hover:bg-neutral-100'}`}>
+              className={`grid h-8 place-items-center rounded-md transition ${value === n ? 'bg-[#A68A56] text-white' : 'hover:bg-neutral-100'}`}>
               <I size={15} />
             </button>
           );

@@ -71,9 +71,9 @@ export default function PreviewFrame() {
   const width = FRAME_W[device];
 
   return (
-    <div className="flex flex-1 items-start justify-center overflow-auto bg-neutral-200/70 p-5">
+    <div className="relative flex flex-1 items-start justify-center overflow-auto bg-[#EDEDED] p-5">
       <div
-        className="overflow-hidden rounded-xl bg-white shadow-lg ring-1 ring-black/5 transition-[width] duration-300"
+        className="overflow-hidden rounded-md bg-white shadow-sm ring-1 ring-[#E5E5E5] transition-[width] duration-300"
         style={{ width, maxWidth: '100%', height: 'calc(100vh - 96px)' }}
       >
         <iframe
@@ -84,6 +84,14 @@ export default function PreviewFrame() {
           onLoad={() => post({ source: 'hushae-editor', type: 'doc', doc, theme })}
         />
       </div>
+
+      {!selectedId && (
+        <div className="pointer-events-none absolute bottom-4 left-1/2 z-10 -translate-x-1/2">
+          <span className="rounded-full border border-[#E5E5E5] bg-white px-3.5 py-1.5 text-[11px] font-medium tracking-wide text-neutral-500 shadow-sm">
+            Click any element to edit · drag to reorder
+          </span>
+        </div>
+      )}
     </div>
   );
 }

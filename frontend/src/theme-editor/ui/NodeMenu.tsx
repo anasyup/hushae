@@ -56,7 +56,7 @@ export function NodeMenu({
       </button>
 
       {open && (
-        <div className="absolute right-0 top-7 z-50 w-44 overflow-hidden rounded-lg border border-neutral-200 bg-white py-1 shadow-xl">
+        <div className="absolute right-0 top-7 z-50 w-44 overflow-hidden rounded-lg border border-neutral-200 bg-white py-1 shadow-md">
           {item(<Pencil size={12} />, 'Rename', onRename)}
           {item(<ArrowUp size={12} />, 'Move up', () => move(node.id, -1))}
           {item(<ArrowDown size={12} />, 'Move down', () => move(node.id, 1))}
