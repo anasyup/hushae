@@ -370,7 +370,7 @@ router.post('/', placeOrderLimit, optionalAuth, asyncHandler(async (req, res) =>
         phone: phoneNorm, address: customerInfo.address.trim(),
       },
       total,
-      paymentMethod,
+      paymentMethod: normPaymentMethod,
     });
     fraudFilter = {
       isFlagged: risk.isFlagged,
@@ -406,7 +406,7 @@ router.post('/', placeOrderLimit, optionalAuth, asyncHandler(async (req, res) =>
     giftCardUsed: giftCardToUse,
     giftCardLast4: giftCardDoc ? giftCardDoc.last4 : '',
     giftCard: giftCardDoc ? giftCardDoc._id : null,
-    paymentMethod, paymentStatus: 'Pending', transactionId: transactionId.trim(),
+    paymentMethod: normPaymentMethod, paymentStatus: 'Pending', transactionId: transactionId.trim(),
     status: 'Pending', statusHistory: [{ status: 'Pending' }],
     discreetPackaging: !!discreetPackaging,
     fraudFilter,
