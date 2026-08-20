@@ -1,20 +1,20 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
-import { ArrowRight, Check, CheckCircle, Copy, Share2, Truck } from 'lucide-react';
+import {
+  ArrowRight, Check, CheckCircle2, Copy, Lock, Package, RotateCcw,
+  ShieldCheck, Truck, MessageCircle, ArrowUpRight
+} from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
-import { pkr, fmtDate, snap } from '../lib/format';
-import { cartConfig, deliveryWindow } from '../lib/cartConfig';
-import { checkoutConfig, enabledShipping, methodWindow } from '../lib/checkoutConfig';
+import { pkr, fmtDateTime, fmtDate } from '../lib/format';
+import { cartConfig } from '../lib/cartConfig';
+import { checkoutConfig } from '../lib/checkoutConfig';
 import { titleCase } from '../lib/productMeta';
 import Img from '../components/Img';
-import ProductRow from '../components/ProductRow';
-import TrustRow from './cart/TrustRow';
 import Seo from '../components/Seo';
 
 /* ============================================================================
- * ORDER SUCCESS — Calvin Klein register.
- * Clean, calm, monochrome. Black check, hairline cards, one black button.
+ * HUSHAE Order Confirmation — Luxury Flagship Architecture (Calvin Klein / SSENSE)
  * ========================================================================== */
 
 const nameOf = (name) => titleCase(String(name || '').replace(/^HUSHAE\s+/i, ''));
@@ -22,205 +22,271 @@ const nameOf = (name) => titleCase(String(name || '').replace(/^HUSHAE\s+/i, '')
 export default function OrderConfirm() {
   const { orderNumber } = useParams();
   const { state } = useLocation();
-  const { settings, recent } = useApp();
-  const order = state?.order;
+  const { settings } = useApp();
+
+  const [order, setOrder] = useState(state?.order || null);
+  const [loading, setLoading] = useState(!state?.order);
+  const [copied, setCopied] = useState(false);
 
   const cfg = useMemo(() => checkoutConfig(settings), [settings]);
   const cartCfg = useMemo(() => cartConfig(settings), [settings]);
 
-  const [copied, setCopied] = useState(false);
-  const [shared, setShared] = useState(false);
-  const [recommend, setRecommend] = useState([]);
-
-  const shipMethod = useMemo(
-    () => enabledShipping(cfg).find((m) => m.id === order?.shippingMethod) || null,
-    [cfg, order],
-  );
-  const eta = shipMethod ? methodWindow(shipMethod) : deliveryWindow(cartCfg);
-
+  /* 1. Auto-Fetch Order if direct link or reload */
   useEffect(() => {
-    if (!cfg.showSuccessRecommend) return undefined;
+    if (order && order.orderNumber === orderNumber) return;
     let alive = true;
-    api('/products?sort=best&limit=8')
-      .then((d) => { if (alive) setRecommend((d.products || []).slice(0, 6).map(snap)); })
-      .catch(() => {});
+    setLoading(true);
+    api(`/orders/lookup/${encodeURIComponent(orderNumber)}`)
+      .then((d) => {
+        if (alive && d?.order) setOrder(d.order);
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (alive) setLoading(false);
+      });
     return () => { alive = false; };
-  }, [cfg.showSuccessRecommend]);
+  }, [orderNumber]); // eslint-disable-line
 
-  const copy = () => {
+  const copyNumber = () => {
     navigator.clipboard?.writeText(orderNumber);
     setCopied(true);
-    setTimeout(() => setCopied(false), 1600);
-  };
-
-  const share = async () => {
-    const text = `${cfg.successShareText} — order ${orderNumber}`;
-    const url = `${window.location.origin}/track?orderNumber=${encodeURIComponent(orderNumber)}`;
-    try {
-      if (navigator.share) await navigator.share({ title: 'HUSHAE', text, url });
-      else { await navigator.clipboard?.writeText(`${text} ${url}`); setShared(true); setTimeout(() => setShared(false), 1600); }
-    } catch { /* user dismissed */ }
+    setTimeout(() => setCopied(false), 1800);
   };
 
   const firstName = (order?.customerInfo?.name || '').trim().split(/\s+/)[0] || '';
-  const supportEmail = settings?.contactEmail && !/veloura/i.test(settings.contactEmail)
-    ? settings.contactEmail
-    : 'care@hushae.pk';
+  const customerCity = order?.customerInfo?.city || '';
+  const customerProvince = order?.customerInfo?.province || '';
+  const isCOD = String(order?.paymentMethod || 'COD').toUpperCase() === 'COD';
 
-  const iconBtn = 'grid h-11 w-11 place-items-center border border-[#E5E5E5] text-[#707070] transition-colors duration-300 hover:border-[#111111] hover:text-[#111111]';
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#FFFFFF] pt-[140px] pb-24 font-sans text-center">
+        <div className="mx-auto max-w-md px-6 space-y-4">
+          <div className="mx-auto h-12 w-12 rounded-full border-2 border-neutral-200 border-t-black animate-spin" />
+          <p className="text-xs uppercase tracking-widest text-neutral-400 font-light">
+            Retrieving your order details…
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="surface-cream pt-[130px] pb-16 text-[#111111] md:pb-24"><Seo title="Order Confirmed" description="Thank you — your HUSHAE order is confirmed." /><div className="container-page">
-      <div className="mx-auto max-w-3xl">
-        {/* ═══ HERO — reference: black CheckCircle + serif title ═══ */}
-        <div className="text-center">
-          <CheckCircle size={48} strokeWidth={1.2} aria-hidden="true" className="mx-auto text-black" />
-          <p className="mt-6 text-[10px] font-semibold uppercase tracking-widest text-neutral-400">Thank You</p>
-          <h1 className="mt-1 font-display text-2xl font-light uppercase tracking-wider md:text-3xl">
-            Order Confirmed
-          </h1>
-          {firstName && <p className="mt-2 text-xs text-neutral-500">Thank you, {firstName}.</p>}
-          <p className="mx-auto mt-4 max-w-md text-[14px] font-light leading-[1.7] text-[#707070]">{cfg.successText}</p>
-        </div>
+    <div className="min-h-screen bg-[#FFFFFF] pt-[120px] pb-24 font-sans text-[#111111] antialiased">
+      <Seo
+        title={`Order ${orderNumber} Confirmed — HUSHAE`}
+        description="Thank you for your order with HUSHAE. 100% discreet delivery nationwide."
+      />
 
-        {/* ═══ ORDER CARD — hairline ════════════════════════════════ */}
-        <div className="mx-auto mt-12 border border-neutral-200 bg-[#FAF9F6] p-6 md:p-10">
-          <div className="text-center">
-            <p className="text-[10px] font-medium uppercase tracking-[0.28em] text-[#707070]">Order number</p>
-            <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
-              <p className="font-mono text-[22px] font-normal tracking-[0.08em] text-[#111111] md:text-[26px]">{orderNumber}</p>
-              <button type="button" onClick={copy} aria-label={`Copy order number ${orderNumber}`} className={iconBtn}>
-                {copied ? <Check size={15} aria-hidden="true" /> : <Copy size={15} aria-hidden="true" />}
-              </button>
-              {cfg.showSuccessShare && (
-                <button type="button" onClick={share} aria-label="Share this order" className={iconBtn}>
-                  {shared ? <Check size={15} aria-hidden="true" /> : <Share2 size={15} aria-hidden="true" />}
-                </button>
-              )}
-            </div>
-            <p className="sr-only" role="status">{copied ? 'Order number copied' : ''}{shared ? 'Order link copied' : ''}</p>
+      <div className="mx-auto max-w-3xl px-6 sm:px-8">
+        {/* ═══ 1. MINIMALIST LUXURY HERO HEADER ════════════════════════════ */}
+        <div className="text-center space-y-3">
+          <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-[#000000] text-[#FFFFFF] shadow-sm">
+            <Check size={24} strokeWidth={2.2} />
+          </div>
 
-            <p className="mt-5 inline-flex items-center gap-2 border border-[#E5E5E5] bg-[#FFFFFF] px-5 py-2.5 text-[12px] text-[#707070]">
-              <Truck size={13} aria-hidden="true" />
-              Estimated delivery <span className="font-medium text-[#111111]">{eta}</span>
+          <div className="space-y-1 pt-2">
+            <p className="text-[10.5px] font-medium uppercase tracking-[0.3em] text-neutral-400">
+              CONFIRMATION
+            </p>
+            <h1 className="text-2xl sm:text-3xl font-light uppercase tracking-tight text-[#000000]">
+              Thank you{firstName ? `, ${firstName}` : ''}
+            </h1>
+            <p className="text-xs sm:text-[13px] text-neutral-500 font-light max-w-md mx-auto pt-1 leading-relaxed">
+              Your order has been placed and is being prepared in our studio. We will contact you prior to courier delivery.
             </p>
           </div>
 
-          {order && (
-            <dl className="mx-auto mt-8 grid max-w-xl grid-cols-2 gap-x-8 gap-y-5 border-t border-[#E5E5E5] pt-7 md:grid-cols-4">
-              {[
-                ['Name', order.customerInfo?.name],
-                ['Total', pkr(order.total)],
-                ['Payment', order.paymentMethod],
-                ['Status', order.status],
-              ].map(([k, v]) => (
-                <div key={k}>
-                  <dt className="text-[10px] font-medium uppercase tracking-[0.16em] text-[#707070]">{k}</dt>
-                  <dd className="mt-1.5 text-[13px] font-normal normal-case text-[#111111]">{v}</dd>
+          {/* 1-Tap Copy Order Number Pill */}
+          <div className="pt-3">
+            <button
+              type="button"
+              onClick={copyNumber}
+              className="inline-flex items-center gap-2 rounded-full border border-[#EAEAEA] bg-[#FBFBFB] px-5 py-2 text-xs transition-colors hover:border-[#000000]"
+              title="Click to copy order number"
+            >
+              <span className="text-[11px] uppercase tracking-wider text-neutral-400 font-normal">Order #</span>
+              <span className="font-mono font-medium text-[#000000] tracking-wider">{orderNumber}</span>
+              <span className="text-[11px] text-neutral-500 pl-1">
+                {copied ? <span className="text-emerald-600 font-medium">Copied!</span> : <Copy size={12} />}
+              </span>
+            </button>
+          </div>
+        </div>
+
+        {/* ═══ 2. ESTIMATED DELIVERY BANNER ════════════════════════════════ */}
+        <div className="mt-8 rounded-2xl border border-[#EAEAEA] bg-[#FBFBFB] p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs shadow-xs">
+          <div className="flex items-center gap-3">
+            <div className="grid h-9 w-9 place-items-center rounded-full bg-[#FFFFFF] border border-[#EAEAEA] shrink-0">
+              <Truck size={16} className="text-black" />
+            </div>
+            <div>
+              <p className="font-medium text-black">Estimated Delivery: 2–4 Business Days</p>
+              <p className="text-[11px] text-neutral-500 font-light">TCS Express Courier &bull; Nationwide Delivery</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-1.5 text-[11px] text-neutral-500 font-light">
+            <ShieldCheck size={14} className="text-black" />
+            <span>100% Plain Discreet Parcel</span>
+          </div>
+        </div>
+
+        {/* ═══ 3. STRUCTURED LUXURY MANIFEST CARD ══════════════════════════ */}
+        <div className="mt-8 rounded-3xl border border-[#EAEAEA] bg-[#FBFBFB] p-6 sm:p-8 space-y-6 shadow-xs">
+          {/* Section Header */}
+          <div className="flex items-center justify-between border-b border-[#EAEAEA] pb-3.5">
+            <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-[#000000]">
+              Order Manifest
+            </h2>
+            <span className="text-[11px] text-neutral-400 font-light">
+              {order?.createdAt ? fmtDateTime(order.createdAt) : 'Just Now'}
+            </span>
+          </div>
+
+          {/* Delivery & Payment Metadata Grid */}
+          {order?.customerInfo && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-xs border-b border-[#EAEAEA] pb-6">
+              {/* Shipping Details */}
+              <div className="space-y-1.5">
+                <p className="text-[10.5px] font-medium uppercase tracking-wider text-neutral-400">
+                  Shipping Details
+                </p>
+                <p className="font-medium text-black">{order.customerInfo.name}</p>
+                <p className="text-neutral-600 font-light leading-relaxed">{order.customerInfo.address}</p>
+                <p className="text-neutral-600 font-light">
+                  {[order.customerInfo.city, order.customerInfo.province, order.customerInfo.postalCode].filter(Boolean).join(', ')}
+                </p>
+                <p className="text-neutral-600 font-light pt-0.5">Phone: {order.customerInfo.phone}</p>
+              </div>
+
+              {/* Payment Details */}
+              <div className="space-y-1.5 sm:border-l sm:border-[#EAEAEA] sm:pl-6">
+                <p className="text-[10.5px] font-medium uppercase tracking-wider text-neutral-400">
+                  Payment Method
+                </p>
+                <div className="flex items-center gap-2 pt-0.5">
+                  <span className="rounded-full bg-black px-3 py-1 text-[10.5px] font-medium uppercase tracking-wider text-white">
+                    {order.paymentMethod || 'COD'}
+                  </span>
+                  <span className="text-xs text-neutral-600 font-light">
+                    {isCOD ? 'Cash on Delivery' : order.paymentMethod}
+                  </span>
                 </div>
-              ))}
-            </dl>
+                <p className="text-[11px] text-neutral-500 font-light pt-1 leading-relaxed">
+                  {isCOD
+                    ? 'Please have exact cash ready at your doorstep when courier arrives.'
+                    : 'Payment verification is processed securely.'}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Purchased Items List */}
+          {order?.items && order.items.length > 0 && (
+            <div className="space-y-3">
+              <p className="text-[10.5px] font-medium uppercase tracking-wider text-neutral-400">
+                Purchased Pieces ({order.items.length})
+              </p>
+
+              <ul className="divide-y divide-[#EAEAEA]">
+                {order.items.map((it, i) => (
+                  <li key={i} className="flex items-center gap-4 py-3.5 first:pt-1">
+                    <div className="aspect-[3/4] w-14 sm:w-16 rounded-xl overflow-hidden bg-[#FFFFFF] border border-[#EAEAEA] shrink-0">
+                      <Img src={it.image} alt="" className="h-full w-full object-cover" />
+                    </div>
+
+                    <div className="min-w-0 flex-1 space-y-0.5">
+                      <p className="text-xs font-medium text-black truncate leading-snug">
+                        {nameOf(it.name)}
+                      </p>
+                      <p className="text-[11px] text-neutral-500 font-light">
+                        {[it.size && `Size ${it.size}`, it.color].filter(Boolean).join(' · ')}
+                      </p>
+                      <p className="text-[11px] text-neutral-400 font-light">
+                        Qty: {it.quantity} &bull; {pkr(it.price)} each
+                      </p>
+                    </div>
+
+                    <span className="text-xs font-medium text-black tabular-nums shrink-0">
+                      {pkr(it.lineTotal || it.price * it.quantity)}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Pricing Totals Breakdown */}
+          {order && (
+            <div className="border-t border-[#EAEAEA] pt-4 space-y-2.5 text-xs">
+              <div className="flex justify-between text-neutral-500 font-light">
+                <span>Subtotal</span>
+                <span className="text-black font-normal tabular-nums">{pkr(order.subtotal)}</span>
+              </div>
+
+              {order.discount > 0 && (
+                <div className="flex justify-between text-black font-medium">
+                  <span>Discount {order.couponCode ? `(${order.couponCode})` : ''}</span>
+                  <span className="tabular-nums">− {pkr(order.discount)}</span>
+                </div>
+              )}
+
+              <div className="flex justify-between text-neutral-500 font-light">
+                <span>Courier Delivery</span>
+                <span className="text-black font-normal tabular-nums">
+                  {order.shippingCharge === 0 ? 'Free Express' : pkr(order.shippingCharge)}
+                </span>
+              </div>
+
+              <div className="flex items-baseline justify-between border-t border-[#DCDCDC] pt-3.5 text-sm">
+                <span className="font-medium text-black">Total to Pay</span>
+                <span className="font-sans text-xl font-medium tabular-nums text-black">{pkr(order.total)}</span>
+              </div>
+            </div>
           )}
         </div>
 
-        {/* ═══ ITEMS ════════════════════════════════════════════════ */}
-        {order?.items?.length > 0 && (
-          <div className="card-cream mx-auto mt-6 p-6 md:p-10">
-            <div className="flex items-baseline justify-between">
-              <h2 className="text-[10px] font-medium uppercase tracking-[0.28em] text-[#707070]">Items ({order.items.length})</h2>
-              <span className="font-mono text-[10px] tracking-[0.2em] text-[#707070]">
-                {order.items.length} piece{order.items.length === 1 ? '' : 's'}
-              </span>
-            </div>
-
-            <ul className="mt-6 space-y-5">
-              {order.items.map((it, i) => (
-                <li key={i} className="flex items-center gap-4 border-b border-[#E5E5E5] pb-5 last:border-0 last:pb-0">
-                  <Img src={it.image} alt="" className="h-20 w-[60px] shrink-0 object-cover" />
-                  <div className="min-w-0 flex-1">
-                    <p className="clamp-1 text-[13px] font-normal normal-case text-[#111111]">{nameOf(it.name)}</p>
-                    <p className="mt-1 text-[11px] text-[#707070]">
-                      {[it.size && `Size ${it.size}`, it.quantity > 1 ? `Qty ${it.quantity}` : null].filter(Boolean).join(' · ') || '—'}
-                    </p>
-                  </div>
-                  <p className="shrink-0 text-[13px] font-medium tabular-nums text-[#111111]">{pkr(it.lineTotal)}</p>
-                </li>
-              ))}
-            </ul>
-
-            <dl className="mt-6 space-y-2.5 border-t border-[#E5E5E5] pt-5 text-[13px]">
-              {!!order.discount && (
-                <div className="flex justify-between text-[#707070]">
-                  <dt>Discount {order.couponCode ? `(${order.couponCode})` : ''}</dt>
-                  <dd className="tabular-nums">− {pkr(order.discount)}</dd>
-                </div>
-              )}
-              <div className="flex justify-between">
-                <dt className="text-[#707070]">Shipping</dt>
-                <dd className="tabular-nums text-[#111111]">{order.shippingCharge === 0 ? 'Free' : pkr(order.shippingCharge)}</dd>
-              </div>
-              {!!order.tax && (
-                <div className="flex justify-between">
-                  <dt className="text-[#707070]">{cartCfg.taxLabel}</dt>
-                  <dd className="tabular-nums text-[#111111]">{pkr(order.tax)}</dd>
-                </div>
-              )}
-              <div className="flex items-baseline justify-between border-t border-[#E5E5E5] pt-4">
-                <dt className="text-[13px] font-medium text-[#111111]">Total</dt>
-                <dd className="text-[22px] font-medium tabular-nums text-[#111111]">{pkr(order.total)}</dd>
-              </div>
-            </dl>
-          </div>
-        )}
-
-        {/* ═══ ACTIONS ══════════════════════════════════════════════ */}
-        <div className="mx-auto mt-10 flex max-w-xl flex-col items-center gap-5">
+        {/* ═══ 4. DUAL "GOL" LUXURY PILL BUTTONS ═══════════════════════════ */}
+        <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3.5">
           <Link
-            to={`/track?orderNumber=${orderNumber}${order?.customerInfo?.phone ? `&phone=${encodeURIComponent(order.customerInfo.phone)}` : ''}`}
-            className="inline-flex min-h-[52px] w-full items-center justify-center bg-gold px-12 text-[13px] font-medium uppercase tracking-[0.16em] text-white transition-colors duration-300 hover:bg-bronze sm:w-auto"
+            to={`/track?orderNumber=${encodeURIComponent(orderNumber)}${order?.customerInfo?.phone ? `&phone=${encodeURIComponent(order.customerInfo.phone)}` : ''}`}
+            className="flex h-[52px] w-full sm:w-auto min-w-[220px] items-center justify-center gap-2 rounded-full bg-[#000000] text-xs font-medium uppercase tracking-[0.2em] text-[#FFFFFF] shadow-md hover:bg-neutral-800 transition-all hover:scale-[1.01]"
           >
-            Track this order
+            <span>Track Your Order</span>
+            <ArrowRight size={14} />
           </Link>
+
           <Link
-            to={cartCfg.continueHref}
-            className="group inline-flex items-center justify-center gap-2 bg-black px-8 py-4 text-xs font-semibold uppercase tracking-[0.2em] text-white transition-colors duration-300 hover:bg-neutral-800"
+            to="/shop"
+            className="flex h-[48px] w-full sm:w-auto min-w-[200px] items-center justify-center rounded-full border border-neutral-300 bg-[#FFFFFF] text-xs font-medium uppercase tracking-[0.18em] text-[#000000] hover:border-black transition-colors"
           >
-            {cartCfg.continueLabel} <ArrowRight size={13} className="transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true" />
+            Continue Shopping
           </Link>
         </div>
 
-        {/* ═══ SUPPORT + TRUST ═══════════════════════════════════════ */}
-        <p className="mx-auto mt-10 max-w-xl text-center text-[12px] leading-[1.8] text-[#707070]">
-          {order?.paymentMethod === 'COD'
-            ? 'Cash on Delivery — please keep the exact amount ready for the rider.'
-            : 'Your payment is pending verification. We confirm it within a few hours and ship straight after.'}
-          {order?.createdAt && <><br />Placed {fmtDate(order.createdAt)}</>}
-          {cfg.successNote && <><br />{cfg.successNote}</>}
-        </p>
-
-        <p className="mt-6 text-center text-[11px] text-[#707070]">
-          Questions? <a href={`mailto:${supportEmail}`} className="text-[#111111] underline underline-offset-4">{supportEmail}</a>
-        </p>
-
-        {cfg.showTrust && (
-          <div className="mx-auto mt-8 max-w-md">
-            <TrustRow items={cfg.trust} />
+        {/* ═══ 5. OFFICIAL REASSURANCE & CONCIERGE ═════════════════════════ */}
+        <div className="mt-12 border-t border-[#EAEAEA] pt-8 text-center space-y-3 text-xs text-neutral-500 font-light">
+          <div className="flex flex-wrap items-center justify-center gap-6 text-[11.5px] text-neutral-600">
+            <span className="inline-flex items-center gap-1.5">
+              <ShieldCheck size={13} className="text-black" /> 100% Plain Discreet Packaging
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <RotateCcw size={13} className="text-black" /> 14-Day Easy Size Exchanges
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <Lock size={13} className="text-black" /> 256-Bit SSL Encrypted
+            </span>
           </div>
-        )}
 
-        {/* ═══ CROSS-SELL — below the confirmation ═══════════════════ */}
-        {cfg.showSuccessRecommend && recommend.length > 0 && (
-          <div className="mt-16 border-t border-[#E5E5E5] pt-12">
-            <ProductRow eyebrow="Complete your set" title="You may also like" products={recommend} />
-          </div>
-        )}
+          <p className="text-[11px] text-neutral-400 pt-2">
+            Questions regarding your order? Reach our studio concierge at{' '}
+            <a href="mailto:care@hushae.pk" className="text-black underline underline-offset-2">
+              care@hushae.pk
+            </a>
+          </p>
+        </div>
 
-        {!cfg.showSuccessRecommend && recent.length > 0 && (
-          <div className="mt-16 border-t border-[#E5E5E5] pt-12">
-            <ProductRow eyebrow="Recently viewed" title="Pick up where you left off" products={recent.slice(0, 6)} />
-          </div>
-        )}
-      </div>
       </div>
     </div>
   );
