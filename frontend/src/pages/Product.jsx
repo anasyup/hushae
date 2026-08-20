@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  AlertCircle, ArrowLeft, ArrowRight, ChevronDown, ChevronLeft, ChevronRight, Heart,
-  Package, RotateCcw, ShieldCheck, Star, Truck, X, Sparkles, Check
+  AlertCircle, ChevronDown, ChevronLeft, ChevronRight, Heart,
+  Package, RotateCcw, ShieldCheck, Truck, X, Sparkles, Check
 } from 'lucide-react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { api } from '../api/client';
@@ -18,15 +18,14 @@ import Seo, { productJsonLd } from '../components/Seo';
 import StickyBuyBar from './product/StickyBuyBar';
 
 /* ============================================================================
- * HUSHAE Product Details — Pure Editorial Luxury PDP (Calvin Klein / SKIMS)
+ * HUSHAE Product Details — Rains × Calvin Klein × SKIMS Ultra-Luxury Hybrid
  *
- * SPECIFICATION:
- *   - Pure White (#FFFFFF) seamless canvas throughout (no mismatched beige splits)
- *   - Balanced 12-Column Grid (7-col Gallery / 5-col Sticky Details)
- *   - 3:4 Studio Photography with Minimal Fullscreen Lightbox
- *   - Precision Size Selector with Live Stock & Fit Studio Link
- *   - Pakistan Luxury Assurance Box (4 Pillars)
- *   - Native Minimalist Accordions & Clean Curated Recommendations
+ * DESIGN ARCHITECTURE:
+ *   1. Full-Height Editorial Photo Stack on Left (Rains / Calvin Klein Flagship)
+ *   2. Natural 18-22px Title Typography & Unobtrusive Jet Black Add to Bag
+ *   3. Sticky Buy Box on Right with Delicate Color Swatches & Precision Size Buttons
+ *   4. Clean, Uncluttered 4-Pillar Reassurance Lines (Zero Boxy Clutter)
+ *   5. Minimalist Native Accordions & Curated Recommendations
  * ========================================================================== */
 
 const displayName = (name) => String(name || '').replace(/^HUSHAE\s+/i, '');
@@ -42,7 +41,6 @@ export default function Product() {
   const { slug } = useParams();
   const nav = useNavigate();
   const { addToCart, inWishlist, toggleWish, pushRecent, recent, settings } = useApp();
-  const rvCfg = settings?.customerExperience?.recentlyViewed || {};
 
   const [p, setP] = useState(null);
   const [err, setErr] = useState(false);
@@ -53,7 +51,6 @@ export default function Product() {
   const [imgIdx, setImgIdx] = useState(0);
   const [guideOpen, setGuideOpen] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
-  const [readMore, setReadMore] = useState(false);
   const [complete, setComplete] = useState([]);
 
   const ctaRef = useRef(null);
@@ -68,7 +65,6 @@ export default function Product() {
     setSizeErr(false);
     setImgIdx(0);
     setLightboxOpen(false);
-    setReadMore(false);
     setComplete([]);
 
     api(`/products/${slug}`)
@@ -78,6 +74,7 @@ export default function Product() {
         pushRecent(d.product);
       })
       .catch(() => setErr(true));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [slug]); // eslint-disable-line
 
   /* Curated related products */
@@ -128,17 +125,14 @@ export default function Product() {
   const onSale = isOnSale(p);
   const name = nameOf(p);
   const wished = inWishlist(p);
-  const rating = Number(p.ratingAvg || 0);
   const discount = onSale && p.compareAtPrice > p.price
     ? Math.round((1 - p.price / p.compareAtPrice) * 100)
     : 0;
-  const desc = readMore ? (p.description || p.shortDescription) : (p.shortDescription || p.description);
 
   const tryAdd = (goToCheckout = false) => {
     if (needsSize && !size) {
       setSizeErr(true);
       sizeRef.current?.scrollIntoView({ block: 'center', behavior: 'smooth' });
-      sizeRef.current?.querySelector('button')?.focus();
       return;
     }
     addToCart(p, { size, color, quantity: qty });
@@ -147,43 +141,43 @@ export default function Product() {
 
   const stockState = () => {
     if (soldOut) return { tone: 'red', text: 'Out of Stock' };
-    if (p.stock <= 5) return { tone: 'amber', text: `Only ${p.stock} pieces remaining` };
-    return { tone: 'green', text: 'In Stock · Ready to dispatch' };
+    if (p.stock <= 5) return { tone: 'amber', text: `Only ${p.stock} pieces remaining in studio` };
+    return { tone: 'green', text: 'In Stock · Dispatched in 24 Hours' };
   };
 
   const accordionItems = [
     {
-      title: 'Details & Fabric Composition',
+      title: 'Fabric & Fit Details',
       content: (
-        <ul className="space-y-1.5 text-xs text-neutral-600 font-light">
-          <li><span className="font-normal text-black">Fabric:</span> {p.fabric || 'Premium Micro-Modal Stretch Blend'}</li>
-          <li><span className="font-normal text-black">Fit:</span> Tailored second-skin fit — true to size</li>
-          <li><span className="font-normal text-black">Color:</span> {color || 'Onyx'}</li>
-          <li><span className="font-normal text-black">SKU:</span> {p.sku || p.slug}</li>
+        <ul className="space-y-2 text-xs text-neutral-600 font-light">
+          <li><span className="font-medium text-black">Material:</span> {p.fabric || '95% Lenzing Micro-Modal, 5% Elastane'}</li>
+          <li><span className="font-medium text-black">Fit:</span> Second-skin tailored regular fit — runs true to size</li>
+          <li><span className="font-medium text-black">Colorway:</span> {color || 'Classic'}</li>
+          <li><span className="font-medium text-black">SKU:</span> {p.sku || p.slug}</li>
         </ul>
       ),
     },
     {
-      title: 'Delivery & Discreet Packaging',
+      title: 'Shipping & Discreet Packaging',
       content: (
         <p className="text-xs text-neutral-600 font-light leading-relaxed">
-          Dispatched in 24 hours. Delivered nationwide across Pakistan in 2–4 business days via express courier.
-          100% unmarked, plain, tamper-proof outer packaging guaranteed.
+          Express Courier Delivery across Pakistan in 2–4 business days. Free shipping on orders above PKR 4,999.
+          Every parcel is dispatched in a 100% plain, unmarked, tamper-proof outer box with zero product markings.
         </p>
       ),
     },
     {
-      title: '14-Day Exchanges & Care',
+      title: '14-Day Size Exchanges',
       content: (
         <p className="text-xs text-neutral-600 font-light leading-relaxed">
-          14-day size exchange policy on all unworn pieces. Machine wash cold on gentle cycle, lay flat to dry to preserve elasticity.
+          Unworn pieces with original packaging are eligible for size exchanges within 14 days. Wash cold on gentle cycle and dry flat.
         </p>
       ),
     },
   ];
 
   return (
-    <div className="min-h-screen bg-[#FFFFFF] pt-[130px] pb-20 font-sans text-[#111111] antialiased">
+    <div className="min-h-screen bg-[#FFFFFF] pt-[120px] pb-24 font-sans text-[#111111] antialiased">
       <Seo
         title={`${name} — HUSHAE`}
         description={p.shortDescription || p.description?.slice(0, 160) || `${name} — premium innerwear from HUSHAE. PKR ${p.price}. COD available nationwide.`}
@@ -193,86 +187,43 @@ export default function Product() {
         jsonLdId="product"
       />
 
-      {/* ═══ MAIN 12-COLUMN LUXURY PRODUCT CONTAINER ════════════════════ */}
-      <div className="mx-auto max-w-[1600px] px-6 sm:px-8 md:px-12">
-        <div className="grid grid-cols-1 gap-10 lg:grid-cols-12 lg:gap-16">
+      <div className="mx-auto max-w-[1500px] px-6 sm:px-8 md:px-12">
+        <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-16">
 
-          {/* ── LEFT: EDITORIAL GALLERY (7 COLUMNS) ─────────────────────── */}
-          <div className="space-y-4 lg:col-span-7">
-            {/* Primary Portrait Photo */}
-            <div className="group relative aspect-[3/4] w-full overflow-hidden bg-[#F8F8F8]">
-              <button
-                type="button"
-                onClick={() => setLightboxOpen(true)}
-                aria-label={`View ${name} fullscreen`}
-                className="block h-full w-full cursor-zoom-in"
-              >
-                <img
-                  src={gallery[imgIdx] || gallery[0] || FALLBACK}
-                  alt={`${name} — view ${imgIdx + 1}`}
-                  loading="eager"
-                  decoding="async"
-                  onError={(e) => { if (e.currentTarget.src !== FALLBACK) e.currentTarget.src = FALLBACK; }}
-                  className="h-full w-full object-cover object-center transition-all duration-300"
-                />
-              </button>
-
-              {/* Gallery Hairline Arrows */}
-              {gallery.length > 1 && (
-                <>
-                  <button
-                    type="button"
-                    onClick={() => setImgIdx((i) => (i - 1 + gallery.length) % gallery.length)}
-                    aria-label="Previous photo"
-                    className="absolute left-3 top-1/2 -translate-y-1/2 p-2 text-black/60 hover:text-black transition-colors"
-                  >
-                    <ChevronLeft size={28} strokeWidth={1.2} />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setImgIdx((i) => (i + 1) % gallery.length)}
-                    aria-label="Next photo"
-                    className="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-black/60 hover:text-black transition-colors"
-                  >
-                    <ChevronRight size={28} strokeWidth={1.2} />
-                  </button>
-                </>
-              )}
+          {/* ── LEFT: EDITORIAL PHOTO STACK (7 COLUMNS) — CK / Rains Style ── */}
+          <div className="lg:col-span-7 space-y-4">
+            {/* Main Full-Height Editorial Photo Stack */}
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-1">
+              {gallery.map((imgUrl, idx) => (
+                <div
+                  key={`${imgUrl}-${idx}`}
+                  className="relative aspect-[3/4] w-full overflow-hidden bg-[#F6F6F6] cursor-zoom-in"
+                  onClick={() => { setImgIdx(idx); setLightboxOpen(true); }}
+                >
+                  <img
+                    src={imgUrl || FALLBACK}
+                    alt={`${name} — angle ${idx + 1}`}
+                    loading={idx === 0 ? 'eager' : 'lazy'}
+                    decoding="async"
+                    onError={(e) => { if (e.currentTarget.src !== FALLBACK) e.currentTarget.src = FALLBACK; }}
+                    className="h-full w-full object-cover object-center transition-opacity duration-300 hover:opacity-95"
+                  />
+                  {idx === 0 && onSale && p.compareAtPrice > p.price && (
+                    <span className="absolute left-3 top-3 bg-black px-2.5 py-0.5 text-[9px] font-medium uppercase tracking-[0.16em] text-white">
+                      Sale
+                    </span>
+                  )}
+                </div>
+              ))}
             </div>
-
-            {/* Thumbnail Navigation Strip */}
-            {gallery.length > 1 && (
-              <div className="flex items-center gap-3 overflow-x-auto no-scrollbar pt-1">
-                {gallery.map((u, idx) => (
-                  <button
-                    key={`${u}-${idx}`}
-                    type="button"
-                    onClick={() => setImgIdx(idx)}
-                    aria-label={`View photo ${idx + 1}`}
-                    className={`relative aspect-[3/4] w-20 shrink-0 overflow-hidden bg-[#F8F8F8] transition-all ${
-                      idx === imgIdx
-                        ? 'ring-1 ring-black opacity-100'
-                        : 'opacity-50 hover:opacity-100'
-                    }`}
-                  >
-                    <img
-                      src={u}
-                      alt=""
-                      loading="lazy"
-                      className="h-full w-full object-cover object-center"
-                    />
-                  </button>
-                ))}
-              </div>
-            )}
           </div>
 
-          {/* ── RIGHT: STICKY PURCHASE DETAILS (5 COLUMNS) ──────────────── */}
+          {/* ── RIGHT: STICKY PURCHASE DETAILS (5 COLUMNS) — SKIMS Style ──── */}
           <div className="lg:col-span-5">
-            <div ref={ctaRef} className="lg:sticky lg:top-[120px] space-y-6">
+            <div ref={ctaRef} className="lg:sticky lg:top-[120px] space-y-6 max-w-md">
 
-              {/* Breadcrumb */}
-              <nav className="flex items-center gap-2 text-[10.5px] uppercase tracking-[0.2em] text-neutral-400">
+              {/* Department Breadcrumb */}
+              <nav className="flex items-center gap-2 text-[10px] uppercase tracking-[0.24em] text-neutral-400">
                 <Link to="/" className="hover:text-black transition-colors">Home</Link>
                 <span>/</span>
                 <Link to={`/${p.gender}`} className="capitalize hover:text-black transition-colors">{p.gender}</Link>
@@ -280,36 +231,36 @@ export default function Product() {
                 <Link to={`/category/${p.categorySlug}`} className="capitalize hover:text-black transition-colors">{p.categorySlug.replace(/-/g, ' ')}</Link>
               </nav>
 
-              {/* Title & Price Header */}
-              <div className="space-y-2 border-b border-neutral-100 pb-5">
-                <h1 className="font-sans text-2xl sm:text-3xl font-light uppercase tracking-tight text-[#000000] leading-tight">
+              {/* Title & Price (Natural 18-22px Luxury Typography) */}
+              <div className="space-y-1.5 border-b border-neutral-100 pb-5">
+                <h1 className="font-sans text-[20px] md:text-[22px] font-normal text-[#000000] tracking-[-0.01em] leading-snug">
                   {name}
                 </h1>
 
                 <div className="flex items-baseline gap-3 pt-1">
-                  <span className="text-xl sm:text-2xl font-medium text-[#000000]">
+                  <span className="text-[17px] md:text-[18px] font-medium text-[#000000]">
                     {pkr(p.price)}
                   </span>
                   {onSale && p.compareAtPrice > p.price && (
-                    <span className="text-sm font-light text-neutral-400 line-through">
+                    <span className="text-[13px] font-light text-neutral-400 line-through">
                       {pkr(p.compareAtPrice)}
                     </span>
                   )}
                   {onSale && p.compareAtPrice > p.price && (
-                    <span className="bg-black px-2 py-0.5 text-[9.5px] font-medium uppercase tracking-widest text-white">
-                      Save {discount}%
+                    <span className="text-[10px] font-medium uppercase tracking-wider text-neutral-800">
+                      ({discount}% Off)
                     </span>
                   )}
                 </div>
               </div>
 
-              {/* Color Selector */}
+              {/* Color Swatches (Rains Micro-Dots) */}
               {p.colors?.length > 0 && (
-                <div className="space-y-2.5">
-                  <span className="text-xs uppercase tracking-widest text-neutral-500 font-medium">
-                    Color: <span className="text-black font-normal">{color}</span>
-                  </span>
-                  <div className="flex items-center gap-2.5">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-xs text-neutral-600">
+                    <span>Color: <strong className="font-medium text-black">{color}</strong></span>
+                  </div>
+                  <div className="flex items-center gap-2">
                     {p.colors.map((c) => {
                       const on = color === c.name;
                       return (
@@ -334,23 +285,23 @@ export default function Product() {
                 </div>
               )}
 
-              {/* Size Selector & Fit Guide Link */}
+              {/* Size Selector (SKIMS Precision Size Matrix) */}
               {needsSize && (
-                <div ref={sizeRef} className="space-y-3">
-                  <div className="flex items-center justify-between text-xs uppercase tracking-widest">
-                    <span className="text-neutral-500 font-medium">Select Size</span>
+                <div ref={sizeRef} className="space-y-2.5">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-neutral-600">Size: <strong className="font-medium text-black">{size || 'Select'}</strong></span>
                     <div className="flex items-center gap-3">
                       <button
                         type="button"
                         onClick={() => setGuideOpen(true)}
-                        className="text-neutral-500 underline underline-offset-4 hover:text-black transition-colors"
+                        className="text-[11px] text-neutral-500 underline underline-offset-4 hover:text-black transition-colors"
                       >
                         Size Guide
                       </button>
                       <span className="text-neutral-300">·</span>
                       <Link
                         to="/fit-finder"
-                        className="text-black font-medium underline underline-offset-4 hover:opacity-70 transition-opacity"
+                        className="text-[11px] font-medium text-black underline underline-offset-4 hover:opacity-70 transition-opacity"
                       >
                         Fit Studio &rarr;
                       </Link>
@@ -365,7 +316,7 @@ export default function Product() {
                           key={s}
                           type="button"
                           onClick={() => { setSize(s); setSizeErr(false); }}
-                          className={`h-11 min-w-[48px] px-3 border text-xs font-medium uppercase tracking-wider transition-colors ${
+                          className={`h-10 min-w-[44px] px-3.5 border text-xs font-normal uppercase tracking-wider transition-all ${
                             on
                               ? 'border-black bg-black text-white'
                               : 'border-neutral-200 bg-white text-black hover:border-black'
@@ -377,94 +328,81 @@ export default function Product() {
                     })}
                   </div>
 
-                  {/* Stock Availability */}
+                  {/* Stock Availability status */}
                   {(() => {
                     const st = stockState();
                     const dot = st.tone === 'green' ? 'bg-emerald-500' : st.tone === 'amber' ? 'bg-amber-500' : 'bg-red-500';
                     return (
-                      <div className="flex items-center gap-2 text-xs text-neutral-600 pt-1 font-light">
+                      <div className="flex items-center gap-2 text-[11.5px] text-neutral-500 pt-1 font-light">
                         <span className={`h-1.5 w-1.5 rounded-full ${dot}`} />
-                        <span>{needsSize && !size ? 'Choose your size to confirm dispatch.' : st.text}</span>
+                        <span>{needsSize && !size ? 'Choose your size for live dispatch time.' : st.text}</span>
                       </div>
                     );
                   })()}
 
                   {sizeErr && !size && (
-                    <p className="flex items-center gap-1.5 text-xs text-red-600 pt-1">
-                      <AlertCircle size={13} /> Please select your size before adding to bag.
+                    <p className="flex items-center gap-1.5 text-xs text-red-600 pt-0.5">
+                      <AlertCircle size={13} /> Please choose a size to add to bag.
                     </p>
                   )}
                 </div>
               )}
 
-              {/* Short Scannable Description */}
-              <div className="space-y-1.5 pt-1 text-xs sm:text-[13px] text-neutral-600 font-light leading-relaxed">
-                <p>{desc}</p>
-                {p.description && p.description !== p.shortDescription && (
-                  <button
-                    type="button"
-                    onClick={() => setReadMore(!readMore)}
-                    className="text-xs font-normal text-black underline underline-offset-4 hover:opacity-60 transition-opacity"
-                  >
-                    {readMore ? 'Read Less' : 'Read Full Description'}
-                  </button>
-                )}
+              {/* Short Scannable Romance Copy */}
+              <div className="pt-1 text-[13px] text-neutral-600 font-light leading-relaxed">
+                <p>{p.shortDescription || p.description}</p>
               </div>
 
-              {/* Primary Action & Wishlist */}
+              {/* Primary Action (Unobtrusive Jet Black Add to Bag) */}
               <div className="space-y-3 pt-2">
                 <button
                   type="button"
                   onClick={() => tryAdd(false)}
                   disabled={soldOut || (needsSize && !size)}
-                  className={`flex h-12 w-full items-center justify-center text-xs font-medium uppercase tracking-[0.2em] transition-colors ${
+                  className={`flex h-[50px] w-full items-center justify-center text-xs font-medium uppercase tracking-[0.2em] transition-colors ${
                     soldOut || (needsSize && !size)
                       ? 'bg-neutral-100 text-neutral-400 cursor-not-allowed'
                       : 'bg-[#000000] text-[#FFFFFF] hover:bg-neutral-800'
                   }`}
                 >
-                  {soldOut ? 'Sold Out' : needsSize && !size ? 'Select a Size' : 'Add to Bag'}
+                  {soldOut ? 'Sold Out' : needsSize && !size ? 'Select Size to Order' : 'Add to Bag'}
                 </button>
 
                 <button
                   type="button"
                   onClick={() => toggleWish(p)}
-                  className="flex h-11 w-full items-center justify-center gap-2 border border-neutral-200 text-xs font-medium uppercase tracking-[0.18em] text-black hover:border-black transition-colors"
+                  className="flex h-10 w-full items-center justify-center gap-2 border border-neutral-200 text-xs font-normal uppercase tracking-[0.15em] text-neutral-700 hover:border-black hover:text-black transition-colors"
                 >
-                  <Heart size={14} className={wished ? 'fill-black text-black' : ''} />
+                  <Heart size={13} className={wished ? 'fill-black text-black' : ''} />
                   <span>{wished ? 'Saved in Wishlist' : 'Add to Wishlist'}</span>
                 </button>
               </div>
 
-              {/* Pakistan Luxury Assurance Box (4 Pillars) */}
-              <div className="grid grid-cols-2 gap-3.5 border-y border-neutral-100 py-5 text-[11px] text-neutral-700">
+              {/* Discreet Reassurance Strip (Clean Minimalist Lines) */}
+              <div className="space-y-2 border-y border-neutral-100 py-4 text-[11.5px] text-neutral-600 font-light">
                 <div className="flex items-center gap-2.5">
-                  <Truck size={15} className="shrink-0 text-black" />
-                  <span>Express 2–4 Days Nationwide</span>
+                  <ShieldCheck size={14} className="text-black shrink-0" />
+                  <span>100% Plain Discreet Packaging Guarantee</span>
                 </div>
                 <div className="flex items-center gap-2.5">
-                  <ShieldCheck size={15} className="shrink-0 text-black" />
-                  <span>100% Plain Discreet Parcel</span>
+                  <Truck size={14} className="text-black shrink-0" />
+                  <span>Express Delivery 2–4 Days (Free over PKR 4,999)</span>
                 </div>
                 <div className="flex items-center gap-2.5">
-                  <RotateCcw size={15} className="shrink-0 text-black" />
-                  <span>14-Day Size Exchange</span>
-                </div>
-                <div className="flex items-center gap-2.5">
-                  <Package size={15} className="shrink-0 text-black" />
-                  <span>Cash on Delivery Available</span>
+                  <RotateCcw size={14} className="text-black shrink-0" />
+                  <span>14-Day Size Exchange Support</span>
                 </div>
               </div>
 
-              {/* Native Editorial Accordions */}
+              {/* Clean Native Expandable Accordions */}
               <div className="divide-y divide-neutral-100 border-b border-neutral-100">
                 {accordionItems.map((item) => (
                   <details key={item.title} className="group py-3.5">
-                    <summary className="flex cursor-pointer list-none items-center justify-between text-xs font-medium uppercase tracking-wider text-black">
+                    <summary className="flex cursor-pointer list-none items-center justify-between text-xs font-normal uppercase tracking-wider text-black">
                       <span>{item.title}</span>
                       <ChevronDown size={14} className="transition-transform group-open:rotate-180 text-neutral-400" />
                     </summary>
-                    <div className="pt-3 pb-1">
+                    <div className="pt-2.5 pb-1">
                       {item.content}
                     </div>
                   </details>
@@ -480,17 +418,17 @@ export default function Product() {
       {/* ═══ BELOW THE FOLD: COMPLETE THE LOOK / CURATED PICKS ═══════════ */}
       {complete.length > 0 && (
         <section className="mt-24 border-t border-neutral-100 pt-16 md:pt-20">
-          <div className="mx-auto max-w-[1600px] px-6 sm:px-8 md:px-12">
+          <div className="mx-auto max-w-[1500px] px-6 sm:px-8 md:px-12">
             <div className="mb-10 text-center">
               <p className="text-[10px] font-medium uppercase tracking-[0.3em] text-neutral-400">
-                CURATED COMPLEMENTS
+                RECOMMENDED EDITS
               </p>
               <h3 className="mt-2 text-2xl font-light uppercase tracking-wide text-black">
                 Complete the Look
               </h3>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-5 sm:gap-7 md:gap-8">
               {complete.map((pr) => (
                 <CollectionCard key={pr._id || pr.slug} product={pr} />
               ))}
@@ -501,7 +439,7 @@ export default function Product() {
 
       {/* ═══ CUSTOMER REVIEWS SECTION ═══════════════════════════════════ */}
       <section id="reviews" className="mt-20 border-t border-neutral-100 pt-16 md:pt-20">
-        <div className="mx-auto max-w-[1400px] px-6 sm:px-8 md:px-12">
+        <div className="mx-auto max-w-[1300px] px-6 sm:px-8 md:px-12">
           <ProductReviews product={p} />
         </div>
       </section>
