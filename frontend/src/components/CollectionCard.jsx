@@ -1,24 +1,25 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Check } from 'lucide-react';
+import { Check } from 'lucide-react';
 import { pkr } from '../lib/format';
 import { titleCase } from '../lib/productMeta';
 import { isOnSale } from '../lib/sale';
 import { useApp } from '../store/AppContext';
-import SizeModal from './SizeModal';
 
 /* ============================================================================
- * HUSHAE CollectionCard — Quiet Luxury Hybrid (Calvin Klein / Rains Standard)
+ * HUSHAE CollectionCard — Quiet Luxury (Calvin Klein / The Row standard)
  *
  * SPECIFICATION:
  *   1. 3:4 Studio Portrait Canvas on #F8F8F8 Ground
- *   2. Smooth 500ms Secondary Angle Crossfade on Hover
- *   3. Desktop Hover Slide-Up 1-Click Size Bar
- *   4. Minimalist Top-Left Badge (New, Sale, Sold out)
- *   5. Clean, Spacious, Elegant Metadata:
- *      - Title (Title Case, Clean Jet Black, Truncated)
- *      - Price Row (Clear PKR formatting + Struck Compare Price)
- *      - Color Swatches (Delicate 8px circular dots)
+ *   2. Smooth 500ms Secondary-Angle Crossfade on Hover (the ONLY motion)
+ *   3. Desktop Hover Slide-Up Quick-Add — flat white bar, hairline border,
+ *      no blur, no shadow, no label
+ *   4. Status as plain tracked text (Sale / Sold out / New) — no boxed badges
+ *   5. Clean Metadata: title, price row, delicate swatch dots
+ *
+ * Deliberately absent (removed as visual noise against luxury reference
+ * standards): in-card image chevrons, "#01 Icon" rank plaques, backdrop-blur
+ * panels, swatch scale/ring animations.
  * ========================================================================== */
 
 const FALLBACK =
@@ -30,14 +31,13 @@ const FALLBACK =
 const srcOf = (im) => (typeof im === 'string' ? im : im?.url || '');
 const displayName = (name) => String(name || '').replace(/^HUSHAE\s+/i, '');
 
-export default function CollectionCard({ product: p, priority = false, rank = null }) {
+export default function CollectionCard({ product: p, priority = false }) {
   const { addToCart } = useApp();
   const [imgIdx, setImgIdx] = useState(0);
   const [failed, setFailed] = useState(false);
   const [swatchIdx, setSwatchIdx] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const [addedSize, setAddedSize] = useState(null);
-  const [modal, setModal] = useState(false);
 
   if (!p) return null;
 
@@ -60,13 +60,6 @@ export default function CollectionCard({ product: p, priority = false, rank = nu
     ? 'New'
     : null;
 
-  const cycle = (dir, e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (images.length < 2) return;
-    setImgIdx((i) => (i + dir + images.length) % images.length);
-  };
-
   const handleQuickAdd = (selectedSize, e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -78,7 +71,7 @@ export default function CollectionCard({ product: p, priority = false, rank = nu
 
   return (
     <article
-      className="group relative flex w-full min-w-0 flex-col bg-white select-none transition-all duration-300"
+      className="group relative flex w-full min-w-0 select-none flex-col bg-white"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => {
         setIsHovered(false);
@@ -86,7 +79,7 @@ export default function CollectionCard({ product: p, priority = false, rank = nu
       }}
     >
       {/* ── 3:4 STUDIO CANVAS ───────────────────────────────────────────── */}
-      <div className="relative aspect-[3/4] w-full overflow-hidden bg-[#F8F8F8] transition-colors duration-300 group-hover:bg-[#F3F3F3]">
+      <div className="relative aspect-[3/4] w-full overflow-hidden bg-[#F8F8F8]">
         <Link
           to={`/product/${p.slug}`}
           tabIndex={-1}
@@ -123,68 +116,36 @@ export default function CollectionCard({ product: p, priority = false, rank = nu
             />
           )}
 
-          {/* Minimalist Top-Left Badge */}
-          {(badge || rank) && (
-            <div className="absolute left-2.5 top-2.5 z-10">
-              <span
-                className={`inline-block px-2.5 py-0.5 text-[9.5px] font-medium uppercase tracking-[0.16em] ${
-                  rank
-                    ? 'bg-[#000000] text-[#FFFFFF]'
-                    : badge === 'Sale'
-                    ? 'bg-[#000000] text-[#FFFFFF]'
-                    : badge === 'Sold out'
-                    ? 'bg-[#000000]/70 text-[#FFFFFF]'
-                    : 'bg-[#FFFFFF] text-[#000000] shadow-xs'
-                }`}
-              >
-                {rank ? `#0${rank} Icon` : badge}
-              </span>
-            </div>
+          {/* Status — plain tracked text, no plaque */}
+          {badge && (
+            <span
+              className={`absolute left-3 top-3 z-10 text-[10px] font-medium uppercase tracking-[0.18em] ${
+                badge === 'Sold out' ? 'text-neutral-400' : 'text-black'
+              }`}
+            >
+              {badge}
+            </span>
           )}
         </Link>
 
-        {/* Multi-Image Hairline Browse Chevrons */}
-        {images.length > 1 && (
-          <div className="pointer-events-none absolute inset-0 z-20 hidden items-center justify-between px-1 opacity-0 transition-opacity duration-200 group-hover:opacity-100 md:flex">
-            <button
-              type="button"
-              onClick={(e) => cycle(-1, e)}
-              aria-label="Previous image"
-              className="pointer-events-auto flex h-8 w-6 items-center justify-center text-black/50 hover:text-black transition-colors"
-            >
-              <ChevronLeft size={20} strokeWidth={1.2} aria-hidden="true" />
-            </button>
-            <button
-              type="button"
-              onClick={(e) => cycle(1, e)}
-              aria-label="Next image"
-              className="pointer-events-auto flex h-8 w-6 items-center justify-center text-black/50 hover:text-black transition-colors"
-            >
-              <ChevronRight size={20} strokeWidth={1.2} aria-hidden="true" />
-            </button>
-          </div>
-        )}
-
-        {/* ── DESKTOP SLIDE-UP QUICK SIZE SELECTOR (1-Click Add to Bag) ── */}
+        {/* ── DESKTOP SLIDE-UP QUICK ADD — flat, hairline, edge to edge ── */}
         {!soldOut && (
-          <div className="absolute inset-x-2 bottom-2 z-20 hidden md:block opacity-0 translate-y-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0">
+          <div className="absolute inset-x-0 bottom-0 z-20 hidden translate-y-2 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100 md:block">
             {sizes.length > 0 ? (
-              <div className="flex items-center justify-center gap-1 bg-white/95 backdrop-blur-md p-1.5 shadow-md border border-neutral-200/80">
-                <span className="text-[9.5px] uppercase font-medium tracking-wider text-neutral-500 pr-1 pl-1">
-                  Add:
-                </span>
+              <div className="flex items-center justify-center gap-0.5 border-t border-[#EAEAEA] bg-white/95 py-2">
                 {sizes.map((s) => (
                   <button
                     key={s}
                     type="button"
                     onClick={(e) => handleQuickAdd(s, e)}
-                    className={`flex h-7 min-w-[28px] px-1.5 items-center justify-center text-[10.5px] font-medium uppercase tracking-wider transition-colors ${
+                    aria-label={`Add size ${s} to bag`}
+                    className={`flex h-8 min-w-[32px] items-center justify-center px-1.5 text-[10.5px] font-medium uppercase tracking-wider transition-colors ${
                       addedSize === s
                         ? 'bg-black text-white'
-                        : 'bg-neutral-100/80 text-black hover:bg-black hover:text-white'
+                        : 'text-black hover:bg-black hover:text-white'
                     }`}
                   >
-                    {addedSize === s ? <Check size={12} strokeWidth={2} /> : s}
+                    {addedSize === s ? <Check size={12} strokeWidth={2} aria-hidden="true" /> : s}
                   </button>
                 ))}
               </div>
@@ -192,21 +153,19 @@ export default function CollectionCard({ product: p, priority = false, rank = nu
               <button
                 type="button"
                 onClick={(e) => handleQuickAdd('', e)}
-                className="flex min-h-[36px] w-full items-center justify-center bg-black text-[10.5px] font-medium uppercase tracking-[0.18em] text-white shadow-md hover:bg-neutral-800 transition-colors"
+                className="flex min-h-[36px] w-full items-center justify-center border-t border-[#EAEAEA] bg-white/95 text-[10.5px] font-medium uppercase tracking-[0.18em] text-black transition-colors hover:bg-black hover:text-white"
               >
-                {addedSize === '' ? 'Added to Bag' : 'Quick Add'}
+                {addedSize === '' ? 'Added to Bag' : 'Add to Bag'}
               </button>
             )}
           </div>
         )}
       </div>
 
-      {modal && <SizeModal product={p} onClose={() => setModal(false)} />}
-
-      {/* ── CLEAN & SPACIOUS LUXURY METADATA AREA ─────────────────────────── */}
-      <div className="px-3 pt-3.5 pb-4 md:px-4 md:pt-4 md:pb-5 bg-white space-y-1.5">
-        {/* Line 1: Product Title (Title Case, Clean & Uncluttered) */}
-        <h3 className="font-normal text-[13px] md:text-[14px] text-[#000000] tracking-[-0.01em] truncate leading-snug">
+      {/* ── METADATA ─────────────────────────────────────────────────────── */}
+      <div className="space-y-1.5 bg-white px-0.5 pt-3.5 pb-4 md:pt-4 md:pb-5">
+        {/* Line 1: Product Title */}
+        <h3 className="truncate text-[13px] font-normal leading-snug tracking-[-0.01em] text-black md:text-[14px]">
           <Link
             to={`/product/${p.slug}`}
             className="transition-colors hover:text-neutral-500"
@@ -216,17 +175,15 @@ export default function CollectionCard({ product: p, priority = false, rank = nu
           </Link>
         </h3>
 
-        {/* Line 2: Clean Price Display */}
+        {/* Line 2: Price */}
         <div className="flex items-baseline gap-2 text-[13px] md:text-[14px]">
           {soldOut ? (
-            <span className="text-neutral-400 font-normal">Sold out</span>
+            <span className="font-normal text-neutral-400">Sold out</span>
           ) : (
             <>
-              <span className="font-medium text-[#000000]">
-                {pkr(p.price)}
-              </span>
+              <span className="font-medium text-black">{pkr(p.price)}</span>
               {onSaleP && p.compareAtPrice > p.price && (
-                <span className="text-[11.5px] text-neutral-400 line-through font-normal">
+                <span className="text-[11.5px] font-normal text-neutral-400 line-through">
                   {pkr(p.compareAtPrice)}
                 </span>
               )}
@@ -234,14 +191,15 @@ export default function CollectionCard({ product: p, priority = false, rank = nu
           )}
         </div>
 
-        {/* Line 3: Circular Swatches (Dedicated Clean Row) */}
+        {/* Line 3: Swatches */}
         {swatches.length > 0 && (
-          <div className="pt-1 flex items-center gap-1.5" role="group" aria-label={`Colors for ${name}`}>
+          <div className="flex items-center gap-1.5 pt-1" role="group" aria-label={`Colors for ${name}`}>
             {swatches.map((c, i) => (
               <button
                 key={`${c.name}-${i}`}
                 type="button"
                 aria-label={c.name || `Color ${i + 1}`}
+                aria-pressed={swatchIdx === i}
                 title={c.name}
                 onClick={(e) => {
                   e.preventDefault();
@@ -250,11 +208,11 @@ export default function CollectionCard({ product: p, priority = false, rank = nu
                   const ci = images.indexOf(srcOf(c.image) || '');
                   if (ci >= 0) setImgIdx(ci);
                 }}
-                className="group/swatch relative flex h-3.5 w-3.5 items-center justify-center"
+                className="relative flex h-4 w-4 items-center justify-center"
               >
                 <span
-                  className={`h-2.5 w-2.5 rounded-full border border-black/15 transition-transform ${
-                    swatchIdx === i ? 'scale-125 ring-1 ring-black/80 ring-offset-1' : 'hover:scale-110'
+                  className={`h-2.5 w-2.5 rounded-full border transition-colors ${
+                    swatchIdx === i ? 'border-black ring-1 ring-black ring-offset-1' : 'border-black/15'
                   }`}
                   style={{ backgroundColor: c.hex }}
                   aria-hidden="true"
@@ -263,7 +221,7 @@ export default function CollectionCard({ product: p, priority = false, rank = nu
             ))}
 
             {p.colors && p.colors.length > 6 && (
-              <span className="text-[9.5px] text-neutral-400 font-normal pl-0.5">
+              <span className="pl-0.5 text-[9.5px] font-normal text-neutral-400">
                 +{p.colors.length - 6}
               </span>
             )}

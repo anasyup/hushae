@@ -1,118 +1,46 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ArrowLeft, Boxes } from 'lucide-react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { api } from '../api/client';
 import CollectionCard from '../components/CollectionCard';
 import LuxuryFilterBar from '../components/LuxuryFilterBar';
 import { ProductGridSkeleton } from '../components/Skeletons';
 import Seo from '../components/Seo';
-import { SIZES, COLORS, PRICE_BANDS } from './shop/FilterPanel';
-import { fetchCats, fetchCollections } from '../lib/catalogue';
 import { PRODUCT_GRID } from '../lib/productGrid';
 
 /* ============================================================================
- * Public /collection/:slug — same CK layout as the shop listings:
- *   · sub-category top bar · filter pills bar · 4/3/2-col grid
- * Filtering is client-side over the fetched collection list.
+ * Public /collection/:slug — same quiet-luxury register as the catalog pages:
+ * typographic header (title + count), one hairline control row (sort), grid.
+ *
+ * The previous version wired a "Filters" button to a sheet that was never
+ * rendered (runtime crash) and carried a 45-line facet-pill config that
+ * nothing displayed. A curated collection is a small, hand-picked list —
+ * sort is enough; full facets live on /shop.
  * ========================================================================== */
-
-const SORT_LABELS = { featured: 'Featured', 'price-asc': 'Price: Low to High', 'price-desc': 'Price: High to Low', newest: 'Newest Arrivals' };
 
 export default function Collection() {
   const { slug } = useParams();
-  const navigate = useNavigate();
   const [data, setData] = useState(null);
   const [err, setErr] = useState(false);
-  const [cats, setCats] = useState([]);
-  const [collections, setCollections] = useState([]);
-  const [sort, setSort] = useState('featured');
-  const [bandKey, setBandKey] = useState('');
-  const [sizes, setSizes] = useState([]);
-  const [colors, setColors] = useState([]);
+  const [sort, setSort] = useState('popular');
 
   useEffect(() => {
-    setData(null); setErr(false); setSort('featured'); setBandKey(''); setSizes([]); setColors([]);
+    setData(null); setErr(false); setSort('popular');
     api(`/collections/${slug}`)
       .then(setData)
       .catch(() => setErr(true));
   }, [slug]);
 
-  useEffect(() => { fetchCats().then(setCats); }, []);
-  useEffect(() => { fetchCollections().then(setCollections); }, []);
-
   const products = data?.products || [];
   const c = data?.collection;
 
-  const allSizes = useMemo(() => [...new Set(products.flatMap((p) => p.sizes || []))], [products]);
-  const allColors = useMemo(() => {
-    const seen = new Map();
-    products.forEach((p) => (p.colors || []).forEach((col) => { if (!seen.has(col.name)) seen.set(col.name, col); }));
-    return [...seen.values()];
-  }, [products]);
-
   const visible = useMemo(() => {
-    if (!products.length) return [];
-    let list = [...products];
-    if (bandKey) {
-      const b = PRICE_BANDS.find((x) => x.key === bandKey);
-      if (b) {
-        const min = b.min ? Number(b.min) : 0;
-        const max = b.max ? Number(b.max) : Infinity;
-        list = list.filter((p) => (p.price || 0) >= min && (p.price || 0) <= max);
-      }
-    }
-    if (sizes.length) list = list.filter((p) => (p.sizes || []).some((s) => sizes.includes(s)));
-    if (colors.length) list = list.filter((p) => (p.colors || []).some((col) => colors.includes(col.name)));
+    const list = [...products];
     if (sort === 'price-asc') list.sort((a, b) => (a.price || 0) - (b.price || 0));
     if (sort === 'price-desc') list.sort((a, b) => (b.price || 0) - (a.price || 0));
     if (sort === 'newest') list.sort((a, b) => (b.isNewArrival ? 1 : 0) - (a.isNewArrival ? 1 : 0));
     return list;
-  }, [products, sort, bandKey, sizes, colors]);
-
-  const toggle = (set, v) => set((xs) => (xs.includes(v) ? xs.filter((x) => x !== v) : [...xs, v]));
-
-  const pills = [
-    {
-      key: 'category',
-      label: 'Category',
-      multi: false,
-      options: cats.map((x) => ({ value: x.slug, label: x.name })),
-      selected: [],
-      onPick: (s) => navigate(`/category/${s}`),
-    },
-    {
-      key: 'price',
-      label: 'Price',
-      multi: false,
-      options: PRICE_BANDS.map((b) => ({ value: b.key, label: b.label })),
-      selected: bandKey ? [bandKey] : [],
-      onPick: (k) => setBandKey((cur) => (cur === k ? '' : k)),
-    },
-    {
-      key: 'color',
-      label: 'Color',
-      multi: true,
-      options: (allColors.length ? allColors : COLORS).map((col) => ({ value: col.name || col, label: col.name || col })),
-      selected: colors,
-      onPick: (name) => toggle(setColors, name),
-    },
-    {
-      key: 'size',
-      label: 'Size',
-      multi: true,
-      options: (allSizes.length ? allSizes : SIZES).map((s) => ({ value: s, label: s })),
-      selected: sizes,
-      onPick: (s) => toggle(setSizes, s),
-    },
-    {
-      key: 'collection',
-      label: 'Collection',
-      multi: false,
-      options: collections.map((x) => ({ value: x.slug, label: x.name })),
-      selected: c ? [c.slug] : [],
-      onPick: (s) => { if (s !== slug) navigate(`/collection/${s}`); },
-    },
-  ];
+  }, [products, sort]);
 
   if (err) {
     return (
@@ -131,11 +59,10 @@ export default function Collection() {
     </div>
   );
 
-  const activeFilterCount = (bandKey ? 1 : 0) + sizes.length + colors.length;
-  const clearAll = () => { setBandKey(''); setSizes([]); setColors([]); };
+  const count = visible.length;
 
   return (
-    <div className="w-full min-h-screen bg-[#fcfbf9] pt-[130px] font-sans text-black">
+    <div className="min-h-screen w-full bg-white pt-[120px] font-sans text-[#111111] antialiased">
       <Seo
         title={c.name}
         description={c.description || `Shop the ${c.name} collection at HUSHAE — curated pieces for every moment.`}
@@ -143,24 +70,33 @@ export default function Collection() {
         canonical={`/collection/${c.slug}`}
       />
 
-      {/* ═══ 1. COLLECTION TITLE + FILTER BAR ═══════════════════════ */}
-      <div className="border-b border-[#e7e5e0] px-6 pb-4 pt-6 md:px-10">
-        <h1 className="text-[22px] font-medium uppercase tracking-[0.08em] text-[#111111] md:text-[26px]">{c.name}</h1>
-        {c.description && <p className="mt-1 max-w-xl text-[12px] leading-relaxed text-[#777777]">{c.description}</p>}
+      {/* ═══ 1. TYPOGRAPHIC HEADER ═════════════════════════════════════ */}
+      <div className="mx-auto max-w-[1600px] px-6 pt-8 pb-6 md:px-12 md:pt-10">
+        <h1 className="text-[22px] font-light uppercase tracking-[0.14em] text-black sm:text-[26px] md:text-[30px]">
+          {c.name}
+          <span className="ml-3 align-middle text-[12px] font-normal normal-case tracking-normal text-neutral-400 tabular-nums md:text-[13px]">
+            {count} {count === 1 ? 'piece' : 'pieces'}
+          </span>
+        </h1>
+        {c.description && (
+          <p className="mt-2 max-w-xl text-[13px] font-light leading-relaxed text-neutral-500">{c.description}</p>
+        )}
       </div>
-      <LuxuryFilterBar
-        count={visible.length}
-        f={{ sort, setOne: (k, v) => { if (k === 'sort') setSort(v); } }}
-        onOpenFilters={() => setFilterOpen(true)}
-      />
 
-      {/* ═══ 2. PRODUCT GRID — full-bleed hairline (sale register) ═════ */}
+      {/* ═══ 2. CONTROL ROW — sort only ════════════════════════════════ */}
+      <div className="border-y border-[#EAEAEA] bg-white">
+        <div className="mx-auto flex max-w-[1600px] items-center justify-end px-6 md:px-12">
+          <LuxuryFilterBar f={{ sort, setOne: (k, v) => { if (k === 'sort') setSort(v); } }} />
+        </div>
+      </div>
+
+      {/* ═══ 3. PRODUCT GRID ═══════════════════════════════════════════ */}
       <div className="py-8">
-        {visible.length === 0 ? (
+        {count === 0 ? (
           <div className="grid place-items-center py-16 text-center">
-            <Boxes size={26} className="mb-3 text-[#C9A96E]" />
-            <p className="text-sm text-[#696969]">No pieces match those filters.</p>
-            <button onClick={clearAll} className="btn-outline mt-6">Clear filters</button>
+            <Boxes size={26} className="mb-3 text-neutral-300" />
+            <p className="text-sm text-[#696969]">This collection is empty right now.</p>
+            <Link to="/shop" className="btn-outline mt-6">Browse all products</Link>
           </div>
         ) : (
           <div className={PRODUCT_GRID}>
@@ -168,7 +104,7 @@ export default function Collection() {
           </div>
         )}
 
-        <div className="mt-12 text-center">
+        <div className="mt-12 pb-16 text-center">
           <Link to="/shop" className="inline-flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.12em] text-[#777777] transition hover:text-[#111111]">
             <ArrowLeft size={13} /> Continue browsing all
           </Link>

@@ -23,7 +23,6 @@ import Account from './pages/Account';
 import ResetPassword from './pages/account/ResetPassword';
 import VerifyEmail from './pages/account/VerifyEmail';
 import MyOrderDetail from './pages/account/OrderDetail';
-import Sale from './pages/Sale';
 import Blog from './pages/Blog';
 import BlogPost from './pages/BlogPost';
 import Faq from './pages/Faq';
