@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, Fragment } from 'react';
-import { SearchX } from 'lucide-react';
+import { SearchX, Sparkles, ShieldCheck, Feather, Truck, ArrowRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../api/client';
 import CollectionCard from '../components/CollectionCard';
@@ -12,13 +12,14 @@ import FilterSheet from './shop/FilterSheet';
 import { fetchCats, fetchCollections } from '../lib/catalogue';
 
 /* ============================================================================
- * HUSHAE Catalog / Category — Full-Bleed Edge-to-Edge Luxury Grid
+ * HUSHAE Catalog / Category — Bespoke Luxury Flagship (Dolce & Gabbana × The Row)
  *
  * SPECIFICATION:
- *   - Edge-to-Edge Flush Architecture: Cards connect directly to left/right boundaries.
- *   - Zero dead side margins (Full-width 100% canvas).
- *   - 4-Column Studio Grid on Desktop / 2-Column on Mobile.
- *   - Embedded 2-column editorial storytelling moments.
+ *   - Airy, Breathable Lookbook Grid (Soft luxury spacing, zero harsh box lines).
+ *   - Top Atelier Craft & Fabric Innovation Ticker.
+ *   - Refined Typographic Header with Piece Counter.
+ *   - Sub-category Tabs + Clean Filter & Sort Controls.
+ *   - In-Grid Editorial Storytelling moments.
  * ========================================================================== */
 
 const TITLES = {
@@ -137,11 +138,11 @@ const BANNER_META = {
 
 const REVEAL = 12;
 
-/* ── In-Grid Editorial Storytelling Card (Edge-to-Edge Flush) ── */
+/* ── In-Grid Editorial Storytelling Card ── */
 function InGridEditorialCard({ moment }) {
   if (!moment) return null;
   return (
-    <div className="col-span-2 group relative overflow-hidden bg-[#111111] text-white flex flex-col justify-end p-6 sm:p-8 md:p-12 min-h-[360px] sm:min-h-[440px] aspect-[16/10] sm:aspect-[4/3] lg:aspect-auto">
+    <div className="col-span-2 group relative overflow-hidden bg-[#111111] text-white flex flex-col justify-end p-6 sm:p-8 md:p-12 min-h-[380px] sm:min-h-[460px] aspect-[16/10] sm:aspect-[4/3] lg:aspect-auto">
       <img
         src={moment.image}
         alt={moment.title}
@@ -154,7 +155,7 @@ function InGridEditorialCard({ moment }) {
         <p className="text-[10px] font-medium uppercase tracking-[0.28em] text-white/80">
           {moment.tag}
         </p>
-        <h3 className="text-2xl sm:text-3xl md:text-4xl font-light uppercase tracking-tight text-white leading-tight">
+        <h3 className="text-2xl sm:text-3xl font-light uppercase tracking-tight text-white leading-tight">
           {moment.title}
         </h3>
         <p className="text-xs text-white/90 font-light leading-relaxed">
@@ -224,16 +225,38 @@ export default function Shop({ preset = {} }) {
   const hasMore = visible ? visible.length > shown : false;
 
   return (
-    <div className="min-h-screen w-full bg-[#FFFFFF] pt-[120px] pb-24 font-sans text-[#111111] antialiased">
+    <div className="min-h-screen bg-[#FFFFFF] pt-[120px] pb-28 font-sans text-[#111111] antialiased">
       <Seo
         title={`${meta} — HUSHAE`}
         description={`Shop premium ${meta.toLowerCase()} — innerwear made in Pakistan, finished to an international standard. COD nationwide, discreet packaging.`}
         canonical={typeof window !== 'undefined' ? window.location.pathname : '/shop'}
       />
 
-      {/* ═══ 1. MINIMALIST LUXURY CATALOG HEADER ══════════════════════════ */}
-      <div className="w-full px-6 md:px-12 pt-4 pb-6 border-b border-[#EAEAEA]">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+      {/* ═══ 1. ATELIER INNOVATION & FABRIC RIBBON (TOP LUXURY TICKER) ═════ */}
+      <div className="w-full bg-[#FBFBFB] border-b border-[#EAEAEA] py-2.5 px-6 md:px-12 text-[11px] text-neutral-600 font-light overflow-x-auto no-scrollbar">
+        <div className="mx-auto max-w-[1600px] flex items-center justify-between gap-8 whitespace-nowrap">
+          <span className="inline-flex items-center gap-2">
+            <Feather size={13} className="text-black" />
+            <span>95% Lenzing Modal &bull; Second-Skin Breathability</span>
+          </span>
+          <span className="hidden sm:inline-flex items-center gap-2">
+            <Sparkles size={13} className="text-black" />
+            <span>Zero-Chafe Bonded Flatlock Seams</span>
+          </span>
+          <span className="hidden md:inline-flex items-center gap-2">
+            <ShieldCheck size={13} className="text-black" />
+            <span>100% Plain Discreet Parcel</span>
+          </span>
+          <span className="inline-flex items-center gap-2">
+            <Truck size={13} className="text-black" />
+            <span>Express Delivery Across Pakistan</span>
+          </span>
+        </div>
+      </div>
+
+      {/* ═══ 2. MINIMALIST LUXURY CATALOG HEADER ══════════════════════════ */}
+      <div className="mx-auto max-w-[1600px] px-6 md:px-12 pt-6 pb-6">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-[#EAEAEA] pb-6">
           <div className="space-y-1.5 max-w-2xl">
             <p className="text-[10px] font-medium uppercase tracking-[0.3em] text-neutral-400">
               {headerInfo.tag}
@@ -268,10 +291,10 @@ export default function Shop({ preset = {} }) {
         </div>
       </div>
 
-      {/* ═══ 2. SUB-CATEGORY NAVIGATION TABS (Clean & Smooth) ═════════════ */}
+      {/* ═══ 3. SUB-CATEGORY NAVIGATION TABS (Clean & Smooth) ═════════════ */}
       {navCats.length > 0 && (
         <div className="w-full bg-[#FFFFFF] border-b border-[#EAEAEA] px-6 md:px-12 overflow-x-auto no-scrollbar">
-          <div className="flex items-center gap-6 md:gap-8 py-3">
+          <div className="mx-auto max-w-[1600px] flex items-center gap-6 md:gap-8 py-3">
             <button
               type="button"
               onClick={() => f.setOne('category', '')}
@@ -301,15 +324,13 @@ export default function Shop({ preset = {} }) {
         </div>
       )}
 
-      {/* ═══ 3. SINGLE CLEAN FILTER & SORT CONTROL ROW ═══════════════════ */}
+      {/* ═══ 4. SINGLE CLEAN FILTER & SORT CONTROL ROW ═══════════════════ */}
       <LuxuryFilterBar count={count} f={f} onOpenFilters={() => setSheetOpen(true)} />
 
-      {/* ═══ 4. FULL-BLEED EDGE-TO-EDGE PRODUCT GRID (ATTACHED TO BOUNDARIES) ═ */}
-      <div className="w-full px-0 pt-0 pb-16">
+      {/* ═══ 5. SPACIOUS LOOKBOOK PRODUCT GRID (D&G × THE ROW SPACING) ═════ */}
+      <div className="mx-auto max-w-[1600px] px-6 sm:px-8 md:px-12 pt-8 pb-16">
         {products === null ? (
-          <div className="px-6 md:px-12 pt-8">
-            <ProductGridSkeleton count={8} />
-          </div>
+          <ProductGridSkeleton count={8} />
         ) : count === 0 ? (
           <div className="py-24 text-center px-6">
             <EmptyState
@@ -322,10 +343,9 @@ export default function Shop({ preset = {} }) {
           </div>
         ) : (
           <>
-            {/* Edge-to-Edge Grid connected to left & right screen boundaries */}
             <div
               aria-busy={pending || undefined}
-              className={`grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-px bg-[#EAEAEA] border-b border-[#EAEAEA] transition-opacity duration-300 ${
+              className={`grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-5 gap-y-10 sm:gap-x-7 sm:gap-y-14 md:gap-x-8 md:gap-y-16 transition-opacity duration-300 ${
                 pending ? 'opacity-50' : 'opacity-100'
               }`}
             >
@@ -341,22 +361,20 @@ export default function Shop({ preset = {} }) {
                     <InGridEditorialCard moment={headerInfo.moment2} />
                   )}
 
-                  <div className="bg-white">
-                    <CollectionCard
-                      product={p}
-                      rank={preset.key === 'best' && i < 4 ? i + 1 : null}
-                    />
-                  </div>
+                  <CollectionCard
+                    product={p}
+                    rank={preset.key === 'best' && i < 4 ? i + 1 : null}
+                  />
                 </Fragment>
               ))}
             </div>
 
             {hasMore && (
-              <div className="flex w-full justify-center pt-16 pb-4 px-6">
+              <div className="flex w-full justify-center pt-20 pb-4">
                 <button
                   type="button"
                   onClick={() => setShown((s) => s + REVEAL)}
-                  className="flex h-[48px] w-full max-w-xs items-center justify-center rounded-full border border-neutral-300 bg-white text-xs font-medium uppercase tracking-[0.2em] text-black hover:border-black hover:bg-black hover:text-white transition-all shadow-xs disabled:opacity-50"
+                  className="flex h-[50px] w-full max-w-xs items-center justify-center rounded-full border border-neutral-300 bg-white text-xs font-medium uppercase tracking-[0.2em] text-black hover:border-black hover:bg-black hover:text-white transition-all shadow-xs disabled:opacity-50"
                 >
                   {pending ? 'Loading…' : `Load More (${visible.length - shown} remaining)`}
                 </button>
