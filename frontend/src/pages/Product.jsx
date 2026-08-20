@@ -176,7 +176,7 @@ export default function Product() {
   ];
 
   return (
-    <div className="min-h-screen w-full bg-[#FFFFFF] pt-[104px] pb-24 font-sans text-[#111111] antialiased">
+    <div className="min-h-screen w-full bg-[#FFFFFF] pt-0 pb-24 font-sans text-[#111111] antialiased">
       <Seo
         title={`${name} — HUSHAE`}
         description={p.shortDescription || p.description?.slice(0, 160) || `${name} — premium innerwear from HUSHAE. PKR ${p.price}. COD available nationwide.`}
@@ -190,8 +190,8 @@ export default function Product() {
       <div className="w-full">
         <div className="grid grid-cols-1 lg:grid-cols-12 min-h-screen">
 
-          {/* ── LEFT: FULL-BLEED FLUSH EDITORIAL GALLERY (7 COLUMNS) ────── */}
-          <div className="lg:col-span-7 xl:col-span-7 2xl:col-span-7 bg-[#F6F6F6]">
+          {/* ── LEFT: FULL-BLEED FLUSH EDITORIAL GALLERY (FLOWS BEHIND HEADER) ── */}
+          <div className="lg:col-span-7 xl:col-span-7 2xl:col-span-7 bg-[#F6F6F6] p-0 m-0">
             {/* Edge-to-Edge Vertical Photo Stack */}
             <div className="grid grid-cols-1 gap-1 sm:grid-cols-2 lg:grid-cols-1 w-full">
               {gallery.map((imgUrl, idx) => (
@@ -209,7 +209,7 @@ export default function Product() {
                     className="h-full w-full object-cover object-center transition-opacity duration-300 hover:opacity-95"
                   />
                   {idx === 0 && onSale && p.compareAtPrice > p.price && (
-                    <span className="absolute left-4 top-4 bg-black px-2.5 py-0.5 text-[9px] font-medium uppercase tracking-[0.16em] text-white">
+                    <span className="absolute left-4 top-28 bg-black px-2.5 py-0.5 text-[9px] font-medium uppercase tracking-[0.16em] text-white z-10">
                       Sale
                     </span>
                   )}
@@ -219,7 +219,7 @@ export default function Product() {
           </div>
 
           {/* ── RIGHT: STICKY PURCHASE DETAILS (5 COLUMNS) ──────────────── */}
-          <div className="lg:col-span-5 xl:col-span-5 2xl:col-span-5 bg-white px-6 sm:px-10 md:px-14 lg:px-14 xl:px-20 py-8 lg:py-12 flex flex-col justify-start">
+          <div className="lg:col-span-5 xl:col-span-5 2xl:col-span-5 bg-white px-6 sm:px-10 md:px-14 lg:px-14 xl:px-20 pt-28 lg:pt-32 pb-12 flex flex-col justify-start">
             <div ref={ctaRef} className="lg:sticky lg:top-[124px] space-y-6 max-w-lg w-full">
 
               {/* Department Breadcrumb */}

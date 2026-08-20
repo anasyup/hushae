@@ -49,10 +49,9 @@ export default function Header() {
   }, []);
 
   /* Full-bleed campaign photography sits under a transparent bar on the
-     homepage. Inner pages (shop, women, men, cart, etc.) have light grounds
-     and need an immediate solid white bar so navigation is always legible. */
-  const overHero = loc.pathname === '/';
-  const invert = overHero && !isScrolled && !mega && !searchOpen;
+     homepage and product detail pages so photos flow seamlessly behind the header. */
+  const overHero = loc.pathname === '/' || loc.pathname.startsWith('/product/');
+  const invert = false; // Always crisp Jet Black text per merchant request
 
   useEffect(() => { api('/categories').then((d) => setCats(d.categories)).catch(() => {}); }, []);
   useEffect(() => {
