@@ -28,7 +28,7 @@ export default function CancellationReasons({ reasons = [] }) {
       ) : (
         <>
           {top && top.count > 0 && (
-            <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 p-3 text-[12px] text-amber-900">
+            <div className="mt-3 rounded-xl border border-[#DCCBA5] bg-[#F6F1E6] p-3 text-[12px] text-[#5C4A28]">
               <b>{top.pct}%</b> of cancellations this period are <b>&ldquo;{top.reason}&rdquo;</b> — {top.reason === 'Out of stock' ? 'consider improving inventory sync.' : 'worth a closer look.'}
             </div>
           )}

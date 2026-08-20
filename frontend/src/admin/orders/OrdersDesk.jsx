@@ -170,7 +170,7 @@ export default function OrdersDesk() {
                 className="relative grid h-9 w-9 place-items-center rounded-lg border border-neutral-300 bg-white text-neutral-600 hover:border-neutral-400">
                 <Bell size={15} />
                 {notes.unread > 0 && (
-                  <span className="absolute -right-1 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-red-600 px-1 text-[13px] font-bold text-white">
+                  <span className="absolute -right-1 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-[#9A5548] px-1 text-[13px] font-bold text-white">
                     {notes.unread > 9 ? '9+' : notes.unread}
                   </span>
                 )}
@@ -188,8 +188,8 @@ export default function OrdersDesk() {
                       <button key={n._id} onClick={() => { if (n.link) nav(n.link); setShowNotes(false); }}
                         className="flex w-full gap-2.5 border-b border-neutral-50 px-3 py-2.5 text-left hover:bg-neutral-50">
                         <span className={`mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full ${
-                          n.severity === 'danger' ? 'bg-red-500' : n.severity === 'warning' ? 'bg-amber-500'
-                            : n.severity === 'success' ? 'bg-emerald-500' : 'bg-neutral-300'}`} />
+                          n.severity === 'danger' ? 'bg-[#B46A5C]' : n.severity === 'warning' ? 'bg-[#C9A96E]'
+                            : n.severity === 'success' ? 'bg-[#5B7F6A]' : 'bg-neutral-300'}`} />
                         <span className="min-w-0">
                           <span className="block truncate text-[12px] font-medium text-neutral-900">{n.title}</span>
                           {n.body && <span className="block truncate text-[13px] text-neutral-500">{n.body}</span>}
@@ -249,7 +249,7 @@ export default function OrdersDesk() {
         />
 
         {selectAllMatching && data.total > orders.length && (
-          <p className="rounded-lg bg-amber-50 px-3 py-2 text-[12px] text-amber-800">
+          <p className="rounded-lg bg-[#F6F1E6] px-3 py-2 text-[12px] text-[#6B552F]">
             All <strong>{data.total}</strong> matching orders are targeted — actions apply beyond this page.
             <button onClick={() => setSelectAllMatching(false)} className="ml-2 font-semibold underline">
               Limit to this page
@@ -268,10 +268,10 @@ export default function OrdersDesk() {
 
         {/* ── List ───────────────────────────────────────────────────────── */}
         {error && (
-          <div className="flex items-center gap-3 rounded-xl border border-red-200 bg-red-50 p-4">
-            <AlertCircle size={18} className="shrink-0 text-red-600" />
-            <p className="flex-1 text-[13px] text-red-800">{error}</p>
-            <button onClick={() => reload()} className="rounded-md bg-red-600 px-3 py-1.5 text-[12px] font-semibold text-white">Retry</button>
+          <div className="flex items-center gap-3 rounded-xl border border-[#E0C6BE] bg-[#F5EDEB] p-4">
+            <AlertCircle size={18} className="shrink-0 text-[#9A5548]" />
+            <p className="flex-1 text-[13px] text-[#7C4237]">{error}</p>
+            <button onClick={() => reload()} className="rounded-md bg-[#9A5548] px-3 py-1.5 text-[12px] font-semibold text-white">Retry</button>
           </div>
         )}
 

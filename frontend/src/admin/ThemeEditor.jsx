@@ -406,7 +406,7 @@ export default function ThemeEditor() {
           </Link>
           <div className="hidden items-center gap-2 md:flex">
             <p className="font-sans text-sm font-semibold text-neutral-900">HUSHAE Theme</p>
-            <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[13px] font-bold uppercase tracking-wider text-emerald-700">Active</span>
+            <span className="rounded-full bg-[#DDE7E0] px-2 py-0.5 text-[13px] font-bold uppercase tracking-wider text-[#3E5C4B]">Active</span>
           </div>
         </div>
         <div className="hidden items-center gap-1 rounded-lg bg-neutral-100 p-1 md:flex">
@@ -593,7 +593,7 @@ export default function ThemeEditor() {
                   <button onClick={() => duplicatePs(activePsCfg.id)} title="Duplicate"
                     className="grid h-8 w-8 place-items-center rounded-lg text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900"><Copy size={14} /></button>
                   <button onClick={() => { if (confirm('Delete this section?')) removePs(activePsCfg.id); }} title="Delete"
-                    className="grid h-8 w-8 place-items-center rounded-lg text-neutral-500 hover:bg-red-50 hover:text-red-600"><Trash2 size={14} /></button>
+                    className="grid h-8 w-8 place-items-center rounded-lg text-neutral-500 hover:bg-[#F5EDEB] hover:text-[#9A5548]"><Trash2 size={14} /></button>
                 </>
               )} />
             <div className="space-y-4 p-4">
@@ -761,7 +761,7 @@ function MenuEditor({ items, onChange }) {
             <button onClick={() => move(i, 1)} disabled={i === items.length - 1} title="Move down"
               className="grid h-7 w-7 shrink-0 place-items-center rounded text-neutral-400 hover:bg-neutral-100 hover:text-neutral-900 disabled:opacity-25"><ArrowDown size={12} /></button>
             <button onClick={() => onChange(items.filter((_, j) => j !== i))} title="Remove"
-              className="grid h-7 w-7 shrink-0 place-items-center rounded text-neutral-400 hover:bg-red-50 hover:text-red-600"><Trash2 size={12} /></button>
+              className="grid h-7 w-7 shrink-0 place-items-center rounded text-neutral-400 hover:bg-[#F5EDEB] hover:text-[#9A5548]"><Trash2 size={12} /></button>
           </div>
           <div className="mt-1.5 flex items-center gap-1.5">
             <Link2 size={12} className="shrink-0 text-neutral-400" />
@@ -814,7 +814,7 @@ function ColumnsEditor({ cols, onChange }) {
             <button onClick={() => moveCol(i, 1)} disabled={i === cols.length - 1} title="Move right"
               className="grid h-7 w-7 shrink-0 place-items-center rounded text-neutral-400 hover:bg-neutral-100 disabled:opacity-25"><ArrowDown size={12} /></button>
             <button onClick={() => onChange(cols.filter((_, j) => j !== i))} title="Remove column"
-              className="grid h-7 w-7 shrink-0 place-items-center rounded text-neutral-400 hover:bg-red-50 hover:text-red-600"><Trash2 size={12} /></button>
+              className="grid h-7 w-7 shrink-0 place-items-center rounded text-neutral-400 hover:bg-[#F5EDEB] hover:text-[#9A5548]"><Trash2 size={12} /></button>
           </div>
           <div className="mt-2 space-y-1.5 border-l-2 border-neutral-100 pl-2.5">
             {(col.links || []).map((l, j) => (
@@ -824,7 +824,7 @@ function ColumnsEditor({ cols, onChange }) {
                 <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !py-1 flex-1 font-mono text-[12px]" placeholder="/link" value={l.href || ''}
                   onChange={(e) => setCol(i, { links: col.links.map((x, k) => (k === j ? { ...x, href: e.target.value } : x)) })} />
                 <button onClick={() => setCol(i, { links: col.links.filter((_, k) => k !== j) })}
-                  className="grid h-6 w-6 shrink-0 place-items-center rounded text-neutral-400 hover:bg-red-50 hover:text-red-600"><X size={11} /></button>
+                  className="grid h-6 w-6 shrink-0 place-items-center rounded text-neutral-400 hover:bg-[#F5EDEB] hover:text-[#9A5548]"><X size={11} /></button>
               </div>
             ))}
             <button onClick={() => setCol(i, { links: [...(col.links || []), { label: 'New link', href: '/' }] })}

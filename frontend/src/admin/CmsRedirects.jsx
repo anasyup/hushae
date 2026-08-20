@@ -171,7 +171,7 @@ export default function CmsRedirects() {
               {(err || problem) && (
                 <p
                   role="alert"
-                  className={`mb-3 rounded-lg px-3 py-2 text-[12px] ${blocking || err ? 'bg-red-50 text-red-800' : 'bg-amber-50 text-amber-900'}`}
+                  className={`mb-3 rounded-lg px-3 py-2 text-[12px] ${blocking || err ? 'bg-[#F5EDEB] text-[#7C4237]' : 'bg-[#F6F1E6] text-[#5C4A28]'}`}
                 >
                   {err || problem}
                 </p>
@@ -208,7 +208,7 @@ export default function CmsRedirects() {
                   </div>
                   <button
                     type="button" onClick={() => remove(r)}
-                    className="grid h-11 w-11 shrink-0 place-items-center rounded-lg border border-red-200 text-red-700 transition hover:bg-red-50"
+                    className="grid h-11 w-11 shrink-0 place-items-center rounded-lg border border-[#E0C6BE] text-[#8A4B3F] transition hover:bg-[#F5EDEB]"
                   >
                     <Trash2 size={14} aria-hidden="true" />
                     <span className="sr-only">Delete the note for /{r.from}</span>
@@ -217,7 +217,7 @@ export default function CmsRedirects() {
                 <div className="mt-2 flex flex-wrap items-center gap-3 text-[12px] text-neutral-600">
                   <span>{r.code}</span>
                   <span>{r.hits || 0} used</span>
-                  {r.auto && <span className="rounded-full bg-sky-50 px-2 py-0.5 font-medium text-sky-800">Automatic</span>}
+                  {r.auto && <span className="rounded-full bg-[#F1F1F1] px-2 py-0.5 font-medium text-[#4A4A4A]">Automatic</span>}
                 </div>
                 {r.note && <p className="mt-1.5 text-[12px] text-neutral-600">{r.note}</p>}
               </li>
@@ -248,7 +248,7 @@ export default function CmsRedirects() {
                     <td className="px-4 py-3">
                       <span className="text-neutral-700">{r.code}</span>
                       {r.auto && (
-                        <span className="ml-2 rounded-full bg-sky-50 px-2 py-0.5 text-[13px] font-semibold text-sky-800 ring-1 ring-sky-200">Automatic</span>
+                        <span className="ml-2 rounded-full bg-[#F1F1F1] px-2 py-0.5 text-[13px] font-semibold text-[#4A4A4A] ring-1 ring-[#D4D4D4]">Automatic</span>
                       )}
                     </td>
                     <td className="px-4 py-3 text-right tabular-nums text-neutral-700">{r.hits || 0}</td>
@@ -256,7 +256,7 @@ export default function CmsRedirects() {
                     <td className="px-4 py-3 text-right">
                       <button
                         type="button" onClick={() => remove(r)}
-                        className="inline-grid h-11 w-11 place-items-center rounded-lg border border-red-200 text-red-700 transition hover:bg-red-50"
+                        className="inline-grid h-11 w-11 place-items-center rounded-lg border border-[#E0C6BE] text-[#8A4B3F] transition hover:bg-[#F5EDEB]"
                       >
                         <Trash2 size={14} aria-hidden="true" />
                         <span className="sr-only">Delete the note for /{r.from}</span>

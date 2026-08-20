@@ -93,10 +93,10 @@ export default function QuickFilters({ filters, setFilter, token, currentQuery, 
         <span key={v._id} className="group relative">
           <button onClick={() => applyView(v)} title={v.ownerName ? `Saved by ${v.ownerName}` : 'Saved view'}
             className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white py-1.5 pl-3 pr-7 text-[12px] font-medium text-neutral-600 transition hover:border-neutral-400">
-            <Star size={11} className="text-amber-500" fill="currentColor" /> {v.name}
+            <Star size={11} className="text-[#A68A56]" fill="currentColor" /> {v.name}
           </button>
           <button onClick={(e) => removeView(v, e)} aria-label={`Delete ${v.name}`}
-            className="absolute right-1.5 top-1/2 hidden -translate-y-1/2 text-neutral-300 hover:text-red-600 group-hover:block">
+            className="absolute right-1.5 top-1/2 hidden -translate-y-1/2 text-neutral-300 hover:text-[#9A5548] group-hover:block">
             <Trash2 size={11} />
           </button>
         </span>

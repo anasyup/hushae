@@ -160,7 +160,7 @@ function Row({ node, index, total, onMove, onDrag, onDrop, dragging, over, actio
           <p className={`truncate text-[13px] font-medium ${node.hidden ? 'text-neutral-500' : 'text-neutral-900'}`}>
             {label}
             {node.hidden && <span className="ml-2 rounded-full bg-neutral-200 px-2 py-0.5 text-[13px] font-semibold text-neutral-700">off</span>}
-            {!schema && <span className="ml-2 rounded-full bg-amber-100 px-2 py-0.5 text-[13px] font-semibold text-amber-900">unknown type</span>}
+            {!schema && <span className="ml-2 rounded-full bg-[#EDE4CE] px-2 py-0.5 text-[13px] font-semibold text-[#5C4A28]">unknown type</span>}
           </p>
           {detail && <p className="mt-0.5 truncate text-[12px] text-neutral-600">{String(detail).slice(0, 60)}</p>}
         </div>
@@ -194,7 +194,7 @@ function Row({ node, index, total, onMove, onDrag, onDrop, dragging, over, actio
           </button>
           <button
             type="button" onClick={() => actions.remove(node.id, label)}
-            className="grid h-11 w-11 place-items-center rounded-lg text-red-700 transition hover:bg-red-50"
+            className="grid h-11 w-11 place-items-center rounded-lg text-[#8A4B3F] transition hover:bg-[#F5EDEB]"
           >
             <Trash2 size={14} aria-hidden="true" /><span className="sr-only">Delete {label}</span>
           </button>

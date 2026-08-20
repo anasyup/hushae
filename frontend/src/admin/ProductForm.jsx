@@ -227,7 +227,7 @@ export default function ProductForm() {
                       <input type="color" value={c.hex} onChange={(e) => set('colors', f.colors.map((x, j) => j === i ? { ...x, hex: e.target.value } : x))} className="h-10 w-12 cursor-pointer rounded-lg border border-neutral-300 bg-white p-1" />
                       <input className="flex-1 rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[13px] outline-none transition focus:border-neutral-900" value={c.name} onChange={(e) => set('colors', f.colors.map((x, j) => j === i ? { ...x, name: e.target.value } : x))} placeholder="Colour name" />
                       {f.colors.length > 1 && (
-                        <button type="button" onClick={() => set('colors', f.colors.filter((_, j) => j !== i))} className="grid h-9 w-9 place-items-center rounded-lg text-neutral-400 transition hover:bg-red-50 hover:text-red-600"><Trash2 size={14} /></button>
+                        <button type="button" onClick={() => set('colors', f.colors.filter((_, j) => j !== i))} className="grid h-9 w-9 place-items-center rounded-lg text-neutral-400 transition hover:bg-[#F5EDEB] hover:text-[#9A5548]"><Trash2 size={14} /></button>
                       )}
                     </div>
                   ))}
@@ -293,7 +293,7 @@ export default function ProductForm() {
                 const active = f.badges.includes(b);
                 return (
                   <button type="button" key={b} onClick={() => set('badges', active ? f.badges.filter((x) => x !== b) : [...f.badges, b])}
-                    className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-[12px] font-medium transition ${active ? 'border-emerald-600 bg-emerald-50 text-emerald-700' : 'border-neutral-200 bg-white text-neutral-600 hover:border-neutral-400'}`}>
+                    className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-[12px] font-medium transition ${active ? 'border-[#4A6B58] bg-[#E9EFEA] text-[#3E5C4B]' : 'border-neutral-200 bg-white text-neutral-600 hover:border-neutral-400'}`}>
                     {active && <CheckIcon size={12} />}{b}
                   </button>
                 );
@@ -314,7 +314,7 @@ export default function ProductForm() {
                 </select>
               </Field>
               {f.status === 'draft' && (
-                <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-[12px] text-amber-800">Draft products are hidden and cannot be ordered.</div>
+                <div className="rounded-xl border border-[#DCCBA5] bg-[#F6F1E6] p-3 text-[12px] text-[#6B552F]">Draft products are hidden and cannot be ordered.</div>
               )}
               <Check k="isFeatured" label="Featured in signature edit" f={f} set={set} />
               <Check k="isBestSeller" label="Mark as best seller" f={f} set={set} />
@@ -362,7 +362,7 @@ export default function ProductForm() {
                   A product is on sale ONLY when this switch is on. New
                   products start OFF, so nothing you launch is ever
                   automatically discounted. */}
-              <div className={`rounded-xl border p-4 transition-colors ${f.onSale ? 'border-emerald-300 bg-emerald-50/60' : 'border-neutral-200 bg-white'}`}>
+              <div className={`rounded-xl border p-4 transition-colors ${f.onSale ? 'border-[#B4C8BA] bg-[#E9EFEA]/60' : 'border-neutral-200 bg-white'}`}>
                 <label className="flex cursor-pointer items-center gap-2.5">
                   <input
                     type="checkbox"
@@ -383,7 +383,7 @@ export default function ProductForm() {
                 ) : (
                   <>
                     {f.compareAtPrice && Number(f.compareAtPrice) > 0 && Number(f.price) > 0 && Number(f.compareAtPrice) <= Number(f.price) && (
-                      <p className="mt-2 rounded-lg bg-red-50 px-3 py-1.5 text-[12px] font-semibold text-red-700 ring-1 ring-red-200">
+                      <p className="mt-2 rounded-lg bg-[#F5EDEB] px-3 py-1.5 text-[12px] font-semibold text-[#8A4B3F] ring-1 ring-[#E0C6BE]">
                         Was price must be HIGHER than the selling price — otherwise there is no real discount.
                       </p>
                     )}
@@ -415,8 +415,8 @@ export default function ProductForm() {
                   <div className="mt-3 flex items-center justify-between rounded-lg bg-white px-3 py-2.5">
                     <span className="text-[13px] font-semibold text-neutral-700">Profit per unit</span>
                     <div className="flex items-center gap-2">
-                      <span className={`text-[12px] font-bold tabular-nums ${profit >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>PKR {profit.toLocaleString('en-PK')}</span>
-                      <span className={`rounded-full px-2 py-0.5 text-[13px] font-bold ${margin >= 40 ? 'bg-emerald-100 text-emerald-800' : margin >= 20 ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-800'}`}>{margin.toFixed(1)}%</span>
+                      <span className={`text-[12px] font-bold tabular-nums ${profit >= 0 ? 'text-[#3E5C4B]' : 'text-[#8A4B3F]'}`}>PKR {profit.toLocaleString('en-PK')}</span>
+                      <span className={`rounded-full px-2 py-0.5 text-[13px] font-bold ${margin >= 40 ? 'bg-[#DDE7E0] text-[#33503F]' : margin >= 20 ? 'bg-[#EDE4CE] text-[#6B552F]' : 'bg-[#EEDED9] text-[#7C4237]'}`}>{margin.toFixed(1)}%</span>
                     </div>
                   </div>
                 )}

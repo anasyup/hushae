@@ -298,11 +298,11 @@ export default function SettingsEmail() {
         />
 
         {!isSmtpConfigured && (
-          <div role="alert" className="mb-6 flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-[13px] text-amber-900 shadow-sm">
-            <AlertTriangle className="mt-0.5 shrink-0 text-amber-600" size={18} />
+          <div role="alert" className="mb-6 flex items-start gap-3 rounded-2xl border border-[#DCCBA5] bg-[#F6F1E6] p-4 text-[13px] text-[#5C4A28] shadow-sm">
+            <AlertTriangle className="mt-0.5 shrink-0 text-[#8F7448]" size={18} />
             <div>
               <p className="font-semibold">SMTP Credentials are not fully set up</p>
-              <p className="mt-1 leading-relaxed text-amber-800">
+              <p className="mt-1 leading-relaxed text-[#6B552F]">
                 Without SMTP configured, email templates can still be edited and previewed locally, but real transactional emails (like Order Confirmations, Shipping updates) will not reach your customers. They will only be logged in the developer console.
               </p>
             </div>
@@ -454,7 +454,7 @@ export default function SettingsEmail() {
                     </div>
                     <div className="flex items-center gap-2">
                       <span className={`rounded-full px-2 py-0.5 text-[12px] font-bold uppercase tracking-wider ${
-                        t.active !== false ? 'bg-emerald-50 text-emerald-800 ring-1 ring-emerald-200' : 'bg-neutral-100 text-neutral-500'
+                        t.active !== false ? 'bg-[#E9EFEA] text-[#33503F] ring-1 ring-[#C9D8CE]' : 'bg-neutral-100 text-neutral-500'
                       }`}>
                         {t.active !== false ? 'Active' : 'Disabled'}
                       </span>

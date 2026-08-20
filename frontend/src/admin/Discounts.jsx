@@ -41,7 +41,7 @@ export default function Discounts() {
         <button onClick={openNew} className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-neutral-900 px-4 text-[12px] font-semibold text-white transition hover:bg-neutral-800"><Plus size={13} /> New code</button>
       </div>
       <div className="mb-5 grid gap-3 sm:grid-cols-3">
-        {[{ label: 'Total codes', value: stats.total, tone: '' }, { label: 'Active', value: stats.active, tone: 'text-emerald-700' }, { label: 'Total uses', value: stats.used, tone: '' }].map((s) => <div key={s.label} className="rounded-2xl border border-neutral-200 bg-white p-4"><p className="text-[13px] font-bold uppercase tracking-widest text-neutral-500">{s.label}</p><p className={`mt-1 font-sans text-[13px] font-semibold ${s.tone || 'text-neutral-900'}`}>{s.value}</p></div>)}
+        {[{ label: 'Total codes', value: stats.total, tone: '' }, { label: 'Active', value: stats.active, tone: 'text-[#3E5C4B]' }, { label: 'Total uses', value: stats.used, tone: '' }].map((s) => <div key={s.label} className="rounded-2xl border border-neutral-200 bg-white p-4"><p className="text-[13px] font-bold uppercase tracking-widest text-neutral-500">{s.label}</p><p className={`mt-1 font-sans text-[13px] font-semibold ${s.tone || 'text-neutral-900'}`}>{s.value}</p></div>)}
       </div>
       {showForm && (
         <form onSubmit={save} className="mb-5 overflow-hidden rounded-2xl border border-neutral-200 bg-white">
@@ -56,7 +56,7 @@ export default function Discounts() {
           </div>
           <div className="flex items-center gap-4 border-t border-neutral-100 bg-neutral-50 px-6 py-4">
             <label className="flex cursor-pointer items-center gap-2 text-[13px] font-medium text-neutral-700"><input type="checkbox" checked={form.active} onChange={(e) => set('active', e.target.checked)} className="h-4 w-4 accent-neutral-900" />Active</label>
-            {err && <p className="rounded-lg bg-red-50 px-3 py-1.5 text-[12px] text-red-700">{err}</p>}
+            {err && <p className="rounded-lg bg-[#F5EDEB] px-3 py-1.5 text-[12px] text-[#8A4B3F]">{err}</p>}
             <div className="ml-auto flex gap-2"><button type="button" onClick={() => setShowForm(false)} className="rounded-full border border-neutral-300 bg-white px-4 py-2 text-[12px] font-semibold text-neutral-700 hover:bg-neutral-50">Cancel</button><button disabled={busy} className="rounded-full bg-neutral-900 px-4 py-2 text-[12px] font-semibold text-white hover:bg-black disabled:opacity-50">{busy ? 'Saving…' : editing ? 'Save changes' : 'Create code'}</button></div>
           </div>
         </form>
@@ -68,13 +68,13 @@ export default function Discounts() {
             <div key={d._id} className={`group rounded-2xl border bg-white p-5 transition hover:shadow-sm ${d.active ? 'border-neutral-200' : 'border-neutral-200 bg-neutral-50/50'}`}>
               <div className="flex items-start justify-between">
                 <span className={`rounded-xl px-3 py-1.5 font-mono text-[13px] font-bold tracking-wide ${d.active ? 'bg-neutral-900 text-white' : 'bg-neutral-200 text-neutral-600'}`}>{d.code}</span>
-                <button onClick={() => toggle(d)} title={d.active ? 'Deactivate' : 'Activate'} className={`grid h-8 w-8 place-items-center rounded-lg transition ${d.active ? 'text-emerald-600 hover:bg-emerald-50' : 'text-neutral-400 hover:bg-neutral-100'}`}>{d.active ? <ToggleRight size={18} /> : <ToggleLeft size={18} />}</button>
+                <button onClick={() => toggle(d)} title={d.active ? 'Deactivate' : 'Activate'} className={`grid h-8 w-8 place-items-center rounded-lg transition ${d.active ? 'text-[#4A6B58] hover:bg-[#E9EFEA]' : 'text-neutral-400 hover:bg-neutral-100'}`}>{d.active ? <ToggleRight size={18} /> : <ToggleLeft size={18} />}</button>
               </div>
               <div className="mt-3">
                 <p className="text-[12px] font-semibold text-neutral-900">{d.type === 'percent' ? `${d.value}% off` : `${pkr(d.value)} off`}</p>
                 <div className="mt-2 flex flex-wrap gap-2 text-[12px]">
                   {d.minSubtotal > 0 && <span className="rounded-full bg-neutral-100 px-2 py-0.5 font-medium text-neutral-600">Min order {pkr(d.minSubtotal)}</span>}
-                  {d.expiresAt && <span className={`rounded-full px-2 py-0.5 font-medium ${new Date(d.expiresAt) < new Date() ? 'bg-red-50 text-red-700' : 'bg-neutral-100 text-neutral-600'}`}><Calendar size={10} className="mr-1 inline" />{fmtDate(d.expiresAt)}</span>}
+                  {d.expiresAt && <span className={`rounded-full px-2 py-0.5 font-medium ${new Date(d.expiresAt) < new Date() ? 'bg-[#F5EDEB] text-[#8A4B3F]' : 'bg-neutral-100 text-neutral-600'}`}><Calendar size={10} className="mr-1 inline" />{fmtDate(d.expiresAt)}</span>}
                 </div>
               </div>
               <div className="mt-4">
@@ -83,8 +83,8 @@ export default function Discounts() {
               </div>
               <div className="mt-4 flex items-center gap-1 border-t border-neutral-100 pt-3">
                 <button onClick={() => openEdit(d)} className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[12px] font-semibold text-neutral-600 transition hover:bg-neutral-100"><Plus size={11} className="rotate-45" /> Edit</button>
-                <button onClick={() => remove(d)} className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[12px] font-semibold text-neutral-600 transition hover:bg-red-50 hover:text-red-600"><X size={11} /> Delete</button>
-                <span className={`ml-auto rounded-full px-2 py-0.5 text-[13px] font-bold uppercase tracking-wider ${d.active ? 'bg-emerald-50 text-emerald-700' : 'bg-neutral-200 text-neutral-600'}`}>{d.active ? 'Active' : 'Off'}</span>
+                <button onClick={() => remove(d)} className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[12px] font-semibold text-neutral-600 transition hover:bg-[#F5EDEB] hover:text-[#9A5548]"><X size={11} /> Delete</button>
+                <span className={`ml-auto rounded-full px-2 py-0.5 text-[13px] font-bold uppercase tracking-wider ${d.active ? 'bg-[#E9EFEA] text-[#3E5C4B]' : 'bg-neutral-200 text-neutral-600'}`}>{d.active ? 'Active' : 'Off'}</span>
               </div>
             </div>
           ))}

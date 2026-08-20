@@ -74,9 +74,9 @@ export default function Collections() {
                   ? <img src={c.image} alt={c.name} className="h-full w-full object-cover" onError={(e) => { e.target.style.display = 'none'; }} />
                   : <div className="flex h-full items-center justify-center bg-gradient-to-br from-neutral-100 to-neutral-200"><Boxes size={32} className="text-neutral-400" /></div>}
                 <div className="absolute right-2 top-2 flex gap-1">
-                  {c.featuredOnHome && <span className="rounded-full bg-amber-500 px-2 py-0.5 text-[13px] font-bold text-white"><Star size={9} className="inline" fill="currentColor" /> Featured</span>}
+                  {c.featuredOnHome && <span className="rounded-full bg-[#C9A96E] px-2 py-0.5 text-[13px] font-bold text-white"><Star size={9} className="inline" fill="currentColor" /> Featured</span>}
                   {!c.isActive && <span className="rounded-full bg-neutral-200 px-2 py-0.5 text-[13px] font-bold text-neutral-700">Hidden</span>}
-                  {c.smart?.enabled && <span className="rounded-full bg-blue-600 px-2 py-0.5 text-[13px] font-bold text-white"><Sparkles size={9} className="inline" /> Smart</span>}
+                  {c.smart?.enabled && <span className="rounded-full bg-[#525252] px-2 py-0.5 text-[13px] font-bold text-white"><Sparkles size={9} className="inline" /> Smart</span>}
                 </div>
               </div>
               <div className="p-4">
@@ -92,7 +92,7 @@ export default function Collections() {
                   <a href={`/collection/${c.slug}`} target="_blank" rel="noreferrer" className="text-[12px] font-semibold text-neutral-500 hover:text-neutral-900">Preview →</a>
                   <div className="flex items-center gap-1">
                     <button onClick={() => setEditing(c)} className="rounded-lg p-1.5 text-neutral-500 transition hover:bg-neutral-100 hover:text-neutral-900" aria-label="Edit"><Edit3 size={13} /></button>
-                    <button onClick={() => remove(c)} className="rounded-lg p-1.5 text-neutral-500 transition hover:bg-red-50 hover:text-red-700" aria-label="Delete"><Trash2 size={13} /></button>
+                    <button onClick={() => remove(c)} className="rounded-lg p-1.5 text-neutral-500 transition hover:bg-[#F5EDEB] hover:text-[#8A4B3F]" aria-label="Delete"><Trash2 size={13} /></button>
                   </div>
                 </div>
               </div>

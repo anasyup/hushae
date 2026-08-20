@@ -65,7 +65,7 @@ export default function Growth() {
                   <td className="table-cell text-neutral-500">{i + 1}</td>
                   <td className="table-cell font-medium">{s.email}</td>
                   <td className="table-cell text-neutral-500">{fmtDate(s.createdAt)}</td>
-                  <td className="table-cell text-right"><button onClick={() => remove(s)} className="rounded-lg p-2 text-neutral-500 hover:bg-red-50 hover:text-red-700"><Trash2 size={15} /></button></td>
+                  <td className="table-cell text-right"><button onClick={() => remove(s)} className="rounded-lg p-2 text-neutral-500 hover:bg-[#F5EDEB] hover:text-[#8A4B3F]"><Trash2 size={15} /></button></td>
                 </tr>
               ))}
             </tbody>

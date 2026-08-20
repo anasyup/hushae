@@ -81,10 +81,10 @@ const waVerifyLink = (o, storePhone) => {
 };
 
 const statusPill = (s) =>
-  s === 'Delivered' ? 'bg-emerald-100 text-emerald-800' : s === 'Cancelled' ? 'bg-red-100 text-red-800'
-    : s === 'Refunded' ? 'bg-orange-100 text-orange-800' : s === 'Shipped' || s === 'Out for Delivery' ? 'bg-[#EAE0CC] text-[#7A6239]'
-    : s === 'Ready to Ship' ? 'bg-blue-100 text-blue-800' : s === 'Processing' ? 'bg-blue-50 text-blue-700'
-    : s === 'Confirmed' ? 'bg-cyan-100 text-cyan-800' : 'bg-amber-100 text-amber-800';
+  s === 'Delivered' ? 'bg-[#DDE7E0] text-[#33503F]' : s === 'Cancelled' ? 'bg-[#EEDED9] text-[#7C4237]'
+    : s === 'Refunded' ? 'bg-[#F4E8DC] text-[#7A5F33]' : s === 'Shipped' || s === 'Out for Delivery' ? 'bg-[#EAE0CC] text-[#7A6239]'
+    : s === 'Ready to Ship' ? 'bg-[#E8E8E8] text-[#4A4A4A]' : s === 'Processing' ? 'bg-[#F1F1F1] text-[#5A5A5A]'
+    : s === 'Confirmed' ? 'bg-[#E8E8E8] text-[#4A4A4A]' : 'bg-[#EDE4CE] text-[#6B552F]';
 
 function KpiCard({ icon: Icon, label, value, change, sparkData, accent = '#111111', format = 'number', to, compareLabel = 'vs. previous 30 days' }) {
   /* change === null means "no meaningful rate from zero" (backend growthPct):
@@ -99,7 +99,7 @@ function KpiCard({ icon: Icon, label, value, change, sparkData, accent = '#11111
       <div className="flex items-center justify-between">
         <span className="grid h-11 w-11 place-items-center rounded-xl" style={{ background: `${accent}14`, color: accent }}><Icon size={17} strokeWidth={1.9} /></span>
         {isNew ? <span className="inline-flex items-center gap-1 rounded-full bg-neutral-100 px-2 py-0.5 text-[12px] font-bold text-neutral-700">New</span>
-          : hasRate && change !== 0 && <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[12px] font-bold ${positive ? 'bg-emerald-50 text-emerald-700' : negative ? 'bg-red-50 text-red-700' : 'bg-neutral-100 text-neutral-600'}`}>{positive ? <ArrowUpRight size={11} /> : negative ? <ArrowDownRight size={11} /> : null}{changeText}</span>}
+          : hasRate && change !== 0 && <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[12px] font-bold ${positive ? 'bg-[#E9EFEA] text-[#3E5C4B]' : negative ? 'bg-[#F5EDEB] text-[#8A4B3F]' : 'bg-neutral-100 text-neutral-600'}`}>{positive ? <ArrowUpRight size={11} /> : negative ? <ArrowDownRight size={11} /> : null}{changeText}</span>}
       </div>
       <p className="mt-4 text-[13px] font-bold uppercase tracking-widest text-neutral-500">{label}</p>
       <p className="mt-1 font-sans text-2xl font-semibold tabular-nums leading-none tracking-tight text-neutral-900">{display}</p>
@@ -144,12 +144,12 @@ function QuickActions() {
 }
 
 function ProfitTile({ icon: Icon, label, value, change, tone = 'neutral', format = 'money', hint }) {
-  const toneMap = { green: { bg: 'bg-emerald-50', text: 'text-emerald-700', ring: 'ring-emerald-100' }, amber: { bg: 'bg-amber-50', text: 'text-amber-700', ring: 'ring-amber-100' }, red: { bg: 'bg-red-50', text: 'text-red-700', ring: 'ring-red-100' }, neutral: { bg: 'bg-neutral-100', text: 'text-neutral-700', ring: 'ring-neutral-100' } };
+  const toneMap = { green: { bg: 'bg-[#E9EFEA]', text: 'text-[#3E5C4B]', ring: 'ring-[#DDE7E0]' }, amber: { bg: 'bg-[#F6F1E6]', text: 'text-[#7A6239]', ring: 'ring-[#EDE4CE]' }, red: { bg: 'bg-[#F5EDEB]', text: 'text-[#8A4B3F]', ring: 'ring-[#EEDED9]' }, neutral: { bg: 'bg-neutral-100', text: 'text-neutral-700', ring: 'ring-neutral-100' } };
   const t = toneMap[tone];
   const display = format === 'money' ? pkr(value) : format === 'percent' ? `${value}%` : value.toLocaleString();
   return (
     <div className={`rounded-xl border border-neutral-200 bg-white p-4 ring-1 ${t.ring}`}>
-      <div className="flex items-center justify-between"><span className={`grid h-8 w-8 place-items-center rounded-lg ${t.bg} ${t.text}`}><Icon size={13} /></span>{typeof change === 'number' && change !== 0 && <span className={`text-[13px] font-bold ${change > 0 ? 'text-emerald-700' : 'text-red-700'}`}>{change > 0 ? '▲' : '▼'} {Math.abs(change).toFixed(1)}%</span>}</div>
+      <div className="flex items-center justify-between"><span className={`grid h-8 w-8 place-items-center rounded-lg ${t.bg} ${t.text}`}><Icon size={13} /></span>{typeof change === 'number' && change !== 0 && <span className={`text-[13px] font-bold ${change > 0 ? 'text-[#3E5C4B]' : 'text-[#8A4B3F]'}`}>{change > 0 ? '▲' : '▼'} {Math.abs(change).toFixed(1)}%</span>}</div>
       <p className="mt-3 text-[13px] font-bold uppercase tracking-widest text-neutral-500">{label}</p>
       <p className={`mt-0.5 font-sans text-[13px] font-semibold leading-none tabular-nums tracking-tight ${t.text}`}>{display}</p>
       {hint && <p className="mt-1.5 text-[13px] text-neutral-500">{hint}</p>}
@@ -181,9 +181,9 @@ function StockRow({ product: p, onSaved, onReorder }) {
   return (
     <div className="group flex items-center gap-3 rounded-lg p-1.5 transition hover:bg-neutral-50">
       <Link to={`/admin/products/${p._id}`} className="flex min-w-0 flex-1 items-center gap-3"><Img src={p.images?.[0]?.url} alt="" className="h-10 w-8 shrink-0 rounded-md border border-neutral-200 object-cover" /><span className="line-clamp-2 flex-1 text-[12px] font-medium text-neutral-800">{p.name}</span></Link>
-      <button onClick={() => { setValue(String(p.stock)); setEditing(true); }} title="Update stock" className={`pill shrink-0 transition hover:ring-2 hover:ring-neutral-300 ${p.stock === 0 ? 'bg-red-100 text-red-800' : 'bg-red-50 text-red-700'}`}>{p.stock} ✎</button>
+      <button onClick={() => { setValue(String(p.stock)); setEditing(true); }} title="Update stock" className={`pill shrink-0 transition hover:ring-2 hover:ring-neutral-300 ${p.stock === 0 ? 'bg-[#EEDED9] text-[#7C4237]' : 'bg-[#F5EDEB] text-[#8A4B3F]'}`}>{p.stock} ✎</button>
       {p.reorderStatus === 'pending' ? (
-        <button onClick={() => onReorder?.(p)} title="Reorder pending — tap to mark received" className="pill shrink-0 bg-amber-100 text-amber-800 transition hover:ring-2 hover:ring-amber-300">Reorder pending</button>
+        <button onClick={() => onReorder?.(p)} title="Reorder pending — tap to mark received" className="pill shrink-0 bg-[#EDE4CE] text-[#6B552F] transition hover:ring-2 hover:ring-[#CDB98F]">Reorder pending</button>
       ) : (
         <button onClick={() => onReorder?.(p)} title="Reorder" className="pill shrink-0 bg-neutral-900 text-white transition hover:bg-neutral-800">Reorder</button>
       )}
@@ -193,12 +193,12 @@ function StockRow({ product: p, onSaved, onReorder }) {
 
 function PipelineStrip({ stats }) {
   const items = [
-    { label: 'Pending', n: stats.pending, color: 'bg-amber-500', text: 'text-amber-700', to: '/admin/orders?group=new' },
-    { label: 'Confirmed', n: stats.confirmed, color: 'bg-cyan-500', text: 'text-cyan-700', to: '/admin/orders?status=Confirmed&group=all' },
-    { label: 'Processing', n: stats.processing, color: 'bg-blue-500', text: 'text-blue-700', to: '/admin/orders?group=processing' },
+    { label: 'Pending', n: stats.pending, color: 'bg-[#C9A96E]', text: 'text-[#7A6239]', to: '/admin/orders?group=new' },
+    { label: 'Confirmed', n: stats.confirmed, color: 'bg-[#6B6B6B]', text: 'text-[#5A5A5A]', to: '/admin/orders?status=Confirmed&group=all' },
+    { label: 'Processing', n: stats.processing, color: 'bg-[#6B6B6B]', text: 'text-[#5A5A5A]', to: '/admin/orders?group=processing' },
     { label: 'Ready', n: stats.readyToShip, color: 'bg-[#A68A56]', text: 'text-[#8F7448]', to: '/admin/orders?group=to-ship' },
     { label: 'In Transit', n: stats.shipped, color: 'bg-[#F4EEE2]0', text: 'text-[#8F7448]', to: '/admin/orders?group=shipped' },
-    { label: 'Delivered', n: stats.delivered, color: 'bg-emerald-500', text: 'text-emerald-700', to: '/admin/orders?group=delivered' },
+    { label: 'Delivered', n: stats.delivered, color: 'bg-[#5B7F6A]', text: 'text-[#3E5C4B]', to: '/admin/orders?group=delivered' },
   ];
   /* Fixed-width equal segments — a funnel has 6 stages regardless of volume, so
      each stage keeps ~16.6% of the bar. A stage with orders is tinted its own
@@ -233,9 +233,9 @@ function PipelineStrip({ stats }) {
         ))}
       </div>
       {stats.pending > 0 && (
-        <Link to="/admin/orders?group=new" className="mt-3 flex items-center justify-between gap-3 rounded-xl border border-amber-200 bg-amber-50 px-3.5 py-2.5 transition hover:border-amber-300 hover:bg-amber-100">
-          <span className="min-w-0 text-[12px] font-medium text-amber-900"><b className="tabular-nums">{stats.pending}</b> new order{stats.pending === 1 ? '' : 's'} waiting to be confirmed</span>
-          <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-amber-900 px-3 py-1 text-[12px] font-semibold text-white">Review now <ChevronRight size={11} /></span>
+        <Link to="/admin/orders?group=new" className="mt-3 flex items-center justify-between gap-3 rounded-xl border border-[#DCCBA5] bg-[#F6F1E6] px-3.5 py-2.5 transition hover:border-[#CDB98F] hover:bg-[#EDE4CE]">
+          <span className="min-w-0 text-[12px] font-medium text-[#5C4A28]"><b className="tabular-nums">{stats.pending}</b> new order{stats.pending === 1 ? '' : 's'} waiting to be confirmed</span>
+          <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[#6B552F] px-3 py-1 text-[12px] font-semibold text-white">Review now <ChevronRight size={11} /></span>
         </Link>
       )}
     </div>
@@ -369,7 +369,7 @@ export default function Dashboard() {
   useEffect(() => { load(); /* eslint-disable-next-line */ }, [auth, range]);
   useEffect(() => { if (!auth?.token) return; const t = setInterval(() => load(true), 30000); return () => clearInterval(t); }, [auth, range]);
 
-  if (err) return <AdminLayout title="Dashboard"><div className="mx-auto grid max-w-md place-items-center rounded-2xl border border-red-200 bg-red-50 p-10 text-center"><AlertTriangle size={22} className="mb-2 text-red-600" /><p className="text-sm text-red-700">{err}</p><button onClick={() => { setErr(''); load(); }} className="mt-4 rounded-full border border-red-300 bg-white px-4 py-1.5 text-[12px] font-semibold text-red-700 hover:bg-red-100">Try again</button></div></AdminLayout>;
+  if (err) return <AdminLayout title="Dashboard"><div className="mx-auto grid max-w-md place-items-center rounded-2xl border border-[#E0C6BE] bg-[#F5EDEB] p-10 text-center"><AlertTriangle size={22} className="mb-2 text-[#9A5548]" /><p className="text-sm text-[#8A4B3F]">{err}</p><button onClick={() => { setErr(''); load(); }} className="mt-4 rounded-full border border-[#D0ABA0] bg-white px-4 py-1.5 text-[12px] font-semibold text-[#8A4B3F] hover:bg-[#EEDED9]">Try again</button></div></AdminLayout>;
   if (!d) return <AdminLayout title="Dashboard"><div className="grid gap-4 md:grid-cols-5">{[1,2,3,4,5].map((i) => <div key={i} className="animate-pulse rounded-xl bg-neutral-100 h-32 rounded-2xl" />)}</div><div className="mt-6 skeleton h-72 rounded-2xl" /></AdminLayout>;
 
   const sparkRevenue = d.chart.map((x) => ({ v: x.revenue }));
@@ -398,7 +398,7 @@ export default function Dashboard() {
           <p className="mt-1 text-[13px] text-neutral-500">What needs a decision before anything else.</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1.5 text-[12px] font-semibold text-emerald-700 ring-1 ring-emerald-200"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />Live{lastSync ? ` · ${lastSync.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : ''}</span>
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#E9EFEA] px-3 py-1.5 text-[12px] font-semibold text-[#3E5C4B] ring-1 ring-[#C9D8CE]"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#5B7F6A]" />Live{lastSync ? ` · ${lastSync.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : ''}</span>
           <span className="hidden items-center gap-1.5 rounded-full bg-neutral-100 px-3 py-1.5 text-[12px] font-semibold text-neutral-600 sm:inline-flex"><Calendar size={12} /> {new Date().toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long' })}</span>
           <RangePicker value={range} onChange={applyRange} />
           <button onClick={() => load()} disabled={refreshing} className="inline-flex min-h-[34px] items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-50"><RefreshCw size={12} className={refreshing ? 'animate-spin' : ''} /> Refresh</button>
@@ -427,10 +427,10 @@ export default function Dashboard() {
 
       {/* ── Row 2: KPI Cards + Quick Actions ───────────────────────────── */}
       <div className="mb-6 grid gap-4 md:grid-cols-5">
-        <KpiCard icon={CircleDollarSign} label="Revenue" value={d.kpis.revenue.value} change={d.kpis.revenue.change} sparkData={sparkRevenue} accent="#059669" format="money" to="/admin/analytics" compareLabel={cmpLabel} />
-        <KpiCard icon={ShoppingBag} label="Orders" value={d.kpis.orders.value} change={d.kpis.orders.change} sparkData={sparkOrders} accent="#2563eb" to="/admin/orders" compareLabel={cmpLabel} />
+        <KpiCard icon={CircleDollarSign} label="Revenue" value={d.kpis.revenue.value} change={d.kpis.revenue.change} sparkData={sparkRevenue} accent="#4A6B58" format="money" to="/admin/analytics" compareLabel={cmpLabel} />
+        <KpiCard icon={ShoppingBag} label="Orders" value={d.kpis.orders.value} change={d.kpis.orders.change} sparkData={sparkOrders} accent="#6B6B6B" to="/admin/orders" compareLabel={cmpLabel} />
         <KpiCard icon={Users} label="New Customers" value={d.kpis.customers.value} change={d.kpis.customers.change} sparkData={sparkCustomers} accent="#A68A56" to="/admin/customers" compareLabel="in the selected period" />
-        <KpiCard icon={TrendingUp} label="Avg Order Value" value={d.kpis.aov.value} change={d.kpis.aov.change} sparkData={sparkAov} accent="#dc2626" format="money" to="/admin/analytics" compareLabel={cmpLabel} />
+        <KpiCard icon={TrendingUp} label="Avg Order Value" value={d.kpis.aov.value} change={d.kpis.aov.change} sparkData={sparkAov} accent="#9A5548" format="money" to="/admin/analytics" compareLabel={cmpLabel} />
         <QuickActions />
       </div>
 
@@ -458,7 +458,7 @@ export default function Dashboard() {
             <ProfitTile label="Cost of goods" value={d.kpis.cost.value} tone="neutral" format="money" icon={Package} hint="What you paid for products sold" />
             <ProfitTile label="Profit margin" value={d.kpis.margin.value} tone={d.kpis.margin.value >= 40 ? 'green' : d.kpis.margin.value >= 20 ? 'amber' : 'red'} format="percent" icon={CircleDollarSign} hint="Profit as % of revenue" />
           </div>
-          {d.kpis.cost.value === 0 && <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-3 text-[12px] text-amber-800">💡 Set <b>Cost / Wholesale price</b> on each product for accurate profit tracking.</div>}
+          {d.kpis.cost.value === 0 && <div className="mt-4 rounded-xl border border-[#DCCBA5] bg-[#F6F1E6] p-3 text-[12px] text-[#6B552F]">💡 Set <b>Cost / Wholesale price</b> on each product for accurate profit tracking.</div>}
         </div>
       )}
 
@@ -468,7 +468,7 @@ export default function Dashboard() {
           <div className="rounded-2xl border border-neutral-200 bg-white p-5">
             <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-500">Payment health</p>
             <div className="mt-3 flex flex-wrap gap-1.5">{PAYMENT_STATES.map((p) => { const n = insights.paymentBreakdown?.[p.key] || 0; if (!n) return null; return <span key={p.key} className={`rounded-full px-2.5 py-1 text-[12px] font-semibold ring-1 ${TONE[p.tone]?.pill || 'bg-neutral-50 text-neutral-600 ring-neutral-200'}`}>{p.label} {n}</span>; })}{!Object.values(insights.paymentBreakdown || {}).some((n) => Number(n) > 0) && <span className="py-1 text-[12px] text-neutral-400">No orders in this period</span>}</div>
-            <div className="mt-3 space-y-1.5 border-t border-neutral-100 pt-3 text-[12px]"><p className="flex justify-between"><span className="text-neutral-500">Verification rate</span><span className="font-semibold">{insights.kpis.paymentVerifiedRate}%</span></p><p className="flex justify-between"><span className="text-neutral-500">Avg time to ship</span><span className="font-semibold">{insights.avgShipHours ? (insights.avgShipHours < 1 ? `${Math.round(insights.avgShipHours * 60)}m` : `${insights.avgShipHours}h`) : '—'}</span></p><p className="flex justify-between"><span className="text-neutral-500">Issue rate</span><span className={`font-semibold ${insights.kpis.issueRate > 5 ? 'text-red-600' : ''}`}>{insights.kpis.issueRate}%</span></p></div>
+            <div className="mt-3 space-y-1.5 border-t border-neutral-100 pt-3 text-[12px]"><p className="flex justify-between"><span className="text-neutral-500">Verification rate</span><span className="font-semibold">{insights.kpis.paymentVerifiedRate}%</span></p><p className="flex justify-between"><span className="text-neutral-500">Avg time to ship</span><span className="font-semibold">{insights.avgShipHours ? (insights.avgShipHours < 1 ? `${Math.round(insights.avgShipHours * 60)}m` : `${insights.avgShipHours}h`) : '—'}</span></p><p className="flex justify-between"><span className="text-neutral-500">Issue rate</span><span className={`font-semibold ${insights.kpis.issueRate > 5 ? 'text-[#9A5548]' : ''}`}>{insights.kpis.issueRate}%</span></p></div>
           </div>
           <div className="rounded-2xl border border-neutral-200 bg-white p-5">
             <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-500">Peak order hours</p>
@@ -491,10 +491,10 @@ export default function Dashboard() {
       <div className="mb-6 grid gap-6 lg:grid-cols-2">
         <ChartBoundary><TodayHourly hourly={d.hourly} /></ChartBoundary>
         <div className="rounded-2xl border border-neutral-200 bg-white p-6">
-          <div className="flex items-center justify-between"><div><p className="text-[12px] font-bold uppercase tracking-widest text-neutral-500">Best sellers</p><p className="mt-1 text-[12px] text-neutral-500">Top 5 by units sold</p></div><Sparkles size={16} className="text-amber-500" /></div>
+          <div className="flex items-center justify-between"><div><p className="text-[12px] font-bold uppercase tracking-widest text-neutral-500">Best sellers</p><p className="mt-1 text-[12px] text-neutral-500">Top 5 by units sold</p></div><Sparkles size={16} className="text-[#A68A56]" /></div>
           {d.bestSellers.length === 0 ? <p className="mt-6 text-center text-sm text-neutral-400">Sales data will appear here.</p> : (
             <ol className="mt-5 space-y-3">{d.bestSellers.map((b, i) => (
-              <li key={b.name} className="flex items-center gap-3"><span className={`grid h-7 w-7 shrink-0 place-items-center rounded-lg text-[12px] font-bold ${i === 0 ? 'bg-amber-500 text-white' : i === 1 ? 'bg-neutral-400 text-white' : i === 2 ? 'bg-amber-700 text-white' : 'bg-neutral-100 text-neutral-600'}`}>{i + 1}</span>{b.image && <Img src={b.image} alt="" className="h-10 w-8 rounded-md border border-neutral-200 object-cover" />}<div className="min-w-0 flex-1"><p className="truncate text-[13px] font-medium text-neutral-900">{b.name}</p><p className="text-[12px] text-neutral-500">{b.qty} sold · {pkr(b.revenue)}</p></div></li>
+              <li key={b.name} className="flex items-center gap-3"><span className={`grid h-7 w-7 shrink-0 place-items-center rounded-lg text-[12px] font-bold ${i === 0 ? 'bg-[#C9A96E] text-white' : i === 1 ? 'bg-neutral-400 text-white' : i === 2 ? 'bg-[#8F7448] text-white' : 'bg-neutral-100 text-neutral-600'}`}>{i + 1}</span>{b.image && <Img src={b.image} alt="" className="h-10 w-8 rounded-md border border-neutral-200 object-cover" />}<div className="min-w-0 flex-1"><p className="truncate text-[13px] font-medium text-neutral-900">{b.name}</p><p className="text-[12px] text-neutral-500">{b.qty} sold · {pkr(b.revenue)}</p></div></li>
             ))}</ol>
           )}
         </div>
@@ -512,7 +512,7 @@ export default function Dashboard() {
               </Link>
               <div className="flex shrink-0 items-center gap-2.5">
                 {o.status === 'Pending' && waVerifyLink(o, settings?.contactPhone || settings?.integrations?.whatsapp?.number || '') && (
-                  <a href={waVerifyLink(o, settings?.contactPhone || settings?.integrations?.whatsapp?.number || '')} target="_blank" rel="noreferrer" aria-label={`Verify ${o.orderNumber} via WhatsApp`} title="Verify via WhatsApp" className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-emerald-200 bg-emerald-50 text-emerald-700 transition hover:bg-emerald-100">
+                  <a href={waVerifyLink(o, settings?.contactPhone || settings?.integrations?.whatsapp?.number || '')} target="_blank" rel="noreferrer" aria-label={`Verify ${o.orderNumber} via WhatsApp`} title="Verify via WhatsApp" className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-[#C9D8CE] bg-[#E9EFEA] text-[#3E5C4B] transition hover:bg-[#DDE7E0]">
                     <MessageCircle size={14} />
                   </a>
                 )}
@@ -523,7 +523,7 @@ export default function Dashboard() {
         </div>
         <div className="space-y-6">
           <div className="rounded-2xl border border-neutral-200 bg-white p-6">
-            <div className="mb-3 flex items-center justify-between"><p className="flex items-center gap-2 text-[12px] font-bold uppercase tracking-widest text-neutral-500"><AlertTriangle size={13} className="text-red-500" /> Low stock (≤ 10)</p><Link to="/admin/products" className="text-[12px] font-semibold text-neutral-500 hover:text-neutral-900">Manage</Link></div>
+            <div className="mb-3 flex items-center justify-between"><p className="flex items-center gap-2 text-[12px] font-bold uppercase tracking-widest text-neutral-500"><AlertTriangle size={13} className="text-[#B46A5C]" /> Low stock (≤ 10)</p><Link to="/admin/products" className="text-[12px] font-semibold text-neutral-500 hover:text-neutral-900">Manage</Link></div>
             {d.lowStock.length === 0 ? <p className="py-6 text-center text-sm text-neutral-400">All stocked up.</p> : <div className="space-y-1">{d.lowStock.slice(0, 5).map((p) => <StockRow key={p._id} product={p} onSaved={() => load(true)} onReorder={setReorder} />)}</div>}
           </div>
           <div className="rounded-2xl border border-neutral-200 bg-white p-6">

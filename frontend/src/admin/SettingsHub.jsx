@@ -214,7 +214,7 @@ export default function SettingsHub() {
                         {c.badge && (
                           <span className={`rounded-full px-2 py-0.5 text-[12px] font-bold uppercase tracking-wider ${
                             c.badge === 'Coming soon'
-                              ? 'bg-amber-100 text-amber-800'
+                              ? 'bg-[#EDE4CE] text-[#6B552F]'
                               : 'bg-neutral-100 text-neutral-600'
                           }`}>{c.badge}</span>
                         )}
@@ -240,8 +240,8 @@ export default function SettingsHub() {
             </div>
             <p className="mt-2 text-[13px] font-semibold text-neutral-900">{auth?.user?.name || 'Admin'}</p>
             <p className="mt-0.5 font-mono text-[12px] text-neutral-500">{auth?.user?.email || '—'}</p>
-            <span className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-[13px] font-bold uppercase tracking-wider text-emerald-800">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+            <span className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-[#E9EFEA] px-2.5 py-1 text-[13px] font-bold uppercase tracking-wider text-[#33503F]">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#5B7F6A]" />
               Admin access
             </span>
           </div>

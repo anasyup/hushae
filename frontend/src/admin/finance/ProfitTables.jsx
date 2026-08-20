@@ -71,7 +71,7 @@ export function ProfitByProduct({ days, from, to }) {
                 <td className="py-2.5 text-right tabular-nums text-neutral-900">{r.revenue.toLocaleString()}</td>
                 <td className="py-2.5 text-right tabular-nums text-neutral-500">{r.cogs.toLocaleString()}</td>
                 <td className="py-2.5 text-right font-semibold tabular-nums text-neutral-900">{r.profit.toLocaleString()}</td>
-                <td className={`py-2.5 text-right font-semibold tabular-nums ${r.margin >= 40 ? 'text-emerald-700' : r.margin >= 15 ? 'text-amber-700' : 'text-red-700'}`}>
+                <td className={`py-2.5 text-right font-semibold tabular-nums ${r.margin >= 40 ? 'text-[#3E5C4B]' : r.margin >= 15 ? 'text-[#7A6239]' : 'text-[#8A4B3F]'}`}>
                   {r.margin}%
                 </td>
               </tr>
@@ -131,10 +131,10 @@ export function ProfitByCustomer({ days, from, to }) {
             ) : rows.length === 0 ? (
               <tr><td colSpan={6} className="py-8 text-center text-neutral-400">No customers in this range.</td></tr>
             ) : rows.map((r) => (
-              <tr key={r.phone} className={`border-b border-neutral-100 ${r.atRisk ? 'bg-amber-50/40' : ''}`}>
+              <tr key={r.phone} className={`border-b border-neutral-100 ${r.atRisk ? 'bg-[#F6F1E6]/40' : ''}`}>
                 <td className="py-2.5">
                   <div className="flex items-center gap-2">
-                    {r.atRisk && <AlertTriangle size={12} className="shrink-0 text-amber-600" />}
+                    {r.atRisk && <AlertTriangle size={12} className="shrink-0 text-[#8F7448]" />}
                     <div className="min-w-0">
                       <p className="truncate font-medium text-neutral-900">{r.name}</p>
                       <p className="truncate text-[12px] text-neutral-500">{r.city}</p>
@@ -143,9 +143,9 @@ export function ProfitByCustomer({ days, from, to }) {
                 </td>
                 <td className="py-2.5 text-right tabular-nums text-neutral-600">{r.orders}</td>
                 <td className="py-2.5 text-right tabular-nums text-neutral-900">{r.revenue.toLocaleString()}</td>
-                <td className={`py-2.5 text-right font-semibold tabular-nums ${r.profit >= 0 ? 'text-neutral-900' : 'text-red-700'}`}>{r.profit.toLocaleString()}</td>
-                <td className={`py-2.5 text-right font-semibold tabular-nums ${r.margin >= 15 ? 'text-emerald-700' : 'text-amber-700'}`}>{r.revenue > 0 ? `${r.margin}%` : '—'}</td>
-                <td className={`py-2.5 text-right tabular-nums ${r.failRate >= 25 ? 'font-semibold text-red-700' : 'text-neutral-500'}`}>
+                <td className={`py-2.5 text-right font-semibold tabular-nums ${r.profit >= 0 ? 'text-neutral-900' : 'text-[#8A4B3F]'}`}>{r.profit.toLocaleString()}</td>
+                <td className={`py-2.5 text-right font-semibold tabular-nums ${r.margin >= 15 ? 'text-[#3E5C4B]' : 'text-[#7A6239]'}`}>{r.revenue > 0 ? `${r.margin}%` : '—'}</td>
+                <td className={`py-2.5 text-right tabular-nums ${r.failRate >= 25 ? 'font-semibold text-[#8A4B3F]' : 'text-neutral-500'}`}>
                   {r.cancelled + r.returned > 0 ? `${r.cancelled + r.returned} (${r.failRate}%)` : '—'}
                 </td>
               </tr>
@@ -185,15 +185,15 @@ export function CodExposure() {
           <p className="mt-0.5 font-sans text-[13px] font-semibold tabular-nums text-neutral-900">{d.buckets.notShipped}</p>
           <p className="mt-0.5 text-[12px] text-neutral-500">Cancellable at no cost</p>
         </div>
-        <div className="rounded-xl bg-amber-50 p-3">
-          <p className="text-[11px] font-bold uppercase tracking-widest text-amber-800">With the courier</p>
-          <p className="mt-0.5 font-sans text-[13px] font-semibold tabular-nums text-amber-900">{d.buckets.inTransit}</p>
-          <p className="mt-0.5 text-[12px] text-amber-700">{pkr(d.sunkCost)} already spent</p>
+        <div className="rounded-xl bg-[#F6F1E6] p-3">
+          <p className="text-[11px] font-bold uppercase tracking-widest text-[#6B552F]">With the courier</p>
+          <p className="mt-0.5 font-sans text-[13px] font-semibold tabular-nums text-[#5C4A28]">{d.buckets.inTransit}</p>
+          <p className="mt-0.5 text-[12px] text-[#7A6239]">{pkr(d.sunkCost)} already spent</p>
         </div>
       </div>
 
       {d.oldestDays > 5 && (
-        <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-[13px] leading-relaxed text-red-800">
+        <p className="mt-3 rounded-lg bg-[#F5EDEB] px-3 py-2 text-[13px] leading-relaxed text-[#7C4237]">
           Oldest open order is <b>{d.oldestDays} days</b> old. Anything past a week rarely converts — chase or cancel it.
         </p>
       )}
@@ -205,7 +205,7 @@ export function CodExposure() {
             {d.risky.slice(0, 4).map((r) => (
               <li key={r.phone} className="flex items-center justify-between gap-2 text-[13px]">
                 <span className="min-w-0 truncate text-neutral-700">{r.name}</span>
-                <span className={`shrink-0 rounded-full px-2 py-0.5 text-[13px] font-bold ${r.failRate >= 50 ? 'bg-red-50 text-red-700' : 'bg-amber-50 text-amber-800'}`}>
+                <span className={`shrink-0 rounded-full px-2 py-0.5 text-[13px] font-bold ${r.failRate >= 50 ? 'bg-[#F5EDEB] text-[#8A4B3F]' : 'bg-[#F6F1E6] text-[#6B552F]'}`}>
                   {r.failed}/{r.orders} failed · {r.failRate}%
                 </span>
               </li>
@@ -242,12 +242,12 @@ export function BreakEven({ days, from, to }) {
       <p className="mt-1 text-[12px] text-neutral-500">How many orders a day cover your fixed monthly costs.</p>
 
       {unset ? (
-        <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-3 text-[13px] leading-relaxed text-amber-800">
+        <p className="mt-4 rounded-xl border border-[#DCCBA5] bg-[#F6F1E6] p-3 text-[13px] leading-relaxed text-[#6B552F]">
           No fixed monthly costs are set yet. Add ads, SEO and other monthly costs in
           Settings → Shipping &amp; Operating Costs to see your break-even point.
         </p>
       ) : impossible ? (
-        <p className="mt-4 rounded-xl border border-red-200 bg-red-50 p-3 text-[13px] leading-relaxed text-red-800">
+        <p className="mt-4 rounded-xl border border-[#E0C6BE] bg-[#F5EDEB] p-3 text-[13px] leading-relaxed text-[#7C4237]">
           Each order currently costs more to fulfil than it brings in, so no order volume reaches break-even.
           Raise prices or cut per-order costs first.
         </p>
@@ -259,7 +259,7 @@ export function BreakEven({ days, from, to }) {
           </div>
 
           <div className="mt-3 flex items-center gap-2">
-            <span className={`rounded-full px-2.5 py-1 text-[12px] font-bold ring-1 ${d.onTrack ? 'bg-emerald-50 text-emerald-700 ring-emerald-200' : 'bg-amber-50 text-amber-800 ring-amber-200'}`}>
+            <span className={`rounded-full px-2.5 py-1 text-[12px] font-bold ring-1 ${d.onTrack ? 'bg-[#E9EFEA] text-[#3E5C4B] ring-[#C9D8CE]' : 'bg-[#F6F1E6] text-[#6B552F] ring-[#DCCBA5]'}`}>
               {d.onTrack ? 'Covering costs' : 'Below break-even'}
             </span>
             <span className="text-[13px] text-neutral-500">running at {d.currentPerDay}/day</span>

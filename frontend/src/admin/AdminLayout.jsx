@@ -229,7 +229,7 @@ function SidebarContent({ onNavigate, onOpenCmd }) {
 
       {/* ── Footer ───────────────────────────────────────────────────── */}
       <div className="border-t border-neutral-200 px-2.5 py-3">
-        <button onClick={logout} className="flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-[13px] text-neutral-500 transition hover:text-red-600">
+        <button onClick={logout} className="flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-[13px] text-neutral-500 transition hover:text-[#9A5548]">
           <LogOut size={15} strokeWidth={1.7} /> Sign out
         </button>
         <p className="mt-2 px-2 text-[9px] font-medium uppercase tracking-[0.24em] text-neutral-300">HUSHAE · Second Skin</p>
@@ -284,8 +284,8 @@ export default function AdminLayout({ children, title }) {
   if (!ALL_ROLES.includes(role || '')) return <Navigate to="/admin/login" replace />;
   if (isPathBlocked(loc.pathname, role)) return (
     <div className="grid min-h-screen place-items-center bg-[#F5F5F5]">
-      <div className="max-w-sm rounded-md border border-amber-200 bg-white p-10 text-center shadow-sm">
-        <ShieldCheck size={36} className="mx-auto mb-3 text-amber-600" />
+      <div className="max-w-sm rounded-md border border-[#DCCBA5] bg-white p-10 text-center shadow-sm">
+        <ShieldCheck size={36} className="mx-auto mb-3 text-[#8F7448]" />
         <p className="text-[15px] font-semibold text-neutral-900">Access restricted</p>
         <p className="mt-2 text-[13px] leading-relaxed text-neutral-500">This section is only available to Administrator and Owner roles. You are signed in as <b>{getRoleLabel(role || '')}</b>.</p>
         <Link to="/admin" className="mt-5 inline-flex items-center gap-1.5 rounded-md bg-neutral-900 px-5 py-2.5 text-[15px] font-semibold text-white transition hover:bg-black">Back to Dashboard</Link>
@@ -373,7 +373,7 @@ function TopBar({ title, auth, onCmdK, onMenu }) {
         </div>
         <div className="flex shrink-0 items-center gap-1.5 md:gap-2">
           <button type="button" onClick={onCmdK} className={btnGhost} title="Search admin (⌘K)"><Search size={14} strokeWidth={1.8} /><span className="hidden sm:inline">Search</span></button>
-          <span className={`hidden items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11px] font-medium tracking-wide lg:inline-flex ${storeOpen ? 'border-neutral-200 bg-white text-neutral-500' : 'border-amber-200 bg-amber-50 text-amber-800'}`}><span className={`h-1.5 w-1.5 rounded-full ${storeOpen ? 'bg-emerald-500' : 'bg-amber-500'}`} />{storeOpen ? 'Store online' : 'Store locked'}</span>
+          <span className={`hidden items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11px] font-medium tracking-wide lg:inline-flex ${storeOpen ? 'border-neutral-200 bg-white text-neutral-500' : 'border-[#DCCBA5] bg-[#F6F1E6] text-[#6B552F]'}`}><span className={`h-1.5 w-1.5 rounded-full ${storeOpen ? 'bg-[#5B7F6A]' : 'bg-[#C9A96E]'}`} />{storeOpen ? 'Store online' : 'Store locked'}</span>
           {canCreate && (
             <div className="relative" ref={createRef}>
               <button type="button" onClick={() => setCreateOpen((v) => !v)} className={btnPrimary}><Plus size={12} /> <span className="hidden sm:inline">Create</span></button>

@@ -85,7 +85,7 @@ export default function CsvImport({ onClose, onDone }) {
                 className="w-full min-h-[180px] rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[12px] font-mono outline-none focus:border-neutral-900"
                 placeholder={`name,sku,gender,categorySlug,tier,price,stock\nCotton Brief,HS-001,men,briefs,Standard,650,50\nLace Bralette,HS-002,women,bras,Premium,1800,30`} />
               {result && (
-                <div className="rounded-xl bg-emerald-50 p-3 text-[12px] text-emerald-800">
+                <div className="rounded-xl bg-[#E9EFEA] p-3 text-[12px] text-[#33503F]">
                   ✅ Created: {result.created || 0} · Updated: {result.updated || 0} · Skipped: {result.skipped || 0}
                 </div>
               )}

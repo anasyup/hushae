@@ -61,14 +61,14 @@ export default function AdminLogin() {
           <form onSubmit={submit} className="mt-8 space-y-4" autoComplete="off">
             <div><label htmlFor="admin-email" className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500">Email</label><input id="admin-email" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[13px] outline-none transition focus:border-neutral-900" type="email" required autoComplete="username" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} /></div>
             <div><label htmlFor="admin-password" className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500">Password</label><input id="admin-password" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[13px] outline-none transition focus:border-neutral-900" type="password" required autoComplete="current-password" value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} /></div>
-            {err && <p className="rounded-xl bg-red-50 px-4 py-3 text-xs text-red-800">{err}</p>}
+            {err && <p className="rounded-xl bg-[#F5EDEB] px-4 py-3 text-xs text-[#7C4237]">{err}</p>}
             <button disabled={busy} className="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-4 py-2 text-[12px] font-semibold text-white hover:bg-black w-full"><Lock size={14} /> {busy ? 'Verifying…' : 'Sign In'}</button>
           </form>
         ) : (
           <form onSubmit={submitCode} className="mt-8 space-y-4" autoComplete="off">
             <p className="text-[12px] leading-relaxed text-neutral-600">We emailed a 6-digit sign-in code to <b className="text-neutral-900">{pendingEmail}</b>. Enter it below — it expires in 5 minutes.</p>
             <div><label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500">6-digit code</label><input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[18px] tracking-[8px] outline-none transition focus:border-neutral-900" type="text" inputMode="numeric" maxLength={6} required autoComplete="off" value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))} /></div>
-            {err && <p className="rounded-xl bg-red-50 px-4 py-3 text-xs text-red-800">{err}</p>}
+            {err && <p className="rounded-xl bg-[#F5EDEB] px-4 py-3 text-xs text-[#7C4237]">{err}</p>}
             <button disabled={codeBusy} className="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-4 py-2 text-[12px] font-semibold text-white hover:bg-black w-full"><ShieldCheck size={14} /> {codeBusy ? 'Verifying…' : 'Verify & Sign In'}</button>
             <button type="button" onClick={() => { setStep2(false); setCode(''); setErr(''); }} className="inline-flex items-center gap-1 text-[12px] text-neutral-500 hover:text-neutral-900"><ArrowLeft size={12} /> Back to sign in</button>
           </form>

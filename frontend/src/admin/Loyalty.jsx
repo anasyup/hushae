@@ -135,7 +135,7 @@ function AdjustDialog({ account, onClose, onDone }) {
             <p className="mt-1.5 text-[12px] text-neutral-500">Saved against your name in the ledger, forever.</p>
           </div>
 
-          {err && <p role="alert" className="mb-3 rounded-lg bg-red-50 px-3 py-2 text-[12px] font-medium text-red-700">{err}</p>}
+          {err && <p role="alert" className="mb-3 rounded-lg bg-[#F5EDEB] px-3 py-2 text-[12px] font-medium text-[#8A4B3F]">{err}</p>}
 
           <div className="flex gap-2">
             <button type="button" onClick={onClose} className="min-h-[44px] flex-1 rounded-xl border border-neutral-300 px-4 text-[13px] font-semibold text-neutral-700 transition hover:bg-neutral-50">Cancel</button>
@@ -201,7 +201,7 @@ function MemberPanel({ id, onClose, onChanged }) {
           {!data ? <div className="animate-pulse rounded-xl bg-neutral-100 h-64 w-full" /> : (
             <>
               {a.blocked && (
-                <p role="alert" className="mb-4 rounded-xl bg-red-50 px-4 py-3 text-[12px] font-medium text-red-700">
+                <p role="alert" className="mb-4 rounded-xl bg-[#F5EDEB] px-4 py-3 text-[12px] font-medium text-[#8A4B3F]">
                   Blocked. {a.blockedReason || 'No reason recorded.'}
                 </p>
               )}
@@ -217,7 +217,7 @@ function MemberPanel({ id, onClose, onChanged }) {
                 <button type="button" onClick={() => setAdjusting(true)} className="inline-flex min-h-[40px] items-center gap-1.5 rounded-lg bg-neutral-900 px-3 text-[12px] font-semibold text-white transition hover:bg-neutral-800">
                   <Plus size={13} /> Adjust balance
                 </button>
-                <button type="button" onClick={toggleBlock} className={`inline-flex min-h-[40px] items-center gap-1.5 rounded-lg border px-3 text-[12px] font-semibold transition ${a.blocked ? 'border-neutral-300 text-neutral-700 hover:bg-neutral-50' : 'border-red-200 text-red-600 hover:bg-red-50'}`}>
+                <button type="button" onClick={toggleBlock} className={`inline-flex min-h-[40px] items-center gap-1.5 rounded-lg border px-3 text-[12px] font-semibold transition ${a.blocked ? 'border-neutral-300 text-neutral-700 hover:bg-neutral-50' : 'border-[#E0C6BE] text-[#9A5548] hover:bg-[#F5EDEB]'}`}>
                   <Ban size={13} /> {a.blocked ? 'Unblock' : 'Block'}
                 </button>
               </div>
@@ -238,7 +238,7 @@ function MemberPanel({ id, onClose, onChanged }) {
                           {r.actor && r.actor !== 'system' ? ` · by ${r.actor}` : ''}
                         </p>
                       </div>
-                      <p className={`shrink-0 text-[13px] font-semibold tabular-nums ${r.amount > 0 ? 'text-emerald-700' : 'text-neutral-900'}`}>
+                      <p className={`shrink-0 text-[13px] font-semibold tabular-nums ${r.amount > 0 ? 'text-[#3E5C4B]' : 'text-neutral-900'}`}>
                         {r.amount > 0 ? '+' : ''}{num(r.amount)}{r.kind === 'credit' ? ' PKR' : ''}
                       </p>
                     </li>
@@ -308,7 +308,7 @@ function NewCardDialog({ onClose, onDone }) {
 
         {code ? (
           <>
-            <p className="mb-3 rounded-xl bg-amber-50 px-4 py-3 text-[12px] leading-relaxed text-amber-900">
+            <p className="mb-3 rounded-xl bg-[#F6F1E6] px-4 py-3 text-[12px] leading-relaxed text-[#5C4A28]">
               Copy this code now. It is stored scrambled, so it can never be shown again — only replaced.
             </p>
             <div className="flex items-center gap-2">
@@ -336,7 +336,7 @@ function NewCardDialog({ onClose, onDone }) {
               <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500" htmlFor="gc-to">Issued to (optional)</label>
               <input id="gc-to" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" maxLength={120} value={issuedTo} onChange={(e) => setIssuedTo(e.target.value)} placeholder="Phone or email" />
             </div>
-            {err && <p role="alert" className="mb-3 rounded-lg bg-red-50 px-3 py-2 text-[12px] font-medium text-red-700">{err}</p>}
+            {err && <p role="alert" className="mb-3 rounded-lg bg-[#F5EDEB] px-3 py-2 text-[12px] font-medium text-[#8A4B3F]">{err}</p>}
             <div className="flex gap-2">
               <button type="button" onClick={onClose} className="min-h-[44px] flex-1 rounded-xl border border-neutral-300 px-4 text-[13px] font-semibold text-neutral-700 transition hover:bg-neutral-50">Cancel</button>
               <button type="submit" disabled={busy} className="min-h-[44px] flex-1 rounded-xl bg-neutral-900 px-4 text-[13px] font-semibold text-white transition hover:bg-neutral-800 disabled:opacity-50">
@@ -527,7 +527,7 @@ export default function AdminLoyalty() {
                         {r.tier && <span className="rounded-full bg-neutral-100 px-2 py-0.5 font-medium capitalize text-neutral-700">{r.tier}</span>}
                         {r.creditBalance > 0 && <span>{money(r.creditBalance)} credit</span>}
                         <span>Spend {money(r.tierSpend)}</span>
-                        {r.blocked && <span className="rounded-full bg-red-50 px-2 py-0.5 font-medium text-red-700">Blocked</span>}
+                        {r.blocked && <span className="rounded-full bg-[#F5EDEB] px-2 py-0.5 font-medium text-[#8A4B3F]">Blocked</span>}
                       </div>
                     </button>
                   </li>
@@ -552,7 +552,7 @@ export default function AdminLoyalty() {
                     {rows.map((r) => (
                       <tr key={r._id} className="bg-white transition hover:bg-neutral-50">
                         <td className="px-4 py-3">
-                          <p className="font-medium text-neutral-900">{r.name || 'Customer'}{r.blocked && <span className="ml-2 rounded-full bg-red-50 px-2 py-0.5 text-[13px] font-semibold text-red-700">Blocked</span>}</p>
+                          <p className="font-medium text-neutral-900">{r.name || 'Customer'}{r.blocked && <span className="ml-2 rounded-full bg-[#F5EDEB] px-2 py-0.5 text-[13px] font-semibold text-[#8A4B3F]">Blocked</span>}</p>
                           <p className="mt-0.5 text-[12px] text-neutral-500">{r.phone}{r.email ? ` · ${r.email}` : ''}</p>
                         </td>
                         <td className="px-4 py-3 capitalize text-neutral-700">{r.tier || '—'}</td>
@@ -610,7 +610,7 @@ export default function AdminLoyalty() {
                     <p className="text-[13px] font-semibold text-neutral-900">
                       ····{c.last4}
                       {!c.active && <span className="ml-2 rounded-full bg-neutral-100 px-2 py-0.5 text-[13px] font-semibold text-neutral-600">Disabled</span>}
-                      {c.expiresAt && new Date(c.expiresAt) < new Date() && <span className="ml-2 rounded-full bg-amber-50 px-2 py-0.5 text-[13px] font-semibold text-amber-800">Expired</span>}
+                      {c.expiresAt && new Date(c.expiresAt) < new Date() && <span className="ml-2 rounded-full bg-[#F6F1E6] px-2 py-0.5 text-[13px] font-semibold text-[#6B552F]">Expired</span>}
                     </p>
                     <p className="mt-0.5 text-[12px] leading-relaxed text-neutral-500">
                       {c.label || 'No label'}

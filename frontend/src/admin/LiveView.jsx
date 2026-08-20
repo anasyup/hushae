@@ -18,8 +18,8 @@ const ago = (ts) => {
 const DevIcon = ({ d, size = 13 }) =>
   d === 'mobile' ? <Smartphone size={size} /> : d === 'tablet' ? <Tablet size={size} /> : <Monitor size={size} />;
 const EvIcon = ({ e }) =>
-  e === 'cart' ? <ShoppingCart size={13} className="text-amber-700" />
-    : e === 'checkout' ? <CreditCard size={13} className="text-emerald-700" />
+  e === 'cart' ? <ShoppingCart size={13} className="text-[#7A6239]" />
+    : e === 'checkout' ? <CreditCard size={13} className="text-[#3E5C4B]" />
     : <Globe size={13} className="text-neutral-500" />;
 const EV_LABEL = { pageview: 'Viewed', cart: 'Added to cart', checkout: 'Reached checkout' };
 
@@ -52,18 +52,18 @@ export default function LiveView() {
     <AdminLayout title="Live View">
       <div className="mb-5 flex items-center gap-2 text-xs text-neutral-500">
         <span className="relative flex h-2.5 w-2.5">
-          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-60" />
-          <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-600" />
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#5B7F6A] opacity-60" />
+          <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[#4A6B58]" />
         </span>
-        Live — refreshes every 15 seconds {stale && <span className="text-amber-700">(reconnecting…)</span>}
+        Live — refreshes every 15 seconds {stale && <span className="text-[#7A6239]">(reconnecting…)</span>}
       </div>
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         {cards.map(([Icon, label, v, hot]) => (
-          <div key={label} className={`card p-5 ${hot ? 'ring-1 ring-emerald-200' : ''}`}>
+          <div key={label} className={`card p-5 ${hot ? 'ring-1 ring-[#C9D8CE]' : ''}`}>
             <div className="flex items-center justify-between">
               <p className="text-[12px] font-bold uppercase tracking-wider text-neutral-500">{label}</p>
-              <Icon size={16} className={hot ? 'text-emerald-700' : 'text-emerald-700'} />
+              <Icon size={16} className={hot ? 'text-[#3E5C4B]' : 'text-[#3E5C4B]'} />
             </div>
             <p className={`mt-2 font-sans ${hot ? 'text-4xl' : 'text-2xl'}`}>{v}</p>
           </div>
@@ -77,7 +77,7 @@ export default function LiveView() {
           <div className="grid grid-cols-3 divide-x divide-line text-center">
             {[[ShoppingCart, 'Active carts', d.today.carts], [CreditCard, 'Reached checkout', d.today.checkouts], [Users, 'Purchased', d.today.orders]].map(([Icon, l, v]) => (
               <div key={l} className="px-2">
-                <Icon size={16} className="mx-auto text-emerald-700" />
+                <Icon size={16} className="mx-auto text-[#3E5C4B]" />
                 <p className="mt-2 font-sans text-2xl">{v}</p>
                 <p className="mt-1 text-[13px] uppercase tracking-wider text-neutral-500">{l}</p>
               </div>
@@ -97,7 +97,7 @@ export default function LiveView() {
                   <div key={`${l.city}-${l.country}`} className="flex items-center gap-3">
                     <span className="w-40 truncate text-xs font-medium">{l.city} <span className="text-neutral-500">({l.country})</span></span>
                     <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-neutral-100">
-                      <div className="h-full rounded-full bg-emerald-600" style={{ width: `${(l.sessions / maxLoc) * 100}%` }} />
+                      <div className="h-full rounded-full bg-[#4A6B58]" style={{ width: `${(l.sessions / maxLoc) * 100}%` }} />
                     </div>
                     <span className="w-14 text-right text-xs font-bold">{l.sessions}</span>
                   </div>

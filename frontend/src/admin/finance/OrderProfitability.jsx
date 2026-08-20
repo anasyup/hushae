@@ -8,9 +8,9 @@ import { useApp } from '../../store/AppContext';
 import { fmtDate, pkr } from '../../lib/format';
 
 const HEALTH = {
-  profitable: { label: 'Profitable', cls: 'bg-emerald-50 text-emerald-700 ring-emerald-200' },
-  thin:       { label: 'Thin margin', cls: 'bg-amber-50 text-amber-800 ring-amber-200' },
-  loss:       { label: 'Loss',        cls: 'bg-red-50 text-red-700 ring-red-200' },
+  profitable: { label: 'Profitable', cls: 'bg-[#E9EFEA] text-[#3E5C4B] ring-[#C9D8CE]' },
+  thin:       { label: 'Thin margin', cls: 'bg-[#F6F1E6] text-[#6B552F] ring-[#DCCBA5]' },
+  loss:       { label: 'Loss',        cls: 'bg-[#F5EDEB] text-[#8A4B3F] ring-[#E0C6BE]' },
 };
 
 const FILTERS = [
@@ -124,10 +124,10 @@ export default function OrderProfitability({ days, from, to }) {
       {t && (
         <div className="mt-4 grid grid-cols-2 gap-2 rounded-xl bg-neutral-50 p-3 sm:grid-cols-4">
           {[
-            ['Net profit', pkr(t.netProfit), t.netProfit >= 0 ? 'text-emerald-700' : 'text-red-700'],
+            ['Net profit', pkr(t.netProfit), t.netProfit >= 0 ? 'text-[#3E5C4B]' : 'text-[#8A4B3F]'],
             ['Net margin', `${t.margin}%`, ''],
-            ['Profitable', `${t.profitable} order${t.profitable === 1 ? '' : 's'}`, 'text-emerald-700'],
-            ['Needs a look', `${t.thin + t.loss}`, t.thin + t.loss > 0 ? 'text-amber-700' : ''],
+            ['Profitable', `${t.profitable} order${t.profitable === 1 ? '' : 's'}`, 'text-[#3E5C4B]'],
+            ['Needs a look', `${t.thin + t.loss}`, t.thin + t.loss > 0 ? 'text-[#7A6239]' : ''],
           ].map(([label, value, cls]) => (
             <div key={label}>
               <p className="text-[11px] font-bold uppercase tracking-widest text-neutral-500">{label}</p>
@@ -138,7 +138,7 @@ export default function OrderProfitability({ days, from, to }) {
       )}
 
       {/* Ads caveat — stated where the numbers are read, not buried in a footnote */}
-      <p className="mt-3 flex items-start gap-2 rounded-lg bg-blue-50 px-3 py-2 text-[12px] leading-relaxed text-blue-800">
+      <p className="mt-3 flex items-start gap-2 rounded-lg bg-[#F1F1F1] px-3 py-2 text-[12px] leading-relaxed text-[#4A4A4A]">
         <Info size={13} className="mt-0.5 shrink-0" />
         <span>
           Ad spend is <b>not</b> split across individual orders — attribution on COD checkout is unreliable and would
@@ -190,10 +190,10 @@ export default function OrderProfitability({ days, from, to }) {
                     <td className="py-2.5 text-right tabular-nums text-neutral-500">{r.packaging.toLocaleString()}</td>
                     <td className="py-2.5 text-right tabular-nums text-neutral-500">{r.courier.toLocaleString()}</td>
                     <td className="py-2.5 text-right tabular-nums text-neutral-500">{r.paymentFee.toLocaleString()}</td>
-                    <td className={`py-2.5 text-right font-semibold tabular-nums ${r.netProfit >= 0 ? 'text-neutral-900' : 'text-red-700'}`}>
+                    <td className={`py-2.5 text-right font-semibold tabular-nums ${r.netProfit >= 0 ? 'text-neutral-900' : 'text-[#8A4B3F]'}`}>
                       {r.netProfit.toLocaleString()}
                     </td>
-                    <td className={`py-2.5 text-right font-semibold tabular-nums ${r.margin >= (data.marginThreshold || 15) ? 'text-emerald-700' : r.margin > 0 ? 'text-amber-700' : 'text-red-700'}`}>
+                    <td className={`py-2.5 text-right font-semibold tabular-nums ${r.margin >= (data.marginThreshold || 15) ? 'text-[#3E5C4B]' : r.margin > 0 ? 'text-[#7A6239]' : 'text-[#8A4B3F]'}`}>
                       {r.revenue > 0 ? `${r.margin}%` : '—'}
                     </td>
                     <td className="py-2.5 text-right">
@@ -216,7 +216,7 @@ export default function OrderProfitability({ days, from, to }) {
                               <Line label={`Payment gateway fee${r.paymentMethod === 'COD' ? ' (COD — none)' : ` (${r.feePct}%)`}`} value={-r.paymentFee} />
                               <div className="!mt-2 flex items-center justify-between border-t border-neutral-300 pt-2">
                                 <dt className="text-[12px] font-bold text-neutral-900">Net profit</dt>
-                                <dd className={`font-sans text-[13px] font-bold tabular-nums ${r.netProfit >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>
+                                <dd className={`font-sans text-[13px] font-bold tabular-nums ${r.netProfit >= 0 ? 'text-[#3E5C4B]' : 'text-[#8A4B3F]'}`}>
                                   {pkr(r.netProfit)} {r.revenue > 0 && <span className="text-[12px] font-semibold">({r.margin}%)</span>}
                                 </dd>
                               </div>
@@ -227,7 +227,7 @@ export default function OrderProfitability({ days, from, to }) {
                             <p><span className="text-neutral-500">Payment:</span> {r.paymentMethod}</p>
                             <p><span className="text-neutral-500">Stage:</span> {r.stage || r.status}</p>
                             {(r.cancelled || r.returned) && (
-                              <p className="flex items-start gap-1.5 rounded-lg bg-red-50 p-2 text-red-800">
+                              <p className="flex items-start gap-1.5 rounded-lg bg-[#F5EDEB] p-2 text-[#7C4237]">
                                 <AlertTriangle size={12} className="mt-0.5 shrink-0" />
                                 <span>
                                   {r.returned ? 'Returned' : 'Cancelled'} — no revenue kept.

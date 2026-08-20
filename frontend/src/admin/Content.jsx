@@ -74,7 +74,7 @@ export default function Content() {
 
             {/* TEXT CONTENT */}
             <div className="mb-6 rounded-2xl border border-neutral-200 bg-white/40 p-4">
-              <p className="mb-3 text-[12px] font-bold uppercase tracking-widest text-emerald-700">Text Content</p>
+              <p className="mb-3 text-[12px] font-bold uppercase tracking-widest text-[#3E5C4B]">Text Content</p>
               <div className="space-y-3">
                 <div><label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500">Small tagline (above title)</label><input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={hero.eyebrow || ''} onChange={(e) => setHero('eyebrow', e.target.value)} placeholder="Premium innerwear · Made in Pakistan" /></div>
                 <div><label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500">Main title</label><textarea className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 min-h-16" value={hero.title || ''} onChange={(e) => setHero('title', e.target.value)} placeholder={'Second Skin,\nFirst Choice.'} /><p className="mt-1 text-[12px] text-neutral-500">Press Enter for a new line</p></div>
@@ -85,7 +85,7 @@ export default function Content() {
             {/* BUTTONS */}
             <div className="mb-6 rounded-2xl border border-neutral-200 bg-white/40 p-4">
               <div className="mb-3 flex items-center justify-between">
-                <p className="text-[12px] font-bold uppercase tracking-widest text-emerald-700">Call-to-Action Buttons</p>
+                <p className="text-[12px] font-bold uppercase tracking-widest text-[#3E5C4B]">Call-to-Action Buttons</p>
                 <label className="relative inline-flex cursor-pointer items-center">
                   <input type="checkbox" className="peer sr-only" checked={hero.showButtons !== false} onChange={(e) => setHero('showButtons', e.target.checked)} />
                   <span className="h-6 w-11 rounded-full bg-neutral-100 transition peer-checked:bg-neutral-900 after:absolute after:left-1 after:top-1 after:h-4 after:w-4 after:rounded-full after:bg-white after:transition peer-checked:after:translate-x-5" />
@@ -142,7 +142,7 @@ export default function Content() {
 
             {/* MEDIA */}
             <div className="mb-6 rounded-2xl border border-neutral-200 bg-white/40 p-4">
-              <p className="mb-3 text-[12px] font-bold uppercase tracking-widest text-emerald-700">Background Media</p>
+              <p className="mb-3 text-[12px] font-bold uppercase tracking-widest text-[#3E5C4B]">Background Media</p>
               <div className="space-y-4">
                 <div>
                   <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500">Banner image</label>
@@ -159,7 +159,7 @@ export default function Content() {
 
             {/* STYLING */}
             <div className="rounded-2xl border border-neutral-200 bg-white/40 p-4">
-              <p className="mb-3 text-[12px] font-bold uppercase tracking-widest text-emerald-700">Appearance</p>
+              <p className="mb-3 text-[12px] font-bold uppercase tracking-widest text-[#3E5C4B]">Appearance</p>
               <div className="space-y-4">
                 <div>
                   <div className="mb-1 flex items-center justify-between">
@@ -201,7 +201,7 @@ export default function Content() {
               </div>
               <label className="inline-flex cursor-pointer items-center gap-2">
                 <input type="checkbox" className="peer sr-only" checked={split.enabled !== false} onChange={(e) => setSplit('enabled', e.target.checked)} />
-                <div className="relative h-6 w-11 rounded-full bg-neutral-100 transition peer-checked:bg-emerald-50 after:absolute after:left-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:bg-white after:transition peer-checked:after:translate-x-5" />
+                <div className="relative h-6 w-11 rounded-full bg-neutral-100 transition peer-checked:bg-[#E9EFEA] after:absolute after:left-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:bg-white after:transition peer-checked:after:translate-x-5" />
               </label>
             </div>
 

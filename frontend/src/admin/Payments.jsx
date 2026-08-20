@@ -25,10 +25,10 @@ import AdminLayout from './AdminLayout';
  * ========================================================================== */
 
 const METHOD_META = {
-  COD:              { icon: Banknote,   color: '#059669', bg: 'bg-emerald-50', label: 'Cash on Delivery' },
-  JazzCash:         { icon: Smartphone, color: '#dc2626', bg: 'bg-red-50',    label: 'JazzCash' },
-  EasyPaisa:        { icon: Smartphone, color: '#16a34a', bg: 'bg-emerald-50',label: 'EasyPaisa' },
-  'Bank Transfer':  { icon: Landmark,   color: '#2563eb', bg: 'bg-blue-50',   label: 'Bank Transfer' },
+  COD:              { icon: Banknote,   color: '#4A6B58', bg: 'bg-[#E9EFEA]', label: 'Cash on Delivery' },
+  JazzCash:         { icon: Smartphone, color: '#9A5548', bg: 'bg-[#F5EDEB]',    label: 'JazzCash' },
+  EasyPaisa:        { icon: Smartphone, color: '#16a34a', bg: 'bg-[#E9EFEA]',label: 'EasyPaisa' },
+  'Bank Transfer':  { icon: Landmark,   color: '#6B6B6B', bg: 'bg-[#F1F1F1]',   label: 'Bank Transfer' },
   Visa:             { icon: CreditCard, color: '#1a1f71', bg: 'bg-[#F4EEE2]', label: 'Visa / Mastercard' },
 };
 
@@ -143,7 +143,7 @@ export default function Payments() {
     const a = document.createElement('a'); a.href = url; a.download = `hushae-payments-${new Date().toISOString().slice(0, 10)}.csv`; a.click(); URL.revokeObjectURL(url);
   };
 
-  if (err) return <AdminLayout title="Payments"><div className="mx-auto grid max-w-md place-items-center rounded-2xl border border-red-200 bg-red-50 p-8 text-center"><XCircle size={22} className="mb-2 text-red-600" /><p className="text-sm text-red-700">{err}</p><button onClick={load} className="mt-3 rounded-full border border-red-300 bg-white px-4 py-1.5 text-[12px] font-semibold text-red-700 hover:bg-red-100">Try again</button></div></AdminLayout>;
+  if (err) return <AdminLayout title="Payments"><div className="mx-auto grid max-w-md place-items-center rounded-2xl border border-[#E0C6BE] bg-[#F5EDEB] p-8 text-center"><XCircle size={22} className="mb-2 text-[#9A5548]" /><p className="text-sm text-[#8A4B3F]">{err}</p><button onClick={load} className="mt-3 rounded-full border border-[#D0ABA0] bg-white px-4 py-1.5 text-[12px] font-semibold text-[#8A4B3F] hover:bg-[#EEDED9]">Try again</button></div></AdminLayout>;
   if (!stats) return <AdminLayout title="Payments"><div className="grid gap-4 md:grid-cols-4">{[1,2,3,4].map((i) => <div key={i} className="animate-pulse rounded-xl bg-neutral-100 h-32 rounded-2xl" />)}</div></AdminLayout>;
 
   return (
@@ -192,19 +192,19 @@ export default function Payments() {
                 <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-500">Payment revenue — 30 days</p>
                 <p className="mt-1 font-sans text-2xl font-semibold text-neutral-900">{pkr(stats.monthValue)}</p>
               </div>
-              <span className="rounded-full bg-emerald-50 px-3 py-1 text-[12px] font-bold text-emerald-700">
+              <span className="rounded-full bg-[#E9EFEA] px-3 py-1 text-[12px] font-bold text-[#3E5C4B]">
                 {stats.change > 0 ? '▲' : stats.change < 0 ? '▼' : ''} {Math.abs(stats.change).toFixed(1)}% vs prior
               </span>
             </div>
             <div className="h-56 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={stats.daily} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                  <defs><linearGradient id="pay-fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#059669" stopOpacity={0.25} /><stop offset="100%" stopColor="#059669" stopOpacity={0} /></linearGradient></defs>
+                  <defs><linearGradient id="pay-fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#4A6B58" stopOpacity={0.25} /><stop offset="100%" stopColor="#4A6B58" stopOpacity={0} /></linearGradient></defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f1f1f1" vertical={false} />
                   <XAxis dataKey="label" stroke="#9ca3af" tick={{ fontSize: 10 }} tickLine={false} axisLine={false} />
                   <YAxis stroke="#9ca3af" tick={{ fontSize: 11 }} tickLine={false} axisLine={false} tickFormatter={(v) => v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v} />
                   <Tooltip contentStyle={{ borderRadius: 12, border: '1px solid #e5e7eb', fontSize: 12 }} formatter={(v) => [pkr(v), 'Revenue']} />
-                  <Area type="monotone" dataKey="value" stroke="#059669" strokeWidth={2.2} fill="url(#pay-fill)" />
+                  <Area type="monotone" dataKey="value" stroke="#4A6B58" strokeWidth={2.2} fill="url(#pay-fill)" />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
@@ -215,8 +215,8 @@ export default function Payments() {
             <p className="mb-3 text-[12px] font-bold uppercase tracking-widest text-neutral-500">Payment gateways</p>
             <div className="grid gap-3 md:grid-cols-3">
               {[
-                { title: 'Cash on Delivery', icon: Banknote, color: '#059669', enabled: settings?.paymentMethods?.cod !== false, account: 'Always active' },
-                { title: 'JazzCash', icon: Smartphone, color: '#dc2626', enabled: !!settings?.paymentMethods?.jazzcash, account: settings?.paymentMethods?.jazzcashNumber || 'Not configured' },
+                { title: 'Cash on Delivery', icon: Banknote, color: '#4A6B58', enabled: settings?.paymentMethods?.cod !== false, account: 'Always active' },
+                { title: 'JazzCash', icon: Smartphone, color: '#9A5548', enabled: !!settings?.paymentMethods?.jazzcash, account: settings?.paymentMethods?.jazzcashNumber || 'Not configured' },
                 { title: 'EasyPaisa', icon: Smartphone, color: '#16a34a', enabled: !!settings?.paymentMethods?.easypaisa, account: settings?.paymentMethods?.easypaisaNumber || 'Not configured' },
               ].map((g) => {
                 const I = g.icon;
@@ -224,7 +224,7 @@ export default function Payments() {
                   <div key={g.title} className={`rounded-2xl border p-4 ${g.enabled ? 'border-neutral-200 bg-white' : 'border-neutral-200 bg-neutral-50/50'}`}>
                     <div className="flex items-center justify-between">
                       <span className="grid h-10 w-10 place-items-center rounded-xl" style={{ background: g.color + '15', color: g.color }}><I size={16} /></span>
-                      <span className={`rounded-full px-2 py-0.5 text-[12px] font-bold uppercase ${g.enabled ? 'bg-emerald-50 text-emerald-700' : 'bg-neutral-200 text-neutral-600'}`}>{g.enabled ? 'Enabled' : 'Off'}</span>
+                      <span className={`rounded-full px-2 py-0.5 text-[12px] font-bold uppercase ${g.enabled ? 'bg-[#E9EFEA] text-[#3E5C4B]' : 'bg-neutral-200 text-neutral-600'}`}>{g.enabled ? 'Enabled' : 'Off'}</span>
                     </div>
                     <p className="mt-3 text-[13px] font-semibold text-neutral-900">{g.title}</p>
                     <p className="mt-1 text-[12px] text-neutral-500">{g.account}</p>
@@ -247,7 +247,7 @@ export default function Payments() {
           </div>
           {stats.pendingOrders.length === 0 ? (
             <div className="grid place-items-center py-16 text-center">
-              <CheckCircle2 size={28} className="mb-2 text-emerald-500" />
+              <CheckCircle2 size={28} className="mb-2 text-[#5B7F6A]" />
               <p className="text-[12px] font-medium text-neutral-700">All payments verified</p>
               <p className="mt-1 text-[12px] text-neutral-500">No pending payments to review.</p>
             </div>
@@ -269,8 +269,8 @@ export default function Payments() {
                         <td className="table-cell text-[12px] text-neutral-500">{fmtDateTime(o.createdAt)}</td>
                         <td className="table-cell text-right">
                           <div className="flex items-center justify-end gap-1.5">
-                            <button disabled={busy} onClick={() => verifyPayment(o._id, 'Verified')} className="rounded-lg bg-blue-50 px-3 py-1.5 text-[12px] font-semibold text-blue-700 transition hover:bg-blue-100 disabled:opacity-50">Verify</button>
-                            <button disabled={busy} onClick={() => verifyPayment(o._id, 'Confirmed')} className="rounded-lg bg-emerald-50 px-3 py-1.5 text-[12px] font-semibold text-emerald-700 transition hover:bg-emerald-100 disabled:opacity-50">Confirm</button>
+                            <button disabled={busy} onClick={() => verifyPayment(o._id, 'Verified')} className="rounded-lg bg-[#F1F1F1] px-3 py-1.5 text-[12px] font-semibold text-[#5A5A5A] transition hover:bg-[#E8E8E8] disabled:opacity-50">Verify</button>
+                            <button disabled={busy} onClick={() => verifyPayment(o._id, 'Confirmed')} className="rounded-lg bg-[#E9EFEA] px-3 py-1.5 text-[12px] font-semibold text-[#3E5C4B] transition hover:bg-[#DDE7E0] disabled:opacity-50">Confirm</button>
                           </div>
                         </td>
                       </tr>
@@ -310,7 +310,7 @@ export default function Payments() {
                       <td className="table-cell text-[12px] text-neutral-500">{fmtDateTime(o.createdAt)}</td>
                       <td className="px-3 py-2 text-[12px]"><p className="text-[13px] font-semibold">{o.customerInfo?.name}</p><p className="text-[12px] text-neutral-500">{o.customerInfo?.phone}</p></td>
                       <td className="px-3 py-2 text-[12px]"><span className="inline-flex items-center gap-1.5 rounded-full bg-neutral-100 px-2.5 py-1 text-[12px] font-semibold" style={{ color: M.color }}><MIcon size={11} />{o.paymentMethod}</span></td>
-                      <td className="px-3 py-2 text-[12px]"><span className={`pill ${o.paymentStatus === 'Paid' ? 'bg-emerald-100 text-emerald-800' : o.paymentStatus === 'Refunded' ? 'bg-orange-100 text-orange-800' : o.paymentStatus === 'Verified' ? 'bg-blue-100 text-blue-800' : 'bg-amber-100 text-amber-800'}`}>{o.paymentStatus}</span></td>
+                      <td className="px-3 py-2 text-[12px]"><span className={`pill ${o.paymentStatus === 'Paid' ? 'bg-[#DDE7E0] text-[#33503F]' : o.paymentStatus === 'Refunded' ? 'bg-[#F4E8DC] text-[#7A5F33]' : o.paymentStatus === 'Verified' ? 'bg-[#E8E8E8] text-[#4A4A4A]' : 'bg-[#EDE4CE] text-[#6B552F]'}`}>{o.paymentStatus}</span></td>
                       <td className="table-cell text-right font-sans font-semibold tabular-nums">{pkr(o.total)}</td>
                     </tr>
                   );
@@ -355,9 +355,9 @@ export default function Payments() {
 
 function KpiCard({ icon: Icon, label, value, sub, change, tone = 'neutral' }) {
   const tones = {
-    up:     { bg: 'bg-emerald-50', text: 'text-emerald-700', badge: 'bg-emerald-50 text-emerald-700' },
-    down:   { bg: 'bg-red-50',     text: 'text-red-700',     badge: 'bg-red-50 text-red-700' },
-    warn:   { bg: 'bg-amber-50',   text: 'text-amber-700',   badge: 'bg-amber-50 text-amber-700' },
+    up:     { bg: 'bg-[#E9EFEA]', text: 'text-[#3E5C4B]', badge: 'bg-[#E9EFEA] text-[#3E5C4B]' },
+    down:   { bg: 'bg-[#F5EDEB]',     text: 'text-[#8A4B3F]',     badge: 'bg-[#F5EDEB] text-[#8A4B3F]' },
+    warn:   { bg: 'bg-[#F6F1E6]',   text: 'text-[#7A6239]',   badge: 'bg-[#F6F1E6] text-[#7A6239]' },
     neutral:{ bg: 'bg-neutral-100',text: 'text-neutral-700', badge: '' },
   };
   const t = tones[tone];

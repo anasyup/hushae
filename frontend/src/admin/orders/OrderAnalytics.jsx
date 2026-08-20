@@ -28,7 +28,7 @@ export default function OrderAnalytics({ token }) {
   }, [token, days]);
 
   if (err) {
-    return <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-[13px] text-red-800">{err}</div>;
+    return <div className="rounded-xl border border-[#E0C6BE] bg-[#F5EDEB] p-4 text-[13px] text-[#7C4237]">{err}</div>;
   }
   if (!data) {
     return (
@@ -137,7 +137,7 @@ export default function OrderAnalytics({ token }) {
 const tip = { borderRadius: 10, border: '1px solid #E4E0DA', fontSize: 12, boxShadow: '0 6px 20px rgba(0,0,0,.08)' };
 
 function Kpi({ label, value, sub, tone }) {
-  const toneCls = tone === 'good' ? 'text-emerald-700' : tone === 'bad' ? 'text-red-700' : tone === 'warn' ? 'text-amber-700' : 'text-neutral-900';
+  const toneCls = tone === 'good' ? 'text-[#3E5C4B]' : tone === 'bad' ? 'text-[#8A4B3F]' : tone === 'warn' ? 'text-[#7A6239]' : 'text-neutral-900';
   return (
     <div className="rounded-lg border border-neutral-200 bg-neutral-50/60 px-3 py-2.5">
       <p className="text-[12px] font-semibold uppercase tracking-wider text-neutral-500">{label}</p>

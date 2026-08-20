@@ -41,8 +41,8 @@ export default function OnlineStore() {
   const statusPill = live === null
     ? <span className="flex items-center gap-1.5 rounded-full bg-neutral-100 px-3 py-1 text-[12px] font-semibold text-neutral-500">Checking…</span>
     : live
-      ? <span className="flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-[12px] font-semibold text-emerald-700"><span className="h-1.5 w-1.5 rounded-full bg-emerald-600" /> Store Live</span>
-      : <span className="flex items-center gap-1.5 rounded-full bg-red-100 px-3 py-1 text-[12px] font-semibold text-red-800"><span className="h-1.5 w-1.5 rounded-full bg-red-600" /> Offline</span>;
+      ? <span className="flex items-center gap-1.5 rounded-full bg-[#E9EFEA] px-3 py-1 text-[12px] font-semibold text-[#3E5C4B]"><span className="h-1.5 w-1.5 rounded-full bg-[#4A6B58]" /> Store Live</span>
+      : <span className="flex items-center gap-1.5 rounded-full bg-[#EEDED9] px-3 py-1 text-[12px] font-semibold text-[#7C4237]"><span className="h-1.5 w-1.5 rounded-full bg-[#9A5548]" /> Offline</span>;
 
   const ACTIONS = [
     ['Edit Theme', 'Sections, images, text, colours', Palette, '/admin/theme'],
@@ -93,7 +93,7 @@ export default function OnlineStore() {
                 <p className="text-xs text-neutral-500">Current theme · v1.0 · Active</p>
               </div>
             </div>
-            <span className="rounded-full bg-emerald-50 px-3 py-1 text-[12px] font-semibold text-emerald-700">Live</span>
+            <span className="rounded-full bg-[#E9EFEA] px-3 py-1 text-[12px] font-semibold text-[#3E5C4B]">Live</span>
           </div>
           <div className="mt-5 flex flex-wrap gap-2">
             <Link to="/admin/theme" className="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-4 py-2 text-[12px] font-semibold text-white hover:bg-black"><Pencil size={14} /> Edit theme</Link>
@@ -123,7 +123,7 @@ export default function OnlineStore() {
           </div>
           <div className="mt-4 flex items-center gap-3">
             <button onClick={saveLock} disabled={busy || !s} className="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-4 py-2 text-[12px] font-semibold text-white hover:bg-black">{busy ? 'Saving…' : 'Save'}</button>
-            {lock.enabled && <p className="flex items-center gap-1 text-[12px] text-neutral-500"><Check size={12} className="text-emerald-700" /> Save ke foran baad sab visitors se password manga jayega</p>}
+            {lock.enabled && <p className="flex items-center gap-1 text-[12px] text-neutral-500"><Check size={12} className="text-[#3E5C4B]" /> Save ke foran baad sab visitors se password manga jayega</p>}
           </div>
         </div>
       </div>

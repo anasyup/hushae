@@ -42,7 +42,7 @@ export default function OrderDashboard({ token, onPipelineClick, onCustomerClick
   }, [token, days]);
 
   if (err) {
-    return <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-[13px] text-red-800">{err}</div>;
+    return <div className="rounded-xl border border-[#E0C6BE] bg-[#F5EDEB] p-4 text-[13px] text-[#7C4237]">{err}</div>;
   }
   if (!data) {
     return (
@@ -63,7 +63,7 @@ export default function OrderDashboard({ token, onPipelineClick, onCustomerClick
         <div className="flex items-baseline gap-2">
           <p className="text-[13px] font-semibold text-neutral-900">Today at a glance</p>
           <span className="inline-flex items-center gap-1 text-[12px] text-neutral-400">
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#5B7F6A]" />
             live · {stamp ? stamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '—'}
           </span>
         </div>
@@ -226,7 +226,7 @@ export default function OrderDashboard({ token, onPipelineClick, onCustomerClick
                       <span className="block truncate text-[12px] text-neutral-800">{c.name}</span>
                       <span className="block text-[12px] text-neutral-400">
                         {c.orders} order{c.orders === 1 ? '' : 's'}
-                        {c.orders >= 3 && <span className="ml-1 font-semibold text-amber-600">· repeat</span>}
+                        {c.orders >= 3 && <span className="ml-1 font-semibold text-[#8F7448]">· repeat</span>}
                       </span>
                     </span>
                     <span className="shrink-0 text-[13px] font-semibold tabular-nums">{pkr(c.spent)}</span>
@@ -293,8 +293,8 @@ const TIP = { borderRadius: 10, border: '1px solid #E4E0DA', fontSize: 12, boxSh
 const Empty = () => <p className="py-3 text-center text-[13px] text-neutral-400">No data yet</p>;
 
 function Kpi({ label, value, sub, tone, accent }) {
-  const cls = tone === 'good' ? 'text-emerald-700' : tone === 'bad' ? 'text-red-700'
-    : tone === 'warn' ? 'text-amber-700' : 'text-neutral-900';
+  const cls = tone === 'good' ? 'text-[#3E5C4B]' : tone === 'bad' ? 'text-[#8A4B3F]'
+    : tone === 'warn' ? 'text-[#7A6239]' : 'text-neutral-900';
   return (
     <div className={`rounded-lg border px-3 py-2.5 ${accent ? 'border-neutral-900 bg-neutral-900' : 'border-neutral-200 bg-neutral-50/60'}`}>
       <p className={`text-[12px] font-semibold uppercase tracking-wider ${accent ? 'text-white/60' : 'text-neutral-500'}`}>{label}</p>

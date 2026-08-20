@@ -24,7 +24,7 @@ import { CANCEL_REASONS } from './orders/orderConstants';
 const STATUSES = ['Pending', 'Confirmed', 'Processing', 'Ready to Ship', 'Shipped', 'Out for Delivery', 'Delivered', 'Cancelled', 'Refunded'];
 const PAY = ['Pending', 'Paid', 'Verified', 'Confirmed', 'Failed', 'Refunded'];
 
-const statusPillClass = (s) => s === 'Delivered' ? 'bg-emerald-100 text-emerald-700' : s === 'Cancelled' ? 'bg-red-100 text-red-700' : s === 'Refunded' ? 'bg-orange-100 text-orange-700' : s === 'Shipped' || s === 'Out for Delivery' ? 'bg-[#EAE0CC] text-[#8F7448]' : s === 'Ready to Ship' ? 'bg-blue-100 text-blue-700' : s === 'Processing' ? 'bg-sky-100 text-sky-700' : s === 'Confirmed' ? 'bg-cyan-100 text-cyan-700' : 'bg-amber-100 text-amber-700';
+const statusPillClass = (s) => s === 'Delivered' ? 'bg-[#DDE7E0] text-[#3E5C4B]' : s === 'Cancelled' ? 'bg-[#EEDED9] text-[#8A4B3F]' : s === 'Refunded' ? 'bg-[#F4E8DC] text-[#8A6D3B]' : s === 'Shipped' || s === 'Out for Delivery' ? 'bg-[#EAE0CC] text-[#8F7448]' : s === 'Ready to Ship' ? 'bg-[#E8E8E8] text-[#5A5A5A]' : s === 'Processing' ? 'bg-[#E8E8E8] text-[#5A5A5A]' : s === 'Confirmed' ? 'bg-[#E8E8E8] text-[#5A5A5A]' : 'bg-[#EDE4CE] text-[#7A6239]';
 
 export default function OrderDetail() {
   const { id } = useParams();
@@ -87,7 +87,7 @@ export default function OrderDetail() {
     setBusy(false);
   };
 
-  if (err) return <AdminLayout title="Order"><div className="mx-auto grid max-w-md place-items-center rounded-2xl border border-red-200 bg-red-50 p-10"><p className="text-sm text-red-700">{err}</p><button onClick={() => { setErr(''); load(); }} className="mt-4 rounded-full border border-red-300 bg-white px-4 py-2 text-xs font-semibold text-red-700 hover:bg-red-50">Try again</button></div></AdminLayout>;
+  if (err) return <AdminLayout title="Order"><div className="mx-auto grid max-w-md place-items-center rounded-2xl border border-[#E0C6BE] bg-[#F5EDEB] p-10"><p className="text-sm text-[#8A4B3F]">{err}</p><button onClick={() => { setErr(''); load(); }} className="mt-4 rounded-full border border-[#D0ABA0] bg-white px-4 py-2 text-xs font-semibold text-[#8A4B3F] hover:bg-[#F5EDEB]">Try again</button></div></AdminLayout>;
   if (!o) return <AdminLayout title="Order"><div className="grid gap-4"><div className="animate-pulse rounded-xl bg-neutral-100 h-20 rounded-xl" /><div className="animate-pulse rounded-xl bg-neutral-100 h-64 rounded-xl" /><div className="animate-pulse rounded-xl bg-neutral-100 h-32 rounded-xl" /></div></AdminLayout>;
 
   const c = o.customerInfo;
@@ -112,7 +112,7 @@ export default function OrderDetail() {
           {o.discreetPackaging ? <span className="ml-2 rounded bg-neutral-100 px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide">Discreet pack</span> : null}
         </p>
         {c.phone && (
-          <a href={waConfirm} target="_blank" rel="noreferrer" className="inline-flex min-h-[40px] items-center gap-1.5 rounded-lg bg-emerald-600 px-3 text-[12px] font-semibold text-white hover:bg-emerald-700">
+          <a href={waConfirm} target="_blank" rel="noreferrer" className="inline-flex min-h-[40px] items-center gap-1.5 rounded-lg bg-[#4A6B58] px-3 text-[12px] font-semibold text-white hover:bg-[#3E5C4B]">
             <MessageCircle size={13} /> WhatsApp
           </a>
         )}
@@ -147,17 +147,17 @@ export default function OrderDetail() {
         </select>
 
         {cancelOpen && (
-          <div className="flex flex-wrap items-center gap-2 rounded-full border border-red-200 bg-red-50 px-3 py-1.5">
-            <span className="text-[12px] font-semibold text-red-700">Cancel reason:</span>
-            <select value={cancelReason} onChange={(e) => setCancelReason(e.target.value)} className="rounded-md border border-red-200 bg-white px-2 py-1 text-[12px] outline-none">
+          <div className="flex flex-wrap items-center gap-2 rounded-full border border-[#E0C6BE] bg-[#F5EDEB] px-3 py-1.5">
+            <span className="text-[12px] font-semibold text-[#8A4B3F]">Cancel reason:</span>
+            <select value={cancelReason} onChange={(e) => setCancelReason(e.target.value)} className="rounded-md border border-[#E0C6BE] bg-white px-2 py-1 text-[12px] outline-none">
               <option value="">Select reason…</option>
               {CANCEL_REASONS.map((r) => <option key={r} value={r}>{r}</option>)}
             </select>
-            {cancelReason === 'Other' && <input value={cancelReason} onChange={(e) => setCancelReason(e.target.value)} placeholder="Describe…" className="rounded-md border border-red-200 bg-white px-2 py-1 text-[12px] outline-none" />}
+            {cancelReason === 'Other' && <input value={cancelReason} onChange={(e) => setCancelReason(e.target.value)} placeholder="Describe…" className="rounded-md border border-[#E0C6BE] bg-white px-2 py-1 text-[12px] outline-none" />}
             <button
               disabled={!cancelReason || busy}
               onClick={() => { patch('/status', { status: 'Cancelled', cancelReason }, 'Order cancelled'); setCancelOpen(false); }}
-              className="rounded-full bg-red-600 px-3 py-1 text-[12px] font-semibold text-white transition hover:bg-red-700 disabled:opacity-50">
+              className="rounded-full bg-[#9A5548] px-3 py-1 text-[12px] font-semibold text-white transition hover:bg-[#8A4B3F] disabled:opacity-50">
               Confirm
             </button>
             <button onClick={() => setCancelOpen(false)} className="rounded-full px-2 py-1 text-[12px] font-semibold text-neutral-500 hover:text-neutral-900">✕</button>
@@ -173,7 +173,7 @@ export default function OrderDetail() {
         <div className="ml-auto flex items-center gap-1.5">
           <button onClick={load} disabled={busy} className="grid h-8 w-8 place-items-center rounded-lg border border-neutral-200 bg-white text-neutral-500 transition hover:bg-neutral-50" title="Refresh"><RefreshCw size={13} className={busy ? 'animate-spin' : ''} /></button>
           <button onClick={() => window.open(`/admin/orders/${id}/invoice`, '_blank')} className="inline-flex items-center gap-1 rounded-lg border border-neutral-200 bg-white px-3 py-2 text-xs font-semibold text-neutral-600 transition hover:bg-neutral-50"><Printer size={11} /> Invoice</button>
-          <button onClick={remove} className="inline-flex items-center gap-1 rounded-lg border border-red-200 bg-white px-3 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-50"><Trash2 size={11} /> Delete</button>
+          <button onClick={remove} className="inline-flex items-center gap-1 rounded-lg border border-[#E0C6BE] bg-white px-3 py-2 text-xs font-semibold text-[#9A5548] transition hover:bg-[#F5EDEB]"><Trash2 size={11} /> Delete</button>
         </div>
       </div>
 
@@ -254,7 +254,7 @@ export default function OrderDetail() {
                   </div>
                   <div className="flex flex-col items-end gap-1.5">
                     <p className="text-[12px] font-bold tabular-nums">{pkr(it.price * it.quantity)}</p>
-                    <button type="button" onClick={() => delLine(i)} className="rounded p-1 text-neutral-400 hover:bg-red-50 hover:text-red-600"><X size={12} /></button>
+                    <button type="button" onClick={() => delLine(i)} className="rounded p-1 text-neutral-400 hover:bg-[#F5EDEB] hover:text-[#9A5548]"><X size={12} /></button>
                   </div>
                 </div>
               ))}
@@ -279,7 +279,7 @@ export default function OrderDetail() {
               {/* Totals footer */}
               <div className="space-y-1 bg-neutral-50/60 px-5 py-4 text-[12px]">
                 <div className="flex justify-between"><span className="text-neutral-500">Subtotal</span><span>{pkr(editing ? editSub : o.subtotal)}</span></div>
-                {!!o.discount && <div className="flex justify-between font-medium text-emerald-700"><span>Discount {o.couponCode && `(${o.couponCode})`}</span><span>− {pkr(o.discount)}</span></div>}
+                {!!o.discount && <div className="flex justify-between font-medium text-[#3E5C4B]"><span>Discount {o.couponCode && `(${o.couponCode})`}</span><span>− {pkr(o.discount)}</span></div>}
                 <div className="flex justify-between"><span className="text-neutral-500">Shipping</span><span>{o.shippingCharge === 0 ? 'Free' : pkr(o.shippingCharge)}</span></div>
                 <div className="flex justify-between pt-1.5 border-t border-neutral-200 text-[12px] font-semibold"><span>Total</span><span>{pkr(editing ? editTotal : o.total)}</span></div>
                 {editing && (
@@ -374,7 +374,7 @@ export default function OrderDetail() {
               {c.phone && (
                 <>
                   <a href={`tel:${c.phone}`} className="inline-flex items-center gap-1 rounded-full border border-neutral-200 bg-white px-2.5 py-1.5 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50"><Phone size={10} /> Call</a>
-                  <a href={whatsappLink} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-full bg-emerald-600 px-2.5 py-1.5 text-[12px] font-semibold text-white transition hover:bg-emerald-700"><MessageCircle size={10} /> WhatsApp</a>
+                  <a href={whatsappLink} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-full bg-[#4A6B58] px-2.5 py-1.5 text-[12px] font-semibold text-white transition hover:bg-[#3E5C4B]"><MessageCircle size={10} /> WhatsApp</a>
                 </>
               )}
               {c.email && <a href={`mailto:${c.email}`} className="inline-flex items-center gap-1 rounded-full border border-neutral-200 bg-white px-2.5 py-1.5 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50"><Mail size={10} /> Email</a>}
@@ -391,7 +391,7 @@ export default function OrderDetail() {
             <p className="mt-1 text-[12px] font-medium text-neutral-600">{c.city}, {c.province}{c.postalCode ? ` — ${c.postalCode}` : ''}</p>
             {c.location?.lat != null && (
               <a href={c.location.mapsLink || `https://www.google.com/maps?q=${c.location.lat},${c.location.lng}`} target="_blank" rel="noreferrer"
-                className="mt-3 inline-flex items-center gap-1 rounded-full bg-blue-50 px-3 py-1.5 text-[13px] font-bold text-blue-700 ring-1 ring-blue-200 hover:bg-blue-100">
+                className="mt-3 inline-flex items-center gap-1 rounded-full bg-[#F1F1F1] px-3 py-1.5 text-[13px] font-bold text-[#5A5A5A] ring-1 ring-[#D4D4D4] hover:bg-[#E8E8E8]">
                 📍 Open in Maps
               </a>
             )}

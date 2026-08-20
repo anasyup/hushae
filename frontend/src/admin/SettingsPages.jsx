@@ -267,15 +267,15 @@ export function SettingsPayments() {
               <label className="flex shrink-0 cursor-pointer items-center gap-2 text-[12px] font-semibold text-neutral-700">
                 <span>{gatewayOn('safepay') ? 'Enabled' : 'Disabled'}</span>
                 <input type="checkbox" className="sr-only" checked={gatewayOn('safepay')} onChange={(e) => setGatewayEnabled('safepay', e.target.checked)} />
-                <span className={`relative inline-flex h-5 w-9 items-center rounded-full transition ${gatewayOn('safepay') ? 'bg-emerald-600' : 'bg-neutral-300'}`}>
+                <span className={`relative inline-flex h-5 w-9 items-center rounded-full transition ${gatewayOn('safepay') ? 'bg-[#4A6B58]' : 'bg-neutral-300'}`}>
                   <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition ${gatewayOn('safepay') ? 'translate-x-4.5 ml-1' : 'ml-0.5'}`} />
                 </span>
               </label>
             </div>
 
             <div className="mt-3 flex items-center gap-3">
-              <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold ${sp.sandbox ? 'bg-amber-50 text-amber-700' : 'bg-emerald-50 text-emerald-700'}`}>
-                <span className={`h-1.5 w-1.5 rounded-full ${sp.sandbox ? 'bg-amber-500' : 'bg-emerald-500'}`} />
+              <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold ${sp.sandbox ? 'bg-[#F6F1E6] text-[#7A6239]' : 'bg-[#E9EFEA] text-[#3E5C4B]'}`}>
+                <span className={`h-1.5 w-1.5 rounded-full ${sp.sandbox ? 'bg-[#C9A96E]' : 'bg-[#5B7F6A]'}`} />
                 {sp.sandbox ? 'Sandbox (test mode)' : 'Live'}
               </span>
               <button type="button" onClick={() => setSP('sandbox', !sp.sandbox)} className="text-[12px] font-semibold text-neutral-500 underline-offset-2 hover:text-neutral-900 hover:underline">
@@ -284,7 +284,7 @@ export function SettingsPayments() {
             </div>
 
             {sp.sandbox && (
-              <p className="mt-2 rounded-lg bg-amber-50 px-3 py-2 text-[12px] text-amber-800">
+              <p className="mt-2 rounded-lg bg-[#F6F1E6] px-3 py-2 text-[12px] text-[#6B552F]">
                 Test mode — no real money moves. Paste your sandbox keys from the SafePay dashboard to try the flow end-to-end.
               </p>
             )}
@@ -314,15 +314,15 @@ export function SettingsPayments() {
               <label className="flex shrink-0 cursor-pointer items-center gap-2 text-[12px] font-semibold text-neutral-700">
                 <span>{gatewayOn('jazzcash-api') ? 'Enabled' : 'Disabled'}</span>
                 <input type="checkbox" className="sr-only" checked={gatewayOn('jazzcash-api')} onChange={(e) => setGatewayEnabled('jazzcash-api', e.target.checked)} />
-                <span className={`relative inline-flex h-5 w-9 items-center rounded-full transition ${gatewayOn('jazzcash-api') ? 'bg-emerald-600' : 'bg-neutral-300'}`}>
+                <span className={`relative inline-flex h-5 w-9 items-center rounded-full transition ${gatewayOn('jazzcash-api') ? 'bg-[#4A6B58]' : 'bg-neutral-300'}`}>
                   <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition ${gatewayOn('jazzcash-api') ? 'translate-x-4.5 ml-1' : 'ml-0.5'}`} />
                 </span>
               </label>
             </div>
 
             <div className="mt-3 flex items-center gap-3">
-              <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold ${jz.sandbox ? 'bg-amber-50 text-amber-700' : 'bg-emerald-50 text-emerald-700'}`}>
-                <span className={`h-1.5 w-1.5 rounded-full ${jz.sandbox ? 'bg-amber-500' : 'bg-emerald-500'}`} />
+              <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold ${jz.sandbox ? 'bg-[#F6F1E6] text-[#7A6239]' : 'bg-[#E9EFEA] text-[#3E5C4B]'}`}>
+                <span className={`h-1.5 w-1.5 rounded-full ${jz.sandbox ? 'bg-[#C9A96E]' : 'bg-[#5B7F6A]'}`} />
                 {jz.sandbox ? 'Sandbox (test mode)' : 'Live'}
               </span>
               <button type="button" onClick={() => setJZ('sandbox', !jz.sandbox)} className="text-[12px] font-semibold text-neutral-500 underline-offset-2 hover:text-neutral-900 hover:underline">
@@ -436,7 +436,7 @@ export function SettingsShipping() {
                   />
                   <button
                     onClick={() => setS({ ...s, operatingCosts: { ...oc, courierByCity: oc.courierByCity.filter((_, j) => j !== i) } })}
-                    className="shrink-0 rounded-lg px-3 py-2 text-[12px] font-semibold text-neutral-500 hover:bg-red-50 hover:text-red-600"
+                    className="shrink-0 rounded-lg px-3 py-2 text-[12px] font-semibold text-neutral-500 hover:bg-[#F5EDEB] hover:text-[#9A5548]"
                   >Remove</button>
                 </div>
               ))}
@@ -551,8 +551,8 @@ export function SettingsSecurity() {
     if (/[0-9]/.test(next)) score++;
     if (/[^A-Za-z0-9]/.test(next)) score++;
     const map = [
-      { label: 'Very weak', color: '#dc2626', pct: 20 },
-      { label: 'Weak',      color: '#ea580c', pct: 40 },
+      { label: 'Very weak', color: '#9A5548', pct: 20 },
+      { label: 'Weak',      color: '#A68A56', pct: 40 },
       { label: 'Fair',      color: '#ca8a04', pct: 60 },
       { label: 'Good',      color: '#65a30d', pct: 80 },
       { label: 'Strong',    color: '#16a34a', pct: 100 },
@@ -671,7 +671,7 @@ export function SettingsSecurity() {
                 <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500">Confirm new password</label>
                 <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 pr-10" type={show.x ? 'text' : 'password'} value={confirm} onChange={(e) => setConfirm(e.target.value)} autoComplete="new-password" />
                 {eyeBtn('x')}
-                {confirm && next && confirm !== next && <p className="mt-1 text-[12px] font-semibold text-red-600">Passwords do not match</p>}
+                {confirm && next && confirm !== next && <p className="mt-1 text-[12px] font-semibold text-[#9A5548]">Passwords do not match</p>}
               </div>
             </div>
             <p className="text-[12px] text-neutral-500">After changing, you will be signed out from other devices.</p>

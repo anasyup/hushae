@@ -139,7 +139,7 @@ export default function SettingsCheckout() {
                   </select>
                   <button
                     type="button" onClick={() => set('paymentList', c.paymentList.filter((_, j) => j !== i))}
-                    className="grid h-10 w-10 shrink-0 place-items-center rounded-lg text-neutral-500 transition hover:bg-red-50 hover:text-red-600"
+                    className="grid h-10 w-10 shrink-0 place-items-center rounded-lg text-neutral-500 transition hover:bg-[#F5EDEB] hover:text-[#9A5548]"
                     aria-label={`Remove ${m.label || m.id}`}
                   >
                     <Trash2 size={14} />
@@ -213,7 +213,7 @@ export default function SettingsCheckout() {
                   />
                   <button
                     type="button" onClick={() => set('shippingMethods', c.shippingMethods.filter((_, j) => j !== i))}
-                    className="grid h-10 w-10 shrink-0 place-items-center rounded-lg text-neutral-500 transition hover:bg-red-50 hover:text-red-600"
+                    className="grid h-10 w-10 shrink-0 place-items-center rounded-lg text-neutral-500 transition hover:bg-[#F5EDEB] hover:text-[#9A5548]"
                     aria-label={`Remove ${m.label || m.id}`}
                   >
                     <Trash2 size={14} />
@@ -291,7 +291,7 @@ export default function SettingsCheckout() {
                 <input className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 flex-1" value={t.label} placeholder="e.g. Secure checkout" onChange={(e) => setRow('trust', i, 'label', e.target.value)} aria-label={`Text for badge ${i + 1}`} />
                 <button
                   type="button" onClick={() => set('trust', c.trust.filter((_, j) => j !== i))}
-                  className="grid h-10 w-10 shrink-0 place-items-center rounded-lg text-neutral-500 transition hover:bg-red-50 hover:text-red-600"
+                  className="grid h-10 w-10 shrink-0 place-items-center rounded-lg text-neutral-500 transition hover:bg-[#F5EDEB] hover:text-[#9A5548]"
                   aria-label={`Remove badge ${i + 1}`}
                 >
                   <Trash2 size={14} />

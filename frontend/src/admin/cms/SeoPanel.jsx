@@ -32,7 +32,7 @@ function Counter({ value, ideal, max }) {
   const over = n > ideal;
   const wayOver = n > max;
   return (
-    <span className={`text-[12px] tabular-nums ${wayOver ? 'font-semibold text-red-700' : over ? 'text-amber-800' : 'text-neutral-600'}`}>
+    <span className={`text-[12px] tabular-nums ${wayOver ? 'font-semibold text-[#8A4B3F]' : over ? 'text-[#6B552F]' : 'text-neutral-600'}`}>
       {n}/{ideal}
       {wayOver ? ' — too long, please shorten' : over ? ' — Google will cut the end off' : ''}
     </span>
@@ -64,7 +64,7 @@ export default function SeoPanel({ page, cfg, onChange, onChangeSeo }) {
       title="Google & search"
       subtitle="How this page looks when somebody searches for it"
       badge={hidden ? (
-        <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[13px] font-semibold text-amber-900 ring-1 ring-amber-300">
+        <span className="rounded-full bg-[#F6F1E6] px-2 py-0.5 text-[13px] font-semibold text-[#5C4A28] ring-1 ring-[#CDB98F]">
           Hidden from Google
         </span>
       ) : null}
@@ -85,7 +85,7 @@ export default function SeoPanel({ page, cfg, onChange, onChangeSeo }) {
             </p>
           </div>
           {hidden && (
-            <p className="mt-2 rounded-lg bg-amber-50 px-3 py-2 text-[12px] leading-relaxed text-amber-900">
+            <p className="mt-2 rounded-lg bg-[#F6F1E6] px-3 py-2 text-[12px] leading-relaxed text-[#5C4A28]">
               This page is set to stay out of Google, so the preview above is only for you. Customers
               can still open the page from a direct link.
             </p>
@@ -131,7 +131,7 @@ export default function SeoPanel({ page, cfg, onChange, onChangeSeo }) {
             hint="Only fill this in if the same writing also lives somewhere else, and you want Google to count that other address as the real one."
           />
           {seo.canonical && !/^(https?:\/\/|\/)/.test(seo.canonical) && (
-            <p role="alert" className="mt-1.5 text-[12px] font-medium text-red-700">
+            <p role="alert" className="mt-1.5 text-[12px] font-medium text-[#8A4B3F]">
               Start with a slash — for example /{seo.canonical.replace(/^\/+/, '')}
             </p>
           )}
@@ -156,7 +156,7 @@ export default function SeoPanel({ page, cfg, onChange, onChangeSeo }) {
             robots: {resolved.robots}
           </p>
           {cfg.seo?.defaultNoIndex && !seo.noIndex && (
-            <p className="rounded-lg bg-amber-50 px-3 py-2 text-[12px] leading-relaxed text-amber-900">
+            <p className="rounded-lg bg-[#F6F1E6] px-3 py-2 text-[12px] leading-relaxed text-[#5C4A28]">
               Your shop settings currently hide <strong>every</strong> page from Google, so this one is hidden
               too regardless of the switch above.
             </p>

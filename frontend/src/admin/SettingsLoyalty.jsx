@@ -22,7 +22,7 @@ import { LOYALTY_DEFAULTS } from '../lib/loyaltyConfig';
 
 function Section({ title, description, children, tone }) {
   return (
-    <section className={`rounded-2xl border bg-white p-6 ${tone === 'warn' ? 'border-amber-300' : 'border-neutral-200'}`}>
+    <section className={`rounded-2xl border bg-white p-6 ${tone === 'warn' ? 'border-[#CDB98F]' : 'border-neutral-200'}`}>
       <div className="mb-5">
         <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-500">{title}</p>
         {description && <p className="mt-1 text-[12px] leading-relaxed text-neutral-500">{description}</p>}
@@ -293,11 +293,11 @@ export default function SettingsLoyalty() {
       )}
 
       {problems.length > 0 && (
-        <div role="alert" className="mb-5 rounded-2xl border border-amber-300 bg-amber-50 p-4">
-          <p className="flex items-center gap-2 text-[13px] font-semibold text-amber-900">
+        <div role="alert" className="mb-5 rounded-2xl border border-[#CDB98F] bg-[#F6F1E6] p-4">
+          <p className="flex items-center gap-2 text-[13px] font-semibold text-[#5C4A28]">
             <AlertTriangle size={14} /> Fix these before saving
           </p>
-          <ul className="mt-2 list-disc space-y-1 pl-5 text-[12px] leading-relaxed text-amber-900">
+          <ul className="mt-2 list-disc space-y-1 pl-5 text-[12px] leading-relaxed text-[#5C4A28]">
             {problems.map((p) => <li key={p}>{p}</li>)}
           </ul>
         </div>
@@ -479,7 +479,7 @@ export default function SettingsLoyalty() {
                         onChange={(e) => setTier(i, 'perks', e.target.value.split('\n').map((x) => x.trim()).filter(Boolean))}
                       />
                     </div>
-                    <button type="button" onClick={() => removeTier(i)} className="mt-4 inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-red-200 px-3 py-1.5 text-[12px] font-semibold text-red-600 transition hover:bg-red-50">
+                    <button type="button" onClick={() => removeTier(i)} className="mt-4 inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-[#E0C6BE] px-3 py-1.5 text-[12px] font-semibold text-[#9A5548] transition hover:bg-[#F5EDEB]">
                       <Trash2 size={13} /> Remove tier
                     </button>
                   </div>
@@ -566,7 +566,7 @@ export default function SettingsLoyalty() {
                   <Num label="Bonus points on unlock" value={a.points} onChange={(v) => setAch(i, 'points', v)} min="0" max="100000" disabled={off || !L.achievements.enabled} />
                   <Text label="Short note" value={a.note} onChange={(v) => setAch(i, 'note', v)} disabled={off || !L.achievements.enabled} />
                 </div>
-                <button type="button" onClick={() => removeAch(i)} className="mt-3 inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-red-200 px-3 py-1.5 text-[12px] font-semibold text-red-600 transition hover:bg-red-50">
+                <button type="button" onClick={() => removeAch(i)} className="mt-3 inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-[#E0C6BE] px-3 py-1.5 text-[12px] font-semibold text-[#9A5548] transition hover:bg-[#F5EDEB]">
                   <Trash2 size={13} /> Remove badge
                 </button>
               </div>

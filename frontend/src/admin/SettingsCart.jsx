@@ -228,7 +228,7 @@ export default function SettingsCart() {
                 <button
                   type="button"
                   onClick={() => set('trust', c.trust.filter((_, j) => j !== i))}
-                  className="grid h-10 w-10 shrink-0 place-items-center rounded-lg text-neutral-500 transition hover:bg-red-50 hover:text-red-600"
+                  className="grid h-10 w-10 shrink-0 place-items-center rounded-lg text-neutral-500 transition hover:bg-[#F5EDEB] hover:text-[#9A5548]"
                   aria-label={`Remove badge ${i + 1}`}
                 >
                   <Trash2 size={14} />

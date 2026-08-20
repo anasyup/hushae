@@ -158,8 +158,8 @@ export default function SettingsSearch() {
       </div>
 
       {problems.length > 0 && (
-        <div role="alert" className="mb-5 rounded-2xl border border-amber-300 bg-amber-50 p-4">
-          <ul className="list-disc space-y-1 pl-5 text-[12px] text-amber-900">
+        <div role="alert" className="mb-5 rounded-2xl border border-[#CDB98F] bg-[#F6F1E6] p-4">
+          <ul className="list-disc space-y-1 pl-5 text-[12px] text-[#5C4A28]">
             {problems.map((p) => <li key={p}>{p}</li>)}
           </ul>
         </div>
@@ -250,7 +250,7 @@ export default function SettingsSearch() {
                   type="button"
                   onClick={() => set('synonyms', synonyms.filter((_, j) => j !== i))}
                   aria-label={`Remove synonym ${x.from} and ${x.to}`}
-                  className="ml-auto grid h-11 w-11 place-items-center rounded-lg text-red-600 transition hover:bg-red-50"
+                  className="ml-auto grid h-11 w-11 place-items-center rounded-lg text-[#9A5548] transition hover:bg-[#F5EDEB]"
                 >
                   <Trash2 size={14} />
                 </button>

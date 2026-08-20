@@ -11,9 +11,9 @@ import ReliabilityBadge from '../ReliabilityBadge';
 
 /** Stock states that deserve a warning colour in the warehouse strip. */
 const STOCK_TONE = {
-  out_of_stock: 'text-red-600',
-  insufficient: 'text-red-600',
-  low_stock: 'text-amber-600',
+  out_of_stock: 'text-[#9A5548]',
+  insufficient: 'text-[#9A5548]',
+  low_stock: 'text-[#8F7448]',
 };
 
 /* ============================================================================
@@ -79,10 +79,10 @@ export default function OrderRow({
               <span className="rounded-full bg-neutral-900 px-2 py-0.5 text-[13px] font-bold uppercase tracking-wide text-white">Rush</span>
             )}
             {o.qcStatus === 'passed' && (
-              <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[12px] font-semibold text-emerald-700 ring-1 ring-emerald-200">QC ✓</span>
+              <span className="rounded-full bg-[#E9EFEA] px-2 py-0.5 text-[12px] font-semibold text-[#3E5C4B] ring-1 ring-[#C9D8CE]">QC ✓</span>
             )}
             {o.customerService?.hasIssue && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-red-50 px-2 py-0.5 text-[12px] font-bold text-red-700 ring-1 ring-red-200">
+              <span className="inline-flex items-center gap-1 rounded-full bg-[#F5EDEB] px-2 py-0.5 text-[12px] font-bold text-[#8A4B3F] ring-1 ring-[#E0C6BE]">
                 <AlertTriangle size={10} /> {o.customerService.issueType || 'Issue'}
               </span>
             )}
@@ -111,7 +111,7 @@ export default function OrderRow({
             {bins.length > 0 && (
               <>
                 {' · '}
-                <span className={atRisk ? 'font-semibold text-amber-600' : ''}>
+                <span className={atRisk ? 'font-semibold text-[#8F7448]' : ''}>
                   {bins.slice(0, 3).join(', ')}{bins.length > 3 ? ` +${bins.length - 3}` : ''}
                 </span>
               </>
@@ -149,27 +149,27 @@ export default function OrderRow({
                     {pState !== 'Confirmed' && (
                       <button onClick={() => { onVerify(o._id, 'Confirmed'); setMenu(false); }}
                         className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-[12px] hover:bg-neutral-100">
-                        <Check size={12} className="text-emerald-600" /> Mark payment confirmed
+                        <Check size={12} className="text-[#4A6B58]" /> Mark payment confirmed
                       </button>
                     )}
                     {pState === 'Pending' && (
                       <button onClick={() => { onVerify(o._id, 'Verified'); setMenu(false); }}
                         className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-[12px] hover:bg-neutral-100">
-                        <Wallet size={12} className="text-blue-600" /> Mark payment verified
+                        <Wallet size={12} className="text-[#6B6B6B]" /> Mark payment verified
                       </button>
                     )}
                     <a href={`https://wa.me/${String(o.customerInfo?.phone || '').replace(/\D/g, '').replace(/^0/, '92')}`}
                       target="_blank" rel="noreferrer"
                       className="flex w-full items-center gap-2 px-3 py-1.5 text-[12px] hover:bg-neutral-100">
-                      <MessageCircle size={12} className="text-emerald-600" /> WhatsApp customer
+                      <MessageCircle size={12} className="text-[#4A6B58]" /> WhatsApp customer
                     </a>
                     <button onClick={() => { onOpenService(o); setMenu(false); }}
                       className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-[12px] hover:bg-neutral-100">
-                      <AlertTriangle size={12} className="text-amber-600" /> Log an issue
+                      <AlertTriangle size={12} className="text-[#8F7448]" /> Log an issue
                     </button>
                     <div className="my-1 border-t border-neutral-100" />
                     <button onClick={() => { setCancelMenu((v) => !v); }}
-                      className="flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left text-[12px] text-red-600 hover:bg-red-50">
+                      className="flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left text-[12px] text-[#9A5548] hover:bg-[#F5EDEB]">
                       <span className="inline-flex items-center gap-2"><Ban size={12} /> Cancel order</span>
                       <ChevronDown size={11} />
                     </button>

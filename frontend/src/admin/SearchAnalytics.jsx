@@ -22,7 +22,7 @@ const num = (n) => Number(n || 0).toLocaleString('en-PK');
 
 function Stat({ label, value, sub, tone }) {
   return (
-    <div className={`rounded-xl border bg-white px-4 py-3 ${tone === 'warn' ? 'border-amber-300' : 'border-neutral-200'}`}>
+    <div className={`rounded-xl border bg-white px-4 py-3 ${tone === 'warn' ? 'border-[#CDB98F]' : 'border-neutral-200'}`}>
       <p className="text-[12px] uppercase tracking-wider text-neutral-600">{label}</p>
       <p className="mt-1 text-xl font-semibold text-neutral-900">{value}</p>
       {sub && <p className="mt-0.5 text-[12px] text-neutral-600">{sub}</p>}
@@ -223,11 +223,11 @@ export default function SearchAnalytics() {
               This is where the merchant finds out those records need fixing. */}
           {quality && (quality.duplicateSizes?.length > 0 || quality.duplicateColors?.length > 0
             || quality.suspiciousColors?.length > 0 || quality.missingFabricCount > 0) && (
-            <section className="rounded-2xl border border-amber-300 bg-amber-50 p-5">
-              <p className="flex items-center gap-2 text-[13px] font-semibold text-amber-900">
+            <section className="rounded-2xl border border-[#CDB98F] bg-[#F6F1E6] p-5">
+              <p className="flex items-center gap-2 text-[13px] font-semibold text-[#5C4A28]">
                 <AlertTriangle size={14} /> Catalogue issues affecting search
               </p>
-              <ul className="mt-3 space-y-2 text-[12px] leading-relaxed text-amber-900">
+              <ul className="mt-3 space-y-2 text-[12px] leading-relaxed text-[#5C4A28]">
                 {quality.duplicateSizes?.map((s) => (
                   <li key={s.canonical}>
                     Size <strong>{s.canonical}</strong> is stored {s.variants.length} different ways: {s.variants.map((v) => `"${v}"`).join(', ')} — shoppers see one filter, but the records disagree.

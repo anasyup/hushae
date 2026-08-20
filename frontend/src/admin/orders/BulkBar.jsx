@@ -130,11 +130,11 @@ export default function BulkBar({ selected, total, onClear, onSelectAll, onBulk,
               </button>
               <button onClick={() => { setMoreOpen(false); run('qc', { result: 'pass' }); }}
                 className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-[13px] hover:bg-neutral-100">
-                <BadgeCheck size={13} className="text-emerald-600" /> Mark QC passed
+                <BadgeCheck size={13} className="text-[#4A6B58]" /> Mark QC passed
               </button>
               <button onClick={() => { setMoreOpen(false); run('qc', { result: 'fail' }); }}
                 className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-[13px] hover:bg-neutral-100">
-                <BadgeCheck size={13} className="text-amber-600" /> Flag for review
+                <BadgeCheck size={13} className="text-[#8F7448]" /> Flag for review
               </button>
               <div className="my-1 border-t border-neutral-100" />
               <button onClick={() => { setMoreOpen(false); run('priority', { flag: 'rush' }); }}
@@ -157,7 +157,7 @@ export default function BulkBar({ selected, total, onClear, onSelectAll, onBulk,
                 } catch (e) { toast?.(e.message || 'Could not build messages'); }
               }}
                 className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-[13px] hover:bg-neutral-100">
-                <MessageCircle size={13} className="text-emerald-600" /> WhatsApp customers
+                <MessageCircle size={13} className="text-[#4A6B58]" /> WhatsApp customers
               </button>
             </div>
           )}
@@ -169,7 +169,7 @@ export default function BulkBar({ selected, total, onClear, onSelectAll, onBulk,
             title: `Cancel ${count} order${count === 1 ? '' : 's'}?`,
             body: 'This moves them to Cancelled. Stock is not automatically returned.',
           })}
-          className={`${btn} bg-red-500/90 hover:bg-red-500`}>
+          className={`${btn} bg-[#B46A5C]/90 hover:bg-[#B46A5C]`}>
           <Ban size={13} /> Cancel
         </button>
 
@@ -196,7 +196,7 @@ export default function BulkBar({ selected, total, onClear, onSelectAll, onBulk,
                 <a key={l.id} href={l.url} target="_blank" rel="noreferrer"
                   className="block rounded-lg p-2.5 hover:bg-neutral-50">
                   <span className="flex items-center gap-2">
-                    <MessageCircle size={13} className="shrink-0 text-emerald-600" />
+                    <MessageCircle size={13} className="shrink-0 text-[#4A6B58]" />
                     <span className="text-[13px] font-medium text-neutral-900">{l.name}</span>
                     <span className="ml-auto font-mono text-[12px] text-neutral-400">{l.orderNumber}</span>
                   </span>
@@ -239,7 +239,7 @@ export default function BulkBar({ selected, total, onClear, onSelectAll, onBulk,
                 disabled={!!busy || (confirm.needsReason && !reason.trim()) || (confirm.needsNote && !noteText.trim())}
                 onClick={() => run(confirm.action, { ...(confirm.payload || {}), reason: reason.trim(), note: noteText.trim() })}
                 className={`inline-flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-[13px] font-semibold text-white disabled:opacity-50 ${
-                  confirm.danger ? 'bg-red-600 hover:bg-red-700' : 'bg-neutral-900 hover:bg-black'
+                  confirm.danger ? 'bg-[#9A5548] hover:bg-[#8A4B3F]' : 'bg-neutral-900 hover:bg-black'
                 }`}>
                 {busy ? <Loader2 size={13} className="animate-spin" /> : null} Confirm
               </button>

@@ -148,16 +148,16 @@ export default function SettingsAccounts() {
 
         <Section title="Email features" description="Password reset and email confirmation both need an email service. Connect one in Settings → Apps & Integrations first.">
           {mailReady === false && (
-            <div className="mb-4 flex items-start gap-2.5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
-              <AlertTriangle size={15} className="mt-0.5 shrink-0 text-amber-600" />
-              <p className="text-[12px] leading-relaxed text-amber-900">
+            <div className="mb-4 flex items-start gap-2.5 rounded-xl border border-[#DCCBA5] bg-[#F6F1E6] px-4 py-3">
+              <AlertTriangle size={15} className="mt-0.5 shrink-0 text-[#8F7448]" />
+              <p className="text-[12px] leading-relaxed text-[#5C4A28]">
                 <b>No email service is connected yet.</b> Until one is, “Forgot password” stays hidden from customers
                 and the server will refuse to send confirmation emails — rather than pretending it sent something.
               </p>
             </div>
           )}
           {mailReady === true && (
-            <p className="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-[12px] text-emerald-900">
+            <p className="mb-4 rounded-xl border border-[#C9D8CE] bg-[#E9EFEA] px-4 py-3 text-[12px] text-[#2B4436]">
               Email service is connected and working.
             </p>
           )}
@@ -175,7 +175,7 @@ export default function SettingsAccounts() {
             />
           </div>
           {emailMismatch && (
-            <p className="mt-3 text-[12px] font-medium text-amber-800">
+            <p className="mt-3 text-[12px] font-medium text-[#6B552F]">
               This is switched on but cannot work yet — customers will not see it until an email service is connected.
             </p>
           )}

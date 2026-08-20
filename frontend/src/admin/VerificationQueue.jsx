@@ -91,7 +91,7 @@ export default function VerificationQueue() {
         <div className="space-y-2">{Array.from({ length: 4 }).map((_, i) => <div key={i} className="skeleton h-20 rounded-2xl" />)}</div>
       ) : orders.length === 0 ? (
         <div className="rounded-2xl border border-neutral-200 bg-white py-20 text-center">
-          <CheckCircle2 size={30} className="mx-auto text-emerald-500" />
+          <CheckCircle2 size={30} className="mx-auto text-[#5B7F6A]" />
           <p className="mt-3 text-[15px] font-semibold text-neutral-900">All caught up</p>
           <p className="mt-1 text-[13px] text-neutral-500">No orders waiting for payment verification.</p>
         </div>
@@ -117,27 +117,27 @@ export default function VerificationQueue() {
                       <span>{o.customerInfo?.city}</span>
                       <span className="font-semibold tabular-nums text-neutral-900">{pkr(o.total)}</span>
                       <span>{ageHrs(o.createdAt)}h old</span>
-                      {(o.noAnswer?.attempts || 0) > 0 && <span className={flagged ? 'font-semibold text-red-600' : 'text-amber-600'}>{o.noAnswer.attempts} no-answer{o.noAnswer.attempts === 1 ? '' : 's'}{flagged ? ' — review' : ''}</span>}
+                      {(o.noAnswer?.attempts || 0) > 0 && <span className={flagged ? 'font-semibold text-[#9A5548]' : 'text-[#8F7448]'}>{o.noAnswer.attempts} no-answer{o.noAnswer.attempts === 1 ? '' : 's'}{flagged ? ' — review' : ''}</span>}
                     </div>
                   </div>
 
                   <div className="flex shrink-0 items-center gap-1.5">
-                    {wa && <a href={wa} target="_blank" rel="noreferrer" aria-label={`WhatsApp ${o.orderNumber}`} title="Verify via WhatsApp" className="grid h-9 w-9 place-items-center rounded-full border border-emerald-200 bg-emerald-50 text-emerald-700 transition hover:bg-emerald-100"><MessageCircle size={15} /></a>}
+                    {wa && <a href={wa} target="_blank" rel="noreferrer" aria-label={`WhatsApp ${o.orderNumber}`} title="Verify via WhatsApp" className="grid h-9 w-9 place-items-center rounded-full border border-[#C9D8CE] bg-[#E9EFEA] text-[#3E5C4B] transition hover:bg-[#DDE7E0]"><MessageCircle size={15} /></a>}
                     <button disabled={busy} onClick={() => act(o._id, 'verified')} className="inline-flex h-9 items-center gap-1 rounded-full bg-neutral-900 px-3.5 text-[12px] font-semibold text-white transition hover:bg-neutral-800 disabled:opacity-50"><Check size={13} /> Verified</button>
                     <button disabled={busy} onClick={() => act(o._id, 'no-answer')} className="inline-flex h-9 items-center gap-1 rounded-full border border-neutral-300 bg-white px-3.5 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-50"><PhoneOff size={13} /> No Answer</button>
-                    <button disabled={busy} onClick={() => { setCancelFor(o._id); setReason(''); }} className="inline-flex h-9 items-center gap-1 rounded-full border border-red-200 bg-white px-3.5 text-[12px] font-semibold text-red-600 transition hover:bg-red-50 disabled:opacity-50"><Ban size={13} /> Cancel</button>
+                    <button disabled={busy} onClick={() => { setCancelFor(o._id); setReason(''); }} className="inline-flex h-9 items-center gap-1 rounded-full border border-[#E0C6BE] bg-white px-3.5 text-[12px] font-semibold text-[#9A5548] transition hover:bg-[#F5EDEB] disabled:opacity-50"><Ban size={13} /> Cancel</button>
                   </div>
                 </div>
 
                 {cancelling && (
-                  <div className="mt-3 flex flex-wrap items-center gap-2 rounded-xl border border-red-100 bg-red-50 p-3">
-                    <span className="text-[12px] font-semibold text-red-700">Reason:</span>
-                    <select value={reason} onChange={(e) => setReason(e.target.value)} className="rounded-md border border-red-200 bg-white px-2 py-1.5 text-[12px] outline-none">
+                  <div className="mt-3 flex flex-wrap items-center gap-2 rounded-xl border border-[#EEDED9] bg-[#F5EDEB] p-3">
+                    <span className="text-[12px] font-semibold text-[#8A4B3F]">Reason:</span>
+                    <select value={reason} onChange={(e) => setReason(e.target.value)} className="rounded-md border border-[#E0C6BE] bg-white px-2 py-1.5 text-[12px] outline-none">
                       <option value="">Select reason…</option>
                       {CANCEL_REASONS.map((r) => <option key={r} value={r}>{r}</option>)}
                     </select>
-                    {reason === 'Other' && <input value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Describe…" className="rounded-md border border-red-200 bg-white px-2 py-1.5 text-[12px] outline-none" />}
-                    <button disabled={!reason || busy} onClick={() => act(o._id, 'cancel', { reason })} className="rounded-full bg-red-600 px-3.5 py-1.5 text-[12px] font-semibold text-white transition hover:bg-red-700 disabled:opacity-50">Confirm cancel</button>
+                    {reason === 'Other' && <input value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Describe…" className="rounded-md border border-[#E0C6BE] bg-white px-2 py-1.5 text-[12px] outline-none" />}
+                    <button disabled={!reason || busy} onClick={() => act(o._id, 'cancel', { reason })} className="rounded-full bg-[#9A5548] px-3.5 py-1.5 text-[12px] font-semibold text-white transition hover:bg-[#8A4B3F] disabled:opacity-50">Confirm cancel</button>
                     <button onClick={() => { setCancelFor(null); setReason(''); }} className="rounded-full px-2 py-1.5 text-[12px] font-semibold text-neutral-500 hover:text-neutral-900">Dismiss</button>
                   </div>
                 )}

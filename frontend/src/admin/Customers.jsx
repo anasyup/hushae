@@ -102,9 +102,9 @@ export default function Customers() {
       {/* Summary KPIs */}
       <div className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <Kpi icon={UsersIcon}    label="Total customers"  value={summary.total.toLocaleString()}         accent="#111111" />
-        <Kpi icon={ShoppingBag}  label="Active buyers"    value={summary.buyers.toLocaleString()}         accent="#2563eb" />
-        <Kpi icon={Crown}        label="VIP customers"    value={summary.vip.toLocaleString()}            accent="#d97706" hint="≥ 2 orders" />
-        <Kpi icon={TrendingUp}   label="New this month"   value={summary.newThisMonth.toLocaleString()}   accent="#059669" />
+        <Kpi icon={ShoppingBag}  label="Active buyers"    value={summary.buyers.toLocaleString()}         accent="#6B6B6B" />
+        <Kpi icon={Crown}        label="VIP customers"    value={summary.vip.toLocaleString()}            accent="#A68A56" hint="≥ 2 orders" />
+        <Kpi icon={TrendingUp}   label="New this month"   value={summary.newThisMonth.toLocaleString()}   accent="#4A6B58" />
       </div>
 
       {/* Toolbar */}
@@ -166,7 +166,7 @@ export default function Customers() {
                       <div>
                         <p className="text-[13px] font-semibold text-neutral-900">{c.name}</p>
                         {c.orders >= 2 && (
-                          <span className="mt-0.5 inline-flex items-center gap-1 rounded-full bg-amber-50 px-1.5 py-0.5 text-[12px] font-bold uppercase tracking-wider text-amber-700">
+                          <span className="mt-0.5 inline-flex items-center gap-1 rounded-full bg-[#F6F1E6] px-1.5 py-0.5 text-[12px] font-bold uppercase tracking-wider text-[#7A6239]">
                             <Crown size={9} /> VIP
                           </span>
                         )}
@@ -207,7 +207,7 @@ export default function Customers() {
                             {tagBusy === c.id ? (
                               <Loader2 size={10} className="animate-spin" />
                             ) : (
-                              <button onClick={(e) => { e.stopPropagation(); removeTag(c, t); }} className="rounded-full hover:text-red-300" aria-label={`Remove tag ${t}`}>
+                              <button onClick={(e) => { e.stopPropagation(); removeTag(c, t); }} className="rounded-full hover:text-[#D0ABA0]" aria-label={`Remove tag ${t}`}>
                                 <X size={10} />
                               </button>
                             )}

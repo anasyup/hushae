@@ -289,7 +289,7 @@ export default function CustomerGroups() {
             <div key={g._id} className={`${cardCls} group relative`}>
               <div className="flex items-start justify-between gap-2">
                 <h3 className="truncate text-[14px] font-bold text-neutral-900">{g.name}</h3>
-                <button onClick={() => remove(g)} className="rounded-lg p-1.5 text-neutral-300 opacity-0 transition group-hover:opacity-100 hover:bg-red-50 hover:text-red-600" title="Delete group"><Trash2 size={14} /></button>
+                <button onClick={() => remove(g)} className="rounded-lg p-1.5 text-neutral-300 opacity-0 transition group-hover:opacity-100 hover:bg-[#F5EDEB] hover:text-[#9A5548]" title="Delete group"><Trash2 size={14} /></button>
               </div>
               <p className="mt-1 line-clamp-2 text-[12px] text-neutral-400">{g.description || 'No description'}</p>
               <div className="mt-4 flex items-end justify-between">
@@ -298,7 +298,7 @@ export default function CustomerGroups() {
                   <p className="text-[11px] font-medium uppercase tracking-wider text-neutral-400">members</p>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <button onClick={() => openEmail(g)} className="inline-flex items-center gap-1 rounded-full border border-neutral-200 px-3 py-1.5 text-[12px] font-semibold text-neutral-700 transition hover:border-emerald-500 hover:text-emerald-700" title="Email this group">
+                  <button onClick={() => openEmail(g)} className="inline-flex items-center gap-1 rounded-full border border-neutral-200 px-3 py-1.5 text-[12px] font-semibold text-neutral-700 transition hover:border-[#5B7F6A] hover:text-[#3E5C4B]" title="Email this group">
                     <Mail size={12} /> Email
                   </button>
                   <button onClick={() => startEdit(g)} className="rounded-full border border-neutral-200 px-3.5 py-1.5 text-[12px] font-semibold text-neutral-700 transition hover:border-neutral-900">

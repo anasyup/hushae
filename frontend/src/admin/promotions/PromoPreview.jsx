@@ -200,7 +200,7 @@ export default function PromoPreview({ draft, onClose }) {
           {result && (
             <div className="mt-5 border-t border-neutral-200 pt-5" aria-live="polite">
               {!result.programmeLive && (
-                <p className="mb-3 rounded-xl bg-sky-50 px-4 py-2.5 text-[12px] text-sky-900">
+                <p className="mb-3 rounded-xl bg-[#F1F1F1] px-4 py-2.5 text-[12px] text-[#3A3A3A]">
                   Marketing is switched off, so this is a simulation only — real customers
                   are not seeing any of this yet.
                 </p>
@@ -212,13 +212,13 @@ export default function PromoPreview({ draft, onClose }) {
                   <dd className="tabular-nums">{money(result.subtotal)}</dd>
                 </div>
                 {(result.discounts || []).map((d) => (
-                  <div key={d.id} className="flex justify-between gap-4 text-emerald-800">
+                  <div key={d.id} className="flex justify-between gap-4 text-[#33503F]">
                     <dt className="min-w-0 truncate">{d.label || d.name}{d.note ? ` (${d.note})` : ''}</dt>
                     <dd className="shrink-0 tabular-nums">− {money(d.amount)}</dd>
                   </div>
                 ))}
                 {result.capped && (
-                  <div className="rounded-lg bg-amber-50 px-3 py-2 text-[12px] text-amber-900">
+                  <div className="rounded-lg bg-[#F6F1E6] px-3 py-2 text-[12px] text-[#5C4A28]">
                     Trimmed to your ceiling of {money(result.capAmount)}. Raise the maximum in
                     Rules if you meant to give more.
                   </div>
@@ -234,7 +234,7 @@ export default function PromoPreview({ draft, onClose }) {
               </dl>
 
               {(result.discounts || []).length > 0 && (
-                <p className="mt-3 flex items-start gap-2 rounded-xl bg-emerald-50 px-3 py-2.5 text-[12px] text-emerald-900">
+                <p className="mt-3 flex items-start gap-2 rounded-xl bg-[#E9EFEA] px-3 py-2.5 text-[12px] text-[#2B4436]">
                   <Check size={13} className="mt-0.5 shrink-0" aria-hidden="true" />
                   <span><strong>{result.discounts[0].label || result.discounts[0].name}</strong> applied.</span>
                 </p>

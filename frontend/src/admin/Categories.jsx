@@ -52,11 +52,11 @@ export default function Categories() {
                   </td>
                   <td className="table-cell capitalize text-neutral-500">{c.gender}</td>
                   <td className="table-cell text-neutral-500">{c.sortOrder}</td>
-                  <td className="px-3 py-2 text-[12px]"><span className={`pill ${c.isActive ? 'bg-emerald-20 text-emerald-700' : 'bg-red-50 text-red-700'}`}>{c.isActive ? 'Active' : 'Disabled'}</span></td>
+                  <td className="px-3 py-2 text-[12px]"><span className={`pill ${c.isActive ? 'bg-[#F0F4F1] text-[#3E5C4B]' : 'bg-[#F5EDEB] text-[#8A4B3F]'}`}>{c.isActive ? 'Active' : 'Disabled'}</span></td>
                   <td className="px-3 py-2 text-[12px]">
                     <div className="flex gap-2">
                       <button onClick={() => setEditing({ ...c })} className="rounded-full border border-neutral-200 px-3.5 py-2 text-[13px] font-bold uppercase text-neutral-500 transition hover:border-obsidian hover:text-neutral-900">Edit</button>
-                      {c.isActive && <button onClick={() => disable(c)} className="rounded-full border border-neutral-200 px-3.5 py-2 text-[13px] font-bold uppercase text-neutral-500 transition hover:border-red-300 hover:text-red-700">Disable</button>}
+                      {c.isActive && <button onClick={() => disable(c)} className="rounded-full border border-neutral-200 px-3.5 py-2 text-[13px] font-bold uppercase text-neutral-500 transition hover:border-[#D0ABA0] hover:text-[#8A4B3F]">Disable</button>}
                     </div>
                   </td>
                 </tr>

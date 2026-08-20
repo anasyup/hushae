@@ -63,22 +63,22 @@ function bucketOf(o) {
 /* Colour classes per stage — sober palette, not loud */
 const STAGE_TONE = {
   neutral: { text: 'text-neutral-700', bg: 'bg-neutral-100',   ring: 'ring-neutral-200',   pill: 'bg-neutral-900 text-white' },
-  amber:   { text: 'text-amber-700',   bg: 'bg-amber-50',      ring: 'ring-amber-200',     pill: 'bg-amber-500 text-white' },
-  blue:    { text: 'text-blue-700',    bg: 'bg-blue-50',       ring: 'ring-blue-200',      pill: 'bg-blue-600 text-white' },
+  amber:   { text: 'text-[#7A6239]',   bg: 'bg-[#F6F1E6]',      ring: 'ring-[#DCCBA5]',     pill: 'bg-[#C9A96E] text-white' },
+  blue:    { text: 'text-[#5A5A5A]',    bg: 'bg-[#F1F1F1]',       ring: 'ring-[#D4D4D4]',      pill: 'bg-[#525252] text-white' },
   purple:  { text: 'text-[#8F7448]',  bg: 'bg-[#F4EEE2]',     ring: 'ring-[#D9C9A6]',    pill: 'bg-[#A68A56] text-white' },
-  green:   { text: 'text-emerald-700', bg: 'bg-emerald-50',    ring: 'ring-emerald-200',   pill: 'bg-emerald-600 text-white' },
-  red:     { text: 'text-red-700',     bg: 'bg-red-50',        ring: 'ring-red-200',       pill: 'bg-red-600 text-white' },
+  green:   { text: 'text-[#3E5C4B]', bg: 'bg-[#E9EFEA]',    ring: 'ring-[#C9D8CE]',   pill: 'bg-[#4A6B58] text-white' },
+  red:     { text: 'text-[#8A4B3F]',     bg: 'bg-[#F5EDEB]',        ring: 'ring-[#E0C6BE]',       pill: 'bg-[#9A5548] text-white' },
 };
 
 export const statusPill = (s) =>
-  s === 'Delivered' ? 'bg-emerald-100 text-emerald-800'
-    : s === 'Cancelled' ? 'bg-red-100 text-red-800'
-    : s === 'Refunded' ? 'bg-orange-100 text-orange-800'
+  s === 'Delivered' ? 'bg-[#DDE7E0] text-[#33503F]'
+    : s === 'Cancelled' ? 'bg-[#EEDED9] text-[#7C4237]'
+    : s === 'Refunded' ? 'bg-[#F4E8DC] text-[#7A5F33]'
     : s === 'Shipped' || s === 'Out for Delivery' ? 'bg-[#EAE0CC] text-[#7A6239]'
-    : s === 'Ready to Ship' ? 'bg-blue-100 text-blue-800'
-    : s === 'Processing' ? 'bg-blue-50 text-blue-700'
-    : s === 'Confirmed' ? 'bg-cyan-100 text-cyan-800'
-    : 'bg-amber-100 text-amber-800';
+    : s === 'Ready to Ship' ? 'bg-[#E8E8E8] text-[#4A4A4A]'
+    : s === 'Processing' ? 'bg-[#F1F1F1] text-[#5A5A5A]'
+    : s === 'Confirmed' ? 'bg-[#E8E8E8] text-[#4A4A4A]'
+    : 'bg-[#EDE4CE] text-[#6B552F]';
 
 /* ============================================================================
  * OrderCard — the atomic card unit that shows one order and its actions.
@@ -111,11 +111,11 @@ function OrderCard({ order: o, onAction, actionsBusyId }) {
     <article className="group relative rounded-2xl border border-neutral-200 bg-white transition hover:border-neutral-300 hover:shadow-sm">
       {/* Left status indicator strip */}
       <div className={`absolute inset-y-0 left-0 w-1 rounded-l-2xl ${
-        stage === 'new'       ? 'bg-amber-400'
-        : stage === 'to-ship'  ? 'bg-blue-500'
+        stage === 'new'       ? 'bg-[#D4B87E]'
+        : stage === 'to-ship'  ? 'bg-[#6B6B6B]'
         : stage === 'shipping' ? 'bg-[#F4EEE2]0'
-        : stage === 'delivered'? 'bg-emerald-500'
-        : stage === 'issues'   ? 'bg-red-500'
+        : stage === 'delivered'? 'bg-[#5B7F6A]'
+        : stage === 'issues'   ? 'bg-[#B46A5C]'
         : 'bg-neutral-300'
       }`} />
 
@@ -124,11 +124,11 @@ function OrderCard({ order: o, onAction, actionsBusyId }) {
         {/* --- ORDER + ITEMS thumbnail row --- */}
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <button onClick={copyOrderNo} className="group/copy inline-flex items-center gap-1 rounded-md font-mono text-[12px] font-semibold text-neutral-900 hover:text-blue-600" title="Copy order number">
+            <button onClick={copyOrderNo} className="group/copy inline-flex items-center gap-1 rounded-md font-mono text-[12px] font-semibold text-neutral-900 hover:text-[#6B6B6B]" title="Copy order number">
               {o.orderNumber} <Copy size={11} className="opacity-0 transition-opacity group-hover/copy:opacity-100" />
             </button>
             <span className={`pill ${statusPill(o.status)}`}>{o.status}</span>
-            {o.verifiedByCall && <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[13px] font-semibold bg-emerald-50 text-emerald-700"><Phone size={10} /> Verified</span>}
+            {o.verifiedByCall && <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[13px] font-semibold bg-[#E9EFEA] text-[#3E5C4B]"><Phone size={10} /> Verified</span>}
             {o.discreetPackaging && <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[13px] font-semibold bg-neutral-100 text-neutral-600">Discreet</span>}
           </div>
 
@@ -161,7 +161,7 @@ function OrderCard({ order: o, onAction, actionsBusyId }) {
           <p className="font-semibold text-neutral-900">{pkr(o.total)}</p>
           <p className="mt-1 text-[12px] text-neutral-500">
             {o.paymentMethod}
-            <span className={`ml-1.5 pill ${o.paymentStatus === 'Paid' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'}`}>
+            <span className={`ml-1.5 pill ${o.paymentStatus === 'Paid' ? 'bg-[#E9EFEA] text-[#3E5C4B]' : 'bg-[#F6F1E6] text-[#7A6239]'}`}>
               {o.paymentStatus}
             </span>
           </p>
@@ -183,20 +183,20 @@ function OrderCard({ order: o, onAction, actionsBusyId }) {
         <div className="border-t border-neutral-100 bg-neutral-50/60 p-4 pl-5">
 
           {codPendingVerify && (
-            <div className="mb-3 rounded-xl border border-amber-200 bg-amber-50 p-3">
-              <p className="text-[12px] font-semibold text-amber-900">📞 COD verification pending</p>
-              <p className="mt-1 text-[12px] text-amber-800">Call the customer to confirm the order before shipping. Fake COD orders cost you courier fees.</p>
+            <div className="mb-3 rounded-xl border border-[#DCCBA5] bg-[#F6F1E6] p-3">
+              <p className="text-[12px] font-semibold text-[#5C4A28]">📞 COD verification pending</p>
+              <p className="mt-1 text-[12px] text-[#6B552F]">Call the customer to confirm the order before shipping. Fake COD orders cost you courier fees.</p>
               <div className="mt-2 flex flex-wrap gap-2">
-                <a href={`tel:${o.customerInfo.phone}`} className="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-1.5 text-[12px] font-semibold text-amber-900 shadow-sm ring-1 ring-amber-300 hover:bg-amber-100">
+                <a href={`tel:${o.customerInfo.phone}`} className="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-1.5 text-[12px] font-semibold text-[#5C4A28] shadow-sm ring-1 ring-[#CDB98F] hover:bg-[#EDE4CE]">
                   <Phone size={12} /> Call {o.customerInfo.phone}
                 </a>
-                <a href={`https://wa.me/${(o.customerInfo.phone || '').replace(/\D/g, '').replace(/^0/, '92')}?text=${encodeURIComponent(`Hi! This is HUSHAE regarding your order ${o.orderNumber}. Can we confirm the delivery details?`)}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-1.5 text-[12px] font-semibold text-green-800 shadow-sm ring-1 ring-green-300 hover:bg-green-50">
+                <a href={`https://wa.me/${(o.customerInfo.phone || '').replace(/\D/g, '').replace(/^0/, '92')}?text=${encodeURIComponent(`Hi! This is HUSHAE regarding your order ${o.orderNumber}. Can we confirm the delivery details?`)}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-1.5 text-[12px] font-semibold text-[#33503F] shadow-sm ring-1 ring-[#B4C8BA] hover:bg-[#E9EFEA]">
                   <MessageCircle size={12} /> WhatsApp
                 </a>
-                <button disabled={busy} onClick={() => onAction('verify-cod', o)} className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-[12px] font-semibold text-white shadow-sm hover:bg-emerald-700 disabled:opacity-50">
+                <button disabled={busy} onClick={() => onAction('verify-cod', o)} className="inline-flex items-center gap-1.5 rounded-lg bg-[#4A6B58] px-3 py-1.5 text-[12px] font-semibold text-white shadow-sm hover:bg-[#3E5C4B] disabled:opacity-50">
                   <CheckCircle2 size={12} /> {busy ? 'Confirming…' : 'Confirm by Call'}
                 </button>
-                <button disabled={busy} onClick={() => onAction('cancel', o)} className="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-1.5 text-[12px] font-semibold text-red-700 shadow-sm ring-1 ring-red-200 hover:bg-red-50">
+                <button disabled={busy} onClick={() => onAction('cancel', o)} className="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-1.5 text-[12px] font-semibold text-[#8A4B3F] shadow-sm ring-1 ring-[#E0C6BE] hover:bg-[#F5EDEB]">
                   <XCircle size={12} /> Cancel
                 </button>
               </div>
@@ -204,18 +204,18 @@ function OrderCard({ order: o, onAction, actionsBusyId }) {
           )}
 
           {awaitingPayment && (
-            <div className="mb-3 rounded-xl border border-blue-200 bg-blue-50 p-3">
-              <p className="text-[12px] font-semibold text-blue-900">💳 Awaiting payment confirmation</p>
-              <p className="mt-1 text-[12px] text-blue-800">
+            <div className="mb-3 rounded-xl border border-[#D4D4D4] bg-[#F1F1F1] p-3">
+              <p className="text-[12px] font-semibold text-[#3A3A3A]">💳 Awaiting payment confirmation</p>
+              <p className="mt-1 text-[12px] text-[#4A4A4A]">
                 Method: <b>{o.paymentMethod}</b>
                 {o.transactionId && <> · Txn ID: <code className="rounded bg-white px-1.5 py-0.5 font-mono text-[13px]">{o.transactionId}</code></>}
               </p>
-              <p className="mt-1 text-[12px] text-blue-800">Verify payment in your account, then click below to confirm.</p>
+              <p className="mt-1 text-[12px] text-[#4A4A4A]">Verify payment in your account, then click below to confirm.</p>
               <div className="mt-2 flex flex-wrap gap-2">
-                <button disabled={busy} onClick={() => onAction('mark-paid', o)} className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-[12px] font-semibold text-white shadow-sm hover:bg-emerald-700 disabled:opacity-50">
+                <button disabled={busy} onClick={() => onAction('mark-paid', o)} className="inline-flex items-center gap-1.5 rounded-lg bg-[#4A6B58] px-3 py-1.5 text-[12px] font-semibold text-white shadow-sm hover:bg-[#3E5C4B] disabled:opacity-50">
                   <CheckCircle2 size={12} /> {busy ? 'Confirming…' : 'Mark Paid → Auto-Confirm'}
                 </button>
-                <button disabled={busy} onClick={() => onAction('cancel', o)} className="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-1.5 text-[12px] font-semibold text-red-700 shadow-sm ring-1 ring-red-200 hover:bg-red-50">
+                <button disabled={busy} onClick={() => onAction('cancel', o)} className="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-1.5 text-[12px] font-semibold text-[#8A4B3F] shadow-sm ring-1 ring-[#E0C6BE] hover:bg-[#F5EDEB]">
                   <XCircle size={12} /> Cancel
                 </button>
               </div>
@@ -223,9 +223,9 @@ function OrderCard({ order: o, onAction, actionsBusyId }) {
           )}
 
           {isConfirmed && (
-            <div className="mb-3 rounded-xl border border-blue-200 bg-blue-50 p-3">
-              <p className="text-[12px] font-semibold text-blue-900">📦 Ready to pack</p>
-              <p className="mt-1 text-[12px] text-blue-800">Print the invoice, pack the items with discreet packaging, then move to next stage.</p>
+            <div className="mb-3 rounded-xl border border-[#D4D4D4] bg-[#F1F1F1] p-3">
+              <p className="text-[12px] font-semibold text-[#3A3A3A]">📦 Ready to pack</p>
+              <p className="mt-1 text-[12px] text-[#4A4A4A]">Print the invoice, pack the items with discreet packaging, then move to next stage.</p>
               <div className="mt-2 flex flex-wrap gap-2">
                 <a href={`/admin/orders/${o._id}/invoice`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-1.5 text-[12px] font-semibold text-neutral-800 shadow-sm ring-1 ring-neutral-300 hover:bg-neutral-100">
                   <Printer size={12} /> Print Invoice
@@ -257,10 +257,10 @@ function OrderCard({ order: o, onAction, actionsBusyId }) {
           )}
 
           {isReadyToShip && (
-            <div className="mb-3 rounded-xl border border-blue-200 bg-blue-50 p-3">
-              <p className="text-[12px] font-semibold text-blue-900">📮 Waiting for courier pickup</p>
+            <div className="mb-3 rounded-xl border border-[#D4D4D4] bg-[#F1F1F1] p-3">
+              <p className="text-[12px] font-semibold text-[#3A3A3A]">📮 Waiting for courier pickup</p>
               {o.courierName && (
-                <p className="mt-1 text-[12px] text-blue-800">
+                <p className="mt-1 text-[12px] text-[#4A4A4A]">
                   {o.courierName}{o.trackingNumber && <> · <code className="rounded bg-white px-1.5 py-0.5 font-mono">{o.trackingNumber}</code></>}
                 </p>
               )}
@@ -286,10 +286,10 @@ function OrderCard({ order: o, onAction, actionsBusyId }) {
                     Out for Delivery
                   </button>
                 )}
-                <button disabled={busy} onClick={() => onAction('mark-delivered', o)} className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-[12px] font-semibold text-white shadow-sm hover:bg-emerald-700 disabled:opacity-50">
+                <button disabled={busy} onClick={() => onAction('mark-delivered', o)} className="inline-flex items-center gap-1.5 rounded-lg bg-[#4A6B58] px-3 py-1.5 text-[12px] font-semibold text-white shadow-sm hover:bg-[#3E5C4B] disabled:opacity-50">
                   <CheckCircle2 size={12} /> Mark Delivered
                 </button>
-                <button disabled={busy} onClick={() => onAction('mark-failed', o)} className="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-1.5 text-[12px] font-semibold text-red-700 shadow-sm ring-1 ring-red-200 hover:bg-red-50">
+                <button disabled={busy} onClick={() => onAction('mark-failed', o)} className="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-1.5 text-[12px] font-semibold text-[#8A4B3F] shadow-sm ring-1 ring-[#E0C6BE] hover:bg-[#F5EDEB]">
                   Failed Delivery
                 </button>
               </div>
@@ -297,9 +297,9 @@ function OrderCard({ order: o, onAction, actionsBusyId }) {
           )}
 
           {o.status === 'Delivered' && (
-            <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-3">
-              <p className="text-[12px] font-semibold text-emerald-900">✅ Order delivered</p>
-              <p className="mt-1 text-[12px] text-emerald-800">The customer received their order. You can archive or process a return if requested.</p>
+            <div className="rounded-xl border border-[#C9D8CE] bg-[#E9EFEA] p-3">
+              <p className="text-[12px] font-semibold text-[#2B4436]">✅ Order delivered</p>
+              <p className="mt-1 text-[12px] text-[#33503F]">The customer received their order. You can archive or process a return if requested.</p>
             </div>
           )}
         </div>
@@ -522,8 +522,8 @@ export default function Orders() {
 
       {/* --------------- Sub-tab hint (contextual help) --------------- */}
       {subTab && currentSubList.find((s) => s.key === subTab)?.hint && (
-        <div className="mb-4 rounded-xl border border-blue-200 bg-blue-50 p-3">
-          <p className="text-[12px] text-blue-900">💡 {currentSubList.find((s) => s.key === subTab).hint}</p>
+        <div className="mb-4 rounded-xl border border-[#D4D4D4] bg-[#F1F1F1] p-3">
+          <p className="text-[12px] text-[#3A3A3A]">💡 {currentSubList.find((s) => s.key === subTab).hint}</p>
         </div>
       )}
 
@@ -545,9 +545,9 @@ export default function Orders() {
           </div>
         )}
         {err && (
-          <div className="grid place-items-center rounded-2xl border border-red-200 bg-red-50 py-14 text-center">
-            <XCircle size={26} className="mb-2 text-red-500" />
-            <p className="text-sm text-red-700">{err}</p>
+          <div className="grid place-items-center rounded-2xl border border-[#E0C6BE] bg-[#F5EDEB] py-14 text-center">
+            <XCircle size={26} className="mb-2 text-[#B46A5C]" />
+            <p className="text-sm text-[#8A4B3F]">{err}</p>
             <button onClick={load} className="inline-flex items-center gap-1.5 rounded-full border border-neutral-300 bg-white px-4 py-2 text-[12px] font-semibold text-neutral-700 hover:bg-neutral-50 mt-4 !px-5 !py-2 !text-[12px]">Try again</button>
           </div>
         )}

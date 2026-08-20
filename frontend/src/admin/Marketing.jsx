@@ -143,7 +143,7 @@ export default function Marketing() {
               <p className="text-[13px] font-bold uppercase tracking-widest text-neutral-500">Recovery Rate</p>
             </div>
             <p className="mt-2 text-[12px] font-bold text-neutral-900">{m.recoveryRate}%</p>
-            <p className="text-[12px] text-emerald-600 mt-1">✓ {m.recoveredCount} Carts Recovered</p>
+            <p className="text-[12px] text-[#4A6B58] mt-1">✓ {m.recoveredCount} Carts Recovered</p>
           </div>
 
           <div className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">

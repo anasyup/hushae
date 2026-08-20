@@ -178,10 +178,10 @@ export default function Navigation() {
                   <option value="women">Women</option>
                   <option value="men">Men</option>
                 </select>
-                <button onClick={() => setH(i, { highlight: !m.highlight })} className={`rounded-lg px-2 py-1.5 text-[11px] font-bold uppercase tracking-wide transition ${m.highlight ? 'bg-red-600 text-white' : 'bg-neutral-100 text-neutral-500 hover:bg-neutral-200'}`} title="Highlight (accent colour)">
+                <button onClick={() => setH(i, { highlight: !m.highlight })} className={`rounded-lg px-2 py-1.5 text-[11px] font-bold uppercase tracking-wide transition ${m.highlight ? 'bg-[#9A5548] text-white' : 'bg-neutral-100 text-neutral-500 hover:bg-neutral-200'}`} title="Highlight (accent colour)">
                   Sale
                 </button>
-                <button onClick={() => removeHeader(i)} className="rounded-lg p-1.5 text-neutral-300 hover:bg-red-50 hover:text-red-600"><Trash2 size={14} /></button>
+                <button onClick={() => removeHeader(i)} className="rounded-lg p-1.5 text-neutral-300 hover:bg-[#F5EDEB] hover:text-[#9A5548]"><Trash2 size={14} /></button>
               </div>
             ))}
           </div>
@@ -208,7 +208,7 @@ export default function Navigation() {
                       <button onClick={() => mark(() => setFooterCols((cols) => { const n = [...cols]; if (ci < n.length - 1) { [n[ci], n[ci + 1]] = [n[ci + 1], n[ci]]; } return n; }))} disabled={ci === footerCols.length - 1} className="rounded p-0.5 text-neutral-400 hover:text-neutral-700 disabled:opacity-30"><ChevronDown size={14} /></button>
                     </div>
                     <input className="w-full rounded-lg border border-neutral-200 bg-white px-2.5 py-1.5 text-[13px] font-semibold outline-none focus:border-neutral-900" value={col.title} onChange={(e) => setCol(ci, { title: e.target.value })} placeholder="Column title (e.g. Shop)" />
-                    <button onClick={() => removeCol(ci)} className="rounded-lg p-1.5 text-neutral-300 hover:bg-red-50 hover:text-red-600"><Trash2 size={14} /></button>
+                    <button onClick={() => removeCol(ci)} className="rounded-lg p-1.5 text-neutral-300 hover:bg-[#F5EDEB] hover:text-[#9A5548]"><Trash2 size={14} /></button>
                   </div>
 
                   <div className="mt-2 space-y-1.5">
@@ -216,7 +216,7 @@ export default function Navigation() {
                       <div key={li} className="flex items-center gap-2">
                         <input className="w-32 rounded-lg border border-neutral-200 bg-white px-2.5 py-1.5 text-[12px] outline-none focus:border-neutral-900" value={l.label} onChange={(e) => setLink(ci, li, { label: e.target.value })} placeholder="Label" />
                         <input className="min-w-0 flex-1 rounded-lg border border-neutral-200 bg-white px-2.5 py-1.5 text-[12px] outline-none focus:border-neutral-900" value={l.href} onChange={(e) => setLink(ci, li, { href: e.target.value })} placeholder="/path" />
-                        <button onClick={() => removeLink(ci, li)} className="rounded p-1 text-neutral-300 hover:bg-red-50 hover:text-red-600"><X size={13} /></button>
+                        <button onClick={() => removeLink(ci, li)} className="rounded p-1 text-neutral-300 hover:bg-[#F5EDEB] hover:text-[#9A5548]"><X size={13} /></button>
                       </div>
                     ))}
                   </div>
@@ -241,7 +241,7 @@ export default function Navigation() {
           {previewMenu.length === 0 ? (
             <span className="text-[12px] text-neutral-400">No links yet — add some above.</span>
           ) : previewMenu.map((m, i) => (
-            <span key={i} className={`inline-flex items-center gap-1.5 text-[12px] font-medium ${m.highlight ? 'text-red-600' : 'text-neutral-700'}`}>
+            <span key={i} className={`inline-flex items-center gap-1.5 text-[12px] font-medium ${m.highlight ? 'text-[#9A5548]' : 'text-neutral-700'}`}>
               {m.label || '(no label)'}
               {m.dropdown && <ChevronDown size={11} className="text-neutral-400" />}
             </span>

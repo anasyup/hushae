@@ -34,7 +34,7 @@ import { ChevronDown } from 'lucide-react';
 
 export function Section({ title, description, children, tone, action }) {
   return (
-    <section className={`rounded-2xl border bg-white p-6 ${tone === 'warn' ? 'border-amber-300' : 'border-neutral-200'}`}>
+    <section className={`rounded-2xl border bg-white p-6 ${tone === 'warn' ? 'border-[#CDB98F]' : 'border-neutral-200'}`}>
       <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-600">{title}</p>
@@ -144,7 +144,7 @@ export function DateTime({ label, hint, value, onChange, disabled }) {
 
 export function Stat({ label, value, sub, tone }) {
   return (
-    <div className={`rounded-xl border bg-white px-4 py-3 ${tone === 'warn' ? 'border-amber-300' : 'border-neutral-200'}`}>
+    <div className={`rounded-xl border bg-white px-4 py-3 ${tone === 'warn' ? 'border-[#CDB98F]' : 'border-neutral-200'}`}>
       <p className="text-[12px] uppercase tracking-wider text-neutral-600">{label}</p>
       <p className="mt-1 text-xl font-semibold text-neutral-900">{value}</p>
       {sub && <p className="mt-0.5 text-[12px] text-neutral-600">{sub}</p>}

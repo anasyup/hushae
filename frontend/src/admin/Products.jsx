@@ -305,9 +305,9 @@ export default function Products() {
 function SummaryCard({ icon: Icon, label, value, tone, sub, onClick, active }) {
   const toneMap = {
     neutral: { text: 'text-neutral-700', bg: 'bg-neutral-100', ring: 'ring-neutral-200' },
-    green:   { text: 'text-emerald-700', bg: 'bg-emerald-50',  ring: 'ring-emerald-200' },
-    amber:   { text: 'text-amber-700',   bg: 'bg-amber-50',    ring: 'ring-amber-200' },
-    red:     { text: 'text-red-700',     bg: 'bg-red-50',      ring: 'ring-red-200' },
+    green:   { text: 'text-[#3E5C4B]', bg: 'bg-[#E9EFEA]',  ring: 'ring-[#C9D8CE]' },
+    amber:   { text: 'text-[#7A6239]',   bg: 'bg-[#F6F1E6]',    ring: 'ring-[#DCCBA5]' },
+    red:     { text: 'text-[#8A4B3F]',     bg: 'bg-[#F5EDEB]',      ring: 'ring-[#E0C6BE]' },
   };
   const t = toneMap[tone] || toneMap.neutral;
   return (
@@ -378,15 +378,15 @@ function ChipSelect({ label, value, options, onChange }) {
 }
 
 function StockPill({ n }) {
-  if (n === 0) return <span className="inline-flex items-center gap-1 rounded-full bg-red-100 px-2 py-0.5 text-[13px] font-bold text-red-800">● Out</span>;
-  if (n <= 5)  return <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[13px] font-bold text-amber-800">● {n} left</span>;
-  return <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[13px] font-bold text-emerald-700">● {n}</span>;
+  if (n === 0) return <span className="inline-flex items-center gap-1 rounded-full bg-[#EEDED9] px-2 py-0.5 text-[13px] font-bold text-[#7C4237]">● Out</span>;
+  if (n <= 5)  return <span className="inline-flex items-center gap-1 rounded-full bg-[#EDE4CE] px-2 py-0.5 text-[13px] font-bold text-[#6B552F]">● {n} left</span>;
+  return <span className="inline-flex items-center gap-1 rounded-full bg-[#E9EFEA] px-2 py-0.5 text-[13px] font-bold text-[#3E5C4B]">● {n}</span>;
 }
 
 function StatusChip({ p }) {
-  if (p.status === 'draft') return <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[13px] font-bold text-amber-800">Draft</span>;
+  if (p.status === 'draft') return <span className="inline-flex items-center rounded-full bg-[#EDE4CE] px-2 py-0.5 text-[13px] font-bold text-[#6B552F]">Draft</span>;
   if (!p.isActive) return <span className="inline-flex items-center rounded-full bg-neutral-200 px-2 py-0.5 text-[13px] font-bold text-neutral-700">Archived</span>;
-  return <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[13px] font-bold text-emerald-700">● Live</span>;
+  return <span className="inline-flex items-center gap-1 rounded-full bg-[#E9EFEA] px-2 py-0.5 text-[13px] font-bold text-[#3E5C4B]">● Live</span>;
 }
 
 function ListView({ products, selected, onToggleSel, onToggleAll, onEnable, onDisable, onPublish, onRemove, onDuplicate }) {
@@ -421,7 +421,7 @@ function ListView({ products, selected, onToggleSel, onToggleAll, onEnable, onDi
                     <p className="line-clamp-2 max-w-64 text-[13px] font-medium text-neutral-900 group-hover:underline">{p.name}</p>
                     <div className="mt-1 flex items-center gap-2 text-[13px] uppercase tracking-wider text-neutral-500">
                       <span>{p.gender}</span> · <span>{p.categorySlug}</span>
-                      {p.isFeatured && <span className="inline-flex items-center gap-0.5 text-amber-600"><Star size={9} fill="currentColor" /> Featured</span>}
+                      {p.isFeatured && <span className="inline-flex items-center gap-0.5 text-[#8F7448]"><Star size={9} fill="currentColor" /> Featured</span>}
                       {p.isBestSeller && <span className="inline-flex items-center gap-0.5 text-[#8F7448]"><TrendingUp size={9} /> Best</span>}
                     </div>
                   </div>
@@ -429,7 +429,7 @@ function ListView({ products, selected, onToggleSel, onToggleAll, onEnable, onDi
               </td>
               <td className="table-cell font-mono text-xs text-neutral-500">{p.sku}</td>
               <td className="px-3 py-2 text-[12px]">
-                <span className={`inline-flex rounded-full px-2 py-0.5 text-[13px] font-bold ${p.tier === 'Premium' ? 'bg-neutral-900 text-white' : p.tier === 'Standard' ? 'bg-neutral-100 text-neutral-700' : 'bg-emerald-50 text-emerald-700'}`}>
+                <span className={`inline-flex rounded-full px-2 py-0.5 text-[13px] font-bold ${p.tier === 'Premium' ? 'bg-neutral-900 text-white' : p.tier === 'Standard' ? 'bg-neutral-100 text-neutral-700' : 'bg-[#E9EFEA] text-[#3E5C4B]'}`}>
                   {p.tier}
                 </span>
               </td>
@@ -438,7 +438,7 @@ function ListView({ products, selected, onToggleSel, onToggleAll, onEnable, onDi
                 {/* v2 — sale windows: the was-price only shows while the sale
                     is genuinely switched on. */}
                 {p.onSale === true && p.compareAtPrice && <p className="text-[12px] text-neutral-400 line-through">{pkr(p.compareAtPrice)}</p>}
-                {p.onSale === true && <span className="mt-0.5 inline-block rounded-full bg-red-50 px-1.5 py-0.5 text-[12px] font-bold uppercase tracking-wider text-red-700 ring-1 ring-red-200">Sale</span>}
+                {p.onSale === true && <span className="mt-0.5 inline-block rounded-full bg-[#F5EDEB] px-1.5 py-0.5 text-[12px] font-bold uppercase tracking-wider text-[#8A4B3F] ring-1 ring-[#E0C6BE]">Sale</span>}
               </td>
               <td className="px-3 py-2 text-[12px]"><StockPill n={p.stock} /></td>
               <td className="px-3 py-2 text-[12px]"><StatusChip p={p} /></td>
@@ -448,23 +448,23 @@ function ListView({ products, selected, onToggleSel, onToggleAll, onEnable, onDi
                     <Pencil size={13} />
                   </Link>
                   {p.status === 'draft' && (
-                    <button onClick={() => onPublish(p)} className="rounded-lg px-2 py-1 text-[11px] font-bold uppercase tracking-wide text-white transition bg-emerald-600 hover:bg-emerald-700" title="Publish now" aria-label="Publish">
+                    <button onClick={() => onPublish(p)} className="rounded-lg px-2 py-1 text-[11px] font-bold uppercase tracking-wide text-white transition bg-[#4A6B58] hover:bg-[#3E5C4B]" title="Publish now" aria-label="Publish">
                       Publish
                     </button>
                   )}
-                  <button onClick={() => onDuplicate(p)} className="rounded-lg p-2 text-neutral-500 transition hover:bg-sky-50 hover:text-sky-700" aria-label="Duplicate" title="Duplicate product">
+                  <button onClick={() => onDuplicate(p)} className="rounded-lg p-2 text-neutral-500 transition hover:bg-[#F1F1F1] hover:text-[#5A5A5A]" aria-label="Duplicate" title="Duplicate product">
                     <Copy size={13} />
                   </button>
                   {p.isActive ? (
-                    <button onClick={() => onDisable(p)} className="rounded-lg p-2 text-neutral-500 transition hover:bg-amber-50 hover:text-amber-700" aria-label="Archive" title="Archive">
+                    <button onClick={() => onDisable(p)} className="rounded-lg p-2 text-neutral-500 transition hover:bg-[#F6F1E6] hover:text-[#7A6239]" aria-label="Archive" title="Archive">
                       <Archive size={13} />
                     </button>
                   ) : (
-                    <button onClick={() => onEnable(p)} className="rounded-lg p-2 text-emerald-600 transition hover:bg-emerald-50" aria-label="Restore" title="Restore">
+                    <button onClick={() => onEnable(p)} className="rounded-lg p-2 text-[#4A6B58] transition hover:bg-[#E9EFEA]" aria-label="Restore" title="Restore">
                       <Eye size={13} />
                     </button>
                   )}
-                  <button onClick={() => onRemove(p)} className="rounded-lg p-2 text-neutral-500 transition hover:bg-red-50 hover:text-red-700" aria-label="Delete" title="Delete permanently">
+                  <button onClick={() => onRemove(p)} className="rounded-lg p-2 text-neutral-500 transition hover:bg-[#F5EDEB] hover:text-[#8A4B3F]" aria-label="Delete" title="Delete permanently">
                     <Trash2 size={13} />
                   </button>
                 </div>
@@ -487,11 +487,11 @@ function GridView({ products, onEnable, onDisable, onRemove, onDuplicate, onPubl
               <Img src={p.images?.[0]?.url} alt="" className="h-full w-full object-cover transition group-hover:scale-105" />
               <div className="absolute left-2 top-2 flex flex-col gap-1">
                 <StatusChip p={p} />
-                {p.stock === 0 && <span className="rounded-full bg-red-600 px-2 py-0.5 text-[13px] font-bold text-white">SOLD OUT</span>}
+                {p.stock === 0 && <span className="rounded-full bg-[#9A5548] px-2 py-0.5 text-[13px] font-bold text-white">SOLD OUT</span>}
               </div>
               {(p.isFeatured || p.isBestSeller) && (
                 <div className="absolute right-2 top-2 flex gap-1">
-                  {p.isFeatured && <span className="grid h-6 w-6 place-items-center rounded-full bg-amber-500 text-white" title="Featured"><Star size={11} fill="currentColor" /></span>}
+                  {p.isFeatured && <span className="grid h-6 w-6 place-items-center rounded-full bg-[#C9A96E] text-white" title="Featured"><Star size={11} fill="currentColor" /></span>}
                   {p.isBestSeller && <span className="grid h-6 w-6 place-items-center rounded-full bg-[#A68A56] text-white" title="Best seller"><TrendingUp size={11} /></span>}
                 </div>
               )}
@@ -510,15 +510,15 @@ function GridView({ products, onEnable, onDisable, onRemove, onDuplicate, onPubl
               <div className="flex items-center gap-1">
                 <Link to={`/admin/products/${p._id}`} className="rounded-lg p-1.5 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900"><Pencil size={12} /></Link>
                 {p.status === 'draft' && (
-                  <button onClick={() => onPublish(p)} className="rounded-md bg-emerald-600 px-1.5 py-1 text-[10px] font-bold uppercase tracking-wide text-white hover:bg-emerald-700" title="Publish now">Publish</button>
+                  <button onClick={() => onPublish(p)} className="rounded-md bg-[#4A6B58] px-1.5 py-1 text-[10px] font-bold uppercase tracking-wide text-white hover:bg-[#3E5C4B]" title="Publish now">Publish</button>
                 )}
-                <button onClick={() => onDuplicate(p)} className="rounded-lg p-1.5 text-neutral-500 hover:bg-sky-50 hover:text-sky-700" aria-label="Duplicate" title="Duplicate product"><Copy size={12} /></button>
+                <button onClick={() => onDuplicate(p)} className="rounded-lg p-1.5 text-neutral-500 hover:bg-[#F1F1F1] hover:text-[#5A5A5A]" aria-label="Duplicate" title="Duplicate product"><Copy size={12} /></button>
                 {p.isActive ? (
-                  <button onClick={() => onDisable(p)} className="rounded-lg p-1.5 text-neutral-500 hover:bg-amber-50 hover:text-amber-700"><Archive size={12} /></button>
+                  <button onClick={() => onDisable(p)} className="rounded-lg p-1.5 text-neutral-500 hover:bg-[#F6F1E6] hover:text-[#7A6239]"><Archive size={12} /></button>
                 ) : (
-                  <button onClick={() => onEnable(p)} className="rounded-lg p-1.5 text-emerald-600 hover:bg-emerald-50"><Eye size={12} /></button>
+                  <button onClick={() => onEnable(p)} className="rounded-lg p-1.5 text-[#4A6B58] hover:bg-[#E9EFEA]"><Eye size={12} /></button>
                 )}
-                <button onClick={() => onRemove(p)} className="rounded-lg p-1.5 text-neutral-500 hover:bg-red-50 hover:text-red-700"><Trash2 size={12} /></button>
+                <button onClick={() => onRemove(p)} className="rounded-lg p-1.5 text-neutral-500 hover:bg-[#F5EDEB] hover:text-[#8A4B3F]"><Trash2 size={12} /></button>
               </div>
             </div>
           </div>
@@ -700,8 +700,8 @@ function BulkEditModal({ count, onClose, onApply }) {
             {action === 'setStatus' && (
               <div className="grid grid-cols-2 gap-2">
                 {[
-                  { v: 'active', label: 'Active (live)', tone: 'text-emerald-700' },
-                  { v: 'draft',  label: 'Draft (hidden)', tone: 'text-amber-700' },
+                  { v: 'active', label: 'Active (live)', tone: 'text-[#3E5C4B]' },
+                  { v: 'draft',  label: 'Draft (hidden)', tone: 'text-[#7A6239]' },
                 ].map((o) => (
                   <button
                     key={o.v}
@@ -720,7 +720,7 @@ function BulkEditModal({ count, onClose, onApply }) {
             )}
           </div>
 
-          <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-3 text-[12px] leading-relaxed text-amber-800">
+          <div className="mt-4 rounded-xl border border-[#DCCBA5] bg-[#F6F1E6] p-3 text-[12px] leading-relaxed text-[#6B552F]">
             ⚠️ This will apply to <b>{count} product{count === 1 ? '' : 's'}</b> at once and cannot be undone.
             Make sure the correct rows are selected before confirming.
           </div>

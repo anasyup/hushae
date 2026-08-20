@@ -282,8 +282,8 @@ export default function SettingsSecurity() {
     if (/[0-9]/.test(next)) score++;
     if (/[^A-Za-z0-9]/.test(next)) score++;
     const map = [
-      { label: 'Very weak', color: '#dc2626', pct: 20 },
-      { label: 'Weak',      color: '#ea580c', pct: 40 },
+      { label: 'Very weak', color: '#9A5548', pct: 20 },
+      { label: 'Weak',      color: '#A68A56', pct: 40 },
       { label: 'Fair',      color: '#ca8a04', pct: 60 },
       { label: 'Good',      color: '#65a30d', pct: 80 },
       { label: 'Strong',    color: '#16a34a', pct: 100 },
@@ -458,14 +458,14 @@ export default function SettingsSecurity() {
               description="Add an extra security layer: after your password, you'll need a 6-digit code emailed to you to sign in."
             >
               <div className="space-y-4">
-                <div className={`flex items-center justify-between rounded-xl border p-4 ${twoFa.enabled ? 'border-emerald-200 bg-emerald-50' : 'border-neutral-200 bg-neutral-50'}`}>
+                <div className={`flex items-center justify-between rounded-xl border p-4 ${twoFa.enabled ? 'border-[#C9D8CE] bg-[#E9EFEA]' : 'border-neutral-200 bg-neutral-50'}`}>
                   <div>
                     <p className="text-[13px] font-semibold text-neutral-900">{twoFa.enabled ? '2FA is ON' : '2FA is OFF'}</p>
                     <p className="mt-0.5 text-[11px] text-neutral-500">{twoFa.enabled ? 'Every sign-in needs a code from your inbox.' : 'Sign-in currently needs only your password.'}</p>
                   </div>
                   <button
                     onClick={() => setTwoFa({ ...twoFa, step: 'start' })}
-                    className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-semibold transition ${twoFa.enabled ? 'bg-white border border-neutral-200 text-neutral-600 hover:border-red-300 hover:text-red-600' : 'bg-neutral-900 text-white hover:bg-neutral-800'}`}
+                    className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-semibold transition ${twoFa.enabled ? 'bg-white border border-neutral-200 text-neutral-600 hover:border-[#D0ABA0] hover:text-[#9A5548]' : 'bg-neutral-900 text-white hover:bg-neutral-800'}`}
                   >
                     {twoFa.enabled ? 'Turn off' : 'Turn on'}
                   </button>
@@ -633,7 +633,7 @@ export default function SettingsSecurity() {
                               onClick={() => handleUpdateUserStatus(u._id, !u.isActive, u.role)}
                               disabled={String(u._id) === String(auth?.user?._id)}
                               className={`rounded-full px-2 py-0.5 text-[13px] font-bold uppercase ${
-                                u.isActive ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'
+                                u.isActive ? 'bg-[#DDE7E0] text-[#33503F]' : 'bg-[#EEDED9] text-[#7C4237]'
                               }`}
                             >
                               {u.isActive ? 'Active' : 'Suspended'}
@@ -643,7 +643,7 @@ export default function SettingsSecurity() {
                             <button
                               onClick={() => handleDeleteUser(u._id)}
                               disabled={String(u._id) === String(auth?.user?._id)}
-                              className="p-1 text-neutral-400 hover:text-red-600 transition"
+                              className="p-1 text-neutral-400 hover:text-[#9A5548] transition"
                               title="Delete Account"
                             >
                               <Trash2 size={15} />
@@ -688,7 +688,7 @@ export default function SettingsSecurity() {
                       <div>
                         <p className="text-[13px] font-semibold text-neutral-900">
                           {s.device || 'Unknown device'}{s.browser ? ` · ${s.browser}` : ''}
-                          {s.current && <span className="ml-2 rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-bold uppercase text-emerald-700">This device</span>}
+                          {s.current && <span className="ml-2 rounded-full bg-[#DDE7E0] px-2 py-0.5 text-[11px] font-bold uppercase text-[#3E5C4B]">This device</span>}
                         </p>
                         <p className="mt-0.5 text-[11px] text-neutral-500">
                           {s.ipHint ? `Network ${s.ipHint} · ` : ''}
@@ -700,7 +700,7 @@ export default function SettingsSecurity() {
                       <button
                         onClick={() => revokeSession(s.jti)}
                         disabled={sessBusy}
-                        className="inline-flex items-center gap-1 rounded-lg border border-neutral-200 px-2.5 py-1.5 text-[11px] font-semibold text-neutral-500 transition hover:border-red-300 hover:text-red-600"
+                        className="inline-flex items-center gap-1 rounded-lg border border-neutral-200 px-2.5 py-1.5 text-[11px] font-semibold text-neutral-500 transition hover:border-[#D0ABA0] hover:text-[#9A5548]"
                       >
                         <X size={11} /> Revoke
                       </button>
@@ -760,9 +760,9 @@ export default function SettingsSecurity() {
                           <td className="px-4 py-3 text-neutral-900">{l.user}</td>
                           <td className="px-4 py-3">
                             <span className={`px-2 py-0.5 rounded font-bold uppercase text-[12px] ${
-                              l.action === 'create' ? 'bg-blue-100 text-blue-800' :
-                              l.action === 'update' ? 'bg-amber-100 text-amber-800' :
-                              l.action === 'delete' ? 'bg-red-100 text-red-800' : 'bg-neutral-100 text-neutral-800'
+                              l.action === 'create' ? 'bg-[#E8E8E8] text-[#4A4A4A]' :
+                              l.action === 'update' ? 'bg-[#EDE4CE] text-[#6B552F]' :
+                              l.action === 'delete' ? 'bg-[#EEDED9] text-[#7C4237]' : 'bg-neutral-100 text-neutral-800'
                             }`}>{l.action}</span>
                           </td>
                           <td className="px-4 py-3 text-neutral-700">
@@ -812,7 +812,7 @@ export default function SettingsSecurity() {
               <div className="animate-pulse rounded-xl bg-neutral-100 h-64 w-full" />
             ) : fraudOrders.length === 0 ? (
               <div className="text-center py-16 bg-neutral-50 border border-dashed rounded-2xl text-neutral-500">
-                <Check className="mx-auto text-emerald-500 mb-2" size={24} />
+                <Check className="mx-auto text-[#5B7F6A] mb-2" size={24} />
                 <p className="font-semibold text-neutral-900">Zero suspicious orders pending review</p>
                 <p className="text-xs mt-1">Excellent! All recent orders look clean and pass validation checks.</p>
               </div>
@@ -825,8 +825,8 @@ export default function SettingsSecurity() {
                         <div className="flex items-center gap-2">
                           <span className="font-mono font-bold text-sm">{o.orderNumber}</span>
                           <span className={`rounded-full px-2 py-0.5 text-[12px] font-bold uppercase ${
-                            o.fraudFilter?.status === 'pending' ? 'bg-amber-100 text-amber-800' :
-                            o.fraudFilter?.status === 'approved' ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'
+                            o.fraudFilter?.status === 'pending' ? 'bg-[#EDE4CE] text-[#6B552F]' :
+                            o.fraudFilter?.status === 'approved' ? 'bg-[#DDE7E0] text-[#33503F]' : 'bg-[#EEDED9] text-[#7C4237]'
                           }`}>{o.fraudFilter?.status || 'pending'}</span>
                         </div>
                         <p className="text-xs text-neutral-500 mt-1">
@@ -837,13 +837,13 @@ export default function SettingsSecurity() {
                         <div className="flex gap-2 mt-3 md:mt-0">
                           <button
                             onClick={() => handleFraudAction(o._id, 'approved')}
-                            className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold"
+                            className="px-3 py-1.5 bg-[#4A6B58] hover:bg-[#3E5C4B] text-white rounded-lg text-xs font-semibold"
                           >
                             Approve Order
                           </button>
                           <button
                             onClick={() => handleFraudAction(o._id, 'rejected')}
-                            className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-semibold"
+                            className="px-3 py-1.5 bg-[#9A5548] hover:bg-[#8A4B3F] text-white rounded-lg text-xs font-semibold"
                           >
                             Reject & Cancel
                           </button>
@@ -852,7 +852,7 @@ export default function SettingsSecurity() {
                     </div>
                     {/* Reasons */}
                     <div className="space-y-2">
-                      <p className="text-[12px] font-bold text-red-700 uppercase tracking-wider">Flagged Suspicious Indicators:</p>
+                      <p className="text-[12px] font-bold text-[#8A4B3F] uppercase tracking-wider">Flagged Suspicious Indicators:</p>
                       <ul className="list-disc pl-4 space-y-1">
                         {(o.fraudFilter?.reasons || []).map((r, i) => (
                           <li key={i} className="text-xs text-neutral-700 font-medium">{r}</li>
@@ -879,7 +879,7 @@ export default function SettingsSecurity() {
                 <button
                   type="button"
                   onClick={handleRotateSecret}
-                  className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg bg-red-600 text-white px-4 py-2 text-xs font-semibold transition hover:bg-red-700"
+                  className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg bg-[#9A5548] text-white px-4 py-2 text-xs font-semibold transition hover:bg-[#8A4B3F]"
                 >
                   <RefreshCw size={13} /> Rotate All Access Keys Now
                 </button>
