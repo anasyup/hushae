@@ -7,16 +7,16 @@ import { isOnSale } from '../lib/sale';
 import { useApp } from '../store/AppContext';
 
 /* ============================================================================
- * HUSHAE CollectionCard — Quiet Luxury Standard (Rains × Calvin Klein Hybrid)
+ * HUSHAE CollectionCard — Architectural Luxury Box (Translucent Glass Borders)
  *
  * SPECIFICATION:
- *   1. 3:4 Studio Portrait Canvas on #F8F8F8 Ground with soft rounded-2xl corners
- *   2. Smooth 500ms Secondary Angle Crossfade on Hover
- *   3. Desktop Hover Slide-Up 1-Click Size Bar (Smooth rounded-full pill)
- *   4. Minimalist Top-Left Badge (New, Sale, Sold out)
- *   5. Clean, Spacious, Elegant Metadata:
- *      - Line 1: Product Title (left) + Price (right) on the same line
- *      - Line 2: Dedicated 8px Circular Color Swatch Dots
+ *   1. 3:4 Crisp Architectural Box Canvas (Zero circle curves on image frame)
+ *   2. Translucent Glass-Like Luxury Borders (border-black/[0.05] with hover depth)
+ *   3. 500ms Smooth Secondary Angle Crossfade on Hover
+ *   4. Translucent Glass Top-Left Badge
+ *   5. Line 1: Title Case Product Name (left) + Tabular Price (right)
+ *   6. Line 2: Dedicated Delicate Circular Color Swatch Dots
+ *   7. Desktop Slide-Up Quick Size Selector on Hover
  * ========================================================================== */
 
 const FALLBACK =
@@ -45,7 +45,7 @@ export default function CollectionCard({ product: p, priority = false, rank = nu
 
   const swatches = (p.colors || []).filter((c) => c && c.hex).slice(0, 6);
   const sizes = (p.sizes || []).slice(0, 5);
-  const name = titleCase(displayName(p.name)) || 'Essential Product';
+  const name = titleCase(displayName(p.name)) || 'Essential Piece';
   const soldOut = p.stock === 0;
   const onSaleP = isOnSale(p);
 
@@ -82,8 +82,8 @@ export default function CollectionCard({ product: p, priority = false, rank = nu
         setImgIdx(0);
       }}
     >
-      {/* ── 3:4 STUDIO CANVAS (SOFT ROUNDED-2XL CORNERS, ZERO HARSH LINES) ── */}
-      <div className="relative aspect-[3/4] w-full overflow-hidden rounded-2xl bg-[#F8F8F8] border border-[#EAEAEA] transition-colors duration-300 group-hover:bg-[#F3F3F3]">
+      {/* ── 3:4 CRISP ARCHITECTURAL BOX (TRANSLUCENT LUXURY GLASS BORDER) ── */}
+      <div className="relative aspect-[3/4] w-full overflow-hidden bg-[#F8F8F8] border border-black/[0.06] transition-all duration-500 ease-out group-hover:border-black/25 group-hover:bg-[#F3F3F3]">
         <Link
           to={`/product/${p.slug}`}
           tabIndex={-1}
@@ -120,18 +120,18 @@ export default function CollectionCard({ product: p, priority = false, rank = nu
             />
           )}
 
-          {/* Minimalist Top-Left Badge */}
+          {/* Minimalist Top-Left Translucent Tag */}
           {(badge || rank) && (
-            <div className="absolute left-3 top-3 z-10">
+            <div className="absolute left-2.5 top-2.5 z-10">
               <span
-                className={`inline-block px-2.5 py-0.5 text-[9.5px] font-medium uppercase tracking-[0.16em] rounded-full ${
+                className={`inline-block px-2.5 py-0.5 text-[9px] font-medium uppercase tracking-[0.18em] backdrop-blur-md ${
                   rank
                     ? 'bg-[#000000] text-[#FFFFFF]'
                     : badge === 'Sale'
                     ? 'bg-[#000000] text-[#FFFFFF]'
                     : badge === 'Sold out'
-                    ? 'bg-[#000000]/70 text-[#FFFFFF]'
-                    : 'bg-[#FFFFFF] text-[#000000] shadow-xs'
+                    ? 'bg-[#000000]/75 text-[#FFFFFF]'
+                    : 'bg-[#FFFFFF]/90 text-[#000000] border border-black/[0.08] shadow-xs'
                 }`}
               >
                 {rank ? `#0${rank} Icon` : badge}
@@ -199,7 +199,7 @@ export default function CollectionCard({ product: p, priority = false, rank = nu
       </div>
 
       {/* ── CLEAN & SPACIOUS LUXURY METADATA AREA ─────────────────────────── */}
-      <div className="pt-3 pb-2 px-1 space-y-1 bg-white font-sans">
+      <div className="pt-3 pb-2 px-1.5 space-y-1 bg-white font-sans">
         {/* Line 1: Title (left) + Price (right) on the same line */}
         <div className="flex items-baseline justify-between gap-2">
           <h3 className="font-normal text-[13.5px] md:text-[14px] text-[#000000] tracking-[-0.01em] truncate leading-snug">
