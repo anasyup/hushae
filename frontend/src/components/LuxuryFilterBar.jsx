@@ -1,72 +1,77 @@
 import { SlidersHorizontal, ChevronDown } from 'lucide-react';
 
 /* ============================================================================
- * Catalog control bar — three-zone luxury PLP anatomy (Versace / Gucci):
- *
- *   ≡ FILTERS                    497 Products                    SORT BY ⌄
- *   ──────────────────────────────────────────────────────────────────────
- *
- * Symmetric, quiet, full-width hairlines. The count lives HERE (centered),
- * not glued to the page title. On mobile the count hides — the filter sheet
- * already shows "Show N results".
+ * HUSHAE LuxuryFilterBar — Clean Minimalist Controls (Calvin Klein / Rains)
  * ========================================================================== */
 
 const SORTS = [
   { value: 'popular', label: 'Featured' },
-  { value: 'newest', label: 'Newest' },
+  { value: 'newest', label: 'Newest Arrivals' },
   { value: 'price-asc', label: 'Price: Low to High' },
   { value: 'price-desc', label: 'Price: High to Low' },
 ];
 
-export default function LuxuryFilterBar({ count = null, onOpenFilters, f, filterBtnRef }) {
+export default function LuxuryFilterBar({ count = 0, onOpenFilters, f }) {
   const activeCount = f?.activeCount || 0;
   const currentSort = f?.sort || 'popular';
 
   return (
-    <div className="border-y border-[#E8E5DF] bg-transparent">
-      <div className="relative mx-auto flex min-h-[52px] max-w-[1600px] items-center justify-between px-5 md:px-10">
-        {/* Left — FILTERS */}
-        {onOpenFilters ? (
+    <div className="w-full border-b border-[#EAEAEA] bg-[#FFFFFF] py-3.5 font-sans">
+      <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-4 px-6 md:px-12">
+        {/* Left: Item Counter & Active Filters Reset */}
+        <div className="flex items-center gap-3">
+          <span className="text-xs uppercase tracking-wider text-neutral-500 font-light">
+            {count} {count === 1 ? 'Piece' : 'Pieces'}
+          </span>
+
+          {activeCount > 0 && (
+            <button
+              type="button"
+              onClick={f?.clearAll}
+              className="text-xs text-neutral-400 hover:text-black underline underline-offset-4 transition-colors font-light"
+            >
+              Clear Filters ({activeCount})
+            </button>
+          )}
+        </div>
+
+        {/* Right: Filter Trigger & Sort Dropdown */}
+        <div className="flex items-center gap-3">
+          {/* All Filters Pill Button */}
           <button
-            ref={filterBtnRef}
             type="button"
             onClick={onOpenFilters}
-            className="inline-flex min-h-[44px] items-center gap-2 text-[11px] font-medium uppercase tracking-[0.14em] text-[#111111] transition-opacity hover:opacity-60"
+            className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-medium uppercase tracking-wider transition-colors ${
+              activeCount > 0
+                ? 'border-black bg-black text-white'
+                : 'border-neutral-300 bg-white text-black hover:border-black'
+            }`}
           >
-            <SlidersHorizontal size={13} strokeWidth={1.4} aria-hidden="true" />
+            <SlidersHorizontal size={12} strokeWidth={1.6} />
             <span>Filters</span>
             {activeCount > 0 && (
-              <span className="tabular-nums text-neutral-500">({activeCount})</span>
+              <span className="grid h-4 w-4 place-items-center rounded-full bg-white text-[9px] font-bold text-black">
+                {activeCount}
+              </span>
             )}
           </button>
-        ) : (
-          <span aria-hidden="true" />
-        )}
 
-        {/* Center — count */}
-        <span className="pointer-events-none absolute left-1/2 hidden -translate-x-1/2 text-[12px] tracking-[0.04em] text-neutral-500 tabular-nums sm:block">
-          {typeof count === 'number' ? `${count} ${count === 1 ? 'Product' : 'Products'}` : ''}
-        </span>
-
-        {/* Right — SORT BY */}
-        <label className="relative inline-flex min-h-[44px] cursor-pointer items-center">
-          <span className="sr-only">Sort products</span>
-          <select
-            value={currentSort}
-            onChange={(e) => f?.setOne('sort', e.target.value)}
-            className="cursor-pointer appearance-none border-0 bg-transparent py-2 pl-0 pr-6 text-right text-[11px] font-medium uppercase tracking-[0.14em] text-[#111111] focus:outline-none"
-          >
-            {SORTS.map((s) => (
-              <option key={s.value} value={s.value}>{s.label}</option>
-            ))}
-          </select>
-          <ChevronDown
-            size={13}
-            strokeWidth={1.4}
-            className="pointer-events-none absolute right-0 top-1/2 -translate-y-1/2 text-[#111111]"
-            aria-hidden="true"
-          />
-        </label>
+          {/* Sort Dropdown */}
+          <div className="relative">
+            <select
+              value={currentSort}
+              onChange={(e) => f?.setOne('sort', e.target.value)}
+              className="appearance-none rounded-full border border-neutral-300 bg-white px-4 py-2 pr-8 text-xs font-medium uppercase tracking-wider text-black hover:border-black focus:border-black focus:outline-none cursor-pointer transition-colors"
+            >
+              {SORTS.map((s) => (
+                <option key={s.value} value={s.value}>
+                  Sort: {s.label}
+                </option>
+              ))}
+            </select>
+            <ChevronDown size={12} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500" />
+          </div>
+        </div>
       </div>
     </div>
   );

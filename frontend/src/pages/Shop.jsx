@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { SearchX } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../api/client';
 import CollectionCard from '../components/CollectionCard';
 import LuxuryFilterBar from '../components/LuxuryFilterBar';
@@ -8,20 +9,16 @@ import EmptyState from '../components/ui/EmptyState';
 import Seo from '../components/Seo';
 import useShopFilters, { applyClientFacets } from './shop/useShopFilters';
 import FilterSheet from './shop/FilterSheet';
-import { fetchCats } from '../lib/catalogue';
-import { pictureSources } from '../lib/responsiveImage';
+import { fetchCats, fetchCollections } from '../lib/catalogue';
 
 /* ============================================================================
- * HUSHAE Catalog / Category — EDITORIAL MAISON (Gucci / Givenchy register)
+ * HUSHAE Catalog / Category — Luxury Flagship Architecture (The Row / CK / SSENSE)
  *
- * Direction chosen by the merchant from three art-directed mockups:
- *   1. Full-bleed campaign hero — the category title lives INSIDE the
- *      photography (eyebrow + tracked title, bottom-centered, soft scrim)
- *   2. Warm cream canvas (#FBFAF8) below the hero — the page reads as an
- *      editorial spread, not a white utility screen
- *   3. Centered text-link category tabs (underline = active)
- *   4. Three-zone control bar: FILTERS · count · SORT BY
- *   5. Three-column gallery grid, centered metadata, deeper cream grounds
+ * PHILOSOPHY:
+ *   - Product-first: Products are visible immediately above the fold.
+ *   - No heavy 500px dark photo banners pushing catalog below the fold.
+ *   - Clean typographic header, sub-category tabs, and filter controls.
+ *   - 4-column spacious 3:4 portrait studio grid with generous breathing room.
  * ========================================================================== */
 
 const TITLES = {
@@ -29,37 +26,50 @@ const TITLES = {
   men: "Men's Collection",
   new: 'New Arrivals',
   best: 'Best Sellers',
-  sale: 'Sale',
-  all: 'The Collection',
+  sale: 'The Archive Sale',
+  all: 'The Full Collection',
 };
 
-/* Art-directed hero per page. Heights are FIXED per breakpoint so the band
-   never shifts layout while the image decodes. */
-const HERO = {
-  women: { img: '/images/campaign/qa/cat-women.jpg', pos: 'center 30%' },
-  men:   { img: '/images/campaign/qa/cat-men.jpg', pos: 'center 25%' },
-  new:   { img: '/images/campaign/qa/editorial-modern.jpg', pos: 'center 35%' },
-  best:  { img: '/images/campaign/qa/hero-fabric.jpg', pos: 'center 45%' },
-  sale:  { img: '/images/campaign/qa/hero-new-1.jpg', pos: 'center 30%' },
-  all:   { img: '/images/campaign/qa/hero-fabric.jpg', pos: 'center 45%' },
+const BANNER_META = {
+  women: {
+    tag: "WOMEN'S STUDIO",
+    title: "Women's Collection",
+    desc: 'Second-skin bras, seamless panties, and silk-touch loungewear engineered for weightless everyday comfort.',
+  },
+  men: {
+    tag: "MEN'S ESSENTIALS",
+    title: "Men's Collection",
+    desc: 'Breathable modal briefs, combed cotton boxers, and ribbed undershirts tailored to stay in place all day.',
+  },
+  new: {
+    tag: 'THE STUDIO DROPS · SEASON 2026',
+    title: 'New Arrivals',
+    desc: 'Newly engineered silhouettes, second-skin fabrics, and fresh seasonal colorways.',
+  },
+  best: {
+    tag: 'HOUSE ICONS & CULT CLASSICS',
+    title: 'Best Sellers',
+    desc: 'The signature modal and combed cotton pieces our community reaches for, reorders, and covets daily.',
+  },
+  sale: {
+    tag: 'THE SEASONAL ARCHIVE',
+    title: 'The Archive Sale',
+    desc: 'Curated seasonal reductions on signature modal, combed cotton, and luxury loungewear. Limited units remaining.',
+  },
+  all: {
+    tag: 'COMPLETE EDIT',
+    title: 'The Full Collection',
+    desc: 'Premium innerwear and apparel crafted in Pakistan, finished to an international standard.',
+  },
 };
-
-const GENDER_TABS = [
-  { key: '', label: 'All' },
-  { key: 'women', label: 'Women' },
-  { key: 'men', label: 'Men' },
-];
 
 const REVEAL = 12;
 
-const LINK_BASE =
-  'inline-flex shrink-0 items-center whitespace-nowrap border-b pb-1.5 text-[11px] uppercase tracking-[0.2em] transition-colors duration-200';
-const LINK_ON = 'border-[#111111] font-medium text-[#111111]';
-const LINK_OFF = 'border-transparent font-normal text-[#6E6A63] hover:text-[#111111]';
-
 export default function Shop({ preset = {} }) {
   const f = useShopFilters(preset);
+  const navigate = useNavigate();
   const [cats, setCats] = useState([]);
+  const [collections, setCollections] = useState([]);
   const [products, setProducts] = useState(null);
   const [pending, setPending] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -67,12 +77,13 @@ export default function Shop({ preset = {} }) {
   const filterBtnRef = useRef(null);
 
   useEffect(() => { fetchCats().then(setCats); }, []);
+  useEffect(() => { fetchCollections().then(setCollections); }, []);
 
   useEffect(() => {
     let alive = true;
     setPending(true);
     setShown(REVEAL);
-    api(`/products?${f.queryString}${preset.key === 'new' ? '&newArrival=true' : ''}${preset.key === 'sale' ? '&sale=true' : ''}`)
+    api(`/products?${f.queryString}${preset.key === 'new' ? '&newArrival=true&limit=12' : ''}${preset.key === 'sale' ? '&sale=true' : ''}`)
       .then((d) => { if (alive) { setProducts(d.products); setPending(false); } })
       .catch(() => { if (alive) setPending(false); });
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -82,148 +93,150 @@ export default function Shop({ preset = {} }) {
   const visible = useMemo(() => applyClientFacets(products, f), [products, f]);
   const activeCat = cats.find((c) => c.slug === f.category);
   const fallbackCategoryName = f.category ? f.category.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()) : null;
-  const title = activeCat ? activeCat.name : TITLES[preset.key] || fallbackCategoryName || (f.get('q') ? `"${f.get('q')}"` : TITLES.all);
-  const count = visible?.length ?? null;
+  const meta = activeCat ? activeCat.name : TITLES[preset.key] || fallbackCategoryName || (f.get('q') ? `"${f.get('q')}"` : TITLES.all);
+  const count = visible?.length ?? 0;
 
-  const hero = activeCat
-    ? HERO[activeCat.gender === 'men' ? 'men' : 'women']
-    : HERO[preset.key] || HERO.all;
+  const headerInfo = useMemo(() => {
+    if (f.category) {
+      const cat = activeCat;
+      return {
+        tag: cat ? (cat.gender === 'men' ? "MEN'S ESSENTIALS" : "WOMEN'S STUDIO") : 'CATEGORY',
+        title: meta,
+        desc: cat?.description || BANNER_META.all.desc,
+      };
+    }
+    return BANNER_META[preset.key] || BANNER_META.all;
+  }, [f.category, activeCat, preset.key, meta]);
 
-  const showGenderTabs = preset.key === 'sale' && !preset.gender;
   const navCats = useMemo(() => (f.gender ? cats.filter((c) => c.gender === f.gender) : cats), [cats, f.gender]);
   const visibleSlice = visible ? visible.slice(0, shown) : [];
   const hasMore = visible ? visible.length > shown : false;
 
   return (
-    <div className="min-h-screen bg-white pt-[120px] font-sans text-[#111111] antialiased">
+    <div className="min-h-screen bg-[#FFFFFF] pt-[120px] pb-24 font-sans text-[#111111] antialiased">
       <Seo
-        title={`${title} — HUSHAE`}
-        description={`Shop premium ${title.toLowerCase()} — innerwear made in Pakistan, finished to an international standard. COD nationwide, discreet packaging.`}
+        title={`${meta} — HUSHAE`}
+        description={`Shop premium ${meta.toLowerCase()} — innerwear made in Pakistan, finished to an international standard. COD nationwide, discreet packaging.`}
         canonical={typeof window !== 'undefined' ? window.location.pathname : '/shop'}
       />
 
-      {/* ═══ 1. CAMPAIGN HERO — title inside the photography ══════════════ */}
-      <section className="relative h-[240px] w-full overflow-hidden sm:h-[300px] md:h-[380px] xl:h-[440px]">
-        <picture className="contents">
-          {pictureSources(hero.img).map((s) => (
-            <source key={s.type} type={s.type} srcSet={s.srcSet} sizes="100vw" />
-          ))}
-          <img
-            src={hero.img}
-            alt=""
-            aria-hidden="true"
-            sizes="100vw"
-            loading="eager"
-            fetchpriority="high"
-            decoding="sync"
-            className="absolute inset-0 h-full w-full object-cover"
-            style={{ objectPosition: hero.pos }}
-          />
-        </picture>
-        <div
-          aria-hidden="true"
-          className="absolute inset-0"
-          style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,.05) 40%, rgba(0,0,0,.38) 100%)' }}
-        />
-        <div className="absolute inset-x-0 bottom-7 text-center text-white sm:bottom-9 md:bottom-12">
-          <p className="text-[10px] font-normal uppercase tracking-[0.34em] opacity-90 md:text-[11px]">HUSHAE</p>
-          <h1 className="mt-2.5 px-4 text-[24px] font-normal uppercase leading-tight tracking-[0.18em] sm:text-[32px] md:mt-3.5 md:text-[42px] md:tracking-[0.22em]">
-            {title}
-          </h1>
-        </div>
-      </section>
-
-      {/* ═══ 2. CREAM EDITORIAL CANVAS ════════════════════════════════════ */}
-      <div className="bg-[#FBFAF8] pb-24">
-        {/* Gender switch (/sale) */}
-        {showGenderTabs && (
-          <div className="flex items-center justify-center gap-7 pt-8" role="group" aria-label="Department">
-            {GENDER_TABS.map((t) => {
-              const on = (f.get('gender') || '') === t.key;
-              return (
-                <button key={`g-${t.key}`} type="button" aria-pressed={on}
-                  onClick={() => f.setOne('gender', t.key)}
-                  className={`${LINK_BASE} ${on ? LINK_ON : LINK_OFF}`}>
-                  {t.label}
-                </button>
-              );
-            })}
+      {/* ═══ 1. MINIMALIST LUXURY CATALOG HEADER ══════════════════════════ */}
+      <div className="mx-auto max-w-[1600px] px-6 md:px-12 pt-4 pb-6">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-[#EAEAEA] pb-6">
+          <div className="space-y-1.5 max-w-2xl">
+            <p className="text-[10px] font-medium uppercase tracking-[0.3em] text-neutral-400">
+              {headerInfo.tag}
+            </p>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-light uppercase tracking-[0.1em] text-[#000000]">
+              {headerInfo.title}
+            </h1>
+            <p className="text-xs sm:text-[13px] text-neutral-500 font-light leading-relaxed pt-1">
+              {headerInfo.desc}
+            </p>
           </div>
-        )}
 
-        {/* Category text links — centered when they fit, scrollable when not.
-            The inner w-max + mx-auto wrapper is the safe centering pattern:
-            justify-center on an overflowing flex container CLIPS the start. */}
-        {navCats.length > 0 && (
-          <nav
-            aria-label="Categories"
-            className={`no-scrollbar overflow-x-auto pb-8 ${showGenderTabs ? 'pt-4' : 'pt-8'}`}
-          >
-            <div className="mx-auto flex w-max items-center gap-6 px-6 md:gap-9">
-              <button type="button" onClick={() => f.setOne('category', '')}
-                className={`${LINK_BASE} ${!f.category ? LINK_ON : LINK_OFF}`}>
-                View All
-              </button>
-              {navCats.map((c) => (
-                <button key={c.slug} type="button"
-                  onClick={() => f.setOne('category', f.category === c.slug ? '' : c.slug)}
-                  className={`${LINK_BASE} ${f.category === c.slug ? LINK_ON : LINK_OFF}`}>
-                  {c.name}
+          {/* Department Quick Switch for /sale */}
+          {preset.key === 'sale' && (
+            <div className="flex items-center gap-2 text-xs">
+              {[{ key: '', label: 'Shop All' }, { key: 'women', label: 'Women' }, { key: 'men', label: 'Men' }].map((t) => (
+                <button
+                  key={t.key}
+                  type="button"
+                  onClick={() => f.setOne('gender', t.key)}
+                  className={`rounded-full px-4 py-1.5 uppercase tracking-wider text-[11px] transition-colors ${
+                    (f.get('gender') || '') === t.key
+                      ? 'bg-black text-white'
+                      : 'border border-neutral-200 bg-white text-neutral-600 hover:border-black'
+                  }`}
+                >
+                  {t.label}
                 </button>
               ))}
             </div>
-          </nav>
-        )}
-
-        {/* ═══ 3. THREE-ZONE CONTROL BAR ═══════════════════════════════ */}
-        <LuxuryFilterBar
-          count={count}
-          f={f}
-          onOpenFilters={() => setSheetOpen(true)}
-          filterBtnRef={filterBtnRef}
-        />
-
-        {/* ═══ 4. GALLERY GRID — 3-col, centered meta, cream grounds ═══ */}
-        <div className="mx-auto max-w-[1440px] px-5 pt-12 sm:px-8 md:px-12">
-          {products === null ? (
-            <ProductGridSkeleton count={6} />
-          ) : count === 0 ? (
-            <div className="py-16">
-              <EmptyState
-                icon={SearchX}
-                title="No pieces found"
-                description="Try adjusting your filters or browse the complete collection."
-                onAction={f.clearAll}
-                actionLabel="View all products"
-              />
-            </div>
-          ) : (
-            <>
-              <div
-                aria-busy={pending || undefined}
-                className={`grid grid-cols-2 gap-x-4 gap-y-10 transition-opacity duration-300 md:grid-cols-3 md:gap-x-8 md:gap-y-14 ${
-                  pending ? 'opacity-50' : 'opacity-100'
-                }`}
-              >
-                {visibleSlice.map((p) => (
-                  <CollectionCard key={p._id || p.slug} product={p} align="center" ground="#F1EFEA" />
-                ))}
-              </div>
-
-              {hasMore && (
-                <div className="flex w-full justify-center pt-16">
-                  <button
-                    type="button"
-                    onClick={() => setShown((s) => s + REVEAL)}
-                    className="flex h-12 w-full max-w-xs items-center justify-center border border-[#111111] bg-transparent text-[11px] font-medium uppercase tracking-[0.2em] text-[#111111] transition-colors hover:bg-[#111111] hover:text-white disabled:opacity-50"
-                  >
-                    {pending ? 'Loading…' : 'Load more'}
-                  </button>
-                </div>
-              )}
-            </>
           )}
         </div>
+      </div>
+
+      {/* ═══ 2. SUB-CATEGORY NAVIGATION TABS (Clean & Smooth) ═════════════ */}
+      {navCats.length > 0 && (
+        <div className="w-full bg-[#FFFFFF] border-b border-[#EAEAEA] px-6 md:px-12 overflow-x-auto no-scrollbar">
+          <div className="mx-auto flex max-w-[1600px] items-center gap-6 md:gap-8 py-3">
+            <button
+              type="button"
+              onClick={() => f.setOne('category', '')}
+              className={`inline-flex items-center text-[11.5px] uppercase tracking-[0.2em] transition-colors whitespace-nowrap pb-1 border-b-2 ${
+                !f.category
+                  ? 'border-black font-medium text-[#000000]'
+                  : 'border-transparent font-normal text-neutral-400 hover:text-black'
+              }`}
+            >
+              All {f.gender ? (f.gender === 'women' ? 'Women' : 'Men') : 'Pieces'}
+            </button>
+            {navCats.map((c) => (
+              <button
+                key={c.slug}
+                type="button"
+                onClick={() => f.setOne('category', f.category === c.slug ? '' : c.slug)}
+                className={`inline-flex items-center text-[11.5px] uppercase tracking-[0.2em] transition-colors whitespace-nowrap pb-1 border-b-2 ${
+                  f.category === c.slug
+                    ? 'border-black font-medium text-[#000000]'
+                    : 'border-transparent font-normal text-neutral-400 hover:text-black'
+                }`}
+              >
+                {c.name}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ═══ 3. SINGLE CLEAN FILTER & SORT CONTROL ROW ═══════════════════ */}
+      <LuxuryFilterBar count={count} f={f} onOpenFilters={() => setSheetOpen(true)} />
+
+      {/* ═══ 4. PRODUCT GRID (STARTS IMMEDIATELY ON SCREEN LOAD) ═══════════ */}
+      <div className="mx-auto max-w-[1600px] px-4 sm:px-6 md:px-12 pt-8 pb-16">
+        {products === null ? (
+          <ProductGridSkeleton count={8} />
+        ) : count === 0 ? (
+          <div className="py-16">
+            <EmptyState
+              icon={SearchX}
+              title="No pieces found"
+              description="Try adjusting your filters or browse the complete collection."
+              onAction={f.clearAll}
+              actionLabel="View all products"
+            />
+          </div>
+        ) : (
+          <>
+            <div
+              aria-busy={pending || undefined}
+              className={`grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 md:gap-8 transition-opacity duration-300 ${
+                pending ? 'opacity-50' : 'opacity-100'
+              }`}
+            >
+              {visibleSlice.map((p, i) => (
+                <CollectionCard
+                  key={p._id || p.slug}
+                  product={p}
+                  rank={preset.key === 'best' && i < 4 ? i + 1 : null}
+                />
+              ))}
+            </div>
+
+            {hasMore && (
+              <div className="flex w-full justify-center pt-16 pb-4">
+                <button
+                  type="button"
+                  onClick={() => setShown((s) => s + REVEAL)}
+                  className="flex h-[48px] w-full max-w-xs items-center justify-center rounded-full border border-neutral-300 bg-white text-xs font-medium uppercase tracking-[0.2em] text-black hover:border-black hover:bg-black hover:text-white transition-all shadow-xs disabled:opacity-50"
+                >
+                  {pending ? 'Loading…' : `Load More (${visible.length - shown} remaining)`}
+                </button>
+              </div>
+            )}
+          </>
+        )}
       </div>
 
       {/* Filter Side Sheet (Full Facets Modal) */}
@@ -233,7 +246,7 @@ export default function Shop({ preset = {} }) {
         onReset={f.clearAll}
         catList={f.gender ? cats.filter((c) => c.gender === f.gender) : cats}
         f={f}
-        resultCount={count ?? 0}
+        resultCount={count}
         returnFocusTo={filterBtnRef}
       />
     </div>
