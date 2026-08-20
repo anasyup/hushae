@@ -18,14 +18,13 @@ import Seo, { productJsonLd } from '../components/Seo';
 import StickyBuyBar from './product/StickyBuyBar';
 
 /* ============================================================================
- * HUSHAE Product Details — Rains × Calvin Klein × SKIMS Ultra-Luxury Hybrid
+ * HUSHAE Product Details — Full-Bleed Luxury Flagship (Calvin Klein / SSENSE)
  *
- * DESIGN ARCHITECTURE:
- *   1. Full-Height Editorial Photo Stack on Left (Rains / Calvin Klein Flagship)
- *   2. Natural 18-22px Title Typography & Unobtrusive Jet Black Add to Bag
- *   3. Sticky Buy Box on Right with Delicate Color Swatches & Precision Size Buttons
- *   4. Clean, Uncluttered 4-Pillar Reassurance Lines (Zero Boxy Clutter)
- *   5. Minimalist Native Accordions & Curated Recommendations
+ * SPECIFICATION:
+ *   - Edge-to-Edge Full Width Architecture (Zero left/right dead space)
+ *   - Left: 7-Col Flush Editorial Photography Stack (No left gap)
+ *   - Right: 5-Col Sticky Purchase Column with Balanced Interior Padding
+ *   - Natural 20-22px Title Typography & Unobtrusive Jet Black Add to Bag
  * ========================================================================== */
 
 const displayName = (name) => String(name || '').replace(/^HUSHAE\s+/i, '');
@@ -177,7 +176,7 @@ export default function Product() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#FFFFFF] pt-[120px] pb-24 font-sans text-[#111111] antialiased">
+    <div className="min-h-screen w-full bg-[#FFFFFF] pt-[104px] pb-24 font-sans text-[#111111] antialiased">
       <Seo
         title={`${name} — HUSHAE`}
         description={p.shortDescription || p.description?.slice(0, 160) || `${name} — premium innerwear from HUSHAE. PKR ${p.price}. COD available nationwide.`}
@@ -187,13 +186,14 @@ export default function Product() {
         jsonLdId="product"
       />
 
-      <div className="mx-auto max-w-[1500px] px-6 sm:px-8 md:px-12">
-        <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-16">
+      {/* ═══ FULL-BLEED 12-COLUMN EDGE-TO-EDGE CONTAINER (NO SIDE GAPS) ═══ */}
+      <div className="w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-12 min-h-screen">
 
-          {/* ── LEFT: EDITORIAL PHOTO STACK (7 COLUMNS) — CK / Rains Style ── */}
-          <div className="lg:col-span-7 space-y-4">
-            {/* Main Full-Height Editorial Photo Stack */}
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-1">
+          {/* ── LEFT: FULL-BLEED FLUSH EDITORIAL GALLERY (7 COLUMNS) ────── */}
+          <div className="lg:col-span-7 xl:col-span-7 2xl:col-span-7 bg-[#F6F6F6]">
+            {/* Edge-to-Edge Vertical Photo Stack */}
+            <div className="grid grid-cols-1 gap-1 sm:grid-cols-2 lg:grid-cols-1 w-full">
               {gallery.map((imgUrl, idx) => (
                 <div
                   key={`${imgUrl}-${idx}`}
@@ -209,7 +209,7 @@ export default function Product() {
                     className="h-full w-full object-cover object-center transition-opacity duration-300 hover:opacity-95"
                   />
                   {idx === 0 && onSale && p.compareAtPrice > p.price && (
-                    <span className="absolute left-3 top-3 bg-black px-2.5 py-0.5 text-[9px] font-medium uppercase tracking-[0.16em] text-white">
+                    <span className="absolute left-4 top-4 bg-black px-2.5 py-0.5 text-[9px] font-medium uppercase tracking-[0.16em] text-white">
                       Sale
                     </span>
                   )}
@@ -218,9 +218,9 @@ export default function Product() {
             </div>
           </div>
 
-          {/* ── RIGHT: STICKY PURCHASE DETAILS (5 COLUMNS) — SKIMS Style ──── */}
-          <div className="lg:col-span-5">
-            <div ref={ctaRef} className="lg:sticky lg:top-[120px] space-y-6 max-w-md">
+          {/* ── RIGHT: STICKY PURCHASE DETAILS (5 COLUMNS) ──────────────── */}
+          <div className="lg:col-span-5 xl:col-span-5 2xl:col-span-5 bg-white px-6 sm:px-10 md:px-14 lg:px-14 xl:px-20 py-8 lg:py-12 flex flex-col justify-start">
+            <div ref={ctaRef} className="lg:sticky lg:top-[124px] space-y-6 max-w-lg w-full">
 
               {/* Department Breadcrumb */}
               <nav className="flex items-center gap-2 text-[10px] uppercase tracking-[0.24em] text-neutral-400">
@@ -231,7 +231,7 @@ export default function Product() {
                 <Link to={`/category/${p.categorySlug}`} className="capitalize hover:text-black transition-colors">{p.categorySlug.replace(/-/g, ' ')}</Link>
               </nav>
 
-              {/* Title & Price (Natural 18-22px Luxury Typography) */}
+              {/* Title & Price Header */}
               <div className="space-y-1.5 border-b border-neutral-100 pb-5">
                 <h1 className="font-sans text-[20px] md:text-[22px] font-normal text-[#000000] tracking-[-0.01em] leading-snug">
                   {name}
@@ -254,7 +254,7 @@ export default function Product() {
                 </div>
               </div>
 
-              {/* Color Swatches (Rains Micro-Dots) */}
+              {/* Color Swatches */}
               {p.colors?.length > 0 && (
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-xs text-neutral-600">
@@ -285,7 +285,7 @@ export default function Product() {
                 </div>
               )}
 
-              {/* Size Selector (SKIMS Precision Size Matrix) */}
+              {/* Size Selector */}
               {needsSize && (
                 <div ref={sizeRef} className="space-y-2.5">
                   <div className="flex items-center justify-between text-xs">
@@ -328,7 +328,7 @@ export default function Product() {
                     })}
                   </div>
 
-                  {/* Stock Availability status */}
+                  {/* Stock Availability */}
                   {(() => {
                     const st = stockState();
                     const dot = st.tone === 'green' ? 'bg-emerald-500' : st.tone === 'amber' ? 'bg-amber-500' : 'bg-red-500';
@@ -348,12 +348,12 @@ export default function Product() {
                 </div>
               )}
 
-              {/* Short Scannable Romance Copy */}
+              {/* Short Description */}
               <div className="pt-1 text-[13px] text-neutral-600 font-light leading-relaxed">
                 <p>{p.shortDescription || p.description}</p>
               </div>
 
-              {/* Primary Action (Unobtrusive Jet Black Add to Bag) */}
+              {/* Primary Action Button */}
               <div className="space-y-3 pt-2">
                 <button
                   type="button"
@@ -378,7 +378,7 @@ export default function Product() {
                 </button>
               </div>
 
-              {/* Discreet Reassurance Strip (Clean Minimalist Lines) */}
+              {/* Discreet Packaging & Delivery Reassurance Strip */}
               <div className="space-y-2 border-y border-neutral-100 py-4 text-[11.5px] text-neutral-600 font-light">
                 <div className="flex items-center gap-2.5">
                   <ShieldCheck size={14} className="text-black shrink-0" />
@@ -394,7 +394,7 @@ export default function Product() {
                 </div>
               </div>
 
-              {/* Clean Native Expandable Accordions */}
+              {/* Expandable Accordions */}
               <div className="divide-y divide-neutral-100 border-b border-neutral-100">
                 {accordionItems.map((item) => (
                   <details key={item.title} className="group py-3.5">
@@ -418,7 +418,7 @@ export default function Product() {
       {/* ═══ BELOW THE FOLD: COMPLETE THE LOOK / CURATED PICKS ═══════════ */}
       {complete.length > 0 && (
         <section className="mt-24 border-t border-neutral-100 pt-16 md:pt-20">
-          <div className="mx-auto max-w-[1500px] px-6 sm:px-8 md:px-12">
+          <div className="mx-auto max-w-[1600px] px-6 sm:px-8 md:px-12">
             <div className="mb-10 text-center">
               <p className="text-[10px] font-medium uppercase tracking-[0.3em] text-neutral-400">
                 RECOMMENDED EDITS
