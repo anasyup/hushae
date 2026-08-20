@@ -13,13 +13,16 @@ import Seo from '../components/Seo';
 
 const POPULAR_CITIES = [
   'Karachi', 'Lahore', 'Islamabad', 'Rawalpindi', 'Faisalabad',
-  'Multan', 'Peshawar', 'Quetta', 'Sialkot', 'Gujranwala', 'Hyderabad'
+  'Multan', 'Peshawar', 'Quetta', 'Sialkot', 'Gujranwala', 'Hyderabad',
+  'Sukkur', 'Larkana', 'Bahawalpur', 'Sargodha', 'Gujrat', 'Sheikhupura',
+  'Jhang', 'Rahim Yar Khan', 'Mardan', 'Abbottabad', 'Muzaffarabad', 'Mirpur', 'Gilgit'
 ];
 
 const PROVINCES_MAP = {
   'Karachi': 'Sindh',
   'Hyderabad': 'Sindh',
   'Sukkur': 'Sindh',
+  'Larkana': 'Sindh',
   'Lahore': 'Punjab',
   'Rawalpindi': 'Punjab',
   'Faisalabad': 'Punjab',
@@ -29,11 +32,17 @@ const PROVINCES_MAP = {
   'Gujrat': 'Punjab',
   'Bahawalpur': 'Punjab',
   'Sargodha': 'Punjab',
+  'Sheikhupura': 'Punjab',
+  'Jhang': 'Punjab',
+  'Rahim Yar Khan': 'Punjab',
   'Islamabad': 'Islamabad (ICT)',
   'Peshawar': 'Khyber Pakhtunkhwa',
   'Abbottabad': 'Khyber Pakhtunkhwa',
   'Mardan': 'Khyber Pakhtunkhwa',
   'Quetta': 'Balochistan',
+  'Muzaffarabad': 'Azad Kashmir',
+  'Mirpur': 'Azad Kashmir',
+  'Gilgit': 'Gilgit-Baltistan',
 };
 
 const PROVINCES_FALLBACK = [
@@ -49,7 +58,8 @@ const PROVINCES_FALLBACK = [
 const CITY_POSTAL = {
   'Lahore': '54000', 'Faisalabad': '38000', 'Rawalpindi': '46000', 'Multan': '60000',
   'Gujranwala': '52250', 'Sialkot': '51310', 'Bahawalpur': '63100', 'Sargodha': '40100',
-  'Gujrat': '50700', 'Karachi': '74200', 'Hyderabad': '71000', 'Sukkur': '65200',
+  'Gujrat': '50700', 'Sheikhupura': '39350', 'Jhang': '35200', 'Rahim Yar Khan': '64200',
+  'Karachi': '74200', 'Hyderabad': '71000', 'Sukkur': '65200', 'Larkana': '77150',
   'Peshawar': '25000', 'Mardan': '23200', 'Abbottabad': '22010', 'Quetta': '87300',
   'Islamabad': '44000', 'Muzaffarabad': '13100', 'Mirpur': '10250', 'Gilgit': '15100',
 };
@@ -78,7 +88,7 @@ export default function Checkout() {
   }, []);
   const addr = auth?.user?.addresses?.[0] || {};
 
-  /* City & Province start UNSELECTED / EMPTY by default unless user has a saved profile/draft */
+  /* City, Province & Postal Code start unselected by default */
   const [f, setF] = useState({
     name: draft?.name ?? (auth?.user?.name || addr.name || ''),
     phone: draft?.phone ?? (auth?.user?.phone || addr.phone || ''),
@@ -87,6 +97,7 @@ export default function Checkout() {
     city: draft?.city || addr.city || '',
     customCity: draft?.customCity || '',
     province: draft?.province || addr.province || '',
+    postalCode: draft?.postalCode || addr.postalCode || '',
     notes: draft?.notes || '',
   });
 
@@ -98,15 +109,16 @@ export default function Checkout() {
 
   const handleCityChange = (chosenCity) => {
     if (chosenCity === '__other') {
-      setF((x) => ({ ...x, city: '__other', customCity: '', province: '' }));
+      setF((x) => ({ ...x, city: '__other', customCity: '', province: '', postalCode: '' }));
       setErrs((e) => ({ ...e, city: '', customCity: '' }));
     } else if (chosenCity === '') {
-      setF((x) => ({ ...x, city: '', customCity: '', province: '' }));
+      setF((x) => ({ ...x, city: '', customCity: '', province: '', postalCode: '' }));
       setErrs((e) => ({ ...e, city: '', province: '' }));
     } else {
       const autoProvince = PROVINCES_MAP[chosenCity] || f.province || '';
-      setF((x) => ({ ...x, city: chosenCity, province: autoProvince, customCity: '' }));
-      setErrs((e) => ({ ...e, city: '', province: '' }));
+      const autoPostal = CITY_POSTAL[chosenCity] || PROVINCE_POSTAL[autoProvince] || f.postalCode || '';
+      setF((x) => ({ ...x, city: chosenCity, province: autoProvince, postalCode: autoPostal, customCity: '' }));
+      setErrs((e) => ({ ...e, city: '', province: '', postalCode: '' }));
     }
   };
 
@@ -136,6 +148,9 @@ export default function Checkout() {
     if (!f.address || f.address.trim().length < 5) e.address = 'Please enter your delivery address';
     if (!cityLabel) e.city = 'Please select or enter your city';
     if (!f.province) e.province = 'Please select your province';
+    if (!f.postalCode || !/^\d{5}$/.test(String(f.postalCode).trim())) {
+      e.postalCode = 'Please enter a valid 5-digit postal code (e.g. 54000)';
+    }
     return e;
   };
 
@@ -146,7 +161,7 @@ export default function Checkout() {
     setErrs(validationErrors);
 
     if (Object.keys(validationErrors).length > 0) {
-      setTopErr('Please complete your delivery details below.');
+      setTopErr('Please complete all required fields below.');
       return;
     }
 
@@ -163,7 +178,7 @@ export default function Checkout() {
             address: f.address.trim(),
             city: cityLabel,
             province: f.province,
-            postalCode: CITY_POSTAL[cityLabel] || PROVINCE_POSTAL[f.province] || '54000',
+            postalCode: f.postalCode.trim(),
             country: 'Pakistan',
             notes: f.notes.trim() || undefined,
           },
@@ -271,7 +286,7 @@ export default function Checkout() {
                   {errs.name && <p className="text-[11px] text-red-600 mt-1">{errs.name}</p>}
                 </div>
 
-                {/* Mobile / WhatsApp */}
+                {/* Mobile Number */}
                 <div className="space-y-1.5">
                   <label className="block text-[11px] font-medium uppercase tracking-wider text-[#000000]">
                     Mobile Number <span className="text-red-500">*</span>
@@ -315,32 +330,14 @@ export default function Checkout() {
                   {errs.address && <p className="text-[11px] text-red-600 mt-1">{errs.address}</p>}
                 </div>
 
-                {/* Popular City Chips & Selector */}
-                <div className="space-y-2 pt-1">
+                {/* City Selector (Single Clean Dropdown / Input — NO PRESET SLIDER/CHIPS) */}
+                <div className="space-y-1.5 pt-1">
                   <label className="block text-[11px] font-medium uppercase tracking-wider text-[#000000]">
                     City <span className="text-red-500">*</span>
                   </label>
 
-                  {/* Fast Oval City Chips (No default selected) */}
-                  <div className="flex flex-wrap gap-1.5 pb-1">
-                    {POPULAR_CITIES.slice(0, 8).map((c) => (
-                      <button
-                        key={c}
-                        type="button"
-                        onClick={() => handleCityChange(c)}
-                        className={`rounded-full px-3.5 py-1.5 text-[11px] uppercase tracking-wider border transition-all ${
-                          f.city === c
-                            ? 'border-[#000000] bg-[#000000] text-[#FFFFFF]'
-                            : 'border-[#E5E5E5] bg-[#FFFFFF] text-[#333333] hover:border-[#000000]'
-                        }`}
-                      >
-                        {c}
-                      </button>
-                    ))}
-                  </div>
-
                   {f.city === '__other' ? (
-                    <div className="space-y-1.5 pt-1">
+                    <div className="space-y-1.5">
                       <input
                         type="text"
                         required
@@ -380,8 +377,9 @@ export default function Checkout() {
                   {errs.city && <p className="text-[11px] text-red-600 mt-1">{errs.city}</p>}
                 </div>
 
-                {/* Province & Email Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                {/* Province & Postal Code (MANDATORY) & Email Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+                  {/* Province */}
                   <div className="space-y-1.5">
                     <label className="block text-[11px] font-medium uppercase tracking-wider text-[#000000]">
                       Province <span className="text-red-500">*</span>
@@ -404,6 +402,27 @@ export default function Checkout() {
                     {errs.province && <p className="text-[11px] text-red-600 mt-1">{errs.province}</p>}
                   </div>
 
+                  {/* Postal Code (MANDATORY *) */}
+                  <div className="space-y-1.5">
+                    <label className="block text-[11px] font-medium uppercase tracking-wider text-[#000000]">
+                      Postal Code <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      name="postalCode"
+                      type="text"
+                      required
+                      maxLength={5}
+                      value={f.postalCode}
+                      onChange={(e) => set('postalCode', e.target.value.replace(/\D/g, '').slice(0, 5))}
+                      placeholder="e.g. 54000"
+                      className={`w-full rounded-2xl border bg-[#FFFFFF] px-4 py-3 text-xs text-[#000000] placeholder:text-[#999999] focus:border-[#000000] focus:outline-none transition-colors ${
+                        errs.postalCode ? 'border-red-500' : 'border-[#E0E0E0]'
+                      }`}
+                    />
+                    {errs.postalCode && <p className="text-[11px] text-red-600 mt-1">{errs.postalCode}</p>}
+                  </div>
+
+                  {/* Email */}
                   <div className="space-y-1.5">
                     <label className="block text-[11px] font-medium uppercase tracking-wider text-[#000000]">
                       Email <span className="text-neutral-400 lowercase">(optional)</span>
@@ -413,7 +432,7 @@ export default function Checkout() {
                       type="email"
                       value={f.email}
                       onChange={(e) => set('email', e.target.value)}
-                      placeholder="For order updates"
+                      placeholder="For tracking receipt"
                       className="w-full rounded-2xl border border-[#E0E0E0] bg-[#FFFFFF] px-4 py-3 text-xs text-[#000000] placeholder:text-[#999999] focus:border-[#000000] focus:outline-none transition-colors"
                     />
                   </div>
