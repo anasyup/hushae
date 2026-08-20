@@ -6,7 +6,6 @@ import CollectionCard from '../components/CollectionCard';
 import LuxuryFilterBar from '../components/LuxuryFilterBar';
 import { ProductGridSkeleton } from '../components/Skeletons';
 import Seo from '../components/Seo';
-import { PRODUCT_GRID } from '../lib/productGrid';
 
 /* ============================================================================
  * Public /collection/:slug — same quiet-luxury register as the catalog pages:
@@ -70,15 +69,34 @@ export default function Collection() {
         canonical={`/collection/${c.slug}`}
       />
 
-      {/* ═══ 1. CENTERED MAISON HEADER ═════════════════════════════════ */}
-      <header className="mx-auto max-w-[1600px] px-5 pt-10 pb-8 text-center md:px-10 md:pt-14 md:pb-10">
-        <h1 className="text-[24px] font-medium uppercase tracking-[0.14em] text-[#111111] sm:text-[28px] md:text-[32px]">
-          {c.name}
-        </h1>
-        {c.description && (
-          <p className="mx-auto mt-3 max-w-xl text-[13px] font-light leading-relaxed text-neutral-500">{c.description}</p>
-        )}
-      </header>
+      {/* ═══ 1. HEADER — campaign hero when the collection has artwork,
+              centered typographic header otherwise ══════════════════════ */}
+      {c.image ? (
+        <section className="relative h-[220px] w-full overflow-hidden sm:h-[280px] md:h-[360px]">
+          <img src={c.image} alt="" aria-hidden="true" loading="eager" fetchpriority="high"
+            className="absolute inset-0 h-full w-full object-cover object-center" />
+          <div aria-hidden="true" className="absolute inset-0"
+            style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,.05) 40%, rgba(0,0,0,.38) 100%)' }} />
+          <div className="absolute inset-x-0 bottom-7 text-center text-white md:bottom-10">
+            <p className="text-[10px] font-normal uppercase tracking-[0.34em] opacity-90 md:text-[11px]">HUSHAE</p>
+            <h1 className="mt-2.5 px-4 text-[22px] font-normal uppercase leading-tight tracking-[0.18em] sm:text-[30px] md:text-[38px]">
+              {c.name}
+            </h1>
+          </div>
+        </section>
+      ) : (
+        <header className="mx-auto max-w-[1600px] px-5 pt-10 pb-2 text-center md:px-10 md:pt-14">
+          <h1 className="text-[24px] font-normal uppercase tracking-[0.18em] text-[#111111] sm:text-[28px] md:text-[32px]">
+            {c.name}
+          </h1>
+        </header>
+      )}
+
+      <div className="bg-[#FBFAF8]">
+      {c.description && (
+        <p className="mx-auto max-w-xl px-6 pt-7 pb-1 text-center text-[13px] font-light leading-relaxed text-[#6E6A63]">{c.description}</p>
+      )}
+      <div className="pt-7" />
 
       {/* ═══ 2. CONTROL BAR — count + sort ═════════════════════════════ */}
       <LuxuryFilterBar
@@ -87,7 +105,7 @@ export default function Collection() {
       />
 
       {/* ═══ 3. PRODUCT GRID ═══════════════════════════════════════════ */}
-      <div className="py-8">
+      <div className="mx-auto max-w-[1440px] px-5 py-12 sm:px-8 md:px-12">
         {count === 0 ? (
           <div className="grid place-items-center py-16 text-center">
             <Boxes size={26} className="mb-3 text-neutral-300" />
@@ -95,8 +113,8 @@ export default function Collection() {
             <Link to="/shop" className="btn-outline mt-6">Browse all products</Link>
           </div>
         ) : (
-          <div className={PRODUCT_GRID}>
-            {visible.map((p) => <CollectionCard key={p._id} product={p} />)}
+          <div className="grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-3 md:gap-x-8 md:gap-y-14">
+            {visible.map((p) => <CollectionCard key={p._id} product={p} align="center" ground="#F1EFEA" />)}
           </div>
         )}
 
@@ -105,6 +123,7 @@ export default function Collection() {
             <ArrowLeft size={13} /> Continue browsing all
           </Link>
         </div>
+      </div>
       </div>
     </div>
   );

@@ -31,7 +31,8 @@ const FALLBACK =
 const srcOf = (im) => (typeof im === 'string' ? im : im?.url || '');
 const displayName = (name) => String(name || '').replace(/^HUSHAE\s+/i, '');
 
-export default function CollectionCard({ product: p, priority = false }) {
+export default function CollectionCard({ product: p, priority = false, align = 'left', ground = '#F8F8F8' }) {
+  const centered = align === 'center';
   const { addToCart } = useApp();
   const [imgIdx, setImgIdx] = useState(0);
   const [failed, setFailed] = useState(false);
@@ -79,7 +80,7 @@ export default function CollectionCard({ product: p, priority = false }) {
       }}
     >
       {/* ── 3:4 STUDIO CANVAS ───────────────────────────────────────────── */}
-      <div className="relative aspect-[3/4] w-full overflow-hidden bg-[#F8F8F8]">
+      <div className="relative aspect-[3/4] w-full overflow-hidden" style={{ backgroundColor: ground }}>
         <Link
           to={`/product/${p.slug}`}
           tabIndex={-1}
@@ -163,7 +164,7 @@ export default function CollectionCard({ product: p, priority = false }) {
       </div>
 
       {/* ── METADATA ─────────────────────────────────────────────────────── */}
-      <div className="space-y-1.5 bg-white px-0.5 pt-3.5 pb-4 md:pt-4 md:pb-5">
+      <div className={`space-y-1.5 bg-transparent px-0.5 pt-3.5 pb-1 md:pt-4 ${centered ? 'text-center' : ''}`}>
         {/* Line 1: Product Title */}
         {/* normal-case: the global stylesheet uppercases every h1–h6; luxury
             houses set product names in sentence case (CK/Gucci/The Row). */}
@@ -178,7 +179,7 @@ export default function CollectionCard({ product: p, priority = false }) {
         </h3>
 
         {/* Line 2: Price */}
-        <div className="flex items-baseline gap-2 text-[13px] md:text-[14px]">
+        <div className={`flex items-baseline gap-2 text-[13px] md:text-[14px] ${centered ? 'justify-center' : ''}`}>
           {soldOut ? (
             <span className="font-normal text-neutral-400">Sold out</span>
           ) : (
@@ -195,7 +196,7 @@ export default function CollectionCard({ product: p, priority = false }) {
 
         {/* Line 3: Swatches */}
         {swatches.length > 0 && (
-          <div className="flex items-center gap-1.5 pt-1" role="group" aria-label={`Colors for ${name}`}>
+          <div className={`flex items-center gap-1.5 pt-1 ${centered ? 'justify-center' : ''}`} role="group" aria-label={`Colors for ${name}`}>
             {swatches.map((c, i) => (
               <button
                 key={`${c.name}-${i}`}

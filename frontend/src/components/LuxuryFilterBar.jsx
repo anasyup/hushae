@@ -23,7 +23,7 @@ export default function LuxuryFilterBar({ count = null, onOpenFilters, f, filter
   const currentSort = f?.sort || 'popular';
 
   return (
-    <div className="border-y border-[#E5E5E5] bg-white">
+    <div className="border-y border-[#E8E5DF] bg-transparent">
       <div className="relative mx-auto flex min-h-[52px] max-w-[1600px] items-center justify-between px-5 md:px-10">
         {/* Left — FILTERS */}
         {onOpenFilters ? (
