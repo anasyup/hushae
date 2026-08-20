@@ -18,7 +18,7 @@ import { useCartPricing } from './cart/useCartPricing';
 import Seo from '../components/Seo';
 
 /* ============================================================================
- * HUSHAE Shopping Bag — Official Luxury Flagship Experience (Calvin Klein / SSENSE)
+ * HUSHAE Shopping Bag — Minimalist Luxury Masterpiece (The Row / Calvin Klein)
  * ========================================================================== */
 
 const BLOCKING = new Set(['oos', 'unavailable', 'size-gone']);
@@ -176,17 +176,22 @@ export default function Cart() {
       <Seo title="Shopping Bag — HUSHAE" description="Review the items in your bag — secure checkout, COD nationwide, discreet packaging." />
 
       <div className="mx-auto max-w-[1400px] px-6 sm:px-8 md:px-12">
-        {/* ── TOP HEADER (Clean Official Typography) ── */}
+        {/* ── TOP HEADER (Minimalist Luxury Register) ── */}
         <div className="border-b border-[#EAEAEA] pb-4 mb-8 flex flex-wrap items-baseline justify-between gap-4">
-          <h1 className="text-xl sm:text-2xl font-light uppercase tracking-[0.14em] text-[#000000]">
-            Shopping Bag <span className="text-neutral-400 font-light text-base sm:text-lg">({pricing.count})</span>
-          </h1>
+          <div>
+            <p className="text-[10px] font-medium uppercase tracking-[0.28em] text-neutral-400">
+              YOUR SELECTION
+            </p>
+            <h1 className="mt-1 text-xl sm:text-2xl font-light uppercase tracking-[0.14em] text-[#000000]">
+              Shopping Bag <span className="text-neutral-400 font-light text-base sm:text-lg">({pricing.count})</span>
+            </h1>
+          </div>
 
           <Link
             to="/shop"
-            className="text-xs uppercase tracking-wider text-neutral-500 hover:text-black transition-colors underline underline-offset-4"
+            className="text-xs uppercase tracking-[0.16em] text-neutral-500 hover:text-black transition-colors underline underline-offset-4"
           >
-            Continue Shopping
+            Continue Shopping &rarr;
           </Link>
         </div>
 
@@ -202,7 +207,7 @@ export default function Cart() {
           {/* ── LEFT: LINE ITEMS TABLE (8 COLS) ── */}
           <section className="lg:col-span-8" aria-label="Items in your bag">
             {/* Table Header Row (Desktop) */}
-            <div className="hidden grid-cols-[minmax(0,1fr)_110px_120px_110px_36px] gap-4 border-b border-[#EAEAEA] pb-2.5 text-[10.5px] font-medium uppercase tracking-[0.18em] text-neutral-400 md:grid">
+            <div className="hidden grid-cols-[minmax(0,1fr)_110px_120px_110px_36px] gap-4 border-b border-[#EAEAEA] pb-2.5 text-[10px] font-medium uppercase tracking-[0.2em] text-neutral-400 md:grid">
               <span>Item</span>
               <span>Price</span>
               <span>Quantity</span>
@@ -298,7 +303,7 @@ export default function Cart() {
         {suggest.length > 0 && (
           <section className="mt-20 border-t border-[#EAEAEA] pt-14">
             <div className="mb-8 text-center">
-              <p className="text-[10.5px] font-medium uppercase tracking-[0.28em] text-neutral-400">
+              <p className="text-[10px] font-medium uppercase tracking-[0.3em] text-neutral-400">
                 CURATED EDITS
               </p>
               <h2 className="mt-1.5 text-xl sm:text-2xl font-light uppercase tracking-wide text-black">

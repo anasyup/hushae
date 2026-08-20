@@ -6,7 +6,7 @@ import CouponBox from './CouponBox';
 import FreeShipProgress from './FreeShipProgress';
 
 /* ============================================================================
- * HUSHAE Shopping Bag Order Summary — Clean Luxury Architecture
+ * HUSHAE Shopping Bag Order Summary — Minimalist Luxury Suite (The Row / SSENSE)
  * ========================================================================== */
 
 export default function OrderSummary({ pricing, cfg, applied, onApply, onRemoveCoupon, blocked, ctaRef, promoQuote = null }) {
@@ -16,7 +16,7 @@ export default function OrderSummary({ pricing, cfg, applied, onApply, onRemoveC
     <div className="rounded-3xl border border-[#EAEAEA] bg-[#FBFBFB] p-6 sm:p-7 space-y-5 font-sans shadow-xs">
       {/* Summary Header */}
       <div className="flex items-center justify-between border-b border-[#EAEAEA] pb-3.5">
-        <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-[#000000]">
+        <h2 className="text-xs font-semibold uppercase tracking-[0.2em] text-[#000000]">
           Order Summary
         </h2>
         <span className="rounded-full bg-[#EAEAEA] px-2.5 py-0.5 text-[11px] font-medium text-[#000000]">
@@ -44,9 +44,9 @@ export default function OrderSummary({ pricing, cfg, applied, onApply, onRemoveC
         )}
 
         <div className="flex justify-between text-neutral-500 font-light">
-          <span>Delivery</span>
+          <span>Courier Delivery</span>
           <span className="text-black font-normal tabular-nums">
-            {freeShip || shipping === 0 ? 'Free' : pkr(shipping)}
+            {freeShip || shipping === 0 ? 'Free Express' : pkr(shipping)}
           </span>
         </div>
 
@@ -95,10 +95,10 @@ export default function OrderSummary({ pricing, cfg, applied, onApply, onRemoveC
         ) : (
           <Link
             to="/checkout"
-            className="flex h-[50px] w-full items-center justify-center gap-2 rounded-full bg-[#000000] text-xs font-medium uppercase tracking-[0.2em] text-[#FFFFFF] shadow-md transition-all hover:bg-[#1A1A1A] hover:scale-[1.01]"
+            className="flex h-[52px] w-full items-center justify-center gap-2 rounded-full bg-[#000000] text-xs font-medium uppercase tracking-[0.2em] text-[#FFFFFF] shadow-md transition-all hover:bg-[#1A1A1A] hover:scale-[1.01]"
           >
             <span>Proceed to Checkout</span>
-            <ArrowRight size={13} aria-hidden="true" />
+            <ArrowRight size={14} aria-hidden="true" />
           </Link>
         )}
 

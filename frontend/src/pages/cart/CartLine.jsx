@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { AlertCircle, Trash2, X } from 'lucide-react';
+import { AlertCircle, X, Check } from 'lucide-react';
 import Img from '../../components/Img';
 import QuantityStepper from '../../components/ui/QuantityStepper';
 import { pkr } from '../../lib/format';
@@ -8,7 +8,7 @@ import { titleCase } from '../../lib/productMeta';
 const nameOf = (name) => titleCase(String(name || '').replace(/^HUSHAE\s+/i, ''));
 
 /* ============================================================================
- * HUSHAE CartLine — Clean Official Luxury Manifest Row (Calvin Klein / SSENSE)
+ * HUSHAE CartLine — Minimalist Luxury Manifest Row (Calvin Klein / The Row)
  * ========================================================================== */
 
 const STATUS = {
@@ -40,25 +40,42 @@ export default function CartLine({
       <Img
         src={line.image}
         alt=""
-        className="h-full w-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
+        className="h-full w-full object-cover object-center transition-transform duration-500 ease-out group-hover:scale-105"
       />
     </Link>
   );
 
   const details = (
-    <div className="min-w-0 flex-1 space-y-1">
-      <h3 className="text-[14px] sm:text-[15px] font-medium text-[#000000] leading-snug truncate">
+    <div className="min-w-0 flex-1 space-y-1.5">
+      <h3 className="text-[14.5px] sm:text-[15.5px] font-normal text-[#000000] leading-snug truncate">
         <Link to={`/product/${line.slug}`} className="hover:text-neutral-500 transition-colors">
           {nameOf(line.name)}
         </Link>
       </h3>
 
-      <p className="text-xs text-neutral-500 font-light">
-        {[line.size && `Size: ${line.size}`, line.color && `Color: ${line.color}`].filter(Boolean).join(' · ')}
-      </p>
+      <div className="flex flex-wrap items-center gap-2 text-xs text-neutral-500 font-light">
+        {line.size && (
+          <span className="rounded-full bg-neutral-100 px-2.5 py-0.5 text-[11px] font-medium text-black">
+            Size {line.size}
+          </span>
+        )}
+        {line.color && (
+          <span className="text-[11.5px] text-neutral-600">
+            {line.color}
+          </span>
+        )}
+      </div>
+
+      {/* Reassurance state */}
+      {!blocked && !low && (
+        <div className="flex items-center gap-1.5 text-[11px] text-emerald-600 font-light pt-0.5">
+          <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+          <span>In Stock · Dispatched in 24 Hours</span>
+        </div>
+      )}
 
       {meta?.label && (
-        <p className={`mt-1 inline-flex w-fit items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider ${
+        <p className={`mt-1.5 inline-flex w-fit items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wider ${
           meta.tone === 'bad' ? 'bg-red-50 text-red-700' : 'bg-amber-50 text-amber-800'
         }`}>
           <AlertCircle size={10} aria-hidden="true" /> {meta.label}
