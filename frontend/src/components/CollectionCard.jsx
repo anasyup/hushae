@@ -1,22 +1,23 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Check } from 'lucide-react';
+import { Heart, ChevronLeft, ChevronRight, Check } from 'lucide-react';
 import { pkr } from '../lib/format';
 import { titleCase } from '../lib/productMeta';
 import { isOnSale } from '../lib/sale';
 import { useApp } from '../store/AppContext';
 
 /* ============================================================================
- * HUSHAE CollectionCard — Architectural Luxury Box (Translucent Glass Borders)
+ * HUSHAE CollectionCard — Senior Luxury Designer / Engineer Standard
  *
  * SPECIFICATION:
- *   1. 3:4 Crisp Architectural Box Canvas (Zero circle curves on image frame)
- *   2. Translucent Glass-Like Luxury Borders (border-black/[0.05] with hover depth)
- *   3. 500ms Smooth Secondary Angle Crossfade on Hover
- *   4. Translucent Glass Top-Left Badge
- *   5. Line 1: Title Case Product Name (left) + Tabular Price (right)
- *   6. Line 2: Dedicated Delicate Circular Color Swatch Dots
- *   7. Desktop Slide-Up Quick Size Selector on Hover
+ *   1. 3:4 Studio Portrait Canvas on #F8F8F8 ground with translucent luxury frame
+ *   2. Smooth 500ms Secondary Angle Crossfade on Hover
+ *   3. Top-Right Minimalist Hairline Wishlist Heart Icon
+ *   4. Top-Left Translucent Tag (New / Sale / Sold out)
+ *   5. Desktop Slide-Up Quick Size Selector Bar (Glassmorphism pill)
+ *   6. Clean Typographic Hierarchy:
+ *      - Line 1: Product Name in Title Case (No truncation collision)
+ *      - Line 2: Tabular Price + Circular Color Swatches Row
  * ========================================================================== */
 
 const FALLBACK =
@@ -29,7 +30,7 @@ const srcOf = (im) => (typeof im === 'string' ? im : im?.url || '');
 const displayName = (name) => String(name || '').replace(/^HUSHAE\s+/i, '');
 
 export default function CollectionCard({ product: p, priority = false, rank = null }) {
-  const { addToCart } = useApp();
+  const { addToCart, inWishlist, toggleWish } = useApp();
   const [imgIdx, setImgIdx] = useState(0);
   const [failed, setFailed] = useState(false);
   const [swatchIdx, setSwatchIdx] = useState(0);
@@ -48,6 +49,7 @@ export default function CollectionCard({ product: p, priority = false, rank = nu
   const name = titleCase(displayName(p.name)) || 'Essential Piece';
   const soldOut = p.stock === 0;
   const onSaleP = isOnSale(p);
+  const wished = inWishlist(p);
 
   const badge = soldOut
     ? 'Sold out'
@@ -82,8 +84,8 @@ export default function CollectionCard({ product: p, priority = false, rank = nu
         setImgIdx(0);
       }}
     >
-      {/* ── 3:4 CRISP ARCHITECTURAL BOX (TRANSLUCENT LUXURY GLASS BORDER) ── */}
-      <div className="relative aspect-[3/4] w-full overflow-hidden bg-[#F8F8F8] border border-black/[0.06] transition-all duration-500 ease-out group-hover:border-black/25 group-hover:bg-[#F3F3F3]">
+      {/* ── 3:4 STUDIO CANVAS (TRANSLUCENT LUXURY FRAME) ─────────────────── */}
+      <div className="relative aspect-[3/4] w-full overflow-hidden bg-[#F8F8F8] border border-black/[0.05] transition-all duration-500 ease-out group-hover:border-black/20 group-hover:bg-[#F4F4F4]">
         <Link
           to={`/product/${p.slug}`}
           tabIndex={-1}
@@ -140,6 +142,24 @@ export default function CollectionCard({ product: p, priority = false, rank = nu
           )}
         </Link>
 
+        {/* Top-Right Wishlist Heart Icon */}
+        <button
+          type="button"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            toggleWish(p);
+          }}
+          aria-label={wished ? 'Remove from wishlist' : 'Add to wishlist'}
+          className="absolute right-2.5 top-2.5 z-20 grid h-7 w-7 place-items-center rounded-full bg-white/70 backdrop-blur-xs text-neutral-500 transition-all hover:bg-white hover:text-black shadow-xs"
+        >
+          <Heart
+            size={13}
+            strokeWidth={1.5}
+            className={wished ? 'fill-black text-black' : ''}
+          />
+        </button>
+
         {/* Multi-Image Hairline Browse Chevrons */}
         {images.length > 1 && (
           <div className="pointer-events-none absolute inset-0 z-20 hidden items-center justify-between px-1 opacity-0 transition-opacity duration-200 group-hover:opacity-100 md:flex">
@@ -147,28 +167,28 @@ export default function CollectionCard({ product: p, priority = false, rank = nu
               type="button"
               onClick={(e) => cycle(-1, e)}
               aria-label="Previous image"
-              className="pointer-events-auto flex h-8 w-6 items-center justify-center text-black/50 hover:text-black transition-colors"
+              className="pointer-events-auto flex h-8 w-6 items-center justify-center text-black/40 hover:text-black transition-colors"
             >
-              <ChevronLeft size={20} strokeWidth={1.2} aria-hidden="true" />
+              <ChevronLeft size={18} strokeWidth={1.4} aria-hidden="true" />
             </button>
             <button
               type="button"
               onClick={(e) => cycle(1, e)}
               aria-label="Next image"
-              className="pointer-events-auto flex h-8 w-6 items-center justify-center text-black/50 hover:text-black transition-colors"
+              className="pointer-events-auto flex h-8 w-6 items-center justify-center text-black/40 hover:text-black transition-colors"
             >
-              <ChevronRight size={20} strokeWidth={1.2} aria-hidden="true" />
+              <ChevronRight size={18} strokeWidth={1.4} aria-hidden="true" />
             </button>
           </div>
         )}
 
-        {/* ── DESKTOP SLIDE-UP QUICK SIZE SELECTOR (1-Click Add to Bag) ── */}
+        {/* ── DESKTOP SLIDE-UP QUICK SIZE SELECTOR (Glassmorphism Pill) ── */}
         {!soldOut && (
           <div className="absolute inset-x-2 bottom-2 z-20 hidden md:block opacity-0 translate-y-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0">
             {sizes.length > 0 ? (
-              <div className="flex items-center justify-center gap-1 bg-white/95 backdrop-blur-md p-1.5 shadow-md border border-neutral-200/80 rounded-full">
-                <span className="text-[9.5px] uppercase font-medium tracking-wider text-neutral-500 pr-1 pl-1.5">
-                  Add:
+              <div className="flex items-center justify-center gap-1 bg-white/95 backdrop-blur-md p-1.5 shadow-sm border border-neutral-200/70 rounded-full">
+                <span className="text-[9.5px] uppercase font-medium tracking-wider text-neutral-400 pl-2 pr-1">
+                  Size:
                 </span>
                 {sizes.map((s) => (
                   <button
@@ -178,7 +198,7 @@ export default function CollectionCard({ product: p, priority = false, rank = nu
                     className={`flex h-6 min-w-[26px] px-1.5 items-center justify-center rounded-full text-[10px] font-medium uppercase tracking-wider transition-colors ${
                       addedSize === s
                         ? 'bg-black text-white'
-                        : 'bg-neutral-100/80 text-black hover:bg-black hover:text-white'
+                        : 'bg-neutral-100 text-black hover:bg-black hover:text-white'
                     }`}
                   >
                     {addedSize === s ? <Check size={11} strokeWidth={2.2} /> : s}
@@ -198,22 +218,22 @@ export default function CollectionCard({ product: p, priority = false, rank = nu
         )}
       </div>
 
-      {/* ── CLEAN & SPACIOUS LUXURY METADATA AREA ─────────────────────────── */}
-      <div className="pt-3 pb-2 px-1.5 space-y-1 bg-white font-sans">
-        {/* Line 1: Title (left) + Price (right) on the same line */}
-        <div className="flex items-baseline justify-between gap-2">
-          <h3 className="font-normal text-[13.5px] md:text-[14px] text-[#000000] tracking-[-0.01em] truncate leading-snug">
-            <Link
-              to={`/product/${p.slug}`}
-              className="transition-colors hover:text-neutral-500"
-              title={name}
-            >
-              {name}
-            </Link>
-          </h3>
+      {/* ── CLEAN LUXURY METADATA AREA ────────────────────────────────────── */}
+      <div className="pt-3 pb-2 px-1 space-y-1 bg-white font-sans">
+        {/* Line 1: Title (Title Case, Clean & Uncluttered) */}
+        <h3 className="font-normal text-[13.5px] md:text-[14px] text-[#000000] tracking-[-0.01em] truncate leading-snug">
+          <Link
+            to={`/product/${p.slug}`}
+            className="transition-colors hover:text-neutral-500"
+            title={name}
+          >
+            {name}
+          </Link>
+        </h3>
 
-          {/* Price */}
-          <div className="shrink-0 flex items-baseline gap-1.5 text-[13px] md:text-[13.5px]">
+        {/* Line 2: Price & Color Swatches Row */}
+        <div className="flex items-center justify-between gap-2 pt-0.5 text-[13px] md:text-[13.5px]">
+          <div className="flex items-baseline gap-1.5">
             {soldOut ? (
               <span className="text-neutral-400 font-light text-xs">Sold out</span>
             ) : (
@@ -229,43 +249,43 @@ export default function CollectionCard({ product: p, priority = false, rank = nu
               </>
             )}
           </div>
+
+          {/* Color Swatch Dots */}
+          {swatches.length > 0 && (
+            <div className="flex items-center gap-1.5" role="group" aria-label={`Colors for ${name}`}>
+              {swatches.slice(0, 5).map((c, i) => (
+                <button
+                  key={`${c.name}-${i}`}
+                  type="button"
+                  aria-label={c.name || `Color ${i + 1}`}
+                  title={c.name}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setSwatchIdx(i);
+                    const ci = images.indexOf(srcOf(c.image) || '');
+                    if (ci >= 0) setImgIdx(ci);
+                  }}
+                  className="group/swatch relative flex h-3.5 w-3.5 items-center justify-center"
+                >
+                  <span
+                    className={`h-2.5 w-2.5 rounded-full border border-black/15 transition-transform ${
+                      swatchIdx === i ? 'scale-125 ring-1 ring-black/80 ring-offset-1' : 'hover:scale-110'
+                    }`}
+                    style={{ backgroundColor: c.hex }}
+                    aria-hidden="true"
+                  />
+                </button>
+              ))}
+
+              {p.colors && p.colors.length > 5 && (
+                <span className="text-[9.5px] text-neutral-400 font-light pl-0.5">
+                  +{p.colors.length - 5}
+                </span>
+              )}
+            </div>
+          )}
         </div>
-
-        {/* Line 2: Circular Swatches (Dedicated Clean Row) */}
-        {swatches.length > 0 && (
-          <div className="pt-0.5 flex items-center gap-1.5" role="group" aria-label={`Colors for ${name}`}>
-            {swatches.map((c, i) => (
-              <button
-                key={`${c.name}-${i}`}
-                type="button"
-                aria-label={c.name || `Color ${i + 1}`}
-                title={c.name}
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setSwatchIdx(i);
-                  const ci = images.indexOf(srcOf(c.image) || '');
-                  if (ci >= 0) setImgIdx(ci);
-                }}
-                className="group/swatch relative flex h-3.5 w-3.5 items-center justify-center"
-              >
-                <span
-                  className={`h-2.5 w-2.5 rounded-full border border-black/15 transition-transform ${
-                    swatchIdx === i ? 'scale-125 ring-1 ring-black/80 ring-offset-1' : 'hover:scale-110'
-                  }`}
-                  style={{ backgroundColor: c.hex }}
-                  aria-hidden="true"
-                />
-              </button>
-            ))}
-
-            {p.colors && p.colors.length > 6 && (
-              <span className="text-[9.5px] text-neutral-400 font-normal pl-0.5">
-                +{p.colors.length - 6}
-              </span>
-            )}
-          </div>
-        )}
       </div>
     </article>
   );
