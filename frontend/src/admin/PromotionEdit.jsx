@@ -145,7 +145,7 @@ export default function PromotionEdit() {
             <Play size={13} /> Test it
           </button>
           {!isNew && (
-            <button type="button" onClick={remove} className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-[#E0C6BE] px-3 text-[12px] font-semibold text-[#9A5548] transition hover:bg-[#F5EDEB]">
+            <button type="button" onClick={remove} className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-red-200 px-3 text-[12px] font-semibold text-red-600 transition hover:bg-red-50">
               <Trash2 size={13} /> Delete
             </button>
           )}
@@ -156,8 +156,8 @@ export default function PromotionEdit() {
       </div>
 
       {(problems.length > 0 || errs.length > 0) && (
-        <div role="alert" className="mb-5 rounded-2xl border border-[#CDB98F] bg-[#F6F1E6] p-4">
-          <ul className="list-disc space-y-1 pl-5 text-[12px] leading-relaxed text-[#5C4A28]">
+        <div role="alert" className="mb-5 rounded-2xl border border-amber-300 bg-amber-50 p-4">
+          <ul className="list-disc space-y-1 pl-5 text-[12px] leading-relaxed text-amber-900">
             {problems.map((x) => <li key={x}>{x}</li>)}
             {errs.map((x, i) => <li key={i}>{x.message}</li>)}
           </ul>
@@ -268,7 +268,7 @@ export default function PromotionEdit() {
                     <button
                       type="button" onClick={() => set('tiers', p.tiers.filter((_, j) => j !== i))}
                       aria-label={`Remove tier ${i + 1}`}
-                      className="grid h-11 w-11 place-items-center rounded-lg text-[#9A5548] transition hover:bg-[#F5EDEB]"
+                      className="grid h-11 w-11 place-items-center rounded-lg text-red-600 transition hover:bg-red-50"
                     >
                       <Trash2 size={14} />
                     </button>

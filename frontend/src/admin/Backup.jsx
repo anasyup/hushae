@@ -276,11 +276,11 @@ export default function Backup() {
       </section>
 
       {/* Restore */}
-      <section className="rounded-2xl border border-[#E0C6BE] bg-[#F5EDEB]/60 p-6 shadow-sm">
+      <section className="rounded-2xl border border-red-200 bg-red-50/60 p-6 shadow-sm">
         <div className="mb-4 flex items-start gap-3">
-          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#EEDED9] text-[#8A4B3F]"><AlertTriangle size={16} /></span>
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-red-100 text-red-700"><AlertTriangle size={16} /></span>
           <div>
-            <p className="text-[12px] font-bold uppercase tracking-widest text-[#8A4B3F]">Danger zone — restore</p>
+            <p className="text-[12px] font-bold uppercase tracking-widest text-red-700">Danger zone — restore</p>
             <h3 className="mt-1 font-sans text-xl text-neutral-900">Restore from a snapshot</h3>
             <p className="mt-2 max-w-lg text-[13px] leading-relaxed text-neutral-700">
               Uploading a JSON backup will <b>replace</b> existing records with the same ID.
@@ -289,7 +289,7 @@ export default function Backup() {
             </p>
           </div>
         </div>
-        <label className="mt-2 inline-flex cursor-pointer items-center gap-2 rounded-full border border-[#D0ABA0] bg-white px-5 py-2.5 text-[12px] font-semibold text-[#8A4B3F] transition hover:bg-[#EEDED9]">
+        <label className="mt-2 inline-flex cursor-pointer items-center gap-2 rounded-full border border-red-300 bg-white px-5 py-2.5 text-[12px] font-semibold text-red-700 transition hover:bg-red-100">
           <Upload size={12} />
           {restoring ? 'Restoring…' : 'Choose backup file to restore'}
           <input type="file" accept="application/json,.json" className="hidden" onChange={(e) => restore(e.target.files?.[0])} disabled={restoring} />
@@ -301,8 +301,8 @@ export default function Backup() {
 
 function SafetyLayer({ icon: Icon, tone, title, text }) {
   const map = {
-    blue:    { bg: 'bg-[#F1F1F1]',    text: 'text-[#5A5A5A]' },
-    green:   { bg: 'bg-[#E9EFEA]', text: 'text-[#3E5C4B]' },
+    blue:    { bg: 'bg-blue-50',    text: 'text-blue-700' },
+    green:   { bg: 'bg-emerald-50', text: 'text-emerald-700' },
     neutral: { bg: 'bg-neutral-100', text: 'text-neutral-700' },
   };
   const t = map[tone];

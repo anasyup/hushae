@@ -102,9 +102,9 @@ export default function Customers() {
       {/* Summary KPIs */}
       <div className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <Kpi icon={UsersIcon}    label="Total customers"  value={summary.total.toLocaleString()}         accent="#111111" />
-        <Kpi icon={ShoppingBag}  label="Active buyers"    value={summary.buyers.toLocaleString()}         accent="#6B6B6B" />
-        <Kpi icon={Crown}        label="VIP customers"    value={summary.vip.toLocaleString()}            accent="#A68A56" hint="≥ 2 orders" />
-        <Kpi icon={TrendingUp}   label="New this month"   value={summary.newThisMonth.toLocaleString()}   accent="#4A6B58" />
+        <Kpi icon={ShoppingBag}  label="Active buyers"    value={summary.buyers.toLocaleString()}         accent="#2563eb" />
+        <Kpi icon={Crown}        label="VIP customers"    value={summary.vip.toLocaleString()}            accent="#d97706" hint="≥ 2 orders" />
+        <Kpi icon={TrendingUp}   label="New this month"   value={summary.newThisMonth.toLocaleString()}   accent="#059669" />
       </div>
 
       {/* Toolbar */}
@@ -116,7 +116,7 @@ export default function Customers() {
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="Search name, email, or phone…"
-              className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !w-72 !py-2.5 !pl-9 !text-[13px]"
+              className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !w-72 !py-2.5 !pl-9 !text-[13px]"
             />
           </div>
           <div className="flex items-center gap-1 rounded-full border border-neutral-200 bg-white p-1">
@@ -139,7 +139,7 @@ export default function Customers() {
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto rounded-md border border-neutral-200 bg-white">
+      <div className="overflow-x-auto rounded-2xl border border-neutral-200 bg-white">
         <table className="w-full min-w-[880px]">
           <thead>
             <tr className="border-b border-neutral-200 bg-neutral-50/60">
@@ -166,7 +166,7 @@ export default function Customers() {
                       <div>
                         <p className="text-[13px] font-semibold text-neutral-900">{c.name}</p>
                         {c.orders >= 2 && (
-                          <span className="mt-0.5 inline-flex items-center gap-1 rounded-full bg-[#F6F1E6] px-1.5 py-0.5 text-[12px] font-bold uppercase tracking-wider text-[#7A6239]">
+                          <span className="mt-0.5 inline-flex items-center gap-1 rounded-full bg-amber-50 px-1.5 py-0.5 text-[12px] font-bold uppercase tracking-wider text-amber-700">
                             <Crown size={9} /> VIP
                           </span>
                         )}
@@ -207,7 +207,7 @@ export default function Customers() {
                             {tagBusy === c.id ? (
                               <Loader2 size={10} className="animate-spin" />
                             ) : (
-                              <button onClick={(e) => { e.stopPropagation(); removeTag(c, t); }} className="rounded-full hover:text-[#D0ABA0]" aria-label={`Remove tag ${t}`}>
+                              <button onClick={(e) => { e.stopPropagation(); removeTag(c, t); }} className="rounded-full hover:text-red-300" aria-label={`Remove tag ${t}`}>
                                 <X size={10} />
                               </button>
                             )}
@@ -237,7 +237,7 @@ export default function Customers() {
                             <Link
                               key={o._id}
                               to={`/admin/orders/${o._id}`}
-                              className="grid grid-cols-[1.5fr_1fr_1fr_1fr] items-center gap-3 rounded-md border border-neutral-200 bg-white px-4 py-2.5 text-[12px] transition hover:border-neutral-300 hover:shadow-sm"
+                              className="grid grid-cols-[1.5fr_1fr_1fr_1fr] items-center gap-3 rounded-xl border border-neutral-200 bg-white px-4 py-2.5 text-[12px] transition hover:border-neutral-300 hover:shadow-sm"
                             >
                               <span className="font-mono font-semibold text-neutral-900">{o.orderNumber}</span>
                               <span className="text-neutral-500">{fmtDate(o.createdAt)}</span>
@@ -255,10 +255,10 @@ export default function Customers() {
           </tbody>
         </table>
 
-        {list === null && <div className="p-6"><div className="animate-pulse rounded-md bg-neutral-100 h-40" /></div>}
+        {list === null && <div className="p-6"><div className="animate-pulse rounded-xl bg-neutral-100 h-40" /></div>}
         {list?.length === 0 && (
           <div className="grid place-items-center py-16 text-center">
-            <span className="grid h-14 w-14 place-items-center rounded-md bg-neutral-100 text-neutral-500">
+            <span className="grid h-14 w-14 place-items-center rounded-2xl bg-neutral-100 text-neutral-500">
               <UsersIcon size={22} />
             </span>
             <p className="mt-3 text-sm font-medium text-neutral-700">No registered customers yet</p>
@@ -278,9 +278,9 @@ export default function Customers() {
 
 function Kpi({ icon: Icon, label, value, accent, hint }) {
   return (
-    <div className="rounded-md border border-neutral-200 bg-white p-5 transition hover:border-neutral-300">
+    <div className="rounded-2xl border border-neutral-200 bg-white p-5 transition hover:-translate-y-0.5 hover:shadow-sm">
       <div className="flex items-center justify-between">
-        <span className="grid h-10 w-10 place-items-center rounded-md" style={{ background: `${accent}12`, color: accent }}>
+        <span className="grid h-10 w-10 place-items-center rounded-xl" style={{ background: `${accent}12`, color: accent }}>
           <Icon size={16} strokeWidth={1.9} />
         </span>
         {hint && <span className="text-[13px] font-semibold uppercase tracking-wider text-neutral-400">{hint}</span>}

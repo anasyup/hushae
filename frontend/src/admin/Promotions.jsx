@@ -26,12 +26,12 @@ const num = (n) => Number(n || 0).toLocaleString('en-PK');
 const money = (n) => `PKR ${num(n)}`;
 
 const STATE_STYLE = {
-  live: 'bg-[#E9EFEA] text-[#33503F] ring-[#C9D8CE]',
-  scheduled: 'bg-[#F1F1F1] text-[#4A4A4A] ring-[#D4D4D4]',
+  live: 'bg-emerald-50 text-emerald-800 ring-emerald-200',
+  scheduled: 'bg-sky-50 text-sky-800 ring-sky-200',
   ended: 'bg-neutral-100 text-neutral-600 ring-neutral-200',
   disabled: 'bg-neutral-100 text-neutral-600 ring-neutral-200',
-  'limit-reached': 'bg-[#F6F1E6] text-[#5C4A28] ring-[#CDB98F]',
-  'budget-spent': 'bg-[#F6F1E6] text-[#5C4A28] ring-[#CDB98F]',
+  'limit-reached': 'bg-amber-50 text-amber-900 ring-amber-300',
+  'budget-spent': 'bg-amber-50 text-amber-900 ring-amber-300',
   'not-today': 'bg-neutral-100 text-neutral-600 ring-neutral-200',
   'outside-hours': 'bg-neutral-100 text-neutral-600 ring-neutral-200',
 };
@@ -269,7 +269,7 @@ export default function Promotions() {
                       <button type="button" disabled={busy} onClick={duplicate} className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-neutral-300 px-3 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-50">
                         <Copy size={13} /> Duplicate
                       </button>
-                      <button type="button" disabled={busy} onClick={() => bulk('delete')} className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-[#E0C6BE] px-3 text-[12px] font-semibold text-[#9A5548] transition hover:bg-[#F5EDEB] disabled:opacity-50">
+                      <button type="button" disabled={busy} onClick={() => bulk('delete')} className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-red-200 px-3 text-[12px] font-semibold text-red-600 transition hover:bg-red-50 disabled:opacity-50">
                         <Trash2 size={13} /> Delete
                       </button>
                     </div>
@@ -297,7 +297,7 @@ export default function Promotions() {
                       <span>Priority {p.priority}</span>
                       <span>{num(p.usedCount)} uses</span>
                       {p.totalDiscounted > 0 && <span>{money(p.totalDiscounted)} given</span>}
-                      {p.exclusive && <span className="rounded-full bg-[#F6F1E6] px-2 py-0.5 font-medium text-[#5C4A28]">Exclusive</span>}
+                      {p.exclusive && <span className="rounded-full bg-amber-50 px-2 py-0.5 font-medium text-amber-900">Exclusive</span>}
                     </div>
                   </li>
                 ))}

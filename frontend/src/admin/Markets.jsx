@@ -38,7 +38,7 @@ export default function Markets() {
               <p className="font-medium">Pakistan</p>
               <p className="text-xs text-neutral-500">Primary market · Pakistani Rupee (PKR ₨) · Nationwide delivery</p>
             </div>
-            <span className="rounded-full bg-[#E9EFEA] px-3 py-1 text-[12px] font-semibold text-[#3E5C4B]">Active</span>
+            <span className="rounded-full bg-emerald-50 px-3 py-1 text-[12px] font-semibold text-emerald-700">Active</span>
           </div>
           <p className="mt-4 flex items-start gap-2 text-sm leading-relaxed text-neutral-500">
             <Globe size={15} className="mt-0.5 shrink-0" />

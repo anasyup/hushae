@@ -66,9 +66,9 @@ function changeLine(c) {
 }
 
 const TONE = {
-  add: 'border-[#C9D8CE] bg-[#E9EFEA] text-[#2B4436]',
-  del: 'border-[#E0C6BE] bg-[#F5EDEB] text-[#7C4237]',
-  move: 'border-[#D4D4D4] bg-[#F1F1F1] text-[#3A3A3A]',
+  add: 'border-emerald-200 bg-emerald-50 text-emerald-900',
+  del: 'border-red-200 bg-red-50 text-red-800',
+  move: 'border-sky-200 bg-sky-50 text-sky-900',
   edit: 'border-neutral-200 bg-neutral-50 text-neutral-700',
 };
 
@@ -127,7 +127,7 @@ export default function VersionPanel({ pageId, versions, onRestored }) {
         </p>
       ) : (
         <>
-          <p className="mb-3 rounded-lg bg-[#F1F1F1] px-3 py-2 text-[12px] leading-relaxed text-[#3A3A3A]">
+          <p className="mb-3 rounded-lg bg-sky-50 px-3 py-2 text-[12px] leading-relaxed text-sky-900">
             Bringing back an old version puts it into your <strong>draft</strong>. What customers are reading
             right now does not change until you press Publish.
           </p>
@@ -192,7 +192,7 @@ export default function VersionPanel({ pageId, versions, onRestored }) {
                         ) : !diff ? (
                           <p className="text-[12px] text-neutral-600">Could not load the comparison.</p>
                         ) : !diff.changes?.length ? (
-                          <p className="rounded-lg bg-[#E9EFEA] px-3 py-2 text-[12px] text-[#2B4436]">
+                          <p className="rounded-lg bg-emerald-50 px-3 py-2 text-[12px] text-emerald-900">
                             Identical to the page as it stands now — nothing has changed since.
                           </p>
                         ) : (

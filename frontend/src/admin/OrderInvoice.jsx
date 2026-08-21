@@ -30,7 +30,7 @@ export default function OrderInvoice() {
     }
   }, [order]);
 
-  if (err) return <div className="p-10 text-[#9A5548]">{err}</div>;
+  if (err) return <div className="p-10 text-red-600">{err}</div>;
   if (!order) return <div className="p-10 text-neutral-500">Loading invoice…</div>;
 
   const c = order.customerInfo;
@@ -119,7 +119,7 @@ export default function OrderInvoice() {
             <span>{order.shippingCharge > 0 ? pkr(order.shippingCharge) : 'Free'}</span>
           </div>
           {order.discount > 0 && (
-            <div className="flex justify-between text-sm text-[#3E5C4B]">
+            <div className="flex justify-between text-sm text-emerald-700">
               <span>Discount {order.couponCode && `(${order.couponCode})`}</span>
               <span>−{pkr(order.discount)}</span>
             </div>
@@ -129,7 +129,7 @@ export default function OrderInvoice() {
             <span>{pkr(order.total)}</span>
           </div>
           <div className="mt-2 text-right">
-            <span className={`inline-block rounded-full px-3 py-1 text-[12px] font-semibold ${order.paymentStatus === 'Paid' ? 'bg-[#DDE7E0] text-[#33503F]' : 'bg-[#EDE4CE] text-[#6B552F]'}`}>
+            <span className={`inline-block rounded-full px-3 py-1 text-[12px] font-semibold ${order.paymentStatus === 'Paid' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}`}>
               {order.paymentMethod} · {order.paymentStatus}
             </span>
           </div>

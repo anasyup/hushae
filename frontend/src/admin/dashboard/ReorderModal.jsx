@@ -66,7 +66,7 @@ export default function ReorderModal({ product, onClose, onSaved }) {
           </div>
         ) : (
           <>
-            <a href={`https://wa.me/?text=${supplierMsg}`} target="_blank" rel="noreferrer" className="mt-4 inline-flex min-h-[40px] w-full items-center justify-center gap-1.5 rounded-lg border border-[#B4C8BA] bg-[#E9EFEA] text-[13px] font-semibold text-[#33503F] transition hover:bg-[#DDE7E0]">
+            <a href={`https://wa.me/?text=${supplierMsg}`} target="_blank" rel="noreferrer" className="mt-4 inline-flex min-h-[40px] w-full items-center justify-center gap-1.5 rounded-lg border border-emerald-300 bg-emerald-50 text-[13px] font-semibold text-emerald-800 transition hover:bg-emerald-100">
               <MessageCircle size={15} /> Send to supplier via WhatsApp
             </a>
             <div className="mt-3 flex gap-2">

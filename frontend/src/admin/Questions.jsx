@@ -129,7 +129,7 @@ export default function Questions() {
                   {tab !== 'approved' && <button onClick={() => bulk('approve')} disabled={busy === 'bulk'} className="rounded-lg bg-neutral-900 px-3 py-1.5 text-[13px] font-semibold text-white disabled:opacity-50">Approve</button>}
                   {tab !== 'rejected' && <button onClick={() => bulk('reject')} disabled={busy === 'bulk'} className="rounded-lg border border-neutral-300 px-3 py-1.5 text-[13px] font-semibold text-neutral-700 disabled:opacity-50">Reject</button>}
                   <button onClick={() => bulk('feature')} disabled={busy === 'bulk'} className="rounded-lg border border-neutral-300 px-3 py-1.5 text-[13px] font-semibold text-neutral-700 disabled:opacity-50">Feature</button>
-                  <button onClick={() => bulk('delete')} disabled={busy === 'bulk'} className="rounded-lg border border-[#E0C6BE] px-3 py-1.5 text-[13px] font-semibold text-[#9A5548] disabled:opacity-50">Delete</button>
+                  <button onClick={() => bulk('delete')} disabled={busy === 'bulk'} className="rounded-lg border border-red-200 px-3 py-1.5 text-[13px] font-semibold text-red-600 disabled:opacity-50">Delete</button>
                 </div>
               </>
             )}
@@ -147,9 +147,9 @@ export default function Questions() {
                   <div className="flex flex-wrap items-center gap-2">
                     <p className="text-sm font-semibold text-neutral-900">{q.customerName}</p>
                     <p className="text-xs text-neutral-500">{new Date(q.createdAt).toLocaleDateString('en-PK')}</p>
-                    {q.featured && <span className="rounded-full bg-[#F6F1E6] px-2 py-0.5 text-[13px] font-semibold text-[#7A6239]">Featured</span>}
-                    {q.reports > 0 && <span className="rounded-full bg-[#F5EDEB] px-2 py-0.5 text-[13px] font-semibold text-[#8A4B3F]">{q.reports} report{q.reports === 1 ? '' : 's'}</span>}
-                    {(q.answers || []).length === 0 && <span className="rounded-full bg-[#F1F1F1] px-2 py-0.5 text-[13px] font-semibold text-[#5A5A5A]">Unanswered</span>}
+                    {q.featured && <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[13px] font-semibold text-amber-700">Featured</span>}
+                    {q.reports > 0 && <span className="rounded-full bg-red-50 px-2 py-0.5 text-[13px] font-semibold text-red-700">{q.reports} report{q.reports === 1 ? '' : 's'}</span>}
+                    {(q.answers || []).length === 0 && <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[13px] font-semibold text-blue-700">Unanswered</span>}
                   </div>
 
                   <p className="mt-2 text-[12px] text-neutral-900">{q.body}</p>
@@ -157,10 +157,10 @@ export default function Questions() {
                   {(q.answers || []).length > 0 && (
                     <ul className="mt-3 space-y-2">
                       {q.answers.map((a) => (
-                        <li key={a._id} className={`rounded-lg p-3 ${a.isMerchant ? 'bg-[#E9EFEA]' : 'bg-neutral-50'}`}>
+                        <li key={a._id} className={`rounded-lg p-3 ${a.isMerchant ? 'bg-emerald-50' : 'bg-neutral-50'}`}>
                           <p className="text-[13px] font-bold uppercase tracking-wider text-neutral-500">
                             {a.isMerchant ? 'Your answer' : a.authorName}
-                            {a.status !== 'approved' && <span className="ml-2 text-[#7A6239]">· {a.status}</span>}
+                            {a.status !== 'approved' && <span className="ml-2 text-amber-700">· {a.status}</span>}
                           </p>
                           <p className="mt-1 text-sm text-neutral-800">{a.body}</p>
                           {!a.isMerchant && a.status === 'pending' && (
@@ -222,7 +222,7 @@ export default function Questions() {
                   </button>
                   <button
                     disabled={busy === q._id} onClick={() => del(q._id)}
-                    className="inline-flex items-center gap-1 rounded-lg bg-white px-3 py-1.5 text-xs font-semibold text-[#9A5548] ring-1 ring-[#E0C6BE] disabled:opacity-50"
+                    className="inline-flex items-center gap-1 rounded-lg bg-white px-3 py-1.5 text-xs font-semibold text-red-600 ring-1 ring-red-200 disabled:opacity-50"
                   >
                     <Trash2 size={12} />
                   </button>

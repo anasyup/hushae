@@ -130,7 +130,7 @@ export default function ThemeEditorApp() {
 
       if (mod && e.key.toLowerCase() === 'z') { e.preventDefault(); e.shiftKey ? redo() : undo(); return; }
       if (mod && e.key.toLowerCase() === 'y') { e.preventDefault(); redo(); return; }
-      if (mod && e.key.toLowerCase() === 's') { e.preventDefault(); save(false); return; }
+      if (mod && e.key.toLowerCase() === 's') { e.preventDefault(); save(true); return; }
       if (typing) return;
       if (mod && e.key.toLowerCase() === 'd' && selectedId) { e.preventDefault(); duplicate(selectedId); return; }
       if ((e.key === 'Delete' || e.key === 'Backspace') && selectedId) {
@@ -146,7 +146,7 @@ export default function ThemeEditorApp() {
 
   if (loading) {
     return (
-      <div className="fixed inset-0 z-50 grid place-items-center bg-[#F5F5F5]">
+      <div className="fixed inset-0 z-50 grid place-items-center bg-neutral-100">
         <div className="flex items-center gap-2 text-sm text-neutral-500">
           <Loader2 size={16} className="animate-spin" /> Loading theme…
         </div>
@@ -155,7 +155,7 @@ export default function ThemeEditorApp() {
   }
 
   return (
-    <div className="te-shell fixed inset-0 z-50 flex flex-col bg-[#F5F5F5]">
+    <div className="te-shell fixed inset-0 z-50 flex flex-col bg-neutral-100">
       <Topbar onPublish={() => save(true)} />
       <ActivateBanner onActivate={() => save(true)} />
 
@@ -164,8 +164,8 @@ export default function ThemeEditorApp() {
         {mobilePanel === 'tree' && (
           <div className="absolute inset-0 z-30 bg-black/40 md:hidden" onClick={() => setMobilePanel(null)} />
         )}
-        <aside className={`relative z-40 flex w-[290px] shrink-0 flex-col border-r border-[#E5E5E5] bg-white ${
-          mobilePanel === 'tree' ? 'absolute inset-y-0 left-0 shadow-md md:static md:shadow-none' : 'hidden md:flex'
+        <aside className={`relative z-40 flex w-[290px] shrink-0 flex-col border-r border-neutral-200 bg-white ${
+          mobilePanel === 'tree' ? 'absolute inset-y-0 left-0 shadow-2xl md:static md:shadow-none' : 'hidden md:flex'
         }`}>
           <div className="border-b border-neutral-100 px-3 py-2.5">
             <div className="flex items-center gap-1.5 rounded-lg bg-neutral-100 px-2.5 py-1.5">
@@ -190,19 +190,19 @@ export default function ThemeEditorApp() {
         {mobilePanel === 'inspector' && (
           <div className="absolute inset-0 z-30 bg-black/40 md:hidden" onClick={() => setMobilePanel(null)} />
         )}
-        <aside className={`z-40 w-[320px] shrink-0 border-l border-[#E5E5E5] bg-white ${
-          mobilePanel === 'inspector' ? 'absolute inset-y-0 right-0 shadow-md md:static md:shadow-none' : 'hidden md:block'
+        <aside className={`z-40 w-[320px] shrink-0 border-l border-neutral-200 bg-white ${
+          mobilePanel === 'inspector' ? 'absolute inset-y-0 right-0 shadow-2xl md:static md:shadow-none' : 'hidden md:block'
         }`}>
           <Inspector />
         </aside>
         {/* Floating toggles — mobile only */}
         <div className="absolute bottom-4 left-1/2 z-30 flex -translate-x-1/2 gap-2 md:hidden">
           <button onClick={() => setMobilePanel(mobilePanel === 'tree' ? null : 'tree')}
-            className="rounded-full bg-neutral-900 px-4 py-2 text-xs font-semibold text-white shadow-md">
+            className="rounded-full bg-neutral-900 px-4 py-2 text-xs font-semibold text-white shadow-lg">
             Sections
           </button>
           <button onClick={() => setMobilePanel(mobilePanel === 'inspector' ? null : 'inspector')}
-            className="rounded-full bg-neutral-900 px-4 py-2 text-xs font-semibold text-white shadow-md">
+            className="rounded-full bg-neutral-900 px-4 py-2 text-xs font-semibold text-white shadow-lg">
             Settings
           </button>
         </div>
@@ -210,7 +210,7 @@ export default function ThemeEditorApp() {
 
       {previewVersion && (
         <div className="pointer-events-none absolute inset-x-0 top-16 z-50 flex justify-center">
-          <span className="pointer-events-auto rounded-full bg-neutral-900 px-4 py-2 text-xs font-semibold text-white shadow-md">
+          <span className="pointer-events-auto rounded-full bg-neutral-900 px-4 py-2 text-xs font-semibold text-white shadow-lg">
             Previewing “{previewVersion.label}” — not applied
           </span>
         </div>

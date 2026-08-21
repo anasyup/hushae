@@ -436,7 +436,7 @@ function Risk({ token, toast }) {
             <p className="text-[12px] text-neutral-500">{(o.fraudFilter?.reasons || []).join(' · ')}</p>
             <div className="mt-2 flex gap-2">
               <button type="button" className="btn-outline" onClick={() => review(o._id, 'approved')}>Approve</button>
-              <button type="button" className="rounded-lg bg-[#9A5548] px-3 py-2 text-[12px] font-semibold text-white" onClick={() => review(o._id, 'rejected')}>Reject / cancel</button>
+              <button type="button" className="rounded-lg bg-red-600 px-3 py-2 text-[12px] font-semibold text-white" onClick={() => review(o._id, 'rejected')}>Reject / cancel</button>
             </div>
           </li>
         ))}

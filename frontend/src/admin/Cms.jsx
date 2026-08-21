@@ -38,7 +38,7 @@ function StatePill({ state, hasDraft }) {
       {/* A live page with unsaved edits waiting behind it is the single most
           confusing CMS state. Say so rather than leaving it to be discovered. */}
       {hasDraft && (
-        <span className="inline-flex items-center rounded-full bg-[#F4EEE2] px-2 py-1 text-[13px] font-semibold text-[#7A6239] ring-1 ring-[#D9C9A6]">
+        <span className="inline-flex items-center rounded-full bg-violet-50 px-2 py-1 text-[13px] font-semibold text-violet-800 ring-1 ring-violet-200">
           Unpublished edits
         </span>
       )}
@@ -222,7 +222,7 @@ export default function Cms() {
                   <button type="button" disabled={busy} onClick={() => bulk('publish')} className="min-h-[44px] rounded-lg border border-neutral-300 px-3 text-[13px] font-semibold text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-50">Publish</button>
                   <button type="button" disabled={busy} onClick={() => bulk('unpublish')} className="min-h-[44px] rounded-lg border border-neutral-300 px-3 text-[13px] font-semibold text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-50">Hide</button>
                   <button type="button" disabled={busy} onClick={() => bulk('archive')} className="min-h-[44px] rounded-lg border border-neutral-300 px-3 text-[13px] font-semibold text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-50">Archive</button>
-                  <button type="button" disabled={busy} onClick={() => bulk('delete')} className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-[#E0C6BE] px-3 text-[13px] font-semibold text-[#8A4B3F] transition hover:bg-[#F5EDEB] disabled:opacity-50">
+                  <button type="button" disabled={busy} onClick={() => bulk('delete')} className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-red-200 px-3 text-[13px] font-semibold text-red-700 transition hover:bg-red-50 disabled:opacity-50">
                     <Trash2 size={13} aria-hidden="true" /> Delete
                   </button>
                 </div>
@@ -250,7 +250,7 @@ export default function Cms() {
                   <span>Edited {fmtDate(p.updatedAt)}</span>
                   {p.state?.reason === 'scheduled' && p.publishAt && <span>Goes live {fmtWhen(p.publishAt)}</span>}
                   {p.showInFooter && <span>In footer</span>}
-                  {p.locked && <span className="rounded-full bg-[#F6F1E6] px-2 py-0.5 font-medium text-[#5C4A28]">Built in</span>}
+                  {p.locked && <span className="rounded-full bg-amber-50 px-2 py-0.5 font-medium text-amber-900">Built in</span>}
                 </div>
               </li>
             ))}

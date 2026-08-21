@@ -13,9 +13,9 @@ import { fmtDateTime } from '../lib/format';
 const inputCls = 'w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[13px] outline-none transition focus:border-neutral-900';
 
 const STATUS_STYLE = {
-  sent:    'bg-[#E9EFEA] text-[#3E5C4B] ring-[#C9D8CE]',
-  partial: 'bg-[#F6F1E6] text-[#7A6239] ring-[#DCCBA5]',
-  error:   'bg-[#F5EDEB] text-[#8A4B3F] ring-[#E0C6BE]',
+  sent:    'bg-emerald-50 text-emerald-700 ring-emerald-200',
+  partial: 'bg-amber-50 text-amber-700 ring-amber-200',
+  error:   'bg-red-50 text-red-700 ring-red-200',
   empty:   'bg-neutral-100 text-neutral-500 ring-neutral-200',
 };
 
@@ -70,7 +70,7 @@ export default function EmailCampaigns() {
                   </span>
                   <span className="shrink-0 text-[12px] text-neutral-500">
                     <b className="text-neutral-900">{c.sent}</b> sent
-                    {c.failed > 0 && <> · <b className="text-[#9A5548]">{c.failed}</b> failed</>}
+                    {c.failed > 0 && <> · <b className="text-red-600">{c.failed}</b> failed</>}
                     {c.matched > 0 && <> · {c.matched} matched</>}
                   </span>
                 </button>

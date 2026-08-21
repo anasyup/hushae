@@ -127,7 +127,7 @@ export default function Reviews() {
                   <button onClick={() => bulk('feature')} disabled={busy==='bulk'} className="rounded-lg border border-neutral-300 px-3 py-1.5 text-[13px] font-semibold text-neutral-700 disabled:opacity-50">Feature</button>
                   <button onClick={() => bulk('pin')} disabled={busy==='bulk'} className="rounded-lg border border-neutral-300 px-3 py-1.5 text-[13px] font-semibold text-neutral-700 disabled:opacity-50">Pin</button>
                   <button onClick={() => bulk('verify')} disabled={busy==='bulk'} className="rounded-lg border border-neutral-300 px-3 py-1.5 text-[13px] font-semibold text-neutral-700 disabled:opacity-50">Mark verified</button>
-                  <button onClick={() => bulk('delete')} disabled={busy==='bulk'} className="rounded-lg border border-[#E0C6BE] px-3 py-1.5 text-[13px] font-semibold text-[#9A5548] disabled:opacity-50">Delete</button>
+                  <button onClick={() => bulk('delete')} disabled={busy==='bulk'} className="rounded-lg border border-red-200 px-3 py-1.5 text-[13px] font-semibold text-red-600 disabled:opacity-50">Delete</button>
                 </div>
               </>
             )}
@@ -146,21 +146,21 @@ export default function Reviews() {
                   <div className="flex flex-wrap items-center gap-2">
                     <div className="flex items-center gap-0.5">
                       {[1,2,3,4,5].map(n => (
-                        <Star key={n} size={14} className={n <= r.rating ? 'fill-amber-500 text-[#A68A56]' : 'text-neutral-200'} />
+                        <Star key={n} size={14} className={n <= r.rating ? 'fill-amber-500 text-amber-500' : 'text-neutral-200'} />
                       ))}
                     </div>
                     <p className="text-sm font-semibold text-neutral-900">{r.customerName}</p>
-                    {r.verified && <span className="rounded-full bg-[#E9EFEA] px-2 py-0.5 text-[13px] font-semibold text-[#3E5C4B]">Verified</span>}
+                    {r.verified && <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[13px] font-semibold text-emerald-700">Verified</span>}
                     <p className="text-xs text-neutral-500">{new Date(r.createdAt).toLocaleDateString('en-PK')}</p>
-                    {r.featured && <span className="rounded-full bg-[#F6F1E6] px-2 py-0.5 text-[13px] font-semibold text-[#7A6239]">Featured</span>}
-                    {r.pinned && <span className="rounded-full bg-[#F1F1F1] px-2 py-0.5 text-[13px] font-semibold text-[#5A5A5A]">Pinned</span>}
-                    {r.reports > 0 && <span className="rounded-full bg-[#F5EDEB] px-2 py-0.5 text-[13px] font-semibold text-[#8A4B3F]">{r.reports} report{r.reports===1?'':'s'}</span>}
+                    {r.featured && <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[13px] font-semibold text-amber-700">Featured</span>}
+                    {r.pinned && <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[13px] font-semibold text-blue-700">Pinned</span>}
+                    {r.reports > 0 && <span className="rounded-full bg-red-50 px-2 py-0.5 text-[13px] font-semibold text-red-700">{r.reports} report{r.reports===1?'':'s'}</span>}
                   </div>
                   {r.title && <p className="mt-2 font-semibold text-neutral-900">{r.title}</p>}
                   <p className="mt-1 text-sm text-neutral-700">{r.body}</p>
                   {r.adminReply && (
-                    <div className="mt-3 rounded-lg bg-[#E9EFEA] p-3">
-                      <p className="text-[13px] font-bold uppercase tracking-wider text-[#3E5C4B]">Your reply</p>
+                    <div className="mt-3 rounded-lg bg-emerald-50 p-3">
+                      <p className="text-[13px] font-bold uppercase tracking-wider text-emerald-700">Your reply</p>
                       <p className="mt-1 text-sm text-neutral-800">{r.adminReply}</p>
                     </div>
                   )}
@@ -174,7 +174,7 @@ export default function Reviews() {
                 <div className="flex flex-wrap items-start gap-2">
                   {tab !== 'approved' && (
                     <button disabled={busy === r._id} onClick={() => setStatus(r._id, 'approved')}
-                      className="inline-flex items-center gap-1 rounded-lg bg-[#4A6B58] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#3E5C4B] disabled:opacity-50">
+                      className="inline-flex items-center gap-1 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700 disabled:opacity-50">
                       <Check size={13} /> Approve
                     </button>
                   )}
@@ -189,7 +189,7 @@ export default function Reviews() {
                     <MessageSquare size={13} /> Reply
                   </button>
                   <button disabled={busy === r._id} onClick={() => del(r._id)}
-                    className="inline-flex items-center gap-1 rounded-lg bg-white px-3 py-1.5 text-xs font-semibold text-[#9A5548] ring-1 ring-[#E0C6BE] hover:bg-[#F5EDEB]">
+                    className="inline-flex items-center gap-1 rounded-lg bg-white px-3 py-1.5 text-xs font-semibold text-red-600 ring-1 ring-red-200 hover:bg-red-50">
                     <Trash2 size={13} />
                   </button>
                 </div>

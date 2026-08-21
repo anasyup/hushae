@@ -3,7 +3,6 @@ import type {
   Device, HistoryEntry, PageDocument, SectionGroup, SettingsBag, ThemeVersion,
 } from './types';
 import { createSection } from './registry';
-import { buildDefaultDoc } from '../schemas/defaultDoc';
 import {
   addBlock, addSection, cloneDoc, diffDocs, duplicateNode, findNode, moveNode,
   moveWithinParent, patchNode, removeNode, toggleHidden, updateNodeSettings,
@@ -88,7 +87,6 @@ export interface EditorState {
   setAutosave: (v: boolean) => void;
   setVersions: (v: ThemeVersion[]) => void;
   restoreVersion: (v: ThemeVersion) => void;
-  resetDoc: () => void;
   pendingDiff: () => ReturnType<typeof diffDocs> | null;
 }
 
@@ -268,8 +266,6 @@ export const useEditor = create<EditorState>((set, get) => ({
     get().commit(`Restore ${v.label}`, () => cloneDoc(v.doc));
     set({ theme: { ...v.theme }, showVersions: false, selectedId: null });
   },
-
-  resetDoc: () => get().commit('Reset theme', () => buildDefaultDoc()),
 
   pendingDiff: () => {
     const { savedDoc, doc } = get();

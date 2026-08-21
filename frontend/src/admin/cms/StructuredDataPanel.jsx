@@ -194,18 +194,18 @@ export default function StructuredDataPanel({ page, cfg, onChangeSeo }) {
       title="Extra information for Google"
       subtitle="Optional. Turns a plain link into a richer search result."
       badge={!result.ok ? (
-        <span className="rounded-full bg-[#F5EDEB] px-2 py-0.5 text-[13px] font-semibold text-[#8A4B3F] ring-1 ring-[#E0C6BE]">
+        <span className="rounded-full bg-red-50 px-2 py-0.5 text-[13px] font-semibold text-red-700 ring-1 ring-red-200">
           Not valid
         </span>
       ) : result.value ? (
-        <span className="rounded-full bg-[#E9EFEA] px-2 py-0.5 text-[13px] font-semibold text-[#33503F] ring-1 ring-[#C9D8CE]">
+        <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[13px] font-semibold text-emerald-800 ring-1 ring-emerald-200">
           Ready
         </span>
       ) : null}
     >
       <div className="space-y-4">
         {!enabled && (
-          <p className="rounded-lg bg-[#F6F1E6] px-3 py-2 text-[12px] leading-relaxed text-[#5C4A28]">
+          <p className="rounded-lg bg-amber-50 px-3 py-2 text-[12px] leading-relaxed text-amber-900">
             Extra information is switched off for the whole shop, so nothing here will be published.
           </p>
         )}
@@ -241,7 +241,7 @@ export default function StructuredDataPanel({ page, cfg, onChangeSeo }) {
             onChange={(e) => commit(e.target.value)}
             aria-describedby="sd-json-h"
             aria-invalid={!result.ok}
-            className={`input min-h-[220px] resize-y font-mono text-[12px] leading-relaxed ${!result.ok ? 'border-[#C08374] focus:border-[#B46A5C] focus:ring-[#B46A5C]' : ''}`}
+            className={`input min-h-[220px] resize-y font-mono text-[12px] leading-relaxed ${!result.ok ? 'border-red-400 focus:border-red-500 focus:ring-red-500' : ''}`}
             placeholder='{\n  "@context": "https://schema.org",\n  "@type": "FAQPage"\n}'
           />
           <p id="sd-json-h" className="sr-only">
@@ -251,19 +251,19 @@ export default function StructuredDataPanel({ page, cfg, onChangeSeo }) {
 
         {/* ---- verdict ---- */}
         {!result.ok ? (
-          <p role="alert" className="flex items-start gap-2 rounded-lg border border-[#E0C6BE] bg-[#F5EDEB] px-3 py-2.5 text-[12px] leading-relaxed text-[#7C4237]">
+          <p role="alert" className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2.5 text-[12px] leading-relaxed text-red-800">
             <TriangleAlert size={14} className="mt-0.5 shrink-0" aria-hidden="true" />
             <span>{result.message} <strong>Saving is blocked until this is fixed.</strong></span>
           </p>
         ) : result.value ? (
-          <div className="rounded-lg border border-[#C9D8CE] bg-[#E9EFEA] px-3 py-2.5">
-            <p className="flex items-center gap-2 text-[12px] font-semibold text-[#2B4436]">
+          <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2.5">
+            <p className="flex items-center gap-2 text-[12px] font-semibold text-emerald-900">
               <Check size={14} aria-hidden="true" /> Google will understand this as:
             </p>
-            <ul className="mt-1.5 space-y-0.5 pl-6 text-[12px] text-[#2B4436]">
+            <ul className="mt-1.5 space-y-0.5 pl-6 text-[12px] text-emerald-900">
               {summary.map((s, i) => <li key={i} className="list-disc">{s}</li>)}
             </ul>
-            <p className="mt-1.5 pl-6 text-[12px] text-[#33503F]">
+            <p className="mt-1.5 pl-6 text-[12px] text-emerald-800">
               {Math.round((result.bytes || 0) / 1024 * 10) / 10} KB of 32 KB used.
             </p>
           </div>

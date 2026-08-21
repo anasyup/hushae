@@ -351,7 +351,7 @@ export default function DraftOrder() {
                       <button onClick={() => changeQty(i, l.quantity + 1)} className="rounded-lg border border-neutral-200 p-1.5 text-neutral-500 hover:border-neutral-400"><Plus size={12} /></button>
                     </div>
                     <span className="w-20 text-right text-[13px] font-semibold text-neutral-900">{pkr(l.lineTotal)}</span>
-                    <button onClick={() => setLines((ls) => ls.filter((_, j) => j !== i))} className="rounded-lg p-1.5 text-neutral-300 hover:bg-[#F5EDEB] hover:text-[#9A5548]"><Trash2 size={14} /></button>
+                    <button onClick={() => setLines((ls) => ls.filter((_, j) => j !== i))} className="rounded-lg p-1.5 text-neutral-300 hover:bg-red-50 hover:text-red-600"><Trash2 size={14} /></button>
                   </div>
                 ))}
               </div>
@@ -365,7 +365,7 @@ export default function DraftOrder() {
             <h3 className="mb-3 text-[14px] font-bold text-neutral-900">Summary</h3>
             <div className="space-y-1.5 text-[13px]">
               <div className="flex justify-between text-neutral-600"><span>Subtotal</span><span className="font-medium text-neutral-900">{pkr(subtotal)}</span></div>
-              {discountVal > 0 && <div className="flex justify-between text-[#3E5C4B]"><span>Discount</span><span>− {pkr(discountVal)}</span></div>}
+              {discountVal > 0 && <div className="flex justify-between text-emerald-700"><span>Discount</span><span>− {pkr(discountVal)}</span></div>}
               <div className="flex justify-between text-neutral-600"><span>Shipping</span><span className="font-medium text-neutral-900">{shippingCharge === 0 ? 'Free' : pkr(shippingCharge)}</span></div>
               {tax > 0 && <div className="flex justify-between text-neutral-600"><span>Tax ({taxPercent}%)</span><span className="font-medium text-neutral-900">{pkr(tax)}</span></div>}
               <div className="flex justify-between border-t border-neutral-200 pt-2 text-[15px] font-bold text-neutral-900"><span>Total</span><span>{pkr(total)}</span></div>

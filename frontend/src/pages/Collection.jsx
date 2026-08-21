@@ -151,7 +151,7 @@ export default function Collection() {
       <LuxuryFilterBar
         count={visible.length}
         f={{ sort, setOne: (k, v) => { if (k === 'sort') setSort(v); } }}
-        onOpenFilters={undefined}
+        onOpenFilters={() => setFilterOpen(true)}
       />
 
       {/* ═══ 2. PRODUCT GRID — full-bleed hairline (sale register) ═════ */}

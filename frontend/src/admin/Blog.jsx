@@ -15,9 +15,9 @@ import { fmtDate } from '../lib/format';
  * ========================================================================== */
 
 const STATUS_PILL = {
-  draft:     'bg-[#F6F1E6] text-[#7A6239] ring-[#DCCBA5]',
-  published: 'bg-[#E9EFEA] text-[#3E5C4B] ring-[#C9D8CE]',
-  scheduled: 'bg-[#F1F1F1] text-[#5A5A5A] ring-[#D4D4D4]',
+  draft:     'bg-amber-50 text-amber-700 ring-amber-200',
+  published: 'bg-emerald-50 text-emerald-700 ring-emerald-200',
+  scheduled: 'bg-blue-50 text-blue-700 ring-blue-200',
   archived:  'bg-neutral-100 text-neutral-500 ring-neutral-200',
 };
 
@@ -172,7 +172,7 @@ export default function Blog() {
                     <button
                       onClick={() => togglePublish(p)}
                       disabled={busy}
-                      className={`rounded-lg px-2 py-1.5 text-[11px] font-bold uppercase tracking-wide transition ${p.status === 'published' ? 'text-neutral-500 hover:bg-[#F6F1E6] hover:text-[#7A6239]' : 'bg-[#4A6B58] text-white hover:bg-[#3E5C4B]'}`}
+                      className={`rounded-lg px-2 py-1.5 text-[11px] font-bold uppercase tracking-wide transition ${p.status === 'published' ? 'text-neutral-500 hover:bg-amber-50 hover:text-amber-700' : 'bg-emerald-600 text-white hover:bg-emerald-700'}`}
                       title={p.status === 'published' ? 'Move to draft' : 'Publish now'}
                     >
                       {p.status === 'published' ? <><Globe size={12} className="inline" /> Unpublish</> : <><Globe size={12} className="inline" /> Publish</>}
@@ -184,7 +184,7 @@ export default function Blog() {
                   <Link to={`/admin/blog/${p._id}`} className="rounded-lg p-2 text-neutral-400 transition hover:bg-neutral-100 hover:text-neutral-700" title="Edit">
                     <Pencil size={15} />
                   </Link>
-                  <button onClick={() => remove(p._id)} disabled={deleting === p._id} className="rounded-lg p-2 text-neutral-400 transition hover:bg-[#F5EDEB] hover:text-[#9A5548]" title="Delete">
+                  <button onClick={() => remove(p._id)} disabled={deleting === p._id} className="rounded-lg p-2 text-neutral-400 transition hover:bg-red-50 hover:text-red-600" title="Delete">
                     {deleting === p._id ? <Loader2 size={15} className="animate-spin" /> : <Trash2 size={15} />}
                   </button>
                 </div>

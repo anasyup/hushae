@@ -15,10 +15,10 @@ const ICON = {
   'bulk.done': CheckCheck,
 };
 const TONE = {
-  danger: 'bg-[#F5EDEB] text-[#9A5548]',
-  warning: 'bg-[#F6F1E6] text-[#7A6239]',
-  success: 'bg-[#E9EFEA] text-[#3E5C4B]',
-  info: 'bg-[#F1F1F1] text-[#6B6B6B]',
+  danger: 'bg-red-50 text-red-600',
+  warning: 'bg-amber-50 text-amber-700',
+  success: 'bg-emerald-50 text-emerald-700',
+  info: 'bg-blue-50 text-blue-600',
 };
 
 const ago = (d) => {
@@ -84,7 +84,7 @@ export default function NotificationBell() {
       >
         <Bell size={15} />
         {data.unread > 0 && (
-          <span className="absolute -right-1 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-[#B46A5C] px-1 text-[12px] font-bold text-white">
+          <span className="absolute -right-1 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-red-500 px-1 text-[12px] font-bold text-white">
             {data.unread > 9 ? '9+' : data.unread}
           </span>
         )}
@@ -113,7 +113,7 @@ export default function NotificationBell() {
                 <button
                   key={n.id}
                   onClick={() => openItem(n)}
-                  className={`flex w-full items-start gap-3 border-b border-neutral-50 px-4 py-3 text-left transition last:border-0 hover:bg-neutral-50 ${n.read ? '' : 'bg-[#F1F1F1]/40'}`}
+                  className={`flex w-full items-start gap-3 border-b border-neutral-50 px-4 py-3 text-left transition last:border-0 hover:bg-neutral-50 ${n.read ? '' : 'bg-blue-50/40'}`}
                 >
                   <span className={`mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-lg ${TONE[n.severity] || TONE.info}`}>
                     <Icon size={13} />
@@ -123,7 +123,7 @@ export default function NotificationBell() {
                     {n.body && <span className="mt-0.5 block line-clamp-2 text-[13px] leading-snug text-neutral-500">{n.body}</span>}
                     <span className="mt-1 block text-[12px] text-neutral-400">{ago(n.at)}</span>
                   </span>
-                  {!n.read && <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#6B6B6B]" />}
+                  {!n.read && <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-blue-500" />}
                 </button>
               );
             })}

@@ -66,10 +66,10 @@ export default function ProfitCalculator() {
   // Health rating
   const health = margin >= 30 ? 'good' : margin >= 10 ? 'ok' : margin > 0 ? 'thin' : 'loss';
   const healthMeta = {
-    good: { color: 'bg-[#DDE7E0] text-[#33503F]', label: 'Healthy' },
-    ok:   { color: 'bg-[#EDE4CE] text-[#6B552F]',     label: 'OK' },
-    thin: { color: 'bg-[#F4E8DC] text-[#7A5F33]',   label: 'Thin' },
-    loss: { color: 'bg-[#EEDED9] text-[#7C4237]',         label: 'Loss' },
+    good: { color: 'bg-emerald-100 text-emerald-800', label: 'Healthy' },
+    ok:   { color: 'bg-amber-100 text-amber-800',     label: 'OK' },
+    thin: { color: 'bg-orange-100 text-orange-800',   label: 'Thin' },
+    loss: { color: 'bg-red-100 text-red-800',         label: 'Loss' },
   };
 
   return (
@@ -211,9 +211,9 @@ function Field({ label, v, onChange, placeholder, prefix, suffix }) {
 
 function OutputTile({ label, value, sub, tone = 'neutral', big, bigSub, small }) {
   const map = {
-    green:   'bg-[#E9EFEA] text-[#33503F] border-[#C9D8CE]',
-    amber:   'bg-[#F6F1E6] text-[#6B552F] border-[#DCCBA5]',
-    red:     'bg-[#F5EDEB] text-[#7C4237] border-[#E0C6BE]',
+    green:   'bg-emerald-50 text-emerald-800 border-emerald-200',
+    amber:   'bg-amber-50 text-amber-800 border-amber-200',
+    red:     'bg-red-50 text-red-800 border-red-200',
     neutral: 'bg-neutral-50 text-neutral-800 border-neutral-200',
   };
   return (

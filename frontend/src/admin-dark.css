@@ -2,16 +2,18 @@
  * ADMIN DARK MODE — applied when <html class="dark-admin"> is present.
  * Toggle lives in the admin TopBar (Moon/Sun button, saved in localStorage).
  *
- * v4 — JET BLACK register.
- *   Neutral palette comes from CSS variables in index.css (.dark-admin):
- *   #000000 grounds, #0D0D0D cards, #151515 raised, #1F1F1F hairlines,
- *   #FFFFFF text hierarchy. This file handles what variables CANNOT:
+ * v3 — CSS-variable based.
+ *   The neutral/white/black palette now comes from CSS variables swapped in
+ *   index.css (:root vs .dark-admin). Every `bg-white`, `text-neutral-*`,
+ *   `border-neutral-*`, `ring-neutral-*` across the admin picks the dark
+ *   palette automatically — no !important override needed for those.
+ *
+ * This file only handles what variables CANNOT:
  *   · the sidebar / topbar chrome (custom colours)
  *   · Recharts (inline SVG attributes)
- *   · status badges (tinted colours — gold-leaning luxury tints)
+ *   · status badges (tinted colours)
  *   · a few screens with hardcoded hex fills
  *   · scrollbars
- *   Brand accent: gold #C9A96E only. No blue-grays, no purple.
  * ========================================================================== */
 
 .dark-admin {
@@ -19,122 +21,118 @@
 }
 
 /* ── Admin shell wrapper (hardcoded light gray) → page background ────────── */
-.dark-admin .admin-shell { background: #000000 !important; color: #ffffff !important; }
-
-/* ── HUSHAE Command Center shell (v2) dark parity ───────────────────────── */
-.dark-admin .admin-shell ::-webkit-scrollbar-thumb { background: #2a2a2a; border-color: #000000; }
-.dark-admin .admin-shell :focus-visible { outline-color: #C9A96E; }
+.dark-admin .admin-shell { background: #0e1116 !important; }
 
 /* ── Sidebar chrome ─────────────────────────────────────────────────────── */
 .dark-admin aside,
 .dark-admin .admin-shell aside,
 .dark-admin [class*="sidebar"] {
-  background: #0A0A0A !important;
-  border-color: #1F1F1F !important;
+  background: #10141a !important;
+  border-color: #232b36 !important;
 }
 .dark-admin aside a,
 .dark-admin aside span,
 .dark-admin aside button {
-  color: #858585 !important;
+  color: #98a2b3 !important;
 }
 .dark-admin aside a:hover,
 .dark-admin aside a.active {
-  background: #141414 !important;
-  color: #ffffff !important;
+  background: #1a2028 !important;
+  color: #eef1f5 !important;
 }
 
 /* ── TopBar chrome ──────────────────────────────────────────────────────── */
 .dark-admin header,
 .dark-admin .sticky.top-0 {
-  background: rgba(0, 0, 0, 0.92) !important;
-  border-color: #1F1F1F !important;
+  background: rgba(14, 17, 22, 0.92) !important;
+  border-color: #232b36 !important;
 }
-.dark-admin .bg-\[#F4F6F8\] { background-color: #000000 !important; }
-.dark-admin .bg-\[#f4f6f8\] { background-color: #000000 !important; }
-.dark-admin .bg-\[#EBEBEB\] { background-color: #0A0A0A !important; }
-.dark-admin .bg-\[#ebebeb\] { background-color: #0A0A0A !important; }
+.dark-admin .bg-\[#F4F6F8\] { background-color: #0e1116 !important; }
+.dark-admin .bg-\[#f4f6f8\] { background-color: #0e1116 !important; }
+.dark-admin .bg-\[#EBEBEB\] { background-color: #10141a !important; }
+.dark-admin .bg-\[#ebebeb\] { background-color: #10141a !important; }
 
 /* ── Hardcoded light fills used in a few screens ────────────────────────── */
-.dark-admin .bg-\[#F1F1F1\] { background-color: #141414 !important; }
-.dark-admin .bg-\[#F1EEE8\] { background-color: #141414 !important; }
-.dark-admin .bg-\[#ECEBE8\] { background-color: #141414 !important; }
-.dark-admin .bg-\[#E5E2DD\] { background-color: #141414 !important; }
-.dark-admin .bg-\[#E5E7EB\] { background-color: #1F1F1F !important; }
-.dark-admin .bg-\[#e5e7eb\] { background-color: #1F1F1F !important; }
-.dark-admin .bg-\[#f6dfc4\] { background-color: rgba(201,169,110,0.14) !important; }
+.dark-admin .bg-\[#F1F1F1\] { background-color: #1a2028 !important; }
+.dark-admin .bg-\[#F1EEE8\] { background-color: #1a2028 !important; }
+.dark-admin .bg-\[#ECEBE8\] { background-color: #1a2028 !important; }
+.dark-admin .bg-\[#E5E2DD\] { background-color: #1a2028 !important; }
+.dark-admin .bg-\[#E5E7EB\] { background-color: #232b36 !important; }
+.dark-admin .bg-\[#e5e7eb\] { background-color: #232b36 !important; }
+.dark-admin .bg-\[#f6dfc4\] { background-color: rgba(245,158,11,0.14) !important; }
 
-/* ── Status badges / pills (dark tints — luxury muted) ──────────────────── */
-.dark-admin .bg-emerald-50  { background-color: rgba(52,211,153,0.10) !important; }
-.dark-admin .bg-emerald-100 { background-color: rgba(52,211,153,0.18) !important; }
-.dark-admin .bg-red-50      { background-color: rgba(248,113,113,0.10) !important; }
-.dark-admin .bg-red-100     { background-color: rgba(248,113,113,0.18) !important; }
-.dark-admin .bg-amber-50    { background-color: rgba(251,191,36,0.10) !important; }
-.dark-admin .bg-amber-100   { background-color: rgba(251,191,36,0.18) !important; }
-.dark-admin .bg-sky-50      { background-color: rgba(56,189,248,0.10) !important; }
-.dark-admin .bg-sky-100     { background-color: rgba(56,189,248,0.18) !important; }
-.dark-admin .bg-purple-50   { background-color: rgba(201,169,110,0.10) !important; }
-.dark-admin .bg-purple-100  { background-color: rgba(201,169,110,0.18) !important; }
-.dark-admin .bg-blue-50     { background-color: rgba(96,165,250,0.10) !important; }
-.dark-admin .bg-blue-100    { background-color: rgba(96,165,250,0.18) !important; }
-.dark-admin .bg-cyan-100    { background-color: rgba(34,211,238,0.18) !important; }
-.dark-admin .bg-orange-100  { background-color: rgba(251,146,60,0.18) !important; }
-.dark-admin .bg-indigo-50   { background-color: rgba(201,169,110,0.10) !important; }
-.dark-admin .bg-slate-50    { background-color: #141414 !important; }
+/* ── Status badges / pills (dark tints) ─────────────────────────────────── */
+.dark-admin .bg-emerald-50  { background-color: rgba(16,185,129,0.14) !important; }
+.dark-admin .bg-emerald-100 { background-color: rgba(16,185,129,0.24) !important; }
+.dark-admin .bg-red-50      { background-color: rgba(239,68,68,0.14) !important; }
+.dark-admin .bg-red-100     { background-color: rgba(239,68,68,0.24) !important; }
+.dark-admin .bg-amber-50    { background-color: rgba(245,158,11,0.14) !important; }
+.dark-admin .bg-amber-100   { background-color: rgba(245,158,11,0.24) !important; }
+.dark-admin .bg-sky-50      { background-color: rgba(14,165,233,0.14) !important; }
+.dark-admin .bg-sky-100     { background-color: rgba(14,165,233,0.24) !important; }
+.dark-admin .bg-purple-50   { background-color: rgba(168,85,247,0.14) !important; }
+.dark-admin .bg-purple-100  { background-color: rgba(168,85,247,0.24) !important; }
+.dark-admin .bg-blue-50     { background-color: rgba(59,130,246,0.14) !important; }
+.dark-admin .bg-blue-100    { background-color: rgba(59,130,246,0.24) !important; }
+.dark-admin .bg-cyan-100    { background-color: rgba(6,182,212,0.24) !important; }
+.dark-admin .bg-orange-100  { background-color: rgba(249,115,22,0.24) !important; }
+.dark-admin .bg-indigo-50   { background-color: rgba(99,102,241,0.14) !important; }
+.dark-admin .bg-slate-50    { background-color: #1a2028 !important; }
 
-.dark-admin .text-emerald-700 { color: #6ee7b7 !important; }
-.dark-admin .text-emerald-800 { color: #a7f3d0 !important; }
-.dark-admin .text-red-700     { color: #fca5a5 !important; }
-.dark-admin .text-red-800     { color: #fecaca !important; }
-.dark-admin .text-amber-700   { color: #fcd34d !important; }
-.dark-admin .text-amber-800   { color: #fde68a !important; }
-.dark-admin .text-sky-700     { color: #7dd3fc !important; }
-.dark-admin .text-sky-800     { color: #bae6fd !important; }
-.dark-admin .text-blue-700    { color: #93c5fd !important; }
-.dark-admin .text-blue-800    { color: #bfdbfe !important; }
-.dark-admin .text-purple-700  { color: #D6BC8A !important; }  /* gold family */
-.dark-admin .text-purple-800  { color: #E3CEA6 !important; }  /* gold family */
-.dark-admin .text-green-600   { color: #6ee7b7 !important; }
-.dark-admin .text-red-600     { color: #fca5a5 !important; }
-.dark-admin .text-amber-600   { color: #fcd34d !important; }
-.dark-admin .text-sky-600     { color: #7dd3fc !important; }
-.dark-admin .text-orange-600  { color: #fdba74 !important; }
-.dark-admin .text-cyan-600    { color: #67e8f9 !important; }
+.dark-admin .text-emerald-700 { color: #34d399 !important; }
+.dark-admin .text-emerald-800 { color: #6ee7b7 !important; }
+.dark-admin .text-red-700     { color: #f87171 !important; }
+.dark-admin .text-red-800     { color: #fca5a5 !important; }
+.dark-admin .text-amber-700   { color: #fbbf24 !important; }
+.dark-admin .text-amber-800   { color: #fcd34d !important; }
+.dark-admin .text-sky-700     { color: #38bdf8 !important; }
+.dark-admin .text-sky-800     { color: #7dd3fc !important; }
+.dark-admin .text-blue-700    { color: #60a5fa !important; }
+.dark-admin .text-blue-800    { color: #93c5fd !important; }
+.dark-admin .text-purple-700  { color: #a78bfa !important; }
+.dark-admin .text-purple-800  { color: #c4b5fd !important; }
+.dark-admin .text-green-600   { color: #34d399 !important; }
+.dark-admin .text-red-600     { color: #f87171 !important; }
+.dark-admin .text-amber-600   { color: #fbbf24 !important; }
+.dark-admin .text-sky-600     { color: #38bdf8 !important; }
+.dark-admin .text-orange-600  { color: #fb923c !important; }
+.dark-admin .text-cyan-600    { color: #22d3ee !important; }
 
-.dark-admin .ring-neutral-200 { --tw-ring-color: #1F1F1F !important; }
-.dark-admin .ring-emerald-200 { --tw-ring-color: rgba(52,211,153,0.28) !important; }
-.dark-admin .ring-red-200     { --tw-ring-color: rgba(248,113,113,0.28) !important; }
-.dark-admin .ring-amber-200   { --tw-ring-color: rgba(251,191,36,0.28) !important; }
-.dark-admin .ring-blue-200    { --tw-ring-color: rgba(96,165,250,0.28) !important; }
+.dark-admin .ring-neutral-200 { --tw-ring-color: #232b36 !important; }
+.dark-admin .ring-emerald-200 { --tw-ring-color: rgba(16,185,129,0.35) !important; }
+.dark-admin .ring-red-200     { --tw-ring-color: rgba(239,68,68,0.35) !important; }
+.dark-admin .ring-amber-200   { --tw-ring-color: rgba(245,158,11,0.35) !important; }
+.dark-admin .ring-blue-200    { --tw-ring-color: rgba(59,130,246,0.35) !important; }
 
 /* ── Recharts (SVG inline attrs) ────────────────────────────────────────── */
 .dark-admin .recharts-cartesian-grid line {
-  stroke: #1F1F1F !important;
+  stroke: #232b36 !important;
 }
 .dark-admin .recharts-cartesian-axis-tick text,
 .dark-admin .recharts-text,
 .dark-admin .recharts-polar-angle-axis-tick text {
-  fill: #858585 !important;
+  fill: #6b7686 !important;
 }
 .dark-admin .recharts-default-tooltip,
 .dark-admin .recharts-tooltip-wrapper {
-  background-color: #0D0D0D !important;
-  border-color: #2A2A2A !important;
+  background-color: #161b22 !important;
+  border-color: #2f3947 !important;
 }
 .dark-admin .recharts-default-tooltip .recharts-tooltip-label,
 .dark-admin .recharts-default-tooltip .recharts-tooltip-item {
-  color: #e5e5e5 !important;
+  color: #d3d9e2 !important;
 }
 .dark-admin .recharts-tooltip-cursor {
-  fill: rgba(255,255,255,0.04) !important;
+  fill: rgba(255,255,255,0.05) !important;
 }
 .dark-admin .recharts-legend-item-text {
-  color: #858585 !important;
+  color: #98a2b3 !important;
 }
 
 /* ── KPI accent text + tinted icon bubbles (inline styles) ──────────────── */
-.dark-admin [style*="color: #111111"] { color: #ffffff !important; }
-.dark-admin [style*="color: #0D0D0D"] { color: #ffffff !important; }
-.dark-admin [style*="color: #0d0d0d"] { color: #ffffff !important; }
+.dark-admin [style*="color: #111111"] { color: #eef1f5 !important; }
+.dark-admin [style*="color: #0D0D0D"] { color: #eef1f5 !important; }
+.dark-admin [style*="color: #0d0d0d"] { color: #eef1f5 !important; }
 .dark-admin [style*="background: #11111114"],
 .dark-admin [style*="background: #0d0d0d14"] {
   background-color: rgba(255,255,255,0.08) !important;
@@ -146,55 +144,12 @@
   height: 10px;
 }
 .dark-admin ::-webkit-scrollbar-track {
-  background: #000000;
+  background: #0e1116;
 }
 .dark-admin ::-webkit-scrollbar-thumb {
-  background: #2A2A2A;
+  background: #2f3947;
   border-radius: 6px;
 }
 .dark-admin ::-webkit-scrollbar-thumb:hover {
-  background: #3A3A3A;
+  background: #4b5664;
 }
-
-/* ── Quiet luxury status palette (v5) dark parity ─────────────────────────
-   The light mode now uses muted arbitrary-value tints (#E9EFEA forest,
-   #F5EDEB brick, #F6F1E6 bronze, #F1F1F1 neutral). On jet black those
-   light tints must be swapped for dark tints + readable text. */
-/* forest (success) */
-.dark-admin .bg-\[#E9EFEA\], .dark-admin .bg-\[#DDE7E0\], .dark-admin .bg-\[#F0F4F1\],
-.dark-admin .bg-\[#7FA08B\] { background-color: rgba(52,211,153,0.10) !important; }
-.dark-admin .bg-\[#5B7F6A\] { background-color: #2B4436 !important; }
-.dark-admin .bg-\[#4A6B58\] { background-color: #33503F !important; }
-.dark-admin .text-\[#5B7F6A\] { color: #86EFAC !important; }
-.dark-admin .text-\[#4A6B58\], .dark-admin .text-\[#3E5C4B\] { color: #6EE7B7 !important; }
-.dark-admin .text-\[#33503F\], .dark-admin .text-\[#2B4436\] { color: #A7F3D0 !important; }
-.dark-admin .ring-\[#C9D8CE\], .dark-admin .border-\[#C9D8CE\], .dark-admin .ring-\[#DDE7E0\],
-.dark-admin .border-\[#B4C8BA\] { --tw-ring-color: rgba(52,211,153,0.28) !important; border-color: rgba(52,211,153,0.28) !important; }
-/* brick (danger) */
-.dark-admin .bg-\[#F5EDEB\], .dark-admin .bg-\[#EEDED9\], .dark-admin .bg-\[#C08374\] { background-color: rgba(248,113,113,0.10) !important; }
-.dark-admin .bg-\[#B46A5C\] { background-color: #7C4237 !important; }
-.dark-admin .bg-\[#9A5548\] { background-color: #8A4B3F !important; }
-.dark-admin .text-\[#B46A5C\] { color: #F87171 !important; }
-.dark-admin .text-\[#9A5548\], .dark-admin .text-\[#8A4B3F\] { color: #FCA5A5 !important; }
-.dark-admin .text-\[#7C4237\] { color: #FECACA !important; }
-.dark-admin .ring-\[#E0C6BE\], .dark-admin .border-\[#E0C6BE\], .dark-admin .ring-\[#EEDED9\],
-.dark-admin .border-\[#D0ABA0\] { --tw-ring-color: rgba(248,113,113,0.28) !important; border-color: rgba(248,113,113,0.28) !important; }
-/* bronze / gold (warning, brand) */
-.dark-admin .bg-\[#F6F1E6\], .dark-admin .bg-\[#EDE4CE\], .dark-admin .bg-\[#F4E8DC\],
-.dark-admin .bg-\[#D4B87E\] { background-color: rgba(201,169,110,0.12) !important; }
-.dark-admin .bg-\[#C9A96E\] { background-color: #A68A56 !important; }
-.dark-admin .bg-\[#B08F55\], .dark-admin .bg-\[#8F7448\] { background-color: #8F7448 !important; }
-.dark-admin .bg-\[#6B552F\] { background-color: #5C4A28 !important; }
-.dark-admin .text-\[#CDB98F\] { color: #FCD34D !important; }
-.dark-admin .text-\[#A68A56\], .dark-admin .text-\[#8F7448\] { color: #FBBF24 !important; }
-.dark-admin .text-\[#7A6239\], .dark-admin .text-\[#6B552F\], .dark-admin .text-\[#5C4A28\],
-.dark-admin .text-\[#8A6D3B\], .dark-admin .text-\[#7A5F33\] { color: #FDE68A !important; }
-.dark-admin .ring-\[#DCCBA5\], .dark-admin .border-\[#DCCBA5\], .dark-admin .ring-\[#EDE4CE\],
-.dark-admin .border-\[#CDB98F\] { --tw-ring-color: rgba(201,169,110,0.30) !important; border-color: rgba(201,169,110,0.30) !important; }
-/* neutral gray (info) */
-.dark-admin .bg-\[#F1F1F1\], .dark-admin .bg-\[#E8E8E8\] { background-color: #151515 !important; }
-.dark-admin .bg-\[#8A8A8A\], .dark-admin .bg-\[#6B6B6B\] { background-color: #3A3A3A !important; }
-.dark-admin .bg-\[#525252\] { background-color: #2A2A2A !important; }
-.dark-admin .text-\[#6B6B6B\], .dark-admin .text-\[#5A5A5A\] { color: #D4D4D4 !important; }
-.dark-admin .text-\[#4A4A4A\], .dark-admin .text-\[#3A3A3A\] { color: #BEBEBE !important; }
-.dark-admin .ring-\[#D4D4D4\], .dark-admin .border-\[#D4D4D4\] { --tw-ring-color: #2A2A2A !important; border-color: #2A2A2A !important; }

@@ -83,7 +83,7 @@ function Group({ icon: Icon, title, hint, children, defaultOpen = true }) {
   return (
     <div className="rounded-2xl border border-neutral-200 bg-white overflow-hidden">
       <button onClick={() => setOpen(!open)} className="flex w-full items-center gap-3 px-6 py-5 text-left transition hover:bg-neutral-100">
-        <span className="grid h-9 w-9 place-items-center rounded-xl bg-neutral-100 text-[#3E5C4B]"><Icon size={16} /></span>
+        <span className="grid h-9 w-9 place-items-center rounded-xl bg-neutral-100 text-emerald-700"><Icon size={16} /></span>
         <span className="flex-1">
           <span className="block text-sm font-bold">{title}</span>
           <span className="block text-[12px] text-neutral-500">{hint}</span>
@@ -146,7 +146,7 @@ export default function Analytics() {
     <AdminLayout title="Analytics">
       {head}
       {err
-        ? <div className="rounded-2xl border border-neutral-200 bg-white mx-auto max-w-md p-10 text-center"><p className="text-sm text-[#8A4B3F]">{err}</p><button onClick={() => setTick((t) => t + 1)} className="inline-flex items-center gap-1.5 rounded-full border border-neutral-300 bg-white px-4 py-2 text-[12px] font-semibold text-neutral-700 hover:bg-neutral-50 mt-5 !px-5 !py-2 !text-[12px]">Try again</button></div>
+        ? <div className="rounded-2xl border border-neutral-200 bg-white mx-auto max-w-md p-10 text-center"><p className="text-sm text-red-700">{err}</p><button onClick={() => setTick((t) => t + 1)} className="inline-flex items-center gap-1.5 rounded-full border border-neutral-300 bg-white px-4 py-2 text-[12px] font-semibold text-neutral-700 hover:bg-neutral-50 mt-5 !px-5 !py-2 !text-[12px]">Try again</button></div>
         : <div className="animate-pulse rounded-xl bg-neutral-100 h-64 w-full" />}
     </AdminLayout>
   );
@@ -158,7 +158,7 @@ export default function Analytics() {
     return { txt: `${pc >= 0 ? '+' : ''}${pc}%`, up: pc >= 0 };
   };
   const Delta = ({ d }) => !d ? null : (
-    <span className={`ml-2 inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-[13px] font-bold ${d.up === null ? 'bg-neutral-100 text-neutral-500' : d.up ? 'bg-[#E9EFEA] text-[#3E5C4B]' : 'bg-[#EEDED9] text-[#8A4B3F]'}`}>
+    <span className={`ml-2 inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-[13px] font-bold ${d.up === null ? 'bg-neutral-100 text-neutral-500' : d.up ? 'bg-emerald-50 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
       {d.up === null ? null : d.up ? <TrendingUp size={10} /> : <TrendingDown size={10} />}{d.txt}
     </span>
   );
@@ -220,12 +220,12 @@ export default function Analytics() {
             <Block title="New vs returning customers">
               <div className="grid grid-cols-2 gap-4">
                 <div className="rounded-2xl bg-neutral-100 p-5 text-center">
-                  <UserPlus size={16} className="mx-auto text-[#3E5C4B]" />
+                  <UserPlus size={16} className="mx-auto text-emerald-700" />
                   <p className="mt-2 font-sans text-3xl">{a.customerSplit.fresh}</p>
                   <p className="text-[13px] uppercase tracking-wider text-neutral-500">First-time buyers</p>
                 </div>
                 <div className="rounded-2xl bg-neutral-100 p-5 text-center">
-                  <Repeat size={16} className="mx-auto text-[#3E5C4B]" />
+                  <Repeat size={16} className="mx-auto text-emerald-700" />
                   <p className="mt-2 font-sans text-3xl">{a.customerSplit.returning}</p>
                   <p className="text-[13px] uppercase tracking-wider text-neutral-500">Returning buyers</p>
                 </div>
@@ -240,7 +240,7 @@ export default function Analytics() {
         {/* ===== TRAFFIC ===== */}
         <Group icon={Globe} title="Traffic reports" hint="Kitne log site par aaye, kis device se, kahan se" defaultOpen={false}>
           <Block title="Sessions over time">
-            <LineChart data={a.traffic.sessionsSeries} k="sessions" color="#6B6B6B" />
+            <LineChart data={a.traffic.sessionsSeries} k="sessions" color="#4A6670" />
           </Block>
           <div className="grid gap-8 lg:grid-cols-2">
             <Block title="Sessions by device">

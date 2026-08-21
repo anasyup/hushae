@@ -251,7 +251,7 @@ export default function CmsEdit() {
 
       {/* ---- what the customer sees right now ---- */}
       {!isNew && (
-        <div className={`mb-5 rounded-xl border px-4 py-3 text-[13px] ${state?.live ? 'border-[#C9D8CE] bg-[#E9EFEA] text-[#2B4436]' : 'border-neutral-200 bg-neutral-50 text-neutral-700'}`}>
+        <div className={`mb-5 rounded-xl border px-4 py-3 text-[13px] ${state?.live ? 'border-emerald-200 bg-emerald-50 text-emerald-900' : 'border-neutral-200 bg-neutral-50 text-neutral-700'}`}>
           {reason === 'live' && <>Customers can read this page now{p.hasDraft ? ' — but your newest edits are not published yet.' : '.'}</>}
           {reason === 'draft' && 'Only you can see this. Press Publish when it is ready.'}
           {reason === 'scheduled' && <>Hidden until {fmtWhen(p.publishAt)}. Nobody can reach it before then, even with the link.</>}
@@ -261,12 +261,12 @@ export default function CmsEdit() {
       )}
 
       {problems.length > 0 && (
-        <ul role="alert" className="mb-5 space-y-1 rounded-xl border border-[#CDB98F] bg-[#F6F1E6] px-4 py-3 text-[13px] text-[#5C4A28]">
+        <ul role="alert" className="mb-5 space-y-1 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-[13px] text-amber-900">
           {problems.map((m) => <li key={m}>{m}</li>)}
         </ul>
       )}
       {errs.length > 0 && (
-        <ul role="alert" className="mb-5 space-y-1 rounded-xl border border-[#E0C6BE] bg-[#F5EDEB] px-4 py-3 text-[13px] text-[#7C4237]">
+        <ul role="alert" className="mb-5 space-y-1 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-[13px] text-red-800">
           {errs.map((e, i) => <li key={i}>{e.message}</li>)}
         </ul>
       )}
@@ -290,7 +290,7 @@ export default function CmsEdit() {
                   placeholder="size-guide"
                 />
                 {p.slug && !slugCheck.ok && (
-                  <p role="alert" className="mt-1.5 text-[13px] font-medium text-[#8A4B3F]">
+                  <p role="alert" className="mt-1.5 text-[13px] font-medium text-red-700">
                     {slugCheck.message}
                     {slugCheck.suggestion && (
                       <button
@@ -304,7 +304,7 @@ export default function CmsEdit() {
                   </p>
                 )}
                 {renamed && slugCheck.ok && (
-                  <p className="mt-1.5 rounded-lg bg-[#F1F1F1] px-3 py-2 text-[13px] leading-relaxed text-[#3A3A3A]">
+                  <p className="mt-1.5 rounded-lg bg-sky-50 px-3 py-2 text-[13px] leading-relaxed text-sky-900">
                     You changed the address. Anyone using the old link would normally hit a dead end —
                     {cfg.autoRedirectOnRename
                       ? ' we will leave a note that sends them to the new one automatically.'
@@ -400,7 +400,7 @@ export default function CmsEdit() {
                     </button>
                   )}
                   {dirty && (
-                    <p className="text-[13px] leading-relaxed text-[#6B552F]">
+                    <p className="text-[13px] leading-relaxed text-amber-800">
                       Save your changes before publishing — otherwise the old version goes live.
                     </p>
                   )}
@@ -489,13 +489,13 @@ export default function CmsEdit() {
           {!isNew && !p.locked && (
             <button
               type="button" onClick={remove}
-              className="inline-flex min-h-[44px] w-full items-center justify-center gap-1.5 rounded-lg border border-[#E0C6BE] px-4 text-[13px] font-semibold text-[#8A4B3F] transition hover:bg-[#F5EDEB]"
+              className="inline-flex min-h-[44px] w-full items-center justify-center gap-1.5 rounded-lg border border-red-200 px-4 text-[13px] font-semibold text-red-700 transition hover:bg-red-50"
             >
               <Trash2 size={13} aria-hidden="true" /> Delete this page
             </button>
           )}
           {!isNew && p.locked && (
-            <p className="rounded-lg bg-[#F6F1E6] px-3 py-2.5 text-[13px] leading-relaxed text-[#5C4A28]">
+            <p className="rounded-lg bg-amber-50 px-3 py-2.5 text-[13px] leading-relaxed text-amber-900">
               This page is part of the shop and cannot be deleted. Hide it instead.
             </p>
           )}

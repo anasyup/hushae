@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { ChevronDown, ChevronLeft, ChevronRight, Copy, RotateCcw, Search, Settings2, Trash2, X } from 'lucide-react';
+import { ChevronDown, ChevronLeft, ChevronRight, Copy, Search, Settings2, Trash2, X } from 'lucide-react';
 import { useEditor } from '../core/store';
 import { getBlockSchema, getSectionSchema, labelFor } from '../core/registry';
 import { findNode } from '../core/docUtils';
@@ -63,7 +63,7 @@ function NodePanel() {
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
             {breadcrumb && (
-              <button onClick={() => select(section.id)} className="flex items-center gap-1 text-[13px] text-neutral-400 hover:text-[#A68A56]">
+              <button onClick={() => select(section.id)} className="flex items-center gap-1 text-[13px] text-neutral-400 hover:text-[#005BD3]">
                 <ChevronLeft size={11} /> {breadcrumb}
               </button>
             )}
@@ -146,19 +146,12 @@ function ThemePanel({ forced, hasSelection }: { forced: boolean; hasSelection: b
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-center justify-between border-b border-[#E5E5E5] px-4 py-3">
-        <p className="text-[14px] font-medium tracking-[0.01em] text-neutral-900">Theme settings</p>
-        <div className="flex items-center gap-1">
-          <button onClick={() => { if (window.confirm('Reset the whole theme to its default design? A version snapshot is kept first, so you can restore it.')) useEditor.getState().resetDoc(); }}
-            title="Reset theme to defaults"
-            className="grid h-7 w-7 place-items-center rounded-md text-neutral-400 transition hover:bg-[#F5EDEB] hover:text-[#9A5548]">
-            <RotateCcw size={13} />
-          </button>
-          {(forced || hasSelection) && (
-            <button onClick={() => setShowThemeSettings(false)}
-              className="grid h-7 w-7 place-items-center rounded-md text-neutral-500 hover:bg-neutral-100"><X size={14} /></button>
-          )}
-        </div>
+      <div className="flex items-center justify-between border-b border-neutral-200 px-4 py-3">
+        <p className="text-[15px] font-semibold text-neutral-900">Theme settings</p>
+        {(forced || hasSelection) && (
+          <button onClick={() => setShowThemeSettings(false)}
+            className="grid h-7 w-7 place-items-center rounded text-neutral-500 hover:bg-neutral-100"><X size={14} /></button>
+        )}
       </div>
 
       <div className="border-b border-neutral-100 px-3 py-2">

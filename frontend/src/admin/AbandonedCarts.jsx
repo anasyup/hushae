@@ -154,10 +154,10 @@ export default function AbandonedCarts() {
                 <div>
                   <p className="font-sans text-[14px] font-semibold tabular-nums text-neutral-900">{pkr(c.subtotal)}</p>
                   <div className="mt-1.5 flex flex-wrap gap-1.5">
-                    {c.recoveryEmailSentAt && <span className="rounded-full bg-[#F1F1F1] px-2 py-0.5 text-[13px] font-bold text-[#5A5A5A]">Email sent</span>}
-                    {c.recoveredOrderId && <span className="rounded-full bg-[#E9EFEA] px-2 py-0.5 text-[13px] font-bold text-[#3E5C4B]">Recovered ✓</span>}
-                    {c.discountCodeIssued && <span className="rounded-full bg-[#F6F1E6] px-2 py-0.5 text-[13px] font-bold text-[#7A6239]">{c.discountCodeIssued}</span>}
-                    {!c.recoveryEmailSentAt && !c.recoveredOrderId && <span className="rounded-full bg-[#F6F1E6] px-2 py-0.5 text-[13px] font-bold text-[#7A6239]">Awaiting action</span>}
+                    {c.recoveryEmailSentAt && <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[13px] font-bold text-blue-700">Email sent</span>}
+                    {c.recoveredOrderId && <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[13px] font-bold text-emerald-700">Recovered ✓</span>}
+                    {c.discountCodeIssued && <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[13px] font-bold text-amber-700">{c.discountCodeIssued}</span>}
+                    {!c.recoveryEmailSentAt && !c.recoveredOrderId && <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[13px] font-bold text-amber-700">Awaiting action</span>}
                   </div>
                 </div>
 
@@ -167,19 +167,19 @@ export default function AbandonedCarts() {
                     <div className="flex items-center gap-1.5">
                       {hasEmail && (
                         <button onClick={() => sendEmail(c._id)} disabled={busy === `email-${c._id}`}
-                          className="inline-flex items-center gap-1.5 rounded-full bg-[#525252] px-3.5 py-2.5 text-[12px] font-semibold text-white transition hover:bg-[#525252] disabled:opacity-50" title="Send recovery email">
+                          className="inline-flex items-center gap-1.5 rounded-full bg-blue-600 px-3.5 py-2.5 text-[12px] font-semibold text-white transition hover:bg-blue-700 disabled:opacity-50" title="Send recovery email">
                           <Mail size={11} /> {busy === `email-${c._id}` ? '…' : 'Email'}
                         </button>
                       )}
                       {hasPhone && (
                         <button onClick={() => sendWhatsApp(c.phone)}
-                          className="inline-flex items-center gap-1.5 rounded-full bg-[#4A6B58] px-3.5 py-2.5 text-[12px] font-semibold text-white transition hover:bg-[#3E5C4B]" title="Open WhatsApp">
+                          className="inline-flex items-center gap-1.5 rounded-full bg-emerald-600 px-3.5 py-2.5 text-[12px] font-semibold text-white transition hover:bg-emerald-700" title="Open WhatsApp">
                           <MessageCircle size={11} /> WhatsApp
                         </button>
                       )}
                     </div>
                   )}
-                  <button onClick={() => del(c._id)} className="rounded-full border border-neutral-200 p-2.5 text-neutral-400 transition hover:border-[#D0ABA0] hover:bg-[#F5EDEB] hover:text-[#8A4B3F]" aria-label="Delete"><X size={12} /></button>
+                  <button onClick={() => del(c._id)} className="rounded-full border border-neutral-200 p-2.5 text-neutral-400 transition hover:border-red-300 hover:bg-red-50 hover:text-red-700" aria-label="Delete"><X size={12} /></button>
                   <button onClick={() => setExpanded(isExpanded ? null : c._id)} aria-label={isExpanded ? 'Collapse details' : 'Expand details'}
                     className={`rounded-full border p-2.5 transition ${isExpanded ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-200 text-neutral-500 hover:bg-neutral-50'}`}>
                     <ChevronDown size={14} className={`transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
@@ -200,7 +200,7 @@ export default function AbandonedCarts() {
                         {c.phone && (
                           <p className="flex justify-between"><span className="text-neutral-500">Phone</span>
                             <a href={`https://wa.me/${c.phone.replace(/\D/g, '').replace(/^0/, '92')}`} target="_blank" rel="noreferrer"
-                              className="inline-flex items-center gap-1 font-medium text-[#3E5C4B] hover:underline">
+                              className="inline-flex items-center gap-1 font-medium text-emerald-700 hover:underline">
                               {c.phone} <ExternalLink size={10} />
                             </a>
                           </p>
@@ -239,17 +239,17 @@ export default function AbandonedCarts() {
 
       {/* ── Recovery tips ───────────────────────────────────────────────── */}
       {status === 'open' && carts.length > 0 && (
-        <div className="mt-6 rounded-2xl border border-[#D4D4D4] bg-[#F1F1F1] p-5">
+        <div className="mt-6 rounded-2xl border border-blue-200 bg-blue-50 p-5">
           <div className="flex items-start gap-3">
-            <BarChart3 size={18} className="mt-0.5 shrink-0 text-[#6B6B6B]" />
+            <BarChart3 size={18} className="mt-0.5 shrink-0 text-blue-600" />
             <div>
-              <p className="text-[13px] font-semibold text-[#3A3A3A]">Recovery tips</p>
-              <p className="mt-1 text-[12px] leading-relaxed text-[#4A4A4A]">
+              <p className="text-[13px] font-semibold text-blue-900">Recovery tips</p>
+              <p className="mt-1 text-[12px] leading-relaxed text-blue-800">
                 Use <b>Email</b> for automated recovery with discount codes, or <b>WhatsApp</b> for personal follow-up. Best results come from reaching out within the first 2 hours.
               </p>
               <div className="mt-2 flex flex-wrap gap-2">
-                <Link to="/admin/settings/email" className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1.5 text-[12px] font-semibold text-[#5A5A5A] hover:bg-[#E8E8E8]">Email templates →</Link>
-                <Link to="/admin/apps" className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1.5 text-[12px] font-semibold text-[#5A5A5A] hover:bg-[#E8E8E8]">WhatsApp settings →</Link>
+                <Link to="/admin/settings/email" className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1.5 text-[12px] font-semibold text-blue-700 hover:bg-blue-100">Email templates →</Link>
+                <Link to="/admin/apps" className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1.5 text-[12px] font-semibold text-blue-700 hover:bg-blue-100">WhatsApp settings →</Link>
               </div>
             </div>
           </div>
@@ -260,7 +260,7 @@ export default function AbandonedCarts() {
 }
 
 function Kpi({ icon: Icon, label, value, sub, tone }) {
-  const t = { up: 'bg-[#E9EFEA] text-[#3E5C4B]', down: 'bg-[#F5EDEB] text-[#8A4B3F]', warn: 'bg-[#F6F1E6] text-[#7A6239]', neutral: 'bg-neutral-100 text-neutral-700' };
+  const t = { up: 'bg-emerald-50 text-emerald-700', down: 'bg-red-50 text-red-700', warn: 'bg-amber-50 text-amber-700', neutral: 'bg-neutral-100 text-neutral-700' };
   return (
     <div className="rounded-2xl border border-neutral-200 bg-white p-5 transition hover:-translate-y-0.5 hover:shadow-sm">
       <span className={`grid h-10 w-10 place-items-center rounded-xl ${t[tone] || t.neutral}`}><Icon size={16} /></span>

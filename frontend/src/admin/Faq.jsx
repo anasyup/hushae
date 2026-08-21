@@ -75,7 +75,7 @@ export default function AdminFaq() {
               onChange={(e) => setFaq('enabled', e.target.checked)}
             />
             <span className="text-xs font-semibold text-neutral-600">FAQ page live</span>
-            <div className="relative h-6 w-11 rounded-full bg-neutral-100 transition peer-checked:bg-[#E9EFEA] after:absolute after:left-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:bg-white after:transition peer-checked:after:translate-x-5" />
+            <div className="relative h-6 w-11 rounded-full bg-neutral-100 transition peer-checked:bg-emerald-50 after:absolute after:left-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:bg-white after:transition peer-checked:after:translate-x-5" />
           </label>
         </div>
       </div>
@@ -133,7 +133,7 @@ export default function AdminFaq() {
                       className="rounded-full p-1.5 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-900 disabled:opacity-30"
                       aria-label="Move down"><ArrowDown size={14} /></button>
                     <button type="button" onClick={() => delItem(i)}
-                      className="rounded-full p-1.5 text-[#B46A5C] hover:bg-[#F5EDEB]"
+                      className="rounded-full p-1.5 text-red-500 hover:bg-red-50"
                       aria-label="Delete FAQ"><Trash2 size={14} /></button>
                   </div>
                 </div>

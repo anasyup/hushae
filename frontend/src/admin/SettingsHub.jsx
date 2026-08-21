@@ -181,7 +181,7 @@ export default function SettingsHub() {
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Search settings…"
-            className="w-72 max-w-full rounded-md border border-neutral-300 bg-white py-2.5 pl-9 pr-3 text-[13px] outline-none transition focus:border-neutral-900"
+            className="w-72 max-w-full rounded-xl border border-neutral-300 bg-white py-2.5 pl-9 pr-3 text-[13px] outline-none transition focus:border-neutral-900"
           />
         </div>
       </div>
@@ -191,7 +191,7 @@ export default function SettingsHub() {
         {/* Card grid */}
         <div>
           {filtered.length === 0 ? (
-            <div className="grid place-items-center rounded-md border border-dashed border-neutral-200 bg-white py-16 text-center">
+            <div className="grid place-items-center rounded-2xl border border-dashed border-neutral-200 bg-white py-16 text-center">
               <Search size={26} className="mb-2 text-neutral-300" />
               <p className="text-sm text-neutral-500">No settings match "{q}"</p>
             </div>
@@ -203,9 +203,9 @@ export default function SettingsHub() {
                   <Link
                     key={c.to}
                     to={c.to}
-                    className="group relative flex items-start gap-3 rounded-md border border-neutral-200 bg-white p-5 transition hover:border-neutral-300"
+                    className="group relative flex items-start gap-3 rounded-2xl border border-neutral-200 bg-white p-5 transition hover:-translate-y-0.5 hover:border-neutral-300 hover:shadow-sm"
                   >
-                    <span className="mt-0.5 grid h-11 w-11 shrink-0 place-items-center rounded-md bg-neutral-50 text-neutral-700 transition group-hover:bg-neutral-900 group-hover:text-white">
+                    <span className="mt-0.5 grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-neutral-50 text-neutral-700 transition group-hover:bg-neutral-900 group-hover:text-white">
                       <Icon size={18} strokeWidth={1.9} />
                     </span>
                     <div className="min-w-0 flex-1">
@@ -214,7 +214,7 @@ export default function SettingsHub() {
                         {c.badge && (
                           <span className={`rounded-full px-2 py-0.5 text-[12px] font-bold uppercase tracking-wider ${
                             c.badge === 'Coming soon'
-                              ? 'bg-[#EDE4CE] text-[#6B552F]'
+                              ? 'bg-amber-100 text-amber-800'
                               : 'bg-neutral-100 text-neutral-600'
                           }`}>{c.badge}</span>
                         )}
@@ -233,20 +233,20 @@ export default function SettingsHub() {
 
         {/* Right sidebar: quick info panel */}
         <aside className="space-y-4">
-          <div className="rounded-md border border-neutral-200 bg-white p-5">
+          <div className="rounded-2xl border border-neutral-200 bg-white p-5">
             <div className="flex items-center gap-2">
               <Info size={14} className="text-neutral-500" />
               <p className="text-[13px] font-bold uppercase tracking-widest text-neutral-500">Signed in as</p>
             </div>
             <p className="mt-2 text-[13px] font-semibold text-neutral-900">{auth?.user?.name || 'Admin'}</p>
             <p className="mt-0.5 font-mono text-[12px] text-neutral-500">{auth?.user?.email || '—'}</p>
-            <span className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-[#E9EFEA] px-2.5 py-1 text-[13px] font-bold uppercase tracking-wider text-[#33503F]">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#5B7F6A]" />
+            <span className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-[13px] font-bold uppercase tracking-wider text-emerald-800">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
               Admin access
             </span>
           </div>
 
-          <div className="rounded-md border border-neutral-200 bg-white p-5">
+          <div className="rounded-2xl border border-neutral-200 bg-white p-5">
             <p className="text-[13px] font-bold uppercase tracking-widest text-neutral-500">Popular tasks</p>
             <div className="mt-3 space-y-1">
               {[
@@ -255,7 +255,7 @@ export default function SettingsHub() {
                 { to: '/admin/apps',              label: 'Connect Google Analytics' },
                 { to: '/admin/settings/shipping', label: 'Update shipping rates' },
               ].map((t) => (
-                <Link key={t.to} to={t.to} className="flex items-center justify-between rounded-md px-2 py-1.5 text-[12px] text-neutral-700 transition hover:bg-neutral-50">
+                <Link key={t.to} to={t.to} className="flex items-center justify-between rounded-lg px-2 py-1.5 text-[12px] text-neutral-700 transition hover:bg-neutral-50">
                   {t.label}
                   <ChevronRight size={12} className="text-neutral-400" />
                 </Link>
@@ -263,7 +263,7 @@ export default function SettingsHub() {
             </div>
           </div>
 
-          <div className="rounded-md border border-neutral-900 bg-neutral-900 p-5 text-neutral-100">
+          <div className="rounded-2xl border border-neutral-900 bg-neutral-900 p-5 text-neutral-100">
             <p className="text-[13px] font-bold uppercase tracking-widest text-neutral-400">Need help?</p>
             <p className="mt-2 text-[13px] leading-relaxed text-neutral-200">
               Every setting page has inline hints. If you get stuck, contact your developer or open the changelog.

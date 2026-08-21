@@ -120,7 +120,7 @@ export function ResourcePicker({ field, value, onChange }: { field: Field; value
       </button>
 
       {open && (
-        <div className="mt-2 rounded-md border border-neutral-200 bg-white shadow-md">
+        <div className="mt-2 rounded-xl border border-neutral-200 bg-white shadow-lg">
           <div className="flex items-center gap-2 border-b border-neutral-100 px-3 py-2">
             <Search size={13} className="text-neutral-400" />
             <input autoFocus className="w-full text-xs outline-none" placeholder="Search…" value={q} onChange={(e) => setQ(e.target.value)} />
@@ -133,7 +133,7 @@ export function ResourcePicker({ field, value, onChange }: { field: Field; value
               const on = selected.includes(r.id);
               return (
                 <button key={r.id} type="button" onClick={() => toggle(r.id)}
-                  className={`flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 text-left transition ${on ? 'bg-[#A68A56]/8' : 'hover:bg-neutral-50'}`}>
+                  className={`flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 text-left transition ${on ? 'bg-[#005BD3]/8' : 'hover:bg-neutral-50'}`}>
                   {r.image
                     ? <img src={r.image} alt="" className="h-8 w-8 shrink-0 rounded object-cover" />
                     : <span className="h-8 w-8 shrink-0 rounded bg-neutral-100" />}
@@ -141,7 +141,7 @@ export function ResourcePicker({ field, value, onChange }: { field: Field; value
                     <span className="block truncate text-xs font-medium">{r.label}</span>
                     {r.sub && <span className="block truncate text-[13px] text-neutral-400">{r.sub}</span>}
                   </span>
-                  {on && <Check size={13} className="shrink-0 text-[#A68A56]" />}
+                  {on && <Check size={13} className="shrink-0 text-[#005BD3]" />}
                 </button>
               );
             })}

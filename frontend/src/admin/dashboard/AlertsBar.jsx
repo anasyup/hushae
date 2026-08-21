@@ -3,9 +3,9 @@ import { Link } from 'react-router-dom';
 import { AlertTriangle, ArrowRight, CheckCircle2, Info, PackageX, X } from 'lucide-react';
 
 const TONE = {
-  danger:  { chip: 'bg-[#F5EDEB] text-[#8A4B3F] ring-[#E0C6BE]',       dot: 'bg-[#B46A5C]',   icon: PackageX },
-  warning: { chip: 'bg-[#F6F1E6] text-[#6B552F] ring-[#DCCBA5]', dot: 'bg-[#C9A96E]', icon: AlertTriangle },
-  info:    { chip: 'bg-[#F1F1F1] text-[#5A5A5A] ring-[#D4D4D4]',    dot: 'bg-[#6B6B6B]',  icon: Info },
+  danger:  { chip: 'bg-red-50 text-red-700 ring-red-200',       dot: 'bg-red-500',   icon: PackageX },
+  warning: { chip: 'bg-amber-50 text-amber-800 ring-amber-200', dot: 'bg-amber-500', icon: AlertTriangle },
+  info:    { chip: 'bg-blue-50 text-blue-700 ring-blue-200',    dot: 'bg-blue-500',  icon: Info },
 };
 
 const KEY = 'hushae_alerts_dismissed';
@@ -34,9 +34,9 @@ export default function AlertsBar({ alerts }) {
 
   if (visible.length === 0) {
     return (
-      <div className="mb-6 flex items-center gap-2.5 rounded-2xl border border-[#C9D8CE] bg-[#E9EFEA] px-4 py-3">
-        <CheckCircle2 size={16} className="shrink-0 text-[#4A6B58]" />
-        <p className="text-[13px] font-medium text-[#33503F]">All caught up 🎉 — nothing needs your attention right now.</p>
+      <div className="mb-6 flex items-center gap-2.5 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3">
+        <CheckCircle2 size={16} className="shrink-0 text-emerald-600" />
+        <p className="text-[13px] font-medium text-emerald-800">All caught up 🎉 — nothing needs your attention right now.</p>
       </div>
     );
   }

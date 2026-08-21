@@ -18,7 +18,7 @@ function BackToSettings() {
 function PageIntro({ icon: Icon, title, description }) {
   return (
     <div className="mb-6 flex items-start gap-4 border-b border-neutral-200 pb-6">
-      <span className="grid h-12 w-12 shrink-0 place-items-center rounded-md bg-neutral-900 text-white">
+      <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-neutral-900 text-white">
         <Icon size={20} strokeWidth={1.8} />
       </span>
       <div>
@@ -31,7 +31,7 @@ function PageIntro({ icon: Icon, title, description }) {
 
 function Section({ title, description, children, action }) {
   return (
-    <section className="rounded-md border border-neutral-200 bg-white p-6 shadow-sm">
+    <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
       <div className="mb-5 flex items-start justify-between">
         <div>
           <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-900">{title}</p>
@@ -282,8 +282,8 @@ export default function SettingsSecurity() {
     if (/[0-9]/.test(next)) score++;
     if (/[^A-Za-z0-9]/.test(next)) score++;
     const map = [
-      { label: 'Very weak', color: '#9A5548', pct: 20 },
-      { label: 'Weak',      color: '#A68A56', pct: 40 },
+      { label: 'Very weak', color: '#dc2626', pct: 20 },
+      { label: 'Weak',      color: '#ea580c', pct: 40 },
       { label: 'Fair',      color: '#ca8a04', pct: 60 },
       { label: 'Good',      color: '#65a30d', pct: 80 },
       { label: 'Strong',    color: '#16a34a', pct: 100 },
@@ -327,7 +327,7 @@ export default function SettingsSecurity() {
               <button
                 key={t.id}
                 onClick={() => { setActiveTab(t.id); setLogPage(1); }}
-                className={`inline-flex shrink-0 items-center gap-1.5 rounded-md border px-3.5 py-2 text-[13px] font-medium transition ${
+                className={`inline-flex shrink-0 items-center gap-1.5 rounded-lg border px-3.5 py-2 text-[13px] font-medium transition ${
                   active ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-200 bg-white text-neutral-600 hover:border-neutral-300'
                 }`}
               >
@@ -347,14 +347,14 @@ export default function SettingsSecurity() {
               description="Configure your unique identifier used for authentication."
             >
               <form onSubmit={handleUsernameChange} className="space-y-4">
-                <div className="rounded-md border border-neutral-200 bg-neutral-50 p-3 text-[12px] text-neutral-600">
+                <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-3 text-[12px] text-neutral-600">
                   <span className="font-semibold text-neutral-500">Current Username:</span>{' '}
                   <span className="font-mono text-neutral-900">{auth?.user?.email || '—'}</span>
                 </div>
                 <div>
                   <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500">New Username (Email)</label>
                   <input
-                    className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900"
+                    className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900"
                     value={uNew}
                     onChange={(e) => setUNew(e.target.value)}
                     placeholder="e.g. admin@hushae.pk"
@@ -364,7 +364,7 @@ export default function SettingsSecurity() {
                 <div className="relative">
                   <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500">Confirm with Current Password</label>
                   <input
-                    className="w-full rounded-md border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 pr-10"
+                    className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 pr-10"
                     type={uShow ? 'text' : 'password'}
                     value={uCurrent}
                     onChange={(e) => setUCurrent(e.target.value)}
@@ -381,7 +381,7 @@ export default function SettingsSecurity() {
                 <button
                   type="submit"
                   disabled={uBusy || !uCurrent || !uNew}
-                  className="inline-flex min-h-[44px] items-center gap-1.5 rounded-md bg-neutral-900 px-4 py-2 text-xs font-semibold text-white transition hover:bg-neutral-800 disabled:opacity-40"
+                  className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg bg-neutral-900 px-4 py-2 text-xs font-semibold text-white transition hover:bg-neutral-800 disabled:opacity-40"
                 >
                   {uBusy ? 'Updating…' : 'Update Username'}
                 </button>
@@ -397,7 +397,7 @@ export default function SettingsSecurity() {
                 <div className="relative">
                   <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500">Current Password</label>
                   <input
-                    className="w-full rounded-md border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 pr-10"
+                    className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 pr-10"
                     type={show.c ? 'text' : 'password'}
                     value={current}
                     onChange={(e) => setCurrent(e.target.value)}
@@ -409,7 +409,7 @@ export default function SettingsSecurity() {
                   <div className="relative">
                     <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500">New Password</label>
                     <input
-                      className="w-full rounded-md border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 pr-10"
+                      className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 pr-10"
                       type={show.n ? 'text' : 'password'}
                       value={next}
                       onChange={(e) => setNext(e.target.value)}
@@ -420,7 +420,7 @@ export default function SettingsSecurity() {
                   <div className="relative">
                     <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500">Confirm New Password</label>
                     <input
-                      className="w-full rounded-md border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 pr-10"
+                      className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 pr-10"
                       type={show.x ? 'text' : 'password'}
                       value={confirm}
                       onChange={(e) => setConfirm(e.target.value)}
@@ -431,7 +431,7 @@ export default function SettingsSecurity() {
                 </div>
 
                 {next && (
-                  <div className="rounded-md border border-neutral-100 bg-neutral-50 p-3.5">
+                  <div className="rounded-xl border border-neutral-100 bg-neutral-50 p-3.5">
                     <div className="flex items-center justify-between text-xs font-semibold text-neutral-700">
                       <span>Strength</span>
                       <span style={{ color: strength.color }}>{strength.label}</span>
@@ -445,7 +445,7 @@ export default function SettingsSecurity() {
                 <button
                   type="submit"
                   disabled={busy || !current || !next || next !== confirm}
-                  className="inline-flex min-h-[44px] items-center gap-1.5 rounded-md bg-neutral-900 px-4 py-2 text-xs font-semibold text-white transition hover:bg-neutral-800 disabled:opacity-40"
+                  className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg bg-neutral-900 px-4 py-2 text-xs font-semibold text-white transition hover:bg-neutral-800 disabled:opacity-40"
                 >
                   {busy ? 'Updating…' : 'Update Password'}
                 </button>
@@ -458,21 +458,21 @@ export default function SettingsSecurity() {
               description="Add an extra security layer: after your password, you'll need a 6-digit code emailed to you to sign in."
             >
               <div className="space-y-4">
-                <div className={`flex items-center justify-between rounded-md border p-4 ${twoFa.enabled ? 'border-[#C9D8CE] bg-[#E9EFEA]' : 'border-neutral-200 bg-neutral-50'}`}>
+                <div className={`flex items-center justify-between rounded-xl border p-4 ${twoFa.enabled ? 'border-emerald-200 bg-emerald-50' : 'border-neutral-200 bg-neutral-50'}`}>
                   <div>
                     <p className="text-[13px] font-semibold text-neutral-900">{twoFa.enabled ? '2FA is ON' : '2FA is OFF'}</p>
                     <p className="mt-0.5 text-[11px] text-neutral-500">{twoFa.enabled ? 'Every sign-in needs a code from your inbox.' : 'Sign-in currently needs only your password.'}</p>
                   </div>
                   <button
                     onClick={() => setTwoFa({ ...twoFa, step: 'start' })}
-                    className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-semibold transition ${twoFa.enabled ? 'bg-white border border-neutral-200 text-neutral-600 hover:border-[#D0ABA0] hover:text-[#9A5548]' : 'bg-neutral-900 text-white hover:bg-neutral-800'}`}
+                    className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-semibold transition ${twoFa.enabled ? 'bg-white border border-neutral-200 text-neutral-600 hover:border-red-300 hover:text-red-600' : 'bg-neutral-900 text-white hover:bg-neutral-800'}`}
                   >
                     {twoFa.enabled ? 'Turn off' : 'Turn on'}
                   </button>
                 </div>
 
                 {twoFa.step !== 'idle' && (
-                  <div className="rounded-md border border-neutral-200 bg-white p-4">
+                  <div className="rounded-xl border border-neutral-200 bg-white p-4">
                     {twoFa.enabled ? (
                       <p className="mb-3 text-[12px] text-neutral-600">Enter your current password to disable 2FA.</p>
                     ) : twoFa.step === 'start' ? (
@@ -482,7 +482,7 @@ export default function SettingsSecurity() {
                     )}
                     {twoFa.step !== 'code' && (
                       <div className="flex gap-2">
-                        <input type="password" placeholder="Current password" className="flex-1 rounded-md border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none focus:border-neutral-900" value={twoFa.pass} onChange={(e) => setTwoFa({ ...twoFa, pass: e.target.value })} />
+                        <input type="password" placeholder="Current password" className="flex-1 rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none focus:border-neutral-900" value={twoFa.pass} onChange={(e) => setTwoFa({ ...twoFa, pass: e.target.value })} />
                         <button
                           disabled={twoFaBusy || !twoFa.pass}
                           onClick={async () => {
@@ -502,7 +502,7 @@ export default function SettingsSecurity() {
                     )}
                     {twoFa.step === 'code' && (
                       <div className="flex gap-2">
-                        <input type="text" inputMode="numeric" maxLength={6} placeholder="6-digit code" className="flex-1 rounded-md border border-neutral-300 bg-white px-3 py-2 text-[16px] tracking-[6px] outline-none focus:border-neutral-900" value={twoFa.code} onChange={(e) => setTwoFa({ ...twoFa, code: e.target.value.replace(/\D/g, '') })} />
+                        <input type="text" inputMode="numeric" maxLength={6} placeholder="6-digit code" className="flex-1 rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[16px] tracking-[6px] outline-none focus:border-neutral-900" value={twoFa.code} onChange={(e) => setTwoFa({ ...twoFa, code: e.target.value.replace(/\D/g, '') })} />
                         <button
                           disabled={twoFaBusy || twoFa.code.length !== 6}
                           onClick={async () => {
@@ -539,7 +539,7 @@ export default function SettingsSecurity() {
                   <div>
                     <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500">Full Name</label>
                     <input
-                      className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900"
+                      className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900"
                       value={userForm.name}
                       onChange={(e) => setUserForm({ ...userForm, name: e.target.value })}
                       placeholder="e.g. Bilal Khan"
@@ -550,7 +550,7 @@ export default function SettingsSecurity() {
                     <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500">Email Address (Username)</label>
                     <input
                       type="email"
-                      className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900"
+                      className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900"
                       value={userForm.email}
                       onChange={(e) => setUserForm({ ...userForm, email: e.target.value })}
                       placeholder="e.g. bilal@hushae.pk"
@@ -561,7 +561,7 @@ export default function SettingsSecurity() {
                     <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500">Initial Password</label>
                     <input
                       type="password"
-                      className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900"
+                      className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900"
                       value={userForm.password}
                       onChange={(e) => setUserForm({ ...userForm, password: e.target.value })}
                       placeholder="••••••••"
@@ -571,7 +571,7 @@ export default function SettingsSecurity() {
                   <div>
                     <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500">Administrative Role</label>
                     <select
-                      className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900"
+                      className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900"
                       value={userForm.role}
                       onChange={(e) => setUserForm({ ...userForm, role: e.target.value })}
                     >
@@ -585,7 +585,7 @@ export default function SettingsSecurity() {
                   <button
                     type="submit"
                     disabled={userBusy}
-                    className="inline-flex min-h-[44px] w-full items-center justify-center gap-1.5 rounded-md bg-neutral-900 px-4 py-2 text-xs font-semibold text-white transition hover:bg-neutral-800"
+                    className="inline-flex min-h-[44px] w-full items-center justify-center gap-1.5 rounded-lg bg-neutral-900 px-4 py-2 text-xs font-semibold text-white transition hover:bg-neutral-800"
                   >
                     <Plus size={13} /> {userBusy ? 'Creating…' : 'Create Account'}
                   </button>
@@ -599,7 +599,7 @@ export default function SettingsSecurity() {
                 title="Active Administrative Accounts"
                 description="List of administrative users authorized with granular backend permissions."
               >
-                <div className="overflow-hidden rounded-md border border-neutral-200 bg-white">
+                <div className="overflow-hidden rounded-xl border border-neutral-200 bg-white">
                   <table className="w-full text-left">
                     <thead className="bg-neutral-50 text-[12px] uppercase tracking-wider text-neutral-600">
                       <tr>
@@ -633,7 +633,7 @@ export default function SettingsSecurity() {
                               onClick={() => handleUpdateUserStatus(u._id, !u.isActive, u.role)}
                               disabled={String(u._id) === String(auth?.user?._id)}
                               className={`rounded-full px-2 py-0.5 text-[13px] font-bold uppercase ${
-                                u.isActive ? 'bg-[#DDE7E0] text-[#33503F]' : 'bg-[#EEDED9] text-[#7C4237]'
+                                u.isActive ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'
                               }`}
                             >
                               {u.isActive ? 'Active' : 'Suspended'}
@@ -643,7 +643,7 @@ export default function SettingsSecurity() {
                             <button
                               onClick={() => handleDeleteUser(u._id)}
                               disabled={String(u._id) === String(auth?.user?._id)}
-                              className="p-1 text-neutral-400 hover:text-[#9A5548] transition"
+                              className="p-1 text-neutral-400 hover:text-red-600 transition"
                               title="Delete Account"
                             >
                               <Trash2 size={15} />
@@ -667,7 +667,7 @@ export default function SettingsSecurity() {
               <button
                 onClick={revokeOthers}
                 disabled={sessBusy || !sessions?.length}
-                className="inline-flex items-center gap-1.5 rounded-md border border-neutral-200 bg-white px-3 py-1.5 text-[13px] font-semibold text-neutral-600 transition hover:border-neutral-400"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-3 py-1.5 text-[13px] font-semibold text-neutral-600 transition hover:border-neutral-400"
               >
                 <LogOut size={12} /> Sign out other devices
               </button>
@@ -682,13 +682,13 @@ export default function SettingsSecurity() {
                 {sessions.map((s) => (
                   <div key={s.jti} className="flex items-center justify-between gap-3 py-3">
                     <div className="flex items-center gap-3">
-                      <span className="grid h-9 w-9 place-items-center rounded-md bg-neutral-100 text-neutral-500">
+                      <span className="grid h-9 w-9 place-items-center rounded-xl bg-neutral-100 text-neutral-500">
                         {/iPhone|Android|phone/i.test(s.device || '') ? <Smartphone size={15} /> : <Monitor size={15} />}
                       </span>
                       <div>
                         <p className="text-[13px] font-semibold text-neutral-900">
                           {s.device || 'Unknown device'}{s.browser ? ` · ${s.browser}` : ''}
-                          {s.current && <span className="ml-2 rounded-full bg-[#DDE7E0] px-2 py-0.5 text-[11px] font-bold uppercase text-[#3E5C4B]">This device</span>}
+                          {s.current && <span className="ml-2 rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-bold uppercase text-emerald-700">This device</span>}
                         </p>
                         <p className="mt-0.5 text-[11px] text-neutral-500">
                           {s.ipHint ? `Network ${s.ipHint} · ` : ''}
@@ -700,7 +700,7 @@ export default function SettingsSecurity() {
                       <button
                         onClick={() => revokeSession(s.jti)}
                         disabled={sessBusy}
-                        className="inline-flex items-center gap-1 rounded-md border border-neutral-200 px-2.5 py-1.5 text-[11px] font-semibold text-neutral-500 transition hover:border-[#D0ABA0] hover:text-[#9A5548]"
+                        className="inline-flex items-center gap-1 rounded-lg border border-neutral-200 px-2.5 py-1.5 text-[11px] font-semibold text-neutral-500 transition hover:border-red-300 hover:text-red-600"
                       >
                         <X size={11} /> Revoke
                       </button>
@@ -722,7 +722,7 @@ export default function SettingsSecurity() {
               <div className="relative flex-1">
                 <Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
                 <input
-                  className="w-full rounded-md border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 !pl-9 !py-2"
+                  className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[12px] outline-none transition focus:border-neutral-900 !pl-9 !py-2"
                   value={logQuery}
                   onChange={(e) => setLogQuery(e.target.value)}
                   placeholder="Search logs by email, action, target..."
@@ -730,21 +730,21 @@ export default function SettingsSecurity() {
               </div>
               <button
                 onClick={() => { setLogPage(1); loadLogs(); }}
-                className="inline-flex min-h-[44px] items-center gap-1.5 rounded-md bg-neutral-900 px-4 py-2 text-xs font-semibold text-white transition hover:bg-neutral-800"
+                className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg bg-neutral-900 px-4 py-2 text-xs font-semibold text-white transition hover:bg-neutral-800"
               >
                 Search
               </button>
             </div>
 
             {logsBusy ? (
-              <div className="animate-pulse rounded-md bg-neutral-100 h-64 w-full" />
+              <div className="animate-pulse rounded-xl bg-neutral-100 h-64 w-full" />
             ) : logs.length === 0 ? (
-              <div className="text-center py-12 bg-neutral-50 rounded-md border border-dashed text-neutral-500 text-sm">
+              <div className="text-center py-12 bg-neutral-50 rounded-xl border border-dashed text-neutral-500 text-sm">
                 No audit logs found matching the query.
               </div>
             ) : (
               <div className="space-y-3">
-                <div className="overflow-hidden rounded-md border border-neutral-200 bg-white">
+                <div className="overflow-hidden rounded-xl border border-neutral-200 bg-white">
                   <table className="w-full text-left">
                     <thead className="bg-neutral-50 text-[12px] uppercase tracking-wider text-neutral-600">
                       <tr>
@@ -760,9 +760,9 @@ export default function SettingsSecurity() {
                           <td className="px-4 py-3 text-neutral-900">{l.user}</td>
                           <td className="px-4 py-3">
                             <span className={`px-2 py-0.5 rounded font-bold uppercase text-[12px] ${
-                              l.action === 'create' ? 'bg-[#E8E8E8] text-[#4A4A4A]' :
-                              l.action === 'update' ? 'bg-[#EDE4CE] text-[#6B552F]' :
-                              l.action === 'delete' ? 'bg-[#EEDED9] text-[#7C4237]' : 'bg-neutral-100 text-neutral-800'
+                              l.action === 'create' ? 'bg-blue-100 text-blue-800' :
+                              l.action === 'update' ? 'bg-amber-100 text-amber-800' :
+                              l.action === 'delete' ? 'bg-red-100 text-red-800' : 'bg-neutral-100 text-neutral-800'
                             }`}>{l.action}</span>
                           </td>
                           <td className="px-4 py-3 text-neutral-700">
@@ -809,24 +809,24 @@ export default function SettingsSecurity() {
             description="System flags indicators like double-submissions, new customers placing orders over 10K PKR, matching phone numbers with separate names, or duplicate addresses."
           >
             {fraudBusy ? (
-              <div className="animate-pulse rounded-md bg-neutral-100 h-64 w-full" />
+              <div className="animate-pulse rounded-xl bg-neutral-100 h-64 w-full" />
             ) : fraudOrders.length === 0 ? (
-              <div className="text-center py-16 bg-neutral-50 border border-dashed rounded-md text-neutral-500">
-                <Check className="mx-auto text-[#5B7F6A] mb-2" size={24} />
+              <div className="text-center py-16 bg-neutral-50 border border-dashed rounded-2xl text-neutral-500">
+                <Check className="mx-auto text-emerald-500 mb-2" size={24} />
                 <p className="font-semibold text-neutral-900">Zero suspicious orders pending review</p>
                 <p className="text-xs mt-1">Excellent! All recent orders look clean and pass validation checks.</p>
               </div>
             ) : (
               <div className="space-y-4">
                 {fraudOrders.map((o) => (
-                  <div key={o._id} className="rounded-md border border-neutral-200 bg-white p-4 shadow-sm">
+                  <div key={o._id} className="rounded-xl border border-neutral-200 bg-white p-4 shadow-sm">
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b pb-3 mb-3">
                       <div>
                         <div className="flex items-center gap-2">
                           <span className="font-mono font-bold text-sm">{o.orderNumber}</span>
                           <span className={`rounded-full px-2 py-0.5 text-[12px] font-bold uppercase ${
-                            o.fraudFilter?.status === 'pending' ? 'bg-[#EDE4CE] text-[#6B552F]' :
-                            o.fraudFilter?.status === 'approved' ? 'bg-[#DDE7E0] text-[#33503F]' : 'bg-[#EEDED9] text-[#7C4237]'
+                            o.fraudFilter?.status === 'pending' ? 'bg-amber-100 text-amber-800' :
+                            o.fraudFilter?.status === 'approved' ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'
                           }`}>{o.fraudFilter?.status || 'pending'}</span>
                         </div>
                         <p className="text-xs text-neutral-500 mt-1">
@@ -837,13 +837,13 @@ export default function SettingsSecurity() {
                         <div className="flex gap-2 mt-3 md:mt-0">
                           <button
                             onClick={() => handleFraudAction(o._id, 'approved')}
-                            className="px-3 py-1.5 bg-[#4A6B58] hover:bg-[#3E5C4B] text-white rounded-md text-xs font-semibold"
+                            className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold"
                           >
                             Approve Order
                           </button>
                           <button
                             onClick={() => handleFraudAction(o._id, 'rejected')}
-                            className="px-3 py-1.5 bg-[#9A5548] hover:bg-[#8A4B3F] text-white rounded-md text-xs font-semibold"
+                            className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-semibold"
                           >
                             Reject & Cancel
                           </button>
@@ -852,7 +852,7 @@ export default function SettingsSecurity() {
                     </div>
                     {/* Reasons */}
                     <div className="space-y-2">
-                      <p className="text-[12px] font-bold text-[#8A4B3F] uppercase tracking-wider">Flagged Suspicious Indicators:</p>
+                      <p className="text-[12px] font-bold text-red-700 uppercase tracking-wider">Flagged Suspicious Indicators:</p>
                       <ul className="list-disc pl-4 space-y-1">
                         {(o.fraudFilter?.reasons || []).map((r, i) => (
                           <li key={i} className="text-xs text-neutral-700 font-medium">{r}</li>
@@ -879,7 +879,7 @@ export default function SettingsSecurity() {
                 <button
                   type="button"
                   onClick={handleRotateSecret}
-                  className="inline-flex min-h-[44px] items-center gap-1.5 rounded-md bg-[#9A5548] text-white px-4 py-2 text-xs font-semibold transition hover:bg-[#8A4B3F]"
+                  className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg bg-red-600 text-white px-4 py-2 text-xs font-semibold transition hover:bg-red-700"
                 >
                   <RefreshCw size={13} /> Rotate All Access Keys Now
                 </button>

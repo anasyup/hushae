@@ -64,7 +64,7 @@ export default function CustomerPanel({ phone, token, onClose }) {
                   <div className="flex flex-wrap items-center gap-2">
                     <h2 className="truncate text-[12px] font-semibold text-neutral-900">{c.name || 'Customer'}</h2>
                     {c.isRepeat && (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-[#F6F1E6] px-2 py-0.5 text-[12px] font-bold uppercase tracking-wide text-[#7A6239] ring-1 ring-[#DCCBA5]">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[12px] font-bold uppercase tracking-wide text-amber-700 ring-1 ring-amber-200">
                         <Award size={10} /> Repeat
                       </span>
                     )}
@@ -79,7 +79,7 @@ export default function CustomerPanel({ phone, token, onClose }) {
             <div className="flex shrink-0 items-center gap-1">
               {c && (
                 <a href={wa} target="_blank" rel="noreferrer" title="WhatsApp"
-                  className="grid h-8 w-8 place-items-center rounded-lg border border-neutral-200 text-[#4A6B58] hover:bg-[#E9EFEA]">
+                  className="grid h-8 w-8 place-items-center rounded-lg border border-neutral-200 text-emerald-600 hover:bg-emerald-50">
                   <MessageCircle size={15} />
                 </a>
               )}
@@ -119,7 +119,7 @@ export default function CustomerPanel({ phone, token, onClose }) {
 
         {/* Body */}
         <div className="flex-1 overflow-y-auto p-4">
-          {err && <p className="rounded-lg border border-[#E0C6BE] bg-[#F5EDEB] p-3 text-[13px] text-[#7C4237]">{err}</p>}
+          {err && <p className="rounded-lg border border-red-200 bg-red-50 p-3 text-[13px] text-red-800">{err}</p>}
           {!data && !err && (
             <div className="grid h-40 place-items-center"><Loader2 size={18} className="animate-spin text-neutral-400" /></div>
           )}
@@ -187,7 +187,7 @@ export default function CustomerPanel({ phone, token, onClose }) {
                   {data.issues.map((i) => (
                     <div key={i._id} className="rounded-lg border border-neutral-200 p-3">
                       <div className="flex items-center gap-2">
-                        <AlertTriangle size={13} className="shrink-0 text-[#8F7448]" />
+                        <AlertTriangle size={13} className="shrink-0 text-amber-600" />
                         <span className="text-[13px] font-semibold">{i.issueType}</span>
                         <span className="ml-auto rounded-full bg-neutral-100 px-2 py-0.5 text-[12px] font-semibold">{i.status}</span>
                       </div>
@@ -238,7 +238,7 @@ const Section = ({ title, children }) => (
 const Row = ({ label, value, tone }) => (
   <div className="flex items-center justify-between border-b border-neutral-100 py-1.5 text-[12px] last:border-0">
     <span className="text-neutral-500">{label}</span>
-    <span className={`font-medium ${tone === 'bad' ? 'text-[#9A5548]' : 'text-neutral-900'}`}>{value}</span>
+    <span className={`font-medium ${tone === 'bad' ? 'text-red-600' : 'text-neutral-900'}`}>{value}</span>
   </div>
 );
 

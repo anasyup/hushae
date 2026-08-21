@@ -55,7 +55,7 @@ export default function SectionTree() {
             ))}
           {group !== 'header' && (
             <button onClick={() => openAddSection(group)}
-              className="mx-1.5 mt-1 flex w-[calc(100%-12px)] items-center gap-2 rounded-md px-2 py-2 text-left text-[15px] font-medium text-[#A68A56] transition hover:bg-[#A68A56]/8">
+              className="mx-1.5 mt-1 flex w-[calc(100%-12px)] items-center gap-2 rounded-md px-2 py-2 text-left text-[15px] font-medium text-[#005BD3] transition hover:bg-[#005BD3]/8">
               <Plus size={14} /> Add section
             </button>
           )}
@@ -142,8 +142,8 @@ const TreeNode = memo(function TreeNode({ node, group, depth, index, parentId, m
         onDoubleClick={() => { setDraft(labelFor(node)); setEditing(true); }}
         title={schema?.description || labelFor(node)}
         className={`group relative mx-1.5 flex items-center gap-1 rounded-md pr-1 transition ${
-          active ? 'bg-[#A68A56]/10' : 'hover:bg-neutral-100'
-        } ${dragOver === 'inside' ? 'ring-2 ring-inset ring-[#A68A56]' : ''}`}
+          active ? 'bg-[#005BD3]/10' : 'hover:bg-neutral-100'
+        } ${dragOver === 'inside' ? 'ring-2 ring-inset ring-[#005BD3]' : ''}`}
         style={{ paddingLeft: 4 + depth * 14 }}
       >
         {hasKids ? (
@@ -154,13 +154,13 @@ const TreeNode = memo(function TreeNode({ node, group, depth, index, parentId, m
         ) : <span className="w-5 shrink-0" />}
 
         <Icon name={(schema as any)?.icon || 'Square'} size={13}
-          className={`shrink-0 ${node.hidden ? 'text-neutral-300' : active ? 'text-[#A68A56]' : 'text-neutral-500'}`} />
+          className={`shrink-0 ${node.hidden ? 'text-neutral-300' : active ? 'text-[#005BD3]' : 'text-neutral-500'}`} />
 
         {editing ? (
           <input autoFocus value={draft} onChange={(e) => setDraft(e.target.value)}
             onBlur={commitRename} onKeyDown={(e) => { if (e.key === 'Enter') commitRename(); if (e.key === 'Escape') setEditing(false); }}
             onClick={(e) => e.stopPropagation()}
-            className="min-w-0 flex-1 rounded border border-[#A68A56] px-1 py-0.5 text-[15px] outline-none" />
+            className="min-w-0 flex-1 rounded border border-[#005BD3] px-1 py-0.5 text-[15px] outline-none" />
         ) : (
           <span className={`min-w-0 flex-1 truncate py-1.5 text-[15px] ${
             node.hidden ? 'text-neutral-400 line-through' : active ? 'font-medium text-neutral-900' : 'text-neutral-700'
@@ -182,7 +182,7 @@ const TreeNode = memo(function TreeNode({ node, group, depth, index, parentId, m
 
       {expanded && canNest && (
         <button onClick={(e) => { e.stopPropagation(); openAddBlock(node.id); }}
-          className="mx-1.5 flex items-center gap-1.5 rounded-md py-1.5 text-left text-[13.5px] font-medium text-neutral-500 transition hover:text-[#A68A56]"
+          className="mx-1.5 flex items-center gap-1.5 rounded-md py-1.5 text-left text-[13.5px] font-medium text-neutral-500 transition hover:text-[#005BD3]"
           style={{ paddingLeft: 24 + depth * 14 }}>
           <Plus size={12} /> Add block
         </button>

@@ -110,7 +110,7 @@ export default function Apps() {
             </div>
             <label className="inline-flex cursor-pointer items-center gap-2">
               <input type="checkbox" className="peer sr-only" checked={loyalty.enabled} onChange={(e) => setLoyalty('enabled', e.target.checked)} />
-              <div className="relative h-6 w-11 rounded-full bg-neutral-100 transition peer-checked:bg-[#E9EFEA] after:absolute after:left-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:bg-white after:transition peer-checked:after:translate-x-5" />
+              <div className="relative h-6 w-11 rounded-full bg-neutral-100 transition peer-checked:bg-emerald-50 after:absolute after:left-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:bg-white after:transition peer-checked:after:translate-x-5" />
             </label>
           </div>
           <div className={`mt-5 grid gap-3 md:grid-cols-3 ${loyalty.enabled ? '' : 'pointer-events-none opacity-40'}`}>
@@ -157,7 +157,7 @@ export default function Apps() {
               <h2 className="font-sans text-lg">Media Library — PC se Image & Video Upload</h2>
               <p className="mt-0.5 text-xs text-neutral-500"><b className="text-neutral-900">Images upload without any setup</b> (they save into the database). This optional connection is only for <b className="text-neutral-900">videos and large files</b> .</p>
             </div>
-            {media.cloudName && media.uploadPreset && <span className="ml-auto rounded-full bg-[#E9EFEA] px-3 py-1 text-[12px] font-semibold text-[#3E5C4B]">Connected</span>}
+            {media.cloudName && media.uploadPreset && <span className="ml-auto rounded-full bg-emerald-50 px-3 py-1 text-[12px] font-semibold text-emerald-700">Connected</span>}
           </div>
           <ol className="mt-4 list-decimal space-y-1.5 rounded-2xl border border-neutral-200 bg-neutral-100 p-4 pl-9 text-xs leading-relaxed text-neutral-500">
             <li><b className="text-neutral-900">cloudinary.com</b> and create a free account (email + password — completely free)</li>
@@ -189,7 +189,7 @@ export default function Apps() {
               </p>
             </div>
             {(email.host && email.user) && (
-              <span className="ml-auto rounded-full bg-[#E9EFEA] px-3 py-1 text-[12px] font-semibold text-[#3E5C4B]">Connected</span>
+              <span className="ml-auto rounded-full bg-emerald-50 px-3 py-1 text-[12px] font-semibold text-emerald-700">Connected</span>
             )}
           </div>
 
@@ -249,7 +249,7 @@ export default function Apps() {
               </p>
             </div>
             {(analytics.gaId || analytics.metaPixelId) && (
-              <span className="ml-auto rounded-full bg-[#E9EFEA] px-3 py-1 text-[12px] font-semibold text-[#3E5C4B]">Connected</span>
+              <span className="ml-auto rounded-full bg-emerald-50 px-3 py-1 text-[12px] font-semibold text-emerald-700">Connected</span>
             )}
           </div>
 

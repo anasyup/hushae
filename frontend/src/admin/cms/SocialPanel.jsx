@@ -60,7 +60,7 @@ export default function SocialPanel({ page, cfg, onChangeSeo }) {
       title="Sharing on WhatsApp & Facebook"
       subtitle="The picture and words people see when your link is pasted"
       badge={!resolved.image ? (
-        <span className="rounded-full bg-[#F6F1E6] px-2 py-0.5 text-[13px] font-semibold text-[#5C4A28] ring-1 ring-[#CDB98F]">
+        <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[13px] font-semibold text-amber-900 ring-1 ring-amber-300">
           No picture
         </span>
       ) : null}

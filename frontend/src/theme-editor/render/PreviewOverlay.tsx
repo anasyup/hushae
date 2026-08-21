@@ -57,14 +57,14 @@ export default function PreviewOverlay({
             style={{
               top: target.rect.top, left: target.rect.left,
               width: target.rect.width, height: target.rect.height,
-              outline: '2px solid #A68A56', outlineOffset: -2, background: 'rgba(0,91,211,.08)',
+              outline: '2px solid #005BD3', outlineOffset: -2, background: 'rgba(0,91,211,.08)',
             }} />
         ) : (
           <div className="te-overlay pointer-events-none fixed z-[9999]"
             style={{
               top: target.edge === 'before' ? target.rect.top - 2 : target.rect.bottom - 2,
               left: target.rect.left, width: target.rect.width, height: 4,
-              background: '#A68A56', borderRadius: 4, boxShadow: '0 0 0 3px rgba(0,91,211,.2)',
+              background: '#005BD3', borderRadius: 4, boxShadow: '0 0 0 3px rgba(0,91,211,.2)',
             }} />
         )
       )}
@@ -72,7 +72,7 @@ export default function PreviewOverlay({
       {/* Selected-node toolbar */}
       {rect && !dragging && (
         <div
-          className="te-overlay fixed z-[9998] flex items-center gap-0.5 rounded-lg bg-[#A68A56] px-1 py-1 text-white shadow-md"
+          className="te-overlay fixed z-[9998] flex items-center gap-0.5 rounded-lg bg-[#005BD3] px-1 py-1 text-white shadow-lg"
           style={{
             top: Math.max(6, rect.top - 34),
             left: Math.min(Math.max(6, rect.left), window.innerWidth - 220),

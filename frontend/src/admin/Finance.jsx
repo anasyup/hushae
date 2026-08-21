@@ -285,10 +285,10 @@ export default function Finance() {
 
   if (err) {
     return <AdminLayout title="Finance">
-      <div className="mx-auto grid max-w-md place-items-center rounded-2xl border border-[#E0C6BE] bg-[#F5EDEB] p-8 text-center">
-        <XCircle size={22} className="mb-2 text-[#9A5548]" />
-        <p className="text-sm text-[#8A4B3F]">{err}</p>
-        <button onClick={() => { setErr(''); load(); }} className="mt-3 rounded-full border border-[#D0ABA0] bg-white px-4 py-1.5 text-[12px] font-semibold text-[#8A4B3F] hover:bg-[#EEDED9]">Try again</button>
+      <div className="mx-auto grid max-w-md place-items-center rounded-2xl border border-red-200 bg-red-50 p-8 text-center">
+        <XCircle size={22} className="mb-2 text-red-600" />
+        <p className="text-sm text-red-700">{err}</p>
+        <button onClick={() => { setErr(''); load(); }} className="mt-3 rounded-full border border-red-300 bg-white px-4 py-1.5 text-[12px] font-semibold text-red-700 hover:bg-red-100">Try again</button>
       </div>
     </AdminLayout>;
   }
@@ -332,24 +332,24 @@ export default function Finance() {
 
       {/* --- 6 headline KPIs --- */}
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-        <BigKpi icon={CircleDollarSign} label="Revenue" value={pkr(summary.revenue)} sub={`${summary.orderCount} order${summary.orderCount === 1 ? '' : 's'}`} accent="#4A6B58" />
+        <BigKpi icon={CircleDollarSign} label="Revenue" value={pkr(summary.revenue)} sub={`${summary.orderCount} order${summary.orderCount === 1 ? '' : 's'}`} accent="#059669" />
         <BigKpi
           icon={summary.netProfit >= 0 ? TrendingUp : TrendingDown}
           label="Net profit"
           value={pkr(summary.netProfit)}
           sub={`${summary.margin.toFixed(1)}% net margin`}
-          accent={summary.netProfit >= 0 ? '#4A6B58' : '#9A5548'}
+          accent={summary.netProfit >= 0 ? '#059669' : '#dc2626'}
           highlight={summary.netProfit < 0}
         />
-        <BigKpi icon={Coins} label="Gross profit" value={pkr(summary.grossProfit)} sub={`${summary.grossMargin.toFixed(1)}% gross margin`} accent="#6B6B6B" />
-        <BigKpi icon={Wallet} label="Avg. order value" value={pkr(summary.aov)} sub={`${summary.itemCount} items sold`} accent="#A68A56" />
-        <BigKpi icon={ShoppingBag} label="Total expenses" value={pkr(summary.totalExpense)} sub="COGS + costs + ads" accent="#A68A56" />
+        <BigKpi icon={Coins} label="Gross profit" value={pkr(summary.grossProfit)} sub={`${summary.grossMargin.toFixed(1)}% gross margin`} accent="#2563eb" />
+        <BigKpi icon={Wallet} label="Avg. order value" value={pkr(summary.aov)} sub={`${summary.itemCount} items sold`} accent="#7c3aed" />
+        <BigKpi icon={ShoppingBag} label="Total expenses" value={pkr(summary.totalExpense)} sub="COGS + costs + ads" accent="#d97706" />
         <BigKpi
           icon={AlertTriangle}
           label="Cancelled + returns"
           value={summary.lostAfterCost > 0 ? `−${pkr(summary.lostAfterCost)}` : pkr(0)}
           sub={`${summary.lostBeforeShip} before shipping (no cost) · ${summary.lostAfterShip} after shipping`}
-          accent="#9A5548"
+          accent="#dc2626"
           highlight={summary.lostAfterCost > 0}
         />
       </div>
@@ -367,12 +367,12 @@ export default function Finance() {
             <AreaChart data={summary.daily} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
               <defs>
                 <linearGradient id="fin-rev" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%"  stopColor="#4A6B58" stopOpacity={0.35} />
-                  <stop offset="100%" stopColor="#4A6B58" stopOpacity={0} />
+                  <stop offset="0%"  stopColor="#059669" stopOpacity={0.35} />
+                  <stop offset="100%" stopColor="#059669" stopOpacity={0} />
                 </linearGradient>
                 <linearGradient id="fin-cost" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%"  stopColor="#9A5548" stopOpacity={0.28} />
-                  <stop offset="100%" stopColor="#9A5548" stopOpacity={0} />
+                  <stop offset="0%"  stopColor="#dc2626" stopOpacity={0.28} />
+                  <stop offset="100%" stopColor="#dc2626" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="#f1f1f1" vertical={false} />
@@ -382,14 +382,14 @@ export default function Finance() {
                 contentStyle={{ borderRadius: 12, border: '1px solid #e5e7eb', fontSize: 12 }}
                 formatter={(v, k) => [pkr(v), k === 'revenue' ? 'Revenue' : k === 'cogs' ? 'COGS' : 'Profit']}
               />
-              <Area type="monotone" dataKey="revenue" stroke="#4A6B58" strokeWidth={2.2} fill="url(#fin-rev)" />
-              <Area type="monotone" dataKey="cogs"    stroke="#9A5548" strokeWidth={2}   fill="url(#fin-cost)" />
+              <Area type="monotone" dataKey="revenue" stroke="#059669" strokeWidth={2.2} fill="url(#fin-rev)" />
+              <Area type="monotone" dataKey="cogs"    stroke="#dc2626" strokeWidth={2}   fill="url(#fin-cost)" />
             </AreaChart>
           </ResponsiveContainer>
         </div>
         <div className="mt-4 flex flex-wrap gap-4 text-[12px]">
-          <span className="inline-flex items-center gap-1.5 text-neutral-600"><span className="h-2 w-2 rounded-full bg-[#4A6B58]" /> Revenue</span>
-          <span className="inline-flex items-center gap-1.5 text-neutral-600"><span className="h-2 w-2 rounded-full bg-[#9A5548]" /> Cost of goods</span>
+          <span className="inline-flex items-center gap-1.5 text-neutral-600"><span className="h-2 w-2 rounded-full bg-emerald-600" /> Revenue</span>
+          <span className="inline-flex items-center gap-1.5 text-neutral-600"><span className="h-2 w-2 rounded-full bg-red-600" /> Cost of goods</span>
         </div>
       </section>
 
@@ -427,7 +427,7 @@ export default function Finance() {
         ) : (
           <div className="space-y-2.5">
             {summary.insights.map((it, i) => {
-              const dot = it.tone === 'warn' ? 'bg-[#D4B87E]' : it.tone === 'good' ? 'bg-[#7FA08B]' : 'bg-[#8A8A8A]';
+              const dot = it.tone === 'warn' ? 'bg-amber-400' : it.tone === 'good' ? 'bg-emerald-400' : 'bg-blue-400';
               return (
                 <div key={i} className="flex items-start gap-3 rounded-xl bg-white/5 p-3">
                   <span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${dot}`} />
@@ -451,7 +451,7 @@ export default function Finance() {
 
 function BigKpi({ icon: Icon, label, value, sub, accent, highlight }) {
   return (
-    <div className={`rounded-2xl border bg-white p-5 transition ${highlight ? 'border-[#E0C6BE] ring-1 ring-[#EEDED9]' : 'border-neutral-200'}`}>
+    <div className={`rounded-2xl border bg-white p-5 transition ${highlight ? 'border-red-200 ring-1 ring-red-100' : 'border-neutral-200'}`}>
       <div className="flex items-center justify-between">
         <span className="grid h-11 w-11 place-items-center rounded-xl" style={{ background: `${accent}12`, color: accent }}>
           <Icon size={18} strokeWidth={1.9} />
@@ -468,11 +468,11 @@ function BigKpi({ icon: Icon, label, value, sub, accent, highlight }) {
 
 function ExpenseDonut({ summary }) {
   const data = [
-    { name: 'Cost of goods',    value: summary.cogs,         color: '#9A5548' },
+    { name: 'Cost of goods',    value: summary.cogs,         color: '#dc2626' },
     { name: 'Packing',          value: summary.packingTotal, color: '#f59e0b' },
-    { name: 'Courier subsidy',  value: summary.shipSubsidy,  color: '#A68A56' },
-    { name: 'Ads',              value: summary.adsTotal,     color: '#A68A56' },
-    { name: 'SEO / Content',    value: summary.seoTotal,     color: '#6B6B6B' },
+    { name: 'Courier subsidy',  value: summary.shipSubsidy,  color: '#d97706' },
+    { name: 'Ads',              value: summary.adsTotal,     color: '#7c3aed' },
+    { name: 'SEO / Content',    value: summary.seoTotal,     color: '#2563eb' },
     { name: 'Other fixed',      value: summary.otherTotal,   color: '#64748b' },
   ].filter((d) => d.value > 0);
   const total = data.reduce((n, d) => n + d.value, 0);
@@ -486,7 +486,7 @@ function ExpenseDonut({ summary }) {
         <PieIcon size={16} className="text-neutral-400" />
       </div>
       {total === 0 ? (
-        <div className="rounded-xl border border-[#DCCBA5] bg-[#F6F1E6] p-4 text-[12px] leading-relaxed text-[#6B552F]">
+        <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-[12px] leading-relaxed text-amber-800">
           💡 No expenses recorded yet. Set <b>cost prices</b> on products and <b>operating costs</b> in Settings to see this breakdown.
         </div>
       ) : (
@@ -524,7 +524,7 @@ function ExpenseDonut({ summary }) {
 }
 
 function PaymentDonut({ mix }) {
-  const palette = { COD: '#4A6B58', JazzCash: '#9A5548', EasyPaisa: '#4A6B58', 'Bank Transfer': '#6B6B6B' };
+  const palette = { COD: '#059669', JazzCash: '#dc2626', EasyPaisa: '#059669', 'Bank Transfer': '#2563eb' };
   const data = Object.entries(mix).map(([name, value]) => ({ name, value, color: palette[name] || '#64748b' }));
   const total = data.reduce((n, d) => n + d.value, 0);
   return (

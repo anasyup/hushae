@@ -79,11 +79,11 @@ export default function MarketingSettings() {
       </div>
 
       {problems.length > 0 && (
-        <div role="alert" className="mb-5 rounded-2xl border border-[#CDB98F] bg-[#F6F1E6] p-4">
-          <p className="flex items-center gap-2 text-[13px] font-semibold text-[#5C4A28]">
+        <div role="alert" className="mb-5 rounded-2xl border border-amber-300 bg-amber-50 p-4">
+          <p className="flex items-center gap-2 text-[13px] font-semibold text-amber-900">
             <AlertTriangle size={14} /> Check these
           </p>
-          <ul className="mt-2 list-disc space-y-1 pl-5 text-[12px] text-[#5C4A28]">
+          <ul className="mt-2 list-disc space-y-1 pl-5 text-[12px] text-amber-900">
             {problems.map((x) => <li key={x}>{x}</li>)}
           </ul>
         </div>
@@ -104,7 +104,7 @@ export default function MarketingSettings() {
           description="The single most important number on this page."
           tone="warn"
         >
-          <div className="mb-4 rounded-xl bg-[#F6F1E6] px-4 py-3 text-[12px] leading-relaxed text-[#5C4A28]">
+          <div className="mb-4 rounded-xl bg-amber-50 px-4 py-3 text-[12px] leading-relaxed text-amber-900">
             Every product in your shop already shows a compare-at price — an average markdown of
             about 22%. On top of that a customer can use a coupon, then loyalty points, then store
             credit, then a gift card. Without a ceiling those add up: a PKR 1,550 item can reach

@@ -40,10 +40,10 @@ export default function Insights() {
   useEffect(() => { load(); }, [auth]); // eslint-disable-line
 
   if (err) return <AdminLayout title="Insights">
-    <div className="grid place-items-center rounded-2xl border border-[#E0C6BE] bg-[#F5EDEB] p-8 text-center">
-      <XCircle size={22} className="mb-2 text-[#9A5548]" />
-      <p className="text-sm text-[#8A4B3F]">{err}</p>
-      <button onClick={() => { setErr(''); load(); }} className="mt-3 rounded-full border border-[#D0ABA0] bg-white px-4 py-1.5 text-[12px] font-semibold text-[#8A4B3F] hover:bg-[#EEDED9]">Try again</button>
+    <div className="grid place-items-center rounded-2xl border border-red-200 bg-red-50 p-8 text-center">
+      <XCircle size={22} className="mb-2 text-red-600" />
+      <p className="text-sm text-red-700">{err}</p>
+      <button onClick={() => { setErr(''); load(); }} className="mt-3 rounded-full border border-red-300 bg-white px-4 py-1.5 text-[12px] font-semibold text-red-700 hover:bg-red-100">Try again</button>
     </div>
   </AdminLayout>;
 
@@ -81,9 +81,9 @@ export default function Insights() {
 
       {/* KPI row */}
       <div className="mb-6 grid gap-4 md:grid-cols-3">
-        <MiniKpi icon={Clock} label="Peak hour" value={`${String(peakHour.hour).padStart(2, '0')}:00`} sub={`${peakHour.orders} orders`} accent="#6B6B6B" />
-        <MiniKpi icon={RotateCcw} label="Repeat rate" value={`${d.repeat.rate}%`} sub={`${d.repeat.repeat} of ${d.repeat.total} buyers came back`} accent="#4A6B58" />
-        <MiniKpi icon={MapPin} label="Top city" value={d.topCities[0]?._id || '—'} sub={d.topCities[0] ? `${pkr(d.topCities[0].revenue)} · ${d.topCities[0].orders} orders` : ''} accent="#A68A56" />
+        <MiniKpi icon={Clock} label="Peak hour" value={`${String(peakHour.hour).padStart(2, '0')}:00`} sub={`${peakHour.orders} orders`} accent="#2563eb" />
+        <MiniKpi icon={RotateCcw} label="Repeat rate" value={`${d.repeat.rate}%`} sub={`${d.repeat.repeat} of ${d.repeat.total} buyers came back`} accent="#059669" />
+        <MiniKpi icon={MapPin} label="Top city" value={d.topCities[0]?._id || '—'} sub={d.topCities[0] ? `${pkr(d.topCities[0].revenue)} · ${d.topCities[0].orders} orders` : ''} accent="#7c3aed" />
       </div>
 
       {/* Best selling hours */}
@@ -93,7 +93,7 @@ export default function Insights() {
             <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-500">Best selling hours</p>
             <p className="mt-1 text-[12px] text-neutral-500">Distribution of orders across the day — plan promotions at the peak.</p>
           </div>
-          <span className="grid h-9 w-9 place-items-center rounded-xl bg-[#F1F1F1] text-[#5A5A5A]"><Clock size={15}/></span>
+          <span className="grid h-9 w-9 place-items-center rounded-xl bg-blue-50 text-blue-700"><Clock size={15}/></span>
         </div>
         <div className="h-56">
           <ResponsiveContainer width="100%" height="100%">
@@ -124,7 +124,7 @@ export default function Insights() {
               <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-500">Top cities</p>
               <p className="mt-1 text-[12px] text-neutral-500">By revenue — focus your ads here.</p>
             </div>
-            <span className="grid h-9 w-9 place-items-center rounded-xl bg-[#F4EEE2] text-[#8F7448]"><MapPin size={15}/></span>
+            <span className="grid h-9 w-9 place-items-center rounded-xl bg-purple-50 text-purple-700"><MapPin size={15}/></span>
           </div>
           {d.topCities.length === 0 ? (
             <p className="py-8 text-center text-sm text-neutral-400">No delivery data yet.</p>
@@ -148,7 +148,7 @@ export default function Insights() {
                       <span>{c.orders} order{c.orders === 1 ? '' : 's'}</span>
                     </div>
                     <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white">
-                      <div className="h-full rounded-full bg-[#F4EEE2]0 transition-all" style={{ width: `${w}%` }} />
+                      <div className="h-full rounded-full bg-purple-500 transition-all" style={{ width: `${w}%` }} />
                     </div>
                   </div>
                 );
@@ -163,10 +163,10 @@ export default function Insights() {
               <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-500">Product profit ranking</p>
               <p className="mt-1 text-[12px] text-neutral-500">Top 10 by gross profit (needs cost prices set).</p>
             </div>
-            <span className="grid h-9 w-9 place-items-center rounded-xl bg-[#E9EFEA] text-[#3E5C4B]"><TrendingUp size={15}/></span>
+            <span className="grid h-9 w-9 place-items-center rounded-xl bg-emerald-50 text-emerald-700"><TrendingUp size={15}/></span>
           </div>
           {d.topProfit.length === 0 || d.topProfit.every((p) => p.profit === 0) ? (
-            <div className="rounded-xl border border-[#DCCBA5] bg-[#F6F1E6] p-4 text-[12px] leading-relaxed text-[#6B552F]">
+            <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-[12px] leading-relaxed text-amber-800">
               💡 Set the <b>Cost / Wholesale price</b> field on each product to see accurate profit ranking here.
             </div>
           ) : (
@@ -174,7 +174,7 @@ export default function Insights() {
               {d.topProfit.map((p, i) => (
                 <li key={p._id} className="flex items-center gap-3 rounded-xl border border-neutral-100 bg-neutral-50/60 p-2">
                   <span className={`grid h-7 w-7 shrink-0 place-items-center rounded-lg text-[12px] font-bold ${
-                    i === 0 ? 'bg-[#C9A96E] text-white' : i === 1 ? 'bg-neutral-400 text-white' : i === 2 ? 'bg-[#8F7448] text-white' : 'bg-neutral-100 text-neutral-600'
+                    i === 0 ? 'bg-amber-500 text-white' : i === 1 ? 'bg-neutral-400 text-white' : i === 2 ? 'bg-amber-700 text-white' : 'bg-neutral-100 text-neutral-600'
                   }`}>{i + 1}</span>
                   {p.image && <Img src={p.image} alt="" className="h-10 w-8 shrink-0 rounded-md border border-neutral-200 object-cover" />}
                   <div className="min-w-0 flex-1">
@@ -182,7 +182,7 @@ export default function Insights() {
                     <p className="text-[12px] text-neutral-500">{p.unitsSold} sold · Revenue {pkr(p.revenue)}</p>
                   </div>
                   <div className="text-right">
-                    <p className="font-sans text-[13px] font-semibold tabular-nums text-[#3E5C4B]">{pkr(p.profit)}</p>
+                    <p className="font-sans text-[13px] font-semibold tabular-nums text-emerald-700">{pkr(p.profit)}</p>
                     <p className="text-[13px] text-neutral-400">profit</p>
                   </div>
                 </li>
@@ -224,7 +224,7 @@ export default function Insights() {
                       <td className="py-2.5 text-right tabular-nums">{c.newCustomers}</td>
                       <td className="py-2.5 text-right tabular-nums">{c.repeatCustomers}</td>
                       <td className="py-2.5 text-right tabular-nums">
-                        <span className={`rounded-full px-2 py-0.5 text-[12px] font-bold ${pct >= 25 ? 'bg-[#E9EFEA] text-[#3E5C4B]' : pct >= 10 ? 'bg-[#F6F1E6] text-[#7A6239]' : 'bg-neutral-100 text-neutral-600'}`}>{pct}%</span>
+                        <span className={`rounded-full px-2 py-0.5 text-[12px] font-bold ${pct >= 25 ? 'bg-emerald-50 text-emerald-700' : pct >= 10 ? 'bg-amber-50 text-amber-700' : 'bg-neutral-100 text-neutral-600'}`}>{pct}%</span>
                       </td>
                       <td className="py-2.5 text-right font-sans font-semibold tabular-nums text-neutral-900">{pkr(c.totalSpent)}</td>
                     </tr>

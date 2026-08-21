@@ -41,7 +41,7 @@ export default function OrderPrintDoc() {
     return () => clearTimeout(t);
   }, [order]);
 
-  if (err) return <div className="p-10 text-[#9A5548]">{err}</div>;
+  if (err) return <div className="p-10 text-red-600">{err}</div>;
   if (!order) return <div className="p-10 text-neutral-500">Loading {meta.title.toLowerCase()}…</div>;
 
   const c = order.customerInfo || {};

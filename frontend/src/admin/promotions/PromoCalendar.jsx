@@ -33,7 +33,7 @@ function Row({ p, note, tone }) {
     <li>
       <Link
         to={`/admin/promotions/${p._id}`}
-        className={`flex min-h-[44px] items-center gap-3 rounded-xl border px-4 py-3 transition hover:border-neutral-300 ${tone === 'warn' ? 'border-[#CDB98F] bg-[#F6F1E6]' : 'border-neutral-200 bg-white'}`}
+        className={`flex min-h-[44px] items-center gap-3 rounded-xl border px-4 py-3 transition hover:border-neutral-300 ${tone === 'warn' ? 'border-amber-300 bg-amber-50' : 'border-neutral-200 bg-white'}`}
       >
         <span className="min-w-0 flex-1">
           <span className="block truncate text-[13px] font-medium text-neutral-900">{p.name}</span>
@@ -43,7 +43,7 @@ function Row({ p, note, tone }) {
             {p.exclusive && ' · exclusive'}
           </span>
         </span>
-        <span className={`shrink-0 text-[12px] ${tone === 'warn' ? 'font-semibold text-[#5C4A28]' : 'text-neutral-600'}`}>{note}</span>
+        <span className={`shrink-0 text-[12px] ${tone === 'warn' ? 'font-semibold text-amber-900' : 'text-neutral-600'}`}>{note}</span>
       </Link>
     </li>
   );
@@ -110,16 +110,16 @@ export default function PromoCalendar({ rows }) {
   return (
     <div className="space-y-5">
       {overlaps.length > 0 && (
-        <section role="alert" className="rounded-2xl border border-[#CDB98F] bg-[#F6F1E6] p-5">
-          <p className="flex items-center gap-2 text-[13px] font-semibold text-[#5C4A28]">
+        <section role="alert" className="rounded-2xl border border-amber-300 bg-amber-50 p-5">
+          <p className="flex items-center gap-2 text-[13px] font-semibold text-amber-900">
             <AlertTriangle size={14} /> These promotions compete for the same products
           </p>
-          <p className="mt-1 text-[12px] leading-relaxed text-[#5C4A28]">
+          <p className="mt-1 text-[12px] leading-relaxed text-amber-900">
             Only the higher-priority one will apply to a shared item — the other is
             discarded. That is fine if you meant it. If not, narrow one of them or
             mark both as stackable.
           </p>
-          <ul className="mt-3 space-y-1.5 text-[12px] text-[#5C4A28]">
+          <ul className="mt-3 space-y-1.5 text-[12px] text-amber-900">
             {overlaps.map(([a, b]) => (
               <li key={`${a._id}-${b._id}`}>
                 <Link to={`/admin/promotions/${a._id}`} className="font-semibold underline-offset-2 hover:underline">{a.name}</Link>
@@ -184,7 +184,7 @@ export default function PromoCalendar({ rows }) {
                     <span className="block truncate text-[13px] font-medium text-neutral-900">{p.name}</span>
                     <span className="mt-0.5 block text-[12px] text-neutral-600">{note}</span>
                   </span>
-                  <span className={`shrink-0 rounded-full px-2 py-0.5 text-[12px] font-semibold ${p.state?.reason === 'live' ? 'bg-[#E9EFEA] text-[#33503F]' : 'bg-neutral-100 text-neutral-600'}`}>
+                  <span className={`shrink-0 rounded-full px-2 py-0.5 text-[12px] font-semibold ${p.state?.reason === 'live' ? 'bg-emerald-50 text-emerald-800' : 'bg-neutral-100 text-neutral-600'}`}>
                     {p.state?.reason === 'live' ? 'On' : 'Off'}
                   </span>
                 </Link>

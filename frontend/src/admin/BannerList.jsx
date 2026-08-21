@@ -11,9 +11,9 @@ import AdminLayout from './AdminLayout';
  * ========================================================================== */
 
 const STATE_STYLE = {
-  active: 'bg-[#E9EFEA] text-[#3E5C4B] ring-[#C9D8CE]',
-  scheduled: 'bg-[#F1F1F1] text-[#5A5A5A] ring-[#D4D4D4]',
-  draft: 'bg-[#F6F1E6] text-[#7A6239] ring-[#DCCBA5]',
+  active: 'bg-emerald-50 text-emerald-700 ring-emerald-200',
+  scheduled: 'bg-blue-50 text-blue-700 ring-blue-200',
+  draft: 'bg-amber-50 text-amber-700 ring-amber-200',
   expired: 'bg-neutral-100 text-neutral-500 ring-neutral-200',
   archived: 'bg-neutral-100 text-neutral-500 ring-neutral-200',
 };
@@ -125,7 +125,7 @@ export default function BannerList() {
                   <td className="px-4 py-3">
                     <div className="flex justify-end gap-1">
                       <Link to={`/admin/banners/${b._id}`} className="rounded-lg p-2 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700" title="Edit"><Pencil size={14} /></Link>
-                      <button onClick={() => remove(b)} className="rounded-lg p-2 text-neutral-400 hover:bg-[#F5EDEB] hover:text-[#9A5548]" title="Delete"><Trash2 size={14} /></button>
+                      <button onClick={() => remove(b)} className="rounded-lg p-2 text-neutral-400 hover:bg-red-50 hover:text-red-600" title="Delete"><Trash2 size={14} /></button>
                     </div>
                   </td>
                 </tr>

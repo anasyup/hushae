@@ -134,7 +134,7 @@ export default function BannerSlots() {
                   <td className="px-4 py-3">
                     <div className="flex justify-end gap-1">
                       <button onClick={() => startEdit(s)} className="rounded-lg p-2 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700" title="Edit"><Pencil size={14} /></button>
-                      <button onClick={() => remove(s)} className="rounded-lg p-2 text-neutral-400 hover:bg-[#F5EDEB] hover:text-[#9A5548]" title="Archive"><Trash2 size={14} /></button>
+                      <button onClick={() => remove(s)} className="rounded-lg p-2 text-neutral-400 hover:bg-red-50 hover:text-red-600" title="Archive"><Trash2 size={14} /></button>
                     </div>
                   </td>
                 </tr>

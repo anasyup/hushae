@@ -64,7 +64,7 @@ textarea.te-input { height: auto; padding: 12px 14px; }
   border-radius: inherit;
 }
 .te-hovered::after { outline: 1px dashed rgba(0, 91, 211, .55); outline-offset: -1px; }
-.te-selected::after { outline: 2px solid #A68A56; outline-offset: -2px; }
+.te-selected::after { outline: 2px solid #005BD3; outline-offset: -2px; }
 .te-selected > .te-selected::after { outline-width: 1.5px; }
 
 @keyframes te-flash {
@@ -82,7 +82,7 @@ textarea.te-input { height: auto; padding: 12px 14px; }
 
 .te-drop-line {
   height: 2px;
-  background: #C9A96E;
+  background: #005BD3;
   border-radius: 2px;
   margin: 1px 0;
 }

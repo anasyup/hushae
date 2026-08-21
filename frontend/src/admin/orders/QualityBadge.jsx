@@ -9,9 +9,9 @@ import { Star, Zap } from 'lucide-react';
  * ========================================================================== */
 
 const TONE = {
-  low:  { text: 'text-[#9A5548]',     ring: 'ring-[#E0C6BE] bg-[#F5EDEB]' },
-  mid:  { text: 'text-[#8F7448]',   ring: 'ring-[#DCCBA5] bg-[#F6F1E6]' },
-  high: { text: 'text-[#4A6B58]', ring: 'ring-[#C9D8CE] bg-[#E9EFEA]' },
+  low:  { text: 'text-red-600',     ring: 'ring-red-200 bg-red-50' },
+  mid:  { text: 'text-amber-600',   ring: 'ring-amber-200 bg-amber-50' },
+  high: { text: 'text-emerald-600', ring: 'ring-emerald-200 bg-emerald-50' },
 };
 
 const FLAG_LABEL = {
@@ -71,7 +71,7 @@ export default function QualityBadge({ quality, compact = false }) {
           {reasons.map((r) => (
             <span key={r.label} className="flex items-center gap-1.5 py-0.5 text-[13px]">
               <span className={`grid h-3 w-3 shrink-0 place-items-center rounded-full text-[14px] font-bold text-white ${
-                r.ok ? 'bg-[#5B7F6A]' : 'bg-[#C08374]'}`}>
+                r.ok ? 'bg-emerald-500' : 'bg-red-400'}`}>
                 {r.ok ? '✓' : '✕'}
               </span>
               <span className={r.ok ? 'text-neutral-600' : 'text-neutral-900'}>{r.label}</span>

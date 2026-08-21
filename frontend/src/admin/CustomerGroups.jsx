@@ -15,9 +15,9 @@ import { fmtDate } from '../lib/format';
  * the group. Saved groups keep a cached memberCount for the list.
  * ========================================================================== */
 
-const inputCls = 'w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-[13px] outline-none transition focus:border-neutral-900';
+const inputCls = 'w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[13px] outline-none transition focus:border-neutral-900';
 const labelCls = 'mb-1 block text-[12px] font-bold uppercase tracking-wider text-neutral-500';
-const cardCls = 'rounded-md border border-neutral-200 bg-white p-5';
+const cardCls = 'rounded-2xl border border-neutral-200 bg-white p-5';
 
 const EMPTY_RULES = { minSpend: 0, minOrders: 0, lastOrderDays: 0, noOrders: false, city: '', province: '', anyTag: [], allTags: [] };
 
@@ -225,7 +225,7 @@ export default function CustomerGroups() {
                 <TagsInput value={rules.allTags} onChange={(v) => setRules((r) => ({ ...r, allTags: v }))} placeholder="must have ALL of these tags" />
               </div>
 
-              <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-md border border-neutral-200 p-3.5 transition hover:border-neutral-300">
+              <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-xl border border-neutral-200 p-3.5 transition hover:border-neutral-300">
                 <input type="checkbox" checked={rules.noOrders} onChange={(e) => setRules((r) => ({ ...r, noOrders: e.target.checked }))} className="mt-0.5 accent-neutral-900" />
                 <span className="text-[13px] font-medium text-neutral-700">
                   Has never placed an order
@@ -246,14 +246,14 @@ export default function CustomerGroups() {
               </div>
               <p className="text-[12px] text-neutral-400">Members are computed from your real customers + orders, right now.</p>
               {preview && (
-                <div className="mt-3 rounded-md bg-neutral-50 p-4">
+                <div className="mt-3 rounded-xl bg-neutral-50 p-4">
                   <p className="flex items-center gap-2 text-[15px] font-bold text-neutral-900"><Users size={15} /> {preview.total.toLocaleString()} customers</p>
                   <p className="text-[12px] text-neutral-400">match these rules (first {preview.members.length} shown)</p>
                 </div>
               )}
               <div className="mt-3 max-h-72 space-y-1.5 overflow-y-auto">
                 {(preview?.members || []).map((m) => (
-                  <div key={m.id} className="flex items-center justify-between rounded-md border border-neutral-100 px-3 py-2">
+                  <div key={m.id} className="flex items-center justify-between rounded-lg border border-neutral-100 px-3 py-2">
                     <div className="min-w-0">
                       <p className="truncate text-[13px] font-semibold text-neutral-800">{m.name}</p>
                       <p className="truncate text-[11px] text-neutral-400">{m.phone || 'no phone'} · {m.email || 'no email'}</p>
@@ -275,7 +275,7 @@ export default function CustomerGroups() {
       ) : !groups ? (
         <div className="grid place-items-center py-20"><Loader2 size={22} className="animate-spin text-neutral-300" /></div>
       ) : groups.length === 0 ? (
-        <div className="rounded-md border border-dashed border-neutral-300 bg-white py-16 text-center">
+        <div className="rounded-2xl border border-dashed border-neutral-300 bg-white py-16 text-center">
           <Crown size={28} className="mx-auto text-neutral-300" />
           <p className="mt-3 text-[14px] font-semibold text-neutral-700">No groups yet</p>
           <p className="mx-auto mt-1 max-w-sm text-[12px] text-neutral-400">Build your first segment — VIP customers, inactive shoppers, a specific city — then reuse it for marketing.</p>
@@ -289,7 +289,7 @@ export default function CustomerGroups() {
             <div key={g._id} className={`${cardCls} group relative`}>
               <div className="flex items-start justify-between gap-2">
                 <h3 className="truncate text-[14px] font-bold text-neutral-900">{g.name}</h3>
-                <button onClick={() => remove(g)} className="rounded-md p-1.5 text-neutral-300 opacity-0 transition group-hover:opacity-100 hover:bg-[#F5EDEB] hover:text-[#9A5548]" title="Delete group"><Trash2 size={14} /></button>
+                <button onClick={() => remove(g)} className="rounded-lg p-1.5 text-neutral-300 opacity-0 transition group-hover:opacity-100 hover:bg-red-50 hover:text-red-600" title="Delete group"><Trash2 size={14} /></button>
               </div>
               <p className="mt-1 line-clamp-2 text-[12px] text-neutral-400">{g.description || 'No description'}</p>
               <div className="mt-4 flex items-end justify-between">
@@ -298,7 +298,7 @@ export default function CustomerGroups() {
                   <p className="text-[11px] font-medium uppercase tracking-wider text-neutral-400">members</p>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <button onClick={() => openEmail(g)} className="inline-flex items-center gap-1 rounded-full border border-neutral-200 px-3 py-1.5 text-[12px] font-semibold text-neutral-700 transition hover:border-[#5B7F6A] hover:text-[#3E5C4B]" title="Email this group">
+                  <button onClick={() => openEmail(g)} className="inline-flex items-center gap-1 rounded-full border border-neutral-200 px-3 py-1.5 text-[12px] font-semibold text-neutral-700 transition hover:border-emerald-500 hover:text-emerald-700" title="Email this group">
                     <Mail size={12} /> Email
                   </button>
                   <button onClick={() => startEdit(g)} className="rounded-full border border-neutral-200 px-3.5 py-1.5 text-[12px] font-semibold text-neutral-700 transition hover:border-neutral-900">
@@ -315,7 +315,7 @@ export default function CustomerGroups() {
       {/* ── Email campaign modal ── */}
       {emailFor && (
         <div className="fixed inset-0 z-50 grid place-items-center bg-black/40 p-4" onClick={closeEmail}>
-          <div className="w-full max-w-lg rounded-md border border-neutral-200 bg-white p-6 shadow-md" onClick={(e) => e.stopPropagation()}>
+          <div className="w-full max-w-lg rounded-2xl border border-neutral-200 bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
             <div className="mb-4 flex items-start justify-between">
               <div>
                 <h3 className="flex items-center gap-2 text-[15px] font-bold text-neutral-900"><Send size={15} /> Email “{emailFor.name}”</h3>
@@ -323,7 +323,7 @@ export default function CustomerGroups() {
                   Goes to group members who opted into marketing emails ({emailFor.memberCount?.toLocaleString?.() || 0} members in group).
                 </p>
               </div>
-              <button onClick={closeEmail} className="rounded-md p-1.5 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700"><X size={16} /></button>
+              <button onClick={closeEmail} className="rounded-lg p-1.5 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700"><X size={16} /></button>
             </div>
 
             <div className="space-y-4">
