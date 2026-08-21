@@ -11,13 +11,13 @@ import { useApp } from '../store/AppContext';
  *
  * SPECIFICATION:
  *   1. 3:4 Studio Portrait Canvas on #F8F8F8 ground with translucent luxury frame
- *   2. Smooth 500ms Secondary Angle Crossfade on Hover
- *   3. Top-Right Minimalist Hairline Wishlist Heart Icon
- *   4. Top-Left Translucent Tag (New / Sale / Sold out)
- *   5. Desktop Slide-Up Quick Size Selector Bar (Glassmorphism pill)
- *   6. Clean Typographic Hierarchy:
- *      - Line 1: Product Name in Title Case (No truncation collision)
- *      - Line 2: Tabular Price + Circular Color Swatches Row
+ *   2. Smooth 500ms Secondary Angle Crossfade on Hover (Robust fallback)
+ *   3. Top-Right Minimalist Hairline Wishlist Heart Icon (Smooth 32px touch target)
+ *   4. Top-Left Translucent Glass Tag (New / Sale / Sold out)
+ *   5. Desktop Slide-Up Quick Size Selector Bar (Glassmorphism rounded-full pill)
+ *   6. Clean Balanced Typographic Hierarchy:
+ *      - Line 1: Product Name in Title Case
+ *      - Line 2: Tabular Price on Left + Color Swatches on Right
  * ========================================================================== */
 
 const FALLBACK =
@@ -33,6 +33,7 @@ export default function CollectionCard({ product: p, priority = false, rank = nu
   const { addToCart, inWishlist, toggleWish } = useApp();
   const [imgIdx, setImgIdx] = useState(0);
   const [failed, setFailed] = useState(false);
+  const [secondFailed, setSecondFailed] = useState(false);
   const [swatchIdx, setSwatchIdx] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const [addedSize, setAddedSize] = useState(null);
@@ -42,7 +43,7 @@ export default function CollectionCard({ product: p, priority = false, rank = nu
   const images = (p.images || []).map(srcOf).filter(Boolean);
   const main = images[imgIdx] || images[0] || srcOf(p.image) || '';
   const second = images[1] || '';
-  const hasSwap = Boolean(second) && second !== main;
+  const hasSwap = Boolean(second) && second !== main && !secondFailed;
 
   const swatches = (p.colors || []).filter((c) => c && c.hex).slice(0, 6);
   const sizes = (p.sizes || []).slice(0, 5);
@@ -73,6 +74,16 @@ export default function CollectionCard({ product: p, priority = false, rank = nu
     addToCart(p, { size: selectedSize, color: chosenColor, quantity: 1 });
     setAddedSize(selectedSize);
     setTimeout(() => setAddedSize(null), 1600);
+  };
+
+  const handleSwatchClick = (idx, c, e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setSwatchIdx(idx);
+    const colorImg = srcOf(c.image);
+    if (colorImg && images.includes(colorImg)) {
+      setImgIdx(images.indexOf(colorImg));
+    }
   };
 
   return (
@@ -116,6 +127,7 @@ export default function CollectionCard({ product: p, priority = false, rank = nu
               height="1200"
               loading="lazy"
               decoding="async"
+              onError={() => setSecondFailed(true)}
               className={`absolute inset-0 h-full w-full object-cover object-center transition-opacity duration-500 ease-out ${
                 isHovered && imgIdx === 0 ? 'opacity-100' : 'opacity-0'
               }`}
@@ -142,7 +154,7 @@ export default function CollectionCard({ product: p, priority = false, rank = nu
           )}
         </Link>
 
-        {/* Top-Right Wishlist Heart Icon */}
+        {/* Top-Right Wishlist Heart Icon (Comfortable 32px target) */}
         <button
           type="button"
           onClick={(e) => {
@@ -151,10 +163,10 @@ export default function CollectionCard({ product: p, priority = false, rank = nu
             toggleWish(p);
           }}
           aria-label={wished ? 'Remove from wishlist' : 'Add to wishlist'}
-          className="absolute right-2.5 top-2.5 z-20 grid h-7 w-7 place-items-center rounded-full bg-white/70 backdrop-blur-xs text-neutral-500 transition-all hover:bg-white hover:text-black shadow-xs"
+          className="absolute right-2.5 top-2.5 z-20 grid h-8 w-8 place-items-center rounded-full bg-white/80 backdrop-blur-xs text-neutral-600 transition-all hover:bg-white hover:text-black shadow-xs"
         >
           <Heart
-            size={13}
+            size={14}
             strokeWidth={1.5}
             className={wished ? 'fill-black text-black' : ''}
           />
@@ -219,9 +231,9 @@ export default function CollectionCard({ product: p, priority = false, rank = nu
       </div>
 
       {/* ── CLEAN LUXURY METADATA AREA ────────────────────────────────────── */}
-      <div className="pt-3 pb-2 px-1 space-y-1 bg-white font-sans">
-        {/* Line 1: Title (Title Case, Clean & Uncluttered) */}
-        <h3 className="font-normal text-[13.5px] md:text-[14px] text-[#000000] tracking-[-0.01em] truncate leading-snug">
+      <div className="pt-3 pb-2 px-2 sm:px-3 space-y-1 bg-white font-sans">
+        {/* Line 1: Title */}
+        <h3 className="font-normal text-[13px] sm:text-[13.5px] text-[#000000] tracking-[-0.01em] truncate leading-snug">
           <Link
             to={`/product/${p.slug}`}
             className="transition-colors hover:text-neutral-500"
@@ -232,7 +244,7 @@ export default function CollectionCard({ product: p, priority = false, rank = nu
         </h3>
 
         {/* Line 2: Price & Color Swatches Row */}
-        <div className="flex items-center justify-between gap-2 pt-0.5 text-[13px] md:text-[13.5px]">
+        <div className="flex items-center justify-between gap-2 pt-0.5 text-[12.5px] sm:text-[13px]">
           <div className="flex items-baseline gap-1.5">
             {soldOut ? (
               <span className="text-neutral-400 font-light text-xs">Sold out</span>
@@ -259,13 +271,7 @@ export default function CollectionCard({ product: p, priority = false, rank = nu
                   type="button"
                   aria-label={c.name || `Color ${i + 1}`}
                   title={c.name}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setSwatchIdx(i);
-                    const ci = images.indexOf(srcOf(c.image) || '');
-                    if (ci >= 0) setImgIdx(ci);
-                  }}
+                  onClick={(e) => handleSwatchClick(i, c, e)}
                   className="group/swatch relative flex h-3.5 w-3.5 items-center justify-center"
                 >
                   <span
