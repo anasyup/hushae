@@ -42,12 +42,12 @@ export const GROUPS = [
 /** Silk Eclipse tones — muted surfaces, confident text. */
 export const TONE = {
   neutral: { pill: 'bg-neutral-100 text-neutral-700 ring-neutral-200', dot: 'bg-neutral-400', solid: 'bg-neutral-900 text-white' },
-  red:     { pill: 'bg-red-50 text-red-700 ring-red-200',              dot: 'bg-red-500',     solid: 'bg-red-600 text-white' },
-  amber:   { pill: 'bg-amber-50 text-amber-800 ring-amber-200',        dot: 'bg-amber-500',   solid: 'bg-amber-500 text-white' },
-  blue:    { pill: 'bg-blue-50 text-blue-700 ring-blue-200',           dot: 'bg-blue-500',    solid: 'bg-blue-600 text-white' },
-  green:   { pill: 'bg-emerald-50 text-emerald-700 ring-emerald-200',  dot: 'bg-emerald-500', solid: 'bg-emerald-600 text-white' },
-  orange:  { pill: 'bg-orange-50 text-orange-700 ring-orange-200',     dot: 'bg-orange-500',  solid: 'bg-orange-500 text-white' },
-  purple:  { pill: 'bg-purple-50 text-purple-700 ring-purple-200',     dot: 'bg-purple-500',  solid: 'bg-purple-600 text-white' },
+  red:     { pill: 'bg-neutral-100 text-neutral-700 ring-neutral-200',              dot: 'bg-neutral-400',     solid: 'bg-neutral-900 text-white' },
+  amber:   { pill: 'bg-neutral-100 text-neutral-700 ring-neutral-200',        dot: 'bg-neutral-400',   solid: 'bg-neutral-900 text-white' },
+  blue:    { pill: 'bg-neutral-100 text-neutral-700 ring-neutral-200',           dot: 'bg-neutral-400',    solid: 'bg-neutral-900 text-white' },
+  green:   { pill: 'bg-neutral-100 text-neutral-700 ring-neutral-200',  dot: 'bg-neutral-400', solid: 'bg-neutral-900 text-white' },
+  orange:  { pill: 'bg-neutral-100 text-neutral-700 ring-neutral-200',     dot: 'bg-neutral-400',  solid: 'bg-neutral-900 text-white' },
+  purple:  { pill: 'bg-neutral-100 text-neutral-700 ring-neutral-200',     dot: 'bg-neutral-400',  solid: 'bg-neutral-900 text-white' },
 };
 
 export const stageTone = (stage) => TONE[STAGE_MAP[stage]?.tone || 'neutral'];

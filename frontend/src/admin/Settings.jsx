@@ -147,11 +147,11 @@ function ChangePasswordCard() {
     if (/[0-9]/.test(next)) score++;
     if (/[^A-Za-z0-9]/.test(next)) score++;
     const map = [
-      { label: 'Very weak', color: '#dc2626', pct: 20 },
+      { label: 'Very weak', color: '#ECECEF', pct: 20 },
       { label: 'Weak', color: '#ea580c', pct: 40 },
-      { label: 'Fair', color: '#ca8a04', pct: 60 },
+      { label: 'Fair', color: '#A3A3AB', pct: 60 },
       { label: 'Good', color: '#65a30d', pct: 80 },
-      { label: 'Strong', color: '#16a34a', pct: 100 },
+      { label: 'Strong', color: '#D6D6DA', pct: 100 },
     ];
     return map[Math.min(score, 4)] || map[0];
   })();

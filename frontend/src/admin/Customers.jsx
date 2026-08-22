@@ -102,9 +102,9 @@ export default function Customers() {
       {/* Summary KPIs */}
       <div className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <Kpi icon={UsersIcon}    label="Total customers"  value={summary.total.toLocaleString()}         accent="#111111" />
-        <Kpi icon={ShoppingBag}  label="Active buyers"    value={summary.buyers.toLocaleString()}         accent="#2563eb" />
-        <Kpi icon={Crown}        label="VIP customers"    value={summary.vip.toLocaleString()}            accent="#d97706" hint="≥ 2 orders" />
-        <Kpi icon={TrendingUp}   label="New this month"   value={summary.newThisMonth.toLocaleString()}   accent="#059669" />
+        <Kpi icon={ShoppingBag}  label="Active buyers"    value={summary.buyers.toLocaleString()}         accent="#8F8F97" />
+        <Kpi icon={Crown}        label="VIP customers"    value={summary.vip.toLocaleString()}            accent="#A3A3AB" hint="≥ 2 orders" />
+        <Kpi icon={TrendingUp}   label="New this month"   value={summary.newThisMonth.toLocaleString()}   accent="#D6D6DA" />
       </div>
 
       {/* Toolbar */}

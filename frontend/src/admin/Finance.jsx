@@ -332,24 +332,24 @@ export default function Finance() {
 
       {/* --- 6 headline KPIs --- */}
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-        <BigKpi icon={CircleDollarSign} label="Revenue" value={pkr(summary.revenue)} sub={`${summary.orderCount} order${summary.orderCount === 1 ? '' : 's'}`} accent="#059669" />
+        <BigKpi icon={CircleDollarSign} label="Revenue" value={pkr(summary.revenue)} sub={`${summary.orderCount} order${summary.orderCount === 1 ? '' : 's'}`} accent="#D6D6DA" />
         <BigKpi
           icon={summary.netProfit >= 0 ? TrendingUp : TrendingDown}
           label="Net profit"
           value={pkr(summary.netProfit)}
           sub={`${summary.margin.toFixed(1)}% net margin`}
-          accent={summary.netProfit >= 0 ? '#059669' : '#dc2626'}
+          accent={summary.netProfit >= 0 ? '#D6D6DA' : '#ECECEF'}
           highlight={summary.netProfit < 0}
         />
-        <BigKpi icon={Coins} label="Gross profit" value={pkr(summary.grossProfit)} sub={`${summary.grossMargin.toFixed(1)}% gross margin`} accent="#2563eb" />
-        <BigKpi icon={Wallet} label="Avg. order value" value={pkr(summary.aov)} sub={`${summary.itemCount} items sold`} accent="#7c3aed" />
-        <BigKpi icon={ShoppingBag} label="Total expenses" value={pkr(summary.totalExpense)} sub="COGS + costs + ads" accent="#d97706" />
+        <BigKpi icon={Coins} label="Gross profit" value={pkr(summary.grossProfit)} sub={`${summary.grossMargin.toFixed(1)}% gross margin`} accent="#8F8F97" />
+        <BigKpi icon={Wallet} label="Avg. order value" value={pkr(summary.aov)} sub={`${summary.itemCount} items sold`} accent="#A1A1AA" />
+        <BigKpi icon={ShoppingBag} label="Total expenses" value={pkr(summary.totalExpense)} sub="COGS + costs + ads" accent="#A3A3AB" />
         <BigKpi
           icon={AlertTriangle}
           label="Cancelled + returns"
           value={summary.lostAfterCost > 0 ? `−${pkr(summary.lostAfterCost)}` : pkr(0)}
           sub={`${summary.lostBeforeShip} before shipping (no cost) · ${summary.lostAfterShip} after shipping`}
-          accent="#dc2626"
+          accent="#ECECEF"
           highlight={summary.lostAfterCost > 0}
         />
       </div>
@@ -367,12 +367,12 @@ export default function Finance() {
             <AreaChart data={summary.daily} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
               <defs>
                 <linearGradient id="fin-rev" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%"  stopColor="#059669" stopOpacity={0.35} />
-                  <stop offset="100%" stopColor="#059669" stopOpacity={0} />
+                  <stop offset="0%"  stopColor="#D6D6DA" stopOpacity={0.35} />
+                  <stop offset="100%" stopColor="#D6D6DA" stopOpacity={0} />
                 </linearGradient>
                 <linearGradient id="fin-cost" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%"  stopColor="#dc2626" stopOpacity={0.28} />
-                  <stop offset="100%" stopColor="#dc2626" stopOpacity={0} />
+                  <stop offset="0%"  stopColor="#ECECEF" stopOpacity={0.28} />
+                  <stop offset="100%" stopColor="#ECECEF" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="#f1f1f1" vertical={false} />
@@ -382,8 +382,8 @@ export default function Finance() {
                 contentStyle={{ borderRadius: 12, border: '1px solid #e5e7eb', fontSize: 12 }}
                 formatter={(v, k) => [pkr(v), k === 'revenue' ? 'Revenue' : k === 'cogs' ? 'COGS' : 'Profit']}
               />
-              <Area type="monotone" dataKey="revenue" stroke="#059669" strokeWidth={2.2} fill="url(#fin-rev)" />
-              <Area type="monotone" dataKey="cogs"    stroke="#dc2626" strokeWidth={2}   fill="url(#fin-cost)" />
+              <Area type="monotone" dataKey="revenue" stroke="#D6D6DA" strokeWidth={2.2} fill="url(#fin-rev)" />
+              <Area type="monotone" dataKey="cogs"    stroke="#ECECEF" strokeWidth={2}   fill="url(#fin-cost)" />
             </AreaChart>
           </ResponsiveContainer>
         </div>
@@ -468,11 +468,11 @@ function BigKpi({ icon: Icon, label, value, sub, accent, highlight }) {
 
 function ExpenseDonut({ summary }) {
   const data = [
-    { name: 'Cost of goods',    value: summary.cogs,         color: '#dc2626' },
+    { name: 'Cost of goods',    value: summary.cogs,         color: '#ECECEF' },
     { name: 'Packing',          value: summary.packingTotal, color: '#f59e0b' },
-    { name: 'Courier subsidy',  value: summary.shipSubsidy,  color: '#d97706' },
-    { name: 'Ads',              value: summary.adsTotal,     color: '#7c3aed' },
-    { name: 'SEO / Content',    value: summary.seoTotal,     color: '#2563eb' },
+    { name: 'Courier subsidy',  value: summary.shipSubsidy,  color: '#A3A3AB' },
+    { name: 'Ads',              value: summary.adsTotal,     color: '#A1A1AA' },
+    { name: 'SEO / Content',    value: summary.seoTotal,     color: '#8F8F97' },
     { name: 'Other fixed',      value: summary.otherTotal,   color: '#64748b' },
   ].filter((d) => d.value > 0);
   const total = data.reduce((n, d) => n + d.value, 0);
@@ -524,7 +524,7 @@ function ExpenseDonut({ summary }) {
 }
 
 function PaymentDonut({ mix }) {
-  const palette = { COD: '#059669', JazzCash: '#dc2626', EasyPaisa: '#059669', 'Bank Transfer': '#2563eb' };
+  const palette = { COD: '#D6D6DA', JazzCash: '#ECECEF', EasyPaisa: '#D6D6DA', 'Bank Transfer': '#8F8F97' };
   const data = Object.entries(mix).map(([name, value]) => ({ name, value, color: palette[name] || '#64748b' }));
   const total = data.reduce((n, d) => n + d.value, 0);
   return (

@@ -338,7 +338,7 @@ function SidebarContent({ onNavigate, onOpenCmd, collapsed = false }) {
           </div>
         )}
         <div className="flex items-center gap-2.5 rounded-lg px-2 py-1.5">
-          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-md bg-admin-accent/20 text-[12px] font-semibold text-admin-accent-hover">
+          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-md bg-admin-accent-soft text-[12px] font-semibold text-admin-text">
             {initials}
           </span>
           {!collapsed && (
@@ -446,7 +446,7 @@ export default function AdminLayout({ children, title }) {
         <ShieldCheck size={36} className="mx-auto mb-3 text-admin-warning" />
         <p className="text-[15px] font-semibold text-admin-text">Access restricted</p>
         <p className="mt-2 text-[13px] leading-relaxed text-admin-text-2">This section is only available to Administrator and Owner roles. You are signed in as <b>{getRoleLabel(role || '')}</b>.</p>
-        <Link to="/admin" className="mt-5 inline-flex items-center gap-1.5 rounded-lg bg-admin-accent px-5 py-2.5 text-[15px] font-semibold text-white transition hover:bg-admin-accent-hover">Back to Dashboard</Link>
+        <Link to="/admin" className="mt-5 inline-flex items-center gap-1.5 rounded-lg bg-admin-text px-5 py-2.5 text-[15px] font-semibold text-admin-bg transition hover:bg-admin-accent-hover">Back to Dashboard</Link>
       </div>
     </div>
   );
@@ -530,7 +530,7 @@ function TopBar({ title, auth, onCmdK, onMenu, onToggleSidebar, collapsed }) {
   })();
   const initials = (auth?.user?.name || 'A').split(' ').map((s) => s[0]).slice(0, 2).join('').toUpperCase();
   const btnGhost = 'inline-flex min-h-[36px] items-center justify-center gap-1.5 rounded-lg border border-admin-border bg-admin-surface-2 px-2.5 text-[12px] font-medium text-admin-text-2 transition hover:border-admin-border hover:bg-admin-surface-3 hover:text-admin-text';
-  const btnPrimary = 'inline-flex min-h-[36px] items-center gap-1 rounded-lg bg-admin-accent px-3 text-[12px] font-semibold text-white transition hover:bg-admin-accent-hover';
+  const btnPrimary = 'inline-flex min-h-[36px] items-center gap-1 rounded-lg bg-admin-text px-3 text-[12px] font-semibold text-admin-bg transition hover:bg-admin-accent-hover';
   return (
     <header className="sticky top-0 z-20 flex min-h-[60px] items-center border-b border-admin-border bg-admin-bg/90 px-3 py-2 backdrop-blur md:px-8">
       <div className="flex items-center justify-between gap-3">
@@ -566,7 +566,7 @@ function TopBar({ title, auth, onCmdK, onMenu, onToggleSidebar, collapsed }) {
             {dark ? <Sun size={13} /> : <Moon size={13} />}
           </button>
           <NotificationBell />
-          <div className="ml-0.5 flex items-center gap-2 rounded-lg border border-admin-border bg-admin-surface p-1 pr-2 md:pr-3"><span className="grid h-7 w-7 place-items-center rounded-md bg-admin-accent text-[12px] font-semibold text-white">{initials}</span><span className="hidden text-[12px] font-medium text-admin-text-2 sm:inline">{auth?.user?.name?.split(' ')[0] || 'Admin'}</span></div>
+          <div className="ml-0.5 flex items-center gap-2 rounded-lg border border-admin-border bg-admin-surface p-1 pr-2 md:pr-3"><span className="grid h-7 w-7 place-items-center rounded-md bg-admin-text text-[12px] font-semibold text-admin-bg">{initials}</span><span className="hidden text-[12px] font-medium text-admin-text-2 sm:inline">{auth?.user?.name?.split(' ')[0] || 'Admin'}</span></div>
         </div>
       </div>
     </header>

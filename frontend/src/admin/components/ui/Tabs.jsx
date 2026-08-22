@@ -1,6 +1,6 @@
 /* ============================================================================
  * Admin UI — Tabs (underline style)
- * Active: white text + violet bottom border. Inactive: muted.
+ * Active: white text + jet white bottom border. Inactive: muted.
  * No giant pill tabs. Keyboard: arrow keys navigate (roving tabindex).
  * ========================================================================== */
 

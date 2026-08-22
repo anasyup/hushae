@@ -25,11 +25,11 @@ import AdminLayout from './AdminLayout';
  * ========================================================================== */
 
 const METHOD_META = {
-  COD:              { icon: Banknote,   color: '#059669', bg: 'bg-emerald-50', label: 'Cash on Delivery' },
-  JazzCash:         { icon: Smartphone, color: '#dc2626', bg: 'bg-red-50',    label: 'JazzCash' },
-  EasyPaisa:        { icon: Smartphone, color: '#16a34a', bg: 'bg-emerald-50',label: 'EasyPaisa' },
-  'Bank Transfer':  { icon: Landmark,   color: '#2563eb', bg: 'bg-blue-50',   label: 'Bank Transfer' },
-  Visa:             { icon: CreditCard, color: '#1a1f71', bg: 'bg-indigo-50', label: 'Visa / Mastercard' },
+  COD:              { icon: Banknote,   color: '#D6D6DA', bg: 'bg-emerald-50', label: 'Cash on Delivery' },
+  JazzCash:         { icon: Smartphone, color: '#ECECEF', bg: 'bg-red-50',    label: 'JazzCash' },
+  EasyPaisa:        { icon: Smartphone, color: '#D6D6DA', bg: 'bg-emerald-50',label: 'EasyPaisa' },
+  'Bank Transfer':  { icon: Landmark,   color: '#8F8F97', bg: 'bg-blue-50',   label: 'Bank Transfer' },
+  Visa:             { icon: CreditCard, color: '#1a1f71', bg: 'bg-neutral-100', label: 'Visa / Mastercard' },
 };
 
 export default function Payments() {
@@ -199,12 +199,12 @@ export default function Payments() {
             <div className="h-56 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={stats.daily} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                  <defs><linearGradient id="pay-fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#059669" stopOpacity={0.25} /><stop offset="100%" stopColor="#059669" stopOpacity={0} /></linearGradient></defs>
+                  <defs><linearGradient id="pay-fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#D6D6DA" stopOpacity={0.25} /><stop offset="100%" stopColor="#D6D6DA" stopOpacity={0} /></linearGradient></defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f1f1f1" vertical={false} />
                   <XAxis dataKey="label" stroke="#9ca3af" tick={{ fontSize: 10 }} tickLine={false} axisLine={false} />
                   <YAxis stroke="#9ca3af" tick={{ fontSize: 11 }} tickLine={false} axisLine={false} tickFormatter={(v) => v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v} />
                   <Tooltip contentStyle={{ borderRadius: 12, border: '1px solid #e5e7eb', fontSize: 12 }} formatter={(v) => [pkr(v), 'Revenue']} />
-                  <Area type="monotone" dataKey="value" stroke="#059669" strokeWidth={2.2} fill="url(#pay-fill)" />
+                  <Area type="monotone" dataKey="value" stroke="#D6D6DA" strokeWidth={2.2} fill="url(#pay-fill)" />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
@@ -215,9 +215,9 @@ export default function Payments() {
             <p className="mb-3 text-[12px] font-bold uppercase tracking-widest text-neutral-500">Payment gateways</p>
             <div className="grid gap-3 md:grid-cols-3">
               {[
-                { title: 'Cash on Delivery', icon: Banknote, color: '#059669', enabled: settings?.paymentMethods?.cod !== false, account: 'Always active' },
-                { title: 'JazzCash', icon: Smartphone, color: '#dc2626', enabled: !!settings?.paymentMethods?.jazzcash, account: settings?.paymentMethods?.jazzcashNumber || 'Not configured' },
-                { title: 'EasyPaisa', icon: Smartphone, color: '#16a34a', enabled: !!settings?.paymentMethods?.easypaisa, account: settings?.paymentMethods?.easypaisaNumber || 'Not configured' },
+                { title: 'Cash on Delivery', icon: Banknote, color: '#D6D6DA', enabled: settings?.paymentMethods?.cod !== false, account: 'Always active' },
+                { title: 'JazzCash', icon: Smartphone, color: '#ECECEF', enabled: !!settings?.paymentMethods?.jazzcash, account: settings?.paymentMethods?.jazzcashNumber || 'Not configured' },
+                { title: 'EasyPaisa', icon: Smartphone, color: '#D6D6DA', enabled: !!settings?.paymentMethods?.easypaisa, account: settings?.paymentMethods?.easypaisaNumber || 'Not configured' },
               ].map((g) => {
                 const I = g.icon;
                 return (

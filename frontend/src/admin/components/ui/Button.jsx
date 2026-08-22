@@ -2,7 +2,7 @@ import { forwardRef } from 'react';
 
 /* ============================================================================
  * Admin UI — Button (Phase 01 design system)
- * Variants: primary (violet) · secondary (bordered) · ghost · danger
+ * Variants: primary (jet white) · secondary (bordered) · ghost · danger
  * Sizes: sm (32) · md (38)
  * Radius: 8px (rounded-lg). No pills, no gradients, no gold.
  * ========================================================================== */
@@ -13,7 +13,7 @@ const base =
   'disabled:pointer-events-none disabled:opacity-50';
 
 const variants = {
-  primary: 'bg-admin-accent text-white hover:bg-admin-accent-hover',
+  primary: 'bg-admin-text text-admin-bg hover:bg-admin-accent-hover',
   secondary:
     'border border-admin-border bg-admin-surface-2 text-admin-text-2 hover:bg-admin-surface-3 hover:text-admin-text',
   ghost: 'text-admin-text-2 hover:bg-admin-surface-2 hover:text-admin-text',

@@ -3,7 +3,7 @@ import { forwardRef, useId } from 'react';
 /* ============================================================================
  * Admin UI — Input / Textarea / Field
  * Height 38–40px, surface #111113, 1px subtle border, 8px radius.
- * Focus: violet border + soft violet glow (never neon).
+ * Focus: jet white border + soft white glow (never neon).
  * ========================================================================== */
 
 const baseField =

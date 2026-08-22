@@ -6,20 +6,20 @@
  * ========================================================================== */
 
 const tones = {
-  success: 'bg-admin-success/15 text-admin-success',
-  warning: 'bg-admin-warning/15 text-admin-warning',
-  danger: 'bg-admin-danger/15 text-admin-danger',
-  info: 'bg-admin-info/15 text-admin-info',
-  accent: 'bg-admin-accent-soft text-admin-accent-hover',
+  success: 'bg-admin-accent-soft text-admin-text',
+  warning: 'bg-admin-accent-soft text-admin-text',
+  danger: 'bg-admin-accent-soft text-admin-text',
+  info: 'bg-admin-accent-soft text-admin-text-2',
+  accent: 'bg-admin-accent-soft text-admin-text',
   neutral: 'bg-admin-surface-2 text-admin-text-2',
 };
 
 const dots = {
-  success: 'bg-admin-success',
-  warning: 'bg-admin-warning',
-  danger: 'bg-admin-danger',
-  info: 'bg-admin-info',
-  accent: 'bg-admin-accent',
+  success: 'bg-admin-text',
+  warning: 'bg-admin-text-muted',
+  danger: 'bg-admin-text',
+  info: 'bg-admin-text-muted',
+  accent: 'bg-admin-text',
   neutral: 'bg-admin-text-muted',
 };
 

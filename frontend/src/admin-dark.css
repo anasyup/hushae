@@ -1,12 +1,12 @@
 /* ============================================================================
  * ADMIN DARK MODE — applied when <html class="dark-admin"> is present.
- * Phase 01 design system: dark editorial luxury + electric violet.
+ * Phase 02 design system: JET BLACK + JET WHITE (no accent color).
  *
  * The neutral palette (bg-white, text-neutral-*, border-neutral-*) is driven
  * by CSS variables in index.css (.dark-admin): #09090B page, #111113 cards,
  * #17171A raised, #1D1D21 borders, #F4F4F5 text. This file only handles what
  * variables CANNOT: shell chrome, Recharts SVG, tinted badges, hardcoded hex
- * fills and scrollbars. NO GOLD anywhere — accent is violet #8B5CF6.
+ * fills and scrollbars. Strictly monochrome — no gold, no violet, no colors.
  * ========================================================================== */
 
 .dark-admin {
@@ -56,48 +56,29 @@
 .dark-admin .bg-\[#fafafa\] { background-color: #111113 !important; }
 .dark-admin .bg-\[#f6dfc4\] { background-color: rgba(184, 154, 104, 0.14) !important; }
 
-/* ── Status badges / pills — muted semantic tints (no rainbow) ──────────── */
-.dark-admin .bg-emerald-50  { background-color: rgba(134, 169, 139, 0.14) !important; }
-.dark-admin .bg-emerald-100 { background-color: rgba(134, 169, 139, 0.22) !important; }
-.dark-admin .bg-red-50      { background-color: rgba(201, 121, 121, 0.14) !important; }
-.dark-admin .bg-red-100     { background-color: rgba(201, 121, 121, 0.22) !important; }
-.dark-admin .bg-amber-50    { background-color: rgba(184, 154, 104, 0.14) !important; }
-.dark-admin .bg-amber-100   { background-color: rgba(184, 154, 104, 0.22) !important; }
-.dark-admin .bg-sky-50      { background-color: rgba(130, 151, 170, 0.14) !important; }
-.dark-admin .bg-sky-100     { background-color: rgba(130, 151, 170, 0.22) !important; }
-.dark-admin .bg-purple-50   { background-color: rgba(139, 92, 246, 0.14) !important; }
-.dark-admin .bg-purple-100  { background-color: rgba(139, 92, 246, 0.22) !important; }
-.dark-admin .bg-blue-50     { background-color: rgba(130, 151, 170, 0.14) !important; }
-.dark-admin .bg-blue-100    { background-color: rgba(130, 151, 170, 0.22) !important; }
-.dark-admin .bg-cyan-100    { background-color: rgba(130, 151, 170, 0.22) !important; }
-.dark-admin .bg-orange-100  { background-color: rgba(184, 154, 104, 0.22) !important; }
-.dark-admin .bg-indigo-50   { background-color: rgba(139, 92, 246, 0.14) !important; }
-.dark-admin .bg-slate-50    { background-color: #17171A !important; }
+/* ── Status badges / pills — MONOCHROME (Phase 02 correction) ───────────
+   No colored badges. Status is communicated with white/black opacity
+   variations, typography and icons only. */
+.dark-admin .bg-emerald-50,  .dark-admin .bg-red-50,    .dark-admin .bg-amber-50,
+.dark-admin .bg-sky-50,      .dark-admin .bg-blue-50,   .dark-admin .bg-purple-50,
+.dark-admin .bg-indigo-50,   .dark-admin .bg-cyan-100,  .dark-admin .bg-orange-100,
+.dark-admin .bg-slate-50,    .dark-admin .bg-green-50   { background-color: rgba(255, 255, 255, 0.08) !important; }
+.dark-admin .bg-emerald-100, .dark-admin .bg-red-100,   .dark-admin .bg-amber-100,
+.dark-admin .bg-sky-100,     .dark-admin .bg-blue-100,  .dark-admin .bg-purple-100,
+.dark-admin .bg-green-100    { background-color: rgba(255, 255, 255, 0.14) !important; }
 
-.dark-admin .text-emerald-700 { color: #86A98B !important; }
-.dark-admin .text-emerald-800 { color: #A3C4A8 !important; }
-.dark-admin .text-red-700     { color: #C97979 !important; }
-.dark-admin .text-red-800     { color: #DB9C9C !important; }
-.dark-admin .text-amber-700   { color: #B89A68 !important; }
-.dark-admin .text-amber-800   { color: #CDB384 !important; }
-.dark-admin .text-sky-700     { color: #8297AA !important; }
-.dark-admin .text-sky-800     { color: #9FB1C2 !important; }
-.dark-admin .text-blue-700    { color: #8297AA !important; }
-.dark-admin .text-blue-800    { color: #9FB1C2 !important; }
-.dark-admin .text-purple-700  { color: #A78BFA !important; }
-.dark-admin .text-purple-800  { color: #C4B5FD !important; }
-.dark-admin .text-green-600   { color: #86A98B !important; }
-.dark-admin .text-red-600     { color: #C97979 !important; }
-.dark-admin .text-amber-600   { color: #B89A68 !important; }
-.dark-admin .text-sky-600     { color: #8297AA !important; }
-.dark-admin .text-orange-600  { color: #B89A68 !important; }
-.dark-admin .text-cyan-600    { color: #8297AA !important; }
+.dark-admin .text-emerald-700, .dark-admin .text-red-700,   .dark-admin .text-amber-700,
+.dark-admin .text-sky-700,     .dark-admin .text-blue-700,  .dark-admin .text-purple-700,
+.dark-admin .text-green-600,   .dark-admin .text-red-600,   .dark-admin .text-amber-600,
+.dark-admin .text-sky-600,     .dark-admin .text-orange-600,.dark-admin .text-cyan-600,
+.dark-admin .text-emerald-600  { color: #F4F4F5 !important; }
+.dark-admin .text-emerald-800, .dark-admin .text-red-800,   .dark-admin .text-amber-800,
+.dark-admin .text-sky-800,     .dark-admin .text-blue-800,  .dark-admin .text-purple-800 { color: #D4D4D8 !important; }
 
-.dark-admin .ring-neutral-200 { --tw-ring-color: #1D1D21 !important; }
-.dark-admin .ring-emerald-200 { --tw-ring-color: rgba(134,169,139,0.30) !important; }
-.dark-admin .ring-red-200     { --tw-ring-color: rgba(201,121,121,0.30) !important; }
-.dark-admin .ring-amber-200   { --tw-ring-color: rgba(184,154,104,0.30) !important; }
-.dark-admin .ring-blue-200    { --tw-ring-color: rgba(130,151,170,0.30) !important; }
+.dark-admin .ring-neutral-200 { --tw-ring-color: rgba(255, 255, 255, 0.14) !important; }
+.dark-admin .ring-emerald-200, .dark-admin .ring-red-200, .dark-admin .ring-amber-200,
+.dark-admin .ring-blue-200    { --tw-ring-color: rgba(255, 255, 255, 0.16) !important; }
+
 
 /* ── Recharts (SVG inline attrs) ────────────────────────────────────────── */
 .dark-admin .recharts-cartesian-grid line {
@@ -130,7 +111,7 @@
 .dark-admin [style*="color: #0d0d0d"] { color: #F4F4F5 !important; }
 .dark-admin [style*="background: #11111114"],
 .dark-admin [style*="background: #0d0d0d14"] {
-  background-color: rgba(139, 92, 246, 0.14) !important;
+  background-color: rgba(255, 255, 255, 0.10) !important;
 }
 
 /* ── Scrollbars ─────────────────────────────────────────────────────────── */

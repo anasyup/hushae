@@ -422,7 +422,7 @@ function ListView({ products, selected, onToggleSel, onToggleAll, onEnable, onDi
                     <div className="mt-1 flex items-center gap-2 text-[13px] uppercase tracking-wider text-neutral-500">
                       <span>{p.gender}</span> · <span>{p.categorySlug}</span>
                       {p.isFeatured && <span className="inline-flex items-center gap-0.5 text-amber-600"><Star size={9} fill="currentColor" /> Featured</span>}
-                      {p.isBestSeller && <span className="inline-flex items-center gap-0.5 text-purple-600"><TrendingUp size={9} /> Best</span>}
+                      {p.isBestSeller && <span className="inline-flex items-center gap-0.5 text-neutral-600"><TrendingUp size={9} /> Best</span>}
                     </div>
                   </div>
                 </Link>
@@ -492,7 +492,7 @@ function GridView({ products, onEnable, onDisable, onRemove, onDuplicate, onPubl
               {(p.isFeatured || p.isBestSeller) && (
                 <div className="absolute right-2 top-2 flex gap-1">
                   {p.isFeatured && <span className="grid h-6 w-6 place-items-center rounded-full bg-amber-500 text-white" title="Featured"><Star size={11} fill="currentColor" /></span>}
-                  {p.isBestSeller && <span className="grid h-6 w-6 place-items-center rounded-full bg-purple-600 text-white" title="Best seller"><TrendingUp size={11} /></span>}
+                  {p.isBestSeller && <span className="grid h-6 w-6 place-items-center rounded-full bg-neutral-900 text-white" title="Best seller"><TrendingUp size={11} /></span>}
                 </div>
               )}
             </div>
