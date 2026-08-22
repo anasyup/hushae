@@ -1,15 +1,11 @@
 import { useState } from 'react';
-import { FileBarChart2, FileSpreadsheet, Download, ExternalLink, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { Download, Loader2 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import AdminLayout from './AdminLayout';
-
-/* ============================================================================
- * Reports — operational & financial reporting hub (Master Spec §17)
- * Every card links to the owning screen; CSV exports are generated from the
- * same admin APIs the screens use (client-side, Excel-friendly BOM).
- * ========================================================================== */
+import PageHeader from './components/PageHeader';
+import { btnGhost } from './orders/orderUi';
 
 const BASE = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
 
@@ -93,60 +89,62 @@ export default function Reports() {
   }));
 
   const CARDS = [
-    { id: 'sales', title: 'Sales report', desc: 'Revenue, orders and AOV trends — full P&L view.', to: '/admin/finance', icon: FileBarChart2, primary: true },
-    { id: 'orders', title: 'Orders report', desc: 'All orders with filters — export the current view as CSV.', to: '/admin/orders', icon: FileSpreadsheet, onExport: downloadOrdersCsv, primary: true },
-    { id: 'products', title: 'Product report', desc: 'SKU, price, stock and status for the full catalog.', to: '/admin/products', icon: FileSpreadsheet,
+    { id: 'sales', title: 'Sales report', desc: 'Revenue, orders and AOV trends — full P&L view.', to: '/admin/finance', primary: true },
+    { id: 'orders', title: 'Orders report', desc: 'All orders with filters — export the current view as CSV.', to: '/admin/orders', onExport: downloadOrdersCsv, primary: true },
+    { id: 'products', title: 'Product report', desc: 'SKU, price, stock and status for the full catalog.', to: '/admin/products',
       onExport: () => run('products', () => api('/products/admin/list?limit=500', { token: auth.token }), productMapper, 'hushae-products') },
-    { id: 'inventory', title: 'Inventory report', desc: 'Available vs reserved stock per SKU and warehouse.', to: '/admin/ops/inventory', icon: FileSpreadsheet,
+    { id: 'inventory', title: 'Inventory report', desc: 'Available vs reserved stock per SKU and warehouse.', to: '/admin/ops/inventory',
       onExport: () => run('inventory', () => api('/ops/stock', { token: auth.token }), stockMapper, 'hushae-inventory') },
-    { id: 'customers', title: 'Customer report', desc: 'Customer directory — orders, spend and status.', to: '/admin/customers', icon: FileSpreadsheet,
+    { id: 'customers', title: 'Customer report', desc: 'Customer directory — orders, spend and status.', to: '/admin/customers',
       onExport: () => run('customers', () => api('/admin/customers', { token: auth.token }), customerMapper, 'hushae-customers') },
-    { id: 'discounts', title: 'Discount report', desc: 'Codes, types, usage and limits.', to: '/admin/discounts', icon: FileSpreadsheet,
+    { id: 'discounts', title: 'Discount report', desc: 'Codes, types, usage and limits.', to: '/admin/discounts',
       onExport: () => run('discounts', () => api('/discounts', { token: auth.token }), discountMapper, 'hushae-discounts') },
-    { id: 'refunds', title: 'Refund & return report', desc: 'Return cases and refund ledger.', to: '/admin/ops/returns', icon: FileBarChart2 },
-    { id: 'payments', title: 'Payment reconciliation', desc: 'Transactions, capture and refund status.', to: '/admin/payments', icon: FileBarChart2 },
-    { id: 'shipping', title: 'Shipping report', desc: 'Zones, rates and fulfillment rules.', to: '/admin/settings/shipping', icon: FileBarChart2 },
-    { id: 'tax', title: 'Tax report', desc: 'Global rate and per-zone configuration.', to: '/admin/settings/taxes', icon: FileBarChart2 },
-    { id: 'staff', title: 'Staff activity report', desc: 'Audit trail — who did what, when.', to: '/admin/settings/security', icon: FileSpreadsheet,
+    { id: 'refunds', title: 'Refund & return report', desc: 'Return cases and refund ledger.', to: '/admin/ops/returns' },
+    { id: 'payments', title: 'Payment reconciliation', desc: 'Transactions, capture and refund status.', to: '/admin/payments' },
+    { id: 'shipping', title: 'Shipping report', desc: 'Zones, rates and fulfillment rules.', to: '/admin/settings/shipping' },
+    { id: 'tax', title: 'Tax report', desc: 'Global rate and per-zone configuration.', to: '/admin/settings/taxes' },
+    { id: 'staff', title: 'Staff activity report', desc: 'Audit trail — who did what, when.', to: '/admin/settings/security',
       onExport: () => run('staff', () => api('/security/audit-logs?limit=200', { token: auth.token }), auditMapper, 'hushae-staff-activity') },
   ];
 
   return (
     <AdminLayout title="Reports">
-      <div className="mx-auto max-w-6xl">
-        <div className="mb-6 flex items-center gap-3">
-          <span className="grid h-10 w-10 place-items-center rounded-md bg-neutral-900 text-white"><FileBarChart2 size={17} /></span>
-          <div>
-            <h2 className="text-[15px] font-medium text-neutral-900">Reports</h2>
-            <p className="mt-0.5 text-[12px] text-neutral-500">Exportable operational and financial reports. CSV files open directly in Excel.</p>
-          </div>
-        </div>
+      <PageHeader
+        title="Reports"
+        description="Exportable operational and financial reports. CSV files open directly in Excel."
+      />
 
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {CARDS.map((c) => (
-            <div key={c.id} className="group flex flex-col rounded-md border border-neutral-200 bg-white p-4 transition hover:border-neutral-300">
-              <div className="flex items-start justify-between">
-                <span className="grid h-8 w-8 place-items-center rounded-md bg-neutral-50 text-neutral-600"><c.icon size={14} /></span>
-                {c.onExport && (
-                  <button
-                    onClick={c.onExport}
-                    disabled={busyKey === c.id}
-                    title="Export CSV"
-                    className="inline-flex h-8 items-center gap-1.5 rounded-md border border-neutral-200 bg-white px-2.5 text-[11px] font-medium text-neutral-600 transition hover:border-neutral-300 hover:text-neutral-900 disabled:opacity-50"
-                  >
-                    {busyKey === c.id ? <Loader2 size={11} className="animate-spin" /> : <Download size={11} />} CSV
-                  </button>
-                )}
-              </div>
-              <p className="mt-3 text-[13px] font-medium text-neutral-900">{c.title}</p>
-              <p className="mt-1 flex-1 text-[12px] leading-relaxed text-neutral-500">{c.desc}</p>
-              <Link to={c.to} className="mt-3 inline-flex items-center gap-1 text-[12px] font-medium text-neutral-700 transition hover:text-neutral-900">
-                Open module <ExternalLink size={11} className="opacity-50" />
+      <section>
+        <p className="adm-index">01 — Directory</p>
+        <div className="hidden border-b border-white/10 py-2 md:grid md:grid-cols-[3rem_minmax(0,1.2fr)_minmax(0,1.8fr)_auto] md:gap-4">
+          {['#', 'Report', 'Detail', ''].map((h) => <p key={h || 'a'} className="adm-label">{h}</p>)}
+        </div>
+        {CARDS.map((c, i) => (
+          <div key={c.id} className="grid grid-cols-1 items-center gap-2 border-b border-white/10 py-4 md:grid-cols-[3rem_minmax(0,1.2fr)_minmax(0,1.8fr)_auto] md:gap-4 adm-row-hover">
+            <span className="text-[11px] uppercase tracking-[0.16em] text-white/30">{String(i + 1).padStart(2, '0')}</span>
+            <div>
+              <p className="text-[13px] text-white">{c.title}</p>
+              <p className="mt-0.5 text-[12px] text-white/35 md:hidden">{c.desc}</p>
+            </div>
+            <p className="hidden text-[12px] text-white/35 md:block">{c.desc}</p>
+            <div className="flex items-center gap-2 justify-self-start md:justify-self-end">
+              {c.onExport && (
+                <button
+                  type="button"
+                  onClick={c.onExport}
+                  disabled={busyKey === c.id}
+                  className={btnGhost}
+                >
+                  {busyKey === c.id ? <Loader2 size={11} className="animate-spin" /> : <Download size={11} />} CSV
+                </button>
+              )}
+              <Link to={c.to} className="text-[11px] uppercase tracking-[0.14em] text-white/40 hover:text-white">
+                Open →
               </Link>
             </div>
-          ))}
-        </div>
-      </div>
+          </div>
+        ))}
+      </section>
     </AdminLayout>
   );
 }

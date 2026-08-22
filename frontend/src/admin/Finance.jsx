@@ -1,38 +1,19 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { Download, FileText, RefreshCw } from 'lucide-react';
 import {
-  AlertTriangle, ArrowDownRight, ArrowUpRight, BadgePercent, Banknote, Boxes,
-  Calendar, CircleDollarSign, Coins, Download, FileText, Info, PieChart as PieIcon,
-  RefreshCw, ShoppingBag, Target, TrendingDown, TrendingUp, Truck, Wallet, XCircle,
-} from 'lucide-react';
-import {
-  Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, Line, LineChart,
-  Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis,
+  Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis,
 } from 'recharts';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import { pkr } from '../lib/format';
 import AdminLayout from './AdminLayout';
+import PageHeader from './components/PageHeader';
 import OrderProfitability from './finance/OrderProfitability';
 import { BreakEven, CodExposure, ProfitByCustomer, ProfitByProduct } from './finance/ProfitTables';
 import { exportPnlReport } from './finance/exportPnl';
-
-/* ============================================================================
- * FINANCE — Business Advisor page.
- * Original design (not a copy of any single seller-portal). Gives the owner
- * a single screen that answers: "Am I actually profitable? Where does my money
- * come from and where does it go?"
- *
- * Sections:
- *   1. Range picker (7/30/90/YTD)
- *   2. 6 headline KPIs (Revenue, Net Profit, Margin, AOV, Orders, Refunds)
- *   3. Cash-flow chart (revenue vs cost stacked area over time)
- *   4. Expense breakdown (donut: COGS / Packing / Shipping subsidy / Ads / SEO / Other)
- *   5. Payment method mix (donut) + Order stage funnel
- *   6. Auto-generated advisor insights ("💡 Ads are 32% of revenue — try
- *      lowering CPA on Meta or shift to influencers")
- *   7. Export CSV (last-N-days orders)
- * ========================================================================== */
+import { btnGhost, btnSolid, EditorialError, TableSkeleton } from './orders/orderUi';
+import { monoAxis, monoGrid, monoTooltip } from './analytics/charts';
 
 const RANGES = [
   { key: '7',   label: 'Last 7 days',  days: 7 },
@@ -283,291 +264,204 @@ export default function Finance() {
     URL.revokeObjectURL(url);
   };
 
-  if (err) {
-    return <AdminLayout title="Finance">
-      <div className="mx-auto grid max-w-md place-items-center rounded-2xl border border-red-200 bg-red-50 p-8 text-center">
-        <XCircle size={22} className="mb-2 text-red-600" />
-        <p className="text-sm text-red-700">{err}</p>
-        <button onClick={() => { setErr(''); load(); }} className="mt-3 rounded-full border border-red-300 bg-white px-4 py-1.5 text-[12px] font-semibold text-red-700 hover:bg-red-100">Try again</button>
+  const actions = (
+    <>
+      <div className="flex flex-wrap items-center gap-1">
+        {RANGES.map((r) => (
+          <button
+            key={r.key}
+            type="button"
+            onClick={() => setRange(r.key)}
+            disabled={busy}
+            className={range === r.key ? btnSolid : btnGhost}
+          >{r.label}</button>
+        ))}
       </div>
-    </AdminLayout>;
+      <button type="button" onClick={load} disabled={busy} className={btnGhost}>
+        <RefreshCw size={12} className={busy ? 'animate-spin' : ''} /> Refresh
+      </button>
+      {summary && (
+        <>
+          <button
+            type="button"
+            onClick={() => exportPnlReport({ summary, rangeLabel: rangeMeta.label, sinceDate, until: now })}
+            className={btnGhost}
+          >
+            <FileText size={12} /> P&amp;L
+          </button>
+          <button type="button" onClick={exportCsv} className={btnSolid}>
+            <Download size={12} /> Export
+          </button>
+        </>
+      )}
+    </>
+  );
+
+  if (err) {
+    return (
+      <AdminLayout title="Finance">
+        <PageHeader title="Finance" description="Profit, cost and cash." />
+        <EditorialError title="Unable to load finance" description={err} onRetry={() => { setErr(''); load(); }} />
+      </AdminLayout>
+    );
   }
   if (!summary) {
-    return <AdminLayout title="Finance">
-      <div className="grid gap-4 md:grid-cols-3">{[1, 2, 3, 4, 5, 6].map((i) => <div key={i} className="animate-pulse rounded-xl bg-neutral-100 h-32" />)}</div>
-    </AdminLayout>;
+    return (
+      <AdminLayout title="Finance">
+        <PageHeader title="Finance" description="Profit, cost and cash." actions={actions} />
+        <TableSkeleton rows={8} />
+      </AdminLayout>
+    );
   }
+
+  const signed = (n) => (n < 0 ? `↓ ${pkr(n)}` : pkr(n));
+
+  const kpis = [
+    { label: 'Revenue', value: pkr(summary.revenue), sub: `${summary.orderCount} order${summary.orderCount === 1 ? '' : 's'}` },
+    { label: 'Net profit', value: signed(summary.netProfit), sub: `${summary.margin.toFixed(1)}% net margin` },
+    { label: 'Gross profit', value: pkr(summary.grossProfit), sub: `${summary.grossMargin.toFixed(1)}% gross margin` },
+    { label: 'Aov', value: pkr(summary.aov), sub: `${summary.itemCount} items sold` },
+    { label: 'Cost', value: pkr(summary.totalExpense), sub: 'COGS + costs + ads' },
+    { label: 'Failed after ship', value: summary.lostAfterCost > 0 ? `↓ ${pkr(summary.lostAfterCost)}` : pkr(0), sub: `${summary.lostBeforeShip} before · ${summary.lostAfterShip} after` },
+  ];
 
   return (
     <AdminLayout title="Finance">
-      {/* --- Range picker + export --- */}
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-1 rounded-full border border-neutral-200 bg-white p-1">
-          {RANGES.map((r) => (
-            <button
-              key={r.key}
-              onClick={() => setRange(r.key)}
-              disabled={busy}
-              className={`rounded-full px-3 py-1.5 text-[12px] font-semibold transition ${
-                range === r.key ? 'bg-neutral-900 text-white' : 'text-neutral-500 hover:text-neutral-900'
-              }`}
-            >{r.label}</button>
+      <PageHeader title="Finance" description="Profit, cost and cash." actions={actions} />
+
+      <section className="mb-10">
+        <p className="adm-index">01 — Performance</p>
+        <div className="adm-divide-x grid grid-cols-2 border-y border-white/10 sm:grid-cols-3 xl:grid-cols-6">
+          {kpis.map((x) => (
+            <div key={x.label} className="px-4 py-6 sm:px-5">
+              <p className="adm-label">{x.label}</p>
+              <p className="adm-metric mt-3 text-[20px] leading-none text-white xl:text-[24px]">{x.value}</p>
+              <p className="mt-2 text-[11px] text-white/30">{x.sub}</p>
+            </div>
           ))}
-        </div>
-        <div className="flex items-center gap-2">
-          <button onClick={load} disabled={busy} className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-[12px] font-semibold text-neutral-700 hover:bg-neutral-50 disabled:opacity-50">
-            <RefreshCw size={12} className={busy ? 'animate-spin' : ''} /> Refresh
-          </button>
-          <button
-            onClick={() => exportPnlReport({ summary, rangeLabel: rangeMeta.label, sinceDate, until: now })}
-            className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50"
-          >
-            <FileText size={12} /> P&amp;L report
-          </button>
-          <button onClick={exportCsv} className="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-3 py-1.5 text-[12px] font-semibold text-white transition hover:bg-neutral-800">
-            <Download size={12} /> Export CSV
-          </button>
-        </div>
-      </div>
-
-      {/* --- 6 headline KPIs --- */}
-      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-        <BigKpi icon={CircleDollarSign} label="Revenue" value={pkr(summary.revenue)} sub={`${summary.orderCount} order${summary.orderCount === 1 ? '' : 's'}`} accent="#D6D6DA" />
-        <BigKpi
-          icon={summary.netProfit >= 0 ? TrendingUp : TrendingDown}
-          label="Net profit"
-          value={pkr(summary.netProfit)}
-          sub={`${summary.margin.toFixed(1)}% net margin`}
-          accent={summary.netProfit >= 0 ? '#D6D6DA' : '#ECECEF'}
-          highlight={summary.netProfit < 0}
-        />
-        <BigKpi icon={Coins} label="Gross profit" value={pkr(summary.grossProfit)} sub={`${summary.grossMargin.toFixed(1)}% gross margin`} accent="#8F8F97" />
-        <BigKpi icon={Wallet} label="Avg. order value" value={pkr(summary.aov)} sub={`${summary.itemCount} items sold`} accent="#A1A1AA" />
-        <BigKpi icon={ShoppingBag} label="Total expenses" value={pkr(summary.totalExpense)} sub="COGS + costs + ads" accent="#A3A3AB" />
-        <BigKpi
-          icon={AlertTriangle}
-          label="Cancelled + returns"
-          value={summary.lostAfterCost > 0 ? `−${pkr(summary.lostAfterCost)}` : pkr(0)}
-          sub={`${summary.lostBeforeShip} before shipping (no cost) · ${summary.lostAfterShip} after shipping`}
-          accent="#ECECEF"
-          highlight={summary.lostAfterCost > 0}
-        />
-      </div>
-
-      {/* --- Cash-flow chart --- */}
-      <section className="mt-6 rounded-2xl border border-neutral-200 bg-white p-6">
-        <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-500">Cash flow</p>
-            <p className="mt-1 text-[12px] text-neutral-500">Revenue vs cost of goods, day by day.</p>
-          </div>
-        </div>
-        <div className="h-72">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={summary.daily} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-              <defs>
-                <linearGradient id="fin-rev" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%"  stopColor="#D6D6DA" stopOpacity={0.35} />
-                  <stop offset="100%" stopColor="#D6D6DA" stopOpacity={0} />
-                </linearGradient>
-                <linearGradient id="fin-cost" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%"  stopColor="#ECECEF" stopOpacity={0.28} />
-                  <stop offset="100%" stopColor="#ECECEF" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f1f1f1" vertical={false} />
-              <XAxis dataKey="label" stroke="#9ca3af" tick={{ fontSize: 10 }} tickLine={false} axisLine={false} interval="preserveStartEnd" />
-              <YAxis stroke="#9ca3af" tick={{ fontSize: 11 }} tickLine={false} axisLine={false} tickFormatter={(v) => v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v} />
-              <Tooltip
-                contentStyle={{ borderRadius: 12, border: '1px solid #e5e7eb', fontSize: 12 }}
-                formatter={(v, k) => [pkr(v), k === 'revenue' ? 'Revenue' : k === 'cogs' ? 'COGS' : 'Profit']}
-              />
-              <Area type="monotone" dataKey="revenue" stroke="#D6D6DA" strokeWidth={2.2} fill="url(#fin-rev)" />
-              <Area type="monotone" dataKey="cogs"    stroke="#ECECEF" strokeWidth={2}   fill="url(#fin-cost)" />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
-        <div className="mt-4 flex flex-wrap gap-4 text-[12px]">
-          <span className="inline-flex items-center gap-1.5 text-neutral-600"><span className="h-2 w-2 rounded-full bg-emerald-600" /> Revenue</span>
-          <span className="inline-flex items-center gap-1.5 text-neutral-600"><span className="h-2 w-2 rounded-full bg-red-600" /> Cost of goods</span>
         </div>
       </section>
 
-      {/* --- Expense breakdown + Payment mix --- */}
-      <div className="mt-6 grid gap-6 lg:grid-cols-2">
-        <ExpenseDonut summary={summary} />
-        <PaymentDonut mix={summary.paymentMix} />
+      <section className="mb-10">
+        <p className="adm-index">02 — Cash flow</p>
+        <p className="mb-4 text-[12px] text-white/35">Revenue vs cost of goods, day by day.</p>
+        <div className="h-72">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={summary.daily} margin={{ top: 10, right: 8, left: 0, bottom: 0 }}>
+              <CartesianGrid {...monoGrid} />
+              <XAxis dataKey="label" {...monoAxis} interval="preserveStartEnd" />
+              <YAxis {...monoAxis} tickFormatter={(v) => (v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v)} />
+              <Tooltip
+                {...monoTooltip}
+                formatter={(v, k) => [pkr(v), k === 'revenue' ? 'Revenue' : k === 'cogs' ? 'COGS' : 'Profit']}
+              />
+              <Area type="monotone" dataKey="revenue" stroke="#FFFFFF" strokeWidth={1.8} fill="rgba(255,255,255,0.10)" fillOpacity={1} />
+              <Area type="monotone" dataKey="cogs" stroke="rgba(255,255,255,0.45)" strokeWidth={1.4} fill="rgba(255,255,255,0.04)" fillOpacity={1} />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+        <div className="mt-3 flex flex-wrap gap-5 text-[10px] uppercase tracking-[0.16em] text-white/40">
+          <span className="inline-flex items-center gap-2"><span className="h-px w-4 bg-white" /> Revenue</span>
+          <span className="inline-flex items-center gap-2"><span className="h-px w-4 bg-white/40" /> Cost of goods</span>
+        </div>
+      </section>
+
+      <div className="mb-10 grid gap-10 lg:grid-cols-2">
+        <ExpenseList summary={summary} />
+        <PaymentList mix={summary.paymentMix} />
       </div>
 
-      {/* --- Order-level profitability (the flagship view) --- */}
       <OrderProfitability days={rangeDays} />
 
-      {/* --- Margin views + risk widgets --- */}
-      <div className="mt-6 grid gap-6 lg:grid-cols-2">
+      <div className="mt-10 grid gap-10 lg:grid-cols-2">
         <ProfitByProduct days={rangeDays} />
         <ProfitByCustomer days={rangeDays} />
       </div>
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-2">
+      <div className="mt-10 grid gap-10 lg:grid-cols-2">
         <CodExposure />
         <BreakEven days={rangeDays} />
       </div>
 
-      {/* --- Business advisor insights --- */}
-      <section className="mt-6 rounded-2xl border border-neutral-900 bg-neutral-900 p-6 text-white">
-        <div className="mb-4 flex items-center justify-between">
-          <div>
-            <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-400">Business advisor</p>
-            <h3 className="mt-1 font-sans text-xl">Recommendations for your store</h3>
-          </div>
-          <Target size={22} className="text-neutral-400" />
-        </div>
+      <section className="mt-10">
+        <p className="adm-index">08 — Advisor</p>
         {summary.insights.length === 0 ? (
-          <p className="text-[12px] text-neutral-400">Everything is on track for this period — check back after more orders come in.</p>
+          <p className="border-y border-white/10 py-8 text-[13px] text-white/35">Everything is on track for this period — check back after more orders come in.</p>
         ) : (
-          <div className="space-y-2.5">
-            {summary.insights.map((it, i) => {
-              const dot = it.tone === 'warn' ? 'bg-amber-400' : it.tone === 'good' ? 'bg-emerald-400' : 'bg-blue-400';
-              return (
-                <div key={i} className="flex items-start gap-3 rounded-xl bg-white/5 p-3">
-                  <span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${dot}`} />
-                  <p className="text-[12px] leading-relaxed text-neutral-100">{it.text}</p>
-                </div>
-              );
-            })}
+          <div className="divide-y divide-white/10 border-y border-white/10">
+            {summary.insights.map((it, i) => (
+              <div key={i} className="flex items-start gap-4 py-4">
+                <span className="mt-0.5 shrink-0 text-[10px] uppercase tracking-[0.18em] text-white/30">
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <p className="text-[13px] leading-relaxed text-white/80">{it.text}</p>
+              </div>
+            ))}
           </div>
         )}
-        <div className="mt-4 rounded-xl bg-white/5 p-3 text-[12px] leading-relaxed text-neutral-400">
-          <b className="text-neutral-200">How this is calculated:</b> Net profit = Revenue − (COGS + packing + courier subsidy + prorated ads + SEO + other). Fixed monthly costs are prorated across the selected date range. Set costs in <Link to="/admin/settings/shipping" className="underline hover:text-white">Settings → Shipping & Operating Costs</Link>.
-        </div>
+        <p className="mt-4 text-[11px] leading-relaxed text-white/30">
+          Net profit = Revenue − (COGS + packing + courier subsidy + prorated ads + SEO + other). Fixed monthly costs are prorated across the selected date range. Set costs in{' '}
+          <Link to="/admin/settings/shipping" className="text-white/55 underline decoration-white/20 underline-offset-4 hover:text-white">Settings → Shipping &amp; Operating Costs</Link>.
+        </p>
       </section>
     </AdminLayout>
   );
 }
 
-/* ============================================================================
- * Sub-components
- * ========================================================================== */
-
-function BigKpi({ icon: Icon, label, value, sub, accent, highlight }) {
+function RankedMoney({ title, hint, rows, empty }) {
+  const total = rows.reduce((n, d) => n + d.value, 0);
   return (
-    <div className={`rounded-2xl border bg-white p-5 transition ${highlight ? 'border-red-200 ring-1 ring-red-100' : 'border-neutral-200'}`}>
-      <div className="flex items-center justify-between">
-        <span className="grid h-11 w-11 place-items-center rounded-xl" style={{ background: `${accent}12`, color: accent }}>
-          <Icon size={18} strokeWidth={1.9} />
-        </span>
-      </div>
-      <p className="mt-3 text-[13px] font-bold uppercase tracking-widest text-neutral-500">{label}</p>
-      <p className="mt-1 font-sans text-[13px] font-semibold tabular-nums leading-none tracking-tight text-neutral-900">
-        {value}
-      </p>
-      {sub && <p className="mt-1.5 text-[12px] text-neutral-500">{sub}</p>}
-    </div>
+    <section>
+      <p className="adm-index">{title}</p>
+      <p className="mb-4 text-[12px] text-white/35">{hint}</p>
+      {total === 0 ? (
+        <p className="border-y border-white/10 py-8 text-[12px] leading-relaxed text-white/35">{empty}</p>
+      ) : (
+        <ul>
+          {rows.sort((a, b) => b.value - a.value).map((d) => (
+            <li key={d.name} className="flex items-center gap-3 border-b border-white/5 py-2.5">
+              <span className="min-w-0 flex-1 truncate text-[12px] text-white/75">{d.name}</span>
+              <span className="text-[12px] tabular-nums text-white">{pkr(d.value)}</span>
+              <span className="w-10 text-right text-[11px] tabular-nums text-white/30">{((d.value / total) * 100).toFixed(0)}%</span>
+            </li>
+          ))}
+          <li className="flex items-center justify-between border-t border-white/20 py-3">
+            <span className="adm-label">Total</span>
+            <span className="adm-metric text-[16px] text-white">{pkr(total)}</span>
+          </li>
+        </ul>
+      )}
+    </section>
   );
 }
 
-function ExpenseDonut({ summary }) {
+function ExpenseList({ summary }) {
   const data = [
-    { name: 'Cost of goods',    value: summary.cogs,         color: '#ECECEF' },
-    { name: 'Packing',          value: summary.packingTotal, color: '#f59e0b' },
-    { name: 'Courier subsidy',  value: summary.shipSubsidy,  color: '#A3A3AB' },
-    { name: 'Ads',              value: summary.adsTotal,     color: '#A1A1AA' },
-    { name: 'SEO / Content',    value: summary.seoTotal,     color: '#8F8F97' },
-    { name: 'Other fixed',      value: summary.otherTotal,   color: '#64748b' },
+    { name: 'Cost of goods', value: summary.cogs },
+    { name: 'Packing', value: summary.packingTotal },
+    { name: 'Courier subsidy', value: summary.shipSubsidy },
+    { name: 'Ads', value: summary.adsTotal },
+    { name: 'SEO / Content', value: summary.seoTotal },
+    { name: 'Other fixed', value: summary.otherTotal },
   ].filter((d) => d.value > 0);
-  const total = data.reduce((n, d) => n + d.value, 0);
   return (
-    <div className="rounded-2xl border border-neutral-200 bg-white p-6">
-      <div className="mb-4 flex items-center justify-between">
-        <div>
-          <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-500">Where the money goes</p>
-          <p className="mt-1 text-[12px] text-neutral-500">Expense breakdown for this period.</p>
-        </div>
-        <PieIcon size={16} className="text-neutral-400" />
-      </div>
-      {total === 0 ? (
-        <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-[12px] leading-relaxed text-amber-800">
-          💡 No expenses recorded yet. Set <b>cost prices</b> on products and <b>operating costs</b> in Settings to see this breakdown.
-        </div>
-      ) : (
-        <div className="flex items-center gap-4">
-          <div className="relative h-40 w-40 shrink-0">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie data={data} dataKey="value" innerRadius={46} outerRadius={70} paddingAngle={2}>
-                  {data.map((d, i) => <Cell key={i} fill={d.color} />)}
-                </Pie>
-                <Tooltip contentStyle={{ borderRadius: 12, border: '1px solid #e5e7eb', fontSize: 12 }} formatter={(v) => pkr(v)} />
-              </PieChart>
-            </ResponsiveContainer>
-            <div className="pointer-events-none absolute inset-0 grid place-items-center text-center">
-              <div>
-                <p className="font-sans text-[13px] font-semibold tabular-nums leading-none text-neutral-900">{pkr(total)}</p>
-                <p className="mt-1 text-[12px] uppercase tracking-widest text-neutral-500">Total</p>
-              </div>
-            </div>
-          </div>
-          <ul className="flex-1 space-y-1.5">
-            {data.sort((a, b) => b.value - a.value).map((d) => (
-              <li key={d.name} className="flex items-center gap-2 text-[12px]">
-                <span className="h-2 w-2 rounded-full" style={{ background: d.color }} />
-                <span className="flex-1 text-neutral-600">{d.name}</span>
-                <span className="font-semibold tabular-nums text-neutral-900">{pkr(d.value)}</span>
-                <span className="ml-1 text-[13px] text-neutral-400 tabular-nums">{((d.value / total) * 100).toFixed(0)}%</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-    </div>
+    <RankedMoney
+      title="03 — Cost"
+      hint="Where the money goes in this period."
+      rows={data}
+      empty="No expenses recorded yet. Set cost prices on products and operating costs in Settings to see this breakdown."
+    />
   );
 }
 
-function PaymentDonut({ mix }) {
-  const palette = { COD: '#D6D6DA', JazzCash: '#ECECEF', EasyPaisa: '#D6D6DA', 'Bank Transfer': '#8F8F97' };
-  const data = Object.entries(mix).map(([name, value]) => ({ name, value, color: palette[name] || '#64748b' }));
-  const total = data.reduce((n, d) => n + d.value, 0);
+function PaymentList({ mix }) {
+  const data = Object.entries(mix).map(([name, value]) => ({ name, value }));
   return (
-    <div className="rounded-2xl border border-neutral-200 bg-white p-6">
-      <div className="mb-4 flex items-center justify-between">
-        <div>
-          <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-500">Payment methods</p>
-          <p className="mt-1 text-[12px] text-neutral-500">Revenue by how customers paid.</p>
-        </div>
-        <BadgePercent size={16} className="text-neutral-400" />
-      </div>
-      {total === 0 ? (
-        <p className="py-8 text-center text-sm text-neutral-400">No paid orders in this range.</p>
-      ) : (
-        <div className="flex items-center gap-4">
-          <div className="relative h-40 w-40 shrink-0">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie data={data} dataKey="value" innerRadius={46} outerRadius={70} paddingAngle={2}>
-                  {data.map((d, i) => <Cell key={i} fill={d.color} />)}
-                </Pie>
-                <Tooltip contentStyle={{ borderRadius: 12, border: '1px solid #e5e7eb', fontSize: 12 }} formatter={(v) => pkr(v)} />
-              </PieChart>
-            </ResponsiveContainer>
-            <div className="pointer-events-none absolute inset-0 grid place-items-center text-center">
-              <div>
-                <p className="font-sans text-[13px] font-semibold tabular-nums leading-none text-neutral-900">{pkr(total)}</p>
-                <p className="mt-1 text-[12px] uppercase tracking-widest text-neutral-500">Total</p>
-              </div>
-            </div>
-          </div>
-          <ul className="flex-1 space-y-1.5">
-            {data.sort((a, b) => b.value - a.value).map((d) => (
-              <li key={d.name} className="flex items-center gap-2 text-[12px]">
-                <span className="h-2 w-2 rounded-full" style={{ background: d.color }} />
-                <span className="flex-1 text-neutral-600">{d.name}</span>
-                <span className="font-semibold tabular-nums text-neutral-900">{pkr(d.value)}</span>
-                <span className="ml-1 text-[13px] text-neutral-400 tabular-nums">{((d.value / total) * 100).toFixed(0)}%</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-    </div>
+    <RankedMoney
+      title="04 — Payment"
+      hint="Revenue by how customers paid."
+      rows={data}
+      empty="No paid orders in this range."
+    />
   );
 }

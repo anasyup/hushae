@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Copy, Mail, Trash2, Users } from 'lucide-react';
+import { Copy } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import { fmtDate } from '../lib/format';
 import AdminLayout from './AdminLayout';
+import PageHeader from './components/PageHeader';
+import { btnGhost, btnIcon, EditorialEmpty, TableSkeleton } from './orders/orderUi';
 
 export default function Growth() {
   const { auth } = useApp();
@@ -32,46 +34,52 @@ export default function Growth() {
 
   return (
     <AdminLayout title="Growth">
-      <div className="grid gap-4 md:grid-cols-3">
-        <div className="rounded-2xl border border-neutral-200 bg-white p-5">
-          <Users size={18} className="text-neutral-500" />
-          <p className="mt-3 font-sans text-3xl">{subs ? subs.length : '—'}</p>
-          <p className="mt-0.5 text-[13px] uppercase tracking-wider text-neutral-500">Email Subscribers</p>
-        </div>
-        <div className="rounded-2xl border border-neutral-200 bg-white p-5 md:col-span-2">
-          <h2 className="font-sans text-lg">Newsletter list</h2>
-          <p className="mt-1.5 text-sm leading-relaxed text-neutral-500">
-            Emails collected from the footer newsletter form appear here. Copy the list and
-            send your own sale announcements and coupon codes — the cheapest marketing you have.
-          </p>
-          <button onClick={copyAll} disabled={!subs || !subs.length} className="inline-flex items-center gap-1.5 rounded-full border border-neutral-300 bg-white px-4 py-2 text-[12px] font-semibold text-neutral-700 hover:bg-neutral-50 mt-4"><Copy size={14} /> {copied ? 'Copied!' : 'Copy All Emails'}</button>
-        </div>
-      </div>
-
-      <div className="rounded-2xl border border-neutral-200 bg-white mt-6 overflow-x-auto">
-        {!subs ? <div className="animate-pulse rounded-xl bg-neutral-100 m-6 h-40" /> : subs.length === 0 ? (
-          <div className="p-14 text-center">
-            <Mail size={36} className="mx-auto text-neutral-500" />
-            <p className="mt-3 text-sm text-neutral-500">Abhi koi subscriber nahi — footer ka newsletter form live hai, jaisa hi koi email dega wo yahan aayega.</p>
-          </div>
-        ) : (
-          <table className="w-full min-w-[560px]">
-            <thead><tr className="border-b border-neutral-200 bg-neutral-100">
-              {['#', 'Email', 'Subscribed On', ''].map((h) => <th key={h} className="px-3 py-2 text-left text-[13px] font-bold uppercase text-neutral-400">{h}</th>)}
-            </tr></thead>
-            <tbody>
-              {subs.map((s, i) => (
-                <tr key={s._id} className="border-b border-neutral-200/60 transition hover:bg-neutral-100/20">
-                  <td className="table-cell text-neutral-500">{i + 1}</td>
-                  <td className="table-cell font-medium">{s.email}</td>
-                  <td className="table-cell text-neutral-500">{fmtDate(s.createdAt)}</td>
-                  <td className="table-cell text-right"><button onClick={() => remove(s)} className="rounded-lg p-2 text-neutral-500 hover:bg-red-50 hover:text-red-700"><Trash2 size={15} /></button></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      <PageHeader
+        title="Growth"
+        description="Emails collected from the footer newsletter form."
+        actions={(
+          <button type="button" onClick={copyAll} disabled={!subs || !subs.length} className={btnGhost}>
+            <Copy size={12} /> {copied ? 'Copied' : 'Copy all'}
+          </button>
         )}
-      </div>
+      />
+
+      <section className="mb-10">
+        <p className="adm-index">01 — List</p>
+        <div className="border-y border-white/10 px-5 py-6">
+          <p className="adm-label">Email subscribers</p>
+          <p className="adm-metric mt-3 text-[32px] leading-none text-white">{subs ? subs.length : '—'}</p>
+          <p className="mt-2 max-w-xl text-[12px] leading-relaxed text-white/35">
+            Copy the list and send your own sale announcements and coupon codes — the cheapest marketing you have.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <p className="adm-index">02 — Subscribers</p>
+        {!subs ? (
+          <TableSkeleton rows={6} />
+        ) : subs.length === 0 ? (
+          <EditorialEmpty
+            title="No subscribers yet"
+            description="Abhi koi subscriber nahi — footer ka newsletter form live hai, jaisa hi koi email dega wo yahan aayega."
+          />
+        ) : (
+          <div className="overflow-x-auto">
+            <div className="hidden border-b border-white/10 py-2 md:grid md:grid-cols-[3rem_minmax(0,1.6fr)_0.8fr_3rem] md:gap-3">
+              {['#', 'Email', 'Subscribed', ''].map((h) => <p key={h || 'a'} className="adm-label">{h}</p>)}
+            </div>
+            {subs.map((s, i) => (
+              <div key={s._id} className="grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-3 border-b border-white/5 py-3 md:grid-cols-[3rem_minmax(0,1.6fr)_0.8fr_3rem] adm-row-hover">
+                <span className="text-[11px] tabular-nums text-white/30">{String(i + 1).padStart(2, '0')}</span>
+                <span className="truncate text-[13px] text-white">{s.email}</span>
+                <span className="hidden text-[12px] text-white/40 md:block">{fmtDate(s.createdAt)}</span>
+                <button type="button" onClick={() => remove(s)} className={btnIcon} aria-label={`Remove ${s.email}`}>×</button>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
     </AdminLayout>
   );
 }
