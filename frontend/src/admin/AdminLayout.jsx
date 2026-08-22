@@ -3,7 +3,7 @@ import { Link, NavLink, Navigate, useLocation } from 'react-router-dom';
 import {
   Activity, BadgePercent, BarChart3, ImagePlus, ChevronDown, CreditCard, FileText, FolderOpen, Globe, Home,
   LayoutTemplate, LogOut, Mail, Megaphone, Menu, MessageSquare, Package, PackageX, Phone, Plus,
-  Search, Settings as SettingsIcon, ShieldCheck, ShoppingBag, Signpost, Sparkles, Star, Store, Sun, Moon, Tags, TrendingUp, Truck, Users, X, Zap, Calculator, FileSpreadsheet,
+  Search, Settings as SettingsIcon, ShieldCheck, ShoppingBag, Signpost, Sparkles, Star, Store, Sun, Moon, Tags, TrendingUp, Truck, Users, X, Zap, Calculator, FileSpreadsheet, PanelLeftClose, PanelRightOpen,
 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { applyAdminTheme, clearAdminTheme, getAdminTheme, setAdminTheme } from '../lib/adminTheme';
@@ -38,8 +38,6 @@ const NAV_GROUPS = [
     children: [
       { to: '/admin/orders',           label: 'All orders',         icon: ShoppingBag },
       { to: '/admin/verification-queue', label: 'Verification queue', icon: Phone },
-      { to: '/admin/ops',              label: 'Commerce OS',        icon: Package },
-      { to: '/admin/payments',         label: 'Payments',           icon: CreditCard },
       { to: '/admin/abandoned-carts',  label: 'Abandoned carts',    icon: PackageX },
     ],
   },
@@ -112,8 +110,7 @@ const NAV_GROUPS = [
     children: [
       { to: '/admin/settings',            label: 'Settings Hub',             icon: SettingsIcon },
       { to: '/admin/settings/store',      label: 'Store Details',            icon: Store },
-      { to: '/admin/settings/payments',   label: 'Payments',                 icon: CreditCard },
-      { to: '/admin/settings/shipping',   label: 'Shipping & Delivery',      icon: Truck },
+      { to: '/admin/settings/payments',   label: 'Payment settings',         icon: CreditCard },
       { to: '/admin/settings/cart',       label: 'Shopping Bag',             icon: ShoppingBag },
       { to: '/admin/settings/checkout',   label: 'Checkout',                 icon: CreditCard },
       { to: '/admin/settings/accounts',   label: 'Customer Accounts',        icon: Users },
@@ -127,6 +124,24 @@ const NAV_GROUPS = [
   },
 ];
 
+/* ── Phase 02 — sidebar sections ─────────────────────────────────────────
+   Groups reference the same NAV_GROUPS data (no new links, no fake routes).
+   OPERATIONS surfaces three existing routes (Commerce OS, Payments,
+   Shipping) that previously lived inside Orders/Settings. */
+const OPERATIONS_LINKS = [
+  { to: '/admin/ops',              label: 'Operations', icon: Package },
+  { to: '/admin/payments',         label: 'Payments',   icon: CreditCard },
+  { to: '/admin/settings/shipping',label: 'Shipping',   icon: Truck },
+];
+
+const NAV_SECTIONS = [
+  { label: 'MAIN',      items: [{ to: '/admin', label: 'Overview', icon: Home, end: true }] },
+  { label: 'COMMERCE',  groups: ['orders', 'products', 'customers'] },
+  { label: 'GROWTH',    groups: ['marketing', 'storefront', 'analytics'] },
+  { label: 'OPERATIONS', links: OPERATIONS_LINKS },
+  { label: 'SYSTEM',    groups: ['settings'] },
+];
+
 function rolesForGroup(key) { return ROLE_ACCESS[key] || ['admin', 'Owner']; }
 function roleHasAccess(userRole, groupKey) { if (!userRole) return false; return rolesForGroup(groupKey).includes(userRole); }
 function getRoleLabel(role) {
@@ -135,10 +150,16 @@ function getRoleLabel(role) {
 }
 
 const linkCls = ({ isActive }) =>
-  `relative flex items-center gap-2 px-2 py-[7px] text-[13px] transition-colors ${isActive ? 'bg-admin-accent-soft font-medium text-admin-text' : 'text-admin-text-muted hover:bg-admin-surface-2 hover:text-admin-text'}`;
+  `relative flex items-center gap-2.5 rounded-lg px-2.5 py-[8px] text-[13px] transition-colors duration-150 ease-out ${
+    isActive
+      ? 'bg-admin-accent-soft font-medium text-admin-text'
+      : 'text-admin-text-muted hover:bg-admin-surface-2 hover:text-admin-text'
+  }`;
 
 const childLinkCls = (active) =>
-  `relative flex items-center gap-2 rounded-md py-[5px] pl-7 pr-2 text-[13px] transition-colors ${active ? 'font-medium text-admin-text' : 'text-admin-text-muted hover:bg-admin-surface-2 hover:text-admin-text'}`;
+  `relative flex items-center gap-2 rounded-lg py-[6px] pl-8 pr-2 text-[13px] transition-colors duration-150 ease-out ${
+    active ? 'font-medium text-admin-text' : 'text-admin-text-muted hover:bg-admin-surface-2 hover:text-admin-text'
+  }`;
 
 /* A nav item is active when its pathname matches AND, if the link itself
    carries a query (e.g. "?group=new"), that query also matches. Query params
@@ -151,72 +172,204 @@ function isChildRouteActive(loc, to) {
   return true;
 }
 
-function GroupDropdown({ group, onNavigate, defaultOpen }) {
+function GroupDropdown({ group, onNavigate, defaultOpen, collapsed }) {
   const loc = useLocation();
   const [open, setOpen] = useState(defaultOpen);
   const Icon = group.icon;
   const isChildActive = group.children.some((c) => isChildRouteActive(loc, c.to));
   useEffect(() => { if (isChildActive) setOpen(true); }, [isChildActive]);
+
+  // Collapsed: icon-only, tooltip via title, click opens first child
+  if (collapsed) {
+    const first = group.children[0];
+    return (
+      <div>
+        <NavLink
+          to={first?.to || '/'}
+          onClick={onNavigate}
+          title={group.label}
+          className={`relative flex h-[38px] items-center justify-center rounded-lg transition-colors duration-150 ease-out ${
+            isChildActive ? 'bg-admin-accent-soft text-admin-accent-hover' : 'text-admin-text-muted hover:bg-admin-surface-2 hover:text-admin-text'
+          }`}
+        >
+          {isChildActive && <span aria-hidden className="absolute left-0 top-1/2 h-4 w-[2px] -translate-y-1/2 rounded-full bg-admin-accent" />}
+          <Icon size={16} strokeWidth={isChildActive ? 2 : 1.7} />
+        </NavLink>
+      </div>
+    );
+  }
+
   return (
     <div>
       <button type="button" onClick={() => setOpen((v) => !v)} aria-expanded={open}
-        className={`flex w-full items-center gap-2 rounded-md px-2 py-[7px] text-[13px] transition-colors ${isChildActive ? 'font-medium text-admin-text' : 'text-admin-text-muted hover:bg-admin-surface-2 hover:text-admin-text'}`}>
-        <Icon size={15} strokeWidth={isChildActive ? 2 : 1.7} className={isChildActive ? 'text-admin-accent-hover' : 'text-admin-text-muted'} /><span className="flex-1 text-left">{group.label}</span>
-        <ChevronDown size={12} className={`text-admin-text-muted transition-transform ${open ? 'rotate-180' : ''}`} />
+        className={`flex w-full items-center gap-2.5 rounded-lg px-2.5 py-[8px] text-[13px] transition-colors duration-150 ease-out ${
+          isChildActive ? 'font-medium text-admin-text' : 'text-admin-text-muted hover:bg-admin-surface-2 hover:text-admin-text'
+        }`}>
+        <Icon size={15} strokeWidth={isChildActive ? 2 : 1.7} className={isChildActive ? 'text-admin-accent-hover' : 'text-admin-text-muted'} />
+        <span className="flex-1 text-left">{group.label}</span>
+        <ChevronDown size={12} className={`text-admin-text-muted transition-transform duration-150 ${open ? 'rotate-180' : ''}`} />
       </button>
-      {open && <div className="mt-0.5 space-y-0.5">{group.children.map((c) => {
-        const active = isChildRouteActive(loc, c.to); const ChildIcon = c.icon;
-        return (
-          <NavLink key={c.to} to={c.to} onClick={onNavigate} className={() => childLinkCls(active)}>
-            {active && <span aria-hidden className="absolute left-1.5 top-1/2 h-3.5 w-[2px] -translate-y-1/2 rounded-full bg-admin-accent" />}
-            <ChildIcon size={12} strokeWidth={1.7} className="opacity-70" />{c.label}
-          </NavLink>
-        );
-      })}</div>}
+      {open && (
+        <div className="mt-0.5 space-y-0.5">
+          {group.children.map((c) => {
+            const active = isChildRouteActive(loc, c.to);
+            const ChildIcon = c.icon;
+            return (
+              <NavLink key={c.to} to={c.to} onClick={onNavigate} className={() => childLinkCls(active)}>
+                {active && <span aria-hidden className="absolute left-1.5 top-1/2 h-3.5 w-[2px] -translate-y-1/2 rounded-full bg-admin-accent" />}
+                <ChildIcon size={12} strokeWidth={1.7} className="opacity-70" />{c.label}
+              </NavLink>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
 
-function SidebarContent({ onNavigate, onOpenCmd }) {
+function SidebarContent({ onNavigate, onOpenCmd, collapsed = false }) {
   const { auth, logout } = useApp();
   const loc = useLocation();
   const role = auth?.user?.role;
   const visibleGroups = role ? NAV_GROUPS.filter((g) => roleHasAccess(role, g.key)) : NAV_GROUPS;
+  const groupByKey = (k) => visibleGroups.find((g) => g.key === k);
   const activeGroupLabel = useMemo(() => {
     for (const g of visibleGroups) { if (g.match.some((m) => loc.pathname.startsWith(m))) return g.label; }
     return null;
   }, [loc.pathname, visibleGroups]);
+
+  const initials = (auth?.user?.name || 'A').split(' ').map((s) => s[0]).slice(0, 2).join('').toUpperCase();
+
   return (
     <div className="flex h-full flex-col bg-admin-sidebar">
-      <div className="px-3 pb-2 pt-4">
-        <NavLink to="/admin" onClick={onNavigate} className="block w-fit rounded-lg transition hover:opacity-70">
-          <p className="font-sans text-[13px] font-semibold tracking-[0.18em] text-admin-text">HUSHAE</p>
-          <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-admin-text-muted">Admin</p>
+      {/* ── Brand ─────────────────────────────────────────────────────── */}
+      <div className="px-4 pb-3 pt-5">
+        <NavLink to="/admin" onClick={onNavigate} className="block w-fit transition hover:opacity-80" title="Dashboard">
+          {collapsed ? (
+            <p className="px-1 font-sans text-[16px] font-semibold tracking-[0.1em] text-admin-text">H</p>
+          ) : (
+            <>
+              <p className="font-sans text-[13px] font-semibold tracking-[0.18em] text-admin-text">HUSHAE</p>
+              <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-admin-text-muted">Admin</p>
+            </>
+          )}
         </NavLink>
       </div>
-      {role && role !== 'admin' && role !== 'Owner' && (
-        <div className="mx-3 mb-2 rounded-md border border-admin-border bg-admin-surface px-2.5 py-1.5">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-admin-text-muted">{getRoleLabel(role)} view</p>
-        </div>
-      )}
+
+      {/* ── Search (collapsed: icon only) ─────────────────────────────── */}
       <div className="px-3 pb-2">
         <button
           type="button"
           onClick={() => onOpenCmd?.()}
-          className="flex w-full items-center gap-2 rounded-md border border-admin-border bg-admin-surface px-2.5 py-1.5 text-left text-[13px] text-admin-text-muted transition hover:border-admin-border hover:bg-admin-surface-2"
+          title="Search admin (⌘K)"
+          className={`flex w-full items-center gap-2 rounded-lg border border-admin-border bg-admin-surface text-left text-[13px] text-admin-text-muted transition-colors duration-150 hover:bg-admin-surface-2 ${
+            collapsed ? 'h-[38px] justify-center px-0' : 'px-2.5 py-[7px]'
+          }`}
         >
           <Search size={13} className="shrink-0 text-admin-text-muted" />
-          <span className="flex-1">Search…</span>
-          <kbd className="rounded border border-admin-border bg-admin-surface-2 px-1.5 py-0.5 text-[10px] font-semibold text-admin-text-muted">⌘K</kbd>
+          {!collapsed && (
+            <>
+              <span className="flex-1">Search anything…</span>
+              <kbd className="rounded border border-admin-border bg-admin-surface-2 px-1.5 py-0.5 text-[10px] font-semibold text-admin-text-muted">⌘K</kbd>
+            </>
+          )}
         </button>
       </div>
-      <nav className="flex-1 space-y-0.5 overflow-y-auto px-2.5 pb-3">
-        {NAV_TOP.map(({ to, label, icon: Icon, end }) => <NavLink key={to} to={to} end={end} className={linkCls} onClick={onNavigate}>{({ isActive }) => <><Icon size={17} strokeWidth={isActive ? 2.1 : 1.8} />{label}</>}</NavLink>)}
-        <div className="mt-2" />
-        {visibleGroups.map((g) => <GroupDropdown key={g.label} group={g} onNavigate={onNavigate} defaultOpen={activeGroupLabel === g.label} />)}
+
+      {/* ── Navigation sections ───────────────────────────────────────── */}
+      <nav className="flex-1 space-y-4 overflow-y-auto px-2.5 pb-4 pt-2">
+        {NAV_SECTIONS.map((section) => {
+          const groups = (section.groups || []).map(groupByKey).filter(Boolean);
+          const items = section.items || [];
+          const links = section.links || [];
+          if (!groups.length && !items.length && !links.length) return null;
+          return (
+            <div key={section.label}>
+              {!collapsed && (
+                <p className="px-2 pb-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-admin-text-muted">
+                  {section.label}
+                </p>
+              )}
+              <div className="space-y-0.5">
+                {items.map(({ to, label, icon: Icon, end }) => (
+                  <NavLink key={to} to={to} end={end} title={collapsed ? label : undefined}
+                    className={linkCls} onClick={onNavigate}>
+                    {({ isActive }) => (
+                      <span className={`flex w-full items-center gap-2.5 ${collapsed ? 'justify-center' : ''}`}>
+                        {isActive && !collapsed && (
+                          <span aria-hidden className="absolute left-0 top-1/2 h-4 w-[2px] -translate-y-1/2 rounded-full bg-admin-accent" />
+                        )}
+                        <Icon size={16} strokeWidth={isActive ? 2 : 1.7} className={isActive ? 'text-admin-accent-hover' : 'text-admin-text-muted'} />
+                        {!collapsed && <span>{label}</span>}
+                      </span>
+                    )}
+                  </NavLink>
+                ))}
+                {links.map(({ to, label, icon: Icon }) => (
+                  <NavLink key={to} to={to} title={collapsed ? label : undefined}
+                    className={linkCls} onClick={onNavigate}>
+                    {({ isActive }) => (
+                      <span className={`flex w-full items-center gap-2.5 ${collapsed ? 'justify-center' : ''}`}>
+                        {isActive && !collapsed && (
+                          <span aria-hidden className="absolute left-0 top-1/2 h-4 w-[2px] -translate-y-1/2 rounded-full bg-admin-accent" />
+                        )}
+                        <Icon size={16} strokeWidth={isActive ? 2 : 1.7} className={isActive ? 'text-admin-accent-hover' : 'text-admin-text-muted'} />
+                        {!collapsed && <span>{label}</span>}
+                      </span>
+                    )}
+                  </NavLink>
+                ))}
+                {groups.map((g) => (
+                  <GroupDropdown key={g.label} group={g} onNavigate={onNavigate}
+                    defaultOpen={activeGroupLabel === g.label} collapsed={collapsed} />
+                ))}
+              </div>
+            </div>
+          );
+        })}
       </nav>
+
+      {/* ── Footer: store status + account + sign out ─────────────────── */}
       <div className="border-t border-admin-border-subtle px-2.5 py-3">
-        <button onClick={logout} className="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-[13px] font-medium text-admin-text-muted transition hover:bg-admin-surface-2 hover:text-admin-danger"><LogOut size={17} strokeWidth={1.8} /> Sign Out</button>
+        {!collapsed && (
+          <div className="mb-2 flex items-center gap-2 rounded-lg border border-admin-border bg-admin-surface px-2.5 py-2">
+            <span className="h-1.5 w-1.5 rounded-full bg-admin-success" aria-hidden />
+            <span className="text-[12px] font-medium text-admin-text-2">Store online</span>
+          </div>
+        )}
+        <div className="flex items-center gap-2.5 rounded-lg px-2 py-1.5">
+          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-md bg-admin-accent/20 text-[12px] font-semibold text-admin-accent-hover">
+            {initials}
+          </span>
+          {!collapsed && (
+            <>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-[13px] font-medium text-admin-text">{auth?.user?.name || 'Admin'}</p>
+                <p className="truncate text-[11px] text-admin-text-muted">{getRoleLabel(role || '')}</p>
+              </div>
+              <button
+                type="button"
+                onClick={logout}
+                title="Sign out"
+                aria-label="Sign out"
+                className="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-admin-text-muted transition-colors duration-150 hover:bg-admin-surface-2 hover:text-admin-danger"
+              >
+                <LogOut size={15} strokeWidth={1.8} />
+              </button>
+            </>
+          )}
+          {collapsed && (
+            <button
+              type="button"
+              onClick={logout}
+              title="Sign out"
+              aria-label="Sign out"
+              className="grid h-8 w-8 place-items-center rounded-lg text-admin-text-muted transition-colors duration-150 hover:bg-admin-surface-2 hover:text-admin-danger"
+            >
+              <LogOut size={15} strokeWidth={1.8} />
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -252,8 +405,29 @@ export default function AdminLayout({ children, title }) {
   const loc = useLocation();
   const [drawer, setDrawer] = useState(false);
   const [cmdOpen, setCmdOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(() => {
+    try { return localStorage.getItem('hushae.sidebar_collapsed') === '1'; } catch { return false; }
+  });
   const role = auth?.user?.role;
+  const toggleCollapsed = () => {
+    setCollapsed((v) => {
+      try { localStorage.setItem('hushae.sidebar_collapsed', v ? '0' : '1'); } catch { /* ignore */ }
+      return !v;
+    });
+  };
   useEffect(() => { applyAdminTheme(); return () => clearAdminTheme(); }, []);
+  const crumbs = (() => {
+    const parts = loc.pathname.split('/').filter(Boolean); // ['admin', 'products']
+    const out = [{ label: 'Home', to: '/admin' }];
+    if (parts.length > 1) {
+      let running = '/admin';
+      for (const p of parts.slice(1)) {
+        running += `/${p}`;
+        out.push({ label: p.replace(/-/g, ' ').replace(/^./, (c) => c.toUpperCase()), to: running });
+      }
+    }
+    return out;
+  })();
   // Cmd+K
   useEffect(() => {
     const onKey = (e) => {
@@ -278,11 +452,30 @@ export default function AdminLayout({ children, title }) {
   );
   return (
     <div className="admin-shell flex min-h-screen bg-admin-bg">
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-[236px] border-r border-admin-border md:block"><SidebarContent onOpenCmd={() => setCmdOpen(true)} /></aside>
+      <aside className={`fixed inset-y-0 left-0 z-40 hidden border-r border-admin-border transition-[width] duration-200 ease-out md:block ${collapsed ? 'w-[68px]' : 'w-[236px]'}`}>
+        <SidebarContent onOpenCmd={() => setCmdOpen(true)} collapsed={collapsed} />
+      </aside>
       {drawer && <div className="fixed inset-0 z-50 md:hidden"><div className="absolute inset-0 bg-black/40" onClick={() => setDrawer(false)} /><div className="absolute inset-y-0 left-0 w-72 border-r border-admin-border bg-admin-sidebar"><button onClick={() => setDrawer(false)} className="absolute right-3 top-4 z-10 rounded-lg p-1.5 text-admin-text-muted hover:bg-admin-surface-2"><X size={18} /></button><SidebarContent onNavigate={() => setDrawer(false)} onOpenCmd={() => { setDrawer(false); setCmdOpen(true); }} /></div></div>}
-      <div className="flex min-h-screen min-w-0 flex-1 flex-col md:pl-[236px]">
-        <TopBar title={title} auth={auth} onCmdK={() => setCmdOpen(true)} onMenu={() => setDrawer(true)} />
-        <div className="min-w-0 flex-1 p-4 md:p-6">{title && <h1 className="mb-6 font-sans text-[14px] font-semibold leading-tight text-neutral-900 md:hidden">{title}</h1>}<div className="admin-main min-w-0">{children}</div></div>
+      <div className={`flex min-h-screen min-w-0 flex-1 flex-col transition-[padding] duration-200 ease-out ${collapsed ? 'md:pl-[68px]' : 'md:pl-[236px]'}`}>
+        <TopBar title={title} auth={auth} onCmdK={() => setCmdOpen(true)} onMenu={() => setDrawer(true)} onToggleSidebar={toggleCollapsed} collapsed={collapsed} />
+        <div className="min-w-0 flex-1 p-4 md:p-6 xl:p-8">
+          <div className="admin-main mx-auto w-full min-w-0 max-w-[1440px]">
+            {title && <h1 className="mb-5 font-sans text-[16px] font-medium text-admin-text md:hidden">{title}</h1>}
+            <nav aria-label="Breadcrumb" className="mb-4 hidden items-center text-[12px] text-admin-text-muted md:flex">
+              {crumbs.map((c, i) => (
+                <span key={c.to} className="inline-flex items-center">
+                  {i > 0 && <span className="mx-1.5 text-admin-text-muted/40">/</span>}
+                  {i === crumbs.length - 1 ? (
+                    <span className="font-medium text-admin-text-2">{c.label}</span>
+                  ) : (
+                    <Link to={c.to} className="transition-colors duration-150 hover:text-admin-text">{c.label}</Link>
+                  )}
+                </span>
+              ))}
+            </nav>
+            {children}
+          </div>
+        </div>
       </div>
       <ProfitCalculator />
       {cmdOpen && <CommandPalette onClose={() => setCmdOpen(false)} />}
@@ -312,7 +505,7 @@ function CreateMenu({ onPick }) {
   );
 }
 
-function TopBar({ title, auth, onCmdK, onMenu }) {
+function TopBar({ title, auth, onCmdK, onMenu, onToggleSidebar, collapsed }) {
   const { settings } = useApp();
   const loc = useLocation();
   const storeOpen = settings?.storefrontLock?.enabled !== true;
@@ -343,13 +536,24 @@ function TopBar({ title, auth, onCmdK, onMenu }) {
       <div className="flex items-center justify-between gap-3">
         <div className="flex min-w-0 flex-1 items-center gap-2">
           <button type="button" onClick={onMenu} className="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-admin-text-2 hover:bg-admin-surface-2 md:hidden" aria-label="Open menu"><Menu size={20} /></button>
+          <button type="button" onClick={onToggleSidebar} aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'} title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'} className="hidden h-9 w-9 shrink-0 place-items-center rounded-lg text-admin-text-muted transition-colors duration-150 hover:bg-admin-surface-2 hover:text-admin-text md:grid">
+            {collapsed ? <PanelRightOpen size={16} /> : <PanelLeftClose size={16} />}
+          </button>
           <div className="min-w-0">
             <h1 className="truncate font-sans text-[15px] font-medium leading-tight text-admin-text md:text-[16px]">{title || crumbs[crumbs.length - 1]?.label}</h1>
-            <nav className="mt-0.5 hidden items-center text-[12px] text-admin-text-muted md:flex">{crumbs.map((c, i) => <span key={c.to} className="inline-flex items-center">{i > 0 && <span className="mx-1 text-admin-text-muted/50">/</span>}{i === crumbs.length - 1 ? <span className="font-medium text-admin-text-2">{c.label}</span> : <Link to={c.to} className="transition hover:text-admin-text">{c.label}</Link>}</span>)}</nav>
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-1.5 md:gap-2">
-          <button type="button" onClick={onCmdK} className={btnGhost} title="Search admin (⌘K)"><Search size={14} /><span className="hidden sm:inline">Search</span></button>
+          <button
+            type="button"
+            onClick={onCmdK}
+            className="inline-flex min-h-[36px] items-center gap-2 rounded-lg border border-admin-border bg-admin-surface px-3 text-[13px] text-admin-text-muted transition-colors duration-150 hover:border-admin-border hover:bg-admin-surface-2 hover:text-admin-text-2"
+            title="Search anything (⌘K)"
+          >
+            <Search size={14} />
+            <span className="hidden sm:inline">Search anything…</span>
+            <kbd className="hidden rounded border border-admin-border bg-admin-surface-2 px-1.5 py-0.5 text-[10px] font-semibold text-admin-text-muted sm:inline">⌘K</kbd>
+          </button>
           <span className={`hidden items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium tracking-wide lg:inline-flex ${storeOpen ? 'border-admin-border bg-admin-surface text-admin-text-2' : 'border-admin-border bg-admin-accent-soft text-admin-warning'}`}><span className={`h-1.5 w-1.5 rounded-full ${storeOpen ? 'bg-admin-success' : 'bg-admin-warning'}`} />{storeOpen ? 'Store online' : 'Store locked'}</span>
           {canCreate && (
             <div className="relative" ref={createRef}>
