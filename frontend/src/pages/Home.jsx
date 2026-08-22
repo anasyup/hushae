@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, ArrowRight, ArrowUpRight } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { api } from '../api/client';
+import { salePercent } from '../lib/sale';
 import Seo, { organizationJsonLd } from '../components/Seo';
 import CollectionCard from '../components/CollectionCard';
 
@@ -70,15 +71,14 @@ function HeroSlides() {
 
   const scrollToSection = (targetId) => {
     const el = document.getElementById(targetId);
-    if (el) {
-      const headerOffset = 80;
-      const elementPosition = el.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth',
-      });
-    }
+    if (!el) return;
+    /* The sticky chrome is the announcement bar + header (~127px), not the 80px
+       that was hardcoded here — hero jumps landed under the header and clipped
+       the target section's rule and eyebrow. Measure it, keep a safe fallback. */
+    const chrome = document.querySelector('header')?.getBoundingClientRect().bottom ?? 0;
+    const headerOffset = Math.round((chrome > 0 ? chrome : 127) + 16);
+    const offsetPosition = el.getBoundingClientRect().top + window.pageYOffset - headerOffset;
+    window.scrollTo({ top: Math.max(0, offsetPosition), behavior: 'smooth' });
   };
 
   return (
@@ -284,7 +284,7 @@ function CuratedGallerySection({ id, eyebrow, title, products, viewAllHref, view
   if (!items.length) return null;
 
   return (
-    <section id={id} className="w-full bg-white py-16 sm:py-20 md:py-24 scroll-mt-20">
+    <section id={id} className="w-full bg-white py-16 sm:py-20 md:py-24 scroll-mt-[144px]">
       <div className="mx-auto max-w-[1500px] px-6 sm:px-8 md:px-12">
         {/* Minimalist Section Header */}
         <div className="flex flex-col justify-between sm:flex-row sm:items-end gap-3 pb-6 md:pb-8 border-b border-neutral-100 mb-8 md:mb-10">
@@ -306,11 +306,115 @@ function CuratedGallerySection({ id, eyebrow, title, products, viewAllHref, view
           </Link>
         </div>
 
-        {/* Clean, High-Spaced 4-Column Product Gallery */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
+        {/* Editorial gallery — the vertical gutter is deliberately wider than
+            the horizontal one so rows read as a column of looks, not a grid of
+            cells. Metadata runs flush to the image edge. */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 sm:gap-x-6 md:gap-x-8 gap-y-10 md:gap-y-12">
           {items.map((product) => (
-            <CollectionCard key={product._id || product.slug} product={product} />
+            <CollectionCard key={product._id || product.slug} product={product} flush />
           ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ── 3b. THE SALE EDIT — CLOSING CHAPTER ──────────────────────────────────────
+ * A dedicated, more considered treatment for the page's final curated row.
+ * Design intent (Calvin Klein / The Row register):
+ *   · Tonal alabaster ground marks the chapter close after the black campaign
+ *     and removes the two-slab white void that ran into the newsletter.
+ *   · Two-column editorial masthead: rule → eyebrow → display title on the
+ *     left; positioning copy, live "up to X% off" meta and CTA on the right.
+ *   · Vertical gutter wider than horizontal; metadata flush to the image edge.
+ *   · One restrained closing CTA instead of a second underline link.
+ * ------------------------------------------------------------------------- */
+function SaleEditSection({ id = 'sale-section', products }) {
+  const prefersReducedMotion = useReducedMotion();
+  const items = (products || []).slice(0, 4);
+  if (!items.length) return null;
+
+  const percents = items.map((p) => salePercent(p)).filter((n) => n > 0);
+  const maxOff = percents.length ? Math.max(...percents) : 0;
+
+  const reveal = prefersReducedMotion
+    ? {}
+    : {
+        initial: { opacity: 0, y: 18 },
+        whileInView: { opacity: 1, y: 0 },
+        viewport: { once: true, margin: '-80px' },
+        transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] },
+      };
+
+  return (
+    <section
+      id={id}
+      aria-labelledby="sale-edit-heading"
+      className="w-full bg-[#F0EEEB] scroll-mt-[144px]"
+    >
+      <div className="mx-auto max-w-[1500px] px-6 sm:px-8 md:px-12 pt-16 pb-16 sm:pt-20 sm:pb-20 md:pt-28 md:pb-24">
+        {/* ── Editorial masthead ───────────────────────────────────────── */}
+        <motion.div {...reveal} className="grid gap-8 md:grid-cols-12 md:items-end md:gap-10">
+          <div className="md:col-span-7">
+            <span aria-hidden="true" className="block h-px w-10 bg-black" />
+            <p className="mt-5 text-[10px] font-medium uppercase tracking-[0.34em] text-neutral-600">
+              Curated Value Offers
+            </p>
+            <h2
+              id="sale-edit-heading"
+              className="mt-3 text-[30px] leading-[1.06] sm:text-[40px] md:text-[52px] font-light uppercase tracking-[0.1em] text-black"
+            >
+              The Sale Edit
+            </h2>
+          </div>
+
+          <div className="md:col-span-5 md:pb-1.5 md:text-right">
+            <p className="max-w-sm text-[13px] font-light leading-relaxed text-neutral-600 md:ml-auto">
+              Signature pieces at a considered price. Same make, same fabric —
+              limited quantities only.
+            </p>
+
+            <div className="mt-6 flex flex-wrap items-center gap-x-8 gap-y-3 md:justify-end">
+              {maxOff > 0 && (
+                <span className="text-[10px] font-medium uppercase tracking-[0.28em] text-neutral-600">
+                  Up to {maxOff}% off
+                </span>
+              )}
+              <Link
+                to="/sale"
+                className="group inline-flex min-h-[44px] items-center py-3 -my-3 text-[11px] font-medium uppercase tracking-[0.22em] text-black"
+              >
+                {/* The rule hugs the text, not the 44px touch target. */}
+                <span className="inline-flex items-center gap-1.5 border-b border-black/40 pb-0.5 transition-colors group-hover:border-black">
+                  <span>Explore All</span>
+                  <ArrowRight
+                    size={12}
+                    className="transition-transform duration-200 group-hover:translate-x-1"
+                    aria-hidden="true"
+                  />
+                </span>
+              </Link>
+            </div>
+          </div>
+        </motion.div>
+
+        <div aria-hidden="true" className="mt-8 h-px w-full bg-black/10 md:mt-10" />
+
+        {/* ── Gallery ──────────────────────────────────────────────────── */}
+        <div className="mt-10 grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-6 md:mt-12 md:grid-cols-4 md:gap-x-8 md:gap-y-12">
+          {items.map((product) => (
+            <CollectionCard key={product._id || product.slug} product={product} flush />
+          ))}
+        </div>
+
+        {/* ── Closing CTA ──────────────────────────────────────────────── */}
+        <div className="mt-12 flex justify-center md:mt-16">
+          <Link
+            to="/sale"
+            className="inline-flex min-h-[52px] items-center justify-center border border-black px-10 text-[11px] font-medium uppercase tracking-[0.24em] text-black transition-colors duration-200 hover:bg-black hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 focus-visible:ring-offset-[#F0EEEB]"
+          >
+            View All Sale
+          </Link>
         </div>
       </div>
     </section>
@@ -505,7 +609,7 @@ function LuxuryNewsletterSection() {
   };
 
   return (
-    <section className="bg-white px-6 py-24 md:py-32 text-center border-t border-neutral-100">
+    <section className="bg-white px-6 py-20 md:py-24 text-center border-t border-neutral-200/70">
       <div className="mx-auto max-w-md space-y-4">
         <p className="text-[10px] font-medium uppercase tracking-[0.32em] text-neutral-400">
           STAY CONNECTED
@@ -566,8 +670,16 @@ export default function Home() {
       .then((d) => setMenProducts(d.products || []))
       .catch(() => {});
 
-    api('/products?bestSeller=true&limit=4')
-      .then((d) => setSaleProducts(d.products || []))
+    /* The Sale Edit must show genuinely marked-down stock — `sale=true` is the
+       backend's sale-window filter. Falls back to best sellers so the closing
+       chapter never collapses when no sale window is open. */
+    api('/products?sale=true&limit=4')
+      .then((d) => {
+        const list = d.products || [];
+        if (list.length) { setSaleProducts(list); return undefined; }
+        return api('/products?bestSeller=true&limit=4')
+          .then((f) => setSaleProducts(f.products || []));
+      })
       .catch(() => {});
   }, []);
 
@@ -628,14 +740,8 @@ export default function Home() {
       {/* 08 — EDITORIAL CAMPAIGN 03: "The Campus Edit" */}
       <FeatureCampusSection />
 
-      {/* 09 — CURATED EDIT: THE SALE ARCHIVE (#sale-section) */}
-      <CuratedGallerySection
-        id="sale-section"
-        eyebrow="CURATED VALUE OFFERS"
-        title="The Sale Edit"
-        products={saleProducts}
-        viewAllHref="/sale"
-      />
+      {/* 09 — CURATED EDIT: THE SALE EDIT (#sale-section) */}
+      <SaleEditSection id="sale-section" products={saleProducts} />
 
       {/* 10 — THE INNER CIRCLE NEWSLETTER */}
       <LuxuryNewsletterSection />

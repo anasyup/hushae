@@ -29,7 +29,7 @@ const FALLBACK =
 const srcOf = (im) => (typeof im === 'string' ? im : im?.url || '');
 const displayName = (name) => String(name || '').replace(/^HUSHAE\s+/i, '');
 
-export default function CollectionCard({ product: p, priority = false, rank = null }) {
+export default function CollectionCard({ product: p, priority = false, rank = null, flush = false }) {
   const { addToCart, inWishlist, toggleWish } = useApp();
   const [imgIdx, setImgIdx] = useState(0);
   const [failed, setFailed] = useState(false);
@@ -88,7 +88,9 @@ export default function CollectionCard({ product: p, priority = false, rank = nu
 
   return (
     <article
-      className="group relative flex w-full min-w-0 flex-col bg-white select-none transition-all duration-300"
+      className={`group relative flex w-full min-w-0 select-none flex-col transition-all duration-300 ${
+        flush ? 'bg-transparent' : 'bg-white'
+      }`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => {
         setIsHovered(false);
@@ -231,7 +233,16 @@ export default function CollectionCard({ product: p, priority = false, rank = nu
       </div>
 
       {/* ── CLEAN LUXURY METADATA AREA ────────────────────────────────────── */}
-      <div className="pt-3 pb-2 px-2 sm:px-3 space-y-1 bg-white font-sans">
+      <div
+        className={`space-y-1 font-sans ${
+          flush
+            ? /* Editorial register: metadata sits flush with the image edge and
+                 lets the section ground show through — no white slab under the
+                 photograph on tonal backgrounds. */
+              'bg-transparent px-0 pt-4 pb-1 md:pt-5'
+            : 'bg-white px-2 pt-3 pb-2 sm:px-3'
+        }`}
+      >
         {/* Line 1: Title */}
         <h3 className="font-normal text-[13px] sm:text-[13.5px] text-[#000000] tracking-[-0.01em] truncate leading-snug">
           <Link
@@ -245,7 +256,9 @@ export default function CollectionCard({ product: p, priority = false, rank = nu
 
         {/* Line 2: Price & Color Swatches Row */}
         <div className="flex items-center justify-between gap-2 pt-0.5 text-[12.5px] sm:text-[13px]">
-          <div className="flex items-baseline gap-1.5">
+          {/* Price never wraps — at 2-up mobile widths "PKR 1,800" was breaking
+              across two lines once the swatch row competed for space. */}
+          <div className="flex shrink-0 items-baseline gap-1.5 whitespace-nowrap">
             {soldOut ? (
               <span className="text-neutral-400 font-light text-xs">Sold out</span>
             ) : (
@@ -264,7 +277,11 @@ export default function CollectionCard({ product: p, priority = false, rank = nu
 
           {/* Color Swatch Dots */}
           {swatches.length > 0 && (
-            <div className="flex items-center gap-1.5" role="group" aria-label={`Colors for ${name}`}>
+            <div
+              className="flex shrink-0 items-center justify-end gap-1.5 [&>*:nth-child(n+4)]:hidden sm:[&>*:nth-child(n+4)]:flex"
+              role="group"
+              aria-label={`Colors for ${name}`}
+            >
               {swatches.slice(0, 5).map((c, i) => (
                 <button
                   key={`${c.name}-${i}`}
