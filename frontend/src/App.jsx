@@ -8,7 +8,6 @@ import CompareTray from './components/CompareTray';
 import Toasts from './components/Toasts';
 
 import Home from './pages/Home';
-import NewArrivals from './pages/NewArrivals';
 import Shop from './pages/Shop';
 import Product from './pages/Product';
 import Cart from './pages/Cart';
@@ -237,7 +236,7 @@ export default function App() {
           <Route path="/shop" element={<Shop preset={{ key: 'all' }} />} />
           <Route path="/women" element={<Shop preset={{ key: 'women', gender: 'women' }} />} />
           <Route path="/men" element={<Shop preset={{ key: 'men', gender: 'men' }} />} />
-          <Route path="/new" element={<NewArrivals />} />
+          <Route path="/new" element={<Shop preset={{ key: 'new', sort: 'newest' }} />} />
           <Route path="/best" element={<Shop preset={{ key: 'best', bestSeller: true }} />} />
           <Route path="/sale" element={<Shop preset={{ key: 'sale' }} />} />
           <Route path="/category/:slug" element={<ShopWithCategory />} />
