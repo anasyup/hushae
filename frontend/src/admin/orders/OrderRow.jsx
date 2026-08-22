@@ -1,24 +1,21 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  AlertTriangle, ArrowRight, Ban, Check, ChevronDown, Copy, Loader2, MapPin,
-  MessageCircle, MoreHorizontal, Phone, Printer, Wallet,
+  ArrowRight, Ban, Check, ChevronDown, Copy, Loader2, MoreHorizontal,
 } from 'lucide-react';
 import { fmtDate, pkr } from '../../lib/format';
-import { CANCEL_REASONS, paymentTone, PRINT_DOCS, stageTone, STAGE_MAP } from './orderConstants';
+import { CANCEL_REASONS, PRINT_DOCS } from './orderConstants';
 import QualityBadge from './QualityBadge';
 import ReliabilityBadge from '../ReliabilityBadge';
+import { fulfillmentLabel, MonoStatus, paymentLabel } from './orderUi';
 
-/** Stock states that deserve a warning colour in the warehouse strip. */
-const STOCK_TONE = {
-  out_of_stock: 'text-red-600',
-  insufficient: 'text-red-600',
-  low_stock: 'text-amber-600',
-};
-
-/* ============================================================================
- * One order row. Compact by default, expands to show items and quick actions.
+/* ===========================================================================
+ * One order — editorial table row (desktop) / stacked scan row (mobile).
+ * All existing actions preserved. Presentation only.
  * ========================================================================== */
+
+const COL =
+  'hidden items-center lg:flex';
 
 export default function OrderRow({
   order: o, selected, onSelect, busy, onStage, onVerify, onPrint, onOpenService, onOpenCustomer,
@@ -28,218 +25,234 @@ export default function OrderRow({
   const [cancelMenu, setCancelMenu] = useState(false);
 
   const stage = o.stage || 'New';
-  const tone = stageTone(stage);
-  const Icon = STAGE_MAP[stage]?.icon;
-  const pState = o.paymentState || (o.paymentStatus === 'Paid' ? 'Confirmed' : 'Pending');
-  const pTone = paymentTone(pState);
+  const pState = paymentLabel(o);
+  const fulfill = fulfillmentLabel(o);
   const next = (o.allowedNext || []).find((s) => !['Cancelled', 'Refunded', 'Returned', 'Failed Delivery'].includes(s));
-  const invoicePrinted = o.printStatus?.invoice?.printed;
   const itemCount = (o.items || []).reduce((a, i) => a + (i.quantity || 0), 0);
-  // Distinct bins the picker has to visit, and whether any line is short.
   const bins = [...new Set((o.items || []).map((i) => i.warehouseLocation).filter(Boolean))];
   const atRisk = (o.items || []).some((i) => ['out_of_stock', 'insufficient', 'low_stock'].includes(i.stockStatus));
+  const invoicePrinted = o.printStatus?.invoice?.printed;
 
   const copyRef = () => { navigator.clipboard?.writeText(o.orderNumber); };
 
-  return (
-    <div className={`rounded-xl border bg-white transition ${selected ? 'border-neutral-900 ring-1 ring-neutral-900' : 'border-neutral-200 hover:border-neutral-300'}`}>
-      <div className="flex items-start gap-3 p-3">
-        <input
-          type="checkbox" checked={selected} onChange={() => onSelect(o._id)}
-          aria-label={`Select order ${o.orderNumber}`}
-          className="mt-1 h-4 w-4 shrink-0 cursor-pointer rounded border-neutral-300 accent-neutral-900"
-        />
-
-        <div className="min-w-0 flex-1">
-          {/* Line 1 — identity + badges */}
-          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-            <Link to={`/admin/orders/${o._id}`} className="font-mono text-[13px] font-semibold text-neutral-900 hover:underline">
-              {o.orderNumber}
-            </Link>
-            <button onClick={copyRef} aria-label="Copy order number" className="text-neutral-300 hover:text-neutral-700">
-              <Copy size={11} />
-            </button>
-
-            <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[12px] font-bold uppercase tracking-wide ring-1 ${tone.pill}`}>
-              {Icon ? <Icon size={10} /> : null} {STAGE_MAP[stage]?.label || stage}
-            </span>
-
-            <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[12px] font-semibold ring-1 ${pTone.pill}`}>
-              <Wallet size={10} /> {o.paymentMethod} · {pState}
-            </span>
-
-            {invoicePrinted && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-neutral-100 px-2 py-0.5 text-[12px] font-semibold text-neutral-600 ring-1 ring-neutral-200">
-                <Printer size={10} /> Printed
-              </span>
-            )}
-            <QualityBadge quality={o.quality} compact />
-
-            {o.priorityFlag === 'rush' && (
-              <span className="rounded-full bg-neutral-900 px-2 py-0.5 text-[13px] font-bold uppercase tracking-wide text-white">Rush</span>
-            )}
-            {o.qcStatus === 'passed' && (
-              <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[12px] font-semibold text-emerald-700 ring-1 ring-emerald-200">QC ✓</span>
-            )}
-            {o.customerService?.hasIssue && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-red-50 px-2 py-0.5 text-[12px] font-bold text-red-700 ring-1 ring-red-200">
-                <AlertTriangle size={10} /> {o.customerService.issueType || 'Issue'}
-              </span>
-            )}
-          </div>
-
-          {/* Line 2 — customer */}
-          <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[12px] text-neutral-600">
-            <button
-              onClick={(e) => { e.stopPropagation(); onOpenCustomer?.(o.customerInfo?.phone); }}
-              title="Open customer history"
-              className="font-medium text-neutral-800 underline decoration-neutral-300 underline-offset-2 hover:decoration-neutral-900">
-              {o.customerInfo?.name}
-            </button>
-            <ReliabilityBadge reliability={o.reliability} compact />
-            <span className="inline-flex items-center gap-1"><Phone size={11} />{o.customerInfo?.phone}</span>
-            <span className="inline-flex items-center gap-1"><MapPin size={11} />{o.customerInfo?.city}</span>
-            <span className="text-neutral-400">{fmtDate(o.createdAt)}</span>
-          </div>
-        </div>
-
-        {/* Right — money + actions */}
-        <div className="flex shrink-0 flex-col items-end gap-1.5">
-          <p className="text-[12px] font-semibold tabular-nums text-neutral-900">{pkr(o.total)}</p>
-          <p className="text-[12px] text-neutral-400">
-            {itemCount} item{itemCount === 1 ? '' : 's'}
-            {bins.length > 0 && (
-              <>
-                {' · '}
-                <span className={atRisk ? 'font-semibold text-amber-600' : ''}>
-                  {bins.slice(0, 3).join(', ')}{bins.length > 3 ? ` +${bins.length - 3}` : ''}
-                </span>
-              </>
-            )}
-          </p>
-
-          <div className="mt-0.5 flex items-center gap-1">
-            {next && (
-              <button
-                disabled={busy} onClick={() => onStage(o._id, next)}
-                title={`Move to ${next}`}
-                className="inline-flex items-center gap-1 rounded-md bg-neutral-900 px-2.5 py-1.5 text-[13px] font-semibold text-white transition hover:bg-black disabled:opacity-50">
-                {busy ? <Loader2 size={11} className="animate-spin" /> : <ArrowRight size={11} />} {next}
+  const menuPanel = menu && (
+    <>
+      <div className="fixed inset-0 z-10" onClick={() => setMenu(false)} />
+      <div className="absolute right-0 top-9 z-20 w-52 border border-white/15 bg-[#0D0D0D] py-1">
+        <Link to={`/admin/orders/${o._id}`} className="block px-3 py-2 text-[12px] text-white/75 hover:bg-white/5 hover:text-white">
+          View full details
+        </Link>
+        {PRINT_DOCS.map((d) => (
+          <button key={d.key} onClick={() => { onPrint(o, d.key); setMenu(false); }}
+            className="flex w-full items-center gap-2 px-3 py-2 text-left text-[12px] text-white/75 hover:bg-white/5 hover:text-white">
+            Print {d.label.toLowerCase()}
+          </button>
+        ))}
+        <div className="my-1 border-t border-white/10" />
+        {pState !== 'PAID' && (
+          <button onClick={() => { onVerify(o._id, 'Confirmed'); setMenu(false); }}
+            className="flex w-full items-center gap-2 px-3 py-2 text-left text-[12px] text-white/75 hover:bg-white/5 hover:text-white">
+            <Check size={12} className="text-white/40" /> Mark payment confirmed
+          </button>
+        )}
+        {(o.paymentState || o.paymentStatus) === 'Pending' && (
+          <button onClick={() => { onVerify(o._id, 'Verified'); setMenu(false); }}
+            className="flex w-full items-center gap-2 px-3 py-2 text-left text-[12px] text-white/75 hover:bg-white/5 hover:text-white">
+            Mark payment verified
+          </button>
+        )}
+        <a href={`https://wa.me/${String(o.customerInfo?.phone || '').replace(/\D/g, '').replace(/^0/, '92')}`}
+          target="_blank" rel="noreferrer"
+          className="flex w-full items-center gap-2 px-3 py-2 text-[12px] text-white/75 hover:bg-white/5 hover:text-white">
+          WhatsApp customer
+        </a>
+        <button onClick={() => { onOpenService(o); setMenu(false); }}
+          className="flex w-full items-center gap-2 px-3 py-2 text-left text-[12px] text-white/75 hover:bg-white/5 hover:text-white">
+          Log an issue
+        </button>
+        <div className="my-1 border-t border-white/10" />
+        <button onClick={() => { setCancelMenu((v) => !v); }}
+          className="flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-[12px] text-white/55 hover:bg-white/5 hover:text-white">
+          <span className="inline-flex items-center gap-2"><Ban size={12} /> Cancel order</span>
+          <ChevronDown size={11} />
+        </button>
+        {cancelMenu && (
+          <div className="px-2 pb-1">
+            <p className="adm-label px-1 pb-1 pt-1">Reason (required)</p>
+            {CANCEL_REASONS.map((r) => (
+              <button key={r}
+                onClick={() => { onStage(o._id, 'Cancelled', r, r); setMenu(false); setCancelMenu(false); }}
+                className="flex w-full items-center gap-2 px-2 py-1.5 text-left text-[12px] text-white/70 hover:bg-white/5 hover:text-white">
+                {r}
               </button>
-            )}
-            <div className="relative">
-              <button onClick={() => setMenu((m) => !m)} aria-label="More actions"
-                className="grid h-7 w-7 place-items-center rounded-md border border-neutral-200 text-neutral-500 hover:bg-neutral-50">
-                <MoreHorizontal size={14} />
-              </button>
-              {menu && (
-                <>
-                  <div className="fixed inset-0 z-10" onClick={() => setMenu(false)} />
-                  <div className="absolute right-0 top-8 z-20 w-52 rounded-lg border border-neutral-200 bg-white py-1 shadow-xl">
-                    <Link to={`/admin/orders/${o._id}`} className="block px-3 py-1.5 text-[12px] hover:bg-neutral-100">
-                      View full details
-                    </Link>
-                    {PRINT_DOCS.map((d) => (
-                      <button key={d.key} onClick={() => { onPrint(o, d.key); setMenu(false); }}
-                        className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-[12px] hover:bg-neutral-100">
-                        <d.icon size={12} className="text-neutral-500" /> Print {d.label.toLowerCase()}
-                      </button>
-                    ))}
-                    <div className="my-1 border-t border-neutral-100" />
-                    {pState !== 'Confirmed' && (
-                      <button onClick={() => { onVerify(o._id, 'Confirmed'); setMenu(false); }}
-                        className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-[12px] hover:bg-neutral-100">
-                        <Check size={12} className="text-emerald-600" /> Mark payment confirmed
-                      </button>
-                    )}
-                    {pState === 'Pending' && (
-                      <button onClick={() => { onVerify(o._id, 'Verified'); setMenu(false); }}
-                        className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-[12px] hover:bg-neutral-100">
-                        <Wallet size={12} className="text-blue-600" /> Mark payment verified
-                      </button>
-                    )}
-                    <a href={`https://wa.me/${String(o.customerInfo?.phone || '').replace(/\D/g, '').replace(/^0/, '92')}`}
-                      target="_blank" rel="noreferrer"
-                      className="flex w-full items-center gap-2 px-3 py-1.5 text-[12px] hover:bg-neutral-100">
-                      <MessageCircle size={12} className="text-emerald-600" /> WhatsApp customer
-                    </a>
-                    <button onClick={() => { onOpenService(o); setMenu(false); }}
-                      className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-[12px] hover:bg-neutral-100">
-                      <AlertTriangle size={12} className="text-amber-600" /> Log an issue
-                    </button>
-                    <div className="my-1 border-t border-neutral-100" />
-                    <button onClick={() => { setCancelMenu((v) => !v); }}
-                      className="flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left text-[12px] text-red-600 hover:bg-red-50">
-                      <span className="inline-flex items-center gap-2"><Ban size={12} /> Cancel order</span>
-                      <ChevronDown size={11} />
-                    </button>
-                    {cancelMenu && (
-                      <div className="px-2 pb-1">
-                        <p className="px-1 pb-1 pt-1 text-[11px] font-semibold uppercase tracking-wide text-neutral-400">Reason (required)</p>
-                        {CANCEL_REASONS.map((r) => (
-                          <button key={r}
-                            onClick={() => { onStage(o._id, 'Cancelled', r, r); setMenu(false); setCancelMenu(false); }}
-                            className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-[12px] text-neutral-700 hover:bg-neutral-100">
-                            {r}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </>
-              )}
-            </div>
-            <button onClick={() => setOpen((v) => !v)} aria-label="Toggle items" aria-expanded={open}
-              className="grid h-7 w-7 place-items-center rounded-md border border-neutral-200 text-neutral-500 hover:bg-neutral-50">
-              <ChevronDown size={14} className={`transition-transform ${open ? 'rotate-180' : ''}`} />
-            </button>
+            ))}
           </div>
-        </div>
+        )}
       </div>
+    </>
+  );
 
-      {open && (
-        <div className="border-t border-neutral-100 bg-neutral-50/60 px-3 py-2.5">
-          <div className="space-y-1.5">
-            {(o.items || [])
-              // Pick priority first: anything short or low gets pulled before it vanishes.
-              .slice().sort((a, b) => (a.pickPriority || 3) - (b.pickPriority || 3))
-              .map((it, i) => (
-                <div key={i} className="flex items-center gap-2.5 text-[12px]">
-                  {it.image ? <img src={it.image} alt="" className="h-9 w-9 rounded object-cover" /> : <span className="h-9 w-9 rounded bg-neutral-200" />}
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-neutral-800">{it.name}</span>
-                    {(it.warehouseLocation || it.sku) && (
-                      <span className="mt-0.5 flex items-center gap-1.5 text-[12px] text-neutral-400">
-                        {it.warehouseLocation && (
-                          <span className="inline-flex items-center gap-1 rounded bg-neutral-200/70 px-1.5 py-0.5 font-mono font-semibold text-neutral-600">
-                            <MapPin size={9} /> {it.warehouseLocation}
-                          </span>
-                        )}
-                        {it.sku && <span className="font-mono">{it.sku}</span>}
-                        {it.stockStatus && it.stockStatus !== 'in_stock' && (
-                          <span className={`inline-flex items-center gap-0.5 font-semibold ${STOCK_TONE[it.stockStatus] || ''}`}>
-                            <AlertTriangle size={9} />
-                            {it.stockStatus === 'out_of_stock' ? 'Out of stock'
-                              : it.stockStatus === 'insufficient' ? `Only ${it.stockAvailable} left`
-                                : `Low — ${it.stockAvailable} left`}
-                          </span>
-                        )}
+  const actions = (
+    <div className="flex items-center justify-end gap-1">
+      {next && (
+        <button
+          disabled={busy} onClick={() => onStage(o._id, next)}
+          title={`Move to ${next}`}
+          className="inline-flex h-7 items-center gap-1 px-2 text-[10px] font-medium uppercase tracking-[0.12em] text-white/70 transition-colors hover:text-white disabled:opacity-40"
+        >
+          {busy ? <Loader2 size={11} className="animate-spin" /> : <ArrowRight size={11} />}
+          <span className="hidden xl:inline">{next}</span>
+        </button>
+      )}
+      <div className="relative">
+        <button onClick={() => setMenu((m) => !m)} aria-label="More actions"
+          className="grid h-7 w-7 place-items-center text-white/40 hover:text-white">
+          <MoreHorizontal size={14} />
+        </button>
+        {menuPanel}
+      </div>
+      <button onClick={() => setOpen((v) => !v)} aria-label="Toggle items" aria-expanded={open}
+        className="grid h-7 w-7 place-items-center text-white/40 hover:text-white">
+        <ChevronDown size={14} className={`transition-transform ${open ? 'rotate-180' : ''}`} />
+      </button>
+    </div>
+  );
+
+  const expanded = open && (
+    <div className="border-t border-white/5 bg-white/[0.02] px-3 py-3 lg:px-2">
+      <div className="space-y-2">
+        {(o.items || [])
+          .slice().sort((a, b) => (a.pickPriority || 3) - (b.pickPriority || 3))
+          .map((it, i) => (
+            <div key={i} className="flex items-center gap-3 text-[12px]">
+              {it.image
+                ? <img src={it.image} alt="" className="h-9 w-7 object-cover" />
+                : <span className="h-9 w-7 bg-white/10" />}
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-white/85">{it.name}</span>
+                {(it.warehouseLocation || it.sku || (it.stockStatus && it.stockStatus !== 'in_stock')) && (
+                  <span className="mt-0.5 flex flex-wrap items-center gap-x-2 text-[11px] text-white/35">
+                    {it.warehouseLocation && <span className="font-mono">{it.warehouseLocation}</span>}
+                    {it.sku && <span className="font-mono">{it.sku}</span>}
+                    {it.stockStatus && it.stockStatus !== 'in_stock' && (
+                      <span className="text-white/55">
+                        {it.stockStatus === 'out_of_stock' ? 'Out of stock'
+                          : it.stockStatus === 'insufficient' ? `Only ${it.stockAvailable} left`
+                            : `Low — ${it.stockAvailable} left`}
                       </span>
                     )}
                   </span>
-                  <span className="hidden text-neutral-500 sm:inline">{[it.size, it.color].filter(Boolean).join(' · ')}</span>
-                  <span className="w-10 text-right tabular-nums text-neutral-500">×{it.quantity}</span>
-                  <span className="w-24 text-right tabular-nums font-medium">{pkr(it.lineTotal)}</span>
-                </div>
-              ))}
+                )}
+              </span>
+              <span className="hidden text-white/35 sm:inline">{[it.size, it.color].filter(Boolean).join(' · ')}</span>
+              <span className="w-8 text-right tabular-nums text-white/40">×{it.quantity}</span>
+              <span className="w-24 text-right tabular-nums text-white">{pkr(it.lineTotal)}</span>
+            </div>
+          ))}
+      </div>
+      <div className="mt-3 flex flex-wrap gap-x-6 gap-y-1 border-t border-white/10 pt-2 text-[11px] text-white/35">
+        <span>Address <span className="text-white/70">{o.customerInfo?.address}</span></span>
+        {o.trackingNumber && <span>Tracking <span className="font-mono text-white/70">{o.trackingNumber}</span></span>}
+        {o.courierName && <span>Courier <span className="text-white/70">{o.courierName}</span></span>}
+      </div>
+    </div>
+  );
+
+  return (
+    <div className={`border-b border-white/10 ${selected ? 'bg-white/[0.03]' : ''} adm-row-hover`}>
+      {/* Desktop table row */}
+      <div className="hidden lg:grid lg:grid-cols-[32px_minmax(0,1.2fr)_minmax(0,1.15fr)_0.5fr_0.9fr_0.85fr_0.95fr_auto] lg:items-center lg:gap-3 lg:px-1 lg:py-3.5 xl:grid-cols-[32px_minmax(0,1.15fr)_minmax(0,1.1fr)_0.85fr_0.55fr_0.85fr_0.85fr_0.95fr_0.7fr_auto]">
+        <input
+          type="checkbox" checked={selected} onChange={() => onSelect(o._id)}
+          aria-label={`Select order ${o.orderNumber}`}
+          className="h-3.5 w-3.5 cursor-pointer rounded-none border-white/30 bg-transparent accent-white"
+        />
+
+        <div className="min-w-0">
+          <div className="flex items-center gap-1.5">
+            <Link to={`/admin/orders/${o._id}`} className="truncate font-mono text-[13px] font-medium text-white hover:text-white/70">
+              {o.orderNumber}
+            </Link>
+            <button onClick={copyRef} aria-label="Copy order number" className="text-white/20 hover:text-white/70">
+              <Copy size={10} />
+            </button>
+            <QualityBadge quality={o.quality} compact />
           </div>
-          <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1 border-t border-neutral-200 pt-2 text-[13px] text-neutral-500">
-            <span>Address: <span className="text-neutral-800">{o.customerInfo?.address}</span></span>
-            {o.trackingNumber && <span>Tracking: <span className="font-mono text-neutral-800">{o.trackingNumber}</span></span>}
-            {o.courierName && <span>Courier: <span className="text-neutral-800">{o.courierName}</span></span>}
-          </div>
+          <p className="mt-0.5 text-[11px] text-white/30">{fmtDate(o.createdAt)}</p>
         </div>
-      )}
+
+        <div className="min-w-0">
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); onOpenCustomer?.(o.customerInfo?.phone); }}
+            className="block truncate text-left text-[13px] text-white/90 hover:text-white"
+          >
+            {o.customerInfo?.name}
+          </button>
+          <p className="mt-0.5 flex items-center gap-1.5 truncate text-[11px] text-white/35">
+            {o.customerInfo?.city}
+            <ReliabilityBadge reliability={o.reliability} compact />
+          </p>
+        </div>
+
+        <p className="hidden items-center text-[12px] text-white/45 xl:flex">{fmtDate(o.createdAt)}</p>
+        <p className={`${COL} text-[12px] tabular-nums text-white/70`}>
+          {itemCount}
+          {atRisk && <span className="ml-1 text-white/40">!</span>}
+        </p>
+        <p className={`${COL} adm-metric text-[13px] text-white`}>{pkr(o.total)}</p>
+        <div className={COL}><MonoStatus label={pState} /></div>
+        <div className={COL}><MonoStatus label={fulfill} /></div>
+        <div className="hidden flex-col items-start gap-1 xl:flex">
+          <MonoStatus label={String(o.status || '').toUpperCase()} dim={['Cancelled', 'Refunded', 'Pending'].includes(o.status)} />
+          {o.priorityFlag === 'rush' && <span className="text-[9px] uppercase tracking-[0.16em] text-white">Rush</span>}
+          {o.customerService?.hasIssue && <span className="text-[9px] uppercase tracking-[0.14em] text-white/45">Issue</span>}
+          {invoicePrinted && <span className="text-[9px] uppercase tracking-[0.14em] text-white/30">Printed</span>}
+        </div>
+        <div className="hidden lg:block">{actions}</div>
+      </div>
+
+      {/* Mobile / tablet stacked row */}
+      <div className="flex items-start gap-3 px-1 py-4 lg:hidden">
+        <input
+          type="checkbox" checked={selected} onChange={() => onSelect(o._id)}
+          aria-label={`Select order ${o.orderNumber}`}
+          className="mt-1 h-3.5 w-3.5 shrink-0 cursor-pointer rounded-none border-white/30 bg-transparent accent-white"
+        />
+        <div className="min-w-0 flex-1">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <Link to={`/admin/orders/${o._id}`} className="font-mono text-[13px] font-medium text-white">
+                {o.orderNumber}
+              </Link>
+              <p className="mt-0.5 text-[11px] text-white/35">{fmtDate(o.createdAt)}</p>
+            </div>
+            <p className="adm-metric shrink-0 text-[14px] text-white">{pkr(o.total)}</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => onOpenCustomer?.(o.customerInfo?.phone)}
+            className="mt-2 block text-left text-[13px] text-white/85"
+          >
+            {o.customerInfo?.name}
+          </button>
+          <p className="mt-0.5 text-[11px] text-white/35">
+            {itemCount} item{itemCount === 1 ? '' : 's'}
+            {o.customerInfo?.city ? ` · ${o.customerInfo.city}` : ''}
+            {bins.length > 0 ? ` · ${bins.slice(0, 2).join(', ')}` : ''}
+          </p>
+          <div className="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1.5">
+            <MonoStatus label={pState} />
+            <MonoStatus label={fulfill} />
+            {o.priorityFlag === 'rush' && <span className="text-[9px] uppercase tracking-[0.16em] text-white">Rush</span>}
+            {o.customerService?.hasIssue && <span className="text-[9px] uppercase tracking-[0.14em] text-white/45">Issue</span>}
+            <QualityBadge quality={o.quality} compact />
+          </div>
+          <div className="mt-3">{actions}</div>
+        </div>
+      </div>
+
+      {expanded}
     </div>
   );
 }

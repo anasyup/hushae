@@ -1,30 +1,25 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
-  ArrowLeft, Banknote, ChevronDown, Copy, ExternalLink, Mail,
-  MapPin, MessageCircle, Minus, Package, Pencil, Phone,
-  Plus, Printer, ReceiptText, RefreshCw, Save, Trash2, Truck, User, X,
+  ArrowLeft, Copy, ExternalLink, Minus, Plus, RefreshCw, Save, Trash2, X,
 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
-import { fmtDate, fmtDateTime, pkr } from '../lib/format';
+import { fmtDateTime, pkr } from '../lib/format';
 import AdminLayout from './AdminLayout';
+import PageHeader from './components/PageHeader';
 import Img from '../components/Img';
 import ReliabilityBadge from './ReliabilityBadge';
 import { CANCEL_REASONS } from './orders/orderConstants';
+import { btnGhost, btnIcon, btnSolid, ctl, ctlInline, MonoStatus } from './orders/orderUi';
 
-/* ============================================================================
- * ORDER DETAIL — Shopify-style tabbed redesign. Phase 6.
- *
- * Tabs: Items · Timeline · Invoice
- * Clean 3-column layout: Main (items) + Sidebar (customer/address/payment)
- * Action bar: status, payment, print, delete — all inline with order info
+/* ===========================================================================
+ * ORDER DETAIL — Phase 03-R editorial presentation.
+ * Functionality unchanged: status, payment, items edit, delete, tracking.
  * ========================================================================== */
 
 const STATUSES = ['Pending', 'Confirmed', 'Processing', 'Ready to Ship', 'Shipped', 'Out for Delivery', 'Delivered', 'Cancelled', 'Refunded'];
 const PAY = ['Pending', 'Paid', 'Verified', 'Confirmed', 'Failed', 'Refunded'];
-
-const statusPillClass = (s) => s === 'Delivered' ? 'bg-neutral-100 text-neutral-800' : s === 'Cancelled' ? 'bg-neutral-100 text-neutral-800' : s === 'Refunded' ? 'bg-neutral-100 text-neutral-700' : s === 'Shipped' || s === 'Out for Delivery' ? 'bg-neutral-100 text-neutral-800' : s === 'Ready to Ship' ? 'bg-neutral-100 text-neutral-700' : s === 'Processing' ? 'bg-neutral-100 text-neutral-700' : s === 'Confirmed' ? 'bg-neutral-100 text-neutral-700' : 'bg-neutral-100 text-neutral-700';
 
 export default function OrderDetail() {
   const { id } = useParams();
@@ -41,7 +36,7 @@ export default function OrderDetail() {
   const load = () => api(`/orders/admin/${id}`, { token: auth.token })
     .then((d) => { setO(d.order); setReliability(d.reliability || null); })
     .catch((e) => { if (e?.status === 401) { logout(); return; } setErr('Could not load order.'); });
-  useEffect(() => { load(); }, [id]);
+  useEffect(() => { load(); }, [id]); // eslint-disable-line
 
   const patch = async (path, body, msg) => {
     setBusy(true);
@@ -56,7 +51,6 @@ export default function OrderDetail() {
     catch (ex) { toast(ex.message); }
   };
 
-  // ── Items editing ────────────────────────────────────────────────────
   const [editing, setEditing] = useState(false);
   const [editItems, setEditItems] = useState([]);
   const [pq, setPq] = useState('');
@@ -87,8 +81,31 @@ export default function OrderDetail() {
     setBusy(false);
   };
 
-  if (err) return <AdminLayout title="Order"><div className="mx-auto grid max-w-md place-items-center rounded-2xl border border-red-200 bg-red-50 p-10"><p className="text-sm text-red-700">{err}</p><button onClick={() => { setErr(''); load(); }} className="mt-4 rounded-full border border-red-300 bg-white px-4 py-2 text-xs font-semibold text-red-700 hover:bg-red-50">Try again</button></div></AdminLayout>;
-  if (!o) return <AdminLayout title="Order"><div className="grid gap-4"><div className="animate-pulse rounded-xl bg-neutral-100 h-20 rounded-xl" /><div className="animate-pulse rounded-xl bg-neutral-100 h-64 rounded-xl" /><div className="animate-pulse rounded-xl bg-neutral-100 h-32 rounded-xl" /></div></AdminLayout>;
+  if (err) {
+    return (
+      <AdminLayout title="Order">
+        <div className="border-y border-white/10 py-16 text-center">
+          <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-white/80">Unable to load order</p>
+          <p className="mt-3 text-[13px] text-white/35">{err}</p>
+          <button onClick={() => { setErr(''); load(); }} className={`${btnGhost} mt-6`}>Try again</button>
+        </div>
+      </AdminLayout>
+    );
+  }
+
+  if (!o) {
+    return (
+      <AdminLayout title="Order">
+        <div className="space-y-6" aria-hidden>
+          <div className="h-16 animate-pulse bg-white/5" />
+          <div className="grid grid-cols-2 gap-px border-y border-white/10 lg:grid-cols-4">
+            {[1, 2, 3, 4].map((i) => <div key={i} className="h-24 animate-pulse bg-white/[0.04]" />)}
+          </div>
+          <div className="h-64 animate-pulse bg-white/[0.04]" />
+        </div>
+      </AdminLayout>
+    );
+  }
 
   const c = o.customerInfo;
   const pcs = o.items.reduce((a, it) => a + (it.quantity || 1), 0);
@@ -103,38 +120,37 @@ export default function OrderDetail() {
     : o.status === 'Ready to Ship' ? { status: 'Shipped', label: 'Mark shipped' }
     : o.status === 'Shipped' || o.status === 'Out for Delivery' ? { status: 'Delivered', label: 'Mark delivered' }
     : null;
+  const payLabel = o.paymentStatus === 'Paid' || o.paymentState === 'Confirmed' ? 'PAID' : String(o.paymentStatus || o.paymentState || 'PENDING').toUpperCase();
 
   return (
     <AdminLayout title={`Order ${o.orderNumber}`}>
-      <div className="mb-5 flex flex-wrap items-center gap-2 rounded-xl border border-neutral-200 bg-white p-3">
-        <p className="mr-auto min-w-0 text-[13px] text-neutral-600">
-          Next step for <span className="font-semibold text-neutral-900">{o.orderNumber}</span>
-          {o.discreetPackaging ? <span className="ml-2 rounded bg-neutral-100 px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide">Discreet pack</span> : null}
-        </p>
-        {c.phone && (
-          <a href={waConfirm} target="_blank" rel="noreferrer" className="inline-flex min-h-[40px] items-center gap-1.5 rounded-lg bg-emerald-600 px-3 text-[12px] font-semibold text-white hover:bg-emerald-700">
-            <MessageCircle size={13} /> WhatsApp
-          </a>
+      <PageHeader
+        title={o.orderNumber}
+        description="Customer, payment, fulfillment and items."
+        actions={(
+          <>
+            <Link to="/admin/orders" className={btnGhost}><ArrowLeft size={12} /> Back</Link>
+            {c.phone && (
+              <a href={waConfirm} target="_blank" rel="noreferrer" className={btnGhost}>WhatsApp</a>
+            )}
+            {nextMove && (
+              <button type="button" disabled={busy} onClick={() => patch('/status', { status: nextMove.status }, nextMove.label)} className={btnSolid}>
+                {nextMove.label}
+              </button>
+            )}
+            <button type="button" onClick={() => window.open(`/admin/orders/${id}/invoice`, '_blank')} className={btnGhost}>Print</button>
+            <button onClick={load} disabled={busy} className={btnIcon} title="Refresh"><RefreshCw size={13} className={busy ? 'animate-spin' : ''} /></button>
+            <button onClick={remove} className={btnGhost}><Trash2 size={11} /> Delete</button>
+          </>
         )}
-        {nextMove && (
-          <button
-            type="button"
-            disabled={busy}
-            onClick={() => patch('/status', { status: nextMove.status }, nextMove.label)}
-            className="inline-flex min-h-[40px] items-center rounded-lg bg-neutral-900 px-4 text-[12px] font-semibold text-white hover:bg-black disabled:opacity-50"
-          >
-            {nextMove.label}
-          </button>
-        )}
-        <button type="button" onClick={() => window.open(`/admin/orders/${id}/invoice`, '_blank')} className="inline-flex min-h-[40px] items-center gap-1 rounded-lg border border-neutral-200 bg-white px-3 text-[12px] font-semibold text-neutral-700 hover:bg-neutral-50">
-          <Printer size={12} /> Print
-        </button>
-      </div>
-      {/* ═══ TOP BAR ═══════════════════════════════════════════════ */}
-      <div className="mb-5 flex flex-wrap items-center gap-2">
-        <Link to="/admin/orders" className="inline-flex items-center gap-1 rounded-lg border border-neutral-200 bg-white px-3 py-2 text-xs font-semibold text-neutral-600 transition hover:border-neutral-400"><ArrowLeft size={12} /> Back</Link>
+      />
 
-        {/* Status dropdown */}
+      {/* Status / payment controls */}
+      <div className="mb-10 flex flex-wrap items-center gap-3 border-b border-white/10 pb-5">
+        <MonoStatus label={String(o.status || '').toUpperCase()} />
+        <MonoStatus label={payLabel} />
+        {o.discreetPackaging && <span className="text-[9px] font-medium uppercase tracking-[0.16em] text-white/40">Discreet pack</span>}
+
         <select
           value={o.status}
           onChange={(e) => {
@@ -142,276 +158,257 @@ export default function OrderDetail() {
             patch('/status', { status: e.target.value }, 'Status updated');
           }}
           disabled={busy}
-          className={`cursor-pointer rounded-full border-0 px-3 py-2 text-[12px] font-bold uppercase tracking-wide outline-none ${statusPillClass(o.status)}`}>
+          aria-label="Order status"
+          className={`${ctlInline} ml-auto`}
+        >
           {STATUSES.map((s) => <option key={s}>{s}</option>)}
         </select>
-
-        {cancelOpen && (
-          <div className="flex flex-wrap items-center gap-2 rounded-full border border-red-200 bg-red-50 px-3 py-1.5">
-            <span className="text-[12px] font-semibold text-red-700">Cancel reason:</span>
-            <select value={cancelReason} onChange={(e) => setCancelReason(e.target.value)} className="rounded-md border border-red-200 bg-white px-2 py-1 text-[12px] outline-none">
-              <option value="">Select reason…</option>
-              {CANCEL_REASONS.map((r) => <option key={r} value={r}>{r}</option>)}
-            </select>
-            {cancelReason === 'Other' && <input value={cancelReason} onChange={(e) => setCancelReason(e.target.value)} placeholder="Describe…" className="rounded-md border border-red-200 bg-white px-2 py-1 text-[12px] outline-none" />}
-            <button
-              disabled={!cancelReason || busy}
-              onClick={() => { patch('/status', { status: 'Cancelled', cancelReason }, 'Order cancelled'); setCancelOpen(false); }}
-              className="rounded-full bg-red-600 px-3 py-1 text-[12px] font-semibold text-white transition hover:bg-red-700 disabled:opacity-50">
-              Confirm
-            </button>
-            <button onClick={() => setCancelOpen(false)} className="rounded-full px-2 py-1 text-[12px] font-semibold text-neutral-500 hover:text-neutral-900">✕</button>
-          </div>
-        )}
-
-        {/* Payment dropdown */}
-        <select value={o.paymentStatus} onChange={(e) => patch('/payment', { paymentStatus: e.target.value }, 'Payment updated')} disabled={busy}
-          className="cursor-pointer rounded-full border-0 bg-neutral-900 px-3 py-2 text-[12px] font-bold uppercase tracking-wide text-white outline-none">
+        <select
+          value={o.paymentStatus}
+          onChange={(e) => patch('/payment', { paymentStatus: e.target.value }, 'Payment updated')}
+          disabled={busy}
+          aria-label="Payment status"
+          className={ctlInline}
+        >
           {PAY.map((s) => <option key={s}>{s}</option>)}
         </select>
-
-        <div className="ml-auto flex items-center gap-1.5">
-          <button onClick={load} disabled={busy} className="grid h-8 w-8 place-items-center rounded-lg border border-neutral-200 bg-white text-neutral-500 transition hover:bg-neutral-50" title="Refresh"><RefreshCw size={13} className={busy ? 'animate-spin' : ''} /></button>
-          <button onClick={() => window.open(`/admin/orders/${id}/invoice`, '_blank')} className="inline-flex items-center gap-1 rounded-lg border border-neutral-200 bg-white px-3 py-2 text-xs font-semibold text-neutral-600 transition hover:bg-neutral-50"><Printer size={11} /> Invoice</button>
-          <button onClick={remove} className="inline-flex items-center gap-1 rounded-lg border border-red-200 bg-white px-3 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-50"><Trash2 size={11} /> Delete</button>
-        </div>
       </div>
 
-      {/* ═══ ORDER INFO STRIP ═══════════════════════════════════════ */}
-      <div className="mb-5 grid grid-cols-2 gap-3 md:grid-cols-4">
-        {[
-          { icon: User, label: 'Customer', value: c.name, sub: c.city },
-          { icon: Package, label: 'Items', value: `${o.items.length} products`, sub: `${pcs} pieces` },
-          { icon: Banknote, label: 'Payment', value: o.paymentMethod, sub: o.paymentStatus },
-          { icon: ReceiptText, label: 'Total', value: pkr(o.total), sub: fmtDateTime(o.createdAt) },
-        ].map(({ icon: Icon, label, value, sub }) => (
-          <div key={label} className="flex items-center gap-2.5 rounded-xl border border-neutral-200 bg-white p-3">
-            <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-neutral-100 text-neutral-600"><Icon size={14} /></span>
-            <div className="min-w-0">
-              <p className="text-[13px] font-bold uppercase tracking-wider text-neutral-400">{label}</p>
-              <p className="mt-0.5 truncate text-[13px] font-semibold text-neutral-900">{value}</p>
-              <p className="truncate text-[12px] text-neutral-500">{sub}</p>
+      {cancelOpen && (
+        <div className="mb-8 flex flex-wrap items-center gap-2 border-y border-white/10 py-3">
+          <span className="adm-label">Cancel reason</span>
+          <select value={cancelReason} onChange={(e) => setCancelReason(e.target.value)} className={ctlInline}>
+            <option value="">Select reason…</option>
+            {CANCEL_REASONS.map((r) => <option key={r} value={r}>{r}</option>)}
+          </select>
+          {cancelReason === 'Other' && (
+            <input value={cancelReason} onChange={(e) => setCancelReason(e.target.value)} placeholder="Describe…" className={ctlInline} />
+          )}
+          <button
+            disabled={!cancelReason || busy}
+            onClick={() => { patch('/status', { status: 'Cancelled', cancelReason }, 'Order cancelled'); setCancelOpen(false); }}
+            className={btnSolid}
+          >
+            Confirm
+          </button>
+          <button onClick={() => setCancelOpen(false)} className={btnGhost}>Dismiss</button>
+        </div>
+      )}
+
+      {/* Order information */}
+      <section className="mb-10">
+        <p className="adm-index">Order information</p>
+        <div className="grid gap-8 border-y border-white/10 py-6 md:grid-cols-2">
+          <div>
+            <p className="adm-label mb-3">Customer</p>
+            <div className="flex items-start gap-3">
+              <span className="grid h-8 w-8 shrink-0 place-items-center bg-white text-[11px] font-medium text-black">
+                {(c.name || '?').slice(0, 1).toUpperCase()}
+              </span>
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="text-[14px] font-medium text-white">{c.name}</p>
+                  <ReliabilityBadge reliability={reliability} />
+                </div>
+                <p className="mt-0.5 text-[12px] text-white/40">{c.city}{c.province ? `, ${c.province}` : ''}</p>
+                <div className="mt-3 flex flex-wrap gap-3">
+                  {c.phone && <a href={`tel:${c.phone}`} className="text-[11px] uppercase tracking-[0.12em] text-white/50 hover:text-white">Call</a>}
+                  {c.phone && <a href={whatsappLink} target="_blank" rel="noreferrer" className="text-[11px] uppercase tracking-[0.12em] text-white/50 hover:text-white">WhatsApp</a>}
+                  {c.email && <a href={`mailto:${c.email}`} className="text-[11px] uppercase tracking-[0.12em] text-white/50 hover:text-white">Email</a>}
+                </div>
+              </div>
             </div>
           </div>
-        ))}
-      </div>
-
-      {/* ═══ MAIN CONTENT ════════════════════════════════════════ */}
-      <div className="grid gap-5 lg:grid-cols-[1fr_300px]">
-        {/* ── Left: Items + tab content ──────────────────────────────── */}
-        <div className="rounded-2xl border border-neutral-200 bg-white">
-          {/* Tabs */}
-          <div className="flex border-b border-neutral-100 px-5 pt-4 gap-1">
-            {[
-              { k: 'items', l: 'Items' },
-              { k: 'timeline', l: 'Timeline' },
-              { k: 'tracking', l: 'Tracking' },
-            ].map((t) => (
-              <button key={t.k} onClick={() => setTab(t.k)}
-                className={`px-3 pb-3 text-xs font-semibold transition border-b-2 -mb-px ${tab === t.k ? 'border-neutral-900 text-neutral-900' : 'border-transparent text-neutral-400 hover:text-neutral-700'}`}>
-                {t.l}
-              </button>
-            ))}
-            {editable && !editing && (
-              <button onClick={startEdit} className="ml-auto mb-2 inline-flex items-center gap-1 rounded-full border border-neutral-300 bg-white px-3 py-1.5 text-[12px] font-semibold text-neutral-700 transition hover:border-neutral-900 hover:text-neutral-900"><Pencil size={11} /> Edit</button>
-            )}
+          <div>
+            <p className="adm-label mb-3">Payment</p>
+            <dl className="space-y-2 text-[13px]">
+              <div className="flex justify-between gap-4"><dt className="text-white/35">Method</dt><dd className="text-white">{o.paymentMethod}</dd></div>
+              <div className="flex justify-between gap-4"><dt className="text-white/35">Status</dt><dd className="text-white">{o.paymentStatus}</dd></div>
+              {o.transactionId && <div className="flex justify-between gap-4"><dt className="text-white/35">Txn ID</dt><dd className="font-mono text-[12px] text-white/70">{o.transactionId}</dd></div>}
+              <div className="flex justify-between gap-4"><dt className="text-white/35">Packaging</dt><dd className="text-white">{o.discreetPackaging ? 'Discreet' : 'Standard'}</dd></div>
+            </dl>
           </div>
+        </div>
+      </section>
 
-          {/* ═══ ITEMS TAB ══════════════════════════════════════ */}
-          {tab === 'items' && (
-            <div className="divide-y divide-neutral-100">
-              {!editing ? o.items.map((it, i) => (
-                <div key={i} className="flex items-center gap-3 px-5 py-3">
-                  {it.slug ? <Link to={`/product/${it.slug}`} target="_blank"><Img src={it.image} alt="" className="h-14 w-10 rounded-lg border border-neutral-200 object-cover" /></Link> : <Img src={it.image} alt="" className="h-14 w-10 rounded-lg border border-neutral-200 object-cover" />}
-                  <div className="min-w-0 flex-1">
-                    <p className="text-[13px] font-semibold text-neutral-900 leading-snug">{it.name}</p>
-                    <p className="mt-0.5 flex items-center gap-1.5 text-[12px] text-neutral-500">
-                      {it.size && <span className="rounded bg-neutral-100 px-1.5 py-0.5 font-medium">{it.size}</span>}
-                      {it.color && <span className="rounded bg-neutral-100 px-1.5 py-0.5 font-medium">{it.color}</span>}
-                      <span className="text-neutral-400">{pkr(it.price)} × {it.quantity}</span>
-                    </p>
-                  </div>
-                  <p className="text-[13px] font-semibold tabular-nums text-neutral-900">{pkr(it.lineTotal)}</p>
+      {/* Shipping */}
+      <section className="mb-10">
+        <p className="adm-index">Shipping</p>
+        <div className="border-y border-white/10 py-6">
+          <p className="text-[13px] leading-relaxed text-white/85">{c.address}</p>
+          <p className="mt-1 text-[12px] text-white/40">{c.city}, {c.province}{c.postalCode ? ` — ${c.postalCode}` : ''}</p>
+          {c.location?.lat != null && (
+            <a href={c.location.mapsLink || `https://www.google.com/maps?q=${c.location.lat},${c.location.lng}`} target="_blank" rel="noreferrer"
+              className="mt-3 inline-flex items-center gap-1.5 text-[11px] uppercase tracking-[0.14em] text-white/50 hover:text-white">
+              Open in Maps <ExternalLink size={10} />
+            </a>
+          )}
+        </div>
+      </section>
+
+      {/* Items / timeline / tracking */}
+      <section className="mb-10">
+        <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+          <p className="adm-index mb-0 flex-1">Items</p>
+          {editable && !editing && (
+            <button onClick={startEdit} className={btnGhost}>Edit</button>
+          )}
+        </div>
+
+        <div className="flex gap-5 border-b border-white/10">
+          {[
+            { k: 'items', l: 'Items' },
+            { k: 'timeline', l: 'Timeline' },
+            { k: 'tracking', l: 'Tracking' },
+          ].map((t) => (
+            <button key={t.k} onClick={() => setTab(t.k)}
+              className={`pb-2.5 text-[10px] font-medium uppercase tracking-[0.16em] transition-colors ${
+                tab === t.k ? 'border-b border-white text-white' : 'border-b border-transparent text-white/35 hover:text-white/70'
+              }`}>
+              {t.l}
+            </button>
+          ))}
+        </div>
+
+        {tab === 'items' && (
+          <div>
+            {!editing && o.items.map((it, i) => (
+              <div key={i} className="flex items-center gap-3 border-b border-white/5 py-3.5">
+                {it.slug
+                  ? <Link to={`/product/${it.slug}`} target="_blank"><Img src={it.image} alt="" className="h-14 w-10 object-cover" /></Link>
+                  : <Img src={it.image} alt="" className="h-14 w-10 object-cover" />}
+                <div className="min-w-0 flex-1">
+                  <p className="text-[13px] font-medium leading-snug text-white">{it.name}</p>
+                  <p className="mt-0.5 text-[11px] text-white/35">
+                    {[it.size, it.color].filter(Boolean).join(' · ')}
+                    {(it.size || it.color) ? ' · ' : ''}
+                    {pkr(it.price)} × {it.quantity}
+                  </p>
                 </div>
-              )) : null}
+                <p className="adm-metric text-[13px] text-white">{pkr(it.lineTotal)}</p>
+              </div>
+            ))}
 
-              {/* Editing mode */}
-              {editing && editItems.map((it, i) => (
-                <div key={i} className="flex items-center gap-3 px-5 py-3">
-                  <Img src={it.image} alt="" className="h-14 w-10 rounded-lg border border-neutral-200 object-cover shrink-0" />
-                  <div className="min-w-0 flex-1">
-                    <p className="text-[12px] font-semibold text-neutral-900 leading-snug">{it.name}</p>
-                    <div className="mt-1 flex flex-wrap items-center gap-1.5">
-                      {it.sizes.length > 0 && <select value={it.size} onChange={(e) => updLine(i, 'size', e.target.value)} className="rounded-lg border border-neutral-200 px-2 py-1 text-[12px] outline-none focus:border-neutral-900">{it.sizes.map((s) => <option key={s} value={s}>{s}</option>)}</select>}
-                      {it.colors.length > 0 && <select value={it.color} onChange={(e) => updLine(i, 'color', e.target.value)} className="rounded-lg border border-neutral-200 px-2 py-1 text-[12px] outline-none focus:border-neutral-900">{it.colors.map((c) => <option key={c.name} value={c.name}>{c.name}</option>)}</select>}
-                      <div className="flex items-center gap-1 ml-1">
-                        <button type="button" onClick={() => stepQty(i, -1)} className="grid h-5 w-5 place-items-center rounded border border-neutral-200 text-neutral-500 hover:border-neutral-900"><Minus size={10} /></button>
-                        <span className="w-5 text-center text-[12px] font-bold tabular-nums">{it.quantity}</span>
-                        <button type="button" onClick={() => stepQty(i, 1)} className="grid h-5 w-5 place-items-center rounded border border-neutral-200 text-neutral-500 hover:border-neutral-900"><Plus size={10} /></button>
-                        <span className="text-[13px] text-neutral-400">× {pkr(it.price)}</span>
-                      </div>
+            {editing && editItems.map((it, i) => (
+              <div key={i} className="flex items-center gap-3 border-b border-white/5 py-3.5">
+                <Img src={it.image} alt="" className="h-14 w-10 shrink-0 object-cover" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-[12px] font-medium leading-snug text-white">{it.name}</p>
+                  <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                    {it.sizes.length > 0 && (
+                      <select value={it.size} onChange={(e) => updLine(i, 'size', e.target.value)} className={ctlInline}>
+                        {it.sizes.map((s) => <option key={s} value={s}>{s}</option>)}
+                      </select>
+                    )}
+                    {it.colors.length > 0 && (
+                      <select value={it.color} onChange={(e) => updLine(i, 'color', e.target.value)} className={ctlInline}>
+                        {it.colors.map((col) => <option key={col.name} value={col.name}>{col.name}</option>)}
+                      </select>
+                    )}
+                    <div className="ml-1 flex items-center gap-1">
+                      <button type="button" onClick={() => stepQty(i, -1)} className="grid h-6 w-6 place-items-center border border-white/20 text-white/60 hover:text-white"><Minus size={10} /></button>
+                      <span className="w-5 text-center text-[12px] tabular-nums text-white">{it.quantity}</span>
+                      <button type="button" onClick={() => stepQty(i, 1)} className="grid h-6 w-6 place-items-center border border-white/20 text-white/60 hover:text-white"><Plus size={10} /></button>
                     </div>
                   </div>
-                  <div className="flex flex-col items-end gap-1.5">
-                    <p className="text-[12px] font-bold tabular-nums">{pkr(it.price * it.quantity)}</p>
-                    <button type="button" onClick={() => delLine(i)} className="rounded p-1 text-neutral-400 hover:bg-red-50 hover:text-red-600"><X size={12} /></button>
-                  </div>
                 </div>
-              ))}
+                <div className="flex flex-col items-end gap-1.5">
+                  <p className="adm-metric text-[13px] text-white">{pkr(it.price * it.quantity)}</p>
+                  <button type="button" onClick={() => delLine(i)} className="text-white/30 hover:text-white"><X size={12} /></button>
+                </div>
+              </div>
+            ))}
 
-              {/* Add product search */}
-              {editing && (
-                <div className="relative px-5 py-3">
-                  <input value={pq} onChange={(e) => searchPicker(e.target.value)} placeholder="Add product — search by name or SKU…" className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-[12px] outline-none focus:border-neutral-900" />
-                  {pRes.length > 0 && (
-                    <div className="absolute inset-x-5 top-12 z-20 overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-lg">{pRes.map((p) => (
-                      <button type="button" key={p._id} onClick={() => addPicked(p)} className="flex w-full items-center gap-2.5 px-3 py-2 text-left transition hover:bg-neutral-50">
-                        <Img src={p.images?.[0]?.url} alt="" className="h-8 w-6 rounded object-cover" />
-                        <span className="flex-1 truncate text-[12px] font-medium">{p.name}</span>
-                        <span className="text-[13px] text-neutral-400">{p.sku}</span>
-                        <span className="text-[12px] font-bold">{pkr(p.price)}</span>
+            {editing && (
+              <div className="relative py-3">
+                <input value={pq} onChange={(e) => searchPicker(e.target.value)} placeholder="Add product — search by name or SKU…" className={ctl} />
+                {pRes.length > 0 && (
+                  <div className="absolute inset-x-0 top-12 z-20 overflow-hidden border border-white/15 bg-[#0D0D0D]">
+                    {pRes.map((p) => (
+                      <button type="button" key={p._id} onClick={() => addPicked(p)} className="flex w-full items-center gap-2.5 px-3 py-2 text-left hover:bg-white/5">
+                        <Img src={p.images?.[0]?.url} alt="" className="h-8 w-6 object-cover" />
+                        <span className="flex-1 truncate text-[12px] text-white">{p.name}</span>
+                        <span className="text-[11px] text-white/30">{p.sku}</span>
+                        <span className="text-[12px] text-white">{pkr(p.price)}</span>
                       </button>
-                    ))}</div>
-                  )}
-                </div>
-              )}
-
-              {/* Totals footer */}
-              <div className="space-y-1 bg-neutral-50/60 px-5 py-4 text-[12px]">
-                <div className="flex justify-between"><span className="text-neutral-500">Subtotal</span><span>{pkr(editing ? editSub : o.subtotal)}</span></div>
-                {!!o.discount && <div className="flex justify-between font-medium text-emerald-700"><span>Discount {o.couponCode && `(${o.couponCode})`}</span><span>− {pkr(o.discount)}</span></div>}
-                <div className="flex justify-between"><span className="text-neutral-500">Shipping</span><span>{o.shippingCharge === 0 ? 'Free' : pkr(o.shippingCharge)}</span></div>
-                <div className="flex justify-between pt-1.5 border-t border-neutral-200 text-[12px] font-semibold"><span>Total</span><span>{pkr(editing ? editTotal : o.total)}</span></div>
-                {editing && (
-                  <div className="flex items-center gap-2 pt-3">
-                    <button onClick={saveItems} disabled={busy} className="inline-flex items-center gap-1 rounded-full bg-neutral-900 px-4 py-2 text-[12px] font-semibold text-white hover:bg-black disabled:opacity-50"><Save size={11} /> {busy ? 'Saving…' : 'Update order'}</button>
-                    <button onClick={() => setEditing(false)} className="rounded-full border border-neutral-300 bg-white px-4 py-2 text-[12px] font-semibold text-neutral-700 hover:bg-neutral-50">Cancel</button>
+                    ))}
                   </div>
                 )}
               </div>
-            </div>
-          )}
+            )}
 
-          {/* ═══ TIMELINE TAB ═══════════════════════════════════ */}
-          {tab === 'timeline' && (
-            <div className="px-5 py-4">
-              {(o.statusHistory || []).length === 0 ? (
-                <p className="py-8 text-center text-[12px] text-neutral-400">No status history recorded.</p>
-              ) : (
-                <div className="space-y-3">
-                  {(o.statusHistory || []).slice().reverse().map((h, i) => (
-                    <div key={i} className="flex items-start gap-3">
-                      <div className="flex flex-col items-center pt-0.5">
-                        <span className={`h-2.5 w-2.5 rounded-full ${i === 0 ? 'bg-neutral-900 ring-4 ring-neutral-900/20' : 'bg-neutral-300'}`} />
-                        {i < (o.statusHistory || []).length - 1 && <div className="mt-0.5 h-full w-px bg-neutral-200" />}
-                      </div>
-                      <div className="pb-3">
-                        <p className="text-[13px] font-semibold text-neutral-900">{h.status}</p>
-                        <p className="text-[12px] text-neutral-500">{fmtDateTime(h.at)}</p>
-                        {h.note && <p className="mt-0.5 text-[12px] text-neutral-600 italic">"{h.note}"</p>}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* ═══ TRACKING TAB ═══════════════════════════════════ */}
-          {tab === 'tracking' && (
-            <div className="px-5 py-4">
-              {o.trackingNumber ? (
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between rounded-lg bg-neutral-50 px-4 py-3">
-                    <div>
-                      <p className="text-[13px] font-bold uppercase tracking-wider text-neutral-400">Tracking number</p>
-                      <p className="mt-0.5 font-mono text-[12px] font-semibold text-neutral-900">{o.trackingNumber}</p>
-                    </div>
-                    <button onClick={() => navigator.clipboard?.writeText(o.trackingNumber)} className="rounded-full border border-neutral-300 bg-white p-2 text-neutral-500 hover:bg-neutral-100"><Copy size={13} /></button>
-                  </div>
-                  {o.courierName && (
-                    <div className="rounded-lg bg-neutral-50 px-4 py-3">
-                      <p className="text-[13px] font-bold uppercase tracking-wider text-neutral-400">Courier</p>
-                      <p className="mt-0.5 text-[13px] font-semibold text-neutral-900">{o.courierName}</p>
-                    </div>
-                  )}
-                  {o.trackingUrl && (
-                    <a href={o.trackingUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-full bg-neutral-900 px-4 py-2 text-[12px] font-semibold text-white hover:bg-black">
-                      <Truck size={11} /> Track online <ExternalLink size={10} />
-                    </a>
-                  )}
-                </div>
-              ) : (
-                <div className="py-8 text-center">
-                  <Truck size={24} className="mx-auto mb-2 text-neutral-300" />
-                  <p className="text-[12px] font-medium text-neutral-600">No tracking info yet</p>
-                  <p className="mt-1 text-[12px] text-neutral-400">Add a tracking number when the order ships.</p>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* ── RIGHT SIDEBAR ────────────────────────────────────────── */}
-        <div className="space-y-4">
-          {/* Customer */}
-          <div className="rounded-2xl border border-neutral-200 bg-white p-5">
-            <div className="flex items-center justify-between mb-3">
-              <p className="text-[13px] font-bold uppercase tracking-wider text-neutral-400">Customer</p>
-              <Link to={`/admin/customers`} className="text-[13px] font-semibold text-neutral-400 hover:text-neutral-900">View all</Link>
-            </div>
-            <div className="flex items-center gap-3 mb-3">
-              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-neutral-900 text-[12px] font-bold text-white">{(c.name || '?').slice(0, 1).toUpperCase()}</span>
-              <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-2">
-                  <p className="text-[13px] font-semibold text-neutral-900 truncate">{c.name}</p>
-                  <ReliabilityBadge reliability={reliability} />
-                </div>
-                <p className="text-[12px] text-neutral-500">{c.city}</p>
+            <div className="space-y-2 border-t border-white/10 py-5 text-[13px]">
+              <div className="flex justify-between"><span className="text-white/35">Subtotal</span><span className="text-white">{pkr(editing ? editSub : o.subtotal)}</span></div>
+              {!!o.discount && <div className="flex justify-between text-white/80"><span>Discount {o.couponCode && `(${o.couponCode})`}</span><span>− {pkr(o.discount)}</span></div>}
+              <div className="flex justify-between"><span className="text-white/35">Shipping</span><span className="text-white">{o.shippingCharge === 0 ? 'Free' : pkr(o.shippingCharge)}</span></div>
+              <div className="flex justify-between border-t border-white/10 pt-3">
+                <span className="adm-label">Grand total</span>
+                <span className="adm-metric text-[18px] text-white">{pkr(editing ? editTotal : o.total)}</span>
               </div>
-            </div>
-            <div className="mt-3 flex flex-wrap gap-1.5">
-              {c.phone && (
-                <>
-                  <a href={`tel:${c.phone}`} className="inline-flex items-center gap-1 rounded-full border border-neutral-200 bg-white px-2.5 py-1.5 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50"><Phone size={10} /> Call</a>
-                  <a href={whatsappLink} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-full bg-emerald-600 px-2.5 py-1.5 text-[12px] font-semibold text-white transition hover:bg-emerald-700"><MessageCircle size={10} /> WhatsApp</a>
-                </>
+              <p className="text-[11px] text-white/30">{o.items.length} products · {pcs} pieces · {fmtDateTime(o.createdAt)}</p>
+              {editing && (
+                <div className="flex items-center gap-2 pt-3">
+                  <button onClick={saveItems} disabled={busy} className={btnSolid}><Save size={11} /> {busy ? 'Saving…' : 'Update order'}</button>
+                  <button onClick={() => setEditing(false)} className={btnGhost}>Cancel</button>
+                </div>
               )}
-              {c.email && <a href={`mailto:${c.email}`} className="inline-flex items-center gap-1 rounded-full border border-neutral-200 bg-white px-2.5 py-1.5 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50"><Mail size={10} /> Email</a>}
             </div>
           </div>
+        )}
 
-          {/* Address */}
-          <div className="rounded-2xl border border-neutral-200 bg-white p-5">
-            <div className="flex items-center gap-2 mb-3">
-              <MapPin size={13} className="text-neutral-500" />
-              <p className="text-[13px] font-bold uppercase tracking-wider text-neutral-400">Delivery address</p>
-            </div>
-            <p className="text-[12px] leading-relaxed text-neutral-900">{c.address}</p>
-            <p className="mt-1 text-[12px] font-medium text-neutral-600">{c.city}, {c.province}{c.postalCode ? ` — ${c.postalCode}` : ''}</p>
-            {c.location?.lat != null && (
-              <a href={c.location.mapsLink || `https://www.google.com/maps?q=${c.location.lat},${c.location.lng}`} target="_blank" rel="noreferrer"
-                className="mt-3 inline-flex items-center gap-1 rounded-full bg-blue-50 px-3 py-1.5 text-[13px] font-bold text-blue-700 ring-1 ring-blue-200 hover:bg-blue-100">
-                📍 Open in Maps
-              </a>
+        {tab === 'timeline' && (
+          <div className="py-6">
+            {(o.statusHistory || []).length === 0 ? (
+              <p className="py-10 text-center text-[12px] text-white/35">No status history recorded.</p>
+            ) : (
+              <div className="space-y-4">
+                {(o.statusHistory || []).slice().reverse().map((h, i) => (
+                  <div key={i} className="flex items-start gap-3">
+                    <span className={`mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full ${i === 0 ? 'bg-white' : 'bg-white/25'}`} />
+                    <div>
+                      <p className="text-[13px] text-white">{h.status}</p>
+                      <p className="text-[11px] text-white/35">{fmtDateTime(h.at)}</p>
+                      {h.note && <p className="mt-0.5 text-[12px] italic text-white/50">“{h.note}”</p>}
+                    </div>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
+        )}
 
-          {/* Payment */}
-          <div className="rounded-2xl border border-neutral-200 bg-white p-5">
-            <div className="flex items-center gap-2 mb-3">
-              <Banknote size={13} className="text-neutral-500" />
-              <p className="text-[13px] font-bold uppercase tracking-wider text-neutral-400">Payment</p>
-            </div>
-            <div className="space-y-2 text-[12px]">
-              <div className="flex justify-between"><span className="text-neutral-500">Method</span><span className="font-semibold">{o.paymentMethod}</span></div>
-              <div className="flex justify-between"><span className="text-neutral-500">Status</span><span className="font-semibold">{o.paymentStatus}</span></div>
-              {o.transactionId && <div className="flex justify-between"><span className="text-neutral-500">Txn ID</span><span className="font-mono text-[12px]">{o.transactionId.slice(0, 16)}…</span></div>}
-              <div className="flex justify-between"><span className="text-neutral-500">Packaging</span><span className="font-semibold">{o.discreetPackaging ? 'Discreet' : 'Standard'}</span></div>
-            </div>
+        {tab === 'tracking' && (
+          <div className="py-6">
+            {o.trackingNumber ? (
+              <div className="space-y-5">
+                <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                  <div>
+                    <p className="adm-label">Tracking number</p>
+                    <p className="mt-1 font-mono text-[14px] text-white">{o.trackingNumber}</p>
+                  </div>
+                  <button onClick={() => navigator.clipboard?.writeText(o.trackingNumber)} className={btnIcon} aria-label="Copy tracking"><Copy size={13} /></button>
+                </div>
+                {o.courierName && (
+                  <div>
+                    <p className="adm-label">Courier</p>
+                    <p className="mt-1 text-[13px] text-white">{o.courierName}</p>
+                  </div>
+                )}
+                {o.trackingUrl && (
+                  <a href={o.trackingUrl} target="_blank" rel="noreferrer" className={btnSolid}>
+                    Track online <ExternalLink size={10} />
+                  </a>
+                )}
+              </div>
+            ) : (
+              <div className="py-10 text-center">
+                <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-white/70">No tracking info yet</p>
+                <p className="mt-2 text-[12px] text-white/35">Add a tracking number when the order ships.</p>
+              </div>
+            )}
           </div>
-        </div>
-      </div>
+        )}
+      </section>
     </AdminLayout>
   );
 }

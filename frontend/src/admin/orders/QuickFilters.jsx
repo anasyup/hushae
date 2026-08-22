@@ -1,23 +1,17 @@
 import { useEffect, useState } from 'react';
-import {
-  AlertOctagon, Banknote, BookmarkPlus, Clock, Gem, Loader2, PackageCheck, Star, Trash2, X,
-} from 'lucide-react';
+import { Loader2, X } from 'lucide-react';
 import { api } from '../../api/client';
 
-/* ============================================================================
- * Quick filters and saved views.
- *
- * Presets are one-click answers to the questions the desk asks all day.
- * Saved views are whatever combination the merchant builds themselves, stored
- * server-side so the whole team gets them and a URL can be shared.
+/* ===========================================================================
+ * Quick filters and saved views — editorial text controls, not pills.
  * ========================================================================== */
 
 const PRESETS = [
-  { key: 'needs-attention', label: 'Needs attention', icon: AlertOctagon, hint: 'Payment not verified yet' },
-  { key: 'ready-to-ship',   label: 'Ready to ship',   icon: PackageCheck, hint: 'Packed and payment settled' },
-  { key: 'high-value',      label: 'High value',      icon: Gem,          hint: 'PKR 50,000 and above' },
-  { key: 'delayed',         label: 'Delayed',         icon: Clock,        hint: 'Stuck in one stage over 24h' },
-  { key: 'problem',         label: 'Problem orders',  icon: AlertOctagon, hint: 'An issue is open' },
+  { key: 'needs-attention', label: 'Needs attention', hint: 'Payment not verified yet' },
+  { key: 'ready-to-ship',   label: 'Ready to ship',   hint: 'Packed and payment settled' },
+  { key: 'high-value',      label: 'High value',      hint: 'PKR 50,000 and above' },
+  { key: 'delayed',         label: 'Delayed',         hint: 'Stuck in one stage over 24h' },
+  { key: 'problem',         label: 'Problem orders',  hint: 'An issue is open' },
 ];
 
 export default function QuickFilters({ filters, setFilter, token, currentQuery, toast }) {
@@ -72,54 +66,57 @@ export default function QuickFilters({ filters, setFilter, token, currentQuery, 
     } catch { /* noop */ }
   };
 
+  const tabCls = (on) =>
+    `text-[10px] font-medium uppercase tracking-[0.14em] transition-colors ${
+      on ? 'text-white' : 'text-white/35 hover:text-white/75'
+    }`;
+
   return (
-    <div className="flex flex-wrap items-center gap-1.5">
+    <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
       {PRESETS.map((p) => {
         const on = active === p.key;
         return (
           <button key={p.key} title={p.hint} aria-pressed={on}
             onClick={() => setFilter({ preset: on ? '' : p.key })}
-            className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[12px] font-medium transition ${
-              on ? 'border-neutral-900 bg-neutral-900 text-white'
-                 : 'border-neutral-200 bg-white text-neutral-600 hover:border-neutral-400'}`}>
-            <p.icon size={12} /> {p.label}
+            className={tabCls(on)}>
+            {p.label}
           </button>
         );
       })}
 
-      {views.length > 0 && <span className="mx-1 h-5 w-px bg-neutral-200" />}
+      {views.length > 0 && <span className="h-3 w-px bg-white/15" />}
 
       {views.map((v) => (
-        <span key={v._id} className="group relative">
+        <span key={v._id} className="group inline-flex items-center gap-1">
           <button onClick={() => applyView(v)} title={v.ownerName ? `Saved by ${v.ownerName}` : 'Saved view'}
-            className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white py-1.5 pl-3 pr-7 text-[12px] font-medium text-neutral-600 transition hover:border-neutral-400">
-            <Star size={11} className="text-amber-500" fill="currentColor" /> {v.name}
+            className="text-[10px] font-medium uppercase tracking-[0.14em] text-white/40 hover:text-white">
+            {v.name}
           </button>
           <button onClick={(e) => removeView(v, e)} aria-label={`Delete ${v.name}`}
-            className="absolute right-1.5 top-1/2 hidden -translate-y-1/2 text-neutral-300 hover:text-red-600 group-hover:block">
-            <Trash2 size={11} />
+            className="hidden text-white/25 hover:text-white group-hover:inline">
+            <X size={10} />
           </button>
         </span>
       ))}
 
       {naming ? (
-        <span className="inline-flex items-center gap-1 rounded-full border border-neutral-900 bg-white py-1 pl-3 pr-1">
+        <span className="inline-flex items-center gap-1.5 border-b border-white/30 py-0.5">
           <input autoFocus value={name} onChange={(e) => setName(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') saveView(); if (e.key === 'Escape') { setNaming(false); setName(''); } }}
-            placeholder="Name this view" className="w-32 text-[12px] outline-none" />
+            placeholder="Name this view" className="w-32 bg-transparent text-[12px] text-white outline-none placeholder:text-white/30" />
           <button onClick={saveView} disabled={saving || !name.trim()}
-            className="rounded-full bg-neutral-900 px-2.5 py-1 text-[13px] font-semibold text-white disabled:opacity-40">
+            className="text-[10px] font-medium uppercase tracking-[0.12em] text-white disabled:opacity-40">
             {saving ? <Loader2 size={11} className="animate-spin" /> : 'Save'}
           </button>
           <button onClick={() => { setNaming(false); setName(''); }} aria-label="Cancel"
-            className="grid h-6 w-6 place-items-center text-neutral-400 hover:text-neutral-900">
-            <X size={12} />
+            className="text-white/35 hover:text-white">
+            <X size={11} />
           </button>
         </span>
       ) : (
         <button onClick={() => setNaming(true)} title="Save the current filters as a named view"
-          className="inline-flex items-center gap-1.5 rounded-full border border-dashed border-neutral-300 px-3 py-1.5 text-[12px] font-medium text-neutral-500 transition hover:border-neutral-400 hover:text-neutral-900">
-          <BookmarkPlus size={12} /> Save view
+          className="text-[10px] font-medium uppercase tracking-[0.14em] text-white/30 hover:text-white/70">
+          + Save view
         </button>
       )}
     </div>

@@ -18,6 +18,7 @@ export const DEFAULTS = {
   group: 'new', stage: '', status: '', paymentMethod: 'all', paymentState: 'all',
   q: '', from: '', to: '', minTotal: '', maxTotal: '', city: 'all',
   printed: '', hasIssue: '', sort: 'oldest', page: '1', limit: '50',
+  preset: '',
 };
 
 /** Read filters out of the URL, falling back to the defaults. */
