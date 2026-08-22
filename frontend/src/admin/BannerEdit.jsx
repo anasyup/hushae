@@ -94,23 +94,28 @@ export default function BannerEdit() {
   ), [f]);
 
   if (!loaded) {
-    return <AdminLayout title="Banner editor"><div className="grid h-96 place-items-center"><Loader2 size={22} className="animate-spin text-neutral-300" /></div></AdminLayout>;
+    return <AdminLayout title="Banner editor"><div className="h-96 animate-pulse bg-white/5" /></AdminLayout>;
   }
 
   return (
     <AdminLayout title={isNew ? 'New banner' : 'Edit banner'}>
-      <div className="mb-5 flex items-center justify-between">
-        <Link to="/admin/banners" className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-neutral-500 hover:text-neutral-900"><ArrowLeft size={14} /> All banners</Link>
-        <button onClick={save} disabled={saving} className="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-5 py-2 text-[13px] font-semibold text-white hover:bg-black disabled:opacity-50">
-          {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />} {isNew ? 'Create banner' : 'Save changes'}
-        </button>
-      </div>
+      <PageHeader
+        title={isNew ? 'New banner' : (f.name || 'Edit banner')}
+        description="Content, assignment and schedule."
+        actions={(
+          <>
+            <Link to="/admin/banners" className={btnGhost}><ArrowLeft size={12} /> Back</Link>
+            <button type="button" onClick={save} disabled={saving} className={btnSolid}>
+              {saving ? <Loader2 size={12} className="animate-spin" /> : <Save size={12} />} {isNew ? 'Create banner' : 'Save changes'}
+            </button>
+          </>
+        )}
+      />
 
-      {/* Tabs */}
-      <div className="mb-5 flex gap-1 border-b border-neutral-200">
+      <div className="mb-8 flex gap-5 border-b border-white/10">
         {[['content', 'Content'], ['assignment', 'Assignment'], ['schedule', 'Schedule'], ['analytics', 'Analytics']].map(([k, l]) => (
-          <button key={k} onClick={() => setTab(k)}
-            className={`-mb-px border-b-2 px-4 py-2.5 text-[13px] font-semibold transition ${tab === k ? 'border-neutral-900 text-neutral-900' : 'border-transparent text-neutral-400 hover:text-neutral-700'}`}>
+          <button key={k} type="button" onClick={() => setTab(k)}
+            className={`-mb-px border-b py-2.5 text-[10px] font-medium uppercase tracking-[0.16em] ${tab === k ? 'border-white text-white' : 'border-transparent text-white/35 hover:text-white/70'}`}>
             {l}
           </button>
         ))}
@@ -120,16 +125,16 @@ export default function BannerEdit() {
         <div className="space-y-5">
           {tab === 'content' && (
             <>
-              <div className="rounded-2xl border border-neutral-200 bg-white p-5">
+              <div className="border-y border-white/10 py-6">
                 <label className={labelCls}>Banner name *</label>
                 <input className={inputCls} value={f.name} onChange={(e) => set('name', e.target.value)} placeholder="e.g. Winter Sale — Homepage" />
               </div>
-              <div className="rounded-2xl border border-neutral-200 bg-white p-5">
+              <div className="border-y border-white/10 py-6">
                 <label className={labelCls}>Type</label>
                 <div className="flex gap-2">
                   {['image', 'video', 'html'].map((t) => (
                     <button key={t} onClick={() => set('type', t)}
-                      className={`rounded-full px-4 py-2 text-[12px] font-bold uppercase tracking-wide transition ${f.type === t ? 'bg-neutral-900 text-white' : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'}`}>
+                      className={`px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.14em] ${f.type === t ? 'bg-white text-black' : 'border border-white/20 text-white/50'}`}>
                       {t}
                     </button>
                   ))}
@@ -138,7 +143,7 @@ export default function BannerEdit() {
                   <div className="mt-4">
                     <label className={labelCls}>Image</label>
                     <MediaPicker value={f.mediaUrl} onChange={(url) => set('mediaUrl', url)} />
-                    <p className="mt-1.5 text-[11px] text-neutral-400">Recommended {f.slot ? (slots.find((s) => s._id === f.slot)?.width || 1920) + '×' + (slots.find((s) => s._id === f.slot)?.height || 800) : '1920×800'}.</p>
+                    <p className="mt-1.5 text-[11px] text-white/30">Recommended {f.slot ? (slots.find((s) => s._id === f.slot)?.width || 1920) + '×' + (slots.find((s) => s._id === f.slot)?.height || 800) : '1920×800'}.</p>
                   </div>
                 )}
                 {f.type === 'video' && (
@@ -148,7 +153,7 @@ export default function BannerEdit() {
                   <div className="mt-4"><label className={labelCls}>HTML</label><textarea className={`${inputCls} min-h-28 font-mono`} value={f.html} onChange={(e) => set('html', e.target.value)} placeholder="<div>…</div>" /></div>
                 )}
               </div>
-              <div className="rounded-2xl border border-neutral-200 bg-white p-5">
+              <div className="border-y border-white/10 py-6">
                 <label className={labelCls}>Overlay text</label>
                 <div className="grid gap-3 sm:grid-cols-2">
                   <div><label className={labelCls}>Heading</label><input className={inputCls} value={f.heading} onChange={(e) => set('heading', e.target.value)} placeholder="Winter Sale" /></div>
@@ -164,7 +169,7 @@ export default function BannerEdit() {
                   <div>
                     <label className={labelCls}>Text colour</label>
                     <div className="flex items-center gap-2">
-                      <input type="color" className="h-10 w-12 cursor-pointer rounded-lg border border-neutral-200" value={f.textColor} onChange={(e) => set('textColor', e.target.value)} />
+                      <input type="color" className="h-8 w-10 cursor-pointer border border-white/20 bg-transparent" value={f.textColor} onChange={(e) => set('textColor', e.target.value)} />
                       <input className={inputCls} value={f.textColor} onChange={(e) => set('textColor', e.target.value)} />
                     </div>
                   </div>
@@ -178,7 +183,7 @@ export default function BannerEdit() {
           )}
 
           {tab === 'assignment' && (
-            <div className="rounded-2xl border border-neutral-200 bg-white p-5">
+            <div className="border-y border-white/10 py-6">
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="sm:col-span-2">
                   <label className={labelCls}>Slot *</label>
@@ -190,7 +195,7 @@ export default function BannerEdit() {
                 <div>
                   <label className={labelCls}>Priority (1–10)</label>
                   <input type="number" min="1" max="10" className={inputCls} value={f.priority} onChange={(e) => set('priority', Number(e.target.value) || 5)} />
-                  <p className="mt-1 text-[11px] text-neutral-400">Higher shows first when multiple banners share a slot.</p>
+                  <p className="mt-1 text-[11px] text-white/30">Higher shows first when multiple banners share a slot.</p>
                 </div>
                 <div>
                   <label className={labelCls}>Device targeting</label>
@@ -203,10 +208,10 @@ export default function BannerEdit() {
           )}
 
           {tab === 'schedule' && (
-            <div className="rounded-2xl border border-neutral-200 bg-white p-5">
-              <label className="mb-3 flex cursor-pointer items-center gap-3 rounded-xl border border-neutral-200 p-4">
+            <div className="border-y border-white/10 py-6">
+              <label className="mb-4 flex cursor-pointer items-center gap-3 border border-white/15 px-4 py-3">
                 <input type="checkbox" checked={f.alwaysActive} onChange={(e) => set('alwaysActive', e.target.checked)} className="h-4 w-4 accent-neutral-900" />
-                <span className="text-[13px] font-semibold text-neutral-800">Always active (no start/end)</span>
+                <span className="text-[13px] text-white/80">Always active (no start/end)</span>
               </label>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
@@ -223,26 +228,26 @@ export default function BannerEdit() {
                 <div className="flex gap-2">
                   {['draft', 'active', 'archived'].map((st) => (
                     <button key={st} onClick={() => set('status', st)}
-                      className={`rounded-full px-4 py-2 text-[12px] font-bold uppercase tracking-wide transition ${f.status === st ? 'bg-neutral-900 text-white' : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'}`}>
+                      className={`px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.14em] ${f.status === st ? 'bg-white text-black' : 'border border-white/20 text-white/50'}`}>
                       {st}
                     </button>
                   ))}
                 </div>
-                <p className="mt-2 text-[11px] text-neutral-400">Draft = hidden. Active = eligible to show (respects schedule + device). Archived = hidden.</p>
+                <p className="mt-2 text-[11px] text-white/30">Draft = hidden. Active = eligible to show (respects schedule + device). Archived = hidden.</p>
               </div>
             </div>
           )}
 
           {tab === 'analytics' && (
-            <div className="rounded-2xl border border-neutral-200 bg-white p-5">
+            <div className="border-y border-white/10 py-6">
               {isNew ? (
-                <p className="py-8 text-center text-[13px] text-neutral-400">Analytics appear after the banner has been live. Save it first.</p>
+                <p className="py-8 text-center text-[13px] text-white/35">Analytics appear after the banner has been live. Save it first.</p>
               ) : (
                 <div className="grid grid-cols-3 gap-4">
                   {[['Impressions', f.impressions?.toLocaleString()], ['Clicks', f.clicks?.toLocaleString()], ['CTR', `${ctr}%`]].map(([l, v]) => (
-                    <div key={l} className="rounded-xl border border-neutral-200 p-4 text-center">
-                      <p className="text-[22px] font-bold tabular-nums text-neutral-900">{v}</p>
-                      <p className="mt-1 text-[11px] font-bold uppercase tracking-wider text-neutral-400">{l}</p>
+                    <div key={l} className="border-y border-white/10 py-4 text-center">
+                      <p className="adm-metric text-[22px] text-white">{v}</p>
+                      <p className="adm-label mt-1">{l}</p>
                     </div>
                   ))}
                 </div>
@@ -253,9 +258,9 @@ export default function BannerEdit() {
 
         {/* Preview */}
         <div className="space-y-3">
-          <p className="flex items-center gap-1.5 text-[12px] font-bold uppercase tracking-wider text-neutral-500"><Eye size={13} /> Live preview</p>
+          <p className="adm-label flex items-center gap-1.5"><Eye size={13} /> Live preview</p>
           {preview}
-          <p className="text-[11px] text-neutral-400">Text position, colour and overlay opacity are reflected here.</p>
+          <p className="text-[11px] text-white/30">Text position, colour and overlay opacity are reflected here.</p>
         </div>
       </div>
     </AdminLayout>

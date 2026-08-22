@@ -1,12 +1,22 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, BadgePercent, Play, Save, Trash2 } from 'lucide-react';
+import { ArrowLeft, Play, Save, Trash2 } from 'lucide-react';
 import { api } from '../api/client';
 import { useApp } from '../store/AppContext';
 import AdminLayout from './AdminLayout';
+import PageHeader from './components/PageHeader';
 import { Accordion, DateTime, Num, Section, Select, Text, Toggle } from './ui/Controls';
 import { DAYS, EMPTY_PROMO, PROMO_TYPES, hasField, minToTime, timeToMin, typeOf } from './promotions/promoTypes';
 import PromoPreview from './promotions/PromoPreview';
+import { btnGhost, btnSolid, ctl } from './orders/orderUi';
+
+const ESection = (p) => <Section variant="editorial" {...p} />;
+const EToggle = (p) => <Toggle variant="editorial" {...p} />;
+const ENum = (p) => <Num variant="editorial" {...p} />;
+const EText = (p) => <Text variant="editorial" {...p} />;
+const ESelect = (p) => <Select variant="editorial" {...p} />;
+const EDateTime = (p) => <DateTime variant="editorial" {...p} />;
+const EAccordion = (p) => <Accordion variant="editorial" {...p} />;
 
 /* ============================================================================
  * PROMOTION BUILDER — create and edit.
@@ -55,7 +65,7 @@ export default function PromotionEdit() {
 
   const dirty = useMemo(() => original && JSON.stringify(p) !== original, [p, original]);
 
-  if (!p) return <AdminLayout title="Promotion"><div className="animate-pulse rounded-xl bg-neutral-100 h-96 w-full" /></AdminLayout>;
+  if (!p) return <AdminLayout title="Promotion"><div className="h-96 animate-pulse bg-white/5" /></AdminLayout>;
 
   const t = typeOf(p.type);
   const set = (k, v) => setP({ ...p, [k]: v });
@@ -124,40 +134,24 @@ export default function PromotionEdit() {
 
   return (
     <AdminLayout title={isNew ? 'New promotion' : p.name || 'Promotion'}>
-      <Link to="/admin/promotions" className="mb-4 -ml-1 inline-flex min-h-[44px] items-center gap-1.5 px-1 text-[12px] font-semibold text-neutral-600 transition hover:text-neutral-900">
-        <ArrowLeft size={13} /> Promotions
-      </Link>
-
-      <div className="mb-6 flex flex-wrap items-start justify-between gap-3 border-b border-neutral-200 pb-6">
-        <div className="flex items-start gap-4">
-          <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-neutral-900 text-white">
-            <BadgePercent size={20} strokeWidth={1.8} />
-          </span>
-          <div className="min-w-0">
-            <h2 className="font-sans text-2xl leading-tight text-neutral-900">
-              {isNew ? 'New promotion' : p.name || 'Promotion'}
-            </h2>
-            <p className="mt-1 text-[13px] leading-relaxed text-neutral-600">{t.help}</p>
-          </div>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <button type="button" onClick={() => setPreviewOpen(true)} className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-neutral-300 px-3 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50">
-            <Play size={13} /> Test it
-          </button>
-          {!isNew && (
-            <button type="button" onClick={remove} className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-red-200 px-3 text-[12px] font-semibold text-red-600 transition hover:bg-red-50">
-              <Trash2 size={13} /> Delete
+      <PageHeader
+        title={isNew ? 'New promotion' : p.name || 'Promotion'}
+        description={t.help}
+        actions={(
+          <>
+            <Link to="/admin/promotions" className={btnGhost}><ArrowLeft size={12} /> Back</Link>
+            <button type="button" onClick={() => setPreviewOpen(true)} className={btnGhost}><Play size={12} /> Test</button>
+            {!isNew && <button type="button" onClick={remove} className={btnGhost}><Trash2 size={12} /> Delete</button>}
+            <button type="button" onClick={save} disabled={busy || problems.length > 0} className={btnSolid}>
+              <Save size={12} /> {busy ? 'Saving…' : isNew ? 'Create' : 'Save'}
             </button>
-          )}
-          <button type="button" onClick={save} disabled={busy || problems.length > 0} className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg bg-neutral-900 px-4 text-[12px] font-semibold text-white transition hover:bg-neutral-800 disabled:opacity-50">
-            <Save size={13} /> {busy ? 'Saving…' : isNew ? 'Create' : 'Save'}
-          </button>
-        </div>
-      </div>
+          </>
+        )}
+      />
 
       {(problems.length > 0 || errs.length > 0) && (
-        <div role="alert" className="mb-5 rounded-2xl border border-amber-300 bg-amber-50 p-4">
-          <ul className="list-disc space-y-1 pl-5 text-[12px] leading-relaxed text-amber-900">
+        <div role="alert" className="mb-8 border-y border-white/15 py-4">
+          <ul className="list-disc space-y-1 pl-5 text-[12px] leading-relaxed text-white/60">
             {problems.map((x) => <li key={x}>{x}</li>)}
             {errs.map((x, i) => <li key={i}>{x.message}</li>)}
           </ul>
@@ -166,13 +160,13 @@ export default function PromotionEdit() {
 
       <div className="space-y-5">
         {/* ---- basics ---- */}
-        <Section title="The basics">
+        <ESection title="The basics">
           <div className="grid gap-4 md:grid-cols-2">
-            <Text label="Name (only you see this)" value={p.name} onChange={(v) => set('name', v)} placeholder="e.g. Eid weekend 20%" />
-            <Text label="Label shown to customers" value={p.publicLabel} onChange={(v) => set('publicLabel', v)} hint="Leave blank to apply the discount silently." />
+            <EText label="Name (only you see this)" value={p.name} onChange={(v) => set('name', v)} placeholder="e.g. Eid weekend 20%" />
+            <EText label="Label shown to customers" value={p.publicLabel} onChange={(v) => set('publicLabel', v)} hint="Leave blank to apply the discount silently." />
           </div>
           <div className="mt-4">
-            <Text label="Private note" value={p.internalNote} onChange={(v) => set('internalNote', v)} hint="Why this exists, for whoever reads it in six months." />
+            <EText label="Private note" value={p.internalNote} onChange={(v) => set('internalNote', v)} hint="Why this exists, for whoever reads it in six months." />
           </div>
 
           <div className="mt-5">
@@ -182,47 +176,47 @@ export default function PromotionEdit() {
                 <button
                   key={x.id} type="button" role="radio" aria-checked={p.type === x.id}
                   onClick={() => set('type', x.id)}
-                  className={`min-h-[44px] rounded-xl border px-4 py-3 text-left transition ${p.type === x.id ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-200 bg-white hover:border-neutral-300'}`}
+                  className={`min-h-[44px] border px-4 py-3 text-left transition ${p.type === x.id ? 'border-white bg-white text-black' : 'border-white/20 text-white/70 hover:border-white/40'}`}
                 >
                   <span className="block text-[13px] font-semibold">{x.label}</span>
-                  <span className={`mt-0.5 block text-[12px] ${p.type === x.id ? 'text-white/70' : 'text-neutral-600'}`}>{x.example}</span>
+                  <span className={`mt-0.5 block text-[12px] ${p.type === x.id ? 'text-black/50' : 'text-white/35'}`}>{x.example}</span>
                 </button>
               ))}
             </div>
           </div>
 
           <div className="mt-5">
-            <Toggle
+            <EToggle
               label="Switch this promotion on"
               description="Off means it is saved but does nothing. Everything is created switched off."
               checked={p.enabled}
               onChange={(v) => set('enabled', v)}
             />
           </div>
-        </Section>
+        </ESection>
 
         {/* ---- the reward ---- */}
-        <Section title="The reward" description="What the customer actually gets.">
+        <ESection title="The reward" description="What the customer actually gets.">
           {hasField(p.type, 'discountPercent') && (
             <div className="grid gap-4 md:grid-cols-2">
-              <Num label="Percentage off" value={p.discountPercent} onChange={(v) => set('discountPercent', v)} min="0" max="100" />
-              <Num label="Never take off more than (PKR)" value={p.maxDiscount} onChange={(v) => set('maxDiscount', v)} min="0" hint="0 = no ceiling. Stops 50% off a large basket becoming a giveaway." />
+              <ENum label="Percentage off" value={p.discountPercent} onChange={(v) => set('discountPercent', v)} min="0" max="100" />
+              <ENum label="Never take off more than (PKR)" value={p.maxDiscount} onChange={(v) => set('maxDiscount', v)} min="0" hint="0 = no ceiling. Stops 50% off a large basket becoming a giveaway." />
             </div>
           )}
           {hasField(p.type, 'discountFixed') && (
             <div className="grid gap-4 md:grid-cols-2">
-              <Num label="Amount off (PKR)" value={p.discountFixed} onChange={(v) => set('discountFixed', v)} min="0" />
+              <ENum label="Amount off (PKR)" value={p.discountFixed} onChange={(v) => set('discountFixed', v)} min="0" />
             </div>
           )}
 
           {hasField(p.type, 'bxgy') && (
             <div className="grid gap-4 md:grid-cols-2">
-              <Num label="Customer buys" value={p.bxgy.buyQty} onChange={(v) => setG('bxgy', 'buyQty', v)} min="1" max="20" />
-              <Num label="…and gets this many" value={p.bxgy.getQty} onChange={(v) => setG('bxgy', 'getQty', v)} min="1" max="20" />
-              <Num label="Discount on the free items (%)" value={p.bxgy.getPercent} onChange={(v) => setG('bxgy', 'getPercent', v)} min="1" max="100" hint="100 means completely free." />
-              <Num label="Most times one order can claim it" value={p.bxgy.maxPerOrder} onChange={(v) => setG('bxgy', 'maxPerOrder', v)} min="0" max="20" hint="0 = unlimited." />
+              <ENum label="Customer buys" value={p.bxgy.buyQty} onChange={(v) => setG('bxgy', 'buyQty', v)} min="1" max="20" />
+              <ENum label="…and gets this many" value={p.bxgy.getQty} onChange={(v) => setG('bxgy', 'getQty', v)} min="1" max="20" />
+              <ENum label="Discount on the free items (%)" value={p.bxgy.getPercent} onChange={(v) => setG('bxgy', 'getPercent', v)} min="1" max="100" hint="100 means completely free." />
+              <ENum label="Most times one order can claim it" value={p.bxgy.maxPerOrder} onChange={(v) => setG('bxgy', 'maxPerOrder', v)} min="0" max="20" hint="0 = unlimited." />
               <div className="md:col-span-2">
-                <Toggle
+                <EToggle
                   label="Discount the cheapest qualifying item"
                   description="Strongly recommended. Giving away the most expensive item can cost more than the two being bought."
                   checked={p.bxgy.cheapestFree}
@@ -234,22 +228,22 @@ export default function PromotionEdit() {
 
           {hasField(p.type, 'bundle') && (
             <>
-              <p className="mb-3 text-[12px] leading-relaxed text-neutral-600">
+              <p className="mb-3 text-[12px] leading-relaxed text-white/40">
                 Paste the product IDs that make up the bundle, one per line. You can copy an ID
                 from the address bar on any product page in Inventory.
               </p>
-              <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500" htmlFor="bundle-ids">Products in the bundle</label>
+              <label className="adm-label mb-1.5 block" htmlFor="bundle-ids">Products in the bundle</label>
               <textarea
-                id="bundle-ids" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 min-h-[96px] font-mono text-[12px]"
+                id="bundle-ids" className={`${ctl} min-h-[96px] !h-auto py-2 font-mono`}
                 value={(p.bundle.productIds || []).join('\n')}
                 onChange={(e) => setG('bundle', 'productIds', e.target.value.split('\n').map((x) => x.trim()).filter(Boolean))}
               />
               <div className="mt-4 grid gap-4 md:grid-cols-2">
-                <Num label="Bundle price (PKR)" value={p.bundle.bundlePrice} onChange={(v) => setG('bundle', 'bundlePrice', v)} min="0" hint="0 = use the percentage above instead." />
-                <Num label="Fewest of them needed" value={p.bundle.minItems} onChange={(v) => setG('bundle', 'minItems', v)} min="1" disabled={p.bundle.requireAll} />
+                <ENum label="Bundle price (PKR)" value={p.bundle.bundlePrice} onChange={(v) => setG('bundle', 'bundlePrice', v)} min="0" hint="0 = use the percentage above instead." />
+                <ENum label="Fewest of them needed" value={p.bundle.minItems} onChange={(v) => setG('bundle', 'minItems', v)} min="1" disabled={p.bundle.requireAll} />
               </div>
               <div className="mt-4">
-                <Toggle label="All of them must be in the basket" checked={p.bundle.requireAll} onChange={(v) => setG('bundle', 'requireAll', v)} />
+                <EToggle label="All of them must be in the basket" checked={p.bundle.requireAll} onChange={(v) => setG('bundle', 'requireAll', v)} />
               </div>
             </>
           )}
@@ -258,17 +252,17 @@ export default function PromotionEdit() {
             <>
               <div className="space-y-2">
                 {(p.tiers || []).map((tier, i) => (
-                  <div key={i} className="flex flex-wrap items-end gap-3 rounded-xl border border-neutral-200 p-3">
+                  <div key={i} className="flex flex-wrap items-end gap-3 border-b border-white/10 py-3">
                     <div className="min-w-[140px] flex-1">
-                      <Num label="Spend at least (PKR)" value={tier.minSubtotal} onChange={(v) => set('tiers', p.tiers.map((x, j) => (j === i ? { ...x, minSubtotal: v } : x)))} min="0" />
+                      <ENum label="Spend at least (PKR)" value={tier.minSubtotal} onChange={(v) => set('tiers', p.tiers.map((x, j) => (j === i ? { ...x, minSubtotal: v } : x)))} min="0" />
                     </div>
                     <div className="min-w-[110px] flex-1">
-                      <Num label="Save (%)" value={tier.percent} onChange={(v) => set('tiers', p.tiers.map((x, j) => (j === i ? { ...x, percent: v } : x)))} min="0" max="100" />
+                      <ENum label="Save (%)" value={tier.percent} onChange={(v) => set('tiers', p.tiers.map((x, j) => (j === i ? { ...x, percent: v } : x)))} min="0" max="100" />
                     </div>
                     <button
                       type="button" onClick={() => set('tiers', p.tiers.filter((_, j) => j !== i))}
                       aria-label={`Remove tier ${i + 1}`}
-                      className="grid h-11 w-11 place-items-center rounded-lg text-red-600 transition hover:bg-red-50"
+                      className="grid h-11 w-11 place-items-center text-white/35 hover:text-white"
                     >
                       <Trash2 size={14} />
                     </button>
@@ -278,7 +272,7 @@ export default function PromotionEdit() {
               <button
                 type="button"
                 onClick={() => set('tiers', [...(p.tiers || []), { minSubtotal: 0, percent: 0, fixed: 0 }])}
-                className="mt-3 inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-neutral-300 px-3 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50"
+                className={btnGhost}
               >
                 Add a tier
               </button>
@@ -286,17 +280,17 @@ export default function PromotionEdit() {
           )}
 
           {p.type === 'freeship' && (
-            <p className="rounded-xl bg-neutral-50 px-4 py-3 text-[12px] leading-relaxed text-neutral-600">
+            <p className="text-[12px] leading-relaxed text-white/40">
               The delivery charge is waived whenever this promotion applies. Use the conditions
               below to decide who gets it — first orders only, a minimum spend, and so on.
             </p>
           )}
-        </Section>
+        </ESection>
 
         {/* ---- what it applies to ---- */}
         {hasField(p.type, 'scope') && (
-          <Section title="What it applies to">
-            <Select
+          <ESection title="What it applies to">
+            <ESelect
               label="Apply to"
               value={p.scope.mode}
               onChange={(v) => setG('scope', 'mode', v)}
@@ -310,7 +304,7 @@ export default function PromotionEdit() {
                   {cats.map((c) => {
                     const on = (p.scope.categorySlugs || []).includes(c.slug);
                     return (
-                      <label key={c.slug} className={`inline-flex min-h-[44px] cursor-pointer items-center gap-2 rounded-full border px-4 text-[12px] font-medium transition ${on ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-50'}`}>
+                      <label key={c.slug} className={`inline-flex min-h-[44px] cursor-pointer items-center gap-2 border px-4 text-[12px] font-medium transition ${on ? 'border-white bg-white text-black' : 'border-white/20 text-white/60 hover:border-white/40'}`}>
                         <input
                           type="checkbox" checked={on} className="sr-only"
                           onChange={() => setG('scope', 'categorySlugs', on
@@ -327,7 +321,7 @@ export default function PromotionEdit() {
 
             {p.scope.mode === 'tags' && (
               <div className="mt-4">
-                <Text
+                <EText
                   label="Tags (comma separated)"
                   value={(p.scope.tags || []).join(', ')}
                   onChange={(v) => setG('scope', 'tags', v.split(',').map((x) => x.trim().toLowerCase()).filter(Boolean))}
@@ -338,7 +332,7 @@ export default function PromotionEdit() {
 
             {p.scope.mode === 'rules' && (
               <div className="mt-4 grid gap-4 md:grid-cols-2">
-                <Select
+                <ESelect
                   label="Gender" value={p.scope.gender} onChange={(v) => setG('scope', 'gender', v)}
                   options={[{ value: '', label: 'Both' }, { value: 'women', label: 'Women' }, { value: 'men', label: 'Men' }]}
                 />
@@ -348,7 +342,7 @@ export default function PromotionEdit() {
                     {['Economy', 'Standard', 'Premium'].map((tier) => {
                       const on = (p.scope.tiers || []).includes(tier);
                       return (
-                        <label key={tier} className={`inline-flex min-h-[44px] cursor-pointer items-center gap-2 rounded-full border px-4 text-[12px] font-medium transition ${on ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-50'}`}>
+                        <label key={tier} className={`inline-flex min-h-[44px] cursor-pointer items-center gap-2 border px-4 text-[12px] font-medium transition ${on ? 'border-white bg-white text-black' : 'border-white/20 text-white/60 hover:border-white/40'}`}>
                           <input
                             type="checkbox" checked={on} className="sr-only"
                             onChange={() => setG('scope', 'tiers', on ? p.scope.tiers.filter((x) => x !== tier) : [...(p.scope.tiers || []), tier])}
@@ -359,31 +353,31 @@ export default function PromotionEdit() {
                     })}
                   </div>
                 </div>
-                <Num label="Only products above (PKR)" value={p.scope.minPrice ?? 0} onChange={(v) => setG('scope', 'minPrice', v || null)} min="0" />
-                <Num label="Only products below (PKR)" value={p.scope.maxPrice ?? 0} onChange={(v) => setG('scope', 'maxPrice', v || null)} min="0" hint="0 = no limit." />
+                <ENum label="Only products above (PKR)" value={p.scope.minPrice ?? 0} onChange={(v) => setG('scope', 'minPrice', v || null)} min="0" />
+                <ENum label="Only products below (PKR)" value={p.scope.maxPrice ?? 0} onChange={(v) => setG('scope', 'maxPrice', v || null)} min="0" hint="0 = no limit." />
               </div>
             )}
 
             <div className="mt-4">
-              <Toggle
+              <EToggle
                 label="Skip products that are already discounted"
                 description="Your catalogue already carries a compare-at price on every product. Leaving this off means the promotion stacks on top of that markdown."
                 checked={p.scope.excludeOnSale}
                 onChange={(v) => setG('scope', 'excludeOnSale', v)}
               />
             </div>
-          </Section>
+          </ESection>
         )}
 
         {/* ---- schedule ---- */}
-        <Section title="When it runs" description="Leave both dates empty to run until you switch it off.">
+        <ESection title="When it runs" description="Leave both dates empty to run until you switch it off.">
           <div className="grid gap-4 md:grid-cols-2">
-            <DateTime label="Starts" value={p.startsAt} onChange={(v) => set('startsAt', v)} />
-            <DateTime label="Ends" value={p.endsAt} onChange={(v) => set('endsAt', v)} />
+            <EDateTime label="Starts" value={p.startsAt} onChange={(v) => set('startsAt', v)} />
+            <EDateTime label="Ends" value={p.endsAt} onChange={(v) => set('endsAt', v)} />
           </div>
 
           <div className="mt-4">
-            <Toggle
+            <EToggle
               label="Only during certain days and hours"
               description="For an evening flash sale or a weekend offer."
               checked={p.recurring.enabled}
@@ -398,34 +392,34 @@ export default function PromotionEdit() {
                 {DAYS.map((d, i) => {
                   const on = (p.recurring.daysOfWeek || []).includes(i);
                   return (
-                    <label key={d} className={`inline-flex min-h-[44px] w-14 cursor-pointer items-center justify-center rounded-full border text-[12px] font-medium transition ${on ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-50'}`}>
+                    <label key={d} className={`inline-flex min-h-[44px] w-14 cursor-pointer items-center justify-center border text-[12px] font-medium transition ${on ? 'border-white bg-white text-black' : 'border-white/20 text-white/50 hover:border-white/40'}`}>
                       <input type="checkbox" checked={on} onChange={() => toggleDay(i)} className="sr-only" />
                       {d}
                     </label>
                   );
                 })}
               </div>
-              <p className="mt-2 text-[12px] text-neutral-600">No days selected means every day.</p>
+              <p className="mt-2 text-[12px] text-white/35">No days selected means every day.</p>
 
               <div className="mt-4 grid gap-4 md:grid-cols-2">
                 <div>
-                  <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500" htmlFor="rec-from">From</label>
-                  <input id="rec-from" type="time" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={minToTime(p.recurring.startMin)} onChange={(e) => setG('recurring', 'startMin', timeToMin(e.target.value))} />
+                  <label className="adm-label mb-1.5 block" htmlFor="rec-from">From</label>
+                  <input id="rec-from" type="time" className={ctl} value={minToTime(p.recurring.startMin)} onChange={(e) => setG('recurring', 'startMin', timeToMin(e.target.value))} />
                 </div>
                 <div>
-                  <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500" htmlFor="rec-to">Until</label>
-                  <input id="rec-to" type="time" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={minToTime(p.recurring.endMin)} onChange={(e) => setG('recurring', 'endMin', timeToMin(e.target.value))} />
-                  <p className="mt-1.5 text-[12px] text-neutral-600">A window like 22:00 to 02:00 crosses midnight and is handled correctly.</p>
+                  <label className="adm-label mb-1.5 block" htmlFor="rec-to">Until</label>
+                  <input id="rec-to" type="time" className={ctl} value={minToTime(p.recurring.endMin)} onChange={(e) => setG('recurring', 'endMin', timeToMin(e.target.value))} />
+                  <p className="mt-1.5 text-[12px] text-white/35">A window like 22:00 to 02:00 crosses midnight and is handled correctly.</p>
                 </div>
               </div>
             </div>
           )}
-        </Section>
+        </ESection>
 
         {/* ---- conditions ---- */}
-        <Section title="Who gets it">
+        <ESection title="Who gets it">
           <div className="grid gap-4 md:grid-cols-2">
-            <Select
+            <ESelect
               label="Customers" value={p.eligibility.audience} onChange={(v) => setG('eligibility', 'audience', v)}
               options={[
                 { value: 'all', label: 'Everyone' },
@@ -435,9 +429,9 @@ export default function PromotionEdit() {
                 { value: 'phones', label: 'A named list of phone numbers' },
               ]}
             />
-            <Num label="Minimum basket (PKR)" value={p.eligibility.minCartTotal} onChange={(v) => setG('eligibility', 'minCartTotal', v)} min="0" hint="0 = no minimum." />
-            <Num label="Minimum items in the basket" value={p.eligibility.minCartItems} onChange={(v) => setG('eligibility', 'minCartItems', v)} min="0" />
-            <Text
+            <ENum label="Minimum basket (PKR)" value={p.eligibility.minCartTotal} onChange={(v) => setG('eligibility', 'minCartTotal', v)} min="0" hint="0 = no minimum." />
+            <ENum label="Minimum items in the basket" value={p.eligibility.minCartItems} onChange={(v) => setG('eligibility', 'minCartItems', v)} min="0" />
+            <EText
               label="Only these cities (comma separated)"
               value={(p.eligibility.cities || []).join(', ')}
               onChange={(v) => setG('eligibility', 'cities', v.split(',').map((x) => x.trim()).filter(Boolean))}
@@ -447,7 +441,7 @@ export default function PromotionEdit() {
 
           {p.eligibility.audience === 'tier' && (
             <div className="mt-4">
-              <Text
+              <EText
                 label="Loyalty tiers (comma separated ids)"
                 value={(p.eligibility.loyaltyTiers || []).join(', ')}
                 onChange={(v) => setG('eligibility', 'loyaltyTiers', v.split(',').map((x) => x.trim().toLowerCase()).filter(Boolean))}
@@ -457,58 +451,58 @@ export default function PromotionEdit() {
           )}
           {p.eligibility.audience === 'phones' && (
             <div className="mt-4">
-              <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500" htmlFor="elig-phones">Phone numbers, one per line</label>
+              <label className="adm-label mb-1.5 block" htmlFor="elig-phones">Phone numbers, one per line</label>
               <textarea
-                id="elig-phones" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 min-h-[96px] font-mono text-[12px]"
+                id="elig-phones" className={`${ctl} min-h-[96px] !h-auto py-2 font-mono`}
                 value={(p.eligibility.phones || []).join('\n')}
                 onChange={(e) => setG('eligibility', 'phones', e.target.value.split('\n').map((x) => x.trim()).filter(Boolean))}
               />
             </div>
           )}
-        </Section>
+        </ESection>
 
         {/* ---- advanced, collapsed ---- */}
-        <Accordion title="Priority and stacking" subtitle="How this behaves when another promotion could also apply">
+        <EAccordion title="Priority and stacking" subtitle="How this behaves when another promotion could also apply">
           <div className="grid gap-4 md:grid-cols-2">
-            <Num label="Priority" value={p.priority} onChange={(v) => set('priority', v)} min="0" max="1000" hint="Lower wins. Two promotions on the same item: only the higher-priority one applies." />
+            <ENum label="Priority" value={p.priority} onChange={(v) => set('priority', v)} min="0" max="1000" hint="Lower wins. Two promotions on the same item: only the higher-priority one applies." />
           </div>
           <div className="mt-4 space-y-3">
-            <Toggle label="Can combine with other promotions on the same item" description="Off is safer. Both promotions must allow it, and stacking must be on in Rules." checked={p.stackable} onChange={(v) => set('stackable', v)} />
-            <Toggle label="Exclusive — suppress every other promotion" description="Use for a headline sale you do not want anything else layered onto." checked={p.exclusive} onChange={(v) => set('exclusive', v)} />
-            <Toggle label="Allow alongside a coupon code" checked={p.allowWithCoupon} onChange={(v) => set('allowWithCoupon', v)} />
+            <EToggle label="Can combine with other promotions on the same item" description="Off is safer. Both promotions must allow it, and stacking must be on in Rules." checked={p.stackable} onChange={(v) => set('stackable', v)} />
+            <EToggle label="Exclusive — suppress every other promotion" description="Use for a headline sale you do not want anything else layered onto." checked={p.exclusive} onChange={(v) => set('exclusive', v)} />
+            <EToggle label="Allow alongside a coupon code" checked={p.allowWithCoupon} onChange={(v) => set('allowWithCoupon', v)} />
           </div>
-        </Accordion>
+        </EAccordion>
 
-        <Accordion title="Usage limits" subtitle="Caps so one promotion cannot run away with your margin">
+        <EAccordion title="Usage limits" subtitle="Caps so one promotion cannot run away with your margin">
           <div className="grid gap-4 md:grid-cols-3">
-            <Num label="Total uses allowed" value={p.limits.maxUses} onChange={(v) => setG('limits', 'maxUses', v)} min="0" hint="0 = unlimited." />
-            <Num label="Uses per customer" value={p.limits.maxUsesPerPhone} onChange={(v) => setG('limits', 'maxUsesPerPhone', v)} min="0" hint="Counted by phone number." />
-            <Num label="Stop after giving away (PKR)" value={p.limits.maxTotalDiscount} onChange={(v) => setG('limits', 'maxTotalDiscount', v)} min="0" hint="A hard budget. 0 = none." />
+            <ENum label="Total uses allowed" value={p.limits.maxUses} onChange={(v) => setG('limits', 'maxUses', v)} min="0" hint="0 = unlimited." />
+            <ENum label="Uses per customer" value={p.limits.maxUsesPerPhone} onChange={(v) => setG('limits', 'maxUsesPerPhone', v)} min="0" hint="Counted by phone number." />
+            <ENum label="Stop after giving away (PKR)" value={p.limits.maxTotalDiscount} onChange={(v) => setG('limits', 'maxTotalDiscount', v)} min="0" hint="A hard budget. 0 = none." />
           </div>
           {!isNew && (
-            <p className="mt-4 rounded-xl bg-neutral-50 px-4 py-3 text-[12px] text-neutral-600">
+            <p className="mt-4 text-[12px] text-white/40">
               Used <strong>{p.usedCount || 0}</strong> times so far, giving away{' '}
               <strong>PKR {Number(p.totalDiscounted || 0).toLocaleString('en-PK')}</strong>.
             </p>
           )}
-        </Accordion>
+        </EAccordion>
 
-        <Accordion title="How it looks to customers" subtitle="Badge and visibility">
+        <EAccordion title="How it looks to customers" subtitle="Badge and visibility">
           <div className="grid gap-4 md:grid-cols-2">
-            <Text label="Badge text" value={p.badge.text} onChange={(v) => setG('badge', 'text', v)} hint="Short, e.g. “Eid offer”. Blank = no badge." />
+            <EText label="Badge text" value={p.badge.text} onChange={(v) => setG('badge', 'text', v)} hint="Short, e.g. “Eid offer”. Blank = no badge." />
             <div>
-              <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500" htmlFor="badge-colour">Badge colour</label>
+              <label className="adm-label mb-1.5 block" htmlFor="badge-colour">Badge colour</label>
               <div className="flex items-center gap-2">
                 <input id="badge-colour" type="color" aria-label="Badge colour picker" className="h-11 w-14 cursor-pointer rounded-lg border border-neutral-300 bg-white p-1" value={p.badge.color || '#B3927E'} onChange={(e) => setG('badge', 'color', e.target.value)} />
-                <input aria-label="Badge colour hex code" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={p.badge.color || ''} onChange={(e) => setG('badge', 'color', e.target.value)} />
+                <input aria-label="Badge colour hex code" className={ctl} value={p.badge.color || ''} onChange={(e) => setG('badge', 'color', e.target.value)} />
               </div>
             </div>
           </div>
           <div className="mt-4 space-y-3">
-            <Toggle label="Show the badge on product cards" checked={p.showOnCard} onChange={(v) => set('showOnCard', v)} />
-            <Toggle label="Name the promotion in the basket" checked={p.showInCart} onChange={(v) => set('showInCart', v)} />
+            <EToggle label="Show the badge on product cards" checked={p.showOnCard} onChange={(v) => set('showOnCard', v)} />
+            <EToggle label="Name the promotion in the basket" checked={p.showInCart} onChange={(v) => set('showInCart', v)} />
           </div>
-        </Accordion>
+        </EAccordion>
       </div>
 
       {dirty && (

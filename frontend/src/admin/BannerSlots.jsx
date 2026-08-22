@@ -1,28 +1,15 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Loader2, Plus, Pencil, Trash2, LayoutTemplate } from 'lucide-react';
+import { Pencil, Plus, Trash2 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import AdminLayout from './AdminLayout';
-
-/* ============================================================================
- * ADMIN → MARKETING → BANNERS → SLOTS
- * Where banners appear. Five predefined slots + custom slots.
- * ========================================================================== */
-
-const inputCls = 'w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[13px] outline-none transition focus:border-neutral-900';
-const labelCls = 'mb-1 block text-[12px] font-bold uppercase tracking-wider text-neutral-500';
-const TYPE_BADGE = {
-  hero: 'bg-neutral-900 text-white',
-  banner: 'bg-neutral-100 text-neutral-700',
-  sidebar: 'bg-neutral-100 text-neutral-700',
-  inline: 'bg-neutral-100 text-neutral-700',
-};
+import PageHeader from './components/PageHeader';
+import { btnGhost, btnSolid, ctl, EditorialEmpty, TableSkeleton, MonoStatus } from './orders/orderUi';
 
 export default function BannerSlots() {
   const { auth, toast } = useApp();
   const [slots, setSlots] = useState(null);
-  const [editing, setEditing] = useState(null); // {isNew} | slot
+  const [editing, setEditing] = useState(null);
   const [form, setForm] = useState({ key: '', name: '', type: 'banner', width: 1200, height: 400, description: '' });
   const [busy, setBusy] = useState(false);
 
@@ -56,92 +43,80 @@ export default function BannerSlots() {
 
   return (
     <AdminLayout title="Banner slots">
-      <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h2 className="font-sans text-lg font-semibold text-neutral-900">Banner slots</h2>
-          <p className="mt-0.5 max-w-xl text-[13px] text-neutral-500">
-            Slots are fixed positions on the website. Assign banners to a slot — schedule and priority decide which one shows.
-          </p>
-        </div>
-        {!editing && (
-          <button onClick={startNew} className="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-4 py-2 text-[13px] font-semibold text-white transition hover:bg-black">
-            <Plus size={14} /> New slot
-          </button>
-        )}
-      </div>
+      <PageHeader
+        title="Banner slots"
+        description="Fixed positions on the website. Schedule and priority decide which banner shows."
+        actions={!editing && <button type="button" onClick={startNew} className={btnSolid}><Plus size={12} /> New slot</button>}
+      />
 
       {editing ? (
-        <div className="max-w-xl rounded-2xl border border-neutral-200 bg-white p-6">
-          <div className="mb-5 flex items-center justify-between">
-            <h3 className="text-[15px] font-bold text-neutral-900">{editing.isNew ? 'New slot' : `Edit — ${editing.name}`}</h3>
-            <button onClick={cancel} className="text-[12px] font-semibold text-neutral-400 hover:text-neutral-700">Cancel</button>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
+        <section>
+          <p className="adm-index">{editing.isNew ? 'New slot' : 'Edit slot'}</p>
+          <div className="grid gap-4 border-y border-white/10 py-6 sm:grid-cols-2">
             <div>
-              <label className={labelCls}>Key</label>
-              <input className={inputCls} value={form.key} onChange={(e) => setForm((f) => ({ ...f, key: e.target.value }))} placeholder="homepage-hero" disabled={!editing.isNew} />
+              <label className="adm-label mb-1.5 block">Key</label>
+              <input className={ctl} value={form.key} onChange={(e) => setForm((f) => ({ ...f, key: e.target.value }))} placeholder="homepage-hero" disabled={!editing.isNew} />
             </div>
             <div>
-              <label className={labelCls}>Name</label>
-              <input className={inputCls} value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="Homepage Hero" />
+              <label className="adm-label mb-1.5 block">Name</label>
+              <input className={ctl} value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="Homepage Hero" />
             </div>
             <div>
-              <label className={labelCls}>Type</label>
-              <select className={inputCls} value={form.type} onChange={(e) => setForm((f) => ({ ...f, type: e.target.value }))}>
+              <label className="adm-label mb-1.5 block">Type</label>
+              <select className={ctl} value={form.type} onChange={(e) => setForm((f) => ({ ...f, type: e.target.value }))}>
                 <option value="hero">Hero</option><option value="banner">Banner</option><option value="sidebar">Sidebar</option><option value="inline">Inline</option>
               </select>
             </div>
             <div className="grid grid-cols-2 gap-3">
-              <div><label className={labelCls}>Width</label><input type="number" className={inputCls} value={form.width} onChange={(e) => setForm((f) => ({ ...f, width: Number(e.target.value) || 0 }))} /></div>
-              <div><label className={labelCls}>Height</label><input type="number" className={inputCls} value={form.height} onChange={(e) => setForm((f) => ({ ...f, height: Number(e.target.value) || 0 }))} /></div>
+              <div><label className="adm-label mb-1.5 block">Width</label><input type="number" className={ctl} value={form.width} onChange={(e) => setForm((f) => ({ ...f, width: Number(e.target.value) || 0 }))} /></div>
+              <div><label className="adm-label mb-1.5 block">Height</label><input type="number" className={ctl} value={form.height} onChange={(e) => setForm((f) => ({ ...f, height: Number(e.target.value) || 0 }))} /></div>
             </div>
             <div className="sm:col-span-2">
-              <label className={labelCls}>Description</label>
-              <input className={inputCls} value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} />
+              <label className="adm-label mb-1.5 block">Description</label>
+              <input className={ctl} value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} />
             </div>
           </div>
-          <div className="mt-5 flex justify-end gap-2">
-            <button onClick={cancel} className="rounded-full border border-neutral-200 px-4 py-2 text-[13px] font-semibold text-neutral-600">Cancel</button>
-            <button onClick={save} disabled={busy} className="rounded-full bg-neutral-900 px-5 py-2 text-[13px] font-semibold text-white hover:bg-black disabled:opacity-50">
-              {busy ? 'Saving…' : 'Save slot'}
-            </button>
+          <div className="mt-4 flex justify-end gap-2">
+            <button type="button" onClick={cancel} className={btnGhost}>Cancel</button>
+            <button type="button" onClick={save} disabled={busy} className={btnSolid}>{busy ? 'Saving…' : 'Save slot'}</button>
           </div>
-        </div>
+        </section>
       ) : !slots ? (
-        <div className="grid place-items-center py-20"><Loader2 size={22} className="animate-spin text-neutral-300" /></div>
+        <TableSkeleton rows={5} />
+      ) : slots.length === 0 ? (
+        <EditorialEmpty title="No slots" description="Create a slot, then assign banners to it." action={<button type="button" onClick={startNew} className={btnSolid}>New slot</button>} />
       ) : (
-        <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-white">
-          <table className="w-full min-w-[640px]">
-            <thead className="border-b border-neutral-100 bg-neutral-50/60">
-              <tr>
-                <th className="px-4 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-neutral-500">Slot</th>
-                <th className="px-4 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-neutral-500">Type</th>
-                <th className="px-4 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-neutral-500">Dimensions</th>
-                <th className="px-4 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-neutral-500">Banners</th>
-                <th className="px-4 py-3 text-right text-[11px] font-bold uppercase tracking-wider text-neutral-500">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-neutral-100">
-              {slots.map((s) => (
-                <tr key={s._id} className="hover:bg-neutral-50/60">
-                  <td className="px-4 py-3">
-                    <p className="flex items-center gap-2 text-[13px] font-semibold text-neutral-900"><LayoutTemplate size={13} className="text-neutral-400" /> {s.name}</p>
-                    <p className="font-mono text-[11px] text-neutral-400">{s.key}</p>
-                  </td>
-                  <td className="px-4 py-3"><span className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${TYPE_BADGE[s.type] || TYPE_BADGE.banner}`}>{s.type}</span></td>
-                  <td className="px-4 py-3 text-[12px] text-neutral-500">{s.width}×{s.height}</td>
-                  <td className="px-4 py-3"><span className="rounded-full bg-neutral-100 px-2.5 py-0.5 text-[12px] font-bold text-neutral-700">{s.bannerCount}</span></td>
-                  <td className="px-4 py-3">
-                    <div className="flex justify-end gap-1">
-                      <button onClick={() => startEdit(s)} className="rounded-lg p-2 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700" title="Edit"><Pencil size={14} /></button>
-                      <button onClick={() => remove(s)} className="rounded-lg p-2 text-neutral-400 hover:bg-red-50 hover:text-red-600" title="Archive"><Trash2 size={14} /></button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <section>
+          <p className="adm-index">Slots</p>
+          <div className="hidden border-b border-white/10 px-1 py-2.5 md:grid md:grid-cols-[minmax(0,1.4fr)_0.6fr_0.8fr_0.5fr_auto] md:gap-3">
+            {['Slot', 'Type', 'Dimensions', 'Banners', ''].map((h) => <p key={h || 'a'} className="adm-label">{h}</p>)}
+          </div>
+          {slots.map((s) => (
+            <div key={s._id} className="border-b border-white/10 adm-row-hover">
+              <div className="hidden md:grid md:grid-cols-[minmax(0,1.4fr)_0.6fr_0.8fr_0.5fr_auto] md:items-center md:gap-3 md:px-1 md:py-3.5">
+                <div>
+                  <p className="text-[13px] font-medium text-white">{s.name}</p>
+                  <p className="font-mono text-[11px] text-white/30">{s.key}</p>
+                </div>
+                <MonoStatus label={String(s.type || '').toUpperCase()} />
+                <p className="text-[12px] text-white/45">{s.width}×{s.height}</p>
+                <p className="text-[12px] tabular-nums text-white/70">{s.bannerCount}</p>
+                <div className="flex justify-end gap-1">
+                  <button type="button" onClick={() => startEdit(s)} className="grid h-7 w-7 place-items-center text-white/35 hover:text-white"><Pencil size={13} /></button>
+                  <button type="button" onClick={() => remove(s)} className="grid h-7 w-7 place-items-center text-white/30 hover:text-white"><Trash2 size={13} /></button>
+                </div>
+              </div>
+              <div className="px-1 py-4 md:hidden">
+                <p className="text-[13px] text-white">{s.name}</p>
+                <p className="mt-0.5 text-[11px] text-white/35">{s.type} · {s.width}×{s.height} · {s.bannerCount} banners</p>
+                <div className="mt-3 flex gap-2">
+                  <button type="button" onClick={() => startEdit(s)} className={btnGhost}>Edit</button>
+                  <button type="button" onClick={() => remove(s)} className={btnGhost}>Archive</button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </section>
       )}
     </AdminLayout>
   );

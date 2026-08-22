@@ -1,23 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, BarChart3, Download, Settings as SettingsIcon } from 'lucide-react';
+import { Download } from 'lucide-react';
 import { api } from '../api/client';
 import { useApp } from '../store/AppContext';
 import AdminLayout from './AdminLayout';
-import { Empty, Stat } from './ui/Controls';
+import PageHeader from './components/PageHeader';
 import { typeOf } from './promotions/promoTypes';
-
-/* ============================================================================
- * ADMIN → MARKETING ANALYTICS
- *
- * Built around one question a merchant actually asks: "is this promotion
- * worth what it costs me?"
- *
- * So every row shows what was GIVEN AWAY next to what it moved. A promotion
- * used 200 times is not automatically good — a promotion that gave away
- * PKR 80,000 to shift stock that would have sold anyway is a loss with a
- * flattering usage count.
- * ========================================================================== */
+import { btnGhost, ctlInline, EditorialEmpty, TableSkeleton } from './orders/orderUi';
 
 const num = (n) => Number(n || 0).toLocaleString('en-PK');
 const money = (n) => `PKR ${num(n)}`;
@@ -62,181 +51,125 @@ export default function MarketingAnalytics() {
     } catch (e) { toast(e.message || 'Export failed'); }
   };
 
-  const now = Date.now();
   const upcoming = (promos || []).filter((p) => p.state?.reason === 'scheduled');
   const expired = (promos || []).filter((p) => ['ended', 'limit-reached', 'budget-spent'].includes(p.state?.reason));
   const bundles = (d?.byPromotion || []).filter((x) => x.type === 'bundle');
 
   return (
     <AdminLayout title="Marketing analytics">
-      <Link to="/admin/promotions" className="mb-4 -ml-1 inline-flex min-h-[44px] items-center gap-1.5 px-1 text-[12px] font-semibold text-neutral-600 transition hover:text-neutral-900">
-        <ArrowLeft size={13} /> Promotions
-      </Link>
+      <PageHeader
+        title="Performance"
+        description="What your promotions cost, and what they moved."
+        actions={(
+          <>
+            <select id="ma-days" value={days} onChange={(e) => setDays(Number(e.target.value))} className={ctlInline} aria-label="Time period">
+              <option value={7}>Last 7 days</option>
+              <option value={30}>Last 30 days</option>
+              <option value={90}>Last 90 days</option>
+              <option value={365}>Last year</option>
+            </select>
+            <button type="button" onClick={exportCsv} className={btnGhost}><Download size={12} /> Export</button>
+            <Link to="/admin/marketing/settings" className={btnGhost}>Rules</Link>
+          </>
+        )}
+      />
 
-      <div className="mb-6 flex flex-wrap items-start justify-between gap-3 border-b border-neutral-200 pb-6">
-        <div className="flex items-start gap-4">
-          <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-neutral-900 text-white">
-            <BarChart3 size={20} strokeWidth={1.8} />
-          </span>
-          <div>
-            <h2 className="font-sans text-2xl leading-tight text-neutral-900">Marketing analytics</h2>
-            <p className="mt-1 text-[13px] leading-relaxed text-neutral-600">
-              What your promotions cost, and what they moved.
-            </p>
-          </div>
+      <section className="mb-10">
+        <p className="adm-index">01 — Performance</p>
+        <div className="adm-divide-x grid grid-cols-2 border-y border-white/10 lg:grid-cols-5">
+          {[
+            { label: 'Times used', value: d ? num(d.uses) : '—' },
+            { label: 'Given away', value: d ? money(d.totalGiven) : '—' },
+            { label: 'Orders affected', value: d ? num(d.ordersAffected) : '—' },
+            { label: 'Average per order', value: d ? money(d.avgPerOrder) : '—' },
+            { label: 'Live now', value: d ? num(d.activePromotions) : '—' },
+          ].map((x) => (
+            <div key={x.label} className="px-5 py-6">
+              <p className="adm-label">{x.label}</p>
+              <p className="adm-metric mt-3 text-[22px] leading-none text-white">{x.value}</p>
+            </div>
+          ))}
         </div>
-        <div className="flex flex-wrap gap-2">
-          <label htmlFor="ma-days" className="sr-only">Time period</label>
-          <select id="ma-days" value={days} onChange={(e) => setDays(Number(e.target.value))} className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 min-h-[44px] max-w-[150px]">
-            <option value={7}>Last 7 days</option>
-            <option value={30}>Last 30 days</option>
-            <option value={90}>Last 90 days</option>
-            <option value={365}>Last year</option>
-          </select>
-          <button type="button" onClick={exportCsv} className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-neutral-300 px-3 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50">
-            <Download size={13} /> Export CSV
-          </button>
-          <Link to="/admin/marketing/settings" className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-neutral-300 px-3 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50">
-            <SettingsIcon size={13} /> Rules
-          </Link>
-        </div>
-      </div>
-
-      {/* Always mounted, dash while loading — mounting on arrival shifts the
-          page down, which is the CLS bug found twice in earlier sprints. */}
-      <div className="mb-5 grid grid-cols-2 gap-3 md:grid-cols-5">
-        <Stat label="Times used" value={d ? num(d.uses) : '—'} />
-        <Stat label="Given away" value={d ? money(d.totalGiven) : '—'} />
-        <Stat label="Orders affected" value={d ? num(d.ordersAffected) : '—'} />
-        <Stat label="Average per order" value={d ? money(d.avgPerOrder) : '—'} />
-        <Stat label="Live right now" value={d ? num(d.activePromotions) : '—'} />
-      </div>
+      </section>
 
       {loading && !d ? (
-        <div className="animate-pulse rounded-xl bg-neutral-100 h-96 w-full" />
+        <TableSkeleton rows={6} />
       ) : (
-        <div className="space-y-5">
+        <>
           {d?.uses === 0 && (
-            <Empty
+            <EditorialEmpty
               title="No promotions have run yet"
-              description="Once a promotion applies to a real order it appears here — how often, what it cost you, and which products it moved."
-              action={(
-                <Link to="/admin/promotions/new" className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg bg-neutral-900 px-4 text-[12px] font-semibold text-white transition hover:bg-neutral-800">
-                  Create a promotion
-                </Link>
-              )}
+              description="Once a promotion applies to a real order it appears here."
+              action={<Link to="/admin/promotions/new" className={btnGhost}>Create a promotion</Link>}
             />
           )}
 
           {(d?.byPromotion || []).length > 0 && (
-            <section className="rounded-2xl border border-neutral-200 bg-white p-5">
-              <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-600">Top promotions</p>
-              <p className="mt-1 text-[12px] leading-relaxed text-neutral-600">
-                Ordered by what they cost you. A high usage count with a high giveaway is only
-                good if those customers would not have bought anyway.
-              </p>
-              <div className="mt-4 overflow-x-auto">
-                <table className="w-full text-left text-[13px]">
-                  <caption className="sr-only">Top promotions by amount given away</caption>
-                  <thead className="text-[12px] uppercase tracking-wider text-neutral-600">
-                    <tr>
-                      <th scope="col" className="pb-2 font-semibold">Promotion</th>
-                      <th scope="col" className="pb-2 font-semibold">Type</th>
-                      <th scope="col" className="pb-2 text-right font-semibold">Uses</th>
-                      <th scope="col" className="pb-2 text-right font-semibold">Given away</th>
-                      <th scope="col" className="pb-2 text-right font-semibold">Avg each</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-neutral-100">
-                    {d.byPromotion.map((x) => (
-                      <tr key={x.id}>
-                        <td className="py-2.5">
-                          <Link to={`/admin/promotions/${x.id}`} className="font-medium text-neutral-900 underline-offset-2 hover:underline">
-                            {x.name || 'Untitled'}
-                          </Link>
-                        </td>
-                        <td className="py-2.5 text-neutral-600">{typeOf(x.type).short}</td>
-                        <td className="py-2.5 text-right tabular-nums">{num(x.uses)}</td>
-                        <td className="py-2.5 text-right tabular-nums">{money(x.given)}</td>
-                        <td className="py-2.5 text-right tabular-nums text-neutral-600">{money(Math.round(x.given / Math.max(1, x.uses)))}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+            <section className="mb-10">
+              <p className="adm-index">02 — Top promotions</p>
+              <div className="hidden border-b border-white/10 py-2 md:grid md:grid-cols-[minmax(0,1.4fr)_0.6fr_0.5fr_0.8fr_0.6fr] md:gap-3">
+                {['Promotion', 'Type', 'Uses', 'Given away', 'Avg'].map((h) => <p key={h} className="adm-label">{h}</p>)}
               </div>
+              {d.byPromotion.map((x) => (
+                <Link key={x.id} to={`/admin/promotions/${x.id}`} className="grid grid-cols-2 items-center gap-2 border-b border-white/10 py-3 md:grid-cols-[minmax(0,1.4fr)_0.6fr_0.5fr_0.8fr_0.6fr] md:gap-3 adm-row-hover">
+                  <span className="truncate text-[13px] text-white">{x.name || 'Untitled'}</span>
+                  <span className="text-[11px] uppercase tracking-[0.1em] text-white/35">{typeOf(x.type).short}</span>
+                  <span className="text-[12px] tabular-nums text-white/70">{num(x.uses)}</span>
+                  <span className="text-[12px] tabular-nums text-white">{money(x.given)}</span>
+                  <span className="text-[12px] tabular-nums text-white/40">{money(Math.round(x.given / Math.max(1, x.uses)))}</span>
+                </Link>
+              ))}
             </section>
           )}
 
           {bundles.length > 0 && (
-            <section className="rounded-2xl border border-neutral-200 bg-white p-5">
-              <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-600">Top bundles</p>
-              <ul className="mt-4 space-y-2">
-                {bundles.map((x) => (
-                  <li key={x.id} className="flex items-center justify-between gap-3 rounded-xl border border-neutral-200 px-4 py-2.5">
-                    <Link to={`/admin/promotions/${x.id}`} className="min-w-0 truncate text-[13px] font-medium text-neutral-900 underline-offset-2 hover:underline">{x.name}</Link>
-                    <span className="shrink-0 text-[12px] tabular-nums text-neutral-600">{num(x.uses)} uses · {money(x.given)}</span>
-                  </li>
-                ))}
-              </ul>
+            <section className="mb-10">
+              <p className="adm-index">Bundles</p>
+              {bundles.map((x) => (
+                <Link key={x.id} to={`/admin/promotions/${x.id}`} className="flex items-center justify-between border-b border-white/10 py-3 adm-row-hover">
+                  <span className="truncate text-[13px] text-white">{x.name}</span>
+                  <span className="text-[12px] text-white/40">{num(x.uses)} · {money(x.given)}</span>
+                </Link>
+              ))}
             </section>
           )}
 
-          <div className="grid gap-5 lg:grid-cols-2">
-            <section className="rounded-2xl border border-neutral-200 bg-white p-5">
-              <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-600">Starting soon</p>
-              {!upcoming.length ? (
-                <p className="mt-4 rounded-xl bg-neutral-50 px-4 py-6 text-center text-[12px] text-neutral-600">Nothing scheduled.</p>
-              ) : (
-                <ul className="mt-4 space-y-2">
-                  {upcoming.map((p) => (
-                    <li key={p._id}>
-                      <Link to={`/admin/promotions/${p._id}`} className="flex min-h-[44px] items-center justify-between gap-3 rounded-xl border border-neutral-200 px-4 py-2.5 transition hover:border-neutral-300">
-                        <span className="min-w-0 truncate text-[13px] text-neutral-900">{p.name}</span>
-                        <span className="shrink-0 text-[12px] text-neutral-600">
-                          {p.startsAt ? new Date(p.startsAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : '—'}
-                        </span>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              )}
+          <div className="mb-10 grid gap-10 lg:grid-cols-2">
+            <section>
+              <p className="adm-index">Starting soon</p>
+              {!upcoming.length ? <p className="border-y border-white/10 py-6 text-[12px] text-white/35">Nothing scheduled.</p> : upcoming.map((p) => (
+                <Link key={p._id} to={`/admin/promotions/${p._id}`} className="flex items-center justify-between border-b border-white/10 py-3 adm-row-hover">
+                  <span className="truncate text-[13px] text-white">{p.name}</span>
+                  <span className="text-[11px] text-white/35">{p.startsAt ? new Date(p.startsAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : '—'}</span>
+                </Link>
+              ))}
             </section>
-
-            <section className="rounded-2xl border border-neutral-200 bg-white p-5">
-              <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-600">Finished</p>
-              <p className="mt-1 text-[12px] text-neutral-600">Ended, or hit a limit. Duplicate one to run it again.</p>
-              {!expired.length ? (
-                <p className="mt-4 rounded-xl bg-neutral-50 px-4 py-6 text-center text-[12px] text-neutral-600">Nothing has finished yet.</p>
-              ) : (
-                <ul className="mt-4 space-y-2">
-                  {expired.map((p) => (
-                    <li key={p._id}>
-                      <Link to={`/admin/promotions/${p._id}`} className="flex min-h-[44px] items-center justify-between gap-3 rounded-xl border border-neutral-200 px-4 py-2.5 transition hover:border-neutral-300">
-                        <span className="min-w-0 truncate text-[13px] text-neutral-900">{p.name}</span>
-                        <span className="shrink-0 text-[12px] text-neutral-600">{num(p.usedCount)} uses</span>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              )}
+            <section>
+              <p className="adm-index">Finished</p>
+              {!expired.length ? <p className="border-y border-white/10 py-6 text-[12px] text-white/35">Nothing has finished yet.</p> : expired.map((p) => (
+                <Link key={p._id} to={`/admin/promotions/${p._id}`} className="flex items-center justify-between border-b border-white/10 py-3 adm-row-hover">
+                  <span className="truncate text-[13px] text-white">{p.name}</span>
+                  <span className="text-[11px] text-white/35">{num(p.usedCount)} uses</span>
+                </Link>
+              ))}
             </section>
           </div>
 
           {(d?.daily || []).length > 0 && (
-            <section className="rounded-2xl border border-neutral-200 bg-white p-5">
-              <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-600">Day by day</p>
-              <ul className="mt-4 space-y-1.5">
+            <section>
+              <p className="adm-index">Day by day</p>
+              <ul>
                 {d.daily.slice(-14).map((row) => {
                   const max = Math.max(...d.daily.map((x) => x.given), 1);
                   return (
-                    <li key={row.date} className="flex items-center gap-3">
-                      <span className="w-20 shrink-0 text-[12px] tabular-nums text-neutral-600">
+                    <li key={row.date} className="flex items-center gap-3 border-b border-white/5 py-2">
+                      <span className="w-20 shrink-0 text-[11px] tabular-nums text-white/35">
                         {new Date(row.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
                       </span>
-                      <span className="h-2 min-w-0 flex-1 overflow-hidden rounded-full bg-neutral-100" aria-hidden="true">
-                        <span className="block h-full rounded-full bg-neutral-900" style={{ width: `${Math.max(2, (row.given / max) * 100)}%` }} />
+                      <span className="h-px min-w-0 flex-1 bg-white/10" aria-hidden>
+                        <span className="block h-px bg-white" style={{ width: `${Math.max(2, (row.given / max) * 100)}%` }} />
                       </span>
-                      <span className="w-28 shrink-0 text-right text-[12px] tabular-nums text-neutral-600">
+                      <span className="w-28 shrink-0 text-right text-[11px] tabular-nums text-white/50">
                         {money(row.given)} · {num(row.uses)}
                       </span>
                     </li>
@@ -245,7 +178,7 @@ export default function MarketingAnalytics() {
               </ul>
             </section>
           )}
-        </div>
+        </>
       )}
     </AdminLayout>
   );
