@@ -243,8 +243,23 @@ export function Accordion({ title, subtitle, children, defaultOpen = false, badg
 }
 
 /** The sticky save bar every settings screen ends with. */
-export function SaveBar({ dirty, busy, onSave, onDiscard, disabled }) {
+export function SaveBar({ dirty, busy, onSave, onDiscard, disabled, variant }) {
   if (!dirty) return null;
+  if (variant === 'editorial') {
+    return (
+      <div className="sticky bottom-4 z-30 mt-8 flex flex-wrap items-center justify-between gap-3 border border-white/15 bg-[#0A0A0A] px-4 py-3">
+        <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-white/45">Unsaved changes</p>
+        <div className="flex items-center gap-2">
+          <button type="button" onClick={onDiscard} className="inline-flex h-8 items-center justify-center rounded-[4px] border border-white/20 px-3 text-[10px] font-medium uppercase tracking-[0.08em] text-white/70 hover:border-white/45 hover:text-white">
+            Discard
+          </button>
+          <button type="button" onClick={onSave} disabled={busy || disabled} className="inline-flex h-8 items-center justify-center rounded-[4px] bg-white px-3 text-[10px] font-medium uppercase tracking-[0.08em] text-black hover:bg-white/85 disabled:opacity-35">
+            {busy ? 'Saving…' : 'Save'}
+          </button>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="sticky bottom-4 z-30 mt-6 flex items-center justify-between gap-4 rounded-2xl border border-neutral-900 bg-neutral-900 px-4 py-3 text-white shadow-xl">
       <p className="text-[13px] font-medium">Unsaved changes</p>

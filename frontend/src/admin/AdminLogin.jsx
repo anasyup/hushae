@@ -1,28 +1,29 @@
 import { useEffect, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
-import { Lock, ShieldCheck, ArrowLeft } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { applyAdminTheme, clearAdminTheme } from '../lib/adminTheme';
 import { api } from '../api/client';
 
 const STAFF_ROLES = ['admin', 'Owner', 'Manager', 'Staff', 'Warehouse', 'Support'];
 
+const field =
+  'h-10 w-full border border-white/20 bg-[#0A0A0A] px-3 text-[13px] text-white/85 outline-none placeholder:text-white/30 hover:border-white/40 focus:border-white/50';
+const solid =
+  'inline-flex h-10 w-full items-center justify-center border border-white bg-white text-[10px] font-medium uppercase tracking-[0.18em] text-black transition hover:bg-white/85 disabled:opacity-35';
+
 export default function AdminLogin() {
   const { auth, setAuth } = useApp();
-  // Login is the admin entry — apply the admin design system (dark-first).
   useEffect(() => { applyAdminTheme(); return () => clearAdminTheme(); }, []);
 
   const nav = useNavigate();
   const [f, setF] = useState({ email: '', password: '' });
   const [err, setErr] = useState('');
   const [busy, setBusy] = useState(false);
-  // 2FA step
   const [step2, setStep2] = useState(false);
   const [code, setCode] = useState('');
   const [codeBusy, setCodeBusy] = useState(false);
   const [pendingEmail, setPendingEmail] = useState('');
 
-  // Already signed in as admin → straight to the console
   if (auth && STAFF_ROLES.includes(auth.user?.role)) return <Navigate to="/admin" replace />;
 
   const submit = async (e) => {
@@ -54,31 +55,44 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="grid min-h-screen place-items-center bg-admin-bg px-4">
-      <div className="w-full max-w-sm rounded-xl border border-admin-border bg-admin-surface p-8 shadow-md">
-        <p className="text-center font-sans text-lg tracking-widest">HUSHAE</p>
-        <p className="mt-1 text-center text-[12px] uppercase tracking-wider text-admin-text-muted">
-          {step2 ? 'Two-factor verification' : 'Private access — staff only'}
+    <div className="grid min-h-screen place-items-center bg-[#09090B] px-4 text-white">
+      <div className="w-full max-w-sm">
+        <p className="text-center text-[11px] font-medium uppercase tracking-[0.42em] text-white/50">HUSHAE</p>
+        <p className="mt-3 text-center text-[10px] font-medium uppercase tracking-[0.22em] text-white/30">
+          {step2 ? 'Two-factor verification' : 'Private access'}
         </p>
 
         {!step2 ? (
-          <form onSubmit={submit} className="mt-8 space-y-4" autoComplete="off">
-            <div><label htmlFor="admin-email" className="mb-1.5 block text-[12px] font-medium text-admin-text-2">Email</label><input id="admin-email" className="w-full rounded-lg border border-admin-border bg-admin-surface px-3 py-2 text-[13px] text-admin-text outline-none transition placeholder:text-admin-text-muted focus:border-admin-accent focus:shadow-[0_0_0_3px_var(--admin-accent-soft)]" type="email" required autoComplete="username" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} /></div>
-            <div><label htmlFor="admin-password" className="mb-1.5 block text-[12px] font-medium text-admin-text-2">Password</label><input id="admin-password" className="w-full rounded-lg border border-admin-border bg-admin-surface px-3 py-2 text-[13px] text-admin-text outline-none transition placeholder:text-admin-text-muted focus:border-admin-accent focus:shadow-[0_0_0_3px_var(--admin-accent-soft)]" type="password" required autoComplete="current-password" value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} /></div>
-            {err && <p role="alert" className="rounded-lg border border-admin-danger/30 bg-admin-danger/10 px-4 py-3 text-xs text-admin-danger">{err}</p>}
-            <button disabled={busy} className="inline-flex min-h-[40px] w-full items-center justify-center gap-1.5 rounded-lg bg-admin-text px-4 py-2 text-[13px] font-medium text-admin-bg transition hover:bg-admin-accent-hover disabled:opacity-60"><Lock size={14} /> {busy ? 'Verifying…' : 'Sign In'}</button>
+          <form onSubmit={submit} className="mt-10 space-y-5 border-y border-white/10 py-8" autoComplete="off">
+            <div>
+              <label htmlFor="admin-email" className="mb-1.5 block text-[9px] font-medium uppercase tracking-[0.18em] text-white/35">Email</label>
+              <input id="admin-email" className={field} type="email" required autoComplete="username" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} />
+            </div>
+            <div>
+              <label htmlFor="admin-password" className="mb-1.5 block text-[9px] font-medium uppercase tracking-[0.18em] text-white/35">Password</label>
+              <input id="admin-password" className={field} type="password" required autoComplete="current-password" value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} />
+            </div>
+            {err && <p role="alert" className="border border-white/15 px-3 py-2 text-[12px] leading-relaxed text-white/55">{err}</p>}
+            <button disabled={busy} className={solid}>{busy ? 'Verifying…' : 'Sign in'}</button>
           </form>
         ) : (
-          <form onSubmit={submitCode} className="mt-8 space-y-4" autoComplete="off">
-            <p className="text-[12px] leading-relaxed text-admin-text-2">We emailed a 6-digit sign-in code to <b className="text-admin-text">{pendingEmail}</b>. Enter it below — it expires in 5 minutes.</p>
-            <div><label className="mb-1.5 block text-[12px] font-medium text-admin-text-2">6-digit code</label><input className="w-full rounded-lg border border-admin-border bg-admin-surface px-3 py-2 text-[18px] tracking-[8px] text-admin-text outline-none transition focus:border-admin-accent focus:shadow-[0_0_0_3px_var(--admin-accent-soft)]" type="text" inputMode="numeric" maxLength={6} required autoComplete="off" value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))} /></div>
-            {err && <p role="alert" className="rounded-lg border border-admin-danger/30 bg-admin-danger/10 px-4 py-3 text-xs text-admin-danger">{err}</p>}
-            <button disabled={codeBusy} className="inline-flex min-h-[40px] w-full items-center justify-center gap-1.5 rounded-lg bg-admin-text px-4 py-2 text-[13px] font-medium text-admin-bg transition hover:bg-admin-accent-hover disabled:opacity-60"><ShieldCheck size={14} /> {codeBusy ? 'Verifying…' : 'Verify & Sign In'}</button>
-            <button type="button" onClick={() => { setStep2(false); setCode(''); setErr(''); }} className="inline-flex items-center gap-1 text-[12px] text-admin-text-muted transition hover:text-admin-text"><ArrowLeft size={12} /> Back to sign in</button>
+          <form onSubmit={submitCode} className="mt-10 space-y-5 border-y border-white/10 py-8" autoComplete="off">
+            <p className="text-[12px] leading-relaxed text-white/40">
+              A 6-digit sign-in code was emailed to <span className="text-white/80">{pendingEmail}</span>. It expires in 5 minutes.
+            </p>
+            <div>
+              <label className="mb-1.5 block text-[9px] font-medium uppercase tracking-[0.18em] text-white/35">6-digit code</label>
+              <input className={`${field} tracking-[0.4em]`} type="text" inputMode="numeric" maxLength={6} required autoComplete="off" value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))} />
+            </div>
+            {err && <p role="alert" className="border border-white/15 px-3 py-2 text-[12px] leading-relaxed text-white/55">{err}</p>}
+            <button disabled={codeBusy} className={solid}>{codeBusy ? 'Verifying…' : 'Verify & sign in'}</button>
+            <button type="button" onClick={() => { setStep2(false); setCode(''); setErr(''); }} className="block w-full text-center text-[10px] uppercase tracking-[0.16em] text-white/35 hover:text-white">
+              Back to sign in
+            </button>
           </form>
         )}
 
-        <p className="mt-5 text-center text-[12px] leading-relaxed text-admin-text-muted">Authorised staff only</p>
+        <p className="mt-6 text-center text-[10px] uppercase tracking-[0.18em] text-white/20">Authorised staff only</p>
       </div>
     </div>
   );

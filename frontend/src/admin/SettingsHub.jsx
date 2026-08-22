@@ -1,274 +1,178 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import {
-  ArrowUpRight, ChevronRight, CreditCard, FileText, Globe, Info,
-  LayoutTemplate, Mail, Search, ShieldCheck,
-  Settings2, Megaphone, ShoppingBag, Sparkles, Star, Store, Truck, Users, Zap,
-} from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import AdminLayout from './AdminLayout';
+import {
+  PageHeader, ctl, EditorialEmpty, MonoStatus,
+} from './settings/chrome';
 
-/* ============================================================================
- * SETTINGS HUB — Shopify/Stripe-inspired but our own design.
- *
- * Design choices:
- *  - Two-column grid of category cards (icon + title + description + status pill)
- *  - Cards show a *live* status hint (e.g. "3 payment methods enabled")
- *  - Quick search filters cards by name/keywords
- *  - Right-side "Store snapshot" panel with the store's real values
- *  - Each card is a link to its focused sub-page — no giant single form
+/* ===========================================================================
+ * SETTINGS HUB — editorial index. Destinations that already exist only.
  * ========================================================================== */
 
-const CARDS = [
+const GROUPS = [
   {
-    to: '/admin/settings/store',
-    icon: Store,
-    title: 'Store details',
-    desc: 'Your store name, tagline, contact info, trust badges — everything a customer identifies you by.',
-    tags: ['name', 'contact', 'email', 'phone', 'brand', 'trust'],
+    index: '01',
+    title: 'Store',
+    items: [
+      { to: '/admin/settings/store', title: 'Store details', desc: 'Name, tagline, contact and trust badges.', tags: ['name', 'contact', 'email', 'phone', 'brand', 'trust'] },
+      { to: '/admin/settings/cart', title: 'Shopping Bag', desc: 'Cart wording, free-shipping bar, badges and recommendations.', tags: ['cart', 'bag', 'coupon', 'promo', 'trust'] },
+      { to: '/admin/settings/checkout', title: 'Checkout', desc: 'Payment methods, delivery options, wording and thank-you page.', tags: ['checkout', 'payment', 'cod', 'delivery', 'terms'] },
+      { to: '/admin/settings/accounts', title: 'Customer Accounts', desc: 'Registration, password rules, sessions and account permissions.', tags: ['account', 'register', 'login', 'password', 'session'] },
+      { to: '/admin/settings/search', title: 'Search & Discovery', desc: 'Search fields, synonyms, suggestions and the shopping assistant.', tags: ['search', 'synonym', 'typo', 'suggest', 'assistant'] },
+      { to: '/admin/settings/legal', title: 'Legal & Policies', desc: 'Terms, privacy, refund and cookie consent — reserved.', tags: ['legal', 'privacy', 'terms', 'policy', 'refund', 'cookie'] },
+    ],
   },
   {
-    to: '/admin/settings/payments',
-    icon: CreditCard,
-    title: 'Payments',
-    desc: 'Enable methods (COD, JazzCash, EasyPaisa, Bank Transfer) and add your account numbers.',
-    tags: ['payment', 'cod', 'jazzcash', 'easypaisa', 'bank', 'iban'],
+    index: '02',
+    title: 'Commerce',
+    items: [
+      { to: '/admin/settings/payments', title: 'Payments', desc: 'COD, JazzCash, EasyPaisa, bank transfer and card gateways.', tags: ['payment', 'cod', 'jazzcash', 'easypaisa', 'bank', 'safepay'] },
+      { to: '/admin/settings/shipping', title: 'Shipping', desc: 'Flat rate, free-shipping threshold and operating costs.', tags: ['shipping', 'delivery', 'courier', 'rates', 'free'] },
+      { to: '/admin/settings/taxes', title: 'Taxes', desc: 'Global rate and Pakistan tax zones.', tags: ['tax', 'gst', 'zone', 'invoice'] },
+    ],
   },
   {
-    to: '/admin/settings/shipping',
-    icon: Truck,
-    title: 'Shipping & Delivery',
-    desc: 'Flat rate, free-shipping threshold, courier defaults, and delivery time expectations.',
-    tags: ['shipping', 'delivery', 'courier', 'rates', 'free'],
+    index: '03',
+    title: 'Customer experience',
+    items: [
+      { to: '/admin/settings/experience', title: 'Customer Experience', desc: 'Wishlist, recently viewed and product comparison.', tags: ['wishlist', 'recently viewed', 'compare'] },
+      { to: '/admin/settings/reviews', title: 'Reviews', desc: 'Who can review, moderation, photos and product questions.', tags: ['review', 'rating', 'moderation', 'question'] },
+      { to: '/admin/settings/loyalty', title: 'Loyalty', desc: 'Points, VIP tiers, referrals, store credit and gift cards.', tags: ['loyalty', 'rewards', 'points', 'tier', 'referral'] },
+    ],
   },
   {
-    to: '/admin/settings/cart',
-    icon: ShoppingBag,
-    title: 'Shopping Bag',
-    desc: 'Cart wording, free-shipping bar, trust badges, promo codes, save for later, delivery promise and recommendations.',
-    tags: ['cart', 'bag', 'basket', 'coupon', 'promo', 'trust', 'free shipping', 'checkout', 'undo', 'recommendations'],
+    index: '04',
+    title: 'Communication',
+    items: [
+      { to: '/admin/settings/email', title: 'Email & Notifications', desc: 'SMTP credentials, transactional templates and test send.', tags: ['email', 'smtp', 'templates', 'notification'] },
+    ],
   },
   {
-    to: '/admin/settings/checkout',
-    icon: CreditCard,
-    title: 'Checkout',
-    desc: 'Payment methods, delivery options, checkout wording, trust badges, terms and the thank-you page.',
-    tags: ['checkout', 'payment', 'cod', 'jazzcash', 'easypaisa', 'stripe', 'paypal', 'apple pay', 'google pay', 'delivery', 'express', 'pickup', 'terms', 'thank you', 'order success'],
+    index: '05',
+    title: 'Integrations',
+    items: [
+      { to: '/admin/apps', title: 'Apps / Integrations', desc: 'WhatsApp, social, analytics pixels, SMTP and media library.', tags: ['analytics', 'pixel', 'ga', 'whatsapp', 'integration', 'apps'] },
+    ],
   },
   {
-    to: '/admin/settings/accounts',
-    icon: Users,
-    title: 'Customer Accounts',
-    desc: 'Registration, password rules, email verification, profile photos, saved addresses and what customers can do.',
-    tags: ['account', 'customer', 'register', 'login', 'password', 'reset', 'verification', 'avatar', 'address', 'session'],
+    index: '06',
+    title: 'System',
+    items: [
+      { to: '/admin/backup', title: 'Backup & Export', desc: 'JSON snapshot, restore and CSV exports.', tags: ['backup', 'export', 'restore', 'csv'] },
+      { to: '/admin/settings/advanced', title: 'Advanced', desc: 'Analytics preferences, store identity and password.', tags: ['advanced', 'analytics', 'test orders', 'reorder'] },
+    ],
   },
   {
-    to: '/admin/settings/experience',
-    icon: Sparkles,
-    title: 'Customer Experience',
-    desc: 'Wishlist, recently viewed and product comparison — limits, sharing and where each one appears.',
-    tags: ['wishlist', 'heart', 'saved', 'recently viewed', 'compare', 'comparison', 'experience'],
+    index: '07',
+    title: 'Security',
+    items: [
+      { to: '/admin/settings/security', title: 'Security & Access', desc: 'Login, staff, devices, audit logs, fraud review and JWT rotation.', tags: ['security', 'password', 'staff', 'roles', 'audit', 'session', 'fraud', '2fa'] },
+    ],
   },
   {
-    to: '/admin/settings/reviews',
-    icon: Star,
-    title: 'Reviews & Questions',
-    desc: 'Who can review, moderation, photo limits, the star breakdown and product questions.',
-    tags: ['review', 'rating', 'stars', 'moderation', 'question', 'qa', 'feedback', 'verified'],
-  },
-  {
-    to: '/admin/settings/loyalty',
-    icon: Sparkles,
-    title: 'Loyalty & Rewards',
-    desc: 'Points, VIP tiers, referrals, store credit and gift cards — how customers are rewarded for coming back.',
-    tags: ['loyalty', 'rewards', 'points', 'tier', 'vip', 'referral', 'refer', 'gift card', 'credit', 'wallet', 'badge', 'birthday', 'retention'],
-  },
-  {
-    to: '/admin/settings/search',
-    icon: Search,
-    title: 'Search & Discovery',
-    desc: 'What customers can search, typo tolerance, synonyms, suggestions and the shopping assistant.',
-    tags: ['search', 'find', 'synonym', 'typo', 'suggest', 'autocomplete', 'filter', 'discovery', 'assistant', 'recommend'],
-  },
-  {
-    to: '/admin/marketing',
-    icon: Megaphone,
-    title: 'Marketing & Automation',
-    desc: 'Track recovery rates, configure abandoned cart delays, automated review requests, discount rules, and flash sales.',
-    tags: ['marketing', 'promotion', 'discount', 'sale', 'flash', 'bundle', 'badge', 'upsell', 'cross sell', 'offer', 'deal', 'abandoned', 'review'],
-  },
-  {
-    to: '/admin/apps',
-    icon: Zap,
-    title: 'Apps & Integrations',
-    desc: 'Analytics, tracking pixels, WhatsApp chat, social links, media library — third-party connections.',
-    tags: ['analytics', 'pixel', 'ga', 'facebook', 'tiktok', 'whatsapp', 'integration', 'apps'],
-    badge: 'External',
-  },
-  {
-    to: '/admin/settings/email',
-    icon: Mail,
-    title: 'Email & SMTP',
-    desc: 'Configure SMTP credentials, edit 6 transactional email templates, and verify connections with test messages.',
-    tags: ['email', 'smtp', 'templates', 'mailer', 'send', 'test', 'order confirmation', 'status'],
-  },
-  {
-    to: '/admin/settings/security',
-    icon: ShieldCheck,
-    title: 'Security & Access',
-    desc: 'Change your admin password, sign-in sessions, and appearance for this device.',
-    tags: ['security', 'password', 'admin', 'access', 'session', 'dark mode', 'theme'],
-  },
-  {
-    to: '/admin/settings/advanced',
-    icon: Settings2,
-    title: 'Advanced',
-    desc: 'Analytics preferences — include test orders and set the reorder stock target level.',
-    tags: ['advanced', 'analytics', 'test orders', 'reorder', 'target stock'],
-  },
-  {
-    to: '/admin/settings/legal',
-    icon: FileText,
-    title: 'Legal & Policies',
-    desc: 'Terms of service, privacy policy, refund policy, and cookie consent text.',
-    tags: ['legal', 'privacy', 'terms', 'policy', 'refund', 'cookie'],
-  },
-  {
-    to: '/admin/content',
-    icon: LayoutTemplate,
-    title: 'Storefront Content',
-    desc: 'Homepage hero banner, marquee, promo popup, FAQ — everything visible on the website.',
-    tags: ['content', 'hero', 'banner', 'faq', 'promo', 'marquee'],
-    external: true,
-  },
-  {
-    to: '/admin/markets',
-    icon: Globe,
-    title: 'Markets & Regions',
-    desc: 'Countries you sell to, currency preferences, and international settings.',
-    tags: ['markets', 'international', 'currency', 'regions'],
-    external: true,
+    index: '08',
+    title: 'Also in admin',
+    items: [
+      { to: '/admin/marketing', title: 'Marketing & Automation', desc: 'Promotions, abandoned carts and automation rules.', tags: ['marketing', 'promotion', 'discount'] },
+      { to: '/admin/content', title: 'Storefront Content', desc: 'Homepage, FAQ and merchandising content.', tags: ['content', 'hero', 'faq'] },
+      { to: '/admin/markets', title: 'Markets & Regions', desc: 'Pakistan-first market configuration.', tags: ['markets', 'currency', 'regions'] },
+    ],
   },
 ];
+
+function matches(item, query) {
+  if (!query) return true;
+  return (
+    item.title.toLowerCase().includes(query) ||
+    item.desc.toLowerCase().includes(query) ||
+    item.tags.some((t) => t.includes(query))
+  );
+}
 
 export default function SettingsHub() {
   const { auth } = useApp();
   const [q, setQ] = useState('');
-
-  // Filter cards by search query
   const query = q.trim().toLowerCase();
-  const filtered = query
-    ? CARDS.filter((c) =>
-        c.title.toLowerCase().includes(query) ||
-        c.desc.toLowerCase().includes(query) ||
-        c.tags.some((t) => t.includes(query))
-      )
-    : CARDS;
+  const visible = GROUPS.map((g) => ({ ...g, items: g.items.filter((i) => matches(i, query)) })).filter((g) => g.items.length);
+  const total = GROUPS.reduce((n, g) => n + g.items.length, 0);
 
   return (
     <AdminLayout title="Settings">
-      {/* Intro row: name + description + quick search */}
-      <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-        <div className="max-w-2xl">
-          <p className="text-[13px] leading-relaxed text-neutral-500">
-            Configure how your store runs — from your name and contact info to payments,
-            shipping, security and the apps you connect. Every card below opens a focused page.
-          </p>
-        </div>
-        <div className="relative">
-          <Search size={14} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400" />
+      <PageHeader
+        title="Settings"
+        description="Manage your store configuration and administration."
+        actions={
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Search settings…"
-            className="w-72 max-w-full rounded-xl border border-neutral-300 bg-white py-2.5 pl-9 pr-3 text-[13px] outline-none transition focus:border-neutral-900"
+            placeholder="Search settings"
+            className={`${ctl} w-56 max-w-full`}
+            aria-label="Search settings"
           />
-        </div>
-      </div>
+        }
+      />
 
-      {/* Main grid: cards + snapshot */}
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
-        {/* Card grid */}
+      <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_260px]">
         <div>
-          {filtered.length === 0 ? (
-            <div className="grid place-items-center rounded-2xl border border-dashed border-neutral-200 bg-white py-16 text-center">
-              <Search size={26} className="mb-2 text-neutral-300" />
-              <p className="text-sm text-neutral-500">No settings match "{q}"</p>
-            </div>
+          {visible.length === 0 ? (
+            <EditorialEmpty title="No matching settings" description={`Nothing matches “${q}”.`} />
           ) : (
-            <div className="grid gap-4 sm:grid-cols-2">
-              {filtered.map((c) => {
-                const Icon = c.icon;
-                return (
-                  <Link
-                    key={c.to}
-                    to={c.to}
-                    className="group relative flex items-start gap-3 rounded-2xl border border-neutral-200 bg-white p-5 transition hover:-translate-y-0.5 hover:border-neutral-300 hover:shadow-sm"
-                  >
-                    <span className="mt-0.5 grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-neutral-50 text-neutral-700 transition group-hover:bg-neutral-900 group-hover:text-white">
-                      <Icon size={18} strokeWidth={1.9} />
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2">
-                        <p className="text-[12px] font-semibold text-neutral-900">{c.title}</p>
-                        {c.badge && (
-                          <span className={`rounded-full px-2 py-0.5 text-[12px] font-bold uppercase tracking-wider ${
-                            c.badge === 'Coming soon'
-                              ? 'bg-amber-100 text-amber-800'
-                              : 'bg-neutral-100 text-neutral-600'
-                          }`}>{c.badge}</span>
-                        )}
+            visible.map((g) => (
+              <section key={g.title} className="mb-10">
+                <p className="adm-index">{g.index} — {g.title}</p>
+                <div className="border-y border-white/10">
+                  {g.items.map((item) => (
+                    <Link
+                      key={item.to}
+                      to={item.to}
+                      className="adm-row-hover flex items-start justify-between gap-4 border-b border-white/5 px-1 py-4 last:border-0"
+                    >
+                      <div className="min-w-0">
+                        <p className="text-[13px] text-white">{item.title}</p>
+                        <p className="mt-0.5 text-[12px] leading-relaxed text-white/35">{item.desc}</p>
                       </div>
-                      <p className="mt-1 text-[12px] leading-relaxed text-neutral-500">{c.desc}</p>
-                    </div>
-                    <span className="absolute right-4 top-4 text-neutral-300 transition group-hover:text-neutral-900">
-                      {c.external ? <ArrowUpRight size={14} /> : <ChevronRight size={14} />}
-                    </span>
-                  </Link>
-                );
-              })}
-            </div>
+                      <span className="mt-0.5 shrink-0 text-[9px] font-medium uppercase tracking-[0.18em] text-white/25">Open</span>
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            ))
           )}
         </div>
 
-        {/* Right sidebar: quick info panel */}
-        <aside className="space-y-4">
-          <div className="rounded-2xl border border-neutral-200 bg-white p-5">
-            <div className="flex items-center gap-2">
-              <Info size={14} className="text-neutral-500" />
-              <p className="text-[13px] font-bold uppercase tracking-widest text-neutral-500">Signed in as</p>
+        <aside className="space-y-8 lg:sticky lg:top-20 lg:self-start">
+          <section>
+            <p className="adm-index">Signed in</p>
+            <div className="border-y border-white/10 py-5">
+              <p className="text-[13px] text-white">{auth?.user?.name || 'Admin'}</p>
+              <p className="mt-1 font-mono text-[12px] text-white/40">{auth?.user?.email || '—'}</p>
+              <div className="mt-3">
+                <MonoStatus label={auth?.user?.role ? String(auth.user.role).toUpperCase() : 'ADMIN'} />
+              </div>
             </div>
-            <p className="mt-2 text-[13px] font-semibold text-neutral-900">{auth?.user?.name || 'Admin'}</p>
-            <p className="mt-0.5 font-mono text-[12px] text-neutral-500">{auth?.user?.email || '—'}</p>
-            <span className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-[13px] font-bold uppercase tracking-wider text-emerald-800">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-              Admin access
-            </span>
-          </div>
+          </section>
 
-          <div className="rounded-2xl border border-neutral-200 bg-white p-5">
-            <p className="text-[13px] font-bold uppercase tracking-widest text-neutral-500">Popular tasks</p>
-            <div className="mt-3 space-y-1">
+          <section>
+            <p className="adm-index">Popular</p>
+            <div className="border-y border-white/10">
               {[
                 { to: '/admin/settings/security', label: 'Change admin password' },
                 { to: '/admin/settings/payments', label: 'Add JazzCash number' },
-                { to: '/admin/apps',              label: 'Connect Google Analytics' },
+                { to: '/admin/apps', label: 'Connect Google Analytics' },
                 { to: '/admin/settings/shipping', label: 'Update shipping rates' },
               ].map((t) => (
-                <Link key={t.to} to={t.to} className="flex items-center justify-between rounded-lg px-2 py-1.5 text-[12px] text-neutral-700 transition hover:bg-neutral-50">
+                <Link key={t.to} to={t.to} className="adm-row-hover flex items-center justify-between border-b border-white/5 px-1 py-3 text-[12px] text-white/70 last:border-0 hover:text-white">
                   {t.label}
-                  <ChevronRight size={12} className="text-neutral-400" />
+                  <span className="text-white/25">→</span>
                 </Link>
               ))}
             </div>
-          </div>
+          </section>
 
-          <div className="rounded-2xl border border-neutral-900 bg-neutral-900 p-5 text-neutral-100">
-            <p className="text-[13px] font-bold uppercase tracking-widest text-neutral-400">Need help?</p>
-            <p className="mt-2 text-[13px] leading-relaxed text-neutral-200">
-              Every setting page has inline hints. If you get stuck, contact your developer or open the changelog.
-            </p>
-          </div>
+          <p className="text-[11px] leading-relaxed text-white/25">
+            {total} destinations. Every page keeps the same save behaviour — only the presentation has changed.
+          </p>
         </aside>
       </div>
     </AdminLayout>
