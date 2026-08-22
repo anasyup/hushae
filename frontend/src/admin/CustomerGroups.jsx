@@ -1,32 +1,27 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import {
-  ArrowLeft, Crown, Loader2, Mail, Plus, RefreshCcw, Save, Send, Trash2, Users, X,
-} from 'lucide-react';
+import { ArrowLeft, Loader2, Plus, RefreshCcw, Save, Trash2, X } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import AdminLayout from './AdminLayout';
+import PageHeader from './components/PageHeader';
 import { fmtDate } from '../lib/format';
+import {
+  btnGhost, btnSolid, btnIcon, ctl,
+  EditorialEmpty, TableSkeleton,
+} from './orders/orderUi';
 
-/* ============================================================================
- * ADMIN → CUSTOMERS → GROUPS (Shopify-style saved segments)
- *
- * A group is a name + rules; members are evaluated LIVE from Users + Orders.
- * The builder shows a live preview count as you adjust rules, then you save
- * the group. Saved groups keep a cached memberCount for the list.
+/* ===========================================================================
+ * Customer groups — Phase 06 editorial chrome. Rules / preview / email unchanged.
  * ========================================================================== */
-
-const inputCls = 'w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[13px] outline-none transition focus:border-neutral-900';
-const labelCls = 'mb-1 block text-[12px] font-bold uppercase tracking-wider text-neutral-500';
-const cardCls = 'rounded-2xl border border-neutral-200 bg-white p-5';
 
 const EMPTY_RULES = { minSpend: 0, minOrders: 0, lastOrderDays: 0, noOrders: false, city: '', province: '', anyTag: [], allTags: [] };
 
 function RuleNum({ label, hint, value, onChange }) {
   return (
     <div>
-      <label className={labelCls}>{label}</label>
-      <input type="number" min="0" className={inputCls} value={value} onChange={(e) => onChange(Number(e.target.value) || 0)} />
-      {hint && <p className="mt-1 text-[11px] text-neutral-400">{hint}</p>}
+      <label className="adm-label mb-1.5 block">{label}</label>
+      <input type="number" min="0" className={ctl} value={value} onChange={(e) => onChange(Number(e.target.value) || 0)} />
+      {hint && <p className="mt-1 text-[11px] text-white/30">{hint}</p>}
     </div>
   );
 }
@@ -34,8 +29,8 @@ function RuleNum({ label, hint, value, onChange }) {
 function RuleText({ label, value, onChange, placeholder }) {
   return (
     <div>
-      <label className={labelCls}>{label}</label>
-      <input className={inputCls} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder || ''} />
+      <label className="adm-label mb-1.5 block">{label}</label>
+      <input className={ctl} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder || ''} />
     </div>
   );
 }
@@ -46,8 +41,8 @@ function TagsInput({ value, onChange, placeholder }) {
   const commit = (v) => onChange(v.split(',').map((t) => t.trim()).filter(Boolean));
   return (
     <div>
-      <label className={labelCls}>Tags</label>
-      <input className={inputCls} value={text} onChange={(e) => { setText(e.target.value); commit(e.target.value); }} placeholder={placeholder || 'comma, separated'} />
+      <label className="adm-label mb-1.5 block">Tags</label>
+      <input className={ctl} value={text} onChange={(e) => { setText(e.target.value); commit(e.target.value); }} placeholder={placeholder || 'comma, separated'} />
     </div>
   );
 }
@@ -56,7 +51,7 @@ export default function CustomerGroups() {
   const { auth, toast } = useApp();
 
   const [groups, setGroups] = useState(null);
-  const [editing, setEditing] = useState(null); // group being edited (or {new})
+  const [editing, setEditing] = useState(null);
   const [rules, setRules] = useState({ ...EMPTY_RULES });
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -64,8 +59,7 @@ export default function CustomerGroups() {
   const [preview, setPreview] = useState(null);
   const [previewBusy, setPreviewBusy] = useState(false);
 
-  /* ── Email campaign modal ── */
-  const [emailFor, setEmailFor] = useState(null); // group object or null
+  const [emailFor, setEmailFor] = useState(null);
   const [emailSubject, setEmailSubject] = useState('');
   const [emailBody, setEmailBody] = useState('');
   const [emailBusy, setEmailBusy] = useState(false);
@@ -116,7 +110,6 @@ export default function CustomerGroups() {
 
   const cancel = () => { setEditing(null); setPreview(null); };
 
-  /* Live preview — evaluate the CURRENT rules without saving. */
   const runPreview = useCallback(async () => {
     setPreviewBusy(true);
     try {
@@ -163,185 +156,164 @@ export default function CustomerGroups() {
 
   return (
     <AdminLayout title="Customer groups">
-      <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h2 className="font-sans text-lg font-semibold text-neutral-900">Customer groups</h2>
-          <p className="mt-0.5 text-[13px] text-neutral-500">
-            Saved segments — build a rule set once, reuse it for marketing. Members are computed live.
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          {summary.total > 0 && (
-            <span className="rounded-full bg-neutral-100 px-3 py-1.5 text-[12px] font-medium text-neutral-600">
-              {summary.total} groups · {summary.members.toLocaleString()} total members
-            </span>
-          )}
-          {!editing && (
-            <button onClick={startNew} className="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-4 py-2 text-[13px] font-semibold text-white transition hover:bg-black">
-              <Plus size={14} /> New group
-            </button>
-          )}
-        </div>
-      </div>
+      <PageHeader
+        title="Customer groups"
+        description="Saved segments — members are computed live."
+        actions={(
+          <>
+            {!editing && <button type="button" onClick={startNew} className={btnSolid}><Plus size={12} /> New group</button>}
+            {editing && <button type="button" onClick={cancel} className={btnGhost}><ArrowLeft size={12} /> Back</button>}
+          </>
+        )}
+      />
 
       {editing ? (
-        /* ── BUILDER ── */
-        <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
-          <div className="space-y-5">
-            <div className={cardCls}>
-              <div className="mb-4 flex items-center justify-between">
-                <h3 className="text-[14px] font-bold text-neutral-900">{editing.isNew ? 'New group' : `Edit — ${editing.name}`}</h3>
-                <button onClick={cancel} className="inline-flex items-center gap-1 text-[12px] font-semibold text-neutral-400 hover:text-neutral-700"><ArrowLeft size={13} /> Back</button>
-              </div>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="sm:col-span-2">
-                  <label className={labelCls}>Group name *</label>
-                  <input className={inputCls} value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. VIP — spent over 10k" />
+        <div className="grid gap-10 lg:grid-cols-[1fr_320px]">
+          <div>
+            <section className="mb-10">
+              <p className="adm-index">Group</p>
+              <div className="space-y-4 border-y border-white/10 py-6">
+                <div>
+                  <label className="adm-label mb-1.5 block">Name *</label>
+                  <input className={ctl} value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. VIP — spent over 10k" />
                 </div>
-                <div className="sm:col-span-2">
-                  <label className={labelCls}>Description</label>
-                  <input className={inputCls} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Who belongs here, and what should we send them?" />
+                <div>
+                  <label className="adm-label mb-1.5 block">Description</label>
+                  <input className={ctl} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Who belongs here?" />
                 </div>
               </div>
-            </div>
+            </section>
 
-            <div className={cardCls}>
-              <h3 className="mb-1 text-[14px] font-bold text-neutral-900">Rules</h3>
-              <p className="mb-4 text-[12px] text-neutral-400">Every rule that is set must be true — a customer must satisfy all of them. Leave everything empty to match all customers.</p>
-
-              <div className="grid gap-4 sm:grid-cols-3">
-                <RuleNum label="Min lifetime spend (PKR)" value={rules.minSpend} onChange={(v) => setRules((r) => ({ ...r, minSpend: v }))} hint="0 = ignored" />
-                <RuleNum label="Min orders" value={rules.minOrders} onChange={(v) => setRules((r) => ({ ...r, minOrders: v }))} hint="0 = ignored" />
-                <RuleNum label="Ordered within days" value={rules.lastOrderDays} onChange={(v) => setRules((r) => ({ ...r, lastOrderDays: v }))} hint="0 = any time" />
+            <section>
+              <p className="adm-index">Rules</p>
+              <p className="mb-4 text-[12px] text-white/35">Every set rule must be true. Leave empty to match all customers.</p>
+              <div className="space-y-5 border-y border-white/10 py-6">
+                <div className="grid gap-4 sm:grid-cols-3">
+                  <RuleNum label="Min lifetime spend (PKR)" value={rules.minSpend} onChange={(v) => setRules((r) => ({ ...r, minSpend: v }))} hint="0 = ignored" />
+                  <RuleNum label="Min orders" value={rules.minOrders} onChange={(v) => setRules((r) => ({ ...r, minOrders: v }))} hint="0 = ignored" />
+                  <RuleNum label="Ordered within days" value={rules.lastOrderDays} onChange={(v) => setRules((r) => ({ ...r, lastOrderDays: v }))} hint="0 = any time" />
+                </div>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <RuleText label="City (exact)" value={rules.city} onChange={(v) => setRules((r) => ({ ...r, city: v }))} placeholder="e.g. Lahore" />
+                  <RuleText label="Province (exact)" value={rules.province} onChange={(v) => setRules((r) => ({ ...r, province: v }))} placeholder="e.g. Punjab" />
+                </div>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <TagsInput value={rules.anyTag} onChange={(v) => setRules((r) => ({ ...r, anyTag: v }))} placeholder="matches ANY of these tags" />
+                  <TagsInput value={rules.allTags} onChange={(v) => setRules((r) => ({ ...r, allTags: v }))} placeholder="must have ALL of these tags" />
+                </div>
+                <label className="flex cursor-pointer items-start gap-3 border border-white/15 px-4 py-3">
+                  <input type="checkbox" checked={rules.noOrders} onChange={(e) => setRules((r) => ({ ...r, noOrders: e.target.checked }))} className="mt-0.5 rounded-none accent-white" />
+                  <span className="text-[13px] text-white/80">
+                    Has never placed an order
+                    <span className="mt-0.5 block text-[12px] text-white/35">Registered customers who never bought.</span>
+                  </span>
+                </label>
               </div>
-
-              <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                <RuleText label="City (exact)" value={rules.city} onChange={(v) => setRules((r) => ({ ...r, city: v }))} placeholder="e.g. Lahore" />
-                <RuleText label="Province (exact)" value={rules.province} onChange={(v) => setRules((r) => ({ ...r, province: v }))} placeholder="e.g. Punjab" />
-              </div>
-
-              <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                <TagsInput value={rules.anyTag} onChange={(v) => setRules((r) => ({ ...r, anyTag: v }))} placeholder="matches ANY of these tags" />
-                <TagsInput value={rules.allTags} onChange={(v) => setRules((r) => ({ ...r, allTags: v }))} placeholder="must have ALL of these tags" />
-              </div>
-
-              <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-xl border border-neutral-200 p-3.5 transition hover:border-neutral-300">
-                <input type="checkbox" checked={rules.noOrders} onChange={(e) => setRules((r) => ({ ...r, noOrders: e.target.checked }))} className="mt-0.5 accent-neutral-900" />
-                <span className="text-[13px] font-medium text-neutral-700">
-                  Has never placed an order
-                  <span className="block text-[12px] font-normal text-neutral-400">Good for a "win them back" campaign — registered customers who never bought.</span>
-                </span>
-              </label>
-            </div>
+            </section>
           </div>
 
-          {/* ── LIVE PREVIEW ── */}
-          <div className="space-y-5">
-            <div className={cardCls}>
+          <aside>
+            <p className="adm-index">Preview</p>
+            <div className="border-y border-white/10 py-5">
               <div className="mb-3 flex items-center justify-between">
-                <h3 className="text-[14px] font-bold text-neutral-900">Live preview</h3>
-                <button onClick={runPreview} className="inline-flex items-center gap-1 text-[12px] font-semibold text-neutral-400 hover:text-neutral-700">
-                  {previewBusy ? <Loader2 size={12} className="animate-spin" /> : <RefreshCcw size={12} />} Refresh
+                <p className="text-[12px] text-white/40">Computed from live customers.</p>
+                <button type="button" onClick={runPreview} className={btnIcon} aria-label="Refresh preview">
+                  {previewBusy ? <Loader2 size={12} className="animate-spin" /> : <RefreshCcw size={12} />}
                 </button>
               </div>
-              <p className="text-[12px] text-neutral-400">Members are computed from your real customers + orders, right now.</p>
               {preview && (
-                <div className="mt-3 rounded-xl bg-neutral-50 p-4">
-                  <p className="flex items-center gap-2 text-[15px] font-bold text-neutral-900"><Users size={15} /> {preview.total.toLocaleString()} customers</p>
-                  <p className="text-[12px] text-neutral-400">match these rules (first {preview.members.length} shown)</p>
-                </div>
+                <p className="adm-metric text-[28px] text-white">
+                  {preview.total.toLocaleString()}
+                  <span className="ml-2 text-[11px] font-normal uppercase tracking-[0.14em] text-white/35">customers</span>
+                </p>
               )}
-              <div className="mt-3 max-h-72 space-y-1.5 overflow-y-auto">
+              <div className="mt-4 max-h-72 space-y-0 overflow-y-auto">
                 {(preview?.members || []).map((m) => (
-                  <div key={m.id} className="flex items-center justify-between rounded-lg border border-neutral-100 px-3 py-2">
+                  <div key={m.id} className="flex items-center justify-between border-b border-white/5 py-2.5">
                     <div className="min-w-0">
-                      <p className="truncate text-[13px] font-semibold text-neutral-800">{m.name}</p>
-                      <p className="truncate text-[11px] text-neutral-400">{m.phone || 'no phone'} · {m.email || 'no email'}</p>
+                      <p className="truncate text-[13px] text-white">{m.name}</p>
+                      <p className="truncate text-[11px] text-white/30">{m.phone || 'no phone'} · {m.email || 'no email'}</p>
                     </div>
-                    <span className="shrink-0 text-[11px] font-medium text-neutral-400">{m.orders} orders · {m.spend.toLocaleString()}</span>
+                    <span className="shrink-0 text-[11px] text-white/40">{m.orders} · {m.spend.toLocaleString()}</span>
                   </div>
                 ))}
               </div>
               {preview && preview.total > preview.members.length && (
-                <p className="mt-2 text-[11px] text-neutral-400">+ {preview.total - preview.members.length} more…</p>
+                <p className="mt-2 text-[11px] text-white/30">+ {preview.total - preview.members.length} more…</p>
               )}
             </div>
-
-            <button onClick={save} disabled={saving} className="w-full rounded-full bg-neutral-900 py-3 text-[14px] font-semibold text-white transition hover:bg-black disabled:opacity-60">
-              {saving ? <Loader2 size={16} className="mx-auto animate-spin" /> : <Save size={15} className="mr-1.5 inline" />} {editing.isNew ? 'Create group' : 'Save changes'}
+            <button type="button" onClick={save} disabled={saving} className={`${btnSolid} mt-5 w-full`}>
+              {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={12} />}
+              {editing.isNew ? 'Create group' : 'Save changes'}
             </button>
-          </div>
+          </aside>
         </div>
       ) : !groups ? (
-        <div className="grid place-items-center py-20"><Loader2 size={22} className="animate-spin text-neutral-300" /></div>
+        <TableSkeleton rows={5} />
       ) : groups.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-neutral-300 bg-white py-16 text-center">
-          <Crown size={28} className="mx-auto text-neutral-300" />
-          <p className="mt-3 text-[14px] font-semibold text-neutral-700">No groups yet</p>
-          <p className="mx-auto mt-1 max-w-sm text-[12px] text-neutral-400">Build your first segment — VIP customers, inactive shoppers, a specific city — then reuse it for marketing.</p>
-          <button onClick={startNew} className="mt-5 inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-5 py-2 text-[13px] font-semibold text-white transition hover:bg-black">
-            <Plus size={14} /> New group
-          </button>
-        </div>
+        <EditorialEmpty
+          title="No groups"
+          description="Build your first segment — VIP customers, inactive shoppers, a specific city — then reuse it for marketing."
+          action={<button type="button" onClick={startNew} className={btnSolid}><Plus size={12} /> New group</button>}
+        />
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {groups.map((g) => (
-            <div key={g._id} className={`${cardCls} group relative`}>
-              <div className="flex items-start justify-between gap-2">
-                <h3 className="truncate text-[14px] font-bold text-neutral-900">{g.name}</h3>
-                <button onClick={() => remove(g)} className="rounded-lg p-1.5 text-neutral-300 opacity-0 transition group-hover:opacity-100 hover:bg-red-50 hover:text-red-600" title="Delete group"><Trash2 size={14} /></button>
-              </div>
-              <p className="mt-1 line-clamp-2 text-[12px] text-neutral-400">{g.description || 'No description'}</p>
-              <div className="mt-4 flex items-end justify-between">
-                <div>
-                  <p className="text-[22px] font-bold text-neutral-900">{g.memberCount?.toLocaleString?.() || 0}</p>
-                  <p className="text-[11px] font-medium uppercase tracking-wider text-neutral-400">members</p>
+        <section>
+          <p className="adm-index">Groups</p>
+          <p className="mb-4 text-[11px] uppercase tracking-[0.14em] text-white/30">
+            {summary.total} groups · {summary.members.toLocaleString()} members
+          </p>
+          <div>
+            {groups.map((g) => (
+              <div key={g._id} className="flex flex-wrap items-end justify-between gap-3 border-b border-white/10 py-5 adm-row-hover">
+                <div className="min-w-0">
+                  <p className="text-[14px] font-medium text-white">{g.name}</p>
+                  <p className="mt-0.5 line-clamp-2 text-[12px] text-white/35">{g.description || 'No description'}</p>
+                  <p className="mt-2 text-[11px] text-white/25">Updated {fmtDate(g.updatedAt)}</p>
                 </div>
-                <div className="flex items-center gap-1.5">
-                  <button onClick={() => openEmail(g)} className="inline-flex items-center gap-1 rounded-full border border-neutral-200 px-3 py-1.5 text-[12px] font-semibold text-neutral-700 transition hover:border-emerald-500 hover:text-emerald-700" title="Email this group">
-                    <Mail size={12} /> Email
-                  </button>
-                  <button onClick={() => startEdit(g)} className="rounded-full border border-neutral-200 px-3.5 py-1.5 text-[12px] font-semibold text-neutral-700 transition hover:border-neutral-900">
-                    Edit
+                <div className="flex items-end gap-4">
+                  <div className="text-right">
+                    <p className="adm-metric text-[22px] text-white">{g.memberCount?.toLocaleString?.() || 0}</p>
+                    <p className="adm-label">Members</p>
+                  </div>
+                  <button type="button" onClick={() => openEmail(g)} className={btnGhost}>Email</button>
+                  <button type="button" onClick={() => startEdit(g)} className={btnGhost}>Edit</button>
+                  <button type="button" onClick={() => remove(g)} className="text-[10px] uppercase tracking-[0.12em] text-white/30 hover:text-white" title="Delete group">
+                    <Trash2 size={13} />
                   </button>
                 </div>
               </div>
-              <p className="mt-3 border-t border-neutral-100 pt-2 text-[11px] text-neutral-400">Updated {fmtDate(g.updatedAt)}</p>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        </section>
       )}
 
-      {/* ── Email campaign modal ── */}
       {emailFor && (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-black/40 p-4" onClick={closeEmail}>
-          <div className="w-full max-w-lg rounded-2xl border border-neutral-200 bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
-            <div className="mb-4 flex items-start justify-between">
+        <div className="fixed inset-0 z-50 grid place-items-center bg-black/60 p-4" onClick={closeEmail}>
+          <div className="w-full max-w-lg border border-white/15 bg-[#0D0D0D] p-6" onClick={(e) => e.stopPropagation()}>
+            <div className="mb-5 flex items-start justify-between">
               <div>
-                <h3 className="flex items-center gap-2 text-[15px] font-bold text-neutral-900"><Send size={15} /> Email “{emailFor.name}”</h3>
-                <p className="mt-0.5 text-[12px] text-neutral-400">
-                  Goes to group members who opted into marketing emails ({emailFor.memberCount?.toLocaleString?.() || 0} members in group).
+                <p className="text-[15px] font-medium text-white">Email “{emailFor.name}”</p>
+                <p className="mt-1 text-[12px] text-white/35">
+                  Goes to opted-in members ({emailFor.memberCount?.toLocaleString?.() || 0} in group).
                 </p>
               </div>
-              <button onClick={closeEmail} className="rounded-lg p-1.5 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700"><X size={16} /></button>
+              <button type="button" onClick={closeEmail} className="text-white/35 hover:text-white"><X size={16} /></button>
             </div>
-
             <div className="space-y-4">
               <div>
-                <label className="mb-1 block text-[12px] font-bold uppercase tracking-wider text-neutral-500">Subject</label>
-                <input className={inputCls} value={emailSubject} onChange={(e) => setEmailSubject(e.target.value)} placeholder="A little note from HUSHAE" />
+                <label className="adm-label mb-1.5 block">Subject</label>
+                <input className={ctl} value={emailSubject} onChange={(e) => setEmailSubject(e.target.value)} placeholder="A little note from HUSHAE" />
               </div>
               <div>
-                <label className="mb-1 block text-[12px] font-bold uppercase tracking-wider text-neutral-500">Message</label>
-                <textarea className={`${inputCls} min-h-40 resize-y`} value={emailBody} onChange={(e) => setEmailBody(e.target.value)} placeholder={'Hi,\n\nA short, personal message…\n\n— HUSHAE'} />
-                <p className="mt-1 text-[11px] text-neutral-400">Plain text — line breaks are kept. Only opted-in customers receive it.</p>
+                <label className="adm-label mb-1.5 block">Message</label>
+                <textarea className={`${ctl} min-h-40 !h-auto py-3`} value={emailBody} onChange={(e) => setEmailBody(e.target.value)} placeholder={'Hi,\n\nA short, personal message…\n\n— HUSHAE'} />
+                <p className="mt-1 text-[11px] text-white/30">Plain text — only opted-in customers receive it.</p>
               </div>
             </div>
-
-            <div className="mt-5 flex items-center justify-end gap-2">
-              <button onClick={closeEmail} className="rounded-full border border-neutral-200 px-4 py-2 text-[13px] font-semibold text-neutral-600 hover:border-neutral-400">Cancel</button>
-              <button onClick={sendEmail} disabled={emailBusy} className="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-5 py-2 text-[13px] font-semibold text-white transition hover:bg-black disabled:opacity-60">
-                {emailBusy ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />} Send email
+            <div className="mt-5 flex justify-end gap-2">
+              <button type="button" onClick={closeEmail} className={btnGhost}>Cancel</button>
+              <button type="button" onClick={sendEmail} disabled={emailBusy} className={btnSolid}>
+                {emailBusy ? <Loader2 size={14} className="animate-spin" /> : null} Send email
               </button>
             </div>
           </div>
