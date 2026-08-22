@@ -50,11 +50,11 @@ export const typeOf = (t) => PAGE_TYPES.find((x) => x.type === t) || PAGE_TYPES[
  * mistake the promotions list avoided.
  * ------------------------------------------------------------------------- */
 export const STATE_STYLE = {
-  live:      'bg-emerald-50 text-emerald-800 ring-emerald-200',
-  scheduled: 'bg-sky-50 text-sky-800 ring-sky-200',
-  draft:     'bg-neutral-100 text-neutral-700 ring-neutral-200',
-  expired:   'bg-amber-50 text-amber-900 ring-amber-300',
-  archived:  'bg-neutral-100 text-neutral-600 ring-neutral-200',
+  live:      'text-white/85',
+  scheduled: 'text-white/55',
+  draft:     'text-white/40',
+  expired:   'text-white/35',
+  archived:  'text-white/30',
 };
 
 export const STATE_LABEL = {

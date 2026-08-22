@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Globe, Truck } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import AdminLayout from './AdminLayout';
+import PageHeader from './components/PageHeader';
+import { btnSolid, ctl, MonoStatus, TableSkeleton } from './orders/orderUi';
 
 export default function Markets() {
   const { auth, toast } = useApp();
@@ -11,7 +12,14 @@ export default function Markets() {
 
   useEffect(() => { api('/settings').then((d) => setS(d.settings)).catch(() => toast('Could not load settings')); }, []); // eslint-disable-line
 
-  if (!s) return <AdminLayout title="Markets"><div className="animate-pulse rounded-xl bg-neutral-100 h-64 w-full" /></AdminLayout>;
+  if (!s) {
+    return (
+      <AdminLayout title="Markets">
+        <PageHeader title="Markets" description="Pakistan-first store configuration." />
+        <TableSkeleton rows={5} />
+      </AdminLayout>
+    );
+  }
 
   const pm = s.paymentMethods || {};
   const save = async () => {
@@ -29,47 +37,52 @@ export default function Markets() {
 
   return (
     <AdminLayout title="Markets">
-      <div className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-2xl border border-neutral-200 bg-white p-6">
-          <h2 className="font-sans text-lg">Your Markets</h2>
-          <div className="mt-4 flex items-center gap-4 rounded-2xl border border-neutral-200 bg-neutral-100 p-4">
-            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-neutral-900 font-sans text-sm text-white">PK</span>
-            <div className="flex-1">
-              <p className="font-medium">Pakistan</p>
-              <p className="text-xs text-neutral-500">Primary market · Pakistani Rupee (PKR ₨) · Nationwide delivery</p>
-            </div>
-            <span className="rounded-full bg-emerald-50 px-3 py-1 text-[12px] font-semibold text-emerald-700">Active</span>
-          </div>
-          <p className="mt-4 flex items-start gap-2 text-sm leading-relaxed text-neutral-500">
-            <Globe size={15} className="mt-0.5 shrink-0" />
-            International markets (UAE, UK, USA) and multiple currencies are coming soon. Your store is currently fully live for Pakistan.
-          </p>
-        </div>
+      <PageHeader
+        title="Markets"
+        description="Pakistan-first store configuration."
+        actions={<button type="button" onClick={save} disabled={busy} className={btnSolid}>{busy ? 'Saving…' : 'Save'}</button>}
+      />
 
-        <div className="rounded-2xl border border-neutral-200 bg-white p-6">
-          <h2 className="font-sans text-lg">Shipping & Payment</h2>
-          <p className="mt-1 text-xs text-neutral-500">Ye settings checkout par foran apply hoti hain.</p>
-          <div className="mt-5 grid gap-4 sm:grid-cols-2">
-            <div>
-              <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500">Shipping flat rate (PKR)</label>
-              <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" type="number" min="0" value={s.shippingFlatRate} onChange={(e) => setS({ ...s, shippingFlatRate: e.target.value })} />
-            </div>
-            <div>
-              <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500">Free shipping above (PKR)</label>
-              <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" type="number" min="0" value={s.freeShippingThreshold} onChange={(e) => setS({ ...s, freeShippingThreshold: e.target.value })} />
-            </div>
+      <section className="mb-10">
+        <p className="adm-index">01 — Market</p>
+        <div className="flex flex-wrap items-center justify-between gap-4 border-y border-white/10 py-6">
+          <div>
+            <p className="text-[13px] text-white">Pakistan</p>
+            <p className="mt-1 text-[12px] text-white/35">Primary market · Pakistani Rupee (PKR ₨) · Nationwide delivery</p>
           </div>
-          <label className="mt-5 flex cursor-pointer items-start gap-3 rounded-2xl border border-neutral-200 p-4">
-            <input type="checkbox" className="mt-0.5 h-4 w-4 accent-obsidian" checked={!!pm.cod}
-              onChange={(e) => setS({ ...s, paymentMethods: { ...pm, cod: e.target.checked } })} />
-            <span>
-              <span className="flex items-center gap-2 text-sm font-medium"><Truck size={15} /> Cash on Delivery (COD)</span>
-              <span className="mt-0.5 block text-xs text-neutral-500">Pakistan mein sab se popular payment method — band karna ho to uncheck karein.</span>
-            </span>
-          </label>
-          <button onClick={save} disabled={busy} className="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-4 py-2 text-[12px] font-semibold text-white hover:bg-black mt-5">{busy ? 'Saving…' : 'Save Changes'}</button>
+          <MonoStatus label="ACTIVE" />
         </div>
-      </div>
+        <p className="mt-4 text-[12px] leading-relaxed text-white/30">
+          International markets (UAE, UK, USA) and multiple currencies are coming soon. Your store is currently fully live for Pakistan.
+        </p>
+      </section>
+
+      <section>
+        <p className="adm-index">02 — Shipping & payment</p>
+        <p className="mb-4 text-[12px] text-white/35">Ye settings checkout par foran apply hoti hain.</p>
+        <div className="grid gap-4 border-y border-white/10 py-6 sm:grid-cols-2">
+          <div>
+            <label className="adm-label mb-1.5 block">Shipping flat rate (PKR)</label>
+            <input className={ctl} type="number" min="0" value={s.shippingFlatRate} onChange={(e) => setS({ ...s, shippingFlatRate: e.target.value })} />
+          </div>
+          <div>
+            <label className="adm-label mb-1.5 block">Free shipping above (PKR)</label>
+            <input className={ctl} type="number" min="0" value={s.freeShippingThreshold} onChange={(e) => setS({ ...s, freeShippingThreshold: e.target.value })} />
+          </div>
+          <label className="flex cursor-pointer items-start justify-between gap-4 sm:col-span-2">
+            <span>
+              <span className="block text-[13px] text-white">Cash on Delivery (COD)</span>
+              <span className="mt-0.5 block text-[12px] text-white/35">Pakistan mein sab se popular payment method — band karna ho to uncheck karein.</span>
+            </span>
+            <input
+              type="checkbox"
+              className="mt-1 h-4 w-4 accent-white"
+              checked={!!pm.cod}
+              onChange={(e) => setS({ ...s, paymentMethods: { ...pm, cod: e.target.checked } })}
+            />
+          </label>
+        </div>
+      </section>
     </AdminLayout>
   );
 }

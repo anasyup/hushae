@@ -193,9 +193,32 @@ export function Stat({ label, value, sub, tone }) {
 
 /** Collapsible group. Used by the promotion builder, where showing every
  *  option for all seven types at once is a wall nobody reads. */
-export function Accordion({ title, subtitle, children, defaultOpen = false, badge }) {
+export function Accordion({ title, subtitle, children, defaultOpen = false, badge, variant }) {
   const [open, setOpen] = useState(defaultOpen);
   const id = useId();
+  if (variant === 'editorial') {
+    return (
+      <div className="border-y border-white/10">
+        <h3>
+          <button
+            type="button"
+            onClick={() => setOpen((o) => !o)}
+            aria-expanded={open}
+            aria-controls={id}
+            className="flex min-h-[44px] w-full items-center gap-3 py-4 text-left adm-row-hover"
+          >
+            <span className="min-w-0 flex-1">
+              <span className="block text-[13px] text-white">{title}</span>
+              {subtitle && <span className="mt-0.5 block text-[12px] text-white/35">{subtitle}</span>}
+            </span>
+            {badge}
+            <ChevronDown size={14} className={`shrink-0 text-white/35 transition ${open ? 'rotate-180' : ''}`} aria-hidden="true" />
+          </button>
+        </h3>
+        {open && <div id={id} className="border-t border-white/10 pb-6 pt-4">{children}</div>}
+      </div>
+    );
+  }
   return (
     <div className="overflow-hidden rounded-xl border border-neutral-200 bg-white">
       <h3>

@@ -28,7 +28,7 @@ export function NodeMenu({
     <button
       onClick={(e) => { e.stopPropagation(); fn(); setOpen(false); }}
       className={`flex w-full items-center gap-2 px-3 py-1.5 text-left text-[13.5px] transition ${
-        danger ? 'text-red-600 hover:bg-red-50' : 'text-neutral-700 hover:bg-neutral-100'}`}>
+        danger ? 'text-white/50 hover:bg-white/5' : 'text-neutral-700 hover:bg-neutral-100'}`}>
       {icon} {label}
     </button>
   );

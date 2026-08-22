@@ -95,7 +95,7 @@ export function ResourcePicker({ field, value, onChange }: { field: Field; value
               <GripVertical size={11} className="shrink-0 cursor-grab text-neutral-300 active:cursor-grabbing" />
               <span className="w-4 shrink-0 text-center text-[13px] font-semibold text-neutral-400">{i + 1}</span>
               <span className="min-w-0 flex-1 truncate text-xs">{labelFor(id)}</span>
-              <button onClick={() => toggle(id)} className="shrink-0 text-neutral-400 hover:text-red-600">
+              <button onClick={() => toggle(id)} className="shrink-0 text-neutral-400 hover:text-white">
                 <X size={11} />
               </button>
             </div>
@@ -133,7 +133,7 @@ export function ResourcePicker({ field, value, onChange }: { field: Field; value
               const on = selected.includes(r.id);
               return (
                 <button key={r.id} type="button" onClick={() => toggle(r.id)}
-                  className={`flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 text-left transition ${on ? 'bg-[#005BD3]/8' : 'hover:bg-neutral-50'}`}>
+                  className={`flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 text-left transition ${on ? 'bg-[#FFFFFF]/8' : 'hover:bg-neutral-50'}`}>
                   {r.image
                     ? <img src={r.image} alt="" className="h-8 w-8 shrink-0 rounded object-cover" />
                     : <span className="h-8 w-8 shrink-0 rounded bg-neutral-100" />}
@@ -141,7 +141,7 @@ export function ResourcePicker({ field, value, onChange }: { field: Field; value
                     <span className="block truncate text-xs font-medium">{r.label}</span>
                     {r.sub && <span className="block truncate text-[13px] text-neutral-400">{r.sub}</span>}
                   </span>
-                  {on && <Check size={13} className="shrink-0 text-[#005BD3]" />}
+                  {on && <Check size={13} className="shrink-0 text-[#FFFFFF]" />}
                 </button>
               );
             })}

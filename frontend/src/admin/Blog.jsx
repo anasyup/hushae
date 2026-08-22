@@ -1,31 +1,19 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import {
-  Calendar, Eye, FileText, Globe, Loader2, Pencil, Plus, RefreshCcw,
-  Search, Trash2,
-} from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Plus, RefreshCcw } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import AdminLayout from './AdminLayout';
+import PageHeader from './components/PageHeader';
 import { fmtDate } from '../lib/format';
-
-/* ============================================================================
- * ADMIN → BLOG — article management (list + status filter + search).
- * Shopify-style: status pills, draft vs published, inline actions.
- * ========================================================================== */
-
-const STATUS_PILL = {
-  draft:     'bg-amber-50 text-amber-700 ring-amber-200',
-  published: 'bg-emerald-50 text-emerald-700 ring-emerald-200',
-  scheduled: 'bg-blue-50 text-blue-700 ring-blue-200',
-  archived:  'bg-neutral-100 text-neutral-500 ring-neutral-200',
-};
+import {
+  btnGhost, btnSolid, ctlInline, EditorialEmpty, EditorialPagination, MonoStatus, TableSkeleton,
+} from './orders/orderUi';
 
 const STATUS_LABEL = { draft: 'Draft', published: 'Published', scheduled: 'Scheduled', archived: 'Archived' };
 
 export default function Blog() {
   const { auth, toast } = useApp();
-  const nav = useNavigate();
 
   const [rows, setRows] = useState(null);
   const [total, setTotal] = useState(0);
@@ -71,7 +59,6 @@ export default function Blog() {
   };
 
   const openSlug = (slug, st) => {
-    // Live preview for published posts; admin preview token for drafts.
     const base = `${window.location.origin}/blog/${slug}`;
     if (st === 'published' || (st === 'scheduled' && new Date() > new Date(rows?.find?.((r) => r.slug === slug)?.publishAt || 0))) {
       window.open(base, '_blank');
@@ -80,7 +67,6 @@ export default function Blog() {
     }
   };
 
-  /* One-click publish / unpublish straight from the list (Shopify-style). */
   const togglePublish = async (p) => {
     const to = p.status === 'published' ? 'draft' : 'published';
     setBusy(true);
@@ -96,112 +82,83 @@ export default function Blog() {
 
   return (
     <AdminLayout title="Blog">
-      <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h2 className="font-sans text-lg font-semibold text-neutral-900">Articles</h2>
-          <p className="mt-0.5 text-[13px] text-neutral-500">
-            {total} {total === 1 ? 'post' : 'posts'} — fit guides, fabric stories, and updates that bring organic traffic.
-          </p>
-        </div>
-        <Link to="/admin/blog/new" className="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-4 py-2 text-[13px] font-semibold text-white transition hover:bg-black">
-          <Plus size={14} /> New article
-        </Link>
-      </div>
+      <PageHeader
+        title="Blog"
+        description={`${total} ${total === 1 ? 'post' : 'posts'} — fit guides, fabric stories, and updates.`}
+        actions={<Link to="/admin/blog/new" className={btnSolid}><Plus size={12} /> New article</Link>}
+      />
 
-      {/* Filters */}
-      <div className="mb-4 flex flex-wrap items-center gap-2">
-        <div className="relative">
-          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
+      <section className="mb-10">
+        <p className="adm-index">01 — Posts</p>
+        <div className="mb-4 flex flex-wrap items-center gap-2">
           <input
-            className="w-64 rounded-xl border border-neutral-200 bg-white py-2 pl-9 pr-3 text-[13px] outline-none transition focus:border-neutral-900"
+            className={`${ctlInline} w-56`}
             placeholder="Search title or slug…"
             value={q}
             onChange={(e) => { setQ(e.target.value); setPage(1); }}
+            aria-label="Search articles"
           />
-        </div>
-        {['', 'draft', 'published', 'scheduled', 'archived'].map((s) => (
-          <button
-            key={s || 'all'}
-            onClick={() => { setStatus(s); setPage(1); }}
-            className={`rounded-full px-3.5 py-1.5 text-[12px] font-semibold transition ${status === s ? 'bg-neutral-900 text-white' : 'bg-white text-neutral-600 ring-1 ring-neutral-200 hover:ring-neutral-400'}`}
-          >
-            {s ? STATUS_LABEL[s] : 'All'}
+          {['', 'draft', 'published', 'scheduled', 'archived'].map((s) => (
+            <button
+              key={s || 'all'}
+              type="button"
+              onClick={() => { setStatus(s); setPage(1); }}
+              className={status === s ? btnSolid : btnGhost}
+            >
+              {s ? STATUS_LABEL[s] : 'All'}
+            </button>
+          ))}
+          <button type="button" onClick={load} className={`${btnGhost} ml-auto`}>
+            <RefreshCcw size={12} /> Refresh
           </button>
-        ))}
-        <button onClick={load} className="ml-auto inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-[12px] font-semibold text-neutral-600 ring-1 ring-neutral-200 transition hover:ring-neutral-400">
-          <RefreshCcw size={12} /> Refresh
-        </button>
-      </div>
+        </div>
 
-      {/* List */}
-      <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-white">
         {!rows ? (
-          <div className="grid place-items-center py-20"><Loader2 size={22} className="animate-spin text-neutral-300" /></div>
+          <TableSkeleton rows={6} />
         ) : rows.length === 0 ? (
-          <div className="py-16 text-center">
-            <FileText size={28} className="mx-auto text-neutral-300" />
-            <p className="mt-3 text-[13px] font-medium text-neutral-600">No articles found</p>
-            <p className="mt-1 text-[12px] text-neutral-400">Publish your first post, or adjust the filters above.</p>
-          </div>
+          <EditorialEmpty
+            title="No articles found"
+            description="Publish your first post, or adjust the filters above."
+            action={<Link to="/admin/blog/new" className={btnGhost}>New article</Link>}
+          />
         ) : (
-          <div className="divide-y divide-neutral-100">
+          <>
+            <div className="hidden border-b border-white/10 py-2 md:grid md:grid-cols-[minmax(0,1.6fr)_0.6fr_0.7fr_0.7fr_auto] md:gap-3">
+              {['Title', 'Status', 'Author', 'Updated', ''].map((h) => <p key={h || 'a'} className="adm-label">{h}</p>)}
+            </div>
             {rows.map((p) => (
-              <div key={p._id} className="group flex items-center gap-4 px-4 py-3.5 transition hover:bg-neutral-50/70">
-                <div className="h-14 w-16 shrink-0 overflow-hidden rounded-lg bg-neutral-100">
-                  {p.coverImage ? (
-                    <img src={p.coverImage} alt="" className="h-full w-full object-cover" />
-                  ) : (
-                    <div className="grid h-full w-full place-items-center text-[11px] font-bold uppercase tracking-widest text-neutral-400">HUSHAE</div>
-                  )}
+              <div key={p._id} className="grid grid-cols-1 items-center gap-2 border-b border-white/5 py-3 md:grid-cols-[minmax(0,1.6fr)_0.6fr_0.7fr_0.7fr_auto] md:gap-3 adm-row-hover">
+                <div className="min-w-0">
+                  <p className="truncate text-[13px] text-white">{p.title}</p>
+                  <p className="truncate text-[11px] text-white/30">/blog/{p.slug}{p.viewCount > 0 ? ` · ${p.viewCount} views` : ''}</p>
                 </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ring-1 ${STATUS_PILL[p.status] || STATUS_PILL.draft}`}>{STATUS_LABEL[p.status] || p.status}</span>
-                    {p.status === 'scheduled' && p.publishAt && (
-                      <span className="inline-flex items-center gap-1 text-[10px] font-medium text-neutral-400"><Calendar size={10} />{new Date(p.publishAt).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>
-                    )}
-                  </div>
-                  <p className="mt-1 truncate text-[14px] font-semibold text-neutral-900">{p.title}</p>
-                  <p className="truncate text-[12px] text-neutral-400">
-                    /blog/{p.slug} · {p.author || 'no author'} · {fmtDate(p.updatedAt || p.createdAt)}
-                    {p.viewCount > 0 && <> · <Eye size={10} className="inline" /> {p.viewCount}</>}
-                  </p>
-                </div>
-                <div className="flex shrink-0 items-center gap-1">
+                <MonoStatus label={STATUS_LABEL[p.status] || p.status} dim={p.status !== 'published'} />
+                <span className="text-[12px] text-white/45">{p.author || '—'}</span>
+                <span className="text-[12px] text-white/35">
+                  {p.status === 'scheduled' && p.publishAt
+                    ? new Date(p.publishAt).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
+                    : fmtDate(p.updatedAt || p.createdAt)}
+                </span>
+                <div className="flex flex-wrap items-center gap-2 justify-self-start md:justify-self-end">
                   {(p.status === 'draft' || p.status === 'published') && (
-                    <button
-                      onClick={() => togglePublish(p)}
-                      disabled={busy}
-                      className={`rounded-lg px-2 py-1.5 text-[11px] font-bold uppercase tracking-wide transition ${p.status === 'published' ? 'text-neutral-500 hover:bg-amber-50 hover:text-amber-700' : 'bg-emerald-600 text-white hover:bg-emerald-700'}`}
-                      title={p.status === 'published' ? 'Move to draft' : 'Publish now'}
-                    >
-                      {p.status === 'published' ? <><Globe size={12} className="inline" /> Unpublish</> : <><Globe size={12} className="inline" /> Publish</>}
+                    <button type="button" onClick={() => togglePublish(p)} disabled={busy} className={btnGhost}>
+                      {p.status === 'published' ? 'Unpublish' : 'Publish'}
                     </button>
                   )}
-                  <button onClick={() => openSlug(p.slug, p.status)} className="rounded-lg p-2 text-neutral-400 transition hover:bg-neutral-100 hover:text-neutral-700" title="View article">
-                    <Eye size={15} />
-                  </button>
-                  <Link to={`/admin/blog/${p._id}`} className="rounded-lg p-2 text-neutral-400 transition hover:bg-neutral-100 hover:text-neutral-700" title="Edit">
-                    <Pencil size={15} />
-                  </Link>
-                  <button onClick={() => remove(p._id)} disabled={deleting === p._id} className="rounded-lg p-2 text-neutral-400 transition hover:bg-red-50 hover:text-red-600" title="Delete">
-                    {deleting === p._id ? <Loader2 size={15} className="animate-spin" /> : <Trash2 size={15} />}
+                  <button type="button" onClick={() => openSlug(p.slug, p.status)} className={btnGhost}>View</button>
+                  <Link to={`/admin/blog/${p._id}`} className={btnGhost}>Edit</Link>
+                  <button type="button" onClick={() => remove(p._id)} disabled={deleting === p._id} className={btnGhost}>
+                    {deleting === p._id ? '…' : 'Delete'}
                   </button>
                 </div>
               </div>
             ))}
-          </div>
+            <div className="mt-6">
+              <EditorialPagination page={page} pages={pages} onPage={setPage} />
+            </div>
+          </>
         )}
-      </div>
-
-      {/* Pagination */}
-      {pages > 1 && (
-        <div className="mt-4 flex items-center justify-center gap-2">
-          <button disabled={page <= 1} onClick={() => setPage((p) => p - 1)} className="rounded-full bg-white px-4 py-1.5 text-[12px] font-semibold text-neutral-600 ring-1 ring-neutral-200 disabled:opacity-40">← Prev</button>
-          <span className="px-2 text-[12px] font-medium text-neutral-500">{page} / {pages}</span>
-          <button disabled={page >= pages} onClick={() => setPage((p) => p + 1)} className="rounded-full bg-white px-4 py-1.5 text-[12px] font-semibold text-neutral-600 ring-1 ring-neutral-200 disabled:opacity-40">Next →</button>
-        </div>
-      )}
+      </section>
     </AdminLayout>
   );
 }

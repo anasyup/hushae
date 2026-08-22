@@ -1,27 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
-import {
-  ChevronDown, ChevronUp, GripVertical, Loader2, Plus, Save, Trash2, X,
-} from 'lucide-react';
+import { ChevronDown, ChevronUp, GripVertical, Plus, Save, X } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import AdminLayout from './AdminLayout';
-
-/* ============================================================================
- * ADMIN → STOREFRONT → NAVIGATION
- *
- * Shopify-style menu builder for the two navigation surfaces the storefront
- * already reads from settings:
- *   settings.header.menu  → the main bar (label, href, dropdown, highlight)
- *   settings.footer.columns → the footer link columns (title + links)
- *
- * Drag to reorder (native HTML5 DnD — no extra dependency), add/remove rows,
- * and one Save writes both back through the existing PUT /api/settings.
- * The storefront needs ZERO changes: it already reads these exact shapes.
- * ========================================================================== */
-
-const inputCls = 'w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[13px] outline-none transition focus:border-neutral-900';
-const labelCls = 'mb-1 block text-[12px] font-bold uppercase tracking-wider text-neutral-500';
-const cardCls = 'rounded-2xl border border-neutral-200 bg-white p-5';
+import PageHeader from './components/PageHeader';
+import { btnGhost, btnIcon, btnSolid, ctl, TableSkeleton } from './orders/orderUi';
 
 const DEFAULT_HEADER = [
   { label: 'Women', href: '/women', dropdown: 'women', highlight: false },
@@ -46,7 +29,6 @@ const DEFAULT_FOOTER = [
   ] },
 ];
 
-/* Native HTML5 drag helpers — reorder a list item by index. */
 function useDragReorder(items, setItems) {
   const [dragIdx, setDragIdx] = useState(null);
   return {
@@ -75,7 +57,6 @@ export default function Navigation() {
   const [headerMenu, setHeaderMenu] = useState([]);
   const [footerCols, setFooterCols] = useState([]);
 
-  /* ── Load from settings ── */
   useEffect(() => {
     let alive = true;
     api('/settings/admin', { token: auth?.token })
@@ -94,13 +75,11 @@ export default function Navigation() {
 
   const mark = (fn) => { fn(); setDirty(true); };
 
-  /* ── Header menu ops ── */
   const setH = (i, patch) => mark(() => setHeaderMenu((m) => m.map((x, j) => (j === i ? { ...x, ...patch } : x))));
   const addHeader = () => mark(() => setHeaderMenu((m) => [...m, { label: '', href: '/', dropdown: '', highlight: false }]));
   const removeHeader = (i) => mark(() => setHeaderMenu((m) => m.filter((_, j) => j !== i)));
   const headerDnD = useDragReorder(headerMenu, (v) => { setHeaderMenu(v); setDirty(true); });
 
-  /* ── Footer ops ── */
   const setCol = (i, patch) => mark(() => setFooterCols((cols) => cols.map((c, j) => (j === i ? { ...c, ...patch } : c))));
   const addCol = () => mark(() => setFooterCols((cols) => [...cols, { title: '', links: [] }]));
   const removeCol = (i) => mark(() => setFooterCols((cols) => cols.filter((_, j) => j !== i)));
@@ -131,123 +110,120 @@ export default function Navigation() {
   if (!loaded) {
     return (
       <AdminLayout title="Navigation">
-        <div className="grid h-96 place-items-center"><Loader2 size={22} className="animate-spin text-neutral-300" /></div>
+        <PageHeader title="Navigation" description="Header menu and footer columns." />
+        <TableSkeleton rows={6} />
       </AdminLayout>
     );
   }
 
   return (
     <AdminLayout title="Navigation">
-      <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h2 className="font-sans text-lg font-semibold text-neutral-900">Navigation</h2>
-          <p className="mt-0.5 max-w-xl text-[13px] text-neutral-500">
-            Build the header menu and footer link columns. Drag to reorder — changes appear on the storefront as soon as you save.
-          </p>
+      <PageHeader
+        title="Navigation"
+        description="Build the header menu and footer link columns. Drag to reorder — changes appear on the storefront as soon as you save."
+        actions={(
+          <button type="button" onClick={save} disabled={saving || !dirty} className={btnSolid}>
+            <Save size={12} /> {saving ? 'Saving…' : dirty ? 'Save' : 'Saved'}
+          </button>
+        )}
+      />
+
+      <section className="mb-10">
+        <p className="adm-index">01 — Menus</p>
+        <div className="adm-divide-x grid grid-cols-2 border-y border-white/10">
+          <div className="px-5 py-6">
+            <p className="adm-label">Header links</p>
+            <p className="adm-metric mt-3 text-[28px] text-white">{previewMenu.length}</p>
+          </div>
+          <div className="px-5 py-6">
+            <p className="adm-label">Footer columns</p>
+            <p className="adm-metric mt-3 text-[28px] text-white">{footerCols.length}</p>
+          </div>
         </div>
-        <button onClick={save} disabled={saving || !dirty} className="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-5 py-2 text-[13px] font-semibold text-white transition hover:bg-black disabled:opacity-40">
-          {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />} {dirty ? 'Save changes' : 'Saved'}
+      </section>
+
+      <section className="mb-10">
+        <p className="adm-index">02 — Menu structure</p>
+        <p className="mb-4 text-[12px] text-white/35">The main bar. A dropdown link shows its category submenu automatically.</p>
+        <div className="space-y-2">
+          {headerMenu.map((m, i) => (
+            <div
+              key={i}
+              draggable
+              onDragStart={headerDnD.onDragStart(i)}
+              onDragOver={headerDnD.onDragOver(i)}
+              onDrop={headerDnD.onDrop(i)}
+              onDragEnd={headerDnD.endDrag}
+              className={`flex flex-wrap items-center gap-2 border-b border-white/5 py-2 ${headerDnD.dragIdx === i ? 'opacity-40' : ''}`}
+            >
+              <span className="cursor-grab text-white/25" title="Drag to reorder"><GripVertical size={14} /></span>
+              <input className={`${ctl} w-32`} value={m.label} onChange={(e) => setH(i, { label: e.target.value })} placeholder="Label" />
+              <input className={`${ctl} min-w-0 flex-1`} value={m.href} onChange={(e) => setH(i, { href: e.target.value })} placeholder="/path" />
+              <select className={`${ctl} w-28`} value={m.dropdown || ''} onChange={(e) => setH(i, { dropdown: e.target.value })} title="Dropdown submenu">
+                <option value="">No menu</option>
+                <option value="women">Women</option>
+                <option value="men">Men</option>
+              </select>
+              <button type="button" onClick={() => setH(i, { highlight: !m.highlight })} className={m.highlight ? btnSolid : btnGhost} title="Highlight (accent colour)">
+                Sale
+              </button>
+              <button type="button" onClick={() => removeHeader(i)} className={btnIcon} aria-label="Remove link">×</button>
+            </div>
+          ))}
+        </div>
+        <button type="button" onClick={addHeader} className={`${btnGhost} mt-4`}>
+          <Plus size={12} /> Add link
         </button>
-      </div>
+      </section>
 
-      <div className="grid gap-6 xl:grid-cols-2">
-        {/* ═══ HEADER MENU ═══ */}
-        <div className={cardCls}>
-          <div className="mb-1 flex items-center justify-between">
-            <h3 className="text-[14px] font-bold text-neutral-900">Header menu</h3>
-            <span className="rounded-full bg-neutral-100 px-2.5 py-0.5 text-[11px] font-medium text-neutral-500">{previewMenu.length} links</span>
-          </div>
-          <p className="mb-4 text-[12px] text-neutral-400">The main bar. A "dropdown" link shows its category submenu automatically.</p>
-
-          <div className="space-y-2">
-            {headerMenu.map((m, i) => (
-              <div
-                key={i}
-                draggable
-                onDragStart={headerDnD.onDragStart(i)}
-                onDragOver={headerDnD.onDragOver(i)}
-                onDrop={headerDnD.onDrop(i)}
-                onDragEnd={headerDnD.endDrag}
-                className={`flex items-center gap-2 rounded-xl border p-2 transition ${headerDnD.dragIdx === i ? 'border-neutral-900 bg-neutral-50 opacity-60' : 'border-neutral-200 bg-white hover:border-neutral-300'}`}
-              >
-                <span className="cursor-grab text-neutral-300 hover:text-neutral-500" title="Drag to reorder"><GripVertical size={16} /></span>
-                <input className="w-36 rounded-lg border border-neutral-200 bg-white px-2.5 py-1.5 text-[13px] outline-none focus:border-neutral-900" value={m.label} onChange={(e) => setH(i, { label: e.target.value })} placeholder="Label" />
-                <input className="min-w-0 flex-1 rounded-lg border border-neutral-200 bg-white px-2.5 py-1.5 text-[13px] outline-none focus:border-neutral-900" value={m.href} onChange={(e) => setH(i, { href: e.target.value })} placeholder="/path" />
-                <select className="w-24 rounded-lg border border-neutral-200 bg-white px-1.5 py-1.5 text-[12px] outline-none" value={m.dropdown || ''} onChange={(e) => setH(i, { dropdown: e.target.value })} title="Dropdown submenu">
-                  <option value="">No menu</option>
-                  <option value="women">Women</option>
-                  <option value="men">Men</option>
-                </select>
-                <button onClick={() => setH(i, { highlight: !m.highlight })} className={`rounded-lg px-2 py-1.5 text-[11px] font-bold uppercase tracking-wide transition ${m.highlight ? 'bg-red-600 text-white' : 'bg-neutral-100 text-neutral-500 hover:bg-neutral-200'}`} title="Highlight (accent colour)">
-                  Sale
-                </button>
-                <button onClick={() => removeHeader(i)} className="rounded-lg p-1.5 text-neutral-300 hover:bg-red-50 hover:text-red-600"><Trash2 size={14} /></button>
-              </div>
-            ))}
-          </div>
-
-          <button onClick={addHeader} className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-xl border border-dashed border-neutral-300 py-2.5 text-[13px] font-semibold text-neutral-600 transition hover:border-neutral-900 hover:text-neutral-900">
-            <Plus size={14} /> Add link
-          </button>
-        </div>
-
-        {/* ═══ FOOTER COLUMNS ═══ */}
-        <div className={cardCls}>
-          <div className="mb-1 flex items-center justify-between">
-            <h3 className="text-[14px] font-bold text-neutral-900">Footer columns</h3>
-            <span className="rounded-full bg-neutral-100 px-2.5 py-0.5 text-[11px] font-medium text-neutral-500">{footerCols.length} columns</span>
-          </div>
-          <p className="mb-4 text-[12px] text-neutral-400">Each column is a heading with links underneath. Drag columns to reorder.</p>
-
-          <div className="space-y-3">
-            {footerCols.map((col, ci) => (
-                <div key={ci} className="rounded-xl border border-neutral-200 bg-neutral-50/60 p-3">
-                  <div className="flex items-center gap-2">
-                    <div className="flex flex-col">
-                      <button onClick={() => mark(() => setFooterCols((cols) => { const n = [...cols]; if (ci > 0) { [n[ci], n[ci - 1]] = [n[ci - 1], n[ci]]; } return n; }))} disabled={ci === 0} className="rounded p-0.5 text-neutral-400 hover:text-neutral-700 disabled:opacity-30"><ChevronUp size={14} /></button>
-                      <button onClick={() => mark(() => setFooterCols((cols) => { const n = [...cols]; if (ci < n.length - 1) { [n[ci], n[ci + 1]] = [n[ci + 1], n[ci]]; } return n; }))} disabled={ci === footerCols.length - 1} className="rounded p-0.5 text-neutral-400 hover:text-neutral-700 disabled:opacity-30"><ChevronDown size={14} /></button>
-                    </div>
-                    <input className="w-full rounded-lg border border-neutral-200 bg-white px-2.5 py-1.5 text-[13px] font-semibold outline-none focus:border-neutral-900" value={col.title} onChange={(e) => setCol(ci, { title: e.target.value })} placeholder="Column title (e.g. Shop)" />
-                    <button onClick={() => removeCol(ci)} className="rounded-lg p-1.5 text-neutral-300 hover:bg-red-50 hover:text-red-600"><Trash2 size={14} /></button>
-                  </div>
-
-                  <div className="mt-2 space-y-1.5">
-                    {col.links.map((l, li) => (
-                      <div key={li} className="flex items-center gap-2">
-                        <input className="w-32 rounded-lg border border-neutral-200 bg-white px-2.5 py-1.5 text-[12px] outline-none focus:border-neutral-900" value={l.label} onChange={(e) => setLink(ci, li, { label: e.target.value })} placeholder="Label" />
-                        <input className="min-w-0 flex-1 rounded-lg border border-neutral-200 bg-white px-2.5 py-1.5 text-[12px] outline-none focus:border-neutral-900" value={l.href} onChange={(e) => setLink(ci, li, { href: e.target.value })} placeholder="/path" />
-                        <button onClick={() => removeLink(ci, li)} className="rounded p-1 text-neutral-300 hover:bg-red-50 hover:text-red-600"><X size={13} /></button>
-                      </div>
-                    ))}
-                  </div>
-                  <button onClick={() => addLink(ci)} className="mt-2 inline-flex items-center gap-1 text-[12px] font-semibold text-neutral-500 hover:text-neutral-900">
-                    <Plus size={12} /> Add link
-                  </button>
+      <section className="mb-10">
+        <p className="adm-index">03 — Footer</p>
+        <p className="mb-4 text-[12px] text-white/35">Each column is a heading with links underneath.</p>
+        <div className="space-y-6">
+          {footerCols.map((col, ci) => (
+            <div key={ci} className="border-y border-white/10 py-4">
+              <div className="flex items-center gap-2">
+                <div className="flex flex-col">
+                  <button type="button" onClick={() => mark(() => setFooterCols((cols) => { const n = [...cols]; if (ci > 0) { [n[ci], n[ci - 1]] = [n[ci - 1], n[ci]]; } return n; }))} disabled={ci === 0} className="text-white/30 disabled:opacity-20"><ChevronUp size={14} /></button>
+                  <button type="button" onClick={() => mark(() => setFooterCols((cols) => { const n = [...cols]; if (ci < n.length - 1) { [n[ci], n[ci + 1]] = [n[ci + 1], n[ci]]; } return n; }))} disabled={ci === footerCols.length - 1} className="text-white/30 disabled:opacity-20"><ChevronDown size={14} /></button>
                 </div>
-            ))}
-          </div>
-
-          <button onClick={addCol} className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-xl border border-dashed border-neutral-300 py-2.5 text-[13px] font-semibold text-neutral-600 transition hover:border-neutral-900 hover:text-neutral-900">
-            <Plus size={14} /> Add column
-          </button>
+                <input className={ctl} value={col.title} onChange={(e) => setCol(ci, { title: e.target.value })} placeholder="Column title (e.g. Shop)" />
+                <button type="button" onClick={() => removeCol(ci)} className={btnIcon} aria-label="Remove column">×</button>
+              </div>
+              <div className="mt-3 space-y-2 pl-8">
+                {col.links.map((l, li) => (
+                  <div key={li} className="flex items-center gap-2">
+                    <input className={`${ctl} w-32`} value={l.label} onChange={(e) => setLink(ci, li, { label: e.target.value })} placeholder="Label" />
+                    <input className={`${ctl} min-w-0 flex-1`} value={l.href} onChange={(e) => setLink(ci, li, { href: e.target.value })} placeholder="/path" />
+                    <button type="button" onClick={() => removeLink(ci, li)} className={btnIcon} aria-label="Remove footer link"><X size={12} /></button>
+                  </div>
+                ))}
+              </div>
+              <button type="button" onClick={() => addLink(ci)} className={`${btnGhost} mt-3 ml-8`}>
+                <Plus size={12} /> Add link
+              </button>
+            </div>
+          ))}
         </div>
-      </div>
+        <button type="button" onClick={addCol} className={`${btnGhost} mt-4`}>
+          <Plus size={12} /> Add column
+        </button>
+      </section>
 
-      {/* ── Live shape hint ── */}
-      <div className="mt-6 rounded-2xl border border-neutral-200 bg-white p-5">
-        <h3 className="text-[14px] font-bold text-neutral-900">What customers see</h3>
-        <p className="mt-1 text-[12px] text-neutral-400">A small preview of how the header links will render (labels only).</p>
-        <div className="mt-3 flex flex-wrap items-center gap-3 border-t border-neutral-100 pt-3">
+      <section>
+        <p className="adm-index">04 — Preview</p>
+        <p className="mb-3 text-[12px] text-white/35">Labels only — how the header links will render.</p>
+        <div className="flex flex-wrap items-center gap-4 border-y border-white/10 py-4">
           {previewMenu.length === 0 ? (
-            <span className="text-[12px] text-neutral-400">No links yet — add some above.</span>
+            <span className="text-[12px] text-white/35">No links yet — add some above.</span>
           ) : previewMenu.map((m, i) => (
-            <span key={i} className={`inline-flex items-center gap-1.5 text-[12px] font-medium ${m.highlight ? 'text-red-600' : 'text-neutral-700'}`}>
+            <span key={i} className={`inline-flex items-center gap-1.5 text-[12px] ${m.highlight ? 'text-white' : 'text-white/60'}`}>
               {m.label || '(no label)'}
-              {m.dropdown && <ChevronDown size={11} className="text-neutral-400" />}
+              {m.dropdown && <ChevronDown size={11} className="text-white/30" />}
             </span>
           ))}
         </div>
-      </div>
+      </section>
     </AdminLayout>
   );
 }

@@ -130,7 +130,7 @@ export default function ThemeEditorApp() {
 
       if (mod && e.key.toLowerCase() === 'z') { e.preventDefault(); e.shiftKey ? redo() : undo(); return; }
       if (mod && e.key.toLowerCase() === 'y') { e.preventDefault(); redo(); return; }
-      if (mod && e.key.toLowerCase() === 's') { e.preventDefault(); save(true); return; }
+      if (mod && e.key.toLowerCase() === 's') { e.preventDefault(); save(false); return; }
       if (typing) return;
       if (mod && e.key.toLowerCase() === 'd' && selectedId) { e.preventDefault(); duplicate(selectedId); return; }
       if ((e.key === 'Delete' || e.key === 'Backspace') && selectedId) {
@@ -146,8 +146,8 @@ export default function ThemeEditorApp() {
 
   if (loading) {
     return (
-      <div className="fixed inset-0 z-50 grid place-items-center bg-neutral-100">
-        <div className="flex items-center gap-2 text-sm text-neutral-500">
+      <div className="fixed inset-0 z-50 grid place-items-center bg-[#050505]">
+        <div className="flex items-center gap-2 text-sm text-white/40">
           <Loader2 size={16} className="animate-spin" /> Loading theme…
         </div>
       </div>
@@ -155,8 +155,8 @@ export default function ThemeEditorApp() {
   }
 
   return (
-    <div className="te-shell fixed inset-0 z-50 flex flex-col bg-neutral-100">
-      <Topbar onPublish={() => save(true)} />
+    <div className="te-shell fixed inset-0 z-50 flex flex-col bg-[#050505] text-white">
+      <Topbar onSave={() => save(false)} onPublish={() => save(true)} />
       <ActivateBanner onActivate={() => save(true)} />
 
       <div className="relative flex flex-1 overflow-hidden">
@@ -164,16 +164,16 @@ export default function ThemeEditorApp() {
         {mobilePanel === 'tree' && (
           <div className="absolute inset-0 z-30 bg-black/40 md:hidden" onClick={() => setMobilePanel(null)} />
         )}
-        <aside className={`relative z-40 flex w-[290px] shrink-0 flex-col border-r border-neutral-200 bg-white ${
-          mobilePanel === 'tree' ? 'absolute inset-y-0 left-0 shadow-2xl md:static md:shadow-none' : 'hidden md:flex'
+        <aside className={`relative z-40 flex w-[290px] shrink-0 flex-col border-r border-white/10 bg-[#0A0A0A] ${
+          mobilePanel === 'tree' ? 'absolute inset-y-0 left-0 md:static' : 'hidden md:flex'
         }`}>
-          <div className="border-b border-neutral-100 px-3 py-2.5">
-            <div className="flex items-center gap-1.5 rounded-lg bg-neutral-100 px-2.5 py-1.5">
-              <Search size={12} className="shrink-0 text-neutral-400" />
+          <div className="border-b border-white/10 px-3 py-2.5">
+            <div className="flex items-center gap-1.5 border-b border-white/15 px-1 py-1.5">
+              <Search size={12} className="shrink-0 text-white/30" />
               <input value={sidebarQuery} onChange={(e) => setSidebarQuery(e.target.value)}
-                placeholder="Search sections and blocks" className="w-full bg-transparent text-xs outline-none" />
+                placeholder="Search sections and blocks" className="w-full bg-transparent text-xs text-white/80 outline-none placeholder:text-white/30" />
               {sidebarQuery && (
-                <button onClick={() => setSidebarQuery('')}><X size={11} className="text-neutral-400" /></button>
+                <button onClick={() => setSidebarQuery('')}><X size={11} className="text-white/30" /></button>
               )}
             </div>
           </div>
@@ -190,8 +190,8 @@ export default function ThemeEditorApp() {
         {mobilePanel === 'inspector' && (
           <div className="absolute inset-0 z-30 bg-black/40 md:hidden" onClick={() => setMobilePanel(null)} />
         )}
-        <aside className={`z-40 w-[320px] shrink-0 border-l border-neutral-200 bg-white ${
-          mobilePanel === 'inspector' ? 'absolute inset-y-0 right-0 shadow-2xl md:static md:shadow-none' : 'hidden md:block'
+        <aside className={`z-40 w-[320px] shrink-0 border-l border-white/10 bg-[#0A0A0A] ${
+          mobilePanel === 'inspector' ? 'absolute inset-y-0 right-0 md:static' : 'hidden md:block'
         }`}>
           <Inspector />
         </aside>

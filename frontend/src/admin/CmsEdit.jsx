@@ -1,12 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Eye, EyeOff, FileText, Send, Trash2 } from 'lucide-react';
+import { Eye, EyeOff, Send } from 'lucide-react';
 import { api } from '../api/client';
 import { useApp } from '../store/AppContext';
 import AdminLayout from './AdminLayout';
+import PageHeader from './components/PageHeader';
 import { Accordion, DateTime, Num, Section, Select, Text, Toggle } from './ui/Controls';
-import { EMPTY_PAGE, PAGE_TYPES, STATE_LABEL, STATE_STYLE, hydratePage, typeOf } from './cms/pageTypes';
-import { CMS_DEFAULTS, checkSlugLocal, previewTitle, resolveCms } from '../lib/cmsConfig';
+import { EMPTY_PAGE, PAGE_TYPES, STATE_LABEL, hydratePage, typeOf } from './cms/pageTypes';
+import { btnGhost, btnSolid, ctl, MonoStatus, TableSkeleton } from './orders/orderUi';
+import { CMS_DEFAULTS, checkSlugLocal, resolveCms } from '../lib/cmsConfig';
 import SeoPanel from './cms/SeoPanel';
 import SocialPanel from './cms/SocialPanel';
 import StructuredDataPanel from './cms/StructuredDataPanel';
@@ -99,7 +101,7 @@ export default function CmsEdit() {
     try { return JSON.parse(original).slug !== p?.slug; } catch { return false; }
   }, [original, p?.slug, isNew]);
 
-  if (!p) return <AdminLayout title="Page"><div className="animate-pulse rounded-xl bg-neutral-100 h-96 w-full" /></AdminLayout>;
+  if (!p) return <AdminLayout title="Page"><PageHeader title="Page" /><TableSkeleton rows={8} /></AdminLayout>;
 
   const t = typeOf(p.type);
   const set = (k, v) => setP({ ...p, [k]: v });
@@ -212,61 +214,42 @@ export default function CmsEdit() {
 
   return (
     <AdminLayout title={isNew ? 'New page' : p.title || 'Page'}>
-      {/* ---- header ---- */}
-      <div className="mb-6 flex flex-wrap items-start justify-between gap-3 border-b border-neutral-200 pb-6">
-        <div className="flex min-w-0 items-start gap-4">
-          <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-neutral-900 text-white">
-            <FileText size={20} strokeWidth={1.8} />
-          </span>
-          <div className="min-w-0">
-            <h2 className="truncate font-sans text-2xl leading-tight text-neutral-900">{isNew ? 'New page' : p.title || 'Untitled'}</h2>
-            <p className="mt-1 flex flex-wrap items-center gap-2 text-[13px] text-neutral-600">
-              <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[13px] font-semibold ring-1 ${STATE_STYLE[reason] || STATE_STYLE.draft}`}>
-                {STATE_LABEL[reason] || reason}
-              </span>
-              {p.slug && <span className="truncate">/{p.slug}</span>}
-            </p>
-          </div>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <Link to="/admin/cms" className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-neutral-300 px-3 text-[13px] font-semibold text-neutral-700 transition hover:bg-neutral-50">
-            <ArrowLeft size={13} aria-hidden="true" /> Pages
-          </Link>
-          {!isNew && state?.live && (
-            <a
-              href={`/${p.slug}`} target="_blank" rel="noreferrer"
-              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-neutral-300 px-3 text-[13px] font-semibold text-neutral-700 transition hover:bg-neutral-50"
-            >
-              <Eye size={13} aria-hidden="true" /> View
-            </a>
-          )}
-          <button
-            type="button" onClick={save} disabled={busy || (!dirty && !isNew)}
-            className="min-h-[44px] rounded-lg bg-neutral-900 px-4 text-[13px] font-semibold text-white transition hover:bg-neutral-800 disabled:opacity-50"
-          >
-            {busy ? 'Saving…' : isNew ? 'Save draft' : dirty ? 'Save changes' : 'Saved'}
-          </button>
-        </div>
-      </div>
+      <PageHeader
+        title={isNew ? 'New page' : p.title || 'Untitled'}
+        description={p.slug ? `/${p.slug}` : 'Draft page'}
+        actions={(
+          <>
+            <MonoStatus label={STATE_LABEL[reason] || reason} dim={reason !== 'live'} />
+            <Link to="/admin/cms" className={btnGhost}>Pages</Link>
+            {!isNew && state?.live && (
+              <a href={`/${p.slug}`} target="_blank" rel="noreferrer" className={btnGhost}>
+                <Eye size={12} aria-hidden="true" /> View
+              </a>
+            )}
+            <button type="button" onClick={save} disabled={busy || (!dirty && !isNew)} className={btnSolid}>
+              {busy ? 'Saving…' : isNew ? 'Save draft' : dirty ? 'Save changes' : 'Saved'}
+            </button>
+          </>
+        )}
+      />
 
-      {/* ---- what the customer sees right now ---- */}
       {!isNew && (
-        <div className={`mb-5 rounded-xl border px-4 py-3 text-[13px] ${state?.live ? 'border-emerald-200 bg-emerald-50 text-emerald-900' : 'border-neutral-200 bg-neutral-50 text-neutral-700'}`}>
+        <p className="mb-6 text-[13px] leading-relaxed text-white/45">
           {reason === 'live' && <>Customers can read this page now{p.hasDraft ? ' — but your newest edits are not published yet.' : '.'}</>}
           {reason === 'draft' && 'Only you can see this. Press Publish when it is ready.'}
           {reason === 'scheduled' && <>Hidden until {fmtWhen(p.publishAt)}. Nobody can reach it before then, even with the link.</>}
           {reason === 'expired' && <>This finished on {fmtWhen(p.unpublishAt)} and is hidden again.</>}
           {reason === 'archived' && 'Archived. Hidden from customers and kept out of your way.'}
-        </div>
+        </p>
       )}
 
       {problems.length > 0 && (
-        <ul role="alert" className="mb-5 space-y-1 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-[13px] text-amber-900">
+        <ul role="alert" className="mb-6 space-y-1 border-y border-white/10 py-4 text-[13px] text-white/60">
           {problems.map((m) => <li key={m}>{m}</li>)}
         </ul>
       )}
       {errs.length > 0 && (
-        <ul role="alert" className="mb-5 space-y-1 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-[13px] text-red-800">
+        <ul role="alert" className="mb-6 space-y-1 border-y border-white/10 py-4 text-[13px] text-white/70">
           {errs.map((e, i) => <li key={i}>{e.message}</li>)}
         </ul>
       )}
@@ -274,9 +257,10 @@ export default function CmsEdit() {
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
         {/* ================= main column ================= */}
         <div className="min-w-0 space-y-5">
-          <Section title="The page" description="The name at the top and the web address people type.">
+          <Section variant="editorial" title="01 — Page" description="The name at the top and the web address people type.">
             <div className="space-y-4">
               <Text
+                variant="editorial"
                 label="Page name" value={p.title} onChange={setTitle}
                 hint="Shown as the big heading. Example: Size guide"
                 placeholder="Size guide"
@@ -284,13 +268,14 @@ export default function CmsEdit() {
 
               <div>
                 <Text
+                  variant="editorial"
                   label="Web address" value={p.slug}
                   onChange={(v) => { slugTouched.current = true; set('slug', v); }}
                   hint={`People will reach it at hushae.pk/${p.slug || '…'}`}
                   placeholder="size-guide"
                 />
                 {p.slug && !slugCheck.ok && (
-                  <p role="alert" className="mt-1.5 text-[13px] font-medium text-red-700">
+                  <p role="alert" className="mt-1.5 text-[13px] text-white/60">
                     {slugCheck.message}
                     {slugCheck.suggestion && (
                       <button
@@ -304,7 +289,7 @@ export default function CmsEdit() {
                   </p>
                 )}
                 {renamed && slugCheck.ok && (
-                  <p className="mt-1.5 rounded-lg bg-sky-50 px-3 py-2 text-[13px] leading-relaxed text-sky-900">
+                  <p className="mt-1.5 text-[13px] leading-relaxed text-white/45">
                     You changed the address. Anyone using the old link would normally hit a dead end —
                     {cfg.autoRedirectOnRename
                       ? ' we will leave a note that sends them to the new one automatically.'
@@ -314,6 +299,7 @@ export default function CmsEdit() {
               </div>
 
               <Select
+                variant="editorial"
                 label="Kind of page" value={p.type} onChange={(v) => set('type', v)}
                 options={PAGE_TYPES.map((x) => ({ value: x.type, label: x.label }))}
                 hint={t.blurb}
@@ -322,20 +308,21 @@ export default function CmsEdit() {
           </Section>
 
           <Section
-            title="What it says"
+            variant="editorial"
+            title="02 — Content"
             description="Write it the way you would explain it to a customer standing in front of you. Leave a blank line between paragraphs."
           >
             <div>
-              <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500" htmlFor="cms-body">Page writing</label>
+              <label className="adm-label mb-1.5 block" htmlFor="cms-body">Page writing</label>
               <textarea
                 id="cms-body" rows={18}
                 value={p.body || ''}
                 onChange={(e) => set('body', e.target.value)}
                 aria-describedby="cms-body-h"
-                className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[13px] outline-none transition focus:border-neutral-900 min-h-[320px] resize-y font-mono text-[13px] leading-relaxed"
+                className={`${ctl} min-h-[320px] resize-y py-3 font-mono leading-relaxed`}
                 placeholder={'Returns\n\nWe accept returns within 14 days of delivery, as long as the item is unworn and the tags are still attached.\n\nHow to start a return\n\nMessage us on WhatsApp with your order number.'}
               />
-              <p id="cms-body-h" className="mt-1.5 text-[13px] leading-relaxed text-neutral-600">
+              <p id="cms-body-h" className="mt-1.5 text-[12px] leading-relaxed text-white/35">
                 A line on its own with nothing after it becomes a heading. Everything else becomes a paragraph.
                 {' '}{(p.body || '').length.toLocaleString('en-PK')} characters.
               </p>
@@ -347,18 +334,18 @@ export default function CmsEdit() {
               is present. */}
           <SectionBuilder doc={p.draft || p.doc} onChange={(next) => set(p.draft || !p.doc ? 'draft' : 'doc', next)} />
 
-          <Accordion title="Short summary" subtitle="Used in search results and when the link is shared">
+          <Accordion variant="editorial" title="Short summary" subtitle="Used in search results and when the link is shared">
             <div>
-              <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500" htmlFor="cms-excerpt">Summary</label>
+              <label className="adm-label mb-1.5 block" htmlFor="cms-excerpt">Summary</label>
               <textarea
                 id="cms-excerpt" rows={3} value={p.excerpt || ''}
                 onChange={(e) => set('excerpt', e.target.value)}
                 aria-describedby="cms-excerpt-h"
-                className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[13px] outline-none transition focus:border-neutral-900 resize-y"
+                className={`${ctl} resize-y py-2`}
                 placeholder="How to measure yourself and pick the right size."
                 maxLength={300}
               />
-              <p id="cms-excerpt-h" className="mt-1.5 text-[13px] text-neutral-600">
+              <p id="cms-excerpt-h" className="mt-1.5 text-[12px] text-white/35">
                 Keep it under about 160 characters. {(p.excerpt || '').length}/300 used.
               </p>
             </div>
@@ -367,10 +354,10 @@ export default function CmsEdit() {
 
         {/* ================= sidebar ================= */}
         <div className="min-w-0 space-y-5">
-          <Section title="Going live" description="Nothing is visible until you publish.">
+          <Section variant="editorial" title="03 — Publishing" description="Nothing is visible until you publish.">
             <div className="space-y-3">
               {isNew ? (
-                <p className="rounded-lg bg-neutral-50 px-3 py-2.5 text-[13px] leading-relaxed text-neutral-700">
+                <p className="text-[13px] leading-relaxed text-white/45">
                   Save the page first. New pages are always saved as a draft so you can read them over before
                   anyone else does.
                 </p>
@@ -378,34 +365,28 @@ export default function CmsEdit() {
                 <>
                   <button
                     type="button" onClick={() => publish(null)} disabled={busy || dirty || reason === 'live'}
-                    className="inline-flex min-h-[44px] w-full items-center justify-center gap-1.5 rounded-lg bg-neutral-900 px-4 text-[13px] font-semibold text-white transition hover:bg-neutral-800 disabled:opacity-50"
+                    className={`${btnSolid} w-full`}
                   >
-                    <Send size={13} aria-hidden="true" />
+                    <Send size={12} aria-hidden="true" />
                     {reason === 'live' ? (p.hasDraft ? 'Publish your edits' : 'Already live') : 'Publish now'}
                   </button>
                   {reason === 'live' && p.hasDraft && (
-                    <button
-                      type="button" onClick={() => publish(null)} disabled={busy || dirty}
-                      className="min-h-[44px] w-full rounded-lg border border-neutral-900 px-4 text-[13px] font-semibold text-neutral-900 transition hover:bg-neutral-50 disabled:opacity-50"
-                    >
+                    <button type="button" onClick={() => publish(null)} disabled={busy || dirty} className={`${btnGhost} w-full`}>
                       Publish the newest edits
                     </button>
                   )}
                   {(reason === 'live' || reason === 'scheduled') && (
-                    <button
-                      type="button" onClick={unpublish} disabled={busy}
-                      className="inline-flex min-h-[44px] w-full items-center justify-center gap-1.5 rounded-lg border border-neutral-300 px-4 text-[13px] font-semibold text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-50"
-                    >
-                      <EyeOff size={13} aria-hidden="true" /> Hide from customers
+                    <button type="button" onClick={unpublish} disabled={busy} className={`${btnGhost} w-full`}>
+                      <EyeOff size={12} aria-hidden="true" /> Hide from customers
                     </button>
                   )}
                   {dirty && (
-                    <p className="text-[13px] leading-relaxed text-amber-800">
+                    <p className="text-[13px] leading-relaxed text-white/45">
                       Save your changes before publishing — otherwise the old version goes live.
                     </p>
                   )}
                   {p.publishedAt && (
-                    <p className="text-[13px] text-neutral-600">Last published {fmtWhen(p.publishedAt)}</p>
+                    <p className="text-[12px] text-white/35">Last published {fmtWhen(p.publishedAt)}</p>
                   )}
                 </>
               )}
@@ -413,20 +394,18 @@ export default function CmsEdit() {
           </Section>
 
           {!isNew && (
-            <Accordion title="Publish later" subtitle="Pick a date and time instead">
+            <Accordion variant="editorial" title="Publish later" subtitle="Pick a date and time instead">
               <div className="space-y-3">
                 <DateTime
+                  variant="editorial"
                   label="Go live on" value={scheduleAt} onChange={setScheduleAt}
                   hint="Karachi time. Before this moment the page cannot be reached, even with the link."
                 />
-                <button
-                  type="button" disabled={busy || dirty || !scheduleAt}
-                  onClick={() => publish(scheduleAt)}
-                  className="min-h-[44px] w-full rounded-lg border border-neutral-900 px-4 text-[13px] font-semibold text-neutral-900 transition hover:bg-neutral-50 disabled:opacity-50"
-                >
+                <button type="button" disabled={busy || dirty || !scheduleAt} onClick={() => publish(scheduleAt)} className={`${btnGhost} w-full`}>
                   Schedule
                 </button>
                 <DateTime
+                  variant="editorial"
                   label="Hide again on (optional)" value={p.unpublishAt} onChange={(v) => set('unpublishAt', v)}
                   hint="For a sale page that should disappear when the sale ends. Save after changing."
                 />
@@ -434,31 +413,36 @@ export default function CmsEdit() {
             </Accordion>
           )}
 
-          <Accordion title="Where it appears" subtitle="Footer and menu links">
+          <Accordion variant="editorial" title="Where it appears" subtitle="Footer and menu links">
             <div className="space-y-3">
               <Toggle
+                variant="editorial"
                 label="Show in the footer" checked={!!p.showInFooter}
                 onChange={(v) => set('showInFooter', v)}
                 description="The list of links at the very bottom of every page."
               />
               <Toggle
+                variant="editorial"
                 label="Show in the top menu" checked={!!p.showInHeader}
                 onChange={(v) => set('showInHeader', v)}
                 description="Use sparingly — a crowded menu is harder to shop."
               />
               <Text
+                variant="editorial"
                 label="Link wording (optional)" value={p.navLabel}
                 onChange={(v) => set('navLabel', v)}
                 hint={`Leave blank to use "${p.title || 'the page name'}". Useful when the page name is long.`}
                 placeholder="Sizing"
               />
               <Text
+                variant="editorial"
                 label="Group heading (optional)" value={p.navGroup}
                 onChange={(v) => set('navGroup', v.slice(0, 40))}
                 hint="Pages sharing a heading are listed together under it in the footer — for example Help, or Guides. Leave blank to sit with the other links."
                 placeholder="Help"
               />
               <Num
+                variant="editorial"
                 label="Order in the list" value={p.sortOrder}
                 onChange={(v) => set('sortOrder', v)}
                 min={0} max={999}
@@ -487,15 +471,12 @@ export default function CmsEdit() {
           )}
 
           {!isNew && !p.locked && (
-            <button
-              type="button" onClick={remove}
-              className="inline-flex min-h-[44px] w-full items-center justify-center gap-1.5 rounded-lg border border-red-200 px-4 text-[13px] font-semibold text-red-700 transition hover:bg-red-50"
-            >
-              <Trash2 size={13} aria-hidden="true" /> Delete this page
+            <button type="button" onClick={remove} className={`${btnGhost} w-full`}>
+              Delete this page
             </button>
           )}
           {!isNew && p.locked && (
-            <p className="rounded-lg bg-amber-50 px-3 py-2.5 text-[13px] leading-relaxed text-amber-900">
+            <p className="text-[13px] leading-relaxed text-white/40">
               This page is part of the shop and cannot be deleted. Hide it instead.
             </p>
           )}

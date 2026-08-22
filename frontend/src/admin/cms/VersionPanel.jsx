@@ -66,10 +66,10 @@ function changeLine(c) {
 }
 
 const TONE = {
-  add: 'border-emerald-200 bg-emerald-50 text-emerald-900',
-  del: 'border-red-200 bg-red-50 text-red-800',
-  move: 'border-sky-200 bg-sky-50 text-sky-900',
-  edit: 'border-neutral-200 bg-neutral-50 text-neutral-700',
+  add: 'text-white/80',
+  del: 'text-white/45',
+  move: 'text-white/60',
+  edit: 'text-white/55',
 };
 
 export default function VersionPanel({ pageId, versions, onRestored }) {
@@ -112,46 +112,45 @@ export default function VersionPanel({ pageId, versions, onRestored }) {
 
   return (
     <Accordion
+      variant="editorial"
       title="Earlier versions"
       subtitle={list.length ? `${list.length} saved` : 'A copy is kept every time you publish'}
       badge={list.length ? (
-        <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-[13px] font-semibold text-neutral-700 ring-1 ring-neutral-200">
-          {list.length}
-        </span>
+        <span className="text-[10px] uppercase tracking-[0.14em] text-white/35">{list.length}</span>
       ) : null}
     >
       {!list.length ? (
-        <p className="rounded-lg bg-neutral-50 px-3 py-3 text-[12px] leading-relaxed text-neutral-700">
+        <p className="text-[12px] leading-relaxed text-white/40">
           Nothing saved yet. Every time you press Publish, a copy of the page is kept here — so you can
           always go back to how it read last month.
         </p>
       ) : (
         <>
-          <p className="mb-3 rounded-lg bg-sky-50 px-3 py-2 text-[12px] leading-relaxed text-sky-900">
+          <p className="mb-3 text-[12px] leading-relaxed text-white/40">
             Bringing back an old version puts it into your <strong>draft</strong>. What customers are reading
             right now does not change until you press Publish.
           </p>
 
           {/* Timeline. A left rule with a dot per entry reads as a sequence; a
               plain list of cards reads as a set, and the order is the point. */}
-          <ol className="relative space-y-2 border-l border-neutral-200 pl-4">
+          <ol className="relative space-y-2 border-l border-white/10 pl-4">
             {list.map((v, i) => {
               const open = openId === v._id;
               return (
                 <li key={v._id} className="relative">
                   <span
-                    className={`absolute -left-[21px] top-3 h-2.5 w-2.5 rounded-full ring-2 ring-white ${i === 0 ? 'bg-neutral-900' : 'bg-neutral-300'}`}
+                    className={`absolute -left-[21px] top-3 h-2 w-2 rounded-full ${i === 0 ? 'bg-white' : 'bg-white/25'}`}
                     aria-hidden="true"
                   />
-                  <div className={`rounded-xl border transition ${open ? 'border-neutral-900' : 'border-neutral-200'} bg-white`}>
+                  <div className={`border-y transition ${open ? 'border-white/25' : 'border-white/10'}`}>
                     <div className="p-3">
                       <div className="flex flex-wrap items-start justify-between gap-2">
                         <div className="min-w-0">
-                          <p className="truncate text-[13px] font-semibold text-neutral-900">
+                          <p className="truncate text-[13px] text-white">
                             {v.label || 'Saved version'}
-                            {i === 0 && <span className="ml-2 rounded-full bg-neutral-100 px-2 py-0.5 text-[13px] font-medium text-neutral-700">newest</span>}
+                            {i === 0 && <span className="ml-2 text-[10px] uppercase tracking-[0.14em] text-white/30">newest</span>}
                           </p>
-                          <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[12px] text-neutral-600">
+                          <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[12px] text-white/35">
                             <span className="inline-flex items-center gap-1">
                               <Clock size={10} aria-hidden="true" />
                               <time dateTime={v.createdAt} title={exact(v.createdAt)}>{when(v.createdAt)}</time>
@@ -170,7 +169,7 @@ export default function VersionPanel({ pageId, versions, onRestored }) {
                           type="button"
                           onClick={() => setOpenId(open ? null : v._id)}
                           aria-expanded={open}
-                          className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-neutral-300 px-3 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50"
+                          className="inline-flex h-8 items-center gap-1.5 rounded-[4px] border border-white/20 px-3 text-[10px] font-medium uppercase tracking-[0.08em] text-white/70 transition hover:border-white/45 hover:text-white"
                         >
                           <GitCompare size={13} aria-hidden="true" />
                           {open ? 'Hide changes' : 'What changed'}
@@ -178,7 +177,7 @@ export default function VersionPanel({ pageId, versions, onRestored }) {
                         <button
                           type="button" disabled={busy}
                           onClick={() => restore(v)}
-                          className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg bg-neutral-900 px-3 text-[12px] font-semibold text-white transition hover:bg-neutral-800 disabled:opacity-50"
+                          className="inline-flex h-8 items-center gap-1.5 rounded-[4px] bg-white px-3 text-[10px] font-medium uppercase tracking-[0.08em] text-black transition hover:bg-white/85 disabled:opacity-35"
                         >
                           <RotateCcw size={13} aria-hidden="true" /> Bring back
                         </button>
@@ -186,18 +185,18 @@ export default function VersionPanel({ pageId, versions, onRestored }) {
                     </div>
 
                     {open && (
-                      <div className="border-t border-neutral-200 p-3">
+                      <div className="border-t border-white/10 p-3">
                         {loading ? (
                           <div className="skeleton h-16 w-full" />
                         ) : !diff ? (
-                          <p className="text-[12px] text-neutral-600">Could not load the comparison.</p>
+                          <p className="text-[12px] text-white/35">Could not load the comparison.</p>
                         ) : !diff.changes?.length ? (
-                          <p className="rounded-lg bg-emerald-50 px-3 py-2 text-[12px] text-emerald-900">
+                          <p className="text-[12px] text-white/50">
                             Identical to the page as it stands now — nothing has changed since.
                           </p>
                         ) : (
                           <>
-                            <p className="mb-2 flex flex-wrap items-center gap-1.5 text-[12px] font-semibold uppercase tracking-widest text-neutral-600">
+                            <p className="mb-2 flex flex-wrap items-center gap-1.5 text-[10px] font-medium uppercase tracking-[0.16em] text-white/35">
                               {diff.from?.label || 'that version'}
                               <ArrowRight size={11} aria-hidden="true" />
                               {diff.to?.label || 'now'}
@@ -206,13 +205,13 @@ export default function VersionPanel({ pageId, versions, onRestored }) {
                               {diff.changes.map((c, k) => {
                                 const line = changeLine(c);
                                 return (
-                                  <li key={k} className={`rounded-lg border px-2.5 py-1.5 text-[12px] leading-relaxed ${TONE[line.tone]}`}>
+                                  <li key={k} className={`border-b border-white/5 py-1.5 text-[12px] leading-relaxed ${TONE[line.tone]}`}>
                                     {line.text}
                                   </li>
                                 );
                               })}
                             </ul>
-                            <p className="mt-2 text-[12px] text-neutral-600">
+                            <p className="mt-2 text-[12px] text-white/35">
                               {diff.changes.length} change{diff.changes.length === 1 ? '' : 's'} since that version.
                             </p>
                           </>
@@ -225,7 +224,7 @@ export default function VersionPanel({ pageId, versions, onRestored }) {
             })}
           </ol>
 
-          <p className="mt-3 flex items-start gap-1.5 text-[12px] leading-relaxed text-neutral-600">
+          <p className="mt-3 flex items-start gap-1.5 text-[12px] leading-relaxed text-white/30">
             <History size={12} className="mt-0.5 shrink-0" aria-hidden="true" />
             Older copies past your limit are cleared automatically so this list stays readable.
           </p>

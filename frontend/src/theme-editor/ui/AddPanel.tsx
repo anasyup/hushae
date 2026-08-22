@@ -99,7 +99,7 @@ export function AddSectionPanel() {
                     <span className="min-w-0 flex-1">
                       <span className="block text-[15px] font-medium text-neutral-900">{s.name}</span>
                       {s.description && <span className="mt-0.5 block text-[15px] leading-snug text-neutral-500">{s.description}</span>}
-                      {atLimit && <span className="mt-0.5 block text-[15px] text-amber-600">Limit reached</span>}
+                      {atLimit && <span className="mt-0.5 block text-[15px] text-white/50">Limit reached</span>}
                     </span>
                   </button>
                 );
@@ -138,7 +138,7 @@ export function AddBlockPanel() {
 
   return (
     <Overlay title="Add block" onClose={() => close(null)} q={q} setQ={setQ} placeholder="Search blocks">
-      {full && <p className="mb-3 rounded-lg bg-amber-50 p-3 text-xs text-amber-700">This section has reached its block limit.</p>}
+      {full && <p className="mb-3 rounded-lg border border-white/10 p-3 text-xs text-white/45">This section has reached its block limit.</p>}
       {list.length === 0 && <p className="p-6 text-center text-xs text-neutral-400">No blocks available here.</p>}
       <div className="space-y-0.5">
         {list.map((s) => {

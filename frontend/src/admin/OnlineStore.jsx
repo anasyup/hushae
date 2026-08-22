@@ -1,17 +1,16 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import {
-  BadgePercent, BarChart3, Check, Copy, ExternalLink, Globe, Lock, Megaphone,
-  MessageCircle, Palette, Pencil, Store, Truck,
-} from 'lucide-react';
+import { Copy, ExternalLink } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import AdminLayout from './AdminLayout';
+import PageHeader from './components/PageHeader';
+import { btnGhost, btnSolid, ctl, MonoStatus, TableSkeleton } from './orders/orderUi';
 
 export default function OnlineStore() {
   const { auth, toast } = useApp();
   const [s, setS] = useState(null);
-  const [live, setLive] = useState(null); // null=checking, true/false
+  const [live, setLive] = useState(null);
   const [busy, setBusy] = useState(false);
   const [copied, setCopied] = useState(false);
   const storeUrl = window.location.origin;
@@ -38,107 +37,147 @@ export default function OnlineStore() {
     try { await navigator.clipboard.writeText(storeUrl); setCopied(true); setTimeout(() => setCopied(false), 2000); } catch {}
   };
 
-  const statusPill = live === null
-    ? <span className="flex items-center gap-1.5 rounded-full bg-neutral-100 px-3 py-1 text-[12px] font-semibold text-neutral-500">Checking…</span>
-    : live
-      ? <span className="flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-[12px] font-semibold text-emerald-700"><span className="h-1.5 w-1.5 rounded-full bg-emerald-600" /> Store Live</span>
-      : <span className="flex items-center gap-1.5 rounded-full bg-red-100 px-3 py-1 text-[12px] font-semibold text-red-800"><span className="h-1.5 w-1.5 rounded-full bg-red-600" /> Offline</span>;
-
   const ACTIONS = [
-    ['Edit Theme', 'Sections, images, text, colours', Palette, '/admin/theme'],
-    ['Announcement Bar', 'Top strip on/off aur message', Megaphone, '/admin/content'],
-    ['Coupons', 'Create discount codes', BadgePercent, '/admin/discounts'],
-    ['Shipping & COD', 'Rates aur free-shipping limit', Truck, '/admin/markets'],
-    ['WhatsApp & Social', 'Chat button aur links', MessageCircle, '/admin/apps'],
-    ['Analytics', 'Sales charts dekhein', BarChart3, '/admin/analytics'],
+    ['Edit Theme', 'Sections, images, text, colours', '/admin/theme'],
+    ['Announcement Bar', 'Top strip on/off aur message', '/admin/content'],
+    ['Coupons', 'Create discount codes', '/admin/discounts'],
+    ['Shipping & COD', 'Rates aur free-shipping limit', '/admin/markets'],
+    ['WhatsApp & Social', 'Chat button aur links', '/admin/apps'],
+    ['Analytics', 'Sales charts dekhein', '/admin/analytics'],
   ];
 
   return (
     <AdminLayout title="Online Store">
-      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-3">{statusPill}{lock.enabled && <span className="flex items-center gap-1.5 rounded-full bg-[#f6dfc4] px-3 py-1 text-[12px] font-semibold text-[#9a5b13]"><Lock size={11} /> Password protected</span>}</div>
-        <div className="flex gap-2">
-          <button onClick={copyUrl} className="inline-flex items-center gap-1.5 rounded-full border border-neutral-300 bg-white px-4 py-2 text-[12px] font-semibold text-neutral-700 hover:bg-neutral-50 !py-2"><Copy size={13} /> {copied ? 'Copied!' : 'Copy link'}</button>
-          <a href="/" target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-4 py-2 text-[12px] font-semibold text-white hover:bg-black !py-2"><ExternalLink size={13} /> View store</a>
-        </div>
-      </div>
+      <PageHeader
+        title="Online store"
+        description="Manage your storefront configuration."
+        actions={(
+          <>
+            <button type="button" onClick={copyUrl} className={btnGhost}>
+              <Copy size={12} /> {copied ? 'Copied' : 'Copy link'}
+            </button>
+            <a href="/" target="_blank" rel="noreferrer" className={btnSolid}>
+              <ExternalLink size={12} /> View store
+            </a>
+          </>
+        )}
+      />
 
-      {/* Live preview */}
-      <div className="rounded-2xl border border-neutral-200 bg-white overflow-hidden">
-        <div className="flex items-center gap-3 border-b border-neutral-200 bg-neutral-100/40 px-4 py-2.5">
-          <span className="flex gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-full bg-[#e26d6d]" /><span className="h-2.5 w-2.5 rounded-full bg-[#e5b45c]" /><span className="h-2.5 w-2.5 rounded-full bg-[#7fbf7f]" />
-          </span>
-          <span className="mx-auto flex w-full max-w-md items-center justify-center gap-1.5 rounded-full bg-white px-3 py-1 text-[12px] text-neutral-500"><Globe size={11} /> {storeUrl.replace(/^https?:\/\//, '')}</span>
-          <span className="w-10" />
-        </div>
-        <div className="relative flex items-end justify-center gap-6 bg-[#ecebe8] px-6 pt-6">
-          <div className="hidden h-[300px] w-full max-w-[560px] overflow-hidden rounded-t-xl border border-b-0 border-neutral-200 bg-white shadow-md md:block">
-            <iframe title="Desktop preview" src="/" loading="lazy" className="pointer-events-none h-[200%] w-[200%] origin-top-left scale-50 border-0" tabIndex="-1" />
+      <section className="mb-10">
+        <p className="adm-index">01 — Store status</p>
+        <div className="adm-divide-x grid grid-cols-1 border-y border-white/10 sm:grid-cols-3">
+          <div className="px-5 py-6">
+            <p className="adm-label">Availability</p>
+            <div className="mt-3">
+              {live === null
+                ? <MonoStatus label="CHECKING" dim />
+                : live
+                  ? <MonoStatus label="LIVE" />
+                  : <MonoStatus label="OFFLINE" dim />}
+            </div>
           </div>
-          <div className="h-[280px] w-[140px] shrink-0 overflow-hidden rounded-t-[1.4rem] border-[7px] border-b-0 border-obsidian bg-white shadow-md">
-            <iframe title="Mobile preview" src="/" loading="lazy" className="pointer-events-none h-[560px] w-[280px] origin-top-left scale-[0.45] border-0" tabIndex="-1" />
+          <div className="px-5 py-6">
+            <p className="adm-label">Access</p>
+            <div className="mt-3">
+              <MonoStatus label={lock.enabled ? 'PASSWORD PROTECTED' : 'PUBLIC'} dim={lock.enabled} />
+            </div>
+          </div>
+          <div className="px-5 py-6">
+            <p className="adm-label">Address</p>
+            <p className="mt-3 truncate text-[13px] text-white/70">{storeUrl.replace(/^https?:\/\//, '')}</p>
           </div>
         </div>
-      </div>
+      </section>
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-2">
-        {/* Current theme */}
-        <div className="rounded-2xl border border-neutral-200 bg-white p-6">
-          <div className="flex items-start justify-between">
-            <div className="flex items-center gap-3">
-              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-neutral-900 text-white"><Store size={20} /></span>
+      <section className="mb-10">
+        <p className="adm-index">02 — Preview</p>
+        <div className="overflow-hidden border-y border-white/10">
+          <div className="flex items-center gap-3 border-b border-white/10 px-4 py-2.5">
+            <span className="flex gap-1.5" aria-hidden>
+              <span className="h-2 w-2 rounded-full bg-white/25" />
+              <span className="h-2 w-2 rounded-full bg-white/15" />
+              <span className="h-2 w-2 rounded-full bg-white/10" />
+            </span>
+            <span className="mx-auto truncate text-[11px] uppercase tracking-[0.14em] text-white/35">
+              {storeUrl.replace(/^https?:\/\//, '')}
+            </span>
+          </div>
+          <div className="relative flex items-end justify-center gap-6 bg-black px-6 pt-6">
+            <div className="hidden h-[300px] w-full max-w-[560px] overflow-hidden border border-b-0 border-white/10 bg-[#0A0A0A] md:block">
+              <iframe title="Desktop preview" src="/" loading="lazy" className="pointer-events-none h-[200%] w-[200%] origin-top-left scale-50 border-0" tabIndex="-1" />
+            </div>
+            <div className="h-[280px] w-[140px] shrink-0 overflow-hidden border-[6px] border-b-0 border-white/20 bg-[#0A0A0A]">
+              <iframe title="Mobile preview" src="/" loading="lazy" className="pointer-events-none h-[560px] w-[280px] origin-top-left scale-[0.45] border-0" tabIndex="-1" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="mb-10">
+        <p className="adm-index">03 — Store management</p>
+        {!s ? (
+          <TableSkeleton rows={4} />
+        ) : (
+          <div className="border-y border-white/10 py-6">
+            <div className="mb-6 flex items-start justify-between gap-4">
               <div>
-                <p className="font-sans text-lg">HUSHAE Signature</p>
-                <p className="text-xs text-neutral-500">Current theme · v1.0 · Active</p>
+                <p className="text-[13px] text-white">Password protection</p>
+                <p className="mt-1 text-[12px] text-white/35">
+                  {lock.enabled ? 'Store abhi sirf password se khulta hai' : 'Store sab ke liye open hai'}
+                </p>
+              </div>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={!!lock.enabled}
+                onClick={() => setLock('enabled', !lock.enabled)}
+                className={`relative h-5 w-9 shrink-0 rounded-full ${lock.enabled ? 'bg-white' : 'bg-white/20'}`}
+              >
+                <span className={`absolute top-0.5 h-4 w-4 rounded-full transition-all ${lock.enabled ? 'left-[18px] bg-black' : 'left-0.5 bg-white'}`} />
+              </button>
+            </div>
+            <div className={`grid gap-4 sm:grid-cols-2 ${lock.enabled ? '' : 'pointer-events-none opacity-35'}`}>
+              <div className="sm:col-span-2">
+                <label className="adm-label mb-1.5 block">Password</label>
+                <input className={ctl} value={lock.password} onChange={(e) => setLock('password', e.target.value)} placeholder="e.g. hushae-2026" />
+              </div>
+              <div>
+                <label className="adm-label mb-1.5 block">Heading (lock screen)</label>
+                <input className={ctl} value={lock.heading || ''} onChange={(e) => setLock('heading', e.target.value)} placeholder="HUSHAE is opening soon" />
+              </div>
+              <div>
+                <label className="adm-label mb-1.5 block">Message</label>
+                <input className={ctl} value={lock.message || ''} onChange={(e) => setLock('message', e.target.value)} />
               </div>
             </div>
-            <span className="rounded-full bg-emerald-50 px-3 py-1 text-[12px] font-semibold text-emerald-700">Live</span>
-          </div>
-          <div className="mt-5 flex flex-wrap gap-2">
-            <Link to="/admin/theme" className="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-4 py-2 text-[12px] font-semibold text-white hover:bg-black"><Pencil size={14} /> Edit theme</Link>
-            <a href="/" target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-full border border-neutral-300 bg-white px-4 py-2 text-[12px] font-semibold text-neutral-700 hover:bg-neutral-50"><ExternalLink size={13} /> View store</a>
-          </div>
-        </div>
-
-        {/* Password lock */}
-        <div className="rounded-2xl border border-neutral-200 bg-white p-6">
-          <div className="flex items-start justify-between">
-            <div className="flex items-center gap-3">
-              <span className={`flex h-11 w-11 items-center justify-center rounded-xl ${lock.enabled ? 'bg-[#9a5b13] text-white' : 'bg-neutral-100 text-neutral-500'}`}><Lock size={18} /></span>
-              <div>
-                <p className="font-sans text-lg">Password Protection</p>
-                <p className="text-xs text-neutral-500">{lock.enabled ? 'Store abhi sirf password se khulta hai' : 'Store sab ke liye open hai'}</p>
-              </div>
+            <div className="mt-6 flex flex-wrap items-center gap-3">
+              <button type="button" onClick={saveLock} disabled={busy || !s} className={btnSolid}>
+                {busy ? 'Saving…' : 'Save'}
+              </button>
+              {lock.enabled && (
+                <p className="text-[11px] uppercase tracking-[0.12em] text-white/30">
+                  Save ke foran baad sab visitors se password manga jayega
+                </p>
+              )}
             </div>
-            <label className="relative inline-flex cursor-pointer items-center">
-              <input type="checkbox" className="peer sr-only" checked={lock.enabled} onChange={(e) => setLock('enabled', e.target.checked)} />
-              <span className="h-6 w-11 rounded-full bg-neutral-100 transition peer-checked:bg-neutral-900 after:absolute after:left-1 after:top-1 after:h-4 after:w-4 after:rounded-full after:bg-white after:transition peer-checked:after:translate-x-5" />
-            </label>
           </div>
-          <div className={`mt-4 grid gap-3 sm:grid-cols-2 ${lock.enabled ? '' : 'pointer-events-none opacity-40'}`}>
-            <div className="sm:col-span-2"><label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500">Password</label><input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={lock.password} onChange={(e) => setLock('password', e.target.value)} placeholder="e.g. hushae-2026" /></div>
-            <div><label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500">Heading (lock screen)</label><input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={lock.heading || ''} onChange={(e) => setLock('heading', e.target.value)} placeholder="HUSHAE is opening soon" /></div>
-            <div><label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500">Message</label><input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={lock.message || ''} onChange={(e) => setLock('message', e.target.value)} /></div>
-          </div>
-          <div className="mt-4 flex items-center gap-3">
-            <button onClick={saveLock} disabled={busy || !s} className="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-4 py-2 text-[12px] font-semibold text-white hover:bg-black">{busy ? 'Saving…' : 'Save'}</button>
-            {lock.enabled && <p className="flex items-center gap-1 text-[12px] text-neutral-500"><Check size={12} className="text-emerald-700" /> Save ke foran baad sab visitors se password manga jayega</p>}
-          </div>
-        </div>
-      </div>
+        )}
+      </section>
 
-      {/* Customize */}
-      <h2 className="mt-8 font-sans text-lg">Customize</h2>
-      <div className="mt-3 grid grid-cols-2 gap-3 md:grid-cols-3">
-        {ACTIONS.map(([label, desc, Icon, to]) => (
-          <Link key={label} to={to} className="rounded-2xl border border-neutral-200 bg-white group p-4 transition hover:border-obsidian/30 hover:shadow-md">
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-neutral-100 text-neutral-900/70 transition group-hover:bg-neutral-900 group-hover:text-white"><Icon size={16} /></span>
-            <p className="mt-3 text-sm font-semibold">{label}</p>
-            <p className="mt-0.5 text-[12px] leading-relaxed text-neutral-500">{desc}</p>
-          </Link>
-        ))}
-      </div>
+      <section>
+        <p className="adm-index">04 — Quick links</p>
+        <div className="divide-y divide-white/10 border-y border-white/10">
+          {ACTIONS.map(([label, hint, to]) => (
+            <Link key={to} to={to} className="flex items-center justify-between gap-4 py-4 adm-row-hover">
+              <span>
+                <span className="block text-[13px] text-white">{label}</span>
+                <span className="mt-0.5 block text-[12px] text-white/35">{hint}</span>
+              </span>
+              <span className="text-[11px] uppercase tracking-[0.14em] text-white/30">Open →</span>
+            </Link>
+          ))}
+        </div>
+      </section>
     </AdminLayout>
   );
 }

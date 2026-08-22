@@ -53,7 +53,7 @@ export function ListField({ field, value, onChange }: Props) {
               <span className="truncate text-xs font-medium">{title(row, i)}</span>
             </button>
             <button type="button" onClick={() => onChange(value.filter((_, j) => j !== i))}
-              className="grid h-6 w-6 shrink-0 place-items-center rounded text-neutral-400 hover:bg-red-50 hover:text-red-600">
+              className="grid h-6 w-6 shrink-0 place-items-center rounded text-neutral-400 hover:bg-white/5 hover:text-white">
               <Trash2 size={11} />
             </button>
           </div>

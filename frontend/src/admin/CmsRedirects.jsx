@@ -1,27 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Plus, Signpost, Trash2 } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { api } from '../api/client';
 import { useApp } from '../store/AppContext';
 import AdminLayout from './AdminLayout';
-import { Empty, Section, Select, Stat, Text } from './ui/Controls';
-
-/* ============================================================================
- * ADMIN → OLD ADDRESSES (redirects)
- *
- * WHAT THIS IS, IN SHOP TERMS
- *   You move your shop from one street to another. You leave a note on the old
- *   door saying where you went. Without the note every customer who saved the
- *   old address finds an empty room.
- *
- * Renaming a page's web address silently breaks every existing link — a saved
- * WhatsApp message, a Google result, an influencer's bio. The server already
- * writes a 301 automatically on rename (settings.cms.autoRedirectOnRename) and
- * collapses chains so a → b → c resolves in ONE hop. This screen shows those
- * automatic notes alongside any the merchant writes by hand, and counts how
- * many people actually used each one — a note nobody follows is clutter, and
- * clutter is what makes a redirect table rot.
- * ========================================================================== */
+import PageHeader from './components/PageHeader';
+import { Select, Text } from './ui/Controls';
+import { btnGhost, btnSolid, EditorialEmpty, MonoStatus, TableSkeleton } from './orders/orderUi';
 
 const fmtWhen = (d) => (d ? new Date(d).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'Never');
 
@@ -58,9 +43,6 @@ export default function CmsRedirects() {
     };
   }, [rows]);
 
-  /* Client-side guards mirror the server's. The server still decides — this
-     only spares a round trip and explains the problem next to the field that
-     caused it, rather than in a toast that vanishes. */
   const problem = useMemo(() => {
     const from = form.from.trim().toLowerCase().replace(/^\/+|\/+$/g, '');
     const to = form.to.trim();
@@ -112,163 +94,84 @@ export default function CmsRedirects() {
 
   return (
     <AdminLayout title="Old addresses">
-      <div className="mb-6 flex flex-wrap items-start justify-between gap-3 border-b border-neutral-200 pb-6">
-        <div className="flex items-start gap-4">
-          <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-neutral-900 text-white">
-            <Signpost size={20} strokeWidth={1.8} />
-          </span>
-          <div className="min-w-0">
-            <h2 className="font-sans text-2xl leading-tight text-neutral-900">Old addresses</h2>
-            <p className="mt-1 max-w-2xl text-[13px] leading-relaxed text-neutral-600">
-              When a page changes address, anyone with the old link should still arrive. These are the notes
-              on the old door. Renaming a page writes one automatically.
-            </p>
-          </div>
-        </div>
-        <Link to="/admin/cms" className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-neutral-300 px-3 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50">
-          <ArrowLeft size={13} aria-hidden="true" /> Back to pages
-        </Link>
-      </div>
+      <PageHeader
+        title="Redirects"
+        description="When a page changes address, anyone with the old link should still arrive."
+        actions={<Link to="/admin/cms" className={btnGhost}>Back to pages</Link>}
+      />
 
-      <div className="mb-5 grid grid-cols-2 gap-3 md:grid-cols-4">
-        <Stat label="Notes" value={stats.total} />
-        <Stat label="Written automatically" value={stats.auto} sub="from renames" />
-        <Stat label="Visitors rescued" value={stats.hits} />
-        <Stat label="Never used" value={stats.unused} tone={stats.unused > 20 ? 'warn' : undefined} />
-      </div>
-
-      <div className="mb-6">
-        <Section
-          title="Add a note"
-          description="Use this when a link is already out in the world — printed on a card, sent on WhatsApp — and you want it to keep working."
-        >
-          <form onSubmit={add} className="grid gap-4 md:grid-cols-2">
-            <Text
-              label="Old address" value={form.from}
-              onChange={(v) => setForm({ ...form, from: v })}
-              hint="What people type or click now. Example: summer-sale"
-              placeholder="summer-sale"
-            />
-            <Text
-              label="Send them to" value={form.to}
-              onChange={(v) => setForm({ ...form, to: v })}
-              hint="Where they should land. Example: /eid-sale"
-              placeholder="/eid-sale"
-            />
-            <Select
-              label="Kind of move" value={form.code}
-              onChange={(v) => setForm({ ...form, code: v })}
-              options={CODES}
-              hint="Moved for good is right almost every time — it tells Google to update its records."
-            />
-            <Text
-              label="Note to yourself (optional)" value={form.note}
-              onChange={(v) => setForm({ ...form, note: v })}
-              hint="Why this exists, so it still makes sense in six months."
-              placeholder="Old campaign link from the July flyer"
-            />
-            <div className="md:col-span-2">
-              {(err || problem) && (
-                <p
-                  role="alert"
-                  className={`mb-3 rounded-lg px-3 py-2 text-[12px] ${blocking || err ? 'bg-red-50 text-red-800' : 'bg-amber-50 text-amber-900'}`}
-                >
-                  {err || problem}
-                </p>
-              )}
-              <button
-                type="submit" disabled={busy || blocking}
-                className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg bg-neutral-900 px-4 text-[12px] font-semibold text-white transition hover:bg-neutral-800 disabled:opacity-50"
-              >
-                <Plus size={13} aria-hidden="true" /> {busy ? 'Saving…' : 'Add note'}
-              </button>
+      <section className="mb-10">
+        <p className="adm-index">01 — Overview</p>
+        <div className="adm-divide-x grid grid-cols-2 border-y border-white/10 md:grid-cols-4">
+          {[
+            { label: 'Notes', value: stats.total },
+            { label: 'Automatic', value: stats.auto, sub: 'from renames' },
+            { label: 'Visitors rescued', value: stats.hits },
+            { label: 'Never used', value: stats.unused },
+          ].map((x) => (
+            <div key={x.label} className="px-5 py-6">
+              <p className="adm-label">{x.label}</p>
+              <p className="adm-metric mt-3 text-[26px] text-white">{x.value}</p>
+              {x.sub && <p className="mt-1 text-[11px] text-white/30">{x.sub}</p>}
             </div>
-          </form>
-        </Section>
-      </div>
+          ))}
+        </div>
+      </section>
 
-      {rows === null ? (
-        <div className="animate-pulse rounded-xl bg-neutral-100 h-48 w-full" />
-      ) : !rows.length ? (
-        <Empty
-          title="No notes yet"
-          description="Nothing has moved. When you rename a page, a note appears here on its own so the old link keeps working."
-        />
-      ) : (
-        <>
-          <ul className="space-y-2 md:hidden">
-            {rows.map((r) => (
-              <li key={r._id} className="rounded-xl border border-neutral-200 bg-white p-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="truncate text-[13px] font-medium text-neutral-900">/{r.from}</p>
-                    <p className="mt-1 flex items-center gap-1 truncate text-[12px] text-neutral-600">
-                      <ArrowRight size={12} aria-hidden="true" /> {r.to}
-                    </p>
-                  </div>
-                  <button
-                    type="button" onClick={() => remove(r)}
-                    className="grid h-11 w-11 shrink-0 place-items-center rounded-lg border border-red-200 text-red-700 transition hover:bg-red-50"
-                  >
-                    <Trash2 size={14} aria-hidden="true" />
-                    <span className="sr-only">Delete the note for /{r.from}</span>
-                  </button>
-                </div>
-                <div className="mt-2 flex flex-wrap items-center gap-3 text-[12px] text-neutral-600">
-                  <span>{r.code}</span>
-                  <span>{r.hits || 0} used</span>
-                  {r.auto && <span className="rounded-full bg-sky-50 px-2 py-0.5 font-medium text-sky-800">Automatic</span>}
-                </div>
-                {r.note && <p className="mt-1.5 text-[12px] text-neutral-600">{r.note}</p>}
-              </li>
-            ))}
-          </ul>
-
-          <div className="hidden overflow-hidden rounded-xl border border-neutral-200 md:block">
-            <table className="w-full text-left">
-              <caption className="sr-only">Redirects, {rows.length} shown</caption>
-              <thead className="bg-neutral-50 text-[12px] uppercase tracking-wider text-neutral-600">
-                <tr>
-                  <th scope="col" className="px-4 py-3 font-semibold">Old address</th>
-                  <th scope="col" className="px-4 py-3 font-semibold">Goes to</th>
-                  <th scope="col" className="px-4 py-3 font-semibold">Kind</th>
-                  <th scope="col" className="px-4 py-3 text-right font-semibold">Used</th>
-                  <th scope="col" className="px-4 py-3 font-semibold">Last used</th>
-                  <th scope="col" className="w-16 px-4 py-3 text-right font-semibold">Remove</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-neutral-100 text-[13px]">
-                {rows.map((r) => (
-                  <tr key={r._id} className="bg-white transition hover:bg-neutral-50">
-                    <td className="px-4 py-3">
-                      <span className="font-medium text-neutral-900">/{r.from}</span>
-                      {r.note && <p className="mt-0.5 text-[12px] text-neutral-600">{r.note}</p>}
-                    </td>
-                    <td className="px-4 py-3 text-neutral-700">{r.to}</td>
-                    <td className="px-4 py-3">
-                      <span className="text-neutral-700">{r.code}</span>
-                      {r.auto && (
-                        <span className="ml-2 rounded-full bg-sky-50 px-2 py-0.5 text-[13px] font-semibold text-sky-800 ring-1 ring-sky-200">Automatic</span>
-                      )}
-                    </td>
-                    <td className="px-4 py-3 text-right tabular-nums text-neutral-700">{r.hits || 0}</td>
-                    <td className="px-4 py-3 text-neutral-700">{fmtWhen(r.lastHit)}</td>
-                    <td className="px-4 py-3 text-right">
-                      <button
-                        type="button" onClick={() => remove(r)}
-                        className="inline-grid h-11 w-11 place-items-center rounded-lg border border-red-200 text-red-700 transition hover:bg-red-50"
-                      >
-                        <Trash2 size={14} aria-hidden="true" />
-                        <span className="sr-only">Delete the note for /{r.from}</span>
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+      <section className="mb-10">
+        <p className="adm-index">02 — Add a note</p>
+        <p className="mb-4 text-[12px] text-white/35">Use this when a link is already out in the world.</p>
+        <form onSubmit={add} className="grid gap-4 border-y border-white/10 py-6 md:grid-cols-2">
+          <Text variant="editorial" label="Old address" value={form.from} onChange={(v) => setForm({ ...form, from: v })} hint="What people type or click now. Example: summer-sale" placeholder="summer-sale" />
+          <Text variant="editorial" label="Send them to" value={form.to} onChange={(v) => setForm({ ...form, to: v })} hint="Where they should land. Example: /eid-sale" placeholder="/eid-sale" />
+          <Select variant="editorial" label="Kind of move" value={form.code} onChange={(v) => setForm({ ...form, code: v })} options={CODES} hint="Moved for good is right almost every time." />
+          <Text variant="editorial" label="Note to yourself (optional)" value={form.note} onChange={(v) => setForm({ ...form, note: v })} hint="Why this exists, so it still makes sense in six months." placeholder="Old campaign link from the July flyer" />
+          <div className="md:col-span-2">
+            {(err || problem) && (
+              <p role="alert" className="mb-3 text-[12px] leading-relaxed text-white/55">{err || problem}</p>
+            )}
+            <button type="submit" disabled={busy || blocking} className={btnSolid}>
+              <Plus size={12} /> {busy ? 'Saving…' : 'Add note'}
+            </button>
           </div>
-        </>
-      )}
+        </form>
+      </section>
+
+      <section>
+        <p className="adm-index">03 — Directory</p>
+        {rows === null ? (
+          <TableSkeleton rows={5} />
+        ) : !rows.length ? (
+          <EditorialEmpty
+            title="No notes yet"
+            description="Nothing has moved. When you rename a page, a note appears here on its own so the old link keeps working."
+          />
+        ) : (
+          <>
+            <div className="hidden border-b border-white/10 py-2 md:grid md:grid-cols-[minmax(0,1.2fr)_minmax(0,1.2fr)_0.5fr_0.4fr_0.7fr_auto] md:gap-3">
+              {['From', 'To', 'Status', 'Used', 'Updated', ''].map((h) => <p key={h || 'a'} className="adm-label">{h}</p>)}
+            </div>
+            {rows.map((r) => (
+              <div key={r._id} className="grid grid-cols-1 gap-1 border-b border-white/5 py-3 md:grid-cols-[minmax(0,1.2fr)_minmax(0,1.2fr)_0.5fr_0.4fr_0.7fr_auto] md:items-center md:gap-3 adm-row-hover">
+                <div>
+                  <p className="truncate text-[13px] text-white">/{r.from}</p>
+                  {r.note && <p className="truncate text-[11px] text-white/30">{r.note}</p>}
+                </div>
+                <p className="truncate text-[12px] text-white/70">{r.to}</p>
+                <div className="flex items-center gap-2">
+                  <span className="text-[12px] tabular-nums text-white/50">{r.code}</span>
+                  {r.auto && <MonoStatus label="AUTO" dim />}
+                </div>
+                <span className="text-[12px] tabular-nums text-white/50">{r.hits || 0}</span>
+                <span className="text-[12px] text-white/35">{fmtWhen(r.lastHit)}</span>
+                <button type="button" onClick={() => remove(r)} className={`${btnGhost} justify-self-start md:justify-self-end`}>
+                  Remove
+                </button>
+              </div>
+            ))}
+          </>
+        )}
+      </section>
     </AdminLayout>
   );
 }
