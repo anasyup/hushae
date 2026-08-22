@@ -22,7 +22,7 @@ export default function InsightsCard({ insights }) {
     <div className="relative overflow-hidden rounded-2xl border border-neutral-900 bg-neutral-900 p-5 text-white">
       <div className="flex items-start gap-3">
         <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white/10">
-          <Icon size={16} className="text-amber-300" />
+          <Icon size={16} className="text-white/70" />
         </span>
         <div className="min-w-0 flex-1">
           {/* text-gray-400 (#9CA3AF) passes 7.44:1 on this near-black card —

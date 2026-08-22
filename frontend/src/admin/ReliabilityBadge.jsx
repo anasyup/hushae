@@ -11,9 +11,9 @@ import { ShieldCheck, ShieldAlert, UserPlus } from 'lucide-react';
  * ========================================================================== */
 
 const STYLES = {
-  reliable: 'bg-emerald-50 text-emerald-700 ring-emerald-200',
-  new: 'bg-amber-50 text-amber-700 ring-amber-200',
-  'high-risk': 'bg-red-50 text-red-700 ring-red-200',
+  reliable: 'bg-white/10 text-white/90 ring-white/20',
+  new: 'bg-white/8 text-white/70 ring-white/15',
+  'high-risk': 'bg-white/5 text-white/60 ring-white/10',
 };
 
 export default function ReliabilityBadge({ reliability, compact = false }) {

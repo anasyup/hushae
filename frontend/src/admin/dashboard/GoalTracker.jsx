@@ -5,9 +5,9 @@ import { useApp } from '../../store/AppContext';
 import { pkr } from '../../lib/format';
 
 const PACE = {
-  ahead:      { label: 'Ahead of pace', cls: 'bg-emerald-50 text-emerald-700 ring-emerald-200', bar: 'bg-emerald-500' },
-  'on-track': { label: 'On track',      cls: 'bg-blue-50 text-blue-700 ring-blue-200',          bar: 'bg-blue-500' },
-  behind:     { label: 'Behind pace',   cls: 'bg-amber-50 text-amber-800 ring-amber-200',       bar: 'bg-amber-500' },
+  ahead:      { label: 'Ahead of pace', cls: 'bg-white/12 text-white ring-white/20', bar: 'bg-white' },
+  'on-track': { label: 'On track',      cls: 'bg-white/8 text-white/85 ring-white/15', bar: 'bg-white/70' },
+  behind:     { label: 'Behind pace',   cls: 'bg-white/5 text-white/70 ring-white/10', bar: 'bg-white/40' },
   unset:      { label: 'No goal set',   cls: 'bg-neutral-100 text-neutral-600 ring-neutral-200', bar: 'bg-neutral-400' },
 };
 
