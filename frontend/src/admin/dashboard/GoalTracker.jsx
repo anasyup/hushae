@@ -34,7 +34,7 @@ export default function GoalTracker({ goal, onSaved }) {
   };
 
   return (
-    <div className="rounded-2xl border border-neutral-200 bg-white p-5">
+    <div className="p-5">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-500">Monthly revenue goal</p>
@@ -46,7 +46,7 @@ export default function GoalTracker({ goal, onSaved }) {
           <span className={`rounded-full px-2.5 py-1 text-[12px] font-bold ring-1 ${pace.cls}`}>{pace.label}</span>
           <button
             onClick={() => { setValue(String(goal.goal || '')); setEditing((v) => !v); }}
-            className="grid h-8 w-8 place-items-center rounded-lg text-neutral-400 transition hover:bg-neutral-100 hover:text-neutral-800"
+            className="grid h-8 w-8 place-items-center rounded-lg text-white/40 transition hover:bg-white/5 hover:text-white"
             aria-label="Edit goal"
           >
             <Pencil size={13} />
@@ -96,7 +96,7 @@ export default function GoalTracker({ goal, onSaved }) {
           </div>
 
           {goal.dailyNeeded > 0 && (
-            <p className="mt-3 rounded-lg bg-neutral-50 px-3 py-2 text-[13px] leading-relaxed text-neutral-600">
+            <p className="mt-3 rounded-lg bg-white/5 px-3 py-2 text-[13px] leading-relaxed text-neutral-600">
               Need <b className="text-neutral-900">{pkr(goal.dailyNeeded)}</b>/day for the remaining {goal.daysRemaining} day{goal.daysRemaining === 1 ? '' : 's'}.
             </p>
           )}

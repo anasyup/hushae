@@ -1,6 +1,6 @@
 /* ============================================================================
- * Admin UI — Skeleton / spinner / loading states
- * Skeleton surface #18181B with a slow, subtle pulse (reduced-motion safe).
+ * Admin UI — Skeleton / spinner (Phase 03-R)
+ * Flat white/8 blocks, slow subtle pulse (reduced-motion safe). No radius.
  * ========================================================================== */
 
 export function Skeleton({ className = '', lines = 1 }) {
@@ -10,20 +10,20 @@ export function Skeleton({ className = '', lines = 1 }) {
         {Array.from({ length: lines }).map((_, i) => (
           <div
             key={i}
-            className={`h-3 animate-pulse rounded-md bg-admin-surface-3 ${i === lines - 1 ? 'w-2/3' : 'w-full'}`}
+            className={`h-3 animate-pulse bg-white/8 ${i === lines - 1 ? 'w-2/3' : 'w-full'}`}
           />
         ))}
       </div>
     );
   }
-  return <div aria-hidden className={`animate-pulse rounded-md bg-admin-surface-3 ${className}`} />;
+  return <div aria-hidden className={`animate-pulse bg-white/8 ${className}`} />;
 }
 
 export function Spinner({ size = 16, className = '' }) {
   return (
     <span
       aria-hidden
-      className={`inline-block animate-spin rounded-full border-2 border-admin-border border-t-admin-accent ${className}`}
+      className={`inline-block animate-spin rounded-full border border-white/25 border-t-white ${className}`}
       style={{ width: size, height: size }}
     />
   );
@@ -31,8 +31,8 @@ export function Spinner({ size = 16, className = '' }) {
 
 export function PageLoader({ label = 'Loading…' }) {
   return (
-    <div className="flex min-h-[40vh] items-center justify-center gap-2 text-[13px] text-admin-text-muted">
-      <Spinner size={14} />
+    <div className="flex min-h-[40vh] items-center justify-center gap-2 text-[11px] uppercase tracking-[0.16em] text-white/40">
+      <Spinner size={13} />
       {label}
     </div>
   );

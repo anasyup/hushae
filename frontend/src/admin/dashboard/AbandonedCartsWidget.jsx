@@ -33,15 +33,15 @@ export default function AbandonedCartsWidget() {
   const carts = (data?.carts || []).slice(0, 3);
 
   return (
-    <div className="rounded-2xl border border-neutral-200 bg-white p-5">
+    <div className="p-5">
       <div className="flex items-center justify-between">
         <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-500">Abandoned carts</p>
         <Link to="/admin/abandoned-carts" className="text-[12px] font-semibold text-neutral-500 hover:text-neutral-900">All →</Link>
       </div>
 
       <div className="mt-3 grid grid-cols-2 gap-2">
-        <div className="rounded-xl bg-neutral-50 p-3"><p className="text-[11px] uppercase tracking-wider text-neutral-500">Open</p><p className="mt-0.5 font-sans text-[20px] font-semibold tabular-nums text-neutral-900">{stats.openCount}</p></div>
-        <div className="rounded-xl bg-neutral-50 p-3"><p className="text-[11px] uppercase tracking-wider text-neutral-500">Potential revenue</p><p className="mt-0.5 font-sans text-[16px] font-semibold tabular-nums text-neutral-900">{pkr(stats.openValue)}</p></div>
+        <div className="bg-white/5 p-3"><p className="text-[11px] uppercase tracking-wider text-neutral-500">Open</p><p className="mt-0.5 font-sans text-[20px] font-semibold tabular-nums text-neutral-900">{stats.openCount}</p></div>
+        <div className="bg-white/5 p-3"><p className="text-[11px] uppercase tracking-wider text-neutral-500">Potential revenue</p><p className="mt-0.5 font-sans text-[16px] font-semibold tabular-nums text-neutral-900">{pkr(stats.openValue)}</p></div>
       </div>
 
       {carts.length === 0 ? (

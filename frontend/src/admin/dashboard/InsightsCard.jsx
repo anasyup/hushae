@@ -19,7 +19,7 @@ export default function InsightsCard({ insights }) {
   const Icon = ICONS[cur.icon] || Lightbulb;
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-neutral-900 bg-neutral-900 p-5 text-white">
+    <div className="relative overflow-hidden p-5 text-white">
       <div className="flex items-start gap-3">
         <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white/10">
           <Icon size={16} className="text-white/70" />

@@ -6,7 +6,7 @@ import { Ban } from 'lucide-react';
  * GET /api/admin/dashboard → cancellationReasons (already date-scoped).
  * ========================================================================== */
 
-const BARS = ['bg-neutral-900', 'bg-neutral-500', 'bg-neutral-400', 'bg-neutral-300', 'bg-neutral-200', 'bg-neutral-200'];
+const BARS = ['bg-neutral-900', 'bg-white/50', 'bg-neutral-400', 'bg-neutral-300', 'bg-neutral-200', 'bg-neutral-200'];
 
 export default function CancellationReasons({ reasons = [] }) {
   const total = reasons.reduce((n, r) => n + r.count, 0);
@@ -14,14 +14,14 @@ export default function CancellationReasons({ reasons = [] }) {
   const top = reasons[0];
 
   return (
-    <div className="rounded-2xl border border-neutral-200 bg-white p-5">
+    <div className="p-5">
       <div className="flex items-center justify-between">
         <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-500">Cancellation reasons</p>
         <Link to="/admin/orders?stage=issues" className="text-[12px] font-semibold text-neutral-500 hover:text-neutral-900">Review orders →</Link>
       </div>
 
       {total === 0 ? (
-        <div className="mt-4 grid place-items-center rounded-xl bg-neutral-50 py-10 text-center">
+        <div className="mt-4 grid place-items-center bg-white/5 py-10 text-center">
           <Ban size={18} className="text-neutral-400" />
           <p className="mt-2 text-[13px] text-neutral-500">No cancellations in this period.</p>
         </div>

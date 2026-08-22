@@ -2,7 +2,7 @@
 export { default as Button } from './Button';
 export { Input, Textarea, Select, Field } from './Input';
 export { default as Badge } from './Badge';
-export { default as Card } from './Card';
+export { default as Panel } from './Card';
 export { default as Tabs } from './Tabs';
 export { default as Dropdown } from './Dropdown';
 export { default as Modal } from './Modal';

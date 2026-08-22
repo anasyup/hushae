@@ -1,17 +1,15 @@
 /* ============================================================================
- * Admin UI — EmptyState
- * Icon · Title · Description · optional action. Every list/admin screen
- * should render one of these instead of a blank area.
+ * Admin UI — EmptyState (Phase 03-R)
+ * Editorial: micro eyebrow, thin title, muted description, flat action.
  * ========================================================================== */
 
 export default function EmptyState({ icon: Icon, title, description, action, className = '' }) {
   return (
-    <div className={`grid place-items-center px-6 py-14 text-center ${className}`}>
-      <div className="grid h-12 w-12 place-items-center rounded-[10px] border border-admin-border bg-admin-surface-2 text-admin-text-muted">
-        {Icon && <Icon size={20} strokeWidth={1.6} />}
-      </div>
-      <h3 className="mt-4 text-[15px] font-semibold text-admin-text">{title}</h3>
-      {description && <p className="mt-1 max-w-sm text-[13px] leading-relaxed text-admin-text-muted">{description}</p>}
+    <div className={`px-6 py-14 text-left ${className}`}>
+      {Icon && <Icon size={18} strokeWidth={1.4} className="text-white/30" aria-hidden />}
+      <p className="adm-eyebrow mt-5">No data</p>
+      <h3 className="mt-2 text-[15px] font-medium tracking-tight text-white">{title}</h3>
+      {description && <p className="mt-1 max-w-sm text-[12px] leading-relaxed text-white/40">{description}</p>}
       {action && <div className="mt-5">{action}</div>}
     </div>
   );

@@ -1,28 +1,28 @@
 import { forwardRef } from 'react';
 
 /* ============================================================================
- * Admin UI — Button (Phase 01 design system)
- * Variants: primary (jet white) · secondary (bordered) · ghost · danger
- * Sizes: sm (32) · md (38)
- * Radius: 8px (rounded-lg). No pills, no gradients, no gold.
+ * Admin UI — Button (Phase 03-R editorial language)
+ * Primary: jet white bg + jet black text. Secondary: black + white border.
+ * Ghost: transparent. Sharp 4px radius. Uppercase micro-label type.
+ * No pills, no gradients, no colors.
  * ========================================================================== */
 
 const base =
-  'inline-flex items-center justify-center gap-1.5 rounded-lg font-medium transition-colors select-none ' +
-  'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-accent ' +
-  'disabled:pointer-events-none disabled:opacity-50';
+  'inline-flex items-center justify-center gap-1.5 rounded-[4px] font-medium uppercase tracking-[0.08em] ' +
+  'transition-colors duration-150 select-none ' +
+  'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white ' +
+  'disabled:pointer-events-none disabled:opacity-40';
 
 const variants = {
-  primary: 'bg-admin-text text-admin-bg hover:bg-admin-accent-hover',
-  secondary:
-    'border border-admin-border bg-admin-surface-2 text-admin-text-2 hover:bg-admin-surface-3 hover:text-admin-text',
-  ghost: 'text-admin-text-2 hover:bg-admin-surface-2 hover:text-admin-text',
-  danger: 'bg-admin-danger/15 text-admin-danger hover:bg-admin-danger/25',
+  primary: 'bg-white text-black hover:bg-white/85',
+  secondary: 'border border-white/20 bg-transparent text-white hover:border-white/45 hover:bg-white/5',
+  ghost: 'bg-transparent text-white/60 hover:text-white hover:bg-white/5',
+  danger: 'border border-white/20 bg-transparent text-white hover:border-white hover:bg-white/10',
 };
 
 const sizes = {
-  sm: 'min-h-[32px] px-2.5 text-[12px]',
-  md: 'min-h-[38px] px-3.5 text-[13px]',
+  sm: 'h-8 px-3 text-[10px]',
+  md: 'h-9 px-4 text-[11px]',
 };
 
 const Button = forwardRef(function Button(
@@ -39,7 +39,7 @@ const Button = forwardRef(function Button(
       {loading && (
         <span
           aria-hidden
-          className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-t-transparent"
+          className="h-3 w-3 animate-spin rounded-full border border-current border-t-transparent"
         />
       )}
       {children}

@@ -978,11 +978,11 @@
   --admin-danger:  #ECECEF;
   --admin-info:    #8F8F97;
 
-  /* ── Radius scale — small 6 / default 8 / large 10 / modal 12 ─────── */
-  --admin-radius-sm: 6px;
-  --admin-radius:    8px;
-  --admin-radius-lg: 10px;
-  --admin-radius-xl: 12px;
+  /* ── Radius scale — sharp editorial (Phase 03-R reset) ────────────── */
+  --admin-radius-sm: 3px;
+  --admin-radius:    4px;
+  --admin-radius-lg: 6px;
+  --admin-radius-xl: 8px;
 
   /* ── Shadows — used sparingly; surfaces + borders carry the design ── */
   --admin-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.25);
@@ -1015,3 +1015,65 @@
 .admin-shell ::-webkit-scrollbar-thumb:hover { background: #2A2A2F; }
 .admin-shell ::-webkit-scrollbar-track { background: transparent; }
 .admin-shell * { scrollbar-width: thin; scrollbar-color: var(--admin-surface-3) transparent; }
+
+/* ════════════════════════════════════════════════════════════════════════
+ * PHASE 03-R — EDITORIAL DESIGN LANGUAGE
+ * Jet black × jet white. Typography-led composition: section index labels,
+ * hairline dividers, light-weight metrics, flat surfaces. No rounded cards
+ * as the default container. These classes keep the language consistent
+ * across the shell and the dashboard.
+ * ════════════════════════════════════════════════════════════════════════ */
+.admin-shell .adm-eyebrow {
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.35);
+}
+.admin-shell .adm-index {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.32);
+}
+.admin-shell .adm-index::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+}
+.admin-shell .adm-metric {
+  font-weight: 300;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+}
+.admin-shell .adm-label {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.4);
+}
+.admin-shell .adm-row-hover {
+  transition: background-color 150ms ease-out;
+}
+.admin-shell .adm-row-hover:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+.admin-shell .adm-hairline-b {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.admin-shell .adm-hairline-t {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+.admin-shell .adm-divide-x > * + * {
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+}
+.admin-shell .adm-divide-y > * + * {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}

@@ -1,19 +1,18 @@
 /* ============================================================================
- * Admin UI — ErrorState
- * "Something went wrong" + recovery action. Never show blank content.
+ * Admin UI — ErrorState (Phase 03-R)
+ * Editorial error block: eyebrow, thin title, muted detail, flat retry.
  * ========================================================================== */
 
 import { AlertTriangle } from 'lucide-react';
 import Button from './Button';
 
-export default function ErrorState({ title = 'Something went wrong', description = "We couldn't load this information.", onRetry, className = '' }) {
+export default function ErrorState({ title = 'Unable to load', description = "We couldn't load this information.", onRetry, className = '' }) {
   return (
-    <div role="alert" className={`grid place-items-center px-6 py-14 text-center ${className}`}>
-      <div className="grid h-12 w-12 place-items-center rounded-[10px] border border-admin-border bg-admin-danger/10 text-admin-danger">
-        <AlertTriangle size={20} strokeWidth={1.6} />
-      </div>
-      <h3 className="mt-4 text-[15px] font-semibold text-admin-text">{title}</h3>
-      {description && <p className="mt-1 max-w-sm text-[13px] leading-relaxed text-admin-text-muted">{description}</p>}
+    <div role="alert" className={`px-6 py-14 text-left ${className}`}>
+      <AlertTriangle size={18} strokeWidth={1.4} className="text-white/60" aria-hidden />
+      <p className="adm-eyebrow mt-5">Error</p>
+      <h3 className="mt-2 text-[15px] font-medium tracking-tight text-white">{title}</h3>
+      {description && <p className="mt-1 max-w-sm text-[12px] leading-relaxed text-white/40">{description}</p>}
       {onRetry && (
         <div className="mt-5">
           <Button variant="secondary" size="sm" onClick={onRetry}>

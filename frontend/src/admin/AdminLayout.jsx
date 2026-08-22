@@ -150,15 +150,15 @@ function getRoleLabel(role) {
 }
 
 const linkCls = ({ isActive }) =>
-  `relative flex items-center gap-2.5 rounded-lg px-2.5 py-[8px] text-[13px] transition-colors duration-150 ease-out ${
+  `relative flex h-8 items-center gap-2.5 px-2 text-[12px] transition-colors duration-150 ease-out ${
     isActive
-      ? 'bg-admin-accent-soft font-medium text-admin-text'
-      : 'text-admin-text-muted hover:bg-admin-surface-2 hover:text-admin-text'
+      ? 'bg-white/[0.06] font-medium text-white'
+      : 'text-white/45 hover:bg-white/[0.03] hover:text-white/90'
   }`;
 
 const childLinkCls = (active) =>
-  `relative flex items-center gap-2 rounded-lg py-[6px] pl-8 pr-2 text-[13px] transition-colors duration-150 ease-out ${
-    active ? 'font-medium text-admin-text' : 'text-admin-text-muted hover:bg-admin-surface-2 hover:text-admin-text'
+  `relative flex h-7 items-center gap-2 pl-8 pr-2 text-[12px] transition-colors duration-150 ease-out ${
+    active ? 'font-medium text-white' : 'text-white/40 hover:bg-white/[0.03] hover:text-white/85'
   }`;
 
 /* A nav item is active when its pathname matches AND, if the link itself
@@ -188,8 +188,8 @@ function GroupDropdown({ group, onNavigate, defaultOpen, collapsed }) {
           to={first?.to || '/'}
           onClick={onNavigate}
           title={group.label}
-          className={`relative flex h-[38px] items-center justify-center rounded-lg transition-colors duration-150 ease-out ${
-            isChildActive ? 'bg-admin-accent-soft text-admin-accent-hover' : 'text-admin-text-muted hover:bg-admin-surface-2 hover:text-admin-text'
+          className={`relative flex h-9 items-center justify-center transition-colors duration-150 ease-out ${
+            isChildActive ? 'bg-white/[0.06] text-white' : 'text-white/45 hover:bg-white/[0.03] hover:text-white/90'
           }`}
         >
           {isChildActive && <span aria-hidden className="absolute left-0 top-1/2 h-4 w-[2px] -translate-y-1/2 rounded-full bg-admin-accent" />}
@@ -202,12 +202,12 @@ function GroupDropdown({ group, onNavigate, defaultOpen, collapsed }) {
   return (
     <div>
       <button type="button" onClick={() => setOpen((v) => !v)} aria-expanded={open}
-        className={`flex w-full items-center gap-2.5 rounded-lg px-2.5 py-[8px] text-[13px] transition-colors duration-150 ease-out ${
-          isChildActive ? 'font-medium text-admin-text' : 'text-admin-text-muted hover:bg-admin-surface-2 hover:text-admin-text'
+        className={`flex h-8 w-full items-center gap-2.5 px-2 text-[12px] transition-colors duration-150 ease-out ${
+          isChildActive ? 'font-medium text-white' : 'text-white/45 hover:bg-white/[0.03] hover:text-white/90'
         }`}>
-        <Icon size={15} strokeWidth={isChildActive ? 2 : 1.7} className={isChildActive ? 'text-admin-accent-hover' : 'text-admin-text-muted'} />
+        <Icon size={15} strokeWidth={isChildActive ? 2 : 1.7} className={isChildActive ? 'text-white' : 'text-white/40'} />
         <span className="flex-1 text-left">{group.label}</span>
-        <ChevronDown size={12} className={`text-admin-text-muted transition-transform duration-150 ${open ? 'rotate-180' : ''}`} />
+        <ChevronDown size={11} className={`text-white/35 transition-transform duration-150 ${open ? 'rotate-180' : ''}`} />
       </button>
       {open && (
         <div className="mt-0.5 space-y-0.5">
@@ -241,16 +241,16 @@ function SidebarContent({ onNavigate, onOpenCmd, collapsed = false }) {
   const initials = (auth?.user?.name || 'A').split(' ').map((s) => s[0]).slice(0, 2).join('').toUpperCase();
 
   return (
-    <div className="flex h-full flex-col bg-admin-sidebar">
+    <div className="flex h-full flex-col bg-[#050505]">
       {/* ── Brand ─────────────────────────────────────────────────────── */}
       <div className="px-4 pb-3 pt-5">
         <NavLink to="/admin" onClick={onNavigate} className="block w-fit transition hover:opacity-80" title="Dashboard">
           {collapsed ? (
-            <p className="px-1 font-sans text-[16px] font-semibold tracking-[0.1em] text-admin-text">H</p>
+            <p className="px-1 font-sans text-[16px] font-medium tracking-[0.1em] text-white">H</p>
           ) : (
             <>
-              <p className="font-sans text-[13px] font-semibold tracking-[0.18em] text-admin-text">HUSHAE</p>
-              <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-admin-text-muted">Admin</p>
+              <p className="font-sans text-[14px] font-medium tracking-[0.3em] text-white">HUSHAE</p>
+              <p className="adm-eyebrow mt-1.5">Admin console</p>
             </>
           )}
         </NavLink>
@@ -262,15 +262,15 @@ function SidebarContent({ onNavigate, onOpenCmd, collapsed = false }) {
           type="button"
           onClick={() => onOpenCmd?.()}
           title="Search admin (⌘K)"
-          className={`flex w-full items-center gap-2 rounded-lg border border-admin-border bg-admin-surface text-left text-[13px] text-admin-text-muted transition-colors duration-150 hover:bg-admin-surface-2 ${
-            collapsed ? 'h-[38px] justify-center px-0' : 'px-2.5 py-[7px]'
+          className={`flex w-full items-center gap-2 border-b border-white/15 text-left text-[12px] text-white/45 transition-colors duration-150 hover:border-white/40 hover:text-white/80 ${
+            collapsed ? 'h-9 justify-center border-b-0 px-0' : 'px-0.5 pb-1.5'
           }`}
         >
-          <Search size={13} className="shrink-0 text-admin-text-muted" />
+          <Search size={13} className="shrink-0 text-white/40" />
           {!collapsed && (
             <>
               <span className="flex-1">Search anything…</span>
-              <kbd className="rounded border border-admin-border bg-admin-surface-2 px-1.5 py-0.5 text-[10px] font-semibold text-admin-text-muted">⌘K</kbd>
+              <kbd className="text-[9px] font-medium uppercase tracking-[0.14em] text-white/30">⌘K</kbd>
             </>
           )}
         </button>
@@ -286,7 +286,7 @@ function SidebarContent({ onNavigate, onOpenCmd, collapsed = false }) {
           return (
             <div key={section.label}>
               {!collapsed && (
-                <p className="px-2 pb-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-admin-text-muted">
+                <p className="adm-eyebrow px-2 pb-2">
                   {section.label}
                 </p>
               )}
@@ -332,27 +332,27 @@ function SidebarContent({ onNavigate, onOpenCmd, collapsed = false }) {
       {/* ── Footer: store status + account + sign out ─────────────────── */}
       <div className="border-t border-admin-border-subtle px-2.5 py-3">
         {!collapsed && (
-          <div className="mb-2 flex items-center gap-2 rounded-lg border border-admin-border bg-admin-surface px-2.5 py-2">
-            <span className="h-1.5 w-1.5 rounded-full bg-admin-success" aria-hidden />
-            <span className="text-[12px] font-medium text-admin-text-2">Store online</span>
+          <div className="mb-2 flex items-center gap-2 px-2 py-1">
+            <span className="h-1 w-1 rounded-full bg-white" aria-hidden />
+            <span className="text-[10px] font-medium uppercase tracking-[0.16em] text-white/60">Store online</span>
           </div>
         )}
-        <div className="flex items-center gap-2.5 rounded-lg px-2 py-1.5">
-          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-md bg-admin-accent-soft text-[12px] font-semibold text-admin-text">
+        <div className="flex items-center gap-2.5 border-t border-white/10 px-2 pt-3">
+          <span className="grid h-7 w-7 shrink-0 place-items-center bg-white text-[10px] font-semibold text-black">
             {initials}
           </span>
           {!collapsed && (
             <>
               <div className="min-w-0 flex-1">
-                <p className="truncate text-[13px] font-medium text-admin-text">{auth?.user?.name || 'Admin'}</p>
-                <p className="truncate text-[11px] text-admin-text-muted">{getRoleLabel(role || '')}</p>
+                <p className="truncate text-[12px] font-medium text-white/90">{auth?.user?.name || 'Admin'}</p>
+                <p className="truncate text-[10px] uppercase tracking-[0.12em] text-white/35">{getRoleLabel(role || '')}</p>
               </div>
               <button
                 type="button"
                 onClick={logout}
                 title="Sign out"
                 aria-label="Sign out"
-                className="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-admin-text-muted transition-colors duration-150 hover:bg-admin-surface-2 hover:text-admin-danger"
+                className="grid h-7 w-7 shrink-0 place-items-center text-white/40 transition-colors duration-150 hover:bg-white/5 hover:text-white"
               >
                 <LogOut size={15} strokeWidth={1.8} />
               </button>
@@ -461,14 +461,14 @@ export default function AdminLayout({ children, title }) {
         <div className="min-w-0 flex-1 p-4 md:p-6 xl:p-8">
           <div className="admin-main mx-auto w-full min-w-0 max-w-[1440px]">
             {title && <h1 className="mb-5 font-sans text-[16px] font-medium text-admin-text md:hidden">{title}</h1>}
-            <nav aria-label="Breadcrumb" className="mb-4 hidden items-center text-[12px] text-admin-text-muted md:flex">
+            <nav aria-label="Breadcrumb" className="adm-eyebrow mb-5 hidden items-center md:flex">
               {crumbs.map((c, i) => (
                 <span key={c.to} className="inline-flex items-center">
-                  {i > 0 && <span className="mx-1.5 text-admin-text-muted/40">/</span>}
+                  {i > 0 && <span className="mx-1.5 text-white/20">/</span>}
                   {i === crumbs.length - 1 ? (
-                    <span className="font-medium text-admin-text-2">{c.label}</span>
+                    <span className="font-medium text-white/70">{c.label}</span>
                   ) : (
-                    <Link to={c.to} className="transition-colors duration-150 hover:text-admin-text">{c.label}</Link>
+                    <Link to={c.to} className="transition-colors duration-150 hover:text-white">{c.label}</Link>
                   )}
                 </span>
               ))}
@@ -492,12 +492,12 @@ function CreateMenu({ onPick }) {
     { to: '/admin/blog/new', icon: FileText, label: 'New blog article' },
   ];
   return (
-    <div className="absolute right-0 top-full z-30 mt-1 w-56 rounded-lg border border-admin-border bg-admin-surface-3 py-1 shadow-md">
+    <div className="absolute right-0 top-full z-30 mt-1 w-56 rounded-[4px] border border-white/15 bg-[#0D0D0D] py-1">
       {items.map((it) => {
         const Icon = it.icon;
         return (
-          <Link key={it.to} to={it.to} onClick={onPick} className="flex items-center gap-2.5 px-3.5 py-2 text-[13px] font-medium text-admin-text-2 transition hover:bg-admin-surface-2">
-            <Icon size={13} className="text-admin-text-muted" /> {it.label}
+          <Link key={it.to} to={it.to} onClick={onPick} className="flex h-9 items-center gap-2.5 px-3.5 text-[12px] text-white/70 transition-colors hover:bg-white/5 hover:text-white">
+            <Icon size={13} className="text-white/40" /> {it.label}
           </Link>
         );
       })}
@@ -532,29 +532,29 @@ function TopBar({ title, auth, onCmdK, onMenu, onToggleSidebar, collapsed }) {
   const btnGhost = 'inline-flex min-h-[36px] items-center justify-center gap-1.5 rounded-lg border border-admin-border bg-admin-surface-2 px-2.5 text-[12px] font-medium text-admin-text-2 transition hover:border-admin-border hover:bg-admin-surface-3 hover:text-admin-text';
   const btnPrimary = 'inline-flex min-h-[36px] items-center gap-1 rounded-lg bg-admin-text px-3 text-[12px] font-semibold text-admin-bg transition hover:bg-admin-accent-hover';
   return (
-    <header className="sticky top-0 z-20 flex min-h-[60px] items-center border-b border-admin-border bg-admin-bg/90 px-3 py-2 backdrop-blur md:px-8">
+    <header className="sticky top-0 z-20 flex h-[56px] items-center border-b border-white/10 bg-[#050505]/95 px-4 backdrop-blur md:px-8">
       <div className="flex items-center justify-between gap-3">
         <div className="flex min-w-0 flex-1 items-center gap-2">
-          <button type="button" onClick={onMenu} className="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-admin-text-2 hover:bg-admin-surface-2 md:hidden" aria-label="Open menu"><Menu size={20} /></button>
-          <button type="button" onClick={onToggleSidebar} aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'} title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'} className="hidden h-9 w-9 shrink-0 place-items-center rounded-lg text-admin-text-muted transition-colors duration-150 hover:bg-admin-surface-2 hover:text-admin-text md:grid">
+          <button type="button" onClick={onMenu} className="grid h-9 w-9 shrink-0 place-items-center text-white/70 hover:bg-white/5 md:hidden" aria-label="Open menu"><Menu size={20} /></button>
+          <button type="button" onClick={onToggleSidebar} aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'} title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'} className="hidden h-9 w-9 shrink-0 place-items-center text-white/40 transition-colors duration-150 hover:bg-white/5 hover:text-white md:grid">
             {collapsed ? <PanelRightOpen size={16} /> : <PanelLeftClose size={16} />}
           </button>
           <div className="min-w-0">
-            <h1 className="truncate font-sans text-[15px] font-medium leading-tight text-admin-text md:text-[16px]">{title || crumbs[crumbs.length - 1]?.label}</h1>
+            <h1 className="truncate font-sans text-[15px] font-medium tracking-tight text-white">{title || crumbs[crumbs.length - 1]?.label}</h1>
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-1.5 md:gap-2">
           <button
             type="button"
             onClick={onCmdK}
-            className="inline-flex min-h-[36px] items-center gap-2 rounded-lg border border-admin-border bg-admin-surface px-3 text-[13px] text-admin-text-muted transition-colors duration-150 hover:border-admin-border hover:bg-admin-surface-2 hover:text-admin-text-2"
+            className="inline-flex h-8 items-center gap-2 rounded-[4px] border border-white/20 px-3 text-[12px] text-white/50 transition-colors duration-150 hover:border-white/45 hover:text-white/90"
             title="Search anything (⌘K)"
           >
-            <Search size={14} />
+            <Search size={13} />
             <span className="hidden sm:inline">Search anything…</span>
-            <kbd className="hidden rounded border border-admin-border bg-admin-surface-2 px-1.5 py-0.5 text-[10px] font-semibold text-admin-text-muted sm:inline">⌘K</kbd>
+            <kbd className="hidden text-[9px] font-medium uppercase tracking-[0.14em] text-white/30 sm:inline">⌘K</kbd>
           </button>
-          <span className={`hidden items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium tracking-wide lg:inline-flex ${storeOpen ? 'border-admin-border bg-admin-surface text-admin-text-2' : 'border-admin-border bg-admin-accent-soft text-admin-warning'}`}><span className={`h-1.5 w-1.5 rounded-full ${storeOpen ? 'bg-admin-success' : 'bg-admin-warning'}`} />{storeOpen ? 'Store online' : 'Store locked'}</span>
+          <span className={`hidden items-center gap-1.5 lg:inline-flex ${storeOpen ? 'text-white/60' : 'text-white/90'}`}><span className={`h-1 w-1 rounded-full ${storeOpen ? 'bg-white/70' : 'bg-white'}`} />{storeOpen ? 'Store online' : 'Store locked'}</span>
           {canCreate && (
             <div className="relative" ref={createRef}>
               <button type="button" onClick={() => setCreateOpen((v) => !v)} className={btnPrimary}><Plus size={12} /> <span className="hidden sm:inline">Create</span></button>
@@ -566,7 +566,7 @@ function TopBar({ title, auth, onCmdK, onMenu, onToggleSidebar, collapsed }) {
             {dark ? <Sun size={13} /> : <Moon size={13} />}
           </button>
           <NotificationBell />
-          <div className="ml-0.5 flex items-center gap-2 rounded-lg border border-admin-border bg-admin-surface p-1 pr-2 md:pr-3"><span className="grid h-7 w-7 place-items-center rounded-md bg-admin-text text-[12px] font-semibold text-admin-bg">{initials}</span><span className="hidden text-[12px] font-medium text-admin-text-2 sm:inline">{auth?.user?.name?.split(' ')[0] || 'Admin'}</span></div>
+          <div className="ml-1 flex items-center gap-2"><span className="grid h-7 w-7 place-items-center bg-white text-[10px] font-semibold text-black">{initials}</span><span className="hidden text-[12px] font-medium text-white/85 sm:inline">{auth?.user?.name?.split(' ')[0] || 'Admin'}</span></div>
         </div>
       </div>
     </header>

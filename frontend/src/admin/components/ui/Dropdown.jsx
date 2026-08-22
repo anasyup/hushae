@@ -1,7 +1,7 @@
 /* ============================================================================
- * Admin UI — Dropdown
- * Surface-3 panel, subtle border, 8px radius, md shadow. Items 36px,
- * hover surface-2, selected accent-soft. Escape/outside click close.
+ * Admin UI — Dropdown (Phase 03-R)
+ * Flat sharp menu: black surface, hairline border, 4px radius, flat rows.
+ * Escape / outside click close. Selected = white/10, no colored tints.
  * ========================================================================== */
 
 import { useEffect, useRef, useState } from 'react';
@@ -42,16 +42,16 @@ export default function Dropdown({
         aria-haspopup="menu"
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
-        className="inline-flex min-h-[36px] items-center gap-1.5 rounded-lg border border-admin-border bg-admin-surface-2 px-3 text-[13px] font-medium text-admin-text-2 transition hover:bg-admin-surface-3 hover:text-admin-text"
+        className="inline-flex h-9 items-center gap-1.5 rounded-[4px] border border-white/20 px-3 text-[10px] font-medium uppercase tracking-[0.1em] text-white/80 transition-colors hover:border-white/40 hover:text-white"
       >
         {trigger || label}
-        <ChevronDown size={13} className={`transition-transform ${open ? 'rotate-180' : ''}`} />
+        <ChevronDown size={12} className={`transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
 
       {open && (
         <div
           role="menu"
-          className={`absolute z-40 mt-1 min-w-[180px] rounded-lg border border-admin-border bg-admin-surface-3 py-1 shadow-md ${
+          className={`absolute z-40 mt-1 min-w-[180px] rounded-[4px] border border-white/15 bg-[#0D0D0D] py-1 ${
             align === 'right' ? 'right-0' : 'left-0'
           }`}
         >
@@ -64,13 +64,13 @@ export default function Dropdown({
                 onSelect?.(it.value);
                 setOpen(false);
               }}
-              className={`flex min-h-[36px] w-full items-center gap-2 px-3 text-left text-[13px] transition ${
+              className={`flex h-9 w-full items-center gap-2 px-3 text-left text-[12px] transition-colors ${
                 selected === it.value
-                  ? 'bg-admin-accent-soft text-admin-text'
-                  : 'text-admin-text-2 hover:bg-admin-surface-2'
+                  ? 'bg-white/10 text-white'
+                  : 'text-white/60 hover:bg-white/5 hover:text-white'
               }`}
             >
-              {it.icon && <span className="text-admin-text-muted">{it.icon}</span>}
+              {it.icon && <span className="text-white/40">{it.icon}</span>}
               {it.label}
             </button>
           ))}
