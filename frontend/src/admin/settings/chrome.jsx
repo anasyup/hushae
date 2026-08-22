@@ -14,7 +14,7 @@ export {
 };
 
 export const ta =
-  'min-h-[88px] w-full rounded-[4px] border border-white/20 bg-[#0A0A0A] px-3 py-2 text-[12px] leading-relaxed text-white/85 outline-none placeholder:text-white/30 hover:border-white/40 focus:border-white/50 disabled:opacity-40';
+  'min-h-[88px] w-full rounded-[4px] border border-[#DCDCDC] bg-white px-3 py-2 text-[12px] leading-relaxed text-black outline-none placeholder:text-[#777777] hover:border-[#999999] focus:border-black disabled:opacity-40';
 
 export function EdSection({ index, title, description, action, children }) {
   const label = index ? `${String(index).padStart(2, '0')} — ${title}` : title;
@@ -23,11 +23,11 @@ export function EdSection({ index, title, description, action, children }) {
       <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
         <div className="min-w-0">
           <p className="adm-index mb-0">{label}</p>
-          {description && <p className="mt-2 max-w-2xl text-[12px] leading-relaxed text-white/35">{description}</p>}
+          {description && <p className="mt-2 max-w-2xl text-[12px] leading-relaxed text-[#777777]">{description}</p>}
         </div>
         {action}
       </div>
-      <div className="border-y border-white/10 py-6">{children}</div>
+      <div className="border-y border-[#EAEAEA] py-6">{children}</div>
     </section>
   );
 }
@@ -35,8 +35,8 @@ export function EdSection({ index, title, description, action, children }) {
 export function EdSaveBar({ dirty, busy, onSave, onDiscard, disabled, label }) {
   if (!dirty) return null;
   return (
-    <div className="sticky bottom-4 z-30 mt-8 flex flex-wrap items-center justify-between gap-3 border border-white/15 bg-[#0A0A0A] px-4 py-3">
-      <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-white/45">Unsaved changes</p>
+    <div className="sticky bottom-4 z-30 mt-8 flex flex-wrap items-center justify-between gap-3 border border-[#EAEAEA] bg-white px-4 py-3">
+      <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[#777777]">Unsaved changes</p>
       <div className="flex items-center gap-2">
         {onDiscard && <button type="button" onClick={onDiscard} className={btnGhost}>Discard</button>}
         <button type="button" onClick={onSave} disabled={busy || disabled} className={btnSolid}>
@@ -49,7 +49,7 @@ export function EdSaveBar({ dirty, busy, onSave, onDiscard, disabled, label }) {
 
 export function EdNotice({ children }) {
   return (
-    <div role="alert" className="mb-6 border border-white/15 px-4 py-3 text-[12px] leading-relaxed text-white/50">
+    <div role="alert" className="mb-6 border border-[#EAEAEA] px-4 py-3 text-[12px] leading-relaxed text-[#555555]">
       {children}
     </div>
   );
@@ -59,9 +59,9 @@ export function EdConfirm({ open, title, body, confirmLabel, onCancel, onConfirm
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-black/70 px-4" role="dialog" aria-modal="true" aria-labelledby="ed-confirm-title">
-      <div className="w-full max-w-md border border-white/15 bg-[#0A0A0A] p-6">
-        <p id="ed-confirm-title" className="text-[11px] font-medium uppercase tracking-[0.22em] text-white/85">{title}</p>
-        {body && <p className="mt-3 text-[13px] leading-relaxed text-white/45">{body}</p>}
+      <div className="w-full max-w-md border border-[#EAEAEA] bg-white p-6">
+        <p id="ed-confirm-title" className="text-[11px] font-medium uppercase tracking-[0.22em] text-black">{title}</p>
+        {body && <p className="mt-3 text-[13px] leading-relaxed text-[#555555]">{body}</p>}
         <div className="mt-6 flex justify-end gap-2">
           <button type="button" onClick={onCancel} className={btnGhost}>Cancel</button>
           <button type="button" onClick={onConfirm} disabled={busy} className={btnSolid}>
@@ -86,10 +86,10 @@ export function StrengthBar({ pct, label }) {
   if (!label) return null;
   return (
     <div className="mt-2">
-      <div className="h-px w-full bg-white/10">
-        <div className="h-px bg-white/70 transition-all" style={{ width: `${pct}%` }} />
+      <div className="h-px w-full bg-[#EAEAEA]">
+        <div className="h-px bg-black transition-all" style={{ width: `${pct}%` }} />
       </div>
-      <p className="mt-1.5 text-[9px] font-medium uppercase tracking-[0.18em] text-white/40">{label}</p>
+      <p className="mt-1.5 text-[9px] font-medium uppercase tracking-[0.18em] text-[#777777]">{label}</p>
     </div>
   );
 }

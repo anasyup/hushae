@@ -1,0 +1,108 @@
+/* ===========================================================================
+ * ADMIN LIGHT — full-white editorial theme.
+ * Scoped to html.admin-light. Storefront is never affected.
+ * Remaps the Phase 03–12 dark editorial utilities into a designed
+ * black-on-white system (not a naive invert).
+ * ========================================================================== */
+
+html.admin-light {
+  color-scheme: light;
+}
+
+html.admin-light .admin-shell {
+  background: #FFFFFF !important;
+  color: #000000 !important;
+}
+
+/* Surfaces that were jet-black inputs / chrome */
+html.admin-light .admin-shell .bg-\[\#0A0A0A\],
+html.admin-light .admin-shell .bg-\[\#050505\],
+html.admin-light .admin-shell .bg-\[\#09090B\],
+html.admin-light .admin-shell .bg-\[\#0D0D0D\],
+html.admin-light .admin-shell .bg-\[\#0D0D0F\],
+html.admin-light .admin-shell .bg-\[\#111113\],
+html.admin-light .admin-shell .bg-\[\#131316\],
+html.admin-light .admin-shell .bg-\[\#17171A\],
+html.admin-light .admin-shell .bg-\[\#17171B\] {
+  background-color: #FFFFFF !important;
+}
+
+html.admin-light .admin-shell .bg-\[\#050505\]\/95 {
+  background-color: rgba(255, 255, 255, 0.96) !important;
+}
+
+/* Primary text that was painted white on black */
+html.admin-light .admin-shell .text-white { color: #000000 !important; }
+html.admin-light .admin-shell .text-white\/90,
+html.admin-light .admin-shell .text-white\/85,
+html.admin-light .admin-shell .text-white\/80 { color: #000000 !important; }
+html.admin-light .admin-shell .text-white\/70 { color: #555555 !important; }
+html.admin-light .admin-shell .text-white\/60,
+html.admin-light .admin-shell .text-white\/55,
+html.admin-light .admin-shell .text-white\/50,
+html.admin-light .admin-shell .text-white\/45,
+html.admin-light .admin-shell .text-white\/40,
+html.admin-light .admin-shell .text-white\/35 { color: #777777 !important; }
+html.admin-light .admin-shell .text-white\/30,
+html.admin-light .admin-shell .text-white\/25,
+html.admin-light .admin-shell .text-white\/20 { color: #999999 !important; }
+
+/* Hairline borders */
+html.admin-light .admin-shell .border-white\/10,
+html.admin-light .admin-shell .border-white\/15,
+html.admin-light .admin-shell .border-white\/8,
+html.admin-light .admin-shell .border-white\/5 { border-color: #EAEAEA !important; }
+html.admin-light .admin-shell .border-white\/20,
+html.admin-light .admin-shell .border-white\/40,
+html.admin-light .admin-shell .border-white\/45,
+html.admin-light .admin-shell .border-white\/50 { border-color: #DCDCDC !important; }
+html.admin-light .admin-shell .border-white { border-color: #000000 !important; }
+
+/* Subtle fills / hovers / skeletons */
+html.admin-light .admin-shell .bg-white\/10,
+html.admin-light .admin-shell .bg-white\/\[0\.06\],
+html.admin-light .admin-shell .bg-white\/\[0\.03\],
+html.admin-light .admin-shell .bg-white\/5,
+html.admin-light .admin-shell .bg-white\/\[0\.08\] { background-color: #F7F7F7 !important; }
+html.admin-light .admin-shell .hover\:bg-white\/5:hover,
+html.admin-light .admin-shell .hover\:bg-white\/\[0\.03\]:hover,
+html.admin-light .admin-shell .hover\:bg-white\/\[0\.06\]:hover { background-color: #F5F5F5 !important; }
+html.admin-light .admin-shell .hover\:text-white:hover,
+html.admin-light .admin-shell .hover\:text-white\/90:hover,
+html.admin-light .admin-shell .hover\:text-white\/85:hover { color: #000000 !important; }
+html.admin-light .admin-shell .hover\:border-white\/45:hover,
+html.admin-light .admin-shell .hover\:border-white\/40:hover { border-color: #000000 !important; }
+
+/* Placeholder */
+html.admin-light .admin-shell .placeholder\:text-white\/30::placeholder { color: #777777 !important; }
+
+/* Divide utilities painted as white/10 */
+html.admin-light .admin-shell .divide-white\/10 > :not([hidden]) ~ :not([hidden]) { border-color: #EAEAEA !important; }
+
+/* White-on-black primary controls must stay inverted */
+html.admin-light .admin-shell .bg-black,
+html.admin-light .admin-shell .bg-neutral-900 {
+  color: #FFFFFF !important;
+}
+html.admin-light .admin-shell .bg-black .text-white,
+html.admin-light .admin-shell .bg-neutral-900 .text-white { color: #FFFFFF !important; }
+
+/* Login lives outside .admin-shell */
+html.admin-light body { background: #FFFFFF; }
+
+/* Theme editor chrome (admin-only) */
+html.admin-light .te-shell { background: #FFFFFF; color: #000000; }
+html.admin-light .te-selected::after { outline-color: #000000; }
+html.admin-light .te-hovered::after { outline-color: rgba(0, 0, 0, 0.35); }
+html.admin-light .te-drop-line { background: #000000; }
+html.admin-light .te-flash { animation: none; }
+
+/* Recharts leftover dark tooltip */
+html.admin-light .admin-shell .recharts-default-tooltip {
+  background: #FFFFFF !important;
+  border-color: #EAEAEA !important;
+}
+html.admin-light .admin-shell .recharts-tooltip-label,
+html.admin-light .admin-shell .recharts-tooltip-item { color: #000000 !important; }
+html.admin-light .admin-shell .recharts-cartesian-grid line { stroke: #EEEEEE !important; }
+html.admin-light .admin-shell .recharts-text { fill: #777777 !important; }

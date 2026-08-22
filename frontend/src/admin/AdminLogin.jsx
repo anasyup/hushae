@@ -7,9 +7,9 @@ import { api } from '../api/client';
 const STAFF_ROLES = ['admin', 'Owner', 'Manager', 'Staff', 'Warehouse', 'Support'];
 
 const field =
-  'h-10 w-full border border-white/20 bg-[#0A0A0A] px-3 text-[13px] text-white/85 outline-none placeholder:text-white/30 hover:border-white/40 focus:border-white/50';
+  'h-10 w-full border border-[#DCDCDC] bg-white px-3 text-[13px] text-black outline-none placeholder:text-[#777777] hover:border-[#999999] focus:border-black';
 const solid =
-  'inline-flex h-10 w-full items-center justify-center border border-white bg-white text-[10px] font-medium uppercase tracking-[0.18em] text-black transition hover:bg-white/85 disabled:opacity-35';
+  'inline-flex h-10 w-full items-center justify-center bg-black text-[10px] font-medium uppercase tracking-[0.18em] text-[#FFFFFF] transition hover:bg-black/80 disabled:opacity-35';
 
 export default function AdminLogin() {
   const { auth, setAuth } = useApp();
@@ -55,44 +55,44 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="grid min-h-screen place-items-center bg-[#09090B] px-4 text-white">
+    <div className="grid min-h-screen place-items-center bg-white px-4 text-black">
       <div className="w-full max-w-sm">
-        <p className="text-center text-[11px] font-medium uppercase tracking-[0.42em] text-white/50">HUSHAE</p>
-        <p className="mt-3 text-center text-[10px] font-medium uppercase tracking-[0.22em] text-white/30">
+        <p className="text-center text-[11px] font-medium uppercase tracking-[0.42em] text-black">HUSHAE</p>
+        <p className="mt-3 text-center text-[10px] font-medium uppercase tracking-[0.22em] text-[#777777]">
           {step2 ? 'Two-factor verification' : 'Private access'}
         </p>
 
         {!step2 ? (
-          <form onSubmit={submit} className="mt-10 space-y-5 border-y border-white/10 py-8" autoComplete="off">
+          <form onSubmit={submit} className="mt-10 space-y-5 border-y border-[#EAEAEA] py-8" autoComplete="off">
             <div>
-              <label htmlFor="admin-email" className="mb-1.5 block text-[9px] font-medium uppercase tracking-[0.18em] text-white/35">Email</label>
+              <label htmlFor="admin-email" className="mb-1.5 block text-[9px] font-medium uppercase tracking-[0.18em] text-[#777777]">Email</label>
               <input id="admin-email" className={field} type="email" required autoComplete="username" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} />
             </div>
             <div>
-              <label htmlFor="admin-password" className="mb-1.5 block text-[9px] font-medium uppercase tracking-[0.18em] text-white/35">Password</label>
+              <label htmlFor="admin-password" className="mb-1.5 block text-[9px] font-medium uppercase tracking-[0.18em] text-[#777777]">Password</label>
               <input id="admin-password" className={field} type="password" required autoComplete="current-password" value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} />
             </div>
-            {err && <p role="alert" className="border border-white/15 px-3 py-2 text-[12px] leading-relaxed text-white/55">{err}</p>}
+            {err && <p role="alert" className="border border-[#EAEAEA] px-3 py-2 text-[12px] leading-relaxed text-[#555555]">{err}</p>}
             <button disabled={busy} className={solid}>{busy ? 'Verifying…' : 'Sign in'}</button>
           </form>
         ) : (
-          <form onSubmit={submitCode} className="mt-10 space-y-5 border-y border-white/10 py-8" autoComplete="off">
-            <p className="text-[12px] leading-relaxed text-white/40">
-              A 6-digit sign-in code was emailed to <span className="text-white/80">{pendingEmail}</span>. It expires in 5 minutes.
+          <form onSubmit={submitCode} className="mt-10 space-y-5 border-y border-[#EAEAEA] py-8" autoComplete="off">
+            <p className="text-[12px] leading-relaxed text-[#555555]">
+              A 6-digit sign-in code was emailed to <span className="text-black">{pendingEmail}</span>. It expires in 5 minutes.
             </p>
             <div>
-              <label className="mb-1.5 block text-[9px] font-medium uppercase tracking-[0.18em] text-white/35">6-digit code</label>
+              <label className="mb-1.5 block text-[9px] font-medium uppercase tracking-[0.18em] text-[#777777]">6-digit code</label>
               <input className={`${field} tracking-[0.4em]`} type="text" inputMode="numeric" maxLength={6} required autoComplete="off" value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))} />
             </div>
-            {err && <p role="alert" className="border border-white/15 px-3 py-2 text-[12px] leading-relaxed text-white/55">{err}</p>}
+            {err && <p role="alert" className="border border-[#EAEAEA] px-3 py-2 text-[12px] leading-relaxed text-[#555555]">{err}</p>}
             <button disabled={codeBusy} className={solid}>{codeBusy ? 'Verifying…' : 'Verify & sign in'}</button>
-            <button type="button" onClick={() => { setStep2(false); setCode(''); setErr(''); }} className="block w-full text-center text-[10px] uppercase tracking-[0.16em] text-white/35 hover:text-white">
+            <button type="button" onClick={() => { setStep2(false); setCode(''); setErr(''); }} className="block w-full text-center text-[10px] uppercase tracking-[0.16em] text-[#777777] hover:text-black">
               Back to sign in
             </button>
           </form>
         )}
 
-        <p className="mt-6 text-center text-[10px] uppercase tracking-[0.18em] text-white/20">Authorised staff only</p>
+        <p className="mt-6 text-center text-[10px] uppercase tracking-[0.18em] text-[#999999]">Authorised staff only</p>
       </div>
     </div>
   );

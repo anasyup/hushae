@@ -63,13 +63,13 @@ textarea.te-input { height: auto; padding: 12px 14px; }
   z-index: 50;
   border-radius: inherit;
 }
-.te-hovered::after { outline: 1px dashed rgba(0, 91, 211, .55); outline-offset: -1px; }
-.te-selected::after { outline: 2px solid #FFFFFF; outline-offset: -2px; }
+.te-hovered::after { outline: 1px dashed rgba(0, 0, 0, .35); outline-offset: -1px; }
+.te-selected::after { outline: 2px solid #000000; outline-offset: -2px; }
 .te-selected > .te-selected::after { outline-width: 1.5px; }
 
 @keyframes te-flash {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(0, 91, 211, 0); }
-  35%      { box-shadow: 0 0 0 4px rgba(0, 91, 211, .35); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0, 0, 0, 0); }
+  35%      { box-shadow: 0 0 0 4px rgba(0, 0, 0, .12); }
 }
 .te-flash { animation: te-flash 1s ease-out; }
 

@@ -75,23 +75,23 @@ export default function CommandPalette({ onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-start justify-center bg-black/70 pt-[15vh]" onClick={onClose}>
-      <div className="w-full max-w-xl border border-white/15 bg-[#0A0A0A]" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center gap-3 border-b border-white/10 px-4 py-3">
-          <Search size={15} className="shrink-0 text-white/35" />
+    <div className="fixed inset-0 z-[100] flex items-start justify-center bg-black/30 pt-[15vh]" onClick={onClose}>
+      <div className="w-full max-w-xl border border-[#EAEAEA] bg-white" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center gap-3 border-b border-[#EAEAEA] px-4 py-3">
+          <Search size={15} className="shrink-0 text-[#777777]" />
           <input
             ref={inputRef}
             value={q}
             onChange={(e) => setQ(e.target.value)}
             onKeyDown={onKey}
             placeholder="Search admin"
-            className="w-full bg-transparent text-[13px] text-white outline-none placeholder:text-white/30"
+            className="w-full bg-transparent text-[13px] text-black outline-none placeholder:text-[#777777]"
           />
-          <kbd className="hidden text-[10px] uppercase tracking-[0.16em] text-white/25 sm:inline">Esc</kbd>
+          <kbd className="hidden text-[10px] uppercase tracking-[0.16em] text-[#999999] sm:inline">Esc</kbd>
         </div>
         <div className="max-h-[360px] overflow-y-auto">
           {results.length === 0 ? (
-            <p className="p-10 text-center text-[12px] text-white/35">No results for “{q}”</p>
+            <p className="p-10 text-center text-[12px] text-[#777777]">No results for “{q}”</p>
           ) : (
             [...grouped.entries()].map(([cat, items]) => (
               <div key={cat}>
@@ -105,11 +105,11 @@ export default function CommandPalette({ onClose }) {
                       type="button"
                       onClick={() => run(item)}
                       onMouseEnter={() => setIdx(flatItems.indexOf(item))}
-                      className={`flex w-full items-center gap-3 px-4 py-2.5 text-left ${active ? 'bg-white/[0.06]' : 'hover:bg-white/[0.03]'}`}
+                      className={`flex w-full items-center gap-3 px-4 py-2.5 text-left ${active ? 'bg-[#F5F5F5]' : 'hover:bg-[#F7F7F7]'}`}
                     >
-                      <Icon size={14} strokeWidth={1.6} className={active ? 'text-white' : 'text-white/35'} />
-                      <span className={`flex-1 text-[13px] ${active ? 'text-white' : 'text-white/70'}`}>{item.label}</span>
-                      <span className="font-mono text-[10px] text-white/25">{item.to}</span>
+                      <Icon size={14} strokeWidth={1.6} className={active ? 'text-black' : 'text-[#777777]'} />
+                      <span className={`flex-1 text-[13px] ${active ? 'text-black' : 'text-[#555555]'}`}>{item.label}</span>
+                      <span className="font-mono text-[10px] text-[#999999]">{item.to}</span>
                     </button>
                   );
                 })}
@@ -117,7 +117,7 @@ export default function CommandPalette({ onClose }) {
             ))
           )}
         </div>
-        <div className="flex items-center gap-4 border-t border-white/10 px-4 py-2.5 text-[10px] uppercase tracking-[0.14em] text-white/25">
+        <div className="flex items-center gap-4 border-t border-[#EAEAEA] px-4 py-2.5 text-[10px] uppercase tracking-[0.14em] text-[#999999]">
           <span>↑↓ navigate</span>
           <span>↵ open</span>
           <span>esc close</span>

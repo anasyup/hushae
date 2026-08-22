@@ -890,6 +890,24 @@
 }
 
 .dark-admin {
+  --admin-bg:          #09090B;
+  --admin-sidebar:     #0D0D0F;
+  --admin-surface:     #111113;
+  --admin-surface-2:   #17171A;
+  --admin-surface-3:   #1D1D21;
+  --admin-border:         rgba(255, 255, 255, 0.08);
+  --admin-border-subtle:  rgba(255, 255, 255, 0.05);
+  --admin-text:            #F4F4F5;
+  --admin-text-secondary:  #A1A1AA;
+  --admin-text-muted:      #71717A;
+  --admin-accent:       #FFFFFF;
+  --admin-accent-hover: #E4E4E7;
+  --admin-accent-soft:  rgba(255, 255, 255, 0.10);
+  --admin-success: #D6D6DA;
+  --admin-warning: #A3A3AB;
+  --admin-danger:  #ECECEF;
+  --admin-info:    #8F8F97;
+
   --px-bg-page:      #0E0E11;   /* production redesign dark page */
   --px-bg-sidebar:   #131316;
   --px-bg-card:      #17171B;
@@ -951,43 +969,43 @@
  * component and the shell. NO GOLD anywhere in this system.
  * ════════════════════════════════════════════════════════════════════════ */
 :root {
-  /* ── Surfaces ─────────────────────────────────────────────────────── */
-  --admin-bg:          #09090B;   /* page background                    */
-  --admin-sidebar:     #0D0D0F;   /* sidebar                            */
-  --admin-surface:     #111113;   /* cards / panels                     */
-  --admin-surface-2:   #17171A;   /* raised / hover                     */
-  --admin-surface-3:   #1D1D21;   /* elevated / menus / headers         */
+  /* ── Surfaces — full-white editorial (canonical) ─────────────────── */
+  --admin-bg:          #FFFFFF;
+  --admin-sidebar:     #FFFFFF;
+  --admin-surface:     #FFFFFF;
+  --admin-surface-2:   #FAFAFA;
+  --admin-surface-3:   #F7F7F7;
 
   /* ── Borders ──────────────────────────────────────────────────────── */
-  --admin-border:         rgba(255, 255, 255, 0.08);
-  --admin-border-subtle:  rgba(255, 255, 255, 0.05);
+  --admin-border:         #EAEAEA;
+  --admin-border-subtle:  #F0F0F0;
 
   /* ── Text ─────────────────────────────────────────────────────────── */
-  --admin-text:            #F4F4F5;
-  --admin-text-secondary:  #A1A1AA;
-  --admin-text-muted:      #71717A;
+  --admin-text:            #000000;
+  --admin-text-secondary:  #555555;
+  --admin-text-muted:      #777777;
 
-  /* ── Accent — JET WHITE (no color accents; monochrome hierarchy) ─── */
-  --admin-accent:       #FFFFFF;
-  --admin-accent-hover: #E4E4E7;
-  --admin-accent-soft:  rgba(255, 255, 255, 0.10);
+  /* ── Accent — jet black on white ─────────────────────────────────── */
+  --admin-accent:       #000000;
+  --admin-accent-hover: #333333;
+  --admin-accent-soft:  rgba(0, 0, 0, 0.06);
 
-  /* ── Semantic status — monochrome (typography/opacity, not colors) ── */
-  --admin-success: #D6D6DA;
-  --admin-warning: #A3A3AB;
-  --admin-danger:  #ECECEF;
-  --admin-info:    #8F8F97;
+  /* ── Semantic status — monochrome ────────────────────────────────── */
+  --admin-success: #555555;
+  --admin-warning: #777777;
+  --admin-danger:  #000000;
+  --admin-info:    #777777;
 
-  /* ── Radius scale — sharp editorial (Phase 03-R reset) ────────────── */
+  /* ── Radius scale — sharp editorial ──────────────────────────────── */
   --admin-radius-sm: 3px;
   --admin-radius:    4px;
   --admin-radius-lg: 6px;
   --admin-radius-xl: 8px;
 
-  /* ── Shadows — used sparingly; surfaces + borders carry the design ── */
-  --admin-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.25);
-  --admin-shadow-md: 0 8px 24px rgba(0, 0, 0, 0.20);
-  --admin-shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.28);
+  /* ── Shadows — almost none; hairlines carry the design ───────────── */
+  --admin-shadow-sm: none;
+  --admin-shadow-md: 0 8px 24px rgba(0, 0, 0, 0.04);
+  --admin-shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.06);
 
   /* ── Type scale ───────────────────────────────────────────────────── */
   --admin-font: 'Klein', 'Jost', 'Helvetica Neue', Helvetica, Arial, sans-serif;
@@ -1011,8 +1029,10 @@
 
 /* Admin scrollbars — quiet dark */
 .admin-shell ::-webkit-scrollbar { width: 10px; height: 10px; }
-.admin-shell ::-webkit-scrollbar-thumb { background: var(--admin-surface-3); border-radius: 6px; }
-.admin-shell ::-webkit-scrollbar-thumb:hover { background: #2A2A2F; }
+.admin-shell ::-webkit-scrollbar-thumb { background: #EAEAEA; border-radius: 6px; }
+.admin-shell ::-webkit-scrollbar-thumb:hover { background: #D8D8D8; }
+.dark-admin .admin-shell ::-webkit-scrollbar-thumb { background: var(--admin-surface-3); }
+.dark-admin .admin-shell ::-webkit-scrollbar-thumb:hover { background: #2A2A2F; }
 .admin-shell ::-webkit-scrollbar-track { background: transparent; }
 .admin-shell * { scrollbar-width: thin; scrollbar-color: var(--admin-surface-3) transparent; }
 
@@ -1028,7 +1048,7 @@
   font-weight: 500;
   letter-spacing: 0.28em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.35);
+  color: #777777;
 }
 .admin-shell .adm-index {
   display: flex;
@@ -1039,41 +1059,53 @@
   font-weight: 500;
   letter-spacing: 0.28em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.32);
+  color: #777777;
 }
 .admin-shell .adm-index::after {
   content: '';
   flex: 1;
   height: 1px;
-  background: rgba(255, 255, 255, 0.08);
+  background: #EAEAEA;
 }
 .admin-shell .adm-metric {
   font-weight: 300;
   letter-spacing: -0.01em;
   font-variant-numeric: tabular-nums;
+  color: #000000;
 }
 .admin-shell .adm-label {
   font-size: 10px;
   font-weight: 500;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.4);
+  color: #777777;
 }
 .admin-shell .adm-row-hover {
   transition: background-color 150ms ease-out;
 }
 .admin-shell .adm-row-hover:hover {
-  background: rgba(255, 255, 255, 0.04);
+  background: #F8F8F8;
 }
 .admin-shell .adm-hairline-b {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid #EAEAEA;
 }
 .admin-shell .adm-hairline-t {
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid #EAEAEA;
 }
 .admin-shell .adm-divide-x > * + * {
-  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  border-left: 1px solid #EAEAEA;
 }
 .admin-shell .adm-divide-y > * + * {
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid #EAEAEA;
 }
+
+.dark-admin .admin-shell .adm-eyebrow { color: rgba(255, 255, 255, 0.35); }
+.dark-admin .admin-shell .adm-index { color: rgba(255, 255, 255, 0.32); }
+.dark-admin .admin-shell .adm-index::after { background: rgba(255, 255, 255, 0.08); }
+.dark-admin .admin-shell .adm-metric { color: inherit; }
+.dark-admin .admin-shell .adm-label { color: rgba(255, 255, 255, 0.4); }
+.dark-admin .admin-shell .adm-row-hover:hover { background: rgba(255, 255, 255, 0.04); }
+.dark-admin .admin-shell .adm-hairline-b { border-bottom-color: rgba(255, 255, 255, 0.08); }
+.dark-admin .admin-shell .adm-hairline-t { border-top-color: rgba(255, 255, 255, 0.08); }
+.dark-admin .admin-shell .adm-divide-x > * + * { border-left-color: rgba(255, 255, 255, 0.08); }
+.dark-admin .admin-shell .adm-divide-y > * + * { border-top-color: rgba(255, 255, 255, 0.08); }

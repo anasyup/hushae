@@ -146,8 +146,8 @@ export default function ThemeEditorApp() {
 
   if (loading) {
     return (
-      <div className="fixed inset-0 z-50 grid place-items-center bg-[#050505]">
-        <div className="flex items-center gap-2 text-sm text-white/40">
+      <div className="fixed inset-0 z-50 grid place-items-center bg-white">
+        <div className="flex items-center gap-2 text-sm text-[#777777]">
           <Loader2 size={16} className="animate-spin" /> Loading theme…
         </div>
       </div>
@@ -155,7 +155,7 @@ export default function ThemeEditorApp() {
   }
 
   return (
-    <div className="te-shell fixed inset-0 z-50 flex flex-col bg-[#050505] text-white">
+    <div className="te-shell fixed inset-0 z-50 flex flex-col bg-white text-black">
       <Topbar onSave={() => save(false)} onPublish={() => save(true)} />
       <ActivateBanner onActivate={() => save(true)} />
 
@@ -164,16 +164,16 @@ export default function ThemeEditorApp() {
         {mobilePanel === 'tree' && (
           <div className="absolute inset-0 z-30 bg-black/40 md:hidden" onClick={() => setMobilePanel(null)} />
         )}
-        <aside className={`relative z-40 flex w-[290px] shrink-0 flex-col border-r border-white/10 bg-[#0A0A0A] ${
+        <aside className={`relative z-40 flex w-[290px] shrink-0 flex-col border-r border-[#EAEAEA] bg-white ${
           mobilePanel === 'tree' ? 'absolute inset-y-0 left-0 md:static' : 'hidden md:flex'
         }`}>
-          <div className="border-b border-white/10 px-3 py-2.5">
-            <div className="flex items-center gap-1.5 border-b border-white/15 px-1 py-1.5">
-              <Search size={12} className="shrink-0 text-white/30" />
+          <div className="border-b border-[#EAEAEA] px-3 py-2.5">
+            <div className="flex items-center gap-1.5 border-b border-[#EAEAEA] px-1 py-1.5">
+              <Search size={12} className="shrink-0 text-[#777777]" />
               <input value={sidebarQuery} onChange={(e) => setSidebarQuery(e.target.value)}
-                placeholder="Search sections and blocks" className="w-full bg-transparent text-xs text-white/80 outline-none placeholder:text-white/30" />
+                placeholder="Search sections and blocks" className="w-full bg-transparent text-xs text-black outline-none placeholder:text-[#777777]" />
               {sidebarQuery && (
-                <button onClick={() => setSidebarQuery('')}><X size={11} className="text-white/30" /></button>
+                <button onClick={() => setSidebarQuery('')}><X size={11} className="text-[#777777]" /></button>
               )}
             </div>
           </div>
@@ -210,7 +210,7 @@ export default function ThemeEditorApp() {
 
       {previewVersion && (
         <div className="pointer-events-none absolute inset-x-0 top-16 z-50 flex justify-center">
-          <span className="pointer-events-auto rounded-full bg-neutral-900 px-4 py-2 text-xs font-semibold text-white shadow-lg">
+          <span className="pointer-events-auto border border-[#EAEAEA] bg-white px-4 py-2 text-xs font-semibold text-black">
             Previewing “{previewVersion.label}” — not applied
           </span>
         </div>

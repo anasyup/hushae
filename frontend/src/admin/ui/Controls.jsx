@@ -32,9 +32,9 @@ import { ChevronDown } from 'lucide-react';
  * existing screen looks — only what a thumb can actually hit.
  * ========================================================================== */
 
-const edLabel = 'mb-1.5 block text-[9px] font-medium uppercase tracking-[0.18em] text-white/35';
-const edInput = 'h-8 w-full rounded-[4px] border border-white/20 bg-[#0A0A0A] px-3 text-[12px] text-white/85 outline-none placeholder:text-white/30 hover:border-white/40 focus:border-white/50 disabled:opacity-40';
-const edHint = 'mt-1.5 text-[11px] leading-relaxed text-white/30';
+const edLabel = 'mb-1.5 block text-[9px] font-medium uppercase tracking-[0.18em] text-[#777777]';
+const edInput = 'h-8 w-full rounded-[4px] border border-[#DCDCDC] bg-white px-3 text-[12px] text-black outline-none placeholder:text-[#777777] hover:border-[#999999] focus:border-black disabled:opacity-40';
+const edHint = 'mt-1.5 text-[11px] leading-relaxed text-[#777777]';
 
 export function Section({ title, description, children, tone, action, variant }) {
   if (variant === 'editorial') {
@@ -43,11 +43,11 @@ export function Section({ title, description, children, tone, action, variant })
         <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
           <div className="min-w-0">
             <p className="adm-index mb-0">{title}</p>
-            {description && <p className="mt-2 text-[12px] leading-relaxed text-white/35">{description}</p>}
+            {description && <p className="mt-2 text-[12px] leading-relaxed text-[#777777]">{description}</p>}
           </div>
           {action}
         </div>
-        <div className="border-y border-white/10 py-6">{children}</div>
+        <div className="border-y border-[#EAEAEA] py-6">{children}</div>
       </section>
     );
   }
@@ -75,17 +75,17 @@ export function Section({ title, description, children, tone, action, variant })
 export function Toggle({ label, description, checked, onChange, disabled, variant }) {
   if (variant === 'editorial') {
     return (
-      <label className={`flex min-h-[44px] items-center justify-between gap-4 border-b border-white/5 py-3 last:border-0 ${disabled ? 'opacity-40' : 'cursor-pointer'}`}>
+      <label className={`flex min-h-[44px] items-center justify-between gap-4 border-b border-[#F0F0F0] py-3 last:border-0 ${disabled ? 'opacity-40' : 'cursor-pointer'}`}>
         <span className="min-w-0">
-          <span className="block text-[13px] text-white/85">{label}</span>
-          {description && <span className="mt-0.5 block text-[12px] leading-relaxed text-white/35">{description}</span>}
+          <span className="block text-[13px] text-black">{label}</span>
+          {description && <span className="mt-0.5 block text-[12px] leading-relaxed text-[#777777]">{description}</span>}
         </span>
         <button
           type="button" role="switch" aria-checked={!!checked} aria-label={label} disabled={disabled}
           onClick={() => !disabled && onChange(!checked)}
-          className={`relative h-5 w-9 shrink-0 rounded-full ${checked ? 'bg-white' : 'bg-white/20'} ${disabled ? 'cursor-not-allowed' : ''}`}
+          className={`relative h-5 w-9 shrink-0 rounded-full ${checked ? 'bg-black' : 'bg-[#D8D8D8]'} ${disabled ? 'cursor-not-allowed' : ''}`}
         >
-          <span className={`absolute top-0.5 h-4 w-4 rounded-full transition-all ${checked ? 'left-[18px] bg-black' : 'left-0.5 bg-white'}`} />
+          <span className={`absolute top-0.5 h-4 w-4 rounded-full transition-all ${checked ? 'left-[18px] bg-white' : 'left-0.5 bg-white'}`} />
         </button>
       </label>
     );
@@ -198,7 +198,7 @@ export function Accordion({ title, subtitle, children, defaultOpen = false, badg
   const id = useId();
   if (variant === 'editorial') {
     return (
-      <div className="border-y border-white/10">
+      <div className="border-y border-[#EAEAEA]">
         <h3>
           <button
             type="button"
@@ -208,14 +208,14 @@ export function Accordion({ title, subtitle, children, defaultOpen = false, badg
             className="flex min-h-[44px] w-full items-center gap-3 py-4 text-left adm-row-hover"
           >
             <span className="min-w-0 flex-1">
-              <span className="block text-[13px] text-white">{title}</span>
-              {subtitle && <span className="mt-0.5 block text-[12px] text-white/35">{subtitle}</span>}
+              <span className="block text-[13px] text-black">{title}</span>
+              {subtitle && <span className="mt-0.5 block text-[12px] text-[#777777]">{subtitle}</span>}
             </span>
             {badge}
-            <ChevronDown size={14} className={`shrink-0 text-white/35 transition ${open ? 'rotate-180' : ''}`} aria-hidden="true" />
+            <ChevronDown size={14} className={`shrink-0 text-[#777777] transition ${open ? 'rotate-180' : ''}`} aria-hidden="true" />
           </button>
         </h3>
-        {open && <div id={id} className="border-t border-white/10 pb-6 pt-4">{children}</div>}
+        {open && <div id={id} className="border-t border-[#EAEAEA] pb-6 pt-4">{children}</div>}
       </div>
     );
   }

@@ -41,7 +41,7 @@ export default function Topbar({ onSave, onPublish }: { onSave?: () => void; onP
 
   const iconBtn = (active?: boolean) =>
     `grid h-8 w-8 place-items-center rounded-[4px] transition ${
-      active ? 'bg-white text-black' : 'text-white/45 hover:bg-white/5 hover:text-white'
+      active ? 'bg-black text-[#FFFFFF]' : 'text-[#777777] hover:bg-[#F5F5F5] hover:text-black'
     }`;
 
   const devBtn = (d: typeof device, Icon: typeof Monitor, label: string) => (
@@ -52,35 +52,35 @@ export default function Topbar({ onSave, onPublish }: { onSave?: () => void; onP
   );
 
   return (
-    <header className="flex h-14 shrink-0 items-center justify-between gap-3 border-b border-white/10 bg-[#050505] px-3">
+    <header className="flex h-14 shrink-0 items-center justify-between gap-3 border-b border-[#EAEAEA] bg-white px-3">
       <div className="flex min-w-0 items-center gap-2">
         <Link to="/admin/store" title="Back to admin"
           className={iconBtn()}>
           <ArrowLeft size={16} />
         </Link>
         <div className="hidden min-w-0 items-center gap-2 sm:flex">
-          <p className="truncate text-[13px] font-medium tracking-tight text-white">HUSHAE Theme</p>
-          <span className="text-[10px] uppercase tracking-[0.16em] text-white/40">
+          <p className="truncate text-[13px] font-medium tracking-tight text-black">HUSHAE Theme</p>
+          <span className="text-[10px] uppercase tracking-[0.16em] text-[#777777]">
             {dirty ? '● DRAFT' : '● LIVE'}
           </span>
         </div>
       </div>
 
-      <div className="hidden items-center gap-1 border border-white/10 p-0.5 md:flex">
+      <div className="hidden items-center gap-1 border border-[#EAEAEA] p-0.5 md:flex">
         {devBtn('desktop', Monitor, 'Desktop')}
         {devBtn('tablet', Tablet, 'Tablet')}
         {devBtn('mobile', Smartphone, 'Mobile')}
       </div>
 
       <div className="flex shrink-0 items-center gap-1">
-        <span className="mr-1 hidden items-center gap-1.5 text-[11px] uppercase tracking-[0.12em] text-white/40 lg:flex">
+        <span className="mr-1 hidden items-center gap-1.5 text-[11px] uppercase tracking-[0.12em] text-[#777777] lg:flex">
           {saving ? <Loader2 size={11} className="animate-spin" /> : dirty ? <Cloud size={11} /> : <Check size={11} />}
           {savedLabel()}
         </span>
 
         <button onClick={() => setAutosave(!autosave)} title={autosave ? 'Autosave on' : 'Autosave off'}
-          className="hidden h-8 items-center gap-1.5 rounded-[4px] px-2 text-[10px] font-medium uppercase tracking-[0.12em] text-white/45 transition hover:text-white lg:flex">
-          <span className={`h-1 w-1 rounded-full ${autosave ? 'bg-white' : 'bg-white/25'}`} /> Auto
+          className="hidden h-8 items-center gap-1.5 rounded-[4px] px-2 text-[10px] font-medium uppercase tracking-[0.12em] text-[#777777] transition hover:text-black lg:flex">
+          <span className={`h-1 w-1 rounded-full ${autosave ? 'bg-black' : 'bg-[#D8D8D8]'}`} /> Auto
         </button>
 
         <button onClick={() => setShowVersions(!showVersions)} title="Version history" aria-pressed={showVersions}
@@ -92,7 +92,7 @@ export default function Topbar({ onSave, onPublish }: { onSave?: () => void; onP
           <Settings2 size={15} />
         </button>
 
-        <span className="mx-1 h-6 w-px bg-white/10" />
+        <span className="mx-1 h-6 w-px bg-[#EAEAEA]" />
 
         <button onClick={undo} disabled={!past.length} title="Undo (Ctrl+Z)"
           className={`${iconBtn()} disabled:opacity-25`}>
@@ -105,12 +105,12 @@ export default function Topbar({ onSave, onPublish }: { onSave?: () => void; onP
 
         {onSave && (
           <button onClick={onSave} disabled={saving}
-            className="ml-1.5 inline-flex h-8 items-center gap-1.5 rounded-[4px] border border-white/20 px-3 text-[10px] font-medium uppercase tracking-[0.08em] text-white/70 transition hover:border-white/45 hover:text-white disabled:opacity-35">
+            className="ml-1.5 inline-flex h-8 items-center gap-1.5 rounded-[4px] border border-[#D8D8D8] px-3 text-[10px] font-medium uppercase tracking-[0.08em] text-black transition hover:border-black disabled:opacity-35">
             Save
           </button>
         )}
         <button onClick={onPublish} disabled={saving}
-          className="inline-flex h-8 items-center gap-1.5 rounded-[4px] bg-white px-4 text-[10px] font-medium uppercase tracking-[0.08em] text-black transition hover:bg-white/85 disabled:opacity-35">
+          className="inline-flex h-8 items-center gap-1.5 rounded-[4px] bg-black px-4 text-[10px] font-medium uppercase tracking-[0.08em] text-[#FFFFFF] transition hover:bg-black/80 disabled:opacity-35">
           {saving ? <Loader2 size={13} className="animate-spin" /> : null}
           {dirty || saving ? 'Publish' : 'Published'}
         </button>
