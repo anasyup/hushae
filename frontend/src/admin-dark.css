@@ -54,7 +54,7 @@
 .dark-admin .bg-\[#e5e7eb\] { background-color: #1D1D21 !important; }
 .dark-admin .bg-\[#FAFAFA\] { background-color: #111113 !important; }
 .dark-admin .bg-\[#fafafa\] { background-color: #111113 !important; }
-.dark-admin .bg-\[#f6dfc4\] { background-color: rgba(184, 154, 104, 0.14) !important; }
+.dark-admin .bg-\[#f6dfc4\] { background-color: rgba(255, 255, 255, 0.08) !important; }
 
 /* ── Status badges / pills — MONOCHROME (Phase 02 correction) ───────────
    No colored badges. Status is communicated with white/black opacity
@@ -78,6 +78,26 @@
 .dark-admin .ring-neutral-200 { --tw-ring-color: rgba(255, 255, 255, 0.14) !important; }
 .dark-admin .ring-emerald-200, .dark-admin .ring-red-200, .dark-admin .ring-amber-200,
 .dark-admin .ring-blue-200    { --tw-ring-color: rgba(255, 255, 255, 0.16) !important; }
+
+/* Phase 12 — leftover saturated utilities (legacy Orders, print, badges) */
+.dark-admin .bg-emerald-500, .dark-admin .bg-emerald-600, .dark-admin .bg-emerald-700,
+.dark-admin .bg-red-500,     .dark-admin .bg-red-600,     .dark-admin .bg-red-700,
+.dark-admin .bg-amber-400,   .dark-admin .bg-amber-500,   .dark-admin .bg-blue-500,
+.dark-admin .bg-blue-600,    .dark-admin .bg-green-50,    .dark-admin .bg-green-300 {
+  background-color: rgba(255, 255, 255, 0.14) !important;
+}
+.dark-admin .text-emerald-500, .dark-admin .text-amber-500, .dark-admin .text-red-500,
+.dark-admin .text-blue-600,    .dark-admin .text-green-800, .dark-admin .fill-amber-500,
+.dark-admin .text-orange-800,  .dark-admin .text-amber-900, .dark-admin .text-emerald-900,
+.dark-admin .text-blue-800,    .dark-admin .text-blue-900,  .dark-admin .text-red-900 {
+  color: #D4D4D8 !important;
+  fill: #D4D4D8 !important;
+}
+.dark-admin .border-red-200, .dark-admin .border-emerald-200, .dark-admin .border-amber-200,
+.dark-admin .border-blue-200, .dark-admin .border-red-300, .dark-admin .ring-green-300,
+.dark-admin .ring-amber-300, .dark-admin .ring-red-200 {
+  border-color: rgba(255, 255, 255, 0.16) !important;
+}
 
 
 /* ── Recharts (SVG inline attrs) ────────────────────────────────────────── */

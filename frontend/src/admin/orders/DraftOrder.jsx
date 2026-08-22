@@ -351,7 +351,7 @@ export default function DraftOrder() {
                       <button onClick={() => changeQty(i, l.quantity + 1)} className="rounded-lg border border-neutral-200 p-1.5 text-neutral-500 hover:border-neutral-400"><Plus size={12} /></button>
                     </div>
                     <span className="w-20 text-right text-[13px] font-semibold text-neutral-900">{pkr(l.lineTotal)}</span>
-                    <button onClick={() => setLines((ls) => ls.filter((_, j) => j !== i))} className="rounded-lg p-1.5 text-neutral-300 hover:bg-red-50 hover:text-red-600"><Trash2 size={14} /></button>
+                    <button onClick={() => setLines((ls) => ls.filter((_, j) => j !== i))} className="rounded-lg p-1.5 text-white/35 hover:text-white"><Trash2 size={14} /></button>
                   </div>
                 ))}
               </div>

@@ -93,7 +93,7 @@ const NAV_GROUPS = [
   },
   {
     key: 'analytics', label: 'Analytics', icon: BarChart3,
-    match: ['/admin/analytics', '/admin/insights', '/admin/finance', '/admin/live', '/admin/growth', '/admin/search-analytics'],
+    match: ['/admin/analytics', '/admin/insights', '/admin/finance', '/admin/live', '/admin/growth', '/admin/search-analytics', '/admin/reports'],
     children: [
       { to: '/admin/analytics',       label: 'Overview',          icon: BarChart3 },
       { to: '/admin/finance',         label: 'Finance & P&L',     icon: CreditCard },

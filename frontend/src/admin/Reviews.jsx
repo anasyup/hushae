@@ -1,14 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Star, Check, X, MessageSquare, Trash2, ExternalLink, Pin, Sparkles } from 'lucide-react';
 import { api } from '../api/client';
 import { useApp } from '../store/AppContext';
+import AdminLayout from './AdminLayout';
+import PageHeader from './components/PageHeader';
+import { btnGhost, btnSolid, EditorialEmpty, MonoStatus, TableSkeleton } from './orders/orderUi';
+import { ta } from './settings/chrome';
 
-/**
- * Admin — Reviews moderation.
- * Tabs: Pending / Approved / Rejected + counts.
- * Each row: rating, customer, review, product link, approve / reject / reply / delete.
- */
 export default function Reviews() {
   const { auth, toast } = useApp();
   const [tab, setTab] = useState('pending');
@@ -18,15 +16,15 @@ export default function Reviews() {
   const [replying, setReplying] = useState(null);
   const [reply, setReply] = useState('');
   const [selected, setSelected] = useState([]);
+  const [loaded, setLoaded] = useState(false);
 
   const load = () => {
     api(`/reviews/admin?status=${tab}`, { token: auth?.token })
       .then((d) => { setRows(d.reviews || []); setCounts(d.counts || {}); setSelected([]); })
-      .catch(() => setRows([]));
+      .catch(() => setRows([]))
+      .finally(() => setLoaded(true));
   };
 
-  /* Bulk actions. The tick boxes are cleared on every reload so a stale
-     selection can never be applied to a list that has moved on. */
   const toggleOne = (id) => setSelected((s2) => (s2.includes(id) ? s2.filter((x) => x !== id) : [...s2, id]));
   const allChecked = rows.length > 0 && selected.length === rows.length;
   const toggleAll = () => setSelected(allChecked ? [] : rows.map((r) => r._id));
@@ -42,13 +40,6 @@ export default function Reviews() {
     } catch (e) { toast(e.message || 'Failed'); } finally { setBusy(null); }
   };
 
-  const flag = async (id, field, value) => {
-    setBusy(id);
-    try {
-      await api('/reviews/admin/bulk', { method: 'POST', body: { ids: [id], action: value ? field : `un${field}` }, token: auth.token });
-      load();
-    } catch (e) { toast(e.message || 'Failed'); } finally { setBusy(null); }
-  };
   useEffect(() => { if (auth?.token) load(); /* eslint-disable-next-line */ }, [tab, auth?.token]);
 
   const setStatus = async (id, status) => {
@@ -79,137 +70,101 @@ export default function Reviews() {
   };
 
   const tabs = [
-    { id: 'pending',  label: 'Pending review' },
+    { id: 'pending', label: 'Pending' },
     { id: 'approved', label: 'Approved' },
     { id: 'rejected', label: 'Rejected' },
   ];
 
   return (
-    <div>
-      <div className="mb-6 flex flex-wrap items-center gap-2">
-        {tabs.map(t => (
-          <button
-            key={t.id}
-            onClick={() => setTab(t.id)}
-            className={`rounded-full px-4 py-2 text-sm font-semibold ${
-              tab === t.id ? 'bg-neutral-900 text-white' : 'bg-white text-neutral-600 ring-1 ring-neutral-200 hover:text-neutral-900'
-            }`}
-          >
-            {t.label} <span className="ml-1.5 rounded-full bg-black/10 px-1.5 py-0.5 text-[12px]">{counts[t.id] || 0}</span>
+    <AdminLayout title="Reviews">
+      <PageHeader title="Reviews" description="Moderate customer reviews before they appear on product pages." />
+
+      <div className="mb-8 flex flex-wrap gap-1.5">
+        {tabs.map((t) => (
+          <button key={t.id} type="button" onClick={() => setTab(t.id)} className={tab === t.id ? btnSolid : btnGhost}>
+            {t.label} {counts[t.id] || 0}
           </button>
         ))}
       </div>
 
-      {rows.length === 0 ? (
-        <div className="rounded-2xl border border-neutral-200 bg-white p-16 text-center">
-          <p className="font-sans text-xl text-neutral-900">Nothing here yet</p>
-          <p className="mt-2 text-sm text-neutral-500">
-            {tab === 'pending' ? 'When a customer writes a review it will land here for your approval.' :
-             tab === 'approved' ? 'Approved reviews appear on the product page publicly.' :
-             'Rejected reviews stay in the DB but never show publicly.'}
-          </p>
-        </div>
+      {!loaded ? (
+        <TableSkeleton rows={5} />
+      ) : rows.length === 0 ? (
+        <EditorialEmpty
+          title="Nothing here yet"
+          description={tab === 'pending' ? 'When a customer writes a review it will land here for your approval.' : tab === 'approved' ? 'Approved reviews appear on the product page publicly.' : 'Rejected reviews stay in the DB but never show publicly.'}
+        />
       ) : (
-        <div className="space-y-4">
-          {/* Bulk bar. Appears only with a selection so it never competes
-              with the list for attention. */}
-          <div className="flex flex-wrap items-center gap-2 rounded-xl border border-neutral-200 bg-white px-4 py-2.5">
-            <label className="flex cursor-pointer items-center gap-2 text-[12px] font-medium text-neutral-700">
-              <input type="checkbox" checked={allChecked} onChange={toggleAll} className="h-4 w-4 accent-neutral-900" />
+        <section>
+          <p className="adm-index">01 — {tab}</p>
+          <div className="mb-4 flex flex-wrap items-center gap-2 border-y border-white/10 py-3">
+            <label className="flex cursor-pointer items-center gap-2 text-[12px] text-white/70">
+              <input type="checkbox" checked={allChecked} onChange={toggleAll} className="h-4 w-4 accent-white" />
               Select all ({rows.length})
             </label>
             {selected.length > 0 && (
-              <>
-                <span className="text-[12px] text-neutral-500">· {selected.length} selected</span>
-                <div className="ml-auto flex flex-wrap gap-1.5">
-                  {tab !== 'approved' && <button onClick={() => bulk('approve')} disabled={busy==='bulk'} className="rounded-lg bg-neutral-900 px-3 py-1.5 text-[13px] font-semibold text-white disabled:opacity-50">Approve</button>}
-                  {tab !== 'rejected' && <button onClick={() => bulk('reject')} disabled={busy==='bulk'} className="rounded-lg border border-neutral-300 px-3 py-1.5 text-[13px] font-semibold text-neutral-700 disabled:opacity-50">Reject</button>}
-                  <button onClick={() => bulk('feature')} disabled={busy==='bulk'} className="rounded-lg border border-neutral-300 px-3 py-1.5 text-[13px] font-semibold text-neutral-700 disabled:opacity-50">Feature</button>
-                  <button onClick={() => bulk('pin')} disabled={busy==='bulk'} className="rounded-lg border border-neutral-300 px-3 py-1.5 text-[13px] font-semibold text-neutral-700 disabled:opacity-50">Pin</button>
-                  <button onClick={() => bulk('verify')} disabled={busy==='bulk'} className="rounded-lg border border-neutral-300 px-3 py-1.5 text-[13px] font-semibold text-neutral-700 disabled:opacity-50">Mark verified</button>
-                  <button onClick={() => bulk('delete')} disabled={busy==='bulk'} className="rounded-lg border border-red-200 px-3 py-1.5 text-[13px] font-semibold text-red-600 disabled:opacity-50">Delete</button>
-                </div>
-              </>
+              <div className="ml-auto flex flex-wrap gap-1.5">
+                {tab !== 'approved' && <button type="button" onClick={() => bulk('approve')} disabled={busy === 'bulk'} className={btnSolid}>Approve</button>}
+                {tab !== 'rejected' && <button type="button" onClick={() => bulk('reject')} disabled={busy === 'bulk'} className={btnGhost}>Reject</button>}
+                <button type="button" onClick={() => bulk('feature')} disabled={busy === 'bulk'} className={btnGhost}>Feature</button>
+                <button type="button" onClick={() => bulk('pin')} disabled={busy === 'bulk'} className={btnGhost}>Pin</button>
+                <button type="button" onClick={() => bulk('verify')} disabled={busy === 'bulk'} className={btnGhost}>Mark verified</button>
+                <button type="button" onClick={() => bulk('delete')} disabled={busy === 'bulk'} className={btnGhost}>Delete</button>
+              </div>
             )}
           </div>
 
-          {rows.map(r => (
-            <div key={r._id} className="rounded-2xl border border-neutral-200 bg-white p-5">
-              <div className="flex flex-col justify-between gap-3 md:flex-row">
-                <div className="flex flex-1 gap-3">
-                  <input
-                    type="checkbox" checked={selected.includes(r._id)} onChange={() => toggleOne(r._id)}
-                    aria-label={`Select review by ${r.customerName}`}
-                    className="mt-1 h-4 w-4 shrink-0 accent-neutral-900"
-                  />
-                <div className="flex-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <div className="flex items-center gap-0.5">
-                      {[1,2,3,4,5].map(n => (
-                        <Star key={n} size={14} className={n <= r.rating ? 'fill-amber-500 text-amber-500' : 'text-neutral-200'} />
-                      ))}
+          <div className="border-y border-white/10">
+            {rows.map((r) => (
+              <div key={r._id} className="border-b border-white/5 py-5 last:border-0">
+                <div className="flex flex-col justify-between gap-3 md:flex-row">
+                  <div className="flex min-w-0 flex-1 gap-3">
+                    <input type="checkbox" checked={selected.includes(r._id)} onChange={() => toggleOne(r._id)} aria-label={`Select review by ${r.customerName}`} className="mt-1 h-4 w-4 shrink-0 accent-white" />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-[12px] tabular-nums text-white/50">{r.rating}/5</span>
+                        <p className="text-[13px] text-white">{r.customerName}</p>
+                        {r.verified && <MonoStatus label="VERIFIED" />}
+                        {r.featured && <MonoStatus label="FEATURED" />}
+                        {r.pinned && <MonoStatus label="PINNED" />}
+                        {r.reports > 0 && <MonoStatus label={`${r.reports} REPORT${r.reports === 1 ? '' : 'S'}`} dim />}
+                        <span className="text-[11px] text-white/30">{new Date(r.createdAt).toLocaleDateString('en-PK')}</span>
+                      </div>
+                      {r.title && <p className="mt-2 text-[13px] text-white">{r.title}</p>}
+                      <p className="mt-1 text-[13px] leading-relaxed text-white/70">{r.body}</p>
+                      {r.adminReply && (
+                        <div className="mt-3 border-l border-white/20 pl-3">
+                          <p className="adm-label">Your reply</p>
+                          <p className="mt-1 text-[13px] text-white/70">{r.adminReply}</p>
+                        </div>
+                      )}
+                      {r.product && (
+                        <Link to={`/product/${r.product.slug}`} target="_blank" className="mt-3 inline-block text-[12px] text-white/40 hover:text-white">{r.product.name}</Link>
+                      )}
                     </div>
-                    <p className="text-sm font-semibold text-neutral-900">{r.customerName}</p>
-                    {r.verified && <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[13px] font-semibold text-emerald-700">Verified</span>}
-                    <p className="text-xs text-neutral-500">{new Date(r.createdAt).toLocaleDateString('en-PK')}</p>
-                    {r.featured && <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[13px] font-semibold text-amber-700">Featured</span>}
-                    {r.pinned && <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[13px] font-semibold text-blue-700">Pinned</span>}
-                    {r.reports > 0 && <span className="rounded-full bg-red-50 px-2 py-0.5 text-[13px] font-semibold text-red-700">{r.reports} report{r.reports===1?'':'s'}</span>}
                   </div>
-                  {r.title && <p className="mt-2 font-semibold text-neutral-900">{r.title}</p>}
-                  <p className="mt-1 text-sm text-neutral-700">{r.body}</p>
-                  {r.adminReply && (
-                    <div className="mt-3 rounded-lg bg-emerald-50 p-3">
-                      <p className="text-[13px] font-bold uppercase tracking-wider text-emerald-700">Your reply</p>
-                      <p className="mt-1 text-sm text-neutral-800">{r.adminReply}</p>
+                  <div className="flex flex-wrap items-start gap-2">
+                    {tab !== 'approved' && <button type="button" disabled={busy === r._id} onClick={() => setStatus(r._id, 'approved')} className={btnSolid}>Approve</button>}
+                    {tab !== 'rejected' && <button type="button" disabled={busy === r._id} onClick={() => setStatus(r._id, 'rejected')} className={btnGhost}>Reject</button>}
+                    <button type="button" disabled={busy === r._id} onClick={() => { setReplying(r._id); setReply(r.adminReply || ''); }} className={btnGhost}>Reply</button>
+                    <button type="button" disabled={busy === r._id} onClick={() => del(r._id)} className={btnGhost}>Delete</button>
+                  </div>
+                </div>
+                {replying === r._id && (
+                  <div className="mt-4 border-t border-white/10 pt-4">
+                    <label className="adm-label mb-1.5 block">Public reply from HUSHAE</label>
+                    <textarea rows={3} className={ta} value={reply} onChange={(e) => setReply(e.target.value)} placeholder="Thanks for the feedback…" />
+                    <div className="mt-2 flex justify-end gap-2">
+                      <button type="button" onClick={() => setReplying(null)} className={btnGhost}>Cancel</button>
+                      <button type="button" onClick={saveReply} className={btnSolid}>Save reply</button>
                     </div>
-                  )}
-                  {r.product && (
-                    <Link to={`/product/${r.product.slug}`} target="_blank" className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-neutral-600 hover:text-neutral-900">
-                      {r.product.name} <ExternalLink size={11} />
-                    </Link>
-                  )}
-                </div>
-                </div>
-                <div className="flex flex-wrap items-start gap-2">
-                  {tab !== 'approved' && (
-                    <button disabled={busy === r._id} onClick={() => setStatus(r._id, 'approved')}
-                      className="inline-flex items-center gap-1 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700 disabled:opacity-50">
-                      <Check size={13} /> Approve
-                    </button>
-                  )}
-                  {tab !== 'rejected' && (
-                    <button disabled={busy === r._id} onClick={() => setStatus(r._id, 'rejected')}
-                      className="inline-flex items-center gap-1 rounded-lg bg-neutral-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-black disabled:opacity-50">
-                      <X size={13} /> Reject
-                    </button>
-                  )}
-                  <button disabled={busy === r._id} onClick={() => { setReplying(r._id); setReply(r.adminReply || ''); }}
-                    className="inline-flex items-center gap-1 rounded-lg bg-white px-3 py-1.5 text-xs font-semibold text-neutral-700 ring-1 ring-neutral-200 hover:text-neutral-900">
-                    <MessageSquare size={13} /> Reply
-                  </button>
-                  <button disabled={busy === r._id} onClick={() => del(r._id)}
-                    className="inline-flex items-center gap-1 rounded-lg bg-white px-3 py-1.5 text-xs font-semibold text-red-600 ring-1 ring-red-200 hover:bg-red-50">
-                    <Trash2 size={13} />
-                  </button>
-                </div>
+                  </div>
+                )}
               </div>
-
-              {replying === r._id && (
-                <div className="mt-4 border-t border-neutral-100 pt-4">
-                  <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500">Public reply from HUSHAE</label>
-                  <textarea rows={3} className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={reply} onChange={(e) => setReply(e.target.value)}
-                    placeholder="Thanks for the feedback — we're glad the fit worked out…" />
-                  <div className="mt-2 flex justify-end gap-2">
-                    <button onClick={() => setReplying(null)} className="rounded-lg bg-white px-3 py-1.5 text-xs font-semibold ring-1 ring-neutral-200">Cancel</button>
-                    <button onClick={saveReply} className="rounded-lg bg-neutral-900 px-3 py-1.5 text-xs font-semibold text-white">Save reply</button>
-                  </div>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        </section>
       )}
-    </div>
+    </AdminLayout>
   );
 }

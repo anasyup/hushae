@@ -10,6 +10,8 @@ import { pkr } from '../lib/format';
 import AdminLayout from './AdminLayout';
 import Img from '../components/Img';
 import MediaPicker from '../components/MediaPicker';
+import PageHeader from './components/PageHeader';
+import { btnSolid, MonoStatus, TableSkeleton } from './orders/orderUi';
 
 /*
  * Collections admin — curated product groupings (Wedding, Summer, Bridal…).
@@ -39,22 +41,15 @@ export default function Collections() {
     catch (ex) { toast(ex.message); }
   };
 
-  if (!list) return <AdminLayout title="Collections"><div className="animate-pulse rounded-xl bg-neutral-100 h-64" /></AdminLayout>;
+  if (!list) return <AdminLayout title="Collections"><PageHeader title="Collections" description="Curated product groups." /><TableSkeleton rows={5} /></AdminLayout>;
 
   return (
     <AdminLayout title="Collections">
-      {/* Header */}
-      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-        <p className="text-[13px] text-neutral-500">
-          Curated groups of products — Wedding Season, Summer Essentials, Bridal, etc. Show them on the homepage or link them from the menu.
-        </p>
-        <button
-          onClick={() => setEditing({ ...EMPTY_COLLECTION })}
-          className="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-4 py-2 text-[12px] font-semibold text-white transition hover:bg-neutral-800"
-        >
-          <Plus size={13} /> New collection
-        </button>
-      </div>
+      <PageHeader
+        title="Collections"
+        description="Curated groups of products — season, occasion or theme."
+        actions={<button type="button" onClick={() => setEditing({ ...EMPTY_COLLECTION })} className={btnSolid}>New collection</button>}
+      />
 
       {/* Grid of collections */}
       {list.length === 0 ? (
@@ -72,11 +67,11 @@ export default function Collections() {
               <div className="relative aspect-[16/9] overflow-hidden bg-neutral-50">
                 {c.image
                   ? <img src={c.image} alt={c.name} className="h-full w-full object-cover" onError={(e) => { e.target.style.display = 'none'; }} />
-                  : <div className="flex h-full items-center justify-center bg-gradient-to-br from-neutral-100 to-neutral-200"><Boxes size={32} className="text-neutral-400" /></div>}
+                  : <div className="flex h-full items-center justify-center bg-white/5"><Boxes size={32} className="text-white/25" /></div>}
                 <div className="absolute right-2 top-2 flex gap-1">
-                  {c.featuredOnHome && <span className="rounded-full bg-amber-500 px-2 py-0.5 text-[13px] font-bold text-white"><Star size={9} className="inline" fill="currentColor" /> Featured</span>}
-                  {!c.isActive && <span className="rounded-full bg-neutral-200 px-2 py-0.5 text-[13px] font-bold text-neutral-700">Hidden</span>}
-                  {c.smart?.enabled && <span className="rounded-full bg-blue-600 px-2 py-0.5 text-[13px] font-bold text-white"><Sparkles size={9} className="inline" /> Smart</span>}
+                  {c.featuredOnHome && <MonoStatus label="FEATURED" />}
+                  {!c.isActive && <MonoStatus label="HIDDEN" dim />}
+                  {c.smart?.enabled && <MonoStatus label="SMART" />}
                 </div>
               </div>
               <div className="p-4">
@@ -92,7 +87,7 @@ export default function Collections() {
                   <a href={`/collection/${c.slug}`} target="_blank" rel="noreferrer" className="text-[12px] font-semibold text-neutral-500 hover:text-neutral-900">Preview →</a>
                   <div className="flex items-center gap-1">
                     <button onClick={() => setEditing(c)} className="rounded-lg p-1.5 text-neutral-500 transition hover:bg-neutral-100 hover:text-neutral-900" aria-label="Edit"><Edit3 size={13} /></button>
-                    <button onClick={() => remove(c)} className="rounded-lg p-1.5 text-neutral-500 transition hover:bg-red-50 hover:text-red-700" aria-label="Delete"><Trash2 size={13} /></button>
+                    <button onClick={() => remove(c)} className="rounded-lg p-1.5 text-white/40 transition hover:text-white" aria-label="Delete"><Trash2 size={13} /></button>
                   </div>
                 </div>
               </div>

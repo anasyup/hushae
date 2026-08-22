@@ -1,15 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  BadgePercent, BarChart3, Command, FileText, Globe,
+  BadgePercent, BarChart3, FileText, Globe,
   LayoutTemplate, Megaphone, Package, PackagePlus, Search,
-  Settings, ShoppingBag, Sparkles, Store, Users,
+  Settings, ShoppingBag, Sparkles, Users,
 } from 'lucide-react';
-
-/* ============================================================================
- * COMMAND PALETTE — ⌘K from anywhere in admin.
- * Phase 4: fuzzy search across all admin pages + quick-create.
- * ========================================================================== */
 
 const ITEMS = [
   { id: 'dashboard', label: 'Dashboard', category: 'Go to', icon: BarChart3, to: '/admin', keywords: ['home', 'overview'] },
@@ -47,11 +42,11 @@ export default function CommandPalette({ onClose }) {
   const results = useMemo(() => {
     if (!q.trim()) return ITEMS.slice(0, 8);
     const term = q.toLowerCase();
-    return ITEMS.filter((item) => {
-      return item.label.toLowerCase().includes(term) ||
-        item.category.toLowerCase().includes(term) ||
-        (item.keywords || []).join(' ').toLowerCase().includes(term);
-    });
+    return ITEMS.filter((item) => (
+      item.label.toLowerCase().includes(term) ||
+      item.category.toLowerCase().includes(term) ||
+      (item.keywords || []).join(' ').includes(term)
+    ));
   }, [q]);
 
   useEffect(() => { setIdx(0); }, [results.length]);
@@ -80,31 +75,41 @@ export default function CommandPalette({ onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-start justify-center bg-black/50 backdrop-blur-sm pt-[15vh]" onClick={onClose}>
-      <div className="w-full max-w-xl overflow-hidden rounded-2xl bg-white shadow-2xl ring-1 ring-black/10" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center gap-3 border-b border-neutral-200 px-4 py-4">
-          <Search size={17} className="shrink-0 text-neutral-400" />
-          <input ref={inputRef} value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={onKey}
-            placeholder="Search admin… (type a page name or command)"
-            className="w-full bg-transparent text-[12px] text-neutral-900 outline-none placeholder:text-neutral-400" />
-          <kbd className="hidden items-center gap-0.5 rounded-md border border-neutral-300 bg-neutral-100 px-2 py-1 text-[13px] font-semibold text-neutral-500 sm:flex"><Command size={10} />K</kbd>
+    <div className="fixed inset-0 z-[100] flex items-start justify-center bg-black/70 pt-[15vh]" onClick={onClose}>
+      <div className="w-full max-w-xl border border-white/15 bg-[#0A0A0A]" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center gap-3 border-b border-white/10 px-4 py-3">
+          <Search size={15} className="shrink-0 text-white/35" />
+          <input
+            ref={inputRef}
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            onKeyDown={onKey}
+            placeholder="Search admin"
+            className="w-full bg-transparent text-[13px] text-white outline-none placeholder:text-white/30"
+          />
+          <kbd className="hidden text-[10px] uppercase tracking-[0.16em] text-white/25 sm:inline">Esc</kbd>
         </div>
-        <div className="max-h-[360px] overflow-y-auto p-2">
+        <div className="max-h-[360px] overflow-y-auto">
           {results.length === 0 ? (
-            <p className="p-8 text-center text-[13px] text-neutral-500">No results for "{q}"</p>
+            <p className="p-10 text-center text-[12px] text-white/35">No results for “{q}”</p>
           ) : (
             [...grouped.entries()].map(([cat, items]) => (
-              <div key={cat} className="mb-1">
-                <p className="px-3 py-1.5 text-[13px] font-bold uppercase tracking-[0.12em] text-neutral-400">{cat}</p>
+              <div key={cat}>
+                <p className="adm-label px-4 pt-4">{cat}</p>
                 {items.map((item) => {
                   const active = flatItems.indexOf(item) === idx;
                   const Icon = item.icon;
                   return (
-                    <button key={item.id} onClick={() => run(item)} onMouseEnter={() => setIdx(flatItems.indexOf(item))}
-                      className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition ${active ? 'bg-neutral-100' : 'hover:bg-neutral-50'}`}>
-                      <Icon size={16} strokeWidth={1.8} className={active ? 'text-neutral-900' : 'text-neutral-500'} />
-                      <span className="flex-1 text-[12px] font-medium text-neutral-900">{item.label}</span>
-                      <span className="text-[12px] text-neutral-400">{item.to}</span>
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => run(item)}
+                      onMouseEnter={() => setIdx(flatItems.indexOf(item))}
+                      className={`flex w-full items-center gap-3 px-4 py-2.5 text-left ${active ? 'bg-white/[0.06]' : 'hover:bg-white/[0.03]'}`}
+                    >
+                      <Icon size={14} strokeWidth={1.6} className={active ? 'text-white' : 'text-white/35'} />
+                      <span className={`flex-1 text-[13px] ${active ? 'text-white' : 'text-white/70'}`}>{item.label}</span>
+                      <span className="font-mono text-[10px] text-white/25">{item.to}</span>
                     </button>
                   );
                 })}
@@ -112,10 +117,10 @@ export default function CommandPalette({ onClose }) {
             ))
           )}
         </div>
-        <div className="flex items-center gap-4 border-t border-neutral-100 px-4 py-2.5">
-          <span className="text-[13px] text-neutral-400"><kbd className="rounded border border-neutral-300 bg-neutral-100 px-1.5 py-0.5 text-[12px] font-semibold text-neutral-500">↑↓</kbd> navigate</span>
-          <span className="text-[13px] text-neutral-400"><kbd className="rounded border border-neutral-300 bg-neutral-100 px-1.5 py-0.5 text-[12px] font-semibold text-neutral-500">↵</kbd> open</span>
-          <span className="text-[13px] text-neutral-400"><kbd className="rounded border border-neutral-300 bg-neutral-100 px-1.5 py-0.5 text-[12px] font-semibold text-neutral-500">Esc</kbd> close</span>
+        <div className="flex items-center gap-4 border-t border-white/10 px-4 py-2.5 text-[10px] uppercase tracking-[0.14em] text-white/25">
+          <span>↑↓ navigate</span>
+          <span>↵ open</span>
+          <span>esc close</span>
         </div>
       </div>
     </div>

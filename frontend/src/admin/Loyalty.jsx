@@ -1,12 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import {
-  Ban, ChevronLeft, ChevronRight, Copy, Download, Gift, Minus, Plus,
-  Search, Settings as SettingsIcon, Sparkles, X,
+  Ban, ChevronLeft, ChevronRight, Copy, Gift, Minus, Plus,
+  Search, X,
 } from 'lucide-react';
 import { api } from '../api/client';
 import { useApp } from '../store/AppContext';
 import AdminLayout from './AdminLayout';
+import PageHeader from './components/PageHeader';
+import { btnGhost, btnSolid, MonoStatus } from './orders/orderUi';
 
 /* ============================================================================
  * ADMIN → LOYALTY (members & gift cards)
@@ -26,10 +28,10 @@ const num = (n) => Number(n || 0).toLocaleString('en-PK');
 
 function StatCard({ label, value, sub }) {
   return (
-    <div className="rounded-xl border border-neutral-200 bg-white px-4 py-3">
-      <p className="text-[12px] uppercase tracking-wider text-neutral-500">{label}</p>
-      <p className="mt-1 text-xl font-semibold text-neutral-900">{value}</p>
-      {sub && <p className="mt-0.5 text-[12px] text-neutral-500">{sub}</p>}
+    <div className="px-5 py-6">
+      <p className="adm-label">{label}</p>
+      <p className="adm-metric mt-3 text-[22px] text-white">{value}</p>
+      {sub && <p className="mt-1 text-[11px] text-white/35">{sub}</p>}
     </div>
   );
 }
@@ -135,7 +137,7 @@ function AdjustDialog({ account, onClose, onDone }) {
             <p className="mt-1.5 text-[12px] text-neutral-500">Saved against your name in the ledger, forever.</p>
           </div>
 
-          {err && <p role="alert" className="mb-3 rounded-lg bg-red-50 px-3 py-2 text-[12px] font-medium text-red-700">{err}</p>}
+          {err && <p role="alert" className="mb-3 border border-white/15 px-3 py-2 text-[12px] text-white/55">{err}</p>}
 
           <div className="flex gap-2">
             <button type="button" onClick={onClose} className="min-h-[44px] flex-1 rounded-xl border border-neutral-300 px-4 text-[13px] font-semibold text-neutral-700 transition hover:bg-neutral-50">Cancel</button>
@@ -201,7 +203,7 @@ function MemberPanel({ id, onClose, onChanged }) {
           {!data ? <div className="animate-pulse rounded-xl bg-neutral-100 h-64 w-full" /> : (
             <>
               {a.blocked && (
-                <p role="alert" className="mb-4 rounded-xl bg-red-50 px-4 py-3 text-[12px] font-medium text-red-700">
+                <p role="alert" className="mb-4 border border-white/15 px-4 py-3 text-[12px] text-white/55">
                   Blocked. {a.blockedReason || 'No reason recorded.'}
                 </p>
               )}
@@ -217,7 +219,7 @@ function MemberPanel({ id, onClose, onChanged }) {
                 <button type="button" onClick={() => setAdjusting(true)} className="inline-flex min-h-[40px] items-center gap-1.5 rounded-lg bg-neutral-900 px-3 text-[12px] font-semibold text-white transition hover:bg-neutral-800">
                   <Plus size={13} /> Adjust balance
                 </button>
-                <button type="button" onClick={toggleBlock} className={`inline-flex min-h-[40px] items-center gap-1.5 rounded-lg border px-3 text-[12px] font-semibold transition ${a.blocked ? 'border-neutral-300 text-neutral-700 hover:bg-neutral-50' : 'border-red-200 text-red-600 hover:bg-red-50'}`}>
+                <button type="button" onClick={toggleBlock} className={btnGhost}>
                   <Ban size={13} /> {a.blocked ? 'Unblock' : 'Block'}
                 </button>
               </div>
@@ -238,7 +240,7 @@ function MemberPanel({ id, onClose, onChanged }) {
                           {r.actor && r.actor !== 'system' ? ` · by ${r.actor}` : ''}
                         </p>
                       </div>
-                      <p className={`shrink-0 text-[13px] font-semibold tabular-nums ${r.amount > 0 ? 'text-emerald-700' : 'text-neutral-900'}`}>
+                      <p className="shrink-0 text-[13px] tabular-nums text-white">
                         {r.amount > 0 ? '+' : ''}{num(r.amount)}{r.kind === 'credit' ? ' PKR' : ''}
                       </p>
                     </li>
@@ -308,7 +310,7 @@ function NewCardDialog({ onClose, onDone }) {
 
         {code ? (
           <>
-            <p className="mb-3 rounded-xl bg-amber-50 px-4 py-3 text-[12px] leading-relaxed text-amber-900">
+            <p className="mb-3 border border-white/15 px-4 py-3 text-[12px] leading-relaxed text-white/50">
               Copy this code now. It is stored scrambled, so it can never be shown again — only replaced.
             </p>
             <div className="flex items-center gap-2">
@@ -336,7 +338,7 @@ function NewCardDialog({ onClose, onDone }) {
               <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500" htmlFor="gc-to">Issued to (optional)</label>
               <input id="gc-to" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" maxLength={120} value={issuedTo} onChange={(e) => setIssuedTo(e.target.value)} placeholder="Phone or email" />
             </div>
-            {err && <p role="alert" className="mb-3 rounded-lg bg-red-50 px-3 py-2 text-[12px] font-medium text-red-700">{err}</p>}
+            {err && <p role="alert" className="mb-3 border border-white/15 px-3 py-2 text-[12px] text-white/55">{err}</p>}
             <div className="flex gap-2">
               <button type="button" onClick={onClose} className="min-h-[44px] flex-1 rounded-xl border border-neutral-300 px-4 text-[13px] font-semibold text-neutral-700 transition hover:bg-neutral-50">Cancel</button>
               <button type="submit" disabled={busy} className="min-h-[44px] flex-1 rounded-xl bg-neutral-900 px-4 text-[13px] font-semibold text-white transition hover:bg-neutral-800 disabled:opacity-50">
@@ -432,25 +434,16 @@ export default function AdminLoyalty() {
 
   return (
     <AdminLayout title="Loyalty">
-      <div className="mb-6 flex flex-wrap items-start justify-between gap-3 border-b border-neutral-200 pb-6">
-        <div className="flex items-start gap-4">
-          <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-neutral-900 text-white">
-            <Sparkles size={20} strokeWidth={1.8} />
-          </span>
-          <div>
-            <h2 className="font-sans text-2xl leading-tight text-neutral-900">Loyalty</h2>
-            <p className="mt-1 text-[13px] leading-relaxed text-neutral-600">Members, balances and gift cards.</p>
+      <PageHeader
+        title="Loyalty"
+        description="Members, balances and gift cards."
+        actions={
+          <div className="flex flex-wrap gap-2">
+            <button type="button" onClick={exportCsv} className={btnGhost}>Export ledger</button>
+            <Link to="/admin/settings/loyalty" className={btnGhost}>Rules</Link>
           </div>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <button type="button" onClick={exportCsv} className="inline-flex min-h-[40px] items-center gap-1.5 rounded-lg border border-neutral-300 px-3 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50">
-            <Download size={13} /> Export ledger
-          </button>
-          <Link to="/admin/settings/loyalty" className="inline-flex min-h-[40px] items-center gap-1.5 rounded-lg border border-neutral-300 px-3 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50">
-            <SettingsIcon size={13} /> Rules
-          </Link>
-        </div>
-      </div>
+        }
+      />
 
       {/* MEASURED: rendering this grid only once /admin/stats returned pushed
           the tabs and filters down 218px at 776ms — CLS 0.1466 against a
@@ -527,7 +520,7 @@ export default function AdminLoyalty() {
                         {r.tier && <span className="rounded-full bg-neutral-100 px-2 py-0.5 font-medium capitalize text-neutral-700">{r.tier}</span>}
                         {r.creditBalance > 0 && <span>{money(r.creditBalance)} credit</span>}
                         <span>Spend {money(r.tierSpend)}</span>
-                        {r.blocked && <span className="rounded-full bg-red-50 px-2 py-0.5 font-medium text-red-700">Blocked</span>}
+                        {r.blocked && <MonoStatus label="BLOCKED" dim />}
                       </div>
                     </button>
                   </li>
@@ -552,7 +545,7 @@ export default function AdminLoyalty() {
                     {rows.map((r) => (
                       <tr key={r._id} className="bg-white transition hover:bg-neutral-50">
                         <td className="px-4 py-3">
-                          <p className="font-medium text-neutral-900">{r.name || 'Customer'}{r.blocked && <span className="ml-2 rounded-full bg-red-50 px-2 py-0.5 text-[13px] font-semibold text-red-700">Blocked</span>}</p>
+                          <p className="font-medium text-neutral-900">{r.name || 'Customer'}{r.blocked && <span className="ml-2"><MonoStatus label="BLOCKED" dim /></span>}</p>
                           <p className="mt-0.5 text-[12px] text-neutral-500">{r.phone}{r.email ? ` · ${r.email}` : ''}</p>
                         </td>
                         <td className="px-4 py-3 capitalize text-neutral-700">{r.tier || '—'}</td>
@@ -610,7 +603,7 @@ export default function AdminLoyalty() {
                     <p className="text-[13px] font-semibold text-neutral-900">
                       ····{c.last4}
                       {!c.active && <span className="ml-2 rounded-full bg-neutral-100 px-2 py-0.5 text-[13px] font-semibold text-neutral-600">Disabled</span>}
-                      {c.expiresAt && new Date(c.expiresAt) < new Date() && <span className="ml-2 rounded-full bg-amber-50 px-2 py-0.5 text-[13px] font-semibold text-amber-800">Expired</span>}
+                      {c.expiresAt && new Date(c.expiresAt) < new Date() && <span className="ml-2"><MonoStatus label="EXPIRED" dim /></span>}
                     </p>
                     <p className="mt-0.5 text-[12px] leading-relaxed text-neutral-500">
                       {c.label || 'No label'}
