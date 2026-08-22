@@ -1,20 +1,16 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import {
-  ArrowLeft, CheckIcon, EyeOff, ImagePlus, Info, Plus,
-  Save, Sparkles, Tag, Trash2,
-} from 'lucide-react';
+import { ArrowLeft, CheckIcon, EyeOff, Save, Trash2 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
+import { pkr } from '../lib/format';
 import AdminLayout from './AdminLayout';
+import PageHeader from './components/PageHeader';
 import ImageTiles from '../components/ImageTiles';
+import { btnGhost, btnSolid, ctl } from './orders/orderUi';
 
-/* ============================================================================
- * PRODUCT FORM — Shopify-style clean redesign.
- *
- * Layout: 2-column grid (main content + right sidebar)
- * Sections: General → Media → Variants → Badges → Pricing (sidebar)
- * Each section has a clear heading + description.
+/* ===========================================================================
+ * PRODUCT FORM — Phase 05 editorial editor. Save payload unchanged.
  * ========================================================================== */
 
 const BADGE_POOL = ['Breathable', 'Cooling', 'Seamless', 'Sweat Control', 'Support', 'Quick Dry', '4-Way Stretch', 'Tag-Free', 'Silk-Touch', 'Value Pack'];
@@ -22,9 +18,6 @@ const BADGE_POOL = ['Breathable', 'Cooling', 'Seamless', 'Sweat Control', 'Suppo
 const EMPTY = {
   name: '', sku: '', gender: 'women', categorySlug: '', category: '',
   tier: 'Standard', price: '', compareAtPrice: '', costPrice: '',
-  /* v2 — sale windows. New products are NOT on sale by default: the merchant
-     must switch the sale on explicitly, otherwise a fresh launch can never
-     accidentally carry a "30% off" strike-through. */
   onSale: false, saleStart: '', saleEnd: '',
   stock: 25, images: [], video: '', shortDescription: '', description: '',
   barcode: '', weightGrams: '', reorderPoint: 10, safetyStock: 3, variants: [],
@@ -33,48 +26,27 @@ const EMPTY = {
   isFeatured: false, isBestSeller: false, isActive: true, status: 'active', bundleSlug: '',
 };
 
-/* datetime-local inputs need "YYYY-MM-DDTHH:MM"; the API stores full ISO. */
 const toLocalInput = (iso) => (iso ? String(iso).slice(0, 16) : '');
 
-/* ── Section wrapper ─────────────────────────────────────────────────── */
-function Section({ icon: Icon, title, description, children, className = '' }) {
-  return (
-    <section className={`rounded-2xl border border-neutral-200 bg-white ${className}`}>
-      <div className="border-b border-neutral-100 px-6 py-4">
-        <div className="flex items-center gap-2.5">
-          {Icon && <Icon size={16} className="text-neutral-500" />}
-          <div>
-            <h3 className="text-[12px] font-semibold text-neutral-900">{title}</h3>
-            {description && <p className="mt-0.5 text-[12px] text-neutral-500">{description}</p>}
-          </div>
-        </div>
-      </div>
-      <div className="p-6">{children}</div>
-    </section>
-  );
-}
-
-/* ── Field wrapper ────────────────────────────────────────────────────── */
 function Field({ label, hint, children }) {
   return (
     <div>
-      {label && <label className="mb-1.5 block text-[12px] font-bold uppercase tracking-widest text-neutral-500">{label}</label>}
+      {label && <label className="adm-label mb-1.5 block">{label}</label>}
       {children}
-      {hint && <p className="mt-1.5 text-[12px] leading-relaxed text-neutral-400">{hint}</p>}
+      {hint && <p className="mt-1.5 text-[11px] leading-relaxed text-white/30">{hint}</p>}
     </div>
   );
 }
 
 function Check({ k, label, f, set }) {
   return (
-    <label className="flex cursor-pointer items-center gap-2.5 rounded-lg py-1.5 text-[13px] font-medium text-neutral-700 transition hover:text-neutral-900">
-      <input type="checkbox" checked={!!f[k]} onChange={(e) => set(k, e.target.checked)} className="h-4 w-4 rounded accent-neutral-900" />
+    <label className="flex min-h-[36px] cursor-pointer items-center gap-2.5 text-[13px] text-white/75">
+      <input type="checkbox" checked={!!f[k]} onChange={(e) => set(k, e.target.checked)} className="h-3.5 w-3.5 rounded-none accent-white" />
       {label}
     </label>
   );
 }
 
-/* ═════════════════════════════════════════════════════════════════════ */
 export default function ProductForm() {
   const { id } = useParams();
   const isNew = id === 'new';
@@ -115,9 +87,6 @@ export default function ProductForm() {
     const images = f.images.filter(Boolean).map((url, i) => ({ url, alt: `${f.name} — view ${i + 1}` }));
     if (images.length < 4) { toast('Add at least 4 images'); return; }
     const cat = cats.find((c) => c.slug === f.categorySlug);
-    /* v2 — sale windows: when the sale switch is off, the was-price is
-       cleared too (a strike-through with no sale is a pricing lie). When it
-       is on, the was-price must be higher than the price or the sale is fake. */
     const onSale = f.onSale === true;
     const saleStart = onSale && f.saleStart ? new Date(f.saleStart).toISOString() : null;
     const saleEnd = onSale && f.saleEnd ? new Date(f.saleEnd).toISOString() : null;
@@ -162,281 +131,289 @@ export default function ProductForm() {
 
   return (
     <AdminLayout title={isNew ? 'Add Product' : 'Edit Product'}>
-      {/* Back button */}
-      <Link to="/admin/products" className="mb-6 inline-flex items-center gap-1.5 text-[13px] font-medium text-neutral-500 transition hover:text-neutral-900">
-        <ArrowLeft size={14} /> Back to products
-      </Link>
+      <PageHeader
+        title={isNew ? 'New product' : (f.name || 'Edit product')}
+        description={isNew ? 'Create a catalog item.' : 'Edit media, commerce and publishing.'}
+        actions={(
+          <>
+            <Link to="/admin/products" className={btnGhost}><ArrowLeft size={12} /> Back</Link>
+            <button type="button" disabled={busy} onClick={(e) => save(e, 'draft')} className={btnGhost}>
+              <EyeOff size={12} /> Save draft
+            </button>
+            <button type="button" disabled={busy} onClick={save} className={btnSolid}>
+              <Save size={12} /> {busy ? 'Saving…' : isNew ? 'Create product' : 'Save changes'}
+            </button>
+          </>
+        )}
+      />
 
-      <form onSubmit={save} className="grid gap-6 lg:grid-cols-[1fr_340px]">
-        {/* ═══ MAIN COLUMN ══════════════════════════════════════════════ */}
-        <div className="space-y-5">
-
-          {/* ── General ───────────────────────────────────────────────── */}
-          <Section icon={Info} title="General" description="Product name, description, and identity">
-            <div className="space-y-4">
-              <Field label="Product name *">
-                <input className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[12px] font-medium outline-none transition focus:border-neutral-900" value={f.name} onChange={(e) => set('name', e.target.value)} placeholder="Aura Seamless Wireless Bra" required />
+      <form onSubmit={save} className="space-y-12">
+        <section>
+          <p className="adm-index">Product</p>
+          <div className="space-y-5 border-y border-white/10 py-6">
+            <Field label="Title *">
+              <input className={ctl} value={f.name} onChange={(e) => set('name', e.target.value)} placeholder="Aura Seamless Wireless Bra" required />
+            </Field>
+            <div className="grid gap-4 md:grid-cols-2">
+              <Field label="SKU" hint="Auto-generated if left empty">
+                <input className={ctl} value={f.sku} onChange={(e) => set('sku', e.target.value)} placeholder="Auto" />
               </Field>
-              <Field label="Short description" hint="One line shown on cards and listings">
-                <input className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[13px] outline-none transition focus:border-neutral-900" value={f.shortDescription} onChange={(e) => set('shortDescription', e.target.value)} placeholder="Second-skin comfort with invisible support" />
-              </Field>
-              <Field label="Full description">
-                <textarea className="w-full min-h-[120px] rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[13px] leading-relaxed outline-none transition focus:border-neutral-900" value={f.description} onChange={(e) => set('description', e.target.value)} rows={5} placeholder="Describe your product in detail..." />
+              <Field label="Barcode">
+                <input className={ctl} value={f.barcode} onChange={(e) => set('barcode', e.target.value)} />
               </Field>
             </div>
-          </Section>
+            <Field label="Short description" hint="One line shown on cards and listings">
+              <input className={ctl} value={f.shortDescription} onChange={(e) => set('shortDescription', e.target.value)} placeholder="Second-skin comfort with invisible support" />
+            </Field>
+            <Field label="Description">
+              <textarea className={`${ctl} min-h-[120px] !h-auto py-3`} value={f.description} onChange={(e) => set('description', e.target.value)} rows={5} placeholder="Describe your product in detail..." />
+            </Field>
+          </div>
+        </section>
 
-          {/* ── Media ─────────────────────────────────────────────────── */}
-          <Section icon={ImagePlus} title="Media" description="Product photos (min 4) — drag to reorder">
+        <section>
+          <p className="adm-index">Media</p>
+          <div className="border-y border-white/10 py-6">
             <ImageTiles images={f.images} onChange={(arr) => set('images', arr)} />
-          </Section>
+          </div>
+        </section>
 
-          {/* ── Variants ──────────────────────────────────────────────── */}
-          <Section icon={Tag} title="Variants" description="Sizes, fabric, colours, tags, care">
-            <div className="space-y-5">
-              <div className="grid gap-4 md:grid-cols-2">
-                <Field label="Sizes (comma separated)" hint="e.g. S, M, L, XL">
-                  <input className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[13px] outline-none transition focus:border-neutral-900" value={f.sizesText} onChange={(e) => set('sizesText', e.target.value)} placeholder="S, M, L, XL" />
-                </Field>
-                <Field label="Fabric" hint="e.g. 92% combed cotton, 8% elastane">
-                  <input className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[13px] outline-none transition focus:border-neutral-900" value={f.fabric} onChange={(e) => set('fabric', e.target.value)} placeholder="92% combed cotton, 8% elastane" />
-                </Field>
-              </div>
+        <section>
+          <p className="adm-index">Commerce</p>
+          <div className="grid gap-5 border-y border-white/10 py-6 md:grid-cols-3">
+            <Field label="Price (PKR) *">
+              <input className={ctl} type="number" min="0" required value={f.price} onChange={(e) => set('price', e.target.value)} />
+            </Field>
+            <Field label="Compare-at">
+              <input className={ctl} type="number" min="0" value={f.compareAtPrice} onChange={(e) => set('compareAtPrice', e.target.value)} placeholder="e.g. 1550" disabled={!f.onSale} />
+            </Field>
+            <Field label="Cost / wholesale">
+              <input className={ctl} type="number" min="0" value={f.costPrice} onChange={(e) => set('costPrice', e.target.value)} placeholder="e.g. 800" />
+            </Field>
+          </div>
+          {Number(f.price) > 0 && Number(f.costPrice) > 0 && (
+            <p className="mt-3 text-[12px] text-white/40">
+              Profit per unit <span className="text-white">{pkr(profit)}</span>
+              <span className="ml-3 text-white/50">{margin.toFixed(1)}%</span>
+            </p>
+          )}
+        </section>
 
-              {/* Tags */}
-              <Field label="Tags" hint="Used for filters and smart collections">
-                <div className="flex flex-wrap gap-1.5 rounded-xl border border-neutral-300 bg-white p-2.5">
-                  {(f.tags || []).map((t, i) => (
-                    <span key={t + i} className="inline-flex items-center gap-1 rounded-full bg-neutral-900 py-0.5 pl-2.5 pr-1 text-[12px] font-semibold text-white">
-                      {t}
-                      <button type="button" onClick={() => set('tags', (f.tags || []).filter((_, j) => j !== i))} className="grid h-4 w-4 place-items-center rounded-full bg-white/20 hover:bg-white/30">×</button>
-                    </span>
-                  ))}
-                  <input className="min-w-[120px] flex-1 bg-transparent px-2 py-1 text-[13px] outline-none placeholder:text-neutral-400" placeholder="Add tag + Enter" onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); const v = e.currentTarget.value.trim().toLowerCase(); if (v && !(f.tags || []).includes(v)) set('tags', [...(f.tags || []), v]); e.currentTarget.value = ''; }
-                    else if (e.key === 'Backspace' && !e.currentTarget.value && (f.tags || []).length) set('tags', (f.tags || []).slice(0, -1));
-                  }} />
-                </div>
+        <section>
+          <p className="adm-index">Variants</p>
+          <div className="space-y-5 border-y border-white/10 py-6">
+            <div className="grid gap-4 md:grid-cols-2">
+              <Field label="Sizes" hint="Comma separated — e.g. S, M, L, XL">
+                <input className={ctl} value={f.sizesText} onChange={(e) => set('sizesText', e.target.value)} placeholder="S, M, L, XL" />
               </Field>
-
-              {/* Colours */}
-              <Field label="Colours">
-                <div className="space-y-2">
-                  {f.colors.map((c, i) => (
-                    <div key={i} className="flex items-center gap-2.5">
-                      <input type="color" value={c.hex} onChange={(e) => set('colors', f.colors.map((x, j) => j === i ? { ...x, hex: e.target.value } : x))} className="h-10 w-12 cursor-pointer rounded-lg border border-neutral-300 bg-white p-1" />
-                      <input className="flex-1 rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-[13px] outline-none transition focus:border-neutral-900" value={c.name} onChange={(e) => set('colors', f.colors.map((x, j) => j === i ? { ...x, name: e.target.value } : x))} placeholder="Colour name" />
-                      {f.colors.length > 1 && (
-                        <button type="button" onClick={() => set('colors', f.colors.filter((_, j) => j !== i))} className="grid h-9 w-9 place-items-center rounded-lg text-neutral-400 transition hover:bg-red-50 hover:text-red-600"><Trash2 size={14} /></button>
-                      )}
-                    </div>
-                  ))}
-                  <button type="button" onClick={() => set('colors', [...f.colors, { name: '', hex: '#69625F' }])} className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-neutral-300 px-3.5 py-2 text-[12px] font-medium text-neutral-500 transition hover:border-neutral-400 hover:text-neutral-900"><Plus size={12} /> Add colour</button>
-                </div>
-              </Field>
-
-              <Field label="Care instructions (one per line)">
-                <textarea className="w-full min-h-[80px] rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[13px] outline-none transition focus:border-neutral-900" value={f.careText} onChange={(e) => set('careText', e.target.value)} rows={3} placeholder="Machine wash cold&#10;Do not bleach&#10;Tumble dry low" />
+              <Field label="Fabric">
+                <input className={ctl} value={f.fabric} onChange={(e) => set('fabric', e.target.value)} placeholder="92% combed cotton, 8% elastane" />
               </Field>
             </div>
-          </Section>
-
-          <Section icon={Tag} title="SKU matrix" description="Optional per-size/colour SKU, barcode, price and stock. Empty matrix uses the parent SKU/stock.">
-            <div className="mb-3 flex flex-wrap gap-2">
-              <button
-                type="button"
-                className="rounded-lg border border-neutral-300 px-3 py-2 text-[12px] font-semibold"
-                onClick={() => {
-                  const sizes = f.sizesText.split(',').map((s) => s.trim()).filter(Boolean);
-                  const colors = f.colors.filter((c) => c.name);
-                  const rows = [];
-                  (sizes.length ? sizes : ['']).forEach((size) => {
-                    (colors.length ? colors : [{ name: '' }]).forEach((c) => {
-                      const key = `${size}|${c.name}`;
-                      const prev = (f.variants || []).find((v) => v.key === key || (v.size === size && v.color === c.name));
-                      rows.push(prev || { key, sku: '', barcode: '', size, color: c.name, price: '', stock: f.stock, costPrice: '', active: true });
+            <Field label="Colours">
+              <div className="space-y-2">
+                {f.colors.map((c, i) => (
+                  <div key={i} className="flex items-center gap-2.5">
+                    <input type="color" value={c.hex} onChange={(e) => set('colors', f.colors.map((x, j) => j === i ? { ...x, hex: e.target.value } : x))} className="h-8 w-10 cursor-pointer border border-white/20 bg-transparent p-0.5" />
+                    <input className={ctl} value={c.name} onChange={(e) => set('colors', f.colors.map((x, j) => j === i ? { ...x, name: e.target.value } : x))} placeholder="Colour name" />
+                    {f.colors.length > 1 && (
+                      <button type="button" onClick={() => set('colors', f.colors.filter((_, j) => j !== i))} className="grid h-8 w-8 place-items-center text-white/35 hover:text-white" aria-label="Remove colour"><Trash2 size={14} /></button>
+                    )}
+                  </div>
+                ))}
+                <button type="button" onClick={() => set('colors', [...f.colors, { name: '', hex: '#69625F' }])} className="text-[10px] font-medium uppercase tracking-[0.14em] text-white/40 hover:text-white">
+                  + Add colour
+                </button>
+              </div>
+            </Field>
+            <div className="grid gap-4 md:grid-cols-2">
+              <Field label="Weight (grams)">
+                <input className={ctl} type="number" min="0" value={f.weightGrams} onChange={(e) => set('weightGrams', e.target.value)} />
+              </Field>
+              <div className="flex items-end">
+                <button
+                  type="button"
+                  className={btnGhost}
+                  onClick={() => {
+                    const sizes = f.sizesText.split(',').map((s) => s.trim()).filter(Boolean);
+                    const colors = f.colors.filter((c) => c.name);
+                    const rows = [];
+                    (sizes.length ? sizes : ['']).forEach((size) => {
+                      (colors.length ? colors : [{ name: '' }]).forEach((c) => {
+                        const key = `${size}|${c.name}`;
+                        const prev = (f.variants || []).find((v) => v.key === key || (v.size === size && v.color === c.name));
+                        rows.push(prev || { key, sku: '', barcode: '', size, color: c.name, price: '', stock: f.stock, costPrice: '', active: true });
+                      });
                     });
-                  });
-                  set('variants', rows);
-                }}
-              >
-                Build from sizes × colours
-              </button>
+                    set('variants', rows);
+                  }}
+                >
+                  Build from sizes × colours
+                </button>
+              </div>
             </div>
             {(f.variants || []).length > 0 && (
               <div className="overflow-x-auto">
-                <table className="w-full min-w-[640px] text-left text-[12px]">
-                  <thead><tr className="text-neutral-400 uppercase tracking-wider">
-                    <th className="py-1">Size</th><th>Colour</th><th>SKU</th><th>Barcode</th><th>Price</th><th>Stock</th>
-                  </tr></thead>
+                <table className="w-full min-w-[720px] text-left text-[12px]">
+                  <thead>
+                    <tr className="border-b border-white/10">
+                      {['Size', 'Colour', 'SKU', 'Barcode', 'Price', 'Stock'].map((h) => (
+                        <th key={h} className="adm-label py-2 pr-3 font-medium">{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
                   <tbody>
                     {f.variants.map((v, i) => (
-                      <tr key={v.key || i} className="border-t border-neutral-100">
-                        <td className="py-1">{v.size || '—'}</td>
-                        <td>{v.color || '—'}</td>
-                        <td><input className="w-28 rounded border border-neutral-200 px-1 py-1" value={v.sku || ''} onChange={(e) => set('variants', f.variants.map((x, j) => j === i ? { ...x, sku: e.target.value } : x))} /></td>
-                        <td><input className="w-28 rounded border border-neutral-200 px-1 py-1" value={v.barcode || ''} onChange={(e) => set('variants', f.variants.map((x, j) => j === i ? { ...x, barcode: e.target.value } : x))} /></td>
-                        <td><input className="w-20 rounded border border-neutral-200 px-1 py-1" type="number" value={v.price ?? ''} onChange={(e) => set('variants', f.variants.map((x, j) => j === i ? { ...x, price: e.target.value } : x))} /></td>
-                        <td><input className="w-16 rounded border border-neutral-200 px-1 py-1" type="number" value={v.stock ?? 0} onChange={(e) => set('variants', f.variants.map((x, j) => j === i ? { ...x, stock: e.target.value } : x))} /></td>
+                      <tr key={v.key || i} className="border-b border-white/5">
+                        <td className="py-2 pr-3 text-white/70">{v.size || '—'}</td>
+                        <td className="pr-3 text-white/70">{v.color || '—'}</td>
+                        <td className="pr-2 py-1.5"><input className={`${ctl} !h-7`} value={v.sku || ''} onChange={(e) => set('variants', f.variants.map((x, j) => j === i ? { ...x, sku: e.target.value } : x))} /></td>
+                        <td className="pr-2"><input className={`${ctl} !h-7`} value={v.barcode || ''} onChange={(e) => set('variants', f.variants.map((x, j) => j === i ? { ...x, barcode: e.target.value } : x))} /></td>
+                        <td className="pr-2"><input className={`${ctl} !h-7`} type="number" value={v.price ?? ''} onChange={(e) => set('variants', f.variants.map((x, j) => j === i ? { ...x, price: e.target.value } : x))} /></td>
+                        <td><input className={`${ctl} !h-7`} type="number" value={v.stock ?? 0} onChange={(e) => set('variants', f.variants.map((x, j) => j === i ? { ...x, stock: e.target.value } : x))} /></td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
             )}
-          </Section>
+          </div>
+        </section>
 
-          {/* ── Badges ────────────────────────────────────────────────── */}
-          <Section icon={Sparkles} title="Badges" description="Visual tags shown on product cards">
+        <section>
+          <p className="adm-index">Inventory</p>
+          <div className="grid gap-5 border-y border-white/10 py-6 md:grid-cols-3">
+            <Field label="Stock">
+              <input className={ctl} type="number" min="0" value={f.stock} onChange={(e) => set('stock', e.target.value)} />
+            </Field>
+            <Field label="Reorder point">
+              <input className={ctl} type="number" min="0" value={f.reorderPoint} onChange={(e) => set('reorderPoint', e.target.value)} />
+            </Field>
+            <Field label="Safety stock">
+              <input className={ctl} type="number" min="0" value={f.safetyStock} onChange={(e) => set('safetyStock', e.target.value)} />
+            </Field>
+          </div>
+        </section>
+
+        <section>
+          <p className="adm-index">Organization</p>
+          <div className="grid gap-5 border-y border-white/10 py-6 md:grid-cols-3">
+            <Field label="Gender">
+              <select className={ctl} value={f.gender} onChange={(e) => set('gender', e.target.value)}>
+                <option value="women">Women</option><option value="men">Men</option>
+              </select>
+            </Field>
+            <Field label="Category *">
+              <select className={ctl} required value={f.categorySlug} onChange={(e) => set('categorySlug', e.target.value)}>
+                <option value="">Choose category…</option>
+                {catOpts.map((c) => <option key={c.slug} value={c.slug}>{c.name}</option>)}
+              </select>
+            </Field>
+            <Field label="Tier">
+              <select className={ctl} value={f.tier} onChange={(e) => set('tier', e.target.value)}>
+                {['Economy', 'Standard', 'Premium'].map((t) => <option key={t}>{t}</option>)}
+              </select>
+            </Field>
+          </div>
+          <div className="mt-5">
+            <Field label="Tags" hint="Used for filters and smart collections">
+              <div className="flex flex-wrap gap-1.5 border border-white/20 px-2 py-2">
+                {(f.tags || []).map((t, i) => (
+                  <span key={t + i} className="inline-flex items-center gap-1 bg-white py-0.5 pl-2.5 pr-1 text-[11px] font-medium uppercase tracking-[0.08em] text-black">
+                    {t}
+                    <button type="button" onClick={() => set('tags', (f.tags || []).filter((_, j) => j !== i))} className="grid h-4 w-4 place-items-center hover:opacity-60">×</button>
+                  </span>
+                ))}
+                <input className="min-w-[120px] flex-1 bg-transparent px-2 py-1 text-[13px] text-white outline-none placeholder:text-white/30" placeholder="Add tag + Enter" onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); const v = e.currentTarget.value.trim().toLowerCase(); if (v && !(f.tags || []).includes(v)) set('tags', [...(f.tags || []), v]); e.currentTarget.value = ''; }
+                  else if (e.key === 'Backspace' && !e.currentTarget.value && (f.tags || []).length) set('tags', (f.tags || []).slice(0, -1));
+                }} />
+              </div>
+            </Field>
+          </div>
+          <div className="mt-5">
+            <p className="adm-label mb-3">Badges</p>
             <div className="flex flex-wrap gap-2">
               {BADGE_POOL.map((b) => {
                 const active = f.badges.includes(b);
                 return (
                   <button type="button" key={b} onClick={() => set('badges', active ? f.badges.filter((x) => x !== b) : [...f.badges, b])}
-                    className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-[12px] font-medium transition ${active ? 'border-emerald-600 bg-emerald-50 text-emerald-700' : 'border-neutral-200 bg-white text-neutral-600 hover:border-neutral-400'}`}>
-                    {active && <CheckIcon size={12} />}{b}
+                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.12em] ${active ? 'bg-white text-black' : 'border border-white/20 text-white/50 hover:text-white'}`}>
+                    {active && <CheckIcon size={11} />}{b}
                   </button>
                 );
               })}
             </div>
-          </Section>
-        </div>
+          </div>
+        </section>
 
-        {/* ═══ RIGHT SIDEBAR ═══════════════════════════════════════════ */}
-        <div className="space-y-5 lg:sticky lg:top-8 lg:self-start">
-          {/* ── Status ────────────────────────────────────────────────── */}
-          <Section title="Status">
-            <div className="space-y-3">
-              <Field label="Visibility">
-                <select className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[13px] font-medium outline-none transition focus:border-neutral-900" value={f.status || 'active'} onChange={(e) => set('status', e.target.value)}>
+        <section>
+          <p className="adm-index">Content</p>
+          <div className="border-y border-white/10 py-6">
+            <Field label="Care instructions" hint="One per line">
+              <textarea className={`${ctl} min-h-[88px] !h-auto py-3`} value={f.careText} onChange={(e) => set('careText', e.target.value)} rows={3} placeholder={'Machine wash cold\nDo not bleach\nTumble dry low'} />
+            </Field>
+          </div>
+        </section>
+
+        <section>
+          <p className="adm-index">Publishing</p>
+          <div className="space-y-5 border-y border-white/10 py-6">
+            <div className="grid gap-5 md:grid-cols-2">
+              <Field label="Status">
+                <select className={ctl} value={f.status || 'active'} onChange={(e) => set('status', e.target.value)}>
                   <option value="active">Active — live in store</option>
                   <option value="draft">Draft — hidden, work in progress</option>
                 </select>
               </Field>
-              {f.status === 'draft' && (
-                <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-[12px] text-amber-800">Draft products are hidden and cannot be ordered.</div>
-              )}
-              <Check k="isFeatured" label="Featured in signature edit" f={f} set={set} />
-              <Check k="isBestSeller" label="Mark as best seller" f={f} set={set} />
-            </div>
-          </Section>
-
-          {/* ── Organization ──────────────────────────────────────────── */}
-          <Section icon={Tag} title="Organization">
-            <div className="space-y-4">
-              <Field label="Gender">
-                <select className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[13px] font-medium outline-none transition focus:border-neutral-900" value={f.gender} onChange={(e) => set('gender', e.target.value)}>
-                  <option value="women">Women</option><option value="men">Men</option>
-                </select>
-              </Field>
-              <Field label="Category *">
-                <select className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[13px] font-medium outline-none transition focus:border-neutral-900" required value={f.categorySlug} onChange={(e) => set('categorySlug', e.target.value)}>
-                  <option value="">Choose category…</option>
-                  {catOpts.map((c) => <option key={c.slug} value={c.slug}>{c.name}</option>)}
-                </select>
-              </Field>
-              <Field label="Tier">
-                <select className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[13px] font-medium outline-none transition focus:border-neutral-900" value={f.tier} onChange={(e) => set('tier', e.target.value)}>
-                  {['Economy', 'Standard', 'Premium'].map((t) => <option key={t}>{t}</option>)}
-                </select>
-              </Field>
-              <Field label="SKU" hint="Auto-generated if left empty">
-                <input className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[13px] outline-none transition focus:border-neutral-900" value={f.sku} onChange={(e) => set('sku', e.target.value)} placeholder="Auto" />
-              </Field>
-            </div>
-          </Section>
-
-          {/* ── Pricing ───────────────────────────────────────────────── */}
-          <Section icon={Info} title="Pricing">
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-3">
-                <Field label="Price (PKR) *">
-                  <input className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[12px] font-semibold outline-none transition focus:border-neutral-900" type="number" min="0" required value={f.price} onChange={(e) => set('price', e.target.value)} />
-                </Field>
-                <Field label="Compare-at (Was price)">
-                  <input className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[12px] outline-none transition focus:border-neutral-900" type="number" min="0" value={f.compareAtPrice} onChange={(e) => set('compareAtPrice', e.target.value)} placeholder="e.g. 1550" disabled={!f.onSale} />
-                </Field>
+              <div className="flex flex-col justify-end">
+                <Check k="isFeatured" label="Featured in signature edit" f={f} set={set} />
+                <Check k="isBestSeller" label="Mark as best seller" f={f} set={set} />
               </div>
+            </div>
 
-              {/* ── Sale window (v2) ──
-                  A product is on sale ONLY when this switch is on. New
-                  products start OFF, so nothing you launch is ever
-                  automatically discounted. */}
-              <div className={`rounded-xl border p-4 transition-colors ${f.onSale ? 'border-emerald-300 bg-emerald-50/60' : 'border-neutral-200 bg-white'}`}>
-                <label className="flex cursor-pointer items-center gap-2.5">
-                  <input
-                    type="checkbox"
-                    checked={f.onSale === true}
-                    onChange={(e) => {
-                      const on = e.target.checked;
-                      set('onSale', on);
-                      if (!on) { set('saleStart', ''); set('saleEnd', ''); set('compareAtPrice', ''); }
-                    }}
-                    className="h-4 w-4 rounded accent-neutral-900"
-                  />
-                  <span className="text-[13px] font-semibold text-neutral-900">On sale — appears in /sale, shows % off</span>
-                </label>
-                {!f.onSale ? (
-                  <p className="mt-1.5 text-[12px] leading-relaxed text-neutral-500">
-                    Off by default — new products are never automatically discounted. Turn this on to run a sale.
-                  </p>
-                ) : (
-                  <>
-                    {f.compareAtPrice && Number(f.compareAtPrice) > 0 && Number(f.price) > 0 && Number(f.compareAtPrice) <= Number(f.price) && (
-                      <p className="mt-2 rounded-lg bg-red-50 px-3 py-1.5 text-[12px] font-semibold text-red-700 ring-1 ring-red-200">
-                        Was price must be HIGHER than the selling price — otherwise there is no real discount.
-                      </p>
-                    )}
-                    <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                      <Field label="Sale starts (optional)">
-                        <input type="datetime-local" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2.5 text-[12px] outline-none transition focus:border-neutral-900" value={f.saleStart} onChange={(e) => set('saleStart', e.target.value)} />
-                      </Field>
-                      <Field label="Sale ends (optional)">
-                        <input type="datetime-local" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2.5 text-[12px] outline-none transition focus:border-neutral-900" value={f.saleEnd} onChange={(e) => set('saleEnd', e.target.value)} />
-                      </Field>
-                    </div>
-                    <p className="mt-2 text-[12px] leading-relaxed text-neutral-500">
-                      Leave dates empty for an open-ended sale. With an end date, customers see “Sale ends {f.saleEnd ? new Date(f.saleEnd).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '…' }” on the product page — with urgency when it is under 7 days away.
-                    </p>
-                  </>
-                )}
-              </div>
-
-              {/* Cost + Profit live */}
-              <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <p className="text-[13px] font-bold uppercase tracking-widest text-neutral-500">Cost & profit</p>
-                  <span className="text-[13px] text-neutral-400">Internal only</span>
-                </div>
-                <Field label="Cost / Wholesale (PKR)">
-                  <input className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[13px] outline-none transition focus:border-neutral-900" type="number" min="0" value={f.costPrice} onChange={(e) => set('costPrice', e.target.value)} placeholder="e.g. 800" />
-                </Field>
-                {Number(f.price) > 0 && Number(f.costPrice) > 0 && (
-                  <div className="mt-3 flex items-center justify-between rounded-lg bg-white px-3 py-2.5">
-                    <span className="text-[13px] font-semibold text-neutral-700">Profit per unit</span>
-                    <div className="flex items-center gap-2">
-                      <span className={`text-[12px] font-bold tabular-nums ${profit >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>PKR {profit.toLocaleString('en-PK')}</span>
-                      <span className={`rounded-full px-2 py-0.5 text-[13px] font-bold ${margin >= 40 ? 'bg-emerald-100 text-emerald-800' : margin >= 20 ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-800'}`}>{margin.toFixed(1)}%</span>
-                    </div>
+            <div className="border-t border-white/10 pt-5">
+              <label className="flex cursor-pointer items-center gap-2.5">
+                <input
+                  type="checkbox"
+                  checked={f.onSale === true}
+                  onChange={(e) => {
+                    const on = e.target.checked;
+                    set('onSale', on);
+                    if (!on) { set('saleStart', ''); set('saleEnd', ''); set('compareAtPrice', ''); }
+                  }}
+                  className="h-3.5 w-3.5 rounded-none accent-white"
+                />
+                <span className="text-[13px] text-white">On sale — appears in /sale, shows % off</span>
+              </label>
+              {!f.onSale ? (
+                <p className="mt-2 text-[12px] text-white/35">Off by default — new products are never automatically discounted.</p>
+              ) : (
+                <>
+                  {f.compareAtPrice && Number(f.compareAtPrice) > 0 && Number(f.price) > 0 && Number(f.compareAtPrice) <= Number(f.price) && (
+                    <p className="mt-2 text-[12px] text-white/70">Was price must be higher than the selling price — otherwise there is no real discount.</p>
+                  )}
+                  <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                    <Field label="Sale starts">
+                      <input type="datetime-local" className={ctl} value={f.saleStart} onChange={(e) => set('saleStart', e.target.value)} />
+                    </Field>
+                    <Field label="Sale ends">
+                      <input type="datetime-local" className={ctl} value={f.saleEnd} onChange={(e) => set('saleEnd', e.target.value)} />
+                    </Field>
                   </div>
-                )}
-              </div>
-
-              <Field label="Stock quantity">
-                <input className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[13px] outline-none transition focus:border-neutral-900" type="number" min="0" value={f.stock} onChange={(e) => set('stock', e.target.value)} />
-              </Field>
+                </>
+              )}
             </div>
-          </Section>
-
-          {/* ── Actions ───────────────────────────────────────────────── */}
-          <div className="space-y-2.5">
-            <button disabled={busy} className="flex w-full items-center justify-center gap-2 rounded-full bg-neutral-900 py-3 text-[13px] font-semibold text-white transition hover:bg-black disabled:opacity-50">
-              <Save size={14} /> {busy ? 'Saving…' : isNew ? 'Create product' : 'Save changes'}
-            </button>
-            <button type="button" disabled={busy} onClick={(e) => save(e, 'draft')} className="flex w-full items-center justify-center gap-2 rounded-full border border-neutral-300 bg-white py-3 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-50">
-              <EyeOff size={13} /> Save as draft
-            </button>
           </div>
+        </section>
+
+        <div className="flex flex-wrap justify-end gap-2 pb-8">
+          <button type="button" disabled={busy} onClick={(e) => save(e, 'draft')} className={btnGhost}>
+            <EyeOff size={12} /> Save as draft
+          </button>
+          <button disabled={busy} className={btnSolid}>
+            <Save size={12} /> {busy ? 'Saving…' : isNew ? 'Create product' : 'Save changes'}
+          </button>
         </div>
       </form>
     </AdminLayout>

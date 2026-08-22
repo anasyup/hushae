@@ -2,11 +2,10 @@ import { useState } from 'react';
 import { Download, FileUp, Loader2, X } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
+import { btnSolid, ctl } from './orders/orderUi';
 
-/* ============================================================================
- * CSV IMPORT / EXPORT modal — Shopify-style.
- * - Export: downloads all products as CSV
- * - Import: paste CSV text and create/update products in bulk
+/* ===========================================================================
+ * CSV IMPORT / EXPORT — editorial chrome. Endpoints unchanged.
  * ========================================================================== */
 
 export default function CsvImport({ onClose, onDone }) {
@@ -61,45 +60,46 @@ export default function CsvImport({ onClose, onDone }) {
   };
 
   return (
-    <div className="fixed inset-0 z-[80] flex items-end justify-center bg-black/50 px-4 py-6 backdrop-blur-sm sm:items-center" onClick={onClose}>
-      <div className="w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-2xl" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center justify-between border-b border-neutral-200 px-5 py-3.5">
+    <div className="fixed inset-0 z-[80] grid place-items-center bg-black/60 p-4" onClick={onClose}>
+      <div className="w-full max-w-lg border border-white/15 bg-[#0D0D0D]" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-start justify-between border-b border-white/10 px-5 py-4">
           <div>
-            <p className="text-[13px] font-bold uppercase tracking-widest text-neutral-500">{tab === 'import' ? 'Bulk import' : 'Export'}</p>
-            <h2 className="mt-0.5 text-[12px] font-semibold text-neutral-900">{tab === 'import' ? 'CSV product import' : 'Download products CSV'}</h2>
+            <p className="adm-label">{tab === 'import' ? 'Bulk import' : 'Export'}</p>
+            <p className="mt-1 text-[15px] font-medium text-white">{tab === 'import' ? 'CSV product import' : 'Download products CSV'}</p>
           </div>
-          <button onClick={onClose} className="grid h-7 w-7 place-items-center rounded-lg text-neutral-500 hover:bg-neutral-100"><X size={15} /></button>
+          <button type="button" onClick={onClose} className="text-white/35 hover:text-white" aria-label="Close"><X size={15} /></button>
         </div>
 
-        <div className="flex border-b border-neutral-100 bg-neutral-50">
+        <div className="flex gap-5 border-b border-white/10 px-5">
           {[{ k: 'import', l: 'Import' }, { k: 'export', l: 'Export' }].map((t) => (
-            <button key={t.k} onClick={() => setTab(t.k)} className={`flex-1 py-2.5 text-[12px] font-semibold transition border-b-2 ${tab === t.k ? 'border-neutral-900 text-neutral-900' : 'border-transparent text-neutral-500 hover:text-neutral-700'}`}>{t.l}</button>
+            <button key={t.k} type="button" onClick={() => setTab(t.k)}
+              className={`py-2.5 text-[10px] font-medium uppercase tracking-[0.16em] ${tab === t.k ? 'border-b border-white text-white' : 'border-b border-transparent text-white/35 hover:text-white/70'}`}>
+              {t.l}
+            </button>
           ))}
         </div>
 
         <div className="p-5">
           {tab === 'import' ? (
             <div className="space-y-3">
-              <p className="text-[12px] text-neutral-500">Paste CSV data below. First row = headers (name, sku, gender, categorySlug, tier, price, stock, etc.)</p>
+              <p className="text-[12px] text-white/40">Paste CSV data below. First row = headers (name, sku, gender, categorySlug, tier, price, stock, etc.)</p>
               <textarea value={csv} onChange={(e) => setCsv(e.target.value)}
-                className="w-full min-h-[180px] rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[12px] font-mono outline-none focus:border-neutral-900"
-                placeholder={`name,sku,gender,categorySlug,tier,price,stock\nCotton Brief,HS-001,men,briefs,Standard,650,50\nLace Bralette,HS-002,women,bras,Premium,1800,30`} />
+                className={`${ctl} min-h-[180px] !h-auto py-3 font-mono`}
+                placeholder={'name,sku,gender,categorySlug,tier,price,stock\nCotton Brief,HS-001,men,briefs,Standard,650,50'} />
               {result && (
-                <div className="rounded-xl bg-emerald-50 p-3 text-[12px] text-emerald-800">
-                  ✅ Created: {result.created || 0} · Updated: {result.updated || 0} · Skipped: {result.skipped || 0}
-                </div>
+                <p className="text-[12px] text-white/70">
+                  Created {result.created || 0} · Updated {result.updated || 0} · Skipped {result.skipped || 0}
+                </p>
               )}
-              <button onClick={handleImport} disabled={busy}
-                className="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-4 py-2.5 text-[12px] font-semibold text-white hover:bg-black disabled:opacity-50">
+              <button type="button" onClick={handleImport} disabled={busy} className={btnSolid}>
                 {busy ? <Loader2 size={12} className="animate-spin" /> : <FileUp size={12} />}
                 {busy ? 'Importing…' : 'Import products'}
               </button>
             </div>
           ) : (
-            <div className="space-y-3">
-              <p className="text-[12px] text-neutral-500">Download all products as a CSV file. You can edit it in Excel and re-import.</p>
-              <button onClick={handleExport} disabled={busy}
-                className="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-4 py-2.5 text-[12px] font-semibold text-white hover:bg-black disabled:opacity-50">
+            <div className="space-y-4">
+              <p className="text-[12px] text-white/40">Download all products as a CSV file. You can edit it in Excel and re-import.</p>
+              <button type="button" onClick={handleExport} disabled={busy} className={btnSolid}>
                 {busy ? <Loader2 size={12} className="animate-spin" /> : <Download size={12} />}
                 {busy ? 'Downloading…' : 'Download CSV'}
               </button>
