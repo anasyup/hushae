@@ -22,6 +22,29 @@ export default {
     },
     extend: {
       colors: {
+        /* ── Phase 01 admin design system (dark-first) ────────────────
+           Semantic tokens consumed by admin components. Values live in
+           index.css :root (--admin-*). Changing identity = change tokens. */
+        admin: {
+          bg:           'var(--admin-bg)',
+          sidebar:      'var(--admin-sidebar)',
+          surface:      'var(--admin-surface)',
+          'surface-2':  'var(--admin-surface-2)',
+          'surface-3':  'var(--admin-surface-3)',
+          border:       'var(--admin-border)',
+          'border-sub': 'var(--admin-border-subtle)',
+          text:         'var(--admin-text)',
+          'text-2':     'var(--admin-text-secondary)',
+          'text-muted': 'var(--admin-text-muted)',
+          accent:       'var(--admin-accent)',
+          'accent-hover':'var(--admin-accent-hover)',
+          'accent-soft':'var(--admin-accent-soft)',
+          success:      'var(--admin-success)',
+          warning:      'var(--admin-warning)',
+          danger:       'var(--admin-danger)',
+          info:         'var(--admin-info)',
+        },
+
         // Refined premium palette — inspired by Calvin Klein / Hanro / editorial fashion houses.
         // Anchor: deep-warm black + soft ivory. Accents are muted, never loud.
         obsidian:  '#111111',   // primary ink (slightly warmer than pure #000)

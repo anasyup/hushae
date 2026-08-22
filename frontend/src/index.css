@@ -38,33 +38,34 @@
   --n950: 17 17 17;
 }
 
-/* Admin dark palette — opt-in via the topbar sun/moon toggle (default light).
-   Base #0e1116, cards #161b22, raised #1a2028, borders #232b36, text scale
-   descending from near-white (#eef1f5 → muted #6b7686). */
+/* Admin palette — DARK-FIRST design system (Phase 01).
+   Dark editorial luxury + modern commerce OS. Default theme is dark;
+   the sun/moon toggle remains for legacy preference, but the design
+   system is the dark graphite + electric violet register below. */
 .dark-admin {
-  --tw-white: 17 17 20;     /* cards / panels #111114 */
-  --tw-black: 10 10 12;     /* page background #0A0A0C */
-  --n50:  17 17 20;         /* card surface #111114 */
-  --n100: 23 23 27;         /* raised / hover #17171B */
-  --n200: 30 30 34;         /* selected / subtle borders */
-  --n300: 44 44 50;         /* input borders */
-  --n400: 66 66 74;         /* disabled */
-  --n500: 138 138 147;      /* muted text #8A8A93 */
-  --n600: 138 138 147;
-  --n700: 209 209 214;      /* secondary text #D1D1D6 */
-  --n800: 209 209 214;
-  --n900: 244 244 245;      /* primary text #F4F4F5 */
+  --tw-white: 17 17 19;      /* cards / panels #111113  (admin-surface) */
+  --tw-black: 9 9 11;        /* page background #09090B  (admin-bg)     */
+  --n50:  17 17 19;          /* surface #111113 */
+  --n100: 23 23 26;          /* raised / hover #17171A (surface-2) */
+  --n200: 29 29 33;          /* borders #1D1D21 (surface-3) */
+  --n300: 39 39 44;          /* input borders #27272C */
+  --n400: 66 66 72;          /* disabled #424248 */
+  --n500: 113 113 122;       /* muted text #71717A */
+  --n600: 113 113 122;
+  --n700: 161 161 170;       /* secondary text #A1A1AA */
+  --n800: 161 161 170;
+  --n900: 244 244 245;       /* primary text #F4F4F5 */
   --n950: 244 244 245;
   /* QA tokens under dark admin — insurance so any component that inherits
      body colour/background stays dark-correct. */
-  --stone: 10 10 12;
-  --sand:  17 17 20;
-  --clay:  30 30 34;
+  --stone: 9 9 11;
+  --sand:  17 17 19;
+  --clay:  29 29 33;
   --charcoal: 244 244 245;
-  --smoke: 138 138 147;
-  --gold:  108 92 231;      /* accent #6C5CE7 (one accent) */
-  --bronze: 91 79 233;      /* accent-deep #5B4FE9 */
-  --midnight: 10 10 12;
+  --smoke: 113 113 122;
+  --gold:  139 92 246;       /* admin accent — electric violet #8B5CF6 */
+  --bronze: 167 139 250;     /* accent hover #A78BFA */
+  --midnight: 9 9 11;
 }
 
 /* ════════════════════════════════════════════════════════════════════════
@@ -942,3 +943,75 @@
    The Shopify Polaris 8px-radius normalization was removed; admin pages use
    their original Tailwind radii, black buttons and neutral borders.
    ════════════════════════════════════════════════════════════════════════ */
+
+/* ════════════════════════════════════════════════════════════════════════
+ * PHASE 01 — ADMIN DESIGN SYSTEM TOKENS
+ * Dark editorial luxury + modern commerce OS. Canonical values (theme-
+ * independent): the admin is dark-first; these drive every shared admin
+ * component and the shell. NO GOLD anywhere in this system.
+ * ════════════════════════════════════════════════════════════════════════ */
+:root {
+  /* ── Surfaces ─────────────────────────────────────────────────────── */
+  --admin-bg:          #09090B;   /* page background                    */
+  --admin-sidebar:     #0D0D0F;   /* sidebar                            */
+  --admin-surface:     #111113;   /* cards / panels                     */
+  --admin-surface-2:   #17171A;   /* raised / hover                     */
+  --admin-surface-3:   #1D1D21;   /* elevated / menus / headers         */
+
+  /* ── Borders ──────────────────────────────────────────────────────── */
+  --admin-border:         rgba(255, 255, 255, 0.08);
+  --admin-border-subtle:  rgba(255, 255, 255, 0.05);
+
+  /* ── Text ─────────────────────────────────────────────────────────── */
+  --admin-text:            #F4F4F5;
+  --admin-text-secondary:  #A1A1AA;
+  --admin-text-muted:      #71717A;
+
+  /* ── Accent — electric violet / muted purple (small, purposeful) ──── */
+  --admin-accent:       #8B5CF6;
+  --admin-accent-hover: #A78BFA;
+  --admin-accent-soft:  rgba(139, 92, 246, 0.14);
+
+  /* ── Semantic status (muted, never rainbow) ───────────────────────── */
+  --admin-success: #86A98B;
+  --admin-warning: #B89A68;
+  --admin-danger:  #C97979;
+  --admin-info:    #8297AA;
+
+  /* ── Radius scale — small 6 / default 8 / large 10 / modal 12 ─────── */
+  --admin-radius-sm: 6px;
+  --admin-radius:    8px;
+  --admin-radius-lg: 10px;
+  --admin-radius-xl: 12px;
+
+  /* ── Shadows — used sparingly; surfaces + borders carry the design ── */
+  --admin-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.25);
+  --admin-shadow-md: 0 8px 24px rgba(0, 0, 0, 0.20);
+  --admin-shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.28);
+
+  /* ── Type scale ───────────────────────────────────────────────────── */
+  --admin-font: 'Klein', 'Jost', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --admin-size-page: 30px;   /* 28–32, weight 600 */
+  --admin-size-section: 19px;/* 18–20, weight 600 */
+  --admin-size-card: 15px;   /* 14–16, weight 600 */
+  --admin-size-body: 13px;   /* 13–14 */
+  --admin-size-secondary: 12px;
+  --admin-size-meta: 11px;
+  --admin-size-button: 13px;
+  --admin-size-table: 13px;
+  --admin-size-kpi: 31px;    /* 28–34 */
+}
+
+/* Admin focus-visible — visible keyboard focus on every interactive element */
+.admin-shell :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--admin-accent);
+  outline-offset: 2px;
+  border-radius: var(--admin-radius-sm);
+}
+
+/* Admin scrollbars — quiet dark */
+.admin-shell ::-webkit-scrollbar { width: 10px; height: 10px; }
+.admin-shell ::-webkit-scrollbar-thumb { background: var(--admin-surface-3); border-radius: 6px; }
+.admin-shell ::-webkit-scrollbar-thumb:hover { background: #2A2A2F; }
+.admin-shell ::-webkit-scrollbar-track { background: transparent; }
+.admin-shell * { scrollbar-width: thin; scrollbar-color: var(--admin-surface-3) transparent; }

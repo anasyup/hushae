@@ -135,10 +135,10 @@ function getRoleLabel(role) {
 }
 
 const linkCls = ({ isActive }) =>
-  `group flex items-center gap-1.5 rounded-md px-2 py-1 text-[13px] font-medium transition ${isActive ? 'bg-white text-neutral-900 shadow-sm' : 'text-neutral-600 hover:bg-white/60 hover:text-neutral-900'}`;
+  `relative flex items-center gap-2 px-2 py-[7px] text-[13px] transition-colors ${isActive ? 'bg-admin-accent-soft font-medium text-admin-text' : 'text-admin-text-muted hover:bg-admin-surface-2 hover:text-admin-text'}`;
 
 const childLinkCls = (active) =>
-  `flex items-center gap-1.5 rounded-md py-1 pl-7 pr-2 text-[13px] font-medium transition ${active ? 'bg-white text-neutral-900 shadow-sm' : 'text-neutral-500 hover:bg-white/60 hover:text-neutral-800'}`;
+  `relative flex items-center gap-2 rounded-md py-[5px] pl-7 pr-2 text-[13px] transition-colors ${active ? 'font-medium text-admin-text' : 'text-admin-text-muted hover:bg-admin-surface-2 hover:text-admin-text'}`;
 
 /* A nav item is active when its pathname matches AND, if the link itself
    carries a query (e.g. "?group=new"), that query also matches. Query params
@@ -160,13 +160,18 @@ function GroupDropdown({ group, onNavigate, defaultOpen }) {
   return (
     <div>
       <button type="button" onClick={() => setOpen((v) => !v)} aria-expanded={open}
-        className={`flex w-full items-center gap-1.5 rounded-md px-2 py-1 text-[13px] font-medium transition ${isChildActive ? 'text-neutral-900' : 'text-neutral-600 hover:bg-white/60 hover:text-neutral-900'}`}>
-        <Icon size={14} strokeWidth={isChildActive ? 2 : 1.7} /><span className="flex-1 text-left">{group.label}</span>
-        <ChevronDown size={11} className={`text-neutral-400 transition-transform ${open ? 'rotate-180' : ''}`} />
+        className={`flex w-full items-center gap-2 rounded-md px-2 py-[7px] text-[13px] transition-colors ${isChildActive ? 'font-medium text-admin-text' : 'text-admin-text-muted hover:bg-admin-surface-2 hover:text-admin-text'}`}>
+        <Icon size={15} strokeWidth={isChildActive ? 2 : 1.7} className={isChildActive ? 'text-admin-accent-hover' : 'text-admin-text-muted'} /><span className="flex-1 text-left">{group.label}</span>
+        <ChevronDown size={12} className={`text-admin-text-muted transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
       {open && <div className="mt-0.5 space-y-0.5">{group.children.map((c) => {
         const active = isChildRouteActive(loc, c.to); const ChildIcon = c.icon;
-        return <NavLink key={c.to} to={c.to} onClick={onNavigate} className={() => childLinkCls(active)}><ChildIcon size={12} strokeWidth={1.7} className="opacity-70" />{c.label}</NavLink>;
+        return (
+          <NavLink key={c.to} to={c.to} onClick={onNavigate} className={() => childLinkCls(active)}>
+            {active && <span aria-hidden className="absolute left-1.5 top-1/2 h-3.5 w-[2px] -translate-y-1/2 rounded-full bg-admin-accent" />}
+            <ChildIcon size={12} strokeWidth={1.7} className="opacity-70" />{c.label}
+          </NavLink>
+        );
       })}</div>}
     </div>
   );
@@ -182,27 +187,27 @@ function SidebarContent({ onNavigate, onOpenCmd }) {
     return null;
   }, [loc.pathname, visibleGroups]);
   return (
-    <div className="flex h-full flex-col bg-[#ebebeb]">
+    <div className="flex h-full flex-col bg-admin-sidebar">
       <div className="px-3 pb-2 pt-4">
         <NavLink to="/admin" onClick={onNavigate} className="block w-fit rounded-lg transition hover:opacity-70">
-          <p className="font-sans text-[13px] font-bold tracking-[0.18em] text-neutral-900">HUSHAE</p>
-          <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-neutral-400">Admin</p>
+          <p className="font-sans text-[13px] font-semibold tracking-[0.18em] text-admin-text">HUSHAE</p>
+          <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-admin-text-muted">Admin</p>
         </NavLink>
       </div>
       {role && role !== 'admin' && role !== 'Owner' && (
-        <div className="mx-3 mb-2 rounded-lg border border-neutral-200 bg-white px-2.5 py-1.5">
-          <p className="text-[13px] font-bold uppercase tracking-wider text-neutral-500">{getRoleLabel(role)} view</p>
+        <div className="mx-3 mb-2 rounded-md border border-admin-border bg-admin-surface px-2.5 py-1.5">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-admin-text-muted">{getRoleLabel(role)} view</p>
         </div>
       )}
       <div className="px-3 pb-2">
         <button
           type="button"
           onClick={() => onOpenCmd?.()}
-          className="flex w-full items-center gap-2 rounded-lg border border-transparent bg-white/70 px-2.5 py-1.5 text-left text-[13px] text-neutral-500 transition hover:border-neutral-300 hover:bg-white"
+          className="flex w-full items-center gap-2 rounded-md border border-admin-border bg-admin-surface px-2.5 py-1.5 text-left text-[13px] text-admin-text-muted transition hover:border-admin-border hover:bg-admin-surface-2"
         >
-          <Search size={13} className="shrink-0 text-neutral-400" />
+          <Search size={13} className="shrink-0 text-admin-text-muted" />
           <span className="flex-1">Search…</span>
-          <kbd className="rounded border border-neutral-300 bg-white px-1.5 py-0.5 text-[10px] font-semibold text-neutral-400">⌘K</kbd>
+          <kbd className="rounded border border-admin-border bg-admin-surface-2 px-1.5 py-0.5 text-[10px] font-semibold text-admin-text-muted">⌘K</kbd>
         </button>
       </div>
       <nav className="flex-1 space-y-0.5 overflow-y-auto px-2.5 pb-3">
@@ -210,8 +215,8 @@ function SidebarContent({ onNavigate, onOpenCmd }) {
         <div className="mt-2" />
         {visibleGroups.map((g) => <GroupDropdown key={g.label} group={g} onNavigate={onNavigate} defaultOpen={activeGroupLabel === g.label} />)}
       </nav>
-      <div className="border-t border-black/5 px-2.5 py-3">
-        <button onClick={logout} className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] font-medium text-neutral-500 transition hover:bg-white/60 hover:text-red-600"><LogOut size={17} strokeWidth={1.8} /> Sign Out</button>
+      <div className="border-t border-admin-border-subtle px-2.5 py-3">
+        <button onClick={logout} className="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-[13px] font-medium text-admin-text-muted transition hover:bg-admin-surface-2 hover:text-admin-danger"><LogOut size={17} strokeWidth={1.8} /> Sign Out</button>
       </div>
     </div>
   );
@@ -262,20 +267,20 @@ export default function AdminLayout({ children, title }) {
   if (!auth) return <Navigate to="/admin/login" state={{ from: loc.pathname }} replace />;
   if (!ALL_ROLES.includes(role || '')) return <Navigate to="/admin/login" replace />;
   if (isPathBlocked(loc.pathname, role)) return (
-    <div className="grid min-h-screen place-items-center bg-[#F4F6F8]">
-      <div className="rounded-2xl border border-amber-200 bg-white p-10 text-center shadow-sm max-w-sm">
-        <ShieldCheck size={36} className="mx-auto mb-3 text-amber-600" />
-        <p className="text-[15px] font-semibold text-neutral-900">Access restricted</p>
-        <p className="mt-2 text-[13px] leading-relaxed text-neutral-500">This section is only available to Administrator and Owner roles. You are signed in as <b>{getRoleLabel(role || '')}</b>.</p>
-        <Link to="/admin" className="mt-5 inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-5 py-2.5 text-[15px] font-semibold text-white transition hover:bg-black">Back to Dashboard</Link>
+    <div className="grid min-h-screen place-items-center bg-admin-bg">
+      <div className="max-w-sm rounded-xl border border-admin-border bg-admin-surface p-10 text-center">
+        <ShieldCheck size={36} className="mx-auto mb-3 text-admin-warning" />
+        <p className="text-[15px] font-semibold text-admin-text">Access restricted</p>
+        <p className="mt-2 text-[13px] leading-relaxed text-admin-text-2">This section is only available to Administrator and Owner roles. You are signed in as <b>{getRoleLabel(role || '')}</b>.</p>
+        <Link to="/admin" className="mt-5 inline-flex items-center gap-1.5 rounded-lg bg-admin-accent px-5 py-2.5 text-[15px] font-semibold text-white transition hover:bg-admin-accent-hover">Back to Dashboard</Link>
       </div>
     </div>
   );
   return (
-    <div className="admin-shell flex min-h-screen bg-[#F4F6F8]">
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-[220px] md:block"><SidebarContent onOpenCmd={() => setCmdOpen(true)} /></aside>
-      {drawer && <div className="fixed inset-0 z-50 md:hidden"><div className="absolute inset-0 bg-black/40" onClick={() => setDrawer(false)} /><div className="absolute inset-y-0 left-0 w-64 shadow-xl"><button onClick={() => setDrawer(false)} className="absolute right-3 top-4 z-10 rounded-lg p-1.5 text-neutral-500 hover:bg-white/70"><X size={18} /></button><SidebarContent onNavigate={() => setDrawer(false)} onOpenCmd={() => { setDrawer(false); setCmdOpen(true); }} /></div></div>}
-      <div className="flex min-h-screen min-w-0 flex-1 flex-col md:pl-[220px]">
+    <div className="admin-shell flex min-h-screen bg-admin-bg">
+      <aside className="fixed inset-y-0 left-0 z-40 hidden w-[236px] border-r border-admin-border md:block"><SidebarContent onOpenCmd={() => setCmdOpen(true)} /></aside>
+      {drawer && <div className="fixed inset-0 z-50 md:hidden"><div className="absolute inset-0 bg-black/40" onClick={() => setDrawer(false)} /><div className="absolute inset-y-0 left-0 w-72 border-r border-admin-border bg-admin-sidebar"><button onClick={() => setDrawer(false)} className="absolute right-3 top-4 z-10 rounded-lg p-1.5 text-admin-text-muted hover:bg-admin-surface-2"><X size={18} /></button><SidebarContent onNavigate={() => setDrawer(false)} onOpenCmd={() => { setDrawer(false); setCmdOpen(true); }} /></div></div>}
+      <div className="flex min-h-screen min-w-0 flex-1 flex-col md:pl-[236px]">
         <TopBar title={title} auth={auth} onCmdK={() => setCmdOpen(true)} onMenu={() => setDrawer(true)} />
         <div className="min-w-0 flex-1 p-4 md:p-6">{title && <h1 className="mb-6 font-sans text-[14px] font-semibold leading-tight text-neutral-900 md:hidden">{title}</h1>}<div className="admin-main min-w-0">{children}</div></div>
       </div>
@@ -294,12 +299,12 @@ function CreateMenu({ onPick }) {
     { to: '/admin/blog/new', icon: FileText, label: 'New blog article' },
   ];
   return (
-    <div className="absolute right-0 top-full z-30 mt-1 w-56 rounded-lg border border-neutral-200 bg-white py-1 shadow-lg">
+    <div className="absolute right-0 top-full z-30 mt-1 w-56 rounded-lg border border-admin-border bg-admin-surface-3 py-1 shadow-md">
       {items.map((it) => {
         const Icon = it.icon;
         return (
-          <Link key={it.to} to={it.to} onClick={onPick} className="flex items-center gap-2.5 px-3.5 py-2 text-[13px] font-medium text-neutral-700 transition hover:bg-neutral-50">
-            <Icon size={13} className="text-neutral-400" /> {it.label}
+          <Link key={it.to} to={it.to} onClick={onPick} className="flex items-center gap-2.5 px-3.5 py-2 text-[13px] font-medium text-admin-text-2 transition hover:bg-admin-surface-2">
+            <Icon size={13} className="text-admin-text-muted" /> {it.label}
           </Link>
         );
       })}
@@ -331,21 +336,21 @@ function TopBar({ title, auth, onCmdK, onMenu }) {
     return out;
   })();
   const initials = (auth?.user?.name || 'A').split(' ').map((s) => s[0]).slice(0, 2).join('').toUpperCase();
-  const btnGhost = 'inline-flex min-h-[36px] items-center justify-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-2.5 text-[12px] font-semibold text-neutral-600 transition hover:border-neutral-300 hover:text-neutral-900';
-  const btnPrimary = 'inline-flex min-h-[36px] items-center gap-1 rounded-lg bg-neutral-900 px-3 text-[12px] font-semibold text-white transition hover:bg-neutral-800';
+  const btnGhost = 'inline-flex min-h-[36px] items-center justify-center gap-1.5 rounded-lg border border-admin-border bg-admin-surface-2 px-2.5 text-[12px] font-medium text-admin-text-2 transition hover:border-admin-border hover:bg-admin-surface-3 hover:text-admin-text';
+  const btnPrimary = 'inline-flex min-h-[36px] items-center gap-1 rounded-lg bg-admin-accent px-3 text-[12px] font-semibold text-white transition hover:bg-admin-accent-hover';
   return (
-    <header className="sticky top-0 z-20 border-b border-neutral-200 bg-white/90 px-3 py-2.5 backdrop-blur md:px-8 md:py-3">
+    <header className="sticky top-0 z-20 flex min-h-[60px] items-center border-b border-admin-border bg-admin-bg/90 px-3 py-2 backdrop-blur md:px-8">
       <div className="flex items-center justify-between gap-3">
         <div className="flex min-w-0 flex-1 items-center gap-2">
-          <button type="button" onClick={onMenu} className="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-neutral-700 hover:bg-neutral-100 md:hidden" aria-label="Open menu"><Menu size={20} /></button>
+          <button type="button" onClick={onMenu} className="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-admin-text-2 hover:bg-admin-surface-2 md:hidden" aria-label="Open menu"><Menu size={20} /></button>
           <div className="min-w-0">
-            <h1 className="truncate font-sans text-[15px] font-semibold leading-tight text-neutral-900 md:text-lg">{title || crumbs[crumbs.length - 1]?.label}</h1>
-            <nav className="mt-0.5 hidden items-center gap-1.5 text-[13px] text-neutral-500 md:flex">{crumbs.map((c, i) => <span key={c.to} className="inline-flex items-center gap-1.5">{i > 0 && <span className="text-neutral-300">/</span>}{i === crumbs.length - 1 ? <span className="font-medium text-neutral-700">{c.label}</span> : <Link to={c.to} className="hover:text-neutral-900">{c.label}</Link>}</span>)}</nav>
+            <h1 className="truncate font-sans text-[15px] font-medium leading-tight text-admin-text md:text-[16px]">{title || crumbs[crumbs.length - 1]?.label}</h1>
+            <nav className="mt-0.5 hidden items-center text-[12px] text-admin-text-muted md:flex">{crumbs.map((c, i) => <span key={c.to} className="inline-flex items-center">{i > 0 && <span className="mx-1 text-admin-text-muted/50">/</span>}{i === crumbs.length - 1 ? <span className="font-medium text-admin-text-2">{c.label}</span> : <Link to={c.to} className="transition hover:text-admin-text">{c.label}</Link>}</span>)}</nav>
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-1.5 md:gap-2">
           <button type="button" onClick={onCmdK} className={btnGhost} title="Search admin (⌘K)"><Search size={14} /><span className="hidden sm:inline">Search</span></button>
-          <span className={`hidden items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[12px] font-semibold lg:inline-flex ${storeOpen ? 'border-neutral-200 bg-white text-neutral-600' : 'border-amber-200 bg-amber-50 text-amber-800'}`}><span className={`h-1.5 w-1.5 rounded-full ${storeOpen ? 'bg-emerald-500' : 'bg-amber-500'}`} />{storeOpen ? 'Store online' : 'Store locked'}</span>
+          <span className={`hidden items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium tracking-wide lg:inline-flex ${storeOpen ? 'border-admin-border bg-admin-surface text-admin-text-2' : 'border-admin-border bg-admin-accent-soft text-admin-warning'}`}><span className={`h-1.5 w-1.5 rounded-full ${storeOpen ? 'bg-admin-success' : 'bg-admin-warning'}`} />{storeOpen ? 'Store online' : 'Store locked'}</span>
           {canCreate && (
             <div className="relative" ref={createRef}>
               <button type="button" onClick={() => setCreateOpen((v) => !v)} className={btnPrimary}><Plus size={12} /> <span className="hidden sm:inline">Create</span></button>
@@ -357,7 +362,7 @@ function TopBar({ title, auth, onCmdK, onMenu }) {
             {dark ? <Sun size={13} /> : <Moon size={13} />}
           </button>
           <NotificationBell />
-          <div className="ml-0.5 flex items-center gap-2 rounded-lg border border-neutral-200 bg-white p-1 pr-2 md:pr-3"><span className="grid h-7 w-7 place-items-center rounded-md bg-neutral-900 text-[12px] font-bold text-white">{initials}</span><span className="hidden text-[13px] font-semibold text-neutral-800 sm:inline">{auth?.user?.name?.split(' ')[0] || 'Admin'}</span></div>
+          <div className="ml-0.5 flex items-center gap-2 rounded-lg border border-admin-border bg-admin-surface p-1 pr-2 md:pr-3"><span className="grid h-7 w-7 place-items-center rounded-md bg-admin-accent text-[12px] font-semibold text-white">{initials}</span><span className="hidden text-[12px] font-medium text-admin-text-2 sm:inline">{auth?.user?.name?.split(' ')[0] || 'Admin'}</span></div>
         </div>
       </div>
     </header>
