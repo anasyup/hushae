@@ -418,4 +418,27 @@ router.post('/launches/:id/end', asyncHandler(async (req, res) => {
   res.json({ launch: row });
 }));
 
+
+/* ── Tax zones (Pakistan-first tax configuration) ────────────────────── */
+router.get('/tax-zones', asyncHandler(async (_req, res) => {
+  const zones = await TaxZone.find().sort({ createdAt: -1 });
+  res.json({ zones });
+}));
+
+router.post('/tax-zones', asyncHandler(async (req, res) => {
+  const zone = await TaxZone.create(req.body || {});
+  res.status(201).json({ zone });
+}));
+
+router.put('/tax-zones/:id', asyncHandler(async (req, res) => {
+  const zone = await TaxZone.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+  if (!zone) return res.status(404).json({ message: 'Zone not found' });
+  res.json({ zone });
+}));
+
+router.delete('/tax-zones/:id', asyncHandler(async (req, res) => {
+  await TaxZone.findByIdAndDelete(req.params.id);
+  res.json({ ok: true });
+}));
+
 module.exports = router;

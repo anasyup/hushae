@@ -3,7 +3,7 @@ import { Link, NavLink, Navigate, useLocation } from 'react-router-dom';
 import {
   Activity, BadgePercent, BarChart3, ImagePlus, ChevronDown, CreditCard, FileText, FolderOpen, Globe, Home,
   LayoutTemplate, LogOut, Mail, Megaphone, Menu, MessageSquare, Package, PackageX, Phone, Plus,
-  Search, Settings as SettingsIcon, ShieldCheck, ShoppingBag, Signpost, Sparkles, Star, Store, Sun, Moon, Tags, TrendingUp, Truck, Users, X, Zap,
+  Search, Settings as SettingsIcon, ShieldCheck, ShoppingBag, Signpost, Sparkles, Star, Store, Sun, Moon, Tags, TrendingUp, Truck, Users, X, Zap, Calculator, FileSpreadsheet,
 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { applyAdminTheme, clearAdminTheme, getAdminTheme, setAdminTheme } from '../lib/adminTheme';
@@ -100,6 +100,7 @@ const NAV_GROUPS = [
       { to: '/admin/analytics',       label: 'Overview',          icon: BarChart3 },
       { to: '/admin/finance',         label: 'Finance & P&L',     icon: CreditCard },
       { to: '/admin/insights',        label: 'Deep Insights',     icon: TrendingUp },
+      { to: '/admin/reports',          label: 'Reports',            icon: FileSpreadsheet },
       { to: '/admin/search-analytics', label: 'Search Analytics', icon: Search },
       { to: '/admin/live',            label: 'Live View',         icon: Activity },
       { to: '/admin/growth',          label: 'Growth',            icon: TrendingUp },
@@ -118,6 +119,7 @@ const NAV_GROUPS = [
       { to: '/admin/settings/accounts',   label: 'Customer Accounts',        icon: Users },
       { to: '/admin/settings/email',      label: 'Email & Notifications',    icon: Mail },
       { to: '/admin/settings/security',   label: 'Security',                 icon: ShieldCheck },
+      { to: '/admin/settings/taxes',      label: 'Taxes',                     icon: Calculator },
       { to: '/admin/apps',                label: 'Integrations',             icon: Zap },
       { to: '/admin/backup',              label: 'Backup & Export',          icon: FileText },
       { to: '/admin/settings/advanced',   label: 'Advanced',                 icon: SettingsIcon },

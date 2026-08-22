@@ -82,6 +82,8 @@ const Collections = lazy(() => import('./admin/Collections'));
 const Reviews = lazy(() => import('./admin/Reviews'));
 const AdminFaq = lazy(() => import('./admin/Faq'));
 const ThemeEditor = lazy(() => import('./admin/ThemeEditor'));
+const Reports = lazy(() => import('./admin/Reports'));
+const Taxes = lazy(() => import('./admin/Taxes'));
 const OnlineStore = lazy(() => import('./admin/OnlineStore'));
 const SettingsStore = lazy(() => import('./admin/SettingsPages').then((m) => ({ default: m.SettingsStore })));
 const SettingsPayments = lazy(() => import('./admin/SettingsPages').then((m) => ({ default: m.SettingsPayments })));
@@ -334,10 +336,12 @@ export default function App() {
           <Route path="/admin/blog/new" element={<Suspense fallback={<EditorFallback />}><AdminBlogEdit /></Suspense>} />
           <Route path="/admin/blog/:id" element={<Suspense fallback={<EditorFallback />}><AdminBlogEdit /></Suspense>} />
           <Route path="/admin/settings/security" element={<SettingsSecurity />} />
+          <Route path="/admin/settings/taxes" element={<Suspense fallback={<EditorFallback />}><Taxes /></Suspense>} />
           <Route path="/admin/settings/legal" element={<SettingsLegal />} />
           <Route path="/admin/settings/advanced" element={<SettingsAdmin />} />
           <Route path="/admin/store" element={<OnlineStore />} />
           <Route path="/admin/growth" element={<Growth />} />
+          <Route path="/admin/reports" element={<Suspense fallback={<EditorFallback />}><Reports /></Suspense>} />
           <Route path="/admin/discounts" element={<Discounts />} />
           <Route path="/admin/content" element={<Content />} />
           <Route path="/admin/markets" element={<Markets />} />
