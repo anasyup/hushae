@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
 import AdminLayout from './AdminLayout';
+import PageHeader from './components/PageHeader';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import { pkr } from '../lib/format';
+import { btnGhost, btnSolid, ctl, EditorialEmpty, MonoStatus, TableSkeleton } from './orders/orderUi';
 
 const TABS = [
   ['overview', 'Overview'],
@@ -27,13 +29,13 @@ export default function CommerceOps({ start = 'overview' }) {
 
   return (
     <AdminLayout title="Commerce OS">
-      <p className="mb-4 max-w-3xl text-[13px] leading-relaxed text-neutral-500">
-        Working operations layer: stock movements, purchase orders, RMA + refund ledger, comms consent, risk holds, shipping profiles and tax zones. Not decorative.
-      </p>
-      <div className="mb-5 flex flex-wrap gap-1.5">
+      <PageHeader
+        title="Operations"
+        description="Commerce operations and fulfillment."
+      />
+      <div className="mb-8 flex flex-wrap gap-1.5">
         {TABS.map(([k, l]) => (
-          <button key={k} type="button" onClick={() => setTab(k)}
-            className={`rounded-lg px-3 py-2 text-[12px] font-semibold ${tab === k ? 'bg-neutral-900 text-white' : 'border border-neutral-200 bg-white text-neutral-600'}`}>
+          <button key={k} type="button" onClick={() => setTab(k)} className={tab === k ? btnSolid : btnGhost}>
             {l}
           </button>
         ))}
@@ -60,28 +62,40 @@ function Overview({ ov }) {
     ['Open RMAs', c.openReturns ?? '—'],
     ['Risk hold', c.riskHold ?? '—'],
   ];
+  if (!ov) return <TableSkeleton rows={6} />;
   return (
     <div>
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-        {tiles.map(([l, v]) => (
-          <div key={l} className="rounded-xl border border-neutral-200 bg-white p-4">
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-neutral-500">{l}</p>
-            <p className="mt-2 text-2xl font-semibold tabular-nums">{v}</p>
-          </div>
-        ))}
-      </div>
-      <div className="mt-4 rounded-xl border border-neutral-200 bg-white p-4">
-        <p className="text-[12px] font-semibold text-neutral-800">Recent stock movements</p>
-        <ul className="mt-3 space-y-2 text-[13px]">
-          {(ov?.recentMoves || []).length === 0 && <li className="text-neutral-400">No movements yet — receive a PO or post an adjustment.</li>}
-          {(ov?.recentMoves || []).map((m) => (
-            <li key={m._id} className="flex justify-between gap-3 border-b border-neutral-50 pb-2">
-              <span>{m.product?.name || 'Product'} · {m.type} · {m.qty}</span>
-              <span className="text-neutral-400">{new Date(m.createdAt).toLocaleString()}</span>
-            </li>
+      <section className="mb-10">
+        <p className="adm-index">01 — Operational overview</p>
+        <div className="adm-divide-x grid grid-cols-2 border-y border-white/10 sm:grid-cols-3 lg:grid-cols-5">
+          {tiles.map(([l, v]) => (
+            <div key={l} className="px-5 py-6">
+              <p className="adm-label">{l}</p>
+              <p className="adm-metric mt-3 text-[26px] text-white">{v}</p>
+            </div>
           ))}
-        </ul>
-      </div>
+        </div>
+      </section>
+      <section>
+        <p className="adm-index">02 — Recent stock movements</p>
+        {(ov?.recentMoves || []).length === 0 ? (
+          <EditorialEmpty title="No movements yet" description="Receive a PO or post an adjustment." />
+        ) : (
+          <>
+            <div className="hidden border-b border-white/10 py-2 md:grid md:grid-cols-[minmax(0,1.4fr)_0.6fr_0.4fr_0.8fr] md:gap-3">
+              {['Product', 'Type', 'Qty', 'When'].map((h) => <p key={h} className="adm-label">{h}</p>)}
+            </div>
+            {(ov.recentMoves || []).map((m) => (
+              <div key={m._id} className="grid grid-cols-1 gap-1 border-b border-white/5 py-3 md:grid-cols-[minmax(0,1.4fr)_0.6fr_0.4fr_0.8fr] md:items-center md:gap-3">
+                <span className="truncate text-[13px] text-white">{m.product?.name || 'Product'}</span>
+                <span className="text-[11px] uppercase tracking-[0.12em] text-white/40">{m.type}</span>
+                <span className="text-[13px] tabular-nums text-white/80">{m.qty}</span>
+                <span className="text-[12px] text-white/35">{new Date(m.createdAt).toLocaleString()}</span>
+              </div>
+            ))}
+          </>
+        )}
+      </section>
     </div>
   );
 }
@@ -125,73 +139,132 @@ function Stock({ token, toast }) {
     } catch (ex) { toast(ex.message); }
   };
 
-  return (
-    <div className="space-y-5">
-      <div className="grid gap-3 sm:grid-cols-3">
-        <Stat label="Inventory value" value={insights ? pkr(insights.valuation || 0) : '—'} />
-        <Stat label="Dead stock SKUs" value={insights?.dead ?? '—'} />
-        <Stat label="Stockout &lt; 7 days" value={insights?.stockoutSoon ?? '—'} />
-      </div>
+  const flagOf = (r) => {
+    if (r.stockoutSoon) return { label: 'LOW', dim: false };
+    if (r.dead) return { label: 'DEAD', dim: true };
+    if (!r.stock) return { label: 'OUT OF STOCK', dim: true };
+    return { label: 'IN STOCK', dim: false };
+  };
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        <Card title="Adjust stock">
-          <form onSubmit={adjust} className="space-y-2">
+  return (
+    <div>
+      <section className="mb-10">
+        <p className="adm-index">01 — Inventory overview</p>
+        <div className="adm-divide-x grid grid-cols-1 border-y border-white/10 sm:grid-cols-3">
+          {[
+            ['Inventory value', insights ? pkr(insights.valuation || 0) : '—'],
+            ['Dead stock SKUs', insights?.dead ?? '—'],
+            ['Stockout < 7 days', insights?.stockoutSoon ?? '—'],
+          ].map(([l, v]) => (
+            <div key={l} className="px-5 py-6">
+              <p className="adm-label">{l}</p>
+              <p className="adm-metric mt-3 text-[24px] text-white">{v}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="mb-10">
+        <p className="adm-index">02 — Warehouses</p>
+        {warehouses.length === 0 ? (
+          <p className="mb-4 text-[12px] text-white/35">No locations yet.</p>
+        ) : (
+          <div className="mb-6">
+            <div className="hidden border-b border-white/10 py-2 md:grid md:grid-cols-[0.5fr_minmax(0,1.2fr)_0.8fr] md:gap-3">
+              {['Code', 'Warehouse', 'City'].map((h) => <p key={h} className="adm-label">{h}</p>)}
+            </div>
+            {warehouses.map((w) => (
+              <div key={w._id} className="grid grid-cols-1 gap-1 border-b border-white/5 py-3 md:grid-cols-[0.5fr_minmax(0,1.2fr)_0.8fr] md:gap-3">
+                <span className="text-[12px] uppercase tracking-[0.12em] text-white/50">{w.code}</span>
+                <span className="text-[13px] text-white">{w.name}</span>
+                <span className="text-[12px] text-white/40">{w.city || '—'}</span>
+              </div>
+            ))}
+          </div>
+        )}
+        <form onSubmit={addWh} className="flex flex-wrap items-end gap-2 border-t border-white/10 pt-4">
+          <div><label className="adm-label mb-1.5 block">Code</label><input className={`${ctl} w-28`} placeholder="LHE" value={whName.code} onChange={(e) => setWhName({ ...whName, code: e.target.value })} /></div>
+          <div className="min-w-[10rem] flex-1"><label className="adm-label mb-1.5 block">Name</label><input className={ctl} placeholder="Name" value={whName.name} onChange={(e) => setWhName({ ...whName, name: e.target.value })} /></div>
+          <div><label className="adm-label mb-1.5 block">City</label><input className={`${ctl} w-32`} placeholder="City" value={whName.city} onChange={(e) => setWhName({ ...whName, city: e.target.value })} /></div>
+          <button className={btnGhost} type="submit">Add location</button>
+        </form>
+      </section>
+
+      <div className="mb-10 grid gap-10 lg:grid-cols-2">
+        <section>
+          <p className="adm-index">03 — Stock adjustment</p>
+          <form onSubmit={adjust} className="space-y-3 border-y border-white/10 py-6">
             <Select value={form.productId} onChange={(v) => setForm({ ...form, productId: v })} options={products.map((p) => ({ v: p._id, l: `${p.name} (${p.stock})` }))} placeholder="Product" />
             <Select value={form.warehouseId} onChange={(v) => setForm({ ...form, warehouseId: v })} options={warehouses.map((w) => ({ v: w._id, l: `${w.code} · ${w.name}` }))} placeholder="Warehouse" />
-            <input className="input" type="number" placeholder="Qty (+ receive / − reduce)" value={form.qty} onChange={(e) => setForm({ ...form, qty: e.target.value })} />
-            <input className="input" placeholder="Note" value={form.note} onChange={(e) => setForm({ ...form, note: e.target.value })} />
-            <button className="btn-primary w-full" type="submit">Post adjustment</button>
+            <div><label className="adm-label mb-1.5 block">Qty (+ receive / − reduce)</label><input className={ctl} type="number" value={form.qty} onChange={(e) => setForm({ ...form, qty: e.target.value })} /></div>
+            <div><label className="adm-label mb-1.5 block">Reason</label><input className={ctl} placeholder="Note" value={form.note} onChange={(e) => setForm({ ...form, note: e.target.value })} /></div>
+            <button className={btnSolid} type="submit">Save adjustment</button>
           </form>
-        </Card>
-        <Card title="Transfer between locations">
-          <form onSubmit={transfer} className="space-y-2">
+        </section>
+        <section>
+          <p className="adm-index">03 — Transfer</p>
+          <form onSubmit={transfer} className="space-y-3 border-y border-white/10 py-6">
             <Select value={xfer.productId} onChange={(v) => setXfer({ ...xfer, productId: v })} options={products.map((p) => ({ v: p._id, l: p.name }))} placeholder="Product" />
             <Select value={xfer.fromWarehouseId} onChange={(v) => setXfer({ ...xfer, fromWarehouseId: v })} options={warehouses.map((w) => ({ v: w._id, l: w.code }))} placeholder="From" />
             <Select value={xfer.toWarehouseId} onChange={(v) => setXfer({ ...xfer, toWarehouseId: v })} options={warehouses.map((w) => ({ v: w._id, l: w.code }))} placeholder="To" />
-            <input className="input" type="number" min="1" placeholder="Qty" value={xfer.qty} onChange={(e) => setXfer({ ...xfer, qty: e.target.value })} />
-            <button className="btn-primary w-full" type="submit">Transfer</button>
+            <div><label className="adm-label mb-1.5 block">Quantity</label><input className={ctl} type="number" min="1" value={xfer.qty} onChange={(e) => setXfer({ ...xfer, qty: e.target.value })} /></div>
+            <button className={btnSolid} type="submit">Transfer</button>
           </form>
-        </Card>
+        </section>
       </div>
 
-      <Card title="Add warehouse / location">
-        <form onSubmit={addWh} className="flex flex-wrap gap-2">
-          <input className="input max-w-[8rem]" placeholder="Code" value={whName.code} onChange={(e) => setWhName({ ...whName, code: e.target.value })} />
-          <input className="input max-w-xs" placeholder="Name" value={whName.name} onChange={(e) => setWhName({ ...whName, name: e.target.value })} />
-          <input className="input max-w-[8rem]" placeholder="City" value={whName.city} onChange={(e) => setWhName({ ...whName, city: e.target.value })} />
-          <button className="btn-outline" type="submit">Add location</button>
-        </form>
-        <ul className="mt-3 flex flex-wrap gap-2 text-[12px]">{warehouses.map((w) => <li key={w._id} className="rounded-full bg-neutral-100 px-2 py-1">{w.code} · {w.name}</li>)}</ul>
-      </Card>
+      <section className="mb-10">
+        <p className="adm-index">04 — Inventory</p>
+        {!(insights?.rows || []).length ? (
+          <EditorialEmpty title="No inventory insights" description="Stock velocity appears after orders land." />
+        ) : (
+          <div className="overflow-x-auto">
+            <div className="min-w-[720px]">
+              <div className="grid grid-cols-[minmax(0,1.4fr)_0.5fr_0.5fr_0.5fr_0.7fr_0.8fr] gap-3 border-b border-white/10 py-2">
+                {['Product', 'Stock', 'Sold 14d', 'Cover', 'Value', 'Status'].map((h) => <p key={h} className="adm-label">{h}</p>)}
+              </div>
+              {(insights.rows || []).map((r) => {
+                const f = flagOf(r);
+                return (
+                  <div key={r.productId} className="grid grid-cols-[minmax(0,1.4fr)_0.5fr_0.5fr_0.5fr_0.7fr_0.8fr] items-center gap-3 border-b border-white/5 py-3 adm-row-hover">
+                    <div className="min-w-0">
+                      <p className="truncate text-[13px] text-white">{r.name}</p>
+                      <p className="text-[11px] text-white/30">{r.sku}</p>
+                    </div>
+                    <span className="text-[13px] tabular-nums text-white/80">{r.stock}</span>
+                    <span className="text-[13px] tabular-nums text-white/50">{r.sold14}</span>
+                    <span className="text-[12px] tabular-nums text-white/40">{r.coverDays === 999 ? '—' : `${r.coverDays}d`}</span>
+                    <span className="text-[13px] tabular-nums text-white">{pkr(r.value)}</span>
+                    <MonoStatus label={f.label} dim={f.dim} />
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </section>
 
-      <Card title="Forecast / dead stock (14-day velocity)">
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[640px] text-left text-[13px]">
-            <thead><tr className="text-[11px] uppercase tracking-wider text-neutral-400">
-              <th className="py-2">Product</th><th>Stock</th><th>Sold 14d</th><th>Cover</th><th>Value</th><th>Flag</th>
-            </tr></thead>
-            <tbody>
-              {(insights?.rows || []).map((r) => (
-                <tr key={r.productId} className="border-t border-neutral-100">
-                  <td className="py-2">{r.name}<div className="text-[11px] text-neutral-400">{r.sku}</div></td>
-                  <td>{r.stock}</td><td>{r.sold14}</td>
-                  <td>{r.coverDays === 999 ? '—' : `${r.coverDays}d`}</td>
-                  <td>{pkr(r.value)}</td>
-                  <td>{r.stockoutSoon ? 'Stockout soon' : r.dead ? 'Dead' : '—'}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </Card>
-
-      <Card title="Audit trail">
-        <ul className="space-y-1 text-[13px] max-h-64 overflow-auto">
-          {history.slice(0, 40).map((h) => (
-            <li key={h._id}>{h.type} · {h.qty} · {h.product?.name} · {h.warehouse?.code} · {h.note}</li>
-          ))}
-        </ul>
-      </Card>
+      <section>
+        <p className="adm-index">05 — Movement history</p>
+        {history.length === 0 ? (
+          <EditorialEmpty title="No movements" description="Adjustments and transfers appear here." />
+        ) : (
+          <>
+            <div className="hidden border-b border-white/10 py-2 md:grid md:grid-cols-[0.6fr_minmax(0,1.2fr)_0.5fr_0.4fr_minmax(0,1fr)] md:gap-3">
+              {['Type', 'Product', 'Warehouse', 'Qty', 'Reference'].map((h) => <p key={h} className="adm-label">{h}</p>)}
+            </div>
+            {history.slice(0, 40).map((h) => (
+              <div key={h._id} className="grid grid-cols-1 gap-1 border-b border-white/5 py-3 md:grid-cols-[0.6fr_minmax(0,1.2fr)_0.5fr_0.4fr_minmax(0,1fr)] md:items-center md:gap-3">
+                <span className="text-[11px] uppercase tracking-[0.12em] text-white/45">{h.type}</span>
+                <span className="truncate text-[13px] text-white">{h.product?.name || '—'}</span>
+                <span className="text-[12px] text-white/40">{h.warehouse?.code || '—'}</span>
+                <span className="text-[13px] tabular-nums text-white/80">{h.qty}</span>
+                <span className="truncate text-[12px] text-white/35">{h.note || '—'}</span>
+              </div>
+            ))}
+          </>
+        )}
+      </section>
     </div>
   );
 }
@@ -237,39 +310,81 @@ function Purchasing({ token, toast }) {
   };
 
   return (
-    <div className="grid gap-4 lg:grid-cols-2">
-      <Card title="Suppliers">
-        <form onSubmit={addSup} className="mb-3 flex flex-wrap gap-2">
-          <input className="input" placeholder="Name" value={sup.name} onChange={(e) => setSup({ ...sup, name: e.target.value })} required />
-          <input className="input" placeholder="Phone" value={sup.phone} onChange={(e) => setSup({ ...sup, phone: e.target.value })} />
-          <button className="btn-outline" type="submit">Add</button>
-        </form>
-        <ul className="text-[13px] space-y-1">{suppliers.map((s) => <li key={s._id}>{s.name} · {s.city || '—'} · {s.phone || '—'}</li>)}</ul>
-      </Card>
-      <Card title="New purchase order">
-        <form onSubmit={createPo} className="space-y-2">
+    <div>
+      <section className="mb-10">
+        <p className="adm-index">01 — Purchasing overview</p>
+        <div className="adm-divide-x grid grid-cols-2 border-y border-white/10 sm:grid-cols-3">
+          {[
+            ['Suppliers', suppliers.length],
+            ['Purchase orders', pos.length],
+            ['Open', pos.filter((p) => p.status !== 'received' && p.status !== 'cancelled').length],
+          ].map(([l, v]) => (
+            <div key={l} className="px-5 py-6">
+              <p className="adm-label">{l}</p>
+              <p className="adm-metric mt-3 text-[26px] text-white">{v}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="mb-10">
+        <p className="adm-index">02 — Purchase orders</p>
+        <form onSubmit={createPo} className="mb-6 grid gap-3 border-y border-white/10 py-6 md:grid-cols-2">
           <Select value={draft.supplier} onChange={(v) => setDraft({ ...draft, supplier: v })} options={suppliers.map((s) => ({ v: s._id, l: s.name }))} placeholder="Supplier" />
           <Select value={draft.warehouse} onChange={(v) => setDraft({ ...draft, warehouse: v })} options={wh.map((w) => ({ v: w._id, l: w.name }))} placeholder="Receive into" />
           <Select value={draft.product} onChange={(v) => setDraft({ ...draft, product: v })} options={products.map((p) => ({ v: p._id, l: p.name }))} placeholder="Product" />
-          <input className="input" type="number" min="1" value={draft.qty} onChange={(e) => setDraft({ ...draft, qty: e.target.value })} />
-          <input className="input" type="number" min="0" placeholder="Unit cost" value={draft.cost} onChange={(e) => setDraft({ ...draft, cost: e.target.value })} />
-          <button className="btn-primary w-full" type="submit">Create PO</button>
+          <div className="grid grid-cols-2 gap-3">
+            <div><label className="adm-label mb-1.5 block">Qty</label><input className={ctl} type="number" min="1" value={draft.qty} onChange={(e) => setDraft({ ...draft, qty: e.target.value })} /></div>
+            <div><label className="adm-label mb-1.5 block">Unit cost</label><input className={ctl} type="number" min="0" value={draft.cost} onChange={(e) => setDraft({ ...draft, cost: e.target.value })} /></div>
+          </div>
+          <div className="md:col-span-2"><button className={btnSolid} type="submit">Create PO</button></div>
         </form>
-      </Card>
-      <div className="lg:col-span-2">
-        <Card title="Open / recent POs">
-          <ul className="space-y-2 text-[13px]">
+        {pos.length === 0 ? (
+          <EditorialEmpty title="No purchase orders" description="Create a PO above to receive stock." />
+        ) : (
+          <>
+            <div className="hidden border-b border-white/10 py-2 md:grid md:grid-cols-[0.8fr_minmax(0,1fr)_0.4fr_0.6fr_auto] md:gap-3">
+              {['PO', 'Supplier', 'Items', 'Status', ''].map((h) => <p key={h || 'a'} className="adm-label">{h}</p>)}
+            </div>
             {pos.map((p) => (
-              <li key={p._id} className="flex flex-wrap items-center justify-between gap-2 border-b border-neutral-50 pb-2">
-                <span>{p.number} · {p.supplier?.name} · {p.status} · {p.lines?.length} lines</span>
-                {p.status !== 'received' && p.status !== 'cancelled' && (
-                  <button type="button" className="btn-outline" onClick={() => receive(p._id)}>Receive all</button>
-                )}
-              </li>
+              <div key={p._id} className="grid grid-cols-1 items-center gap-2 border-b border-white/5 py-3 md:grid-cols-[0.8fr_minmax(0,1fr)_0.4fr_0.6fr_auto] md:gap-3">
+                <span className="text-[13px] text-white">{p.number}</span>
+                <span className="text-[12px] text-white/60">{p.supplier?.name || '—'}</span>
+                <span className="text-[12px] tabular-nums text-white/50">{p.lines?.length || 0}</span>
+                <MonoStatus label={String(p.status || '—').replace(/_/g, ' ')} dim={p.status === 'cancelled' || p.status === 'received'} />
+                {p.status !== 'received' && p.status !== 'cancelled' ? (
+                  <button type="button" className={btnGhost} onClick={() => receive(p._id)}>Receive all</button>
+                ) : <span />}
+              </div>
             ))}
-          </ul>
-        </Card>
-      </div>
+          </>
+        )}
+      </section>
+
+      <section>
+        <p className="adm-index">03 — Suppliers</p>
+        <form onSubmit={addSup} className="mb-6 flex flex-wrap items-end gap-2 border-y border-white/10 py-6">
+          <div className="min-w-[10rem] flex-1"><label className="adm-label mb-1.5 block">Name</label><input className={ctl} placeholder="Name" value={sup.name} onChange={(e) => setSup({ ...sup, name: e.target.value })} required /></div>
+          <div><label className="adm-label mb-1.5 block">Phone</label><input className={`${ctl} w-40`} placeholder="Phone" value={sup.phone} onChange={(e) => setSup({ ...sup, phone: e.target.value })} /></div>
+          <button className={btnGhost} type="submit">Add</button>
+        </form>
+        {suppliers.length === 0 ? (
+          <EditorialEmpty title="No suppliers" description="Add a supplier to raise purchase orders." />
+        ) : (
+          <>
+            <div className="hidden border-b border-white/10 py-2 md:grid md:grid-cols-[minmax(0,1.2fr)_0.8fr_0.8fr] md:gap-3">
+              {['Supplier', 'City', 'Contact'].map((h) => <p key={h} className="adm-label">{h}</p>)}
+            </div>
+            {suppliers.map((s) => (
+              <div key={s._id} className="grid grid-cols-1 gap-1 border-b border-white/5 py-3 md:grid-cols-[minmax(0,1.2fr)_0.8fr_0.8fr] md:gap-3">
+                <span className="text-[13px] text-white">{s.name}</span>
+                <span className="text-[12px] text-white/40">{s.city || '—'}</span>
+                <span className="text-[12px] text-white/50">{s.phone || '—'}</span>
+              </div>
+            ))}
+          </>
+        )}
+      </section>
     </div>
   );
 }
@@ -303,48 +418,78 @@ function Returns({ token, toast }) {
     } catch (ex) { toast(ex.message); }
   };
 
+  const STAGES = ['approved', 'in_transit', 'received', 'inspected', 'refund', 'completed', 'rejected'];
+
   return (
-    <div className="grid gap-4 lg:grid-cols-2">
-      <Card title="Open RMA">
-        <form onSubmit={open} className="space-y-2">
-          <Select value={form.orderId} onChange={(v) => setForm({ ...form, orderId: v })} options={orders.map((o) => ({ v: o._id, l: `${o.orderNumber} · ${o.customerInfo?.name}` }))} placeholder="Order" />
-          <input className="input" value={form.reason} onChange={(e) => setForm({ ...form, reason: e.target.value })} />
-          <textarea className="input" rows={2} placeholder="Notes / inspection" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
-          <button className="btn-primary w-full" type="submit">Create RMA</button>
-        </form>
-      </Card>
-      <Card title="Record money movement">
-        <form onSubmit={pay} className="space-y-2">
-          <Select value={refund.orderId} onChange={(v) => setRefund({ ...refund, orderId: v })} options={orders.map((o) => ({ v: o._id, l: o.orderNumber }))} placeholder="Order" />
-          <input className="input" type="number" min="1" placeholder="Amount PKR" value={refund.amount} onChange={(e) => setRefund({ ...refund, amount: e.target.value })} />
-          <select className="input" value={refund.method} onChange={(e) => setRefund({ ...refund, method: e.target.value })}>
-            <option value="manual">Manual</option>
-            <option value="store_credit">Store credit</option>
-            <option value="gateway">Payment gateway</option>
-            <option value="cod_adjust">COD adjust</option>
-          </select>
-          <button className="btn-primary w-full" type="submit">Post refund</button>
-        </form>
-      </Card>
-      <div className="lg:col-span-2">
-        <Card title="Return lifecycle">
-          <ul className="space-y-3">
-            {list.map((r) => (
-              <li key={r._id} className="rounded-lg border border-neutral-100 p-3">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <p className="text-[13px] font-semibold">{r.rma} · {r.orderNumber} · {r.stage}</p>
-                  <div className="flex flex-wrap gap-1">
-                    {['approved', 'in_transit', 'received', 'inspected', 'refund', 'completed', 'rejected'].map((s) => (
-                      <button key={s} type="button" className="rounded border border-neutral-200 px-2 py-1 text-[11px]" onClick={() => stage(r._id, s)}>{s}</button>
-                    ))}
-                  </div>
-                </div>
-                <p className="mt-1 text-[12px] text-neutral-500">{r.reason} — {r.notes}</p>
-              </li>
-            ))}
-          </ul>
-        </Card>
+    <div>
+      <section className="mb-10">
+        <p className="adm-index">01 — Return overview</p>
+        <div className="adm-divide-x grid grid-cols-2 border-y border-white/10">
+          <div className="px-5 py-6">
+            <p className="adm-label">Open RMAs</p>
+            <p className="adm-metric mt-3 text-[26px] text-white">{list.filter((r) => r.stage !== 'completed' && r.stage !== 'rejected').length}</p>
+          </div>
+          <div className="px-5 py-6">
+            <p className="adm-label">Total returns</p>
+            <p className="adm-metric mt-3 text-[26px] text-white">{list.length}</p>
+          </div>
+        </div>
+      </section>
+
+      <div className="mb-10 grid gap-10 lg:grid-cols-2">
+        <section>
+          <p className="adm-index">02 — Open RMA</p>
+          <form onSubmit={open} className="space-y-3 border-y border-white/10 py-6">
+            <Select value={form.orderId} onChange={(v) => setForm({ ...form, orderId: v })} options={orders.map((o) => ({ v: o._id, l: `${o.orderNumber} · ${o.customerInfo?.name}` }))} placeholder="Order" />
+            <div><label className="adm-label mb-1.5 block">Reason</label><input className={ctl} value={form.reason} onChange={(e) => setForm({ ...form, reason: e.target.value })} /></div>
+            <div><label className="adm-label mb-1.5 block">Notes</label><textarea className={`${ctl} min-h-16 py-2`} rows={2} placeholder="Notes / inspection" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} /></div>
+            <button className={btnSolid} type="submit">Create RMA</button>
+          </form>
+        </section>
+        <section>
+          <p className="adm-index">02 — Refund ledger</p>
+          <form onSubmit={pay} className="space-y-3 border-y border-white/10 py-6">
+            <Select value={refund.orderId} onChange={(v) => setRefund({ ...refund, orderId: v })} options={orders.map((o) => ({ v: o._id, l: o.orderNumber }))} placeholder="Order" />
+            <div><label className="adm-label mb-1.5 block">Amount PKR</label><input className={ctl} type="number" min="1" value={refund.amount} onChange={(e) => setRefund({ ...refund, amount: e.target.value })} /></div>
+            <div>
+              <label className="adm-label mb-1.5 block">Method</label>
+              <select className={ctl} value={refund.method} onChange={(e) => setRefund({ ...refund, method: e.target.value })}>
+                <option value="manual">Manual</option>
+                <option value="store_credit">Store credit</option>
+                <option value="gateway">Payment gateway</option>
+                <option value="cod_adjust">COD adjust</option>
+              </select>
+            </div>
+            <button className={btnSolid} type="submit">Post refund</button>
+          </form>
+        </section>
       </div>
+
+      <section>
+        <p className="adm-index">03 — Returns</p>
+        {list.length === 0 ? (
+          <EditorialEmpty title="No returns" description="Open an RMA from an order above." />
+        ) : (
+          list.map((r) => (
+            <div key={r._id} className="border-b border-white/10 py-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <p className="text-[13px] text-white">{r.rma} · {r.orderNumber}</p>
+                  <p className="mt-1 text-[12px] text-white/35">{r.reason}{r.notes ? ` — ${r.notes}` : ''}</p>
+                </div>
+                <MonoStatus label={String(r.stage || '').replace(/_/g, ' ')} dim={r.stage === 'completed' || r.stage === 'rejected'} />
+              </div>
+              <div className="mt-3 flex flex-wrap gap-1.5">
+                {STAGES.map((s) => (
+                  <button key={s} type="button" className={r.stage === s ? btnSolid : btnGhost} onClick={() => stage(r._id, s)}>
+                    {s.replace(/_/g, ' ')}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))
+        )}
+      </section>
     </div>
   );
 }
@@ -380,68 +525,103 @@ function Comms({ token, toast }) {
   };
 
   return (
-    <div className="grid gap-4 lg:grid-cols-2">
-      <Card title="Templates">
-        <ul className="space-y-2 text-[13px]">
-          {templates.map((t) => (
-            <li key={t._id} className="flex justify-between gap-2">
-              <span>{t.channel} / {t.key}</span>
-              <button type="button" className="text-[12px] font-semibold underline" onClick={() => applyTpl(t)}>Use</button>
-            </li>
+    <div>
+      <section className="mb-10">
+        <p className="adm-index">01 — Templates</p>
+        {templates.length === 0 ? (
+          <EditorialEmpty title="No templates" description="Templates appear here when they exist." />
+        ) : (
+          templates.map((t) => (
+            <div key={t._id} className="flex items-center justify-between gap-3 border-b border-white/5 py-3">
+              <span className="text-[13px] text-white">{t.channel} / {t.key}</span>
+              <button type="button" className={btnGhost} onClick={() => applyTpl(t)}>Use</button>
+            </div>
+          ))
+        )}
+      </section>
+
+      <section className="mb-10">
+        <p className="adm-index">02 — Send</p>
+        <form onSubmit={doSend} className="space-y-3 border-y border-white/10 py-6">
+          <div><label className="adm-label mb-1.5 block">Phone</label><input className={ctl} placeholder="03XX…" value={send.to} onChange={(e) => setSend({ ...send, to: e.target.value })} /></div>
+          <div><label className="adm-label mb-1.5 block">Message</label><textarea className={`${ctl} min-h-20 py-2`} rows={3} value={send.body} onChange={(e) => setSend({ ...send, body: e.target.value })} /></div>
+          <button className={btnSolid} type="submit">Send / open WhatsApp</button>
+        </form>
+      </section>
+
+      <div className="grid gap-10 lg:grid-cols-2">
+        <section>
+          <p className="adm-index">03 — Consent</p>
+          <form onSubmit={saveOpt} className="mb-4 flex flex-wrap items-end gap-2">
+            <div className="min-w-[10rem] flex-1"><label className="adm-label mb-1.5 block">Phone</label><input className={ctl} value={opt.phone} onChange={(e) => setOpt({ ...opt, phone: e.target.value })} /></div>
+            <div>
+              <label className="adm-label mb-1.5 block">Status</label>
+              <select className={ctl} value={opt.status} onChange={(e) => setOpt({ ...opt, status: e.target.value })}>
+                <option value="opt_in">Opt in</option>
+                <option value="opt_out">Opt out</option>
+              </select>
+            </div>
+            <button className={btnGhost} type="submit">Save</button>
+          </form>
+          {consent.slice(0, 20).map((c) => (
+            <div key={c._id} className="flex justify-between gap-3 border-b border-white/5 py-2 text-[12px]">
+              <span className="text-white/80">{c.phone}</span>
+              <span className="text-white/35">{c.channel} · {c.status}</span>
+            </div>
           ))}
-        </ul>
-      </Card>
-      <Card title="Send (logged + opt-out enforced)">
-        <form onSubmit={doSend} className="space-y-2">
-          <input className="input" placeholder="Phone 03XX…" value={send.to} onChange={(e) => setSend({ ...send, to: e.target.value })} />
-          <textarea className="input" rows={3} value={send.body} onChange={(e) => setSend({ ...send, body: e.target.value })} />
-          <button className="btn-primary w-full" type="submit">Send / open WhatsApp</button>
-        </form>
-      </Card>
-      <Card title="Consent">
-        <form onSubmit={saveOpt} className="mb-3 flex flex-wrap gap-2">
-          <input className="input" placeholder="Phone" value={opt.phone} onChange={(e) => setOpt({ ...opt, phone: e.target.value })} />
-          <select className="input max-w-[8rem]" value={opt.status} onChange={(e) => setOpt({ ...opt, status: e.target.value })}>
-            <option value="opt_in">Opt in</option>
-            <option value="opt_out">Opt out</option>
-          </select>
-          <button className="btn-outline" type="submit">Save</button>
-        </form>
-        <ul className="max-h-40 overflow-auto text-[12px]">{consent.slice(0, 20).map((c) => <li key={c._id}>{c.phone} · {c.channel} · {c.status}</li>)}</ul>
-      </Card>
-      <Card title="Delivery log">
-        <ul className="max-h-48 overflow-auto text-[12px] space-y-1">
-          {log.map((l) => <li key={l._id}>{l.channel} → {l.to} · {l.status} · {l.templateKey}</li>)}
-        </ul>
-      </Card>
+        </section>
+        <section>
+          <p className="adm-index">03 — Delivery log</p>
+          {log.length === 0 ? (
+            <p className="border-y border-white/10 py-6 text-[12px] text-white/35">No messages logged.</p>
+          ) : log.map((l) => (
+            <div key={l._id} className="border-b border-white/5 py-2 text-[12px]">
+              <span className="text-white/80">{l.channel} → {l.to}</span>
+              <span className="ml-2 text-white/35">{l.status} · {l.templateKey}</span>
+            </div>
+          ))}
+        </section>
+      </div>
     </div>
   );
 }
 
 function Risk({ token, toast }) {
-  const [orders, setOrders] = useState([]);
-  const load = () => api('/ops/risk', { token }).then((d) => setOrders(d.orders || [])).catch(() => {});
+  const [orders, setOrders] = useState(null);
+  const load = () => api('/ops/risk', { token }).then((d) => setOrders(d.orders || [])).catch(() => setOrders([]));
   useEffect(load, [token]);
   const review = async (id, status) => {
     try { await api(`/ops/risk/${id}/review`, { method: 'POST', token, body: { status } }); toast(status); load(); }
     catch (ex) { toast(ex.message); }
   };
+  if (!orders) return <TableSkeleton rows={5} />;
   return (
-    <Card title="Flagged / hold queue">
-      {orders.length === 0 && <p className="text-[13px] text-neutral-500">No flagged orders.</p>}
-      <ul className="space-y-3">
-        {orders.map((o) => (
-          <li key={o._id} className="rounded-lg border border-neutral-100 p-3">
-            <p className="text-[13px] font-semibold">{o.orderNumber} · {pkr(o.total)} · {o.paymentMethod} · score {o.fraudFilter?.score ?? '—'}</p>
-            <p className="text-[12px] text-neutral-500">{(o.fraudFilter?.reasons || []).join(' · ')}</p>
-            <div className="mt-2 flex gap-2">
-              <button type="button" className="btn-outline" onClick={() => review(o._id, 'approved')}>Approve</button>
-              <button type="button" className="rounded-lg bg-red-600 px-3 py-2 text-[12px] font-semibold text-white" onClick={() => review(o._id, 'rejected')}>Reject / cancel</button>
+    <section>
+      <p className="adm-index">01 — Risk</p>
+      {orders.length === 0 ? (
+        <EditorialEmpty title="No flagged orders" description="Holds appear here when risk signals fire." />
+      ) : (
+        <>
+          <div className="hidden border-b border-white/10 py-2 md:grid md:grid-cols-[0.7fr_0.6fr_minmax(0,1.4fr)_auto] md:gap-3">
+            {['Order', 'Value', 'Signals', ''].map((h) => <p key={h || 'a'} className="adm-label">{h}</p>)}
+          </div>
+          {orders.map((o) => (
+            <div key={o._id} className="grid grid-cols-1 gap-2 border-b border-white/10 py-4 md:grid-cols-[0.7fr_0.6fr_minmax(0,1.4fr)_auto] md:items-center md:gap-3">
+              <div>
+                <p className="text-[13px] text-white">{o.orderNumber}</p>
+                <p className="text-[11px] text-white/30">{o.paymentMethod} · score {o.fraudFilter?.score ?? '—'}</p>
+              </div>
+              <span className="text-[13px] tabular-nums text-white">{pkr(o.total)}</span>
+              <span className="text-[12px] text-white/40">{(o.fraudFilter?.reasons || []).join(' · ') || '—'}</span>
+              <div className="flex flex-wrap gap-2">
+                <button type="button" className={btnGhost} onClick={() => review(o._id, 'approved')}>Approve</button>
+                <button type="button" className={btnGhost} onClick={() => review(o._id, 'rejected')}>Reject</button>
+              </div>
             </div>
-          </li>
-        ))}
-      </ul>
-    </Card>
+          ))}
+        </>
+      )}
+    </section>
   );
 }
 
@@ -464,26 +644,45 @@ function Shipping({ token, toast }) {
     } catch (ex) { toast(ex.message); }
   };
   return (
-    <div className="grid gap-4 lg:grid-cols-2">
-      <Card title="New zone / method">
-        <form onSubmit={save} className="space-y-2">
-          <input className="input" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} />
-          <input className="input" placeholder="Countries ISO (PK,AE)" value={f.countries} onChange={(e) => setF({ ...f, countries: e.target.value })} />
-          <input className="input" placeholder="Courier" value={f.courier} onChange={(e) => setF({ ...f, courier: e.target.value })} />
-          <input className="input" type="number" value={f.rate} onChange={(e) => setF({ ...f, rate: e.target.value })} />
-          <select className="input" value={f.type} onChange={(e) => setF({ ...f, type: e.target.value })}>
-            <option value="flat">Flat</option><option value="free">Free</option>
-            <option value="pickup">Pickup</option><option value="local">Local delivery</option>
-            <option value="weight">Weight</option>
-          </select>
-          <button className="btn-primary w-full" type="submit">Save profile</button>
+    <div>
+      <section className="mb-10">
+        <p className="adm-index">01 — Profiles</p>
+        {list.length === 0 ? (
+          <EditorialEmpty title="No shipping profiles" description="Save a zone below." />
+        ) : (
+          <>
+            <div className="hidden border-b border-white/10 py-2 md:grid md:grid-cols-[minmax(0,1.2fr)_0.6fr_0.6fr_0.5fr] md:gap-3">
+              {['Profile', 'Courier', 'Countries', 'Methods'].map((h) => <p key={h} className="adm-label">{h}</p>)}
+            </div>
+            {list.map((p) => (
+              <div key={p._id} className="grid grid-cols-1 gap-1 border-b border-white/5 py-3 md:grid-cols-[minmax(0,1.2fr)_0.6fr_0.6fr_0.5fr] md:gap-3">
+                <span className="text-[13px] text-white">{p.name}</span>
+                <span className="text-[12px] text-white/50">{p.courier}</span>
+                <span className="text-[12px] text-white/40">{(p.countries || []).join(', ')}</span>
+                <span className="text-[12px] tabular-nums text-white/50">{p.methods?.length || 0}</span>
+              </div>
+            ))}
+          </>
+        )}
+      </section>
+      <section>
+        <p className="adm-index">02 — New zone / method</p>
+        <form onSubmit={save} className="grid gap-3 border-y border-white/10 py-6 md:grid-cols-2">
+          <div><label className="adm-label mb-1.5 block">Name</label><input className={ctl} value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} /></div>
+          <div><label className="adm-label mb-1.5 block">Countries ISO</label><input className={ctl} placeholder="PK,AE" value={f.countries} onChange={(e) => setF({ ...f, countries: e.target.value })} /></div>
+          <div><label className="adm-label mb-1.5 block">Courier</label><input className={ctl} value={f.courier} onChange={(e) => setF({ ...f, courier: e.target.value })} /></div>
+          <div><label className="adm-label mb-1.5 block">Rate</label><input className={ctl} type="number" value={f.rate} onChange={(e) => setF({ ...f, rate: e.target.value })} /></div>
+          <div>
+            <label className="adm-label mb-1.5 block">Type</label>
+            <select className={ctl} value={f.type} onChange={(e) => setF({ ...f, type: e.target.value })}>
+              <option value="flat">Flat</option><option value="free">Free</option>
+              <option value="pickup">Pickup</option><option value="local">Local delivery</option>
+              <option value="weight">Weight</option>
+            </select>
+          </div>
+          <div className="flex items-end"><button className={btnSolid} type="submit">Save profile</button></div>
         </form>
-      </Card>
-      <Card title="Profiles">
-        <ul className="text-[13px] space-y-2">
-          {list.map((p) => <li key={p._id}>{p.name} · {p.courier} · {(p.countries || []).join(', ')} · {p.methods?.length} methods</li>)}
-        </ul>
-      </Card>
+      </section>
     </div>
   );
 }
@@ -499,40 +698,44 @@ function Tax({ token, toast }) {
     catch (ex) { toast(ex.message); }
   };
   return (
-    <div className="grid gap-4 lg:grid-cols-2">
-      <Card title="Tax zone">
-        <form onSubmit={save} className="space-y-2">
-          <input className="input" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} />
-          <input className="input" placeholder="Country ISO" value={f.country} onChange={(e) => setF({ ...f, country: e.target.value })} />
-          <input className="input" type="number" value={f.rate} onChange={(e) => setF({ ...f, rate: e.target.value })} />
-          <label className="flex items-center gap-2 text-[13px]"><input type="checkbox" checked={f.inclusive} onChange={(e) => setF({ ...f, inclusive: e.target.checked })} /> Inclusive</label>
-          <label className="flex items-center gap-2 text-[13px]"><input type="checkbox" checked={f.appliesToShipping} onChange={(e) => setF({ ...f, appliesToShipping: e.target.checked })} /> Tax shipping</label>
-          <button className="btn-primary w-full" type="submit">Save zone</button>
+    <div>
+      <section className="mb-10">
+        <p className="adm-index">01 — Tax zones</p>
+        {zones.length === 0 ? (
+          <EditorialEmpty title="No tax zones" description="Save a zone below." />
+        ) : (
+          <>
+            <div className="hidden border-b border-white/10 py-2 md:grid md:grid-cols-[minmax(0,1.2fr)_0.4fr_0.4fr_0.6fr] md:gap-3">
+              {['Zone', 'Country', 'Rate', 'Status'].map((h) => <p key={h} className="adm-label">{h}</p>)}
+            </div>
+            {zones.map((z) => (
+              <div key={z._id} className="grid grid-cols-1 gap-1 border-b border-white/5 py-3 md:grid-cols-[minmax(0,1.2fr)_0.4fr_0.4fr_0.6fr] md:gap-3">
+                <span className="text-[13px] text-white">{z.name}</span>
+                <span className="text-[12px] text-white/45">{z.country}</span>
+                <span className="text-[13px] tabular-nums text-white/80">{z.rate}%</span>
+                <MonoStatus label={z.inclusive ? 'INCLUSIVE' : 'EXCLUSIVE'} dim={false} />
+              </div>
+            ))}
+          </>
+        )}
+      </section>
+      <section>
+        <p className="adm-index">02 — New zone</p>
+        <form onSubmit={save} className="grid gap-3 border-y border-white/10 py-6 md:grid-cols-2">
+          <div><label className="adm-label mb-1.5 block">Name</label><input className={ctl} value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} /></div>
+          <div><label className="adm-label mb-1.5 block">Country ISO</label><input className={ctl} value={f.country} onChange={(e) => setF({ ...f, country: e.target.value })} /></div>
+          <div><label className="adm-label mb-1.5 block">Rate</label><input className={ctl} type="number" value={f.rate} onChange={(e) => setF({ ...f, rate: e.target.value })} /></div>
+          <div className="space-y-3 self-end">
+            <label className="flex items-center gap-2 text-[13px] text-white/70"><input type="checkbox" className="accent-white" checked={f.inclusive} onChange={(e) => setF({ ...f, inclusive: e.target.checked })} /> Inclusive</label>
+            <label className="flex items-center gap-2 text-[13px] text-white/70"><input type="checkbox" className="accent-white" checked={f.appliesToShipping} onChange={(e) => setF({ ...f, appliesToShipping: e.target.checked })} /> Tax shipping</label>
+          </div>
+          <div><button className={btnSolid} type="submit">Save zone</button></div>
         </form>
-      </Card>
-      <Card title="Zones">
-        <ul className="text-[13px] space-y-2">{zones.map((z) => <li key={z._id}>{z.name} · {z.country} · {z.rate}% {z.inclusive ? 'incl' : 'excl'}</li>)}</ul>
-      </Card>
+      </section>
     </div>
   );
 }
 
-function Card({ title, children }) {
-  return (
-    <section className="rounded-xl border border-neutral-200 bg-white p-4">
-      <h2 className="mb-3 text-[12px] font-semibold uppercase tracking-wider text-neutral-500">{title}</h2>
-      {children}
-    </section>
-  );
-}
-function Stat({ label, value }) {
-  return (
-    <div className="rounded-xl border border-neutral-200 bg-white p-4">
-      <p className="text-[11px] font-semibold uppercase tracking-wider text-neutral-500">{label}</p>
-      <p className="mt-1 text-xl font-semibold tabular-nums">{value}</p>
-    </div>
-  );
-}
 function Launchpad({ token, toast }) {
   const [list, setList] = useState([]);
   const [products, setP] = useState([]);
@@ -565,46 +768,61 @@ function Launchpad({ token, toast }) {
     productIds: x.productIds.includes(id) ? x.productIds.filter((i) => i !== id) : [...x.productIds, id],
   }));
   return (
-    <div className="grid gap-4 lg:grid-cols-2">
-      <Card title="New campaign (draft → live → end)">
-        <form onSubmit={save} className="space-y-2">
-          <input className="input" placeholder="BLACK FRIDAY" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} required />
-          <input className="input" type="datetime-local" value={f.startsAt} onChange={(e) => setF({ ...f, startsAt: e.target.value })} />
-          <input className="input" type="datetime-local" value={f.endsAt} onChange={(e) => setF({ ...f, endsAt: e.target.value })} />
-          <input className="input" placeholder="Coupon code (optional)" value={f.discountCode} onChange={(e) => setF({ ...f, discountCode: e.target.value })} />
-          <input className="input" placeholder="Banner note" value={f.bannerNote} onChange={(e) => setF({ ...f, bannerNote: e.target.value })} />
-          <div className="max-h-40 overflow-auto rounded-lg border border-neutral-200 p-2 text-[12px]">
-            {products.map((p) => (
-              <label key={p._id} className="flex items-center gap-2 py-0.5">
-                <input type="checkbox" checked={f.productIds.includes(p._id)} onChange={() => toggleP(p._id)} />
-                {p.name}
-              </label>
-            ))}
-          </div>
-          <button className="btn-primary w-full" type="submit">Save draft</button>
-        </form>
-      </Card>
-      <Card title="Launches">
-        <ul className="space-y-3 text-[13px]">
-          {list.map((l) => (
-            <li key={l._id} className="rounded-lg border border-neutral-100 p-3">
-              <p className="font-semibold">{l.name} · {l.status}</p>
-              <p className="text-[12px] text-neutral-500">{l.productIds?.length || 0} products · {l.discountCode || 'no coupon'}</p>
-              <div className="mt-2 flex gap-2">
-                {l.status !== 'live' && l.status !== 'ended' && <button type="button" className="btn-outline" onClick={() => go(l._id, 'go-live')}>Go live (sale on)</button>}
-                {l.status === 'live' && <button type="button" className="btn-outline" onClick={() => go(l._id, 'end')}>End (sale off)</button>}
+    <div>
+      <section className="mb-10">
+        <p className="adm-index">01 — Launches</p>
+        {list.length === 0 ? (
+          <EditorialEmpty title="No launches" description="Save a draft campaign below." />
+        ) : (
+          list.map((l, i) => (
+            <div key={l._id} className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 py-4">
+              <div>
+                <p className="text-[13px] text-white">
+                  <span className="mr-3 text-[10px] uppercase tracking-[0.16em] text-white/30">{String(i + 1).padStart(2, '0')}</span>
+                  {l.name}
+                </p>
+                <p className="mt-1 text-[12px] text-white/35">{l.productIds?.length || 0} products · {l.discountCode || 'no coupon'}</p>
               </div>
-            </li>
-          ))}
-        </ul>
-      </Card>
+              <div className="flex flex-wrap items-center gap-2">
+                <MonoStatus label={l.status} dim={l.status === 'ended' || l.status === 'draft'} />
+                {l.status !== 'live' && l.status !== 'ended' && <button type="button" className={btnGhost} onClick={() => go(l._id, 'go-live')}>Go live</button>}
+                {l.status === 'live' && <button type="button" className={btnGhost} onClick={() => go(l._id, 'end')}>End</button>}
+              </div>
+            </div>
+          ))
+        )}
+      </section>
+      <section>
+        <p className="adm-index">02 — New campaign</p>
+        <form onSubmit={save} className="space-y-3 border-y border-white/10 py-6">
+          <div><label className="adm-label mb-1.5 block">Name</label><input className={ctl} placeholder="BLACK FRIDAY" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} required /></div>
+          <div className="grid gap-3 md:grid-cols-2">
+            <div><label className="adm-label mb-1.5 block">Starts</label><input className={`${ctl} [color-scheme:dark]`} type="datetime-local" value={f.startsAt} onChange={(e) => setF({ ...f, startsAt: e.target.value })} /></div>
+            <div><label className="adm-label mb-1.5 block">Ends</label><input className={`${ctl} [color-scheme:dark]`} type="datetime-local" value={f.endsAt} onChange={(e) => setF({ ...f, endsAt: e.target.value })} /></div>
+          </div>
+          <div><label className="adm-label mb-1.5 block">Coupon code (optional)</label><input className={ctl} value={f.discountCode} onChange={(e) => setF({ ...f, discountCode: e.target.value })} /></div>
+          <div><label className="adm-label mb-1.5 block">Banner note</label><input className={ctl} value={f.bannerNote} onChange={(e) => setF({ ...f, bannerNote: e.target.value })} /></div>
+          <div>
+            <p className="adm-label mb-2">Products</p>
+            <div className="max-h-40 overflow-auto border-y border-white/10 py-2 text-[12px]">
+              {products.map((p) => (
+                <label key={p._id} className="flex items-center gap-2 py-1.5 text-white/75">
+                  <input type="checkbox" className="accent-white" checked={f.productIds.includes(p._id)} onChange={() => toggleP(p._id)} />
+                  {p.name}
+                </label>
+              ))}
+            </div>
+          </div>
+          <button className={btnSolid} type="submit">Save draft</button>
+        </form>
+      </section>
     </div>
   );
 }
 
 function Select({ value, onChange, options, placeholder }) {
   return (
-    <select className="input" value={value} onChange={(e) => onChange(e.target.value)} required>
+    <select className={ctl} value={value} onChange={(e) => onChange(e.target.value)} required>
       <option value="">{placeholder}</option>
       {options.map((o) => <option key={o.v} value={o.v}>{o.l}</option>)}
     </select>
