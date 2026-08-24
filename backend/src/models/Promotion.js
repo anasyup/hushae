@@ -110,9 +110,15 @@ const promotionSchema = new mongoose.Schema({
     default: [],
   },
 
+  /* ---- Lifecycle (Phase 6) -----------------------------------------------
+   * Formal promotion lifecycle. `status` drives the admin workflow; `enabled`
+   * remains the runtime kill-switch that isLive() already reads. A promotion
+   * can be `active` in status but `enabled: false` (paused by the merchant). */
+  status: { type: String, enum: ['draft', 'scheduled', 'active', 'paused', 'expired', 'archived'], default: 'draft', index: true },
+
   /* ---- Who qualifies ---------------------------------------------------- */
   eligibility: {
-    // all | first-order | returning | tier | phones
+    // all | first-order | returning | tier | phones | segment | group
     audience:     { type: String, default: 'all' },
     loyaltyTiers: { type: [String], default: [] },
     phones:       { type: [String], default: [] },   // last 9 digits
@@ -122,6 +128,12 @@ const promotionSchema = new mongoose.Schema({
     paymentMethods: { type: [String], default: [] },
     // Restrict to certain cities, for a courier-limited offer.
     cities: { type: [String], default: [] },
+    // Phase 6: Customer 360 segment targeting (VIP, Repeat, New, Inactive)
+    customerSegments: { type: [String], default: [] },
+    // Phase 6: Customer Group targeting (by group ID)
+    customerGroupIds: { type: [String], default: [] },
+    // Phase 6: Country targeting (ISO codes)
+    countries: { type: [String], default: [] },
   },
 
   /* ---- Limits ----------------------------------------------------------
@@ -172,6 +184,9 @@ promotionSchema.index({ type: 1, enabled: 1 });
  * false is what lets the admin list say "budget spent" instead of "off".
  */
 promotionSchema.methods.liveState = function liveState(at = new Date()) {
+  if (this.status === 'archived') return { live: false, reason: 'archived' };
+  if (this.status === 'draft') return { live: false, reason: 'draft' };
+  if (this.status === 'paused') return { live: false, reason: 'paused' };
   if (!this.enabled) return { live: false, reason: 'disabled' };
   if (this.startsAt && at < this.startsAt) return { live: false, reason: 'scheduled' };
   if (this.endsAt && at > this.endsAt) return { live: false, reason: 'ended' };

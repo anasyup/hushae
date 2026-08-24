@@ -1,40 +1,67 @@
 const mongoose = require('mongoose');
 
-/**
- * An email campaign sent from the admin (Shopify-style "send email to segment").
+/* ============================================================================
+ * EMAIL CAMPAIGN MODEL — Phase 6 Enhanced
  *
- * The recipient list is NOT stored — it is evaluated at send time (from the
- * group's live rules, or the newsletter subscriber list), and this document
- * records what actually happened: how many matched, how many were eligible
- * (opted into marketing), and how many sends succeeded/failed.
- *
- * Only registered users who EXPLICITLY opted into marketing emails
- * (notify.marketingEmail === true) are eligible — the store's own promise is
- * "no spam, ever", and this model keeps that promise in code. Guests and
- * non-opted users are counted but skipped.
- */
+ * Original fields preserved. Phase 6 additions:
+ * - Campaign name + internal note + preview text
+ * - DRAFT/READY/SENDING/COMPLETED/FAILED/CANCELLED states
+ * - Recipient snapshot (prevents segment changes affecting sent campaigns)
+ * - Audience rule snapshot
+ * - Idempotency tracking
+ * ========================================================================== */
+
+const recipientSchema = new mongoose.Schema({
+  customerId: { type: String, default: '' },
+  email: { type: String, default: '' },
+  name: { type: String, default: '' },
+  audienceReason: { type: String, default: '' },
+  consentAt: { type: Date, default: null },
+  status: { type: String, enum: ['pending', 'sent', 'failed', 'skipped', 'blocked'], default: 'pending' },
+  error: { type: String, default: '' },
+  sentAt: { type: Date, default: null },
+}, { _id: true });
 
 const emailCampaignSchema = new mongoose.Schema({
-  subject: { type: String, required: true, trim: true },
-  body: { type: String, required: true }, // plain text — wrapped in a minimal HTML shell on send
+  // Phase 6: Campaign identity
+  name: { type: String, default: '', trim: true },
+  internalNote: { type: String, default: '' },
+  previewText: { type: String, default: '' },
 
-  /* What we targeted. groupId is null for a newsletter-subscriber campaign. */
-  target: { type: String, enum: ['group', 'subscribers'], default: 'group' },
+  subject: { type: String, required: true, trim: true },
+  body: { type: String, required: true },
+
+  // Target: group (CustomerGroup), subscribers, segment (Customer 360)
+  target: { type: String, enum: ['group', 'subscribers', 'segment'], default: 'group' },
   groupId: { type: mongoose.Schema.Types.ObjectId, ref: 'CustomerGroup', default: null },
   groupName: { type: String, default: '' },
+  // Phase 6: Customer 360 segment targeting
+  segment: { type: String, default: '' }, // VIP, Repeat, New, Inactive
 
-  /* Outcome numbers — populated by the send route. */
-  matched:     { type: Number, default: 0 }, // people the target matched (after dedupe)
-  optedIn:     { type: Number, default: 0 }, // eligible (marketing opt-in)
-  skipped:     { type: Number, default: 0 }, // matched but not eligible / no email
+  // Phase 6: Lifecycle states
+  status: { type: String, enum: ['draft', 'ready', 'sending', 'completed', 'failed', 'cancelled'], default: 'draft', index: true },
+
+  // Original metrics (preserved)
+  matched:     { type: Number, default: 0 },
+  optedIn:     { type: Number, default: 0 },
+  skipped:     { type: Number, default: 0 },
   sent:        { type: Number, default: 0 },
   failed:      { type: Number, default: 0 },
-  status:      { type: String, enum: ['sent', 'partial', 'error', 'empty'], default: 'sent' },
+
+  // Phase 6: Recipient snapshot
+  recipients: { type: [recipientSchema], default: [] },
+  // Snapshot of the audience rule at send time
+  audienceRuleSnapshot: { type: String, default: '' },
 
   sentByName: { type: String, default: '' },
-  sentAt: { type: Date, default: Date.now },
+  sentAt: { type: Date, default: null },
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+
+  // Phase 6: Idempotency — prevents duplicate sends
+  idempotencyKey: { type: String, default: null, unique: true, sparse: true },
 }, { timestamps: true });
 
 emailCampaignSchema.index({ sentAt: -1 });
+emailCampaignSchema.index({ status: 1, createdAt: -1 });
 
 module.exports = mongoose.model('EmailCampaign', emailCampaignSchema);

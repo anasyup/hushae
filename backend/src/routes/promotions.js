@@ -320,8 +320,34 @@ router.patch('/:id/toggle', asyncHandler(async (req, res) => {
   const p = await Promotion.findById(req.params.id);
   if (!p) return res.status(404).json({ message: 'Not found' });
   p.enabled = req.body?.enabled !== undefined ? !!req.body.enabled : !p.enabled;
+  // Phase 6: Sync lifecycle status with enabled toggle
+  if (p.enabled && p.status !== 'active' && p.status !== 'scheduled') {
+    p.status = p.startsAt && p.startsAt > new Date() ? 'scheduled' : 'active';
+  } else if (!p.enabled && p.status === 'active') {
+    p.status = 'paused';
+  }
   await p.save();
-  res.json({ ok: true, enabled: p.enabled, state: p.liveState() });
+  res.json({ ok: true, enabled: p.enabled, status: p.status, state: p.liveState() });
+}));
+
+/* Phase 6: Lifecycle status transition endpoint */
+router.patch('/:id/status', asyncHandler(async (req, res) => {
+  const p = await Promotion.findById(req.params.id);
+  if (!p) return res.status(404).json({ message: 'Not found' });
+  const next = String(req.body?.status || '').toLowerCase();
+  const valid = ['draft', 'scheduled', 'active', 'paused', 'expired', 'archived'];
+  if (!valid.includes(next)) return res.status(400).json({ message: `Invalid status. Must be one of: ${valid.join(', ')}` });
+
+  // Transition rules
+  if (next === 'active') { p.enabled = true; p.status = 'active'; }
+  else if (next === 'paused') { p.enabled = false; p.status = 'paused'; }
+  else if (next === 'scheduled') { p.status = 'scheduled'; if (p.startsAt && p.startsAt <= new Date()) p.enabled = true; }
+  else if (next === 'archived') { p.enabled = false; p.status = 'archived'; }
+  else if (next === 'draft') { p.enabled = false; p.status = 'draft'; }
+  else { p.status = next; }
+
+  await p.save();
+  res.json({ ok: true, status: p.status, enabled: p.enabled, state: p.liveState() });
 }));
 
 /* Bulk enable/disable — a seasonal sale is usually several promotions that

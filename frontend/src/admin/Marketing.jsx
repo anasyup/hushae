@@ -1,217 +1,165 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Save } from 'lucide-react';
+import {
+  BadgePercent, BarChart3, ImagePlus, Mail, Megaphone, Package,
+  ShoppingBag, Sparkles, TrendingUp, Users, Zap,
+} from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
+import { pkr } from '../lib/format';
 import AdminLayout from './AdminLayout';
 import PageHeader from './components/PageHeader';
-import { btnGhost, btnSolid, ctl, TableSkeleton } from './orders/orderUi';
+import { btnGhost, btnSolid } from './orders/orderUi';
+
+/* ============================================================================
+ * MARKETING OVERVIEW — Phase 6: Real-data growth dashboard
+ * No fake metrics. Every number backed by a database query.
+ * ========================================================================== */
+
+function MetricCard({ icon: Icon, label, value, hint, to }) {
+  const Wrapper = to ? Link : 'div';
+  return (
+    <Wrapper to={to} className="rounded-md border border-[#EAEAEA] bg-white p-5 transition-colors hover:bg-[#FAFAFA]">
+      <div className="flex items-center justify-between">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#999999]">{label}</p>
+        <Icon size={14} strokeWidth={1.5} className="text-[#DCDCDC]" />
+      </div>
+      <p className="mt-3 text-[26px] font-semibold leading-none tracking-tight text-black" style={{ fontVariantNumeric: 'tabular-nums' }}>{value}</p>
+      {hint && <p className="mt-2 text-[11px] text-[#AAAAAA]">{hint}</p>}
+    </Wrapper>
+  );
+}
+
+function SectionCard({ title, children }) {
+  return (
+    <div className="rounded-md border border-[#EAEAEA] bg-white">
+      <div className="border-b border-[#EAEAEA] px-5 py-3">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#AAAAAA]">{title}</p>
+      </div>
+      <div className="p-5">{children}</div>
+    </div>
+  );
+}
 
 export default function Marketing() {
   const { auth, toast } = useApp();
-  const [metrics, setMetrics] = useState(null);
-  const [settings, setSettings] = useState(null);
-  const [originalSettings, setOriginalSettings] = useState(null);
-  const [busy, setBusy] = useState(false);
+  const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [err, setErr] = useState('');
 
-  const loadData = async () => {
+  const load = async () => {
     setLoading(true);
-    setErr('');
     try {
-      const [dSettings, dDashboard] = await Promise.all([
-        api('/settings/admin', { token: auth.token }),
-        api('/marketing/automation/dashboard', { token: auth.token }),
-      ]);
-      setSettings(dSettings.settings);
-      setOriginalSettings(JSON.stringify(dSettings.settings));
-      setMetrics(dDashboard.metrics || {});
+      const d = await api('/marketing/dashboard', { token: auth.token });
+      setData(d);
     } catch {
-      setErr('Something prevented marketing from loading.');
-      toast('Failed to load marketing dashboard details.');
-    } finally {
-      setLoading(false);
+      toast('Failed to load marketing dashboard');
     }
+    setLoading(false);
   };
+  useEffect(() => { load(); }, []); // eslint-disable-line
 
-  useEffect(() => { loadData(); }, []); // eslint-disable-line
+  if (loading) {
+    return (
+      <AdminLayout title="Marketing">
+        <div className="grid gap-4 md:grid-cols-4">
+          {[1,2,3,4].map(i => <div key={i} className="h-28 v2-skeleton rounded-md" />)}
+        </div>
+      </AdminLayout>
+    );
+  }
 
-  const isDirty = settings && originalSettings && JSON.stringify(settings) !== originalSettings;
-
-  const handleSaveSettings = async () => {
-    setBusy(true);
-    try {
-      await api('/settings', { method: 'PUT', token: auth.token, body: { automation: settings.automation } });
-      setOriginalSettings(JSON.stringify(settings));
-      toast('Marketing automation rules saved successfully.');
-    } catch (e) {
-      toast(e.message || 'Failed to save settings.');
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const auto = settings?.automation || { abandonedCart: { enabled: false, delayHours: 2 }, reviewRequest: { enabled: false, delayDays: 7 } };
-  const updateAuto = (type, key, value) => {
-    setSettings((prev) => ({
-      ...prev,
-      automation: {
-        ...prev.automation,
-        [type]: { ...prev.automation[type], [key]: value },
-      },
-    }));
-  };
-
-  const m = metrics || {};
+  const p = data?.promotions || {};
+  const c = data?.coupons || {};
+  const camp = data?.campaigns || {};
+  const cart = data?.abandonedCarts || {};
+  const aud = data?.audience || {};
+  const ban = data?.banners || {};
 
   return (
     <AdminLayout title="Marketing">
       <PageHeader
         title="Marketing"
-        description="Campaigns, promotions and customer acquisition."
+        description="Real marketing operations — promotions, campaigns, coupons, and growth."
         actions={(
           <>
             <Link to="/admin/promotions" className={btnGhost}>Promotions</Link>
-            <Link to="/admin/marketing/analytics" className={btnGhost}>Performance</Link>
+            <Link to="/admin/discounts" className={btnGhost}>Coupons</Link>
+            <Link to="/admin/email-campaigns" className={btnSolid}><Mail size={12} /> New Campaign</Link>
           </>
         )}
       />
 
-      {loading && <TableSkeleton rows={5} />}
-      {err && !loading && (
-        <div className="border-y border-[#EAEAEA] py-14 text-center">
-          <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#333333]">Unable to load marketing</p>
-          <p className="mt-3 text-[13px] text-[#AAAAAA]">{err}</p>
-          <button type="button" onClick={loadData} className={`${btnGhost} mt-6`}>Try again</button>
+      {/* ── Primary Metrics ─────────────────────────────────────────── */}
+      <div className="mb-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <MetricCard icon={Megaphone} label="Active Promotions" value={p.active || 0} hint={`${p.scheduled || 0} scheduled`} to="/admin/promotions" />
+        <MetricCard icon={BadgePercent} label="Coupon Redemptions" value={c.totalRedemptions || 0} hint={`${c.active || 0} active coupons`} to="/admin/discounts" />
+        <MetricCard icon={TrendingUp} label="Discount Given (30d)" value={pkr(p.discountGiven30d || 0)} hint={`${p.redemptions30d || 0} redemptions`} />
+        <MetricCard icon={ShoppingBag} label="Promo Orders (30d)" value={p.attributedOrders30d || 0} hint="Orders with promotion applied" to="/admin/orders" />
+      </div>
+
+      <div className="mb-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <MetricCard icon={Mail} label="Campaigns Sent" value={camp.totalSent || 0} hint={`${camp.totalFailed || 0} failed · ${camp.totalSkipped || 0} skipped`} to="/admin/email-campaigns" />
+        <MetricCard icon={Users} label="Audience" value={(aud.totalCustomers || 0).toLocaleString()} hint={`${aud.vip || 0} VIP · ${aud.subscribers || 0} subscribers`} to="/admin/customers" />
+        <MetricCard icon={Package} label="Abandoned Carts" value={cart.open || 0} hint={`${cart.recovered || 0} recovered (${cart.recoveryRate || 0}%)`} to="/admin/abandoned-carts" />
+        <MetricCard icon={ImagePlus} label="Active Banners" value={ban.active || 0} hint="Live on storefront" to="/admin/banners" />
+      </div>
+
+      {/* ── Quick Actions ────────────────────────────────────────────── */}
+      <SectionCard title="Quick Actions">
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+          {[
+            { to: '/admin/promotions/new', icon: Megaphone, label: 'New Promotion' },
+            { to: '/admin/discounts', icon: BadgePercent, label: 'New Coupon' },
+            { to: '/admin/email-campaigns', icon: Mail, label: 'New Campaign' },
+            { to: '/admin/banners', icon: ImagePlus, label: 'New Banner' },
+            { to: '/admin/flash-sales', icon: Zap, label: 'Flash Sale' },
+            { to: '/admin/bundles', icon: Package, label: 'Bundle' },
+            { to: '/admin/customers/groups', icon: Users, label: 'Customer Groups' },
+            { to: '/admin/marketing/analytics', icon: BarChart3, label: 'Performance' },
+          ].map(a => (
+            <Link key={a.label} to={a.to} className="flex items-center gap-3 rounded-md border border-[#EAEAEA] p-3 text-[13px] font-medium text-black transition hover:border-[#DCDCDC] hover:bg-[#FAFAFA]">
+              <a.icon size={16} strokeWidth={1.5} className="text-[#777777]" />
+              {a.label}
+            </Link>
+          ))}
         </div>
-      )}
+      </SectionCard>
 
-      {!loading && !err && (
-        <>
-          <section className="mb-10">
-            <p className="adm-index">01 — Performance</p>
-            <div className="adm-divide-x grid grid-cols-2 border-y border-[#EAEAEA] lg:grid-cols-4">
-              {[
-                { label: 'Abandoned carts', value: m.abandonedCartCount ?? 0 },
-                { label: 'Recovered', value: m.recoveredCount ?? 0 },
-                { label: 'Recovery rate', value: `${m.recoveryRate ?? 0}%` },
-                { label: 'Review response', value: `${m.responseRate ?? 0}%` },
-              ].map((x) => (
-                <div key={x.label} className="px-5 py-6">
-                  <p className="adm-label">{x.label}</p>
-                  <p className="adm-metric mt-3 text-[32px] leading-none text-black">{x.value}</p>
-                </div>
-              ))}
-            </div>
-            <p className="mt-3 text-[11px] uppercase tracking-[0.14em] text-[#AAAAAA]">
-              {m.reviewsCount ?? 0} reviews from {m.reviewRequestsCount ?? 0} requests
-              {m.emailDeliveryRate != null ? ` · delivery ${m.emailDeliveryRate}%` : ''}
-              {m.emailOpenRate != null ? ` · open ${m.emailOpenRate}%` : ''}
-            </p>
-          </section>
-
-          <section className="mb-10">
-            <p className="adm-index">02 — Campaigns & promotions</p>
-            <div className="divide-y divide-[#EAEAEA] border-y border-[#EAEAEA]">
-              {[
-                { to: '/admin/promotions', label: 'Promotions', hint: 'Automatic discounts' },
-                { to: '/admin/discounts', label: 'Discount codes', hint: 'Checkout coupons' },
-                { to: '/admin/banners', label: 'Banners', hint: 'Slots and schedules' },
-                { to: '/admin/email-campaigns', label: 'Email campaigns', hint: 'Sent history' },
-              ].map((x) => (
-                <Link key={x.to} to={x.to} className="flex items-center justify-between gap-4 py-4 adm-row-hover">
-                  <span>
-                    <span className="block text-[13px] font-medium text-black">{x.label}</span>
-                    <span className="mt-0.5 block text-[12px] text-[#AAAAAA]">{x.hint}</span>
-                  </span>
-                  <span className="text-[11px] uppercase tracking-[0.14em] text-[#AAAAAA]">Open →</span>
-                </Link>
-              ))}
-            </div>
-          </section>
-
-          <section className="mb-10">
-            <p className="adm-index">03 — Automation</p>
-            <div className="mb-4 flex justify-end">
-              <button type="button" onClick={handleSaveSettings} disabled={busy || !isDirty} className={btnSolid}>
-                <Save size={12} /> {busy ? 'Saving…' : 'Save rules'}
-              </button>
-            </div>
-            <div className="space-y-8 border-y border-[#EAEAEA] py-6">
-              <div>
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <p className="text-[13px] font-medium text-black">Abandoned cart recovery</p>
-                    <p className="mt-1 text-[12px] text-[#AAAAAA]">Email buyers who leave checkout incomplete.</p>
-                  </div>
-                  <button
-                    type="button"
-                    role="switch"
-                    aria-checked={!!auto.abandonedCart?.enabled}
-                    onClick={() => updateAuto('abandonedCart', 'enabled', !auto.abandonedCart?.enabled)}
-                    className={`relative h-5 w-9 shrink-0 rounded-full ${auto.abandonedCart?.enabled ? 'bg-white' : 'bg-[#EFEFEF]'}`}
-                  >
-                    <span className={`absolute top-0.5 h-4 w-4 rounded-full transition-all ${auto.abandonedCart?.enabled ? 'left-[18px] bg-black' : 'left-0.5 bg-white'}`} />
-                  </button>
-                </div>
-                <div className={`mt-4 ${auto.abandonedCart?.enabled ? '' : 'opacity-35'}`}>
-                  <label className="adm-label mb-1.5 block">Send after (hours)</label>
-                  <input
-                    type="number" min={1} max={24}
-                    className={`${ctl} max-w-[120px]`}
-                    value={auto.abandonedCart?.delayHours || 2}
-                    onChange={(e) => updateAuto('abandonedCart', 'delayHours', Number(e.target.value) || 2)}
-                    disabled={!auto.abandonedCart?.enabled}
-                  />
-                </div>
+      {/* ── Audience Breakdown ───────────────────────────────────────── */}
+      <div className="mt-6 grid gap-6 lg:grid-cols-2">
+        <SectionCard title="Audience Segments">
+          <div className="space-y-3">
+            {[
+              { label: 'Total Customers', value: aud.totalCustomers || 0 },
+              { label: 'VIP (PKR 500k+)', value: aud.vip || 0 },
+              { label: 'Newsletter Subscribers', value: aud.subscribers || 0 },
+            ].map(r => (
+              <div key={r.label} className="flex items-center justify-between border-b border-[#F0F0F0] pb-2 last:border-0">
+                <span className="text-[13px] text-[#555555]">{r.label}</span>
+                <span className="text-[14px] font-semibold text-black" style={{ fontVariantNumeric: 'tabular-nums' }}>{r.value.toLocaleString()}</span>
               </div>
+            ))}
+          </div>
+          <Link to="/admin/customers" className="mt-4 inline-block text-[12px] font-medium text-[#777777] hover:text-black">View all customers →</Link>
+        </SectionCard>
 
-              <div className="border-t border-[#EAEAEA] pt-6">
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <p className="text-[13px] font-medium text-black">Review request</p>
-                    <p className="mt-1 text-[12px] text-[#AAAAAA]">Ask for a review after delivery.</p>
-                  </div>
-                  <button
-                    type="button"
-                    role="switch"
-                    aria-checked={!!auto.reviewRequest?.enabled}
-                    onClick={() => updateAuto('reviewRequest', 'enabled', !auto.reviewRequest?.enabled)}
-                    className={`relative h-5 w-9 shrink-0 rounded-full ${auto.reviewRequest?.enabled ? 'bg-white' : 'bg-[#EFEFEF]'}`}
-                  >
-                    <span className={`absolute top-0.5 h-4 w-4 rounded-full transition-all ${auto.reviewRequest?.enabled ? 'left-[18px] bg-black' : 'left-0.5 bg-white'}`} />
-                  </button>
-                </div>
-                <div className={`mt-4 ${auto.reviewRequest?.enabled ? '' : 'opacity-35'}`}>
-                  <label className="adm-label mb-1.5 block">Send after (days)</label>
-                  <input
-                    type="number" min={1} max={30}
-                    className={`${ctl} max-w-[120px]`}
-                    value={auto.reviewRequest?.delayDays || 7}
-                    onChange={(e) => updateAuto('reviewRequest', 'delayDays', Number(e.target.value) || 7)}
-                    disabled={!auto.reviewRequest?.enabled}
-                  />
-                </div>
+        <SectionCard title="Campaign History">
+          <div className="space-y-3">
+            {[
+              { label: 'Total Campaigns', value: camp.total || 0 },
+              { label: 'Drafts', value: camp.drafts || 0 },
+              { label: 'Messages Sent', value: camp.totalSent || 0 },
+              { label: 'Failed / Skipped', value: (camp.totalFailed || 0) + (camp.totalSkipped || 0) },
+            ].map(r => (
+              <div key={r.label} className="flex items-center justify-between border-b border-[#F0F0F0] pb-2 last:border-0">
+                <span className="text-[13px] text-[#555555]">{r.label}</span>
+                <span className="text-[14px] font-semibold text-black" style={{ fontVariantNumeric: 'tabular-nums' }}>{r.value.toLocaleString()}</span>
               </div>
-            </div>
-            <Link to="/admin/marketing/settings" className="mt-4 inline-block text-[11px] uppercase tracking-[0.14em] text-[#999999] hover:text-black">
-              Full marketing rules →
-            </Link>
-          </section>
-
-          <section>
-            <p className="adm-index">04 — Recovery</p>
-            <Link to="/admin/abandoned-carts" className="flex items-center justify-between border-y border-[#EAEAEA] py-5 adm-row-hover">
-              <span>
-                <span className="block text-[13px] font-medium text-black">Abandoned carts</span>
-                <span className="mt-0.5 block text-[12px] text-[#AAAAAA]">{m.abandonedCartCount ?? 0} open · {m.recoveredCount ?? 0} recovered</span>
-              </span>
-              <span className="text-[11px] uppercase tracking-[0.14em] text-[#AAAAAA]">Open →</span>
-            </Link>
-          </section>
-        </>
-      )}
+            ))}
+          </div>
+          <Link to="/admin/email-campaigns" className="mt-4 inline-block text-[12px] font-medium text-[#777777] hover:text-black">View all campaigns →</Link>
+        </SectionCard>
+      </div>
     </AdminLayout>
   );
 }
