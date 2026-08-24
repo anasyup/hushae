@@ -1,180 +1,154 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { useApp } from '../store/AppContext';
-import AdminLayout from './AdminLayout';
+import { useEffect, useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import {
-  PageHeader, ctl, EditorialEmpty, MonoStatus,
-} from './settings/chrome';
+  Store, CreditCard, Truck, ShoppingCart, Mail, Users, ShieldCheck, Calculator,
+  Globe, Search, Bell, Palette, Megaphone, Plug, Database, Settings2, ChevronRight,
+  Lock, FileText, Zap, Eye,
+} from 'lucide-react';
+import { useApp } from '../store/AppContext';
+import { api } from '../api/client';
+import AdminLayout from './AdminLayout';
 
-/* ===========================================================================
- * SETTINGS HUB — editorial index. Destinations that already exist only.
+/* ============================================================================
+ * SETTINGS HUB V3 — Phase 11 Consolidated Settings
+ * Professional settings center with clear categories and navigation.
  * ========================================================================== */
 
-const GROUPS = [
+const SETTINGS_GROUPS = [
   {
-    index: '01',
-    title: 'Store',
+    section: 'Store',
     items: [
-      { to: '/admin/settings/store', title: 'Store details', desc: 'Name, tagline, contact and trust badges.', tags: ['name', 'contact', 'email', 'phone', 'brand', 'trust'] },
-      { to: '/admin/settings/cart', title: 'Shopping Bag', desc: 'Cart wording, free-shipping bar, badges and recommendations.', tags: ['cart', 'bag', 'coupon', 'promo', 'trust'] },
-      { to: '/admin/settings/checkout', title: 'Checkout', desc: 'Payment methods, delivery options, wording and thank-you page.', tags: ['checkout', 'payment', 'cod', 'delivery', 'terms'] },
-      { to: '/admin/settings/accounts', title: 'Customer Accounts', desc: 'Registration, password rules, sessions and account permissions.', tags: ['account', 'register', 'login', 'password', 'session'] },
-      { to: '/admin/settings/search', title: 'Search & Discovery', desc: 'Search fields, synonyms, suggestions and the shopping assistant.', tags: ['search', 'synonym', 'typo', 'suggest', 'assistant'] },
-      { to: '/admin/settings/legal', title: 'Legal & Policies', desc: 'Terms, privacy, refund and cookie consent — reserved.', tags: ['legal', 'privacy', 'terms', 'policy', 'refund', 'cookie'] },
+      { to: '/admin/settings/store', icon: Store, label: 'General', desc: 'Store name, contact, address, currency' },
+      { to: '/admin/settings/checkout', icon: ShoppingCart, label: 'Checkout', desc: 'Checkout flow, terms, guest checkout' },
+      { to: '/admin/settings/cart', icon: ShoppingCart, label: 'Shopping Bag', desc: 'Cart behavior, abandoned cart recovery' },
     ],
   },
   {
-    index: '02',
-    title: 'Commerce',
+    section: 'Payments & Shipping',
     items: [
-      { to: '/admin/settings/payments', title: 'Payments', desc: 'COD, JazzCash, EasyPaisa, bank transfer and card gateways.', tags: ['payment', 'cod', 'jazzcash', 'easypaisa', 'bank', 'safepay'] },
-      { to: '/admin/settings/shipping', title: 'Shipping', desc: 'Flat rate, free-shipping threshold and operating costs.', tags: ['shipping', 'delivery', 'courier', 'rates', 'free'] },
-      { to: '/admin/settings/taxes', title: 'Taxes', desc: 'Global rate and Pakistan tax zones.', tags: ['tax', 'gst', 'zone', 'invoice'] },
+      { to: '/admin/settings/payments', icon: CreditCard, label: 'Payments', desc: 'Payment gateways, methods, configuration' },
+      { to: '/admin/settings/shipping', icon: Truck, label: 'Shipping', desc: 'Shipping zones, rates, methods' },
+      { to: '/admin/settings/taxes', icon: Calculator, label: 'Taxes', desc: 'Tax zones, rates, inclusive/exclusive' },
     ],
   },
   {
-    index: '03',
-    title: 'Customer experience',
+    section: 'Customers',
     items: [
-      { to: '/admin/settings/experience', title: 'Customer Experience', desc: 'Wishlist, recently viewed and product comparison.', tags: ['wishlist', 'recently viewed', 'compare'] },
-      { to: '/admin/settings/reviews', title: 'Reviews', desc: 'Who can review, moderation, photos and product questions.', tags: ['review', 'rating', 'moderation', 'question'] },
-      { to: '/admin/settings/loyalty', title: 'Loyalty', desc: 'Points, VIP tiers, referrals, store credit and gift cards.', tags: ['loyalty', 'rewards', 'points', 'tier', 'referral'] },
+      { to: '/admin/settings/accounts', icon: Users, label: 'Accounts', desc: 'Registration, login, customer experience' },
+      { to: '/admin/settings/reviews', icon: Star, label: 'Reviews', desc: 'Review moderation, display settings' },
+      { to: '/admin/settings/loyalty', icon: Zap, label: 'Loyalty', desc: 'Points, tiers, rewards configuration' },
     ],
   },
   {
-    index: '04',
-    title: 'Communication',
+    section: 'Communication',
     items: [
-      { to: '/admin/settings/email', title: 'Email & Notifications', desc: 'SMTP credentials, transactional templates and test send.', tags: ['email', 'smtp', 'templates', 'notification'] },
+      { to: '/admin/settings/email', icon: Mail, label: 'Email', desc: 'SMTP, templates, notifications' },
     ],
   },
   {
-    index: '05',
-    title: 'Integrations',
+    section: 'Storefront',
     items: [
-      { to: '/admin/apps', title: 'Apps / Integrations', desc: 'WhatsApp, social, analytics pixels, SMTP and media library.', tags: ['analytics', 'pixel', 'ga', 'whatsapp', 'integration', 'apps'] },
+      { to: '/admin/settings/search', icon: Search, label: 'Search', desc: 'Search behavior, synonyms, results' },
+      { to: '/admin/settings/experience', icon: Eye, label: 'Experience', desc: 'Storefront display, product cards' },
     ],
   },
   {
-    index: '06',
-    title: 'System',
+    section: 'System',
     items: [
-      { to: '/admin/backup', title: 'Backup & Export', desc: 'JSON snapshot, restore and CSV exports.', tags: ['backup', 'export', 'restore', 'csv'] },
-      { to: '/admin/settings/advanced', title: 'Advanced', desc: 'Analytics preferences, store identity and password.', tags: ['advanced', 'analytics', 'test orders', 'reorder'] },
-    ],
-  },
-  {
-    index: '07',
-    title: 'Security',
-    items: [
-      { to: '/admin/settings/security', title: 'Security & Access', desc: 'Login, staff, devices, audit logs, fraud review and JWT rotation.', tags: ['security', 'password', 'staff', 'roles', 'audit', 'session', 'fraud', '2fa'] },
-    ],
-  },
-  {
-    index: '08',
-    title: 'Also in admin',
-    items: [
-      { to: '/admin/marketing', title: 'Marketing & Automation', desc: 'Promotions, abandoned carts and automation rules.', tags: ['marketing', 'promotion', 'discount'] },
-      { to: '/admin/content', title: 'Storefront Content', desc: 'Homepage, FAQ and merchandising content.', tags: ['content', 'hero', 'faq'] },
-      { to: '/admin/markets', title: 'Markets & Regions', desc: 'Pakistan-first market configuration.', tags: ['markets', 'currency', 'regions'] },
+      { to: '/admin/settings/security', icon: ShieldCheck, label: 'Security', desc: 'Users, roles, audit logs, sessions' },
+      { to: '/admin/apps', icon: Plug, label: 'Integrations', desc: 'Connected apps, API keys, webhooks' },
+      { to: '/admin/backup', icon: Database, label: 'Backups', desc: 'Backup schedule, snapshots, restore' },
     ],
   },
 ];
 
-function matches(item, query) {
-  if (!query) return true;
+function Star({ size, className }) {
   return (
-    item.title.toLowerCase().includes(query) ||
-    item.desc.toLowerCase().includes(query) ||
-    item.tags.some((t) => t.includes(query))
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+    </svg>
   );
 }
 
 export default function SettingsHub() {
   const { auth } = useApp();
-  const [q, setQ] = useState('');
-  const query = q.trim().toLowerCase();
-  const visible = GROUPS.map((g) => ({ ...g, items: g.items.filter((i) => matches(i, query)) })).filter((g) => g.items.length);
-  const total = GROUPS.reduce((n, g) => n + g.items.length, 0);
+  const loc = useLocation();
+  const [search, setSearch] = useState('');
+
+  const filteredGroups = SETTINGS_GROUPS.map(group => ({
+    ...group,
+    items: group.items.filter(item =>
+      !search || item.label.toLowerCase().includes(search.toLowerCase()) || item.desc.toLowerCase().includes(search.toLowerCase())
+    ),
+  })).filter(group => group.items.length > 0);
 
   return (
     <AdminLayout title="Settings">
-      <PageHeader
-        title="Settings"
-        description="Manage your store configuration and administration."
-        actions={
-          <input
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder="Search settings"
-            className={`${ctl} w-56 max-w-full`}
-            aria-label="Search settings"
-          />
-        }
-      />
-
-      <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_260px]">
-        <div>
-          {visible.length === 0 ? (
-            <EditorialEmpty title="No matching settings" description={`Nothing matches “${q}”.`} />
-          ) : (
-            visible.map((g) => (
-              <section key={g.title} className="mb-10">
-                <p className="adm-index">{g.index} — {g.title}</p>
-                <div className="border-y border-[#EAEAEA]">
-                  {g.items.map((item) => (
-                    <Link
-                      key={item.to}
-                      to={item.to}
-                      className="adm-row-hover flex items-start justify-between gap-4 border-b border-[#F0F0F0] px-1 py-4 last:border-0"
-                    >
-                      <div className="min-w-0">
-                        <p className="text-[13px] text-black">{item.title}</p>
-                        <p className="mt-0.5 text-[12px] leading-relaxed text-[#AAAAAA]">{item.desc}</p>
-                      </div>
-                      <span className="mt-0.5 shrink-0 text-[9px] font-medium uppercase tracking-[0.18em] text-white/25">Open</span>
-                    </Link>
-                  ))}
-                </div>
-              </section>
-            ))
-          )}
+      {/* Header */}
+      <div className="v3-page-header">
+        <div className="v3-page-header-left">
+          <div className="v3-breadcrumb">
+            <Link to="/admin">Home</Link>
+            <span>/</span>
+            <span>Settings</span>
+          </div>
+          <h1 className="v3-h-page">Settings</h1>
+          <p className="v3-h-small mt-1">Configure your store, payments, shipping, and system preferences.</p>
         </div>
+      </div>
 
-        <aside className="space-y-8 lg:sticky lg:top-20 lg:self-start">
-          <section>
-            <p className="adm-index">Signed in</p>
-            <div className="border-y border-[#EAEAEA] py-5">
-              <p className="text-[13px] text-black">{auth?.user?.name || 'Admin'}</p>
-              <p className="mt-1 font-mono text-[12px] text-[#999999]">{auth?.user?.email || '—'}</p>
-              <div className="mt-3">
-                <MonoStatus label={auth?.user?.role ? String(auth.user.role).toUpperCase() : 'ADMIN'} />
+      {/* Search */}
+      <div className="mb-6">
+        <div className="relative max-w-md">
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9CA3AF]" />
+          <input
+            type="text"
+            placeholder="Search settings…"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="v3-input"
+            style={{ paddingLeft: 32 }}
+          />
+        </div>
+      </div>
+
+      {/* Settings Groups */}
+      <div className="space-y-8">
+        {filteredGroups.map(group => (
+          <div key={group.section}>
+            <div className="v3-h-label mb-3">{group.section}</div>
+            <div className="v3-card">
+              <div className="divide-y divide-[#F0F1F3]">
+                {group.items.map(item => (
+                  <Link
+                    key={item.to}
+                    to={item.to}
+                    className="flex items-center gap-4 px-5 py-4 hover:bg-[#F5F6F8] transition-colors"
+                    style={{ textDecoration: 'none' }}
+                  >
+                    <div className="w-9 h-9 rounded-[5px] bg-[#F5F6F8] flex items-center justify-center flex-shrink-0">
+                      <item.icon size={16} className="text-[#6B7280]" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-[13px] font-medium text-[#111]">{item.label}</div>
+                      <div className="text-[12px] text-[#9CA3AF] mt-0.5">{item.desc}</div>
+                    </div>
+                    <ChevronRight size={14} className="text-[#C4C7CC] flex-shrink-0" />
+                  </Link>
+                ))}
               </div>
             </div>
-          </section>
-
-          <section>
-            <p className="adm-index">Popular</p>
-            <div className="border-y border-[#EAEAEA]">
-              {[
-                { to: '/admin/settings/security', label: 'Change admin password' },
-                { to: '/admin/settings/payments', label: 'Add JazzCash number' },
-                { to: '/admin/apps', label: 'Connect Google Analytics' },
-                { to: '/admin/settings/shipping', label: 'Update shipping rates' },
-              ].map((t) => (
-                <Link key={t.to} to={t.to} className="adm-row-hover flex items-center justify-between border-b border-[#F0F0F0] px-1 py-3 text-[12px] text-[#555555] last:border-0 hover:text-black">
-                  {t.label}
-                  <span className="text-white/25">→</span>
-                </Link>
-              ))}
-            </div>
-          </section>
-
-          <p className="text-[11px] leading-relaxed text-white/25">
-            {total} destinations. Every page keeps the same save behaviour — only the presentation has changed.
-          </p>
-        </aside>
+          </div>
+        ))}
       </div>
+
+      {filteredGroups.length === 0 && (
+        <div className="v3-empty">
+          <Search size={24} className="v3-empty-icon" />
+          <p className="v3-empty-title">No settings found</p>
+          <p className="v3-empty-desc">Try a different search term.</p>
+        </div>
+      )}
     </AdminLayout>
   );
 }
