@@ -132,13 +132,13 @@ router.get('/admin', protect, adminOnly, asyncHandler(async (req, res) => {
   const filter = {};
   if (slot) filter.slot = slot;
   if (status) filter.status = status;
-  const banners = await Banner.find(filter).sort({ createdAt: -1 }).lean();
+  const banners = await Banner.find(filter).sort({ createdAt: -1 });
   const slotIds = [...new Set(banners.map((b) => String(b.slot)))];
   const slots = await BannerSlot.find({ _id: { $in: slotIds } }).lean();
   const slotMap = Object.fromEntries(slots.map((s) => [String(s._id), s]));
   const now = new Date();
   res.json({
-    banners: banners.map((b) => ({ ...b, slotName: slotMap[String(b.slot)]?.name || '—', slotKey: slotMap[String(b.slot)]?.key || '', scheduleState: b.scheduleState(now) })),
+    banners: banners.map((b) => ({ ...b.toObject(), slotName: slotMap[String(b.slot)]?.name || '—', slotKey: slotMap[String(b.slot)]?.key || '', scheduleState: b.scheduleState(now) })),
   });
 }));
 
