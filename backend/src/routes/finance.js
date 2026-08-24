@@ -264,4 +264,352 @@ router.get('/break-even', asyncHandler(async (req, res) => {
   });
 }));
 
+/* ============================================================================
+ * Phase 7: FINANCE DASHBOARD — comprehensive P&L
+ * Every metric backed by shared orderEconomics calculations.
+ * ========================================================================== */
+router.get('/dashboard', asyncHandler(async (req, res) => {
+  const { match, from, to } = window_(req.query);
+  const cfg = await loadCfg();
+
+  const orders = await Order.find({ ...match, status: LIVE })
+    .select('items total subtotal discount tax shippingCharge status stage stageTimestamps paymentMethod paymentStatus courierCost packagingCost paymentGatewayFee costPrice createdAt')
+    .lean();
+
+  const cancelledOrders = await Order.find({ ...match, status: { $in: ['Cancelled', 'Refunded'] } })
+    .select('total discount shippingCharge status createdAt').lean();
+
+  const s = summarise(orders, cfg);
+
+  // Refunds
+  const RefundLedger = require('../models/RefundLedger');
+  const refundAgg = await RefundLedger.aggregate([
+    { $match: { createdAt: { $gte: from, $lte: to } } },
+    { $group: { _id: null, total: { $sum: '$amount' }, count: { $sum: 1 } } },
+  ]);
+  const totalRefunded = refundAgg[0]?.total || 0;
+  const refundCount = refundAgg[0]?.count || 0;
+
+  // Expenses
+  let totalExpenses = 0;
+  let expenseBreakdown = {};
+  try {
+    const Expense = require('../models/Expense');
+    const expenses = await Expense.aggregate([
+      { $match: { date: { $gte: from, $lte: to } } },
+      { $group: { _id: '$category', total: { $sum: '$amount' } } },
+    ]);
+    expenseBreakdown = Object.fromEntries(expenses.map(e => [e._id, e.total]));
+    totalExpenses = expenses.reduce((sum, e) => sum + e.total, 0);
+  } catch { /* Expense model may not exist yet */ }
+
+  // Tax collected
+  const taxCollected = orders.reduce((sum, o) => sum + (o.tax || 0), 0);
+
+  // Shipping collected vs cost
+  const shippingCollected = orders.reduce((sum, o) => sum + (o.shippingCharge || 0), 0);
+  const shippingCost = s.courier || 0;
+
+  // Payment breakdown
+  const paymentBreakdown = {};
+  for (const o of orders) {
+    const m = o.paymentMethod || 'Unknown';
+    if (!paymentBreakdown[m]) paymentBreakdown[m] = { count: 0, total: 0 };
+    paymentBreakdown[m].count++;
+    paymentBreakdown[m].total += o.total || 0;
+  }
+
+  // Estimated profit
+  const estimatedProfit = s.revenue - s.cogs - s.packaging - s.courier - s.paymentFee - totalRefunded - totalExpenses;
+
+  res.json({
+    range: { from, to },
+    sales: {
+      grossRevenue: s.revenue + (cancelledOrders.reduce((sum, o) => sum + (o.total || 0), 0)),
+      discounts: orders.reduce((sum, o) => sum + (o.discount || 0), 0),
+      netRevenue: s.revenue,
+      orders: s.orders,
+      cancelledOrders: cancelledOrders.length,
+      aov: s.orders ? Math.round(s.revenue / s.orders) : 0,
+    },
+    payments: {
+      breakdown: paymentBreakdown,
+      pending: orders.filter(o => o.paymentStatus === 'Pending').length,
+      paid: orders.filter(o => o.paymentStatus === 'Paid').length,
+    },
+    refunds: { total: totalRefunded, count: refundCount },
+    shipping: { collected: shippingCollected, cost: shippingCost, margin: shippingCollected - shippingCost },
+    tax: { collected: taxCollected },
+    costs: {
+      cogs: s.cogs,
+      packaging: s.packaging,
+      courier: s.courier,
+      paymentFees: s.paymentFee,
+      expenses: totalExpenses,
+      expenseBreakdown,
+    },
+    profit: {
+      estimated: estimatedProfit,
+      margin: s.revenue > 0 ? Math.round((estimatedProfit / s.revenue) * 100) : 0,
+      label: 'Estimated Profit',
+    },
+    cashFlow: {
+      inflows: s.revenue,
+      outflows: totalRefunded + totalExpenses + s.courier + s.packaging,
+      net: s.revenue - totalRefunded - totalExpenses - s.courier - s.packaging,
+    },
+  });
+}));
+
+/* ============================================================================
+ * Phase 7: PAYMENT RECONCILIATION
+ * ========================================================================== */
+router.get('/reconciliation', asyncHandler(async (req, res) => {
+  const { match } = window_(req.query);
+  const OrderPayment = require('../models/OrderPayment');
+
+  const orders = await Order.find({ ...match, status: LIVE })
+    .select('orderNumber total paymentMethod paymentStatus paymentState createdAt')
+    .lean();
+
+  const payments = await OrderPayment.find({ createdAt: match.createdAt })
+    .select('orderNumber method amount state transactionId reference createdAt')
+    .lean();
+
+  const rows = orders.map(o => {
+    const pay = payments.find(p => p.orderNumber === o.orderNumber);
+    const expected = o.total;
+    const received = pay ? pay.amount : 0;
+    const mismatch = expected !== received;
+    return {
+      orderNumber: o.orderNumber,
+      paymentMethod: o.paymentMethod,
+      paymentStatus: o.paymentStatus,
+      expected,
+      received,
+      mismatch,
+      mismatchReason: !pay ? 'missing_payment' : mismatch ? 'amount_mismatch' : null,
+      transactionId: pay?.transactionId || '',
+      reference: pay?.reference || '',
+      gatewayState: pay?.state || 'none',
+      date: o.createdAt,
+    };
+  });
+
+  const issues = rows.filter(r => r.mismatch || !r.transactionId);
+  res.json({
+    total: rows.length,
+    reconciled: rows.length - issues.length,
+    issues: issues.length,
+    rows: rows.slice(0, 200),
+    summary: {
+      missing: rows.filter(r => r.mismatchReason === 'missing_payment').length,
+      amountMismatch: rows.filter(r => r.mismatchReason === 'amount_mismatch').length,
+    },
+  });
+}));
+
+/* ============================================================================
+ * Phase 7: SHIPPING REPORT
+ * ========================================================================== */
+router.get('/shipping-report', asyncHandler(async (req, res) => {
+  const { match } = window_(req.query);
+  const cfg = await loadCfg();
+
+  const orders = await Order.find({ ...match, status: LIVE })
+    .select('orderNumber shippingCharge courierCost shippingMethod status stage stageTimestamps createdAt')
+    .lean();
+
+  const shipped = orders.filter(o => {
+    const stage = o.stage || o.status;
+    return ['Shipped', 'In Transit', 'Out for Delivery', 'Delivered'].includes(stage);
+  });
+
+  const totalCharged = orders.reduce((s, o) => s + (o.shippingCharge || 0), 0);
+  const totalCost = shipped.reduce((s, o) => s + (o.courierCost || cfg.courierDefault || 0), 0);
+  const failed = orders.filter(o => o.stage === 'Failed Delivery' || o.status === 'Failed Delivery').length;
+
+  // Average delivery time (for delivered orders with timestamps)
+  const delivered = orders.filter(o => o.stage === 'Delivered' && o.stageTimestamps?.Shipped && o.stageTimestamps?.Delivered);
+  const avgDeliveryDays = delivered.length > 0
+    ? delivered.reduce((s, o) => s + (new Date(o.stageTimestamps.Delivered) - new Date(o.stageTimestamps.Shipped)) / 86400000, 0) / delivered.length
+    : null;
+
+  res.json({
+    totalOrders: orders.length,
+    shipped: shipped.length,
+    delivered: delivered.length,
+    failed,
+    shippingCharged: totalCharged,
+    courierCost: totalCost,
+    shippingMargin: totalCharged - totalCost,
+    avgDeliveryDays: avgDeliveryDays ? Math.round(avgDeliveryDays * 10) / 10 : null,
+  });
+}));
+
+/* ============================================================================
+ * Phase 7: TAX REPORT
+ * ========================================================================== */
+router.get('/tax-report', asyncHandler(async (req, res) => {
+  const { match, from, to } = window_(req.query);
+  const TaxZone = require('../models/TaxZone');
+
+  const orders = await Order.find({ ...match, status: LIVE })
+    .select('total subtotal discount tax taxPercent customerInfo.province customerInfo.country createdAt')
+    .lean();
+
+  const totalTax = orders.reduce((s, o) => s + (o.tax || 0), 0);
+  const taxableSales = orders.reduce((s, o) => s + Math.max(0, (o.subtotal || 0) - (o.discount || 0)), 0);
+
+  // Tax by region
+  const byRegion = {};
+  for (const o of orders) {
+    const region = o.customerInfo?.province || o.customerInfo?.country || 'Unknown';
+    if (!byRegion[region]) byRegion[region] = { count: 0, tax: 0, taxableSales: 0 };
+    byRegion[region].count++;
+    byRegion[region].tax += o.tax || 0;
+    byRegion[region].taxableSales += Math.max(0, (o.subtotal || 0) - (o.discount || 0));
+  }
+
+  const zones = await TaxZone.find({ isActive: true }).lean().catch(() => []);
+
+  res.json({
+    range: { from, to },
+    totalTax,
+    taxableSales,
+    effectiveRate: taxableSales > 0 ? Math.round((totalTax / taxableSales) * 1000) / 10 : 0,
+    byRegion,
+    activeZones: zones.map(z => ({ name: z.name, country: z.country, rate: z.rate, inclusive: z.inclusive })),
+    disclaimer: 'This is commerce tax reporting, not government filing data.',
+  });
+}));
+
+/* ============================================================================
+ * Phase 7: EXPENSES CRUD
+ * ========================================================================== */
+router.get('/expenses', asyncHandler(async (req, res) => {
+  const Expense = require('../models/Expense');
+  const { match } = window_(req.query);
+  const expenses = await Expense.find({ date: match.createdAt })
+    .sort({ date: -1 }).limit(200).lean();
+  res.json({ expenses });
+}));
+
+router.post('/expenses', asyncHandler(async (req, res) => {
+  const Expense = require('../models/Expense');
+  const b = req.body || {};
+  if (!b.category || !Expense.CATEGORIES.includes(b.category)) return res.status(400).json({ message: 'Invalid category' });
+  const amount = Number(b.amount);
+  if (!(amount > 0)) return res.status(400).json({ message: 'Amount must be positive' });
+  const expense = await Expense.create({
+    category: b.category, amount, date: b.date || new Date(),
+    note: b.note || '', recurring: !!b.recurring, reference: b.reference || '',
+    createdBy: req.user?._id || null, createdByName: req.user?.name || '',
+  });
+  res.status(201).json({ expense });
+}));
+
+router.put('/expenses/:id', asyncHandler(async (req, res) => {
+  const Expense = require('../models/Expense');
+  const e = await Expense.findById(req.params.id);
+  if (!e) return res.status(404).json({ message: 'Not found' });
+  const b = req.body || {};
+  if (b.category) e.category = b.category;
+  if (b.amount !== undefined) e.amount = Math.max(0, Number(b.amount));
+  if (b.date) e.date = new Date(b.date);
+  if (b.note !== undefined) e.note = b.note;
+  if (b.recurring !== undefined) e.recurring = !!b.recurring;
+  if (b.reference !== undefined) e.reference = b.reference;
+  await e.save();
+  res.json({ expense: e });
+}));
+
+router.delete('/expenses/:id', asyncHandler(async (req, res) => {
+  const Expense = require('../models/Expense');
+  await Expense.findByIdAndDelete(req.params.id);
+  res.json({ ok: true });
+}));
+
+/* ============================================================================
+ * Phase 7: CASH FLOW
+ * ========================================================================== */
+router.get('/cashflow', asyncHandler(async (req, res) => {
+  const { match, from, to } = window_(req.query);
+  const cfg = await loadCfg();
+
+  const orders = await Order.find({ ...match, status: LIVE, paymentStatus: 'Paid' })
+    .select('total paymentMethod createdAt').lean();
+
+  const RefundLedger = require('../models/RefundLedger');
+  const refunds = await RefundLedger.aggregate([
+    { $match: { createdAt: { $gte: from, $lte: to } } },
+    { $group: { _id: null, total: { $sum: '$amount' } } },
+  ]);
+
+  let expenses = 0;
+  try {
+    const Expense = require('../models/Expense');
+    const expAgg = await Expense.aggregate([
+      { $match: { date: { $gte: from, $lte: to } } },
+      { $group: { _id: null, total: { $sum: '$amount' } } },
+    ]);
+    expenses = expAgg[0]?.total || 0;
+  } catch {}
+
+  const inflows = orders.reduce((s, o) => s + (o.total || 0), 0);
+  const outflows = (refunds[0]?.total || 0) + expenses;
+
+  // By payment method
+  const byMethod = {};
+  for (const o of orders) {
+    const m = o.paymentMethod || 'Unknown';
+    byMethod[m] = (byMethod[m] || 0) + (o.total || 0);
+  }
+
+  res.json({
+    range: { from, to },
+    inflows,
+    outflows,
+    net: inflows - outflows,
+    byMethod,
+    refunds: refunds[0]?.total || 0,
+    expenses,
+    disclaimer: 'Commerce cash-flow reporting. Not bank reconciliation.',
+  });
+}));
+
+/* ============================================================================
+ * Phase 7: FINANCIAL EXPORT (CSV)
+ * ========================================================================== */
+router.get('/export/:type', asyncHandler(async (req, res) => {
+  const type = req.params.type;
+  const { match, from, to } = window_(req.query);
+  const cfg = await loadCfg();
+  let csv = '';
+  let filename = '';
+
+  if (type === 'sales') {
+    const orders = await Order.find({ ...match, status: LIVE }).select('orderNumber customerInfo.name total discount tax shippingCharge status paymentMethod createdAt').lean();
+    csv = 'Order,Customer,Total,Discount,Tax,Shipping,Status,Payment Method,Date\n';
+    for (const o of orders) {
+      csv += `"${o.orderNumber}","${(o.customerInfo?.name || '').replace(/"/g, '""')}",${o.total},${o.discount},${o.tax},${o.shippingCharge},${o.status},${o.paymentMethod},${new Date(o.createdAt).toISOString().slice(0,10)}\n`;
+    }
+    filename = 'hushae-sales.csv';
+  } else if (type === 'expenses') {
+    const Expense = require('../models/Expense');
+    const expenses = await Expense.find({ date: match.createdAt }).sort({ date: -1 }).lean();
+    csv = 'Category,Amount,Date,Note,Reference\n';
+    for (const e of expenses) {
+      csv += `"${e.category}",${e.amount},${new Date(e.date).toISOString().slice(0,10)},"${(e.note || '').replace(/"/g, '""')}","${e.reference}"\n`;
+    }
+    filename = 'hushae-expenses.csv';
+  } else {
+    return res.status(400).json({ message: 'Unknown export type. Use: sales, expenses' });
+  }
+
+  res.setHeader('Content-Type', 'text/csv');
+  res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+  res.send(csv);
+}));
+
 module.exports = router;
