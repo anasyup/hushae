@@ -8,6 +8,10 @@ import {
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 
+/* ============================================================================
+ * COMMAND PALETTE — Phase 5 Premium Rebuild
+ * ========================================================================== */
+
 const ITEMS = [
   { id: 'dashboard', label: 'Dashboard', category: 'Go to', icon: BarChart3, to: '/admin', keywords: ['home', 'overview'] },
   { id: 'orders', label: 'All orders', category: 'Go to', icon: ShoppingBag, to: '/admin/orders', keywords: ['sales'] },
@@ -98,27 +102,37 @@ export default function CommandPalette({ onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-start justify-center bg-black/30 pt-[15vh]" onClick={onClose}>
-      <div className="w-full max-w-xl border border-[#EAEAEA] bg-white" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center gap-3 border-b border-[#EAEAEA] px-4 py-3">
-          <Search size={15} className="shrink-0 text-[#777777]" />
+    <div className="fixed inset-0 z-[100] flex items-start justify-center bg-black/20 backdrop-blur-sm pt-[15vh]" onClick={onClose}>
+      <div
+        className="w-full max-w-xl overflow-hidden rounded-lg border border-[#EAEAEA] bg-white"
+        style={{ boxShadow: '0 8px 32px rgba(0,0,0,0.12)' }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Search input */}
+        <div className="flex items-center gap-3 border-b border-[#EAEAEA] px-5 py-4">
+          <Search size={18} className="shrink-0 text-[#AAAAAA]" />
           <input
             ref={inputRef}
             value={q}
             onChange={(e) => setQ(e.target.value)}
             onKeyDown={onKey}
-            placeholder="Search admin"
-            className="w-full bg-transparent text-[13px] text-black outline-none placeholder:text-[#777777]"
+            placeholder="Search anything…"
+            className="w-full bg-transparent text-[15px] text-black outline-none placeholder:text-[#AAAAAA]"
           />
-          <kbd className="hidden text-[10px] uppercase tracking-[0.16em] text-[#999999] sm:inline">Esc</kbd>
+          <kbd className="hidden rounded border border-[#E0E0E0] bg-[#FAFAFA] px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-[#999999] sm:inline">Esc</kbd>
         </div>
-        <div className="max-h-[360px] overflow-y-auto">
+
+        {/* Results */}
+        <div className="max-h-[380px] overflow-y-auto">
           {results.length === 0 ? (
-            <p className="p-10 text-center text-[12px] text-[#777777]">No results for “{q}”</p>
+            <div className="py-16 text-center">
+              <Search size={24} className="mx-auto mb-3 text-[#DCDCDC]" />
+              <p className="text-[13px] text-[#999999]">No results for "{q}"</p>
+            </div>
           ) : (
             [...grouped.entries()].map(([cat, items]) => (
               <div key={cat}>
-                <p className="adm-label px-4 pt-4">{cat}</p>
+                <p className="px-5 pt-4 pb-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-[#AAAAAA]">{cat}</p>
                 {items.map((item) => {
                   const active = flatItems.indexOf(item) === idx;
                   const Icon = item.icon;
@@ -128,11 +142,11 @@ export default function CommandPalette({ onClose }) {
                       type="button"
                       onClick={() => run(item)}
                       onMouseEnter={() => setIdx(flatItems.indexOf(item))}
-                      className={`flex w-full items-center gap-3 px-4 py-2.5 text-left ${active ? 'bg-[#F5F5F5]' : 'hover:bg-[#F7F7F7]'}`}
+                      className={`flex w-full items-center gap-3.5 px-5 py-3 text-left transition-colors duration-100 ${active ? 'bg-[#F5F5F5]' : 'hover:bg-[#FAFAFA]'}`}
                     >
-                      <Icon size={14} strokeWidth={1.6} className={active ? 'text-black' : 'text-[#777777]'} />
-                      <span className={`flex-1 text-[13px] ${active ? 'text-black' : 'text-[#555555]'}`}>{item.label}</span>
-                      <span className="max-w-[45%] truncate font-mono text-[10px] text-[#999999]">{item.hint || item.to}</span>
+                      <Icon size={16} strokeWidth={1.5} className={active ? 'text-black' : 'text-[#AAAAAA]'} />
+                      <span className={`flex-1 text-[14px] ${active ? 'font-medium text-black' : 'text-[#555555]'}`}>{item.label}</span>
+                      <span className="max-w-[45%] truncate text-[11px] text-[#AAAAAA]">{item.hint || item.to}</span>
                     </button>
                   );
                 })}
@@ -140,10 +154,12 @@ export default function CommandPalette({ onClose }) {
             ))
           )}
         </div>
-        <div className="flex items-center gap-4 border-t border-[#EAEAEA] px-4 py-2.5 text-[10px] uppercase tracking-[0.14em] text-[#999999]">
-          <span>↑↓ navigate</span>
-          <span>↵ open</span>
-          <span>esc close</span>
+
+        {/* Footer */}
+        <div className="flex items-center gap-5 border-t border-[#EAEAEA] px-5 py-3 text-[10px] font-medium uppercase tracking-[0.14em] text-[#AAAAAA]">
+          <span>↑↓ Navigate</span>
+          <span>↵ Open</span>
+          <span>Esc Close</span>
         </div>
       </div>
     </div>

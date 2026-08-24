@@ -13,9 +13,9 @@ import ReliabilityBadge from './ReliabilityBadge';
 import { CANCEL_REASONS } from './orders/orderConstants';
 import { btnGhost, btnIcon, btnSolid, ctl, ctlInline, MonoStatus } from './orders/orderUi';
 
-/* ===========================================================================
- * ORDER DETAIL — Phase 03-R editorial presentation.
- * Functionality unchanged: status, payment, items edit, delete, tracking.
+/* ============================================================================
+ * ORDER DETAIL — Phase 5 Premium Rebuild
+ * Professional order workspace. White + Jet Black.
  * ========================================================================== */
 
 const STATUSES = ['Pending', 'Confirmed', 'Processing', 'Ready to Ship', 'Shipped', 'Out for Delivery', 'Delivered', 'Cancelled', 'Refunded'];
@@ -84,10 +84,10 @@ export default function OrderDetail() {
   if (err) {
     return (
       <AdminLayout title="Order">
-        <div className="border-y border-white/10 py-16 text-center">
-          <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-white/80">Unable to load order</p>
-          <p className="mt-3 text-[13px] text-white/35">{err}</p>
-          <button onClick={() => { setErr(''); load(); }} className={`${btnGhost} mt-6`}>Try again</button>
+        <div className="rounded-md border border-[#EAEAEA] bg-white py-20 text-center">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#999999]">Unable to load order</p>
+          <p className="mt-3 text-[13px] text-[#777777]">{err}</p>
+          <button onClick={() => { setErr(''); load(); }} className="mt-6 rounded-md border border-[#DCDCDC] bg-white px-5 py-2 text-[12px] font-medium text-black transition hover:bg-[#F5F5F5]">Try again</button>
         </div>
       </AdminLayout>
     );
@@ -97,11 +97,11 @@ export default function OrderDetail() {
     return (
       <AdminLayout title="Order">
         <div className="space-y-6" aria-hidden>
-          <div className="h-16 animate-pulse bg-white/5" />
-          <div className="grid grid-cols-2 gap-px border-y border-white/10 lg:grid-cols-4">
-            {[1, 2, 3, 4].map((i) => <div key={i} className="h-24 animate-pulse bg-white/[0.04]" />)}
+          <div className="h-20 v2-skeleton rounded-md" />
+          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+            {[1, 2, 3, 4].map((i) => <div key={i} className="h-28 v2-skeleton rounded-md" />)}
           </div>
-          <div className="h-64 animate-pulse bg-white/[0.04]" />
+          <div className="h-72 v2-skeleton rounded-md" />
         </div>
       </AdminLayout>
     );
@@ -146,10 +146,10 @@ export default function OrderDetail() {
       />
 
       {/* Status / payment controls */}
-      <div className="mb-10 flex flex-wrap items-center gap-3 border-b border-white/10 pb-5">
+      <div className="mb-10 flex flex-wrap items-center gap-3 border-b border-[#EAEAEA] pb-5">
         <MonoStatus label={String(o.status || '').toUpperCase()} />
         <MonoStatus label={payLabel} />
-        {o.discreetPackaging && <span className="text-[9px] font-medium uppercase tracking-[0.16em] text-white/40">Discreet pack</span>}
+        {o.discreetPackaging && <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#AAAAAA]">Discreet pack</span>}
 
         <select
           value={o.status}
@@ -175,73 +175,56 @@ export default function OrderDetail() {
       </div>
 
       {cancelOpen && (
-        <div className="mb-8 flex flex-wrap items-center gap-2 border-y border-white/10 py-3">
-          <span className="adm-label">Cancel reason</span>
+        <div className="mb-8 flex flex-wrap items-center gap-2 rounded-md border border-[#EAEAEA] bg-[#FAFAFA] p-4">
+          <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#999999]">Cancel reason</span>
           <select value={cancelReason} onChange={(e) => setCancelReason(e.target.value)} className={ctlInline}>
             <option value="">Select reason…</option>
             {CANCEL_REASONS.map((r) => <option key={r} value={r}>{r}</option>)}
           </select>
           {cancelReason === 'Other' && (
-            <input value={cancelReason} onChange={(e) => setCancelReason(e.target.value)} placeholder="Describe…" className={ctlInline} />
+            <input value={cancelReason} onChange={(e) => setCancelReason(e.target.value)} placeholder="Specify…" className={ctl} style={{ maxWidth: 200 }} />
           )}
-          <button
-            disabled={!cancelReason || busy}
-            onClick={() => { patch('/status', { status: 'Cancelled', cancelReason }, 'Order cancelled'); setCancelOpen(false); }}
-            className={btnSolid}
-          >
-            Confirm
-          </button>
-          <button onClick={() => setCancelOpen(false)} className={btnGhost}>Dismiss</button>
+          <button onClick={() => patch('/status', { status: 'Cancelled', note: cancelReason || 'Cancelled by admin' }, 'Order cancelled')} disabled={!cancelReason || busy} className={btnSolid}>Confirm cancel</button>
+          <button onClick={() => setCancelOpen(false)} className={btnGhost}>Keep order</button>
         </div>
       )}
 
-      {/* Order information */}
-      <section className="mb-10">
-        <p className="adm-index">Order information</p>
-        <div className="grid gap-8 border-y border-white/10 py-6 md:grid-cols-2">
-          <div>
-            <p className="adm-label mb-3">Customer</p>
-            <div className="flex items-start gap-3">
-              <span className="grid h-8 w-8 shrink-0 place-items-center bg-white text-[11px] font-medium text-black">
-                {(c.name || '?').slice(0, 1).toUpperCase()}
-              </span>
-              <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-2">
-                  <p className="text-[14px] font-medium text-white">{c.name}</p>
-                  <ReliabilityBadge reliability={reliability} />
-                </div>
-                <p className="mt-0.5 text-[12px] text-white/40">{c.city}{c.province ? `, ${c.province}` : ''}</p>
-                <div className="mt-3 flex flex-wrap gap-3">
-                  {c.phone && <a href={`tel:${c.phone}`} className="text-[11px] uppercase tracking-[0.12em] text-white/50 hover:text-white">Call</a>}
-                  {c.phone && <a href={whatsappLink} target="_blank" rel="noreferrer" className="text-[11px] uppercase tracking-[0.12em] text-white/50 hover:text-white">WhatsApp</a>}
-                  {c.email && <a href={`mailto:${c.email}`} className="text-[11px] uppercase tracking-[0.12em] text-white/50 hover:text-white">Email</a>}
-                  {o.customer && <Link to={`/admin/customers/${o.customer?._id || o.customer}`} className="text-[11px] uppercase tracking-[0.12em] text-white/50 hover:text-white">Customer 360</Link>}
-                </div>
-              </div>
-            </div>
-          </div>
-          <div>
-            <p className="adm-label mb-3">Payment</p>
-            <dl className="space-y-2 text-[13px]">
-              <div className="flex justify-between gap-4"><dt className="text-white/35">Method</dt><dd className="text-white">{o.paymentMethod}</dd></div>
-              <div className="flex justify-between gap-4"><dt className="text-white/35">Status</dt><dd className="text-white">{o.paymentStatus}</dd></div>
-              {o.transactionId && <div className="flex justify-between gap-4"><dt className="text-white/35">Txn ID</dt><dd className="font-mono text-[12px] text-white/70">{o.transactionId}</dd></div>}
-              <div className="flex justify-between gap-4"><dt className="text-white/35">Packaging</dt><dd className="text-white">{o.discreetPackaging ? 'Discreet' : 'Standard'}</dd></div>
-            </dl>
-          </div>
+      {/* Customer + Money tiles */}
+      <div className="mb-10 grid gap-4 lg:grid-cols-4">
+        <div className="rounded-md border border-[#EAEAEA] bg-white p-5">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#999999]">Customer</p>
+          <p className="mt-3 text-[15px] font-semibold text-black">{c.name}</p>
+          <p className="mt-1 text-[13px] text-[#777777]">{c.email || '—'}</p>
+          <p className="mt-0.5 text-[13px] text-[#777777]">{c.phone}</p>
+          {reliability && <div className="mt-2"><ReliabilityBadge reliability={reliability} /></div>}
         </div>
-      </section>
+        <div className="rounded-md border border-[#EAEAEA] bg-white p-5">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#999999]">Total</p>
+          <p className="mt-3 text-[24px] font-semibold tracking-tight text-black" style={{ fontVariantNumeric: 'tabular-nums' }}>{pkr(o.total)}</p>
+          <p className="mt-1 text-[12px] text-[#999999]">{pcs} piece{pcs === 1 ? '' : 's'} · {o.items.length} product{o.items.length === 1 ? '' : 's'}</p>
+        </div>
+        <div className="rounded-md border border-[#EAEAEA] bg-white p-5">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#999999]">Payment</p>
+          <p className="mt-3 text-[15px] font-semibold text-black">{o.paymentMethod}</p>
+          <p className="mt-1 text-[13px] text-[#777777]">{payLabel}</p>
+        </div>
+        <div className="rounded-md border border-[#EAEAEA] bg-white p-5">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#999999]">Created</p>
+          <p className="mt-3 text-[15px] font-semibold text-black">{fmtDateTime(o.createdAt)}</p>
+          <p className="mt-1 text-[13px] text-[#777777]">{o.paymentMethod === 'COD' ? 'Cash on delivery' : 'Online payment'}</p>
+        </div>
+      </div>
 
       {/* Shipping */}
       <section className="mb-10">
-        <p className="adm-index">Shipping</p>
-        <div className="border-y border-white/10 py-6">
-          <p className="text-[13px] leading-relaxed text-white/85">{c.address}</p>
-          <p className="mt-1 text-[12px] text-white/40">{c.city}, {c.province}{c.postalCode ? ` — ${c.postalCode}` : ''}</p>
+        <p className="mb-4 text-[10px] font-semibold uppercase tracking-[0.16em] text-[#AAAAAA]">Shipping Address</p>
+        <div className="rounded-md border border-[#EAEAEA] bg-white p-5">
+          <p className="text-[14px] leading-relaxed text-black">{c.address}</p>
+          <p className="mt-1.5 text-[13px] text-[#999999]">{c.city}, {c.province}{c.postalCode ? ` — ${c.postalCode}` : ''}</p>
           {c.location?.lat != null && (
             <a href={c.location.mapsLink || `https://www.google.com/maps?q=${c.location.lat},${c.location.lng}`} target="_blank" rel="noreferrer"
-              className="mt-3 inline-flex items-center gap-1.5 text-[11px] uppercase tracking-[0.14em] text-white/50 hover:text-white">
-              Open in Maps <ExternalLink size={10} />
+              className="mt-3 inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#777777] transition-colors hover:text-black">
+              Open in Maps <ExternalLink size={11} />
             </a>
           )}
         </div>
@@ -250,165 +233,170 @@ export default function OrderDetail() {
       {/* Items / timeline / tracking */}
       <section className="mb-10">
         <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
-          <p className="adm-index mb-0 flex-1">Items</p>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#AAAAAA]">Items & Details</p>
           {editable && !editing && (
-            <button onClick={startEdit} className={btnGhost}>Edit</button>
+            <button onClick={startEdit} className={btnGhost}>Edit Items</button>
           )}
         </div>
 
-        <div className="flex gap-5 border-b border-white/10">
-          {[
-            { k: 'items', l: 'Items' },
-            { k: 'timeline', l: 'Timeline' },
-            { k: 'tracking', l: 'Tracking' },
-          ].map((t) => (
-            <button key={t.k} onClick={() => setTab(t.k)}
-              className={`pb-2.5 text-[10px] font-medium uppercase tracking-[0.16em] transition-colors ${
-                tab === t.k ? 'border-b border-white text-white' : 'border-b border-transparent text-white/35 hover:text-white/70'
-              }`}>
-              {t.l}
-            </button>
-          ))}
-        </div>
-
-        {tab === 'items' && (
-          <div>
-            {!editing && o.items.map((it, i) => (
-              <div key={i} className="flex items-center gap-3 border-b border-white/5 py-3.5">
-                {it.slug
-                  ? <Link to={`/product/${it.slug}`} target="_blank"><Img src={it.image} alt="" className="h-14 w-10 object-cover" /></Link>
-                  : <Img src={it.image} alt="" className="h-14 w-10 object-cover" />}
-                <div className="min-w-0 flex-1">
-                  <p className="text-[13px] font-medium leading-snug text-white">{it.name}</p>
-                  <p className="mt-0.5 text-[11px] text-white/35">
-                    {[it.size, it.color].filter(Boolean).join(' · ')}
-                    {(it.size || it.color) ? ' · ' : ''}
-                    {pkr(it.price)} × {it.quantity}
-                  </p>
-                </div>
-                <p className="adm-metric text-[13px] text-white">{pkr(it.lineTotal)}</p>
-              </div>
+        <div className="rounded-md border border-[#EAEAEA] bg-white">
+          {/* Tabs */}
+          <div className="flex gap-1 border-b border-[#EAEAEA] px-5">
+            {[
+              { k: 'items', l: 'Items' },
+              { k: 'timeline', l: 'Timeline' },
+              { k: 'tracking', l: 'Tracking' },
+            ].map((t) => (
+              <button key={t.k} onClick={() => setTab(t.k)}
+                className={`border-b-2 pb-3 pt-4 text-[11px] font-semibold uppercase tracking-[0.14em] transition-colors ${
+                  tab === t.k ? 'border-black text-black' : 'border-transparent text-[#AAAAAA] hover:text-[#777777]'
+                }`}>
+                {t.l}
+              </button>
             ))}
+          </div>
 
-            {editing && editItems.map((it, i) => (
-              <div key={i} className="flex items-center gap-3 border-b border-white/5 py-3.5">
-                <Img src={it.image} alt="" className="h-14 w-10 shrink-0 object-cover" />
-                <div className="min-w-0 flex-1">
-                  <p className="text-[12px] font-medium leading-snug text-white">{it.name}</p>
-                  <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-                    {it.sizes.length > 0 && (
-                      <select value={it.size} onChange={(e) => updLine(i, 'size', e.target.value)} className={ctlInline}>
-                        {it.sizes.map((s) => <option key={s} value={s}>{s}</option>)}
-                      </select>
-                    )}
-                    {it.colors.length > 0 && (
-                      <select value={it.color} onChange={(e) => updLine(i, 'color', e.target.value)} className={ctlInline}>
-                        {it.colors.map((col) => <option key={col.name} value={col.name}>{col.name}</option>)}
-                      </select>
-                    )}
-                    <div className="ml-1 flex items-center gap-1">
-                      <button type="button" onClick={() => stepQty(i, -1)} className="grid h-6 w-6 place-items-center border border-white/20 text-white/60 hover:text-white"><Minus size={10} /></button>
-                      <span className="w-5 text-center text-[12px] tabular-nums text-white">{it.quantity}</span>
-                      <button type="button" onClick={() => stepQty(i, 1)} className="grid h-6 w-6 place-items-center border border-white/20 text-white/60 hover:text-white"><Plus size={10} /></button>
+          <div className="p-5">
+            {tab === 'items' && (
+              <div>
+                {!editing && o.items.map((it, i) => (
+                  <div key={i} className="flex items-center gap-4 border-b border-[#F0F0F0] py-4 last:border-b-0">
+                    {it.slug
+                      ? <Link to={`/product/${it.slug}`} target="_blank"><Img src={it.image} alt="" className="h-14 w-11 rounded-md border border-[#EAEAEA] object-cover" /></Link>
+                      : <Img src={it.image} alt="" className="h-14 w-11 rounded-md border border-[#EAEAEA] object-cover" />}
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[14px] font-medium leading-snug text-black">{it.name}</p>
+                      <p className="mt-1 text-[12px] text-[#999999]">
+                        {[it.size, it.color].filter(Boolean).join(' · ')}
+                        {(it.size || it.color) ? ' · ' : ''}
+                        {pkr(it.price)} × {it.quantity}
+                      </p>
+                    </div>
+                    <p className="text-[14px] font-semibold text-black" style={{ fontVariantNumeric: 'tabular-nums' }}>{pkr(it.lineTotal)}</p>
+                  </div>
+                ))}
+
+                {editing && editItems.map((it, i) => (
+                  <div key={i} className="flex items-center gap-4 border-b border-[#F0F0F0] py-4 last:border-b-0">
+                    <Img src={it.image} alt="" className="h-14 w-11 shrink-0 rounded-md border border-[#EAEAEA] object-cover" />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[13px] font-medium leading-snug text-black">{it.name}</p>
+                      <div className="mt-2 flex flex-wrap items-center gap-2">
+                        {it.sizes.length > 0 && (
+                          <select value={it.size} onChange={(e) => updLine(i, 'size', e.target.value)} className={ctlInline}>
+                            {it.sizes.map((s) => <option key={s} value={s}>{s}</option>)}
+                          </select>
+                        )}
+                        {it.colors.length > 0 && (
+                          <select value={it.color} onChange={(e) => updLine(i, 'color', e.target.value)} className={ctlInline}>
+                            {it.colors.map((col) => <option key={col.name} value={col.name}>{col.name}</option>)}
+                          </select>
+                        )}
+                        <div className="ml-1 flex items-center gap-1">
+                          <button type="button" onClick={() => stepQty(i, -1)} className="grid h-7 w-7 place-items-center rounded-md border border-[#DCDCDC] text-[#777777] transition hover:border-black hover:text-black"><Minus size={11} /></button>
+                          <span className="w-6 text-center text-[13px] font-medium text-black" style={{ fontVariantNumeric: 'tabular-nums' }}>{it.quantity}</span>
+                          <button type="button" onClick={() => stepQty(i, 1)} className="grid h-7 w-7 place-items-center rounded-md border border-[#DCDCDC] text-[#777777] transition hover:border-black hover:text-black"><Plus size={11} /></button>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex flex-col items-end gap-2">
+                      <p className="text-[14px] font-semibold text-black" style={{ fontVariantNumeric: 'tabular-nums' }}>{pkr(it.price * it.quantity)}</p>
+                      <button type="button" onClick={() => delLine(i)} className="text-[#AAAAAA] transition hover:text-black"><X size={13} /></button>
                     </div>
                   </div>
-                </div>
-                <div className="flex flex-col items-end gap-1.5">
-                  <p className="adm-metric text-[13px] text-white">{pkr(it.price * it.quantity)}</p>
-                  <button type="button" onClick={() => delLine(i)} className="text-white/30 hover:text-white"><X size={12} /></button>
+                ))}
+
+                {editing && (
+                  <div className="relative py-4">
+                    <input value={pq} onChange={(e) => searchPicker(e.target.value)} placeholder="Add product — search by name or SKU…" className={ctl} />
+                    {pRes.length > 0 && (
+                      <div className="absolute inset-x-0 top-14 z-20 overflow-hidden rounded-md border border-[#EAEAEA] bg-white" style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
+                        {pRes.map((p) => (
+                          <button type="button" key={p._id} onClick={() => addPicked(p)} className="flex w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-[#FAFAFA]">
+                            <Img src={p.images?.[0]?.url} alt="" className="h-9 w-7 rounded-md border border-[#EAEAEA] object-cover" />
+                            <span className="flex-1 truncate text-[13px] text-black">{p.name}</span>
+                            <span className="text-[11px] text-[#AAAAAA]">{p.sku}</span>
+                            <span className="text-[13px] font-medium text-black">{pkr(p.price)}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                <div className="mt-4 space-y-2.5 border-t border-[#EAEAEA] pt-5 text-[13px]">
+                  <div className="flex justify-between"><span className="text-[#999999]">Subtotal</span><span className="font-medium text-black">{pkr(editing ? editSub : o.subtotal)}</span></div>
+                  {!!o.discount && <div className="flex justify-between text-[#555555]"><span>Discount {o.couponCode && `(${o.couponCode})`}</span><span>− {pkr(o.discount)}</span></div>}
+                  <div className="flex justify-between"><span className="text-[#999999]">Shipping</span><span className="font-medium text-black">{o.shippingCharge === 0 ? 'Free' : pkr(o.shippingCharge)}</span></div>
+                  <div className="flex justify-between border-t border-[#EAEAEA] pt-4">
+                    <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#999999]">Grand Total</span>
+                    <span className="text-[20px] font-semibold text-black" style={{ fontVariantNumeric: 'tabular-nums' }}>{pkr(editing ? editTotal : o.total)}</span>
+                  </div>
+                  <p className="text-[11px] text-[#AAAAAA]">{o.items.length} products · {pcs} pieces · {fmtDateTime(o.createdAt)}</p>
+                  {editing && (
+                    <div className="flex items-center gap-2 pt-4">
+                      <button onClick={saveItems} disabled={busy} className={btnSolid}><Save size={11} /> {busy ? 'Saving…' : 'Update order'}</button>
+                      <button onClick={() => setEditing(false)} className={btnGhost}>Cancel</button>
+                    </div>
+                  )}
                 </div>
               </div>
-            ))}
+            )}
 
-            {editing && (
-              <div className="relative py-3">
-                <input value={pq} onChange={(e) => searchPicker(e.target.value)} placeholder="Add product — search by name or SKU…" className={ctl} />
-                {pRes.length > 0 && (
-                  <div className="absolute inset-x-0 top-12 z-20 overflow-hidden border border-white/15 bg-[#0D0D0D]">
-                    {pRes.map((p) => (
-                      <button type="button" key={p._id} onClick={() => addPicked(p)} className="flex w-full items-center gap-2.5 px-3 py-2 text-left hover:bg-white/5">
-                        <Img src={p.images?.[0]?.url} alt="" className="h-8 w-6 object-cover" />
-                        <span className="flex-1 truncate text-[12px] text-white">{p.name}</span>
-                        <span className="text-[11px] text-white/30">{p.sku}</span>
-                        <span className="text-[12px] text-white">{pkr(p.price)}</span>
-                      </button>
+            {tab === 'timeline' && (
+              <div>
+                {(o.statusHistory || []).length === 0 ? (
+                  <p className="py-12 text-center text-[13px] text-[#AAAAAA]">No status history recorded.</p>
+                ) : (
+                  <div className="space-y-5">
+                    {(o.statusHistory || []).slice().reverse().map((h, i) => (
+                      <div key={i} className="flex items-start gap-4">
+                        <span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${i === 0 ? 'bg-black' : 'bg-[#DCDCDC]'}`} />
+                        <div>
+                          <p className="text-[14px] font-medium text-black">{h.status}</p>
+                          <p className="mt-0.5 text-[12px] text-[#999999]">{fmtDateTime(h.at)}</p>
+                          {h.note && <p className="mt-1 text-[13px] italic text-[#777777]">"{h.note}"</p>}
+                        </div>
+                      </div>
                     ))}
                   </div>
                 )}
               </div>
             )}
 
-            <div className="space-y-2 border-t border-white/10 py-5 text-[13px]">
-              <div className="flex justify-between"><span className="text-white/35">Subtotal</span><span className="text-white">{pkr(editing ? editSub : o.subtotal)}</span></div>
-              {!!o.discount && <div className="flex justify-between text-white/80"><span>Discount {o.couponCode && `(${o.couponCode})`}</span><span>− {pkr(o.discount)}</span></div>}
-              <div className="flex justify-between"><span className="text-white/35">Shipping</span><span className="text-white">{o.shippingCharge === 0 ? 'Free' : pkr(o.shippingCharge)}</span></div>
-              <div className="flex justify-between border-t border-white/10 pt-3">
-                <span className="adm-label">Grand total</span>
-                <span className="adm-metric text-[18px] text-white">{pkr(editing ? editTotal : o.total)}</span>
-              </div>
-              <p className="text-[11px] text-white/30">{o.items.length} products · {pcs} pieces · {fmtDateTime(o.createdAt)}</p>
-              {editing && (
-                <div className="flex items-center gap-2 pt-3">
-                  <button onClick={saveItems} disabled={busy} className={btnSolid}><Save size={11} /> {busy ? 'Saving…' : 'Update order'}</button>
-                  <button onClick={() => setEditing(false)} className={btnGhost}>Cancel</button>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {tab === 'timeline' && (
-          <div className="py-6">
-            {(o.statusHistory || []).length === 0 ? (
-              <p className="py-10 text-center text-[12px] text-white/35">No status history recorded.</p>
-            ) : (
-              <div className="space-y-4">
-                {(o.statusHistory || []).slice().reverse().map((h, i) => (
-                  <div key={i} className="flex items-start gap-3">
-                    <span className={`mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full ${i === 0 ? 'bg-white' : 'bg-white/25'}`} />
-                    <div>
-                      <p className="text-[13px] text-white">{h.status}</p>
-                      <p className="text-[11px] text-white/35">{fmtDateTime(h.at)}</p>
-                      {h.note && <p className="mt-0.5 text-[12px] italic text-white/50">“{h.note}”</p>}
+            {tab === 'tracking' && (
+              <div>
+                {o.trackingNumber ? (
+                  <div className="space-y-5">
+                    <div className="flex items-center justify-between border-b border-[#EAEAEA] pb-4">
+                      <div>
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#999999]">Tracking Number</p>
+                        <p className="mt-2 text-[15px] font-medium text-black" style={{ fontVariantNumeric: 'tabular-nums' }}>{o.trackingNumber}</p>
+                      </div>
+                      <button onClick={() => navigator.clipboard?.writeText(o.trackingNumber)} className={btnIcon} aria-label="Copy tracking"><Copy size={13} /></button>
                     </div>
+                    {o.courierName && (
+                      <div>
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#999999]">Courier</p>
+                        <p className="mt-2 text-[14px] text-black">{o.courierName}</p>
+                      </div>
+                    )}
+                    {o.trackingUrl && (
+                      <a href={o.trackingUrl} target="_blank" rel="noreferrer" className={btnSolid}>
+                        Track online <ExternalLink size={11} />
+                      </a>
+                    )}
                   </div>
-                ))}
+                ) : (
+                  <div className="py-12 text-center">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#999999]">No tracking info yet</p>
+                    <p className="mt-2 text-[13px] text-[#AAAAAA]">Add a tracking number when the order ships.</p>
+                  </div>
+                )}
               </div>
             )}
           </div>
-        )}
-
-        {tab === 'tracking' && (
-          <div className="py-6">
-            {o.trackingNumber ? (
-              <div className="space-y-5">
-                <div className="flex items-center justify-between border-b border-white/10 pb-4">
-                  <div>
-                    <p className="adm-label">Tracking number</p>
-                    <p className="mt-1 font-mono text-[14px] text-white">{o.trackingNumber}</p>
-                  </div>
-                  <button onClick={() => navigator.clipboard?.writeText(o.trackingNumber)} className={btnIcon} aria-label="Copy tracking"><Copy size={13} /></button>
-                </div>
-                {o.courierName && (
-                  <div>
-                    <p className="adm-label">Courier</p>
-                    <p className="mt-1 text-[13px] text-white">{o.courierName}</p>
-                  </div>
-                )}
-                {o.trackingUrl && (
-                  <a href={o.trackingUrl} target="_blank" rel="noreferrer" className={btnSolid}>
-                    Track online <ExternalLink size={10} />
-                  </a>
-                )}
-              </div>
-            ) : (
-              <div className="py-10 text-center">
-                <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-white/70">No tracking info yet</p>
-                <p className="mt-2 text-[12px] text-white/35">Add a tracking number when the order ships.</p>
-              </div>
-            )}
-          </div>
-        )}
+        </div>
       </section>
     </AdminLayout>
   );

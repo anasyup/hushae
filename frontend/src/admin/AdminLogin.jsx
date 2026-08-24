@@ -4,12 +4,12 @@ import { useApp } from '../store/AppContext';
 import { applyAdminTheme, clearAdminTheme } from '../lib/adminTheme';
 import { api } from '../api/client';
 
-const STAFF_ROLES = ['admin', 'Owner', 'Manager', 'Staff', 'Warehouse', 'Support'];
+/* ============================================================================
+ * ADMIN LOGIN — Phase 5 Premium Rebuild
+ * Clean, editorial, luxury sign-in experience.
+ * ========================================================================== */
 
-const field =
-  'h-10 w-full border border-[#DCDCDC] bg-white px-3 text-[13px] text-black outline-none placeholder:text-[#777777] hover:border-[#999999] focus:border-black';
-const solid =
-  'inline-flex h-10 w-full items-center justify-center bg-black text-[10px] font-medium uppercase tracking-[0.18em] text-[#FFFFFF] transition hover:bg-black/80 disabled:opacity-35';
+const STAFF_ROLES = ['admin', 'Owner', 'Manager', 'Staff', 'Warehouse', 'Support'];
 
 export default function AdminLogin() {
   const { auth, setAuth } = useApp();
@@ -55,44 +55,90 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="grid min-h-screen place-items-center bg-white px-4 text-black">
+    <div className="grid min-h-screen place-items-center bg-white px-4">
       <div className="w-full max-w-sm">
-        <p className="text-center text-[11px] font-medium uppercase tracking-[0.42em] text-black">HUSHAE</p>
-        <p className="mt-3 text-center text-[10px] font-medium uppercase tracking-[0.22em] text-[#777777]">
-          {step2 ? 'Two-factor verification' : 'Private access'}
-        </p>
+        {/* Brand */}
+        <div className="text-center">
+          <p className="text-[18px] font-semibold tracking-[0.4em] text-black">HUSHAE</p>
+          <p className="mt-3 text-[11px] font-medium uppercase tracking-[0.22em] text-[#AAAAAA]">
+            {step2 ? 'Two-Factor Verification' : 'Admin Console'}
+          </p>
+        </div>
 
         {!step2 ? (
-          <form onSubmit={submit} className="mt-10 space-y-5 border-y border-[#EAEAEA] py-8" autoComplete="off">
+          <form onSubmit={submit} className="mt-12 space-y-6" autoComplete="off">
             <div>
-              <label htmlFor="admin-email" className="mb-1.5 block text-[9px] font-medium uppercase tracking-[0.18em] text-[#777777]">Email</label>
-              <input id="admin-email" className={field} type="email" required autoComplete="username" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} />
+              <label htmlFor="admin-email" className="mb-2 block text-[10px] font-semibold uppercase tracking-[0.16em] text-[#999999]">Email</label>
+              <input
+                id="admin-email"
+                className="h-11 w-full rounded-md border border-[#EAEAEA] bg-white px-4 text-[14px] text-black outline-none transition-all duration-150 placeholder:text-[#AAAAAA] hover:border-[#DCDCDC] focus:border-black"
+                type="email"
+                required
+                autoComplete="username"
+                value={f.email}
+                onChange={(e) => setF({ ...f, email: e.target.value })}
+              />
             </div>
             <div>
-              <label htmlFor="admin-password" className="mb-1.5 block text-[9px] font-medium uppercase tracking-[0.18em] text-[#777777]">Password</label>
-              <input id="admin-password" className={field} type="password" required autoComplete="current-password" value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} />
+              <label htmlFor="admin-password" className="mb-2 block text-[10px] font-semibold uppercase tracking-[0.16em] text-[#999999]">Password</label>
+              <input
+                id="admin-password"
+                className="h-11 w-full rounded-md border border-[#EAEAEA] bg-white px-4 text-[14px] text-black outline-none transition-all duration-150 placeholder:text-[#AAAAAA] hover:border-[#DCDCDC] focus:border-black"
+                type="password"
+                required
+                autoComplete="current-password"
+                value={f.password}
+                onChange={(e) => setF({ ...f, password: e.target.value })}
+              />
             </div>
-            {err && <p role="alert" className="border border-[#EAEAEA] px-3 py-2 text-[12px] leading-relaxed text-[#555555]">{err}</p>}
-            <button disabled={busy} className={solid}>{busy ? 'Verifying…' : 'Sign in'}</button>
+            {err && (
+              <p role="alert" className="rounded-md border border-[#EAEAEA] bg-[#FAFAFA] px-4 py-3 text-[13px] leading-relaxed text-[#555555]">{err}</p>
+            )}
+            <button
+              disabled={busy}
+              className="h-11 w-full rounded-md bg-black text-[11px] font-semibold uppercase tracking-[0.2em] text-white transition-all duration-150 hover:bg-[#1a1a1a] disabled:opacity-40"
+            >
+              {busy ? 'Verifying…' : 'Sign In'}
+            </button>
           </form>
         ) : (
-          <form onSubmit={submitCode} className="mt-10 space-y-5 border-y border-[#EAEAEA] py-8" autoComplete="off">
-            <p className="text-[12px] leading-relaxed text-[#555555]">
-              A 6-digit sign-in code was emailed to <span className="text-black">{pendingEmail}</span>. It expires in 5 minutes.
+          <form onSubmit={submitCode} className="mt-12 space-y-6" autoComplete="off">
+            <p className="text-[13px] leading-relaxed text-[#777777]">
+              A 6-digit sign-in code was emailed to <span className="font-medium text-black">{pendingEmail}</span>. It expires in 5 minutes.
             </p>
             <div>
-              <label className="mb-1.5 block text-[9px] font-medium uppercase tracking-[0.18em] text-[#777777]">6-digit code</label>
-              <input className={`${field} tracking-[0.4em]`} type="text" inputMode="numeric" maxLength={6} required autoComplete="off" value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))} />
+              <label className="mb-2 block text-[10px] font-semibold uppercase tracking-[0.16em] text-[#999999]">6-Digit Code</label>
+              <input
+                className="h-11 w-full rounded-md border border-[#EAEAEA] bg-white px-4 text-[16px] tracking-[0.5em] text-black outline-none transition-all duration-150 focus:border-black"
+                type="text"
+                inputMode="numeric"
+                maxLength={6}
+                required
+                autoComplete="off"
+                value={code}
+                onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
+              />
             </div>
-            {err && <p role="alert" className="border border-[#EAEAEA] px-3 py-2 text-[12px] leading-relaxed text-[#555555]">{err}</p>}
-            <button disabled={codeBusy} className={solid}>{codeBusy ? 'Verifying…' : 'Verify & sign in'}</button>
-            <button type="button" onClick={() => { setStep2(false); setCode(''); setErr(''); }} className="block w-full text-center text-[10px] uppercase tracking-[0.16em] text-[#777777] hover:text-black">
-              Back to sign in
+            {err && (
+              <p role="alert" className="rounded-md border border-[#EAEAEA] bg-[#FAFAFA] px-4 py-3 text-[13px] leading-relaxed text-[#555555]">{err}</p>
+            )}
+            <button
+              disabled={codeBusy}
+              className="h-11 w-full rounded-md bg-black text-[11px] font-semibold uppercase tracking-[0.2em] text-white transition-all duration-150 hover:bg-[#1a1a1a] disabled:opacity-40"
+            >
+              {codeBusy ? 'Verifying…' : 'Verify & Sign In'}
+            </button>
+            <button
+              type="button"
+              onClick={() => { setStep2(false); setCode(''); setErr(''); }}
+              className="block w-full text-center text-[11px] font-medium uppercase tracking-[0.16em] text-[#AAAAAA] transition-colors hover:text-black"
+            >
+              Back to Sign In
             </button>
           </form>
         )}
 
-        <p className="mt-6 text-center text-[10px] uppercase tracking-[0.18em] text-[#999999]">Authorised staff only</p>
+        <p className="mt-10 text-center text-[10px] font-medium uppercase tracking-[0.2em] text-[#DCDCDC]">Authorised Staff Only</p>
       </div>
     </div>
   );

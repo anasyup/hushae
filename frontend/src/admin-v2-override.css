@@ -1,0 +1,372 @@
+/* ============================================================================
+ * HUSHAE ADMIN V2 — GLOBAL LIGHT-FIRST OVERRIDES
+ * Phase 5: Transforms ALL remaining dark-first inline classes to light-first.
+ * 
+ * This CSS catches every dark-mode utility that appears in admin screens
+ * NOT yet individually rebuilt. Scoped to .admin-shell so storefront
+ * is never affected.
+ * 
+ * Priority: These overrides work WITH the admin-light.css and provide
+ * a more comprehensive, Phase 5 premium visual system.
+ * ========================================================================== */
+
+/* ── GLOBAL BACKGROUND & TEXT ────────────────────────────────────────────── */
+.admin-shell {
+  background: #FFFFFF !important;
+  color: #000000 !important;
+}
+
+/* ── DARK BACKGROUNDS → WHITE/LIGHT ──────────────────────────────────────── */
+.admin-shell .bg-\[\#0A0A0A\],
+.admin-shell .bg-\[\#050505\],
+.admin-shell .bg-\[\#09090B\],
+.admin-shell .bg-\[\#0D0D0D\],
+.admin-shell .bg-\[\#0D0D0F\],
+.admin-shell .bg-\[\#111113\],
+.admin-shell .bg-\[\#131316\],
+.admin-shell .bg-\[\#17171A\],
+.admin-shell .bg-\[\#17171B\],
+.admin-shell .bg-\[\#1A1A1A\],
+.admin-shell .bg-\[\#1A1B1C\] {
+  background-color: #FFFFFF !important;
+}
+
+/* Slightly raised dark surfaces → subtle fills */
+.admin-shell .bg-\[\#1D1D21\],
+.admin-shell .bg-\[\#1E1E22\],
+.admin-shell .bg-\[\#222226\],
+.admin-shell .bg-\[\#27272C\] {
+  background-color: #FAFAFA !important;
+}
+
+/* ── WHITE OPACITY BACKGROUNDS → GRAYSCALE FILLS ─────────────────────────── */
+.admin-shell .bg-white\/5,
+.admin-shell .bg-white\/\[0\.03\],
+.admin-shell .bg-white\/\[0\.04\],
+.admin-shell .bg-white\/\[0\.05\],
+.admin-shell .bg-white\/\[0\.06\] {
+  background-color: #FAFAFA !important;
+}
+
+.admin-shell .bg-white\/8,
+.admin-shell .bg-white\/\[0\.08\],
+.admin-shell .bg-white\/10,
+.admin-shell .bg-white\/\[0\.1\] {
+  background-color: #F5F5F5 !important;
+}
+
+.admin-shell .bg-white\/15,
+.admin-shell .bg-white\/\[0\.15\],
+.admin-shell .bg-white\/20,
+.admin-shell .bg-white\/25 {
+  background-color: #EFEFEF !important;
+}
+
+/* ── HOVER BACKGROUNDS ───────────────────────────────────────────────────── */
+.admin-shell .hover\:bg-white\/5:hover,
+.admin-shell .hover\:bg-white\/\[0\.03\]:hover,
+.admin-shell .hover\:bg-white\/\[0\.06\]:hover {
+  background-color: #F5F5F5 !important;
+}
+
+.admin-shell .hover\:bg-white\/10:hover,
+.admin-shell .hover\:bg-white\/15:hover {
+  background-color: #EFEFEF !important;
+}
+
+/* ── TEXT — WHITE → BLACK ────────────────────────────────────────────────── */
+.admin-shell .text-white {
+  color: #000000 !important;
+}
+
+.admin-shell .text-white\/95,
+.admin-shell .text-white\/90,
+.admin-shell .text-white\/85,
+.admin-shell .text-white\/80 {
+  color: #000000 !important;
+}
+
+.admin-shell .text-white\/70,
+.admin-shell .text-white\/65,
+.admin-shell .text-white\/60 {
+  color: #555555 !important;
+}
+
+.admin-shell .text-white\/55,
+.admin-shell .text-white\/50,
+.admin-shell .text-white\/45,
+.admin-shell .text-white\/40 {
+  color: #777777 !important;
+}
+
+.admin-shell .text-white\/35,
+.admin-shell .text-white\/30,
+.admin-shell .text-white\/25 {
+  color: #AAAAAA !important;
+}
+
+.admin-shell .text-white\/20,
+.admin-shell .text-white\/15,
+.admin-shell .text-white\/10 {
+  color: #DCDCDC !important;
+}
+
+/* ── HOVER TEXT ──────────────────────────────────────────────────────────── */
+.admin-shell .hover\:text-white:hover,
+.admin-shell .hover\:text-white\/90:hover,
+.admin-shell .hover\:text-white\/85:hover {
+  color: #000000 !important;
+}
+
+.admin-shell .hover\:text-white\/70:hover {
+  color: #333333 !important;
+}
+
+/* ── BORDERS ─────────────────────────────────────────────────────────────── */
+.admin-shell .border-white\/5,
+.admin-shell .border-white\/8,
+.admin-shell .border-white\/10,
+.admin-shell .border-white\/15 {
+  border-color: #F0F0F0 !important;
+}
+
+.admin-shell .border-white\/20,
+.admin-shell .border-white\/25,
+.admin-shell .border-white\/30 {
+  border-color: #E5E5E5 !important;
+}
+
+.admin-shell .border-white\/40,
+.admin-shell .border-white\/45,
+.admin-shell .border-white\/50 {
+  border-color: #DCDCDC !important;
+}
+
+.admin-shell .border-white {
+  border-color: #000000 !important;
+}
+
+/* ── HOVER BORDERS ───────────────────────────────────────────────────────── */
+.admin-shell .hover\:border-white\/45:hover,
+.admin-shell .hover\:border-white\/40:hover {
+  border-color: #000000 !important;
+}
+
+/* ── DIVIDE ──────────────────────────────────────────────────────────────── */
+.admin-shell .divide-white\/10 > :not([hidden]) ~ :not([hidden]),
+.admin-shell .divide-white\/5 > :not([hidden]) ~ :not([hidden]) {
+  border-color: #F0F0F0 !important;
+}
+
+/* ── RING ────────────────────────────────────────────────────────────────── */
+.admin-shell .ring-white\/20,
+.admin-shell .ring-white\/25,
+.admin-shell .ring-white\/10 {
+  --tw-ring-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+/* ── PLACEHOLDER ─────────────────────────────────────────────────────────── */
+.admin-shell .placeholder\:text-white\/30::placeholder,
+.admin-shell .placeholder\:text-white\/40::placeholder {
+  color: #AAAAAA !important;
+}
+
+/* ── BLACK BACKGROUNDS THAT ARE SURFACES (not buttons) ────────────────────── */
+/* NOTE: Keep bg-black and bg-neutral-900 as-is for actual buttons/controls */
+
+/* ── COLORED BADGES → MONOCHROME ─────────────────────────────────────────── */
+.admin-shell .bg-emerald-50,  .admin-shell .bg-red-50,    .admin-shell .bg-amber-50,
+.admin-shell .bg-sky-50,      .admin-shell .bg-blue-50,   .admin-shell .bg-purple-50,
+.admin-shell .bg-indigo-50,   .admin-shell .bg-cyan-100,  .admin-shell .bg-orange-100,
+.admin-shell .bg-slate-50,    .admin-shell .bg-green-50   { background-color: #F5F5F5 !important; }
+
+.admin-shell .bg-emerald-100, .admin-shell .bg-red-100,   .admin-shell .bg-amber-100,
+.admin-shell .bg-sky-100,     .admin-shell .bg-blue-100,  .admin-shell .bg-purple-100,
+.admin-shell .bg-green-100    { background-color: #EFEFEF !important; }
+
+.admin-shell .text-emerald-700, .admin-shell .text-red-700,   .admin-shell .text-amber-700,
+.admin-shell .text-sky-700,     .admin-shell .text-blue-700,  .admin-shell .text-purple-700,
+.admin-shell .text-green-600,   .admin-shell .text-red-600,   .admin-shell .text-amber-600,
+.admin-shell .text-sky-600,     .admin-shell .text-orange-600,.admin-shell .text-cyan-600,
+.admin-shell .text-emerald-600  { color: #000000 !important; }
+
+.admin-shell .text-emerald-800, .admin-shell .text-red-800,   .admin-shell .text-amber-800,
+.admin-shell .text-sky-800,     .admin-shell .text-blue-800,  .admin-shell .text-purple-800 { color: #555555 !important; }
+
+/* Saturated buttons / fills → monochrome */
+.admin-shell .bg-emerald-500, .admin-shell .bg-emerald-600, .admin-shell .bg-emerald-700,
+.admin-shell .bg-red-500,     .admin-shell .bg-red-600,     .admin-shell .bg-red-700,
+.admin-shell .bg-amber-400,   .admin-shell .bg-amber-500,   .admin-shell .bg-blue-500,
+.admin-shell .bg-blue-600,    .admin-shell .bg-green-300    {
+  background-color: #EFEFEF !important;
+}
+
+.admin-shell .text-emerald-500, .admin-shell .text-amber-500, .admin-shell .text-red-500,
+.admin-shell .text-blue-600,    .admin-shell .text-green-800, .admin-shell .text-orange-800,
+.admin-shell .text-amber-900,   .admin-shell .text-emerald-900,
+.admin-shell .text-blue-800,    .admin-shell .text-blue-900,  .admin-shell .text-red-900 {
+  color: #555555 !important;
+  fill: #555555 !important;
+}
+
+.admin-shell .border-red-200, .admin-shell .border-emerald-200, .admin-shell .border-amber-200,
+.admin-shell .border-blue-200, .admin-shell .border-red-300,
+.admin-shell .ring-green-300, .admin-shell .ring-amber-300, .admin-shell .ring-red-200,
+.admin-shell .ring-emerald-200, .admin-shell .ring-amber-200, .admin-shell .ring-blue-200 {
+  border-color: #E5E5E5 !important;
+  --tw-ring-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+/* ── CHARTS (Recharts SVG) ───────────────────────────────────────────────── */
+.admin-shell .recharts-cartesian-grid line {
+  stroke: #F0F0F0 !important;
+}
+.admin-shell .recharts-cartesian-axis-tick text,
+.admin-shell .recharts-text,
+.admin-shell .recharts-polar-angle-axis-tick text {
+  fill: #AAAAAA !important;
+}
+.admin-shell .recharts-default-tooltip,
+.admin-shell .recharts-tooltip-wrapper {
+  background-color: #FFFFFF !important;
+  border-color: #EAEAEA !important;
+  border-radius: 6px !important;
+}
+.admin-shell .recharts-default-tooltip .recharts-tooltip-label,
+.admin-shell .recharts-default-tooltip .recharts-tooltip-item {
+  color: #000000 !important;
+}
+.admin-shell .recharts-tooltip-cursor {
+  fill: rgba(0, 0, 0, 0.03) !important;
+}
+.admin-shell .recharts-legend-item-text {
+  color: #777777 !important;
+}
+
+/* ── INLINE STYLES (KPI accent text, tinted bubbles) ─────────────────────── */
+.admin-shell [style*="color: #111111"],
+.admin-shell [style*="color: #0D0D0D"],
+.admin-shell [style*="color: #0d0d0d"] {
+  color: #000000 !important;
+}
+
+.admin-shell [style*="color: #F4F4F5"],
+.admin-shell [style*="color: #f4f4f5"] {
+  color: #000000 !important;
+}
+
+.admin-shell [style*="background: #11111114"],
+.admin-shell [style*="background: #0d0d0d14"] {
+  background-color: #F5F5F5 !important;
+}
+
+/* ── SCROLLBARS ──────────────────────────────────────────────────────────── */
+.admin-shell ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.admin-shell ::-webkit-scrollbar-track {
+  background: transparent;
+}
+.admin-shell ::-webkit-scrollbar-thumb {
+  background: #DCDCDC;
+  border-radius: 4px;
+}
+.admin-shell ::-webkit-scrollbar-thumb:hover {
+  background: #BBBBBB;
+}
+
+/* ── ADM UTILITY CLASSES (used across many screens) ──────────────────────── */
+/* These were originally designed for the dark theme */
+.admin-shell .adm-label {
+  font-size: 10px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.16em !important;
+  text-transform: uppercase !important;
+  color: #999999 !important;
+}
+
+.admin-shell .adm-eyebrow {
+  font-size: 10px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.16em !important;
+  text-transform: uppercase !important;
+  color: #AAAAAA !important;
+}
+
+.admin-shell .adm-index {
+  font-size: 10px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.16em !important;
+  text-transform: uppercase !important;
+  color: #AAAAAA !important;
+  margin-bottom: 12px !important;
+}
+
+.admin-shell .adm-metric {
+  color: #000000 !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
+.admin-shell .adm-row-hover:hover {
+  background-color: #FAFAFA !important;
+}
+
+.admin-shell .adm-divide-x > :not([hidden]) ~ :not([hidden]) {
+  border-color: #EAEAEA !important;
+}
+
+.admin-shell .adm-divide-y > :not([hidden]) ~ :not([hidden]) {
+  border-color: #F0F0F0 !important;
+}
+
+/* ── PILL (used in orders and other screens) ─────────────────────────────── */
+.admin-shell .pill {
+  border-radius: 2px !important;
+  padding: 2px 6px !important;
+  font-size: 10px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+}
+
+/* ── ANIMATE PULSE (skeleton loading) ────────────────────────────────────── */
+.admin-shell .animate-pulse {
+  background-color: #F5F5F5 !important;
+}
+
+/* ── THEME EDITOR CHROME ─────────────────────────────────────────────────── */
+.admin-shell .te-shell { background: #FFFFFF !important; color: #000000 !important; }
+.admin-shell .te-selected::after { outline-color: #000000 !important; }
+.admin-shell .te-hovered::after { outline-color: rgba(0, 0, 0, 0.2) !important; }
+.admin-shell .te-drop-line { background: #000000 !important; }
+.admin-shell .te-flash { animation: none !important; }
+
+/* ── BACKDROP ────────────────────────────────────────────────────────────── */
+.admin-shell .bg-black\/40,
+.admin-shell .bg-black\/30 {
+  background-color: rgba(0, 0, 0, 0.15) !important;
+  backdrop-filter: blur(4px) !important;
+}
+
+/* ── FOCUS RING ──────────────────────────────────────────────────────────── */
+.admin-shell :where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: none !important;
+  --tw-ring-color: #000000 !important;
+  --tw-ring-offset-color: #FFFFFF !important;
+}
+
+/* ── SPECIFIC HARD CODED FILLS ───────────────────────────────────────────── */
+.admin-shell .bg-\[\#F4F6F8\] { background-color: #FFFFFF !important; }
+.admin-shell .bg-\[\#f4f6f8\] { background-color: #FFFFFF !important; }
+.admin-shell .bg-\[\#EBEBEB\] { background-color: #FAFAFA !important; }
+.admin-shell .bg-\[\#ebebeb\] { background-color: #FAFAFA !important; }
+.admin-shell .bg-\[\#F1F1F1\] { background-color: #F5F5F5 !important; }
+.admin-shell .bg-\[\#F1EEE8\] { background-color: #F5F5F5 !important; }
+.admin-shell .bg-\[\#ECEBE8\] { background-color: #F5F5F5 !important; }
+.admin-shell .bg-\[\#E5E2DD\] { background-color: #EFEFEF !important; }
+.admin-shell .bg-\[\#E5E7EB\] { background-color: #EFEFEF !important; }
+.admin-shell .bg-\[\#e5e7eb\] { background-color: #EFEFEF !important; }
+.admin-shell .bg-\[\#FAFAFA\] { background-color: #FAFAFA !important; }
+.admin-shell .bg-\[\#fafafa\] { background-color: #FAFAFA !important; }
+.admin-shell .bg-\[\#f6dfc4\] { background-color: #F5F5F5 !important; }
