@@ -150,6 +150,7 @@ app.use('/api/customer-groups', require('./routes/customerGroups'));
 app.use('/api/email-campaigns', require('./routes/emailCampaigns'));
 app.use('/api/banners', require('./routes/banners'));
 app.use('/api/ops', require('./routes/ops'));
+app.use('/api/platform', require('./routes/platform'));
 
 app.use('/api', (req, res) => res.status(404).json({ message: 'Not found' }));
 
