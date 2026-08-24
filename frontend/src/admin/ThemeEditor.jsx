@@ -399,35 +399,35 @@ export default function ThemeEditor() {
   return (
     <div className="admin-shell fixed inset-0 z-40 flex flex-col bg-[#050505] text-white">
       {/* ══ TOP BAR ══ */}
-      <div className="flex h-14 shrink-0 items-center justify-between border-b border-white/10 bg-[#050505] px-3">
+      <div className="flex h-14 shrink-0 items-center justify-between border-b border-[#EAEAEA] bg-[#050505] px-3">
         <div className="flex items-center gap-3">
-          <Link to="/admin/store" className="grid h-9 w-9 place-items-center text-white/45 hover:bg-white/5 hover:text-white">
+          <Link to="/admin/store" className="grid h-9 w-9 place-items-center text-white/45 hover:bg-[#FAFAFA] hover:text-white">
             <ArrowLeft size={18} />
           </Link>
           <div className="hidden items-center gap-2 md:flex">
             <p className="font-sans text-sm font-medium text-white">HUSHAE Theme</p>
-            <span className="rounded-full text-[10px] uppercase tracking-[0.16em] text-white/40">Active</span>
+            <span className="rounded-full text-[10px] uppercase tracking-[0.16em] text-[#999999]">Active</span>
           </div>
         </div>
-        <div className="hidden items-center gap-1 border border-white/10 p-0.5 md:flex">
-          <span className="inline-flex items-center gap-2 border border-white/15 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.12em] text-white">
+        <div className="hidden items-center gap-1 border border-[#EAEAEA] p-0.5 md:flex">
+          <span className="inline-flex items-center gap-2 border border-[#EAEAEA] px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.12em] text-white">
             <Home size={13} /> Home page
           </span>
         </div>
         <div className="flex items-center gap-1">
           <button onClick={() => setDevice('desktop')} aria-label="Desktop preview"
-            className={`grid h-9 w-9 place-items-center ${device === 'desktop' ? 'bg-white text-black' : 'text-white/45 hover:bg-white/5'}`}>
+            className={`grid h-9 w-9 place-items-center ${device === 'desktop' ? 'bg-white text-black' : 'text-white/45 hover:bg-[#FAFAFA]'}`}>
             <Monitor size={16} />
           </button>
           <button onClick={() => setDevice('mobile')} aria-label="Mobile preview"
-            className={`grid h-9 w-9 place-items-center ${device === 'mobile' ? 'bg-white text-black' : 'text-white/45 hover:bg-white/5'}`}>
+            className={`grid h-9 w-9 place-items-center ${device === 'mobile' ? 'bg-white text-black' : 'text-white/45 hover:bg-[#FAFAFA]'}`}>
             <Smartphone size={16} />
           </button>
-          <div className="mx-1 h-6 w-px bg-white/10" />
+          <div className="mx-1 h-6 w-px bg-[#F5F5F5]" />
           <button onClick={undo} disabled={!history.length} aria-label="Undo"
-            className="grid h-9 w-9 place-items-center text-white/45 hover:bg-white/5 disabled:opacity-25"><Undo2 size={16} /></button>
+            className="grid h-9 w-9 place-items-center text-white/45 hover:bg-[#FAFAFA] disabled:opacity-25"><Undo2 size={16} /></button>
           <button onClick={redo} disabled={!future.length} aria-label="Redo"
-            className="grid h-9 w-9 place-items-center text-white/45 hover:bg-white/5 disabled:opacity-25"><Redo2 size={16} /></button>
+            className="grid h-9 w-9 place-items-center text-white/45 hover:bg-[#FAFAFA] disabled:opacity-25"><Redo2 size={16} /></button>
           <button onClick={save} disabled={!dirty || busy}
             className="ml-2 inline-flex items-center gap-1.5 rounded-[4px] bg-white px-4 py-2 text-[10px] font-medium uppercase tracking-[0.08em] text-black disabled:cursor-not-allowed disabled:opacity-35">
             <Save size={14} /> {busy ? 'Saving…' : dirty ? 'Save' : 'Saved'}
@@ -438,17 +438,17 @@ export default function ThemeEditor() {
       {/* ══ BODY ══ */}
       <div className="flex flex-1 overflow-hidden">
         {/* ── LEFT: sections tree ── */}
-        <aside className="w-72 shrink-0 overflow-y-auto border-r border-white/10 bg-[#0A0A0A]">
-          <div className="border-b border-white/10 p-4">
+        <aside className="w-72 shrink-0 overflow-y-auto border-r border-[#EAEAEA] bg-[#0A0A0A]">
+          <div className="border-b border-[#EAEAEA] p-4">
             <p className="adm-label">Home page</p>
           </div>
 
           {Object.entries(SECTION_TREE).map(([group, items]) => (
-            <div key={group} className="border-b border-white/10">
+            <div key={group} className="border-b border-[#EAEAEA]">
               <button onClick={() => setOpenGroups((g) => ({ ...g, [group]: !g[group] }))}
                 className="flex w-full items-center justify-between px-4 py-3 text-left">
-                <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-white/70">{group}</p>
-                {openGroups[group] ? <ChevronDown size={14} className="text-white/40" /> : <ChevronRight size={14} className="text-white/40" />}
+                <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-[#555555]">{group}</p>
+                {openGroups[group] ? <ChevronDown size={14} className="text-[#999999]" /> : <ChevronRight size={14} className="text-[#999999]" />}
               </button>
 
               {openGroups[group] && (
@@ -460,10 +460,10 @@ export default function ThemeEditor() {
                     const active = activeSection?.id === it.id;
                     return (
                       <div key={it.id}>
-                        <div className={`group flex w-full items-center transition ${active ? 'bg-white/[0.06]' : 'hover:bg-white/[0.03]'}`}>
+                        <div className={`group flex w-full items-center transition ${active ? 'bg-[#FAFAFA]' : 'hover:bg-[#FAFAFA]'}`}>
                           {hasBlocks ? (
                             <button onClick={() => setOpenSections((o) => ({ ...o, [it.id]: !expanded }))}
-                              className="grid h-9 w-6 shrink-0 place-items-center text-white/30 hover:text-white" aria-label="Toggle blocks">
+                              className="grid h-9 w-6 shrink-0 place-items-center text-[#AAAAAA] hover:text-white" aria-label="Toggle blocks">
                               {expanded ? <ChevronDown size={13} /> : <ChevronRight size={13} />}
                             </button>
                           ) : <span className="w-6 shrink-0" />}
@@ -479,8 +479,8 @@ export default function ThemeEditor() {
                                 selectAndScroll(it.id);
                               }
                             }}
-                            className={`flex flex-1 items-center gap-2.5 py-2.5 pr-4 text-left ${active ? 'text-white' : 'text-white/60 hover:text-white'}`}>
-                            <Icon size={15} className={active ? 'text-white' : 'text-white/40'} />
+                            className={`flex flex-1 items-center gap-2.5 py-2.5 pr-4 text-left ${active ? 'text-white' : 'text-[#555555] hover:text-white'}`}>
+                            <Icon size={15} className={active ? 'text-white' : 'text-[#999999]'} />
                             <span className="text-sm font-medium">{it.label}</span>
                           </button>
                         </div>
@@ -493,8 +493,8 @@ export default function ThemeEditor() {
                               return (
                                 <button key={b.id}
                                   onClick={() => { setActivePs(null); setActiveSection({ group, ...b, parent: it.label }); selectAndScroll(b.id); }}
-                                  className={`flex w-full items-center gap-2.5 py-2 pl-12 pr-4 text-left transition ${bActive ? 'bg-white/[0.06] text-white' : 'text-white/40 hover:bg-white/[0.03] hover:text-white'}`}>
-                                  <BIcon size={13} className={bActive ? 'text-white' : 'text-white/30'} />
+                                  className={`flex w-full items-center gap-2.5 py-2 pl-12 pr-4 text-left transition ${bActive ? 'bg-[#FAFAFA] text-white' : 'text-[#999999] hover:bg-[#FAFAFA] hover:text-white'}`}>
+                                  <BIcon size={13} className={bActive ? 'text-white' : 'text-[#AAAAAA]'} />
                                   <span className="text-[13px]">{b.label}</span>
                                 </button>
                               );
@@ -530,22 +530,22 @@ export default function ThemeEditor() {
                             className={`group flex items-center gap-1.5 px-2 py-0.5 ${dragId === ps.id ? 'opacity-40' : ''}`}>
                             <GripVertical size={12} className="shrink-0 cursor-grab text-neutral-300 active:cursor-grabbing" />
                             <button onClick={() => { setActiveSection(null); setActivePs(ps.id); }}
-                              className={`flex flex-1 items-center gap-2 truncate rounded-md px-2 py-2 text-left text-sm transition ${active ? 'bg-white/[0.06] text-white' : 'text-white/55 hover:bg-white/[0.03]'}`}>
-                              <ShoppingBag size={14} className={ps.enabled === false ? 'text-neutral-300' : active ? 'text-white' : 'text-white/40'} />
+                              className={`flex flex-1 items-center gap-2 truncate rounded-md px-2 py-2 text-left text-sm transition ${active ? 'bg-[#FAFAFA] text-white' : 'text-white/55 hover:bg-[#FAFAFA]'}`}>
+                              <ShoppingBag size={14} className={ps.enabled === false ? 'text-neutral-300' : active ? 'text-white' : 'text-[#999999]'} />
                               <span className={`truncate ${ps.enabled === false ? 'text-neutral-400 line-through' : ''}`}>
                                 {ps.heading || 'Product section'}
                               </span>
                             </button>
                             <button onClick={() => updatePs(ps.id, 'enabled', ps.enabled === false)}
                               title={ps.enabled === false ? 'Show section' : 'Hide section'}
-                              className="grid h-7 w-7 shrink-0 place-items-center rounded text-neutral-400 opacity-0 hover:bg-white/5 hover:text-white group-hover:opacity-100">
+                              className="grid h-7 w-7 shrink-0 place-items-center rounded text-neutral-400 opacity-0 hover:bg-[#FAFAFA] hover:text-white group-hover:opacity-100">
                               {ps.enabled === false ? <EyeOff size={13} /> : <Eye size={13} />}
                             </button>
                           </div>
                         );
                       })}
                       <button onClick={addPs}
-                        className="mt-1 flex w-full items-center gap-2 px-4 py-2 text-left text-sm font-medium text-white/50 transition hover:bg-white/[0.03] hover:text-white">
+                        className="mt-1 flex w-full items-center gap-2 px-4 py-2 text-left text-sm font-medium text-[#777777] transition hover:bg-[#FAFAFA] hover:text-white">
                         <Plus size={14} /> Add product section
                       </button>
                     </>
@@ -556,7 +556,7 @@ export default function ThemeEditor() {
           ))}
 
           <div className="p-4">
-            <Link to="/admin/store" className="inline-flex items-center gap-1 text-xs font-semibold text-white/40 hover:text-white">
+            <Link to="/admin/store" className="inline-flex items-center gap-1 text-xs font-semibold text-[#999999] hover:text-white">
               <ArrowLeft size={11} /> Back to Online Store
             </Link>
           </div>
@@ -564,7 +564,7 @@ export default function ThemeEditor() {
 
         {/* ── CENTRE: preview ── */}
         <div className="flex flex-1 items-start justify-center overflow-auto p-6">
-          <div className={`overflow-hidden border border-white/10 bg-black transition-all duration-300 ${device === 'mobile' ? 'w-[390px]' : 'w-full max-w-6xl'}`}
+          <div className={`overflow-hidden border border-[#EAEAEA] bg-black transition-all duration-300 ${device === 'mobile' ? 'w-[390px]' : 'w-full max-w-6xl'}`}
             style={{ height: 'calc(100vh - 6.5rem)' }}>
             <iframe ref={iframeRef} src="/?preview=1" title="Storefront preview" className="h-full w-full" />
           </div>
@@ -572,7 +572,7 @@ export default function ThemeEditor() {
 
         {/* ── RIGHT: fixed-section editor ── */}
         {activeSection && activeDef && (
-          <aside className="w-96 shrink-0 overflow-y-auto border-l border-white/10 bg-[#0A0A0A]">
+          <aside className="w-96 shrink-0 overflow-y-auto border-l border-[#EAEAEA] bg-[#0A0A0A]">
             <PanelHeader label={activeSection.label} sub={activeSection.parent} onClose={() => setActiveSection(null)} />
             <div className="space-y-4 p-4">
               {activeDef.filter((f) => !f.showIf || f.showIf(settings)).map((f) => (
@@ -586,24 +586,24 @@ export default function ThemeEditor() {
 
         {/* ── RIGHT: product-section editor ── */}
         {activePsCfg && (
-          <aside className="w-96 shrink-0 overflow-y-auto border-l border-white/10 bg-[#0A0A0A]">
+          <aside className="w-96 shrink-0 overflow-y-auto border-l border-[#EAEAEA] bg-[#0A0A0A]">
             <PanelHeader label={activePsCfg.heading || 'Product section'} onClose={() => setActivePs(null)}
               actions={(
                 <>
                   <button onClick={() => duplicatePs(activePsCfg.id)} title="Duplicate"
-                    className="grid h-8 w-8 place-items-center rounded-lg text-white/40 hover:bg-white/5 hover:text-white"><Copy size={14} /></button>
+                    className="grid h-8 w-8 place-items-center rounded-lg text-[#999999] hover:bg-[#FAFAFA] hover:text-white"><Copy size={14} /></button>
                   <button onClick={() => { if (confirm('Delete this section?')) removePs(activePsCfg.id); }} title="Delete"
-                    className="grid h-8 w-8 place-items-center rounded-lg text-white/40 hover:bg-white/5 hover:text-white"><Trash2 size={14} /></button>
+                    className="grid h-8 w-8 place-items-center rounded-lg text-[#999999] hover:bg-[#FAFAFA] hover:text-white"><Trash2 size={14} /></button>
                 </>
               )} />
             <div className="space-y-4 p-4">
-              <label className="flex items-center justify-between border border-white/10 px-3 py-2.5">
-                <span className="text-sm font-medium text-white/70">Section visible</span>
+              <label className="flex items-center justify-between border border-[#EAEAEA] px-3 py-2.5">
+                <span className="text-sm font-medium text-[#555555]">Section visible</span>
                 <Toggle checked={activePsCfg.enabled !== false} onChange={(v) => updatePs(activePsCfg.id, 'enabled', v)} />
               </label>
               {PRODUCT_SECTION_FIELDS(categories).map((f, i) => {
                 if (f.group) {
-                  return <p key={`g${i}`} className="pt-3 text-[10px] font-medium uppercase tracking-[0.18em] text-white/70">{f.group}</p>;
+                  return <p key={`g${i}`} className="pt-3 text-[10px] font-medium uppercase tracking-[0.18em] text-[#555555]">{f.group}</p>;
                 }
                 if (f.showIf && !f.showIf(activePsCfg)) return null;
                 return (
@@ -623,7 +623,7 @@ export default function ThemeEditor() {
 // ── small pieces ────────────────────────────────────────────────────────────
 function PanelHeader({ label, sub, onClose, actions }) {
   return (
-    <div className="sticky top-0 z-10 flex items-start justify-between gap-2 border-b border-white/10 bg-[#0A0A0A] p-4">
+    <div className="sticky top-0 z-10 flex items-start justify-between gap-2 border-b border-[#EAEAEA] bg-[#0A0A0A] p-4">
       <div className="min-w-0">
         <p className="adm-label">{sub ? `${sub} ›` : 'Editing'}</p>
         <p className="mt-0.5 truncate font-sans text-base font-medium text-white">{label}</p>
@@ -631,7 +631,7 @@ function PanelHeader({ label, sub, onClose, actions }) {
       <div className="flex shrink-0 items-center gap-1">
         {actions}
         <button onClick={onClose} aria-label="Close panel"
-          className="grid h-8 w-8 place-items-center rounded-lg text-white/40 hover:bg-white/5 hover:text-white"><X size={16} /></button>
+          className="grid h-8 w-8 place-items-center rounded-lg text-[#999999] hover:bg-[#FAFAFA] hover:text-white"><X size={16} /></button>
       </div>
     </div>
   );
@@ -662,14 +662,14 @@ function Toggle({ checked, onChange }) {
 
 function FieldControl({ field, value, onChange }) {
   if (field.type === 'note') {
-    return <div className="rounded-lg bg-neutral-50 p-3 text-[12px] leading-relaxed text-white/40">{field.label}</div>;
+    return <div className="rounded-lg bg-neutral-50 p-3 text-[12px] leading-relaxed text-[#999999]">{field.label}</div>;
   }
   const v = value !== undefined && value !== null ? value : field.default;
 
   return (
     <div>
       <div className="mb-1.5 flex items-center justify-between">
-        <label className="text-[12px] font-semibold uppercase tracking-wider text-white/40">{field.label}</label>
+        <label className="text-[12px] font-semibold uppercase tracking-wider text-[#999999]">{field.label}</label>
         {field.type === 'range' && (
           <input type="number" min={field.min} max={field.max} value={v ?? field.default}
             onChange={(e) => onChange(clampNum(e.target.value, field.min, field.max))}
@@ -677,9 +677,9 @@ function FieldControl({ field, value, onChange }) {
         )}
       </div>
 
-      {field.type === 'text' && <input className="w-full rounded-[4px] border border-white/20 bg-[#050505] px-3 py-2 text-[12px] text-white/85 outline-none transition focus:border-white/50" value={v ?? ''} onChange={(e) => onChange(e.target.value)} />}
-      {field.type === 'textarea' && <textarea rows={4} className="w-full rounded-[4px] border border-white/20 bg-[#050505] px-3 py-2 text-[12px] text-white/85 outline-none transition focus:border-white/50" value={v ?? ''} onChange={(e) => onChange(e.target.value)} />}
-      {field.type === 'number' && <input type="number" className="w-full rounded-[4px] border border-white/20 bg-[#050505] px-3 py-2 text-[12px] text-white/85 outline-none transition focus:border-white/50" value={v ?? 0} onChange={(e) => onChange(Number(e.target.value) || 0)} />}
+      {field.type === 'text' && <input className="w-full rounded-[4px] border border-[#DCDCDC] bg-[#050505] px-3 py-2 text-[12px] text-black outline-none transition focus:border-[#F0F0F0]0" value={v ?? ''} onChange={(e) => onChange(e.target.value)} />}
+      {field.type === 'textarea' && <textarea rows={4} className="w-full rounded-[4px] border border-[#DCDCDC] bg-[#050505] px-3 py-2 text-[12px] text-black outline-none transition focus:border-[#F0F0F0]0" value={v ?? ''} onChange={(e) => onChange(e.target.value)} />}
+      {field.type === 'number' && <input type="number" className="w-full rounded-[4px] border border-[#DCDCDC] bg-[#050505] px-3 py-2 text-[12px] text-black outline-none transition focus:border-[#F0F0F0]0" value={v ?? 0} onChange={(e) => onChange(Number(e.target.value) || 0)} />}
 
       {field.type === 'toggle' && (
         <div className="flex items-center gap-2">
@@ -689,16 +689,16 @@ function FieldControl({ field, value, onChange }) {
       )}
 
       {field.type === 'select' && (
-        <select className="w-full rounded-[4px] border border-white/20 bg-[#050505] px-3 py-2 text-[12px] text-white/85 outline-none transition focus:border-white/50" value={v ?? field.default ?? ''} onChange={(e) => onChange(e.target.value)}>
+        <select className="w-full rounded-[4px] border border-[#DCDCDC] bg-[#050505] px-3 py-2 text-[12px] text-black outline-none transition focus:border-[#F0F0F0]0" value={v ?? field.default ?? ''} onChange={(e) => onChange(e.target.value)}>
           {field.options.map(([val, lb]) => <option key={String(val)} value={val}>{lb}</option>)}
         </select>
       )}
 
       {field.type === 'segment' && (
-        <div className="flex border border-white/10 p-0.5">
+        <div className="flex border border-[#EAEAEA] p-0.5">
           {field.options.map(([val, lb]) => (
             <button key={String(val)} type="button" onClick={() => onChange(val)}
-              className={`flex-1 rounded-md px-2 py-1.5 text-xs font-semibold transition ${String(v) === String(val) ? 'bg-white text-black' : 'text-white/40 hover:text-white'}`}>
+              className={`flex-1 rounded-md px-2 py-1.5 text-xs font-semibold transition ${String(v) === String(val) ? 'bg-white text-black' : 'text-[#999999] hover:text-white'}`}>
               {lb}
             </button>
           ))}
@@ -709,11 +709,11 @@ function FieldControl({ field, value, onChange }) {
         <div className="flex items-center gap-2">
           <input type="color" className="h-10 w-14 cursor-pointer rounded-lg border border-neutral-200"
             value={v || '#ffffff'} onChange={(e) => onChange(e.target.value)} />
-          <input className="w-full rounded-[4px] border border-white/20 bg-[#050505] px-3 py-2 text-[12px] text-white/85 outline-none transition focus:border-white/50 font-mono text-xs" placeholder="transparent"
+          <input className="w-full rounded-[4px] border border-[#DCDCDC] bg-[#050505] px-3 py-2 text-[12px] text-black outline-none transition focus:border-[#F0F0F0]0 font-mono text-xs" placeholder="transparent"
             value={v || ''} onChange={(e) => onChange(e.target.value)} />
           {v ? (
             <button type="button" onClick={() => onChange('')} title="Clear"
-              className="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-neutral-400 hover:bg-white/5 hover:text-white"><X size={14} /></button>
+              className="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-neutral-400 hover:bg-[#FAFAFA] hover:text-white"><X size={14} /></button>
           ) : null}
         </div>
       )}
@@ -724,7 +724,7 @@ function FieldControl({ field, value, onChange }) {
       )}
 
       {field.type === 'lines' && (
-        <textarea rows={4} className="w-full rounded-[4px] border border-white/20 bg-[#050505] px-3 py-2 text-[12px] text-white/85 outline-none transition focus:border-white/50 font-mono text-xs"
+        <textarea rows={4} className="w-full rounded-[4px] border border-[#DCDCDC] bg-[#050505] px-3 py-2 text-[12px] text-black outline-none transition focus:border-[#F0F0F0]0 font-mono text-xs"
           value={Array.isArray(v) ? v.join('\n') : ''} onChange={(e) => onChange(e.target.value.split('\n'))} />
       )}
 
@@ -752,25 +752,25 @@ function MenuEditor({ items, onChange }) {
   return (
     <div className="space-y-2">
       {items.map((it, i) => (
-        <div key={i} className="border border-white/10 p-2.5">
+        <div key={i} className="border border-[#EAEAEA] p-2.5">
           <div className="flex items-center gap-1.5">
-            <input className="w-full rounded-[4px] border border-white/20 bg-[#050505] px-3 py-2 text-[12px] text-white/85 outline-none transition focus:border-white/50 !py-1.5 flex-1 text-sm" placeholder="Label"
+            <input className="w-full rounded-[4px] border border-[#DCDCDC] bg-[#050505] px-3 py-2 text-[12px] text-black outline-none transition focus:border-[#F0F0F0]0 !py-1.5 flex-1 text-sm" placeholder="Label"
               value={it.label || ''} onChange={(e) => set(i, 'label', e.target.value)} />
             <button onClick={() => move(i, -1)} disabled={i === 0} title="Move up"
-              className="grid h-7 w-7 shrink-0 place-items-center rounded text-neutral-400 hover:bg-white/5 hover:text-white disabled:opacity-25"><ArrowUp size={12} /></button>
+              className="grid h-7 w-7 shrink-0 place-items-center rounded text-neutral-400 hover:bg-[#FAFAFA] hover:text-white disabled:opacity-25"><ArrowUp size={12} /></button>
             <button onClick={() => move(i, 1)} disabled={i === items.length - 1} title="Move down"
-              className="grid h-7 w-7 shrink-0 place-items-center rounded text-neutral-400 hover:bg-white/5 hover:text-white disabled:opacity-25"><ArrowDown size={12} /></button>
+              className="grid h-7 w-7 shrink-0 place-items-center rounded text-neutral-400 hover:bg-[#FAFAFA] hover:text-white disabled:opacity-25"><ArrowDown size={12} /></button>
             <button onClick={() => onChange(items.filter((_, j) => j !== i))} title="Remove"
-              className="grid h-7 w-7 shrink-0 place-items-center rounded text-neutral-400 hover:bg-white/5 hover:text-white"><Trash2 size={12} /></button>
+              className="grid h-7 w-7 shrink-0 place-items-center rounded text-neutral-400 hover:bg-[#FAFAFA] hover:text-white"><Trash2 size={12} /></button>
           </div>
           <div className="mt-1.5 flex items-center gap-1.5">
             <Link2 size={12} className="shrink-0 text-neutral-400" />
-            <input className="w-full rounded-[4px] border border-white/20 bg-[#050505] px-3 py-2 text-[12px] text-white/85 outline-none transition focus:border-white/50 !py-1.5 flex-1 font-mono text-xs" placeholder="/link"
+            <input className="w-full rounded-[4px] border border-[#DCDCDC] bg-[#050505] px-3 py-2 text-[12px] text-black outline-none transition focus:border-[#F0F0F0]0 !py-1.5 flex-1 font-mono text-xs" placeholder="/link"
               value={it.href || ''} onChange={(e) => set(i, 'href', e.target.value)} />
           </div>
           {'dropdown' in it || it.dropdown !== undefined ? (
             <div className="mt-1.5 flex items-center gap-2">
-              <select className="w-full rounded-[4px] border border-white/20 bg-[#050505] px-3 py-2 text-[12px] text-white/85 outline-none transition focus:border-white/50 !py-1.5 flex-1 text-xs" value={it.dropdown || ''}
+              <select className="w-full rounded-[4px] border border-[#DCDCDC] bg-[#050505] px-3 py-2 text-[12px] text-black outline-none transition focus:border-[#F0F0F0]0 !py-1.5 flex-1 text-xs" value={it.dropdown || ''}
                 onChange={(e) => set(i, 'dropdown', e.target.value)}>
                 <option value="">No dropdown</option>
                 <option value="women">Women categories</option>
@@ -785,7 +785,7 @@ function MenuEditor({ items, onChange }) {
         </div>
       ))}
       <button onClick={() => onChange([...items, { label: 'New link', href: '/', dropdown: '', highlight: false }])}
-        className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-white/20 py-2 text-xs font-semibold text-neutral-600 hover:border-neutral-400 hover:text-white">
+        className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-[#DCDCDC] py-2 text-xs font-semibold text-neutral-600 hover:border-neutral-400 hover:text-white">
         <Plus size={13} /> Add link
       </button>
     </div>
@@ -805,37 +805,37 @@ function ColumnsEditor({ cols, onChange }) {
   return (
     <div className="space-y-3">
       {cols.map((col, i) => (
-        <div key={i} className="border border-white/10 p-3">
+        <div key={i} className="border border-[#EAEAEA] p-3">
           <div className="flex items-center gap-1.5">
-            <input className="w-full rounded-[4px] border border-white/20 bg-[#050505] px-3 py-2 text-[12px] text-white/85 outline-none transition focus:border-white/50 !py-1.5 flex-1 text-sm font-semibold" placeholder="Column title"
+            <input className="w-full rounded-[4px] border border-[#DCDCDC] bg-[#050505] px-3 py-2 text-[12px] text-black outline-none transition focus:border-[#F0F0F0]0 !py-1.5 flex-1 text-sm font-semibold" placeholder="Column title"
               value={col.title || ''} onChange={(e) => setCol(i, { title: e.target.value })} />
             <button onClick={() => moveCol(i, -1)} disabled={i === 0} title="Move left"
               className="grid h-7 w-7 shrink-0 place-items-center rounded text-neutral-400 hover:bg-neutral-100 disabled:opacity-25"><ArrowUp size={12} /></button>
             <button onClick={() => moveCol(i, 1)} disabled={i === cols.length - 1} title="Move right"
               className="grid h-7 w-7 shrink-0 place-items-center rounded text-neutral-400 hover:bg-neutral-100 disabled:opacity-25"><ArrowDown size={12} /></button>
             <button onClick={() => onChange(cols.filter((_, j) => j !== i))} title="Remove column"
-              className="grid h-7 w-7 shrink-0 place-items-center rounded text-neutral-400 hover:bg-white/5 hover:text-white"><Trash2 size={12} /></button>
+              className="grid h-7 w-7 shrink-0 place-items-center rounded text-neutral-400 hover:bg-[#FAFAFA] hover:text-white"><Trash2 size={12} /></button>
           </div>
-          <div className="mt-2 space-y-1.5 border-l border-white/10 pl-2.5">
+          <div className="mt-2 space-y-1.5 border-l border-[#EAEAEA] pl-2.5">
             {(col.links || []).map((l, j) => (
               <div key={j} className="flex items-center gap-1.5">
-                <input className="w-full rounded-[4px] border border-white/20 bg-[#050505] px-3 py-2 text-[12px] text-white/85 outline-none transition focus:border-white/50 !py-1 flex-1 text-xs" placeholder="Label" value={l.label || ''}
+                <input className="w-full rounded-[4px] border border-[#DCDCDC] bg-[#050505] px-3 py-2 text-[12px] text-black outline-none transition focus:border-[#F0F0F0]0 !py-1 flex-1 text-xs" placeholder="Label" value={l.label || ''}
                   onChange={(e) => setCol(i, { links: col.links.map((x, k) => (k === j ? { ...x, label: e.target.value } : x)) })} />
-                <input className="w-full rounded-[4px] border border-white/20 bg-[#050505] px-3 py-2 text-[12px] text-white/85 outline-none transition focus:border-white/50 !py-1 flex-1 font-mono text-[12px]" placeholder="/link" value={l.href || ''}
+                <input className="w-full rounded-[4px] border border-[#DCDCDC] bg-[#050505] px-3 py-2 text-[12px] text-black outline-none transition focus:border-[#F0F0F0]0 !py-1 flex-1 font-mono text-[12px]" placeholder="/link" value={l.href || ''}
                   onChange={(e) => setCol(i, { links: col.links.map((x, k) => (k === j ? { ...x, href: e.target.value } : x)) })} />
                 <button onClick={() => setCol(i, { links: col.links.filter((_, k) => k !== j) })}
-                  className="grid h-6 w-6 shrink-0 place-items-center rounded text-neutral-400 hover:bg-white/5 hover:text-white"><X size={11} /></button>
+                  className="grid h-6 w-6 shrink-0 place-items-center rounded text-neutral-400 hover:bg-[#FAFAFA] hover:text-white"><X size={11} /></button>
               </div>
             ))}
             <button onClick={() => setCol(i, { links: [...(col.links || []), { label: 'New link', href: '/' }] })}
-              className="flex items-center gap-1 text-[12px] font-semibold text-white/40 hover:text-white">
+              className="flex items-center gap-1 text-[12px] font-semibold text-[#999999] hover:text-white">
               <Plus size={11} /> Add link
             </button>
           </div>
         </div>
       ))}
       <button onClick={() => onChange([...cols, { title: 'New column', links: [] }])}
-        className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-white/20 py-2 text-xs font-semibold text-neutral-600 hover:border-neutral-400 hover:text-white">
+        className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-[#DCDCDC] py-2 text-xs font-semibold text-neutral-600 hover:border-neutral-400 hover:text-white">
         <Plus size={13} /> Add column
       </button>
     </div>

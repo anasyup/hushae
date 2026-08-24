@@ -18,7 +18,7 @@ function StateLine({ state, hasDraft }) {
   return (
     <span className="inline-flex flex-wrap items-center gap-2">
       <MonoStatus label={STATE_LABEL[r] || r} dim={r !== 'live'} />
-      {hasDraft && <span className="text-[10px] uppercase tracking-[0.14em] text-white/30">Unpublished edits</span>}
+      {hasDraft && <span className="text-[10px] uppercase tracking-[0.14em] text-[#AAAAAA]">Unpublished edits</span>}
     </span>
   );
 }
@@ -105,7 +105,7 @@ export default function Cms() {
 
       <section className="mb-10">
         <p className="adm-index">01 — Overview</p>
-        <div className="adm-divide-x grid grid-cols-2 border-y border-white/10 md:grid-cols-4">
+        <div className="adm-divide-x grid grid-cols-2 border-y border-[#EAEAEA] md:grid-cols-4">
           {[
             { label: 'Live', value: counts.live },
             { label: 'Draft', value: counts.draft },
@@ -151,7 +151,7 @@ export default function Cms() {
                 aria-pressed={status === id}
                 className={status === id ? btnSolid : btnGhost}
               >
-                {label} <span className="text-white/30">{n}</span>
+                {label} <span className="text-[#AAAAAA]">{n}</span>
               </button>
           ))}
         </div>
@@ -170,14 +170,14 @@ export default function Cms() {
           />
         ) : (
           <>
-            <div className="mb-3 flex flex-wrap items-center gap-2 border-y border-white/10 py-3">
-              <label className="flex min-h-[36px] cursor-pointer items-center gap-2 text-[12px] text-white/70">
+            <div className="mb-3 flex flex-wrap items-center gap-2 border-y border-[#EAEAEA] py-3">
+              <label className="flex min-h-[36px] cursor-pointer items-center gap-2 text-[12px] text-[#555555]">
                 <input type="checkbox" checked={allChecked} onChange={toggleAll} className="h-4 w-4 accent-white" />
                 Select all ({rows.length})
               </label>
               {selected.length > 0 && (
                 <>
-                  <span className="text-[12px] text-white/40">{selected.length} selected</span>
+                  <span className="text-[12px] text-[#999999]">{selected.length} selected</span>
                   <div className="ml-auto flex flex-wrap gap-2">
                     <button type="button" disabled={busy} onClick={() => bulk('publish')} className={btnGhost}>Publish</button>
                     <button type="button" disabled={busy} onClick={() => bulk('unpublish')} className={btnGhost}>Hide</button>
@@ -190,7 +190,7 @@ export default function Cms() {
 
             <ul className="space-y-0 md:hidden">
               {rows.map((p) => (
-                <li key={p._id} className="border-b border-white/10 py-4">
+                <li key={p._id} className="border-b border-[#EAEAEA] py-4">
                   <div className="flex items-start gap-3">
                     <input
                       type="checkbox" checked={selected.includes(p._id)} onChange={() => toggleOne(p._id)}
@@ -198,11 +198,11 @@ export default function Cms() {
                     />
                     <Link to={`/admin/cms/${p._id}`} className="min-w-0 flex-1">
                       <p className="truncate text-[13px] text-white">{p.title}</p>
-                      <p className="mt-0.5 truncate text-[12px] text-white/35">/{p.slug} · {typeOf(p.type).short}</p>
+                      <p className="mt-0.5 truncate text-[12px] text-[#AAAAAA]">/{p.slug} · {typeOf(p.type).short}</p>
                     </Link>
                   </div>
                   <div className="mt-2 pl-7"><StateLine state={p.state} hasDraft={p.hasDraft} /></div>
-                  <div className="mt-2 flex flex-wrap items-center gap-3 pl-7 text-[11px] text-white/30">
+                  <div className="mt-2 flex flex-wrap items-center gap-3 pl-7 text-[11px] text-[#AAAAAA]">
                     <span>Edited {fmtDate(p.updatedAt)}</span>
                     {p.state?.reason === 'scheduled' && p.publishAt && <span>Goes live {fmtWhen(p.publishAt)}</span>}
                     {p.showInFooter && <span>In footer</span>}
@@ -214,18 +214,18 @@ export default function Cms() {
 
             <div className="hidden overflow-x-auto md:block">
               <div className="min-w-[720px]">
-                <div className="grid grid-cols-[2rem_minmax(0,1.6fr)_0.6fr_0.9fr_0.7fr_4rem] gap-3 border-b border-white/10 py-2">
+                <div className="grid grid-cols-[2rem_minmax(0,1.6fr)_0.6fr_0.9fr_0.7fr_4rem] gap-3 border-b border-[#EAEAEA] py-2">
                   <span>
                     <input type="checkbox" checked={allChecked} onChange={toggleAll} aria-label="Select all pages" className="h-4 w-4 accent-white" />
                   </span>
                   {['Page', 'Kind', 'Status', 'Updated', 'View'].map((h) => <p key={h} className="adm-label">{h}</p>)}
                 </div>
                 {rows.map((p) => (
-                  <div key={p._id} className="grid grid-cols-[2rem_minmax(0,1.6fr)_0.6fr_0.9fr_0.7fr_4rem] items-center gap-3 border-b border-white/5 py-3 adm-row-hover">
+                  <div key={p._id} className="grid grid-cols-[2rem_minmax(0,1.6fr)_0.6fr_0.9fr_0.7fr_4rem] items-center gap-3 border-b border-[#F0F0F0] py-3 adm-row-hover">
                     <input type="checkbox" checked={selected.includes(p._id)} onChange={() => toggleOne(p._id)} aria-label={`Select ${p.title}`} className="h-4 w-4 accent-white" />
                     <div className="min-w-0">
                       <Link to={`/admin/cms/${p._id}`} className="text-[13px] text-white hover:underline">{p.title}</Link>
-                      <p className="mt-0.5 truncate text-[11px] text-white/30">
+                      <p className="mt-0.5 truncate text-[11px] text-[#AAAAAA]">
                         /{p.slug}
                         {p.locked && ' · built in'}
                         {p.showInFooter && ' · footer'}
@@ -236,13 +236,13 @@ export default function Cms() {
                     <div>
                       <StateLine state={p.state} hasDraft={p.hasDraft} />
                       {p.state?.reason === 'scheduled' && p.publishAt && (
-                        <p className="mt-1 text-[11px] text-white/30">{fmtWhen(p.publishAt)}</p>
+                        <p className="mt-1 text-[11px] text-[#AAAAAA]">{fmtWhen(p.publishAt)}</p>
                       )}
                     </div>
-                    <span className="text-[12px] text-white/40">{fmtDate(p.updatedAt)}</span>
+                    <span className="text-[12px] text-[#999999]">{fmtDate(p.updatedAt)}</span>
                     <span className="text-right">
                       {p.state?.live ? (
-                        <a href={`/${p.slug}`} target="_blank" rel="noreferrer" className="text-[11px] uppercase tracking-[0.14em] text-white/40 hover:text-white">
+                        <a href={`/${p.slug}`} target="_blank" rel="noreferrer" className="text-[11px] uppercase tracking-[0.14em] text-[#999999] hover:text-white">
                           Open
                         </a>
                       ) : <span className="text-white/20">—</span>}

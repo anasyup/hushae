@@ -67,7 +67,7 @@ export default function Collections() {
               <div className="relative aspect-[16/9] overflow-hidden bg-neutral-50">
                 {c.image
                   ? <img src={c.image} alt={c.name} className="h-full w-full object-cover" onError={(e) => { e.target.style.display = 'none'; }} />
-                  : <div className="flex h-full items-center justify-center bg-white/5"><Boxes size={32} className="text-white/25" /></div>}
+                  : <div className="flex h-full items-center justify-center bg-[#FAFAFA]"><Boxes size={32} className="text-white/25" /></div>}
                 <div className="absolute right-2 top-2 flex gap-1">
                   {c.featuredOnHome && <MonoStatus label="FEATURED" />}
                   {!c.isActive && <MonoStatus label="HIDDEN" dim />}
@@ -87,7 +87,7 @@ export default function Collections() {
                   <a href={`/collection/${c.slug}`} target="_blank" rel="noreferrer" className="text-[12px] font-semibold text-neutral-500 hover:text-neutral-900">Preview →</a>
                   <div className="flex items-center gap-1">
                     <button onClick={() => setEditing(c)} className="rounded-lg p-1.5 text-neutral-500 transition hover:bg-neutral-100 hover:text-neutral-900" aria-label="Edit"><Edit3 size={13} /></button>
-                    <button onClick={() => remove(c)} className="rounded-lg p-1.5 text-white/40 transition hover:text-white" aria-label="Delete"><Trash2 size={13} /></button>
+                    <button onClick={() => remove(c)} className="rounded-lg p-1.5 text-[#999999] transition hover:text-white" aria-label="Delete"><Trash2 size={13} /></button>
                   </div>
                 </div>
               </div>
@@ -226,7 +226,7 @@ function CollectionEditor({ collection, onClose, onSaved }) {
                       {(c.smart.tags || []).map((t, i) => (
                         <span key={t + i} className="inline-flex items-center gap-1 rounded-full bg-neutral-900 pl-3 pr-1 py-1 text-[12px] font-semibold text-white">
                           {t}
-                          <button type="button" onClick={() => setSmart('tags', c.smart.tags.filter((_, j) => j !== i))} className="grid h-4 w-4 place-items-center rounded-full bg-white/20 text-white hover:bg-white/30">×</button>
+                          <button type="button" onClick={() => setSmart('tags', c.smart.tags.filter((_, j) => j !== i))} className="grid h-4 w-4 place-items-center rounded-full bg-[#EFEFEF] text-white hover:bg-white/30">×</button>
                         </span>
                       ))}
                       <input

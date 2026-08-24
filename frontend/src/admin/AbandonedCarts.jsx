@@ -90,7 +90,7 @@ export default function AbandonedCarts() {
 
       <section className="mb-10">
         <p className="adm-index">01 — Recovery</p>
-        <div className="adm-divide-x grid grid-cols-2 border-y border-white/10 lg:grid-cols-4">
+        <div className="adm-divide-x grid grid-cols-2 border-y border-[#EAEAEA] lg:grid-cols-4">
           {[
             { label: 'Open carts', value: s.openCount || 0, sub: pkr(s.openValue || 0) },
             { label: 'Recovery rate', value: `${recoveryRate}%`, sub: `${s.recoveredCount || 0} recovered` },
@@ -100,7 +100,7 @@ export default function AbandonedCarts() {
             <div key={x.label} className="px-5 py-6">
               <p className="adm-label">{x.label}</p>
               <p className="adm-metric mt-3 text-[26px] leading-none text-white">{x.value}</p>
-              <p className="mt-2 text-[11px] text-white/30">{x.sub}</p>
+              <p className="mt-2 text-[11px] text-[#AAAAAA]">{x.sub}</p>
             </div>
           ))}
         </div>
@@ -113,7 +113,7 @@ export default function AbandonedCarts() {
             value={status}
             onChange={(e) => { setStatus(e.target.value); setQ(''); setExpanded(null); }}
             aria-label="Status"
-            className="h-8 rounded-[4px] border border-white/20 bg-[#0A0A0A] px-3 text-[12px] text-white/85"
+            className="h-8 rounded-[4px] border border-[#DCDCDC] bg-[#0A0A0A] px-3 text-[12px] text-black"
           >
             <option value="open">Open ({s.openCount || 0})</option>
             <option value="recovered">Recovered ({s.recoveredCount || 0})</option>
@@ -133,27 +133,27 @@ export default function AbandonedCarts() {
           const isExpanded = expanded === c._id;
           const rec = recoveryLabel(c);
           return (
-            <article key={c._id} className="border-b border-white/10">
+            <article key={c._id} className="border-b border-[#EAEAEA]">
               <div className="flex flex-wrap items-start gap-4 px-1 py-4">
-                <span className="grid h-9 w-9 shrink-0 place-items-center border border-white/15 bg-white text-[10px] font-medium text-black">
+                <span className="grid h-9 w-9 shrink-0 place-items-center border border-[#EAEAEA] bg-white text-[10px] font-medium text-black">
                   {(c.name || c.email || '?').slice(0, 1).toUpperCase()}
                 </span>
                 <div className="min-w-0 flex-1">
                   <p className="text-[13px] font-medium text-white">{c.name || 'Anonymous'}</p>
-                  <p className="mt-0.5 text-[11px] text-white/35">{c.email || c.phone || '—'}</p>
+                  <p className="mt-0.5 text-[11px] text-[#AAAAAA]">{c.email || c.phone || '—'}</p>
                   <div className="mt-2 flex items-center gap-2">
                     <div className="flex -space-x-1.5">
                       {(c.items || []).slice(0, 4).map((it, i) => (
-                        <Img key={i} src={it.image} alt="" className="h-8 w-8 border border-white/10 object-cover" />
+                        <Img key={i} src={it.image} alt="" className="h-8 w-8 border border-[#EAEAEA] object-cover" />
                       ))}
                     </div>
-                    <span className="text-[11px] text-white/35">{c.itemCount} item{c.itemCount === 1 ? '' : 's'} · {fmtDateTime(c.lastSeenAt)}</span>
+                    <span className="text-[11px] text-[#AAAAAA]">{c.itemCount} item{c.itemCount === 1 ? '' : 's'} · {fmtDateTime(c.lastSeenAt)}</span>
                   </div>
                 </div>
                 <div className="text-right">
                   <p className="adm-metric text-[15px] text-white">{pkr(c.subtotal)}</p>
                   <div className="mt-1"><MonoStatus label={rec.label} dim={rec.dim} /></div>
-                  {c.discountCodeIssued && <p className="mt-1 font-mono text-[10px] text-white/40">{c.discountCodeIssued}</p>}
+                  {c.discountCodeIssued && <p className="mt-1 font-mono text-[10px] text-[#999999]">{c.discountCodeIssued}</p>}
                 </div>
                 <div className="flex items-center gap-1">
                   {!c.recoveredOrderId && c.email && (
@@ -164,22 +164,22 @@ export default function AbandonedCarts() {
                   {!c.recoveredOrderId && c.phone && (
                     <button type="button" onClick={() => sendWhatsApp(c.phone)} className={btnGhost}>WhatsApp</button>
                   )}
-                  <button type="button" onClick={() => del(c._id)} className="grid h-8 w-8 place-items-center text-white/30 hover:text-white" aria-label="Delete"><X size={13} /></button>
-                  <button type="button" onClick={() => setExpanded(isExpanded ? null : c._id)} className="grid h-8 w-8 place-items-center text-white/40 hover:text-white" aria-expanded={isExpanded}>
+                  <button type="button" onClick={() => del(c._id)} className="grid h-8 w-8 place-items-center text-[#AAAAAA] hover:text-white" aria-label="Delete"><X size={13} /></button>
+                  <button type="button" onClick={() => setExpanded(isExpanded ? null : c._id)} className="grid h-8 w-8 place-items-center text-[#999999] hover:text-white" aria-expanded={isExpanded}>
                     <ChevronDown size={14} className={`transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
                   </button>
                 </div>
               </div>
               {isExpanded && (
-                <div className="grid gap-6 border-t border-white/5 px-1 py-5 md:grid-cols-2">
+                <div className="grid gap-6 border-t border-[#F0F0F0] px-1 py-5 md:grid-cols-2">
                   <div>
                     <p className="adm-label mb-3">Customer</p>
                     <dl className="space-y-2 text-[13px]">
-                      {c.name && <div className="flex justify-between"><dt className="text-white/35">Name</dt><dd className="text-white">{c.name}</dd></div>}
-                      {c.email && <div className="flex justify-between"><dt className="text-white/35">Email</dt><dd className="text-white">{c.email}</dd></div>}
-                      {c.phone && <div className="flex justify-between"><dt className="text-white/35">Phone</dt><dd className="text-white">{c.phone}</dd></div>}
-                      <div className="flex justify-between"><dt className="text-white/35">Last seen</dt><dd className="text-white/70">{fmtDateTime(c.lastSeenAt)}</dd></div>
-                      {c.createdAt && <div className="flex justify-between"><dt className="text-white/35">Created</dt><dd className="text-white/70">{fmtDateTime(c.createdAt)}</dd></div>}
+                      {c.name && <div className="flex justify-between"><dt className="text-[#AAAAAA]">Name</dt><dd className="text-white">{c.name}</dd></div>}
+                      {c.email && <div className="flex justify-between"><dt className="text-[#AAAAAA]">Email</dt><dd className="text-white">{c.email}</dd></div>}
+                      {c.phone && <div className="flex justify-between"><dt className="text-[#AAAAAA]">Phone</dt><dd className="text-white">{c.phone}</dd></div>}
+                      <div className="flex justify-between"><dt className="text-[#AAAAAA]">Last seen</dt><dd className="text-[#555555]">{fmtDateTime(c.lastSeenAt)}</dd></div>
+                      {c.createdAt && <div className="flex justify-between"><dt className="text-[#AAAAAA]">Created</dt><dd className="text-[#555555]">{fmtDateTime(c.createdAt)}</dd></div>}
                     </dl>
                   </div>
                   <div>
@@ -187,14 +187,14 @@ export default function AbandonedCarts() {
                     <div className="space-y-2">
                       {(c.items || []).map((it, i) => (
                         <div key={i} className="flex items-center gap-2.5 text-[12px]">
-                          {it.image ? <img src={it.image} alt="" className="h-8 w-6 object-cover" /> : <span className="h-8 w-6 bg-white/10" />}
-                          <span className="min-w-0 flex-1 truncate text-white/80">{it.name}</span>
-                          <span className="text-white/35">×{it.quantity}</span>
+                          {it.image ? <img src={it.image} alt="" className="h-8 w-6 object-cover" /> : <span className="h-8 w-6 bg-[#F5F5F5]" />}
+                          <span className="min-w-0 flex-1 truncate text-[#333333]">{it.name}</span>
+                          <span className="text-[#AAAAAA]">×{it.quantity}</span>
                           <span className="w-20 text-right tabular-nums text-white">{pkr((it.price || 0) * (it.quantity || 1))}</span>
                         </div>
                       ))}
-                      <div className="flex justify-between border-t border-white/10 pt-2 text-[13px]">
-                        <span className="text-white/40">Subtotal</span>
+                      <div className="flex justify-between border-t border-[#EAEAEA] pt-2 text-[13px]">
+                        <span className="text-[#999999]">Subtotal</span>
                         <span className="text-white">{pkr(c.subtotal)}</span>
                       </div>
                     </div>
@@ -205,9 +205,9 @@ export default function AbandonedCarts() {
           );
         })}
         {status === 'open' && carts.length > 0 && (
-          <p className="mt-6 text-[12px] text-white/30">
+          <p className="mt-6 text-[12px] text-[#AAAAAA]">
             Best results within the first 2 hours.{' '}
-            <Link to="/admin/settings/email" className="text-white/50 hover:text-white">Email templates →</Link>
+            <Link to="/admin/settings/email" className="text-[#777777] hover:text-white">Email templates →</Link>
           </p>
         )}
       </section>

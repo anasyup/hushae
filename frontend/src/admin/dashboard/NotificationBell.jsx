@@ -18,7 +18,7 @@ const TONE = {
   danger: 'bg-white/12 text-white',
   warning: 'bg-white/8 text-white/85',
   success: 'bg-white/12 text-white',
-  info: 'bg-white/5 text-white/70',
+  info: 'bg-[#FAFAFA] text-[#555555]',
 };
 
 const ago = (d) => {
@@ -113,7 +113,7 @@ export default function NotificationBell() {
                 <button
                   key={n.id}
                   onClick={() => openItem(n)}
-                  className={`flex w-full items-start gap-3 border-b border-neutral-50 px-4 py-3 text-left transition last:border-0 hover:bg-neutral-50 ${n.read ? '' : 'bg-white/5'}`}
+                  className={`flex w-full items-start gap-3 border-b border-neutral-50 px-4 py-3 text-left transition last:border-0 hover:bg-neutral-50 ${n.read ? '' : 'bg-[#FAFAFA]'}`}
                 >
                   <span className={`mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-lg ${TONE[n.severity] || TONE.info}`}>
                     <Icon size={13} />

@@ -226,7 +226,7 @@ export default function SettingsSecurity() {
     <button
       type="button"
       onClick={() => setShow((s) => ({ ...s, [which]: !s[which] }))}
-      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-white/35 hover:text-white"
+      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#AAAAAA] hover:text-white"
       aria-label="Toggle visibility"
     >
       {show[which] ? <EyeOff size={15} /> : <Eye size={15} />}
@@ -260,12 +260,12 @@ export default function SettingsSecurity() {
         <div className="grid gap-10 lg:grid-cols-2">
           <EdSection index={1} title="Username">
             <form onSubmit={handleUsernameChange} className="space-y-4">
-              <p className="text-[12px] text-white/40">Current: <span className="font-mono text-white/80">{auth?.user?.email || '—'}</span></p>
+              <p className="text-[12px] text-[#999999]">Current: <span className="font-mono text-[#333333]">{auth?.user?.email || '—'}</span></p>
               <EdText label="New username" value={uNew} onChange={setUNew} placeholder="e.g. admin@hushae.pk" />
               <div className="relative">
                 <label className="adm-label mb-1.5 block">Confirm with current password</label>
                 <input className={`${ctl} pr-10`} type={uShow ? 'text' : 'password'} value={uCurrent} onChange={(e) => setUCurrent(e.target.value)} required />
-                <button type="button" onClick={() => setUShow(!uShow)} className="absolute right-2.5 top-[34px] text-white/35 hover:text-white" aria-label="Toggle visibility">
+                <button type="button" onClick={() => setUShow(!uShow)} className="absolute right-2.5 top-[34px] text-[#AAAAAA] hover:text-white" aria-label="Toggle visibility">
                   {uShow ? <EyeOff size={15} /> : <Eye size={15} />}
                 </button>
               </div>
@@ -304,10 +304,10 @@ export default function SettingsSecurity() {
 
           <div className="lg:col-span-2">
             <EdSection index={3} title="Two-factor authentication" description="After your password, a 6-digit code is emailed to you to sign in.">
-              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/5 pb-4">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#F0F0F0] pb-4">
                 <div>
                   <p className="text-[13px] text-white">{twoFa.enabled ? '2FA is on' : '2FA is off'}</p>
-                  <p className="mt-0.5 text-[12px] text-white/35">{twoFa.enabled ? 'Every sign-in needs a code from your inbox.' : 'Sign-in currently needs only your password.'}</p>
+                  <p className="mt-0.5 text-[12px] text-[#AAAAAA]">{twoFa.enabled ? 'Every sign-in needs a code from your inbox.' : 'Sign-in currently needs only your password.'}</p>
                 </div>
                 <button type="button" onClick={() => setTwoFa({ ...twoFa, step: 'start' })} className={btnGhost}>
                   {twoFa.enabled ? 'Turn off' : 'Turn on'}
@@ -364,7 +364,7 @@ export default function SettingsSecurity() {
                       </button>
                     </div>
                   )}
-                  <button type="button" onClick={() => setTwoFa({ ...twoFa, step: 'idle', code: '', pass: '' })} className="text-[11px] uppercase tracking-[0.16em] text-white/35 hover:text-white">Cancel</button>
+                  <button type="button" onClick={() => setTwoFa({ ...twoFa, step: 'idle', code: '', pass: '' })} className="text-[11px] uppercase tracking-[0.16em] text-[#AAAAAA] hover:text-white">Cancel</button>
                 </div>
               )}
             </EdSection>
@@ -402,14 +402,14 @@ export default function SettingsSecurity() {
                 <EditorialEmpty title="No staff users" description="No additional staff accounts have been created." />
               ) : (
                 <>
-                  <div className="hidden border-b border-white/10 py-2 md:grid md:grid-cols-[minmax(0,1.6fr)_0.8fr_0.7fr_0.5fr] md:gap-3">
+                  <div className="hidden border-b border-[#EAEAEA] py-2 md:grid md:grid-cols-[minmax(0,1.6fr)_0.8fr_0.7fr_0.5fr] md:gap-3">
                     {['User', 'Role', 'Status', 'Action'].map((h) => <p key={h} className="adm-label">{h}</p>)}
                   </div>
                   {users.map((u) => (
-                    <div key={u._id} className="grid grid-cols-1 gap-2 border-b border-white/5 py-3 md:grid-cols-[minmax(0,1.6fr)_0.8fr_0.7fr_0.5fr] md:items-center md:gap-3">
+                    <div key={u._id} className="grid grid-cols-1 gap-2 border-b border-[#F0F0F0] py-3 md:grid-cols-[minmax(0,1.6fr)_0.8fr_0.7fr_0.5fr] md:items-center md:gap-3">
                       <div className="min-w-0">
                         <p className="truncate text-[13px] text-white">{u.name}</p>
-                        <p className="truncate font-mono text-[11px] text-white/35">{u.email}</p>
+                        <p className="truncate font-mono text-[11px] text-[#AAAAAA]">{u.email}</p>
                       </div>
                       <select
                         value={u.role}
@@ -463,17 +463,17 @@ export default function SettingsSecurity() {
             <EditorialEmpty title="No active sessions" description="No devices are currently signed in." />
           ) : (
             <>
-              <div className="hidden border-b border-white/10 py-2 md:grid md:grid-cols-[minmax(0,1.4fr)_1fr_1fr_0.6fr] md:gap-3">
+              <div className="hidden border-b border-[#EAEAEA] py-2 md:grid md:grid-cols-[minmax(0,1.4fr)_1fr_1fr_0.6fr] md:gap-3">
                 {['Session', 'Network', 'Last active', 'Action'].map((h) => <p key={h} className="adm-label">{h}</p>)}
               </div>
               {sessions.map((s) => (
-                <div key={s.jti} className="grid grid-cols-1 gap-1 border-b border-white/5 py-3 md:grid-cols-[minmax(0,1.4fr)_1fr_1fr_0.6fr] md:items-center md:gap-3">
+                <div key={s.jti} className="grid grid-cols-1 gap-1 border-b border-[#F0F0F0] py-3 md:grid-cols-[minmax(0,1.4fr)_1fr_1fr_0.6fr] md:items-center md:gap-3">
                   <div>
                     <p className="text-[13px] text-white">{s.device || 'Unknown device'}{s.browser ? ` · ${s.browser}` : ''}</p>
                     {s.current && <div className="mt-1"><MonoStatus label="THIS DEVICE" /></div>}
                   </div>
-                  <p className="text-[12px] text-white/40">{s.ipHint ? `Network ${s.ipHint}` : '—'}</p>
-                  <p className="text-[12px] text-white/35">{s.lastSeen ? new Date(s.lastSeen).toLocaleString() : '—'}</p>
+                  <p className="text-[12px] text-[#999999]">{s.ipHint ? `Network ${s.ipHint}` : '—'}</p>
+                  <p className="text-[12px] text-[#AAAAAA]">{s.lastSeen ? new Date(s.lastSeen).toLocaleString() : '—'}</p>
                   <div>
                     {!s.current && (
                       <button type="button" onClick={() => setDialog({ kind: 'revoke', jti: s.jti, device: s.device })} disabled={sessBusy} className={btnGhost}>
@@ -502,18 +502,18 @@ export default function SettingsSecurity() {
             <EditorialEmpty title="No audit logs" description="No audit logs found matching the query." />
           ) : (
             <>
-              <div className="hidden border-b border-white/10 py-2 md:grid md:grid-cols-[0.9fr_0.6fr_1fr_0.9fr] md:gap-3">
+              <div className="hidden border-b border-[#EAEAEA] py-2 md:grid md:grid-cols-[0.9fr_0.6fr_1fr_0.9fr] md:gap-3">
                 {['User', 'Action', 'Resource', 'Time'].map((h) => <p key={h} className="adm-label">{h}</p>)}
               </div>
               {logs.map((l) => (
-                <div key={l._id} className="grid grid-cols-1 gap-1 border-b border-white/5 py-3 md:grid-cols-[0.9fr_0.6fr_1fr_0.9fr] md:items-center md:gap-3">
+                <div key={l._id} className="grid grid-cols-1 gap-1 border-b border-[#F0F0F0] py-3 md:grid-cols-[0.9fr_0.6fr_1fr_0.9fr] md:items-center md:gap-3">
                   <span className="truncate font-mono text-[12px] text-white">{l.user}</span>
                   <MonoStatus label={String(l.action || '').toUpperCase()} dim={l.action === 'delete'} />
                   <span className="truncate text-[12px] text-white/55">{l.target} {l.targetId ? `(${l.targetId.slice(-6)})` : ''}</span>
-                  <span className="text-[12px] text-white/35">{new Date(l.createdAt).toLocaleString('en-PK')}</span>
+                  <span className="text-[12px] text-[#AAAAAA]">{new Date(l.createdAt).toLocaleString('en-PK')}</span>
                 </div>
               ))}
-              <div className="mt-4 flex items-center justify-between text-[11px] uppercase tracking-[0.14em] text-white/30">
+              <div className="mt-4 flex items-center justify-between text-[11px] uppercase tracking-[0.14em] text-[#AAAAAA]">
                 <span>Total {logTotal}</span>
               </div>
               <EditorialPagination page={logPage} pages={logPages} onPage={setLogPage} />
@@ -532,13 +532,13 @@ export default function SettingsSecurity() {
             <EditorialEmpty title="No flagged orders" description="No suspicious orders are pending review." />
           ) : (
             <>
-              <div className="hidden border-b border-white/10 py-2 md:grid md:grid-cols-[0.8fr_1.1fr_0.6fr_1.2fr_0.6fr_0.9fr] md:gap-3">
+              <div className="hidden border-b border-[#EAEAEA] py-2 md:grid md:grid-cols-[0.8fr_1.1fr_0.6fr_1.2fr_0.6fr_0.9fr] md:gap-3">
                 {['Order', 'Customer', 'Value', 'Signals', 'Status', 'Action'].map((h) => <p key={h} className="adm-label">{h}</p>)}
               </div>
               {fraudOrders.map((o) => (
-                <div key={o._id} className="grid grid-cols-1 gap-2 border-b border-white/5 py-4 md:grid-cols-[0.8fr_1.1fr_0.6fr_1.2fr_0.6fr_0.9fr] md:items-start md:gap-3">
+                <div key={o._id} className="grid grid-cols-1 gap-2 border-b border-[#F0F0F0] py-4 md:grid-cols-[0.8fr_1.1fr_0.6fr_1.2fr_0.6fr_0.9fr] md:items-start md:gap-3">
                   <span className="font-mono text-[13px] text-white">{o.orderNumber}</span>
-                  <span className="text-[13px] text-white/80">{o.customerInfo?.name} <span className="text-white/35">({o.customerInfo?.city})</span></span>
+                  <span className="text-[13px] text-[#333333]">{o.customerInfo?.name} <span className="text-[#AAAAAA]">({o.customerInfo?.city})</span></span>
                   <span className="tabular-nums text-[13px] text-white">PKR {o.total?.toLocaleString()}</span>
                   <ul className="space-y-1 text-[12px] text-white/45">
                     {(o.fraudFilter?.reasons || []).map((r, i) => <li key={i}>{r}</li>)}

@@ -97,8 +97,8 @@ export default function Reviews() {
       ) : (
         <section>
           <p className="adm-index">01 — {tab}</p>
-          <div className="mb-4 flex flex-wrap items-center gap-2 border-y border-white/10 py-3">
-            <label className="flex cursor-pointer items-center gap-2 text-[12px] text-white/70">
+          <div className="mb-4 flex flex-wrap items-center gap-2 border-y border-[#EAEAEA] py-3">
+            <label className="flex cursor-pointer items-center gap-2 text-[12px] text-[#555555]">
               <input type="checkbox" checked={allChecked} onChange={toggleAll} className="h-4 w-4 accent-white" />
               Select all ({rows.length})
             </label>
@@ -114,32 +114,32 @@ export default function Reviews() {
             )}
           </div>
 
-          <div className="border-y border-white/10">
+          <div className="border-y border-[#EAEAEA]">
             {rows.map((r) => (
-              <div key={r._id} className="border-b border-white/5 py-5 last:border-0">
+              <div key={r._id} className="border-b border-[#F0F0F0] py-5 last:border-0">
                 <div className="flex flex-col justify-between gap-3 md:flex-row">
                   <div className="flex min-w-0 flex-1 gap-3">
                     <input type="checkbox" checked={selected.includes(r._id)} onChange={() => toggleOne(r._id)} aria-label={`Select review by ${r.customerName}`} className="mt-1 h-4 w-4 shrink-0 accent-white" />
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="text-[12px] tabular-nums text-white/50">{r.rating}/5</span>
+                        <span className="text-[12px] tabular-nums text-[#777777]">{r.rating}/5</span>
                         <p className="text-[13px] text-white">{r.customerName}</p>
                         {r.verified && <MonoStatus label="VERIFIED" />}
                         {r.featured && <MonoStatus label="FEATURED" />}
                         {r.pinned && <MonoStatus label="PINNED" />}
                         {r.reports > 0 && <MonoStatus label={`${r.reports} REPORT${r.reports === 1 ? '' : 'S'}`} dim />}
-                        <span className="text-[11px] text-white/30">{new Date(r.createdAt).toLocaleDateString('en-PK')}</span>
+                        <span className="text-[11px] text-[#AAAAAA]">{new Date(r.createdAt).toLocaleDateString('en-PK')}</span>
                       </div>
                       {r.title && <p className="mt-2 text-[13px] text-white">{r.title}</p>}
-                      <p className="mt-1 text-[13px] leading-relaxed text-white/70">{r.body}</p>
+                      <p className="mt-1 text-[13px] leading-relaxed text-[#555555]">{r.body}</p>
                       {r.adminReply && (
-                        <div className="mt-3 border-l border-white/20 pl-3">
+                        <div className="mt-3 border-l border-[#DCDCDC] pl-3">
                           <p className="adm-label">Your reply</p>
-                          <p className="mt-1 text-[13px] text-white/70">{r.adminReply}</p>
+                          <p className="mt-1 text-[13px] text-[#555555]">{r.adminReply}</p>
                         </div>
                       )}
                       {r.product && (
-                        <Link to={`/product/${r.product.slug}`} target="_blank" className="mt-3 inline-block text-[12px] text-white/40 hover:text-white">{r.product.name}</Link>
+                        <Link to={`/product/${r.product.slug}`} target="_blank" className="mt-3 inline-block text-[12px] text-[#999999] hover:text-white">{r.product.name}</Link>
                       )}
                     </div>
                   </div>
@@ -151,7 +151,7 @@ export default function Reviews() {
                   </div>
                 </div>
                 {replying === r._id && (
-                  <div className="mt-4 border-t border-white/10 pt-4">
+                  <div className="mt-4 border-t border-[#EAEAEA] pt-4">
                     <label className="adm-label mb-1.5 block">Public reply from HUSHAE</label>
                     <textarea rows={3} className={ta} value={reply} onChange={(e) => setReply(e.target.value)} placeholder="Thanks for the feedback…" />
                     <div className="mt-2 flex justify-end gap-2">

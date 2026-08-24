@@ -13,15 +13,15 @@ function DataTable({ title, description, rows, cols, empty }) {
   return (
     <section className="mb-10">
       <p className="adm-index">{title}</p>
-      {description && <p className="mb-4 text-[12px] leading-relaxed text-white/35">{description}</p>}
+      {description && <p className="mb-4 text-[12px] leading-relaxed text-[#AAAAAA]">{description}</p>}
       {!rows?.length ? (
-        <p className="border-y border-white/10 py-8 text-center text-[12px] text-white/35">{empty}</p>
+        <p className="border-y border-[#EAEAEA] py-8 text-center text-[12px] text-[#AAAAAA]">{empty}</p>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-left text-[13px]">
             <caption className="sr-only">{title}</caption>
             <thead>
-              <tr className="border-b border-white/10">
+              <tr className="border-b border-[#EAEAEA]">
                 {cols.map((c) => (
                   <th key={c.key} scope="col" className={`py-2 ${c.align === 'right' ? 'text-right' : ''}`}>
                     <span className="adm-label">{c.label}</span>
@@ -31,9 +31,9 @@ function DataTable({ title, description, rows, cols, empty }) {
             </thead>
             <tbody>
               {rows.map((r, i) => (
-                <tr key={i} className="border-b border-white/5">
+                <tr key={i} className="border-b border-[#F0F0F0]">
                   {cols.map((c) => (
-                    <td key={c.key} className={`py-2.5 ${c.align === 'right' ? 'text-right tabular-nums text-white/70' : 'text-white'}`}>
+                    <td key={c.key} className={`py-2.5 ${c.align === 'right' ? 'text-right tabular-nums text-[#555555]' : 'text-white'}`}>
                       {c.render ? c.render(r) : r[c.key]}
                     </td>
                   ))}
@@ -106,7 +106,7 @@ export default function SearchAnalytics() {
 
       <section className="mb-10">
         <p className="adm-index">01 — Performance</p>
-        <div className="adm-divide-x grid grid-cols-2 border-y border-white/10 md:grid-cols-5">
+        <div className="adm-divide-x grid grid-cols-2 border-y border-[#EAEAEA] md:grid-cols-5">
           {[
             { label: 'Searches', value: d ? num(d.searches) : '—' },
             { label: 'Found nothing', value: d ? num(d.zeroResults) : '—', sub: d ? `${d.zeroRate}% of searches` : undefined },
@@ -117,7 +117,7 @@ export default function SearchAnalytics() {
             <div key={x.label} className="px-4 py-6 sm:px-5">
               <p className="adm-label">{x.label}</p>
               <p className="adm-metric mt-3 text-[22px] leading-none text-white">{x.value}</p>
-              {x.sub && <p className="mt-2 text-[11px] text-white/30">{x.sub}</p>}
+              {x.sub && <p className="mt-2 text-[11px] text-[#AAAAAA]">{x.sub}</p>}
             </div>
           ))}
         </div>
@@ -143,7 +143,7 @@ export default function SearchAnalytics() {
               { key: 'term', label: 'Search term', render: (r) => <span className="text-white">{r.term}</span> },
               { key: 'count', label: 'Times', align: 'right', render: (r) => num(r.count) },
               { key: 'act', label: '', align: 'right', render: (r) => (
-                <Link to={`/admin/settings/search?add=${encodeURIComponent(r.term)}`} className="text-[11px] uppercase tracking-[0.14em] text-white/40 hover:text-white">
+                <Link to={`/admin/settings/search?add=${encodeURIComponent(r.term)}`} className="text-[11px] uppercase tracking-[0.14em] text-[#999999] hover:text-white">
                   Add synonym
                 </Link>
               ) },
@@ -177,7 +177,7 @@ export default function SearchAnalytics() {
           {d?.device && Object.keys(d.device).length > 0 && (
             <section className="mb-10">
               <p className="adm-index">05 — Device</p>
-              <div className="adm-divide-x grid grid-cols-3 border-y border-white/10">
+              <div className="adm-divide-x grid grid-cols-3 border-y border-[#EAEAEA]">
                 {['mobile', 'tablet', 'desktop'].map((k) => (
                   <div key={k} className="px-5 py-6">
                     <p className="adm-label">{k}</p>
@@ -192,8 +192,8 @@ export default function SearchAnalytics() {
             || quality.suspiciousColors?.length > 0 || quality.missingFabricCount > 0) && (
             <section>
               <p className="adm-index">06 — Catalogue</p>
-              <p className="mb-4 text-[12px] text-white/35">Issues affecting search results.</p>
-              <ul className="divide-y divide-white/10 border-y border-white/10 text-[12px] leading-relaxed text-white/70">
+              <p className="mb-4 text-[12px] text-[#AAAAAA]">Issues affecting search results.</p>
+              <ul className="divide-y divide-[#EAEAEA] border-y border-[#EAEAEA] text-[12px] leading-relaxed text-[#555555]">
                 {quality.duplicateSizes?.map((s) => (
                   <li key={s.canonical} className="py-3">
                     Size <span className="text-white">{s.canonical}</span> is stored {s.variants.length} different ways: {s.variants.map((v) => `"${v}"`).join(', ')} — shoppers see one filter, but the records disagree.

@@ -45,22 +45,22 @@ export default function Markets() {
 
       <section className="mb-10">
         <p className="adm-index">01 — Market</p>
-        <div className="flex flex-wrap items-center justify-between gap-4 border-y border-white/10 py-6">
+        <div className="flex flex-wrap items-center justify-between gap-4 border-y border-[#EAEAEA] py-6">
           <div>
             <p className="text-[13px] text-white">Pakistan</p>
-            <p className="mt-1 text-[12px] text-white/35">Primary market · Pakistani Rupee (PKR ₨) · Nationwide delivery</p>
+            <p className="mt-1 text-[12px] text-[#AAAAAA]">Primary market · Pakistani Rupee (PKR ₨) · Nationwide delivery</p>
           </div>
           <MonoStatus label="ACTIVE" />
         </div>
-        <p className="mt-4 text-[12px] leading-relaxed text-white/30">
+        <p className="mt-4 text-[12px] leading-relaxed text-[#AAAAAA]">
           International markets (UAE, UK, USA) and multiple currencies are coming soon. Your store is currently fully live for Pakistan.
         </p>
       </section>
 
       <section>
         <p className="adm-index">02 — Shipping & payment</p>
-        <p className="mb-4 text-[12px] text-white/35">Ye settings checkout par foran apply hoti hain.</p>
-        <div className="grid gap-4 border-y border-white/10 py-6 sm:grid-cols-2">
+        <p className="mb-4 text-[12px] text-[#AAAAAA]">Ye settings checkout par foran apply hoti hain.</p>
+        <div className="grid gap-4 border-y border-[#EAEAEA] py-6 sm:grid-cols-2">
           <div>
             <label className="adm-label mb-1.5 block">Shipping flat rate (PKR)</label>
             <input className={ctl} type="number" min="0" value={s.shippingFlatRate} onChange={(e) => setS({ ...s, shippingFlatRate: e.target.value })} />
@@ -72,7 +72,7 @@ export default function Markets() {
           <label className="flex cursor-pointer items-start justify-between gap-4 sm:col-span-2">
             <span>
               <span className="block text-[13px] text-white">Cash on Delivery (COD)</span>
-              <span className="mt-0.5 block text-[12px] text-white/35">Pakistan mein sab se popular payment method — band karna ho to uncheck karein.</span>
+              <span className="mt-0.5 block text-[12px] text-[#AAAAAA]">Pakistan mein sab se popular payment method — band karna ho to uncheck karein.</span>
             </span>
             <input
               type="checkbox"

@@ -74,39 +74,39 @@ export default function BannerList() {
         )}
         {rows && rows.length > 0 && (
           <div className="min-w-0 overflow-x-hidden">
-            <div className="hidden border-b border-white/10 px-1 py-2.5 lg:grid lg:grid-cols-[56px_minmax(0,1.3fr)_0.8fr_0.7fr_0.9fr_0.5fr_0.5fr_auto] lg:items-center lg:gap-3">
+            <div className="hidden border-b border-[#EAEAEA] px-1 py-2.5 lg:grid lg:grid-cols-[56px_minmax(0,1.3fr)_0.8fr_0.7fr_0.9fr_0.5fr_0.5fr_auto] lg:items-center lg:gap-3">
               <span />
               {['Banner', 'Slot', 'Status', 'Schedule', 'Views', 'CTR', ''].map((h) => <p key={h || 'a'} className="adm-label">{h}</p>)}
             </div>
             {rows.map((b) => (
-              <div key={b._id} className="border-b border-white/10 adm-row-hover">
+              <div key={b._id} className="border-b border-[#EAEAEA] adm-row-hover">
                 <div className="hidden lg:grid lg:grid-cols-[56px_minmax(0,1.3fr)_0.8fr_0.7fr_0.9fr_0.5fr_0.5fr_auto] lg:items-center lg:gap-3 lg:px-1 lg:py-3">
-                  <div className="h-10 w-14 overflow-hidden border border-white/10 bg-white/5">
+                  <div className="h-10 w-14 overflow-hidden border border-[#EAEAEA] bg-[#FAFAFA]">
                     {b.mediaUrl ? <img src={b.mediaUrl} alt="" className="h-full w-full object-cover" /> : null}
                   </div>
                   <div className="min-w-0">
                     <p className="truncate text-[13px] font-medium text-white">{b.name}</p>
-                    <p className="truncate text-[11px] text-white/30">{b.heading || '—'}</p>
+                    <p className="truncate text-[11px] text-[#AAAAAA]">{b.heading || '—'}</p>
                   </div>
-                  <p className="truncate text-[12px] text-white/50">{b.slotName}</p>
+                  <p className="truncate text-[12px] text-[#777777]">{b.slotName}</p>
                   <MonoStatus label={String(b.scheduleState || 'draft').toUpperCase()} dim={b.scheduleState !== 'active'} />
-                  <p className="text-[11px] text-white/40">
+                  <p className="text-[11px] text-[#999999]">
                     {b.alwaysActive ? 'Always' : `${b.startAt ? new Date(b.startAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : '…'} → ${b.endAt ? new Date(b.endAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : '∞'}`}
                   </p>
-                  <p className="text-[12px] tabular-nums text-white/60">{b.impressions?.toLocaleString()}</p>
-                  <p className="text-[12px] tabular-nums text-white/70">{ctr(b)}%</p>
+                  <p className="text-[12px] tabular-nums text-[#555555]">{b.impressions?.toLocaleString()}</p>
+                  <p className="text-[12px] tabular-nums text-[#555555]">{ctr(b)}%</p>
                   <div className="flex justify-end gap-1">
-                    <Link to={`/admin/banners/${b._id}`} className="grid h-7 w-7 place-items-center text-white/35 hover:text-white" title="Edit"><Pencil size={13} /></Link>
-                    <button type="button" onClick={() => remove(b)} className="grid h-7 w-7 place-items-center text-white/30 hover:text-white" title="Delete"><Trash2 size={13} /></button>
+                    <Link to={`/admin/banners/${b._id}`} className="grid h-7 w-7 place-items-center text-[#AAAAAA] hover:text-white" title="Edit"><Pencil size={13} /></Link>
+                    <button type="button" onClick={() => remove(b)} className="grid h-7 w-7 place-items-center text-[#AAAAAA] hover:text-white" title="Delete"><Trash2 size={13} /></button>
                   </div>
                 </div>
                 <div className="flex items-start gap-3 px-1 py-4 lg:hidden">
-                  <div className="h-16 w-16 shrink-0 overflow-hidden border border-white/10 bg-white/5">
+                  <div className="h-16 w-16 shrink-0 overflow-hidden border border-[#EAEAEA] bg-[#FAFAFA]">
                     {b.mediaUrl ? <img src={b.mediaUrl} alt="" className="h-full w-full object-cover" /> : null}
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="text-[13px] font-medium text-white">{b.name}</p>
-                    <p className="mt-0.5 text-[11px] text-white/35">{b.slotName}</p>
+                    <p className="mt-0.5 text-[11px] text-[#AAAAAA]">{b.slotName}</p>
                     <div className="mt-2"><MonoStatus label={String(b.scheduleState || 'draft').toUpperCase()} dim={b.scheduleState !== 'active'} /></div>
                     <div className="mt-3 flex gap-2">
                       <Link to={`/admin/banners/${b._id}`} className={btnGhost}>Edit</Link>

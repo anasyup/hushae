@@ -12,7 +12,7 @@ const MQ_FALLBACK = ['COD available — nationwide', 'Free shipping over PKR 4,9
 function Switch({ checked, onChange }) {
   return (
     <button type="button" role="switch" aria-checked={!!checked} onClick={() => onChange(!checked)}
-      className={`relative h-5 w-9 shrink-0 rounded-full ${checked ? 'bg-white' : 'bg-white/20'}`}>
+      className={`relative h-5 w-9 shrink-0 rounded-full ${checked ? 'bg-white' : 'bg-[#EFEFEF]'}`}>
       <span className={`absolute top-0.5 h-4 w-4 rounded-full transition-all ${checked ? 'left-[18px] bg-black' : 'left-0.5 bg-white'}`} />
     </button>
   );
@@ -73,7 +73,7 @@ export default function Content() {
 
       <section className="mb-10">
         <p className="adm-index">01 — Global content</p>
-        <div className="space-y-8 border-y border-white/10 py-6">
+        <div className="space-y-8 border-y border-[#EAEAEA] py-6">
           <div>
             <div className="mb-4 flex items-center justify-between">
               <p className="text-[13px] text-white">Announcement bar</p>
@@ -86,11 +86,11 @@ export default function Content() {
               <div><label className="adm-label mb-1.5 block">Link</label><input className={ctl} placeholder="/sale" value={offer.link || ''} onChange={(e) => setOffer('link', e.target.value)} /></div>
             </div>
           </div>
-          <div className="border-t border-white/10 pt-8">
+          <div className="border-t border-[#EAEAEA] pt-8">
             <div className="mb-4 flex items-center justify-between">
               <div>
                 <p className="text-[13px] text-white">Scrolling marquee</p>
-                <p className="mt-0.5 text-[12px] text-white/35">A scrolling strip below the hero.</p>
+                <p className="mt-0.5 text-[12px] text-[#AAAAAA]">A scrolling strip below the hero.</p>
               </div>
               <Switch checked={marquee.enabled !== false} onChange={(v) => setMq('enabled', v)} />
             </div>
@@ -104,20 +104,20 @@ export default function Content() {
 
       <section className="mb-10">
         <p className="adm-index">02 — Homepage content</p>
-        <div className="space-y-8 border-y border-white/10 py-6">
+        <div className="space-y-8 border-y border-[#EAEAEA] py-6">
           <p className="text-[13px] text-white">Hero banner</p>
           <div className="space-y-4">
             <div><label className="adm-label mb-1.5 block">Small tagline</label><input className={ctl} value={hero.eyebrow || ''} onChange={(e) => setHero('eyebrow', e.target.value)} placeholder="Premium innerwear · Made in Pakistan" /></div>
-            <div><label className="adm-label mb-1.5 block">Main title</label><textarea className={ta} value={hero.title || ''} onChange={(e) => setHero('title', e.target.value)} placeholder={'Second Skin,\nFirst Choice.'} /><p className="mt-1 text-[11px] text-white/30">Press Enter for a new line</p></div>
+            <div><label className="adm-label mb-1.5 block">Main title</label><textarea className={ta} value={hero.title || ''} onChange={(e) => setHero('title', e.target.value)} placeholder={'Second Skin,\nFirst Choice.'} /><p className="mt-1 text-[11px] text-[#AAAAAA]">Press Enter for a new line</p></div>
             <div><label className="adm-label mb-1.5 block">Subtitle</label><textarea className={ta} value={hero.subtitle || ''} onChange={(e) => setHero('subtitle', e.target.value)} /></div>
           </div>
 
-          <div className="flex items-center justify-between border-t border-white/10 pt-6">
+          <div className="flex items-center justify-between border-t border-[#EAEAEA] pt-6">
             <p className="text-[13px] text-white">Call-to-action buttons</p>
             <Switch checked={hero.showButtons !== false} onChange={(v) => setHero('showButtons', v)} />
           </div>
           {hero.showButtons === false ? (
-            <p className="text-[12px] text-white/35">Buttons are hidden.</p>
+            <p className="text-[12px] text-[#AAAAAA]">Buttons are hidden.</p>
           ) : (
             <>
               <div className="grid grid-cols-2 gap-2">
@@ -129,7 +129,7 @@ export default function Content() {
                   <div><label className="adm-label mb-1.5 block">Button text</label><input className={ctl} value={hero.ctaWomen || ''} onChange={(e) => setHero('ctaWomen', e.target.value)} placeholder="Shop Now" /></div>
                   <div>
                     <label className="adm-label mb-1.5 block">Dropdown menu items</label>
-                    <p className="mb-2 text-[11px] text-white/30">One item per line — format: Label | /link</p>
+                    <p className="mb-2 text-[11px] text-[#AAAAAA]">One item per line — format: Label | /link</p>
                     <textarea className={`${ta} min-h-32 font-mono`}
                       value={(hero.shopMenu || []).map((it) => `${it.label || ''} | ${it.href || ''}`).join('\n')}
                       onChange={(e) => {
@@ -151,22 +151,22 @@ export default function Content() {
             </>
           )}
 
-          <div className="space-y-4 border-t border-white/10 pt-6">
+          <div className="space-y-4 border-t border-[#EAEAEA] pt-6">
             <p className="adm-label">Background media</p>
             <div>
               <label className="adm-label mb-1.5 block">Banner image</label>
               <MediaPicker value={hero.image || ''} onChange={(v) => setHero('image', v)} accept="image" hideUrl />
-              <p className="mt-1 text-[11px] text-white/30">Recommended: 1920 × 1080. JPG or WebP.</p>
+              <p className="mt-1 text-[11px] text-[#AAAAAA]">Recommended: 1920 × 1080. JPG or WebP.</p>
             </div>
             <div>
               <label className="adm-label mb-1.5 block">Banner video (optional)</label>
               <MediaPicker value={hero.video || ''} onChange={(v) => setHero('video', v)} accept="video" buttonText="Upload video" hideUrl />
-              <p className="mt-1 text-[11px] text-white/30">If a video is uploaded, it replaces the image.</p>
+              <p className="mt-1 text-[11px] text-[#AAAAAA]">If a video is uploaded, it replaces the image.</p>
             </div>
             <div>
               <div className="mb-1 flex items-center justify-between">
                 <label className="adm-label">Dark overlay</label>
-                <span className="text-[11px] tabular-nums text-white/50">{hero.overlayOpacity ?? 40}%</span>
+                <span className="text-[11px] tabular-nums text-[#777777]">{hero.overlayOpacity ?? 40}%</span>
               </div>
               <input type="range" min="0" max="90" step="5" value={hero.overlayOpacity ?? 40} onChange={(e) => setHero('overlayOpacity', Number(e.target.value))} className="w-full accent-white" />
             </div>
@@ -181,16 +181,16 @@ export default function Content() {
               <input type="checkbox" className="mt-0.5 h-4 w-4 accent-white" checked={!!hero.fullScreen} onChange={(e) => setHero('fullScreen', e.target.checked)} />
               <span>
                 <span className="block text-[13px] text-white">Full-screen banner</span>
-                <span className="mt-0.5 block text-[12px] text-white/35">Banner fills the entire viewport</span>
+                <span className="mt-0.5 block text-[12px] text-[#AAAAAA]">Banner fills the entire viewport</span>
               </span>
             </label>
           </div>
 
-          <div className="border-t border-white/10 pt-6">
+          <div className="border-t border-[#EAEAEA] pt-6">
             <div className="mb-4 flex items-start justify-between gap-3">
               <div>
                 <p className="text-[13px] text-white">Signature split (Women × Men)</p>
-                <p className="mt-0.5 text-[12px] text-white/35">Half-half editorial block below the hero.</p>
+                <p className="mt-0.5 text-[12px] text-[#AAAAAA]">Half-half editorial block below the hero.</p>
               </div>
               <Switch checked={split.enabled !== false} onChange={(v) => setSplit('enabled', v)} />
             </div>
@@ -204,7 +204,7 @@ export default function Content() {
                 <div>
                   <label className="adm-label mb-1.5 block">Text colour</label>
                   <div className="flex items-center gap-2">
-                    <input type="color" className="h-8 w-10 cursor-pointer border border-white/20 bg-transparent" value={split.textColor || '#FFFFFF'} onChange={(e) => setSplit('textColor', e.target.value)} />
+                    <input type="color" className="h-8 w-10 cursor-pointer border border-[#DCDCDC] bg-transparent" value={split.textColor || '#FFFFFF'} onChange={(e) => setSplit('textColor', e.target.value)} />
                     <input className={`${ctl} font-mono`} value={split.textColor || '#FFFFFF'} onChange={(e) => setSplit('textColor', e.target.value)} />
                   </div>
                 </div>
@@ -215,7 +215,7 @@ export default function Content() {
                     <option value="sans">Inter (sans-serif)</option>
                   </select>
                 </div>
-                <label className="flex items-center gap-2 text-[13px] text-white/70">
+                <label className="flex items-center gap-2 text-[13px] text-[#555555]">
                   <input type="checkbox" className="h-4 w-4 accent-white" checked={split.textShadow !== false} onChange={(e) => setSplit('textShadow', e.target.checked)} />
                   Soft glow
                 </label>
@@ -245,12 +245,12 @@ export default function Content() {
 
       <section className="mb-10">
         <p className="adm-index">03 — Other content</p>
-        <div className="space-y-8 border-y border-white/10 py-6">
+        <div className="space-y-8 border-y border-[#EAEAEA] py-6">
           <div>
             <div className="mb-4 flex items-center justify-between">
               <div>
                 <p className="text-[13px] text-white">Newsletter popup</p>
-                <p className="mt-0.5 text-[12px] text-white/35">Shown once after a delay — email for a coupon.</p>
+                <p className="mt-0.5 text-[12px] text-[#AAAAAA]">Shown once after a delay — email for a coupon.</p>
               </div>
               <Switch checked={promo.enabled !== false} onChange={(v) => setPromo('enabled', v)} />
             </div>
@@ -260,13 +260,13 @@ export default function Content() {
               <div className="sm:col-span-2"><label className="adm-label mb-1.5 block">Title</label><input className={ctl} value={promo.title || ''} onChange={(e) => setPromo('title', e.target.value)} /></div>
               <div className="sm:col-span-2"><label className="adm-label mb-1.5 block">Text</label><textarea className={ta} value={promo.text || ''} onChange={(e) => setPromo('text', e.target.value)} /></div>
             </div>
-            <p className="mt-3 text-[12px] text-white/30">Use a coupon code that already exists on Discounts — otherwise checkout will reject it.</p>
+            <p className="mt-3 text-[12px] text-[#AAAAAA]">Use a coupon code that already exists on Discounts — otherwise checkout will reject it.</p>
           </div>
-          <div className="border-t border-white/10 pt-8">
+          <div className="border-t border-[#EAEAEA] pt-8">
             <div className="mb-4 flex items-center justify-between">
               <div>
                 <p className="text-[13px] text-white">Cookie consent</p>
-                <p className="mt-0.5 text-[12px] text-white/35">Shown once to new visitors.</p>
+                <p className="mt-0.5 text-[12px] text-[#AAAAAA]">Shown once to new visitors.</p>
               </div>
               <Switch checked={cookie.enabled !== false} onChange={(v) => setCookie('enabled', v)} />
             </div>
@@ -280,12 +280,12 @@ export default function Content() {
 
       <section>
         <p className="adm-index">04 — FAQ</p>
-        <Link to="/admin/faq" className="flex items-center justify-between border-y border-white/10 py-5 adm-row-hover">
+        <Link to="/admin/faq" className="flex items-center justify-between border-y border-[#EAEAEA] py-5 adm-row-hover">
           <span>
             <span className="block text-[13px] text-white">FAQ page</span>
-            <span className="mt-0.5 block text-[12px] text-white/35">The FAQ editor lives on its own page.</span>
+            <span className="mt-0.5 block text-[12px] text-[#AAAAAA]">The FAQ editor lives on its own page.</span>
           </span>
-          <span className="text-[11px] uppercase tracking-[0.14em] text-white/30">Open →</span>
+          <span className="text-[11px] uppercase tracking-[0.14em] text-[#AAAAAA]">Open →</span>
         </Link>
       </section>
     </AdminLayout>

@@ -102,7 +102,7 @@ export default function CmsRedirects() {
 
       <section className="mb-10">
         <p className="adm-index">01 — Overview</p>
-        <div className="adm-divide-x grid grid-cols-2 border-y border-white/10 md:grid-cols-4">
+        <div className="adm-divide-x grid grid-cols-2 border-y border-[#EAEAEA] md:grid-cols-4">
           {[
             { label: 'Notes', value: stats.total },
             { label: 'Automatic', value: stats.auto, sub: 'from renames' },
@@ -112,7 +112,7 @@ export default function CmsRedirects() {
             <div key={x.label} className="px-5 py-6">
               <p className="adm-label">{x.label}</p>
               <p className="adm-metric mt-3 text-[26px] text-white">{x.value}</p>
-              {x.sub && <p className="mt-1 text-[11px] text-white/30">{x.sub}</p>}
+              {x.sub && <p className="mt-1 text-[11px] text-[#AAAAAA]">{x.sub}</p>}
             </div>
           ))}
         </div>
@@ -120,8 +120,8 @@ export default function CmsRedirects() {
 
       <section className="mb-10">
         <p className="adm-index">02 — Add a note</p>
-        <p className="mb-4 text-[12px] text-white/35">Use this when a link is already out in the world.</p>
-        <form onSubmit={add} className="grid gap-4 border-y border-white/10 py-6 md:grid-cols-2">
+        <p className="mb-4 text-[12px] text-[#AAAAAA]">Use this when a link is already out in the world.</p>
+        <form onSubmit={add} className="grid gap-4 border-y border-[#EAEAEA] py-6 md:grid-cols-2">
           <Text variant="editorial" label="Old address" value={form.from} onChange={(v) => setForm({ ...form, from: v })} hint="What people type or click now. Example: summer-sale" placeholder="summer-sale" />
           <Text variant="editorial" label="Send them to" value={form.to} onChange={(v) => setForm({ ...form, to: v })} hint="Where they should land. Example: /eid-sale" placeholder="/eid-sale" />
           <Select variant="editorial" label="Kind of move" value={form.code} onChange={(v) => setForm({ ...form, code: v })} options={CODES} hint="Moved for good is right almost every time." />
@@ -148,22 +148,22 @@ export default function CmsRedirects() {
           />
         ) : (
           <>
-            <div className="hidden border-b border-white/10 py-2 md:grid md:grid-cols-[minmax(0,1.2fr)_minmax(0,1.2fr)_0.5fr_0.4fr_0.7fr_auto] md:gap-3">
+            <div className="hidden border-b border-[#EAEAEA] py-2 md:grid md:grid-cols-[minmax(0,1.2fr)_minmax(0,1.2fr)_0.5fr_0.4fr_0.7fr_auto] md:gap-3">
               {['From', 'To', 'Status', 'Used', 'Updated', ''].map((h) => <p key={h || 'a'} className="adm-label">{h}</p>)}
             </div>
             {rows.map((r) => (
-              <div key={r._id} className="grid grid-cols-1 gap-1 border-b border-white/5 py-3 md:grid-cols-[minmax(0,1.2fr)_minmax(0,1.2fr)_0.5fr_0.4fr_0.7fr_auto] md:items-center md:gap-3 adm-row-hover">
+              <div key={r._id} className="grid grid-cols-1 gap-1 border-b border-[#F0F0F0] py-3 md:grid-cols-[minmax(0,1.2fr)_minmax(0,1.2fr)_0.5fr_0.4fr_0.7fr_auto] md:items-center md:gap-3 adm-row-hover">
                 <div>
                   <p className="truncate text-[13px] text-white">/{r.from}</p>
-                  {r.note && <p className="truncate text-[11px] text-white/30">{r.note}</p>}
+                  {r.note && <p className="truncate text-[11px] text-[#AAAAAA]">{r.note}</p>}
                 </div>
-                <p className="truncate text-[12px] text-white/70">{r.to}</p>
+                <p className="truncate text-[12px] text-[#555555]">{r.to}</p>
                 <div className="flex items-center gap-2">
-                  <span className="text-[12px] tabular-nums text-white/50">{r.code}</span>
+                  <span className="text-[12px] tabular-nums text-[#777777]">{r.code}</span>
                   {r.auto && <MonoStatus label="AUTO" dim />}
                 </div>
-                <span className="text-[12px] tabular-nums text-white/50">{r.hits || 0}</span>
-                <span className="text-[12px] text-white/35">{fmtWhen(r.lastHit)}</span>
+                <span className="text-[12px] tabular-nums text-[#777777]">{r.hits || 0}</span>
+                <span className="text-[12px] text-[#AAAAAA]">{fmtWhen(r.lastHit)}</span>
                 <button type="button" onClick={() => remove(r)} className={`${btnGhost} justify-self-start md:justify-self-end`}>
                   Remove
                 </button>

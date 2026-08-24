@@ -164,10 +164,10 @@ export default function Products() {
 
       <section className="mb-10">
         <p className="adm-index">01 — Catalog overview</p>
-        <div className="adm-divide-x grid grid-cols-2 border-y border-white/10 lg:grid-cols-4">
+        <div className="adm-divide-x grid grid-cols-2 border-y border-[#EAEAEA] lg:grid-cols-4">
           {metrics.map((m) => (
             <button key={m.label} type="button" onClick={m.onClick} className="px-5 py-6 text-left adm-row-hover">
-              <p className={`adm-label ${m.active ? 'text-white/70' : ''}`}>{m.label}</p>
+              <p className={`adm-label ${m.active ? 'text-[#555555]' : ''}`}>{m.label}</p>
               <p className="adm-metric mt-3 text-[32px] leading-none text-white">
                 {list === null ? '—' : m.value.toLocaleString()}
               </p>
@@ -175,7 +175,7 @@ export default function Products() {
           ))}
         </div>
         {list && (
-          <p className="mt-3 text-[11px] uppercase tracking-[0.14em] text-white/30">
+          <p className="mt-3 text-[11px] uppercase tracking-[0.14em] text-[#AAAAAA]">
             {summary.archived} archived · {summary.oos} out of stock
           </p>
         )}
@@ -236,7 +236,7 @@ export default function Products() {
         </div>
 
         {moreOpen && (
-          <div className="mt-5 grid gap-3 border-t border-white/10 pt-5 sm:grid-cols-3">
+          <div className="mt-5 grid gap-3 border-t border-[#EAEAEA] pt-5 sm:grid-cols-3">
             <select value={f.gender} onChange={(e) => setF({ ...f, gender: e.target.value })} aria-label="Gender" className={ctl}>
               <option value="">All genders</option>
               <option value="women">Women</option>
@@ -257,8 +257,8 @@ export default function Products() {
         )}
 
         {hasFilters && (
-          <p className="mt-3 text-[11px] text-white/35">
-            Filters active · <button type="button" onClick={clearFilters} className="text-white/70 underline underline-offset-2 hover:text-white">Clear</button>
+          <p className="mt-3 text-[11px] text-[#AAAAAA]">
+            Filters active · <button type="button" onClick={clearFilters} className="text-[#555555] underline underline-offset-2 hover:text-white">Clear</button>
           </p>
         )}
       </section>
@@ -267,12 +267,12 @@ export default function Products() {
         <p className="adm-index">03 — Products</p>
 
         {selected.size > 0 && (
-          <div className="sticky top-14 z-30 mb-3 flex flex-wrap items-center gap-x-4 gap-y-2 border-y border-white/15 bg-[#050505] py-2.5">
+          <div className="sticky top-14 z-30 mb-3 flex flex-wrap items-center gap-x-4 gap-y-2 border-y border-[#EAEAEA] bg-[#050505] py-2.5">
             <span className="text-[11px] font-medium uppercase tracking-[0.16em] text-white">{selected.size} selected</span>
             <button type="button" onClick={() => setBulkOpen(true)} className={btnSolid}>
               <Pencil size={11} /> Edit
             </button>
-            <button type="button" onClick={() => setSelected(new Set())} className="ml-auto text-[11px] uppercase tracking-[0.12em] text-white/40 hover:text-white">Clear</button>
+            <button type="button" onClick={() => setSelected(new Set())} className="ml-auto text-[11px] uppercase tracking-[0.12em] text-[#999999] hover:text-white">Clear</button>
           </div>
         )}
 
@@ -355,8 +355,8 @@ function InventoryCell({ n }) {
   if (n === 0) {
     return (
       <div>
-        <p className="text-[9px] font-medium uppercase tracking-[0.16em] text-white/40">Out</p>
-        <p className="mt-0.5 text-[12px] text-white/35">0 remaining</p>
+        <p className="text-[9px] font-medium uppercase tracking-[0.16em] text-[#999999]">Out</p>
+        <p className="mt-0.5 text-[12px] text-[#AAAAAA]">0 remaining</p>
       </div>
     );
   }
@@ -364,37 +364,37 @@ function InventoryCell({ n }) {
     return (
       <div>
         <p className="text-[9px] font-medium uppercase tracking-[0.16em] text-white/55">Low</p>
-        <p className="mt-0.5 text-[12px] text-white/70">{n} remaining</p>
+        <p className="mt-0.5 text-[12px] text-[#555555]">{n} remaining</p>
       </div>
     );
   }
-  return <p className="text-[12px] tabular-nums text-white/80">{n} in stock</p>;
+  return <p className="text-[12px] tabular-nums text-[#333333]">{n} in stock</p>;
 }
 
 function RowActions({ p, onEnable, onDisable, onPublish, onRemove, onDuplicate }) {
   return (
     <div className="flex items-center justify-end gap-0.5">
-      <Link to={`/admin/products/${p._id}`} className="grid h-7 w-7 place-items-center text-white/35 hover:text-white" aria-label="Edit">
+      <Link to={`/admin/products/${p._id}`} className="grid h-7 w-7 place-items-center text-[#AAAAAA] hover:text-white" aria-label="Edit">
         <Pencil size={13} />
       </Link>
       {p.status === 'draft' && (
-        <button type="button" onClick={() => onPublish(p)} className="px-2 text-[9px] font-medium uppercase tracking-[0.14em] text-white/70 hover:text-white">
+        <button type="button" onClick={() => onPublish(p)} className="px-2 text-[9px] font-medium uppercase tracking-[0.14em] text-[#555555] hover:text-white">
           Publish
         </button>
       )}
-      <button type="button" onClick={() => onDuplicate(p)} className="grid h-7 w-7 place-items-center text-white/35 hover:text-white" aria-label="Duplicate" title="Duplicate product">
+      <button type="button" onClick={() => onDuplicate(p)} className="grid h-7 w-7 place-items-center text-[#AAAAAA] hover:text-white" aria-label="Duplicate" title="Duplicate product">
         <Copy size={13} />
       </button>
       {p.isActive ? (
-        <button type="button" onClick={() => onDisable(p)} className="grid h-7 w-7 place-items-center text-white/35 hover:text-white" aria-label="Archive" title="Archive">
+        <button type="button" onClick={() => onDisable(p)} className="grid h-7 w-7 place-items-center text-[#AAAAAA] hover:text-white" aria-label="Archive" title="Archive">
           <Archive size={13} />
         </button>
       ) : (
-        <button type="button" onClick={() => onEnable(p)} className="grid h-7 w-7 place-items-center text-white/35 hover:text-white" aria-label="Restore" title="Restore">
+        <button type="button" onClick={() => onEnable(p)} className="grid h-7 w-7 place-items-center text-[#AAAAAA] hover:text-white" aria-label="Restore" title="Restore">
           <Eye size={13} />
         </button>
       )}
-      <button type="button" onClick={() => onRemove(p)} className="grid h-7 w-7 place-items-center text-white/35 hover:text-white" aria-label="Delete" title="Delete permanently">
+      <button type="button" onClick={() => onRemove(p)} className="grid h-7 w-7 place-items-center text-[#AAAAAA] hover:text-white" aria-label="Delete" title="Delete permanently">
         <Trash2 size={13} />
       </button>
     </div>
@@ -405,7 +405,7 @@ function ProductTable({ products, selected, onToggleSel, onToggleAll, onEnable, 
   const allSelected = products.length > 0 && products.every((p) => selected.has(p._id));
   return (
     <div className="min-w-0 overflow-x-hidden">
-      <div className="hidden border-b border-white/10 px-1 py-2.5 lg:grid lg:grid-cols-[32px_48px_minmax(0,1.4fr)_0.7fr_0.75fr_0.75fr_0.7fr_auto] lg:items-center lg:gap-3 xl:grid-cols-[32px_48px_minmax(0,1.35fr)_0.7fr_0.7fr_0.7fr_0.85fr_0.7fr_0.85fr_auto]">
+      <div className="hidden border-b border-[#EAEAEA] px-1 py-2.5 lg:grid lg:grid-cols-[32px_48px_minmax(0,1.4fr)_0.7fr_0.75fr_0.75fr_0.7fr_auto] lg:items-center lg:gap-3 xl:grid-cols-[32px_48px_minmax(0,1.35fr)_0.7fr_0.7fr_0.7fr_0.85fr_0.7fr_0.85fr_auto]">
         <input type="checkbox" checked={allSelected} onChange={onToggleAll} aria-label="Select all on this page"
           className="h-3.5 w-3.5 cursor-pointer rounded-none border-white/30 bg-transparent accent-white" />
         <span />
@@ -422,34 +422,34 @@ function ProductTable({ products, selected, onToggleSel, onToggleAll, onEnable, 
       {products.map((p) => {
         const st = productStatus(p);
         return (
-          <div key={p._id} className={`border-b border-white/10 ${selected.has(p._id) ? 'bg-white/[0.03]' : ''} adm-row-hover`}>
+          <div key={p._id} className={`border-b border-[#EAEAEA] ${selected.has(p._id) ? 'bg-[#FAFAFA]' : ''} adm-row-hover`}>
             <div className="hidden lg:grid lg:grid-cols-[32px_48px_minmax(0,1.4fr)_0.7fr_0.75fr_0.75fr_0.7fr_auto] lg:items-center lg:gap-3 lg:px-1 lg:py-3 xl:grid-cols-[32px_48px_minmax(0,1.35fr)_0.7fr_0.7fr_0.7fr_0.85fr_0.7fr_0.85fr_auto]">
               <input type="checkbox" checked={selected.has(p._id)} onChange={() => onToggleSel(p._id)}
                 aria-label={`Select ${p.name}`}
                 className="h-3.5 w-3.5 cursor-pointer rounded-none border-white/30 bg-transparent accent-white" />
               <Link to={`/admin/products/${p._id}`} className="block">
-                <Img src={p.images?.[0]?.url} alt="" className="h-12 w-12 border border-white/10 object-cover" />
+                <Img src={p.images?.[0]?.url} alt="" className="h-12 w-12 border border-[#EAEAEA] object-cover" />
               </Link>
               <div className="min-w-0">
-                <Link to={`/admin/products/${p._id}`} className="line-clamp-2 text-[13px] font-medium text-white hover:text-white/70">{p.name}</Link>
-                <p className="mt-0.5 truncate text-[11px] uppercase tracking-[0.08em] text-white/30">
+                <Link to={`/admin/products/${p._id}`} className="line-clamp-2 text-[13px] font-medium text-white hover:text-[#555555]">{p.name}</Link>
+                <p className="mt-0.5 truncate text-[11px] uppercase tracking-[0.08em] text-[#AAAAAA]">
                   {p.gender}{p.tier ? ` · ${p.tier}` : ''}
                   {p.isFeatured ? ' · Featured' : ''}
                   {p.isBestSeller ? ' · Best' : ''}
                   {p.onSale ? ' · Sale' : ''}
                 </p>
               </div>
-              <p className="truncate font-mono text-[11px] text-white/40">{p.sku || '—'}</p>
+              <p className="truncate font-mono text-[11px] text-[#999999]">{p.sku || '—'}</p>
               <div>
                 <p className="adm-metric text-[13px] text-white">{pkr(p.price)}</p>
                 {p.onSale === true && p.compareAtPrice ? (
-                  <p className="text-[11px] text-white/30 line-through">{pkr(p.compareAtPrice)}</p>
+                  <p className="text-[11px] text-[#AAAAAA] line-through">{pkr(p.compareAtPrice)}</p>
                 ) : null}
               </div>
               <InventoryCell n={p.stock} />
               <p className="hidden truncate text-[12px] text-white/45 xl:block">{p.categorySlug || '—'}</p>
               <MonoStatus label={st.label} dim={st.dim} />
-              <p className="hidden text-[11px] text-white/30 xl:block">{p.updatedAt ? fmtDate(p.updatedAt) : '—'}</p>
+              <p className="hidden text-[11px] text-[#AAAAAA] xl:block">{p.updatedAt ? fmtDate(p.updatedAt) : '—'}</p>
               <RowActions p={p} onEnable={onEnable} onDisable={onDisable} onPublish={onPublish} onRemove={onRemove} onDuplicate={onDuplicate} />
             </div>
 
@@ -458,18 +458,18 @@ function ProductTable({ products, selected, onToggleSel, onToggleAll, onEnable, 
                 aria-label={`Select ${p.name}`}
                 className="mt-1 h-3.5 w-3.5 shrink-0 cursor-pointer rounded-none border-white/30 bg-transparent accent-white" />
               <Link to={`/admin/products/${p._id}`} className="shrink-0">
-                <Img src={p.images?.[0]?.url} alt="" className="h-16 w-16 border border-white/10 object-cover" />
+                <Img src={p.images?.[0]?.url} alt="" className="h-16 w-16 border border-[#EAEAEA] object-cover" />
               </Link>
               <div className="min-w-0 flex-1">
                 <Link to={`/admin/products/${p._id}`} className="line-clamp-2 text-[13px] font-medium text-white">{p.name}</Link>
-                <p className="mt-0.5 font-mono text-[11px] text-white/35">{p.sku || '—'}</p>
+                <p className="mt-0.5 font-mono text-[11px] text-[#AAAAAA]">{p.sku || '—'}</p>
                 <div className="mt-2 flex flex-wrap items-end justify-between gap-2">
                   <p className="adm-metric text-[14px] text-white">{pkr(p.price)}</p>
                   <InventoryCell n={p.stock} />
                 </div>
                 <div className="mt-2 flex flex-wrap items-center gap-3">
                   <MonoStatus label={st.label} dim={st.dim} />
-                  {p.onSale && <span className="text-[9px] uppercase tracking-[0.16em] text-white/40">Sale</span>}
+                  {p.onSale && <span className="text-[9px] uppercase tracking-[0.16em] text-[#999999]">Sale</span>}
                 </div>
                 <div className="mt-2">
                   <RowActions p={p} onEnable={onEnable} onDisable={onDisable} onPublish={onPublish} onRemove={onRemove} onDuplicate={onDuplicate} />
@@ -485,13 +485,13 @@ function ProductTable({ products, selected, onToggleSel, onToggleAll, onEnable, 
 
 function ProductGrid({ products, onEnable, onDisable, onPublish, onRemove, onDuplicate }) {
   return (
-    <div className="grid gap-px border-y border-white/10 bg-white/10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+    <div className="grid gap-px border-y border-[#EAEAEA] bg-[#F5F5F5] sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {products.map((p) => {
         const st = productStatus(p);
         return (
           <div key={p._id} className="bg-[#09090B] p-4">
             <Link to={`/admin/products/${p._id}`} className="block">
-              <div className="aspect-square overflow-hidden border border-white/10 bg-white/[0.03]">
+              <div className="aspect-square overflow-hidden border border-[#EAEAEA] bg-[#FAFAFA]">
                 <Img src={p.images?.[0]?.url} alt="" className="h-full w-full object-cover" />
               </div>
             </Link>
@@ -499,7 +499,7 @@ function ProductGrid({ products, onEnable, onDisable, onPublish, onRemove, onDup
               <Link to={`/admin/products/${p._id}`} className="line-clamp-2 text-[13px] font-medium text-white">{p.name}</Link>
               <MonoStatus label={st.label} dim={st.dim} />
             </div>
-            <p className="mt-1 font-mono text-[11px] text-white/35">{p.sku || '—'}</p>
+            <p className="mt-1 font-mono text-[11px] text-[#AAAAAA]">{p.sku || '—'}</p>
             <div className="mt-2 flex items-end justify-between">
               <p className="adm-metric text-[14px] text-white">{pkr(p.price)}</p>
               <InventoryCell n={p.stock} />
@@ -557,13 +557,13 @@ function BulkEditModal({ count, onClose, onApply }) {
 
   return (
     <div className="fixed inset-0 z-[70] grid place-items-center bg-black/60 p-4" onClick={onClose}>
-      <div className="max-h-[88vh] w-full max-w-lg overflow-y-auto border border-white/15 bg-[#0D0D0D]" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-start justify-between border-b border-white/10 px-6 py-5">
+      <div className="max-h-[88vh] w-full max-w-lg overflow-y-auto border border-[#EAEAEA] bg-[#0D0D0D]" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-start justify-between border-b border-[#EAEAEA] px-6 py-5">
           <div>
             <p className="adm-label">Bulk edit</p>
             <p className="mt-1 text-[16px] font-medium text-white">Update {count} product{count === 1 ? '' : 's'}</p>
           </div>
-          <button type="button" onClick={onClose} disabled={busy} className="text-white/35 hover:text-white" aria-label="Close"><X size={16} /></button>
+          <button type="button" onClick={onClose} disabled={busy} className="text-[#AAAAAA] hover:text-white" aria-label="Close"><X size={16} /></button>
         </div>
 
         <div className="px-6 py-5">
@@ -575,7 +575,7 @@ function BulkEditModal({ count, onClose, onApply }) {
                 type="button"
                 onClick={() => setAction(a.key)}
                 className={`px-3 py-2 text-left text-[12px] transition ${
-                  action === a.key ? 'bg-white text-black' : 'text-white/70 hover:bg-white/5 hover:text-white'
+                  action === a.key ? 'bg-white text-black' : 'text-[#555555] hover:bg-[#FAFAFA] hover:text-white'
                 }`}
               >
                 {a.label}
@@ -583,8 +583,8 @@ function BulkEditModal({ count, onClose, onApply }) {
             ))}
           </div>
 
-          <div className="mt-5 border-t border-white/10 pt-4">
-            <p className="mb-3 text-[12px] leading-relaxed text-white/40">{active?.hint}</p>
+          <div className="mt-5 border-t border-[#EAEAEA] pt-4">
+            <p className="mb-3 text-[12px] leading-relaxed text-[#999999]">{active?.hint}</p>
             {needsNum && (
               <input
                 type="number"
@@ -599,7 +599,7 @@ function BulkEditModal({ count, onClose, onApply }) {
               <div className="grid grid-cols-3 gap-1.5">
                 {['Economy', 'Standard', 'Premium'].map((t) => (
                   <button key={t} type="button" onClick={() => setTier(t)}
-                    className={`h-8 text-[11px] uppercase tracking-[0.12em] ${tier === t ? 'bg-white text-black' : 'border border-white/20 text-white/60'}`}>{t}</button>
+                    className={`h-8 text-[11px] uppercase tracking-[0.12em] ${tier === t ? 'bg-white text-black' : 'border border-[#DCDCDC] text-[#555555]'}`}>{t}</button>
                 ))}
               </div>
             )}
@@ -607,23 +607,23 @@ function BulkEditModal({ count, onClose, onApply }) {
               <div className="grid grid-cols-2 gap-1.5">
                 {[{ v: 'active', label: 'Active (live)' }, { v: 'draft', label: 'Draft (hidden)' }].map((o) => (
                   <button key={o.v} type="button" onClick={() => setStatus(o.v)}
-                    className={`h-8 text-[11px] uppercase tracking-[0.12em] ${status === o.v ? 'bg-white text-black' : 'border border-white/20 text-white/60'}`}>{o.label}</button>
+                    className={`h-8 text-[11px] uppercase tracking-[0.12em] ${status === o.v ? 'bg-white text-black' : 'border border-[#DCDCDC] text-[#555555]'}`}>{o.label}</button>
                 ))}
               </div>
             )}
             {(action === 'toggleFeatured' || action === 'toggleBest' || action === 'toggleSale') && (
               <div className="grid grid-cols-2 gap-1.5">
-                <button type="button" onClick={() => setBool(true)} className={`h-8 text-[11px] uppercase tracking-[0.12em] ${bool ? 'bg-white text-black' : 'border border-white/20 text-white/60'}`}>Turn on</button>
-                <button type="button" onClick={() => setBool(false)} className={`h-8 text-[11px] uppercase tracking-[0.12em] ${!bool ? 'bg-white text-black' : 'border border-white/20 text-white/60'}`}>Turn off</button>
+                <button type="button" onClick={() => setBool(true)} className={`h-8 text-[11px] uppercase tracking-[0.12em] ${bool ? 'bg-white text-black' : 'border border-[#DCDCDC] text-[#555555]'}`}>Turn on</button>
+                <button type="button" onClick={() => setBool(false)} className={`h-8 text-[11px] uppercase tracking-[0.12em] ${!bool ? 'bg-white text-black' : 'border border-[#DCDCDC] text-[#555555]'}`}>Turn off</button>
               </div>
             )}
           </div>
-          <p className="mt-5 text-[12px] text-white/35">
+          <p className="mt-5 text-[12px] text-[#AAAAAA]">
             This applies to {count} product{count === 1 ? '' : 's'} and cannot be undone.
           </p>
         </div>
 
-        <div className="flex justify-end gap-2 border-t border-white/10 px-6 py-4">
+        <div className="flex justify-end gap-2 border-t border-[#EAEAEA] px-6 py-4">
           <button type="button" onClick={onClose} disabled={busy} className={btnGhost}>Cancel</button>
           <button
             type="button"

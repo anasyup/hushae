@@ -61,19 +61,19 @@ export default function CsvImport({ onClose, onDone }) {
 
   return (
     <div className="fixed inset-0 z-[80] grid place-items-center bg-black/60 p-4" onClick={onClose}>
-      <div className="w-full max-w-lg border border-white/15 bg-[#0D0D0D]" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-start justify-between border-b border-white/10 px-5 py-4">
+      <div className="w-full max-w-lg border border-[#EAEAEA] bg-[#0D0D0D]" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-start justify-between border-b border-[#EAEAEA] px-5 py-4">
           <div>
             <p className="adm-label">{tab === 'import' ? 'Bulk import' : 'Export'}</p>
             <p className="mt-1 text-[15px] font-medium text-white">{tab === 'import' ? 'CSV product import' : 'Download products CSV'}</p>
           </div>
-          <button type="button" onClick={onClose} className="text-white/35 hover:text-white" aria-label="Close"><X size={15} /></button>
+          <button type="button" onClick={onClose} className="text-[#AAAAAA] hover:text-white" aria-label="Close"><X size={15} /></button>
         </div>
 
-        <div className="flex gap-5 border-b border-white/10 px-5">
+        <div className="flex gap-5 border-b border-[#EAEAEA] px-5">
           {[{ k: 'import', l: 'Import' }, { k: 'export', l: 'Export' }].map((t) => (
             <button key={t.k} type="button" onClick={() => setTab(t.k)}
-              className={`py-2.5 text-[10px] font-medium uppercase tracking-[0.16em] ${tab === t.k ? 'border-b border-white text-white' : 'border-b border-transparent text-white/35 hover:text-white/70'}`}>
+              className={`py-2.5 text-[10px] font-medium uppercase tracking-[0.16em] ${tab === t.k ? 'border-b border-white text-white' : 'border-b border-transparent text-[#AAAAAA] hover:text-[#555555]'}`}>
               {t.l}
             </button>
           ))}
@@ -82,12 +82,12 @@ export default function CsvImport({ onClose, onDone }) {
         <div className="p-5">
           {tab === 'import' ? (
             <div className="space-y-3">
-              <p className="text-[12px] text-white/40">Paste CSV data below. First row = headers (name, sku, gender, categorySlug, tier, price, stock, etc.)</p>
+              <p className="text-[12px] text-[#999999]">Paste CSV data below. First row = headers (name, sku, gender, categorySlug, tier, price, stock, etc.)</p>
               <textarea value={csv} onChange={(e) => setCsv(e.target.value)}
                 className={`${ctl} min-h-[180px] !h-auto py-3 font-mono`}
                 placeholder={'name,sku,gender,categorySlug,tier,price,stock\nCotton Brief,HS-001,men,briefs,Standard,650,50'} />
               {result && (
-                <p className="text-[12px] text-white/70">
+                <p className="text-[12px] text-[#555555]">
                   Created {result.created || 0} · Updated {result.updated || 0} · Skipped {result.skipped || 0}
                 </p>
               )}
@@ -98,7 +98,7 @@ export default function CsvImport({ onClose, onDone }) {
             </div>
           ) : (
             <div className="space-y-4">
-              <p className="text-[12px] text-white/40">Download all products as a CSV file. You can edit it in Excel and re-import.</p>
+              <p className="text-[12px] text-[#999999]">Download all products as a CSV file. You can edit it in Excel and re-import.</p>
               <button type="button" onClick={handleExport} disabled={busy} className={btnSolid}>
                 {busy ? <Loader2 size={12} className="animate-spin" /> : <Download size={12} />}
                 {busy ? 'Downloading…' : 'Download CSV'}

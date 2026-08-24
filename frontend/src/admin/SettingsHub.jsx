@@ -121,16 +121,16 @@ export default function SettingsHub() {
             visible.map((g) => (
               <section key={g.title} className="mb-10">
                 <p className="adm-index">{g.index} — {g.title}</p>
-                <div className="border-y border-white/10">
+                <div className="border-y border-[#EAEAEA]">
                   {g.items.map((item) => (
                     <Link
                       key={item.to}
                       to={item.to}
-                      className="adm-row-hover flex items-start justify-between gap-4 border-b border-white/5 px-1 py-4 last:border-0"
+                      className="adm-row-hover flex items-start justify-between gap-4 border-b border-[#F0F0F0] px-1 py-4 last:border-0"
                     >
                       <div className="min-w-0">
                         <p className="text-[13px] text-white">{item.title}</p>
-                        <p className="mt-0.5 text-[12px] leading-relaxed text-white/35">{item.desc}</p>
+                        <p className="mt-0.5 text-[12px] leading-relaxed text-[#AAAAAA]">{item.desc}</p>
                       </div>
                       <span className="mt-0.5 shrink-0 text-[9px] font-medium uppercase tracking-[0.18em] text-white/25">Open</span>
                     </Link>
@@ -144,9 +144,9 @@ export default function SettingsHub() {
         <aside className="space-y-8 lg:sticky lg:top-20 lg:self-start">
           <section>
             <p className="adm-index">Signed in</p>
-            <div className="border-y border-white/10 py-5">
+            <div className="border-y border-[#EAEAEA] py-5">
               <p className="text-[13px] text-white">{auth?.user?.name || 'Admin'}</p>
-              <p className="mt-1 font-mono text-[12px] text-white/40">{auth?.user?.email || '—'}</p>
+              <p className="mt-1 font-mono text-[12px] text-[#999999]">{auth?.user?.email || '—'}</p>
               <div className="mt-3">
                 <MonoStatus label={auth?.user?.role ? String(auth.user.role).toUpperCase() : 'ADMIN'} />
               </div>
@@ -155,14 +155,14 @@ export default function SettingsHub() {
 
           <section>
             <p className="adm-index">Popular</p>
-            <div className="border-y border-white/10">
+            <div className="border-y border-[#EAEAEA]">
               {[
                 { to: '/admin/settings/security', label: 'Change admin password' },
                 { to: '/admin/settings/payments', label: 'Add JazzCash number' },
                 { to: '/admin/apps', label: 'Connect Google Analytics' },
                 { to: '/admin/settings/shipping', label: 'Update shipping rates' },
               ].map((t) => (
-                <Link key={t.to} to={t.to} className="adm-row-hover flex items-center justify-between border-b border-white/5 px-1 py-3 text-[12px] text-white/70 last:border-0 hover:text-white">
+                <Link key={t.to} to={t.to} className="adm-row-hover flex items-center justify-between border-b border-[#F0F0F0] px-1 py-3 text-[12px] text-[#555555] last:border-0 hover:text-white">
                   {t.label}
                   <span className="text-white/25">→</span>
                 </Link>

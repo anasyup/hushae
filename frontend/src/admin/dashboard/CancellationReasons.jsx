@@ -6,7 +6,7 @@ import { Ban } from 'lucide-react';
  * GET /api/admin/dashboard → cancellationReasons (already date-scoped).
  * ========================================================================== */
 
-const BARS = ['bg-neutral-900', 'bg-white/50', 'bg-neutral-400', 'bg-neutral-300', 'bg-neutral-200', 'bg-neutral-200'];
+const BARS = ['bg-neutral-900', 'bg-[#FAFAFA]0', 'bg-neutral-400', 'bg-neutral-300', 'bg-neutral-200', 'bg-neutral-200'];
 
 export default function CancellationReasons({ reasons = [] }) {
   const total = reasons.reduce((n, r) => n + r.count, 0);
@@ -21,14 +21,14 @@ export default function CancellationReasons({ reasons = [] }) {
       </div>
 
       {total === 0 ? (
-        <div className="mt-4 grid place-items-center bg-white/5 py-10 text-center">
+        <div className="mt-4 grid place-items-center bg-[#FAFAFA] py-10 text-center">
           <Ban size={18} className="text-neutral-400" />
           <p className="mt-2 text-[13px] text-neutral-500">No cancellations in this period.</p>
         </div>
       ) : (
         <>
           {top && top.count > 0 && (
-            <div className="mt-3 rounded-lg border border-white/10 bg-white/5 p-3 text-[12px] text-white/70">
+            <div className="mt-3 rounded-lg border border-[#EAEAEA] bg-[#FAFAFA] p-3 text-[12px] text-[#555555]">
               <b>{top.pct}%</b> of cancellations this period are <b>&ldquo;{top.reason}&rdquo;</b> — {top.reason === 'Out of stock' ? 'consider improving inventory sync.' : 'worth a closer look.'}
             </div>
           )}

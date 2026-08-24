@@ -244,12 +244,12 @@ export default function CmsEdit() {
       )}
 
       {problems.length > 0 && (
-        <ul role="alert" className="mb-6 space-y-1 border-y border-white/10 py-4 text-[13px] text-white/60">
+        <ul role="alert" className="mb-6 space-y-1 border-y border-[#EAEAEA] py-4 text-[13px] text-[#555555]">
           {problems.map((m) => <li key={m}>{m}</li>)}
         </ul>
       )}
       {errs.length > 0 && (
-        <ul role="alert" className="mb-6 space-y-1 border-y border-white/10 py-4 text-[13px] text-white/70">
+        <ul role="alert" className="mb-6 space-y-1 border-y border-[#EAEAEA] py-4 text-[13px] text-[#555555]">
           {errs.map((e, i) => <li key={i}>{e.message}</li>)}
         </ul>
       )}
@@ -275,7 +275,7 @@ export default function CmsEdit() {
                   placeholder="size-guide"
                 />
                 {p.slug && !slugCheck.ok && (
-                  <p role="alert" className="mt-1.5 text-[13px] text-white/60">
+                  <p role="alert" className="mt-1.5 text-[13px] text-[#555555]">
                     {slugCheck.message}
                     {slugCheck.suggestion && (
                       <button
@@ -322,7 +322,7 @@ export default function CmsEdit() {
                 className={`${ctl} min-h-[320px] resize-y py-3 font-mono leading-relaxed`}
                 placeholder={'Returns\n\nWe accept returns within 14 days of delivery, as long as the item is unworn and the tags are still attached.\n\nHow to start a return\n\nMessage us on WhatsApp with your order number.'}
               />
-              <p id="cms-body-h" className="mt-1.5 text-[12px] leading-relaxed text-white/35">
+              <p id="cms-body-h" className="mt-1.5 text-[12px] leading-relaxed text-[#AAAAAA]">
                 A line on its own with nothing after it becomes a heading. Everything else becomes a paragraph.
                 {' '}{(p.body || '').length.toLocaleString('en-PK')} characters.
               </p>
@@ -345,7 +345,7 @@ export default function CmsEdit() {
                 placeholder="How to measure yourself and pick the right size."
                 maxLength={300}
               />
-              <p id="cms-excerpt-h" className="mt-1.5 text-[12px] text-white/35">
+              <p id="cms-excerpt-h" className="mt-1.5 text-[12px] text-[#AAAAAA]">
                 Keep it under about 160 characters. {(p.excerpt || '').length}/300 used.
               </p>
             </div>
@@ -386,7 +386,7 @@ export default function CmsEdit() {
                     </p>
                   )}
                   {p.publishedAt && (
-                    <p className="text-[12px] text-white/35">Last published {fmtWhen(p.publishedAt)}</p>
+                    <p className="text-[12px] text-[#AAAAAA]">Last published {fmtWhen(p.publishedAt)}</p>
                   )}
                 </>
               )}
@@ -476,7 +476,7 @@ export default function CmsEdit() {
             </button>
           )}
           {!isNew && p.locked && (
-            <p className="text-[13px] leading-relaxed text-white/40">
+            <p className="text-[13px] leading-relaxed text-[#999999]">
               This page is part of the shop and cannot be deleted. Hide it instead.
             </p>
           )}

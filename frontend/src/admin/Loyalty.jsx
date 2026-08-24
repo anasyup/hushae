@@ -31,7 +31,7 @@ function StatCard({ label, value, sub }) {
     <div className="px-5 py-6">
       <p className="adm-label">{label}</p>
       <p className="adm-metric mt-3 text-[22px] text-white">{value}</p>
-      {sub && <p className="mt-1 text-[11px] text-white/35">{sub}</p>}
+      {sub && <p className="mt-1 text-[11px] text-[#AAAAAA]">{sub}</p>}
     </div>
   );
 }
@@ -137,7 +137,7 @@ function AdjustDialog({ account, onClose, onDone }) {
             <p className="mt-1.5 text-[12px] text-neutral-500">Saved against your name in the ledger, forever.</p>
           </div>
 
-          {err && <p role="alert" className="mb-3 border border-white/15 px-3 py-2 text-[12px] text-white/55">{err}</p>}
+          {err && <p role="alert" className="mb-3 border border-[#EAEAEA] px-3 py-2 text-[12px] text-white/55">{err}</p>}
 
           <div className="flex gap-2">
             <button type="button" onClick={onClose} className="min-h-[44px] flex-1 rounded-xl border border-neutral-300 px-4 text-[13px] font-semibold text-neutral-700 transition hover:bg-neutral-50">Cancel</button>
@@ -203,7 +203,7 @@ function MemberPanel({ id, onClose, onChanged }) {
           {!data ? <div className="animate-pulse rounded-xl bg-neutral-100 h-64 w-full" /> : (
             <>
               {a.blocked && (
-                <p role="alert" className="mb-4 border border-white/15 px-4 py-3 text-[12px] text-white/55">
+                <p role="alert" className="mb-4 border border-[#EAEAEA] px-4 py-3 text-[12px] text-white/55">
                   Blocked. {a.blockedReason || 'No reason recorded.'}
                 </p>
               )}
@@ -310,7 +310,7 @@ function NewCardDialog({ onClose, onDone }) {
 
         {code ? (
           <>
-            <p className="mb-3 border border-white/15 px-4 py-3 text-[12px] leading-relaxed text-white/50">
+            <p className="mb-3 border border-[#EAEAEA] px-4 py-3 text-[12px] leading-relaxed text-[#777777]">
               Copy this code now. It is stored scrambled, so it can never be shown again — only replaced.
             </p>
             <div className="flex items-center gap-2">
@@ -338,7 +338,7 @@ function NewCardDialog({ onClose, onDone }) {
               <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500" htmlFor="gc-to">Issued to (optional)</label>
               <input id="gc-to" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" maxLength={120} value={issuedTo} onChange={(e) => setIssuedTo(e.target.value)} placeholder="Phone or email" />
             </div>
-            {err && <p role="alert" className="mb-3 border border-white/15 px-3 py-2 text-[12px] text-white/55">{err}</p>}
+            {err && <p role="alert" className="mb-3 border border-[#EAEAEA] px-3 py-2 text-[12px] text-white/55">{err}</p>}
             <div className="flex gap-2">
               <button type="button" onClick={onClose} className="min-h-[44px] flex-1 rounded-xl border border-neutral-300 px-4 text-[13px] font-semibold text-neutral-700 transition hover:bg-neutral-50">Cancel</button>
               <button type="submit" disabled={busy} className="min-h-[44px] flex-1 rounded-xl bg-neutral-900 px-4 text-[13px] font-semibold text-white transition hover:bg-neutral-800 disabled:opacity-50">

@@ -88,7 +88,7 @@ export default function Taxes() {
             <EdText label="What to call it" value={c.taxLabel || ''} placeholder="Estimated tax" onChange={(v) => setCart({ ...c, taxLabel: v })} />
           </div>
         )}
-        <p className="mt-4 text-[12px] text-white/30">Invoice numbering and billing rules live under Settings → Store Details.</p>
+        <p className="mt-4 text-[12px] text-[#AAAAAA]">Invoice numbering and billing rules live under Settings → Store Details.</p>
       </EdSection>
 
       <EdSection index={2} title="Tax zones" description={`${zones.filter((z) => z.isActive).length} active / ${zones.length} total`}>
@@ -97,7 +97,7 @@ export default function Taxes() {
           <input placeholder="Region (optional)" value={form.region} onChange={(e) => setForm({ ...form, region: e.target.value })} className={ctl} />
           <input placeholder="Rate %" type="number" min="0" max="100" step="0.5" value={form.rate} onChange={(e) => setForm({ ...form, rate: e.target.value })} className={ctl} />
           <button type="button" onClick={createZone} disabled={busy} className={btnGhost}>{busy ? 'Adding…' : 'Add zone'}</button>
-          <label className="flex flex-wrap items-center gap-4 text-[12px] text-white/60 sm:col-span-4">
+          <label className="flex flex-wrap items-center gap-4 text-[12px] text-[#555555] sm:col-span-4">
             <span className="inline-flex items-center gap-2">
               <input type="checkbox" checked={form.inclusive} onChange={(e) => setForm({ ...form, inclusive: e.target.checked })} className="h-4 w-4 accent-white" />
               Tax-inclusive prices in this zone
@@ -113,15 +113,15 @@ export default function Taxes() {
           <EditorialEmpty title="No tax zones" description="No tax zones yet. Add your first zone above." />
         ) : (
           <>
-            <div className="hidden border-b border-white/10 py-2 md:grid md:grid-cols-[1.2fr_1fr_0.5fr_0.7fr_0.7fr_0.6fr] md:gap-3">
+            <div className="hidden border-b border-[#EAEAEA] py-2 md:grid md:grid-cols-[1.2fr_1fr_0.5fr_0.7fr_0.7fr_0.6fr] md:gap-3">
               {['Name', 'Region', 'Rate', 'Inclusive', 'Status', 'Action'].map((h) => <p key={h} className="adm-label">{h}</p>)}
             </div>
             {zones.map((z) => (
-              <div key={z._id} className="grid grid-cols-1 gap-1 border-b border-white/5 py-3 md:grid-cols-[1.2fr_1fr_0.5fr_0.7fr_0.7fr_0.6fr] md:items-center md:gap-3">
+              <div key={z._id} className="grid grid-cols-1 gap-1 border-b border-[#F0F0F0] py-3 md:grid-cols-[1.2fr_1fr_0.5fr_0.7fr_0.7fr_0.6fr] md:items-center md:gap-3">
                 <span className="text-[13px] text-white">{z.name}</span>
-                <span className="text-[12px] text-white/40">{z.region || '—'}</span>
-                <span className="tabular-nums text-[13px] text-white/80">{z.rate}%</span>
-                <span className="text-[12px] text-white/40">{z.inclusive ? 'Yes' : 'No'}</span>
+                <span className="text-[12px] text-[#999999]">{z.region || '—'}</span>
+                <span className="tabular-nums text-[13px] text-[#333333]">{z.rate}%</span>
+                <span className="text-[12px] text-[#999999]">{z.inclusive ? 'Yes' : 'No'}</span>
                 <button type="button" onClick={() => toggleZone(z)}>
                   <MonoStatus label={z.isActive ? 'ACTIVE' : 'INACTIVE'} dim={!z.isActive} />
                 </button>

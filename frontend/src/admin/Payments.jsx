@@ -164,12 +164,12 @@ export default function Payments() {
 
       <section className="mb-10">
         <p className="adm-index">01 — Snapshot</p>
-        <div className="adm-divide-x grid grid-cols-2 border-y border-white/10 lg:grid-cols-4">
+        <div className="adm-divide-x grid grid-cols-2 border-y border-[#EAEAEA] lg:grid-cols-4">
           {kpis.map(([l, v, s]) => (
             <div key={l} className="px-5 py-6">
               <p className="adm-label">{l}</p>
               <p className="adm-metric mt-3 text-[22px] text-white">{v}</p>
-              {s && <p className="mt-1 text-[11px] text-white/35">{s}</p>}
+              {s && <p className="mt-1 text-[11px] text-[#AAAAAA]">{s}</p>}
             </div>
           ))}
         </div>
@@ -191,12 +191,12 @@ export default function Payments() {
           </section>
           <section>
             <p className="adm-index">03 — Gateways</p>
-            <div className="border-y border-white/10">
+            <div className="border-y border-[#EAEAEA]">
               {gateways.map((g) => (
-                <div key={g.title} className="flex flex-wrap items-center justify-between gap-3 border-b border-white/5 py-4 last:border-0">
+                <div key={g.title} className="flex flex-wrap items-center justify-between gap-3 border-b border-[#F0F0F0] py-4 last:border-0">
                   <div>
                     <p className="text-[13px] text-white">{g.title}</p>
-                    <p className="mt-0.5 text-[12px] text-white/35">{g.account}</p>
+                    <p className="mt-0.5 text-[12px] text-[#AAAAAA]">{g.account}</p>
                   </div>
                   <MonoStatus label={g.enabled ? 'ENABLED' : 'OFF'} dim={!g.enabled} />
                 </div>
@@ -213,16 +213,16 @@ export default function Payments() {
             <EditorialEmpty title="All payments verified" description="No pending payments to review." />
           ) : (
             <>
-              <div className="hidden border-b border-white/10 py-2 md:grid md:grid-cols-[0.8fr_1.1fr_0.8fr_0.7fr_1fr_1fr] md:gap-3">
+              <div className="hidden border-b border-[#EAEAEA] py-2 md:grid md:grid-cols-[0.8fr_1.1fr_0.8fr_0.7fr_1fr_1fr] md:gap-3">
                 {['Order', 'Customer', 'Method', 'Amount', 'Date', 'Action'].map((h) => <p key={h} className="adm-label">{h}</p>)}
               </div>
               {stats.pendingOrders.slice(0, 50).map((o) => (
-                <div key={o._id} className="grid grid-cols-1 gap-1 border-b border-white/5 py-3 md:grid-cols-[0.8fr_1.1fr_0.8fr_0.7fr_1fr_1fr] md:items-center md:gap-3">
+                <div key={o._id} className="grid grid-cols-1 gap-1 border-b border-[#F0F0F0] py-3 md:grid-cols-[0.8fr_1.1fr_0.8fr_0.7fr_1fr_1fr] md:items-center md:gap-3">
                   <Link to={`/admin/orders/${o._id}`} className="font-mono text-[12px] text-white hover:underline">{o.orderNumber}</Link>
-                  <span className="text-[13px] text-white/80">{o.customerInfo?.name}</span>
-                  <span className="text-[12px] uppercase tracking-[0.12em] text-white/40">{o.paymentMethod}</span>
+                  <span className="text-[13px] text-[#333333]">{o.customerInfo?.name}</span>
+                  <span className="text-[12px] uppercase tracking-[0.12em] text-[#999999]">{o.paymentMethod}</span>
                   <span className="tabular-nums text-[13px] text-white">{pkr(o.total)}</span>
-                  <span className="text-[12px] text-white/35">{fmtDateTime(o.createdAt)}</span>
+                  <span className="text-[12px] text-[#AAAAAA]">{fmtDateTime(o.createdAt)}</span>
                   <div className="flex flex-wrap gap-2">
                     <button type="button" disabled={busyIds.has(o._id)} onClick={() => verifyPayment(o._id, 'Verified')} className={btnGhost}>Verify</button>
                     <button type="button" disabled={busyIds.has(o._id)} onClick={() => verifyPayment(o._id, 'Confirmed')} className={btnSolid}>Confirm</button>
@@ -260,18 +260,18 @@ export default function Payments() {
             <EditorialEmpty title="No transactions" description="No transactions match your filters." />
           ) : (
             <>
-              <div className="hidden border-b border-white/10 py-2 md:grid md:grid-cols-[0.8fr_1fr_1.2fr_0.8fr_0.6fr_0.7fr] md:gap-3">
+              <div className="hidden border-b border-[#EAEAEA] py-2 md:grid md:grid-cols-[0.8fr_1fr_1.2fr_0.8fr_0.6fr_0.7fr] md:gap-3">
                 {['Order', 'Date', 'Customer', 'Method', 'Status', 'Amount'].map((h) => <p key={h} className="adm-label">{h}</p>)}
               </div>
               {transactions.slice(0, 100).map((o) => (
-                <div key={o._id} className="grid grid-cols-1 gap-1 border-b border-white/5 py-3 md:grid-cols-[0.8fr_1fr_1.2fr_0.8fr_0.6fr_0.7fr] md:items-center md:gap-3">
+                <div key={o._id} className="grid grid-cols-1 gap-1 border-b border-[#F0F0F0] py-3 md:grid-cols-[0.8fr_1fr_1.2fr_0.8fr_0.6fr_0.7fr] md:items-center md:gap-3">
                   <Link to={`/admin/orders/${o._id}`} className="font-mono text-[12px] text-white hover:underline">{o.orderNumber}</Link>
-                  <span className="text-[12px] text-white/35">{fmtDateTime(o.createdAt)}</span>
+                  <span className="text-[12px] text-[#AAAAAA]">{fmtDateTime(o.createdAt)}</span>
                   <div>
                     <p className="text-[13px] text-white">{o.customerInfo?.name}</p>
-                    <p className="text-[11px] text-white/35">{o.customerInfo?.phone}</p>
+                    <p className="text-[11px] text-[#AAAAAA]">{o.customerInfo?.phone}</p>
                   </div>
-                  <span className="text-[12px] uppercase tracking-[0.12em] text-white/40">{o.paymentMethod}</span>
+                  <span className="text-[12px] uppercase tracking-[0.12em] text-[#999999]">{o.paymentMethod}</span>
                   <MonoStatus label={String(o.paymentStatus || '').toUpperCase()} dim={['Pending', 'Failed', 'Refunded'].includes(o.paymentStatus)} />
                   <span className="tabular-nums text-[13px] text-white">{pkr(o.total)}</span>
                 </div>

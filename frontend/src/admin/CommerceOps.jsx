@@ -67,7 +67,7 @@ function Overview({ ov }) {
     <div>
       <section className="mb-10">
         <p className="adm-index">01 — Operational overview</p>
-        <div className="adm-divide-x grid grid-cols-2 border-y border-white/10 sm:grid-cols-3 lg:grid-cols-5">
+        <div className="adm-divide-x grid grid-cols-2 border-y border-[#EAEAEA] sm:grid-cols-3 lg:grid-cols-5">
           {tiles.map(([l, v]) => (
             <div key={l} className="px-5 py-6">
               <p className="adm-label">{l}</p>
@@ -82,15 +82,15 @@ function Overview({ ov }) {
           <EditorialEmpty title="No movements yet" description="Receive a PO or post an adjustment." />
         ) : (
           <>
-            <div className="hidden border-b border-white/10 py-2 md:grid md:grid-cols-[minmax(0,1.4fr)_0.6fr_0.4fr_0.8fr] md:gap-3">
+            <div className="hidden border-b border-[#EAEAEA] py-2 md:grid md:grid-cols-[minmax(0,1.4fr)_0.6fr_0.4fr_0.8fr] md:gap-3">
               {['Product', 'Type', 'Qty', 'When'].map((h) => <p key={h} className="adm-label">{h}</p>)}
             </div>
             {(ov.recentMoves || []).map((m) => (
-              <div key={m._id} className="grid grid-cols-1 gap-1 border-b border-white/5 py-3 md:grid-cols-[minmax(0,1.4fr)_0.6fr_0.4fr_0.8fr] md:items-center md:gap-3">
+              <div key={m._id} className="grid grid-cols-1 gap-1 border-b border-[#F0F0F0] py-3 md:grid-cols-[minmax(0,1.4fr)_0.6fr_0.4fr_0.8fr] md:items-center md:gap-3">
                 <span className="truncate text-[13px] text-white">{m.product?.name || 'Product'}</span>
-                <span className="text-[11px] uppercase tracking-[0.12em] text-white/40">{m.type}</span>
-                <span className="text-[13px] tabular-nums text-white/80">{m.qty}</span>
-                <span className="text-[12px] text-white/35">{new Date(m.createdAt).toLocaleString()}</span>
+                <span className="text-[11px] uppercase tracking-[0.12em] text-[#999999]">{m.type}</span>
+                <span className="text-[13px] tabular-nums text-[#333333]">{m.qty}</span>
+                <span className="text-[12px] text-[#AAAAAA]">{new Date(m.createdAt).toLocaleString()}</span>
               </div>
             ))}
           </>
@@ -150,7 +150,7 @@ function Stock({ token, toast }) {
     <div>
       <section className="mb-10">
         <p className="adm-index">01 — Inventory overview</p>
-        <div className="adm-divide-x grid grid-cols-1 border-y border-white/10 sm:grid-cols-3">
+        <div className="adm-divide-x grid grid-cols-1 border-y border-[#EAEAEA] sm:grid-cols-3">
           {[
             ['Inventory value', insights ? pkr(insights.valuation || 0) : '—'],
             ['Dead stock SKUs', insights?.dead ?? '—'],
@@ -167,22 +167,22 @@ function Stock({ token, toast }) {
       <section className="mb-10">
         <p className="adm-index">02 — Warehouses</p>
         {warehouses.length === 0 ? (
-          <p className="mb-4 text-[12px] text-white/35">No locations yet.</p>
+          <p className="mb-4 text-[12px] text-[#AAAAAA]">No locations yet.</p>
         ) : (
           <div className="mb-6">
-            <div className="hidden border-b border-white/10 py-2 md:grid md:grid-cols-[0.5fr_minmax(0,1.2fr)_0.8fr] md:gap-3">
+            <div className="hidden border-b border-[#EAEAEA] py-2 md:grid md:grid-cols-[0.5fr_minmax(0,1.2fr)_0.8fr] md:gap-3">
               {['Code', 'Warehouse', 'City'].map((h) => <p key={h} className="adm-label">{h}</p>)}
             </div>
             {warehouses.map((w) => (
-              <div key={w._id} className="grid grid-cols-1 gap-1 border-b border-white/5 py-3 md:grid-cols-[0.5fr_minmax(0,1.2fr)_0.8fr] md:gap-3">
-                <span className="text-[12px] uppercase tracking-[0.12em] text-white/50">{w.code}</span>
+              <div key={w._id} className="grid grid-cols-1 gap-1 border-b border-[#F0F0F0] py-3 md:grid-cols-[0.5fr_minmax(0,1.2fr)_0.8fr] md:gap-3">
+                <span className="text-[12px] uppercase tracking-[0.12em] text-[#777777]">{w.code}</span>
                 <span className="text-[13px] text-white">{w.name}</span>
-                <span className="text-[12px] text-white/40">{w.city || '—'}</span>
+                <span className="text-[12px] text-[#999999]">{w.city || '—'}</span>
               </div>
             ))}
           </div>
         )}
-        <form onSubmit={addWh} className="flex flex-wrap items-end gap-2 border-t border-white/10 pt-4">
+        <form onSubmit={addWh} className="flex flex-wrap items-end gap-2 border-t border-[#EAEAEA] pt-4">
           <div><label className="adm-label mb-1.5 block">Code</label><input className={`${ctl} w-28`} placeholder="LHE" value={whName.code} onChange={(e) => setWhName({ ...whName, code: e.target.value })} /></div>
           <div className="min-w-[10rem] flex-1"><label className="adm-label mb-1.5 block">Name</label><input className={ctl} placeholder="Name" value={whName.name} onChange={(e) => setWhName({ ...whName, name: e.target.value })} /></div>
           <div><label className="adm-label mb-1.5 block">City</label><input className={`${ctl} w-32`} placeholder="City" value={whName.city} onChange={(e) => setWhName({ ...whName, city: e.target.value })} /></div>
@@ -193,7 +193,7 @@ function Stock({ token, toast }) {
       <div className="mb-10 grid gap-10 lg:grid-cols-2">
         <section>
           <p className="adm-index">03 — Stock adjustment</p>
-          <form onSubmit={adjust} className="space-y-3 border-y border-white/10 py-6">
+          <form onSubmit={adjust} className="space-y-3 border-y border-[#EAEAEA] py-6">
             <Select value={form.productId} onChange={(v) => setForm({ ...form, productId: v })} options={products.map((p) => ({ v: p._id, l: `${p.name} (${p.stock})` }))} placeholder="Product" />
             <Select value={form.warehouseId} onChange={(v) => setForm({ ...form, warehouseId: v })} options={warehouses.map((w) => ({ v: w._id, l: `${w.code} · ${w.name}` }))} placeholder="Warehouse" />
             <div><label className="adm-label mb-1.5 block">Qty (+ receive / − reduce)</label><input className={ctl} type="number" value={form.qty} onChange={(e) => setForm({ ...form, qty: e.target.value })} /></div>
@@ -203,7 +203,7 @@ function Stock({ token, toast }) {
         </section>
         <section>
           <p className="adm-index">03 — Transfer</p>
-          <form onSubmit={transfer} className="space-y-3 border-y border-white/10 py-6">
+          <form onSubmit={transfer} className="space-y-3 border-y border-[#EAEAEA] py-6">
             <Select value={xfer.productId} onChange={(v) => setXfer({ ...xfer, productId: v })} options={products.map((p) => ({ v: p._id, l: p.name }))} placeholder="Product" />
             <Select value={xfer.fromWarehouseId} onChange={(v) => setXfer({ ...xfer, fromWarehouseId: v })} options={warehouses.map((w) => ({ v: w._id, l: w.code }))} placeholder="From" />
             <Select value={xfer.toWarehouseId} onChange={(v) => setXfer({ ...xfer, toWarehouseId: v })} options={warehouses.map((w) => ({ v: w._id, l: w.code }))} placeholder="To" />
@@ -220,20 +220,20 @@ function Stock({ token, toast }) {
         ) : (
           <div className="overflow-x-auto">
             <div className="min-w-[720px]">
-              <div className="grid grid-cols-[minmax(0,1.4fr)_0.5fr_0.5fr_0.5fr_0.7fr_0.8fr] gap-3 border-b border-white/10 py-2">
+              <div className="grid grid-cols-[minmax(0,1.4fr)_0.5fr_0.5fr_0.5fr_0.7fr_0.8fr] gap-3 border-b border-[#EAEAEA] py-2">
                 {['Product', 'Stock', 'Sold 14d', 'Cover', 'Value', 'Status'].map((h) => <p key={h} className="adm-label">{h}</p>)}
               </div>
               {(insights.rows || []).map((r) => {
                 const f = flagOf(r);
                 return (
-                  <div key={r.productId} className="grid grid-cols-[minmax(0,1.4fr)_0.5fr_0.5fr_0.5fr_0.7fr_0.8fr] items-center gap-3 border-b border-white/5 py-3 adm-row-hover">
+                  <div key={r.productId} className="grid grid-cols-[minmax(0,1.4fr)_0.5fr_0.5fr_0.5fr_0.7fr_0.8fr] items-center gap-3 border-b border-[#F0F0F0] py-3 adm-row-hover">
                     <div className="min-w-0">
                       <p className="truncate text-[13px] text-white">{r.name}</p>
-                      <p className="text-[11px] text-white/30">{r.sku}</p>
+                      <p className="text-[11px] text-[#AAAAAA]">{r.sku}</p>
                     </div>
-                    <span className="text-[13px] tabular-nums text-white/80">{r.stock}</span>
-                    <span className="text-[13px] tabular-nums text-white/50">{r.sold14}</span>
-                    <span className="text-[12px] tabular-nums text-white/40">{r.coverDays === 999 ? '—' : `${r.coverDays}d`}</span>
+                    <span className="text-[13px] tabular-nums text-[#333333]">{r.stock}</span>
+                    <span className="text-[13px] tabular-nums text-[#777777]">{r.sold14}</span>
+                    <span className="text-[12px] tabular-nums text-[#999999]">{r.coverDays === 999 ? '—' : `${r.coverDays}d`}</span>
                     <span className="text-[13px] tabular-nums text-white">{pkr(r.value)}</span>
                     <MonoStatus label={f.label} dim={f.dim} />
                   </div>
@@ -250,16 +250,16 @@ function Stock({ token, toast }) {
           <EditorialEmpty title="No movements" description="Adjustments and transfers appear here." />
         ) : (
           <>
-            <div className="hidden border-b border-white/10 py-2 md:grid md:grid-cols-[0.6fr_minmax(0,1.2fr)_0.5fr_0.4fr_minmax(0,1fr)] md:gap-3">
+            <div className="hidden border-b border-[#EAEAEA] py-2 md:grid md:grid-cols-[0.6fr_minmax(0,1.2fr)_0.5fr_0.4fr_minmax(0,1fr)] md:gap-3">
               {['Type', 'Product', 'Warehouse', 'Qty', 'Reference'].map((h) => <p key={h} className="adm-label">{h}</p>)}
             </div>
             {history.slice(0, 40).map((h) => (
-              <div key={h._id} className="grid grid-cols-1 gap-1 border-b border-white/5 py-3 md:grid-cols-[0.6fr_minmax(0,1.2fr)_0.5fr_0.4fr_minmax(0,1fr)] md:items-center md:gap-3">
+              <div key={h._id} className="grid grid-cols-1 gap-1 border-b border-[#F0F0F0] py-3 md:grid-cols-[0.6fr_minmax(0,1.2fr)_0.5fr_0.4fr_minmax(0,1fr)] md:items-center md:gap-3">
                 <span className="text-[11px] uppercase tracking-[0.12em] text-white/45">{h.type}</span>
                 <span className="truncate text-[13px] text-white">{h.product?.name || '—'}</span>
-                <span className="text-[12px] text-white/40">{h.warehouse?.code || '—'}</span>
-                <span className="text-[13px] tabular-nums text-white/80">{h.qty}</span>
-                <span className="truncate text-[12px] text-white/35">{h.note || '—'}</span>
+                <span className="text-[12px] text-[#999999]">{h.warehouse?.code || '—'}</span>
+                <span className="text-[13px] tabular-nums text-[#333333]">{h.qty}</span>
+                <span className="truncate text-[12px] text-[#AAAAAA]">{h.note || '—'}</span>
               </div>
             ))}
           </>
@@ -313,7 +313,7 @@ function Purchasing({ token, toast }) {
     <div>
       <section className="mb-10">
         <p className="adm-index">01 — Purchasing overview</p>
-        <div className="adm-divide-x grid grid-cols-2 border-y border-white/10 sm:grid-cols-3">
+        <div className="adm-divide-x grid grid-cols-2 border-y border-[#EAEAEA] sm:grid-cols-3">
           {[
             ['Suppliers', suppliers.length],
             ['Purchase orders', pos.length],
@@ -329,7 +329,7 @@ function Purchasing({ token, toast }) {
 
       <section className="mb-10">
         <p className="adm-index">02 — Purchase orders</p>
-        <form onSubmit={createPo} className="mb-6 grid gap-3 border-y border-white/10 py-6 md:grid-cols-2">
+        <form onSubmit={createPo} className="mb-6 grid gap-3 border-y border-[#EAEAEA] py-6 md:grid-cols-2">
           <Select value={draft.supplier} onChange={(v) => setDraft({ ...draft, supplier: v })} options={suppliers.map((s) => ({ v: s._id, l: s.name }))} placeholder="Supplier" />
           <Select value={draft.warehouse} onChange={(v) => setDraft({ ...draft, warehouse: v })} options={wh.map((w) => ({ v: w._id, l: w.name }))} placeholder="Receive into" />
           <Select value={draft.product} onChange={(v) => setDraft({ ...draft, product: v })} options={products.map((p) => ({ v: p._id, l: p.name }))} placeholder="Product" />
@@ -343,14 +343,14 @@ function Purchasing({ token, toast }) {
           <EditorialEmpty title="No purchase orders" description="Create a PO above to receive stock." />
         ) : (
           <>
-            <div className="hidden border-b border-white/10 py-2 md:grid md:grid-cols-[0.8fr_minmax(0,1fr)_0.4fr_0.6fr_auto] md:gap-3">
+            <div className="hidden border-b border-[#EAEAEA] py-2 md:grid md:grid-cols-[0.8fr_minmax(0,1fr)_0.4fr_0.6fr_auto] md:gap-3">
               {['PO', 'Supplier', 'Items', 'Status', ''].map((h) => <p key={h || 'a'} className="adm-label">{h}</p>)}
             </div>
             {pos.map((p) => (
-              <div key={p._id} className="grid grid-cols-1 items-center gap-2 border-b border-white/5 py-3 md:grid-cols-[0.8fr_minmax(0,1fr)_0.4fr_0.6fr_auto] md:gap-3">
+              <div key={p._id} className="grid grid-cols-1 items-center gap-2 border-b border-[#F0F0F0] py-3 md:grid-cols-[0.8fr_minmax(0,1fr)_0.4fr_0.6fr_auto] md:gap-3">
                 <span className="text-[13px] text-white">{p.number}</span>
-                <span className="text-[12px] text-white/60">{p.supplier?.name || '—'}</span>
-                <span className="text-[12px] tabular-nums text-white/50">{p.lines?.length || 0}</span>
+                <span className="text-[12px] text-[#555555]">{p.supplier?.name || '—'}</span>
+                <span className="text-[12px] tabular-nums text-[#777777]">{p.lines?.length || 0}</span>
                 <MonoStatus label={String(p.status || '—').replace(/_/g, ' ')} dim={p.status === 'cancelled' || p.status === 'received'} />
                 {p.status !== 'received' && p.status !== 'cancelled' ? (
                   <button type="button" className={btnGhost} onClick={() => receive(p._id)}>Receive all</button>
@@ -363,7 +363,7 @@ function Purchasing({ token, toast }) {
 
       <section>
         <p className="adm-index">03 — Suppliers</p>
-        <form onSubmit={addSup} className="mb-6 flex flex-wrap items-end gap-2 border-y border-white/10 py-6">
+        <form onSubmit={addSup} className="mb-6 flex flex-wrap items-end gap-2 border-y border-[#EAEAEA] py-6">
           <div className="min-w-[10rem] flex-1"><label className="adm-label mb-1.5 block">Name</label><input className={ctl} placeholder="Name" value={sup.name} onChange={(e) => setSup({ ...sup, name: e.target.value })} required /></div>
           <div><label className="adm-label mb-1.5 block">Phone</label><input className={`${ctl} w-40`} placeholder="Phone" value={sup.phone} onChange={(e) => setSup({ ...sup, phone: e.target.value })} /></div>
           <button className={btnGhost} type="submit">Add</button>
@@ -372,14 +372,14 @@ function Purchasing({ token, toast }) {
           <EditorialEmpty title="No suppliers" description="Add a supplier to raise purchase orders." />
         ) : (
           <>
-            <div className="hidden border-b border-white/10 py-2 md:grid md:grid-cols-[minmax(0,1.2fr)_0.8fr_0.8fr] md:gap-3">
+            <div className="hidden border-b border-[#EAEAEA] py-2 md:grid md:grid-cols-[minmax(0,1.2fr)_0.8fr_0.8fr] md:gap-3">
               {['Supplier', 'City', 'Contact'].map((h) => <p key={h} className="adm-label">{h}</p>)}
             </div>
             {suppliers.map((s) => (
-              <div key={s._id} className="grid grid-cols-1 gap-1 border-b border-white/5 py-3 md:grid-cols-[minmax(0,1.2fr)_0.8fr_0.8fr] md:gap-3">
+              <div key={s._id} className="grid grid-cols-1 gap-1 border-b border-[#F0F0F0] py-3 md:grid-cols-[minmax(0,1.2fr)_0.8fr_0.8fr] md:gap-3">
                 <span className="text-[13px] text-white">{s.name}</span>
-                <span className="text-[12px] text-white/40">{s.city || '—'}</span>
-                <span className="text-[12px] text-white/50">{s.phone || '—'}</span>
+                <span className="text-[12px] text-[#999999]">{s.city || '—'}</span>
+                <span className="text-[12px] text-[#777777]">{s.phone || '—'}</span>
               </div>
             ))}
           </>
@@ -424,7 +424,7 @@ function Returns({ token, toast }) {
     <div>
       <section className="mb-10">
         <p className="adm-index">01 — Return overview</p>
-        <div className="adm-divide-x grid grid-cols-2 border-y border-white/10">
+        <div className="adm-divide-x grid grid-cols-2 border-y border-[#EAEAEA]">
           <div className="px-5 py-6">
             <p className="adm-label">Open RMAs</p>
             <p className="adm-metric mt-3 text-[26px] text-white">{list.filter((r) => r.stage !== 'completed' && r.stage !== 'rejected').length}</p>
@@ -439,7 +439,7 @@ function Returns({ token, toast }) {
       <div className="mb-10 grid gap-10 lg:grid-cols-2">
         <section>
           <p className="adm-index">02 — Open RMA</p>
-          <form onSubmit={open} className="space-y-3 border-y border-white/10 py-6">
+          <form onSubmit={open} className="space-y-3 border-y border-[#EAEAEA] py-6">
             <Select value={form.orderId} onChange={(v) => setForm({ ...form, orderId: v })} options={orders.map((o) => ({ v: o._id, l: `${o.orderNumber} · ${o.customerInfo?.name}` }))} placeholder="Order" />
             <div><label className="adm-label mb-1.5 block">Reason</label><input className={ctl} value={form.reason} onChange={(e) => setForm({ ...form, reason: e.target.value })} /></div>
             <div><label className="adm-label mb-1.5 block">Notes</label><textarea className={`${ctl} min-h-16 py-2`} rows={2} placeholder="Notes / inspection" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} /></div>
@@ -448,7 +448,7 @@ function Returns({ token, toast }) {
         </section>
         <section>
           <p className="adm-index">02 — Refund ledger</p>
-          <form onSubmit={pay} className="space-y-3 border-y border-white/10 py-6">
+          <form onSubmit={pay} className="space-y-3 border-y border-[#EAEAEA] py-6">
             <Select value={refund.orderId} onChange={(v) => setRefund({ ...refund, orderId: v })} options={orders.map((o) => ({ v: o._id, l: o.orderNumber }))} placeholder="Order" />
             <div><label className="adm-label mb-1.5 block">Amount PKR</label><input className={ctl} type="number" min="1" value={refund.amount} onChange={(e) => setRefund({ ...refund, amount: e.target.value })} /></div>
             <div>
@@ -471,11 +471,11 @@ function Returns({ token, toast }) {
           <EditorialEmpty title="No returns" description="Open an RMA from an order above." />
         ) : (
           list.map((r) => (
-            <div key={r._id} className="border-b border-white/10 py-4">
+            <div key={r._id} className="border-b border-[#EAEAEA] py-4">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <p className="text-[13px] text-white">{r.rma} · {r.orderNumber}</p>
-                  <p className="mt-1 text-[12px] text-white/35">{r.reason}{r.notes ? ` — ${r.notes}` : ''}</p>
+                  <p className="mt-1 text-[12px] text-[#AAAAAA]">{r.reason}{r.notes ? ` — ${r.notes}` : ''}</p>
                 </div>
                 <MonoStatus label={String(r.stage || '').replace(/_/g, ' ')} dim={r.stage === 'completed' || r.stage === 'rejected'} />
               </div>
@@ -532,7 +532,7 @@ function Comms({ token, toast }) {
           <EditorialEmpty title="No templates" description="Templates appear here when they exist." />
         ) : (
           templates.map((t) => (
-            <div key={t._id} className="flex items-center justify-between gap-3 border-b border-white/5 py-3">
+            <div key={t._id} className="flex items-center justify-between gap-3 border-b border-[#F0F0F0] py-3">
               <span className="text-[13px] text-white">{t.channel} / {t.key}</span>
               <button type="button" className={btnGhost} onClick={() => applyTpl(t)}>Use</button>
             </div>
@@ -542,7 +542,7 @@ function Comms({ token, toast }) {
 
       <section className="mb-10">
         <p className="adm-index">02 — Send</p>
-        <form onSubmit={doSend} className="space-y-3 border-y border-white/10 py-6">
+        <form onSubmit={doSend} className="space-y-3 border-y border-[#EAEAEA] py-6">
           <div><label className="adm-label mb-1.5 block">Phone</label><input className={ctl} placeholder="03XX…" value={send.to} onChange={(e) => setSend({ ...send, to: e.target.value })} /></div>
           <div><label className="adm-label mb-1.5 block">Message</label><textarea className={`${ctl} min-h-20 py-2`} rows={3} value={send.body} onChange={(e) => setSend({ ...send, body: e.target.value })} /></div>
           <button className={btnSolid} type="submit">Send / open WhatsApp</button>
@@ -564,20 +564,20 @@ function Comms({ token, toast }) {
             <button className={btnGhost} type="submit">Save</button>
           </form>
           {consent.slice(0, 20).map((c) => (
-            <div key={c._id} className="flex justify-between gap-3 border-b border-white/5 py-2 text-[12px]">
-              <span className="text-white/80">{c.phone}</span>
-              <span className="text-white/35">{c.channel} · {c.status}</span>
+            <div key={c._id} className="flex justify-between gap-3 border-b border-[#F0F0F0] py-2 text-[12px]">
+              <span className="text-[#333333]">{c.phone}</span>
+              <span className="text-[#AAAAAA]">{c.channel} · {c.status}</span>
             </div>
           ))}
         </section>
         <section>
           <p className="adm-index">03 — Delivery log</p>
           {log.length === 0 ? (
-            <p className="border-y border-white/10 py-6 text-[12px] text-white/35">No messages logged.</p>
+            <p className="border-y border-[#EAEAEA] py-6 text-[12px] text-[#AAAAAA]">No messages logged.</p>
           ) : log.map((l) => (
-            <div key={l._id} className="border-b border-white/5 py-2 text-[12px]">
-              <span className="text-white/80">{l.channel} → {l.to}</span>
-              <span className="ml-2 text-white/35">{l.status} · {l.templateKey}</span>
+            <div key={l._id} className="border-b border-[#F0F0F0] py-2 text-[12px]">
+              <span className="text-[#333333]">{l.channel} → {l.to}</span>
+              <span className="ml-2 text-[#AAAAAA]">{l.status} · {l.templateKey}</span>
             </div>
           ))}
         </section>
@@ -602,17 +602,17 @@ function Risk({ token, toast }) {
         <EditorialEmpty title="No flagged orders" description="Holds appear here when risk signals fire." />
       ) : (
         <>
-          <div className="hidden border-b border-white/10 py-2 md:grid md:grid-cols-[0.7fr_0.6fr_minmax(0,1.4fr)_auto] md:gap-3">
+          <div className="hidden border-b border-[#EAEAEA] py-2 md:grid md:grid-cols-[0.7fr_0.6fr_minmax(0,1.4fr)_auto] md:gap-3">
             {['Order', 'Value', 'Signals', ''].map((h) => <p key={h || 'a'} className="adm-label">{h}</p>)}
           </div>
           {orders.map((o) => (
-            <div key={o._id} className="grid grid-cols-1 gap-2 border-b border-white/10 py-4 md:grid-cols-[0.7fr_0.6fr_minmax(0,1.4fr)_auto] md:items-center md:gap-3">
+            <div key={o._id} className="grid grid-cols-1 gap-2 border-b border-[#EAEAEA] py-4 md:grid-cols-[0.7fr_0.6fr_minmax(0,1.4fr)_auto] md:items-center md:gap-3">
               <div>
                 <p className="text-[13px] text-white">{o.orderNumber}</p>
-                <p className="text-[11px] text-white/30">{o.paymentMethod} · score {o.fraudFilter?.score ?? '—'}</p>
+                <p className="text-[11px] text-[#AAAAAA]">{o.paymentMethod} · score {o.fraudFilter?.score ?? '—'}</p>
               </div>
               <span className="text-[13px] tabular-nums text-white">{pkr(o.total)}</span>
-              <span className="text-[12px] text-white/40">{(o.fraudFilter?.reasons || []).join(' · ') || '—'}</span>
+              <span className="text-[12px] text-[#999999]">{(o.fraudFilter?.reasons || []).join(' · ') || '—'}</span>
               <div className="flex flex-wrap gap-2">
                 <button type="button" className={btnGhost} onClick={() => review(o._id, 'approved')}>Approve</button>
                 <button type="button" className={btnGhost} onClick={() => review(o._id, 'rejected')}>Reject</button>
@@ -651,15 +651,15 @@ function Shipping({ token, toast }) {
           <EditorialEmpty title="No shipping profiles" description="Save a zone below." />
         ) : (
           <>
-            <div className="hidden border-b border-white/10 py-2 md:grid md:grid-cols-[minmax(0,1.2fr)_0.6fr_0.6fr_0.5fr] md:gap-3">
+            <div className="hidden border-b border-[#EAEAEA] py-2 md:grid md:grid-cols-[minmax(0,1.2fr)_0.6fr_0.6fr_0.5fr] md:gap-3">
               {['Profile', 'Courier', 'Countries', 'Methods'].map((h) => <p key={h} className="adm-label">{h}</p>)}
             </div>
             {list.map((p) => (
-              <div key={p._id} className="grid grid-cols-1 gap-1 border-b border-white/5 py-3 md:grid-cols-[minmax(0,1.2fr)_0.6fr_0.6fr_0.5fr] md:gap-3">
+              <div key={p._id} className="grid grid-cols-1 gap-1 border-b border-[#F0F0F0] py-3 md:grid-cols-[minmax(0,1.2fr)_0.6fr_0.6fr_0.5fr] md:gap-3">
                 <span className="text-[13px] text-white">{p.name}</span>
-                <span className="text-[12px] text-white/50">{p.courier}</span>
-                <span className="text-[12px] text-white/40">{(p.countries || []).join(', ')}</span>
-                <span className="text-[12px] tabular-nums text-white/50">{p.methods?.length || 0}</span>
+                <span className="text-[12px] text-[#777777]">{p.courier}</span>
+                <span className="text-[12px] text-[#999999]">{(p.countries || []).join(', ')}</span>
+                <span className="text-[12px] tabular-nums text-[#777777]">{p.methods?.length || 0}</span>
               </div>
             ))}
           </>
@@ -667,7 +667,7 @@ function Shipping({ token, toast }) {
       </section>
       <section>
         <p className="adm-index">02 — New zone / method</p>
-        <form onSubmit={save} className="grid gap-3 border-y border-white/10 py-6 md:grid-cols-2">
+        <form onSubmit={save} className="grid gap-3 border-y border-[#EAEAEA] py-6 md:grid-cols-2">
           <div><label className="adm-label mb-1.5 block">Name</label><input className={ctl} value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} /></div>
           <div><label className="adm-label mb-1.5 block">Countries ISO</label><input className={ctl} placeholder="PK,AE" value={f.countries} onChange={(e) => setF({ ...f, countries: e.target.value })} /></div>
           <div><label className="adm-label mb-1.5 block">Courier</label><input className={ctl} value={f.courier} onChange={(e) => setF({ ...f, courier: e.target.value })} /></div>
@@ -705,14 +705,14 @@ function Tax({ token, toast }) {
           <EditorialEmpty title="No tax zones" description="Save a zone below." />
         ) : (
           <>
-            <div className="hidden border-b border-white/10 py-2 md:grid md:grid-cols-[minmax(0,1.2fr)_0.4fr_0.4fr_0.6fr] md:gap-3">
+            <div className="hidden border-b border-[#EAEAEA] py-2 md:grid md:grid-cols-[minmax(0,1.2fr)_0.4fr_0.4fr_0.6fr] md:gap-3">
               {['Zone', 'Country', 'Rate', 'Status'].map((h) => <p key={h} className="adm-label">{h}</p>)}
             </div>
             {zones.map((z) => (
-              <div key={z._id} className="grid grid-cols-1 gap-1 border-b border-white/5 py-3 md:grid-cols-[minmax(0,1.2fr)_0.4fr_0.4fr_0.6fr] md:gap-3">
+              <div key={z._id} className="grid grid-cols-1 gap-1 border-b border-[#F0F0F0] py-3 md:grid-cols-[minmax(0,1.2fr)_0.4fr_0.4fr_0.6fr] md:gap-3">
                 <span className="text-[13px] text-white">{z.name}</span>
                 <span className="text-[12px] text-white/45">{z.country}</span>
-                <span className="text-[13px] tabular-nums text-white/80">{z.rate}%</span>
+                <span className="text-[13px] tabular-nums text-[#333333]">{z.rate}%</span>
                 <MonoStatus label={z.inclusive ? 'INCLUSIVE' : 'EXCLUSIVE'} dim={false} />
               </div>
             ))}
@@ -721,13 +721,13 @@ function Tax({ token, toast }) {
       </section>
       <section>
         <p className="adm-index">02 — New zone</p>
-        <form onSubmit={save} className="grid gap-3 border-y border-white/10 py-6 md:grid-cols-2">
+        <form onSubmit={save} className="grid gap-3 border-y border-[#EAEAEA] py-6 md:grid-cols-2">
           <div><label className="adm-label mb-1.5 block">Name</label><input className={ctl} value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} /></div>
           <div><label className="adm-label mb-1.5 block">Country ISO</label><input className={ctl} value={f.country} onChange={(e) => setF({ ...f, country: e.target.value })} /></div>
           <div><label className="adm-label mb-1.5 block">Rate</label><input className={ctl} type="number" value={f.rate} onChange={(e) => setF({ ...f, rate: e.target.value })} /></div>
           <div className="space-y-3 self-end">
-            <label className="flex items-center gap-2 text-[13px] text-white/70"><input type="checkbox" className="accent-white" checked={f.inclusive} onChange={(e) => setF({ ...f, inclusive: e.target.checked })} /> Inclusive</label>
-            <label className="flex items-center gap-2 text-[13px] text-white/70"><input type="checkbox" className="accent-white" checked={f.appliesToShipping} onChange={(e) => setF({ ...f, appliesToShipping: e.target.checked })} /> Tax shipping</label>
+            <label className="flex items-center gap-2 text-[13px] text-[#555555]"><input type="checkbox" className="accent-white" checked={f.inclusive} onChange={(e) => setF({ ...f, inclusive: e.target.checked })} /> Inclusive</label>
+            <label className="flex items-center gap-2 text-[13px] text-[#555555]"><input type="checkbox" className="accent-white" checked={f.appliesToShipping} onChange={(e) => setF({ ...f, appliesToShipping: e.target.checked })} /> Tax shipping</label>
           </div>
           <div><button className={btnSolid} type="submit">Save zone</button></div>
         </form>
@@ -775,13 +775,13 @@ function Launchpad({ token, toast }) {
           <EditorialEmpty title="No launches" description="Save a draft campaign below." />
         ) : (
           list.map((l, i) => (
-            <div key={l._id} className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 py-4">
+            <div key={l._id} className="flex flex-wrap items-center justify-between gap-3 border-b border-[#EAEAEA] py-4">
               <div>
                 <p className="text-[13px] text-white">
-                  <span className="mr-3 text-[10px] uppercase tracking-[0.16em] text-white/30">{String(i + 1).padStart(2, '0')}</span>
+                  <span className="mr-3 text-[10px] uppercase tracking-[0.16em] text-[#AAAAAA]">{String(i + 1).padStart(2, '0')}</span>
                   {l.name}
                 </p>
-                <p className="mt-1 text-[12px] text-white/35">{l.productIds?.length || 0} products · {l.discountCode || 'no coupon'}</p>
+                <p className="mt-1 text-[12px] text-[#AAAAAA]">{l.productIds?.length || 0} products · {l.discountCode || 'no coupon'}</p>
               </div>
               <div className="flex flex-wrap items-center gap-2">
                 <MonoStatus label={l.status} dim={l.status === 'ended' || l.status === 'draft'} />
@@ -794,7 +794,7 @@ function Launchpad({ token, toast }) {
       </section>
       <section>
         <p className="adm-index">02 — New campaign</p>
-        <form onSubmit={save} className="space-y-3 border-y border-white/10 py-6">
+        <form onSubmit={save} className="space-y-3 border-y border-[#EAEAEA] py-6">
           <div><label className="adm-label mb-1.5 block">Name</label><input className={ctl} placeholder="BLACK FRIDAY" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} required /></div>
           <div className="grid gap-3 md:grid-cols-2">
             <div><label className="adm-label mb-1.5 block">Starts</label><input className={`${ctl} [color-scheme:dark]`} type="datetime-local" value={f.startsAt} onChange={(e) => setF({ ...f, startsAt: e.target.value })} /></div>
@@ -804,7 +804,7 @@ function Launchpad({ token, toast }) {
           <div><label className="adm-label mb-1.5 block">Banner note</label><input className={ctl} value={f.bannerNote} onChange={(e) => setF({ ...f, bannerNote: e.target.value })} /></div>
           <div>
             <p className="adm-label mb-2">Products</p>
-            <div className="max-h-40 overflow-auto border-y border-white/10 py-2 text-[12px]">
+            <div className="max-h-40 overflow-auto border-y border-[#EAEAEA] py-2 text-[12px]">
               {products.map((p) => (
                 <label key={p._id} className="flex items-center gap-2 py-1.5 text-white/75">
                   <input type="checkbox" className="accent-white" checked={f.productIds.includes(p._id)} onChange={() => toggleP(p._id)} />

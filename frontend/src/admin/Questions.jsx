@@ -95,8 +95,8 @@ export default function Questions() {
       ) : (
         <section>
           <p className="adm-index">01 — {tab}</p>
-          <div className="mb-4 flex flex-wrap items-center gap-2 border-y border-white/10 py-3">
-            <label className="flex cursor-pointer items-center gap-2 text-[12px] text-white/70">
+          <div className="mb-4 flex flex-wrap items-center gap-2 border-y border-[#EAEAEA] py-3">
+            <label className="flex cursor-pointer items-center gap-2 text-[12px] text-[#555555]">
               <input type="checkbox" checked={allChecked} onChange={() => setSelected(allChecked ? [] : rows.map((r) => r._id))} className="h-4 w-4 accent-white" />
               Select all ({rows.length})
             </label>
@@ -110,29 +110,29 @@ export default function Questions() {
             )}
           </div>
 
-          <div className="border-y border-white/10">
+          <div className="border-y border-[#EAEAEA]">
             {rows.map((q) => (
-              <div key={q._id} className="border-b border-white/5 py-5 last:border-0">
+              <div key={q._id} className="border-b border-[#F0F0F0] py-5 last:border-0">
                 <div className="flex gap-3">
                   <input type="checkbox" checked={selected.includes(q._id)} onChange={() => toggleOne(q._id)} aria-label={`Select question from ${q.customerName}`} className="mt-1 h-4 w-4 shrink-0 accent-white" />
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <p className="text-[13px] text-white">{q.customerName}</p>
-                      <p className="text-[11px] text-white/30">{new Date(q.createdAt).toLocaleDateString('en-PK')}</p>
+                      <p className="text-[11px] text-[#AAAAAA]">{new Date(q.createdAt).toLocaleDateString('en-PK')}</p>
                       {q.featured && <MonoStatus label="FEATURED" />}
                       {q.reports > 0 && <MonoStatus label={`${q.reports} REPORT${q.reports === 1 ? '' : 'S'}`} dim />}
                       {(q.answers || []).length === 0 && <MonoStatus label="UNANSWERED" dim />}
                     </div>
-                    <p className="mt-2 text-[13px] leading-relaxed text-white/80">{q.body}</p>
+                    <p className="mt-2 text-[13px] leading-relaxed text-[#333333]">{q.body}</p>
                     {(q.answers || []).length > 0 && (
                       <ul className="mt-3 space-y-2">
                         {q.answers.map((a) => (
-                          <li key={a._id} className="border-l border-white/15 pl-3">
+                          <li key={a._id} className="border-l border-[#EAEAEA] pl-3">
                             <p className="adm-label">
                               {a.isMerchant ? 'Your answer' : a.authorName}
-                              {a.status !== 'approved' && <span className="ml-2 text-white/40">· {a.status}</span>}
+                              {a.status !== 'approved' && <span className="ml-2 text-[#999999]">· {a.status}</span>}
                             </p>
-                            <p className="mt-1 text-[13px] text-white/70">{a.body}</p>
+                            <p className="mt-1 text-[13px] text-[#555555]">{a.body}</p>
                             {!a.isMerchant && a.status === 'pending' && (
                               <div className="mt-2 flex gap-2">
                                 <button
@@ -162,7 +162,7 @@ export default function Questions() {
                       </ul>
                     )}
                     {q.product && (
-                      <Link to={`/product/${q.product.slug}`} target="_blank" className="mt-3 inline-block text-[12px] text-white/40 hover:text-white">{q.product.name}</Link>
+                      <Link to={`/product/${q.product.slug}`} target="_blank" className="mt-3 inline-block text-[12px] text-[#999999] hover:text-white">{q.product.name}</Link>
                     )}
                   </div>
                   <div className="flex shrink-0 flex-wrap items-start gap-2">
@@ -173,10 +173,10 @@ export default function Questions() {
                   </div>
                 </div>
                 {replying === q._id && (
-                  <div className="mt-4 border-t border-white/10 pt-4">
+                  <div className="mt-4 border-t border-[#EAEAEA] pt-4">
                     <label className="adm-label mb-1.5 block" htmlFor={`reply-${q._id}`}>Public answer from HUSHAE</label>
                     <textarea id={`reply-${q._id}`} rows={3} className={ta} value={reply} onChange={(e) => setReply(e.target.value)} placeholder="It runs true to size…" />
-                    <p className="mt-1 text-[12px] text-white/30">Posting an answer also approves the question.</p>
+                    <p className="mt-1 text-[12px] text-[#AAAAAA]">Posting an answer also approves the question.</p>
                     <div className="mt-2 flex justify-end gap-2">
                       <button type="button" onClick={() => setReplying(null)} className={btnGhost}>Cancel</button>
                       <button type="button" onClick={() => sendReply(q._id)} disabled={busy === q._id} className={btnSolid}>Post answer</button>

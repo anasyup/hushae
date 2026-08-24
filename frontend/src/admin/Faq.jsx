@@ -69,17 +69,17 @@ export default function AdminFaq() {
 
       <section className="mb-10">
         <p className="adm-index">01 — Page</p>
-        <div className="flex items-start justify-between gap-4 border-y border-white/10 py-6">
+        <div className="flex items-start justify-between gap-4 border-y border-[#EAEAEA] py-6">
           <div>
             <p className="text-[13px] text-white">FAQ page live</p>
-            <p className="mt-1 text-[12px] text-white/35">Also picked up by Google as rich snippets.</p>
+            <p className="mt-1 text-[12px] text-[#AAAAAA]">Also picked up by Google as rich snippets.</p>
           </div>
           <button
             type="button"
             role="switch"
             aria-checked={faq.enabled !== false}
             onClick={() => setFaq('enabled', faq.enabled === false)}
-            className={`relative h-5 w-9 shrink-0 rounded-full ${faq.enabled !== false ? 'bg-white' : 'bg-white/20'}`}
+            className={`relative h-5 w-9 shrink-0 rounded-full ${faq.enabled !== false ? 'bg-white' : 'bg-[#EFEFEF]'}`}
           >
             <span className={`absolute top-0.5 h-4 w-4 rounded-full transition-all ${faq.enabled !== false ? 'left-[18px] bg-black' : 'left-0.5 bg-white'}`} />
           </button>
@@ -109,7 +109,7 @@ export default function AdminFaq() {
         ) : (
           <div className="space-y-6">
             {(faq.items || []).map((it, i) => (
-              <div key={i} className="border-y border-white/10 py-5">
+              <div key={i} className="border-y border-[#EAEAEA] py-5">
                 <div className="mb-3 flex items-center justify-between">
                   <p className="adm-label">Question {String(i + 1).padStart(2, '0')}</p>
                   <div className="flex items-center gap-1">

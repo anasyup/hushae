@@ -3,9 +3,9 @@ import { Link } from 'react-router-dom';
 import { AlertTriangle, ArrowRight, CheckCircle2, Info, PackageX, X } from 'lucide-react';
 
 const TONE = {
-  danger:  { chip: 'bg-white/10 text-white',       dot: 'bg-white',       icon: PackageX },
+  danger:  { chip: 'bg-[#F5F5F5] text-white',       dot: 'bg-white',       icon: PackageX },
   warning: { chip: 'bg-white/8 text-white/85',      dot: 'bg-white/80',    icon: AlertTriangle },
-  info:    { chip: 'bg-white/5 text-white/70',      dot: 'bg-white/50',    icon: Info },
+  info:    { chip: 'bg-[#FAFAFA] text-[#555555]',      dot: 'bg-[#FAFAFA]0',    icon: Info },
 };
 
 const KEY = 'hushae_alerts_dismissed';
@@ -34,9 +34,9 @@ export default function AlertsBar({ alerts }) {
 
   if (visible.length === 0) {
     return (
-      <div className="mb-6 flex items-center gap-2.5 rounded-[10px] border border-white/10 bg-white/5 px-4 py-3">
-        <CheckCircle2 size={16} className="shrink-0 text-white/80" />
-        <p className="text-[13px] font-medium text-white/80">All caught up — nothing needs your attention right now.</p>
+      <div className="mb-6 flex items-center gap-2.5 rounded-[10px] border border-[#EAEAEA] bg-[#FAFAFA] px-4 py-3">
+        <CheckCircle2 size={16} className="shrink-0 text-[#333333]" />
+        <p className="text-[13px] font-medium text-[#333333]">All caught up — nothing needs your attention right now.</p>
       </div>
     );
   }

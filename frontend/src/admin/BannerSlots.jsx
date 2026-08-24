@@ -52,7 +52,7 @@ export default function BannerSlots() {
       {editing ? (
         <section>
           <p className="adm-index">{editing.isNew ? 'New slot' : 'Edit slot'}</p>
-          <div className="grid gap-4 border-y border-white/10 py-6 sm:grid-cols-2">
+          <div className="grid gap-4 border-y border-[#EAEAEA] py-6 sm:grid-cols-2">
             <div>
               <label className="adm-label mb-1.5 block">Key</label>
               <input className={ctl} value={form.key} onChange={(e) => setForm((f) => ({ ...f, key: e.target.value }))} placeholder="homepage-hero" disabled={!editing.isNew} />
@@ -88,27 +88,27 @@ export default function BannerSlots() {
       ) : (
         <section>
           <p className="adm-index">Slots</p>
-          <div className="hidden border-b border-white/10 px-1 py-2.5 md:grid md:grid-cols-[minmax(0,1.4fr)_0.6fr_0.8fr_0.5fr_auto] md:gap-3">
+          <div className="hidden border-b border-[#EAEAEA] px-1 py-2.5 md:grid md:grid-cols-[minmax(0,1.4fr)_0.6fr_0.8fr_0.5fr_auto] md:gap-3">
             {['Slot', 'Type', 'Dimensions', 'Banners', ''].map((h) => <p key={h || 'a'} className="adm-label">{h}</p>)}
           </div>
           {slots.map((s) => (
-            <div key={s._id} className="border-b border-white/10 adm-row-hover">
+            <div key={s._id} className="border-b border-[#EAEAEA] adm-row-hover">
               <div className="hidden md:grid md:grid-cols-[minmax(0,1.4fr)_0.6fr_0.8fr_0.5fr_auto] md:items-center md:gap-3 md:px-1 md:py-3.5">
                 <div>
                   <p className="text-[13px] font-medium text-white">{s.name}</p>
-                  <p className="font-mono text-[11px] text-white/30">{s.key}</p>
+                  <p className="font-mono text-[11px] text-[#AAAAAA]">{s.key}</p>
                 </div>
                 <MonoStatus label={String(s.type || '').toUpperCase()} />
                 <p className="text-[12px] text-white/45">{s.width}×{s.height}</p>
-                <p className="text-[12px] tabular-nums text-white/70">{s.bannerCount}</p>
+                <p className="text-[12px] tabular-nums text-[#555555]">{s.bannerCount}</p>
                 <div className="flex justify-end gap-1">
-                  <button type="button" onClick={() => startEdit(s)} className="grid h-7 w-7 place-items-center text-white/35 hover:text-white"><Pencil size={13} /></button>
-                  <button type="button" onClick={() => remove(s)} className="grid h-7 w-7 place-items-center text-white/30 hover:text-white"><Trash2 size={13} /></button>
+                  <button type="button" onClick={() => startEdit(s)} className="grid h-7 w-7 place-items-center text-[#AAAAAA] hover:text-white"><Pencil size={13} /></button>
+                  <button type="button" onClick={() => remove(s)} className="grid h-7 w-7 place-items-center text-[#AAAAAA] hover:text-white"><Trash2 size={13} /></button>
                 </div>
               </div>
               <div className="px-1 py-4 md:hidden">
                 <p className="text-[13px] text-white">{s.name}</p>
-                <p className="mt-0.5 text-[11px] text-white/35">{s.type} · {s.width}×{s.height} · {s.bannerCount} banners</p>
+                <p className="mt-0.5 text-[11px] text-[#AAAAAA]">{s.type} · {s.width}×{s.height} · {s.bannerCount} banners</p>
                 <div className="mt-3 flex gap-2">
                   <button type="button" onClick={() => startEdit(s)} className={btnGhost}>Edit</button>
                   <button type="button" onClick={() => remove(s)} className={btnGhost}>Archive</button>

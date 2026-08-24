@@ -51,22 +51,22 @@ export default function EmailCampaigns() {
               const st = statusOf(c.status);
               const open = expanded === c._id;
               return (
-                <div key={c._id} className="border-b border-white/10">
+                <div key={c._id} className="border-b border-[#EAEAEA]">
                   <button type="button" className="flex w-full items-center gap-4 py-4 text-left adm-row-hover" onClick={() => setExpanded(open ? null : c._id)}>
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-[13px] font-medium text-white">{c.subject}</span>
-                      <span className="mt-0.5 block truncate text-[11px] text-white/35">
+                      <span className="mt-0.5 block truncate text-[11px] text-[#AAAAAA]">
                         {c.groupName || 'group'} · {fmtDateTime(c.sentAt)} · {c.sentByName || 'admin'}
                       </span>
                     </span>
                     <MonoStatus label={st.label} dim={st.dim} />
-                    <span className="hidden shrink-0 text-[12px] text-white/40 sm:block">
+                    <span className="hidden shrink-0 text-[12px] text-[#999999] sm:block">
                       {c.sent} sent{c.failed > 0 ? ` · ${c.failed} failed` : ''}
                     </span>
                   </button>
                   {open && (
-                    <div className="border-t border-white/5 pb-6 pt-4">
-                      <div className="adm-divide-x grid grid-cols-2 border-y border-white/10 sm:grid-cols-5">
+                    <div className="border-t border-[#F0F0F0] pb-6 pt-4">
+                      <div className="adm-divide-x grid grid-cols-2 border-y border-[#EAEAEA] sm:grid-cols-5">
                         {[['Matched', c.matched], ['Opted in', c.optedIn], ['Sent', c.sent], ['Failed', c.failed], ['Skipped', c.skipped || 0]].map(([label, val]) => (
                           <div key={label} className="px-4 py-4">
                             <p className="adm-label">{label}</p>
@@ -75,13 +75,13 @@ export default function EmailCampaigns() {
                         ))}
                       </div>
                       <p className="adm-label mt-6">Message</p>
-                      <p className="mt-2 whitespace-pre-wrap text-[13px] leading-relaxed text-white/70">{c.body}</p>
+                      <p className="mt-2 whitespace-pre-wrap text-[13px] leading-relaxed text-[#555555]">{c.body}</p>
                     </div>
                   )}
                 </div>
               );
             })}
-            <p className="mt-4 text-[11px] uppercase tracking-[0.14em] text-white/30">{total} campaign{total === 1 ? '' : 's'} total</p>
+            <p className="mt-4 text-[11px] uppercase tracking-[0.14em] text-[#AAAAAA]">{total} campaign{total === 1 ? '' : 's'} total</p>
           </div>
         )}
       </section>

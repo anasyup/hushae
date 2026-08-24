@@ -21,7 +21,7 @@ function RuleNum({ label, hint, value, onChange }) {
     <div>
       <label className="adm-label mb-1.5 block">{label}</label>
       <input type="number" min="0" className={ctl} value={value} onChange={(e) => onChange(Number(e.target.value) || 0)} />
-      {hint && <p className="mt-1 text-[11px] text-white/30">{hint}</p>}
+      {hint && <p className="mt-1 text-[11px] text-[#AAAAAA]">{hint}</p>}
     </div>
   );
 }
@@ -182,7 +182,7 @@ export default function CustomerGroups() {
           <div>
             <section className="mb-10">
               <p className="adm-index">Group</p>
-              <div className="space-y-4 border-y border-white/10 py-6">
+              <div className="space-y-4 border-y border-[#EAEAEA] py-6">
                 <div>
                   <label className="adm-label mb-1.5 block">Name *</label>
                   <input className={ctl} value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. VIP — spent over 10k" />
@@ -196,8 +196,8 @@ export default function CustomerGroups() {
 
             <section>
               <p className="adm-index">Rules</p>
-              <p className="mb-4 text-[12px] text-white/35">Every set rule must be true. Leave empty to match all customers.</p>
-              <div className="space-y-5 border-y border-white/10 py-6">
+              <p className="mb-4 text-[12px] text-[#AAAAAA]">Every set rule must be true. Leave empty to match all customers.</p>
+              <div className="space-y-5 border-y border-[#EAEAEA] py-6">
                 <div className="grid gap-4 sm:grid-cols-3">
                   <RuleNum label="Min lifetime spend (PKR)" value={rules.minSpend} onChange={(v) => setRules((r) => ({ ...r, minSpend: v }))} hint="0 = ignored" />
                   <RuleNum label="Min orders" value={rules.minOrders} onChange={(v) => setRules((r) => ({ ...r, minOrders: v }))} hint="0 = ignored" />
@@ -211,11 +211,11 @@ export default function CustomerGroups() {
                   <TagsInput value={rules.anyTag} onChange={(v) => setRules((r) => ({ ...r, anyTag: v }))} placeholder="matches ANY of these tags" />
                   <TagsInput value={rules.allTags} onChange={(v) => setRules((r) => ({ ...r, allTags: v }))} placeholder="must have ALL of these tags" />
                 </div>
-                <label className="flex cursor-pointer items-start gap-3 border border-white/15 px-4 py-3">
+                <label className="flex cursor-pointer items-start gap-3 border border-[#EAEAEA] px-4 py-3">
                   <input type="checkbox" checked={rules.noOrders} onChange={(e) => setRules((r) => ({ ...r, noOrders: e.target.checked }))} className="mt-0.5 rounded-none accent-white" />
-                  <span className="text-[13px] text-white/80">
+                  <span className="text-[13px] text-[#333333]">
                     Has never placed an order
-                    <span className="mt-0.5 block text-[12px] text-white/35">Registered customers who never bought.</span>
+                    <span className="mt-0.5 block text-[12px] text-[#AAAAAA]">Registered customers who never bought.</span>
                   </span>
                 </label>
               </div>
@@ -224,9 +224,9 @@ export default function CustomerGroups() {
 
           <aside>
             <p className="adm-index">Preview</p>
-            <div className="border-y border-white/10 py-5">
+            <div className="border-y border-[#EAEAEA] py-5">
               <div className="mb-3 flex items-center justify-between">
-                <p className="text-[12px] text-white/40">Computed from live customers.</p>
+                <p className="text-[12px] text-[#999999]">Computed from live customers.</p>
                 <button type="button" onClick={runPreview} className={btnIcon} aria-label="Refresh preview">
                   {previewBusy ? <Loader2 size={12} className="animate-spin" /> : <RefreshCcw size={12} />}
                 </button>
@@ -234,23 +234,23 @@ export default function CustomerGroups() {
               {preview && (
                 <p className="adm-metric text-[28px] text-white">
                   {preview.total.toLocaleString()}
-                  <span className="ml-2 text-[11px] font-normal uppercase tracking-[0.14em] text-white/35">customers</span>
+                  <span className="ml-2 text-[11px] font-normal uppercase tracking-[0.14em] text-[#AAAAAA]">customers</span>
                 </p>
               )}
               <div className="mt-4 max-h-72 space-y-0 overflow-y-auto">
                 {(preview?.members || []).map((m) => (
-                  <div key={m.id} className="flex items-center justify-between border-b border-white/5 py-2.5">
+                  <div key={m.id} className="flex items-center justify-between border-b border-[#F0F0F0] py-2.5">
                     <div className="min-w-0">
                       <p className="truncate text-[13px] text-white">{m.name}</p>
-                      <p className="truncate text-[11px] text-white/30">{m.phone || 'no phone'} · {m.email || 'no email'}</p>
+                      <p className="truncate text-[11px] text-[#AAAAAA]">{m.phone || 'no phone'} · {m.email || 'no email'}</p>
                       {m.why?.[0] && <p className="mt-0.5 truncate text-[10px] text-white/25">{m.why[0]}</p>}
                     </div>
-                    <span className="shrink-0 text-[11px] text-white/40">{m.orders} · {m.spend.toLocaleString()}</span>
+                    <span className="shrink-0 text-[11px] text-[#999999]">{m.orders} · {m.spend.toLocaleString()}</span>
                   </div>
                 ))}
               </div>
               {preview && preview.total > preview.members.length && (
-                <p className="mt-2 text-[11px] text-white/30">+ {preview.total - preview.members.length} more…</p>
+                <p className="mt-2 text-[11px] text-[#AAAAAA]">+ {preview.total - preview.members.length} more…</p>
               )}
             </div>
             <button type="button" onClick={save} disabled={saving} className={`${btnSolid} mt-5 w-full`}>
@@ -270,16 +270,16 @@ export default function CustomerGroups() {
       ) : (
         <section>
           <p className="adm-index">Groups</p>
-          <p className="mb-4 text-[11px] uppercase tracking-[0.14em] text-white/30">
+          <p className="mb-4 text-[11px] uppercase tracking-[0.14em] text-[#AAAAAA]">
             {summary.total} groups · {summary.members.toLocaleString()} members
           </p>
           <div>
             {groups.map((g) => (
-              <div key={g._id} className="flex flex-wrap items-end justify-between gap-3 border-b border-white/10 py-5 adm-row-hover">
+              <div key={g._id} className="flex flex-wrap items-end justify-between gap-3 border-b border-[#EAEAEA] py-5 adm-row-hover">
                 <div className="min-w-0">
                   <p className="text-[14px] font-medium text-white">{g.name}</p>
-                  <p className="mt-0.5 line-clamp-2 text-[12px] text-white/35">{g.description || 'No description'}</p>
-                  <p className="mt-2 text-[11px] text-white/40">{g.rulesSummary || 'Live rules'}</p>
+                  <p className="mt-0.5 line-clamp-2 text-[12px] text-[#AAAAAA]">{g.description || 'No description'}</p>
+                  <p className="mt-2 text-[11px] text-[#999999]">{g.rulesSummary || 'Live rules'}</p>
                   <p className="mt-2 text-[11px] text-white/25">Updated {fmtDate(g.updatedAt)}</p>
                 </div>
                 <div className="flex items-end gap-4">
@@ -287,10 +287,10 @@ export default function CustomerGroups() {
                     <p className="adm-metric text-[22px] text-white">{g.memberCount?.toLocaleString?.() || 0}</p>
                     <p className="adm-label">Members</p>
                   </div>
-                  <span className="text-[10px] uppercase tracking-[0.12em] text-white/30">Campaigns: history only</span>
+                  <span className="text-[10px] uppercase tracking-[0.12em] text-[#AAAAAA]">Campaigns: history only</span>
                   <button type="button" onClick={() => startEdit(g)} className={btnGhost}>Edit</button>
                   <button type="button" onClick={() => archive(g)} className={btnGhost}>{g.archivedAt ? 'Restore' : 'Archive'}</button>
-                  <button type="button" onClick={() => remove(g)} className="text-[10px] uppercase tracking-[0.12em] text-white/30 hover:text-white" title="Delete group">
+                  <button type="button" onClick={() => remove(g)} className="text-[10px] uppercase tracking-[0.12em] text-[#AAAAAA] hover:text-white" title="Delete group">
                     <Trash2 size={13} />
                   </button>
                 </div>
@@ -302,15 +302,15 @@ export default function CustomerGroups() {
 
       {emailFor && (
         <div className="fixed inset-0 z-50 grid place-items-center bg-black/60 p-4" onClick={closeEmail}>
-          <div className="w-full max-w-lg border border-white/15 bg-[#0D0D0D] p-6" onClick={(e) => e.stopPropagation()}>
+          <div className="w-full max-w-lg border border-[#EAEAEA] bg-[#0D0D0D] p-6" onClick={(e) => e.stopPropagation()}>
             <div className="mb-5 flex items-start justify-between">
               <div>
                 <p className="text-[15px] font-medium text-white">Email “{emailFor.name}”</p>
-                <p className="mt-1 text-[12px] text-white/35">
+                <p className="mt-1 text-[12px] text-[#AAAAAA]">
                   Goes to opted-in members ({emailFor.memberCount?.toLocaleString?.() || 0} in group).
                 </p>
               </div>
-              <button type="button" onClick={closeEmail} className="text-white/35 hover:text-white"><X size={16} /></button>
+              <button type="button" onClick={closeEmail} className="text-[#AAAAAA] hover:text-white"><X size={16} /></button>
             </div>
             <div className="space-y-4">
               <div>
@@ -320,7 +320,7 @@ export default function CustomerGroups() {
               <div>
                 <label className="adm-label mb-1.5 block">Message</label>
                 <textarea className={`${ctl} min-h-40 !h-auto py-3`} value={emailBody} onChange={(e) => setEmailBody(e.target.value)} placeholder={'Hi,\n\nA short, personal message…\n\n— HUSHAE'} />
-                <p className="mt-1 text-[11px] text-white/30">Plain text — only opted-in customers receive it.</p>
+                <p className="mt-1 text-[11px] text-[#AAAAAA]">Plain text — only opted-in customers receive it.</p>
               </div>
             </div>
             <div className="mt-5 flex justify-end gap-2">

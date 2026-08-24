@@ -41,7 +41,7 @@ export default function Analytics() {
       {range === 'custom' && (
         <>
           <input type="date" value={customFrom} onChange={(e) => setCustomFrom(e.target.value)} className={`${ctlInline} [color-scheme:dark]`} aria-label="From" />
-          <span className="text-[11px] uppercase tracking-[0.14em] text-white/30">to</span>
+          <span className="text-[11px] uppercase tracking-[0.14em] text-[#AAAAAA]">to</span>
           <input type="date" value={customTo} onChange={(e) => setCustomTo(e.target.value)} className={`${ctlInline} [color-scheme:dark]`} aria-label="To" />
         </>
       )}
@@ -67,9 +67,9 @@ export default function Analytics() {
   };
   const Delta = ({ d }) => {
     if (!d) return null;
-    if (d.up === null) return <span className="ml-2 text-[11px] uppercase tracking-[0.12em] text-white/30">{d.txt}</span>;
+    if (d.up === null) return <span className="ml-2 text-[11px] uppercase tracking-[0.12em] text-[#AAAAAA]">{d.txt}</span>;
     return (
-      <span className={`ml-2 text-[11px] tabular-nums ${d.up ? 'text-white/55' : 'text-white/30'}`}>
+      <span className={`ml-2 text-[11px] tabular-nums ${d.up ? 'text-white/55' : 'text-[#AAAAAA]'}`}>
         {d.up ? '↑' : '↓'} {d.txt}
       </span>
     );
@@ -90,14 +90,14 @@ export default function Analytics() {
     <AdminLayout title="Analytics">
       <PageHeader title="Analytics" description="Store performance and business intelligence." actions={controls} />
       {a.prev && range !== 'custom' && (
-        <p className="mb-8 text-[11px] uppercase tracking-[0.14em] text-white/30">
+        <p className="mb-8 text-[11px] uppercase tracking-[0.14em] text-[#AAAAAA]">
           Compared with the previous {RANGES.find((r) => r.v === range)?.label.toLowerCase()}
         </p>
       )}
 
       <section className="mb-10">
         <p className="adm-index">01 — Performance</p>
-        <div className="adm-divide-x grid grid-cols-2 border-y border-white/10 sm:grid-cols-3 xl:grid-cols-6">
+        <div className="adm-divide-x grid grid-cols-2 border-y border-[#EAEAEA] sm:grid-cols-3 xl:grid-cols-6">
           {kpis.map((x) => (
             <div key={x.label} className="px-4 py-6 sm:px-5">
               <p className="adm-label">{x.label}</p>
@@ -134,7 +134,7 @@ export default function Analytics() {
 
       <section className="mb-10">
         <p className="adm-index">03 — Customers</p>
-        <div className="adm-divide-x mb-8 grid grid-cols-2 border-y border-white/10">
+        <div className="adm-divide-x mb-8 grid grid-cols-2 border-y border-[#EAEAEA]">
           <div className="px-5 py-6">
             <p className="adm-label">First-time buyers</p>
             <p className="adm-metric mt-3 text-[32px] leading-none text-white">{a.customerSplit.fresh}</p>

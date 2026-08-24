@@ -79,7 +79,7 @@ export default function SettingsAccounts() {
           </EdNotice>
         )}
         {mailReady === true && (
-          <p className="mb-4 text-[12px] text-white/40">Email service is connected and working.</p>
+          <p className="mb-4 text-[12px] text-[#999999]">Email service is connected and working.</p>
         )}
         <EdToggle label="Allow password reset by email" description="Shows Forgot password? on the sign-in form." checked={a.emailFeatures} onChange={(v) => set('emailFeatures', v)} />
         <EdToggle label="Require customers to confirm their email" description="New accounts get a confirmation link. Only works when email is connected." checked={a.emailVerifyRequired} onChange={(v) => set('emailVerifyRequired', v)} disabled={!a.emailFeatures} />

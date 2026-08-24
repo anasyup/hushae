@@ -63,7 +63,7 @@ export default function SettingsCheckout() {
       aria-checked={!!on}
       aria-label={label}
       onClick={onClick}
-      className={`relative h-5 w-9 shrink-0 rounded-full ${on ? 'bg-white' : 'bg-white/20'}`}
+      className={`relative h-5 w-9 shrink-0 rounded-full ${on ? 'bg-white' : 'bg-[#EFEFEF]'}`}
     >
       <span className={`absolute top-0.5 h-4 w-4 rounded-full transition-all ${on ? 'left-[18px] bg-black' : 'left-0.5 bg-white'}`} />
     </button>
@@ -87,7 +87,7 @@ export default function SettingsCheckout() {
       <EdSection index={2} title="Payment" description="Switch a method on to offer it. Keep at least one on.">
         <div className="space-y-6">
           {(c.paymentList || []).map((m, i) => (
-            <div key={m.id || i} className="border-b border-white/5 pb-6 last:border-0 last:pb-0">
+            <div key={m.id || i} className="border-b border-[#F0F0F0] pb-6 last:border-0 last:pb-0">
               <div className="flex flex-wrap items-center gap-3">
                 <Switch on={m.enabled} label={`Enable ${m.label || m.id}`} onClick={() => setRow('paymentList', i, 'enabled', !m.enabled)} />
                 <input className={`${ctl} min-w-[140px] flex-1`} value={m.label} placeholder="Shown to customers" onChange={(e) => setRow('paymentList', i, 'label', e.target.value)} aria-label={`Label for ${m.id}`} />
@@ -102,11 +102,11 @@ export default function SettingsCheckout() {
               </div>
               <textarea className={`${ta} mt-3 min-h-[64px]`} value={m.instructions || ''} placeholder="Instructions shown when the customer picks this" onChange={(e) => setRow('paymentList', i, 'instructions', e.target.value)} aria-label={`Instructions for ${m.id}`} />
               <div className="mt-3 flex flex-wrap gap-5">
-                <label className="flex items-center gap-2 text-[12px] text-white/70">
+                <label className="flex items-center gap-2 text-[12px] text-[#555555]">
                   <input type="checkbox" checked={!!m.needsTxn} onChange={(e) => setRow('paymentList', i, 'needsTxn', e.target.checked)} className="h-4 w-4 accent-white" />
                   Ask for a transaction reference
                 </label>
-                <label className="flex items-center gap-2 text-[12px] text-white/70">
+                <label className="flex items-center gap-2 text-[12px] text-[#555555]">
                   <input type="checkbox" checked={!!m.comingSoon} onChange={(e) => setRow('paymentList', i, 'comingSoon', e.target.checked)} className="h-4 w-4 accent-white" />
                   Show as coming soon (cannot be selected)
                 </label>
@@ -116,7 +116,7 @@ export default function SettingsCheckout() {
           <button type="button" onClick={() => set('paymentList', [...(c.paymentList || []), { id: '', label: '', note: '', icon: 'CreditCard', enabled: false, needsTxn: false, instructions: '', comingSoon: true }])} className={btnGhost}>
             Add a payment method
           </button>
-          <p className="text-[12px] leading-relaxed text-white/30">
+          <p className="text-[12px] leading-relaxed text-[#AAAAAA]">
             To add a brand-new provider, add a row here and leave “coming soon” ticked until the provider is connected.
           </p>
         </div>
@@ -125,7 +125,7 @@ export default function SettingsCheckout() {
       <EdSection index={3} title="Fulfillment" description="Rate 0 uses your normal flat delivery charge from Settings → Shipping.">
         <div className="space-y-6">
           {(c.shippingMethods || []).map((m, i) => (
-            <div key={m.id || i} className="border-b border-white/5 pb-6 last:border-0 last:pb-0">
+            <div key={m.id || i} className="border-b border-[#F0F0F0] pb-6 last:border-0 last:pb-0">
               <div className="flex flex-wrap items-center gap-3">
                 <Switch on={m.enabled} label={`Enable ${m.label || m.id}`} onClick={() => setRow('shippingMethods', i, 'enabled', !m.enabled)} />
                 <input className={`${ctl} min-w-[140px] flex-1`} value={m.label} onChange={(e) => setRow('shippingMethods', i, 'label', e.target.value)} aria-label={`Label for ${m.id}`} />
@@ -138,7 +138,7 @@ export default function SettingsCheckout() {
                 <EdText label="Charge (PKR)" type="number" value={m.rate} onChange={(v) => setRow('shippingMethods', i, 'rate', Number(v))} />
                 <EdText label="Fastest (days)" type="number" value={m.minDays} onChange={(v) => setRow('shippingMethods', i, 'minDays', Number(v))} />
                 <EdText label="Slowest (days)" type="number" value={m.maxDays} onChange={(v) => setRow('shippingMethods', i, 'maxDays', Number(v))} />
-                <label className="flex items-end gap-2 pb-1 text-[12px] text-white/70">
+                <label className="flex items-end gap-2 pb-1 text-[12px] text-[#555555]">
                   <input type="checkbox" checked={m.freeEligible !== false} onChange={(e) => setRow('shippingMethods', i, 'freeEligible', e.target.checked)} className="h-4 w-4 accent-white" />
                   Free-shipping applies
                 </label>

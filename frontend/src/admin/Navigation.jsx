@@ -130,7 +130,7 @@ export default function Navigation() {
 
       <section className="mb-10">
         <p className="adm-index">01 — Menus</p>
-        <div className="adm-divide-x grid grid-cols-2 border-y border-white/10">
+        <div className="adm-divide-x grid grid-cols-2 border-y border-[#EAEAEA]">
           <div className="px-5 py-6">
             <p className="adm-label">Header links</p>
             <p className="adm-metric mt-3 text-[28px] text-white">{previewMenu.length}</p>
@@ -144,7 +144,7 @@ export default function Navigation() {
 
       <section className="mb-10">
         <p className="adm-index">02 — Menu structure</p>
-        <p className="mb-4 text-[12px] text-white/35">The main bar. A dropdown link shows its category submenu automatically.</p>
+        <p className="mb-4 text-[12px] text-[#AAAAAA]">The main bar. A dropdown link shows its category submenu automatically.</p>
         <div className="space-y-2">
           {headerMenu.map((m, i) => (
             <div
@@ -154,7 +154,7 @@ export default function Navigation() {
               onDragOver={headerDnD.onDragOver(i)}
               onDrop={headerDnD.onDrop(i)}
               onDragEnd={headerDnD.endDrag}
-              className={`flex flex-wrap items-center gap-2 border-b border-white/5 py-2 ${headerDnD.dragIdx === i ? 'opacity-40' : ''}`}
+              className={`flex flex-wrap items-center gap-2 border-b border-[#F0F0F0] py-2 ${headerDnD.dragIdx === i ? 'opacity-40' : ''}`}
             >
               <span className="cursor-grab text-white/25" title="Drag to reorder"><GripVertical size={14} /></span>
               <input className={`${ctl} w-32`} value={m.label} onChange={(e) => setH(i, { label: e.target.value })} placeholder="Label" />
@@ -178,14 +178,14 @@ export default function Navigation() {
 
       <section className="mb-10">
         <p className="adm-index">03 — Footer</p>
-        <p className="mb-4 text-[12px] text-white/35">Each column is a heading with links underneath.</p>
+        <p className="mb-4 text-[12px] text-[#AAAAAA]">Each column is a heading with links underneath.</p>
         <div className="space-y-6">
           {footerCols.map((col, ci) => (
-            <div key={ci} className="border-y border-white/10 py-4">
+            <div key={ci} className="border-y border-[#EAEAEA] py-4">
               <div className="flex items-center gap-2">
                 <div className="flex flex-col">
-                  <button type="button" onClick={() => mark(() => setFooterCols((cols) => { const n = [...cols]; if (ci > 0) { [n[ci], n[ci - 1]] = [n[ci - 1], n[ci]]; } return n; }))} disabled={ci === 0} className="text-white/30 disabled:opacity-20"><ChevronUp size={14} /></button>
-                  <button type="button" onClick={() => mark(() => setFooterCols((cols) => { const n = [...cols]; if (ci < n.length - 1) { [n[ci], n[ci + 1]] = [n[ci + 1], n[ci]]; } return n; }))} disabled={ci === footerCols.length - 1} className="text-white/30 disabled:opacity-20"><ChevronDown size={14} /></button>
+                  <button type="button" onClick={() => mark(() => setFooterCols((cols) => { const n = [...cols]; if (ci > 0) { [n[ci], n[ci - 1]] = [n[ci - 1], n[ci]]; } return n; }))} disabled={ci === 0} className="text-[#AAAAAA] disabled:opacity-20"><ChevronUp size={14} /></button>
+                  <button type="button" onClick={() => mark(() => setFooterCols((cols) => { const n = [...cols]; if (ci < n.length - 1) { [n[ci], n[ci + 1]] = [n[ci + 1], n[ci]]; } return n; }))} disabled={ci === footerCols.length - 1} className="text-[#AAAAAA] disabled:opacity-20"><ChevronDown size={14} /></button>
                 </div>
                 <input className={ctl} value={col.title} onChange={(e) => setCol(ci, { title: e.target.value })} placeholder="Column title (e.g. Shop)" />
                 <button type="button" onClick={() => removeCol(ci)} className={btnIcon} aria-label="Remove column">×</button>
@@ -212,14 +212,14 @@ export default function Navigation() {
 
       <section>
         <p className="adm-index">04 — Preview</p>
-        <p className="mb-3 text-[12px] text-white/35">Labels only — how the header links will render.</p>
-        <div className="flex flex-wrap items-center gap-4 border-y border-white/10 py-4">
+        <p className="mb-3 text-[12px] text-[#AAAAAA]">Labels only — how the header links will render.</p>
+        <div className="flex flex-wrap items-center gap-4 border-y border-[#EAEAEA] py-4">
           {previewMenu.length === 0 ? (
-            <span className="text-[12px] text-white/35">No links yet — add some above.</span>
+            <span className="text-[12px] text-[#AAAAAA]">No links yet — add some above.</span>
           ) : previewMenu.map((m, i) => (
-            <span key={i} className={`inline-flex items-center gap-1.5 text-[12px] ${m.highlight ? 'text-white' : 'text-white/60'}`}>
+            <span key={i} className={`inline-flex items-center gap-1.5 text-[12px] ${m.highlight ? 'text-white' : 'text-[#555555]'}`}>
               {m.label || '(no label)'}
-              {m.dropdown && <ChevronDown size={11} className="text-white/30" />}
+              {m.dropdown && <ChevronDown size={11} className="text-[#AAAAAA]" />}
             </span>
           ))}
         </div>

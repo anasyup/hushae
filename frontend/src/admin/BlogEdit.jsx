@@ -135,7 +135,7 @@ export default function BlogEdit() {
         <div>
           <section className="mb-10">
             <p className="adm-index">01 — Article</p>
-            <div className="space-y-4 border-y border-white/10 py-6">
+            <div className="space-y-4 border-y border-[#EAEAEA] py-6">
               <div>
                 <label className="adm-label mb-1.5 block">Title *</label>
                 <input className={ctl} value={form.title} onChange={(e) => onTitle(e.target.value)} placeholder="How to find your perfect bra size" />
@@ -143,7 +143,7 @@ export default function BlogEdit() {
               <div>
                 <label className="adm-label mb-1.5 block">Slug</label>
                 <div className="flex items-center gap-2">
-                  <span className="text-[11px] text-white/30">/blog/</span>
+                  <span className="text-[11px] text-[#AAAAAA]">/blog/</span>
                   <input
                     className={ctl}
                     value={form.slug}
@@ -151,7 +151,7 @@ export default function BlogEdit() {
                     placeholder="how-to-find-your-perfect-bra-size"
                   />
                 </div>
-                <p className="mt-1.5 text-[11px] text-white/30">Auto-filled from the title. Lowercase letters, numbers, dashes.</p>
+                <p className="mt-1.5 text-[11px] text-[#AAAAAA]">Auto-filled from the title. Lowercase letters, numbers, dashes.</p>
               </div>
               <div>
                 <label className="adm-label mb-1.5 block">Excerpt</label>
@@ -180,13 +180,13 @@ export default function BlogEdit() {
 
           <section className="mb-10">
             <p className="adm-index">02 — Publishing</p>
-            <div className="space-y-2 border-y border-white/10 py-4">
+            <div className="space-y-2 border-y border-[#EAEAEA] py-4">
               {STATUSES.map((s) => (
-                <label key={s.id} className={`flex cursor-pointer items-start gap-3 border-b border-white/5 py-3 last:border-0 ${form.status === s.id ? '' : 'opacity-60'}`}>
+                <label key={s.id} className={`flex cursor-pointer items-start gap-3 border-b border-[#F0F0F0] py-3 last:border-0 ${form.status === s.id ? '' : 'opacity-60'}`}>
                   <input type="radio" name="status" checked={form.status === s.id} onChange={() => set('status', s.id)} className="mt-1 accent-white" />
                   <span>
                     <span className="block text-[13px] text-white">{s.label}</span>
-                    <span className="block text-[12px] text-white/35">{s.hint}</span>
+                    <span className="block text-[12px] text-[#AAAAAA]">{s.hint}</span>
                   </span>
                 </label>
               ))}
@@ -201,7 +201,7 @@ export default function BlogEdit() {
 
           <section>
             <p className="adm-index">03 — Seo</p>
-            <div className="space-y-4 border-y border-white/10 py-6">
+            <div className="space-y-4 border-y border-[#EAEAEA] py-6">
               <div>
                 <label className="adm-label mb-1.5 block">Meta title</label>
                 <input className={ctl} value={form.seo.title} onChange={(e) => setSeo('title', e.target.value)} placeholder={form.title || 'Article title'} />
@@ -210,7 +210,7 @@ export default function BlogEdit() {
                 <label className="adm-label mb-1.5 block">Meta description</label>
                 <textarea className={`${ctl} min-h-16 py-2`} value={form.seo.description} onChange={(e) => setSeo('description', e.target.value)} placeholder={form.excerpt || 'Short summary for Google'} />
               </div>
-              <label className="flex cursor-pointer items-center gap-2.5 text-[13px] text-white/70">
+              <label className="flex cursor-pointer items-center gap-2.5 text-[13px] text-[#555555]">
                 <input type="checkbox" checked={form.seo.noIndex} onChange={(e) => setSeo('noIndex', e.target.checked)} className="accent-white" />
                 Hide from search engines (noindex)
               </label>
@@ -221,7 +221,7 @@ export default function BlogEdit() {
         <div>
           <section className="mb-10">
             <p className="adm-index">04 — Content</p>
-            <p className="mb-3 text-[11px] text-white/30"># heading · **bold** · *italic* · [link](url)</p>
+            <p className="mb-3 text-[11px] text-[#AAAAAA]"># heading · **bold** · *italic* · [link](url)</p>
             <textarea
               className={`${ctl} min-h-[420px] py-3 font-mono leading-relaxed`}
               value={form.content}
@@ -231,7 +231,7 @@ export default function BlogEdit() {
           </section>
           <section>
             <p className="adm-index">05 — Preview</p>
-            <div className="prose prose-invert max-w-none border-y border-white/10 py-6 text-white/80">
+            <div className="prose prose-invert max-w-none border-y border-[#EAEAEA] py-6 text-[#333333]">
               <BlogMarkdown text={form.content || '*Nothing to preview yet.*'} headingLevel={2} />
             </div>
           </section>

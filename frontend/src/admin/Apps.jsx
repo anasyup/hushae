@@ -104,7 +104,7 @@ export default function Apps() {
           <EdNum label="Discount %" value={loyalty.discountPercent} onChange={(v) => setLoyalty('discountPercent', parseInt(v, 10) || 10)} min={1} max={50} />
           <EdNum label="Coupon valid (days)" value={loyalty.validDays} onChange={(v) => setLoyalty('validDays', parseInt(v, 10) || 60)} min={7} max={365} />
         </div>
-        <p className="mt-3 text-[12px] text-white/30">A unique HUSH-XXXXX coupon is minted when the qualifying order is marked Delivered.</p>
+        <p className="mt-3 text-[12px] text-[#AAAAAA]">A unique HUSH-XXXXX coupon is minted when the qualifying order is marked Delivered.</p>
       </EdSection>
 
       <EdSection index={3} title="Social" description="Footer icons. Leave empty to hide.">
@@ -121,7 +121,7 @@ export default function Apps() {
         description="Images upload without setup. This connection is only for videos and large files."
         action={media.cloudName && media.uploadPreset ? <MonoStatus label="CONNECTED" /> : <MonoStatus label="NOT CONNECTED" dim />}
       >
-        <ol className="mb-4 list-decimal space-y-1 pl-5 text-[12px] leading-relaxed text-white/35">
+        <ol className="mb-4 list-decimal space-y-1 pl-5 text-[12px] leading-relaxed text-[#AAAAAA]">
           <li>Create a free account at cloudinary.com</li>
           <li>Copy Cloud Name from the dashboard</li>
           <li>Settings → Upload → Add upload preset</li>
@@ -144,7 +144,7 @@ export default function Apps() {
           <EdText label="SMTP host" value={email.host} onChange={(v) => setEmail('host', v)} placeholder="smtp.gmail.com" />
           <div>
             <EdNum label="Port" value={email.port} onChange={(v) => setEmail('port', Number(v) || 587)} />
-            <label className="mt-2 flex items-center gap-2 text-[12px] text-white/50">
+            <label className="mt-2 flex items-center gap-2 text-[12px] text-[#777777]">
               <input type="checkbox" checked={!!email.secure} onChange={(e) => setEmail('secure', e.target.checked)} className="h-3.5 w-3.5 accent-white" />
               Use SSL (usually only for port 465)
             </label>
@@ -156,9 +156,9 @@ export default function Apps() {
         </div>
         <div className="mt-4 flex flex-wrap items-center gap-2">
           <button type="button" onClick={testEmail} className={btnGhost}>Send test email</button>
-          <span className="text-[12px] text-white/30">Save your changes first, then send a test.</span>
+          <span className="text-[12px] text-[#AAAAAA]">Save your changes first, then send a test.</span>
         </div>
-        <p className="mt-4 text-[12px] leading-relaxed text-white/30">
+        <p className="mt-4 text-[12px] leading-relaxed text-[#AAAAAA]">
           Gmail: turn on 2-Step Verification, create an App password. Host = smtp.gmail.com, port = 587, SSL = off.
         </p>
       </EdSection>
@@ -176,7 +176,7 @@ export default function Apps() {
           <EdText label="Meta (Facebook) Pixel ID" value={analytics.metaPixelId} onChange={(v) => setAn('metaPixelId', v)} placeholder="1234567890123456" hint="Meta Events Manager → Pixel ID" />
           <EdText label="TikTok Pixel ID" value={analytics.tiktokPixelId} onChange={(v) => setAn('tiktokPixelId', v)} placeholder="CXXXXXXXXXXXXXXXXXXX" hint="TikTok Ads Manager → Web events" />
         </div>
-        <p className="mt-4 text-[12px] leading-relaxed text-white/30">
+        <p className="mt-4 text-[12px] leading-relaxed text-[#AAAAAA]">
           These scripts only load once the customer allows Analytics (GA/GTM) or Marketing (Meta/TikTok) in cookie consent.
         </p>
       </EdSection>

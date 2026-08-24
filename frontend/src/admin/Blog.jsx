@@ -123,18 +123,18 @@ export default function Blog() {
           />
         ) : (
           <>
-            <div className="hidden border-b border-white/10 py-2 md:grid md:grid-cols-[minmax(0,1.6fr)_0.6fr_0.7fr_0.7fr_auto] md:gap-3">
+            <div className="hidden border-b border-[#EAEAEA] py-2 md:grid md:grid-cols-[minmax(0,1.6fr)_0.6fr_0.7fr_0.7fr_auto] md:gap-3">
               {['Title', 'Status', 'Author', 'Updated', ''].map((h) => <p key={h || 'a'} className="adm-label">{h}</p>)}
             </div>
             {rows.map((p) => (
-              <div key={p._id} className="grid grid-cols-1 items-center gap-2 border-b border-white/5 py-3 md:grid-cols-[minmax(0,1.6fr)_0.6fr_0.7fr_0.7fr_auto] md:gap-3 adm-row-hover">
+              <div key={p._id} className="grid grid-cols-1 items-center gap-2 border-b border-[#F0F0F0] py-3 md:grid-cols-[minmax(0,1.6fr)_0.6fr_0.7fr_0.7fr_auto] md:gap-3 adm-row-hover">
                 <div className="min-w-0">
                   <p className="truncate text-[13px] text-white">{p.title}</p>
-                  <p className="truncate text-[11px] text-white/30">/blog/{p.slug}{p.viewCount > 0 ? ` · ${p.viewCount} views` : ''}</p>
+                  <p className="truncate text-[11px] text-[#AAAAAA]">/blog/{p.slug}{p.viewCount > 0 ? ` · ${p.viewCount} views` : ''}</p>
                 </div>
                 <MonoStatus label={STATUS_LABEL[p.status] || p.status} dim={p.status !== 'published'} />
                 <span className="text-[12px] text-white/45">{p.author || '—'}</span>
-                <span className="text-[12px] text-white/35">
+                <span className="text-[12px] text-[#AAAAAA]">
                   {p.status === 'scheduled' && p.publishAt
                     ? new Date(p.publishAt).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
                     : fmtDate(p.updatedAt || p.createdAt)}

@@ -76,7 +76,7 @@ export default function MarketingAnalytics() {
 
       <section className="mb-10">
         <p className="adm-index">01 — Performance</p>
-        <div className="adm-divide-x grid grid-cols-2 border-y border-white/10 lg:grid-cols-5">
+        <div className="adm-divide-x grid grid-cols-2 border-y border-[#EAEAEA] lg:grid-cols-5">
           {[
             { label: 'Times used', value: d ? num(d.uses) : '—' },
             { label: 'Given away', value: d ? money(d.totalGiven) : '—' },
@@ -107,16 +107,16 @@ export default function MarketingAnalytics() {
           {(d?.byPromotion || []).length > 0 && (
             <section className="mb-10">
               <p className="adm-index">02 — Top promotions</p>
-              <div className="hidden border-b border-white/10 py-2 md:grid md:grid-cols-[minmax(0,1.4fr)_0.6fr_0.5fr_0.8fr_0.6fr] md:gap-3">
+              <div className="hidden border-b border-[#EAEAEA] py-2 md:grid md:grid-cols-[minmax(0,1.4fr)_0.6fr_0.5fr_0.8fr_0.6fr] md:gap-3">
                 {['Promotion', 'Type', 'Uses', 'Given away', 'Avg'].map((h) => <p key={h} className="adm-label">{h}</p>)}
               </div>
               {d.byPromotion.map((x) => (
-                <Link key={x.id} to={`/admin/promotions/${x.id}`} className="grid grid-cols-2 items-center gap-2 border-b border-white/10 py-3 md:grid-cols-[minmax(0,1.4fr)_0.6fr_0.5fr_0.8fr_0.6fr] md:gap-3 adm-row-hover">
+                <Link key={x.id} to={`/admin/promotions/${x.id}`} className="grid grid-cols-2 items-center gap-2 border-b border-[#EAEAEA] py-3 md:grid-cols-[minmax(0,1.4fr)_0.6fr_0.5fr_0.8fr_0.6fr] md:gap-3 adm-row-hover">
                   <span className="truncate text-[13px] text-white">{x.name || 'Untitled'}</span>
-                  <span className="text-[11px] uppercase tracking-[0.1em] text-white/35">{typeOf(x.type).short}</span>
-                  <span className="text-[12px] tabular-nums text-white/70">{num(x.uses)}</span>
+                  <span className="text-[11px] uppercase tracking-[0.1em] text-[#AAAAAA]">{typeOf(x.type).short}</span>
+                  <span className="text-[12px] tabular-nums text-[#555555]">{num(x.uses)}</span>
                   <span className="text-[12px] tabular-nums text-white">{money(x.given)}</span>
-                  <span className="text-[12px] tabular-nums text-white/40">{money(Math.round(x.given / Math.max(1, x.uses)))}</span>
+                  <span className="text-[12px] tabular-nums text-[#999999]">{money(Math.round(x.given / Math.max(1, x.uses)))}</span>
                 </Link>
               ))}
             </section>
@@ -126,9 +126,9 @@ export default function MarketingAnalytics() {
             <section className="mb-10">
               <p className="adm-index">Bundles</p>
               {bundles.map((x) => (
-                <Link key={x.id} to={`/admin/promotions/${x.id}`} className="flex items-center justify-between border-b border-white/10 py-3 adm-row-hover">
+                <Link key={x.id} to={`/admin/promotions/${x.id}`} className="flex items-center justify-between border-b border-[#EAEAEA] py-3 adm-row-hover">
                   <span className="truncate text-[13px] text-white">{x.name}</span>
-                  <span className="text-[12px] text-white/40">{num(x.uses)} · {money(x.given)}</span>
+                  <span className="text-[12px] text-[#999999]">{num(x.uses)} · {money(x.given)}</span>
                 </Link>
               ))}
             </section>
@@ -137,19 +137,19 @@ export default function MarketingAnalytics() {
           <div className="mb-10 grid gap-10 lg:grid-cols-2">
             <section>
               <p className="adm-index">Starting soon</p>
-              {!upcoming.length ? <p className="border-y border-white/10 py-6 text-[12px] text-white/35">Nothing scheduled.</p> : upcoming.map((p) => (
-                <Link key={p._id} to={`/admin/promotions/${p._id}`} className="flex items-center justify-between border-b border-white/10 py-3 adm-row-hover">
+              {!upcoming.length ? <p className="border-y border-[#EAEAEA] py-6 text-[12px] text-[#AAAAAA]">Nothing scheduled.</p> : upcoming.map((p) => (
+                <Link key={p._id} to={`/admin/promotions/${p._id}`} className="flex items-center justify-between border-b border-[#EAEAEA] py-3 adm-row-hover">
                   <span className="truncate text-[13px] text-white">{p.name}</span>
-                  <span className="text-[11px] text-white/35">{p.startsAt ? new Date(p.startsAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : '—'}</span>
+                  <span className="text-[11px] text-[#AAAAAA]">{p.startsAt ? new Date(p.startsAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : '—'}</span>
                 </Link>
               ))}
             </section>
             <section>
               <p className="adm-index">Finished</p>
-              {!expired.length ? <p className="border-y border-white/10 py-6 text-[12px] text-white/35">Nothing has finished yet.</p> : expired.map((p) => (
-                <Link key={p._id} to={`/admin/promotions/${p._id}`} className="flex items-center justify-between border-b border-white/10 py-3 adm-row-hover">
+              {!expired.length ? <p className="border-y border-[#EAEAEA] py-6 text-[12px] text-[#AAAAAA]">Nothing has finished yet.</p> : expired.map((p) => (
+                <Link key={p._id} to={`/admin/promotions/${p._id}`} className="flex items-center justify-between border-b border-[#EAEAEA] py-3 adm-row-hover">
                   <span className="truncate text-[13px] text-white">{p.name}</span>
-                  <span className="text-[11px] text-white/35">{num(p.usedCount)} uses</span>
+                  <span className="text-[11px] text-[#AAAAAA]">{num(p.usedCount)} uses</span>
                 </Link>
               ))}
             </section>
@@ -162,14 +162,14 @@ export default function MarketingAnalytics() {
                 {d.daily.slice(-14).map((row) => {
                   const max = Math.max(...d.daily.map((x) => x.given), 1);
                   return (
-                    <li key={row.date} className="flex items-center gap-3 border-b border-white/5 py-2">
-                      <span className="w-20 shrink-0 text-[11px] tabular-nums text-white/35">
+                    <li key={row.date} className="flex items-center gap-3 border-b border-[#F0F0F0] py-2">
+                      <span className="w-20 shrink-0 text-[11px] tabular-nums text-[#AAAAAA]">
                         {new Date(row.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
                       </span>
-                      <span className="h-px min-w-0 flex-1 bg-white/10" aria-hidden>
+                      <span className="h-px min-w-0 flex-1 bg-[#F5F5F5]" aria-hidden>
                         <span className="block h-px bg-white" style={{ width: `${Math.max(2, (row.given / max) * 100)}%` }} />
                       </span>
-                      <span className="w-28 shrink-0 text-right text-[11px] tabular-nums text-white/50">
+                      <span className="w-28 shrink-0 text-right text-[11px] tabular-nums text-[#777777]">
                         {money(row.given)} · {num(row.uses)}
                       </span>
                     </li>

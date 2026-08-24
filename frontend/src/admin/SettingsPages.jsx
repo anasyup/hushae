@@ -161,7 +161,7 @@ export function SettingsPayments() {
           onChange={(v) => setPM('jazzcash', v)}
         />
         {pm.jazzcash && (
-          <div className="mt-4 grid gap-4 border-t border-white/5 pt-4 md:grid-cols-2">
+          <div className="mt-4 grid gap-4 border-t border-[#F0F0F0] pt-4 md:grid-cols-2">
             <EdText label="JazzCash number" value={pm.jazzcashNumber || ''} onChange={(v) => setPM('jazzcashNumber', v)} placeholder="0300 1234567" />
             <EdText label="Account title" value={pm.jazzcashTitle || ''} onChange={(v) => setPM('jazzcashTitle', v)} placeholder="Your Name" />
           </div>
@@ -173,17 +173,17 @@ export function SettingsPayments() {
           onChange={(v) => setPM('easypaisa', v)}
         />
         {pm.easypaisa && (
-          <div className="mt-4 grid gap-4 border-t border-white/5 pt-4 md:grid-cols-2">
+          <div className="mt-4 grid gap-4 border-t border-[#F0F0F0] pt-4 md:grid-cols-2">
             <EdText label="EasyPaisa number" value={pm.easypaisaNumber || ''} onChange={(v) => setPM('easypaisaNumber', v)} placeholder="0345 1234567" />
             <EdText label="Account title" value={pm.easypaisaTitle || ''} onChange={(v) => setPM('easypaisaTitle', v)} placeholder="Your Name" />
           </div>
         )}
         <EdToggle label="Bank Transfer" checked={!!pm.bank} onChange={(v) => setPM('bank', v)} />
         {pm.bank && (
-          <div className="mt-4 border-t border-white/5 pt-4">
+          <div className="mt-4 border-t border-[#F0F0F0] pt-4">
             <label className="adm-label mb-1.5 block">Bank details (shown at checkout)</label>
             <textarea className={ta} value={pm.bankDetails || ''} onChange={(e) => setPM('bankDetails', e.target.value)} placeholder={'Bank: Meezan Bank\nTitle: Your Business Name\nIBAN: PK00 MEZN 0000 0000 0000 0000'} />
-            <p className="mt-1.5 text-[11px] text-white/30">Multi-line supported. Include bank name, account title, and IBAN.</p>
+            <p className="mt-1.5 text-[11px] text-[#AAAAAA]">Multi-line supported. Include bank name, account title, and IBAN.</p>
           </div>
         )}
       </EdSection>
@@ -194,7 +194,7 @@ export function SettingsPayments() {
             <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
               <div>
                 <p className="text-[13px] text-white">SafePay</p>
-                <p className="mt-0.5 text-[12px] text-white/35">Visa / Mastercard. Apply at getsafepay.com.</p>
+                <p className="mt-0.5 text-[12px] text-[#AAAAAA]">Visa / Mastercard. Apply at getsafepay.com.</p>
               </div>
               <MonoStatus label={gatewayOn('safepay') ? 'ENABLED' : 'DISABLED'} dim={!gatewayOn('safepay')} />
             </div>
@@ -205,19 +205,19 @@ export function SettingsPayments() {
                 Switch to {sp.sandbox ? 'live' : 'sandbox'}
               </button>
             </div>
-            {sp.sandbox && <p className="mt-3 text-[12px] text-white/35">Test mode — no real money moves. Paste sandbox keys to try the flow.</p>}
+            {sp.sandbox && <p className="mt-3 text-[12px] text-[#AAAAAA]">Test mode — no real money moves. Paste sandbox keys to try the flow.</p>}
             <div className="mt-4 grid gap-4 md:grid-cols-2">
               <EdText label="API key (client)" value={sp.apiKey || ''} onChange={(v) => setSP('apiKey', v)} placeholder="SF-XXXX-…" />
               <EdText label="Secret key" type="password" value={sp.secret || ''} onChange={(v) => setSP('secret', v)} placeholder="••••••••" />
             </div>
-            <p className="mt-2 text-[12px] text-white/30">{spConfigured ? 'Gateway is configured — cards will appear at checkout.' : 'Fill both keys to enable cards at checkout.'}</p>
+            <p className="mt-2 text-[12px] text-[#AAAAAA]">{spConfigured ? 'Gateway is configured — cards will appear at checkout.' : 'Fill both keys to enable cards at checkout.'}</p>
           </div>
 
-          <div className="border-t border-white/10 pt-8">
+          <div className="border-t border-[#EAEAEA] pt-8">
             <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
               <div>
                 <p className="text-[13px] text-white">JazzCash Merchant API</p>
-                <p className="mt-0.5 text-[12px] text-white/35">Hosted payment page. Register at payments.jazzcash.com.pk.</p>
+                <p className="mt-0.5 text-[12px] text-[#AAAAAA]">Hosted payment page. Register at payments.jazzcash.com.pk.</p>
               </div>
               <MonoStatus label={gatewayOn('jazzcash-api') ? 'ENABLED' : 'DISABLED'} dim={!gatewayOn('jazzcash-api')} />
             </div>
@@ -233,13 +233,13 @@ export function SettingsPayments() {
               <EdText label="Password" type="password" value={jz.password || ''} onChange={(v) => setJZ('password', v)} placeholder="••••••••" />
               <EdText label="Integrity salt" type="password" value={jz.integritySalt || ''} onChange={(v) => setJZ('integritySalt', v)} placeholder="••••••••" />
             </div>
-            <p className="mt-2 text-[12px] text-white/30">{jzConfigured ? 'Gateway is configured — JazzCash checkout will be offered.' : 'Fill merchant ID, password and integrity salt to enable.'}</p>
+            <p className="mt-2 text-[12px] text-[#AAAAAA]">{jzConfigured ? 'Gateway is configured — JazzCash checkout will be offered.' : 'Fill merchant ID, password and integrity salt to enable.'}</p>
           </div>
         </div>
       </EdSection>
 
       <EdSection index={3} title="Payment behavior">
-        <p className="text-[12px] leading-relaxed text-white/35">
+        <p className="text-[12px] leading-relaxed text-[#AAAAAA]">
           Credentials are encrypted at rest and never shown to shoppers. Use sandbox keys until launch day — then flip to live.
         </p>
       </EdSection>
@@ -364,11 +364,11 @@ export function SettingsShipping() {
       <EdSection index={7} title="Live preview" description="This is exactly what customers see at checkout.">
         <div className="space-y-3">
           <div className="flex items-center justify-between text-[13px]">
-            <span className="text-white/40">Shipping</span>
+            <span className="text-[#999999]">Shipping</span>
             <span className="tabular-nums text-white">Flat PKR {(s.shippingFlatRate ?? 350).toLocaleString()}</span>
           </div>
           <div className="flex items-center justify-between text-[13px]">
-            <span className="text-white/40">Free over</span>
+            <span className="text-[#999999]">Free over</span>
             <span className="tabular-nums text-white">PKR {(s.freeShippingThreshold ?? 4999).toLocaleString()}</span>
           </div>
         </div>

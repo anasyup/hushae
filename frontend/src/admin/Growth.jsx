@@ -46,10 +46,10 @@ export default function Growth() {
 
       <section className="mb-10">
         <p className="adm-index">01 — List</p>
-        <div className="border-y border-white/10 px-5 py-6">
+        <div className="border-y border-[#EAEAEA] px-5 py-6">
           <p className="adm-label">Email subscribers</p>
           <p className="adm-metric mt-3 text-[32px] leading-none text-white">{subs ? subs.length : '—'}</p>
-          <p className="mt-2 max-w-xl text-[12px] leading-relaxed text-white/35">
+          <p className="mt-2 max-w-xl text-[12px] leading-relaxed text-[#AAAAAA]">
             Copy the list and send your own sale announcements and coupon codes — the cheapest marketing you have.
           </p>
         </div>
@@ -66,14 +66,14 @@ export default function Growth() {
           />
         ) : (
           <div className="overflow-x-auto">
-            <div className="hidden border-b border-white/10 py-2 md:grid md:grid-cols-[3rem_minmax(0,1.6fr)_0.8fr_3rem] md:gap-3">
+            <div className="hidden border-b border-[#EAEAEA] py-2 md:grid md:grid-cols-[3rem_minmax(0,1.6fr)_0.8fr_3rem] md:gap-3">
               {['#', 'Email', 'Subscribed', ''].map((h) => <p key={h || 'a'} className="adm-label">{h}</p>)}
             </div>
             {subs.map((s, i) => (
-              <div key={s._id} className="grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-3 border-b border-white/5 py-3 md:grid-cols-[3rem_minmax(0,1.6fr)_0.8fr_3rem] adm-row-hover">
-                <span className="text-[11px] tabular-nums text-white/30">{String(i + 1).padStart(2, '0')}</span>
+              <div key={s._id} className="grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-3 border-b border-[#F0F0F0] py-3 md:grid-cols-[3rem_minmax(0,1.6fr)_0.8fr_3rem] adm-row-hover">
+                <span className="text-[11px] tabular-nums text-[#AAAAAA]">{String(i + 1).padStart(2, '0')}</span>
                 <span className="truncate text-[13px] text-white">{s.email}</span>
-                <span className="hidden text-[12px] text-white/40 md:block">{fmtDate(s.createdAt)}</span>
+                <span className="hidden text-[12px] text-[#999999] md:block">{fmtDate(s.createdAt)}</span>
                 <button type="button" onClick={() => remove(s)} className={btnIcon} aria-label={`Remove ${s.email}`}>×</button>
               </div>
             ))}

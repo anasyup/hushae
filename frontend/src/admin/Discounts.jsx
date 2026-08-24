@@ -54,7 +54,7 @@ export default function Discounts() {
 
       <section className="mb-10">
         <p className="adm-index">01 — Overview</p>
-        <div className="adm-divide-x grid grid-cols-3 border-y border-white/10">
+        <div className="adm-divide-x grid grid-cols-3 border-y border-[#EAEAEA]">
           {[
             { label: 'Total codes', value: stats.total },
             { label: 'Active', value: stats.active },
@@ -71,7 +71,7 @@ export default function Discounts() {
       {showForm && (
         <form onSubmit={save} className="mb-10">
           <p className="adm-index">{editing ? 'Edit code' : 'New code'}</p>
-          <div className="grid gap-4 border-y border-white/10 py-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 border-y border-[#EAEAEA] py-6 sm:grid-cols-2 lg:grid-cols-3">
             <div>
               <label className="adm-label mb-1.5 block">Code</label>
               <input className={`${ctl} uppercase`} placeholder="WELCOME10" value={form.code} onChange={(e) => set('code', e.target.value)} required />
@@ -101,10 +101,10 @@ export default function Discounts() {
             </div>
           </div>
           <div className="mt-4 flex flex-wrap items-center gap-3">
-            <label className="flex cursor-pointer items-center gap-2 text-[13px] text-white/70">
+            <label className="flex cursor-pointer items-center gap-2 text-[13px] text-[#555555]">
               <input type="checkbox" checked={form.active} onChange={(e) => set('active', e.target.checked)} className="h-3.5 w-3.5 rounded-none accent-white" /> Active
             </label>
-            {err && <p className="text-[12px] text-white/60">{err}</p>}
+            {err && <p className="text-[12px] text-[#555555]">{err}</p>}
             <div className="ml-auto flex gap-2">
               <button type="button" onClick={() => setShowForm(false)} className={btnGhost}>Cancel</button>
               <button disabled={busy} className={btnSolid}>{busy ? 'Saving…' : editing ? 'Save changes' : 'Create code'}</button>
@@ -129,24 +129,24 @@ export default function Discounts() {
         )}
         {filtered.length > 0 && (
           <div className="min-w-0 overflow-x-hidden">
-            <div className="hidden border-b border-white/10 px-1 py-2.5 md:grid md:grid-cols-[minmax(0,1fr)_0.7fr_0.7fr_0.6fr_0.8fr_0.6fr_auto] md:items-center md:gap-3">
+            <div className="hidden border-b border-[#EAEAEA] px-1 py-2.5 md:grid md:grid-cols-[minmax(0,1fr)_0.7fr_0.7fr_0.6fr_0.8fr_0.6fr_auto] md:items-center md:gap-3">
               {['Code', 'Type', 'Value', 'Usage', 'Expiry', 'Status', ''].map((h) => <p key={h || 'a'} className="adm-label">{h}</p>)}
             </div>
             {filtered.map((d) => {
               const expired = d.expiresAt && new Date(d.expiresAt) < new Date();
               return (
-                <div key={d._id} className="border-b border-white/10 adm-row-hover">
+                <div key={d._id} className="border-b border-[#EAEAEA] adm-row-hover">
                   <div className="hidden md:grid md:grid-cols-[minmax(0,1fr)_0.7fr_0.7fr_0.6fr_0.8fr_0.6fr_auto] md:items-center md:gap-3 md:px-1 md:py-3.5">
                     <p className="font-mono text-[13px] font-medium tracking-wide text-white">{d.code}</p>
-                    <p className="text-[11px] uppercase tracking-[0.12em] text-white/40">{d.type === 'percent' ? 'Percent' : 'Fixed'}</p>
+                    <p className="text-[11px] uppercase tracking-[0.12em] text-[#999999]">{d.type === 'percent' ? 'Percent' : 'Fixed'}</p>
                     <p className="text-[13px] text-white">{d.type === 'percent' ? `${d.value}%` : pkr(d.value)}</p>
-                    <p className="text-[12px] tabular-nums text-white/70">{d.usedCount || 0}{d.maxUses > 0 ? ` / ${d.maxUses}` : ''}</p>
-                    <p className="text-[12px] text-white/40">{d.expiresAt ? fmtDate(d.expiresAt) : '—'}</p>
+                    <p className="text-[12px] tabular-nums text-[#555555]">{d.usedCount || 0}{d.maxUses > 0 ? ` / ${d.maxUses}` : ''}</p>
+                    <p className="text-[12px] text-[#999999]">{d.expiresAt ? fmtDate(d.expiresAt) : '—'}</p>
                     <MonoStatus label={expired ? 'EXPIRED' : d.active ? 'ACTIVE' : 'OFF'} dim={!d.active || expired} />
                     <div className="flex justify-end gap-2">
                       <button type="button" onClick={() => openEdit(d)} className="text-[10px] uppercase tracking-[0.12em] text-white/45 hover:text-white">Edit</button>
                       <button type="button" onClick={() => toggle(d)} className="text-[10px] uppercase tracking-[0.12em] text-white/45 hover:text-white">{d.active ? 'Off' : 'On'}</button>
-                      <button type="button" onClick={() => remove(d)} className="text-[10px] uppercase tracking-[0.12em] text-white/30 hover:text-white">Delete</button>
+                      <button type="button" onClick={() => remove(d)} className="text-[10px] uppercase tracking-[0.12em] text-[#AAAAAA] hover:text-white">Delete</button>
                     </div>
                   </div>
                   <div className="px-1 py-4 md:hidden">
@@ -154,7 +154,7 @@ export default function Discounts() {
                       <p className="font-mono text-[13px] text-white">{d.code}</p>
                       <MonoStatus label={expired ? 'EXPIRED' : d.active ? 'ACTIVE' : 'OFF'} dim={!d.active || expired} />
                     </div>
-                    <p className="mt-1 text-[12px] text-white/50">{d.type === 'percent' ? `${d.value}% off` : `${pkr(d.value)} off`} · {d.usedCount || 0} uses</p>
+                    <p className="mt-1 text-[12px] text-[#777777]">{d.type === 'percent' ? `${d.value}% off` : `${pkr(d.value)} off`} · {d.usedCount || 0} uses</p>
                     <div className="mt-3 flex gap-3">
                       <button type="button" onClick={() => openEdit(d)} className={btnGhost}>Edit</button>
                       <button type="button" onClick={() => toggle(d)} className={btnGhost}>{d.active ? 'Turn off' : 'Turn on'}</button>

@@ -11,7 +11,7 @@ import {
 
 function EarnRule({ label, description, on, points, onToggle, onPoints, disabled }) {
   return (
-    <div className="border-b border-white/5 py-3 last:border-0">
+    <div className="border-b border-[#F0F0F0] py-3 last:border-0">
       <EdToggle label={label} description={description} checked={on} onChange={onToggle} disabled={disabled} />
       <div className="mt-2 flex items-center gap-2 pl-0">
         <input
@@ -20,7 +20,7 @@ function EarnRule({ label, description, on, points, onToggle, onPoints, disabled
           aria-label={`${label} — points awarded`}
           onChange={(e) => onPoints(e.target.value === '' ? 0 : Number(e.target.value))}
         />
-        <span className="text-[12px] text-white/35">points</span>
+        <span className="text-[12px] text-[#AAAAAA]">points</span>
       </div>
     </div>
   );
@@ -152,7 +152,7 @@ export default function SettingsLoyalty() {
       {stats && (
         <section className="mb-10">
           <p className="adm-index">00 — Snapshot</p>
-          <div className="adm-divide-x grid grid-cols-2 border-y border-white/10 md:grid-cols-4">
+          <div className="adm-divide-x grid grid-cols-2 border-y border-[#EAEAEA] md:grid-cols-4">
             {[
               ['Members', (stats.accounts || 0).toLocaleString('en-PK')],
               ['Points outstanding', (stats.points || 0).toLocaleString('en-PK')],
@@ -170,7 +170,7 @@ export default function SettingsLoyalty() {
 
       {problems.length > 0 && (
         <EdNotice>
-          <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.16em] text-white/70">Fix these before saving</p>
+          <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.16em] text-[#555555]">Fix these before saving</p>
           <ul className="list-disc space-y-1 pl-5">
             {problems.map((p) => <li key={p}>{p}</li>)}
           </ul>
@@ -203,7 +203,7 @@ export default function SettingsLoyalty() {
                 setG('earn', 'perCurrency', v > 0 ? 1 / v : 0);
               }}
             />
-            <p id="loy-spend-per-point-h" className="mt-1.5 text-[11px] leading-relaxed text-white/30">
+            <p id="loy-spend-per-point-h" className="mt-1.5 text-[11px] leading-relaxed text-[#AAAAAA]">
               {spendPerPoint > 0
                 ? `A PKR 5,000 order earns about ${Math.floor(5000 / spendPerPoint)} points, worth PKR ${Math.floor((5000 / spendPerPoint) * (Number(L.redeem.pointValue) || 1)).toLocaleString('en-PK')} off a future order.`
                 : 'Set a value above zero or purchases earn nothing.'}
@@ -259,7 +259,7 @@ export default function SettingsLoyalty() {
           <EdNum label="Points must be spent in blocks of" value={L.redeem.step} onChange={(v) => setG('redeem', 'step', v)} min="1" max="10000" disabled={off || !L.redeem.enabled} hint="e.g. 50 means they can spend 200 or 250, never 213." />
           <EdNum label="Most of an order that points can cover (%)" value={L.redeem.maxPercentOfOrder} onChange={(v) => setG('redeem', 'maxPercentOfOrder', v)} min="1" max="100" disabled={off || !L.redeem.enabled} hint="Keep below 100 so every order still brings in some cash." />
         </div>
-        <p className="mt-4 text-[12px] leading-relaxed text-white/35">
+        <p className="mt-4 text-[12px] leading-relaxed text-[#AAAAAA]">
           On a PKR 5,000 order a customer could take off at most{' '}
           <span className="text-white">PKR {Math.floor(5000 * ((Number(L.redeem.maxPercentOfOrder) || 0) / 100)).toLocaleString('en-PK')}</span>
           {' '}— that is {Math.floor((5000 * ((Number(L.redeem.maxPercentOfOrder) || 0) / 100)) / (Number(L.redeem.pointValue) || 1)).toLocaleString('en-PK')} points.
@@ -281,17 +281,17 @@ export default function SettingsLoyalty() {
         </div>
         <div className="mt-5 space-y-1">
           {L.tiers.levels.map((t, i) => (
-            <div key={`${t.id}-${i}`} className="border-b border-white/5">
+            <div key={`${t.id}-${i}`} className="border-b border-[#F0F0F0]">
               <button
                 type="button"
                 onClick={() => setOpenTier(openTier === i ? null : i)}
                 aria-expanded={openTier === i}
                 className="adm-row-hover flex w-full items-center gap-3 py-3 text-left"
               >
-                <span className="h-3 w-3 shrink-0 border border-white/20" style={{ background: t.colour || '#C9BFB4' }} aria-hidden />
+                <span className="h-3 w-3 shrink-0 border border-[#DCDCDC]" style={{ background: t.colour || '#C9BFB4' }} aria-hidden />
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-[13px] text-white">{t.name || t.id}</span>
-                  <span className="block text-[12px] text-white/35">
+                  <span className="block text-[12px] text-[#AAAAAA]">
                     From PKR {(t.minSpend || 0).toLocaleString('en-PK')} · {t.multiplier || 1}× points
                     {t.freeShipping ? ' · free delivery' : ''}
                     {t.discountPercent ? ` · ${t.discountPercent}% off` : ''}
@@ -300,7 +300,7 @@ export default function SettingsLoyalty() {
                 <span className="text-[11px] text-white/25">{openTier === i ? '−' : '+'}</span>
               </button>
               {openTier === i && (
-                <div className="border-t border-white/10 pb-5 pt-4">
+                <div className="border-t border-[#EAEAEA] pb-5 pt-4">
                   <div className="grid gap-4 md:grid-cols-2">
                     <EdText label="Name" value={t.name} onChange={(v) => setTier(i, 'name', v)} disabled={off || !L.tiers.enabled} />
                     <EdText label="ID (never change this once live)" value={t.id} onChange={(v) => setTier(i, 'id', v.trim().toLowerCase().replace(/[^a-z0-9-]/g, ''))} disabled={off || !L.tiers.enabled} hint="Members are stored against this ID." />
@@ -310,7 +310,7 @@ export default function SettingsLoyalty() {
                     <div>
                       <label className="adm-label mb-1.5 block" htmlFor={`tier-colour-${i}`}>Badge colour</label>
                       <div className="flex items-center gap-2">
-                        <input id={`tier-colour-${i}`} type="color" aria-label={`${t.name || t.id} badge colour, colour picker`} className="h-8 w-12 cursor-pointer border border-white/20 bg-[#0A0A0A] p-0.5" value={t.colour || '#C9BFB4'} onChange={(e) => setTier(i, 'colour', e.target.value)} disabled={off || !L.tiers.enabled} />
+                        <input id={`tier-colour-${i}`} type="color" aria-label={`${t.name || t.id} badge colour, colour picker`} className="h-8 w-12 cursor-pointer border border-[#DCDCDC] bg-[#0A0A0A] p-0.5" value={t.colour || '#C9BFB4'} onChange={(e) => setTier(i, 'colour', e.target.value)} disabled={off || !L.tiers.enabled} />
                         <input aria-label={`${t.name || t.id} badge colour, hex code`} className={ctl} value={t.colour || ''} onChange={(e) => setTier(i, 'colour', e.target.value)} disabled={off || !L.tiers.enabled} />
                       </div>
                     </div>
@@ -378,7 +378,7 @@ export default function SettingsLoyalty() {
         <EdToggle label="Show badges" checked={L.achievements.enabled} onChange={(v) => setG('achievements', 'enabled', v)} disabled={off} />
         <div className="mt-4 space-y-6">
           {L.achievements.list.map((a, i) => (
-            <div key={`${a.id}-${i}`} className="border-b border-white/5 pb-6 last:border-0">
+            <div key={`${a.id}-${i}`} className="border-b border-[#F0F0F0] pb-6 last:border-0">
               <div className="grid gap-4 md:grid-cols-2">
                 <EdText label="Badge name" value={a.name} onChange={(v) => setAch(i, 'name', v)} disabled={off || !L.achievements.enabled} />
                 <EdText label="ID" value={a.id} onChange={(v) => setAch(i, 'id', v.trim().toLowerCase().replace(/[^a-z0-9-]/g, ''))} disabled={off || !L.achievements.enabled} />
@@ -417,7 +417,7 @@ export default function SettingsLoyalty() {
         <EdToggle label="Tell customers when they earn points" checked={L.notify.onEarn} onChange={(v) => setG('notify', 'onEarn', v)} disabled={off} />
         <EdToggle label="Tell customers when they reach a new tier" checked={L.notify.onTierUp} onChange={(v) => setG('notify', 'onTierUp', v)} disabled={off} />
         <EdToggle label="Warn customers before points expire" checked={L.notify.onExpiring} onChange={(v) => setG('notify', 'onExpiring', v)} disabled={off} />
-        <p className="mt-3 text-[12px] leading-relaxed text-white/30">
+        <p className="mt-3 text-[12px] leading-relaxed text-[#AAAAAA]">
           These need an email service connected in Settings → Apps. Until then nothing is sent.
         </p>
       </EdSection>

@@ -116,17 +116,17 @@ export default function Reports() {
 
       <section>
         <p className="adm-index">01 — Directory</p>
-        <div className="hidden border-b border-white/10 py-2 md:grid md:grid-cols-[3rem_minmax(0,1.2fr)_minmax(0,1.8fr)_auto] md:gap-4">
+        <div className="hidden border-b border-[#EAEAEA] py-2 md:grid md:grid-cols-[3rem_minmax(0,1.2fr)_minmax(0,1.8fr)_auto] md:gap-4">
           {['#', 'Report', 'Detail', ''].map((h) => <p key={h || 'a'} className="adm-label">{h}</p>)}
         </div>
         {CARDS.map((c, i) => (
-          <div key={c.id} className="grid grid-cols-1 items-center gap-2 border-b border-white/10 py-4 md:grid-cols-[3rem_minmax(0,1.2fr)_minmax(0,1.8fr)_auto] md:gap-4 adm-row-hover">
-            <span className="text-[11px] uppercase tracking-[0.16em] text-white/30">{String(i + 1).padStart(2, '0')}</span>
+          <div key={c.id} className="grid grid-cols-1 items-center gap-2 border-b border-[#EAEAEA] py-4 md:grid-cols-[3rem_minmax(0,1.2fr)_minmax(0,1.8fr)_auto] md:gap-4 adm-row-hover">
+            <span className="text-[11px] uppercase tracking-[0.16em] text-[#AAAAAA]">{String(i + 1).padStart(2, '0')}</span>
             <div>
               <p className="text-[13px] text-white">{c.title}</p>
-              <p className="mt-0.5 text-[12px] text-white/35 md:hidden">{c.desc}</p>
+              <p className="mt-0.5 text-[12px] text-[#AAAAAA] md:hidden">{c.desc}</p>
             </div>
-            <p className="hidden text-[12px] text-white/35 md:block">{c.desc}</p>
+            <p className="hidden text-[12px] text-[#AAAAAA] md:block">{c.desc}</p>
             <div className="flex items-center gap-2 justify-self-start md:justify-self-end">
               {c.onExport && (
                 <button
@@ -138,7 +138,7 @@ export default function Reports() {
                   {busyKey === c.id ? <Loader2 size={11} className="animate-spin" /> : <Download size={11} />} CSV
                 </button>
               )}
-              <Link to={c.to} className="text-[11px] uppercase tracking-[0.14em] text-white/40 hover:text-white">
+              <Link to={c.to} className="text-[11px] uppercase tracking-[0.14em] text-[#999999] hover:text-white">
                 Open →
               </Link>
             </div>

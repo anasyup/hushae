@@ -50,7 +50,7 @@ export default function Categories() {
         {cats === null && <TableSkeleton rows={5} />}
         {cats && (
           <div className="min-w-0">
-            <div className="hidden border-b border-white/10 px-1 py-2.5 md:grid md:grid-cols-[48px_minmax(0,1.4fr)_0.7fr_0.5fr_0.8fr_auto] md:items-center md:gap-3">
+            <div className="hidden border-b border-[#EAEAEA] px-1 py-2.5 md:grid md:grid-cols-[48px_minmax(0,1.4fr)_0.7fr_0.5fr_0.8fr_auto] md:items-center md:gap-3">
               <span />
               <p className="adm-label">Category</p>
               <p className="adm-label">Gender</p>
@@ -59,15 +59,15 @@ export default function Categories() {
               <p className="adm-label" />
             </div>
             {cats.map((c) => (
-              <div key={c._id} className={`border-b border-white/10 adm-row-hover ${!c.isActive ? 'opacity-45' : ''}`}>
+              <div key={c._id} className={`border-b border-[#EAEAEA] adm-row-hover ${!c.isActive ? 'opacity-45' : ''}`}>
                 <div className="hidden md:grid md:grid-cols-[48px_minmax(0,1.4fr)_0.7fr_0.5fr_0.8fr_auto] md:items-center md:gap-3 md:px-1 md:py-3">
-                  <Img src={c.image} alt="" className="h-12 w-12 border border-white/10 object-cover" />
+                  <Img src={c.image} alt="" className="h-12 w-12 border border-[#EAEAEA] object-cover" />
                   <div className="min-w-0">
                     <p className="truncate text-[13px] font-medium text-white">{c.name}</p>
-                    <p className="font-mono text-[11px] text-white/30">{c.slug}</p>
+                    <p className="font-mono text-[11px] text-[#AAAAAA]">{c.slug}</p>
                   </div>
-                  <p className="capitalize text-[12px] text-white/50">{c.gender}</p>
-                  <p className="text-[12px] tabular-nums text-white/50">{c.sortOrder}</p>
+                  <p className="capitalize text-[12px] text-[#777777]">{c.gender}</p>
+                  <p className="text-[12px] tabular-nums text-[#777777]">{c.sortOrder}</p>
                   <MonoStatus label={c.isActive ? 'ACTIVE' : 'DISABLED'} dim={!c.isActive} />
                   <div className="flex justify-end gap-2">
                     <button type="button" onClick={() => setEditing({ ...c })} className={btnGhost}>Edit</button>
@@ -75,10 +75,10 @@ export default function Categories() {
                   </div>
                 </div>
                 <div className="flex items-start gap-3 px-1 py-4 md:hidden">
-                  <Img src={c.image} alt="" className="h-14 w-14 border border-white/10 object-cover" />
+                  <Img src={c.image} alt="" className="h-14 w-14 border border-[#EAEAEA] object-cover" />
                   <div className="min-w-0 flex-1">
                     <p className="text-[13px] font-medium text-white">{c.name}</p>
-                    <p className="mt-0.5 text-[11px] text-white/35">{c.gender} · {c.slug}</p>
+                    <p className="mt-0.5 text-[11px] text-[#AAAAAA]">{c.gender} · {c.slug}</p>
                     <div className="mt-2"><MonoStatus label={c.isActive ? 'ACTIVE' : 'DISABLED'} dim={!c.isActive} /></div>
                     <div className="mt-3 flex gap-2">
                       <button type="button" onClick={() => setEditing({ ...c })} className={btnGhost}>Edit</button>
@@ -94,10 +94,10 @@ export default function Categories() {
 
       {editing && (
         <div className="fixed inset-0 z-50 grid place-items-center bg-black/60 p-4" onClick={() => setEditing(null)}>
-          <div className="w-full max-w-md border border-white/15 bg-[#0D0D0D] p-6" onClick={(e) => e.stopPropagation()}>
+          <div className="w-full max-w-md border border-[#EAEAEA] bg-[#0D0D0D] p-6" onClick={(e) => e.stopPropagation()}>
             <div className="mb-5 flex items-center justify-between">
               <p className="text-[15px] font-medium text-white">{editing._id ? 'Edit category' : 'New category'}</p>
-              <button type="button" onClick={() => setEditing(null)} aria-label="Close" className="text-white/35 hover:text-white"><X size={16} /></button>
+              <button type="button" onClick={() => setEditing(null)} aria-label="Close" className="text-[#AAAAAA] hover:text-white"><X size={16} /></button>
             </div>
             <div className="space-y-4">
               <div>
@@ -123,7 +123,7 @@ export default function Categories() {
                   <label className="adm-label mb-1.5 block">Sort order</label>
                   <input className={ctl} type="number" value={editing.sortOrder} onChange={(e) => setEditing({ ...editing, sortOrder: Number(e.target.value) })} />
                 </div>
-                <label className="flex cursor-pointer items-center gap-2 pb-2 text-[13px] text-white/70">
+                <label className="flex cursor-pointer items-center gap-2 pb-2 text-[13px] text-[#555555]">
                   <input type="checkbox" checked={editing.isActive} onChange={(e) => setEditing({ ...editing, isActive: e.target.checked })} className="h-3.5 w-3.5 rounded-none accent-white" /> Active
                 </label>
               </div>

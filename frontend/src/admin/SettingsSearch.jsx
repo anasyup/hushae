@@ -111,13 +111,13 @@ export default function SettingsSearch() {
       <EdSection index={2} title="What gets searched" description="Turn a field off and its contents become invisible to search.">
         <div className="space-y-1">
           {Object.keys(FIELD_LABELS).map((k) => (
-            <div key={k} className="flex flex-wrap items-center gap-3 border-b border-white/5 py-2 last:border-0">
+            <div key={k} className="flex flex-wrap items-center gap-3 border-b border-[#F0F0F0] py-2 last:border-0">
               <label className="flex min-h-[44px] flex-1 cursor-pointer items-center gap-3">
                 <input type="checkbox" checked={S.fields?.[k] !== false} onChange={(e) => setG('fields', k, e.target.checked)} className="h-4 w-4 accent-white" />
-                <span className="text-[13px] text-white/85">{FIELD_LABELS[k]}</span>
+                <span className="text-[13px] text-black">{FIELD_LABELS[k]}</span>
               </label>
               <div className="flex items-center gap-2">
-                <label className="text-[10px] uppercase tracking-[0.16em] text-white/35" htmlFor={`w-${k}`}>Weight</label>
+                <label className="text-[10px] uppercase tracking-[0.16em] text-[#AAAAAA]" htmlFor={`w-${k}`}>Weight</label>
                 <input
                   id={`w-${k}`} type="number" min="0" max="200"
                   className={`${ctl} w-[90px]`} value={S.weights?.[k] ?? 0}
@@ -142,11 +142,11 @@ export default function SettingsSearch() {
       <EdSection index={4} title="Synonyms" description="Teach the search that two words mean the same thing.">
         <div className="space-y-2">
           {synonyms.map((x, i) => (
-            <div key={i} className="flex flex-wrap items-center gap-2 border-b border-white/5 py-2">
+            <div key={i} className="flex flex-wrap items-center gap-2 border-b border-[#F0F0F0] py-2">
               <input className={`${ctl} max-w-[160px]`} value={x.from} aria-label={`Synonym ${i + 1}, first word`} onChange={(e) => set('synonyms', synonyms.map((y, j) => (j === i ? { ...y, from: e.target.value.toLowerCase() } : y)))} />
-              <span aria-hidden className="text-[13px] text-white/35">{x.both !== false ? '↔' : '→'}</span>
+              <span aria-hidden className="text-[13px] text-[#AAAAAA]">{x.both !== false ? '↔' : '→'}</span>
               <input className={`${ctl} max-w-[160px]`} value={x.to} aria-label={`Synonym ${i + 1}, second word`} onChange={(e) => set('synonyms', synonyms.map((y, j) => (j === i ? { ...y, to: e.target.value.toLowerCase() } : y)))} />
-              <label className="flex min-h-[44px] cursor-pointer items-center gap-2 text-[12px] text-white/50">
+              <label className="flex min-h-[44px] cursor-pointer items-center gap-2 text-[12px] text-[#777777]">
                 <input type="checkbox" checked={x.both !== false} className="h-4 w-4 accent-white" onChange={(e) => set('synonyms', synonyms.map((y, j) => (j === i ? { ...y, both: e.target.checked } : y)))} />
                 Both ways
               </label>
@@ -156,7 +156,7 @@ export default function SettingsSearch() {
         </div>
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <input className={`${ctl} max-w-[160px]`} placeholder="customer's word" aria-label="New synonym, customer's word" value={newSyn.from} onChange={(e) => setNewSyn({ ...newSyn, from: e.target.value })} />
-          <span aria-hidden className="text-[13px] text-white/35">↔</span>
+          <span aria-hidden className="text-[13px] text-[#AAAAAA]">↔</span>
           <input className={`${ctl} max-w-[160px]`} placeholder="your word" aria-label="New synonym, your word" value={newSyn.to} onChange={(e) => setNewSyn({ ...newSyn, to: e.target.value })} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addSyn(); } }} />
           <button type="button" onClick={addSyn} className={btnSolid}>Add</button>
         </div>
@@ -165,9 +165,9 @@ export default function SettingsSearch() {
       <EdSection index={5} title="Ignored words" description="Words skipped when searching. A search made entirely of ignored words falls back to the original text.">
         <div className="flex flex-wrap gap-2">
           {stopWords.map((w, i) => (
-            <span key={`${w}-${i}`} className="inline-flex min-h-[36px] items-center gap-2 border border-white/15 px-3 text-[12px] text-white/70">
+            <span key={`${w}-${i}`} className="inline-flex min-h-[36px] items-center gap-2 border border-[#EAEAEA] px-3 text-[12px] text-[#555555]">
               {w}
-              <button type="button" onClick={() => set('stopWords', stopWords.filter((_, j) => j !== i))} aria-label={`Remove ignored word ${w}`} className="text-white/35 hover:text-white">×</button>
+              <button type="button" onClick={() => set('stopWords', stopWords.filter((_, j) => j !== i))} aria-label={`Remove ignored word ${w}`} className="text-[#AAAAAA] hover:text-white">×</button>
             </span>
           ))}
         </div>

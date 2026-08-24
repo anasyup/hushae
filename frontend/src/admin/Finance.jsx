@@ -331,12 +331,12 @@ export default function Finance() {
 
       <section className="mb-10">
         <p className="adm-index">01 — Performance</p>
-        <div className="adm-divide-x grid grid-cols-2 border-y border-white/10 sm:grid-cols-3 xl:grid-cols-6">
+        <div className="adm-divide-x grid grid-cols-2 border-y border-[#EAEAEA] sm:grid-cols-3 xl:grid-cols-6">
           {kpis.map((x) => (
             <div key={x.label} className="px-4 py-6 sm:px-5">
               <p className="adm-label">{x.label}</p>
               <p className="adm-metric mt-3 text-[20px] leading-none text-white xl:text-[24px]">{x.value}</p>
-              <p className="mt-2 text-[11px] text-white/30">{x.sub}</p>
+              <p className="mt-2 text-[11px] text-[#AAAAAA]">{x.sub}</p>
             </div>
           ))}
         </div>
@@ -344,7 +344,7 @@ export default function Finance() {
 
       <section className="mb-10">
         <p className="adm-index">02 — Cash flow</p>
-        <p className="mb-4 text-[12px] text-white/35">Revenue vs cost of goods, day by day.</p>
+        <p className="mb-4 text-[12px] text-[#AAAAAA]">Revenue vs cost of goods, day by day.</p>
         <div className="h-72">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={summary.daily} margin={{ top: 10, right: 8, left: 0, bottom: 0 }}>
@@ -360,7 +360,7 @@ export default function Finance() {
             </AreaChart>
           </ResponsiveContainer>
         </div>
-        <div className="mt-3 flex flex-wrap gap-5 text-[10px] uppercase tracking-[0.16em] text-white/40">
+        <div className="mt-3 flex flex-wrap gap-5 text-[10px] uppercase tracking-[0.16em] text-[#999999]">
           <span className="inline-flex items-center gap-2"><span className="h-px w-4 bg-white" /> Revenue</span>
           <span className="inline-flex items-center gap-2"><span className="h-px w-4 bg-white/40" /> Cost of goods</span>
         </div>
@@ -386,20 +386,20 @@ export default function Finance() {
       <section className="mt-10">
         <p className="adm-index">08 — Advisor</p>
         {summary.insights.length === 0 ? (
-          <p className="border-y border-white/10 py-8 text-[13px] text-white/35">Everything is on track for this period — check back after more orders come in.</p>
+          <p className="border-y border-[#EAEAEA] py-8 text-[13px] text-[#AAAAAA]">Everything is on track for this period — check back after more orders come in.</p>
         ) : (
-          <div className="divide-y divide-white/10 border-y border-white/10">
+          <div className="divide-y divide-[#EAEAEA] border-y border-[#EAEAEA]">
             {summary.insights.map((it, i) => (
               <div key={i} className="flex items-start gap-4 py-4">
-                <span className="mt-0.5 shrink-0 text-[10px] uppercase tracking-[0.18em] text-white/30">
+                <span className="mt-0.5 shrink-0 text-[10px] uppercase tracking-[0.18em] text-[#AAAAAA]">
                   {String(i + 1).padStart(2, '0')}
                 </span>
-                <p className="text-[13px] leading-relaxed text-white/80">{it.text}</p>
+                <p className="text-[13px] leading-relaxed text-[#333333]">{it.text}</p>
               </div>
             ))}
           </div>
         )}
-        <p className="mt-4 text-[11px] leading-relaxed text-white/30">
+        <p className="mt-4 text-[11px] leading-relaxed text-[#AAAAAA]">
           Net profit = Revenue − (COGS + packing + courier subsidy + prorated ads + SEO + other). Fixed monthly costs are prorated across the selected date range. Set costs in{' '}
           <Link to="/admin/settings/shipping" className="text-white/55 underline decoration-white/20 underline-offset-4 hover:text-white">Settings → Shipping &amp; Operating Costs</Link>.
         </p>
@@ -413,19 +413,19 @@ function RankedMoney({ title, hint, rows, empty }) {
   return (
     <section>
       <p className="adm-index">{title}</p>
-      <p className="mb-4 text-[12px] text-white/35">{hint}</p>
+      <p className="mb-4 text-[12px] text-[#AAAAAA]">{hint}</p>
       {total === 0 ? (
-        <p className="border-y border-white/10 py-8 text-[12px] leading-relaxed text-white/35">{empty}</p>
+        <p className="border-y border-[#EAEAEA] py-8 text-[12px] leading-relaxed text-[#AAAAAA]">{empty}</p>
       ) : (
         <ul>
           {rows.sort((a, b) => b.value - a.value).map((d) => (
-            <li key={d.name} className="flex items-center gap-3 border-b border-white/5 py-2.5">
+            <li key={d.name} className="flex items-center gap-3 border-b border-[#F0F0F0] py-2.5">
               <span className="min-w-0 flex-1 truncate text-[12px] text-white/75">{d.name}</span>
               <span className="text-[12px] tabular-nums text-white">{pkr(d.value)}</span>
-              <span className="w-10 text-right text-[11px] tabular-nums text-white/30">{((d.value / total) * 100).toFixed(0)}%</span>
+              <span className="w-10 text-right text-[11px] tabular-nums text-[#AAAAAA]">{((d.value / total) * 100).toFixed(0)}%</span>
             </li>
           ))}
-          <li className="flex items-center justify-between border-t border-white/20 py-3">
+          <li className="flex items-center justify-between border-t border-[#DCDCDC] py-3">
             <span className="adm-label">Total</span>
             <span className="adm-metric text-[16px] text-white">{pkr(total)}</span>
           </li>

@@ -7,7 +7,7 @@ import { pkr } from '../../lib/format';
 const PACE = {
   ahead:      { label: 'Ahead of pace', cls: 'bg-white/12 text-white ring-white/20', bar: 'bg-white' },
   'on-track': { label: 'On track',      cls: 'bg-white/8 text-white/85 ring-white/15', bar: 'bg-white/70' },
-  behind:     { label: 'Behind pace',   cls: 'bg-white/5 text-white/70 ring-white/10', bar: 'bg-white/40' },
+  behind:     { label: 'Behind pace',   cls: 'bg-[#FAFAFA] text-[#555555] ring-white/10', bar: 'bg-white/40' },
   unset:      { label: 'No goal set',   cls: 'bg-neutral-100 text-neutral-600 ring-neutral-200', bar: 'bg-neutral-400' },
 };
 
@@ -46,7 +46,7 @@ export default function GoalTracker({ goal, onSaved }) {
           <span className={`rounded-full px-2.5 py-1 text-[12px] font-bold ring-1 ${pace.cls}`}>{pace.label}</span>
           <button
             onClick={() => { setValue(String(goal.goal || '')); setEditing((v) => !v); }}
-            className="grid h-8 w-8 place-items-center rounded-lg text-white/40 transition hover:bg-white/5 hover:text-white"
+            className="grid h-8 w-8 place-items-center rounded-lg text-[#999999] transition hover:bg-[#FAFAFA] hover:text-white"
             aria-label="Edit goal"
           >
             <Pencil size={13} />
@@ -96,7 +96,7 @@ export default function GoalTracker({ goal, onSaved }) {
           </div>
 
           {goal.dailyNeeded > 0 && (
-            <p className="mt-3 rounded-lg bg-white/5 px-3 py-2 text-[13px] leading-relaxed text-neutral-600">
+            <p className="mt-3 rounded-lg bg-[#FAFAFA] px-3 py-2 text-[13px] leading-relaxed text-neutral-600">
               Need <b className="text-neutral-900">{pkr(goal.dailyNeeded)}</b>/day for the remaining {goal.daysRemaining} day{goal.daysRemaining === 1 ? '' : 's'}.
             </p>
           )}

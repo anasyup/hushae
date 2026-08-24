@@ -65,7 +65,7 @@ export default function OnlineStore() {
 
       <section className="mb-10">
         <p className="adm-index">01 — Store status</p>
-        <div className="adm-divide-x grid grid-cols-1 border-y border-white/10 sm:grid-cols-3">
+        <div className="adm-divide-x grid grid-cols-1 border-y border-[#EAEAEA] sm:grid-cols-3">
           <div className="px-5 py-6">
             <p className="adm-label">Availability</p>
             <div className="mt-3">
@@ -84,29 +84,29 @@ export default function OnlineStore() {
           </div>
           <div className="px-5 py-6">
             <p className="adm-label">Address</p>
-            <p className="mt-3 truncate text-[13px] text-white/70">{storeUrl.replace(/^https?:\/\//, '')}</p>
+            <p className="mt-3 truncate text-[13px] text-[#555555]">{storeUrl.replace(/^https?:\/\//, '')}</p>
           </div>
         </div>
       </section>
 
       <section className="mb-10">
         <p className="adm-index">02 — Preview</p>
-        <div className="overflow-hidden border-y border-white/10">
-          <div className="flex items-center gap-3 border-b border-white/10 px-4 py-2.5">
+        <div className="overflow-hidden border-y border-[#EAEAEA]">
+          <div className="flex items-center gap-3 border-b border-[#EAEAEA] px-4 py-2.5">
             <span className="flex gap-1.5" aria-hidden>
               <span className="h-2 w-2 rounded-full bg-white/25" />
-              <span className="h-2 w-2 rounded-full bg-white/15" />
-              <span className="h-2 w-2 rounded-full bg-white/10" />
+              <span className="h-2 w-2 rounded-full bg-[#EFEFEF]" />
+              <span className="h-2 w-2 rounded-full bg-[#F5F5F5]" />
             </span>
-            <span className="mx-auto truncate text-[11px] uppercase tracking-[0.14em] text-white/35">
+            <span className="mx-auto truncate text-[11px] uppercase tracking-[0.14em] text-[#AAAAAA]">
               {storeUrl.replace(/^https?:\/\//, '')}
             </span>
           </div>
           <div className="relative flex items-end justify-center gap-6 bg-black px-6 pt-6">
-            <div className="hidden h-[300px] w-full max-w-[560px] overflow-hidden border border-b-0 border-white/10 bg-[#0A0A0A] md:block">
+            <div className="hidden h-[300px] w-full max-w-[560px] overflow-hidden border border-b-0 border-[#EAEAEA] bg-[#0A0A0A] md:block">
               <iframe title="Desktop preview" src="/" loading="lazy" className="pointer-events-none h-[200%] w-[200%] origin-top-left scale-50 border-0" tabIndex="-1" />
             </div>
-            <div className="h-[280px] w-[140px] shrink-0 overflow-hidden border-[6px] border-b-0 border-white/20 bg-[#0A0A0A]">
+            <div className="h-[280px] w-[140px] shrink-0 overflow-hidden border-[6px] border-b-0 border-[#DCDCDC] bg-[#0A0A0A]">
               <iframe title="Mobile preview" src="/" loading="lazy" className="pointer-events-none h-[560px] w-[280px] origin-top-left scale-[0.45] border-0" tabIndex="-1" />
             </div>
           </div>
@@ -118,11 +118,11 @@ export default function OnlineStore() {
         {!s ? (
           <TableSkeleton rows={4} />
         ) : (
-          <div className="border-y border-white/10 py-6">
+          <div className="border-y border-[#EAEAEA] py-6">
             <div className="mb-6 flex items-start justify-between gap-4">
               <div>
                 <p className="text-[13px] text-white">Password protection</p>
-                <p className="mt-1 text-[12px] text-white/35">
+                <p className="mt-1 text-[12px] text-[#AAAAAA]">
                   {lock.enabled ? 'Store abhi sirf password se khulta hai' : 'Store sab ke liye open hai'}
                 </p>
               </div>
@@ -131,7 +131,7 @@ export default function OnlineStore() {
                 role="switch"
                 aria-checked={!!lock.enabled}
                 onClick={() => setLock('enabled', !lock.enabled)}
-                className={`relative h-5 w-9 shrink-0 rounded-full ${lock.enabled ? 'bg-white' : 'bg-white/20'}`}
+                className={`relative h-5 w-9 shrink-0 rounded-full ${lock.enabled ? 'bg-white' : 'bg-[#EFEFEF]'}`}
               >
                 <span className={`absolute top-0.5 h-4 w-4 rounded-full transition-all ${lock.enabled ? 'left-[18px] bg-black' : 'left-0.5 bg-white'}`} />
               </button>
@@ -155,7 +155,7 @@ export default function OnlineStore() {
                 {busy ? 'Saving…' : 'Save'}
               </button>
               {lock.enabled && (
-                <p className="text-[11px] uppercase tracking-[0.12em] text-white/30">
+                <p className="text-[11px] uppercase tracking-[0.12em] text-[#AAAAAA]">
                   Save ke foran baad sab visitors se password manga jayega
                 </p>
               )}
@@ -166,14 +166,14 @@ export default function OnlineStore() {
 
       <section>
         <p className="adm-index">04 — Quick links</p>
-        <div className="divide-y divide-white/10 border-y border-white/10">
+        <div className="divide-y divide-[#EAEAEA] border-y border-[#EAEAEA]">
           {ACTIONS.map(([label, hint, to]) => (
             <Link key={to} to={to} className="flex items-center justify-between gap-4 py-4 adm-row-hover">
               <span>
                 <span className="block text-[13px] text-white">{label}</span>
-                <span className="mt-0.5 block text-[12px] text-white/35">{hint}</span>
+                <span className="mt-0.5 block text-[12px] text-[#AAAAAA]">{hint}</span>
               </span>
-              <span className="text-[11px] uppercase tracking-[0.14em] text-white/30">Open →</span>
+              <span className="text-[11px] uppercase tracking-[0.14em] text-[#AAAAAA]">Open →</span>
             </Link>
           ))}
         </div>

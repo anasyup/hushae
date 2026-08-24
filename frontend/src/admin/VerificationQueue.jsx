@@ -71,7 +71,7 @@ export default function VerificationQueue() {
         description={orders === null ? 'Loading…' : `${pending24h} order${pending24h === 1 ? '' : 's'} awaiting payment verification for 24h+ — oldest first.`}
         actions={
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-[10px] uppercase tracking-[0.14em] text-white/30">V verify · N no-answer · C cancel</span>
+            <span className="text-[10px] uppercase tracking-[0.14em] text-[#AAAAAA]">V verify · N no-answer · C cancel</span>
             <button type="button" onClick={load} className={btnGhost}>Refresh</button>
           </div>
         }
@@ -84,26 +84,26 @@ export default function VerificationQueue() {
       ) : (
         <section>
           <p className="adm-index">01 — Queue</p>
-          <div className="border-y border-white/10">
+          <div className="border-y border-[#EAEAEA]">
             {orders.map((o, idx) => {
               const phone = waDigits(o.customerInfo?.phone);
               const wa = phone ? `https://wa.me/${phone}?text=${encodeURIComponent(`Hi ${o.customerInfo?.name || 'there'}, this is Hushae. Confirming your order ${o.orderNumber} for PKR ${Number(o.total || 0).toLocaleString('en-PK')}. Please reply YES to confirm or call us at ${storePhone} if you have questions.`)}` : '';
               const flagged = (o.noAnswer?.attempts || 0) >= 3;
               const cancelling = cancelFor === o._id;
               return (
-                <div key={o._id} className={`border-b border-white/5 px-1 py-4 last:border-0 ${idx === 0 ? 'bg-white/[0.03]' : ''}`}>
+                <div key={o._id} className={`border-b border-[#F0F0F0] px-1 py-4 last:border-0 ${idx === 0 ? 'bg-[#FAFAFA]' : ''}`}>
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="font-mono text-[11px] text-white/30">{String(idx + 1).padStart(2, '0')}</span>
+                        <span className="font-mono text-[11px] text-[#AAAAAA]">{String(idx + 1).padStart(2, '0')}</span>
                         <p className="text-[13px] text-white">{o.customerInfo?.name || 'Customer'}</p>
                         <ReliabilityBadge reliability={o.reliability || null} compact />
-                        <span className="font-mono text-[12px] text-white/40">{o.orderNumber}</span>
+                        <span className="font-mono text-[12px] text-[#999999]">{o.orderNumber}</span>
                       </div>
-                      <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-white/40">
+                      <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-[#999999]">
                         <a href={`tel:${o.customerInfo?.phone}`} className="hover:text-white">{o.customerInfo?.phone}</a>
                         <span>{o.customerInfo?.city}</span>
-                        <span className="tabular-nums text-white/80">{pkr(o.total)}</span>
+                        <span className="tabular-nums text-[#333333]">{pkr(o.total)}</span>
                         <span>{ageHrs(o.createdAt)}h old</span>
                         {(o.noAnswer?.attempts || 0) > 0 && (
                           <MonoStatus label={`${o.noAnswer.attempts} NO-ANSWER${flagged ? ' · REVIEW' : ''}`} dim={!flagged} />
@@ -118,7 +118,7 @@ export default function VerificationQueue() {
                     </div>
                   </div>
                   {cancelling && (
-                    <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-white/10 pt-3">
+                    <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-[#EAEAEA] pt-3">
                       <span className="adm-label">Reason</span>
                       <select value={reason} onChange={(e) => setReason(e.target.value)} className={`${ctl} max-w-xs`}>
                         <option value="">Select reason…</option>
@@ -139,9 +139,9 @@ export default function VerificationQueue() {
         </section>
       )}
 
-      <p className="mt-10 max-w-2xl text-[12px] leading-relaxed text-white/30">
+      <p className="mt-10 max-w-2xl text-[12px] leading-relaxed text-[#AAAAAA]">
         Orders appear here once they have been awaiting payment verification for more than 24 hours. Three or more no-answer attempts flag the order for review.{' '}
-        <Link to="/admin/orders?payment=pending" className="text-white/60 hover:text-white">All pending orders</Link>
+        <Link to="/admin/orders?payment=pending" className="text-[#555555] hover:text-white">All pending orders</Link>
       </p>
     </AdminLayout>
   );

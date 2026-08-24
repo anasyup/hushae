@@ -109,7 +109,7 @@ export default function Backup() {
           ].map(([t, d]) => (
             <div key={t}>
               <p className="text-[13px] text-white">{t}</p>
-              <p className="mt-1 text-[12px] leading-relaxed text-white/35">{d}</p>
+              <p className="mt-1 text-[12px] leading-relaxed text-[#AAAAAA]">{d}</p>
             </div>
           ))}
         </div>
@@ -148,7 +148,7 @@ export default function Backup() {
           </div>
           <div>
             <p className="mb-3 text-[13px] text-white">Quick exports</p>
-            <p className="mb-4 text-[12px] text-white/35">One-click downloads for customers, catalogue and reviews.</p>
+            <p className="mb-4 text-[12px] text-[#AAAAAA]">One-click downloads for customers, catalogue and reviews.</p>
             <div className="flex flex-wrap gap-2">
               <button type="button" onClick={() => handleExportCSV('customers')} disabled={exportBusy.customers} className={btnGhost}>{exportBusy.customers ? '…' : 'Customers'}</button>
               <button type="button" onClick={() => handleExportCSV('products')} disabled={exportBusy.products} className={btnGhost}>{exportBusy.products ? '…' : 'Catalog'}</button>
@@ -168,7 +168,7 @@ export default function Backup() {
           <TableSkeleton rows={2} />
         ) : (
           <>
-            <div className="adm-divide-x grid grid-cols-2 border-y border-white/10 sm:grid-cols-4 lg:grid-cols-7">
+            <div className="adm-divide-x grid grid-cols-2 border-y border-[#EAEAEA] sm:grid-cols-4 lg:grid-cols-7">
               {[
                 ['Products', c.products],
                 ['Categories', c.categories],
@@ -185,7 +185,7 @@ export default function Backup() {
               ))}
             </div>
             {info?.total > 0 && (
-              <p className="mt-4 text-[12px] text-white/35">Total records: <span className="text-white">{info.total.toLocaleString()}</span></p>
+              <p className="mt-4 text-[12px] text-[#AAAAAA]">Total records: <span className="text-white">{info.total.toLocaleString()}</span></p>
             )}
           </>
         )}
@@ -201,7 +201,7 @@ export default function Backup() {
           </button>
         }
       >
-        <p className="text-[12px] leading-relaxed text-white/35">Do this weekly. Store the file off this server.</p>
+        <p className="text-[12px] leading-relaxed text-[#AAAAAA]">Do this weekly. Store the file off this server.</p>
       </EdSection>
 
       <EdSection index={5} title="Restore" description="Uploading a JSON backup will replace existing records with the same ID. User accounts are not restored.">

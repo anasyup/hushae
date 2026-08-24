@@ -60,15 +60,15 @@ export default function ProfitCalculator() {
         onClick={() => setOpen((v) => !v)}
         aria-label="Profit calculator"
         title="Profit calculator"
-        className="fixed bottom-5 right-5 z-40 inline-flex h-10 items-center gap-2 border border-white/20 bg-[#0A0A0A] px-4 text-[10px] font-medium uppercase tracking-[0.14em] text-white/80 hover:border-white/45 hover:text-white"
+        className="fixed bottom-5 right-5 z-40 inline-flex h-10 items-center gap-2 border border-[#DCDCDC] bg-[#0A0A0A] px-4 text-[10px] font-medium uppercase tracking-[0.14em] text-[#333333] hover:border-white/45 hover:text-white"
       >
         Profit calc
       </button>
 
       {open && (
         <div className="fixed inset-x-0 bottom-0 z-40 flex justify-end px-4 pb-16 md:right-5 md:bottom-20 md:left-auto md:px-0 md:pb-0">
-          <div className="w-full max-w-md border border-white/15 bg-[#0A0A0A]" role="dialog" aria-label="Profit calculator">
-            <div className="flex items-center justify-between border-b border-white/10 px-5 py-3">
+          <div className="w-full max-w-md border border-[#EAEAEA] bg-[#0A0A0A]" role="dialog" aria-label="Profit calculator">
+            <div className="flex items-center justify-between border-b border-[#EAEAEA] px-5 py-3">
               <div>
                 <p className="adm-label">Quick tool</p>
                 <p className="mt-1 text-[13px] text-white">Profit calculator</p>
@@ -80,7 +80,7 @@ export default function ProfitCalculator() {
             </div>
 
             <div className="max-h-[70vh] overflow-y-auto px-5 py-5">
-              <div className="adm-divide-x grid grid-cols-2 border-y border-white/10">
+              <div className="adm-divide-x grid grid-cols-2 border-y border-[#EAEAEA]">
                 <div className="px-4 py-4">
                   <p className="adm-label">Net profit</p>
                   <p className="adm-metric mt-2 text-[20px] text-white">{pkr(netProfit)}</p>
@@ -92,14 +92,14 @@ export default function ProfitCalculator() {
                 </div>
               </div>
               <div className="mt-4 grid grid-cols-3 gap-3 text-[12px]">
-                <div><p className="adm-label">Gross</p><p className="mt-1 tabular-nums text-white/80">{pkr(grossProfit)}</p></div>
-                <div><p className="adm-label">Per unit</p><p className="mt-1 tabular-nums text-white/80">{pkr(perUnitProfit)}</p></div>
-                <div><p className="adm-label">Gross %</p><p className="mt-1 tabular-nums text-white/80">{grossMargin.toFixed(1)}%</p></div>
+                <div><p className="adm-label">Gross</p><p className="mt-1 tabular-nums text-[#333333]">{pkr(grossProfit)}</p></div>
+                <div><p className="adm-label">Per unit</p><p className="mt-1 tabular-nums text-[#333333]">{pkr(perUnitProfit)}</p></div>
+                <div><p className="adm-label">Gross %</p><p className="mt-1 tabular-nums text-[#333333]">{grossMargin.toFixed(1)}%</p></div>
               </div>
               {(ads > 0 || breakEvenQty != null) && (
                 <div className="mt-4 grid grid-cols-2 gap-3 text-[12px]">
-                  {breakEvenQty != null && <div><p className="adm-label">Break-even qty</p><p className="mt-1 text-white/80">{breakEvenQty.toLocaleString()}</p></div>}
-                  {ads > 0 && <div><p className="adm-label">ROAS</p><p className="mt-1 text-white/80">{roas.toFixed(2)}x</p></div>}
+                  {breakEvenQty != null && <div><p className="adm-label">Break-even qty</p><p className="mt-1 text-[#333333]">{breakEvenQty.toLocaleString()}</p></div>}
+                  {ads > 0 && <div><p className="adm-label">ROAS</p><p className="mt-1 text-[#333333]">{roas.toFixed(2)}x</p></div>}
                 </div>
               )}
 
@@ -123,7 +123,7 @@ export default function ProfitCalculator() {
                 <Field label="Sales tax %" v={state.taxPct} onChange={(v) => set('taxPct', v)} placeholder="0" />
               </div>
 
-              <p className="mt-5 text-[11px] leading-relaxed text-white/30">
+              <p className="mt-5 text-[11px] leading-relaxed text-[#AAAAAA]">
                 Net profit = (Price × Qty) − (Cost × Qty) − (Packing + Courier subsidy) × Qty − Ads − Other − Tax.
               </p>
             </div>

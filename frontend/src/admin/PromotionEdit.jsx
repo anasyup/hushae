@@ -65,7 +65,7 @@ export default function PromotionEdit() {
 
   const dirty = useMemo(() => original && JSON.stringify(p) !== original, [p, original]);
 
-  if (!p) return <AdminLayout title="Promotion"><div className="h-96 animate-pulse bg-white/5" /></AdminLayout>;
+  if (!p) return <AdminLayout title="Promotion"><div className="h-96 animate-pulse bg-[#FAFAFA]" /></AdminLayout>;
 
   const t = typeOf(p.type);
   const set = (k, v) => setP({ ...p, [k]: v });
@@ -150,8 +150,8 @@ export default function PromotionEdit() {
       />
 
       {(problems.length > 0 || errs.length > 0) && (
-        <div role="alert" className="mb-8 border-y border-white/15 py-4">
-          <ul className="list-disc space-y-1 pl-5 text-[12px] leading-relaxed text-white/60">
+        <div role="alert" className="mb-8 border-y border-[#EAEAEA] py-4">
+          <ul className="list-disc space-y-1 pl-5 text-[12px] leading-relaxed text-[#555555]">
             {problems.map((x) => <li key={x}>{x}</li>)}
             {errs.map((x, i) => <li key={i}>{x.message}</li>)}
           </ul>
@@ -176,10 +176,10 @@ export default function PromotionEdit() {
                 <button
                   key={x.id} type="button" role="radio" aria-checked={p.type === x.id}
                   onClick={() => set('type', x.id)}
-                  className={`min-h-[44px] border px-4 py-3 text-left transition ${p.type === x.id ? 'border-white bg-white text-black' : 'border-white/20 text-white/70 hover:border-white/40'}`}
+                  className={`min-h-[44px] border px-4 py-3 text-left transition ${p.type === x.id ? 'border-white bg-white text-black' : 'border-[#DCDCDC] text-[#555555] hover:border-white/40'}`}
                 >
                   <span className="block text-[13px] font-semibold">{x.label}</span>
-                  <span className={`mt-0.5 block text-[12px] ${p.type === x.id ? 'text-black/50' : 'text-white/35'}`}>{x.example}</span>
+                  <span className={`mt-0.5 block text-[12px] ${p.type === x.id ? 'text-black/50' : 'text-[#AAAAAA]'}`}>{x.example}</span>
                 </button>
               ))}
             </div>
@@ -228,7 +228,7 @@ export default function PromotionEdit() {
 
           {hasField(p.type, 'bundle') && (
             <>
-              <p className="mb-3 text-[12px] leading-relaxed text-white/40">
+              <p className="mb-3 text-[12px] leading-relaxed text-[#999999]">
                 Paste the product IDs that make up the bundle, one per line. You can copy an ID
                 from the address bar on any product page in Inventory.
               </p>
@@ -252,7 +252,7 @@ export default function PromotionEdit() {
             <>
               <div className="space-y-2">
                 {(p.tiers || []).map((tier, i) => (
-                  <div key={i} className="flex flex-wrap items-end gap-3 border-b border-white/10 py-3">
+                  <div key={i} className="flex flex-wrap items-end gap-3 border-b border-[#EAEAEA] py-3">
                     <div className="min-w-[140px] flex-1">
                       <ENum label="Spend at least (PKR)" value={tier.minSubtotal} onChange={(v) => set('tiers', p.tiers.map((x, j) => (j === i ? { ...x, minSubtotal: v } : x)))} min="0" />
                     </div>
@@ -262,7 +262,7 @@ export default function PromotionEdit() {
                     <button
                       type="button" onClick={() => set('tiers', p.tiers.filter((_, j) => j !== i))}
                       aria-label={`Remove tier ${i + 1}`}
-                      className="grid h-11 w-11 place-items-center text-white/35 hover:text-white"
+                      className="grid h-11 w-11 place-items-center text-[#AAAAAA] hover:text-white"
                     >
                       <Trash2 size={14} />
                     </button>
@@ -280,7 +280,7 @@ export default function PromotionEdit() {
           )}
 
           {p.type === 'freeship' && (
-            <p className="text-[12px] leading-relaxed text-white/40">
+            <p className="text-[12px] leading-relaxed text-[#999999]">
               The delivery charge is waived whenever this promotion applies. Use the conditions
               below to decide who gets it — first orders only, a minimum spend, and so on.
             </p>
@@ -304,7 +304,7 @@ export default function PromotionEdit() {
                   {cats.map((c) => {
                     const on = (p.scope.categorySlugs || []).includes(c.slug);
                     return (
-                      <label key={c.slug} className={`inline-flex min-h-[44px] cursor-pointer items-center gap-2 border px-4 text-[12px] font-medium transition ${on ? 'border-white bg-white text-black' : 'border-white/20 text-white/60 hover:border-white/40'}`}>
+                      <label key={c.slug} className={`inline-flex min-h-[44px] cursor-pointer items-center gap-2 border px-4 text-[12px] font-medium transition ${on ? 'border-white bg-white text-black' : 'border-[#DCDCDC] text-[#555555] hover:border-white/40'}`}>
                         <input
                           type="checkbox" checked={on} className="sr-only"
                           onChange={() => setG('scope', 'categorySlugs', on
@@ -342,7 +342,7 @@ export default function PromotionEdit() {
                     {['Economy', 'Standard', 'Premium'].map((tier) => {
                       const on = (p.scope.tiers || []).includes(tier);
                       return (
-                        <label key={tier} className={`inline-flex min-h-[44px] cursor-pointer items-center gap-2 border px-4 text-[12px] font-medium transition ${on ? 'border-white bg-white text-black' : 'border-white/20 text-white/60 hover:border-white/40'}`}>
+                        <label key={tier} className={`inline-flex min-h-[44px] cursor-pointer items-center gap-2 border px-4 text-[12px] font-medium transition ${on ? 'border-white bg-white text-black' : 'border-[#DCDCDC] text-[#555555] hover:border-white/40'}`}>
                           <input
                             type="checkbox" checked={on} className="sr-only"
                             onChange={() => setG('scope', 'tiers', on ? p.scope.tiers.filter((x) => x !== tier) : [...(p.scope.tiers || []), tier])}
@@ -392,14 +392,14 @@ export default function PromotionEdit() {
                 {DAYS.map((d, i) => {
                   const on = (p.recurring.daysOfWeek || []).includes(i);
                   return (
-                    <label key={d} className={`inline-flex min-h-[44px] w-14 cursor-pointer items-center justify-center border text-[12px] font-medium transition ${on ? 'border-white bg-white text-black' : 'border-white/20 text-white/50 hover:border-white/40'}`}>
+                    <label key={d} className={`inline-flex min-h-[44px] w-14 cursor-pointer items-center justify-center border text-[12px] font-medium transition ${on ? 'border-white bg-white text-black' : 'border-[#DCDCDC] text-[#777777] hover:border-white/40'}`}>
                       <input type="checkbox" checked={on} onChange={() => toggleDay(i)} className="sr-only" />
                       {d}
                     </label>
                   );
                 })}
               </div>
-              <p className="mt-2 text-[12px] text-white/35">No days selected means every day.</p>
+              <p className="mt-2 text-[12px] text-[#AAAAAA]">No days selected means every day.</p>
 
               <div className="mt-4 grid gap-4 md:grid-cols-2">
                 <div>
@@ -409,7 +409,7 @@ export default function PromotionEdit() {
                 <div>
                   <label className="adm-label mb-1.5 block" htmlFor="rec-to">Until</label>
                   <input id="rec-to" type="time" className={ctl} value={minToTime(p.recurring.endMin)} onChange={(e) => setG('recurring', 'endMin', timeToMin(e.target.value))} />
-                  <p className="mt-1.5 text-[12px] text-white/35">A window like 22:00 to 02:00 crosses midnight and is handled correctly.</p>
+                  <p className="mt-1.5 text-[12px] text-[#AAAAAA]">A window like 22:00 to 02:00 crosses midnight and is handled correctly.</p>
                 </div>
               </div>
             </div>
@@ -480,7 +480,7 @@ export default function PromotionEdit() {
             <ENum label="Stop after giving away (PKR)" value={p.limits.maxTotalDiscount} onChange={(v) => setG('limits', 'maxTotalDiscount', v)} min="0" hint="A hard budget. 0 = none." />
           </div>
           {!isNew && (
-            <p className="mt-4 text-[12px] text-white/40">
+            <p className="mt-4 text-[12px] text-[#999999]">
               Used <strong>{p.usedCount || 0}</strong> times so far, giving away{' '}
               <strong>PKR {Number(p.totalDiscounted || 0).toLocaleString('en-PK')}</strong>.
             </p>
@@ -509,7 +509,7 @@ export default function PromotionEdit() {
         <div className="sticky bottom-4 z-30 mt-6 flex items-center justify-between gap-4 rounded-2xl border border-neutral-900 bg-neutral-900 px-4 py-3 text-white shadow-xl">
           <p className="text-[13px] font-medium">Unsaved changes</p>
           <div className="flex items-center gap-2">
-            <button type="button" onClick={() => setP(JSON.parse(original))} className="min-h-[44px] rounded-lg border border-white/20 px-3 text-[12px] font-semibold text-white/80 transition hover:bg-white/10">Discard</button>
+            <button type="button" onClick={() => setP(JSON.parse(original))} className="min-h-[44px] rounded-lg border border-[#DCDCDC] px-3 text-[12px] font-semibold text-[#333333] transition hover:bg-[#F5F5F5]">Discard</button>
             <button type="button" onClick={save} disabled={busy || problems.length > 0} className="min-h-[44px] rounded-lg bg-white px-4 text-[12px] font-semibold text-neutral-900 transition hover:bg-neutral-100 disabled:opacity-50">
               {busy ? 'Saving…' : isNew ? 'Create' : 'Save'}
             </button>

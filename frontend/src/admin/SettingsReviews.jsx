@@ -63,7 +63,7 @@ export default function SettingsReviews() {
       {stats && (
         <section className="mb-10">
           <p className="adm-index">00 — Snapshot</p>
-          <div className="adm-divide-x grid grid-cols-2 border-y border-white/10 sm:grid-cols-3 lg:grid-cols-5">
+          <div className="adm-divide-x grid grid-cols-2 border-y border-[#EAEAEA] sm:grid-cols-3 lg:grid-cols-5">
             {[
               ['Average', stats.avg || '—'],
               ['Approved', stats.totalApproved || 0],
@@ -93,7 +93,7 @@ export default function SettingsReviews() {
       <EdSection index={2} title="Who can write" description="Verified-only means the writer must give an order number and phone that match a real purchase.">
         <EdToggle label="Require a verified purchase" description="Recommended — it is what makes the badge mean something." checked={r.verifiedRequired} onChange={(v) => set('verifiedRequired', v)} disabled={!r.enabled} />
         <EdToggle label="Allow reviews without an account" checked={r.allowGuest} onChange={(v) => set('allowGuest', v)} disabled={!r.enabled || r.verifiedRequired} />
-        {r.verifiedRequired && <p className="mt-3 text-[12px] text-white/30">While verified-only is on, the guest setting has no effect.</p>}
+        {r.verifiedRequired && <p className="mt-3 text-[12px] text-[#AAAAAA]">While verified-only is on, the guest setting has no effect.</p>}
       </EdSection>
 
       <EdSection index={3} title="Moderation">
@@ -149,7 +149,7 @@ export default function SettingsReviews() {
       <EdSection index={8} title="Notifications">
         <EdToggle label="Email me about new reviews" checked={r.notifyOnNewReview} onChange={(v) => set('notifyOnNewReview', v)} />
         <EdToggle label="Email me about new questions" checked={r.notifyOnNewQuestion} onChange={(v) => set('notifyOnNewQuestion', v)} />
-        <p className="mt-3 text-[12px] text-white/30">These need an email service connected in Settings → Apps. Until then nothing is sent.</p>
+        <p className="mt-3 text-[12px] text-[#AAAAAA]">These need an email service connected in Settings → Apps. Until then nothing is sent.</p>
       </EdSection>
 
       <EdSaveBar dirty={dirty} busy={busy} onSave={save} onDiscard={() => setS(JSON.parse(original))} />

@@ -166,7 +166,7 @@ export default function Promotions() {
 
       <section className="mb-10">
         <p className="adm-index">01 — Promotion workspace</p>
-        <div className="adm-divide-x mb-5 grid grid-cols-2 border-y border-white/10 lg:grid-cols-4">
+        <div className="adm-divide-x mb-5 grid grid-cols-2 border-y border-[#EAEAEA] lg:grid-cols-4">
           {[
             { label: 'Live now', value: num(counts.live) },
             { label: 'Scheduled', value: num(counts.scheduled) },
@@ -180,7 +180,7 @@ export default function Promotions() {
           ))}
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search promotions…" aria-label="Search promotions" className="h-8 min-w-[200px] flex-1 rounded-[4px] border border-white/20 bg-[#0A0A0A] px-3 text-[12px] text-white/85 outline-none placeholder:text-white/30" />
+          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search promotions…" aria-label="Search promotions" className="h-8 min-w-[200px] flex-1 rounded-[4px] border border-[#DCDCDC] bg-[#0A0A0A] px-3 text-[12px] text-black outline-none placeholder:text-[#AAAAAA]" />
           <select
             value={filter}
             onChange={(e) => { const p = new URLSearchParams(params); if (e.target.value) p.set('state', e.target.value); else p.delete('state'); setParams(p); }}
@@ -206,13 +206,13 @@ export default function Promotions() {
         <section>
           <p className="adm-index">02 — Promotions</p>
           {selected.length > 0 && (
-            <div className="sticky top-14 z-30 mb-3 flex flex-wrap items-center gap-x-3 gap-y-2 border-y border-white/15 bg-[#050505] py-2.5">
+            <div className="sticky top-14 z-30 mb-3 flex flex-wrap items-center gap-x-3 gap-y-2 border-y border-[#EAEAEA] bg-[#050505] py-2.5">
               <span className="text-[11px] font-medium uppercase tracking-[0.16em] text-white">{selected.length} selected</span>
               <button type="button" disabled={busy} onClick={() => bulk('enable')} className={btnGhost}>Turn on</button>
               <button type="button" disabled={busy} onClick={() => bulk('disable')} className={btnGhost}>Turn off</button>
               <button type="button" disabled={busy} onClick={duplicate} className={btnGhost}><Copy size={11} /> Duplicate</button>
               <button type="button" disabled={busy} onClick={() => bulk('delete')} className={btnGhost}><Trash2 size={11} /> Delete</button>
-              <button type="button" onClick={() => setSelected([])} className="ml-auto text-[11px] uppercase tracking-[0.12em] text-white/40 hover:text-white">Clear</button>
+              <button type="button" onClick={() => setSelected([])} className="ml-auto text-[11px] uppercase tracking-[0.12em] text-[#999999] hover:text-white">Clear</button>
             </div>
           )}
 
@@ -227,7 +227,7 @@ export default function Promotions() {
 
           {filtered?.length > 0 && (
             <div className="min-w-0 overflow-x-hidden">
-              <div className="hidden border-b border-white/10 px-1 py-2.5 md:grid md:grid-cols-[32px_minmax(0,1.4fr)_0.8fr_0.7fr_0.5fr_0.5fr_0.7fr] md:items-center md:gap-3">
+              <div className="hidden border-b border-[#EAEAEA] px-1 py-2.5 md:grid md:grid-cols-[32px_minmax(0,1.4fr)_0.8fr_0.7fr_0.5fr_0.5fr_0.7fr] md:items-center md:gap-3">
                 <input type="checkbox" checked={allChecked} onChange={toggleAll} aria-label="Select all" className="h-3.5 w-3.5 rounded-none accent-white" />
                 <p className="adm-label">Promotion</p>
                 <p className="adm-label">Value</p>
@@ -239,29 +239,29 @@ export default function Promotions() {
               {filtered.map((p) => {
                 const st = promoStatus(p.state);
                 return (
-                  <div key={p._id} className={`border-b border-white/10 ${selected.includes(p._id) ? 'bg-white/[0.03]' : ''} adm-row-hover`}>
+                  <div key={p._id} className={`border-b border-[#EAEAEA] ${selected.includes(p._id) ? 'bg-[#FAFAFA]' : ''} adm-row-hover`}>
                     <div className="hidden md:grid md:grid-cols-[32px_minmax(0,1.4fr)_0.8fr_0.7fr_0.5fr_0.5fr_0.7fr] md:items-center md:gap-3 md:px-1 md:py-3.5">
                       <input type="checkbox" checked={selected.includes(p._id)} onChange={() => toggleOne(p._id)} aria-label={`Select ${p.name}`} className="h-3.5 w-3.5 rounded-none accent-white" />
                       <div className="min-w-0">
-                        <Link to={`/admin/promotions/${p._id}`} className="truncate text-[13px] font-medium text-white hover:text-white/70">{p.name}</Link>
-                        <p className="mt-0.5 text-[11px] uppercase tracking-[0.08em] text-white/30">
+                        <Link to={`/admin/promotions/${p._id}`} className="truncate text-[13px] font-medium text-white hover:text-[#555555]">{p.name}</Link>
+                        <p className="mt-0.5 text-[11px] uppercase tracking-[0.08em] text-[#AAAAAA]">
                           {typeOf(p.type).label}{p.exclusive ? ' · exclusive' : ''}{p.stackable ? ' · stackable' : ''}
                         </p>
                       </div>
-                      <p className="text-[12px] text-white/80">{rewardText(p)}</p>
+                      <p className="text-[12px] text-[#333333]">{rewardText(p)}</p>
                       <MonoStatus label={st.label} dim={st.dim} />
-                      <p className="text-[12px] tabular-nums text-white/70">{num(p.usedCount)}</p>
+                      <p className="text-[12px] tabular-nums text-[#555555]">{num(p.usedCount)}</p>
                       <p className="hidden text-[12px] tabular-nums text-white/45 xl:block">{p.totalDiscounted ? money(p.totalDiscounted) : '—'}</p>
-                      <p className="text-right text-[11px] text-white/30">P{p.priority}</p>
+                      <p className="text-right text-[11px] text-[#AAAAAA]">P{p.priority}</p>
                     </div>
                     <div className="flex items-start gap-3 px-1 py-4 md:hidden">
                       <input type="checkbox" checked={selected.includes(p._id)} onChange={() => toggleOne(p._id)} className="mt-1 h-3.5 w-3.5 rounded-none accent-white" />
                       <Link to={`/admin/promotions/${p._id}`} className="min-w-0 flex-1">
                         <p className="text-[13px] font-medium text-white">{p.name}</p>
-                        <p className="mt-0.5 text-[11px] text-white/35">{typeOf(p.type).short} · {rewardText(p)}</p>
+                        <p className="mt-0.5 text-[11px] text-[#AAAAAA]">{typeOf(p.type).short} · {rewardText(p)}</p>
                         <div className="mt-2 flex items-center justify-between">
                           <MonoStatus label={st.label} dim={st.dim} />
-                          <span className="text-[11px] text-white/40">{num(p.usedCount)} uses</span>
+                          <span className="text-[11px] text-[#999999]">{num(p.usedCount)} uses</span>
                         </div>
                       </Link>
                     </div>
