@@ -328,6 +328,26 @@ function TodayHourly({ hourly }) {
   );
 }
 
+function CustomerAudienceStrip({ segments }) {
+  const items = [
+    ['new', 'New'], ['repeat', 'Repeat'], ['vip', 'VIP'], ['inactive', 'Inactive'],
+  ];
+  return (
+    <section className="mb-10">
+      <p className="adm-index">Customer audience</p>
+      <div className="adm-divide-x grid grid-cols-2 border-y border-white/10 lg:grid-cols-4">
+        {items.map(([key, label]) => (
+          <Link key={key} to={`/admin/customers?segment=${key}`} className="px-5 py-5 adm-row-hover">
+            <p className="adm-label">{label}</p>
+            <p className="adm-metric mt-2 text-[28px] text-white">{segments ? Number(segments[key] || 0).toLocaleString() : '—'}</p>
+            <p className="mt-1 text-[10px] uppercase tracking-[0.12em] text-white/35">Open segment →</p>
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 /* ==========================================================================
  * MAIN DASHBOARD
  * ======================================================================== */
@@ -341,6 +361,7 @@ export default function Dashboard() {
   const [alerts, setAlerts] = useState(null);
   const [smart, setSmart] = useState(null);
   const [goal, setGoal] = useState(null);
+  const [customerSegments, setCustomerSegments] = useState(null);
   const [reorder, setReorder] = useState(null);
 
   /* Date range — persisted to localStorage + URL query params so a refresh
@@ -375,15 +396,16 @@ export default function Dashboard() {
     if (!silent) setRefreshing(true);
     try {
       const qs = `from=${range.from}&to=${range.to}`;
-      const [data, ins, al, sm, gl] = await Promise.all([
+      const [data, ins, al, sm, gl, audience] = await Promise.all([
         api(`/admin/dashboard?${qs}`, { token: auth.token }),
         api(`/orders/insights/dashboard?${qs}`, { token: auth.token }).catch(() => null),
         api('/dashboard/alerts', { token: auth.token }).catch(() => null),
         api('/dashboard/insights', { token: auth.token }).catch(() => null),
         api('/dashboard/goal', { token: auth.token }).catch(() => null),
+        api('/customers/segments', { token: auth.token }).catch(() => null),
       ]);
       setD(data); if (ins) setInsights(ins); setAlerts(al?.alerts || []); setSmart(sm?.insights || []);
-      if (gl) setGoal(gl); setLastSync(new Date()); setErr('');
+      if (gl) setGoal(gl); setCustomerSegments(audience?.segments || null); setLastSync(new Date()); setErr('');
     } catch (e) { if (e?.status === 401) { logout(); return; } setErr('Failed to load dashboard.'); }
     setRefreshing(false);
   };
@@ -446,6 +468,8 @@ export default function Dashboard() {
           <MetricRow icon={TrendingUp} label="Avg order value" value={d.kpis.aov.value} change={d.kpis.aov.change} format="money" to="/admin/analytics" compareLabel={cmpLabel} />
         </div>
       </section>
+
+      <CustomerAudienceStrip segments={customerSegments} />
 
       {/* ── 02 · PERFORMANCE ─────────────────────────────────────────── */}
       <section className="mb-10">

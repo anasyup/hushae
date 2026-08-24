@@ -22,8 +22,17 @@ function referrer() {
   return r;
 }
 
+function currentToken() {
+  try { return JSON.parse(localStorage.getItem('hushae.auth') || 'null')?.token || ''; } catch { return ''; }
+}
+
 export function track(event, path) {
   try {
-    api('/track', { method: 'POST', body: { sid: sid(), event, path: path || location.pathname, referrer: referrer() } }).catch(() => {});
+    // Logged-in activity is attributable only when the shopper's existing
+    // session is present. Anonymous page views stay anonymous on the server.
+    api('/track', {
+      method: 'POST', token: currentToken(),
+      body: { sid: sid(), event, path: path || location.pathname, referrer: referrer() },
+    }).catch(() => {});
   } catch { /* never block the shopper */ }
 }

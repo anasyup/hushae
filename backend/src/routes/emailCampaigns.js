@@ -49,10 +49,16 @@ async function resolveRecipients(target, groupId) {
   const members = group ? await evaluateGroup(group.rules || {}, { limit: 5000 }) : [];
   const userIds = members.filter((m) => m.user).map((m) => m.user._id);
   const users = userIds.length
-    ? await User.find({ _id: { $in: userIds }, deletedAt: null }).select('email notify emailVerified').lean()
+    ? await User.find({ _id: { $in: userIds }, deletedAt: null }).select('email consent notify').lean()
     : [];
   for (const u of users) {
-    if (u.email && u.notify?.marketingEmail === true) emails.add(String(u.email).toLowerCase());
+    /* Contact details never equal consent. A Phase 4 explicit OPTED_IN wins.
+       For pre-Phase-4 accounts, the existing marketingEmail preference is an
+       actual prior customer choice (not an email/phone inference), so it is a
+       narrow backwards-compatible opt-in until the customer changes consent. */
+    const explicitOptIn = u.consent?.email === 'OPTED_IN';
+    const legacyExplicitOptIn = (!u.consent?.email || u.consent.email === 'UNKNOWN') && u.notify?.marketingEmail === true;
+    if (u.email && (explicitOptIn || legacyExplicitOptIn)) emails.add(String(u.email).toLowerCase());
   }
   return emails;
 }

@@ -14,6 +14,7 @@ const Settings = require('../models/Settings');
 const rateLimit = require('../middleware/rateLimit');
 const flow = require('../utils/orderFlow');
 const Product = require('../models/Product');
+const User = require('../models/User');
 const { scoreOrder, enrichItems } = require('../utils/orderQuality');
 const { reliabilityMap } = require('../utils/customerReliability');
 
@@ -187,6 +188,25 @@ router.post('/', protect, adminOnly, draftLimit, asyncHandler(async (req, res) =
   if (!phoneNorm) {
     return res.status(400).json({ message: 'Invalid phone number — enter a Pakistani mobile number (03XX-XXXXXXX)' });
   }
+  /* A manual order may link to a customer only by their persistent User id.
+     Validate it before storing it so a malformed admin payload cannot attach an
+     order to an unrelated account. Historical customerInfo stays an immutable
+     order snapshot either way. */
+  let linkedCustomer = null;
+  if (customerInfo.userId) {
+    if (!isId(customerInfo.userId)) return res.status(400).json({ message: 'Invalid selected customer' });
+    linkedCustomer = await User.findOne({ _id: customerInfo.userId, role: 'customer', deletedAt: null })
+      .select('email phone').lean();
+    if (!linkedCustomer) return res.status(404).json({ message: 'Selected customer was not found' });
+    if (linkedCustomer.phone && normalizePhone(linkedCustomer.phone) !== phoneNorm) {
+      return res.status(400).json({ message: 'Selected customer phone does not match this order' });
+    }
+    const enteredEmail = String(customerInfo.email || '').trim().toLowerCase();
+    if (enteredEmail && linkedCustomer.email && enteredEmail !== String(linkedCustomer.email).toLowerCase()) {
+      return res.status(400).json({ message: 'Selected customer email does not match this order' });
+    }
+  }
+
   const pc = postalCheck(customerInfo.postalCode, String(customerInfo.province || '').trim(), String(customerInfo.city || '').trim());
   if (!pc.ok) return res.status(400).json({ message: pc.message, suggestion: pc.suggestion || '' });
 
@@ -257,7 +277,7 @@ router.post('/', protect, adminOnly, draftLimit, asyncHandler(async (req, res) =
     orderNumber: reservedNumber,
     source: 'admin',
     adminCreatedById: req.user?._id || null,
-    customer: customerInfo.userId || null,
+    customer: linkedCustomer?._id || null,
     customerInfo: {
       name: String(customerInfo.name).trim(),
       email: String(customerInfo.email || '').trim(),
@@ -279,6 +299,18 @@ router.post('/', protect, adminOnly, draftLimit, asyncHandler(async (req, res) =
     discreetPackaging: !!discreetPackaging,
     adminNotes: String(notes || '').trim(),
   });
+
+  if (order.customer) {
+    require('../utils/customerActivity').recordCustomerActivity({
+      customer: order.customer,
+      type: 'purchase',
+      objectType: 'order',
+      objectId: order._id,
+      objectLabel: order.orderNumber,
+      source: 'admin',
+      metadata: { total: Number(order.total || 0), itemCount: (order.items || []).reduce((n, item) => n + (item.quantity || 0), 0) },
+    }).catch(() => {});
+  }
 
   // Notify the pipeline (new-order alerts, timeline, etc.)
   try { flow.notify({ type: 'order.created', severity: 'info', order, title: `New order ${order.orderNumber}`, body: `Created by ${req.user?.name || 'staff'} — ${paymentMethod} · PKR ${total.toLocaleString()}` }).catch(() => {}); } catch { /* noop */ }

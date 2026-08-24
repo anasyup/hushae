@@ -20,6 +20,7 @@ const TABS = [
 
 export default function CustomerPanel({ phone, token, onClose }) {
   const [data, setData] = useState(null);
+  const [customer360, setCustomer360] = useState(null);
   const [err, setErr] = useState('');
   const [tab, setTab] = useState('overview');
 
@@ -29,6 +30,22 @@ export default function CustomerPanel({ phone, token, onClose }) {
     api(`/orders/insights/customer/${encodeURIComponent(phone)}`, { token })
       .then((d) => { if (alive) setData(d); })
       .catch((e) => { if (alive) setErr(e.message || 'Could not load customer'); });
+    return () => { alive = false; };
+  }, [phone, token]);
+
+  // Preserve the existing phone-keyed dossier, but surface the persistent-ID
+  // Customer 360 record whenever one is available. We never auto-merge a
+  // guest into an account here.
+  useEffect(() => {
+    let alive = true;
+    setCustomer360(null);
+    api(`/customers/search?q=${encodeURIComponent(phone)}&limit=8`, { token })
+      .then((result) => {
+        const digits = String(phone || '').replace(/\D/g, '').slice(-9);
+        const match = (result.customers || []).find((customer) => String(customer.phone || '').replace(/\D/g, '').slice(-9) === digits);
+        if (alive) setCustomer360(match || null);
+      })
+      .catch(() => {});
     return () => { alive = false; };
   }, [phone, token]);
 
@@ -71,6 +88,11 @@ export default function CustomerPanel({ phone, token, onClose }) {
                 <a href={wa} target="_blank" rel="noreferrer" title="WhatsApp" className={btnIcon}>
                   WA
                 </a>
+              )}
+              {customer360 && (
+                <Link to={`/admin/customers/${customer360.id}`} onClick={onClose} title="Open Customer 360" className={btnIcon}>
+                  360
+                </Link>
               )}
               <button onClick={onClose} aria-label="Close" className={btnIcon}>
                 <X size={15} />

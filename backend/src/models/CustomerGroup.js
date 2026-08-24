@@ -45,6 +45,11 @@ const customerGroupSchema = new mongoose.Schema({
   lastEvaluatedAt: { type: Date, default: null },
 
   updatedByName: { type: String, default: '' },
+  // Archiving preserves a group’s rule/audit context without keeping it in
+  // active pickers. Deletion remains available only after manual membership
+  // references are safely removed.
+  archivedAt: { type: Date, default: null, index: true },
+  archivedByName: { type: String, default: '' },
 }, { timestamps: true });
 
 customerGroupSchema.index({ updatedAt: -1 });

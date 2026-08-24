@@ -121,6 +121,9 @@ const uploadsRoute = require('./routes/uploads');
 app.get('/api/uploads/:id', uploadsRoute.publicGet); // public image serving
 app.use('/api/uploads', uploadsRoute);
 app.use('/api/wishlist', require('./routes/wishlist'));
+// Customer 360 admin API. Kept separate from /api/customer, which is the
+// storefront account surface for the signed-in shopper.
+app.use('/api/customers', require('./routes/customer360'));
 app.use('/api/customer', require('./routes/customer'));
 app.use('/api/abandoned-cart', require('./routes/abandonedCart'));
 app.use('/api/backup', require('./routes/backup'));

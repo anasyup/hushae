@@ -9,6 +9,9 @@ const mongoose = require('mongoose');
  * separate "recovered" vs "still open" abandons.
  */
 const abandonedCartSchema = new mongoose.Schema({
+  // Set only for an authenticated shopper. Older anonymous carts stay
+  // anonymous rather than being guessed onto a profile later.
+  customer: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null, index: true },
   email: { type: String, required: true, lowercase: true, trim: true, index: true },
   name: { type: String, default: '' },
   phone: { type: String, default: '' },
@@ -32,5 +35,6 @@ const abandonedCartSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 abandonedCartSchema.index({ email: 1, recoveredOrderId: 1 });
+abandonedCartSchema.index({ customer: 1, lastSeenAt: -1 });
 
 module.exports = mongoose.model('AbandonedCart', abandonedCartSchema);

@@ -9,6 +9,9 @@ const addressSchema = new mongoose.Schema({
   city: String,
   province: String,
   postalCode: String,
+  // An empty country means “unknown”; we do not guess PK merely because this
+  // is a Pakistani storefront.
+  country: { type: String, default: '' },
   // Exactly one address may be the default. Enforced in the pre-save hook
   // below rather than trusted from the client, so a crafted request cannot
   // leave the account with two defaults or none.
@@ -19,10 +22,18 @@ const userSchema = new mongoose.Schema({
   name: { type: String, required: true, trim: true },
   email: { type: String, required: true, unique: true, lowercase: true, trim: true },
   phone: { type: String, default: '' },
+  // Kept separate from phone because customers may choose a different
+  // WhatsApp number. It is profile data, never a marketing consent signal.
+  whatsApp: { type: String, default: '' },
+  // ISO alpha-2 when known. Empty intentionally means unknown.
+  country: { type: String, default: '' },
   password: { type: String, required: true, select: false },
   role: { type: String, enum: ['customer', 'admin', 'Owner', 'Manager', 'Staff', 'Warehouse', 'Support'], default: 'customer' },
   addresses: [addressSchema],
   wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
+  // Explicit, auditable manual group assignment. Rule-based groups still
+  // evaluate live; this is only for an intentional merchant override.
+  manualGroups: [{ type: mongoose.Schema.Types.ObjectId, ref: 'CustomerGroup' }],
   isActive: { type: Boolean, default: true },
   // ---- Two-factor auth (admin accounts) ----
   twoFactorEnabled: { type: Boolean, default: false },
@@ -56,6 +67,17 @@ const userSchema = new mongoose.Schema({
     orderSms: { type: Boolean, default: true },
     marketingEmail: { type: Boolean, default: false },
     marketingSms: { type: Boolean, default: false },
+  },
+
+  /* Explicit consent is deliberately separate from contactability. Existing
+     accounts start UNKNOWN — a phone number or legacy notification value is
+     never treated as marketing permission. */
+  consent: {
+    email: { type: String, enum: ['OPTED_IN', 'OPTED_OUT', 'UNKNOWN'], default: 'UNKNOWN' },
+    whatsapp: { type: String, enum: ['OPTED_IN', 'OPTED_OUT', 'UNKNOWN'], default: 'UNKNOWN' },
+    sms: { type: String, enum: ['OPTED_IN', 'OPTED_OUT', 'UNKNOWN'], default: 'UNKNOWN' },
+    updatedAt: { type: Date, default: null },
+    updatedBy: { type: String, default: '' },
   },
 
   /* ---- Active sessions ----
@@ -112,5 +134,14 @@ userSchema.pre('save', async function (next) {
 userSchema.methods.comparePassword = function (plain) {
   return bcrypt.compare(plain, this.password);
 };
+
+// Customer 360 directory/filter indexes. Password and session fields are not
+// included in any index or admin projection.
+userSchema.index({ role: 1, createdAt: -1 });
+userSchema.index({ role: 1, country: 1, createdAt: -1 });
+userSchema.index({ phone: 1 });
+userSchema.index({ whatsApp: 1 });
+userSchema.index({ tags: 1 });
+userSchema.index({ manualGroups: 1 });
 
 module.exports = mongoose.model('User', userSchema);

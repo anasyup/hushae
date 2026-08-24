@@ -41,10 +41,15 @@ router.post('/track', trackLimit, optionalAuth, asyncHandler(async (req, res) =>
     subtotal += p.price * qty;
   }
 
+  const previous = await AbandonedCart.findOne({ email: cleanEmail, recoveredOrderId: null })
+    .select('_id lastSeenAt customer').lean();
   const doc = await AbandonedCart.findOneAndUpdate(
     { email: cleanEmail, recoveredOrderId: null },
     {
       $set: {
+        // Only an authenticated session may claim a cart. Existing anonymous
+        // carts remain anonymous unless that same signed-in flow updates it.
+        ...(req.user ? { customer: req.user._id } : {}),
         email: cleanEmail,
         name: name.trim(),
         phone: phone.trim(),
@@ -56,6 +61,22 @@ router.post('/track', trackLimit, optionalAuth, asyncHandler(async (req, res) =>
     },
     { new: true, upsert: true }
   );
+
+  // Append no more than one “abandoned cart” fact every 30 minutes. It is an
+  // actual checkout capture either way; this guard simply prevents refreshes
+  // from overwhelming a human-readable timeline.
+  const wasRecent = previous?.lastSeenAt && (Date.now() - new Date(previous.lastSeenAt).getTime()) < 30 * 60 * 1000;
+  if (req.user && !wasRecent) {
+    require('../utils/customerActivity').recordCustomerActivity({
+      customer: req.user._id,
+      type: 'abandoned_cart',
+      objectType: 'cart',
+      objectId: doc._id,
+      objectLabel: `${doc.itemCount || 0} item${doc.itemCount === 1 ? '' : 's'} · PKR ${Number(doc.subtotal || 0).toLocaleString('en-PK')}`,
+      source: 'checkout',
+      metadata: { itemCount: doc.itemCount || 0 },
+    }).catch(() => {});
+  }
 
   res.json({ ok: true, id: doc._id });
 }));

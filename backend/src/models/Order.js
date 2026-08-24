@@ -220,6 +220,10 @@ const orderSchema = new mongoose.Schema({
 
 // Indexes that back the new filter/sort surface
 orderSchema.index({ createdAt: -1 });
+// Customer 360 uses the persistent customer id, never a fuzzy client-side
+// phone match. These indexes keep profile timelines and LTV aggregates fast.
+orderSchema.index({ customer: 1, createdAt: -1 });
+orderSchema.index({ customer: 1, status: 1, createdAt: -1 });
 orderSchema.index({ stage: 1, createdAt: -1 });
 orderSchema.index({ paymentMethod: 1, paymentState: 1 });
 orderSchema.index({ 'customerInfo.city': 1 });

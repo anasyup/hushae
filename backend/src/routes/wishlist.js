@@ -34,6 +34,19 @@ router.post('/:productId', asyncHandler(async (req, res) => {
   await req.user.updateOne({ $addToSet: { wishlist: req.params.productId } });
   const fresh = await require('../models/User').findById(req.user._id);
   await populated(fresh);
+  // This is a real persisted wishlist action, so it can appear in 360.
+  // Duplicating an already-saved item remains a no-op and does not mint noise.
+  if (!already) {
+    const product = (fresh.wishlist || []).find((p) => String(p._id || p) === String(req.params.productId));
+    require('../utils/customerActivity').recordCustomerActivity({
+      customer: req.user._id,
+      type: 'wishlist_added',
+      objectType: 'product',
+      objectId: req.params.productId,
+      objectLabel: product?.name || '',
+      source: 'storefront',
+    }).catch(() => {});
+  }
   res.json({ products: fresh.wishlist });
 }));
 

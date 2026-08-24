@@ -5,6 +5,8 @@ import {
   LayoutTemplate, Megaphone, Package, PackagePlus, Search,
   Settings, ShoppingBag, Sparkles, Users,
 } from 'lucide-react';
+import { useApp } from '../store/AppContext';
+import { api } from '../api/client';
 
 const ITEMS = [
   { id: 'dashboard', label: 'Dashboard', category: 'Go to', icon: BarChart3, to: '/admin', keywords: ['home', 'overview'] },
@@ -27,7 +29,9 @@ const ITEMS = [
 ];
 
 export default function CommandPalette({ onClose }) {
+  const { auth } = useApp();
   const [q, setQ] = useState('');
+  const [customerHits, setCustomerHits] = useState([]);
   const [idx, setIdx] = useState(0);
   const inputRef = useRef(null);
   const navigate = useNavigate();
@@ -39,15 +43,34 @@ export default function CommandPalette({ onClose }) {
     return () => document.removeEventListener('keydown', onKey);
   }, [onClose]);
 
+  useEffect(() => {
+    const term = q.trim();
+    if (!term) { setCustomerHits([]); return undefined; }
+    const timer = setTimeout(() => {
+      api(`/customers/search?q=${encodeURIComponent(term)}&limit=6`, { token: auth?.token, noCache: true })
+        .then((data) => setCustomerHits((data.customers || []).map((customer) => ({
+          id: `customer-${customer.id}`,
+          label: customer.name || 'Unnamed customer',
+          category: 'Customers', icon: Users,
+          to: `/admin/customers/${customer.id}`,
+          keywords: [customer.email, customer.phone, customer.whatsApp, customer.id].filter(Boolean),
+          hint: `${customer.email || customer.phone || customer.id} · ${customer.metrics?.orders || 0} orders`,
+        }))))
+        .catch(() => setCustomerHits([]));
+    }, 180);
+    return () => clearTimeout(timer);
+  }, [q, auth?.token]);
+
   const results = useMemo(() => {
     if (!q.trim()) return ITEMS.slice(0, 8);
     const term = q.toLowerCase();
-    return ITEMS.filter((item) => (
+    const staticItems = ITEMS.filter((item) => (
       item.label.toLowerCase().includes(term) ||
       item.category.toLowerCase().includes(term) ||
-      (item.keywords || []).join(' ').includes(term)
+      (item.keywords || []).join(' ').toLowerCase().includes(term)
     ));
-  }, [q]);
+    return [...customerHits, ...staticItems];
+  }, [q, customerHits]);
 
   useEffect(() => { setIdx(0); }, [results.length]);
 
@@ -109,7 +132,7 @@ export default function CommandPalette({ onClose }) {
                     >
                       <Icon size={14} strokeWidth={1.6} className={active ? 'text-black' : 'text-[#777777]'} />
                       <span className={`flex-1 text-[13px] ${active ? 'text-black' : 'text-[#555555]'}`}>{item.label}</span>
-                      <span className="font-mono text-[10px] text-[#999999]">{item.to}</span>
+                      <span className="max-w-[45%] truncate font-mono text-[10px] text-[#999999]">{item.hint || item.to}</span>
                     </button>
                   );
                 })}

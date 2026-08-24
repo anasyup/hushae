@@ -215,6 +215,7 @@ export default function OrderDetail() {
                   {c.phone && <a href={`tel:${c.phone}`} className="text-[11px] uppercase tracking-[0.12em] text-white/50 hover:text-white">Call</a>}
                   {c.phone && <a href={whatsappLink} target="_blank" rel="noreferrer" className="text-[11px] uppercase tracking-[0.12em] text-white/50 hover:text-white">WhatsApp</a>}
                   {c.email && <a href={`mailto:${c.email}`} className="text-[11px] uppercase tracking-[0.12em] text-white/50 hover:text-white">Email</a>}
+                  {o.customer && <Link to={`/admin/customers/${o.customer?._id || o.customer}`} className="text-[11px] uppercase tracking-[0.12em] text-white/50 hover:text-white">Customer 360</Link>}
                 </div>
               </div>
             </div>

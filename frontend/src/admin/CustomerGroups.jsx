@@ -140,8 +140,18 @@ export default function CustomerGroups() {
     setSaving(false);
   };
 
+  const archive = async (g) => {
+    const action = g.archivedAt ? 'restore' : 'archive';
+    if (!window.confirm(`${action === 'archive' ? 'Archive' : 'Restore'} “${g.name}”? Rules and members stay intact.`)) return;
+    try {
+      await api(`/customer-groups/${g._id}/archive`, { method: 'POST', token: auth?.token });
+      toast(`Group ${action}d`);
+      load();
+    } catch (err) { toast(err.message || 'Could not update group'); }
+  };
+
   const remove = async (g) => {
-    if (!window.confirm(`Delete the "${g.name}" group? Members are not affected.`)) return;
+    if (!window.confirm(`Delete the "${g.name}" group? Only manual membership links are removed; customers and orders stay intact.`)) return;
     try {
       await api(`/customer-groups/${g._id}`, { method: 'DELETE', token: auth?.token });
       toast('Group deleted');
@@ -233,6 +243,7 @@ export default function CustomerGroups() {
                     <div className="min-w-0">
                       <p className="truncate text-[13px] text-white">{m.name}</p>
                       <p className="truncate text-[11px] text-white/30">{m.phone || 'no phone'} · {m.email || 'no email'}</p>
+                      {m.why?.[0] && <p className="mt-0.5 truncate text-[10px] text-white/25">{m.why[0]}</p>}
                     </div>
                     <span className="shrink-0 text-[11px] text-white/40">{m.orders} · {m.spend.toLocaleString()}</span>
                   </div>
@@ -268,6 +279,7 @@ export default function CustomerGroups() {
                 <div className="min-w-0">
                   <p className="text-[14px] font-medium text-white">{g.name}</p>
                   <p className="mt-0.5 line-clamp-2 text-[12px] text-white/35">{g.description || 'No description'}</p>
+                  <p className="mt-2 text-[11px] text-white/40">{g.rulesSummary || 'Live rules'}</p>
                   <p className="mt-2 text-[11px] text-white/25">Updated {fmtDate(g.updatedAt)}</p>
                 </div>
                 <div className="flex items-end gap-4">
@@ -275,8 +287,9 @@ export default function CustomerGroups() {
                     <p className="adm-metric text-[22px] text-white">{g.memberCount?.toLocaleString?.() || 0}</p>
                     <p className="adm-label">Members</p>
                   </div>
-                  <button type="button" onClick={() => openEmail(g)} className={btnGhost}>Email</button>
+                  <span className="text-[10px] uppercase tracking-[0.12em] text-white/30">Campaigns: history only</span>
                   <button type="button" onClick={() => startEdit(g)} className={btnGhost}>Edit</button>
+                  <button type="button" onClick={() => archive(g)} className={btnGhost}>{g.archivedAt ? 'Restore' : 'Archive'}</button>
                   <button type="button" onClick={() => remove(g)} className="text-[10px] uppercase tracking-[0.12em] text-white/30 hover:text-white" title="Delete group">
                     <Trash2 size={13} />
                   </button>

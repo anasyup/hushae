@@ -25,7 +25,9 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        target: 'https://hushae1.vercel.app',
+        // Local QA must exercise the checked-out backend, never silently hit
+        // production. Override only when a deliberate remote proxy is needed.
+        target: process.env.VITE_API_PROXY || 'http://127.0.0.1:4000',
         changeOrigin: true,
         secure: false,
       },

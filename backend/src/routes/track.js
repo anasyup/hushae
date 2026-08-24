@@ -1,7 +1,7 @@
 const express = require('express');
 const PageView = require('../models/PageView');
 const Order = require('../models/Order');
-const { protect, adminOnly } = require('../middleware/auth');
+const { protect, adminOnly, optionalAuth } = require('../middleware/auth');
 const { asyncHandler } = require('../utils/helpers');
 const rateLimit = require('../middleware/rateLimit');
 
@@ -18,21 +18,45 @@ const decode = (v) => { try { return decodeURIComponent(String(v || '')); } catc
 
 // Public storefront tracking (generous limit — every page load calls this)
 const trackLimit = rateLimit({ windowMs: 10 * 60 * 1000, max: 400, key: 'track' });
-router.post('/', trackLimit, asyncHandler(async (req, res) => {
+router.post('/', trackLimit, optionalAuth, asyncHandler(async (req, res) => {
   const ua = String(req.headers['user-agent'] || '');
   if (BOT.test(ua)) return res.json({ ok: true, skipped: true });
   const { sid, path, referrer, event } = req.body || {};
   if (typeof sid !== 'string' || !sid || sid.length > 64) return res.status(400).json({ message: 'Invalid session' });
   const ev = ['cart', 'checkout'].includes(event) ? event : 'pageview';
+  const safePath = String(path || '/').slice(0, 200);
+  const device = deviceOf(ua);
   await PageView.create({
     sid,
     event: ev,
-    path: String(path || '/').slice(0, 200),
+    path: safePath,
     referrer: String(referrer || '').slice(0, 300),
-    device: deviceOf(ua),
+    device,
     country: decode(req.headers['x-vercel-ip-country']),
     city: decode(req.headers['x-vercel-ip-city']),
   });
+
+  /* Customer 360 only receives attributable, real storefront events. The
+     anonymous PageView ledger remains anonymous; we never backfill a person
+     onto old sessions. */
+  if (req.user) {
+    const { recordCustomerActivity } = require('../utils/customerActivity');
+    let activity = null;
+    const productPath = safePath.match(/^\/product\/([^/?#]+)/i);
+    if (ev === 'checkout') {
+      activity = { type: 'checkout_started', objectType: 'checkout', objectLabel: 'Checkout', source: 'checkout' };
+    } else if (ev === 'cart') {
+      activity = { type: 'added_to_cart', objectType: 'cart', objectLabel: 'Shopping bag', source: 'storefront' };
+    } else if (productPath) {
+      activity = {
+        type: 'product_viewed', objectType: 'product',
+        objectLabel: decode(productPath[1]).slice(0, 180), source: 'storefront',
+      };
+    }
+    if (activity) {
+      recordCustomerActivity({ customer: req.user._id, device, ...activity }).catch(() => {});
+    }
+  }
   res.json({ ok: true });
 }));
 

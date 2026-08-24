@@ -15,10 +15,10 @@ const loginLimit = rateLimit({ windowMs: 10 * 60 * 1000, max: 12, key: 'login', 
 const registerLimit = rateLimit({ windowMs: 60 * 60 * 1000, max: 8, key: 'register', message: 'Too many accounts created from your connection — try later' });
 
 const publicUser = (u) => ({
-  id: u._id, name: u.name, email: u.email, phone: u.phone, role: u.role,
+  id: u._id, name: u.name, email: u.email, phone: u.phone, whatsApp: u.whatsApp || '', country: u.country || '', role: u.role,
   addresses: u.addresses, createdAt: u.createdAt,
   avatar: u.avatar || '', emailVerified: !!u.emailVerified,
-  notify: u.notify || {},
+  notify: u.notify || {}, consent: u.consent || { email: 'UNKNOWN', whatsapp: 'UNKNOWN', sms: 'UNKNOWN' },
 });
 
 /* Token lifetime follows the merchant's session policy. "Remember me" gets

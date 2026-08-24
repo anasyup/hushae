@@ -416,6 +416,21 @@ router.post('/', placeOrderLimit, optionalAuth, asyncHandler(async (req, res) =>
     throw e;
   }
 
+  // A successful order is a real purchase event. It uses the persistent
+  // customer id already set for authenticated checkout; guests stay unlinked
+  // rather than being guessed onto an account later.
+  if (order.customer) {
+    require('../utils/customerActivity').recordCustomerActivity({
+      customer: order.customer,
+      type: 'purchase',
+      objectType: 'order',
+      objectId: order._id,
+      objectLabel: order.orderNumber,
+      source: 'checkout',
+      metadata: { total: Number(order.total || 0), itemCount: (order.items || []).reduce((n, item) => n + (item.quantity || 0), 0) },
+    }).catch(() => {});
+  }
+
   /* Debit the balances only now that the order exists.
    *
    * Doing this AFTER the write is the whole point: if the order had failed,

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   ArrowLeft, CreditCard, Loader2, Minus, Package, Plus, Search, ShoppingBag, Trash2, User,
 } from 'lucide-react';
@@ -26,8 +26,11 @@ const cardCls = 'rounded-2xl border border-neutral-200 bg-white p-5';
 export default function DraftOrder() {
   const { auth, toast, settings } = useApp();
   const nav = useNavigate();
+  const [searchParams] = useSearchParams();
 
-  const [customers, setCustomers] = useState([]);
+  // Customer lookup is server-side — manual order creation must not download
+  // the entire customer database into the browser.
+  const [customerResults, setCustomerResults] = useState([]);
   const [cusQ, setCusQ] = useState('');
   const [cusOpen, setCusOpen] = useState(false);
   const [picked, setPicked] = useState(null); // selected existing customer
@@ -52,13 +55,41 @@ export default function DraftOrder() {
 
   const cusRef = useRef(null);
 
-  /* ── Load customers + locations once ─────────────────────────────────── */
+  /* ── Load locations + an optional Customer 360 prefill ─────────────── */
   useEffect(() => {
-    api('/admin/customers', { token: auth?.token })
-      .then((d) => setCustomers(d.customers || []))
-      .catch(() => {});
     api('/locations').then((d) => setProvinces(d.provinces || [])).catch(() => {});
-  }, [auth?.token]);
+  }, []);
+
+  const hydrateCustomer = async (customerId) => {
+    if (!customerId) return;
+    try {
+      const d = await api(`/customers/${customerId}`, { token: auth?.token, noCache: true });
+      const c = d.customer;
+      const a = c.deliveryAddress || {};
+      setPicked({ id: c.id, name: c.name, email: c.email, phone: c.phone, orders: c.metrics?.orders || 0 });
+      setForm({
+        name: c.name || '', phone: c.phone || '', email: c.email || '',
+        address: a.address || '', city: a.city || '', province: a.province || '', postalCode: a.postalCode || '',
+      });
+      if (a.province) {
+        const citiesData = await api(`/locations/${encodeURIComponent(a.province)}/cities`).catch(() => ({ cities: [] }));
+        setCities(citiesData.cities || []);
+      }
+    } catch (err) { toast(err.message || 'Customer prefill nahi ho saka'); }
+  };
+
+  useEffect(() => { hydrateCustomer(searchParams.get('customer')); }, [auth?.token, searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    const q = cusQ.trim();
+    if (!q) { setCustomerResults([]); return undefined; }
+    const timer = setTimeout(() => {
+      api(`/customers/search?q=${encodeURIComponent(q)}&limit=8`, { token: auth?.token, noCache: true })
+        .then((d) => setCustomerResults(d.customers || []))
+        .catch(() => setCustomerResults([]));
+    }, 220);
+    return () => clearTimeout(timer);
+  }, [cusQ, auth?.token]);
 
   const onProvince = async (p) => {
     setForm((f) => ({ ...f, province: p, city: '' }));
@@ -67,21 +98,10 @@ export default function DraftOrder() {
     try { const d = await api(`/locations/${encodeURIComponent(p)}/cities`); setCities(d.cities || []); } catch { setCities([]); }
   };
 
-  const filteredCustomers = useMemo(() => {
-    const q = cusQ.trim().toLowerCase();
-    if (!q) return [];
-    return customers.filter((c) =>
-      (c.name || '').toLowerCase().includes(q) ||
-      (c.phone || '').toLowerCase().includes(q) ||
-      (c.email || '').toLowerCase().includes(q)
-    ).slice(0, 8);
-  }, [customers, cusQ]);
-
   const pickCustomer = (c) => {
-    setPicked(c);
-    setForm({ name: c.name || '', phone: c.phone || '', email: c.email || '', address: '', city: '', province: '', postalCode: '' });
     setCusOpen(false);
     setCusQ('');
+    hydrateCustomer(c.id);
   };
 
   const clearCustomer = () => {
@@ -218,15 +238,15 @@ export default function DraftOrder() {
                   onChange={(e) => { setCusQ(e.target.value); setCusOpen(true); }}
                   onFocus={() => setCusOpen(true)}
                 />
-                {cusOpen && filteredCustomers.length > 0 && (
+                {cusOpen && customerResults.length > 0 && (
                   <div className="absolute inset-x-0 top-full z-20 mt-1 overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-lg">
-                    {filteredCustomers.map((c) => (
+                    {customerResults.map((c) => (
                       <button key={c.id} onClick={() => pickCustomer(c)} className="flex w-full items-center justify-between gap-2 px-3.5 py-2.5 text-left transition hover:bg-neutral-50">
                         <span className="min-w-0">
                           <span className="block truncate text-[13px] font-semibold text-neutral-900">{c.name}</span>
                           <span className="block truncate text-[12px] text-neutral-400">{c.phone} · {c.email || 'no email'}</span>
                         </span>
-                        <span className="shrink-0 text-[11px] font-medium text-neutral-400">{c.orders} orders</span>
+                        <span className="shrink-0 text-[11px] font-medium text-neutral-400">{c.metrics?.orders || 0} orders</span>
                       </button>
                     ))}
                   </div>

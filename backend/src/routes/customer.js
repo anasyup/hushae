@@ -21,11 +21,14 @@ const me = (u) => ({
   name: u.name,
   email: u.email,
   phone: u.phone,
+  whatsApp: u.whatsApp || '',
+  country: u.country || '',
   role: u.role,
   addresses: u.addresses,
   avatar: u.avatar || '',
   emailVerified: !!u.emailVerified,
   notify: u.notify || {},
+  consent: u.consent || { email: 'UNKNOWN', whatsapp: 'UNKNOWN', sms: 'UNKNOWN' },
   createdAt: u.createdAt,
 });
 
@@ -46,7 +49,7 @@ router.get('/profile', asyncHandler(async (req, res) => {
  * saved address. Addresses now have their own explicit routes below.
  * ------------------------------------------------------------------------- */
 router.put('/profile', asyncHandler(async (req, res) => {
-  const { name, phone } = req.body || {};
+  const { name, phone, whatsApp, country } = req.body || {};
   const policy = await getAccountPolicy();
 
   if (name !== undefined) {
@@ -69,6 +72,23 @@ router.put('/profile', asyncHandler(async (req, res) => {
     }
   }
 
+  if (whatsApp !== undefined) {
+    const raw = String(whatsApp).trim();
+    if (raw) {
+      const norm = normalizePhone(raw);
+      if (!norm) return res.status(400).json({ field: 'whatsApp', message: 'Incorrect WhatsApp number — enter a Pakistani mobile (03XX-XXXXXXX)' });
+      req.user.whatsApp = norm;
+    } else {
+      req.user.whatsApp = '';
+    }
+  }
+
+  if (country !== undefined) {
+    const code = String(country || '').trim().toUpperCase();
+    if (code && !/^[A-Z]{2}$/.test(code)) return res.status(400).json({ field: 'country', message: 'Country must use a two-letter code' });
+    req.user.country = code;
+  }
+
   await req.user.save();
   res.json({ user: me(req.user) });
 }));
@@ -85,6 +105,7 @@ const cleanAddress = (b = {}) => ({
   city: String(b.city || '').trim().slice(0, 60),
   province: String(b.province || '').trim().slice(0, 60),
   postalCode: String(b.postalCode || '').trim().slice(0, 10),
+  country: /^[A-Za-z]{2}$/.test(String(b.country || '').trim()) ? String(b.country).trim().toUpperCase() : '',
   isDefault: !!b.isDefault,
 });
 
@@ -197,6 +218,16 @@ router.put('/notifications', asyncHandler(async (req, res) => {
     marketingEmail: b.marketingEmail !== undefined ? !!b.marketingEmail : !!cur.marketingEmail,
     marketingSms: b.marketingSms !== undefined ? !!b.marketingSms : !!cur.marketingSms,
   };
+  // A customer actively changing this setting is an explicit consent event.
+  // Existing accounts retain UNKNOWN until such a real choice is made.
+  if (b.marketingEmail !== undefined || b.marketingSms !== undefined) {
+    const consent = req.user.consent || {};
+    if (b.marketingEmail !== undefined) consent.email = b.marketingEmail ? 'OPTED_IN' : 'OPTED_OUT';
+    if (b.marketingSms !== undefined) consent.sms = b.marketingSms ? 'OPTED_IN' : 'OPTED_OUT';
+    consent.updatedAt = new Date();
+    consent.updatedBy = 'customer';
+    req.user.consent = consent;
+  }
   await req.user.save();
   res.json({ user: me(req.user) });
 }));
@@ -225,9 +256,13 @@ router.post('/delete-account', asyncHandler(async (req, res) => {
   user.isActive = false;
   user.email = `${user.email}.deleted.${stamp}`;
   user.phone = '';
+  user.whatsApp = '';
+  user.country = '';
   user.avatar = '';
   user.addresses = [];
   user.wishlist = [];
+  user.sessions = [];
+  user.consent = { email: 'OPTED_OUT', whatsapp: 'OPTED_OUT', sms: 'OPTED_OUT', updatedAt: new Date(), updatedBy: 'customer-delete' };
   await user.save();
 
   res.json({ ok: true, message: 'Your account has been closed. Your past orders remain with the store for its records.' });

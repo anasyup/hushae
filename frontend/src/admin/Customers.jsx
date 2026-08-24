@@ -1,395 +1,303 @@
-import { Fragment, useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { ChevronDown, Loader2, Plus, X } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
+import { Download, Filter, Loader2, Plus, Tag, Users, X } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import { fmtDate, pkr } from '../lib/format';
 import AdminLayout from './AdminLayout';
 import PageHeader from './components/PageHeader';
 import {
-  btnGhost, ctl, ctlInline,
-  EditorialEmpty, EditorialError, EditorialPagination, TableSkeleton, MonoStatus,
+  btnGhost, btnSolid, ctl, ctlInline,
+  EditorialEmpty, EditorialError, EditorialPagination, MonoStatus, TableSkeleton,
 } from './orders/orderUi';
 
-/* ===========================================================================
- * Customers — Phase 06 editorial directory (presentation only).
- * Data: GET /admin/customers · tags PATCH · order history GET /orders/admin
- * ========================================================================== */
-
 const SEGMENTS = [
-  { key: 'all',     label: 'All customers',   match: () => true },
-  { key: 'buyers',  label: 'Active buyers',   match: (c) => c.orders > 0 },
-  { key: 'vip',     label: 'VIP',             match: (c) => c.orders >= 2 },
-  { key: 'new',     label: 'New',             match: (c) => (Date.now() - new Date(c.createdAt).getTime()) < 30 * 864e5 },
-  { key: 'noorder', label: 'No orders yet',   match: (c) => c.orders === 0 },
+  ['all', 'All'], ['new', 'New'], ['repeat', 'Repeat'], ['vip', 'VIP'], ['high_value', 'High Value'], ['inactive', 'Inactive'],
 ];
+const BASE = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
+const dateInput = (days) => new Date(Date.now() - days * 86400000).toISOString().slice(0, 10);
+const when = (value) => (value ? fmtDate(value) : '—');
 
-function segmentOf(c) {
-  if (c.orders >= 2) return { label: 'VIP', dim: false };
-  if (c.orders > 0) return { label: 'ACTIVE', dim: false };
-  const isNew = (Date.now() - new Date(c.createdAt).getTime()) < 30 * 864e5;
-  if (isNew) return { label: 'NEW', dim: true };
-  return { label: 'NO ORDERS', dim: true };
+function statusDim(status) {
+  return ['UNVERIFIED', 'SUSPENDED', 'DELETED'].includes(String(status || '').toUpperCase());
+}
+
+function QueryFilter({ label, value, onChange, children }) {
+  return (
+    <label className="block min-w-[132px]">
+      <span className="adm-label mb-1 block">{label}</span>
+      <select value={value || ''} onChange={(event) => onChange(event.target.value)} className={ctlInline}>
+        {children}
+      </select>
+    </label>
+  );
 }
 
 export default function Customers() {
-  const { auth } = useApp();
-  const [list, setList] = useState(null);
-  const [err, setErr] = useState('');
-  const [open, setOpen] = useState(null);
-  const [orders, setOrders] = useState({});
-  const [q, setQ] = useState('');
-  const [segment, setSegment] = useState('all');
-  const [tagDraft, setTagDraft] = useState({});
-  const [tagBusy, setTagBusy] = useState(null);
+  const { auth, toast } = useApp();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [directory, setDirectory] = useState(null);
+  const [facets, setFacets] = useState({ countries: [], tags: [] });
+  const [segmentCounts, setSegmentCounts] = useState(null);
+  const [groups, setGroups] = useState([]);
+  const [error, setError] = useState('');
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [search, setSearch] = useState(searchParams.get('search') || '');
+  const [selected, setSelected] = useState([]);
+  const [bulkTag, setBulkTag] = useState('');
+  const [bulkGroup, setBulkGroup] = useState('');
+  const [bulkBusy, setBulkBusy] = useState(false);
+  const [exportBusy, setExportBusy] = useState(false);
+  const queryKey = searchParams.toString();
 
-  const load = () => {
-    api('/admin/customers', { token: auth.token })
-      .then((d) => { setList(d.customers); setErr(''); })
-      .catch(() => { setList([]); setErr('Something prevented the customer directory from loading.'); });
-  };
-  useEffect(load, [auth]); // eslint-disable-line
+  const params = useMemo(() => Object.fromEntries(searchParams.entries()), [queryKey]);
+  const currentSegment = params.segment || 'all';
+  const page = Number(params.page || 1);
 
-  const saveTags = async (c, tags) => {
-    setTagBusy(c.id);
+  const setFilter = useCallback((patch = {}) => {
+    const next = new URLSearchParams(searchParams);
+    Object.entries(patch).forEach(([key, value]) => {
+      if (value === undefined || value === null || value === '' || value === 'all') next.delete(key);
+      else next.set(key, String(value));
+    });
+    if (!Object.prototype.hasOwnProperty.call(patch, 'page')) next.delete('page');
+    setSearchParams(next, { replace: true });
+  }, [searchParams, setSearchParams]);
+
+  const load = useCallback(async () => {
+    setError('');
     try {
-      const d = await api(`/admin/customers/${c.id}/tags`, { method: 'PATCH', token: auth.token, body: { tags } });
-      setList((ls) => ls.map((x) => (x.id === c.id ? { ...x, tags: d.tags } : x)));
-      setTagDraft((t) => ({ ...t, [c.id]: '' }));
-    } catch { /* toast handled by api client if any */ }
-    setTagBusy(null);
-  };
-  const addTag = (c) => {
-    const t = (tagDraft[c.id] || '').trim();
-    if (!t) return;
-    saveTags(c, [...(c.tags || []), t]);
-  };
-  const removeTag = (c, t) => saveTags(c, (c.tags || []).filter((x) => x !== t));
-
-  const toggle = async (id) => {
-    const next = open === id ? null : id;
-    setOpen(next);
-    if (next && !orders[id]) {
-      const d = await api(`/orders/admin?customer=${id}`, { token: auth.token }).catch(() => ({ orders: [] }));
-      setOrders((o) => ({ ...o, [id]: d.orders }));
+      const [data, facetData, groupData, audienceData] = await Promise.all([
+        api(`/customers?${queryKey}`, { token: auth?.token, noCache: true }),
+        api('/customers/facets', { token: auth?.token, noCache: true }).catch(() => ({ countries: [], tags: [] })),
+        api('/customer-groups', { token: auth?.token, noCache: true }).catch(() => ({ groups: [] })),
+        api('/customers/segments', { token: auth?.token, noCache: true }).catch(() => ({ segments: null })),
+      ]);
+      setDirectory(data);
+      setFacets(facetData);
+      setGroups(groupData.groups || []);
+      setSegmentCounts(audienceData.segments || null);
+    } catch (err) {
+      setDirectory({ customers: [], total: 0, page: 1, pages: 1 });
+      setError(err?.message || 'Customer directory could not load.');
     }
+  }, [auth?.token, queryKey]);
+
+  useEffect(() => { load(); }, [load]);
+  useEffect(() => { setSelected([]); }, [queryKey]);
+  useEffect(() => { setSearch(searchParams.get('search') || ''); }, [queryKey]);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const existing = searchParams.get('search') || '';
+      if (search.trim() !== existing) setFilter({ search: search.trim() });
+    }, 280);
+    return () => clearTimeout(timer);
+  }, [search, searchParams, setFilter]);
+
+  const customers = directory?.customers || [];
+  const allOnPage = customers.length > 0 && customers.every((customer) => selected.includes(String(customer.id)));
+  const toggle = (id) => setSelected((current) => current.includes(String(id))
+    ? current.filter((value) => value !== String(id))
+    : [...current, String(id)]);
+  const toggleAll = () => setSelected((current) => allOnPage
+    ? current.filter((id) => !customers.some((customer) => String(customer.id) === id))
+    : [...new Set([...current, ...customers.map((customer) => String(customer.id))])]);
+
+  const bulk = async (action) => {
+    if (!selected.length) return;
+    const body = { action, ids: selected };
+    if (action === 'add_tag' || action === 'remove_tag') {
+      if (!bulkTag.trim()) { toast('Pehle tag likhein'); return; }
+      body.tag = bulkTag;
+    }
+    if (action === 'assign_group') {
+      if (!bulkGroup) { toast('Pehle group select karein'); return; }
+      body.groupId = bulkGroup;
+    }
+    const label = action === 'add_tag' ? `“${bulkTag}” tag add` : action === 'remove_tag' ? `“${bulkTag}” tag remove` : 'selected group assign';
+    if (!window.confirm(`${selected.length} customer(s) par ${label} karna hai?`)) return;
+    setBulkBusy(true);
+    try {
+      const result = await api('/customers/bulk', { method: 'POST', token: auth?.token, body });
+      toast(`${result.modified || 0} customers update ho gaye`);
+      setSelected([]); setBulkTag(''); setBulkGroup(''); load();
+    } catch (err) { toast(err.message || 'Bulk update nahi ho saka'); }
+    setBulkBusy(false);
   };
 
-  const filtered = useMemo(() => {
-    if (!Array.isArray(list)) return [];
-    const seg = SEGMENTS.find((s) => s.key === segment) || SEGMENTS[0];
-    let out = list.filter(seg.match);
-    if (q.trim()) {
-      const needle = q.trim().toLowerCase();
-      out = out.filter((c) =>
-        c.name?.toLowerCase().includes(needle) ||
-        c.email?.toLowerCase().includes(needle) ||
-        c.phone?.toLowerCase().includes(needle)
-      );
-    }
-    return out;
-  }, [list, q, segment]);
-
-  const summary = useMemo(() => {
-    if (!Array.isArray(list)) return { total: 0, buyers: 0, vip: 0, newThisMonth: 0 };
-    let buyers = 0, vip = 0, newThisMonth = 0;
-    const cutoff = Date.now() - 30 * 864e5;
-    for (const c of list) {
-      if (c.orders > 0) buyers++;
-      if (c.orders >= 2) vip++;
-      if (new Date(c.createdAt).getTime() > cutoff) newThisMonth++;
-    }
-    return { total: list.length, buyers, vip, newThisMonth };
-  }, [list]);
-
-  const segmentCounts = useMemo(() => {
-    if (!Array.isArray(list)) return {};
-    const out = {};
-    for (const s of SEGMENTS) out[s.key] = list.filter(s.match).length;
-    return out;
-  }, [list]);
-
-  const PER_PAGE = 50;
-  const [page, setPage] = useState(1);
-  useEffect(() => { setPage(1); }, [q, segment]);
-  const pageCount = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
-  const paged = useMemo(() => {
-    const start = (page - 1) * PER_PAGE;
-    return filtered.slice(start, start + PER_PAGE);
-  }, [filtered, page]);
-
-  const metrics = [
-    { label: 'Total customers', value: summary.total, onClick: () => setSegment('all'), active: segment === 'all' },
-    { label: 'Active', value: summary.buyers, onClick: () => setSegment('buyers'), active: segment === 'buyers' },
-    { label: 'New', value: summary.newThisMonth, onClick: () => setSegment('new'), active: segment === 'new' },
-    { label: 'VIP', value: summary.vip, onClick: () => setSegment('vip'), active: segment === 'vip' },
-  ];
+  const exportCustomers = async () => {
+    setExportBusy(true);
+    try {
+      const exportParams = new URLSearchParams(searchParams);
+      exportParams.delete('page'); exportParams.delete('limit');
+      const response = await fetch(`${BASE}/api/customers/export?${exportParams.toString()}`, {
+        headers: { Authorization: `Bearer ${auth?.token || ''}` },
+      });
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.message || 'Export failed');
+      }
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url; link.download = 'hushae-customers.csv'; link.click();
+      URL.revokeObjectURL(url);
+      toast('Customer export download ho raha hai');
+    } catch (err) { toast(err.message || 'Export nahi ho saka'); }
+    setExportBusy(false);
+  };
 
   return (
     <AdminLayout title="Customers">
       <PageHeader
+        eyebrow="Customer 360"
         title="Customers"
-        description="Customer relationships and activity."
+        description="Server-side customer directory, value metrics aur real relationship context."
         actions={(
-          <Link to="/admin/customers/groups" className={btnGhost}>Groups</Link>
+          <>
+            <Link to="/admin/customers/groups" className={btnGhost}><Users size={12} /> Groups</Link>
+            <button type="button" onClick={exportCustomers} disabled={exportBusy} className={btnGhost}>
+              {exportBusy ? <Loader2 size={12} className="animate-spin" /> : <Download size={12} />} Export
+            </button>
+          </>
         )}
       />
 
-      <section className="mb-10">
-        <p className="adm-index">01 — Customer overview</p>
-        <div className="adm-divide-x grid grid-cols-2 border-y border-white/10 lg:grid-cols-4">
-          {metrics.map((m) => (
-            <button key={m.label} type="button" onClick={m.onClick} className="px-5 py-6 text-left adm-row-hover">
-              <p className={`adm-label ${m.active ? 'text-white/70' : ''}`}>{m.label}</p>
-              <p className="adm-metric mt-3 text-[32px] leading-none text-white">
-                {list === null ? '—' : m.value.toLocaleString()}
-              </p>
-            </button>
-          ))}
-        </div>
-      </section>
-
-      <section className="mb-10">
-        <p className="adm-index">02 — Customer workspace</p>
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="relative min-w-[200px] flex-1">
-            <input
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              placeholder="Search customers…"
-              aria-label="Search customers"
-              className={ctl}
-            />
-          </div>
-          <select
-            value={segment}
-            onChange={(e) => setSegment(e.target.value)}
-            aria-label="Segment"
-            className={`${ctlInline} max-w-[180px]`}
-          >
-            {SEGMENTS.map((s) => (
-              <option key={s.key} value={s.key}>
-                {s.label}{segmentCounts[s.key] != null ? ` (${segmentCounts[s.key]})` : ''}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="mt-5 flex flex-wrap gap-x-6 gap-y-2 border-t border-white/10 pt-4">
-          {SEGMENTS.filter((s) => s.key !== 'all').map((s) => (
-            <button
-              key={s.key}
-              type="button"
-              onClick={() => setSegment(s.key)}
-              className={`text-left ${segment === s.key ? 'text-white' : 'text-white/40 hover:text-white/75'}`}
-            >
-              <span className="block text-[9px] font-medium uppercase tracking-[0.16em]">{s.label}</span>
-              <span className="adm-metric mt-0.5 block text-[16px]">
-                {list === null ? '—' : (segmentCounts[s.key] || 0).toLocaleString()}
-              </span>
+      <section className="mb-8">
+        <p className="adm-index">01 — Business segments</p>
+        <div className="adm-divide-x grid grid-cols-2 border-y border-[#EAEAEA] md:grid-cols-3 xl:grid-cols-6">
+          {SEGMENTS.map(([key, label]) => (
+            <button key={key} type="button" onClick={() => setFilter({ segment: key })}
+              className={`px-4 py-4 text-left transition-colors hover:bg-[#F7F7F7] ${currentSegment === key ? 'bg-[#F7F7F7]' : ''}`}>
+              <p className="adm-label">{label}</p>
+              <p className="adm-metric mt-2 text-[20px] text-black">{segmentCounts ? Number(segmentCounts[key] || 0).toLocaleString() : '—'}</p>
+              <p className="mt-1 text-[10px] text-[#777777]">{key === 'vip' ? 'PKR 500k+' : key === 'repeat' ? '2+ qualifying orders' : 'Filter list'}</p>
             </button>
           ))}
         </div>
       </section>
 
       <section className="mb-6">
-        <p className="adm-index">03 — Customers</p>
+        <p className="adm-index">02 — Directory filters</p>
+        <div className="flex flex-wrap items-center gap-2 border-y border-[#EAEAEA] py-4">
+          <input value={search} onChange={(event) => setSearch(event.target.value)}
+            placeholder="Name, email, phone, WhatsApp, customer ID ya order number…" className={`${ctl} min-w-[240px] flex-1`} />
+          <select value={currentSegment} onChange={(event) => setFilter({ segment: event.target.value })} className={ctlInline} aria-label="Segment">
+            {SEGMENTS.map(([key, label]) => <option key={key} value={key}>{label}</option>)}
+          </select>
+          <button type="button" onClick={() => setFilterOpen((open) => !open)} className={btnGhost} aria-expanded={filterOpen}>
+            <Filter size={12} /> Filters
+          </button>
+          {(queryKey || search) && <button type="button" onClick={() => { setSearch(''); setSearchParams({}, { replace: true }); }} className={btnGhost}>Clear</button>}
+        </div>
 
-        {err && (
-          <EditorialError title="Unable to load customers" description={err} onRetry={() => { setList(null); setErr(''); load(); }} />
+        {filterOpen && (
+          <div className="grid gap-3 border-b border-[#EAEAEA] py-4 sm:grid-cols-2 xl:grid-cols-4">
+            <QueryFilter label="Country" value={params.country} onChange={(value) => setFilter({ country: value })}>
+              <option value="">All countries</option><option value="UNKNOWN">Unknown</option>
+              {facets.countries.map((country) => <option key={country.value} value={country.value}>{country.value} ({country.count})</option>)}
+            </QueryFilter>
+            <QueryFilter label="Tag" value={params.tag} onChange={(value) => setFilter({ tag: value })}>
+              <option value="">Any tag</option>{facets.tags.map((tag) => <option key={tag.value} value={tag.value}>{tag.value} ({tag.count})</option>)}
+            </QueryFilter>
+            <QueryFilter label="Account" value={params.account} onChange={(value) => setFilter({ account: value })}>
+              <option value="">Any account</option><option value="active">Active</option><option value="unverified">Unverified</option><option value="suspended">Suspended</option><option value="deleted">Deleted</option>
+            </QueryFilter>
+            <QueryFilter label="Has orders" value={params.hasOrders} onChange={(value) => setFilter({ hasOrders: value })}>
+              <option value="">Either</option><option value="yes">Has orders</option><option value="no">No orders</option>
+            </QueryFilter>
+            <QueryFilter label="Spend" value={params.minSpend || ''} onChange={(value) => setFilter({ minSpend: value })}>
+              <option value="">Any spend</option><option value="10000">PKR 10,000+</option><option value="100000">PKR 100,000+</option><option value="500000">PKR 500,000+</option>
+            </QueryFilter>
+            <QueryFilter label="Orders" value={params.minOrders || ''} onChange={(value) => setFilter({ minOrders: value })}>
+              <option value="">Any count</option><option value="1">1+</option><option value="2">2+</option><option value="5">5+</option>
+            </QueryFilter>
+            <QueryFilter label="Last order" value={params.lastOrderDays || ''} onChange={(value) => setFilter({ lastOrderDays: value })}>
+              <option value="">Any time</option><option value="30">Within 30 days</option><option value="90">Within 90 days</option><option value="180">Within 180 days</option>
+            </QueryFilter>
+            <QueryFilter label="Joined" value={params.joinedFrom ? String(params.joinedFrom) : ''} onChange={(value) => setFilter({ joinedFrom: value })}>
+              <option value="">Any time</option><option value={dateInput(30)}>Last 30 days</option><option value={dateInput(90)}>Last 90 days</option><option value={dateInput(365)}>Last year</option>
+            </QueryFilter>
+            <QueryFilter label="Wishlist" value={params.hasWishlist} onChange={(value) => setFilter({ hasWishlist: value })}>
+              <option value="">Either</option><option value="yes">Has wishlist</option><option value="no">No wishlist</option>
+            </QueryFilter>
+            <QueryFilter label="Abandoned cart" value={params.hasAbandonedCart} onChange={(value) => setFilter({ hasAbandonedCart: value })}>
+              <option value="">Either</option><option value="yes">Has cart</option><option value="no">No cart</option>
+            </QueryFilter>
+            <QueryFilter label="Loyalty" value={params.loyalty} onChange={(value) => setFilter({ loyalty: value })}>
+              <option value="">Either</option><option value="yes">In loyalty</option><option value="no">No account</option>
+            </QueryFilter>
+            <QueryFilter label="Sort" value={params.sort || 'joined'} onChange={(value) => setFilter({ sort: value })}>
+              <option value="joined">Newest joined</option><option value="revenue">Highest revenue</option><option value="orders">Most orders</option><option value="aov">Highest AOV</option><option value="lastOrder">Latest order</option><option value="name">Name A–Z</option>
+            </QueryFilter>
+          </div>
         )}
-        {list === null && !err && <TableSkeleton rows={7} />}
-        {!err && list !== null && list.length === 0 && (
-          <EditorialEmpty
-            title="No customers"
-            description="Customers will appear here as orders and accounts are created. Guest orders do not create accounts."
-          />
-        )}
-        {!err && list?.length > 0 && filtered.length === 0 && (
-          <EditorialEmpty
-            title="No matches"
-            description="No customers match your search or filter."
-            action={<button type="button" onClick={() => { setQ(''); setSegment('all'); }} className={btnGhost}>Clear</button>}
-          />
-        )}
+      </section>
 
-        {!err && paged.length > 0 && (
-          <div className="min-w-0 overflow-x-hidden">
-            <div className="hidden border-b border-white/10 px-1 py-2.5 lg:grid lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1.2fr)_0.55fr_0.85fr_0.7fr_auto] lg:items-center lg:gap-3 xl:grid-cols-[minmax(0,1.35fr)_minmax(0,1.15fr)_0.55fr_0.75fr_0.7fr_0.7fr_0.85fr_auto]">
-              <p className="adm-label">Customer</p>
-              <p className="adm-label">Contact</p>
-              <p className="adm-label">Orders</p>
-              <p className="adm-label">Revenue</p>
-              <p className="adm-label hidden xl:block">Aov</p>
-              <p className="adm-label">Segment</p>
-              <p className="adm-label hidden xl:block">Joined</p>
-              <p className="adm-label" />
+      {selected.length > 0 && (
+        <section className="sticky top-[56px] z-10 mb-5 border border-black bg-white p-3 shadow-sm">
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="mr-2 text-[12px] font-medium text-black">{selected.length} selected</p>
+            <input value={bulkTag} onChange={(event) => setBulkTag(event.target.value)} placeholder="Tag e.g. Bridal" className={`${ctl} !w-36`} />
+            <button type="button" disabled={bulkBusy} onClick={() => bulk('add_tag')} className={btnGhost}><Plus size={11} /> Add tag</button>
+            <button type="button" disabled={bulkBusy} onClick={() => bulk('remove_tag')} className={btnGhost}><X size={11} /> Remove tag</button>
+            <select value={bulkGroup} onChange={(event) => setBulkGroup(event.target.value)} className={ctlInline}>
+              <option value="">Assign group…</option>{groups.map((group) => <option key={group.id || group._id} value={group.id || group._id}>{group.name}</option>)}
+            </select>
+            <button type="button" disabled={bulkBusy} onClick={() => bulk('assign_group')} className={btnGhost}>{bulkBusy ? <Loader2 size={11} className="animate-spin" /> : <Users size={11} />} Assign group</button>
+            <button type="button" onClick={() => setSelected([])} className="ml-auto text-[10px] font-medium uppercase tracking-[0.14em] text-[#777777] hover:text-black">Clear selection</button>
+          </div>
+        </section>
+      )}
+
+      <section>
+        <div className="mb-4 flex items-end justify-between gap-4">
+          <div><p className="adm-index">03 — Customers</p><p className="text-[12px] text-[#777777]">{directory ? `${directory.total.toLocaleString()} matching customer${directory.total === 1 ? '' : 's'}` : 'Loading…'}</p></div>
+          {customers.length > 0 && <label className="inline-flex items-center gap-2 text-[11px] text-[#777777]"><input type="checkbox" checked={allOnPage} onChange={toggleAll} /> Select page</label>}
+        </div>
+
+        {error && <EditorialError title="Customer directory unavailable" description={error} onRetry={load} />}
+        {!directory && !error && <TableSkeleton rows={8} />}
+        {directory && !error && customers.length === 0 && <EditorialEmpty title="No matching customers" description="Search ya filter change karein — kisi customer record ko delete nahi kiya gaya." />}
+
+        {directory && !error && customers.length > 0 && (
+          <div className="border-y border-[#EAEAEA]">
+            <div className="hidden grid-cols-[28px_minmax(180px,1.4fr)_minmax(160px,1.3fr)_78px_86px_86px_105px_100px_96px_92px] gap-3 border-b border-[#EAEAEA] px-2 py-3 xl:grid">
+              {['', 'Customer', 'Email / phone', 'Country', 'Orders', 'Revenue', 'AOV', 'Segment', 'Last order', 'Status'].map((label, index) => <p key={`${label}-${index}`} className="adm-label">{label}</p>)}
             </div>
-
-            {paged.map((c) => {
-              const seg = segmentOf(c);
-              const aov = c.orders > 0 ? Math.round((c.spent || 0) / c.orders) : 0;
-              const initials = (c.name || '?').slice(0, 2).toUpperCase();
-              const expanded = open === c.id;
+            {customers.map((customer) => {
+              const isSelected = selected.includes(String(customer.id));
               return (
-                <Fragment key={c.id}>
-                  <div className={`border-b border-white/10 ${expanded ? 'bg-white/[0.03]' : ''} adm-row-hover`}>
-                    <button
-                      type="button"
-                      onClick={() => toggle(c.id)}
-                      className="hidden w-full text-left lg:grid lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1.2fr)_0.55fr_0.85fr_0.7fr_auto] lg:items-center lg:gap-3 lg:px-1 lg:py-3.5 xl:grid-cols-[minmax(0,1.35fr)_minmax(0,1.15fr)_0.55fr_0.75fr_0.7fr_0.7fr_0.85fr_auto]"
-                    >
-                      <div className="flex min-w-0 items-center gap-3">
-                        <span className="grid h-9 w-9 shrink-0 place-items-center border border-white/15 bg-white text-[10px] font-medium tracking-[0.08em] text-black">
-                          {initials}
-                        </span>
-                        <div className="min-w-0">
-                          <p className="truncate text-[13px] font-medium text-white">{c.name || '—'}</p>
-                          <p className="mt-0.5 truncate text-[11px] text-white/30">{c.email || '—'}</p>
-                        </div>
-                      </div>
-                      <div className="min-w-0">
-                        <p className="truncate text-[12px] text-white/70">{c.email || '—'}</p>
-                        <p className="mt-0.5 truncate font-mono text-[11px] text-white/35">{c.phone || '—'}</p>
-                      </div>
-                      <p className="text-[12px] tabular-nums text-white/80">{c.orders}</p>
-                      <p className="adm-metric text-[13px] text-white">{c.spent ? pkr(c.spent) : '—'}</p>
-                      <p className="hidden text-[12px] tabular-nums text-white/45 xl:block">{aov ? pkr(aov) : '—'}</p>
-                      <MonoStatus label={seg.label} dim={seg.dim} />
-                      <p className="hidden text-[11px] text-white/30 xl:block">{fmtDate(c.createdAt)}</p>
-                      <ChevronDown size={14} className={`ml-auto text-white/30 transition-transform ${expanded ? 'rotate-180' : ''}`} />
-                    </button>
-
-                    <button type="button" onClick={() => toggle(c.id)} className="flex w-full items-start gap-3 px-1 py-4 text-left lg:hidden">
-                      <span className="grid h-10 w-10 shrink-0 place-items-center border border-white/15 bg-white text-[10px] font-medium text-black">
-                        {initials}
-                      </span>
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-[13px] font-medium text-white">{c.name || '—'}</p>
-                        <p className="mt-0.5 truncate text-[11px] text-white/35">{c.email || c.phone || '—'}</p>
-                        <div className="mt-2 flex flex-wrap items-end justify-between gap-2">
-                          <p className="adm-metric text-[14px] text-white">{c.spent ? pkr(c.spent) : '—'}</p>
-                          <p className="text-[11px] text-white/40">{c.orders} order{c.orders === 1 ? '' : 's'}</p>
-                        </div>
-                        <div className="mt-2"><MonoStatus label={seg.label} dim={seg.dim} /></div>
-                      </div>
-                      <ChevronDown size={14} className={`mt-1 shrink-0 text-white/30 transition-transform ${expanded ? 'rotate-180' : ''}`} />
-                    </button>
+                <div key={customer.id} className={`border-b border-[#EAEAEA] last:border-0 ${isSelected ? 'bg-[#F7F7F7]' : ''}`}>
+                  <div className="hidden items-center gap-3 px-2 py-3 xl:grid xl:grid-cols-[28px_minmax(180px,1.4fr)_minmax(160px,1.3fr)_78px_86px_86px_105px_100px_96px_92px]">
+                    <input type="checkbox" checked={isSelected} onChange={() => toggle(customer.id)} aria-label={`Select ${customer.name}`} />
+                    <Link to={`/admin/customers/${customer.id}`} className="min-w-0 group">
+                      <p className="truncate text-[13px] font-medium text-black group-hover:underline">{customer.name || '—'}</p>
+                      <p className="mt-0.5 truncate font-mono text-[10px] text-[#777777]">{customer.id}</p>
+                    </Link>
+                    <Link to={`/admin/customers/${customer.id}`} className="min-w-0"><p className="truncate text-[12px] text-[#555555]">{customer.email || '—'}</p><p className="mt-0.5 truncate text-[11px] text-[#777777]">{customer.phone || customer.whatsApp || '—'}</p></Link>
+                    <p className="text-[12px] text-[#555555]">{customer.country || '—'}</p>
+                    <p className="text-[12px] tabular-nums text-black">{customer.metrics.orders}</p>
+                    <p className="text-[12px] tabular-nums text-black">{pkr(customer.metrics.ltv)}</p>
+                    <p className="text-[12px] tabular-nums text-[#555555]">{customer.metrics.orders ? pkr(customer.metrics.aov) : '—'}</p>
+                    <div><MonoStatus label={customer.engagement.label} dim={customer.engagement.key === 'all' || customer.engagement.key === 'inactive'} /></div>
+                    <p className="text-[11px] text-[#777777]">{when(customer.metrics.lastOrderAt)}</p>
+                    <MonoStatus label={customer.accountStatus} dim={statusDim(customer.accountStatus)} />
                   </div>
-
-                  {expanded && (
-                    <CustomerDossier
-                      customer={c}
-                      orders={orders[c.id]}
-                      tagDraft={tagDraft[c.id] || ''}
-                      tagBusy={tagBusy === c.id}
-                      onDraft={(v) => setTagDraft((t) => ({ ...t, [c.id]: v }))}
-                      onAdd={() => addTag(c)}
-                      onRemove={(t) => removeTag(c, t)}
-                    />
-                  )}
-                </Fragment>
+                  <div className="flex gap-3 px-3 py-4 xl:hidden">
+                    <input className="mt-1" type="checkbox" checked={isSelected} onChange={() => toggle(customer.id)} aria-label={`Select ${customer.name}`} />
+                    <Link to={`/admin/customers/${customer.id}`} className="min-w-0 flex-1">
+                      <div className="flex items-start justify-between gap-3"><div className="min-w-0"><p className="truncate text-[13px] font-medium text-black">{customer.name || '—'}</p><p className="mt-0.5 truncate text-[11px] text-[#777777]">{customer.email || customer.phone || '—'}</p></div><MonoStatus label={customer.engagement.label} dim={customer.engagement.key === 'all'} /></div>
+                      <div className="mt-3 grid grid-cols-3 gap-2 border-t border-[#EAEAEA] pt-3"><div><p className="adm-label">Orders</p><p className="mt-1 text-[12px] text-black">{customer.metrics.orders}</p></div><div><p className="adm-label">Revenue</p><p className="mt-1 text-[12px] text-black">{pkr(customer.metrics.ltv)}</p></div><div><p className="adm-label">Status</p><p className="mt-1 text-[11px] text-[#555555]">{customer.accountStatus}</p></div></div>
+                    </Link>
+                  </div>
+                </div>
               );
             })}
           </div>
         )}
-
-        {filtered.length > 0 && (
-          <EditorialPagination page={page} pages={pageCount} onPage={setPage} />
-        )}
+        {directory && directory.pages > 1 && <div className="mt-6"><EditorialPagination page={page} pages={directory.pages} onPage={(nextPage) => setFilter({ page: nextPage })} /></div>}
       </section>
     </AdminLayout>
-  );
-}
-
-function CustomerDossier({ customer: c, orders, tagDraft, tagBusy, onDraft, onAdd, onRemove }) {
-  const aov = c.orders > 0 ? Math.round((c.spent || 0) / c.orders) : 0;
-  return (
-    <div className="border-b border-white/10 bg-white/[0.02] px-1 py-6 lg:px-4">
-      <section className="mb-8">
-        <p className="adm-index">Customer</p>
-        <div className="grid gap-6 border-y border-white/10 py-5 md:grid-cols-2">
-          <dl className="space-y-2 text-[13px]">
-            <div className="flex justify-between gap-4"><dt className="text-white/35">Name</dt><dd className="text-white">{c.name || '—'}</dd></div>
-            <div className="flex justify-between gap-4"><dt className="text-white/35">Email</dt><dd className="truncate text-white">{c.email || '—'}</dd></div>
-            <div className="flex justify-between gap-4"><dt className="text-white/35">Phone</dt><dd className="font-mono text-white">{c.phone || '—'}</dd></div>
-            <div className="flex justify-between gap-4"><dt className="text-white/35">Joined</dt><dd className="text-white/70">{fmtDate(c.createdAt)}</dd></div>
-          </dl>
-          <div>
-            <p className="adm-label mb-2">Tags</p>
-            <div className="flex flex-wrap items-center gap-2">
-              {(c.tags || []).map((t) => (
-                <span key={t} className="inline-flex items-center gap-1.5 border border-white/20 px-2 py-0.5 text-[9px] font-medium uppercase tracking-[0.14em] text-white/70">
-                  {t}
-                  {tagBusy ? <Loader2 size={9} className="animate-spin" /> : (
-                    <button type="button" onClick={() => onRemove(t)} className="text-white/40 hover:text-white" aria-label={`Remove tag ${t}`}><X size={9} /></button>
-                  )}
-                </span>
-              ))}
-              <div className="inline-flex items-center gap-1">
-                <input
-                  className={`${ctl} !h-7 !w-28`}
-                  placeholder="Add tag…"
-                  value={tagDraft}
-                  onChange={(e) => onDraft(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); onAdd(); } }}
-                  onClick={(e) => e.stopPropagation()}
-                />
-                <button type="button" onClick={onAdd} className="grid h-7 w-7 place-items-center border border-white/20 text-white/60 hover:text-white" aria-label="Add tag">
-                  <Plus size={11} />
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="mb-8">
-        <p className="adm-index">02 — Customer value</p>
-        <div className="adm-divide-x grid grid-cols-3 border-y border-white/10">
-          <div className="px-4 py-5">
-            <p className="adm-label">Lifetime value</p>
-            <p className="adm-metric mt-2 text-[26px] text-white">{c.spent ? pkr(c.spent) : '—'}</p>
-          </div>
-          <div className="px-4 py-5">
-            <p className="adm-label">Orders</p>
-            <p className="adm-metric mt-2 text-[26px] text-white">{c.orders}</p>
-          </div>
-          <div className="px-4 py-5">
-            <p className="adm-label">Aov</p>
-            <p className="adm-metric mt-2 text-[26px] text-white">{aov ? pkr(aov) : '—'}</p>
-          </div>
-        </div>
-      </section>
-
-      <section>
-        <p className="adm-index">03 — Order history</p>
-        {orders == null && <p className="border-y border-white/10 py-6 text-[12px] text-white/35">Loading orders…</p>}
-        {orders && orders.length === 0 && (
-          <p className="border-y border-white/10 py-6 text-[12px] text-white/35">This customer has not placed any orders yet.</p>
-        )}
-        {orders && orders.length > 0 && (
-          <div>
-            <div className="hidden border-b border-white/10 py-2 md:grid md:grid-cols-[1.2fr_1fr_1fr_1fr] md:gap-3">
-              <p className="adm-label">Order</p>
-              <p className="adm-label">Date</p>
-              <p className="adm-label">Status</p>
-              <p className="adm-label text-right">Total</p>
-            </div>
-            {orders.map((o) => (
-              <Link
-                key={o._id}
-                to={`/admin/orders/${o._id}`}
-                className="grid grid-cols-2 items-center gap-2 border-b border-white/5 py-3 md:grid-cols-[1.2fr_1fr_1fr_1fr] md:gap-3 adm-row-hover"
-              >
-                <span className="font-mono text-[12px] text-white">{o.orderNumber}</span>
-                <span className="text-[12px] text-white/40">{fmtDate(o.createdAt)}</span>
-                <span className="col-span-2 md:col-span-1"><MonoStatus label={String(o.status || '').toUpperCase()} dim={['Cancelled', 'Refunded', 'Pending'].includes(o.status)} /></span>
-                <span className="adm-metric text-right text-[13px] text-white">{pkr(o.total)}</span>
-              </Link>
-            ))}
-          </div>
-        )}
-      </section>
-    </div>
   );
 }

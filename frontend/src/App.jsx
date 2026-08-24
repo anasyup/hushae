@@ -68,6 +68,7 @@ const Products = lazy(() => import('./admin/Products'));
 const ProductForm = lazy(() => import('./admin/ProductForm'));
 const Categories = lazy(() => import('./admin/Categories'));
 const Customers = lazy(() => import('./admin/Customers'));
+const CustomerDetail = lazy(() => import('./admin/CustomerDetail'));
 const CustomerGroups = lazy(() => import('./admin/CustomerGroups'));
 const SettingsAdmin = lazy(() => import('./admin/Settings'));
 const SettingsHub = lazy(() => import('./admin/SettingsHub'));
@@ -295,6 +296,7 @@ export default function App() {
           <Route path="/admin/categories" element={<Categories />} />
           <Route path="/admin/customers" element={<Customers />} />
           <Route path="/admin/customers/groups" element={<Suspense fallback={<EditorFallback />}><CustomerGroups /></Suspense>} />
+          <Route path="/admin/customers/:id" element={<CustomerDetail />} />
           <Route path="/admin/settings" element={<SettingsHub />} />
           <Route path="/admin/settings/store" element={<SettingsStore />} />
           <Route path="/admin/settings/payments" element={<SettingsPayments />} />
