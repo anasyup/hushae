@@ -1,195 +1,258 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { ArrowDownRight, ArrowUpRight, BarChart3, Globe, Package, ShoppingBag, TrendingUp, Users } from 'lucide-react';
+import { Area, AreaChart, Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import { pkr } from '../lib/format';
 import AdminLayout from './AdminLayout';
 import PageHeader from './components/PageHeader';
-import { ctlInline, EditorialError, TableSkeleton } from './orders/orderUi';
-import { MonoLine, RankedBars } from './analytics/charts';
+
+/* ============================================================================
+ * ANALYTICS OVERVIEW — Phase 8: Unified Business Intelligence
+ * Every metric from shared analyticsService.js definitions.
+ * ========================================================================== */
 
 const RANGES = [
-  { v: 'today', label: 'Today' },
-  { v: '7d', label: 'Last 7 days' },
-  { v: '30d', label: 'Last 30 days' },
-  { v: '90d', label: 'Last 90 days' },
+  { v: '7d', label: '7 days' },
+  { v: '30d', label: '30 days' },
+  { v: '90d', label: '90 days' },
+  { v: 'this_year', label: 'This year' },
   { v: 'all', label: 'All time' },
-  { v: 'custom', label: 'Custom range' },
 ];
 
-export default function Analytics() {
-  const { auth, logout } = useApp();
-  const [range, setRange] = useState('30d');
-  const [customFrom, setCustomFrom] = useState(new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10));
-  const [customTo, setCustomTo] = useState(new Date().toISOString().slice(0, 10));
-  const [a, setA] = useState(null);
-  const [err, setErr] = useState('');
-  const [tick, setTick] = useState(0);
-
-  useEffect(() => {
-    setA(null); setErr('');
-    const qs = range === 'custom' ? `range=custom&from=${customFrom}&to=${customTo}` : `range=${range}`;
-    api(`/analytics/overview?${qs}`, { token: auth.token })
-      .then(setA)
-      .catch((e) => { if (e?.status === 401) { logout(); return; } setErr('Failed to load analytics — please try again.'); });
-  }, [auth, range, tick]); // eslint-disable-line
-
-  const controls = (
-    <div className="flex flex-wrap items-center gap-2">
-      <select value={range} onChange={(e) => setRange(e.target.value)} className={`${ctlInline} w-auto`} aria-label="Date range">
-        {RANGES.map((r) => <option key={r.v} value={r.v}>{r.label}</option>)}
-      </select>
-      {range === 'custom' && (
-        <>
-          <input type="date" value={customFrom} onChange={(e) => setCustomFrom(e.target.value)} className={`${ctlInline} [color-scheme:dark]`} aria-label="From" />
-          <span className="text-[11px] uppercase tracking-[0.14em] text-[#AAAAAA]">to</span>
-          <input type="date" value={customTo} onChange={(e) => setCustomTo(e.target.value)} className={`${ctlInline} [color-scheme:dark]`} aria-label="To" />
-        </>
+function KpiCard({ label, value, growth, icon: Icon, format = 'number' }) {
+  const display = format === 'money' ? pkr(value) : typeof value === 'number' ? value.toLocaleString() : value;
+  const hasGrowth = growth !== null && growth !== undefined;
+  return (
+    <div className="rounded-md border border-[#EAEAEA] bg-white p-5">
+      <div className="flex items-center justify-between">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#999999]">{label}</p>
+        {Icon && <Icon size={14} strokeWidth={1.5} className="text-[#DCDCDC]" />}
+      </div>
+      <p className="mt-3 text-[24px] font-semibold leading-none tracking-tight text-black" style={{ fontVariantNumeric: 'tabular-nums' }}>{display}</p>
+      {hasGrowth && (
+        <div className="mt-2 flex items-center gap-1">
+          {growth >= 0 ? <ArrowUpRight size={12} className="text-black" /> : <ArrowDownRight size={12} className="text-[#777777]" />}
+          <span className={`text-[11px] font-medium ${growth >= 0 ? 'text-black' : 'text-[#777777]'}`}>{Math.abs(growth)}%</span>
+          <span className="text-[10px] text-[#AAAAAA]">vs prev period</span>
+        </div>
       )}
     </div>
   );
+}
 
-  if (!a) {
-    return (
-      <AdminLayout title="Analytics">
-        <PageHeader title="Analytics" description="Store performance and business intelligence." actions={controls} />
-        {err
-          ? <EditorialError title="Unable to load analytics" description={err} onRetry={() => setTick((t) => t + 1)} />
-          : <TableSkeleton rows={8} />}
-      </AdminLayout>
-    );
-  }
+function Section({ title, children }) {
+  return (
+    <div className="rounded-md border border-[#EAEAEA] bg-white">
+      <div className="border-b border-[#EAEAEA] px-5 py-3">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#AAAAAA]">{title}</p>
+      </div>
+      <div className="p-5">{children}</div>
+    </div>
+  );
+}
 
-  const delta = (v, p) => {
-    if (!a.prev) return null;
-    if (p === 0) return v > 0 ? { txt: 'new', up: true } : { txt: '0%', up: null };
-    const pc = Math.round(((v - p) / p) * 100);
-    return { txt: `${pc >= 0 ? '+' : ''}${pc}%`, up: pc >= 0 };
+export default function Analytics() {
+  const { auth, toast } = useApp();
+  const [range, setRange] = useState('30d');
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const load = async () => {
+    setLoading(true);
+    try {
+      const d = await api(`/analytics/overview?range=${range}`, { token: auth.token });
+      setData(d);
+    } catch { toast('Failed to load analytics'); }
+    setLoading(false);
   };
-  const Delta = ({ d }) => {
-    if (!d) return null;
-    if (d.up === null) return <span className="ml-2 text-[11px] uppercase tracking-[0.12em] text-[#AAAAAA]">{d.txt}</span>;
-    return (
-      <span className={`ml-2 text-[11px] tabular-nums ${d.up ? 'text-[#777777]' : 'text-[#AAAAAA]'}`}>
-        {d.up ? '↑' : '↓'} {d.txt}
-      </span>
-    );
-  };
+  useEffect(() => { load(); }, [range]); // eslint-disable-line
 
-  const kpis = [
-    { label: 'Revenue', value: pkr(a.kpis.revenue), d: delta(a.kpis.revenue, a.prev?.revenue) },
-    { label: 'Orders', value: a.kpis.orders, d: delta(a.kpis.orders, a.prev?.orders) },
-    { label: 'Aov', value: pkr(a.kpis.aov) },
-    { label: 'Items sold', value: a.kpis.itemsSold },
-    { label: 'Sessions', value: a.kpis.sessions },
-    { label: 'Conversion', value: `${a.kpis.conversion}%` },
-  ];
+  if (loading) return <AdminLayout title="Analytics"><div className="grid gap-4 md:grid-cols-4">{[1,2,3,4].map(i => <div key={i} className="h-28 v2-skeleton rounded-md" />)}</div></AdminLayout>;
 
-  const catName = (s) => s.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+  const k = data?.kpis || {};
+  const series = data?.series || [];
+  const top = data?.topProducts || [];
+  const status = data?.breakdowns?.status || {};
+  const payment = data?.breakdowns?.payment || {};
+  const cities = data?.breakdowns?.cities || [];
+  const funnel = data?.funnel || {};
 
   return (
     <AdminLayout title="Analytics">
-      <PageHeader title="Analytics" description="Store performance and business intelligence." actions={controls} />
-      {a.prev && range !== 'custom' && (
-        <p className="mb-8 text-[11px] uppercase tracking-[0.14em] text-[#AAAAAA]">
-          Compared with the previous {RANGES.find((r) => r.v === range)?.label.toLowerCase()}
-        </p>
+      <PageHeader
+        title="Analytics"
+        description="Unified business intelligence — revenue, customers, products, orders."
+      />
+
+      {/* Date range */}
+      <div className="mb-6 flex gap-2">
+        {RANGES.map(r => (
+          <button key={r.v} onClick={() => setRange(r.v)}
+            className={`rounded-md px-4 py-2 text-[12px] font-medium transition ${range === r.v ? 'bg-black text-white' : 'border border-[#EAEAEA] text-[#555555] hover:border-[#DCDCDC]'}`}>
+            {r.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Primary KPIs */}
+      <div className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <KpiCard label="Revenue" value={k.revenue || 0} growth={k.revenueGrowth} icon={TrendingUp} format="money" />
+        <KpiCard label="Orders" value={k.orders || 0} growth={k.ordersGrowth} icon={ShoppingBag} />
+        <KpiCard label="AOV" value={k.aov || 0} icon={BarChart3} format="money" />
+        <KpiCard label="New Customers" value={k.newCustomers || 0} icon={Users} />
+      </div>
+
+      <div className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <KpiCard label="Unique Customers" value={k.uniqueCustomers || 0} />
+        <KpiCard label="Repeat Rate" value={`${k.repeatRate || 0}%`} />
+        <KpiCard label="Refunds" value={k.refunds || 0} format="money" />
+        <KpiCard label="Discounts Given" value={k.discounts || 0} format="money" />
+      </div>
+
+      {/* Sales Trend Chart */}
+      {series.length > 1 && (
+        <div className="mb-6">
+          <Section title="Sales Trend">
+            <div className="h-64 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={series} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="rev-grad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#000000" stopOpacity={0.08} />
+                      <stop offset="100%" stopColor="#000000" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#F0F0F0" vertical={false} />
+                  <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#AAAAAA' }} tickLine={false} axisLine={false} tickFormatter={v => v.slice(5)} />
+                  <YAxis tick={{ fontSize: 10, fill: '#AAAAAA' }} tickLine={false} axisLine={false} tickFormatter={v => v >= 1000 ? `${(v/1000).toFixed(0)}k` : v} />
+                  <Tooltip contentStyle={{ borderRadius: 6, border: '1px solid #EAEAEA', background: '#FFF', fontSize: 12 }} formatter={(v, name) => [name === 'revenue' ? pkr(v) : v, name === 'revenue' ? 'Revenue' : 'Orders']} />
+                  <Area type="monotone" dataKey="revenue" stroke="#000000" strokeWidth={2} fill="url(#rev-grad)" dot={false} />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </Section>
+        </div>
       )}
 
-      <section className="mb-10">
-        <p className="adm-index">01 — Performance</p>
-        <div className="adm-divide-x grid grid-cols-2 border-y border-[#EAEAEA] sm:grid-cols-3 xl:grid-cols-6">
-          {kpis.map((x) => (
-            <div key={x.label} className="px-4 py-6 sm:px-5">
-              <p className="adm-label">{x.label}</p>
-              <p className="adm-metric mt-3 text-[22px] leading-none text-black xl:text-[26px]">
-                {x.value}
-                <Delta d={x.d} />
-              </p>
+      {/* Orders Trend */}
+      {series.length > 1 && (
+        <div className="mb-6">
+          <Section title="Orders Trend">
+            <div className="h-48 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={series} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#F0F0F0" vertical={false} />
+                  <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#AAAAAA' }} tickLine={false} axisLine={false} tickFormatter={v => v.slice(5)} />
+                  <YAxis tick={{ fontSize: 10, fill: '#AAAAAA' }} tickLine={false} axisLine={false} allowDecimals={false} />
+                  <Tooltip contentStyle={{ borderRadius: 6, border: '1px solid #EAEAEA', background: '#FFF', fontSize: 12 }} />
+                  <Bar dataKey="orders" fill="#DCDCDC" radius={[2, 2, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
             </div>
-          ))}
+          </Section>
         </div>
-      </section>
+      )}
 
-      <section className="mb-10">
-        <p className="adm-index">02 — Sales</p>
-        <div className="mb-8">
-          <p className="adm-label mb-4">Revenue over time</p>
-          <MonoLine data={a.series} k="revenue" fmt={(v) => pkr(v)} />
-        </div>
-        <div className="mb-8">
-          <p className="adm-label mb-4">Orders over time</p>
-          <MonoLine data={a.series} k="orders" height={160} />
-        </div>
-        <div className="grid gap-10 lg:grid-cols-2">
-          <div>
-            <p className="adm-label mb-3">By payment</p>
-            <RankedBars rows={a.byPayment.map((p) => ({ label: p.method, value: p.revenue }))} fmt={(v) => pkr(v)} />
-          </div>
-          <div>
-            <p className="adm-label mb-3">By status</p>
-            <RankedBars rows={a.byStatus.map((s) => ({ label: s.status, value: s.count }))} />
-          </div>
-        </div>
-      </section>
+      {/* Breakdowns */}
+      <div className="mb-6 grid gap-6 lg:grid-cols-2">
+        {/* Top Products */}
+        <Section title="Top Products">
+          {top.length === 0 ? <p className="text-[13px] text-[#AAAAAA]">No product data in this period.</p> : (
+            <div className="space-y-3">
+              {top.slice(0, 8).map((p, i) => (
+                <div key={p.name} className="flex items-center gap-3">
+                  <span className="w-5 text-[14px] font-semibold text-[#DCDCDC]" style={{ fontVariantNumeric: 'tabular-nums' }}>{String(i+1).padStart(2, '0')}</span>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-[13px] font-medium text-black">{p.name}</p>
+                    <p className="text-[11px] text-[#999999]">{p.qty} units</p>
+                  </div>
+                  <p className="text-[13px] font-semibold text-black" style={{ fontVariantNumeric: 'tabular-nums' }}>{pkr(p.revenue)}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </Section>
 
-      <section className="mb-10">
-        <p className="adm-index">03 — Customers</p>
-        <div className="adm-divide-x mb-8 grid grid-cols-2 border-y border-[#EAEAEA]">
-          <div className="px-5 py-6">
-            <p className="adm-label">First-time buyers</p>
-            <p className="adm-metric mt-3 text-[32px] leading-none text-black">{a.customerSplit.fresh}</p>
+        {/* Order Status */}
+        <Section title="Orders by Status">
+          <div className="space-y-2">
+            {Object.entries(status).sort((a, b) => b[1] - a[1]).map(([s, n]) => (
+              <div key={s} className="flex items-center justify-between">
+                <span className="text-[13px] text-[#555555]">{s}</span>
+                <span className="text-[13px] font-semibold text-black" style={{ fontVariantNumeric: 'tabular-nums' }}>{n}</span>
+              </div>
+            ))}
           </div>
-          <div className="px-5 py-6">
-            <p className="adm-label">Returning buyers</p>
-            <p className="adm-metric mt-3 text-[32px] leading-none text-black">{a.customerSplit.returning}</p>
-          </div>
-        </div>
-        <p className="adm-label mb-3">Orders by city</p>
-        <RankedBars rows={a.orderCities.map((c) => ({ label: c.city, value: c.orders }))} />
-      </section>
+        </Section>
+      </div>
 
-      <section className="mb-10">
-        <p className="adm-index">04 — Products</p>
-        <div className="grid gap-10 lg:grid-cols-2">
-          <div>
-            <p className="adm-label mb-3">By product</p>
-            <RankedBars rows={a.topProducts.map((p) => ({ label: p.name, value: p.revenue, sub: `· ${p.qty}` }))} fmt={(v) => pkr(v)} />
+      <div className="mb-6 grid gap-6 lg:grid-cols-2">
+        {/* Payment Methods */}
+        <Section title="Revenue by Payment Method">
+          <div className="space-y-2">
+            {Object.entries(payment).sort((a, b) => b[1] - a[1]).map(([m, v]) => (
+              <div key={m} className="flex items-center justify-between">
+                <span className="text-[13px] text-[#555555]">{m}</span>
+                <span className="text-[13px] font-semibold text-black" style={{ fontVariantNumeric: 'tabular-nums' }}>{pkr(v)}</span>
+              </div>
+            ))}
           </div>
-          <div>
-            <p className="adm-label mb-3">By category</p>
-            <RankedBars rows={a.byCategory.map((c) => ({ label: catName(c.cat), value: c.revenue }))} fmt={(v) => pkr(v)} />
-          </div>
-        </div>
-      </section>
+        </Section>
 
-      <section>
-        <p className="adm-index">05 — Traffic</p>
-        <div className="mb-8">
-          <p className="adm-label mb-4">Sessions over time</p>
-          <MonoLine data={a.traffic.sessionsSeries} k="sessions" height={160} />
-        </div>
-        <div className="grid gap-10 lg:grid-cols-2">
-          <div>
-            <p className="adm-label mb-3">By device</p>
-            <RankedBars rows={a.traffic.byDevice.map((d) => ({ label: d.device, value: d.sessions }))} />
+        {/* Top Cities */}
+        <Section title="Revenue by City">
+          {cities.length === 0 ? <p className="text-[13px] text-[#AAAAAA]">No city data.</p> : (
+            <div className="space-y-2">
+              {cities.slice(0, 8).map(c => (
+                <div key={c.city} className="flex items-center justify-between">
+                  <span className="text-[13px] text-[#555555]">{c.city}</span>
+                  <span className="text-[13px] font-semibold text-black" style={{ fontVariantNumeric: 'tabular-nums' }}>{pkr(c.revenue)}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </Section>
+      </div>
+
+      {/* Conversion Funnel */}
+      {(funnel.pageviews || 0) > 0 && (
+        <Section title="Conversion Funnel">
+          <div className="grid gap-3 sm:grid-cols-4">
+            {[
+              { label: 'Pageviews', value: funnel.pageviews },
+              { label: 'Add to Cart', value: funnel.addToCart },
+              { label: 'Checkout', value: funnel.checkout },
+              { label: 'Purchased', value: funnel.purchased },
+            ].map((s, i) => (
+              <div key={s.label} className="rounded-md border border-[#EAEAEA] p-4 text-center">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#999999]">{s.label}</p>
+                <p className="mt-2 text-[20px] font-semibold text-black" style={{ fontVariantNumeric: 'tabular-nums' }}>{(s.value || 0).toLocaleString()}</p>
+                {i > 0 && funnel.pageviews > 0 && (
+                  <p className="mt-1 text-[11px] text-[#AAAAAA]">{Math.round((s.value / funnel.pageviews) * 100)}% of views</p>
+                )}
+              </div>
+            ))}
           </div>
-          <div>
-            <p className="adm-label mb-3">By city</p>
-            <RankedBars rows={a.traffic.visitCities.map((c) => ({ label: c.city, value: c.sessions }))} empty="City data visits aane par dikhegi" />
-          </div>
-          <div>
-            <p className="adm-label mb-3">Top pages</p>
-            <RankedBars rows={a.traffic.landing.map((l) => ({ label: l.path, value: l.views }))} />
-          </div>
-          <div>
-            <p className="adm-label mb-3">Referrers</p>
-            <RankedBars
-              rows={a.traffic.refs.map((r) => ({ label: r.ref.replace(/^https?:\/\//, '').slice(0, 38), value: r.views }))}
-              empty="All traffic is direct so far — once links are shared, sources will appear here"
-            />
-          </div>
-        </div>
-      </section>
+        </Section>
+      )}
+
+      {/* Quick Links */}
+      <div className="mt-6 grid gap-2 sm:grid-cols-3 lg:grid-cols-6">
+        {[
+          { to: '/admin/insights', label: 'Deep Insights' },
+          { to: '/admin/reports', label: 'Reports' },
+          { to: '/admin/finance', label: 'Finance & P&L' },
+          { to: '/admin/search-analytics', label: 'Search Analytics' },
+          { to: '/admin/live', label: 'Live View' },
+          { to: '/admin/growth', label: 'Growth' },
+        ].map(l => (
+          <Link key={l.label} to={l.to} className="rounded-md border border-[#EAEAEA] p-3 text-center text-[12px] font-medium text-black transition hover:border-[#DCDCDC] hover:bg-[#FAFAFA]">
+            {l.label}
+          </Link>
+        ))}
+      </div>
     </AdminLayout>
   );
 }
