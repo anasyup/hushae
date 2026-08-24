@@ -160,19 +160,19 @@ export default function OrdersDesk() {
               {showNotes && (
                 <>
                   <div className="fixed inset-0 z-30" onClick={() => setShowNotes(false)} />
-                  <div className="absolute right-0 top-10 z-40 max-h-96 w-80 overflow-y-auto border border-white/15 bg-[#0D0D0D]">
-                    <div className="flex items-center justify-between border-b border-white/10 px-4 py-2.5">
+                  <div className="absolute right-0 top-10 z-40 max-h-96 w-80 overflow-y-auto border border-[#EAEAEA] bg-[#0D0D0D]">
+                    <div className="flex items-center justify-between border-b border-[#EAEAEA] px-4 py-2.5">
                       <p className="adm-label">Notifications</p>
-                      <button onClick={() => setShowNotes(false)} className="text-white/35 hover:text-white"><X size={14} /></button>
+                      <button onClick={() => setShowNotes(false)} className="text-[#AAAAAA] hover:text-black"><X size={14} /></button>
                     </div>
-                    {notes.items.length === 0 && <p className="px-4 py-10 text-center text-[12px] text-white/35">Nothing yet</p>}
+                    {notes.items.length === 0 && <p className="px-4 py-10 text-center text-[12px] text-[#AAAAAA]">Nothing yet</p>}
                     {notes.items.map((n) => (
                       <button key={n._id} onClick={() => { if (n.link) nav(n.link); setShowNotes(false); }}
-                        className="flex w-full gap-3 border-b border-white/5 px-4 py-3 text-left hover:bg-white/[0.04]">
+                        className="flex w-full gap-3 border-b border-[#F0F0F0] px-4 py-3 text-left hover:bg-[#FAFAFA]">
                         <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-white/40" />
                         <span className="min-w-0">
-                          <span className="block truncate text-[12px] text-white">{n.title}</span>
-                          {n.body && <span className="mt-0.5 block truncate text-[11px] text-white/35">{n.body}</span>}
+                          <span className="block truncate text-[12px] text-black">{n.title}</span>
+                          {n.body && <span className="mt-0.5 block truncate text-[11px] text-[#AAAAAA]">{n.body}</span>}
                         </span>
                       </button>
                     ))}
@@ -193,18 +193,18 @@ export default function OrdersDesk() {
       {/* 01 — ORDER OVERVIEW */}
       <section className="mb-10">
         <p className="adm-index">01 — Order overview</p>
-        <div className="adm-divide-x grid grid-cols-2 border-y border-white/10 lg:grid-cols-4">
+        <div className="adm-divide-x grid grid-cols-2 border-y border-[#EAEAEA] lg:grid-cols-4">
           {metrics.map((m) => (
             <div key={m.label} className="px-5 py-6">
               <p className="adm-label">{m.label}</p>
-              <p className="adm-metric mt-3 text-[32px] leading-none text-white">
+              <p className="adm-metric mt-3 text-[32px] leading-none text-black">
                 {typeof m.value === 'number' ? m.value.toLocaleString() : m.value}
               </p>
             </div>
           ))}
         </div>
         {counts?.revenue != null && (
-          <p className="mt-3 text-[11px] uppercase tracking-[0.14em] text-white/30">
+          <p className="mt-3 text-[11px] uppercase tracking-[0.14em] text-[#AAAAAA]">
             {pkr(counts.revenue)} total value
             {loading ? ' · Loading…' : ` · ${data.total} in this view`}
           </p>
@@ -214,7 +214,7 @@ export default function OrdersDesk() {
       {/* 02 — ORDER WORKSPACE */}
       <section className="mb-10">
         <p className="adm-index">02 — Order workspace</p>
-        <div className="flex gap-1 overflow-x-auto border-b border-white/10 pb-px">
+        <div className="flex gap-1 overflow-x-auto border-b border-[#EAEAEA] pb-px">
           {GROUPS.map((g) => {
             const n = g.key === 'all' ? counts?.total : counts?.byGroup?.[g.key];
             const active = group === g.key;
@@ -226,12 +226,12 @@ export default function OrdersDesk() {
                 aria-pressed={active}
                 className={`shrink-0 px-3 py-2.5 text-[10px] font-medium uppercase tracking-[0.14em] transition-colors ${
                   active
-                    ? 'border-b border-white text-white'
-                    : 'border-b border-transparent text-white/35 hover:text-white/75'
+                    ? 'border-b border-white text-black'
+                    : 'border-b border-transparent text-[#AAAAAA] hover:text-white/75'
                 }`}
               >
                 {g.label}
-                {n != null && <span className={`ml-2 tabular-nums ${active ? 'text-white/70' : 'text-white/25'}`}>{n}</span>}
+                {n != null && <span className={`ml-2 tabular-nums ${active ? 'text-[#555555]' : 'text-white/25'}`}>{n}</span>}
               </button>
             );
           })}
@@ -267,9 +267,9 @@ export default function OrdersDesk() {
         />
 
         {selectAllMatching && data.total > orders.length && (
-          <p className="border-b border-white/10 py-2.5 text-[12px] text-white/45">
-            All <span className="text-white">{data.total}</span> matching orders are targeted — actions apply beyond this page.
-            <button onClick={() => setSelectAllMatching(false)} className="ml-2 text-white/70 underline underline-offset-2 hover:text-white">
+          <p className="border-b border-[#EAEAEA] py-2.5 text-[12px] text-[#999999]">
+            All <span className="text-black">{data.total}</span> matching orders are targeted — actions apply beyond this page.
+            <button onClick={() => setSelectAllMatching(false)} className="ml-2 text-[#555555] underline underline-offset-2 hover:text-black">
               Limit to this page
             </button>
           </p>
@@ -301,7 +301,7 @@ export default function OrdersDesk() {
 
         {orders.length > 0 && (
           <div className="min-w-0 overflow-x-hidden">
-            <div className="hidden border-b border-white/10 px-1 py-2.5 lg:grid lg:grid-cols-[32px_minmax(0,1.2fr)_minmax(0,1.15fr)_0.5fr_0.9fr_0.85fr_0.95fr_auto] lg:items-center lg:gap-3 xl:grid-cols-[32px_minmax(0,1.15fr)_minmax(0,1.1fr)_0.85fr_0.55fr_0.85fr_0.85fr_0.95fr_0.7fr_auto]">
+            <div className="hidden border-b border-[#EAEAEA] px-1 py-2.5 lg:grid lg:grid-cols-[32px_minmax(0,1.2fr)_minmax(0,1.15fr)_0.5fr_0.9fr_0.85fr_0.95fr_auto] lg:items-center lg:gap-3 xl:grid-cols-[32px_minmax(0,1.15fr)_minmax(0,1.1fr)_0.85fr_0.55fr_0.85fr_0.85fr_0.95fr_0.7fr_auto]">
               <input
                 type="checkbox"
                 checked={allOnPage}
@@ -319,7 +319,7 @@ export default function OrdersDesk() {
               <p className="adm-label hidden xl:block">Status</p>
               <p className="adm-label" />
             </div>
-            <div className="flex items-center gap-2 border-b border-white/10 px-1 py-2 lg:hidden">
+            <div className="flex items-center gap-2 border-b border-[#EAEAEA] px-1 py-2 lg:hidden">
               <input
                 type="checkbox"
                 checked={allOnPage}
@@ -327,7 +327,7 @@ export default function OrdersDesk() {
                 aria-label="Select all on this page"
                 className="h-3.5 w-3.5 cursor-pointer rounded-none border-white/30 bg-transparent accent-white"
               />
-              <span className="text-[11px] text-white/35">Select page</span>
+              <span className="text-[11px] text-[#AAAAAA]">Select page</span>
             </div>
 
             {orders.map((o) => (
@@ -358,21 +358,21 @@ export default function OrdersDesk() {
 
       {showShortcuts && (
         <div className="fixed inset-0 z-50 grid place-items-center bg-black/60 p-4" onClick={() => setShowShortcuts(false)}>
-          <div className="w-full max-w-sm border border-white/15 bg-[#0D0D0D] p-6" onClick={(e) => e.stopPropagation()}>
+          <div className="w-full max-w-sm border border-[#EAEAEA] bg-[#0D0D0D] p-6" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between">
-              <p className="text-[13px] font-medium text-white">Shortcuts</p>
-              <button onClick={() => setShowShortcuts(false)} className="text-white/35 hover:text-white"><X size={15} /></button>
+              <p className="text-[13px] font-medium text-black">Shortcuts</p>
+              <button onClick={() => setShowShortcuts(false)} className="text-[#AAAAAA] hover:text-black"><X size={15} /></button>
             </div>
             <dl className="mt-4 space-y-2">
               {[['/', 'Focus search'], ['P', 'Print packing slips'], ['A', 'Advance stage'],
                 ['M', 'Mark paid'], ['Esc', 'Clear selection'], ['?', 'This panel']].map(([k, v]) => (
                 <div key={k} className="flex items-center justify-between text-[12px]">
-                  <dt className="text-white/45">{v}</dt>
-                  <dd><kbd className="border border-white/15 px-1.5 py-0.5 font-mono text-[11px] text-white/70">{k}</kbd></dd>
+                  <dt className="text-[#999999]">{v}</dt>
+                  <dd><kbd className="border border-[#EAEAEA] px-1.5 py-0.5 font-mono text-[11px] text-[#555555]">{k}</kbd></dd>
                 </div>
               ))}
             </dl>
-            <p className="mt-4 text-[11px] text-white/30">Action keys apply to the current selection.</p>
+            <p className="mt-4 text-[11px] text-[#AAAAAA]">Action keys apply to the current selection.</p>
           </div>
         </div>
       )}
@@ -406,13 +406,13 @@ function IssueModal({ order, token, toast, onClose, onSaved }) {
 
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-black/60 p-4" role="dialog" aria-modal="true">
-      <div className="w-full max-w-md border border-white/15 bg-[#0D0D0D] p-6">
+      <div className="w-full max-w-md border border-[#EAEAEA] bg-[#0D0D0D] p-6">
         <div className="flex items-start justify-between">
           <div>
-            <p className="text-[14px] font-medium text-white">Log a customer issue</p>
-            <p className="mt-0.5 font-mono text-[12px] text-white/35">{order.orderNumber}</p>
+            <p className="text-[14px] font-medium text-black">Log a customer issue</p>
+            <p className="mt-0.5 font-mono text-[12px] text-[#AAAAAA]">{order.orderNumber}</p>
           </div>
-          <button onClick={onClose} className="text-white/35 hover:text-white"><X size={16} /></button>
+          <button onClick={onClose} className="text-[#AAAAAA] hover:text-black"><X size={16} /></button>
         </div>
 
         <div className="mt-5 space-y-4">

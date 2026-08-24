@@ -84,17 +84,17 @@ export default function Insights() {
         <div className="adm-divide-x grid grid-cols-1 border-y border-[#EAEAEA] sm:grid-cols-3">
           <div className="px-5 py-6">
             <p className="adm-label">Peak hour</p>
-            <p className="adm-metric mt-3 text-[32px] leading-none text-white">{String(peakHour.hour).padStart(2, '0')}:00</p>
+            <p className="adm-metric mt-3 text-[32px] leading-none text-black">{String(peakHour.hour).padStart(2, '0')}:00</p>
             <p className="mt-2 text-[11px] text-[#AAAAAA]">{peakHour.orders} orders</p>
           </div>
           <div className="px-5 py-6">
             <p className="adm-label">Repeat rate</p>
-            <p className="adm-metric mt-3 text-[32px] leading-none text-white">{d.repeat.rate}%</p>
+            <p className="adm-metric mt-3 text-[32px] leading-none text-black">{d.repeat.rate}%</p>
             <p className="mt-2 text-[11px] text-[#AAAAAA]">{d.repeat.repeat} of {d.repeat.total} buyers came back</p>
           </div>
           <div className="px-5 py-6">
             <p className="adm-label">Top city</p>
-            <p className="adm-metric mt-3 text-[28px] leading-none text-white">{d.topCities[0]?._id || '—'}</p>
+            <p className="adm-metric mt-3 text-[28px] leading-none text-black">{d.topCities[0]?._id || '—'}</p>
             <p className="mt-2 text-[11px] text-[#AAAAAA]">
               {d.topCities[0] ? `${pkr(d.topCities[0].revenue)} · ${d.topCities[0].orders} orders` : ''}
             </p>
@@ -159,11 +159,11 @@ export default function Insights() {
                   <span className="w-6 shrink-0 text-[10px] uppercase tracking-[0.16em] text-[#AAAAAA]">{String(i + 1).padStart(2, '0')}</span>
                   {p.image && <Img src={p.image} alt="" className="h-10 w-8 shrink-0 border border-[#EAEAEA] object-cover" />}
                   <div className="min-w-0 flex-1">
-                    <p className="line-clamp-1 text-[12px] text-white">{p.name}</p>
+                    <p className="line-clamp-1 text-[12px] text-black">{p.name}</p>
                     <p className="text-[11px] text-[#AAAAAA]">{p.unitsSold} sold · {pkr(p.revenue)}</p>
                   </div>
                   <div className="text-right">
-                    <p className="adm-metric text-[13px] text-white">{pkr(p.profit)}</p>
+                    <p className="adm-metric text-[13px] text-black">{pkr(p.profit)}</p>
                     <p className="text-[10px] uppercase tracking-[0.12em] text-[#AAAAAA]">profit</p>
                   </div>
                 </li>
@@ -196,8 +196,8 @@ export default function Insights() {
                       <td className="py-2.5 font-mono text-[12px] text-[#333333]">{c._id}</td>
                       <td className="py-2.5 text-right tabular-nums text-[#555555]">{c.newCustomers}</td>
                       <td className="py-2.5 text-right tabular-nums text-[#555555]">{c.repeatCustomers}</td>
-                      <td className="py-2.5 text-right tabular-nums text-white">{pct}%</td>
-                      <td className="py-2.5 text-right tabular-nums text-white">{pkr(c.totalSpent)}</td>
+                      <td className="py-2.5 text-right tabular-nums text-black">{pct}%</td>
+                      <td className="py-2.5 text-right tabular-nums text-black">{pkr(c.totalSpent)}</td>
                     </tr>
                   );
                 })}

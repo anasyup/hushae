@@ -338,7 +338,7 @@ export default function ProductForm() {
             <Field label="Tags" hint="Used for filters and smart collections">
               <div className="flex flex-wrap gap-1.5 rounded-md border border-[#DCDCDC] bg-white px-3 py-2.5">
                 {(f.tags || []).map((t, i) => (
-                  <span key={t + i} className="inline-flex items-center gap-1 rounded-sm bg-black py-0.5 pl-2.5 pr-1 text-[11px] font-medium uppercase tracking-[0.08em] text-white">
+                  <span key={t + i} className="inline-flex items-center gap-1 rounded-sm bg-black py-0.5 pl-2.5 pr-1 text-[11px] font-medium uppercase tracking-[0.08em] text-black">
                     {t}
                     <button type="button" onClick={() => set('tags', (f.tags || []).filter((_, j) => j !== i))} className="grid h-4 w-4 place-items-center hover:opacity-60">×</button>
                   </span>

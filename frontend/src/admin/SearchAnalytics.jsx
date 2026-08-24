@@ -33,7 +33,7 @@ function DataTable({ title, description, rows, cols, empty }) {
               {rows.map((r, i) => (
                 <tr key={i} className="border-b border-[#F0F0F0]">
                   {cols.map((c) => (
-                    <td key={c.key} className={`py-2.5 ${c.align === 'right' ? 'text-right tabular-nums text-[#555555]' : 'text-white'}`}>
+                    <td key={c.key} className={`py-2.5 ${c.align === 'right' ? 'text-right tabular-nums text-[#555555]' : 'text-black'}`}>
                       {c.render ? c.render(r) : r[c.key]}
                     </td>
                   ))}
@@ -116,7 +116,7 @@ export default function SearchAnalytics() {
           ].map((x) => (
             <div key={x.label} className="px-4 py-6 sm:px-5">
               <p className="adm-label">{x.label}</p>
-              <p className="adm-metric mt-3 text-[22px] leading-none text-white">{x.value}</p>
+              <p className="adm-metric mt-3 text-[22px] leading-none text-black">{x.value}</p>
               {x.sub && <p className="mt-2 text-[11px] text-[#AAAAAA]">{x.sub}</p>}
             </div>
           ))}
@@ -140,10 +140,10 @@ export default function SearchAnalytics() {
             rows={d?.zero || []}
             empty="Nothing yet — every search so far has returned results."
             cols={[
-              { key: 'term', label: 'Search term', render: (r) => <span className="text-white">{r.term}</span> },
+              { key: 'term', label: 'Search term', render: (r) => <span className="text-black">{r.term}</span> },
               { key: 'count', label: 'Times', align: 'right', render: (r) => num(r.count) },
               { key: 'act', label: '', align: 'right', render: (r) => (
-                <Link to={`/admin/settings/search?add=${encodeURIComponent(r.term)}`} className="text-[11px] uppercase tracking-[0.14em] text-[#999999] hover:text-white">
+                <Link to={`/admin/settings/search?add=${encodeURIComponent(r.term)}`} className="text-[11px] uppercase tracking-[0.14em] text-[#999999] hover:text-black">
                   Add synonym
                 </Link>
               ) },
@@ -156,7 +156,7 @@ export default function SearchAnalytics() {
             rows={d?.top || []}
             empty="No searches in this period."
             cols={[
-              { key: 'term', label: 'Search term', render: (r) => <span className="text-white">{r.term}</span> },
+              { key: 'term', label: 'Search term', render: (r) => <span className="text-black">{r.term}</span> },
               { key: 'count', label: 'Searches', align: 'right', render: (r) => num(r.count) },
               { key: 'clicks', label: 'Clicks', align: 'right', render: (r) => num(r.clicks) },
               { key: 'avgResults', label: 'Avg results', align: 'right', render: (r) => num(r.avgResults) },
@@ -169,7 +169,7 @@ export default function SearchAnalytics() {
             rows={d?.clicked || []}
             empty="No result clicks recorded yet."
             cols={[
-              { key: 'term', label: 'Search term', render: (r) => <span className="text-white">{r.term}</span> },
+              { key: 'term', label: 'Search term', render: (r) => <span className="text-black">{r.term}</span> },
               { key: 'count', label: 'Clicks', align: 'right', render: (r) => num(r.count) },
             ]}
           />
@@ -181,7 +181,7 @@ export default function SearchAnalytics() {
                 {['mobile', 'tablet', 'desktop'].map((k) => (
                   <div key={k} className="px-5 py-6">
                     <p className="adm-label">{k}</p>
-                    <p className="adm-metric mt-3 text-[24px] text-white">{num(d.device[k] || 0)}</p>
+                    <p className="adm-metric mt-3 text-[24px] text-black">{num(d.device[k] || 0)}</p>
                   </div>
                 ))}
               </div>
@@ -196,22 +196,22 @@ export default function SearchAnalytics() {
               <ul className="divide-y divide-[#EAEAEA] border-y border-[#EAEAEA] text-[12px] leading-relaxed text-[#555555]">
                 {quality.duplicateSizes?.map((s) => (
                   <li key={s.canonical} className="py-3">
-                    Size <span className="text-white">{s.canonical}</span> is stored {s.variants.length} different ways: {s.variants.map((v) => `"${v}"`).join(', ')} — shoppers see one filter, but the records disagree.
+                    Size <span className="text-black">{s.canonical}</span> is stored {s.variants.length} different ways: {s.variants.map((v) => `"${v}"`).join(', ')} — shoppers see one filter, but the records disagree.
                   </li>
                 ))}
                 {quality.duplicateColors?.map((c) => (
                   <li key={c.canonical} className="py-3">
-                    Colour <span className="text-white">{c.canonical}</span> is stored as {c.variants.map((v) => `"${v}"`).join(', ')}.
+                    Colour <span className="text-black">{c.canonical}</span> is stored as {c.variants.map((v) => `"${v}"`).join(', ')}.
                   </li>
                 ))}
                 {quality.suspiciousColors?.length > 0 && (
                   <li className="py-3">Colour names that look like typos: {quality.suspiciousColors.map((c) => `"${c}"`).join(', ')} — these appear in the colour filter exactly as written.</li>
                 )}
                 {quality.missingFabricCount > 0 && (
-                  <li className="py-3"><span className="text-white">{quality.missingFabricCount}</span> products have no fabric set, so a search for &quot;cotton&quot; or &quot;modal&quot; cannot find them.</li>
+                  <li className="py-3"><span className="text-black">{quality.missingFabricCount}</span> products have no fabric set, so a search for &quot;cotton&quot; or &quot;modal&quot; cannot find them.</li>
                 )}
                 {quality.missingTagsCount > 0 && (
-                  <li className="py-3"><span className="text-white">{quality.missingTagsCount}</span> products have no tags.</li>
+                  <li className="py-3"><span className="text-black">{quality.missingTagsCount}</span> products have no tags.</li>
                 )}
               </ul>
             </section>

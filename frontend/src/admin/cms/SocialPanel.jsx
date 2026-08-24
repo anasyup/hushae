@@ -61,7 +61,7 @@ export default function SocialPanel({ page, cfg, onChangeSeo }) {
       title="Sharing"
       subtitle="The picture and words people see when your link is pasted"
       badge={!resolved.image ? (
-        <span className="text-[10px] uppercase tracking-[0.14em] text-white/35">No picture</span>
+        <span className="text-[10px] uppercase tracking-[0.14em] text-[#AAAAAA]">No picture</span>
       ) : null}
     >
       <div className="space-y-4">
@@ -70,32 +70,32 @@ export default function SocialPanel({ page, cfg, onChangeSeo }) {
           <p className="mb-2 flex items-center gap-1.5 adm-label">
             <Share2 size={12} aria-hidden="true" /> How the link will look
           </p>
-          <div className="overflow-hidden border border-white/10">
+          <div className="overflow-hidden border border-[#EAEAEA]">
             {resolved.image ? (
               <img
                 src={resolved.image}
                 alt=""
-                className="aspect-[1200/630] w-full bg-white/5 object-cover"
+                className="aspect-[1200/630] w-full bg-[#FAFAFA] object-cover"
                 onError={(e) => { e.currentTarget.style.display = 'none'; }}
               />
             ) : (
-              <div className="grid aspect-[1200/630] w-full place-items-center bg-white/5 px-4 text-center">
-                <p className="text-[12px] leading-relaxed text-white/35">
+              <div className="grid aspect-[1200/630] w-full place-items-center bg-[#FAFAFA] px-4 text-center">
+                <p className="text-[12px] leading-relaxed text-[#AAAAAA]">
                   No picture yet. WhatsApp will show a plain grey box with just the words.
                 </p>
               </div>
             )}
-            <div className="border-t border-white/10 px-3 py-2.5">
-              <p className="text-[11px] uppercase tracking-[0.14em] text-white/30">hushae.pk</p>
-              <p className="mt-0.5 truncate text-[13px] text-white">
+            <div className="border-t border-[#EAEAEA] px-3 py-2.5">
+              <p className="text-[11px] uppercase tracking-[0.14em] text-[#AAAAAA]">hushae.pk</p>
+              <p className="mt-0.5 truncate text-[13px] text-black">
                 {resolved.title || 'Your page name'}
               </p>
-              <p className="mt-0.5 line-clamp-2 text-[12px] leading-relaxed text-white/40">
+              <p className="mt-0.5 line-clamp-2 text-[12px] leading-relaxed text-[#999999]">
                 {resolved.description || 'Add a summary and it will appear here.'}
               </p>
             </div>
           </div>
-          <p className="mt-2 text-[12px] leading-relaxed text-white/35">
+          <p className="mt-2 text-[12px] leading-relaxed text-[#AAAAAA]">
             WhatsApp, Facebook and LinkedIn all read the same information, so this one card covers all three.
           </p>
         </div>
@@ -108,7 +108,7 @@ export default function SocialPanel({ page, cfg, onChangeSeo }) {
             onChange={(v) => onChangeSeo('ogImage', v)}
             buttonText="Upload sharing picture"
           />
-          <p className="mt-1.5 text-[12px] leading-relaxed text-white/35">
+          <p className="mt-1.5 text-[12px] leading-relaxed text-[#AAAAAA]">
             Best size {IDEAL_W}×{IDEAL_H}. A tall or square photo gets its top and bottom cut off in chat.
             {usingFallbackImage && cfg.seo?.defaultOgImage && ' Leave blank to use your shop-wide sharing picture.'}
           </p>
@@ -135,10 +135,10 @@ export default function SocialPanel({ page, cfg, onChangeSeo }) {
             value={seo.ogDescription || ''}
             onChange={(e) => onChangeSeo('ogDescription', e.target.value.slice(0, 320))}
             aria-describedby="og-desc-h"
-            className="h-auto min-h-[56px] w-full resize-y rounded-[4px] border border-white/20 bg-[#0A0A0A] px-3 py-2 text-[12px] text-white/85 outline-none placeholder:text-white/30 hover:border-white/40 focus:border-white/50"
+            className="h-auto min-h-[56px] w-full resize-y rounded-[4px] border border-[#DCDCDC] bg-[#0A0A0A] px-3 py-2 text-[12px] text-black outline-none placeholder:text-[#AAAAAA] hover:border-white/40 focus:border-[#F0F0F0]0"
             placeholder={resolved.description}
           />
-          <p id="og-desc-h" className="mt-1.5 text-[12px] leading-relaxed text-white/35">
+          <p id="og-desc-h" className="mt-1.5 text-[12px] leading-relaxed text-[#AAAAAA]">
             {usingFallbackDesc
               ? 'Blank, so it will use the search description.'
               : 'Overriding the search description. Clear this box to go back to using it.'}
@@ -166,7 +166,7 @@ export default function SocialPanel({ page, cfg, onChangeSeo }) {
         </div>
 
         {!cfg.seo?.twitterHandle && (
-          <p className="flex items-start gap-1.5 text-[12px] leading-relaxed text-white/40">
+          <p className="flex items-start gap-1.5 text-[12px] leading-relaxed text-[#999999]">
             <Facebook size={12} className="mt-0.5 shrink-0" aria-hidden="true" />
             Your shop has no Twitter/X handle saved, so cards will not credit an account. That is set once
             for the whole shop, not per page.

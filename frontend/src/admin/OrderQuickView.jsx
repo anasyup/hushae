@@ -147,7 +147,7 @@ export default function OrderQuickView({ id, token, onClose }) {
             </Link>
             <div className="flex-1" />
             {next && (
-              <button onClick={advance} disabled={busy} className="inline-flex items-center gap-1.5 rounded-[8px] px-3 py-2 text-[12px] font-semibold text-white transition-colors active:scale-[0.98] disabled:opacity-50" style={{ background: 'var(--px-primary)' }}>
+              <button onClick={advance} disabled={busy} className="inline-flex items-center gap-1.5 rounded-[8px] px-3 py-2 text-[12px] font-semibold text-black transition-colors active:scale-[0.98] disabled:opacity-50" style={{ background: 'var(--px-primary)' }}>
                 {busy ? <Loader2 size={13} className="animate-spin" /> : <ArrowRight size={13} />} {next}
               </button>
             )}

@@ -168,7 +168,7 @@ export default function Payments() {
           {kpis.map(([l, v, s]) => (
             <div key={l} className="px-5 py-6">
               <p className="adm-label">{l}</p>
-              <p className="adm-metric mt-3 text-[22px] text-white">{v}</p>
+              <p className="adm-metric mt-3 text-[22px] text-black">{v}</p>
               {s && <p className="mt-1 text-[11px] text-[#AAAAAA]">{s}</p>}
             </div>
           ))}
@@ -195,7 +195,7 @@ export default function Payments() {
               {gateways.map((g) => (
                 <div key={g.title} className="flex flex-wrap items-center justify-between gap-3 border-b border-[#F0F0F0] py-4 last:border-0">
                   <div>
-                    <p className="text-[13px] text-white">{g.title}</p>
+                    <p className="text-[13px] text-black">{g.title}</p>
                     <p className="mt-0.5 text-[12px] text-[#AAAAAA]">{g.account}</p>
                   </div>
                   <MonoStatus label={g.enabled ? 'ENABLED' : 'OFF'} dim={!g.enabled} />
@@ -218,10 +218,10 @@ export default function Payments() {
               </div>
               {stats.pendingOrders.slice(0, 50).map((o) => (
                 <div key={o._id} className="grid grid-cols-1 gap-1 border-b border-[#F0F0F0] py-3 md:grid-cols-[0.8fr_1.1fr_0.8fr_0.7fr_1fr_1fr] md:items-center md:gap-3">
-                  <Link to={`/admin/orders/${o._id}`} className="font-mono text-[12px] text-white hover:underline">{o.orderNumber}</Link>
+                  <Link to={`/admin/orders/${o._id}`} className="font-mono text-[12px] text-black hover:underline">{o.orderNumber}</Link>
                   <span className="text-[13px] text-[#333333]">{o.customerInfo?.name}</span>
                   <span className="text-[12px] uppercase tracking-[0.12em] text-[#999999]">{o.paymentMethod}</span>
-                  <span className="tabular-nums text-[13px] text-white">{pkr(o.total)}</span>
+                  <span className="tabular-nums text-[13px] text-black">{pkr(o.total)}</span>
                   <span className="text-[12px] text-[#AAAAAA]">{fmtDateTime(o.createdAt)}</span>
                   <div className="flex flex-wrap gap-2">
                     <button type="button" disabled={busyIds.has(o._id)} onClick={() => verifyPayment(o._id, 'Verified')} className={btnGhost}>Verify</button>
@@ -265,15 +265,15 @@ export default function Payments() {
               </div>
               {transactions.slice(0, 100).map((o) => (
                 <div key={o._id} className="grid grid-cols-1 gap-1 border-b border-[#F0F0F0] py-3 md:grid-cols-[0.8fr_1fr_1.2fr_0.8fr_0.6fr_0.7fr] md:items-center md:gap-3">
-                  <Link to={`/admin/orders/${o._id}`} className="font-mono text-[12px] text-white hover:underline">{o.orderNumber}</Link>
+                  <Link to={`/admin/orders/${o._id}`} className="font-mono text-[12px] text-black hover:underline">{o.orderNumber}</Link>
                   <span className="text-[12px] text-[#AAAAAA]">{fmtDateTime(o.createdAt)}</span>
                   <div>
-                    <p className="text-[13px] text-white">{o.customerInfo?.name}</p>
+                    <p className="text-[13px] text-black">{o.customerInfo?.name}</p>
                     <p className="text-[11px] text-[#AAAAAA]">{o.customerInfo?.phone}</p>
                   </div>
                   <span className="text-[12px] uppercase tracking-[0.12em] text-[#999999]">{o.paymentMethod}</span>
                   <MonoStatus label={String(o.paymentStatus || '').toUpperCase()} dim={['Pending', 'Failed', 'Refunded'].includes(o.paymentStatus)} />
-                  <span className="tabular-nums text-[13px] text-white">{pkr(o.total)}</span>
+                  <span className="tabular-nums text-[13px] text-black">{pkr(o.total)}</span>
                 </div>
               ))}
             </>

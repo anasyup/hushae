@@ -12,10 +12,10 @@ const ToastCtx = createContext(null);
 export const useToast = () => useContext(ToastCtx);
 
 const meta = {
-  success: { icon: CheckCircle2, cls: 'text-white', label: 'Success' },
-  error: { icon: XCircle, cls: 'text-white', label: 'Error' },
-  warning: { icon: AlertTriangle, cls: 'text-white/70', label: 'Warning' },
-  info: { icon: Info, cls: 'text-white/50', label: 'Info' },
+  success: { icon: CheckCircle2, cls: 'text-black', label: 'Success' },
+  error: { icon: XCircle, cls: 'text-black', label: 'Error' },
+  warning: { icon: AlertTriangle, cls: 'text-[#555555]', label: 'Warning' },
+  info: { icon: Info, cls: 'text-[#777777]', label: 'Info' },
 };
 
 export function ToastProvider({ children }) {
@@ -58,15 +58,15 @@ export function ToastProvider({ children }) {
             <div
               key={t.id}
               role="status"
-              className="pointer-events-auto flex items-start gap-2.5 rounded-[4px] border border-white/15 bg-[#0D0D0D] px-3.5 py-3"
+              className="pointer-events-auto flex items-start gap-2.5 rounded-[4px] border border-[#EAEAEA] bg-[#0D0D0D] px-3.5 py-3"
             >
               <Icon size={16} className={`mt-0.5 shrink-0 ${M.cls}`} />
-              <p className="min-w-0 flex-1 text-[12px] leading-snug text-white/90">{t.message}</p>
+              <p className="min-w-0 flex-1 text-[12px] leading-snug text-black">{t.message}</p>
               <button
                 type="button"
                 onClick={() => dismiss(t.id)}
                 aria-label="Dismiss notification"
-                className="grid h-6 w-6 shrink-0 place-items-center text-white/50 transition hover:bg-white/5 hover:text-white"
+                className="grid h-6 w-6 shrink-0 place-items-center text-[#777777] transition hover:bg-[#FAFAFA] hover:text-black"
               >
                 <X size={13} />
               </button>

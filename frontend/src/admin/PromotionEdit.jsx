@@ -179,7 +179,7 @@ export default function PromotionEdit() {
                   className={`min-h-[44px] border px-4 py-3 text-left transition ${p.type === x.id ? 'border-white bg-white text-black' : 'border-[#DCDCDC] text-[#555555] hover:border-white/40'}`}
                 >
                   <span className="block text-[13px] font-semibold">{x.label}</span>
-                  <span className={`mt-0.5 block text-[12px] ${p.type === x.id ? 'text-black/50' : 'text-[#AAAAAA]'}`}>{x.example}</span>
+                  <span className={`mt-0.5 block text-[12px] ${p.type === x.id ? 'text-[#777777]' : 'text-[#AAAAAA]'}`}>{x.example}</span>
                 </button>
               ))}
             </div>
@@ -262,7 +262,7 @@ export default function PromotionEdit() {
                     <button
                       type="button" onClick={() => set('tiers', p.tiers.filter((_, j) => j !== i))}
                       aria-label={`Remove tier ${i + 1}`}
-                      className="grid h-11 w-11 place-items-center text-[#AAAAAA] hover:text-white"
+                      className="grid h-11 w-11 place-items-center text-[#AAAAAA] hover:text-black"
                     >
                       <Trash2 size={14} />
                     </button>
@@ -506,7 +506,7 @@ export default function PromotionEdit() {
       </div>
 
       {dirty && (
-        <div className="sticky bottom-4 z-30 mt-6 flex items-center justify-between gap-4 rounded-2xl border border-neutral-900 bg-neutral-900 px-4 py-3 text-white shadow-xl">
+        <div className="sticky bottom-4 z-30 mt-6 flex items-center justify-between gap-4 rounded-2xl border border-neutral-900 bg-neutral-900 px-4 py-3 text-black shadow-xl">
           <p className="text-[13px] font-medium">Unsaved changes</p>
           <div className="flex items-center gap-2">
             <button type="button" onClick={() => setP(JSON.parse(original))} className="min-h-[44px] rounded-lg border border-[#DCDCDC] px-3 text-[12px] font-semibold text-[#333333] transition hover:bg-[#F5F5F5]">Discard</button>

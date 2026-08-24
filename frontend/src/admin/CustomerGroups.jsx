@@ -232,7 +232,7 @@ export default function CustomerGroups() {
                 </button>
               </div>
               {preview && (
-                <p className="adm-metric text-[28px] text-white">
+                <p className="adm-metric text-[28px] text-black">
                   {preview.total.toLocaleString()}
                   <span className="ml-2 text-[11px] font-normal uppercase tracking-[0.14em] text-[#AAAAAA]">customers</span>
                 </p>
@@ -241,7 +241,7 @@ export default function CustomerGroups() {
                 {(preview?.members || []).map((m) => (
                   <div key={m.id} className="flex items-center justify-between border-b border-[#F0F0F0] py-2.5">
                     <div className="min-w-0">
-                      <p className="truncate text-[13px] text-white">{m.name}</p>
+                      <p className="truncate text-[13px] text-black">{m.name}</p>
                       <p className="truncate text-[11px] text-[#AAAAAA]">{m.phone || 'no phone'} · {m.email || 'no email'}</p>
                       {m.why?.[0] && <p className="mt-0.5 truncate text-[10px] text-white/25">{m.why[0]}</p>}
                     </div>
@@ -277,20 +277,20 @@ export default function CustomerGroups() {
             {groups.map((g) => (
               <div key={g._id} className="flex flex-wrap items-end justify-between gap-3 border-b border-[#EAEAEA] py-5 adm-row-hover">
                 <div className="min-w-0">
-                  <p className="text-[14px] font-medium text-white">{g.name}</p>
+                  <p className="text-[14px] font-medium text-black">{g.name}</p>
                   <p className="mt-0.5 line-clamp-2 text-[12px] text-[#AAAAAA]">{g.description || 'No description'}</p>
                   <p className="mt-2 text-[11px] text-[#999999]">{g.rulesSummary || 'Live rules'}</p>
                   <p className="mt-2 text-[11px] text-white/25">Updated {fmtDate(g.updatedAt)}</p>
                 </div>
                 <div className="flex items-end gap-4">
                   <div className="text-right">
-                    <p className="adm-metric text-[22px] text-white">{g.memberCount?.toLocaleString?.() || 0}</p>
+                    <p className="adm-metric text-[22px] text-black">{g.memberCount?.toLocaleString?.() || 0}</p>
                     <p className="adm-label">Members</p>
                   </div>
                   <span className="text-[10px] uppercase tracking-[0.12em] text-[#AAAAAA]">Campaigns: history only</span>
                   <button type="button" onClick={() => startEdit(g)} className={btnGhost}>Edit</button>
                   <button type="button" onClick={() => archive(g)} className={btnGhost}>{g.archivedAt ? 'Restore' : 'Archive'}</button>
-                  <button type="button" onClick={() => remove(g)} className="text-[10px] uppercase tracking-[0.12em] text-[#AAAAAA] hover:text-white" title="Delete group">
+                  <button type="button" onClick={() => remove(g)} className="text-[10px] uppercase tracking-[0.12em] text-[#AAAAAA] hover:text-black" title="Delete group">
                     <Trash2 size={13} />
                   </button>
                 </div>
@@ -305,12 +305,12 @@ export default function CustomerGroups() {
           <div className="w-full max-w-lg border border-[#EAEAEA] bg-[#0D0D0D] p-6" onClick={(e) => e.stopPropagation()}>
             <div className="mb-5 flex items-start justify-between">
               <div>
-                <p className="text-[15px] font-medium text-white">Email “{emailFor.name}”</p>
+                <p className="text-[15px] font-medium text-black">Email “{emailFor.name}”</p>
                 <p className="mt-1 text-[12px] text-[#AAAAAA]">
                   Goes to opted-in members ({emailFor.memberCount?.toLocaleString?.() || 0} in group).
                 </p>
               </div>
-              <button type="button" onClick={closeEmail} className="text-[#AAAAAA] hover:text-white"><X size={16} /></button>
+              <button type="button" onClick={closeEmail} className="text-[#AAAAAA] hover:text-black"><X size={16} /></button>
             </div>
             <div className="space-y-4">
               <div>

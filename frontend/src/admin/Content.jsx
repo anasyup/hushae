@@ -76,7 +76,7 @@ export default function Content() {
         <div className="space-y-8 border-y border-[#EAEAEA] py-6">
           <div>
             <div className="mb-4 flex items-center justify-between">
-              <p className="text-[13px] text-white">Announcement bar</p>
+              <p className="text-[13px] text-black">Announcement bar</p>
               <Switch checked={!!offer.enabled} onChange={(v) => setOffer('enabled', v)} />
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
@@ -89,7 +89,7 @@ export default function Content() {
           <div className="border-t border-[#EAEAEA] pt-8">
             <div className="mb-4 flex items-center justify-between">
               <div>
-                <p className="text-[13px] text-white">Scrolling marquee</p>
+                <p className="text-[13px] text-black">Scrolling marquee</p>
                 <p className="mt-0.5 text-[12px] text-[#AAAAAA]">A scrolling strip below the hero.</p>
               </div>
               <Switch checked={marquee.enabled !== false} onChange={(v) => setMq('enabled', v)} />
@@ -105,7 +105,7 @@ export default function Content() {
       <section className="mb-10">
         <p className="adm-index">02 — Homepage content</p>
         <div className="space-y-8 border-y border-[#EAEAEA] py-6">
-          <p className="text-[13px] text-white">Hero banner</p>
+          <p className="text-[13px] text-black">Hero banner</p>
           <div className="space-y-4">
             <div><label className="adm-label mb-1.5 block">Small tagline</label><input className={ctl} value={hero.eyebrow || ''} onChange={(e) => setHero('eyebrow', e.target.value)} placeholder="Premium innerwear · Made in Pakistan" /></div>
             <div><label className="adm-label mb-1.5 block">Main title</label><textarea className={ta} value={hero.title || ''} onChange={(e) => setHero('title', e.target.value)} placeholder={'Second Skin,\nFirst Choice.'} /><p className="mt-1 text-[11px] text-[#AAAAAA]">Press Enter for a new line</p></div>
@@ -113,7 +113,7 @@ export default function Content() {
           </div>
 
           <div className="flex items-center justify-between border-t border-[#EAEAEA] pt-6">
-            <p className="text-[13px] text-white">Call-to-action buttons</p>
+            <p className="text-[13px] text-black">Call-to-action buttons</p>
             <Switch checked={hero.showButtons !== false} onChange={(v) => setHero('showButtons', v)} />
           </div>
           {hero.showButtons === false ? (
@@ -180,7 +180,7 @@ export default function Content() {
             <label className="flex cursor-pointer items-start gap-3 text-sm">
               <input type="checkbox" className="mt-0.5 h-4 w-4 accent-white" checked={!!hero.fullScreen} onChange={(e) => setHero('fullScreen', e.target.checked)} />
               <span>
-                <span className="block text-[13px] text-white">Full-screen banner</span>
+                <span className="block text-[13px] text-black">Full-screen banner</span>
                 <span className="mt-0.5 block text-[12px] text-[#AAAAAA]">Banner fills the entire viewport</span>
               </span>
             </label>
@@ -189,7 +189,7 @@ export default function Content() {
           <div className="border-t border-[#EAEAEA] pt-6">
             <div className="mb-4 flex items-start justify-between gap-3">
               <div>
-                <p className="text-[13px] text-white">Signature split (Women × Men)</p>
+                <p className="text-[13px] text-black">Signature split (Women × Men)</p>
                 <p className="mt-0.5 text-[12px] text-[#AAAAAA]">Half-half editorial block below the hero.</p>
               </div>
               <Switch checked={split.enabled !== false} onChange={(v) => setSplit('enabled', v)} />
@@ -249,7 +249,7 @@ export default function Content() {
           <div>
             <div className="mb-4 flex items-center justify-between">
               <div>
-                <p className="text-[13px] text-white">Newsletter popup</p>
+                <p className="text-[13px] text-black">Newsletter popup</p>
                 <p className="mt-0.5 text-[12px] text-[#AAAAAA]">Shown once after a delay — email for a coupon.</p>
               </div>
               <Switch checked={promo.enabled !== false} onChange={(v) => setPromo('enabled', v)} />
@@ -265,7 +265,7 @@ export default function Content() {
           <div className="border-t border-[#EAEAEA] pt-8">
             <div className="mb-4 flex items-center justify-between">
               <div>
-                <p className="text-[13px] text-white">Cookie consent</p>
+                <p className="text-[13px] text-black">Cookie consent</p>
                 <p className="mt-0.5 text-[12px] text-[#AAAAAA]">Shown once to new visitors.</p>
               </div>
               <Switch checked={cookie.enabled !== false} onChange={(v) => setCookie('enabled', v)} />
@@ -282,7 +282,7 @@ export default function Content() {
         <p className="adm-index">04 — FAQ</p>
         <Link to="/admin/faq" className="flex items-center justify-between border-y border-[#EAEAEA] py-5 adm-row-hover">
           <span>
-            <span className="block text-[13px] text-white">FAQ page</span>
+            <span className="block text-[13px] text-black">FAQ page</span>
             <span className="mt-0.5 block text-[12px] text-[#AAAAAA]">The FAQ editor lives on its own page.</span>
           </span>
           <span className="text-[11px] uppercase tracking-[0.14em] text-[#AAAAAA]">Open →</span>

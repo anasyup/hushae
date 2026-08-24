@@ -63,7 +63,7 @@ export default function Categories() {
                 <div className="hidden md:grid md:grid-cols-[48px_minmax(0,1.4fr)_0.7fr_0.5fr_0.8fr_auto] md:items-center md:gap-3 md:px-1 md:py-3">
                   <Img src={c.image} alt="" className="h-12 w-12 border border-[#EAEAEA] object-cover" />
                   <div className="min-w-0">
-                    <p className="truncate text-[13px] font-medium text-white">{c.name}</p>
+                    <p className="truncate text-[13px] font-medium text-black">{c.name}</p>
                     <p className="font-mono text-[11px] text-[#AAAAAA]">{c.slug}</p>
                   </div>
                   <p className="capitalize text-[12px] text-[#777777]">{c.gender}</p>
@@ -77,7 +77,7 @@ export default function Categories() {
                 <div className="flex items-start gap-3 px-1 py-4 md:hidden">
                   <Img src={c.image} alt="" className="h-14 w-14 border border-[#EAEAEA] object-cover" />
                   <div className="min-w-0 flex-1">
-                    <p className="text-[13px] font-medium text-white">{c.name}</p>
+                    <p className="text-[13px] font-medium text-black">{c.name}</p>
                     <p className="mt-0.5 text-[11px] text-[#AAAAAA]">{c.gender} · {c.slug}</p>
                     <div className="mt-2"><MonoStatus label={c.isActive ? 'ACTIVE' : 'DISABLED'} dim={!c.isActive} /></div>
                     <div className="mt-3 flex gap-2">
@@ -96,8 +96,8 @@ export default function Categories() {
         <div className="fixed inset-0 z-50 grid place-items-center bg-black/60 p-4" onClick={() => setEditing(null)}>
           <div className="w-full max-w-md border border-[#EAEAEA] bg-[#0D0D0D] p-6" onClick={(e) => e.stopPropagation()}>
             <div className="mb-5 flex items-center justify-between">
-              <p className="text-[15px] font-medium text-white">{editing._id ? 'Edit category' : 'New category'}</p>
-              <button type="button" onClick={() => setEditing(null)} aria-label="Close" className="text-[#AAAAAA] hover:text-white"><X size={16} /></button>
+              <p className="text-[15px] font-medium text-black">{editing._id ? 'Edit category' : 'New category'}</p>
+              <button type="button" onClick={() => setEditing(null)} aria-label="Close" className="text-[#AAAAAA] hover:text-black"><X size={16} /></button>
             </div>
             <div className="space-y-4">
               <div>

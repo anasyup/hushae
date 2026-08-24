@@ -5,12 +5,12 @@
  * ========================================================================== */
 
 const tones = {
-  success: 'text-white',
+  success: 'text-black',
   warning: 'text-white/65',
-  danger: 'text-white/90',
-  info: 'text-white/50',
-  accent: 'text-white',
-  neutral: 'text-white/55',
+  danger: 'text-black',
+  info: 'text-[#777777]',
+  accent: 'text-black',
+  neutral: 'text-[#777777]',
 };
 
 const dots = {

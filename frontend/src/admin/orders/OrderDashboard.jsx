@@ -219,7 +219,7 @@ export default function OrderDashboard({ token, onPipelineClick, onCustomerClick
                     onClick={() => onCustomerClick?.(c.phone)}
                     className="flex w-full items-center gap-2 rounded-md px-1 py-1 text-left transition hover:bg-neutral-50"
                   >
-                    <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-neutral-900 text-[13px] font-bold text-white">
+                    <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-neutral-900 text-[13px] font-bold text-black">
                       {(c.name || '?').split(' ').map((w) => w[0]).slice(0, 2).join('').toUpperCase()}
                     </span>
                     <span className="min-w-0 flex-1">
@@ -297,9 +297,9 @@ function Kpi({ label, value, sub, tone, accent }) {
     : tone === 'warn' ? 'text-amber-700' : 'text-neutral-900';
   return (
     <div className={`rounded-lg border px-3 py-2.5 ${accent ? 'border-neutral-900 bg-neutral-900' : 'border-neutral-200 bg-neutral-50/60'}`}>
-      <p className={`text-[12px] font-semibold uppercase tracking-wider ${accent ? 'text-white/60' : 'text-neutral-500'}`}>{label}</p>
-      <p className={`mt-0.5 text-[12px] font-semibold tabular-nums ${accent ? 'text-white' : cls}`}>{value}</p>
-      {sub && <p className={`text-[12px] ${accent ? 'text-white/50' : 'text-neutral-400'}`}>{sub}</p>}
+      <p className={`text-[12px] font-semibold uppercase tracking-wider ${accent ? 'text-[#555555]' : 'text-neutral-500'}`}>{label}</p>
+      <p className={`mt-0.5 text-[12px] font-semibold tabular-nums ${accent ? 'text-black' : cls}`}>{value}</p>
+      {sub && <p className={`text-[12px] ${accent ? 'text-[#777777]' : 'text-neutral-400'}`}>{sub}</p>}
     </div>
   );
 }

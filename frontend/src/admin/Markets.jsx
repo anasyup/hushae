@@ -47,7 +47,7 @@ export default function Markets() {
         <p className="adm-index">01 — Market</p>
         <div className="flex flex-wrap items-center justify-between gap-4 border-y border-[#EAEAEA] py-6">
           <div>
-            <p className="text-[13px] text-white">Pakistan</p>
+            <p className="text-[13px] text-black">Pakistan</p>
             <p className="mt-1 text-[12px] text-[#AAAAAA]">Primary market · Pakistani Rupee (PKR ₨) · Nationwide delivery</p>
           </div>
           <MonoStatus label="ACTIVE" />
@@ -71,7 +71,7 @@ export default function Markets() {
           </div>
           <label className="flex cursor-pointer items-start justify-between gap-4 sm:col-span-2">
             <span>
-              <span className="block text-[13px] text-white">Cash on Delivery (COD)</span>
+              <span className="block text-[13px] text-black">Cash on Delivery (COD)</span>
               <span className="mt-0.5 block text-[12px] text-[#AAAAAA]">Pakistan mein sab se popular payment method — band karna ho to uncheck karein.</span>
             </span>
             <input

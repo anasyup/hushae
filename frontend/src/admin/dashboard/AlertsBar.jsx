@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom';
 import { AlertTriangle, ArrowRight, CheckCircle2, Info, PackageX, X } from 'lucide-react';
 
 const TONE = {
-  danger:  { chip: 'bg-[#F5F5F5] text-white',       dot: 'bg-white',       icon: PackageX },
-  warning: { chip: 'bg-white/8 text-white/85',      dot: 'bg-white/80',    icon: AlertTriangle },
+  danger:  { chip: 'bg-[#F5F5F5] text-black',       dot: 'bg-white',       icon: PackageX },
+  warning: { chip: 'bg-white/8 text-black',      dot: 'bg-white/80',    icon: AlertTriangle },
   info:    { chip: 'bg-[#FAFAFA] text-[#555555]',      dot: 'bg-[#FAFAFA]0',    icon: Info },
 };
 
@@ -57,11 +57,11 @@ export default function AlertsBar({ alerts }) {
             </div>
             <Link
               to={a.link}
-              className="hidden shrink-0 items-center gap-1 rounded-full bg-neutral-900 px-3 py-1.5 text-[12px] font-semibold text-white transition hover:bg-neutral-700 sm:inline-flex"
+              className="hidden shrink-0 items-center gap-1 rounded-full bg-neutral-900 px-3 py-1.5 text-[12px] font-semibold text-black transition hover:bg-neutral-700 sm:inline-flex"
             >
               {a.cta || 'Open'} <ArrowRight size={11} />
             </Link>
-            <Link to={a.link} className="shrink-0 rounded-full bg-neutral-900 p-2 text-white sm:hidden" aria-label={a.cta || 'Open'}>
+            <Link to={a.link} className="shrink-0 rounded-full bg-neutral-900 p-2 text-black sm:hidden" aria-label={a.cta || 'Open'}>
               <ArrowRight size={12} />
             </Link>
             <button

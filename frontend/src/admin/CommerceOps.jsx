@@ -71,7 +71,7 @@ function Overview({ ov }) {
           {tiles.map(([l, v]) => (
             <div key={l} className="px-5 py-6">
               <p className="adm-label">{l}</p>
-              <p className="adm-metric mt-3 text-[26px] text-white">{v}</p>
+              <p className="adm-metric mt-3 text-[26px] text-black">{v}</p>
             </div>
           ))}
         </div>
@@ -87,7 +87,7 @@ function Overview({ ov }) {
             </div>
             {(ov.recentMoves || []).map((m) => (
               <div key={m._id} className="grid grid-cols-1 gap-1 border-b border-[#F0F0F0] py-3 md:grid-cols-[minmax(0,1.4fr)_0.6fr_0.4fr_0.8fr] md:items-center md:gap-3">
-                <span className="truncate text-[13px] text-white">{m.product?.name || 'Product'}</span>
+                <span className="truncate text-[13px] text-black">{m.product?.name || 'Product'}</span>
                 <span className="text-[11px] uppercase tracking-[0.12em] text-[#999999]">{m.type}</span>
                 <span className="text-[13px] tabular-nums text-[#333333]">{m.qty}</span>
                 <span className="text-[12px] text-[#AAAAAA]">{new Date(m.createdAt).toLocaleString()}</span>
@@ -158,7 +158,7 @@ function Stock({ token, toast }) {
           ].map(([l, v]) => (
             <div key={l} className="px-5 py-6">
               <p className="adm-label">{l}</p>
-              <p className="adm-metric mt-3 text-[24px] text-white">{v}</p>
+              <p className="adm-metric mt-3 text-[24px] text-black">{v}</p>
             </div>
           ))}
         </div>
@@ -176,7 +176,7 @@ function Stock({ token, toast }) {
             {warehouses.map((w) => (
               <div key={w._id} className="grid grid-cols-1 gap-1 border-b border-[#F0F0F0] py-3 md:grid-cols-[0.5fr_minmax(0,1.2fr)_0.8fr] md:gap-3">
                 <span className="text-[12px] uppercase tracking-[0.12em] text-[#777777]">{w.code}</span>
-                <span className="text-[13px] text-white">{w.name}</span>
+                <span className="text-[13px] text-black">{w.name}</span>
                 <span className="text-[12px] text-[#999999]">{w.city || '—'}</span>
               </div>
             ))}
@@ -228,13 +228,13 @@ function Stock({ token, toast }) {
                 return (
                   <div key={r.productId} className="grid grid-cols-[minmax(0,1.4fr)_0.5fr_0.5fr_0.5fr_0.7fr_0.8fr] items-center gap-3 border-b border-[#F0F0F0] py-3 adm-row-hover">
                     <div className="min-w-0">
-                      <p className="truncate text-[13px] text-white">{r.name}</p>
+                      <p className="truncate text-[13px] text-black">{r.name}</p>
                       <p className="text-[11px] text-[#AAAAAA]">{r.sku}</p>
                     </div>
                     <span className="text-[13px] tabular-nums text-[#333333]">{r.stock}</span>
                     <span className="text-[13px] tabular-nums text-[#777777]">{r.sold14}</span>
                     <span className="text-[12px] tabular-nums text-[#999999]">{r.coverDays === 999 ? '—' : `${r.coverDays}d`}</span>
-                    <span className="text-[13px] tabular-nums text-white">{pkr(r.value)}</span>
+                    <span className="text-[13px] tabular-nums text-black">{pkr(r.value)}</span>
                     <MonoStatus label={f.label} dim={f.dim} />
                   </div>
                 );
@@ -255,8 +255,8 @@ function Stock({ token, toast }) {
             </div>
             {history.slice(0, 40).map((h) => (
               <div key={h._id} className="grid grid-cols-1 gap-1 border-b border-[#F0F0F0] py-3 md:grid-cols-[0.6fr_minmax(0,1.2fr)_0.5fr_0.4fr_minmax(0,1fr)] md:items-center md:gap-3">
-                <span className="text-[11px] uppercase tracking-[0.12em] text-white/45">{h.type}</span>
-                <span className="truncate text-[13px] text-white">{h.product?.name || '—'}</span>
+                <span className="text-[11px] uppercase tracking-[0.12em] text-[#999999]">{h.type}</span>
+                <span className="truncate text-[13px] text-black">{h.product?.name || '—'}</span>
                 <span className="text-[12px] text-[#999999]">{h.warehouse?.code || '—'}</span>
                 <span className="text-[13px] tabular-nums text-[#333333]">{h.qty}</span>
                 <span className="truncate text-[12px] text-[#AAAAAA]">{h.note || '—'}</span>
@@ -321,7 +321,7 @@ function Purchasing({ token, toast }) {
           ].map(([l, v]) => (
             <div key={l} className="px-5 py-6">
               <p className="adm-label">{l}</p>
-              <p className="adm-metric mt-3 text-[26px] text-white">{v}</p>
+              <p className="adm-metric mt-3 text-[26px] text-black">{v}</p>
             </div>
           ))}
         </div>
@@ -348,7 +348,7 @@ function Purchasing({ token, toast }) {
             </div>
             {pos.map((p) => (
               <div key={p._id} className="grid grid-cols-1 items-center gap-2 border-b border-[#F0F0F0] py-3 md:grid-cols-[0.8fr_minmax(0,1fr)_0.4fr_0.6fr_auto] md:gap-3">
-                <span className="text-[13px] text-white">{p.number}</span>
+                <span className="text-[13px] text-black">{p.number}</span>
                 <span className="text-[12px] text-[#555555]">{p.supplier?.name || '—'}</span>
                 <span className="text-[12px] tabular-nums text-[#777777]">{p.lines?.length || 0}</span>
                 <MonoStatus label={String(p.status || '—').replace(/_/g, ' ')} dim={p.status === 'cancelled' || p.status === 'received'} />
@@ -377,7 +377,7 @@ function Purchasing({ token, toast }) {
             </div>
             {suppliers.map((s) => (
               <div key={s._id} className="grid grid-cols-1 gap-1 border-b border-[#F0F0F0] py-3 md:grid-cols-[minmax(0,1.2fr)_0.8fr_0.8fr] md:gap-3">
-                <span className="text-[13px] text-white">{s.name}</span>
+                <span className="text-[13px] text-black">{s.name}</span>
                 <span className="text-[12px] text-[#999999]">{s.city || '—'}</span>
                 <span className="text-[12px] text-[#777777]">{s.phone || '—'}</span>
               </div>
@@ -427,11 +427,11 @@ function Returns({ token, toast }) {
         <div className="adm-divide-x grid grid-cols-2 border-y border-[#EAEAEA]">
           <div className="px-5 py-6">
             <p className="adm-label">Open RMAs</p>
-            <p className="adm-metric mt-3 text-[26px] text-white">{list.filter((r) => r.stage !== 'completed' && r.stage !== 'rejected').length}</p>
+            <p className="adm-metric mt-3 text-[26px] text-black">{list.filter((r) => r.stage !== 'completed' && r.stage !== 'rejected').length}</p>
           </div>
           <div className="px-5 py-6">
             <p className="adm-label">Total returns</p>
-            <p className="adm-metric mt-3 text-[26px] text-white">{list.length}</p>
+            <p className="adm-metric mt-3 text-[26px] text-black">{list.length}</p>
           </div>
         </div>
       </section>
@@ -474,7 +474,7 @@ function Returns({ token, toast }) {
             <div key={r._id} className="border-b border-[#EAEAEA] py-4">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <p className="text-[13px] text-white">{r.rma} · {r.orderNumber}</p>
+                  <p className="text-[13px] text-black">{r.rma} · {r.orderNumber}</p>
                   <p className="mt-1 text-[12px] text-[#AAAAAA]">{r.reason}{r.notes ? ` — ${r.notes}` : ''}</p>
                 </div>
                 <MonoStatus label={String(r.stage || '').replace(/_/g, ' ')} dim={r.stage === 'completed' || r.stage === 'rejected'} />
@@ -533,7 +533,7 @@ function Comms({ token, toast }) {
         ) : (
           templates.map((t) => (
             <div key={t._id} className="flex items-center justify-between gap-3 border-b border-[#F0F0F0] py-3">
-              <span className="text-[13px] text-white">{t.channel} / {t.key}</span>
+              <span className="text-[13px] text-black">{t.channel} / {t.key}</span>
               <button type="button" className={btnGhost} onClick={() => applyTpl(t)}>Use</button>
             </div>
           ))
@@ -608,10 +608,10 @@ function Risk({ token, toast }) {
           {orders.map((o) => (
             <div key={o._id} className="grid grid-cols-1 gap-2 border-b border-[#EAEAEA] py-4 md:grid-cols-[0.7fr_0.6fr_minmax(0,1.4fr)_auto] md:items-center md:gap-3">
               <div>
-                <p className="text-[13px] text-white">{o.orderNumber}</p>
+                <p className="text-[13px] text-black">{o.orderNumber}</p>
                 <p className="text-[11px] text-[#AAAAAA]">{o.paymentMethod} · score {o.fraudFilter?.score ?? '—'}</p>
               </div>
-              <span className="text-[13px] tabular-nums text-white">{pkr(o.total)}</span>
+              <span className="text-[13px] tabular-nums text-black">{pkr(o.total)}</span>
               <span className="text-[12px] text-[#999999]">{(o.fraudFilter?.reasons || []).join(' · ') || '—'}</span>
               <div className="flex flex-wrap gap-2">
                 <button type="button" className={btnGhost} onClick={() => review(o._id, 'approved')}>Approve</button>
@@ -656,7 +656,7 @@ function Shipping({ token, toast }) {
             </div>
             {list.map((p) => (
               <div key={p._id} className="grid grid-cols-1 gap-1 border-b border-[#F0F0F0] py-3 md:grid-cols-[minmax(0,1.2fr)_0.6fr_0.6fr_0.5fr] md:gap-3">
-                <span className="text-[13px] text-white">{p.name}</span>
+                <span className="text-[13px] text-black">{p.name}</span>
                 <span className="text-[12px] text-[#777777]">{p.courier}</span>
                 <span className="text-[12px] text-[#999999]">{(p.countries || []).join(', ')}</span>
                 <span className="text-[12px] tabular-nums text-[#777777]">{p.methods?.length || 0}</span>
@@ -710,8 +710,8 @@ function Tax({ token, toast }) {
             </div>
             {zones.map((z) => (
               <div key={z._id} className="grid grid-cols-1 gap-1 border-b border-[#F0F0F0] py-3 md:grid-cols-[minmax(0,1.2fr)_0.4fr_0.4fr_0.6fr] md:gap-3">
-                <span className="text-[13px] text-white">{z.name}</span>
-                <span className="text-[12px] text-white/45">{z.country}</span>
+                <span className="text-[13px] text-black">{z.name}</span>
+                <span className="text-[12px] text-[#999999]">{z.country}</span>
                 <span className="text-[13px] tabular-nums text-[#333333]">{z.rate}%</span>
                 <MonoStatus label={z.inclusive ? 'INCLUSIVE' : 'EXCLUSIVE'} dim={false} />
               </div>
@@ -777,7 +777,7 @@ function Launchpad({ token, toast }) {
           list.map((l, i) => (
             <div key={l._id} className="flex flex-wrap items-center justify-between gap-3 border-b border-[#EAEAEA] py-4">
               <div>
-                <p className="text-[13px] text-white">
+                <p className="text-[13px] text-black">
                   <span className="mr-3 text-[10px] uppercase tracking-[0.16em] text-[#AAAAAA]">{String(i + 1).padStart(2, '0')}</span>
                   {l.name}
                 </p>

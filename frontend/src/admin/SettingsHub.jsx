@@ -129,7 +129,7 @@ export default function SettingsHub() {
                       className="adm-row-hover flex items-start justify-between gap-4 border-b border-[#F0F0F0] px-1 py-4 last:border-0"
                     >
                       <div className="min-w-0">
-                        <p className="text-[13px] text-white">{item.title}</p>
+                        <p className="text-[13px] text-black">{item.title}</p>
                         <p className="mt-0.5 text-[12px] leading-relaxed text-[#AAAAAA]">{item.desc}</p>
                       </div>
                       <span className="mt-0.5 shrink-0 text-[9px] font-medium uppercase tracking-[0.18em] text-white/25">Open</span>
@@ -145,7 +145,7 @@ export default function SettingsHub() {
           <section>
             <p className="adm-index">Signed in</p>
             <div className="border-y border-[#EAEAEA] py-5">
-              <p className="text-[13px] text-white">{auth?.user?.name || 'Admin'}</p>
+              <p className="text-[13px] text-black">{auth?.user?.name || 'Admin'}</p>
               <p className="mt-1 font-mono text-[12px] text-[#999999]">{auth?.user?.email || '—'}</p>
               <div className="mt-3">
                 <MonoStatus label={auth?.user?.role ? String(auth.user.role).toUpperCase() : 'ADMIN'} />
@@ -162,7 +162,7 @@ export default function SettingsHub() {
                 { to: '/admin/apps', label: 'Connect Google Analytics' },
                 { to: '/admin/settings/shipping', label: 'Update shipping rates' },
               ].map((t) => (
-                <Link key={t.to} to={t.to} className="adm-row-hover flex items-center justify-between border-b border-[#F0F0F0] px-1 py-3 text-[12px] text-[#555555] last:border-0 hover:text-white">
+                <Link key={t.to} to={t.to} className="adm-row-hover flex items-center justify-between border-b border-[#F0F0F0] px-1 py-3 text-[12px] text-[#555555] last:border-0 hover:text-black">
                   {t.label}
                   <span className="text-white/25">→</span>
                 </Link>

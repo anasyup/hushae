@@ -55,22 +55,22 @@ export default function ReorderModal({ product, onClose, onSaved }) {
         <div className="mt-4 grid grid-cols-3 gap-2 text-center">
           <div className="rounded-xl bg-neutral-50 p-3"><p className="text-[11px] uppercase tracking-wider text-neutral-500">Current</p><p className="font-sans text-[18px] font-semibold tabular-nums text-neutral-900">{product.stock}</p></div>
           <div className="rounded-xl bg-neutral-50 p-3"><p className="text-[11px] uppercase tracking-wider text-neutral-500">Target</p><p className="font-sans text-[18px] font-semibold tabular-nums text-neutral-900">{target}</p></div>
-          <div className="rounded-xl bg-neutral-900 p-3"><p className="text-[11px] uppercase tracking-wider text-neutral-300">Suggest</p><p className="font-sans text-[18px] font-semibold tabular-nums text-white">{suggested}</p></div>
+          <div className="rounded-xl bg-neutral-900 p-3"><p className="text-[11px] uppercase tracking-wider text-neutral-300">Suggest</p><p className="font-sans text-[18px] font-semibold tabular-nums text-black">{suggested}</p></div>
         </div>
 
         {received ? (
           <div className="mt-4">
             <label className="mb-1 block text-[12px] font-semibold text-neutral-600">New stock count (optional)</label>
             <input type="number" min="0" value={newStock} onChange={(e) => setNewStock(e.target.value)} placeholder={`${(product.stock || 0) + suggested} received`} className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-[13px] outline-none focus:border-neutral-900" />
-            <button onClick={receive} disabled={busy} className="mt-3 inline-flex min-h-[40px] w-full items-center justify-center gap-1.5 rounded-lg bg-neutral-900 text-[13px] font-semibold text-white transition hover:bg-neutral-800 disabled:opacity-50"><PackageCheck size={15} /> Mark received</button>
+            <button onClick={receive} disabled={busy} className="mt-3 inline-flex min-h-[40px] w-full items-center justify-center gap-1.5 rounded-lg bg-neutral-900 text-[13px] font-semibold text-black transition hover:bg-neutral-800 disabled:opacity-50"><PackageCheck size={15} /> Mark received</button>
           </div>
         ) : (
           <>
-            <a href={`https://wa.me/?text=${supplierMsg}`} target="_blank" rel="noreferrer" className="mt-4 inline-flex min-h-[40px] w-full items-center justify-center gap-1.5 rounded-lg border border-[#DCDCDC] bg-[#F5F5F5] text-[13px] font-medium text-white transition hover:bg-[#EFEFEF]">
+            <a href={`https://wa.me/?text=${supplierMsg}`} target="_blank" rel="noreferrer" className="mt-4 inline-flex min-h-[40px] w-full items-center justify-center gap-1.5 rounded-lg border border-[#DCDCDC] bg-[#F5F5F5] text-[13px] font-medium text-black transition hover:bg-[#EFEFEF]">
               <MessageCircle size={15} /> Send to supplier via WhatsApp
             </a>
             <div className="mt-3 flex gap-2">
-              <button onClick={place} disabled={busy} className="inline-flex min-h-[40px] flex-1 items-center justify-center rounded-lg bg-neutral-900 text-[13px] font-semibold text-white transition hover:bg-neutral-800 disabled:opacity-50">Mark reorder placed</button>
+              <button onClick={place} disabled={busy} className="inline-flex min-h-[40px] flex-1 items-center justify-center rounded-lg bg-neutral-900 text-[13px] font-semibold text-black transition hover:bg-neutral-800 disabled:opacity-50">Mark reorder placed</button>
               <button onClick={() => setReceived(true)} className="inline-flex min-h-[40px] flex-1 items-center justify-center rounded-lg border border-neutral-300 text-[13px] font-semibold text-neutral-700 transition hover:bg-neutral-50">Mark received</button>
             </div>
           </>

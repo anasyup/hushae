@@ -133,11 +133,11 @@ export default function Navigation() {
         <div className="adm-divide-x grid grid-cols-2 border-y border-[#EAEAEA]">
           <div className="px-5 py-6">
             <p className="adm-label">Header links</p>
-            <p className="adm-metric mt-3 text-[28px] text-white">{previewMenu.length}</p>
+            <p className="adm-metric mt-3 text-[28px] text-black">{previewMenu.length}</p>
           </div>
           <div className="px-5 py-6">
             <p className="adm-label">Footer columns</p>
-            <p className="adm-metric mt-3 text-[28px] text-white">{footerCols.length}</p>
+            <p className="adm-metric mt-3 text-[28px] text-black">{footerCols.length}</p>
           </div>
         </div>
       </section>
@@ -217,7 +217,7 @@ export default function Navigation() {
           {previewMenu.length === 0 ? (
             <span className="text-[12px] text-[#AAAAAA]">No links yet — add some above.</span>
           ) : previewMenu.map((m, i) => (
-            <span key={i} className={`inline-flex items-center gap-1.5 text-[12px] ${m.highlight ? 'text-white' : 'text-[#555555]'}`}>
+            <span key={i} className={`inline-flex items-center gap-1.5 text-[12px] ${m.highlight ? 'text-black' : 'text-[#555555]'}`}>
               {m.label || '(no label)'}
               {m.dropdown && <ChevronDown size={11} className="text-[#AAAAAA]" />}
             </span>

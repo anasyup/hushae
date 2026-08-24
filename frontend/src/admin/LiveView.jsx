@@ -71,7 +71,7 @@ export default function LiveView() {
           {cards.map((x) => (
             <div key={x.label} className="px-5 py-6">
               <p className="adm-label">{x.label}</p>
-              <p className="adm-metric mt-3 text-[28px] leading-none text-white">{x.value}</p>
+              <p className="adm-metric mt-3 text-[28px] leading-none text-black">{x.value}</p>
             </div>
           ))}
         </div>
@@ -87,7 +87,7 @@ export default function LiveView() {
           ].map((x) => (
             <div key={x.label} className="px-5 py-6">
               <p className="adm-label">{x.label}</p>
-              <p className="adm-metric mt-3 text-[26px] leading-none text-white">{x.value}</p>
+              <p className="adm-metric mt-3 text-[26px] leading-none text-black">{x.value}</p>
             </div>
           ))}
         </div>
@@ -118,7 +118,7 @@ export default function LiveView() {
             {d.feed.map((e, i) => (
               <div key={i} className="grid grid-cols-2 items-center gap-2 border-b border-[#F0F0F0] py-3 md:grid-cols-[0.7fr_1.1fr_0.6fr_minmax(0,1.4fr)_0.6fr] md:gap-3">
                 <span className="text-[11px] tabular-nums text-[#999999]">{ago(e.createdAt)}</span>
-                <span className="text-[12px] text-white">{EV_LABEL[e.event] || e.event}</span>
+                <span className="text-[12px] text-black">{EV_LABEL[e.event] || e.event}</span>
                 <span className="text-[11px] uppercase tracking-[0.12em] text-[#AAAAAA]">{e.device || '—'}</span>
                 <span className="truncate font-mono text-[11px] text-[#777777]">{e.path}</span>
                 <span className="text-[11px] text-[#AAAAAA]">{e.city || '—'}</span>

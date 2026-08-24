@@ -234,7 +234,7 @@ export default function CmsEdit() {
       />
 
       {!isNew && (
-        <p className="mb-6 text-[13px] leading-relaxed text-white/45">
+        <p className="mb-6 text-[13px] leading-relaxed text-[#999999]">
           {reason === 'live' && <>Customers can read this page now{p.hasDraft ? ' — but your newest edits are not published yet.' : '.'}</>}
           {reason === 'draft' && 'Only you can see this. Press Publish when it is ready.'}
           {reason === 'scheduled' && <>Hidden until {fmtWhen(p.publishAt)}. Nobody can reach it before then, even with the link.</>}
@@ -289,7 +289,7 @@ export default function CmsEdit() {
                   </p>
                 )}
                 {renamed && slugCheck.ok && (
-                  <p className="mt-1.5 text-[13px] leading-relaxed text-white/45">
+                  <p className="mt-1.5 text-[13px] leading-relaxed text-[#999999]">
                     You changed the address. Anyone using the old link would normally hit a dead end —
                     {cfg.autoRedirectOnRename
                       ? ' we will leave a note that sends them to the new one automatically.'
@@ -357,7 +357,7 @@ export default function CmsEdit() {
           <Section variant="editorial" title="03 — Publishing" description="Nothing is visible until you publish.">
             <div className="space-y-3">
               {isNew ? (
-                <p className="text-[13px] leading-relaxed text-white/45">
+                <p className="text-[13px] leading-relaxed text-[#999999]">
                   Save the page first. New pages are always saved as a draft so you can read them over before
                   anyone else does.
                 </p>
@@ -381,7 +381,7 @@ export default function CmsEdit() {
                     </button>
                   )}
                   {dirty && (
-                    <p className="text-[13px] leading-relaxed text-white/45">
+                    <p className="text-[13px] leading-relaxed text-[#999999]">
                       Save your changes before publishing — otherwise the old version goes live.
                     </p>
                   )}

@@ -262,7 +262,7 @@ export default function SettingsEmail() {
                 <label className="adm-label mb-1.5 block">Password</label>
                 <div className="relative">
                   <input type={showPass ? 'text' : 'password'} className={`${ctl} pr-10`} value={emailCfg.pass || ''} onChange={(e) => setEmailValue('pass', e.target.value)} placeholder="••••••••••••" />
-                  <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#AAAAAA] hover:text-white">
+                  <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#AAAAAA] hover:text-black">
                     {showPass ? <EyeOff size={15} /> : <Eye size={15} />}
                   </button>
                 </div>
@@ -308,7 +308,7 @@ export default function SettingsEmail() {
                     className={`adm-row-hover flex w-full items-center justify-between border-b border-[#F0F0F0] px-1 py-4 text-left last:border-0 ${selectedTemplate?.templateKey === t.templateKey ? 'bg-[#FAFAFA]' : ''}`}
                   >
                     <div className="min-w-0">
-                      <p className="text-[13px] text-white">{t.name}</p>
+                      <p className="text-[13px] text-black">{t.name}</p>
                       <p className="mt-0.5 truncate font-mono text-[11px] text-[#AAAAAA]">/{t.templateKey} · {t.subject}</p>
                     </div>
                     <MonoStatus label={t.active !== false ? 'ACTIVE' : 'DISABLED'} dim={t.active === false} />
@@ -343,8 +343,8 @@ export default function SettingsEmail() {
                 <div className="flex flex-wrap gap-1.5">
                   {(selectedTemplate.variables || []).map((v) => (
                     <span key={v} className="inline-flex border border-[#EAEAEA]">
-                      <button type="button" onClick={() => insertVariable(v, 'subject')} className="px-1.5 py-0.5 font-mono text-[10px] text-[#777777] hover:text-white" title="Insert into Subject">S</button>
-                      <button type="button" onClick={() => insertVariable(v, 'body')} className="border-l border-[#EAEAEA] px-1.5 py-0.5 font-mono text-[10px] text-[#333333] hover:text-white" title="Insert into HTML Body">+{v}</button>
+                      <button type="button" onClick={() => insertVariable(v, 'subject')} className="px-1.5 py-0.5 font-mono text-[10px] text-[#777777] hover:text-black" title="Insert into Subject">S</button>
+                      <button type="button" onClick={() => insertVariable(v, 'body')} className="border-l border-[#EAEAEA] px-1.5 py-0.5 font-mono text-[10px] text-[#333333] hover:text-black" title="Insert into HTML Body">+{v}</button>
                     </span>
                   ))}
                 </div>

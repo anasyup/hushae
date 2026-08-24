@@ -96,12 +96,12 @@ export default function VerificationQueue() {
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="font-mono text-[11px] text-[#AAAAAA]">{String(idx + 1).padStart(2, '0')}</span>
-                        <p className="text-[13px] text-white">{o.customerInfo?.name || 'Customer'}</p>
+                        <p className="text-[13px] text-black">{o.customerInfo?.name || 'Customer'}</p>
                         <ReliabilityBadge reliability={o.reliability || null} compact />
                         <span className="font-mono text-[12px] text-[#999999]">{o.orderNumber}</span>
                       </div>
                       <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-[#999999]">
-                        <a href={`tel:${o.customerInfo?.phone}`} className="hover:text-white">{o.customerInfo?.phone}</a>
+                        <a href={`tel:${o.customerInfo?.phone}`} className="hover:text-black">{o.customerInfo?.phone}</a>
                         <span>{o.customerInfo?.city}</span>
                         <span className="tabular-nums text-[#333333]">{pkr(o.total)}</span>
                         <span>{ageHrs(o.createdAt)}h old</span>
@@ -141,7 +141,7 @@ export default function VerificationQueue() {
 
       <p className="mt-10 max-w-2xl text-[12px] leading-relaxed text-[#AAAAAA]">
         Orders appear here once they have been awaiting payment verification for more than 24 hours. Three or more no-answer attempts flag the order for review.{' '}
-        <Link to="/admin/orders?payment=pending" className="text-[#555555] hover:text-white">All pending orders</Link>
+        <Link to="/admin/orders?payment=pending" className="text-[#555555] hover:text-black">All pending orders</Link>
       </p>
     </AdminLayout>
   );

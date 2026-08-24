@@ -84,21 +84,21 @@ function AddPanel({ onAdd, onClose }) {
   const needle = q.trim().toLowerCase();
 
   return (
-    <div className="border border-white/15">
-      <div className="flex items-center gap-2 border-b border-white/10 px-3 py-2.5">
-        <p className="flex-1 text-[13px] text-white">Add a block to the page</p>
+    <div className="border border-[#EAEAEA]">
+      <div className="flex items-center gap-2 border-b border-[#EAEAEA] px-3 py-2.5">
+        <p className="flex-1 text-[13px] text-black">Add a block to the page</p>
         <button
           type="button" onClick={onClose}
-          className="grid h-11 w-11 place-items-center text-white/50 transition hover:text-white"
+          className="grid h-11 w-11 place-items-center text-[#777777] transition hover:text-black"
         >
           <X size={15} aria-hidden="true" /><span className="sr-only">Close the block list</span>
         </button>
       </div>
-      <div className="border-b border-white/10 p-3">
+      <div className="border-b border-[#EAEAEA] p-3">
         <label className="sr-only" htmlFor="sb-search">Search blocks</label>
         <input
           id="sb-search" value={q} onChange={(e) => setQ(e.target.value)}
-          placeholder="Search…" className="h-8 w-full rounded-[4px] border border-white/20 bg-[#0A0A0A] px-3 text-[12px] text-white/85 outline-none placeholder:text-white/30"
+          placeholder="Search…" className="h-8 w-full rounded-[4px] border border-[#DCDCDC] bg-[#0A0A0A] px-3 text-[12px] text-black outline-none placeholder:text-[#AAAAAA]"
         />
       </div>
       <div className="max-h-80 overflow-y-auto p-3">
@@ -115,7 +115,7 @@ function AddPanel({ onAdd, onClose }) {
                   <button
                     key={s.type} type="button"
                     onClick={() => onAdd(s.type)}
-                    className="min-h-[44px] rounded-[4px] border border-white/15 px-3 py-2 text-left text-[12px] text-white transition hover:border-white/40"
+                    className="min-h-[44px] rounded-[4px] border border-[#EAEAEA] px-3 py-2 text-left text-[12px] text-black transition hover:border-white/40"
                   >
                     {s.name}
                   </button>
@@ -125,7 +125,7 @@ function AddPanel({ onAdd, onClose }) {
           );
         })}
         {needle && !groups.some(([, l]) => l.some((s) => s.name.toLowerCase().includes(needle))) && (
-          <p className="px-1 py-4 text-center text-[12px] text-white/35">Nothing matches “{q}”.</p>
+          <p className="px-1 py-4 text-center text-[12px] text-[#AAAAAA]">Nothing matches “{q}”.</p>
         )}
       </div>
     </div>
@@ -147,7 +147,7 @@ function Row({ node, index, total, onMove, onDrag, onDrop, dragging, over, actio
       onDragEnd={() => onDrag(null)}
       onDragOver={(e) => { e.preventDefault(); onDrop(node.id, false); }}
       onDrop={(e) => { e.preventDefault(); onDrop(node.id, true); }}
-      className={`border-b border-white/10 transition ${
+      className={`border-b border-[#EAEAEA] transition ${
         dragging === node.id ? 'opacity-50' : over === node.id ? 'border-white/40' : ''
       } ${node.hidden ? 'opacity-50' : ''}`}
     >
@@ -157,44 +157,44 @@ function Row({ node, index, total, onMove, onDrag, onDrop, dragging, over, actio
         </span>
 
         <div className="min-w-0 flex-1">
-          <p className={`truncate text-[13px] ${node.hidden ? 'text-white/40' : 'text-white'}`}>
+          <p className={`truncate text-[13px] ${node.hidden ? 'text-[#999999]' : 'text-black'}`}>
             {label}
-            {node.hidden && <span className="ml-2 text-[10px] uppercase tracking-[0.14em] text-white/30">off</span>}
-            {!schema && <span className="ml-2 text-[10px] uppercase tracking-[0.14em] text-white/40">unknown type</span>}
+            {node.hidden && <span className="ml-2 text-[10px] uppercase tracking-[0.14em] text-[#AAAAAA]">off</span>}
+            {!schema && <span className="ml-2 text-[10px] uppercase tracking-[0.14em] text-[#999999]">unknown type</span>}
           </p>
-          {detail && <p className="mt-0.5 truncate text-[12px] text-white/35">{String(detail).slice(0, 60)}</p>}
+          {detail && <p className="mt-0.5 truncate text-[12px] text-[#AAAAAA]">{String(detail).slice(0, 60)}</p>}
         </div>
 
         {/* Keyboard/touch equivalents for every drag action. */}
         <div className="flex shrink-0 items-center gap-0.5">
           <button
             type="button" disabled={index === 0} onClick={() => onMove(node.id, -1)}
-            className="grid h-11 w-11 place-items-center text-white/40 transition hover:text-white disabled:opacity-25"
+            className="grid h-11 w-11 place-items-center text-[#999999] transition hover:text-black disabled:opacity-25"
           >
             <ChevronUp size={15} aria-hidden="true" /><span className="sr-only">Move {label} up</span>
           </button>
           <button
             type="button" disabled={index === total - 1} onClick={() => onMove(node.id, 1)}
-            className="grid h-11 w-11 place-items-center text-white/40 transition hover:text-white disabled:opacity-25"
+            className="grid h-11 w-11 place-items-center text-[#999999] transition hover:text-black disabled:opacity-25"
           >
             <ChevronDown size={15} aria-hidden="true" /><span className="sr-only">Move {label} down</span>
           </button>
           <button
             type="button" onClick={() => actions.toggle(node.id)}
-            className="grid h-11 w-11 place-items-center text-white/40 transition hover:text-white"
+            className="grid h-11 w-11 place-items-center text-[#999999] transition hover:text-black"
           >
             {node.hidden ? <EyeOff size={15} aria-hidden="true" /> : <Eye size={15} aria-hidden="true" />}
             <span className="sr-only">{node.hidden ? `Switch on ${label}` : `Switch off ${label}`}</span>
           </button>
           <button
             type="button" onClick={() => actions.duplicate(node.id)}
-            className="grid h-11 w-11 place-items-center text-white/40 transition hover:text-white"
+            className="grid h-11 w-11 place-items-center text-[#999999] transition hover:text-black"
           >
             <Copy size={14} aria-hidden="true" /><span className="sr-only">Make a copy of {label}</span>
           </button>
           <button
             type="button" onClick={() => actions.remove(node.id, label)}
-            className="grid h-11 w-11 place-items-center text-white/40 transition hover:text-white"
+            className="grid h-11 w-11 place-items-center text-[#999999] transition hover:text-black"
           >
             <Trash2 size={14} aria-hidden="true" /><span className="sr-only">Delete {label}</span>
           </button>
@@ -268,7 +268,7 @@ export default function SectionBuilder({ doc, onChange }) {
       title="Page blocks"
       description="Build the page out of ready-made blocks — a banner, a row of products, a set of questions. Drag to reorder, or use the arrows."
       action={
-        <span className="text-[12px] tabular-nums text-white/35">
+        <span className="text-[12px] tabular-nums text-[#AAAAAA]">
           {sections.length} of {MAX_SECTIONS}
         </span>
       }
@@ -278,10 +278,10 @@ export default function SectionBuilder({ doc, onChange }) {
       <p aria-live="polite" className="sr-only">{announce}</p>
 
       {!sections.length ? (
-        <div className="border-y border-white/10 py-10 text-center">
+        <div className="border-y border-[#EAEAEA] py-10 text-center">
           <Layers size={18} className="mx-auto text-white/25" aria-hidden="true" />
-          <p className="mt-2 text-[11px] font-medium uppercase tracking-[0.18em] text-white/80">No blocks yet</p>
-          <p className="mx-auto mt-2 max-w-sm text-[12px] leading-relaxed text-white/35">
+          <p className="mt-2 text-[11px] font-medium uppercase tracking-[0.18em] text-[#333333]">No blocks yet</p>
+          <p className="mx-auto mt-2 max-w-sm text-[12px] leading-relaxed text-[#AAAAAA]">
             You can leave this empty and just use the writing box above — that is right for a returns policy.
             Blocks are for pages that need pictures and product rows.
           </p>
@@ -309,7 +309,7 @@ export default function SectionBuilder({ doc, onChange }) {
       {sections.length > 0 && !adding && (
         <button
           type="button" onClick={() => setAdding(true)} disabled={full}
-          className="mt-3 inline-flex h-8 w-full items-center justify-center gap-1.5 rounded-[4px] border border-white/20 px-3 text-[10px] font-medium uppercase tracking-[0.08em] text-white/70 transition hover:border-white/45 hover:text-white disabled:opacity-35"
+          className="mt-3 inline-flex h-8 w-full items-center justify-center gap-1.5 rounded-[4px] border border-[#DCDCDC] px-3 text-[10px] font-medium uppercase tracking-[0.08em] text-[#555555] transition hover:border-white/45 hover:text-black disabled:opacity-35"
         >
           <Plus size={13} aria-hidden="true" /> {full ? `Limit of ${MAX_SECTIONS} blocks reached` : 'Add another block'}
         </button>
@@ -318,7 +318,7 @@ export default function SectionBuilder({ doc, onChange }) {
       {adding && <div className="mt-3"><AddPanel onAdd={add} onClose={() => setAdding(false)} /></div>}
 
       {sections.some((s) => s.hidden) && (
-        <p className="mt-3 text-[12px] leading-relaxed text-white/35">
+        <p className="mt-3 text-[12px] leading-relaxed text-[#AAAAAA]">
           Blocks switched off stay saved but do not appear on the page. Useful for a seasonal banner you
           want back later.
         </p>

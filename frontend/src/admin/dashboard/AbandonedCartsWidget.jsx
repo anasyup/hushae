@@ -59,7 +59,7 @@ export default function AbandonedCartsWidget() {
                   <p className="truncate text-[11px] text-neutral-500">{c.itemCount} item{c.itemCount === 1 ? '' : 's'} · {pkr(c.subtotal)}</p>
                 </div>
                 {wa
-                  ? <a href={wa} target="_blank" rel="noreferrer" aria-label={`Remind ${c.name || c.email} via WhatsApp`} title="Send WhatsApp reminder" className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-white/15 bg-[#F5F5F5] text-[#333333] transition hover:bg-white/20"><MessageCircle size={14} /></a>
+                  ? <a href={wa} target="_blank" rel="noreferrer" aria-label={`Remind ${c.name || c.email} via WhatsApp`} title="Send WhatsApp reminder" className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-[#EAEAEA] bg-[#F5F5F5] text-[#333333] transition hover:bg-[#EFEFEF]"><MessageCircle size={14} /></a>
                   : <span className="shrink-0 text-[11px] text-neutral-400" title="No phone captured">{c.email ? 'email only' : '—'}</span>}
               </div>
             );

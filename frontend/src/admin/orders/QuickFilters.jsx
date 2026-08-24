@@ -68,7 +68,7 @@ export default function QuickFilters({ filters, setFilter, token, currentQuery, 
 
   const tabCls = (on) =>
     `text-[10px] font-medium uppercase tracking-[0.14em] transition-colors ${
-      on ? 'text-white' : 'text-white/35 hover:text-white/75'
+      on ? 'text-black' : 'text-[#AAAAAA] hover:text-white/75'
     }`;
 
   return (
@@ -84,16 +84,16 @@ export default function QuickFilters({ filters, setFilter, token, currentQuery, 
         );
       })}
 
-      {views.length > 0 && <span className="h-3 w-px bg-white/15" />}
+      {views.length > 0 && <span className="h-3 w-px bg-[#EFEFEF]" />}
 
       {views.map((v) => (
         <span key={v._id} className="group inline-flex items-center gap-1">
           <button onClick={() => applyView(v)} title={v.ownerName ? `Saved by ${v.ownerName}` : 'Saved view'}
-            className="text-[10px] font-medium uppercase tracking-[0.14em] text-white/40 hover:text-white">
+            className="text-[10px] font-medium uppercase tracking-[0.14em] text-[#999999] hover:text-black">
             {v.name}
           </button>
           <button onClick={(e) => removeView(v, e)} aria-label={`Delete ${v.name}`}
-            className="hidden text-white/25 hover:text-white group-hover:inline">
+            className="hidden text-white/25 hover:text-black group-hover:inline">
             <X size={10} />
           </button>
         </span>
@@ -103,19 +103,19 @@ export default function QuickFilters({ filters, setFilter, token, currentQuery, 
         <span className="inline-flex items-center gap-1.5 border-b border-white/30 py-0.5">
           <input autoFocus value={name} onChange={(e) => setName(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') saveView(); if (e.key === 'Escape') { setNaming(false); setName(''); } }}
-            placeholder="Name this view" className="w-32 bg-transparent text-[12px] text-white outline-none placeholder:text-white/30" />
+            placeholder="Name this view" className="w-32 bg-transparent text-[12px] text-black outline-none placeholder:text-[#AAAAAA]" />
           <button onClick={saveView} disabled={saving || !name.trim()}
-            className="text-[10px] font-medium uppercase tracking-[0.12em] text-white disabled:opacity-40">
+            className="text-[10px] font-medium uppercase tracking-[0.12em] text-black disabled:opacity-40">
             {saving ? <Loader2 size={11} className="animate-spin" /> : 'Save'}
           </button>
           <button onClick={() => { setNaming(false); setName(''); }} aria-label="Cancel"
-            className="text-white/35 hover:text-white">
+            className="text-[#AAAAAA] hover:text-black">
             <X size={11} />
           </button>
         </span>
       ) : (
         <button onClick={() => setNaming(true)} title="Save the current filters as a named view"
-          className="text-[10px] font-medium uppercase tracking-[0.14em] text-white/30 hover:text-white/70">
+          className="text-[10px] font-medium uppercase tracking-[0.14em] text-[#AAAAAA] hover:text-[#555555]">
           + Save view
         </button>
       )}

@@ -41,7 +41,7 @@ export default function OrderPrintDoc() {
     return () => clearTimeout(t);
   }, [order]);
 
-  if (err) return <div className="p-10 text-white/60">{err}</div>;
+  if (err) return <div className="p-10 text-[#555555]">{err}</div>;
   if (!order) return <div className="p-10 text-neutral-500">Loading {meta.title.toLowerCase()}…</div>;
 
   const c = order.customerInfo || {};
@@ -59,7 +59,7 @@ export default function OrderPrintDoc() {
 
       <div className="no-print mb-6 flex justify-end">
         <button onClick={() => window.print()}
-          className="inline-flex items-center gap-2 rounded-lg bg-neutral-900 px-4 py-2 text-sm font-semibold text-white hover:bg-black">
+          className="inline-flex items-center gap-2 rounded-lg bg-neutral-900 px-4 py-2 text-sm font-semibold text-black hover:bg-black">
           <Printer size={15} /> Print
         </button>
       </div>

@@ -62,7 +62,7 @@ export default function Discounts() {
           ].map((s) => (
             <div key={s.label} className="px-5 py-6">
               <p className="adm-label">{s.label}</p>
-              <p className="adm-metric mt-3 text-[28px] text-white">{s.value}</p>
+              <p className="adm-metric mt-3 text-[28px] text-black">{s.value}</p>
             </div>
           ))}
         </div>
@@ -137,21 +137,21 @@ export default function Discounts() {
               return (
                 <div key={d._id} className="border-b border-[#EAEAEA] adm-row-hover">
                   <div className="hidden md:grid md:grid-cols-[minmax(0,1fr)_0.7fr_0.7fr_0.6fr_0.8fr_0.6fr_auto] md:items-center md:gap-3 md:px-1 md:py-3.5">
-                    <p className="font-mono text-[13px] font-medium tracking-wide text-white">{d.code}</p>
+                    <p className="font-mono text-[13px] font-medium tracking-wide text-black">{d.code}</p>
                     <p className="text-[11px] uppercase tracking-[0.12em] text-[#999999]">{d.type === 'percent' ? 'Percent' : 'Fixed'}</p>
-                    <p className="text-[13px] text-white">{d.type === 'percent' ? `${d.value}%` : pkr(d.value)}</p>
+                    <p className="text-[13px] text-black">{d.type === 'percent' ? `${d.value}%` : pkr(d.value)}</p>
                     <p className="text-[12px] tabular-nums text-[#555555]">{d.usedCount || 0}{d.maxUses > 0 ? ` / ${d.maxUses}` : ''}</p>
                     <p className="text-[12px] text-[#999999]">{d.expiresAt ? fmtDate(d.expiresAt) : '—'}</p>
                     <MonoStatus label={expired ? 'EXPIRED' : d.active ? 'ACTIVE' : 'OFF'} dim={!d.active || expired} />
                     <div className="flex justify-end gap-2">
-                      <button type="button" onClick={() => openEdit(d)} className="text-[10px] uppercase tracking-[0.12em] text-white/45 hover:text-white">Edit</button>
-                      <button type="button" onClick={() => toggle(d)} className="text-[10px] uppercase tracking-[0.12em] text-white/45 hover:text-white">{d.active ? 'Off' : 'On'}</button>
-                      <button type="button" onClick={() => remove(d)} className="text-[10px] uppercase tracking-[0.12em] text-[#AAAAAA] hover:text-white">Delete</button>
+                      <button type="button" onClick={() => openEdit(d)} className="text-[10px] uppercase tracking-[0.12em] text-[#999999] hover:text-black">Edit</button>
+                      <button type="button" onClick={() => toggle(d)} className="text-[10px] uppercase tracking-[0.12em] text-[#999999] hover:text-black">{d.active ? 'Off' : 'On'}</button>
+                      <button type="button" onClick={() => remove(d)} className="text-[10px] uppercase tracking-[0.12em] text-[#AAAAAA] hover:text-black">Delete</button>
                     </div>
                   </div>
                   <div className="px-1 py-4 md:hidden">
                     <div className="flex items-start justify-between gap-3">
-                      <p className="font-mono text-[13px] text-white">{d.code}</p>
+                      <p className="font-mono text-[13px] text-black">{d.code}</p>
                       <MonoStatus label={expired ? 'EXPIRED' : d.active ? 'ACTIVE' : 'OFF'} dim={!d.active || expired} />
                     </div>
                     <p className="mt-1 text-[12px] text-[#777777]">{d.type === 'percent' ? `${d.value}% off` : `${pkr(d.value)} off`} · {d.usedCount || 0} uses</p>

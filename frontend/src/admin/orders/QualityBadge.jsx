@@ -18,7 +18,7 @@ export default function QualityBadge({ quality, compact = false }) {
   if (!quality) return null;
 
   const { score, max = 5, reasons = [], flags = [], priority, hoursInStage } = quality;
-  const fill = score >= 4 ? 'text-white' : score === 3 ? 'text-white/70' : 'text-white/40';
+  const fill = score >= 4 ? 'text-black' : score === 3 ? 'text-[#555555]' : 'text-[#999999]';
 
   return (
     <span
@@ -31,7 +31,7 @@ export default function QualityBadge({ quality, compact = false }) {
       <button
         type="button"
         aria-label={`Order quality ${score} out of ${max}`}
-        className="inline-flex items-center gap-0.5 px-0.5 py-0.5 text-white/55"
+        className="inline-flex items-center gap-0.5 px-0.5 py-0.5 text-[#777777]"
       >
         {compact ? (
           <>
@@ -51,7 +51,7 @@ export default function QualityBadge({ quality, compact = false }) {
       </button>
 
       {priority === 'rush' && (
-        <span className="ml-1 inline-flex items-center gap-0.5 text-[9px] font-medium uppercase tracking-[0.16em] text-white">
+        <span className="ml-1 inline-flex items-center gap-0.5 text-[9px] font-medium uppercase tracking-[0.16em] text-black">
           <Zap size={9} /> Rush
         </span>
       )}
@@ -59,28 +59,28 @@ export default function QualityBadge({ quality, compact = false }) {
       {open && (
         <span
           role="tooltip"
-          className="absolute left-0 top-6 z-40 w-56 border border-white/15 bg-[#0D0D0D] p-3 text-left"
+          className="absolute left-0 top-6 z-40 w-56 border border-[#EAEAEA] bg-[#0D0D0D] p-3 text-left"
         >
           <span className="adm-label mb-2 block">Quality {score}/{max}</span>
           {reasons.map((r) => (
             <span key={r.label} className="flex items-center gap-1.5 py-0.5 text-[12px]">
-              <span className={`grid h-3 w-3 shrink-0 place-items-center text-[9px] ${r.ok ? 'text-white' : 'text-white/35'}`}>
+              <span className={`grid h-3 w-3 shrink-0 place-items-center text-[9px] ${r.ok ? 'text-black' : 'text-[#AAAAAA]'}`}>
                 {r.ok ? '✓' : '✕'}
               </span>
-              <span className={r.ok ? 'text-white/50' : 'text-white'}>{r.label}</span>
+              <span className={r.ok ? 'text-[#777777]' : 'text-black'}>{r.label}</span>
             </span>
           ))}
           {flags.length > 0 && (
-            <span className="mt-2 flex flex-wrap gap-2 border-t border-white/10 pt-2">
+            <span className="mt-2 flex flex-wrap gap-2 border-t border-[#EAEAEA] pt-2">
               {flags.map((f) => (
-                <span key={f} className="text-[9px] font-medium uppercase tracking-[0.14em] text-white/50">
+                <span key={f} className="text-[9px] font-medium uppercase tracking-[0.14em] text-[#777777]">
                   {FLAG_LABEL[f] || f}
                 </span>
               ))}
             </span>
           )}
           {hoursInStage > 0 && (
-            <span className="mt-2 block text-[11px] text-white/35">
+            <span className="mt-2 block text-[11px] text-[#AAAAAA]">
               {hoursInStage}h in current stage
             </span>
           )}

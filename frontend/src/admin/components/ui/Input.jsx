@@ -6,8 +6,8 @@ import { forwardRef, useId } from 'react';
  * ========================================================================== */
 
 const baseField =
-  'w-full rounded-[4px] border border-white/15 bg-black px-3 text-[13px] text-white ' +
-  'placeholder:text-white/30 outline-none transition-colors duration-150 ' +
+  'w-full rounded-[4px] border border-[#EAEAEA] bg-black px-3 text-[13px] text-black ' +
+  'placeholder:text-[#AAAAAA] outline-none transition-colors duration-150 ' +
   'focus:border-white ' +
   'disabled:opacity-50 disabled:pointer-events-none';
 
@@ -66,14 +66,14 @@ export function Field({ label, hint, error, htmlFor, children, className = '' })
   return (
     <div className={className}>
       {label && (
-        <label htmlFor={id} className="mb-1.5 block text-[10px] font-medium uppercase tracking-[0.14em] text-white/50">
+        <label htmlFor={id} className="mb-1.5 block text-[10px] font-medium uppercase tracking-[0.14em] text-[#777777]">
           {label}
         </label>
       )}
       {children}
-      {hint && !error && <p className="mt-1 text-[11px] text-white/35">{hint}</p>}
+      {hint && !error && <p className="mt-1 text-[11px] text-[#AAAAAA]">{hint}</p>}
       {error && (
-        <p role="alert" className="mt-1 text-[11px] text-white/80">
+        <p role="alert" className="mt-1 text-[11px] text-[#333333]">
           {error}
         </p>
       )}

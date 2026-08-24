@@ -117,7 +117,7 @@ export default function Questions() {
                   <input type="checkbox" checked={selected.includes(q._id)} onChange={() => toggleOne(q._id)} aria-label={`Select question from ${q.customerName}`} className="mt-1 h-4 w-4 shrink-0 accent-white" />
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
-                      <p className="text-[13px] text-white">{q.customerName}</p>
+                      <p className="text-[13px] text-black">{q.customerName}</p>
                       <p className="text-[11px] text-[#AAAAAA]">{new Date(q.createdAt).toLocaleDateString('en-PK')}</p>
                       {q.featured && <MonoStatus label="FEATURED" />}
                       {q.reports > 0 && <MonoStatus label={`${q.reports} REPORT${q.reports === 1 ? '' : 'S'}`} dim />}
@@ -162,7 +162,7 @@ export default function Questions() {
                       </ul>
                     )}
                     {q.product && (
-                      <Link to={`/product/${q.product.slug}`} target="_blank" className="mt-3 inline-block text-[12px] text-[#999999] hover:text-white">{q.product.name}</Link>
+                      <Link to={`/product/${q.product.slug}`} target="_blank" className="mt-3 inline-block text-[12px] text-[#999999] hover:text-black">{q.product.name}</Link>
                     )}
                   </div>
                   <div className="flex shrink-0 flex-wrap items-start gap-2">

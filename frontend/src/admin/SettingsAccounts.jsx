@@ -83,7 +83,7 @@ export default function SettingsAccounts() {
         )}
         <EdToggle label="Allow password reset by email" description="Shows Forgot password? on the sign-in form." checked={a.emailFeatures} onChange={(v) => set('emailFeatures', v)} />
         <EdToggle label="Require customers to confirm their email" description="New accounts get a confirmation link. Only works when email is connected." checked={a.emailVerifyRequired} onChange={(v) => set('emailVerifyRequired', v)} disabled={!a.emailFeatures} />
-        {emailMismatch && <p className="mt-3 text-[12px] text-white/45">This is switched on but cannot work yet — customers will not see it until an email service is connected.</p>}
+        {emailMismatch && <p className="mt-3 text-[12px] text-[#999999]">This is switched on but cannot work yet — customers will not see it until an email service is connected.</p>}
       </EdSection>
 
       <EdSection index={3} title="Password rules">

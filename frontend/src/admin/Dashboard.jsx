@@ -180,7 +180,7 @@ function StockRow({ product: p, onSaved, onReorder }) {
     <div className="flex items-center gap-2 rounded-md bg-[#F5F5F5] p-2">
       <Img src={p.images?.[0]?.url} alt="" className="h-10 w-8 shrink-0 rounded-md border border-[#EAEAEA] object-cover" />
       <input type="number" min="0" autoFocus value={value} onChange={(e) => setValue(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') save(); if (e.key === 'Escape') setEditing(false); }} className="w-full min-w-0 rounded-md border border-[#DCDCDC] bg-white px-2.5 py-1.5 text-[13px] text-black outline-none focus:border-black" style={{ fontVariantNumeric: 'tabular-nums' }} />
-      <button onClick={save} disabled={busy} className="shrink-0 rounded-md bg-black px-3 py-1.5 text-[12px] font-medium text-white disabled:opacity-50">Save</button>
+      <button onClick={save} disabled={busy} className="shrink-0 rounded-md bg-black px-3 py-1.5 text-[12px] font-medium text-black disabled:opacity-50">Save</button>
       <button onClick={() => setEditing(false)} className="shrink-0 rounded-md px-2 py-1.5 text-[12px] font-medium text-[#777777] hover:text-black">Cancel</button>
     </div>
   );
@@ -194,7 +194,7 @@ function StockRow({ product: p, onSaved, onReorder }) {
       {p.reorderStatus === 'pending' ? (
         <button onClick={() => onReorder?.(p)} title="Reorder pending — tap to mark received" className="shrink-0 rounded-sm bg-[#F5F5F5] px-2.5 py-1 text-[11px] font-medium text-[#555555] transition hover:ring-1 hover:ring-black">Reorder pending</button>
       ) : (
-        <button onClick={() => onReorder?.(p)} title="Reorder" className="shrink-0 rounded-sm bg-black px-2.5 py-1 text-[11px] font-medium text-white transition hover:bg-[#1a1a1a]">Reorder</button>
+        <button onClick={() => onReorder?.(p)} title="Reorder" className="shrink-0 rounded-sm bg-black px-2.5 py-1 text-[11px] font-medium text-black transition hover:bg-[#1a1a1a]">Reorder</button>
       )}
     </div>
   );
@@ -250,7 +250,7 @@ function PipelineStrip({ stats }) {
           <span className="min-w-0 text-[13px] font-medium text-[#555555]">
             <b className="text-black" style={{ fontVariantNumeric: 'tabular-nums' }}>{stats.pending}</b> new order{stats.pending === 1 ? '' : 's'} waiting to be confirmed
           </span>
-          <span className="inline-flex shrink-0 items-center gap-1.5 rounded-sm bg-black px-3 py-1.5 text-[12px] font-medium text-white">Review now <ChevronRight size={12} /></span>
+          <span className="inline-flex shrink-0 items-center gap-1.5 rounded-sm bg-black px-3 py-1.5 text-[12px] font-medium text-black">Review now <ChevronRight size={12} /></span>
         </Link>
       )}
     </div>

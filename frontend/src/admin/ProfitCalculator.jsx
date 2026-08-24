@@ -60,7 +60,7 @@ export default function ProfitCalculator() {
         onClick={() => setOpen((v) => !v)}
         aria-label="Profit calculator"
         title="Profit calculator"
-        className="fixed bottom-5 right-5 z-40 inline-flex h-10 items-center gap-2 border border-[#DCDCDC] bg-[#0A0A0A] px-4 text-[10px] font-medium uppercase tracking-[0.14em] text-[#333333] hover:border-white/45 hover:text-white"
+        className="fixed bottom-5 right-5 z-40 inline-flex h-10 items-center gap-2 border border-[#DCDCDC] bg-[#0A0A0A] px-4 text-[10px] font-medium uppercase tracking-[0.14em] text-[#333333] hover:border-white/45 hover:text-black"
       >
         Profit calc
       </button>
@@ -71,7 +71,7 @@ export default function ProfitCalculator() {
             <div className="flex items-center justify-between border-b border-[#EAEAEA] px-5 py-3">
               <div>
                 <p className="adm-label">Quick tool</p>
-                <p className="mt-1 text-[13px] text-white">Profit calculator</p>
+                <p className="mt-1 text-[13px] text-black">Profit calculator</p>
               </div>
               <div className="flex items-center gap-2">
                 <button type="button" onClick={reset} className={btnGhost}>Reset</button>
@@ -83,11 +83,11 @@ export default function ProfitCalculator() {
               <div className="adm-divide-x grid grid-cols-2 border-y border-[#EAEAEA]">
                 <div className="px-4 py-4">
                   <p className="adm-label">Net profit</p>
-                  <p className="adm-metric mt-2 text-[20px] text-white">{pkr(netProfit)}</p>
+                  <p className="adm-metric mt-2 text-[20px] text-black">{pkr(netProfit)}</p>
                 </div>
                 <div className="px-4 py-4">
                   <p className="adm-label">Net margin</p>
-                  <p className="adm-metric mt-2 text-[20px] text-white">{margin.toFixed(1)}%</p>
+                  <p className="adm-metric mt-2 text-[20px] text-black">{margin.toFixed(1)}%</p>
                   <div className="mt-2"><MonoStatus label={health} dim={health === 'LOSS' || health === 'THIN'} /></div>
                 </div>
               </div>

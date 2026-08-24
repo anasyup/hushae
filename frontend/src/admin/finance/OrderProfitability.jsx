@@ -84,7 +84,7 @@ export default function OrderProfitability({ days, from, to }) {
       <button
         type="button"
         onClick={() => setSort(sort === desc ? asc : desc)}
-        className={`inline-flex w-full items-center gap-1 ${align === 'right' ? 'justify-end' : ''} transition hover:text-white ${active ? 'text-white' : ''}`}
+        className={`inline-flex w-full items-center gap-1 ${align === 'right' ? 'justify-end' : ''} transition hover:text-black ${active ? 'text-black' : ''}`}
       >
         {label}
         {active ? (sort === asc ? <ArrowUp size={10} /> : <ArrowDown size={10} />) : null}
@@ -99,7 +99,7 @@ export default function OrderProfitability({ days, from, to }) {
     <section className="mb-10">
       <p className="adm-index">05 — Order profitability</p>
       <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
-        <p className="max-w-xl text-[12px] text-white/35">
+        <p className="max-w-xl text-[12px] text-[#AAAAAA]">
           What you actually keep on every single order, after cost of goods, packaging, courier and gateway fees.
         </p>
         <div className="flex flex-wrap items-center gap-2">
@@ -116,7 +116,7 @@ export default function OrderProfitability({ days, from, to }) {
       </div>
 
       {t && (
-        <div className="adm-divide-x mb-4 grid grid-cols-2 border-y border-white/10 sm:grid-cols-4">
+        <div className="adm-divide-x mb-4 grid grid-cols-2 border-y border-[#EAEAEA] sm:grid-cols-4">
           {[
             ['Net profit', pkr(t.netProfit)],
             ['Net margin', `${t.margin}%`],
@@ -125,13 +125,13 @@ export default function OrderProfitability({ days, from, to }) {
           ].map(([label, value]) => (
             <div key={label} className="px-4 py-4">
               <p className="adm-label">{label}</p>
-              <p className="adm-metric mt-2 text-[18px] text-white">{value}</p>
+              <p className="adm-metric mt-2 text-[18px] text-black">{value}</p>
             </div>
           ))}
         </div>
       )}
 
-      <p className="mb-4 text-[12px] leading-relaxed text-white/30">
+      <p className="mb-4 text-[12px] leading-relaxed text-[#AAAAAA]">
         Ad spend is not split across individual orders — attribution on COD checkout is unreliable and would
         make random orders look unprofitable. Ads stay a whole-business cost in the expense breakdown above.
       </p>
@@ -139,7 +139,7 @@ export default function OrderProfitability({ days, from, to }) {
       <div className="overflow-x-auto">
         <table className="w-full min-w-[860px] border-collapse text-[12px]">
           <thead>
-            <tr className="border-b border-white/10">
+            <tr className="border-b border-[#EAEAEA]">
               <th className="w-6 py-2" />
               <th className="py-2 text-left"><span className="adm-label">Order</span></th>
               <th className="py-2 text-left"><span className="adm-label">Customer</span></th>
@@ -156,9 +156,9 @@ export default function OrderProfitability({ days, from, to }) {
           </thead>
           <tbody>
             {busy && !data ? (
-              <tr><td colSpan={12} className="py-10 text-center text-white/30">Loading…</td></tr>
+              <tr><td colSpan={12} className="py-10 text-center text-[#AAAAAA]">Loading…</td></tr>
             ) : !data || data.rows.length === 0 ? (
-              <tr><td colSpan={12} className="py-10 text-center text-white/30">No orders in this range.</td></tr>
+              <tr><td colSpan={12} className="py-10 text-center text-[#AAAAAA]">No orders in this range.</td></tr>
             ) : data.rows.map((r) => {
               const h = HEALTH[r.health] || HEALTH.profitable;
               const expanded = open === r.id;
@@ -166,23 +166,23 @@ export default function OrderProfitability({ days, from, to }) {
                 <Fragment key={r.id}>
                   <tr
                     onClick={() => setOpen(expanded ? null : r.id)}
-                    className="cursor-pointer border-b border-white/5 adm-row-hover"
+                    className="cursor-pointer border-b border-[#F0F0F0] adm-row-hover"
                   >
-                    <td className="py-2.5 text-white/30">
+                    <td className="py-2.5 text-[#AAAAAA]">
                       {expanded ? <ChevronDown size={13} /> : <ChevronRight size={13} />}
                     </td>
-                    <td className="py-2.5 font-mono text-[12px] text-white">{r.orderNumber}</td>
-                    <td className="max-w-[150px] truncate py-2.5 text-white/70">{r.customer}</td>
-                    <td className="whitespace-nowrap py-2.5 text-white/40">{fmtDate(r.date)}</td>
-                    <td className="py-2.5 text-right tabular-nums text-white">{r.revenue.toLocaleString()}</td>
-                    <td className="hidden py-2.5 text-right tabular-nums text-white/40 lg:table-cell">{r.cogs.toLocaleString()}</td>
-                    <td className="hidden py-2.5 text-right tabular-nums text-white/40 xl:table-cell">{r.packaging.toLocaleString()}</td>
-                    <td className="hidden py-2.5 text-right tabular-nums text-white/40 xl:table-cell">{r.courier.toLocaleString()}</td>
-                    <td className="hidden py-2.5 text-right tabular-nums text-white/40 xl:table-cell">{r.paymentFee.toLocaleString()}</td>
-                    <td className="py-2.5 text-right tabular-nums text-white">
+                    <td className="py-2.5 font-mono text-[12px] text-black">{r.orderNumber}</td>
+                    <td className="max-w-[150px] truncate py-2.5 text-[#555555]">{r.customer}</td>
+                    <td className="whitespace-nowrap py-2.5 text-[#999999]">{fmtDate(r.date)}</td>
+                    <td className="py-2.5 text-right tabular-nums text-black">{r.revenue.toLocaleString()}</td>
+                    <td className="hidden py-2.5 text-right tabular-nums text-[#999999] lg:table-cell">{r.cogs.toLocaleString()}</td>
+                    <td className="hidden py-2.5 text-right tabular-nums text-[#999999] xl:table-cell">{r.packaging.toLocaleString()}</td>
+                    <td className="hidden py-2.5 text-right tabular-nums text-[#999999] xl:table-cell">{r.courier.toLocaleString()}</td>
+                    <td className="hidden py-2.5 text-right tabular-nums text-[#999999] xl:table-cell">{r.paymentFee.toLocaleString()}</td>
+                    <td className="py-2.5 text-right tabular-nums text-black">
                       {r.netProfit < 0 ? `↓ ${r.netProfit.toLocaleString()}` : r.netProfit.toLocaleString()}
                     </td>
-                    <td className="py-2.5 text-right tabular-nums text-white/70">
+                    <td className="py-2.5 text-right tabular-nums text-[#555555]">
                       {r.revenue > 0 ? `${r.margin}%` : '—'}
                     </td>
                     <td className="py-2.5 text-right">
@@ -191,7 +191,7 @@ export default function OrderProfitability({ days, from, to }) {
                   </tr>
 
                   {expanded && (
-                    <tr className="border-b border-white/10 bg-white/[0.03]">
+                    <tr className="border-b border-[#EAEAEA] bg-[#FAFAFA]">
                       <td />
                       <td colSpan={11} className="px-2 py-4">
                         <div className="grid gap-6 md:grid-cols-2">
@@ -203,27 +203,27 @@ export default function OrderProfitability({ days, from, to }) {
                               <Line label="Packaging" value={-r.packaging} />
                               <Line label="Courier" value={-r.courier} />
                               <Line label={`Payment gateway fee${r.paymentMethod === 'COD' ? ' (COD — none)' : ` (${r.feePct}%)`}`} value={-r.paymentFee} />
-                              <div className="!mt-2 flex items-center justify-between border-t border-white/20 pt-2">
-                                <dt className="text-[12px] font-medium text-white">Net profit</dt>
-                                <dd className="adm-metric text-[14px] text-white">
-                                  {pkr(r.netProfit)} {r.revenue > 0 && <span className="text-[11px] text-white/40">({r.margin}%)</span>}
+                              <div className="!mt-2 flex items-center justify-between border-t border-[#DCDCDC] pt-2">
+                                <dt className="text-[12px] font-medium text-black">Net profit</dt>
+                                <dd className="adm-metric text-[14px] text-black">
+                                  {pkr(r.netProfit)} {r.revenue > 0 && <span className="text-[11px] text-[#999999]">({r.margin}%)</span>}
                                 </dd>
                               </div>
                             </dl>
                           </div>
-                          <div className="space-y-2 text-[13px] text-white/55">
-                            <p><span className="text-white/30">City:</span> {r.city || '—'}</p>
-                            <p><span className="text-white/30">Payment:</span> {r.paymentMethod}</p>
-                            <p><span className="text-white/30">Stage:</span> {r.stage || r.status}</p>
+                          <div className="space-y-2 text-[13px] text-[#777777]">
+                            <p><span className="text-[#AAAAAA]">City:</span> {r.city || '—'}</p>
+                            <p><span className="text-[#AAAAAA]">Payment:</span> {r.paymentMethod}</p>
+                            <p><span className="text-[#AAAAAA]">Stage:</span> {r.stage || r.status}</p>
                             {(r.cancelled || r.returned) && (
-                              <p className="border-y border-white/10 py-2 text-[12px] leading-relaxed text-white/70">
+                              <p className="border-y border-[#EAEAEA] py-2 text-[12px] leading-relaxed text-[#555555]">
                                 {r.returned ? 'Returned' : 'Cancelled'} — no revenue kept.
                                 {r.shipped
                                   ? ` The courier leg was already paid, so ${pkr(r.totalCost)} is a real loss.`
                                   : ' Nothing had shipped, so no courier cost was incurred.'}
                               </p>
                             )}
-                            <Link to={`/admin/orders/${r.id}`} className="inline-flex items-center gap-1 pt-1 text-[11px] uppercase tracking-[0.14em] text-white/50 hover:text-white">
+                            <Link to={`/admin/orders/${r.id}`} className="inline-flex items-center gap-1 pt-1 text-[11px] uppercase tracking-[0.14em] text-[#777777] hover:text-black">
                               Open order →
                             </Link>
                           </div>
@@ -240,7 +240,7 @@ export default function OrderProfitability({ days, from, to }) {
 
       {data && data.total > data.limit && (
         <div className="mt-4">
-          <p className="mb-3 text-[11px] uppercase tracking-[0.14em] text-white/30">
+          <p className="mb-3 text-[11px] uppercase tracking-[0.14em] text-[#AAAAAA]">
             {(data.page - 1) * data.limit + 1}–{Math.min(data.page * data.limit, data.total)} of {data.total}
           </p>
           <EditorialPagination page={page} pages={pages} onPage={setPage} />
@@ -253,8 +253,8 @@ export default function OrderProfitability({ days, from, to }) {
 function Line({ label, value, strong }) {
   return (
     <div className="flex items-center justify-between gap-4">
-      <dt className={`text-[13px] ${strong ? 'text-white' : 'text-white/40'}`}>{label}</dt>
-      <dd className="shrink-0 tabular-nums text-white/80">
+      <dt className={`text-[13px] ${strong ? 'text-black' : 'text-[#999999]'}`}>{label}</dt>
+      <dd className="shrink-0 tabular-nums text-[#333333]">
         {value < 0 ? `− ${pkr(Math.abs(value))}` : pkr(value)}
       </dd>
     </div>

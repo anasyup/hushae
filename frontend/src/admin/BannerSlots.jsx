@@ -95,19 +95,19 @@ export default function BannerSlots() {
             <div key={s._id} className="border-b border-[#EAEAEA] adm-row-hover">
               <div className="hidden md:grid md:grid-cols-[minmax(0,1.4fr)_0.6fr_0.8fr_0.5fr_auto] md:items-center md:gap-3 md:px-1 md:py-3.5">
                 <div>
-                  <p className="text-[13px] font-medium text-white">{s.name}</p>
+                  <p className="text-[13px] font-medium text-black">{s.name}</p>
                   <p className="font-mono text-[11px] text-[#AAAAAA]">{s.key}</p>
                 </div>
                 <MonoStatus label={String(s.type || '').toUpperCase()} />
-                <p className="text-[12px] text-white/45">{s.width}×{s.height}</p>
+                <p className="text-[12px] text-[#999999]">{s.width}×{s.height}</p>
                 <p className="text-[12px] tabular-nums text-[#555555]">{s.bannerCount}</p>
                 <div className="flex justify-end gap-1">
-                  <button type="button" onClick={() => startEdit(s)} className="grid h-7 w-7 place-items-center text-[#AAAAAA] hover:text-white"><Pencil size={13} /></button>
-                  <button type="button" onClick={() => remove(s)} className="grid h-7 w-7 place-items-center text-[#AAAAAA] hover:text-white"><Trash2 size={13} /></button>
+                  <button type="button" onClick={() => startEdit(s)} className="grid h-7 w-7 place-items-center text-[#AAAAAA] hover:text-black"><Pencil size={13} /></button>
+                  <button type="button" onClick={() => remove(s)} className="grid h-7 w-7 place-items-center text-[#AAAAAA] hover:text-black"><Trash2 size={13} /></button>
                 </div>
               </div>
               <div className="px-1 py-4 md:hidden">
-                <p className="text-[13px] text-white">{s.name}</p>
+                <p className="text-[13px] text-black">{s.name}</p>
                 <p className="mt-0.5 text-[11px] text-[#AAAAAA]">{s.type} · {s.width}×{s.height} · {s.bannerCount} banners</p>
                 <div className="mt-3 flex gap-2">
                   <button type="button" onClick={() => startEdit(s)} className={btnGhost}>Edit</button>

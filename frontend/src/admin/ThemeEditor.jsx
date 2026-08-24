@@ -397,37 +397,37 @@ export default function ThemeEditor() {
   const activePsCfg = psList.find((x) => x.id === activePs) || null;
 
   return (
-    <div className="admin-shell fixed inset-0 z-40 flex flex-col bg-[#050505] text-white">
+    <div className="admin-shell fixed inset-0 z-40 flex flex-col bg-[#050505] text-black">
       {/* ══ TOP BAR ══ */}
       <div className="flex h-14 shrink-0 items-center justify-between border-b border-[#EAEAEA] bg-[#050505] px-3">
         <div className="flex items-center gap-3">
-          <Link to="/admin/store" className="grid h-9 w-9 place-items-center text-white/45 hover:bg-[#FAFAFA] hover:text-white">
+          <Link to="/admin/store" className="grid h-9 w-9 place-items-center text-[#999999] hover:bg-[#FAFAFA] hover:text-black">
             <ArrowLeft size={18} />
           </Link>
           <div className="hidden items-center gap-2 md:flex">
-            <p className="font-sans text-sm font-medium text-white">HUSHAE Theme</p>
+            <p className="font-sans text-sm font-medium text-black">HUSHAE Theme</p>
             <span className="rounded-full text-[10px] uppercase tracking-[0.16em] text-[#999999]">Active</span>
           </div>
         </div>
         <div className="hidden items-center gap-1 border border-[#EAEAEA] p-0.5 md:flex">
-          <span className="inline-flex items-center gap-2 border border-[#EAEAEA] px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.12em] text-white">
+          <span className="inline-flex items-center gap-2 border border-[#EAEAEA] px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.12em] text-black">
             <Home size={13} /> Home page
           </span>
         </div>
         <div className="flex items-center gap-1">
           <button onClick={() => setDevice('desktop')} aria-label="Desktop preview"
-            className={`grid h-9 w-9 place-items-center ${device === 'desktop' ? 'bg-white text-black' : 'text-white/45 hover:bg-[#FAFAFA]'}`}>
+            className={`grid h-9 w-9 place-items-center ${device === 'desktop' ? 'bg-white text-black' : 'text-[#999999] hover:bg-[#FAFAFA]'}`}>
             <Monitor size={16} />
           </button>
           <button onClick={() => setDevice('mobile')} aria-label="Mobile preview"
-            className={`grid h-9 w-9 place-items-center ${device === 'mobile' ? 'bg-white text-black' : 'text-white/45 hover:bg-[#FAFAFA]'}`}>
+            className={`grid h-9 w-9 place-items-center ${device === 'mobile' ? 'bg-white text-black' : 'text-[#999999] hover:bg-[#FAFAFA]'}`}>
             <Smartphone size={16} />
           </button>
           <div className="mx-1 h-6 w-px bg-[#F5F5F5]" />
           <button onClick={undo} disabled={!history.length} aria-label="Undo"
-            className="grid h-9 w-9 place-items-center text-white/45 hover:bg-[#FAFAFA] disabled:opacity-25"><Undo2 size={16} /></button>
+            className="grid h-9 w-9 place-items-center text-[#999999] hover:bg-[#FAFAFA] disabled:opacity-25"><Undo2 size={16} /></button>
           <button onClick={redo} disabled={!future.length} aria-label="Redo"
-            className="grid h-9 w-9 place-items-center text-white/45 hover:bg-[#FAFAFA] disabled:opacity-25"><Redo2 size={16} /></button>
+            className="grid h-9 w-9 place-items-center text-[#999999] hover:bg-[#FAFAFA] disabled:opacity-25"><Redo2 size={16} /></button>
           <button onClick={save} disabled={!dirty || busy}
             className="ml-2 inline-flex items-center gap-1.5 rounded-[4px] bg-white px-4 py-2 text-[10px] font-medium uppercase tracking-[0.08em] text-black disabled:cursor-not-allowed disabled:opacity-35">
             <Save size={14} /> {busy ? 'Saving…' : dirty ? 'Save' : 'Saved'}
@@ -463,7 +463,7 @@ export default function ThemeEditor() {
                         <div className={`group flex w-full items-center transition ${active ? 'bg-[#FAFAFA]' : 'hover:bg-[#FAFAFA]'}`}>
                           {hasBlocks ? (
                             <button onClick={() => setOpenSections((o) => ({ ...o, [it.id]: !expanded }))}
-                              className="grid h-9 w-6 shrink-0 place-items-center text-[#AAAAAA] hover:text-white" aria-label="Toggle blocks">
+                              className="grid h-9 w-6 shrink-0 place-items-center text-[#AAAAAA] hover:text-black" aria-label="Toggle blocks">
                               {expanded ? <ChevronDown size={13} /> : <ChevronRight size={13} />}
                             </button>
                           ) : <span className="w-6 shrink-0" />}
@@ -479,8 +479,8 @@ export default function ThemeEditor() {
                                 selectAndScroll(it.id);
                               }
                             }}
-                            className={`flex flex-1 items-center gap-2.5 py-2.5 pr-4 text-left ${active ? 'text-white' : 'text-[#555555] hover:text-white'}`}>
-                            <Icon size={15} className={active ? 'text-white' : 'text-[#999999]'} />
+                            className={`flex flex-1 items-center gap-2.5 py-2.5 pr-4 text-left ${active ? 'text-black' : 'text-[#555555] hover:text-black'}`}>
+                            <Icon size={15} className={active ? 'text-black' : 'text-[#999999]'} />
                             <span className="text-sm font-medium">{it.label}</span>
                           </button>
                         </div>
@@ -493,8 +493,8 @@ export default function ThemeEditor() {
                               return (
                                 <button key={b.id}
                                   onClick={() => { setActivePs(null); setActiveSection({ group, ...b, parent: it.label }); selectAndScroll(b.id); }}
-                                  className={`flex w-full items-center gap-2.5 py-2 pl-12 pr-4 text-left transition ${bActive ? 'bg-[#FAFAFA] text-white' : 'text-[#999999] hover:bg-[#FAFAFA] hover:text-white'}`}>
-                                  <BIcon size={13} className={bActive ? 'text-white' : 'text-[#AAAAAA]'} />
+                                  className={`flex w-full items-center gap-2.5 py-2 pl-12 pr-4 text-left transition ${bActive ? 'bg-[#FAFAFA] text-black' : 'text-[#999999] hover:bg-[#FAFAFA] hover:text-black'}`}>
+                                  <BIcon size={13} className={bActive ? 'text-black' : 'text-[#AAAAAA]'} />
                                   <span className="text-[13px]">{b.label}</span>
                                 </button>
                               );
@@ -530,22 +530,22 @@ export default function ThemeEditor() {
                             className={`group flex items-center gap-1.5 px-2 py-0.5 ${dragId === ps.id ? 'opacity-40' : ''}`}>
                             <GripVertical size={12} className="shrink-0 cursor-grab text-neutral-300 active:cursor-grabbing" />
                             <button onClick={() => { setActiveSection(null); setActivePs(ps.id); }}
-                              className={`flex flex-1 items-center gap-2 truncate rounded-md px-2 py-2 text-left text-sm transition ${active ? 'bg-[#FAFAFA] text-white' : 'text-white/55 hover:bg-[#FAFAFA]'}`}>
-                              <ShoppingBag size={14} className={ps.enabled === false ? 'text-neutral-300' : active ? 'text-white' : 'text-[#999999]'} />
+                              className={`flex flex-1 items-center gap-2 truncate rounded-md px-2 py-2 text-left text-sm transition ${active ? 'bg-[#FAFAFA] text-black' : 'text-[#777777] hover:bg-[#FAFAFA]'}`}>
+                              <ShoppingBag size={14} className={ps.enabled === false ? 'text-neutral-300' : active ? 'text-black' : 'text-[#999999]'} />
                               <span className={`truncate ${ps.enabled === false ? 'text-neutral-400 line-through' : ''}`}>
                                 {ps.heading || 'Product section'}
                               </span>
                             </button>
                             <button onClick={() => updatePs(ps.id, 'enabled', ps.enabled === false)}
                               title={ps.enabled === false ? 'Show section' : 'Hide section'}
-                              className="grid h-7 w-7 shrink-0 place-items-center rounded text-neutral-400 opacity-0 hover:bg-[#FAFAFA] hover:text-white group-hover:opacity-100">
+                              className="grid h-7 w-7 shrink-0 place-items-center rounded text-neutral-400 opacity-0 hover:bg-[#FAFAFA] hover:text-black group-hover:opacity-100">
                               {ps.enabled === false ? <EyeOff size={13} /> : <Eye size={13} />}
                             </button>
                           </div>
                         );
                       })}
                       <button onClick={addPs}
-                        className="mt-1 flex w-full items-center gap-2 px-4 py-2 text-left text-sm font-medium text-[#777777] transition hover:bg-[#FAFAFA] hover:text-white">
+                        className="mt-1 flex w-full items-center gap-2 px-4 py-2 text-left text-sm font-medium text-[#777777] transition hover:bg-[#FAFAFA] hover:text-black">
                         <Plus size={14} /> Add product section
                       </button>
                     </>
@@ -556,7 +556,7 @@ export default function ThemeEditor() {
           ))}
 
           <div className="p-4">
-            <Link to="/admin/store" className="inline-flex items-center gap-1 text-xs font-semibold text-[#999999] hover:text-white">
+            <Link to="/admin/store" className="inline-flex items-center gap-1 text-xs font-semibold text-[#999999] hover:text-black">
               <ArrowLeft size={11} /> Back to Online Store
             </Link>
           </div>
@@ -591,9 +591,9 @@ export default function ThemeEditor() {
               actions={(
                 <>
                   <button onClick={() => duplicatePs(activePsCfg.id)} title="Duplicate"
-                    className="grid h-8 w-8 place-items-center rounded-lg text-[#999999] hover:bg-[#FAFAFA] hover:text-white"><Copy size={14} /></button>
+                    className="grid h-8 w-8 place-items-center rounded-lg text-[#999999] hover:bg-[#FAFAFA] hover:text-black"><Copy size={14} /></button>
                   <button onClick={() => { if (confirm('Delete this section?')) removePs(activePsCfg.id); }} title="Delete"
-                    className="grid h-8 w-8 place-items-center rounded-lg text-[#999999] hover:bg-[#FAFAFA] hover:text-white"><Trash2 size={14} /></button>
+                    className="grid h-8 w-8 place-items-center rounded-lg text-[#999999] hover:bg-[#FAFAFA] hover:text-black"><Trash2 size={14} /></button>
                 </>
               )} />
             <div className="space-y-4 p-4">
@@ -626,12 +626,12 @@ function PanelHeader({ label, sub, onClose, actions }) {
     <div className="sticky top-0 z-10 flex items-start justify-between gap-2 border-b border-[#EAEAEA] bg-[#0A0A0A] p-4">
       <div className="min-w-0">
         <p className="adm-label">{sub ? `${sub} ›` : 'Editing'}</p>
-        <p className="mt-0.5 truncate font-sans text-base font-medium text-white">{label}</p>
+        <p className="mt-0.5 truncate font-sans text-base font-medium text-black">{label}</p>
       </div>
       <div className="flex shrink-0 items-center gap-1">
         {actions}
         <button onClick={onClose} aria-label="Close panel"
-          className="grid h-8 w-8 place-items-center rounded-lg text-[#999999] hover:bg-[#FAFAFA] hover:text-white"><X size={16} /></button>
+          className="grid h-8 w-8 place-items-center rounded-lg text-[#999999] hover:bg-[#FAFAFA] hover:text-black"><X size={16} /></button>
       </div>
     </div>
   );
@@ -698,7 +698,7 @@ function FieldControl({ field, value, onChange }) {
         <div className="flex border border-[#EAEAEA] p-0.5">
           {field.options.map(([val, lb]) => (
             <button key={String(val)} type="button" onClick={() => onChange(val)}
-              className={`flex-1 rounded-md px-2 py-1.5 text-xs font-semibold transition ${String(v) === String(val) ? 'bg-white text-black' : 'text-[#999999] hover:text-white'}`}>
+              className={`flex-1 rounded-md px-2 py-1.5 text-xs font-semibold transition ${String(v) === String(val) ? 'bg-white text-black' : 'text-[#999999] hover:text-black'}`}>
               {lb}
             </button>
           ))}
@@ -713,7 +713,7 @@ function FieldControl({ field, value, onChange }) {
             value={v || ''} onChange={(e) => onChange(e.target.value)} />
           {v ? (
             <button type="button" onClick={() => onChange('')} title="Clear"
-              className="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-neutral-400 hover:bg-[#FAFAFA] hover:text-white"><X size={14} /></button>
+              className="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-neutral-400 hover:bg-[#FAFAFA] hover:text-black"><X size={14} /></button>
           ) : null}
         </div>
       )}
@@ -757,11 +757,11 @@ function MenuEditor({ items, onChange }) {
             <input className="w-full rounded-[4px] border border-[#DCDCDC] bg-[#050505] px-3 py-2 text-[12px] text-black outline-none transition focus:border-[#F0F0F0]0 !py-1.5 flex-1 text-sm" placeholder="Label"
               value={it.label || ''} onChange={(e) => set(i, 'label', e.target.value)} />
             <button onClick={() => move(i, -1)} disabled={i === 0} title="Move up"
-              className="grid h-7 w-7 shrink-0 place-items-center rounded text-neutral-400 hover:bg-[#FAFAFA] hover:text-white disabled:opacity-25"><ArrowUp size={12} /></button>
+              className="grid h-7 w-7 shrink-0 place-items-center rounded text-neutral-400 hover:bg-[#FAFAFA] hover:text-black disabled:opacity-25"><ArrowUp size={12} /></button>
             <button onClick={() => move(i, 1)} disabled={i === items.length - 1} title="Move down"
-              className="grid h-7 w-7 shrink-0 place-items-center rounded text-neutral-400 hover:bg-[#FAFAFA] hover:text-white disabled:opacity-25"><ArrowDown size={12} /></button>
+              className="grid h-7 w-7 shrink-0 place-items-center rounded text-neutral-400 hover:bg-[#FAFAFA] hover:text-black disabled:opacity-25"><ArrowDown size={12} /></button>
             <button onClick={() => onChange(items.filter((_, j) => j !== i))} title="Remove"
-              className="grid h-7 w-7 shrink-0 place-items-center rounded text-neutral-400 hover:bg-[#FAFAFA] hover:text-white"><Trash2 size={12} /></button>
+              className="grid h-7 w-7 shrink-0 place-items-center rounded text-neutral-400 hover:bg-[#FAFAFA] hover:text-black"><Trash2 size={12} /></button>
           </div>
           <div className="mt-1.5 flex items-center gap-1.5">
             <Link2 size={12} className="shrink-0 text-neutral-400" />
@@ -785,7 +785,7 @@ function MenuEditor({ items, onChange }) {
         </div>
       ))}
       <button onClick={() => onChange([...items, { label: 'New link', href: '/', dropdown: '', highlight: false }])}
-        className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-[#DCDCDC] py-2 text-xs font-semibold text-neutral-600 hover:border-neutral-400 hover:text-white">
+        className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-[#DCDCDC] py-2 text-xs font-semibold text-neutral-600 hover:border-neutral-400 hover:text-black">
         <Plus size={13} /> Add link
       </button>
     </div>
@@ -814,7 +814,7 @@ function ColumnsEditor({ cols, onChange }) {
             <button onClick={() => moveCol(i, 1)} disabled={i === cols.length - 1} title="Move right"
               className="grid h-7 w-7 shrink-0 place-items-center rounded text-neutral-400 hover:bg-neutral-100 disabled:opacity-25"><ArrowDown size={12} /></button>
             <button onClick={() => onChange(cols.filter((_, j) => j !== i))} title="Remove column"
-              className="grid h-7 w-7 shrink-0 place-items-center rounded text-neutral-400 hover:bg-[#FAFAFA] hover:text-white"><Trash2 size={12} /></button>
+              className="grid h-7 w-7 shrink-0 place-items-center rounded text-neutral-400 hover:bg-[#FAFAFA] hover:text-black"><Trash2 size={12} /></button>
           </div>
           <div className="mt-2 space-y-1.5 border-l border-[#EAEAEA] pl-2.5">
             {(col.links || []).map((l, j) => (
@@ -824,18 +824,18 @@ function ColumnsEditor({ cols, onChange }) {
                 <input className="w-full rounded-[4px] border border-[#DCDCDC] bg-[#050505] px-3 py-2 text-[12px] text-black outline-none transition focus:border-[#F0F0F0]0 !py-1 flex-1 font-mono text-[12px]" placeholder="/link" value={l.href || ''}
                   onChange={(e) => setCol(i, { links: col.links.map((x, k) => (k === j ? { ...x, href: e.target.value } : x)) })} />
                 <button onClick={() => setCol(i, { links: col.links.filter((_, k) => k !== j) })}
-                  className="grid h-6 w-6 shrink-0 place-items-center rounded text-neutral-400 hover:bg-[#FAFAFA] hover:text-white"><X size={11} /></button>
+                  className="grid h-6 w-6 shrink-0 place-items-center rounded text-neutral-400 hover:bg-[#FAFAFA] hover:text-black"><X size={11} /></button>
               </div>
             ))}
             <button onClick={() => setCol(i, { links: [...(col.links || []), { label: 'New link', href: '/' }] })}
-              className="flex items-center gap-1 text-[12px] font-semibold text-[#999999] hover:text-white">
+              className="flex items-center gap-1 text-[12px] font-semibold text-[#999999] hover:text-black">
               <Plus size={11} /> Add link
             </button>
           </div>
         </div>
       ))}
       <button onClick={() => onChange([...cols, { title: 'New column', links: [] }])}
-        className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-[#DCDCDC] py-2 text-xs font-semibold text-neutral-600 hover:border-neutral-400 hover:text-white">
+        className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-[#DCDCDC] py-2 text-xs font-semibold text-neutral-600 hover:border-neutral-400 hover:text-black">
         <Plus size={13} /> Add column
       </button>
     </div>

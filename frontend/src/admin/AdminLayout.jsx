@@ -326,7 +326,7 @@ function SidebarContent({ onNavigate, onOpenCmd, collapsed = false }) {
           </div>
         )}
         <div className={`flex items-center gap-3 ${collapsed ? 'justify-center' : ''}`}>
-          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-md bg-black text-[11px] font-semibold text-white">
+          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-md bg-black text-[11px] font-semibold text-black">
             {initials}
           </span>
           {!collapsed && (
@@ -599,7 +599,7 @@ function TopBar({ title, auth, onCmdK, onMenu, onToggleSidebar, collapsed }) {
               <button
                 type="button"
                 onClick={() => setCreateOpen((v) => !v)}
-                className="inline-flex h-9 items-center gap-2 rounded-md bg-black px-4 text-[13px] font-medium text-white transition-all duration-150 hover:bg-[#1a1a1a]"
+                className="inline-flex h-9 items-center gap-2 rounded-md bg-black px-4 text-[13px] font-medium text-black transition-all duration-150 hover:bg-[#1a1a1a]"
               >
                 <Plus size={14} />
                 <span className="hidden sm:inline">Create</span>
@@ -635,7 +635,7 @@ function TopBar({ title, auth, onCmdK, onMenu, onToggleSidebar, collapsed }) {
 
           {/* User avatar */}
           <div className="ml-1 flex items-center gap-2.5">
-            <span className="grid h-8 w-8 place-items-center rounded-md bg-black text-[11px] font-semibold text-white">{initials}</span>
+            <span className="grid h-8 w-8 place-items-center rounded-md bg-black text-[11px] font-semibold text-black">{initials}</span>
             <span className="hidden text-[13px] font-medium text-black sm:inline">{auth?.user?.name?.split(' ')[0] || 'Admin'}</span>
           </div>
         </div>

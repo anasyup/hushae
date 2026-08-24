@@ -42,7 +42,7 @@ export default function Dropdown({
         aria-haspopup="menu"
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
-        className="inline-flex h-9 items-center gap-1.5 rounded-[4px] border border-white/20 px-3 text-[10px] font-medium uppercase tracking-[0.1em] text-white/80 transition-colors hover:border-white/40 hover:text-white"
+        className="inline-flex h-9 items-center gap-1.5 rounded-[4px] border border-[#DCDCDC] px-3 text-[10px] font-medium uppercase tracking-[0.1em] text-[#333333] transition-colors hover:border-white/40 hover:text-black"
       >
         {trigger || label}
         <ChevronDown size={12} className={`transition-transform ${open ? 'rotate-180' : ''}`} />
@@ -51,7 +51,7 @@ export default function Dropdown({
       {open && (
         <div
           role="menu"
-          className={`absolute z-40 mt-1 min-w-[180px] rounded-[4px] border border-white/15 bg-[#0D0D0D] py-1 ${
+          className={`absolute z-40 mt-1 min-w-[180px] rounded-[4px] border border-[#EAEAEA] bg-[#0D0D0D] py-1 ${
             align === 'right' ? 'right-0' : 'left-0'
           }`}
         >
@@ -66,11 +66,11 @@ export default function Dropdown({
               }}
               className={`flex h-9 w-full items-center gap-2 px-3 text-left text-[12px] transition-colors ${
                 selected === it.value
-                  ? 'bg-white/10 text-white'
-                  : 'text-white/60 hover:bg-white/5 hover:text-white'
+                  ? 'bg-[#F5F5F5] text-black'
+                  : 'text-[#555555] hover:bg-[#FAFAFA] hover:text-black'
               }`}
             >
-              {it.icon && <span className="text-white/40">{it.icon}</span>}
+              {it.icon && <span className="text-[#999999]">{it.icon}</span>}
               {it.label}
             </button>
           ))}

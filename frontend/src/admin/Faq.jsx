@@ -71,7 +71,7 @@ export default function AdminFaq() {
         <p className="adm-index">01 — Page</p>
         <div className="flex items-start justify-between gap-4 border-y border-[#EAEAEA] py-6">
           <div>
-            <p className="text-[13px] text-white">FAQ page live</p>
+            <p className="text-[13px] text-black">FAQ page live</p>
             <p className="mt-1 text-[12px] text-[#AAAAAA]">Also picked up by Google as rich snippets.</p>
           </div>
           <button

@@ -10,7 +10,7 @@ import { btnGhost, ctl, ctlInline } from './orderUi';
  * Filter bar — editorial control row. Every change writes to the URL.
  * ========================================================================== */
 
-const label = 'mb-1.5 block text-[9px] font-medium uppercase tracking-[0.18em] text-white/35';
+const label = 'mb-1.5 block text-[9px] font-medium uppercase tracking-[0.18em] text-[#AAAAAA]';
 
 export default function OrderFilters({ filters, setFilter, resetFilters, activeFilterCount, facets, onExport, token }) {
   const [open, setOpen] = useState(false);
@@ -66,7 +66,7 @@ export default function OrderFilters({ filters, setFilter, resetFilters, activeF
     <div>
       <div className="flex flex-wrap items-center gap-2">
         <div ref={suggestRef} className="relative min-w-[200px] flex-1">
-          <Search size={13} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
+          <Search size={13} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#AAAAAA]" />
           <input
             data-order-search
             value={term}
@@ -83,30 +83,30 @@ export default function OrderFilters({ filters, setFilter, resetFilters, activeF
           />
           {term && (
             <button onClick={() => { onSearch(''); setSuggestions([]); }} aria-label="Clear search"
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-white/30 hover:text-white">
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#AAAAAA] hover:text-black">
               <X size={13} />
             </button>
           )}
 
           {suggestOpen && (suggestions.length > 0 || (!term && recent.length > 0)) && (
-            <div className="absolute left-0 right-0 top-9 z-40 overflow-hidden border border-white/15 bg-[#0D0D0D] py-1">
+            <div className="absolute left-0 right-0 top-9 z-40 overflow-hidden border border-[#EAEAEA] bg-[#0D0D0D] py-1">
               {suggestions.length > 0 ? suggestions.map((sg) => (
                 <button key={`${sg.type}-${sg.value}`} onClick={() => applySuggestion(sg.value)}
-                  className="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-white/5">
-                  <span className="w-14 shrink-0 text-[9px] font-medium uppercase tracking-[0.14em] text-white/30">{sg.type}</span>
-                  <span className="min-w-0 flex-1 truncate text-[12px] text-white/85">{sg.value}</span>
-                  {sg.hint && <span className="shrink-0 text-[11px] text-white/30">{sg.hint}</span>}
+                  className="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-[#FAFAFA]">
+                  <span className="w-14 shrink-0 text-[9px] font-medium uppercase tracking-[0.14em] text-[#AAAAAA]">{sg.type}</span>
+                  <span className="min-w-0 flex-1 truncate text-[12px] text-black">{sg.value}</span>
+                  {sg.hint && <span className="shrink-0 text-[11px] text-[#AAAAAA]">{sg.hint}</span>}
                 </button>
               )) : (
                 <>
-                  <p className="flex items-center justify-between px-3 py-1.5 text-[9px] font-medium uppercase tracking-[0.18em] text-white/30">
+                  <p className="flex items-center justify-between px-3 py-1.5 text-[9px] font-medium uppercase tracking-[0.18em] text-[#AAAAAA]">
                     Recent
                     <button onClick={() => { setRecent([]); localStorage.removeItem('hushae.orderSearches'); }}
-                      className="font-medium normal-case tracking-normal text-white/40 hover:text-white">Clear</button>
+                      className="font-medium normal-case tracking-normal text-[#999999] hover:text-black">Clear</button>
                   </p>
                   {recent.map((r) => (
                     <button key={r} onClick={() => applySuggestion(r)}
-                      className="flex w-full items-center gap-2 px-3 py-2 text-left text-[12px] text-white/70 hover:bg-white/5">
+                      className="flex w-full items-center gap-2 px-3 py-2 text-left text-[12px] text-[#555555] hover:bg-[#FAFAFA]">
                       {r}
                     </button>
                   ))}
@@ -160,7 +160,7 @@ export default function OrderFilters({ filters, setFilter, resetFilters, activeF
       </div>
 
       {open && (
-        <div className="mt-5 grid gap-4 border-t border-white/10 pt-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-5 grid gap-4 border-t border-[#EAEAEA] pt-5 sm:grid-cols-2 lg:grid-cols-4">
           <div>
             <span className={label}>Stage</span>
             <select value={filters.stage} onChange={(e) => setFilter({ stage: e.target.value })} className={ctl}>
@@ -228,10 +228,10 @@ export default function OrderFilters({ filters, setFilter, resetFilters, activeF
       )}
 
       {activeFilterCount > 0 && !open && (
-        <p className="mt-3 text-[11px] text-white/35">
+        <p className="mt-3 text-[11px] text-[#AAAAAA]">
           {activeFilterCount} filter{activeFilterCount === 1 ? '' : 's'} active
           {' · '}
-          <button onClick={resetFilters} className="text-white/70 underline underline-offset-2 hover:text-white">Clear</button>
+          <button onClick={resetFilters} className="text-[#555555] underline underline-offset-2 hover:text-black">Clear</button>
         </p>
       )}
     </div>

@@ -54,7 +54,7 @@ export default function EmailCampaigns() {
                 <div key={c._id} className="border-b border-[#EAEAEA]">
                   <button type="button" className="flex w-full items-center gap-4 py-4 text-left adm-row-hover" onClick={() => setExpanded(open ? null : c._id)}>
                     <span className="min-w-0 flex-1">
-                      <span className="block truncate text-[13px] font-medium text-white">{c.subject}</span>
+                      <span className="block truncate text-[13px] font-medium text-black">{c.subject}</span>
                       <span className="mt-0.5 block truncate text-[11px] text-[#AAAAAA]">
                         {c.groupName || 'group'} · {fmtDateTime(c.sentAt)} · {c.sentByName || 'admin'}
                       </span>
@@ -70,7 +70,7 @@ export default function EmailCampaigns() {
                         {[['Matched', c.matched], ['Opted in', c.optedIn], ['Sent', c.sent], ['Failed', c.failed], ['Skipped', c.skipped || 0]].map(([label, val]) => (
                           <div key={label} className="px-4 py-4">
                             <p className="adm-label">{label}</p>
-                            <p className="adm-metric mt-1 text-[20px] text-white">{val}</p>
+                            <p className="adm-metric mt-1 text-[20px] text-black">{val}</p>
                           </div>
                         ))}
                       </div>

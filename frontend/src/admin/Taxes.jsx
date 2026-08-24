@@ -118,7 +118,7 @@ export default function Taxes() {
             </div>
             {zones.map((z) => (
               <div key={z._id} className="grid grid-cols-1 gap-1 border-b border-[#F0F0F0] py-3 md:grid-cols-[1.2fr_1fr_0.5fr_0.7fr_0.7fr_0.6fr] md:items-center md:gap-3">
-                <span className="text-[13px] text-white">{z.name}</span>
+                <span className="text-[13px] text-black">{z.name}</span>
                 <span className="text-[12px] text-[#999999]">{z.region || '—'}</span>
                 <span className="tabular-nums text-[13px] text-[#333333]">{z.rate}%</span>
                 <span className="text-[12px] text-[#999999]">{z.inclusive ? 'Yes' : 'No'}</span>

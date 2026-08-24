@@ -5,8 +5,8 @@ import { useApp } from '../../store/AppContext';
 import { pkr } from '../../lib/format';
 
 const PACE = {
-  ahead:      { label: 'Ahead of pace', cls: 'bg-white/12 text-white ring-white/20', bar: 'bg-white' },
-  'on-track': { label: 'On track',      cls: 'bg-white/8 text-white/85 ring-white/15', bar: 'bg-white/70' },
+  ahead:      { label: 'Ahead of pace', cls: 'bg-white/12 text-black ring-white/20', bar: 'bg-white' },
+  'on-track': { label: 'On track',      cls: 'bg-white/8 text-black ring-white/15', bar: 'bg-white/70' },
   behind:     { label: 'Behind pace',   cls: 'bg-[#FAFAFA] text-[#555555] ring-white/10', bar: 'bg-white/40' },
   unset:      { label: 'No goal set',   cls: 'bg-neutral-100 text-neutral-600 ring-neutral-200', bar: 'bg-neutral-400' },
 };
@@ -46,7 +46,7 @@ export default function GoalTracker({ goal, onSaved }) {
           <span className={`rounded-full px-2.5 py-1 text-[12px] font-bold ring-1 ${pace.cls}`}>{pace.label}</span>
           <button
             onClick={() => { setValue(String(goal.goal || '')); setEditing((v) => !v); }}
-            className="grid h-8 w-8 place-items-center rounded-lg text-[#999999] transition hover:bg-[#FAFAFA] hover:text-white"
+            className="grid h-8 w-8 place-items-center rounded-lg text-[#999999] transition hover:bg-[#FAFAFA] hover:text-black"
             aria-label="Edit goal"
           >
             <Pencil size={13} />
@@ -64,7 +64,7 @@ export default function GoalTracker({ goal, onSaved }) {
             className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm tabular-nums outline-none focus:border-neutral-900"
           />
           <button onClick={save} disabled={busy}
-            className="inline-flex shrink-0 items-center gap-1 rounded-lg bg-neutral-900 px-3 py-2 text-[12px] font-semibold text-white disabled:opacity-50">
+            className="inline-flex shrink-0 items-center gap-1 rounded-lg bg-neutral-900 px-3 py-2 text-[12px] font-semibold text-black disabled:opacity-50">
             <Check size={13} /> Save
           </button>
         </div>

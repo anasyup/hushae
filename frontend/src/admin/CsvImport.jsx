@@ -65,15 +65,15 @@ export default function CsvImport({ onClose, onDone }) {
         <div className="flex items-start justify-between border-b border-[#EAEAEA] px-5 py-4">
           <div>
             <p className="adm-label">{tab === 'import' ? 'Bulk import' : 'Export'}</p>
-            <p className="mt-1 text-[15px] font-medium text-white">{tab === 'import' ? 'CSV product import' : 'Download products CSV'}</p>
+            <p className="mt-1 text-[15px] font-medium text-black">{tab === 'import' ? 'CSV product import' : 'Download products CSV'}</p>
           </div>
-          <button type="button" onClick={onClose} className="text-[#AAAAAA] hover:text-white" aria-label="Close"><X size={15} /></button>
+          <button type="button" onClick={onClose} className="text-[#AAAAAA] hover:text-black" aria-label="Close"><X size={15} /></button>
         </div>
 
         <div className="flex gap-5 border-b border-[#EAEAEA] px-5">
           {[{ k: 'import', l: 'Import' }, { k: 'export', l: 'Export' }].map((t) => (
             <button key={t.k} type="button" onClick={() => setTab(t.k)}
-              className={`py-2.5 text-[10px] font-medium uppercase tracking-[0.16em] ${tab === t.k ? 'border-b border-white text-white' : 'border-b border-transparent text-[#AAAAAA] hover:text-[#555555]'}`}>
+              className={`py-2.5 text-[10px] font-medium uppercase tracking-[0.16em] ${tab === t.k ? 'border-b border-white text-black' : 'border-b border-transparent text-[#AAAAAA] hover:text-[#555555]'}`}>
               {t.l}
             </button>
           ))}

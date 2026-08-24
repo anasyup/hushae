@@ -195,19 +195,19 @@ export default function StructuredDataPanel({ page, cfg, onChangeSeo }) {
       title="Structured data"
       subtitle="Optional. Turns a plain link into a richer search result."
       badge={!result.ok ? (
-        <span className="text-[10px] uppercase tracking-[0.14em] text-white/50">Not valid</span>
+        <span className="text-[10px] uppercase tracking-[0.14em] text-[#777777]">Not valid</span>
       ) : result.value ? (
-        <span className="text-[10px] uppercase tracking-[0.14em] text-white/70">Ready</span>
+        <span className="text-[10px] uppercase tracking-[0.14em] text-[#555555]">Ready</span>
       ) : null}
     >
       <div className="space-y-4">
         {!enabled && (
-          <p className="text-[12px] leading-relaxed text-white/40">
+          <p className="text-[12px] leading-relaxed text-[#999999]">
             Extra information is switched off for the whole shop, so nothing here will be published.
           </p>
         )}
 
-        <p className="text-[12px] leading-relaxed text-white/50">
+        <p className="text-[12px] leading-relaxed text-[#777777]">
           This is a note for Google that customers never see. Pick a starting point below and edit the
           words — you do not need to understand the brackets, just keep them where they are.
         </p>
@@ -220,10 +220,10 @@ export default function StructuredDataPanel({ page, cfg, onChangeSeo }) {
               <button
                 key={tpl.id} type="button"
                 onClick={() => applyTemplate(tpl)}
-                className="min-h-[44px] rounded-[4px] border border-white/15 px-3 py-2 text-left transition hover:border-white/40"
+                className="min-h-[44px] rounded-[4px] border border-[#EAEAEA] px-3 py-2 text-left transition hover:border-white/40"
               >
-                <span className="block text-[12px] text-white">{tpl.label}</span>
-                <span className="mt-0.5 block text-[12px] leading-relaxed text-white/35">{tpl.blurb}</span>
+                <span className="block text-[12px] text-black">{tpl.label}</span>
+                <span className="mt-0.5 block text-[12px] leading-relaxed text-[#AAAAAA]">{tpl.blurb}</span>
               </button>
             ))}
           </div>
@@ -238,7 +238,7 @@ export default function StructuredDataPanel({ page, cfg, onChangeSeo }) {
             onChange={(e) => commit(e.target.value)}
             aria-describedby="sd-json-h"
             aria-invalid={!result.ok}
-            className={`min-h-[220px] w-full resize-y rounded-[4px] border bg-[#0A0A0A] px-3 py-2 font-mono text-[12px] leading-relaxed text-white/85 outline-none ${!result.ok ? 'border-white/40' : 'border-white/20'} focus:border-white/50`}
+            className={`min-h-[220px] w-full resize-y rounded-[4px] border bg-[#0A0A0A] px-3 py-2 font-mono text-[12px] leading-relaxed text-black outline-none ${!result.ok ? 'border-white/40' : 'border-[#DCDCDC]'} focus:border-[#F0F0F0]0`}
             placeholder='{\n  "@context": "https://schema.org",\n  "@type": "FAQPage"\n}'
           />
           <p id="sd-json-h" className="sr-only">
@@ -248,24 +248,24 @@ export default function StructuredDataPanel({ page, cfg, onChangeSeo }) {
 
         {/* ---- verdict ---- */}
         {!result.ok ? (
-          <p role="alert" className="flex items-start gap-2 border-y border-white/10 py-3 text-[12px] leading-relaxed text-white/70">
+          <p role="alert" className="flex items-start gap-2 border-y border-[#EAEAEA] py-3 text-[12px] leading-relaxed text-[#555555]">
             <TriangleAlert size={14} className="mt-0.5 shrink-0" aria-hidden="true" />
             <span>{result.message} <strong>Saving is blocked until this is fixed.</strong></span>
           </p>
         ) : result.value ? (
-          <div className="border-y border-white/10 py-3">
-            <p className="flex items-center gap-2 text-[12px] text-white">
+          <div className="border-y border-[#EAEAEA] py-3">
+            <p className="flex items-center gap-2 text-[12px] text-black">
               <Check size={14} aria-hidden="true" /> Google will understand this as:
             </p>
-            <ul className="mt-1.5 space-y-0.5 pl-6 text-[12px] text-white/60">
+            <ul className="mt-1.5 space-y-0.5 pl-6 text-[12px] text-[#555555]">
               {summary.map((s, i) => <li key={i} className="list-disc">{s}</li>)}
             </ul>
-            <p className="mt-1.5 pl-6 text-[12px] text-white/40">
+            <p className="mt-1.5 pl-6 text-[12px] text-[#999999]">
               {Math.round((result.bytes || 0) / 1024 * 10) / 10} KB of 32 KB used.
             </p>
           </div>
         ) : (
-          <p className="flex items-center gap-2 text-[12px] text-white/35">
+          <p className="flex items-center gap-2 text-[12px] text-[#AAAAAA]">
             <Braces size={12} aria-hidden="true" /> Empty — nothing extra will be sent to Google.
           </p>
         )}
@@ -276,11 +276,11 @@ export default function StructuredDataPanel({ page, cfg, onChangeSeo }) {
             <a
               href="https://search.google.com/test/rich-results"
               target="_blank" rel="noreferrer"
-              className="inline-flex min-h-[44px] items-center border border-white/20 px-3 text-[11px] font-medium uppercase tracking-[0.12em] text-white/70 transition hover:border-white/40 hover:text-white"
+              className="inline-flex min-h-[44px] items-center border border-[#DCDCDC] px-3 text-[11px] font-medium uppercase tracking-[0.12em] text-[#555555] transition hover:border-white/40 hover:text-black"
             >
               Open Google&apos;s free tester
             </a>
-            <p className="mt-1.5 text-[12px] leading-relaxed text-white/35">
+            <p className="mt-1.5 text-[12px] leading-relaxed text-[#AAAAAA]">
               Publish the page first, then paste its address into Google&apos;s tester to see the real result.
             </p>
           </div>

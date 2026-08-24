@@ -69,7 +69,7 @@ export default function Analytics() {
     if (!d) return null;
     if (d.up === null) return <span className="ml-2 text-[11px] uppercase tracking-[0.12em] text-[#AAAAAA]">{d.txt}</span>;
     return (
-      <span className={`ml-2 text-[11px] tabular-nums ${d.up ? 'text-white/55' : 'text-[#AAAAAA]'}`}>
+      <span className={`ml-2 text-[11px] tabular-nums ${d.up ? 'text-[#777777]' : 'text-[#AAAAAA]'}`}>
         {d.up ? '↑' : '↓'} {d.txt}
       </span>
     );
@@ -101,7 +101,7 @@ export default function Analytics() {
           {kpis.map((x) => (
             <div key={x.label} className="px-4 py-6 sm:px-5">
               <p className="adm-label">{x.label}</p>
-              <p className="adm-metric mt-3 text-[22px] leading-none text-white xl:text-[26px]">
+              <p className="adm-metric mt-3 text-[22px] leading-none text-black xl:text-[26px]">
                 {x.value}
                 <Delta d={x.d} />
               </p>
@@ -137,11 +137,11 @@ export default function Analytics() {
         <div className="adm-divide-x mb-8 grid grid-cols-2 border-y border-[#EAEAEA]">
           <div className="px-5 py-6">
             <p className="adm-label">First-time buyers</p>
-            <p className="adm-metric mt-3 text-[32px] leading-none text-white">{a.customerSplit.fresh}</p>
+            <p className="adm-metric mt-3 text-[32px] leading-none text-black">{a.customerSplit.fresh}</p>
           </div>
           <div className="px-5 py-6">
             <p className="adm-label">Returning buyers</p>
-            <p className="adm-metric mt-3 text-[32px] leading-none text-white">{a.customerSplit.returning}</p>
+            <p className="adm-metric mt-3 text-[32px] leading-none text-black">{a.customerSplit.returning}</p>
           </div>
         </div>
         <p className="adm-label mb-3">Orders by city</p>

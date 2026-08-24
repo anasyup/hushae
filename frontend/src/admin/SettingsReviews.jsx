@@ -73,7 +73,7 @@ export default function SettingsReviews() {
             ].map(([k, v]) => (
               <div key={k} className="px-5 py-6">
                 <p className="adm-label">{k}</p>
-                <p className="adm-metric mt-3 text-[26px] text-white">{v}</p>
+                <p className="adm-metric mt-3 text-[26px] text-black">{v}</p>
               </div>
             ))}
           </div>

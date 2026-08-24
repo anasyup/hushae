@@ -108,7 +108,7 @@ export default function Backup() {
             ['Layer 3 — Manual JSON', 'Download a full snapshot to your own computer. Store it anywhere you trust.'],
           ].map(([t, d]) => (
             <div key={t}>
-              <p className="text-[13px] text-white">{t}</p>
+              <p className="text-[13px] text-black">{t}</p>
               <p className="mt-1 text-[12px] leading-relaxed text-[#AAAAAA]">{d}</p>
             </div>
           ))}
@@ -118,7 +118,7 @@ export default function Backup() {
       <EdSection index={2} title="CSV exports" description="Tailored datasets for bookkeeping and analytics.">
         <div className="grid gap-8 md:grid-cols-2">
           <div>
-            <p className="mb-3 text-[13px] text-white">Orders</p>
+            <p className="mb-3 text-[13px] text-black">Orders</p>
             <div className="space-y-3">
               <div>
                 <label className="adm-label mb-1.5 block">Fulfillment status</label>
@@ -147,7 +147,7 @@ export default function Backup() {
             </div>
           </div>
           <div>
-            <p className="mb-3 text-[13px] text-white">Quick exports</p>
+            <p className="mb-3 text-[13px] text-black">Quick exports</p>
             <p className="mb-4 text-[12px] text-[#AAAAAA]">One-click downloads for customers, catalogue and reviews.</p>
             <div className="flex flex-wrap gap-2">
               <button type="button" onClick={() => handleExportCSV('customers')} disabled={exportBusy.customers} className={btnGhost}>{exportBusy.customers ? '…' : 'Customers'}</button>
@@ -180,12 +180,12 @@ export default function Backup() {
               ].map(([label, v]) => (
                 <div key={label} className="px-4 py-5">
                   <p className="adm-label">{label}</p>
-                  <p className="adm-metric mt-2 text-[22px] text-white">{v ?? '—'}</p>
+                  <p className="adm-metric mt-2 text-[22px] text-black">{v ?? '—'}</p>
                 </div>
               ))}
             </div>
             {info?.total > 0 && (
-              <p className="mt-4 text-[12px] text-[#AAAAAA]">Total records: <span className="text-white">{info.total.toLocaleString()}</span></p>
+              <p className="mt-4 text-[12px] text-[#AAAAAA]">Total records: <span className="text-black">{info.total.toLocaleString()}</span></p>
             )}
           </>
         )}

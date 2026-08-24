@@ -100,7 +100,7 @@ export default function Marketing() {
               ].map((x) => (
                 <div key={x.label} className="px-5 py-6">
                   <p className="adm-label">{x.label}</p>
-                  <p className="adm-metric mt-3 text-[32px] leading-none text-white">{x.value}</p>
+                  <p className="adm-metric mt-3 text-[32px] leading-none text-black">{x.value}</p>
                 </div>
               ))}
             </div>
@@ -122,7 +122,7 @@ export default function Marketing() {
               ].map((x) => (
                 <Link key={x.to} to={x.to} className="flex items-center justify-between gap-4 py-4 adm-row-hover">
                   <span>
-                    <span className="block text-[13px] font-medium text-white">{x.label}</span>
+                    <span className="block text-[13px] font-medium text-black">{x.label}</span>
                     <span className="mt-0.5 block text-[12px] text-[#AAAAAA]">{x.hint}</span>
                   </span>
                   <span className="text-[11px] uppercase tracking-[0.14em] text-[#AAAAAA]">Open →</span>
@@ -142,7 +142,7 @@ export default function Marketing() {
               <div>
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <p className="text-[13px] font-medium text-white">Abandoned cart recovery</p>
+                    <p className="text-[13px] font-medium text-black">Abandoned cart recovery</p>
                     <p className="mt-1 text-[12px] text-[#AAAAAA]">Email buyers who leave checkout incomplete.</p>
                   </div>
                   <button
@@ -170,7 +170,7 @@ export default function Marketing() {
               <div className="border-t border-[#EAEAEA] pt-6">
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <p className="text-[13px] font-medium text-white">Review request</p>
+                    <p className="text-[13px] font-medium text-black">Review request</p>
                     <p className="mt-1 text-[12px] text-[#AAAAAA]">Ask for a review after delivery.</p>
                   </div>
                   <button
@@ -195,7 +195,7 @@ export default function Marketing() {
                 </div>
               </div>
             </div>
-            <Link to="/admin/marketing/settings" className="mt-4 inline-block text-[11px] uppercase tracking-[0.14em] text-[#999999] hover:text-white">
+            <Link to="/admin/marketing/settings" className="mt-4 inline-block text-[11px] uppercase tracking-[0.14em] text-[#999999] hover:text-black">
               Full marketing rules →
             </Link>
           </section>
@@ -204,7 +204,7 @@ export default function Marketing() {
             <p className="adm-index">04 — Recovery</p>
             <Link to="/admin/abandoned-carts" className="flex items-center justify-between border-y border-[#EAEAEA] py-5 adm-row-hover">
               <span>
-                <span className="block text-[13px] font-medium text-white">Abandoned carts</span>
+                <span className="block text-[13px] font-medium text-black">Abandoned carts</span>
                 <span className="mt-0.5 block text-[12px] text-[#AAAAAA]">{m.abandonedCartCount ?? 0} open · {m.recoveredCount ?? 0} recovered</span>
               </span>
               <span className="text-[11px] uppercase tracking-[0.14em] text-[#AAAAAA]">Open →</span>

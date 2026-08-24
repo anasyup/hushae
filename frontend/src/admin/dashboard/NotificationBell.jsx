@@ -15,9 +15,9 @@ const ICON = {
   'bulk.done': CheckCheck,
 };
 const TONE = {
-  danger: 'bg-white/12 text-white',
-  warning: 'bg-white/8 text-white/85',
-  success: 'bg-white/12 text-white',
+  danger: 'bg-white/12 text-black',
+  warning: 'bg-white/8 text-black',
+  success: 'bg-white/12 text-black',
   info: 'bg-[#FAFAFA] text-[#555555]',
 };
 

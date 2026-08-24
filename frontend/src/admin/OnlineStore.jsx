@@ -121,7 +121,7 @@ export default function OnlineStore() {
           <div className="border-y border-[#EAEAEA] py-6">
             <div className="mb-6 flex items-start justify-between gap-4">
               <div>
-                <p className="text-[13px] text-white">Password protection</p>
+                <p className="text-[13px] text-black">Password protection</p>
                 <p className="mt-1 text-[12px] text-[#AAAAAA]">
                   {lock.enabled ? 'Store abhi sirf password se khulta hai' : 'Store sab ke liye open hai'}
                 </p>
@@ -170,7 +170,7 @@ export default function OnlineStore() {
           {ACTIONS.map(([label, hint, to]) => (
             <Link key={to} to={to} className="flex items-center justify-between gap-4 py-4 adm-row-hover">
               <span>
-                <span className="block text-[13px] text-white">{label}</span>
+                <span className="block text-[13px] text-black">{label}</span>
                 <span className="mt-0.5 block text-[12px] text-[#AAAAAA]">{hint}</span>
               </span>
               <span className="text-[11px] uppercase tracking-[0.14em] text-[#AAAAAA]">Open →</span>

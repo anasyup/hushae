@@ -161,7 +161,7 @@ export default function SettingsLoyalty() {
             ].map(([k, v]) => (
               <div key={k} className="px-5 py-6">
                 <p className="adm-label">{k}</p>
-                <p className="adm-metric mt-3 text-[22px] text-white">{v}</p>
+                <p className="adm-metric mt-3 text-[22px] text-black">{v}</p>
               </div>
             ))}
           </div>
@@ -261,7 +261,7 @@ export default function SettingsLoyalty() {
         </div>
         <p className="mt-4 text-[12px] leading-relaxed text-[#AAAAAA]">
           On a PKR 5,000 order a customer could take off at most{' '}
-          <span className="text-white">PKR {Math.floor(5000 * ((Number(L.redeem.maxPercentOfOrder) || 0) / 100)).toLocaleString('en-PK')}</span>
+          <span className="text-black">PKR {Math.floor(5000 * ((Number(L.redeem.maxPercentOfOrder) || 0) / 100)).toLocaleString('en-PK')}</span>
           {' '}— that is {Math.floor((5000 * ((Number(L.redeem.maxPercentOfOrder) || 0) / 100)) / (Number(L.redeem.pointValue) || 1)).toLocaleString('en-PK')} points.
         </p>
       </EdSection>
@@ -290,7 +290,7 @@ export default function SettingsLoyalty() {
               >
                 <span className="h-3 w-3 shrink-0 border border-[#DCDCDC]" style={{ background: t.colour || '#C9BFB4' }} aria-hidden />
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate text-[13px] text-white">{t.name || t.id}</span>
+                  <span className="block truncate text-[13px] text-black">{t.name || t.id}</span>
                   <span className="block text-[12px] text-[#AAAAAA]">
                     From PKR {(t.minSpend || 0).toLocaleString('en-PK')} · {t.multiplier || 1}× points
                     {t.freeShipping ? ' · free delivery' : ''}

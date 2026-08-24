@@ -167,7 +167,7 @@ export default function SettingsSearch() {
           {stopWords.map((w, i) => (
             <span key={`${w}-${i}`} className="inline-flex min-h-[36px] items-center gap-2 border border-[#EAEAEA] px-3 text-[12px] text-[#555555]">
               {w}
-              <button type="button" onClick={() => set('stopWords', stopWords.filter((_, j) => j !== i))} aria-label={`Remove ignored word ${w}`} className="text-[#AAAAAA] hover:text-white">×</button>
+              <button type="button" onClick={() => set('stopWords', stopWords.filter((_, j) => j !== i))} aria-label={`Remove ignored word ${w}`} className="text-[#AAAAAA] hover:text-black">×</button>
             </span>
           ))}
         </div>

@@ -147,37 +147,37 @@ function OrderCard({ order: o, onAction, actionsBusyId }) {
 
           {/* Stage-specific primary actions */}
           {codPendingVerify && (
-            <button onClick={() => onAction('verify-call', o)} disabled={busy} className="inline-flex h-8 items-center gap-1.5 rounded-md bg-black px-3 text-[12px] font-medium text-white transition hover:bg-[#1a1a1a] disabled:opacity-50">
+            <button onClick={() => onAction('verify-call', o)} disabled={busy} className="inline-flex h-8 items-center gap-1.5 rounded-md bg-black px-3 text-[12px] font-medium text-black transition hover:bg-[#1a1a1a] disabled:opacity-50">
               <Phone size={12} /> Confirm by Call
             </button>
           )}
           {awaitingPayment && (
-            <button onClick={() => onAction('mark-paid', o)} disabled={busy} className="inline-flex h-8 items-center gap-1.5 rounded-md bg-black px-3 text-[12px] font-medium text-white transition hover:bg-[#1a1a1a] disabled:opacity-50">
+            <button onClick={() => onAction('mark-paid', o)} disabled={busy} className="inline-flex h-8 items-center gap-1.5 rounded-md bg-black px-3 text-[12px] font-medium text-black transition hover:bg-[#1a1a1a] disabled:opacity-50">
               <CreditCard size={12} /> Mark Paid
             </button>
           )}
           {isConfirmed && (
-            <button onClick={() => onAction('mark-processing', o)} disabled={busy} className="inline-flex h-8 items-center gap-1.5 rounded-md bg-black px-3 text-[12px] font-medium text-white transition hover:bg-[#1a1a1a] disabled:opacity-50">
+            <button onClick={() => onAction('mark-processing', o)} disabled={busy} className="inline-flex h-8 items-center gap-1.5 rounded-md bg-black px-3 text-[12px] font-medium text-black transition hover:bg-[#1a1a1a] disabled:opacity-50">
               <Box size={12} /> Packed
             </button>
           )}
           {isProcessing && (
-            <button onClick={() => setExpanded(!expanded)} className="inline-flex h-8 items-center gap-1.5 rounded-md bg-black px-3 text-[12px] font-medium text-white transition hover:bg-[#1a1a1a]">
+            <button onClick={() => setExpanded(!expanded)} className="inline-flex h-8 items-center gap-1.5 rounded-md bg-black px-3 text-[12px] font-medium text-black transition hover:bg-[#1a1a1a]">
               <Send size={12} /> Add Tracking
             </button>
           )}
           {isReadyToShip && (
-            <button onClick={() => onAction('mark-shipped', o)} disabled={busy} className="inline-flex h-8 items-center gap-1.5 rounded-md bg-black px-3 text-[12px] font-medium text-white transition hover:bg-[#1a1a1a] disabled:opacity-50">
+            <button onClick={() => onAction('mark-shipped', o)} disabled={busy} className="inline-flex h-8 items-center gap-1.5 rounded-md bg-black px-3 text-[12px] font-medium text-black transition hover:bg-[#1a1a1a] disabled:opacity-50">
               <Truck size={12} /> Shipped
             </button>
           )}
           {isShipped && o.status === 'Shipped' && (
-            <button onClick={() => onAction('mark-ofd', o)} disabled={busy} className="inline-flex h-8 items-center gap-1.5 rounded-md bg-black px-3 text-[12px] font-medium text-white transition hover:bg-[#1a1a1a] disabled:opacity-50">
+            <button onClick={() => onAction('mark-ofd', o)} disabled={busy} className="inline-flex h-8 items-center gap-1.5 rounded-md bg-black px-3 text-[12px] font-medium text-black transition hover:bg-[#1a1a1a] disabled:opacity-50">
               <TruckIcon size={12} /> Out for Delivery
             </button>
           )}
           {isShipped && o.status === 'Out for Delivery' && (
-            <button onClick={() => onAction('mark-delivered', o)} disabled={busy} className="inline-flex h-8 items-center gap-1.5 rounded-md bg-black px-3 text-[12px] font-medium text-white transition hover:bg-[#1a1a1a] disabled:opacity-50">
+            <button onClick={() => onAction('mark-delivered', o)} disabled={busy} className="inline-flex h-8 items-center gap-1.5 rounded-md bg-black px-3 text-[12px] font-medium text-black transition hover:bg-[#1a1a1a] disabled:opacity-50">
               <CheckCircle2 size={12} /> Delivered
             </button>
           )}
@@ -217,7 +217,7 @@ function OrderCard({ order: o, onAction, actionsBusyId }) {
             </div>
             <div className="flex items-end gap-2">
               <button onClick={() => onAction('save-tracking', o, trackingDraft)} disabled={busy} className="inline-flex h-9 items-center gap-1.5 rounded-md border border-[#DCDCDC] bg-white px-4 text-[12px] font-medium text-black transition hover:bg-[#F5F5F5] disabled:opacity-50">Save</button>
-              <button onClick={() => onAction('mark-ready', o, trackingDraft)} disabled={busy} className="inline-flex h-9 items-center gap-1.5 rounded-md bg-black px-4 text-[12px] font-medium text-white transition hover:bg-[#1a1a1a] disabled:opacity-50">Save & Ready to Ship</button>
+              <button onClick={() => onAction('mark-ready', o, trackingDraft)} disabled={busy} className="inline-flex h-9 items-center gap-1.5 rounded-md bg-black px-4 text-[12px] font-medium text-black transition hover:bg-[#1a1a1a] disabled:opacity-50">Save & Ready to Ship</button>
             </div>
           </div>
         </div>
@@ -369,13 +369,13 @@ export default function Orders() {
               }`}
             >
               <div className="flex items-start justify-between">
-                <span className={`grid h-9 w-9 place-items-center rounded-md ${active ? 'bg-white/15 text-white' : 'bg-[#F5F5F5] text-[#555555]'}`}>
+                <span className={`grid h-9 w-9 place-items-center rounded-md ${active ? 'bg-[#EFEFEF] text-black' : 'bg-[#F5F5F5] text-[#555555]'}`}>
                   <Icon size={16} strokeWidth={active ? 2 : 1.5} />
                 </span>
-                <span className={`rounded-sm px-2 py-0.5 text-[12px] font-semibold ${active ? 'bg-white/15 text-white' : 'bg-[#F5F5F5] text-[#555555]'}`} style={{ fontVariantNumeric: 'tabular-nums' }}>{n}</span>
+                <span className={`rounded-sm px-2 py-0.5 text-[12px] font-semibold ${active ? 'bg-[#EFEFEF] text-black' : 'bg-[#F5F5F5] text-[#555555]'}`} style={{ fontVariantNumeric: 'tabular-nums' }}>{n}</span>
               </div>
-              <p className={`mt-3 text-[13px] font-semibold ${active ? 'text-white' : 'text-black'}`}>{s.label}</p>
-              {s.hint && <p className={`mt-0.5 line-clamp-2 text-[11px] leading-relaxed ${active ? 'text-white/60' : 'text-[#AAAAAA]'}`}>{s.hint}</p>}
+              <p className={`mt-3 text-[13px] font-semibold ${active ? 'text-black' : 'text-black'}`}>{s.label}</p>
+              {s.hint && <p className={`mt-0.5 line-clamp-2 text-[11px] leading-relaxed ${active ? 'text-[#555555]' : 'text-[#AAAAAA]'}`}>{s.hint}</p>}
             </button>
           );
         })}
@@ -401,7 +401,7 @@ export default function Orders() {
               >
                 <Icon size={13} />
                 {s.label}
-                <span className={`rounded-sm px-1.5 text-[11px] font-semibold ${active ? 'bg-white/15 text-white' : 'bg-[#F5F5F5] text-[#777777]'}`}>{n}</span>
+                <span className={`rounded-sm px-1.5 text-[11px] font-semibold ${active ? 'bg-[#EFEFEF] text-black' : 'bg-[#F5F5F5] text-[#777777]'}`}>{n}</span>
               </button>
             );
           })}

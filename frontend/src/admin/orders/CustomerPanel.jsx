@@ -64,20 +64,20 @@ export default function CustomerPanel({ phone, token, onClose }) {
     <div className="fixed inset-0 z-50 flex justify-end bg-black/60" onClick={onClose} role="dialog" aria-modal="true">
       <aside
         onClick={(e) => e.stopPropagation()}
-        className="flex h-full w-full max-w-md flex-col border-l border-white/10 bg-[#0A0A0A] sm:max-w-lg"
+        className="flex h-full w-full max-w-md flex-col border-l border-[#EAEAEA] bg-[#0A0A0A] sm:max-w-lg"
       >
-        <div className="shrink-0 border-b border-white/10 p-5">
+        <div className="shrink-0 border-b border-[#EAEAEA] p-5">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              {!c ? <div className="h-5 w-32 animate-pulse bg-white/10" /> : (
+              {!c ? <div className="h-5 w-32 animate-pulse bg-[#F5F5F5]" /> : (
                 <>
                   <div className="flex flex-wrap items-center gap-2">
-                    <h2 className="truncate text-[16px] font-medium text-white">{c.name || 'Customer'}</h2>
+                    <h2 className="truncate text-[16px] font-medium text-black">{c.name || 'Customer'}</h2>
                     {c.isRepeat && (
-                      <span className="text-[9px] font-medium uppercase tracking-[0.16em] text-white/50">Repeat</span>
+                      <span className="text-[9px] font-medium uppercase tracking-[0.16em] text-[#777777]">Repeat</span>
                     )}
                   </div>
-                  <p className="mt-1 text-[12px] text-white/40">
+                  <p className="mt-1 text-[12px] text-[#999999]">
                     {c.phone}{c.city ? ` · ${c.city}` : ''}
                   </p>
                 </>
@@ -101,7 +101,7 @@ export default function CustomerPanel({ phone, token, onClose }) {
           </div>
 
           {c && (
-            <div className="adm-divide-x mt-5 grid grid-cols-3 border-y border-white/10">
+            <div className="adm-divide-x mt-5 grid grid-cols-3 border-y border-[#EAEAEA]">
               <Stat label="Orders" value={c.totalOrders} />
               <Stat label="Spent" value={pkr(c.totalSpent)} />
               <Stat label="Avg order" value={pkr(c.averageOrder)} />
@@ -110,7 +110,7 @@ export default function CustomerPanel({ phone, token, onClose }) {
         </div>
 
         {c && (
-          <div className="flex shrink-0 gap-4 border-b border-white/10 px-5">
+          <div className="flex shrink-0 gap-4 border-b border-[#EAEAEA] px-5">
             {TABS.map((t) => {
               const n = t.key === 'orders' ? data.orders.length
                 : t.key === 'issues' ? data.issues.length
@@ -118,9 +118,9 @@ export default function CustomerPanel({ phone, token, onClose }) {
               return (
                 <button key={t.key} onClick={() => setTab(t.key)} aria-pressed={tab === t.key}
                   className={`py-2.5 text-[10px] font-medium uppercase tracking-[0.14em] transition-colors ${
-                    tab === t.key ? 'border-b border-white text-white' : 'border-b border-transparent text-white/35 hover:text-white/70'
+                    tab === t.key ? 'border-b border-white text-black' : 'border-b border-transparent text-[#AAAAAA] hover:text-[#555555]'
                   }`}>
-                  {t.label}{n ? <span className="ml-1 text-white/40">{n}</span> : null}
+                  {t.label}{n ? <span className="ml-1 text-[#999999]">{n}</span> : null}
                 </button>
               );
             })}
@@ -128,9 +128,9 @@ export default function CustomerPanel({ phone, token, onClose }) {
         )}
 
         <div className="flex-1 overflow-y-auto p-5">
-          {err && <p className="border border-white/15 px-3 py-3 text-[13px] text-white/70">{err}</p>}
+          {err && <p className="border border-[#EAEAEA] px-3 py-3 text-[13px] text-[#555555]">{err}</p>}
           {!data && !err && (
-            <div className="grid h-40 place-items-center"><Loader2 size={18} className="animate-spin text-white/30" /></div>
+            <div className="grid h-40 place-items-center"><Loader2 size={18} className="animate-spin text-[#AAAAAA]" /></div>
           )}
 
           {data && tab === 'overview' && (
@@ -145,7 +145,7 @@ export default function CustomerPanel({ phone, token, onClose }) {
 
               <Section title={`Delivery addresses (${data.addresses.length})`}>
                 {data.addresses.map((a, i) => (
-                  <p key={i} className="border-b border-white/5 py-2 text-[12px] leading-snug text-white/70 last:border-0">
+                  <p key={i} className="border-b border-[#F0F0F0] py-2 text-[12px] leading-snug text-[#555555] last:border-0">
                     {a.line}{a.postalCode ? ` – ${a.postalCode}` : ''}
                   </p>
                 ))}
@@ -154,10 +154,10 @@ export default function CustomerPanel({ phone, token, onClose }) {
               {data.favourites.length > 0 && (
                 <Section title="Most ordered">
                   {data.favourites.map((f) => (
-                    <div key={f.name} className="flex items-center gap-2 border-b border-white/5 py-2 last:border-0">
-                      {f.image ? <img src={f.image} alt="" className="h-8 w-6 object-cover" /> : <span className="h-8 w-6 bg-white/10" />}
+                    <div key={f.name} className="flex items-center gap-2 border-b border-[#F0F0F0] py-2 last:border-0">
+                      {f.image ? <img src={f.image} alt="" className="h-8 w-6 object-cover" /> : <span className="h-8 w-6 bg-[#F5F5F5]" />}
                       <span className="min-w-0 flex-1 truncate text-[12px] text-white/75">{f.name}</span>
-                      <span className="shrink-0 text-[12px] tabular-nums text-white">×{f.units}</span>
+                      <span className="shrink-0 text-[12px] tabular-nums text-black">×{f.units}</span>
                     </div>
                   ))}
                 </Section>
@@ -169,15 +169,15 @@ export default function CustomerPanel({ phone, token, onClose }) {
             <div className="divide-y divide-white/10">
               {data.orders.map((ord) => (
                 <Link key={ord._id} to={`/admin/orders/${ord._id}`} onClick={onClose}
-                  className="flex items-center gap-3 py-3 transition hover:bg-white/[0.03]">
+                  className="flex items-center gap-3 py-3 transition hover:bg-[#FAFAFA]">
                   <div className="min-w-0 flex-1">
-                    <p className="font-mono text-[12px] text-white">{ord.orderNumber}</p>
-                    <p className="mt-0.5 text-[11px] text-white/35">
+                    <p className="font-mono text-[12px] text-black">{ord.orderNumber}</p>
+                    <p className="mt-0.5 text-[11px] text-[#AAAAAA]">
                       {fmtDate(ord.createdAt)} · {ord.itemCount} item{ord.itemCount === 1 ? '' : 's'}
                     </p>
                   </div>
                   <MonoStatus label={String(STAGE_MAP[ord.stage]?.label || ord.status || '').toUpperCase()} />
-                  <span className="w-20 shrink-0 text-right text-[12px] tabular-nums text-white">{pkr(ord.total)}</span>
+                  <span className="w-20 shrink-0 text-right text-[12px] tabular-nums text-black">{pkr(ord.total)}</span>
                 </Link>
               ))}
             </div>
@@ -191,11 +191,11 @@ export default function CustomerPanel({ phone, token, onClose }) {
                   {data.issues.map((i) => (
                     <div key={i._id} className="py-3">
                       <div className="flex items-center gap-2">
-                        <span className="text-[13px] text-white">{i.issueType}</span>
-                        <span className="ml-auto text-[9px] uppercase tracking-[0.14em] text-white/40">{i.status}</span>
+                        <span className="text-[13px] text-black">{i.issueType}</span>
+                        <span className="ml-auto text-[9px] uppercase tracking-[0.14em] text-[#999999]">{i.status}</span>
                       </div>
-                      {i.description && <p className="mt-1.5 text-[12px] text-white/50">{i.description}</p>}
-                      <p className="mt-1.5 font-mono text-[11px] text-white/30">{i.orderNumber} · {fmtDate(i.createdAt)}</p>
+                      {i.description && <p className="mt-1.5 text-[12px] text-[#777777]">{i.description}</p>}
+                      <p className="mt-1.5 font-mono text-[11px] text-[#AAAAAA]">{i.orderNumber} · {fmtDate(i.createdAt)}</p>
                     </div>
                   ))}
                 </div>
@@ -209,8 +209,8 @@ export default function CustomerPanel({ phone, token, onClose }) {
                 <div className="divide-y divide-white/10">
                   {data.notes.map((n, i) => (
                     <div key={i} className="py-3">
-                      <p className="text-[12px] text-white/80">{n.body}</p>
-                      <p className="mt-1 font-mono text-[11px] text-white/30">
+                      <p className="text-[12px] text-[#333333]">{n.body}</p>
+                      <p className="mt-1 font-mono text-[11px] text-[#AAAAAA]">
                         {n.orderNumber} · {n.authorName || 'admin'} · {fmtDate(n.at)}
                       </p>
                     </div>
@@ -227,26 +227,26 @@ export default function CustomerPanel({ phone, token, onClose }) {
 const Stat = ({ label, value }) => (
   <div className="px-3 py-3">
     <p className="adm-label">{label}</p>
-    <p className="adm-metric mt-1 text-[15px] text-white">{value}</p>
+    <p className="adm-metric mt-1 text-[15px] text-black">{value}</p>
   </div>
 );
 
 const Section = ({ title, children }) => (
   <div>
     <p className="adm-label mb-2">{title}</p>
-    <div className="border-t border-white/10">{children}</div>
+    <div className="border-t border-[#EAEAEA]">{children}</div>
   </div>
 );
 
 const Row = ({ label, value }) => (
-  <div className="flex items-center justify-between border-b border-white/5 py-2 text-[12px] last:border-0">
-    <span className="text-white/40">{label}</span>
-    <span className="font-medium text-white">{value}</span>
+  <div className="flex items-center justify-between border-b border-[#F0F0F0] py-2 text-[12px] last:border-0">
+    <span className="text-[#999999]">{label}</span>
+    <span className="font-medium text-black">{value}</span>
   </div>
 );
 
 const EmptyState = ({ text }) => (
   <div className="py-14 text-center">
-    <p className="text-[12px] text-white/40">{text}</p>
+    <p className="text-[12px] text-[#999999]">{text}</p>
   </div>
 );

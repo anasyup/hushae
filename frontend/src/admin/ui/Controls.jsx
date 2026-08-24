@@ -247,10 +247,10 @@ export function SaveBar({ dirty, busy, onSave, onDiscard, disabled, variant }) {
   if (!dirty) return null;
   if (variant === 'editorial') {
     return (
-      <div className="sticky bottom-4 z-30 mt-8 flex flex-wrap items-center justify-between gap-3 border border-white/15 bg-[#0A0A0A] px-4 py-3">
-        <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-white/45">Unsaved changes</p>
+      <div className="sticky bottom-4 z-30 mt-8 flex flex-wrap items-center justify-between gap-3 border border-[#EAEAEA] bg-[#0A0A0A] px-4 py-3">
+        <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[#999999]">Unsaved changes</p>
         <div className="flex items-center gap-2">
-          <button type="button" onClick={onDiscard} className="inline-flex h-8 items-center justify-center rounded-[4px] border border-white/20 px-3 text-[10px] font-medium uppercase tracking-[0.08em] text-white/70 hover:border-white/45 hover:text-white">
+          <button type="button" onClick={onDiscard} className="inline-flex h-8 items-center justify-center rounded-[4px] border border-[#DCDCDC] px-3 text-[10px] font-medium uppercase tracking-[0.08em] text-[#555555] hover:border-white/45 hover:text-black">
             Discard
           </button>
           <button type="button" onClick={onSave} disabled={busy || disabled} className="inline-flex h-8 items-center justify-center rounded-[4px] bg-white px-3 text-[10px] font-medium uppercase tracking-[0.08em] text-black hover:bg-white/85 disabled:opacity-35">
@@ -261,10 +261,10 @@ export function SaveBar({ dirty, busy, onSave, onDiscard, disabled, variant }) {
     );
   }
   return (
-    <div className="sticky bottom-4 z-30 mt-6 flex items-center justify-between gap-4 rounded-2xl border border-neutral-900 bg-neutral-900 px-4 py-3 text-white shadow-xl">
+    <div className="sticky bottom-4 z-30 mt-6 flex items-center justify-between gap-4 rounded-2xl border border-neutral-900 bg-neutral-900 px-4 py-3 text-black shadow-xl">
       <p className="text-[13px] font-medium">Unsaved changes</p>
       <div className="flex items-center gap-2">
-        <button type="button" onClick={onDiscard} className="min-h-[44px] rounded-lg border border-white/20 px-3 text-[12px] font-semibold text-white/80 transition hover:bg-white/10">
+        <button type="button" onClick={onDiscard} className="min-h-[44px] rounded-lg border border-[#DCDCDC] px-3 text-[12px] font-semibold text-[#333333] transition hover:bg-[#F5F5F5]">
           Discard
         </button>
         <button type="button" onClick={onSave} disabled={busy || disabled} className="min-h-[44px] rounded-lg bg-white px-4 text-[12px] font-semibold text-neutral-900 transition hover:bg-neutral-100 disabled:opacity-50">

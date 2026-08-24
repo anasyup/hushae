@@ -96,7 +96,7 @@ export default function AdminLogin() {
             )}
             <button
               disabled={busy}
-              className="h-11 w-full rounded-md bg-black text-[11px] font-semibold uppercase tracking-[0.2em] text-white transition-all duration-150 hover:bg-[#1a1a1a] disabled:opacity-40"
+              className="h-11 w-full rounded-md bg-black text-[11px] font-semibold uppercase tracking-[0.2em] text-black transition-all duration-150 hover:bg-[#1a1a1a] disabled:opacity-40"
             >
               {busy ? 'Verifying…' : 'Sign In'}
             </button>
@@ -124,7 +124,7 @@ export default function AdminLogin() {
             )}
             <button
               disabled={codeBusy}
-              className="h-11 w-full rounded-md bg-black text-[11px] font-semibold uppercase tracking-[0.2em] text-white transition-all duration-150 hover:bg-[#1a1a1a] disabled:opacity-40"
+              className="h-11 w-full rounded-md bg-black text-[11px] font-semibold uppercase tracking-[0.2em] text-black transition-all duration-150 hover:bg-[#1a1a1a] disabled:opacity-40"
             >
               {codeBusy ? 'Verifying…' : 'Verify & Sign In'}
             </button>

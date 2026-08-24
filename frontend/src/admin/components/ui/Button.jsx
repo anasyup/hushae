@@ -15,9 +15,9 @@ const base =
 
 const variants = {
   primary: 'bg-white text-black hover:bg-white/85',
-  secondary: 'border border-white/20 bg-transparent text-white hover:border-white/45 hover:bg-white/5',
-  ghost: 'bg-transparent text-white/60 hover:text-white hover:bg-white/5',
-  danger: 'border border-white/20 bg-transparent text-white hover:border-white hover:bg-white/10',
+  secondary: 'border border-[#DCDCDC] bg-transparent text-black hover:border-white/45 hover:bg-[#FAFAFA]',
+  ghost: 'bg-transparent text-[#555555] hover:text-black hover:bg-[#FAFAFA]',
+  danger: 'border border-[#DCDCDC] bg-transparent text-black hover:border-white hover:bg-[#F5F5F5]',
 };
 
 const sizes = {

@@ -85,7 +85,7 @@ export default function BannerList() {
                     {b.mediaUrl ? <img src={b.mediaUrl} alt="" className="h-full w-full object-cover" /> : null}
                   </div>
                   <div className="min-w-0">
-                    <p className="truncate text-[13px] font-medium text-white">{b.name}</p>
+                    <p className="truncate text-[13px] font-medium text-black">{b.name}</p>
                     <p className="truncate text-[11px] text-[#AAAAAA]">{b.heading || '—'}</p>
                   </div>
                   <p className="truncate text-[12px] text-[#777777]">{b.slotName}</p>
@@ -96,8 +96,8 @@ export default function BannerList() {
                   <p className="text-[12px] tabular-nums text-[#555555]">{b.impressions?.toLocaleString()}</p>
                   <p className="text-[12px] tabular-nums text-[#555555]">{ctr(b)}%</p>
                   <div className="flex justify-end gap-1">
-                    <Link to={`/admin/banners/${b._id}`} className="grid h-7 w-7 place-items-center text-[#AAAAAA] hover:text-white" title="Edit"><Pencil size={13} /></Link>
-                    <button type="button" onClick={() => remove(b)} className="grid h-7 w-7 place-items-center text-[#AAAAAA] hover:text-white" title="Delete"><Trash2 size={13} /></button>
+                    <Link to={`/admin/banners/${b._id}`} className="grid h-7 w-7 place-items-center text-[#AAAAAA] hover:text-black" title="Edit"><Pencil size={13} /></Link>
+                    <button type="button" onClick={() => remove(b)} className="grid h-7 w-7 place-items-center text-[#AAAAAA] hover:text-black" title="Delete"><Trash2 size={13} /></button>
                   </div>
                 </div>
                 <div className="flex items-start gap-3 px-1 py-4 lg:hidden">
@@ -105,7 +105,7 @@ export default function BannerList() {
                     {b.mediaUrl ? <img src={b.mediaUrl} alt="" className="h-full w-full object-cover" /> : null}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-[13px] font-medium text-white">{b.name}</p>
+                    <p className="text-[13px] font-medium text-black">{b.name}</p>
                     <p className="mt-0.5 text-[11px] text-[#AAAAAA]">{b.slotName}</p>
                     <div className="mt-2"><MonoStatus label={String(b.scheduleState || 'draft').toUpperCase()} dim={b.scheduleState !== 'active'} /></div>
                     <div className="mt-3 flex gap-2">

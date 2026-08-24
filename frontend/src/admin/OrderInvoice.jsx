@@ -47,7 +47,7 @@ export default function OrderInvoice() {
 
       {/* Print button (hidden when printing) */}
       <div className="no-print mb-6 flex justify-end">
-        <button onClick={() => window.print()} className="inline-flex items-center gap-2 rounded-lg bg-neutral-900 px-4 py-2 text-sm font-semibold text-white hover:bg-neutral-800">
+        <button onClick={() => window.print()} className="inline-flex items-center gap-2 rounded-lg bg-neutral-900 px-4 py-2 text-sm font-semibold text-black hover:bg-neutral-800">
           <Printer size={14} /> Print / Save as PDF
         </button>
       </div>

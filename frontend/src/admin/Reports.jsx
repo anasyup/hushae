@@ -123,7 +123,7 @@ export default function Reports() {
           <div key={c.id} className="grid grid-cols-1 items-center gap-2 border-b border-[#EAEAEA] py-4 md:grid-cols-[3rem_minmax(0,1.2fr)_minmax(0,1.8fr)_auto] md:gap-4 adm-row-hover">
             <span className="text-[11px] uppercase tracking-[0.16em] text-[#AAAAAA]">{String(i + 1).padStart(2, '0')}</span>
             <div>
-              <p className="text-[13px] text-white">{c.title}</p>
+              <p className="text-[13px] text-black">{c.title}</p>
               <p className="mt-0.5 text-[12px] text-[#AAAAAA] md:hidden">{c.desc}</p>
             </div>
             <p className="hidden text-[12px] text-[#AAAAAA] md:block">{c.desc}</p>
@@ -138,7 +138,7 @@ export default function Reports() {
                   {busyKey === c.id ? <Loader2 size={11} className="animate-spin" /> : <Download size={11} />} CSV
                 </button>
               )}
-              <Link to={c.to} className="text-[11px] uppercase tracking-[0.14em] text-[#999999] hover:text-white">
+              <Link to={c.to} className="text-[11px] uppercase tracking-[0.14em] text-[#999999] hover:text-black">
                 Open →
               </Link>
             </div>

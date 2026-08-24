@@ -32,7 +32,7 @@ function Counter({ value, ideal, max }) {
   const over = n > ideal;
   const wayOver = n > max;
   return (
-    <span className={`text-[12px] tabular-nums ${wayOver ? 'text-white/80' : over ? 'text-white/50' : 'text-white/30'}`}>
+    <span className={`text-[12px] tabular-nums ${wayOver ? 'text-[#333333]' : over ? 'text-[#777777]' : 'text-[#AAAAAA]'}`}>
       {n}/{ideal}
       {wayOver ? ' — too long, please shorten' : over ? ' — Google will cut the end off' : ''}
     </span>
@@ -65,7 +65,7 @@ export default function SeoPanel({ page, cfg, onChange, onChangeSeo }) {
       title="04 — Seo"
       subtitle="How this page looks when somebody searches for it"
       badge={hidden ? (
-        <span className="text-[10px] uppercase tracking-[0.14em] text-white/35">Hidden from Google</span>
+        <span className="text-[10px] uppercase tracking-[0.14em] text-[#AAAAAA]">Hidden from Google</span>
       ) : null}
     >
       <div className="space-y-4">
@@ -74,17 +74,17 @@ export default function SeoPanel({ page, cfg, onChange, onChangeSeo }) {
           <p className="adm-label mb-2 flex items-center gap-1.5">
             <Search size={12} aria-hidden="true" /> Preview
           </p>
-          <div className="border border-white/10 px-3 py-3">
-            <p className="truncate text-[12px] text-white/35">hushae.pk/{page.slug || '…'}</p>
-            <p className="mt-0.5 truncate text-[13px] leading-snug text-white">
+          <div className="border border-[#EAEAEA] px-3 py-3">
+            <p className="truncate text-[12px] text-[#AAAAAA]">hushae.pk/{page.slug || '…'}</p>
+            <p className="mt-0.5 truncate text-[13px] leading-snug text-black">
               {resolved.fullTitle || 'Your page name'}
             </p>
-            <p className="mt-1 line-clamp-2 text-[12px] leading-relaxed text-white/45">
+            <p className="mt-1 line-clamp-2 text-[12px] leading-relaxed text-[#999999]">
               {resolved.description || 'Write a summary below and it appears here.'}
             </p>
           </div>
           {hidden && (
-            <p className="mt-2 text-[12px] leading-relaxed text-white/35">
+            <p className="mt-2 text-[12px] leading-relaxed text-[#AAAAAA]">
               This page is set to stay out of Google, so the preview above is only for you. Customers
               can still open the page from a direct link.
             </p>
@@ -112,10 +112,10 @@ export default function SeoPanel({ page, cfg, onChange, onChangeSeo }) {
             value={seo.description || ''}
             onChange={(e) => onChangeSeo('description', e.target.value.slice(0, DESC_MAX))}
             aria-describedby="seo-desc-h"
-            className="h-auto min-h-[72px] w-full resize-y rounded-[4px] border border-white/20 bg-[#0A0A0A] px-3 py-2 text-[12px] text-white/85 outline-none placeholder:text-white/30 hover:border-white/40 focus:border-white/50"
+            className="h-auto min-h-[72px] w-full resize-y rounded-[4px] border border-[#DCDCDC] bg-[#0A0A0A] px-3 py-2 text-[12px] text-black outline-none placeholder:text-[#AAAAAA] hover:border-white/40 focus:border-[#F0F0F0]0"
             placeholder={page.excerpt || 'How to measure yourself and choose the right size.'}
           />
-          <p id="seo-desc-h" className="mt-1.5 flex flex-wrap items-center gap-2 text-[12px] leading-relaxed text-white/35">
+          <p id="seo-desc-h" className="mt-1.5 flex flex-wrap items-center gap-2 text-[12px] leading-relaxed text-[#AAAAAA]">
             <Counter value={seo.description || page.excerpt} ideal={DESC_IDEAL} max={DESC_MAX} />
             <span>Blank uses the short summary.</span>
           </p>
@@ -132,7 +132,7 @@ export default function SeoPanel({ page, cfg, onChange, onChangeSeo }) {
             hint="Only fill this in if the same writing also lives somewhere else, and you want Google to count that other address as the real one."
           />
           {seo.canonical && !/^(https?:\/\/|\/)/.test(seo.canonical) && (
-            <p role="alert" className="mt-1.5 text-[12px] text-white/55">
+            <p role="alert" className="mt-1.5 text-[12px] text-[#777777]">
               Start with a slash — for example /{seo.canonical.replace(/^\/+/, '')}
             </p>
           )}
@@ -155,11 +155,11 @@ export default function SeoPanel({ page, cfg, onChange, onChangeSeo }) {
             onChange={(v) => onChangeSeo('noFollow', v)}
             description="Rarely needed. Only useful when the page links out to places you do not vouch for."
           />
-          <p className="font-mono text-[12px] text-white/40">
+          <p className="font-mono text-[12px] text-[#999999]">
             robots: {resolved.robots}
           </p>
           {cfg.seo?.defaultNoIndex && !seo.noIndex && (
-            <p className="text-[12px] leading-relaxed text-white/40">
+            <p className="text-[12px] leading-relaxed text-[#999999]">
               Your shop settings currently hide <strong>every</strong> page from Google, so this one is hidden
               too regardless of the switch above.
             </p>

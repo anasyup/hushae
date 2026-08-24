@@ -87,7 +87,7 @@ export default function Collections() {
                   <a href={`/collection/${c.slug}`} target="_blank" rel="noreferrer" className="text-[12px] font-semibold text-neutral-500 hover:text-neutral-900">Preview →</a>
                   <div className="flex items-center gap-1">
                     <button onClick={() => setEditing(c)} className="rounded-lg p-1.5 text-neutral-500 transition hover:bg-neutral-100 hover:text-neutral-900" aria-label="Edit"><Edit3 size={13} /></button>
-                    <button onClick={() => remove(c)} className="rounded-lg p-1.5 text-[#999999] transition hover:text-white" aria-label="Delete"><Trash2 size={13} /></button>
+                    <button onClick={() => remove(c)} className="rounded-lg p-1.5 text-[#999999] transition hover:text-black" aria-label="Delete"><Trash2 size={13} /></button>
                   </div>
                 </div>
               </div>
@@ -224,9 +224,9 @@ function CollectionEditor({ collection, onClose, onSaved }) {
                   <div className="rounded-xl border border-neutral-200 bg-white p-2">
                     <div className="flex flex-wrap gap-1.5">
                       {(c.smart.tags || []).map((t, i) => (
-                        <span key={t + i} className="inline-flex items-center gap-1 rounded-full bg-neutral-900 pl-3 pr-1 py-1 text-[12px] font-semibold text-white">
+                        <span key={t + i} className="inline-flex items-center gap-1 rounded-full bg-neutral-900 pl-3 pr-1 py-1 text-[12px] font-semibold text-black">
                           {t}
-                          <button type="button" onClick={() => setSmart('tags', c.smart.tags.filter((_, j) => j !== i))} className="grid h-4 w-4 place-items-center rounded-full bg-[#EFEFEF] text-white hover:bg-white/30">×</button>
+                          <button type="button" onClick={() => setSmart('tags', c.smart.tags.filter((_, j) => j !== i))} className="grid h-4 w-4 place-items-center rounded-full bg-[#EFEFEF] text-black hover:bg-white/30">×</button>
                         </span>
                       ))}
                       <input
@@ -341,7 +341,7 @@ function CollectionEditor({ collection, onClose, onSaved }) {
 
         <div className="grid grid-cols-[auto_1fr] gap-3 border-t border-neutral-200 bg-neutral-50 px-6 py-4">
           <button onClick={onClose} disabled={busy} className="rounded-full border border-neutral-300 bg-white px-5 py-3 text-[12px] font-semibold text-neutral-700 hover:bg-neutral-100 disabled:opacity-40">Cancel</button>
-          <button onClick={save} disabled={busy} className="inline-flex items-center justify-center gap-2 rounded-full bg-neutral-900 px-6 py-3 text-[12px] font-semibold uppercase tracking-widest text-white transition hover:bg-neutral-800 disabled:opacity-50">
+          <button onClick={save} disabled={busy} className="inline-flex items-center justify-center gap-2 rounded-full bg-neutral-900 px-6 py-3 text-[12px] font-semibold uppercase tracking-widest text-black transition hover:bg-neutral-800 disabled:opacity-50">
             <Save size={13} /> {busy ? 'Saving…' : (isNew ? 'Create collection' : 'Save changes')}
           </button>
         </div>

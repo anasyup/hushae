@@ -115,7 +115,7 @@ export default function SettingsAdmin() {
           <EdText label="Button label" value={s.offerBar?.ctaEn || ''} onChange={(v) => setOffer('ctaEn', v)} placeholder="Shop the Sale" />
           <EdText label="Button link" value={s.offerBar?.link || ''} onChange={(v) => setOffer('link', v)} placeholder="/sale" />
         </div>
-        <p className="mt-4 text-[12px] leading-relaxed text-white/30">
+        <p className="mt-4 text-[12px] leading-relaxed text-[#AAAAAA]">
           To put any product on sale, open Products → Edit and set a compare-at price. It will appear on the /sale page with the discount %.
         </p>
       </EdSection>
@@ -187,7 +187,7 @@ function ChangePasswordCard() {
   };
 
   const eye = (which) => (
-    <button type="button" onClick={() => setShow((s) => ({ ...s, [which]: !s[which] }))} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-white/35 hover:text-white" aria-label="Toggle visibility">
+    <button type="button" onClick={() => setShow((s) => ({ ...s, [which]: !s[which] }))} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#AAAAAA] hover:text-black" aria-label="Toggle visibility">
       {show[which] ? <EyeOff size={15} /> : <Eye size={15} />}
     </button>
   );
@@ -211,7 +211,7 @@ function ChangePasswordCard() {
             <label className="adm-label mb-1.5 block">Confirm new password</label>
             <input className={`${ctl} pr-10`} type={show.x ? 'text' : 'password'} value={confirm} onChange={(e) => setConfirm(e.target.value)} autoComplete="new-password" />
             {eye('x')}
-            {confirm && next && confirm !== next && <p className="mt-1 text-[12px] text-white/45">Passwords do not match</p>}
+            {confirm && next && confirm !== next && <p className="mt-1 text-[12px] text-[#999999]">Passwords do not match</p>}
           </div>
         </div>
         <button type="submit" disabled={busy || !current || !next || next !== confirm} className={`${btnSolid} mt-6`}>

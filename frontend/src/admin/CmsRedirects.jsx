@@ -111,7 +111,7 @@ export default function CmsRedirects() {
           ].map((x) => (
             <div key={x.label} className="px-5 py-6">
               <p className="adm-label">{x.label}</p>
-              <p className="adm-metric mt-3 text-[26px] text-white">{x.value}</p>
+              <p className="adm-metric mt-3 text-[26px] text-black">{x.value}</p>
               {x.sub && <p className="mt-1 text-[11px] text-[#AAAAAA]">{x.sub}</p>}
             </div>
           ))}
@@ -128,7 +128,7 @@ export default function CmsRedirects() {
           <Text variant="editorial" label="Note to yourself (optional)" value={form.note} onChange={(v) => setForm({ ...form, note: v })} hint="Why this exists, so it still makes sense in six months." placeholder="Old campaign link from the July flyer" />
           <div className="md:col-span-2">
             {(err || problem) && (
-              <p role="alert" className="mb-3 text-[12px] leading-relaxed text-white/55">{err || problem}</p>
+              <p role="alert" className="mb-3 text-[12px] leading-relaxed text-[#777777]">{err || problem}</p>
             )}
             <button type="submit" disabled={busy || blocking} className={btnSolid}>
               <Plus size={12} /> {busy ? 'Saving…' : 'Add note'}
@@ -154,7 +154,7 @@ export default function CmsRedirects() {
             {rows.map((r) => (
               <div key={r._id} className="grid grid-cols-1 gap-1 border-b border-[#F0F0F0] py-3 md:grid-cols-[minmax(0,1.2fr)_minmax(0,1.2fr)_0.5fr_0.4fr_0.7fr_auto] md:items-center md:gap-3 adm-row-hover">
                 <div>
-                  <p className="truncate text-[13px] text-white">/{r.from}</p>
+                  <p className="truncate text-[13px] text-black">/{r.from}</p>
                   {r.note && <p className="truncate text-[11px] text-[#AAAAAA]">{r.note}</p>}
                 </div>
                 <p className="truncate text-[12px] text-[#555555]">{r.to}</p>

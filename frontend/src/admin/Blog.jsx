@@ -129,11 +129,11 @@ export default function Blog() {
             {rows.map((p) => (
               <div key={p._id} className="grid grid-cols-1 items-center gap-2 border-b border-[#F0F0F0] py-3 md:grid-cols-[minmax(0,1.6fr)_0.6fr_0.7fr_0.7fr_auto] md:gap-3 adm-row-hover">
                 <div className="min-w-0">
-                  <p className="truncate text-[13px] text-white">{p.title}</p>
+                  <p className="truncate text-[13px] text-black">{p.title}</p>
                   <p className="truncate text-[11px] text-[#AAAAAA]">/blog/{p.slug}{p.viewCount > 0 ? ` · ${p.viewCount} views` : ''}</p>
                 </div>
                 <MonoStatus label={STATUS_LABEL[p.status] || p.status} dim={p.status !== 'published'} />
-                <span className="text-[12px] text-white/45">{p.author || '—'}</span>
+                <span className="text-[12px] text-[#999999]">{p.author || '—'}</span>
                 <span className="text-[12px] text-[#AAAAAA]">
                   {p.status === 'scheduled' && p.publishAt
                     ? new Date(p.publishAt).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })

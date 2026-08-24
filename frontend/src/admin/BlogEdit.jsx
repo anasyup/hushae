@@ -185,7 +185,7 @@ export default function BlogEdit() {
                 <label key={s.id} className={`flex cursor-pointer items-start gap-3 border-b border-[#F0F0F0] py-3 last:border-0 ${form.status === s.id ? '' : 'opacity-60'}`}>
                   <input type="radio" name="status" checked={form.status === s.id} onChange={() => set('status', s.id)} className="mt-1 accent-white" />
                   <span>
-                    <span className="block text-[13px] text-white">{s.label}</span>
+                    <span className="block text-[13px] text-black">{s.label}</span>
                     <span className="block text-[12px] text-[#AAAAAA]">{s.hint}</span>
                   </span>
                 </label>

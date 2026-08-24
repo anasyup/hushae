@@ -115,7 +115,7 @@ export default function BannerEdit() {
       <div className="mb-8 flex gap-5 border-b border-[#EAEAEA]">
         {[['content', 'Content'], ['assignment', 'Assignment'], ['schedule', 'Schedule'], ['analytics', 'Analytics']].map(([k, l]) => (
           <button key={k} type="button" onClick={() => setTab(k)}
-            className={`-mb-px border-b py-2.5 text-[10px] font-medium uppercase tracking-[0.16em] ${tab === k ? 'border-white text-white' : 'border-transparent text-[#AAAAAA] hover:text-[#555555]'}`}>
+            className={`-mb-px border-b py-2.5 text-[10px] font-medium uppercase tracking-[0.16em] ${tab === k ? 'border-white text-black' : 'border-transparent text-[#AAAAAA] hover:text-[#555555]'}`}>
             {l}
           </button>
         ))}
@@ -246,7 +246,7 @@ export default function BannerEdit() {
                 <div className="grid grid-cols-3 gap-4">
                   {[['Impressions', f.impressions?.toLocaleString()], ['Clicks', f.clicks?.toLocaleString()], ['CTR', `${ctr}%`]].map(([l, v]) => (
                     <div key={l} className="border-y border-[#EAEAEA] py-4 text-center">
-                      <p className="adm-metric text-[22px] text-white">{v}</p>
+                      <p className="adm-metric text-[22px] text-black">{v}</p>
                       <p className="adm-label mt-1">{l}</p>
                     </div>
                   ))}

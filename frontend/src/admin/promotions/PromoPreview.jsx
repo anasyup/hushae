@@ -191,7 +191,7 @@ export default function PromoPreview({ draft, onClose }) {
 
           <button
             type="button" onClick={run} disabled={busy || !cart.length}
-            className="mt-4 inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg bg-neutral-900 px-4 text-[13px] font-semibold text-white transition hover:bg-neutral-800 disabled:opacity-50"
+            className="mt-4 inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg bg-neutral-900 px-4 text-[13px] font-semibold text-black transition hover:bg-neutral-800 disabled:opacity-50"
           >
             <Play size={14} /> {busy ? 'Running…' : 'Run the test'}
           </button>
@@ -200,7 +200,7 @@ export default function PromoPreview({ draft, onClose }) {
           {result && (
             <div className="mt-5 border-t border-neutral-200 pt-5" aria-live="polite">
               {!result.programmeLive && (
-                <p className="mb-3 border border-white/15 px-4 py-2.5 text-[12px] text-white/55">
+                <p className="mb-3 border border-[#EAEAEA] px-4 py-2.5 text-[12px] text-[#777777]">
                   Marketing is switched off, so this is a simulation only — real customers
                   are not seeing any of this yet.
                 </p>
@@ -212,13 +212,13 @@ export default function PromoPreview({ draft, onClose }) {
                   <dd className="tabular-nums">{money(result.subtotal)}</dd>
                 </div>
                 {(result.discounts || []).map((d) => (
-                  <div key={d.id} className="flex justify-between gap-4 text-white/80">
+                  <div key={d.id} className="flex justify-between gap-4 text-[#333333]">
                     <dt className="min-w-0 truncate">{d.label || d.name}{d.note ? ` (${d.note})` : ''}</dt>
                     <dd className="shrink-0 tabular-nums">− {money(d.amount)}</dd>
                   </div>
                 ))}
                 {result.capped && (
-                  <div className="border border-white/15 px-3 py-2 text-[12px] text-white/55">
+                  <div className="border border-[#EAEAEA] px-3 py-2 text-[12px] text-[#777777]">
                     Trimmed to your ceiling of {money(result.capAmount)}. Raise the maximum in
                     Rules if you meant to give more.
                   </div>
@@ -234,7 +234,7 @@ export default function PromoPreview({ draft, onClose }) {
               </dl>
 
               {(result.discounts || []).length > 0 && (
-                <p className="mt-3 flex items-start gap-2 border border-white/15 px-3 py-2.5 text-[12px] text-white/55">
+                <p className="mt-3 flex items-start gap-2 border border-[#EAEAEA] px-3 py-2.5 text-[12px] text-[#777777]">
                   <Check size={13} className="mt-0.5 shrink-0" aria-hidden="true" />
                   <span><strong>{result.discounts[0].label || result.discounts[0].name}</strong> applied.</span>
                 </p>

@@ -30,7 +30,7 @@ function StatCard({ label, value, sub }) {
   return (
     <div className="px-5 py-6">
       <p className="adm-label">{label}</p>
-      <p className="adm-metric mt-3 text-[22px] text-white">{value}</p>
+      <p className="adm-metric mt-3 text-[22px] text-black">{value}</p>
       {sub && <p className="mt-1 text-[11px] text-[#AAAAAA]">{sub}</p>}
     </div>
   );
@@ -137,11 +137,11 @@ function AdjustDialog({ account, onClose, onDone }) {
             <p className="mt-1.5 text-[12px] text-neutral-500">Saved against your name in the ledger, forever.</p>
           </div>
 
-          {err && <p role="alert" className="mb-3 border border-[#EAEAEA] px-3 py-2 text-[12px] text-white/55">{err}</p>}
+          {err && <p role="alert" className="mb-3 border border-[#EAEAEA] px-3 py-2 text-[12px] text-[#777777]">{err}</p>}
 
           <div className="flex gap-2">
             <button type="button" onClick={onClose} className="min-h-[44px] flex-1 rounded-xl border border-neutral-300 px-4 text-[13px] font-semibold text-neutral-700 transition hover:bg-neutral-50">Cancel</button>
-            <button type="submit" disabled={busy} className="min-h-[44px] flex-1 rounded-xl bg-neutral-900 px-4 text-[13px] font-semibold text-white transition hover:bg-neutral-800 disabled:opacity-50">
+            <button type="submit" disabled={busy} className="min-h-[44px] flex-1 rounded-xl bg-neutral-900 px-4 text-[13px] font-semibold text-black transition hover:bg-neutral-800 disabled:opacity-50">
               {busy ? 'Saving…' : 'Apply'}
             </button>
           </div>
@@ -203,7 +203,7 @@ function MemberPanel({ id, onClose, onChanged }) {
           {!data ? <div className="animate-pulse rounded-xl bg-neutral-100 h-64 w-full" /> : (
             <>
               {a.blocked && (
-                <p role="alert" className="mb-4 border border-[#EAEAEA] px-4 py-3 text-[12px] text-white/55">
+                <p role="alert" className="mb-4 border border-[#EAEAEA] px-4 py-3 text-[12px] text-[#777777]">
                   Blocked. {a.blockedReason || 'No reason recorded.'}
                 </p>
               )}
@@ -216,7 +216,7 @@ function MemberPanel({ id, onClose, onChanged }) {
               </div>
 
               <div className="mt-4 flex flex-wrap gap-2">
-                <button type="button" onClick={() => setAdjusting(true)} className="inline-flex min-h-[40px] items-center gap-1.5 rounded-lg bg-neutral-900 px-3 text-[12px] font-semibold text-white transition hover:bg-neutral-800">
+                <button type="button" onClick={() => setAdjusting(true)} className="inline-flex min-h-[40px] items-center gap-1.5 rounded-lg bg-neutral-900 px-3 text-[12px] font-semibold text-black transition hover:bg-neutral-800">
                   <Plus size={13} /> Adjust balance
                 </button>
                 <button type="button" onClick={toggleBlock} className={btnGhost}>
@@ -240,7 +240,7 @@ function MemberPanel({ id, onClose, onChanged }) {
                           {r.actor && r.actor !== 'system' ? ` · by ${r.actor}` : ''}
                         </p>
                       </div>
-                      <p className="shrink-0 text-[13px] tabular-nums text-white">
+                      <p className="shrink-0 text-[13px] tabular-nums text-black">
                         {r.amount > 0 ? '+' : ''}{num(r.amount)}{r.kind === 'credit' ? ' PKR' : ''}
                       </p>
                     </li>
@@ -322,7 +322,7 @@ function NewCardDialog({ onClose, onDone }) {
                 aria-label="Copy code"
               ><Copy size={15} /></button>
             </div>
-            <button type="button" onClick={onClose} className="mt-4 min-h-[44px] w-full rounded-xl bg-neutral-900 px-4 text-[13px] font-semibold text-white transition hover:bg-neutral-800">Done</button>
+            <button type="button" onClick={onClose} className="mt-4 min-h-[44px] w-full rounded-xl bg-neutral-900 px-4 text-[13px] font-semibold text-black transition hover:bg-neutral-800">Done</button>
           </>
         ) : (
           <form onSubmit={submit}>
@@ -338,10 +338,10 @@ function NewCardDialog({ onClose, onDone }) {
               <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500" htmlFor="gc-to">Issued to (optional)</label>
               <input id="gc-to" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" maxLength={120} value={issuedTo} onChange={(e) => setIssuedTo(e.target.value)} placeholder="Phone or email" />
             </div>
-            {err && <p role="alert" className="mb-3 border border-[#EAEAEA] px-3 py-2 text-[12px] text-white/55">{err}</p>}
+            {err && <p role="alert" className="mb-3 border border-[#EAEAEA] px-3 py-2 text-[12px] text-[#777777]">{err}</p>}
             <div className="flex gap-2">
               <button type="button" onClick={onClose} className="min-h-[44px] flex-1 rounded-xl border border-neutral-300 px-4 text-[13px] font-semibold text-neutral-700 transition hover:bg-neutral-50">Cancel</button>
-              <button type="submit" disabled={busy} className="min-h-[44px] flex-1 rounded-xl bg-neutral-900 px-4 text-[13px] font-semibold text-white transition hover:bg-neutral-800 disabled:opacity-50">
+              <button type="submit" disabled={busy} className="min-h-[44px] flex-1 rounded-xl bg-neutral-900 px-4 text-[13px] font-semibold text-black transition hover:bg-neutral-800 disabled:opacity-50">
                 {busy ? 'Creating…' : 'Create card'}
               </button>
             </div>
@@ -582,7 +582,7 @@ export default function AdminLoyalty() {
         </>
       ) : (
         <>
-          <button type="button" onClick={() => setNewCard(true)} className="mb-4 inline-flex min-h-[40px] items-center gap-1.5 rounded-lg bg-neutral-900 px-3 text-[12px] font-semibold text-white transition hover:bg-neutral-800">
+          <button type="button" onClick={() => setNewCard(true)} className="mb-4 inline-flex min-h-[40px] items-center gap-1.5 rounded-lg bg-neutral-900 px-3 text-[12px] font-semibold text-black transition hover:bg-neutral-800">
             <Gift size={13} /> New gift card
           </button>
 

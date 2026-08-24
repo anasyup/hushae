@@ -42,7 +42,7 @@ export default function MarketingSettings() {
   }, []); // eslint-disable-line
 
   const dirty = useMemo(() => original && JSON.stringify(s) !== original, [s, original]);
-  if (!s) return <AdminLayout title="Marketing rules"><div className="h-96 animate-pulse bg-white/5" /></AdminLayout>;
+  if (!s) return <AdminLayout title="Marketing rules"><div className="h-96 animate-pulse bg-[#FAFAFA]" /></AdminLayout>;
 
   const M = s.marketing || {};
   const set = (k, v) => setS({ ...s, marketing: { ...M, [k]: v } });
@@ -72,9 +72,9 @@ export default function MarketingSettings() {
       />
 
       {problems.length > 0 && (
-        <div role="alert" className="mb-8 border-y border-white/15 py-4">
-          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-white">Check these</p>
-          <ul className="mt-2 list-disc space-y-1 pl-5 text-[12px] text-white/55">
+        <div role="alert" className="mb-8 border-y border-[#EAEAEA] py-4">
+          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-black">Check these</p>
+          <ul className="mt-2 list-disc space-y-1 pl-5 text-[12px] text-[#777777]">
             {problems.map((x) => <li key={x}>{x}</li>)}
           </ul>
         </div>
@@ -95,7 +95,7 @@ export default function MarketingSettings() {
           description="The single most important number on this page."
           tone="warn"
         >
-          <div className="mb-4 text-[12px] leading-relaxed text-white/40">
+          <div className="mb-4 text-[12px] leading-relaxed text-[#999999]">
             Every product in your shop already shows a compare-at price — an average markdown of
             about 22%. On top of that a customer can use a coupon, then loyalty points, then store
             credit, then a gift card. Without a ceiling those add up: a PKR 1,550 item can reach
@@ -117,7 +117,7 @@ export default function MarketingSettings() {
               hint="0 = not enforced."
             />
           </div>
-          <p className="mt-3 text-[12px] text-white/40">
+          <p className="mt-3 text-[12px] text-[#999999]">
             On a PKR 5,000 basket, promotions could take off at most{' '}
             <strong>PKR {Math.round(5000 * ((Number(M.maxTotalDiscountPercent) || 0) / 100)).toLocaleString('en-PK')}</strong>.
           </p>
@@ -204,7 +204,7 @@ export default function MarketingSettings() {
               hint="Promotion times are read in this timezone."
             />
           </div>
-          <p className="mt-3 text-[12px] leading-relaxed text-white/40">
+          <p className="mt-3 text-[12px] leading-relaxed text-[#999999]">
             Schedules are checked every time a basket is priced, not by a background job. A
             promotion starts and stops exactly on time without anything needing to be running.
           </p>

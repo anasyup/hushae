@@ -226,7 +226,7 @@ export default function SettingsSecurity() {
     <button
       type="button"
       onClick={() => setShow((s) => ({ ...s, [which]: !s[which] }))}
-      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#AAAAAA] hover:text-white"
+      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#AAAAAA] hover:text-black"
       aria-label="Toggle visibility"
     >
       {show[which] ? <EyeOff size={15} /> : <Eye size={15} />}
@@ -265,7 +265,7 @@ export default function SettingsSecurity() {
               <div className="relative">
                 <label className="adm-label mb-1.5 block">Confirm with current password</label>
                 <input className={`${ctl} pr-10`} type={uShow ? 'text' : 'password'} value={uCurrent} onChange={(e) => setUCurrent(e.target.value)} required />
-                <button type="button" onClick={() => setUShow(!uShow)} className="absolute right-2.5 top-[34px] text-[#AAAAAA] hover:text-white" aria-label="Toggle visibility">
+                <button type="button" onClick={() => setUShow(!uShow)} className="absolute right-2.5 top-[34px] text-[#AAAAAA] hover:text-black" aria-label="Toggle visibility">
                   {uShow ? <EyeOff size={15} /> : <Eye size={15} />}
                 </button>
               </div>
@@ -295,7 +295,7 @@ export default function SettingsSecurity() {
                 </div>
               </div>
               <StrengthBar pct={strength.pct} label={strength.label} />
-              {confirm && next && confirm !== next && <p className="text-[12px] text-white/45">Passwords do not match</p>}
+              {confirm && next && confirm !== next && <p className="text-[12px] text-[#999999]">Passwords do not match</p>}
               <button type="submit" disabled={busy || !current || !next || next !== confirm} className={btnSolid}>
                 {busy ? 'Updating…' : 'Update password'}
               </button>
@@ -306,7 +306,7 @@ export default function SettingsSecurity() {
             <EdSection index={3} title="Two-factor authentication" description="After your password, a 6-digit code is emailed to you to sign in.">
               <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#F0F0F0] pb-4">
                 <div>
-                  <p className="text-[13px] text-white">{twoFa.enabled ? '2FA is on' : '2FA is off'}</p>
+                  <p className="text-[13px] text-black">{twoFa.enabled ? '2FA is on' : '2FA is off'}</p>
                   <p className="mt-0.5 text-[12px] text-[#AAAAAA]">{twoFa.enabled ? 'Every sign-in needs a code from your inbox.' : 'Sign-in currently needs only your password.'}</p>
                 </div>
                 <button type="button" onClick={() => setTwoFa({ ...twoFa, step: 'start' })} className={btnGhost}>
@@ -317,11 +317,11 @@ export default function SettingsSecurity() {
               {twoFa.step !== 'idle' && (
                 <div className="mt-4 space-y-3">
                   {twoFa.enabled ? (
-                    <p className="text-[12px] text-white/45">Enter your current password to disable 2FA.</p>
+                    <p className="text-[12px] text-[#999999]">Enter your current password to disable 2FA.</p>
                   ) : twoFa.step === 'start' ? (
-                    <p className="text-[12px] text-white/45">Enter your current password, then a verification code is emailed to <span className="text-white">{auth?.user?.email}</span>.</p>
+                    <p className="text-[12px] text-[#999999]">Enter your current password, then a verification code is emailed to <span className="text-black">{auth?.user?.email}</span>.</p>
                   ) : (
-                    <p className="text-[12px] text-white/45">Enter the 6-digit code sent to <span className="text-white">{auth?.user?.email}</span>.</p>
+                    <p className="text-[12px] text-[#999999]">Enter the 6-digit code sent to <span className="text-black">{auth?.user?.email}</span>.</p>
                   )}
                   {twoFa.step !== 'code' && (
                     <div className="flex flex-wrap gap-2">
@@ -364,7 +364,7 @@ export default function SettingsSecurity() {
                       </button>
                     </div>
                   )}
-                  <button type="button" onClick={() => setTwoFa({ ...twoFa, step: 'idle', code: '', pass: '' })} className="text-[11px] uppercase tracking-[0.16em] text-[#AAAAAA] hover:text-white">Cancel</button>
+                  <button type="button" onClick={() => setTwoFa({ ...twoFa, step: 'idle', code: '', pass: '' })} className="text-[11px] uppercase tracking-[0.16em] text-[#AAAAAA] hover:text-black">Cancel</button>
                 </div>
               )}
             </EdSection>
@@ -408,7 +408,7 @@ export default function SettingsSecurity() {
                   {users.map((u) => (
                     <div key={u._id} className="grid grid-cols-1 gap-2 border-b border-[#F0F0F0] py-3 md:grid-cols-[minmax(0,1.6fr)_0.8fr_0.7fr_0.5fr] md:items-center md:gap-3">
                       <div className="min-w-0">
-                        <p className="truncate text-[13px] text-white">{u.name}</p>
+                        <p className="truncate text-[13px] text-black">{u.name}</p>
                         <p className="truncate font-mono text-[11px] text-[#AAAAAA]">{u.email}</p>
                       </div>
                       <select
@@ -469,7 +469,7 @@ export default function SettingsSecurity() {
               {sessions.map((s) => (
                 <div key={s.jti} className="grid grid-cols-1 gap-1 border-b border-[#F0F0F0] py-3 md:grid-cols-[minmax(0,1.4fr)_1fr_1fr_0.6fr] md:items-center md:gap-3">
                   <div>
-                    <p className="text-[13px] text-white">{s.device || 'Unknown device'}{s.browser ? ` · ${s.browser}` : ''}</p>
+                    <p className="text-[13px] text-black">{s.device || 'Unknown device'}{s.browser ? ` · ${s.browser}` : ''}</p>
                     {s.current && <div className="mt-1"><MonoStatus label="THIS DEVICE" /></div>}
                   </div>
                   <p className="text-[12px] text-[#999999]">{s.ipHint ? `Network ${s.ipHint}` : '—'}</p>
@@ -507,9 +507,9 @@ export default function SettingsSecurity() {
               </div>
               {logs.map((l) => (
                 <div key={l._id} className="grid grid-cols-1 gap-1 border-b border-[#F0F0F0] py-3 md:grid-cols-[0.9fr_0.6fr_1fr_0.9fr] md:items-center md:gap-3">
-                  <span className="truncate font-mono text-[12px] text-white">{l.user}</span>
+                  <span className="truncate font-mono text-[12px] text-black">{l.user}</span>
                   <MonoStatus label={String(l.action || '').toUpperCase()} dim={l.action === 'delete'} />
-                  <span className="truncate text-[12px] text-white/55">{l.target} {l.targetId ? `(${l.targetId.slice(-6)})` : ''}</span>
+                  <span className="truncate text-[12px] text-[#777777]">{l.target} {l.targetId ? `(${l.targetId.slice(-6)})` : ''}</span>
                   <span className="text-[12px] text-[#AAAAAA]">{new Date(l.createdAt).toLocaleString('en-PK')}</span>
                 </div>
               ))}
@@ -537,10 +537,10 @@ export default function SettingsSecurity() {
               </div>
               {fraudOrders.map((o) => (
                 <div key={o._id} className="grid grid-cols-1 gap-2 border-b border-[#F0F0F0] py-4 md:grid-cols-[0.8fr_1.1fr_0.6fr_1.2fr_0.6fr_0.9fr] md:items-start md:gap-3">
-                  <span className="font-mono text-[13px] text-white">{o.orderNumber}</span>
+                  <span className="font-mono text-[13px] text-black">{o.orderNumber}</span>
                   <span className="text-[13px] text-[#333333]">{o.customerInfo?.name} <span className="text-[#AAAAAA]">({o.customerInfo?.city})</span></span>
-                  <span className="tabular-nums text-[13px] text-white">PKR {o.total?.toLocaleString()}</span>
-                  <ul className="space-y-1 text-[12px] text-white/45">
+                  <span className="tabular-nums text-[13px] text-black">PKR {o.total?.toLocaleString()}</span>
+                  <ul className="space-y-1 text-[12px] text-[#999999]">
                     {(o.fraudFilter?.reasons || []).map((r, i) => <li key={i}>{r}</li>)}
                   </ul>
                   <MonoStatus label={String(o.fraudFilter?.status || 'pending').toUpperCase()} dim={o.fraudFilter?.status === 'pending'} />
@@ -561,7 +561,7 @@ export default function SettingsSecurity() {
 
       {activeTab === 'advanced' && (
         <EdSection index={1} title="JWT rotation" description="Regenerating the secret immediately invalidates every active session.">
-          <p className="mb-4 max-w-xl text-[13px] leading-relaxed text-white/45">
+          <p className="mb-4 max-w-xl text-[13px] leading-relaxed text-[#999999]">
             All administrative dashboards will require a fresh login. Use this only when a token leak or credential incident is suspected.
           </p>
           <button type="button" onClick={() => setDialog({ kind: 'rotate' })} className={btnSolid}>Rotate all access keys</button>

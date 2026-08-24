@@ -211,7 +211,7 @@ export default function DraftOrder() {
         <button
           onClick={create}
           disabled={creating}
-          className="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-5 py-2 text-[13px] font-semibold text-white transition hover:bg-black disabled:opacity-60"
+          className="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-5 py-2 text-[13px] font-semibold text-black transition hover:bg-black disabled:opacity-60"
         >
           {creating ? <Loader2 size={14} className="animate-spin" /> : <ShoppingBag size={14} />} Create order
         </button>
@@ -343,7 +343,7 @@ export default function DraftOrder() {
                           </div>
                         )}
                       </div>
-                      <button onClick={() => addLine(p)} className="rounded-full bg-neutral-900 p-2 text-white transition hover:bg-black" title="Add">
+                      <button onClick={() => addLine(p)} className="rounded-full bg-neutral-900 p-2 text-black transition hover:bg-black" title="Add">
                         <Plus size={13} />
                       </button>
                     </div>
@@ -371,7 +371,7 @@ export default function DraftOrder() {
                       <button onClick={() => changeQty(i, l.quantity + 1)} className="rounded-lg border border-neutral-200 p-1.5 text-neutral-500 hover:border-neutral-400"><Plus size={12} /></button>
                     </div>
                     <span className="w-20 text-right text-[13px] font-semibold text-neutral-900">{pkr(l.lineTotal)}</span>
-                    <button onClick={() => setLines((ls) => ls.filter((_, j) => j !== i))} className="rounded-lg p-1.5 text-white/35 hover:text-white"><Trash2 size={14} /></button>
+                    <button onClick={() => setLines((ls) => ls.filter((_, j) => j !== i))} className="rounded-lg p-1.5 text-[#AAAAAA] hover:text-black"><Trash2 size={14} /></button>
                   </div>
                 ))}
               </div>
@@ -421,7 +421,7 @@ export default function DraftOrder() {
           <button
             onClick={create}
             disabled={creating}
-            className="w-full rounded-full bg-neutral-900 py-3 text-[14px] font-semibold text-white transition hover:bg-black disabled:opacity-60"
+            className="w-full rounded-full bg-neutral-900 py-3 text-[14px] font-semibold text-black transition hover:bg-black disabled:opacity-60"
           >
             {creating ? <Loader2 size={16} className="mx-auto animate-spin" /> : `Create order · ${pkr(total)}`}
           </button>

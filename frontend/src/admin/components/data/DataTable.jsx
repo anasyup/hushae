@@ -24,7 +24,7 @@ export default function DataTable({
               <th
                 key={c.key}
                 scope="col"
-                className={`whitespace-nowrap px-4 py-2.5 text-[9px] font-medium uppercase tracking-[0.16em] text-white/35 ${
+                className={`whitespace-nowrap px-4 py-2.5 text-[9px] font-medium uppercase tracking-[0.16em] text-[#AAAAAA] ${
                   c.align === 'right' ? 'text-right' : ''
                 }`}
               >
@@ -36,7 +36,7 @@ export default function DataTable({
         <tbody>
           {loading ? (
             Array.from({ length: 4 }).map((_, i) => (
-              <tr key={i} className="border-b border-white/5 last:border-0">
+              <tr key={i} className="border-b border-[#F0F0F0] last:border-0">
                 {columns.map((c) => (
                   <td key={c.key} className="px-4 py-3">
                     <Skeleton className="h-2.5 w-full" />
@@ -47,7 +47,7 @@ export default function DataTable({
           ) : rows.length === 0 ? (
             <tr>
               <td colSpan={columns.length} className="px-4 py-4">
-                {empty || <p className="py-8 text-[12px] text-white/40">No results.</p>}
+                {empty || <p className="py-8 text-[12px] text-[#999999]">No results.</p>}
               </td>
             </tr>
           ) : (
@@ -55,7 +55,7 @@ export default function DataTable({
               <tr
                 key={r[rowKey] ?? r.id ?? JSON.stringify(r).slice(0, 24)}
                 onClick={onRowClick ? () => onRowClick(r) : undefined}
-                className={`adm-row-hover border-b border-white/5 last:border-0 ${
+                className={`adm-row-hover border-b border-[#F0F0F0] last:border-0 ${
                   onRowClick ? 'cursor-pointer' : ''
                 }`}
               >

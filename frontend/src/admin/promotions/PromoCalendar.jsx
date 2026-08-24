@@ -13,17 +13,17 @@ const fmtDay = (d) => (d ? new Date(d).toLocaleDateString('en-GB', {
 
 function Row({ p, note }) {
   return (
-    <li className="border-b border-white/10">
+    <li className="border-b border-[#EAEAEA]">
       <Link to={`/admin/promotions/${p._id}`} className="flex min-h-[44px] items-center gap-3 py-3 adm-row-hover">
         <span className="min-w-0 flex-1">
-          <span className="block truncate text-[13px] font-medium text-white">{p.name}</span>
-          <span className="mt-0.5 block text-[11px] text-white/35">
+          <span className="block truncate text-[13px] font-medium text-black">{p.name}</span>
+          <span className="mt-0.5 block text-[11px] text-[#AAAAAA]">
             {typeOf(p.type).short}
             {p.priority != null && ` · priority ${p.priority}`}
             {p.exclusive && ' · exclusive'}
           </span>
         </span>
-        <span className="shrink-0 text-[11px] text-white/40">{note}</span>
+        <span className="shrink-0 text-[11px] text-[#999999]">{note}</span>
       </Link>
     </li>
   );
@@ -33,9 +33,9 @@ function Group({ title, description, rows, render, empty }) {
   return (
     <section>
       <p className="adm-label">{title}</p>
-      {description && <p className="mt-1 text-[12px] text-white/35">{description}</p>}
+      {description && <p className="mt-1 text-[12px] text-[#AAAAAA]">{description}</p>}
       {!rows.length ? (
-        <p className="mt-4 border-y border-white/10 py-6 text-center text-[12px] text-white/35">{empty}</p>
+        <p className="mt-4 border-y border-[#EAEAEA] py-6 text-center text-[12px] text-[#AAAAAA]">{empty}</p>
       ) : (
         <ul className="mt-3">{rows.map(render)}</ul>
       )}
@@ -78,23 +78,23 @@ export default function PromoCalendar({ rows }) {
     return out.slice(0, 6);
   }, [rows]);
 
-  if (rows === null) return <div className="h-40 animate-pulse bg-white/5" />;
+  if (rows === null) return <div className="h-40 animate-pulse bg-[#FAFAFA]" />;
 
   return (
     <div className="space-y-10">
       {overlaps.length > 0 && (
-        <section role="alert" className="border-y border-white/15 py-5">
-          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-white">These promotions compete</p>
-          <p className="mt-2 text-[12px] leading-relaxed text-white/40">
+        <section role="alert" className="border-y border-[#EAEAEA] py-5">
+          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-black">These promotions compete</p>
+          <p className="mt-2 text-[12px] leading-relaxed text-[#999999]">
             Only the higher-priority one will apply to a shared item. Narrow a scope or mark both as stackable if that was not intended.
           </p>
-          <ul className="mt-3 space-y-1.5 text-[12px] text-white/70">
+          <ul className="mt-3 space-y-1.5 text-[12px] text-[#555555]">
             {overlaps.map(([a, b]) => (
               <li key={`${a._id}-${b._id}`}>
-                <Link to={`/admin/promotions/${a._id}`} className="text-white hover:underline">{a.name}</Link>
+                <Link to={`/admin/promotions/${a._id}`} className="text-black hover:underline">{a.name}</Link>
                 {' '}(P{a.priority}) and{' '}
-                <Link to={`/admin/promotions/${b._id}`} className="text-white hover:underline">{b.name}</Link>
-                {' '}(P{b.priority}) — <span className="text-white">{a.priority <= b.priority ? a.name : b.name}</span> wins
+                <Link to={`/admin/promotions/${b._id}`} className="text-black hover:underline">{b.name}</Link>
+                {' '}(P{b.priority}) — <span className="text-black">{a.priority <= b.priority ? a.name : b.name}</span> wins
               </li>
             ))}
           </ul>
@@ -140,11 +140,11 @@ export default function PromoCalendar({ rows }) {
               ? `${days} · ${minToTime(r.startMin)}–${minToTime(r.endMin)}`
               : (p.endsAt ? `until ${fmtDay(p.endsAt)}` : 'always on');
             return (
-              <li key={p._id} className="border-b border-white/10">
+              <li key={p._id} className="border-b border-[#EAEAEA]">
                 <Link to={`/admin/promotions/${p._id}`} className="flex min-h-[44px] items-center gap-3 py-3 adm-row-hover">
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate text-[13px] font-medium text-white">{p.name}</span>
-                    <span className="mt-0.5 block text-[11px] text-white/35">{note}</span>
+                    <span className="block truncate text-[13px] font-medium text-black">{p.name}</span>
+                    <span className="mt-0.5 block text-[11px] text-[#AAAAAA]">{note}</span>
                   </span>
                   <MonoStatus label={p.state?.reason === 'live' ? 'ACTIVE' : 'OFF'} dim={p.state?.reason !== 'live'} />
                 </Link>

@@ -123,14 +123,14 @@ export default function Reviews() {
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="text-[12px] tabular-nums text-[#777777]">{r.rating}/5</span>
-                        <p className="text-[13px] text-white">{r.customerName}</p>
+                        <p className="text-[13px] text-black">{r.customerName}</p>
                         {r.verified && <MonoStatus label="VERIFIED" />}
                         {r.featured && <MonoStatus label="FEATURED" />}
                         {r.pinned && <MonoStatus label="PINNED" />}
                         {r.reports > 0 && <MonoStatus label={`${r.reports} REPORT${r.reports === 1 ? '' : 'S'}`} dim />}
                         <span className="text-[11px] text-[#AAAAAA]">{new Date(r.createdAt).toLocaleDateString('en-PK')}</span>
                       </div>
-                      {r.title && <p className="mt-2 text-[13px] text-white">{r.title}</p>}
+                      {r.title && <p className="mt-2 text-[13px] text-black">{r.title}</p>}
                       <p className="mt-1 text-[13px] leading-relaxed text-[#555555]">{r.body}</p>
                       {r.adminReply && (
                         <div className="mt-3 border-l border-[#DCDCDC] pl-3">
@@ -139,7 +139,7 @@ export default function Reviews() {
                         </div>
                       )}
                       {r.product && (
-                        <Link to={`/product/${r.product.slug}`} target="_blank" className="mt-3 inline-block text-[12px] text-[#999999] hover:text-white">{r.product.name}</Link>
+                        <Link to={`/product/${r.product.slug}`} target="_blank" className="mt-3 inline-block text-[12px] text-[#999999] hover:text-black">{r.product.name}</Link>
                       )}
                     </div>
                   </div>

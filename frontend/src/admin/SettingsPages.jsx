@@ -193,7 +193,7 @@ export function SettingsPayments() {
           <div>
             <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
               <div>
-                <p className="text-[13px] text-white">SafePay</p>
+                <p className="text-[13px] text-black">SafePay</p>
                 <p className="mt-0.5 text-[12px] text-[#AAAAAA]">Visa / Mastercard. Apply at getsafepay.com.</p>
               </div>
               <MonoStatus label={gatewayOn('safepay') ? 'ENABLED' : 'DISABLED'} dim={!gatewayOn('safepay')} />
@@ -216,7 +216,7 @@ export function SettingsPayments() {
           <div className="border-t border-[#EAEAEA] pt-8">
             <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
               <div>
-                <p className="text-[13px] text-white">JazzCash Merchant API</p>
+                <p className="text-[13px] text-black">JazzCash Merchant API</p>
                 <p className="mt-0.5 text-[12px] text-[#AAAAAA]">Hosted payment page. Register at payments.jazzcash.com.pk.</p>
               </div>
               <MonoStatus label={gatewayOn('jazzcash-api') ? 'ENABLED' : 'DISABLED'} dim={!gatewayOn('jazzcash-api')} />
@@ -365,11 +365,11 @@ export function SettingsShipping() {
         <div className="space-y-3">
           <div className="flex items-center justify-between text-[13px]">
             <span className="text-[#999999]">Shipping</span>
-            <span className="tabular-nums text-white">Flat PKR {(s.shippingFlatRate ?? 350).toLocaleString()}</span>
+            <span className="tabular-nums text-black">Flat PKR {(s.shippingFlatRate ?? 350).toLocaleString()}</span>
           </div>
           <div className="flex items-center justify-between text-[13px]">
             <span className="text-[#999999]">Free over</span>
-            <span className="tabular-nums text-white">PKR {(s.freeShippingThreshold ?? 4999).toLocaleString()}</span>
+            <span className="tabular-nums text-black">PKR {(s.freeShippingThreshold ?? 4999).toLocaleString()}</span>
           </div>
         </div>
       </EdSection>

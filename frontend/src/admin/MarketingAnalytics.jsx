@@ -86,7 +86,7 @@ export default function MarketingAnalytics() {
           ].map((x) => (
             <div key={x.label} className="px-5 py-6">
               <p className="adm-label">{x.label}</p>
-              <p className="adm-metric mt-3 text-[22px] leading-none text-white">{x.value}</p>
+              <p className="adm-metric mt-3 text-[22px] leading-none text-black">{x.value}</p>
             </div>
           ))}
         </div>
@@ -112,10 +112,10 @@ export default function MarketingAnalytics() {
               </div>
               {d.byPromotion.map((x) => (
                 <Link key={x.id} to={`/admin/promotions/${x.id}`} className="grid grid-cols-2 items-center gap-2 border-b border-[#EAEAEA] py-3 md:grid-cols-[minmax(0,1.4fr)_0.6fr_0.5fr_0.8fr_0.6fr] md:gap-3 adm-row-hover">
-                  <span className="truncate text-[13px] text-white">{x.name || 'Untitled'}</span>
+                  <span className="truncate text-[13px] text-black">{x.name || 'Untitled'}</span>
                   <span className="text-[11px] uppercase tracking-[0.1em] text-[#AAAAAA]">{typeOf(x.type).short}</span>
                   <span className="text-[12px] tabular-nums text-[#555555]">{num(x.uses)}</span>
-                  <span className="text-[12px] tabular-nums text-white">{money(x.given)}</span>
+                  <span className="text-[12px] tabular-nums text-black">{money(x.given)}</span>
                   <span className="text-[12px] tabular-nums text-[#999999]">{money(Math.round(x.given / Math.max(1, x.uses)))}</span>
                 </Link>
               ))}
@@ -127,7 +127,7 @@ export default function MarketingAnalytics() {
               <p className="adm-index">Bundles</p>
               {bundles.map((x) => (
                 <Link key={x.id} to={`/admin/promotions/${x.id}`} className="flex items-center justify-between border-b border-[#EAEAEA] py-3 adm-row-hover">
-                  <span className="truncate text-[13px] text-white">{x.name}</span>
+                  <span className="truncate text-[13px] text-black">{x.name}</span>
                   <span className="text-[12px] text-[#999999]">{num(x.uses)} · {money(x.given)}</span>
                 </Link>
               ))}
@@ -139,7 +139,7 @@ export default function MarketingAnalytics() {
               <p className="adm-index">Starting soon</p>
               {!upcoming.length ? <p className="border-y border-[#EAEAEA] py-6 text-[12px] text-[#AAAAAA]">Nothing scheduled.</p> : upcoming.map((p) => (
                 <Link key={p._id} to={`/admin/promotions/${p._id}`} className="flex items-center justify-between border-b border-[#EAEAEA] py-3 adm-row-hover">
-                  <span className="truncate text-[13px] text-white">{p.name}</span>
+                  <span className="truncate text-[13px] text-black">{p.name}</span>
                   <span className="text-[11px] text-[#AAAAAA]">{p.startsAt ? new Date(p.startsAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : '—'}</span>
                 </Link>
               ))}
@@ -148,7 +148,7 @@ export default function MarketingAnalytics() {
               <p className="adm-index">Finished</p>
               {!expired.length ? <p className="border-y border-[#EAEAEA] py-6 text-[12px] text-[#AAAAAA]">Nothing has finished yet.</p> : expired.map((p) => (
                 <Link key={p._id} to={`/admin/promotions/${p._id}`} className="flex items-center justify-between border-b border-[#EAEAEA] py-3 adm-row-hover">
-                  <span className="truncate text-[13px] text-white">{p.name}</span>
+                  <span className="truncate text-[13px] text-black">{p.name}</span>
                   <span className="text-[11px] text-[#AAAAAA]">{num(p.usedCount)} uses</span>
                 </Link>
               ))}

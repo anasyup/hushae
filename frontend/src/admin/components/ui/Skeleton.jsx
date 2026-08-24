@@ -23,7 +23,7 @@ export function Spinner({ size = 16, className = '' }) {
   return (
     <span
       aria-hidden
-      className={`inline-block animate-spin rounded-full border border-white/25 border-t-white ${className}`}
+      className={`inline-block animate-spin rounded-full border border-[#DCDCDC] border-t-white ${className}`}
       style={{ width: size, height: size }}
     />
   );
@@ -31,7 +31,7 @@ export function Spinner({ size = 16, className = '' }) {
 
 export function PageLoader({ label = 'Loading…' }) {
   return (
-    <div className="flex min-h-[40vh] items-center justify-center gap-2 text-[11px] uppercase tracking-[0.16em] text-white/40">
+    <div className="flex min-h-[40vh] items-center justify-center gap-2 text-[11px] uppercase tracking-[0.16em] text-[#999999]">
       <Spinner size={13} />
       {label}
     </div>

@@ -114,7 +114,7 @@ export default function Cms() {
           ].map((x) => (
             <div key={x.label} className="px-5 py-6">
               <p className="adm-label">{x.label}</p>
-              <p className="adm-metric mt-3 text-[26px] text-white">{x.value}</p>
+              <p className="adm-metric mt-3 text-[26px] text-black">{x.value}</p>
             </div>
           ))}
         </div>
@@ -197,7 +197,7 @@ export default function Cms() {
                       aria-label={`Select ${p.title}`} className="mt-1 h-4 w-4 shrink-0 accent-white"
                     />
                     <Link to={`/admin/cms/${p._id}`} className="min-w-0 flex-1">
-                      <p className="truncate text-[13px] text-white">{p.title}</p>
+                      <p className="truncate text-[13px] text-black">{p.title}</p>
                       <p className="mt-0.5 truncate text-[12px] text-[#AAAAAA]">/{p.slug} · {typeOf(p.type).short}</p>
                     </Link>
                   </div>
@@ -224,7 +224,7 @@ export default function Cms() {
                   <div key={p._id} className="grid grid-cols-[2rem_minmax(0,1.6fr)_0.6fr_0.9fr_0.7fr_4rem] items-center gap-3 border-b border-[#F0F0F0] py-3 adm-row-hover">
                     <input type="checkbox" checked={selected.includes(p._id)} onChange={() => toggleOne(p._id)} aria-label={`Select ${p.title}`} className="h-4 w-4 accent-white" />
                     <div className="min-w-0">
-                      <Link to={`/admin/cms/${p._id}`} className="text-[13px] text-white hover:underline">{p.title}</Link>
+                      <Link to={`/admin/cms/${p._id}`} className="text-[13px] text-black hover:underline">{p.title}</Link>
                       <p className="mt-0.5 truncate text-[11px] text-[#AAAAAA]">
                         /{p.slug}
                         {p.locked && ' · built in'}
@@ -232,7 +232,7 @@ export default function Cms() {
                         {p.showInHeader && ' · menu'}
                       </p>
                     </div>
-                    <span className="text-[12px] text-white/45">{typeOf(p.type).short}</span>
+                    <span className="text-[12px] text-[#999999]">{typeOf(p.type).short}</span>
                     <div>
                       <StateLine state={p.state} hasDraft={p.hasDraft} />
                       {p.state?.reason === 'scheduled' && p.publishAt && (
@@ -242,7 +242,7 @@ export default function Cms() {
                     <span className="text-[12px] text-[#999999]">{fmtDate(p.updatedAt)}</span>
                     <span className="text-right">
                       {p.state?.live ? (
-                        <a href={`/${p.slug}`} target="_blank" rel="noreferrer" className="text-[11px] uppercase tracking-[0.14em] text-[#999999] hover:text-white">
+                        <a href={`/${p.slug}`} target="_blank" rel="noreferrer" className="text-[11px] uppercase tracking-[0.14em] text-[#999999] hover:text-black">
                           Open
                         </a>
                       ) : <span className="text-white/20">—</span>}

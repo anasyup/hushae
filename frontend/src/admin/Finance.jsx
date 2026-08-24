@@ -335,7 +335,7 @@ export default function Finance() {
           {kpis.map((x) => (
             <div key={x.label} className="px-4 py-6 sm:px-5">
               <p className="adm-label">{x.label}</p>
-              <p className="adm-metric mt-3 text-[20px] leading-none text-white xl:text-[24px]">{x.value}</p>
+              <p className="adm-metric mt-3 text-[20px] leading-none text-black xl:text-[24px]">{x.value}</p>
               <p className="mt-2 text-[11px] text-[#AAAAAA]">{x.sub}</p>
             </div>
           ))}
@@ -401,7 +401,7 @@ export default function Finance() {
         )}
         <p className="mt-4 text-[11px] leading-relaxed text-[#AAAAAA]">
           Net profit = Revenue − (COGS + packing + courier subsidy + prorated ads + SEO + other). Fixed monthly costs are prorated across the selected date range. Set costs in{' '}
-          <Link to="/admin/settings/shipping" className="text-white/55 underline decoration-white/20 underline-offset-4 hover:text-white">Settings → Shipping &amp; Operating Costs</Link>.
+          <Link to="/admin/settings/shipping" className="text-[#777777] underline decoration-white/20 underline-offset-4 hover:text-black">Settings → Shipping &amp; Operating Costs</Link>.
         </p>
       </section>
     </AdminLayout>
@@ -421,13 +421,13 @@ function RankedMoney({ title, hint, rows, empty }) {
           {rows.sort((a, b) => b.value - a.value).map((d) => (
             <li key={d.name} className="flex items-center gap-3 border-b border-[#F0F0F0] py-2.5">
               <span className="min-w-0 flex-1 truncate text-[12px] text-white/75">{d.name}</span>
-              <span className="text-[12px] tabular-nums text-white">{pkr(d.value)}</span>
+              <span className="text-[12px] tabular-nums text-black">{pkr(d.value)}</span>
               <span className="w-10 text-right text-[11px] tabular-nums text-[#AAAAAA]">{((d.value / total) * 100).toFixed(0)}%</span>
             </li>
           ))}
           <li className="flex items-center justify-between border-t border-[#DCDCDC] py-3">
             <span className="adm-label">Total</span>
-            <span className="adm-metric text-[16px] text-white">{pkr(total)}</span>
+            <span className="adm-metric text-[16px] text-black">{pkr(total)}</span>
           </li>
         </ul>
       )}
