@@ -1,166 +1,371 @@
-import { Component, useEffect, useMemo, useState, useCallback } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Component, useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
-  ArrowDownRight, ArrowUpRight, Calendar, ChevronRight, CircleDollarSign,
-  Clock, Download, Eye, Loader2, Package, PackagePlus, Plus, RefreshCw,
-  Search, ShoppingBag, TrendingUp, Truck, Users, AlertTriangle, BarChart3,
-  Activity, Zap, BadgePercent, FileText, ArrowRight, X, ExternalLink,
-  Bell, Globe, Settings, Command, Moon, Sun, PanelLeftClose, PanelRightOpen,
-  Menu, MessageCircle, Printer, MoreHorizontal,
+  Activity, AlertTriangle, ArrowDownRight, ArrowUpRight, BadgePercent, Box,
+  Calendar, ChevronRight, CircleDollarSign, Clock, Download, Megaphone,
+  MessageCircle, Package, PackagePlus, RefreshCw, ShoppingBag, Sparkles,
+  TrendingUp, Truck, Users, Zap, Eye, ArrowRight,
 } from 'lucide-react';
 import {
-  Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, Line, LineChart,
-  ResponsiveContainer, Tooltip, XAxis, YAxis,
+  Area, AreaChart, Bar, BarChart, CartesianGrid, Cell,
+  Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis,
 } from 'recharts';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
-import { fmtDate, fmtDateTime, pkr } from '../lib/format';
+import { fmtDate, pkr } from '../lib/format';
 import { buildStatusDonut } from '../lib/statusDonut';
+import { PAYMENT_STATES, TONE } from './orders/orderConstants';
+import AdminLayout from './AdminLayout';
 import Img from '../components/Img';
+import AlertsBar from './dashboard/AlertsBar';
+import GoalTracker from './dashboard/GoalTracker';
+import InsightsCard from './dashboard/InsightsCard';
+import RangePicker, { RANGE_PRESETS, resolvePreset } from './dashboard/RangePicker';
+import CancellationReasons from './dashboard/CancellationReasons';
+import AbandonedCartsWidget from './dashboard/AbandonedCartsWidget';
+import ReorderModal from './dashboard/ReorderModal';
+import ReliabilityBadge from './ReliabilityBadge';
+import { exportDashboardSummary } from './dashboard/exportSummary';
 
 /* ============================================================================
- * HUSHAE DASHBOARD V4 — Master Replacement
- * Premium white + jet-black executive commerce dashboard
- * 10 sections: Topbar → Intro → KPIs → Performance → Live+Mix → Attention →
- *              Operations → Intelligence → Quick Actions → Insights
+ * DASHBOARD V3 — Phase 11 Executive Operating Screen
+ *
+ * Every block answers: "What happened?" or "What needs my attention?"
  * ========================================================================== */
 
-/* ── Error Boundary ─────────────────────────────────────────────────────── */
-class ChartErrorBoundary extends Component {
-  constructor(p) { super(p); this.state = { err: false }; }
-  static getDerivedStateFromError() { return { err: true }; }
+/* Error boundary preserved */
+class ChartBoundary extends Component {
+  constructor(props) { super(props); this.state = { failed: false }; }
+  static getDerivedStateFromError() { return { failed: true }; }
+  componentDidCatch(e) { console.error('Chart error:', e); }
   render() {
-    if (this.state.err) return (
-      <div className="flex items-center justify-center h-40 text-[12px] text-[#8A8F98]">
-        Chart unavailable — <button onClick={() => this.setState({ err: false })} className="ml-1 underline">retry</button>
-      </div>
-    );
+    if (this.state.failed) {
+      return (
+        <div className="v3-empty" style={{ minHeight: 160 }}>
+          <p className="v3-empty-title">Chart unavailable</p>
+          <button onClick={() => this.setState({ failed: false })} className="v3-btn v3-btn-secondary v3-btn-sm mt-2">Retry</button>
+        </div>
+      );
+    }
     return this.props.children;
   }
 }
 
-/* ── Date Range Presets ─────────────────────────────────────────────────── */
-const RANGE_PRESETS = [
-  { key: 'today', label: 'Today', days: 1 },
-  { key: '7d', label: '7 days', days: 7 },
-  { key: '30d', label: '30 days', days: 30 },
-  { key: '90d', label: '90 days', days: 90 },
-  { key: 'this_month', label: 'This month' },
-  { key: 'this_year', label: 'This year' },
-  { key: 'all', label: 'All time', days: 0 },
-];
+/* WhatsApp helpers preserved */
+const waDigits = (phone) => {
+  const d = String(phone || '').replace(/\D/g, '');
+  if (!d) return '';
+  if (d.startsWith('0')) return `92${d.slice(1)}`;
+  if (d.startsWith('92')) return d;
+  return `92${d}`;
+};
+const waVerifyLink = (o, storePhone) => {
+  const phone = waDigits(o?.customerInfo?.phone);
+  if (!phone) return '';
+  const name = String(o?.customerInfo?.name || '').trim();
+  const total = Number(o?.total || 0).toLocaleString('en-PK');
+  const msg = `Hi ${name || 'there'}, this is Hushae. Confirming your order ${o.orderNumber} for PKR ${total}. Please reply YES to confirm.`;
+  return `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
+};
 
-function resolvePreset(key) {
-  const now = new Date();
-  const p = RANGE_PRESETS.find(r => r.key === key);
-  if (!p) return resolvePreset('30d');
-  if (key === 'today') {
-    const from = new Date(now); from.setHours(0, 0, 0, 0);
-    return { from: from.toISOString().slice(0, 10), to: now.toISOString().slice(0, 10) };
-  }
-  if (key === 'this_month') {
-    const from = new Date(now.getFullYear(), now.getMonth(), 1);
-    return { from: from.toISOString().slice(0, 10), to: now.toISOString().slice(0, 10) };
-  }
-  if (key === 'this_year') {
-    const from = new Date(now.getFullYear(), 0, 1);
-    return { from: from.toISOString().slice(0, 10), to: now.toISOString().slice(0, 10) };
-  }
-  if (key === 'all') return { from: '2020-01-01', to: now.toISOString().slice(0, 10) };
-  const from = new Date(now.getTime() - p.days * 86400000);
-  return { from: from.toISOString().slice(0, 10), to: now.toISOString().slice(0, 10) };
-}
-
-/* ── WhatsApp helper ────────────────────────────────────────────────────── */
-const waDigits = (p) => { const d = String(p || '').replace(/\D/g, ''); if (!d) return ''; if (d.startsWith('0')) return `92${d.slice(1)}`; if (d.startsWith('92')) return d; return `92${d}`; };
-
-/* ── Metric Card ────────────────────────────────────────────────────────── */
-function MetricCard({ icon: Icon, label, value, change, format = 'number', to, hint }) {
+/* ── METRIC COMPONENT ───────────────────────────────────────────────────── */
+function MetricCard({ icon: Icon, label, value, change, format = 'number', to, compareLabel = 'vs previous' }) {
   const hasRate = typeof change === 'number' && Number.isFinite(change);
   const positive = hasRate && change > 0;
   const negative = hasRate && change < 0;
-  const display = format === 'money' ? pkr(value) : format === 'percent' ? `${value}%` : typeof value === 'number' ? value.toLocaleString() : value;
+  const display = format === 'money' ? pkr(value) : typeof value === 'number' ? value.toLocaleString() : value;
   const Wrapper = to ? Link : 'div';
   return (
-    <Wrapper to={to} className="block p-4 border border-[#E5E7EB] rounded-[6px] hover:border-[#D1D5DB] transition-colors group" style={{ textDecoration: 'none' }}>
-      <div className="flex items-center justify-between mb-2">
-        <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#8A8F98]">{label}</span>
-        {Icon && <Icon size={14} strokeWidth={1.5} className="text-[#C4C7CC] group-hover:text-[#8A8F98] transition-colors" />}
+    <Wrapper to={to} className="v3-metric" style={{ textDecoration: 'none' }}>
+      <div className="flex items-center justify-between mb-1">
+        <span className="v3-metric-label">{label}</span>
+        {Icon && <Icon size={14} strokeWidth={1.5} className="text-[#C4C7CC]" />}
       </div>
-      <div className="text-[22px] font-bold text-[#111] tabular leading-none">{display}</div>
+      <div className="v3-metric-value">{display}</div>
       {hasRate && change !== 0 && (
-        <div className={`flex items-center gap-1 mt-1.5 text-[11px] font-medium ${positive ? 'text-[#15803D]' : negative ? 'text-[#B91C1C]' : 'text-[#8A8F98]'}`}>
+        <div className={`v3-metric-change ${positive ? 'up' : negative ? 'down' : 'neutral'}`}>
           {positive ? <ArrowUpRight size={11} /> : <ArrowDownRight size={11} />}
           {Math.abs(change).toFixed(1)}%
-          <span className="text-[#8A8F98] font-normal ml-0.5">vs prev</span>
+          <span className="text-[#C4C7CC] ml-1">{compareLabel}</span>
         </div>
       )}
-      {hint && !hasRate && <div className="text-[11px] text-[#8A8F98] mt-1.5">{hint}</div>}
     </Wrapper>
   );
 }
 
-/* ── Attention Item ─────────────────────────────────────────────────────── */
-function AttentionItem({ icon: Icon, label, count, to, variant = 'default' }) {
-  const colors = {
-    warning: 'text-[#A16207] bg-[#FEF9C3]',
-    danger: 'text-[#B91C1C] bg-[#FEE2E2]',
-    default: 'text-[#111] bg-[#F5F5F5]',
-  };
+/* ── NEEDS ATTENTION BLOCK ──────────────────────────────────────────────── */
+function NeedsAttention({ stats, lowStockCount }) {
+  const items = [
+    { label: 'Pending Payment', count: stats?.pending || 0, to: '/admin/verification-queue', icon: Clock },
+    { label: 'Ready to Ship', count: stats?.readyToShip || 0, to: '/admin/orders?group=to-ship', icon: Truck },
+    { label: 'In Production', count: stats?.processing || 0, to: '/admin/orders?group=processing', icon: Package },
+    { label: 'Low Stock', count: lowStockCount || 0, to: '/admin/products', icon: AlertTriangle },
+  ].filter(i => i.count > 0);
+
+  if (items.length === 0) return null;
+
   return (
-    <Link to={to} className="flex items-center gap-3 px-3 py-2.5 rounded-[5px] hover:bg-[#FAFAFA] transition-colors group" style={{ textDecoration: 'none' }}>
-      <div className={`w-8 h-8 rounded-[5px] flex items-center justify-center ${colors[variant]}`}>
-        <Icon size={14} />
+    <div className="v3-card">
+      <div className="v3-card-header">
+        <span className="v3-h-section">Needs Attention</span>
+        <span className="v3-status v3-status-pending">
+          <span className="v3-status-dot" />
+          {items.reduce((s, i) => s + i.count, 0)} items
+        </span>
       </div>
-      <div className="flex-1 min-w-0">
-        <p className="text-[12px] font-medium text-[#111] truncate">{label}</p>
+      <div className="divide-y divide-[#F0F1F3]">
+        {items.map(item => (
+          <Link key={item.label} to={item.to} className="flex items-center justify-between px-5 py-3 hover:bg-[#F5F6F8] transition-colors" style={{ textDecoration: 'none' }}>
+            <div className="flex items-center gap-3">
+              <item.icon size={16} className="text-[#6B7280]" />
+              <span className="text-[13px] text-[#111]">{item.label}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="v3-h-card v3-tabular">{item.count}</span>
+              <ChevronRight size={14} className="text-[#C4C7CC]" />
+            </div>
+          </Link>
+        ))}
       </div>
-      <div className="flex items-center gap-1.5">
-        <span className="text-[13px] font-bold tabular text-[#111]">{count}</span>
-        <ChevronRight size={12} className="text-[#C4C7CC] group-hover:text-[#8A8F98] transition-colors" />
+    </div>
+  );
+}
+
+/* ── RECENT ORDERS ──────────────────────────────────────────────────────── */
+function RecentOrders({ orders, settings }) {
+  if (!orders || orders.length === 0) {
+    return (
+      <div className="v3-card">
+        <div className="v3-card-header">
+          <span className="v3-h-section">Recent Orders</span>
+        </div>
+        <div className="v3-empty">
+          <ShoppingBag size={24} className="v3-empty-icon" />
+          <p className="v3-empty-title">No orders yet</p>
+          <p className="v3-empty-desc">Orders will appear here when customers purchase from your store.</p>
+        </div>
       </div>
-    </Link>
+    );
+  }
+
+  const statusStyle = (s) => {
+    if (s === 'Delivered') return 'v3-status v3-status-active';
+    if (s === 'Cancelled' || s === 'Refunded') return 'v3-status v3-status-inactive';
+    if (s === 'Shipped' || s === 'Out for Delivery') return 'v3-status v3-status-active';
+    return 'v3-status v3-status-pending';
+  };
+
+  return (
+    <div className="v3-card">
+      <div className="v3-card-header">
+        <span className="v3-h-section">Recent Orders</span>
+        <Link to="/admin/orders" className="v3-btn v3-btn-ghost v3-btn-sm">View all <ArrowRight size={12} /></Link>
+      </div>
+      <div className="v3-table-wrap">
+        <table className="v3-table dense">
+          <thead>
+            <tr>
+              <th>Order</th>
+              <th>Customer</th>
+              <th>Status</th>
+              <th>Payment</th>
+              <th className="right">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {orders.slice(0, 8).map(o => (
+              <tr key={o._id}>
+                <td>
+                  <Link to={`/admin/orders/${o._id}`} className="text-[#111] font-medium hover:underline" style={{ textDecoration: 'none' }}>
+                    {o.orderNumber}
+                  </Link>
+                  <div className="text-[11px] text-[#9CA3AF] mt-0.5">{fmtDate(o.createdAt)}</div>
+                </td>
+                <td>
+                  <div className="text-[13px]">{o.customerInfo?.name || 'Guest'}</div>
+                  <div className="text-[11px] text-[#9CA3AF]">{o.customerInfo?.city || ''}</div>
+                </td>
+                <td><span className={statusStyle(o.status)}><span className="v3-status-dot" />{o.status}</span></td>
+                <td><span className="text-[12px] text-[#6B7280]">{o.paymentMethod}</span></td>
+                <td className="right tabular font-medium">{pkr(o.total)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+/* ── QUICK ACTIONS ──────────────────────────────────────────────────────── */
+function QuickActions() {
+  const actions = [
+    { to: '/admin/products/new', icon: PackagePlus, label: 'Add Product', primary: true },
+    { to: '/admin/orders/new', icon: ShoppingBag, label: 'Create Order' },
+    { to: '/admin/promotions/new', icon: Zap, label: 'New Promotion' },
+    { to: '/admin/discounts', icon: BadgePercent, label: 'New Discount' },
+  ];
+  return (
+    <div className="v3-card">
+      <div className="v3-card-header">
+        <span className="v3-h-section">Quick Actions</span>
+      </div>
+      <div className="p-4 grid grid-cols-2 gap-2">
+        {actions.map(a => (
+          <Link key={a.label} to={a.to}
+            className={`flex items-center gap-2.5 rounded-[5px] px-3 py-2.5 text-[12px] font-medium transition-colors ${a.primary ? 'bg-[#111] text-white hover:bg-[#222]' : 'border border-[#E5E7EB] text-[#4A4A4A] hover:bg-[#F5F6F8] hover:text-[#111]'}`}
+            style={{ textDecoration: 'none' }}>
+            <a.icon size={15} />
+            {a.label}
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ── STOCK ROW ──────────────────────────────────────────────────────────── */
+function StockRow({ product: p, onSaved, onReorder }) {
+  const { auth, toast } = useApp();
+  const [editing, setEditing] = useState(false);
+  const [value, setValue] = useState(String(p.stock));
+  const [busy, setBusy] = useState(false);
+  const save = async () => {
+    const n = Number(value);
+    if (!Number.isFinite(n) || n < 0) { toast('Enter a valid quantity'); return; }
+    setBusy(true);
+    try { await api(`/products/${p._id}/stock`, { method: 'PATCH', token: auth.token, body: { stock: n } }); toast(`${p.name} → ${n} in stock`); setEditing(false); onSaved?.(); }
+    catch { toast('Could not update stock'); }
+    setBusy(false);
+  };
+  if (editing) return (
+    <div className="flex items-center gap-2 p-2 rounded-[5px] bg-[#F5F6F8]">
+      <input type="number" min="0" autoFocus value={value} onChange={(e) => setValue(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') save(); if (e.key === 'Escape') setEditing(false); }} className="v3-input" style={{ width: 80 }} />
+      <button onClick={save} disabled={busy} className="v3-btn v3-btn-primary v3-btn-sm">Save</button>
+      <button onClick={() => setEditing(false)} className="v3-btn v3-btn-ghost v3-btn-sm">Cancel</button>
+    </div>
+  );
+  return (
+    <div className="flex items-center gap-3 py-2 px-1 rounded-[5px] hover:bg-[#F5F6F8] transition-colors">
+      <Link to={`/admin/products/${p._id}`} className="flex items-center gap-2.5 min-w-0 flex-1" style={{ textDecoration: 'none' }}>
+        <Img src={p.images?.[0]?.url} alt="" className="h-8 w-6 rounded-[3px] border border-[#E5E7EB] object-cover" />
+        <span className="text-[12px] text-[#111] truncate">{p.name}</span>
+      </Link>
+      <button onClick={() => { setValue(String(p.stock)); setEditing(true); }} className={`v3-btn v3-btn-sm ${p.stock === 0 ? 'v3-btn-primary' : 'v3-btn-secondary'}`}>{p.stock} ✎</button>
+    </div>
+  );
+}
+
+/* ── REVENUE CHART ──────────────────────────────────────────────────────── */
+function RevenueChart({ data, rangeLabel }) {
+  const [mode, setMode] = useState('revenue');
+  const total = data.reduce((n, d) => n + (mode === 'revenue' ? d.revenue : d.orders), 0);
+  return (
+    <div className="v3-card">
+      <div className="v3-card-header">
+        <div>
+          <span className="v3-h-section">{mode === 'revenue' ? 'Revenue' : 'Orders'}</span>
+          <div className="flex items-center gap-3 mt-1">
+            <span className="v3-h-display v3-tabular">{mode === 'revenue' ? pkr(total) : total.toLocaleString()}</span>
+            <span className="text-[11px] text-[#9CA3AF]">{rangeLabel}</span>
+          </div>
+        </div>
+        <div className="flex gap-1">
+          {['revenue', 'orders'].map(m => (
+            <button key={m} onClick={() => setMode(m)}
+              className={`px-3 py-1.5 text-[11px] font-medium rounded-[3px] transition-colors ${mode === m ? 'bg-[#111] text-white' : 'text-[#6B7280] hover:bg-[#F0F1F3]'}`}>
+              {m.charAt(0).toUpperCase() + m.slice(1)}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className="px-5 pb-5">
+        <div className="h-52 w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+              <defs>
+                <linearGradient id="v3-rev-grad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#111" stopOpacity={0.08} />
+                  <stop offset="100%" stopColor="#111" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="#F0F1F3" vertical={false} />
+              <XAxis dataKey="label" stroke="#C4C7CC" tick={{ fontSize: 10, fill: '#9CA3AF' }} tickLine={false} axisLine={false} />
+              <YAxis stroke="#C4C7CC" tick={{ fontSize: 10, fill: '#9CA3AF' }} tickLine={false} axisLine={false} tickFormatter={(v) => mode === 'revenue' ? (v >= 1000 ? `${(v/1000).toFixed(0)}k` : v) : v} />
+              <Tooltip contentStyle={{ borderRadius: 5, border: '1px solid #E5E7EB', background: '#FFF', fontSize: 12, color: '#111', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }} labelStyle={{ color: '#6B7280' }} formatter={(v) => mode === 'revenue' ? [pkr(v), 'Revenue'] : [v, 'Orders']} />
+              <Area type="monotone" dataKey={mode} stroke="#111" strokeWidth={2} fill="url(#v3-rev-grad)" dot={{ r: 2, fill: '#111', stroke: '#FFF', strokeWidth: 2 }} activeDot={{ r: 4, fill: '#111', stroke: '#FFF', strokeWidth: 2 }} />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── PROFIT TILE ────────────────────────────────────────────────────────── */
+function ProfitTile({ icon: Icon, label, value, change, format = 'money', hint }) {
+  const display = format === 'money' ? pkr(value) : format === 'percent' ? `${value}%` : value.toLocaleString();
+  return (
+    <div className="v3-card-flat">
+      <div className="flex items-center justify-between">
+        <Icon size={14} className="text-[#C4C7CC]" />
+        {typeof change === 'number' && change !== 0 && (
+          <span className={`text-[11px] font-medium ${change > 0 ? 'text-[#111]' : 'text-[#9CA3AF]'}`}>
+            {change > 0 ? '▲' : '▼'} {Math.abs(change).toFixed(1)}%
+          </span>
+        )}
+      </div>
+      <div className="mt-2 v3-metric-label">{label}</div>
+      <div className="text-[16px] font-semibold text-[#111] v3-tabular">{display}</div>
+      {hint && <div className="text-[11px] text-[#9CA3AF] mt-1">{hint}</div>}
+    </div>
   );
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
- * MAIN DASHBOARD COMPONENT
+ * MAIN DASHBOARD
  * ══════════════════════════════════════════════════════════════════════════ */
 
 export default function Dashboard() {
   const { auth, logout, settings } = useApp();
-  const nav = useNavigate();
   const [d, setD] = useState(null);
   const [err, setErr] = useState('');
   const [refreshing, setRefreshing] = useState(false);
   const [insights, setInsights] = useState(null);
+  const [lastSync, setLastSync] = useState(null);
   const [alerts, setAlerts] = useState(null);
   const [smart, setSmart] = useState(null);
   const [goal, setGoal] = useState(null);
-  const [segments, setSegments] = useState(null);
-  const [lastSync, setLastSync] = useState(null);
-  const [chartMode, setChartMode] = useState('revenue');
+  const [customerSegments, setCustomerSegments] = useState(null);
+  const [reorder, setReorder] = useState(null);
 
   const [range, setRange] = useState(() => {
     try {
+      const sp = new URLSearchParams(window.location.search);
+      const fromQ = sp.get('from'); const toQ = sp.get('to');
+      if (fromQ && toQ) return { preset: 'custom', from: fromQ, to: toQ };
       const saved = JSON.parse(localStorage.getItem('hushae.dashRange') || 'null');
-      if (saved?.preset) { const r = resolvePreset(saved.preset); return { ...r, preset: saved.preset }; }
+      if (saved?.preset && saved.preset !== 'custom') { const r = resolvePreset(saved.preset); if (r) return { preset: saved.preset, from: r.from, to: r.to }; }
+      if (saved?.preset === 'custom' && saved.from && saved.to) return saved;
     } catch {}
     const r = resolvePreset('30d');
-    return { ...r, preset: '30d' };
+    return { preset: '30d', from: r.from, to: r.to };
   });
 
-  const applyRange = (preset) => {
-    const r = resolvePreset(preset);
-    setRange({ ...r, preset });
-    try { localStorage.setItem('hushae.dashRange', JSON.stringify({ preset })); } catch {}
+  const applyRange = (r) => {
+    setRange(r);
+    try { localStorage.setItem('hushae.dashRange', JSON.stringify(r)); } catch {}
+    const sp = new URLSearchParams(window.location.search);
+    if (r.preset === 'custom') { sp.set('from', r.from); sp.set('to', r.to); } else { sp.delete('from'); sp.delete('to'); }
+    const q = sp.toString();
+    window.history.replaceState(null, '', `${window.location.pathname}${q ? `?${q}` : ''}`);
   };
 
-  const load = useCallback(async (silent = false) => {
+  const load = async (silent = false) => {
     if (!silent) setRefreshing(true);
     try {
       const qs = `from=${range.from}&to=${range.to}`;
-      const [data, ins, al, sm, gl, seg] = await Promise.all([
+      const [data, ins, al, sm, gl, audience] = await Promise.all([
         api(`/admin/dashboard?${qs}`, { token: auth.token }),
         api(`/orders/insights/dashboard?${qs}`, { token: auth.token }).catch(() => null),
         api('/dashboard/alerts', { token: auth.token }).catch(() => null),
@@ -169,385 +374,176 @@ export default function Dashboard() {
         api('/customers/segments', { token: auth.token }).catch(() => null),
       ]);
       setD(data); if (ins) setInsights(ins); setAlerts(al?.alerts || []); setSmart(sm?.insights || []);
-      if (gl) setGoal(gl); setSegments(seg?.segments || null); setLastSync(new Date()); setErr('');
+      if (gl) setGoal(gl); setCustomerSegments(audience?.segments || null); setLastSync(new Date()); setErr('');
     } catch (e) { if (e?.status === 401) { logout(); return; } setErr('Failed to load dashboard.'); }
     setRefreshing(false);
-  }, [auth, range, logout]);
+  };
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => { load(); }, [auth, range]); // eslint-disable-line
   useEffect(() => { if (!auth?.token) return; const t = setInterval(() => load(true), 30000); return () => clearInterval(t); }, [auth, range]);
 
-  /* ── Error State ────────────────────────────────────────────────────── */
   if (err) return (
-    <div className="min-h-screen bg-white flex items-center justify-center">
-      <div className="text-center max-w-sm">
-        <AlertTriangle size={28} className="mx-auto text-[#B91C1C] mb-3" />
-        <p className="text-[14px] font-semibold text-[#111]">{err}</p>
-        <button onClick={() => { setErr(''); load(); }} className="mt-4 px-4 py-2 bg-[#111] text-white text-[12px] font-semibold rounded-[5px] hover:bg-[#222] transition-colors">Retry</button>
+    <AdminLayout title="Dashboard">
+      <div className="v3-empty" style={{ minHeight: 300 }}>
+        <AlertTriangle size={28} className="v3-empty-icon" />
+        <p className="v3-empty-title">{err}</p>
+        <button onClick={() => { setErr(''); load(); }} className="v3-btn v3-btn-secondary mt-3">Try again</button>
       </div>
-    </div>
+    </AdminLayout>
   );
 
-  /* ── Loading State ──────────────────────────────────────────────────── */
   if (!d) return (
-    <div className="min-h-screen bg-white">
-      <div className="max-w-[1400px] mx-auto px-6 py-6">
-        <div className="h-8 w-48 v3-skeleton rounded-[5px] mb-6" />
-        <div className="grid grid-cols-3 lg:grid-cols-6 gap-3 mb-6">{[1,2,3,4,5,6].map(i => <div key={i} className="h-20 v3-skeleton rounded-[6px]" />)}</div>
-        <div className="h-64 v3-skeleton rounded-[6px] mb-6" />
-        <div className="grid grid-cols-2 gap-4">{[1,2].map(i => <div key={i} className="h-48 v3-skeleton rounded-[6px]" />)}</div>
-      </div>
-    </div>
+    <AdminLayout title="Dashboard">
+      <div className="grid grid-cols-4 gap-4 mb-6">{[1,2,3,4].map(i => <div key={i} className="h-24 v3-skeleton" />)}</div>
+      <div className="h-64 v3-skeleton mb-6" />
+      <div className="grid grid-cols-2 gap-4">{[1,2].map(i => <div key={i} className="h-48 v3-skeleton" />)}</div>
+    </AdminLayout>
   );
 
-  const k = d.kpis || {};
   const greeting = (() => { const h = new Date().getHours(); if (h < 12) return 'Good morning'; if (h < 17) return 'Good afternoon'; return 'Good evening'; })();
-  const rangeLabel = RANGE_PRESETS.find(p => p.key === range.preset)?.label || 'Custom';
-
-  /* ── Attention items (only non-zero) ────────────────────────────────── */
-  const attentionItems = [
-    { icon: Clock, label: 'Pending Payments', count: d.stats?.pending || 0, to: '/admin/verification-queue', variant: 'warning' },
-    { icon: Truck, label: 'Ready to Ship', count: d.stats?.readyToShip || 0, to: '/admin/orders?group=to-ship', variant: 'default' },
-    { icon: Package, label: 'In Production', count: d.stats?.processing || 0, to: '/admin/orders?group=processing', variant: 'default' },
-    { icon: AlertTriangle, label: 'Low Stock', count: (d.lowStock || []).length, to: '/admin/products?stock=low', variant: 'danger' },
-  ].filter(i => i.count > 0);
-
-  /* ── Chart data ─────────────────────────────────────────────────────── */
-  const chartData = d.chart || [];
+  const cmpLabel = 'vs previous';
+  const rangeLabel = range.preset === 'custom' ? `${range.from} – ${range.to}` : (RANGE_PRESETS.find(p => p.key === range.preset)?.label || 'Selected period');
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* ════════════════════════════════════════════════════════════════════
-       * SECTION 1: TOPBAR
-       * ════════════════════════════════════════════════════════════════════ */}
-      <header className="sticky top-0 z-30 bg-white border-b border-[#E5E7EB]">
-        <div className="max-w-[1400px] mx-auto px-6 h-[52px] flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link to="/admin" className="flex items-center gap-2" style={{ textDecoration: 'none' }}>
-              <div className="w-7 h-7 rounded-[4px] bg-[#111] flex items-center justify-center">
-                <span className="text-[10px] font-bold text-white tracking-wider">H</span>
-              </div>
-              <span className="text-[13px] font-bold tracking-[0.2em] text-[#111] uppercase hidden sm:inline">Hushae</span>
-            </Link>
+    <AdminLayout title="Dashboard">
+      {/* ── HEADER ──────────────────────────────────────────────────────── */}
+      <div className="v3-page-header">
+        <div className="v3-page-header-left">
+          <div className="v3-breadcrumb">
+            <Link to="/admin">Home</Link>
+            <span>/</span>
+            <span>Dashboard</span>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="hidden md:flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-[0.1em] text-[#8A8F98]">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#15803D] animate-pulse" />
-              Live
-            </span>
-            <span className="hidden lg:inline text-[11px] text-[#8A8F98]">
-              {lastSync ? `Updated ${lastSync.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : ''}
-            </span>
-            <button onClick={() => load()} disabled={refreshing} className="w-8 h-8 rounded-[5px] flex items-center justify-center text-[#8A8F98] hover:bg-[#F5F5F5] hover:text-[#111] transition-colors">
-              <RefreshCw size={14} className={refreshing ? 'animate-spin' : ''} />
-            </button>
-            <button onClick={() => nav('/admin/orders/new')} className="h-8 px-3 bg-[#111] text-white text-[11px] font-semibold rounded-[5px] hover:bg-[#222] transition-colors flex items-center gap-1.5">
-              <Plus size={12} /> <span className="hidden sm:inline">Create</span>
-            </button>
-          </div>
+          <h1 className="v3-h-page">{greeting}, {auth?.user?.name?.split(' ')[0] || 'Admin'}</h1>
+          <p className="v3-h-small mt-1">Here's what's happening with your store.</p>
         </div>
-      </header>
-
-      <div className="max-w-[1400px] mx-auto px-6 py-6">
-
-        {/* ══════════════════════════════════════════════════════════════════
-         * SECTION 2: PAGE INTRO
-         * ══════════════════════════════════════════════════════════════════ */}
-        <div className="flex flex-wrap items-end justify-between gap-4 mb-6">
-          <div>
-            <h1 className="text-[22px] font-bold text-[#111] tracking-tight">{greeting}, {auth?.user?.name?.split(' ')[0] || 'Admin'}</h1>
-            <p className="text-[12px] text-[#8A8F98] mt-1">Here's what's happening with your store.</p>
-          </div>
-          <div className="flex items-center gap-1.5">
-            {RANGE_PRESETS.slice(0, 5).map(p => (
-              <button key={p.key} onClick={() => applyRange(p.key)}
-                className={`px-3 py-1.5 text-[11px] font-medium rounded-[4px] transition-colors ${range.preset === p.key ? 'bg-[#111] text-white' : 'text-[#5F6368] hover:bg-[#F5F5F5]'}`}>
-                {p.label}
-              </button>
-            ))}
-            <select value={range.preset} onChange={e => applyRange(e.target.value)}
-              className="h-7 px-2 text-[11px] font-medium rounded-[4px] border border-[#E5E7EB] bg-white text-[#5F6368] outline-none sm:hidden">
-              {RANGE_PRESETS.map(p => <option key={p.key} value={p.key}>{p.label}</option>)}
-            </select>
-          </div>
+        <div className="v3-page-header-right">
+          <span className="flex items-center gap-1.5 text-[10px] font-medium tracking-wider uppercase text-[#9CA3AF]">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#111] animate-pulse" />
+            Live
+          </span>
+          <RangePicker value={range} onChange={applyRange} />
+          <button onClick={() => load()} disabled={refreshing} className="v3-btn v3-btn-secondary v3-btn-sm">
+            <RefreshCw size={12} className={refreshing ? 'animate-spin' : ''} /> Refresh
+          </button>
+          <button onClick={() => exportDashboardSummary({ d, goal, alerts, insights: smart, storeName: 'HUSHAE', compareLabel: cmpLabel })} className="v3-btn v3-btn-secondary v3-btn-sm">
+            <Download size={12} /> Export
+          </button>
         </div>
-
-        {/* ══════════════════════════════════════════════════════════════════
-         * SECTION 3: EXECUTIVE METRICS (6 KPIs)
-         * ══════════════════════════════════════════════════════════════════ */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
-          <MetricCard icon={CircleDollarSign} label="Revenue" value={k.revenue?.value || 0} change={k.revenue?.change} format="money" to="/admin/finance" />
-          <MetricCard icon={ShoppingBag} label="Orders" value={k.orders?.value || 0} change={k.orders?.change} to="/admin/orders" />
-          <MetricCard icon={Users} label="New Customers" value={k.customers?.value || 0} change={k.customers?.change} to="/admin/customers" />
-          <MetricCard icon={TrendingUp} label="Avg Order Value" value={k.aov?.value || 0} change={k.aov?.change} format="money" to="/admin/analytics" />
-          <MetricCard icon={Package} label="Products Sold" value={d.itemsSold || 0} to="/admin/products" hint={rangeLabel} />
-          <MetricCard icon={CircleDollarSign} label="Net Profit" value={k.profit?.value || 0} change={k.profit?.change} format="money" to="/admin/finance" hint="Estimated" />
-        </div>
-
-        {/* ══════════════════════════════════════════════════════════════════
-         * SECTION 4: PRIMARY PERFORMANCE CHART
-         * ══════════════════════════════════════════════════════════════════ */}
-        <div className="border border-[#E5E7EB] rounded-[6px] mb-6">
-          <div className="flex items-center justify-between px-5 py-3 border-b border-[#E5E7EB]">
-            <div>
-              <h2 className="text-[13px] font-semibold text-[#111]">Sales Performance</h2>
-              <p className="text-[11px] text-[#8A8F98] mt-0.5">{rangeLabel}</p>
-            </div>
-            <div className="flex gap-1">
-              {['revenue', 'orders'].map(m => (
-                <button key={m} onClick={() => setChartMode(m)}
-                  className={`px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] rounded-[3px] transition-colors ${chartMode === m ? 'bg-[#111] text-white' : 'text-[#8A8F98] hover:bg-[#F5F5F5]'}`}>
-                  {m}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div className="px-5 py-4">
-            <ChartErrorBoundary>
-              <div className="h-56 w-full">
-                {chartData.length > 1 ? (
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={chartData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-                      <defs>
-                        <linearGradient id="dash-grad" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="#111" stopOpacity={0.08} />
-                          <stop offset="100%" stopColor="#111" stopOpacity={0} />
-                        </linearGradient>
-                      </defs>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#F0F1F3" vertical={false} />
-                      <XAxis dataKey="label" stroke="#C4C7CC" tick={{ fontSize: 10, fill: '#8A8F98' }} tickLine={false} axisLine={false} tickFormatter={v => v.slice(5)} />
-                      <YAxis stroke="#C4C7CC" tick={{ fontSize: 10, fill: '#8A8F98' }} tickLine={false} axisLine={false} tickFormatter={v => chartMode === 'revenue' ? (v >= 1000 ? `${(v/1000).toFixed(0)}k` : v) : v} />
-                      <Tooltip contentStyle={{ borderRadius: 6, border: '1px solid #E5E7EB', background: '#FFF', fontSize: 11, color: '#111', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }} labelStyle={{ color: '#8A8F98' }} formatter={(v) => chartMode === 'revenue' ? [pkr(v), 'Revenue'] : [v, 'Orders']} />
-                      <Area type="monotone" dataKey={chartMode} stroke="#111" strokeWidth={2} fill="url(#dash-grad)" dot={false} activeDot={{ r: 4, fill: '#111', stroke: '#FFF', strokeWidth: 2 }} />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                ) : (
-                  <div className="flex items-center justify-center h-full text-[12px] text-[#8A8F98]">
-                    Not enough data for this period.
-                  </div>
-                )}
-              </div>
-            </ChartErrorBoundary>
-          </div>
-        </div>
-
-        {/* ══════════════════════════════════════════════════════════════════
-         * SECTION 5: ATTENTION STRIP + QUICK ACTIONS
-         * ══════════════════════════════════════════════════════════════════ */}
-        <div className="grid gap-4 lg:grid-cols-3 mb-6">
-          {/* Attention */}
-          <div className="lg:col-span-2 border border-[#E5E7EB] rounded-[6px]">
-            <div className="px-5 py-3 border-b border-[#E5E7EB] flex items-center justify-between">
-              <h2 className="text-[13px] font-semibold text-[#111]">Needs Attention</h2>
-              {attentionItems.length > 0 && <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#A16207]">{attentionItems.length} items</span>}
-            </div>
-            <div className="p-2">
-              {attentionItems.length === 0 ? (
-                <div className="flex items-center justify-center py-8 text-[12px] text-[#8A8F98]">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#15803D] mr-2" /> All clear — nothing needs your attention right now.
-                </div>
-              ) : (
-                <div className="grid gap-1 sm:grid-cols-2">
-                  {attentionItems.map(item => <AttentionItem key={item.label} {...item} />)}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Quick Actions */}
-          <div className="border border-[#E5E7EB] rounded-[6px]">
-            <div className="px-5 py-3 border-b border-[#E5E7EB]">
-              <h2 className="text-[13px] font-semibold text-[#111]">Quick Actions</h2>
-            </div>
-            <div className="p-3 grid grid-cols-2 gap-2">
-              {[
-                { to: '/admin/orders/new', icon: ShoppingBag, label: 'Create Order' },
-                { to: '/admin/products/new', icon: PackagePlus, label: 'Add Product' },
-                { to: '/admin/promotions/new', icon: Zap, label: 'New Promotion' },
-                { to: '/admin/discounts', icon: BadgePercent, label: 'Discount' },
-                { to: '/admin/reports', icon: FileText, label: 'Reports' },
-                { to: '/admin/analytics', icon: BarChart3, label: 'Analytics' },
-              ].map(a => (
-                <Link key={a.label} to={a.to} className="flex items-center gap-2 px-3 py-2.5 rounded-[5px] border border-[#E5E7EB] hover:border-[#D1D5DB] hover:bg-[#FAFAFA] transition-colors text-[#111]" style={{ textDecoration: 'none' }}>
-                  <a.icon size={14} className="text-[#8A8F98]" />
-                  <span className="text-[11px] font-medium">{a.label}</span>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* ══════════════════════════════════════════════════════════════════
-         * SECTION 6: OPERATIONS — Recent Orders + Top Products
-         * ══════════════════════════════════════════════════════════════════ */}
-        <div className="grid gap-4 lg:grid-cols-5 mb-6">
-          {/* Recent Orders (3 cols) */}
-          <div className="lg:col-span-3 border border-[#E5E7EB] rounded-[6px]">
-            <div className="px-5 py-3 border-b border-[#E5E7EB] flex items-center justify-between">
-              <h2 className="text-[13px] font-semibold text-[#111]">Recent Orders</h2>
-              <Link to="/admin/orders" className="text-[11px] font-medium text-[#5F6368] hover:text-[#111] transition-colors flex items-center gap-1" style={{ textDecoration: 'none' }}>
-                View all <ArrowRight size={11} />
-              </Link>
-            </div>
-            {(d.recentOrders || []).length === 0 ? (
-              <div className="flex items-center justify-center py-10 text-[12px] text-[#8A8F98]">No orders yet.</div>
-            ) : (
-              <div className="divide-y divide-[#F0F1F3]">
-                {(d.recentOrders || []).slice(0, 6).map(o => (
-                  <Link key={o._id} to={`/admin/orders/${o._id}`} className="flex items-center gap-3 px-5 py-3 hover:bg-[#FAFAFA] transition-colors" style={{ textDecoration: 'none' }}>
-                    <div className="flex -space-x-1 flex-shrink-0">
-                      {(o.items || []).slice(0, 2).map((it, i) => (
-                        <Img key={i} src={it.image} alt="" className="w-7 h-7 rounded-[3px] border border-white object-cover" />
-                      ))}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="text-[12px] font-semibold text-[#111]">{o.orderNumber}</span>
-                        <span className={`text-[9px] font-semibold uppercase tracking-[0.08em] px-1.5 py-0.5 rounded-[3px] ${
-                          o.status === 'Delivered' ? 'bg-[#F0FDF4] text-[#15803D]' :
-                          o.status === 'Cancelled' ? 'bg-[#FEF2F2] text-[#B91C1C]' :
-                          'bg-[#F5F5F5] text-[#5F6368]'
-                        }`}>{o.status}</span>
-                      </div>
-                      <p className="text-[11px] text-[#8A8F98] mt-0.5 truncate">{o.customerInfo?.name} · {fmtDate(o.createdAt)}</p>
-                    </div>
-                    <span className="text-[12px] font-semibold tabular text-[#111] flex-shrink-0">{pkr(o.total)}</span>
-                  </Link>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Top Products (2 cols) */}
-          <div className="lg:col-span-2 border border-[#E5E7EB] rounded-[6px]">
-            <div className="px-5 py-3 border-b border-[#E5E7EB] flex items-center justify-between">
-              <h2 className="text-[13px] font-semibold text-[#111]">Top Products</h2>
-              <Link to="/admin/products" className="text-[11px] font-medium text-[#5F6368] hover:text-[#111] transition-colors flex items-center gap-1" style={{ textDecoration: 'none' }}>
-                View all <ArrowRight size={11} />
-              </Link>
-            </div>
-            {(d.bestSellers || []).length === 0 ? (
-              <div className="flex items-center justify-center py-10 text-[12px] text-[#8A8F98]">No sales data yet.</div>
-            ) : (
-              <div className="divide-y divide-[#F0F1F3]">
-                {(d.bestSellers || []).slice(0, 5).map((p, i) => (
-                  <Link key={p.name} to="/admin/products" className="flex items-center gap-3 px-5 py-3 hover:bg-[#FAFAFA] transition-colors" style={{ textDecoration: 'none' }}>
-                    <span className="text-[11px] font-bold text-[#C4C7CC] w-4 tabular">{String(i + 1).padStart(2, '0')}</span>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[12px] font-medium text-[#111] truncate">{p.name}</p>
-                      <p className="text-[11px] text-[#8A8F98]">{p.qty} sold</p>
-                    </div>
-                    <span className="text-[12px] font-semibold tabular text-[#111]">{pkr(p.revenue)}</span>
-                  </Link>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* ══════════════════════════════════════════════════════════════════
-         * SECTION 7: INTELLIGENCE — Low Stock + Customer Segments
-         * ══════════════════════════════════════════════════════════════════ */}
-        <div className="grid gap-4 lg:grid-cols-2 mb-6">
-          {/* Low Stock */}
-          <div className="border border-[#E5E7EB] rounded-[6px]">
-            <div className="px-5 py-3 border-b border-[#E5E7EB] flex items-center justify-between">
-              <h2 className="text-[13px] font-semibold text-[#111]">Low Stock</h2>
-              <Link to="/admin/products?stock=low" className="text-[11px] font-medium text-[#5F6368] hover:text-[#111] transition-colors flex items-center gap-1" style={{ textDecoration: 'none' }}>
-                Manage <ArrowRight size={11} />
-              </Link>
-            </div>
-            {(d.lowStock || []).length === 0 ? (
-              <div className="flex items-center justify-center py-8 text-[12px] text-[#8A8F98]">All products well stocked.</div>
-            ) : (
-              <div className="divide-y divide-[#F0F1F3]">
-                {(d.lowStock || []).slice(0, 4).map(p => (
-                  <Link key={p._id} to={`/admin/products/${p._id}`} className="flex items-center gap-3 px-5 py-2.5 hover:bg-[#FAFAFA] transition-colors" style={{ textDecoration: 'none' }}>
-                    <Img src={p.images?.[0]?.url} alt="" className="w-8 h-8 rounded-[3px] border border-[#E5E7EB] object-cover flex-shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[12px] font-medium text-[#111] truncate">{p.name}</p>
-                    </div>
-                    <span className={`text-[11px] font-bold tabular px-2 py-0.5 rounded-[3px] ${p.stock === 0 ? 'bg-[#FEE2E2] text-[#B91C1C]' : 'bg-[#FEF9C3] text-[#A16207]'}`}>
-                      {p.stock} left
-                    </span>
-                  </Link>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Customer Segments */}
-          <div className="border border-[#E5E7EB] rounded-[6px]">
-            <div className="px-5 py-3 border-b border-[#E5E7EB] flex items-center justify-between">
-              <h2 className="text-[13px] font-semibold text-[#111]">Customer Segments</h2>
-              <Link to="/admin/customers" className="text-[11px] font-medium text-[#5F6368] hover:text-[#111] transition-colors flex items-center gap-1" style={{ textDecoration: 'none' }}>
-                View all <ArrowRight size={11} />
-              </Link>
-            </div>
-            <div className="p-3 grid grid-cols-2 gap-2">
-              {[
-                { key: 'vip', label: 'VIP', count: segments?.vip || 0 },
-                { key: 'repeat', label: 'Repeat', count: segments?.repeat || 0 },
-                { key: 'new', label: 'New', count: segments?.new || 0 },
-                { key: 'inactive', label: 'Inactive', count: segments?.inactive || 0 },
-              ].map(s => (
-                <Link key={s.key} to={`/admin/customers?segment=${s.key}`} className="flex items-center justify-between px-3 py-2.5 rounded-[5px] border border-[#E5E7EB] hover:border-[#D1D5DB] hover:bg-[#FAFAFA] transition-colors" style={{ textDecoration: 'none' }}>
-                  <span className="text-[11px] font-medium text-[#5F6368]">{s.label}</span>
-                  <span className="text-[13px] font-bold tabular text-[#111]">{s.count.toLocaleString()}</span>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* ══════════════════════════════════════════════════════════════════
-         * SECTION 8: SMART INSIGHTS (real data only)
-         * ══════════════════════════════════════════════════════════════════ */}
-        {(smart || []).length > 0 && (
-          <div className="border border-[#E5E7EB] rounded-[6px] mb-6">
-            <div className="px-5 py-3 border-b border-[#E5E7EB]">
-              <h2 className="text-[13px] font-semibold text-[#111]">Insights</h2>
-            </div>
-            <div className="divide-y divide-[#F0F1F3]">
-              {(smart || []).slice(0, 4).map((insight, i) => (
-                <div key={i} className="flex items-start gap-3 px-5 py-3">
-                  <div className="w-6 h-6 rounded-[4px] bg-[#F5F5F5] flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <TrendingUp size={12} className="text-[#8A8F98]" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[12px] text-[#111] leading-relaxed">{insight.text || insight}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* ══════════════════════════════════════════════════════════════════
-         * SECTION 9: REVENUE GOAL (if configured)
-         * ══════════════════════════════════════════════════════════════════ */}
-        {goal?.target > 0 && (
-          <div className="border border-[#E5E7EB] rounded-[6px] mb-6">
-            <div className="px-5 py-3 border-b border-[#E5E7EB] flex items-center justify-between">
-              <h2 className="text-[13px] font-semibold text-[#111]">Revenue Goal</h2>
-              <span className="text-[11px] text-[#8A8F98]">{rangeLabel}</span>
-            </div>
-            <div className="px-5 py-4">
-              <div className="flex items-end justify-between mb-2">
-                <span className="text-[18px] font-bold tabular text-[#111]">{pkr(k.revenue?.value || 0)}</span>
-                <span className="text-[12px] text-[#8A8F98]">of {pkr(goal.target)}</span>
-              </div>
-              <div className="h-2 bg-[#F0F1F3] rounded-full overflow-hidden">
-                <div className="h-full bg-[#111] rounded-full transition-all duration-500" style={{ width: `${Math.min(100, ((k.revenue?.value || 0) / goal.target) * 100)}%` }} />
-              </div>
-              <p className="text-[11px] text-[#8A8F98] mt-2">
-                {Math.round(((k.revenue?.value || 0) / goal.target) * 100)}% of target · {pkr(Math.max(0, goal.target - (k.revenue?.value || 0)))} remaining
-              </p>
-            </div>
-          </div>
-        )}
-
       </div>
-    </div>
+
+      {/* ── BUSINESS SNAPSHOT ───────────────────────────────────────────── */}
+      <div className="v3-card mb-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-y lg:divide-y-0 divide-[#F0F1F3]">
+          <MetricCard icon={CircleDollarSign} label="Revenue" value={d.kpis.revenue.value} change={d.kpis.revenue.change} format="money" to="/admin/finance" compareLabel={cmpLabel} />
+          <MetricCard icon={ShoppingBag} label="Orders" value={d.kpis.orders.value} change={d.kpis.orders.change} to="/admin/orders" compareLabel={cmpLabel} />
+          <MetricCard icon={Users} label="New Customers" value={d.kpis.customers.value} change={d.kpis.customers.change} to="/admin/customers" />
+          <MetricCard icon={TrendingUp} label="Avg Order Value" value={d.kpis.aov.value} change={d.kpis.aov.change} format="money" to="/admin/analytics" compareLabel={cmpLabel} />
+        </div>
+      </div>
+
+      {/* ── NEEDS ATTENTION + QUICK ACTIONS ─────────────────────────────── */}
+      <div className="grid gap-6 lg:grid-cols-3 mb-6">
+        <div className="lg:col-span-2">
+          <NeedsAttention stats={d.stats} lowStockCount={(d.lowStock || []).length} />
+        </div>
+        <QuickActions />
+      </div>
+
+      {/* ── ALERTS ──────────────────────────────────────────────────────── */}
+      <div className="mb-6">
+        <AlertsBar alerts={alerts} />
+      </div>
+
+      {/* ── SALES CHART ─────────────────────────────────────────────────── */}
+      <div className="mb-6">
+        <ChartBoundary><RevenueChart data={d.chart} rangeLabel={rangeLabel} /></ChartBoundary>
+      </div>
+
+      {/* ── RECENT ORDERS ───────────────────────────────────────────────── */}
+      <div className="mb-6">
+        <RecentOrders orders={d.recentOrders} settings={settings} />
+      </div>
+
+      {/* ── INVENTORY + BEST SELLERS ────────────────────────────────────── */}
+      <div className="grid gap-6 lg:grid-cols-2 mb-6">
+        <div className="v3-card">
+          <div className="v3-card-header">
+            <span className="v3-h-section">Low Stock</span>
+            <Link to="/admin/products" className="v3-btn v3-btn-ghost v3-btn-sm">Manage <ArrowRight size={12} /></Link>
+          </div>
+          <div className="p-4">
+            {(d.lowStock || []).length === 0 ? (
+              <div className="v3-empty" style={{ padding: '24px 0' }}>
+                <p className="text-[12px] text-[#9CA3AF]">All products are well stocked.</p>
+              </div>
+            ) : (
+              <div className="space-y-1">
+                {(d.lowStock || []).slice(0, 5).map(p => <StockRow key={p._id} product={p} onSaved={() => load(true)} onReorder={setReorder} />)}
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="v3-card">
+          <div className="v3-card-header">
+            <span className="v3-h-section">Best Sellers</span>
+          </div>
+          <div className="p-4">
+            {(d.bestSellers || []).length === 0 ? (
+              <div className="v3-empty" style={{ padding: '24px 0' }}>
+                <p className="text-[12px] text-[#9CA3AF]">Sales data will appear here.</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {(d.bestSellers || []).slice(0, 5).map((b, i) => (
+                  <div key={b.name} className="flex items-center gap-3">
+                    <span className="text-[14px] font-bold text-[#C4C7CC] w-5 v3-tabular">{String(i + 1).padStart(2, '0')}</span>
+                    <div className="min-w-0 flex-1">
+                      <div className="text-[12px] font-medium text-[#111] truncate">{b.name}</div>
+                      <div className="text-[11px] text-[#9CA3AF]">{b.qty} sold · {pkr(b.revenue)}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* ── INSIGHTS + GOALS ────────────────────────────────────────────── */}
+      <div className="grid gap-6 lg:grid-cols-2 mb-6">
+        <div className="v3-card">
+          <div className="p-5">
+            <InsightsCard insights={smart} />
+          </div>
+        </div>
+        <div className="v3-card">
+          <div className="p-5">
+            <GoalTracker goal={goal} onSaved={() => load(true)} />
+          </div>
+        </div>
+      </div>
+
+      {/* ── PROFIT & LOSS ───────────────────────────────────────────────── */}
+      {d.kpis.profit && (d.kpis.profit.value !== 0 || d.kpis.cost.value !== 0) && (
+        <div className="v3-card mb-6">
+          <div className="v3-card-header">
+            <div>
+              <span className="v3-h-section">Profit & Loss</span>
+              <p className="text-[11px] text-[#9CA3AF] mt-0.5">{rangeLabel} · Estimated from cost data</p>
+            </div>
+            <Link to="/admin/finance" className="v3-btn v3-btn-ghost v3-btn-sm">Full P&L <ArrowRight size={12} /></Link>
+          </div>
+          <div className="p-5 grid gap-3 sm:grid-cols-3">
+            <ProfitTile label="Gross Profit" value={d.kpis.profit.value} change={d.kpis.profit.change} format="money" icon={TrendingUp} />
+            <ProfitTile label="Cost of Goods" value={d.kpis.cost.value} format="money" icon={Package} hint="Product costs for sold items" />
+            <ProfitTile label="Profit Margin" value={d.kpis.margin.value} format="percent" icon={CircleDollarSign} hint="Profit as % of revenue" />
+          </div>
+        </div>
+      )}
+
+      {reorder && <ReorderModal product={reorder} onClose={() => setReorder(null)} onSaved={() => load(true)} />}
+    </AdminLayout>
   );
 }
