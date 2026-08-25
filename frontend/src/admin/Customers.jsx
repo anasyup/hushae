@@ -1,303 +1,253 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Download, Filter, Loader2, Plus, Tag, Users, X } from 'lucide-react';
+import { Download, Filter, Search, Users, X, ChevronRight, Mail, Phone } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import { fmtDate, pkr } from '../lib/format';
 import AdminLayout from './AdminLayout';
-import PageHeader from './components/PageHeader';
-import {
-  btnGhost, btnSolid, ctl, ctlInline,
-  EditorialEmpty, EditorialError, EditorialPagination, MonoStatus, TableSkeleton,
-} from './orders/orderUi';
+
+/* ============================================================================
+ * CUSTOMERS — Video Pages Rebuild: Human-First Directory
+ * Dense table, segments, search, Customer 360 navigation
+ * ========================================================================== */
 
 const SEGMENTS = [
-  ['all', 'All'], ['new', 'New'], ['repeat', 'Repeat'], ['vip', 'VIP'], ['high_value', 'High Value'], ['inactive', 'Inactive'],
+  { key: 'all', label: 'All' },
+  { key: 'new', label: 'New' },
+  { key: 'repeat', label: 'Repeat' },
+  { key: 'vip', label: 'VIP' },
+  { key: 'high_value', label: 'High Value' },
+  { key: 'inactive', label: 'Inactive' },
 ];
-const BASE = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
-const dateInput = (days) => new Date(Date.now() - days * 86400000).toISOString().slice(0, 10);
+
 const when = (value) => (value ? fmtDate(value) : '—');
 
-function statusDim(status) {
-  return ['UNVERIFIED', 'SUSPENDED', 'DELETED'].includes(String(status || '').toUpperCase());
+function statusBadge(status) {
+  const s = String(status || '').toUpperCase();
+  if (s === 'ACTIVE' || s === 'VERIFIED') return 'v3-status v3-status-active';
+  if (s === 'SUSPENDED' || s === 'DELETED') return 'v3-status v3-status-inactive';
+  return 'v3-status v3-status-pending';
 }
 
-function QueryFilter({ label, value, onChange, children }) {
-  return (
-    <label className="block min-w-[132px]">
-      <span className="adm-label mb-1 block">{label}</span>
-      <select value={value || ''} onChange={(event) => onChange(event.target.value)} className={ctlInline}>
-        {children}
-      </select>
-    </label>
-  );
+function segmentBadge(seg) {
+  if (!seg) return null;
+  const s = seg.toLowerCase();
+  if (s === 'vip') return 'v3-status v3-status-strong';
+  if (s === 'repeat' || s === 'high_value') return 'v3-status v3-status-active';
+  if (s === 'inactive') return 'v3-status v3-status-inactive';
+  return 'v3-status v3-status-pending';
 }
 
 export default function Customers() {
   const { auth, toast } = useApp();
   const [searchParams, setSearchParams] = useSearchParams();
   const [directory, setDirectory] = useState(null);
-  const [facets, setFacets] = useState({ countries: [], tags: [] });
   const [segmentCounts, setSegmentCounts] = useState(null);
-  const [groups, setGroups] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [filterOpen, setFilterOpen] = useState(false);
   const [search, setSearch] = useState(searchParams.get('search') || '');
-  const [selected, setSelected] = useState([]);
-  const [bulkTag, setBulkTag] = useState('');
-  const [bulkGroup, setBulkGroup] = useState('');
-  const [bulkBusy, setBulkBusy] = useState(false);
-  const [exportBusy, setExportBusy] = useState(false);
-  const queryKey = searchParams.toString();
+  const [showFilters, setShowFilters] = useState(false);
 
-  const params = useMemo(() => Object.fromEntries(searchParams.entries()), [queryKey]);
+  const params = useMemo(() => Object.fromEntries(searchParams.entries()), [searchParams.toString()]);
   const currentSegment = params.segment || 'all';
   const page = Number(params.page || 1);
 
   const setFilter = useCallback((patch = {}) => {
     const next = new URLSearchParams(searchParams);
-    Object.entries(patch).forEach(([key, value]) => {
-      if (value === undefined || value === null || value === '' || value === 'all') next.delete(key);
-      else next.set(key, String(value));
+    Object.entries(patch).forEach(([k, v]) => {
+      if (v === undefined || v === null || v === '' || v === 'all') next.delete(k);
+      else next.set(k, String(v));
     });
     if (!Object.prototype.hasOwnProperty.call(patch, 'page')) next.delete('page');
     setSearchParams(next, { replace: true });
   }, [searchParams, setSearchParams]);
 
   const load = useCallback(async () => {
-    setError('');
+    setLoading(true); setError('');
     try {
-      const [data, facetData, groupData, audienceData] = await Promise.all([
-        api(`/customers?${queryKey}`, { token: auth?.token, noCache: true }),
-        api('/customers/facets', { token: auth?.token, noCache: true }).catch(() => ({ countries: [], tags: [] })),
-        api('/customer-groups', { token: auth?.token, noCache: true }).catch(() => ({ groups: [] })),
+      const [data, audience] = await Promise.all([
+        api(`/customers?${searchParams.toString()}`, { token: auth?.token, noCache: true }),
         api('/customers/segments', { token: auth?.token, noCache: true }).catch(() => ({ segments: null })),
       ]);
       setDirectory(data);
-      setFacets(facetData);
-      setGroups(groupData.groups || []);
-      setSegmentCounts(audienceData.segments || null);
+      setSegmentCounts(audience.segments || null);
     } catch (err) {
       setDirectory({ customers: [], total: 0, page: 1, pages: 1 });
       setError(err?.message || 'Customer directory could not load.');
     }
-  }, [auth?.token, queryKey]);
+    setLoading(false);
+  }, [auth?.token, searchParams.toString()]);
 
   useEffect(() => { load(); }, [load]);
-  useEffect(() => { setSelected([]); }, [queryKey]);
-  useEffect(() => { setSearch(searchParams.get('search') || ''); }, [queryKey]);
+  useEffect(() => { setSearch(searchParams.get('search') || ''); }, [searchParams.toString()]);
+
+  // Debounced search
   useEffect(() => {
     const timer = setTimeout(() => {
       const existing = searchParams.get('search') || '';
       if (search.trim() !== existing) setFilter({ search: search.trim() });
     }, 280);
     return () => clearTimeout(timer);
-  }, [search, searchParams, setFilter]);
+  }, [search]); // eslint-disable-line
 
   const customers = directory?.customers || [];
-  const allOnPage = customers.length > 0 && customers.every((customer) => selected.includes(String(customer.id)));
-  const toggle = (id) => setSelected((current) => current.includes(String(id))
-    ? current.filter((value) => value !== String(id))
-    : [...current, String(id)]);
-  const toggleAll = () => setSelected((current) => allOnPage
-    ? current.filter((id) => !customers.some((customer) => String(customer.id) === id))
-    : [...new Set([...current, ...customers.map((customer) => String(customer.id))])]);
-
-  const bulk = async (action) => {
-    if (!selected.length) return;
-    const body = { action, ids: selected };
-    if (action === 'add_tag' || action === 'remove_tag') {
-      if (!bulkTag.trim()) { toast('Pehle tag likhein'); return; }
-      body.tag = bulkTag;
-    }
-    if (action === 'assign_group') {
-      if (!bulkGroup) { toast('Pehle group select karein'); return; }
-      body.groupId = bulkGroup;
-    }
-    const label = action === 'add_tag' ? `“${bulkTag}” tag add` : action === 'remove_tag' ? `“${bulkTag}” tag remove` : 'selected group assign';
-    if (!window.confirm(`${selected.length} customer(s) par ${label} karna hai?`)) return;
-    setBulkBusy(true);
-    try {
-      const result = await api('/customers/bulk', { method: 'POST', token: auth?.token, body });
-      toast(`${result.modified || 0} customers update ho gaye`);
-      setSelected([]); setBulkTag(''); setBulkGroup(''); load();
-    } catch (err) { toast(err.message || 'Bulk update nahi ho saka'); }
-    setBulkBusy(false);
-  };
+  const total = directory?.total || 0;
+  const pages = directory?.pages || 1;
+  const BASE = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
 
   const exportCustomers = async () => {
-    setExportBusy(true);
     try {
       const exportParams = new URLSearchParams(searchParams);
       exportParams.delete('page'); exportParams.delete('limit');
-      const response = await fetch(`${BASE}/api/customers/export?${exportParams.toString()}`, {
+      const res = await fetch(`${BASE}/api/customers/export?${exportParams.toString()}`, {
         headers: { Authorization: `Bearer ${auth?.token || ''}` },
       });
-      if (!response.ok) {
-        const data = await response.json().catch(() => ({}));
-        throw new Error(data.message || 'Export failed');
-      }
-      const blob = await response.blob();
+      if (!res.ok) throw new Error('Export failed');
+      const blob = await res.blob();
       const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url; link.download = 'hushae-customers.csv'; link.click();
+      const a = document.createElement('a'); a.href = url; a.download = 'hushae-customers.csv'; a.click();
       URL.revokeObjectURL(url);
-      toast('Customer export download ho raha hai');
-    } catch (err) { toast(err.message || 'Export nahi ho saka'); }
-    setExportBusy(false);
+      toast('Export downloaded');
+    } catch (e) { toast(e.message || 'Export failed'); }
   };
 
   return (
     <AdminLayout title="Customers">
-      <PageHeader
-        eyebrow="Customer 360"
-        title="Customers"
-        description="Server-side customer directory, value metrics aur real relationship context."
-        actions={(
-          <>
-            <Link to="/admin/customers/groups" className={btnGhost}><Users size={12} /> Groups</Link>
-            <button type="button" onClick={exportCustomers} disabled={exportBusy} className={btnGhost}>
-              {exportBusy ? <Loader2 size={12} className="animate-spin" /> : <Download size={12} />} Export
-            </button>
-          </>
-        )}
-      />
-
-      <section className="mb-8">
-        <p className="adm-index">01 — Business segments</p>
-        <div className="adm-divide-x grid grid-cols-2 border-y border-[#EAEAEA] md:grid-cols-3 xl:grid-cols-6">
-          {SEGMENTS.map(([key, label]) => (
-            <button key={key} type="button" onClick={() => setFilter({ segment: key })}
-              className={`px-4 py-4 text-left transition-colors hover:bg-[#F7F7F7] ${currentSegment === key ? 'bg-[#F7F7F7]' : ''}`}>
-              <p className="adm-label">{label}</p>
-              <p className="adm-metric mt-2 text-[20px] text-black">{segmentCounts ? Number(segmentCounts[key] || 0).toLocaleString() : '—'}</p>
-              <p className="mt-1 text-[10px] text-[#777777]">{key === 'vip' ? 'PKR 500k+' : key === 'repeat' ? '2+ qualifying orders' : 'Filter list'}</p>
-            </button>
-          ))}
+      {/* Header */}
+      <div className="v3-page-header">
+        <div className="v3-page-header-left">
+          <div className="v3-breadcrumb"><Link to="/admin">Home</Link><span>/</span><span>Customers</span></div>
+          <h1 className="v3-h-page">Customers</h1>
+          <p className="v3-h-small mt-1">{total.toLocaleString()} customers · Click any customer to view their full profile.</p>
         </div>
-      </section>
-
-      <section className="mb-6">
-        <p className="adm-index">02 — Directory filters</p>
-        <div className="flex flex-wrap items-center gap-2 border-y border-[#EAEAEA] py-4">
-          <input value={search} onChange={(event) => setSearch(event.target.value)}
-            placeholder="Name, email, phone, WhatsApp, customer ID ya order number…" className={`${ctl} min-w-[240px] flex-1`} />
-          <select value={currentSegment} onChange={(event) => setFilter({ segment: event.target.value })} className={ctlInline} aria-label="Segment">
-            {SEGMENTS.map(([key, label]) => <option key={key} value={key}>{label}</option>)}
-          </select>
-          <button type="button" onClick={() => setFilterOpen((open) => !open)} className={btnGhost} aria-expanded={filterOpen}>
-            <Filter size={12} /> Filters
-          </button>
-          {(queryKey || search) && <button type="button" onClick={() => { setSearch(''); setSearchParams({}, { replace: true }); }} className={btnGhost}>Clear</button>}
+        <div className="v3-page-header-right">
+          <button onClick={exportCustomers} className="v3-btn v3-btn-secondary v3-btn-sm"><Download size={12} /> Export</button>
+          <Link to="/admin/customers/groups" className="v3-btn v3-btn-secondary v3-btn-sm"><Users size={12} /> Groups</Link>
         </div>
+      </div>
 
-        {filterOpen && (
-          <div className="grid gap-3 border-b border-[#EAEAEA] py-4 sm:grid-cols-2 xl:grid-cols-4">
-            <QueryFilter label="Country" value={params.country} onChange={(value) => setFilter({ country: value })}>
-              <option value="">All countries</option><option value="UNKNOWN">Unknown</option>
-              {facets.countries.map((country) => <option key={country.value} value={country.value}>{country.value} ({country.count})</option>)}
-            </QueryFilter>
-            <QueryFilter label="Tag" value={params.tag} onChange={(value) => setFilter({ tag: value })}>
-              <option value="">Any tag</option>{facets.tags.map((tag) => <option key={tag.value} value={tag.value}>{tag.value} ({tag.count})</option>)}
-            </QueryFilter>
-            <QueryFilter label="Account" value={params.account} onChange={(value) => setFilter({ account: value })}>
-              <option value="">Any account</option><option value="active">Active</option><option value="unverified">Unverified</option><option value="suspended">Suspended</option><option value="deleted">Deleted</option>
-            </QueryFilter>
-            <QueryFilter label="Has orders" value={params.hasOrders} onChange={(value) => setFilter({ hasOrders: value })}>
-              <option value="">Either</option><option value="yes">Has orders</option><option value="no">No orders</option>
-            </QueryFilter>
-            <QueryFilter label="Spend" value={params.minSpend || ''} onChange={(value) => setFilter({ minSpend: value })}>
-              <option value="">Any spend</option><option value="10000">PKR 10,000+</option><option value="100000">PKR 100,000+</option><option value="500000">PKR 500,000+</option>
-            </QueryFilter>
-            <QueryFilter label="Orders" value={params.minOrders || ''} onChange={(value) => setFilter({ minOrders: value })}>
-              <option value="">Any count</option><option value="1">1+</option><option value="2">2+</option><option value="5">5+</option>
-            </QueryFilter>
-            <QueryFilter label="Last order" value={params.lastOrderDays || ''} onChange={(value) => setFilter({ lastOrderDays: value })}>
-              <option value="">Any time</option><option value="30">Within 30 days</option><option value="90">Within 90 days</option><option value="180">Within 180 days</option>
-            </QueryFilter>
-            <QueryFilter label="Joined" value={params.joinedFrom ? String(params.joinedFrom) : ''} onChange={(value) => setFilter({ joinedFrom: value })}>
-              <option value="">Any time</option><option value={dateInput(30)}>Last 30 days</option><option value={dateInput(90)}>Last 90 days</option><option value={dateInput(365)}>Last year</option>
-            </QueryFilter>
-            <QueryFilter label="Wishlist" value={params.hasWishlist} onChange={(value) => setFilter({ hasWishlist: value })}>
-              <option value="">Either</option><option value="yes">Has wishlist</option><option value="no">No wishlist</option>
-            </QueryFilter>
-            <QueryFilter label="Abandoned cart" value={params.hasAbandonedCart} onChange={(value) => setFilter({ hasAbandonedCart: value })}>
-              <option value="">Either</option><option value="yes">Has cart</option><option value="no">No cart</option>
-            </QueryFilter>
-            <QueryFilter label="Loyalty" value={params.loyalty} onChange={(value) => setFilter({ loyalty: value })}>
-              <option value="">Either</option><option value="yes">In loyalty</option><option value="no">No account</option>
-            </QueryFilter>
-            <QueryFilter label="Sort" value={params.sort || 'joined'} onChange={(value) => setFilter({ sort: value })}>
-              <option value="joined">Newest joined</option><option value="revenue">Highest revenue</option><option value="orders">Most orders</option><option value="aov">Highest AOV</option><option value="lastOrder">Latest order</option><option value="name">Name A–Z</option>
-            </QueryFilter>
-          </div>
-        )}
-      </section>
+      {/* Segment Tabs */}
+      <div className="v3-tabs">
+        {SEGMENTS.map(s => {
+          const count = s.key === 'all' ? total : (segmentCounts?.[s.key] || 0);
+          return (
+            <button key={s.key} onClick={() => setFilter({ segment: s.key })} className={`v3-tab ${currentSegment === s.key ? 'active' : ''}`}>
+              {s.label}
+              {count > 0 && <span className="ml-1.5 text-[10px] font-semibold tabular">{count}</span>}
+            </button>
+          );
+        })}
+      </div>
 
-      {selected.length > 0 && (
-        <section className="sticky top-[56px] z-10 mb-5 border border-black bg-white p-3 shadow-sm">
-          <div className="flex flex-wrap items-center gap-2">
-            <p className="mr-2 text-[12px] font-medium text-black">{selected.length} selected</p>
-            <input value={bulkTag} onChange={(event) => setBulkTag(event.target.value)} placeholder="Tag e.g. Bridal" className={`${ctl} !w-36`} />
-            <button type="button" disabled={bulkBusy} onClick={() => bulk('add_tag')} className={btnGhost}><Plus size={11} /> Add tag</button>
-            <button type="button" disabled={bulkBusy} onClick={() => bulk('remove_tag')} className={btnGhost}><X size={11} /> Remove tag</button>
-            <select value={bulkGroup} onChange={(event) => setBulkGroup(event.target.value)} className={ctlInline}>
-              <option value="">Assign group…</option>{groups.map((group) => <option key={group.id || group._id} value={group.id || group._id}>{group.name}</option>)}
-            </select>
-            <button type="button" disabled={bulkBusy} onClick={() => bulk('assign_group')} className={btnGhost}>{bulkBusy ? <Loader2 size={11} className="animate-spin" /> : <Users size={11} />} Assign group</button>
-            <button type="button" onClick={() => setSelected([])} className="ml-auto text-[10px] font-medium uppercase tracking-[0.14em] text-[#777777] hover:text-black">Clear selection</button>
+      {/* Toolbar */}
+      <div className="v3-filter-bar">
+        <div className="relative flex-1" style={{ maxWidth: 320 }}>
+          <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#9CA3AF]" />
+          <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search name, email, phone, order#…" className="v3-input" style={{ paddingLeft: 30, height: 30, fontSize: 12 }} />
+        </div>
+        {search && <button onClick={() => { setSearch(''); setFilter({ search: '' }); }} className="v3-btn v3-btn-ghost v3-btn-sm"><X size={12} /> Clear</button>}
+      </div>
+
+      {/* Error */}
+      {error && (
+        <div className="v3-card mb-4">
+          <div className="v3-empty" style={{ padding: '24px' }}>
+            <p className="v3-empty-title">{error}</p>
+            <button onClick={load} className="v3-btn v3-btn-secondary v3-btn-sm mt-2">Try again</button>
           </div>
-        </section>
+        </div>
       )}
 
-      <section>
-        <div className="mb-4 flex items-end justify-between gap-4">
-          <div><p className="adm-index">03 — Customers</p><p className="text-[12px] text-[#777777]">{directory ? `${directory.total.toLocaleString()} matching customer${directory.total === 1 ? '' : 's'}` : 'Loading…'}</p></div>
-          {customers.length > 0 && <label className="inline-flex items-center gap-2 text-[11px] text-[#777777]"><input type="checkbox" checked={allOnPage} onChange={toggleAll} /> Select page</label>}
-        </div>
-
-        {error && <EditorialError title="Customer directory unavailable" description={error} onRetry={load} />}
-        {!directory && !error && <TableSkeleton rows={8} />}
-        {directory && !error && customers.length === 0 && <EditorialEmpty title="No matching customers" description="Search ya filter change karein — kisi customer record ko delete nahi kiya gaya." />}
-
-        {directory && !error && customers.length > 0 && (
-          <div className="border-y border-[#EAEAEA]">
-            <div className="hidden grid-cols-[28px_minmax(180px,1.4fr)_minmax(160px,1.3fr)_78px_86px_86px_105px_100px_96px_92px] gap-3 border-b border-[#EAEAEA] px-2 py-3 xl:grid">
-              {['', 'Customer', 'Email / phone', 'Country', 'Orders', 'Revenue', 'AOV', 'Segment', 'Last order', 'Status'].map((label, index) => <p key={`${label}-${index}`} className="adm-label">{label}</p>)}
-            </div>
-            {customers.map((customer) => {
-              const isSelected = selected.includes(String(customer.id));
-              return (
-                <div key={customer.id} className={`border-b border-[#EAEAEA] last:border-0 ${isSelected ? 'bg-[#F7F7F7]' : ''}`}>
-                  <div className="hidden items-center gap-3 px-2 py-3 xl:grid xl:grid-cols-[28px_minmax(180px,1.4fr)_minmax(160px,1.3fr)_78px_86px_86px_105px_100px_96px_92px]">
-                    <input type="checkbox" checked={isSelected} onChange={() => toggle(customer.id)} aria-label={`Select ${customer.name}`} />
-                    <Link to={`/admin/customers/${customer.id}`} className="min-w-0 group">
-                      <p className="truncate text-[13px] font-medium text-black group-hover:underline">{customer.name || '—'}</p>
-                      <p className="mt-0.5 truncate font-mono text-[10px] text-[#777777]">{customer.id}</p>
-                    </Link>
-                    <Link to={`/admin/customers/${customer.id}`} className="min-w-0"><p className="truncate text-[12px] text-[#555555]">{customer.email || '—'}</p><p className="mt-0.5 truncate text-[11px] text-[#777777]">{customer.phone || customer.whatsApp || '—'}</p></Link>
-                    <p className="text-[12px] text-[#555555]">{customer.country || '—'}</p>
-                    <p className="text-[12px] tabular-nums text-black">{customer.metrics.orders}</p>
-                    <p className="text-[12px] tabular-nums text-black">{pkr(customer.metrics.ltv)}</p>
-                    <p className="text-[12px] tabular-nums text-[#555555]">{customer.metrics.orders ? pkr(customer.metrics.aov) : '—'}</p>
-                    <div><MonoStatus label={customer.engagement.label} dim={customer.engagement.key === 'all' || customer.engagement.key === 'inactive'} /></div>
-                    <p className="text-[11px] text-[#777777]">{when(customer.metrics.lastOrderAt)}</p>
-                    <MonoStatus label={customer.accountStatus} dim={statusDim(customer.accountStatus)} />
-                  </div>
-                  <div className="flex gap-3 px-3 py-4 xl:hidden">
-                    <input className="mt-1" type="checkbox" checked={isSelected} onChange={() => toggle(customer.id)} aria-label={`Select ${customer.name}`} />
-                    <Link to={`/admin/customers/${customer.id}`} className="min-w-0 flex-1">
-                      <div className="flex items-start justify-between gap-3"><div className="min-w-0"><p className="truncate text-[13px] font-medium text-black">{customer.name || '—'}</p><p className="mt-0.5 truncate text-[11px] text-[#777777]">{customer.email || customer.phone || '—'}</p></div><MonoStatus label={customer.engagement.label} dim={customer.engagement.key === 'all'} /></div>
-                      <div className="mt-3 grid grid-cols-3 gap-2 border-t border-[#EAEAEA] pt-3"><div><p className="adm-label">Orders</p><p className="mt-1 text-[12px] text-black">{customer.metrics.orders}</p></div><div><p className="adm-label">Revenue</p><p className="mt-1 text-[12px] text-black">{pkr(customer.metrics.ltv)}</p></div><div><p className="adm-label">Status</p><p className="mt-1 text-[11px] text-[#555555]">{customer.accountStatus}</p></div></div>
-                    </Link>
-                  </div>
-                </div>
-              );
-            })}
+      {/* Table */}
+      {loading ? (
+        <div className="space-y-2">{[1,2,3,4,5].map(i => <div key={i} className="h-14 v3-skeleton rounded-[5px]" />)}</div>
+      ) : customers.length === 0 ? (
+        <div className="v3-card">
+          <div className="v3-empty">
+            <Users size={24} className="v3-empty-icon" />
+            <p className="v3-empty-title">{search ? 'No customers match your search' : 'No customers found'}</p>
+            <p className="v3-empty-desc">{search ? 'Try a different search term or clear filters.' : 'Customers will appear here when they place orders or create accounts.'}</p>
           </div>
-        )}
-        {directory && directory.pages > 1 && <div className="mt-6"><EditorialPagination page={page} pages={directory.pages} onPage={(nextPage) => setFilter({ page: nextPage })} /></div>}
-      </section>
+        </div>
+      ) : (
+        <div className="v3-card">
+          <div className="v3-table-wrap">
+            <table className="v3-table dense">
+              <thead>
+                <tr>
+                  <th>Customer</th>
+                  <th>Contact</th>
+                  <th className="right">Orders</th>
+                  <th className="right">Revenue</th>
+                  <th className="right">AOV</th>
+                  <th>Segment</th>
+                  <th>Last Order</th>
+                  <th>Status</th>
+                  <th style={{ width: 40 }}></th>
+                </tr>
+              </thead>
+              <tbody>
+                {customers.map(c => (
+                  <tr key={c.id}>
+                    <td>
+                      <Link to={`/admin/customers/${c.id}`} className="flex items-center gap-2.5" style={{ textDecoration: 'none' }}>
+                        <div className="w-7 h-7 rounded-[4px] bg-[#F0F1F3] flex items-center justify-center text-[10px] font-bold text-[#6B7280] flex-shrink-0">
+                          {(c.name || '?').charAt(0).toUpperCase()}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-[13px] font-medium text-[#111] truncate">{c.name || '—'}</p>
+                          <p className="text-[10px] text-[#9CA3AF] font-mono truncate">{c.id?.slice(0, 12)}</p>
+                        </div>
+                      </Link>
+                    </td>
+                    <td>
+                      <div className="text-[12px] text-[#4A4A4A] truncate">{c.email || '—'}</div>
+                      <div className="text-[11px] text-[#9CA3AF]">{c.phone || c.whatsApp || '—'}</div>
+                    </td>
+                    <td className="right tabular text-[13px] font-medium">{c.metrics?.orders || 0}</td>
+                    <td className="right tabular text-[13px] font-medium">{pkr(c.metrics?.ltv || 0)}</td>
+                    <td className="right tabular text-[12px] text-[#6B7280]">{c.metrics?.orders ? pkr(c.metrics?.aov || 0) : '—'}</td>
+                    <td>
+                      {c.engagement?.label && (
+                        <span className={segmentBadge(c.engagement.label)}>
+                          {c.engagement.label}
+                        </span>
+                      )}
+                    </td>
+                    <td className="text-[12px] text-[#6B7280]">{when(c.metrics?.lastOrderAt)}</td>
+                    <td>
+                      <span className={statusBadge(c.accountStatus)}>
+                        <span className="v3-status-dot" />
+                        {c.accountStatus || 'Active'}
+                      </span>
+                    </td>
+                    <td>
+                      <Link to={`/admin/customers/${c.id}`} className="v3-btn v3-btn-icon v3-btn-ghost sm">
+                        <ChevronRight size={13} />
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Pagination */}
+          {pages > 1 && (
+            <div className="v3-pagination">
+              <span>Page {page} of {pages} · {total.toLocaleString()} customers</span>
+              <div className="v3-pagination-controls">
+                <button disabled={page <= 1} onClick={() => setFilter({ page: page - 1 })} className="v3-pagination-btn">←</button>
+                {Array.from({ length: Math.min(5, pages) }, (_, i) => {
+                  const p = Math.max(1, Math.min(pages - 4, page - 2)) + i;
+                  return <button key={p} onClick={() => setFilter({ page: p })} className={`v3-pagination-btn ${p === page ? 'active' : ''}`}>{p}</button>;
+                })}
+                <button disabled={page >= pages} onClick={() => setFilter({ page: page + 1 })} className="v3-pagination-btn">→</button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </AdminLayout>
   );
 }
