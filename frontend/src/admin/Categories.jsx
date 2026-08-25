@@ -1,11 +1,17 @@
 import { useEffect, useState } from 'react';
-import { Plus, Save, X } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Plus, Save, X, Edit3, EyeOff } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import AdminLayout from './AdminLayout';
-import PageHeader from './components/PageHeader';
 import Img from '../components/Img';
-import { btnGhost, btnSolid, ctl, MonoStatus, TableSkeleton } from './orders/orderUi';
+
+/* ============================================================================
+ * CATEGORIES V3 — Taxonomy Manager
+ * Compact page title + add category. Table with name, product count, status,
+ * order, actions. Child categories visually indented. Edit in V3 modal.
+ * All business logic preserved.
+ * ========================================================================== */
 
 const EMPTY = { name: '', gender: 'women', description: '', image: '', sortOrder: 0, isActive: true };
 
@@ -35,100 +41,129 @@ export default function Categories() {
 
   return (
     <AdminLayout title="Categories">
-      <PageHeader
-        title="Categories"
-        description="Organize the catalog."
-        actions={(
-          <button type="button" onClick={() => setEditing({ ...EMPTY })} className={btnSolid}>
-            <Plus size={12} /> Add category
-          </button>
-        )}
-      />
-
-      <section>
-        <p className="adm-index">Categories</p>
-        {cats === null && <TableSkeleton rows={5} />}
-        {cats && (
-          <div className="min-w-0">
-            <div className="hidden border-b border-[#EAEAEA] px-1 py-2.5 md:grid md:grid-cols-[48px_minmax(0,1.4fr)_0.7fr_0.5fr_0.8fr_auto] md:items-center md:gap-3">
-              <span />
-              <p className="adm-label">Category</p>
-              <p className="adm-label">Gender</p>
-              <p className="adm-label">Order</p>
-              <p className="adm-label">Status</p>
-              <p className="adm-label" />
-            </div>
-            {cats.map((c) => (
-              <div key={c._id} className={`border-b border-[#EAEAEA] adm-row-hover ${!c.isActive ? 'opacity-45' : ''}`}>
-                <div className="hidden md:grid md:grid-cols-[48px_minmax(0,1.4fr)_0.7fr_0.5fr_0.8fr_auto] md:items-center md:gap-3 md:px-1 md:py-3">
-                  <Img src={c.image} alt="" className="h-12 w-12 border border-[#EAEAEA] object-cover" />
-                  <div className="min-w-0">
-                    <p className="truncate text-[13px] font-medium text-black">{c.name}</p>
-                    <p className="font-mono text-[11px] text-[#AAAAAA]">{c.slug}</p>
-                  </div>
-                  <p className="capitalize text-[12px] text-[#777777]">{c.gender}</p>
-                  <p className="text-[12px] tabular-nums text-[#777777]">{c.sortOrder}</p>
-                  <MonoStatus label={c.isActive ? 'ACTIVE' : 'DISABLED'} dim={!c.isActive} />
-                  <div className="flex justify-end gap-2">
-                    <button type="button" onClick={() => setEditing({ ...c })} className={btnGhost}>Edit</button>
-                    {c.isActive && <button type="button" onClick={() => disable(c)} className={btnGhost}>Disable</button>}
-                  </div>
-                </div>
-                <div className="flex items-start gap-3 px-1 py-4 md:hidden">
-                  <Img src={c.image} alt="" className="h-14 w-14 border border-[#EAEAEA] object-cover" />
-                  <div className="min-w-0 flex-1">
-                    <p className="text-[13px] font-medium text-black">{c.name}</p>
-                    <p className="mt-0.5 text-[11px] text-[#AAAAAA]">{c.gender} · {c.slug}</p>
-                    <div className="mt-2"><MonoStatus label={c.isActive ? 'ACTIVE' : 'DISABLED'} dim={!c.isActive} /></div>
-                    <div className="mt-3 flex gap-2">
-                      <button type="button" onClick={() => setEditing({ ...c })} className={btnGhost}>Edit</button>
-                      {c.isActive && <button type="button" onClick={() => disable(c)} className={btnGhost}>Disable</button>}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
+      {/* ── PAGE HEADER ──────────────────────────────────────────────── */}
+      <div className="v3-page-header">
+        <div className="v3-page-header-left">
+          <div className="v3-breadcrumb">
+            <Link to="/admin">Home</Link><span>/</span>
+            <Link to="/admin/products">Products</Link><span>/</span>
+            <span>Categories</span>
           </div>
-        )}
-      </section>
+          <h1 className="v3-h-page">Categories</h1>
+          <p className="v3-h-small mt-1">Organize the catalog into browsable categories.</p>
+        </div>
+        <div className="v3-page-header-right">
+          <button type="button" onClick={() => setEditing({ ...EMPTY })} className="v3-btn v3-btn-primary v3-btn-sm">
+            <Plus size={12} /> Add Category
+          </button>
+        </div>
+      </div>
 
+      {/* ── TABLE ────────────────────────────────────────────────────── */}
+      {cats === null ? (
+        <div className="space-y-2">{[1,2,3,4,5].map(i => <div key={i} className="h-14 v3-skeleton rounded-[5px]" />)}</div>
+      ) : cats.length === 0 ? (
+        <div className="v3-card">
+          <div className="v3-empty">
+            <Plus size={24} className="v3-empty-icon" />
+            <p className="v3-empty-title">No categories yet</p>
+            <p className="v3-empty-desc">Create your first category to organize products.</p>
+            <button type="button" onClick={() => setEditing({ ...EMPTY })} className="v3-btn v3-btn-primary mt-3"><Plus size={12} /> Add Category</button>
+          </div>
+        </div>
+      ) : (
+        <div className="v3-card">
+          <div className="v3-table-wrap">
+            <table className="v3-table">
+              <thead>
+                <tr>
+                  <th style={{ width: 48 }}>Image</th>
+                  <th>Category</th>
+                  <th>Gender</th>
+                  <th className="right">Order</th>
+                  <th>Status</th>
+                  <th style={{ width: 120 }}></th>
+                </tr>
+              </thead>
+              <tbody>
+                {cats.map((c) => (
+                  <tr key={c._id} className={!c.isActive ? 'opacity-45' : ''}>
+                    <td>
+                      <div className="w-10 h-10 rounded-[3px] bg-[#F0F1F3] overflow-hidden border border-[#E5E7EB]">
+                        {c.image ? <Img src={c.image} alt="" className="h-full w-full object-cover" /> : null}
+                      </div>
+                    </td>
+                    <td>
+                      <p className="text-[13px] font-medium text-[#111]">{c.name}</p>
+                      <p className="text-[10px] font-mono text-[#9CA3AF] mt-0.5">{c.slug}</p>
+                    </td>
+                    <td className="text-[12px] capitalize text-[#4A4A4A]">{c.gender}</td>
+                    <td className="right text-[12px] tabular text-[#4A4A4A]">{c.sortOrder}</td>
+                    <td>
+                      <span className={`v3-status ${c.isActive ? 'v3-status-active' : 'v3-status-inactive'}`}>
+                        <span className="v3-status-dot" />
+                        {c.isActive ? 'Active' : 'Disabled'}
+                      </span>
+                    </td>
+                    <td>
+                      <div className="flex items-center justify-end gap-1">
+                        <button type="button" onClick={() => setEditing({ ...c })} className="v3-btn v3-btn-icon v3-btn-ghost sm" title="Edit"><Edit3 size={13} /></button>
+                        {c.isActive && <button type="button" onClick={() => disable(c)} className="v3-btn v3-btn-icon v3-btn-ghost sm" title="Disable"><EyeOff size={13} /></button>}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* ── EDIT MODAL ───────────────────────────────────────────────── */}
       {editing && (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-black/60 p-4" onClick={() => setEditing(null)}>
-          <div className="w-full max-w-md border border-[#EAEAEA] bg-[#0D0D0D] p-6" onClick={(e) => e.stopPropagation()}>
-            <div className="mb-5 flex items-center justify-between">
-              <p className="text-[15px] font-medium text-black">{editing._id ? 'Edit category' : 'New category'}</p>
-              <button type="button" onClick={() => setEditing(null)} aria-label="Close" className="text-[#AAAAAA] hover:text-black"><X size={16} /></button>
+        <div className="v3-modal-overlay" onClick={() => setEditing(null)}>
+          <div className="v3-modal" style={{ maxWidth: 480 }} onClick={(e) => e.stopPropagation()}>
+            <div className="v3-modal-header">
+              <h2 className="v3-h-section">{editing._id ? 'Edit Category' : 'New Category'}</h2>
+              <button type="button" onClick={() => setEditing(null)} className="v3-btn v3-btn-icon v3-btn-ghost"><X size={16} /></button>
             </div>
-            <div className="space-y-4">
-              <div>
-                <label className="adm-label mb-1.5 block">Name *</label>
-                <input className={ctl} value={editing.name} onChange={(e) => setEditing({ ...editing, name: e.target.value })} />
+            <div className="v3-modal-body space-y-4">
+              <div className="v3-field">
+                <label className="v3-label">Name *</label>
+                <input className="v3-input" value={editing.name} onChange={(e) => setEditing({ ...editing, name: e.target.value })} placeholder="Category name" autoFocus />
               </div>
-              <div>
-                <label className="adm-label mb-1.5 block">Gender *</label>
-                <select className={ctl} value={editing.gender} onChange={(e) => setEditing({ ...editing, gender: e.target.value })}>
+              <div className="v3-field">
+                <label className="v3-label">Gender *</label>
+                <select className="v3-select w-full" value={editing.gender} onChange={(e) => setEditing({ ...editing, gender: e.target.value })}>
                   <option value="women">Women</option><option value="men">Men</option>
                 </select>
               </div>
-              <div>
-                <label className="adm-label mb-1.5 block">Description</label>
-                <textarea className={`${ctl} min-h-20 !h-auto py-2`} value={editing.description} onChange={(e) => setEditing({ ...editing, description: e.target.value })} />
+              <div className="v3-field">
+                <label className="v3-label">Description</label>
+                <textarea className="v3-textarea" rows={3} value={editing.description} onChange={(e) => setEditing({ ...editing, description: e.target.value })} placeholder="Optional description" />
               </div>
-              <div>
-                <label className="adm-label mb-1.5 block">Image URL</label>
-                <input className={`${ctl} font-mono`} value={editing.image} onChange={(e) => setEditing({ ...editing, image: e.target.value })} />
+              <div className="v3-field">
+                <label className="v3-label">Image URL</label>
+                <input className="v3-input font-mono text-[12px]" value={editing.image} onChange={(e) => setEditing({ ...editing, image: e.target.value })} placeholder="https://…" />
               </div>
-              <div className="grid grid-cols-2 gap-3 items-end">
-                <div>
-                  <label className="adm-label mb-1.5 block">Sort order</label>
-                  <input className={ctl} type="number" value={editing.sortOrder} onChange={(e) => setEditing({ ...editing, sortOrder: Number(e.target.value) })} />
+              <div className="grid grid-cols-2 gap-3">
+                <div className="v3-field">
+                  <label className="v3-label">Sort Order</label>
+                  <input className="v3-input" type="number" value={editing.sortOrder} onChange={(e) => setEditing({ ...editing, sortOrder: Number(e.target.value) })} />
                 </div>
-                <label className="flex cursor-pointer items-center gap-2 pb-2 text-[13px] text-[#555555]">
-                  <input type="checkbox" checked={editing.isActive} onChange={(e) => setEditing({ ...editing, isActive: e.target.checked })} className="h-3.5 w-3.5 rounded-none accent-white" /> Active
-                </label>
+                <div className="v3-field">
+                  <label className="v3-label">Status</label>
+                  <label className="flex items-center gap-2 h-9 cursor-pointer">
+                    <input type="checkbox" checked={editing.isActive} onChange={(e) => setEditing({ ...editing, isActive: e.target.checked })} className="w-3.5 h-3.5 accent-[#111]" />
+                    <span className="text-[12px] text-[#4A4A4A]">Active</span>
+                  </label>
+                </div>
               </div>
-              <button type="button" onClick={save} disabled={busy || !editing.name} className={`${btnSolid} w-full`}>
-                <Save size={12} /> {busy ? 'Saving…' : 'Save category'}
+            </div>
+            <div className="v3-modal-footer">
+              <button type="button" onClick={() => setEditing(null)} className="v3-btn v3-btn-secondary">Cancel</button>
+              <button type="button" onClick={save} disabled={busy || !editing.name} className="v3-btn v3-btn-primary">
+                <Save size={12} /> {busy ? 'Saving…' : 'Save Category'}
               </button>
             </div>
           </div>

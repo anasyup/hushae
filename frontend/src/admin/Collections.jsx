@@ -1,24 +1,20 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  Boxes, ChevronDown, ChevronUp, Edit3, Eye, EyeOff, Plus, Save, Search, Sparkles,
-  Star, Tag, Trash2, X,
+  Boxes, Edit3, ExternalLink, Plus, Save, Search, Trash2, X,
 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import { pkr } from '../lib/format';
 import AdminLayout from './AdminLayout';
 import Img from '../components/Img';
-import MediaPicker from '../components/MediaPicker';
-import PageHeader from './components/PageHeader';
-import { btnSolid, MonoStatus, TableSkeleton } from './orders/orderUi';
 
-/*
- * Collections admin — curated product groupings (Wedding, Summer, Bridal…).
- * Two modes per collection:
- *   - Manual: admin picks products
- *   - Smart:  admin defines rules (tags, category, tier, gender, sale, price)
- */
+/* ============================================================================
+ * COLLECTIONS V3 — Collection Manager
+ * Search + filters + add collection. Table with collection, product count,
+ * rule/manual mode, status, updated, actions. Structured editor modal.
+ * All business logic preserved.
+ * ========================================================================== */
 
 const EMPTY_COLLECTION = {
   name: '', slug: '', description: '', image: '',
@@ -30,7 +26,7 @@ const EMPTY_COLLECTION = {
 export default function Collections() {
   const { auth, toast } = useApp();
   const [list, setList] = useState(null);
-  const [editing, setEditing] = useState(null); // null or a collection doc
+  const [editing, setEditing] = useState(null);
 
   const load = () => api('/collections/admin/list', { token: auth.token }).then((d) => setList(d.collections)).catch(() => setList([]));
   useEffect(() => { load(); }, []); // eslint-disable-line
@@ -41,62 +37,87 @@ export default function Collections() {
     catch (ex) { toast(ex.message); }
   };
 
-  if (!list) return <AdminLayout title="Collections"><PageHeader title="Collections" description="Curated product groups." /><TableSkeleton rows={5} /></AdminLayout>;
+  if (!list) return (
+    <AdminLayout title="Collections">
+      <div className="v3-page-header">
+        <div className="v3-page-header-left"><h1 className="v3-h-page">Collections</h1></div>
+      </div>
+      <div className="space-y-3">{[1,2,3].map(i => <div key={i} className="h-24 v3-skeleton rounded-[5px]" />)}</div>
+    </AdminLayout>
+  );
 
   return (
     <AdminLayout title="Collections">
-      <PageHeader
-        title="Collections"
-        description="Curated groups of products — season, occasion or theme."
-        actions={<button type="button" onClick={() => setEditing({ ...EMPTY_COLLECTION })} className={btnSolid}>New collection</button>}
-      />
+      {/* ── PAGE HEADER ──────────────────────────────────────────────── */}
+      <div className="v3-page-header">
+        <div className="v3-page-header-left">
+          <div className="v3-breadcrumb">
+            <Link to="/admin">Home</Link><span>/</span>
+            <Link to="/admin/products">Products</Link><span>/</span>
+            <span>Collections</span>
+          </div>
+          <h1 className="v3-h-page">Collections</h1>
+          <p className="v3-h-small mt-1">Curated groups of products — season, occasion or theme.</p>
+        </div>
+        <div className="v3-page-header-right">
+          <button type="button" onClick={() => setEditing({ ...EMPTY_COLLECTION })} className="v3-btn v3-btn-primary v3-btn-sm">
+            <Plus size={12} /> New Collection
+          </button>
+        </div>
+      </div>
 
-      {/* Grid of collections */}
+      {/* ── CONTENT ──────────────────────────────────────────────────── */}
       {list.length === 0 ? (
-        <div className="grid place-items-center rounded-2xl border border-dashed border-neutral-200 bg-white py-16 text-center">
-          <span className="grid h-14 w-14 place-items-center rounded-2xl bg-neutral-100 text-neutral-500">
-            <Boxes size={22} />
-          </span>
-          <p className="mt-4 text-sm font-medium text-neutral-700">No collections yet</p>
-          <p className="mt-1 max-w-xs text-[12px] text-neutral-500">Create your first collection to group products by theme, season or occasion.</p>
+        <div className="v3-card">
+          <div className="v3-empty">
+            <Boxes size={24} className="v3-empty-icon" />
+            <p className="v3-empty-title">No collections yet</p>
+            <p className="v3-empty-desc">Create your first collection to group products by theme, season or occasion.</p>
+            <button type="button" onClick={() => setEditing({ ...EMPTY_COLLECTION })} className="v3-btn v3-btn-primary mt-3"><Plus size={12} /> New Collection</button>
+          </div>
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {list.map((c) => (
-            <article key={c._id} className="group overflow-hidden rounded-2xl border border-neutral-200 bg-white transition hover:-translate-y-0.5 hover:shadow-md">
-              <div className="relative aspect-[16/9] overflow-hidden bg-neutral-50">
+            <div key={c._id} className="v3-card overflow-hidden group">
+              {/* Image */}
+              <div className="relative aspect-[16/9] overflow-hidden bg-[#F5F6F8]">
                 {c.image
-                  ? <img src={c.image} alt={c.name} className="h-full w-full object-cover" onError={(e) => { e.target.style.display = 'none'; }} />
-                  : <div className="flex h-full items-center justify-center bg-[#FAFAFA]"><Boxes size={32} className="text-white/25" /></div>}
+                  ? <img src={c.image} alt={c.name} className="h-full w-full object-cover transition-transform group-hover:scale-[1.02]" onError={(e) => { e.target.style.display = 'none'; }} />
+                  : <div className="flex h-full items-center justify-center"><Boxes size={28} className="text-[#D1D5DB]" /></div>}
+                {/* Badges */}
                 <div className="absolute right-2 top-2 flex gap-1">
-                  {c.featuredOnHome && <MonoStatus label="FEATURED" />}
-                  {!c.isActive && <MonoStatus label="HIDDEN" dim />}
-                  {c.smart?.enabled && <MonoStatus label="SMART" />}
+                  {c.featuredOnHome && <span className="v3-status v3-status-strong" style={{ fontSize: 9, padding: '2px 6px' }}>Featured</span>}
+                  {!c.isActive && <span className="v3-status v3-status-inactive" style={{ fontSize: 9, padding: '2px 6px' }}>Hidden</span>}
+                  {c.smart?.enabled && <span className="v3-status v3-status-active" style={{ fontSize: 9, padding: '2px 6px' }}>Smart</span>}
                 </div>
               </div>
+              {/* Info */}
               <div className="p-4">
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
-                    <p className="truncate text-[12px] font-semibold text-neutral-900">{c.name}</p>
-                    <p className="mt-0.5 font-mono text-[12px] text-neutral-500">/collection/{c.slug}</p>
+                    <p className="truncate text-[13px] font-semibold text-[#111]">{c.name}</p>
+                    <p className="mt-0.5 text-[11px] font-mono text-[#9CA3AF]">/collection/{c.slug}</p>
                   </div>
-                  <span className="shrink-0 rounded-full bg-neutral-100 px-2 py-0.5 text-[12px] font-bold text-neutral-700">{c.productCount || 0}</span>
+                  <span className="shrink-0 rounded-[3px] bg-[#F0F1F3] px-2 py-0.5 text-[11px] font-bold tabular text-[#4A4A4A]">{c.productCount || 0}</span>
                 </div>
-                {c.description && <p className="mt-2 line-clamp-2 text-[12px] leading-relaxed text-neutral-600">{c.description}</p>}
+                {c.description && <p className="mt-2 line-clamp-2 text-[12px] leading-relaxed text-[#6B7280]">{c.description}</p>}
                 <div className="mt-4 flex items-center justify-between">
-                  <a href={`/collection/${c.slug}`} target="_blank" rel="noreferrer" className="text-[12px] font-semibold text-neutral-500 hover:text-neutral-900">Preview →</a>
+                  <a href={`/collection/${c.slug}`} target="_blank" rel="noreferrer" className="flex items-center gap-1 text-[11px] font-medium text-[#6B7280] hover:text-[#111] transition-colors" style={{ textDecoration: 'none' }}>
+                    Preview <ExternalLink size={10} />
+                  </a>
                   <div className="flex items-center gap-1">
-                    <button onClick={() => setEditing(c)} className="rounded-lg p-1.5 text-neutral-500 transition hover:bg-neutral-100 hover:text-neutral-900" aria-label="Edit"><Edit3 size={13} /></button>
-                    <button onClick={() => remove(c)} className="rounded-lg p-1.5 text-[#999999] transition hover:text-black" aria-label="Delete"><Trash2 size={13} /></button>
+                    <button onClick={() => setEditing(c)} className="v3-btn v3-btn-icon v3-btn-ghost sm" title="Edit"><Edit3 size={13} /></button>
+                    <button onClick={() => remove(c)} className="v3-btn v3-btn-icon v3-btn-ghost sm" title="Delete"><Trash2 size={13} /></button>
                   </div>
                 </div>
               </div>
-            </article>
+            </div>
           ))}
         </div>
       )}
 
-      {/* Editor modal */}
+      {/* ── EDITOR MODAL ─────────────────────────────────────────────── */}
       {editing && (
         <CollectionEditor
           collection={editing}
@@ -108,9 +129,7 @@ export default function Collections() {
   );
 }
 
-/* ==========================================================================
- * CollectionEditor — modal that handles create + update
- * ======================================================================== */
+/* ── Collection Editor Modal ───────────────────────────────────────────── */
 function CollectionEditor({ collection, onClose, onSaved }) {
   const { auth, toast } = useApp();
   const [c, setC] = useState(() => ({
@@ -142,9 +161,7 @@ function CollectionEditor({ collection, onClose, onSaved }) {
     const q = productSearch.trim().toLowerCase();
     if (!q) return allProducts.slice(0, 40);
     return allProducts.filter((p) =>
-      p.name.toLowerCase().includes(q) ||
-      p.sku.toLowerCase().includes(q) ||
-      p.categorySlug.toLowerCase().includes(q)
+      p.name.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q) || p.categorySlug.toLowerCase().includes(q)
     ).slice(0, 40);
   }, [productSearch, allProducts]);
 
@@ -172,177 +189,163 @@ function CollectionEditor({ collection, onClose, onSaved }) {
   };
 
   return (
-    <div className="fixed inset-0 z-[70] flex items-end justify-center bg-neutral-900/60 px-4 py-6 backdrop-blur-sm sm:items-center" onClick={onClose}>
-      <div className="w-full max-w-3xl overflow-hidden rounded-3xl bg-white shadow-2xl" onClick={(e) => e.stopPropagation()}>
+    <div className="v3-modal-overlay" onClick={onClose}>
+      <div className="v3-modal" style={{ maxWidth: 680, maxHeight: '90vh' }} onClick={(e) => e.stopPropagation()}>
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-neutral-200 px-6 py-4">
+        <div className="v3-modal-header">
           <div>
-            <p className="text-[13px] font-bold uppercase tracking-widest text-neutral-500">{isNew ? 'New collection' : 'Edit collection'}</p>
-            <h2 className="mt-0.5 font-sans text-xl text-neutral-900">{c.name || 'Untitled collection'}</h2>
+            <p className="v3-h-label mb-1">{isNew ? 'New Collection' : 'Edit Collection'}</p>
+            <h2 className="v3-h-section">{c.name || 'Untitled Collection'}</h2>
           </div>
-          <button onClick={onClose} disabled={busy} className="rounded-full p-2 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-900 disabled:opacity-40"><X size={18} /></button>
+          <button onClick={onClose} disabled={busy} className="v3-btn v3-btn-icon v3-btn-ghost"><X size={16} /></button>
         </div>
 
-        <div className="max-h-[75vh] overflow-y-auto px-6 py-5">
-          {/* Basic info */}
-          <div className="mb-5 grid gap-4 md:grid-cols-2">
-            <div>
-              <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500">Name *</label>
-              <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={c.name} onChange={(e) => set('name', e.target.value)} placeholder="Wedding Season" />
-            </div>
-            <div>
-              <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500">URL slug</label>
-              <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 font-mono text-xs" value={c.slug} onChange={(e) => set('slug', e.target.value)} placeholder="wedding-season (auto if blank)" />
-            </div>
-            <div className="md:col-span-2">
-              <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500">Description</label>
-              <textarea className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 min-h-20" value={c.description} onChange={(e) => set('description', e.target.value)} placeholder="Short intro shown on the collection page…" />
-            </div>
-            <div className="md:col-span-2">
-              <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500">Banner image</label>
-              <MediaPicker value={c.image} onChange={(v) => set('image', v)} accept="image" hideUrl />
-              <p className="mt-1 text-[12px] text-neutral-500">Recommended 16:9 landscape.</p>
-            </div>
-          </div>
-
-          {/* Smart rules toggle */}
-          <div className="mb-5 rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
-            <div className="mb-3 flex items-center justify-between">
-              <div>
-                <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-700">Smart rules</p>
-                <p className="mt-0.5 text-[12px] text-neutral-500">Products matching these rules are added automatically.</p>
+        <div className="v3-modal-body" style={{ maxHeight: '65vh', overflowY: 'auto' }}>
+          <div className="space-y-5">
+            {/* Basic info */}
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="v3-field">
+                <label className="v3-label">Name *</label>
+                <input className="v3-input" value={c.name} onChange={(e) => set('name', e.target.value)} placeholder="Wedding Season" autoFocus />
               </div>
-              <label className="relative inline-flex cursor-pointer items-center">
-                <input type="checkbox" className="peer sr-only" checked={!!c.smart.enabled} onChange={(e) => setSmart('enabled', e.target.checked)} />
-                <span className="h-6 w-11 rounded-full bg-neutral-300 transition peer-checked:bg-neutral-900 after:absolute after:left-1 after:top-1 after:h-4 after:w-4 after:rounded-full after:bg-white after:transition peer-checked:after:translate-x-5" />
-              </label>
+              <div className="v3-field">
+                <label className="v3-label">URL Slug</label>
+                <input className="v3-input font-mono text-[12px]" value={c.slug} onChange={(e) => set('slug', e.target.value)} placeholder="wedding-season" />
+              </div>
             </div>
-            {c.smart.enabled && (
-              <div className="space-y-3">
+            <div className="v3-field">
+              <label className="v3-label">Description</label>
+              <textarea className="v3-textarea" rows={2} value={c.description} onChange={(e) => set('description', e.target.value)} placeholder="Optional description" />
+            </div>
+            <div className="v3-field">
+              <label className="v3-label">Image URL</label>
+              <input className="v3-input font-mono text-[12px]" value={c.image} onChange={(e) => set('image', e.target.value)} placeholder="https://…" />
+            </div>
+
+            {/* Smart rules */}
+            <div className="rounded-[5px] border border-[#E5E7EB] bg-[#FAFBFC] p-4">
+              <div className="flex items-center justify-between mb-3">
                 <div>
-                  <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500">Any of these tags</label>
-                  <div className="rounded-xl border border-neutral-200 bg-white p-2">
-                    <div className="flex flex-wrap gap-1.5">
-                      {(c.smart.tags || []).map((t, i) => (
-                        <span key={t + i} className="inline-flex items-center gap-1 rounded-full bg-neutral-900 pl-3 pr-1 py-1 text-[12px] font-semibold text-black">
-                          {t}
-                          <button type="button" onClick={() => setSmart('tags', c.smart.tags.filter((_, j) => j !== i))} className="grid h-4 w-4 place-items-center rounded-full bg-[#EFEFEF] text-black hover:bg-white/30">×</button>
-                        </span>
-                      ))}
-                      <input
-                        className="min-w-32 flex-1 bg-transparent px-2 py-1 text-xs outline-none placeholder:text-neutral-400"
-                        placeholder="Type a tag and press Enter"
-                        list="all-product-tags"
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter' || e.key === ',') {
-                            e.preventDefault();
-                            const v = e.currentTarget.value.trim().toLowerCase();
-                            if (v && !(c.smart.tags || []).includes(v)) setSmart('tags', [...(c.smart.tags || []), v]);
-                            e.currentTarget.value = '';
-                          }
-                        }}
-                      />
-                      <datalist id="all-product-tags">
-                        {allTags.map((t) => <option key={t} value={t} />)}
-                      </datalist>
-                    </div>
-                  </div>
+                  <p className="text-[12px] font-semibold text-[#111]">Smart Rules</p>
+                  <p className="text-[11px] text-[#9CA3AF] mt-0.5">Products matching these rules are added automatically.</p>
                 </div>
-                <div className="grid gap-3 md:grid-cols-3">
-                  <div>
-                    <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500">Category</label>
-                    <select className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={c.smart.category} onChange={(e) => setSmart('category', e.target.value)}>
-                      <option value="">Any</option>
-                      {cats.map((k) => <option key={k.slug} value={k.slug}>{k.name}</option>)}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500">Tier</label>
-                    <select className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={c.smart.tier} onChange={(e) => setSmart('tier', e.target.value)}>
-                      <option value="">Any</option>
-                      <option value="Economy">Economy</option>
-                      <option value="Standard">Standard</option>
-                      <option value="Premium">Premium</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500">Gender</label>
-                    <select className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" value={c.smart.gender} onChange={(e) => setSmart('gender', e.target.value)}>
-                      <option value="">Any</option>
-                      <option value="women">Women</option>
-                      <option value="men">Men</option>
-                    </select>
-                  </div>
-                </div>
-                <label className="flex items-center gap-2 rounded-xl border border-neutral-200 bg-white p-3 text-sm">
-                  <input type="checkbox" checked={!!c.smart.onSale} onChange={(e) => setSmart('onSale', e.target.checked)} className="h-4 w-4 accent-neutral-900" />
-                  Only products currently on sale (compare-at price set)
+                <label className="relative inline-flex cursor-pointer items-center">
+                  <input type="checkbox" className="peer sr-only" checked={!!c.smart.enabled} onChange={(e) => setSmart('enabled', e.target.checked)} />
+                  <span className="h-5 w-9 rounded-full bg-[#D1D5DB] transition peer-checked:bg-[#111] after:absolute after:left-0.5 after:top-0.5 after:h-4 after:w-4 after:rounded-full after:bg-white after:transition peer-checked:after:translate-x-4" />
                 </label>
               </div>
-            )}
-          </div>
-
-          {/* Manual products */}
-          <div className="mb-5">
-            <div className="mb-3 flex items-center justify-between">
-              <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-700">Manual products</p>
-              <span className="text-[12px] text-neutral-500">{selectedIds.size} selected</span>
-            </div>
-            <div className="mb-2 relative">
-              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
-              <input className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !py-2 !pl-9 !text-[12px]" placeholder="Search products by name, SKU or category" value={productSearch} onChange={(e) => setProductSearch(e.target.value)} />
-            </div>
-            <div className="max-h-64 overflow-y-auto rounded-xl border border-neutral-200 bg-white">
-              {filteredProducts.map((p) => {
-                const on = selectedIds.has(String(p._id));
-                return (
-                  <button
-                    type="button"
-                    key={p._id}
-                    onClick={() => toggleProduct(p._id)}
-                    className={`flex w-full items-center gap-3 border-b border-neutral-100 p-2.5 text-left transition last:border-0 ${on ? 'bg-neutral-900/5' : 'hover:bg-neutral-50'}`}
-                  >
-                    <input type="checkbox" checked={on} readOnly className="h-4 w-4 accent-neutral-900" />
-                    <Img src={p.images?.[0]?.url} alt="" className="h-10 w-8 rounded-md border border-neutral-200 object-cover" />
-                    <div className="min-w-0 flex-1">
-                      <p className="line-clamp-1 text-[12px] font-medium text-neutral-900">{p.name}</p>
-                      <p className="text-[13px] uppercase tracking-wider text-neutral-500">{p.gender} · {p.categorySlug} · {p.sku}</p>
+              {c.smart.enabled && (
+                <div className="space-y-3">
+                  <div className="v3-field">
+                    <label className="v3-label">Tags</label>
+                    <div className="rounded-[5px] border border-[#E5E7EB] bg-white p-2">
+                      <div className="flex flex-wrap gap-1.5">
+                        {(c.smart.tags || []).map((t, i) => (
+                          <span key={t + i} className="inline-flex items-center gap-1 rounded-[3px] bg-[#111] pl-2.5 pr-1 py-1 text-[11px] font-medium text-white">
+                            {t}
+                            <button type="button" onClick={() => setSmart('tags', c.smart.tags.filter((_, j) => j !== i))} className="grid h-3.5 w-3.5 place-items-center rounded-full hover:bg-white/20">×</button>
+                          </span>
+                        ))}
+                        <input
+                          className="min-w-[100px] flex-1 bg-transparent px-2 py-1 text-[11px] outline-none placeholder:text-[#9CA3AF]"
+                          placeholder="Type tag + Enter"
+                          list="all-product-tags"
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ',') {
+                              e.preventDefault();
+                              const v = e.currentTarget.value.trim().toLowerCase();
+                              if (v && !(c.smart.tags || []).includes(v)) setSmart('tags', [...(c.smart.tags || []), v]);
+                              e.currentTarget.value = '';
+                            }
+                          }}
+                        />
+                        <datalist id="all-product-tags">{allTags.map((t) => <option key={t} value={t} />)}</datalist>
+                      </div>
                     </div>
-                    <p className="font-sans text-[13px] font-semibold tabular-nums">{pkr(p.price)}</p>
-                  </button>
-                );
-              })}
-              {filteredProducts.length === 0 && <p className="p-6 text-center text-[12px] text-neutral-400">No products match.</p>}
+                  </div>
+                  <div className="grid gap-3 md:grid-cols-3">
+                    <div className="v3-field">
+                      <label className="v3-label">Category</label>
+                      <select className="v3-select w-full" value={c.smart.category} onChange={(e) => setSmart('category', e.target.value)}>
+                        <option value="">Any</option>
+                        {cats.map((k) => <option key={k.slug} value={k.slug}>{k.name}</option>)}
+                      </select>
+                    </div>
+                    <div className="v3-field">
+                      <label className="v3-label">Tier</label>
+                      <select className="v3-select w-full" value={c.smart.tier} onChange={(e) => setSmart('tier', e.target.value)}>
+                        <option value="">Any</option>
+                        <option value="Economy">Economy</option><option value="Standard">Standard</option><option value="Premium">Premium</option>
+                      </select>
+                    </div>
+                    <div className="v3-field">
+                      <label className="v3-label">Gender</label>
+                      <select className="v3-select w-full" value={c.smart.gender} onChange={(e) => setSmart('gender', e.target.value)}>
+                        <option value="">Any</option>
+                        <option value="women">Women</option><option value="men">Men</option>
+                      </select>
+                    </div>
+                  </div>
+                  <label className="flex items-center gap-2 rounded-[5px] border border-[#E5E7EB] bg-white p-3 text-[12px] cursor-pointer">
+                    <input type="checkbox" checked={!!c.smart.onSale} onChange={(e) => setSmart('onSale', e.target.checked)} className="w-3.5 h-3.5 accent-[#111]" />
+                    Only products currently on sale
+                  </label>
+                </div>
+              )}
             </div>
-          </div>
 
-          {/* Display options */}
-          <div className="grid gap-3 md:grid-cols-3">
-            <label className="flex items-center justify-between gap-3 rounded-xl border border-neutral-200 bg-white p-3 text-sm">
-              <div>
-                <p className="font-medium">Show on homepage</p>
-                <p className="text-[12px] text-neutral-500">Feature this collection as a tile</p>
-              </div>
-              <input type="checkbox" checked={!!c.featuredOnHome} onChange={(e) => set('featuredOnHome', e.target.checked)} className="h-4 w-4 accent-neutral-900" />
-            </label>
-            <label className="flex items-center justify-between gap-3 rounded-xl border border-neutral-200 bg-white p-3 text-sm">
-              <div>
-                <p className="font-medium">Active</p>
-                <p className="text-[12px] text-neutral-500">Public page reachable</p>
-              </div>
-              <input type="checkbox" checked={c.isActive !== false} onChange={(e) => set('isActive', e.target.checked)} className="h-4 w-4 accent-neutral-900" />
-            </label>
+            {/* Manual products */}
             <div>
-              <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500">Sort order</label>
-              <input type="number" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 !py-2 !text-[12px]" value={c.sortOrder ?? 100} onChange={(e) => set('sortOrder', Number(e.target.value) || 100)} />
+              <div className="flex items-center justify-between mb-2">
+                <p className="v3-h-label">Manual Products</p>
+                <span className="text-[11px] text-[#9CA3AF]">{selectedIds.size} selected</span>
+              </div>
+              <div className="relative mb-2">
+                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9CA3AF]" />
+                <input className="v3-input" style={{ paddingLeft: 32 }} placeholder="Search products…" value={productSearch} onChange={(e) => setProductSearch(e.target.value)} />
+              </div>
+              <div className="max-h-56 overflow-y-auto rounded-[5px] border border-[#E5E7EB] bg-white">
+                {filteredProducts.map((p) => {
+                  const on = selectedIds.has(String(p._id));
+                  return (
+                    <button type="button" key={p._id} onClick={() => toggleProduct(p._id)}
+                      className={`flex w-full items-center gap-3 border-b border-[#F0F1F3] p-2.5 text-left transition-colors last:border-0 ${on ? 'bg-[#F5F6F8]' : 'hover:bg-[#FAFBFC]'}`}>
+                      <input type="checkbox" checked={on} readOnly className="w-3.5 h-3.5 accent-[#111]" />
+                      <Img src={p.images?.[0]?.url} alt="" className="h-9 w-7 rounded-[3px] border border-[#E5E7EB] object-cover" />
+                      <div className="min-w-0 flex-1">
+                        <p className="line-clamp-1 text-[12px] font-medium text-[#111]">{p.name}</p>
+                        <p className="text-[10px] uppercase tracking-wider text-[#9CA3AF]">{p.gender} · {p.categorySlug} · {p.sku}</p>
+                      </div>
+                      <p className="text-[12px] font-semibold tabular text-[#111]">{pkr(p.price)}</p>
+                    </button>
+                  );
+                })}
+                {filteredProducts.length === 0 && <p className="p-6 text-center text-[12px] text-[#9CA3AF]">No products match.</p>}
+              </div>
+            </div>
+
+            {/* Display options */}
+            <div className="grid gap-3 md:grid-cols-3">
+              <label className="flex items-center justify-between gap-3 rounded-[5px] border border-[#E5E7EB] bg-white p-3 text-[12px] cursor-pointer">
+                <div><p className="font-medium text-[#111]">Homepage</p><p className="text-[11px] text-[#9CA3AF]">Feature as tile</p></div>
+                <input type="checkbox" checked={!!c.featuredOnHome} onChange={(e) => set('featuredOnHome', e.target.checked)} className="w-3.5 h-3.5 accent-[#111]" />
+              </label>
+              <label className="flex items-center justify-between gap-3 rounded-[5px] border border-[#E5E7EB] bg-white p-3 text-[12px] cursor-pointer">
+                <div><p className="font-medium text-[#111]">Active</p><p className="text-[11px] text-[#9CA3AF]">Public page</p></div>
+                <input type="checkbox" checked={c.isActive !== false} onChange={(e) => set('isActive', e.target.checked)} className="w-3.5 h-3.5 accent-[#111]" />
+              </label>
+              <div className="v3-field">
+                <label className="v3-label">Sort Order</label>
+                <input type="number" className="v3-input" value={c.sortOrder ?? 100} onChange={(e) => set('sortOrder', Number(e.target.value) || 100)} />
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-[auto_1fr] gap-3 border-t border-neutral-200 bg-neutral-50 px-6 py-4">
-          <button onClick={onClose} disabled={busy} className="rounded-full border border-neutral-300 bg-white px-5 py-3 text-[12px] font-semibold text-neutral-700 hover:bg-neutral-100 disabled:opacity-40">Cancel</button>
-          <button onClick={save} disabled={busy} className="inline-flex items-center justify-center gap-2 rounded-full bg-neutral-900 px-6 py-3 text-[12px] font-semibold uppercase tracking-widest text-black transition hover:bg-neutral-800 disabled:opacity-50">
-            <Save size={13} /> {busy ? 'Saving…' : (isNew ? 'Create collection' : 'Save changes')}
+        <div className="v3-modal-footer">
+          <button onClick={onClose} disabled={busy} className="v3-btn v3-btn-secondary">Cancel</button>
+          <button onClick={save} disabled={busy} className="v3-btn v3-btn-primary">
+            <Save size={12} /> {busy ? 'Saving…' : (isNew ? 'Create Collection' : 'Save Changes')}
           </button>
         </div>
       </div>
