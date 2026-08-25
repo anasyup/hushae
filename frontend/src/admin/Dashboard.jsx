@@ -1,48 +1,26 @@
-import { Component, useEffect, useMemo, useState } from 'react';
+import { Component, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  Activity, AlertTriangle, ArrowDownRight, ArrowUpRight, BadgePercent, Box,
-  Calendar, ChevronRight, CircleDollarSign, Clock, Download, Megaphone,
-  MessageCircle, Package, PackagePlus, RefreshCw, ShoppingBag, Sparkles,
-  TrendingUp, Truck, Users, Zap,
+  AlertTriangle, ArrowDownRight, ArrowRight, ArrowUpRight, BadgePercent,
+  BarChart3, Bell, Calendar, ChevronDown, CircleDollarSign, CreditCard,
+  FolderPlus, Info, Mail, MoreHorizontal, Package, PackagePlus,
+  ShoppingBag, ShoppingCart, Sparkles, TrendingUp, Users, Wallet,
 } from 'lucide-react';
 import {
-  Area, AreaChart, Bar, BarChart, CartesianGrid, Cell,
+  Bar, BarChart, CartesianGrid, Cell, ComposedChart, Line, LineChart,
   Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis,
 } from 'recharts';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
-import { fmtDate, pkr } from '../lib/format';
-import { buildStatusDonut } from '../lib/statusDonut';
-import { PAYMENT_STATES, TONE } from './orders/orderConstants';
 import AdminLayout from './AdminLayout';
 import Img from '../components/Img';
-import AlertsBar from './dashboard/AlertsBar';
-import GoalTracker from './dashboard/GoalTracker';
-import InsightsCard from './dashboard/InsightsCard';
 import RangePicker, { RANGE_PRESETS, resolvePreset } from './dashboard/RangePicker';
-import CancellationReasons from './dashboard/CancellationReasons';
-import AbandonedCartsWidget from './dashboard/AbandonedCartsWidget';
-import ReorderModal from './dashboard/ReorderModal';
-import ReliabilityBadge from './ReliabilityBadge';
-import { exportDashboardSummary } from './dashboard/exportSummary';
 
-/* ============================================================================
- * DASHBOARD — Phase 6 deep redesign.
- *
- * Layout (desktop):
- *   Row 1: Greeting + live indicator
- *   Row 2: 4 KPI cards + Quick Actions card
- *   Row 3: Revenue chart (2/3) + Status donut (1/3)
- *   Row 4: Order pipeline
- *   Row 5: Goal + Insights
- *   Row 6: P&L (if costs set)
- *   Row 7: Today activity + Best sellers
- *   Row 8: Recent orders (2/3) + Low stock + Top customers (1/3)
- * ========================================================================== */
+/* ===========================================================================
+ * OVERVIEW DASHBOARD — pixel-close to the merchant reference.
+ * Live HUSHAE data only. Products are HUSHAE catalogue items, never dummy SKUs.
+ * ======================================================================== */
 
-/* Per-widget error boundary — a chart that throws (bad data, library hiccup)
-   degrades to a small retry card instead of blanking the whole dashboard. */
 class ChartBoundary extends Component {
   constructor(props) { super(props); this.state = { failed: false }; }
   static getDerivedStateFromError() { return { failed: true }; }
@@ -50,10 +28,10 @@ class ChartBoundary extends Component {
   render() {
     if (this.state.failed) {
       return (
-        <div className="grid min-h-[160px] place-items-center rounded-[10px] border border-white/10 bg-white/5 p-6 text-center" role="alert">
+        <div className="grid min-h-[140px] place-items-center text-center" role="alert">
           <div>
-            <p className="text-[12px] font-medium text-white/80">Couldn&apos;t render this chart</p>
-            <button type="button" onClick={() => this.setState({ failed: false })} className="mt-3 rounded-lg border border-white/20 bg-white/10 px-4 py-1.5 text-[12px] font-medium text-white transition hover:bg-white/15">Retry</button>
+            <p className="text-[12px] font-semibold text-neutral-700">Couldn&apos;t render this chart</p>
+            <button type="button" onClick={() => this.setState({ failed: false })} className="mt-2 text-[12px] font-semibold text-neutral-900 underline">Retry</button>
           </div>
         </div>
       );
@@ -62,310 +40,225 @@ class ChartBoundary extends Component {
   }
 }
 
-/* WhatsApp deep link for verifying a pending order — wa.me needs no API key.
-   Phone is normalised to international format (Pakistan default '92'). */
-const waDigits = (phone) => {
-  const d = String(phone || '').replace(/\D/g, '');
-  if (!d) return '';
-  if (d.startsWith('0')) return `92${d.slice(1)}`;
-  if (d.startsWith('92')) return d;
-  return `92${d}`;
-};
-const waVerifyLink = (o, storePhone) => {
-  const phone = waDigits(o?.customerInfo?.phone);
-  if (!phone) return '';
-  const name = String(o?.customerInfo?.name || '').trim();
-  const total = Number(o?.total || 0).toLocaleString('en-PK');
-  const msg = `Hi ${name || 'there'}, this is Hushae. Confirming your order ${o.orderNumber} for PKR ${total}. Please reply YES to confirm or call us at ${storePhone} if you have questions.`;
-  return `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
+const GREEN = '#16A34A';
+const INK = '#111111';
+const MUTED = '#6B7280';
+const GRID = '#F0F1F4';
+const CHANNEL_COLORS = ['#111111', '#6B7280', '#A1A1AA', '#D4D4D8'];
+const STATUS_COLORS = { Delivered: '#111111', Processing: '#6B7280', Pending: '#A1A1AA', Cancelled: '#D4D4D8' };
+
+const iso = (d) => {
+  const x = new Date(d);
+  const y = x.getFullYear();
+  const m = String(x.getMonth() + 1).padStart(2, '0');
+  const day = String(x.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
 };
 
-const statusPill = (s) =>
-  s === 'Delivered' ? 'bg-white/15 text-white'
-    : s === 'Cancelled' ? 'bg-white/10 text-white/80'
-    : s === 'Refunded' ? 'bg-white/10 text-white/70'
-    : s === 'Shipped' || s === 'Out for Delivery' ? 'bg-white/15 text-white'
-    : s === 'Ready to Ship' ? 'bg-white/10 text-white/80'
-    : s === 'Processing' ? 'bg-white/10 text-white/70'
-    : s === 'Confirmed' ? 'bg-white/10 text-white/70'
-    : 'bg-white/10 text-white/70';
+const prettyDate = (ymd, withYear = false) => {
+  const d = new Date(`${ymd}T00:00:00`);
+  return d.toLocaleDateString('en-US', withYear
+    ? { month: 'short', day: 'numeric', year: 'numeric' }
+    : { month: 'short', day: 'numeric' });
+};
 
-function MetricRow({ icon: Icon, label, value, change, format = 'number', to, compareLabel = 'vs. previous 30 days' }) {
-  const hasRate = typeof change === 'number' && Number.isFinite(change);
-  const positive = hasRate && change > 0;
-  const negative = hasRate && change < 0;
-  const isNew = change === null && value > 0;
-  const changeText = hasRate ? Math.abs(change).toFixed(1) + '%' : '';
-  const display = format === 'money' ? pkr(value) : value.toLocaleString();
-  const Wrapper = to ? Link : 'div';
+const rangeLabel = (from, to) => `${prettyDate(from)} – ${prettyDate(to, true)}`;
+
+const prevWindow = (from, to) => {
+  const a = new Date(`${from}T00:00:00`);
+  const b = new Date(`${to}T00:00:00`);
+  const days = Math.max(1, Math.round((b - a) / 86400000) + 1);
+  const prevTo = new Date(a); prevTo.setDate(prevTo.getDate() - 1);
+  const prevFrom = new Date(prevTo); prevFrom.setDate(prevFrom.getDate() - (days - 1));
+  return { from: iso(prevFrom), to: iso(prevTo), days };
+};
+
+const rs = (n, digits = 2) =>
+  `Rs ${Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: digits, maximumFractionDigits: digits })}`;
+
+
+
+const tipStyle = {
+  borderRadius: 12,
+  border: '1px solid #EEEFF2',
+  fontSize: 12,
+  boxShadow: '0 8px 24px rgba(16,24,40,0.08)',
+};
+
+function Card({ children, className = '' }) {
+  return <div className={`ov-card ${className}`}>{children}</div>;
+}
+
+function Delta({ change, suffix = '' }) {
+  const has = typeof change === 'number' && Number.isFinite(change) && change !== 0;
+  if (!has) return null;
+  const up = change > 0;
   return (
-    <Wrapper to={to} className="group px-5 py-6 adm-row-hover">
-      <div className="flex items-center justify-between">
-        <p className="adm-label">{label}</p>
-        <Icon size={13} strokeWidth={1.6} className="text-white/25" aria-hidden />
-      </div>
-      <p className="adm-metric mt-3 text-[36px] leading-none text-white">{display}</p>
-      <div className="mt-3 flex items-center gap-2">
-        {isNew ? (
-          <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-white/60">New</span>
-        ) : hasRate && change !== 0 ? (
-          <span className={`inline-flex items-center gap-1 text-[11px] font-medium ${positive ? 'text-white' : negative ? 'text-white/50' : 'text-white/60'}`}>
-            {positive ? <ArrowUpRight size={11} /> : negative ? <ArrowDownRight size={11} /> : null}
-            {changeText}
-          </span>
-        ) : null}
-        <span className="text-[10px] uppercase tracking-[0.1em] text-white/30">{compareLabel}</span>
-      </div>
-    </Wrapper>
+    <span className={`inline-flex items-center gap-0.5 text-[12px] font-semibold ${up ? 'text-[#16A34A]' : 'text-[#DC2626]'}`}>
+      {up ? <ArrowUpRight size={12} strokeWidth={2.4} /> : <ArrowDownRight size={12} strokeWidth={2.4} />}
+      {Math.abs(change).toFixed(1)}%{suffix}
+    </span>
   );
 }
 
-function QuickActions() {
-  /* Exactly ONE primary action — "Add product", the most frequent daily task.
-     Everything else is an equal-weight outline/ghost button. */
-  const actions = [
-    { to: '/admin/orders', icon: ShoppingBag, label: 'View orders' },
-    { to: '/admin/products/new', icon: PackagePlus, label: 'Add product', primary: true },
-    { to: '/admin/promotions/new', icon: Megaphone, label: 'New promo' },
-    { to: '/admin/discounts', icon: BadgePercent, label: 'Discounts' },
+function Spark({ data }) {
+  if (!data?.length) return <div className="h-9 w-[88px]" />;
+  return (
+    <div className="h-9 w-[88px]">
+      <ResponsiveContainer width="100%" height="100%">
+        <LineChart data={data} margin={{ top: 4, right: 0, left: 0, bottom: 0 }}>
+          <Line type="monotone" dataKey="v" stroke={INK} strokeWidth={1.7} dot={false} isAnimationActive={false} />
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
+
+function Kpi({ icon: Icon, label, value, change, vs, spark, to }) {
+  const inner = (
+    <>
+      <div className="flex items-center gap-2 text-[13px] text-[#6B7280]">
+        <span className="grid h-7 w-7 place-items-center rounded-lg bg-[#F4F5F7] text-[#111]">
+          <Icon size={14} strokeWidth={1.8} />
+        </span>
+        {label}
+      </div>
+      <p className="mt-3 text-[22px] font-semibold leading-none tracking-tight text-[#111] tabular-nums">{value}</p>
+      <div className="mt-3 flex items-end justify-between gap-2">
+        <div className="min-w-0">
+          <Delta change={change} />
+          <p className="mt-0.5 truncate text-[11px] text-[#9CA3AF]">{vs}</p>
+        </div>
+        <Spark data={spark} />
+      </div>
+    </>
+  );
+  const cls = 'block p-4 sm:p-5';
+  return to
+    ? <Card className="transition hover:border-[#E2E4EA]"><Link to={to} className={cls}>{inner}</Link></Card>
+    : <Card className={cls}>{inner}</Card>;
+}
+
+function WeekMenu({ value, onChange }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+  useEffect(() => {
+    const onDoc = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener('mousedown', onDoc);
+    return () => document.removeEventListener('mousedown', onDoc);
+  }, []);
+  const options = [
+    { key: '7d', label: 'This Week' },
+    { key: '30d', label: 'Last 30 days' },
+    { key: 'this-month', label: 'This month' },
   ];
+  const label = options.find((o) => o.key === value)?.label || 'This Week';
   return (
-    <div className="p-0">
-      <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-white/50">Quick actions</p>
-      <div className="mt-3 grid grid-cols-2 gap-2">
-        {actions.map((a) => (
-          <Link
-            key={a.label}
-            to={a.to}
-            className={`flex flex-col items-center gap-1.5 rounded-lg border p-3 text-center transition-colors duration-150 ${
-              a.primary
-                ? 'border-white bg-white text-black hover:bg-white/85'
-                : 'border-white/10 bg-white/5 text-white hover:border-white/25 hover:bg-white/10'
-            }`}
-          >
-            <a.icon size={17} strokeWidth={1.8} />
-            <span className="text-[12px] font-medium leading-tight">{a.label}</span>
-          </Link>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function ProfitTile({ icon: Icon, label, value, change, tone = 'neutral', format = 'money', hint }) {
-  const display = format === 'money' ? pkr(value) : format === 'percent' ? `${value}%` : value.toLocaleString();
-  return (
-    <div className="rounded-[10px] border border-white/10 bg-white/5 p-4">
-      <div className="flex items-center justify-between">
-        <span className="grid h-8 w-8 place-items-center rounded-lg bg-white/10 text-white"><Icon size={13} /></span>
-        {typeof change === 'number' && change !== 0 && (
-          <span className={`text-[12px] font-medium ${change > 0 ? 'text-white' : 'text-white/60'}`}>
-            {change > 0 ? '▲' : '▼'} {Math.abs(change).toFixed(1)}%
-          </span>
-        )}
-      </div>
-      <p className="mt-3 text-[11px] font-medium uppercase tracking-[0.14em] text-white/50">{label}</p>
-      <p className="mt-0.5 font-sans text-[14px] font-semibold leading-none tabular-nums tracking-tight text-white">{display}</p>
-      {hint && <p className="mt-1.5 text-[12px] text-white/40">{hint}</p>}
-    </div>
-  );
-}
-
-function StockRow({ product: p, onSaved, onReorder }) {
-  const { auth, toast } = useApp();
-  const [editing, setEditing] = useState(false);
-  const [value, setValue] = useState(String(p.stock));
-  const [busy, setBusy] = useState(false);
-  const save = async () => {
-    const n = Number(value);
-    if (!Number.isFinite(n) || n < 0) { toast('Enter a valid quantity'); return; }
-    setBusy(true);
-    try { await api(`/products/${p._id}/stock`, { method: 'PATCH', token: auth.token, body: { stock: n } }); toast(`${p.name} → ${n} in stock`); setEditing(false); onSaved?.(); }
-    catch { toast('Could not update stock'); }
-    setBusy(false);
-  };
-  if (editing) return (
-    <div className="flex items-center gap-2 rounded-lg bg-white/5 p-1.5">
-      <Img src={p.images?.[0]?.url} alt="" className="h-10 w-8 shrink-0 rounded-md border border-white/10 object-cover" />
-      <input type="number" min="0" autoFocus value={value} onChange={(e) => setValue(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') save(); if (e.key === 'Escape') setEditing(false); }} className="w-full min-w-0 rounded-md border border-white/15 bg-[#0A0A0A] px-2 py-1.5 text-[12px] tabular-nums text-white outline-none focus:border-white/40" />
-      <button onClick={save} disabled={busy} className="shrink-0 rounded-md bg-white px-2.5 py-1.5 text-[12px] font-medium text-black disabled:opacity-50">Save</button>
-      <button onClick={() => setEditing(false)} className="shrink-0 rounded-md px-1.5 py-1.5 text-[12px] font-medium text-white/50 hover:text-white">Cancel</button>
-    </div>
-  );
-  return (
-    <div className="group flex items-center gap-3 rounded-lg p-1.5 transition hover:bg-white/5">
-      <Link to={`/admin/products/${p._id}`} className="flex min-w-0 flex-1 items-center gap-3"><Img src={p.images?.[0]?.url} alt="" className="h-10 w-8 shrink-0 rounded-md border border-white/10 object-cover" /><span className="line-clamp-2 flex-1 text-[12px] font-medium text-white/85">{p.name}</span></Link>
-      <button onClick={() => { setValue(String(p.stock)); setEditing(true); }} title="Update stock" className={`shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-medium transition hover:ring-2 hover:ring-white/25 ${p.stock === 0 ? 'bg-white/15 text-white' : 'bg-white/10 text-white/80'}`}>{p.stock} ✎</button>
-      {p.reorderStatus === 'pending' ? (
-        <button onClick={() => onReorder?.(p)} title="Reorder pending — tap to mark received" className="shrink-0 rounded-full bg-white/15 px-2.5 py-0.5 text-[11px] font-medium text-white transition hover:ring-2 hover:ring-white/25">Reorder pending</button>
-      ) : (
-        <button onClick={() => onReorder?.(p)} title="Reorder" className="shrink-0 rounded-full bg-white px-2.5 py-0.5 text-[11px] font-medium text-black transition hover:bg-white/85">Reorder</button>
-      )}
-    </div>
-  );
-}
-
-function PipelineStrip({ stats }) {
-  /* Monochrome funnel — white opacity hierarchy per stage */
-  const items = [
-    { label: 'Pending', n: stats.pending, fill: 'rgba(255,255,255,0.85)', to: '/admin/orders?group=new' },
-    { label: 'Confirmed', n: stats.confirmed, fill: 'rgba(255,255,255,0.65)', to: '/admin/orders?status=Confirmed&group=all' },
-    { label: 'Processing', n: stats.processing, fill: 'rgba(255,255,255,0.5)', to: '/admin/orders?group=processing' },
-    { label: 'Ready', n: stats.readyToShip, fill: 'rgba(255,255,255,0.38)', to: '/admin/orders?group=to-ship' },
-    { label: 'In Transit', n: stats.shipped, fill: 'rgba(255,255,255,0.26)', to: '/admin/orders?group=shipped' },
-    { label: 'Delivered', n: stats.delivered, fill: 'rgba(255,255,255,0.16)', to: '/admin/orders?group=delivered' },
-  ];
-  /* Fixed-width equal segments — a funnel has 6 stages regardless of volume, so
-     each stage keeps ~16.6% of the bar. A stage with orders is tinted its own
-     colour; an empty stage stays a light neutral placeholder (never collapsed
-     to zero width). Hovering a segment shows the exact count. */
-  return (
-    <div className="p-0">
-      <div className="flex items-center justify-between">
-        <div><p className="text-[11px] font-medium uppercase tracking-[0.14em] text-white/50">Order pipeline</p><p className="mt-0.5 text-[12px] text-white/40">Where every order is right now</p></div>
-        <Link to="/admin/orders" className="text-[12px] font-medium text-white/60 transition hover:text-white">Manage all →</Link>
-      </div>
-      <div className="mt-4 grid h-2.5 grid-cols-6 gap-0.5">
-        {items.map((it) => (
-          <div key={it.label} className="group relative">
-            <div
-              className="h-full w-full transition-colors"
-              style={{ backgroundColor: it.n > 0 ? it.fill : 'rgba(255,255,255,0.05)' }}
-              role="img"
-              aria-label={`${it.label}: ${it.n} order${it.n === 1 ? '' : 's'}`}
-            />
-            <span className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-1.5 -translate-x-1/2 whitespace-nowrap rounded-md bg-white px-2 py-1 text-[11px] font-medium text-black opacity-0 shadow-md transition-opacity duration-150 group-hover:opacity-100">
-              {it.label}: {it.n}
-            </span>
-          </div>
-        ))}
-      </div>
-      <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
-        {items.map((it) => (
-          <Link key={it.label} to={it.to} className="group flex items-center gap-2 rounded-lg p-2 transition hover:bg-white/5">
-            <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: it.n > 0 ? it.fill : 'rgba(255,255,255,0.06)' }} />
-            <div className="min-w-0 flex-1"><p className="truncate text-[12px] text-white/50">{it.label}</p><p className={`text-[13px] font-semibold tabular-nums ${it.n > 0 ? 'text-white' : 'text-white/40'}`}>{it.n}</p></div>
-          </Link>
-        ))}
-      </div>
-      {stats.pending > 0 && (
-        <Link to="/admin/orders?group=new" className="mt-3 flex items-center justify-between gap-3 rounded-lg border border-white/15 bg-white/5 px-3.5 py-2.5 transition hover:bg-white/10">
-          <span className="min-w-0 text-[12px] font-medium text-white/80"><b className="tabular-nums text-white">{stats.pending}</b> new order{stats.pending === 1 ? '' : 's'} waiting to be confirmed</span>
-          <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-white px-3 py-1 text-[12px] font-medium text-black">Review now <ChevronRight size={11} /></span>
-        </Link>
-      )}
-    </div>
-  );
-}
-
-function RevenueChart({ data, rangeLabel }) {
-  const [mode, setMode] = useState('revenue');
-  const total = data.reduce((n, d) => n + (mode === 'revenue' ? d.revenue : d.orders), 0);
-  return (
-    <div className="p-0">
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <div><p className="text-[11px] font-medium uppercase tracking-[0.14em] text-white/50">{rangeLabel || 'Selected period'}</p><p className="mt-1 font-sans text-[26px] font-semibold tabular-nums text-white">{mode === 'revenue' ? pkr(total) : total.toLocaleString()}</p></div>
-        <div className="flex items-center gap-1 rounded-lg border border-white/10 bg-white/5 p-1">
-          {['revenue', 'orders'].map((m) => (
-            <button key={m} onClick={() => setMode(m)} className={`rounded-md px-3 py-1 text-[11px] font-medium uppercase tracking-wider transition ${mode === m ? 'bg-white text-black' : 'text-white/60 hover:text-white'}`}>{m}</button>
+    <div className="relative" ref={ref}>
+      <button type="button" onClick={() => setOpen((v) => !v)} className="inline-flex items-center gap-1 rounded-full border border-[#E7E8EC] bg-white px-2.5 py-1 text-[12px] font-medium text-[#374151]">
+        {label} <ChevronDown size={12} />
+      </button>
+      {open && (
+        <div className="absolute right-0 top-full z-20 mt-1 w-40 overflow-hidden rounded-xl border border-[#EEEFF2] bg-white py-1 shadow-lg">
+          {options.map((o) => (
+            <button key={o.key} type="button" onClick={() => { onChange(o.key); setOpen(false); }}
+              className={`block w-full px-3 py-1.5 text-left text-[12px] ${value === o.key ? 'font-semibold text-[#111]' : 'text-[#4B5563] hover:bg-[#F7F8FA]'}`}>
+              {o.label}
+            </button>
           ))}
         </div>
-      </div>
-      <div className="h-56 w-full">
-        <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-            <defs><linearGradient id="rev-fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#FFFFFF" stopOpacity={0.16} /><stop offset="100%" stopColor="#FFFFFF" stopOpacity={0} /></linearGradient></defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" vertical={false} />
-            <XAxis dataKey="label" stroke="rgba(255,255,255,0.4)" tick={{ fontSize: 10, fill: 'rgba(255,255,255,0.4)' }} tickLine={false} axisLine={false} />
-            <YAxis stroke="rgba(255,255,255,0.4)" tick={{ fontSize: 11, fill: 'rgba(255,255,255,0.4)' }} tickLine={false} axisLine={false} tickFormatter={(v) => mode === 'revenue' ? (v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v) : v} />
-            <Tooltip contentStyle={{ borderRadius: 8, border: '1px solid rgba(255,255,255,0.12)', background: '#111111', fontSize: 12, color: '#fff' }} labelStyle={{ color: 'rgba(255,255,255,0.6)' }} formatter={(v) => mode === 'revenue' ? [pkr(v), 'Revenue'] : [v, 'Orders']} />
-            <Area type="monotone" dataKey={mode} stroke="#FFFFFF" strokeWidth={2} fill="url(#rev-fill)" dot={{ r: 2.5, fill: '#FFFFFF', stroke: '#0A0A0A', strokeWidth: 1.5 }} activeDot={{ r: 4.5, fill: '#FFFFFF' }} />
-          </AreaChart>
-        </ResponsiveContainer>
-      </div>
+      )}
     </div>
   );
 }
 
-const DONUT_MONO = [
-  'rgba(255,255,255,0.9)', 'rgba(255,255,255,0.68)', 'rgba(255,255,255,0.5)',
-  'rgba(255,255,255,0.38)', 'rgba(255,255,255,0.28)', 'rgba(255,255,255,0.2)',
-  'rgba(255,255,255,0.14)', 'rgba(255,255,255,0.08)', 'rgba(255,255,255,0.05)',
+function CompareMenu({ value, onChange }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+  useEffect(() => {
+    const onDoc = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener('mousedown', onDoc);
+    return () => document.removeEventListener('mousedown', onDoc);
+  }, []);
+  const options = [
+    { key: 'prev', label: 'Previous 7 days' },
+    { key: 'period', label: 'Previous period' },
+    { key: 'month', label: 'Previous month' },
+  ];
+  const label = options.find((o) => o.key === value)?.label || 'Previous 7 days';
+  return (
+    <div className="relative" ref={ref}>
+      <button type="button" onClick={() => setOpen((v) => !v)}
+        className="inline-flex min-h-[38px] items-center gap-1.5 rounded-full border border-[#E7E8EC] bg-white px-3.5 text-[13px] font-medium text-[#374151]">
+        Compare: {label} <ChevronDown size={14} className="text-[#9CA3AF]" />
+      </button>
+      {open && (
+        <div className="absolute right-0 top-full z-30 mt-1 w-52 overflow-hidden rounded-xl border border-[#EEEFF2] bg-white py-1 shadow-lg">
+          {options.map((o) => (
+            <button key={o.key} type="button" onClick={() => { onChange(o.key); setOpen(false); }}
+              className={`block w-full px-3 py-2 text-left text-[13px] ${value === o.key ? 'font-semibold text-[#111]' : 'text-[#4B5563] hover:bg-[#F7F8FA]'}`}>
+              {o.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function DateChip({ range, onChange }) {
+  return (
+    <div className="[&>div>button]:min-h-[38px] [&>div>button]:rounded-full [&>div>button]:border-[#E7E8EC] [&>div>button]:px-3.5 [&>div>button]:text-[13px] [&>div>button]:font-medium">
+      <RangePicker value={range} onChange={onChange} />
+    </div>
+  );
+}
+
+function initials(name) {
+  return String(name || 'C').split(' ').map((s) => s[0]).filter(Boolean).slice(0, 2).join('').toUpperCase();
+}
+
+function payTone(o) {
+  const pay = String(o.paymentStatus || o.paymentState || '');
+  const st = String(o.status || '');
+  if (['Paid', 'Verified', 'Confirmed'].includes(pay) || st === 'Delivered') {
+    return { label: 'Paid', cls: 'bg-[#E8F8EE] text-[#15803D]' };
+  }
+  if (pay === 'Pending' || st === 'Pending' || st === 'Confirmed') {
+    return { label: 'Pending', cls: 'bg-[#FEF3C7] text-[#B45309]' };
+  }
+  if (st === 'Cancelled' || st === 'Refunded') {
+    return { label: st, cls: 'bg-[#FEE2E2] text-[#B91C1C]' };
+  }
+  return { label: st || 'Open', cls: 'bg-[#F3F4F6] text-[#4B5563]' };
+}
+
+const QUICK = [
+  { to: '/admin/orders/new', icon: Calendar, label: 'Create Order' },
+  { to: '/admin/products/new', icon: PackagePlus, label: 'Add Product' },
+  { to: '/admin/discounts', icon: BadgePercent, label: 'Add Discount' },
+  { to: '/admin/collections', icon: FolderPlus, label: 'Create Collection' },
+  { to: '/admin/email-campaigns', icon: Mail, label: 'Send Email' },
+  { to: '/admin/analytics', icon: BarChart3, label: 'View Reports' },
+  { to: '/admin/products?stock=low', icon: Bell, label: 'Inventory Alert' },
+  { to: '/admin/questions', icon: Mail, label: 'Support Ticket' },
 ];
 
-function StatusDonut({ byStatus }) {
-  const { segments, total } = buildStatusDonut(byStatus);
-  return (
-    <div className="p-0">
-      <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-white/50">Order status mix</p>
-      {total === 0 ? <p className="py-16 text-center text-[13px] text-white/40">No orders yet.</p> : (
-        <div className="mt-4 flex items-center gap-4">
-          <div className="relative h-36 w-36 shrink-0">
-            <ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={segments} dataKey="value" innerRadius={42} outerRadius={64} paddingAngle={2} startAngle={90} endAngle={-270}>{segments.map((d, i) => <Cell key={i} fill={DONUT_MONO[i % DONUT_MONO.length]} />)}</Pie></PieChart></ResponsiveContainer>
-            <div className="pointer-events-none absolute inset-0 grid place-items-center text-center"><div><p className="font-sans text-2xl font-semibold tabular-nums leading-none text-white">{total}</p><p className="mt-1 text-[11px] uppercase tracking-wider text-white/50">Total</p></div></div>
-          </div>
-          <ul className="flex-1 space-y-1.5">{segments.map((d, i) => <li key={d.name} className="flex items-center gap-2 text-[12px]"><span className="h-2 w-2 rounded-full" style={{ background: DONUT_MONO[i % DONUT_MONO.length] }} /><span className="flex-1 text-white/60">{d.name}</span><span className="font-semibold tabular-nums text-white">{d.value}</span></li>)}</ul>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function TodayHourly({ hourly }) {
-  const total = hourly.reduce((n, h) => n + h.orders, 0);
-  const peak = hourly.reduce((max, h) => h.orders > max.orders ? h : max, { hour: 0, orders: 0 });
-  return (
-    <div className="p-0">
-      <div className="flex items-center justify-between"><div><p className="text-[11px] font-medium uppercase tracking-[0.14em] text-white/50">Today&apos;s activity</p><p className="mt-0.5 text-[12px] text-white/40">{total} order{total === 1 ? '' : 's'} · peak {peak.hour.toString().padStart(2, '0')}:00</p></div><span className="grid h-8 w-8 place-items-center rounded-lg bg-white/10 text-white"><Activity size={15} /></span></div>
-      {total === 0 ? (
-        <div className="mt-5 grid h-32 place-items-center rounded-lg bg-white/5 text-center">
-          <p className="text-[13px] font-medium text-white/50">No orders yet today</p>
-        </div>
-      ) : (
-        <div className="mt-5 h-32 w-full"><ResponsiveContainer width="100%" height="100%"><BarChart data={hourly} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}><XAxis dataKey="hour" tick={{ fontSize: 10, fill: 'rgba(255,255,255,0.4)' }} stroke="rgba(255,255,255,0.15)" tickLine={false} axisLine={false} interval={2} /><YAxis tick={{ fontSize: 10, fill: 'rgba(255,255,255,0.4)' }} stroke="rgba(255,255,255,0.15)" tickLine={false} axisLine={false} allowDecimals={false} /><Tooltip contentStyle={{ borderRadius: 8, border: '1px solid rgba(255,255,255,0.12)', background: '#111111', fontSize: 12, color: '#fff' }} labelStyle={{ color: 'rgba(255,255,255,0.6)' }} formatter={(v) => [v, 'Orders']} labelFormatter={(h) => `${String(h).padStart(2, '0')}:00`} /><Bar dataKey="orders" radius={[4, 4, 0, 0]}>{hourly.map((h, i) => <Cell key={i} fill={h.orders === peak.orders && peak.orders > 0 ? '#FFFFFF' : 'rgba(255,255,255,0.25)'} />)}</Bar></BarChart></ResponsiveContainer></div>
-      )}
-    </div>
-  );
-}
-
-function CustomerAudienceStrip({ segments }) {
-  const items = [
-    ['new', 'New'], ['repeat', 'Repeat'], ['vip', 'VIP'], ['inactive', 'Inactive'],
-  ];
-  return (
-    <section className="mb-10">
-      <p className="adm-index">Customer audience</p>
-      <div className="adm-divide-x grid grid-cols-2 border-y border-white/10 lg:grid-cols-4">
-        {items.map(([key, label]) => (
-          <Link key={key} to={`/admin/customers?segment=${key}`} className="px-5 py-5 adm-row-hover">
-            <p className="adm-label">{label}</p>
-            <p className="adm-metric mt-2 text-[28px] text-white">{segments ? Number(segments[key] || 0).toLocaleString() : '—'}</p>
-            <p className="mt-1 text-[10px] uppercase tracking-[0.12em] text-white/35">Open segment →</p>
-          </Link>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-/* ==========================================================================
- * MAIN DASHBOARD
- * ======================================================================== */
 export default function Dashboard() {
-  const { auth, logout, settings } = useApp();
+  const { auth, logout } = useApp();
   const [d, setD] = useState(null);
-  const [err, setErr] = useState('');
-  const [refreshing, setRefreshing] = useState(false);
+  const [prev, setPrev] = useState(null);
+  const [live, setLive] = useState(null);
+  const [trending, setTrending] = useState([]);
+  const [cats, setCats] = useState([]);
+  const [customers, setCustomers] = useState([]);
   const [insights, setInsights] = useState(null);
-  const [lastSync, setLastSync] = useState(null);
-  const [alerts, setAlerts] = useState(null);
-  const [smart, setSmart] = useState(null);
-  const [goal, setGoal] = useState(null);
-  const [customerSegments, setCustomerSegments] = useState(null);
-  const [reorder, setReorder] = useState(null);
+  const [smart, setSmart] = useState([]);
+  const [abandoned, setAbandoned] = useState(null);
+  const [err, setErr] = useState('');
+  const [compare, setCompare] = useState('prev');
+  const [chartPreset, setChartPreset] = useState('7d');
 
-  /* Date range — persisted to localStorage + URL query params so a refresh
-     never resets the selection. Defaults to the last 30 days. */
   const [range, setRange] = useState(() => {
     try {
       const sp = new URLSearchParams(window.location.search);
@@ -378,12 +271,13 @@ export default function Dashboard() {
       }
       if (saved?.preset === 'custom' && saved.from && saved.to) return saved;
     } catch { /* ignore */ }
-    const r = resolvePreset('30d');
-    return { preset: '30d', from: r.from, to: r.to };
+    const r = resolvePreset('7d');
+    return { preset: '7d', from: r.from, to: r.to };
   });
 
   const applyRange = (r) => {
     setRange(r);
+    if (r.preset && r.preset !== 'custom') setChartPreset(r.preset === '30d' || r.preset === 'this-month' ? r.preset : '7d');
     try { localStorage.setItem('hushae.dashRange', JSON.stringify(r)); } catch { /* ignore */ }
     const sp = new URLSearchParams(window.location.search);
     if (r.preset === 'custom') { sp.set('from', r.from); sp.set('to', r.to); }
@@ -392,304 +286,612 @@ export default function Dashboard() {
     window.history.replaceState(null, '', `${window.location.pathname}${q ? `?${q}` : ''}`);
   };
 
-  const load = async (silent = false) => {
-    if (!silent) setRefreshing(true);
-    try {
-      const qs = `from=${range.from}&to=${range.to}`;
-      const [data, ins, al, sm, gl, audience] = await Promise.all([
-        api(`/admin/dashboard?${qs}`, { token: auth.token }),
-        api(`/orders/insights/dashboard?${qs}`, { token: auth.token }).catch(() => null),
-        api('/dashboard/alerts', { token: auth.token }).catch(() => null),
-        api('/dashboard/insights', { token: auth.token }).catch(() => null),
-        api('/dashboard/goal', { token: auth.token }).catch(() => null),
-        api('/customers/segments', { token: auth.token }).catch(() => null),
-      ]);
-      setD(data); if (ins) setInsights(ins); setAlerts(al?.alerts || []); setSmart(sm?.insights || []);
-      if (gl) setGoal(gl); setCustomerSegments(audience?.segments || null); setLastSync(new Date()); setErr('');
-    } catch (e) { if (e?.status === 401) { logout(); return; } setErr('Failed to load dashboard.'); }
-    setRefreshing(false);
+  const onWeek = (key) => {
+    const r = resolvePreset(key);
+    if (r) applyRange({ preset: key, from: r.from, to: r.to });
   };
 
-  useEffect(() => { load(); /* eslint-disable-next-line */ }, [auth, range]);
-  useEffect(() => { if (!auth?.token) return; const t = setInterval(() => load(true), 30000); return () => clearInterval(t); }, [auth, range]);
+  const load = async (silent = false) => {
+    try {
+      const qs = `from=${range.from}&to=${range.to}`;
+      const pw = prevWindow(range.from, range.to);
+      const [data, prevData, liveData, trend, catData, cust, ins, sm, carts] = await Promise.all([
+        api(`/admin/dashboard?${qs}`, { token: auth.token }),
+        api(`/admin/dashboard?from=${pw.from}&to=${pw.to}`, { token: auth.token }).catch(() => null),
+        api('/track/admin/live', { token: auth.token }).catch(() => null),
+        api('/products/trending?limit=5&days=30', { token: auth.token }).catch(() => null),
+        api('/categories?all=1').catch(() => null),
+        api('/admin/customers', { token: auth.token }).catch(() => null),
+        api(`/orders/insights/dashboard?${qs}`, { token: auth.token }).catch(() => null),
+        api('/dashboard/insights', { token: auth.token }).catch(() => null),
+        api('/abandoned-cart/admin?status=open', { token: auth.token }).catch(() => null),
+      ]);
+      setD(data);
+      setPrev(prevData);
+      setLive(liveData);
+      setTrending(trend?.products || []);
+      setCats(catData?.categories || []);
+      setCustomers(cust?.customers || []);
+      setInsights(ins);
+      setSmart(sm?.insights || []);
+      setAbandoned(carts);
+      setErr('');
+    } catch (e) {
+      if (e?.status === 401) { logout(); return; }
+      if (!silent) setErr('Failed to load dashboard.');
+    }
+  };
 
-  if (err) return <AdminLayout title="Dashboard"><div className="mx-auto grid max-w-md place-items-center rounded-[10px] border border-white/10 bg-white/5 p-10 text-center"><AlertTriangle size={22} className="mb-2 text-white/80" /><p className="text-sm text-white">{err}</p><button onClick={() => { setErr(''); load(); }} className="mt-4 rounded-lg border border-white/20 bg-white/10 px-4 py-1.5 text-[12px] font-medium text-white transition hover:bg-white/15">Try again</button></div></AdminLayout>;
-  if (!d) return <AdminLayout title="Dashboard"><div className="grid gap-4 md:grid-cols-5">{[1,2,3,4,5].map((i) => <div key={i} className="h-32 animate-pulse rounded-[10px] bg-white/5" />)}</div><div className="mt-4 h-72 animate-pulse rounded-[10px] bg-white/5" /><div className="mt-4 grid gap-4 lg:grid-cols-2">{[1,2].map((i) => <div key={i} className="h-64 animate-pulse rounded-[10px] bg-white/5" />)}</div></AdminLayout>;
+  useEffect(() => { load(); /* eslint-disable-next-line */ }, [auth, range.from, range.to]);
+  useEffect(() => {
+    if (!auth?.token) return undefined;
+    const t = setInterval(() => load(true), 30000);
+    return () => clearInterval(t);
+  }, [auth, range.from, range.to]); // eslint-disable-line
 
-  const greeting = (() => { const h = new Date().getHours(); if (h < 12) return 'Good morning'; if (h < 17) return 'Good afternoon'; return 'Good evening'; })();
-  const cmpLabel = 'vs previous period';
-  const rangeLabel = range.preset === 'custom'
-    ? `${range.from} – ${range.to}`
-    : (RANGE_PRESETS.find((p) => p.key === range.preset)?.label || 'Selected period');
+  const pw = useMemo(() => prevWindow(range.from, range.to), [range.from, range.to]);
+  const vsLabel = `vs ${prettyDate(pw.from)} – ${prettyDate(pw.to)}`;
 
-  const todayTiles = [
-    { label: 'Confirm now', hint: 'New / pending', n: d.stats?.pending || 0, to: '/admin/orders?group=new', tone: 'amber' },
-    { label: 'Pack & ship', hint: 'Ready to leave', n: d.stats?.readyToShip || 0, to: '/admin/orders?group=to-ship', tone: 'blue' },
-    { label: 'On the road', hint: 'In transit', n: d.stats?.shipped || 0, to: '/admin/orders?group=shipped', tone: 'violet' },
-    { label: 'Restock', hint: '≤ 10 units', n: (d.lowStock || []).length, to: '/admin/products', tone: 'red' },
+  const chart = useMemo(() => {
+    const cur = d?.chart || [];
+    const prv = prev?.chart || [];
+    return cur.map((row, i) => ({
+      ...row,
+      prevRevenue: prv[i]?.revenue ?? 0,
+      prevOrders: prv[i]?.orders ?? 0,
+    }));
+  }, [d, prev]);
+
+  const sparkRev = chart.map((x) => ({ v: x.revenue }));
+  const sparkOrd = chart.map((x) => ({ v: x.orders }));
+  const sparkCust = chart.map((x) => ({ v: x.customers }));
+  const sparkAov = chart.map((x) => ({ v: x.orders ? x.revenue / x.orders : 0 }));
+  const sparkProfit = chart.map((x) => ({ v: x.revenue }));
+  const sparkConv = chart.map((x) => ({ v: x.orders }));
+
+  const sessions = live?.today?.sessions || 0;
+  const ordersTodayLive = live?.today?.orders || 0;
+  const conversion = sessions > 0 ? (ordersTodayLive / sessions) * 100 : 0;
+  const convChange = null;
+
+  const topProducts = (trending.length ? trending : (d?.bestSellers || [])).slice(0, 5).map((p) => ({
+    name: p.name,
+    qty: p.unitsSold ?? p.qty ?? 0,
+    revenue: p.revenue || 0,
+    image: p.images?.[0]?.url || p.image || '',
+    slug: p.categorySlug || '',
+  }));
+
+  const catName = (slug) => cats.find((c) => c.slug === slug)?.name || slug || 'Collection';
+  const catBars = useMemo(() => {
+    const map = new Map();
+    topProducts.forEach((p) => {
+      const key = p.slug || 'other';
+      const cur = map.get(key) || { slug: key, name: catName(key), revenue: 0 };
+      cur.revenue += Number(p.revenue) || 0;
+      map.set(key, cur);
+    });
+    const rows = [...map.values()].sort((a, b) => b.revenue - a.revenue).slice(0, 5);
+    const max = Math.max(1, ...rows.map((r) => r.revenue));
+    return rows.map((r) => ({ ...r, pct: (r.revenue / max) * 100 }));
+  }, [topProducts, cats]); // eslint-disable-line
+
+  const channels = useMemo(() => {
+    const total = d?.kpis?.revenue?.value || 0;
+    const devices = live?.byDevice || [];
+    const sum = devices.reduce((n, x) => n + (x.sessions || 0), 0) || 1;
+    const labelOf = (dev) => (dev === 'mobile' ? 'Mobile' : dev === 'tablet' ? 'Tablet' : 'Online Store');
+    if (!devices.length || total <= 0) {
+      return [{ name: 'Online Store', pct: 100, amount: total, color: CHANNEL_COLORS[0] }];
+    }
+    return devices
+      .map((x, i) => ({
+        name: labelOf(x.device),
+        pct: (x.sessions / sum) * 100,
+        amount: total * (x.sessions / sum),
+        color: CHANNEL_COLORS[i % CHANNEL_COLORS.length],
+        value: x.sessions,
+      }))
+      .sort((a, b) => b.pct - a.pct);
+  }, [live, d]);
+
+  const statusMix = useMemo(() => {
+    const s = d?.stats || {};
+    const processing = (s.confirmed || 0) + (s.processing || 0) + (s.readyToShip || 0) + (s.shipped || 0);
+    const rows = [
+      { name: 'Delivered', value: s.delivered || 0 },
+      { name: 'Processing', value: processing },
+      { name: 'Pending', value: s.pending || 0 },
+      { name: 'Cancelled', value: s.cancelled || 0 },
+    ].filter((x) => x.value > 0);
+    const total = rows.reduce((n, x) => n + x.value, 0) || (d?.kpis?.orders?.value || 0);
+    return {
+      total,
+      rows: rows.map((x) => ({ ...x, color: STATUS_COLORS[x.name], pct: total ? (x.value / total) * 100 : 0 })),
+    };
+  }, [d]);
+
+  const topPages = useMemo(() => {
+    const feed = live?.feed || [];
+    const map = new Map();
+    feed.forEach((e) => {
+      const p = e.path || '/';
+      map.set(p, (map.get(p) || 0) + 1);
+    });
+    const rows = [...map.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5);
+    if (rows.length) return rows.map(([path, n]) => ({ path, n }));
+    return [
+      { path: '/', n: live?.visitorsNow || 0 },
+      { path: '/collections', n: 0 },
+      { path: '/cart', n: 0 },
+      { path: '/checkout', n: 0 },
+    ];
+  }, [live]);
+
+  const hourlyBars = (d?.hourly || []).map((h) => ({ ...h, v: h.orders }));
+  const todayOrders = (d?.hourly || []).reduce((n, h) => n + (h.orders || 0), 0);
+  const pendingPay = insights?.paymentBreakdown?.Pending || 0;
+  const lowStockN = (d?.lowStock || []).length;
+  const newCustToday = d?.kpis?.customers?.value || 0;
+
+  const totalCustomers = customers.length || d?.kpis?.customers?.value || 0;
+  const returning = customers.filter((c) => (c.orders || 0) > 1).length;
+  const peakDay = chart.reduce((best, row) => (row.revenue > (best?.revenue || 0) ? row : best), null);
+
+  const insightCards = [
+    {
+      icon: Sparkles,
+      title: 'High Demand',
+      body: smart.find((x) => x.id === 'product-momentum')?.text
+        || (topProducts[0] ? `“${topProducts[0].name}” is leading units sold this period.` : 'Sales momentum will appear once orders land.'),
+      to: '/admin/products',
+    },
+    {
+      icon: Package,
+      title: 'Low Stock',
+      body: lowStockN > 0
+        ? `${lowStockN} product${lowStockN === 1 ? '' : 's'} ${lowStockN === 1 ? 'is' : 'are'} running low on stock.`
+        : 'All tracked products are stocked.',
+      cta: lowStockN ? 'View products →' : '',
+      to: '/admin/products?stock=low',
+    },
+    {
+      icon: ShoppingCart,
+      title: 'Abandoned Carts',
+      body: abandoned?.stats?.openCount
+        ? `${abandoned.stats.openCount} cart${abandoned.stats.openCount === 1 ? '' : 's'} ${abandoned.stats.openCount === 1 ? 'is' : 'are'} pending recovery.`
+        : 'No open carts waiting for recovery.',
+      cta: abandoned?.stats?.openCount ? 'Recover now →' : '',
+      to: '/admin/abandoned-carts',
+    },
+    {
+      icon: Calendar,
+      title: 'Best Selling Day',
+      body: peakDay
+        ? `${peakDay.label} generated the highest sales.`
+        : 'Best day will appear once the week has orders.',
+      spark: true,
+    },
+    {
+      icon: TrendingUp,
+      title: 'Conversion Boost',
+      body: sessions
+        ? `Your conversion rate is ${conversion.toFixed(2)}% today from ${sessions} session${sessions === 1 ? '' : 's'}.`
+        : 'Conversion rate appears once storefront traffic is tracked.',
+      to: '/admin/live',
+    },
   ];
 
+  if (err) {
+    return (
+      <AdminLayout title="Overview" subtitle="Here's what's happening with your store today." hideContentTitle>
+        <div className="mx-auto grid max-w-md place-items-center rounded-2xl border border-[#E0C6BE] bg-[#F5EDEB] p-10 text-center">
+          <AlertTriangle size={22} className="mb-2 text-[#9A5548]" />
+          <p className="text-sm text-[#8A4B3F]">{err}</p>
+          <button onClick={() => { setErr(''); load(); }} className="mt-4 rounded-full border border-[#D0ABA0] bg-white px-4 py-1.5 text-[12px] font-semibold text-[#8A4B3F]">Try again</button>
+        </div>
+      </AdminLayout>
+    );
+  }
+
+  if (!d) {
+    return (
+      <AdminLayout title="Overview" subtitle="Here's what's happening with your store today." hideContentTitle>
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-6">
+          {[1, 2, 3, 4, 5, 6].map((i) => <div key={i} className="h-32 animate-pulse rounded-[18px] bg-white" />)}
+        </div>
+        <div className="mt-4 h-72 animate-pulse rounded-[18px] bg-white" />
+      </AdminLayout>
+    );
+  }
+
+  const k = d.kpis;
+  const headerExtra = (
+    <>
+      <DateChip range={range} onChange={applyRange} />
+      <CompareMenu value={compare} onChange={setCompare} />
+    </>
+  );
+
+  const weekday = (label, i) => {
+    if (chart.length === 7) return ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][i] || label;
+    return label;
+  };
+
   return (
-    <AdminLayout title="Dashboard">
-      {/* ── HEADER (Phase 02 PageHeader foundation) ──────────────────── */}
-      <div className="mb-8 flex flex-wrap items-end justify-between gap-4 border-b border-white/10 pb-6">
-        <div>
-          <p className="adm-eyebrow">Hushae · Performance</p>
-          <h1 className="mt-2 text-[26px] font-medium tracking-tight text-white">
-            {greeting}, {auth?.user?.name?.split(' ')[0] || 'Admin'}
-          </h1>
-          <p className="mt-1 text-[13px] text-white/40">A concise overview of your store performance.</p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="inline-flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-[0.14em] text-white/60">
-            <span className="h-1 w-1 animate-pulse rounded-full bg-white" />
-            Live{lastSync ? ` · ${lastSync.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : ''}
-          </span>
-          <span className="hidden items-center gap-1.5 text-[10px] font-medium uppercase tracking-[0.14em] text-white/35 sm:inline-flex">
-            <Calendar size={11} /> {new Date().toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long' })}
-          </span>
-          <RangePicker value={range} onChange={applyRange} />
-          <button onClick={() => load()} disabled={refreshing} className="inline-flex h-8 items-center gap-1.5 rounded-[4px] border border-white/20 px-3 text-[10px] font-medium uppercase tracking-[0.08em] text-white/70 transition-colors hover:border-white/45 hover:text-white disabled:opacity-40">
-            <RefreshCw size={11} className={refreshing ? 'animate-spin' : ''} /> Refresh
-          </button>
-          <button onClick={() => exportDashboardSummary({ d, goal, alerts, insights: smart, storeName: 'HUSHAE', compareLabel: cmpLabel })} className="inline-flex h-8 items-center gap-1.5 rounded-[4px] border border-white/20 px-3 text-[10px] font-medium uppercase tracking-[0.08em] text-white/70 transition-colors hover:border-white/45 hover:text-white">
-            <Download size={11} /> Export
-          </button>
-        </div>
+    <AdminLayout
+      title="Overview"
+      subtitle="Here's what's happening with your store today."
+      hideContentTitle
+      headerExtra={headerExtra}
+    >
+      {/* KPI row */}
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
+        <Kpi icon={CircleDollarSign} label="Total Sales" value={rs(k.revenue.value)} change={k.revenue.change} vs={vsLabel} spark={sparkRev} to="/admin/analytics" />
+        <Kpi icon={ShoppingBag} label="Orders" value={Number(k.orders.value || 0).toLocaleString()} change={k.orders.change} vs={vsLabel} spark={sparkOrd} to="/admin/orders" />
+        <Kpi icon={Users} label="Customers" value={Number(k.customers.value || 0).toLocaleString()} change={k.customers.change} vs={vsLabel} spark={sparkCust} to="/admin/customers" />
+        <Kpi icon={CreditCard} label="Avg. Order Value" value={rs(k.aov.value)} change={k.aov.change} vs={vsLabel} spark={sparkAov} to="/admin/analytics" />
+        <Kpi icon={TrendingUp} label="Conversion Rate" value={`${conversion.toFixed(2)}%`} change={convChange} vs={sessions ? `${sessions} sessions today` : 'vs storefront traffic'} spark={sparkConv} to="/admin/live" />
+        <Kpi icon={Wallet} label="Net Profit" value={rs(k.profit?.value || 0)} change={k.profit?.change} vs={vsLabel} spark={sparkProfit} to="/admin/finance" />
       </div>
 
-      {/* ── 01 · PRIMARY BUSINESS SIGNAL ─────────────────────────────── */}
-      <section className="mb-10">
-        <p className="adm-index">01 — Primary signal</p>
-        <div className="adm-divide-x grid grid-cols-2 border-y border-white/10 lg:grid-cols-4">
-          <MetricRow icon={CircleDollarSign} label="Revenue" value={d.kpis.revenue.value} change={d.kpis.revenue.change} format="money" to="/admin/analytics" compareLabel={cmpLabel} />
-          <MetricRow icon={ShoppingBag} label="Orders" value={d.kpis.orders.value} change={d.kpis.orders.change} to="/admin/orders" compareLabel={cmpLabel} />
-          <MetricRow icon={Users} label="New customers" value={d.kpis.customers.value} change={d.kpis.customers.change} to="/admin/customers" compareLabel="in the selected period" />
-          <MetricRow icon={TrendingUp} label="Avg order value" value={d.kpis.aov.value} change={d.kpis.aov.change} format="money" to="/admin/analytics" compareLabel={cmpLabel} />
-        </div>
-      </section>
-
-      <CustomerAudienceStrip segments={customerSegments} />
-
-      {/* ── 02 · PERFORMANCE ─────────────────────────────────────────── */}
-      <section className="mb-10">
-        <p className="adm-index">02 — Performance</p>
-        <div className="grid border-y border-white/10 lg:grid-cols-3">
-          <div className="p-5 lg:col-span-2 lg:border-r lg:border-white/10">
-            <ChartBoundary><RevenueChart data={d.chart} rangeLabel={rangeLabel} /></ChartBoundary>
-          </div>
-          <div className="p-5">
-            <ChartBoundary><StatusDonut byStatus={d.byStatus} /></ChartBoundary>
-          </div>
-        </div>
-      </section>
-
-      {/* ── 03 · COMMERCE ACTIVITY ───────────────────────────────────── */}
-      <section className="mb-10">
-        <p className="adm-index">03 — Commerce activity</p>
-        <div className="grid border-b border-white/10 lg:grid-cols-3">
-          <div className="lg:col-span-2 lg:border-r lg:border-white/10">
-            <div className="flex items-center justify-between px-5 pb-3 pt-5">
-              <p className="adm-label">Recent orders</p>
-              <Link to="/admin/orders" className="text-[10px] font-medium uppercase tracking-[0.12em] text-white/50 transition-colors hover:text-white">
-                View all →
-              </Link>
+      {/* Sales / Channel / Live */}
+      <div className="mt-4 grid gap-3 xl:grid-cols-12">
+        <Card className="p-5 xl:col-span-6">
+          <div className="mb-3 flex items-center justify-between gap-2">
+            <div className="flex items-center gap-1.5">
+              <p className="text-[15px] font-semibold text-[#111]">Sales Overview</p>
+              <Info size={13} className="text-[#9CA3AF]" />
             </div>
-            <div className="adm-divide-y">
-              {d.recentOrders.map((o) => (
-                <div key={o._id} className="flex items-center gap-3 px-5 py-3 adm-row-hover">
-                  <Link to={`/admin/orders/${o._id}`} className="flex min-w-0 flex-1 items-center gap-3">
-                    <Img src={o.items?.[0]?.image} alt="" className="h-10 w-8 shrink-0 border border-white/10 object-cover" />
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2.5">
-                        <p className="truncate font-mono text-[12px] font-medium text-white">{o.orderNumber}</p>
-                        <span className={`text-[9px] font-medium uppercase tracking-[0.14em] ${statusPill(o.status)}`}>{o.status}</span>
-                      </div>
-                      <p className="mt-0.5 truncate text-[11px] text-white/35">{o.customerInfo?.name} · {o.customerInfo?.city} · {fmtDate(o.createdAt)}</p>
-                    </div>
-                  </Link>
-                  <div className="flex shrink-0 items-center gap-3">
-                    {o.status === 'Pending' && waVerifyLink(o, settings?.contactPhone || settings?.integrations?.whatsapp?.number || '') && (
-                      <a href={waVerifyLink(o, settings?.contactPhone || settings?.integrations?.whatsapp?.number || '')} target="_blank" rel="noreferrer" aria-label={`Verify ${o.orderNumber} via WhatsApp`} title="Verify via WhatsApp" className="grid h-7 w-7 shrink-0 place-items-center text-white/50 transition-colors hover:bg-white/10 hover:text-white">
-                        <MessageCircle size={13} />
-                      </a>
-                    )}
-                    <div className="text-right">
-                      <p className="adm-metric text-[15px] text-white">{pkr(o.total)}</p>
-                      <p className="text-[10px] uppercase tracking-[0.1em] text-white/35">{o.paymentMethod}</p>
-                    </div>
-                  </div>
+            <div className="flex items-center gap-2">
+              <WeekMenu value={chartPreset} onChange={onWeek} />
+              <button type="button" className="grid h-7 w-7 place-items-center rounded-md text-[#9CA3AF] hover:bg-[#F4F5F7]" aria-label="More"><MoreHorizontal size={16} /></button>
+            </div>
+          </div>
+          <div className="mb-3 flex items-center gap-4 text-[12px] text-[#6B7280]">
+            <span className="inline-flex items-center gap-1.5"><span className="h-[2px] w-5 bg-[#111]" /> This Period</span>
+            <span className="inline-flex items-center gap-1.5"><span className="h-[2px] w-5 bg-[#C4C4C8]" /> Previous Period</span>
+          </div>
+          <ChartBoundary>
+            <div className="h-[240px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={chart} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+                  <CartesianGrid stroke={GRID} vertical={false} />
+                  <XAxis dataKey="label" tick={{ fontSize: 11, fill: MUTED }} tickLine={false} axisLine={false} />
+                  <YAxis tick={{ fontSize: 11, fill: MUTED }} tickLine={false} axisLine={false} tickFormatter={(v) => (v >= 1000 ? `${Math.round(v / 1000)}k` : v)} />
+                  <Tooltip contentStyle={tipStyle} formatter={(v, n) => [rs(v, 0), n === 'revenue' ? 'This period' : 'Previous']} />
+                  <Line type="monotone" dataKey="prevRevenue" stroke="#C4C4C8" strokeWidth={2} dot={false} />
+                  <Line type="monotone" dataKey="revenue" stroke={INK} strokeWidth={2.2} dot={{ r: 3.5, fill: INK, stroke: '#fff', strokeWidth: 2 }} activeDot={{ r: 5 }} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </ChartBoundary>
+        </Card>
+
+        <Card className="flex flex-col p-5 xl:col-span-3">
+          <p className="text-[15px] font-semibold text-[#111]">Sales by Channel</p>
+          <div className="mt-2 flex flex-1 flex-col items-center justify-center sm:flex-row sm:items-center sm:gap-4 xl:flex-col 2xl:flex-row">
+            <div className="relative h-[160px] w-[160px] shrink-0">
+              <ChartBoundary>
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie data={channels} dataKey="amount" innerRadius={52} outerRadius={72} paddingAngle={2} stroke="none">
+                      {channels.map((c, i) => <Cell key={c.name} fill={c.color || CHANNEL_COLORS[i]} />)}
+                    </Pie>
+                  </PieChart>
+                </ResponsiveContainer>
+              </ChartBoundary>
+              <div className="pointer-events-none absolute inset-0 grid place-items-center text-center">
+                <div>
+                  <p className="text-[15px] font-semibold tabular-nums leading-none text-[#111]">{rs(k.revenue.value, 2)}</p>
+                  <p className="mt-1 text-[11px] text-[#9CA3AF]">Total Sales</p>
                 </div>
+              </div>
+            </div>
+            <ul className="w-full space-y-2 text-[12px]">
+              {channels.map((c, i) => (
+                <li key={c.name} className="flex items-center gap-2">
+                  <span className="h-2 w-2 rounded-full" style={{ background: c.color || CHANNEL_COLORS[i] }} />
+                  <span className="flex-1 text-[#4B5563]">{c.name}</span>
+                  <span className="tabular-nums text-[#6B7280]">{c.pct.toFixed(1)}%</span>
+                  <span className="w-[88px] text-right font-medium tabular-nums text-[#111]">{rs(c.amount, 2)}</span>
+                </li>
               ))}
-              {d.recentOrders.length === 0 && (
-                <p className="px-5 py-10 text-[12px] text-white/35">No orders in this period.</p>
-              )}
-            </div>
+            </ul>
           </div>
+          <div className="mt-3 flex justify-end">
+            <Link to="/admin/analytics" className="rounded-full border border-[#E7E8EC] px-3 py-1 text-[12px] font-medium text-[#374151] hover:bg-[#F7F8FA]">View full report</Link>
+          </div>
+        </Card>
 
-          <div className="p-5">
-            <p className="adm-label mb-4">Best sellers</p>
-            {d.bestSellers.length === 0 ? (
-              <p className="py-8 text-[12px] text-white/35">Sales data will appear here.</p>
-            ) : (
-              <ol className="adm-divide-y">
-                {d.bestSellers.map((b, i) => (
-                  <li key={b.name} className="flex items-baseline gap-4 py-3">
-                    <span className="adm-metric w-6 text-[18px] text-white/30">{String(i + 1).padStart(2, '0')}</span>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-[13px] font-medium text-white/90">{b.name}</p>
-                      <p className="mt-0.5 text-[11px] text-white/35">{b.qty} sold · {pkr(b.revenue)}</p>
-                    </div>
-                  </li>
-                ))}
-              </ol>
-            )}
+        <Card className="flex flex-col p-5 xl:col-span-3">
+          <div className="flex items-center justify-between">
+            <p className="text-[15px] font-semibold text-[#111]">Live Visitors</p>
+            <span className="inline-flex items-center gap-1.5 text-[12px] font-medium text-[#16A34A]">
+              <span className="live-dot h-1.5 w-1.5 rounded-full bg-[#16A34A]" /> Live
+            </span>
           </div>
-        </div>
-      </section>
+          <p className="mt-3 text-[28px] font-semibold leading-none tabular-nums text-[#111]">{live?.visitorsNow ?? 0}</p>
+          <p className="mt-1 text-[12px] text-[#9CA3AF]">Visitors right now</p>
+          <div className="mt-3 flex h-10 items-end gap-[3px]">
+            {(hourlyBars.length ? hourlyBars : Array.from({ length: 24 }, (_, i) => ({ v: 0, hour: i }))).map((h) => {
+              const max = Math.max(1, ...hourlyBars.map((x) => x.v || 0));
+              const hgt = 8 + ((h.v || 0) / max) * 32;
+              return <span key={h.hour} className="flex-1 rounded-[2px] bg-[#111]" style={{ height: hgt }} />;
+            })}
+          </div>
+          <p className="mt-4 text-[12px] font-semibold text-[#111]">Top Pages</p>
+          <ul className="mt-2 flex-1 space-y-1.5 text-[12px]">
+            {topPages.map((p) => (
+              <li key={p.path} className="flex items-center justify-between gap-3">
+                <span className="truncate font-mono text-[#6B7280]">{p.path}</span>
+                <span className="tabular-nums text-[#111]">{p.n}</span>
+              </li>
+            ))}
+          </ul>
+          <Link to="/admin/live" className="mt-3 block rounded-full border border-[#E7E8EC] py-1.5 text-center text-[12px] font-medium text-[#374151] hover:bg-[#F7F8FA]">View real time</Link>
+        </Card>
+      </div>
 
-      {/* ── 04 · PRODUCT & INVENTORY ─────────────────────────────────── */}
-      <section className="mb-10">
-        <p className="adm-index">04 — Product & inventory</p>
-        <div className="grid border-b border-white/10 lg:grid-cols-2">
-          <div className="p-5 lg:border-r lg:border-white/10">
-            <div className="mb-3 flex items-center justify-between">
-              <p className="adm-label">Low stock · ≤ 10</p>
-              <Link to="/admin/products" className="text-[10px] font-medium uppercase tracking-[0.12em] text-white/50 transition-colors hover:text-white">Manage</Link>
-            </div>
-            {d.lowStock.length === 0 ? (
-              <p className="py-6 text-[12px] text-white/35">All stocked up.</p>
-            ) : (
-              <div className="adm-divide-y">{d.lowStock.slice(0, 5).map((p) => <StockRow key={p._id} product={p} onSaved={() => load(true)} onReorder={setReorder} />)}</div>
-            )}
+      {/* Glance / products / orders */}
+      <div className="mt-4 grid gap-3 xl:grid-cols-12">
+        <Card className="p-5 xl:col-span-3">
+          <p className="text-[15px] font-semibold text-[#111]">Today at a Glance</p>
+          <div className="mt-4 grid grid-cols-2 gap-2">
+            {[
+              { icon: Calendar, n: todayOrders, label: 'New Orders', to: '/admin/orders' },
+              { icon: Wallet, n: pendingPay, label: 'Pending Payments', to: '/admin/verification-queue' },
+              { icon: AlertTriangle, n: lowStockN, label: 'Low Stock Alerts', to: '/admin/products?stock=low' },
+              { icon: Users, n: newCustToday, label: 'New Customers', to: '/admin/customers' },
+            ].map((t) => (
+              <Link key={t.label} to={t.to} className="rounded-2xl border border-[#EEEFF2] px-3 py-4 text-center transition hover:border-[#E2E4EA]">
+                <t.icon size={16} className="mx-auto text-[#9CA3AF]" />
+                <p className="mt-2 text-[20px] font-semibold tabular-nums text-[#111]">{t.n}</p>
+                <p className="mt-0.5 text-[11px] text-[#9CA3AF]">{t.label}</p>
+              </Link>
+            ))}
           </div>
-          <div className="p-5">
-            <div className="mb-3 flex items-center justify-between">
-              <p className="adm-label">Top customers</p>
-              <Link to="/admin/customers" className="text-[10px] font-medium uppercase tracking-[0.12em] text-white/50 transition-colors hover:text-white">All</Link>
-            </div>
-            {d.topCustomers.length === 0 ? (
-              <p className="py-6 text-[12px] text-white/35">No customer data yet.</p>
-            ) : (
-              <ol className="adm-divide-y">
-                {d.topCustomers.map((c, i) => (
-                  <li key={c.phone + i} className="flex items-center gap-3 py-3">
-                    <span className="adm-metric w-6 text-[16px] text-white/30">{String(i + 1).padStart(2, '0')}</span>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2">
-                        <p className="truncate text-[13px] font-medium text-white/90">{c.name}</p>
-                        <ReliabilityBadge reliability={c.reliability} compact />
+          <Link to="/admin/orders" className="mt-4 flex items-center justify-center gap-1 text-[12px] font-medium text-[#6B7280] hover:text-[#111]">
+            View all notifications <ArrowRight size={12} />
+          </Link>
+        </Card>
+
+        <Card className="p-5 xl:col-span-5">
+          <div className="mb-3 flex items-center justify-between">
+            <p className="text-[15px] font-semibold text-[#111]">Top Selling Products</p>
+            <Link to="/admin/products" className="text-[12px] font-medium text-[#6B7280] hover:text-[#111]">View all</Link>
+          </div>
+          {topProducts.length === 0 ? (
+            <p className="py-10 text-center text-[13px] text-[#9CA3AF]">HUSHAE sales will land here.</p>
+          ) : (
+            <table className="w-full text-left text-[13px]">
+              <thead>
+                <tr className="text-[11px] font-medium text-[#9CA3AF]">
+                  <th className="pb-2 font-medium">Product</th>
+                  <th className="pb-2 text-right font-medium">Sold</th>
+                  <th className="pb-2 text-right font-medium">Revenue</th>
+                </tr>
+              </thead>
+              <tbody>
+                {topProducts.map((p) => (
+                  <tr key={p.name} className="border-t border-[#F3F4F6]">
+                    <td className="py-2.5">
+                      <div className="flex items-center gap-2.5">
+                        {p.image
+                          ? <Img src={p.image} alt="" className="h-8 w-8 rounded-full object-cover" />
+                          : <span className="grid h-8 w-8 place-items-center rounded-full bg-[#F3F4F6] text-[10px] font-semibold">{p.name.slice(0, 1)}</span>}
+                        <span className="truncate font-medium text-[#111]">{p.name}</span>
                       </div>
-                      <p className="mt-0.5 truncate text-[11px] text-white/35">{c.city} · {c.orders} order{c.orders === 1 ? '' : 's'}</p>
-                    </div>
-                    <p className="adm-metric text-[13px] text-white">{pkr(c.spent)}</p>
-                  </li>
+                    </td>
+                    <td className="py-2.5 text-right tabular-nums text-[#4B5563]">{p.qty}</td>
+                    <td className="py-2.5 text-right font-medium tabular-nums text-[#111]">{rs(p.revenue, 0)}</td>
+                  </tr>
                 ))}
-              </ol>
-            )}
+              </tbody>
+            </table>
+          )}
+        </Card>
+
+        <Card className="p-5 xl:col-span-4">
+          <div className="mb-3 flex items-center justify-between">
+            <p className="text-[15px] font-semibold text-[#111]">Recent Orders</p>
+            <Link to="/admin/orders" className="text-[12px] font-medium text-[#6B7280] hover:text-[#111]">View all</Link>
           </div>
-        </div>
-      </section>
+          {(d.recentOrders || []).length === 0 ? (
+            <p className="py-10 text-center text-[13px] text-[#9CA3AF]">No orders in this period.</p>
+          ) : (
+            <ul className="space-y-1">
+              {d.recentOrders.slice(0, 5).map((o) => {
+                const tone = payTone(o);
+                return (
+                  <li key={o._id}>
+                    <Link to={`/admin/orders/${o._id}`} className="flex items-center gap-2.5 rounded-xl px-1 py-1.5 hover:bg-[#F7F8FA]">
+                      <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#F3F4F6] text-[10px] font-semibold text-[#111]">
+                        {initials(o.customerInfo?.name)}
+                      </span>
+                      <span className="w-[92px] shrink-0 truncate text-[12px] font-semibold text-[#111]">{o.orderNumber}</span>
+                      <span className="min-w-0 flex-1 truncate text-[12px] text-[#6B7280]">{o.customerInfo?.name || 'Customer'}</span>
+                      <span className="shrink-0 text-[12px] font-semibold tabular-nums text-[#111]">{rs(o.total, 2)}</span>
+                      <span className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold ${tone.cls}`}>{tone.label}</span>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </Card>
+      </div>
 
-      {/* ── 05 · OPERATIONS ───────────────────────────────────────────── */}
-      <section className="mb-4">
-        <p className="adm-index">05 — Operations</p>
-        <AlertsBar alerts={alerts} />
+      {/* Revenue / status / customers / categories */}
+      <div className="mt-4 grid gap-3 xl:grid-cols-12">
+        <Card className="p-5 xl:col-span-4">
+          <div className="mb-1 flex items-center justify-between">
+            <p className="text-[15px] font-semibold text-[#111]">Revenue & Orders</p>
+            <WeekMenu value={chartPreset} onChange={onWeek} />
+          </div>
+          <div className="mb-3 flex items-center gap-3 text-[12px]">
+            <span className="inline-flex items-center gap-1.5 text-[#111]"><span className="h-2 w-2 rounded-sm bg-[#111]" /> Revenue</span>
+            <span className="inline-flex items-center gap-1.5 text-[#6B7280]"><span className="h-2 w-2 rounded-sm bg-[#D1D5DB]" /> Orders</span>
+            <Delta change={k.revenue.change} />
+          </div>
+          <ChartBoundary>
+            <div className="h-[200px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <ComposedChart data={chart.map((row, i) => ({ ...row, day: weekday(row.label, i) }))} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+                  <CartesianGrid stroke={GRID} vertical={false} />
+                  <XAxis dataKey="day" tick={{ fontSize: 11, fill: MUTED }} tickLine={false} axisLine={false} />
+                  <YAxis yAxisId="l" tick={{ fontSize: 11, fill: MUTED }} tickLine={false} axisLine={false} tickFormatter={(v) => (v >= 1000 ? `${Math.round(v / 1000)}k` : v)} />
+                  <YAxis yAxisId="r" orientation="right" tick={{ fontSize: 11, fill: MUTED }} tickLine={false} axisLine={false} allowDecimals={false} />
+                  <Tooltip contentStyle={tipStyle} formatter={(v, n) => [n === 'revenue' ? rs(v, 0) : v, n === 'revenue' ? 'Revenue' : 'Orders']} />
+                  <Bar yAxisId="l" dataKey="revenue" fill={INK} radius={[6, 6, 0, 0]} barSize={18} />
+                  <Line yAxisId="r" type="monotone" dataKey="orders" stroke="#D1D5DB" strokeWidth={2} dot={false} />
+                </ComposedChart>
+              </ResponsiveContainer>
+            </div>
+          </ChartBoundary>
+        </Card>
 
-        {/* Attention counts */}
-        <div className="adm-divide-x grid grid-cols-2 border-y border-white/10 lg:grid-cols-4">
-          {todayTiles.map((t) => (
-            <Link key={t.label} to={t.to} className="group px-5 py-4 adm-row-hover">
-              <p className="text-[9px] font-medium uppercase tracking-[0.18em] text-white/35">{t.label}</p>
-              <p className="adm-metric mt-2 text-[26px] text-white">{t.n}</p>
-              <p className="mt-0.5 text-[10px] uppercase tracking-[0.1em] text-white/25 group-hover:text-white/50">{t.hint}</p>
+        <Card className="p-5 xl:col-span-3">
+          <p className="text-[15px] font-semibold text-[#111]">Orders Status</p>
+          <div className="mt-2 flex flex-col items-center">
+            <div className="relative h-[150px] w-[150px]">
+              <ChartBoundary>
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie data={statusMix.rows.length ? statusMix.rows : [{ name: 'None', value: 1, color: '#E5E7EB' }]} dataKey="value" innerRadius={48} outerRadius={68} paddingAngle={2} stroke="none">
+                      {(statusMix.rows.length ? statusMix.rows : [{ color: '#E5E7EB' }]).map((s, i) => <Cell key={i} fill={s.color} />)}
+                    </Pie>
+                  </PieChart>
+                </ResponsiveContainer>
+              </ChartBoundary>
+              <div className="pointer-events-none absolute inset-0 grid place-items-center text-center">
+                <div>
+                  <p className="text-[20px] font-semibold tabular-nums leading-none text-[#111]">{statusMix.total.toLocaleString()}</p>
+                  <p className="mt-1 text-[11px] text-[#9CA3AF]">Total Orders</p>
+                </div>
+              </div>
+            </div>
+            <ul className="mt-2 w-full space-y-1.5 text-[12px]">
+              {statusMix.rows.map((s) => (
+                <li key={s.name} className="flex items-center gap-2">
+                  <span className="h-2 w-2 rounded-full" style={{ background: s.color }} />
+                  <span className="flex-1 text-[#4B5563]">{s.name}</span>
+                  <span className="tabular-nums text-[#6B7280]">{s.pct.toFixed(0)}%</span>
+                  <span className="tabular-nums text-[#111]">({s.value})</span>
+                </li>
+              ))}
+            </ul>
+            <Link to="/admin/orders" className="mt-3 inline-flex items-center gap-1 rounded-full border border-[#E7E8EC] px-3 py-1 text-[12px] font-medium text-[#374151]">
+              View all orders <ChevronDown size={12} />
+            </Link>
+          </div>
+        </Card>
+
+        <Card className="p-5 xl:col-span-3">
+          <p className="text-[15px] font-semibold text-[#111]">Customer Overview</p>
+          <div className="mt-3 flex items-start justify-between">
+            <div>
+              <p className="text-[12px] text-[#9CA3AF]">Total Customers</p>
+              <p className="mt-1 text-[28px] font-semibold leading-none tabular-nums text-[#111]">{totalCustomers.toLocaleString()}</p>
+            </div>
+            <div className="text-right">
+              <Delta change={k.customers.change} />
+              <p className="mt-0.5 text-[11px] text-[#9CA3AF]">{vsLabel}</p>
+            </div>
+          </div>
+          <div className="mt-3 h-16">
+            <ChartBoundary>
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={sparkCust} margin={{ top: 6, right: 0, left: 0, bottom: 0 }}>
+                  <Line type="monotone" dataKey="v" stroke={INK} strokeWidth={1.8} dot={{ r: 2.5, fill: INK }} />
+                </LineChart>
+              </ResponsiveContainer>
+            </ChartBoundary>
+          </div>
+          <div className="mt-3 grid grid-cols-2 gap-3 border-t border-[#F3F4F6] pt-3">
+            <div>
+              <p className="text-[11px] text-[#9CA3AF]">New Customers</p>
+              <p className="mt-1 text-[18px] font-semibold tabular-nums text-[#111]">{Number(k.customers.value || 0).toLocaleString()}</p>
+              <Delta change={k.customers.change} />
+            </div>
+            <div>
+              <p className="text-[11px] text-[#9CA3AF]">Returning Customers</p>
+              <p className="mt-1 text-[18px] font-semibold tabular-nums text-[#111]">{returning.toLocaleString()}</p>
+            </div>
+          </div>
+        </Card>
+
+        <Card className="p-5 xl:col-span-2">
+          <div className="mb-3 flex items-center justify-between">
+            <p className="text-[15px] font-semibold text-[#111]">Top Categories</p>
+            <Link to="/admin/categories" className="text-[12px] font-medium text-[#6B7280] hover:text-[#111]">View all</Link>
+          </div>
+          {catBars.length === 0 ? (
+            <p className="py-8 text-center text-[12px] text-[#9CA3AF]">Category sales appear with orders.</p>
+          ) : (
+            <ul className="space-y-3">
+              {catBars.map((c) => (
+                <li key={c.slug}>
+                  <div className="flex items-center justify-between text-[12px]">
+                    <span className="truncate text-[#374151]">{c.name}</span>
+                    <span className="ml-2 shrink-0 font-medium tabular-nums text-[#111]">{rs(c.revenue, 2)}</span>
+                  </div>
+                  <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-[#F3F4F6]">
+                    <div className="h-full rounded-full bg-[#111]" style={{ width: `${c.pct}%` }} />
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Card>
+      </div>
+
+      {/* Quick actions */}
+      <div className="mt-5">
+        <p className="text-[15px] font-semibold text-[#111]">Quick Actions</p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {QUICK.map((a) => (
+            <Link key={a.label} to={a.to}
+              className="inline-flex min-h-[40px] items-center gap-2 rounded-full border border-[#E7E8EC] bg-white px-4 text-[13px] font-medium text-[#374151] transition hover:border-[#D1D5DB] hover:bg-[#FAFAFB]">
+              <a.icon size={14} strokeWidth={1.8} className="text-[#6B7280]" /> {a.label}
             </Link>
           ))}
         </div>
+      </div>
 
-        <div className="border-t border-white/10">
-          <div className="p-5"><QuickActions /></div>
-        </div>
-
-        <div className="border-b border-white/10">
-          <div className="p-5"><PipelineStrip stats={d.stats} /></div>
-
-          <div className="grid border-t border-white/10 lg:grid-cols-2">
-            <div className="p-5 lg:border-r lg:border-white/10">
-              <GoalTracker goal={goal} onSaved={() => load(true)} />
-            </div>
-            <div className="p-5">
-              <InsightsCard insights={smart} />
-            </div>
-          </div>
-
-          {d.kpis.profit && (d.kpis.profit.value !== 0 || d.kpis.cost.value !== 0) && (
-            <div className="border-t border-white/10 p-5">
-              <div className="mb-4 flex items-center justify-between">
-                <div>
-                  <p className="adm-label">Profit &amp; loss</p>
-                  <p className="mt-0.5 text-[11px] text-white/35">{rangeLabel} · based on cost prices</p>
+      {/* Smart insights */}
+      <div className="mt-5">
+        <p className="text-[15px] font-semibold text-[#111]">Smart Insights</p>
+        <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+          {insightCards.map((c) => {
+            const Inner = (
+              <div className="flex h-full items-start gap-3 p-4">
+                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-[#F4F5F7] text-[#111]">
+                  <c.icon size={15} strokeWidth={1.8} />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[13px] font-semibold text-[#111]">{c.title}</p>
+                  <p className="mt-1 text-[12px] leading-relaxed text-[#6B7280]">{c.body}</p>
+                  {c.cta && <p className="mt-2 text-[12px] font-medium text-[#111]">{c.cta}</p>}
                 </div>
-                <Link to="/admin/products" className="text-[10px] font-medium uppercase tracking-[0.12em] text-white/50 transition-colors hover:text-white">Manage costs →</Link>
-              </div>
-              <div className="grid gap-4 sm:grid-cols-3">
-                <ProfitTile label="Gross profit" value={d.kpis.profit.value} change={d.kpis.profit.change} tone={d.kpis.profit.value >= 0 ? 'green' : 'red'} format="money" icon={TrendingUp} />
-                <ProfitTile label="Cost of goods" value={d.kpis.cost.value} tone="neutral" format="money" icon={Package} hint="What you paid for products sold" />
-                <ProfitTile label="Profit margin" value={d.kpis.margin.value} tone={d.kpis.margin.value >= 40 ? 'green' : d.kpis.margin.value >= 20 ? 'amber' : 'red'} format="percent" icon={CircleDollarSign} hint="Profit as % of revenue" />
-              </div>
-              {d.kpis.cost.value === 0 && <div className="mt-4 border border-white/10 bg-white/5 p-3 text-[12px] text-white/70">💡 Set <b className="text-white">Cost / Wholesale price</b> on each product for accurate profit tracking.</div>}
-            </div>
-          )}
-
-          {insights && (
-            <div className="grid border-t border-white/10 lg:grid-cols-2">
-              <div className="p-5 lg:border-r lg:border-white/10">
-                <p className="adm-label mb-4">Payment health</p>
-                <div className="flex flex-wrap gap-1.5">
-                  {PAYMENT_STATES.map((p) => { const n = insights.paymentBreakdown?.[p.key] || 0; if (!n) return null; return <span key={p.key} className="text-[10px] font-medium uppercase tracking-[0.1em] text-white/60">{p.label} · <span className="text-white">{n}</span></span>; })}
-                  {!Object.values(insights.paymentBreakdown || {}).some((n) => Number(n) > 0) && <span className="text-[12px] text-white/35">No orders in this period</span>}
-                </div>
-                <div className="mt-4 space-y-1.5 border-t border-white/10 pt-3 text-[12px]">
-                  <p className="flex justify-between"><span className="text-white/40">Verification rate</span><span className="font-medium text-white">{insights.kpis.paymentVerifiedRate}%</span></p>
-                  <p className="flex justify-between"><span className="text-white/40">Avg time to ship</span><span className="font-medium text-white">{insights.avgShipHours ? (insights.avgShipHours < 1 ? `${Math.round(insights.avgShipHours * 60)}m` : `${insights.avgShipHours}h`) : '—'}</span></p>
-                  <p className="flex justify-between"><span className="text-white/40">Issue rate</span><span className={`font-medium ${insights.kpis.issueRate > 5 ? 'text-white' : 'text-white/70'}`}>{insights.kpis.issueRate}%</span></p>
-                </div>
-              </div>
-              <div className="p-5">
-                <p className="adm-label mb-3">Peak order hours</p>
-                {!insights.hourly?.some((h) => h.orders > 0) ? (
-                  <div className="grid h-[140px] place-items-center bg-white/5 text-center"><p className="text-[12px] text-white/40">No orders in this period</p></div>
-                ) : (
-                  <ResponsiveContainer width="100%" height={140}>
-                    <BarChart data={insights.hourly} margin={{ top: 12, right: 4, left: -22, bottom: 0 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" vertical={false} />
-                      <XAxis dataKey="hour" tickFormatter={(h) => `${h}h`} tick={{ fontSize: 10, fill: 'rgba(255,255,255,0.4)' }} axisLine={false} tickLine={false} interval={3} />
-                      <YAxis tick={{ fontSize: 10, fill: 'rgba(255,255,255,0.4)' }} axisLine={false} tickLine={false} allowDecimals={false} />
-                      <Tooltip labelFormatter={(h) => `${h}:00 – ${h}:59`} contentStyle={{ borderRadius: 4, border: '1px solid rgba(255,255,255,0.12)', background: '#0D0D0D', fontSize: 12, color: '#fff' }} labelStyle={{ color: 'rgba(255,255,255,0.6)' }} />
-                      <Bar dataKey="orders" fill="rgba(255,255,255,0.5)" radius={[2, 2, 0, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
+                {c.spark && (
+                  <div className="flex h-8 items-end gap-0.5 self-center">
+                    {[8, 14, 10, 18, 12].map((h, i) => <span key={i} className="w-1.5 rounded-sm bg-[#111]" style={{ height: h }} />)}
+                  </div>
+                )}
+                {c.to && !c.cta && (
+                  <span className="grid h-8 w-8 shrink-0 place-items-center self-center rounded-full bg-[#111] text-white">
+                    <ArrowRight size={13} />
+                  </span>
                 )}
               </div>
-            </div>
-          )}
-
-          <div className="grid border-t border-white/10 lg:grid-cols-2">
-            <div className="p-5 lg:border-r lg:border-white/10">
-              <CancellationReasons reasons={d.cancellationReasons || []} />
-            </div>
-            <div className="p-5">
-              <AbandonedCartsWidget />
-            </div>
-          </div>
-
-          <div className="border-t border-white/10 p-5">
-            <ChartBoundary><TodayHourly hourly={d.hourly} /></ChartBoundary>
-          </div>
+            );
+            return c.to
+              ? <Card key={c.title} className="transition hover:border-[#E2E4EA]"><Link to={c.to}>{Inner}</Link></Card>
+              : <Card key={c.title}>{Inner}</Card>;
+          })}
         </div>
-      </section>
-
-      {reorder && <ReorderModal product={reorder} onClose={() => setReorder(null)} onSaved={() => load(true)} />}
+      </div>
     </AdminLayout>
   );
 }

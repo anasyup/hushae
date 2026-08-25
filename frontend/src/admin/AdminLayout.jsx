@@ -2,7 +2,7 @@ import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, NavLink, Navigate, useLocation } from 'react-router-dom';
 import {
   Activity, BadgePercent, BarChart3, ImagePlus, ChevronDown, CreditCard, FileText, FolderOpen, Globe, Home,
-  LayoutTemplate, LogOut, Mail, Megaphone, Menu, MessageSquare, Package, PackageX, Phone, Plus,
+  LayoutTemplate, LogOut, Mail, Maximize2, Megaphone, Menu, MessageSquare, Minimize2, Package, PackageX, Phone, Plus,
   Search, Settings as SettingsIcon, ShieldCheck, ShoppingBag, Signpost, Sparkles, Star, Store, Sun, Moon, Tags, TrendingUp, Truck, Users, X, Zap, Calculator, FileSpreadsheet, PanelLeftClose, PanelRightOpen,
 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
@@ -400,7 +400,7 @@ function isPathBlocked(pathname, role) {
   return false;
 }
 
-export default function AdminLayout({ children, title }) {
+export default function AdminLayout({ children, title, subtitle, headerExtra, hideContentTitle }) {
   const { auth } = useApp();
   const loc = useLocation();
   const [drawer, setDrawer] = useState(false);
@@ -486,6 +486,7 @@ export default function AdminLayout({ children, title }) {
 function CreateMenu({ onPick }) {
   const items = [
     { to: '/admin/products/new', icon: Package, label: 'New product' },
+    { to: '/admin/orders/new', icon: ShoppingBag, label: 'New order' },
     { to: '/admin/promotions/new', icon: Megaphone, label: 'New promotion' },
     { to: '/admin/discounts', icon: BadgePercent, label: 'New discount' },
     { to: '/admin/cms/new', icon: FileText, label: 'New page' },
