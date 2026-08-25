@@ -7,38 +7,28 @@ import {
 import { api } from '../api/client';
 import { useApp } from '../store/AppContext';
 import AdminLayout from './AdminLayout';
-import PageHeader from './components/PageHeader';
-import { btnGhost, btnSolid, MonoStatus } from './orders/orderUi';
 
 /* ============================================================================
- * ADMIN → LOYALTY (members & gift cards)
- *
- * The settings page decides the RULES. This page is the day-to-day desk: who
- * has what, adjust a balance, block an abuser, issue a card.
- *
- * Two rules this screen follows:
- *  - The list is paginated and searched ON THE SERVER. Filtering a fixed fetch
- *    in the browser is a lie that breaks the moment the store grows.
- *  - Every manual adjustment demands a written reason, because it is recorded
- *    permanently in the ledger against the admin's name.
+ * LOYALTY V3 — Phase 11 Video Pages Rebuild
+ * Full V3 visual grammar: member summary, tabs, table, drawer, dialogs
+ * All business logic preserved from original Loyalty.jsx (640 lines)
  * ========================================================================== */
 
 const money = (n) => `PKR ${Number(n || 0).toLocaleString('en-PK')}`;
 const num = (n) => Number(n || 0).toLocaleString('en-PK');
 
+/* ── Stat Card ──────────────────────────────────────────────────────────── */
 function StatCard({ label, value, sub }) {
   return (
-    <div className="px-5 py-6">
-      <p className="adm-label">{label}</p>
-      <p className="adm-metric mt-3 text-[22px] text-black">{value}</p>
-      {sub && <p className="mt-1 text-[11px] text-[#AAAAAA]">{sub}</p>}
+    <div className="p-5">
+      <div className="v3-h-label mb-2">{label}</div>
+      <div className="text-[20px] font-bold text-[#111] v3-tabular">{value}</div>
+      {sub && <div className="text-[11px] text-[#9CA3AF] mt-1">{sub}</div>}
     </div>
   );
 }
 
-/* ---------------------------------------------------------------------------
- * Adjust dialog — points or credit, up or down, always with a reason.
- * ------------------------------------------------------------------------- */
+/* ── Adjust Dialog — points or credit, add or remove, always with reason ── */
 function AdjustDialog({ account, onClose, onDone }) {
   const { auth, toast } = useApp();
   const [kind, setKind] = useState('points');
@@ -51,9 +41,6 @@ function AdjustDialog({ account, onClose, onDone }) {
   const panelRef = useRef(null);
 
   useEffect(() => { firstRef.current?.focus(); }, []);
-
-  // Escape closes; Tab is trapped inside. A dialog you cannot leave by
-  // keyboard is an accessibility failure, not a detail.
   useEffect(() => {
     const onKey = (e) => {
       if (e.key === 'Escape') { e.preventDefault(); onClose(); return; }
@@ -69,79 +56,77 @@ function AdjustDialog({ account, onClose, onDone }) {
   }, [onClose]);
 
   const submit = async (e) => {
-    e.preventDefault();
-    setErr(null);
+    e.preventDefault(); setErr(null);
     const value = Math.round(Number(amount) || 0);
     if (!value || value < 0) { setErr('Enter an amount greater than zero'); return; }
     if (!note.trim()) { setErr('Please say why — this is recorded permanently'); return; }
     setBusy(true);
     try {
       await api(`/loyalty/admin/accounts/${account._id}/adjust`, {
-        method: 'POST', token: auth.token,
-        body: { kind, amount: value * dir, note: note.trim() },
+        method: 'POST', token: auth.token, body: { kind, amount: value * dir, note: note.trim() },
       });
       toast(`${kind === 'credit' ? 'Credit' : 'Points'} ${dir > 0 ? 'added' : 'removed'}`);
       onDone();
-    } catch (ex) {
-      setErr(ex.message || 'Could not adjust');
-    }
+    } catch (ex) { setErr(ex.message || 'Could not adjust'); }
     setBusy(false);
   };
 
   const have = kind === 'credit' ? account.creditBalance : account.pointsBalance;
 
   return (
-    <div className="fixed inset-0 z-[60] grid place-items-end bg-black/40 p-0 sm:place-items-center sm:p-4" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
-      <div ref={panelRef} role="dialog" aria-modal="true" aria-labelledby="adj-title" className="max-h-[92svh] w-full overflow-y-auto rounded-t-2xl bg-white p-5 shadow-2xl sm:max-w-md sm:rounded-2xl">
-        <div className="mb-4 flex items-start justify-between gap-3">
+    <div className="v3-modal-overlay" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
+      <div ref={panelRef} role="dialog" aria-modal="true" aria-labelledby="adj-title" className="v3-modal" style={{ maxWidth: 440 }}>
+        <div className="v3-modal-header">
           <div className="min-w-0">
-            <h2 id="adj-title" className="text-[12px] font-semibold text-neutral-900">Adjust balance</h2>
-            <p className="mt-0.5 truncate text-[12px] text-neutral-500">{account.name || 'Customer'} · {account.phone}</p>
+            <h2 id="adj-title" className="v3-h-section">Adjust Balance</h2>
+            <p className="text-[12px] text-[#6B7280] truncate">{account.name || 'Customer'} · {account.phone}</p>
           </div>
-          <button ref={firstRef} type="button" onClick={onClose} aria-label="Close" className="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-neutral-500 transition hover:bg-neutral-100">
-            <X size={16} />
-          </button>
+          <button ref={firstRef} type="button" onClick={onClose} className="v3-btn v3-btn-icon v3-btn-ghost"><X size={16} /></button>
         </div>
-
         <form onSubmit={submit}>
-          <div role="radiogroup" aria-label="What to adjust" className="mb-4 grid grid-cols-2 gap-2">
-            {[['points', 'Points'], ['credit', 'Store credit']].map(([v, l]) => (
-              <button
-                key={v} type="button" role="radio" aria-checked={kind === v} onClick={() => setKind(v)}
-                className={`min-h-[44px] rounded-xl border px-3 text-[13px] font-semibold transition ${kind === v ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-300 text-neutral-700 hover:bg-neutral-50'}`}
-              >{l}</button>
-            ))}
+          <div className="v3-modal-body space-y-4">
+            {/* Kind toggle */}
+            <div className="grid grid-cols-2 gap-2">
+              {[['points', 'Points'], ['credit', 'Store Credit']].map(([v, l]) => (
+                <button key={v} type="button" onClick={() => setKind(v)}
+                  className={`h-10 rounded-[5px] text-[12px] font-semibold transition-colors ${kind === v ? 'bg-[#111] text-white' : 'border border-[#E5E7EB] text-[#4A4A4A] hover:bg-[#F5F6F8]'}`}>
+                  {l}
+                </button>
+              ))}
+            </div>
+
+            <div className="rounded-[5px] bg-[#F5F6F8] px-3 py-2 text-[12px] text-[#6B7280]">
+              Current: <strong className="text-[#111]">{kind === 'credit' ? money(have) : `${num(have)} points`}</strong>
+            </div>
+
+            {/* Direction toggle */}
+            <div className="grid grid-cols-2 gap-2">
+              <button type="button" onClick={() => setDir(1)}
+                className={`h-10 rounded-[5px] text-[12px] font-semibold flex items-center justify-center gap-1.5 transition-colors ${dir === 1 ? 'bg-[#111] text-white' : 'border border-[#E5E7EB] text-[#4A4A4A] hover:bg-[#F5F6F8]'}`}>
+                <Plus size={13} /> Add
+              </button>
+              <button type="button" onClick={() => setDir(-1)}
+                className={`h-10 rounded-[5px] text-[12px] font-semibold flex items-center justify-center gap-1.5 transition-colors ${dir === -1 ? 'bg-[#111] text-white' : 'border border-[#E5E7EB] text-[#4A4A4A] hover:bg-[#F5F6F8]'}`}>
+                <Minus size={13} /> Remove
+              </button>
+            </div>
+
+            <div className="v3-field">
+              <label className="v3-label">Amount {kind === 'credit' ? '(PKR)' : '(points)'}</label>
+              <input className="v3-input" type="number" min="1" inputMode="numeric" value={amount} onChange={(e) => setAmount(e.target.value)} autoFocus />
+            </div>
+
+            <div className="v3-field">
+              <label className="v3-label">Reason</label>
+              <textarea className="v3-textarea" maxLength={200} value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g. Goodwill for late delivery on HS-…" />
+              <p className="v3-field-hint">Saved against your name in the ledger, forever.</p>
+            </div>
+
+            {err && <div role="alert" className="rounded-[5px] border border-[#FECACA] bg-[#FEF2F2] px-3 py-2 text-[12px] text-[#991B1B]">{err}</div>}
           </div>
-
-          <p className="mb-3 rounded-lg bg-neutral-50 px-3 py-2 text-[12px] text-neutral-600">
-            Current: <strong>{kind === 'credit' ? money(have) : `${num(have)} points`}</strong>
-          </p>
-
-          <div role="radiogroup" aria-label="Add or remove" className="mb-4 grid grid-cols-2 gap-2">
-            <button type="button" role="radio" aria-checked={dir === 1} onClick={() => setDir(1)} className={`inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl border px-3 text-[13px] font-semibold transition ${dir === 1 ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-300 text-neutral-700 hover:bg-neutral-50'}`}>
-              <Plus size={14} /> Add
-            </button>
-            <button type="button" role="radio" aria-checked={dir === -1} onClick={() => setDir(-1)} className={`inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl border px-3 text-[13px] font-semibold transition ${dir === -1 ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-300 text-neutral-700 hover:bg-neutral-50'}`}>
-              <Minus size={14} /> Remove
-            </button>
-          </div>
-
-          <div className="mb-4">
-            <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500" htmlFor="adj-amount">Amount {kind === 'credit' ? '(PKR)' : '(points)'}</label>
-            <input id="adj-amount" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" type="number" min="1" inputMode="numeric" value={amount} onChange={(e) => setAmount(e.target.value)} />
-          </div>
-
-          <div className="mb-4">
-            <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500" htmlFor="adj-note">Reason</label>
-            <textarea id="adj-note" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 min-h-[76px]" maxLength={200} value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g. Goodwill for late delivery on HS-20260712-004521" />
-            <p className="mt-1.5 text-[12px] text-neutral-500">Saved against your name in the ledger, forever.</p>
-          </div>
-
-          {err && <p role="alert" className="mb-3 border border-[#EAEAEA] px-3 py-2 text-[12px] text-[#777777]">{err}</p>}
-
-          <div className="flex gap-2">
-            <button type="button" onClick={onClose} className="min-h-[44px] flex-1 rounded-xl border border-neutral-300 px-4 text-[13px] font-semibold text-neutral-700 transition hover:bg-neutral-50">Cancel</button>
-            <button type="submit" disabled={busy} className="min-h-[44px] flex-1 rounded-xl bg-neutral-900 px-4 text-[13px] font-semibold text-black transition hover:bg-neutral-800 disabled:opacity-50">
+          <div className="v3-modal-footer">
+            <button type="button" onClick={onClose} className="v3-btn v3-btn-secondary">Cancel</button>
+            <button type="submit" disabled={busy} className="v3-btn v3-btn-primary">
               {busy ? 'Saving…' : 'Apply'}
             </button>
           </div>
@@ -151,9 +136,7 @@ function AdjustDialog({ account, onClose, onDone }) {
   );
 }
 
-/* ---------------------------------------------------------------------------
- * Member detail drawer — balance, standing and the full statement.
- * ------------------------------------------------------------------------- */
+/* ── Member Detail Drawer ──────────────────────────────────────────────── */
 function MemberPanel({ id, onClose, onChanged }) {
   const { auth, toast } = useApp();
   const [data, setData] = useState(null);
@@ -161,9 +144,7 @@ function MemberPanel({ id, onClose, onChanged }) {
   const closeRef = useRef(null);
 
   const load = useCallback(() => {
-    api(`/loyalty/admin/accounts/${id}`, { token: auth.token })
-      .then(setData)
-      .catch(() => toast('Could not load this member'));
+    api(`/loyalty/admin/accounts/${id}`, { token: auth.token }).then(setData).catch(() => toast('Could not load this member'));
   }, [id, auth?.token, toast]);
 
   useEffect(() => { load(); }, [load]);
@@ -187,65 +168,75 @@ function MemberPanel({ id, onClose, onChanged }) {
   const a = data?.account;
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end bg-black/40" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
-      <div role="dialog" aria-modal="true" aria-label="Member details" className="flex h-full w-full max-w-lg flex-col overflow-hidden bg-white shadow-2xl">
-        <div className="flex shrink-0 items-start justify-between gap-3 border-b border-neutral-200 p-5">
+    <>
+      <div className="v3-drawer-overlay" onMouseDown={(e) => e.target === e.currentTarget && onClose()} />
+      <div role="dialog" aria-modal="true" aria-label="Member details" className="v3-drawer">
+        <div className="v3-drawer-header">
           <div className="min-w-0">
-            <h2 className="truncate text-[12px] font-semibold text-neutral-900">{a?.name || 'Member'}</h2>
-            <p className="mt-0.5 truncate text-[12px] text-neutral-500">{a?.phone}{a?.email ? ` · ${a.email}` : ''}</p>
+            <h2 className="v3-h-section truncate">{a?.name || 'Member'}</h2>
+            <p className="text-[12px] text-[#6B7280] truncate">{a?.phone}{a?.email ? ` · ${a.email}` : ''}</p>
           </div>
-          <button ref={closeRef} type="button" onClick={onClose} aria-label="Close" className="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-neutral-500 transition hover:bg-neutral-100">
-            <X size={16} />
-          </button>
+          <button ref={closeRef} type="button" onClick={onClose} className="v3-btn v3-btn-icon v3-btn-ghost"><X size={16} /></button>
         </div>
 
-        <div className="min-h-0 flex-1 overflow-y-auto p-5">
-          {!data ? <div className="animate-pulse rounded-xl bg-neutral-100 h-64 w-full" /> : (
+        <div className="v3-drawer-body">
+          {!data ? (
+            <div className="space-y-3">{[1,2,3,4].map(i => <div key={i} className="h-12 v3-skeleton rounded-[5px]" />)}</div>
+          ) : (
             <>
               {a.blocked && (
-                <p role="alert" className="mb-4 border border-[#EAEAEA] px-4 py-3 text-[12px] text-[#777777]">
+                <div role="alert" className="mb-4 rounded-[5px] border border-[#FECACA] bg-[#FEF2F2] px-4 py-3 text-[12px] text-[#991B1B]">
                   Blocked. {a.blockedReason || 'No reason recorded.'}
-                </p>
+                </div>
               )}
 
-              <div className="grid grid-cols-2 gap-3">
-                <StatCard label="Points" value={num(a.pointsBalance)} />
-                <StatCard label="Store credit" value={money(a.creditBalance)} />
-                <StatCard label="Tier" value={a.tier || '—'} sub={`Qualifying spend ${money(a.tierSpend)}`} />
-                <StatCard label="Referrals" value={num(a.referralCount)} sub={a.referralCode || '—'} />
+              {/* Stats grid */}
+              <div className="v3-card mb-4">
+                <div className="grid grid-cols-2 divide-x divide-y divide-[#F0F1F3]">
+                  <StatCard label="Points" value={num(a.pointsBalance)} />
+                  <StatCard label="Store Credit" value={money(a.creditBalance)} />
+                  <StatCard label="Tier" value={a.tier || '—'} sub={`Spend ${money(a.tierSpend)}`} />
+                  <StatCard label="Referrals" value={num(a.referralCount)} sub={a.referralCode || '—'} />
+                </div>
               </div>
 
-              <div className="mt-4 flex flex-wrap gap-2">
-                <button type="button" onClick={() => setAdjusting(true)} className="inline-flex min-h-[40px] items-center gap-1.5 rounded-lg bg-neutral-900 px-3 text-[12px] font-semibold text-black transition hover:bg-neutral-800">
-                  <Plus size={13} /> Adjust balance
+              {/* Actions */}
+              <div className="flex flex-wrap gap-2 mb-6">
+                <button type="button" onClick={() => setAdjusting(true)} className="v3-btn v3-btn-primary v3-btn-sm">
+                  <Plus size={12} /> Adjust Balance
                 </button>
-                <button type="button" onClick={toggleBlock} className={btnGhost}>
-                  <Ban size={13} /> {a.blocked ? 'Unblock' : 'Block'}
+                <button type="button" onClick={toggleBlock} className="v3-btn v3-btn-secondary v3-btn-sm">
+                  <Ban size={12} /> {a.blocked ? 'Unblock' : 'Block'}
                 </button>
               </div>
 
-              <h3 className="mb-2 mt-6 text-[12px] font-bold uppercase tracking-widest text-neutral-500">Statement</h3>
+              {/* Statement */}
+              <div className="v3-h-label mb-3">Statement</div>
               {!data.ledger?.length ? (
-                <p className="rounded-xl bg-neutral-50 px-4 py-6 text-center text-[12px] text-neutral-500">No movements yet.</p>
+                <div className="v3-empty" style={{ padding: '24px 0' }}>
+                  <p className="text-[12px] text-[#9CA3AF]">No movements yet.</p>
+                </div>
               ) : (
-                <ul className="divide-y divide-neutral-100 rounded-xl border border-neutral-200">
-                  {data.ledger.map((r) => (
-                    <li key={r._id} className="flex items-start justify-between gap-3 px-4 py-3">
-                      <div className="min-w-0">
-                        <p className="text-[13px] font-medium capitalize text-neutral-900">{String(r.reason || '').replace(/-/g, ' ')}</p>
-                        <p className="mt-0.5 text-[12px] leading-relaxed text-neutral-500">
-                          {new Date(r.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
-                          {r.orderNumber ? ` · ${r.orderNumber}` : ''}
-                          {r.note ? ` · ${r.note}` : ''}
-                          {r.actor && r.actor !== 'system' ? ` · by ${r.actor}` : ''}
+                <div className="v3-card">
+                  <div className="divide-y divide-[#F0F1F3]">
+                    {data.ledger.map((r) => (
+                      <div key={r._id} className="flex items-start justify-between gap-3 px-4 py-3">
+                        <div className="min-w-0">
+                          <p className="text-[12px] font-medium capitalize text-[#111]">{String(r.reason || '').replace(/-/g, ' ')}</p>
+                          <p className="mt-0.5 text-[11px] leading-relaxed text-[#9CA3AF]">
+                            {new Date(r.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                            {r.orderNumber ? ` · ${r.orderNumber}` : ''}
+                            {r.note ? ` · ${r.note}` : ''}
+                            {r.actor && r.actor !== 'system' ? ` · by ${r.actor}` : ''}
+                          </p>
+                        </div>
+                        <p className="shrink-0 text-[12px] font-semibold tabular text-[#111]">
+                          {r.amount > 0 ? '+' : ''}{num(r.amount)}{r.kind === 'credit' ? ' PKR' : ''}
                         </p>
                       </div>
-                      <p className="shrink-0 text-[13px] tabular-nums text-black">
-                        {r.amount > 0 ? '+' : ''}{num(r.amount)}{r.kind === 'credit' ? ' PKR' : ''}
-                      </p>
-                    </li>
-                  ))}
-                </ul>
+                    ))}
+                  </div>
+                </div>
               )}
             </>
           )}
@@ -253,19 +244,13 @@ function MemberPanel({ id, onClose, onChanged }) {
       </div>
 
       {adjusting && a && (
-        <AdjustDialog
-          account={a}
-          onClose={() => setAdjusting(false)}
-          onDone={() => { setAdjusting(false); load(); onChanged(); }}
-        />
+        <AdjustDialog account={a} onClose={() => setAdjusting(false)} onDone={() => { setAdjusting(false); load(); onChanged(); }} />
       )}
-    </div>
+    </>
   );
 }
 
-/* ---------------------------------------------------------------------------
- * Create a gift card. The full code appears exactly once.
- * ------------------------------------------------------------------------- */
+/* ── New Gift Card Dialog ──────────────────────────────────────────────── */
 function NewCardDialog({ onClose, onDone }) {
   const { auth, toast } = useApp();
   const [amount, setAmount] = useState('');
@@ -284,75 +269,69 @@ function NewCardDialog({ onClose, onDone }) {
   }, [onClose]);
 
   const submit = async (e) => {
-    e.preventDefault();
-    setErr(null);
-    setBusy(true);
+    e.preventDefault(); setErr(null); setBusy(true);
     try {
       const r = await api('/loyalty/admin/gift-cards', {
-        method: 'POST', token: auth.token,
-        body: { amount: Number(amount) || 0, label: label.trim(), issuedTo: issuedTo.trim() },
+        method: 'POST', token: auth.token, body: { amount: Number(amount) || 0, label: label.trim(), issuedTo: issuedTo.trim() },
       });
-      setCode(r.code);
-      onDone();
+      setCode(r.code); onDone();
     } catch (ex) { setErr(ex.message || 'Could not create the card'); }
     setBusy(false);
   };
 
   return (
-    <div className="fixed inset-0 z-[60] grid place-items-end bg-black/40 p-0 sm:place-items-center sm:p-4" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
-      <div role="dialog" aria-modal="true" aria-labelledby="gc-title" className="max-h-[92svh] w-full overflow-y-auto rounded-t-2xl bg-white p-5 shadow-2xl sm:max-w-md sm:rounded-2xl">
-        <div className="mb-4 flex items-start justify-between gap-3">
-          <h2 id="gc-title" className="text-[12px] font-semibold text-neutral-900">{code ? 'Card created' : 'New gift card'}</h2>
-          <button ref={firstRef} type="button" onClick={onClose} aria-label="Close" className="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-neutral-500 transition hover:bg-neutral-100">
-            <X size={16} />
-          </button>
+    <div className="v3-modal-overlay" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
+      <div role="dialog" aria-modal="true" aria-labelledby="gc-title" className="v3-modal" style={{ maxWidth: 440 }}>
+        <div className="v3-modal-header">
+          <h2 id="gc-title" className="v3-h-section">{code ? 'Card Created' : 'New Gift Card'}</h2>
+          <button ref={firstRef} type="button" onClick={onClose} className="v3-btn v3-btn-icon v3-btn-ghost"><X size={16} /></button>
         </div>
-
         {code ? (
-          <>
-            <p className="mb-3 border border-[#EAEAEA] px-4 py-3 text-[12px] leading-relaxed text-[#777777]">
-              Copy this code now. It is stored scrambled, so it can never be shown again — only replaced.
-            </p>
-            <div className="flex items-center gap-2">
-              <code className="min-w-0 flex-1 select-all break-all rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-3 text-[12px] font-semibold tracking-wide text-neutral-900">{code}</code>
-              <button
-                type="button"
-                onClick={() => { navigator.clipboard?.writeText(code); toast('Code copied'); }}
-                className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-neutral-300 text-neutral-700 transition hover:bg-neutral-50"
-                aria-label="Copy code"
-              ><Copy size={15} /></button>
+          <div className="v3-modal-body space-y-4">
+            <div className="rounded-[5px] bg-[#F5F6F8] px-4 py-3 text-[12px] text-[#4A4A4A]">
+              Copy this code now. It is stored scrambled, so it can never be shown again.
             </div>
-            <button type="button" onClick={onClose} className="mt-4 min-h-[44px] w-full rounded-xl bg-neutral-900 px-4 text-[13px] font-semibold text-black transition hover:bg-neutral-800">Done</button>
-          </>
+            <div className="flex items-center gap-2">
+              <code className="min-w-0 flex-1 select-all break-all rounded-[5px] border border-[#E5E7EB] bg-white px-4 py-3 text-[12px] font-semibold tracking-wide text-[#111]">{code}</code>
+              <button type="button" onClick={() => { navigator.clipboard?.writeText(code); toast('Code copied'); }} className="v3-btn v3-btn-icon v3-btn-secondary" aria-label="Copy code"><Copy size={14} /></button>
+            </div>
+          </div>
         ) : (
           <form onSubmit={submit}>
-            <div className="mb-4">
-              <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500" htmlFor="gc-amount">Amount (PKR)</label>
-              <input id="gc-amount" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" type="number" min="1" inputMode="numeric" value={amount} onChange={(e) => setAmount(e.target.value)} />
+            <div className="v3-modal-body space-y-4">
+              <div className="v3-field">
+                <label className="v3-label">Amount (PKR)</label>
+                <input className="v3-input" type="number" min="1" inputMode="numeric" value={amount} onChange={(e) => setAmount(e.target.value)} autoFocus />
+              </div>
+              <div className="v3-field">
+                <label className="v3-label">Label (only you see this)</label>
+                <input className="v3-input" maxLength={80} value={label} onChange={(e) => setLabel(e.target.value)} placeholder="e.g. Eid giveaway" />
+              </div>
+              <div className="v3-field">
+                <label className="v3-label">Issued to (optional)</label>
+                <input className="v3-input" maxLength={120} value={issuedTo} onChange={(e) => setIssuedTo(e.target.value)} placeholder="Phone or email" />
+              </div>
+              {err && <div role="alert" className="rounded-[5px] border border-[#FECACA] bg-[#FEF2F2] px-3 py-2 text-[12px] text-[#991B1B]">{err}</div>}
             </div>
-            <div className="mb-4">
-              <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500" htmlFor="gc-label">Label (only you see this)</label>
-              <input id="gc-label" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" maxLength={80} value={label} onChange={(e) => setLabel(e.target.value)} placeholder="e.g. Eid giveaway" />
-            </div>
-            <div className="mb-4">
-              <label className="mb-1 block text-[13px] font-bold uppercase tracking-wider text-neutral-500" htmlFor="gc-to">Issued to (optional)</label>
-              <input id="gc-to" className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900" maxLength={120} value={issuedTo} onChange={(e) => setIssuedTo(e.target.value)} placeholder="Phone or email" />
-            </div>
-            {err && <p role="alert" className="mb-3 border border-[#EAEAEA] px-3 py-2 text-[12px] text-[#777777]">{err}</p>}
-            <div className="flex gap-2">
-              <button type="button" onClick={onClose} className="min-h-[44px] flex-1 rounded-xl border border-neutral-300 px-4 text-[13px] font-semibold text-neutral-700 transition hover:bg-neutral-50">Cancel</button>
-              <button type="submit" disabled={busy} className="min-h-[44px] flex-1 rounded-xl bg-neutral-900 px-4 text-[13px] font-semibold text-black transition hover:bg-neutral-800 disabled:opacity-50">
-                {busy ? 'Creating…' : 'Create card'}
-              </button>
+            <div className="v3-modal-footer">
+              <button type="button" onClick={onClose} className="v3-btn v3-btn-secondary">Cancel</button>
+              <button type="submit" disabled={busy} className="v3-btn v3-btn-primary">{busy ? 'Creating…' : 'Create Card'}</button>
             </div>
           </form>
+        )}
+        {code && (
+          <div className="v3-modal-footer">
+            <button type="button" onClick={onClose} className="v3-btn v3-btn-primary w-full">Done</button>
+          </div>
         )}
       </div>
     </div>
   );
 }
 
-/* ========================================================================== */
+/* ══════════════════════════════════════════════════════════════════════════
+ * MAIN LOYALTY COMPONENT
+ * ══════════════════════════════════════════════════════════════════════════ */
 
 export default function AdminLoyalty() {
   const { auth, toast } = useApp();
@@ -373,13 +352,8 @@ export default function AdminLoyalty() {
 
   const setTab = (t) => { const p = new URLSearchParams(params); if (t === 'members') p.delete('tab'); else p.set('tab', t); setParams(p, { replace: true }); };
 
-  const loadStats = useCallback(() => {
-    if (!auth?.token) return;
-    api('/loyalty/admin/stats', { token: auth.token }).then(setStats).catch(() => {});
-  }, [auth?.token]);
+  const loadStats = useCallback(() => { if (!auth?.token) return; api('/loyalty/admin/stats', { token: auth.token }).then(setStats).catch(() => {}); }, [auth?.token]);
 
-  /* Search runs on the server, debounced. Never fetch-everything-then-filter:
-     it works at 34 members and dies at 34,000. */
   const loadMembers = useCallback(() => {
     if (!auth?.token) return;
     const sp = new URLSearchParams({ page: String(page), limit: '25', sort });
@@ -392,9 +366,7 @@ export default function AdminLoyalty() {
 
   const loadCards = useCallback(() => {
     if (!auth?.token) return;
-    api('/loyalty/admin/gift-cards', { token: auth.token })
-      .then((d) => setCards(d.cards || []))
-      .catch(() => setCards([]));
+    api('/loyalty/admin/gift-cards', { token: auth.token }).then((d) => setCards(d.cards || [])).catch(() => setCards([]));
   }, [auth?.token]);
 
   useEffect(() => { loadStats(); }, [loadStats]);
@@ -404,8 +376,6 @@ export default function AdminLoyalty() {
     const t = setTimeout(loadMembers, q ? 300 : 0);
     return () => clearTimeout(t);
   }, [tab, loadMembers, q]);
-
-  // A new search must start at page 1, or an empty page 3 looks like no results.
   useEffect(() => { setPage(1); }, [q, tier, sort]);
 
   const exportCsv = async () => {
@@ -415,10 +385,8 @@ export default function AdminLoyalty() {
       if (!res.ok) throw new Error('Export failed');
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url; a.download = 'loyalty-ledger.csv';
-      document.body.appendChild(a); a.click(); a.remove();
-      URL.revokeObjectURL(url);
+      const a = document.createElement('a'); a.href = url; a.download = 'loyalty-ledger.csv';
+      document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
     } catch (e) { toast(e.message || 'Export failed'); }
   };
 
@@ -434,56 +402,52 @@ export default function AdminLoyalty() {
 
   return (
     <AdminLayout title="Loyalty">
-      <PageHeader
-        title="Loyalty"
-        description="Members, balances and gift cards."
-        actions={
-          <div className="flex flex-wrap gap-2">
-            <button type="button" onClick={exportCsv} className={btnGhost}>Export ledger</button>
-            <Link to="/admin/settings/loyalty" className={btnGhost}>Rules</Link>
-          </div>
-        }
-      />
-
-      {/* MEASURED: rendering this grid only once /admin/stats returned pushed
-          the tabs and filters down 218px at 776ms — CLS 0.1466 against a
-          0.0000 baseline on /admin/customers. The fix is not a spinner but a
-          reservation: the same four cards are always in the DOM, showing a
-          placeholder line of identical height until the numbers land. Heights
-          are matched by using the same markup, not a guessed min-height. */}
-      <div className="mb-5 grid grid-cols-2 gap-3 md:grid-cols-4">
-        <StatCard label="Members" value={stats ? num(stats.accounts) : '—'} />
-        <StatCard label="Points outstanding" value={stats ? num(stats.points) : '—'} sub={stats ? `${num(stats.lifetimeEarned)} earned all time` : '\u00A0'} />
-        <StatCard label="Store credit" value={stats ? money(stats.credit) : '—'} />
-        <StatCard label="Gift cards live" value={stats ? money(stats.giftCards?.outstanding) : '—'} sub={stats ? `${num(stats.giftCards?.active)} active` : '\u00A0'} />
+      {/* ── PAGE HEADER ──────────────────────────────────────────────── */}
+      <div className="v3-page-header">
+        <div className="v3-page-header-left">
+          <div className="v3-breadcrumb"><Link to="/admin">Home</Link><span>/</span><span>Loyalty</span></div>
+          <h1 className="v3-h-page">Loyalty</h1>
+          <p className="v3-h-small mt-1">Members, balances and gift cards.</p>
+        </div>
+        <div className="v3-page-header-right">
+          <button type="button" onClick={exportCsv} className="v3-btn v3-btn-secondary v3-btn-sm">Export Ledger</button>
+          <Link to="/admin/settings/loyalty" className="v3-btn v3-btn-secondary v3-btn-sm">Rules</Link>
+        </div>
       </div>
 
-      <div className="mb-5 flex flex-wrap items-center gap-2">
-        {[['members', 'Members'], ['gift-cards', 'Gift cards']].map(([id, label]) => (
-          <button
-            key={id} type="button" onClick={() => setTab(id)} aria-current={tab === id ? 'page' : undefined}
-            className={`min-h-[40px] rounded-full px-4 text-sm font-semibold transition ${tab === id ? 'bg-neutral-900 text-white' : 'bg-white text-neutral-600 ring-1 ring-neutral-200 hover:text-neutral-900'}`}
-          >{label}</button>
+      {/* ── SUMMARY STATS ────────────────────────────────────────────── */}
+      <div className="v3-card mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-y md:divide-y-0 divide-[#F0F1F3]">
+          <StatCard label="Members" value={stats ? num(stats.accounts) : '—'} />
+          <StatCard label="Points Outstanding" value={stats ? num(stats.points) : '—'} sub={stats ? `${num(stats.lifetimeEarned)} earned all time` : '\u00A0'} />
+          <StatCard label="Store Credit" value={stats ? money(stats.credit) : '—'} />
+          <StatCard label="Gift Cards Live" value={stats ? money(stats.giftCards?.outstanding) : '—'} sub={stats ? `${num(stats.giftCards?.active)} active` : '\u00A0'} />
+        </div>
+      </div>
+
+      {/* ── TABS ─────────────────────────────────────────────────────── */}
+      <div className="v3-tabs mb-6">
+        {[['members', 'Members'], ['gift-cards', 'Gift Cards']].map(([id, label]) => (
+          <button key={id} type="button" onClick={() => setTab(id)} className={`v3-tab ${tab === id ? 'active' : ''}`}>{label}</button>
         ))}
       </div>
 
+      {/* ── MEMBERS TAB ──────────────────────────────────────────────── */}
       {tab === 'members' ? (
         <>
-          <div className="mb-4 flex flex-wrap gap-2">
-            <div className="relative min-w-0 flex-1 sm:max-w-xs">
-              <Search size={15} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" aria-hidden="true" />
-              <input
-                className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 pl-9" type="search" value={q} onChange={(e) => setQ(e.target.value)}
-                placeholder="Search name, phone, email or code" aria-label="Search members"
-              />
+          {/* Filter bar */}
+          <div className="v3-filter-bar mb-4">
+            <div className="relative flex-1" style={{ maxWidth: 280 }}>
+              <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#9CA3AF]" />
+              <input className="v3-input" style={{ paddingLeft: 30, height: 30, fontSize: 12 }} type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search name, phone, email…" aria-label="Search members" />
             </div>
             {tiers.length > 0 && (
-              <select className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 max-w-[160px]" value={tier} onChange={(e) => setTier(e.target.value)} aria-label="Filter by tier">
+              <select className="v3-select" style={{ height: 30, fontSize: 12, width: 140 }} value={tier} onChange={(e) => setTier(e.target.value)} aria-label="Filter by tier">
                 <option value="">All tiers</option>
                 {tiers.map((t) => <option key={t} value={t}>{t}</option>)}
               </select>
             )}
-            <select className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-[12px] outline-none transition focus:border-neutral-900 max-w-[180px]" value={sort} onChange={(e) => setSort(e.target.value)} aria-label="Sort members">
+            <select className="v3-select" style={{ height: 30, fontSize: 12, width: 160 }} value={sort} onChange={(e) => setSort(e.target.value)} aria-label="Sort members">
               <option value="points">Most points</option>
               <option value="spend">Highest spend</option>
               <option value="recent">Recently active</option>
@@ -491,134 +455,131 @@ export default function AdminLoyalty() {
           </div>
 
           {rows === null ? (
-            <div className="animate-pulse rounded-xl bg-neutral-100 h-64 w-full" />
+            <div className="space-y-2">{[1,2,3,4,5].map(i => <div key={i} className="h-14 v3-skeleton rounded-[5px]" />)}</div>
           ) : rows.length === 0 ? (
-            <div className="rounded-2xl border border-neutral-200 bg-white p-12 text-center">
-              <p className="font-sans text-xl text-neutral-900">{q || tier ? 'Nothing matched' : 'No members yet'}</p>
-              <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-neutral-500">
-                {q || tier
-                  ? 'Try a different search, or clear the filters.'
-                  : 'A member appears here the first time a customer earns points. Turn the programme on in Rules to start.'}
-              </p>
+            <div className="v3-card">
+              <div className="v3-empty">
+                <Gift size={24} className="v3-empty-icon" />
+                <p className="v3-empty-title">{q || tier ? 'Nothing matched' : 'No members yet'}</p>
+                <p className="v3-empty-desc">{q || tier ? 'Try a different search, or clear the filters.' : 'A member appears here the first time a customer earns points. Turn the programme on in Rules to start.'}</p>
+              </div>
             </div>
           ) : (
             <>
-              {/* Cards on mobile, table on desktop — a 7-column table on a
-                  360px phone is unreadable no matter how it is styled. */}
+              {/* Mobile cards */}
               <ul className="space-y-2 md:hidden">
                 {rows.map((r) => (
                   <li key={r._id}>
-                    <button type="button" onClick={() => setOpenId(r._id)} className="w-full rounded-xl border border-neutral-200 bg-white p-4 text-left transition hover:border-neutral-300">
+                    <button type="button" onClick={() => setOpenId(r._id)} className="w-full v3-card text-left">
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
-                          <p className="truncate text-[13px] font-semibold text-neutral-900">{r.name || 'Customer'}</p>
-                          <p className="mt-0.5 truncate text-[12px] text-neutral-500">{r.phone}</p>
+                          <p className="truncate text-[13px] font-semibold text-[#111]">{r.name || 'Customer'}</p>
+                          <p className="mt-0.5 truncate text-[12px] text-[#6B7280]">{r.phone}</p>
                         </div>
-                        <p className="shrink-0 text-[13px] font-semibold tabular-nums text-neutral-900">{num(r.pointsBalance)}</p>
+                        <p className="shrink-0 text-[13px] font-bold tabular text-[#111]">{num(r.pointsBalance)}</p>
                       </div>
-                      <div className="mt-2 flex flex-wrap items-center gap-2 text-[12px] text-neutral-500">
-                        {r.tier && <span className="rounded-full bg-neutral-100 px-2 py-0.5 font-medium capitalize text-neutral-700">{r.tier}</span>}
+                      <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-[#6B7280]">
+                        {r.tier && <span className="v3-status v3-status-active" style={{ fontSize: 10 }}>{r.tier}</span>}
                         {r.creditBalance > 0 && <span>{money(r.creditBalance)} credit</span>}
                         <span>Spend {money(r.tierSpend)}</span>
-                        {r.blocked && <MonoStatus label="BLOCKED" dim />}
+                        {r.blocked && <span className="v3-status v3-status-inactive" style={{ fontSize: 10 }}>Blocked</span>}
                       </div>
                     </button>
                   </li>
                 ))}
               </ul>
 
-              <div className="hidden overflow-hidden rounded-xl border border-neutral-200 md:block">
-                <table className="w-full text-left">
-                  <caption className="sr-only">Loyalty members, {meta.total} in total</caption>
-                  <thead className="bg-neutral-50 text-[12px] uppercase tracking-wider text-neutral-500">
-                    <tr>
-                      <th scope="col" className="px-4 py-3 font-semibold">Member</th>
-                      <th scope="col" className="px-4 py-3 font-semibold">Tier</th>
-                      <th scope="col" className="px-4 py-3 text-right font-semibold">Points</th>
-                      <th scope="col" className="px-4 py-3 text-right font-semibold">Credit</th>
-                      <th scope="col" className="px-4 py-3 text-right font-semibold">Spend</th>
-                      <th scope="col" className="px-4 py-3 text-right font-semibold">Referrals</th>
-                      <th scope="col" className="px-4 py-3" />
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-neutral-100 text-[13px]">
-                    {rows.map((r) => (
-                      <tr key={r._id} className="bg-white transition hover:bg-neutral-50">
-                        <td className="px-4 py-3">
-                          <p className="font-medium text-neutral-900">{r.name || 'Customer'}{r.blocked && <span className="ml-2"><MonoStatus label="BLOCKED" dim /></span>}</p>
-                          <p className="mt-0.5 text-[12px] text-neutral-500">{r.phone}{r.email ? ` · ${r.email}` : ''}</p>
-                        </td>
-                        <td className="px-4 py-3 capitalize text-neutral-700">{r.tier || '—'}</td>
-                        <td className="px-4 py-3 text-right tabular-nums font-medium text-neutral-900">{num(r.pointsBalance)}</td>
-                        <td className="px-4 py-3 text-right tabular-nums text-neutral-700">{r.creditBalance ? money(r.creditBalance) : '—'}</td>
-                        <td className="px-4 py-3 text-right tabular-nums text-neutral-700">{money(r.tierSpend)}</td>
-                        <td className="px-4 py-3 text-right tabular-nums text-neutral-700">{num(r.referralCount)}</td>
-                        <td className="px-4 py-3 text-right">
-                          <button type="button" onClick={() => setOpenId(r._id)} className="min-h-[44px] rounded-lg border border-neutral-300 px-3 py-1.5 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-100">
-                            Open
-                          </button>
-                        </td>
+              {/* Desktop table */}
+              <div className="v3-card hidden md:block">
+                <div className="v3-table-wrap">
+                  <table className="v3-table dense">
+                    <caption className="sr-only">Loyalty members, {meta.total} in total</caption>
+                    <thead>
+                      <tr>
+                        <th>Member</th>
+                        <th>Tier</th>
+                        <th className="right">Points</th>
+                        <th className="right">Credit</th>
+                        <th className="right">Spend</th>
+                        <th className="right">Referrals</th>
+                        <th style={{ width: 80 }}></th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {rows.map((r) => (
+                        <tr key={r._id}>
+                          <td>
+                            <p className="text-[13px] font-medium text-[#111]">{r.name || 'Customer'}{r.blocked && <span className="ml-2 v3-status v3-status-inactive" style={{ fontSize: 9 }}>Blocked</span>}</p>
+                            <p className="mt-0.5 text-[11px] text-[#9CA3AF]">{r.phone}{r.email ? ` · ${r.email}` : ''}</p>
+                          </td>
+                          <td className="text-[12px] capitalize text-[#4A4A4A]">{r.tier || '—'}</td>
+                          <td className="right tabular text-[13px] font-semibold text-[#111]">{num(r.pointsBalance)}</td>
+                          <td className="right tabular text-[12px] text-[#4A4A4A]">{r.creditBalance ? money(r.creditBalance) : '—'}</td>
+                          <td className="right tabular text-[12px] text-[#4A4A4A]">{money(r.tierSpend)}</td>
+                          <td className="right tabular text-[12px] text-[#4A4A4A]">{num(r.referralCount)}</td>
+                          <td className="text-right">
+                            <button type="button" onClick={() => setOpenId(r._id)} className="v3-btn v3-btn-secondary v3-btn-sm">Open</button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
 
-              <div className="mt-4 flex items-center justify-between gap-3">
-                <p className="text-[12px] text-neutral-500" aria-live="polite">
-                  Page {meta.page} · {num(meta.total)} member{meta.total === 1 ? '' : 's'}
-                </p>
-                <div className="flex gap-2">
-                  <button type="button" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1} className="inline-flex min-h-[40px] items-center gap-1 rounded-lg border border-neutral-300 px-3 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-40">
-                    <ChevronLeft size={14} /> Previous
-                  </button>
-                  <button type="button" onClick={() => setPage((p) => p + 1)} disabled={!meta.hasMore} className="inline-flex min-h-[40px] items-center gap-1 rounded-lg border border-neutral-300 px-3 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-40">
-                    Next <ChevronRight size={14} />
-                  </button>
+              {/* Pagination */}
+              <div className="v3-pagination mt-4">
+                <span>Page {meta.page} · {num(meta.total)} member{meta.total === 1 ? '' : 's'}</span>
+                <div className="v3-pagination-controls">
+                  <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1} className="v3-pagination-btn"><ChevronLeft size={12} /></button>
+                  <button onClick={() => setPage((p) => p + 1)} disabled={!meta.hasMore} className="v3-pagination-btn"><ChevronRight size={12} /></button>
                 </div>
               </div>
             </>
           )}
         </>
       ) : (
+        /* ── GIFT CARDS TAB ──────────────────────────────────────────── */
         <>
-          <button type="button" onClick={() => setNewCard(true)} className="mb-4 inline-flex min-h-[40px] items-center gap-1.5 rounded-lg bg-neutral-900 px-3 text-[12px] font-semibold text-black transition hover:bg-neutral-800">
-            <Gift size={13} /> New gift card
-          </button>
+          <div className="mb-4">
+            <button type="button" onClick={() => setNewCard(true)} className="v3-btn v3-btn-primary v3-btn-sm">
+              <Gift size={12} /> New Gift Card
+            </button>
+          </div>
 
           {cards === null ? (
-            <div className="animate-pulse rounded-xl bg-neutral-100 h-48 w-full" />
+            <div className="space-y-2">{[1,2,3].map(i => <div key={i} className="h-16 v3-skeleton rounded-[5px]" />)}</div>
           ) : cards.length === 0 ? (
-            <div className="rounded-2xl border border-neutral-200 bg-white p-12 text-center">
-              <p className="font-sans text-xl text-neutral-900">No gift cards yet</p>
-              <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-neutral-500">
-                Create one for a giveaway, an apology, or a customer who wants to buy a present.
-              </p>
+            <div className="v3-card">
+              <div className="v3-empty">
+                <Gift size={24} className="v3-empty-icon" />
+                <p className="v3-empty-title">No gift cards yet</p>
+                <p className="v3-empty-desc">Create one for a giveaway, an apology, or a customer who wants to buy a present.</p>
+              </div>
             </div>
           ) : (
             <ul className="space-y-2">
               {cards.map((c) => (
-                <li key={c._id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-neutral-200 bg-white p-4">
-                  <div className="min-w-0">
-                    <p className="text-[13px] font-semibold text-neutral-900">
-                      ····{c.last4}
-                      {!c.active && <span className="ml-2 rounded-full bg-neutral-100 px-2 py-0.5 text-[13px] font-semibold text-neutral-600">Disabled</span>}
-                      {c.expiresAt && new Date(c.expiresAt) < new Date() && <span className="ml-2"><MonoStatus label="EXPIRED" dim /></span>}
-                    </p>
-                    <p className="mt-0.5 text-[12px] leading-relaxed text-neutral-500">
-                      {c.label || 'No label'}
-                      {c.issuedTo ? ` · ${c.issuedTo}` : ''}
-                      {c.expiresAt ? ` · expires ${new Date(c.expiresAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}` : ' · no expiry'}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <p className="text-right">
-                      <span className="block text-[13px] font-semibold tabular-nums text-neutral-900">{money(c.balance)}</span>
-                      <span className="block text-[12px] text-neutral-500">of {money(c.initialAmount)}</span>
-                    </p>
-                    <button type="button" onClick={() => toggleCard(c)} className="min-h-[44px] rounded-lg border border-neutral-300 px-3 py-1.5 text-[12px] font-semibold text-neutral-700 transition hover:bg-neutral-50">
-                      {c.active ? 'Disable' : 'Enable'}
-                    </button>
+                <li key={c._id} className="v3-card">
+                  <div className="flex flex-wrap items-center justify-between gap-3 p-4">
+                    <div className="min-w-0">
+                      <p className="text-[13px] font-semibold text-[#111]">
+                        ····{c.last4}
+                        {!c.active && <span className="ml-2 v3-status v3-status-inactive" style={{ fontSize: 10 }}>Disabled</span>}
+                        {c.expiresAt && new Date(c.expiresAt) < new Date() && <span className="ml-2 v3-status v3-status-inactive" style={{ fontSize: 10 }}>Expired</span>}
+                      </p>
+                      <p className="mt-0.5 text-[12px] text-[#6B7280]">
+                        {c.label || 'No label'}{c.issuedTo ? ` · ${c.issuedTo}` : ''}
+                        {c.expiresAt ? ` · expires ${new Date(c.expiresAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}` : ' · no expiry'}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <p className="text-right">
+                        <span className="block text-[13px] font-bold tabular text-[#111]">{money(c.balance)}</span>
+                        <span className="block text-[11px] text-[#9CA3AF]">of {money(c.initialAmount)}</span>
+                      </p>
+                      <button type="button" onClick={() => toggleCard(c)} className="v3-btn v3-btn-secondary v3-btn-sm">{c.active ? 'Disable' : 'Enable'}</button>
+                    </div>
                   </div>
                 </li>
               ))}
@@ -627,13 +588,7 @@ export default function AdminLoyalty() {
         </>
       )}
 
-      {openId && (
-        <MemberPanel
-          id={openId}
-          onClose={() => setOpenId(null)}
-          onChanged={() => { loadMembers(); loadStats(); }}
-        />
-      )}
+      {openId && <MemberPanel id={openId} onClose={() => setOpenId(null)} onChanged={() => { loadMembers(); loadStats(); }} />}
       {newCard && <NewCardDialog onClose={() => setNewCard(false)} onDone={() => { loadCards(); loadStats(); }} />}
     </AdminLayout>
   );
