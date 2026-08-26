@@ -31,13 +31,7 @@ cd frontend
 npm install
 npm run dev              # → http://localhost:5173
 ```
-Vite `/api` ko **live backend** (`https://hushae1.vercel.app`) par proxy karta hai — is liye local UI bina local backend ke bhi poora chalta hai.
-Local backend (port 4000) use karna ho to proxy override karein:
-
-- macOS/Linux: `VITE_API_PROXY=http://127.0.0.1:4000 npm run dev`
-- Windows: `set VITE_API_PROXY=http://127.0.0.1:4000 && npm run dev`
-
-Backend ka DB: `backend/.env` me `MONGODB_URI=` **khaali chhorein** to embedded local MongoDB khud chal jata hai (pehli baar ~90 MB download). Permanent data chahiye to Atlas connection string daalein.
+Vite `/api` ko khud backend (127.0.0.1:4000) par proxy karta hai.
 
 ## Admin panel
 http://localhost:5173/admin/login → `.env` wala ADMIN_EMAIL/ADMIN_PASSWORD
