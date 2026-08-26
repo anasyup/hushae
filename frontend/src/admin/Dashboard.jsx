@@ -4,6 +4,7 @@ import Chart from 'chart.js/auto';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import AdminLayout from './AdminLayout';
+import AtelierSidebar from './components/AtelierSidebar';
 import Img from '../components/Img';
 import { resolvePreset } from './dashboard/RangePicker';
 
@@ -663,11 +664,23 @@ export default function Dashboard() {
   ];
 
   /* ── shells ───────────────────────────────────────────────────────────── */
+  const health = useMemo(() => {
+    const s0 = d?.stats || {};
+    const total = Object.values(s0).reduce((a, b) => a + (Number(b) || 0), 0);
+    const pct = total ? ((s0.delivered || 0) / total) * 100 : 0;
+    const label = pct >= 85 ? 'Excellent' : pct >= 70 ? 'Good' : pct >= 45 ? 'Fair' : 'Needs attention';
+    const text = pct >= 70 ? 'Your store is performing great!' : pct >= 45 ? 'Steady progress — keep fulfilment tight.' : 'Focus on completing pending orders.';
+    return total ? { pct, label, text } : null;
+  }, [d]);
+
   const shell = (children) => (
     <AdminLayout title="Overview" subtitle="Here's what's happening with your store today." hideContentTitle chromeless>
       <style>{OVP_CSS}</style>
       <div className="ovp-root">
-        {children}
+        <AtelierSidebar active="overview" badge={d?.stats?.pending ?? null} health={health} onNotify={say} />
+        <div className="main">
+          {children}
+        </div>
       </div>
     </AdminLayout>
   );
@@ -702,7 +715,7 @@ export default function Dashboard() {
       {/* ── topbar ──────────────────────────────────────────────────────── */}
       <div className="topbar">
         <div className="top-left">
-          <button type="button" className="hamburger" aria-label="Open navigation menu" onClick={() => window.dispatchEvent(new Event('ovp-menu'))}>
+          <button type="button" className="hamburger" aria-label="Open navigation menu" onClick={() => window.dispatchEvent(new window.Event('atelier-nav'))}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="2"><path d="M3 6h18M3 12h18M3 18h18" /></svg>
           </button>
           <div className="top-title"><h1>Overview</h1><p>Here&apos;s what&apos;s happening with your store today.</p></div>
