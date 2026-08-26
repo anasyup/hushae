@@ -6,7 +6,6 @@ import { api } from '../../api/client';
 import AdminLayout from '../AdminLayout';
 import { resolvePreset } from '../dashboard/RangePicker';
 import { writePrintWindow } from './printDocument';
-import AtelierSidebar from '../components/AtelierSidebar';
 
 /* ============================================================================
  * ORDERS — premium ATELIER table view (orders_overview_theme.html applied
@@ -443,22 +442,12 @@ export default function OrdersAtelier() {
 
   const pendingCount = tabCount('pending');
 
-  const health = useMemo(() => {
-    const t = stats.total;
-    const pct = t ? (stats.completed / t) * 100 : 0;
-    const label = pct >= 85 ? 'Excellent' : pct >= 70 ? 'Good' : pct >= 45 ? 'Fair' : 'Needs attention';
-    const text = pct >= 70 ? 'Your store is performing great!' : pct >= 45 ? 'Steady progress — keep fulfilment tight.' : 'Focus on completing pending orders.';
-    return { pct, label, text };
-  }, [stats.total, stats.completed]);
 
   const shell = (children) => (
     <AdminLayout title="Orders" subtitle="Manage and track all customer orders." hideContentTitle chromeless>
       <style>{ORD_CSS}</style>
       <div className="ovp-root">
-        <AtelierSidebar active="orders" badge={pendingCount} health={health} onNotify={say} />
-        <div className="main">
-          {children}
-        </div>
+        {children}
       </div>
     </AdminLayout>
   );
@@ -496,7 +485,7 @@ export default function OrdersAtelier() {
       {/* ── topbar ─────────────────────────────────────────────────────── */}
       <div className="topbar">
         <div className="top-left" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <button type="button" className="icon-btn" style={{ border: 0, boxShadow: 'none' }} aria-label="Open navigation menu" onClick={() => window.dispatchEvent(new window.Event('atelier-nav'))}>
+          <button type="button" className="icon-btn" style={{ border: 0, boxShadow: 'none' }} aria-label="Open navigation menu" onClick={() => window.dispatchEvent(new window.Event('ovp-menu'))}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="2"><path d="M3 6h18M3 12h18M3 18h18" /></svg>
           </button>
           <div><h1>Orders</h1><p>Manage and track all customer orders.</p></div>

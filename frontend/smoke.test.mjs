@@ -145,7 +145,7 @@ const qsa = (sel) => container.querySelectorAll(sel);
 
 if (CASE === 'full') {
   check('mounts without throwing', qsa('.card').length > 0, `${qsa('.card').length} cards`);
-  check('ATELIER sidebar on overview', !!container.querySelector('.ovp-root aside.sidebar') && !!container.querySelector('.sidebar a.nav-item[href="/admin/orders"]'));
+  check('original app sidebar on overview', (() => { const a = container.querySelector('aside'); return !!a && a.className.includes('w-[200px]'); })());
   check('page title "Overview"', has('Overview'));
   check('topbar search present', !!container.querySelector('input[placeholder^="Search orders"]'));
   check('Add New pill present', has('Add New'));
@@ -224,19 +224,13 @@ if (CASE === 'orders') {
   check('copy buttons per row', qsa('tbody tr button[aria-label^="Copy"]').length === 10);
   check('action buttons per row', qsa('tbody tr .action-btn').length === 10);
   check('workflow desk link kept (⋮ menu route)', !!container.querySelector('a[href="/admin/orders/desk"]') || true);
-  check('ATELIER sidebar rendered', !!container.querySelector('.ovp-root aside.sidebar'));
-  check('sidebar brand', has('ATELIER') && has('ADMIN PANEL'));
-  check('sidebar nav wired to real routes', !!container.querySelector('.sidebar a.nav-item[href="/admin/products"]') && !!container.querySelector('.sidebar a.nav-item[href="/admin/settings"]'));
-  const activeNav = container.querySelector('.sidebar a.nav-item.active');
-  check('active nav = Orders with live pending badge', activeNav?.getAttribute('href') === '/admin/orders' && activeNav?.querySelector('.count')?.textContent === '2', activeNav?.textContent);
-  const hc = container.querySelector('.health-circle span');
-  check('health card shows real %', hc && /%$/.test(hc.textContent), hc?.textContent);
-  check('user box rendered', !!container.querySelector('.user-box .avatar'));
-  check('sidebar is open by default (permanent)', !!container.querySelector('.sidebar.open') && !container.querySelector('.ovp-root').classList.contains('sb-closed'));
+  const appAside = container.querySelector('aside');
+  check('original app sidebar renders on Orders', !!appAside && appAside.className.includes('w-[200px]'), appAside?.className?.slice(0, 80));
+  check('no ATELIER sidebar anymore', !container.querySelector('.sidebar') && !has('ADMIN PANEL'));
   await act(async () => { container.querySelector('button[aria-label="Open navigation menu"]').click(); });
-  check('hamburger can slide the sidebar away', container.querySelector('.ovp-root').classList.contains('sb-closed'));
-  await act(async () => { container.querySelector('button[aria-label="Open navigation menu"]').click(); });
-  check('hamburger brings the sidebar back', !container.querySelector('.ovp-root').classList.contains('sb-closed'));
+  check('hamburger opens the mobile drawer', !!container.querySelector('button[aria-label="Close menu"]'));
+  await act(async () => { container.querySelector('button[aria-label="Close menu"]').click(); });
+  check('drawer closes again', !container.querySelector('button[aria-label="Close menu"]'));
   check('compare pill present', has('Compare: Previous period'));
   check('card-h has Filter + Columns buttons', has('Filter') && has('Columns'));
 
