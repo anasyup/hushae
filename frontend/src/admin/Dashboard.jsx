@@ -1,217 +1,81 @@
 import { Component, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import Chart from 'chart.js/auto';
+import { Link } from 'react-router-dom';
+import {
+  AlertTriangle, ArrowRight, ArrowUpRight, BadgePercent, BarChart3, Bell, Calendar,
+  Check, ChevronDown, ChevronRight, CircleDollarSign, CreditCard, FolderPlus,
+  Mail, Maximize2, Menu, Minimize2, MoreHorizontal, Package, PackagePlus, Plus, Search, ShoppingBag, ShoppingCart,
+  Sparkles, Star, TrendingUp, Users, Wallet,
+} from 'lucide-react';
+import {
+  Bar, BarChart, CartesianGrid, Cell, Line, LineChart, Pie, PieChart,
+  ResponsiveContainer, Tooltip, XAxis, YAxis,
+} from 'recharts';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import AdminLayout from './AdminLayout';
 import Img from '../components/Img';
-import { resolvePreset } from './dashboard/RangePicker';
+import RangePicker, { resolvePreset } from './dashboard/RangePicker';
 
 /* ============================================================================
- * OVERVIEW — the approved reference (overview_perfect_final.html) applied
- * VERBATIM: its exact CSS (scoped under .ovp-root), its exact markup, its
- * exact Chart.js configurations. Only the demo numbers are replaced — every
- * value below is live HUSHAE data (PKR). The reference's hamburger opens the
- * app sidebar drawer (AdminLayout chromeless mode).
+ * OVERVIEW — rebuilt from the approved reference layout (overview_perfect_final).
+ * Layout, density and micro-interactions follow the reference 1:1:
+ *   1580px wrap · 10px gaps · 12px radii · 13px body · sticky page topbar
+ *   (search / date / compare / add / notifications / fullscreen) · 6 KPI cards
+ *   with count-up + sparklines · 3-up chart row · 3-up desk row · 4-up row ·
+ *   8-up quick actions · 5-up smart insights.
+ * Data is 100% live HUSHAE data (PKR), never demo numbers.
+ * The reference's sidebar hamburger is intentionally not rendered here — the
+ * app sidebar toggle lives in AdminLayout's top bar.
  * ======================================================================== */
 
-const OVP_CSS = `@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-.ovp-root{--bg:#f8f8f7;--card:#fff;--border:#ececec;--border-light:#f1f1f1;--text:#111;--muted:#6b7280;--muted2:#9ca3af;--green:#0e9f6e;--green-bg:#ecfdf5;--green-text:#065f46;--yellow-bg:#fef3c7;--yellow-text:#92400e;--black:#111}
-.ovp-root *{margin:0;padding:0;box-sizing:border-box}
-.ovp-root{scroll-behavior:smooth}
-.ovp-root{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--text);font-size:13px;line-height:1.45;-webkit-font-smoothing:antialiased;overflow-x:hidden}
-.ovp-root .wrap{max-width:1580px;margin:0 auto;padding:14px 18px 32px;animation:ovpFadeIn .5s ease}
-@keyframes ovpFadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-.ovp-root .topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px;flex-wrap:wrap;position:sticky;top:0;z-index:50;background:var(--bg);padding:8px 0}
-.ovp-root .top-left{display:flex;align-items:center;gap:12px}
-.ovp-root .hamburger{width:32px;height:32px;display:grid;place-items:center;border-radius:8px;cursor:pointer;transition:.15s}
-.ovp-root .hamburger:hover{background:#eee}
-.ovp-root .top-title h1{font-size:16.5px;font-weight:700;letter-spacing:-0.3px}
-.ovp-root .top-title p{font-size:12px;color:var(--muted);margin-top:1px}
-.ovp-root .top-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.ovp-root .search{position:relative;background:var(--card);border:1px solid var(--border);border-radius:10px;height:36px;min-width:320px;display:flex;align-items:center;padding:0 12px;gap:8px;box-shadow:0 1px 2px rgba(0,0,0,0.03);transition:.15s}
-.ovp-root .search:focus-within{border-color:#111;box-shadow:0 0 0 3px rgba(17,17,17,0.08)}
-.ovp-root .search input{border:0;outline:0;background:transparent;width:100%;font-size:12.5px;color:var(--text)}
-.ovp-root .search input::placeholder{color:var(--muted2)}
-.ovp-root .kbd{font-size:10px;color:var(--muted2);border:1px solid var(--border);background:#fafafa;border-radius:5px;padding:2px 5px}
-.ovp-root .pill{height:36px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:0 12px;display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,0.03);transition:.15s;position:relative;user-select:none}
-.ovp-root .pill:hover{border-color:#bbb}
-.ovp-root .pill.active{border-color:#111}
-.ovp-root .dropdown{position:absolute;top:42px;left:0;right:0;background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,0.08);padding:6px;display:none;z-index:100;min-width:180px}
-.ovp-root .dropdown.show{display:block;animation:ovpDropIn .18s ease}
-@keyframes ovpDropIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
-.ovp-root .dropdown div{padding:8px 10px;border-radius:8px;font-size:11.5px;cursor:pointer;transition:.12s}
-.ovp-root .dropdown div:hover{background:#f5f5f5}
-.ovp-root .btn-black{height:36px;background:var(--black);color:#fff;border:0;border-radius:10px;padding:0 14px;font-size:12.5px;font-weight:600;display:flex;align-items:center;gap:6px;cursor:pointer;transition:.18s;box-shadow:0 1px 2px rgba(0,0,0,0.08)}
-.ovp-root .btn-black:hover{background:#222;transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,0.15)}
-.ovp-root .btn-black:active{transform:translateY(0)}
-.ovp-root .icon-btn{width:36px;height:36px;background:var(--card);border:1px solid var(--border);border-radius:10px;display:grid;place-items:center;cursor:pointer;position:relative;box-shadow:0 1px 2px rgba(0,0,0,0.03);transition:.15s}
-.ovp-root .icon-btn:hover{border-color:#bbb;transform:translateY(-1px)}
-.ovp-root .badge{position:absolute;top:-5px;right:-5px;background:var(--black);color:#fff;font-size:9px;font-weight:700;min-width:18px;height:18px;border-radius:20px;display:grid;place-items:center;padding:0 4px;border:2px solid var(--bg);animation:ovpBadgePop .4s ease}
-@keyframes ovpBadgePop{0%{transform:scale(0)}50%{transform:scale(1.2)}100%{transform:scale(1)}}
-.ovp-root .stats{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:12px}
-@media(max-width:1380px){.ovp-root .stats{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:680px){.ovp-root .stats{grid-template-columns:repeat(2,1fr)}}
-.ovp-root .stat{background:var(--card);border:1px solid var(--border-light);border-radius:12px;padding:12px 14px 10px;box-shadow:0 1px 2px rgba(0,0,0,0.02);transition:.22s;position:relative;overflow:hidden;cursor:pointer;animation:ovpCardIn .5s ease backwards}
-.ovp-root .stat:nth-child(1){animation-delay:.05s}.ovp-root .stat:nth-child(2){animation-delay:.1s}.ovp-root .stat:nth-child(3){animation-delay:.15s}.ovp-root .stat:nth-child(4){animation-delay:.2s}.ovp-root .stat:nth-child(5){animation-delay:.25s}.ovp-root .stat:nth-child(6){animation-delay:.3s}
-@keyframes ovpCardIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-.ovp-root .stat:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(0,0,0,0.07);border-color:#e0e0e0}
-.ovp-root .stat-head{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:11px;font-weight:500;margin-bottom:10px}
-.ovp-root .stat-head svg{width:14px;height:14px;stroke:#6b7280}
-.ovp-root .stat-val{font-size:18px;font-weight:700;letter-spacing:-0.3px}
-.ovp-root .stat-foot{display:flex;align-items:flex-end;justify-content:space-between;margin-top:8px}
-.ovp-root .stat-change{font-size:11px;font-weight:600;color:var(--green);display:flex;align-items:center;gap:2px}
-.ovp-root .stat-change svg{width:10px;height:10px}
-.ovp-root .stat-vs{font-size:10px;color:var(--muted2);margin-top:2px}
-.ovp-root .spark{width:78px;height:28px}
-.ovp-root .grid3{display:grid;grid-template-columns:1.7fr 1.05fr 0.78fr;gap:10px;margin-bottom:10px}
-@media(max-width:1200px){.ovp-root .grid3{grid-template-columns:1fr}}
-.ovp-root .card{background:var(--card);border:1px solid var(--border-light);border-radius:12px;padding:14px 16px;box-shadow:0 1px 2px rgba(0,0,0,0.02);transition:.22s;animation:ovpCardIn .5s ease backwards}
-.ovp-root .card:hover{box-shadow:0 6px 18px rgba(0,0,0,0.05)}
-.ovp-root .card-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-.ovp-root .card-t{font-size:12.5px;font-weight:700;letter-spacing:-0.15px;display:flex;align-items:center;gap:6px}
-.ovp-root .info{width:14px;height:14px;border:1px solid #ddd;border-radius:50%;display:grid;place-items:center;font-size:8px;color:#888;cursor:pointer;transition:.15s}
-.ovp-root .info:hover{background:#111;color:#fff;border-color:#111}
-.ovp-root .btn-sm{border:1px solid var(--border);background:var(--card);border-radius:8px;padding:5px 10px;font-size:11px;font-weight:500;cursor:pointer;transition:.15s;user-select:none}
-.ovp-root .btn-sm:hover{background:#f9f9f9;border-color:#bbb;transform:translateY(-1px)}
-.ovp-root .btn-sm:active{transform:translateY(0)}
-.ovp-root .legend{display:flex;gap:16px;font-size:10.5px;color:var(--muted);margin-bottom:8px}
-.ovp-root .legend span{display:flex;align-items:center;gap:5px}
-.ovp-root .legend b{width:14px;height:2px;border-radius:2px;display:inline-block}
-.ovp-root .chart-main{height:200px;position:relative}
-.ovp-root .donut-row{display:flex;gap:16px;align-items:center}
-.ovp-root .donut{width:138px;height:138px;position:relative;flex-shrink:0}
-.ovp-root .donut canvas{width:100%!important;height:100%!important}
-.ovp-root .donut-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;text-align:center}
-.ovp-root .donut-center b{font-size:12.5px;font-weight:700}
-.ovp-root .donut-center span{font-size:10px;color:var(--muted)}
-.ovp-root .ch-list{flex:1}
-.ovp-root .ch-item{display:flex;align-items:center;gap:8px;font-size:11px;padding:4.5px 0;transition:.12s;border-radius:6px;padding-left:4px;margin-left:-4px}
-.ovp-root .ch-item:hover{background:#f9f9f9}
-.ovp-root .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-.ovp-root .ch-item .pct{margin-left:auto;color:var(--muted);width:32px;text-align:right}
-.ovp-root .ch-item .val{width:68px;text-align:right;font-weight:600}
-.ovp-root .live-top{display:flex;justify-content:space-between;align-items:center}
-.ovp-root .live-dot{width:6px;height:6px;background:#10b981;border-radius:50%;display:inline-block;box-shadow:0 0 0 3px #d1fae5;animation:ovpPulse 2s infinite}
-@keyframes ovpPulse{0%{box-shadow:0 0 0 0 #d1fae5}70%{box-shadow:0 0 0 6px rgba(209,250,229,0)}100%{box-shadow:0 0 0 0 rgba(209,250,229,0)}}
-.ovp-root .live-num{font-size:18px;font-weight:700;margin-top:4px;transition:.3s}
-.ovp-root .live-sub{font-size:11px;color:var(--muted)}
-.ovp-root .live-bars{display:flex;align-items:flex-end;gap:2.5px;height:34px;margin:10px 0}
-.ovp-root .live-bars div{background:var(--black);width:3.5px;border-radius:2px;transition:height .6s cubic-bezier(.34,1.56,.64,1)}
-.ovp-root .pages{font-size:11px}
-.ovp-root .page-row{display:flex;justify-content:space-between;padding:2.5px 0;color:#222;transition:.12s;border-radius:4px;padding-left:4px;margin-left:-4px}
-.ovp-root .page-row:hover{background:#f9f9f9}
-.ovp-root .page-row span:last-child{color:var(--muted)}
-.ovp-root .page-row.head{color:var(--muted);font-weight:600;margin-bottom:2px;font-size:10.5px}
-.ovp-root .page-row.head:hover{background:transparent}
-.ovp-root .grid4{display:grid;grid-template-columns:0.92fr 1.12fr 1fr;gap:10px;margin-bottom:10px}
-@media(max-width:1200px){.ovp-root .grid4{grid-template-columns:1fr}}
-.ovp-root .glance{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-@media(max-width:600px){.ovp-root .glance{grid-template-columns:repeat(2,1fr)}}
-.ovp-root .g-item{border:1px solid var(--border-light);border-radius:10px;padding:10px;text-align:center;background:#fff;transition:.18s;cursor:pointer}
-.ovp-root .g-item:hover{border-color:#111;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.06)}
-.ovp-root .g-ico{width:28px;height:28px;background:#f8f8f7;border:1px solid #f0f0f0;border-radius:7px;display:grid;place-items:center;margin:0 auto;transition:.15s}
-.ovp-root .g-item:hover .g-ico{background:#111;border-color:#111}
-.ovp-root .g-item:hover .g-ico svg{stroke:#fff}
-.ovp-root .g-ico svg{width:14px;height:14px;transition:.15s}
-.ovp-root .g-item b{font-size:14px;display:block;margin:6px 0 1px;font-weight:700}
-.ovp-root .g-item span{font-size:10px;color:var(--muted)}
-.ovp-root .view-all{font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:4px;margin-top:10px;cursor:pointer;transition:.18s}
-.ovp-root .view-all:hover{gap:8px;color:#000}
-.ovp-root .tbl{width:100%;border-collapse:collapse}
-.ovp-root .tbl th{font-size:10px;color:var(--muted2);font-weight:500;text-align:left;padding:7px 0;border-bottom:1px solid #f2f2f2;letter-spacing:0.3px;text-transform:uppercase}
-.ovp-root .tbl td{font-size:11px;padding:8px 0;border-bottom:1px solid #fafafa;vertical-align:middle;transition:.12s}
-.ovp-root .tbl tr{transition:.12s}
-.ovp-root .tbl tbody tr:hover{background:#fafafa}
-.ovp-root .tbl tbody tr:hover td{border-bottom-color:#f0f0f0}
-.ovp-root .prod{display:flex;align-items:center;gap:8px}
-.ovp-root .prod-ico{width:22px;height:22px;background:#f5f5f4;border:1px solid #efefef;border-radius:6px;display:grid;place-items:center;flex-shrink:0}
-.ovp-root .prod-ico svg{width:12px;height:12px}
-.ovp-root .badge-paid{background:var(--green-bg);color:var(--green-text);border-radius:20px;padding:3px 9px;font-size:10px;font-weight:700;display:inline-block;border:1px solid #d1fae5}
-.ovp-root .badge-pending{background:var(--yellow-bg);color:var(--yellow-text);border-radius:20px;padding:3px 9px;font-size:10px;font-weight:700;display:inline-block;border:1px solid #fde68a}
-.ovp-root .grid4b{display:grid;grid-template-columns:1fr 0.72fr 1fr 0.84fr;gap:10px;margin-bottom:10px}
-@media(max-width:1300px){.ovp-root .grid4b{grid-template-columns:1fr 1fr}}
-@media(max-width:700px){.ovp-root .grid4b{grid-template-columns:1fr}}
-.ovp-root .rev-tabs{display:flex;gap:6px;margin-bottom:10px;align-items:center}
-.ovp-root .rev-tab{font-size:10px;padding:4px 10px;border-radius:20px;font-weight:600;cursor:pointer;transition:.18s;border:1px solid transparent;user-select:none}
-.ovp-root .rev-tab.active{background:var(--black);color:#fff;transform:scale(1.02)}
-.ovp-root .rev-tab.idle{background:#f3f3f2;color:var(--muted);border-color:#f3f3f2}
-.ovp-root .rev-tab.idle:hover{background:#e9e9e8;border-color:#e0e0e0}
-.ovp-root .rev-chart{height:160px}
-.ovp-root .orders-flex{display:flex;gap:16px;align-items:center}
-.ovp-root .orders-donut{width:118px;height:118px;position:relative;flex-shrink:0}
-.ovp-root .orders-legend{font-size:11px}
-.ovp-root .ol-item{display:flex;align-items:center;gap:7px;padding:3px 0;transition:.12s;border-radius:4px}
-.ovp-root .ol-item:hover{background:#f9f9f9}
-.ovp-root .ol-dot{width:7px;height:7px;border-radius:50%}
-.ovp-root .cust-head{display:flex;justify-content:space-between;align-items:flex-start}
-.ovp-root .cust-big{font-size:18px;font-weight:700}
-.ovp-root .cust-growth{font-size:11px;color:var(--green);font-weight:600;display:flex;align-items:center;gap:2px}
-.ovp-root .cust-sub{font-size:10px;color:var(--muted2)}
-.ovp-root .cust-line{height:62px;margin:8px 0}
-.ovp-root .cust-bottom{display:flex;gap:16px;margin-top:4px}
-.ovp-root .cust-b b{font-size:13px}
-.ovp-root .cat-row{display:flex;align-items:center;gap:10px;font-size:11px;margin-bottom:11px;transition:.15s;border-radius:6px;padding:2px 4px;margin-left:-4px}
-.ovp-root .cat-row:hover{background:#f9f9f9}
-.ovp-root .cat-name{width:88px;color:#222}
-.ovp-root .cat-bar{flex:1;height:5px;background:#f0f0f0;border-radius:10px;overflow:hidden}
-.ovp-root .cat-bar div{height:100%;background:var(--black);border-radius:10px;width:0;transition:width 1.2s cubic-bezier(.34,1.56,.64,1)}
-.ovp-root .cat-val{width:74px;text-align:right;font-weight:600}
-.ovp-root .quick{display:grid;grid-template-columns:repeat(8,1fr);gap:8px;margin-bottom:10px}
-@media(max-width:1300px){.ovp-root .quick{grid-template-columns:repeat(4,1fr)}}
-@media(max-width:600px){.ovp-root .quick{grid-template-columns:repeat(2,1fr)}}
-.ovp-root .q-btn{height:36px;border:1px solid var(--border);background:var(--card);border-radius:10px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:11px;font-weight:500;cursor:pointer;box-shadow:0 1px 1px rgba(0,0,0,0.02);transition:all .2s;position:relative;overflow:hidden}
-.ovp-root .q-btn::before{content:'';position:absolute;inset:0;background:#111;transform:translateY(100%);transition:.22s;z-index:0}
-.ovp-root .q-btn:hover{border-color:var(--black);transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,0.08);color:#fff}
-.ovp-root .q-btn:hover::before{transform:translateY(0)}
-.ovp-root .q-btn:hover svg{stroke:#fff}
-.ovp-root .q-btn span, .ovp-root .q-btn svg{position:relative;z-index:1;transition:.18s}
-.ovp-root .q-btn:active{transform:translateY(0)}
-.ovp-root .q-btn svg{width:13px;height:13px}
-.ovp-root .insights{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
-@media(max-width:1300px){.ovp-root .insights{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:600px){.ovp-root .insights{grid-template-columns:1fr}}
-.ovp-root .ins-card{border:1px solid var(--border-light);border-radius:11px;padding:11px;background:var(--card);display:flex;justify-content:space-between;gap:10px;align-items:flex-start;box-shadow:0 1px 2px rgba(0,0,0,0.02);transition:.22s;cursor:pointer;position:relative;overflow:hidden}
-.ovp-root .ins-card::after{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--black);transform:scaleY(0);transition:.22s}
-.ovp-root .ins-card:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,0.06);border-color:#ddd}
-.ovp-root .ins-card:hover::after{transform:scaleY(1)}
-.ovp-root .ins-left{display:flex;gap:9px;flex:1}
-.ovp-root .ins-ico{width:26px;height:26px;background:#f8f8f7;border:1px solid #f0f0f0;border-radius:7px;display:grid;place-items:center;flex-shrink:0;transition:.18s}
-.ovp-root .ins-card:hover .ins-ico{background:#111;border-color:#111}
-.ovp-root .ins-card:hover .ins-ico svg{stroke:#fff}
-.ovp-root .ins-ico svg{width:13px;height:13px;transition:.18s}
-.ovp-root .ins-card b{font-size:11px;display:block;line-height:1.2}
-.ovp-root .ins-card p{font-size:10.5px;color:var(--muted);margin-top:3px;line-height:1.35}
-.ovp-root .ins-arrow{width:20px;height:20px;background:var(--black);color:#fff;border-radius:50%;display:grid;place-items:center;font-size:11px;flex-shrink:0;transition:.22s}
-.ovp-root .ins-card:hover .ins-arrow{transform:translateX(4px) rotate(45deg)}
-.ovp-root .ins-link{font-size:10px;font-weight:600;color:var(--black);white-space:nowrap;margin-top:2px;display:flex;align-items:center;gap:2px;transition:.15s}
-.ovp-root .ins-link:hover{gap:5px}
-.ovp-root .toast{position:fixed;bottom:20px;right:20px;background:#111;color:#fff;padding:11px 14px;border-radius:11px;font-size:12px;font-weight:500;box-shadow:0 10px 30px rgba(0,0,0,0.25);transform:translateY(100px) scale(0.9);opacity:0;transition:all .4s cubic-bezier(.34,1.56,.64,1);z-index:9999;display:flex;align-items:center;gap:8px;max-width:320px}
-.ovp-root .toast.show{transform:translateY(0) scale(1);opacity:1}
-.ovp-root .modal{position:fixed;inset:0;background:rgba(0,0,0,0.45);backdrop-filter:blur(4px);display:none;place-items:center;z-index:10000;padding:20px}
-.ovp-root .modal.show{display:grid;animation:ovpModalIn .25s ease}
-@keyframes ovpModalIn{from{opacity:0}to{opacity:1}}
-.ovp-root .modal-box{background:#fff;border-radius:16px;padding:20px;max-width:420px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.2);animation:ovpBoxIn .35s cubic-bezier(.34,1.56,.64,1)}
-@keyframes ovpBoxIn{from{transform:translateY(20px) scale(0.95);opacity:0}to{transform:translateY(0) scale(1);opacity:1}}
-.ovp-root .modal-box h3{font-size:14px;font-weight:700;margin-bottom:6px}
-.ovp-root .modal-box p{font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.5}
-.ovp-root .modal-actions{display:flex;gap:8px;justify-content:flex-end}
-.ovp-root .modal-actions button{padding:8px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;transition:.15s;border:1px solid var(--border)}
-.ovp-root .modal-actions .primary{background:#111;color:#fff;border-color:#111}
-.ovp-root .modal-actions .primary:hover{background:#222}
-.ovp-root .skeleton{background:linear-gradient(90deg,#f0f0f0 25%,#e8e8e8 50%,#f0f0f0 75%);background-size:200% 100%;animation:ovpShimmer 1.5s infinite}
-@keyframes ovpShimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
-.ovp-root .highlight{animation:ovpHighlight 1.5s ease}
-@keyframes ovpHighlight{0%{background:#fef3c7}100%{background:transparent}}
+const INK = '#111111';
+const MUTED = '#6B7280';
+const FAINT = '#9CA3AF';
+const GRID = '#F2F2F2';
+const CHANNEL_COLORS = [INK, '#555555', '#8A8A8A', '#D6D6D6'];
+const STATUS_COLORS = { Delivered: INK, Processing: '#6B7280', Pending: '#B5B5B5', Cancelled: '#E5E7EB' };
 
-.ovp-root .badge-cancel{background:#FEE2E2;color:#B91C1C;border-radius:20px;padding:3px 9px;font-size:10px;font-weight:700;display:inline-block;border:1px solid #FECACA}
-.ovp-root a{text-decoration:none;color:inherit}
-.ovp-root button{font-family:inherit}
-.ovp-root input{font-family:inherit}
-.ovp-root{min-height:100vh}
+/* ── scoped styles: animations and effects that have no Tailwind equivalent ─ */
+const OVP_CSS = `
+.ovp-fade{animation:ovp-fade .5s ease both}
+@keyframes ovp-fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.ovp-card-in{animation:ovp-card-in .5s cubic-bezier(.22,.8,.36,1) backwards}
+@keyframes ovp-card-in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.ovp-drop{animation:ovp-drop .18s ease both}
+@keyframes ovp-drop{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.ovp-live-dot{animation:ovp-pulse 2s infinite}
+@keyframes ovp-pulse{0%{box-shadow:0 0 0 0 #D1FAE5}70%{box-shadow:0 0 0 6px rgba(209,250,229,0)}100%{box-shadow:0 0 0 0 rgba(209,250,229,0)}}
+.ovp-live-num{transition:transform .2s ease}
+.ovp-bar{transition:height .6s cubic-bezier(.34,1.56,.64,1)}
+.ovp-catbar{transition:width 1.2s cubic-bezier(.34,1.56,.64,1)}
+.ovp-hit{animation:ovp-hit 1.5s ease}
+@keyframes ovp-hit{0%{background:#FEF3C7}100%{background:transparent}}
+.ovp-qa{position:relative;overflow:hidden}
+.ovp-qa::before{content:'';position:absolute;inset:0;background:#111;transform:translateY(100%);transition:transform .22s ease;z-index:0}
+.ovp-qa:hover::before{transform:translateY(0)}
+.ovp-qa:hover{border-color:#111;color:#fff;transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.08)}
+.ovp-qa:hover .ovp-qa-fg{stroke:#fff}
+.ovp-qa>span,.ovp-qa>svg{position:relative;z-index:1}
+.ovp-ins{position:relative;overflow:hidden}
+.ovp-ins::after{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:#111;transform:scaleY(0);transition:transform .22s ease}
+.ovp-ins:hover::after{transform:scaleY(1)}
+.ovp-ins:hover .ovp-ins-ico{background:#111;border-color:#111}
+.ovp-ins:hover .ovp-ins-ico svg{stroke:#fff}
+.ovp-toast{transition:transform .4s cubic-bezier(.34,1.56,.64,1),opacity .4s ease}
+.ovp-pill-btn{min-height:36px!important;height:36px;border-radius:10px!important;border-color:#ECECEC!important;padding:0 12px!important;font-size:12px!important;font-weight:500!important;box-shadow:0 1px 2px rgba(0,0,0,.03)}
+@media (prefers-reduced-motion: reduce){
+  .ovp-fade,.ovp-card-in,.ovp-drop,.ovp-live-dot,.ovp-hit{animation:none!important}
+  .ovp-bar,.ovp-catbar{transition:none}
+}
 `;
 
-const INK = '#111';
+const tipStyle = {
+  borderRadius: 10,
+  border: '1px solid #ECECEC',
+  fontSize: 11,
+  padding: '6px 9px',
+  boxShadow: '0 8px 24px rgba(16,24,40,0.10)',
+};
 
 /* ── date helpers ─────────────────────────────────────────────────────────── */
 const iso = (d) => {
@@ -237,6 +101,9 @@ const prevWindow = (from, to) => {
   return { from: iso(prevFrom), to: iso(prevTo), days };
 };
 
+/* comparison baselines — "previous 7 days" / "previous 30 days" are fixed
+   windows, "same period last year" shifts a year, "none" disables the ghost
+   line and hides deltas. */
 const baselineWindow = (from, to, mode) => {
   if (mode === 'none') return null;
   if (mode === 'prev7') {
@@ -266,49 +133,19 @@ const initials = (name) =>
 function payTone(o) {
   const pay = String(o.paymentStatus || o.paymentState || '');
   const st = String(o.status || '');
-  if (['Paid', 'Verified', 'Confirmed'].includes(pay) || st === 'Delivered') return { label: 'Paid', cls: 'badge-paid' };
-  if (pay === 'Pending' || st === 'Pending' || st === 'Confirmed') return { label: 'Pending', cls: 'badge-pending' };
-  return { label: st || 'Open', cls: 'badge-cancel' };
+  if (['Paid', 'Verified', 'Confirmed'].includes(pay) || st === 'Delivered') {
+    return { label: 'Paid', cls: 'bg-[#ECFDF5] text-[#065F46] border border-[#D1FAE5]' };
+  }
+  if (pay === 'Pending' || st === 'Pending' || st === 'Confirmed') {
+    return { label: 'Pending', cls: 'bg-[#FEF3C7] text-[#92400E] border border-[#FDE68A]' };
+  }
+  if (st === 'Cancelled' || st === 'Refunded') {
+    return { label: st, cls: 'bg-[#FEE2E2] text-[#B91C1C] border border-[#FECACA]' };
+  }
+  return { label: st || 'Open', cls: 'bg-[#F3F4F6] text-[#4B5563] border border-[#E5E7EB]' };
 }
 
-/* ── count-up, same easing as the reference (cubic-out, 1.2s) ─────────────── */
-function CountUp({ value, prefix = '', suffix = '', decimals = 0, delay = 0 }) {
-  const [shown, setShown] = useState(prefix + '0' + suffix);
-  const raf = useRef(0);
-  useEffect(() => {
-    const target = Number(value) || 0;
-    const dur = 1200;
-    let t0 = null;
-    const fmt = (n) => prefix + n.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals }) + suffix;
-    const step = (now) => {
-      if (t0 === null) t0 = now;
-      const p = Math.min((now - t0) / dur, 1);
-      const eased = 1 - Math.pow(1 - p, 3);
-      setShown(p < 1 ? fmt(target * eased) : fmt(target));
-      if (p < 1) raf.current = requestAnimationFrame(step);
-    };
-    const timer = setTimeout(() => { raf.current = requestAnimationFrame(step); }, delay);
-    return () => { clearTimeout(timer); cancelAnimationFrame(raf.current); };
-  }, [value, prefix, suffix, decimals, delay]);
-  return <>{shown}</>;
-}
-
-/* ── Chart.js canvas bound to React (reference configs, live data) ────────── */
-function ChartBox({ build, deps, className }) {
-  const ref = useRef(null);
-  useEffect(() => {
-    if (!ref.current) return undefined;
-    const chart = new Chart(ref.current, build());
-    return () => chart.destroy();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, deps);
-  return <canvas ref={ref} className={className} />;
-}
-
-const TOOLTIP = { backgroundColor: '#111', titleFont: { size: 11 }, bodyFont: { size: 11 }, padding: 8, cornerRadius: 8, displayColors: false };
-const AXIS_TICK = { font: { size: 10 }, color: '#9ca3af' };
-const kFmt = (v) => `Rs ${Math.round(v / 1000)}K`;
-
+/* ── primitives ───────────────────────────────────────────────────────────── */
 class ChartBoundary extends Component {
   constructor(props) { super(props); this.state = { failed: false }; }
   static getDerivedStateFromError() { return { failed: true }; }
@@ -316,8 +153,11 @@ class ChartBoundary extends Component {
   render() {
     if (this.state.failed) {
       return (
-        <div className="card-t" role="alert" style={{ padding: '20px 0', color: '#6b7280' }}>
-          Couldn&apos;t render this chart — <button type="button" className="btn-sm" onClick={() => this.setState({ failed: false })}>Retry</button>
+        <div className="grid min-h-[120px] place-items-center text-center" role="alert">
+          <div>
+            <p className="text-[11px] font-semibold text-neutral-700">Couldn&apos;t render this chart</p>
+            <button type="button" onClick={() => this.setState({ failed: false })} className="mt-2 text-[11px] font-semibold text-neutral-900 underline">Retry</button>
+          </div>
         </div>
       );
     }
@@ -325,26 +165,163 @@ class ChartBoundary extends Component {
   }
 }
 
-/* ── quick actions / add-new / compare — real admin routes ────────────────── */
+function Card({ children, className = '', delay = 0, style }) {
+  return (
+    <section
+      className={`ovp-card-in rounded-xl border border-[#F1F1F1] bg-white p-[14px_16px] shadow-[0_1px_2px_rgba(0,0,0,0.02)] transition-shadow duration-200 hover:shadow-[0_6px_18px_rgba(0,0,0,0.05)] ${className}`}
+      style={{ animationDelay: `${delay}ms`, ...style }}
+    >
+      {children}
+    </section>
+  );
+}
+
+function CardHead({ title, right, info, onInfo }) {
+  return (
+    <div className="mb-3 flex items-center justify-between gap-2">
+      <div className="flex min-w-0 items-center gap-1.5">
+        <h2 className="truncate text-[12.5px] font-bold tracking-[-0.15px] text-[#111]">{title}</h2>
+        {info && (
+          <button
+            type="button"
+            onClick={onInfo}
+            title={info}
+            className="grid h-[14px] w-[14px] shrink-0 place-items-center rounded-full border border-[#DDD] text-[8px] leading-none text-[#888] transition hover:border-[#111] hover:bg-[#111] hover:text-white"
+          >
+            i
+          </button>
+        )}
+      </div>
+      {right}
+    </div>
+  );
+}
+
+function BtnSm({ children, onClick, className = '', title }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      title={title}
+      className={`inline-flex h-[26px] items-center gap-1 rounded-lg border border-[#ECECEC] bg-white px-[10px] text-[11px] font-medium text-[#374151] transition hover:-translate-y-px hover:border-[#BBB] hover:bg-[#F9F9F9] active:translate-y-0 ${className}`}
+    >
+      {children}
+    </button>
+  );
+}
+
+function ViewAll({ to, children }) {
+  return (
+    <Link
+      to={to}
+      className="mt-[10px] flex items-center justify-center gap-1 text-[11px] font-semibold text-[#111] transition-all hover:gap-2"
+    >
+      {children} <ArrowRight size={12} strokeWidth={2.2} />
+    </Link>
+  );
+}
+
+function Delta({ change, className = 'text-[11px]' }) {
+  const has = typeof change === 'number' && Number.isFinite(change) && change !== 0;
+  if (!has) return null;
+  const up = change > 0;
+  return (
+    <span className={`inline-flex items-center gap-0.5 font-semibold ${up ? 'text-[#0E9F6E]' : 'text-[#DC2626]'} ${className}`}>
+      {up ? <ArrowUpRight size={10} strokeWidth={2.6} /> : <ArrowUpRight size={10} strokeWidth={2.6} className="rotate-90" />}
+      {Math.abs(change).toFixed(1)}%
+    </span>
+  );
+}
+
+/* count-up, matching the reference easing (cubic-out over 1.2s) */
+function CountUp({ value, prefix = '', suffix = '', decimals = 0 }) {
+  const [shown, setShown] = useState(prefix + (0).toLocaleString() + suffix);
+  const raf = useRef(0);
+  useEffect(() => {
+    const target = Number(value) || 0;
+    const dur = 1200;
+    const t0 = performance.now();
+    const fmt = (n) => prefix + n.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals }) + suffix;
+    const step = (now) => {
+      const p = Math.min((now - t0) / dur, 1);
+      const eased = 1 - Math.pow(1 - p, 3);
+      setShown(fmt(target * eased));
+      if (p < 1) raf.current = requestAnimationFrame(step);
+      else setShown(fmt(target));
+    };
+    raf.current = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf.current);
+  }, [value, prefix, suffix, decimals]);
+  return <span className="tabular-nums">{shown}</span>;
+}
+
+function Spark({ data }) {
+  if (!data?.length) return <div className="h-7 w-[78px]" />;
+  return (
+    <div className="h-7 w-[78px]">
+      <ResponsiveContainer width="100%" height="100%">
+        <LineChart data={data} margin={{ top: 2, right: 0, left: 0, bottom: 2 }}>
+          <Line type="monotone" dataKey="v" stroke={INK} strokeWidth={1.4} dot={false} isAnimationActive={false} />
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
+
+function Kpi({ icon: Icon, label, value, decimals, change, vs, spark, to, delay, onClick }) {
+  const inner = (
+    <>
+      <div className="mb-[10px] flex items-center gap-1.5 text-[11px] font-medium text-[#6B7280]">
+        <Icon size={14} strokeWidth={1.6} className="shrink-0 text-[#6B7280]" /> {label}
+      </div>
+      <div className="text-[18px] font-bold leading-none tracking-[-0.3px] text-[#111]">
+        <CountUp value={value} prefix={decimals === 0 ? '' : 'Rs '} suffix={decimals === 0 ? '' : ''} decimals={decimals} />
+      </div>
+      <div className="mt-2 flex items-end justify-between gap-2">
+        <div className="min-w-0">
+          <Delta change={change} />
+          <p className="mt-0.5 truncate text-[10px] text-[#9CA3AF]">{vs}</p>
+        </div>
+        <Spark data={spark} />
+      </div>
+    </>
+  );
+  const cls = 'ovp-card-in block cursor-pointer rounded-xl border border-[#F1F1F1] bg-white p-[12px_14px_10px] shadow-[0_1px_2px_rgba(0,0,0,0.02)] transition duration-200 hover:-translate-y-[3px] hover:border-[#E0E0E0] hover:shadow-[0_8px_20px_rgba(0,0,0,0.07)]';
+  const style = { animationDelay: `${delay}ms` };
+  return to
+    ? <Link to={to} className={cls} style={style} onClick={onClick}>{inner}</Link>
+    : <div className={cls} style={style} onClick={onClick}>{inner}</div>;
+}
+
+/* ── quick actions (real admin routes) ────────────────────────────────────── */
 const QUICK = [
-  { to: '/admin/orders/new', label: 'Create Order', d: <><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" /><rect x="9" y="3" width="6" height="4" rx="1" /><path d="M9 14h6M12 11v6" /></> },
-  { to: '/admin/products/new', label: 'Add Product', d: <><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" /><line x1="3" y1="6" x2="21" y2="6" /><path d="M16 10a4 4 0 0 1-8 0" /></> },
-  { to: '/admin/discounts', label: 'Add Discount', d: <><path d="M20 12V8H6a2 2 0 0 1 2-2c0-1.1.9-2 2-2a2 2 0 0 1 2 2c0-1.1.9-2 2-2a2 2 0 0 1 2 2c0-1.1.9-2 2-2a2 2 0 0 1 2 2v4" /><path d="M20 12v4H6a2 2 0 0 0-2 2c0 1.1.9 2 2 2a2 2 0 0 0 2-2c0 1.1.9 2 2 2a2 2 0 0 0 2-2c0 1.1.9 2 2 2a2 2 0 0 0 2-2c0 1.1.9 2 2 2a2 2 0 0 0 2-2v-4" /><circle cx="12" cy="12" r="2" /></> },
-  { to: '/admin/collections', label: 'Create Collection', d: <><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="12" y1="18" x2="12" y2="12" /><line x1="9" y1="15" x2="15" y2="15" /></> },
-  { to: '/admin/email-campaigns', label: 'Send Email', d: <><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" /></> },
-  { to: '/admin/reports', label: 'View Reports', d: <><path d="M3 3v18h18" /><path d="M7 16l4-4 4 4 6-6" /></> },
-  { to: '/admin/products?stock=low', label: 'Inventory Alert', d: <><path d="M6 8a6 6 0 0 1 12 0c0 7 6 5 6 10H0s6-3 6-10" /><path d="M10 20a2 2 0 0 0 4 0" /></> },
-  { to: '/admin/questions', label: 'Support Ticket', d: <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" /> },
+  { to: '/admin/orders/new', icon: PackagePlus, label: 'Create Order' },
+  { to: '/admin/products/new', icon: Package, label: 'Add Product' },
+  { to: '/admin/discounts', icon: BadgePercent, label: 'Add Discount' },
+  { to: '/admin/collections', icon: FolderPlus, label: 'Create Collection' },
+  { to: '/admin/email-campaigns', icon: Mail, label: 'Send Email' },
+  { to: '/admin/reports', icon: BarChart3, label: 'View Reports' },
+  { to: '/admin/products?stock=low', icon: Bell, label: 'Inventory Alert' },
+  { to: '/admin/questions', icon: Mail, label: 'Support Ticket' },
+];
+
+const ADD_NEW = [
+  { to: '/admin/products/new', icon: Package, label: 'New product' },
+  { to: '/admin/orders/new', icon: ShoppingBag, label: 'New order' },
+  { to: '/admin/promotions/new', icon: Sparkles, label: 'New promotion' },
+  { to: '/admin/cms/new', icon: Mail, label: 'New page' },
+  { to: '/admin/blog/new', icon: Star, label: 'New blog article' },
 ];
 
 const COMPARE_OPTIONS = [
+  { key: 'prev', label: 'Previous period' },
   { key: 'prev7', label: 'Previous 7 days' },
   { key: 'prev30', label: 'Previous 30 days' },
   { key: 'year', label: 'Same period last year' },
   { key: 'none', label: 'No comparison' },
 ];
 
-const RANGE_OPTIONS = [
+const WEEK_OPTIONS = [
   { key: '7d', label: 'This Week' },
   { key: 'this-month', label: 'This Month' },
   { key: '30d', label: 'Last 30 Days' },
@@ -353,7 +330,6 @@ const RANGE_OPTIONS = [
 /* ── the page ─────────────────────────────────────────────────────────────── */
 export default function Dashboard() {
   const { auth, logout } = useApp();
-  const nav = useNavigate();
 
   const [d, setD] = useState(null);
   const [prev, setPrev] = useState(null);
@@ -366,20 +342,21 @@ export default function Dashboard() {
   const [abandoned, setAbandoned] = useState(null);
   const [err, setErr] = useState('');
 
-  const [compare, setCompare] = useState('prev7');
+  const [compare, setCompare] = useState('prev');
+  const [chartPreset, setChartPreset] = useState('7d');
   const [revTab, setRevTab] = useState('revenue');
   const [q, setQ] = useState('');
+  const [hit, setHit] = useState(0);
   const [toast, setToast] = useState('');
-  const [modal, setModal] = useState('');
-  const [dateOpen, setDateOpen] = useState(false);
+  const [addOpen, setAddOpen] = useState(false);
   const [cmpOpen, setCmpOpen] = useState(false);
   const [weekOpen, setWeekOpen] = useState(false);
-  const [revOpen, setRevOpen] = useState(false);
-  const [badgeHidden, setBadgeHidden] = useState(false);
+  const [weekOpen2, setWeekOpen2] = useState(false);
   const [fs, setFs] = useState(false);
-  const [barsIn, setBarsIn] = useState(false);
 
   const toastTimer = useRef(0);
+  const addRef = useRef(null);
+  const cmpRef = useRef(null);
 
   const [range, setRange] = useState(() => {
     try {
@@ -409,6 +386,9 @@ export default function Dashboard() {
   const applyRange = useCallback((r) => {
     if (!r?.from || !r?.to) return;
     setRange(r);
+    if (r.preset && r.preset !== 'custom') {
+      setChartPreset(r.preset === '30d' || r.preset === 'this-month' ? r.preset : '7d');
+    }
     try { localStorage.setItem('hushae.dashRange', JSON.stringify(r)); } catch { /* ignore */ }
     const sp = new URLSearchParams(window.location.search);
     if (r.preset === 'custom') { sp.set('from', r.from); sp.set('to', r.to); }
@@ -433,7 +413,8 @@ export default function Dashboard() {
         api(`/admin/dashboard?${qs}`, { token }),
         prevQs ? api(`/admin/dashboard?${prevQs}`, { token }).catch(() => null) : Promise.resolve(null),
         api('/track/admin/live', { token }).catch(() => null),
-        // both are public GETs, memory-cached 2 min — key must move with the range
+        // both are public GETs, which the api client memory-caches for 2 min —
+        // the cache key must move with the range or stale rows survive a change
         api(`/products/trending?limit=5&days=30&_t=${range.from}_${range.to}`, { token }).catch(() => null),
         api(`/categories?all=1&_t=${range.from}_${range.to}`).catch(() => null),
         api('/admin/customers', { token }).catch(() => null),
@@ -465,12 +446,13 @@ export default function Dashboard() {
     return () => clearInterval(t);
   }, [auth, load]);
 
-  /* reference behaviour: click outside a pill closes every dropdown */
+  /* outside-click + Escape + fullscreen state */
   useEffect(() => {
     const onDoc = (e) => {
-      if (!e.target.closest?.('.pill')) { setDateOpen(false); setCmpOpen(false); setWeekOpen(false); setRevOpen(false); }
+      if (addRef.current && !addRef.current.contains(e.target)) setAddOpen(false);
+      if (cmpRef.current && !cmpRef.current.contains(e.target)) setCmpOpen(false);
     };
-    const onEsc = (e) => { if (e.key === 'Escape') { setDateOpen(false); setCmpOpen(false); setWeekOpen(false); setRevOpen(false); setModal(''); } };
+    const onEsc = (e) => { if (e.key === 'Escape') { setAddOpen(false); setCmpOpen(false); } };
     const onFs = () => setFs(!!document.fullscreenElement);
     document.addEventListener('mousedown', onDoc);
     document.addEventListener('keydown', onEsc);
@@ -482,29 +464,18 @@ export default function Dashboard() {
     };
   }, []);
 
-  useEffect(() => {
-    document.body.style.overflow = modal ? 'hidden' : '';
-    return () => { document.body.style.overflow = ''; };
-  }, [modal]);
-
-  /* reference category-bar entrance animation */
-  useEffect(() => {
-    const t = setTimeout(() => setBarsIn(true), 600);
-    return () => clearTimeout(t);
-  }, []);
-
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
       document.documentElement.requestFullscreen()
-        .then(() => say('Fullscreen ON'))
-        .catch(() => say('Fullscreen not supported'));
+        .then(() => say('Fullscreen on'))
+        .catch(() => say('Fullscreen not supported in this browser'));
     } else {
       document.exitFullscreen().catch(() => {});
-      say('Fullscreen OFF');
+      say('Fullscreen off');
     }
   };
 
-  /* ── derived ──────────────────────────────────────────────────────────── */
+  /* ── derived ────────────────────────────────────────────────────────────── */
   const vsLabel = pw ? `vs ${prettyDate(pw.from)} – ${prettyDate(pw.to)}` : 'no comparison';
 
   const chart = useMemo(() => {
@@ -512,15 +483,15 @@ export default function Dashboard() {
     const prv = prev?.chart || [];
     return cur.map((row, i) => ({
       ...row,
-      label: prettyDate(row.date || row.label),
       prevRevenue: prv[i]?.revenue ?? null,
+      prevOrders: prv[i]?.orders ?? null,
     }));
   }, [d, prev]);
 
-  const sparkRev = chart.map((x) => x.revenue || 0);
-  const sparkOrd = chart.map((x) => x.orders || 0);
-  const sparkCust = chart.map((x) => x.customers || 0);
-  const sparkAov = chart.map((x) => (x.orders ? (x.revenue || 0) / x.orders : 0));
+  const sparkRev = chart.map((x) => ({ v: x.revenue || 0 }));
+  const sparkOrd = chart.map((x) => ({ v: x.orders || 0 }));
+  const sparkCust = chart.map((x) => ({ v: x.customers || 0 }));
+  const sparkAov = chart.map((x) => ({ v: x.orders ? (x.revenue || 0) / x.orders : 0 }));
 
   const sessions = live?.today?.sessions || 0;
   const conversion = sessions > 0 ? ((live?.today?.orders || 0) / sessions) * 100 : 0;
@@ -554,24 +525,34 @@ export default function Dashboard() {
     const devices = live?.byDevice || [];
     const sum = devices.reduce((n, x) => n + (x.sessions || 0), 0) || 1;
     const labelOf = (dev) => (dev === 'mobile' ? 'Mobile' : dev === 'tablet' ? 'Tablet' : 'Online Store');
-    if (!devices.length || total <= 0) return [{ name: 'Online Store', pct: 100, amount: total, color: '#111' }];
+    if (!devices.length || total <= 0) {
+      return [{ name: 'Online Store', pct: 100, amount: total, color: CHANNEL_COLORS[0], value: 0 }];
+    }
     return devices
-      .map((x) => ({ name: labelOf(x.device), pct: (x.sessions / sum) * 100, amount: total * (x.sessions / sum) }))
+      .map((x, i) => ({
+        name: labelOf(x.device),
+        pct: (x.sessions / sum) * 100,
+        amount: total * (x.sessions / sum),
+        color: CHANNEL_COLORS[i % CHANNEL_COLORS.length],
+        value: x.sessions,
+      }))
       .sort((a, b) => b.pct - a.pct);
   }, [live, d]);
-  const CHANNEL_COLORS = ['#111', '#555', '#8a8a8a', '#d6d6d6'];
 
   const statusMix = useMemo(() => {
     const s = d?.stats || {};
     const processing = (s.confirmed || 0) + (s.processing || 0) + (s.readyToShip || 0) + (s.shipped || 0);
     const rows = [
-      { name: 'Delivered', value: s.delivered || 0, color: '#111' },
-      { name: 'Processing', value: processing, color: '#6b7280' },
-      { name: 'Pending', value: s.pending || 0, color: '#b5b5b5' },
-      { name: 'Cancelled', value: s.cancelled || 0, color: '#e5e7eb' },
+      { name: 'Delivered', value: s.delivered || 0 },
+      { name: 'Processing', value: processing },
+      { name: 'Pending', value: s.pending || 0 },
+      { name: 'Cancelled', value: s.cancelled || 0 },
     ].filter((x) => x.value > 0);
     const total = rows.reduce((n, x) => n + x.value, 0) || (d?.kpis?.orders?.value || 0);
-    return { total, rows: rows.map((x) => ({ ...x, pct: total ? (x.value / total) * 100 : 0 })) };
+    return {
+      total,
+      rows: rows.map((x) => ({ ...x, color: STATUS_COLORS[x.name], pct: total ? (x.value / total) * 100 : 0 })),
+    };
   }, [d]);
 
   const topPages = useMemo(() => {
@@ -580,11 +561,13 @@ export default function Dashboard() {
     feed.forEach((e) => { const p = e.path || '/'; map.set(p, (map.get(p) || 0) + 1); });
     const rows = [...map.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5);
     if (rows.length) return rows.map(([path, n]) => ({ path, n }));
-    return [{ path: '/', n: live?.visitorsNow || 0 }];
+    return [{ path: '/', n: live?.visitorsNow || 0 }, { path: '/collections', n: 0 }, { path: '/cart', n: 0 }, { path: '/checkout', n: 0 }];
   }, [live]);
 
-  const hourly = d?.hourly || [];
-  const todayOrders = hourly.reduce((n, h) => n + (h.orders || 0), 0);
+  const hourlyBars = (d?.hourly || []).map((h) => ({ ...h, v: h.orders || 0 }));
+  const liveBars = hourlyBars.length ? hourlyBars : Array.from({ length: 24 }, (_, i) => ({ hour: i, v: 0 }));
+  const liveMax = Math.max(1, ...hourlyBars.map((x) => x.v || 0));
+  const todayOrders = hourlyBars.reduce((n, h) => n + (h.v || 0), 0);
   const pendingPay = insights?.paymentBreakdown?.Pending || 0;
   const lowStock = d?.lowStock || [];
   const lowStockN = lowStock.length;
@@ -602,7 +585,7 @@ export default function Dashboard() {
     tone: payTone(o),
   }));
 
-  /* reference search filters both desk tables */
+  /* search filters the two desk tables, like the reference */
   const needle = q.trim().toLowerCase();
   const prodRows = needle ? topProducts.filter((p) => p.name.toLowerCase().includes(needle)) : topProducts;
   const orderRows = needle
@@ -614,662 +597,681 @@ export default function Dashboard() {
       say(prodRows.length + orderRows.length
         ? `${prodRows.length + orderRows.length} match${prodRows.length + orderRows.length === 1 ? '' : 'es'} on this page`
         : 'No match on this page');
+      setHit((n) => n + 1);
     }
   };
 
-  const k = d?.kpis || {};
-  const revData = chart.map((row) => ({ day: row.label, revenue: row.revenue || 0, orders: row.orders || 0 }));
+  const weekday = (label, i) => {
+    if (chart.length === 7) return ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][i] || label;
+    return label;
+  };
 
   const insightCards = [
     {
+      icon: Sparkles,
       title: 'High Demand',
       body: smart.find((x) => x.id === 'product-momentum')?.text
         || (topProducts[0] ? `“${topProducts[0].name}” is leading units sold this period.` : 'Sales momentum appears once orders land.'),
-      to: '/admin/products', arrow: true,
-      ico: <path d="M12 2l2.4 7.2H22l-6.2 4.5 2.4 7.3L12 16.5 5.8 21l2.4-7.3L2 9.2h7.6z" />,
+      to: '/admin/products',
     },
     {
+      icon: Package,
       title: 'Low Stock',
       body: lowStockN > 0
         ? `${lowStockN} product${lowStockN === 1 ? '' : 's'} ${lowStockN === 1 ? 'is' : 'are'} running low on stock.`
         : 'All tracked products are stocked.',
-      to: '/admin/products?stock=low', cta: lowStockN ? 'View products →' : '',
-      ico: <><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" /><rect x="9" y="3" width="6" height="4" rx="1" /><path d="M9 14l2 2 4-4" /></>,
+      cta: lowStockN ? 'View products →' : '',
+      to: '/admin/products?stock=low',
     },
     {
+      icon: ShoppingCart,
       title: 'Abandoned Carts',
       body: abandoned?.stats?.openCount
-        ? `${abandoned.stats.openCount} cart${abandoned.stats.openCount === 1 ? '' : 's'} are pending recovery.`
+        ? `${abandoned.stats.openCount} cart${abandoned.stats.openCount === 1 ? '' : 's'} pending recovery.`
         : 'No open carts waiting for recovery.',
-      to: '/admin/abandoned-carts', cta: abandoned?.stats?.openCount ? 'Recover now →' : '',
-      ico: <><circle cx="9" cy="21" r="1" /><circle cx="20" cy="21" r="1" /><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" /></>,
+      cta: abandoned?.stats?.openCount ? 'Recover now →' : '',
+      to: '/admin/abandoned-carts',
     },
     {
+      icon: Calendar,
       title: 'Best Selling Day',
       body: peakDay && (peakDay.revenue || 0) > 0
         ? `${peakDay.label} generated the highest sales.`
         : 'Best day appears once the period has orders.',
-      to: '/admin/analytics', bars: true,
-      ico: <><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></>,
+      bars: true,
+      to: '/admin/analytics',
     },
     {
+      icon: TrendingUp,
       title: 'Conversion Boost',
       body: sessions
-        ? `Your conversion rate is ${conversion.toFixed(2)}% today from ${sessions} session${sessions === 1 ? '' : 's'}.`
+        ? `Conversion is ${conversion.toFixed(2)}% today from ${sessions} session${sessions === 1 ? '' : 's'}.`
         : 'Conversion appears once storefront traffic is tracked.',
-      to: '/admin/live', arrow: true,
-      ico: <><polyline points="23 6 13.5 15.5 8.5 10.5 1 18" /><polyline points="17 6 23 6 23 12" /></>,
+      to: '/admin/live',
     },
   ];
 
-  /* ── shells ───────────────────────────────────────────────────────────── */
+  /* ── error / loading shells ─────────────────────────────────────────────── */
   const shell = (children) => (
-    <AdminLayout title="Overview" subtitle="Here's what's happening with your store today." hideContentTitle chromeless>
+    <AdminLayout title="Overview" subtitle="Here's what's happening with your store today." hideContentTitle>
       <style>{OVP_CSS}</style>
-      <div className="ovp-root">
-        {children}
-      </div>
+      {children}
     </AdminLayout>
   );
 
   if (err) {
     return shell(
-      <div className="wrap">
-        <div className="card" style={{ maxWidth: 420, margin: '40px auto', textAlign: 'center' }}>
-          <p className="card-t" style={{ justifyContent: 'center' }}>{err}</p>
-          <div className="modal-actions" style={{ justifyContent: 'center' }}>
-            <button type="button" className="primary" onClick={() => { setErr(''); load(); }}>Try again</button>
-          </div>
-        </div>
+      <div className="mx-auto grid max-w-md place-items-center rounded-xl border border-[#F1F1F1] bg-white p-10 text-center">
+        <AlertTriangle size={20} className="mb-2 text-[#B45309]" />
+        <p className="text-[12.5px] font-semibold text-[#111]">{err}</p>
+        <button type="button" onClick={() => { setErr(''); load(); }} className="mt-4 rounded-[10px] border border-[#ECECEC] bg-white px-4 py-1.5 text-[12px] font-semibold text-[#111] hover:border-[#BBB]">Try again</button>
       </div>,
     );
   }
 
   if (!d) {
     return shell(
-      <div className="wrap">
-        <div className="skeleton" style={{ height: 52, borderRadius: 10, marginBottom: 16 }} />
-        <div className="stats">
-          {[0, 1, 2, 3, 4, 5].map((i) => <div key={i} className="skeleton" style={{ height: 104, borderRadius: 12 }} />)}
+      <div className="ovp-fade">
+        <div className="mb-3 h-[52px] animate-pulse rounded-[10px] bg-white" />
+        <div className="grid grid-cols-2 gap-[10px] sm:grid-cols-3 3xl:grid-cols-6">
+          {[0, 1, 2, 3, 4, 5].map((i) => <div key={i} className="h-[104px] animate-pulse rounded-xl bg-white" />)}
         </div>
-        <div className="skeleton" style={{ height: 268, borderRadius: 12 }} />
+        <div className="mt-[10px] h-[268px] animate-pulse rounded-xl bg-white" />
+        <div className="mt-[10px] h-[180px] animate-pulse rounded-xl bg-white" />
       </div>,
     );
   }
 
+  const k = d.kpis;
+  const revData = chart.map((row, i) => ({ ...row, day: weekday(row.label, i) }));
+
   return shell(
-    <div className="wrap">
-      {/* ── topbar ──────────────────────────────────────────────────────── */}
-      <div className="topbar">
-        <div className="top-left">
-          <button type="button" className="hamburger" aria-label="Open navigation menu" onClick={() => window.dispatchEvent(new Event('ovp-menu'))}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="2"><path d="M3 6h18M3 12h18M3 18h18" /></svg>
+    <div className="ovp-fade">
+      {/* ── page topbar ─────────────────────────────────────────────────── */}
+      <div className="sticky top-[56px] z-10 -mx-2 mb-3 flex flex-wrap items-center justify-between gap-3 bg-admin-bg/95 px-2 py-1.5 backdrop-blur">
+        <div className="flex min-w-0 items-start gap-2.5">
+          <button
+            type="button"
+            onClick={() => window.dispatchEvent(new Event('hushae:toggle-sidebar'))}
+            className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg text-[#555] transition hover:bg-white hover:text-[#111]"
+            aria-label="Toggle sidebar"
+          >
+            <Menu size={16} strokeWidth={1.8} />
           </button>
-          <div className="top-title"><h1>Overview</h1><p>Here&apos;s what&apos;s happening with your store today.</p></div>
+          <div className="min-w-0">
+            <h1 className="text-[17px] font-bold leading-tight tracking-[-0.3px] text-[#111]">Overview</h1>
+            <p className="mt-px text-[12px] text-[#6B7280]">Here&apos;s what&apos;s happening with your store today.</p>
+          </div>
         </div>
-        <div className="top-right">
-          <div className="search">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2"><circle cx="11" cy="11" r="6" /><path d="m20 20-3.5-3.5" /></svg>
-            <input value={q} onChange={onSearch} onKeyUp={onSearch} placeholder="Search orders, products, customers..." aria-label="Search orders, products and customers on this page" />
-            <span className="kbd">⌘ K</span>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <label className="flex h-9 min-w-[240px] items-center gap-2 rounded-[10px] border border-[#ECECEC] bg-white px-3 shadow-[0_1px_2px_rgba(0,0,0,0.03)] transition focus-within:border-[#111] focus-within:shadow-[0_0_0_3px_rgba(17,17,17,0.08)] sm:min-w-[300px]">
+            <Search size={14} strokeWidth={2} className="shrink-0 text-[#9CA3AF]" />
+            <input
+              value={q}
+              onChange={onSearch}
+              onKeyUp={onSearch}
+              aria-label="Search products and orders on this page"
+              placeholder="Search products & orders…"
+              className="w-full border-0 bg-transparent text-[12.5px] text-[#111] outline-none placeholder:text-[#9CA3AF]"
+            />
+            <kbd className="hidden shrink-0 rounded-[5px] border border-[#ECECEC] bg-[#FAFAFA] px-[5px] py-[2px] text-[10px] text-[#9CA3AF] sm:inline">⌘ K</kbd>
+          </label>
+
+          <div className="ovp-pill-btn">
+            <RangePicker value={range} onChange={applyRange} />
           </div>
 
-          <div className={`pill ${dateOpen ? 'active' : ''}`} onClick={() => setDateOpen((v) => !v)}>
-            <span>{rangeLabel(range.from, range.to)}</span>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" /></svg>
-            <div className={`dropdown ${dateOpen ? 'show' : ''}`}>
-              {RANGE_OPTIONS.map((o) => {
-                const r = resolvePreset(o.key);
-                return (
-                  <div key={o.key} onClick={(e) => { e.stopPropagation(); onWeek(o.key); setDateOpen(false); say(`Date changed to ${rangeLabel(r.from, r.to)}`); }}>
-                    {o.label} · {r ? rangeLabel(r.from, r.to) : ''}
-                  </div>
-                );
-              })}
-            </div>
+          <div className="relative" ref={cmpRef}>
+            <button
+              type="button"
+              onClick={() => setCmpOpen((v) => !v)}
+              aria-haspopup="menu"
+              aria-expanded={cmpOpen}
+              className={`inline-flex h-9 items-center gap-1.5 rounded-[10px] border bg-white px-3 text-[12px] font-medium text-[#374151] shadow-[0_1px_2px_rgba(0,0,0,0.03)] transition hover:border-[#BBB] ${cmpOpen ? 'border-[#111]' : 'border-[#ECECEC]'}`}
+            >
+              Compare: {COMPARE_OPTIONS.find((o) => o.key === compare)?.label || 'Previous period'}
+              <ChevronDown size={12} className="text-[#9CA3AF]" />
+            </button>
+            {cmpOpen && (
+              <div role="menu" className="ovp-drop absolute right-0 top-[42px] z-30 w-[210px] rounded-[10px] border border-[#ECECEC] bg-white p-1.5 shadow-[0_8px_24px_rgba(0,0,0,0.08)]">
+                {COMPARE_OPTIONS.map((o) => (
+                  <button
+                    key={o.key}
+                    type="button"
+                    role="menuitem"
+                    onClick={() => { setCompare(o.key); setCmpOpen(false); say(`Comparison: ${o.label}`); }}
+                    className={`flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-left text-[11.5px] transition hover:bg-[#F5F5F5] ${compare === o.key ? 'font-semibold text-[#111]' : 'text-[#374151]'}`}
+                  >
+                    {o.label}
+                    {compare === o.key && <Check size={12} strokeWidth={2.4} />}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
-          <div className={`pill ${cmpOpen ? 'active' : ''}`} onClick={() => setCmpOpen((v) => !v)}>
-            <span>Compare: {COMPARE_OPTIONS.find((o) => o.key === compare)?.label}</span>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m6 9 6 6 6-6" /></svg>
-            <div className={`dropdown ${cmpOpen ? 'show' : ''}`}>
-              {COMPARE_OPTIONS.map((o) => (
-                <div key={o.key} onClick={(e) => { e.stopPropagation(); setCompare(o.key); setCmpOpen(false); say(`Comparison: ${o.label}`); }}>
-                  {o.label}
-                </div>
-              ))}
-            </div>
+          <div className="relative" ref={addRef}>
+            <button
+              type="button"
+              onClick={() => setAddOpen((v) => !v)}
+              className="inline-flex h-9 items-center gap-1.5 rounded-[10px] bg-[#111] px-[14px] text-[12.5px] font-semibold text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] transition hover:-translate-y-px hover:bg-[#222] hover:shadow-[0_4px_12px_rgba(0,0,0,0.15)] active:translate-y-0"
+            >
+              <Plus size={12} strokeWidth={2.5} /> Add New
+            </button>
+            {addOpen && (
+              <div className="ovp-drop absolute right-0 top-[42px] z-30 w-52 rounded-[10px] border border-[#ECECEC] bg-white p-1.5 shadow-[0_8px_24px_rgba(0,0,0,0.08)]">
+                {ADD_NEW.map((it) => (
+                  <Link
+                    key={it.to}
+                    to={it.to}
+                    onClick={() => setAddOpen(false)}
+                    className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[11.5px] text-[#374151] transition hover:bg-[#F5F5F5] hover:text-[#111]"
+                  >
+                    <it.icon size={13} strokeWidth={1.7} className="text-[#777]" /> {it.label}
+                  </Link>
+                ))}
+              </div>
+            )}
           </div>
 
-          <button type="button" className="btn-black" onClick={() => setModal('addModal')}>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M5 12h14" /></svg> Add New
-          </button>
+          <Link
+            to="/admin/verification-queue"
+            title="Alerts & verification queue"
+            className="relative grid h-9 w-9 place-items-center rounded-[10px] border border-[#ECECEC] bg-white shadow-[0_1px_2px_rgba(0,0,0,0.03)] transition hover:-translate-y-px hover:border-[#BBB]"
+          >
+            <Bell size={16} strokeWidth={1.8} className="text-[#111]" />
+            {alerts > 0 && (
+              <span className="absolute -right-[5px] -top-[5px] grid h-[18px] min-w-[18px] place-items-center rounded-full border-2 border-admin-bg bg-[#111] px-1 text-[9px] font-bold text-white">
+                {alerts}
+              </span>
+            )}
+          </Link>
 
-          <button type="button" className="icon-btn" title="Alerts & verification queue" onClick={() => setModal('notifModal')}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="1.8"><path d="M6 8a6 6 0 0 1 12 0c0 7 6 5 6 10H0s6-3 6-10" /><path d="M10 20a2 2 0 0 0 4 0" /></svg>
-            {alerts > 0 && !badgeHidden && <span className="badge">{alerts}</span>}
-          </button>
-
-          <button type="button" className="icon-btn" title={fs ? 'Exit fullscreen' : 'Fullscreen'} onClick={toggleFullscreen}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="1.8"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" /></svg>
+          <button
+            type="button"
+            onClick={toggleFullscreen}
+            title={fs ? 'Exit fullscreen' : 'Fullscreen'}
+            className="grid h-9 w-9 place-items-center rounded-[10px] border border-[#ECECEC] bg-white shadow-[0_1px_2px_rgba(0,0,0,0.03)] transition hover:-translate-y-px hover:border-[#BBB]"
+          >
+            {fs ? <Minimize2 size={14} strokeWidth={1.8} className="text-[#111]" /> : <Maximize2 size={14} strokeWidth={1.8} className="text-[#111]" />}
           </button>
         </div>
       </div>
 
-      {/* ── KPI stats ───────────────────────────────────────────────────── */}
-      <div className="stats">
-        <div className="stat" onClick={() => say(`Total Sales: ${rs(k.revenue?.value || 0)} — ${vsLabel}`)}>
-          <div className="stat-head"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><line x1="12" y1="2" x2="12" y2="22" /><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></svg> Total Sales</div>
-          <div className="stat-val"><CountUp value={k.revenue?.value || 0} prefix="Rs " decimals={2} delay={200} /></div>
-          <div className="stat-foot">
-            <div>
-              {typeof k.revenue?.change === 'number' && (
-                <div className="stat-change" style={k.revenue.change < 0 ? { color: '#dc2626' } : undefined}>
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={k.revenue.change < 0 ? { transform: 'rotate(180deg)' } : undefined}><path d="M12 19V5M5 12l7-7 7 7" /></svg> {Math.abs(k.revenue.change).toFixed(1)}%
-                </div>
-              )}
-              <div className="stat-vs">{vsLabel}</div>
-            </div>
-            <ChartBoundary><div className="spark"><ChartBox deps={[sparkRev.join(',')]} build={() => ({
-              type: 'line',
-              data: { labels: sparkRev.map((_, i) => i), datasets: [{ data: sparkRev, borderColor: '#111', borderWidth: 1.4, pointRadius: 0, tension: 0.4, fill: false }] },
-              options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { enabled: false } }, scales: { x: { display: false }, y: { display: false } }, elements: { point: { radius: 0 } }, animation: { duration: 1000, easing: 'easeOutQuart' } },
-            })} /></div></ChartBoundary>
-          </div>
-        </div>
-
-        <div className="stat" onClick={() => say(`Orders: ${(k.orders?.value || 0).toLocaleString()}`)}>
-          <div className="stat-head"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><circle cx="9" cy="21" r="1" /><circle cx="20" cy="21" r="1" /><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" /></svg> Orders</div>
-          <div className="stat-val"><CountUp value={k.orders?.value || 0} delay={280} /></div>
-          <div className="stat-foot">
-            <div>
-              {typeof k.orders?.change === 'number' && (
-                <div className="stat-change"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 19V5M5 12l7-7 7 7" /></svg> {Math.abs(k.orders.change).toFixed(1)}%</div>
-              )}
-              <div className="stat-vs">{vsLabel}</div>
-            </div>
-            <ChartBoundary><div className="spark"><ChartBox deps={[sparkOrd.join(',')]} build={() => ({
-              type: 'line',
-              data: { labels: sparkOrd.map((_, i) => i), datasets: [{ data: sparkOrd, borderColor: '#111', borderWidth: 1.4, pointRadius: 0, tension: 0.4, fill: false }] },
-              options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { enabled: false } }, scales: { x: { display: false }, y: { display: false } }, elements: { point: { radius: 0 } }, animation: { duration: 1000, easing: 'easeOutQuart' } },
-            })} /></div></ChartBoundary>
-          </div>
-        </div>
-
-        <div className="stat" onClick={() => say(`Customers: ${(k.customers?.value || 0).toLocaleString()}`)}>
-          <div className="stat-head"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg> Customers</div>
-          <div className="stat-val"><CountUp value={k.customers?.value || 0} delay={360} /></div>
-          <div className="stat-foot">
-            <div>
-              {typeof k.customers?.change === 'number' && (
-                <div className="stat-change"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 19V5M5 12l7-7 7 7" /></svg> {Math.abs(k.customers.change).toFixed(1)}%</div>
-              )}
-              <div className="stat-vs">{vsLabel}</div>
-            </div>
-            <ChartBoundary><div className="spark"><ChartBox deps={[sparkCust.join(',')]} build={() => ({
-              type: 'line',
-              data: { labels: sparkCust.map((_, i) => i), datasets: [{ data: sparkCust, borderColor: '#111', borderWidth: 1.4, pointRadius: 0, tension: 0.4, fill: false }] },
-              options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { enabled: false } }, scales: { x: { display: false }, y: { display: false } }, elements: { point: { radius: 0 } }, animation: { duration: 1000, easing: 'easeOutQuart' } },
-            })} /></div></ChartBoundary>
-          </div>
-        </div>
-
-        <div className="stat">
-          <div className="stat-head"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><rect x="1" y="4" width="22" height="16" rx="2" /><line x1="1" y1="10" x2="23" y2="10" /></svg> Avg. Order Value</div>
-          <div className="stat-val"><CountUp value={k.aov?.value || 0} prefix="Rs " decimals={2} delay={440} /></div>
-          <div className="stat-foot">
-            <div>
-              {typeof k.aov?.change === 'number' && (
-                <div className="stat-change"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 19V5M5 12l7-7 7 7" /></svg> {Math.abs(k.aov.change).toFixed(1)}%</div>
-              )}
-              <div className="stat-vs">{vsLabel}</div>
-            </div>
-            <ChartBoundary><div className="spark"><ChartBox deps={[sparkAov.join(',')]} build={() => ({
-              type: 'line',
-              data: { labels: sparkAov.map((_, i) => i), datasets: [{ data: sparkAov, borderColor: '#111', borderWidth: 1.4, pointRadius: 0, tension: 0.4, fill: false }] },
-              options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { enabled: false } }, scales: { x: { display: false }, y: { display: false } }, elements: { point: { radius: 0 } }, animation: { duration: 1000, easing: 'easeOutQuart' } },
-            })} /></div></ChartBoundary>
-          </div>
-        </div>
-
-        <div className="stat">
-          <div className="stat-head"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18" /><polyline points="17 6 23 6 23 12" /></svg> Conversion Rate</div>
-          <div className="stat-val"><CountUp value={conversion} suffix="%" decimals={2} delay={520} /></div>
-          <div className="stat-foot">
-            <div>
-              <div className="stat-vs">{sessions ? `${sessions} sessions today` : 'storefront traffic'}</div>
-            </div>
-            <ChartBoundary><div className="spark"><ChartBox deps={[sparkOrd.join(',')]} build={() => ({
-              type: 'line',
-              data: { labels: sparkOrd.map((_, i) => i), datasets: [{ data: sparkOrd, borderColor: '#111', borderWidth: 1.4, pointRadius: 0, tension: 0.4, fill: false }] },
-              options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { enabled: false } }, scales: { x: { display: false }, y: { display: false } }, elements: { point: { radius: 0 } }, animation: { duration: 1000, easing: 'easeOutQuart' } },
-            })} /></div></ChartBoundary>
-          </div>
-        </div>
-
-        <div className="stat">
-          <div className="stat-head"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" /><line x1="3" y1="6" x2="21" y2="6" /><path d="M16 10a4 4 0 0 1-8 0" /></svg> Net Profit</div>
-          <div className="stat-val"><CountUp value={k.profit?.value || 0} prefix="Rs " decimals={2} delay={600} /></div>
-          <div className="stat-foot">
-            <div>
-              {typeof k.profit?.change === 'number' && (
-                <div className="stat-change"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 19V5M5 12l7-7 7 7" /></svg> {Math.abs(k.profit.change).toFixed(1)}%</div>
-              )}
-              <div className="stat-vs">{vsLabel}</div>
-            </div>
-            <ChartBoundary><div className="spark"><ChartBox deps={[sparkRev.join(',')]} build={() => ({
-              type: 'line',
-              data: { labels: sparkRev.map((_, i) => i), datasets: [{ data: sparkRev, borderColor: '#111', borderWidth: 1.4, pointRadius: 0, tension: 0.4, fill: false }] },
-              options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { enabled: false } }, scales: { x: { display: false }, y: { display: false } }, elements: { point: { radius: 0 } }, animation: { duration: 1000, easing: 'easeOutQuart' } },
-            })} /></div></ChartBoundary>
-          </div>
-        </div>
+      {/* ── KPI row ─────────────────────────────────────────────────────── */}
+      <div className="grid grid-cols-2 gap-[10px] md:grid-cols-3 xl:grid-cols-6">
+        <Kpi icon={CircleDollarSign} label="Total Sales" value={k.revenue?.value || 0} decimals={2} change={pw ? k.revenue?.change : null} vs={vsLabel} spark={sparkRev} to="/admin/analytics" delay={50} />
+        <Kpi icon={ShoppingBag} label="Orders" value={k.orders?.value || 0} decimals={0} change={pw ? k.orders?.change : null} vs={vsLabel} spark={sparkOrd} to="/admin/orders" delay={100} />
+        <Kpi icon={Users} label="Customers" value={k.customers?.value || 0} decimals={0} change={pw ? k.customers?.change : null} vs={vsLabel} spark={sparkCust} to="/admin/customers" delay={150} />
+        <Kpi icon={CreditCard} label="Avg. Order Value" value={k.aov?.value || 0} decimals={2} change={pw ? k.aov?.change : null} vs={vsLabel} spark={sparkAov} to="/admin/analytics" delay={200} />
+        <Kpi icon={TrendingUp} label="Conversion Rate" value={conversion} decimals={2} prefix="" suffix="%" change={null} vs={sessions ? `${sessions} sessions today` : 'storefront traffic'} spark={sparkOrd} to="/admin/live" delay={250} />
+        <Kpi icon={Wallet} label="Net Profit" value={k.profit?.value || 0} decimals={2} change={pw ? k.profit?.change : null} vs={vsLabel} spark={sparkRev} to="/admin/finance" delay={300} />
       </div>
 
-      {/* ── sales overview / channel / live ─────────────────────────────── */}
-      <div className="grid3">
-        <div className="card">
-          <div className="card-h">
-            <div className="card-t">Sales Overview <span className="info" title="This period vs the selected comparison window" onClick={() => say(`Sales comparison: ${vsLabel}`)}>i</span></div>
-            <div style={{ display: 'flex', gap: 6 }}>
-              <button type="button" className="btn-sm" style={{ position: 'relative' }} onClick={() => setWeekOpen((v) => !v)}>
-                {RANGE_OPTIONS.find((o) => o.key === (range.preset === 'custom' ? '7d' : range.preset))?.label || 'This Week'} ▾
-                <div className={`dropdown ${weekOpen ? 'show' : ''}`} style={{ right: 0, left: 'auto' }}>
-                  {RANGE_OPTIONS.map((o) => <div key={o.key} onClick={(e) => { e.stopPropagation(); onWeek(o.key); setWeekOpen(false); }}>{o.label}</div>)}
+      {/* ── sales / channel / live ──────────────────────────────────────── */}
+      <div className="mt-[10px] grid gap-[10px] xl:grid-cols-12">
+        <Card className="xl:col-span-6" delay={120}>
+          <CardHead
+            title="Sales Overview"
+            info="This period vs the selected comparison window"
+            onInfo={() => say(`Sales comparison: ${vsLabel}`)}
+            right={
+              <div className="flex items-center gap-1.5">
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setWeekOpen((v) => !v)}
+                    className="inline-flex h-[26px] items-center gap-1 rounded-lg border border-[#ECECEC] bg-white px-[10px] text-[11px] font-medium text-[#374151] hover:border-[#BBB]"
+                  >
+                    {WEEK_OPTIONS.find((o) => o.key === chartPreset)?.label || 'This Week'}
+                    <ChevronDown size={11} className="text-[#9CA3AF]" />
+                  </button>
+                  {weekOpen && (
+                    <div className="ovp-drop absolute right-0 top-[30px] z-20 w-[150px] rounded-[10px] border border-[#ECECEC] bg-white p-1 shadow-[0_8px_24px_rgba(0,0,0,0.08)]">
+                      {WEEK_OPTIONS.map((o) => (
+                        <button
+                          key={o.key}
+                          type="button"
+                          onClick={() => { onWeek(o.key); setWeekOpen(false); }}
+                          className={`flex w-full rounded-lg px-2.5 py-1.5 text-left text-[11px] hover:bg-[#F5F5F5] ${chartPreset === o.key ? 'font-semibold text-[#111]' : 'text-[#374151]'}`}
+                        >
+                          {o.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              </button>
-              <button type="button" className="btn-sm" onClick={() => { load(true); say('Chart refreshed'); }}>⋮</button>
+                <button type="button" className="grid h-[26px] w-[26px] place-items-center rounded-lg border border-[#ECECEC] text-[#888] hover:border-[#BBB]" aria-label="More">
+                  <MoreHorizontal size={13} />
+                </button>
+              </div>
+            }
+          />
+          <div className="mb-2 flex items-center gap-4 text-[10.5px] text-[#6B7280]">
+            <span className="flex items-center gap-[5px]"><b className="inline-block h-[2px] w-[14px] rounded-sm bg-[#111]" /> This Period</span>
+            {pw && <span className="flex items-center gap-[5px]"><b className="inline-block h-[2px] w-[14px] rounded-sm bg-[#C8C8C8]" /> Previous Period</span>}
+          </div>
+          <ChartBoundary>
+            <div className="h-[200px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={chart} margin={{ top: 6, right: 6, left: -18, bottom: 0 }}>
+                  <CartesianGrid stroke={GRID} strokeDasharray="3 3" vertical={false} />
+                  <XAxis dataKey="label" tick={{ fontSize: 10, fill: FAINT }} tickLine={false} axisLine={false} />
+                  <YAxis tick={{ fontSize: 10, fill: FAINT }} tickLine={false} axisLine={false} tickFormatter={(v) => (v >= 1000 ? `${Math.round(v / 1000)}k` : v)} />
+                  <Tooltip contentStyle={tipStyle} formatter={(v, n) => [rs(v, 0), n === 'revenue' ? 'This period' : 'Previous']} />
+                  {pw && <Line type="monotone" dataKey="prevRevenue" stroke="#C8C8C8" strokeWidth={1.5} strokeDasharray="4 4" dot={false} />}
+                  <Line type="monotone" dataKey="revenue" stroke={INK} strokeWidth={2.2} dot={{ r: 3, fill: INK, strokeWidth: 0 }} activeDot={{ r: 5 }} />
+                </LineChart>
+              </ResponsiveContainer>
             </div>
-          </div>
-          <div className="legend">
-            <span><b style={{ background: '#111' }}></b> This Period</span>
-            {pw && <span><b style={{ background: '#c8c8c8' }}></b> Previous Period</span>}
-          </div>
-          <div className="chart-main">
-            <ChartBoundary>
-              <ChartBox deps={[chart.map((c) => c.revenue).join(','), chart.map((c) => c.prevRevenue).join(',')]} build={() => ({
-                type: 'line',
-                data: {
-                  labels: chart.map((c) => c.label),
-                  datasets: [
-                    { label: 'This Period', data: chart.map((c) => c.revenue || 0), borderColor: '#111', backgroundColor: '#111', borderWidth: 2.2, tension: 0.35, pointRadius: 4, pointBackgroundColor: '#111', pointBorderWidth: 2, pointHoverRadius: 6 },
-                    ...(pw ? [{ label: 'Previous Period', data: chart.map((c) => c.prevRevenue), borderColor: '#c8c8c8', backgroundColor: '#c8c8c8', borderWidth: 1.5, borderDash: [4, 4], tension: 0.35, pointRadius: 0, spanGaps: true }] : []),
-                  ],
-                },
-                options: {
-                  responsive: true, maintainAspectRatio: false,
-                  animation: { duration: 1400, easing: 'easeOutQuart' },
-                  plugins: { legend: { display: false }, tooltip: { ...TOOLTIP, callbacks: { label: (c) => `${c.dataset.label}: ${rs(c.parsed.y, 0)}` } } },
-                  scales: {
-                    y: { beginAtZero: true, grid: { color: '#f2f2f2', borderDash: [3, 3] }, ticks: { ...AXIS_TICK, callback: kFmt }, border: { display: false } },
-                    x: { grid: { display: false }, ticks: AXIS_TICK, border: { display: false } },
-                  },
-                },
-              })} />
-            </ChartBoundary>
-          </div>
-        </div>
+          </ChartBoundary>
+        </Card>
 
-        <div className="card">
-          <div className="card-h"><span className="card-t">Sales by Channel</span></div>
-          <div className="donut-row">
-            <div className="donut">
+        <Card className="flex flex-col xl:col-span-3" delay={180}>
+          <CardHead title="Sales by Channel" />
+          <div className="flex flex-1 flex-col items-center gap-4 sm:flex-row xl:flex-col 2xl:flex-row">
+            <div className="relative h-[138px] w-[138px] shrink-0">
               <ChartBoundary>
-                <ChartBox deps={[channels.map((c) => c.amount).join(',')]} build={() => ({
-                  type: 'doughnut',
-                  data: { labels: channels.map((c) => c.name), datasets: [{ data: channels.map((c) => c.amount), backgroundColor: channels.map((c, i) => c.color || CHANNEL_COLORS[i % 4]), borderWidth: 0, hoverOffset: 5 }] },
-                  options: { cutout: '70%', animation: { animateRotate: true, duration: 1300, easing: 'easeOutQuart' }, plugins: { legend: { display: false }, tooltip: { ...TOOLTIP, callbacks: { label: (c) => ` ${c.label}: ${rs(c.parsed, 0)}` } } }, responsive: true, maintainAspectRatio: false },
-                })} />
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie data={channels} dataKey="amount" innerRadius={48} outerRadius={68} paddingAngle={1} stroke="none">
+                      {channels.map((c, i) => <Cell key={c.name} fill={c.color || CHANNEL_COLORS[i]} />)}
+                    </Pie>
+                  </PieChart>
+                </ResponsiveContainer>
               </ChartBoundary>
-              <div className="donut-center"><b>{rs(k.revenue?.value || 0)}</b><span>Total Sales</span></div>
-            </div>
-            <div className="ch-list">
-              {channels.map((c, i) => (
-                <div className="ch-item" key={c.name}>
-                  <div className="dot" style={{ background: c.color || CHANNEL_COLORS[i % 4] }}></div> {c.name}
-                  <span className="pct">{c.pct.toFixed(1)}%</span>
-                  <span className="val">{rs(c.amount, 0)}</span>
+              <div className="pointer-events-none absolute inset-0 grid place-items-center text-center">
+                <div>
+                  <p className="text-[12.5px] font-bold leading-none tabular-nums text-[#111]">{rs(k.revenue?.value || 0, 0)}</p>
+                  <p className="mt-1 text-[10px] text-[#6B7280]">Total Sales</p>
                 </div>
-              ))}
+              </div>
             </div>
+            <ul className="w-full flex-1 text-[11px]">
+              {channels.map((c, i) => (
+                <li key={c.name} className="flex items-center gap-2 rounded-md px-1 py-[4.5px] transition hover:bg-[#F9F9F9]">
+                  <span className="h-[7px] w-[7px] shrink-0 rounded-full" style={{ background: c.color || CHANNEL_COLORS[i] }} />
+                  <span className="min-w-0 flex-1 truncate text-[#374151]">{c.name}</span>
+                  <span className="w-8 text-right tabular-nums text-[#6B7280]">{c.pct.toFixed(1)}%</span>
+                  <span className="w-[74px] text-right font-semibold tabular-nums text-[#111]">{rs(c.amount, 0)}</span>
+                </li>
+              ))}
+            </ul>
           </div>
-          <div style={{ textAlign: 'right', marginTop: 14 }}>
-            <Link to="/admin/analytics" className="btn-sm">View full report</Link>
+          <div className="mt-3.5 flex justify-end">
+            <Link to="/admin/analytics" className="inline-flex h-[26px] items-center rounded-lg border border-[#ECECEC] bg-white px-[10px] text-[11px] font-medium text-[#374151] transition hover:-translate-y-px hover:border-[#BBB] hover:bg-[#F9F9F9]">
+              View full report
+            </Link>
           </div>
-        </div>
+        </Card>
 
-        <div className="card">
-          <div className="live-top">
-            <span className="card-t">Live Visitors</span>
-            <span style={{ fontSize: 10, color: '#0e9f6e', display: 'flex', alignItems: 'center', gap: 5 }}><span className="live-dot"></span> Live</span>
+        <Card className="flex flex-col xl:col-span-3" delay={240}>
+          <div className="flex items-center justify-between">
+            <h2 className="text-[12.5px] font-bold tracking-[-0.15px] text-[#111]">Live Visitors</h2>
+            <span className="flex items-center gap-[5px] text-[10px] font-medium text-[#0E9F6E]">
+              <span className="ovp-live-dot inline-block h-[6px] w-[6px] rounded-full bg-[#10B981]" /> Live
+            </span>
           </div>
-          <div className="live-num">{live?.visitorsNow ?? 0}</div>
-          <div className="live-sub">Visitors right now</div>
-          <LiveBars />
-          <div className="pages">
-            <div className="page-row head"><span>Top Pages</span><span></span></div>
-            {topPages.map((p) => (
-              <div className="page-row" key={p.path}><span>{p.path}</span><span>{p.n}</span></div>
+          <p className="ovp-live-num mt-1 text-[18px] font-bold leading-none tabular-nums text-[#111]">{live?.visitorsNow ?? 0}</p>
+          <p className="text-[11px] text-[#6B7280]">Visitors right now</p>
+          <div className="my-[10px] flex h-[34px] items-end gap-[2.5px]">
+            {liveBars.map((h) => (
+              <span
+                key={h.hour}
+                className="ovp-bar flex-1 rounded-[2px] bg-[#111]"
+                style={{ height: `${8 + ((h.v || 0) / liveMax) * 26}px` }}
+              />
             ))}
           </div>
-          <div style={{ marginTop: 10 }}>
-            <Link to="/admin/live" className="btn-sm" style={{ width: '100%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>View real time</Link>
+          <div className="text-[11px]">
+            <div className="mb-0.5 flex justify-between text-[10.5px] font-semibold text-[#6B7280]">
+              <span>Top Pages</span><span />
+            </div>
+            {topPages.map((p) => (
+              <div key={p.path} className="flex justify-between rounded px-1 py-[2.5px] text-[#222] transition hover:bg-[#F9F9F9]">
+                <span className="truncate font-mono text-[10.5px] text-[#6B7280]">{p.path}</span>
+                <span className="tabular-nums text-[#6B7280]">{p.n}</span>
+              </div>
+            ))}
           </div>
-        </div>
+          <Link to="/admin/live" className="mt-[10px] inline-flex h-[26px] w-full items-center justify-center rounded-lg border border-[#ECECEC] bg-white text-[11px] font-medium text-[#374151] transition hover:-translate-y-px hover:border-[#BBB] hover:bg-[#F9F9F9]">
+            View real time
+          </Link>
+        </Card>
       </div>
 
       {/* ── glance / products / orders ──────────────────────────────────── */}
-      <div className="grid4">
-        <div className="card">
-          <div className="card-h"><span className="card-t">Today at a Glance</span></div>
-          <div className="glance">
-            <Link className="g-item" to="/admin/orders">
-              <div className="g-ico"><svg viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="1.6"><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" /><path d="M9 16l2 2 4-4" /></svg></div>
-              <b>{todayOrders}</b><span>New Orders</span>
-            </Link>
-            <Link className="g-item" to="/admin/verification-queue">
-              <div className="g-ico"><svg viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="1.6"><rect x="1" y="4" width="22" height="16" rx="2" /><path d="M12 8v4l3 3" /></svg></div>
-              <b>{pendingPay}</b><span>Pending Payments</span>
-            </Link>
-            <Link className="g-item" to="/admin/products?stock=low">
-              <div className="g-ico"><svg viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="1.6"><circle cx="12" cy="12" r="10" /><path d="M12 8v8M8 12h8" /></svg></div>
-              <b>{lowStockN}</b><span>Low Stock Alerts</span>
-            </Link>
-            <Link className="g-item" to="/admin/customers">
-              <div className="g-ico"><svg viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="1.6"><circle cx="12" cy="7" r="3" /><path d="M5 21v-2a5 5 0 0 1 10 0v2" /><circle cx="18" cy="10" r="2" /><path d="M20 21v-1a3 3 0 0 0-3-3" /></svg></div>
-              <b>{k.customers?.value || 0}</b><span>New Customers</span>
-            </Link>
+      <div className="mt-[10px] grid gap-[10px] xl:grid-cols-12">
+        <Card className="xl:col-span-4" delay={120}>
+          <CardHead title="Today at a Glance" />
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+            {[
+              { icon: Calendar, n: todayOrders, label: 'New Orders', to: '/admin/orders' },
+              { icon: Wallet, n: pendingPay, label: 'Pending Payments', to: '/admin/verification-queue' },
+              { icon: AlertTriangle, n: lowStockN, label: 'Low Stock Alerts', to: '/admin/products?stock=low' },
+              { icon: Users, n: k.customers?.value || 0, label: 'New Customers', to: '/admin/customers' },
+            ].map((g) => (
+              <Link
+                key={g.label}
+                to={g.to}
+                className="rounded-[10px] border border-[#F1F1F1] bg-white p-[10px] text-center transition duration-200 hover:-translate-y-0.5 hover:border-[#111] hover:shadow-[0_4px_12px_rgba(0,0,0,0.06)] group"
+              >
+                <span className="mx-auto grid h-7 w-7 place-items-center rounded-[7px] border border-[#F0F0F0] bg-[#F8F8F7] transition group-hover:border-[#111] group-hover:bg-[#111]">
+                  <g.icon size={14} strokeWidth={1.6} className="text-[#111] transition group-hover:text-white" />
+                </span>
+                <b className="mt-1.5 block text-[14px] font-bold tabular-nums text-[#111]">{Number(g.n || 0).toLocaleString()}</b>
+                <span className="block text-[10px] text-[#6B7280]">{g.label}</span>
+              </Link>
+            ))}
           </div>
-          <Link className="view-all" to="/admin/verification-queue">View all notifications <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7" /></svg></Link>
-        </div>
+          <ViewAll to="/admin/verification-queue">View all notifications</ViewAll>
+        </Card>
 
-        <div className="card">
-          <div className="card-h"><span className="card-t">Top Selling Products</span><Link to="/admin/products" style={{ fontSize: 10.5, color: '#6b7280' }}>View all</Link></div>
+        <Card className="xl:col-span-4" delay={180}>
+          <CardHead
+            title="Top Selling Products"
+            right={<Link to="/admin/products" className="text-[10.5px] text-[#6B7280] transition hover:text-[#111]">View all</Link>}
+          />
           {prodRows.length === 0 ? (
-            <p style={{ padding: '24px 0', textAlign: 'center', fontSize: 11, color: '#9ca3af' }}>
+            <p className="py-8 text-center text-[11px] text-[#9CA3AF]">
               {needle ? 'No product matches this search.' : 'Product sales appear once orders land.'}
             </p>
           ) : (
-            <table className="tbl">
-              <thead><tr><th>Product</th><th>Sold</th><th>Revenue</th></tr></thead>
+            <table className="w-full border-collapse">
+              <thead>
+                <tr>
+                  {['Product', 'Sold', 'Revenue'].map((h, i) => (
+                    <th key={h} className={`border-b border-[#F2F2F2] py-[7px] text-[10px] font-medium uppercase tracking-[0.3px] text-[#9CA3AF] ${i === 0 ? 'text-left' : 'text-right'}`}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
               <tbody>
                 {prodRows.map((p) => (
-                  <tr key={p.id} className={needle ? 'highlight' : ''}>
-                    <td>
-                      <Link to="/admin/products" className="prod">
-                        <span className="prod-ico" style={{ overflow: 'hidden' }}>
+                  <tr key={p.id} className={hit ? 'ovp-hit' : ''}>
+                    <td className="border-b border-[#FAFAFA] py-2">
+                      <Link to="/admin/products" className="flex items-center gap-2">
+                        <span className="grid h-[22px] w-[22px] shrink-0 place-items-center overflow-hidden rounded-[6px] border border-[#EFEFEF] bg-[#F5F5F4]">
                           {p.image
-                            ? <Img src={p.image} alt="" width={44} height={44} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                            : <svg viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="1.5"><path d="M5 8a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V8z" /><path d="M5 8l2-3h10l2 3" /><path d="M12 12a2 2 0 0 0 0 4 2 2 0 0 0 0-4z" /></svg>}
-                        </span> {p.name}
+                            ? <Img src={p.image} alt="" className="h-full w-full object-cover" width={44} height={44} />
+                            : <Package size={12} strokeWidth={1.5} className="text-[#111]" />}
+                        </span>
+                        <span className="truncate text-[11px] text-[#222]">{p.name}</span>
                       </Link>
                     </td>
-                    <td>{Number(p.qty || 0).toLocaleString()}</td>
-                    <td>{rs(p.revenue, 0)}</td>
+                    <td className="border-b border-[#FAFAFA] py-2 text-right text-[11px] tabular-nums text-[#222]">{Number(p.qty || 0).toLocaleString()}</td>
+                    <td className="border-b border-[#FAFAFA] py-2 text-right text-[11px] font-semibold tabular-nums text-[#111]">{rs(p.revenue, 0)}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           )}
-        </div>
+        </Card>
 
-        <div className="card">
-          <div className="card-h"><span className="card-t">Recent Orders</span><Link to="/admin/orders" style={{ fontSize: 10.5, color: '#6b7280' }}>View all</Link></div>
+        <Card className="xl:col-span-4" delay={240}>
+          <CardHead
+            title="Recent Orders"
+            right={<Link to="/admin/orders" className="text-[10.5px] text-[#6B7280] transition hover:text-[#111]">View all</Link>}
+          />
           {orderRows.length === 0 ? (
-            <p style={{ padding: '24px 0', textAlign: 'center', fontSize: 11, color: '#9ca3af' }}>
+            <p className="py-8 text-center text-[11px] text-[#9CA3AF]">
               {needle ? 'No order matches this search.' : 'No orders in this period.'}
             </p>
           ) : (
-            <table className="tbl">
+            <table className="w-full border-collapse">
               <tbody>
                 {orderRows.map((o) => (
-                  <tr key={o.id}>
-                    <td>
-                      <Link to={`/admin/orders/${o.id}`} className="prod">
-                        <span className="prod-ico" style={{ background: '#f0f0f0', fontSize: 9, fontWeight: 700 }}>{initials(o.name)}</span> {o.num}
+                  <tr key={o.id} className="transition hover:bg-[#FAFAFA]">
+                    <td className="border-b border-[#FAFAFA] py-2">
+                      <Link to={`/admin/orders/${o.id}`} className="flex items-center gap-2">
+                        <span className="grid h-[22px] w-[22px] shrink-0 place-items-center rounded-[6px] bg-[#F0F0F0] text-[9px] font-bold text-[#111]">
+                          {initials(o.name)}
+                        </span>
+                        <span className="text-[11px] font-semibold text-[#111]">{o.num}</span>
                       </Link>
                     </td>
-                    <td><Link to={`/admin/orders/${o.id}`}>{o.name}</Link></td>
-                    <td>{rs(o.total)}</td>
-                    <td><span className={o.tone.cls}>{o.tone.label}</span></td>
+                    <td className="border-b border-[#FAFAFA] py-2 text-[11px] text-[#6B7280]">
+                      <Link to={`/admin/orders/${o.id}`} className="truncate">{o.name}</Link>
+                    </td>
+                    <td className="border-b border-[#FAFAFA] py-2 text-right text-[11px] font-semibold tabular-nums text-[#111]">{rs(o.total, 2)}</td>
+                    <td className="border-b border-[#FAFAFA] py-2 pl-2 text-right">
+                      <span className={`inline-block rounded-full px-[9px] py-[3px] text-[10px] font-bold ${o.tone.cls}`}>{o.tone.label}</span>
+                    </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           )}
-        </div>
+        </Card>
       </div>
 
       {/* ── revenue / status / customers / categories ───────────────────── */}
-      <div className="grid4b">
-        <div className="card">
-          <div className="card-h">
-            <span className="card-t">Revenue &amp; Orders</span>
-            <button type="button" className="btn-sm" style={{ position: 'relative' }} onClick={() => setRevOpen((v) => !v)}>
-              {RANGE_OPTIONS.find((o) => o.key === (range.preset === 'custom' ? '7d' : range.preset))?.label || 'This Week'} ▾
-              <div className={`dropdown ${revOpen ? 'show' : ''}`} style={{ right: 0, left: 'auto' }}>
-                {RANGE_OPTIONS.map((o) => <div key={o.key} onClick={(e) => { e.stopPropagation(); onWeek(o.key); setRevOpen(false); }}>{o.label}</div>)}
+      <div className="mt-[10px] grid gap-[10px] xl:grid-cols-12">
+        <Card className="xl:col-span-4" delay={120}>
+          <CardHead
+            title="Revenue & Orders"
+            right={
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setWeekOpen2((v) => !v)}
+                  className="inline-flex h-[26px] items-center gap-1 rounded-lg border border-[#ECECEC] bg-white px-[10px] text-[11px] font-medium text-[#374151] hover:border-[#BBB]"
+                >
+                  {WEEK_OPTIONS.find((o) => o.key === chartPreset)?.label || 'This Week'}
+                  <ChevronDown size={11} className="text-[#9CA3AF]" />
+                </button>
+                {weekOpen2 && (
+                  <div className="ovp-drop absolute right-0 top-[30px] z-20 w-[150px] rounded-[10px] border border-[#ECECEC] bg-white p-1 shadow-[0_8px_24px_rgba(0,0,0,0.08)]">
+                    {WEEK_OPTIONS.map((o) => (
+                      <button
+                        key={o.key}
+                        type="button"
+                        onClick={() => { onWeek(o.key); setWeekOpen2(false); }}
+                        className={`flex w-full rounded-lg px-2.5 py-1.5 text-left text-[11px] hover:bg-[#F5F5F5] ${chartPreset === o.key ? 'font-semibold text-[#111]' : 'text-[#374151]'}`}
+                      >
+                        {o.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
-            </button>
-          </div>
-          <div className="rev-tabs">
-            <button type="button" className={`rev-tab ${revTab === 'revenue' ? 'active' : 'idle'}`} onClick={() => { setRevTab('revenue'); say('Switched to Revenue'); }}>Revenue</button>
-            <button type="button" className={`rev-tab ${revTab === 'orders' ? 'active' : 'idle'}`} onClick={() => { setRevTab('orders'); say('Switched to Orders'); }}>Orders</button>
-            {typeof (revTab === 'revenue' ? k.revenue?.change : k.orders?.change) === 'number' && (
-              <span style={{ fontSize: 10, color: 'var(--green)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 2 }}>
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 19V5M5 12l7-7 7 7" /></svg> {Math.abs(revTab === 'revenue' ? k.revenue.change : k.orders.change).toFixed(1)}%
-              </span>
-            )}
-          </div>
-          <div className="rev-chart">
-            <ChartBoundary>
-              <ChartBox deps={[revTab, revData.map((r) => r.revenue).join(','), revData.map((r) => r.orders).join(',')]} build={() => ({
-                type: 'bar',
-                data: {
-                  labels: revData.map((r) => r.day),
-                  datasets: [{
-                    data: revData.map((r) => (revTab === 'revenue' ? r.revenue : r.orders)),
-                    backgroundColor: revTab === 'revenue' ? '#111' : '#555',
-                    borderRadius: { topLeft: 4, topRight: 4 },
-                    barThickness: 18,
-                    hoverBackgroundColor: '#222',
-                  }],
-                },
-                options: {
-                  responsive: true, maintainAspectRatio: false,
-                  animation: { duration: 1200, easing: 'easeOutQuart' },
-                  plugins: { legend: { display: false }, tooltip: { ...TOOLTIP, callbacks: { label: (c) => (revTab === 'revenue' ? rs(c.parsed.y, 0) : `${c.parsed.y} orders`) } } },
-                  scales: {
-                    y: { beginAtZero: true, grid: { color: '#f5f5f5' }, ticks: { ...AXIS_TICK, callback: revTab === 'revenue' ? kFmt : undefined }, border: { display: false } },
-                    y1: { position: 'right', beginAtZero: true, suggestedMax: Math.max(10, ...revData.map((r) => r.orders)), grid: { display: false }, ticks: AXIS_TICK, border: { display: false } },
-                    x: { grid: { display: false }, ticks: AXIS_TICK, border: { display: false } },
-                  },
-                },
-              })} />
-            </ChartBoundary>
-          </div>
-        </div>
-
-        <div className="card">
-          <div className="card-h"><span className="card-t">Orders Status</span></div>
-          <div className="orders-flex">
-            <div className="orders-donut">
-              <ChartBoundary>
-                <ChartBox deps={[statusMix.rows.map((r) => r.value).join(',')]} build={() => ({
-                  type: 'doughnut',
-                  data: { labels: statusMix.rows.map((r) => r.name), datasets: [{ data: statusMix.rows.length ? statusMix.rows.map((r) => r.value) : [1], backgroundColor: statusMix.rows.length ? statusMix.rows.map((r) => r.color) : ['#e5e7eb'], borderWidth: 0, hoverOffset: 4 }] },
-                  options: { cutout: '70%', animation: { duration: 1200, easing: 'easeOutQuart' }, plugins: { legend: { display: false }, tooltip: { backgroundColor: '#111' } }, responsive: true, maintainAspectRatio: false },
-                })} />
-              </ChartBoundary>
-              <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                <b style={{ fontSize: 13 }}>{statusMix.total.toLocaleString()}</b>
-                <span style={{ fontSize: 10, color: 'var(--muted)' }}>Total Orders</span>
-              </div>
-            </div>
-            <div className="orders-legend">
-              {statusMix.rows.map((s) => (
-                <div className="ol-item" key={s.name}>
-                  <div className="ol-dot" style={{ background: s.color }}></div> {s.name} <span style={{ marginLeft: 6 }}>{s.pct.toFixed(0)}% ({s.value})</span>
-                </div>
-              ))}
-              {!statusMix.rows.length && <div className="ol-item" style={{ color: '#9ca3af' }}>No orders in this period.</div>}
-            </div>
-          </div>
-          <div style={{ marginTop: 14 }}>
-            <Link to="/admin/orders" className="btn-sm">View all orders ▾</Link>
-          </div>
-        </div>
-
-        <div className="card">
-          <div className="card-h"><span className="card-t">Customer Overview</span></div>
-          <div className="cust-head">
-            <div>
-              <div style={{ fontSize: 10, color: 'var(--muted)' }}>Total Customers</div>
-              <div className="cust-big">{totalCustomers.toLocaleString()}</div>
-            </div>
-            <div style={{ textAlign: 'right' }}>
-              {typeof k.customers?.change === 'number' && (
-                <div className="cust-growth"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 19V5M5 12l7-7 7 7" /></svg> {Math.abs(k.customers.change).toFixed(1)}%</div>
-              )}
-              <div className="cust-sub">{vsLabel}</div>
-            </div>
-          </div>
-          <div className="cust-line">
-            <ChartBoundary>
-              <ChartBox deps={[sparkCust.join(',')]} build={() => ({
-                type: 'line',
-                data: { labels: sparkCust.map((_, i) => i), datasets: [{ data: sparkCust, borderColor: '#111', borderWidth: 1.3, tension: 0.4, pointRadius: 3, pointBackgroundColor: '#fff', pointBorderColor: '#111', pointBorderWidth: 1.5, fill: false, pointHoverRadius: 5 }] },
-                options: { responsive: true, maintainAspectRatio: false, animation: { duration: 1200, easing: 'easeOutQuart' }, plugins: { legend: { display: false }, tooltip: { backgroundColor: '#111' } }, scales: { x: { display: false }, y: { display: false } } },
-              })} />
-            </ChartBoundary>
-          </div>
-          <div className="cust-bottom">
-            <div className="cust-b">
-              <div style={{ fontSize: 9, color: 'var(--muted)' }}>New Customers</div>
-              <b>{Number(k.customers?.value || 0).toLocaleString()}</b>{' '}
-              {typeof k.customers?.change === 'number' && <span style={{ fontSize: 10, color: 'var(--green)' }}>↑ {Math.abs(k.customers.change).toFixed(1)}%</span>}
-            </div>
-            <div className="cust-b">
-              <div style={{ fontSize: 9, color: 'var(--muted)' }}>Returning Customers</div>
-              <b>{returning.toLocaleString()}</b>
-            </div>
-          </div>
-        </div>
-
-        <div className="card">
-          <div className="card-h"><span className="card-t">Top Categories</span><Link to="/admin/categories" style={{ fontSize: 10.5, color: 'var(--muted)' }}>View all</Link></div>
-          <div>
-            {catBars.length === 0 && <p style={{ padding: '24px 0', textAlign: 'center', fontSize: 11, color: '#9ca3af' }}>Category sales appear with orders.</p>}
-            {catBars.map((c) => (
-              <div className="cat-row" key={c.slug}>
-                <span className="cat-name">{c.name}</span>
-                <div className="cat-bar"><div style={{ width: barsIn ? `${c.pct}%` : '0%' }}></div></div>
-                <span className="cat-val">{rs(c.revenue, 0)}</span>
-              </div>
+            }
+          />
+          <div className="mb-[10px] flex items-center gap-1.5">
+            {[
+              { key: 'revenue', label: 'Revenue' },
+              { key: 'orders', label: 'Orders' },
+            ].map((t) => (
+              <button
+                key={t.key}
+                type="button"
+                onClick={() => { setRevTab(t.key); say(`Switched to ${t.label.toLowerCase()}`); }}
+                className={`rounded-full px-[10px] py-1 text-[10px] font-semibold transition ${revTab === t.key ? 'scale-[1.02] bg-[#111] text-white' : 'bg-[#F3F3F2] text-[#6B7280] hover:bg-[#E9E9E8]'}`}
+              >
+                {t.label}
+              </button>
             ))}
+            <span className="ml-1"><Delta change={pw ? (revTab === 'revenue' ? k.revenue?.change : k.orders?.change) : null} className="text-[10px]" /></span>
           </div>
-        </div>
+          <ChartBoundary>
+            <div className="h-[160px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={revData} margin={{ top: 6, right: 6, left: -18, bottom: 0 }}>
+                  <CartesianGrid stroke="#F5F5F5" vertical={false} />
+                  <XAxis dataKey="day" tick={{ fontSize: 10, fill: FAINT }} tickLine={false} axisLine={false} />
+                  <YAxis tick={{ fontSize: 10, fill: FAINT }} tickLine={false} axisLine={false} allowDecimals={revTab === 'orders'} tickFormatter={(v) => (revTab === 'revenue' ? (v >= 1000 ? `${Math.round(v / 1000)}k` : v) : v)} />
+                  <Tooltip
+                    cursor={{ fill: '#FAFAFA' }}
+                    contentStyle={tipStyle}
+                    formatter={(v) => [revTab === 'revenue' ? rs(v, 0) : v, revTab === 'revenue' ? 'Revenue' : 'Orders']}
+                  />
+                  <Bar dataKey={revTab} fill={revTab === 'revenue' ? INK : '#555555'} radius={[4, 4, 0, 0]} barSize={18} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </ChartBoundary>
+        </Card>
+
+        <Card className="xl:col-span-3" delay={180}>
+          <CardHead title="Orders Status" />
+          <div className="flex items-center gap-4">
+            <div className="relative h-[118px] w-[118px] shrink-0">
+              <ChartBoundary>
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={statusMix.rows.length ? statusMix.rows : [{ name: 'None', value: 1, color: '#E5E7EB' }]}
+                      dataKey="value"
+                      innerRadius={41}
+                      outerRadius={58}
+                      paddingAngle={1}
+                      stroke="none"
+                    >
+                      {(statusMix.rows.length ? statusMix.rows : [{ color: '#E5E7EB' }]).map((s, i) => <Cell key={i} fill={s.color} />)}
+                    </Pie>
+                  </PieChart>
+                </ResponsiveContainer>
+              </ChartBoundary>
+              <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
+                <b className="text-[13px] font-bold tabular-nums text-[#111]">{statusMix.total.toLocaleString()}</b>
+                <span className="text-[10px] text-[#6B7280]">Total Orders</span>
+              </div>
+            </div>
+            <ul className="flex-1 text-[11px]">
+              {statusMix.rows.map((s) => (
+                <li key={s.name} className="flex items-center gap-[7px] rounded px-1 py-[3px] transition hover:bg-[#F9F9F9]">
+                  <span className="h-[7px] w-[7px] shrink-0 rounded-full" style={{ background: s.color }} />
+                  <span className="flex-1 text-[#374151]">{s.name}</span>
+                  <span className="tabular-nums text-[#6B7280]">{s.pct.toFixed(0)}% ({s.value})</span>
+                </li>
+              ))}
+              {!statusMix.rows.length && <li className="px-1 text-[11px] text-[#9CA3AF]">No orders in this period.</li>}
+            </ul>
+          </div>
+          <Link to="/admin/orders" className="mt-3.5 inline-flex h-[26px] items-center gap-1 rounded-lg border border-[#ECECEC] bg-white px-[10px] text-[11px] font-medium text-[#374151] transition hover:-translate-y-px hover:border-[#BBB] hover:bg-[#F9F9F9]">
+            View all orders <ChevronDown size={11} />
+          </Link>
+        </Card>
+
+        <Card className="xl:col-span-3" delay={240}>
+          <CardHead title="Customer Overview" />
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-[10px] text-[#6B7280]">Total Customers</p>
+              <p className="mt-0.5 text-[18px] font-bold leading-none tabular-nums text-[#111]">{totalCustomers.toLocaleString()}</p>
+            </div>
+            <div className="text-right">
+              <Delta change={pw ? k.customers?.change : null} />
+              <p className="mt-0.5 text-[10px] text-[#9CA3AF]">{vsLabel}</p>
+            </div>
+          </div>
+          <div className="my-2 h-[62px]">
+            <ChartBoundary>
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={sparkCust} margin={{ top: 6, right: 2, left: 2, bottom: 2 }}>
+                  <Line type="monotone" dataKey="v" stroke={INK} strokeWidth={1.3} dot={{ r: 2.5, fill: '#fff', stroke: INK, strokeWidth: 1.5 }} />
+                </LineChart>
+              </ResponsiveContainer>
+            </ChartBoundary>
+          </div>
+          <div className="mt-1 flex gap-4 border-t border-[#F3F4F6] pt-2.5">
+            <div>
+              <p className="text-[9px] text-[#6B7280]">New Customers</p>
+              <p className="text-[13px] font-bold tabular-nums text-[#111]">
+                {Number(k.customers?.value || 0).toLocaleString()}
+                {pw && <span className="ml-1 inline-flex align-baseline"><Delta change={k.customers?.change} className="text-[10px]" /></span>}
+              </p>
+            </div>
+            <div>
+              <p className="text-[9px] text-[#6B7280]">Returning Customers</p>
+              <p className="text-[13px] font-bold tabular-nums text-[#111]">{returning.toLocaleString()}</p>
+            </div>
+          </div>
+        </Card>
+
+        <Card className="xl:col-span-3" delay={300}>
+          <CardHead
+            title="Top Categories"
+            right={<Link to="/admin/categories" className="text-[10.5px] text-[#6B7280] transition hover:text-[#111]">View all</Link>}
+          />
+          {catBars.length === 0 ? (
+            <p className="py-8 text-center text-[11px] text-[#9CA3AF]">Category sales appear with orders.</p>
+          ) : (
+            <ul>
+              {catBars.map((c) => (
+                <li key={c.slug} className="mb-[11px] flex items-center gap-2.5 rounded-md px-1 text-[11px] transition hover:bg-[#F9F9F9]">
+                  <span className="w-[74px] shrink-0 truncate text-[#222]">{c.name}</span>
+                  <span className="h-[5px] flex-1 overflow-hidden rounded-full bg-[#F0F0F0]">
+                    <span className="ovp-catbar block h-full rounded-full bg-[#111]" style={{ width: `${c.pct}%` }} />
+                  </span>
+                  <span className="w-[68px] shrink-0 text-right font-semibold tabular-nums text-[#111]">{rs(c.revenue, 0)}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Card>
       </div>
 
       {/* ── quick actions ───────────────────────────────────────────────── */}
-      <div className="card" style={{ marginBottom: 10 }}>
-        <div className="card-h"><span className="card-t">Quick Actions</span></div>
-        <div className="quick">
+      <Card className="mt-[10px]" delay={120}>
+        <CardHead title="Quick Actions" />
+        <div className="grid grid-cols-2 gap-2 md:grid-cols-4 2xl:grid-cols-8">
           {QUICK.map((a) => (
-            <Link key={a.label} to={a.to} className="q-btn">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">{a.d}</svg>
+            <Link
+              key={a.label}
+              to={a.to}
+              className="ovp-qa flex h-9 items-center justify-center gap-1.5 rounded-[10px] border border-[#ECECEC] bg-white text-[11px] font-medium text-[#374151] shadow-[0_1px_1px_rgba(0,0,0,0.02)]"
+            >
+              <a.icon size={13} strokeWidth={1.6} className="ovp-qa-fg text-[#374151]" />
               <span>{a.label}</span>
             </Link>
           ))}
         </div>
-      </div>
+      </Card>
 
       {/* ── smart insights ──────────────────────────────────────────────── */}
-      <div className="card">
-        <div className="card-h"><span className="card-t">• Smart Insights</span></div>
-        <div className="insights">
+      <Card className="mt-[10px]" delay={180}>
+        <CardHead title="Smart Insights" />
+        <div className="grid gap-[10px] md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5">
           {insightCards.map((c) => (
-            <Link key={c.title} to={c.to} className="ins-card">
-              <div className="ins-left">
-                <div className="ins-ico"><svg viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="1.6">{c.ico}</svg></div>
-                <div><b>{c.title}</b><p>{c.body}</p></div>
-              </div>
-              {c.bars ? (
-                <span style={{ display: 'flex', gap: 2, alignItems: 'flex-end' }}>
-                  <span style={{ width: 4, height: 12, background: '#111', borderRadius: 2 }}></span>
-                  <span style={{ width: 4, height: 18, background: '#555', borderRadius: 2 }}></span>
-                  <span style={{ width: 4, height: 24, background: '#111', borderRadius: 2 }}></span>
+            <Link
+              key={c.title}
+              to={c.to}
+              className="ovp-ins flex items-start justify-between gap-2.5 rounded-[11px] border border-[#F1F1F1] bg-white p-[11px] shadow-[0_1px_2px_rgba(0,0,0,0.02)] transition duration-200 hover:-translate-y-0.5 hover:border-[#DDD] hover:shadow-[0_8px_20px_rgba(0,0,0,0.06)]"
+            >
+              <span className="flex min-w-0 flex-1 gap-[9px]">
+                <span className="ovp-ins-ico grid h-[26px] w-[26px] shrink-0 place-items-center rounded-[7px] border border-[#F0F0F0] bg-[#F8F8F7] transition">
+                  <c.icon size={13} strokeWidth={1.6} className="text-[#111] transition" />
                 </span>
-              ) : c.cta ? (
-                <span className="ins-link">{c.cta}</span>
+                <span className="min-w-0 flex-1">
+                  <b className="block text-[11px] font-bold leading-tight text-[#111]">{c.title}</b>
+                  <p className="mt-[3px] text-[10.5px] leading-[1.35] text-[#6B7280]">{c.body}</p>
+                  {c.cta && <span className="mt-0.5 flex items-center gap-0.5 text-[10px] font-semibold text-[#111]">{c.cta}</span>}
+                </span>
+              </span>
+              {c.bars ? (
+                <span className="flex h-6 shrink-0 items-end gap-0.5 self-center">
+                  {[12, 18, 24].map((h, i) => <span key={i} className="w-1 rounded-[2px]" style={{ height: h, background: i === 2 ? INK : '#555' }} />)}
+                </span>
               ) : (
-                <span className="ins-arrow">→</span>
+                <span className="grid h-5 w-5 shrink-0 place-items-center self-center rounded-full bg-[#111] text-white">
+                  <ChevronRight size={11} strokeWidth={2.4} />
+                </span>
               )}
             </Link>
           ))}
         </div>
-      </div>
+      </Card>
 
-      {/* ── toast ──────────────────────────────────────────────────────── */}
-      <div className={`toast ${toast ? 'show' : ''}`} role="status" aria-live="polite">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>
-        <span>{toast || 'Done'}</span>
-      </div>
-
-      {/* ── modals (reference dialogs, wired to real routes) ────────────── */}
-      <div className={`modal ${modal === 'addModal' ? 'show' : ''}`} onClick={(e) => { if (e.target === e.currentTarget) setModal(''); }}>
-        <div className="modal-box">
-          <h3>Add New</h3>
-          <p>Create a new order, product, promotion, page or blog article. Choose where to start.</p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 14 }}>
-            <Link className="btn-sm" to="/admin/orders/new" style={{ display: 'flex', justifyContent: 'center' }}>New order</Link>
-            <Link className="btn-sm" to="/admin/products/new" style={{ display: 'flex', justifyContent: 'center' }}>New product</Link>
-            <Link className="btn-sm" to="/admin/promotions/new" style={{ display: 'flex', justifyContent: 'center' }}>New promotion</Link>
-            <Link className="btn-sm" to="/admin/cms/new" style={{ display: 'flex', justifyContent: 'center' }}>New page</Link>
-          </div>
-          <div className="modal-actions">
-            <button type="button" onClick={() => setModal('')}>Cancel</button>
-            <button type="button" className="primary" onClick={() => { setModal(''); nav('/admin/orders/new'); }}>Create</button>
-          </div>
-        </div>
-      </div>
-
-      <div className={`modal ${modal === 'notifModal' ? 'show' : ''}`} onClick={(e) => { if (e.target === e.currentTarget) setModal(''); }}>
-        <div className="modal-box">
-          <h3>Notifications ({alerts} new)</h3>
-          <p>
-            • {todayOrders} New Orders<br />
-            • {pendingPay} Pending Payments<br />
-            • {lowStockN} Low Stock Alerts<br />
-            • {k.customers?.value || 0} New Customers
-          </p>
-          <div className="modal-actions">
-            <button type="button" onClick={() => setModal('')}>Close</button>
-            <button type="button" className="primary" onClick={() => { setBadgeHidden(true); say('All notifications marked as read'); setModal(''); }}>Mark all as read</button>
-          </div>
-        </div>
+      {/* ── toast ───────────────────────────────────────────────────────── */}
+      <div
+        className={`ovp-toast fixed bottom-5 right-5 z-[9999] flex max-w-[320px] items-center gap-2 rounded-[11px] bg-[#111] px-[14px] py-[11px] text-[12px] font-medium text-white shadow-[0_10px_30px_rgba(0,0,0,0.25)] ${toast ? 'translate-y-0 scale-100 opacity-100' : 'pointer-events-none translate-y-[100px] scale-90 opacity-0'}`}
+        role="status"
+        aria-live="polite"
+      >
+        <Check size={14} strokeWidth={2.2} /> <span>{toast || 'Done'}</span>
       </div>
     </div>,
   );
 }
 
-/* ── live visitors bars — same look & cadence as the reference ────────────── */
-const BASE_HEIGHTS = [12, 22, 8, 28, 18, 30, 14, 20, 26, 10, 24, 16, 28, 12, 20, 22, 8, 26, 18, 14, 24, 10, 28, 16, 20, 12, 22, 18, 26, 14, 18, 22, 12, 28, 16, 20, 14, 24, 10, 26];
-
-function LiveBars() {
-  const ref = useRef(null);
-  useEffect(() => {
-    const t = setInterval(() => {
-      if (!ref.current) return;
-      ref.current.querySelectorAll('div').forEach((div) => {
-        div.style.height = `${Math.floor(8 + Math.random() * 26)}px`;
-      });
-    }, 1800);
-    return () => clearInterval(t);
-  }, []);
-  return (
-    <div className="live-bars" ref={ref}>
-      {BASE_HEIGHTS.map((h, i) => <div key={i} style={{ height: `${h}px` }} />)}
-    </div>
-  );
-}

@@ -400,7 +400,7 @@ function isPathBlocked(pathname, role) {
   return false;
 }
 
-export default function AdminLayout({ children, title, subtitle, headerExtra, hideContentTitle, chromeless = false }) {
+export default function AdminLayout({ children, title, subtitle, headerExtra, hideContentTitle }) {
   const { auth } = useApp();
   const loc = useLocation();
   const [drawer, setDrawer] = useState(false);
@@ -415,12 +415,6 @@ export default function AdminLayout({ children, title, subtitle, headerExtra, hi
       return !v;
     });
   };
-  const [chromeSidebar, setChromeSidebar] = useState(false);
-  useEffect(() => {
-    const onMenu = () => setChromeSidebar((v) => !v);
-    window.addEventListener('ovp-menu', onMenu);
-    return () => window.removeEventListener('ovp-menu', onMenu);
-  }, []);
   useEffect(() => { applyAdminTheme(); return () => clearAdminTheme(); }, []);
   const crumbs = (() => {
     const parts = loc.pathname.split('/').filter(Boolean); // ['admin', 'products']
@@ -458,27 +452,16 @@ export default function AdminLayout({ children, title, subtitle, headerExtra, hi
   );
   return (
     <div className="admin-shell flex min-h-screen bg-admin-bg">
-      {!chromeless && (
-        <aside className={`fixed inset-y-0 left-0 z-40 hidden border-r border-admin-border transition-[width] duration-200 ease-out md:block ${collapsed ? 'w-[68px]' : 'w-[236px]'}`}>
-          <SidebarContent onOpenCmd={() => setCmdOpen(true)} collapsed={collapsed} />
-        </aside>
-      )}
-      {chromeless && chromeSidebar && (
-        <div className="fixed inset-0 z-50">
-          <div className="absolute inset-0 bg-black/40" onClick={() => setChromeSidebar(false)} />
-          <div className="absolute inset-y-0 left-0 w-[236px] border-r border-admin-border bg-admin-sidebar shadow-2xl">
-            <button type="button" onClick={() => setChromeSidebar(false)} aria-label="Close menu" className="absolute right-3 top-4 z-10 rounded-lg p-1.5 text-admin-text-muted hover:bg-admin-surface-2"><X size={18} /></button>
-            <SidebarContent onNavigate={() => setChromeSidebar(false)} onOpenCmd={() => { setChromeSidebar(false); setCmdOpen(true); }} />
-          </div>
-        </div>
-      )}
+      <aside className={`fixed inset-y-0 left-0 z-40 hidden border-r border-admin-border transition-[width] duration-200 ease-out md:block ${collapsed ? 'w-[68px]' : 'w-[236px]'}`}>
+        <SidebarContent onOpenCmd={() => setCmdOpen(true)} collapsed={collapsed} />
+      </aside>
       {drawer && <div className="fixed inset-0 z-50 md:hidden"><div className="absolute inset-0 bg-black/40" onClick={() => setDrawer(false)} /><div className="absolute inset-y-0 left-0 w-72 border-r border-admin-border bg-admin-sidebar"><button onClick={() => setDrawer(false)} className="absolute right-3 top-4 z-10 rounded-lg p-1.5 text-admin-text-muted hover:bg-admin-surface-2"><X size={18} /></button><SidebarContent onNavigate={() => setDrawer(false)} onOpenCmd={() => { setDrawer(false); setCmdOpen(true); }} /></div></div>}
-      <div className={`flex min-h-screen min-w-0 flex-1 flex-col transition-[padding] duration-200 ease-out ${chromeless ? '' : collapsed ? 'md:pl-[68px]' : 'md:pl-[236px]'}`}>
-        {!chromeless && <TopBar title={title} auth={auth} onCmdK={() => setCmdOpen(true)} onMenu={() => setDrawer(true)} onToggleSidebar={toggleCollapsed} collapsed={collapsed} />}
-        <div className={chromeless ? 'min-w-0 flex-1' : 'min-w-0 flex-1 p-4 md:p-6 xl:p-8'}>
-          <div className={chromeless ? 'admin-main w-full min-w-0' : 'admin-main mx-auto w-full min-w-0 max-w-[1440px]'}>
-            {!chromeless && title && <h1 className="mb-5 font-sans text-[16px] font-medium text-admin-text md:hidden">{title}</h1>}
-            {!chromeless && (
+      <div className={`flex min-h-screen min-w-0 flex-1 flex-col transition-[padding] duration-200 ease-out ${collapsed ? 'md:pl-[68px]' : 'md:pl-[236px]'}`}>
+        <TopBar title={hideContentTitle ? '' : title} auth={auth} onCmdK={() => setCmdOpen(true)} onMenu={() => setDrawer(true)} onToggleSidebar={toggleCollapsed} collapsed={collapsed} compact={hideContentTitle} />
+        <div className={`min-w-0 flex-1 ${hideContentTitle ? 'p-3 md:p-4 xl:p-5' : 'p-4 md:p-6 xl:p-8'}`}>
+          <div className={`admin-main mx-auto w-full min-w-0 ${hideContentTitle ? 'max-w-[1600px]' : 'max-w-[1440px]'}`}>
+            {!hideContentTitle && title && <h1 className="mb-5 font-sans text-[16px] font-medium text-admin-text md:hidden">{title}</h1>}
+            {!hideContentTitle && (
             <nav aria-label="Breadcrumb" className="adm-eyebrow mb-5 hidden items-center md:flex">
               {crumbs.map((c, i) => (
                 <span key={c.to} className="inline-flex items-center">
@@ -525,7 +508,7 @@ function CreateMenu({ onPick }) {
   );
 }
 
-function TopBar({ title, auth, onCmdK, onMenu, onToggleSidebar, collapsed }) {
+function TopBar({ title, auth, onCmdK, onMenu, onToggleSidebar, collapsed, compact }) {
   const { settings } = useApp();
   const loc = useLocation();
   const storeOpen = settings?.storefrontLock?.enabled !== true;
@@ -559,11 +542,14 @@ function TopBar({ title, auth, onCmdK, onMenu, onToggleSidebar, collapsed }) {
           <button type="button" onClick={onToggleSidebar} aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'} title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'} className="hidden h-9 w-9 shrink-0 place-items-center text-[#777777] transition-colors duration-150 hover:bg-[#F5F5F5] hover:text-black md:grid">
             {collapsed ? <PanelRightOpen size={16} /> : <PanelLeftClose size={16} />}
           </button>
+          {!compact && (
           <div className="min-w-0">
             <h1 className="truncate font-sans text-[15px] font-medium tracking-tight text-black">{title || crumbs[crumbs.length - 1]?.label}</h1>
           </div>
+          )}
         </div>
         <div className="flex shrink-0 items-center gap-1.5 md:gap-2">
+          {!compact && (
           <button
             type="button"
             onClick={onCmdK}
@@ -574,8 +560,9 @@ function TopBar({ title, auth, onCmdK, onMenu, onToggleSidebar, collapsed }) {
             <span className="hidden sm:inline">Search anything…</span>
             <kbd className="hidden text-[9px] font-medium uppercase tracking-[0.14em] text-[#999999] sm:inline">⌘K</kbd>
           </button>
+          )}
           <span className={`hidden items-center gap-1.5 lg:inline-flex ${storeOpen ? 'text-[#555555]' : 'text-black'}`}><span className={`h-1 w-1 rounded-full ${storeOpen ? 'bg-[#999999]' : 'bg-black'}`} />{storeOpen ? 'Store online' : 'Store locked'}</span>
-          {canCreate && (
+          {!compact && canCreate && (
             <div className="relative" ref={createRef}>
               <button type="button" onClick={() => setCreateOpen((v) => !v)} className={btnPrimary}><Plus size={12} /> <span className="hidden sm:inline">Create</span></button>
               {createOpen && <CreateMenu onPick={() => setCreateOpen(false)} />}
