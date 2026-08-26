@@ -4,6 +4,7 @@ import {
   Activity, BadgePercent, BarChart3, ImagePlus, ChevronDown, CreditCard, FileText, FolderOpen, Globe, Home,
   LayoutTemplate, LogOut, Mail, Megaphone, Menu, MessageSquare, Package, PackageX, Phone, Plus,
   Search, Settings as SettingsIcon, ShieldCheck, ShoppingBag, Signpost, Sparkles, Star, Store, Sun, Moon, Tags, TrendingUp, Truck, Users, X, Zap, Calculator, FileSpreadsheet, PanelLeftClose, PanelRightOpen,
+  Box, BookOpen, Gift, KeyRound, Webhook,
 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { applyAdminTheme, clearAdminTheme, getAdminTheme, setAdminTheme } from '../lib/adminTheme';
@@ -25,121 +26,129 @@ const ROLE_ACCESS = {
   storefront:   ['admin', 'Owner', 'Manager'],
   analytics:    ['admin', 'Owner', 'Manager', 'Staff'],
   settings:     ['admin', 'Owner'],
+  apps:         ['admin', 'Owner'],
 };
 
 const NAV_TOP = [
   { to: '/admin', label: 'Dashboard', icon: Home, end: true },
 ];
 
+/* ─────────────────────────────────────────────────────────────────────────
+ * SIDEBAR TREE — HUSHAE
+ * SEARCH > HOME > COMMERCE (Orders ▾ / Products ▾ incl. More ▾ / Customers ▾)
+ * > STOREFRONT > GROWTH > OPERATIONS > APPS (Apps & Integrations ▾) > SYSTEM
+ * A child with `children` renders a nested submenu (Products → More ▾).
+ * ─────────────────────────────────────────────────────────────────────── */
 const NAV_GROUPS = [
   {
     key: 'orders', label: 'Orders', icon: ShoppingBag,
-    match: ['/admin/orders', '/admin/payments', '/admin/abandoned-carts', '/admin/verification-queue', '/admin/ops'],
+    match: ['/admin/orders', '/admin/verification-queue', '/admin/abandoned-carts', '/admin/ops'],
     children: [
-      { to: '/admin/orders',           label: 'All orders',         icon: ShoppingBag },
-      { to: '/admin/verification-queue', label: 'Verification queue', icon: Phone },
-      { to: '/admin/abandoned-carts',  label: 'Abandoned carts',    icon: PackageX },
+      { to: '/admin/orders',             label: 'All Orders',           icon: ShoppingBag },
+      { to: '/admin/orders/new',         label: 'Draft Orders',         icon: FileText },
+      { to: '/admin/verification-queue', label: 'Payment Verification', icon: Phone },
+      { to: '/admin/abandoned-carts',    label: 'Abandoned Carts',      icon: PackageX },
+      { to: '/admin/ops',                label: 'Fulfillment',          icon: Box },
+      { to: '/admin/ops/returns',        label: 'Returns',              icon: PackageX },
     ],
   },
   {
     key: 'products', label: 'Products', icon: Package,
-    match: ['/admin/products', '/admin/categories', '/admin/collections', '/admin/reviews', '/admin/questions'],
+    match: ['/admin/products', '/admin/categories', '/admin/collections', '/admin/reviews', '/admin/bundles', '/admin/export'],
     children: [
-      { to: '/admin/products',      label: 'Inventory',     icon: Package },
-      { to: '/admin/categories',    label: 'Categories',    icon: Tags },
-      { to: '/admin/collections',   label: 'Collections',   icon: FolderOpen },
-      { to: '/admin/reviews',       label: 'Reviews',       icon: Star },
-      { to: '/admin/questions',     label: 'Questions',     icon: MessageSquare },
+      { to: '/admin/products',      label: 'Catalog',     icon: Package },
+      { to: '/admin/ops/inventory', label: 'Inventory',   icon: Box },
+      { to: '/admin/categories',    label: 'Categories',  icon: Tags },
+      { to: '/admin/collections',   label: 'Collections', icon: FolderOpen },
+      { to: '/admin/reviews',       label: 'Reviews',     icon: Star },
+      {
+        label: 'More',
+        children: [
+          { to: '/admin/desk/products/attributes', label: 'Variants / Attributes' },
+          { to: '/admin/desk/products/bulk',       label: 'Bulk Editor' },
+          { to: '/admin/export',                   label: 'Import / Export' },
+          { to: '/admin/bundles',                  label: 'Bundles' },
+          { to: '/admin/desk/products/feeds',      label: 'Product Feeds' },
+        ],
+      },
     ],
   },
   {
     key: 'customers', label: 'Customers', icon: Users,
-    match: ['/admin/customers', '/admin/loyalty', '/admin/customers/groups'],
+    match: ['/admin/customers', '/admin/loyalty'],
     children: [
-      { to: '/admin/customers',      label: 'All customers', icon: Users },
-      { to: '/admin/customers/groups', label: 'Groups',      icon: Users },
-      { to: '/admin/loyalty',        label: 'Loyalty',       icon: Sparkles },
+      { to: '/admin/customers',                 label: 'All Customers', icon: Users },
+      { to: '/admin/desk/customers/segments',   label: 'Segments',      icon: Users },
+      { to: '/admin/customers/groups',          label: 'Groups',        icon: Users },
+      { to: '/admin/loyalty',                   label: 'Loyalty',       icon: Sparkles },
     ],
   },
   {
-    key: 'marketing', label: 'Marketing', icon: Megaphone,
-    match: ['/admin/promotions', '/admin/bundles', '/admin/flash-sales', '/admin/discounts', '/admin/marketing', '/admin/marketing/settings', '/admin/marketing/analytics', '/admin/email-campaigns', '/admin/banners', '/admin/banners/new', '/admin/banners/slots'],
+    key: 'apps', label: 'Apps & Integrations', icon: Zap,
+    match: ['/admin/apps'],
     children: [
-      { to: '/admin/promotions',           label: 'Promotions',        icon: Megaphone },
-      { to: '/admin/bundles',              label: 'Bundles',           icon: Package },
-      { to: '/admin/flash-sales',          label: 'Flash sales',       icon: Zap },
-      { to: '/admin/banners',              label: 'Banners',           icon: ImagePlus },
-      { to: '/admin/discounts',            label: 'Discounts',         icon: BadgePercent },
-      { to: '/admin/email-campaigns',      label: 'Email campaigns',   icon: Mail },
-      { to: '/admin/marketing/settings',   label: 'Automation rules',  icon: SettingsIcon },
-      { to: '/admin/marketing/analytics',  label: 'Performance',       icon: BarChart3 },
-    ],
-  },
-  {
-    key: 'storefront', label: 'Storefront', icon: Store,
-    match: ['/admin/store', '/admin/theme', '/admin/theme-sections', '/admin/theme-legacy', '/admin/cms', '/admin/cms/redirects', '/admin/content', '/admin/faq', '/admin/markets', '/admin/blog', '/admin/navigation'],
-    children: [
-      { to: '/admin/store',       label: 'Online Store',    icon: Globe },
-      { to: '/admin/content',     label: 'Content',         icon: ImagePlus },
-      { to: '/admin/theme',       label: 'Theme Editor',    icon: LayoutTemplate },
-      { to: '/admin/theme-sections', label: 'Theme Sections', icon: LayoutTemplate },
-      { to: '/admin/navigation',  label: 'Navigation',      icon: Menu },
-      { to: '/admin/cms',         label: 'Pages',           icon: FileText },
-      { to: '/admin/cms/redirects', label: 'Old addresses', icon: Signpost },
-      { to: '/admin/blog',        label: 'Blog',            icon: FileText },
-      { to: '/admin/faq',         label: 'FAQ',             icon: FileText },
-      { to: '/admin/markets',     label: 'Markets',         icon: Globe },
-    ],
-  },
-  {
-    key: 'analytics', label: 'Analytics', icon: BarChart3,
-    match: ['/admin/analytics', '/admin/insights', '/admin/finance', '/admin/live', '/admin/growth', '/admin/search-analytics', '/admin/reports'],
-    children: [
-      { to: '/admin/analytics',       label: 'Overview',          icon: BarChart3 },
-      { to: '/admin/finance',         label: 'Finance & P&L',     icon: CreditCard },
-      { to: '/admin/insights',        label: 'Deep Insights',     icon: TrendingUp },
-      { to: '/admin/reports',          label: 'Reports',            icon: FileSpreadsheet },
-      { to: '/admin/search-analytics', label: 'Search Analytics', icon: Search },
-      { to: '/admin/live',            label: 'Live View',         icon: Activity },
-      { to: '/admin/growth',          label: 'Growth',            icon: TrendingUp },
-    ],
-  },
-  {
-    key: 'settings', label: 'Settings', icon: SettingsIcon,
-    match: ['/admin/settings', '/admin/apps', '/admin/backup'],
-    children: [
-      { to: '/admin/settings',            label: 'Settings Hub',             icon: SettingsIcon },
-      { to: '/admin/settings/store',      label: 'Store Details',            icon: Store },
-      { to: '/admin/settings/payments',   label: 'Payment settings',         icon: CreditCard },
-      { to: '/admin/settings/cart',       label: 'Shopping Bag',             icon: ShoppingBag },
-      { to: '/admin/settings/checkout',   label: 'Checkout',                 icon: CreditCard },
-      { to: '/admin/settings/accounts',   label: 'Customer Accounts',        icon: Users },
-      { to: '/admin/settings/email',      label: 'Email & Notifications',    icon: Mail },
-      { to: '/admin/settings/security',   label: 'Security',                 icon: ShieldCheck },
-      { to: '/admin/settings/taxes',      label: 'Taxes',                     icon: Calculator },
-      { to: '/admin/apps',                label: 'Integrations',             icon: Zap },
-      { to: '/admin/backup',              label: 'Backup & Export',          icon: FileText },
-      { to: '/admin/settings/advanced',   label: 'Advanced',                 icon: SettingsIcon },
+      { to: '/admin/apps',             label: 'Installed Apps',         icon: Zap },
+      { to: '/admin/apps/payments',    label: 'Payment Integrations',   icon: CreditCard },
+      { to: '/admin/apps/shipping',    label: 'Shipping Integrations',  icon: Truck },
+      { to: '/admin/apps/marketing',   label: 'Marketing Integrations', icon: Megaphone },
+      { to: '/admin/apps/analytics',   label: 'Analytics Integrations', icon: BarChart3 },
+      { to: '/admin/apps/api-keys',    label: 'API Keys',               icon: KeyRound },
+      { to: '/admin/apps/webhooks',    label: 'Webhooks',               icon: Webhook },
     ],
   },
 ];
 
-/* ── Phase 02 — sidebar sections ─────────────────────────────────────────
-   Groups reference the same NAV_GROUPS data (no new links, no fake routes).
-   OPERATIONS surfaces three existing routes (Commerce OS, Payments,
-   Shipping) that previously lived inside Orders/Settings. */
+/* ── Sidebar sections — the HUSHAE tree ────────────────────────────────────
+   SEARCH opens the command palette (scopes pre-fill the palette query).
+   COMMERCE/APPS render expandable groups; the rest are flat link lists.
+   Existing routes only — items without a dedicated screen land on the
+   HUSHAE desk page (AdminModule catch-all). */
+const SEARCH_SCOPES = ['Orders', 'Products', 'Customers', 'Pages', 'Discounts', 'Apps', 'Reports', 'Settings'];
+
+const STOREFRONT_LINKS = [
+  { to: '/admin/theme',      label: 'Theme Studio',      icon: LayoutTemplate },
+  { to: '/admin/cms',        label: 'Pages',             icon: FileText },
+  { to: '/admin/navigation', label: 'Navigation',        icon: Menu },
+  { to: '/admin/blog',       label: 'Blog',              icon: BookOpen },
+  { to: '/admin/media',      label: 'Media',             icon: ImagePlus },
+  { to: '/admin/seo',        label: 'SEO',               icon: Search },
+  { to: '/admin/store',      label: 'Preview & Publish', icon: Globe },
+];
+
+const GROWTH_LINKS = [
+  { to: '/admin/marketing',          label: 'Marketing',   icon: Megaphone },
+  { to: '/admin/promotions',         label: 'Promotions',  icon: Gift },
+  { to: '/admin/discounts',          label: 'Discounts',   icon: BadgePercent },
+  { to: '/admin/email-campaigns',    label: 'Campaigns',   icon: Mail },
+  { to: '/admin/marketing/settings', label: 'Automations', icon: Zap },
+  { to: '/admin/analytics',          label: 'Analytics',   icon: BarChart3 },
+];
+
 const OPERATIONS_LINKS = [
-  { to: '/admin/ops',              label: 'Operations', icon: Package },
-  { to: '/admin/payments',         label: 'Payments',   icon: CreditCard },
-  { to: '/admin/settings/shipping',label: 'Shipping',   icon: Truck },
+  { to: '/admin/ops',               label: 'Operations',     icon: Package },
+  { to: '/admin/payments',          label: 'Payments',       icon: CreditCard },
+  { to: '/admin/settings/shipping', label: 'Shipping',       icon: Truck },
+  { to: '/admin/ops/returns',       label: 'Returns',        icon: PackageX },
+  { to: '/admin/ops/comms',         label: 'Communications', icon: MessageSquare },
+];
+
+const SYSTEM_LINKS = [
+  { to: '/admin/settings',          label: 'Settings',           icon: SettingsIcon },
+  { to: '/admin/team',              label: 'Team & Permissions', icon: Users },
+  { to: '/admin/settings/security', label: 'Security',           icon: ShieldCheck },
+  { to: '/admin/backup',            label: 'Backups',            icon: FileText },
+  { to: '/admin/settings/advanced', label: 'Developer / API',    icon: KeyRound },
 ];
 
 const NAV_SECTIONS = [
-  { label: 'MAIN',      items: [{ to: '/admin', label: 'Overview', icon: Home, end: true }] },
-  { label: 'COMMERCE',  groups: ['orders', 'products', 'customers'] },
-  { label: 'GROWTH',    groups: ['marketing', 'storefront', 'analytics'] },
+  { label: 'SEARCH',     search: true },
+  { label: 'HOME',       items: [{ to: '/admin', label: 'Dashboard', icon: Home, end: true }] },
+  { label: 'COMMERCE',   groups: ['orders', 'products', 'customers'] },
+  { label: 'STOREFRONT', links: STOREFRONT_LINKS },
+  { label: 'GROWTH',     links: GROWTH_LINKS },
   { label: 'OPERATIONS', links: OPERATIONS_LINKS },
-  { label: 'SYSTEM',    groups: ['settings'] },
+  { label: 'APPS',       groups: ['apps'] },
+  { label: 'SYSTEM',     links: SYSTEM_LINKS },
 ];
 
 function rolesForGroup(key) { return ROLE_ACCESS[key] || ['admin', 'Owner']; }
@@ -176,16 +185,19 @@ function GroupDropdown({ group, onNavigate, defaultOpen, collapsed }) {
   const loc = useLocation();
   const [open, setOpen] = useState(defaultOpen);
   const Icon = group.icon;
-  const isChildActive = group.children.some((c) => isChildRouteActive(loc, c.to));
+  const isChildActive = group.children.some((c) => (
+    c.children ? c.children.some((x) => isChildRouteActive(loc, x.to)) : isChildRouteActive(loc, c.to)
+  ));
   useEffect(() => { if (isChildActive) setOpen(true); }, [isChildActive]);
 
   // Collapsed: icon-only, tooltip via title, click opens first child
   if (collapsed) {
     const first = group.children[0];
+    const firstTo = first?.to || first?.children?.[0]?.to || '/';
     return (
       <div>
         <NavLink
-          to={first?.to || '/'}
+          to={firstTo}
           onClick={onNavigate}
           title={group.label}
           className={`relative flex h-9 items-center justify-center transition-colors duration-150 ease-out ${
@@ -212,12 +224,45 @@ function GroupDropdown({ group, onNavigate, defaultOpen, collapsed }) {
       {open && (
         <div className="mt-0.5 space-y-0.5">
           {group.children.map((c) => {
+            if (c.children) return <NestedNavGroup key={c.label} item={c} onNavigate={onNavigate} />;
             const active = isChildRouteActive(loc, c.to);
             const ChildIcon = c.icon;
             return (
               <NavLink key={c.to} to={c.to} onClick={onNavigate} className={() => childLinkCls(active)}>
                 {active && <span aria-hidden className="absolute left-1.5 top-1/2 h-3.5 w-[2px] -translate-y-1/2 bg-black" />}
                 <ChildIcon size={12} strokeWidth={1.7} className="opacity-70" />{c.label}
+              </NavLink>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* Nested submenu — e.g. Products → More ▾ (Variants, Bulk Editor, …) */
+function NestedNavGroup({ item, onNavigate }) {
+  const loc = useLocation();
+  const [open, setOpen] = useState(false);
+  const hasActive = item.children.some((c) => isChildRouteActive(loc, c.to));
+  useEffect(() => { if (hasActive) setOpen(true); }, [hasActive]);
+  return (
+    <div>
+      <button type="button" onClick={() => setOpen((v) => !v)} aria-expanded={open}
+        className={`flex h-7 w-full items-center gap-2 pl-8 pr-2 text-[12px] transition-colors duration-150 ease-out ${
+          hasActive ? 'font-medium text-black' : 'text-[#777777] hover:bg-[#F7F7F7] hover:text-black'
+        }`}>
+        <span className="flex-1 text-left">{item.label}</span>
+        <ChevronDown size={11} className={`text-[#999999] transition-transform duration-150 ${open ? 'rotate-180' : ''}`} />
+      </button>
+      {open && (
+        <div className="space-y-0.5">
+          {item.children.map((c) => {
+            const active = isChildRouteActive(loc, c.to);
+            return (
+              <NavLink key={c.to} to={c.to} onClick={onNavigate} className={`${childLinkCls(active)} !pl-12`}>
+                {active && <span aria-hidden className="absolute left-6 top-1/2 h-3.5 w-[2px] -translate-y-1/2 bg-black" />}
+                {c.label}
               </NavLink>
             );
           })}
@@ -257,28 +302,53 @@ function SidebarContent({ onNavigate, onOpenCmd, collapsed = false }) {
       </div>
 
       {/* ── Search (collapsed: icon only) ─────────────────────────────── */}
-      <div className="px-3 pb-2">
-        <button
-          type="button"
-          onClick={() => onOpenCmd?.()}
-          title="Search admin (⌘K)"
-          className={`flex w-full items-center gap-2 border-b border-[#EAEAEA] text-left text-[12px] text-[#777777] transition-colors duration-150 hover:border-black hover:text-black ${
-            collapsed ? 'h-9 justify-center border-b-0 px-0' : 'px-0.5 pb-1.5'
-          }`}
-        >
-          <Search size={13} className="shrink-0 text-[#777777]" />
-          {!collapsed && (
-            <>
-              <span className="flex-1">Search anything…</span>
-              <kbd className="text-[9px] font-medium uppercase tracking-[0.14em] text-[#999999]">⌘K</kbd>
-            </>
-          )}
-        </button>
-      </div>
+      {collapsed && (
+        <div className="px-2.5 pb-1">
+          <button
+            type="button"
+            onClick={() => onOpenCmd?.()}
+            title="Global Command Search (⌘K)"
+            className="flex h-9 w-full items-center justify-center text-[#555555] transition-colors duration-150 hover:bg-[#F7F7F7] hover:text-black"
+          >
+            <Search size={16} strokeWidth={1.7} />
+          </button>
+        </div>
+      )}
 
       {/* ── Navigation sections ───────────────────────────────────────── */}
       <nav className="flex-1 space-y-4 overflow-y-auto px-2.5 pb-4 pt-2">
         {NAV_SECTIONS.map((section) => {
+          if (section.search) {
+            if (collapsed) return null; // icon-only button rendered above
+            return (
+              <div key={section.label}>
+                <p className="adm-eyebrow px-2 pb-2">{section.label}</p>
+                <div className="px-1">
+                  <button
+                    type="button"
+                    onClick={() => onOpenCmd?.()}
+                    className="flex w-full items-center gap-2 border border-[#EAEAEA] px-2 py-1.5 text-left text-[12px] text-[#555555] transition-colors duration-150 hover:border-black hover:text-black"
+                  >
+                    <Search size={13} className="shrink-0 text-[#777777]" />
+                    <span className="flex-1">Global Command Search</span>
+                    <kbd className="text-[9px] font-medium uppercase tracking-[0.14em] text-[#999999]">⌘K</kbd>
+                  </button>
+                </div>
+                <div className="mt-1 space-y-0.5 px-2.5">
+                  {SEARCH_SCOPES.map((scope) => (
+                    <button
+                      key={scope}
+                      type="button"
+                      onClick={() => onOpenCmd?.(scope)}
+                      className="flex w-full items-center gap-2 py-0.5 pl-2 text-left text-[11.5px] text-[#777777] transition-colors duration-150 hover:text-black"
+                    >
+                      <span aria-hidden className="text-[#B5B5B5]">·</span>{scope}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            );
+          }
           const groups = (section.groups || []).map(groupByKey).filter(Boolean);
           const items = section.items || [];
           const links = section.links || [];
@@ -405,6 +475,8 @@ export default function AdminLayout({ children, title }) {
   const loc = useLocation();
   const [drawer, setDrawer] = useState(false);
   const [cmdOpen, setCmdOpen] = useState(false);
+  const [cmdQuery, setCmdQuery] = useState('');
+  const openCmd = (scope = '') => { setCmdQuery(scope); setCmdOpen(true); };
   const [collapsed, setCollapsed] = useState(() => {
     try { return localStorage.getItem('hushae.sidebar_collapsed') === '1'; } catch { return false; }
   });
@@ -432,7 +504,7 @@ export default function AdminLayout({ children, title }) {
   useEffect(() => {
     const onKey = (e) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
-        e.preventDefault(); setCmdOpen((v) => !v);
+        e.preventDefault(); setCmdQuery(''); setCmdOpen((v) => !v);
       }
     };
     document.addEventListener('keydown', onKey);
@@ -453,11 +525,11 @@ export default function AdminLayout({ children, title }) {
   return (
     <div className="admin-shell flex min-h-screen bg-admin-bg">
       <aside className={`fixed inset-y-0 left-0 z-40 hidden border-r border-admin-border transition-[width] duration-200 ease-out md:block ${collapsed ? 'w-[68px]' : 'w-[236px]'}`}>
-        <SidebarContent onOpenCmd={() => setCmdOpen(true)} collapsed={collapsed} />
+        <SidebarContent onOpenCmd={openCmd} collapsed={collapsed} />
       </aside>
-      {drawer && <div className="fixed inset-0 z-50 md:hidden"><div className="absolute inset-0 bg-black/40" onClick={() => setDrawer(false)} /><div className="absolute inset-y-0 left-0 w-72 border-r border-admin-border bg-admin-sidebar"><button onClick={() => setDrawer(false)} className="absolute right-3 top-4 z-10 rounded-lg p-1.5 text-admin-text-muted hover:bg-admin-surface-2"><X size={18} /></button><SidebarContent onNavigate={() => setDrawer(false)} onOpenCmd={() => { setDrawer(false); setCmdOpen(true); }} /></div></div>}
+      {drawer && <div className="fixed inset-0 z-50 md:hidden"><div className="absolute inset-0 bg-black/40" onClick={() => setDrawer(false)} /><div className="absolute inset-y-0 left-0 w-72 border-r border-admin-border bg-admin-sidebar"><button onClick={() => setDrawer(false)} className="absolute right-3 top-4 z-10 rounded-lg p-1.5 text-admin-text-muted hover:bg-admin-surface-2"><X size={18} /></button><SidebarContent onNavigate={() => setDrawer(false)} onOpenCmd={(scope) => { setDrawer(false); openCmd(scope); }} /></div></div>}
       <div className={`flex min-h-screen min-w-0 flex-1 flex-col transition-[padding] duration-200 ease-out ${collapsed ? 'md:pl-[68px]' : 'md:pl-[236px]'}`}>
-        <TopBar title={title} auth={auth} onCmdK={() => setCmdOpen(true)} onMenu={() => setDrawer(true)} onToggleSidebar={toggleCollapsed} collapsed={collapsed} />
+        <TopBar title={title} auth={auth} onCmdK={() => openCmd()} onMenu={() => setDrawer(true)} onToggleSidebar={toggleCollapsed} collapsed={collapsed} />
         <div className="min-w-0 flex-1 p-4 md:p-6 xl:p-8">
           <div className="admin-main mx-auto w-full min-w-0 max-w-[1440px]">
             {title && <h1 className="mb-5 font-sans text-[16px] font-medium text-admin-text md:hidden">{title}</h1>}
@@ -478,7 +550,7 @@ export default function AdminLayout({ children, title }) {
         </div>
       </div>
       <ProfitCalculator />
-      {cmdOpen && <CommandPalette onClose={() => setCmdOpen(false)} />}
+      {cmdOpen && <CommandPalette onClose={() => setCmdOpen(false)} initialQuery={cmdQuery} />}
     </div>
   );
 }
