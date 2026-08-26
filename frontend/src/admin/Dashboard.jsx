@@ -11,8 +11,9 @@ import { resolvePreset } from './dashboard/RangePicker';
  * OVERVIEW — the approved reference (overview_perfect_final.html) applied
  * VERBATIM: its exact CSS (scoped under .ovp-root), its exact markup, its
  * exact Chart.js configurations. Only the demo numbers are replaced — every
- * value below is live HUSHAE data (PKR). The reference's hamburger opens the
- * app sidebar drawer (AdminLayout chromeless mode).
+ * value below is live HUSHAE data (PKR). The reference's hamburger shows a
+ * toast ("Sidebar toggle — hidden as per request"); Overview is chromeless
+ * (no app sidebar), full-width, exactly like the reference.
  * ======================================================================== */
 
 const OVP_CSS = `@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
@@ -716,7 +717,7 @@ export default function Dashboard() {
       {/* ── topbar ──────────────────────────────────────────────────────── */}
       <div className="topbar">
         <div className="top-left">
-          <button type="button" className="hamburger" aria-label="Open navigation menu" onClick={() => window.dispatchEvent(new window.Event('ovp-menu'))}>
+          <button type="button" className="hamburger" aria-label="Toggle sidebar" onClick={() => say('Sidebar toggle — hidden as per request')}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="2"><path d="M3 6h18M3 12h18M3 18h18" /></svg>
           </button>
           <div className="top-title"><h1>Overview</h1><p>Here&apos;s what&apos;s happening with your store today.</p></div>

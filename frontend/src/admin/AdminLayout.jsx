@@ -628,12 +628,6 @@ export default function AdminLayout({ children, title, subtitle, headerExtra, hi
       return !v;
     });
   };
-  const [chromeSidebar, setChromeSidebar] = useState(false);
-  useEffect(() => {
-    const onMenu = () => setChromeSidebar((v) => !v);
-    window.addEventListener('ovp-menu', onMenu);
-    return () => window.removeEventListener('ovp-menu', onMenu);
-  }, []);
   useEffect(() => { applyAdminTheme(); return () => clearAdminTheme(); }, []);
   const crumbs = (() => {
     const parts = loc.pathname.split('/').filter(Boolean); // ['admin', 'products']
@@ -651,12 +645,13 @@ export default function AdminLayout({ children, title, subtitle, headerExtra, hi
   useEffect(() => {
     const onKey = (e) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        if (loc.pathname === '/admin') return; // Overview has its own ⌘K (search focus)
         e.preventDefault(); setCmdOpen((v) => !v);
       }
     };
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
-  }, []);
+  }, [loc.pathname]);
   if (!auth) return <Navigate to="/admin/login" state={{ from: loc.pathname }} replace />;
   if (!ALL_ROLES.includes(role || '')) return <Navigate to="/admin/login" replace />;
   if (isPathBlocked(loc.pathname, role)) return (
@@ -671,22 +666,13 @@ export default function AdminLayout({ children, title, subtitle, headerExtra, hi
   );
   return (
     <div className="admin-shell flex min-h-screen bg-admin-bg">
-      {(
+      {!chromeless && (
         <aside className={`fixed inset-y-0 left-0 z-40 hidden border-r border-admin-border transition-[width] duration-200 ease-out md:block ${collapsed ? 'w-[68px]' : 'w-[200px]'}`}>
           <SidebarContent onOpenCmd={() => setCmdOpen(true)} collapsed={collapsed} />
         </aside>
       )}
-      {chromeless && chromeSidebar && (
-        <div className="fixed inset-0 z-50 md:hidden">
-          <div className="absolute inset-0 bg-black/40" onClick={() => setChromeSidebar(false)} />
-          <div className="absolute inset-y-0 left-0 w-[200px] border-r border-admin-border bg-admin-sidebar shadow-2xl">
-            <button type="button" onClick={() => setChromeSidebar(false)} aria-label="Close menu" className="absolute right-3 top-4 z-10 rounded-lg p-1.5 text-admin-text-muted hover:bg-admin-surface-2"><X size={18} /></button>
-            <SidebarContent onNavigate={() => setChromeSidebar(false)} onOpenCmd={() => { setChromeSidebar(false); setCmdOpen(true); }} />
-          </div>
-        </div>
-      )}
       {drawer && <div className="fixed inset-0 z-50 md:hidden"><div className="absolute inset-0 bg-black/40" onClick={() => setDrawer(false)} /><div className="absolute inset-y-0 left-0 w-72 border-r border-admin-border bg-admin-sidebar"><button onClick={() => setDrawer(false)} className="absolute right-3 top-4 z-10 rounded-lg p-1.5 text-admin-text-muted hover:bg-admin-surface-2"><X size={18} /></button><SidebarContent onNavigate={() => setDrawer(false)} onOpenCmd={() => { setDrawer(false); setCmdOpen(true); }} /></div></div>}
-      <div className={`flex min-h-screen min-w-0 flex-1 flex-col transition-[padding] duration-200 ease-out ${collapsed ? 'md:pl-[68px]' : 'md:pl-[200px]'}`}>
+      <div className={`flex min-h-screen min-w-0 flex-1 flex-col transition-[padding] duration-200 ease-out ${!chromeless && (collapsed ? 'md:pl-[68px]' : 'md:pl-[200px]')}`}>
         {!chromeless && <TopBar title={title} auth={auth} onCmdK={() => setCmdOpen(true)} onMenu={() => setDrawer(true)} onToggleSidebar={toggleCollapsed} collapsed={collapsed} />}
         <div className={chromeless ? 'min-w-0 flex-1' : 'min-w-0 flex-1 p-4 md:p-6 xl:p-8'}>
           <div className={chromeless ? 'admin-main w-full min-w-0' : 'admin-main mx-auto w-full min-w-0 max-w-[1440px]'}>
