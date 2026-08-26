@@ -327,14 +327,14 @@ class ChartBoundary extends Component {
 
 /* ── quick actions / add-new / compare — real admin routes ────────────────── */
 const QUICK = [
-  { to: '/admin/orders/new', label: 'Create Order', d: <><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" /><rect x="9" y="3" width="6" height="4" rx="1" /><path d="M9 14h6M12 11v6" /></> },
-  { to: '/admin/products/new', label: 'Add Product', d: <><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" /><line x1="3" y1="6" x2="21" y2="6" /><path d="M16 10a4 4 0 0 1-8 0" /></> },
+  { to: '/admin/orders/new', modal: 'createOrderModal', label: 'Create Order', d: <><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" /><rect x="9" y="3" width="6" height="4" rx="1" /><path d="M9 14h6M12 11v6" /></> },
+  { to: '/admin/products/new', modal: 'addProductModal', label: 'Add Product', d: <><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" /><line x1="3" y1="6" x2="21" y2="6" /><path d="M16 10a4 4 0 0 1-8 0" /></> },
   { to: '/admin/discounts', label: 'Add Discount', d: <><path d="M20 12V8H6a2 2 0 0 1 2-2c0-1.1.9-2 2-2a2 2 0 0 1 2 2c0-1.1.9-2 2-2a2 2 0 0 1 2 2c0-1.1.9-2 2-2a2 2 0 0 1 2 2v4" /><path d="M20 12v4H6a2 2 0 0 0-2 2c0 1.1.9 2 2 2a2 2 0 0 0 2-2c0 1.1.9 2 2 2a2 2 0 0 0 2-2c0 1.1.9 2 2 2a2 2 0 0 0 2-2c0 1.1.9 2 2 2a2 2 0 0 0 2-2v-4" /><circle cx="12" cy="12" r="2" /></> },
   { to: '/admin/collections', label: 'Create Collection', d: <><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="12" y1="18" x2="12" y2="12" /><line x1="9" y1="15" x2="15" y2="15" /></> },
   { to: '/admin/email-campaigns', label: 'Send Email', d: <><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" /></> },
-  { to: '/admin/reports', label: 'View Reports', d: <><path d="M3 3v18h18" /><path d="M7 16l4-4 4 4 6-6" /></> },
+  { to: '/admin/reports', modal: 'reportModal', label: 'View Reports', d: <><path d="M3 3v18h18" /><path d="M7 16l4-4 4 4 6-6" /></> },
   { to: '/admin/products?stock=low', label: 'Inventory Alert', d: <><path d="M6 8a6 6 0 0 1 12 0c0 7 6 5 6 10H0s6-3 6-10" /><path d="M10 20a2 2 0 0 0 4 0" /></> },
-  { to: '/admin/questions', label: 'Support Ticket', d: <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" /> },
+  { to: '/admin/questions', modal: 'supportModal', label: 'Support Ticket', d: <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" /> },
 ];
 
 const COMPARE_OPTIONS = [
@@ -380,6 +380,7 @@ export default function Dashboard() {
   const [barsIn, setBarsIn] = useState(false);
 
   const toastTimer = useRef(0);
+  const searchRef = useRef(null);
 
   const [range, setRange] = useState(() => {
     try {
@@ -405,6 +406,19 @@ export default function Dashboard() {
   }, []);
 
   useEffect(() => () => clearTimeout(toastTimer.current), []);
+
+  /* reference ⌘K — focus the page search */
+  useEffect(() => {
+    const onKey = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        searchRef.current?.focus();
+        say('Search focused (⌘K)');
+      }
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [say]);
 
   const applyRange = useCallback((r) => {
     if (!r?.from || !r?.to) return;
@@ -633,7 +647,7 @@ export default function Dashboard() {
       body: lowStockN > 0
         ? `${lowStockN} product${lowStockN === 1 ? '' : 's'} ${lowStockN === 1 ? 'is' : 'are'} running low on stock.`
         : 'All tracked products are stocked.',
-      to: '/admin/products?stock=low', cta: lowStockN ? 'View products →' : '',
+      to: '/admin/products?stock=low', cta: lowStockN ? 'View products →' : '', modal: 'stockModal',
       ico: <><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" /><rect x="9" y="3" width="6" height="4" rx="1" /><path d="M9 14l2 2 4-4" /></>,
     },
     {
@@ -710,7 +724,7 @@ export default function Dashboard() {
         <div className="top-right">
           <div className="search">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2"><circle cx="11" cy="11" r="6" /><path d="m20 20-3.5-3.5" /></svg>
-            <input value={q} onChange={onSearch} onKeyUp={onSearch} placeholder="Search orders, products, customers..." aria-label="Search orders, products and customers on this page" />
+            <input ref={searchRef} value={q} onChange={onSearch} onKeyUp={onSearch} onFocus={() => say('Type to filter products & orders')} placeholder="Search orders, products, customers..." aria-label="Search orders, products and customers on this page" />
             <span className="kbd">⌘ K</span>
           </div>
 
@@ -934,7 +948,7 @@ export default function Dashboard() {
             </div>
           </div>
           <div style={{ textAlign: 'right', marginTop: 14 }}>
-            <Link to="/admin/analytics" className="btn-sm">View full report</Link>
+            <button type="button" className="btn-sm" onClick={() => setModal('reportModal')}>View full report</button>
           </div>
         </div>
 
@@ -953,7 +967,7 @@ export default function Dashboard() {
             ))}
           </div>
           <div style={{ marginTop: 10 }}>
-            <Link to="/admin/live" className="btn-sm" style={{ width: '100%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>View real time</Link>
+            <button type="button" className="btn-sm" style={{ width: '100%' }} onClick={() => setModal('realtimeModal')}>View real time</button>
           </div>
         </div>
       </div>
@@ -1116,7 +1130,7 @@ export default function Dashboard() {
             </div>
           </div>
           <div style={{ marginTop: 14 }}>
-            <Link to="/admin/orders" className="btn-sm">View all orders ▾</Link>
+            <button type="button" className="btn-sm" onClick={() => setModal('ordersModal')}>View all orders ▾</button>
           </div>
         </div>
 
@@ -1176,10 +1190,17 @@ export default function Dashboard() {
         <div className="card-h"><span className="card-t">Quick Actions</span></div>
         <div className="quick">
           {QUICK.map((a) => (
-            <Link key={a.label} to={a.to} className="q-btn">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">{a.d}</svg>
-              <span>{a.label}</span>
-            </Link>
+            a.modal ? (
+              <button key={a.label} type="button" className="q-btn" onClick={() => setModal(a.modal)}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">{a.d}</svg>
+                <span>{a.label}</span>
+              </button>
+            ) : (
+              <Link key={a.label} to={a.to} className="q-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">{a.d}</svg>
+                <span>{a.label}</span>
+              </Link>
+            )
           ))}
         </div>
       </div>
@@ -1201,7 +1222,14 @@ export default function Dashboard() {
                   <span style={{ width: 4, height: 24, background: '#111', borderRadius: 2 }}></span>
                 </span>
               ) : c.cta ? (
-                <span className="ins-link">{c.cta}</span>
+                <span
+                  className="ins-link"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (c.modal) setModal(c.modal);
+                  }}
+                >{c.cta}</span>
               ) : (
                 <span className="ins-arrow">→</span>
               )}
@@ -1246,6 +1274,102 @@ export default function Dashboard() {
           <div className="modal-actions">
             <button type="button" onClick={() => setModal('')}>Close</button>
             <button type="button" className="primary" onClick={() => { setBadgeHidden(true); say('All notifications marked as read'); setModal(''); }}>Mark all as read</button>
+          </div>
+        </div>
+      </div>
+
+      {/* ── reportModal — Full Report (Sales by Channel · Quick action) ──── */}
+      <div className={`modal ${modal === 'reportModal' ? 'show' : ''}`} onClick={(e) => { if (e.target === e.currentTarget) setModal(''); }}>
+        <div className="modal-box">
+          <h3>Full Report</h3>
+          <p>
+            Detailed sales report for {rangeLabel(range.from, range.to)}. Total {rs(k.revenue?.value || 0)} across {channels.length} channel{channels.length === 1 ? '' : 's'}. {channels[0]?.name || 'Online Store'} leads with {channels[0]?.pct?.toFixed(1) || '0.0'}%.
+          </p>
+          <div className="modal-actions">
+            <button type="button" onClick={() => setModal('')}>Close</button>
+            <button type="button" className="primary" onClick={() => { setModal(''); nav('/admin/analytics'); }}>Open full report</button>
+          </div>
+        </div>
+      </div>
+
+      {/* ── realtimeModal — Live Visitors (Live Visitors card) ───────────── */}
+      <div className={`modal ${modal === 'realtimeModal' ? 'show' : ''}`} onClick={(e) => { if (e.target === e.currentTarget) setModal(''); }}>
+        <div className="modal-box">
+          <h3>Live Visitors — Real Time</h3>
+          <p>{live?.visitorsNow ?? 0} visitors right now. Top page: {topPages[0]?.path || '/'} ({topPages[0]?.n || 0}). Real-time tracking active.</p>
+          <div className="modal-actions">
+            <button type="button" onClick={() => setModal('')}>Close</button>
+            <button type="button" className="primary" onClick={() => { setModal(''); nav('/admin/live'); }}>Open Live view</button>
+          </div>
+        </div>
+      </div>
+
+      {/* ── ordersModal — All Orders (Orders Status card) ────────────────── */}
+      <div className={`modal ${modal === 'ordersModal' ? 'show' : ''}`} onClick={(e) => { if (e.target === e.currentTarget) setModal(''); }}>
+        <div className="modal-box">
+          <h3>All Orders — {statusMix.total.toLocaleString()}</h3>
+          <p>
+            {statusMix.rows.length
+              ? statusMix.rows.map((r) => `${r.name} ${r.value.toLocaleString()}`).join(' · ')
+              : 'No orders in this period.'}
+            <br />Export or filter orders from the orders desk.
+          </p>
+          <div className="modal-actions">
+            <button type="button" onClick={() => setModal('')}>Close</button>
+            <button type="button" className="primary" onClick={() => { setModal(''); nav('/admin/orders'); }}>Open all orders</button>
+          </div>
+        </div>
+      </div>
+
+      {/* ── stockModal — Low Stock (Smart Insights) ──────────────────────── */}
+      <div className={`modal ${modal === 'stockModal' ? 'show' : ''}`} onClick={(e) => { if (e.target === e.currentTarget) setModal(''); }}>
+        <div className="modal-box">
+          <h3>Low Stock — {lowStockN} Product{lowStockN === 1 ? '' : 's'}</h3>
+          <p>
+            {lowStockN
+              ? lowStock.slice(0, 5).map((p, i) => <span key={p._id || p.slug || i}>• {p.name} — {p.stock ?? 0} left<br /></span>)
+              : 'All tracked products are stocked.'}
+            {lowStockN > 5 ? `+ ${lowStockN - 5} more` : null}
+          </p>
+          <div className="modal-actions">
+            <button type="button" onClick={() => setModal('')}>Close</button>
+            <button type="button" className="primary" onClick={() => { setModal(''); nav('/admin/products?stock=low'); }}>View low stock</button>
+          </div>
+        </div>
+      </div>
+
+      {/* ── createOrderModal (Quick action) ──────────────────────────────── */}
+      <div className={`modal ${modal === 'createOrderModal' ? 'show' : ''}`} onClick={(e) => { if (e.target === e.currentTarget) setModal(''); }}>
+        <div className="modal-box">
+          <h3>Create Order</h3>
+          <p>New order form — customer, products, payment. Continue to the order editor to create the order.</p>
+          <div className="modal-actions">
+            <button type="button" onClick={() => setModal('')}>Cancel</button>
+            <button type="button" className="primary" onClick={() => { setModal(''); nav('/admin/orders/new'); }}>Continue</button>
+          </div>
+        </div>
+      </div>
+
+      {/* ── addProductModal (Quick action) ───────────────────────────────── */}
+      <div className={`modal ${modal === 'addProductModal' ? 'show' : ''}`} onClick={(e) => { if (e.target === e.currentTarget) setModal(''); }}>
+        <div className="modal-box">
+          <h3>Add Product</h3>
+          <p>Add a new product to your catalog — name, price, stock, images.</p>
+          <div className="modal-actions">
+            <button type="button" onClick={() => setModal('')}>Cancel</button>
+            <button type="button" className="primary" onClick={() => { setModal(''); nav('/admin/products/new'); }}>Continue</button>
+          </div>
+        </div>
+      </div>
+
+      {/* ── supportModal (Quick action) ──────────────────────────────────── */}
+      <div className={`modal ${modal === 'supportModal' ? 'show' : ''}`} onClick={(e) => { if (e.target === e.currentTarget) setModal(''); }}>
+        <div className="modal-box">
+          <h3>Support Ticket</h3>
+          <p>Contact support — average response time 2 hours. Our team is online.</p>
+          <div className="modal-actions">
+            <button type="button" onClick={() => setModal('')}>Cancel</button>
+            <button type="button" className="primary" onClick={() => { setModal(''); nav('/admin/questions'); }}>Open tickets</button>
           </div>
         </div>
       </div>
