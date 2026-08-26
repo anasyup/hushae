@@ -400,7 +400,7 @@ function isPathBlocked(pathname, role) {
   return false;
 }
 
-export default function AdminLayout({ children, title, subtitle, headerExtra, hideContentTitle }) {
+export default function AdminLayout({ children, title, subtitle, headerExtra, hideContentTitle, chromeless = false }) {
   const { auth } = useApp();
   const loc = useLocation();
   const [drawer, setDrawer] = useState(false);
@@ -415,6 +415,12 @@ export default function AdminLayout({ children, title, subtitle, headerExtra, hi
       return !v;
     });
   };
+  const [chromeSidebar, setChromeSidebar] = useState(false);
+  useEffect(() => {
+    const onMenu = () => setChromeSidebar((v) => !v);
+    window.addEventListener('ovp-menu', onMenu);
+    return () => window.removeEventListener('ovp-menu', onMenu);
+  }, []);
   useEffect(() => { applyAdminTheme(); return () => clearAdminTheme(); }, []);
   const crumbs = (() => {
     const parts = loc.pathname.split('/').filter(Boolean); // ['admin', 'products']
@@ -452,15 +458,27 @@ export default function AdminLayout({ children, title, subtitle, headerExtra, hi
   );
   return (
     <div className="admin-shell flex min-h-screen bg-admin-bg">
-      <aside className={`fixed inset-y-0 left-0 z-40 hidden border-r border-admin-border transition-[width] duration-200 ease-out md:block ${collapsed ? 'w-[68px]' : 'w-[236px]'}`}>
-        <SidebarContent onOpenCmd={() => setCmdOpen(true)} collapsed={collapsed} />
-      </aside>
+      {!chromeless && (
+        <aside className={`fixed inset-y-0 left-0 z-40 hidden border-r border-admin-border transition-[width] duration-200 ease-out md:block ${collapsed ? 'w-[68px]' : 'w-[236px]'}`}>
+          <SidebarContent onOpenCmd={() => setCmdOpen(true)} collapsed={collapsed} />
+        </aside>
+      )}
+      {chromeless && chromeSidebar && (
+        <div className="fixed inset-0 z-50">
+          <div className="absolute inset-0 bg-black/40" onClick={() => setChromeSidebar(false)} />
+          <div className="absolute inset-y-0 left-0 w-[236px] border-r border-admin-border bg-admin-sidebar shadow-2xl">
+            <button type="button" onClick={() => setChromeSidebar(false)} aria-label="Close menu" className="absolute right-3 top-4 z-10 rounded-lg p-1.5 text-admin-text-muted hover:bg-admin-surface-2"><X size={18} /></button>
+            <SidebarContent onNavigate={() => setChromeSidebar(false)} onOpenCmd={() => { setChromeSidebar(false); setCmdOpen(true); }} />
+          </div>
+        </div>
+      )}
       {drawer && <div className="fixed inset-0 z-50 md:hidden"><div className="absolute inset-0 bg-black/40" onClick={() => setDrawer(false)} /><div className="absolute inset-y-0 left-0 w-72 border-r border-admin-border bg-admin-sidebar"><button onClick={() => setDrawer(false)} className="absolute right-3 top-4 z-10 rounded-lg p-1.5 text-admin-text-muted hover:bg-admin-surface-2"><X size={18} /></button><SidebarContent onNavigate={() => setDrawer(false)} onOpenCmd={() => { setDrawer(false); setCmdOpen(true); }} /></div></div>}
-      <div className={`flex min-h-screen min-w-0 flex-1 flex-col transition-[padding] duration-200 ease-out ${collapsed ? 'md:pl-[68px]' : 'md:pl-[236px]'}`}>
-        <TopBar title={title} auth={auth} onCmdK={() => setCmdOpen(true)} onMenu={() => setDrawer(true)} onToggleSidebar={toggleCollapsed} collapsed={collapsed} />
-        <div className="min-w-0 flex-1 p-4 md:p-6 xl:p-8">
-          <div className="admin-main mx-auto w-full min-w-0 max-w-[1440px]">
-            {title && <h1 className="mb-5 font-sans text-[16px] font-medium text-admin-text md:hidden">{title}</h1>}
+      <div className={`flex min-h-screen min-w-0 flex-1 flex-col transition-[padding] duration-200 ease-out ${chromeless ? '' : collapsed ? 'md:pl-[68px]' : 'md:pl-[236px]'}`}>
+        {!chromeless && <TopBar title={title} auth={auth} onCmdK={() => setCmdOpen(true)} onMenu={() => setDrawer(true)} onToggleSidebar={toggleCollapsed} collapsed={collapsed} />}
+        <div className={chromeless ? 'min-w-0 flex-1' : 'min-w-0 flex-1 p-4 md:p-6 xl:p-8'}>
+          <div className={chromeless ? 'admin-main w-full min-w-0' : 'admin-main mx-auto w-full min-w-0 max-w-[1440px]'}>
+            {!chromeless && title && <h1 className="mb-5 font-sans text-[16px] font-medium text-admin-text md:hidden">{title}</h1>}
+            {!chromeless && (
             <nav aria-label="Breadcrumb" className="adm-eyebrow mb-5 hidden items-center md:flex">
               {crumbs.map((c, i) => (
                 <span key={c.to} className="inline-flex items-center">
@@ -473,6 +491,7 @@ export default function AdminLayout({ children, title, subtitle, headerExtra, hi
                 </span>
               ))}
             </nav>
+            )}
             {children}
           </div>
         </div>

@@ -19,7 +19,27 @@ for (const k of ['window', 'document', 'navigator', 'HTMLElement', 'Element', 'N
 }
 globalThis.matchMedia = dom.window.matchMedia || (() => ({ matches: false, addEventListener() {}, removeEventListener() {}, addListener() {}, removeListener() {} }));
 dom.window.matchMedia = globalThis.matchMedia;
-globalThis.requestAnimationFrame = (cb) => setTimeout(() => cb(Date.now()), 0);
+globalThis.requestAnimationFrame = (cb) => setTimeout(() => cb(Date.now() + 60000), 0);
+/* jsdom has no 2d canvas — give Chart.js a no-op context so charts mount headless */
+const makeCtx = (canvas) => {
+  const store = {};
+  return new Proxy({}, {
+    get: (t, prop) => {
+      if (prop === 'canvas') return canvas;
+      if (prop === 'measureText') return () => ({ width: 10 });
+      if (prop === 'getImageData') return () => ({ data: [] });
+      if (prop === 'createLinearGradient') return () => ({ addColorStop() {} });
+      if (!(prop in store)) store[prop] = () => undefined;
+      return store[prop];
+    },
+    set: (t, prop, v) => { store[prop] = v; return true; },
+  });
+};
+dom.window.HTMLCanvasElement.prototype.getContext = function () { return makeCtx(this); };
+class RO { observe() {} unobserve() {} disconnect() {} }
+globalThis.MutationObserver = dom.window.MutationObserver;
+dom.window.ResizeObserver = RO;
+globalThis.ResizeObserver = RO;
 globalThis.cancelAnimationFrame = (id) => clearTimeout(id);
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 dom.window.requestAnimationFrame = globalThis.requestAnimationFrame;
@@ -113,11 +133,11 @@ const has = (s) => text.includes(s);
 const qsa = (sel) => container.querySelectorAll(sel);
 
 if (CASE === 'full') {
-  check('mounts without throwing', qsa('section').length > 0, `${qsa('section').length} cards`);
+  check('mounts without throwing', qsa('.card').length > 0, `${qsa('.card').length} cards`);
   check('page title "Overview"', has('Overview'));
-  check('topbar search present', !!container.querySelector('input[placeholder^="Search products"]'));
+  check('topbar search present', !!container.querySelector('input[placeholder^="Search orders"]'));
   check('Add New pill present', has('Add New'));
-  check('Compare pill present', has('Compare: Previous period'));
+  check('Compare pill present', has('Compare: Previous 7 days'));
   check('date pill shows the live range', /Aug \d+/.test(text));
   check('fullscreen control present', !!container.querySelector('button[title="Fullscreen"]'));
 
@@ -141,23 +161,28 @@ if (CASE === 'full') {
   check('low stock count from API', has('3 products are running low'));
   check('status mix percentage', /65%/.test(text));
   const glance = [...container.querySelectorAll('a[href^="/admin"] b')].slice(0, 4).map((n) => n.textContent);
-  const bellBadge = [...container.querySelectorAll('a[title="Alerts & verification queue"] span')].map((n) => n.textContent).join('|');
+  const bellBadge = [...container.querySelectorAll('button[title="Alerts & verification queue"] span')].map((n) => n.textContent).join('|');
   const badgeSum = glance.slice(0, 3).reduce((a, b) => a + Number(b), 0);
   check('alerts badge = new orders + pending payments + low stock', bellBadge.split('|').includes(String(badgeSum)), `tiles=${glance.join('+')} sum=${badgeSum} badge=${JSON.stringify(bellBadge)}`);
-  check('chart slots mounted', qsa('.recharts-responsive-container').length >= 8, `${qsa('.recharts-responsive-container').length} chart slots`);
+  check('chart canvases mounted', qsa('canvas').length >= 10, `${qsa('canvas').length} canvases`);
   check('quick actions point at admin routes', [...container.querySelectorAll('a[href^="/admin"]')].length > 15);
 
   ['Wireless Headphones', 'John Doe', 'Sarah Williams', 'May 20', '$128,450', 'Electronics', 'Smart Watch Series 9', 'Running Shoes']
     .forEach((s) => check(`no demo leftover: "${s}"`, !text.includes(s)));
 
-  check('current + previous window both requested',
-    calls.filter((c) => c.includes('/api/admin/dashboard')).length >= 2
-    && calls.some((c) => c.includes('from=2026-08-12') && c.includes('to=2026-08-18')),
-    calls.filter((c) => c.includes('/api/admin/dashboard')).join(' | '));
+  {
+    const dashCalls = calls.filter((c) => c.includes('/api/admin/dashboard'));
+    const parse = (c) => new URLSearchParams(c.split('?')[1] || '');
+    const cur = parse(dashCalls[0] || ''); const prv = parse(dashCalls[1] || '');
+    const day = (ymd, n) => { const d = new Date(`${ymd}T00:00:00Z`); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
+    check('current + previous window both requested',
+      dashCalls.length >= 2 && cur.get('from') && prv.get('to') === day(cur.get('from'), -1) && prv.get('from') === day(prv.get('to'), -6),
+      dashCalls.join(' | '));
+  }
 }
 
 if (CASE === 'empty') {
-  check('empty store renders the page', has('Overview') && qsa('section').length > 0, `${qsa('section').length} cards`);
+  check('empty store renders the page', has('Overview') && qsa('.card').length > 0, `${qsa('.card').length} cards`);
   check('empty store shows empty-orders copy', has('No orders in this period.'));
   check('empty store shows empty-categories copy', has('Category sales appear with orders.'));
   check('empty store shows zero KPIs', has('Rs 0.00'));
