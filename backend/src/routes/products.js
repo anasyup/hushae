@@ -12,6 +12,21 @@ const SORTS = {
   'price-desc': { price: -1 },
 };
 
+/** Card/list payload — skip long description/care text that was ~60KB of /products. */
+const LIST_FIELDS = [
+  'name', 'slug', 'price', 'compareAtPrice', 'onSale', 'saleStart', 'saleEnd',
+  'stock', 'images', 'gender', 'categorySlug', 'tier', 'fabric', 'ratingAvg',
+  'ratingCount', 'sizes', 'colors', 'isNewArrival', 'isBestSeller', 'badges',
+  'shortDescription',
+].join(' ');
+
+function slimList(products) {
+  for (const p of products) {
+    if (Array.isArray(p.images) && p.images.length > 2) p.images = p.images.slice(0, 2);
+  }
+  return products;
+}
+
 function buildQuery(req, { adminView = false } = {}) {
   const q = {};
   if (!adminView) { q.isActive = true; q.status = { $ne: 'draft' }; }
@@ -107,6 +122,28 @@ router.get('/trending', asyncHandler(async (req, res) => {
   res.json({ products: out, days });
 }));
 
+// Homepage shelves in one round-trip (PK → US was 4 serial/parallel HTTP calls).
+router.get('/home', asyncHandler(async (req, res) => {
+  res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=300, stale-while-revalidate=86400');
+  const base = { isActive: true, status: { $ne: 'draft' } };
+  const [newArrivals, women, men, sale] = await Promise.all([
+    Product.find({ ...base, isNewArrival: true }).sort({ createdAt: -1 }).limit(4).select(LIST_FIELDS).lean(),
+    Product.find({ ...base, gender: 'women' }).sort(SORTS.popular).limit(4).select(LIST_FIELDS).lean(),
+    Product.find({ ...base, gender: 'men' }).sort(SORTS.popular).limit(4).select(LIST_FIELDS).lean(),
+    Product.find({ ...base, ...Product.saleFilter() }).sort(SORTS.popular).limit(4).select(LIST_FIELDS).lean(),
+  ]);
+  let saleOut = sale;
+  if (!saleOut.length) {
+    saleOut = await Product.find({ ...base, isBestSeller: true }).sort(SORTS.popular).limit(4).select(LIST_FIELDS).lean();
+  }
+  res.json({
+    newArrivals: slimList(newArrivals),
+    women: slimList(women),
+    men: slimList(men),
+    sale: slimList(saleOut),
+  });
+}));
+
 // Admin list (must be before /:slug)
 router.get('/admin/list', protect, adminOnly, asyncHandler(async (req, res) => {
   const q = buildQuery(req, { adminView: true });
@@ -117,10 +154,13 @@ router.get('/admin/list', protect, adminOnly, asyncHandler(async (req, res) => {
 router.get('/', asyncHandler(async (req, res) => {
   res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=300, stale-while-revalidate=86400');
   const q = buildQuery(req);
+  const limit = Math.min(Math.max(parseInt(req.query.limit || '24', 10) || 24, 1), 200);
   const products = await Product.find(q)
     .sort(SORTS[req.query.sort] || SORTS.popular)
-    .limit(Math.min(parseInt(req.query.limit || '100', 10), 200))
+    .limit(limit)
+    .select(LIST_FIELDS)
     .lean();
+  slimList(products);
 
   // Hand-picked lists must come back in the exact order the merchant arranged
   // them in the theme editor, so honour the ?ids= sequence instead of the sort.

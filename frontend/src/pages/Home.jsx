@@ -658,27 +658,12 @@ export default function Home() {
   const [saleProducts, setSaleProducts] = useState([]);
 
   useEffect(() => {
-    api('/products?newArrival=true&sort=newest&limit=4')
-      .then((d) => setNewArrivals(d.products || []))
-      .catch(() => {});
-
-    api('/products?gender=women&limit=4')
-      .then((d) => setWomenProducts(d.products || []))
-      .catch(() => {});
-
-    api('/products?gender=men&limit=4')
-      .then((d) => setMenProducts(d.products || []))
-      .catch(() => {});
-
-    /* The Sale Edit must show genuinely marked-down stock — `sale=true` is the
-       backend's sale-window filter. Falls back to best sellers so the closing
-       chapter never collapses when no sale window is open. */
-    api('/products?sale=true&limit=4')
+    api('/products/home')
       .then((d) => {
-        const list = d.products || [];
-        if (list.length) { setSaleProducts(list); return undefined; }
-        return api('/products?bestSeller=true&limit=4')
-          .then((f) => setSaleProducts(f.products || []));
+        setNewArrivals(d.newArrivals || []);
+        setWomenProducts(d.women || []);
+        setMenProducts(d.men || []);
+        setSaleProducts(d.sale || []);
       })
       .catch(() => {});
   }, []);
