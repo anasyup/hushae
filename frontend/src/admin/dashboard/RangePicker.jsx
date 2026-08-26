@@ -78,28 +78,19 @@ export default function RangePicker({ value, onChange }) {
     onChange({ preset: key, from: r.from, to: r.to });
   };
 
-  const pretty = (ymd, withYear = false) => {
-    if (!ymd) return '';
-    const d = new Date(`${ymd}T00:00:00`);
-    return d.toLocaleDateString('en-US', withYear
-      ? { month: 'short', day: 'numeric', year: 'numeric' }
-      : { month: 'short', day: 'numeric' });
-  };
-  const dateLabel = value?.from && value?.to
-    ? `${pretty(value.from)} – ${pretty(value.to, true)}`
-    : (RANGE_PRESETS.find((p) => p.key === preset)?.label || 'Custom');
+  const label = RANGE_PRESETS.find((p) => p.key === preset)?.label || 'Custom';
 
   return (
     <div className="relative" ref={ref}>
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="inline-flex min-h-[38px] items-center gap-2 rounded-full border border-[#E7E8EC] bg-white px-3.5 text-[13px] font-medium text-[#374151] transition hover:border-[#D1D5DB] hover:bg-[#FAFAFB]"
+        className="inline-flex min-h-[34px] items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-[12px] font-semibold text-neutral-700 transition hover:border-neutral-300 hover:bg-neutral-50"
         aria-haspopup="dialog"
         aria-expanded={open}
       >
-        {dateLabel}
-        <CalendarDays size={14} className="text-neutral-500" />
+        <CalendarDays size={13} className="text-neutral-500" />
+        {label}
       </button>
 
       {open && (

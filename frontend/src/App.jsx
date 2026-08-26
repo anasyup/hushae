@@ -127,12 +127,10 @@ const Insights = lazy(() => import('./admin/Insights'));
 const Finance = lazy(() => import('./admin/Finance'));
 const Payments = lazy(() => import('./admin/Payments'));
 const OrdersDesk = lazy(() => import('./admin/orders/OrdersDesk'));
-const OrdersAtelier = lazy(() => import('./admin/orders/OrdersAtelier'));
 const DraftOrder = lazy(() => import('./admin/orders/DraftOrder'));
 const OrderPrintDoc = lazy(() => import('./admin/orders/OrderPrintDoc'));
 const VerificationQueue = lazy(() => import('./admin/VerificationQueue'));
 const CommerceOps = lazy(() => import('./admin/CommerceOps'));
-const AdminModule = lazy(() => import('./admin/AdminModule'));
 /* Storefront suspense placeholder. EditorFallback is a full-height grey admin
    screen and would flash over the shop chrome. This reserves a reading column
    instead, which is what keeps CLS at zero on a CMS route. */
@@ -281,8 +279,7 @@ export default function App() {
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin" element={<Suspense fallback={<EditorFallback />}><Dashboard /></Suspense>} />
           <Route path="/admin/live" element={<LiveView />} />
-          <Route path="/admin/orders" element={<Suspense fallback={<EditorFallback />}><OrdersAtelier /></Suspense>} />
-          <Route path="/admin/orders/desk" element={<Suspense fallback={<EditorFallback />}><OrdersDesk /></Suspense>} />
+          <Route path="/admin/orders" element={<Suspense fallback={<EditorFallback />}><OrdersDesk /></Suspense>} />
           <Route path="/admin/verification-queue" element={<Suspense fallback={<EditorFallback />}><VerificationQueue /></Suspense>} />
           <Route path="/admin/ops" element={<Suspense fallback={<EditorFallback />}><CommerceOps /></Suspense>} />
           <Route path="/admin/ops/inventory" element={<Suspense fallback={<EditorFallback />}><CommerceOps start="stock" /></Suspense>} />
@@ -374,7 +371,6 @@ export default function App() {
           <Route path="/admin/payments" element={<Suspense fallback={<EditorFallback />}><Payments /></Suspense>} />
           <Route path="/admin/collections" element={<Collections />} />
           <Route path="/admin/apps" element={<Apps />} />
-          <Route path="/admin/*" element={<Suspense fallback={<EditorFallback />}><AdminModule /></Suspense>} />
 
           {/* ---- CMS CATCH-ALL ----------------------------------------
               Declared LAST, after every real route. React Router v6 already
