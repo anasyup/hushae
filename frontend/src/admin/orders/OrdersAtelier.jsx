@@ -6,7 +6,6 @@ import { api } from '../../api/client';
 import AdminLayout from '../AdminLayout';
 import { resolvePreset } from '../dashboard/RangePicker';
 import { writePrintWindow } from './printDocument';
-import AtelierSidebar from '../components/AtelierSidebar';
 
 /* ============================================================================
  * ORDERS — premium ATELIER table view (orders_overview_theme.html applied
@@ -246,8 +245,6 @@ export default function OrdersAtelier() {
   const [busy, setBusy] = useState(false);
   const [toast, setToast] = useState('');
   const [fs, setFs] = useState(false);
-  const [showFilters, setShowFilters] = useState(true);
-  const [cols, setCols] = useState({ pay: true, ful: true });
 
   const toastTimer = useRef(0);
   const say = useCallback((msg) => {
@@ -443,22 +440,11 @@ export default function OrdersAtelier() {
 
   const pendingCount = tabCount('pending');
 
-  const health = useMemo(() => {
-    const t = stats.total;
-    const pct = t ? (stats.completed / t) * 100 : 0;
-    const label = pct >= 85 ? 'Excellent' : pct >= 70 ? 'Good' : pct >= 45 ? 'Fair' : 'Needs attention';
-    const text = pct >= 70 ? 'Your store is performing great!' : pct >= 45 ? 'Steady progress — keep fulfilment tight.' : 'Focus on completing pending orders.';
-    return { pct, label, text };
-  }, [stats.total, stats.completed]);
-
   const shell = (children) => (
     <AdminLayout title="Orders" subtitle="Manage and track all customer orders." hideContentTitle chromeless>
       <style>{ORD_CSS}</style>
       <div className="ovp-root">
-        <AtelierSidebar active="orders" badge={pendingCount} health={health} onNotify={say} />
-        <div className="main">
-          {children}
-        </div>
+        {children}
       </div>
     </AdminLayout>
   );
@@ -496,7 +482,7 @@ export default function OrdersAtelier() {
       {/* ── topbar ─────────────────────────────────────────────────────── */}
       <div className="topbar">
         <div className="top-left" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <button type="button" className="icon-btn" style={{ border: 0, boxShadow: 'none' }} aria-label="Open navigation menu" onClick={() => window.dispatchEvent(new window.Event('atelier-nav'))}>
+          <button type="button" className="icon-btn" style={{ border: 0, boxShadow: 'none' }} aria-label="Open navigation menu" onClick={() => window.dispatchEvent(new Event('ovp-menu'))}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="2"><path d="M3 6h18M3 12h18M3 18h18" /></svg>
           </button>
           <div><h1>Orders</h1><p>Manage and track all customer orders.</p></div>
@@ -516,9 +502,6 @@ export default function OrdersAtelier() {
                 return <div key={o.key} style={{ padding: '8px 10px', borderRadius: 8, fontSize: 11.5, cursor: 'pointer' }} onClick={(e) => { e.stopPropagation(); const rr = resolvePreset(o.key); setRange({ preset: o.key, from: rr.from, to: rr.to }); setDateOpen(false); say(`Range: ${o.label}`); }}>{o.label} · {rangeLabel(r.from, r.to)}</div>;
               })}
             </div>
-          </div>
-          <div className="pill" title={vsLabel}><span>Compare: Previous period</span>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m6 9 6 6 6-6" /></svg>
           </div>
           <button type="button" className="btn-black" onClick={() => nav('/admin/orders/new')}>
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M5 12h14" /></svg> Add Order
@@ -586,24 +569,11 @@ export default function OrdersAtelier() {
             ))}
           </div>
           <div style={{ display: 'flex', gap: 6 }}>
-            <button type="button" className="btn-sm" onClick={() => setShowFilters((v) => !v)}>
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" style={{ verticalAlign: -1 }}><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" /></svg> Filter
-            </button>
-            <button type="button" className="btn-sm" onClick={() => setCols((c) => ({ pay: !c.pay, ful: !c.ful }))}>
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" style={{ verticalAlign: -1 }}><rect x="3" y="3" width="18" height="18" rx="2" /><line x1="9" y1="3" x2="9" y2="21" /></svg> Columns
-            </button>
             <button type="button" className="btn-sm" onClick={exportCsv}>
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" style={{ verticalAlign: -1 }}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg> Export
             </button>
-            <div className="ovp-dd" style={{ position: 'relative' }}>
-              <button type="button" className="btn-sm" onClick={() => setOpenMenu((v) => (v === 'card' ? '' : 'card'))}>⋮</button>
-              {openMenu === 'card' && (
-                <div style={{ position: 'absolute', right: 0, top: 30, zIndex: 60, background: '#fff', border: '1px solid #ececec', borderRadius: 10, boxShadow: '0 8px 24px rgba(0,0,0,0.08)', padding: 6, minWidth: 170 }}>
-                  <div style={{ padding: '8px 10px', borderRadius: 8, fontSize: 11.5, cursor: 'pointer' }} onClick={() => { setOpenMenu(''); load(); say('Orders refreshed'); }}>Refresh data</div>
-                  <Link to="/admin/orders/desk" style={{ display: 'block', padding: '8px 10px', borderRadius: 8, fontSize: 11.5 }} onClick={() => setOpenMenu('')}>Open workflow desk</Link>
-                </div>
-              )}
-            </div>
+            <Link className="btn-sm" to="/admin/orders/desk">Workflow desk</Link>
+            <button type="button" className="btn-sm" onClick={() => { load(); say('Orders refreshed'); }}>⋮</button>
           </div>
         </div>
 
@@ -613,17 +583,12 @@ export default function OrdersAtelier() {
             <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search orders..." style={{ border: 0, outline: 0, background: 'transparent', width: '100%', fontSize: 11.5 }} aria-label="Search orders table" />
           </div>
 
-          {showFilters && [
+          {[
             { label: 'Status', value: fStatus, set: setFStatus, opts: ['All', ...STATUSES] },
             { label: 'Payment Status', value: fPay, set: setFPay, opts: ['All', 'Paid', 'Pending', 'Refunded', 'Failed'] },
             { label: 'Fulfillment Status', value: fFul, set: setFFul, opts: ['All', 'Fulfilled', 'Processing', 'Unfulfilled', 'Cancelled'] },
             { label: 'Payment Method', value: fMethod, set: setFMethod, opts: ['All', ...METHODS] },
           ].map((f) => <FilterDD key={f.label} {...f} />)}
-          {showFilters && (
-            <div className="filter" onClick={clearFilters} style={{ cursor: 'pointer' }}>
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="12" cy="12" r="10" /><path d="m15 9-6 6M9 9l6 6" /></svg> More filters: Clear all
-            </div>
-          )}
 
           <div style={{ display: 'flex', gap: 6 }}>
             <button type="button" className="btn-sm" onClick={clearFilters}>Clear</button>
@@ -651,15 +616,15 @@ export default function OrdersAtelier() {
                 <th>Customer</th>
                 <th className="sortable" onClick={() => toggleSort('date')}>Date {sortKey === 'date' ? (sortDir === -1 ? '↓' : '↑') : ''}</th>
                 <th>Status</th>
-                {cols.pay && <th>Payment</th>}
-                {cols.ful && <th>Fulfillment</th>}
+                <th>Payment</th>
+                <th>Fulfillment</th>
                 <th className="sortable" onClick={() => toggleSort('total')}>Total {sortKey === 'total' ? (sortDir === -1 ? '↓' : '↑') : ''}</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
               {paged.length === 0 && (
-                <tr><td colSpan={6 + (cols.pay ? 1 : 0) + (cols.ful ? 1 : 0) + 1} style={{ textAlign: 'center', padding: 32, color: '#9ca3af' }}>No orders match these filters.</td></tr>
+                <tr><td colSpan={9} style={{ textAlign: 'center', padding: 32, color: '#9ca3af' }}>No orders match these filters.</td></tr>
               )}
               {paged.map((o) => {
                 const sb = STATUS_BADGE[familyOf(o)];
@@ -688,8 +653,8 @@ export default function OrdersAtelier() {
                       </div>
                     </td>
                     <td><span className={sb.cls} title={o.status}><span className="dot"></span> {sb.label}</span></td>
-                    {cols.pay && <td><span className={pb.cls}><span className="dot"></span> {pb.label}</span></td>}
-                    {cols.ful && <td><span className={fb.cls}><span className="dot"></span> {fb.label}</span></td>}
+                    <td><span className={pb.cls}><span className="dot"></span> {pb.label}</span></td>
+                    <td><span className={fb.cls}><span className="dot"></span> {fb.label}</span></td>
                     <td><b>{rs(o.total)}</b></td>
                     <td style={{ position: 'relative' }}>
                       <button type="button" className="action-btn ovp-dd" aria-label={`Actions for ${o.orderNumber}`} onClick={() => setOpenMenu((v) => (v === o._id ? '' : o._id))}>{DOTS_ICON}</button>

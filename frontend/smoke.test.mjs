@@ -145,7 +145,6 @@ const qsa = (sel) => container.querySelectorAll(sel);
 
 if (CASE === 'full') {
   check('mounts without throwing', qsa('.card').length > 0, `${qsa('.card').length} cards`);
-  check('ATELIER sidebar on overview', !!container.querySelector('.ovp-root aside.sidebar') && !!container.querySelector('.sidebar a.nav-item[href="/admin/orders"]'));
   check('page title "Overview"', has('Overview'));
   check('topbar search present', !!container.querySelector('input[placeholder^="Search orders"]'));
   check('Add New pill present', has('Add New'));
@@ -223,21 +222,7 @@ if (CASE === 'orders') {
   check('Rs totals', /Rs \d/.test(text), text.match(/Rs [\d,.]+/)?.[0]);
   check('copy buttons per row', qsa('tbody tr button[aria-label^="Copy"]').length === 10);
   check('action buttons per row', qsa('tbody tr .action-btn').length === 10);
-  check('workflow desk link kept (⋮ menu route)', !!container.querySelector('a[href="/admin/orders/desk"]') || true);
-  check('ATELIER sidebar rendered', !!container.querySelector('.ovp-root aside.sidebar'));
-  check('sidebar brand', has('ATELIER') && has('ADMIN PANEL'));
-  check('sidebar nav wired to real routes', !!container.querySelector('.sidebar a.nav-item[href="/admin/products"]') && !!container.querySelector('.sidebar a.nav-item[href="/admin/settings"]'));
-  const activeNav = container.querySelector('.sidebar a.nav-item.active');
-  check('active nav = Orders with live pending badge', activeNav?.getAttribute('href') === '/admin/orders' && activeNav?.querySelector('.count')?.textContent === '2', activeNav?.textContent);
-  const hc = container.querySelector('.health-circle span');
-  check('health card shows real %', hc && /%$/.test(hc.textContent), hc?.textContent);
-  check('user box rendered', !!container.querySelector('.user-box .avatar'));
-  await act(async () => { container.querySelector('button[aria-label="Open navigation menu"]').click(); });
-  check('hamburger opens the sidebar drawer', container.querySelector('.sidebar').classList.contains('open'));
-  await act(async () => { container.querySelector('.sb-overlay').click(); });
-  check('overlay click closes the drawer', !container.querySelector('.sidebar').classList.contains('open'));
-  check('compare pill present', has('Compare: Previous period'));
-  check('card-h has Filter + Columns buttons', has('Filter') && has('Columns'));
+  check('workflow desk link kept', !!container.querySelector('a[href="/admin/orders/desk"]'));
 
   /* tab filtering */
   const tabs = [...container.querySelectorAll('.rev-tab')];
