@@ -127,6 +127,7 @@ const Insights = lazy(() => import('./admin/Insights'));
 const Finance = lazy(() => import('./admin/Finance'));
 const Payments = lazy(() => import('./admin/Payments'));
 const OrdersDesk = lazy(() => import('./admin/orders/OrdersDesk'));
+const OrdersAtelier = lazy(() => import('./admin/orders/OrdersAtelier'));
 const DraftOrder = lazy(() => import('./admin/orders/DraftOrder'));
 const OrderPrintDoc = lazy(() => import('./admin/orders/OrderPrintDoc'));
 const VerificationQueue = lazy(() => import('./admin/VerificationQueue'));
@@ -279,7 +280,8 @@ export default function App() {
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin" element={<Suspense fallback={<EditorFallback />}><Dashboard /></Suspense>} />
           <Route path="/admin/live" element={<LiveView />} />
-          <Route path="/admin/orders" element={<Suspense fallback={<EditorFallback />}><OrdersDesk /></Suspense>} />
+          <Route path="/admin/orders" element={<Suspense fallback={<EditorFallback />}><OrdersAtelier /></Suspense>} />
+          <Route path="/admin/orders/desk" element={<Suspense fallback={<EditorFallback />}><OrdersDesk /></Suspense>} />
           <Route path="/admin/verification-queue" element={<Suspense fallback={<EditorFallback />}><VerificationQueue /></Suspense>} />
           <Route path="/admin/ops" element={<Suspense fallback={<EditorFallback />}><CommerceOps /></Suspense>} />
           <Route path="/admin/ops/inventory" element={<Suspense fallback={<EditorFallback />}><CommerceOps start="stock" /></Suspense>} />

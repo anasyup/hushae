@@ -80,6 +80,14 @@ const CUST = { customers: Array.from({ length: 40 }, (_, i) => ({ _id: `c${i}`, 
 const INS = { paymentBreakdown: { Pending: 8, Paid: 1200 } };
 const SMART = { insights: [{ id: 'product-momentum', text: 'Noor Lace Bralette sales are up 32% week on week.' }] };
 const CARTS = { stats: { openCount: 128 } };
+const STAT_ROT = ['Pending', 'Processing', 'Delivered', 'Cancelled', 'Confirmed', 'Ready to Ship', 'Shipped', 'Out for Delivery', 'Refunded', 'Delivered', 'Pending', 'Processing'];
+const ORDERS = { orders: STAT_ROT.map((st, i) => ({
+  _id: `ord${i}`, orderNumber: `HSH-1${String(200 + i).padStart(3, '0')}`, status: st,
+  paymentStatus: st === 'Refunded' ? 'Refunded' : i % 3 === 0 ? 'Paid' : 'Pending',
+  paymentMethod: i % 2 ? 'COD' : 'JazzCash', total: 2400 + i * 850,
+  createdAt: new Date(Date.now() - (i * 9 + 2) * 3600e3).toISOString(),
+  customerInfo: { name: `Customer ${i}`, email: `c${i}@test.pk`, phone: `0300-100${i}` },
+})) };
 
 const calls = [];
 globalThis.fetch = async (u) => {
@@ -99,6 +107,7 @@ globalThis.fetch = async (u) => {
     if (path.endsWith('/api/orders/insights/dashboard')) return CASE === 'fail' ? null : INS;
     if (path.endsWith('/api/dashboard/insights')) return CASE === 'fail' ? null : SMART;
     if (path.endsWith('/api/abandoned-cart/admin')) return CASE === 'fail' ? null : CARTS;
+    if (path.endsWith('/api/orders/admin')) return CASE === 'fail' ? null : ORDERS;
     return {};
   })();
   if (body === null) return { ok: false, status: 500, json: async () => ({ message: 'boom' }) };
@@ -109,7 +118,7 @@ const { createElement: h } = await import('react');
 const { createRoot } = await import('react-dom/client');
 const { act } = await import('react');
 const { MemoryRouter } = await import('react-router-dom');
-const { AppProvider, Dashboard } = await import('./entry.bundle.mjs');
+const { AppProvider, Dashboard, OrdersAtelier } = await import('./entry.bundle.mjs');
 
 let fail = 0;
 const check = (label, cond, extra = '') => {
@@ -123,7 +132,9 @@ container.style.height = '900px';
 document.body.appendChild(container);
 const root = createRoot(container);
 await act(async () => {
-  root.render(h(MemoryRouter, { initialEntries: ['/admin'] }, h(AppProvider, null, h(Dashboard))));
+  const Page = CASE === 'orders' ? OrdersAtelier : Dashboard;
+  const at = CASE === 'orders' ? '/admin/orders' : '/admin';
+  root.render(h(MemoryRouter, { initialEntries: [at] }, h(AppProvider, null, h(Page))));
 });
 for (let i = 0; i < 6; i++) {
   await act(async () => { await new Promise((r) => setTimeout(r, 25)); });
@@ -194,6 +205,59 @@ if (CASE === 'empty') {
 if (CASE === 'fail') {
   check('error card on API failure', has('Failed to load dashboard.') && has('Try again'), text.replace(/\s+/g, ' ').slice(0, 160));
   check('error card does not render KPI skeleton', !text.includes('Total Sales'));
+}
+
+if (CASE === 'orders') {
+  check('orders page mounts table', qsa('table.tbl').length === 1);
+  check('topbar title Orders', has('Orders'));
+  check('Add Order button routes to /admin/orders/new', !!container.querySelector('.btn-black') && container.querySelector('.btn-black').textContent.includes('Add Order'));
+  check('6 stat cards', qsa('.stat').length === 6, `${qsa('.stat').length}`);
+  check('stat sparkline canvases', qsa('.stat canvas').length === 6, `${qsa('.stat canvas').length}`);
+  check('tabs with live counts', has('All Orders') && /All Orders\s*12/.test(text), text.match(/All Orders\s*\d+/)?.[0]);
+  check('pagination line', has('Showing 1 to 10 of 12 results'), text.match(/Showing[^r]*results/)?.[0]);
+  check('10 rows on page 1', qsa('tbody tr').length === 10, `${qsa('tbody tr').length}`);
+  check('status badges rendered', has('Completed') && has('Pending') && has('Processing') && has('Cancelled'));
+  check('payment badges rendered', has('Refunded'));
+  check('fulfillment badges rendered', has('Fulfilled') && has('Unfulfilled'));
+  check('Rs totals', /Rs \d/.test(text), text.match(/Rs [\d,.]+/)?.[0]);
+  check('copy buttons per row', qsa('tbody tr button[aria-label^="Copy"]').length === 10);
+  check('action buttons per row', qsa('tbody tr .action-btn').length === 10);
+  check('workflow desk link kept', !!container.querySelector('a[href="/admin/orders/desk"]'));
+
+  /* tab filtering */
+  const tabs = [...container.querySelectorAll('.rev-tab')];
+  const live = () => container.textContent;
+  await act(async () => { tabs.find((b) => b.textContent.startsWith('Pending')).click(); });
+  check('Pending tab filters rows', qsa('tbody tr').length === 2 && live().includes('Showing 1 to 2 of 2 results'), `${qsa('tbody tr').length} rows | ${live().match(/Showing[^r]*results/)?.[0]}`);
+  check('Pending tab rows all Pending', [...container.querySelectorAll('tbody tr td:nth-child(5)')].every((td) => td.textContent.includes('Pending')));
+
+  /* search */
+  await act(async () => { tabs.find((b) => b.textContent.startsWith('All Orders')).click(); });
+  const inp = container.querySelector('input[aria-label="Search orders table"]');
+  await act(async () => {
+    Object.getOwnPropertyDescriptor(dom.window.HTMLInputElement.prototype, 'value').set.call(inp, 'c3@test.pk');
+    inp.dispatchEvent(new dom.window.Event('input', { bubbles: true }));
+  });
+  check('search filters to 1 row', qsa('tbody tr').length === 1 && has('HSH-1203'), `${qsa('tbody tr').length} rows`);
+
+  /* clear */
+  await act(async () => { [...container.querySelectorAll('.filter-bar button')].find((b) => b.textContent === 'Clear').click(); });
+  check('Clear restores all rows', qsa('tbody tr').length === 10, `${qsa('tbody tr').length} rows`);
+
+  /* select + bulk bar */
+  await act(async () => { container.querySelector('tbody tr input[type="checkbox"]').click(); });
+  check('bulk bar appears on select', live().includes('1 selected') && live().includes('Print invoices') && live().includes('Mark Paid'), live().match(/\d+ selected/)?.[0]);
+
+  /* pagination */
+  await act(async () => { [...container.querySelectorAll('.pag-btn')].find((b) => b.textContent === '2').click(); });
+  check('page 2 shows tail rows', live().includes('Showing 11 to 12 of 12 results') && qsa('tbody tr').length === 2, live().match(/Showing[^r]*results/)?.[0]);
+
+  /* sort by total */
+  await act(async () => { [...container.querySelectorAll('th.sortable')].find((t) => t.textContent.includes('Total')).click(); });
+  const totals = [...container.querySelectorAll('tbody tr td:nth-child(8) b')].map((b) => Number(b.textContent.replace(/[^0-9.]/g, '')));
+  check('sort by total desc', totals[0] >= totals[1], totals.slice(0, 3).join(','));
+
+  check('orders fetched from real API', calls.some((c) => c.includes('/api/orders/admin')));
 }
 
 await act(async () => { root.unmount(); });
