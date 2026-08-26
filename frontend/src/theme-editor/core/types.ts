@@ -156,6 +156,8 @@ export interface BlockSchema {
   name: string;
   /** Lucide icon name. */
   icon?: string;
+  /** Short description — used for the row's hover tooltip, as on sections. */
+  description?: string;
   /** Max instances of this block inside one parent. */
   limit?: number;
   settings: Field[];

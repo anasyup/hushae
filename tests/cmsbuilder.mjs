@@ -132,10 +132,17 @@ ok('builder does not define a section list', !/SECTION_TYPES|const SECTIONS\s*=/
 
 /* The real test of "no duplicate registry": no section TYPE string appears in
    the builder. If one does, adding a section to the theme would need an edit
-   here — which is the coupling this design exists to avoid. */
+   here — which is the coupling this design exists to avoid.
+
+   `variant` props are excluded first. They belong to the admin Controls
+   namespace — Section/Toggle take variant="editorial" for their flat layout —
+   which only collides by name with the theme-editor section type 'editorial'.
+   A UI variant never makes the builder aware of the section registry, so
+   counting it here would be a false positive. */
 const sectionsSrc = fs.readFileSync(`${ROOT}/frontend/src/theme-editor/schemas/sections.ts`, 'utf8');
 const types = [...sectionsSrc.matchAll(/^S\(\{\s*$|type: '([a-z_]+)', name: '/gm)].map((m) => m[1]).filter(Boolean);
-const leaked = types.filter((t) => new RegExp(`['"\`]${t}['"\`]`).test(builderSrc));
+const builderSrcSansVariants = builderSrc.replace(/\bvariant=(?:"[^"]*"|'[^']*'|\{[^}]*\})/g, '');
+const leaked = types.filter((t) => new RegExp(`['"\`]${t}['"\`]`).test(builderSrcSansVariants));
 ok('builder hardcodes no section type', leaked.length === 0, `leaked: ${leaked.join(', ')}`);
 ok('registry exposed enough types to make that meaningful', types.length > 10, `${types.length} types found`);
 

@@ -3,6 +3,7 @@ import {
   ArrowDown, ArrowUp, Copy, Eye, EyeOff, MoreHorizontal, Pencil, Trash2,
 } from 'lucide-react';
 import { useEditor } from '../core/store';
+import { labelFor } from '../core/registry';
 import type { BlockNode, SectionNode } from '../core/types';
 
 /* Row context menu: rename, duplicate, hide, move, delete. */
