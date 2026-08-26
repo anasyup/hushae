@@ -15,7 +15,7 @@ import { resolvePreset } from './dashboard/RangePicker';
  * app sidebar drawer (AdminLayout chromeless mode).
  * ======================================================================== */
 
-const OVP_CSS = `
+const OVP_CSS = `@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 .ovp-root{--bg:#f8f8f7;--card:#fff;--border:#ececec;--border-light:#f1f1f1;--text:#111;--muted:#6b7280;--muted2:#9ca3af;--green:#0e9f6e;--green-bg:#ecfdf5;--green-text:#065f46;--yellow-bg:#fef3c7;--yellow-text:#92400e;--black:#111}
 .ovp-root *{margin:0;padding:0;box-sizing:border-box}
 .ovp-root{scroll-behavior:smooth}
@@ -208,6 +208,7 @@ const OVP_CSS = `
 .ovp-root a{text-decoration:none;color:inherit}
 .ovp-root button{font-family:inherit}
 .ovp-root input{font-family:inherit}
+.ovp-root{min-height:100vh}
 `;
 
 const INK = '#111';
@@ -871,7 +872,7 @@ export default function Dashboard() {
           <div className="card-h">
             <div className="card-t">Sales Overview <span className="info" title="This period vs the selected comparison window" onClick={() => say(`Sales comparison: ${vsLabel}`)}>i</span></div>
             <div style={{ display: 'flex', gap: 6 }}>
-              <button type="button" className="btn-sm pill" style={{ position: 'relative' }} onClick={() => setWeekOpen((v) => !v)}>
+              <button type="button" className="btn-sm" style={{ position: 'relative' }} onClick={() => setWeekOpen((v) => !v)}>
                 {RANGE_OPTIONS.find((o) => o.key === (range.preset === 'custom' ? '7d' : range.preset))?.label || 'This Week'} ▾
                 <div className={`dropdown ${weekOpen ? 'show' : ''}`} style={{ right: 0, left: 'auto' }}>
                   {RANGE_OPTIONS.map((o) => <div key={o.key} onClick={(e) => { e.stopPropagation(); onWeek(o.key); setWeekOpen(false); }}>{o.label}</div>)}
@@ -1044,7 +1045,7 @@ export default function Dashboard() {
         <div className="card">
           <div className="card-h">
             <span className="card-t">Revenue &amp; Orders</span>
-            <button type="button" className="btn-sm pill" style={{ position: 'relative' }} onClick={() => setRevOpen((v) => !v)}>
+            <button type="button" className="btn-sm" style={{ position: 'relative' }} onClick={() => setRevOpen((v) => !v)}>
               {RANGE_OPTIONS.find((o) => o.key === (range.preset === 'custom' ? '7d' : range.preset))?.label || 'This Week'} ▾
               <div className={`dropdown ${revOpen ? 'show' : ''}`} style={{ right: 0, left: 'auto' }}>
                 {RANGE_OPTIONS.map((o) => <div key={o.key} onClick={(e) => { e.stopPropagation(); onWeek(o.key); setRevOpen(false); }}>{o.label}</div>)}
