@@ -232,10 +232,11 @@ if (CASE === 'orders') {
   const hc = container.querySelector('.health-circle span');
   check('health card shows real %', hc && /%$/.test(hc.textContent), hc?.textContent);
   check('user box rendered', !!container.querySelector('.user-box .avatar'));
+  check('sidebar is open by default (permanent)', !!container.querySelector('.sidebar.open') && !container.querySelector('.ovp-root').classList.contains('sb-closed'));
   await act(async () => { container.querySelector('button[aria-label="Open navigation menu"]').click(); });
-  check('hamburger opens the sidebar drawer', container.querySelector('.sidebar').classList.contains('open'));
-  await act(async () => { container.querySelector('.sb-overlay').click(); });
-  check('overlay click closes the drawer', !container.querySelector('.sidebar').classList.contains('open'));
+  check('hamburger can slide the sidebar away', container.querySelector('.ovp-root').classList.contains('sb-closed'));
+  await act(async () => { container.querySelector('button[aria-label="Open navigation menu"]').click(); });
+  check('hamburger brings the sidebar back', !container.querySelector('.ovp-root').classList.contains('sb-closed'));
   check('compare pill present', has('Compare: Previous period'));
   check('card-h has Filter + Columns buttons', has('Filter') && has('Columns'));
 

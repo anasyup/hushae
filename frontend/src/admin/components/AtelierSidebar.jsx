@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useApp } from '../../store/AppContext';
 
 /* ============================================================================
@@ -7,13 +7,15 @@ import { useApp } from '../../store/AppContext';
  * (orders_overview_theme.html / overview_perfect_final.html). Same CSS values,
  * same markup; nav items are wired to the app's real admin routes and the
  * user box / health card are bound to live data.
- * Mobile (<=900px): off-canvas, toggled by the topbar hamburger which
- * dispatches window event 'atelier-nav'; a tap on the backdrop closes it.
+ * The sidebar is PERMANENTLY OPEN by default at every screen size
+ * (190px wide, 168px on <=900px). The topbar hamburger (window event
+ * 'atelier-nav') can temporarily slide it away; it returns open on the
+ * next page.
  * ======================================================================== */
 
 const SB_CSS = `
 .ovp-root{--sidebar:#0f0f0f}
-.ovp-root .sidebar{width:220px;background:var(--sidebar);color:#fff;display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;z-index:100;overflow-y:auto}
+.ovp-root .sidebar{width:190px;background:var(--sidebar);color:#fff;display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;z-index:100;overflow-y:auto;transition:transform .3s}
 .ovp-root .sidebar-top{padding:16px 14px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #1e1e1e}
 .ovp-root .logo{width:32px;height:32px;background:#fff;border-radius:8px;display:grid;place-items:center;color:#000;font-weight:800;font-size:16px}
 .ovp-root .brand b{font-size:13px;letter-spacing:0.5px;display:block;line-height:1}
@@ -41,13 +43,12 @@ const SB_CSS = `
 .ovp-root .user-actions{display:flex;gap:6px;margin-top:10px;padding:0 10px 12px}
 .ovp-root .ua-btn{width:28px;height:28px;background:#1a1a1a;border:1px solid #222;border-radius:8px;display:grid;place-items:center;cursor:pointer;color:#9ca3af;text-decoration:none}
 .ovp-root .ua-btn:hover{background:#222;color:#fff}
-.ovp-root .main{margin-left:220px;flex:1;min-width:0;max-width:calc(100% - 220px)}
-.ovp-root .sb-overlay{display:none}
+.ovp-root .main{margin-left:190px;flex:1;min-width:0;max-width:calc(100% - 190px);transition:margin-left .3s,max-width .3s}
+.ovp-root.sb-closed .sidebar{transform:translateX(-100%)}
+.ovp-root.sb-closed .main{margin-left:0;max-width:100%}
 @media(max-width:900px){
-.ovp-root .main{margin-left:0;max-width:100%}
-.ovp-root .sidebar{transform:translateX(-100%);transition:.3s}
-.ovp-root .sidebar.open{transform:translateX(0)}
-.ovp-root .sb-overlay{display:block;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:99}
+.ovp-root .sidebar{width:168px}
+.ovp-root .main{margin-left:168px;max-width:calc(100% - 168px)}
 }
 `;
 
@@ -73,15 +74,17 @@ const NAV = [
 
 export default function AtelierSidebar({ active = 'overview', badge = null, health = null, onNotify }) {
   const { auth, logout } = useApp();
-  const loc = useLocation();
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true); // permanently open by default
+  const ref = useRef(null);
 
   useEffect(() => {
     const toggle = () => setOpen((v) => !v);
     window.addEventListener('atelier-nav', toggle);
     return () => window.removeEventListener('atelier-nav', toggle);
   }, []);
-  useEffect(() => { setOpen(false); }, [loc.pathname]);
+  useEffect(() => {
+    ref.current?.closest('.ovp-root')?.classList.toggle('sb-closed', !open);
+  }, [open]);
 
   const name = auth?.user?.name || auth?.email || 'Admin';
   const initials = String(name).split(' ').map((s) => s[0]).slice(0, 2).join('').toUpperCase();
@@ -91,8 +94,7 @@ export default function AtelierSidebar({ active = 'overview', badge = null, heal
   return (
     <>
       <style>{SB_CSS}</style>
-      <div className="sb-overlay" onClick={() => setOpen(false)} aria-hidden="true" />
-      <aside className={`sidebar${open ? ' open' : ''}`} aria-label="Admin navigation">
+      <aside ref={ref} className={`sidebar${open ? ' open' : ''}`} aria-label="Admin navigation">
         <div className="sidebar-top"><div className="logo">A</div><div className="brand"><b>ATELIER</b><span>ADMIN PANEL</span></div></div>
         <nav className="nav">
           {NAV.map((n) => (
