@@ -24,10 +24,13 @@ export default function Inspector() {
   return <NodePanel key={loc.node.id} />;
 }
 
-/* Fields that need code/technical knowledge — grouped under "Advanced". */
+/* Fields that need code/technical knowledge — grouped under "Advanced".
+   Only FIELD types belong here. 'custom_liquid' is a section type (it presets a
+   'liquid' block), and the field inside that block is type 'liquid' — so testing
+   for it here could never be true and TypeScript rightly refuses the compare. */
 function isAdvanced(f: Field) {
   const id = String(f.id || '');
-  return f.type === 'html' || f.type === 'liquid' || f.type === 'custom_liquid'
+  return f.type === 'html' || f.type === 'liquid'
     || /css|custom_class|code|html|liquid|script|data-/.test(id);
 }
 
