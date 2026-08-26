@@ -28,9 +28,9 @@ const ITEMS = [
   { id: 'new-page', label: 'New page', category: 'Create', icon: FileText, to: '/admin/cms/new', keywords: ['add', 'content'] },
 ];
 
-export default function CommandPalette({ onClose, initialQuery = '' }) {
+export default function CommandPalette({ onClose }) {
   const { auth } = useApp();
-  const [q, setQ] = useState(initialQuery || '');
+  const [q, setQ] = useState('');
   const [customerHits, setCustomerHits] = useState([]);
   const [idx, setIdx] = useState(0);
   const inputRef = useRef(null);
