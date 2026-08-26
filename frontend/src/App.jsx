@@ -132,6 +132,7 @@ const DraftOrder = lazy(() => import('./admin/orders/DraftOrder'));
 const OrderPrintDoc = lazy(() => import('./admin/orders/OrderPrintDoc'));
 const VerificationQueue = lazy(() => import('./admin/VerificationQueue'));
 const CommerceOps = lazy(() => import('./admin/CommerceOps'));
+const AdminModule = lazy(() => import('./admin/AdminModule'));
 /* Storefront suspense placeholder. EditorFallback is a full-height grey admin
    screen and would flash over the shop chrome. This reserves a reading column
    instead, which is what keeps CLS at zero on a CMS route. */
@@ -373,6 +374,7 @@ export default function App() {
           <Route path="/admin/payments" element={<Suspense fallback={<EditorFallback />}><Payments /></Suspense>} />
           <Route path="/admin/collections" element={<Collections />} />
           <Route path="/admin/apps" element={<Apps />} />
+          <Route path="/admin/*" element={<Suspense fallback={<EditorFallback />}><AdminModule /></Suspense>} />
 
           {/* ---- CMS CATCH-ALL ----------------------------------------
               Declared LAST, after every real route. React Router v6 already
