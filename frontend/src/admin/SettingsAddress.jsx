@@ -29,13 +29,22 @@ function useSettingsSlice() {
   const dirty = s && original && JSON.stringify(s) !== original;
   const reset = () => { if (original) setS(JSON.parse(original)); };
 
-  const save = async (fieldsToSend) => {
+  /**
+   * fieldsToSend — top-level settings keys to PUT.
+   * overrides    — explicit values for those keys, used when a nested object
+   *                was just merged into state (the state may not have
+   *                re-rendered by the time save() reads it).
+   */
+  const save = async (fieldsToSend, overrides) => {
     setBusy(true);
     try {
       const body = {};
-      for (const f of fieldsToSend) if (s[f] !== undefined) body[f] = s[f];
+      for (const f of fieldsToSend) {
+        const v = (overrides && overrides[f] !== undefined) ? overrides[f] : s[f];
+        if (v !== undefined) body[f] = v;
+      }
       await api('/settings', { method: 'PUT', token: auth.token, body });
-      setOriginal(JSON.stringify(s));
+      setOriginal(JSON.stringify({ ...s, ...(overrides || {}) }));
       toast('Saved');
     } catch (ex) { toast(ex.message || 'Save failed'); }
     setBusy(false);
@@ -214,6 +223,15 @@ export function SettingsTimezone() {
     );
   }
 
+  /* Single source of truth: the store timezone also drives promotion
+     scheduling (marketing.schedule.timezone), so one save keeps both in sync. */
+  const saveTz = async () => {
+    const tz = s.timezone || 'Asia/Karachi';
+    const marketing = { ...(s.marketing || {}), schedule: { ...((s.marketing || {}).schedule || {}), timezone: tz } };
+    setS({ ...s, timezone: tz, marketing });
+    await save(['timezone', 'marketing'], { timezone: tz, marketing });
+  };
+
   return (
     <Shell
       title="Time zone"
@@ -221,7 +239,7 @@ export function SettingsTimezone() {
       actions={
         <button
           type="button"
-          onClick={() => save(['timezone'])}
+          onClick={saveTz}
           disabled={busy || !dirty}
           className="adm-btn solid"
         >
@@ -250,7 +268,7 @@ export function SettingsTimezone() {
           <EdSaveBar
             dirty={dirty}
             busy={busy}
-            onSave={() => save(['timezone'])}
+            onSave={saveTz}
             onDiscard={reset}
           />
         </>
@@ -280,8 +298,8 @@ const CURRENCY_OPTIONS = [
 ];
 
 const POSITION_OPTIONS = [
-  { value: 'before', label: 'Before amount — Rs. 1,500' },
-  { value: 'after', label: 'After amount — 1,500 Rs.' },
+  { value: 'before', label: 'Before amount — PKR 1,500' },
+  { value: 'after', label: 'After amount — 1,500 PKR' },
 ];
 
 const SEPARATOR_OPTIONS = [
@@ -344,9 +362,9 @@ export function SettingsCurrency() {
               />
               <EdText
                 label="Currency symbol"
-                value={curr.symbol || 'Rs.'}
+                value={curr.symbol || 'PKR'}
                 onChange={(v) => setCurr('symbol', v)}
-                placeholder="e.g. Rs. or PKR"
+                placeholder="e.g. PKR, Rs. or ₨"
               />
             </div>
           </EdSection>
@@ -387,8 +405,8 @@ export function SettingsCurrency() {
                 {curr.position === 'after'
                   ? `${1000000
                       .toString()
-                      .replace(/\B(?=(\d{3})+(?!\d))/g, curr.thousandSeparator || ',')}${curr.decimalSeparator || '.'}00 ${curr.symbol || 'Rs.'}`
-                  : `${curr.symbol || 'Rs.'} ${1000000
+                      .replace(/\B(?=(\d{3})+(?!\d))/g, curr.thousandSeparator || ',')}${curr.decimalSeparator || '.'}00 ${curr.symbol || 'PKR'}`
+                  : `${curr.symbol || 'PKR'} ${1000000
                       .toString()
                       .replace(/\B(?=(\d{3})+(?!\d))/g, curr.thousandSeparator || ',')}${curr.decimalSeparator || '.'}00`}
               </p>

@@ -122,7 +122,9 @@ router.put('/', protect, adminOnly, asyncHandler(async (req, res) => {
   ['storeName', 'tagline', 'contactEmail', 'contactPhone', 'hero', 'trustBadges',
     'shippingFlatRate', 'freeShippingThreshold', 'cart', 'checkout', 'account', 'customerExperience', 'reviews', 'loyalty', 'paymentMethods', 'theme', 'offerBar', 'integrations', 'storefrontLock', 'cookiePopup', 'media', 'marquee', 'promoPopup', 'faq', 'operatingCosts', 'signatureSplit', 'productSections', 'header', 'footer', 'cms',
     'monthlyRevenueGoal', 'marginThresholdPercent', 'automation',
-    'includeTestOrders', 'reorderTargetStock'].forEach((f) => {
+    'includeTestOrders', 'reorderTargetStock',
+    'businessAddress', 'currency', 'timezone',
+    'marketing'].forEach((f) => {
     if (b[f] !== undefined) s[f] = b[f];
   });
   await s.save();

@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { api } from '../api/client';
 import { STR } from '../i18n/strings';
-import { snap } from '../lib/format';
+import { snap, applyCurrencySettings } from '../lib/format';
 import { track } from '../lib/track';
 import { isPreview, announceReady, PREVIEW_MSG, PREVIEW_SELECT } from '../lib/livePreview';
 
@@ -74,6 +74,13 @@ export function AppProvider({ children }) {
       .catch(() => {});
     return () => { alive = false; };
   }, []);
+
+  /* Admin Settings → Currency drives every shopper-facing price: keep the
+     formatter in sync with whatever settings we hold (localStorage hydrate,
+     server refresh, and the theme-editor live preview all land here). */
+  useEffect(() => {
+    applyCurrencySettings(settings?.currency || null);
+  }, [settings]);
 
   // ── Theme Editor live preview ───────────────────────────────────────────
   // When this app runs inside the editor's iframe (?preview=1) it accepts

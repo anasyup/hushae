@@ -22,10 +22,13 @@ const settingsSchema = new mongoose.Schema({
 
   // =========================================================================
   // CURRENCY — used in order invoices, refunds, and storefront price display
+  // NOTE: the default symbol is 'PKR' — byte-identical to the legacy
+  // storefront price output ("PKR 1,250"). The moment the merchant edits the
+  // symbol (Rs., ₨, $…) the storefront follows via lib/format.js.
   // =========================================================================
   currency: {
     code:             { type: String, default: 'PKR' },
-    symbol:           { type: String, default: 'Rs.' },
+    symbol:           { type: String, default: 'PKR' },
     position:         { type: String, default: 'before' },  // 'before' | 'after'
     decimalSeparator: { type: String, default: '.' },
     thousandSeparator:{ type: String, default: ',' },

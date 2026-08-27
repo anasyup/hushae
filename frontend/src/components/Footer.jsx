@@ -155,6 +155,16 @@ export default function Footer() {
 
         {/* ── Row 3 — copyright ─────────────────────────────────────────── */}
         <p className="mt-8 text-[12px] text-[#FFFFFF]/70">&copy; {new Date().getFullYear()} HUSHAE · Discreet packaging on every order</p>
+        {(() => {
+          const a = settings?.businessAddress || {};
+          const parts = [a.street, a.city, a.province, a.postalCode, a.country].filter(Boolean);
+          if (!parts.length) return null;
+          return (
+            <address className="mt-2 text-[11px] not-italic tracking-[0.02em] text-[#FFFFFF]/55">
+              {settings?.storeName || 'HUSHAE'} · {parts.join(', ')}
+            </address>
+          );
+        })()}
       </div>
     </footer>
   );

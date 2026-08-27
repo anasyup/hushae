@@ -16,6 +16,7 @@
  * file ever drifts from the server, the customer sees a stale label; they can
  * never receive a wrong balance.
  * ========================================================================== */
+import { pkr } from './format';
 
 export const LOYALTY_DEFAULTS = {
   enabled: false,
@@ -162,7 +163,7 @@ export function earnRateText(cfg) {
   const per = Number(cfg?.earn?.perCurrency) || 0;
   if (per <= 0) return '';
   const spend = Math.round(1 / per);
-  return `PKR ${spend.toLocaleString('en-PK')} = 1 ${cfg?.pointsNameOne || 'point'}`;
+  return `${pkr(spend)} = 1 ${cfg?.pointsNameOne || 'point'}`;
 }
 
 /** The tier a spend figure lands in. Mirrors resolveTier() on the server. */

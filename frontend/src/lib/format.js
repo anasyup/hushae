@@ -1,4 +1,33 @@
-export const pkr = (n) => `PKR ${Number(n || 0).toLocaleString('en-PK')}`;
+/**
+ * Storefront display currency — fed from admin Settings → Currency
+ * (settings.currency: { code, symbol, position, decimalSeparator,
+ * thousandSeparator }). FORMATTING ONLY — prices are never converted.
+ *
+ * When the settings hold the untouched defaults, the legacy "PKR 1,250"
+ * output is kept byte-for-byte, so every existing call site is unchanged
+ * until the merchant actually customises the currency.
+ */
+let CURRENCY = null;
+
+const CURRENCY_DEFAULTS = { code: 'PKR', symbol: 'PKR', position: 'before', decimalSeparator: '.', thousandSeparator: ',' };
+
+export const applyCurrencySettings = (c) => {
+  if (!c) { CURRENCY = null; return; }
+  const same = (k) => (c[k] ?? CURRENCY_DEFAULTS[k]) === CURRENCY_DEFAULTS[k];
+  CURRENCY = (same('code') && same('symbol') && same('position') && same('decimalSeparator') && same('thousandSeparator'))
+    ? null
+    : { ...CURRENCY_DEFAULTS, ...c };
+};
+export const getCurrencySettings = () => CURRENCY;
+
+export function formatMoney(n, { symbol = 'PKR', position = 'before', decimalSeparator = '.', thousandSeparator = ',' } = {}) {
+  let s = Number(n || 0).toLocaleString('en-PK');          // "1,250" / "1,250.5"
+  if (thousandSeparator && thousandSeparator !== ',') s = s.replace(/,/g, thousandSeparator);
+  if (decimalSeparator && decimalSeparator !== '.') s = s.replace('.', decimalSeparator);
+  return position === 'after' ? `${s} ${symbol}` : `${symbol} ${s}`;
+}
+
+export const pkr = (n) => (CURRENCY ? formatMoney(n, CURRENCY) : `PKR ${Number(n || 0).toLocaleString('en-PK')}`);
 
 export const cn = (...xs) => xs.filter(Boolean).join(' ');
 
