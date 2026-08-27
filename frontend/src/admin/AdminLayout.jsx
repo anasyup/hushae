@@ -1111,8 +1111,8 @@ export default function AdminLayout({ children, title }) {
           collapsed={collapsed}
         />
 
-        <main className="min-w-0 flex-1 p-4 md:p-6">
-          <div className="admin-main mx-auto w-full min-w-0 max-w-[1440px]">
+        <main className="min-w-0 flex-1 p-4 md:p-6 md:pt-4">
+          <div className="admin-main w-full min-w-0">
             {loc.pathname.startsWith('/admin/settings') ? (
               <div className="set-wrap">
                 <SettingsRail />

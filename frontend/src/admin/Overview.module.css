@@ -14,9 +14,9 @@
    ============================================================ */
 .ovw{--bg:#f8f8f7;--card:#fff;--border:#ececec;--border-light:#f1f1f1;--text:#111;--muted:#6b7280;--muted2:#9ca3af;--green:#0e9f6e;--green-bg:#ecfdf5;--green-text:#065f46;--yellow-bg:#fef3c7;--yellow-text:#92400e;--black:#111;--hover:#f5f5f5;--inverse:#fff;background:var(--bg);color:var(--text);font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;font-size:13px;line-height:1.45;-webkit-font-smoothing:antialiased}
 .ovw *{margin:0;padding:0;box-sizing:border-box}
-.wrap{max-width:1580px;margin:0 auto;padding:14px 18px 32px;animation:fadeIn .5s ease}
+.wrap{max-width:none;margin:0;padding:0 0 32px;animation:fadeIn .5s ease}
 @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px;flex-wrap:wrap;background:var(--bg);padding:8px 0}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px;flex-wrap:wrap;background:var(--bg);padding:0}
 .top-left{display:flex;align-items:center;gap:12px}
 .top-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .search{position:relative;background:var(--card);border:1px solid var(--border);border-radius:10px;height:36px;min-width:240px;display:flex;align-items:center;padding:0 12px;gap:8px;box-shadow:0 1px 2px rgba(0,0,0,0.03);transition:.15s}

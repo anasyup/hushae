@@ -399,7 +399,9 @@
   align-items: center;
   gap: 12px;
   height: var(--adm-topbar-h);
-  padding: 0 16px;
+  /* 24px = main's px-6, so the title/controls share one left edge with the
+     page content instead of floating 8px inside it. */
+  padding: 0 24px;
   border-bottom: 1px solid var(--admin-border);
   background: var(--adm-topbar-bg);
   -webkit-backdrop-filter: saturate(180%) blur(10px);
