@@ -615,7 +615,7 @@ function GroupDropdown({ group, expanded, onToggle, collapsed, onNavigate }) {
       <button
         type="button"
         onClick={onToggle}
-        className={`adm-row ${isActive ? 'is-active' : ''}`}
+        className={`adm-row set-parent ${isActive ? 'is-active' : ''}`}
         aria-expanded={expanded}
       >
         <span className="adm-ico"><Icon size={16} strokeWidth={isActive ? 2 : 1.5} /></span>
@@ -624,29 +624,23 @@ function GroupDropdown({ group, expanded, onToggle, collapsed, onNavigate }) {
       </button>
 
       {expanded && groupItems.length > 0 && (
-        <div className="adm-kids">
+        <div className="set-kids">
           {groupItems.map((child) => {
-            const ChildIcon = child.icon;
             const active = loc.pathname === child.to || loc.pathname.startsWith(child.to + '/');
-            const inner = (
-              <>
-                <span className="adm-ico"><ChildIcon size={14} strokeWidth={active ? 2 : 1.5} /></span>
-                <span className="adm-txt">{child.label}</span>
-              </>
-            );
-            /* Every entry has a `to`; the Fragment path stays as a guard for a
-               future entry that is a label rather than a destination. */
+            /* Reference pattern: children are icon-less indented text rows;
+               the highlight (soft fill + left bar) lives on the child. */
             return child.to ? (
               <NavLink
                 key={child.to}
                 to={child.to}
                 onClick={onNavigate}
-                className={`adm-row ${active ? 'is-active' : ''}`}
+                title={child.label}
+                className={`adm-child ${active ? 'is-active' : ''}`}
               >
-                {inner}
+                {child.label}
               </NavLink>
             ) : (
-              <Fragment key={child.label}>{inner}</Fragment>
+              <Fragment key={child.label}><span className="adm-child">{child.label}</span></Fragment>
             );
           })}
         </div>
@@ -696,7 +690,20 @@ function SectionHeader({ label, collapsed }) {
 function SidebarContent({ onNavigate, onSearch, collapsed = false }) {
   const { auth, logout } = useApp();
   const loc = useLocation();
-  const [expandedGroups, setExpandedGroups] = useState({});
+  /* The group owning the current route starts expanded on first paint, so a
+     deep link shows its own branch immediately (SSR included). */
+  const [expandedGroups, setExpandedGroups] = useState(() => {
+    const init = {};
+    NAV_SECTIONS.forEach((section) => {
+      section.groups?.forEach((group) => {
+        const hit = (group.children || group.items || []).some(
+          (child) => loc.pathname === child.to || loc.pathname.startsWith(child.to + '/')
+        );
+        if (hit) init[group.key] = true;
+      });
+    });
+    return init;
+  });
 
   const role = auth?.user?.role;
   /* Memoised by role — a fresh array every render made the auto-expand effect

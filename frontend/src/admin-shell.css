@@ -190,6 +190,7 @@
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
+  scrollbar-gutter: stable;
   padding: 6px 8px 12px;
   scrollbar-width: thin;
   scrollbar-color: var(--admin-border) transparent;
@@ -203,7 +204,12 @@
 .adm-nav-scroll::-webkit-scrollbar-thumb:hover { background: var(--admin-border); }
 
 .adm-section { margin-bottom: 2px; }
-.adm-section + .adm-section { margin-top: 6px; }
+/* Hairline between sections in BOTH rails — one organised column each. */
+.adm-nav-scroll .adm-section + .adm-section,
+.set-rail .adm-section + .adm-section {
+  margin-top: 4px;
+  border-top: 1px solid var(--admin-border-subtle);
+}
 
 /* Editorial section label — tracked caps, hairline rule under it so the
    column reads as groups rather than one long list. */
@@ -293,16 +299,6 @@
 }
 .adm-chev.is-open { transform: rotate(180deg); }
 
-/* Group children — a hairline rail marks the nesting, aligned to the centre
-   of the parent icon (8px pad + 10px half-icon = 18px), and the child icon
-   starts at the same 18px so parent and child glyphs share a column. */
-.adm-kids {
-  position: relative;
-  margin: 2px 0 4px 17px;
-  padding-left: 8px;
-  border-left: 1px solid var(--admin-border);
-}
-
 /* ── Rail (collapsed) mode — icon only, everything centred ─────────────── */
 .adm-sidebar.is-rail .adm-row {
   justify-content: center;
@@ -319,11 +315,7 @@
      left rule, which would sit off-centre on a 36px button. */
   box-shadow: inset 0 0 0 1px var(--admin-border);
 }
-.adm-sidebar.is-rail .adm-kids {
-  margin-left: 0;
-  padding-left: 0;
-  border-left: 0;
-}
+.adm-sidebar.is-rail .set-kids { display: none; }
 .adm-railstack {
   display: flex;
   flex-direction: column;
@@ -548,6 +540,7 @@
   max-height: calc(100vh - var(--adm-topbar-h) - 48px);
   overflow-y: auto;
   overscroll-behavior: contain;
+  scrollbar-gutter: stable;
   padding-right: 14px;
   border-right: 1px solid var(--admin-border);
   scrollbar-width: thin;
@@ -576,12 +569,6 @@
   line-height: 1.2;
 }
 
-/* Groups divided by hairlines so 15 groups read as one organised column,
-   not a wall of rows. */
-.set-rail .adm-section + .adm-section {
-  margin-top: 4px;
-  border-top: 1px solid var(--admin-border-subtle);
-}
 .set-group {
   padding: 10px 8px 4px;
   font-size: 10px;
@@ -607,7 +594,7 @@
 
 /* Children: icon-less indented text rows (reference pattern). The indent
    lines the text up under the parent's label (8px pad + 18px icon + 8px gap). */
-.set-child {
+.adm-child {
   position: relative;
   display: flex;
   align-items: center;
@@ -623,14 +610,14 @@
   white-space: nowrap;
   transition: background-color 140ms ease-out, color 140ms ease-out;
 }
-.set-child:hover { background: var(--adm-hover-bg); color: var(--adm-nav-hover); }
-.set-child:focus-visible { outline: 2px solid var(--admin-accent); outline-offset: -2px; }
-.set-child.is-active {
+.adm-child:hover { background: var(--adm-hover-bg); color: var(--adm-nav-hover); }
+.adm-child:focus-visible { outline: 2px solid var(--admin-accent); outline-offset: -2px; }
+.adm-child.is-active {
   background: var(--adm-active-bg);
   color: var(--adm-nav-active);
   font-weight: 600;
 }
-.set-child.is-active::before {
+.adm-child.is-active::before {
   content: '';
   position: absolute;
   left: 0;

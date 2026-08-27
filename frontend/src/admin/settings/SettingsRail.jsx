@@ -87,7 +87,7 @@ export default function SettingsRail() {
                     to={child.to}
                     end
                     title={child.label}
-                    className={({ isActive }) => `set-child ${isActive ? 'is-active' : ''}`}
+                    className={({ isActive }) => `adm-child ${isActive ? 'is-active' : ''}`}
                   >
                     {child.label}
                   </NavLink>
