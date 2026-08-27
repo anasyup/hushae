@@ -379,10 +379,13 @@
 }
 .adm-sidebar.is-rail .adm-acct { justify-content: center; padding: 10px 0; }
 
+/* `display` lives in :where() so Tailwind's responsive display utilities
+   (`hidden`, `md:grid`) keep winning the cascade — without this, the shell
+   stylesheet (loaded last) forced every icon button visible on every
+   viewport, which is how the top bar showed TWO open/close controls. */
+:where(.adm-iconbtn) { display: grid; place-items: center; }
 .adm-iconbtn {
-  display: grid;
   flex: none;
-  place-items: center;
   width: 30px;
   height: 30px;
   border: 0;
@@ -429,9 +432,8 @@
   white-space: nowrap;
 }
 
+:where(.adm-chip) { display: inline-flex; align-items: center; }
 .adm-chip {
-  display: inline-flex;
-  align-items: center;
   gap: 7px;
   height: 30px;
   border: 1px solid var(--admin-border);
@@ -492,12 +494,12 @@
   z-index: 50;
   background: rgba(0, 0, 0, 0.45);
 }
+:where(.adm-drawer) { display: flex; }
 .adm-drawer {
   position: fixed;
   inset-block: 0;
   left: 0;
   z-index: 51;
-  display: flex;
   width: min(86vw, 300px);
   background: var(--adm-sidebar-bg);
   border-right: 1px solid var(--admin-border);
