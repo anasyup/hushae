@@ -122,7 +122,7 @@ const NAV_SECTIONS = [
         label: 'Products',
         icon: Package,
         children: [
-          { to: '/admin/products', label: 'Catalog', icon: Package },
+          { to: '/admin/products', label: 'Products', icon: Package },
           { to: '/admin/products/inventory', label: 'Inventory', icon: Box },
           { to: '/admin/categories', label: 'Categories', icon: Tag },
           { to: '/admin/collections', label: 'Collections', icon: FolderOpen },

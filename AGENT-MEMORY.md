@@ -82,6 +82,27 @@ Firing: order.created, order.status, payment.*, issue.raised, print.done, bulk.d
   customer Track page pe courier/tracking display. Baqi sirf optional
   polish (mobile density, auto-WhatsApp Business API integration).
 
+## 6C. PRODUCTS AREA — Phase 0 spec + Phase 1 (boss-approved direction, 2026-08-28)
+- **Spec:** `PRODUCTS-AREA-SPEC.md` (root) = single source of truth. Principle:
+  one design kit + 5 archetypes (Table/Detail/Settings/Wizard/Ops), workflow-first,
+  NO per-page design. Admin list pages dark-utility language me likho
+  (`text-white` family) — admin-light.css remap handles white theme.
+- **IA fixed (404 kabhi nahi, one home per concept):** sidebar Products group ke
+  6 dead routes wired — Inventory → redirect `/admin/ops/inventory` (real home);
+  Bundles → redirect `/admin/bundles`; Import/Export → redirect `/admin/products?import=1`
+  (CSV modal auto-open, flag strip); Attributes & Variants / Digital Products /
+  Product Settings → `admin/AdminReserved.jsx` honest pane (SettingsReserved ka
+  bhai, `.set-reserved` + `adm-chip` classes reuse). Nav label Catalog → Products.
+- **Catalog = reference Table archetype:** metrics strip ab 6 clickable saved
+  views (All/Active/Draft/Archived/Low/Out — status vs stock mutually exclusive),
+  sticky bulk bar me Edit + Activate + Archive (bulk PATCH isActive), rows me
+  inline stock −/+ stepper (optimistic + PATCH /api/products/:id/stock {delta};
+  backend low-stock bell sirf downward crossing pe). Grid/list views, CSV modal,
+  states sab preserved — rewrite nahi, extend.
+- **Phase 2 candidates:** dedicated Inventory page sirf agar ops console kam pare
+  (data se decide); global variant option templates; Product Settings editor;
+  Categories/Collections archetype pass; server-side pagination (catalog >2k pe).
+
 ## 7. APPROVED NEXT WORK (boss ne green light di)
 1. **Reserved settings editors batch 1 — DONE (2026-08-28):** Business Address, Time Zone, Currency built, tested, live.
 2. **Reserved settings editors batch 2 — DONE (2026-08-28):** Weight Unit, Domain, Languages, Notifications built, tested, live — Store Settings group ab FULLY complete (10/10 children real editors).
@@ -101,4 +122,4 @@ Firing: order.created, order.status, payment.*, issue.raised, print.done, bulk.d
 - SSR scratch harness (`frontend/.scratch`) se sidebar/header render verify hota hai; kaam ke baad delete.
 
 ---
-*Last updated: 2026-08-28 — Batch 2: Weight Unit / Domain / Languages / Notifications editors live → Store Settings group fully complete. notify() prefs gate + seo domain wiring + whitelist, sab tested. Nayi chat: pehle ye file, phir `git log --oneline -10`, phir kaam.*
+*Last updated: 2026-08-28 — Products area Phase 0 spec + Phase 1 live (6 dead routes honest/redirected, Catalog = reference Table archetype: 6 saved views, bulk Activate/Archive, inline stock stepper, Catalog→Products rename). Settings batch 2 bhi live. Nayi chat: pehle ye file, phir `git log --oneline -10`, phir kaam.*

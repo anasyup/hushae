@@ -108,6 +108,7 @@ const SettingsReviews = lazy(() => import('./admin/SettingsReviews'));
 const SettingsLoyalty = lazy(() => import('./admin/SettingsLoyalty'));
 const SettingsSearch = lazy(() => import('./admin/SettingsSearch'));
 const SettingsReserved = lazy(() => import('./admin/settings/SettingsReserved'));
+const AdminReserved = lazy(() => import('./admin/AdminReserved'));
 const Inbox = lazy(() => import('./admin/Inbox'));
 const CODRecon = lazy(() => import('./admin/CODRecon'));
 const SearchAnalytics = lazy(() => import('./admin/SearchAnalytics'));
@@ -317,6 +318,14 @@ export default function App() {
           <Route path="/admin/orders/:id/invoice" element={<OrderInvoice />} />
           <Route path="/admin/orders/:id/print/:doc" element={<Suspense fallback={<EditorFallback />}><OrderPrintDoc /></Suspense>} />
           <Route path="/admin/products" element={<Products />} />
+          {/* Products area — one home per concept (PRODUCTS-AREA-SPEC.md):
+              real homes redirect, unbuilt editors get an honest pane. 404 kabhi nahi. */}
+          <Route path="/admin/products/inventory" element={<Navigate to="/admin/ops/inventory" replace />} />
+          <Route path="/admin/products/bundles" element={<Navigate to="/admin/bundles" replace />} />
+          <Route path="/admin/products/import" element={<Navigate to="/admin/products?import=1" replace />} />
+          <Route path="/admin/products/attributes" element={<Suspense fallback={<EditorFallback />}><AdminReserved /></Suspense>} />
+          <Route path="/admin/products/digital" element={<Suspense fallback={<EditorFallback />}><AdminReserved /></Suspense>} />
+          <Route path="/admin/products/settings" element={<Suspense fallback={<EditorFallback />}><AdminReserved /></Suspense>} />
           <Route path="/admin/products/:id" element={<ProductForm />} />
           <Route path="/admin/categories" element={<Categories />} />
           <Route path="/admin/customers" element={<Customers />} />

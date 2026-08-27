@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import {
-  Archive, Copy, Eye, FileUp, LayoutGrid, List, Pencil, Plus, Save, Trash2, X,
+  Archive, Copy, Eye, FileUp, LayoutGrid, List, Minus, Pencil, Plus, Save, Trash2, X,
 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
@@ -30,7 +30,7 @@ export default function Products() {
   const [bulkOpen, setBulkOpen] = useState(false);
   const [csvOpen, setCsvOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [f, setF] = useState({
     // Deep links from the Overview hub: ?q=<name> (name search, client-side)
     // and ?stock=low|out (matches the backend alert links).
@@ -56,6 +56,17 @@ export default function Products() {
     const s = searchParams.get('active') === '0' ? 'disabled' : (searchParams.get('status') || '');
     setF((x) => (x.status === s ? x : { ...x, status: s }));
   }, [searchParams]);
+
+  /* Deep link from the sidebar "Import / Export" destination (PRODUCTS-AREA-SPEC):
+     /admin/products/import → /admin/products?import=1 → CSV modal opens once,
+     the flag is stripped so a refresh never re-opens it. */
+  useEffect(() => {
+    if (searchParams.get('import') !== '1') return;
+    setCsvOpen(true);
+    const n = new URLSearchParams(searchParams);
+    n.delete('import');
+    setSearchParams(n, { replace: true });
+  }, [searchParams, setSearchParams]);
 
   useEffect(() => { api('/categories?all=1').then((d) => setCats(d.categories)).catch(() => {}); }, []);
 
@@ -142,12 +153,42 @@ export default function Products() {
   const hasFilters = !!(f.q || f.category || f.gender || f.tier || f.stock || f.status);
   const extraFilterCount = [f.gender, f.tier, f.stock].filter(Boolean).length;
 
+  /* Saved views — the metrics strip IS the view switcher. Each cell is a
+     clickable view with a live count; status views and stock views are
+     mutually exclusive so one click always lands on one clear list. */
   const metrics = [
-    { label: 'Total products', value: summary.total, onClick: () => setF({ ...f, status: '', stock: '' }), active: !f.status && !f.stock },
-    { label: 'Active', value: summary.live, onClick: () => setF({ ...f, status: 'active' }), active: f.status === 'active' },
-    { label: 'Draft', value: summary.draft, onClick: () => setF({ ...f, status: 'draft' }), active: f.status === 'draft' },
-    { label: 'Low stock', value: summary.low, onClick: () => setF({ ...f, stock: 'low' }), active: f.stock === 'low' },
+    { label: 'All', value: summary.total, onClick: () => setF({ ...f, status: '', stock: '' }), active: !f.status && !f.stock },
+    { label: 'Active', value: summary.live, onClick: () => setF({ ...f, status: 'active', stock: '' }), active: f.status === 'active' },
+    { label: 'Draft', value: summary.draft, onClick: () => setF({ ...f, status: 'draft', stock: '' }), active: f.status === 'draft' },
+    { label: 'Archived', value: summary.archived, onClick: () => setF({ ...f, status: 'disabled', stock: '' }), active: f.status === 'disabled' },
+    { label: 'Low stock', value: summary.low, onClick: () => setF({ ...f, stock: 'low', status: '' }), active: f.stock === 'low' },
+    { label: 'Out of stock', value: summary.oos, onClick: () => setF({ ...f, stock: 'out', status: '' }), active: f.stock === 'out' },
   ];
+
+  /* One-step status changes for the whole selection (bulk PATCH accepts
+     isActive/status booleans). Used by the sticky selection bar. */
+  const bulkQuick = async (patch, verb) => {
+    try {
+      const res = await api('/products/bulk', {
+        method: 'PATCH', token: auth.token,
+        body: { ids: [...selected], patch },
+      });
+      toast(`${verb} ${res.updated} product${res.updated === 1 ? '' : 's'}`);
+      setSelected(new Set());
+      load();
+    } catch (ex) { toast(ex.message || 'Bulk update failed'); }
+  };
+
+  /* Inline stock adjust — optimistic row update, server delta, rollback via
+     reload on failure. The backend only rings the low-stock bell when the
+     line is crossed downward, so tapping − on an already-low row stays quiet. */
+  const adjustStock = async (p, delta) => {
+    const next = Math.max(0, (p.stock || 0) + delta);
+    setList((l) => (Array.isArray(l) ? l.map((x) => (x._id === p._id ? { ...x, stock: next } : x)) : l));
+    try {
+      await api(`/products/${p._id}/stock`, { method: 'PATCH', token: auth.token, body: { delta } });
+    } catch (ex) { toast(ex.message || 'Stock update failed'); load(); }
+  };
 
   return (
     <AdminLayout title="Products">
@@ -168,9 +209,9 @@ export default function Products() {
 
       <section className="mb-10">
         <p className="adm-index">01 — Catalog overview</p>
-        <div className="adm-divide-x grid grid-cols-2 border-y border-white/10 lg:grid-cols-4">
+        <div className="adm-divide-x grid grid-cols-2 border-y border-white/10 sm:grid-cols-3 lg:grid-cols-6">
           {metrics.map((m) => (
-            <button key={m.label} type="button" onClick={m.onClick} className="px-5 py-6 text-left adm-row-hover">
+            <button key={m.label} type="button" onClick={m.onClick} aria-pressed={m.active} className="px-5 py-6 text-left adm-row-hover">
               <p className={`adm-label ${m.active ? 'text-white/70' : ''}`}>{m.label}</p>
               <p className="adm-metric mt-3 text-[32px] leading-none text-white">
                 {list === null ? '—' : m.value.toLocaleString()}
@@ -178,11 +219,6 @@ export default function Products() {
             </button>
           ))}
         </div>
-        {list && (
-          <p className="mt-3 text-[11px] uppercase tracking-[0.14em] text-white/30">
-            {summary.archived} archived · {summary.oos} out of stock
-          </p>
-        )}
       </section>
 
       <section className="mb-10">
@@ -276,6 +312,12 @@ export default function Products() {
             <button type="button" onClick={() => setBulkOpen(true)} className={btnSolid}>
               <Pencil size={11} /> Edit
             </button>
+            <button type="button" onClick={() => bulkQuick({ isActive: true }, 'Activated')} className={btnGhost}>
+              <Eye size={11} /> Activate
+            </button>
+            <button type="button" onClick={() => bulkQuick({ isActive: false }, 'Archived')} className={btnGhost}>
+              <Archive size={11} /> Archive
+            </button>
             <button type="button" onClick={() => setSelected(new Set())} className="ml-auto text-[11px] uppercase tracking-[0.12em] text-white/40 hover:text-white">Clear</button>
           </div>
         )}
@@ -307,6 +349,7 @@ export default function Products() {
             onPublish={publish}
             onRemove={remove}
             onDuplicate={duplicate}
+            onAdjustStock={adjustStock}
           />
         )}
 
@@ -318,6 +361,7 @@ export default function Products() {
             onPublish={publish}
             onRemove={remove}
             onDuplicate={duplicate}
+            onAdjustStock={adjustStock}
           />
         )}
 
@@ -355,12 +399,37 @@ function productStatus(p) {
   return { label: 'ACTIVE', dim: false };
 }
 
-function InventoryCell({ n }) {
+/* Stock cell with a one-tap stepper — inline adjust, no page leave.
+   Optimistic update + server delta live in Products.adjustStock. */
+function InventoryCell({ n, onAdjust }) {
+  const stepper = onAdjust ? (
+    <div className="mt-1 flex items-center gap-1">
+      <button
+        type="button"
+        onClick={() => onAdjust(-1)}
+        disabled={n <= 0}
+        aria-label="Decrease stock by one"
+        className="grid h-5 w-5 place-items-center border border-white/15 text-white/45 transition-colors hover:border-white/40 hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
+      >
+        <Minus size={10} />
+      </button>
+      <button
+        type="button"
+        onClick={() => onAdjust(1)}
+        aria-label="Increase stock by one"
+        className="grid h-5 w-5 place-items-center border border-white/15 text-white/45 transition-colors hover:border-white/40 hover:text-white"
+      >
+        <Plus size={10} />
+      </button>
+    </div>
+  ) : null;
+
   if (n === 0) {
     return (
       <div>
         <p className="text-[9px] font-medium uppercase tracking-[0.16em] text-white/40">Out</p>
         <p className="mt-0.5 text-[12px] text-white/35">0 remaining</p>
+        {stepper}
       </div>
     );
   }
@@ -369,10 +438,16 @@ function InventoryCell({ n }) {
       <div>
         <p className="text-[9px] font-medium uppercase tracking-[0.16em] text-white/55">Low</p>
         <p className="mt-0.5 text-[12px] text-white/70">{n} remaining</p>
+        {stepper}
       </div>
     );
   }
-  return <p className="text-[12px] tabular-nums text-white/80">{n} in stock</p>;
+  return (
+    <div>
+      <p className="text-[12px] tabular-nums text-white/80">{n} in stock</p>
+      {stepper}
+    </div>
+  );
 }
 
 function RowActions({ p, onEnable, onDisable, onPublish, onRemove, onDuplicate }) {
@@ -405,7 +480,7 @@ function RowActions({ p, onEnable, onDisable, onPublish, onRemove, onDuplicate }
   );
 }
 
-function ProductTable({ products, selected, onToggleSel, onToggleAll, onEnable, onDisable, onPublish, onRemove, onDuplicate }) {
+function ProductTable({ products, selected, onToggleSel, onToggleAll, onEnable, onDisable, onPublish, onRemove, onDuplicate, onAdjustStock }) {
   const allSelected = products.length > 0 && products.every((p) => selected.has(p._id));
   return (
     <div className="min-w-0 overflow-x-hidden">
@@ -450,7 +525,7 @@ function ProductTable({ products, selected, onToggleSel, onToggleAll, onEnable, 
                   <p className="text-[11px] text-white/30 line-through">{pkr(p.compareAtPrice)}</p>
                 ) : null}
               </div>
-              <InventoryCell n={p.stock} />
+              <InventoryCell n={p.stock} onAdjust={(d) => onAdjustStock(p, d)} />
               <p className="hidden truncate text-[12px] text-white/45 xl:block">{p.categorySlug || '—'}</p>
               <MonoStatus label={st.label} dim={st.dim} />
               <p className="hidden text-[11px] text-white/30 xl:block">{p.updatedAt ? fmtDate(p.updatedAt) : '—'}</p>
@@ -469,7 +544,7 @@ function ProductTable({ products, selected, onToggleSel, onToggleAll, onEnable, 
                 <p className="mt-0.5 font-mono text-[11px] text-white/35">{p.sku || '—'}</p>
                 <div className="mt-2 flex flex-wrap items-end justify-between gap-2">
                   <p className="adm-metric text-[14px] text-white">{pkr(p.price)}</p>
-                  <InventoryCell n={p.stock} />
+                  <InventoryCell n={p.stock} onAdjust={(d) => onAdjustStock(p, d)} />
                 </div>
                 <div className="mt-2 flex flex-wrap items-center gap-3">
                   <MonoStatus label={st.label} dim={st.dim} />
@@ -487,7 +562,7 @@ function ProductTable({ products, selected, onToggleSel, onToggleAll, onEnable, 
   );
 }
 
-function ProductGrid({ products, onEnable, onDisable, onPublish, onRemove, onDuplicate }) {
+function ProductGrid({ products, onEnable, onDisable, onPublish, onRemove, onDuplicate, onAdjustStock }) {
   return (
     <div className="grid gap-px border-y border-white/10 bg-white/10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {products.map((p) => {
@@ -506,7 +581,7 @@ function ProductGrid({ products, onEnable, onDisable, onPublish, onRemove, onDup
             <p className="mt-1 font-mono text-[11px] text-white/35">{p.sku || '—'}</p>
             <div className="mt-2 flex items-end justify-between">
               <p className="adm-metric text-[14px] text-white">{pkr(p.price)}</p>
-              <InventoryCell n={p.stock} />
+              <InventoryCell n={p.stock} onAdjust={(d) => onAdjustStock(p, d)} />
             </div>
             <div className="mt-2">
               <RowActions p={p} onEnable={onEnable} onDisable={onDisable} onPublish={onPublish} onRemove={onRemove} onDuplicate={onDuplicate} />
