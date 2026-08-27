@@ -829,29 +829,27 @@ function TopBar({ title, auth, onCmdK, onMenu, onToggleSidebar, collapsed }) {
 
   return (
     <header className="adm-topbar">
-      {!onSettings && (
-        <button
-          type="button"
-          onClick={onMenu}
-          className="adm-iconbtn md:hidden"
-          aria-label="Open menu"
-          title="Open menu"
-        >
-          <Menu size={18} strokeWidth={1.5} />
-        </button>
-      )}
+      {/* Same header on every page. On the settings console the toggles
+          drive the rail instead of the main sidebar. */}
+      <button
+        type="button"
+        onClick={onMenu}
+        className="adm-iconbtn md:hidden"
+        aria-label="Open menu"
+        title="Open menu"
+      >
+        <Menu size={18} strokeWidth={1.5} />
+      </button>
 
-      {!onSettings && (
-        <button
-          type="button"
-          onClick={onToggleSidebar}
-          aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-          title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-          className="adm-iconbtn hidden md:grid"
-        >
-          {collapsed ? <PanelRightOpen size={16} strokeWidth={1.5} /> : <PanelLeftClose size={16} strokeWidth={1.5} />}
-        </button>
-      )}
+      <button
+        type="button"
+        onClick={onToggleSidebar}
+        aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        className="adm-iconbtn hidden md:grid"
+      >
+        {collapsed ? <PanelRightOpen size={16} strokeWidth={1.5} /> : <PanelLeftClose size={16} strokeWidth={1.5} />}
+      </button>
 
       <div className="min-w-0 flex-1">
         {crumb && <p className="adm-crumb">{crumb}</p>}
@@ -951,6 +949,11 @@ export default function AdminLayout({ children, title }) {
 
   const openSearch = () => setCmdOpen(true);
 
+  /* Settings-console rail: collapsible on desktop, drawer on mobile — so the
+     top bar's left buttons stay identical (and useful) on every page. */
+  const [railHidden, setRailHidden] = useState(false);
+  const [railDrawer, setRailDrawer] = useState(false);
+
   /* The settings console is its own page with its own rail — the main admin
      sidebar, drawer and content offset all step aside there. */
   const onSettings = loc.pathname.startsWith('/admin/settings');
@@ -1013,6 +1016,26 @@ export default function AdminLayout({ children, title }) {
         </aside>
       )}
 
+      {/* ===== SETTINGS RAIL DRAWER (mobile) ===== */}
+      {onSettings && railDrawer && (
+        <>
+          <div className="adm-scrim" onClick={() => setRailDrawer(false)} aria-hidden="true" />
+          <div className="set-drawer" role="dialog" aria-modal="true" aria-label="Settings menu">
+            <div className="adm-drawer-close">
+              <button
+                type="button"
+                onClick={() => setRailDrawer(false)}
+                className="adm-iconbtn"
+                aria-label="Close settings menu"
+              >
+                <X size={18} strokeWidth={1.5} />
+              </button>
+            </div>
+            <SettingsRail />
+          </div>
+        </>
+      )}
+
       {/* ===== MOBILE DRAWER ===== */}
       {!onSettings && drawer && (
         <>
@@ -1039,16 +1062,16 @@ export default function AdminLayout({ children, title }) {
           title={title}
           auth={auth}
           onCmdK={openSearch}
-          onMenu={() => setDrawer(true)}
-          onToggleSidebar={toggleCollapsed}
-          collapsed={collapsed}
+          onMenu={() => (onSettings ? setRailDrawer(true) : setDrawer(true))}
+          onToggleSidebar={() => (onSettings ? setRailHidden((v) => !v) : toggleCollapsed())}
+          collapsed={onSettings ? railHidden : collapsed}
         />
 
         <main className="min-w-0 flex-1 p-4 md:p-6 md:pt-4">
           <div className="admin-main w-full min-w-0">
             {loc.pathname.startsWith('/admin/settings') ? (
               <div className="set-wrap">
-                <SettingsRail />
+                {!railHidden && <SettingsRail />}
                 <div className="set-pane min-w-0 flex-1">{children}</div>
               </div>
             ) : (

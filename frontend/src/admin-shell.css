@@ -660,21 +660,32 @@
   border-top: 1px solid var(--admin-border);
 }
 
-/* Tablet / phone: rail stacks above the pane instead of vanishing */
+/* Tablet / phone: the rail lives in the drawer the hamburger opens, so the
+   header stays identical on every page and the content gets full width. */
 @media (max-width: 1023.98px) {
-  .set-wrap { flex-direction: column; gap: 20px; }
-  .set-rail {
-    position: static;
-    width: 100%;
-    max-height: none;
-    overflow: visible;
-    padding-right: 0;
-    border-right: 0;
-    border-bottom: 1px solid var(--admin-border);
-    padding-bottom: 12px;
-  }
-  .set-head { position: static; }
+  .set-wrap .set-rail { display: none; }
 }
+
+.set-drawer {
+  position: fixed;
+  inset-block: 0;
+  left: 0;
+  z-index: 51;
+  display: flex;
+  width: min(86vw, 300px);
+  background: var(--adm-sidebar-bg);
+  border-right: 1px solid var(--admin-border);
+}
+.set-drawer .adm-drawer-close { position: absolute; right: 8px; top: 10px; z-index: 1; }
+.set-drawer .set-rail {
+  position: static;
+  width: 100%;
+  max-height: none;
+  overflow-y: auto;
+  border-right: 0;
+  padding: 12px 10px 16px;
+}
+.set-drawer .set-head { position: static; }
 
 /* Back-to-admin link at the top of the settings rail (the console has no
    main sidebar of its own). */
