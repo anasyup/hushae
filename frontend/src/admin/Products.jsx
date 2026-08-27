@@ -1,24 +1,26 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import {
-  Archive, Copy, Eye, FileUp, LayoutGrid, List, Minus, Pencil, Plus, Save, Trash2, X,
+  AlertTriangle, Archive, Copy, Eye, FileUp, LayoutGrid, List, Minus, Package,
+  Pencil, Plus, Save, Search, Trash2, X,
 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import { fmtDate, pkr } from '../lib/format';
 import AdminLayout from './AdminLayout';
-import PageHeader from './components/PageHeader';
 import Img from '../components/Img';
 import CsvImport from './CsvImport';
-import {
-  btnGhost, btnSolid, btnIcon, ctl, ctlInline,
-  EditorialEmpty, EditorialError, EditorialPagination, TableSkeleton, MonoStatus,
-} from './orders/orderUi';
+import './products-atelier.css';
 
 /* ===========================================================================
- * Products — Phase 05 editorial catalog (presentation only).
- * All existing list/filter/bulk/csv/duplicate/publish actions preserved.
+ * Products — ATELIER luxury theme (same family as the Overview reference:
+ * #f8f8f7 canvas, white cards, Inter, small premium controls, whisper
+ * shadows). All working features preserved: saved views, filters, bulk
+ * edit / activate / archive, inline stock stepper, CSV import/export,
+ * duplicate / publish / archive / delete, deep links, mobile cards.
  * ========================================================================== */
+
+const PER_PAGE = 50;
 
 export default function Products() {
   const { auth, toast } = useApp();
@@ -32,8 +34,7 @@ export default function Products() {
   const [moreOpen, setMoreOpen] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const [f, setF] = useState({
-    // Deep links from the Overview hub: ?q=<name> (name search, client-side)
-    // and ?stock=low|out (matches the backend alert links).
+    // Deep links: ?q= name search · ?stock=low|out · ?active=0 · ?status=
     q: searchParams.get('q') || '',
     category: '', gender: '', tier: '',
     stock: searchParams.get('stock') === 'out' ? 'out' : (searchParams.get('stock') === 'low' ? 'low' : ''),
@@ -57,9 +58,8 @@ export default function Products() {
     setF((x) => (x.status === s ? x : { ...x, status: s }));
   }, [searchParams]);
 
-  /* Deep link from the sidebar "Import / Export" destination (PRODUCTS-AREA-SPEC):
-     /admin/products/import → /admin/products?import=1 → CSV modal opens once,
-     the flag is stripped so a refresh never re-opens it. */
+  /* Sidebar "Import / Export" destination → /admin/products?import=1.
+     The CSV modal opens once; the flag is stripped so refresh never re-opens. */
   useEffect(() => {
     if (searchParams.get('import') !== '1') return;
     setCsvOpen(true);
@@ -81,7 +81,6 @@ export default function Products() {
     );
   }, [list, f.q]);
 
-  const PER_PAGE = 50;
   const [page, setPage] = useState(1);
   useEffect(() => { setPage(1); }, [f.q, f.gender, f.category, f.tier, f.stock, f.status, view]);
   const pageCount = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
@@ -103,6 +102,7 @@ export default function Products() {
     return { total: list.length, live, draft, archived, oos, low };
   }, [list]);
 
+  /* ── Row actions ─────────────────────────────────────────────────────── */
   const enable = async (p) => {
     try { await api(`/products/${p._id}`, { method: 'PUT', token: auth.token, body: { isActive: true } }); toast(`"${p.name}" is now live`); load(); }
     catch (ex) { toast(ex.message); }
@@ -131,6 +131,7 @@ export default function Products() {
     } catch (ex) { toast(ex.message); }
   };
 
+  /* ── Selection + bulk ────────────────────────────────────────────────── */
   const toggleSel = (id) => {
     setSelected((s) => {
       const n = new Set(s);
@@ -149,24 +150,6 @@ export default function Products() {
     });
   };
 
-  const clearFilters = () => setF({ q: '', category: '', gender: '', tier: '', stock: '', status: '' });
-  const hasFilters = !!(f.q || f.category || f.gender || f.tier || f.stock || f.status);
-  const extraFilterCount = [f.gender, f.tier, f.stock].filter(Boolean).length;
-
-  /* Saved views — the metrics strip IS the view switcher. Each cell is a
-     clickable view with a live count; status views and stock views are
-     mutually exclusive so one click always lands on one clear list. */
-  const metrics = [
-    { label: 'All', value: summary.total, onClick: () => setF({ ...f, status: '', stock: '' }), active: !f.status && !f.stock },
-    { label: 'Active', value: summary.live, onClick: () => setF({ ...f, status: 'active', stock: '' }), active: f.status === 'active' },
-    { label: 'Draft', value: summary.draft, onClick: () => setF({ ...f, status: 'draft', stock: '' }), active: f.status === 'draft' },
-    { label: 'Archived', value: summary.archived, onClick: () => setF({ ...f, status: 'disabled', stock: '' }), active: f.status === 'disabled' },
-    { label: 'Low stock', value: summary.low, onClick: () => setF({ ...f, stock: 'low', status: '' }), active: f.stock === 'low' },
-    { label: 'Out of stock', value: summary.oos, onClick: () => setF({ ...f, stock: 'out', status: '' }), active: f.stock === 'out' },
-  ];
-
-  /* One-step status changes for the whole selection (bulk PATCH accepts
-     isActive/status booleans). Used by the sticky selection bar. */
   const bulkQuick = async (patch, verb) => {
     try {
       const res = await api('/products/bulk', {
@@ -180,8 +163,8 @@ export default function Products() {
   };
 
   /* Inline stock adjust — optimistic row update, server delta, rollback via
-     reload on failure. The backend only rings the low-stock bell when the
-     line is crossed downward, so tapping − on an already-low row stays quiet. */
+     reload on failure. Backend rings the low-stock bell only on the downward
+     crossing, so tapping − on an already-low row stays quiet. */
   const adjustStock = async (p, delta) => {
     const next = Math.max(0, (p.stock || 0) + delta);
     setList((l) => (Array.isArray(l) ? l.map((x) => (x._id === p._id ? { ...x, stock: next } : x)) : l));
@@ -190,185 +173,264 @@ export default function Products() {
     } catch (ex) { toast(ex.message || 'Stock update failed'); load(); }
   };
 
+  const clearFilters = () => setF({ q: '', category: '', gender: '', tier: '', stock: '', status: '' });
+  const hasFilters = !!(f.q || f.category || f.gender || f.tier || f.stock || f.status);
+  const extraFilterCount = [f.gender, f.tier, f.stock].filter(Boolean).length;
+
+  /* Saved views — the stats strip IS the view switcher. One click lands on
+     one clear list; status views and stock views are mutually exclusive. */
+  const metrics = [
+    { label: 'All', value: summary.total, note: null, onClick: () => setF({ ...f, status: '', stock: '' }), active: !f.status && !f.stock },
+    { label: 'Active', value: summary.live, note: { text: 'Live', tone: 'pa-note-green' }, onClick: () => setF({ ...f, status: 'active', stock: '' }), active: f.status === 'active' },
+    { label: 'Draft', value: summary.draft, note: { text: 'Hidden', tone: 'pa-note-blue' }, onClick: () => setF({ ...f, status: 'draft', stock: '' }), active: f.status === 'draft' },
+    { label: 'Archived', value: summary.archived, note: { text: 'Stored', tone: 'pa-note-gray' }, onClick: () => setF({ ...f, status: 'disabled', stock: '' }), active: f.status === 'disabled' },
+    { label: 'Low stock', value: summary.low, note: { text: '≤ 5 left', tone: 'pa-note-yellow' }, onClick: () => setF({ ...f, stock: 'low', status: '' }), active: f.stock === 'low' },
+    { label: 'Out of stock', value: summary.oos, note: { text: 'Reorder', tone: 'pa-note-red' }, onClick: () => setF({ ...f, stock: 'out', status: '' }), active: f.stock === 'out' },
+  ];
+
+  const allSelected = paged.length > 0 && paged.every((p) => selected.has(p._id));
+
   return (
     <AdminLayout title="Products">
-      <PageHeader
-        title="Products"
-        description="Catalog management."
-        actions={(
-          <>
-            <button type="button" onClick={() => setCsvOpen(true)} className={btnGhost}>
-              <FileUp size={12} /> Import / Export
-            </button>
-            <Link to="/admin/products/new" className={btnSolid}>
-              <Plus size={12} /> Add product
-            </Link>
-          </>
-        )}
-      />
+      <div className="pa-outer">
+        <div className="pa-wrap">
 
-      <section className="mb-10">
-        <p className="adm-index">01 — Catalog overview</p>
-        <div className="adm-divide-x grid grid-cols-2 border-y border-white/10 sm:grid-cols-3 lg:grid-cols-6">
-          {metrics.map((m) => (
-            <button key={m.label} type="button" onClick={m.onClick} aria-pressed={m.active} className="px-5 py-6 text-left adm-row-hover">
-              <p className={`adm-label ${m.active ? 'text-white/70' : ''}`}>{m.label}</p>
-              <p className="adm-metric mt-3 text-[32px] leading-none text-white">
-                {list === null ? '—' : m.value.toLocaleString()}
-              </p>
-            </button>
-          ))}
-        </div>
-      </section>
-
-      <section className="mb-10">
-        <p className="adm-index">02 — Product workspace</p>
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="relative min-w-[200px] flex-1">
-            <input
-              value={f.q}
-              onChange={(e) => setF({ ...f, q: e.target.value })}
-              placeholder="Search products…"
-              aria-label="Search products"
-              className={ctl}
-            />
+          {/* ── Page head ─────────────────────────────────────────────── */}
+          <div className="pa-head">
+            <div>
+              <h1>Products</h1>
+              <p>Catalog management — search, filter, edit in place.</p>
+            </div>
+            <div className="pa-head-actions">
+              <button type="button" onClick={() => setCsvOpen(true)} className="pa-btn-sm">
+                <FileUp size={12} strokeWidth={2.2} /> Import / Export
+              </button>
+              <Link to="/admin/products/new" className="pa-btn-black" style={{ textDecoration: 'none' }}>
+                <Plus size={12} strokeWidth={2.4} /> Add product
+              </Link>
+            </div>
           </div>
-          <select
-            value={f.status}
-            onChange={(e) => setF({ ...f, status: e.target.value })}
-            aria-label="Status"
-            className={`${ctlInline} max-w-[140px]`}
-          >
-            <option value="">Status</option>
-            <option value="active">Active</option>
-            <option value="draft">Draft</option>
-            <option value="disabled">Archived</option>
-          </select>
-          <select
-            value={f.category}
-            onChange={(e) => setF({ ...f, category: e.target.value })}
-            aria-label="Category"
-            className={`${ctlInline} max-w-[180px]`}
-          >
-            <option value="">Category</option>
-            {cats.map((c) => (
-              <option key={c.slug} value={c.slug}>{c.name} ({c.gender?.[0]?.toUpperCase()})</option>
+
+          {/* ── Stats = saved views ───────────────────────────────────── */}
+          <div className="pa-stats">
+            {metrics.map((m) => (
+              <button key={m.label} type="button" onClick={m.onClick} aria-pressed={m.active} className={`pa-stat ${m.active ? 'active' : ''}`}>
+                <p className="pa-stat-label">{m.label}</p>
+                <p className="pa-stat-val">{list === null ? '—' : m.value.toLocaleString()}</p>
+                {m.note && <span className={`pa-stat-note ${m.note.tone}`}>{m.note.text}</span>}
+              </button>
             ))}
-          </select>
-          <button
-            type="button"
-            onClick={() => setMoreOpen((v) => !v)}
-            aria-expanded={moreOpen}
-            className={moreOpen || extraFilterCount ? 'inline-flex h-8 items-center gap-1.5 rounded-[4px] bg-white px-3 text-[10px] font-medium uppercase tracking-[0.08em] text-black' : btnGhost}
-          >
-            More{extraFilterCount > 0 ? ` ${extraFilterCount}` : ''}
-          </button>
-          <div className="ml-auto flex items-center gap-1">
-            <button type="button" onClick={() => setView('list')} aria-pressed={view === 'list'} title="List view"
-              className={view === 'list' ? `${btnIcon} border-white text-white` : btnIcon}>
-              <List size={13} />
-            </button>
-            <button type="button" onClick={() => setView('grid')} aria-pressed={view === 'grid'} title="Grid view"
-              className={view === 'grid' ? `${btnIcon} border-white text-white` : btnIcon}>
-              <LayoutGrid size={13} />
-            </button>
           </div>
+
+          {/* ── Toolbar ───────────────────────────────────────────────── */}
+          <div className="pa-card pa-toolbar">
+            <div className="pa-search">
+              <Search size={13} strokeWidth={2} />
+              <input
+                value={f.q}
+                onChange={(e) => setF({ ...f, q: e.target.value })}
+                placeholder="Search products, SKUs, categories…"
+                aria-label="Search products"
+              />
+            </div>
+            <select
+              value={f.status}
+              onChange={(e) => setF({ ...f, status: e.target.value })}
+              aria-label="Status"
+              className="pa-select"
+            >
+              <option value="">Status</option>
+              <option value="active">Active</option>
+              <option value="draft">Draft</option>
+              <option value="disabled">Archived</option>
+            </select>
+            <select
+              value={f.category}
+              onChange={(e) => setF({ ...f, category: e.target.value })}
+              aria-label="Category"
+              className="pa-select"
+            >
+              <option value="">Category</option>
+              {cats.map((c) => (
+                <option key={c.slug} value={c.slug}>{c.name} ({c.gender?.[0]?.toUpperCase()})</option>
+              ))}
+            </select>
+            <button type="button" onClick={() => setMoreOpen((v) => !v)} aria-expanded={moreOpen} className="pa-btn-sm">
+              More{extraFilterCount > 0 ? ` · ${extraFilterCount}` : ''}
+            </button>
+            <div className="pa-view-toggle">
+              <button type="button" onClick={() => setView('list')} aria-pressed={view === 'list'} title="List view" className={`pa-view-btn ${view === 'list' ? 'on' : ''}`}>
+                <List size={13} strokeWidth={2} />
+              </button>
+              <button type="button" onClick={() => setView('grid')} aria-pressed={view === 'grid'} title="Grid view" className={`pa-view-btn ${view === 'grid' ? 'on' : ''}`}>
+                <LayoutGrid size={13} strokeWidth={2} />
+              </button>
+            </div>
+          </div>
+
+          {moreOpen && (
+            <div className="pa-card pa-more-row">
+              <select value={f.gender} onChange={(e) => setF({ ...f, gender: e.target.value })} aria-label="Gender" className="pa-select" style={{ maxWidth: 'none' }}>
+                <option value="">All genders</option>
+                <option value="women">Women</option>
+                <option value="men">Men</option>
+              </select>
+              <select value={f.tier} onChange={(e) => setF({ ...f, tier: e.target.value })} aria-label="Tier" className="pa-select" style={{ maxWidth: 'none' }}>
+                <option value="">All tiers</option>
+                <option value="Economy">Economy</option>
+                <option value="Standard">Standard</option>
+                <option value="Premium">Premium</option>
+              </select>
+              <select value={f.stock} onChange={(e) => setF({ ...f, stock: e.target.value })} aria-label="Stock" className="pa-select" style={{ maxWidth: 'none' }}>
+                <option value="">Any stock</option>
+                <option value="low">Low (≤5)</option>
+                <option value="out">Out of stock</option>
+              </select>
+            </div>
+          )}
+
+          {hasFilters && (
+            <p className="pa-filter-note">
+              Filters active · <button type="button" onClick={clearFilters}>Clear</button>
+            </p>
+          )}
+
+          {/* ── Bulk selection bar ────────────────────────────────────── */}
+          {selected.size > 0 && (
+            <div className="pa-bulk">
+              <span className="pa-bulk-count">{selected.size} selected</span>
+              <button type="button" onClick={() => setBulkOpen(true)} className="pa-btn-black" style={{ height: 30, fontSize: 11 }}>
+                <Pencil size={11} strokeWidth={2.2} /> Edit
+              </button>
+              <button type="button" onClick={() => bulkQuick({ isActive: true }, 'Activated')} className="pa-btn-sm">
+                <Eye size={11} strokeWidth={2.2} /> Activate
+              </button>
+              <button type="button" onClick={() => bulkQuick({ isActive: false }, 'Archived')} className="pa-btn-sm">
+                <Archive size={11} strokeWidth={2.2} /> Archive
+              </button>
+              <button type="button" onClick={() => setSelected(new Set())} className="pa-text-link pa-clear">Clear</button>
+            </div>
+          )}
+
+          {/* ── States ────────────────────────────────────────────────── */}
+          {err && (
+            <div className="pa-card pa-state">
+              <div className="pa-state-icon"><AlertTriangle size={18} strokeWidth={1.8} /></div>
+              <h3>Unable to load products</h3>
+              <p>{err}</p>
+              <button type="button" onClick={() => { setList(null); setErr(''); load(); }} className="pa-btn-black">Try again</button>
+            </div>
+          )}
+
+          {list === null && !err && (
+            <div className="pa-card pa-skeleton">
+              {Array.from({ length: 7 }).map((_, i) => <div key={i} className="pa-sk-row" />)}
+            </div>
+          )}
+
+          {!err && list !== null && filtered.length === 0 && (
+            <div className="pa-card pa-state">
+              <div className="pa-state-icon"><Package size={18} strokeWidth={1.8} /></div>
+              <h3>{hasFilters ? 'No products match' : 'Your catalog is empty'}</h3>
+              <p>{hasFilters ? 'No products match these filters. Clear them or try a different search.' : 'Add your first product to start selling.'}</p>
+              {hasFilters
+                ? <button type="button" onClick={clearFilters} className="pa-btn-sm">Clear filters</button>
+                : <Link to="/admin/products/new" className="pa-btn-black" style={{ textDecoration: 'none', display: 'inline-flex' }}><Plus size={12} strokeWidth={2.4} /> Add product</Link>}
+            </div>
+          )}
+
+          {/* ── List view: table (≥900px) + mobile cards ──────────────── */}
+          {!err && filtered.length > 0 && view === 'list' && (
+            <>
+              <div className="pa-card pa-tbl-card">
+                <div className="pa-tbl-scroll">
+                  <table className="pa-tbl">
+                    <thead>
+                      <tr>
+                        <th className="pa-th-chk"><input type="checkbox" className="pa-input-chk" checked={allSelected} onChange={toggleSelAll} aria-label="Select all on this page" /></th>
+                        <th className="pa-th-img" />
+                        <th>Product</th>
+                        <th style={{ width: '13%' }}>SKU</th>
+                        <th style={{ width: '11%' }}>Price</th>
+                        <th style={{ width: '14%' }}>Inventory</th>
+                        <th className="pa-hide-xl" style={{ width: '12%' }}>Category</th>
+                        <th style={{ width: '10%' }}>Status</th>
+                        <th className="pa-hide-xl" style={{ width: '10%' }}>Updated</th>
+                        <th className="pa-th-act" />
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {paged.map((p, i) => (
+                        <ProductRow
+                          key={p._id}
+                          p={p}
+                          i={i}
+                          selected={selected.has(p._id)}
+                          onToggleSel={() => toggleSel(p._id)}
+                          onEnable={enable}
+                          onDisable={disable}
+                          onPublish={publish}
+                          onRemove={remove}
+                          onDuplicate={duplicate}
+                          onAdjust={(d) => adjustStock(p, d)}
+                        />
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div className="pa-mcards">
+                {paged.map((p) => (
+                  <MobileCard
+                    key={p._id}
+                    p={p}
+                    onEnable={enable}
+                    onDisable={disable}
+                    onPublish={publish}
+                    onRemove={remove}
+                    onDuplicate={duplicate}
+                    onAdjust={(d) => adjustStock(p, d)}
+                  />
+                ))}
+              </div>
+            </>
+          )}
+
+          {/* ── Grid view ─────────────────────────────────────────────── */}
+          {!err && filtered.length > 0 && view === 'grid' && (
+            <div className="pa-grid">
+              {paged.map((p) => (
+                <GridCard
+                  key={p._id}
+                  p={p}
+                  onEnable={enable}
+                  onDisable={disable}
+                  onPublish={publish}
+                  onRemove={remove}
+                  onDuplicate={duplicate}
+                  onAdjust={(d) => adjustStock(p, d)}
+                />
+              ))}
+            </div>
+          )}
+
+          {/* ── Pagination ────────────────────────────────────────────── */}
+          {filtered.length > 0 && (
+            <div className="pa-card pa-pager">
+              <p className="pa-pager-text">
+                Showing {((page - 1) * PER_PAGE) + 1}–{Math.min(page * PER_PAGE, filtered.length)} of {filtered.length}
+              </p>
+              <div className="pa-pager-btns">
+                <button type="button" className="pa-page-btn" disabled={page <= 1} onClick={() => setPage((x) => x - 1)}>Prev</button>
+                <span className="pa-page-btn on" aria-current="page">{page} / {pageCount}</span>
+                <button type="button" className="pa-page-btn" disabled={page >= pageCount} onClick={() => setPage((x) => x + 1)}>Next</button>
+              </div>
+            </div>
+          )}
+
         </div>
-
-        {moreOpen && (
-          <div className="mt-5 grid gap-3 border-t border-white/10 pt-5 sm:grid-cols-3">
-            <select value={f.gender} onChange={(e) => setF({ ...f, gender: e.target.value })} aria-label="Gender" className={ctl}>
-              <option value="">All genders</option>
-              <option value="women">Women</option>
-              <option value="men">Men</option>
-            </select>
-            <select value={f.tier} onChange={(e) => setF({ ...f, tier: e.target.value })} aria-label="Tier" className={ctl}>
-              <option value="">All tiers</option>
-              <option value="Economy">Economy</option>
-              <option value="Standard">Standard</option>
-              <option value="Premium">Premium</option>
-            </select>
-            <select value={f.stock} onChange={(e) => setF({ ...f, stock: e.target.value })} aria-label="Stock" className={ctl}>
-              <option value="">Any stock</option>
-              <option value="low">Low (≤5)</option>
-              <option value="out">Out of stock</option>
-            </select>
-          </div>
-        )}
-
-        {hasFilters && (
-          <p className="mt-3 text-[11px] text-white/35">
-            Filters active · <button type="button" onClick={clearFilters} className="text-white/70 underline underline-offset-2 hover:text-white">Clear</button>
-          </p>
-        )}
-      </section>
-
-      <section className="mb-6">
-        <p className="adm-index">03 — Products</p>
-
-        {selected.size > 0 && (
-          <div className="sticky top-14 z-30 mb-3 flex flex-wrap items-center gap-x-4 gap-y-2 border-y border-white/15 bg-[#050505] py-2.5">
-            <span className="text-[11px] font-medium uppercase tracking-[0.16em] text-white">{selected.size} selected</span>
-            <button type="button" onClick={() => setBulkOpen(true)} className={btnSolid}>
-              <Pencil size={11} /> Edit
-            </button>
-            <button type="button" onClick={() => bulkQuick({ isActive: true }, 'Activated')} className={btnGhost}>
-              <Eye size={11} /> Activate
-            </button>
-            <button type="button" onClick={() => bulkQuick({ isActive: false }, 'Archived')} className={btnGhost}>
-              <Archive size={11} /> Archive
-            </button>
-            <button type="button" onClick={() => setSelected(new Set())} className="ml-auto text-[11px] uppercase tracking-[0.12em] text-white/40 hover:text-white">Clear</button>
-          </div>
-        )}
-
-        {err && (
-          <EditorialError title="Unable to load products" description={err} onRetry={() => { setList(null); setErr(''); load(); }} />
-        )}
-
-        {list === null && !err && <TableSkeleton rows={7} />}
-
-        {!err && list !== null && filtered.length === 0 && (
-          <EditorialEmpty
-            title="No products"
-            description={hasFilters ? 'No products match these filters.' : 'Your catalog is empty.'}
-            action={hasFilters
-              ? <button type="button" onClick={clearFilters} className={btnGhost}>Clear filters</button>
-              : <Link to="/admin/products/new" className={btnSolid}>Add product</Link>}
-          />
-        )}
-
-        {!err && filtered.length > 0 && view === 'list' && (
-          <ProductTable
-            products={paged}
-            selected={selected}
-            onToggleSel={toggleSel}
-            onToggleAll={toggleSelAll}
-            onEnable={enable}
-            onDisable={disable}
-            onPublish={publish}
-            onRemove={remove}
-            onDuplicate={duplicate}
-            onAdjustStock={adjustStock}
-          />
-        )}
-
-        {!err && filtered.length > 0 && view === 'grid' && (
-          <ProductGrid
-            products={paged}
-            onEnable={enable}
-            onDisable={disable}
-            onPublish={publish}
-            onRemove={remove}
-            onDuplicate={duplicate}
-            onAdjustStock={adjustStock}
-          />
-        )}
-
-        {filtered.length > 0 && (
-          <EditorialPagination page={page} pages={pageCount} onPage={setPage} />
-        )}
-      </section>
+      </div>
 
       {csvOpen && <CsvImport onClose={() => setCsvOpen(false)} onDone={load} />}
       {bulkOpen && (
@@ -393,206 +455,150 @@ export default function Products() {
   );
 }
 
-function productStatus(p) {
-  if (p.status === 'draft') return { label: 'DRAFT', dim: true };
-  if (!p.isActive) return { label: 'ARCHIVED', dim: true };
-  return { label: 'ACTIVE', dim: false };
+/* ── helpers ─────────────────────────────────────────────────────────────── */
+
+function statusBadge(p) {
+  if (p.status === 'draft') return { label: 'Draft', cls: 'pa-b-blue' };
+  if (!p.isActive) return { label: 'Archived', cls: 'pa-b-gray' };
+  return { label: 'Active', cls: 'pa-b-green' };
 }
 
-/* Stock cell with a one-tap stepper — inline adjust, no page leave.
-   Optimistic update + server delta live in Products.adjustStock. */
-function InventoryCell({ n, onAdjust }) {
-  const stepper = onAdjust ? (
-    <div className="mt-1 flex items-center gap-1">
-      <button
-        type="button"
-        onClick={() => onAdjust(-1)}
-        disabled={n <= 0}
-        aria-label="Decrease stock by one"
-        className="grid h-5 w-5 place-items-center border border-white/15 text-white/45 transition-colors hover:border-white/40 hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
-      >
-        <Minus size={10} />
-      </button>
-      <button
-        type="button"
-        onClick={() => onAdjust(1)}
-        aria-label="Increase stock by one"
-        className="grid h-5 w-5 place-items-center border border-white/15 text-white/45 transition-colors hover:border-white/40 hover:text-white"
-      >
-        <Plus size={10} />
-      </button>
-    </div>
-  ) : null;
+function StockBadge({ n }) {
+  if (n === 0) return <span className="pa-badge pa-b-red">Out of stock</span>;
+  if (n <= 5) return <span className="pa-badge pa-b-yellow">Low · {n} left</span>;
+  return null;
+}
 
-  if (n === 0) {
-    return (
-      <div>
-        <p className="text-[9px] font-medium uppercase tracking-[0.16em] text-white/40">Out</p>
-        <p className="mt-0.5 text-[12px] text-white/35">0 remaining</p>
-        {stepper}
-      </div>
-    );
-  }
-  if (n <= 5) {
-    return (
-      <div>
-        <p className="text-[9px] font-medium uppercase tracking-[0.16em] text-white/55">Low</p>
-        <p className="mt-0.5 text-[12px] text-white/70">{n} remaining</p>
-        {stepper}
-      </div>
-    );
-  }
+function StockStepper({ n, onAdjust }) {
   return (
-    <div>
-      <p className="text-[12px] tabular-nums text-white/80">{n} in stock</p>
-      {stepper}
+    <div className="pa-stock">
+      <button type="button" className="pa-action-btn" onClick={() => onAdjust(-1)} disabled={n <= 0} aria-label="Decrease stock by one">
+        <Minus size={11} strokeWidth={2.2} />
+      </button>
+      <span className="pa-stock-num">{n}</span>
+      <button type="button" className="pa-action-btn" onClick={() => onAdjust(1)} aria-label="Increase stock by one">
+        <Plus size={11} strokeWidth={2.2} />
+      </button>
     </div>
   );
 }
 
 function RowActions({ p, onEnable, onDisable, onPublish, onRemove, onDuplicate }) {
   return (
-    <div className="flex items-center justify-end gap-0.5">
-      <Link to={`/admin/products/${p._id}`} className="grid h-7 w-7 place-items-center text-white/35 hover:text-white" aria-label="Edit">
-        <Pencil size={13} />
-      </Link>
+    <div className="pa-row-actions">
       {p.status === 'draft' && (
-        <button type="button" onClick={() => onPublish(p)} className="px-2 text-[9px] font-medium uppercase tracking-[0.14em] text-white/70 hover:text-white">
-          Publish
-        </button>
+        <button type="button" onClick={() => onPublish(p)} className="pa-text-link" title="Publish">Publish</button>
       )}
-      <button type="button" onClick={() => onDuplicate(p)} className="grid h-7 w-7 place-items-center text-white/35 hover:text-white" aria-label="Duplicate" title="Duplicate product">
-        <Copy size={13} />
+      <Link to={`/admin/products/${p._id}`} className="pa-action-btn" aria-label="Edit" title="Edit">
+        <Pencil size={12} strokeWidth={2} />
+      </Link>
+      <button type="button" onClick={() => onDuplicate(p)} className="pa-action-btn" aria-label="Duplicate" title="Duplicate">
+        <Copy size={12} strokeWidth={2} />
       </button>
       {p.isActive ? (
-        <button type="button" onClick={() => onDisable(p)} className="grid h-7 w-7 place-items-center text-white/35 hover:text-white" aria-label="Archive" title="Archive">
-          <Archive size={13} />
+        <button type="button" onClick={() => onDisable(p)} className="pa-action-btn" aria-label="Archive" title="Archive">
+          <Archive size={12} strokeWidth={2} />
         </button>
       ) : (
-        <button type="button" onClick={() => onEnable(p)} className="grid h-7 w-7 place-items-center text-white/35 hover:text-white" aria-label="Restore" title="Restore">
-          <Eye size={13} />
+        <button type="button" onClick={() => onEnable(p)} className="pa-action-btn" aria-label="Restore" title="Restore">
+          <Eye size={12} strokeWidth={2} />
         </button>
       )}
-      <button type="button" onClick={() => onRemove(p)} className="grid h-7 w-7 place-items-center text-white/35 hover:text-white" aria-label="Delete" title="Delete permanently">
-        <Trash2 size={13} />
+      <button type="button" onClick={() => onRemove(p)} className="pa-action-btn danger" aria-label="Delete permanently" title="Delete permanently">
+        <Trash2 size={12} strokeWidth={2} />
       </button>
     </div>
   );
 }
 
-function ProductTable({ products, selected, onToggleSel, onToggleAll, onEnable, onDisable, onPublish, onRemove, onDuplicate, onAdjustStock }) {
-  const allSelected = products.length > 0 && products.every((p) => selected.has(p._id));
+function ProductRow({ p, i, selected, onToggleSel, onEnable, onDisable, onPublish, onRemove, onDuplicate, onAdjust }) {
+  const st = statusBadge(p);
   return (
-    <div className="min-w-0 overflow-x-hidden">
-      <div className="hidden border-b border-white/10 px-1 py-2.5 lg:grid lg:grid-cols-[32px_48px_minmax(0,1.4fr)_0.7fr_0.75fr_0.75fr_0.7fr_auto] lg:items-center lg:gap-3 xl:grid-cols-[32px_48px_minmax(0,1.35fr)_0.7fr_0.7fr_0.7fr_0.85fr_0.7fr_0.85fr_auto]">
-        <input type="checkbox" checked={allSelected} onChange={onToggleAll} aria-label="Select all on this page"
-          className="h-3.5 w-3.5 cursor-pointer rounded-none border-white/30 bg-transparent accent-white" />
-        <span />
-        <p className="adm-label">Product</p>
-        <p className="adm-label">Sku</p>
-        <p className="adm-label">Price</p>
-        <p className="adm-label">Inventory</p>
-        <p className="adm-label hidden xl:block">Category</p>
-        <p className="adm-label">Status</p>
-        <p className="adm-label hidden xl:block">Updated</p>
-        <p className="adm-label" />
+    <tr className={selected ? 'selected' : ''} style={{ animationDelay: `${Math.min(i * 0.03, 0.3)}s` }}>
+      <td><input type="checkbox" className="pa-input-chk" checked={selected} onChange={onToggleSel} aria-label={`Select ${p.name}`} /></td>
+      <td>
+        <Link to={`/admin/products/${p._id}`} aria-label={`Open ${p.name}`}>
+          <Img src={p.images?.[0]?.url} alt="" className="pa-thumb" />
+        </Link>
+      </td>
+      <td style={{ minWidth: 0 }}>
+        <Link to={`/admin/products/${p._id}`} className="pa-name">{p.name}</Link>
+        <span className="pa-sub">
+          {p.gender}{p.tier ? ` · ${p.tier}` : ''}
+          {p.isFeatured ? ' · Featured' : ''}
+          {p.isBestSeller ? ' · Best' : ''}
+          {p.onSale ? ' · Sale' : ''}
+        </span>
+      </td>
+      <td><span className="pa-sku">{p.sku || '—'}</span></td>
+      <td>
+        <p className="pa-price" style={{ margin: 0 }}>{pkr(p.price)}</p>
+        {p.onSale === true && p.compareAtPrice ? <p className="pa-compare" style={{ margin: 0 }}>{pkr(p.compareAtPrice)}</p> : null}
+      </td>
+      <td>
+        <StockStepper n={p.stock} onAdjust={onAdjust} />
+        <div className="pa-stock-badges"><StockBadge n={p.stock} /></div>
+      </td>
+      <td className="pa-hide-xl"><span className="pa-cell-muted">{p.categorySlug || '—'}</span></td>
+      <td><span className={`pa-badge ${st.cls}`}><span className="pa-dot" aria-hidden />{st.label}</span></td>
+      <td className="pa-hide-xl"><span className="pa-cell-muted">{p.updatedAt ? fmtDate(p.updatedAt) : '—'}</span></td>
+      <td><RowActions p={p} onEnable={onEnable} onDisable={onDisable} onPublish={onPublish} onRemove={onRemove} onDuplicate={onDuplicate} /></td>
+    </tr>
+  );
+}
+
+function MobileCard({ p, onEnable, onDisable, onPublish, onRemove, onDuplicate, onAdjust }) {
+  const st = statusBadge(p);
+  return (
+    <div className="pa-mcard">
+      <Link to={`/admin/products/${p._id}`} aria-label={`Open ${p.name}`}>
+        <Img src={p.images?.[0]?.url} alt="" className="pa-mcard-img" />
+      </Link>
+      <div className="pa-mcard-main">
+        <Link to={`/admin/products/${p._id}`} className="pa-name">{p.name}</Link>
+        <span className="pa-sub">{p.sku || '—'}</span>
+        <div className="pa-mcard-row">
+          <p className="pa-price" style={{ margin: 0 }}>{pkr(p.price)}</p>
+          <span className={`pa-badge ${st.cls}`}><span className="pa-dot" aria-hidden />{st.label}</span>
+        </div>
+        <div className="pa-mcard-row">
+          <StockStepper n={p.stock} onAdjust={onAdjust} />
+          <StockBadge n={p.stock} />
+        </div>
+        <div className="pa-mcard-row">
+          <RowActions p={p} onEnable={onEnable} onDisable={onDisable} onPublish={onPublish} onRemove={onRemove} onDuplicate={onDuplicate} />
+        </div>
       </div>
-
-      {products.map((p) => {
-        const st = productStatus(p);
-        return (
-          <div key={p._id} className={`border-b border-white/10 ${selected.has(p._id) ? 'bg-white/[0.03]' : ''} adm-row-hover`}>
-            <div className="hidden lg:grid lg:grid-cols-[32px_48px_minmax(0,1.4fr)_0.7fr_0.75fr_0.75fr_0.7fr_auto] lg:items-center lg:gap-3 lg:px-1 lg:py-3 xl:grid-cols-[32px_48px_minmax(0,1.35fr)_0.7fr_0.7fr_0.7fr_0.85fr_0.7fr_0.85fr_auto]">
-              <input type="checkbox" checked={selected.has(p._id)} onChange={() => onToggleSel(p._id)}
-                aria-label={`Select ${p.name}`}
-                className="h-3.5 w-3.5 cursor-pointer rounded-none border-white/30 bg-transparent accent-white" />
-              <Link to={`/admin/products/${p._id}`} className="block">
-                <Img src={p.images?.[0]?.url} alt="" className="h-12 w-12 border border-white/10 object-cover" />
-              </Link>
-              <div className="min-w-0">
-                <Link to={`/admin/products/${p._id}`} className="line-clamp-2 text-[13px] font-medium text-white hover:text-white/70">{p.name}</Link>
-                <p className="mt-0.5 truncate text-[11px] uppercase tracking-[0.08em] text-white/30">
-                  {p.gender}{p.tier ? ` · ${p.tier}` : ''}
-                  {p.isFeatured ? ' · Featured' : ''}
-                  {p.isBestSeller ? ' · Best' : ''}
-                  {p.onSale ? ' · Sale' : ''}
-                </p>
-              </div>
-              <p className="truncate font-mono text-[11px] text-white/40">{p.sku || '—'}</p>
-              <div>
-                <p className="adm-metric text-[13px] text-white">{pkr(p.price)}</p>
-                {p.onSale === true && p.compareAtPrice ? (
-                  <p className="text-[11px] text-white/30 line-through">{pkr(p.compareAtPrice)}</p>
-                ) : null}
-              </div>
-              <InventoryCell n={p.stock} onAdjust={(d) => onAdjustStock(p, d)} />
-              <p className="hidden truncate text-[12px] text-white/45 xl:block">{p.categorySlug || '—'}</p>
-              <MonoStatus label={st.label} dim={st.dim} />
-              <p className="hidden text-[11px] text-white/30 xl:block">{p.updatedAt ? fmtDate(p.updatedAt) : '—'}</p>
-              <RowActions p={p} onEnable={onEnable} onDisable={onDisable} onPublish={onPublish} onRemove={onRemove} onDuplicate={onDuplicate} />
-            </div>
-
-            <div className="flex items-start gap-3 px-1 py-4 lg:hidden">
-              <input type="checkbox" checked={selected.has(p._id)} onChange={() => onToggleSel(p._id)}
-                aria-label={`Select ${p.name}`}
-                className="mt-1 h-3.5 w-3.5 shrink-0 cursor-pointer rounded-none border-white/30 bg-transparent accent-white" />
-              <Link to={`/admin/products/${p._id}`} className="shrink-0">
-                <Img src={p.images?.[0]?.url} alt="" className="h-16 w-16 border border-white/10 object-cover" />
-              </Link>
-              <div className="min-w-0 flex-1">
-                <Link to={`/admin/products/${p._id}`} className="line-clamp-2 text-[13px] font-medium text-white">{p.name}</Link>
-                <p className="mt-0.5 font-mono text-[11px] text-white/35">{p.sku || '—'}</p>
-                <div className="mt-2 flex flex-wrap items-end justify-between gap-2">
-                  <p className="adm-metric text-[14px] text-white">{pkr(p.price)}</p>
-                  <InventoryCell n={p.stock} onAdjust={(d) => onAdjustStock(p, d)} />
-                </div>
-                <div className="mt-2 flex flex-wrap items-center gap-3">
-                  <MonoStatus label={st.label} dim={st.dim} />
-                  {p.onSale && <span className="text-[9px] uppercase tracking-[0.16em] text-white/40">Sale</span>}
-                </div>
-                <div className="mt-2">
-                  <RowActions p={p} onEnable={onEnable} onDisable={onDisable} onPublish={onPublish} onRemove={onRemove} onDuplicate={onDuplicate} />
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-      })}
     </div>
   );
 }
 
-function ProductGrid({ products, onEnable, onDisable, onPublish, onRemove, onDuplicate, onAdjustStock }) {
+function GridCard({ p, onEnable, onDisable, onPublish, onRemove, onDuplicate, onAdjust }) {
+  const st = statusBadge(p);
   return (
-    <div className="grid gap-px border-y border-white/10 bg-white/10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-      {products.map((p) => {
-        const st = productStatus(p);
-        return (
-          <div key={p._id} className="bg-[#09090B] p-4">
-            <Link to={`/admin/products/${p._id}`} className="block">
-              <div className="aspect-square overflow-hidden border border-white/10 bg-white/[0.03]">
-                <Img src={p.images?.[0]?.url} alt="" className="h-full w-full object-cover" />
-              </div>
-            </Link>
-            <div className="mt-3 flex items-start justify-between gap-2">
-              <Link to={`/admin/products/${p._id}`} className="line-clamp-2 text-[13px] font-medium text-white">{p.name}</Link>
-              <MonoStatus label={st.label} dim={st.dim} />
-            </div>
-            <p className="mt-1 font-mono text-[11px] text-white/35">{p.sku || '—'}</p>
-            <div className="mt-2 flex items-end justify-between">
-              <p className="adm-metric text-[14px] text-white">{pkr(p.price)}</p>
-              <InventoryCell n={p.stock} onAdjust={(d) => onAdjustStock(p, d)} />
-            </div>
-            <div className="mt-2">
-              <RowActions p={p} onEnable={onEnable} onDisable={onDisable} onPublish={onPublish} onRemove={onRemove} onDuplicate={onDuplicate} />
-            </div>
-          </div>
-        );
-      })}
+    <div className="pa-gcard">
+      <Link to={`/admin/products/${p._id}`} className="pa-gcard-img" aria-label={`Open ${p.name}`}>
+        <Img src={p.images?.[0]?.url} alt="" />
+      </Link>
+      <div className="pa-gcard-body">
+        <div className="pa-gcard-top">
+          <Link to={`/admin/products/${p._id}`} className="pa-name" style={{ whiteSpace: 'normal' }}>{p.name}</Link>
+          <span className={`pa-badge ${st.cls}`}><span className="pa-dot" aria-hidden />{st.label}</span>
+        </div>
+        <span className="pa-sub" style={{ marginTop: 4 }}>{p.sku || '—'}</span>
+        <div className="pa-gcard-foot">
+          <p className="pa-price" style={{ margin: 0 }}>{pkr(p.price)}</p>
+          <StockStepper n={p.stock} onAdjust={onAdjust} />
+        </div>
+        <div style={{ marginTop: 10 }}>
+          <RowActions p={p} onEnable={onEnable} onDisable={onDisable} onPublish={onPublish} onRemove={onRemove} onDuplicate={onDuplicate} />
+        </div>
+      </div>
     </div>
   );
 }
 
+/* ── Bulk edit modal — ATELIER ───────────────────────────────────────────── */
 function BulkEditModal({ count, onClose, onApply }) {
   const [action, setAction] = useState('setStock');
   const [numValue, setNumValue] = useState('');
@@ -603,7 +609,7 @@ function BulkEditModal({ count, onClose, onApply }) {
 
   const actions = [
     { key: 'setStock', label: 'Set stock', hint: 'Overwrites current stock with the value below.' },
-    { key: 'stockDelta', label: 'Adjust stock by', hint: 'Adds or subtracts. e.g. +50 to restock, −10 to reduce.' },
+    { key: 'stockDelta', label: 'Adjust stock by', hint: 'Adds or subtracts — e.g. +50 to restock, −10 to reduce.' },
     { key: 'setPrice', label: 'Set price (PKR)', hint: 'Overwrites current price.' },
     { key: 'setCost', label: 'Set cost/wholesale', hint: 'Overwrites current cost price (used for profit calc).' },
     { key: 'priceChangePct', label: 'Adjust prices by %', hint: 'Applies a % change to each product.' },
@@ -635,83 +641,74 @@ function BulkEditModal({ count, onClose, onApply }) {
   };
 
   return (
-    <div className="fixed inset-0 z-[70] grid place-items-center bg-black/60 p-4" onClick={onClose}>
-      <div className="max-h-[88vh] w-full max-w-lg overflow-y-auto border border-white/15 bg-[#0D0D0D]" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-start justify-between border-b border-white/10 px-6 py-5">
+    <div className="pa-modal-overlay" onClick={onClose}>
+      <div className="pa-modal" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-label="Bulk edit">
+        <div className="pa-modal-head">
           <div>
-            <p className="adm-label">Bulk edit</p>
-            <p className="mt-1 text-[16px] font-medium text-white">Update {count} product{count === 1 ? '' : 's'}</p>
+            <h3>Bulk edit</h3>
+            <p>Update {count} product{count === 1 ? '' : 's'} in one pass</p>
           </div>
-          <button type="button" onClick={onClose} disabled={busy} className="text-white/35 hover:text-white" aria-label="Close"><X size={16} /></button>
+          <button type="button" onClick={onClose} disabled={busy} className="pa-action-btn" aria-label="Close">
+            <X size={13} strokeWidth={2.2} />
+          </button>
         </div>
 
-        <div className="px-6 py-5">
-          <p className="adm-label mb-3">What do you want to do?</p>
-          <div className="grid grid-cols-2 gap-1.5">
+        <div className="pa-modal-body">
+          <p className="pa-modal-label">What do you want to do?</p>
+          <div className="pa-modal-grid">
             {actions.map((a) => (
-              <button
-                key={a.key}
-                type="button"
-                onClick={() => setAction(a.key)}
-                className={`px-3 py-2 text-left text-[12px] transition ${
-                  action === a.key ? 'bg-white text-black' : 'text-white/70 hover:bg-white/5 hover:text-white'
-                }`}
-              >
+              <button key={a.key} type="button" onClick={() => setAction(a.key)} className={`pa-modal-action ${action === a.key ? 'on' : ''}`}>
                 {a.label}
               </button>
             ))}
           </div>
 
-          <div className="mt-5 border-t border-white/10 pt-4">
-            <p className="mb-3 text-[12px] leading-relaxed text-white/40">{active?.hint}</p>
-            {needsNum && (
-              <input
-                type="number"
-                value={numValue}
-                onChange={(e) => setNumValue(e.target.value)}
-                className={`${ctl} !h-10 !text-[15px]`}
-                placeholder={action === 'setStock' ? '50' : action === 'stockDelta' ? '+50 or -10' : action === 'priceChangePct' ? '10' : '1800'}
-                autoFocus
-              />
-            )}
-            {action === 'setTier' && (
-              <div className="grid grid-cols-3 gap-1.5">
-                {['Economy', 'Standard', 'Premium'].map((t) => (
-                  <button key={t} type="button" onClick={() => setTier(t)}
-                    className={`h-8 text-[11px] uppercase tracking-[0.12em] ${tier === t ? 'bg-white text-black' : 'border border-white/20 text-white/60'}`}>{t}</button>
-                ))}
-              </div>
-            )}
-            {action === 'setStatus' && (
-              <div className="grid grid-cols-2 gap-1.5">
-                {[{ v: 'active', label: 'Active (live)' }, { v: 'draft', label: 'Draft (hidden)' }].map((o) => (
-                  <button key={o.v} type="button" onClick={() => setStatus(o.v)}
-                    className={`h-8 text-[11px] uppercase tracking-[0.12em] ${status === o.v ? 'bg-white text-black' : 'border border-white/20 text-white/60'}`}>{o.label}</button>
-                ))}
-              </div>
-            )}
-            {(action === 'toggleFeatured' || action === 'toggleBest' || action === 'toggleSale') && (
-              <div className="grid grid-cols-2 gap-1.5">
-                <button type="button" onClick={() => setBool(true)} className={`h-8 text-[11px] uppercase tracking-[0.12em] ${bool ? 'bg-white text-black' : 'border border-white/20 text-white/60'}`}>Turn on</button>
-                <button type="button" onClick={() => setBool(false)} className={`h-8 text-[11px] uppercase tracking-[0.12em] ${!bool ? 'bg-white text-black' : 'border border-white/20 text-white/60'}`}>Turn off</button>
-              </div>
-            )}
-          </div>
-          <p className="mt-5 text-[12px] text-white/35">
-            This applies to {count} product{count === 1 ? '' : 's'} and cannot be undone.
-          </p>
+          <p className="pa-modal-hint">{active?.hint}</p>
+          {needsNum && (
+            <input
+              type="number"
+              value={numValue}
+              onChange={(e) => setNumValue(e.target.value)}
+              className="pa-modal-input"
+              placeholder={action === 'setStock' ? '50' : action === 'stockDelta' ? '+50 or -10' : action === 'priceChangePct' ? '10' : '1800'}
+              autoFocus
+            />
+          )}
+          {action === 'setTier' && (
+            <div className="pa-modal-seg">
+              {['Economy', 'Standard', 'Premium'].map((t) => (
+                <button key={t} type="button" onClick={() => setTier(t)} className={tier === t ? 'on' : ''}>{t}</button>
+              ))}
+            </div>
+          )}
+          {action === 'setStatus' && (
+            <div className="pa-modal-seg cols-2">
+              {[{ v: 'active', label: 'Active (live)' }, { v: 'draft', label: 'Draft (hidden)' }].map((o) => (
+                <button key={o.v} type="button" onClick={() => setStatus(o.v)} className={status === o.v ? 'on' : ''}>{o.label}</button>
+              ))}
+            </div>
+          )}
+          {(action === 'toggleFeatured' || action === 'toggleBest' || action === 'toggleSale') && (
+            <div className="pa-modal-seg cols-2">
+              <button type="button" onClick={() => setBool(true)} className={bool ? 'on' : ''}>Turn on</button>
+              <button type="button" onClick={() => setBool(false)} className={!bool ? 'on' : ''}>Turn off</button>
+            </div>
+          )}
         </div>
 
-        <div className="flex justify-end gap-2 border-t border-white/10 px-6 py-4">
-          <button type="button" onClick={onClose} disabled={busy} className={btnGhost}>Cancel</button>
-          <button
-            type="button"
-            onClick={apply}
-            disabled={busy || (needsNum && (numValue === '' || numValue === null))}
-            className={btnSolid}
-          >
-            <Save size={12} /> {busy ? 'Applying…' : `Apply to ${count}`}
-          </button>
+        <div className="pa-modal-foot">
+          <p className="pa-modal-note">Applies to {count} product{count === 1 ? '' : 's'}</p>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button type="button" onClick={onClose} disabled={busy} className="pa-btn-sm">Cancel</button>
+            <button
+              type="button"
+              onClick={apply}
+              disabled={busy || (needsNum && (numValue === '' || numValue === null))}
+              className="pa-btn-black"
+            >
+              <Save size={12} strokeWidth={2.2} /> {busy ? 'Applying…' : `Apply to ${count}`}
+            </button>
+          </div>
         </div>
       </div>
     </div>
