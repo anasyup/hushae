@@ -107,18 +107,13 @@ const NAV_SECTIONS = [
         label: 'Orders',
         icon: ShoppingCart,
         children: [
+          /* One home per concept: the desk's tabs own the pipeline, the
+             verification queue owns payment issues. The sidebar keeps only
+             distinct destinations — no option lives in two places. */
           { to: '/admin/orders', label: 'All Orders', icon: ShoppingBag },
           { to: '/admin/orders/draft', label: 'Draft Orders', icon: FileText },
           { to: '/admin/abandoned-carts', label: 'Abandoned Checkouts', icon: Package },
-          { to: '/admin/orders/pending', label: 'Pending Payment', icon: CreditCard },
-          { to: '/admin/orders/processing', label: 'Processing', icon: PackageCheck },
-          { to: '/admin/orders/fulfillment', label: 'Fulfillment', icon: Truck },
-          { to: '/admin/orders/shipped', label: 'Shipped', icon: ShoppingBag },
-          { to: '/admin/orders/delivered', label: 'Delivered', icon: PackageCheck },
-          { to: '/admin/orders/cancelled', label: 'Cancelled', icon: Box },
-          { to: '/admin/orders/returns', label: 'Returns', icon: Package },
-          { to: '/admin/orders/refunds', label: 'Refunds', icon: DollarSign },
-          { to: '/admin/orders/issues', label: 'Payment Issues', icon: ShieldCheck },
+          { to: '/admin/verification-queue', label: 'Payment Issues', icon: ShieldCheck },
         ],
       },
       {

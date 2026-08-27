@@ -1,5 +1,5 @@
 import {Component, useEffect, lazy, Suspense} from 'react';
-import { Route, Routes, useLocation, useParams } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom';
 import Header from './components/Header';
 import { useThemeDoc } from './theme-editor/useThemeDoc';
 import Footer from './components/Footer';
@@ -297,6 +297,16 @@ export default function App() {
           <Route path="/admin/ops/risk" element={<Suspense fallback={<EditorFallback />}><CommerceOps start="risk" /></Suspense>} />
           <Route path="/admin/orders/new" element={<Suspense fallback={<EditorFallback />}><DraftOrder /></Suspense>} />
           <Route path="/admin/orders-legacy" element={<Orders />} />
+          {/* Legacy order-list paths now live inside the desk's tabs. */}
+          <Route path="/admin/orders/pending" element={<Navigate to="/admin/orders?group=new" replace />} />
+          <Route path="/admin/orders/processing" element={<Navigate to="/admin/orders?group=processing" replace />} />
+          <Route path="/admin/orders/fulfillment" element={<Navigate to="/admin/orders?group=to-ship" replace />} />
+          <Route path="/admin/orders/shipped" element={<Navigate to="/admin/orders?group=shipped" replace />} />
+          <Route path="/admin/orders/delivered" element={<Navigate to="/admin/orders?group=delivered" replace />} />
+          <Route path="/admin/orders/cancelled" element={<Navigate to="/admin/orders?group=issues" replace />} />
+          <Route path="/admin/orders/returns" element={<Navigate to="/admin/orders?group=issues" replace />} />
+          <Route path="/admin/orders/refunds" element={<Navigate to="/admin/orders?group=issues" replace />} />
+          <Route path="/admin/orders/issues" element={<Navigate to="/admin/verification-queue" replace />} />
           <Route path="/admin/orders/:id" element={<OrderDetail />} />
           <Route path="/admin/orders/:id/invoice" element={<OrderInvoice />} />
           <Route path="/admin/orders/:id/print/:doc" element={<Suspense fallback={<EditorFallback />}><OrderPrintDoc /></Suspense>} />

@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Bell, Keyboard, Loader2, Plus, RefreshCcw, X } from 'lucide-react';
+import { Keyboard, Loader2, Plus, RefreshCcw, X } from 'lucide-react';
 import AdminLayout from '../AdminLayout';
 import PageHeader from '../components/PageHeader';
 import { pkr } from '../../lib/format';
 import { useApp } from '../../store/AppContext';
 import { api } from '../../api/client';
-import { useOrderDesk, useOrderNotifications } from './useOrderDesk';
+import { useOrderDesk } from './useOrderDesk';
 import { GROUPS, ISSUE_TYPES, REFUND_STATES } from './orderConstants';
 import OrderFilters from './OrderFilters';
 import BulkBar from './BulkBar';
@@ -28,7 +28,6 @@ export default function OrdersDesk() {
   const { auth, toast } = useApp();
   const nav = useNavigate();
   const desk = useOrderDesk();
-  const notes = useOrderNotifications();
   const {
     filters, setFilter, resetFilters, activeFilterCount,
     data, counts, facets, loading, error, busyIds,
@@ -36,8 +35,7 @@ export default function OrdersDesk() {
   } = desk;
 
   const [selected, setSelected] = useState([]);
-  const [showNotes, setShowNotes] = useState(false);
-  const [serviceFor, setServiceFor] = useState(null);
+    const [serviceFor, setServiceFor] = useState(null);
   const [selectAllMatching, setSelectAllMatching] = useState(false);
   const [customerPhone, setCustomerPhone] = useState(null);
   const [showShortcuts, setShowShortcuts] = useState(false);
@@ -144,42 +142,6 @@ export default function OrdersDesk() {
             <Link to="/admin/orders/new" className={btnSolid}>
               <Plus size={12} /> Create order
             </Link>
-            <div className="relative">
-              <button
-                onClick={() => { setShowNotes((v) => !v); if (!showNotes) notes.markRead(); }}
-                aria-label="Notifications"
-                className={btnIcon}
-              >
-                <Bell size={14} />
-                {notes.unread > 0 && (
-                  <span className="absolute -right-1 -top-1 grid h-3.5 min-w-3.5 place-items-center bg-white px-1 text-[9px] font-medium text-black">
-                    {notes.unread > 9 ? '9+' : notes.unread}
-                  </span>
-                )}
-              </button>
-              {showNotes && (
-                <>
-                  <div className="fixed inset-0 z-30" onClick={() => setShowNotes(false)} />
-                  <div className="absolute right-0 top-10 z-40 max-h-96 w-80 overflow-y-auto border border-white/15 bg-[#0D0D0D]">
-                    <div className="flex items-center justify-between border-b border-white/10 px-4 py-2.5">
-                      <p className="adm-label">Notifications</p>
-                      <button onClick={() => setShowNotes(false)} className="text-white/35 hover:text-white"><X size={14} /></button>
-                    </div>
-                    {notes.items.length === 0 && <p className="px-4 py-10 text-center text-[12px] text-white/35">Nothing yet</p>}
-                    {notes.items.map((n) => (
-                      <button key={n._id} onClick={() => { if (n.link) nav(n.link); setShowNotes(false); }}
-                        className="flex w-full gap-3 border-b border-white/5 px-4 py-3 text-left hover:bg-white/[0.04]">
-                        <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-white/40" />
-                        <span className="min-w-0">
-                          <span className="block truncate text-[12px] text-white">{n.title}</span>
-                          {n.body && <span className="mt-0.5 block truncate text-[11px] text-white/35">{n.body}</span>}
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                </>
-              )}
-            </div>
             <button onClick={() => reload()} aria-label="Refresh" className={btnIcon}>
               <RefreshCcw size={13} className={loading ? 'animate-spin' : ''} />
             </button>

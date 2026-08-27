@@ -50,6 +50,20 @@ Firing: order.created, order.status, payment.*, issue.raised, print.done, bulk.d
 - **Still dead by origin (pre-existing, NOT broken by us):** ~200 nav routes like /admin/inbox-old-links (now tabs), channels/*, many integrations. Inbox links ab real tabs hain.
 - **Analytics Hub duplicate removed on boss order** — /admin/analytics sirf GROWTH > Analytics > Overview se.
 
+## 6B. ORDERS DESK — dedup decisions (boss: "same option 2 jagah nahi")
+- Desk (ATELIER theme, Overview family) = single home for order workflow:
+  tabs = pipeline (All/New/Processing/To Ship/Shipped/Delivered/Issues),
+  presets = smart views, filters = payment/fulfillment/sort/search (NO status
+  dropdown — tabs own status). Row = one-tap Advance + menu.
+- Sidebar Orders group = sirf 4 distinct destinations: All Orders, Draft
+  Orders, Abandoned Checkouts, Payment Issues (-> /admin/verification-queue).
+- Old paths (/admin/orders/pending etc.) = <Navigate> redirects to desk tabs;
+  routes placed BEFORE /admin/orders/:id.
+- Desk ka apna bell REMOVED — topbar bell + /admin/inbox own notifications.
+- Agla (Phase 2, approved in principle): bulk advance guardrails, inline
+  tracking on Ship + auto WhatsApp opt-in; Phase 3: COD call checklist,
+  courier COD reconciliation, SLA timers.
+
 ## 7. APPROVED NEXT WORK (boss ne green light di)
 1. **Reserved settings editors — DONE (2026-08-28):** Business Address, Time Zone, Currency built, tested, live. Store Settings group complete.
 2. **Next candidates (boss decide kare):** a) baki reserved editors — units, domain, languages, notifications; b) Team & Roles (settings rail me routes already hain); c) Inbox per-row action buttons (optional polish).
