@@ -575,7 +575,7 @@ export default function Overview() {
           </div>
 
           {error && !data && (
-            <div className={cx(styles.card, styles['ovw-error'])}>
+            <div className={cx('card', 'ovw-error')}>
               <p>{error}</p>
               <button className={styles['btn-black']} onClick={() => load(false)}>Retry</button>
             </div>
@@ -584,7 +584,7 @@ export default function Overview() {
           {/* ------------------------------ KPI stats ---------------------------- */}
           <div className={styles.stats}>
             {loading
-              ? Array.from({ length: 6 }).map((_, i) => <div key={i} className={styles.stat}><div className={cx(styles.skeleton, styles['sk-block'])} /></div>)
+              ? Array.from({ length: 6 }).map((_, i) => <div key={i} className={styles.stat}><div className={cx('skeleton', 'sk-block')} /></div>)
               : kpiCards.map((card) => (
                 <div className={styles.stat} key={card.key} onClick={() => nav(card.to)} title={card.tip}>
                   <div className={styles['stat-head']}>
@@ -594,7 +594,7 @@ export default function Overview() {
                   <div className={cx('stat-val', 'count-up')}>{card.text}</div>
                   <div className={styles['stat-foot']}>
                     <div>
-                      <div className={cx('stat-change', (card.change ?? 0) < 0 && styles.neg)}>
+                      <div className={cx('stat-change', (card.change ?? 0) < 0 && 'neg')}>
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 19V5M5 12l7-7 7 7" /></svg>
                         {changeLabel(card.change)}
                       </div>
@@ -873,7 +873,7 @@ export default function Overview() {
              ancestor quirk can demote it: it must always be a fixed,
              full-viewport layer above the sidebar (z-40). */}
           <div
-            className={cx(styles.modal, notifOpen && styles.show)}
+            className={cx('modal', notifOpen && 'show')}
             style={{ position: 'fixed', inset: 0, zIndex: 10000 }}
             onClick={(e) => { if (e.target === e.currentTarget) setNotifOpen(false); }}
           >
