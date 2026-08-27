@@ -1,14 +1,19 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Bell, Keyboard, Loader2, Plus, RefreshCcw, X } from 'lucide-react';
+import { Keyboard, Loader2, Plus, RefreshCcw, X } from 'lucide-react';
+import './orders-desk.css';
+import {
+  CalendarDays, CheckCircle2, Clock, Package, XCircle, Banknote, Download,
+} from 'lucide-react';
 import AdminLayout from '../AdminLayout';
 import PageHeader from '../components/PageHeader';
 import { pkr } from '../../lib/format';
 import { useApp } from '../../store/AppContext';
 import { api } from '../../api/client';
-import { useOrderDesk, useOrderNotifications } from './useOrderDesk';
+import { useOrderDesk } from './useOrderDesk';
 import { GROUPS, ISSUE_TYPES, REFUND_STATES } from './orderConstants';
 import OrderFilters from './OrderFilters';
+import TrackingModal from './TrackingModal';
 import BulkBar from './BulkBar';
 import OrderRow from './OrderRow';
 import QuickFilters from './QuickFilters';
@@ -28,16 +33,14 @@ export default function OrdersDesk() {
   const { auth, toast } = useApp();
   const nav = useNavigate();
   const desk = useOrderDesk();
-  const notes = useOrderNotifications();
   const {
     filters, setFilter, resetFilters, activeFilterCount,
     data, counts, facets, loading, error, busyIds,
-    reload, setStage, verifyPayment, bulk, exportCsv,
+    reload, setStage, verifyPayment, bulk, exportCsv, saveTracking,
   } = desk;
 
   const [selected, setSelected] = useState([]);
-  const [showNotes, setShowNotes] = useState(false);
-  const [serviceFor, setServiceFor] = useState(null);
+    const [serviceFor, setServiceFor] = useState(null);
   const [selectAllMatching, setSelectAllMatching] = useState(false);
   const [customerPhone, setCustomerPhone] = useState(null);
   const [showShortcuts, setShowShortcuts] = useState(false);
@@ -127,230 +130,232 @@ export default function OrdersDesk() {
   const pendingCount = counts?.byGroup?.new ?? counts?.byPaymentState?.Pending ?? 0;
   const fulfilledCount = counts?.byGroup?.delivered ?? 0;
 
-  const metrics = [
-    { label: 'Total orders', value: counts ? counts.total : '—' },
-    { label: 'Pending', value: counts ? pendingCount : '—' },
-    { label: 'Paid', value: counts ? paidCount : '—' },
-    { label: 'Fulfilled', value: counts ? fulfilledCount : '—' },
+  /* Tracking-at-ship: moving an order into the courier pipeline without a
+     tracking number opens the modal first. Skipping never blocks the stage —
+     a stuck pipeline costs more than a missing number. */
+  const [trackReq, setTrackReq] = useState(null);
+  const [trackBusy, setTrackBusy] = useState(false);
+  const SHIP_STAGES = ['To Handover', 'Shipped', 'In Transit', 'Out for Delivery'];
+
+  const handleStage = (id, stage, note = '', reason = '') => {
+    if (SHIP_STAGES.includes(stage)) {
+      const o = orders.find((x) => x._id === id);
+      if (o && !o.trackingNumber) { setTrackReq({ order: o, stage, note, reason }); return; }
+    }
+    setStage(id, stage, note, reason);
+  };
+
+  const submitTracking = async ({ courier, tracking, skip }) => {
+    const { order, stage, note, reason } = trackReq;
+    setTrackReq(null);
+    setTrackBusy(true);
+    try {
+      if (!skip && (tracking || courier)) {
+        await saveTracking(order._id, { courier, tracking });
+      }
+      if (stage) setStage(order._id, stage, note, reason);
+    } catch { /* act() already toasted */ }
+    setTrackBusy(false);
+  };
+
+  const pct = (cur, prev) => {
+    if (!prev) return null;
+    const v = ((cur - prev) / prev) * 100;
+    return `${v >= 0 ? '↑' : '↓'} ${Math.abs(v).toFixed(1)}%`;
+  };
+
+  const trend = counts?.trend;
+  const prev = counts?.prev;
+  const cur = counts?.cur;
+  const stats = [
+    { label: 'Total Orders', icon: CalendarDays, val: counts?.total, series: trend?.total, c: cur?.total, p: prev?.total, color: '#111' },
+    { label: 'Pending', icon: Clock, val: counts?.byGroup?.new, series: trend?.pending, c: cur?.pending, p: prev?.pending, color: '#f59e0b' },
+    { label: 'Processing', icon: Package, val: (counts?.byGroup?.processing || 0) + (counts?.byGroup?.['to-ship'] || 0), series: trend?.processing, c: cur?.processing, p: prev?.processing, color: '#8b5cf6' },
+    { label: 'Completed', icon: CheckCircle2, val: counts?.byGroup?.delivered, series: trend?.completed, c: cur?.completed, p: prev?.completed, color: '#0e9f6e' },
+    { label: 'Cancelled', icon: XCircle, val: counts?.byGroup?.issues, series: trend?.cancelled, c: cur?.cancelled, p: prev?.cancelled, color: '#ef4444' },
+    { label: 'Revenue', icon: Banknote, val: counts?.revenue != null ? pkr(counts.revenue) : null, series: trend?.revenue, c: cur?.revenue, p: prev?.revenue, color: '#1e40af' },
   ];
 
   return (
     <AdminLayout title="Orders">
-      <PageHeader
-        title="Orders"
-        description="Manage orders, payments and fulfillment."
-        actions={(
-          <>
-            <Link to="/admin/orders/new" className={btnSolid}>
-              <Plus size={12} /> Create order
-            </Link>
-            <div className="relative">
-              <button
-                onClick={() => { setShowNotes((v) => !v); if (!showNotes) notes.markRead(); }}
-                aria-label="Notifications"
-                className={btnIcon}
-              >
-                <Bell size={14} />
-                {notes.unread > 0 && (
-                  <span className="absolute -right-1 -top-1 grid h-3.5 min-w-3.5 place-items-center bg-white px-1 text-[9px] font-medium text-black">
-                    {notes.unread > 9 ? '9+' : notes.unread}
-                  </span>
-                )}
-              </button>
-              {showNotes && (
-                <>
-                  <div className="fixed inset-0 z-30" onClick={() => setShowNotes(false)} />
-                  <div className="absolute right-0 top-10 z-40 max-h-96 w-80 overflow-y-auto border border-white/15 bg-[#0D0D0D]">
-                    <div className="flex items-center justify-between border-b border-white/10 px-4 py-2.5">
-                      <p className="adm-label">Notifications</p>
-                      <button onClick={() => setShowNotes(false)} className="text-white/35 hover:text-white"><X size={14} /></button>
-                    </div>
-                    {notes.items.length === 0 && <p className="px-4 py-10 text-center text-[12px] text-white/35">Nothing yet</p>}
-                    {notes.items.map((n) => (
-                      <button key={n._id} onClick={() => { if (n.link) nav(n.link); setShowNotes(false); }}
-                        className="flex w-full gap-3 border-b border-white/5 px-4 py-3 text-left hover:bg-white/[0.04]">
-                        <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-white/40" />
-                        <span className="min-w-0">
-                          <span className="block truncate text-[12px] text-white">{n.title}</span>
-                          {n.body && <span className="mt-0.5 block truncate text-[11px] text-white/35">{n.body}</span>}
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                </>
-              )}
-            </div>
-            <button onClick={() => reload()} aria-label="Refresh" className={btnIcon}>
+      <div className="od">
+        {/* ── page head ── */}
+        <div className="od-head">
+          <div>
+            <h1 className="od-title">Orders</h1>
+            <p className="od-sub">
+              {loading ? 'Loading…' : `${data.total} orders in view${counts?.revenue != null ? ` · ${pkr(counts.revenue)} total value` : ''}`}
+            </p>
+          </div>
+          <div className="od-head-right">
+            <Link to="/admin/orders/new" className="od-btn-black"><Plus size={11} /> Add Order</Link>
+            <button type="button" onClick={() => reload()} className="od-icon-btn" aria-label="Refresh" title="Refresh">
               <RefreshCcw size={13} className={loading ? 'animate-spin' : ''} />
             </button>
-            <button onClick={() => setShowShortcuts(true)} aria-label="Keyboard shortcuts" className={`${btnIcon} hidden sm:grid`}>
+            <button type="button" onClick={() => setShowShortcuts(true)} className="od-icon-btn" aria-label="Keyboard shortcuts" title="Shortcuts (?)">
               <Keyboard size={13} />
             </button>
-          </>
-        )}
-      />
-
-      {/* 01 — ORDER OVERVIEW */}
-      <section className="mb-10">
-        <p className="adm-index">01 — Order overview</p>
-        <div className="adm-divide-x grid grid-cols-2 border-y border-white/10 lg:grid-cols-4">
-          {metrics.map((m) => (
-            <div key={m.label} className="px-5 py-6">
-              <p className="adm-label">{m.label}</p>
-              <p className="adm-metric mt-3 text-[32px] leading-none text-white">
-                {typeof m.value === 'number' ? m.value.toLocaleString() : m.value}
-              </p>
-            </div>
-          ))}
+          </div>
         </div>
-        {counts?.revenue != null && (
-          <p className="mt-3 text-[11px] uppercase tracking-[0.14em] text-white/30">
-            {pkr(counts.revenue)} total value
-            {loading ? ' · Loading…' : ` · ${data.total} in this view`}
-          </p>
-        )}
-      </section>
 
-      {/* 02 — ORDER WORKSPACE */}
-      <section className="mb-10">
-        <p className="adm-index">02 — Order workspace</p>
-        <div className="flex gap-1 overflow-x-auto border-b border-white/10 pb-px">
-          {GROUPS.map((g) => {
-            const n = g.key === 'all' ? counts?.total : counts?.byGroup?.[g.key];
-            const active = group === g.key;
+        {/* ── stat cards with real 7-day sparklines ── */}
+        <div className="od-stats">
+          {stats.map((m) => {
+            const Icon = m.icon;
+            const ch = m.c != null && m.p != null ? pct(m.c, m.p) : null;
             return (
-              <button
-                key={g.key}
-                onClick={() => setFilter({ group: g.key, stage: '' })}
-                title={g.hint}
-                aria-pressed={active}
-                className={`shrink-0 px-3 py-2.5 text-[10px] font-medium uppercase tracking-[0.14em] transition-colors ${
-                  active
-                    ? 'border-b border-white text-white'
-                    : 'border-b border-transparent text-white/35 hover:text-white/75'
-                }`}
-              >
-                {g.label}
-                {n != null && <span className={`ml-2 tabular-nums ${active ? 'text-white/70' : 'text-white/25'}`}>{n}</span>}
-              </button>
+              <div key={m.label} className="od-stat">
+                <div className="od-stat-head"><Icon /> {m.label}</div>
+                <div className="od-stat-val">{typeof m.val === 'number' ? m.val.toLocaleString() : m.val ?? '—'}</div>
+                <div className="od-stat-foot">
+                  <div>
+                    {ch && <div className={`od-stat-change ${ch.startsWith('↓') ? 'down' : ''}`}>{ch}</div>}
+                    <div className="od-stat-vs">vs previous 7 days</div>
+                  </div>
+                  {m.series && <Spark data={m.series} color={m.color} />}
+                </div>
+              </div>
             );
           })}
         </div>
 
-        <div className="mt-5">
-          <QuickFilters
-            filters={filters} setFilter={setFilter} token={auth?.token}
-            currentQuery={window.location.search.replace(/^\?/, '')} toast={toast}
-          />
-        </div>
-
-        <div className="mt-5">
-          <OrderFilters
-            filters={filters} setFilter={setFilter} resetFilters={resetFilters}
-            activeFilterCount={activeFilterCount} facets={facets} onExport={exportCsv}
-            token={auth?.token}
-          />
-        </div>
-      </section>
-
-      {/* 03 — ORDERS */}
-      <section className="mb-6">
-        <p className="adm-index">03 — Orders</p>
-
-        <BulkBar
-          selected={selected} total={data.total}
-          onClear={() => { setSelected([]); setSelectAllMatching(false); }}
-          onSelectAll={() => { setSelected(ids); setSelectAllMatching(true); }}
-          onBulk={bulk} onExport={exportCsv}
-          onPrint={handleBulkPrint} canAdvance={canAdvance}
-          token={auth?.token} toast={toast}
-        />
-
-        {selectAllMatching && data.total > orders.length && (
-          <p className="border-b border-white/10 py-2.5 text-[12px] text-white/45">
-            All <span className="text-white">{data.total}</span> matching orders are targeted — actions apply beyond this page.
-            <button onClick={() => setSelectAllMatching(false)} className="ml-2 text-white/70 underline underline-offset-2 hover:text-white">
-              Limit to this page
-            </button>
-          </p>
-        )}
-
-        {error && (
-          <EditorialError
-            title="Unable to load orders"
-            description={error || 'Something prevented the orders from loading.'}
-            onRetry={() => reload()}
-          />
-        )}
-
-        {loading && orders.length === 0 && !error && <TableSkeleton rows={6} />}
-
-        {!loading && orders.length === 0 && !error && (
-          <EditorialEmpty
-            title="No orders"
-            description={activeFilterCount > 0
-              ? 'No orders match these filters. Try widening the date range or clearing the search.'
-              : 'Orders will appear here when customers complete purchases.'}
-            action={activeFilterCount > 0 ? (
-              <button onClick={resetFilters} className={btnSolid}>Clear all filters</button>
-            ) : (
-              <Link to="/admin/orders/new" className={btnGhost}>Create order</Link>
-            )}
-          />
-        )}
-
-        {orders.length > 0 && (
-          <div className="min-w-0 overflow-x-hidden">
-            <div className="hidden border-b border-white/10 px-1 py-2.5 lg:grid lg:grid-cols-[32px_minmax(0,1.2fr)_minmax(0,1.15fr)_0.5fr_0.9fr_0.85fr_0.95fr_auto] lg:items-center lg:gap-3 xl:grid-cols-[32px_minmax(0,1.15fr)_minmax(0,1.1fr)_0.85fr_0.55fr_0.85fr_0.85fr_0.95fr_0.7fr_auto]">
-              <input
-                type="checkbox"
-                checked={allOnPage}
-                onChange={() => setSelected(allOnPage ? [] : ids)}
-                aria-label="Select all on this page"
-                className="h-3.5 w-3.5 cursor-pointer rounded-none border-white/30 bg-transparent accent-white"
-              />
-              <p className="adm-label">Order</p>
-              <p className="adm-label">Customer</p>
-              <p className="adm-label hidden xl:block">Date</p>
-              <p className="adm-label">Items</p>
-              <p className="adm-label">Total</p>
-              <p className="adm-label">Payment</p>
-              <p className="adm-label">Fulfillment</p>
-              <p className="adm-label hidden xl:block">Status</p>
-              <p className="adm-label" />
+        {/* ── main card ── */}
+        <div className="od-card">
+          <div className="od-card-h">
+            <div className="od-tabs">
+              {GROUPS.map((g) => {
+                const n = g.key === 'all' ? counts?.total : counts?.byGroup?.[g.key];
+                return (
+                  <button
+                    key={g.key}
+                    type="button"
+                    onClick={() => setFilter({ group: g.key, stage: '' })}
+                    title={g.hint}
+                    aria-pressed={group === g.key}
+                    className={`od-tab ${group === g.key ? 'active' : ''}`}
+                  >
+                    {g.label}
+                    {n != null && <span className="count">{n}</span>}
+                  </button>
+                );
+              })}
             </div>
-            <div className="flex items-center gap-2 border-b border-white/10 px-1 py-2 lg:hidden">
-              <input
-                type="checkbox"
-                checked={allOnPage}
-                onChange={() => setSelected(allOnPage ? [] : ids)}
-                aria-label="Select all on this page"
-                className="h-3.5 w-3.5 cursor-pointer rounded-none border-white/30 bg-transparent accent-white"
-              />
-              <span className="text-[11px] text-white/35">Select page</span>
+            <div style={{ display: 'flex', gap: 6 }}>
+              <button type="button" className="od-btn-sm" onClick={exportCsv}><Download size={11} /> Export</button>
             </div>
-
-            {orders.map((o) => (
-              <OrderRow
-                key={o._id} order={o}
-                selected={selected.includes(o._id)} onSelect={toggle}
-                busy={busyIds.has(o._id)}
-                onStage={setStage} onVerify={verifyPayment}
-                onPrint={handlePrint} onOpenService={setServiceFor}
-                onOpenCustomer={setCustomerPhone}
-              />
-            ))}
           </div>
-        )}
 
-        <div className="mt-2">
-          <EditorialPagination
-            page={data.page}
-            pages={data.pages}
-            onPage={(p) => setFilter({ page: String(p) })}
+          <div className="od-filters" style={{ marginBottom: 10 }}>
+            <OrderFilters
+              filters={filters} setFilter={setFilter} resetFilters={resetFilters}
+              activeFilterCount={activeFilterCount} facets={facets} onExport={exportCsv}
+              token={auth?.token}
+            />
+          </div>
+
+          <div className="od-views" style={{ marginBottom: 10 }}>
+            <QuickFilters
+              filters={filters} setFilter={setFilter} token={auth?.token}
+              currentQuery={window.location.search.replace(/^\?/, '')} toast={toast}
+            />
+          </div>
+
+          <BulkBar
+            selected={selected} total={data.total}
+            onClear={() => { setSelected([]); setSelectAllMatching(false); }}
+            onSelectAll={() => { setSelected(ids); setSelectAllMatching(true); }}
+            onBulk={bulk} onExport={exportCsv}
+            onPrint={handleBulkPrint} canAdvance={canAdvance}
+            token={auth?.token} toast={toast}
           />
+
+          {selectAllMatching && data.total > orders.length && (
+            <p style={{ fontSize: 12, color: 'var(--od-muted)', padding: '8px 0', borderBottom: '1px solid var(--od-border-light)' }}>
+              All <b style={{ color: 'var(--od-text)' }}>{data.total}</b> matching orders are targeted — actions apply beyond this page.
+              <button type="button" onClick={() => setSelectAllMatching(false)} style={{ marginLeft: 8, border: 0, background: 'transparent', color: 'var(--od-text)', textDecoration: 'underline', cursor: 'pointer' }}>
+                Limit to this page
+              </button>
+            </p>
+          )}
+
+          {error && (
+            <div className="od-empty">
+              <XCircle size={22} style={{ color: 'var(--od-muted)', margin: '0 auto' }} />
+              <p className="od-empty-t">Unable to load orders</p>
+              <p className="od-empty-b">{error}</p>
+              <button type="button" className="od-btn-sm primary" onClick={() => reload()} style={{ margin: '12px auto 0' }}>Retry</button>
+            </div>
+          )}
+
+          {loading && orders.length === 0 && !error && (
+            <div className="od-empty"><p className="od-empty-b">Loading orders…</p></div>
+          )}
+
+          {!loading && orders.length === 0 && !error && (
+            <div className="od-empty">
+              <Package size={22} style={{ color: 'var(--od-muted)', margin: '0 auto' }} />
+              <p className="od-empty-t">No orders</p>
+              <p className="od-empty-b">
+                {activeFilterCount > 0 ? 'No orders match these filters. Try widening the range or clearing the search.' : 'Orders will appear here when customers complete purchases.'}
+              </p>
+              <div style={{ marginTop: 12, display: 'flex', gap: 8, justifyContent: 'center' }}>
+                {activeFilterCount > 0
+                  ? <button type="button" className="od-btn-sm primary" onClick={resetFilters}>Clear all filters</button>
+                  : <Link to="/admin/orders/new" className="od-btn-sm">Create order</Link>}
+              </div>
+            </div>
+          )}
+
+          {orders.length > 0 && (
+            <div className="od-table-wrap">
+              <table className="od-tbl">
+                <thead>
+                  <tr>
+                    <th style={{ width: 32 }}>
+                      <input
+                        type="checkbox"
+                        checked={allOnPage}
+                        onChange={() => setSelected(allOnPage ? [] : ids)}
+                        aria-label="Select all on this page"
+                        style={{ width: 14, height: 14, cursor: 'pointer', accentColor: 'var(--od-black)' }}
+                      />
+                    </th>
+                    <th>Order</th>
+                    <th>Customer</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Payment</th>
+                    <th>Fulfillment</th>
+                    <th>Total</th>
+                    <th style={{ textAlign: 'right' }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {orders.map((o) => (
+                    <OrderRow
+                      key={o._id} order={o}
+                      selected={selected.includes(o._id)} onSelect={toggle}
+                      busy={busyIds.has(o._id)}
+                      onStage={handleStage} onVerify={verifyPayment}
+                      onPrint={handlePrint} onOpenService={setServiceFor}
+                      onOpenCustomer={setCustomerPhone}
+                      onOpenTracking={(ord) => setTrackReq({ order: ord })}
+                    />
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          <div style={{ marginTop: 10 }}>
+            <EditorialPagination
+              page={data.page}
+              pages={data.pages}
+              onPage={(pg) => setFilter({ page: String(pg) })}
+            />
+          </div>
         </div>
-      </section>
+      </div>
 
       {customerPhone && (
         <CustomerPanel phone={customerPhone} token={auth?.token} onClose={() => setCustomerPhone(null)} />
@@ -381,7 +386,31 @@ export default function OrdersDesk() {
         <IssueModal order={serviceFor} token={auth?.token} toast={toast}
           onClose={() => setServiceFor(null)} onSaved={() => { setServiceFor(null); reload({ silent: true }); }} />
       )}
+      {trackReq && (
+        <TrackingModal
+          order={trackReq.order}
+          stageLabel={trackReq.stage || ''}
+          busy={trackBusy}
+          onSubmit={submitTracking}
+          onClose={() => setTrackReq(null)}
+        />
+      )}
     </AdminLayout>
+  );
+}
+
+function Spark({ data, color }) {
+  if (!data || data.length < 2) return null;
+  const max = Math.max(...data);
+  const min = Math.min(...data);
+  const W = 70; const H = 26;
+  const pts = data
+    .map((v, i) => `${((i / (data.length - 1)) * W).toFixed(1)},${(H - 3 - ((v - min) / Math.max(1, max - min)) * (H - 6)).toFixed(1)}`)
+    .join(' ');
+  return (
+    <svg className="od-spark" viewBox={`0 0 ${W} ${H}`} aria-hidden="true">
+      <polyline points={pts} fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
   );
 }
 

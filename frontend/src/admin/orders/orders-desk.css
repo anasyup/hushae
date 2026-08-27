@@ -1,0 +1,353 @@
+/* ============================================================================
+ * ORDERS DESK — the reference design (orders_balanced_polished.html), ported
+ * onto the admin token system so light AND dark themes stay consistent with
+ * every other page. Component prefix: od-.
+ * ========================================================================== */
+
+.od {
+  --od-card: var(--admin-surface);
+  --od-border: var(--admin-border);
+  --od-border-light: var(--admin-border-subtle);
+  --od-text: var(--admin-text);
+  --od-muted: var(--admin-text-secondary);
+  --od-muted2: var(--adm-label);
+  --od-black: var(--admin-accent);
+  --od-on-black: var(--adm-avatar-fg);
+  --od-hover: var(--adm-hover-bg);
+  --od-green: #0e9f6e;
+  --od-green-bg: #ecfdf5; --od-green-bd: #d1fae5; --od-green-tx: #065f46;
+  --od-yellow-bg: #fef3c7; --od-yellow-bd: #fde68a; --od-yellow-tx: #92400e;
+  --od-blue-bg: #eff6ff; --od-blue-bd: #bfdbfe; --od-blue-tx: #1e40af;
+  --od-red-bg: #fef2f2; --od-red-bd: #fecaca; --od-red-tx: #991b1b;
+  --od-purple-bg: #f5f3ff; --od-purple-bd: #ddd6fe; --od-purple-tx: #5b21b6;
+  --od-gray-bg: #f9fafb; --od-gray-bd: #e5e7eb; --od-gray-tx: #6b7280;
+  --od-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+.dark-admin .od {
+  --od-green: #34d399;
+  --od-green-bg: rgba(16, 185, 129, 0.12); --od-green-bd: rgba(16, 185, 129, 0.3); --od-green-tx: #6ee7b7;
+  --od-yellow-bg: rgba(245, 158, 11, 0.12); --od-yellow-bd: rgba(245, 158, 11, 0.3); --od-yellow-tx: #fcd34d;
+  --od-blue-bg: rgba(59, 130, 246, 0.12); --od-blue-bd: rgba(59, 130, 246, 0.3); --od-blue-tx: #93c5fd;
+  --od-red-bg: rgba(239, 68, 68, 0.12); --od-red-bd: rgba(239, 68, 68, 0.3); --od-red-tx: #fca5a5;
+  --od-purple-bg: rgba(139, 92, 246, 0.14); --od-purple-bd: rgba(139, 92, 246, 0.32); --od-purple-tx: #c4b5fd;
+  --od-gray-bg: rgba(255, 255, 255, 0.06); --od-gray-bd: rgba(255, 255, 255, 0.12); --od-gray-tx: #9ca3af;
+  --od-shadow: none;
+}
+
+/* ── page head ─────────────────────────────────────────────────────────── */
+.od-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.od-title { font-size: 16.5px; font-weight: 700; letter-spacing: -0.3px; color: var(--od-text); }
+.od-sub { font-size: 12px; color: var(--od-muted); margin-top: 1px; }
+.od-head-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+
+.od-pill {
+  height: 34px;
+  background: var(--od-card);
+  border: 1px solid var(--od-border);
+  border-radius: 10px;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--od-text);
+  white-space: nowrap;
+  box-shadow: var(--od-shadow);
+}
+.od-btn-black {
+  height: 34px;
+  background: var(--od-black);
+  color: var(--od-on-black);
+  border: 0;
+  border-radius: 10px;
+  padding: 0 12px;
+  font-size: 11px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: 0.15s;
+  text-decoration: none;
+}
+.od-btn-black:hover { opacity: 0.88; }
+.od-icon-btn {
+  width: 34px;
+  height: 34px;
+  background: var(--od-card);
+  border: 1px solid var(--od-border);
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  color: var(--od-muted);
+  transition: 0.15s;
+}
+.od-icon-btn:hover { border-color: var(--od-black); color: var(--od-text); }
+
+/* ── stat cards ────────────────────────────────────────────────────────── */
+.od-stats {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+  margin-bottom: 12px;
+}
+@media (max-width: 1380px) { .od-stats { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 680px) { .od-stats { grid-template-columns: repeat(2, 1fr); } }
+.od-stat {
+  background: var(--od-card);
+  border: 1px solid var(--od-border-light);
+  border-radius: 12px;
+  padding: 12px 14px 10px;
+  box-shadow: var(--od-shadow);
+  min-width: 0;
+  overflow: hidden;
+  transition: 0.2s;
+}
+.od-stat:hover { border-color: var(--od-border); }
+.od-stat-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--od-muted);
+  font-size: 11px;
+  font-weight: 500;
+  margin-bottom: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.od-stat-head svg { width: 14px; height: 14px; flex-shrink: 0; }
+.od-stat-val { font-size: 17px; font-weight: 700; letter-spacing: -0.3px; white-space: nowrap; color: var(--od-text); }
+.od-stat-foot { display: flex; align-items: flex-end; justify-content: space-between; margin-top: 8px; gap: 6px; }
+.od-stat-change { font-size: 10px; font-weight: 600; color: var(--od-green); white-space: nowrap; }
+.od-stat-change.down { color: #ef4444; }
+.od-stat-vs { font-size: 9px; color: var(--od-muted2); margin-top: 2px; white-space: nowrap; }
+.od-spark { width: 70px; height: 26px; flex-shrink: 0; }
+
+/* ── main card ─────────────────────────────────────────────────────────── */
+.od-card {
+  background: var(--od-card);
+  border: 1px solid var(--od-border-light);
+  border-radius: 12px;
+  padding: 14px 16px;
+  box-shadow: var(--od-shadow);
+  overflow: hidden;
+}
+.od-card-h {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.od-btn-sm {
+  border: 1px solid var(--od-border);
+  background: var(--od-card);
+  color: var(--od-text);
+  border-radius: 8px;
+  padding: 5px 10px;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: 0.15s;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+.od-btn-sm:hover { border-color: var(--od-black); }
+.od-btn-sm.primary { background: var(--od-black); color: var(--od-on-black); border-color: var(--od-black); }
+
+/* ── tabs ──────────────────────────────────────────────────────────────── */
+.od-tabs { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.od-tab {
+  font-size: 11px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.15s;
+  border: 1px solid transparent;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--od-hover);
+  color: var(--od-muted);
+}
+.od-tab:hover { color: var(--od-text); }
+.od-tab.active { background: var(--od-black); color: var(--od-on-black); }
+.od-tab .count { font-size: 10px; padding: 2px 6px; border-radius: 10px; font-weight: 600; }
+.od-tab.active .count { background: rgba(255, 255, 255, 0.2); color: inherit; }
+.dark-admin .od-tab.active .count { background: rgba(0, 0, 0, 0.18); }
+.od-tab:not(.active) .count { background: var(--od-gray-bg); border: 1px solid var(--od-gray-bd); color: var(--od-muted); }
+
+/* ── table ─────────────────────────────────────────────────────────────── */
+.od-table-wrap { width: 100%; overflow-x: auto; }
+.od-tbl { width: 100%; border-collapse: collapse; min-width: 940px; }
+.od-tbl th {
+  font-size: 10px;
+  color: var(--od-muted2);
+  font-weight: 500;
+  text-align: left;
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--od-border-light);
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.od-tbl td {
+  font-size: 11.5px;
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--od-border-light);
+  vertical-align: middle;
+  white-space: nowrap;
+  color: var(--od-text);
+}
+.od-tbl tbody tr { transition: 0.12s; cursor: pointer; }
+.od-tbl tbody tr:hover { background: var(--od-hover); }
+.od-tbl tbody tr.od-selected { background: var(--od-hover); }
+.od-strong { font-weight: 700; }
+.od-sub2 { font-size: 10px; color: var(--od-muted); margin-top: 1px; }
+
+/* ── badges (dot pills) ────────────────────────────────────────────────── */
+.od-b {
+  border-radius: 20px;
+  padding: 3px 8px;
+  font-size: 9px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid;
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.od-b .dot { width: 4px; height: 4px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+.od-b-green  { background: var(--od-green-bg);  color: var(--od-green-tx);  border-color: var(--od-green-bd); }
+.od-b-yellow { background: var(--od-yellow-bg); color: var(--od-yellow-tx); border-color: var(--od-yellow-bd); }
+.od-b-blue   { background: var(--od-blue-bg);   color: var(--od-blue-tx);   border-color: var(--od-blue-bd); }
+.od-b-red    { background: var(--od-red-bg);    color: var(--od-red-tx);    border-color: var(--od-red-bd); }
+.od-b-purple { background: var(--od-purple-bg); color: var(--od-purple-tx); border-color: var(--od-purple-bd); }
+.od-b-gray   { background: var(--od-gray-bg);   color: var(--od-gray-tx);   border-color: var(--od-gray-bd); }
+
+/* SLA chip */
+.od-sla { font-size: 10px; font-weight: 700; font-variant-numeric: tabular-nums; margin-left: 6px; }
+
+/* row action buttons */
+.od-act {
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--od-border);
+  background: var(--od-card);
+  color: var(--od-muted);
+  border-radius: 6px;
+  display: inline-grid;
+  place-items: center;
+  cursor: pointer;
+  transition: 0.15s;
+  flex-shrink: 0;
+}
+.od-act:hover { border-color: var(--od-black); background: var(--od-black); color: var(--od-on-black); }
+.od-advance {
+  height: 24px;
+  border: 1px solid var(--od-border);
+  background: var(--od-card);
+  color: var(--od-muted);
+  border-radius: 6px;
+  padding: 0 7px;
+  font-size: 9.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: 0.15s;
+}
+.od-advance:hover { border-color: var(--od-green); color: var(--od-green); }
+
+/* row menu (restyled popover) */
+.od-menu {
+  position: absolute;
+  right: 0;
+  top: 28px;
+  z-index: 30;
+  width: 200px;
+  border: 1px solid var(--od-border);
+  background: var(--od-card);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  padding: 4px;
+  text-align: left;
+}
+.od-menu button, .od-menu a {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 9px;
+  border: 0;
+  background: transparent;
+  border-radius: 7px;
+  font-size: 11.5px;
+  color: var(--od-text);
+  cursor: pointer;
+  text-decoration: none;
+}
+.od-menu button:hover, .od-menu a:hover { background: var(--od-hover); }
+.od-menu-sep { border-top: 1px solid var(--od-border-light); margin: 4px 2px; }
+
+/* empty / loading */
+.od-empty { padding: 56px 16px; text-align: center; }
+.od-empty-t { margin-top: 10px; font-size: 14px; font-weight: 700; color: var(--od-text); }
+.od-empty-b { margin-top: 4px; font-size: 12px; color: var(--od-muted); }
+
+/* ── scoped restyle for the functional control rows (OrderFilters /
+     QuickFilters / BulkBar) so they sit inside the reference look ── */
+.od-filters input, .od-filters select {
+  height: 32px;
+  border: 1px solid var(--od-border);
+  background: var(--od-card);
+  color: var(--od-text);
+  border-radius: 8px;
+  padding: 0 10px;
+  font-size: 11px;
+  font-weight: 500;
+}
+.od-filters input:focus, .od-filters select:focus { border-color: var(--od-black); outline: none; }
+.od-filters button {
+  border: 1px solid var(--od-border);
+  background: var(--od-card);
+  color: var(--od-text);
+  border-radius: 8px;
+  padding: 5px 10px;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.od-filters button:hover { border-color: var(--od-black); }
+.od-views button {
+  border: 1px solid var(--od-border);
+  background: var(--od-card);
+  color: var(--od-muted);
+  border-radius: 20px;
+  padding: 5px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.od-views button:hover { color: var(--od-text); border-color: var(--od-black); }
