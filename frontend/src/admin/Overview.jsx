@@ -214,10 +214,14 @@ export default function Overview() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [range]);
 
+  const closeDrops = () => {
+    document.querySelectorAll('.' + styles.dropdown).forEach((d) => d.classList.remove(styles.show));
+    document.querySelectorAll('.' + styles.pill).forEach((p) => p.classList.remove(styles.active));
+  };
   const pickRange = (key) => {
     const r = resolvePreset(key);
     if (r) setRange({ preset: key, from: r.from, to: r.to });
-    document.querySelectorAll('.' + styles.dropdown).forEach((d) => d.classList.remove(styles.show));
+    closeDrops();
   };
 
   /* -------------------------------- data -------------------------------- */
@@ -559,22 +563,22 @@ export default function Overview() {
               <div className={styles.pill} id="datePill" onClick={() => toggleDropdown('dateDrop')}>
                 <span>{rangeLabel}</span>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" /></svg>
-                <div className={styles.dropdown} id="dateDrop">
+                <div className={styles.dropdown} id="dateDrop" onClick={(e) => e.stopPropagation()}>
                   {RANGE_OPTIONS.map((o) => <div key={o.key} onClick={() => pickRange(o.key)}>{o.label}</div>)}
                 </div>
               </div>
               <div className={styles.pill} id="comparePill" onClick={() => toggleDropdown('compareDrop')}>
                 <span id="compareText">Compare: {compareLabel}</span>
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m6 9 6 6 6-6" /></svg>
-                <div className={styles.dropdown} id="compareDrop">
-                  {COMPARE_OPTIONS.map((o) => <div key={o.key} onClick={() => setCompare(o.key)}>{o.label}</div>)}
+                <div className={styles.dropdown} id="compareDrop" onClick={(e) => e.stopPropagation()}>
+                  {COMPARE_OPTIONS.map((o) => <div key={o.key} onClick={() => { setCompare(o.key); closeDrops(); }}>{o.label}</div>)}
                 </div>
               </div>
-              <button className={styles['btn-black']} onClick={() => setAddOpen(true)}>
+              <button className={styles['btn-black']} onClick={() => { setNotifOpen(false); setAddOpen(true); }}>
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M5 12h14" /></svg>
                 Add New
               </button>
-              <div className={styles['icon-btn']} onClick={() => setNotifOpen(true)}>
+              <div className={styles['icon-btn']} onClick={() => { setAddOpen(false); setNotifOpen(true); }}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="1.8"><path d="M6 8a6 6 0 0 1 12 0c0 7 6 5 6 10H0s6-3 6-10" /><path d="M10 20a2 2 0 0 0 4 0" /></svg>
                 {alerts.length > 0 && !notifRead && <div className={styles.badge} id="notifBadge">{alerts.length}</div>}
               </div>
@@ -625,8 +629,8 @@ export default function Overview() {
               <div className={styles['card-h']}>
                 <div className={styles['card-t']}>Sales Overview <span className={styles.info} onClick={() => showToast('Sales comparison: this period vs previous')}>i</span></div>
                 <div style={{ display: 'flex', gap: 6 }}>
-                  <button className={styles['btn-sm']} onClick={() => toggleDropdown('weekDrop')} style={{ position: 'relative' }}>{(RANGE_OPTIONS.find((o) => o.key === range.preset)?.label) || 'This Week'} ▾
-                    <div className={styles.dropdown} id="weekDrop" style={{ right: 0, left: 'auto' }}>
+                  <button className={styles['btn-sm']} onClick={() => toggleDropdown('weekDrop')} style={{ position: 'relative' }}>{(RANGE_OPTIONS.find((o) => o.key === range.preset)?.label) || rangeLabel} ▾
+                    <div className={styles.dropdown} id="weekDrop" style={{ right: 0, left: 'auto' }} onClick={(e) => e.stopPropagation()}>
                       {RANGE_OPTIONS.map((o) => <div key={o.key} onClick={() => pickRange(o.key)}>{o.label}</div>)}
                     </div>
                   </button>
@@ -702,7 +706,7 @@ export default function Overview() {
                   <b>{k ? int(k.customers.value) : '—'}</b><span>New Customers</span>
                 </div>
               </div>
-              <div className={styles['view-all']} onClick={() => setNotifOpen(true)}>View all notifications
+              <div className={styles['view-all']} onClick={() => { setAddOpen(false); setNotifOpen(true); }}>View all notifications
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
               </div>
             </div>
@@ -751,8 +755,8 @@ export default function Overview() {
             <div className={styles.card}>
               <div className={styles['card-h']}>
                 <span className={styles['card-t']}>Revenue &amp; Orders</span>
-                <button className={styles['btn-sm']} onClick={() => toggleDropdown('revDrop')} style={{ position: 'relative' }}>{(RANGE_OPTIONS.find((o) => o.key === range.preset)?.label) || 'This Week'} ▾
-                  <div className={styles.dropdown} id="revDrop" style={{ right: 0, left: 'auto' }}>
+                <button className={styles['btn-sm']} onClick={() => toggleDropdown('revDrop')} style={{ position: 'relative' }}>{(RANGE_OPTIONS.find((o) => o.key === range.preset)?.label) || rangeLabel} ▾
+                  <div className={styles.dropdown} id="revDrop" style={{ right: 0, left: 'auto' }} onClick={(e) => e.stopPropagation()}>
                     {RANGE_OPTIONS.map((o) => <div key={o.key} onClick={() => pickRange(o.key)}>{o.label}</div>)}
                   </div>
                 </button>

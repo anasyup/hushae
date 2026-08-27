@@ -16,7 +16,7 @@
 .ovw *{margin:0;padding:0;box-sizing:border-box}
 .wrap{max-width:1580px;margin:0 auto;padding:14px 18px 32px;animation:fadeIn .5s ease}
 @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px;flex-wrap:wrap;position:sticky;top:56px;z-index:50;background:var(--bg);padding:8px 0}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px;flex-wrap:wrap;background:var(--bg);padding:8px 0}
 .top-left{display:flex;align-items:center;gap:12px}
 .hamburger{width:32px;height:32px;display:grid;place-items:center;border-radius:8px;cursor:pointer;transition:.15s}
 .hamburger:hover{background:#eee}
