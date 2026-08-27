@@ -768,77 +768,67 @@ function GroupDropdown({ group, expanded, onToggle, collapsed, onNavigate }) {
   const loc = useLocation();
   const Icon = group.icon;
 
-  // Check if any child route is active (groups define either `children` or `items`)
+  /* Groups declare their children as `children` or `items` — accept both so a
+     group without either still renders as a plain row instead of crashing. */
   const groupItems = group.children || group.items || [];
-  const isActive = groupItems.some(child => {
-    if (child.to === loc.pathname) return true;
-    if (loc.pathname.startsWith(child.to + '/')) return true;
-    return false;
-  });
+  const isActive = groupItems.some((child) =>
+    loc.pathname === child.to || loc.pathname.startsWith(child.to + '/')
+  );
+  const chevron = <ChevronDown size={14} strokeWidth={1.5} className={`adm-chev ${expanded ? 'is-open' : ''}`} />;
 
-  // Collapsed mode: Icon only
+  /* Collapsed rail: icon only. The tooltip carries the label. */
   if (collapsed) {
     return (
       <button
+        type="button"
         onClick={onToggle}
         title={group.label}
-        className={`flex items-center justify-center w-8 h-8 rounded-lg transition-all ${
-          isActive ? 'bg-[#1E1E1E] text-white' : 'text-[#6B6B6B] hover:bg-[#1A1A1A] hover:text-white'
-        }`}
+        className={`adm-row ${isActive ? 'is-active' : ''}`}
         aria-label={group.label}
         aria-expanded={expanded}
       >
-        <Icon size={16} strokeWidth={isActive ? 2 : 1.5} />
+        <span className="adm-ico"><Icon size={16} strokeWidth={isActive ? 2 : 1.5} /></span>
       </button>
     );
   }
 
-  // Expanded mode: Full dropdown
   return (
-    <div className="space-y-0.5">
+    <div>
       <button
+        type="button"
         onClick={onToggle}
-        className={`flex items-center justify-between w-full px-3 py-2 rounded-lg transition-all ${
-          isActive ? 'bg-[#1E1E1E] text-white' : 'text-[#A0A0A0] hover:bg-[#1A1A1A] hover:text-white'
-        }`}
-        aria-label={group.label}
+        className={`adm-row ${isActive ? 'is-active' : ''}`}
         aria-expanded={expanded}
       >
-        <div className="flex items-center gap-2">
-          <Icon size={16} strokeWidth={isActive ? 2 : 1.5} />
-          <span className="text-sm">{group.label}</span>
-        </div>
-        <ChevronDown
-          size={14}
-          strokeWidth={1.5}
-          className={`transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}
-        />
+        <span className="adm-ico"><Icon size={16} strokeWidth={isActive ? 2 : 1.5} /></span>
+        <span className="adm-txt">{group.label}</span>
+        {chevron}
       </button>
-      
-      {expanded && (
-        <div className="pl-6 space-y-0.5">
-          {groupItems.map(child => {
+
+      {expanded && groupItems.length > 0 && (
+        <div className="adm-kids">
+          {groupItems.map((child) => {
             const ChildIcon = child.icon;
-            const isChildActive = loc.pathname === child.to || loc.pathname.startsWith(child.to + '/');
-            const NavComponent = child.to ? NavLink : Fragment;
-            
-            return (
-              <NavComponent
+            const active = loc.pathname === child.to || loc.pathname.startsWith(child.to + '/');
+            const inner = (
+              <>
+                <span className="adm-ico"><ChildIcon size={14} strokeWidth={active ? 2 : 1.5} /></span>
+                <span className="adm-txt">{child.label}</span>
+              </>
+            );
+            /* Every entry has a `to`; the Fragment path stays as a guard for a
+               future entry that is a label rather than a destination. */
+            return child.to ? (
+              <NavLink
                 key={child.to}
                 to={child.to}
                 onClick={onNavigate}
-                className={({ isActive }) => {
-                  const active = isActive || isChildActive;
-                  return `flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition-all ${
-                    active 
-                      ? 'bg-[#252525] text-white font-medium'
-                      : 'text-[#8A8A8A] hover:bg-[#1A1A1A] hover:text-white'
-                  }`;
-                }}
+                className={`adm-row ${active ? 'is-active' : ''}`}
               >
-                <ChildIcon size={14} strokeWidth={1.5} />
-                <span>{child.label}</span>
-              </NavComponent>
+                {inner}
+              </NavLink>
+            ) : (
+              <Fragment key={child.label}>{inner}</Fragment>
             );
           })}
         </div>
@@ -854,41 +844,20 @@ function GroupDropdown({ group, expanded, onToggle, collapsed, onNavigate }) {
 function NavigationItem({ item, collapsed, onNavigate }) {
   const loc = useLocation();
   const Icon = item.icon;
-  const isActive = loc.pathname === item.to || (item.end && loc.pathname.startsWith(item.to));
-  
-  if (collapsed) {
-    return (
-      <NavLink
-        to={item.to}
-        end={item.end}
-        onClick={onNavigate}
-        title={item.label}
-        className={({ isActive }) => {
-          const active = isActive || loc.pathname.startsWith(item.to + '/');
-          return `flex items-center justify-center w-8 h-8 rounded-lg transition-all ${
-            active ? 'bg-[#1E1E1E] text-white' : 'text-[#6B6B6B] hover:bg-[#1A1A1A] hover:text-white'
-          }`;
-        }}
-      >
-        <Icon size={16} strokeWidth={isActive ? 2 : 1.5} />
-      </NavLink>
-    );
-  }
+  /* `/admin` must not swallow every child route, hence the `end` flag; every
+     other entry is active for its own subtree. */
+  const active = item.end ? loc.pathname === item.to : loc.pathname.startsWith(item.to);
 
   return (
     <NavLink
       to={item.to}
       end={item.end}
       onClick={onNavigate}
-      className={({ isActive }) => {
-        const active = isActive || loc.pathname.startsWith(item.to + '/');
-        return `flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all ${
-          active ? 'bg-[#1E1E1E] text-white font-medium' : 'text-[#A0A0A0] hover:bg-[#1A1A1A] hover:text-white'
-        }`;
-      }}
+      title={collapsed ? item.label : undefined}
+      className={`adm-row ${active ? 'is-active' : ''}`}
     >
-      <Icon size={16} strokeWidth={isActive ? 2 : 1.5} />
-      <span>{item.label}</span>
+      <span className="adm-ico"><Icon size={16} strokeWidth={active ? 2 : 1.5} /></span>
+      <span className="adm-txt">{item.label}</span>
     </NavLink>
   );
 }
@@ -899,188 +868,156 @@ function NavigationItem({ item, collapsed, onNavigate }) {
 
 function SectionHeader({ label, collapsed }) {
   if (collapsed) return null;
-  
-  return (
-    <p className="px-3 py-1.5 text-xs font-medium text-[#6B6B6B] uppercase tracking-wider">
-      {label}
-    </p>
-  );
+  return <p className="adm-eyebrow">{label}</p>;
 }
 
 /* ============================================================================
  * SIDEBAR CONTENT COMPONENT
  * ========================================================================== */
 
-function SidebarContent({ onNavigate, collapsed = false }) {
+function SidebarContent({ onNavigate, onSearch, collapsed = false }) {
   const { auth, logout } = useApp();
   const loc = useLocation();
   const [expandedGroups, setExpandedGroups] = useState({});
   const [showAdvanced, setShowAdvanced] = useState(false);
 
   const role = auth?.user?.role;
-  const visibleSections = useMemo(() => role 
-    ? NAV_SECTIONS.filter(section => {
+  /* Memoised by role — a fresh array every render made the auto-expand effect
+     below re-run forever ("Maximum update depth exceeded"). */
+  const visibleSections = useMemo(() => (role
+    ? NAV_SECTIONS.filter((section) => {
         if (section.groups) {
-          return section.groups.some(g => roleHasAccess(role, g.key));
+          return section.groups.some((g) => roleHasAccess(role, g.key));
         }
-        return section.items?.some(i => !i.requires || roleHasAccess(role, i.requires));
+        return section.items?.some((i) => !i.requires || roleHasAccess(role, i.requires));
       })
-    : NAV_SECTIONS, [role]);
+    : NAV_SECTIONS), [role]);
+
+  const defaultSections = visibleSections.filter((s) => s.defaultVisible);
+  const advancedSections = visibleSections.filter((s) => !s.defaultVisible);
 
   const toggleGroup = (groupKey) => {
-    setExpandedGroups(prev => ({
-      ...prev,
-      [groupKey]: !prev[groupKey]
-    }));
+    setExpandedGroups((prev) => ({ ...prev, [groupKey]: !prev[groupKey] }));
   };
 
-  // Auto-expand groups that have active children
+  /* Auto-expand whichever group owns the current route, so a deep link always
+     shows where you are. Memoised on pathname only — the section array is
+     rebuilt every render and using it as a dep re-ran this forever. */
   useEffect(() => {
-    visibleSections.forEach(section => {
-      section.groups?.forEach(group => {
-        const hasActiveChild = (group.children || group.items || []).some(child => {
-          return loc.pathname === child.to || loc.pathname.startsWith(child.to + '/');
-        });
-        if (hasActiveChild) {
-          setExpandedGroups(prev => (prev[group.key] ? prev : { ...prev, [group.key]: true }));
-        }
+    const parents = [];
+    visibleSections.forEach((section) => {
+      section.groups?.forEach((group) => {
+        const hit = (group.children || group.items || []).some(
+          (child) => loc.pathname === child.to || loc.pathname.startsWith(child.to + '/')
+        );
+        if (hit) parents.push(group.key);
       });
+    });
+    if (!parents.length) return;
+    setExpandedGroups((prev) => {
+      const next = { ...prev };
+      let changed = false;
+      parents.forEach((k) => { if (next[k] !== true) { next[k] = true; changed = true; } });
+      return changed ? next : prev;
     });
   }, [loc.pathname, visibleSections]);
 
-  // Get initials for user avatar
-  const getInitials = (name) => {
-    if (!name) return 'A';
-    return name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
-  };
+  const initials = (name) =>
+    (name || 'A').trim().split(/\s+/).map((s) => s[0]).slice(0, 2).join('').toUpperCase();
+
+  /* One section renderer for both the always-visible block and the Advanced
+     block — they were two copies of the same markup before. */
+  const renderSection = (section) => (
+    <div key={section.label} className="adm-section">
+      <SectionHeader label={section.label} collapsed={collapsed} />
+      {section.items?.map((item) => (
+        <NavigationItem key={item.to} item={item} collapsed={collapsed} onNavigate={onNavigate} />
+      ))}
+      {section.groups?.map((group) => (
+        <GroupDropdown
+          key={group.key}
+          group={group}
+          expanded={!!expandedGroups[group.key]}
+          onToggle={() => toggleGroup(group.key)}
+          collapsed={collapsed}
+          onNavigate={onNavigate}
+        />
+      ))}
+    </div>
+  );
+
+  const sections = collapsed ? (
+    <div className="adm-railstack">
+      {defaultSections.map(renderSection)}
+      {showAdvanced && advancedSections.map(renderSection)}
+    </div>
+  ) : (
+    <>
+      {defaultSections.map(renderSection)}
+      {advancedSections.length > 0 && (
+        <div className="adm-adv">
+          <button
+            type="button"
+            onClick={() => setShowAdvanced((v) => !v)}
+            className={`adm-row ${showAdvanced ? 'is-active' : ''}`}
+            aria-expanded={showAdvanced}
+          >
+            <span className="adm-ico"><Settings size={16} strokeWidth={1.5} /></span>
+            <span className="adm-txt">Advanced</span>
+            <ChevronDown size={14} strokeWidth={1.5} className={`adm-chev ${showAdvanced ? 'is-open' : ''}`} />
+          </button>
+          {showAdvanced && advancedSections.map(renderSection)}
+        </div>
+      )}
+    </>
+  );
 
   return (
-    <div className="flex h-full flex-col bg-[#0A0A0A] text-white">
-      {/* ===== BRAND / LOGO ===== */}
-      <div className="px-4 py-5 border-b border-[#252525]">
-        <NavLink to="/admin" className="flex items-center gap-2 group" onClick={onNavigate}>
-          {!collapsed && (
+    <div className="adm-sidebar-inner">
+      {/* ===== BRAND ===== */}
+      <NavLink to="/admin" className="adm-brand" onClick={onNavigate} title="HUSHAE Admin">
+        {collapsed
+          ? <Building2 size={20} strokeWidth={1.5} />
+          : (
             <>
-              <span className="text-xl font-bold tracking-wider">HUSHAE</span>
-              <span className="text-xs text-[#6B6B6B] ml-1">Admin Console</span>
+              <span className="adm-brand-word">HUSHAE</span>
+              <span className="adm-brand-sub">Admin</span>
             </>
           )}
-          {collapsed && <Building2 size={24} className="text-white" />}
-        </NavLink>
-      </div>
+      </NavLink>
 
-      {/* ===== GLOBAL SEARCH ===== */}
-      <div className="px-3 py-3">
+      {/* ===== GLOBAL SEARCH — opens the command palette ===== */}
+      <div className="adm-searchwrap">
         <button
-          onClick={() => { /* Will trigger CommandPalette */ }}
-          className="w-full flex items-center gap-2 bg-[#111111] hover:bg-[#1E1E1E] p-2 rounded-lg transition-colors group"
+          type="button"
+          onClick={onSearch}
+          className="adm-search"
+          title="Search anything (Ctrl / Cmd + K)"
+          aria-label="Search anything"
         >
-          <Search size={16} className="text-[#6B6B6B] group-hover:text-white" />
-          {!collapsed && (
-            <>
-              <span className="text-sm text-[#A0A0A0] group-hover:text-white">Search anything...</span>
-              <kbd className="text-xs bg-[#252525] px-2 py-0.5 rounded text-[#6B6B6B] group-hover:text-white">⌘K</kbd>
-            </>
-          )}
+          <Search size={15} strokeWidth={1.5} />
+          <span className="adm-search-txt">Search anything…</span>
+          <span className="adm-kbd">⌘K</span>
         </button>
       </div>
 
-      {/* ===== NAVIGATION SECTIONS ===== */}
-      <nav className="flex-1 px-2 overflow-y-auto scrollbar-thin">
-        {/* Default Visible Sections */}
-        {visibleSections.filter(s => s.defaultVisible).map(section => (
-          <div key={section.label} className="mb-2">
-            <SectionHeader label={section.label} collapsed={collapsed} />
-            <div className="space-y-0.5">
-              {section.items?.map(item => (
-                <NavigationItem
-                  key={item.to}
-                  item={item}
-                  collapsed={collapsed}
-                  onNavigate={onNavigate}
-                />
-              ))}
-              {section.groups?.map(group => (
-                <GroupDropdown
-                  key={group.key}
-                  group={group}
-                  expanded={expandedGroups[group.key]}
-                  onToggle={() => toggleGroup(group.key)}
-                  collapsed={collapsed}
-                  onNavigate={onNavigate}
-                />
-              ))}
-            </div>
-          </div>
-        ))}
-
-        {/* Advanced Sections Toggle */}
-        {!collapsed && (
-          <div className="my-2 border-t border-[#252525] pt-2">
-            <button
-              onClick={() => setShowAdvanced(!showAdvanced)}
-              className="flex items-center justify-between w-full px-3 py-1.5 rounded-lg hover:bg-[#1A1A1A] transition-colors text-[#A0A0A0] hover:text-white"
-            >
-              <div className="flex items-center gap-2">
-                <Settings size={14} />
-                <span className="text-sm">Advanced</span>
-              </div>
-              <ChevronDown
-                size={14}
-                className={`transition-transform ${showAdvanced ? 'rotate-180' : ''}`}
-              />
-            </button>
-            
-            {showAdvanced && visibleSections.filter(s => !s.defaultVisible).map(section => (
-              <div key={section.label} className="mt-2">
-                <SectionHeader label={section.label} collapsed={collapsed} />
-                <div className="space-y-0.5">
-                  {section.items?.map(item => (
-                    <NavigationItem
-                      key={item.to}
-                      item={item}
-                      collapsed={collapsed}
-                      onNavigate={onNavigate}
-                    />
-                  ))}
-                  {section.groups?.map(group => (
-                    <GroupDropdown
-                      key={group.key}
-                      group={group}
-                      expanded={expandedGroups[group.key]}
-                      onToggle={() => toggleGroup(group.key)}
-                      collapsed={collapsed}
-                      onNavigate={onNavigate}
-                    />
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+      {/* ===== NAVIGATION ===== */}
+      <nav className="adm-nav-scroll" aria-label="Admin navigation">
+        {sections}
       </nav>
 
-      {/* ===== SIDEBAR FOOTER ===== */}
-      <div className="border-t border-[#252525] p-3">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center text-black font-bold text-sm shrink-0">
-            {getInitials(auth?.user?.name)}
-          </div>
-          {!collapsed && (
-            <div className="min-w-0 flex-1">
-              <p className="text-sm font-medium truncate">{auth?.user?.name || 'Admin'}</p>
-              <p className="text-xs text-[#6B6B6B] truncate">{getRoleLabel(role || '')}</p>
-            </div>
-          )}
-          <button
-            onClick={logout}
-            className="p-1.5 rounded-lg hover:bg-[#1A1A1A] transition-colors text-[#6B6B6B] hover:text-white"
-            title="Sign out"
-            aria-label="Sign out"
-          >
-            <LogOut size={16} />
-          </button>
-        </div>
+      {/* ===== ACCOUNT ===== */}
+      <div className="adm-acct">
+        <span className="adm-avatar" aria-hidden="true">{initials(auth?.user?.name)}</span>
+        {!collapsed && (
+          <span className="min-w-0 flex-1">
+            <span className="adm-acct-name block">{auth?.user?.name || 'Admin'}</span>
+            <span className="adm-acct-role block">{getRoleLabel(role || '')}</span>
+          </span>
+        )}
+        <button type="button" onClick={logout} className="adm-iconbtn" title="Sign out" aria-label="Sign out">
+          <LogOut size={16} strokeWidth={1.5} />
+        </button>
       </div>
     </div>
   );
@@ -1098,7 +1035,7 @@ function TopBar({ title, auth, onCmdK, onMenu, onToggleSidebar, collapsed }) {
   const createRef = useRef(null);
 
   const storeOpen = settings?.storefrontLock?.enabled !== true;
-  
+
   const toggleDark = () => {
     const next = !darkMode;
     setDarkMode(next);
@@ -1133,132 +1070,109 @@ function TopBar({ title, auth, onCmdK, onMenu, onToggleSidebar, collapsed }) {
     };
   }, [createOpen]);
 
-  // Get breadcrumb-like title
-  const getPageTitle = () => {
+  /* Route-derived title, with "Admin" as the eyebrow. Deep URLs become
+     readable words; the leaf page name stays the single h1. */
+  const crumb = loc.pathname === '/admin' ? '' : 'Admin';
+  const pageTitle = (() => {
     const parts = loc.pathname.split('/').filter(Boolean);
     if (parts.length <= 1) return title || 'Dashboard';
-    return parts[parts.length - 1].replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-  };
+    return parts[parts.length - 1].replace(/-/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase());
+  })();
+
+  const initials = (auth?.user?.name || 'A').trim().split(/\s+/).map((s) => s[0]).slice(0, 2).join('').toUpperCase();
 
   return (
-    <header className="sticky top-0 z-20 flex h-14 items-center border-b border-[#252525] bg-[#0A0A0A] px-4 backdrop-blur">
-      <div className="flex items-center justify-between gap-4 w-full">
-        {/* Left Side */}
-        <div className="flex items-center gap-3">
+    <header className="adm-topbar">
+      <button
+        type="button"
+        onClick={onMenu}
+        className="adm-iconbtn md:hidden"
+        aria-label="Open menu"
+        title="Open menu"
+      >
+        <Menu size={18} strokeWidth={1.5} />
+      </button>
+
+      <button
+        type="button"
+        onClick={onToggleSidebar}
+        aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        className="adm-iconbtn hidden md:grid"
+      >
+        {collapsed ? <PanelRightOpen size={16} strokeWidth={1.5} /> : <PanelLeftClose size={16} strokeWidth={1.5} />}
+      </button>
+
+      <div className="min-w-0 flex-1">
+        {crumb && <p className="adm-crumb">{crumb}</p>}
+        <h1 className="adm-topbar-title">{pageTitle}</h1>
+      </div>
+
+      <button
+        type="button"
+        onClick={onCmdK}
+        className="adm-chip hidden sm:inline-flex"
+        title="Search anything (Ctrl / Cmd + K)"
+      >
+        <Search size={14} strokeWidth={1.5} />
+        <span>Search</span>
+        <span className="adm-kbd">⌘K</span>
+      </button>
+
+      <span className="adm-chip hidden lg:inline-flex">
+        <span className={`adm-dot ${storeOpen ? 'on' : 'off'}`} aria-hidden="true" />
+        {storeOpen ? 'Store online' : 'Store locked'}
+      </span>
+
+      {canCreate && (
+        <div className="relative" ref={createRef}>
           <button
             type="button"
-            onClick={onMenu}
-            className="grid h-9 w-9 shrink-0 place-items-center text-[#6B6B6B] hover:bg-[#1A1A1A] hover:text-white rounded-lg md:hidden"
-            aria-label="Open menu"
+            onClick={() => setCreateOpen((v) => !v)}
+            className="adm-chip solid"
+            aria-expanded={createOpen}
+            aria-haspopup="menu"
           >
-            <Menu size={20} />
-          </button>
-          
-          <button
-            type="button"
-            onClick={onToggleSidebar}
-            aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-            title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-            className="hidden h-9 w-9 shrink-0 place-items-center text-[#6B6B6B] hover:bg-[#1A1A1A] hover:text-white rounded-lg md:grid"
-          >
-            {collapsed ? <PanelRightOpen size={16} /> : <PanelLeftClose size={16} />}
-          </button>
-          
-          <div className="min-w-0">
-            <h1 className="truncate font-medium text-white">
-              {getPageTitle()}
-            </h1>
-          </div>
-        </div>
-
-        {/* Right Side */}
-        <div className="flex shrink-0 items-center gap-1.5">
-          {/* Search */}
-          <button
-            type="button"
-            onClick={onCmdK}
-            className="hidden sm:flex h-8 items-center gap-2 rounded-lg border border-[#252525] bg-[#111111] px-3 text-sm text-[#A0A0A0] transition-colors hover:border-[#3A3A3A] hover:bg-[#1E1E1E] hover:text-white"
-            title="Search anything (⌘K)"
-          >
-            <Search size={14} />
-            <span>Search...</span>
-            <kbd className="text-xs bg-[#252525] px-1.5 py-0.5 rounded text-[#6B6B6B]">⌘K</kbd>
+            <Plus size={14} strokeWidth={2} />
+            <span className="hidden sm:inline">Create</span>
           </button>
 
-          {/* Store Status */}
-          <span className={`hidden items-center gap-1.5 text-xs font-medium uppercase tracking-wider sm:inline-flex ${
-            storeOpen ? 'text-[#6B6B6B]' : 'text-white'
-          }`}>
-            <span className={`h-1.5 w-1.5 rounded-full ${storeOpen ? 'bg-green-500' : 'bg-red-500'}`} />
-            {storeOpen ? 'Store online' : 'Store locked'}
-          </span>
-
-          {/* Quick Create */}
-          {canCreate && (
-            <div className="relative" ref={createRef}>
-              <button
-                type="button"
-                onClick={() => setCreateOpen(!createOpen)}
-                className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-white px-3 text-sm font-semibold text-black transition hover:bg-[#E5E5E5]"
-              >
-                <Plus size={14} />
-                <span className="hidden sm:inline">Create</span>
-              </button>
-              
-              {createOpen && (
-                <div className="absolute right-0 top-full z-30 mt-1 w-56 rounded-lg border border-[#252525] bg-[#111111] py-1 shadow-lg">
-                  {createItems.map((it) => {
-                    const Icon = it.icon;
-                    return (
-                      <Link
-                        key={it.to}
-                        to={it.to}
-                        onClick={() => setCreateOpen(false)}
-                        className="flex h-9 items-center gap-2.5 px-3 text-sm text-[#A0A0A0] transition-colors hover:bg-[#1A1A1A] hover:text-white"
-                      >
-                        <Icon size={14} />
-                        {it.label}
-                      </Link>
-                    );
-                  })}
-                </div>
-              )}
+          {createOpen && (
+            <div className="adm-pop" role="menu">
+              {createItems.map((it) => {
+                const Icon = it.icon;
+                return (
+                  <Link key={it.to} to={it.to} onClick={() => setCreateOpen(false)} className="adm-pop-row" role="menuitem">
+                    <Icon size={14} strokeWidth={1.5} />
+                    {it.label}
+                  </Link>
+                );
+              })}
             </div>
           )}
-
-          {/* View Store */}
-          <Link
-            to="/"
-            target="_blank"
-            className="hidden h-8 items-center gap-1.5 rounded-lg border border-[#252525] bg-[#111111] px-3 text-sm text-[#A0A0A0] transition-colors hover:border-[#3A3A3A] hover:bg-[#1E1E1E] hover:text-white md:inline-flex"
-            title="Open storefront"
-          >
-            <Globe size={14} />
-            <span className="hidden xl:inline">View store</span>
-          </Link>
-
-          {/* Dark Mode Toggle */}
-          <button
-            type="button"
-            onClick={toggleDark}
-            aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
-            title={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
-            className="h-8 w-8 grid place-items-center rounded-lg text-[#6B6B6B] hover:bg-[#1A1A1A] hover:text-white"
-          >
-            {darkMode ? <Sun size={16} /> : <Moon size={16} />}
-          </button>
-
-          {/* Notifications */}
-          <NotificationBell />
-
-          {/* User Profile */}
-          <div className="ml-1 flex items-center gap-2">
-            <div className="grid h-8 w-8 place-items-center rounded-lg bg-white text-black font-semibold text-sm">
-              {(auth?.user?.name || 'A').split(' ').map((s) => s[0]).slice(0, 2).join('').toUpperCase()}
-            </div>
-            <span className="hidden text-sm font-medium text-white xl:inline">{auth?.user?.name?.split(' ')[0] || 'Admin'}</span>
-          </div>
         </div>
+      )}
+
+      <Link to="/" target="_blank" rel="noreferrer" className="adm-chip hidden md:inline-flex" title="Open storefront">
+        <Globe size={14} strokeWidth={1.5} />
+        <span className="hidden xl:inline">View store</span>
+      </Link>
+
+      <button
+        type="button"
+        onClick={toggleDark}
+        aria-label={darkMode ? 'Switch to light theme' : 'Switch to dark theme'}
+        title={darkMode ? 'Switch to light theme' : 'Switch to dark theme'}
+        className="adm-iconbtn"
+      >
+        {darkMode ? <Sun size={16} strokeWidth={1.5} /> : <Moon size={16} strokeWidth={1.5} />}
+      </button>
+
+      <NotificationBell />
+
+      <div className="flex items-center gap-2">
+        <span className="adm-avatar" aria-hidden="true">{initials}</span>
+        <span className="hidden text-[13px] font-medium xl:inline">{auth?.user?.name?.split(' ')[0] || 'Admin'}</span>
       </div>
     </header>
   );
@@ -1285,18 +1199,22 @@ export default function AdminLayout({ children, title }) {
     });
   };
 
+  const openSearch = () => setCmdOpen(true);
+
   // Apply admin theme
-  useEffect(() => { 
-    applyAdminTheme(); 
-    return () => clearAdminTheme(); 
+  useEffect(() => {
+    applyAdminTheme();
+    return () => clearAdminTheme();
   }, []);
 
-  // Cmd+K keyboard shortcut
+  // Cmd+K opens the palette from anywhere in the admin; Esc closes it.
   useEffect(() => {
     const onKey = (e) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
         setCmdOpen((v) => !v);
+      } else if (e.key === 'Escape') {
+        setCmdOpen(false);
       }
     };
     document.addEventListener('keydown', onKey);
@@ -1315,18 +1233,16 @@ export default function AdminLayout({ children, title }) {
   // Check if path is blocked for this role
   if (isPathBlocked(loc.pathname, role)) {
     return (
-      <div className="grid min-h-screen place-items-center bg-[#0A0A0A]">
-        <div className="max-w-sm rounded-xl border border-[#252525] bg-[#111111] p-10 text-center">
-          <ShieldCheck size={36} className="mx-auto mb-3 text-yellow-500" />
-          <p className="text-[15px] font-semibold text-white">Access restricted</p>
-          <p className="mt-2 text-[13px] leading-relaxed text-[#A0A0A0]">
-            This section is only available to Administrator and Owner roles. 
-            You are signed in as <b className="text-white">{getRoleLabel(role || '')}</b>.
+      <div className="admin-shell grid min-h-screen place-items-center p-6">
+        <div className="max-w-sm rounded-[6px] border p-10 text-center"
+          style={{ borderColor: 'var(--admin-border)', background: 'var(--admin-surface)' }}>
+          <ShieldCheck size={32} className="mx-auto mb-3" strokeWidth={1.5} style={{ color: 'var(--admin-text-muted)' }} />
+          <p className="text-[16px] font-semibold">Access restricted</p>
+          <p className="mt-2 text-[13px] leading-relaxed" style={{ color: 'var(--admin-text-secondary)' }}>
+            This section is only available to Administrator and Owner roles.
+            You are signed in as <b>{getRoleLabel(role || '')}</b>.
           </p>
-          <Link 
-            to="/admin" 
-            className="mt-5 inline-flex items-center gap-1.5 rounded-lg bg-white px-5 py-2.5 text-[15px] font-semibold text-black transition hover:bg-[#E5E5E5]"
-          >
+          <Link to="/admin" className="adm-chip solid mt-5 h-9 justify-center px-5 text-[13px]">
             Back to Dashboard
           </Link>
         </div>
@@ -1335,53 +1251,48 @@ export default function AdminLayout({ children, title }) {
   }
 
   return (
-    <div className="admin-shell flex min-h-screen bg-[#0A0A0A] text-white">
-      {/* ===== SIDEBAR - DESKTOP ===== */}
-      <aside className={`fixed inset-y-0 left-0 z-40 hidden border-r border-[#252525] transition-all duration-200 ease-out md:flex ${
-        collapsed ? 'w-16' : 'w-64'
-      }`}>
-        <SidebarContent onNavigate={() => {}} collapsed={collapsed} />
+    <div className="admin-shell flex min-h-screen">
+      {/* ===== SIDEBAR — DESKTOP ===== */}
+      <aside className={`adm-sidebar ${collapsed ? 'is-rail' : ''}`} aria-label="Admin sidebar">
+        <SidebarContent onNavigate={() => {}} onSearch={openSearch} collapsed={collapsed} />
       </aside>
 
       {/* ===== MOBILE DRAWER ===== */}
       {drawer && (
-        <div className="fixed inset-0 z-50 md:hidden">
-          <div className="absolute inset-0 bg-black/50" onClick={() => setDrawer(false)} />
-          <div className="absolute inset-y-0 left-0 w-64 border-r border-[#252525] bg-[#0A0A0A]">
-            <button 
-              onClick={() => setDrawer(false)} 
-              className="absolute right-3 top-4 z-10 rounded-lg p-1.5 text-[#6B6B6B] hover:bg-[#1A1A1A] hover:text-white"
-            >
-              <X size={18} />
-            </button>
-            <SidebarContent onNavigate={() => setDrawer(false)} collapsed={false} />
+        <>
+          <div className="adm-scrim md:hidden" onClick={() => setDrawer(false)} aria-hidden="true" />
+          <div className="adm-drawer md:hidden" role="dialog" aria-modal="true" aria-label="Admin menu">
+            <div className="adm-drawer-close">
+              <button
+                type="button"
+                onClick={() => setDrawer(false)}
+                className="adm-iconbtn"
+                aria-label="Close menu"
+              >
+                <X size={18} strokeWidth={1.5} />
+              </button>
+            </div>
+            <SidebarContent onNavigate={() => setDrawer(false)} onSearch={openSearch} collapsed={false} />
           </div>
-        </div>
+        </>
       )}
 
-      {/* ===== MAIN CONTENT AREA ===== */}
-      <div className={`flex min-h-screen min-w-0 flex-1 flex-col transition-all duration-200 ease-out ${
-        collapsed ? 'md:pl-16' : 'md:pl-64'
-      }`}>
-        {/* Top Bar */}
-        <TopBar 
-          title={title} 
-          auth={auth} 
-          onCmdK={() => setCmdOpen(true)} 
-          onMenu={() => setDrawer(true)} 
-          onToggleSidebar={toggleCollapsed} 
+      {/* ===== MAIN ===== */}
+      <div className={`admin-main-offset flex min-h-screen min-w-0 flex-1 flex-col ${collapsed ? 'is-rail' : 'is-open'}`}>
+        <TopBar
+          title={title}
+          auth={auth}
+          onCmdK={openSearch}
+          onMenu={() => setDrawer(true)}
+          onToggleSidebar={toggleCollapsed}
           collapsed={collapsed}
         />
-        
-        {/* Page Content */}
-        <div className="min-w-0 flex-1 p-4 md:p-6">
+
+        <main className="min-w-0 flex-1 p-4 md:p-6">
           <div className="admin-main mx-auto w-full min-w-0 max-w-[1440px]">
-            {title && (
-              <h1 className="mb-5 font-medium text-white md:hidden">{title}</h1>
-            )}
             {children}
           </div>
-        </div>
+        </main>
       </div>
 
       {/* Floating Elements */}

@@ -1,0 +1,531 @@
+/* ============================================================================
+ * ADMIN SHELL — sidebar + top bar + mobile drawer + collapsed rail
+ * ----------------------------------------------------------------------------
+ * WHY THIS FILE EXISTS
+ *   The admin already ships a complete token system in index.css:
+ *     :root            → light  (white editorial, canonical)
+ *     .dark-admin      → dark   (jet black)
+ *   The shell ignored it. AdminLayout.jsx painted every surface with
+ *   hardcoded hex utilities (bg-[#0A0A0A], text-[#6B6B6B], bg-[#1E1E1E]…),
+ *   so the theme toggle could only "fix" the sidebar by matching Tailwind's
+ *   escaped class names from a second stylesheet — which meant the light
+ *   theme stayed black, and admin-dark.css flattened every nav label, icon
+ *   and section header to one identical grey (#A1A1AA !important), destroying
+ *   the hierarchy.
+ *
+ *   Everything below is driven by var(--admin-*). One component, two themes,
+ *   zero escape-hack selectors. Identity change = change the tokens.
+ *
+ * DESIGN LANGUAGE — editorial minimal (sharp radii, hairlines, air)
+ *   radius     3px controls / 4px rows / 6px inputs — nothing pill-shaped
+ *   borders    1px hairline only; no shadow until the dropdown floats
+ *   type       11px tracked caps for section labels, 13.5px rows, tabular
+ *   motion     140ms ease-out, transforms only — respects reduced-motion
+ *
+ * NOTHING IS REMOVED
+ *   Every navigation entry, label and icon rendered by AdminLayout.jsx still
+ *   renders. This file only decides how it is drawn and where it sits.
+ * ========================================================================== */
+
+/* ── Geometry — the sidebar and the content offset must agree ──────────────
+   Sidebar width, rail width and the main column's left padding are one
+   system. They were hardcoded twice before (aside w-64 + main md:pl-64),
+   which is how they drift. Both sides read these two numbers. */
+.admin-shell {
+  --adm-sidebar-w: 264px;
+  --adm-rail-w: 60px;
+  --adm-topbar-h: 56px;
+  /* Shell-local text colours. Every one of them has a dark value in
+     .dark-admin, so the components never mention a hex again. */
+  --adm-nav: var(--admin-text-secondary);
+  --adm-nav-hover: var(--admin-text);
+  --adm-nav-active: var(--admin-text);
+  --adm-nav-icon: var(--admin-text-muted);
+  --adm-nav-icon-active: var(--admin-text);
+  --adm-label: var(--admin-text-muted);
+  --adm-hover-bg: var(--admin-accent-soft);
+  --adm-active-bg: var(--admin-accent-soft);
+  --adm-input-bg: var(--admin-surface-2);
+  --adm-sidebar-bg: var(--admin-sidebar);
+  --adm-avatar-bg: var(--admin-text);
+  --adm-avatar-fg: var(--admin-bg);
+  --adm-topbar-bg: color-mix(in srgb, var(--admin-bg) 92%, transparent);
+  --adm-dot-on: #16A34A;
+  --adm-dot-off: #DC2626;
+}
+
+/* Dark shell: same structure, inverted ink. The dark sidebar sits a shade
+   above the page so the split reads without a border doing all the work. */
+.dark-admin .admin-shell {
+  --adm-sidebar-w: 264px;
+  --adm-rail-w: 60px;
+  /* --admin-sidebar is #0D0D0F, one step off the #09090B page — too close to
+     read as a split. Lift the rail one surface step instead. */
+  --adm-sidebar-bg: #131316;
+  --adm-nav: #A1A1AA;
+  --adm-nav-hover: #F4F4F5;
+  --adm-nav-active: #FFFFFF;
+  --adm-nav-icon: #71717A;
+  --adm-nav-icon-active: #F4F4F5;
+  --adm-label: #71717A;
+  --adm-hover-bg: rgba(255, 255, 255, 0.055);
+  --adm-active-bg: rgba(255, 255, 255, 0.10);
+  --adm-input-bg: #111113;
+  --adm-avatar-bg: #F4F4F5;
+  --adm-avatar-fg: #0D0D0F;
+  --adm-topbar-bg: rgba(9, 9, 11, 0.88);
+  --adm-dot-on: #4ADE80;
+  --adm-dot-off: #F87171;
+}
+
+/* ── Shell ─────────────────────────────────────────────────────────────── */
+.admin-shell {
+  background: var(--admin-bg);
+  color: var(--admin-text);
+}
+
+.admin-main-offset { transition: padding-left 180ms ease-out; }
+.admin-main-offset.is-open { padding-left: 0; }
+@media (min-width: 768px) {
+  .admin-main-offset.is-open { padding-left: var(--adm-sidebar-w); }
+  .admin-main-offset.is-rail { padding-left: var(--adm-rail-w); }
+}
+
+/* ── Sidebar frame ─────────────────────────────────────────────────────── */
+.adm-sidebar {
+  position: fixed;
+  inset-block: 0;
+  left: 0;
+  z-index: 40;
+  width: var(--adm-sidebar-w);
+  transition: width 180ms ease-out;
+}
+.adm-sidebar.is-rail { width: var(--adm-rail-w); }
+@media (max-width: 767.98px) { .adm-sidebar { display: none; } }
+
+.adm-sidebar-inner {
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  background: var(--adm-sidebar-bg);
+  border-right: 1px solid var(--admin-border);
+  color: var(--admin-text);
+}
+
+/* ── Brand ─────────────────────────────────────────────────────────────── */
+.adm-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: var(--adm-topbar-h);
+  flex: none;
+  padding: 0 14px;
+  border-bottom: 1px solid var(--admin-border);
+  color: var(--admin-text);
+  text-decoration: none;
+}
+.adm-brand-word {
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  line-height: 1;
+  white-space: nowrap;
+}
+.adm-brand-sub {
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--adm-label);
+  white-space: nowrap;
+}
+/* Rail mode: the mark sits alone, optically centred, no wordmark. */
+.adm-sidebar.is-rail .adm-brand {
+  justify-content: center;
+  padding: 0;
+}
+
+/* ── Global search (opens the command palette) ─────────────────────────── */
+.adm-search {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--admin-border);
+  border-radius: 4px;
+  background: var(--adm-input-bg);
+  padding: 0 10px;
+  height: 34px;
+  color: var(--adm-label);
+  font-size: 12.5px;
+  line-height: 1;
+  text-align: left;
+  transition: border-color 140ms ease-out, color 140ms ease-out, background-color 140ms ease-out;
+}
+.adm-search:hover { border-color: var(--admin-border); color: var(--adm-nav-hover); }
+.adm-search-txt { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.adm-kbd {
+  flex: none;
+  border: 1px solid var(--admin-border);
+  border-radius: 3px;
+  padding: 2px 5px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  line-height: 1;
+  color: var(--adm-label);
+}
+.adm-searchwrap { padding: 12px 12px 8px; }
+.adm-sidebar.is-rail .adm-search {
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+.adm-sidebar.is-rail .adm-search-txt,
+.adm-sidebar.is-rail .adm-kbd { display: none; }
+
+/* ── Scrolling nav column ──────────────────────────────────────────────── */
+.adm-nav-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 8px 10px 16px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--admin-border) transparent;
+}
+.adm-nav-scroll::-webkit-scrollbar { width: 8px; }
+.adm-nav-scroll::-webkit-scrollbar-track { background: transparent; }
+.adm-nav-scroll::-webkit-scrollbar-thumb {
+  background: var(--admin-border);
+  border-radius: 8px;
+}
+.adm-nav-scroll::-webkit-scrollbar-thumb:hover { background: var(--admin-border); }
+
+.adm-section { margin-bottom: 2px; }
+.adm-section + .adm-section { margin-top: 6px; }
+
+/* Editorial section label — tracked caps, hairline rule under it so the
+   column reads as groups rather than one long list. */
+.adm-eyebrow {
+  padding: 10px 8px 6px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--adm-label);
+}
+.adm-sidebar.is-rail .adm-eyebrow { display: none; }
+
+/* ── Nav rows: one rhythm for links, group headers and children ──────────
+   32px rows, 8px horizontal padding, 20px icon slot, 8px gap. The icon slot
+   is a fixed box so every label starts on the same optical line whether the
+   glyph is 14px or 20px wide. */
+.adm-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+  height: 32px;
+  padding: 0 8px;
+  border-radius: 4px;
+  background: transparent;
+  border: 0;
+  color: var(--adm-nav);
+  font-family: inherit;
+  font-size: 13.5px;
+  line-height: 1.15;
+  text-align: left;
+  text-decoration: none;
+  transition: background-color 140ms ease-out, color 140ms ease-out;
+}
+.adm-row:hover { background: var(--adm-hover-bg); color: var(--adm-nav-hover); }
+.adm-row:focus-visible {
+  outline: 2px solid var(--admin-accent);
+  outline-offset: -2px;
+}
+.adm-row.is-active {
+  background: var(--adm-active-bg);
+  color: var(--adm-nav-active);
+  font-weight: 600;
+}
+/* Active marker — a 2px editorial rule on the leading edge, not a pill. */
+.adm-row.is-active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 7px;
+  bottom: 7px;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--admin-accent);
+}
+
+.adm-ico {
+  display: inline-flex;
+  flex: none;
+  width: 20px;
+  height: 20px;
+  align-items: center;
+  justify-content: center;
+  color: var(--adm-nav-icon);
+  transition: color 140ms ease-out;
+}
+.adm-row:hover .adm-ico,
+.adm-row.is-active .adm-ico { color: var(--adm-nav-icon-active); }
+
+/* Long labels ("Customer-Specific Pricing", "Marketplace Integrations")
+   must ellipsis inside the 264px column instead of overflowing the icon
+   column or forcing a horizontal scroll. */
+.adm-txt {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.adm-chev {
+  flex: none;
+  color: var(--adm-label);
+  transition: transform 180ms ease-out;
+}
+.adm-chev.is-open { transform: rotate(180deg); }
+
+/* Group children — a hairline rail marks the nesting, aligned to the centre
+   of the parent icon (8px pad + 10px half-icon = 18px), and the child icon
+   starts at the same 18px so parent and child glyphs share a column. */
+.adm-kids {
+  position: relative;
+  margin: 2px 0 4px 18px;
+  padding-left: 8px;
+  border-left: 1px solid var(--admin-border);
+}
+
+/* ── Rail (collapsed) mode — icon only, everything centred ─────────────── */
+.adm-sidebar.is-rail .adm-row {
+  justify-content: center;
+  height: 36px;
+  width: 36px;
+  margin-inline: auto;
+  padding: 0;
+}
+.adm-sidebar.is-rail .adm-txt,
+.adm-sidebar.is-rail .adm-chev { display: none; }
+.adm-sidebar.is-rail .adm-row.is-active::before { display: none; }
+.adm-sidebar.is-rail .adm-row.is-active {
+  /* Centred rail rows carry the active state as a filled square instead of a
+     left rule, which would sit off-centre on a 36px button. */
+  box-shadow: inset 0 0 0 1px var(--admin-border);
+}
+.adm-sidebar.is-rail .adm-kids {
+  margin-left: 0;
+  padding-left: 0;
+  border-left: 0;
+}
+.adm-railstack {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* ── Advanced divider ──────────────────────────────────────────────────── */
+.adm-adv {
+  margin-top: 8px;
+  border-top: 1px solid var(--admin-border);
+  padding-top: 8px;
+}
+
+/* ── Sidebar footer / account ──────────────────────────────────────────── */
+.adm-acct {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-top: 1px solid var(--admin-border);
+}
+.adm-avatar {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 4px;
+  background: var(--adm-avatar-bg);
+  color: var(--adm-avatar-fg);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+.adm-acct-name {
+  overflow: hidden;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--admin-text);
+}
+.adm-acct-role {
+  overflow: hidden;
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--adm-label);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.adm-sidebar.is-rail .adm-acct { justify-content: center; padding: 10px 0; }
+
+.adm-iconbtn {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--adm-nav-icon);
+  transition: background-color 140ms ease-out, color 140ms ease-out;
+}
+.adm-iconbtn:hover { background: var(--adm-hover-bg); color: var(--adm-nav-hover); }
+.adm-iconbtn:focus-visible { outline: 2px solid var(--admin-accent); outline-offset: -2px; }
+
+/* ── Top bar ───────────────────────────────────────────────────────────── */
+.adm-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: var(--adm-topbar-h);
+  padding: 0 16px;
+  border-bottom: 1px solid var(--admin-border);
+  background: var(--adm-topbar-bg);
+  -webkit-backdrop-filter: saturate(180%) blur(10px);
+  backdrop-filter: saturate(180%) blur(10px);
+}
+/* Title sizing comes from `.admin-shell h1` in index.css (20px/600, marked
+   !important) — declaring a font-size here too would just be a losing
+   duplicate. This handles the overflow and colour the h1 rule cannot. */
+.adm-topbar-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--admin-text);
+}
+.adm-crumb {
+  overflow: hidden;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--adm-label);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.adm-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 30px;
+  border: 1px solid var(--admin-border);
+  border-radius: 4px;
+  background: transparent;
+  padding: 0 10px;
+  color: var(--adm-nav);
+  font-size: 12.5px;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color 140ms ease-out, color 140ms ease-out, border-color 140ms ease-out;
+}
+.adm-chip:hover { background: var(--adm-hover-bg); color: var(--adm-nav-hover); }
+.adm-chip:focus-visible { outline: 2px solid var(--admin-accent); outline-offset: -2px; }
+.adm-chip.solid {
+  border-color: var(--admin-accent);
+  background: var(--admin-accent);
+  color: var(--adm-avatar-fg);
+}
+.adm-chip.solid:hover { background: var(--admin-accent-hover); border-color: var(--admin-accent-hover); color: var(--adm-avatar-fg); }
+
+.adm-dot { flex: none; width: 6px; height: 6px; border-radius: 999px; }
+.adm-dot.on { background: var(--adm-dot-on); }
+.adm-dot.off { background: var(--adm-dot-off); }
+
+/* Floating menu (Quick Create) */
+.adm-pop {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  z-index: 30;
+  width: 232px;
+  border: 1px solid var(--admin-border);
+  border-radius: 4px;
+  background: var(--admin-surface);
+  padding: 4px;
+  box-shadow: var(--admin-shadow-lg);
+}
+.adm-pop-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  height: 32px;
+  border-radius: 3px;
+  padding: 0 8px;
+  color: var(--adm-nav);
+  font-size: 13px;
+  text-decoration: none;
+  transition: background-color 140ms ease-out, color 140ms ease-out;
+}
+.adm-pop-row:hover { background: var(--adm-hover-bg); color: var(--adm-nav-hover); }
+
+/* ── Mobile drawer ─────────────────────────────────────────────────────── */
+.adm-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: rgba(0, 0, 0, 0.45);
+}
+.adm-drawer {
+  position: fixed;
+  inset-block: 0;
+  left: 0;
+  z-index: 51;
+  display: flex;
+  width: min(86vw, 300px);
+  background: var(--adm-sidebar-bg);
+  border-right: 1px solid var(--admin-border);
+}
+/* The close control lives in the brand row's own box (not floating over it),
+   so it can never sit on top of the wordmark. */
+.adm-drawer .adm-brand { padding-right: 44px; }
+.adm-drawer-close {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* ── Motion ────────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .admin-shell .adm-sidebar,
+  .admin-shell .admin-main-offset,
+  .admin-shell .adm-row,
+  .admin-shell .adm-chev,
+  .admin-shell .adm-search,
+  .admin-shell .adm-chip,
+  .admin-shell .adm-iconbtn { transition: none; }
+}
+
+/* ── Print ─────────────────────────────────────────────────────────────── */
+@media print {
+  .admin-shell .adm-sidebar,
+  .admin-shell .adm-topbar { display: none !important; }
+  .admin-shell .admin-main-offset { padding-left: 0 !important; }
+}

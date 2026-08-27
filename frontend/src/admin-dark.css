@@ -16,23 +16,26 @@
 /* ── Admin shell wrapper (hardcoded light gray) → page background ────────── */
 .dark-admin .admin-shell { background: #09090B !important; color: #F4F4F5 !important; }
 
-/* ── Sidebar chrome ─────────────────────────────────────────────────────── */
-.dark-admin aside,
-.dark-admin .admin-shell aside,
-.dark-admin [class*="sidebar"] {
-  background: #0D0D0F !important;
-  border-color: rgba(255, 255, 255, 0.08) !important;
-}
-.dark-admin aside a,
-.dark-admin aside span,
-.dark-admin aside button {
-  color: #A1A1AA !important;
-}
-.dark-admin aside a:hover,
-.dark-admin aside a.active {
-  background: #17171A !important;
-  color: #F4F4F5 !important;
-}
+/* ── Sidebar chrome ───────────────────────────────────────────────────────
+   REMOVED ON PURPOSE. These rules painted every `aside` descendant with one
+   flat grey:
+
+     .dark-admin aside a, .dark-admin aside span, .dark-admin aside button
+       { color: #A1A1AA !important; }
+     .dark-admin aside a:hover, .dark-admin aside a.active
+       { background: #17171A !important; color: #F4F4F5 !important; }
+
+   Because of `!important` they outranked everything, so in dark mode section
+   labels, nav labels, icons and the active row were all the identical grey,
+   and `:hover` beat the active state (`.dark-admin aside a:hover` is 0,2,1 vs
+   `.admin-shell .adm-row.is-active` at 0,3,0) — hovering a selected page made
+   it look unselected. `[class*=sidebar]` and `.active` matched nothing at all:
+   the nav uses `is-active`, and no class in the project contains "sidebar"
+   until this rebuild introduced `adm-sidebar`.
+
+   The shell is now token-driven (admin-shell.css + --admin-*), so dark mode
+   needs no overrides here — it only has to keep supplying the variables,
+   which `.dark-admin` in index.css already does. */
 
 /* ── TopBar chrome ──────────────────────────────────────────────────────── */
 .dark-admin header,
