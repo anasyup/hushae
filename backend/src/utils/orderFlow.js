@@ -142,54 +142,9 @@ async function recordTransition(order, { from, to, note = '', actor = null, acto
   } catch { /* timeline must never break the operation it records */ }
 }
 
-/* ---------------------------------------------------------------------------
- * NOTIFICATION PREFERENCES GATE
- *
- * The merchant chooses which events reach the admin bell + Inbox at
- * Settings → Notifications (settings.notificationPrefs). Every pref defaults
- * TRUE, so an absent document keeps today's behaviour exactly. Unknown event
- * types are ALWAYS allowed — a future event can never be silenced by
- * omission. The settings read is cached for 60s; PUT /api/settings drops the
- * cache so a save takes effect quickly.
- * ------------------------------------------------------------------------- */
-const TYPE_PREF_KEY = {
-  'order.created': 'orderCreated',
-  'order.status':  'orderStatus',
-  'issue.raised':  'issueRaised',
-  'stock.low':     'stockLow',
-  'review.new':    'reviewNew',
-  'question.new':  'questionNew',
-  'print.done':    'printDone',
-  'bulk.done':     'bulkDone',
-};
-
-function prefKeyFor(type) {
-  if (TYPE_PREF_KEY[type]) return TYPE_PREF_KEY[type];
-  if (typeof type === 'string' && type.startsWith('payment')) return 'payment';
-  return null; // unmapped event → never gate it
-}
-
-let prefsCache = { at: 0, prefs: null };
-
-function invalidatePrefsCache() { prefsCache = { at: 0, prefs: null }; }
-
-async function eventAllowed(type) {
-  const key = prefKeyFor(type);
-  if (!key) return true;
-  try {
-    if (Date.now() - prefsCache.at > 60000) {
-      const Settings = require('../models/Settings');
-      const s = await Settings.findOne({ key: 'store' }).select('notificationPrefs').lean();
-      prefsCache = { at: Date.now(), prefs: s?.notificationPrefs || {} };
-    }
-  } catch { return true; /* never let a settings read break notifications */ }
-  return (prefsCache.prefs || {})[key] !== false;
-}
-
 /** Raise an admin notification. Also fire-and-forget. */
 async function notify({ type, title, body = '', order = null, severity = 'info', link = '', meta = {} }) {
   try {
-    if (!(await eventAllowed(type))) return; // merchant disabled this event
     await OrderNotification.create({
       type, title, body, severity, meta,
       order: order?._id || null,
@@ -202,5 +157,5 @@ async function notify({ type, title, body = '', order = null, severity = 'info',
 module.exports = {
   STAGES, STAGE_KEYS, STAGE_MAP, FORWARD, EXITS,
   allowedNext, canTransition, legacyFor, groupFor, stageFromLegacy,
-  applyStage, recordTransition, notify, invalidatePrefsCache,
+  applyStage, recordTransition, notify,
 };

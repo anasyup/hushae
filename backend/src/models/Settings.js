@@ -39,57 +39,6 @@ const settingsSchema = new mongoose.Schema({
   // =========================================================================
   timezone: { type: String, default: 'Asia/Karachi' },
 
-  // =========================================================================
-  // UNITS — how weights and dimensions are expressed to humans. Products are
-  // ALWAYS stored in grams internally (weightGrams); this unit governs
-  // display wherever a weight is rendered. Metric defaults for Pakistan.
-  // =========================================================================
-  units: {
-    weight:    { type: String, default: 'g' },   // 'g' | 'kg'
-    dimension: { type: String, default: 'cm' },  // 'cm' | 'in'
-  },
-
-  // =========================================================================
-  // DOMAIN — the merchant's primary storefront domain. `primary` is recorded
-  // here; the actual domain attach happens in the Vercel dashboard. Only when
-  // `useForSeo` is switched ON does the SEO layer (robots/sitemap/canonical)
-  // emit this origin instead of the request host — so an unconnected domain
-  // can never silently break indexing.
-  // =========================================================================
-  domain: {
-    primary:   { type: String,  default: '' },
-    useForSeo: { type: Boolean, default: false },
-  },
-
-  // =========================================================================
-  // LANGUAGES — single source of truth for the storefront language. The shop
-  // currently ships English only (brand direction); this record is what
-  // future translations and document-language tagging will follow.
-  // =========================================================================
-  languages: {
-    default: { type: String,     default: 'en' },
-    enabled: { type: [String],   default: ['en'] },
-  },
-
-  // =========================================================================
-  // NOTIFICATION PREFS — which backend events may raise an admin
-  // notification (bell + Inbox). All default TRUE = today's behaviour; a
-  // disabled event is dropped in orderFlow.notify() before a document is
-  // created. Unknown event types are ALWAYS allowed so future events are
-  // never silenced by omission.
-  // =========================================================================
-  notificationPrefs: {
-    orderCreated: { type: Boolean, default: true },
-    orderStatus:  { type: Boolean, default: true },
-    payment:      { type: Boolean, default: true },
-    issueRaised:  { type: Boolean, default: true },
-    stockLow:     { type: Boolean, default: true },
-    reviewNew:    { type: Boolean, default: true },
-    questionNew:  { type: Boolean, default: true },
-    printDone:    { type: Boolean, default: true },
-    bulkDone:     { type: Boolean, default: true },
-  },
-
   /* Include admin/staff test orders in analytics. Default OFF — test orders
      would otherwise inflate Revenue, Orders, AOV, Top Customers, etc. */
   includeTestOrders: { type: Boolean, default: false },

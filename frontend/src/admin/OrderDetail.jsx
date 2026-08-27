@@ -11,7 +11,6 @@ import PageHeader from './components/PageHeader';
 import Img from '../components/Img';
 import ReliabilityBadge from './ReliabilityBadge';
 import { CANCEL_REASONS } from './orders/orderConstants';
-import TrackingModal from './orders/TrackingModal';
 import { btnGhost, btnIcon, btnSolid, ctl, ctlInline, MonoStatus } from './orders/orderUi';
 
 /* ===========================================================================
@@ -30,7 +29,6 @@ export default function OrderDetail() {
   const [tab, setTab] = useState('items');
   const [err, setErr] = useState('');
   const [busy, setBusy] = useState(false);
-  const [trackOpen, setTrackOpen] = useState(false);
   const [reliability, setReliability] = useState(null);
   const [cancelOpen, setCancelOpen] = useState(false);
   const [cancelReason, setCancelReason] = useState('');
@@ -382,11 +380,6 @@ export default function OrderDetail() {
 
         {tab === 'tracking' && (
           <div className="py-6">
-            <div className="flex justify-end pb-3">
-              <button type="button" onClick={() => setTrackOpen(true)} className={btnGhost}>
-                Add / edit tracking
-              </button>
-            </div>
             {o.trackingNumber ? (
               <div className="space-y-5">
                 <div className="flex items-center justify-between border-b border-white/10 pb-4">
@@ -417,23 +410,6 @@ export default function OrderDetail() {
           </div>
         )}
       </section>
-      {trackOpen && o && (
-        <TrackingModal
-          order={o}
-          stageLabel=""
-          busy={false}
-          onSubmit={async ({ courier, tracking }) => {
-            setTrackOpen(false);
-            try {
-              await api(`/orders/manage/${o._id}/tracking`, {
-                method: 'PATCH', token: auth.token, body: { courier, tracking },
-              });
-              setO({ ...o, courierName: courier, trackingNumber: tracking });
-            } catch { /* silent */ }
-          }}
-          onClose={() => setTrackOpen(false)}
-        />
-      )}
     </AdminLayout>
   );
 }

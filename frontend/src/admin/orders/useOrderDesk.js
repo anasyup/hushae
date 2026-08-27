@@ -143,10 +143,6 @@ export function useOrderDesk() {
     act(id, () => api(`${BASE}/${id}/payment/verify`, { method: 'PATCH', token, body: { state, ...extra } }),
       { successMsg: `Payment ${state.toLowerCase()}` });
 
-  const saveTracking = (id, payload) =>
-    act(id, () => api(`${BASE}/${id}/tracking`, { method: 'PATCH', token, body: payload }),
-      { successMsg: 'Tracking saved' });
-
   const recordPrint = (id, docType) =>
     act(id, () => api(`${BASE}/${id}/print`, { method: 'POST', token, body: { docType } }), { refresh: false });
 
@@ -190,7 +186,7 @@ export function useOrderDesk() {
   return {
     filters, setFilter, resetFilters, activeFilterCount,
     data, counts, facets, loading, error, busyIds,
-    reload: load, setStage, verifyPayment, recordPrint, addNote, bulk, exportCsv, saveTracking,
+    reload: load, setStage, verifyPayment, recordPrint, addNote, bulk, exportCsv,
   };
 }
 

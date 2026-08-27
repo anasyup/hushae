@@ -136,23 +136,14 @@ function buildFilter(q) {
   if (q.test === 'yes') f.isTestOrder = true;
   if (q.test === 'no') f.isTestOrder = { $ne: true };
   if (q.q) {
-    const raw = String(q.q).trim();
-    const rx = new RegExp(esc(raw), 'i');
-    const ors = [
-      { orderNumber: rx }, { 'customerInfo.name': rx },
-      { 'customerInfo.phone': rx }, { 'customerInfo.email': rx },
-      { trackingNumber: rx }, { couponCode: rx },
-    ];
-    /* Pakistan reality: the same number is typed 0300…, +92 300… or 300….
-       When the query looks like a phone, also match on the stored number's
-       tail so every spelling finds the same customer. */
-    const digits = raw.replace(/\D/g, '');
-    if (digits.length >= 7) {
-      const tails = [...new Set([digits.slice(-10), digits.slice(-9), digits.slice(-7)])]
-        .filter((t) => t.length >= 7);
-      tails.forEach((t) => ors.push({ 'customerInfo.phone': new RegExp(`${esc(t)}$`) }));
-    }
-    f.$and = [...(f.$and || []), { $or: ors }];
+    const rx = new RegExp(esc(String(q.q).trim()), 'i');
+    f.$and = [...(f.$and || []), {
+      $or: [
+        { orderNumber: rx }, { 'customerInfo.name': rx },
+        { 'customerInfo.phone': rx }, { 'customerInfo.email': rx },
+        { trackingNumber: rx }, { couponCode: rx },
+      ],
+    }];
   }
   return f;
 }
@@ -488,32 +479,6 @@ router.get('/cancellation-reasons', protect, adminOnly, asyncHandler(async (req,
 }));
 
 /* ── SINGLE ORDER (with timeline, payments, issues, prints) ───────────────── */
-/* ── COD RECONCILIATION — expected vs collected, per courier ────────────── */
-router.get('/cod-recon', protect, adminOnly, asyncHandler(async (req, res) => {
-  const SHIP = ['Shipped', 'In Transit', 'Out for Delivery', 'Delivered', 'Completed'];
-  const orders = await Order.find({ paymentMethod: 'COD', stage: { $in: SHIP } })
-    .select('orderNumber courierName total paymentState paymentStatus').lean();
-  const by = {};
-  for (const o of orders) {
-    const c = String(o.courierName || '').trim() || 'Unassigned';
-    by[c] = by[c] || { courier: c, count: 0, expected: 0, collected: 0, outstandingIds: [] };
-    const r = by[c];
-    r.count += 1;
-    r.expected += Number(o.total || 0);
-    const paid = o.paymentStatus === 'Paid' || o.paymentState === 'Confirmed';
-    if (paid) r.collected += Number(o.total || 0);
-    else r.outstandingIds.push(String(o._id));
-  }
-  const rows = Object.values(by)
-    .map((r) => ({ ...r, outstanding: r.expected - r.collected }))
-    .sort((a, b) => b.outstanding - a.outstanding);
-  const totals = rows.reduce(
-    (a, r) => ({ count: a.count + r.count, expected: a.expected + r.expected, collected: a.collected + r.collected }),
-    { count: 0, expected: 0, collected: 0 },
-  );
-  res.json({ rows, totals });
-}));
-
 router.get('/:id', protect, adminOnly, asyncHandler(async (req, res) => {
   if (!isId(req.params.id)) return res.status(400).json({ message: 'Invalid order id' });
   const order = await Order.findById(req.params.id).lean();
@@ -573,20 +538,6 @@ router.patch('/:id/stage', protect, adminOnly, asyncHandler(async (req, res) => 
 }));
 
 /* ── PAYMENT VERIFICATION ─────────────────────────────────────────────────── */
-/* ── COURIER / TRACKING — captured at ship time ─────────────────────────── */
-router.patch('/:id/tracking', protect, adminOnly, asyncHandler(async (req, res) => {
-  if (!isId(req.params.id)) return res.status(400).json({ message: 'Invalid order id' });
-  const order = await Order.findById(req.params.id);
-  if (!order) return res.status(404).json({ message: 'Order not found' });
-  const { courier = '', tracking = '', trackingUrl = '' } = req.body || {};
-  order.courierName = String(courier || '').trim().slice(0, 80);
-  order.trackingNumber = String(tracking || '').trim().slice(0, 80);
-  order.trackingUrl = String(trackingUrl || '').trim().slice(0, 200);
-  await order.save();
-  try { require('../utils/auditLogger').logAction(req.user?.email, 'tracking', 'order', order.orderNumber, '', order.trackingNumber || order.courierName); } catch { /* noop */ }
-  res.json({ order: withStage(order.toObject()) });
-}));
-
 router.patch('/:id/payment/verify', protect, adminOnly, asyncHandler(async (req, res) => {
   if (!isId(req.params.id)) return res.status(400).json({ message: 'Invalid order id' });
   const { state, transactionId = '', note = '', gatewayResponse = null } = req.body || {};

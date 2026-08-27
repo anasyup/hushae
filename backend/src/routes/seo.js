@@ -11,33 +11,8 @@ const BlogPost = require('../models/BlogPost');
 
 const router = express.Router();
 
-/* Primary domain (Settings → Domain). Only when the merchant switches
-   `useForSeo` ON does the SEO layer emit the recorded primary domain —
-   an unconnected domain can never silently break indexing. Cached 60s;
-   PUT /api/settings drops the cache. */
-let domainCache = { at: 0, value: null };
-
-function invalidateDomainCache() { domainCache = { at: 0, value: null }; }
-
-async function primaryDomainForSeo() {
-  try {
-    if (Date.now() - domainCache.at > 60000) {
-      const s = await Settings.findOne({ key: 'store' }).select('domain').lean();
-      domainCache = { at: Date.now(), value: s?.domain || null };
-    }
-  } catch { /* keep whatever we cached; fall back to request host below */ }
-  const d = domainCache.value;
-  if (!d?.useForSeo || !d?.primary) return null;
-  const clean = String(d.primary).trim().toLowerCase()
-    .replace(/^https?:\/\//, '').replace(/\/.*$/, '');
-  return clean || null;
-}
-
-// Pick the public origin: merchant's SEO domain (if switched on), else env
-// var, else the request host (X-Forwarded-Host on Vercel).
-async function baseUrl(req) {
-  const primary = await primaryDomainForSeo();
-  if (primary) return `https://${primary}`;
+// Pick the public origin from the request (X-Forwarded-Host on Vercel) or env var.
+function baseUrl(req) {
   const env = process.env.PUBLIC_SITE_URL;
   if (env) return env.replace(/\/$/, '');
   const proto = (req.headers['x-forwarded-proto'] || 'https').split(',')[0].trim();
@@ -47,8 +22,8 @@ async function baseUrl(req) {
 
 const esc = (s) => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
 
-router.get('/robots.txt', async (req, res) => {
-  const site = await baseUrl(req);
+router.get('/robots.txt', (req, res) => {
+  const site = baseUrl(req);
   const body = [
     'User-agent: *',
     'Allow: /',
@@ -72,7 +47,7 @@ router.get('/robots.txt', async (req, res) => {
 
 router.get('/sitemap.xml', async (req, res) => {
   try {
-    const site = await baseUrl(req);
+    const site = baseUrl(req);
     const now = new Date().toISOString();
 
     // Static pages — priority ordered
@@ -174,7 +149,5 @@ router.get('/sitemap.xml', async (req, res) => {
     res.status(500).type('text/plain').send('Sitemap generation error: ' + e.message);
   }
 });
-
-router.invalidateDomainCache = invalidateDomainCache;
 
 module.exports = router;

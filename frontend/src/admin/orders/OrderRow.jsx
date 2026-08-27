@@ -18,7 +18,7 @@ const COL =
   'hidden items-center lg:flex';
 
 export default function OrderRow({
-  order: o, selected, onSelect, busy, onStage, onVerify, onPrint, onOpenService, onOpenCustomer, onOpenTracking,
+  order: o, selected, onSelect, busy, onStage, onVerify, onPrint, onOpenService, onOpenCustomer,
 }) {
   const [open, setOpen] = useState(false);
   const [menu, setMenu] = useState(false);
@@ -32,12 +32,6 @@ export default function OrderRow({
   const bins = [...new Set((o.items || []).map((i) => i.warehouseLocation).filter(Boolean))];
   const atRisk = (o.items || []).some((i) => ['out_of_stock', 'insufficient', 'low_stock'].includes(i.stockStatus));
   const invoicePrinted = o.printStatus?.invoice?.printed;
-
-  /* SLA timer — how long the order has sat in its current stage. Amber at
-     24h, red at 48h; terminal stages never warn. */
-  const TERMINAL = ['Delivered', 'Completed', 'Cancelled', 'Refunded', 'Returned', 'Failed Delivery'];
-  const hrs = Math.max(0, Math.floor((Date.now() - new Date(o.stageUpdatedAt || o.updatedAt || o.createdAt).getTime()) / 3600000));
-  const sla = !TERMINAL.includes(stage) && hrs >= 24 ? { label: `${hrs}h`, color: hrs >= 48 ? '#ef4444' : '#f59e0b' } : null;
 
   const copyRef = () => { navigator.clipboard?.writeText(o.orderNumber); };
 
@@ -67,17 +61,7 @@ export default function OrderRow({
             Mark payment verified
           </button>
         )}
-        {!o.trackingNumber && ['Packed', 'Manifested', 'To Handover', 'Shipped', 'In Transit', 'Out for Delivery', 'Delivered'].includes(stage) && onOpenTracking && (
-          <button onClick={() => { onOpenTracking(o); setMenu(false); }}
-            className="flex w-full items-center gap-2 px-3 py-2 text-left text-[12px] text-white/75 hover:bg-white/5 hover:text-white">
-            Add tracking number
-          </button>
-        )}
-        <a href={`https://wa.me/${String(o.customerInfo?.phone || '').replace(/\D/g, '').replace(/^0/, '92')}?text=${encodeURIComponent(
-          `Hi ${o.customerInfo?.name || 'there'}, your HUSHAE order ${o.orderNumber} is ${stage}.` +
-          (o.trackingNumber ? ` Tracking ${o.trackingNumber}${o.courierName ? ` via ${o.courierName}` : ''}.` : '') +
-          ` Track live: https://hushae1.vercel.app/track?order=${encodeURIComponent(o.orderNumber)}`
-        )}`}
+        <a href={`https://wa.me/${String(o.customerInfo?.phone || '').replace(/\D/g, '').replace(/^0/, '92')}`}
           target="_blank" rel="noreferrer"
           className="flex w-full items-center gap-2 px-3 py-2 text-[12px] text-white/75 hover:bg-white/5 hover:text-white">
           WhatsApp customer
@@ -221,11 +205,6 @@ export default function OrderRow({
         <div className={COL}><MonoStatus label={fulfill} /></div>
         <div className="hidden flex-col items-start gap-1 xl:flex">
           <MonoStatus label={String(o.status || '').toUpperCase()} dim={['Cancelled', 'Refunded', 'Pending'].includes(o.status)} />
-          {sla && (
-            <span title={`${hrs}h in ${stage}`} className="text-[10px] font-semibold tabular-nums" style={{ color: sla.color }}>
-              {sla.label} in stage
-            </span>
-          )}
           {o.priorityFlag === 'rush' && <span className="text-[9px] uppercase tracking-[0.16em] text-white">Rush</span>}
           {o.customerService?.hasIssue && <span className="text-[9px] uppercase tracking-[0.14em] text-white/45">Issue</span>}
           {invoicePrinted && <span className="text-[9px] uppercase tracking-[0.14em] text-white/30">Printed</span>}

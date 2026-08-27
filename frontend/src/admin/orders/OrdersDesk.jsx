@@ -1,15 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Keyboard, Loader2, Plus, RefreshCcw, X } from 'lucide-react';
+import { Bell, Keyboard, Loader2, Plus, RefreshCcw, X } from 'lucide-react';
 import AdminLayout from '../AdminLayout';
 import PageHeader from '../components/PageHeader';
 import { pkr } from '../../lib/format';
 import { useApp } from '../../store/AppContext';
 import { api } from '../../api/client';
-import { useOrderDesk } from './useOrderDesk';
+import { useOrderDesk, useOrderNotifications } from './useOrderDesk';
 import { GROUPS, ISSUE_TYPES, REFUND_STATES } from './orderConstants';
 import OrderFilters from './OrderFilters';
-import TrackingModal from './TrackingModal';
 import BulkBar from './BulkBar';
 import OrderRow from './OrderRow';
 import QuickFilters from './QuickFilters';
@@ -29,14 +28,16 @@ export default function OrdersDesk() {
   const { auth, toast } = useApp();
   const nav = useNavigate();
   const desk = useOrderDesk();
+  const notes = useOrderNotifications();
   const {
     filters, setFilter, resetFilters, activeFilterCount,
     data, counts, facets, loading, error, busyIds,
-    reload, setStage, verifyPayment, bulk, exportCsv, saveTracking,
+    reload, setStage, verifyPayment, bulk, exportCsv,
   } = desk;
 
   const [selected, setSelected] = useState([]);
-    const [serviceFor, setServiceFor] = useState(null);
+  const [showNotes, setShowNotes] = useState(false);
+  const [serviceFor, setServiceFor] = useState(null);
   const [selectAllMatching, setSelectAllMatching] = useState(false);
   const [customerPhone, setCustomerPhone] = useState(null);
   const [showShortcuts, setShowShortcuts] = useState(false);
@@ -126,34 +127,6 @@ export default function OrdersDesk() {
   const pendingCount = counts?.byGroup?.new ?? counts?.byPaymentState?.Pending ?? 0;
   const fulfilledCount = counts?.byGroup?.delivered ?? 0;
 
-  /* Tracking-at-ship: moving an order into the courier pipeline without a
-     tracking number opens the modal first. Skipping never blocks the stage —
-     a stuck pipeline costs more than a missing number. */
-  const [trackReq, setTrackReq] = useState(null);
-  const [trackBusy, setTrackBusy] = useState(false);
-  const SHIP_STAGES = ['To Handover', 'Shipped', 'In Transit', 'Out for Delivery'];
-
-  const handleStage = (id, stage, note = '', reason = '') => {
-    if (SHIP_STAGES.includes(stage)) {
-      const o = orders.find((x) => x._id === id);
-      if (o && !o.trackingNumber) { setTrackReq({ order: o, stage, note, reason }); return; }
-    }
-    setStage(id, stage, note, reason);
-  };
-
-  const submitTracking = async ({ courier, tracking, skip }) => {
-    const { order, stage, note, reason } = trackReq;
-    setTrackReq(null);
-    setTrackBusy(true);
-    try {
-      if (!skip && (tracking || courier)) {
-        await saveTracking(order._id, { courier, tracking });
-      }
-      if (stage) setStage(order._id, stage, note, reason);
-    } catch { /* act() already toasted */ }
-    setTrackBusy(false);
-  };
-
   const metrics = [
     { label: 'Total orders', value: counts ? counts.total : '—' },
     { label: 'Pending', value: counts ? pendingCount : '—' },
@@ -171,6 +144,42 @@ export default function OrdersDesk() {
             <Link to="/admin/orders/new" className={btnSolid}>
               <Plus size={12} /> Create order
             </Link>
+            <div className="relative">
+              <button
+                onClick={() => { setShowNotes((v) => !v); if (!showNotes) notes.markRead(); }}
+                aria-label="Notifications"
+                className={btnIcon}
+              >
+                <Bell size={14} />
+                {notes.unread > 0 && (
+                  <span className="absolute -right-1 -top-1 grid h-3.5 min-w-3.5 place-items-center bg-white px-1 text-[9px] font-medium text-black">
+                    {notes.unread > 9 ? '9+' : notes.unread}
+                  </span>
+                )}
+              </button>
+              {showNotes && (
+                <>
+                  <div className="fixed inset-0 z-30" onClick={() => setShowNotes(false)} />
+                  <div className="absolute right-0 top-10 z-40 max-h-96 w-80 overflow-y-auto border border-white/15 bg-[#0D0D0D]">
+                    <div className="flex items-center justify-between border-b border-white/10 px-4 py-2.5">
+                      <p className="adm-label">Notifications</p>
+                      <button onClick={() => setShowNotes(false)} className="text-white/35 hover:text-white"><X size={14} /></button>
+                    </div>
+                    {notes.items.length === 0 && <p className="px-4 py-10 text-center text-[12px] text-white/35">Nothing yet</p>}
+                    {notes.items.map((n) => (
+                      <button key={n._id} onClick={() => { if (n.link) nav(n.link); setShowNotes(false); }}
+                        className="flex w-full gap-3 border-b border-white/5 px-4 py-3 text-left hover:bg-white/[0.04]">
+                        <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-white/40" />
+                        <span className="min-w-0">
+                          <span className="block truncate text-[12px] text-white">{n.title}</span>
+                          {n.body && <span className="mt-0.5 block truncate text-[11px] text-white/35">{n.body}</span>}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
             <button onClick={() => reload()} aria-label="Refresh" className={btnIcon}>
               <RefreshCcw size={13} className={loading ? 'animate-spin' : ''} />
             </button>
@@ -326,10 +335,9 @@ export default function OrdersDesk() {
                 key={o._id} order={o}
                 selected={selected.includes(o._id)} onSelect={toggle}
                 busy={busyIds.has(o._id)}
-                onStage={handleStage} onVerify={verifyPayment}
+                onStage={setStage} onVerify={verifyPayment}
                 onPrint={handlePrint} onOpenService={setServiceFor}
                 onOpenCustomer={setCustomerPhone}
-                onOpenTracking={(o) => setTrackReq({ order: o })}
               />
             ))}
           </div>
@@ -372,15 +380,6 @@ export default function OrdersDesk() {
       {serviceFor && (
         <IssueModal order={serviceFor} token={auth?.token} toast={toast}
           onClose={() => setServiceFor(null)} onSaved={() => { setServiceFor(null); reload({ silent: true }); }} />
-      )}
-      {trackReq && (
-        <TrackingModal
-          order={trackReq.order}
-          stageLabel={trackReq.stage || ''}
-          busy={trackBusy}
-          onSubmit={submitTracking}
-          onClose={() => setTrackReq(null)}
-        />
       )}
     </AdminLayout>
   );
