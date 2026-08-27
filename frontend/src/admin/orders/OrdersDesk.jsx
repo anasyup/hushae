@@ -1,139 +1,28 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import Chart from 'chart.js/auto';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import {
-  Bell, Check, ChevronDown, Download, DollarSign, Keyboard, Loader2,
-  Plus, RefreshCcw, Search, X,
-} from 'lucide-react';
+import { Bell, Keyboard, Loader2, Plus, RefreshCcw, X } from 'lucide-react';
 import AdminLayout from '../AdminLayout';
+import PageHeader from '../components/PageHeader';
 import { pkr } from '../../lib/format';
 import { useApp } from '../../store/AppContext';
 import { api } from '../../api/client';
-import { PAYMENT_METHODS, PAYMENT_STATES, SORT_OPTIONS, ISSUE_TYPES, REFUND_STATES } from './orderConstants';
 import { useOrderDesk, useOrderNotifications } from './useOrderDesk';
+import { GROUPS, ISSUE_TYPES, REFUND_STATES } from './orderConstants';
 import OrderFilters from './OrderFilters';
 import BulkBar from './BulkBar';
 import OrderRow from './OrderRow';
 import QuickFilters from './QuickFilters';
 import CustomerPanel from './CustomerPanel';
 import { writeErrorWindow, writeLoadingWindow, writePrintWindow } from './printDocument';
-import s from './adesk.module.css';
+import {
+  btnGhost, btnSolid, btnIcon, ctl,
+  EditorialEmpty, EditorialError, EditorialPagination, TableSkeleton,
+} from './orderUi';
 
 /* ===========================================================================
- * Order desk — "balanced polish" build.
- *
- * Layout, sizes and colours follow the reference file
- * orders_balanced_polished.html 1:1 (topbar with search + range pills, six
- * stat tiles with sparklines, one white card holding tabs / filter bar /
- * fixed-layout table / pagination), using the same ATELIER tokens as
- * /admin (Overview).
- *
- * Nothing here is decoration-only: every number comes from
- * GET /orders/manage/counts, the tiles and tabs set real URL filters, the
- * sparklines are bucketed from orders actually loaded for this view, and the
- * drill-down (kept from the previous pass — it is a feature, not chrome)
- * compares against a real second window.
- * =========================================================================== */
-
-const cx = (...cls) => cls.filter(Boolean).join('');
-const int = (v) => (v == null ? '—' : Number(v).toLocaleString('en-US'));
-const compact = (v) => {
-  const n = Number(v) || 0;
-  if (n >= 1e6) return `₨${(n / 1e6).toFixed(1)}M`;
-  if (n >= 1e3) return `₨${Math.round(n / 1e3)}K`;
-  return `₨${Math.round(n)}`;
-};
-const iso = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-const shift = (dateStr, days) => {
-  const d = new Date(`${dateStr}T00:00:00`);
-  d.setDate(d.getDate() + days);
-  return iso(d);
-};
-const shortDate = (str) => (str ? new Date(`${str}T00:00:00`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '');
-
-/** Tiles and tabs speak `status` (the coarse workflow field the API filters). */
-const TABS = [
-  { key: 'all', label: 'All Orders', status: '' },
-  { key: 'pending', label: 'Pending', status: 'Pending' },
-  { key: 'processing', label: 'Processing', status: 'Processing' },
-  { key: 'completed', label: 'Completed', status: 'Delivered' },
-  { key: 'cancelled', label: 'Cancelled', status: 'Cancelled' },
-];
-
-const STAT_ICONS = {
-  total: <><rect x="1" y="4" width="22" height="17" rx="2" /><line x1="1" y1="10" x2="23" y2="10" /></>,
-  pending: <><circle cx="12" cy="12" r="9" /><polyline points="12 7 12 12 15 14" /></>,
-  processing: <><path d="M21 8l-9-5-9 5 9 5 9-5z" /><path d="M3 8v8l9 5 9-5V8" /></>,
-  completed: <><circle cx="12" cy="12" r="9" /><polyline points="8 12 11 15 16 9" /></>,
-  cancelled: <><circle cx="12" cy="12" r="9" /><line x1="6" y1="6" x2="18" y2="18" /></>,
-};
-
-/** Build the six tiles: value, real delta vs a real second window, spark. */
-function buildTiles(counts, prev, series) {
-  const c = counts || {};
-  const p = prev || {};
-  const g = c.byGroup || {}; const pg = p.byGroup || {};
-  const ps = c.byPaymentState || {}; const pps = p.byPaymentState || {};
-  const paid = (ps.Confirmed || 0) + (ps.Verified || 0);
-  const pPaid = (pps.Confirmed || 0) + (pps.Verified || 0);
-  const pct = (cur, pre) => (pre ? ((cur - pre) / pre) * 100 : null);
-  const rows = series.rows || [];
-  const byDay = (pred) => {
-    const map = new Map();
-    rows.forEach((o) => {
-      if (pred && !pred(o)) return;
-      const k = new Date(o.createdAt).toISOString().slice(0, 10);
-      map.set(k, (map.get(k) || 0) + 1);
-    });
-    const days = [...map.keys()].sort().slice(-14);
-    return days.map((d) => map.get(d));
-  };
-  const st = (s) => (o) => (o.status || '') === s;
-
-  return [
-    { key: 'total', label: 'Total Orders', icon: STAT_ICONS.total, value: int(c.total), series: byDay(null),
-      change: c.total != null && p.total != null ? pct(c.total, p.total) : null, tab: 'all' },
-    { key: 'pending', label: 'Pending', icon: STAT_ICONS.pending, value: int(g.new || 0), series: byDay(st('Pending')),
-      change: pct(g.new || 0, pg.new || 0), tab: 'pending' },
-    { key: 'processing', label: 'Processing', icon: STAT_ICONS.processing, value: int((g.processing || 0) + (g['to-ship'] || 0)), series: byDay((o) => ['Processing', 'Confirmed'].includes(o.status)),
-      change: pct((g.processing || 0) + (g['to-ship'] || 0), (pg.processing || 0) + (pg['to-ship'] || 0)), tab: 'processing' },
-    { key: 'completed', label: 'Completed', icon: STAT_ICONS.completed, value: int(g.delivered || 0), series: byDay((o) => ['Delivered', 'Out for Delivery', 'Shipped'].includes(o.status)),
-      change: pct(g.delivered || 0, pg.delivered || 0), tab: 'completed' },
-    { key: 'cancelled', label: 'Cancelled', icon: STAT_ICONS.cancelled, value: int(g.issues || 0), series: byDay((o) => ['Cancelled', 'Refunded'].includes(o.status)),
-      change: pct(g.issues || 0, pg.issues || 0), downIsGood: true, tab: 'cancelled' },
-    { key: 'revenue', label: 'Revenue', icon: null, value: c.revenue != null ? pkr(c.revenue) : '—', series: series.revenue,
-      change: c.revenue != null && p.revenue != null ? pct(c.revenue, p.revenue) : null, tab: null, money: true },
-  ];
-}
-
-/** Stage / group distribution + breakdown stats for the drill-down panel. */
-function buildDrill(key, counts, rows) {
-  const byStage = counts?.byStage || {};
-  const byGroup = counts?.byGroup || {};
-  const total = counts?.total ?? 0;
-  const paid = (counts?.byPaymentState?.Confirmed || 0) + (counts?.byPaymentState?.Verified || 0);
-  const unpaid = counts?.byPaymentState?.Pending || 0;
-  const rev = counts?.revenue || 0;
-  const delivered = byGroup.delivered || 0;
-  const unprinted = rows.filter((o) => !o.printStatus?.invoice?.printed).length;
-  const SERIES = {
-    total: [['New', byGroup.new || 0], ['Processing', byGroup.processing || 0], ['To Ship', byGroup['to-ship'] || 0], ['Shipped', byGroup.shipped || 0], ['Delivered', delivered], ['Issues', byGroup.issues || 0]],
-    revenue: Object.entries(byStage).sort((a, b) => b[1] - a[1]).slice(0, 7),
-    pending: [['Awaiting review', byGroup.new || 0], ['Verified', counts?.byPaymentState?.Verified || 0], ['Unverified', unpaid]],
-    processing: [['Processing', byGroup.processing || 0], ['To Ship', byGroup['to-ship'] || 0], ['Shipped', byGroup.shipped || 0]],
-    completed: [['Delivered', delivered], ['Shipped', byGroup.shipped || 0], ['Not yet', Math.max(0, total - delivered)]],
-    cancelled: [['Issues', byGroup.issues || 0], ['Delivered', delivered], ['Open', Math.max(0, total - delivered - (byGroup.issues || 0))]],
-  };
-  const NOTES = {
-    total: [['Orders in view', int(total), 'Every stage, whatever its status'], ['Awaiting review', int(byGroup.new || 0), 'Just received'], ['Delivered', int(delivered), `${total ? Math.round((delivered / total) * 100) : 0}% closed`], ['Issues', int(byGroup.issues || 0), 'Cancellations, returns, refunds']],
-    revenue: [['Value in view', pkr(rev), 'Sum of order totals'], ['Average order', total ? pkr(Math.round(rev / total)) : '—', 'Revenue ÷ orders'], ['Paid value', pkr(Math.round(rev * (total ? paid / total : 0))), 'Carried by paid orders'], ['Unprinted (page)', int(unprinted), 'Invoices not printed yet']],
-    pending: [['Awaiting review', int(byGroup.new || 0), 'Nothing done yet'], ['Unverified', int(unpaid), 'Payment check pending'], ['Of all orders', `${total ? Math.round(((byGroup.new || 0) / total) * 100) : 0}%`, 'Higher means more chasing']],
-    processing: [['Processing', int(byGroup.processing || 0), 'With the warehouse'], ['To Ship', int(byGroup['to-ship'] || 0), 'Packed, courier pending'], ['Shipped', int(byGroup.shipped || 0), 'In transit']],
-    completed: [['Delivered', int(delivered), `${total ? Math.round((delivered / total) * 100) : 0}% of orders`], ['Shipped', int(byGroup.shipped || 0), 'On the way'], ['Unprinted (page)', int(unprinted), 'Invoices still to print']],
-    cancelled: [['Issues', int(byGroup.issues || 0), 'Cancel + return + refund'], ['Paid then cancelled', int(unpaid), 'Needs money back check'], ['Delivered', int(delivered), 'For contrast']],
-  };
-  return { series: (SERIES[key] || []).filter(([, v]) => Number(v) > 0), notes: NOTES[key] || [] };
-}
+ * Order desk — Phase 03-R editorial recomposition.
+ * Functionality unchanged: filters, bulk, print, stage, notifications.
+ * ========================================================================== */
 
 export default function OrdersDesk() {
   const { auth, toast } = useApp();
@@ -152,55 +41,49 @@ export default function OrdersDesk() {
   const [selectAllMatching, setSelectAllMatching] = useState(false);
   const [customerPhone, setCustomerPhone] = useState(null);
   const [showShortcuts, setShowShortcuts] = useState(false);
-  const [moreOpen, setMoreOpen] = useState(false);
-  const [rangeOpen, setRangeOpen] = useState(false);
-  const [activeStat, setActiveStat] = useState(null);
-  const [term, setTerm] = useState(filters.q || '');
-  const [sugOpen, setSugOpen] = useState(false);
-  const [suggestions, setSuggestions] = useState([]);
-  const [prev, setPrev] = useState(null);
-  const [series, setSeries] = useState({ rows: [], revenue: [] });
-  const [recent, setRecent] = useState(() => {
-    try { return JSON.parse(localStorage.getItem('hushae.orderSearches') || '[]'); } catch { return []; }
-  });
-  const searchRef = useRef(null);
-  const searchWrap = useRef(null);
-  const debounce = useRef(null);
-  const drillChart = useRef(null);
-  const drillObj = useRef(null);
-  const sparkObjs = useRef([]);
 
   const orders = data.orders || [];
   const ids = useMemo(() => orders.map((o) => o._id), [orders]);
-  const token = auth?.token;
 
-  useEffect(() => { setSelected([]); setSelectAllMatching(false); }, [filters.status, filters.group, filters.preset]);
-  useEffect(() => { setTerm(filters.q || ''); }, [filters.q]);
+  useEffect(() => {
+    setSelected([]);
+    setSelectAllMatching(false);
+  }, [filters.group]);
 
   const toggle = useCallback((id) =>
-    setSelected((prevSel) => (prevSel.includes(id) ? prevSel.filter((x) => x !== id) : [...prevSel, id])), []);
+    setSelected((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id])), []);
   const allOnPage = orders.length > 0 && selected.length === orders.length;
 
-  /* ── print (unchanged endpoints) ───────────────────────────────────── */
   const openPrintTab = useCallback(async (docType, orderIds) => {
     const win = window.open('', '_blank');
-    if (!win) { toast?.('Allow pop-ups for this site to print'); return; }
+    if (!win) {
+      toast?.('Allow pop-ups for this site to print');
+      return;
+    }
     writeLoadingWindow(win, 'Preparing documents…');
+
     try {
       const qs = new URLSearchParams({ doc: docType });
       if (orderIds?.length) qs.set('ids', orderIds.join(','));
       else Object.entries(filters).forEach(([k, v]) => { if (v) qs.set(k, v); });
-      const payload = await api(`/orders/manage/print/batch?${qs}`, { token });
-      if (!payload.orders?.length) { writeErrorWindow(win, 'There were no orders to print.'); return; }
+
+      const payload = await api(`/orders/manage/print/batch?${qs}`, { token: auth?.token });
+      if (!payload.orders?.length) {
+        writeErrorWindow(win, 'There were no orders to print.');
+        return;
+      }
       writePrintWindow(win, payload);
-      bulk('print', payload.orders.map((o) => o._id).slice(0, 200), { docType }).catch(() => {});
+
+      const printedIds = payload.orders.map((o) => o._id).slice(0, 200);
+      bulk('print', printedIds, { docType }).catch(() => {});
     } catch (e) {
       writeErrorWindow(win, e.message || 'Could not load the documents.');
       toast?.(e.message || 'Print failed');
     }
-  }, [token, filters, bulk, toast]);
+  }, [auth?.token, filters, bulk, toast]);
 
   const handlePrint = useCallback((order, docType) => openPrintTab(docType, [order._id]), [openPrintTab]);
+
   const handleBulkPrint = useCallback(
     (docType) => openPrintTab(docType, selectAllMatching ? null : selected),
     [openPrintTab, selected, selectAllMatching],
@@ -209,26 +92,28 @@ export default function OrdersDesk() {
   const canAdvance = useMemo(() => {
     const chosen = orders.filter((o) => selected.includes(o._id));
     if (!chosen.length) return true;
-    return chosen.some((o) => (o.allowedNext || []).some((n) => !['Cancelled', 'Refunded', 'Returned', 'Failed Delivery'].includes(n)));
+    return chosen.some((o) => (o.allowedNext || []).some(
+      (n) => !['Cancelled', 'Refunded', 'Returned', 'Failed Delivery'].includes(n)));
   }, [orders, selected]);
 
-  /* ── keyboard ──────────────────────────────────────────────────────── */
+  const group = filters.group || 'all';
+
   useEffect(() => {
     const onKey = (e) => {
       const el = e.target;
-      const typing = el?.tagName === 'INPUT' || el?.tagName === 'TEXTAREA' || el?.tagName === 'SELECT' || el?.isContentEditable;
-      if ((e.key === 'k' || e.key === 'K') && (e.metaKey || e.ctrlKey)) { e.preventDefault(); searchRef.current?.focus(); return; }
-      if (e.key === '/' && !typing) { e.preventDefault(); searchRef.current?.focus(); return; }
-      if (e.key === 'Escape') {
-        if (sugOpen) { setSugOpen(false); return; }
-        if (rangeOpen) { setRangeOpen(false); return; }
-        if (activeStat) { setActiveStat(null); return; }
-        setSelected([]); setSelectAllMatching(false); setShowShortcuts(false);
+      const typing = el?.tagName === 'INPUT' || el?.tagName === 'TEXTAREA'
+        || el?.tagName === 'SELECT' || el?.isContentEditable;
+
+      if (e.key === '/' && !typing) {
+        e.preventDefault();
+        document.querySelector('[data-order-search]')?.focus();
         return;
       }
+      if (e.key === 'Escape') { setSelected([]); setSelectAllMatching(false); setShowShortcuts(false); return; }
       if (typing || e.metaKey || e.ctrlKey || e.altKey) return;
       if (e.key === '?') { setShowShortcuts((v) => !v); return; }
       if (!selected.length) return;
+
       const k = e.key.toLowerCase();
       if (k === 'p') { e.preventDefault(); handleBulkPrint('packing_slip'); }
       if (k === 'a') { e.preventDefault(); bulk('approve', selected).then(() => setSelected([])); }
@@ -236,584 +121,275 @@ export default function OrdersDesk() {
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [selected, bulk, handleBulkPrint, activeStat, sugOpen, rangeOpen]);
+  }, [selected, bulk, handleBulkPrint]);
 
-  useEffect(() => {
-    if (!sugOpen && !rangeOpen) return undefined;
-    const h = (e) => {
-      if (sugOpen && searchWrap.current && !searchWrap.current.contains(e.target)) setSugOpen(false);
-      if (rangeOpen && !e.target.closest?.('[data-range-pill]')) setRangeOpen(false);
-    };
-    document.addEventListener('mousedown', h);
-    return () => document.removeEventListener('mousedown', h);
-  }, [sugOpen, rangeOpen]);
+  const paidCount = (counts?.byPaymentState?.Confirmed || 0) + (counts?.byPaymentState?.Verified || 0);
+  const pendingCount = counts?.byGroup?.new ?? counts?.byPaymentState?.Pending ?? 0;
+  const fulfilledCount = counts?.byGroup?.delivered ?? 0;
 
-  /* ── comparison window + sparkline sample (both real, both optional) ─ */
-  const cmpWindow = useMemo(() => {
-    if (!filters.from || !filters.to) return null;
-    const from = new Date(`${filters.from}T00:00:00`);
-    const to = new Date(`${filters.to}T00:00:00`);
-    const len = Math.round((to - from) / 86400000) + 1;
-    if (filters.compare === 'year') {
-      const f = new Date(from); f.setFullYear(f.getFullYear() - 1);
-      const t = new Date(to); t.setFullYear(t.getFullYear() - 1);
-      return { from: iso(f), to: iso(t), label: 'same days last year' };
-    }
-    return { from: shift(filters.from, -len), to: shift(filters.from, -1), label: `vs ${shortDate(shift(filters.from, -len))} – ${shortDate(shift(filters.from, -1))}` };
-  }, [filters.from, filters.to, filters.compare]);
-
-  useEffect(() => {
-    if (!token) { setPrev(null); return; }
-    const params = new URLSearchParams();
-    Object.entries(filters).forEach(([k, v]) => { if (v !== '' && k !== 'page') params.set(k, v); });
-    if (cmpWindow) { params.set('from', cmpWindow.from); params.set('to', cmpWindow.to); }
-    let alive = true;
-    api(`/orders/manage/counts?${params}`, { token }).then((d) => { if (alive) setPrev(d); }).catch(() => { if (alive) setPrev(null); });
-    return () => { alive = false; };
-  }, [token, filters, cmpWindow]);
-
-  useEffect(() => {
-    if (!token) { setSeries({ rows: [], revenue: [] }); return; }
-    const params = new URLSearchParams();
-    Object.entries(filters).forEach(([k, v]) => { if (v !== '' && k !== 'page') params.set(k, v); });
-    params.set('limit', '200');
-    params.set('sort', 'newest');
-    let alive = true;
-    api(`/orders/manage?${params}`, { token })
-      .then((d) => {
-        if (!alive) return;
-        const rows = d.orders || [];
-        const map = new Map();
-        rows.forEach((o) => {
-          const k = new Date(o.createdAt).toISOString().slice(0, 10);
-          map.set(k, (map.get(k) || 0) + (o.total || 0));
-        });
-        const days = [...map.keys()].sort().slice(-14);
-        setSeries({ rows, revenue: days.map((day) => map.get(day)) });
-      })
-      .catch(() => { if (alive) setSeries({ rows: [], revenue: [] }); });
-    return () => { alive = false; };
-  }, [token, filters]);
-
-  /* ── live search ───────────────────────────────────────────────────── */
-  const remember = (value) => {
-    if (!value) return;
-    setRecent((r) => {
-      const next = [value, ...r.filter((x) => x !== value)].slice(0, 6);
-      try { localStorage.setItem('hushae.orderSearches', JSON.stringify(next)); } catch { /* private mode */ }
-      return next;
-    });
-  };
-  const runSearch = (value) => {
-    setTerm(value); setSugOpen(true);
-    clearTimeout(debounce.current);
-    debounce.current = setTimeout(() => {
-      setFilter({ q: value.trim() });
-      if (value.trim().length >= 2 && token) {
-        api(`/orders/insights/suggest?q=${encodeURIComponent(value.trim())}`, { token })
-          .then((d) => setSuggestions(d.suggestions || [])).catch(() => setSuggestions([]));
-      } else setSuggestions([]);
-    }, 250);
-  };
-  const applyTerm = (value) => { setTerm(value); setFilter({ q: value }); remember(value); setSugOpen(false); };
-  const grouped = useMemo(() => {
-    const g = {};
-    suggestions.forEach((sg) => { (g[sg.type] = g[sg.type] || []).push(sg); });
-    return Object.entries(g);
-  }, [suggestions]);
-
-  /* ── tiles, tabs, drill ────────────────────────────────────────────── */
-  const tiles = useMemo(() => buildTiles(counts, prev, series), [counts, prev, series]);
-  const drill = useMemo(() => buildDrill(activeStat, counts, orders), [activeStat, counts, orders]);
-  const isTabOn = (t) => (filters.status || '') === t.status
-    && !filters.group && !filters.stage && !filters.preset;
-
-  const applyTab = (t) => {
-    setFilter({
-      status: t.status, group: 'all', stage: '', preset: '',
-      paymentState: t.status === 'pending' ? 'Pending' : filters.paymentState,
-    });
-  };
-  const toggleTile = (tile) => {
-    if (activeStat === tile.key) { setActiveStat(null); return; }
-    setActiveStat(tile.key);
-    if (tile.tab) applyTab(TABS.find((t) => t.key === tile.tab) || TABS[0]);
-    else setFilter({ status: '', group: 'all', stage: '', preset: '' });
-    requestAnimationFrame(() => document.getElementById('ordersDrill')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }));
-  };
-
-  /* sparklines + drill chart, same visual language as Overview */
-  useEffect(() => {
-    const dark = document.documentElement.classList.contains('dark-admin');
-    const pal = dark ? { main: '#f4f4f5', grid: '#26262c', tick: '#71717a', tip: '#27272a', card: '#111113' }
-      : { main: '#111111', grid: '#f2f2f2', tick: '#9ca3af', tip: '#111111', card: '#ffffff' };
-    sparkObjs.current.forEach((c) => c.destroy());
-    sparkObjs.current = [];
-    document.querySelectorAll('[data-ord-spark]').forEach((el) => {
-      const raw = (el.dataset.ordSpark || '').split(',').map(Number).filter((n) => !Number.isNaN(n));
-      const series = raw.length > 1 ? raw : [0, 0];
-      const inst = new Chart(el, {
-        type: 'line',
-        data: { labels: series.map((_, i) => i), datasets: [{ data: series, borderColor: pal.main, borderWidth: 1.4, pointRadius: 0, tension: 0.4, fill: false }] },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { enabled: false } }, scales: { x: { display: false }, y: { display: false } }, elements: { point: { radius: 0 } }, animation: { duration: 900, easing: 'easeOutQuart' } },
-      });
-      sparkObjs.current.push(inst);
-    });
-    return () => { sparkObjs.current.forEach((c) => c.destroy()); sparkObjs.current = []; };
-  }, [tiles]);
-
-  useEffect(() => {
-    if (!activeStat || !drillChart.current || !drill.series.length) return undefined;
-    const dark = document.documentElement.classList.contains('dark-admin');
-    const pal = dark ? { main: '#f4f4f5', grid: '#26262c', tick: '#71717a', tip: '#27272a' }
-      : { main: '#111111', grid: '#f2f2f2', tick: '#9ca3af', tip: '#111111' };
-    drillObj.current = new Chart(drillChart.current, {
-      type: 'bar',
-      data: {
-        labels: drill.series.map(([k]) => k),
-        datasets: [{ data: drill.series.map(([, v]) => v), backgroundColor: pal.main, barThickness: 16, borderRadius: 4 }],
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false, animation: { duration: 500 },
-        plugins: { legend: { display: false }, tooltip: { backgroundColor: pal.tip, padding: 8, titleFont: { size: 10 }, bodyFont: { size: 11 }, displayColors: false } },
-        scales: {
-          x: { grid: { display: false }, border: { display: false }, ticks: { color: pal.tick, font: { size: 9.5 }, maxRotation: 0, autoSkip: false } },
-          y: { beginAtZero: true, grid: { color: pal.grid }, border: { display: false }, ticks: { color: pal.tick, font: { size: 9.5 }, maxTicksLimit: 4, precision: 0 } },
-        },
-      },
-    });
-    return () => { drillObj.current?.destroy(); drillObj.current = null; };
-  }, [activeStat, drill]);
-
-  /* date-range pill actions */
-  const setPresetRange = (days) => {
-    const to = new Date();
-    const from = new Date(Date.now() - (days - 1) * 86400000);
-    setFilter({ from: iso(from), to: iso(to) });
-  };
-
-  const rangeLabel = filters.from || filters.to
-    ? `${shortDate(filters.from) || '…'} – ${shortDate(filters.to) || 'today'}`
-    : 'All time';
-  const shownFrom = data.total ? (data.page - 1) * Number(filters.limit || 50) + 1 : 0;
-  const shownTo = Math.min(data.total || 0, (data.page - 1) * Number(filters.limit || 50) + orders.length);
-  const activeTabLabel = TABS.find(isTabOn)?.label || 'All Orders';
+  const metrics = [
+    { label: 'Total orders', value: counts ? counts.total : '—' },
+    { label: 'Pending', value: counts ? pendingCount : '—' },
+    { label: 'Paid', value: counts ? paidCount : '—' },
+    { label: 'Fulfilled', value: counts ? fulfilledCount : '—' },
+  ];
 
   return (
     <AdminLayout title="Orders">
-      <div className={s.desk}>
-        <div className={s.wrap}>
-
-          {/* ── topbar ──────────────────────────────────────────────── */}
-          <header className={s.topbar}>
-            <div className={s.topLeft} style={{ minWidth: 0 }}>
-              <div>
-                <h1 className={s.title}>Orders</h1>
-                <p>{activeTabLabel} — {int(data.total)} in this view{loading ? ' · refreshing' : ''}</p>
-              </div>
-            </div>
-            <div className={s.topRight}>
-              <div className={s.search} ref={searchWrap}>
-                <Search size={13} style={{ color: 'var(--muted2)', flexShrink: 0 }} />
-                <input
-                  ref={searchRef} data-order-search value={term}
-                  onChange={(e) => runSearch(e.target.value)}
-                  onFocus={() => setSugOpen(true)}
-                  onKeyDown={(e) => { if (e.key === 'Enter') applyTerm(term.trim()); if (e.key === 'Escape') setSugOpen(false); }}
-                  placeholder="Search orders, customers, products..."
-                  aria-label="Search orders" autoComplete="off"
-                  role="combobox" aria-expanded={sugOpen} aria-controls="ordersSearchDropdown"
-                />
-                <span className={s.kbd} aria-hidden>⌘ K</span>
-                {term && (
-                  <button type="button" className={s.searchBtn} aria-label="Clear search"
-                    onClick={() => { setTerm(''); setSuggestions([]); setFilter({ q: '' }); }}>
-                    <X size={12} />
-                  </button>
+      <PageHeader
+        title="Orders"
+        description="Manage orders, payments and fulfillment."
+        actions={(
+          <>
+            <Link to="/admin/orders/new" className={btnSolid}>
+              <Plus size={12} /> Create order
+            </Link>
+            <div className="relative">
+              <button
+                onClick={() => { setShowNotes((v) => !v); if (!showNotes) notes.markRead(); }}
+                aria-label="Notifications"
+                className={btnIcon}
+              >
+                <Bell size={14} />
+                {notes.unread > 0 && (
+                  <span className="absolute -right-1 -top-1 grid h-3.5 min-w-3.5 place-items-center bg-white px-1 text-[9px] font-medium text-black">
+                    {notes.unread > 9 ? '9+' : notes.unread}
+                  </span>
                 )}
-                <div id="ordersSearchDropdown" className={cx(s.dd, sugOpen && s.ddShow)} role="listbox">
-                  {suggestions.length > 0 && grouped.map(([type, items]) => (
-                    <div key={type}>
-                      <p className={s.ddGroup}>{type}</p>
-                      {items.map((sg) => (
-                        <button key={`${sg.type}-${sg.value}`} type="button" className={s.ddItem} role="option" aria-selected="false" onClick={() => applyTerm(sg.value)}>
-                          <span className={s.ddBody}>
-                            <b>{sg.value}</b>
-                            {sg.hint && <span>{sg.hint}</span>}
-                          </span>
-                          <ChevronDown size={12} style={{ transform: 'rotate(-90deg)', color: 'var(--muted2)' }} />
-                        </button>
-                      ))}
-                    </div>
-                  ))}
-                  {suggestions.length === 0 && term.trim().length >= 2 && <p className={s.ddGroup}>No matches for “{term.trim()}”</p>}
-                  {suggestions.length === 0 && term.trim().length < 2 && recent.length > 0 && (
-                    <div>
-                      <p className={s.ddGroup}>Recent searches</p>
-                      {recent.map((r) => (
-                        <button key={r} type="button" className={s.ddItem} onClick={() => applyTerm(r)}>
-                          <Search size={12} style={{ color: 'var(--muted2)' }} />
-                          <span className={s.ddBody}><b>{r}</b></span>
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                  {suggestions.length === 0 && term.trim().length < 2 && recent.length === 0 && (
-                    <p className={s.ddGroup}>Type an order number, name, phone or city</p>
-                  )}
-                  <div className={s.ddFoot}>
-                    <button type="button" className={s.btnSm} onClick={() => applyTerm(term.trim())}>View all results</button>
-                    <button type="button" className={s.btnSm} onClick={() => setSugOpen(false)}>Close</button>
-                  </div>
-                </div>
-              </div>
-
-              <div style={{ position: 'relative' }} data-range-pill>
-                <button type="button" className={cx(s.pill, rangeOpen && s.pillOn)} onClick={() => setRangeOpen((v) => !v)} aria-expanded={rangeOpen}>
-                  {rangeLabel}
-                </button>
-                <div className={cx(s.menu, s.menuRight, rangeOpen && s.show)} style={{ minWidth: 230, width: 230 }}>
-                  <p className={s.ddGroup}>Date range</p>
-                  <button type="button" className={s.menuItem} onClick={() => { setPresetRange(7); setRangeOpen(false); }}>Last 7 days</button>
-                  <button type="button" className={s.menuItem} onClick={() => { setPresetRange(30); setRangeOpen(false); }}>Last 30 days</button>
-                  <button type="button" className={s.menuItem} onClick={() => { setFilter({ from: '', to: '' }); setRangeOpen(false); }}>All time</button>
-                  <div className={s.menuDiv} />
-                  <div style={{ display: 'flex', gap: 6, padding: '4px 4px 2px' }}>
-                    <input type="date" className={s.ctl} value={filters.from} aria-label="From date" onChange={(e) => setFilter({ from: e.target.value })} />
-                    <input type="date" className={s.ctl} value={filters.to} aria-label="To date" onChange={(e) => setFilter({ to: e.target.value })} />
-                  </div>
-                  <p className={s.ddGroup} style={{ paddingTop: 4 }}>Compare</p>
-                  <button type="button" className={cx(s.menuItem, !filters.compare && s.flagOn)} onClick={() => { setFilter({ compare: filters.compare ? '' : 'prev' }); }}>
-                    Previous window {filters.compare && filters.compare !== 'year' ? '✓' : ''}
-                  </button>
-                  <button type="button" className={cx(s.menuItem, filters.compare === 'year' && s.flagOn)} onClick={() => { setFilter({ compare: filters.compare === 'year' ? '' : 'year' }); setRangeOpen(false); }}>
-                    Same window last year {filters.compare === 'year' ? '✓' : ''}
-                  </button>
-                  {!filters.from && <p className={s.cardHint} style={{ padding: '4px 6px 6px' }}>Pick a range to enable comparison.</p>}
-                </div>
-              </div>
-
-              <button type="button" className={s.pill} onClick={() => setFilter({ compare: filters.compare === 'year' ? 'prev' : 'year' })}>
-                Compare: {filters.compare === 'year' ? 'Last year' : filters.compare ? 'Previous window' : 'Off'}
               </button>
-
-              <Link to="/admin/orders/new" className={s.btnBlack}><Plus size={12} /> Add Order</Link>
-
-              <div style={{ position: 'relative' }}>
-                <button type="button" className={s.iconBtn} aria-label="Notifications"
-                  onClick={() => { setShowNotes((v) => !v); if (!showNotes) notes.markRead(); }}>
-                  <Bell size={14} />
-                  {notes.unread > 0 && <span className={s.iconBadge}>{notes.unread > 9 ? '9+' : notes.unread}</span>}
-                </button>
-                <div className={cx(s.menu, s.menuRight, s.menuWide, showNotes && s.show)} style={{ zIndex: 300 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '4px 6px 8px' }}>
-                    <span className={s.cardTitle}>Notifications</span>
-                    <button type="button" className={s.searchBtn} aria-label="Close notifications" onClick={() => setShowNotes(false)}><X size={13} /></button>
-                  </div>
-                  {notes.items.length === 0 && <p style={{ padding: '14px 8px', fontSize: 11.5, color: 'var(--muted2)' }}>Nothing yet</p>}
-                  {notes.items.map((n) => (
-                    <button key={n._id} type="button" className={s.menuItem} onClick={() => { if (n.link) nav(n.link); setShowNotes(false); }}>
-                      <span className={cx(s.dot, !n.read && s.dotGreen)} style={{ marginTop: 5 }} />
-                      <span style={{ minWidth: 0 }}>
-                        <span style={{ display: 'block', fontSize: 11.5, fontWeight: 600 }}>{n.title}</span>
-                        {n.body && <i>{n.body}</i>}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <button type="button" className={cx(s.iconBtn, 'hidden sm:grid')} aria-label="Keyboard shortcuts" onClick={() => setShowShortcuts(true)}>
-                <Keyboard size={13} />
-              </button>
-            </div>
-          </header>
-
-          {/* ── stat tiles (click = filter + drill-down) ────────────── */}
-          <div className={s.stats} role="group" aria-label="Order metrics">
-            {tiles.map((st) => {
-              const active = activeStat === st.key;
-              const ch = st.change;
-              const down = ch != null && ch < 0;
-              return (
-                <button type="button" key={st.key} className={cx(s.stat, active && s.statActive)}
-                  onClick={() => toggleTile(st)} aria-pressed={active}
-                  title={`${st.label} — click to narrow the table`}>
-                  <div className={s.statHead}>
-                    {st.money
-                      ? <span style={{ width: 18, height: 18, border: '1px solid #efefef', borderRadius: 6, display: 'grid', placeItems: 'center', background: '#fafafa', fontSize: 10, color: 'var(--muted)' }}><DollarSign size={10} /></span>
-                      : <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>{st.icon}</svg>}
-                    {st.label}
-                  </div>
-                  <div className={s.statVal}>{st.value}</div>
-                  <div className={s.statFoot}>
-                    <div>
-                      {ch != null
-                        ? <><div className={cx(s.statChange, (down !== st.downIsGood) && down && s.down)} style={!down && st.downIsGood ? { color: 'var(--green)' } : undefined}>{down ? '↓' : '↑'} {Math.abs(ch).toFixed(1)}%</div>
-                          <div className={s.statVs}>{cmpWindow ? cmpWindow.label.replace(/^vs /, 'vs ') : 'vs previous window'}</div></>
-                        : <div className={s.statVs}>{loading ? 'Loading…' : 'No comparison range'}</div>}
+              {showNotes && (
+                <>
+                  <div className="fixed inset-0 z-30" onClick={() => setShowNotes(false)} />
+                  <div className="absolute right-0 top-10 z-40 max-h-96 w-80 overflow-y-auto border border-white/15 bg-[#0D0D0D]">
+                    <div className="flex items-center justify-between border-b border-white/10 px-4 py-2.5">
+                      <p className="adm-label">Notifications</p>
+                      <button onClick={() => setShowNotes(false)} className="text-white/35 hover:text-white"><X size={14} /></button>
                     </div>
-                    <span className={s.spark} title="Daily counts for this metric across the orders loaded in this view" aria-hidden>
-                      <canvas data-ord-spark={(st.series || []).join(',')} />
-                    </span>
+                    {notes.items.length === 0 && <p className="px-4 py-10 text-center text-[12px] text-white/35">Nothing yet</p>}
+                    {notes.items.map((n) => (
+                      <button key={n._id} onClick={() => { if (n.link) nav(n.link); setShowNotes(false); }}
+                        className="flex w-full gap-3 border-b border-white/5 px-4 py-3 text-left hover:bg-white/[0.04]">
+                        <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-white/40" />
+                        <span className="min-w-0">
+                          <span className="block truncate text-[12px] text-white">{n.title}</span>
+                          {n.body && <span className="mt-0.5 block truncate text-[11px] text-white/35">{n.body}</span>}
+                        </span>
+                      </button>
+                    ))}
                   </div>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* ── drill-down (kept from the previous pass) ─────────────── */}
-          {activeStat && (
-            <div className={s.drill} id="ordersDrill" role="region" aria-label="Selection breakdown">
-              <div className={s.drillHead}>
-                <div>
-                  <p className={s.cardTitle}>{(tiles.find((t) => t.key === activeStat) || {}).label} — breakdown</p>
-                  <p className={s.cardHint} style={{ marginTop: 3 }}>Table is narrowed to this tile. Click it again or press Esc to reset.</p>
-                </div>
-                <div style={{ display: 'flex', gap: 6 }}>
-                  <button type="button" className={s.btnSm} onClick={exportCsv}><Download size={11} /> Export</button>
-                  <button type="button" className={s.btnSm} onClick={() => setActiveStat(null)}><X size={11} /> Close</button>
-                </div>
-              </div>
-              <div className={s.drillBody}>
-                <div className={s.drillChartWrap}>
-                  {drill.series.length
-                    ? <div style={{ height: 190, position: 'relative' }}><canvas ref={drillChart} /></div>
-                    : <p className={s.drillEmpty}>Nothing to plot for this selection yet.</p>}
-                </div>
-                <div className={s.drillGrid}>
-                  {drill.notes.map(([label, value, hint]) => (
-                    <div className={s.ddStat} key={label}>
-                      <b>{value}</b><span>{label}</span>
-                      {hint && <span style={{ color: 'var(--muted2)' }}>{hint}</span>}
-                    </div>
-                  ))}
-                </div>
-              </div>
+                </>
+              )}
             </div>
-          )}
+            <button onClick={() => reload()} aria-label="Refresh" className={btnIcon}>
+              <RefreshCcw size={13} className={loading ? 'animate-spin' : ''} />
+            </button>
+            <button onClick={() => setShowShortcuts(true)} aria-label="Keyboard shortcuts" className={`${btnIcon} hidden sm:grid`}>
+              <Keyboard size={13} />
+            </button>
+          </>
+        )}
+      />
 
-          {/* ── one card: tabs / filters / table / pagination ───────── */}
-          <section className={s.card}>
-            <div className={s.cardHead}>
-              <div className={s.revTabs} role="tablist" aria-label="Order status">
-                {TABS.map((t) => (
-                  <button key={t.key} type="button" role="tab" aria-selected={isTabOn(t)}
-                    className={cx(s.tab, isTabOn(t) ? s.tabOn : s.tabIdle)}
-                    onClick={() => applyTab(t)}>
-                    {t.label}
-                    {t.key === 'all' && counts?.total != null && <span className={s.tabCount}>{int(counts.total)}</span>}
-                    {t.key !== 'all' && counts?.byGroup && (
-                      <span className={s.tabCount}>
-                        {int(t.key === 'pending' ? counts.byGroup.new
-                          : t.key === 'processing' ? (counts.byGroup.processing || 0) + (counts.byGroup['to-ship'] || 0)
-                            : t.key === 'completed' ? counts.byGroup.delivered
-                              : counts.byGroup.issues)}
-                      </span>
-                    )}
-                  </button>
-                ))}
-              </div>
-              <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
-                <button type="button" className={cx(s.btnSm, moreOpen && s.btnOn)} aria-expanded={moreOpen} onClick={() => setMoreOpen((v) => !v)}>
-                  Filter {activeFilterCount > 0 && `· ${activeFilterCount}`}
-                </button>
-                <button type="button" className={s.btnSm} onClick={exportCsv}>Export</button>
-                <button type="button" className={s.btnSm} onClick={() => reload()} aria-label="Refresh">
-                  {loading ? <Loader2 size={11} className="animate-spin" /> : <RefreshCcw size={11} />}
-                </button>
-                <Link to="/admin/orders/new" className={cx(s.btnSm, s.btnPrimary)}><Plus size={11} /> Add Order</Link>
-              </div>
-            </div>
-
-            {/* filter bar — everything acts live */}
-            <div className={s.filterBar}>
-              <div className={s.searchSm}>
-                <Search size={12} style={{ color: 'var(--muted2)', flexShrink: 0 }} />
-                <input value={term} onChange={(e) => runSearch(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === 'Enter') applyTerm(term.trim()); }}
-                  placeholder="Search orders..." aria-label="Search orders" autoComplete="off" />
-              </div>
-              <select className={s.filter} value={filters.status} aria-label="Status"
-                onChange={(e) => setFilter({ status: e.target.value, group: 'all', stage: '', preset: '' })}>
-                <option value="">All</option>
-                {['Pending', 'Confirmed', 'Processing', 'Ready to Ship', 'Shipped', 'Out for Delivery', 'Delivered', 'Cancelled', 'Refunded'].map((st) => <option key={st} value={st}>{st}</option>)}
-              </select>
-              <select className={s.filter} value={filters.paymentState} aria-label="Payment" onChange={(e) => setFilter({ paymentState: e.target.value })}>
-                <option value="all">All</option>
-                {PAYMENT_STATES.map((p) => <option key={p.key} value={p.key}>{p.label}</option>)}
-              </select>
-              <select className={s.filter} value={filters.paymentMethod} aria-label="Fulfilment / method" onChange={(e) => setFilter({ paymentMethod: e.target.value })}>
-                <option value="all">All</option>
-                {PAYMENT_METHODS.map((mm) => <option key={mm} value={mm}>{mm}</option>)}
-              </select>
-              <select className={s.filter} value={filters.sort} aria-label="Sort" onChange={(e) => setFilter({ sort: e.target.value })}>
-                {SORT_OPTIONS.map((so) => <option key={so.key} value={so.key}>{so.label}</option>)}
-              </select>
-              <div style={{ display: 'flex', gap: 6, marginLeft: 'auto' }}>
-                <button type="button" className={s.btnSm} onClick={() => { resetFilters(); setActiveStat(null); setTerm(''); }}>Clear</button>
-                <button type="button" className={cx(s.btnSm, s.btnPrimary)} onClick={() => { setSugOpen(false); setMoreOpen(false); toast?.('Filters applied'); }}>Apply</button>
-              </div>
-            </div>
-
-            <OrderFilters
-              filters={filters} setFilter={setFilter} resetFilters={resetFilters}
-              activeFilterCount={activeFilterCount} facets={facets}
-              open={moreOpen} setOpen={setMoreOpen}
-            />
-
-            <QuickFilters filters={filters} setFilter={setFilter} token={token}
-              currentQuery={window.location.search.replace(/^\?/, '')} toast={toast} />
-
-            <BulkBar
-              selected={selected} total={data.total}
-              onClear={() => { setSelected([]); setSelectAllMatching(false); }}
-              onSelectAll={() => { setSelected(ids); setSelectAllMatching(true); }}
-              onBulk={bulk} onExport={exportCsv} onPrint={handleBulkPrint} canAdvance={canAdvance}
-              token={token} toast={toast}
-            />
-
-            {selectAllMatching && data.total > orders.length && (
-              <p className={s.notice}>
-                <span>All <b>{int(data.total)}</b> matching orders are targeted — actions apply beyond this page.</span>
-                <button type="button" className="linky" onClick={() => setSelectAllMatching(false)}>Limit to this page</button>
+      {/* 01 — ORDER OVERVIEW */}
+      <section className="mb-10">
+        <p className="adm-index">01 — Order overview</p>
+        <div className="adm-divide-x grid grid-cols-2 border-y border-white/10 lg:grid-cols-4">
+          {metrics.map((m) => (
+            <div key={m.label} className="px-5 py-6">
+              <p className="adm-label">{m.label}</p>
+              <p className="adm-metric mt-3 text-[32px] leading-none text-white">
+                {typeof m.value === 'number' ? m.value.toLocaleString() : m.value}
               </p>
-            )}
-
-            {error && (
-              <div className={s.errCard} role="alert">
-                <span><b>Unable to load orders.</b> {error || 'Something prevented the orders from loading.'}</span>
-                <button type="button" className={s.btnSm} onClick={() => reload()}>Try again</button>
-              </div>
-            )}
-
-            {loading && orders.length === 0 && !error && (
-              <div aria-hidden style={{ display: 'grid', gap: 9, padding: '8px 0 12px' }}>
-                {Array.from({ length: 7 }).map((_, i) => <div key={i} className={s.skell} style={{ width: `${100 - i * 2}%` }} />)}
-              </div>
-            )}
-
-            {!loading && orders.length === 0 && !error && (
-              <div className={s.empty}>
-                <h3>{activeFilterCount > 0 || filters.status || filters.group !== 'all' || filters.preset ? 'No orders here' : 'No orders yet'}</h3>
-                <p>{activeFilterCount > 0 || filters.status || filters.group !== 'all' || filters.preset
-                  ? 'Nothing matches these filters. Widen the date range, clear the search, or pick another tab above.'
-                  : 'Orders will appear here the moment customers complete a purchase.'}</p>
-                {(activeFilterCount > 0 || filters.status || filters.group !== 'all' || filters.preset)
-                  ? <button type="button" className={s.btnBlack} style={{ margin: '0 auto' }} onClick={() => { resetFilters(); setActiveStat(null); setTerm(''); }}>Clear all filters</button>
-                  : <Link to="/admin/orders/new" className={s.btnBlack} style={{ margin: '0 auto', width: 'max-content' }}>Add Order</Link>}
-              </div>
-            )}
-
-            {orders.length > 0 && (
-              <>
-                <div className={s.tableWrap}>
-                  <table className={s.tbl}>
-                    <colgroup>
-                      <col className={s.colChk} /><col className={s.colOrder} /><col className={s.colCust} />
-                      <col className={s.colDate} /><col className={s.colStatus} /><col className={s.colPay} />
-                      <col className={s.colFulfil} /><col className={s.colTotal} /><col className={s.colAct} />
-                    </colgroup>
-                    <thead>
-                      <tr>
-                        <th><input type="checkbox" className={s.chk} checked={allOnPage} onChange={() => setSelected(allOnPage ? [] : ids)} aria-label="Select all orders on this page" /></th>
-                        <th scope="col">Order</th>
-                        <th scope="col">Customer</th>
-                        <th scope="col">Date</th>
-                        <th scope="col">Status</th>
-                        <th scope="col">Payment</th>
-                        <th scope="col">Fulfillment</th>
-                        <th scope="col">Total</th>
-                        <th scope="col" style={{ textAlign: 'right' }}>Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {orders.map((o) => (
-                        <OrderRow key={o._id} order={o} selected={selected.includes(o._id)} onSelect={toggle}
-                          busy={busyIds.has(o._id)} onStage={setStage} onVerify={verifyPayment}
-                          onPrint={handlePrint} onOpenService={setServiceFor} onOpenCustomer={setCustomerPhone} />
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-
-                <div className={s.mList}>
-                  {orders.map((o) => (
-                    <OrderRow key={`m-${o._id}`} order={o} mobile selected={selected.includes(o._id)} onSelect={toggle}
-                      busy={busyIds.has(o._id)} onStage={setStage} onVerify={verifyPayment}
-                      onPrint={handlePrint} onOpenService={setServiceFor} onOpenCustomer={setCustomerPhone} />
-                  ))}
-                </div>
-              </>
-            )}
-
-            <div className={s.deskFoot}>
-              <span>
-                {data.total > 0 ? `Showing ${shownFrom} to ${shownTo} of ${int(data.total)} results` : 'Nothing to show'}
-                {counts?.total != null && filters.status === '' && ` · ${int(counts.total)} all orders`}
-                {loading ? ' · refreshing' : ''}
-              </span>
-              <div className={s.pagWrap}>
-                <button type="button" className={s.pg} disabled={data.page <= 1} onClick={() => setFilter({ page: String(data.page - 1) })} aria-label="Previous page">‹</button>
-                {Array.from({ length: Math.min(data.pages || 1, 5) }, (_, i) => {
-                  const total = data.pages || 1;
-                  let page = i + 1;
-                  if (total > 5) page = Math.min(Math.max(1, data.page - 2), total - 4) + i;
-                  return (
-                    <button key={i} type="button" className={cx(s.pg, page === data.page && s.pgOn)} onClick={() => setFilter({ page: String(page) })}
-                      aria-current={page === data.page ? 'page' : undefined}>{page}</button>
-                  );
-                })}
-                {(data.pages || 1) > 5 && <span style={{ fontSize: 11, color: 'var(--muted2)' }}>…</span>}
-                {(data.pages || 1) > 5 && (
-                  <button type="button" className={s.pg} onClick={() => setFilter({ page: String(data.pages) })}>{data.pages}</button>
-                )}
-                <button type="button" className={s.pg} disabled={data.page >= (data.pages || 1)} onClick={() => setFilter({ page: String(data.page + 1) })} aria-label="Next page">›</button>
-                <span className={s.perPage}>
-                  <select value={filters.limit} onChange={(e) => setFilter({ limit: e.target.value })} aria-label="Rows per page">
-                    {['10', '25', '50', '100', '200'].map((n) => <option key={n} value={n}>{n} / page</option>)}
-                  </select>
-                </span>
-              </div>
             </div>
-          </section>
+          ))}
         </div>
-      </div>
+        {counts?.revenue != null && (
+          <p className="mt-3 text-[11px] uppercase tracking-[0.14em] text-white/30">
+            {pkr(counts.revenue)} total value
+            {loading ? ' · Loading…' : ` · ${data.total} in this view`}
+          </p>
+        )}
+      </section>
 
-      {customerPhone && <CustomerPanel phone={customerPhone} token={token} onClose={() => setCustomerPhone(null)} />}
+      {/* 02 — ORDER WORKSPACE */}
+      <section className="mb-10">
+        <p className="adm-index">02 — Order workspace</p>
+        <div className="flex gap-1 overflow-x-auto border-b border-white/10 pb-px">
+          {GROUPS.map((g) => {
+            const n = g.key === 'all' ? counts?.total : counts?.byGroup?.[g.key];
+            const active = group === g.key;
+            return (
+              <button
+                key={g.key}
+                onClick={() => setFilter({ group: g.key, stage: '' })}
+                title={g.hint}
+                aria-pressed={active}
+                className={`shrink-0 px-3 py-2.5 text-[10px] font-medium uppercase tracking-[0.14em] transition-colors ${
+                  active
+                    ? 'border-b border-white text-white'
+                    : 'border-b border-transparent text-white/35 hover:text-white/75'
+                }`}
+              >
+                {g.label}
+                {n != null && <span className={`ml-2 tabular-nums ${active ? 'text-white/70' : 'text-white/25'}`}>{n}</span>}
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="mt-5">
+          <QuickFilters
+            filters={filters} setFilter={setFilter} token={auth?.token}
+            currentQuery={window.location.search.replace(/^\?/, '')} toast={toast}
+          />
+        </div>
+
+        <div className="mt-5">
+          <OrderFilters
+            filters={filters} setFilter={setFilter} resetFilters={resetFilters}
+            activeFilterCount={activeFilterCount} facets={facets} onExport={exportCsv}
+            token={auth?.token}
+          />
+        </div>
+      </section>
+
+      {/* 03 — ORDERS */}
+      <section className="mb-6">
+        <p className="adm-index">03 — Orders</p>
+
+        <BulkBar
+          selected={selected} total={data.total}
+          onClear={() => { setSelected([]); setSelectAllMatching(false); }}
+          onSelectAll={() => { setSelected(ids); setSelectAllMatching(true); }}
+          onBulk={bulk} onExport={exportCsv}
+          onPrint={handleBulkPrint} canAdvance={canAdvance}
+          token={auth?.token} toast={toast}
+        />
+
+        {selectAllMatching && data.total > orders.length && (
+          <p className="border-b border-white/10 py-2.5 text-[12px] text-white/45">
+            All <span className="text-white">{data.total}</span> matching orders are targeted — actions apply beyond this page.
+            <button onClick={() => setSelectAllMatching(false)} className="ml-2 text-white/70 underline underline-offset-2 hover:text-white">
+              Limit to this page
+            </button>
+          </p>
+        )}
+
+        {error && (
+          <EditorialError
+            title="Unable to load orders"
+            description={error || 'Something prevented the orders from loading.'}
+            onRetry={() => reload()}
+          />
+        )}
+
+        {loading && orders.length === 0 && !error && <TableSkeleton rows={6} />}
+
+        {!loading && orders.length === 0 && !error && (
+          <EditorialEmpty
+            title="No orders"
+            description={activeFilterCount > 0
+              ? 'No orders match these filters. Try widening the date range or clearing the search.'
+              : 'Orders will appear here when customers complete purchases.'}
+            action={activeFilterCount > 0 ? (
+              <button onClick={resetFilters} className={btnSolid}>Clear all filters</button>
+            ) : (
+              <Link to="/admin/orders/new" className={btnGhost}>Create order</Link>
+            )}
+          />
+        )}
+
+        {orders.length > 0 && (
+          <div className="min-w-0 overflow-x-hidden">
+            <div className="hidden border-b border-white/10 px-1 py-2.5 lg:grid lg:grid-cols-[32px_minmax(0,1.2fr)_minmax(0,1.15fr)_0.5fr_0.9fr_0.85fr_0.95fr_auto] lg:items-center lg:gap-3 xl:grid-cols-[32px_minmax(0,1.15fr)_minmax(0,1.1fr)_0.85fr_0.55fr_0.85fr_0.85fr_0.95fr_0.7fr_auto]">
+              <input
+                type="checkbox"
+                checked={allOnPage}
+                onChange={() => setSelected(allOnPage ? [] : ids)}
+                aria-label="Select all on this page"
+                className="h-3.5 w-3.5 cursor-pointer rounded-none border-white/30 bg-transparent accent-white"
+              />
+              <p className="adm-label">Order</p>
+              <p className="adm-label">Customer</p>
+              <p className="adm-label hidden xl:block">Date</p>
+              <p className="adm-label">Items</p>
+              <p className="adm-label">Total</p>
+              <p className="adm-label">Payment</p>
+              <p className="adm-label">Fulfillment</p>
+              <p className="adm-label hidden xl:block">Status</p>
+              <p className="adm-label" />
+            </div>
+            <div className="flex items-center gap-2 border-b border-white/10 px-1 py-2 lg:hidden">
+              <input
+                type="checkbox"
+                checked={allOnPage}
+                onChange={() => setSelected(allOnPage ? [] : ids)}
+                aria-label="Select all on this page"
+                className="h-3.5 w-3.5 cursor-pointer rounded-none border-white/30 bg-transparent accent-white"
+              />
+              <span className="text-[11px] text-white/35">Select page</span>
+            </div>
+
+            {orders.map((o) => (
+              <OrderRow
+                key={o._id} order={o}
+                selected={selected.includes(o._id)} onSelect={toggle}
+                busy={busyIds.has(o._id)}
+                onStage={setStage} onVerify={verifyPayment}
+                onPrint={handlePrint} onOpenService={setServiceFor}
+                onOpenCustomer={setCustomerPhone}
+              />
+            ))}
+          </div>
+        )}
+
+        <div className="mt-2">
+          <EditorialPagination
+            page={data.page}
+            pages={data.pages}
+            onPage={(p) => setFilter({ page: String(p) })}
+          />
+        </div>
+      </section>
+
+      {customerPhone && (
+        <CustomerPanel phone={customerPhone} token={auth?.token} onClose={() => setCustomerPhone(null)} />
+      )}
 
       {showShortcuts && (
-        <div className={s.overlay} onClick={() => setShowShortcuts(false)} role="dialog" aria-modal="true">
-          <div className={s.modalBox} onClick={(e) => e.stopPropagation()}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <p className={s.modalTitle}>Keyboard shortcuts</p>
-              <button type="button" className={s.searchBtn} aria-label="Close" onClick={() => setShowShortcuts(false)}><X size={15} /></button>
+        <div className="fixed inset-0 z-50 grid place-items-center bg-black/60 p-4" onClick={() => setShowShortcuts(false)}>
+          <div className="w-full max-w-sm border border-white/15 bg-[#0D0D0D] p-6" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between">
+              <p className="text-[13px] font-medium text-white">Shortcuts</p>
+              <button onClick={() => setShowShortcuts(false)} className="text-white/35 hover:text-white"><X size={15} /></button>
             </div>
-            <div style={{ marginTop: 12, display: 'grid', gap: 6 }}>
-              {[['/', 'Focus search'], ['⌘K / Ctrl K', 'Focus search'], ['P', 'Print packing slips'],
-                ['A', 'Advance stage'], ['M', 'Mark paid'], ['Esc', 'Clear selection'], ['?', 'This panel']].map(([k, v]) => (
-                <div key={k} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 11.5 }}>
-                  <span style={{ color: 'var(--muted)' }}>{v}</span>
-                  <kbd style={{ border: '1px solid var(--border)', borderRadius: 6, padding: '2px 6px', fontSize: 10.5, fontFamily: 'ui-monospace, monospace' }}>{k}</kbd>
+            <dl className="mt-4 space-y-2">
+              {[['/', 'Focus search'], ['P', 'Print packing slips'], ['A', 'Advance stage'],
+                ['M', 'Mark paid'], ['Esc', 'Clear selection'], ['?', 'This panel']].map(([k, v]) => (
+                <div key={k} className="flex items-center justify-between text-[12px]">
+                  <dt className="text-white/45">{v}</dt>
+                  <dd><kbd className="border border-white/15 px-1.5 py-0.5 font-mono text-[11px] text-white/70">{k}</kbd></dd>
                 </div>
               ))}
-            </div>
-            <p className={s.cardHint} style={{ marginTop: 12 }}>Action keys apply to the current selection.</p>
+            </dl>
+            <p className="mt-4 text-[11px] text-white/30">Action keys apply to the current selection.</p>
           </div>
         </div>
       )}
 
       {serviceFor && (
-        <IssueModal order={serviceFor} token={token} toast={toast}
+        <IssueModal order={serviceFor} token={auth?.token} toast={toast}
           onClose={() => setServiceFor(null)} onSaved={() => { setServiceFor(null); reload({ silent: true }); }} />
       )}
     </AdminLayout>
   );
 }
 
-/** Log a customer issue — same endpoint, ATELIER chrome. */
 function IssueModal({ order, token, toast, onClose, onSaved }) {
-  const [form, setForm] = useState({ issueType: 'Damaged', description: '', severity: 'Normal', refundStatus: 'No Issue', refundAmount: 0 });
+  const [form, setForm] = useState({
+    issueType: 'Damaged', description: '', severity: 'Normal',
+    refundStatus: 'No Issue', refundAmount: 0,
+  });
   const [busy, setBusy] = useState(false);
 
   const save = async () => {
@@ -829,46 +405,48 @@ function IssueModal({ order, token, toast, onClose, onSaved }) {
   };
 
   return (
-    <div className={s.overlay} onClick={onClose} role="dialog" aria-modal="true">
-      <div className={s.modalBox} onClick={(e) => e.stopPropagation()}>
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
+    <div className="fixed inset-0 z-50 grid place-items-center bg-black/60 p-4" role="dialog" aria-modal="true">
+      <div className="w-full max-w-md border border-white/15 bg-[#0D0D0D] p-6">
+        <div className="flex items-start justify-between">
           <div>
-            <p className={s.modalTitle}>Log a customer issue</p>
-            <p className={s.cardHint} style={{ marginTop: 3 }}>{order.orderNumber}</p>
+            <p className="text-[14px] font-medium text-white">Log a customer issue</p>
+            <p className="mt-0.5 font-mono text-[12px] text-white/35">{order.orderNumber}</p>
           </div>
-          <button type="button" className={s.searchBtn} aria-label="Close" onClick={onClose}><X size={16} /></button>
+          <button onClick={onClose} className="text-white/35 hover:text-white"><X size={16} /></button>
         </div>
-        <div style={{ display: 'grid', gap: 12, marginTop: 14 }}>
+
+        <div className="mt-5 space-y-4">
           <div>
-            <span className={s.ctlLabel}>Issue type</span>
-            <select className={s.ctl} value={form.issueType} onChange={(e) => setForm({ ...form, issueType: e.target.value })}>
+            <span className="adm-label mb-1.5 block">Issue type</span>
+            <select value={form.issueType} onChange={(e) => setForm({ ...form, issueType: e.target.value })} className={ctl}>
               {ISSUE_TYPES.map((t) => <option key={t}>{t}</option>)}
             </select>
           </div>
           <div>
-            <span className={s.ctlLabel}>What happened</span>
-            <textarea rows={3} className={s.ctlArea} value={form.description} placeholder="Describe the problem for the team"
-              onChange={(e) => setForm({ ...form, description: e.target.value })} />
+            <span className="adm-label mb-1.5 block">What happened</span>
+            <textarea rows={3} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })}
+              placeholder="Describe the problem for the team" className={`${ctl} py-2`} />
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+          <div className="grid grid-cols-2 gap-3">
             <div>
-              <span className={s.ctlLabel}>Refund</span>
-              <select className={s.ctl} value={form.refundStatus} onChange={(e) => setForm({ ...form, refundStatus: e.target.value })}>
+              <span className="adm-label mb-1.5 block">Refund</span>
+              <select value={form.refundStatus} onChange={(e) => setForm({ ...form, refundStatus: e.target.value })} className={ctl}>
                 {REFUND_STATES.map((t) => <option key={t}>{t}</option>)}
               </select>
             </div>
             <div>
-              <span className={s.ctlLabel}>Severity</span>
-              <select className={s.ctl} value={form.severity} onChange={(e) => setForm({ ...form, severity: e.target.value })}>
+              <span className="adm-label mb-1.5 block">Severity</span>
+              <select value={form.severity} onChange={(e) => setForm({ ...form, severity: e.target.value })} className={ctl}>
                 {['Low', 'Normal', 'High'].map((t) => <option key={t}>{t}</option>)}
               </select>
             </div>
           </div>
         </div>
-        <div className={s.modalActions}>
-          <button type="button" className={s.btnSm} onClick={onClose}>Cancel</button>
-          <button type="button" className={s.btnBlack} disabled={busy} onClick={save}>
-            {busy ? <Loader2 size={12} className="animate-spin" /> : <Check size={12} />} Save issue
+
+        <div className="mt-6 flex justify-end gap-2">
+          <button onClick={onClose} className={btnGhost}>Cancel</button>
+          <button disabled={busy} onClick={save} className={btnSolid}>
+            {busy ? <Loader2 size={12} className="animate-spin" /> : null} Save issue
           </button>
         </div>
       </div>

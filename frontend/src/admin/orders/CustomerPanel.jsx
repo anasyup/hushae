@@ -5,13 +5,11 @@ import { Link } from 'react-router-dom';
 import { api } from '../../api/client';
 import { fmtDate, pkr } from '../../lib/format';
 import { STAGE_MAP } from './orderConstants';
-import s from './adesk.module.css';
+import { btnIcon, MonoStatus } from './orderUi';
 
 /* ===========================================================================
- * Customer 360 — ATELIER side sheet. Data + endpoints unchanged.
- * =========================================================================== */
-
-const cx = (...cls) => cls.filter(Boolean).join('');
+ * Customer 360 — editorial side panel. Data + endpoints unchanged.
+ * ========================================================================== */
 
 const TABS = [
   { key: 'overview', label: 'Overview' },
@@ -19,12 +17,6 @@ const TABS = [
   { key: 'issues', label: 'Issues' },
   { key: 'notes', label: 'Notes' },
 ];
-
-const sheet = {
-  display: 'flex', flexDirection: 'column', height: '100%', width: '100%',
-  maxWidth: 520, background: 'var(--card)', borderLeft: '1px solid var(--border)',
-  animation: 'dropIn .25s ease', margin: '0 0 0 auto', boxShadow: '-20px 0 60px rgba(0,0,0,.15)',
-};
 
 export default function CustomerPanel({ phone, token, onClose }) {
   const [data, setData] = useState(null);
@@ -41,8 +33,9 @@ export default function CustomerPanel({ phone, token, onClose }) {
     return () => { alive = false; };
   }, [phone, token]);
 
-  // The persistent-ID Customer 360 record is surfaced when one exists; a guest
-  // is never auto-merged into an account here.
+  // Preserve the existing phone-keyed dossier, but surface the persistent-ID
+  // Customer 360 record whenever one is available. We never auto-merge a
+  // guest into an account here.
   useEffect(() => {
     let alive = true;
     setCustomer360(null);
@@ -68,35 +61,47 @@ export default function CustomerPanel({ phone, token, onClose }) {
   const wa = c ? `https://wa.me/${String(c.phone).replace(/\D/g, '').replace(/^0/, '92')}` : '#';
 
   return createPortal((
-    <div className={s.overlay} onClick={onClose} role="dialog" aria-modal="true"
-      style={{ placeItems: 'stretch', padding: 0, justifyContent: 'flex-end' }}>
-      <aside onClick={(e) => e.stopPropagation()} style={sheet}>
-        <div style={{ padding: '16px 18px 0', flexShrink: 0 }}>
-          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
-            <div style={{ minWidth: 0 }}>
-              {!c ? <div className={s.skell} style={{ height: 16, width: 140 }} /> : (
+    <div className="fixed inset-0 z-50 flex justify-end bg-black/60" onClick={onClose} role="dialog" aria-modal="true">
+      <aside
+        onClick={(e) => e.stopPropagation()}
+        className="flex h-full w-full max-w-md flex-col border-l border-white/10 bg-[#0A0A0A] sm:max-w-lg"
+      >
+        <div className="shrink-0 border-b border-white/10 p-5">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              {!c ? <div className="h-5 w-32 animate-pulse bg-white/10" /> : (
                 <>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8 }}>
-                    <h2 style={{ fontSize: 15, fontWeight: 700, letterSpacing: '-.2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {c.name || 'Customer'}
-                    </h2>
-                    {c.isRepeat && <span className={cx(s.bdg, s.bGreen)}><span className={s.bdgDot} />Repeat</span>}
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h2 className="truncate text-[16px] font-medium text-white">{c.name || 'Customer'}</h2>
+                    {c.isRepeat && (
+                      <span className="text-[9px] font-medium uppercase tracking-[0.16em] text-white/50">Repeat</span>
+                    )}
                   </div>
-                  <p style={{ marginTop: 4, fontSize: 11.5, color: 'var(--muted)' }}>
+                  <p className="mt-1 text-[12px] text-white/40">
                     {c.phone}{c.city ? ` · ${c.city}` : ''}
                   </p>
                 </>
               )}
             </div>
-            <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
-              {c && <a href={wa} target="_blank" rel="noreferrer" className={s.btnSm} title="WhatsApp">WA</a>}
-              {customer360 && <Link to={`/admin/customers/${customer360.id}`} onClick={onClose} className={s.btnSm} title="Open Customer 360">360</Link>}
-              <button type="button" onClick={onClose} aria-label="Close" className={s.iconBtn} style={{ width: 32, height: 32 }}><X size={15} /></button>
+            <div className="flex shrink-0 items-center gap-1">
+              {c && (
+                <a href={wa} target="_blank" rel="noreferrer" title="WhatsApp" className={btnIcon}>
+                  WA
+                </a>
+              )}
+              {customer360 && (
+                <Link to={`/admin/customers/${customer360.id}`} onClick={onClose} title="Open Customer 360" className={btnIcon}>
+                  360
+                </Link>
+              )}
+              <button onClick={onClose} aria-label="Close" className={btnIcon}>
+                <X size={15} />
+              </button>
             </div>
           </div>
 
           {c && (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 8, margin: '14px 0 14px' }}>
+            <div className="adm-divide-x mt-5 grid grid-cols-3 border-y border-white/10">
               <Stat label="Orders" value={c.totalOrders} />
               <Stat label="Spent" value={pkr(c.totalSpent)} />
               <Stat label="Avg order" value={pkr(c.averageOrder)} />
@@ -105,32 +110,31 @@ export default function CustomerPanel({ phone, token, onClose }) {
         </div>
 
         {c && (
-          <div style={{ display: 'flex', gap: 6, padding: '0 18px 12px', flexShrink: 0, flexWrap: 'wrap' }}>
+          <div className="flex shrink-0 gap-4 border-b border-white/10 px-5">
             {TABS.map((t) => {
               const n = t.key === 'orders' ? data.orders.length
                 : t.key === 'issues' ? data.issues.length
                   : t.key === 'notes' ? data.notes.length : null;
-              const on = tab === t.key;
               return (
-                <button key={t.key} type="button" onClick={() => setTab(t.key)} aria-pressed={on}
-                  className={cx(s.struct, on && s.structOn)} style={{ padding: '5px 10px', fontSize: 10.5 }}>
-                  {t.label}{n ? <span className={s.structCount}>{n}</span> : null}
+                <button key={t.key} onClick={() => setTab(t.key)} aria-pressed={tab === t.key}
+                  className={`py-2.5 text-[10px] font-medium uppercase tracking-[0.14em] transition-colors ${
+                    tab === t.key ? 'border-b border-white text-white' : 'border-b border-transparent text-white/35 hover:text-white/70'
+                  }`}>
+                  {t.label}{n ? <span className="ml-1 text-white/40">{n}</span> : null}
                 </button>
               );
             })}
           </div>
         )}
 
-        <div style={{ flex: 1, overflowY: 'auto', padding: '0 18px 20px' }}>
-          {err && <p className={s.errCard} style={{ padding: '10px 12px' }}>{err}</p>}
+        <div className="flex-1 overflow-y-auto p-5">
+          {err && <p className="border border-white/15 px-3 py-3 text-[13px] text-white/70">{err}</p>}
           {!data && !err && (
-            <div style={{ display: 'grid', placeItems: 'center', height: 160 }}>
-              <Loader2 size={18} className="animate-spin" style={{ color: 'var(--muted2)' }} />
-            </div>
+            <div className="grid h-40 place-items-center"><Loader2 size={18} className="animate-spin text-white/30" /></div>
           )}
 
           {data && tab === 'overview' && (
-            <div style={{ display: 'grid', gap: 22 }}>
+            <div className="space-y-8">
               <Section title="Summary">
                 <Row label="First order" value={fmtDate(c.firstOrderAt)} />
                 <Row label="Last order" value={fmtDate(c.lastOrderAt)} />
@@ -141,7 +145,7 @@ export default function CustomerPanel({ phone, token, onClose }) {
 
               <Section title={`Delivery addresses (${data.addresses.length})`}>
                 {data.addresses.map((a, i) => (
-                  <p key={i} style={{ padding: '7px 0', fontSize: 11.5, color: 'var(--muted)', borderBottom: i === data.addresses.length - 1 ? 0 : '1px solid var(--border-light)' }}>
+                  <p key={i} className="border-b border-white/5 py-2 text-[12px] leading-snug text-white/70 last:border-0">
                     {a.line}{a.postalCode ? ` – ${a.postalCode}` : ''}
                   </p>
                 ))}
@@ -150,10 +154,10 @@ export default function CustomerPanel({ phone, token, onClose }) {
               {data.favourites.length > 0 && (
                 <Section title="Most ordered">
                   {data.favourites.map((f) => (
-                    <div key={f.name} className={s.itemRow}>
-                      {f.image ? <img src={f.image} alt="" loading="lazy" /> : <span className={s.itemPh} />}
-                      <span className={s.itemName}>{f.name}</span>
-                      <span className={s.itemQty}>×{f.units}</span>
+                    <div key={f.name} className="flex items-center gap-2 border-b border-white/5 py-2 last:border-0">
+                      {f.image ? <img src={f.image} alt="" className="h-8 w-6 object-cover" /> : <span className="h-8 w-6 bg-white/10" />}
+                      <span className="min-w-0 flex-1 truncate text-[12px] text-white/75">{f.name}</span>
+                      <span className="shrink-0 text-[12px] tabular-nums text-white">×{f.units}</span>
                     </div>
                   ))}
                 </Section>
@@ -162,18 +166,18 @@ export default function CustomerPanel({ phone, token, onClose }) {
           )}
 
           {data && tab === 'orders' && (
-            <div>
+            <div className="divide-y divide-white/10">
               {data.orders.map((ord) => (
                 <Link key={ord._id} to={`/admin/orders/${ord._id}`} onClick={onClose}
-                  style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 0', borderBottom: '1px solid var(--border-light)', color: 'inherit', textDecoration: 'none' }}>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <p style={{ fontSize: 11.5, fontWeight: 600 }}>{ord.orderNumber}</p>
-                    <p style={{ fontSize: 10.5, color: 'var(--muted2)', marginTop: 2 }}>
+                  className="flex items-center gap-3 py-3 transition hover:bg-white/[0.03]">
+                  <div className="min-w-0 flex-1">
+                    <p className="font-mono text-[12px] text-white">{ord.orderNumber}</p>
+                    <p className="mt-0.5 text-[11px] text-white/35">
                       {fmtDate(ord.createdAt)} · {ord.itemCount} item{ord.itemCount === 1 ? '' : 's'}
                     </p>
                   </div>
-                  <span className={cx(s.bdg, s.bGray)}>{STAGE_MAP[ord.stage]?.label || ord.status || '—'}</span>
-                  <span className={s.itemAmt}>{pkr(ord.total)}</span>
+                  <MonoStatus label={String(STAGE_MAP[ord.stage]?.label || ord.status || '').toUpperCase()} />
+                  <span className="w-20 shrink-0 text-right text-[12px] tabular-nums text-white">{pkr(ord.total)}</span>
                 </Link>
               ))}
             </div>
@@ -182,29 +186,37 @@ export default function CustomerPanel({ phone, token, onClose }) {
           {data && tab === 'issues' && (
             data.issues.length === 0
               ? <EmptyState text="No issues ever raised for this customer" />
-              : data.issues.map((i) => (
-                <div key={i._id} style={{ padding: '10px 0', borderBottom: '1px solid var(--border-light)' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={{ fontSize: 12, fontWeight: 600 }}>{i.issueType}</span>
-                    <span className={s.flag} style={{ marginLeft: 'auto' }}>{i.status}</span>
-                  </div>
-                  {i.description && <p style={{ fontSize: 11.5, color: 'var(--muted)', marginTop: 5, lineHeight: 1.5 }}>{i.description}</p>}
-                  <p style={{ fontSize: 10.5, color: 'var(--muted2)', marginTop: 5 }}>{i.orderNumber} · {fmtDate(i.createdAt)}</p>
+              : (
+                <div className="divide-y divide-white/10">
+                  {data.issues.map((i) => (
+                    <div key={i._id} className="py-3">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[13px] text-white">{i.issueType}</span>
+                        <span className="ml-auto text-[9px] uppercase tracking-[0.14em] text-white/40">{i.status}</span>
+                      </div>
+                      {i.description && <p className="mt-1.5 text-[12px] text-white/50">{i.description}</p>}
+                      <p className="mt-1.5 font-mono text-[11px] text-white/30">{i.orderNumber} · {fmtDate(i.createdAt)}</p>
+                    </div>
+                  ))}
                 </div>
-              ))
+              )
           )}
 
           {data && tab === 'notes' && (
             data.notes.length === 0
               ? <EmptyState text="No internal notes yet" />
-              : data.notes.map((n, i) => (
-                <div key={i} style={{ padding: '10px 0', borderBottom: '1px solid var(--border-light)' }}>
-                  <p style={{ fontSize: 11.5, lineHeight: 1.5 }}>{n.body}</p>
-                  <p style={{ fontSize: 10.5, color: 'var(--muted2)', marginTop: 4 }}>
-                    {n.orderNumber} · {n.authorName || 'admin'} · {fmtDate(n.at)}
-                  </p>
+              : (
+                <div className="divide-y divide-white/10">
+                  {data.notes.map((n, i) => (
+                    <div key={i} className="py-3">
+                      <p className="text-[12px] text-white/80">{n.body}</p>
+                      <p className="mt-1 font-mono text-[11px] text-white/30">
+                        {n.orderNumber} · {n.authorName || 'admin'} · {fmtDate(n.at)}
+                      </p>
+                    </div>
+                  ))}
                 </div>
-              ))
+              )
           )}
         </div>
       </aside>
@@ -213,26 +225,28 @@ export default function CustomerPanel({ phone, token, onClose }) {
 }
 
 const Stat = ({ label, value }) => (
-  <div className={s.ddStat}>
-    <b>{value}</b>
-    <span>{label}</span>
+  <div className="px-3 py-3">
+    <p className="adm-label">{label}</p>
+    <p className="adm-metric mt-1 text-[15px] text-white">{value}</p>
   </div>
 );
 
 const Section = ({ title, children }) => (
   <div>
-    <p className={s.ctlLabel} style={{ marginBottom: 6 }}>{title}</p>
-    <div>{children}</div>
+    <p className="adm-label mb-2">{title}</p>
+    <div className="border-t border-white/10">{children}</div>
   </div>
 );
 
 const Row = ({ label, value }) => (
-  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: '7px 0', fontSize: 11.5, borderBottom: '1px solid var(--border-light)' }}>
-    <span style={{ color: 'var(--muted)' }}>{label}</span>
-    <span style={{ fontWeight: 600 }}>{value}</span>
+  <div className="flex items-center justify-between border-b border-white/5 py-2 text-[12px] last:border-0">
+    <span className="text-white/40">{label}</span>
+    <span className="font-medium text-white">{value}</span>
   </div>
 );
 
 const EmptyState = ({ text }) => (
-  <div style={{ padding: '34px 0', textAlign: 'center', fontSize: 11.5, color: 'var(--muted2)' }}>{text}</div>
+  <div className="py-14 text-center">
+    <p className="text-[12px] text-white/40">{text}</p>
+  </div>
 );
