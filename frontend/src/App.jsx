@@ -92,10 +92,6 @@ const SettingsShipping = lazy(() => import('./admin/SettingsPages').then((m) => 
 const SettingsBusinessAddress = lazy(() => import('./admin/SettingsAddress').then((m) => ({ default: m.SettingsBusinessAddress })));
 const SettingsTimezone = lazy(() => import('./admin/SettingsAddress').then((m) => ({ default: m.SettingsTimezone })));
 const SettingsCurrency = lazy(() => import('./admin/SettingsAddress').then((m) => ({ default: m.SettingsCurrency })));
-const SettingsUnits = lazy(() => import('./admin/SettingsStoreExtras').then((m) => ({ default: m.SettingsUnits })));
-const SettingsDomain = lazy(() => import('./admin/SettingsStoreExtras').then((m) => ({ default: m.SettingsDomain })));
-const SettingsLanguages = lazy(() => import('./admin/SettingsStoreExtras').then((m) => ({ default: m.SettingsLanguages })));
-const SettingsNotifications = lazy(() => import('./admin/SettingsStoreExtras').then((m) => ({ default: m.SettingsNotifications })));
 const SettingsSecurity = lazy(() => import('./admin/SettingsSecurity'));
 const SettingsLegal = lazy(() => import('./admin/SettingsPages').then((m) => ({ default: m.SettingsLegal })));
 const SettingsEmail = lazy(() => import('./admin/SettingsEmail'));
@@ -402,10 +398,10 @@ export default function App() {
           <Route path="/admin/settings/address" element={<SettingsBusinessAddress />} />
           <Route path="/admin/settings/timezone" element={<SettingsTimezone />} />
           <Route path="/admin/settings/currency" element={<SettingsCurrency />} />
-          <Route path="/admin/settings/units" element={<Suspense fallback={<EditorFallback />}><SettingsUnits /></Suspense>} />
-          <Route path="/admin/settings/domain" element={<Suspense fallback={<EditorFallback />}><SettingsDomain /></Suspense>} />
-          <Route path="/admin/settings/languages" element={<Suspense fallback={<EditorFallback />}><SettingsLanguages /></Suspense>} />
-          <Route path="/admin/settings/notifications" element={<Suspense fallback={<EditorFallback />}><SettingsNotifications /></Suspense>} />
+          <Route path="/admin/settings/units" element={<Suspense fallback={<EditorFallback />}><SettingsReserved /></Suspense>} />
+          <Route path="/admin/settings/domain" element={<Suspense fallback={<EditorFallback />}><SettingsReserved /></Suspense>} />
+          <Route path="/admin/settings/languages" element={<Suspense fallback={<EditorFallback />}><SettingsReserved /></Suspense>} />
+          <Route path="/admin/settings/notifications" element={<Suspense fallback={<EditorFallback />}><SettingsReserved /></Suspense>} />
           <Route path="/admin/settings/metafields" element={<Suspense fallback={<EditorFallback />}><SettingsReserved /></Suspense>} />
           <Route path="/admin/settings/metaobjects" element={<Suspense fallback={<EditorFallback />}><SettingsReserved /></Suspense>} />
           <Route path="/admin/settings/custom-fields" element={<Suspense fallback={<EditorFallback />}><SettingsReserved /></Suspense>} />
