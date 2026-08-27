@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "check:admin": "node scripts/check-admin-integrity.mjs"
   },
   "dependencies": {
     "chart.js": "^4.4.1",

@@ -115,6 +115,22 @@ router.post('/unlock', lockLimit, asyncHandler(async (req, res) => {
   res.json({ ok: given === real });
 }));
 
+/* Whitelisted top-level settings keys. Anything the admin UI PUTs has to be listed
+ * here or it is silently dropped and the editor still shows "Saved".
+ *
+ * MEASURED BUG, fixed 2026-08-28: `search` and `discovery` were missing, so
+ * Settings → Search & Discovery has NEVER persisted — synonyms, minChars, fuzzy
+ * tolerance, blocked terms and the discovery toggles were all discarded on save.
+ * Same class as the `marketing` omission fixed in c0f0030, and the reason
+ * utils/searchEngine.js carries the note "settings.search has never been SAVED".
+ * Both keys are consumed on read there (searchConfig / discoveryConfig), so this
+ * was a write-side defect only. Guarded by test-settings-whitelist.js and by
+ * `npm run check:admin` in frontend.
+ *
+ * `adminShare` is deliberately NOT whitelisted: it is a security control that
+ * mints a share-link admin session, written only by routes/auth.js. Allowing it
+ * here would let any settings PUT forge an admin login. Do not "complete" the list.
+ */
 router.put('/', protect, adminOnly, asyncHandler(async (req, res) => {
   const b = req.body || {};
   const s = await getSettings();
@@ -124,6 +140,7 @@ router.put('/', protect, adminOnly, asyncHandler(async (req, res) => {
     'monthlyRevenueGoal', 'marginThresholdPercent', 'automation',
     'includeTestOrders', 'reorderTargetStock',
     'businessAddress', 'currency', 'timezone',
+    'search', 'discovery',
     'marketing'].forEach((f) => {
     if (b[f] !== undefined) s[f] = b[f];
   });

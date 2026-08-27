@@ -10,7 +10,8 @@
     "seed": "node src/seed/run.js",
     "test": "node test-inventory-lifecycle.js",
     "seed:newarrivals": "node src/seed/seedNewArrivals.js",
-    "seed:catalog": "node src/seed/seedFullCatalog.js"
+    "seed:catalog": "node src/seed/seedFullCatalog.js",
+    "test:settings": "node test-settings-whitelist.js"
   },
   "dependencies": {
     "bcryptjs": "2.4.3",
