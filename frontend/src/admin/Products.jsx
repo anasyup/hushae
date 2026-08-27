@@ -32,7 +32,11 @@ export default function Products() {
   const [moreOpen, setMoreOpen] = useState(false);
   const [searchParams] = useSearchParams();
   const [f, setF] = useState({
-    q: '', category: '', gender: '', tier: '', stock: '',
+    // Deep links from the Overview hub: ?q=<name> (name search, client-side)
+    // and ?stock=low|out (matches the backend alert links).
+    q: searchParams.get('q') || '',
+    category: '', gender: '', tier: '',
+    stock: searchParams.get('stock') === 'out' ? 'out' : (searchParams.get('stock') === 'low' ? 'low' : ''),
     status: searchParams.get('active') === '0' ? 'disabled' : (searchParams.get('status') || ''),
   });
 

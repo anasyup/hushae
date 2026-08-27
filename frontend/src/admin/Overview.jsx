@@ -136,6 +136,14 @@ const INSIGHT_TITLES = {
   repeat: 'Repeat Purchases',
 };
 
+/* Where each insight type leads inside the admin panel. */
+const INSIGHT_LINKS = {
+  geo: '/admin/analytics',
+  'product-momentum': '/admin/reports',
+  fulfilment: '/admin/orders?group=to-ship',
+  repeat: '/admin/customers',
+};
+
 /* Smart-insight icons (backend icon names -> design-style SVGs) */
 function InsightIcon({ name }) {
   const common = { viewBox: '0 0 24 24', fill: 'none', stroke: '#111', strokeWidth: 1.6 };
@@ -362,12 +370,12 @@ export default function Overview() {
     : `vs ${fmtD(cmpWindow.from)} – ${fmtD(cmpWindow.to)}`;
 
   const kpiCards = [
-    { key: 'revenue', label: 'Total Sales', text: k ? money(k.revenue.value) : '—', anim: { num: k?.revenue.value || 0, prefix: 'PKR ' }, change: k?.revenue.change, spark: sparkSeries.s1, icon: <><line x1="12" y1="2" x2="12" y2="22" /><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></> },
-    { key: 'orders', label: 'Orders', text: k ? int(k.orders.value) : '—', anim: { num: k?.orders.value || 0 }, change: k?.orders.change, spark: sparkSeries.s2, icon: <><circle cx="9" cy="21" r="1" /><circle cx="20" cy="21" r="1" /><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" /></> },
-    { key: 'customers', label: 'Customers', text: k ? int(k.customers.value) : '—', anim: { num: k?.customers.value || 0 }, change: k?.customers.change, spark: sparkSeries.s3, icon: <><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></> },
-    { key: 'aov', label: 'Avg. Order Value', text: k ? money(k.aov.value) : '—', anim: { num: k?.aov.value || 0, prefix: 'PKR ' }, change: k?.aov.change, spark: sparkSeries.s4, icon: <><rect x="1" y="4" width="22" height="16" rx="2" /><line x1="1" y1="10" x2="23" y2="10" /></> },
-    { key: 'conv', label: 'Conversion Rate', text: convPct === null ? '—' : `${convPct.toFixed(2)}%`, anim: { num: convPct || 0, suffix: '%', decimals: 2 }, change: null, spark: sparkSeries.s2, icon: <><polyline points="23 6 13.5 15.5 8.5 10.5 1 18" /><polyline points="17 6 23 6 23 12" /></> },
-    { key: 'profit', label: 'Net Profit', text: k ? money(k.profit.value) : '—', anim: { num: k?.profit.value || 0, prefix: 'PKR ' }, change: k?.profit.change, spark: sparkSeries.s1, icon: <><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" /><line x1="3" y1="6" x2="21" y2="6" /><path d="M16 10a4 4 0 0 1-8 0" /></> },
+    { key: 'revenue', label: 'Total Sales', text: k ? money(k.revenue.value) : '—', anim: { num: k?.revenue.value || 0, prefix: 'PKR ' }, change: k?.revenue.change, to: '/admin/reports', tip: 'Open sales reports', spark: sparkSeries.s1, icon: <><line x1="12" y1="2" x2="12" y2="22" /><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></> },
+    { key: 'orders', label: 'Orders', text: k ? int(k.orders.value) : '—', anim: { num: k?.orders.value || 0 }, change: k?.orders.change, to: '/admin/orders?group=all', tip: 'Open all orders', spark: sparkSeries.s2, icon: <><circle cx="9" cy="21" r="1" /><circle cx="20" cy="21" r="1" /><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" /></> },
+    { key: 'customers', label: 'Customers', text: k ? int(k.customers.value) : '—', anim: { num: k?.customers.value || 0 }, change: k?.customers.change, to: '/admin/customers', tip: 'Open customers', spark: sparkSeries.s3, icon: <><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></> },
+    { key: 'aov', label: 'Avg. Order Value', text: k ? money(k.aov.value) : '—', anim: { num: k?.aov.value || 0, prefix: 'PKR ' }, change: k?.aov.change, to: '/admin/reports', tip: 'Open sales reports', spark: sparkSeries.s4, icon: <><rect x="1" y="4" width="22" height="16" rx="2" /><line x1="1" y1="10" x2="23" y2="10" /></> },
+    { key: 'conv', label: 'Conversion Rate', text: convPct === null ? '—' : `${convPct.toFixed(2)}%`, anim: { num: convPct || 0, suffix: '%', decimals: 2 }, change: null, to: '/admin/live', tip: 'Open live funnel', spark: sparkSeries.s2, icon: <><polyline points="23 6 13.5 15.5 8.5 10.5 1 18" /><polyline points="17 6 23 6 23 12" /></> },
+    { key: 'profit', label: 'Net Profit', text: k ? money(k.profit.value) : '—', anim: { num: k?.profit.value || 0, prefix: 'PKR ' }, change: k?.profit.change, to: '/admin/finance', tip: 'Open finance', spark: sparkSeries.s1, icon: <><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" /><line x1="3" y1="6" x2="21" y2="6" /><path d="M16 10a4 4 0 0 1-8 0" /></> },
   ];
 
   /* ------------------------------ count-up on first load ------------------------------ */
@@ -457,7 +465,7 @@ export default function Overview() {
     chart('ordersDonut', {
       type: 'doughnut',
       data: { labels: statusRows.map((r) => r.label), datasets: [{ data: statusRows.map((r) => r.value), backgroundColor: [pal.main, pal.g2, pal.g3, pal.g4, '#9ca3af'], borderWidth: 0, hoverOffset: 4 }] },
-      options: { cutout: '70%', animation: { duration: 1200, easing: 'easeOutQuart' }, plugins: { legend: { display: false }, tooltip: { backgroundColor: pal.tooltip, callbacks: { label: (c) => ` ${c.label}: ${int(c.parsed)} orders` } } }, responsive: true, maintainAspectRatio: false },
+      options: { cutout: '70%', onClick: (_evt, elements) => { const i = elements && elements[0] ? elements[0].index : undefined; if (i === undefined) return; const row = statusRows[i]; nav(row && row.label === 'Other' ? '/admin/orders?group=all' : `/admin/orders?status=${encodeURIComponent(row.label)}`); }, animation: { duration: 1200, easing: 'easeOutQuart' }, plugins: { legend: { display: false }, tooltip: { backgroundColor: pal.tooltip, callbacks: { label: (c) => ` ${c.label}: ${int(c.parsed)} orders` } } }, responsive: true, maintainAspectRatio: false },
     });
 
     /* Customer Overview (line) */
@@ -578,7 +586,7 @@ export default function Overview() {
             {loading
               ? Array.from({ length: 6 }).map((_, i) => <div key={i} className={styles.stat}><div className={cx(styles.skeleton, styles['sk-block'])} /></div>)
               : kpiCards.map((card) => (
-                <div className={styles.stat} key={card.key}>
+                <div className={styles.stat} key={card.key} onClick={() => nav(card.to)} title={card.tip}>
                   <div className={styles['stat-head']}>
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">{card.icon}</svg>
                     {card.label}
@@ -609,19 +617,19 @@ export default function Overview() {
                       {RANGE_OPTIONS.map((o) => <div key={o.key} onClick={() => pickRange(o.key)}>{o.label}</div>)}
                     </div>
                   </button>
-                  <button className={styles['btn-sm']} onClick={() => showToast('Chart options')}>⋮</button>
+                  <button className={styles['btn-sm']} title="Open analytics" onClick={() => nav('/admin/analytics')}>⋮</button>
                 </div>
               </div>
               <div className={styles.legend}>
                 <span><b style={{ background: '#111' }} /> This Period</span>
                 {compare !== 'off' && <span><b style={{ background: '#c8c8c8' }} /> Previous Period</span>}
               </div>
-              <div className={styles['chart-main']}><canvas id="salesOverview" /></div>
+              <div className={styles['chart-main']} title="Open analytics" onClick={() => nav('/admin/analytics')}><canvas id="salesOverview" /></div>
             </div>
             <div className={styles.card}>
               <div className={styles['card-h']}><span className={styles['card-t']}>Revenue by Product</span></div>
               <div className={styles['donut-row']}>
-                <div className={styles.donut}>
+                <div className={styles.donut} title="Open reports" onClick={() => nav('/admin/reports')}>
                   <canvas id="salesChannel" />
                   <div className={styles['donut-center']}><b>{prodSlices.total ? money(prodSlices.total) : '—'}</b><span>Total Sales</span></div>
                 </div>
@@ -641,7 +649,7 @@ export default function Overview() {
                 <button className={styles['btn-sm']} onClick={() => nav('/admin/reports')}>View full report</button>
               </div>
             </div>
-            <div className={styles.card}>
+            <div className={styles.card} title="Open live visitors" onClick={() => nav('/admin/live')}>
               <div className={styles['live-top']}><span className={styles['card-t']}>Live Visitors</span><span style={{ fontSize: 10, color: '#0e9f6e', display: 'flex', alignItems: 'center', gap: 5 }}><span className={styles['live-dot']} /> Live</span></div>
               <div className={styles['live-num']} id="liveNum">{live ? int(live.visitorsNow) : '…'}</div>
               <div className={styles['live-sub']}>Visitors right now</div>
@@ -664,7 +672,7 @@ export default function Overview() {
             <div className={styles.card}>
               <div className={styles['card-h']}><span className={styles['card-t']}>Today at a Glance</span></div>
               <div className={styles.glance}>
-                <div className={styles['g-item']} onClick={() => nav('/admin/orders?status=All')}>
+                <div className={styles['g-item']} onClick={() => nav(`/admin/orders?group=all&from=${iso(new Date())}&to=${iso(new Date())}`)}>
                   <div className={styles['g-ico']}><svg viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="1.6"><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" /><path d="M9 16l2 2 4-4" /></svg></div>
                   <b>{live ? int(live.today.orders) : '—'}</b><span>Orders Today</span>
                 </div>
@@ -695,7 +703,7 @@ export default function Overview() {
                 <tbody>
                   {bestRows.length === 0 && <tr><td colSpan="3" className={styles['ovw-empty']}>{q ? 'No products match your search' : 'No product sales in this period'}</td></tr>}
                   {bestRows.map((b) => (
-                    <tr key={b.name} onClick={() => showToast(`${b.name} — ${int(b.qty)} sold, ${money(b.revenue)}`)}>
+                    <tr key={b.name} title="Open product" onClick={() => nav(`/admin/products?q=${encodeURIComponent(b.name)}`)}>
                       <td><div className={styles.prod}><ProductThumb src={b.image} /> {b.name}</div></td>
                       <td>{int(b.qty)}</td>
                       <td>{money(b.revenue)}</td>
@@ -743,14 +751,14 @@ export default function Overview() {
                   <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 19V5M5 12l7-7 7 7" /></svg> {changeLabel(revChange)}
                 </span>
               </div>
-              <div className={styles['rev-chart']}><canvas id="revChart" /></div>
+              <div className={styles['rev-chart']} title="Open reports" onClick={() => nav('/admin/reports')}><canvas id="revChart" /></div>
             </div>
             <div className={styles.card}>
               <div className={styles['card-h']}><span className={styles['card-t']}>Orders Status</span></div>
               <div className={styles['orders-flex']}>
                 <div className={styles['orders-donut']}>
                   <canvas id="ordersDonut" />
-                  <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                  <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
                     <b style={{ fontSize: 13 }}>{stats ? int(stats.totalOrders) : '—'}</b>
                     <span style={{ fontSize: 10, color: 'var(--muted)' }}>Total Orders</span>
                   </div>
@@ -758,7 +766,7 @@ export default function Overview() {
                 <div className={styles['orders-legend']}>
                   {statusRows.length === 0 && <span className={styles['ovw-empty']}>No orders in this period</span>}
                   {statusRows.map((r) => (
-                    <div className={styles['ol-item']} key={r.label}>
+                    <div className={styles['ol-item']} key={r.label} title="Open orders in this state" onClick={() => nav(r.label === 'Other' ? '/admin/orders?group=all' : `/admin/orders?status=${encodeURIComponent(r.label)}`)}>
                       <div className={styles['ol-dot']} style={{ background: '#111' }} /> {r.label}
                       <span style={{ marginLeft: 6 }}>{stats?.totalOrders ? Math.round((r.value / stats.totalOrders) * 100) : 0}% ({int(r.value)})</span>
                     </div>
@@ -769,7 +777,7 @@ export default function Overview() {
                 <button className={styles['btn-sm']} onClick={() => nav('/admin/orders')}>View all orders ▾</button>
               </div>
             </div>
-            <div className={styles.card}>
+            <div className={styles.card} title="Open customers" onClick={() => nav('/admin/customers')}>
               <div className={styles['card-h']}><span className={styles['card-t']}>Customer Overview</span></div>
               <div className={styles['cust-head']}>
                 <div>
@@ -801,7 +809,7 @@ export default function Overview() {
               <div>
                 {(data?.topCustomers || []).length === 0 && <div className={styles['ovw-empty']}>No customer spend in this period</div>}
                 {(data?.topCustomers || []).map((c, i) => (
-                  <div className={styles['cat-row']} key={c.phone || c.name || i} onClick={() => nav(`/admin/customers`)}>
+                  <div className={styles['cat-row']} key={c.phone || c.name || i} title="Open customer" onClick={() => nav(`/admin/customers?search=${encodeURIComponent(c.phone || c.name)}`)}>
                     <span className={styles['cat-name']}>{c.name}</span>
                     <div className={styles['cat-bar']}><div style={{ width: `${Math.max(4, Math.round(((c.spent || 0) / topCustMax) * 100))}%` }} /></div>
                     <span className={styles['cat-val']}>{money(c.spent)}</span>
@@ -832,7 +840,7 @@ export default function Overview() {
             ) : (
               <div className={styles.insights}>
                 {insights.map((ins) => (
-                  <div className={styles['ins-card']} key={ins.id} onClick={() => showToast(ins.text)}>
+                  <div className={styles['ins-card']} key={ins.id} title="Open in admin" onClick={() => nav(INSIGHT_LINKS[ins.id] || '/admin/analytics')}>
                     <div className={styles['ins-left']}>
                       <div className={styles['ins-ico']}><InsightIcon name={ins.icon} /></div>
                       <div>
