@@ -33,7 +33,7 @@ const FULFIL_TONE = {
   'Cancelled': 'bRed', 'Failed Delivery': 'bRed', 'Refunded': 'bPurple', 'Returned': 'bPurple',
 };
 const PAY_TONE = {
-  PAID: 'bGreen', CONFIRMED: 'bGreen', VERIFIED: 'bBlue', PENDING: 'bBlue',
+  PAID: 'bGreen', CONFIRMED: 'bGreen', VERIFIED: 'bGreen', PENDING: 'bBlue',
   FAILED: 'bRed', EXPIRED: 'bRed', REFUNDED: 'bPurple',
 };
 const toneOf = (map, key, fallback = 'bGray') => map[key] || fallback;
@@ -59,7 +59,7 @@ export default function OrderRow({
   const [cancelMenu, setCancelMenu] = useState(false);
 
   const stage = o.stage || 'New';
-  const pState = paymentLabel(o);
+  const pState = paymentLabel(o);   // 'PAID' | 'PENDING' | 'VERIFIED' … (orderUi.paymentLabel)
   const fulfill = fulfillmentLabel(o);
   const status = o.status || 'Pending';
   const next = (o.allowedNext || []).find((st) => !['Cancelled', 'Refunded', 'Returned', 'Failed Delivery'].includes(st));
@@ -119,7 +119,7 @@ export default function OrderRow({
     <div className={s.acts} style={{ zIndex: 40 }} onClick={(e) => e.stopPropagation()}>
       {next && (
         <button type="button" disabled={busy} onClick={() => onStage(o._id, next)} title={`Move to ${next}`}
-          className={s.actBtn}>
+          className={cx(s.actBtn, s.actGhost)}>
           {busy ? <Loader2 size={11} className="animate-spin" /> : <ArrowRight size={12} />}
         </button>
       )}
@@ -129,7 +129,8 @@ export default function OrderRow({
         </button>
         {menuPanel}
       </div>
-      <button type="button" onClick={() => setOpen((v) => !v)} aria-label="Toggle items" aria-expanded={open} className={s.actBtn}>
+      <button type="button" onClick={() => setOpen((v) => !v)} aria-label="Toggle items" aria-expanded={open}
+        className={cx(s.actBtn, s.actGhost, open && s.actSeen)}>
         <ChevronDown size={12} style={{ transform: open ? 'rotate(180deg)' : 'none', transition: '.18s' }} />
       </button>
     </div>
@@ -241,7 +242,7 @@ export default function OrderRow({
         <td><Bdg tone={toneOf(PAY_TONE, pState)}>{title(pState)}</Bdg></td>
         <td><Bdg tone={toneOf(FULFIL_TONE, stage)}>{fulfill}</Bdg></td>
         <td><span className={s.oTotal}>{pkr(o.total)}</span></td>
-        <td className={cx(s.colAct, s.cellRel)} onClick={(e) => e.stopPropagation()} style={{ textAlign: 'right' }}>{actions}</td>
+        <td className={cx(s.colAct, s.cellRel, (selected || open) && s.actSel)} onClick={(e) => e.stopPropagation()}>{actions}</td>
       </tr>
       {open && (
         <tr className={s.tray}>

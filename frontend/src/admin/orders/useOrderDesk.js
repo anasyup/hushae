@@ -18,7 +18,7 @@ export const DEFAULTS = {
   // Status tabs (Pending / Processing / Completed / Cancelled) narrow it.
   group: 'all', stage: '', status: '', paymentMethod: 'all', paymentState: 'all',
   q: '', from: '', to: '', minTotal: '', maxTotal: '', city: 'all',
-  printed: '', hasIssue: '', sort: 'oldest', page: '1', limit: '50',
+  printed: '', hasIssue: '', sort: 'oldest', page: '1', limit: '10',
   preset: '', compare: '',
 };
 

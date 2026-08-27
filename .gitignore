@@ -4,3 +4,6 @@ dist/
 .DS_Store
 *.log
 hushae-db-backup.json
+
+# local tokens — never commit
+secrets/
