@@ -538,6 +538,20 @@ router.patch('/:id/stage', protect, adminOnly, asyncHandler(async (req, res) => 
 }));
 
 /* ── PAYMENT VERIFICATION ─────────────────────────────────────────────────── */
+/* ── COURIER / TRACKING — captured at ship time ─────────────────────────── */
+router.patch('/:id/tracking', protect, adminOnly, asyncHandler(async (req, res) => {
+  if (!isId(req.params.id)) return res.status(400).json({ message: 'Invalid order id' });
+  const order = await Order.findById(req.params.id);
+  if (!order) return res.status(404).json({ message: 'Order not found' });
+  const { courier = '', tracking = '', trackingUrl = '' } = req.body || {};
+  order.courierName = String(courier || '').trim().slice(0, 80);
+  order.trackingNumber = String(tracking || '').trim().slice(0, 80);
+  order.trackingUrl = String(trackingUrl || '').trim().slice(0, 200);
+  await order.save();
+  try { require('../utils/auditLogger').logAction(req.user?.email, 'tracking', 'order', order.orderNumber, '', order.trackingNumber || order.courierName); } catch { /* noop */ }
+  res.json({ order: withStage(order.toObject()) });
+}));
+
 router.patch('/:id/payment/verify', protect, adminOnly, asyncHandler(async (req, res) => {
   if (!isId(req.params.id)) return res.status(400).json({ message: 'Invalid order id' });
   const { state, transactionId = '', note = '', gatewayResponse = null } = req.body || {};

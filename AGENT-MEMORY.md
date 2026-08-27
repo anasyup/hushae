@@ -60,9 +60,12 @@ Firing: order.created, order.status, payment.*, issue.raised, print.done, bulk.d
 - Old paths (/admin/orders/pending etc.) = <Navigate> redirects to desk tabs;
   routes placed BEFORE /admin/orders/:id.
 - Desk ka apna bell REMOVED — topbar bell + /admin/inbox own notifications.
-- Agla (Phase 2, approved in principle): bulk advance guardrails, inline
-  tracking on Ship + auto WhatsApp opt-in; Phase 3: COD call checklist,
-  courier COD reconciliation, SLA timers.
+- Phase 2 DONE: tracking-at-ship — PATCH /api/orders/manage/:id/tracking
+  (courierName/trackingNumber/trackingUrl), TrackingModal opens when an
+  order moves into To Handover/Shipped/In Transit/Out for Delivery without a
+  number (Skip never blocks), row menu 'Add tracking number'. Bulk advance +
+  guardrails + bulk WhatsApp (wa.me links, human presses send) pehle se the.
+  Phase 3 baqi: COD call checklist, courier COD reconciliation, SLA timers.
 
 ## 7. APPROVED NEXT WORK (boss ne green light di)
 1. **Reserved settings editors — DONE (2026-08-28):** Business Address, Time Zone, Currency built, tested, live. Store Settings group complete.

@@ -18,7 +18,7 @@ const COL =
   'hidden items-center lg:flex';
 
 export default function OrderRow({
-  order: o, selected, onSelect, busy, onStage, onVerify, onPrint, onOpenService, onOpenCustomer,
+  order: o, selected, onSelect, busy, onStage, onVerify, onPrint, onOpenService, onOpenCustomer, onOpenTracking,
 }) {
   const [open, setOpen] = useState(false);
   const [menu, setMenu] = useState(false);
@@ -59,6 +59,12 @@ export default function OrderRow({
           <button onClick={() => { onVerify(o._id, 'Verified'); setMenu(false); }}
             className="flex w-full items-center gap-2 px-3 py-2 text-left text-[12px] text-white/75 hover:bg-white/5 hover:text-white">
             Mark payment verified
+          </button>
+        )}
+        {!o.trackingNumber && ['Packed', 'Manifested', 'To Handover', 'Shipped', 'In Transit', 'Out for Delivery', 'Delivered'].includes(stage) && onOpenTracking && (
+          <button onClick={() => { onOpenTracking(o); setMenu(false); }}
+            className="flex w-full items-center gap-2 px-3 py-2 text-left text-[12px] text-white/75 hover:bg-white/5 hover:text-white">
+            Add tracking number
           </button>
         )}
         <a href={`https://wa.me/${String(o.customerInfo?.phone || '').replace(/\D/g, '').replace(/^0/, '92')}`}

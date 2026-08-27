@@ -9,6 +9,7 @@ import { api } from '../../api/client';
 import { useOrderDesk } from './useOrderDesk';
 import { GROUPS, ISSUE_TYPES, REFUND_STATES } from './orderConstants';
 import OrderFilters from './OrderFilters';
+import TrackingModal from './TrackingModal';
 import BulkBar from './BulkBar';
 import OrderRow from './OrderRow';
 import QuickFilters from './QuickFilters';
@@ -31,7 +32,7 @@ export default function OrdersDesk() {
   const {
     filters, setFilter, resetFilters, activeFilterCount,
     data, counts, facets, loading, error, busyIds,
-    reload, setStage, verifyPayment, bulk, exportCsv,
+    reload, setStage, verifyPayment, bulk, exportCsv, saveTracking,
   } = desk;
 
   const [selected, setSelected] = useState([]);
@@ -124,6 +125,34 @@ export default function OrdersDesk() {
   const paidCount = (counts?.byPaymentState?.Confirmed || 0) + (counts?.byPaymentState?.Verified || 0);
   const pendingCount = counts?.byGroup?.new ?? counts?.byPaymentState?.Pending ?? 0;
   const fulfilledCount = counts?.byGroup?.delivered ?? 0;
+
+  /* Tracking-at-ship: moving an order into the courier pipeline without a
+     tracking number opens the modal first. Skipping never blocks the stage —
+     a stuck pipeline costs more than a missing number. */
+  const [trackReq, setTrackReq] = useState(null);
+  const [trackBusy, setTrackBusy] = useState(false);
+  const SHIP_STAGES = ['To Handover', 'Shipped', 'In Transit', 'Out for Delivery'];
+
+  const handleStage = (id, stage, note = '', reason = '') => {
+    if (SHIP_STAGES.includes(stage)) {
+      const o = orders.find((x) => x._id === id);
+      if (o && !o.trackingNumber) { setTrackReq({ order: o, stage, note, reason }); return; }
+    }
+    setStage(id, stage, note, reason);
+  };
+
+  const submitTracking = async ({ courier, tracking, skip }) => {
+    const { order, stage, note, reason } = trackReq;
+    setTrackReq(null);
+    setTrackBusy(true);
+    try {
+      if (!skip && (tracking || courier)) {
+        await saveTracking(order._id, { courier, tracking });
+      }
+      if (stage) setStage(order._id, stage, note, reason);
+    } catch { /* act() already toasted */ }
+    setTrackBusy(false);
+  };
 
   const metrics = [
     { label: 'Total orders', value: counts ? counts.total : '—' },
@@ -297,9 +326,10 @@ export default function OrdersDesk() {
                 key={o._id} order={o}
                 selected={selected.includes(o._id)} onSelect={toggle}
                 busy={busyIds.has(o._id)}
-                onStage={setStage} onVerify={verifyPayment}
+                onStage={handleStage} onVerify={verifyPayment}
                 onPrint={handlePrint} onOpenService={setServiceFor}
                 onOpenCustomer={setCustomerPhone}
+                onOpenTracking={(o) => setTrackReq({ order: o })}
               />
             ))}
           </div>
@@ -342,6 +372,15 @@ export default function OrdersDesk() {
       {serviceFor && (
         <IssueModal order={serviceFor} token={auth?.token} toast={toast}
           onClose={() => setServiceFor(null)} onSaved={() => { setServiceFor(null); reload({ silent: true }); }} />
+      )}
+      {trackReq && (
+        <TrackingModal
+          order={trackReq.order}
+          stageLabel={trackReq.stage || ''}
+          busy={trackBusy}
+          onSubmit={submitTracking}
+          onClose={() => setTrackReq(null)}
+        />
       )}
     </AdminLayout>
   );
