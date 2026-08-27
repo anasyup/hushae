@@ -60,14 +60,14 @@ export default function ProfitCalculator() {
         onClick={() => setOpen((v) => !v)}
         aria-label="Profit calculator"
         title="Profit calculator"
-        className="fixed bottom-5 right-5 z-40 inline-flex h-10 items-center gap-2 border border-white/20 bg-[#0A0A0A] px-4 text-[10px] font-medium uppercase tracking-[0.14em] text-white/80 hover:border-white/45 hover:text-white"
+        className="fixed bottom-5 right-5 z-40 inline-flex h-10 items-center gap-2 border border-white/20 bg-white px-4 text-[10px] font-medium uppercase tracking-[0.14em] text-white/80 hover:border-white/45 hover:text-white"
       >
         Profit calc
       </button>
 
       {open && (
         <div className="fixed inset-x-0 bottom-0 z-40 flex justify-end px-4 pb-16 md:right-5 md:bottom-20 md:left-auto md:px-0 md:pb-0">
-          <div className="w-full max-w-md border border-white/15 bg-[#0A0A0A]" role="dialog" aria-label="Profit calculator">
+          <div className="w-full max-w-md border border-white/15 bg-white" role="dialog" aria-label="Profit calculator">
             <div className="flex items-center justify-between border-b border-white/10 px-5 py-3">
               <div>
                 <p className="adm-label">Quick tool</p>
