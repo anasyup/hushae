@@ -88,11 +88,17 @@ const ADVANCED_NAV = [
 
 // FULL NAVIGATION STRUCTURE
 const NAV_SECTIONS = [
+  /* PRIMARY — flat top tabs, exactly like the reference's top block.
+     No section label: these ARE the sidebar's headline rows. */
   {
-    label: 'HOME',
-    icon: Home,
+    label: '',
     items: [
       { to: '/admin', label: 'Dashboard', icon: LayoutTemplate, end: true },
+      { to: '/admin/finance', label: 'Finances', icon: CreditCard },
+      { to: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
+      { to: '/admin/marketing', label: 'Marketing', icon: Megaphone },
+      { to: '/admin/discounts', label: 'Discounts', icon: BadgePercent },
+      { to: '/admin/apps', label: 'Apps', icon: Plug },
     ],
   },
   {
@@ -107,7 +113,7 @@ const NAV_SECTIONS = [
     ],
   },
   {
-    label: 'COMMERCE',
+    label: '',
     icon: ShoppingBag,
     groups: [
       {
@@ -272,7 +278,6 @@ const NAV_SECTIONS = [
         label: 'Marketing',
         icon: Megaphone,
         children: [
-          { to: '/admin/marketing', label: 'Marketing Overview', icon: BarChart3 },
           { to: '/admin/campaigns', label: 'Campaigns', icon: Megaphone },
           { to: '/admin/automations', label: 'Automations', icon: Zap },
           { to: '/admin/email-marketing', label: 'Email Marketing', icon: MessageSquare },
@@ -289,7 +294,6 @@ const NAV_SECTIONS = [
         label: 'Discounts',
         icon: BadgePercent,
         children: [
-          { to: '/admin/discounts', label: 'Discount Codes', icon: BadgePercent },
           { to: '/admin/discounts/auto', label: 'Automatic Discounts', icon: Zap },
           { to: '/admin/discounts/percentage', label: 'Percentage Discounts', icon: BadgePercent },
           { to: '/admin/discounts/fixed', label: 'Fixed Amount Discounts', icon: DollarSign },
@@ -306,7 +310,6 @@ const NAV_SECTIONS = [
         label: 'Analytics',
         icon: BarChart3,
         children: [
-          { to: '/admin/analytics', label: 'Overview', icon: BarChart3 },
           { to: '/admin/analytics/sales', label: 'Sales', icon: DollarSign },
           { to: '/admin/analytics/orders', label: 'Orders', icon: ShoppingCart },
           { to: '/admin/analytics/products', label: 'Products', icon: Package },
@@ -436,7 +439,6 @@ const NAV_SECTIONS = [
     label: 'APPS & INTEGRATIONS',
     icon: Plug,
     items: [
-      { to: '/admin/apps', label: 'Installed Apps', icon: Grid3X3 },
       { to: '/admin/apps/marketplace', label: 'App Marketplace', icon: Store },
       { to: '/admin/integrations/payments', label: 'Payment Integrations', icon: CreditCard },
       { to: '/admin/integrations/shipping', label: 'Shipping Integrations', icon: Truck },
@@ -449,7 +451,6 @@ const NAV_SECTIONS = [
       { to: '/admin/integrations/order-sync', label: 'Order Sync', icon: ShoppingCart },
       { to: '/admin/api-keys', label: 'API Keys', icon: Code2 },
       { to: '/admin/webhooks', label: 'Webhooks', icon: Share2 },
-      { to: '/admin/automations', label: 'Automation Rules', icon: Zap },
       { to: '/admin/sync-history', label: 'Sync History', icon: FileSpreadsheet },
       { to: '/admin/integration-logs', label: 'Integration Logs', icon: FileText },
     ],
@@ -679,7 +680,7 @@ function NavigationItem({ item, collapsed, onNavigate }) {
  * ========================================================================== */
 
 function SectionHeader({ label, collapsed }) {
-  if (collapsed) return null;
+  if (collapsed || !label) return null;
   return <p className="adm-eyebrow">{label}</p>;
 }
 
