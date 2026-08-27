@@ -136,14 +136,23 @@ function buildFilter(q) {
   if (q.test === 'yes') f.isTestOrder = true;
   if (q.test === 'no') f.isTestOrder = { $ne: true };
   if (q.q) {
-    const rx = new RegExp(esc(String(q.q).trim()), 'i');
-    f.$and = [...(f.$and || []), {
-      $or: [
-        { orderNumber: rx }, { 'customerInfo.name': rx },
-        { 'customerInfo.phone': rx }, { 'customerInfo.email': rx },
-        { trackingNumber: rx }, { couponCode: rx },
-      ],
-    }];
+    const raw = String(q.q).trim();
+    const rx = new RegExp(esc(raw), 'i');
+    const ors = [
+      { orderNumber: rx }, { 'customerInfo.name': rx },
+      { 'customerInfo.phone': rx }, { 'customerInfo.email': rx },
+      { trackingNumber: rx }, { couponCode: rx },
+    ];
+    /* Pakistan reality: the same number is typed 0300…, +92 300… or 300….
+       When the query looks like a phone, also match on the stored number's
+       tail so every spelling finds the same customer. */
+    const digits = raw.replace(/\D/g, '');
+    if (digits.length >= 7) {
+      const tails = [...new Set([digits.slice(-10), digits.slice(-9), digits.slice(-7)])]
+        .filter((t) => t.length >= 7);
+      tails.forEach((t) => ors.push({ 'customerInfo.phone': new RegExp(`${esc(t)}$`) }));
+    }
+    f.$and = [...(f.$and || []), { $or: ors }];
   }
   return f;
 }

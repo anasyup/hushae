@@ -73,7 +73,11 @@ export default function OrderRow({
             Add tracking number
           </button>
         )}
-        <a href={`https://wa.me/${String(o.customerInfo?.phone || '').replace(/\D/g, '').replace(/^0/, '92')}`}
+        <a href={`https://wa.me/${String(o.customerInfo?.phone || '').replace(/\D/g, '').replace(/^0/, '92')}?text=${encodeURIComponent(
+          `Hi ${o.customerInfo?.name || 'there'}, your HUSHAE order ${o.orderNumber} is ${stage}.` +
+          (o.trackingNumber ? ` Tracking ${o.trackingNumber}${o.courierName ? ` via ${o.courierName}` : ''}.` : '') +
+          ` Track live: https://hushae1.vercel.app/track?order=${encodeURIComponent(o.orderNumber)}`
+        )}`}
           target="_blank" rel="noreferrer"
           className="flex w-full items-center gap-2 px-3 py-2 text-[12px] text-white/75 hover:bg-white/5 hover:text-white">
           WhatsApp customer

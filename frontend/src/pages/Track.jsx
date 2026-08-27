@@ -101,6 +101,20 @@ export default function Track() {
                 </div>
               </div>
 
+              {order.trackingNumber && (
+                <div className="flex flex-wrap items-center gap-2 border-b border-neutral-100 pb-5">
+                  <span className="border border-neutral-200 px-3 py-1 text-[10px] uppercase tracking-wider text-neutral-700">
+                    {order.courierName || 'Courier'}
+                  </span>
+                  <span className="font-mono text-xs text-neutral-800">{order.trackingNumber}</span>
+                  {order.trackingUrl && (
+                    <a href={order.trackingUrl} target="_blank" rel="noreferrer" className="text-xs text-neutral-600 underline underline-offset-2">
+                      Track with courier
+                    </a>
+                  )}
+                </div>
+              )}
+
               {/* Timeline Progress */}
               <div>
                 {cancelled ? (

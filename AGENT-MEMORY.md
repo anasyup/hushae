@@ -75,7 +75,12 @@ Firing: order.created, order.status, payment.*, issue.raised, print.done, bulk.d
   order moves into To Handover/Shipped/In Transit/Out for Delivery without a
   number (Skip never blocks), row menu 'Add tracking number'. Bulk advance +
   guardrails + bulk WhatsApp (wa.me links, human presses send) pehle se the.
-  Phase 3 baqi: COD call checklist, courier COD reconciliation, SLA timers.
+  Phase 3 DONE: SLA timers (24h amber/48h red), COD reconciliation page
+  (/admin/cod-recon), call checklist pehle se tha. Orders page COMPLETE:
+  phone-normalised search (0300/+92 300/300 sab match), WhatsApp prefill
+  (stage+tracking+track link), tracking editor desk+OrderDetail dono me,
+  customer Track page pe courier/tracking display. Baqi sirf optional
+  polish (mobile density, auto-WhatsApp Business API integration).
 
 ## 7. APPROVED NEXT WORK (boss ne green light di)
 1. **Reserved settings editors batch 1 — DONE (2026-08-28):** Business Address, Time Zone, Currency built, tested, live.
