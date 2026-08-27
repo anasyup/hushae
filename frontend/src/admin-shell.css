@@ -535,31 +535,53 @@
 .set-wrap {
   display: flex;
   align-items: flex-start;
-  gap: 28px;
+  gap: 32px;
 }
 
+/* The rail is the settings page's own sidebar: a bordered column with a
+   sticky header, hairline-separated groups and one row rhythm. */
 .set-rail {
   flex: none;
-  width: 224px;
+  width: 236px;
   position: sticky;
   top: calc(var(--adm-topbar-h) + 24px);
   max-height: calc(100vh - var(--adm-topbar-h) - 48px);
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding-right: 6px;
+  padding-right: 14px;
+  border-right: 1px solid var(--admin-border);
   scrollbar-width: thin;
   scrollbar-color: var(--admin-border) transparent;
 }
 .set-rail::-webkit-scrollbar { width: 8px; }
 .set-rail::-webkit-scrollbar-thumb { background: var(--admin-border); border-radius: 8px; }
 
+/* Sticky rail header — back link + page title stay put while the list
+   scrolls under a hairline. */
+.set-head {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--admin-bg);
+  padding: 2px 0 10px;
+  border-bottom: 1px solid var(--admin-border);
+  margin-bottom: 4px;
+}
 .set-title {
-  padding-top: 2px;
+  padding: 0 8px;
   color: var(--admin-text);
-  font-size: 11px;
-  font-weight: 700;
+  font-size: 15px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
 }
 
+/* Groups divided by hairlines so 15 groups read as one organised column,
+   not a wall of rows. */
+.set-rail .adm-section + .adm-section {
+  margin-top: 4px;
+  border-top: 1px solid var(--admin-border-subtle);
+}
 .set-group {
   padding: 10px 8px 4px;
   font-size: 10px;
@@ -568,8 +590,9 @@
   text-transform: uppercase;
   color: var(--adm-label);
 }
-.set-kids { display: flex; flex-direction: column; gap: 1px; }
-.set-item { height: 28px; font-size: 13px; }
+.set-kids { display: flex; flex-direction: column; gap: 1px; padding-bottom: 6px; }
+.set-item { height: 29px; font-size: 13px; }
+.set-item .adm-txt { letter-spacing: 0.005em; }
 
 .set-pane { min-width: 0; }
 
@@ -612,5 +635,9 @@
     max-height: none;
     overflow: visible;
     padding-right: 0;
+    border-right: 0;
+    border-bottom: 1px solid var(--admin-border);
+    padding-bottom: 12px;
   }
+  .set-head { position: static; }
 }

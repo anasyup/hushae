@@ -14,11 +14,13 @@ import { SETTINGS_GROUPS } from './settingsNav';
 export default function SettingsRail() {
   return (
     <nav className="set-rail" aria-label="Settings">
-      <NavLink to="/admin" className="set-back" title="Back to admin">
-        <ArrowLeft size={14} strokeWidth={1.5} />
-        <span>Admin</span>
-      </NavLink>
-      <p className="adm-eyebrow set-title">Settings</p>
+      <div className="set-head">
+        <NavLink to="/admin" className="set-back" title="Back to admin">
+          <ArrowLeft size={14} strokeWidth={1.5} />
+          <span>Admin</span>
+        </NavLink>
+        <p className="set-title">Settings</p>
+      </div>
       {SETTINGS_GROUPS.map((group) => (
         <div key={group.label} className="adm-section">
           <p className="set-group">{group.label}</p>
@@ -30,6 +32,7 @@ export default function SettingsRail() {
                   key={child.to + child.label}
                   to={child.to}
                   end
+                  title={child.label}
                   className={({ isActive }) => `adm-row set-item ${isActive ? 'is-active' : ''}`}
                 >
                   <span className="adm-ico"><Icon size={14} strokeWidth={1.5} /></span>
