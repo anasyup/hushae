@@ -100,6 +100,7 @@ const SettingsCX = lazy(() => import('./admin/SettingsCX'));
 const SettingsReviews = lazy(() => import('./admin/SettingsReviews'));
 const SettingsLoyalty = lazy(() => import('./admin/SettingsLoyalty'));
 const SettingsSearch = lazy(() => import('./admin/SettingsSearch'));
+const SettingsReserved = lazy(() => import('./admin/settings/SettingsReserved'));
 const SearchAnalytics = lazy(() => import('./admin/SearchAnalytics'));
 /* Marketing screens: lazy so none of this reaches a shopper's bundle. */
 const Promotions = lazy(() => import('./admin/Promotions'));
@@ -343,6 +344,64 @@ export default function App() {
           <Route path="/admin/settings/taxes" element={<Suspense fallback={<EditorFallback />}><Taxes /></Suspense>} />
           <Route path="/admin/settings/legal" element={<SettingsLegal />} />
           <Route path="/admin/settings/advanced" element={<SettingsAdmin />} />
+          {/* ── SETTINGS CONSOLE rail destinations ─────────────────────────
+              Every item in the settings rail resolves to a route. Where a
+              real editor already exists it is reused (one component, several
+              entry points); the rest render the honest reserved pane. */}
+          <Route path="/admin/settings/customer-login" element={<Suspense fallback={<EditorFallback />}><SettingsAccounts /></Suspense>} />
+          <Route path="/admin/settings/guest-checkout" element={<Suspense fallback={<EditorFallback />}><SettingsAccounts /></Suspense>} />
+          <Route path="/admin/settings/account-fields" element={<Suspense fallback={<EditorFallback />}><SettingsAccounts /></Suspense>} />
+          <Route path="/admin/settings/customer-privacy" element={<Suspense fallback={<EditorFallback />}><SettingsAccounts /></Suspense>} />
+          <Route path="/admin/settings/store-credit" element={<Suspense fallback={<EditorFallback />}><SettingsLoyalty /></Suspense>} />
+          <Route path="/admin/settings/markets" element={<Markets />} />
+          <Route path="/admin/settings/security/2fa" element={<SettingsSecurity />} />
+          <Route path="/admin/settings/security/sessions" element={<SettingsSecurity />} />
+          <Route path="/admin/settings/security/activity" element={<SettingsSecurity />} />
+          <Route path="/admin/settings/security/alerts" element={<SettingsSecurity />} />
+          <Route path="/admin/settings/team" element={<SettingsSecurity />} />
+          <Route path="/admin/settings/roles" element={<SettingsSecurity />} />
+          <Route path="/admin/settings/permissions" element={<SettingsSecurity />} />
+          <Route path="/admin/settings/store-access" element={<SettingsSecurity />} />
+          <Route path="/admin/settings/product-access" element={<SettingsSecurity />} />
+          <Route path="/admin/settings/order-access" element={<SettingsSecurity />} />
+          <Route path="/admin/settings/customer-access" element={<SettingsSecurity />} />
+          <Route path="/admin/settings/finance-access" element={<SettingsSecurity />} />
+          <Route path="/admin/settings/audit-logs" element={<SettingsSecurity />} />
+          <Route path="/admin/settings/backup" element={<Backup />} />
+          <Route path="/admin/settings/export" element={<Backup />} />
+          <Route path="/admin/settings/import" element={<Backup />} />
+          <Route path="/admin/settings/policies" element={<SettingsLegal />} />
+          <Route path="/admin/settings/privacy" element={<SettingsLegal />} />
+          <Route path="/admin/settings/address" element={<Suspense fallback={<EditorFallback />}><SettingsReserved /></Suspense>} />
+          <Route path="/admin/settings/timezone" element={<Suspense fallback={<EditorFallback />}><SettingsReserved /></Suspense>} />
+          <Route path="/admin/settings/currency" element={<Suspense fallback={<EditorFallback />}><SettingsReserved /></Suspense>} />
+          <Route path="/admin/settings/units" element={<Suspense fallback={<EditorFallback />}><SettingsReserved /></Suspense>} />
+          <Route path="/admin/settings/domain" element={<Suspense fallback={<EditorFallback />}><SettingsReserved /></Suspense>} />
+          <Route path="/admin/settings/languages" element={<Suspense fallback={<EditorFallback />}><SettingsReserved /></Suspense>} />
+          <Route path="/admin/settings/notifications" element={<Suspense fallback={<EditorFallback />}><SettingsReserved /></Suspense>} />
+          <Route path="/admin/settings/metafields" element={<Suspense fallback={<EditorFallback />}><SettingsReserved /></Suspense>} />
+          <Route path="/admin/settings/metaobjects" element={<Suspense fallback={<EditorFallback />}><SettingsReserved /></Suspense>} />
+          <Route path="/admin/settings/custom-fields" element={<Suspense fallback={<EditorFallback />}><SettingsReserved /></Suspense>} />
+          <Route path="/admin/settings/billing" element={<Suspense fallback={<EditorFallback />}><SettingsReserved /></Suspense>} />
+          <Route path="/admin/settings/billing/upgrade" element={<Suspense fallback={<EditorFallback />}><SettingsReserved /></Suspense>} />
+          <Route path="/admin/settings/billing/usage" element={<Suspense fallback={<EditorFallback />}><SettingsReserved /></Suspense>} />
+          <Route path="/admin/settings/billing/invoices" element={<Suspense fallback={<EditorFallback />}><SettingsReserved /></Suspense>} />
+          <Route path="/admin/settings/billing/payment-method" element={<Suspense fallback={<EditorFallback />}><SettingsReserved /></Suspense>} />
+          <Route path="/admin/settings/billing/seats" element={<Suspense fallback={<EditorFallback />}><SettingsReserved /></Suspense>} />
+          <Route path="/admin/settings/billing/stores" element={<Suspense fallback={<EditorFallback />}><SettingsReserved /></Suspense>} />
+          <Route path="/admin/settings/billing/subscription" element={<Suspense fallback={<EditorFallback />}><SettingsReserved /></Suspense>} />
+          <Route path="/admin/settings/delete" element={<Suspense fallback={<EditorFallback />}><SettingsReserved /></Suspense>} />
+          <Route path="/admin/settings/migration" element={<Suspense fallback={<EditorFallback />}><SettingsReserved /></Suspense>} />
+          <Route path="/admin/settings/retention" element={<Suspense fallback={<EditorFallback />}><SettingsReserved /></Suspense>} />
+          <Route path="/admin/settings/system-status" element={<Suspense fallback={<EditorFallback />}><SettingsReserved /></Suspense>} />
+          <Route path="/admin/settings/error-logs" element={<Suspense fallback={<EditorFallback />}><SettingsReserved /></Suspense>} />
+          <Route path="/admin/settings/maintenance" element={<Suspense fallback={<EditorFallback />}><SettingsReserved /></Suspense>} />
+          <Route path="/admin/settings/api" element={<Suspense fallback={<EditorFallback />}><SettingsReserved /></Suspense>} />
+          <Route path="/admin/settings/webhooks" element={<Suspense fallback={<EditorFallback />}><SettingsReserved /></Suspense>} />
+          <Route path="/admin/settings/developer" element={<Suspense fallback={<EditorFallback />}><SettingsReserved /></Suspense>} />
+          <Route path="/admin/settings/flags" element={<Suspense fallback={<EditorFallback />}><SettingsReserved /></Suspense>} />
+          <Route path="/admin/settings/cache" element={<Suspense fallback={<EditorFallback />}><SettingsReserved /></Suspense>} />
+          <Route path="/admin/settings/config" element={<Suspense fallback={<EditorFallback />}><SettingsReserved /></Suspense>} />
           <Route path="/admin/store" element={<OnlineStore />} />
           <Route path="/admin/growth" element={<Growth />} />
           <Route path="/admin/reports" element={<Suspense fallback={<EditorFallback />}><Reports /></Suspense>} />

@@ -524,3 +524,93 @@
   .admin-shell .adm-topbar { display: none !important; }
   .admin-shell .admin-main-offset { padding-left: 0 !important; }
 }
+
+/* ============================================================================
+ * SETTINGS CONSOLE — the settings page's own sidebar (rail) + pane.
+ * Injected by AdminLayout on /admin/settings/* so every settings screen,
+ * real or reserved, shares one organised rail. Shopify-style: group label,
+ * indented items, hairline separation.
+ * ========================================================================== */
+
+.set-wrap {
+  display: flex;
+  align-items: flex-start;
+  gap: 28px;
+}
+
+.set-rail {
+  flex: none;
+  width: 224px;
+  position: sticky;
+  top: calc(var(--adm-topbar-h) + 24px);
+  max-height: calc(100vh - var(--adm-topbar-h) - 48px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 6px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--admin-border) transparent;
+}
+.set-rail::-webkit-scrollbar { width: 8px; }
+.set-rail::-webkit-scrollbar-thumb { background: var(--admin-border); border-radius: 8px; }
+
+.set-title {
+  padding-top: 2px;
+  color: var(--admin-text);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.set-group {
+  padding: 10px 8px 4px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--adm-label);
+}
+.set-kids { display: flex; flex-direction: column; gap: 1px; }
+.set-item { height: 28px; font-size: 13px; }
+
+.set-pane { min-width: 0; }
+
+/* Reserved destination pane */
+.set-reserved {
+  border: 1px solid var(--admin-border);
+  border-radius: 6px;
+  background: var(--admin-surface);
+  padding: 28px;
+  max-width: 640px;
+}
+.set-reserved-title { margin-top: 2px; }
+.set-reserved-desc {
+  margin-top: 10px;
+  max-width: 52ch;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--admin-text-secondary);
+}
+.set-reserved-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+/* Bottom-of-sidebar Settings entry */
+.adm-setbtnwrap {
+  flex: none;
+  padding: 6px 8px;
+  border-top: 1px solid var(--admin-border);
+}
+
+/* Tablet / phone: rail stacks above the pane instead of vanishing */
+@media (max-width: 1023.98px) {
+  .set-wrap { flex-direction: column; gap: 20px; }
+  .set-rail {
+    position: static;
+    width: 100%;
+    max-height: none;
+    overflow: visible;
+    padding-right: 0;
+  }
+}
