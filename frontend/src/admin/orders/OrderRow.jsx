@@ -33,6 +33,12 @@ export default function OrderRow({
   const atRisk = (o.items || []).some((i) => ['out_of_stock', 'insufficient', 'low_stock'].includes(i.stockStatus));
   const invoicePrinted = o.printStatus?.invoice?.printed;
 
+  /* SLA timer — how long the order has sat in its current stage. Amber at
+     24h, red at 48h; terminal stages never warn. */
+  const TERMINAL = ['Delivered', 'Completed', 'Cancelled', 'Refunded', 'Returned', 'Failed Delivery'];
+  const hrs = Math.max(0, Math.floor((Date.now() - new Date(o.stageUpdatedAt || o.updatedAt || o.createdAt).getTime()) / 3600000));
+  const sla = !TERMINAL.includes(stage) && hrs >= 24 ? { label: `${hrs}h`, color: hrs >= 48 ? '#ef4444' : '#f59e0b' } : null;
+
   const copyRef = () => { navigator.clipboard?.writeText(o.orderNumber); };
 
   const menuPanel = menu && (
@@ -211,6 +217,11 @@ export default function OrderRow({
         <div className={COL}><MonoStatus label={fulfill} /></div>
         <div className="hidden flex-col items-start gap-1 xl:flex">
           <MonoStatus label={String(o.status || '').toUpperCase()} dim={['Cancelled', 'Refunded', 'Pending'].includes(o.status)} />
+          {sla && (
+            <span title={`${hrs}h in ${stage}`} className="text-[10px] font-semibold tabular-nums" style={{ color: sla.color }}>
+              {sla.label} in stage
+            </span>
+          )}
           {o.priorityFlag === 'rush' && <span className="text-[9px] uppercase tracking-[0.16em] text-white">Rush</span>}
           {o.customerService?.hasIssue && <span className="text-[9px] uppercase tracking-[0.14em] text-white/45">Issue</span>}
           {invoicePrinted && <span className="text-[9px] uppercase tracking-[0.14em] text-white/30">Printed</span>}

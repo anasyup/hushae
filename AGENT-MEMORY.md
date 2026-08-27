@@ -1,5 +1,14 @@
 # AGENT MEMORY — HUSHAE (read this FIRST in every new chat)
 
+## 0. WORKFLOW — SAB AGENTS KE LIYE LAZMI (mandatory pipeline)
+**Agent (code change + local build check) → commit → GitHub push (main) → Vercel AUTO deploy → live verify → report.**
+- Koi bhi agent live site ko direct edit NAHIN karta; sirf ye pipeline.
+- Push se pehle `git fetch + rebase origin/main` (parallel agents hote hain).
+- Push ke baad Vercel deploy ka WAIT karo (index.html ka asset hash badalta hai),
+  phir live pe content verify karo (class names / routes / API), hash-match se nahi.
+- Sandbox quirks: `.git` + `/tmp/.ght` wipe ho sakte hain (recovery section 3).
+- Koi file delete/rewrite nahi jab tak boss explicitly na kahe.
+
 > Ye file is project ki shared memory hai. Nayi chat me agent ko bolo:
 > **"repo clone karo, AGENT-MEMORY.md parho, phir kaam shuru karo."**
 > Har bare task ke baad is file ko update karna wajib hai.

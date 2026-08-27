@@ -105,6 +105,7 @@ const SettingsLoyalty = lazy(() => import('./admin/SettingsLoyalty'));
 const SettingsSearch = lazy(() => import('./admin/SettingsSearch'));
 const SettingsReserved = lazy(() => import('./admin/settings/SettingsReserved'));
 const Inbox = lazy(() => import('./admin/Inbox'));
+const CODRecon = lazy(() => import('./admin/CODRecon'));
 const SearchAnalytics = lazy(() => import('./admin/SearchAnalytics'));
 /* Marketing screens: lazy so none of this reaches a shopper's bundle. */
 const Promotions = lazy(() => import('./admin/Promotions'));
@@ -284,6 +285,7 @@ export default function App() {
 
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/inbox" element={<Suspense fallback={<EditorFallback />}><Inbox /></Suspense>} />
+          <Route path="/admin/cod-recon" element={<Suspense fallback={<EditorFallback />}><CODRecon /></Suspense>} />
           <Route path="/admin/inbox/:tab" element={<Suspense fallback={<EditorFallback />}><Inbox /></Suspense>} />
           <Route path="/admin" element={<Suspense fallback={<EditorFallback />}><Overview /></Suspense>} />
           <Route path="/admin/dashboard" element={<Suspense fallback={<EditorFallback />}><Dashboard /></Suspense>} />

@@ -479,6 +479,32 @@ router.get('/cancellation-reasons', protect, adminOnly, asyncHandler(async (req,
 }));
 
 /* ── SINGLE ORDER (with timeline, payments, issues, prints) ───────────────── */
+/* ── COD RECONCILIATION — expected vs collected, per courier ────────────── */
+router.get('/cod-recon', protect, adminOnly, asyncHandler(async (req, res) => {
+  const SHIP = ['Shipped', 'In Transit', 'Out for Delivery', 'Delivered', 'Completed'];
+  const orders = await Order.find({ paymentMethod: 'COD', stage: { $in: SHIP } })
+    .select('orderNumber courierName total paymentState paymentStatus').lean();
+  const by = {};
+  for (const o of orders) {
+    const c = String(o.courierName || '').trim() || 'Unassigned';
+    by[c] = by[c] || { courier: c, count: 0, expected: 0, collected: 0, outstandingIds: [] };
+    const r = by[c];
+    r.count += 1;
+    r.expected += Number(o.total || 0);
+    const paid = o.paymentStatus === 'Paid' || o.paymentState === 'Confirmed';
+    if (paid) r.collected += Number(o.total || 0);
+    else r.outstandingIds.push(String(o._id));
+  }
+  const rows = Object.values(by)
+    .map((r) => ({ ...r, outstanding: r.expected - r.collected }))
+    .sort((a, b) => b.outstanding - a.outstanding);
+  const totals = rows.reduce(
+    (a, r) => ({ count: a.count + r.count, expected: a.expected + r.expected, collected: a.collected + r.collected }),
+    { count: 0, expected: 0, collected: 0 },
+  );
+  res.json({ rows, totals });
+}));
+
 router.get('/:id', protect, adminOnly, asyncHandler(async (req, res) => {
   if (!isId(req.params.id)) return res.status(400).json({ message: 'Invalid order id' });
   const order = await Order.findById(req.params.id).lean();

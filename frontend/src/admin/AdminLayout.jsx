@@ -114,6 +114,7 @@ const NAV_SECTIONS = [
           { to: '/admin/orders/draft', label: 'Draft Orders', icon: FileText },
           { to: '/admin/abandoned-carts', label: 'Abandoned Checkouts', icon: Package },
           { to: '/admin/verification-queue', label: 'Payment Issues', icon: ShieldCheck },
+          { to: '/admin/cod-recon', label: 'COD Reconciliation', icon: DollarSign },
         ],
       },
       {
