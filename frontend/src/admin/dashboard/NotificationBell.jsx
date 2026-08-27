@@ -79,12 +79,12 @@ export default function NotificationBell() {
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen((v) => !v)}
-        className="relative rounded-full border border-neutral-200 bg-white p-2 text-neutral-600 transition hover:border-neutral-400 hover:text-neutral-900"
+        className="tb-icon"
         aria-label={`Notifications${data.unread ? ` — ${data.unread} unread` : ''}`}
       >
-        <Bell size={15} />
+        <Bell size={14} strokeWidth={1.8} />
         {data.unread > 0 && (
-          <span className="absolute -right-1 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-white px-1 text-[12px] font-bold text-black">
+          <span className="tb-badge">
             {data.unread > 9 ? '9+' : data.unread}
           </span>
         )}

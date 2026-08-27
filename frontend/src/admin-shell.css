@@ -34,7 +34,7 @@
 .admin-shell {
   --adm-sidebar-w: 224px;
   --adm-rail-w: 56px;
-  --adm-topbar-h: 52px;
+  --adm-topbar-h: 48px;
   /* Shell-local text colours. Every one of them has a dark value in
      .dark-admin, so the components never mention a hex again. */
   --adm-nav: var(--admin-text-secondary);
@@ -383,28 +383,142 @@
 .adm-iconbtn:focus-visible { outline: 2px solid var(--admin-accent); outline-offset: -2px; }
 
 /* ── Top bar ───────────────────────────────────────────────────────────── */
+/* ── Top bar — the boss's header spec, token-driven so the dark theme
+      inherits the same geometry with inverted ink. ─────────────────── */
 .adm-topbar {
   position: sticky;
   top: 0;
   z-index: 20;
   display: flex;
   align-items: center;
-  gap: 12px;
+  justify-content: space-between;
+  gap: 16px;
   height: var(--adm-topbar-h);
   padding: 0 16px;
-  border-bottom: 1px solid var(--admin-border);
-  background: var(--adm-topbar-bg);
-  -webkit-backdrop-filter: saturate(180%) blur(10px);
-  backdrop-filter: saturate(180%) blur(10px);
+  border-bottom: 1px solid var(--admin-border-subtle);
+  background: var(--admin-bg);
 }
-/* Title sizing comes from `.admin-shell h1` in index.css (20px/600, marked
-   !important) — declaring a font-size here too would just be a losing
-   duplicate. This handles the overflow and colour the h1 rule cannot. */
-.adm-topbar-title {
+
+.tb-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.tb-menu {
+  width: 32px;
+  height: 32px;
+  flex: none;
+  border: 1px solid var(--admin-border-subtle);
+  background: var(--admin-bg);
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  color: var(--admin-text);
+  transition: border-color 150ms ease-out, background-color 150ms ease-out;
+}
+.tb-menu:hover { border-color: var(--admin-accent); background: var(--adm-hover-bg); }
+.tb-div { width: 1px; height: 16px; flex: none; background: var(--admin-border-subtle); }
+/* index.css forces 20px on h1 with !important — this beats it (higher
+   specificity, same flag) so the spec's 15px/700 title wins. */
+.admin-shell .tb-title {
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.3px !important;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   color: var(--admin-text);
+}
+
+.tb-right { display: flex; align-items: center; gap: 6px; flex: none; }
+
+.tb-pill {
+  height: 30px;
+  background: #ecfdf5;
+  border: 1px solid #d1fae5;
+  border-radius: 20px;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #065f46;
+  white-space: nowrap;
+}
+.tb-pill.off { background: #fef2f2; border-color: #fecaca; color: #991b1b; }
+.tb-dot { width: 6px; height: 6px; border-radius: 50%; background: #10b981; }
+.tb-pill.off .tb-dot { background: #ef4444; }
+.dark-admin .tb-pill { background: rgba(16, 185, 129, 0.12); border-color: rgba(16, 185, 129, 0.3); color: #6ee7b7; }
+.dark-admin .tb-pill.off { background: rgba(239, 68, 68, 0.12); border-color: rgba(239, 68, 68, 0.3); color: #fca5a5; }
+.dark-admin .tb-dot { background: #34d399; }
+.dark-admin .tb-pill.off .tb-dot { background: #f87171; }
+
+.tb-create {
+  height: 30px;
+  background: var(--admin-accent);
+  color: var(--adm-avatar-fg);
+  border: 1px solid var(--admin-accent);
+  border-radius: 20px;
+  padding: 0 14px;
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+  transition: background-color 150ms ease-out, border-color 150ms ease-out;
+}
+.tb-create:hover { background: var(--admin-accent-hover); border-color: var(--admin-accent-hover); }
+
+.tb-view {
+  height: 30px;
+  background: var(--admin-bg);
+  border: 1px solid var(--admin-border);
+  border-radius: 20px;
+  padding: 0 12px;
+  font-size: 12px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--admin-text);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: border-color 150ms ease-out, background-color 150ms ease-out;
+}
+.tb-view:hover { border-color: var(--admin-accent); background: var(--adm-hover-bg); }
+
+.tb-icon {
+  width: 32px;
+  height: 32px;
+  flex: none;
+  background: var(--admin-bg);
+  border: 1px solid var(--admin-border-subtle);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: var(--admin-text);
+  position: relative;
+  transition: border-color 150ms ease-out, background-color 150ms ease-out;
+}
+.tb-icon:hover { border-color: var(--admin-accent); background: var(--adm-hover-bg); }
+.tb-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 8px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 3px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  border: 2px solid var(--admin-bg);
+}
+
+.tb-menu:focus-visible, .tb-create:focus-visible, .tb-view:focus-visible, .tb-icon:focus-visible {
+  outline: 2px solid var(--admin-accent);
+  outline-offset: 2px;
 }
 .adm-crumb {
   overflow: hidden;

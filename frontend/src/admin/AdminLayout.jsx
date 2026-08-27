@@ -11,7 +11,7 @@ import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, NavLink, Navigate, useLocation } from 'react-router-dom';
 import {
   // Top Bar Icons
-  Menu, PanelLeftClose, PanelRightOpen, Sun, Moon, Globe, Plus, Search, ChevronDown, X,
+  Menu, PanelLeftClose, PanelRightOpen, Sun, Moon, Globe, Plus, Search, ChevronDown, X, Eye,
   // Workspace Icons
   Building2, Home, Clock,
   // Inbox Icons
@@ -829,98 +829,82 @@ function TopBar({ title, auth, onCmdK, onMenu, onToggleSidebar, collapsed }) {
 
   return (
     <header className="adm-topbar">
-      {/* Same header on every page. On the settings console the toggles
-          drive the rail instead of the main sidebar. */}
-      <button
-        type="button"
-        onClick={onMenu}
-        className="adm-iconbtn md:hidden"
-        aria-label="Open menu"
-        title="Open menu"
-      >
-        <Menu size={18} strokeWidth={1.5} />
-      </button>
-
-      <button
-        type="button"
-        onClick={onToggleSidebar}
-        aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-        title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-        className="adm-iconbtn hidden md:grid"
-      >
-        {collapsed ? <PanelRightOpen size={16} strokeWidth={1.5} /> : <PanelLeftClose size={16} strokeWidth={1.5} />}
-      </button>
-
-      <div className="min-w-0 flex-1">
-        {crumb && <p className="adm-crumb">{crumb}</p>}
-        <h1 className="adm-topbar-title">{pageTitle}</h1>
+      {/* Left — one menu button per viewport, divider, page title */}
+      <div className="tb-left">
+        <button
+          type="button"
+          onClick={onMenu}
+          className="tb-menu md:hidden"
+          aria-label="Open menu"
+          title="Open menu"
+        >
+          <Menu size={14} strokeWidth={2} />
+        </button>
+        <button
+          type="button"
+          onClick={onToggleSidebar}
+          className="tb-menu hidden md:grid"
+          aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        >
+          <Menu size={14} strokeWidth={2} />
+        </button>
+        <span className="tb-div" aria-hidden="true" />
+        <h1 className="tb-title">{pageTitle}</h1>
       </div>
 
-      <button
-        type="button"
-        onClick={onCmdK}
-        className="adm-chip hidden sm:inline-flex"
-        title="Search anything (Ctrl / Cmd + K)"
-      >
-        <Search size={14} strokeWidth={1.5} />
-        <span>Search</span>
-        <span className="adm-kbd">⌘K</span>
-      </button>
+      {/* Right — status pill, create, view store, theme, notifications */}
+      <div className="tb-right">
+        <span className={`tb-pill ${storeOpen ? '' : 'off'}`}>
+          <span className="tb-dot" aria-hidden="true" />
+          {storeOpen ? 'Store online' : 'Store locked'}
+        </span>
 
-      <span className="adm-chip hidden lg:inline-flex">
-        <span className={`adm-dot ${storeOpen ? 'on' : 'off'}`} aria-hidden="true" />
-        {storeOpen ? 'Store online' : 'Store locked'}
-      </span>
+        {canCreate && (
+          <div className="relative" ref={createRef}>
+            <button
+              type="button"
+              onClick={() => setCreateOpen((v) => !v)}
+              className="tb-create"
+              aria-expanded={createOpen}
+              aria-haspopup="menu"
+            >
+              <Plus size={11} strokeWidth={2.5} />
+              <span>Create</span>
+            </button>
 
-      {canCreate && (
-        <div className="relative" ref={createRef}>
-          <button
-            type="button"
-            onClick={() => setCreateOpen((v) => !v)}
-            className="adm-chip solid"
-            aria-expanded={createOpen}
-            aria-haspopup="menu"
-          >
-            <Plus size={14} strokeWidth={2} />
-            <span className="hidden sm:inline">Create</span>
-          </button>
+            {createOpen && (
+              <div className="adm-pop" role="menu">
+                {createItems.map((it) => {
+                  const Icon = it.icon;
+                  return (
+                    <Link key={it.to} to={it.to} onClick={() => setCreateOpen(false)} className="adm-pop-row" role="menuitem">
+                      <Icon size={14} strokeWidth={1.5} />
+                      {it.label}
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
 
-          {createOpen && (
-            <div className="adm-pop" role="menu">
-              {createItems.map((it) => {
-                const Icon = it.icon;
-                return (
-                  <Link key={it.to} to={it.to} onClick={() => setCreateOpen(false)} className="adm-pop-row" role="menuitem">
-                    <Icon size={14} strokeWidth={1.5} />
-                    {it.label}
-                  </Link>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      )}
+        <Link to="/" target="_blank" rel="noreferrer" className="tb-view" title="Open storefront">
+          <Eye size={14} strokeWidth={1.6} />
+          <span className="hidden sm:inline">View store</span>
+        </Link>
 
-      <Link to="/" target="_blank" rel="noreferrer" className="adm-chip hidden md:inline-flex" title="Open storefront">
-        <Globe size={14} strokeWidth={1.5} />
-        <span className="hidden xl:inline">View store</span>
-      </Link>
+        <button
+          type="button"
+          onClick={toggleDark}
+          aria-label={darkMode ? 'Switch to light theme' : 'Switch to dark theme'}
+          title={darkMode ? 'Switch to light theme' : 'Switch to dark theme'}
+          className="tb-icon"
+        >
+          {darkMode ? <Sun size={14} strokeWidth={1.6} /> : <Moon size={14} strokeWidth={1.6} />}
+        </button>
 
-      <button
-        type="button"
-        onClick={toggleDark}
-        aria-label={darkMode ? 'Switch to light theme' : 'Switch to dark theme'}
-        title={darkMode ? 'Switch to light theme' : 'Switch to dark theme'}
-        className="adm-iconbtn"
-      >
-        {darkMode ? <Sun size={16} strokeWidth={1.5} /> : <Moon size={16} strokeWidth={1.5} />}
-      </button>
-
-      <NotificationBell />
-
-      <div className="flex items-center gap-2">
-        <span className="adm-avatar" aria-hidden="true">{initials}</span>
-        <span className="hidden text-[13px] font-medium xl:inline">{auth?.user?.name?.split(' ')[0] || 'Admin'}</span>
+        <NotificationBell />
       </div>
     </header>
   );
