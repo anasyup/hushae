@@ -1,5 +1,5 @@
 import {Component, useEffect, lazy, Suspense} from 'react';
-import { Route, Routes, useLocation, useParams } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom';
 import Header from './components/Header';
 import { useThemeDoc } from './theme-editor/useThemeDoc';
 import Footer from './components/Footer';
@@ -92,6 +92,10 @@ const SettingsShipping = lazy(() => import('./admin/SettingsPages').then((m) => 
 const SettingsBusinessAddress = lazy(() => import('./admin/SettingsAddress').then((m) => ({ default: m.SettingsBusinessAddress })));
 const SettingsTimezone = lazy(() => import('./admin/SettingsAddress').then((m) => ({ default: m.SettingsTimezone })));
 const SettingsCurrency = lazy(() => import('./admin/SettingsAddress').then((m) => ({ default: m.SettingsCurrency })));
+const SettingsUnits = lazy(() => import('./admin/SettingsStoreExtras').then((m) => ({ default: m.SettingsUnits })));
+const SettingsDomain = lazy(() => import('./admin/SettingsStoreExtras').then((m) => ({ default: m.SettingsDomain })));
+const SettingsLanguages = lazy(() => import('./admin/SettingsStoreExtras').then((m) => ({ default: m.SettingsLanguages })));
+const SettingsNotifications = lazy(() => import('./admin/SettingsStoreExtras').then((m) => ({ default: m.SettingsNotifications })));
 const SettingsSecurity = lazy(() => import('./admin/SettingsSecurity'));
 const SettingsLegal = lazy(() => import('./admin/SettingsPages').then((m) => ({ default: m.SettingsLegal })));
 const SettingsEmail = lazy(() => import('./admin/SettingsEmail'));
@@ -104,8 +108,8 @@ const SettingsReviews = lazy(() => import('./admin/SettingsReviews'));
 const SettingsLoyalty = lazy(() => import('./admin/SettingsLoyalty'));
 const SettingsSearch = lazy(() => import('./admin/SettingsSearch'));
 const SettingsReserved = lazy(() => import('./admin/settings/SettingsReserved'));
-const AdminReserved = lazy(() => import('./admin/AdminReserved'));
 const Inbox = lazy(() => import('./admin/Inbox'));
+const CODRecon = lazy(() => import('./admin/CODRecon'));
 const SearchAnalytics = lazy(() => import('./admin/SearchAnalytics'));
 /* Marketing screens: lazy so none of this reaches a shopper's bundle. */
 const Promotions = lazy(() => import('./admin/Promotions'));
@@ -187,16 +191,21 @@ function Tracker() {
 
 // Global shield — any per-page JS error no longer blanks the entire site
 class ErrorBoundary extends Component {
-  constructor(props) { super(props); this.state = { crashed: false }; }
-  static getDerivedStateFromError() { return { crashed: true }; }
+  constructor(props) { super(props); this.state = { crashed: false, err: null }; }
+  static getDerivedStateFromError(err) { return { crashed: true, err }; }
   componentDidCatch(e, info) { console.error('UI crash:', e, info); }
   render() {
     if (this.state.crashed) {
       return (
         <div className="grid min-h-screen place-items-center bg-alabaster px-6" role="alert">
-          <div className="panel w-full max-w-sm p-8 text-center">
+          <div className="panel w-full max-w-md p-8 text-center">
             <p className="font-display text-h4 tracking-widest2">HUSHAE</p>
-            <p className="mt-3 text-body-sm leading-relaxed">Something went wrong on this page. Please reload — it should recover. If the problem continues, contact our support team.</p>
+            <p className="mt-3 text-body-sm leading-relaxed">Something went wrong on this page. Please reload — it should recover.</p>
+            {this.state.err && (
+              <pre className="mt-4 max-h-40 overflow-auto rounded border border-red-200 bg-red-50 p-3 text-left text-[11px] text-red-800" style={{ whiteSpace: 'pre-wrap' }}>
+                {String(this.state.err.message || this.state.err)}
+              </pre>
+            )}
             <button onClick={() => window.location.reload()} className="btn-primary mt-5 w-full">Reload page</button>
           </div>
         </div>
@@ -285,6 +294,7 @@ export default function App() {
 
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/inbox" element={<Suspense fallback={<EditorFallback />}><Inbox /></Suspense>} />
+          <Route path="/admin/cod-recon" element={<Suspense fallback={<EditorFallback />}><CODRecon /></Suspense>} />
           <Route path="/admin/inbox/:tab" element={<Suspense fallback={<EditorFallback />}><Inbox /></Suspense>} />
           <Route path="/admin" element={<Suspense fallback={<EditorFallback />}><Overview /></Suspense>} />
           <Route path="/admin/dashboard" element={<Suspense fallback={<EditorFallback />}><Dashboard /></Suspense>} />
@@ -298,18 +308,20 @@ export default function App() {
           <Route path="/admin/ops/risk" element={<Suspense fallback={<EditorFallback />}><CommerceOps start="risk" /></Suspense>} />
           <Route path="/admin/orders/new" element={<Suspense fallback={<EditorFallback />}><DraftOrder /></Suspense>} />
           <Route path="/admin/orders-legacy" element={<Orders />} />
+          {/* Legacy order-list paths now live inside the desk's tabs. */}
+          <Route path="/admin/orders/pending" element={<Navigate to="/admin/orders?group=new" replace />} />
+          <Route path="/admin/orders/processing" element={<Navigate to="/admin/orders?group=processing" replace />} />
+          <Route path="/admin/orders/fulfillment" element={<Navigate to="/admin/orders?group=to-ship" replace />} />
+          <Route path="/admin/orders/shipped" element={<Navigate to="/admin/orders?group=shipped" replace />} />
+          <Route path="/admin/orders/delivered" element={<Navigate to="/admin/orders?group=delivered" replace />} />
+          <Route path="/admin/orders/cancelled" element={<Navigate to="/admin/orders?group=issues" replace />} />
+          <Route path="/admin/orders/returns" element={<Navigate to="/admin/orders?group=issues" replace />} />
+          <Route path="/admin/orders/refunds" element={<Navigate to="/admin/orders?group=issues" replace />} />
+          <Route path="/admin/orders/issues" element={<Navigate to="/admin/verification-queue" replace />} />
           <Route path="/admin/orders/:id" element={<OrderDetail />} />
           <Route path="/admin/orders/:id/invoice" element={<OrderInvoice />} />
           <Route path="/admin/orders/:id/print/:doc" element={<Suspense fallback={<EditorFallback />}><OrderPrintDoc /></Suspense>} />
           <Route path="/admin/products" element={<Products />} />
-          {/* Products area — one home per concept (PRODUCTS-AREA-SPEC.md):
-              real homes redirect, unbuilt editors get an honest pane. 404 kabhi nahi. */}
-          <Route path="/admin/products/inventory" element={<Navigate to="/admin/ops/inventory" replace />} />
-          <Route path="/admin/products/bundles" element={<Navigate to="/admin/bundles" replace />} />
-          <Route path="/admin/products/import" element={<Navigate to="/admin/products?import=1" replace />} />
-          <Route path="/admin/products/attributes" element={<Suspense fallback={<EditorFallback />}><AdminReserved /></Suspense>} />
-          <Route path="/admin/products/digital" element={<Suspense fallback={<EditorFallback />}><AdminReserved /></Suspense>} />
-          <Route path="/admin/products/settings" element={<Suspense fallback={<EditorFallback />}><AdminReserved /></Suspense>} />
           <Route path="/admin/products/:id" element={<ProductForm />} />
           <Route path="/admin/categories" element={<Categories />} />
           <Route path="/admin/customers" element={<Customers />} />
@@ -390,10 +402,10 @@ export default function App() {
           <Route path="/admin/settings/address" element={<SettingsBusinessAddress />} />
           <Route path="/admin/settings/timezone" element={<SettingsTimezone />} />
           <Route path="/admin/settings/currency" element={<SettingsCurrency />} />
-          <Route path="/admin/settings/units" element={<Suspense fallback={<EditorFallback />}><SettingsReserved /></Suspense>} />
-          <Route path="/admin/settings/domain" element={<Suspense fallback={<EditorFallback />}><SettingsReserved /></Suspense>} />
-          <Route path="/admin/settings/languages" element={<Suspense fallback={<EditorFallback />}><SettingsReserved /></Suspense>} />
-          <Route path="/admin/settings/notifications" element={<Suspense fallback={<EditorFallback />}><SettingsReserved /></Suspense>} />
+          <Route path="/admin/settings/units" element={<Suspense fallback={<EditorFallback />}><SettingsUnits /></Suspense>} />
+          <Route path="/admin/settings/domain" element={<Suspense fallback={<EditorFallback />}><SettingsDomain /></Suspense>} />
+          <Route path="/admin/settings/languages" element={<Suspense fallback={<EditorFallback />}><SettingsLanguages /></Suspense>} />
+          <Route path="/admin/settings/notifications" element={<Suspense fallback={<EditorFallback />}><SettingsNotifications /></Suspense>} />
           <Route path="/admin/settings/metafields" element={<Suspense fallback={<EditorFallback />}><SettingsReserved /></Suspense>} />
           <Route path="/admin/settings/metaobjects" element={<Suspense fallback={<EditorFallback />}><SettingsReserved /></Suspense>} />
           <Route path="/admin/settings/custom-fields" element={<Suspense fallback={<EditorFallback />}><SettingsReserved /></Suspense>} />
