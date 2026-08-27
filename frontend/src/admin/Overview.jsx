@@ -868,8 +868,15 @@ export default function Overview() {
       )}
       {createPortal(
         <>
-          {/* Notifications — real alerts */}
-          <div className={cx(styles.modal, notifOpen && styles.show)} onClick={(e) => { if (e.target === e.currentTarget) setNotifOpen(false); }}>
+          {/* Notifications — real alerts. The overlay geometry is inlined
+             (not just in the CSS module) so no stylesheet conflict or
+             ancestor quirk can demote it: it must always be a fixed,
+             full-viewport layer above the sidebar (z-40). */}
+          <div
+            className={cx(styles.modal, notifOpen && styles.show)}
+            style={{ position: 'fixed', inset: 0, zIndex: 10000 }}
+            onClick={(e) => { if (e.target === e.currentTarget) setNotifOpen(false); }}
+          >
             <div className={styles['modal-box']} style={{ maxWidth: 460 }}>
               <h3>Notifications</h3>
               {alerts.length === 0 ? (

@@ -94,7 +94,6 @@ const NAV_SECTIONS = [
       { to: '/admin', label: 'Dashboard', icon: LayoutTemplate, end: true },
       { to: '/admin/analytics', label: 'Analytics Hub', icon: BarChart3 },
     ],
-    defaultVisible: true,
   },
   {
     label: 'INBOX',
@@ -106,7 +105,6 @@ const NAV_SECTIONS = [
       { to: '/admin/inbox/payments', label: 'Payment Alerts', icon: CreditCard },
       { to: '/admin/inbox/system', label: 'System Notifications', icon: ShieldCheck },
     ],
-    defaultVisible: true,
   },
   {
     label: 'COMMERCE',
@@ -164,7 +162,6 @@ const NAV_SECTIONS = [
         ],
       },
     ],
-    defaultVisible: true,
   },
   {
     label: 'STOREFRONT',
@@ -265,7 +262,6 @@ const NAV_SECTIONS = [
         ],
       },
     ],
-    defaultVisible: false,
   },
   {
     label: 'GROWTH',
@@ -326,7 +322,6 @@ const NAV_SECTIONS = [
         ],
       },
     ],
-    defaultVisible: false,
   },
   {
     label: 'OPERATIONS',
@@ -395,7 +390,6 @@ const NAV_SECTIONS = [
         ],
       },
     ],
-    defaultVisible: false,
   },
   {
     label: 'CHANNELS',
@@ -437,7 +431,6 @@ const NAV_SECTIONS = [
         ],
       },
     ],
-    defaultVisible: false,
   },
   {
     label: 'APPS & INTEGRATIONS',
@@ -460,7 +453,6 @@ const NAV_SECTIONS = [
       { to: '/admin/sync-history', label: 'Sync History', icon: FileSpreadsheet },
       { to: '/admin/integration-logs', label: 'Integration Logs', icon: FileText },
     ],
-    defaultVisible: false,
   },
   {
     label: 'SETTINGS',
@@ -634,7 +626,6 @@ const NAV_SECTIONS = [
         ],
       },
     ],
-    defaultVisible: false,
   },
 ];
 
@@ -879,7 +870,6 @@ function SidebarContent({ onNavigate, onSearch, collapsed = false }) {
   const { auth, logout } = useApp();
   const loc = useLocation();
   const [expandedGroups, setExpandedGroups] = useState({});
-  const [showAdvanced, setShowAdvanced] = useState(false);
 
   const role = auth?.user?.role;
   /* Memoised by role — a fresh array every render made the auto-expand effect
@@ -892,9 +882,6 @@ function SidebarContent({ onNavigate, onSearch, collapsed = false }) {
         return section.items?.some((i) => !i.requires || roleHasAccess(role, i.requires));
       })
     : NAV_SECTIONS), [role]);
-
-  const defaultSections = visibleSections.filter((s) => s.defaultVisible);
-  const advancedSections = visibleSections.filter((s) => !s.defaultVisible);
 
   const toggleGroup = (groupKey) => {
     setExpandedGroups((prev) => ({ ...prev, [groupKey]: !prev[groupKey] }));
@@ -925,8 +912,10 @@ function SidebarContent({ onNavigate, onSearch, collapsed = false }) {
   const initials = (name) =>
     (name || 'A').trim().split(/\s+/).map((s) => s[0]).slice(0, 2).join('').toUpperCase();
 
-  /* One section renderer for both the always-visible block and the Advanced
-     block — they were two copies of the same markup before. */
+  /* Every section renders directly. The old "Advanced" collapse hid
+     Storefront / Growth / Operations / Channels / Apps / Settings behind a
+     toggle, so they read as missing navigation — the boss must not have to
+     hunt for them. */
   const renderSection = (section) => (
     <div key={section.label} className="adm-section">
       <SectionHeader label={section.label} collapsed={collapsed} />
@@ -948,28 +937,10 @@ function SidebarContent({ onNavigate, onSearch, collapsed = false }) {
 
   const sections = collapsed ? (
     <div className="adm-railstack">
-      {defaultSections.map(renderSection)}
-      {showAdvanced && advancedSections.map(renderSection)}
+      {visibleSections.map(renderSection)}
     </div>
   ) : (
-    <>
-      {defaultSections.map(renderSection)}
-      {advancedSections.length > 0 && (
-        <div className="adm-adv">
-          <button
-            type="button"
-            onClick={() => setShowAdvanced((v) => !v)}
-            className={`adm-row ${showAdvanced ? 'is-active' : ''}`}
-            aria-expanded={showAdvanced}
-          >
-            <span className="adm-ico"><Settings size={16} strokeWidth={1.5} /></span>
-            <span className="adm-txt">Advanced</span>
-            <ChevronDown size={14} strokeWidth={1.5} className={`adm-chev ${showAdvanced ? 'is-open' : ''}`} />
-          </button>
-          {showAdvanced && advancedSections.map(renderSection)}
-        </div>
-      )}
-    </>
+    visibleSections.map(renderSection)
   );
 
   return (
