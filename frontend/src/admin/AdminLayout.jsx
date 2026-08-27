@@ -847,6 +847,7 @@ function TopBar({ title, auth, onCmdK, onMenu, onToggleSidebar, collapsed }) {
   const createRef = useRef(null);
 
   const storeOpen = settings?.storefrontLock?.enabled !== true;
+  const onSettings = loc.pathname.startsWith('/admin/settings');
 
   const toggleDark = () => {
     const next = !darkMode;
@@ -895,25 +896,29 @@ function TopBar({ title, auth, onCmdK, onMenu, onToggleSidebar, collapsed }) {
 
   return (
     <header className="adm-topbar">
-      <button
-        type="button"
-        onClick={onMenu}
-        className="adm-iconbtn md:hidden"
-        aria-label="Open menu"
-        title="Open menu"
-      >
-        <Menu size={18} strokeWidth={1.5} />
-      </button>
+      {!onSettings && (
+        <button
+          type="button"
+          onClick={onMenu}
+          className="adm-iconbtn md:hidden"
+          aria-label="Open menu"
+          title="Open menu"
+        >
+          <Menu size={18} strokeWidth={1.5} />
+        </button>
+      )}
 
-      <button
-        type="button"
-        onClick={onToggleSidebar}
-        aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-        title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-        className="adm-iconbtn hidden md:grid"
-      >
-        {collapsed ? <PanelRightOpen size={16} strokeWidth={1.5} /> : <PanelLeftClose size={16} strokeWidth={1.5} />}
-      </button>
+      {!onSettings && (
+        <button
+          type="button"
+          onClick={onToggleSidebar}
+          aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          className="adm-iconbtn hidden md:grid"
+        >
+          {collapsed ? <PanelRightOpen size={16} strokeWidth={1.5} /> : <PanelLeftClose size={16} strokeWidth={1.5} />}
+        </button>
+      )}
 
       <div className="min-w-0 flex-1">
         {crumb && <p className="adm-crumb">{crumb}</p>}
@@ -1013,6 +1018,10 @@ export default function AdminLayout({ children, title }) {
 
   const openSearch = () => setCmdOpen(true);
 
+  /* The settings console is its own page with its own rail — the main admin
+     sidebar, drawer and content offset all step aside there. */
+  const onSettings = loc.pathname.startsWith('/admin/settings');
+
   // Apply admin theme
   useEffect(() => {
     applyAdminTheme();
@@ -1064,13 +1073,15 @@ export default function AdminLayout({ children, title }) {
 
   return (
     <div className="admin-shell flex min-h-screen">
-      {/* ===== SIDEBAR — DESKTOP ===== */}
-      <aside className={`adm-sidebar ${collapsed ? 'is-rail' : ''}`} aria-label="Admin sidebar">
-        <SidebarContent onNavigate={() => {}} onSearch={openSearch} collapsed={collapsed} />
-      </aside>
+      {/* ===== SIDEBAR — DESKTOP (hidden on the settings console) ===== */}
+      {!onSettings && (
+        <aside className={`adm-sidebar ${collapsed ? 'is-rail' : ''}`} aria-label="Admin sidebar">
+          <SidebarContent onNavigate={() => {}} onSearch={openSearch} collapsed={collapsed} />
+        </aside>
+      )}
 
       {/* ===== MOBILE DRAWER ===== */}
-      {drawer && (
+      {!onSettings && drawer && (
         <>
           <div className="adm-scrim md:hidden" onClick={() => setDrawer(false)} aria-hidden="true" />
           <div className="adm-drawer md:hidden" role="dialog" aria-modal="true" aria-label="Admin menu">
@@ -1090,7 +1101,7 @@ export default function AdminLayout({ children, title }) {
       )}
 
       {/* ===== MAIN ===== */}
-      <div className={`admin-main-offset flex min-h-screen min-w-0 flex-1 flex-col ${collapsed ? 'is-rail' : 'is-open'}`}>
+      <div className={`admin-main-offset flex min-h-screen min-w-0 flex-1 flex-col ${onSettings ? '' : collapsed ? 'is-rail' : 'is-open'}`}>
         <TopBar
           title={title}
           auth={auth}

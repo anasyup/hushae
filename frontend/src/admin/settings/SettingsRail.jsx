@@ -1,4 +1,5 @@
 import { NavLink } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import { SETTINGS_GROUPS } from './settingsNav';
 
 /* ============================================================================
@@ -13,6 +14,10 @@ import { SETTINGS_GROUPS } from './settingsNav';
 export default function SettingsRail() {
   return (
     <nav className="set-rail" aria-label="Settings">
+      <NavLink to="/admin" className="set-back" title="Back to admin">
+        <ArrowLeft size={14} strokeWidth={1.5} />
+        <span>Admin</span>
+      </NavLink>
       <p className="adm-eyebrow set-title">Settings</p>
       {SETTINGS_GROUPS.map((group) => (
         <div key={group.label} className="adm-section">
