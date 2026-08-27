@@ -32,7 +32,7 @@
    system. They were hardcoded twice before (aside w-64 + main md:pl-64),
    which is how they drift. Both sides read these two numbers. */
 .admin-shell {
-  --adm-sidebar-w: 244px;
+  --adm-sidebar-w: 224px;
   --adm-rail-w: 56px;
   --adm-topbar-h: 52px;
   /* Shell-local text colours. Every one of them has a dark value in
@@ -57,7 +57,7 @@
 /* Dark shell: same structure, inverted ink. The dark sidebar sits a shade
    above the page so the split reads without a border doing all the work. */
 .dark-admin .admin-shell {
-  --adm-sidebar-w: 244px;
+  --adm-sidebar-w: 224px;
   --adm-rail-w: 56px;
   /* --admin-sidebar is #0D0D0F, one step off the #09090B page — too close to
      read as a split. Lift the rail one surface step instead. */
@@ -493,7 +493,7 @@
   inset-block: 0;
   left: 0;
   z-index: 51;
-  width: min(86vw, 280px);
+  width: min(86vw, 264px);
   background: var(--adm-sidebar-bg);
   border-right: 1px solid var(--admin-border);
 }

@@ -92,7 +92,6 @@ const NAV_SECTIONS = [
     icon: Home,
     items: [
       { to: '/admin', label: 'Dashboard', icon: LayoutTemplate, end: true },
-      { to: '/admin/analytics', label: 'Analytics Hub', icon: BarChart3 },
     ],
   },
   {
