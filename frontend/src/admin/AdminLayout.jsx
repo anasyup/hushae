@@ -99,17 +99,6 @@ const NAV_SECTIONS = [
     ],
   },
   {
-    label: 'INBOX',
-    icon: Bell,
-    items: [
-      { to: '/admin/inbox', label: 'All Messages', icon: MessageSquare },
-      { to: '/admin/inbox/unread', label: 'Unread', icon: Bell },
-      { to: '/admin/inbox/orders', label: 'Order Alerts', icon: ShoppingCart },
-      { to: '/admin/inbox/payments', label: 'Payment Alerts', icon: CreditCard },
-      { to: '/admin/inbox/system', label: 'System Notifications', icon: ShieldCheck },
-    ],
-  },
-  {
     label: 'COMMERCE',
     icon: ShoppingBag,
     groups: [

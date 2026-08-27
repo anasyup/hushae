@@ -1,8 +1,19 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AlertTriangle, Bell, CheckCheck, CreditCard, Package, PackageX, Printer } from 'lucide-react';
-import { api } from '../../api/client';
+import {
+  Bell, Package, CreditCard, Printer, Layers, AlertTriangle, Star, HelpCircle, TrendingDown,
+} from 'lucide-react';
 import { useApp } from '../../store/AppContext';
+import { api } from '../../api/client';
+import { ago } from '../../lib/format';
+
+/* ============================================================================
+ * NOTIFICATION BELL — the admin's live alert surface.
+ *
+ * The bell is deliberately calm: eight most-recent alerts, a severity dot,
+ * one-line bodies, and a "View all" door into the full Inbox. History and
+ * triage live on /admin/inbox — the dropdown never becomes a traffic jam.
+ * ========================================================================== */
 
 const ICON = {
   'order.created': Package,
@@ -12,43 +23,40 @@ const ICON = {
   'payment.expired': CreditCard,
   'issue.raised': AlertTriangle,
   'print.done': Printer,
-  'bulk.done': CheckCheck,
-};
-const TONE = {
-  danger: 'bg-white/12 text-white',
-  warning: 'bg-white/8 text-white/85',
-  success: 'bg-white/12 text-white',
-  info: 'bg-white/5 text-white/70',
+  'bulk.done': Layers,
+  'stock.low': TrendingDown,
+  'review.new': Star,
+  'question.new': HelpCircle,
 };
 
-const ago = (d) => {
-  const s = Math.floor((Date.now() - new Date(d)) / 1000);
-  if (s < 60) return 'just now';
-  if (s < 3600) return `${Math.floor(s / 60)}m ago`;
-  if (s < 86400) return `${Math.floor(s / 3600)}h ago`;
-  return `${Math.floor(s / 86400)}d ago`;
+const DOT = {
+  info: 'var(--adm-label)',
+  success: '#10b981',
+  warning: '#f59e0b',
+  danger: '#ef4444',
 };
 
-/** The topbar bell — a real feed backed by /api/notifications. */
 export default function NotificationBell() {
   const { auth } = useApp();
   const nav = useNavigate();
-  const [open, setOpen] = useState(false);
-  const [data, setData] = useState({ items: [], unread: 0 });
-  const [busy, setBusy] = useState(false);
   const ref = useRef(null);
+  const [open, setOpen] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [data, setData] = useState({ items: [], unread: 0 });
 
   const load = async () => {
-    if (!auth?.token) return;
-    try { setData(await api('/notifications?limit=15', { token: auth.token })); } catch { /* silent */ }
+    try {
+      const d = await api('/notifications?limit=8', { token: auth?.token });
+      setData({ items: d.items || [], unread: d.unread || 0 });
+    } catch { /* the bell never shouts about itself */ }
   };
 
-  useEffect(() => { load(); }, [auth?.token]); // eslint-disable-line
   useEffect(() => {
     if (!auth?.token) return undefined;
+    load();
     const t = setInterval(load, 60000);
     return () => clearInterval(t);
-  }, [auth?.token]); // eslint-disable-line
+  }, [auth?.token]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!open) return undefined;
@@ -69,64 +77,74 @@ export default function NotificationBell() {
   const openItem = async (n) => {
     setOpen(false);
     if (!n.read) {
-      api('/notifications/read', { method: 'POST', token: auth.token, body: { id: n.id } })
-        .then(load).catch(() => {});
+      try { await api('/notifications/read', { method: 'POST', token: auth.token, body: { id: n.id } }); }
+      catch { /* silent */ }
     }
     if (n.link) nav(n.link);
+  };
+
+  const viewAll = () => {
+    setOpen(false);
+    nav('/admin/inbox');
   };
 
   return (
     <div className="relative" ref={ref}>
       <button
+        type="button"
         onClick={() => setOpen((v) => !v)}
         className="tb-icon"
         aria-label={`Notifications${data.unread ? ` — ${data.unread} unread` : ''}`}
+        title="Notifications"
+        aria-expanded={open}
       >
         <Bell size={14} strokeWidth={1.8} />
-        {data.unread > 0 && (
-          <span className="tb-badge">
-            {data.unread > 9 ? '9+' : data.unread}
-          </span>
-        )}
+        {data.unread > 0 && <span className="tb-badge">{data.unread > 9 ? '9+' : data.unread}</span>}
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full z-30 mt-2 w-80 overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-xl">
-          <div className="flex items-center justify-between border-b border-neutral-100 px-4 py-3">
-            <p className="text-[12px] font-bold uppercase tracking-widest text-neutral-500">
+        <div className="nb-panel" role="dialog" aria-label="Notifications">
+          <div className="nb-head">
+            <p className="nb-title">
               Notifications{data.unread > 0 ? ` · ${data.unread} new` : ''}
             </p>
             {data.unread > 0 && (
-              <button onClick={markAll} disabled={busy}
-                className="text-[12px] font-semibold text-neutral-500 transition hover:text-neutral-900 disabled:opacity-50">
-                Mark all as read
+              <button type="button" onClick={markAll} disabled={busy} className="nb-act">
+                {busy ? 'Marking…' : 'Mark all read'}
               </button>
             )}
           </div>
 
-          <div className="max-h-96 overflow-y-auto">
+          <div className="nb-list">
             {data.items.length === 0 ? (
-              <p className="py-10 text-center text-[12px] text-neutral-400">You&apos;re all caught up.</p>
+              <p className="nb-empty">You’re all caught up.</p>
             ) : data.items.map((n) => {
-              const Icon = ICON[n.type] || PackageX;
+              const Icon = ICON[n.type] || Package;
               return (
                 <button
+                  type="button"
                   key={n.id}
                   onClick={() => openItem(n)}
-                  className={`flex w-full items-start gap-3 border-b border-neutral-50 px-4 py-3 text-left transition last:border-0 hover:bg-neutral-50 ${n.read ? '' : 'bg-white/5'}`}
+                  className={`nb-row ${n.read ? 'read' : ''}`}
                 >
-                  <span className={`mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-lg ${TONE[n.severity] || TONE.info}`}>
-                    <Icon size={13} />
-                  </span>
+                  <span className="nb-dot" style={{ background: DOT[n.severity] || DOT.info }} aria-hidden="true" />
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate text-[12px] font-semibold text-neutral-900">{n.title}</span>
-                    {n.body && <span className="mt-0.5 block line-clamp-2 text-[13px] leading-snug text-neutral-500">{n.body}</span>}
-                    <span className="mt-1 block text-[12px] text-neutral-400">{ago(n.at)}</span>
+                    <span className="nb-t flex items-center gap-2">
+                      <Icon size={13} strokeWidth={1.6} className="shrink-0 opacity-70" />
+                      <span className="truncate">{n.title}</span>
+                    </span>
+                    {n.body && <span className="nb-b">{n.body}</span>}
+                    <span className="nb-at">{ago(n.at)}</span>
                   </span>
-                  {!n.read && <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-white" />}
                 </button>
               );
             })}
+          </div>
+
+          <div className="nb-foot">
+            <button type="button" onClick={viewAll} className="nb-act">
+              View all in Inbox →
+            </button>
           </div>
         </div>
       )}

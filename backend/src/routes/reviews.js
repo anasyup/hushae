@@ -5,6 +5,7 @@ const Product = require('../models/Product');
 const Order = require('../models/Order');
 const crypto = require('crypto');
 const { protect, adminOnly, optionalAuth } = require('../middleware/auth');
+const flow = require('../utils/orderFlow');
 
 /* Merchant policy, with defaults identical to models/Settings.js. */
 const REVIEW_DEFAULTS = {
@@ -230,6 +231,13 @@ router.post('/', optionalAuth, asyncHandler(async (req, res) => {
   });
 
   if (policy.autoApprove) await recalcProduct(b.productId);
+
+  flow.notify({
+    type: 'review.new', severity: 'info',
+    title: `New ${rating}-star review — ${String(b.customerName).slice(0, 40)}`,
+    body: body.slice(0, 120),
+    link: '/admin/reviews',
+  }).catch(() => {});
 
   res.status(201).json({
     review,

@@ -1,6 +1,7 @@
 const express = require('express');
 const crypto = require('crypto');
 const { asyncHandler } = require('../utils/helpers');
+const flow = require('../utils/orderFlow');
 const Question = require('../models/Question');
 const { protect, adminOnly, optionalAuth } = require('../middleware/auth');
 const rateLimit = require('../middleware/rateLimit');
@@ -74,6 +75,13 @@ router.post('/', askLimit, optionalAuth, asyncHandler(async (req, res) => {
   if (!b.productId) return res.status(400).json({ message: 'Missing product' });
   if (body.length < 10) return res.status(400).json({ field: 'body', message: 'Please write at least 10 characters' });
   if (name.length < 2) return res.status(400).json({ field: 'customerName', message: 'Please enter your name' });
+
+  flow.notify({
+    type: 'question.new', severity: 'info',
+    title: `New product question — ${name.slice(0, 40)}`,
+    body: body.slice(0, 120),
+    link: '/admin/questions',
+  }).catch(() => {});
 
   const question = await Question.create({
     product: b.productId,

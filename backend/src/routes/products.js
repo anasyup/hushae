@@ -2,6 +2,7 @@ const express = require('express');
 const Product = require('../models/Product');
 const { protect, adminOnly } = require('../middleware/auth');
 const { asyncHandler, slugify } = require('../utils/helpers');
+const flow = require('../utils/orderFlow');
 
 const router = express.Router();
 
@@ -349,8 +350,20 @@ router.patch('/:id/stock', protect, adminOnly, asyncHandler(async (req, res) => 
   } else {
     return res.status(400).json({ message: 'Provide stock or delta' });
   }
+  const before = await Product.findById(req.params.id).select('stock name').lean();
   const p = await Product.findOneAndUpdate({ _id: req.params.id }, update, { new: true }).select('_id stock name');
   if (!p) return res.status(404).json({ message: 'Product not found' });
+  /* Alert only on the downward crossing of the low-stock line — adjusting
+     an already-low product again must not re-ring the bell. */
+  const LOW = 5;
+  if (before && before.stock > LOW && p.stock <= LOW) {
+    flow.notify({
+      type: 'stock.low', severity: 'warning',
+      title: `Low stock — ${p.name}`,
+      body: `${p.stock} left (was ${before.stock})`,
+      link: '/admin/products',
+    }).catch(() => {});
+  }
   res.json({ product: p });
 }));
 

@@ -13,6 +13,7 @@ const notificationSchema = new mongoose.Schema({
     enum: [
       'order.created', 'order.status', 'payment.received', 'payment.expiring',
       'payment.expired', 'issue.raised', 'print.done', 'bulk.done',
+      'stock.low', 'review.new', 'question.new',
     ],
     required: true,
     index: true,
