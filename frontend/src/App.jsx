@@ -122,6 +122,7 @@ const Navigation = lazy(() => import('./admin/Navigation'));
 const AdminLoyalty = lazy(() => import('./admin/Loyalty'));
 const AdminQuestions = lazy(() => import('./admin/Questions'));
 const Dashboard = lazy(() => import('./admin/Dashboard'));
+const Overview = lazy(() => import('./admin/Overview'));
 const Analytics = lazy(() => import('./admin/Analytics'));
 const Insights = lazy(() => import('./admin/Insights'));
 const Finance = lazy(() => import('./admin/Finance'));
@@ -277,7 +278,8 @@ export default function App() {
           <Route path="/journal/:slug" element={<BlogPost />} />
 
           <Route path="/admin/login" element={<AdminLogin />} />
-          <Route path="/admin" element={<Suspense fallback={<EditorFallback />}><Dashboard /></Suspense>} />
+          <Route path="/admin" element={<Suspense fallback={<EditorFallback />}><Overview /></Suspense>} />
+          <Route path="/admin/dashboard" element={<Suspense fallback={<EditorFallback />}><Dashboard /></Suspense>} />
           <Route path="/admin/live" element={<LiveView />} />
           <Route path="/admin/orders" element={<Suspense fallback={<EditorFallback />}><OrdersDesk /></Suspense>} />
           <Route path="/admin/verification-queue" element={<Suspense fallback={<EditorFallback />}><VerificationQueue /></Suspense>} />
