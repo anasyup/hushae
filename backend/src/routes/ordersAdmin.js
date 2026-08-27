@@ -369,7 +369,6 @@ router.get('/counts', protect, adminOnly, asyncHandler(async (req, res) => {
   const rows = await Order.find(base).select('stage status paymentMethod paymentState paymentStatus total').lean();
 
   const byStage = {}; const byGroup = {}; const byMethod = {}; const byPaymentState = {};
-  const byStatus = {};
   let revenue = 0;
   for (const o of rows) {
     const stage = o.stage && flow.STAGE_MAP.has(o.stage) ? o.stage : flow.stageFromLegacy(o);
@@ -379,13 +378,9 @@ router.get('/counts', protect, adminOnly, asyncHandler(async (req, res) => {
     byGroup[group] = (byGroup[group] || 0) + 1;
     byMethod[o.paymentMethod] = (byMethod[o.paymentMethod] || 0) + 1;
     byPaymentState[pState] = (byPaymentState[pState] || 0) + 1;
-    // Coarse workflow status — lets the desk tabs show the same number the
-    // status filter they set actually returns.
-    const st = o.status || 'Pending';
-    byStatus[st] = (byStatus[st] || 0) + 1;
     revenue += o.total || 0;
   }
-  res.json({ total: rows.length, revenue, byStage, byGroup, byMethod, byPaymentState, byStatus });
+  res.json({ total: rows.length, revenue, byStage, byGroup, byMethod, byPaymentState });
 }));
 
 /* ── FACETS (cities) for the filter UI ────────────────────────────────────── */

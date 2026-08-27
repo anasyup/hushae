@@ -2,14 +2,14 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Chart from 'chart.js/auto';
 import { Link, useNavigate } from 'react-router-dom';
 import {
-  Bell, Check, ChevronDown, Download, Keyboard, Loader2,
+  Bell, Check, ChevronDown, Download, DollarSign, Keyboard, Loader2,
   Plus, RefreshCcw, Search, X,
 } from 'lucide-react';
 import AdminLayout from '../AdminLayout';
 import { pkr } from '../../lib/format';
 import { useApp } from '../../store/AppContext';
 import { api } from '../../api/client';
-import { GROUPS, PAYMENT_STATES, SORT_OPTIONS, ISSUE_TYPES, REFUND_STATES } from './orderConstants';
+import { PAYMENT_METHODS, PAYMENT_STATES, SORT_OPTIONS, ISSUE_TYPES, REFUND_STATES } from './orderConstants';
 import { useOrderDesk, useOrderNotifications } from './useOrderDesk';
 import OrderFilters from './OrderFilters';
 import BulkBar from './BulkBar';
@@ -36,29 +36,12 @@ import s from './adesk.module.css';
  * =========================================================================== */
 
 const cx = (...cls) => cls.filter(Boolean).join('');
-
-/* Reference filter chip: `Label  value ▾` with the real <select> laid over it
-   invisibly, so keyboard + screen readers still get a native control. */
-function Chip({ label, raw, value, onChange, children, title }) {
-  return (
-    <label className={s.filter} title={title || label}>
-      <span className={s.fLabel}>{label}</span>
-      <span className={s.filterVal}>{value}</span>
-      <ChevronDown size={11} className={s.chev} aria-hidden />
-      <select className={s.filterSel} value={raw} aria-label={label} onChange={(e) => onChange(e.target.value)}>
-        {children}
-      </select>
-    </label>
-  );
-}
 const int = (v) => (v == null ? '—' : Number(v).toLocaleString('en-US'));
-/* Amount for a 1/6-width tile: full rupees below 100k, compact above, so the
-   figure never gets cut off by the cell. */
-const moneyTile = (v) => {
+const compact = (v) => {
   const n = Number(v) || 0;
-  if (n >= 1e7) return `₨${(n / 1e7).toFixed(2)} Cr`;
-  if (n >= 1e5) return `₨${(n / 1e5).toFixed(2)} Lac`;
-  return pkr(n);
+  if (n >= 1e6) return `₨${(n / 1e6).toFixed(1)}M`;
+  if (n >= 1e3) return `₨${Math.round(n / 1e3)}K`;
+  return `₨${Math.round(n)}`;
 };
 const iso = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 const shift = (dateStr, days) => {
@@ -68,27 +51,14 @@ const shift = (dateStr, days) => {
 };
 const shortDate = (str) => (str ? new Date(`${str}T00:00:00`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '');
 
-const ORDER_STATUSES = ['Pending', 'Confirmed', 'Processing', 'Ready to Ship', 'Shipped',
-  'Out for Delivery', 'Delivered', 'Cancelled', 'Refunded'];
-
-/* Tiles and tabs speak `status` (the coarse workflow field the API filters).
-   `count` prefers byStatus — the number that matches the filter — and falls
-   back to the pipeline groups on an API that predates byStatus. */
-const BUCKETS = [
-  { key: 'all', label: 'All Orders', status: '', count: (c) => c.total, bucket: () => true },
-  { key: 'pending', label: 'Pending', status: 'Pending', count: (c) => c.byStatus?.Pending ?? c.byGroup?.new, bucket: (o) => o.status === 'Pending' },
-  { key: 'processing', label: 'Processing', status: 'Processing,Confirmed',
-    count: (c) => (c.byStatus?.Processing ?? 0) + (c.byStatus?.Confirmed ?? 0) || c.byGroup?.processing,
-    bucket: (o) => ['Processing', 'Confirmed'].includes(o.status) },
-  { key: 'completed', label: 'Completed', status: 'Delivered,Out for Delivery,Shipped',
-    count: (c) => (c.byStatus?.Delivered ?? 0) + (c.byStatus?.['Out for Delivery'] ?? 0) + (c.byStatus?.Shipped ?? 0) || c.byGroup?.delivered,
-    bucket: (o) => ['Delivered', 'Out for Delivery', 'Shipped'].includes(o.status) },
-  { key: 'cancelled', label: 'Cancelled', status: 'Cancelled,Refunded',
-    count: (c) => (c.byStatus?.Cancelled ?? 0) + (c.byStatus?.Refunded ?? 0) || c.byGroup?.issues,
-    bucket: (o) => ['Cancelled', 'Refunded'].includes(o.status) },
+/** Tiles and tabs speak `status` (the coarse workflow field the API filters). */
+const TABS = [
+  { key: 'all', label: 'All Orders', status: '' },
+  { key: 'pending', label: 'Pending', status: 'Pending' },
+  { key: 'processing', label: 'Processing', status: 'Processing' },
+  { key: 'completed', label: 'Completed', status: 'Delivered' },
+  { key: 'cancelled', label: 'Cancelled', status: 'Cancelled' },
 ];
-const TABS = BUCKETS.map(({ key, label, status }) => ({ key, label, status }));
-const BUCKET = Object.fromEntries(BUCKETS.map((b) => [b.key, b]));
 
 const STAT_ICONS = {
   total: <><rect x="1" y="4" width="22" height="17" rx="2" /><line x1="1" y1="10" x2="23" y2="10" /></>,
@@ -99,14 +69,15 @@ const STAT_ICONS = {
 };
 
 /** Build the six tiles: value, real delta vs a real second window, spark. */
-function buildTiles(counts, prev, series, cmpWindow) {
+function buildTiles(counts, prev, series) {
   const c = counts || {};
   const p = prev || {};
   const g = c.byGroup || {}; const pg = p.byGroup || {};
   const ps = c.byPaymentState || {}; const pps = p.byPaymentState || {};
+  const paid = (ps.Confirmed || 0) + (ps.Verified || 0);
+  const pPaid = (pps.Confirmed || 0) + (pps.Verified || 0);
   const pct = (cur, pre) => (pre ? ((cur - pre) / pre) * 100 : null);
   const rows = series.rows || [];
-  const winLabel = series.daily && series.daily.length > 1 ? `${series.daily.length}-day trend` : 'in view';
   const byDay = (pred) => {
     const map = new Map();
     rows.forEach((o) => {
@@ -115,36 +86,23 @@ function buildTiles(counts, prev, series, cmpWindow) {
       map.set(k, (map.get(k) || 0) + 1);
     });
     const days = [...map.keys()].sort().slice(-14);
-    return days.length > 1 ? days.map((d) => map.get(d)) : [];
+    return days.map((d) => map.get(d));
   };
-  const daily = series.daily || [];
-  const tile = (key, extra = {}) => {
-    const b = BUCKET[key === 'revenue' ? 'all' : key];
-    const cur = b ? Number(b.count(c) || 0) : null;
-    const pre = b && p.total != null ? Number(b.count(p) || 0) : null;
-    return {
-      key, label: b?.label ?? key, icon: STAT_ICONS[key], value: int(cur),
-      series: key === 'total' && daily.length > 1 ? daily.map((d) => d.orders || 0) : byDay(b?.bucket), tab: key,
-      change: cur != null && pre != null ? pct(cur, pre) : null,
-      vs: cmpWindow ? cmpWindow.label : winLabel,
-      ...extra,
-    };
-  };
+  const st = (s) => (o) => (o.status || '') === s;
 
   return [
-    { ...tile('total'), value: int(c.total) },
-    tile('pending'),
-    tile('processing'),
-    tile('completed'),
-    tile('cancelled', { downIsGood: true }),
-    {
-      key: 'revenue', label: 'Revenue', icon: null, tab: null, money: true,
-      value: c.revenue != null ? moneyTile(c.revenue) : '—',
-      series: series.revenue,
-      change: c.revenue != null && p.revenue != null ? pct(c.revenue, p.revenue) : null,
-      vs: cmpWindow ? cmpWindow.label : 'in view',
-      note: `${int(ps.Pending || 0)} unverified · ${int(g.issues || 0)} open issues`,
-    },
+    { key: 'total', label: 'Total Orders', icon: STAT_ICONS.total, value: int(c.total), series: byDay(null),
+      change: c.total != null && p.total != null ? pct(c.total, p.total) : null, tab: 'all' },
+    { key: 'pending', label: 'Pending', icon: STAT_ICONS.pending, value: int(g.new || 0), series: byDay(st('Pending')),
+      change: pct(g.new || 0, pg.new || 0), tab: 'pending' },
+    { key: 'processing', label: 'Processing', icon: STAT_ICONS.processing, value: int((g.processing || 0) + (g['to-ship'] || 0)), series: byDay((o) => ['Processing', 'Confirmed'].includes(o.status)),
+      change: pct((g.processing || 0) + (g['to-ship'] || 0), (pg.processing || 0) + (pg['to-ship'] || 0)), tab: 'processing' },
+    { key: 'completed', label: 'Completed', icon: STAT_ICONS.completed, value: int(g.delivered || 0), series: byDay((o) => ['Delivered', 'Out for Delivery', 'Shipped'].includes(o.status)),
+      change: pct(g.delivered || 0, pg.delivered || 0), tab: 'completed' },
+    { key: 'cancelled', label: 'Cancelled', icon: STAT_ICONS.cancelled, value: int(g.issues || 0), series: byDay((o) => ['Cancelled', 'Refunded'].includes(o.status)),
+      change: pct(g.issues || 0, pg.issues || 0), downIsGood: true, tab: 'cancelled' },
+    { key: 'revenue', label: 'Revenue', icon: null, value: c.revenue != null ? pkr(c.revenue) : '—', series: series.revenue,
+      change: c.revenue != null && p.revenue != null ? pct(c.revenue, p.revenue) : null, tab: null, money: true },
   ];
 }
 
@@ -201,7 +159,7 @@ export default function OrdersDesk() {
   const [sugOpen, setSugOpen] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
   const [prev, setPrev] = useState(null);
-  const [series, setSeries] = useState({ rows: [], revenue: [], daily: [] });
+  const [series, setSeries] = useState({ rows: [], revenue: [] });
   const [recent, setRecent] = useState(() => {
     try { return JSON.parse(localStorage.getItem('hushae.orderSearches') || '[]'); } catch { return []; }
   });
@@ -291,17 +249,6 @@ export default function OrdersDesk() {
   }, [sugOpen, rangeOpen]);
 
   /* ── comparison window + sparkline sample (both real, both optional) ─ */
-  /* Filter signature without paging/sort — page turns must not re-fetch the
-     comparison window or the 200-row sparkline sample. */
-  const sampleQuery = useMemo(() => {
-    const p = new URLSearchParams();
-    Object.entries(filters).forEach(([k, v]) => {
-      if (v === '' || v === undefined || k === 'page' || k === 'limit' || k === 'sort') return;
-      p.set(k, v);
-    });
-    return p.toString();
-  }, [filters]);
-
   const cmpWindow = useMemo(() => {
     if (!filters.from || !filters.to) return null;
     const from = new Date(`${filters.from}T00:00:00`);
@@ -317,34 +264,36 @@ export default function OrdersDesk() {
 
   useEffect(() => {
     if (!token) { setPrev(null); return; }
-    const params = new URLSearchParams(sampleQuery);
+    const params = new URLSearchParams();
+    Object.entries(filters).forEach(([k, v]) => { if (v !== '' && k !== 'page') params.set(k, v); });
     if (cmpWindow) { params.set('from', cmpWindow.from); params.set('to', cmpWindow.to); }
     let alive = true;
     api(`/orders/manage/counts?${params}`, { token }).then((d) => { if (alive) setPrev(d); }).catch(() => { if (alive) setPrev(null); });
     return () => { alive = false; };
-  }, [token, sampleQuery, cmpWindow]);
+  }, [token, filters, cmpWindow]);
 
   useEffect(() => {
-    if (!token) { setSeries({ rows: [], revenue: [], daily: [] }); return; }
-    const ranged = Boolean(filters.from && filters.to);
-    const params = new URLSearchParams(sampleQuery);
-    if (!ranged) {
-      // 'All time' would make a 14-day sparkline a lie, so the trend line is
-      // measured over the last two weeks while the numbers stay all-time.
-      params.set('from', shift(iso(new Date()), -13));
-      params.set('to', iso(new Date()));
-    }
+    if (!token) { setSeries({ rows: [], revenue: [] }); return; }
+    const params = new URLSearchParams();
+    Object.entries(filters).forEach(([k, v]) => { if (v !== '' && k !== 'page') params.set(k, v); });
+    params.set('limit', '200');
+    params.set('sort', 'newest');
     let alive = true;
-    Promise.all([
-      api('/orders/manage?limit=200&sort=newest', { token }).then((d) => (d && d.orders) || []).catch(() => []),
-      api(`/orders/insights/dashboard?${params}`, { token }).catch(() => null),
-    ]).then(([rows, ins]) => {
-      if (!alive) return;
-      const daily = (ins && ins.daily) || [];
-      setSeries({ rows, daily, revenue: daily.map((d) => d.revenue || 0) });
-    });
+    api(`/orders/manage?${params}`, { token })
+      .then((d) => {
+        if (!alive) return;
+        const rows = d.orders || [];
+        const map = new Map();
+        rows.forEach((o) => {
+          const k = new Date(o.createdAt).toISOString().slice(0, 10);
+          map.set(k, (map.get(k) || 0) + (o.total || 0));
+        });
+        const days = [...map.keys()].sort().slice(-14);
+        setSeries({ rows, revenue: days.map((day) => map.get(day)) });
+      })
+      .catch(() => { if (alive) setSeries({ rows: [], revenue: [] }); });
     return () => { alive = false; };
-  }, [token, sampleQuery, filters.from, filters.to]);
+  }, [token, filters]);
 
   /* ── live search ───────────────────────────────────────────────────── */
   const remember = (value) => {
@@ -374,16 +323,15 @@ export default function OrdersDesk() {
   }, [suggestions]);
 
   /* ── tiles, tabs, drill ────────────────────────────────────────────── */
-  const tiles = useMemo(() => buildTiles(counts, prev, series, cmpWindow), [counts, prev, series, cmpWindow]);
+  const tiles = useMemo(() => buildTiles(counts, prev, series), [counts, prev, series]);
   const drill = useMemo(() => buildDrill(activeStat, counts, orders), [activeStat, counts, orders]);
-  const off = (v) => !v || v === 'all';
   const isTabOn = (t) => (filters.status || '') === t.status
-    && off(filters.group) && !filters.stage && !filters.preset;
+    && !filters.group && !filters.stage && !filters.preset;
 
   const applyTab = (t) => {
     setFilter({
       status: t.status, group: 'all', stage: '', preset: '',
-      paymentState: t.key === 'pending' ? 'Pending' : 'all',
+      paymentState: t.status === 'pending' ? 'Pending' : filters.paymentState,
     });
   };
   const toggleTile = (tile) => {
@@ -447,8 +395,8 @@ export default function OrdersDesk() {
   const rangeLabel = filters.from || filters.to
     ? `${shortDate(filters.from) || '…'} – ${shortDate(filters.to) || 'today'}`
     : 'All time';
-  const shownFrom = data.total ? (data.page - 1) * Number(filters.limit || 10) + 1 : 0;
-  const shownTo = Math.min(data.total || 0, (data.page - 1) * Number(filters.limit || 10) + orders.length);
+  const shownFrom = data.total ? (data.page - 1) * Number(filters.limit || 50) + 1 : 0;
+  const shownTo = Math.min(data.total || 0, (data.page - 1) * Number(filters.limit || 50) + orders.length);
   const activeTabLabel = TABS.find(isTabOn)?.label || 'All Orders';
 
   return (
@@ -593,7 +541,7 @@ export default function OrdersDesk() {
                   title={`${st.label} — click to narrow the table`}>
                   <div className={s.statHead}>
                     {st.money
-                      ? <span className={s.moneyChip} aria-hidden>₨</span>
+                      ? <span style={{ width: 18, height: 18, border: '1px solid #efefef', borderRadius: 6, display: 'grid', placeItems: 'center', background: '#fafafa', fontSize: 10, color: 'var(--muted)' }}><DollarSign size={10} /></span>
                       : <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>{st.icon}</svg>}
                     {st.label}
                   </div>
@@ -602,14 +550,12 @@ export default function OrdersDesk() {
                     <div>
                       {ch != null
                         ? <><div className={cx(s.statChange, (down !== st.downIsGood) && down && s.down)} style={!down && st.downIsGood ? { color: 'var(--green)' } : undefined}>{down ? '↓' : '↑'} {Math.abs(ch).toFixed(1)}%</div>
-                          <div className={s.statVs}>{st.vs}</div></>
-                        : <div className={s.statVs}>{loading ? 'Loading…' : st.note || st.vs}</div>}
+                          <div className={s.statVs}>{cmpWindow ? cmpWindow.label.replace(/^vs /, 'vs ') : 'vs previous window'}</div></>
+                        : <div className={s.statVs}>{loading ? 'Loading…' : 'No comparison range'}</div>}
                     </div>
-                    {(st.series || []).length > 1 && (st.series || []).some((n) => n > 0) && (
-                      <span className={s.spark} title="Orders per day for this metric, from the rows loaded in this view" aria-hidden>
-                        <canvas data-ord-spark={st.series.join(',')} />
-                      </span>
-                    )}
+                    <span className={s.spark} title="Daily counts for this metric across the orders loaded in this view" aria-hidden>
+                      <canvas data-ord-spark={(st.series || []).join(',')} />
+                    </span>
                   </div>
                 </button>
               );
@@ -656,18 +602,23 @@ export default function OrdersDesk() {
                     className={cx(s.tab, isTabOn(t) ? s.tabOn : s.tabIdle)}
                     onClick={() => applyTab(t)}>
                     {t.label}
-                    {counts && (() => {
-                      const n = BUCKET[t.key].count(counts);
-                      return n != null ? <span className={s.tabCount}>{int(n)}</span> : null;
-                    })()}
+                    {t.key === 'all' && counts?.total != null && <span className={s.tabCount}>{int(counts.total)}</span>}
+                    {t.key !== 'all' && counts?.byGroup && (
+                      <span className={s.tabCount}>
+                        {int(t.key === 'pending' ? counts.byGroup.new
+                          : t.key === 'processing' ? (counts.byGroup.processing || 0) + (counts.byGroup['to-ship'] || 0)
+                            : t.key === 'completed' ? counts.byGroup.delivered
+                              : counts.byGroup.issues)}
+                      </span>
+                    )}
                   </button>
                 ))}
               </div>
               <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
                 <button type="button" className={cx(s.btnSm, moreOpen && s.btnOn)} aria-expanded={moreOpen} onClick={() => setMoreOpen((v) => !v)}>
-                  Filter{activeFilterCount > 0 ? ` · ${activeFilterCount}` : ''}
+                  Filter {activeFilterCount > 0 && `· ${activeFilterCount}`}
                 </button>
-                <button type="button" className={s.btnSm} onClick={exportCsv}><Download size={11} /> Export</button>
+                <button type="button" className={s.btnSm} onClick={exportCsv}>Export</button>
                 <button type="button" className={s.btnSm} onClick={() => reload()} aria-label="Refresh">
                   {loading ? <Loader2 size={11} className="animate-spin" /> : <RefreshCcw size={11} />}
                 </button>
@@ -683,35 +634,22 @@ export default function OrdersDesk() {
                   onKeyDown={(e) => { if (e.key === 'Enter') applyTerm(term.trim()); }}
                   placeholder="Search orders..." aria-label="Search orders" autoComplete="off" />
               </div>
-              {(() => {
-                const gLabel = (GROUPS.find((g) => g.key === filters.group) || {}).label || 'All';
-                const pLabel = filters.paymentState === 'all' ? 'All'
-                  : (PAYMENT_STATES.find((p) => p.key === filters.paymentState) || {}).label || filters.paymentState;
-                const sLabel = (SORT_OPTIONS.find((so) => so.key === filters.sort)?.label || 'Sort').replace(/ \(default\)/, '');
-                return (
-                  <>
-                    <Chip label="Status" raw={filters.status} value={filters.status || 'All'}
-                      title="Exact status — overrides the tab above"
-                      onChange={(v) => setFilter({ status: v, group: 'all', stage: '', preset: '' })}>
-                      <option value="">All</option>
-                      {ORDER_STATUSES.map((st) => <option key={st} value={st}>{st}</option>)}
-                    </Chip>
-                    <Chip label="Payment" raw={filters.paymentState} value={pLabel}
-                      onChange={(v) => setFilter({ paymentState: v })}>
-                      <option value="all">All</option>
-                      {PAYMENT_STATES.map((p) => <option key={p.key} value={p.key}>{p.label}</option>)}
-                    </Chip>
-                    <Chip label="Fulfillment" raw={filters.group} value={filters.group === 'all' ? 'All' : gLabel}
-                      onChange={(v) => setFilter({ group: v, stage: '', status: '', preset: '' })}>
-                      {GROUPS.map((g) => <option key={g.key} value={g.key}>{g.label}</option>)}
-                    </Chip>
-                    <Chip label="Sort" raw={filters.sort} value={sLabel}
-                      onChange={(v) => setFilter({ sort: v })}>
-                      {SORT_OPTIONS.map((so) => <option key={so.key} value={so.key}>{so.label}</option>)}
-                    </Chip>
-                  </>
-                );
-              })()}
+              <select className={s.filter} value={filters.status} aria-label="Status"
+                onChange={(e) => setFilter({ status: e.target.value, group: 'all', stage: '', preset: '' })}>
+                <option value="">All</option>
+                {['Pending', 'Confirmed', 'Processing', 'Ready to Ship', 'Shipped', 'Out for Delivery', 'Delivered', 'Cancelled', 'Refunded'].map((st) => <option key={st} value={st}>{st}</option>)}
+              </select>
+              <select className={s.filter} value={filters.paymentState} aria-label="Payment" onChange={(e) => setFilter({ paymentState: e.target.value })}>
+                <option value="all">All</option>
+                {PAYMENT_STATES.map((p) => <option key={p.key} value={p.key}>{p.label}</option>)}
+              </select>
+              <select className={s.filter} value={filters.paymentMethod} aria-label="Fulfilment / method" onChange={(e) => setFilter({ paymentMethod: e.target.value })}>
+                <option value="all">All</option>
+                {PAYMENT_METHODS.map((mm) => <option key={mm} value={mm}>{mm}</option>)}
+              </select>
+              <select className={s.filter} value={filters.sort} aria-label="Sort" onChange={(e) => setFilter({ sort: e.target.value })}>
+                {SORT_OPTIONS.map((so) => <option key={so.key} value={so.key}>{so.label}</option>)}
+              </select>
               <div style={{ display: 'flex', gap: 6, marginLeft: 'auto' }}>
                 <button type="button" className={s.btnSm} onClick={() => { resetFilters(); setActiveStat(null); setTerm(''); }}>Clear</button>
                 <button type="button" className={cx(s.btnSm, s.btnPrimary)} onClick={() => { setSugOpen(false); setMoreOpen(false); toast?.('Filters applied'); }}>Apply</button>
@@ -786,7 +724,7 @@ export default function OrdersDesk() {
                         <th scope="col">Payment</th>
                         <th scope="col">Fulfillment</th>
                         <th scope="col">Total</th>
-                        <th scope="col">Actions</th>
+                        <th scope="col" style={{ textAlign: 'right' }}>Actions</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -812,6 +750,7 @@ export default function OrdersDesk() {
             <div className={s.deskFoot}>
               <span>
                 {data.total > 0 ? `Showing ${shownFrom} to ${shownTo} of ${int(data.total)} results` : 'Nothing to show'}
+                {counts?.total != null && filters.status === '' && ` · ${int(counts.total)} all orders`}
                 {loading ? ' · refreshing' : ''}
               </span>
               <div className={s.pagWrap}>
