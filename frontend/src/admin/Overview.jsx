@@ -217,11 +217,14 @@ export default function Overview() {
     const timers = [];
     const after = (ms, fn) => timers.push(setTimeout(fn, ms));
     const charts = [];
-    const chart = (cfg) => charts.push(new Chart(cfg));
+    const chart = (id, cfg) => {
+      const el = document.getElementById(id);
+      if (el) charts.push(new Chart(el, cfg));
+    };
 
     /* Sparklines */
     const spark = (id, data) =>
-      chart({
+      chart(id, {
         type: 'line',
         data: { labels: data.map((_, i) => i), datasets: [{ data, borderColor: pal.main, borderWidth: 1.4, pointRadius: 0, tension: 0.4, fill: false }] },
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { enabled: false } }, scales: { x: { display: false }, y: { display: false } }, elements: { point: { radius: 0 } }, animation: { duration: 1000, easing: 'easeOutQuart' } },
@@ -234,7 +237,7 @@ export default function Overview() {
     spark('spark6', [10, 14, 8, 12, 6, 10, 14, 8, 12, 10, 6, 12]);
 
     /* Sales Overview (two lines) */
-    chart({
+    chart('salesOverview', {
       type: 'line',
       data: {
         labels: ['May 20', 'May 21', 'May 22', 'May 23', 'May 24', 'May 25', 'May 26'],
@@ -255,14 +258,14 @@ export default function Overview() {
     });
 
     /* Sales by Channel (doughnut) */
-    chart({
+    chart('salesChannel', {
       type: 'doughnut',
       data: { labels: ['Online Store', 'Mobile App', 'Marketplace', 'Others'], datasets: [{ data: [69.6, 16.8, 8.7, 4.7], backgroundColor: [pal.main, pal.g2, pal.g3, pal.g4], borderWidth: 0, hoverOffset: 5 }] },
       options: { cutout: '70%', animation: { animateRotate: true, duration: 1300, easing: 'easeOutQuart' }, plugins: { legend: { display: false }, tooltip: { backgroundColor: pal.tooltip, padding: 8, cornerRadius: 8, displayColors: false } }, responsive: true, maintainAspectRatio: false },
     });
 
     /* Revenue & Orders (bar, kept as instance for the tab switch) */
-    revChartInstance = new Chart({
+    revChartInstance = document.getElementById('revChart') && new Chart(document.getElementById('revChart'), {
       type: 'bar',
       data: {
         labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
@@ -279,17 +282,17 @@ export default function Overview() {
         },
       },
     });
-    charts.push(revChartInstance);
+    if (revChartInstance) charts.push(revChartInstance);
 
     /* Orders Status (doughnut) */
-    chart({
+    chart('ordersDonut', {
       type: 'doughnut',
       data: { datasets: [{ data: [65, 20, 10, 5], backgroundColor: [pal.main, pal.d2, pal.d3, pal.d4], borderWidth: 0, hoverOffset: 4 }] },
       options: { cutout: '70%', animation: { duration: 1200, easing: 'easeOutQuart' }, plugins: { legend: { display: false }, tooltip: { backgroundColor: pal.tooltip } }, responsive: true, maintainAspectRatio: false },
     });
 
     /* Customer Overview (line) */
-    chart({
+    chart('custChart', {
       type: 'line',
       data: {
         labels: Array(12).fill(''),
