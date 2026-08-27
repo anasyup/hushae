@@ -124,6 +124,7 @@ router.put('/', protect, adminOnly, asyncHandler(async (req, res) => {
     'monthlyRevenueGoal', 'marginThresholdPercent', 'automation',
     'includeTestOrders', 'reorderTargetStock',
     'businessAddress', 'currency', 'timezone',
+    'units', 'domain', 'languages', 'notificationPrefs',
     'marketing'].forEach((f) => {
     if (b[f] !== undefined) s[f] = b[f];
   });
@@ -138,6 +139,10 @@ router.put('/', protect, adminOnly, asyncHandler(async (req, res) => {
   try { require('../utils/searchEngine').invalidateSettingsCache(); } catch { /* optional */ }
   try { require('../utils/promotionEngine').invalidateCache(); } catch { /* optional */ }
   try { require('../utils/cmsEngine').invalidateCache(); } catch { /* optional */ }
+  /* Notification prefs + primary domain are cached at their read sites
+     (orderFlow / seo). Drop both so a save takes effect within seconds. */
+  try { require('../utils/orderFlow').invalidatePrefsCache(); } catch { /* optional */ }
+  try { require('../routes/seo').invalidateDomainCache(); } catch { /* optional */ }
   res.json({ settings: s });
 }));
 

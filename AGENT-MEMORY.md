@@ -51,11 +51,12 @@
 ## 5. BACKEND notification events (live)
 `OrderNotification` model + `flow.notify()` in `backend/src/utils/orderFlow.js`.
 Firing: order.created, order.status, payment.*, issue.raised, print.done, bulk.done, **stock.low** (crossing <=5 downward only), **review.new**, **question.new**. API: GET `/api/notifications?limit=`, POST `/api/notifications/read {id|all}` (adminOnly).
+**Merchant control:** Settings → Notifications (`notificationPrefs`) gates `notify()` per event — disabled events are dropped before insert (see §7B).
 
 ## 6. CURRENT STATE — what exists / what is reserved
-- **Built & live:** storefront, cart/checkout, orders desk, Overview dashboard, products/customers, promotions, settings editors (store, payments, shipping, checkout, accounts, security, taxes, legal-placeholder, loyalty, email, search, cart, reviews, experience, **business address, time zone, currency**), theme editor, CMS, blog, backup.
+- **Built & live:** storefront, cart/checkout, orders desk, Overview dashboard, products/customers, promotions, settings editors (store, payments, shipping, checkout, accounts, security, taxes, legal-placeholder, loyalty, email, search, cart, reviews, experience, **business address, time zone, currency, weight unit, domain, languages, notifications**), theme editor, CMS, blog, backup.
 - **New (2026-08-28, two sessions merged):** Store Settings group complete. Editors live in `frontend/src/admin/SettingsAddress.jsx` (SettingsBusinessAddress / SettingsTimezone / SettingsCurrency). Model: `businessAddress` (legalName, ntn, street, city, province, postalCode, country), `currency` (code, symbol, position, decimalSeparator, thousandSeparator — default symbol 'PKR' keeps legacy price output byte-identical), top-level `timezone` (default Asia/Karachi). Time Zone editor ALSO syncs `marketing.schedule.timezone` (promotions scheduling) — single source. **Critical fixes added by this session:** PUT whitelist in `routes/settings.js` now includes businessAddress/currency/timezone/**marketing** (marketing was missing → MarketingSettings saves were silently dropped — pre-existing bug); storefront wiring — `lib/format.js` `applyCurrencySettings()` drives every `pkr()` price (AppContext syncs on settings change; untouched defaults = legacy "PKR 1,250"); footer renders business address as one quiet line once any field is filled; `loyaltyConfig.earnRateText` follows currency too.
-- **Reserved (route live, editor unbuilt — SettingsReserved):** units, domain, languages, notifications, metafields/metaobjects/custom-fields, billing/* (8), delete, migration, retention, system-status, error-logs, maintenance, api, webhooks, developer, flags, cache, config.
+- **Reserved (route live, editor unbuilt — SettingsReserved):** metafields/metaobjects/custom-fields, billing/* (8), delete, migration, retention, system-status, error-logs, maintenance, api, webhooks, developer, flags, cache, config.
 - **Still dead by origin (pre-existing, NOT broken by us):** ~200 nav routes like /admin/inbox-old-links (now tabs), channels/*, many integrations. Inbox links ab real tabs hain.
 - **Analytics Hub duplicate removed on boss order** — /admin/analytics sirf GROWTH > Analytics > Overview se.
 
@@ -77,8 +78,16 @@ Firing: order.created, order.status, payment.*, issue.raised, print.done, bulk.d
   Phase 3 baqi: COD call checklist, courier COD reconciliation, SLA timers.
 
 ## 7. APPROVED NEXT WORK (boss ne green light di)
-1. **Reserved settings editors — DONE (2026-08-28):** Business Address, Time Zone, Currency built, tested, live. Store Settings group complete.
-2. **Next candidates (boss decide kare):** a) baki reserved editors — units, domain, languages, notifications; b) Team & Roles (settings rail me routes already hain); c) Inbox per-row action buttons (optional polish).
+1. **Reserved settings editors batch 1 — DONE (2026-08-28):** Business Address, Time Zone, Currency built, tested, live.
+2. **Reserved settings editors batch 2 — DONE (2026-08-28):** Weight Unit, Domain, Languages, Notifications built, tested, live — Store Settings group ab FULLY complete (10/10 children real editors).
+3. **Next candidates (boss decide kare):** a) Team & Roles (settings rail me routes already hain); b) Inbox per-row action buttons (optional polish); c) Custom Data group (metafields/metaobjects/custom-fields); d) storefront weight display (PDP pe formatWeight helper — units setting ready hai).
+
+## 7B. SETTINGS BATCH 2 — architecture notes (session 2026-08-28 #3)
+- Editors: `frontend/src/admin/SettingsStoreExtras.jsx` (SettingsUnits / SettingsDomain / SettingsLanguages / SettingsNotifications), same useSettingsSlice + Shell pattern as SettingsAddress.jsx. Lazy imports in App.jsx; SettingsReserved sirf baqi routes ke liye.
+- Model: `units` (weight g|kg default g — products weightGrams me store, unit sirf display; dimension cm|in), `domain` (primary + useForSeo), `languages` (default en, enabled [en] — storefront English-only by brand direction; editor honest hai, fake language switching nahi), `notificationPrefs` (9 event toggles, sab default true = legacy behaviour byte-identical).
+- **Backend wiring:** `orderFlow.notify()` ab `notificationPrefs` gate hai — TYPE_PREF_KEY map + payment.* prefix; unknown types kabhi gate nahi hote; 60s cache + `invalidatePrefsCache()` (settings PUT se drop). `routes/seo.js` baseUrl() ab async — `domain.useForSeo` ON ho to cleaned primary domain canonical/sitemap me, warna request host (unconnected domain indexing kabhi nahi tor sakta); 60s cache + `invalidateDomainCache()`. OrderNotification.type enum hai — naye event types add karne ho to enum + TYPE_PREF_KEY dono jagah.
+- PUT whitelist: units, domain, languages, notificationPrefs (marketing wale bug ka sabak — naya key whitelist me lazmi).
+- QA: in-memory Mongo tests — model defaults, default prefs = sab fire, disabled prefs drop, payment.* prefix, whitelist, robots.txt useForSeo on/off + domain sanitise. Sab pass.
 
 ## 8. HOUSE RULES (code)
 - CSS specificity: shell styles Tailwind ke BAAD load hoti hain → kisi bhi class me `display` seedha mat likho jo responsive hide honi ho; `:where()` use karo.
@@ -87,4 +96,4 @@ Firing: order.created, order.status, payment.*, issue.raised, print.done, bulk.d
 - SSR scratch harness (`frontend/.scratch`) se sidebar/header render verify hota hai; kaam ke baad delete.
 
 ---
-*Last updated: 2026-08-28 — Business Address / Time Zone / Currency editors live (Store Settings group complete, two sessions merged) + marketing whitelist bug fix. Nayi chat: pehle ye file, phir `git log --oneline -10`, phir kaam.*
+*Last updated: 2026-08-28 — Batch 2: Weight Unit / Domain / Languages / Notifications editors live → Store Settings group fully complete. notify() prefs gate + seo domain wiring + whitelist, sab tested. Nayi chat: pehle ye file, phir `git log --oneline -10`, phir kaam.*
