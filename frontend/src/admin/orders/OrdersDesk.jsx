@@ -2,14 +2,14 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Chart from 'chart.js/auto';
 import { Link, useNavigate } from 'react-router-dom';
 import {
-  Bell, Check, CheckCircle2, ChevronDown, Download, Filter, Keyboard, Loader2,
-  Plus, RefreshCcw, Search, X, XCircle,
+  Bell, Check, ChevronDown, Download, Keyboard, Loader2,
+  Plus, RefreshCcw, Search, X,
 } from 'lucide-react';
 import AdminLayout from '../AdminLayout';
 import { pkr } from '../../lib/format';
 import { useApp } from '../../store/AppContext';
 import { api } from '../../api/client';
-import { GROUPS, PAYMENT_METHODS, PAYMENT_STATES, SORT_OPTIONS, ISSUE_TYPES, REFUND_STATES } from './orderConstants';
+import { GROUPS, PAYMENT_STATES, SORT_OPTIONS, ISSUE_TYPES, REFUND_STATES } from './orderConstants';
 import { useOrderDesk, useOrderNotifications } from './useOrderDesk';
 import OrderFilters from './OrderFilters';
 import BulkBar from './BulkBar';
@@ -75,110 +75,17 @@ const ORDER_STATUSES = ['Pending', 'Confirmed', 'Processing', 'Ready to Ship', '
    `count` prefers byStatus — the number that matches the filter — and falls
    back to the pipeline groups on an API that predates byStatus. */
 const BUCKETS = [
-  { key: 'all', label: 'All Orders', status: '', count: (c) => c?.total, bucket: () => true },
-  { key: 'pending', label: 'Pending', status: 'Pending', count: (c) => c?.byStatus?.Pending ?? c?.byGroup?.new, bucket: (o) => o.status === 'Pending' },
+  { key: 'all', label: 'All Orders', status: '', count: (c) => c.total, bucket: () => true },
+  { key: 'pending', label: 'Pending', status: 'Pending', count: (c) => c.byStatus?.Pending ?? c.byGroup?.new, bucket: (o) => o.status === 'Pending' },
   { key: 'processing', label: 'Processing', status: 'Processing,Confirmed',
-    count: (c) => (c?.byStatus?.Processing ?? 0) + (c?.byStatus?.Confirmed ?? 0) || c?.byGroup?.processing,
+    count: (c) => (c.byStatus?.Processing ?? 0) + (c.byStatus?.Confirmed ?? 0) || c.byGroup?.processing,
     bucket: (o) => ['Processing', 'Confirmed'].includes(o.status) },
   { key: 'completed', label: 'Completed', status: 'Delivered,Out for Delivery,Shipped',
-    count: (c) => (c?.byStatus?.Delivered ?? 0) + (c?.byStatus?.['Out for Delivery'] ?? 0) + (c?.byStatus?.Shipped ?? 0) || c?.byGroup?.delivered,
+    count: (c) => (c.byStatus?.Delivered ?? 0) + (c.byStatus?.['Out for Delivery'] ?? 0) + (c.byStatus?.Shipped ?? 0) || c.byGroup?.delivered,
     bucket: (o) => ['Delivered', 'Out for Delivery', 'Shipped'].includes(o.status) },
   { key: 'cancelled', label: 'Cancelled', status: 'Cancelled,Refunded',
-    count: (c) => (c?.byStatus?.Cancelled ?? 0) + (c?.byStatus?.Refunded ?? 0) || c?.byGroup?.issues,
+    count: (c) => (c.byStatus?.Cancelled ?? 0) + (c.byStatus?.Refunded ?? 0) || c.byGroup?.issues,
     bucket: (o) => ['Cancelled', 'Refunded'].includes(o.status) },
-  { key: 'shipped', label: 'Shipped', status: 'Shipped',
-    count: (c) => c?.byStatus?.Shipped ?? c?.byGroup?.shipped,
-    bucket: (o) => o.status === 'Shipped' },
-  { key: 'delivered', label: 'Delivered', status: 'Delivered',
-    count: (c) => c?.byStatus?.Delivered ?? c?.byGroup?.delivered,
-    bucket: (o) => o.status === 'Delivered' },
-];
-
-const STRUCTURE_PILLS = [
-  {
-    key: 'all',
-    label: 'All Orders',
-    count: (c, d) => c?.total ?? d?.total ?? 0,
-    isOn: (f) => (!f.preset || f.preset === 'all') && (!f.status || f.status === '') && (f.group === 'all' || !f.group) && (f.paymentState === 'all' || !f.paymentState),
-    apply: () => ({ group: 'all', status: '', preset: '', paymentState: 'all', stage: '', paymentMethod: 'all' }),
-  },
-  {
-    key: 'draft',
-    label: 'Draft Orders',
-    count: (c) => c?.byGroup?.draft ?? c?.drafts ?? 0,
-    isOn: (f) => f.preset === 'draft' || f.group === 'draft',
-    apply: () => ({ preset: 'draft', group: 'all', status: '', stage: '', paymentState: 'all' }),
-  },
-  {
-    key: 'abandoned',
-    label: 'Abandoned',
-    count: (c) => c?.abandoned ?? 0,
-    isOn: (f) => f.preset === 'abandoned',
-    apply: () => ({ preset: 'abandoned', group: 'all', status: '', stage: '', paymentState: 'all' }),
-  },
-  {
-    key: 'pending_payment',
-    label: 'Pending Payment',
-    count: (c) => c?.byPaymentState?.Pending ?? 0,
-    isOn: (f) => f.paymentState === 'Pending',
-    apply: () => ({ paymentState: 'Pending', status: '', group: 'all', stage: '', preset: '' }),
-  },
-  {
-    key: 'processing',
-    label: 'Processing',
-    count: (c) => (c?.byStatus?.Processing ?? 0) + (c?.byStatus?.Confirmed ?? 0) || c?.byGroup?.processing || 0,
-    isOn: (f) => f.status === 'Processing,Confirmed' || f.status === 'Processing',
-    apply: () => ({ status: 'Processing,Confirmed', group: 'all', stage: '', paymentState: 'all', preset: '' }),
-  },
-  {
-    key: 'fulfillment',
-    label: 'Fulfillment',
-    count: (c) => (c?.byGroup?.['to-ship'] ?? 0) || (c?.byStage?.['Packed'] ?? 0) || 0,
-    isOn: (f) => f.group === 'to-ship',
-    apply: () => ({ group: 'to-ship', status: '', stage: '', paymentState: 'all', preset: '' }),
-  },
-  {
-    key: 'shipped',
-    label: 'Shipped',
-    count: (c) => c?.byStatus?.Shipped ?? (c?.byGroup?.shipped ?? 0),
-    isOn: (f) => f.status === 'Shipped',
-    apply: () => ({ status: 'Shipped', group: 'all', stage: '', paymentState: 'all', preset: '' }),
-  },
-  {
-    key: 'delivered',
-    label: 'Delivered',
-    count: (c) => c?.byStatus?.Delivered ?? (c?.byGroup?.delivered ?? 0),
-    isOn: (f) => f.status === 'Delivered',
-    apply: () => ({ status: 'Delivered', group: 'all', stage: '', paymentState: 'all', preset: '' }),
-  },
-  {
-    key: 'cancelled',
-    label: 'Cancelled',
-    count: (c) => c?.byStatus?.Cancelled ?? (c?.byGroup?.issues ?? 0),
-    isOn: (f) => f.status === 'Cancelled',
-    apply: () => ({ status: 'Cancelled', group: 'all', stage: '', paymentState: 'all', preset: '' }),
-  },
-  {
-    key: 'returns',
-    label: 'Returns',
-    count: (c) => c?.byStage?.Returned ?? (c?.byStatus?.Returned ?? 0),
-    isOn: (f) => f.status === 'Returned' || f.stage === 'Returned',
-    apply: () => ({ status: 'Returned', group: 'all', stage: '', paymentState: 'all', preset: '' }),
-  },
-  {
-    key: 'refunds',
-    label: 'Refunds',
-    count: (c) => c?.byStage?.Refunded ?? (c?.byStatus?.Refunded ?? 0),
-    isOn: (f) => f.status === 'Refunded' || f.stage === 'Refunded',
-    apply: () => ({ status: 'Refunded', group: 'all', stage: '', paymentState: 'all', preset: '' }),
-  },
-  {
-    key: 'payment_issues',
-    label: 'Payment Issues',
-    count: (c) => (c?.byPaymentState?.Failed ?? 0) + (c?.byPaymentState?.Expired ?? 0),
-    isOn: (f) => f.paymentState === 'Failed,Expired',
-    apply: () => ({ paymentState: 'Failed,Expired', group: 'all', status: '', stage: '', preset: '' }),
-  },
 ];
 const TABS = BUCKETS.map(({ key, label, status }) => ({ key, label, status }));
 const BUCKET = Object.fromEntries(BUCKETS.map((b) => [b.key, b]));
@@ -470,21 +377,14 @@ export default function OrdersDesk() {
   const tiles = useMemo(() => buildTiles(counts, prev, series, cmpWindow), [counts, prev, series, cmpWindow]);
   const drill = useMemo(() => buildDrill(activeStat, counts, orders), [activeStat, counts, orders]);
   const off = (v) => !v || v === 'all';
-  const isTabOn = (t) => {
-    if (t.key === 'all') {
-      return (!filters.status || filters.status === '') && off(filters.group) && !filters.stage && !filters.preset && off(filters.paymentState);
-    }
-    return (filters.status || '') === t.status && off(filters.group) && !filters.stage && !filters.preset;
-  };
+  const isTabOn = (t) => (filters.status || '') === t.status
+    && off(filters.group) && !filters.stage && !filters.preset;
 
   const applyTab = (t) => {
-    if (t.key === 'all') {
-      setFilter({ status: '', group: 'all', stage: '', preset: '', paymentState: 'all', paymentMethod: 'all' });
-    } else if (t.key === 'pending') {
-      setFilter({ status: 'Pending', group: 'all', stage: '', preset: '', paymentState: 'Pending' });
-    } else {
-      setFilter({ status: t.status, group: 'all', stage: '', preset: '', paymentState: 'all' });
-    }
+    setFilter({
+      status: t.status, group: 'all', stage: '', preset: '',
+      paymentState: t.key === 'pending' ? 'Pending' : 'all',
+    });
   };
   const toggleTile = (tile) => {
     if (activeStat === tile.key) { setActiveStat(null); return; }
@@ -700,25 +600,16 @@ export default function OrdersDesk() {
                   <div className={s.statVal}>{st.value}</div>
                   <div className={s.statFoot}>
                     <div>
-                      {ch != null ? (
-                        <>
-                          <div className={cx(s.statChange, (down !== st.downIsGood) && down && s.down)} style={!down && st.downIsGood ? { color: 'var(--green)' } : undefined}>
-                            {down ? '↘' : '↗'} {Math.abs(ch).toFixed(1)}%
-                          </div>
-                          <div className={s.statVs}>{st.vs}</div>
-                        </>
-                      ) : (
-                        <>
-                          <div className={s.statChange} style={{ color: st.key === 'cancelled' ? '#ef4444' : 'var(--green)' }}>
-                            {st.key === 'cancelled' ? '↘ 20.0%' : st.key === 'pending' ? '↗ 12.7%' : st.key === 'processing' ? '↗ 8.4%' : st.key === 'completed' ? '↗ 18.9%' : st.key === 'revenue' ? '↗ 18.6%' : '↗ 15.3%'}
-                          </div>
-                          <div className={s.statVs}>{loading ? 'Loading…' : st.vs || 'vs May 13 – May 19'}</div>
-                        </>
-                      )}
+                      {ch != null
+                        ? <><div className={cx(s.statChange, (down !== st.downIsGood) && down && s.down)} style={!down && st.downIsGood ? { color: 'var(--green)' } : undefined}>{down ? '↓' : '↑'} {Math.abs(ch).toFixed(1)}%</div>
+                          <div className={s.statVs}>{st.vs}</div></>
+                        : <div className={s.statVs}>{loading ? 'Loading…' : st.note || st.vs}</div>}
                     </div>
-                    <span className={s.spark} title="Trend" aria-hidden>
-                      <canvas data-ord-spark={(st.series && st.series.length > 1 && st.series.some((n) => n > 0) ? st.series : [4, 7, 5, 8, 6, 9, 7, 10, 8, 12]).join(',')} />
-                    </span>
+                    {(st.series || []).length > 1 && (st.series || []).some((n) => n > 0) && (
+                      <span className={s.spark} title="Orders per day for this metric, from the rows loaded in this view" aria-hidden>
+                        <canvas data-ord-spark={st.series.join(',')} />
+                      </span>
+                    )}
                   </div>
                 </button>
               );
@@ -756,65 +647,35 @@ export default function OrdersDesk() {
             </div>
           )}
 
-                    {/* ── ORDERS STRUCTURE — 12 PAGES (HUSHAE) ────────────────── */}
-          <section className={s.structCard} aria-label="Orders Structure">
-            <div className={s.structHeader}>
-              <CheckCircle2 size={13} className={s.structIcon} />
-              <h2 className={s.structTitle}>ORDERS STRUCTURE — 12 PAGES (HUSHAE) • CLICK TO FILTER — NO SCROLL</h2>
-            </div>
-            <div className={s.structWrap} role="tablist" aria-label="Orders structure pills">
-              {STRUCTURE_PILLS.map((p) => {
-                const active = p.isOn(filters);
-                const countVal = p.count(counts, data);
-                return (
-                  <button
-                    key={p.key}
-                    type="button"
-                    role="tab"
-                    aria-selected={active}
-                    className={cx(s.struct, active && s.structOn)}
-                    onClick={() => {
-                      if (active && p.key !== 'all') {
-                        setFilter({ group: 'all', status: '', preset: '', paymentState: 'all', stage: '', paymentMethod: 'all' });
-                      } else {
-                        setFilter(p.apply());
-                      }
-                    }}
-                  >
-                    <span>{p.label}</span>
-                    <span className={s.structCount}>{int(countVal)}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </section>
-
-{/* ── one card: tabs / filters / table / pagination ───────── */}
+          {/* ── one card: tabs / filters / table / pagination ───────── */}
           <section className={s.card}>
             <div className={s.cardHead}>
               <div className={s.revTabs} role="tablist" aria-label="Order status">
-                {TABS.map((t) => {
-                  const cnt = t.count ? t.count(counts) : (BUCKET[t.key] ? BUCKET[t.key].count(counts) : null);
-                  return (
-                    <button key={t.key} type="button" role="tab" aria-selected={isTabOn(t)}
-                      className={cx(s.tab, isTabOn(t) ? s.tabOn : s.tabIdle)}
-                      onClick={() => applyTab(t)}>
-                      {t.label}
-                      {counts && cnt != null ? <span className={s.tabCount}>{int(cnt)}</span> : null}
-                    </button>
-                  );
-                })}
+                {TABS.map((t) => (
+                  <button key={t.key} type="button" role="tab" aria-selected={isTabOn(t)}
+                    className={cx(s.tab, isTabOn(t) ? s.tabOn : s.tabIdle)}
+                    onClick={() => applyTab(t)}>
+                    {t.label}
+                    {counts && (() => {
+                      const n = BUCKET[t.key].count(counts);
+                      return n != null ? <span className={s.tabCount}>{int(n)}</span> : null;
+                    })()}
+                  </button>
+                ))}
               </div>
-              <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
                 <button type="button" className={cx(s.btnSm, moreOpen && s.btnOn)} aria-expanded={moreOpen} onClick={() => setMoreOpen((v) => !v)}>
-                  <Filter size={11} /> Filter{activeFilterCount > 0 ? ` · ${activeFilterCount}` : ''}
+                  Filter{activeFilterCount > 0 ? ` · ${activeFilterCount}` : ''}
                 </button>
                 <button type="button" className={s.btnSm} onClick={exportCsv}><Download size={11} /> Export</button>
-                <Link to="/admin/orders/new" className={s.btnBlack}><Plus size={11} /> Add Order</Link>
+                <button type="button" className={s.btnSm} onClick={() => reload()} aria-label="Refresh">
+                  {loading ? <Loader2 size={11} className="animate-spin" /> : <RefreshCcw size={11} />}
+                </button>
+                <Link to="/admin/orders/new" className={cx(s.btnSm, s.btnPrimary)}><Plus size={11} /> Add Order</Link>
               </div>
             </div>
 
-            {/* filter bar — 1:1 reference alignment */}
+            {/* filter bar — everything acts live */}
             <div className={s.filterBar}>
               <div className={s.searchSm}>
                 <Search size={12} style={{ color: 'var(--muted2)', flexShrink: 0 }} />
@@ -826,9 +687,7 @@ export default function OrdersDesk() {
                 const gLabel = (GROUPS.find((g) => g.key === filters.group) || {}).label || 'All';
                 const pLabel = filters.paymentState === 'all' ? 'All'
                   : (PAYMENT_STATES.find((p) => p.key === filters.paymentState) || {}).label || filters.paymentState;
-                const mLabel = (!filters.paymentMethod || filters.paymentMethod === 'all')
-                  ? 'All'
-                  : filters.paymentMethod;
+                const sLabel = (SORT_OPTIONS.find((so) => so.key === filters.sort)?.label || 'Sort').replace(/ \(default\)/, '');
                 return (
                   <>
                     <Chip label="Status" raw={filters.status} value={filters.status || 'All'}
@@ -846,16 +705,15 @@ export default function OrdersDesk() {
                       onChange={(v) => setFilter({ group: v, stage: '', status: '', preset: '' })}>
                       {GROUPS.map((g) => <option key={g.key} value={g.key}>{g.label}</option>)}
                     </Chip>
-                    <Chip label="Method" raw={filters.paymentMethod} value={mLabel}
-                      onChange={(v) => setFilter({ paymentMethod: v })}>
-                      <option value="all">All</option>
-                      {PAYMENT_METHODS.map((m) => <option key={m} value={m}>{m}</option>)}
+                    <Chip label="Sort" raw={filters.sort} value={sLabel}
+                      onChange={(v) => setFilter({ sort: v })}>
+                      {SORT_OPTIONS.map((so) => <option key={so.key} value={so.key}>{so.label}</option>)}
                     </Chip>
                   </>
                 );
               })()}
-              <div style={{ display: 'flex', gap: 6, marginLeft: 'auto', alignItems: 'center' }}>
-                <button type="button" className={s.btnText} onClick={() => { resetFilters(); setActiveStat(null); setTerm(''); }}>Clear</button>
+              <div style={{ display: 'flex', gap: 6, marginLeft: 'auto' }}>
+                <button type="button" className={s.btnSm} onClick={() => { resetFilters(); setActiveStat(null); setTerm(''); }}>Clear</button>
                 <button type="button" className={cx(s.btnSm, s.btnPrimary)} onClick={() => { setSugOpen(false); setMoreOpen(false); toast?.('Filters applied'); }}>Apply</button>
               </div>
             </div>
@@ -953,7 +811,7 @@ export default function OrdersDesk() {
 
             <div className={s.deskFoot}>
               <span>
-                {data.total > 0 ? `Showing ${shownFrom} to ${shownTo} of ${int(data.total)} results • No horizontal scroll • Better than Shopify` : 'Nothing to show'}
+                {data.total > 0 ? `Showing ${shownFrom} to ${shownTo} of ${int(data.total)} results` : 'Nothing to show'}
                 {loading ? ' · refreshing' : ''}
               </span>
               <div className={s.pagWrap}>

@@ -21,52 +21,23 @@ import s from './adesk.module.css';
 const cx = (...cls) => cls.filter(Boolean).join('');
 
 const STATUS_TONE = {
-  Completed: 'bGreen', Delivered: 'bGreen',
-  Processing: 'bAmber', Confirmed: 'bAmber', 'Ready to Ship': 'bAmber', Shipped: 'bAmber',
-  Pending: 'bBlue', 'Out for Delivery': 'bBlue', Returns: 'bBlue', Returned: 'bBlue',
-  Cancelled: 'bRed', 'Failed Delivery': 'bRed', Refunded: 'bPurple',
+  Pending: 'bAmber', Confirmed: 'bBlue', Processing: 'bAmber', 'Ready to Ship': 'bBlue',
+  Shipped: 'bBlue', 'Out for Delivery': 'bBlue', Delivered: 'bGreen',
+  Cancelled: 'bRed', Refunded: 'bPurple',
 };
-
+const FULFIL_TONE = {
+  'New': 'bAmber', 'To Pack': 'bPurple', 'To Arrange Shipment': 'bPurple', 'Picked': 'bPurple',
+  'Packed': 'bBlue', 'Manifested': 'bBlue', 'To Handover': 'bBlue',
+  'Shipped': 'bBlue', 'In Transit': 'bBlue', 'Out for Delivery': 'bBlue',
+  'Delivered': 'bGreen', 'Completed': 'bGreen',
+  'Cancelled': 'bRed', 'Failed Delivery': 'bRed', 'Refunded': 'bPurple', 'Returned': 'bPurple',
+};
 const PAY_TONE = {
-  PAID: 'bGreen', Paid: 'bGreen', CONFIRMED: 'bGreen', Confirmed: 'bGreen', VERIFIED: 'bGreen', Verified: 'bGreen',
-  PENDING: 'bBlue', Pending: 'bBlue',
-  REFUNDED: 'bPurple', Refunded: 'bPurple',
-  FAILED: 'bRed', Failed: 'bRed', EXPIRED: 'bRed', Expired: 'bRed',
+  PAID: 'bGreen', CONFIRMED: 'bGreen', VERIFIED: 'bGreen', PENDING: 'bBlue',
+  FAILED: 'bRed', EXPIRED: 'bRed', REFUNDED: 'bPurple',
 };
-
 const toneOf = (map, key, fallback = 'bGray') => map[key] || fallback;
 const title = (v) => String(v || '').toLowerCase().replace(/(^^|\s)\w/g, (m) => m.toUpperCase()).trim();
-
-function formatStatus(status) {
-  const s = String(status || 'Pending').trim();
-  if (['Completed', 'Delivered'].includes(s)) return { text: s, tone: 'bGreen' };
-  if (['Processing', 'Confirmed', 'Ready to Ship'].includes(s)) return { text: s, tone: 'bAmber' };
-  if (['Shipped'].includes(s)) return { text: 'Shipped', tone: 'bAmber' };
-  if (['Pending', 'Out for Delivery'].includes(s)) return { text: s, tone: 'bBlue' };
-  if (['Cancelled', 'Failed Delivery'].includes(s)) return { text: s, tone: 'bRed' };
-  if (['Returned', 'Returns'].includes(s)) return { text: 'Returns', tone: 'bBlue' };
-  if (['Refunded'].includes(s)) return { text: 'Refunded', tone: 'bPurple' };
-  return { text: s, tone: STATUS_TONE[s] || 'bGray' };
-}
-
-function formatPayment(pState) {
-  const s = String(pState || '').toUpperCase();
-  if (['PAID', 'CONFIRMED', 'VERIFIED'].includes(s)) return { text: 'Paid', tone: 'bGreen' };
-  if (['PENDING', 'UNPAID'].includes(s)) return { text: 'Pending', tone: 'bBlue' };
-  if (['REFUNDED'].includes(s)) return { text: 'Refunded', tone: 'bPurple' };
-  if (['FAILED', 'EXPIRED'].includes(s)) return { text: 'Failed', tone: 'bRed' };
-  return { text: title(pState), tone: PAY_TONE[s] || 'bGray' };
-}
-
-function formatFulfillment(stage, status) {
-  const s = String(stage || status || '').trim();
-  if (['Delivered', 'Completed'].includes(s)) return { text: 'Fulfilled', tone: 'bGreen' };
-  if (['Shipped', 'In Transit', 'Out for Delivery'].includes(s)) return { text: 'Shipped', tone: 'bAmber' };
-  if (['Processing', 'To Pack', 'To Arrange Shipment', 'Picked', 'Packed', 'Manifested', 'To Handover'].includes(s)) return { text: 'Processing', tone: 'bAmber' };
-  if (['Cancelled', 'Failed Delivery'].includes(s)) return { text: 'Cancelled', tone: 'bRed' };
-  if (['Returned', 'Refunded'].includes(s)) return { text: 'Returned', tone: 'bGray' };
-  return { text: 'Unfulfilled', tone: 'bGray' };
-}
 
 const dayOf = (d) => new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 const timeOf = (d) => new Date(d).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
@@ -91,9 +62,6 @@ export default function OrderRow({
   const pState = paymentLabel(o);   // 'PAID' | 'PENDING' | 'VERIFIED' … (orderUi.paymentLabel)
   const fulfill = fulfillmentLabel(o);
   const status = o.status || 'Pending';
-  const stObj = formatStatus(status);
-  const payObj = formatPayment(pState);
-  const fulObj = formatFulfillment(stage, status);
   const next = (o.allowedNext || []).find((st) => !['Cancelled', 'Refunded', 'Returned', 'Failed Delivery'].includes(st));
   const itemCount = (o.items || []).reduce((a, i) => a + (i.quantity || 0), 0);
   const bins = [...new Set((o.items || []).map((i) => i.warehouseLocation).filter(Boolean))];
@@ -222,9 +190,9 @@ export default function OrderRow({
           {o.customerInfo?.name}
         </button>
         <div className={s.mGrid}>
-          <span>Status<b style={{ marginTop: 3 }}><Bdg tone={stObj.tone}>{stObj.text}</Bdg></b></span>
-          <span>Payment<b style={{ marginTop: 3 }}><Bdg tone={payObj.tone}>{payObj.text}</Bdg></b></span>
-          <span>Fulfillment<b style={{ marginTop: 3 }}><Bdg tone={fulObj.tone}>{fulObj.text}</Bdg></b></span>
+          <span>Status<b style={{ marginTop: 3 }}><Bdg tone={toneOf(STATUS_TONE, status)}>{status}</Bdg></b></span>
+          <span>Payment<b style={{ marginTop: 3 }}><Bdg tone={toneOf(PAY_TONE, pState)}>{pState}</Bdg></b></span>
+          <span>Fulfillment<b style={{ marginTop: 3 }}><Bdg tone={toneOf(FULFIL_TONE, stage)}>{fulfill}</Bdg></b></span>
           <span>Total<b>{pkr(o.total)}</b></span>
         </div>
         <div className={s.mActs}>
@@ -270,9 +238,9 @@ export default function OrderRow({
           <div style={{ fontWeight: 700, fontSize: 11 }}>{dayOf(o.createdAt)}</div>
           <div style={{ fontSize: 10, color: 'var(--muted)', marginTop: 2 }}>{timeOf(o.createdAt)}</div>
         </td>
-        <td><Bdg tone={stObj.tone}>{stObj.text}</Bdg></td>
-        <td><Bdg tone={payObj.tone}>{payObj.text}</Bdg></td>
-        <td><Bdg tone={fulObj.tone}>{fulObj.text}</Bdg></td>
+        <td><Bdg tone={toneOf(STATUS_TONE, status)}>{status}</Bdg></td>
+        <td><Bdg tone={toneOf(PAY_TONE, pState)}>{title(pState)}</Bdg></td>
+        <td><Bdg tone={toneOf(FULFIL_TONE, stage)}>{fulfill}</Bdg></td>
         <td><span className={s.oTotal}>{pkr(o.total)}</span></td>
         <td className={cx(s.colAct, s.cellRel, (selected || open) && s.actSel)} onClick={(e) => e.stopPropagation()}>{actions}</td>
       </tr>
