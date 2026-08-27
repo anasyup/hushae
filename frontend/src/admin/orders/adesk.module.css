@@ -61,6 +61,7 @@
 .filterBar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;width:100%;margin-bottom:12px}
 .filter:hover{border-color:#111}
 .filter:focus{border-color:#111;box-shadow:0 0 0 3px rgba(17,17,17,.07)}
+.filterInline{border:0;outline:0;background:transparent;font-size:11px;font-weight:500;color:var(--text);cursor:pointer;max-width:110px}
 .ctl{height:32px;width:100%;border:1px solid var(--border);background:var(--card);border-radius:8px;padding:0 10px;font-size:12px;color:var(--text);outline:0;transition:.15s}
 .ctl:focus{border-color:#111;box-shadow:0 0 0 3px rgba(17,17,17,.07)}
 .ctlArea{width:100%;border:1px solid var(--border);background:var(--card);border-radius:8px;padding:8px 10px;font-size:12px;color:var(--text);outline:0;resize:vertical;font-family:inherit}
@@ -176,6 +177,16 @@ html.dark-admin .desk .structOn .structCount{background:rgba(17,17,17,.25);color
 /* .cellRel on the action cell releases the row menu from the cell box so it
    can never be clipped by the table's overflow */
 .tbl td.cellRel{overflow:visible}
+/* reference column widths, 1:1 */
+.tbl th:nth-child(1),.tbl td:nth-child(1){width:36px}
+.tbl th:nth-child(2),.tbl td:nth-child(2){width:14%}
+.tbl th:nth-child(3),.tbl td:nth-child(3){width:22%}
+.tbl th:nth-child(4),.tbl td:nth-child(4){width:16%}
+.tbl th:nth-child(5),.tbl td:nth-child(5){width:12%}
+.tbl th:nth-child(6),.tbl td:nth-child(6){width:12%}
+.tbl th:nth-child(7),.tbl td:nth-child(7){width:10%}
+.tbl th:nth-child(8),.tbl td:nth-child(8){width:10%}
+.tbl th:nth-child(9),.tbl td:nth-child(9){width:56px}
 .tbl tbody tr{transition:.12s;cursor:pointer}
 .tbl tbody tr:hover{background:#fafafa}
 .trSel{background:#f7f7f6!important}

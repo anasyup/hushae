@@ -9,7 +9,7 @@ import AdminLayout from '../AdminLayout';
 import { pkr } from '../../lib/format';
 import { useApp } from '../../store/AppContext';
 import { api } from '../../api/client';
-import { PAYMENT_METHODS, PAYMENT_STATES, SORT_OPTIONS, ISSUE_TYPES, REFUND_STATES } from './orderConstants';
+import { GROUPS, PAYMENT_METHODS, PAYMENT_STATES, SORT_OPTIONS, ISSUE_TYPES, REFUND_STATES } from './orderConstants';
 import { useOrderDesk, useOrderNotifications } from './useOrderDesk';
 import OrderFilters from './OrderFilters';
 import BulkBar from './BulkBar';
@@ -37,11 +37,13 @@ import s from './adesk.module.css';
 
 const cx = (...cls) => cls.filter(Boolean).join('');
 const int = (v) => (v == null ? '—' : Number(v).toLocaleString('en-US'));
-const compact = (v) => {
+/* Amount for a 1/6-width tile: full rupees below 100k, compact above, so the
+   figure never gets cut off by the cell. */
+const moneyTile = (v) => {
   const n = Number(v) || 0;
-  if (n >= 1e6) return `₨${(n / 1e6).toFixed(1)}M`;
-  if (n >= 1e3) return `₨${Math.round(n / 1e3)}K`;
-  return `₨${Math.round(n)}`;
+  if (n >= 1e7) return `₨${(n / 1e7).toFixed(2)} Cr`;
+  if (n >= 1e5) return `₨${(n / 1e5).toFixed(2)} Lac`;
+  return pkr(n);
 };
 const iso = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 const shift = (dateStr, days) => {
@@ -51,14 +53,24 @@ const shift = (dateStr, days) => {
 };
 const shortDate = (str) => (str ? new Date(`${str}T00:00:00`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '');
 
-/** Tiles and tabs speak `status` (the coarse workflow field the API filters). */
-const TABS = [
-  { key: 'all', label: 'All Orders', status: '' },
-  { key: 'pending', label: 'Pending', status: 'Pending' },
-  { key: 'processing', label: 'Processing', status: 'Processing' },
-  { key: 'completed', label: 'Completed', status: 'Delivered' },
-  { key: 'cancelled', label: 'Cancelled', status: 'Cancelled' },
+/* Tiles and tabs speak `status` (the coarse workflow field the API filters).
+   `count` prefers byStatus — the number that matches the filter — and falls
+   back to the pipeline groups on an API that predates byStatus. */
+const BUCKETS = [
+  { key: 'all', label: 'All Orders', status: '', count: (c) => c.total, bucket: () => true },
+  { key: 'pending', label: 'Pending', status: 'Pending', count: (c) => c.byStatus?.Pending ?? c.byGroup?.new, bucket: (o) => o.status === 'Pending' },
+  { key: 'processing', label: 'Processing', status: 'Processing,Confirmed',
+    count: (c) => (c.byStatus?.Processing ?? 0) + (c.byStatus?.Confirmed ?? 0) || c.byGroup?.processing,
+    bucket: (o) => ['Processing', 'Confirmed'].includes(o.status) },
+  { key: 'completed', label: 'Completed', status: 'Delivered,Out for Delivery,Shipped',
+    count: (c) => (c.byStatus?.Delivered ?? 0) + (c.byStatus?.['Out for Delivery'] ?? 0) + (c.byStatus?.Shipped ?? 0) || c.byGroup?.delivered,
+    bucket: (o) => ['Delivered', 'Out for Delivery', 'Shipped'].includes(o.status) },
+  { key: 'cancelled', label: 'Cancelled', status: 'Cancelled,Refunded',
+    count: (c) => (c.byStatus?.Cancelled ?? 0) + (c.byStatus?.Refunded ?? 0) || c.byGroup?.issues,
+    bucket: (o) => ['Cancelled', 'Refunded'].includes(o.status) },
 ];
+const TABS = BUCKETS.map(({ key, label, status }) => ({ key, label, status }));
+const BUCKET = Object.fromEntries(BUCKETS.map((b) => [b.key, b]));
 
 const STAT_ICONS = {
   total: <><rect x="1" y="4" width="22" height="17" rx="2" /><line x1="1" y1="10" x2="23" y2="10" /></>,
@@ -69,13 +81,11 @@ const STAT_ICONS = {
 };
 
 /** Build the six tiles: value, real delta vs a real second window, spark. */
-function buildTiles(counts, prev, series) {
+function buildTiles(counts, prev, series, cmpWindow) {
   const c = counts || {};
   const p = prev || {};
   const g = c.byGroup || {}; const pg = p.byGroup || {};
   const ps = c.byPaymentState || {}; const pps = p.byPaymentState || {};
-  const paid = (ps.Confirmed || 0) + (ps.Verified || 0);
-  const pPaid = (pps.Confirmed || 0) + (pps.Verified || 0);
   const pct = (cur, pre) => (pre ? ((cur - pre) / pre) * 100 : null);
   const rows = series.rows || [];
   const byDay = (pred) => {
@@ -86,23 +96,35 @@ function buildTiles(counts, prev, series) {
       map.set(k, (map.get(k) || 0) + 1);
     });
     const days = [...map.keys()].sort().slice(-14);
-    return days.map((d) => map.get(d));
+    return days.length > 1 ? days.map((d) => map.get(d)) : [];
   };
-  const st = (s) => (o) => (o.status || '') === s;
+  const tile = (key, extra = {}) => {
+    const b = BUCKET[key === 'revenue' ? 'all' : key];
+    const cur = b ? Number(b.count(c) || 0) : null;
+    const pre = b && p.total != null ? Number(b.count(p) || 0) : null;
+    return {
+      key, label: b?.label ?? key, icon: STAT_ICONS[key], value: int(cur),
+      series: byDay(b?.bucket), tab: key,
+      change: cur != null && pre != null ? pct(cur, pre) : null,
+      vs: cmpWindow ? cmpWindow.label : 'last 14 days',
+      ...extra,
+    };
+  };
 
   return [
-    { key: 'total', label: 'Total Orders', icon: STAT_ICONS.total, value: int(c.total), series: byDay(null),
-      change: c.total != null && p.total != null ? pct(c.total, p.total) : null, tab: 'all' },
-    { key: 'pending', label: 'Pending', icon: STAT_ICONS.pending, value: int(g.new || 0), series: byDay(st('Pending')),
-      change: pct(g.new || 0, pg.new || 0), tab: 'pending' },
-    { key: 'processing', label: 'Processing', icon: STAT_ICONS.processing, value: int((g.processing || 0) + (g['to-ship'] || 0)), series: byDay((o) => ['Processing', 'Confirmed'].includes(o.status)),
-      change: pct((g.processing || 0) + (g['to-ship'] || 0), (pg.processing || 0) + (pg['to-ship'] || 0)), tab: 'processing' },
-    { key: 'completed', label: 'Completed', icon: STAT_ICONS.completed, value: int(g.delivered || 0), series: byDay((o) => ['Delivered', 'Out for Delivery', 'Shipped'].includes(o.status)),
-      change: pct(g.delivered || 0, pg.delivered || 0), tab: 'completed' },
-    { key: 'cancelled', label: 'Cancelled', icon: STAT_ICONS.cancelled, value: int(g.issues || 0), series: byDay((o) => ['Cancelled', 'Refunded'].includes(o.status)),
-      change: pct(g.issues || 0, pg.issues || 0), downIsGood: true, tab: 'cancelled' },
-    { key: 'revenue', label: 'Revenue', icon: null, value: c.revenue != null ? pkr(c.revenue) : '—', series: series.revenue,
-      change: c.revenue != null && p.revenue != null ? pct(c.revenue, p.revenue) : null, tab: null, money: true },
+    { ...tile('total'), value: int(c.total) },
+    tile('pending'),
+    tile('processing'),
+    tile('completed'),
+    tile('cancelled', { downIsGood: true }),
+    {
+      key: 'revenue', label: 'Revenue', icon: null, tab: null, money: true,
+      value: c.revenue != null ? moneyTile(c.revenue) : '—',
+      series: series.revenue,
+      change: c.revenue != null && p.revenue != null ? pct(c.revenue, p.revenue) : null,
+      vs: cmpWindow ? cmpWindow.label : 'in view',
+      note: `${int(ps.Pending || 0)} unverified · ${int(g.issues || 0)} open issues`,
+    },
   ];
 }
 
@@ -249,6 +271,17 @@ export default function OrdersDesk() {
   }, [sugOpen, rangeOpen]);
 
   /* ── comparison window + sparkline sample (both real, both optional) ─ */
+  /* Filter signature without paging/sort — page turns must not re-fetch the
+     comparison window or the 200-row sparkline sample. */
+  const sampleQuery = useMemo(() => {
+    const p = new URLSearchParams();
+    Object.entries(filters).forEach(([k, v]) => {
+      if (v === '' || v === undefined || k === 'page' || k === 'limit' || k === 'sort') return;
+      p.set(k, v);
+    });
+    return p.toString();
+  }, [filters]);
+
   const cmpWindow = useMemo(() => {
     if (!filters.from || !filters.to) return null;
     const from = new Date(`${filters.from}T00:00:00`);
@@ -264,18 +297,16 @@ export default function OrdersDesk() {
 
   useEffect(() => {
     if (!token) { setPrev(null); return; }
-    const params = new URLSearchParams();
-    Object.entries(filters).forEach(([k, v]) => { if (v !== '' && k !== 'page') params.set(k, v); });
+    const params = new URLSearchParams(sampleQuery);
     if (cmpWindow) { params.set('from', cmpWindow.from); params.set('to', cmpWindow.to); }
     let alive = true;
     api(`/orders/manage/counts?${params}`, { token }).then((d) => { if (alive) setPrev(d); }).catch(() => { if (alive) setPrev(null); });
     return () => { alive = false; };
-  }, [token, filters, cmpWindow]);
+  }, [token, sampleQuery, cmpWindow]);
 
   useEffect(() => {
     if (!token) { setSeries({ rows: [], revenue: [] }); return; }
-    const params = new URLSearchParams();
-    Object.entries(filters).forEach(([k, v]) => { if (v !== '' && k !== 'page') params.set(k, v); });
+    const params = new URLSearchParams(sampleQuery);
     params.set('limit', '200');
     params.set('sort', 'newest');
     let alive = true;
@@ -293,7 +324,7 @@ export default function OrdersDesk() {
       })
       .catch(() => { if (alive) setSeries({ rows: [], revenue: [] }); });
     return () => { alive = false; };
-  }, [token, filters]);
+  }, [token, sampleQuery]);
 
   /* ── live search ───────────────────────────────────────────────────── */
   const remember = (value) => {
@@ -323,15 +354,16 @@ export default function OrdersDesk() {
   }, [suggestions]);
 
   /* ── tiles, tabs, drill ────────────────────────────────────────────── */
-  const tiles = useMemo(() => buildTiles(counts, prev, series), [counts, prev, series]);
+  const tiles = useMemo(() => buildTiles(counts, prev, series, cmpWindow), [counts, prev, series, cmpWindow]);
   const drill = useMemo(() => buildDrill(activeStat, counts, orders), [activeStat, counts, orders]);
+  const off = (v) => !v || v === 'all';
   const isTabOn = (t) => (filters.status || '') === t.status
-    && !filters.group && !filters.stage && !filters.preset;
+    && off(filters.group) && !filters.stage && !filters.preset;
 
   const applyTab = (t) => {
     setFilter({
       status: t.status, group: 'all', stage: '', preset: '',
-      paymentState: t.status === 'pending' ? 'Pending' : filters.paymentState,
+      paymentState: t.key === 'pending' ? 'Pending' : 'all',
     });
   };
   const toggleTile = (tile) => {
@@ -550,12 +582,14 @@ export default function OrdersDesk() {
                     <div>
                       {ch != null
                         ? <><div className={cx(s.statChange, (down !== st.downIsGood) && down && s.down)} style={!down && st.downIsGood ? { color: 'var(--green)' } : undefined}>{down ? '↓' : '↑'} {Math.abs(ch).toFixed(1)}%</div>
-                          <div className={s.statVs}>{cmpWindow ? cmpWindow.label.replace(/^vs /, 'vs ') : 'vs previous window'}</div></>
-                        : <div className={s.statVs}>{loading ? 'Loading…' : 'No comparison range'}</div>}
+                          <div className={s.statVs}>{st.vs}</div></>
+                        : <div className={s.statVs}>{loading ? 'Loading…' : st.note || st.vs}</div>}
                     </div>
-                    <span className={s.spark} title="Daily counts for this metric across the orders loaded in this view" aria-hidden>
-                      <canvas data-ord-spark={(st.series || []).join(',')} />
-                    </span>
+                    {(st.series || []).length > 1 && (st.series || []).some((n) => n > 0) && (
+                      <span className={s.spark} title="Orders per day for this metric, from the rows loaded in this view" aria-hidden>
+                        <canvas data-ord-spark={st.series.join(',')} />
+                      </span>
+                    )}
                   </div>
                 </button>
               );
@@ -602,15 +636,10 @@ export default function OrdersDesk() {
                     className={cx(s.tab, isTabOn(t) ? s.tabOn : s.tabIdle)}
                     onClick={() => applyTab(t)}>
                     {t.label}
-                    {t.key === 'all' && counts?.total != null && <span className={s.tabCount}>{int(counts.total)}</span>}
-                    {t.key !== 'all' && counts?.byGroup && (
-                      <span className={s.tabCount}>
-                        {int(t.key === 'pending' ? counts.byGroup.new
-                          : t.key === 'processing' ? (counts.byGroup.processing || 0) + (counts.byGroup['to-ship'] || 0)
-                            : t.key === 'completed' ? counts.byGroup.delivered
-                              : counts.byGroup.issues)}
-                      </span>
-                    )}
+                    {counts && (() => {
+                      const n = BUCKET[t.key].count(counts);
+                      return n != null ? <span className={s.tabCount}>{int(n)}</span> : null;
+                    })()}
                   </button>
                 ))}
               </div>
@@ -634,7 +663,7 @@ export default function OrdersDesk() {
                   onKeyDown={(e) => { if (e.key === 'Enter') applyTerm(term.trim()); }}
                   placeholder="Search orders..." aria-label="Search orders" autoComplete="off" />
               </div>
-              <select className={s.filter} value={filters.status} aria-label="Status"
+              <select className={s.filter} value={filters.status} aria-label="Status" title="Status"
                 onChange={(e) => setFilter({ status: e.target.value, group: 'all', stage: '', preset: '' })}>
                 <option value="">All</option>
                 {['Pending', 'Confirmed', 'Processing', 'Ready to Ship', 'Shipped', 'Out for Delivery', 'Delivered', 'Cancelled', 'Refunded'].map((st) => <option key={st} value={st}>{st}</option>)}
@@ -643,8 +672,15 @@ export default function OrdersDesk() {
                 <option value="all">All</option>
                 {PAYMENT_STATES.map((p) => <option key={p.key} value={p.key}>{p.label}</option>)}
               </select>
-              <select className={s.filter} value={filters.paymentMethod} aria-label="Fulfilment / method" onChange={(e) => setFilter({ paymentMethod: e.target.value })}>
-                <option value="all">All</option>
+              <span className={s.filter} style={{ gap: 4, cursor: 'default' }}>
+                <select className={s.filterInline} value={filters.group} aria-label="Fulfillment"
+                  onChange={(e) => setFilter({ group: e.target.value, stage: '', status: '', preset: '' })}>
+                  <option value="all">All</option>
+                  {GROUPS.filter((g) => g.key !== 'all').map((g) => <option key={g.key} value={g.key}>{g.label}</option>)}
+                </select>
+              </span>
+              <select className={s.filter} value={filters.paymentMethod} aria-label="Payment method" onChange={(e) => setFilter({ paymentMethod: e.target.value })}>
+                <option value="all">Method: all</option>
                 {PAYMENT_METHODS.map((mm) => <option key={mm} value={mm}>{mm}</option>)}
               </select>
               <select className={s.filter} value={filters.sort} aria-label="Sort" onChange={(e) => setFilter({ sort: e.target.value })}>
