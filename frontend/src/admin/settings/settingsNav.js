@@ -3,7 +3,7 @@
  * The main sidebar now carries a single Settings entry (above the account
  * block); this rail is the organised home for every settings destination.
  */
-import { BarChart3, Bell, Box, Building2, Calculator, Clock, Code2, CreditCard, DollarSign, FileSpreadsheet, FileText, Globe, Package, Settings, Share2, ShieldCheck, ShoppingCart, Store, TrendingUp, Truck, UserCog, Users, Zap } from 'lucide-react';
+import { BarChart3, Bell, Box, Building2, Calculator, Clock, Code2, CreditCard, DollarSign, FileSpreadsheet, FileText, FolderOpen, Globe, Grid3X3, Home, ImagePlus, LayoutTemplate, Megaphone, Menu, Package, Search, Settings, Share2, ShieldCheck, ShoppingCart, Smartphone, Store, Tag, TrendingUp, Truck, UserCog, Users, Zap } from 'lucide-react';
 
 export const SETTINGS_SECTION =   {
     label: 'SETTINGS',
@@ -179,7 +179,108 @@ export const SETTINGS_SECTION =   {
     ],
   };
 
-export const SETTINGS_GROUPS = SETTINGS_SECTION.groups;
+export const STOREFRONT_SECTION =   {
+    label: 'STOREFRONT',
+    icon: LayoutTemplate,
+    groups: [
+      {
+        key: 'theme',
+        label: 'Theme Editor',
+        icon: LayoutTemplate,
+        children: [
+          { to: '/admin/theme', label: 'Theme Library', icon: Grid3X3 },
+          { to: '/admin/theme/current', label: 'Current Theme', icon: LayoutTemplate },
+          { to: '/admin/theme/drafts', label: 'Draft Themes', icon: FileText },
+          { to: '/admin/theme/homepage', label: 'Homepage', icon: Home },
+          { to: '/admin/theme/product', label: 'Product Page', icon: Package },
+          { to: '/admin/theme/collection', label: 'Collection Page', icon: FolderOpen },
+          { to: '/admin/theme/catalog', label: 'Catalog Page', icon: Package },
+          { to: '/admin/theme/cart', label: 'Cart Page', icon: ShoppingCart },
+          { to: '/admin/theme/checkout', label: 'Checkout Page', icon: CreditCard },
+          { to: '/admin/theme/search', label: 'Search Page', icon: Search },
+          { to: '/admin/theme/header', label: 'Header', icon: LayoutTemplate },
+          { to: '/admin/theme/footer', label: 'Footer', icon: LayoutTemplate },
+          { to: '/admin/theme/sections', label: 'Sections', icon: Code2 },
+          { to: '/admin/theme/blocks', label: 'Blocks', icon: Box },
+          { to: '/admin/theme/templates', label: 'Templates', icon: FileText },
+          { to: '/admin/theme/styles', label: 'Global Styles', icon: Settings },
+          { to: '/admin/theme/preview', label: 'Preview', icon: Home },
+          { to: '/admin/theme/publish', label: 'Publish', icon: Share2 },
+        ],
+      },
+      {
+        key: 'content',
+        label: 'Content Studio',
+        icon: FileText,
+        children: [
+          { to: '/admin/pages', label: 'Pages', icon: FileText },
+          { to: '/admin/blog', label: 'Blog', icon: FileText },
+          { to: '/admin/blog/categories', label: 'Blog Categories', icon: Tag },
+          { to: '/admin/banners', label: 'Banners', icon: ImagePlus },
+          { to: '/admin/popups', label: 'Popups', icon: LayoutTemplate },
+          { to: '/admin/announcements', label: 'Announcement Bar', icon: Megaphone },
+          { to: '/admin/landing', label: 'Landing Pages', icon: Home },
+          { to: '/admin/editorial', label: 'Editorial Content', icon: FileText },
+          { to: '/admin/blocks', label: 'Content Blocks', icon: Box },
+        ],
+      },
+      {
+        key: 'navigation',
+        label: 'Navigation',
+        icon: Menu,
+        children: [
+          { to: '/admin/navigation/header', label: 'Header Menu', icon: LayoutTemplate },
+          { to: '/admin/navigation/footer', label: 'Footer Menu', icon: LayoutTemplate },
+          { to: '/admin/navigation/mega', label: 'Mega Menu', icon: Grid3X3 },
+          { to: '/admin/navigation/mobile', label: 'Mobile Menu', icon: Smartphone },
+          { to: '/admin/navigation/settings', label: 'Menu Settings', icon: Settings },
+        ],
+      },
+      {
+        key: 'media',
+        label: 'Media Library',
+        icon: ImagePlus,
+        children: [
+          { to: '/admin/media', label: 'All Media', icon: ImagePlus },
+          { to: '/admin/media/images', label: 'Images', icon: ImagePlus },
+          { to: '/admin/media/videos', label: 'Videos', icon: FileText },
+          { to: '/admin/media/documents', label: 'Documents', icon: FileText },
+          { to: '/admin/media/product', label: 'Product Media', icon: Package },
+          { to: '/admin/media/campaign', label: 'Campaign Media', icon: Megaphone },
+          { to: '/admin/media/folders', label: 'Folders', icon: FolderOpen },
+        ],
+      },
+      {
+        key: 'seo',
+        label: 'SEO',
+        icon: TrendingUp,
+        children: [
+          { to: '/admin/seo', label: 'Store SEO', icon: BarChart3 },
+          { to: '/admin/seo/products', label: 'Product SEO', icon: Package },
+          { to: '/admin/seo/collections', label: 'Collection SEO', icon: FolderOpen },
+          { to: '/admin/seo/pages', label: 'Page SEO', icon: FileText },
+          { to: '/admin/seo/blog', label: 'Blog SEO', icon: FileText },
+          { to: '/admin/redirects', label: 'Redirects', icon: Share2 },
+          { to: '/admin/sitemap', label: 'Sitemap', icon: Code2 },
+          { to: '/admin/schema', label: 'Structured Data', icon: Settings },
+        ],
+      },
+      {
+        key: 'preview',
+        label: 'Store Preview',
+        icon: Home,
+        children: [
+          { to: '/admin/preview/desktop', label: 'Desktop Preview', icon: Home },
+          { to: '/admin/preview/mobile', label: 'Mobile Preview', icon: Smartphone },
+          { to: '/admin/preview/guest', label: 'Guest Preview', icon: Users },
+          { to: '/admin/preview/customer', label: 'Customer Preview', icon: UserCog },
+          { to: '/admin/preview/market', label: 'Market Preview', icon: Store },
+        ],
+      },
+    ],
+  };
+
+export const SETTINGS_GROUPS = [...SETTINGS_SECTION.groups, ...STOREFRONT_SECTION.groups];
 
 export function findSettingsItem(pathname) {
   for (const g of SETTINGS_GROUPS) {
