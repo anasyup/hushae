@@ -399,7 +399,11 @@
   background: var(--admin-bg);
 }
 
-.tb-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.tb-left { display: flex; align-items: center; gap: 12px; min-width: 0; flex: 1 1 auto; }
+/* display lives in :where() so Tailwind's `hidden` / `md:hidden` utilities
+   win the cascade — without that, both viewport buttons rendered at once
+   (the two-button bug from the screenshot). */
+:where(.tb-menu) { display: grid; place-items: center; }
 .tb-menu {
   width: 32px;
   height: 32px;
@@ -407,8 +411,7 @@
   border: 1px solid var(--admin-border-subtle);
   background: var(--admin-bg);
   border-radius: 8px;
-  display: grid;
-  place-items: center;
+
   color: var(--admin-text);
   transition: border-color 150ms ease-out, background-color 150ms ease-out;
 }
@@ -426,7 +429,11 @@
   color: var(--admin-text);
 }
 
-.tb-right { display: flex; align-items: center; gap: 6px; flex: none; }
+.tb-right { display: flex; align-items: center; gap: 8px; flex: none; }
+/* on tight screens the status pill yields space before anything wraps */
+@media (max-width: 639.98px) {
+  .tb-pill { display: none; }
+}
 
 .tb-pill {
   height: 30px;
