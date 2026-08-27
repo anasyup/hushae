@@ -1,17 +1,22 @@
 import { useEffect, useState } from 'react';
-import { Loader2, X } from 'lucide-react';
+import { Loader2, Plus, X } from 'lucide-react';
 import { api } from '../../api/client';
+import s from './adesk.module.css';
 
 /* ===========================================================================
- * Quick filters and saved views — editorial text controls, not pills.
+ * Quick filters + saved views — ATELIER pill row (same language as the
+ * Overview range tabs). Behaviour unchanged: presets and saved views both
+ * write straight into the URL-backed filter object.
  * ========================================================================== */
+
+const cx = (...cls) => cls.filter(Boolean).join('');
 
 const PRESETS = [
   { key: 'needs-attention', label: 'Needs attention', hint: 'Payment not verified yet' },
-  { key: 'ready-to-ship',   label: 'Ready to ship',   hint: 'Packed and payment settled' },
-  { key: 'high-value',      label: 'High value',      hint: 'PKR 50,000 and above' },
-  { key: 'delayed',         label: 'Delayed',         hint: 'Stuck in one stage over 24h' },
-  { key: 'problem',         label: 'Problem orders',  hint: 'An issue is open' },
+  { key: 'ready-to-ship', label: 'Ready to ship', hint: 'Packed and payment settled' },
+  { key: 'high-value', label: 'High value', hint: 'PKR 50,000 and above' },
+  { key: 'delayed', label: 'Delayed', hint: 'Stuck in one stage over 24h' },
+  { key: 'problem', label: 'Problem orders', hint: 'An issue is open' },
 ];
 
 export default function QuickFilters({ filters, setFilter, token, currentQuery, toast }) {
@@ -66,57 +71,49 @@ export default function QuickFilters({ filters, setFilter, token, currentQuery, 
     } catch { /* noop */ }
   };
 
-  const tabCls = (on) =>
-    `text-[10px] font-medium uppercase tracking-[0.14em] transition-colors ${
-      on ? 'text-white' : 'text-white/35 hover:text-white/75'
-    }`;
-
   return (
-    <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+    <div className={s.viewRow}>
+      <span className={s.ctlLabel} style={{ margin: 0 }}>Views</span>
       {PRESETS.map((p) => {
         const on = active === p.key;
         return (
-          <button key={p.key} title={p.hint} aria-pressed={on}
+          <button key={p.key} type="button" title={p.hint} aria-pressed={on}
             onClick={() => setFilter({ preset: on ? '' : p.key })}
-            className={tabCls(on)}>
+            className={cx(s.tab, on && s.tabOn)}>
             {p.label}
           </button>
         );
       })}
 
-      {views.length > 0 && <span className="h-3 w-px bg-white/15" />}
+      {views.length > 0 && <span className={s.viewGap} aria-hidden />}
 
       {views.map((v) => (
-        <span key={v._id} className="group inline-flex items-center gap-1">
-          <button onClick={() => applyView(v)} title={v.ownerName ? `Saved by ${v.ownerName}` : 'Saved view'}
-            className="text-[10px] font-medium uppercase tracking-[0.14em] text-white/40 hover:text-white">
+        <span key={v._id} className={cx(s.tab, filters.preset === v.name && s.tabOn)} style={{ paddingRight: 4 }}>
+          <button type="button" onClick={() => applyView(v)} title={v.ownerName ? `Saved by ${v.ownerName}` : 'Saved view'}
+            style={{ background: 'none', border: 0, cursor: 'pointer', color: 'inherit', font: 'inherit' }}>
             {v.name}
           </button>
-          <button onClick={(e) => removeView(v, e)} aria-label={`Delete ${v.name}`}
-            className="hidden text-white/25 hover:text-white group-hover:inline">
+          <button type="button" className={s.tabX} aria-label={`Delete ${v.name}`} onClick={(e) => removeView(v, e)}>
             <X size={10} />
           </button>
         </span>
       ))}
 
       {naming ? (
-        <span className="inline-flex items-center gap-1.5 border-b border-white/30 py-0.5">
+        <span className={s.nameWrap}>
           <input autoFocus value={name} onChange={(e) => setName(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') saveView(); if (e.key === 'Escape') { setNaming(false); setName(''); } }}
-            placeholder="Name this view" className="w-32 bg-transparent text-[12px] text-white outline-none placeholder:text-white/30" />
-          <button onClick={saveView} disabled={saving || !name.trim()}
-            className="text-[10px] font-medium uppercase tracking-[0.12em] text-white disabled:opacity-40">
+            placeholder="Name this view" aria-label="Saved view name" />
+          <button type="button" className={s.tabX} onClick={saveView} disabled={saving || !name.trim()} aria-label="Save view" style={{ opacity: saving || !name.trim() ? .4 : .7 }}>
             {saving ? <Loader2 size={11} className="animate-spin" /> : 'Save'}
           </button>
-          <button onClick={() => { setNaming(false); setName(''); }} aria-label="Cancel"
-            className="text-white/35 hover:text-white">
+          <button type="button" className={s.tabX} aria-label="Cancel naming" onClick={() => { setNaming(false); setName(''); }}>
             <X size={11} />
           </button>
         </span>
       ) : (
-        <button onClick={() => setNaming(true)} title="Save the current filters as a named view"
-          className="text-[10px] font-medium uppercase tracking-[0.14em] text-white/30 hover:text-white/70">
-          + Save view
+        <button type="button" className={s.tab} onClick={() => setNaming(true)} title="Save the current filters as a named view">
+          <Plus size={10} /> Save view
         </button>
       )}
     </div>

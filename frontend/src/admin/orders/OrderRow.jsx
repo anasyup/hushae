@@ -1,24 +1,57 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  ArrowRight, Ban, Check, ChevronDown, Copy, Loader2, MoreHorizontal,
+  ArrowRight, Ban, Check, ChevronDown, Copy, Loader2, MoreHorizontal, X,
 } from 'lucide-react';
 import { fmtDate, pkr } from '../../lib/format';
 import { CANCEL_REASONS, PRINT_DOCS } from './orderConstants';
 import QualityBadge from './QualityBadge';
-import ReliabilityBadge from '../ReliabilityBadge';
-import { fulfillmentLabel, MonoStatus, paymentLabel } from './orderUi';
+import { fulfillmentLabel, paymentLabel } from './orderUi';
+import s from './adesk.module.css';
 
 /* ===========================================================================
- * One order — editorial table row (desktop) / stacked scan row (mobile).
- * All existing actions preserved. Presentation only.
+ * One order — ATELIER table row (desktop) + card (mobile).
+ * Presentation only; every action is the desk's existing logic.
+ * The table is `table-layout: fixed`, so no column can ever push a
+ * horizontal scrollbar into view — text truncates instead.
  * ========================================================================== */
 
-const COL =
-  'hidden items-center lg:flex';
+const cx = (...cls) => cls.filter(Boolean).join('');
+
+/** Order stage → the same badge tones the Overview uses. */
+const FULFIL_TONE = {
+  'New': 'bAmber',
+  'To Pack': 'bPurple', 'To Arrange Shipment': 'bPurple', 'Picked': 'bPurple',
+  'Packed': 'bBlue', 'Manifested': 'bBlue', 'To Handover': 'bBlue',
+  'Shipped': 'bBlue', 'In Transit': 'bBlue', 'Out for Delivery': 'bBlue',
+  'Delivered': 'bGreen', 'Completed': 'bGreen',
+  'Cancelled': 'bRed', 'Failed Delivery': 'bRed',
+  'Refunded': 'bPurple', 'Returned': 'bPurple',
+};
+const PAY_TONE = {
+  PAID: 'bGreen', CONFIRMED: 'bGreen', VERIFIED: 'bBlue',
+  PENDING: 'bAmber', FAILED: 'bRed', EXPIRED: 'bRed', REFUNDED: 'bPurple',
+};
+const STATUS_TONE = {
+  Paid: 'bGreen', Processing: 'bAmber', Shipped: 'bBlue',
+  Delivered: 'bGreen', Completed: 'bGreen', Cancelled: 'bRed',
+  Refunded: 'bPurple', Returned: 'bPurple', Pending: 'bAmber',
+  'Failed Delivery': 'bRed',
+};
+
+const toneOf = (map, key, fallback = 'bGray') => map[key] || fallback;
+
+function Bdg({ tone, children }) {
+  return (
+    <span className={cx(s.bdg, s[tone])}>
+      <span className={s.bdgDot} aria-hidden />
+      <span className={s.cellEllip}>{children}</span>
+    </span>
+  );
+}
 
 export default function OrderRow({
-  order: o, selected, onSelect, busy, onStage, onVerify, onPrint, onOpenService, onOpenCustomer,
+  order: o, selected, onSelect, busy, onStage, onVerify, onPrint, onOpenService, onOpenCustomer, mobile = false,
 }) {
   const [open, setOpen] = useState(false);
   const [menu, setMenu] = useState(false);
@@ -27,7 +60,7 @@ export default function OrderRow({
   const stage = o.stage || 'New';
   const pState = paymentLabel(o);
   const fulfill = fulfillmentLabel(o);
-  const next = (o.allowedNext || []).find((s) => !['Cancelled', 'Refunded', 'Returned', 'Failed Delivery'].includes(s));
+  const next = (o.allowedNext || []).find((st) => !['Cancelled', 'Refunded', 'Returned', 'Failed Delivery'].includes(st));
   const itemCount = (o.items || []).reduce((a, i) => a + (i.quantity || 0), 0);
   const bins = [...new Set((o.items || []).map((i) => i.warehouseLocation).filter(Boolean))];
   const atRisk = (o.items || []).some((i) => ['out_of_stock', 'insufficient', 'low_stock'].includes(i.stockStatus));
@@ -37,52 +70,46 @@ export default function OrderRow({
 
   const menuPanel = menu && (
     <>
-      <div className="fixed inset-0 z-10" onClick={() => setMenu(false)} />
-      <div className="absolute right-0 top-9 z-20 w-52 border border-white/15 bg-[#0D0D0D] py-1">
-        <Link to={`/admin/orders/${o._id}`} className="block px-3 py-2 text-[12px] text-white/75 hover:bg-white/5 hover:text-white">
+      <div className={s.menuScrim} onClick={() => setMenu(false)} />
+      <div className={cx(s.menu, s.menuRight, s.menuWide, s.show)} style={{ top: 30, zIndex: 300 }}>
+        <Link to={`/admin/orders/${o._id}`} className={s.menuItem} onClick={() => setMenu(false)}>
           View full details
         </Link>
         {PRINT_DOCS.map((d) => (
-          <button key={d.key} onClick={() => { onPrint(o, d.key); setMenu(false); }}
-            className="flex w-full items-center gap-2 px-3 py-2 text-left text-[12px] text-white/75 hover:bg-white/5 hover:text-white">
+          <button key={d.key} type="button" onClick={() => { onPrint(o, d.key); setMenu(false); }} className={s.menuItem}>
             Print {d.label.toLowerCase()}
           </button>
         ))}
-        <div className="my-1 border-t border-white/10" />
+        <div className={s.menuDiv} />
         {pState !== 'PAID' && (
-          <button onClick={() => { onVerify(o._id, 'Confirmed'); setMenu(false); }}
-            className="flex w-full items-center gap-2 px-3 py-2 text-left text-[12px] text-white/75 hover:bg-white/5 hover:text-white">
-            <Check size={12} className="text-white/40" /> Mark payment confirmed
+          <button type="button" onClick={() => { onVerify(o._id, 'Confirmed'); setMenu(false); }} className={s.menuItem}>
+            <Check size={12} style={{ color: 'var(--muted)' }} /> Mark payment confirmed
           </button>
         )}
         {(o.paymentState || o.paymentStatus) === 'Pending' && (
-          <button onClick={() => { onVerify(o._id, 'Verified'); setMenu(false); }}
-            className="flex w-full items-center gap-2 px-3 py-2 text-left text-[12px] text-white/75 hover:bg-white/5 hover:text-white">
+          <button type="button" onClick={() => { onVerify(o._id, 'Verified'); setMenu(false); }} className={s.menuItem}>
             Mark payment verified
           </button>
         )}
         <a href={`https://wa.me/${String(o.customerInfo?.phone || '').replace(/\D/g, '').replace(/^0/, '92')}`}
-          target="_blank" rel="noreferrer"
-          className="flex w-full items-center gap-2 px-3 py-2 text-[12px] text-white/75 hover:bg-white/5 hover:text-white">
+          target="_blank" rel="noreferrer" className={s.menuItem}>
           WhatsApp customer
         </a>
-        <button onClick={() => { onOpenService(o); setMenu(false); }}
-          className="flex w-full items-center gap-2 px-3 py-2 text-left text-[12px] text-white/75 hover:bg-white/5 hover:text-white">
+        <button type="button" onClick={() => { onOpenService(o); setMenu(false); }} className={s.menuItem}>
           Log an issue
         </button>
-        <div className="my-1 border-t border-white/10" />
-        <button onClick={() => { setCancelMenu((v) => !v); }}
-          className="flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-[12px] text-white/55 hover:bg-white/5 hover:text-white">
-          <span className="inline-flex items-center gap-2"><Ban size={12} /> Cancel order</span>
-          <ChevronDown size={11} />
+        <div className={s.menuDiv} />
+        <button type="button" onClick={() => setCancelMenu((v) => !v)} className={s.menuItem}>
+          <Ban size={12} style={{ color: 'var(--muted)' }} /> Cancel order
+          <ChevronDown size={11} style={{ marginLeft: 'auto', transform: cancelMenu ? 'rotate(180deg)' : 'none', transition: '.15s' }} />
         </button>
         {cancelMenu && (
-          <div className="px-2 pb-1">
-            <p className="adm-label px-1 pb-1 pt-1">Reason (required)</p>
+          <div style={{ padding: '0 4px 4px' }}>
+            <p className={s.ctlLabel} style={{ padding: '4px 2px 2px' }}>Reason (required)</p>
             {CANCEL_REASONS.map((r) => (
-              <button key={r}
+              <button key={r} type="button"
                 onClick={() => { onStage(o._id, 'Cancelled', r, r); setMenu(false); setCancelMenu(false); }}
-                className="flex w-full items-center gap-2 px-2 py-1.5 text-left text-[12px] text-white/70 hover:bg-white/5 hover:text-white">
+                className={s.menuItem} style={{ fontSize: 11, color: 'var(--muted)' }}>
                 {r}
               </button>
             ))}
@@ -93,166 +120,163 @@ export default function OrderRow({
   );
 
   const actions = (
-    <div className="flex items-center justify-end gap-1">
+    <div className={s.acts} style={{ zIndex: 40 }} onClick={(e) => e.stopPropagation()}>
       {next && (
-        <button
-          disabled={busy} onClick={() => onStage(o._id, next)}
-          title={`Move to ${next}`}
-          className="inline-flex h-7 items-center gap-1 px-2 text-[10px] font-medium uppercase tracking-[0.12em] text-white/70 transition-colors hover:text-white disabled:opacity-40"
-        >
+        <button type="button" disabled={busy} onClick={() => onStage(o._id, next)}
+          title={`Move to ${next}`} className={cx(s.actBtn, s.actWide)}>
           {busy ? <Loader2 size={11} className="animate-spin" /> : <ArrowRight size={11} />}
           <span className="hidden xl:inline">{next}</span>
         </button>
       )}
-      <div className="relative">
-        <button onClick={() => setMenu((m) => !m)} aria-label="More actions"
-          className="grid h-7 w-7 place-items-center text-white/40 hover:text-white">
+      <div className={s.actBtn} style={{ position: 'relative', padding: 0, border: 0, background: 'none' }}>
+        <button type="button" onClick={() => setMenu((v) => !v)} aria-label="More actions"
+          aria-expanded={menu} className={s.actBtn}>
           <MoreHorizontal size={14} />
         </button>
         {menuPanel}
       </div>
-      <button onClick={() => setOpen((v) => !v)} aria-label="Toggle items" aria-expanded={open}
-        className="grid h-7 w-7 place-items-center text-white/40 hover:text-white">
-        <ChevronDown size={14} className={`transition-transform ${open ? 'rotate-180' : ''}`} />
+      <button type="button" onClick={() => setOpen((v) => !v)} aria-label="Toggle items" aria-expanded={open}
+        className={s.actBtn}>
+        <ChevronDown size={14} style={{ transform: open ? 'rotate(180deg)' : 'none', transition: '.18s' }} />
       </button>
     </div>
   );
 
-  const expanded = open && (
-    <div className="border-t border-white/5 bg-white/[0.02] px-3 py-3 lg:px-2">
-      <div className="space-y-2">
-        {(o.items || [])
-          .slice().sort((a, b) => (a.pickPriority || 3) - (b.pickPriority || 3))
-          .map((it, i) => (
-            <div key={i} className="flex items-center gap-3 text-[12px]">
-              {it.image
-                ? <img src={it.image} alt="" className="h-9 w-7 object-cover" />
-                : <span className="h-9 w-7 bg-white/10" />}
-              <span className="min-w-0 flex-1">
-                <span className="block truncate text-white/85">{it.name}</span>
-                {(it.warehouseLocation || it.sku || (it.stockStatus && it.stockStatus !== 'in_stock')) && (
-                  <span className="mt-0.5 flex flex-wrap items-center gap-x-2 text-[11px] text-white/35">
-                    {it.warehouseLocation && <span className="font-mono">{it.warehouseLocation}</span>}
-                    {it.sku && <span className="font-mono">{it.sku}</span>}
-                    {it.stockStatus && it.stockStatus !== 'in_stock' && (
-                      <span className="text-white/55">
-                        {it.stockStatus === 'out_of_stock' ? 'Out of stock'
-                          : it.stockStatus === 'insufficient' ? `Only ${it.stockAvailable} left`
-                            : `Low — ${it.stockAvailable} left`}
-                      </span>
-                    )}
-                  </span>
-                )}
+  const tray = (
+    <>
+      {(o.items || [])
+        .slice().sort((a, b) => (a.pickPriority || 3) - (b.pickPriority || 3))
+        .map((it, i) => (
+          <div key={i} className={s.itemRow}>
+            {it.image ? <img src={it.image} alt="" loading="lazy" /> : <span className={s.itemPh} />}
+            <span className={s.itemName}>{it.name}</span>
+            {(it.warehouseLocation || it.sku || (it.stockStatus && it.stockStatus !== 'in_stock')) && (
+              <span className={s.itemMeta}>
+                {it.warehouseLocation && <span>{it.warehouseLocation}</span>}
+                {it.sku && <span style={{ marginLeft: 8 }}>{it.sku}</span>}
               </span>
-              <span className="hidden text-white/35 sm:inline">{[it.size, it.color].filter(Boolean).join(' · ')}</span>
-              <span className="w-8 text-right tabular-nums text-white/40">×{it.quantity}</span>
-              <span className="w-24 text-right tabular-nums text-white">{pkr(it.lineTotal)}</span>
-            </div>
-          ))}
+            )}
+            {it.stockStatus && it.stockStatus !== 'in_stock' && (
+              <span className={s.itemWarn}>
+                {it.stockStatus === 'out_of_stock' ? 'Out of stock'
+                  : it.stockStatus === 'insufficient' ? `Only ${it.stockAvailable} left`
+                    : `Low — ${it.stockAvailable} left`}
+              </span>
+            )}
+            {[it.size, it.color].filter(Boolean).length > 0 && (
+              <span className={s.itemMeta}>{[it.size, it.color].filter(Boolean).join(' · ')}</span>
+            )}
+            <span className={s.itemQty}>×{it.quantity}</span>
+            <span className={s.itemAmt}>{pkr(it.lineTotal)}</span>
+          </div>
+        ))}
+      <div className={s.trayFoot}>
+        <span><b>Address</b> {o.customerInfo?.address || '—'}</span>
+        {o.trackingNumber && <span><b>Tracking</b> {o.trackingNumber}</span>}
+        {o.courierName && <span><b>Courier</b> {o.courierName}</span>}
+        {bins.length > 0 && <span><b>Bins</b> {bins.join(', ')}</span>}
       </div>
-      <div className="mt-3 flex flex-wrap gap-x-6 gap-y-1 border-t border-white/10 pt-2 text-[11px] text-white/35">
-        <span>Address <span className="text-white/70">{o.customerInfo?.address}</span></span>
-        {o.trackingNumber && <span>Tracking <span className="font-mono text-white/70">{o.trackingNumber}</span></span>}
-        {o.courierName && <span>Courier <span className="text-white/70">{o.courierName}</span></span>}
-      </div>
-    </div>
+    </>
   );
 
-  return (
-    <div className={`border-b border-white/10 ${selected ? 'bg-white/[0.03]' : ''} adm-row-hover`}>
-      {/* Desktop table row */}
-      <div className="hidden lg:grid lg:grid-cols-[32px_minmax(0,1.2fr)_minmax(0,1.15fr)_0.5fr_0.9fr_0.85fr_0.95fr_auto] lg:items-center lg:gap-3 lg:px-1 lg:py-3.5 xl:grid-cols-[32px_minmax(0,1.15fr)_minmax(0,1.1fr)_0.85fr_0.55fr_0.85fr_0.85fr_0.95fr_0.7fr_auto]">
-        <input
-          type="checkbox" checked={selected} onChange={() => onSelect(o._id)}
-          aria-label={`Select order ${o.orderNumber}`}
-          className="h-3.5 w-3.5 cursor-pointer rounded-none border-white/30 bg-transparent accent-white"
-        />
+  /* ---------- mobile / tablet card ---------- */
+  if (mobile) {
+    return (
+      <>
+        <div className={s.mCard} style={selected ? { borderColor: '#111', boxShadow: '0 0 0 2px #111' } : undefined}>
+          <div className={s.mTop}>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start', minWidth: 0 }}>
+              <input type="checkbox" className={s.chk} checked={selected} onChange={() => onSelect(o._id)}
+                aria-label={`Select order ${o.orderNumber}`} style={{ marginTop: 3 }} />
+              <div style={{ minWidth: 0 }}>
+                <Link to={`/admin/orders/${o._id}`} className={s.oName} style={{ fontWeight: 700, fontSize: 12.5 }}>
+                  {o.orderNumber}
+                </Link>
+                <p className={s.oSub}>{fmtDate(o.createdAt)} · {o.customerInfo?.city || '—'}</p>
+              </div>
+            </div>
+            <span className={cx(s.oTotal, s.cellEllip)} style={{ fontSize: 13 }}>{pkr(o.total)}</span>
+          </div>
+          <button type="button" className={s.oName} onClick={() => onOpenCustomer?.(o.customerInfo?.phone)}>
+            {o.customerInfo?.name}
+          </button>
+          <div className={s.mGrid}>
+            <span>Items<b>{itemCount}{atRisk ? ' · stock risk' : ''}</b></span>
+            <span>Fulfillment<b style={{ marginTop: 3 }}><Bdg tone={toneOf(FULFIL_TONE, stage)}>{fulfill}</Bdg></b></span>
+            <span>Payment<b style={{ marginTop: 3 }}><Bdg tone={toneOf(PAY_TONE, pState)}>{pState}</Bdg></b></span>
+            <span>Status<b style={{ marginTop: 3 }}><Bdg tone={toneOf(STATUS_TONE, o.status)}>{o.status || '—'}</Bdg></b></span>
+          </div>
+          <div className={s.mBtns} style={{ position: 'relative' }}>
+            {actions}
+            <QualityBadge quality={o.quality} compact />
+            {invoicePrinted && <span className={s.flag}>printed</span>}
+            {open && <div style={{ width: '100%' }}>{tray}</div>}
+          </div>
+        </div>
+      </>
+    );
+  }
 
-        <div className="min-w-0">
-          <div className="flex items-center gap-1.5">
-            <Link to={`/admin/orders/${o._id}`} className="truncate font-mono text-[13px] font-medium text-white hover:text-white/70">
+  /* ---------- desktop row ---------- */
+  return (
+    <>
+      <tr className={cx(selected && s.trSel)} onClick={() => setOpen((v) => !v)}>
+        <td onClick={(e) => e.stopPropagation()}>
+          <input type="checkbox" className={s.chk} checked={selected} onChange={() => onSelect(o._id)}
+            aria-label={`Select order ${o.orderNumber}`} />
+        </td>
+        <td>
+          <div className={s.oId} onClick={(e) => e.stopPropagation()}>
+            <Link to={`/admin/orders/${o._id}`} className={s.cellEllip} style={{ color: 'inherit', textDecoration: 'none', fontWeight: 600, fontSize: 11.5 }}>
               {o.orderNumber}
             </Link>
-            <button onClick={copyRef} aria-label="Copy order number" className="text-white/20 hover:text-white/70">
-              <Copy size={10} />
-            </button>
+            <button type="button" className={s.searchBtn} aria-label="Copy order number" onClick={copyRef}><Copy size={10} /></button>
             <QualityBadge quality={o.quality} compact />
           </div>
-          <p className="mt-0.5 text-[11px] text-white/30">{fmtDate(o.createdAt)}</p>
-        </div>
-
-        <div className="min-w-0">
-          <button
-            type="button"
-            onClick={(e) => { e.stopPropagation(); onOpenCustomer?.(o.customerInfo?.phone); }}
-            className="block truncate text-left text-[13px] text-white/90 hover:text-white"
-          >
+          <div className={s.oSub}>
+            {o.priorityFlag === 'rush' && <span className={cx(s.flag, s.flagOn)}>Rush · </span>}
+            {o.customerService?.hasIssue && <span className={s.flag}>Issue · </span>}
+            {invoicePrinted ? 'Printed' : 'Unprinted'}
+          </div>
+        </td>
+        <td>
+          <button type="button" className={s.oName} onClick={(e) => { e.stopPropagation(); onOpenCustomer?.(o.customerInfo?.phone); }}>
             {o.customerInfo?.name}
           </button>
-          <p className="mt-0.5 flex items-center gap-1.5 truncate text-[11px] text-white/35">
-            {o.customerInfo?.city}
-            <ReliabilityBadge reliability={o.reliability} compact />
-          </p>
-        </div>
-
-        <p className="hidden items-center text-[12px] text-white/45 xl:flex">{fmtDate(o.createdAt)}</p>
-        <p className={`${COL} text-[12px] tabular-nums text-white/70`}>
-          {itemCount}
-          {atRisk && <span className="ml-1 text-white/40">!</span>}
-        </p>
-        <p className={`${COL} adm-metric text-[13px] text-white`}>{pkr(o.total)}</p>
-        <div className={COL}><MonoStatus label={pState} /></div>
-        <div className={COL}><MonoStatus label={fulfill} /></div>
-        <div className="hidden flex-col items-start gap-1 xl:flex">
-          <MonoStatus label={String(o.status || '').toUpperCase()} dim={['Cancelled', 'Refunded', 'Pending'].includes(o.status)} />
-          {o.priorityFlag === 'rush' && <span className="text-[9px] uppercase tracking-[0.16em] text-white">Rush</span>}
-          {o.customerService?.hasIssue && <span className="text-[9px] uppercase tracking-[0.14em] text-white/45">Issue</span>}
-          {invoicePrinted && <span className="text-[9px] uppercase tracking-[0.14em] text-white/30">Printed</span>}
-        </div>
-        <div className="hidden lg:block">{actions}</div>
-      </div>
-
-      {/* Mobile / tablet stacked row */}
-      <div className="flex items-start gap-3 px-1 py-4 lg:hidden">
-        <input
-          type="checkbox" checked={selected} onChange={() => onSelect(o._id)}
-          aria-label={`Select order ${o.orderNumber}`}
-          className="mt-1 h-3.5 w-3.5 shrink-0 cursor-pointer rounded-none border-white/30 bg-transparent accent-white"
-        />
-        <div className="min-w-0 flex-1">
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              <Link to={`/admin/orders/${o._id}`} className="font-mono text-[13px] font-medium text-white">
-                {o.orderNumber}
-              </Link>
-              <p className="mt-0.5 text-[11px] text-white/35">{fmtDate(o.createdAt)}</p>
+          <div className={s.oSub} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span className={s.cellEllip}>{o.customerInfo?.city}</span>
+            {o.reliability?.tier === 'high-risk' && <span className={cx(s.flag, s.flagOn)}>risk</span>}
+          </div>
+        </td>
+        <td className={s.colDate}>
+          <div className={s.cellEllip}>{fmtDate(o.createdAt)}</div>
+        </td>
+        <td className={s.colItems}>
+          <span className={s.cellEllip} style={{ fontVariantNumeric: 'tabular-nums' }}>
+            {itemCount}{atRisk && <span style={{ color: '#b45309', marginLeft: 4 }}>!</span>}
+          </span>
+        </td>
+        <td className={s.colTotal}><span className={cx(s.oTotal, s.cellEllip)}>{pkr(o.total)}</span></td>
+        <td className={s.colPay}><Bdg tone={toneOf(PAY_TONE, pState)}>{pState}</Bdg></td>
+        <td className={s.colFulfil}><Bdg tone={toneOf(FULFIL_TONE, stage)}>{fulfill}</Bdg></td>
+        <td className={s.colStatus}>
+          <Bdg tone={toneOf(STATUS_TONE, o.status)}>{o.status || '—'}</Bdg>
+        </td>
+        <td className={s.colAct} onClick={(e) => e.stopPropagation()}>{actions}</td>
+      </tr>
+      {open && (
+        <tr className={s.tray}>
+          <td colSpan={10}>
+            <div className={s.trayInner}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+                <span className={s.ctlLabel} style={{ margin: 0 }}>Items ({(o.items || []).length})</span>
+                <button type="button" className={s.btnSm} onClick={() => setOpen(false)}><X size={11} /> Close</button>
+              </div>
+              {tray}
             </div>
-            <p className="adm-metric shrink-0 text-[14px] text-white">{pkr(o.total)}</p>
-          </div>
-          <button
-            type="button"
-            onClick={() => onOpenCustomer?.(o.customerInfo?.phone)}
-            className="mt-2 block text-left text-[13px] text-white/85"
-          >
-            {o.customerInfo?.name}
-          </button>
-          <p className="mt-0.5 text-[11px] text-white/35">
-            {itemCount} item{itemCount === 1 ? '' : 's'}
-            {o.customerInfo?.city ? ` · ${o.customerInfo.city}` : ''}
-            {bins.length > 0 ? ` · ${bins.slice(0, 2).join(', ')}` : ''}
-          </p>
-          <div className="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1.5">
-            <MonoStatus label={pState} />
-            <MonoStatus label={fulfill} />
-            {o.priorityFlag === 'rush' && <span className="text-[9px] uppercase tracking-[0.16em] text-white">Rush</span>}
-            {o.customerService?.hasIssue && <span className="text-[9px] uppercase tracking-[0.14em] text-white/45">Issue</span>}
-            <QualityBadge quality={o.quality} compact />
-          </div>
-          <div className="mt-3">{actions}</div>
-        </div>
-      </div>
-
-      {expanded}
-    </div>
+          </td>
+        </tr>
+      )}
+    </>
   );
 }
