@@ -768,8 +768,9 @@ function GroupDropdown({ group, expanded, onToggle, collapsed, onNavigate }) {
   const loc = useLocation();
   const Icon = group.icon;
 
-  // Check if any child route is active
-  const isActive = group.children.some(child => {
+  // Check if any child route is active (groups define either `children` or `items`)
+  const groupItems = group.children || group.items || [];
+  const isActive = groupItems.some(child => {
     if (child.to === loc.pathname) return true;
     if (loc.pathname.startsWith(child.to + '/')) return true;
     return false;
@@ -816,7 +817,7 @@ function GroupDropdown({ group, expanded, onToggle, collapsed, onNavigate }) {
       
       {expanded && (
         <div className="pl-6 space-y-0.5">
-          {group.children.map(child => {
+          {groupItems.map(child => {
             const ChildIcon = child.icon;
             const isChildActive = loc.pathname === child.to || loc.pathname.startsWith(child.to + '/');
             const NavComponent = child.to ? NavLink : Fragment;
@@ -937,7 +938,7 @@ function SidebarContent({ onNavigate, collapsed = false }) {
   useEffect(() => {
     visibleSections.forEach(section => {
       section.groups?.forEach(group => {
-        const hasActiveChild = group.children.some(child => {
+        const hasActiveChild = (group.children || group.items || []).some(child => {
           return loc.pathname === child.to || loc.pathname.startsWith(child.to + '/');
         });
         if (hasActiveChild) {
