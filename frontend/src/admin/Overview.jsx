@@ -234,7 +234,6 @@ export default function Overview() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [notifOpen, setNotifOpen] = useState(false);
-  const [addOpen, setAddOpen] = useState(false);
   const [notifRead, setNotifRead] = useState(false);
   const [q, setQ] = useState('');
   const [revType, setRevType] = useState('revenue');
@@ -486,14 +485,8 @@ export default function Overview() {
     }, 1800);
 
     const onKey = (e) => {
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
-        e.preventDefault();
-        document.getElementById('searchInput').focus();
-        showToast('Search focused (⌘K)');
-      }
       if (e.key === 'Escape') {
         setNotifOpen(false);
-        setAddOpen(false);
         document.querySelectorAll('.' + styles.dropdown).forEach((d) => d.classList.remove(styles.show));
       }
     };
@@ -543,23 +536,9 @@ export default function Overview() {
     <AdminLayout title="Overview">
       <div className={styles.ovw}>
         <div className={styles.wrap}>
-          {/* ------------------------------ top bar ------------------------------ */}
+          {/* --------------------- range / filter bar (admin header owns title, search, create, theme) --------------------- */}
           <div className={styles.topbar}>
             <div className={styles['top-left']}>
-              <div className={styles.hamburger} onClick={() => showToast('Sidebar toggle — hidden as per request')}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="2"><path d="M3 6h18M3 12h18M3 18h18" /></svg>
-              </div>
-              <div className={styles['top-title']}>
-                <h1>Overview</h1>
-                <p>Here's what's happening with your store.</p>
-              </div>
-            </div>
-            <div className={styles['top-right']}>
-              <div className={styles.search}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2"><circle cx="11" cy="11" r="6" /><path d="m20 20-3.5-3.5" /></svg>
-                <input id="searchInput" value={q} placeholder="Search orders, products, customers..." onChange={onSearchKey} onFocus={() => showToast('Type to filter products & orders')} />
-                <span className={styles.kbd}>⌘ K</span>
-              </div>
               <div className={styles.pill} id="datePill" onClick={() => toggleDropdown('dateDrop')}>
                 <span>{rangeLabel}</span>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" /></svg>
@@ -574,19 +553,15 @@ export default function Overview() {
                   {COMPARE_OPTIONS.map((o) => <div key={o.key} onClick={() => { setCompare(o.key); closeDrops(); }}>{o.label}</div>)}
                 </div>
               </div>
-              <button className={styles['btn-black']} onClick={() => { setNotifOpen(false); setAddOpen(true); }}>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M5 12h14" /></svg>
-                Add New
-              </button>
-              <div className={styles['icon-btn']} onClick={() => { setAddOpen(false); setNotifOpen(true); }}>
+            </div>
+            <div className={styles['top-right']}>
+              <div className={styles.search}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2"><circle cx="11" cy="11" r="6" /><path d="m20 20-3.5-3.5" /></svg>
+                <input id="searchInput" value={q} placeholder="Filter products & orders..." onChange={onSearchKey} onFocus={() => showToast('Type to filter products & orders')} />
+              </div>
+              <div className={styles['icon-btn']} onClick={() => setNotifOpen(true)}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="1.8"><path d="M6 8a6 6 0 0 1 12 0c0 7 6 5 6 10H0s6-3 6-10" /><path d="M10 20a2 2 0 0 0 4 0" /></svg>
                 {alerts.length > 0 && !notifRead && <div className={styles.badge} id="notifBadge">{alerts.length}</div>}
-              </div>
-              <div className={styles['icon-btn']} onClick={() => {
-                if (!document.fullscreenElement) document.documentElement.requestFullscreen().then(() => showToast('Fullscreen ON')).catch(() => showToast('Fullscreen not supported'));
-                else { document.exitFullscreen(); showToast('Fullscreen OFF'); }
-              }}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="1.8"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" /></svg>
               </div>
             </div>
           </div>
@@ -706,7 +681,7 @@ export default function Overview() {
                   <b>{k ? int(k.customers.value) : '—'}</b><span>New Customers</span>
                 </div>
               </div>
-              <div className={styles['view-all']} onClick={() => { setAddOpen(false); setNotifOpen(true); }}>View all notifications
+              <div className={styles['view-all']} onClick={() => setNotifOpen(true)}>View all notifications
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
               </div>
             </div>
@@ -908,21 +883,6 @@ export default function Overview() {
               <div className={styles['modal-actions']}>
                 <button onClick={() => setNotifOpen(false)}>Close</button>
                 {alerts.length > 0 && <button className={styles.primary} onClick={() => { setNotifRead(true); showToast('Notifications marked as read'); setNotifOpen(false); }}>Mark all as read</button>}
-              </div>
-            </div>
-          </div>
-          {/* Add New — real creation links */}
-          <div className={cx(styles.modal, addOpen && styles.show)} onClick={(e) => { if (e.target === e.currentTarget) setAddOpen(false); }}>
-            <div className={styles['modal-box']}>
-              <h3>Add New</h3>
-              <p>Create a new order, product or promotion.</p>
-              <div className={styles['add-list']}>
-                <button className={styles['add-btn']} onClick={() => { setAddOpen(false); nav('/admin/orders/new'); }}>New Order</button>
-                <button className={styles['add-btn']} onClick={() => { setAddOpen(false); nav('/admin/products/new'); }}>New Product</button>
-                <button className={styles['add-btn']} onClick={() => { setAddOpen(false); nav('/admin/promotions/new'); }}>New Promotion</button>
-              </div>
-              <div className={styles['modal-actions']}>
-                <button onClick={() => setAddOpen(false)}>Cancel</button>
               </div>
             </div>
           </div>

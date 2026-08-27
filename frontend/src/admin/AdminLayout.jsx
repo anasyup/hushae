@@ -918,14 +918,14 @@ function SidebarContent({ onNavigate, collapsed = false }) {
   const [showAdvanced, setShowAdvanced] = useState(false);
 
   const role = auth?.user?.role;
-  const visibleSections = role 
+  const visibleSections = useMemo(() => role 
     ? NAV_SECTIONS.filter(section => {
         if (section.groups) {
           return section.groups.some(g => roleHasAccess(role, g.key));
         }
         return section.items?.some(i => !i.requires || roleHasAccess(role, i.requires));
       })
-    : NAV_SECTIONS;
+    : NAV_SECTIONS, [role]);
 
   const toggleGroup = (groupKey) => {
     setExpandedGroups(prev => ({
@@ -942,7 +942,7 @@ function SidebarContent({ onNavigate, collapsed = false }) {
           return loc.pathname === child.to || loc.pathname.startsWith(child.to + '/');
         });
         if (hasActiveChild) {
-          setExpandedGroups(prev => ({ ...prev, [group.key]: true }));
+          setExpandedGroups(prev => (prev[group.key] ? prev : { ...prev, [group.key]: true }));
         }
       });
     });
