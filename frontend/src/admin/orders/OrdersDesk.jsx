@@ -2,16 +2,15 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Chart from 'chart.js/auto';
 import { Link, useNavigate } from 'react-router-dom';
 import {
-  ArrowRight, Bell, Download, FileText, Keyboard, Layers, Loader2, Package,
-  Plus, Printer, RefreshCcw, Search, X,
+  Bell, Check, ChevronDown, Download, DollarSign, Keyboard, Loader2,
+  Plus, RefreshCcw, Search, X,
 } from 'lucide-react';
 import AdminLayout from '../AdminLayout';
 import { pkr } from '../../lib/format';
 import { useApp } from '../../store/AppContext';
 import { api } from '../../api/client';
-import { GROUPS } from './orderConstants';
+import { PAYMENT_METHODS, PAYMENT_STATES, SORT_OPTIONS, ISSUE_TYPES, REFUND_STATES } from './orderConstants';
 import { useOrderDesk, useOrderNotifications } from './useOrderDesk';
-import { ISSUE_TYPES, REFUND_STATES } from './orderConstants';
 import OrderFilters from './OrderFilters';
 import BulkBar from './BulkBar';
 import OrderRow from './OrderRow';
@@ -21,19 +20,22 @@ import { writeErrorWindow, writeLoadingWindow, writePrintWindow } from './printD
 import s from './adesk.module.css';
 
 /* ===========================================================================
- * Order desk — ATELIER theme, same design family as /admin (Overview).
+ * Order desk — "balanced polish" build.
  *
- * The polish lives in adesk.module.css: identical tokens to
- * admin/Overview.module.css (colours, radius, shadows, type scale) plus the
- * desk's own parts — clickable stat tiles with a drill-down, 12 order
- * structure pills, a live search dropdown, and a fixed-layout table that can
- * never scroll sideways (rows become cards under 900px).
+ * Layout, sizes and colours follow the reference file
+ * orders_balanced_polished.html 1:1 (topbar with search + range pills, six
+ * stat tiles with sparklines, one white card holding tabs / filter bar /
+ * fixed-layout table / pagination), using the same ATELIER tokens as
+ * /admin (Overview).
  *
- * Data + behaviour are unchanged: every filter writes to the URL, every
- * mutation goes through useOrderDesk, counts come from /orders/manage/counts.
- * ========================================================================== */
+ * Nothing here is decoration-only: every number comes from
+ * GET /orders/manage/counts, the tiles and tabs set real URL filters, the
+ * sparklines are bucketed from orders actually loaded for this view, and the
+ * drill-down (kept from the previous pass — it is a feature, not chrome)
+ * compares against a real second window.
+ * =========================================================================== */
 
-const cx = (...cls) => cls.filter(Boolean).join(' ');
+const cx = (...cls) => cls.filter(Boolean).join('');
 const int = (v) => (v == null ? '—' : Number(v).toLocaleString('en-US'));
 const compact = (v) => {
   const n = Number(v) || 0;
@@ -41,89 +43,96 @@ const compact = (v) => {
   if (n >= 1e3) return `₨${Math.round(n / 1e3)}K`;
   return `₨${Math.round(n)}`;
 };
-const shortDate = (str) => (str
-  ? new Date(`${str}T00:00:00`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
-  : '');
+const iso = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+const shift = (dateStr, days) => {
+  const d = new Date(`${dateStr}T00:00:00`);
+  d.setDate(d.getDate() + days);
+  return iso(d);
+};
+const shortDate = (str) => (str ? new Date(`${str}T00:00:00`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '');
 
-/** Filters a pill applies; `clear` lists keys it must unset. */
-const PILLS = [
-  { key: 'all', label: 'All Orders', set: { group: 'all' } },
-  ...GROUPS.filter((g) => g.key !== 'all').map((g) => ({ key: `g:${g.key}`, label: g.label, hint: g.hint, set: { group: g.key } })),
-  { key: 'delivered', label: 'Delivered', countKey: 'delivered', set: { group: 'delivered' } },
-  { key: 'unverified', label: 'Payment Unverified', countKey: 'unverified', set: { paymentState: 'Pending', group: 'all' }, clear: ['preset', 'stage'] },
-  { key: 'high-value', label: 'High Value', hint: '₨50,000 and above', preset: 'high-value', set: { preset: 'high-value' }, clear: ['group', 'stage'] },
-  { key: 'delayed', label: 'Delayed', hint: 'Stuck in one stage 24h+', preset: 'delayed', set: { preset: 'delayed' }, clear: ['group', 'stage'] },
-  { key: 'problem', label: 'Problem Orders', hint: 'An issue is open', preset: 'problem', set: { preset: 'problem' }, clear: ['group', 'stage'] },
+/** Tiles and tabs speak `status` (the coarse workflow field the API filters). */
+const TABS = [
+  { key: 'all', label: 'All Orders', status: '' },
+  { key: 'pending', label: 'Pending', status: 'Pending' },
+  { key: 'processing', label: 'Processing', status: 'Processing' },
+  { key: 'completed', label: 'Completed', status: 'Delivered' },
+  { key: 'cancelled', label: 'Cancelled', status: 'Cancelled' },
 ];
 
-/* Preset pills (high value / delayed / problem) have no count endpoint, so
-   they deliberately render without a number instead of an invented one. */
-const EXTRA_COUNTS = {
-  unverified: (c) => c.byPaymentState?.Pending ?? null,
-  delivered: (c) => c.byGroup?.delivered ?? null,
+const STAT_ICONS = {
+  total: <><rect x="1" y="4" width="22" height="17" rx="2" /><line x1="1" y1="10" x2="23" y2="10" /></>,
+  pending: <><circle cx="12" cy="12" r="9" /><polyline points="12 7 12 12 15 14" /></>,
+  processing: <><path d="M21 8l-9-5-9 5 9 5 9-5z" /><path d="M3 8v8l9 5 9-5V8" /></>,
+  completed: <><circle cx="12" cy="12" r="9" /><polyline points="8 12 11 15 16 9" /></>,
+  cancelled: <><circle cx="12" cy="12" r="9" /><line x1="6" y1="6" x2="18" y2="18" /></>,
 };
 
+/** Build the six tiles: value, real delta vs a real second window, spark. */
+function buildTiles(counts, prev, series) {
+  const c = counts || {};
+  const p = prev || {};
+  const g = c.byGroup || {}; const pg = p.byGroup || {};
+  const ps = c.byPaymentState || {}; const pps = p.byPaymentState || {};
+  const paid = (ps.Confirmed || 0) + (ps.Verified || 0);
+  const pPaid = (pps.Confirmed || 0) + (pps.Verified || 0);
+  const pct = (cur, pre) => (pre ? ((cur - pre) / pre) * 100 : null);
+  const rows = series.rows || [];
+  const byDay = (pred) => {
+    const map = new Map();
+    rows.forEach((o) => {
+      if (pred && !pred(o)) return;
+      const k = new Date(o.createdAt).toISOString().slice(0, 10);
+      map.set(k, (map.get(k) || 0) + 1);
+    });
+    const days = [...map.keys()].sort().slice(-14);
+    return days.map((d) => map.get(d));
+  };
+  const st = (s) => (o) => (o.status || '') === s;
+
+  return [
+    { key: 'total', label: 'Total Orders', icon: STAT_ICONS.total, value: int(c.total), series: byDay(null),
+      change: c.total != null && p.total != null ? pct(c.total, p.total) : null, tab: 'all' },
+    { key: 'pending', label: 'Pending', icon: STAT_ICONS.pending, value: int(g.new || 0), series: byDay(st('Pending')),
+      change: pct(g.new || 0, pg.new || 0), tab: 'pending' },
+    { key: 'processing', label: 'Processing', icon: STAT_ICONS.processing, value: int((g.processing || 0) + (g['to-ship'] || 0)), series: byDay((o) => ['Processing', 'Confirmed'].includes(o.status)),
+      change: pct((g.processing || 0) + (g['to-ship'] || 0), (pg.processing || 0) + (pg['to-ship'] || 0)), tab: 'processing' },
+    { key: 'completed', label: 'Completed', icon: STAT_ICONS.completed, value: int(g.delivered || 0), series: byDay((o) => ['Delivered', 'Out for Delivery', 'Shipped'].includes(o.status)),
+      change: pct(g.delivered || 0, pg.delivered || 0), tab: 'completed' },
+    { key: 'cancelled', label: 'Cancelled', icon: STAT_ICONS.cancelled, value: int(g.issues || 0), series: byDay((o) => ['Cancelled', 'Refunded'].includes(o.status)),
+      change: pct(g.issues || 0, pg.issues || 0), downIsGood: true, tab: 'cancelled' },
+    { key: 'revenue', label: 'Revenue', icon: null, value: c.revenue != null ? pkr(c.revenue) : '—', series: series.revenue,
+      change: c.revenue != null && p.revenue != null ? pct(c.revenue, p.revenue) : null, tab: null, money: true },
+  ];
+}
+
+/** Stage / group distribution + breakdown stats for the drill-down panel. */
 function buildDrill(key, counts, rows) {
   const byStage = counts?.byStage || {};
   const byGroup = counts?.byGroup || {};
-  const c = counts?.total ?? 0;
+  const total = counts?.total ?? 0;
   const paid = (counts?.byPaymentState?.Confirmed || 0) + (counts?.byPaymentState?.Verified || 0);
   const unpaid = counts?.byPaymentState?.Pending || 0;
   const rev = counts?.revenue || 0;
   const delivered = byGroup.delivered || 0;
-  const issues = byGroup.issues || 0;
-  const rowsUnprinted = rows.filter((o) => !o.printStatus?.invoice?.printed).length;
-
+  const unprinted = rows.filter((o) => !o.printStatus?.invoice?.printed).length;
   const SERIES = {
-    total: [
-      ['New', byGroup.new || 0], ['Processing', byGroup.processing || 0], ['To Ship', byGroup['to-ship'] || 0],
-      ['Shipped', byGroup.shipped || 0], ['Delivered', delivered], ['Issues', issues],
-    ],
+    total: [['New', byGroup.new || 0], ['Processing', byGroup.processing || 0], ['To Ship', byGroup['to-ship'] || 0], ['Shipped', byGroup.shipped || 0], ['Delivered', delivered], ['Issues', byGroup.issues || 0]],
     revenue: Object.entries(byStage).sort((a, b) => b[1] - a[1]).slice(0, 7),
-    aov: Object.entries(byStage).sort((a, b) => b[1] - a[1]).slice(0, 7).map(([k, v]) => [k, v]),
-    paid: [['Paid', paid], ['Unverified', unpaid], ['Failed / expired', (counts?.byPaymentState?.Failed || 0) + (counts?.byPaymentState?.Expired || 0)]],
-    unpaid: [['Unverified', unpaid], ['Paid', paid], ['Confirmed', counts?.byPaymentState?.Confirmed || 0]],
-    fulfilled: [['Fulfilled', delivered], ['In flight', (byGroup['to-ship'] || 0) + (byGroup.shipped || 0)], ['Awaiting', (byGroup.new || 0) + (byGroup.processing || 0)]],
+    pending: [['Awaiting review', byGroup.new || 0], ['Verified', counts?.byPaymentState?.Verified || 0], ['Unverified', unpaid]],
+    processing: [['Processing', byGroup.processing || 0], ['To Ship', byGroup['to-ship'] || 0], ['Shipped', byGroup.shipped || 0]],
+    completed: [['Delivered', delivered], ['Shipped', byGroup.shipped || 0], ['Not yet', Math.max(0, total - delivered)]],
+    cancelled: [['Issues', byGroup.issues || 0], ['Delivered', delivered], ['Open', Math.max(0, total - delivered - (byGroup.issues || 0))]],
   };
   const NOTES = {
-    total: [
-      ['Orders in this view', int(c), 'Every stage, whatever its status'],
-      ['Awaiting review', int(byGroup.new || 0), 'Just received — nothing done yet'],
-      ['Delivered', int(delivered), `${c ? Math.round((delivered / c) * 100) : 0}% of all orders`],
-      ['Issues', int(issues), 'Cancellations, returns, refunds'],
-    ],
-    revenue: [
-      ['Value in view', pkr(rev), 'Sum of every order total'],
-      ['Average order', c ? pkr(Math.round(rev / c)) : '—', 'Revenue ÷ orders'],
-      ['Inflights', int(rowsUnprinted), 'Invoice not printed on this page'],
-      ['Paid value', pkr(Math.round((rev * (c ? paid / c : 0)) || 0)), 'Share carried by paid orders'],
-    ],
-    aov: [
-      ['Average order value', c ? pkr(Math.round(rev / c)) : '—', 'Revenue ÷ orders'],
-      ['Paid orders', int(paid), 'Confirmed + verified payments'],
-      ['Unpaid orders', int(c - paid), 'COD and unverified transfers'],
-      ['Page sample', int(rows.length), `Across ${counts?.pages || 1} page(s)`],
-    ],
-    paid: [
-      ['Paid', int(paid), `${c ? Math.round((paid / c) * 100) : 0}% of orders`],
-      ['Unverified', int(unpaid), 'Waiting on your check'],
-      ['Value paid', pkr(Math.round((rev * (c ? paid / c : 0)) || 0)), 'Approximate, by share'],
-      ['Failed / expired', int((counts?.byPaymentState?.Failed || 0) + (counts?.byPaymentState?.Expired || 0)), 'Dead gateways'],
-    ],
-    unpaid: [
-      ['Unverified', int(unpaid), 'Awaiting payment check'],
-      ['Of all orders', `${c ? Math.round((unpaid / c) * 100) : 0}%`, 'Higher means more chasing'],
-      ['Filters set', 'Payment Unverified', 'Table below is narrowed'],
-      ['Next step', 'Verify', 'Open a row and confirm the transfer'],
-    ],
-    fulfilled: [
-      ['Delivered', int(delivered), `${c ? Math.round((delivered / c) * 100) : 0}% closed`],
-      ['To Ship', int(byGroup['to-ship'] || 0), 'Packed, courier pending'],
-      ['Shipped', int(byGroup.shipped || 0), 'In transit'],
-      ['Unprinted (page)', int(rowsUnprinted), 'Invoices not printed yet'],
-    ],
+    total: [['Orders in view', int(total), 'Every stage, whatever its status'], ['Awaiting review', int(byGroup.new || 0), 'Just received'], ['Delivered', int(delivered), `${total ? Math.round((delivered / total) * 100) : 0}% closed`], ['Issues', int(byGroup.issues || 0), 'Cancellations, returns, refunds']],
+    revenue: [['Value in view', pkr(rev), 'Sum of order totals'], ['Average order', total ? pkr(Math.round(rev / total)) : '—', 'Revenue ÷ orders'], ['Paid value', pkr(Math.round(rev * (total ? paid / total : 0))), 'Carried by paid orders'], ['Unprinted (page)', int(unprinted), 'Invoices not printed yet']],
+    pending: [['Awaiting review', int(byGroup.new || 0), 'Nothing done yet'], ['Unverified', int(unpaid), 'Payment check pending'], ['Of all orders', `${total ? Math.round(((byGroup.new || 0) / total) * 100) : 0}%`, 'Higher means more chasing']],
+    processing: [['Processing', int(byGroup.processing || 0), 'With the warehouse'], ['To Ship', int(byGroup['to-ship'] || 0), 'Packed, courier pending'], ['Shipped', int(byGroup.shipped || 0), 'In transit']],
+    completed: [['Delivered', int(delivered), `${total ? Math.round((delivered / total) * 100) : 0}% of orders`], ['Shipped', int(byGroup.shipped || 0), 'On the way'], ['Unprinted (page)', int(unprinted), 'Invoices still to print']],
+    cancelled: [['Issues', int(byGroup.issues || 0), 'Cancel + return + refund'], ['Paid then cancelled', int(unpaid), 'Needs money back check'], ['Delivered', int(delivered), 'For contrast']],
   };
-  return { series: SERIES[key] || [], notes: NOTES[key] || [] };
+  return { series: (SERIES[key] || []).filter(([, v]) => Number(v) > 0), notes: NOTES[key] || [] };
 }
 
 export default function OrdersDesk() {
@@ -143,34 +152,36 @@ export default function OrdersDesk() {
   const [selectAllMatching, setSelectAllMatching] = useState(false);
   const [customerPhone, setCustomerPhone] = useState(null);
   const [showShortcuts, setShowShortcuts] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
+  const [rangeOpen, setRangeOpen] = useState(false);
   const [activeStat, setActiveStat] = useState(null);
   const [term, setTerm] = useState(filters.q || '');
   const [sugOpen, setSugOpen] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
+  const [prev, setPrev] = useState(null);
+  const [series, setSeries] = useState({ rows: [], revenue: [] });
   const [recent, setRecent] = useState(() => {
     try { return JSON.parse(localStorage.getItem('hushae.orderSearches') || '[]'); } catch { return []; }
   });
   const searchRef = useRef(null);
   const searchWrap = useRef(null);
   const debounce = useRef(null);
-  const chartRef = useRef(null);
-  const chartObj = useRef(null);
+  const drillChart = useRef(null);
+  const drillObj = useRef(null);
+  const sparkObjs = useRef([]);
 
   const orders = data.orders || [];
   const ids = useMemo(() => orders.map((o) => o._id), [orders]);
+  const token = auth?.token;
 
-  useEffect(() => {
-    setSelected([]);
-    setSelectAllMatching(false);
-  }, [filters.group, filters.preset]);
-
+  useEffect(() => { setSelected([]); setSelectAllMatching(false); }, [filters.status, filters.group, filters.preset]);
   useEffect(() => { setTerm(filters.q || ''); }, [filters.q]);
 
   const toggle = useCallback((id) =>
-    setSelected((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id])), []);
+    setSelected((prevSel) => (prevSel.includes(id) ? prevSel.filter((x) => x !== id) : [...prevSel, id])), []);
   const allOnPage = orders.length > 0 && selected.length === orders.length;
 
-  /* ── print (unchanged) ─────────────────────────────────────────────── */
+  /* ── print (unchanged endpoints) ───────────────────────────────────── */
   const openPrintTab = useCallback(async (docType, orderIds) => {
     const win = window.open('', '_blank');
     if (!win) { toast?.('Allow pop-ups for this site to print'); return; }
@@ -179,16 +190,15 @@ export default function OrdersDesk() {
       const qs = new URLSearchParams({ doc: docType });
       if (orderIds?.length) qs.set('ids', orderIds.join(','));
       else Object.entries(filters).forEach(([k, v]) => { if (v) qs.set(k, v); });
-      const payload = await api(`/orders/manage/print/batch?${qs}`, { token: auth?.token });
+      const payload = await api(`/orders/manage/print/batch?${qs}`, { token });
       if (!payload.orders?.length) { writeErrorWindow(win, 'There were no orders to print.'); return; }
       writePrintWindow(win, payload);
-      const printedIds = payload.orders.map((o) => o._id).slice(0, 200);
-      bulk('print', printedIds, { docType }).catch(() => {});
+      bulk('print', payload.orders.map((o) => o._id).slice(0, 200), { docType }).catch(() => {});
     } catch (e) {
       writeErrorWindow(win, e.message || 'Could not load the documents.');
       toast?.(e.message || 'Print failed');
     }
-  }, [auth?.token, filters, bulk, toast]);
+  }, [token, filters, bulk, toast]);
 
   const handlePrint = useCallback((order, docType) => openPrintTab(docType, [order._id]), [openPrintTab]);
   const handleBulkPrint = useCallback(
@@ -199,23 +209,19 @@ export default function OrdersDesk() {
   const canAdvance = useMemo(() => {
     const chosen = orders.filter((o) => selected.includes(o._id));
     if (!chosen.length) return true;
-    return chosen.some((o) => (o.allowedNext || []).some(
-      (n) => !['Cancelled', 'Refunded', 'Returned', 'Failed Delivery'].includes(n)));
+    return chosen.some((o) => (o.allowedNext || []).some((n) => !['Cancelled', 'Refunded', 'Returned', 'Failed Delivery'].includes(n)));
   }, [orders, selected]);
 
   /* ── keyboard ──────────────────────────────────────────────────────── */
   useEffect(() => {
     const onKey = (e) => {
       const el = e.target;
-      const typing = el?.tagName === 'INPUT' || el?.tagName === 'TEXTAREA'
-        || el?.tagName === 'SELECT' || el?.isContentEditable;
-
-      if ((e.key === 'k' || e.key === 'K') && (e.metaKey || e.ctrlKey)) {
-        e.preventDefault(); searchRef.current?.focus(); return;
-      }
+      const typing = el?.tagName === 'INPUT' || el?.tagName === 'TEXTAREA' || el?.tagName === 'SELECT' || el?.isContentEditable;
+      if ((e.key === 'k' || e.key === 'K') && (e.metaKey || e.ctrlKey)) { e.preventDefault(); searchRef.current?.focus(); return; }
       if (e.key === '/' && !typing) { e.preventDefault(); searchRef.current?.focus(); return; }
       if (e.key === 'Escape') {
         if (sugOpen) { setSugOpen(false); return; }
+        if (rangeOpen) { setRangeOpen(false); return; }
         if (activeStat) { setActiveStat(null); return; }
         setSelected([]); setSelectAllMatching(false); setShowShortcuts(false);
         return;
@@ -230,170 +236,199 @@ export default function OrdersDesk() {
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [selected, bulk, handleBulkPrint, activeStat, sugOpen]);
+  }, [selected, bulk, handleBulkPrint, activeStat, sugOpen, rangeOpen]);
 
-  /* close the suggestion dropdown on outside click */
   useEffect(() => {
-    if (!sugOpen) return undefined;
-    const h = (e) => { if (searchWrap.current && !searchWrap.current.contains(e.target)) setSugOpen(false); };
+    if (!sugOpen && !rangeOpen) return undefined;
+    const h = (e) => {
+      if (sugOpen && searchWrap.current && !searchWrap.current.contains(e.target)) setSugOpen(false);
+      if (rangeOpen && !e.target.closest?.('[data-range-pill]')) setRangeOpen(false);
+    };
     document.addEventListener('mousedown', h);
     return () => document.removeEventListener('mousedown', h);
-  }, [sugOpen]);
+  }, [sugOpen, rangeOpen]);
 
+  /* ── comparison window + sparkline sample (both real, both optional) ─ */
+  const cmpWindow = useMemo(() => {
+    if (!filters.from || !filters.to) return null;
+    const from = new Date(`${filters.from}T00:00:00`);
+    const to = new Date(`${filters.to}T00:00:00`);
+    const len = Math.round((to - from) / 86400000) + 1;
+    if (filters.compare === 'year') {
+      const f = new Date(from); f.setFullYear(f.getFullYear() - 1);
+      const t = new Date(to); t.setFullYear(t.getFullYear() - 1);
+      return { from: iso(f), to: iso(t), label: 'same days last year' };
+    }
+    return { from: shift(filters.from, -len), to: shift(filters.from, -1), label: `vs ${shortDate(shift(filters.from, -len))} – ${shortDate(shift(filters.from, -1))}` };
+  }, [filters.from, filters.to, filters.compare]);
+
+  useEffect(() => {
+    if (!token) { setPrev(null); return; }
+    const params = new URLSearchParams();
+    Object.entries(filters).forEach(([k, v]) => { if (v !== '' && k !== 'page') params.set(k, v); });
+    if (cmpWindow) { params.set('from', cmpWindow.from); params.set('to', cmpWindow.to); }
+    let alive = true;
+    api(`/orders/manage/counts?${params}`, { token }).then((d) => { if (alive) setPrev(d); }).catch(() => { if (alive) setPrev(null); });
+    return () => { alive = false; };
+  }, [token, filters, cmpWindow]);
+
+  useEffect(() => {
+    if (!token) { setSeries({ rows: [], revenue: [] }); return; }
+    const params = new URLSearchParams();
+    Object.entries(filters).forEach(([k, v]) => { if (v !== '' && k !== 'page') params.set(k, v); });
+    params.set('limit', '200');
+    params.set('sort', 'newest');
+    let alive = true;
+    api(`/orders/manage?${params}`, { token })
+      .then((d) => {
+        if (!alive) return;
+        const rows = d.orders || [];
+        const map = new Map();
+        rows.forEach((o) => {
+          const k = new Date(o.createdAt).toISOString().slice(0, 10);
+          map.set(k, (map.get(k) || 0) + (o.total || 0));
+        });
+        const days = [...map.keys()].sort().slice(-14);
+        setSeries({ rows, revenue: days.map((day) => map.get(day)) });
+      })
+      .catch(() => { if (alive) setSeries({ rows: [], revenue: [] }); });
+    return () => { alive = false; };
+  }, [token, filters]);
+
+  /* ── live search ───────────────────────────────────────────────────── */
   const remember = (value) => {
     if (!value) return;
-    setRecent((prev) => {
-      const next = [value, ...prev.filter((r) => r !== value)].slice(0, 6);
+    setRecent((r) => {
+      const next = [value, ...r.filter((x) => x !== value)].slice(0, 6);
       try { localStorage.setItem('hushae.orderSearches', JSON.stringify(next)); } catch { /* private mode */ }
       return next;
     });
   };
-
   const runSearch = (value) => {
-    setTerm(value);
-    setSugOpen(true);
+    setTerm(value); setSugOpen(true);
     clearTimeout(debounce.current);
     debounce.current = setTimeout(() => {
       setFilter({ q: value.trim() });
-      if (value.trim().length >= 2 && auth?.token) {
-        api(`/orders/insights/suggest?q=${encodeURIComponent(value.trim())}`, { token: auth.token })
-          .then((d) => setSuggestions(d.suggestions || []))
-          .catch(() => setSuggestions([]));
+      if (value.trim().length >= 2 && token) {
+        api(`/orders/insights/suggest?q=${encodeURIComponent(value.trim())}`, { token })
+          .then((d) => setSuggestions(d.suggestions || [])).catch(() => setSuggestions([]));
       } else setSuggestions([]);
     }, 250);
   };
-  const applyTerm = (value) => {
-    setTerm(value); setFilter({ q: value }); remember(value); setSugOpen(false);
-  };
-
-  /* ── derived metrics ───────────────────────────────────────────────── */
-  const m = useMemo(() => {
-    const c = counts || {};
-    const paid = (c.byPaymentState?.Confirmed || 0) + (c.byPaymentState?.Verified || 0);
-    const unpaid = c.byPaymentState?.Pending || 0;
-    return {
-      total: c.total ?? null,
-      paid, unpaid,
-      fulfilled: c.byGroup?.delivered ?? 0,
-      revenue: c.revenue ?? 0,
-      aov: c.total ? Math.round(c.revenue / c.total) : 0,
-      new: c.byGroup?.new || 0,
-      issues: c.byGroup?.issues || 0,
-    };
-  }, [counts]);
-
-  const groupActive = filters.group || 'all';
-  const presetActive = filters.preset || '';
-  const isPillOn = (p) => {
-    if (p.preset) return presetActive === p.preset && !p.set.group;
-    const want = { group: 'all', stage: '', paymentState: 'all', preset: '', ...p.set };
-    return Object.entries(want).every(([k, v]) => (filters[k] ?? '') === v || (v === 'all' && !filters[k]));
-  };
-  const pillCount = (p) => {
-    if (p.countKey && EXTRA_COUNTS[p.countKey]) return EXTRA_COUNTS[p.countKey](counts || {});
-    if (p.key.startsWith('g:')) return counts?.byGroup?.[p.key.slice(2)] ?? null;
-    if (p.key === 'all') return counts?.total ?? null;
-    return null;
-  };
-  const applyPill = (p) => {
-    if (isPillOn(p)) { setFilter({ group: 'all', stage: '', paymentState: 'all', preset: '', minTotal: '', maxTotal: '', printed: '', hasIssue: '', q: '' }); return; }
-    const patch = { ...p.set };
-    (p.clear || []).forEach((k) => { patch[k] = k === 'group' ? 'all' : k === 'paymentState' ? 'all' : ''; });
-    setFilter(patch);
-  };
-
-  const STATS = [
-    { key: 'total', label: 'Total Orders', icon: Layers, value: int(m.total), note: loading ? 'Loading…' : `${int(data.total)} in this view`, filter: { group: 'all', stage: '', paymentState: 'all', preset: '', q: '', minTotal: '', maxTotal: '', printed: '', hasIssue: '' } },
-    { key: 'revenue', label: 'Order Value', icon: Download, value: m.revenue ? compact(m.revenue) : '—', note: m.revenue ? `${pkr(m.revenue)} in view` : 'Value of all orders', filter: { group: 'all', stage: '', paymentState: 'all', preset: '' } },
-    { key: 'aov', label: 'Avg. Order Value', icon: FileText, value: m.aov ? compact(m.aov) : '—', note: 'Revenue ÷ orders', filter: { group: 'all', stage: '', paymentState: 'all', preset: '', sort: 'amount-desc' } },
-    { key: 'paid', label: 'Paid', icon: ArrowRight, value: int(m.paid), note: m.total ? `${Math.round((m.paid / m.total) * 100)}% of orders` : 'Paid + verified', filter: { group: 'all', paymentState: 'Confirmed', preset: '', stage: '' }, activeText: filters.paymentState === 'Confirmed' ? 'Paid only' : null },
-    { key: 'unpaid', label: 'Payment Unverified', icon: RefreshCcw, value: int(m.unpaid), note: 'Awaiting your check', tone: m.unpaid ? 'amber' : null, filter: { group: 'all', paymentState: 'Pending', preset: '', stage: '' }, activeText: filters.paymentState === 'Pending' ? 'Unverified only' : null },
-    { key: 'fulfilled', label: 'Fulfilled', icon: Package, value: int(m.fulfilled), note: m.total ? `${Math.round((m.fulfilled / m.total) * 100)}% delivered` : 'Reached the customer', filter: { group: 'delivered', preset: '', stage: '', paymentState: 'all' } },
-  ];
-  const drill = useMemo(() => buildDrill(activeStat, counts, orders), [activeStat, counts, orders]);
-
-  /* ── drill-down chart (same visual language as Overview) ───────────── */
-  useEffect(() => {
-    if (!activeStat || !chartRef.current) return undefined;
-    const series = (drill.series || []).filter(([, v]) => Number(v) > 0);
-    if (!series.length) return undefined;
-    const dark = document.documentElement.classList.contains('dark-admin');
-    const main = dark ? '#f4f4f5' : '#111111';
-    const grid = dark ? '#26262c' : '#f2f2f2';
-    const tick = dark ? '#71717a' : '#9ca3af';
-    chartObj.current = new Chart(chartRef.current, {
-      type: 'bar',
-      data: {
-        labels: series.map(([k]) => k),
-        datasets: [{ data: series.map(([, v]) => v), backgroundColor: main, barThickness: 16, borderRadius: 4 }],
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false, animation: { duration: 500 },
-        plugins: { legend: { display: false }, tooltip: { backgroundColor: dark ? '#27272a' : '#111', padding: 8, titleFont: { size: 10 }, bodyFont: { size: 11 }, displayColors: false } },
-        scales: {
-          x: { grid: { display: false }, border: { display: false }, ticks: { color: tick, font: { size: 9.5 }, maxRotation: 0, autoSkip: false } },
-          y: { beginAtZero: true, grid: { color: grid }, border: { display: false }, ticks: { color: tick, font: { size: 9.5 }, maxTicksLimit: 4, precision: 0 } },
-        },
-      },
-    });
-    return () => { chartObj.current?.destroy(); chartObj.current = null; };
-  }, [activeStat, drill]);
-
-  const toggleStat = (stat) => {
-    if (activeStat === stat.key) { setActiveStat(null); return; }
-    setActiveStat(stat.key);
-    setFilter(stat.filter);
-    requestAnimationFrame(() => document.getElementById('ordersDrill')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }));
-  };
-
-  const rangeLabel = filters.from || filters.to
-    ? `${shortDate(filters.from) || '…'} → ${shortDate(filters.to) || 'now'}`
-    : 'All time';
-  const shownFrom = (data.page - 1) * Number(filters.limit || 50) + 1;
-  const shownTo = Math.min(data.total || 0, (data.page - 1) * Number(filters.limit || 50) + orders.length);
+  const applyTerm = (value) => { setTerm(value); setFilter({ q: value }); remember(value); setSugOpen(false); };
   const grouped = useMemo(() => {
     const g = {};
     suggestions.forEach((sg) => { (g[sg.type] = g[sg.type] || []).push(sg); });
     return Object.entries(g);
   }, [suggestions]);
 
+  /* ── tiles, tabs, drill ────────────────────────────────────────────── */
+  const tiles = useMemo(() => buildTiles(counts, prev, series), [counts, prev, series]);
+  const drill = useMemo(() => buildDrill(activeStat, counts, orders), [activeStat, counts, orders]);
+  const isTabOn = (t) => (filters.status || '') === t.status
+    && !filters.group && !filters.stage && !filters.preset;
+
+  const applyTab = (t) => {
+    setFilter({
+      status: t.status, group: 'all', stage: '', preset: '',
+      paymentState: t.status === 'pending' ? 'Pending' : filters.paymentState,
+    });
+  };
+  const toggleTile = (tile) => {
+    if (activeStat === tile.key) { setActiveStat(null); return; }
+    setActiveStat(tile.key);
+    if (tile.tab) applyTab(TABS.find((t) => t.key === tile.tab) || TABS[0]);
+    else setFilter({ status: '', group: 'all', stage: '', preset: '' });
+    requestAnimationFrame(() => document.getElementById('ordersDrill')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }));
+  };
+
+  /* sparklines + drill chart, same visual language as Overview */
+  useEffect(() => {
+    const dark = document.documentElement.classList.contains('dark-admin');
+    const pal = dark ? { main: '#f4f4f5', grid: '#26262c', tick: '#71717a', tip: '#27272a', card: '#111113' }
+      : { main: '#111111', grid: '#f2f2f2', tick: '#9ca3af', tip: '#111111', card: '#ffffff' };
+    sparkObjs.current.forEach((c) => c.destroy());
+    sparkObjs.current = [];
+    document.querySelectorAll('[data-ord-spark]').forEach((el) => {
+      const raw = (el.dataset.ordSpark || '').split(',').map(Number).filter((n) => !Number.isNaN(n));
+      const series = raw.length > 1 ? raw : [0, 0];
+      const inst = new Chart(el, {
+        type: 'line',
+        data: { labels: series.map((_, i) => i), datasets: [{ data: series, borderColor: pal.main, borderWidth: 1.4, pointRadius: 0, tension: 0.4, fill: false }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { enabled: false } }, scales: { x: { display: false }, y: { display: false } }, elements: { point: { radius: 0 } }, animation: { duration: 900, easing: 'easeOutQuart' } },
+      });
+      sparkObjs.current.push(inst);
+    });
+    return () => { sparkObjs.current.forEach((c) => c.destroy()); sparkObjs.current = []; };
+  }, [tiles]);
+
+  useEffect(() => {
+    if (!activeStat || !drillChart.current || !drill.series.length) return undefined;
+    const dark = document.documentElement.classList.contains('dark-admin');
+    const pal = dark ? { main: '#f4f4f5', grid: '#26262c', tick: '#71717a', tip: '#27272a' }
+      : { main: '#111111', grid: '#f2f2f2', tick: '#9ca3af', tip: '#111111' };
+    drillObj.current = new Chart(drillChart.current, {
+      type: 'bar',
+      data: {
+        labels: drill.series.map(([k]) => k),
+        datasets: [{ data: drill.series.map(([, v]) => v), backgroundColor: pal.main, barThickness: 16, borderRadius: 4 }],
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false, animation: { duration: 500 },
+        plugins: { legend: { display: false }, tooltip: { backgroundColor: pal.tip, padding: 8, titleFont: { size: 10 }, bodyFont: { size: 11 }, displayColors: false } },
+        scales: {
+          x: { grid: { display: false }, border: { display: false }, ticks: { color: pal.tick, font: { size: 9.5 }, maxRotation: 0, autoSkip: false } },
+          y: { beginAtZero: true, grid: { color: pal.grid }, border: { display: false }, ticks: { color: pal.tick, font: { size: 9.5 }, maxTicksLimit: 4, precision: 0 } },
+        },
+      },
+    });
+    return () => { drillObj.current?.destroy(); drillObj.current = null; };
+  }, [activeStat, drill]);
+
+  /* date-range pill actions */
+  const setPresetRange = (days) => {
+    const to = new Date();
+    const from = new Date(Date.now() - (days - 1) * 86400000);
+    setFilter({ from: iso(from), to: iso(to) });
+  };
+
+  const rangeLabel = filters.from || filters.to
+    ? `${shortDate(filters.from) || '…'} – ${shortDate(filters.to) || 'today'}`
+    : 'All time';
+  const shownFrom = data.total ? (data.page - 1) * Number(filters.limit || 50) + 1 : 0;
+  const shownTo = Math.min(data.total || 0, (data.page - 1) * Number(filters.limit || 50) + orders.length);
+  const activeTabLabel = TABS.find(isTabOn)?.label || 'All Orders';
+
   return (
     <AdminLayout title="Orders">
       <div className={s.desk}>
         <div className={s.wrap}>
 
-          {/* ── top bar ─────────────────────────────────────────────── */}
+          {/* ── topbar ──────────────────────────────────────────────── */}
           <header className={s.topbar}>
-            <div className={s.topLeft}>
-              <h1 className={s.title}>
-                Orders
-                <span className={s.titleSub}>{int(m.total)} total · {int(data.total)} in this view · {rangeLabel}</span>
-              </h1>
+            <div className={s.topLeft} style={{ minWidth: 0 }}>
+              <div>
+                <h1 className={s.title}>Orders</h1>
+                <p>{activeTabLabel} — {int(data.total)} in this view{loading ? ' · refreshing' : ''}</p>
+              </div>
             </div>
             <div className={s.topRight}>
               <div className={s.search} ref={searchWrap}>
                 <Search size={13} style={{ color: 'var(--muted2)', flexShrink: 0 }} />
                 <input
-                  ref={searchRef}
-                  data-order-search
-                  value={term}
+                  ref={searchRef} data-order-search value={term}
                   onChange={(e) => runSearch(e.target.value)}
                   onFocus={() => setSugOpen(true)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') { applyTerm(term.trim()); }
-                    if (e.key === 'Escape') setSugOpen(false);
-                  }}
-                  placeholder="Search orders, customers, invoices…"
-                  aria-label="Search orders"
-                  autoComplete="off"
-                  role="combobox"
-                  aria-expanded={sugOpen}
-                  aria-controls="ordersSearchDropdown"
+                  onKeyDown={(e) => { if (e.key === 'Enter') applyTerm(term.trim()); if (e.key === 'Escape') setSugOpen(false); }}
+                  placeholder="Search orders, customers, products..."
+                  aria-label="Search orders" autoComplete="off"
+                  role="combobox" aria-expanded={sugOpen} aria-controls="ordersSearchDropdown"
                 />
+                <span className={s.kbd} aria-hidden>⌘ K</span>
                 {term && (
                   <button type="button" className={s.searchBtn} aria-label="Clear search"
                     onClick={() => { setTerm(''); setSuggestions([]); setFilter({ q: '' }); }}>
-                    <X size={13} />
+                    <X size={12} />
                   </button>
                 )}
                 <div id="ordersSearchDropdown" className={cx(s.dd, sugOpen && s.ddShow)} role="listbox">
@@ -401,26 +436,23 @@ export default function OrdersDesk() {
                     <div key={type}>
                       <p className={s.ddGroup}>{type}</p>
                       {items.map((sg) => (
-                        <button key={`${sg.type}-${sg.value}`} type="button" className={s.ddItem}
-                          role="option" aria-selected="false" onClick={() => applyTerm(sg.value)}>
+                        <button key={`${sg.type}-${sg.value}`} type="button" className={s.ddItem} role="option" aria-selected="false" onClick={() => applyTerm(sg.value)}>
                           <span className={s.ddBody}>
                             <b>{sg.value}</b>
                             {sg.hint && <span>{sg.hint}</span>}
                           </span>
-                          <ArrowRight size={12} style={{ color: 'var(--muted2)' }} />
+                          <ChevronDown size={12} style={{ transform: 'rotate(-90deg)', color: 'var(--muted2)' }} />
                         </button>
                       ))}
                     </div>
                   ))}
-                  {suggestions.length === 0 && term.trim().length >= 2 && (
-                    <p className={s.ddGroup}>No matches for “{term.trim()}”</p>
-                  )}
+                  {suggestions.length === 0 && term.trim().length >= 2 && <p className={s.ddGroup}>No matches for “{term.trim()}”</p>}
                   {suggestions.length === 0 && term.trim().length < 2 && recent.length > 0 && (
                     <div>
                       <p className={s.ddGroup}>Recent searches</p>
                       {recent.map((r) => (
                         <button key={r} type="button" className={s.ddItem} onClick={() => applyTerm(r)}>
-                          <Search size={12} style={{ color: 'var(--muted2)', flexShrink: 0 }} />
+                          <Search size={12} style={{ color: 'var(--muted2)' }} />
                           <span className={s.ddBody}><b>{r}</b></span>
                         </button>
                       ))}
@@ -430,13 +462,42 @@ export default function OrdersDesk() {
                     <p className={s.ddGroup}>Type an order number, name, phone or city</p>
                   )}
                   <div className={s.ddFoot}>
-                    <button type="button" className={s.btnSm} onClick={() => { applyTerm(term.trim()); }}>View all results</button>
+                    <button type="button" className={s.btnSm} onClick={() => applyTerm(term.trim())}>View all results</button>
                     <button type="button" className={s.btnSm} onClick={() => setSugOpen(false)}>Close</button>
                   </div>
                 </div>
               </div>
 
-              <Link to="/admin/orders/new" className={s.btnBlack}><Plus size={13} /> Create order</Link>
+              <div style={{ position: 'relative' }} data-range-pill>
+                <button type="button" className={cx(s.pill, rangeOpen && s.pillOn)} onClick={() => setRangeOpen((v) => !v)} aria-expanded={rangeOpen}>
+                  {rangeLabel}
+                </button>
+                <div className={cx(s.menu, s.menuRight, rangeOpen && s.show)} style={{ minWidth: 230, width: 230 }}>
+                  <p className={s.ddGroup}>Date range</p>
+                  <button type="button" className={s.menuItem} onClick={() => { setPresetRange(7); setRangeOpen(false); }}>Last 7 days</button>
+                  <button type="button" className={s.menuItem} onClick={() => { setPresetRange(30); setRangeOpen(false); }}>Last 30 days</button>
+                  <button type="button" className={s.menuItem} onClick={() => { setFilter({ from: '', to: '' }); setRangeOpen(false); }}>All time</button>
+                  <div className={s.menuDiv} />
+                  <div style={{ display: 'flex', gap: 6, padding: '4px 4px 2px' }}>
+                    <input type="date" className={s.ctl} value={filters.from} aria-label="From date" onChange={(e) => setFilter({ from: e.target.value })} />
+                    <input type="date" className={s.ctl} value={filters.to} aria-label="To date" onChange={(e) => setFilter({ to: e.target.value })} />
+                  </div>
+                  <p className={s.ddGroup} style={{ paddingTop: 4 }}>Compare</p>
+                  <button type="button" className={cx(s.menuItem, !filters.compare && s.flagOn)} onClick={() => { setFilter({ compare: filters.compare ? '' : 'prev' }); }}>
+                    Previous window {filters.compare && filters.compare !== 'year' ? '✓' : ''}
+                  </button>
+                  <button type="button" className={cx(s.menuItem, filters.compare === 'year' && s.flagOn)} onClick={() => { setFilter({ compare: filters.compare === 'year' ? '' : 'year' }); setRangeOpen(false); }}>
+                    Same window last year {filters.compare === 'year' ? '✓' : ''}
+                  </button>
+                  {!filters.from && <p className={s.cardHint} style={{ padding: '4px 6px 6px' }}>Pick a range to enable comparison.</p>}
+                </div>
+              </div>
+
+              <button type="button" className={s.pill} onClick={() => setFilter({ compare: filters.compare === 'year' ? 'prev' : 'year' })}>
+                Compare: {filters.compare === 'year' ? 'Last year' : filters.compare ? 'Previous window' : 'Off'}
+              </button>
+
+              <Link to="/admin/orders/new" className={s.btnBlack}><Plus size={12} /> Add Order</Link>
 
               <div style={{ position: 'relative' }}>
                 <button type="button" className={s.iconBtn} aria-label="Notifications"
@@ -444,16 +505,15 @@ export default function OrdersDesk() {
                   <Bell size={14} />
                   {notes.unread > 0 && <span className={s.iconBadge}>{notes.unread > 9 ? '9+' : notes.unread}</span>}
                 </button>
-                <div className={cx(s.menu, s.menuRight, s.menuWide, showNotes && s.show)} id="ordersNotes">
+                <div className={cx(s.menu, s.menuRight, s.menuWide, showNotes && s.show)} style={{ zIndex: 300 }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '4px 6px 8px' }}>
                     <span className={s.cardTitle}>Notifications</span>
                     <button type="button" className={s.searchBtn} aria-label="Close notifications" onClick={() => setShowNotes(false)}><X size={13} /></button>
                   </div>
                   {notes.items.length === 0 && <p style={{ padding: '14px 8px', fontSize: 11.5, color: 'var(--muted2)' }}>Nothing yet</p>}
                   {notes.items.map((n) => (
-                    <button key={n._id} type="button" className={s.menuItem}
-                      onClick={() => { if (n.link) nav(n.link); setShowNotes(false); }}>
-                      <span className={cx(s.dot, n.read ? '' : s.dotGreen)} style={{ marginTop: 5 }} />
+                    <button key={n._id} type="button" className={s.menuItem} onClick={() => { if (n.link) nav(n.link); setShowNotes(false); }}>
+                      <span className={cx(s.dot, !n.read && s.dotGreen)} style={{ marginTop: 5 }} />
                       <span style={{ minWidth: 0 }}>
                         <span style={{ display: 'block', fontSize: 11.5, fontWeight: 600 }}>{n.title}</span>
                         {n.body && <i>{n.body}</i>}
@@ -463,65 +523,68 @@ export default function OrdersDesk() {
                 </div>
               </div>
 
-              <button type="button" className={s.iconBtn} aria-label="Refresh" onClick={() => reload()}>
-                <RefreshCcw size={13} className={loading ? 'animate-spin' : ''} />
-              </button>
               <button type="button" className={cx(s.iconBtn, 'hidden sm:grid')} aria-label="Keyboard shortcuts" onClick={() => setShowShortcuts(true)}>
                 <Keyboard size={13} />
               </button>
             </div>
           </header>
 
-          {/* ── stats: click a tile to narrow + drill down ──────────── */}
+          {/* ── stat tiles (click = filter + drill-down) ────────────── */}
           <div className={s.stats} role="group" aria-label="Order metrics">
-            {STATS.map((st) => {
+            {tiles.map((st) => {
               const active = activeStat === st.key;
+              const ch = st.change;
+              const down = ch != null && ch < 0;
               return (
-                <button type="button" key={st.key}
-                  className={cx(s.stat, active && s.statActive)}
-                  onClick={() => toggleStat(st)}
-                  aria-pressed={active}
+                <button type="button" key={st.key} className={cx(s.stat, active && s.statActive)}
+                  onClick={() => toggleTile(st)} aria-pressed={active}
                   title={`${st.label} — click to narrow the table`}>
-                  <span className={s.statHead}>
-                    <span className={cx(s.dot, st.tone === 'amber' && s.dotAmber)} />
+                  <div className={s.statHead}>
+                    {st.money
+                      ? <span style={{ width: 18, height: 18, border: '1px solid #efefef', borderRadius: 6, display: 'grid', placeItems: 'center', background: '#fafafa', fontSize: 10, color: 'var(--muted)' }}><DollarSign size={10} /></span>
+                      : <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>{st.icon}</svg>}
                     {st.label}
-                  </span>
-                  <span className={s.statVal}>{st.value}</span>
-                  <span className={s.statFoot}>
-                    <span className={s.statNote}>{st.activeText || st.note}</span>
-                  </span>
-                  <span className={s.statArrow}>▼</span>
+                  </div>
+                  <div className={s.statVal}>{st.value}</div>
+                  <div className={s.statFoot}>
+                    <div>
+                      {ch != null
+                        ? <><div className={cx(s.statChange, (down !== st.downIsGood) && down && s.down)} style={!down && st.downIsGood ? { color: 'var(--green)' } : undefined}>{down ? '↓' : '↑'} {Math.abs(ch).toFixed(1)}%</div>
+                          <div className={s.statVs}>{cmpWindow ? cmpWindow.label.replace(/^vs /, 'vs ') : 'vs previous window'}</div></>
+                        : <div className={s.statVs}>{loading ? 'Loading…' : 'No comparison range'}</div>}
+                    </div>
+                    <span className={s.spark} title="Daily counts for this metric across the orders loaded in this view" aria-hidden>
+                      <canvas data-ord-spark={(st.series || []).join(',')} />
+                    </span>
+                  </div>
                 </button>
               );
             })}
           </div>
 
-          {/* ── drill-down ──────────────────────────────────────────── */}
+          {/* ── drill-down (kept from the previous pass) ─────────────── */}
           {activeStat && (
-            <div className={s.drill} id="ordersDrill" role="region" aria-label={`${activeStat} breakdown`}>
+            <div className={s.drill} id="ordersDrill" role="region" aria-label="Selection breakdown">
               <div className={s.drillHead}>
                 <div>
-                  <p className={s.cardTitle}>{(STATS.find((x) => x.key === activeStat) || {}).label} — breakdown</p>
-                  <p className={s.cardHint} style={{ marginTop: 3 }}>
-                    Table below is narrowed to “{(STATS.find((x) => x.key === activeStat) || {}).label}”. Click the tile again or press Esc to reset.
-                  </p>
+                  <p className={s.cardTitle}>{(tiles.find((t) => t.key === activeStat) || {}).label} — breakdown</p>
+                  <p className={s.cardHint} style={{ marginTop: 3 }}>Table is narrowed to this tile. Click it again or press Esc to reset.</p>
                 </div>
-                <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                <div style={{ display: 'flex', gap: 6 }}>
                   <button type="button" className={s.btnSm} onClick={exportCsv}><Download size={11} /> Export</button>
                   <button type="button" className={s.btnSm} onClick={() => setActiveStat(null)}><X size={11} /> Close</button>
                 </div>
               </div>
               <div className={s.drillBody}>
                 <div className={s.drillChartWrap}>
-                  {drill.series.filter(([, v]) => Number(v) > 0).length
-                    ? <div style={{ height: 190, position: 'relative' }}><canvas ref={chartRef} /></div>
-                    : <p className={s.drillEmpty}>No distribution to plot for this range yet.</p>}
+                  {drill.series.length
+                    ? <div style={{ height: 190, position: 'relative' }}><canvas ref={drillChart} /></div>
+                    : <p className={s.drillEmpty}>Nothing to plot for this selection yet.</p>}
                 </div>
                 <div className={s.drillGrid}>
                   {drill.notes.map(([label, value, hint]) => (
                     <div className={s.ddStat} key={label}>
-                      <b>{value}</b>
-                      <span>{label}</span>
+                      <b>{value}</b><span>{label}</span>
                       {hint && <span style={{ color: 'var(--muted2)' }}>{hint}</span>}
                     </div>
                   ))}
@@ -530,61 +593,84 @@ export default function OrdersDesk() {
             </div>
           )}
 
-          {/* ── workspace: 12 order pages + saved views + quick actions ─ */}
-          <section className={cx(s.card, 'mb-3')}>
+          {/* ── one card: tabs / filters / table / pagination ───────── */}
+          <section className={s.card}>
             <div className={s.cardHead}>
-              <p className={s.cardTitle}>Order workspace</p>
-              <p className={s.cardHint}>{int(data.total)} orders · sorted {({ oldest: 'oldest first', newest: 'newest first', 'amount-desc': 'amount high → low', 'amount-asc': 'amount low → high', 'customer-asc': 'customer A–Z', 'customer-desc': 'customer Z–A', 'payment-unpaid': 'unpaid first' })[filters.sort] || filters.sort}</p>
-            </div>
-            <div className={s.structWrap} role="tablist" aria-label="Order structure">
-              {PILLS.map((p) => {
-                const on = isPillOn(p);
-                const n = pillCount(p);
-                return (
-                  <button key={p.key} type="button" role="tab" aria-selected={on} title={p.hint || p.label}
-                    className={cx(s.struct, on && s.structOn)} onClick={() => applyPill(p)}>
-                    {p.label}
-                    {n != null && <span className={s.structCount}>{int(n)}</span>}
+              <div className={s.revTabs} role="tablist" aria-label="Order status">
+                {TABS.map((t) => (
+                  <button key={t.key} type="button" role="tab" aria-selected={isTabOn(t)}
+                    className={cx(s.tab, isTabOn(t) ? s.tabOn : s.tabIdle)}
+                    onClick={() => applyTab(t)}>
+                    {t.label}
+                    {t.key === 'all' && counts?.total != null && <span className={s.tabCount}>{int(counts.total)}</span>}
+                    {t.key !== 'all' && counts?.byGroup && (
+                      <span className={s.tabCount}>
+                        {int(t.key === 'pending' ? counts.byGroup.new
+                          : t.key === 'processing' ? (counts.byGroup.processing || 0) + (counts.byGroup['to-ship'] || 0)
+                            : t.key === 'completed' ? counts.byGroup.delivered
+                              : counts.byGroup.issues)}
+                      </span>
+                    )}
                   </button>
-                );
-              })}
+                ))}
+              </div>
+              <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
+                <button type="button" className={cx(s.btnSm, moreOpen && s.btnOn)} aria-expanded={moreOpen} onClick={() => setMoreOpen((v) => !v)}>
+                  Filter {activeFilterCount > 0 && `· ${activeFilterCount}`}
+                </button>
+                <button type="button" className={s.btnSm} onClick={exportCsv}>Export</button>
+                <button type="button" className={s.btnSm} onClick={() => reload()} aria-label="Refresh">
+                  {loading ? <Loader2 size={11} className="animate-spin" /> : <RefreshCcw size={11} />}
+                </button>
+                <Link to="/admin/orders/new" className={cx(s.btnSm, s.btnPrimary)}><Plus size={11} /> Add Order</Link>
+              </div>
             </div>
-            <QuickFilters filters={filters} setFilter={setFilter} token={auth?.token}
+
+            {/* filter bar — everything acts live */}
+            <div className={s.filterBar}>
+              <div className={s.searchSm}>
+                <Search size={12} style={{ color: 'var(--muted2)', flexShrink: 0 }} />
+                <input value={term} onChange={(e) => runSearch(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') applyTerm(term.trim()); }}
+                  placeholder="Search orders..." aria-label="Search orders" autoComplete="off" />
+              </div>
+              <select className={s.filter} value={filters.status} aria-label="Status"
+                onChange={(e) => setFilter({ status: e.target.value, group: 'all', stage: '', preset: '' })}>
+                <option value="">All</option>
+                {['Pending', 'Confirmed', 'Processing', 'Ready to Ship', 'Shipped', 'Out for Delivery', 'Delivered', 'Cancelled', 'Refunded'].map((st) => <option key={st} value={st}>{st}</option>)}
+              </select>
+              <select className={s.filter} value={filters.paymentState} aria-label="Payment" onChange={(e) => setFilter({ paymentState: e.target.value })}>
+                <option value="all">All</option>
+                {PAYMENT_STATES.map((p) => <option key={p.key} value={p.key}>{p.label}</option>)}
+              </select>
+              <select className={s.filter} value={filters.paymentMethod} aria-label="Fulfilment / method" onChange={(e) => setFilter({ paymentMethod: e.target.value })}>
+                <option value="all">All</option>
+                {PAYMENT_METHODS.map((mm) => <option key={mm} value={mm}>{mm}</option>)}
+              </select>
+              <select className={s.filter} value={filters.sort} aria-label="Sort" onChange={(e) => setFilter({ sort: e.target.value })}>
+                {SORT_OPTIONS.map((so) => <option key={so.key} value={so.key}>{so.label}</option>)}
+              </select>
+              <div style={{ display: 'flex', gap: 6, marginLeft: 'auto' }}>
+                <button type="button" className={s.btnSm} onClick={() => { resetFilters(); setActiveStat(null); setTerm(''); }}>Clear</button>
+                <button type="button" className={cx(s.btnSm, s.btnPrimary)} onClick={() => { setSugOpen(false); setMoreOpen(false); toast?.('Filters applied'); }}>Apply</button>
+              </div>
+            </div>
+
+            <OrderFilters
+              filters={filters} setFilter={setFilter} resetFilters={resetFilters}
+              activeFilterCount={activeFilterCount} facets={facets}
+              open={moreOpen} setOpen={setMoreOpen}
+            />
+
+            <QuickFilters filters={filters} setFilter={setFilter} token={token}
               currentQuery={window.location.search.replace(/^\?/, '')} toast={toast} />
-            <div className={s.quick}>
-              <Link to="/admin/orders/new" className={s.qBtn}><Plus size={13} /> Create order</Link>
-              <button type="button" className={s.qBtn} disabled={!selected.length} onClick={() => handleBulkPrint('packing_slip')}>
-                <Printer size={13} /> Packing slips{selected.length ? ` (${selected.length})` : ''}
-              </button>
-              <button type="button" className={s.qBtn} onClick={() => handleBulkPrint('invoice')} disabled={!selected.length}>
-                <FileText size={13} /> Invoices
-              </button>
-              <button type="button" className={s.qBtn} onClick={exportCsv}><Download size={13} /> Export CSV</button>
-              <button type="button" className={s.qBtn} onClick={() => setFilter({ printed: filters.printed === 'no' ? '' : 'no' })}>
-                <Layers size={13} /> {filters.printed === 'no' ? 'Show printed' : 'Unprinted only'}
-              </button>
-              <button type="button" className={s.qBtn} onClick={() => reload()}>
-                {loading ? <Loader2 size={13} className="animate-spin" /> : <RefreshCcw size={13} />} Reload
-              </button>
-            </div>
-          </section>
 
-          {/* ── filters ─────────────────────────────────────────────── */}
-          <OrderFilters
-            filters={filters} setFilter={setFilter} resetFilters={resetFilters}
-            activeFilterCount={activeFilterCount} facets={facets} onExport={exportCsv}
-            token={auth?.token} hideSearch
-          />
-
-          {/* ── orders table ────────────────────────────────────────── */}
-          <section className={cx(s.card, s.tableCard)}>
             <BulkBar
               selected={selected} total={data.total}
               onClear={() => { setSelected([]); setSelectAllMatching(false); }}
               onSelectAll={() => { setSelected(ids); setSelectAllMatching(true); }}
-              onBulk={bulk} onExport={exportCsv}
-              onPrint={handleBulkPrint} canAdvance={canAdvance}
-              token={auth?.token} toast={toast}
+              onBulk={bulk} onExport={exportCsv} onPrint={handleBulkPrint} canAdvance={canAdvance}
+              token={token} toast={toast}
             />
 
             {selectAllMatching && data.total > orders.length && (
@@ -602,22 +688,20 @@ export default function OrdersDesk() {
             )}
 
             {loading && orders.length === 0 && !error && (
-              <div aria-hidden style={{ display: 'grid', gap: 8, padding: '10px 0' }}>
-                {Array.from({ length: 7 }).map((_, i) => <div key={i} className={s.skell} style={{ width: `${100 - i * 3}%` }} />)}
+              <div aria-hidden style={{ display: 'grid', gap: 9, padding: '8px 0 12px' }}>
+                {Array.from({ length: 7 }).map((_, i) => <div key={i} className={s.skell} style={{ width: `${100 - i * 2}%` }} />)}
               </div>
             )}
 
             {!loading && orders.length === 0 && !error && (
               <div className={s.empty}>
-                <h3>{activeFilterCount > 0 || filters.group !== 'all' || filters.preset ? 'No orders here' : 'No orders yet'}</h3>
-                <p>{activeFilterCount > 0 || filters.group !== 'all' || filters.preset
-                  ? 'Nothing matches these filters. Widen the date range, clear the search, or pick another pill above.'
+                <h3>{activeFilterCount > 0 || filters.status || filters.group !== 'all' || filters.preset ? 'No orders here' : 'No orders yet'}</h3>
+                <p>{activeFilterCount > 0 || filters.status || filters.group !== 'all' || filters.preset
+                  ? 'Nothing matches these filters. Widen the date range, clear the search, or pick another tab above.'
                   : 'Orders will appear here the moment customers complete a purchase.'}</p>
-                {(activeFilterCount > 0 || filters.group !== 'all' || filters.preset) ? (
-                  <button type="button" className={s.btnBlack} style={{ margin: '0 auto' }} onClick={() => { resetFilters(); setActiveStat(null); }}>Clear all filters</button>
-                ) : (
-                  <Link to="/admin/orders/new" className={s.btnBlack} style={{ margin: '0 auto', width: 'max-content' }}>Create order</Link>
-                )}
+                {(activeFilterCount > 0 || filters.status || filters.group !== 'all' || filters.preset)
+                  ? <button type="button" className={s.btnBlack} style={{ margin: '0 auto' }} onClick={() => { resetFilters(); setActiveStat(null); setTerm(''); }}>Clear all filters</button>
+                  : <Link to="/admin/orders/new" className={s.btnBlack} style={{ margin: '0 auto', width: 'max-content' }}>Add Order</Link>}
               </div>
             )}
 
@@ -626,39 +710,28 @@ export default function OrdersDesk() {
                 <div className={s.tableWrap}>
                   <table className={s.tbl}>
                     <colgroup>
-                      <col className={s.colChk} /><col /><col /><col className={s.colDate} />
-                      <col className={s.colItems} /><col className={s.colTotal} />
-                      <col className={s.colPay} /><col className={s.colFulfil} />
-                      <col className={s.colStatus} /><col className={s.colAct} />
+                      <col className={s.colChk} /><col className={s.colOrder} /><col className={s.colCust} />
+                      <col className={s.colDate} /><col className={s.colStatus} /><col className={s.colPay} />
+                      <col className={s.colFulfil} /><col className={s.colTotal} /><col className={s.colAct} />
                     </colgroup>
                     <thead>
                       <tr>
-                        <th scope="col">
-                          <input type="checkbox" className={s.chk} checked={allOnPage}
-                            onChange={() => setSelected(allOnPage ? [] : ids)}
-                            aria-label="Select all orders on this page" />
-                        </th>
+                        <th><input type="checkbox" className={s.chk} checked={allOnPage} onChange={() => setSelected(allOnPage ? [] : ids)} aria-label="Select all orders on this page" /></th>
                         <th scope="col">Order</th>
                         <th scope="col">Customer</th>
-                        <th scope="col" className={s.colDate}>Date</th>
-                        <th scope="col" className={s.colItems}>Items</th>
-                        <th scope="col" className={s.colTotal}>Total</th>
-                        <th scope="col" className={s.colPay}>Payment</th>
-                        <th scope="col" className={s.colFulfil}>Fulfillment</th>
-                        <th scope="col" className={s.colStatus}>Status</th>
-                        <th scope="col" className={s.colAct} style={{ textAlign: 'right' }}>Actions</th>
+                        <th scope="col">Date</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Payment</th>
+                        <th scope="col">Fulfillment</th>
+                        <th scope="col">Total</th>
+                        <th scope="col" style={{ textAlign: 'right' }}>Actions</th>
                       </tr>
                     </thead>
                     <tbody>
                       {orders.map((o) => (
-                        <OrderRow
-                          key={o._id} order={o}
-                          selected={selected.includes(o._id)} onSelect={toggle}
-                          busy={busyIds.has(o._id)}
-                          onStage={setStage} onVerify={verifyPayment}
-                          onPrint={handlePrint} onOpenService={setServiceFor}
-                          onOpenCustomer={setCustomerPhone}
-                        />
+                        <OrderRow key={o._id} order={o} selected={selected.includes(o._id)} onSelect={toggle}
+                          busy={busyIds.has(o._id)} onStage={setStage} onVerify={verifyPayment}
+                          onPrint={handlePrint} onOpenService={setServiceFor} onOpenCustomer={setCustomerPhone} />
                       ))}
                     </tbody>
                   </table>
@@ -666,55 +739,48 @@ export default function OrdersDesk() {
 
                 <div className={s.mList}>
                   {orders.map((o) => (
-                    <OrderRow
-                      key={`m-${o._id}`} order={o} mobile
-                      selected={selected.includes(o._id)} onSelect={toggle}
-                      busy={busyIds.has(o._id)}
-                      onStage={setStage} onVerify={verifyPayment}
-                      onPrint={handlePrint} onOpenService={setServiceFor}
-                      onOpenCustomer={setCustomerPhone}
-                    />
+                    <OrderRow key={`m-${o._id}`} order={o} mobile selected={selected.includes(o._id)} onSelect={toggle}
+                      busy={busyIds.has(o._id)} onStage={setStage} onVerify={verifyPayment}
+                      onPrint={handlePrint} onOpenService={setServiceFor} onOpenCustomer={setCustomerPhone} />
                   ))}
                 </div>
               </>
             )}
 
             <div className={s.deskFoot}>
-              <p className={s.footNote}>
-                {data.total > 0 ? `Showing ${shownFrom}–${shownTo} of ${int(data.total)}` : 'Nothing to show'}
-                {loading ? ' · refreshing…' : ''}
-              </p>
-              <nav className={s.pager} aria-label="Pagination">
-                <button type="button" className={s.pg} disabled={data.page <= 1}
-                  onClick={() => setFilter({ page: String(data.page - 1) })}>‹ Prev</button>
-                {Array.from({ length: Math.min(data.pages || 1, 7) }, (_, i) => {
+              <span>
+                {data.total > 0 ? `Showing ${shownFrom} to ${shownTo} of ${int(data.total)} results` : 'Nothing to show'}
+                {counts?.total != null && filters.status === '' && ` · ${int(counts.total)} all orders`}
+                {loading ? ' · refreshing' : ''}
+              </span>
+              <div className={s.pagWrap}>
+                <button type="button" className={s.pg} disabled={data.page <= 1} onClick={() => setFilter({ page: String(data.page - 1) })} aria-label="Previous page">‹</button>
+                {Array.from({ length: Math.min(data.pages || 1, 5) }, (_, i) => {
                   const total = data.pages || 1;
-                  const half = 3;
                   let page = i + 1;
-                  if (total > 7) page = Math.min(Math.max(1, data.page - half), total - 6) + i;
+                  if (total > 5) page = Math.min(Math.max(1, data.page - 2), total - 4) + i;
                   return (
-                    <button key={i} type="button" className={cx(s.pg, page === data.page && s.pgOn)}
-                      onClick={() => setFilter({ page: String(page) })}
+                    <button key={i} type="button" className={cx(s.pg, page === data.page && s.pgOn)} onClick={() => setFilter({ page: String(page) })}
                       aria-current={page === data.page ? 'page' : undefined}>{page}</button>
                   );
                 })}
-                <button type="button" className={s.pg} disabled={data.page >= (data.pages || 1)}
-                  onClick={() => setFilter({ page: String(data.page + 1) })}>Next ›</button>
-              </nav>
+                {(data.pages || 1) > 5 && <span style={{ fontSize: 11, color: 'var(--muted2)' }}>…</span>}
+                {(data.pages || 1) > 5 && (
+                  <button type="button" className={s.pg} onClick={() => setFilter({ page: String(data.pages) })}>{data.pages}</button>
+                )}
+                <button type="button" className={s.pg} disabled={data.page >= (data.pages || 1)} onClick={() => setFilter({ page: String(data.page + 1) })} aria-label="Next page">›</button>
+                <span className={s.perPage}>
+                  <select value={filters.limit} onChange={(e) => setFilter({ limit: e.target.value })} aria-label="Rows per page">
+                    {['10', '25', '50', '100', '200'].map((n) => <option key={n} value={n}>{n} / page</option>)}
+                  </select>
+                </span>
+              </div>
             </div>
           </section>
-
-          <p className={s.footNote} style={{ marginTop: 12 }}>
-            {activeFilterCount > 0
-              ? <>Filters active: <b style={{ color: 'var(--text)' }}>{activeFilterCount}</b> · <button type="button" className="linky" onClick={() => { resetFilters(); setActiveStat(null); setTerm(''); }}>Clear all</button></>
-              : 'Tip: press / or ⌘K to search, ? for shortcuts, Esc to clear a selection.'}
-          </p>
         </div>
       </div>
 
-      {customerPhone && (
-        <CustomerPanel phone={customerPhone} token={auth?.token} onClose={() => setCustomerPhone(null)} />
-      )}
+      {customerPhone && <CustomerPanel phone={customerPhone} token={token} onClose={() => setCustomerPhone(null)} />}
 
       {showShortcuts && (
         <div className={s.overlay} onClick={() => setShowShortcuts(false)} role="dialog" aria-modal="true">
@@ -738,7 +804,7 @@ export default function OrdersDesk() {
       )}
 
       {serviceFor && (
-        <IssueModal order={serviceFor} token={auth?.token} toast={toast}
+        <IssueModal order={serviceFor} token={token} toast={toast}
           onClose={() => setServiceFor(null)} onSaved={() => { setServiceFor(null); reload({ silent: true }); }} />
       )}
     </AdminLayout>
@@ -747,10 +813,7 @@ export default function OrdersDesk() {
 
 /** Log a customer issue — same endpoint, ATELIER chrome. */
 function IssueModal({ order, token, toast, onClose, onSaved }) {
-  const [form, setForm] = useState({
-    issueType: 'Damaged', description: '', severity: 'Normal',
-    refundStatus: 'No Issue', refundAmount: 0,
-  });
+  const [form, setForm] = useState({ issueType: 'Damaged', description: '', severity: 'Normal', refundStatus: 'No Issue', refundAmount: 0 });
   const [busy, setBusy] = useState(false);
 
   const save = async () => {
@@ -784,8 +847,7 @@ function IssueModal({ order, token, toast, onClose, onSaved }) {
           </div>
           <div>
             <span className={s.ctlLabel}>What happened</span>
-            <textarea rows={3} className={s.ctlArea} value={form.description}
-              placeholder="Describe the problem for the team"
+            <textarea rows={3} className={s.ctlArea} value={form.description} placeholder="Describe the problem for the team"
               onChange={(e) => setForm({ ...form, description: e.target.value })} />
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
@@ -806,7 +868,7 @@ function IssueModal({ order, token, toast, onClose, onSaved }) {
         <div className={s.modalActions}>
           <button type="button" className={s.btnSm} onClick={onClose}>Cancel</button>
           <button type="button" className={s.btnBlack} disabled={busy} onClick={save}>
-            {busy ? <Loader2 size={12} className="animate-spin" /> : null} Save issue
+            {busy ? <Loader2 size={12} className="animate-spin" /> : <Check size={12} />} Save issue
           </button>
         </div>
       </div>

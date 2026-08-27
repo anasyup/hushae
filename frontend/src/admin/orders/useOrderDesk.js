@@ -14,11 +14,12 @@ import { useApp } from '../../store/AppContext';
 const BASE = '/orders/manage';
 
 export const DEFAULTS = {
-  // Opens on New so the first thing an admin sees is what needs attention.
-  group: 'new', stage: '', status: '', paymentMethod: 'all', paymentState: 'all',
+  // Opens on All Orders — the desk shows the whole book first, and the
+  // Status tabs (Pending / Processing / Completed / Cancelled) narrow it.
+  group: 'all', stage: '', status: '', paymentMethod: 'all', paymentState: 'all',
   q: '', from: '', to: '', minTotal: '', maxTotal: '', city: 'all',
   printed: '', hasIssue: '', sort: 'oldest', page: '1', limit: '50',
-  preset: '',
+  preset: '', compare: '',
 };
 
 /** Read filters out of the URL, falling back to the defaults. */
@@ -32,7 +33,7 @@ function toQuery(filters) {
   const p = new URLSearchParams();
   for (const [k, v] of Object.entries(filters)) {
     if (v === '' || v === null || v === undefined) continue;
-    if (DEFAULTS[k] === v && ['group', 'paymentMethod', 'paymentState', 'city', 'sort', 'page', 'limit'].includes(k)) {
+    if (DEFAULTS[k] === v && ['group', 'paymentMethod', 'paymentState', 'city', 'sort', 'page', 'limit', 'status', 'compare'].includes(k)) {
       // keep defaults out of the URL, but always send them to the API
     }
     p.set(k, v);
