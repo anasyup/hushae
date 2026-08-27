@@ -11,7 +11,7 @@ import { findSettingsItem } from './settingsNav';
  * ========================================================================== */
 
 const NEAREST = [
-  { match: /^\/admin\/settings\/(address|timezone|currency|units|domain|languages|notifications)/, to: '/admin/settings/store', label: 'Store Details' },
+  { match: /^\/admin\/settings\/(units|domain|languages|notifications)/, to: '/admin/settings/store', label: 'Store Details' },
   { match: /^\/admin\/settings\/(customer-login|guest-checkout|account-fields|customer-privacy)/, to: '/admin/settings/accounts', label: 'Customer Accounts' },
   { match: /^\/admin\/settings\/store-credit/, to: '/admin/settings/loyalty', label: 'Loyalty & Store Credit' },
   { match: /^\/admin\/settings\/(team|roles|permissions|store-access|product-access|order-access|customer-access|finance-access|audit-logs)/, to: '/admin/settings/security', label: 'Security & Access' },

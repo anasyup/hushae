@@ -89,6 +89,9 @@ const OnlineStore = lazy(() => import('./admin/OnlineStore'));
 const SettingsStore = lazy(() => import('./admin/SettingsPages').then((m) => ({ default: m.SettingsStore })));
 const SettingsPayments = lazy(() => import('./admin/SettingsPages').then((m) => ({ default: m.SettingsPayments })));
 const SettingsShipping = lazy(() => import('./admin/SettingsPages').then((m) => ({ default: m.SettingsShipping })));
+const SettingsBusinessAddress = lazy(() => import('./admin/SettingsAddress').then((m) => ({ default: m.SettingsBusinessAddress })));
+const SettingsTimezone = lazy(() => import('./admin/SettingsAddress').then((m) => ({ default: m.SettingsTimezone })));
+const SettingsCurrency = lazy(() => import('./admin/SettingsAddress').then((m) => ({ default: m.SettingsCurrency })));
 const SettingsSecurity = lazy(() => import('./admin/SettingsSecurity'));
 const SettingsLegal = lazy(() => import('./admin/SettingsPages').then((m) => ({ default: m.SettingsLegal })));
 const SettingsEmail = lazy(() => import('./admin/SettingsEmail'));
@@ -375,9 +378,9 @@ export default function App() {
           <Route path="/admin/settings/import" element={<Backup />} />
           <Route path="/admin/settings/policies" element={<SettingsLegal />} />
           <Route path="/admin/settings/privacy" element={<SettingsLegal />} />
-          <Route path="/admin/settings/address" element={<Suspense fallback={<EditorFallback />}><SettingsReserved /></Suspense>} />
-          <Route path="/admin/settings/timezone" element={<Suspense fallback={<EditorFallback />}><SettingsReserved /></Suspense>} />
-          <Route path="/admin/settings/currency" element={<Suspense fallback={<EditorFallback />}><SettingsReserved /></Suspense>} />
+          <Route path="/admin/settings/address" element={<SettingsBusinessAddress />} />
+          <Route path="/admin/settings/timezone" element={<SettingsTimezone />} />
+          <Route path="/admin/settings/currency" element={<SettingsCurrency />} />
           <Route path="/admin/settings/units" element={<Suspense fallback={<EditorFallback />}><SettingsReserved /></Suspense>} />
           <Route path="/admin/settings/domain" element={<Suspense fallback={<EditorFallback />}><SettingsReserved /></Suspense>} />
           <Route path="/admin/settings/languages" element={<Suspense fallback={<EditorFallback />}><SettingsReserved /></Suspense>} />

@@ -6,6 +6,36 @@ const settingsSchema = new mongoose.Schema({
   tagline: { type: String, default: 'Second Skin, First Choice.' },
   contactEmail: { type: String, default: 'care@hushae.pk' },
   contactPhone: { type: String, default: '0319 8459984' },
+
+  // =========================================================================
+  // BUSINESS ADDRESS — displayed on invoices, legal pages, and store footer
+  // =========================================================================
+  businessAddress: {
+    legalName:  { type: String, default: '' },
+    ntn:        { type: String, default: '' },   // NTN / Tax ID
+    street:     { type: String, default: '' },
+    city:       { type: String, default: '' },
+    province:   { type: String, default: '' },
+    postalCode: { type: String, default: '' },
+    country:    { type: String, default: 'Pakistan' },
+  },
+
+  // =========================================================================
+  // CURRENCY — used in order invoices, refunds, and storefront price display
+  // =========================================================================
+  currency: {
+    code:             { type: String, default: 'PKR' },
+    symbol:           { type: String, default: 'Rs.' },
+    position:         { type: String, default: 'before' },  // 'before' | 'after'
+    decimalSeparator: { type: String, default: '.' },
+    thousandSeparator:{ type: String, default: ',' },
+  },
+
+  // =========================================================================
+  // TIME ZONE — used by marketing schedule display and admin timestamps
+  // =========================================================================
+  timezone: { type: String, default: 'Asia/Karachi' },
+
   /* Include admin/staff test orders in analytics. Default OFF — test orders
      would otherwise inflate Revenue, Orders, AOV, Top Customers, etc. */
   includeTestOrders: { type: Boolean, default: false },
