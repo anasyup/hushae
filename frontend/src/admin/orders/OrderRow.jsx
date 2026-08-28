@@ -42,6 +42,7 @@ export default function OrderRow({
 }) {
   const [menu, setMenu] = useState(false);
   const [cancelMenu, setCancelMenu] = useState(false);
+  const [open, setOpen] = useState(false);
 
   const stage = o.stage || 'New';
   const pState = paymentLabel(o);
@@ -55,7 +56,7 @@ export default function OrderRow({
 
   const copyRef = () => { navigator.clipboard?.writeText(o.orderNumber); };
 
-  return (
+  const row = (
     <tr className={selected ? 'od-selected' : ''} onClick={onOpen}>
       <td>
         <input
@@ -92,7 +93,7 @@ export default function OrderRow({
       </td>
 
       <td><span className={`od-b ${stageBadge(stage)}`}><span className="dot" />{stage}</span></td>
-      <td><span className={`od-b ${payBadge(pState)}`}><span className="dot" />{pState}</span></td>
+      <td><span className={`od-b ${payBadge(pState)}`}><span className="dot" />{pState}</span><div className="od-sub2">{o.paymentMethod}</div></td>
       <td><span className={`od-b ${fulBadge(fulfill)}`}><span className="dot" />{fulfill}</span></td>
       <td className="od-strong">{`PKR ${Number(o.total || 0).toLocaleString('en-PK')}`}</td>
 
@@ -109,6 +110,14 @@ export default function OrderRow({
               {next}
             </button>
           )}
+          <button
+            onClick={() => setOpen((v) => !v)}
+            aria-label={open ? 'Hide items' : 'Show items'}
+            aria-expanded={open}
+            className="od-act"
+          >
+            <ChevronDown size={13} className={open ? 'od-chev-open' : ''} />
+          </button>
           <div style={{ position: 'relative' }}>
             <button onClick={() => setMenu((m) => !m)} aria-label="More actions" className="od-act">
               <MoreHorizontal size={13} />
@@ -167,5 +176,34 @@ export default function OrderRow({
         </div>
       </td>
     </tr>
+  );
+
+  return (
+    <>
+      {row}
+      {open && (
+        <tr className="od-expand-row">
+          <td />
+          <td colSpan={8}>
+            <div className="od-items">
+              {(o.items || []).map((it, i) => (
+                <div key={i} className="od-item">
+                  <span className="od-item-qty">{it.quantity} ×</span>
+                  <span className="od-item-name">{it.name || it.slug || it.product}</span>
+                  {it.size && <span className="od-item-meta">{it.size}{it.color ? ` / ${it.color}` : ''}</span>}
+                  {['out_of_stock', 'insufficient', 'low_stock'].includes(it.stockStatus) && (
+                    <span className="od-b od-b-red"><span className="dot" />{it.stockStatus.replace(/_/g, ' ')}</span>
+                  )}
+                  <span className="od-item-price">{`₨${Number(it.price || 0).toLocaleString('en-PK')}`}</span>
+                </div>
+              ))}
+              {bins.length > 0 && (
+                <p className="od-sub2" style={{ marginTop: 6 }}>Warehouse bins: {bins.join(', ')}</p>
+              )}
+            </div>
+          </td>
+        </tr>
+      )}
+    </>
   );
 }

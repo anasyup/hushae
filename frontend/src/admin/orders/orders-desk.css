@@ -408,3 +408,39 @@
 }
 @media (max-width: 900px) { .od-charts { grid-template-columns: 1fr; } }
 .od-card-t { font-size: 12.5px; font-weight: 700; color: var(--od-text); }
+
+/* verification callout */
+.od-callout {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--od-yellow-bg);
+  border: 1px solid var(--od-yellow-bd);
+  color: var(--od-yellow-tx);
+  border-radius: 10px;
+  padding: 9px 12px;
+  font-size: 12px;
+  margin-bottom: 10px;
+}
+.od-callout-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+.od-callout-btn {
+  margin-left: auto;
+  background: var(--od-black);
+  color: var(--od-on-black);
+  border-radius: 8px;
+  padding: 5px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+/* expandable items row */
+.od-chev-open { transform: rotate(180deg); }
+.od-expand-row td { background: var(--od-hover); }
+.od-items { padding: 4px 0; }
+.od-item { display: flex; align-items: center; gap: 8px; padding: 3px 0; font-size: 11.5px; }
+.od-item-qty { color: var(--od-muted); font-variant-numeric: tabular-nums; }
+.od-item-name { font-weight: 600; color: var(--od-text); }
+.od-item-meta { color: var(--od-muted); font-size: 10.5px; }
+.od-item-price { margin-left: auto; color: var(--od-muted); font-variant-numeric: tabular-nums; }
