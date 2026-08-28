@@ -1,11 +1,39 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import {
+  AlertTriangle, Check, ExternalLink, MessageSquare, Search, Star, Trash2, X,
+} from 'lucide-react';
 import { api } from '../api/client';
 import { useApp } from '../store/AppContext';
 import AdminLayout from './AdminLayout';
-import PageHeader from './components/PageHeader';
-import { btnGhost, btnSolid, EditorialEmpty, MonoStatus, TableSkeleton } from './orders/orderUi';
-import { ta } from './settings/chrome';
+import './products-atelier.css';
+
+/* ===========================================================================
+ * Reviews — ATELIER luxury theme (same .pa-* family as Products / Categories
+ * / Collections). Moderation workflow preserved 1:1: tabs with live counts,
+ * select-all + bulk (approve/reject/feature/pin/verify/delete), per-row
+ * approve/reject/reply/delete, inline public reply, client search.
+ * ========================================================================== */
+
+function Stars({ n }) {
+  return (
+    <span className="pa-stars" aria-label={`${n} out of 5 stars`}>
+      {[1, 2, 3, 4, 5].map((i) => (
+        <Star
+          key={i}
+          size={11}
+          strokeWidth={1.6}
+          color={i <= n ? '#111111' : '#dcdcdc'}
+          fill={i <= n ? '#111111' : 'none'}
+        />
+      ))}
+    </span>
+  );
+}
+
+function Badge({ tone, children }) {
+  return <span className={`pa-badge ${tone}`}><span className="pa-dot" aria-hidden />{children}</span>;
+}
 
 export default function Reviews() {
   const { auth, toast } = useApp();
@@ -17,11 +45,14 @@ export default function Reviews() {
   const [reply, setReply] = useState('');
   const [selected, setSelected] = useState([]);
   const [loaded, setLoaded] = useState(false);
+  const [err, setErr] = useState('');
+  const [q, setQ] = useState('');
 
   const load = () => {
+    setErr('');
     api(`/reviews/admin?status=${tab}`, { token: auth?.token })
       .then((d) => { setRows(d.reviews || []); setCounts(d.counts || {}); setSelected([]); })
-      .catch(() => setRows([]))
+      .catch(() => { setRows([]); setErr('Something prevented the reviews from loading.'); })
       .finally(() => setLoaded(true));
   };
 
@@ -31,7 +62,7 @@ export default function Reviews() {
 
   const bulk = async (action) => {
     if (!selected.length) return;
-    if (action === 'delete' && !confirm(`Delete ${selected.length} review(s) permanently?`)) return;
+    if (action === 'delete' && !window.confirm(`Delete ${selected.length} review(s) permanently?`)) return;
     setBusy('bulk');
     try {
       const r = await api('/reviews/admin/bulk', { method: 'POST', body: { ids: selected, action }, token: auth.token });
@@ -52,7 +83,7 @@ export default function Reviews() {
   };
 
   const del = async (id) => {
-    if (!confirm('Delete this review permanently?')) return;
+    if (!window.confirm('Delete this review permanently?')) return;
     setBusy(id);
     try {
       await api(`/reviews/admin/${id}`, { method: 'DELETE', token: auth.token });
@@ -69,102 +100,195 @@ export default function Reviews() {
     } catch (e) { toast(e.message || 'Failed'); } finally { setBusy(null); }
   };
 
-  const tabs = [
-    { id: 'pending', label: 'Pending' },
-    { id: 'approved', label: 'Approved' },
-    { id: 'rejected', label: 'Rejected' },
+  const filtered = useMemo(() => {
+    const term = q.trim().toLowerCase();
+    if (!term) return rows;
+    return rows.filter((r) =>
+      r.customerName?.toLowerCase().includes(term) ||
+      r.title?.toLowerCase().includes(term) ||
+      r.body?.toLowerCase().includes(term) ||
+      r.product?.name?.toLowerCase().includes(term)
+    );
+  }, [rows, q]);
+
+  const stats = [
+    { id: 'pending', label: 'Pending', note: { text: 'Needs you', tone: 'pa-note-yellow' } },
+    { id: 'approved', label: 'Approved', note: { text: 'Public', tone: 'pa-note-green' } },
+    { id: 'rejected', label: 'Rejected', note: { text: 'Hidden', tone: 'pa-note-gray' } },
   ];
+
+  const emptyCopy = {
+    pending: 'When a customer writes a review it will land here for your approval.',
+    approved: 'Approved reviews appear on the product page publicly.',
+    rejected: 'Rejected reviews stay in the database but never show publicly.',
+  };
 
   return (
     <AdminLayout title="Reviews">
-      <PageHeader title="Reviews" description="Moderate customer reviews before they appear on product pages." />
+      <div className="pa-outer">
+        <div className="pa-wrap">
 
-      <div className="mb-8 flex flex-wrap gap-1.5">
-        {tabs.map((t) => (
-          <button key={t.id} type="button" onClick={() => setTab(t.id)} className={tab === t.id ? btnSolid : btnGhost}>
-            {t.label} {counts[t.id] || 0}
-          </button>
-        ))}
-      </div>
+          {/* ── Page head ─────────────────────────────────────────────── */}
+          <div className="pa-head">
+            <div>
+              <h1>Reviews</h1>
+              <p>Moderate customer reviews before they appear on product pages.</p>
+            </div>
+          </div>
 
-      {!loaded ? (
-        <TableSkeleton rows={5} />
-      ) : rows.length === 0 ? (
-        <EditorialEmpty
-          title="Nothing here yet"
-          description={tab === 'pending' ? 'When a customer writes a review it will land here for your approval.' : tab === 'approved' ? 'Approved reviews appear on the product page publicly.' : 'Rejected reviews stay in the DB but never show publicly.'}
-        />
-      ) : (
-        <section>
-          <p className="adm-index">01 — {tab}</p>
-          <div className="mb-4 flex flex-wrap items-center gap-2 border-y border-white/10 py-3">
-            <label className="flex cursor-pointer items-center gap-2 text-[12px] text-white/70">
-              <input type="checkbox" checked={allChecked} onChange={toggleAll} className="h-4 w-4 accent-white" />
-              Select all ({rows.length})
-            </label>
-            {selected.length > 0 && (
-              <div className="ml-auto flex flex-wrap gap-1.5">
-                {tab !== 'approved' && <button type="button" onClick={() => bulk('approve')} disabled={busy === 'bulk'} className={btnSolid}>Approve</button>}
-                {tab !== 'rejected' && <button type="button" onClick={() => bulk('reject')} disabled={busy === 'bulk'} className={btnGhost}>Reject</button>}
-                <button type="button" onClick={() => bulk('feature')} disabled={busy === 'bulk'} className={btnGhost}>Feature</button>
-                <button type="button" onClick={() => bulk('pin')} disabled={busy === 'bulk'} className={btnGhost}>Pin</button>
-                <button type="button" onClick={() => bulk('verify')} disabled={busy === 'bulk'} className={btnGhost}>Mark verified</button>
-                <button type="button" onClick={() => bulk('delete')} disabled={busy === 'bulk'} className={btnGhost}>Delete</button>
-              </div>
+          {/* ── Stats = tabs ──────────────────────────────────────────── */}
+          <div className="pa-stats pa-stats-3">
+            {stats.map((t, i) => (
+              <button key={t.id} type="button" onClick={() => setTab(t.id)} aria-pressed={tab === t.id} className={`pa-stat ${tab === t.id ? 'active' : ''}`} style={{ animationDelay: `${0.05 + i * 0.05}s` }}>
+                <p className="pa-stat-label">{t.label}</p>
+                <p className="pa-stat-val">{!loaded ? '—' : (counts[t.id] || 0).toLocaleString()}</p>
+                <span className={`pa-stat-note ${t.note.tone}`}>{t.note.text}</span>
+              </button>
+            ))}
+          </div>
+
+          {/* ── Search ────────────────────────────────────────────────── */}
+          <div className="pa-card pa-toolbar">
+            <div className="pa-search">
+              <Search size={13} strokeWidth={2} />
+              <input
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                placeholder="Search reviews by customer, text or product…"
+                aria-label="Search reviews"
+              />
+            </div>
+            {q && (
+              <button type="button" onClick={() => setQ('')} className="pa-btn-sm" style={{ marginLeft: 'auto' }}>Clear</button>
             )}
           </div>
 
-          <div className="border-y border-white/10">
-            {rows.map((r) => (
-              <div key={r._id} className="border-b border-white/5 py-5 last:border-0">
-                <div className="flex flex-col justify-between gap-3 md:flex-row">
-                  <div className="flex min-w-0 flex-1 gap-3">
-                    <input type="checkbox" checked={selected.includes(r._id)} onChange={() => toggleOne(r._id)} aria-label={`Select review by ${r.customerName}`} className="mt-1 h-4 w-4 shrink-0 accent-white" />
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="text-[12px] tabular-nums text-white/50">{r.rating}/5</span>
-                        <p className="text-[13px] text-white">{r.customerName}</p>
-                        {r.verified && <MonoStatus label="VERIFIED" />}
-                        {r.featured && <MonoStatus label="FEATURED" />}
-                        {r.pinned && <MonoStatus label="PINNED" />}
-                        {r.reports > 0 && <MonoStatus label={`${r.reports} REPORT${r.reports === 1 ? '' : 'S'}`} dim />}
-                        <span className="text-[11px] text-white/30">{new Date(r.createdAt).toLocaleDateString('en-PK')}</span>
+          {/* ── Bulk bar ──────────────────────────────────────────────── */}
+          {selected.length > 0 && (
+            <div className="pa-bulk">
+              <span className="pa-bulk-count">{selected.length} selected</span>
+              {tab !== 'approved' && (
+                <button type="button" onClick={() => bulk('approve')} disabled={busy === 'bulk'} className="pa-btn-black" style={{ height: 30, fontSize: 11 }}>
+                  <Check size={11} strokeWidth={2.4} /> Approve
+                </button>
+              )}
+              {tab !== 'rejected' && (
+                <button type="button" onClick={() => bulk('reject')} disabled={busy === 'bulk'} className="pa-btn-sm"><X size={11} strokeWidth={2.2} /> Reject</button>
+              )}
+              <button type="button" onClick={() => bulk('feature')} disabled={busy === 'bulk'} className="pa-btn-sm">Feature</button>
+              <button type="button" onClick={() => bulk('pin')} disabled={busy === 'bulk'} className="pa-btn-sm">Pin</button>
+              <button type="button" onClick={() => bulk('verify')} disabled={busy === 'bulk'} className="pa-btn-sm">Mark verified</button>
+              <button type="button" onClick={() => bulk('delete')} disabled={busy === 'bulk'} className="pa-btn-sm" style={{ color: 'var(--pa-red-text)' }}>
+                <Trash2 size={11} strokeWidth={2.2} /> Delete
+              </button>
+              <button type="button" onClick={() => setSelected([])} className="pa-text-link pa-clear">Clear</button>
+            </div>
+          )}
+
+          {/* ── States ────────────────────────────────────────────────── */}
+          {err && (
+            <div className="pa-card pa-state">
+              <div className="pa-state-icon"><AlertTriangle size={18} strokeWidth={1.8} /></div>
+              <h3>Unable to load reviews</h3>
+              <p>{err}</p>
+              <button type="button" onClick={() => { setLoaded(false); load(); }} className="pa-btn-black">Try again</button>
+            </div>
+          )}
+
+          {!loaded && !err && (
+            <div className="pa-card pa-skeleton">
+              {Array.from({ length: 5 }).map((_, i) => <div key={i} className="pa-sk-row" style={{ height: 64 }} />)}
+            </div>
+          )}
+
+          {!err && loaded && filtered.length === 0 && (
+            <div className="pa-card pa-state">
+              <div className="pa-state-icon"><Star size={18} strokeWidth={1.8} /></div>
+              <h3>{q ? 'No reviews match' : 'Nothing here yet'}</h3>
+              <p>{q ? 'No reviews match this search in the current tab.' : emptyCopy[tab]}</p>
+              {q && <button type="button" onClick={() => setQ('')} className="pa-btn-sm">Clear search</button>}
+            </div>
+          )}
+
+          {/* ── Review cards ──────────────────────────────────────────── */}
+          {!err && filtered.length > 0 && (
+            <div className="pa-rev-list">
+              <label className="pa-filter-note" style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', margin: '0 2px' }}>
+                <input type="checkbox" className="pa-input-chk" checked={allChecked} onChange={toggleAll} aria-label="Select all reviews in this tab" />
+                Select all ({filtered.length})
+              </label>
+
+              {filtered.map((r, i) => {
+                const isSel = selected.includes(r._id);
+                return (
+                  <div key={r._id} className={`pa-rev-card ${isSel ? 'selected' : ''}`} style={{ animationDelay: `${Math.min(i * 0.04, 0.3)}s` }}>
+                    <div className="pa-rev-top">
+                      <input type="checkbox" className="pa-input-chk" checked={isSel} onChange={() => toggleOne(r._id)} aria-label={`Select review by ${r.customerName}`} />
+                      <Stars n={r.rating} />
+                      <span className="pa-rev-name">{r.customerName}</span>
+                      {r.verified && <Badge tone="pa-b-green">Verified</Badge>}
+                      {r.featured && <Badge tone="pa-b-purple">Featured</Badge>}
+                      {r.pinned && <Badge tone="pa-b-yellow">Pinned</Badge>}
+                      {r.reports > 0 && <Badge tone="pa-b-red">{r.reports} report{r.reports === 1 ? '' : 's'}</Badge>}
+                      <span className="pa-rev-date" style={{ marginLeft: 'auto' }}>{new Date(r.createdAt).toLocaleDateString('en-PK')}</span>
+                    </div>
+
+                    {r.title && <p className="pa-rev-title">{r.title}</p>}
+                    <p className="pa-rev-body">{r.body}</p>
+
+                    {r.adminReply && (
+                      <div className="pa-reply-block">
+                        <p className="pa-reply-label">Your reply</p>
+                        <p>{r.adminReply}</p>
                       </div>
-                      {r.title && <p className="mt-2 text-[13px] text-white">{r.title}</p>}
-                      <p className="mt-1 text-[13px] leading-relaxed text-white/70">{r.body}</p>
-                      {r.adminReply && (
-                        <div className="mt-3 border-l border-white/20 pl-3">
-                          <p className="adm-label">Your reply</p>
-                          <p className="mt-1 text-[13px] text-white/70">{r.adminReply}</p>
+                    )}
+
+                    <div className="pa-rev-foot">
+                      <div>
+                        {r.product && (
+                          <Link to={`/product/${r.product.slug}`} target="_blank" rel="noreferrer" className="pa-rev-product">
+                            {r.product.name} <ExternalLink size={9} strokeWidth={2.4} />
+                          </Link>
+                        )}
+                      </div>
+                      <div className="pa-rev-actions">
+                        {tab !== 'approved' && (
+                          <button type="button" disabled={busy === r._id} onClick={() => setStatus(r._id, 'approved')} className="pa-btn-black" style={{ height: 30, fontSize: 11 }}>
+                            <Check size={11} strokeWidth={2.4} /> Approve
+                          </button>
+                        )}
+                        {tab !== 'rejected' && (
+                          <button type="button" disabled={busy === r._id} onClick={() => setStatus(r._id, 'rejected')} className="pa-btn-sm"><X size={11} strokeWidth={2.2} /> Reject</button>
+                        )}
+                        <button type="button" disabled={busy === r._id} onClick={() => { setReplying(r._id); setReply(r.adminReply || ''); }} className="pa-btn-sm">
+                          <MessageSquare size={11} strokeWidth={2.2} /> Reply
+                        </button>
+                        <button type="button" disabled={busy === r._id} onClick={() => del(r._id)} className="pa-action-btn danger" aria-label="Delete review" title="Delete permanently">
+                          <Trash2 size={12} strokeWidth={2} />
+                        </button>
+                      </div>
+                    </div>
+
+                    {replying === r._id && (
+                      <div className="pa-reply-edit">
+                        <p className="pa-field-label">Public reply from HUSHAE</p>
+                        <textarea rows={3} className="pa-textarea" value={reply} onChange={(e) => setReply(e.target.value)} placeholder="Thanks for the feedback…" autoFocus />
+                        <div className="pa-reply-edit-actions">
+                          <button type="button" onClick={() => setReplying(null)} className="pa-btn-sm">Cancel</button>
+                          <button type="button" onClick={saveReply} disabled={busy === r._id} className="pa-btn-black">
+                            {busy === r._id ? 'Saving…' : 'Save reply'}
+                          </button>
                         </div>
-                      )}
-                      {r.product && (
-                        <Link to={`/product/${r.product.slug}`} target="_blank" className="mt-3 inline-block text-[12px] text-white/40 hover:text-white">{r.product.name}</Link>
-                      )}
-                    </div>
+                      </div>
+                    )}
                   </div>
-                  <div className="flex flex-wrap items-start gap-2">
-                    {tab !== 'approved' && <button type="button" disabled={busy === r._id} onClick={() => setStatus(r._id, 'approved')} className={btnSolid}>Approve</button>}
-                    {tab !== 'rejected' && <button type="button" disabled={busy === r._id} onClick={() => setStatus(r._id, 'rejected')} className={btnGhost}>Reject</button>}
-                    <button type="button" disabled={busy === r._id} onClick={() => { setReplying(r._id); setReply(r.adminReply || ''); }} className={btnGhost}>Reply</button>
-                    <button type="button" disabled={busy === r._id} onClick={() => del(r._id)} className={btnGhost}>Delete</button>
-                  </div>
-                </div>
-                {replying === r._id && (
-                  <div className="mt-4 border-t border-white/10 pt-4">
-                    <label className="adm-label mb-1.5 block">Public reply from HUSHAE</label>
-                    <textarea rows={3} className={ta} value={reply} onChange={(e) => setReply(e.target.value)} placeholder="Thanks for the feedback…" />
-                    <div className="mt-2 flex justify-end gap-2">
-                      <button type="button" onClick={() => setReplying(null)} className={btnGhost}>Cancel</button>
-                      <button type="button" onClick={saveReply} className={btnSolid}>Save reply</button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
+                );
+              })}
+            </div>
+          )}
+
+        </div>
+      </div>
     </AdminLayout>
   );
 }
