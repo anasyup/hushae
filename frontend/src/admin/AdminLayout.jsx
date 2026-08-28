@@ -36,6 +36,7 @@ import { api } from '../api/client';
 import { applyAdminTheme, clearAdminTheme, getAdminTheme, setAdminTheme } from '../lib/adminTheme';
 import CommandPalette from './CommandPalette';
 import SettingsRail from './settings/SettingsRail';
+import './orders/orders-desk.css'; /* shared od-* design system for all admin pages */
 import NotificationBell from './dashboard/NotificationBell';
 
 /* ============================================================================
