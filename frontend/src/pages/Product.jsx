@@ -36,7 +36,10 @@ const FALLBACK =
     '<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1200"><rect width="100%" height="100%" fill="#F8F8F8"/><text x="50%" y="50%" fill="#CCCCCC" font-family="Jost,sans-serif" font-size="14" letter-spacing="3" text-anchor="middle">HUSHAE</text></svg>'
   );
 
+import { money, useFx } from '../lib/fx';
+
 export default function Product() {
+  useFx();
   const { slug } = useParams();
   const nav = useNavigate();
   const { addToCart, inWishlist, toggleWish, pushRecent, recent, settings } = useApp();
@@ -247,11 +250,11 @@ export default function Product() {
 
                 <div className="flex items-baseline gap-3 pt-1">
                   <span className="text-[17px] md:text-[18px] font-medium text-[#000000]">
-                    {pkr(p.price)}
+                    {money(p.price)}
                   </span>
                   {onSale && p.compareAtPrice > p.price && (
                     <span className="text-[13px] font-light text-neutral-400 line-through">
-                      {pkr(p.compareAtPrice)}
+                      {money(p.compareAtPrice)}
                     </span>
                   )}
                   {onSale && p.compareAtPrice > p.price && (
