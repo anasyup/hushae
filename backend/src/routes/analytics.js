@@ -345,4 +345,156 @@ router.post('/weekly-digest', protect, adminOnly, asyncHandler(async (req, res) 
   res.json({ sent: !!result?.ok !== false, result });
 }));
 
+
+/* ── EXECUTIVE TELEMETRY — the 4-question analytics engine (boss spec) ──
+ * 1 paisa kahan se? 2 customer kahan drop? 3 profit vs burner 4 delivery
+ * nuksan. Ranges: today/7d/30d/90d/ytd · compare: prev | yoy. */
+router.get('/executive', asyncHandler(async (req, res) => {
+  const DAY = 24 * 60 * 60 * 1000;
+  const now = new Date();
+  const key = ['today', '7d', '30d', '90d', 'ytd'].includes(req.query.range) ? req.query.range : '30d';
+  const days = { today: 1, '7d': 7, '30d': 30, '90d': 90 }[key] || 0;
+  const start = key === 'ytd' ? new Date(now.getFullYear(), 0, 1) : new Date(now.getTime() - days * DAY);
+  const span = now.getTime() - start.getTime();
+  const cmpMode = req.query.compare === 'yoy' ? 'yoy' : 'prev';
+  const cmpStart = cmpMode === 'yoy'
+    ? new Date(start.getFullYear() - 1, start.getMonth(), start.getDate())
+    : new Date(start.getTime() - span);
+  const cmpEnd = cmpMode === 'yoy'
+    ? new Date(now.getFullYear() - 1, now.getMonth(), now.getDate())
+    : start;
+
+  const BAD = ['Cancelled', 'Refunded'];
+  const [ordCur, ordCmp] = await Promise.all([
+    Order.find({ createdAt: { $gte: start } }).select('orderNumber total status paymentMethod paymentState courierName customerInfo.phone customerInfo.email customerInfo.city createdAt statusHistory').lean(),
+    Order.find({ createdAt: { $gte: cmpStart, $lt: cmpEnd } }).select('total status customerInfo.phone createdAt').lean(),
+  ]);
+
+  const compute = (rows) => {
+    const live = rows.filter((o) => !BAD.includes(o.status));
+    const gmv = rows.reduce((a, o) => a + (o.total || 0), 0);
+    const liveRev = live.reduce((a, o) => a + (o.total || 0), 0);
+    const codRisk = live.filter((o) => o.paymentMethod === 'COD' && o.paymentState !== 'Paid' && o.paymentStatus !== 'Paid')
+      .reduce((a, o) => a + (o.total || 0), 0);
+    const cancelled = rows.filter((o) => BAD.includes(o.status)).reduce((a, o) => a + (o.total || 0), 0);
+    const net = Math.max(0, liveRev - codRisk);
+    const cust = {};
+    live.forEach((o) => {
+      const k = String(o.customerInfo?.phone || '').replace(/\D/g, '').slice(-10) || (o.customerInfo?.email || o.orderNumber || 'x');
+      cust[k] = (cust[k] || 0) + 1;
+    });
+    const ids = Object.values(cust);
+    const repeat = ids.filter((n) => n > 1).length;
+    return {
+      gmv, net, cancelled,
+      orders: live.length,
+      aov: live.length ? Math.round(liveRev / live.length) : 0,
+      retention: ids.length ? +((repeat / ids.length) * 100).toFixed(1) : 0,
+      custCount: ids.length,
+    };
+  };
+  const cur = compute(ordCur);
+
+  /* sessions + funnel (first-party PageView) */
+  const pv = { createdAt: { $gte: start } };
+  const [sess, viewSess, cartSess, coSess] = await Promise.all([
+    PageView.distinct('sid', pv),
+    PageView.distinct('sid', { ...pv, path: { $regex: '^/product/' } }),
+    PageView.distinct('sid', { ...pv, event: 'cart' }),
+    PageView.distinct('sid', { ...pv, event: 'checkout' }),
+  ]);
+  const funnel = {
+    sessions: sess.length, views: viewSess.length, carts: cartSess.length,
+    checkouts: coSess.length, orders: cur.orders,
+  };
+  cur.conversion = sess.length ? +((cur.orders / sess.length) * 100).toFixed(2) : 0;
+
+  const prev = compute(ordCmp);
+  prev.conversion = 0; // sessions history capped at 45d; YoY sessions unavailable
+  const delta = (a, b) => (b ? +(((a - b) / b) * 100).toFixed(1) : null);
+
+  /* daily revenue series + 7d moving average */
+  const dailyMap = {};
+  ordCur.filter((o) => !BAD.includes(o.status)).forEach((o) => {
+    const k = new Date(o.createdAt).toISOString().slice(0, 10);
+    const e = dailyMap[k] || (dailyMap[k] = { d: k, revenue: 0, orders: 0 });
+    e.revenue += o.total || 0; e.orders += 1;
+  });
+  const series = Object.values(dailyMap).sort((a, b) => a.d.localeCompare(b.d));
+  series.forEach((e, i) => {
+    const win = series.slice(Math.max(0, i - 6), i + 1);
+    e.ma7 = Math.round(win.reduce((a, x) => a + x.revenue, 0) / win.length);
+  });
+
+  /* R4 — courier SLA + city RTO */
+  const cour = {};
+  ordCur.forEach((o) => {
+    const c = String(o.courierName || '').trim() || 'Unassigned';
+    const e = cour[c] || (cour[c] = { name: c, total: 0, delivered: 0, cancelled: 0, onTime: 0 });
+    e.total += 1;
+    if (['Delivered', 'Completed'].includes(o.status)) {
+      e.delivered += 1;
+      const del = (o.statusHistory || []).find((h) => h.status === 'Delivered');
+      const age = del ? (new Date(del.at) - new Date(o.createdAt)) / DAY : null;
+      if (age != null && age <= 5) e.onTime += 1;
+    }
+    if (BAD.includes(o.status)) e.cancelled += 1;
+  });
+  const couriers = Object.values(cour).sort((a, b) => b.total - a.total).slice(0, 6)
+    .map((c) => ({ ...c, onTimeRate: c.delivered ? +((c.onTime / c.delivered) * 100).toFixed(0) : 0, cancelRate: c.total ? +((c.cancelled / c.total) * 100).toFixed(1) : 0 }));
+
+  const cityMap = {};
+  ordCur.forEach((o) => {
+    const cty = String(o.customerInfo?.city || '').trim() || 'Unknown';
+    const e = cityMap[cty] || (cityMap[cty] = { city: cty, orders: 0, cancelled: 0 });
+    e.orders += 1;
+    if (BAD.includes(o.status)) e.cancelled += 1;
+  });
+  const cities = Object.values(cityMap).filter((c) => c.orders >= 2)
+    .map((c) => ({ ...c, rtoRate: +((c.cancelled / c.orders) * 100).toFixed(1) }))
+    .sort((a, b) => b.orders - a.orders).slice(0, 8);
+
+  /* R3 tiers — all-time customer order counts */
+  const tierAgg = await Order.aggregate([
+    { $match: { status: { $nin: BAD } } },
+    { $group: { _id: { $concat: [{ $ifNull: ['$customerInfo.phone', ''] }] }, n: { $sum: 1 }, spent: { $sum: '$total' } } },
+  ]);
+  const tiers = { diamond: 0, gold: 0, silver: 0, bronze: 0 };
+  let gaps = [];
+  tierAgg.forEach((t) => {
+    if (t.n >= 50) tiers.diamond += 1;
+    else if (t.n >= 10) tiers.gold += 1;
+    else if (t.n >= 3) tiers.silver += 1;
+    else tiers.bronze += 1;
+  });
+  /* repeat purchase frequency: avg days between order 1 and 2 (sampled) */
+  const repeatPhones = tierAgg.filter((t) => t.n > 1).slice(0, 200).map((t) => t._id).filter(Boolean);
+  if (repeatPhones.length) {
+    const reps = await Order.aggregate([
+      { $match: { 'customerInfo.phone': { $in: repeatPhones }, status: { $nin: BAD } } },
+      { $sort: { createdAt: 1 } },
+      { $group: { _id: '$customerInfo.phone', dates: { $push: '$createdAt' } } },
+    ]);
+    reps.forEach((r) => {
+      for (let i = 1; i < Math.min(r.dates.length, 4); i += 1) {
+        gaps.push((r.dates[i] - r.dates[i - 1]) / DAY);
+      }
+    });
+  }
+  const avgGapDays = gaps.length ? Math.round(gaps.reduce((a, b) => a + b, 0) / gaps.length) : null;
+
+  res.json({
+    range: key, compare: cmpMode,
+    kpis: {
+      cur, prev,
+      deltas: {
+        gmv: delta(cur.gmv, prev.gmv), net: delta(cur.net, prev.net),
+        orders: delta(cur.orders, prev.orders), aov: delta(cur.aov, prev.aov),
+        retention: delta(cur.retention, prev.retention),
+      },
+    },
+    series, funnel, couriers, cities, tiers, avgGapDays,
+  });
+}));
+
 module.exports = router;
