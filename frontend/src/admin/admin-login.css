@@ -1,0 +1,253 @@
+/* Admin login — ATELIER family (same DNA as Overview / Products). Scoped .al-* */
+
+.al-page {
+  --al-bg: #f8f8f7;
+  --al-card: #ffffff;
+  --al-border: #ececec;
+  --al-text: #111111;
+  --al-muted: #6b7280;
+  --al-muted2: #9ca3af;
+  --al-green: #0e9f6e;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--al-bg);
+  color: var(--al-text);
+  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  overflow-x: hidden;
+}
+@media (max-width: 900px) {
+  .al-page { grid-template-columns: 1fr; }
+}
+
+.al-brand {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 36px 48px 32px;
+  background:
+    linear-gradient(180deg, #111 0%, #1a1a1a 100%);
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+}
+.al-brand::after {
+  content: '';
+  position: absolute;
+  right: -20%;
+  bottom: -30%;
+  width: 70%;
+  height: 70%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,.06), transparent 70%);
+  pointer-events: none;
+}
+@media (max-width: 900px) {
+  .al-brand { padding: 22px 22px 18px; min-height: auto; }
+  .al-brand-foot { display: none; }
+}
+
+.al-mark {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+}
+.al-brand h1 {
+  margin: 0;
+  font-size: clamp(28px, 4vw, 44px);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+  max-width: 12ch;
+}
+.al-brand p.lead {
+  margin: 16px 0 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: rgba(255,255,255,.62);
+  max-width: 36ch;
+}
+.al-brand-foot {
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.4);
+}
+
+.al-panel {
+  display: grid;
+  place-items: center;
+  padding: 40px 24px;
+}
+.al-card {
+  width: 100%;
+  max-width: 400px;
+  background: var(--al-card);
+  border: 1px solid var(--al-border);
+  border-radius: 14px;
+  padding: 28px 28px 24px;
+  box-shadow: 0 1px 2px rgba(0,0,0,.03), 0 12px 32px rgba(17,17,17,.04);
+  animation: alIn .45s cubic-bezier(.16,1,.3,1) both;
+}
+@keyframes alIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+
+.al-kicker {
+  margin: 0;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--al-muted2);
+}
+.al-title {
+  margin: 8px 0 0;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.4px;
+  line-height: 1.15;
+}
+.al-sub {
+  margin: 6px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--al-muted);
+}
+
+.al-form { margin-top: 22px; display: grid; gap: 14px; }
+.al-label {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--al-muted);
+  margin-bottom: 6px;
+}
+.al-field {
+  position: relative;
+}
+.al-input {
+  width: 100%;
+  box-sizing: border-box;
+  height: 42px;
+  padding: 0 12px;
+  border: 1px solid var(--al-border);
+  border-radius: 10px;
+  background: linear-gradient(180deg, #fff, #fcfcfc);
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--al-text);
+  outline: none;
+  box-shadow: 0 1px 1px rgba(0,0,0,.02), inset 0 1px 0 #fff;
+  transition: border-color .15s, box-shadow .15s;
+}
+.al-input:hover { border-color: #d1d5db; }
+.al-input:focus {
+  border-color: #111;
+  box-shadow: 0 0 0 3px rgba(17,17,17,.08);
+}
+.al-input.otp { letter-spacing: 0.4em; font-weight: 700; text-align: center; font-variant-numeric: tabular-nums; }
+.al-input-wrap { position: relative; }
+.al-eye {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
+  border: 0;
+  background: transparent;
+  color: var(--al-muted2);
+  cursor: pointer;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+}
+.al-eye:hover { color: #111; background: #f3f3f2; }
+
+.al-err {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #fecaca;
+  background: #fef2f2;
+  color: #991b1b;
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+.al-btn {
+  height: 42px;
+  width: 100%;
+  border: 0;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #1e1e1e, #111);
+  color: #fff;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0,0,0,.08), inset 0 1px 0 rgba(255,255,255,.08);
+  transition: transform .15s, box-shadow .15s, background .15s;
+}
+.al-btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(0,0,0,.16); }
+.al-btn:active:not(:disabled) { transform: none; }
+.al-btn:disabled { opacity: .45; cursor: not-allowed; }
+
+.al-ghost {
+  display: block;
+  width: 100%;
+  border: 0;
+  background: none;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--al-muted);
+  cursor: pointer;
+  padding: 6px;
+}
+.al-ghost:hover { color: #111; }
+
+.al-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--al-border);
+  font-size: 12px;
+  color: var(--al-muted);
+}
+.al-meta a {
+  color: #111;
+  font-weight: 600;
+  text-decoration: none;
+}
+.al-meta a:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+.al-dot {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--al-muted);
+}
+.al-dot i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--al-green);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .al-card, .al-btn { animation: none; transition: none; }
+}

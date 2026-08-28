@@ -1,15 +1,12 @@
 import { useEffect, useState } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { Eye, EyeOff } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { applyAdminTheme, clearAdminTheme } from '../lib/adminTheme';
 import { api } from '../api/client';
+import './admin-login.css';
 
 const STAFF_ROLES = ['admin', 'Owner', 'Manager', 'Staff', 'Warehouse', 'Support'];
-
-const field =
-  'h-10 w-full border border-[#DCDCDC] bg-white px-3 text-[13px] text-black outline-none placeholder:text-[#777777] hover:border-[#999999] focus:border-black';
-const solid =
-  'inline-flex h-10 w-full items-center justify-center bg-black text-[10px] font-medium uppercase tracking-[0.18em] text-[#FFFFFF] transition hover:bg-black/80 disabled:opacity-35';
 
 export default function AdminLogin() {
   const { auth, setAuth } = useApp();
@@ -27,6 +24,7 @@ export default function AdminLogin() {
   const [code, setCode] = useState('');
   const [codeBusy, setCodeBusy] = useState(false);
   const [pendingEmail, setPendingEmail] = useState('');
+  const [showPw, setShowPw] = useState(false);
 
   if (auth && STAFF_ROLES.includes(auth.user?.role)) return <Navigate to="/admin" replace />;
 
@@ -59,45 +57,100 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="grid min-h-screen place-items-center bg-white px-4 text-black">
-      <div className="w-full max-w-sm">
-        <p className="text-center text-[11px] font-medium uppercase tracking-[0.42em] text-black">HUSHAE</p>
-        <p className="mt-3 text-center text-[10px] font-medium uppercase tracking-[0.22em] text-[#777777]">
-          {step2 ? 'Two-factor verification' : 'Private access'}
-        </p>
+    <div className="al-page">
+      <aside className="al-brand">
+        <p className="al-mark">HUSHAE</p>
+        <div>
+          <h1>The quiet room behind the store.</h1>
+          <p className="lead">Orders, inventory, and the people who keep HUSHAE running — one considered surface.</p>
+        </div>
+        <p className="al-brand-foot">Second Skin, First Choice.</p>
+      </aside>
 
-        {!step2 ? (
-          <form onSubmit={submit} className="mt-10 space-y-5 border-y border-[#EAEAEA] py-8" autoComplete="off">
-            <div>
-              <label htmlFor="admin-email" className="mb-1.5 block text-[9px] font-medium uppercase tracking-[0.18em] text-[#777777]">Email</label>
-              <input id="admin-email" className={field} type="email" required autoComplete="username" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} />
-            </div>
-            <div>
-              <label htmlFor="admin-password" className="mb-1.5 block text-[9px] font-medium uppercase tracking-[0.18em] text-[#777777]">Password</label>
-              <input id="admin-password" className={field} type="password" required autoComplete="current-password" value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} />
-            </div>
-            {err && <p role="alert" className="border border-[#EAEAEA] px-3 py-2 text-[12px] leading-relaxed text-[#555555]">{err}</p>}
-            <button disabled={busy} className={solid}>{busy ? 'Verifying…' : 'Sign in'}</button>
-          </form>
-        ) : (
-          <form onSubmit={submitCode} className="mt-10 space-y-5 border-y border-[#EAEAEA] py-8" autoComplete="off">
-            <p className="text-[12px] leading-relaxed text-[#555555]">
-              A 6-digit sign-in code was emailed to <span className="text-black">{pendingEmail}</span>. It expires in 5 minutes.
-            </p>
-            <div>
-              <label className="mb-1.5 block text-[9px] font-medium uppercase tracking-[0.18em] text-[#777777]">6-digit code</label>
-              <input className={`${field} tracking-[0.4em]`} type="text" inputMode="numeric" maxLength={6} required autoComplete="off" value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))} />
-            </div>
-            {err && <p role="alert" className="border border-[#EAEAEA] px-3 py-2 text-[12px] leading-relaxed text-[#555555]">{err}</p>}
-            <button disabled={codeBusy} className={solid}>{codeBusy ? 'Verifying…' : 'Verify & sign in'}</button>
-            <button type="button" onClick={() => { setStep2(false); setCode(''); setErr(''); }} className="block w-full text-center text-[10px] uppercase tracking-[0.16em] text-[#777777] hover:text-black">
-              Back to sign in
-            </button>
-          </form>
-        )}
+      <main className="al-panel">
+        <div className="al-card">
+          <p className="al-kicker">{step2 ? 'Verification' : 'Admin console'}</p>
+          <h2 className="al-title">{step2 ? 'Check your email' : 'Sign in'}</h2>
+          <p className="al-sub">
+            {step2
+              ? <>A 6-digit code was sent to <b>{pendingEmail}</b>. It expires in 5 minutes.</>
+              : 'Authorised staff only. Use the email you were given for this store.'}
+          </p>
 
-        <p className="mt-6 text-center text-[10px] uppercase tracking-[0.18em] text-[#999999]">Authorised staff only</p>
-      </div>
+          {!step2 ? (
+            <form onSubmit={submit} className="al-form" autoComplete="off">
+              <div className="al-field">
+                <label htmlFor="admin-email" className="al-label">Email</label>
+                <input
+                  id="admin-email"
+                  className="al-input"
+                  type="email"
+                  required
+                  autoComplete="username"
+                  value={f.email}
+                  onChange={(e) => setF({ ...f, email: e.target.value })}
+                />
+              </div>
+              <div className="al-field">
+                <label htmlFor="admin-password" className="al-label">Password</label>
+                <div className="al-input-wrap">
+                  <input
+                    id="admin-password"
+                    className="al-input"
+                    style={{ paddingRight: 42 }}
+                    type={showPw ? 'text' : 'password'}
+                    required
+                    autoComplete="current-password"
+                    value={f.password}
+                    onChange={(e) => setF({ ...f, password: e.target.value })}
+                  />
+                  <button
+                    type="button"
+                    className="al-eye"
+                    onClick={() => setShowPw((v) => !v)}
+                    aria-label={showPw ? 'Hide password' : 'Show password'}
+                  >
+                    {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+              </div>
+              {err && <p role="alert" className="al-err">{err}</p>}
+              <button type="submit" disabled={busy} className="al-btn">{busy ? 'Verifying…' : 'Sign in'}</button>
+            </form>
+          ) : (
+            <form onSubmit={submitCode} className="al-form" autoComplete="off">
+              <div className="al-field">
+                <label htmlFor="admin-otp" className="al-label">6-digit code</label>
+                <input
+                  id="admin-otp"
+                  className="al-input otp"
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={6}
+                  required
+                  autoComplete="one-time-code"
+                  value={code}
+                  onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
+                />
+              </div>
+              {err && <p role="alert" className="al-err">{err}</p>}
+              <button type="submit" disabled={codeBusy} className="al-btn">{codeBusy ? 'Verifying…' : 'Verify & sign in'}</button>
+              <button
+                type="button"
+                className="al-ghost"
+                onClick={() => { setStep2(false); setCode(''); setErr(''); }}
+              >
+                Back to sign in
+              </button>
+            </form>
+          )}
+
+          <div className="al-meta">
+            <span className="al-dot"><i /> Store online</span>
+            <Link to="/">View storefront</Link>
+          </div>
+        </div>
+      </main>
     </div>
   );
 }
