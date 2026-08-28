@@ -15,6 +15,26 @@
 
 ---
 
+## 0A. 🔒 DESIGN BRIEF (binding) + OPEN ISSUE — 2026-08-28
+
+**Nayi file: `DESIGN-BRIEF.md`** — boss ki premium/luxury UI requirements ka binding spec
+(typography, palette, icons, rounded cards, glass-only-where-suitable, gradients, soft
+shadows, spacing, micro-interactions, page transitions, responsive, maintainable code;
+tech: advanced CSS + `@keyframes`, Tailwind utilities, GSAP **or** Framer Motion).
+Har admin UI change us checklist ke against judge hoga.
+
+**OPEN ISSUE (boss ne flag kiya):** Analytics ke lower sections **R0–R8 "organized nahi lag
+rahe"** — random order (R1, R2a, R2b, R3, R4, R0, R5…), same-weight stacked tables,
+numbers misaligned, inconsistent empty states. Full diagnosis + fix plan `DESIGN-BRIEF.md`
+§6 me hai.
+
+**STATUS: KAAM SHURU NAHI KARNA.** Boss ka explicit order: *"kam koi start nahi karna abi,
+apni skills mind ma save karoo."* Jab tak boss "start karo" na kahe, sirf spec/plan update
+karo, code mat chhedo. Boss ne **next priority = "Analytics R0–R8 organize karo"** select kiya
+(2026-08-28) — wahi pehla kaam hoga jab green light mile.
+
+---
+
 ## 0B. ⚠️ VERIFICATION NOTICE — 2026-08-28 (read before trusting any claim below)
 
 **Is file ke §6/§7/§7B ke kuch claims code se match nahi karte. Code jeeta.**
