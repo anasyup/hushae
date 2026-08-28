@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { RefreshCcw } from 'lucide-react';
+import Chart from 'chart.js/auto';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import { pkr } from '../lib/format';
@@ -29,6 +30,37 @@ const RANGES = [
 const th = { textAlign: 'left', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--adm-label)', padding: '8px 10px', borderBottom: '1px solid var(--admin-border)' };
 const td = { fontSize: 12, padding: '9px 10px', borderBottom: '1px solid var(--admin-border-subtle)', color: 'var(--admin-text)' };
 const num = { ...td, fontVariantNumeric: 'tabular-nums' };
+
+/* Trapezoid funnel like the reference dashboards. */
+function Funnel({ k }) {
+  const steps = [
+    ['Sessions', k.sessions],
+    ['Added to cart', k.carts],
+    ['Checkout', k.checkouts],
+    ['Purchased', k.orders],
+  ];
+  const max = Math.max(steps[0][1], 1);
+  return (
+    <svg viewBox="0 0 300 220" style={{ width: '100%' }} aria-label="Purchase funnel">
+      {steps.map(([label, v], i) => {
+        const wTop = Math.max(14, (steps[i][1] / max) * 280);
+        const wBot = i < steps.length - 1 ? Math.max(10, (steps[i + 1][1] / max) * 280) : wTop * 0.7;
+        const y = i * 54;
+        const pct = steps[0][1] ? Math.round((v / steps[0][1]) * 100) : 0;
+        return (
+          <g key={label}>
+            <polygon
+              points={`${150 - wTop / 2},${y + 2} ${150 + wTop / 2},${y + 2} ${150 + wBot / 2},${y + 50} ${150 - wBot / 2},${y + 50}`}
+              fill="currentColor" opacity={0.75 - i * 0.16}
+            />
+            <text x={150} y={y + 30} textAnchor="middle" fontSize="10" fill="var(--admin-bg)" fontWeight="700">{pct}%</text>
+            <text x={292} y={y + 30} textAnchor="end" fontSize="9" fill="var(--adm-label)">{label} · {Number(v).toLocaleString()}</text>
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
 
 export default function Analytics() {
   const { auth } = useApp();
@@ -61,6 +93,73 @@ export default function Analytics() {
   useEffect(() => {
     api(`/analytics/overview?range=${range}`, { token: auth?.token }).then(setBench).catch(() => setBench(null));
   }, [auth?.token, range]);
+
+  /* graphs rebuild on data + theme toggle */
+  const chartsRef = useRef([]);
+  useEffect(() => {
+    if (!bench?.series) return undefined;
+    const make = () => {
+      chartsRef.current.forEach((c) => c.destroy());
+      chartsRef.current = [];
+      const dark = document.documentElement.classList.contains('dark-admin');
+      const pal = dark
+        ? { main: '#f4f4f5', g2: '#a1a1aa', g3: '#71717a', grid: '#26262c', tick: '#71717a', blue: '#93c5fd', green: '#34d399', amber: '#fbbf24', tooltip: '#27272a' }
+        : { main: '#111', g2: '#8a8a8a', g3: '#b3b3b3', grid: '#f2f2f2', tick: '#9ca3af', blue: '#2563eb', green: '#0e9f6e', amber: '#d97706', tooltip: '#111' };
+      const ser = bench.series;
+      const el = document.getElementById('anCombo');
+      if (el) {
+        chartsRef.current.push(new Chart(el, {
+          data: {
+            labels: ser.map((d) => d.date.slice(5)),
+            datasets: [
+              { type: 'bar', label: 'Revenue', data: ser.map((d) => d.revenue), backgroundColor: dark ? 'rgba(244,244,245,0.35)' : 'rgba(17,17,17,0.16)', borderRadius: 3, yAxisID: 'y1' },
+              { type: 'line', label: 'Sessions', data: ser.map((d) => d.sessions), borderColor: pal.blue, backgroundColor: pal.blue, tension: 0.35, pointRadius: 0, borderWidth: 2, yAxisID: 'y' },
+              { type: 'line', label: 'Orders', data: ser.map((d) => d.orders), borderColor: pal.green, backgroundColor: pal.green, tension: 0.35, pointRadius: 0, borderWidth: 2, yAxisID: 'y' },
+            ],
+          },
+          options: {
+            responsive: true, maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+              legend: { position: 'bottom', labels: { color: pal.tick, boxWidth: 8, boxHeight: 8, font: { size: 10 } } },
+              tooltip: { backgroundColor: pal.tooltip, callbacks: { label: (c) => ` ${c.dataset.label}: ${c.dataset.yAxisID === 'y1' ? 'Rs ' + Number(c.parsed.y).toLocaleString() : c.parsed.y}` } },
+            },
+            scales: {
+              x: { grid: { display: false }, ticks: { color: pal.tick, font: { size: 10 }, maxTicksLimit: 10 } },
+              y: { position: 'left', grid: { color: pal.grid }, ticks: { color: pal.tick, font: { size: 10 } } },
+              y1: { position: 'right', grid: { display: false }, ticks: { color: pal.tick, font: { size: 10 }, callback: (v) => (v >= 1000 ? Math.round(v / 1000) + 'K' : v) } },
+            },
+          },
+        }));
+      }
+      const rv = document.getElementById('anRevArea');
+      if (rv) {
+        const avg = ser.map((_, i) => {
+          const w = ser.slice(Math.max(0, i - 6), i + 1);
+          return Math.round(w.reduce((a, d) => a + d.revenue, 0) / w.length);
+        });
+        chartsRef.current.push(new Chart(rv, {
+          type: 'line',
+          data: {
+            labels: ser.map((d) => d.date.slice(5)),
+            datasets: [
+              { label: 'Revenue', data: ser.map((d) => d.revenue), borderColor: pal.amber, backgroundColor: dark ? 'rgba(251,191,36,0.12)' : 'rgba(217,119,0,0.10)', fill: true, tension: 0.4, pointRadius: 0, borderWidth: 2 },
+              { label: '7-day average', data: avg, borderColor: pal.g2, borderDash: [5, 5], borderWidth: 1.5, pointRadius: 0 },
+            ],
+          },
+          options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { position: 'bottom', labels: { color: pal.tick, boxWidth: 8, boxHeight: 8, font: { size: 10 } } }, tooltip: { backgroundColor: pal.tooltip, callbacks: { label: (c) => ` ${c.dataset.label}: Rs ${Number(c.parsed.y).toLocaleString()}` } } },
+            scales: { x: { grid: { display: false }, ticks: { color: pal.tick, font: { size: 10 }, maxTicksLimit: 10 } }, y: { grid: { color: pal.grid }, ticks: { color: pal.tick, font: { size: 10 }, callback: (v) => (v >= 1000 ? Math.round(v / 1000) + 'K' : v) } } },
+          },
+        }));
+      }
+    };
+    make();
+    const mo = new MutationObserver(make);
+    mo.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => { mo.disconnect(); chartsRef.current.forEach((c) => c.destroy()); chartsRef.current = []; };
+  }, [bench]);
 
   const burners = (a?.productIntel || []).filter((p) => p.views >= 40 && p.conv !== null && p.conv < 1);
 
@@ -96,6 +195,96 @@ export default function Analytics() {
             <div key={i} className="od-card"><div className="od-skel" style={{ height: 16, width: '40%' }} /><div className="od-skel" style={{ height: 90, marginTop: 10 }} /></div>
           ))}
         </div>
+      )}
+
+      {bench && bench.kpis && (
+        <>
+          {/* KPI cards with vs-previous + mini bars */}
+          <div className="od-stats">
+            {[
+              ['Revenue', `Rs ${Math.round(bench.kpis.revenue).toLocaleString()}`, bench.series.map((d) => d.revenue)],
+              ['Orders', bench.kpis.orders.toLocaleString(), bench.series.map((d) => d.orders)],
+              ['Sessions', bench.kpis.sessions.toLocaleString(), bench.series.map((d) => d.sessions)],
+              ['Conversion', `${bench.kpis.conversion}%`, null],
+              ['Avg order', `Rs ${Math.round(bench.kpis.aov).toLocaleString()}`, null],
+              ['Cart → checkout', bench.kpis.carts ? `${Math.round((bench.kpis.checkouts / bench.kpis.carts) * 100)}%` : '—', null],
+            ].map(([label, value, bars]) => {
+              const ser = bench.series;
+              const last = ser[ser.length - 1]; const prevD = ser[ser.length - 2];
+              const key = label === 'Revenue' ? 'revenue' : label === 'Orders' ? 'orders' : 'sessions';
+              const dlt = bars && prevD && prevD[key] ? Math.round(((last[key] - prevD[key]) / prevD[key]) * 100) : null;
+              return (
+                <div key={label} className="od-stat">
+                  <div className="od-stat-head">{label}</div>
+                  <div className="od-stat-val">{value}</div>
+                  <div className="od-stat-foot">
+                    <span className="od-delta" style={{ color: dlt == null ? 'var(--adm-label)' : dlt >= 0 ? '#10b981' : '#ef4444' }}>
+                      {dlt == null ? 'vs prev' : `${dlt >= 0 ? '↑' : '↓'} ${Math.abs(dlt)}% vs prev day`}
+                    </span>
+                    {bars && (
+                      <svg width="70" height="24" aria-hidden="true">
+                        {bars.slice(-14).map((v, i, arr) => {
+                          const max = Math.max(...arr, 1);
+                          const h = Math.max(2, (v / max) * 22);
+                          return <rect key={i} x={i * 5} y={24 - h} width="3.5" height={h} rx="1" fill="currentColor" opacity="0.55" />;
+                        })}
+                      </svg>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* combo + revenue area */}
+          <div className="od-charts">
+            <div className="od-card">
+              <div className="od-card-h" style={{ marginBottom: 8 }}>
+                <p className="od-card-t">Performance over time</p>
+                <span className="od-bar-val">sessions & orders (left) · revenue bars (right)</span>
+              </div>
+              <div style={{ height: 260 }}><canvas id="anCombo" /></div>
+            </div>
+            <div className="od-card">
+              <div className="od-card-h" style={{ marginBottom: 8 }}><p className="od-card-t">Revenue & 7-day average</p></div>
+              <div style={{ height: 260 }}><canvas id="anRevArea" /></div>
+            </div>
+          </div>
+
+          {/* funnel + traffic */}
+          <div className="od-charts-3">
+            <div className="od-card">
+              <div className="od-card-h" style={{ marginBottom: 8 }}><p className="od-card-t">Purchase funnel</p></div>
+              <Funnel k={bench.kpis} />
+            </div>
+            <div className="od-card">
+              <div className="od-card-h" style={{ marginBottom: 4 }}><p className="od-card-t">Top referrers</p></div>
+              {bench.traffic.refs.length === 0 && <p className="od-empty-b" style={{ padding: 12 }}>No referral traffic yet.</p>}
+              {bench.traffic.refs.slice(0, 6).map((r) => {
+                const max = Math.max(...bench.traffic.refs.map((x) => x.views), 1);
+                return (
+                  <div key={r.ref} className="od-bar-row">
+                    <div className="od-bar-meta"><span className="od-bar-label">{r.ref}</span><span className="od-bar-val">{r.views.toLocaleString()}</span></div>
+                    <div className="od-bar-track"><div className="od-bar-fill" style={{ width: `${Math.max(2, Math.round((r.views / max) * 100))}%` }} /></div>
+                  </div>
+                );
+              })}
+            </div>
+            <div className="od-card">
+              <div className="od-card-h" style={{ marginBottom: 4 }}><p className="od-card-t">Landing pages</p></div>
+              {bench.traffic.landing.length === 0 && <p className="od-empty-b" style={{ padding: 12 }}>No traffic yet.</p>}
+              {bench.traffic.landing.slice(0, 6).map((l) => {
+                const max = Math.max(...bench.traffic.landing.map((x) => x.views), 1);
+                return (
+                  <div key={l.path} className="od-bar-row">
+                    <div className="od-bar-meta"><span className="od-bar-label">{l.path}</span><span className="od-bar-val">{l.views.toLocaleString()}</span></div>
+                    <div className="od-bar-track"><div className="od-bar-fill" style={{ width: `${Math.max(2, Math.round((l.views / max) * 100))}%` }} /></div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </>
       )}
 
       {a && (
