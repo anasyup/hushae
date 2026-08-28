@@ -107,6 +107,7 @@ const SettingsSearch = lazy(() => import('./admin/SettingsSearch'));
 const SettingsReserved = lazy(() => import('./admin/settings/SettingsReserved'));
 const Inbox = lazy(() => import('./admin/Inbox'));
 const CODRecon = lazy(() => import('./admin/CODRecon'));
+const SettingsTeam = lazy(() => import('./admin/SettingsTeam'));
 const SearchAnalytics = lazy(() => import('./admin/SearchAnalytics'));
 /* Marketing screens: lazy so none of this reaches a shopper's bundle. */
 const Promotions = lazy(() => import('./admin/Promotions'));
@@ -468,6 +469,8 @@ export default function App() {
           <Route path="/admin/settings/taxes" element={<Suspense fallback={<EditorFallback />}><Taxes /></Suspense>} />
           <Route path="/admin/settings/legal" element={<SettingsLegal />} />
           <Route path="/admin/settings/advanced" element={<SettingsAdmin />} />
+          <Route path="/admin/settings/team" element={<Suspense fallback={<EditorFallback />}><SettingsTeam /></Suspense>} />
+          <Route path="/admin/settings/roles" element={<Suspense fallback={<EditorFallback />}><SettingsTeam /></Suspense>} />
           {/* ── SETTINGS CONSOLE rail destinations ─────────────────────────
               Every item in the settings rail resolves to a route. Where a
               real editor already exists it is reused (one component, several
