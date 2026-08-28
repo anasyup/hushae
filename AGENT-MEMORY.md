@@ -27,7 +27,7 @@ Har admin UI change us checklist ke against judge hoga.
 (R0–R8) "organized nahi lag rahe" thay — random order, same-weight stacked tables, misaligned
 numbers, inconsistent empty states. Ab sab ek hi card + 12-column row system par hain.
 
-**STATUS: DONE (3 rounds, sab live verified).**
+**STATUS: DONE (4 rounds, sab live verified).**
 1. `2640143` — report sections ek hi card + 12-column row system par (boss: "organized nahi
    lag rahay, paragraph jaisay").
 2. `ee052e3` — un sections me charts add hue (boss: "charts jaisa candlestick jaisa doo").
@@ -35,6 +35,42 @@ numbers, inconsistent empty states. Ab sab ek hi card + 12-column row system par
    hain, Shopify se inspiration lo"). Diagnosis Polaris data-viz guidelines se: v1 ne 4
    documented rules tori thin — 6-hue rainbow palette, full-bleed grid + dashed overlays,
    gauge needle (speedometer), aur "Rs 12,600" jaise lambe axis labels.
+
+**4. `6e7397f` + `9f80c06` — FINANCE page rebuilt (boss: "redesign karo, sab functions add karo,
+internet se templates dekho"). Research: Shopify Finance (payouts, payout reconciliation
+report, reserves), ecommerce P&L practice (A2X/Finaloop/SAL), reconciliation guides.
+Consistent finding: **the deposit is not the revenue** — page ko dono ke beech ki har
+deduction dikhani chahiye.
+
+**FINANCE — single source of truth rule (sabse ahem):**
+`backend/src/utils/orderEconomics.js` order-level profit ka **single source of truth** hai.
+Koi bhi finance surface apna P&L browser me dobara compute NA KARE. Purana Finance.jsx yehi
+karta tha aur apne hi order-profitability table se disagree karta tha — 10-order sample pe
+net profit **PKR 1,120 overstate** (margin 27.2% dikhta, asal 24.6%), kyunke:
+  - gateway fees bilkul charge nahi karta tha
+  - per-order `courierCost`/`packagingCost`/`courierByCity` ignore karke flat settings rates
+  - failed orders ka sunk cost compute karta tha par `totalExpense` me subtract nahi karta tha
+Ab sab `GET /api/finance/pnl` se aata hai jo `summarise()` use karta hai. Naya finance kaam
+ho to usi endpoint ko extend karo.
+
+Endpoint `ladderCheck` aur `reconcileDrift` return karta hai — dono 0 hone chahiye. Na ho to
+page khud warning dikhata hai (chup reh kar galat statement issue nahi karta).
+
+**Finance files:**
+- `frontend/src/admin/finance/pnl.js` — pure helpers (delta, deltaTone, buildStatement,
+  buildMemos, runwayDays, buildKpis). Statement 5 groups me hai aur **har group apne andar
+  add hota hai**: Income → Cost of goods → Fulfilment & fees → Lost orders → Operating costs.
+- `frontend/src/admin/finance/exportPnl.js` — `buildPnlHtml()` pure (testable),
+  `exportPnlReport()` sirf window.open wrapper. Memos ("Not revenue") kabhi income me
+  fold nahi hote.
+- `frontend/src/admin/finance/finance.css` — `fn-*` namespace, shared tokens.
+- `WaterfallChart` `analytics/svgcharts.jsx` me hai (ink bars, sirf final result coloured).
+
+**Test suites (sab `node scripts/<name>.mjs`):**
+- `backend/scripts/test-finance-pnl.cjs` (40) — REAL router ko HTTP pe mount karke, stubbed
+  models. Prove karta hai per-order profit ka sum = P&L contribution − sunk cost.
+- `frontend/scripts/test-finance-pnl-ui.mjs` (72), `test-finance-export.mjs` (45),
+  `test-analytics-charts.mjs` (115), `test-analytics-sections.mjs` (34).
 
 **CHART DESIGN RULES (ye dobara na torna):**
 - **Ek ink colour** saara data carry karta hai. Green/red SIRF direction (up/down) aur status
