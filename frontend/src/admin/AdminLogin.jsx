@@ -13,7 +13,11 @@ const solid =
 
 export default function AdminLogin() {
   const { auth, setAuth } = useApp();
-  useEffect(() => { applyAdminTheme(); return () => clearAdminTheme(); }, []);
+  useEffect(() => {
+    applyAdminTheme();
+    document.title = 'HUSHAE Admin · Sign in';
+    return () => clearAdminTheme();
+  }, []);
 
   const nav = useNavigate();
   const [f, setF] = useState({ email: '', password: '' });
