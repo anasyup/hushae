@@ -143,6 +143,7 @@ const Payments = lazy(() => import('./admin/Payments'));
 const OrdersDesk = lazy(() => import('./admin/orders/OrdersDesk'));
 const DraftOrder = lazy(() => import('./admin/orders/DraftOrder'));
 const OrderPrintDoc = lazy(() => import('./admin/orders/OrderPrintDoc'));
+const DraftOrders = lazy(() => import('./admin/DraftOrders'));
 const VerificationQueue = lazy(() => import('./admin/VerificationQueue'));
 const CommerceOps = lazy(() => import('./admin/CommerceOps'));
 /* Storefront suspense placeholder. EditorFallback is a full-height grey admin
@@ -423,6 +424,7 @@ export default function App() {
           <Route path="/admin/orders/returns" element={<Navigate to="/admin/orders?group=issues" replace />} />
           <Route path="/admin/orders/refunds" element={<Navigate to="/admin/orders?group=issues" replace />} />
           <Route path="/admin/orders/issues" element={<Navigate to="/admin/verification-queue" replace />} />
+          <Route path="/admin/orders/draft" element={<Suspense fallback={<EditorFallback />}><DraftOrders /></Suspense>} />
           <Route path="/admin/orders/:id" element={<OrderDetail />} />
           <Route path="/admin/orders/:id/invoice" element={<OrderInvoice />} />
           <Route path="/admin/orders/:id/print/:doc" element={<Suspense fallback={<EditorFallback />}><OrderPrintDoc /></Suspense>} />

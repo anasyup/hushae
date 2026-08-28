@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const Order = require('../models/Order');
+const DraftOrder = require('../models/DraftOrder');
 const OrderTimeline = require('../models/OrderTimeline');
 const OrderPayment = require('../models/OrderPayment');
 const OrderIssue = require('../models/OrderIssue');
@@ -180,7 +181,9 @@ const SORTS = {
  * fired for orders with a customer email.
  * ------------------------------------------------------------------------- */
 const draftLimit = rateLimit({ windowMs: 60 * 1000, max: 15, key: 'draft-order', message: 'Too many orders — wait a moment' });
-router.post('/', protect, adminOnly, draftLimit, asyncHandler(async (req, res) => {
+/* The manual-order flow, kept as a plain function so draft conversion
+ * can run the exact same validation + stock allocation (see runManualOrder). */
+async function manualOrderHandler(req, res) {
   const {
     customerInfo = {}, items = [], paymentMethod = 'COD', shippingMethod = 'standard',
     manualDiscount = 0, notes = '', discreetPackaging = true,
@@ -331,7 +334,27 @@ router.post('/', protect, adminOnly, draftLimit, asyncHandler(async (req, res) =
   }
 
   res.status(201).json({ order: withStage(order.toObject ? order.toObject() : order) });
-}));
+}
+
+router.post('/', protect, adminOnly, draftLimit, asyncHandler(manualOrderHandler));
+router.runManualOrder = runManualOrder; // QA hook (no HTTP needed)
+
+/* Run the manual-order handler against a simulated res — returns
+   { status, payload } without touching HTTP. Used by draft conversion. */
+function runManualOrder(body, user) {
+  return new Promise((resolve) => {
+    let code = 200;
+    let settled = false;
+    const finish = (r) => { if (!settled) { settled = true; resolve(r); } };
+    const res = {
+      status(c) { code = c; return this; },
+      json(p) { finish({ status: code, payload: p }); return p; },
+    };
+    Promise.resolve(manualOrderHandler({ body, user }, res))
+      .catch((e) => finish({ status: 500, payload: { message: e?.message || 'Unexpected error' } }))
+      .then(() => finish({ status: code, payload: { message: 'Unexpected error' } }));
+  });
+}
 
 /* ── LIST ─────────────────────────────────────────────────────────────────── */
 router.get('/', protect, adminOnly, asyncHandler(async (req, res) => {
@@ -1243,6 +1266,112 @@ router.post('/maintenance/expire-cod', protect, adminOnly, asyncHandler(async (r
   }
 
   res.json({ expired: expired.length, expiringSoon: expiring.length });
+}));
+
+
+/* ============================================================
+ * DRAFT ORDERS — saved, not-yet-placed staff orders.
+ * CRUD + one-click conversion through the SAME manual-order flow
+ * (validation, postal check, stock allocation, notifications).
+ * ============================================================ */
+const sanitizeDraft = (b, user) => {
+  const ci = b.customerInfo || {};
+  const items = (Array.isArray(b.items) ? b.items : [])
+    .filter((it) => it && it.product)
+    .slice(0, 20)
+    .map((it) => ({
+      product: it.product,
+      name: String(it.name || '').slice(0, 120),
+      size: String(it.size || '').slice(0, 40),
+      quantity: Math.max(1, Math.min(10, parseInt(it.quantity || '1', 10) || 1)),
+      price: Math.max(0, Number(it.price) || 0),
+    }));
+  const discount = Math.max(0, Number(b.manualDiscount) || 0);
+  const subtotal = items.reduce((t, it) => t + it.price * it.quantity, 0);
+  return {
+    customerInfo: {
+      name: String(ci.name || '').trim().slice(0, 80),
+      phone: String(ci.phone || '').trim().slice(0, 20),
+      email: String(ci.email || '').trim().slice(0, 120),
+      address: String(ci.address || '').trim().slice(0, 200),
+      city: String(ci.city || '').trim().slice(0, 60),
+      province: String(ci.province || '').trim().slice(0, 60),
+      postalCode: String(ci.postalCode || '').trim().slice(0, 10),
+    },
+    items,
+    notes: String(b.notes || '').slice(0, 1000),
+    manualDiscount: discount,
+    paymentMethod: String(b.paymentMethod || 'COD'),
+    estimatedTotal: Math.max(0, subtotal - Math.min(discount, subtotal)),
+    createdBy: user?.email || '',
+  };
+};
+const validateDraft = (d) => {
+  if (!d.customerInfo.name) return 'Customer name is required';
+  if (!d.customerInfo.phone) return 'Customer phone is required';
+  if (!d.items.length) return 'Add at least one product';
+  return null;
+};
+
+router.get('/drafts', protect, adminOnly, asyncHandler(async (req, res) => {
+  const q = {};
+  const term = String(req.query.q || '').trim();
+  if (term) {
+    const rx = new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+    const digits = term.replace(/\D/g, '');
+    q.$or = [{ 'customerInfo.name': rx }];
+    if (digits.length >= 3) q.$or.push({ 'customerInfo.phone': new RegExp(`${digits.slice(-9)}$`) });
+  }
+  const per = Math.min(100, Math.max(1, Number(req.query.per) || 10));
+  const page = Math.max(1, Number(req.query.page) || 1);
+  const [total, drafts, agg] = await Promise.all([
+    DraftOrder.countDocuments(q),
+    DraftOrder.find(q).sort({ updatedAt: -1 }).skip((page - 1) * per).limit(per).lean(),
+    DraftOrder.aggregate([{ $group: { _id: null, total: { $sum: 1 }, value: { $sum: { $ifNull: ['$estimatedTotal', 0] } }, oldest: { $min: '$updatedAt' } } }]),
+  ]);
+  res.json({ drafts, total, page, per, stats: agg[0] || { total: 0, value: 0, oldest: null } });
+}));
+
+router.post('/drafts', protect, adminOnly, asyncHandler(async (req, res) => {
+  const d = sanitizeDraft(req.body || {}, req.user);
+  const bad = validateDraft(d);
+  if (bad) return res.status(400).json({ message: bad });
+  const doc = await DraftOrder.create(d);
+  res.status(201).json({ draft: doc });
+}));
+
+router.put('/drafts/:id', protect, adminOnly, asyncHandler(async (req, res) => {
+  const doc = await DraftOrder.findById(req.params.id);
+  if (!doc) return res.status(404).json({ message: 'Draft not found' });
+  const d = sanitizeDraft(req.body || {}, req.user);
+  const bad = validateDraft(d);
+  if (bad) return res.status(400).json({ message: bad });
+  Object.assign(doc, d);
+  await doc.save();
+  res.json({ draft: doc });
+}));
+
+router.delete('/drafts/:id', protect, adminOnly, asyncHandler(async (req, res) => {
+  const doc = await DraftOrder.findByIdAndDelete(req.params.id);
+  if (!doc) return res.status(404).json({ message: 'Draft not found' });
+  res.json({ ok: true });
+}));
+
+router.post('/drafts/:id/convert', protect, adminOnly, asyncHandler(async (req, res) => {
+  const d = await DraftOrder.findById(req.params.id);
+  if (!d) return res.status(404).json({ message: 'Draft not found' });
+  const r = await runManualOrder({
+    customerInfo: d.customerInfo,
+    items: d.items,
+    notes: d.notes,
+    manualDiscount: d.manualDiscount,
+    paymentMethod: d.paymentMethod,
+  }, req.user);
+  if (r.status === 201) {
+    await DraftOrder.deleteOne({ _id: d._id });
+    return res.json({ order: r.payload.order, message: `Draft converted — order ${r.payload.order.orderNumber} created` });
+  }
+  res.status(r.status).json(r.payload);
 }));
 
 module.exports = router;
