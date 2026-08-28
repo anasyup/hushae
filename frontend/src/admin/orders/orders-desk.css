@@ -398,3 +398,13 @@
   animation: od-shimmer 1.2s ease-in-out infinite;
 }
 @media (prefers-reduced-motion: reduce) { .od-skel { animation: none; } }
+
+/* charts row */
+.od-charts {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+@media (max-width: 900px) { .od-charts { grid-template-columns: 1fr; } }
+.od-card-t { font-size: 12.5px; font-weight: 700; color: var(--od-text); }

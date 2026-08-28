@@ -399,6 +399,7 @@ router.get('/counts', protect, adminOnly, asyncHandler(async (req, res) => {
     .select('createdAt total stage status').lean();
   const mk = () => ({ total: Array(7).fill(0), pending: Array(7).fill(0), processing: Array(7).fill(0), completed: Array(7).fill(0), cancelled: Array(7).fill(0), revenue: Array(7).fill(0) });
   const trend = mk();
+  const prevSeries = { orders: Array(7).fill(0), revenue: Array(7).fill(0) };
   const prev = { total: 0, pending: 0, processing: 0, completed: 0, cancelled: 0, revenue: 0 };
   const cur = { ...prev };
   for (const o of recent) {
@@ -411,10 +412,12 @@ router.get('/counts', protect, adminOnly, asyncHandler(async (req, res) => {
       if (bucket) trend[bucket][i] += 1;
       cur.total += 1; cur.revenue += o.total || 0; if (bucket) cur[bucket] += 1;
     } else {
+      const j = Math.min(6, Math.floor((t - prevStart) / DAY));
+      if (j >= 0) { prevSeries.orders[j] += 1; prevSeries.revenue[j] += o.total || 0; }
       prev.total += 1; prev.revenue += o.total || 0; if (bucket) prev[bucket] += 1;
     }
   }
-  res.json({ total: rows.length, revenue, byStage, byGroup, byMethod, byPaymentState, trend, prev, cur });
+  res.json({ total: rows.length, revenue, byStage, byGroup, byMethod, byPaymentState, trend, prevSeries, prev, cur });
 }));
 
 /* ── FACETS (cities) for the filter UI ────────────────────────────────────── */
