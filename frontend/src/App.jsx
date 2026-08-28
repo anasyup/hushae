@@ -212,6 +212,106 @@ class ErrorBoundary extends Component {
   }
 }
 
+/* Legacy admin paths -> their real home. Keeps old bookmarks and any
+   stale link working; anything unmapped falls through to NotFound. */
+const ADMIN_REDIRECTS = {
+  '/admin/campaigns': '/admin/email-campaigns',
+  '/admin/automations': '/admin/marketing',
+  '/admin/automation-rules': '/admin/marketing',
+  '/admin/email-marketing': '/admin/email-campaigns',
+  '/admin/sms-marketing': '/admin/marketing',
+  '/admin/social-marketing': '/admin/marketing',
+  '/admin/segments': '/admin/customers/groups',
+  '/admin/abandoned-cart': '/admin/abandoned-carts',
+  '/admin/loyalty-campaigns': '/admin/loyalty',
+  '/admin/discounts/auto': '/admin/discounts',
+  '/admin/discounts/percentage': '/admin/discounts',
+  '/admin/discounts/fixed': '/admin/discounts',
+  '/admin/discounts/shipping': '/admin/discounts',
+  '/admin/discounts/bundles': '/admin/discounts',
+  '/admin/discounts/customers': '/admin/discounts',
+  '/admin/discounts/products': '/admin/discounts',
+  '/admin/discounts/collections': '/admin/discounts',
+  '/admin/gift-cards': '/admin/settings/loyalty',
+  '/admin/analytics/sales': '/admin/analytics',
+  '/admin/analytics/orders': '/admin/analytics',
+  '/admin/analytics/products': '/admin/analytics',
+  '/admin/analytics/customers': '/admin/analytics',
+  '/admin/analytics/inventory': '/admin/analytics',
+  '/admin/analytics/marketing': '/admin/analytics',
+  '/admin/analytics/conversion': '/admin/analytics',
+  '/admin/analytics/storefront': '/admin/analytics',
+  '/admin/analytics/finance': '/admin/analytics',
+  '/admin/analytics/custom': '/admin/analytics',
+  '/admin/analytics/export': '/admin/analytics',
+  '/admin/analytics/live': '/admin/live',
+  '/admin/inventory': '/admin/ops/inventory',
+  '/admin/inventory/low': '/admin/ops/inventory',
+  '/admin/inventory/out': '/admin/ops/inventory',
+  '/admin/inventory/reserved': '/admin/ops/inventory',
+  '/admin/inventory/incoming': '/admin/ops/inventory',
+  '/admin/inventory/history': '/admin/ops/inventory',
+  '/admin/warehouses': '/admin/ops/inventory',
+  '/admin/locations': '/admin/ops/inventory',
+  '/admin/transfers': '/admin/ops/inventory',
+  '/admin/adjustments': '/admin/ops/inventory',
+  '/admin/fulfillment': '/admin/ops',
+  '/admin/shipping/methods': '/admin/settings/shipping',
+  '/admin/shipping/zones': '/admin/settings/shipping',
+  '/admin/shipping/rates': '/admin/settings/shipping',
+  '/admin/shipping/providers': '/admin/settings/shipping',
+  '/admin/shipping/labels': '/admin/settings/shipping',
+  '/admin/shipping/tracking': '/admin/settings/shipping',
+  '/admin/shipping/local': '/admin/settings/shipping',
+  '/admin/shipping/pickup': '/admin/settings/shipping',
+  '/admin/shipping/settings': '/admin/settings/shipping',
+  '/admin/payments/methods': '/admin/settings/payments',
+  '/admin/payments/providers': '/admin/settings/payments',
+  '/admin/payments/transactions': '/admin/finance',
+  '/admin/payments/payouts': '/admin/finance',
+  '/admin/payments/invoices': '/admin/finance',
+  '/admin/payments/refunds': '/admin/finance',
+  '/admin/payments/failures': '/admin/finance',
+  '/admin/payments/reports': '/admin/finance',
+  '/admin/taxes/regions': '/admin/settings/taxes',
+  '/admin/taxes/rates': '/admin/settings/taxes',
+  '/admin/taxes/classes': '/admin/settings/taxes',
+  '/admin/taxes/exemptions': '/admin/settings/taxes',
+  '/admin/taxes/duties': '/admin/settings/taxes',
+  '/admin/taxes/settings': '/admin/settings/taxes',
+  '/admin/apps/marketplace': '/admin/apps',
+  '/admin/integrations/payments': '/admin/apps',
+  '/admin/integrations/shipping': '/admin/apps',
+  '/admin/integrations/marketing': '/admin/apps',
+  '/admin/integrations/analytics': '/admin/apps',
+  '/admin/integrations/marketplaces': '/admin/apps',
+  '/admin/integrations/accounting': '/admin/apps',
+  '/admin/integrations/import': '/admin/apps',
+  '/admin/integrations/product-sync': '/admin/apps',
+  '/admin/integrations/order-sync': '/admin/apps',
+  '/admin/api-keys': '/admin/apps',
+  '/admin/webhooks': '/admin/apps',
+  '/admin/sync-history': '/admin/apps',
+  '/admin/integration-logs': '/admin/apps',
+  '/admin/channels/online': '/admin/store',
+  '/admin/channels/online/storefront': '/admin/store',
+  '/admin/channels/online/publishing': '/admin/store',
+  '/admin/channels/online/collections': '/admin/store',
+  '/admin/channels/online/settings': '/admin/store',
+  '/admin/channels/mobile': '/admin/store',
+  '/admin/channels/social': '/admin/store',
+  '/admin/channels/marketplaces': '/admin/store',
+  '/admin/channels/wholesale': '/admin/store',
+  '/admin/channels/pos': '/admin/store',
+};
+
+function AdminLegacyRedirect() {
+  const loc = useLocation();
+  const to = ADMIN_REDIRECTS[loc.pathname];
+  if (to) return <Navigate to={to + loc.search} replace />;
+  return <NotFound />;
+}
+
 export default function App() {
   const { pathname } = useLocation();
   const isAdmin = pathname.startsWith('/admin');
@@ -466,6 +566,7 @@ export default function App() {
               a merchant cannot create a page that shadows the shop.
               A single segment only: /:cmsSlug does not match /a/b, which keeps
               product and category URLs out of reach.                        */}
+          <Route path="/admin/*" element={<AdminLegacyRedirect />} />
           <Route path="/:cmsSlug" element={<CmsPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
