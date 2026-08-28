@@ -29,7 +29,7 @@ import {
   // Apps Icons
   Plug, Grid3X3,
   // Settings Icons
-  Settings, ShieldCheck, UserCog, DollarSign, HelpCircle, LogOut
+  Settings, ShieldCheck, UserCog, DollarSign, HelpCircle, LogOut, Banknote
 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { applyAdminTheme, clearAdminTheme, getAdminTheme, setAdminTheme } from '../lib/adminTheme';
@@ -166,6 +166,7 @@ const NAV_SECTIONS = [
     label: 'OPERATIONS',
     icon: PackageCheck,
     items: [
+      { to: '/admin/cod', label: 'COD Command', icon: Banknote },
       { to: '/admin/ops/inventory', label: 'Inventory & Stock', icon: Box },
       { to: '/admin/ops', label: 'Fulfillment & Returns', icon: Truck },
       { to: '/admin/settings/shipping', label: 'Shipping & Delivery', icon: Truck },

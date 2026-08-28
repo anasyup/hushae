@@ -109,6 +109,8 @@ const Inbox = lazy(() => import('./admin/Inbox'));
 const CODRecon = lazy(() => import('./admin/CODRecon'));
 const SettingsTeam = lazy(() => import('./admin/SettingsTeam'));
 const Transactions = lazy(() => import('./admin/Transactions'));
+const CODHub = lazy(() => import('./admin/CODHub'));
+const SystemStatus = lazy(() => import('./admin/SystemStatus'));
 const SearchAnalytics = lazy(() => import('./admin/SearchAnalytics'));
 /* Marketing screens: lazy so none of this reaches a shopper's bundle. */
 const Promotions = lazy(() => import('./admin/Promotions'));
@@ -393,6 +395,7 @@ export default function App() {
 
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/inbox" element={<Suspense fallback={<EditorFallback />}><Inbox /></Suspense>} />
+          <Route path="/admin/cod" element={<Suspense fallback={<EditorFallback />}><CODHub /></Suspense>} />
           <Route path="/admin/cod-recon" element={<Suspense fallback={<EditorFallback />}><CODRecon /></Suspense>} />
           <Route path="/admin/inbox/:tab" element={<Suspense fallback={<EditorFallback />}><Inbox /></Suspense>} />
           <Route path="/admin" element={<Suspense fallback={<EditorFallback />}><Overview /></Suspense>} />
@@ -472,6 +475,8 @@ export default function App() {
           <Route path="/admin/settings/advanced" element={<SettingsAdmin />} />
           <Route path="/admin/settings/team" element={<Suspense fallback={<EditorFallback />}><SettingsTeam /></Suspense>} />
           <Route path="/admin/settings/roles" element={<Suspense fallback={<EditorFallback />}><SettingsTeam /></Suspense>} />
+          <Route path="/admin/settings/system-status" element={<Suspense fallback={<EditorFallback />}><SystemStatus /></Suspense>} />
+          <Route path="/admin/settings/error-logs" element={<Suspense fallback={<EditorFallback />}><SystemStatus /></Suspense>} />
           {/* ── SETTINGS CONSOLE rail destinations ─────────────────────────
               Every item in the settings rail resolves to a route. Where a
               real editor already exists it is reused (one component, several
