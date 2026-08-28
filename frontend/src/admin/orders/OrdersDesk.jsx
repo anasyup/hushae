@@ -46,6 +46,8 @@ export default function OrdersDesk() {
   const [selectAllMatching, setSelectAllMatching] = useState(false);
   const [customerPhone, setCustomerPhone] = useState(null);
   const [showShortcuts, setShowShortcuts] = useState(false);
+  const [activity, setActivity] = useState([]);
+  useEffect(() => { api('/orders/admin/activity?limit=8', { token: auth?.token }).then((d) => setActivity(d.activity || [])).catch(() => {}); }, [auth?.token, data.total]);
   const [viewsPop, setViewsPop] = useState(false);
 
   const orders = data.orders || [];
@@ -241,6 +243,22 @@ export default function OrdersDesk() {
             );
           })}
         </div>
+
+        {/* ── recent order activity (audit trail feed) ── */}
+        {activity.length > 0 && (
+          <div className="od-card" style={{ marginBottom: 12 }}>
+            <div className="od-card-h"><div className="od-card-t">Recent order activity</div></div>
+            {activity.map((a) => (
+              <div key={a._id} className="od-act-row">
+                <Link to={`/admin/orders/${a.order}`} className="od-act-no">{a.orderNumber}</Link>
+                <span className="od-act-sum">{a.summary}</span>
+                <span className="od-act-time">
+                  {(() => { const h = Math.max(0, Math.round((Date.now() - new Date(a.at).getTime()) / 3600000)); return h < 1 ? 'just now' : h < 24 ? `${h}h ago` : `${Math.floor(h / 24)}d ago`; })()}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* ── main card ── */}
         <div className="od-card">

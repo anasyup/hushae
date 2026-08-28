@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
-  ArrowLeft, Copy, ExternalLink, Mail, MapPin, MessageCircle, Minus, Phone, Plus, Printer,
+  ArrowLeft, Copy, ExternalLink, Mail, MapPin, MessageCircle, Minus, Pencil, Phone, Plus, Printer,
   RefreshCw, Save, Trash2, X,
 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
@@ -35,13 +35,38 @@ export default function OrderDetail() {
   const [cancelOpen, setCancelOpen] = useState(false);
   const [cancelReason, setCancelReason] = useState('');
   const [life, setLife] = useState(null);
+  const [activity, setActivity] = useState([]);
+  const [editCust, setEditCust] = useState(false);
+  const [custForm, setCustForm] = useState(null);
+  const [editPay, setEditPay] = useState(false);
+  const [payForm, setPayForm] = useState(null);
 
+  const openCustEdit = () => { setCustForm({ ...c }); setEditCust(true); };
+  const saveCustomer = async () => {
+    setBusy(true);
+    try {
+      const r = await api(`/orders/admin/${id}/customer`, { method: 'PATCH', token: auth.token, body: { customerInfo: custForm } });
+      toast(r.changed?.length ? `Customer updated (${r.changed.join(', ')})` : 'No changes');
+      setEditCust(false); await load();
+    } catch (ex) { toast(ex.message); }
+    setBusy(false);
+  };
+  const openPayEdit = () => { setPayForm({ paymentMethod: o.paymentMethod, paymentStatus: o.paymentStatus, transactionId: o.transactionId || '', note: '' }); setEditPay(true); };
+  const savePayment = async () => {
+    setBusy(true);
+    try {
+      await api(`/orders/admin/${id}/payment`, { method: 'PATCH', token: auth.token, body: payForm });
+      toast('Payment updated');
+      setEditPay(false); await load();
+    } catch (ex) { toast(ex.message); }
+    setBusy(false);
+  };
   const copyText = (t, msg) => {
     try { navigator.clipboard?.writeText(t).then(() => toast(msg || 'Copied')); } catch { toast('Copy failed'); }
   };
 
   const load = () => api(`/orders/admin/${id}`, { token: auth.token })
-    .then((d) => { setO(d.order); setReliability(d.reliability || null); })
+    .then((d) => { setO(d.order); setReliability(d.reliability || null); setActivity(d.activity || []); })
     .catch((e) => { if (e?.status === 401) { logout(); return; } setErr('Could not load order.'); });
   useEffect(() => { load(); }, [id]); // eslint-disable-line
 
@@ -360,22 +385,26 @@ export default function OrderDetail() {
 
                 {tab === 'timeline' && (
                   <div style={{ padding: '8px 0' }}>
-                    {(o.statusHistory || []).length === 0 ? (
-                      <p className="pa-picker-empty">No status history recorded.</p>
-                    ) : (
-                      <div className="odt-tl2">
-                      {(o.statusHistory || []).slice().reverse().map((h, i) => (
-                        <div key={i} className="odt-tl">
-                          <span className={`odt-dot ${i === 0 ? 'now' : ''}`} />
-                          <div>
-                            <p style={{ fontSize: 13, fontWeight: 600 }}>{h.status}</p>
-                            <p className="pa-field-hint" style={{ marginTop: 1 }}>{fmtDateTime(h.at)}</p>
-                            {h.note && <p style={{ marginTop: 3, fontSize: 12, fontStyle: 'italic', color: 'var(--pa-muted)' }}>“{h.note}”</p>}
-                          </div>
+                    {(() => {
+                      const events = [
+                        ...(o.statusHistory || []).map((h) => ({ t: h.at, kind: 'status', title: h.status, sub: h.note || '' })),
+                        ...activity.map((a) => ({ t: a.at, kind: a.action, title: a.summary || a.action, sub: a.actor || '' })),
+                      ].sort((a, b) => new Date(b.t) - new Date(a.t));
+                      if (!events.length) return <p className="pa-picker-empty">No history recorded yet.</p>;
+                      return (
+                        <div className="odt-tl2">
+                          {events.map((ev, i) => (
+                            <div key={i} className="odt-tl">
+                              <span className={`odt-dot ${i === 0 ? 'now' : ''}`} />
+                              <div>
+                                <p style={{ fontSize: 13, fontWeight: 600 }}>{ev.title}</p>
+                                <p className="pa-field-hint" style={{ marginTop: 1 }}>{fmtDateTime(ev.t)}{ev.sub ? ` · ${ev.sub}` : ''}</p>
+                              </div>
+                            </div>
+                          ))}
                         </div>
-                      ))}
-                      </div>
-                    )}
+                      );
+                    })()}
                   </div>
                 )}
 
@@ -444,9 +473,26 @@ export default function OrderDetail() {
                     )}
                     <div className="odt-links">
                       {o.customer && <Link to={`/admin/customers/${o.customer?._id || o.customer}`} className="pa-btn-sm">Customer 360</Link>}
+                      <button type="button" onClick={openCustEdit} className="pa-btn-sm"><Pencil size={11} strokeWidth={2} /> Edit</button>
                     </div>
                   </div>
                 </div>
+
+                {editCust && custForm && (
+                  <div style={{ background: 'rgba(17,17,17,.04)', borderRadius: 12, padding: 12, marginTop: 12 }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                      <input className="pa-modal-input" style={{ height: 34 }} value={custForm.name || ''} onChange={(e) => setCustForm({ ...custForm, name: e.target.value })} placeholder="Name" aria-label="Customer name" />
+                      <input className="pa-modal-input" style={{ height: 34 }} value={custForm.phone || ''} onChange={(e) => setCustForm({ ...custForm, phone: e.target.value })} placeholder="Phone" aria-label="Customer phone" />
+                      <input className="pa-modal-input" style={{ height: 34, gridColumn: 'span 2' }} value={custForm.address || ''} onChange={(e) => setCustForm({ ...custForm, address: e.target.value })} placeholder="Address" aria-label="Address" />
+                      <input className="pa-modal-input" style={{ height: 34 }} value={custForm.city || ''} onChange={(e) => setCustForm({ ...custForm, city: e.target.value })} placeholder="City" aria-label="City" />
+                      <input className="pa-modal-input" style={{ height: 34 }} value={custForm.postalCode || ''} onChange={(e) => setCustForm({ ...custForm, postalCode: e.target.value })} placeholder="Postal code" aria-label="Postal code" />
+                    </div>
+                    <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
+                      <button type="button" onClick={saveCustomer} disabled={busy || !custForm.name || !custForm.phone} className="pa-btn-black"><Save size={11} strokeWidth={2.2} /> Save</button>
+                      <button type="button" onClick={() => setEditCust(false)} className="pa-btn-sm">Cancel</button>
+                    </div>
+                  </div>
+                )}
 
                 <div className="odt-crow" style={{ marginTop: 12 }}>
                   <span className="ico"><Phone size={13} strokeWidth={2} /></span>
@@ -490,7 +536,28 @@ export default function OrderDetail() {
 
               <div className="odt-card">
                 
-                <h3>Payment</h3>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+                  <h3 style={{ margin: 0 }}>Payment</h3>
+                  <button type="button" onClick={openPayEdit} className="pa-btn-sm"><Pencil size={11} strokeWidth={2} /> Update</button>
+                </div>
+                {editPay && payForm && (
+                  <div style={{ background: 'rgba(17,17,17,.04)', borderRadius: 12, padding: 12, marginBottom: 10 }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                      <select className="pa-select" style={{ height: 34, maxWidth: 'none' }} value={payForm.paymentMethod} onChange={(e) => setPayForm({ ...payForm, paymentMethod: e.target.value })} aria-label="Payment method">
+                        {['COD', 'JazzCash', 'EasyPaisa', 'Bank Transfer', 'Visa'].map((m) => <option key={m}>{m}</option>)}
+                      </select>
+                      <select className="pa-select" style={{ height: 34, maxWidth: 'none' }} value={payForm.paymentStatus} onChange={(e) => setPayForm({ ...payForm, paymentStatus: e.target.value })} aria-label="Payment status">
+                        {['Pending', 'Paid', 'Failed', 'Refunded'].map((m) => <option key={m}>{m}</option>)}
+                      </select>
+                      <input className="pa-modal-input" style={{ height: 34, gridColumn: 'span 2' }} value={payForm.transactionId} onChange={(e) => setPayForm({ ...payForm, transactionId: e.target.value })} placeholder="Transaction / receipt ID (e.g. bank transfer ref)" aria-label="Transaction ID" />
+                      <input className="pa-modal-input" style={{ height: 34, gridColumn: 'span 2' }} value={payForm.note} onChange={(e) => setPayForm({ ...payForm, note: e.target.value })} placeholder="Note — e.g. customer paid via bank transfer after call" aria-label="Payment note" />
+                    </div>
+                    <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
+                      <button type="button" onClick={savePayment} disabled={busy} className="pa-btn-black"><Save size={11} strokeWidth={2.2} /> Save</button>
+                      <button type="button" onClick={() => setEditPay(false)} className="pa-btn-sm">Cancel</button>
+                    </div>
+                  </div>
+                )}
                 <div className="odt-row"><span className="k">Method</span><span className="v">{o.paymentMethod}</span></div>
                 <div className="odt-row"><span className="k">Status</span><span className="v">{o.paymentStatus}</span></div>
                 {o.transactionId && <div className="odt-row"><span className="k">Txn ID</span><span className="v" style={{ fontSize: 11 }}>{o.transactionId}</span></div>}

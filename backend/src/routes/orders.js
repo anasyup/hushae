@@ -544,6 +544,21 @@ router.get('/admin', protect, adminOnly, asyncHandler(async (req, res) => {
   res.json({ orders });
 }));
 
+/* ── ORDER ACTIVITY — audit trail for staff edits (boss requirement) ──
+ * Customer info / items / payment / status changes are recorded here,
+ * shown on the order timeline and the orders dashboard feed. */
+const OrderActivity = require('../models/OrderActivity');
+const logAct = (order, action, summary, actor, meta) => OrderActivity.create({
+  order: order._id, orderNumber: order.orderNumber, action, summary,
+  actor: actor || 'staff', meta: meta || null,
+}).catch(() => {});
+
+router.get('/admin/activity', protect, adminOnly, asyncHandler(async (req, res) => {
+  const limit = Math.min(50, Math.max(1, Number(req.query.limit) || 12));
+  const rows = await OrderActivity.find({}).sort({ at: -1 }).limit(limit).lean();
+  res.json({ activity: rows });
+}));
+
 router.get('/admin/:id', protect, adminOnly, asyncHandler(async (req, res) => {
   const order = await Order.findById(req.params.id);
   if (!order) return res.status(404).json({ message: 'Order not found' });
@@ -551,7 +566,8 @@ router.get('/admin/:id', protect, adminOnly, asyncHandler(async (req, res) => {
   const hist = await Order.find({ 'customerInfo.phone': order.customerInfo?.phone })
     .select('customerInfo.phone status customerService').lean();
   const reliability = reliabilityMap(hist).get(String(order.customerInfo?.phone || '').replace(/\D/g, '').slice(-10)) || null;
-  res.json({ order, reliability });
+  const activity = await OrderActivity.find({ order: order._id }).sort({ at: -1 }).limit(60).lean();
+  res.json({ order, reliability, activity });
 }));
 
 router.patch('/admin/:id/status', protect, adminOnly, asyncHandler(async (req, res) => {
@@ -564,6 +580,7 @@ router.patch('/admin/:id/status', protect, adminOnly, asyncHandler(async (req, r
   if (status === 'Cancelled' && cancelReason) order.cancelReason = String(cancelReason).trim().slice(0, 80);
   order.statusHistory.push({ status, note: String(note).slice(0, 200) });
   await order.save();
+  logAct(order, 'status.updated', `${prevStatus} → ${status}${cancelReason ? ` · ${cancelReason}` : ''}`, req.user?.email);
   if (status === 'Cancelled' && prevStatus !== 'Cancelled') {
     try {
       const { releaseOrderLines } = require('../utils/inventoryEngine');
@@ -711,14 +728,22 @@ router.patch('/admin/:id/status', protect, adminOnly, asyncHandler(async (req, r
 }));
 
 router.patch('/admin/:id/payment', protect, adminOnly, asyncHandler(async (req, res) => {
-  const { paymentStatus } = req.body || {};
+  const { paymentStatus, paymentMethod, transactionId, note = '' } = req.body || {};
   if (!['Pending', 'Paid', 'Failed', 'Refunded'].includes(paymentStatus)) {
     return res.status(400).json({ message: 'Invalid payment status' });
   }
   const order = await Order.findById(req.params.id);
   if (!order) return res.status(404).json({ message: 'Order not found' });
   const prevStatus = order.status;
+  const prevMethod = order.paymentMethod;
   order.paymentStatus = paymentStatus;
+  const PAY_METHODS = ['COD', 'JazzCash', 'EasyPaisa', 'Bank Transfer', 'Visa'];
+  if (paymentMethod !== undefined) {
+    if (!PAY_METHODS.includes(paymentMethod)) return res.status(400).json({ message: 'Invalid payment method' });
+    order.paymentMethod = paymentMethod;
+  }
+  if (transactionId !== undefined) order.transactionId = String(transactionId).trim().slice(0, 120);
+  if (note) order.adminNotes = String(note).slice(0, 1000);
 
   // AUTO-CONFIRM RULE (existing)
   if (paymentStatus === 'Paid' && order.status === 'Pending' && order.paymentMethod !== 'COD') {
@@ -726,6 +751,7 @@ router.patch('/admin/:id/payment', protect, adminOnly, asyncHandler(async (req, 
     order.statusHistory.push({ status: 'Confirmed', note: 'Auto-confirmed on payment received' });
   }
   await order.save();
+  logAct(order, 'payment.updated', `${prevMethod}/${'Pending'} → ${order.paymentMethod}/${paymentStatus}${transactionId ? ` · txn ${transactionId}` : ''}${note ? ` · ${note}` : ''}`, req.user?.email);
 
   if (prevStatus !== order.status) {
     try {
@@ -737,6 +763,28 @@ router.patch('/admin/:id/payment', protect, adminOnly, asyncHandler(async (req, 
     } catch { /* noop */ }
   }
   res.json({ order });
+}));
+
+/* Edit customer contact / address on an order — every change logged. */
+router.patch('/admin/:id/customer', protect, adminOnly, asyncHandler(async (req, res) => {
+  const b = req.body?.customerInfo || {};
+  const order = await Order.findById(req.params.id);
+  if (!order) return res.status(404).json({ message: 'Order not found' });
+  const prev = order.customerInfo.toObject ? order.customerInfo.toObject() : { ...order.customerInfo };
+  const fields = ['name', 'phone', 'email', 'address', 'city', 'province', 'postalCode'];
+  const changed = [];
+  fields.forEach((f) => {
+    if (b[f] !== undefined && String(b[f] || '').trim() !== String(prev[f] || '')) {
+      order.customerInfo[f] = String(b[f]).trim().slice(0, 140);
+      changed.push(f);
+    }
+  });
+  const next = { ...prev, ...Object.fromEntries(fields.map((f) => [f, order.customerInfo[f]])) };
+  if (!next.name || !next.phone) return res.status(400).json({ message: 'Name and phone are required' });
+  if (!changed.length) return res.json({ order, changed: [] });
+  await order.save();
+  logAct(order, 'customer.updated', `Changed: ${changed.join(', ')}`, req.user?.email, { fields: changed });
+  res.json({ order, changed });
 }));
 
 // Confirm a COD order after phone verification — moves Pending -> Confirmed
@@ -847,6 +895,7 @@ router.patch('/admin/:id/items', protect, adminOnly, asyncHandler(async (req, re
     order.total = after + (order.shippingCharge || 0) + order.tax;
   }
   await order.save();
+  logAct(order, 'items.updated', `${newItems.length} item line${newItems.length === 1 ? '' : 's'} · total ${order.total}`, req.user?.email);
   res.json({ order });
 }));
 
