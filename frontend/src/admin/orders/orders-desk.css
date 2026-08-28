@@ -637,3 +637,40 @@
 .od-btn-sm:hover:not(:disabled), .od-tab:hover {
   transform: translateY(-1px);
 }
+
+/* ── analytics design pass ─────────────────────────────────────────────── */
+@keyframes od-rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.od-rise { animation: od-rise 0.5s ease both; }
+@media (prefers-reduced-motion: reduce) { .od-rise { animation: none; } }
+
+.od-stat { border-top: 2px solid transparent; }
+.od-stat:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.06); }
+.dark-admin .od-stat:hover { box-shadow: none; }
+.od-stat.acc-blue  { border-top-color: #2563eb; } .od-stat.acc-blue  .od-stat-head { color: #2563eb; }
+.od-stat.acc-green { border-top-color: #0e9f6e; } .od-stat.acc-green .od-stat-head { color: #0e9f6e; }
+.od-stat.acc-teal  { border-top-color: #0d9488; } .od-stat.acc-teal  .od-stat-head { color: #0d9488; }
+.od-stat.acc-amber { border-top-color: #d97706; } .od-stat.acc-amber .od-stat-head { color: #d97706; }
+.od-stat.acc-pink  { border-top-color: #db2777; } .od-stat.acc-pink  .od-stat-head { color: #db2777; }
+.od-stat.acc-gray  { border-top-color: #6b7280; } .od-stat.acc-gray  .od-stat-head { color: #6b7280; }
+.dark-admin .od-stat.acc-blue  { border-top-color: #93c5fd; } .dark-admin .od-stat.acc-blue  .od-stat-head { color: #93c5fd; }
+.dark-admin .od-stat.acc-green { border-top-color: #6ee7b7; } .dark-admin .od-stat.acc-green .od-stat-head { color: #6ee7b7; }
+.dark-admin .od-stat.acc-teal  { border-top-color: #5eead4; } .dark-admin .od-stat.acc-teal  .od-stat-head { color: #5eead4; }
+.dark-admin .od-stat.acc-amber { border-top-color: #fcd34d; } .dark-admin .od-stat.acc-amber .od-stat-head { color: #fcd34d; }
+.dark-admin .od-stat.acc-pink  { border-top-color: #f9a8d4; } .dark-admin .od-stat.acc-pink  .od-stat-head { color: #f9a8d4; }
+.dark-admin .od-stat.acc-gray  { border-top-color: #9ca3af; } .dark-admin .od-stat.acc-gray  .od-stat-head { color: #9ca3af; }
+
+.od-seg { display: inline-flex; border: 1px solid var(--admin-border); border-radius: 8px; overflow: hidden; background: var(--admin-surface); }
+.od-seg button {
+  border: 0; background: transparent; color: var(--adm-label);
+  padding: 0 12px; height: 32px; font-size: 11px; font-weight: 600; cursor: pointer;
+  border-right: 1px solid var(--admin-border);
+}
+.od-seg button:last-child { border-right: 0; }
+.od-seg button:hover { color: var(--od-text); }
+.od-seg button.on { background: var(--od-black); color: var(--od-on-black); }
+
+.od-tbl tbody tr { transition: background-color 0.12s ease; }
+.od-tbl tbody tr:hover { background: var(--od-hover); }
+.od-card { transition: box-shadow 0.2s ease; }
+.od-card:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.05); }
+.dark-admin .od-card:hover { box-shadow: none; }
