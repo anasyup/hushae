@@ -39,6 +39,23 @@ const settingsSchema = new mongoose.Schema({
   // =========================================================================
   timezone: { type: String, default: 'Asia/Karachi' },
 
+  // ==========================================================================
+  // CUSTOM FIELDS (metafields) — merchant-defined product attributes, edited
+  // at Settings → Custom Fields (metafields/metaobjects/custom-fields rail).
+  // Definitions here; per-product values live on product.meta.
+  // ==========================================================================
+  metafields: {
+    type: [{
+      _id: false,
+      id: String,
+      name: String,
+      type: { type: String, enum: ['text', 'number', 'select', 'boolean'], default: 'text' },
+      options: [String],
+      showOnPDP: { type: Boolean, default: true },
+    }],
+    default: [],
+  },
+
   /* Include admin/staff test orders in analytics. Default OFF — test orders
      would otherwise inflate Revenue, Orders, AOV, Top Customers, etc. */
   includeTestOrders: { type: Boolean, default: false },
