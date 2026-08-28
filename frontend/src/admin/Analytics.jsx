@@ -1,10 +1,16 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { RefreshCcw } from 'lucide-react';
+import { AlertTriangle, HeartHandshake, MessageCircle, RefreshCcw, ShieldCheck, Ticket } from 'lucide-react';
 import Chart from 'chart.js/auto';
 import { useApp } from '../store/AppContext';
 import { api } from '../api/client';
 import { pkr } from '../lib/format';
 import AdminLayout from './AdminLayout';
+import {
+  BenchRow, Chip, CohortGrid, ConvChip, EmptyState, HeadRow, Metric, Pills, Row, Section, StatStrip,
+} from './analytics/sections';
+import {
+  COUPON_COLS, CUSTOM_COLS, CUSTOMER_COLS, PRODUCT_COLS, QUALITY_COLS, VARIANT_COLS, WINBACK_COLS,
+} from './analytics/columns';
 
 /* ============================================================================
  * ANALYTICS = INTELLIGENCE (reports), NOT a second dashboard.
@@ -27,9 +33,9 @@ const RANGES = [
   { v: '90d', label: 'Last 90 days' },
 ];
 
-const th = { textAlign: 'left', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--adm-label)', padding: '8px 10px', borderBottom: '1px solid var(--admin-border)' };
-const td = { fontSize: 12.5, padding: '11px 12px', borderBottom: '1px solid var(--admin-border-subtle)', color: 'var(--admin-text)' };
-const num = { ...td, fontVariantNumeric: 'tabular-nums' };
+/* Report tables no longer use inline cell styles — column rhythm, alignment
+ * and tabular numerals all live in ./analytics/analytics.css so every section
+ * shares one system. */
 
 /* Count-up number animation (reduced-motion safe). */
 function CountUp({ value, fmt }) {
@@ -88,6 +94,12 @@ export default function Analytics() {
   const [bench, setBench] = useState(null);
   const [dim, setDim] = useState('category');
   const [metric, setMetric] = useState('revenue');
+  const [customFrom, setCustomFrom] = useState('');
+  const [customTo, setCustomTo] = useState('');
+
+  const rangeLabel = range === 'custom'
+    ? 'custom range'
+    : (RANGES.find((r) => r.v === range)?.label || 'last 30 days');
 
   const load = useCallback(async () => {
     setErr('');
@@ -187,6 +199,16 @@ export default function Analytics() {
   }, [bench]);
 
   const burners = (a?.productIntel || []).filter((p) => p.views >= 40 && p.conv !== null && p.conv < 1);
+
+  /* scale maxima so the inline bars are comparable within each section */
+  const pi = a?.productIntel || [];
+  const maxConv = Math.max(...pi.map((p) => p.conv || 0), 1);
+  const maxRev = Math.max(...pi.map((p) => p.revenue || 0), 1);
+  const vars_ = adv?.variants || [];
+  const maxQty = Math.max(...vars_.map((v) => v.qty || 0), 1);
+  const maxVarRev = Math.max(...vars_.map((v) => v.revenue || 0), 1);
+  const totOrders = (adv?.custom || []).reduce((s, r) => s + (r.orders || 0), 0);
+  const totRev = (adv?.custom || []).reduce((s, r) => s + (r.revenue || 0), 0);
 
   return (
     <AdminLayout title="Analytics">
@@ -321,242 +343,337 @@ export default function Analytics() {
         </>
       )}
 
-      {a && (
-        <>
-          {/* R1 — product conversion */}
-          <section className="od-card" style={{ marginBottom: 12 }}>
-            <div className="od-card-h" style={{ marginBottom: 4 }}>
-              <p className="od-card-t">R1 — Product conversion</p>
-              <span className="od-bar-val">views → orders, {RANGES.find((r) => r.v === range)?.label.toLowerCase()}</span>
-            </div>
-            {burners.length > 0 && (
-              <p style={{ margin: '6px 0 10px', padding: '8px 10px', borderRadius: 8, background: 'var(--od-yellow-bg)', border: '1px solid var(--od-yellow-bd)', color: 'var(--od-yellow-tx)', fontSize: 11.5 }}>
-                {burners.length} product{burners.length === 1 ? '' : 's'} pulling traffic but converting under 1% — check price, photos or stock: {burners.slice(0, 3).map((b) => b.name).join(', ')}.
-              </p>
+      {/* ══ REPORT SECTIONS ══════════════════════════════════════════
+            * Same visual language as the cards above: one <Section> card,
+            * one 12-column row rhythm, chips + bars, one empty state.
+            * Order = how a owner reads the store: score → conversion →
+            * customers → marketing → product depth → retention → quality →
+            * build-your-own. */}
+          <div className="an-grid">
+
+            {/* ── 1 · scorecard vs industry ─────────────────────────────── */}
+            {bench?.kpis && (
+              <Section
+                className="an-c12"
+                title="You vs industry benchmarks"
+                subtitle={`${rangeLabel} · where the store sits against typical fashion e-commerce`}
+              >
+                {[
+                  { label: 'Conversion rate', value: +(bench.kpis.conversion || 0).toFixed(1), lo: 1.5, hi: 2.5 },
+                  { label: 'Repeat purchase rate', value: adv?.repeatRate ?? a?.repeatRate ?? 0, lo: 15, hi: 25 },
+                  {
+                    label: 'Refund rate',
+                    value: bench.kpis.orders
+                      ? +(((adv?.quality || a?.quality || []).reduce((s, q) => s + q.returns, 0) / bench.kpis.orders) * 100).toFixed(1)
+                      : 0,
+                    lo: 0, hi: 5, lower: true,
+                  },
+                ].map((m) => {
+                  const good = m.lower ? m.value <= m.hi : m.value >= m.lo;
+                  const note = m.lower
+                    ? (good ? 'healthy' : 'above target — check quality')
+                    : (m.value < m.lo ? 'below benchmark' : m.value > m.hi * 1.6 ? 'above benchmark' : 'in range');
+                  return (
+                    <BenchRow key={m.label} label={m.label} value={m.value} lo={m.lo} hi={m.hi} note={note} good={good} />
+                  );
+                })}
+              </Section>
             )}
-            <div className="od-table-wrap">
-              <table className="od-tbl" style={{ minWidth: 640 }}>
-                <thead><tr><th style={th}>#</th><th style={th}>Product</th><th style={th}>Views</th><th style={th}>Conv.</th><th style={th}>Orders</th><th style={th}>Revenue</th><th style={th}>Returns</th></tr></thead>
-                <tbody>
-                  {a.productIntel.map((p, i) => (
-                    <tr key={p.slug}>
-                      <td style={{ ...num, color: 'var(--adm-label)' }}>{i + 1}</td>
-                      <td style={{ ...td, fontWeight: 600, maxWidth: 260, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</td>
-                      <td style={num}>{p.views.toLocaleString()}</td>
-                      <td style={num}>
-                        {p.conv === null ? '—' : (
-                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                            <span className="od-bar-track" style={{ width: 44 }}><span className="od-bar-fill" style={{ width: `${Math.min(100, p.conv * 10)}%`, display: 'block' }} /></span>
-                            {p.conv}%
-                          </span>
-                        )}
-                      </td>
-                      <td style={num}>{p.orders}</td>
-                      <td style={num}>{pkr(p.revenue)}</td>
-                      <td style={num}>{p.returns > 0 ? <span className="od-b od-b-red"><span className="dot" />{p.returns}</span> : <span style={{ color: 'var(--adm-label)' }}>0</span>}</td>
-                    </tr>
-                  ))}
-                  {a.productIntel.length === 0 && <tr><td colSpan={7} style={{ ...td, textAlign: 'center', color: 'var(--adm-label)', padding: 24 }}>No traffic or sales in this range yet.</td></tr>}
-                </tbody>
-              </table>
-            </div>
-          </section>
 
-          {/* R2 — marketing ROI */}
-          <div className="od-charts" style={{ marginBottom: 12 }}>
-            <section className="od-card">
-              <div className="od-card-h" style={{ marginBottom: 4 }}><p className="od-card-t">R2a — Coupon ROI</p></div>
-              <div className="od-table-wrap">
-                <table className="od-tbl" style={{ minWidth: 420 }}>
-                  <thead><tr><th style={th}>Code</th><th style={th}>Uses</th><th style={th}>Revenue</th><th style={th}>Cost</th></tr></thead>
-                  <tbody>
-                    {a.coupons.map((c) => (
-                      <tr key={c.code}>
-                        <td style={{ ...td, fontWeight: 700, fontFamily: 'monospace', fontSize: 11 }}>{c.code}</td>
-                        <td style={num}>{c.uses}</td>
-                        <td style={num}>{pkr(c.revenue)}</td>
-                        <td style={{ ...num, color: c.cost > c.revenue * 0.3 ? '#ef4444' : 'var(--adm-label)' }}>−{pkr(c.cost)}</td>
-                      </tr>
-                    ))}
-                    {a.coupons.length === 0 && <tr><td colSpan={4} style={{ ...td, textAlign: 'center', color: 'var(--adm-label)', padding: 24 }}>No coupon usage in this range.</td></tr>}
-                  </tbody>
-                </table>
-              </div>
-            </section>
-
-            <section className="od-card">
-              <div className="od-card-h" style={{ marginBottom: 8 }}><p className="od-card-t">R2b — Cart recovery ROI</p></div>
-              <div className="od-stats" style={{ gridTemplateColumns: 'repeat(3,1fr)', marginBottom: 8 }}>
-                <div className="od-stat"><div className="od-stat-head">Captured</div><div className="od-stat-val">{a.recovery.captured}</div></div>
-                <div className="od-stat"><div className="od-stat-head">Recovered</div><div className="od-stat-val">{a.recovery.recovered}</div></div>
-                <div className="od-stat"><div className="od-stat-head">Rate</div><div className="od-stat-val">{a.recovery.rate}%</div></div>
-              </div>
-              <p className="od-bar-val">Recovered revenue: <b style={{ color: 'var(--od-text)' }}>{pkr(a.recovery.revenue)}</b> — recovery emails are doing {a.recovery.rate >= 10 ? 'great' : a.recovery.rate >= 5 ? 'okay' : 'weak'} work this period.</p>
-            </section>
-          </div>
-
-          {/* R3 + R4 */}
-          <div className="od-charts">
-            <section className="od-card">
-              <div className="od-card-h" style={{ marginBottom: 4 }}>
-                <p className="od-card-t">R3 — Customer value</p>
-                <span className="od-bar-val">repeat rate {a.repeatRate}% · {a.totalCustomers} buyers</span>
-              </div>
-              <div className="od-table-wrap">
-                <table className="od-tbl" style={{ minWidth: 420 }}>
-                  <thead><tr><th style={th}>#</th><th style={th}>Customer</th><th style={th}>Orders</th><th style={th}>Lifetime spend</th></tr></thead>
-                  <tbody>
-                    {a.topCustomers.map((c, i) => (
-                      <tr key={c.name + i}>
-                        <td style={{ ...num, color: 'var(--adm-label)' }}>{i + 1}</td>
-                        <td style={{ ...td, fontWeight: 600 }}>{c.name} {c.orders > 1 && <span className="od-b od-b-green"><span className="dot" />repeat</span>}</td>
-                        <td style={num}>{c.orders}</td>
-                        <td style={num}>{pkr(c.revenue)}</td>
-                      </tr>
-                    ))}
-                    {a.topCustomers.length === 0 && <tr><td colSpan={4} style={{ ...td, textAlign: 'center', color: 'var(--adm-label)', padding: 24 }}>No customers in this range yet.</td></tr>}
-                  </tbody>
-                </table>
-              </div>
-            </section>
-
-            <section className="od-card">
-              <div className="od-card-h" style={{ marginBottom: 8 }}><p className="od-card-t">R4 — Quality radar (returns)</p></div>
-              {a.quality.length === 0 && (
-                <p className="od-bar-val" style={{ padding: '12px 0' }}>Zero returns this period — quality is holding.</p>
-              )}
-              {a.quality.map((q) => (
-                <div key={q.name} className="od-bar-row">
-                  <div className="od-bar-meta">
-                    <span className="od-bar-label">{q.name}</span>
-                    <span className="od-bar-val" style={{ color: '#ef4444' }}>{q.returns} return{q.returns === 1 ? '' : 's'}</span>
+            {/* ── 2 · product conversion ────────────────────────────────── */}
+            {a && (
+              <Section
+                className="an-c12"
+                delay={60}
+                title="Product conversion"
+                subtitle={`Views → orders, ${rangeLabel.toLowerCase()}`}
+                actions={burners.length > 0 ? <Chip tone="warn">{burners.length} burning traffic</Chip> : null}
+              >
+                {burners.length > 0 && (
+                  <div className="an-callout">
+                    <AlertTriangle size={14} />
+                    <span>
+                      <b>{burners.length} product{burners.length === 1 ? '' : 's'}</b> pulling traffic but converting under 1% —
+                      check price, photos or stock: {burners.slice(0, 3).map((b) => b.name).join(', ')}.
+                    </span>
                   </div>
-                  <div className="od-bar-track"><div className="od-bar-fill" style={{ width: `${Math.min(100, q.returns * 20)}%`, background: '#ef4444' }} /></div>
-                </div>
-              ))}
-            </section>
-          </div>
-        </>
-      )}
-
-      {adv && (
-        <>
-          {/* R0 — benchmarks vs industry */}
-          {bench?.kpis && (
-            <section className="od-card" style={{ marginBottom: 12 }}>
-              <div className="od-card-h" style={{ marginBottom: 8 }}><p className="od-card-t">R0 — You vs industry benchmarks</p></div>
-              {[
-                ['Conversion rate', bench.kpis.conversion, 1.5, 2.5, '%'],
-                ['Repeat purchase rate', adv.repeatRate ?? 0, 15, 25, '%'],
-                ['Refund rate', bench.kpis.orders ? +(((adv?.quality || []).reduce((a, q) => a + q.returns, 0)) / bench.kpis.orders * 100).toFixed(1) : 0, 0, 5, '%', true],
-              ].map(([label, val, lo, hi, unit, lower]) => {
-                const v = Number(val) || 0;
-                const good = lower ? v <= hi : v >= lo && v <= hi * 1.6;
-                const note = lower ? (v <= hi ? 'healthy' : 'above target — check quality') : v < lo ? 'below benchmark' : v > hi ? 'above benchmark' : 'in range';
-                return (
-                  <div key={label} className="od-bar-row">
-                    <div className="od-bar-meta">
-                      <span className="od-bar-label">{label}: <b>{v}{unit}</b> <span style={{ color: good ? '#10b981' : '#f59e0b' }}>({note})</span></span>
-                      <span className="od-bar-val">industry {lo}–{hi}{unit}</span>
-                    </div>
-                    <div className="od-bar-track"><div className="od-bar-fill" style={{ width: `${Math.min(100, (v / (hi || 1)) * 50)}%`, background: good ? '#10b981' : '#f59e0b' }} /></div>
-                  </div>
-                );
-              })}
-            </section>
-          )}
-
-          {/* R5 — cohorts */}
-          <section className="od-card" style={{ marginBottom: 12 }}>
-            <div className="od-card-h" style={{ marginBottom: 4 }}><p className="od-card-t">R5 — Cohort retention (repeat % by month)</p></div>
-            <div className="od-table-wrap">
-              <table className="od-tbl" style={{ minWidth: 560 }}>
-                <thead><tr><th style={th}>Cohort</th><th style={th}>Buyers</th>{[1,2,3,4,5,6].map((m) => <th key={m} style={th}>M{m}</th>)}</tr></thead>
-                <tbody>
-                  {adv.cohorts.map((c) => (
-                    <tr key={c.cohort}>
-                      <td style={{ ...td, fontWeight: 700 }}>{c.cohort}</td>
-                      <td style={num}>{c.customers}</td>
-                      {c.rates.map((r, i) => (
-                        <td key={i} style={{ ...num, color: r >= 25 ? '#10b981' : r >= 10 ? 'var(--admin-text)' : 'var(--adm-label)', fontWeight: r >= 25 ? 700 : 400 }}>{r}%</td>
+                )}
+                {a.productIntel.length === 0 ? (
+                  <EmptyState title="No traffic or sales in this range" body="Product views and orders will show up here as soon as the store gets traffic." />
+                ) : (
+                  <>
+                    <HeadRow
+                      label="Product"
+                      cols={PRODUCT_COLS}
+                    />
+                    <div className="an-list">
+                      {a.productIntel.map((p, i) => (
+                        <Row
+                          key={p.slug || p.name + i}
+                          rank={i + 1}
+                          top={i < 3}
+                          title={p.name}
+                          sub={p.returns > 0 ? `${p.returns} returned` : `${p.views.toLocaleString()} views`}
+                        >
+                          <Metric span={1} hide="md" value={p.views.toLocaleString()} mute />
+                          <Metric span={2} align="c" chip={<ConvChip v={p.conv} max={maxConv} />} />
+                          <Metric span={1} hide="sm" value={p.orders} big={p.orders > 0} mute={p.orders === 0} />
+                          <Metric span={3} value={pkr(p.revenue)} money big bar={p.revenue ? (p.revenue / maxRev) * 100 : 0} barTone="teal" />
+                          <Metric
+                            span={1}
+                            align="c"
+                            hide="md"
+                            chip={p.returns > 0 ? <Chip tone="bad">{p.returns}</Chip> : <Chip tone="plain">0</Chip>}
+                          />
+                        </Row>
                       ))}
-                    </tr>
-                  ))}
-                  {adv.cohorts.length === 0 && <tr><td colSpan={8} style={{ ...td, textAlign: 'center', color: 'var(--adm-label)', padding: 24 }}>Not enough history yet — cohorts build as customers repeat.</td></tr>}
-                </tbody>
-              </table>
-            </div>
-          </section>
+                    </div>
+                  </>
+                )}
+              </Section>
+            )}
 
-          {/* R6 + R7 */}
-          <div className="od-charts" style={{ marginBottom: 12 }}>
-            <section className="od-card">
-              <div className="od-card-h" style={{ marginBottom: 4 }}><p className="od-card-t">R6 — At-risk customers (60+ days silent)</p></div>
-              {adv.atRisk.length === 0 && <p className="od-bar-val" style={{ padding: 12 }}>No repeat buyers gone quiet — retention is holding.</p>}
-              {adv.atRisk.map((c) => (
-                <div key={c.name + c.phone} className="od-bar-row">
-                  <div className="od-bar-meta">
-                    <span className="od-bar-label">{c.name} <span style={{ color: 'var(--adm-label)' }}>· {c.orders} orders · {c.days}d silent</span></span>
-                    <a className="od-chip" style={{ height: 24, fontSize: 10 }} target="_blank" rel="noreferrer"
-                      href={`https://wa.me/${String(c.phone).replace(/\D/g, '').replace(/^0/, '92')}?text=${encodeURIComponent('Hi ' + c.name + ', we miss you at HUSHAE — here is 10% off your next order: WELCOME10')}`}>
-                      Win back
-                    </a>
+            {/* ── 3 · customer value ────────────────────────────────────── */}
+            {a && (
+              <Section
+                className="an-c7"
+                delay={120}
+                title="Customer value"
+                subtitle={`${a.repeatRate}% repeat rate · ${a.totalCustomers} buyers in range`}
+              >
+                {a.topCustomers.length === 0 ? (
+                  <EmptyState title="No customers in this range" body="Orders placed in this window will rank your buyers by lifetime spend." />
+                ) : (
+                  <>
+                    <HeadRow
+                      label="Customer"
+                      cols={CUSTOMER_COLS}
+                    />
+                    <div className="an-list">
+                      {a.topCustomers.map((c, i) => (
+                        <Row
+                          key={c.name + i}
+                          rank={i + 1}
+                          top={i < 3}
+                          title={c.name}
+                          badge={c.orders > 1 ? <Chip tone="good">repeat</Chip> : null}
+                          sub={c.orders > 1 ? `${c.orders} orders` : 'first order'}
+                        >
+                          <Metric span={2} align="c" chip={<Chip tone={c.orders > 1 ? 'info' : 'plain'}>{c.orders}×</Chip>} />
+                          <Metric
+                            span={6}
+                            value={pkr(c.revenue)}
+                            money
+                            big
+                            bar={(c.revenue / (a.topCustomers[0]?.revenue || 1)) * 100}
+                            barTone="green"
+                          />
+                        </Row>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </Section>
+            )}
+
+            {/* ── 4 · marketing ROI ─────────────────────────────────────── */}
+            {a && (
+              <Section className="an-c5" delay={180} title="Marketing ROI" subtitle="Coupons & cart recovery, same window">
+                <p className="an-sub-h">Cart recovery</p>
+                <StatStrip
+                  items={[
+                    { label: 'Captured', value: a.recovery.captured },
+                    { label: 'Recovered', value: a.recovery.recovered },
+                    { label: 'Rate', value: `${a.recovery.rate}%` },
+                  ]}
+                />
+                <div className="an-hero">
+                  <div className="an-hero-l">Recovered revenue</div>
+                  <div className="an-hero-v">{pkr(a.recovery.revenue)}</div>
+                  <div className="an-hero-s">
+                    Recovery emails are doing {a.recovery.rate >= 10 ? 'great' : a.recovery.rate >= 5 ? 'okay' : 'weak'} work this period.
                   </div>
                 </div>
-              ))}
-            </section>
-            <section className="od-card">
-              <div className="od-card-h" style={{ marginBottom: 4 }}><p className="od-card-t">R7 — Variant performance</p></div>
-              <div className="od-table-wrap">
-                <table className="od-tbl" style={{ minWidth: 380 }}>
-                  <thead><tr><th style={th}>Variant</th><th style={th}>Qty</th><th style={th}>Revenue</th></tr></thead>
-                  <tbody>
-                    {adv.variants.map((v) => (
-                      <tr key={v.variant}>
-                        <td style={{ ...td, maxWidth: 220, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{v.variant}</td>
-                        <td style={num}>{v.qty}</td>
-                        <td style={num}>{pkr(v.revenue)}</td>
-                      </tr>
-                    ))}
-                    {adv.variants.length === 0 && <tr><td colSpan={3} style={{ ...td, textAlign: 'center', color: 'var(--adm-label)', padding: 24 }}>No sales in range.</td></tr>}
-                  </tbody>
-                </table>
-              </div>
-            </section>
-          </div>
 
-          {/* R8 — custom report builder */}
-          <section className="od-card">
-            <div className="od-card-h" style={{ marginBottom: 8 }}>
-              <p className="od-card-t">R8 — Custom report</p>
-              <span style={{ display: 'flex', gap: 6 }}>
-                <select className="adm-chip" style={{ height: 30 }} value={dim} onChange={(e) => setDim(e.target.value)} aria-label="Dimension">
-                  {['category', 'product', 'city', 'payment', 'coupon'].map((d) => <option key={d} value={d}>{d}</option>)}
-                </select>
-                <select className="adm-chip" style={{ height: 30 }} value={metric} onChange={(e) => setMetric(e.target.value)} aria-label="Metric">
-                  <option value="revenue">revenue</option>
-                  <option value="orders">orders</option>
-                </select>
-              </span>
-            </div>
-            <div className="od-table-wrap">
-              <table className="od-tbl" style={{ minWidth: 380 }}>
-                <thead><tr><th style={th}>{dim}</th><th style={th}>Orders</th><th style={th}>Revenue</th></tr></thead>
-                <tbody>
-                  {adv.custom.map((r) => (
-                    <tr key={r.name}>
-                      <td style={{ ...td, fontWeight: 600 }}>{r.name}</td>
-                      <td style={num}>{r.orders}</td>
-                      <td style={num}>{pkr(r.revenue)}</td>
-                    </tr>
-                  ))}
-                  {adv.custom.length === 0 && <tr><td colSpan={3} style={{ ...td, textAlign: 'center', color: 'var(--adm-label)', padding: 24 }}>No data for this combination.</td></tr>}
-                </tbody>
-              </table>
-            </div>
-          </section>
-        </>
-      )}
+                <p className="an-sub-h" style={{ marginTop: 16 }}>Coupons</p>
+                {a.coupons.length === 0 ? (
+                  <EmptyState
+                    icon={<Ticket size={15} />}
+                    title="No coupon usage in this range"
+                    body="Discount codes used at checkout will show their revenue against cost here."
+                  />
+                ) : (
+                  <>
+                    <HeadRow label="Code" cols={COUPON_COLS} />
+                    <div className="an-list">
+                      {a.coupons.map((c) => (
+                        <Row key={c.code} title={c.code} badge={<Chip mono>{c.code}</Chip>} sub={c.uses > 1 ? `${c.uses} redemptions` : '1 redemption'}>
+                          <Metric span={2} align="c" value={c.uses} />
+                          <Metric span={3} value={pkr(c.revenue)} money />
+                          <Metric span={3} value={`−${pkr(c.cost)}`} mute />
+                        </Row>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </Section>
+            )}
+
+            {/* ── 5 · variant depth ─────────────────────────────────────── */}
+            {adv?.variants?.length > 0 && (
+              <Section
+                className="an-c12"
+                delay={240}
+                title="Top variants"
+                subtitle={`Size / colour selling best · ${rangeLabel.toLowerCase()}`}
+                actions={<Chip tone="plain">{adv.variants.length} variants</Chip>}
+              >
+                <HeadRow label="Variant" cols={VARIANT_COLS} />
+                <div className="an-list scroll">
+                  {adv.variants.map((v, i) => {
+                    const [name, opt] = String(v.variant).split(' · ');
+                    return (
+                      <Row key={v.variant} rank={i + 1} top={i < 3} title={name || v.variant} sub={opt || 'default variant'}>
+                        <Metric span={2} align="c" value={v.qty} big={v.qty >= 10} bar={(v.qty / maxQty) * 100} barTone="blue" />
+                        <Metric span={6} value={pkr(v.revenue)} money big bar={(v.revenue / maxVarRev) * 100} barTone="teal" />
+                      </Row>
+                    );
+                  })}
+                </div>
+              </Section>
+            )}
+
+            {/* ── 6 · retention ─────────────────────────────────────────── */}
+            {adv && (
+              <Section className="an-c7" delay={300} title="Cohort retention" subtitle="Repeat purchase % by month after first order">
+                {adv.cohorts.length === 0 ? (
+                  <EmptyState title="Not enough history yet" body="Cohorts build automatically as customers place a second order." />
+                ) : (
+                  <CohortGrid rows={adv.cohorts} />
+                )}
+              </Section>
+            )}
+
+            {/* ── 7 · win-back list ─────────────────────────────────────── */}
+            {adv && (
+              <Section className="an-c5" delay={360} title="Win-back list" subtitle="Repeat buyers silent for 60+ days">
+                {adv.atRisk.length === 0 ? (
+                  <EmptyState
+                    icon={<HeartHandshake size={15} />}
+                    title="Nobody gone quiet"
+                    body="No repeat buyer has crossed 60 silent days — retention is holding."
+                  />
+                ) : (
+                  <>
+                    <HeadRow label="Customer" cols={WINBACK_COLS} />
+                    <div className="an-list">
+                    {adv.atRisk.map((c) => (
+                      <Row key={c.name + c.phone} title={c.name} sub={`${c.orders} orders · ${c.days} days silent`}>
+                        <Metric span={2} align="c" chip={<Chip tone={c.days > 120 ? 'bad' : 'warn'}>{c.days}d</Chip>} />
+                        <Metric
+                          span={6}
+                          align="r"
+                          chip={
+                            <a
+                              className="an-chip act"
+                              target="_blank"
+                              rel="noreferrer"
+                              href={`https://wa.me/${String(c.phone).replace(/\D/g, '').replace(/^0/, '92')}?text=${encodeURIComponent(
+                                `Hi ${c.name}, we miss you at HUSHAE — here is 10% off your next order: WELCOME10`,
+                              )}`}
+                            >
+                              <MessageCircle size={11} /> Win back
+                            </a>
+                          }
+                        />
+                      </Row>
+                    ))}
+                    </div>
+                  </>
+                )}
+              </Section>
+            )}
+
+            {/* ── 8 · quality ───────────────────────────────────────────── */}
+            {a && (
+              <Section className="an-c4" delay={420} title="Product quality" subtitle="Returns by product, this window">
+                {a.quality.length === 0 ? (
+                  <EmptyState
+                    icon={<ShieldCheck size={15} />}
+                    title="Zero returns this period"
+                    body="Quality is holding — nothing came back in this range."
+                  />
+                ) : (
+                  <>
+                    <HeadRow label="Product" cols={QUALITY_COLS} />
+                    <div className="an-list">
+                    {a.quality.map((q) => (
+                      <Row key={q.name} title={q.name} sub={`${q.returns} returned`}>
+                        <Metric span={4} align="c" chip={<Chip tone="bad">{q.returns} return{q.returns === 1 ? '' : 's'}</Chip>} />
+                        <Metric span={4} bar={Math.min(100, q.returns * 20)} barTone="red" />
+                      </Row>
+                    ))}
+                    </div>
+                  </>
+                )}
+              </Section>
+            )}
+
+            {/* ── 9 · build-your-own report ─────────────────────────────── */}
+            {adv && (
+              <Section
+                className="an-c8"
+                delay={480}
+                title="Build your own report"
+                subtitle="Any dimension, either metric — totals update with the range"
+                actions={
+                  <>
+                    <Pills
+                      ariaLabel="Dimension"
+                      value={dim}
+                      onChange={setDim}
+                      options={['category', 'product', 'city', 'payment', 'coupon'].map((d) => ({ v: d, label: d }))}
+                    />
+                    <Pills
+                      ariaLabel="Metric"
+                      value={metric}
+                      onChange={setMetric}
+                      options={[{ v: 'revenue', label: 'revenue' }, { v: 'orders', label: 'orders' }]}
+                    />
+                  </>
+                }
+                footer={
+                  <span>
+                    Total · <b>{totOrders.toLocaleString()}</b> orders · <b>{pkr(totRev)}</b>
+                  </span>
+                }
+              >
+                {adv.custom.length === 0 ? (
+                  <EmptyState title="No data for this combination" body="Try another dimension or a wider date range." />
+                ) : (
+                  <>
+                    <HeadRow
+                      label={dim}
+                      cols={CUSTOM_COLS}
+                    />
+                    <div className="an-list">
+                      {adv.custom.map((r, i) => (
+                        <Row key={r.name} rank={i + 1} top={i === 0} title={r.name}>
+                          <Metric span={2} align="c" value={r.orders} />
+                          <Metric span={3} value={pkr(r.revenue)} money big bar={(r.revenue / (adv.custom[0]?.revenue || 1)) * 100} barTone="teal" />
+                          <Metric
+                            span={3}
+                            hide="md"
+                            chip={<Chip tone="plain">{totRev ? Math.round((r.revenue / totRev) * 100) : 0}%</Chip>}
+                          />
+                        </Row>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </Section>
+            )}
+          </div>
       </div>
     </AdminLayout>
   );
