@@ -148,7 +148,42 @@ router.get('/home', asyncHandler(async (req, res) => {
 // Admin list (must be before /:slug)
 router.get('/admin/list', protect, adminOnly, asyncHandler(async (req, res) => {
   const q = buildQuery(req, { adminView: true });
-  const products = await Product.find(q).sort(SORTS[req.query.sort] || { createdAt: -1 }).limit(300);
+
+  /* Optional text search — name / SKU / category (DB-side; the admin list
+     is paged now so client-side search would only see one page). */
+  const term = String(req.query.q || '').trim();
+  if (term) {
+    const rx = new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+    q.$or = [{ name: rx }, { sku: rx }, { categorySlug: rx }];
+  }
+
+  const sort = SORTS[req.query.sort] || { createdAt: -1 };
+
+  /* Paged mode (?page=): server slice + totals + catalog counts for the
+     saved-view stat cards. No page param = legacy whole list (cap 300). */
+  if (req.query.page) {
+    const per = Math.min(100, Math.max(1, Number(req.query.per) || 20));
+    const page = Math.max(1, Number(req.query.page) || 1);
+    const [total, products, agg] = await Promise.all([
+      Product.countDocuments(q),
+      Product.find(q).sort(sort).skip((page - 1) * per).limit(per).lean(),
+      Product.aggregate([{
+        $group: {
+          _id: null,
+          total: { $sum: 1 },
+          draft: { $sum: { $cond: [{ $eq: ['$status', 'draft'] }, 1, 0] } },
+          archived: { $sum: { $cond: [{ $and: [{ $ne: ['$status', 'draft'] }, { $eq: ['$isActive', false] }] }, 1, 0] } },
+          live: { $sum: { $cond: [{ $and: [{ $ne: ['$status', 'draft'] }, { $ne: ['$isActive', false] }] }, 1, 0] } },
+          low: { $sum: { $cond: [{ $and: [{ $gt: ['$stock', 0] }, { $lte: ['$stock', 5] }] }, 1, 0] } },
+          oos: { $sum: { $cond: [{ $eq: ['$stock', 0] }, 1, 0] } },
+        },
+      }]),
+    ]);
+    const c = agg[0] || { total: 0, draft: 0, archived: 0, live: 0, low: 0, oos: 0 };
+    return res.json({ products, total, page, per, counts: c });
+  }
+
+  const products = await Product.find(q).sort(sort).limit(300);
   res.json({ products });
 }));
 

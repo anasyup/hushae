@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import {
   AlertTriangle, Archive, Copy, Eye, FileUp, LayoutGrid, List, Minus, Package,
@@ -10,6 +10,7 @@ import { fmtDate, pkr } from '../lib/format';
 import AdminLayout from './AdminLayout';
 import Img from '../components/Img';
 import CsvImport from './CsvImport';
+import PaginationBar from './PaginationBar';
 import './products-atelier.css';
 
 /* ===========================================================================
@@ -20,7 +21,7 @@ import './products-atelier.css';
  * duplicate / publish / archive / delete, deep links, mobile cards.
  * ========================================================================== */
 
-const PER_PAGE = 50;
+const PER_PAGE = 50; // legacy cap reference — paging is server-side now
 
 export default function Products() {
   const { auth, toast } = useApp();
@@ -41,18 +42,27 @@ export default function Products() {
     status: searchParams.get('active') === '0' ? 'disabled' : (searchParams.get('status') || ''),
   });
 
+  /* Server-side pagination (reference bar): the catalog can outgrow any
+     client slice, so the DB returns one page + totals + saved-view counts. */
+  const [dq, setDq] = useState(''); // debounced search → server
+  const [page, setPage] = useState(1);
+  const [per, setPer] = useState(20);
+  const [total, setTotal] = useState(0);
+  const [counts, setCounts] = useState(null);
+
   const load = () => {
-    const sp = new URLSearchParams();
+    const sp = new URLSearchParams({ page: String(page), per: String(per) });
     Object.entries(f).forEach(([k, v]) => {
       if (!v) return;
       if (k === 'status' && v === 'disabled') sp.set('active', '0');
       else if (k !== 'q') sp.set(k, v);
     });
+    if (dq) sp.set('q', dq);
     api(`/products/admin/list?${sp}`, { token: auth.token })
-      .then((d) => { setList(d.products); setSelected(new Set()); setErr(''); })
-      .catch(() => { setList([]); setErr('Something prevented the catalog from loading.'); });
+      .then((d) => { setList(d.products); setTotal(d.total || 0); setCounts(d.counts || null); setSelected(new Set()); setErr(''); })
+      .catch(() => { setList([]); setTotal(0); setErr('Something prevented the catalog from loading.'); });
   };
-  useEffect(load, [f.category, f.gender, f.tier, f.stock, f.status]); // eslint-disable-line
+  useEffect(load, [f.category, f.gender, f.tier, f.stock, f.status, page, per, dq]); // eslint-disable-line
   useEffect(() => {
     const s = searchParams.get('active') === '0' ? 'disabled' : (searchParams.get('status') || '');
     setF((x) => (x.status === s ? x : { ...x, status: s }));
@@ -70,37 +80,17 @@ export default function Products() {
 
   useEffect(() => { api('/categories?all=1').then((d) => setCats(d.categories)).catch(() => {}); }, []);
 
-  const filtered = useMemo(() => {
-    if (!Array.isArray(list)) return [];
-    if (!f.q.trim()) return list;
-    const q = f.q.trim().toLowerCase();
-    return list.filter((p) =>
-      p.name?.toLowerCase().includes(q) ||
-      p.sku?.toLowerCase().includes(q) ||
-      p.categorySlug?.toLowerCase().includes(q)
-    );
-  }, [list, f.q]);
+  /* The page IS the server slice — no client filtering. Debounced search
+     and any view change reset to page 1. */
+  useEffect(() => {
+    const t = setTimeout(() => { setDq(f.q); setPage(1); }, 300);
+    return () => clearTimeout(t);
+  }, [f.q]);
+  useEffect(() => { setPage(1); }, [f.gender, f.category, f.tier, f.stock, f.status, per, view]);
 
-  const [page, setPage] = useState(1);
-  useEffect(() => { setPage(1); }, [f.q, f.gender, f.category, f.tier, f.stock, f.status, view]);
-  const pageCount = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
-  const paged = useMemo(() => {
-    const start = (page - 1) * PER_PAGE;
-    return filtered.slice(start, start + PER_PAGE);
-  }, [filtered, page]);
-
-  const summary = useMemo(() => {
-    if (!Array.isArray(list)) return { total: 0, live: 0, draft: 0, archived: 0, oos: 0, low: 0 };
-    let live = 0, draft = 0, archived = 0, oos = 0, low = 0;
-    for (const p of list) {
-      if (p.status === 'draft') draft++;
-      else if (!p.isActive) archived++;
-      else live++;
-      if (p.stock === 0) oos++;
-      else if (p.stock <= 5) low++;
-    }
-    return { total: list.length, live, draft, archived, oos, low };
-  }, [list]);
+  const rows = Array.isArray(list) ? list : [];
+  const pageCount = Math.max(1, Math.ceil(total / per));
+  const summary = counts || { total: 0, live: 0, draft: 0, archived: 0, oos: 0, low: 0 };
 
   /* ── Row actions ─────────────────────────────────────────────────────── */
   const enable = async (p) => {
@@ -140,7 +130,7 @@ export default function Products() {
     });
   };
   const toggleSelAll = () => {
-    const pageIds = paged.map((p) => p._id);
+    const pageIds = rows.map((p) => p._id);
     setSelected((s) => {
       const allOnPage = pageIds.length > 0 && pageIds.every((id) => s.has(id));
       const n = new Set(s);
@@ -188,7 +178,7 @@ export default function Products() {
     { label: 'Out of stock', value: summary.oos, note: { text: 'Reorder', tone: 'pa-note-red' }, onClick: () => setF({ ...f, stock: 'out', status: '' }), active: f.stock === 'out' },
   ];
 
-  const allSelected = paged.length > 0 && paged.every((p) => selected.has(p._id));
+  const allSelected = rows.length > 0 && rows.every((p) => selected.has(p._id));
 
   return (
     <AdminLayout title="Products">
@@ -328,7 +318,7 @@ export default function Products() {
             </div>
           )}
 
-          {!err && list !== null && filtered.length === 0 && (
+          {!err && list !== null && rows.length === 0 && (
             <div className="pa-card pa-state">
               <div className="pa-state-icon"><Package size={18} strokeWidth={1.8} /></div>
               <h3>{hasFilters ? 'No products match' : 'Your catalog is empty'}</h3>
@@ -340,7 +330,7 @@ export default function Products() {
           )}
 
           {/* ── List view: table (≥900px) + mobile cards ──────────────── */}
-          {!err && filtered.length > 0 && view === 'list' && (
+          {!err && rows.length > 0 && view === 'list' && (
             <>
               <div className="pa-card pa-tbl-card">
                 <div className="pa-tbl-scroll">
@@ -360,7 +350,7 @@ export default function Products() {
                       </tr>
                     </thead>
                     <tbody>
-                      {paged.map((p, i) => (
+                      {rows.map((p, i) => (
                         <ProductRow
                           key={p._id}
                           p={p}
@@ -381,7 +371,7 @@ export default function Products() {
               </div>
 
               <div className="pa-mcards">
-                {paged.map((p) => (
+                {rows.map((p) => (
                   <MobileCard
                     key={p._id}
                     p={p}
@@ -398,9 +388,9 @@ export default function Products() {
           )}
 
           {/* ── Grid view ─────────────────────────────────────────────── */}
-          {!err && filtered.length > 0 && view === 'grid' && (
+          {!err && rows.length > 0 && view === 'grid' && (
             <div className="pa-grid">
-              {paged.map((p) => (
+              {rows.map((p) => (
                 <GridCard
                   key={p._id}
                   p={p}
@@ -415,18 +405,15 @@ export default function Products() {
             </div>
           )}
 
-          {/* ── Pagination ────────────────────────────────────────────── */}
-          {filtered.length > 0 && (
-            <div className="pa-card pa-pager">
-              <p className="pa-pager-text">
-                Showing {((page - 1) * PER_PAGE) + 1}–{Math.min(page * PER_PAGE, filtered.length)} of {filtered.length}
-              </p>
-              <div className="pa-pager-btns">
-                <button type="button" className="pa-page-btn" disabled={page <= 1} onClick={() => setPage((x) => x - 1)}>Prev</button>
-                <span className="pa-page-btn on" aria-current="page">{page} / {pageCount}</span>
-                <button type="button" className="pa-page-btn" disabled={page >= pageCount} onClick={() => setPage((x) => x + 1)}>Next</button>
-              </div>
-            </div>
+          {rows.length > 0 && (
+            <PaginationBar
+              page={page}
+              pages={pageCount}
+              total={total}
+              per={per}
+              onPage={setPage}
+              onPer={(v) => { setPer(v); setPage(1); }}
+            />
           )}
 
         </div>

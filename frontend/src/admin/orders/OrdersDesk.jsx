@@ -11,6 +11,8 @@ import { pkr } from '../../lib/format';
 import { useApp } from '../../store/AppContext';
 import { api } from '../../api/client';
 import { useOrderDesk } from './useOrderDesk';
+import PaginationBar from '../PaginationBar';
+import '../products-atelier.css';
 import { GROUPS, ISSUE_TYPES, REFUND_STATES } from './orderConstants';
 import OrderFilters from './OrderFilters';
 import TrackingModal from './TrackingModal';
@@ -21,7 +23,7 @@ import CustomerPanel from './CustomerPanel';
 import { writeErrorWindow, writeLoadingWindow, writePrintWindow } from './printDocument';
 import {
   btnGhost, btnSolid, btnIcon, ctl,
-  EditorialEmpty, EditorialError, EditorialPagination, TableSkeleton,
+  EditorialEmpty, EditorialError, TableSkeleton,
 } from './orderUi';
 
 /* ===========================================================================
@@ -404,10 +406,13 @@ export default function OrdersDesk() {
           )}
 
           <div style={{ marginTop: 10 }}>
-            <EditorialPagination
+            <PaginationBar
               page={data.page}
               pages={data.pages}
+              total={data.total}
+              per={Number(filters.limit) || 50}
               onPage={(pg) => setFilter({ page: String(pg) })}
+              onPer={(v) => setFilter({ limit: String(v) })}
             />
           </div>
         </div>
