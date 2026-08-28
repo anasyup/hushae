@@ -45,7 +45,7 @@ import NotificationBell from './dashboard/NotificationBell';
 
 const ALL_ROLES = ['admin', 'Owner', 'Manager', 'Staff', 'Warehouse', 'Support'];
 
-const ROLE_ACCESS = {
+export const ROLE_ACCESS = {
   orders: ['admin', 'Owner', 'Manager', 'Staff', 'Warehouse', 'Support'],
   products: ['admin', 'Owner', 'Manager', 'Staff', 'Warehouse'],
   customers: ['admin', 'Owner', 'Manager', 'Staff', 'Support'],
@@ -196,7 +196,7 @@ function roleHasAccess(userRole, groupKey) {
   if (!userRole) return false;
   return rolesForGroup(groupKey).includes(userRole);
 }
-function getRoleLabel(role) {
+export function getRoleLabel(role) {
   const map = {
     admin: 'Administrator',
     Owner: 'Owner',

@@ -108,6 +108,7 @@ const SettingsReserved = lazy(() => import('./admin/settings/SettingsReserved'))
 const Inbox = lazy(() => import('./admin/Inbox'));
 const CODRecon = lazy(() => import('./admin/CODRecon'));
 const SettingsTeam = lazy(() => import('./admin/SettingsTeam'));
+const SettingsPermissions = lazy(() => import('./admin/SettingsPermissions'));
 const Transactions = lazy(() => import('./admin/Transactions'));
 const CODHub = lazy(() => import('./admin/CODHub'));
 const SystemStatus = lazy(() => import('./admin/SystemStatus'));
@@ -499,14 +500,13 @@ export default function App() {
           <Route path="/admin/settings/security/sessions" element={<SettingsSecurity />} />
           <Route path="/admin/settings/security/activity" element={<SettingsSecurity />} />
           <Route path="/admin/settings/security/alerts" element={<SettingsSecurity />} />
-          <Route path="/admin/settings/team" element={<SettingsSecurity />} />
-          <Route path="/admin/settings/roles" element={<SettingsSecurity />} />
-          <Route path="/admin/settings/permissions" element={<SettingsSecurity />} />
-          <Route path="/admin/settings/store-access" element={<SettingsSecurity />} />
-          <Route path="/admin/settings/product-access" element={<SettingsSecurity />} />
-          <Route path="/admin/settings/order-access" element={<SettingsSecurity />} />
-          <Route path="/admin/settings/customer-access" element={<SettingsSecurity />} />
-          <Route path="/admin/settings/finance-access" element={<SettingsSecurity />} />
+          {/* team/roles routes (dedup, real SettingsTeam wired above); access + permissions → Roles & Access pane */}
+          <Route path="/admin/settings/permissions" element={<Suspense fallback={<EditorFallback />}><SettingsPermissions /></Suspense>} />
+          <Route path="/admin/settings/store-access" element={<Suspense fallback={<EditorFallback />}><SettingsPermissions /></Suspense>} />
+          <Route path="/admin/settings/product-access" element={<Suspense fallback={<EditorFallback />}><SettingsPermissions /></Suspense>} />
+          <Route path="/admin/settings/order-access" element={<Suspense fallback={<EditorFallback />}><SettingsPermissions /></Suspense>} />
+          <Route path="/admin/settings/customer-access" element={<Suspense fallback={<EditorFallback />}><SettingsPermissions /></Suspense>} />
+          <Route path="/admin/settings/finance-access" element={<Suspense fallback={<EditorFallback />}><SettingsPermissions /></Suspense>} />
           <Route path="/admin/settings/audit-logs" element={<SettingsSecurity />} />
           <Route path="/admin/settings/backup" element={<Backup />} />
           <Route path="/admin/settings/export" element={<Backup />} />
