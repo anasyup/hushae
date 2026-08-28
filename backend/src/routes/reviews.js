@@ -348,12 +348,46 @@ router.get('/admin/stats', protect, adminOnly, asyncHandler(async (req, res) => 
 router.get('/admin', protect, adminOnly, asyncHandler(async (req, res) => {
   const q = {};
   if (req.query.status) q.status = req.query.status;
-  const reviews = await Review.find(q).populate('product', 'name slug images').sort({ createdAt: -1 }).limit(500).lean();
+
+  /* Optional text search — name / title / body. The DB does it now; the
+     list can be long and client-side filtering would only see one page. */
+  const term = String(req.query.q || '').trim();
+  if (term) {
+    const rx = new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+    q.$or = [{ customerName: rx }, { title: rx }, { body: rx }];
+  }
+
+  const sortMap = {
+    newest: { createdAt: -1 },
+    oldest: { createdAt: 1 },
+    highest: { rating: -1, createdAt: -1 },
+    lowest: { rating: 1, createdAt: -1 },
+    helpful: { helpful: -1, createdAt: -1 },
+  };
+  const sort = sortMap[req.query.sort] || sortMap.newest;
+
   const counts = {
     pending:  await Review.countDocuments({ status: 'pending' }),
     approved: await Review.countDocuments({ status: 'approved' }),
     rejected: await Review.countDocuments({ status: 'rejected' }),
   };
+
+  /* Paged mode (?page=): server-side slices so the panel stays fast at any
+     review count. No page param = legacy behaviour (whole tab, cap 500). */
+  if (req.query.page) {
+    const per = Math.min(100, Math.max(1, Number(req.query.per) || 10));
+    const page = Math.max(1, Number(req.query.page) || 1);
+    const total = await Review.countDocuments(q);
+    const reviews = await Review.find(q)
+      .populate('product', 'name slug images')
+      .sort(sort)
+      .skip((page - 1) * per)
+      .limit(per)
+      .lean();
+    return res.json({ reviews, counts, total, page, per });
+  }
+
+  const reviews = await Review.find(q).populate('product', 'name slug images').sort(sort).limit(500).lean();
   res.json({ reviews, counts });
 }));
 

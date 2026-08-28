@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   AlertTriangle, Check, ExternalLink, MessageSquare, Search, Sparkles, Star, Trash2, X,
@@ -35,6 +35,17 @@ function Badge({ tone, children }) {
   return <span className={`pa-badge ${tone}`}><span className="pa-dot" aria-hidden />{children}</span>;
 }
 
+/* Pagination window: 1 … current±1 … last (reference bar behaviour). */
+function pageList(page, pages) {
+  if (pages <= 7) return Array.from({ length: pages }, (_, i) => i + 1);
+  const keep = [1, 2, page - 1, page, page + 1, pages - 1, pages]
+    .filter((p) => p >= 1 && p <= pages);
+  const uniq = [...new Set(keep)].sort((a, b) => a - b);
+  const out = [];
+  uniq.forEach((p, i) => { if (i > 0 && p - uniq[i - 1] > 1) out.push('…'); out.push(p); });
+  return out;
+}
+
 export default function Reviews() {
   const { auth, toast } = useApp();
   const [tab, setTab] = useState('pending');
@@ -47,16 +58,25 @@ export default function Reviews() {
   const [loaded, setLoaded] = useState(false);
   const [err, setErr] = useState('');
   const [q, setQ] = useState('');
+  const [dq, setDq] = useState(''); // debounced search → server-side now
   const [sort, setSort] = useState('newest');
+  const [page, setPage] = useState(1);
+  const [per, setPer] = useState(10);
+  const [total, setTotal] = useState(0);
   const [pulse, setPulse] = useState(null);
   const [seeding, setSeeding] = useState(false);
   const [barsOn, setBarsOn] = useState(false);
 
+  /* Server-side pagination + search + sort: the list stays fast no matter
+     how many reviews the store accumulates — no more 500-row scroll. */
   const load = () => {
     setErr('');
-    api(`/reviews/admin?status=${tab}`, { token: auth?.token })
-      .then((d) => { setRows(d.reviews || []); setCounts(d.counts || {}); setSelected([]); })
-      .catch(() => { setRows([]); setErr('Something prevented the reviews from loading.'); })
+    setLoaded(false);
+    const sp = new URLSearchParams({ status: tab, page: String(page), per: String(per), sort });
+    if (dq) sp.set('q', dq);
+    api(`/reviews/admin?${sp}`, { token: auth?.token })
+      .then((d) => { setRows(d.reviews || []); setCounts(d.counts || {}); setTotal(d.total || 0); setSelected([]); })
+      .catch(() => { setRows([]); setTotal(0); setErr('Something prevented the reviews from loading.'); })
       .finally(() => setLoaded(true));
     api('/reviews/admin/stats', { token: auth?.token }).then(setPulse).catch(() => {});
   };
@@ -94,7 +114,13 @@ export default function Reviews() {
     } catch (e) { toast(e.message || 'Failed'); } finally { setBusy(null); }
   };
 
-  useEffect(() => { if (auth?.token) load(); /* eslint-disable-next-line */ }, [tab, auth?.token]);
+  /* Debounce the search box, reset to page 1 whenever the view changes. */
+  useEffect(() => {
+    const t = setTimeout(() => { setDq(q); setPage(1); }, 300);
+    return () => clearTimeout(t);
+  }, [q]);
+  useEffect(() => { setPage(1); }, [tab, sort, per]);
+  useEffect(() => { if (auth?.token) load(); /* eslint-disable-next-line */ }, [tab, auth?.token, page, per, sort, dq]);
 
   const setStatus = async (id, status) => {
     setBusy(id);
@@ -123,24 +149,9 @@ export default function Reviews() {
     } catch (e) { toast(e.message || 'Failed'); } finally { setBusy(null); }
   };
 
-  const filtered = useMemo(() => {
-    const term = q.trim().toLowerCase();
-    let out = rows;
-    if (term) {
-      out = out.filter((r) =>
-        r.customerName?.toLowerCase().includes(term) ||
-        r.title?.toLowerCase().includes(term) ||
-        r.body?.toLowerCase().includes(term) ||
-        r.product?.name?.toLowerCase().includes(term)
-      );
-    }
-    if (sort === 'oldest') out = [...out].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-    if (sort === 'highest') out = [...out].sort((a, b) => b.rating - a.rating);
-    if (sort === 'lowest') out = [...out].sort((a, b) => a.rating - b.rating);
-    if (sort === 'helpful') out = [...out].sort((a, b) => (b.helpful || 0) - (a.helpful || 0));
-    // 'newest' = API default order
-    return out;
-  }, [rows, q, sort]);
+  /* The page IS the server slice — nothing to filter or sort client-side. */
+  const filtered = rows;
+  const pageCount = Math.max(1, Math.ceil(total / per));
 
   const stats = [
     { id: 'pending', label: 'Pending', note: { text: 'Needs you', tone: 'pa-note-yellow' } },
@@ -370,6 +381,34 @@ export default function Reviews() {
                   </div>
                 );
               })}
+            </div>
+          )}
+
+          {/* ── Pagination (reference bar) ────────────────────────────── */}
+          {!err && loaded && total > 0 && (
+            <div className="pa-card pa-pager">
+              <p className="pa-pager-text">
+                Showing {Math.min((page - 1) * per + 1, total).toLocaleString()} to {Math.min(page * per, total).toLocaleString()} of {total.toLocaleString()} results
+              </p>
+              <div className="pa-pager-btns">
+                <button type="button" className="pa-page-btn" disabled={page <= 1} onClick={() => setPage((p) => p - 1)} aria-label="Previous page">‹</button>
+                {pageList(page, pageCount).map((p, i) => (
+                  p === '…'
+                    ? <span key={`e${i}`} className="pa-ellipsis" aria-hidden>…</span>
+                    : <button key={p} type="button" className={`pa-page-btn ${p === page ? 'on' : ''}`} onClick={() => setPage(p)} aria-current={p === page ? 'page' : undefined}>{p}</button>
+                ))}
+                <button type="button" className="pa-page-btn" disabled={page >= pageCount} onClick={() => setPage((p) => p + 1)} aria-label="Next page">›</button>
+                <select
+                  value={per}
+                  onChange={(e) => { setPer(Number(e.target.value)); setPage(1); }}
+                  aria-label="Results per page"
+                  className="pa-select pa-per-select"
+                >
+                  <option value={10}>10 / page</option>
+                  <option value={20}>20 / page</option>
+                  <option value={50}>50 / page</option>
+                </select>
+              </div>
             </div>
           )}
 

@@ -237,10 +237,12 @@
 .pa-pager { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 14px; }
 .pa-pager-text { font-size: 11px; color: var(--pa-muted); }
 .pa-pager-btns { display: flex; gap: 6px; }
-.pa-page-btn { min-width: 28px; height: 28px; padding: 0 8px; display: grid; place-items: center; border: 1px solid var(--pa-border); background: linear-gradient(180deg,#fff,#fcfcfc); border-radius: 7px; font-family: inherit; font-size: 11px; font-weight: 600; color: var(--pa-muted); cursor: pointer; transition: all .15s; }
+.pa-page-btn { min-width: 28px; height: 28px; padding: 0 8px; display: grid; place-items: center; border: 1px solid var(--pa-border); background: linear-gradient(180deg,#fff,#fcfcfc); border-radius: 10px; font-family: inherit; font-size: 11px; font-weight: 600; color: var(--pa-muted); cursor: pointer; transition: all .15s; }
 .pa-page-btn:hover:not(:disabled) { border-color: #111; color: #111; transform: translateY(-1px); }
-.pa-page-btn.on { background: #111; border-color: #111; color: #fff; }
+.pa-page-btn.on { background: #111; border-color: #111; color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,.16); }
 .pa-page-btn:disabled { opacity: .4; cursor: not-allowed; }
+.pa-ellipsis { min-width: 20px; text-align: center; font-size: 11px; color: var(--pa-muted2); }
+.pa-per-select { height: 28px; margin-left: 6px; }
 
 /* ── Skeleton / empty / error ──────────────────────────────────────────── */
 .pa-skeleton { padding: 16px; }
