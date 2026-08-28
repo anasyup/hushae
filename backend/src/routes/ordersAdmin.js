@@ -436,17 +436,64 @@ router.get('/facets', protect, adminOnly, asyncHandler(async (req, res) => {
      oldest first. Backs the dedicated worklist (was: a passive alert). ────── */
 router.get('/verification-queue', protect, adminOnly, asyncHandler(async (req, res) => {
   const cutoff = new Date(Date.now() - 24 * 3600000);
-  const orders = await Order.find({
+  const q = {
     status: { $nin: ['Cancelled', 'Refunded', 'Delivered'] },
     $or: [
       { paymentState: 'Pending' },
       { paymentState: { $in: [null, ''] }, paymentStatus: 'Pending' },
     ],
     createdAt: { $lte: cutoff },
-  })
+  };
+
+  /* Paged mode (?page=): one slice of the queue + whole-queue aggregates
+     for the stat cards (value/flags/oldest must span the WHOLE queue,
+     not the visible page). No page param = legacy behaviour (cap 200). */
+  const SELECT = 'orderNumber createdAt total status stage paymentMethod paymentState customerInfo.name customerInfo.phone customerInfo.city noAnswer cancelReason';
+
+  if (req.query.page) {
+    const per = Math.min(100, Math.max(1, Number(req.query.per) || 10));
+    const page = Math.max(1, Number(req.query.page) || 1);
+    const [agg, orders] = await Promise.all([
+      Order.aggregate([
+        { $match: q },
+        {
+          $group: {
+            _id: null,
+            total: { $sum: 1 },
+            value: { $sum: { $ifNull: ['$total', 0] } },
+            flagged: { $sum: { $cond: [{ $gte: [{ $ifNull: ['$noAnswer.attempts', 0] }, 3] }, 1, 0] } },
+            oldest: { $min: '$createdAt' },
+          },
+        },
+      ]),
+      Order.find(q)
+        .sort({ createdAt: 1 })
+        .skip((page - 1) * per)
+        .limit(per)
+        .select(SELECT)
+        .lean(),
+    ]);
+
+    const phones = [...new Set(orders.map((o) => String(o.customerInfo?.phone || '').replace(/\D/g, '').slice(-10)).filter(Boolean))];
+    let rel = new Map();
+    if (phones.length) {
+      const hist = await Order.find({ 'customerInfo.phone': { $regex: new RegExp(`(${phones.join('|')})$`) } })
+        .select('customerInfo.phone status customerService').lean();
+      rel = reliabilityMap(hist);
+    }
+    const enriched = orders.map((o) => ({
+      ...o,
+      reliability: rel.get(String(o.customerInfo?.phone || '').replace(/\D/g, '').slice(-10)) || null,
+    }));
+
+    const a = agg[0] || { total: 0, value: 0, flagged: 0, oldest: null };
+    return res.json({ orders: enriched, count: a.total, total: a.total, page, per, stats: a });
+  }
+
+  const orders = await Order.find(q)
     .sort({ createdAt: 1 })
     .limit(200)
-    .select('orderNumber createdAt total status stage paymentMethod paymentState customerInfo.name customerInfo.phone customerInfo.city noAnswer cancelReason')
+    .select(SELECT)
     .lean();
 
   // Reliability per customer (server-side, keyed by phone).

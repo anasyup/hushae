@@ -11,6 +11,8 @@ import AdminLayout from './AdminLayout';
 import ReliabilityBadge from './ReliabilityBadge';
 import { CANCEL_REASONS } from './orders/orderConstants';
 import styles from './VerificationQueue.module.css';
+import PaginationBar from './PaginationBar';
+import './products-atelier.css';
 
 /* ============================================================================
  * VERIFICATION QUEUE — ATELIER rebuild.
@@ -61,14 +63,17 @@ export default function VerificationQueue() {
   const [cancelFor, setCancelFor] = useState(null);
   const [reason, setReason] = useState('');
   const [otherReason, setOtherReason] = useState('');
+  const [page, setPage] = useState(1);
+  const [per, setPer] = useState(10);
+  const [qstats, setQstats] = useState(null); // whole-queue aggregates (server)
 
   const load = useCallback(() => {
     setRefreshing(true);
-    api('/orders/manage/verification-queue', { token: auth.token })
-      .then((d) => setOrders(d.orders))
+    api(`/orders/manage/verification-queue?page=${page}&per=${per}`, { token: auth.token })
+      .then((d) => { setOrders(d.orders); setQstats(d.stats || null); })
       .catch((e) => { if (e?.status === 401) return; toast('Could not load the queue'); })
       .finally(() => setRefreshing(false));
-  }, [auth.token]); // eslint-disable-line
+  }, [auth.token, page, per]); // eslint-disable-line
 
   useEffect(() => { load(); }, [load]);
 
@@ -79,7 +84,7 @@ export default function VerificationQueue() {
     try {
       await api(`/orders/manage/${id}/verify-action`, { method: 'PATCH', token: auth.token, body: { action, ...extra } });
       toast(action === 'verified' ? 'Marked verified ✓' : action === 'no-answer' ? 'No answer logged' : 'Order cancelled');
-      setOrders((list) => (list || []).filter((o) => o._id !== id));
+      load(); // re-slice from the server so page + whole-queue stats stay true
     } catch (e) { toast(e.message || 'Action failed'); }
     setBusy(false);
     setCancelFor(null); setReason(''); setOtherReason('');
@@ -110,14 +115,23 @@ export default function VerificationQueue() {
     return () => document.removeEventListener('keydown', onKey);
   }, [orders, busy]); // eslint-disable-line
 
-  /* Queue aggregates for the stat cards. */
+  /* Queue aggregates for the stat cards — server-side over the WHOLE queue
+     (not just the visible page); client compute only as a legacy fallback. */
   const stats = useMemo(() => {
+    if (qstats) {
+      return {
+        count: qstats.total || 0,
+        value: qstats.value || 0,
+        flagged: qstats.flagged || 0,
+        oldest: qstats.oldest ? { createdAt: qstats.oldest } : null,
+      };
+    }
     const list = orders || [];
     const value = list.reduce((s, o) => s + Number(o.total || 0), 0);
     const flagged = list.filter((o) => (o.noAnswer?.attempts || 0) >= 3).length;
     const oldest = list[0] || null;
     return { count: list.length, value, flagged, oldest };
-  }, [orders]);
+  }, [orders, qstats]);
 
   const first = orders?.[0];
 
@@ -203,7 +217,7 @@ export default function VerificationQueue() {
               return (
                 <div key={o._id} className={cx('vq-row', idx === 0 && 'first', cancelling && 'open')}>
                   <div className={styles['vq-main']}>
-                    <span className={styles['vq-idx']}>{String(idx + 1).padStart(2, '0')}</span>
+                    <span className={styles['vq-idx']}>{String((page - 1) * per + idx + 1).padStart(2, '0')}</span>
                     <span className={styles.avatar}>{initials(o.customerInfo?.name)}</span>
 
                     <div className={styles['vq-id']}>
@@ -288,6 +302,20 @@ export default function VerificationQueue() {
                 </div>
               );
             })}
+          </div>
+        )}
+
+        {/* ── Pagination (reference bar) ────────────────────────── */}
+        {orders && orders.length > 0 && (
+          <div style={{ marginTop: 10 }}>
+            <PaginationBar
+              page={page}
+              pages={Math.max(1, Math.ceil((qstats?.total || orders.length) / per))}
+              total={qstats?.total || orders.length}
+              per={per}
+              onPage={setPage}
+              onPer={(v) => { setPer(v); setPage(1); }}
+            />
           </div>
         )}
 
