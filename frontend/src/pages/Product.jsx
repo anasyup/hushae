@@ -42,6 +42,7 @@ export default function Product() {
   const { addToCart, inWishlist, toggleWish, pushRecent, recent, settings } = useApp();
 
   const [p, setP] = useState(null);
+  const [metaDefs, setMetaDefs] = useState([]);
   const [err, setErr] = useState(false);
   const [size, setSize] = useState('');
   const [color, setColor] = useState('');
@@ -54,6 +55,10 @@ export default function Product() {
 
   const ctaRef = useRef(null);
   const sizeRef = useRef(null);
+
+  useEffect(() => {
+    api('/settings').then((d) => setMetaDefs(d.settings?.metafields || [])).catch(() => {});
+  }, []);
 
   useEffect(() => {
     setP(null);
@@ -150,6 +155,9 @@ export default function Product() {
       content: (
         <ul className="space-y-2 text-xs text-neutral-600 font-light">
           <li><span className="font-medium text-black">Material:</span> {p.fabric || '95% Lenzing Micro-Modal, 5% Elastane'}</li>
+          {metaDefs.filter((d) => d.showOnPDP !== false && p.meta && p.meta[d.id] !== undefined && p.meta[d.id] !== '' && p.meta[d.id] !== false).map((d) => (
+            <li key={d.id}><span className="font-medium text-black">{d.name}:</span> {d.type === 'boolean' ? 'Yes' : String(p.meta[d.id])}</li>
+          ))}
           <li><span className="font-medium text-black">Fit:</span> Second-skin tailored regular fit — runs true to size</li>
           <li><span className="font-medium text-black">Colorway:</span> {color || 'Classic'}</li>
           <li><span className="font-medium text-black">SKU:</span> {p.sku || p.slug}</li>

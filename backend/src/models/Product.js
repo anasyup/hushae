@@ -12,6 +12,8 @@ const colorSchema = new mongoose.Schema({
 }, { _id: false });
 
 const productSchema = new mongoose.Schema({
+  // Merchant-defined custom fields (values for Settings.metafields definitions)
+  meta: { type: Object, default: {} },
   name: { type: String, required: true, trim: true },
   slug: { type: String, required: true, unique: true, lowercase: true },
   sku: { type: String, required: true, unique: true },

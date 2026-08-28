@@ -55,6 +55,11 @@ export default function ProductForm() {
   const [cats, setCats] = useState([]);
   const [f, setF] = useState(EMPTY);
   const [busy, setBusy] = useState(false);
+  const [defs, setDefs] = useState([]);
+
+  useEffect(() => {
+    api('/settings').then((d) => setDefs(d.settings?.metafields || [])).catch(() => {});
+  }, []);
 
   useEffect(() => { api('/categories?all=1').then((d) => setCats(d.categories)).catch(() => {}); }, []);
   useEffect(() => {
@@ -116,6 +121,7 @@ export default function ProductForm() {
         image: v.image || '', active: v.active !== false,
       })),
     };
+    body.meta = f.meta || {};
     if (!body.category) { toast('Choose a category'); return; }
     setBusy(true);
     try {
@@ -355,6 +361,40 @@ export default function ProductForm() {
             </Field>
           </div>
         </section>
+
+        {defs.length > 0 && (
+          <section>
+            <p className="adm-index">Custom fields</p>
+            <div className="grid gap-5 border-y border-white/10 py-6 md:grid-cols-2">
+              {defs.map((d) => {
+                const val = (f.meta || {})[d.id];
+                const setMeta = (v) => set('meta', { ...(f.meta || {}), [d.id]: v });
+                return (
+                  <Field key={d.id} label={d.name}>
+                    {d.type === 'select' ? (
+                      <select className={ctl} value={val || ''} onChange={(e) => setMeta(e.target.value)}>
+                        <option value="">—</option>
+                        {(d.options || []).map((o) => <option key={o}>{o}</option>)}
+                      </select>
+                    ) : d.type === 'boolean' ? (
+                      <label className="flex min-h-[36px] cursor-pointer items-center gap-2.5 text-[13px] text-white/75">
+                        <input type="checkbox" checked={!!val} onChange={(e) => setMeta(e.target.checked)} className="h-3.5 w-3.5 rounded-none accent-white" />
+                        Yes
+                      </label>
+                    ) : (
+                      <input
+                        className={ctl}
+                        type={d.type === 'number' ? 'number' : 'text'}
+                        value={val ?? ''}
+                        onChange={(e) => setMeta(d.type === 'number' ? (e.target.value === '' ? '' : Number(e.target.value)) : e.target.value)}
+                      />
+                    )}
+                  </Field>
+                );
+              })}
+            </div>
+          </section>
+        )}
 
         <section>
           <p className="adm-index">Publishing</p>

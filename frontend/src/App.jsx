@@ -111,6 +111,7 @@ const SettingsTeam = lazy(() => import('./admin/SettingsTeam'));
 const Transactions = lazy(() => import('./admin/Transactions'));
 const CODHub = lazy(() => import('./admin/CODHub'));
 const SystemStatus = lazy(() => import('./admin/SystemStatus'));
+const SettingsMetafields = lazy(() => import('./admin/SettingsMetafields'));
 const SearchAnalytics = lazy(() => import('./admin/SearchAnalytics'));
 /* Marketing screens: lazy so none of this reaches a shopper's bundle. */
 const Promotions = lazy(() => import('./admin/Promotions'));
@@ -477,6 +478,9 @@ export default function App() {
           <Route path="/admin/settings/roles" element={<Suspense fallback={<EditorFallback />}><SettingsTeam /></Suspense>} />
           <Route path="/admin/settings/system-status" element={<Suspense fallback={<EditorFallback />}><SystemStatus /></Suspense>} />
           <Route path="/admin/settings/error-logs" element={<Suspense fallback={<EditorFallback />}><SystemStatus /></Suspense>} />
+          <Route path="/admin/settings/metafields" element={<Suspense fallback={<EditorFallback />}><SettingsMetafields /></Suspense>} />
+          <Route path="/admin/settings/metaobjects" element={<Suspense fallback={<EditorFallback />}><SettingsMetafields /></Suspense>} />
+          <Route path="/admin/settings/custom-fields" element={<Suspense fallback={<EditorFallback />}><SettingsMetafields /></Suspense>} />
           {/* ── SETTINGS CONSOLE rail destinations ─────────────────────────
               Every item in the settings rail resolves to a route. Where a
               real editor already exists it is reused (one component, several

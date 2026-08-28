@@ -140,6 +140,7 @@ router.put('/', protect, adminOnly, asyncHandler(async (req, res) => {
     'monthlyRevenueGoal', 'marginThresholdPercent', 'automation',
     'includeTestOrders', 'reorderTargetStock',
     'businessAddress', 'currency', 'timezone',
+    'metafields',
     'search', 'discovery',
     'marketing'].forEach((f) => {
     if (b[f] !== undefined) s[f] = b[f];
